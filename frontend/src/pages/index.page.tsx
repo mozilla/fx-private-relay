@@ -31,7 +31,6 @@ import { CarouselContentCards } from "../components/landing/carousel/ContentCard
 import {
   isBundleAvailableInCountry,
   isPeriodicalPremiumAvailableInCountry,
-  isPhonesAvailableInCountry,
 } from "../functions/getPlan";
 import { FaqAccordion } from "../components/landing/FaqAccordion";
 import { getRuntimeConfig } from "../config";
@@ -39,7 +38,6 @@ import { setCookie } from "../functions/cookies";
 import { Reviews } from "../components/landing/Reviews";
 import { PlanMatrix } from "../components/landing/PlanMatrix";
 import { BundleBanner } from "../components/landing/BundleBanner";
-import { PhoneBanner } from "../components/landing/PhoneBanner";
 import { useFlaggedAnchorLinks } from "../hooks/flaggedAnchorLinks";
 import { useL10n } from "../hooks/l10n";
 
@@ -72,35 +70,19 @@ const Home: NextPage = () => {
     setCookie("user-sign-in", "true", { maxAgeInSeconds: 60 * 60 });
   };
 
-  const phoneBannerCta = (
-    <LinkButton
-      href="#pricing"
-      ref={phoneBannerCtaRef}
-      onClick={() =>
-        gaEvent({
-          category: "Sign In",
-          action: "Engage",
-          label: "Landing Page: Phone Banner",
-        })
-      }
-    >
-      {l10n.getString("phone-banner-cta-landing")}
-    </LinkButton>
-  );
-
   return (
     <Layout runtimeData={runtimeData.data}>
       <main>
         <section id="hero" className={styles.hero}>
           <div className={styles.lead}>
-            <h2>{l10n.getString("landing-hero-headline-2")}</h2>
-            <p>{l10n.getString("landing-hero-body-2")}</p>
+            <h2>{l10n.getString("hero-section-title")}</h2>
+            <p>{l10n.getString("hero-section-body")}</p>
             <LinkButton
               ref={heroCtaRef}
               onClick={() => signup()}
               href={getRuntimeConfig().fxaLoginUrl}
             >
-              {l10n.getString("nav-profile-sign-up")}
+              {l10n.getString("hero-section-cta")}
             </LinkButton>
             <Image
               src={Testimonials}
@@ -114,23 +96,15 @@ const Home: NextPage = () => {
             />
           </div>
         </section>
-
         {isBundleAvailableInCountry(runtimeData.data) && (
           <section id="vpn_promo" className={styles["bundle-banner-section"]}>
             <BundleBanner runtimeData={runtimeData.data} />
           </section>
         )}
-
-        {isPhonesAvailableInCountry(runtimeData.data) && (
-          <section id="phone_promo" className={styles["phone-banner-section"]}>
-            <PhoneBanner cta={phoneBannerCta} />
-          </section>
-        )}
-
         <section id="how_it_works" className={styles["how-it-works-wrapper"]}>
           <div className={styles["how-it-works"]}>
             <h2 className={styles.headline}>
-              {l10n.getString("landing-how-it-works-headline")}
+              {l10n.getString("how-it-works-section-title")}
             </h2>
             <p className={styles.lead}>
               {l10n.getString("landing-how-it-works-body-2")}
@@ -138,164 +112,26 @@ const Home: NextPage = () => {
             <ol className={styles.steps}>
               <li className={styles.step}>
                 <Image src={HowItWorks1} alt="" />
-                <h3>{l10n.getString("how-it-works-step-1-headline")}</h3>
-                <p>
-                  <a href="https://addons.mozilla.org/firefox/addon/private-relay/">
-                    {l10n.getString("landing-how-it-works-step-1-body-cta")}
-                  </a>
-                  &nbsp;
-                  {l10n.getString("landing-how-it-works-step-1-body-2")}
-                </p>
+                <h3>
+                  {l10n.getString("how-it-works-section-extension-headline")}
+                </h3>
+                <p>{l10n.getString("how-it-works-section-extension-body")}</p>
               </li>
               <li className={styles.step}>
                 <Image src={HowItWorks2} alt="" />
-                <h3>{l10n.getString("how-it-works-step-2-headline-2")}</h3>
-                <p>{l10n.getString("landing-how-it-works-step-2-body-2")}</p>
+                <h3>
+                  {l10n.getString("how-it-works-section-forward-headline")}
+                </h3>
+                <p>{l10n.getString("how-it-works-section-forward-body")}</p>
               </li>
               <li className={styles.step}>
                 <Image src={HowItWorks3} alt="" />
-                <h3>{l10n.getString("how-it-works-step-3-headline-2")}</h3>
-                <p>{l10n.getString("landing-how-it-works-step-3-body-2")}</p>
+                <h3>
+                  {l10n.getString("how-it-works-section-manage-headline")}
+                </h3>
+                <p>{l10n.getString("how-it-works-section-manage-body")}</p>
               </li>
             </ol>
-          </div>
-        </section>
-        <section id="use-cases" className={styles["use-cases-wrapper"]}>
-          <div className={styles["use-cases"]}>
-            <Carousel
-              title={l10n.getString("landing-use-cases-heading")}
-              tabs={[
-                {
-                  color: "yellow",
-                  heading: l10n.getString("landing-use-cases-shopping"),
-                  content: (
-                    <CarouselContentHero
-                      heroImage={ShoppingHero}
-                      heading={l10n.getString(
-                        "landing-use-cases-shopping-hero-heading"
-                      )}
-                      body={
-                        <>
-                          <p>
-                            {l10n.getString(
-                              "landing-use-cases-shopping-hero-content1"
-                            )}
-                          </p>
-                          <p>
-                            {l10n.getString(
-                              "landing-use-cases-shopping-hero-content2"
-                            )}
-                          </p>
-                        </>
-                      }
-                      textFirst={true}
-                    />
-                  ),
-                  illustration: ShoppingIllustration,
-                  id: "use-cases/shopping",
-                },
-                {
-                  color: "deep-pink",
-                  heading: l10n.getString("landing-use-cases-social-networks"),
-                  content: (
-                    <CarouselContentTextOnly
-                      heading={l10n.getString(
-                        "landing-use-cases-social-networks"
-                      )}
-                      body={l10n.getString(
-                        "landing-use-cases-social-networks-body-2"
-                      )}
-                    />
-                  ),
-                  illustration: SocialNetworksIllustration,
-                  id: "use-cases/social-networks",
-                },
-                {
-                  color: "purple",
-                  heading: l10n.getString("landing-use-cases-on-the-go"),
-                  content: (
-                    <CarouselContentCards
-                      heading={l10n.getString(
-                        "landing-use-cases-on-the-go-heading"
-                      )}
-                      lead={l10n.getString("landing-use-cases-on-the-go-lead")}
-                      cards={[
-                        {
-                          image: OnTheGoConnect,
-                          heading: l10n.getString(
-                            "landing-use-cases-on-the-go-connect-heading"
-                          ),
-                          body: l10n.getString(
-                            "landing-use-cases-on-the-go-connect-body"
-                          ),
-                        },
-                        {
-                          image: OnTheGoReceipt,
-                          heading: l10n.getString(
-                            "landing-use-cases-on-the-go-receipt-heading"
-                          ),
-                          body: l10n.getString(
-                            "landing-use-cases-on-the-go-receipt-body"
-                          ),
-                        },
-                        {
-                          image: OnTheGoPhone,
-                          heading: l10n.getString(
-                            "landing-use-cases-on-the-go-phone-heading"
-                          ),
-                          body: l10n.getString(
-                            "landing-use-cases-on-the-go-phone-body"
-                          ),
-                        },
-                      ]}
-                    />
-                  ),
-                  illustration: OfflineIllustration,
-                  id: "use-cases/offline",
-                },
-                {
-                  color: "pink",
-                  heading: l10n.getString("landing-use-cases-signups"),
-                  content: (
-                    <CarouselContentHero
-                      heroImage={SignupsHero}
-                      heading={l10n.getString(
-                        "landing-use-cases-signups-hero-heading"
-                      )}
-                      body={
-                        <>
-                          <p>
-                            {l10n.getString(
-                              "landing-use-cases-signups-hero-content1"
-                            )}
-                          </p>
-                          <p>
-                            {l10n.getString(
-                              "landing-use-cases-signups-hero-content2"
-                            )}
-                          </p>
-                        </>
-                      }
-                      textFirst={false}
-                    />
-                  ),
-                  illustration: AccessContentIllustration,
-                  id: "use-cases/access-content",
-                },
-                {
-                  color: "orange",
-                  heading: l10n.getString("landing-use-cases-gaming"),
-                  content: (
-                    <CarouselContentTextOnly
-                      heading={l10n.getString("landing-use-cases-gaming")}
-                      body={l10n.getString("landing-use-cases-gaming-body-2")}
-                    />
-                  ),
-                  illustration: GamingIllustration,
-                  id: "use-cases/gaming",
-                },
-              ]}
-            />
           </div>
         </section>
         <div className={styles["page-break"]} />

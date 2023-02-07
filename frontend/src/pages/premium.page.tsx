@@ -34,7 +34,6 @@ import { CarouselContentCards } from "../components/landing/carousel/ContentCard
 import { isFlagActive } from "../functions/waffle";
 import { PlanMatrix } from "../components/landing/PlanMatrix";
 import { BundleBanner } from "../components/landing/BundleBanner";
-import { PhoneBanner } from "../components/landing/PhoneBanner";
 import { useFlaggedAnchorLinks } from "../hooks/flaggedAnchorLinks";
 import { useL10n } from "../hooks/l10n";
 import { Localized } from "../components/Localized";
@@ -120,22 +119,6 @@ const PremiumPromo: NextPage = () => {
     );
   };
 
-  const phoneBannerCta = (
-    <LinkButton
-      href="#pricing"
-      ref={phoneBannerCtaRef}
-      onClick={() =>
-        gaEvent({
-          category: "Sign In",
-          action: "Engage",
-          label: "Interstitial page: Phone Banner",
-        })
-      }
-    >
-      {l10n.getString("phone-banner-cta-user")}
-    </LinkButton>
-  );
-
   return (
     <Layout theme="premium" runtimeData={runtimeData.data}>
       <main>
@@ -158,12 +141,6 @@ const PremiumPromo: NextPage = () => {
         {isBundleAvailableInCountry(runtimeData.data) && (
           <section id="vpn_promo" className={styles["bundle-banner-section"]}>
             <BundleBanner runtimeData={runtimeData.data} />
-          </section>
-        )}
-
-        {isPhonesAvailableInCountry(runtimeData.data) && (
-          <section id="phone_promo" className={styles["phone-banner-section"]}>
-            <PhoneBanner cta={phoneBannerCta} />
           </section>
         )}
 

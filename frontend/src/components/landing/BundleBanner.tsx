@@ -103,20 +103,16 @@ export const BundleBanner = (props: Props) => {
       {isBundleAvailableInCountry(props.runtimeData) && (
         <div className={styles["second-section"]}>
           <div className={styles["bundle-banner-description"]}>
-            <h2>
-              <Localized
-                id={"bundle-banner-header"}
-                elems={{
-                  "vpn-logo": <VpnWordmark />,
-                }}
-              >
-                <span className={styles["headline"]} />
-              </Localized>
-            </h2>
-            <h3>{l10n.getString("bundle-banner-subheader")}</h3>
-            <p>{l10n.getString("bundle-banner-body-v2", { savings: "40%" })}</p>
+            {props.runtimeData && (
+              <h2>
+                {l10n.getString("bundle-banner-header-2", {
+                  monthly_price: getBundlePrice(props.runtimeData, l10n),
+                })}
+              </h2>
+            )}
+            <p>{l10n.getString("bundle-banner-body-3", { savings: "40%" })}</p>
             <p>
-              <strong>{l10n.getString("bundle-banner-plan-header")}</strong>
+              <strong>{l10n.getString("bundle-banner-plan-header-2")}</strong>
             </p>
             <ul className={styles["bundle-banner-value-props"]}>
               <li>
@@ -132,34 +128,7 @@ export const BundleBanner = (props: Props) => {
                 {l10n.getString("bundle-banner-plan-modules-mozilla-vpn")}
               </li>
             </ul>
-            <div className={styles["pricing-logo-wrapper"]}>
-              <div className={styles["pricing-wrapper"]}>
-                <Localized
-                  id={"bundle-price-monthly"}
-                  vars={{
-                    monthly_price: getBundlePrice(props.runtimeData, l10n),
-                  }}
-                  elems={{
-                    "monthly-price": <p className={styles["price"]} />,
-                  }}
-                >
-                  <span />
-                </Localized>
-                <Localized
-                  id={"bundle-banner-savings-headline"}
-                  vars={{
-                    savings: "40%",
-                  }}
-                >
-                  <span />
-                </Localized>
-              </div>
-              <Image
-                className={styles["bundle-logo"]}
-                src={bundleLogo}
-                alt={l10n.getString("bundle-banner-alt")}
-              />
-            </div>
+
             <div className={styles["bottom-section"]}>
               <LinkButton
                 ref={bundleUpgradeCta}
