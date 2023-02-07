@@ -149,11 +149,12 @@
   width: $content-max;
   max-width: 100%;
   margin: 0 auto;
-  padding: $spacing-2xl;
   display: flex;
   gap: $spacing-2xl;
   flex-direction: column-reverse;
   align-items: center;
+  margin-top: $layout-lg;
+  padding: 0 $spacing-md $spacing-md $spacing-md;
 
   &.non-premium-country {
     display: flex;
@@ -168,6 +169,7 @@
     text-align: center;
     max-width: $content-md;
     gap: $spacing-lg;
+    margin-top: $layout-xl;
 
     h2 {
       @include text-title-sm;
@@ -184,6 +186,7 @@
 
   @media screen and #{$mq-xl} {
     flex-direction: row;
+    padding: 0 $spacing-2xl $spacing-2xl $spacing-2xl;
 
     .plan-comparison {
       padding: $spacing-2xl;
@@ -259,4 +262,8 @@
     margin-top: 0;
     max-width: 100%;
   }
+}
+
+.gray-bg {
+  background-color: $color-light-gray-10;
 }

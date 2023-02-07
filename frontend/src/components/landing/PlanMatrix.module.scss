@@ -42,6 +42,22 @@
       display: none;
     }
   }
+
+  .table-wrapper {
+    padding: $layout-md 0;
+  }
+
+  .discount-notice-wrapper {
+    line-height: 100%;
+    text-align: center;
+
+    @include text-body-sm;
+
+    .discount-notice-bolded {
+      font-weight: 800;
+      width: 100%;
+    }
+  }
 }
 
 table.desktop {
@@ -106,6 +122,7 @@ table.desktop {
             // setting `height: 100%` doesn't work in Chrome at the time of writing.
             position: absolute;
             top: 0;
+            left: 0;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -178,11 +195,6 @@ table.desktop {
         min-height: $pricing-toggle-height;
       }
 
-      .discount-notice {
-        @include text-body-md;
-        font-weight: 700;
-      }
-
       .pricing-overview {
         display: flex;
         flex-direction: column;
@@ -211,6 +223,8 @@ table.desktop {
 
         small {
           text-align: center;
+          line-height: 100%;
+          font-size: 0.6rem; // Following design specs
         }
       }
     }
@@ -218,8 +232,6 @@ table.desktop {
 }
 
 .mobile {
-  padding: $spacing-lg;
-
   .plans {
     display: flex;
     flex-wrap: wrap;
@@ -297,12 +309,6 @@ table.desktop {
         gap: $spacing-md;
         width: 100%;
 
-        .discount-notice {
-          @include text-body-md;
-          font-weight: 700;
-          text-align: center;
-        }
-
         .pricing-overview {
           display: flex;
           flex-direction: column;
@@ -313,7 +319,7 @@ table.desktop {
           padding-bottom: $billingMonthlyNoteHeight + $spacing-md;
 
           small {
-            @include text-body-md;
+            @include text-body-sm;
             display: block;
             height: $billingMonthlyNoteHeight;
             line-height: $billingMonthlyNoteHeight;

@@ -8,26 +8,12 @@ import Testimonials from "../../public/images/hero-brands.svg";
 import HowItWorks1 from "../../public/images/how-it-works-1.svg";
 import HowItWorks2 from "../../public/images/how-it-works-2.svg";
 import HowItWorks3 from "../../public/images/how-it-works-3.svg";
-import ShoppingIllustration from "../../public/images/use-case-shopping.svg";
-import SocialNetworksIllustration from "../../public/images/use-case-social-networks.svg";
-import OfflineIllustration from "../../public/images/use-case-offline.svg";
-import AccessContentIllustration from "../../public/images/use-case-access-content.svg";
-import GamingIllustration from "../../public/images/use-case-gaming.svg";
-import ShoppingHero from "../components/landing/carousel/images/shopping-hero.svg";
-import SignupsHero from "../components/landing/carousel/images/signups-hero.svg";
-import OnTheGoConnect from "../components/landing/carousel/images/onthego-illustration-connect.svg";
-import OnTheGoPhone from "../components/landing/carousel/images/onthego-illustration-phone.svg";
-import OnTheGoReceipt from "../components/landing/carousel/images/onthego-illustration-receipts.svg";
 import { useUsers } from "../hooks/api/user";
 import { Layout } from "../components/layout/Layout";
 import { useGaViewPing } from "../hooks/gaViewPing";
 import { LinkButton } from "../components/Button";
 import { DemoPhone } from "../components/landing/DemoPhone";
 import { useRuntimeData } from "../hooks/api/runtimeData";
-import { Carousel } from "../components/landing/carousel/Carousel";
-import { CarouselContentTextOnly } from "../components/landing/carousel/ContentTextOnly";
-import { CarouselContentHero } from "../components/landing/carousel/ContentHero";
-import { CarouselContentCards } from "../components/landing/carousel/ContentCards";
 import {
   isBundleAvailableInCountry,
   isPeriodicalPremiumAvailableInCountry,
@@ -49,10 +35,6 @@ const Home: NextPage = () => {
   const heroCtaRef = useGaViewPing({
     category: "Sign In",
     label: "home-hero-cta",
-  });
-  const phoneBannerCtaRef = useGaViewPing({
-    category: "Sign In",
-    label: "Landing Page: Phone Banner",
   });
 
   useFlaggedAnchorLinks([runtimeData.data]);
@@ -135,12 +117,20 @@ const Home: NextPage = () => {
           </div>
         </section>
         <div className={styles["page-break"]} />
-        <Reviews />
-        <section id="pricing" className={styles["plans-wrapper"]}>
-          <div className={styles.plans}>
-            <PlanMatrix runtimeData={runtimeData.data} />
-          </div>
-        </section>
+        {/* 
+          Enforcing a gray background for now to fix UI errors on
+          mobile for reviews + plans section.
+          Need to wait on design audit to fix white/grey background 
+          discrepanies between pages. 
+        */}
+        <div className={styles["gray-bg"]}>
+          <Reviews />
+          <section id="pricing" className={styles["plans-wrapper"]}>
+            <div className={styles.plans}>
+              <PlanMatrix runtimeData={runtimeData.data} />
+            </div>
+          </section>
+        </div>
         <section id="faq" className={styles["faq-wrapper"]}>
           <div className={styles.faq}>
             <div className={styles.lead}>
