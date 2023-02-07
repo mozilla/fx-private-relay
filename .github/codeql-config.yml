@@ -1,0 +1,6 @@
+paths:
+  - frontend/src
+  - api
+  - emails
+  - phones
+  - privaterelay
