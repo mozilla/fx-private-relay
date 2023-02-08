@@ -132,7 +132,10 @@ const Home: NextPage = () => {
             </div>
           </section>
         </div>
-        <HighlightedFeatures />
+        <section id="highlighted-features" className={styles.features}>
+          <HighlightedFeatures />
+        </section>
+
         <section id="faq" className={styles["faq-wrapper"]}>
           <div className={styles.faq}>
             <div className={styles.lead}>

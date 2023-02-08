@@ -1,4 +1,36 @@
+@import "../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
 .highlighted-feature-wrapper {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+  gap: $spacing-lg;
+  align-content: center;
+  justify-content: space-between;
+
+  @media screen and #{$mq-md} {
+    flex-direction: row-reverse;
+    gap: $spacing-2xl;
+
+    &:nth-child(2) {
+      flex-direction: row;
+    }
+
+    &:nth-child(4) {
+      flex-direction: row;
+    }
+  }
+
+  .highlighted-feature-headline {
+    @include text-body-xl;
+    margin-bottom: $spacing-sm;
+  }
+
+  .highlighted-feature-description {
+    @media screen and #{$mq-md} {
+      flex-direction: row-reverse;
+      max-width: $content-md;
+      align-self: center;
+    }
+  }
 }

@@ -11,10 +11,7 @@ import styles from "./HighlightedFeatures.module.scss";
 type HighlightedItemProps = {
   image: StaticImageData;
   name: string;
-  isNew?: void;
-  hasVariable?: {
-    var: string;
-  };
+  isNew?: boolean;
 };
 
 export const HighlightedFeatures = () => {
