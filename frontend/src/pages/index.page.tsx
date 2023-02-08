@@ -26,6 +26,7 @@ import { PlanMatrix } from "../components/landing/PlanMatrix";
 import { BundleBanner } from "../components/landing/BundleBanner";
 import { useFlaggedAnchorLinks } from "../hooks/flaggedAnchorLinks";
 import { useL10n } from "../hooks/l10n";
+import { HighlightedFeatures } from "../components/landing/HighlightedFeatures";
 
 const Home: NextPage = () => {
   const l10n = useL10n();
@@ -131,6 +132,7 @@ const Home: NextPage = () => {
             </div>
           </section>
         </div>
+        <HighlightedFeatures />
         <section id="faq" className={styles["faq-wrapper"]}>
           <div className={styles.faq}>
             <div className={styles.lead}>
