@@ -25,7 +25,6 @@ import { Carousel } from "../components/landing/carousel/Carousel";
 import { CarouselContentTextOnly } from "../components/landing/carousel/ContentTextOnly";
 import {
   isBundleAvailableInCountry,
-  isPhonesAvailableInCountry,
   isPeriodicalPremiumAvailableInCountry,
 } from "../functions/getPlan";
 import { CarouselContentHero } from "../components/landing/carousel/ContentHero";
@@ -68,11 +67,6 @@ const PremiumPromo: NextPage = () => {
       label: "premium-promo-perk-tracker-blocking-cta",
     }),
   };
-
-  const phoneBannerCtaRef = useGaViewPing({
-    category: "Sign In",
-    label: "Interstitial Page: Phone Banner",
-  });
 
   const cta = isPeriodicalPremiumAvailableInCountry(runtimeData.data) ? (
     <LinkButton

@@ -146,10 +146,14 @@
 }
 
 .features {
-  padding-top: $layout-lg;
+  padding: $spacing-md;
   width: $content-xl;
   max-width: 100%;
   margin: 0 auto;
+
+  @media screen and #{$mq-md} {
+    padding: $layout-lg 0;
+  }
 }
 
 .plans {

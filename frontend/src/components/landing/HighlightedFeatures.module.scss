@@ -3,27 +3,26 @@
 
 .highlighted-feature-wrapper {
   display: flex;
-  flex-direction: column;
-  gap: $spacing-lg;
   align-content: center;
   justify-content: space-between;
+  flex-direction: column-reverse;
+  padding-bottom: $spacing-lg;
 
   @media screen and #{$mq-md} {
     flex-direction: row-reverse;
     gap: $spacing-2xl;
+    padding-bottom: $spacing-sm;
 
-    &:nth-child(2) {
-      flex-direction: row;
-    }
-
-    &:nth-child(4) {
+    &:nth-child(even) {
       flex-direction: row;
     }
   }
 
   .highlighted-feature-headline {
+    @include font-firefox;
     @include text-body-xl;
     margin-bottom: $spacing-sm;
+    line-height: 100%;
   }
 
   .highlighted-feature-description {
@@ -32,5 +31,29 @@
       max-width: $content-md;
       align-self: center;
     }
+  }
+
+  .highlighted-feature-image {
+    padding: $spacing-md;
+    align-self: center;
+  }
+}
+
+.section-title-wrapper {
+  padding: $spacing-lg $spacing-md $spacing-2xl $spacing-md;
+  align-content: center;
+  justify-content: center;
+  text-align: center;
+
+  h2 {
+    @include font-firefox;
+    @include text-title-sm;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .cta {
+    margin: $spacing-xl 0;
+    min-width: $content-xs;
   }
 }

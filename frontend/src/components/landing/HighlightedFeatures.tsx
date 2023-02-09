@@ -7,6 +7,7 @@ import RemoveEmailTrackersImage from "./images/highlighted-features/features-rem
 
 import Image, { StaticImageData } from "next/image";
 import styles from "./HighlightedFeatures.module.scss";
+import { LinkButton } from "../Button";
 
 type HighlightedItemProps = {
   image: StaticImageData;
@@ -52,30 +53,41 @@ export const HighlightedFeatures = () => {
 
   return (
     <div>
-      <HighlightedItem
-        image={CreateUnlimitedEmailMasksImage}
-        name={"unlimited-masks"}
-      />
+      <div className={styles["section-title-wrapper"]}>
+        <h2>{l10n.getString("highlighted-features-section-title")}</h2>
+      </div>
+      <div className={styles["highlighted-items-container"]}>
+        <HighlightedItem
+          image={CreateUnlimitedEmailMasksImage}
+          name={"unlimited-masks"}
+        />
 
-      <HighlightedItem
-        image={CreateMasksOnTheGoImage}
-        name={"masks-on-the-go"}
-      />
+        <HighlightedItem
+          image={CreateMasksOnTheGoImage}
+          name={"masks-on-the-go"}
+        />
 
-      <HighlightedItem
-        image={ReplyToEmailsAnonymouslyImage}
-        name={"replying"}
-      />
+        <HighlightedItem
+          image={ReplyToEmailsAnonymouslyImage}
+          name={"replying"}
+        />
 
-      <HighlightedItem
-        image={BlockPromotionalEmailsImage}
-        name={"block-promotions"}
-      />
+        <HighlightedItem
+          image={BlockPromotionalEmailsImage}
+          name={"block-promotions"}
+        />
 
-      <HighlightedItem
-        image={RemoveEmailTrackersImage}
-        name={"remove-trackers"}
-      />
+        <HighlightedItem
+          image={RemoveEmailTrackersImage}
+          name={"remove-trackers"}
+        />
+      </div>
+      <div className={styles["section-title-wrapper"]}>
+        <h2>{l10n.getString("highlighted-features-section-bottom-title")}</h2>
+        <LinkButton className={styles["cta"]} href="#pricing">
+          {l10n.getString("highlighted-features-section-bottom-cta")}
+        </LinkButton>
+      </div>
     </div>
   );
 };
