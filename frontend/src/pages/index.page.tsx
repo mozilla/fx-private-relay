@@ -1,7 +1,6 @@
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { event as gaEvent } from "react-ga";
 import Image from "next/image";
 import styles from "./index.module.scss";
 import Testimonials from "../../public/images/hero-brands.svg";
@@ -19,8 +18,6 @@ import {
   isPeriodicalPremiumAvailableInCountry,
 } from "../functions/getPlan";
 import { FaqAccordion } from "../components/landing/FaqAccordion";
-import { getRuntimeConfig } from "../config";
-import { setCookie } from "../functions/cookies";
 import { Reviews } from "../components/landing/Reviews";
 import { PlanMatrix } from "../components/landing/PlanMatrix";
 import { BundleBanner } from "../components/landing/BundleBanner";
@@ -44,15 +41,6 @@ const Home: NextPage = () => {
     router.push("/accounts/profile/");
   }
 
-  const signup = () => {
-    gaEvent({
-      category: "Sign In",
-      action: "Engage",
-      label: "home-hero-cta",
-    });
-    setCookie("user-sign-in", "true", { maxAgeInSeconds: 60 * 60 });
-  };
-
   return (
     <Layout runtimeData={runtimeData.data}>
       <main>
@@ -60,11 +48,7 @@ const Home: NextPage = () => {
           <div className={styles.lead}>
             <h2>{l10n.getString("hero-section-title")}</h2>
             <p>{l10n.getString("hero-section-body")}</p>
-            <LinkButton
-              ref={heroCtaRef}
-              onClick={() => signup()}
-              href={getRuntimeConfig().fxaLoginUrl}
-            >
+            <LinkButton ref={heroCtaRef} href={"#pricing"}>
               {l10n.getString("hero-section-cta")}
             </LinkButton>
             <Image
