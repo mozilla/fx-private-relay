@@ -24,11 +24,19 @@ export const HighlightedFeatures = () => {
       mozmail: "mozmail.com",
     };
 
+    const newCallOut = (
+      <span className={styles["new-callout"]}>
+        {l10n.getString("highlighted-features-section-new-item")}
+      </span>
+    );
+
     return (
       <div className={styles["highlighted-feature-wrapper"]}>
         <div className={styles["highlighted-feature-description"]}>
           <>
-            {props.isNew && <div>New!</div>}
+            {props.isNew && (
+              <div className={styles["new-callout-wrapper"]}>{newCallOut}</div>
+            )}
             <h3 className={styles["highlighted-feature-headline"]}>
               {l10n.getString(
                 `highlighted-features-section-${props.name}-headline`
@@ -75,11 +83,13 @@ export const HighlightedFeatures = () => {
         <HighlightedItem
           image={BlockPromotionalEmailsImage}
           name={"block-promotions"}
+          isNew
         />
 
         <HighlightedItem
           image={RemoveEmailTrackersImage}
           name={"remove-trackers"}
+          isNew
         />
       </div>
       <div className={styles["section-title-wrapper"]}>

@@ -18,6 +18,22 @@
     }
   }
 
+  .new-callout-wrapper {
+    margin-bottom: $spacing-md;
+
+    .new-callout {
+      @include text-body-sm;
+      background-color: $color-purple-30;
+      padding: $spacing-xs $spacing-sm;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: $color-white;
+      text-align: center;
+      align-content: center;
+      border-radius: $border-radius-sm;
+    }
+  }
+
   .highlighted-feature-headline {
     @include font-firefox;
     @include text-body-xl;
