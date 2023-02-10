@@ -274,6 +274,10 @@ class RelayNumber(models.Model):
         if settings.TWILIO_TEST_ACCOUNT_SID:
             client = phones_config.twilio_test_client
 
+        # TODO: if IQ_ENABLED, order/buy this number in iQ
+        if settings.IQ_ENABLED:
+            return super().save(*args, **kwargs)
+
         twilio_incoming_number = client.incoming_phone_numbers.create(
             phone_number=self.number,
             sms_application_sid=settings.TWILIO_SMS_APPLICATION_SID,

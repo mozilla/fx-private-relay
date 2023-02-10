@@ -1,9 +1,12 @@
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
+import hashlib
 from typing import Literal, Optional
 import logging
 import re
 import string
+import requests
+from rest_framework.request import Request
 
 from waffle import get_waffle_flag_model
 import django_ftl
@@ -552,6 +555,58 @@ def inbound_sms(request):
 
 @decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.AllowAny])
+def inbound_sms_iq(request: Request) -> response.Response:
+    incr_if_enabled("phones_inbound_sms_iq")
+    _validate_iq_request(request)
+
+    inbound_body = request.data.get("text", None)
+    inbound_from = phonenumbers.format_number(
+        phonenumbers.parse(request.data.get("from", None), "US"),
+        phonenumbers.PhoneNumberFormat.E164,
+    )
+    iq_num = request.data.get("to", [])[0]
+    inbound_to = phonenumbers.format_number(
+        phonenumbers.parse(iq_num, "US"), phonenumbers.PhoneNumberFormat.E164
+    )
+    if inbound_body is None or inbound_from is None or inbound_to is None:
+        raise exceptions.ValidationError("Request missing from, to, or text.")
+
+    relay_number, real_phone = _get_phone_objects(inbound_to)
+    _check_remaining(relay_number, "texts")
+
+    # TODO: handle replies
+
+    number_disabled = _check_disabled(relay_number, "texts")
+    if number_disabled:
+        return response.Response(
+            status=200,
+            template_name="twiml_empty_response.xml",
+        )
+
+    inbound_contact = _get_inbound_contact(relay_number, inbound_from)
+    if inbound_contact:
+        _check_and_update_contact(inbound_contact, "texts", relay_number)
+
+    iq_formatted_real_num = real_phone.number.replace("+", "")
+    text = f"[Relay 📲 {inbound_from}] {inbound_body}"
+    json_body = {"from": iq_num, "to": [iq_formatted_real_num], "text": text}
+    resp = requests.post(
+        "https://messagebroker.inteliquent.com/msgbroker/rest/publishMessages",
+        headers={"Authorization": f"Bearer {settings.IQ_OUTBOUND_API_KEY}"},
+        json=json_body,
+    )
+    if not resp.status_code == 200:
+        raise exceptions.ValidationError("Call data missing Caller or Called.")
+
+    incr_if_enabled("phones_outbound_sms_iq")
+    relay_number.remaining_texts -= 1
+    relay_number.texts_forwarded += 1
+    relay_number.save()
+    return response.Response(status=200)
+
+
+@decorators.api_view(["POST"])
+@decorators.permission_classes([permissions.AllowAny])
 @decorators.renderer_classes([TemplateTwiMLRenderer])
 def inbound_call(request):
     incr_if_enabled("phones_inbound_call")
@@ -1046,3 +1101,23 @@ def _validate_twilio_request(request):
     if not validator.validate(url, sorted_params, request_signature):
         incr_if_enabled("phones_invalid_twilio_signature")
         raise exceptions.ValidationError("Invalid request: invalid signature")
+
+
+def _validate_iq_request(request):
+    if "Verificationtoken" not in request._request.headers:
+        raise exceptions.AuthenticationFailed("missing Verificationtoken header.")
+
+    if "MessageId" not in request._request.headers:
+        raise exceptions.AuthenticationFailed("missing MessageId header.")
+
+    iq_api_key = settings.IQ_INBOUND_API_KEY
+    message_id = request._request.headers["Messageid"]
+    token = request._request.headers["verificationToken"]
+
+    # FIXME: switch to proper hmac when iQ is ready
+    # mac = hmac.new(iq_api_key.encode(), msg=message_id.encode(), digestmod=hashlib.sha256)
+    combined = iq_api_key + message_id
+    mac = hashlib.sha256(combined.encode())
+
+    if mac.hexdigest() != token:
+        raise exceptions.AuthenticationFailed("verficiationToken != computed sha256")
