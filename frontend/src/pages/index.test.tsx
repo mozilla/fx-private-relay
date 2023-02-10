@@ -142,7 +142,7 @@ describe("The landing page", () => {
     render(<Home />);
 
     const vpnFeatureRow = screen.getByRole("rowheader", {
-      name: "[<Localized> with id [plan-matrix-heading-feature-vpn] and vars: {}]",
+      name: "[<Localized> with id [plan-matrix-feature-mobile-vpn] and vars: {}]",
     });
 
     expect(vpnFeatureRow).toBeInTheDocument();
