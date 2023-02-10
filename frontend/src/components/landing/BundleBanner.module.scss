@@ -51,6 +51,7 @@
           position: absolute;
           bottom: 0;
           margin-top: auto;
+          max-height: 450px; // Ensure image does not overlay other sections
         }
       }
     }

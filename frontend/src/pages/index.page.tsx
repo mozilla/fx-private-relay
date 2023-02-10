@@ -48,7 +48,11 @@ const Home: NextPage = () => {
           <div className={styles.lead}>
             <h2>{l10n.getString("hero-section-title")}</h2>
             <p>{l10n.getString("hero-section-body")}</p>
-            <LinkButton ref={heroCtaRef} href={"#pricing"}>
+            <LinkButton
+              ref={heroCtaRef}
+              href={"#pricing"}
+              className={styles.cta}
+            >
               {l10n.getString("hero-section-cta")}
             </LinkButton>
             <Image

@@ -53,6 +53,11 @@
       flex: 1 1 $content-xs;
     }
   }
+
+  .cta {
+    margin: $spacing-xl 0;
+    min-width: $content-xs;
+  }
 }
 
 .how-it-works-wrapper {
