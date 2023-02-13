@@ -13,7 +13,6 @@ import {
   useOverlayTrigger,
   useSlider,
   useSliderThumb,
-  VisuallyHidden,
 } from "react-aria";
 import Link from "next/link";
 import Image from "next/image";
@@ -33,6 +32,7 @@ import UmbrellaOpenMobile from "./images/umbrella-open-mobile.svg";
 import { AliasData } from "../../../hooks/api/aliases";
 import { CloseIcon, LockIcon } from "../../Icons";
 import { useL10n } from "../../../hooks/l10n";
+import { VisuallyHidden } from "../../VisuallyHidden";
 
 export type BlockLevel = "none" | "promotional" | "all";
 export type Props = {

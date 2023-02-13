@@ -67,7 +67,10 @@ class Command(CommandFromDjangoSettings):
         SettingToLocal(
             "PROCESS_EMAIL_DELETE_FAILED_MESSAGES",
             "delete_failed_messages",
-            "If a message fails to process, delete it from the queue, instead of letting SQS resend or move to a dead-letter queue.",
+            (
+                "If a message fails to process, delete it from the queue,"
+                " instead of letting SQS resend or move to a dead-letter queue."
+            ),
             lambda delete_failed_messages: delete_failed_messages in (True, False),
         ),
         SettingToLocal(
@@ -152,7 +155,8 @@ class Command(CommandFromDjangoSettings):
         * cycles: How many polling cycles completed
         * total_s: The total execution time, in seconds with millisecond precision
         * total_messages: The number of messages processed, with and without errors
-        * failed_messages: The number of messages that failed with errors, omitted if none
+        * failed_messages: The number of messages that failed with errors,
+          omitted if none
         * pause_count: The number of 1-second pauses due to temporary errors
         """
         exit_on = "unknown"
@@ -193,7 +197,10 @@ class Command(CommandFromDjangoSettings):
                     logging.INFO
                     if (message_batch or self.verbosity > 1)
                     else logging.DEBUG,
-                    f"Cycle {self.cycles}: processed {self.pluralize(len(message_batch), 'message')}",
+                    (
+                        f"Cycle {self.cycles}: processed"
+                        f" {self.pluralize(len(message_batch), 'message')}"
+                    ),
                     extra=cycle_data,
                 )
 
@@ -221,7 +228,8 @@ class Command(CommandFromDjangoSettings):
         Query SQS queue attributes, store backlog metrics, and emit them as gauge stats
 
         Return is a dict suitable for logging context, with these keys:
-        * queue_load_s: How long, in seconds (millisecond precision) it took to load attributes
+        * queue_load_s: How long, in seconds (millisecond precision) it took to
+          load attributes
         * queue_count: Approximate number of messages in queue
         * queue_count_delayed: Approx. messages not yet ready for receiving
         * queue_count_not_visible: Approx. messages reserved by other receiver
@@ -334,10 +342,12 @@ class Command(CommandFromDjangoSettings):
         * success: True if message was processed successfully
         * error: The processing error, omitted on success
         * message_body_quoted: Set if the message was non-JSON, omitted for valid JSON
-        * pause_count: Set to 1 if paused due to temporary error, or omitted with no error
+        * pause_count: Set to 1 if paused due to temporary error, or omitted
+          with no error
         * pause_s: The pause in seconds (ms precision) for temp error, or omitted
         * pause_error: The temporary error, or omitted if no temp error
-        * client_error_code: The error code for non-temp or retry error, omitted on success
+        * client_error_code: The error code for non-temp or retry error,
+          omitted on success
         """
         incr_if_enabled("process_message_from_sqs", 1)
         results = {"success": True, "sqs_message_id": message.message_id}

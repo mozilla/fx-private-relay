@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { VisuallyHidden } from "react-aria";
 import styles from "./AliasList.module.scss";
 import { AliasData, isRandomAlias } from "../../../hooks/api/aliases";
 import { ProfileData } from "../../../hooks/api/profile";
@@ -14,6 +13,7 @@ import { SearchIcon } from "../../Icons";
 import { useFlaggedAnchorLinks } from "../../../hooks/flaggedAnchorLinks";
 import { useL10n } from "../../../hooks/l10n";
 import { Localized } from "../../Localized";
+import { VisuallyHidden } from "../../VisuallyHidden";
 
 export type Props = {
   aliases: AliasData[];

@@ -20,7 +20,7 @@ class PremiumValidatorsTest(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + free_token.key)
         response = self.client.patch(url, data, format="json")
 
-        assert response.status_code == 403
+        assert response.status_code == 401
         assert free_alias.block_list_emails == False
 
     def test_non_premium_can_clear_block_list_emails(self):

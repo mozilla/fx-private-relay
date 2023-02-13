@@ -288,6 +288,7 @@ def get_fxa_event_jwt(
     client_id: str,
     signing_key: RSAPrivateKey,
     event_data: dict[str, Any],
+    iat_skew: int = 0,
 ) -> str:
     """
     Return valid Firefox Accounts relying party event JWT
@@ -299,7 +300,7 @@ def get_fxa_event_jwt(
         "iss": "https://accounts.firefox.com/",
         "sub": fxa_id,
         "aud": client_id,
-        "iat": int(datetime.utcnow().timestamp()),
+        "iat": int(datetime.utcnow().timestamp()) + iat_skew,
         "jti": str(uuid4()),
         "events": {event_key: event_data},
     }
@@ -331,11 +332,64 @@ def test_fxa_rp_events_password_change(
 
     assert mm.get_records() == []
     assert caplog.record_tuples == [
-        ("eventsinfo", logging.INFO, "fxa_rp_event"),
         ("request.summary", logging.INFO, ""),
     ]
-    assert 0.0 < caplog.records[0].iat_age_s < 2.0
     assert response.status_code == 200
+
+
+def test_fxa_rp_events_password_change_slight_future_iat(
+    client: Client, setup_fxa_rp_events: FxaRpEventsSetupData, caplog
+) -> None:
+    """A password-change event created in the near future is discarded."""
+    setup_fxa_rp_events.mock_responses.reset()  # No profile fetch for password-change
+    event_jwt = get_fxa_event_jwt(
+        "password-change",
+        fxa_id=setup_fxa_rp_events.fxa_acct.uid,
+        client_id=setup_fxa_rp_events.app.client_id,
+        signing_key=setup_fxa_rp_events.key,
+        event_data={"changeTime": int(datetime.utcnow().timestamp()) - 100},
+        iat_skew=3,
+    )
+    auth_header = f"Bearer {event_jwt}"
+
+    with MetricsMock() as mm:
+        response = client.get("/fxa-rp-events", HTTP_AUTHORIZATION=auth_header)
+
+    assert mm.get_records() == []
+    assert caplog.record_tuples == [
+        ("request.summary", logging.INFO, ""),
+    ]
+    assert response.status_code == 200
+
+
+def test_fxa_rp_events_password_change_far_future_iat(
+    client: Client, setup_fxa_rp_events: FxaRpEventsSetupData, caplog
+) -> None:
+    """
+    A password-change event created in the far future fails verification.
+
+    PyJWT 2.6.0 checks this, with leeway of 5 seconds (Issue 2738).
+    """
+    setup_fxa_rp_events.mock_responses.reset()  # No profile fetch for password-change
+    event_jwt = get_fxa_event_jwt(
+        "password-change",
+        fxa_id=setup_fxa_rp_events.fxa_acct.uid,
+        client_id=setup_fxa_rp_events.app.client_id,
+        signing_key=setup_fxa_rp_events.key,
+        event_data={"changeTime": int(datetime.utcnow().timestamp()) - 100},
+        iat_skew=10,
+    )
+    auth_header = f"Bearer {event_jwt}"
+
+    with MetricsMock() as mm, pytest.raises(jwt.ImmatureSignatureError):
+        client.get("/fxa-rp-events", HTTP_AUTHORIZATION=auth_header)
+
+    assert mm.get_records() == []
+    assert caplog.record_tuples == [
+        ("eventsinfo", logging.WARNING, "fxa_rp_event.future_iat"),
+        ("request.summary", logging.ERROR, "The token is not yet valid (iat)"),
+    ]
+    assert -10.0 <= caplog.records[0].iat_age_s < -8.0
 
 
 def test_fxa_rp_events_profile_change(
@@ -357,7 +411,6 @@ def test_fxa_rp_events_profile_change(
 
     assert mm.get_records() == []
     assert caplog.record_tuples == [
-        ("eventsinfo", logging.INFO, "fxa_rp_event"),
         ("eventsinfo", logging.INFO, "fxa_rp_event"),
         ("request.summary", logging.INFO, ""),
     ]
@@ -395,7 +448,6 @@ def test_fxa_rp_events_subscription_change(
     assert mm.get_records() == []
     assert caplog.record_tuples == [
         ("eventsinfo", logging.INFO, "fxa_rp_event"),
-        ("eventsinfo", logging.INFO, "fxa_rp_event"),
         ("request.summary", logging.INFO, ""),
     ]
     assert response.status_code == 200
@@ -419,7 +471,6 @@ def test_fxa_rp_events_delete_user(
         response = client.get("/fxa-rp-events", HTTP_AUTHORIZATION=auth_header)
     assert mm.get_records() == []
     assert caplog.record_tuples == [
-        ("eventsinfo", logging.INFO, "fxa_rp_event"),
         ("eventsinfo", logging.INFO, "fxa_rp_event"),
         ("request.summary", logging.INFO, ""),
     ]

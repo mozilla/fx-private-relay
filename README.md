@@ -226,7 +226,7 @@ you make any changes related to authentication, make sure to test them using
 procedure.
 
 To enable the premium Relay features, we integrate with the [FXA Subscription
-Platform](https://mozilla.github.io/ecosystem-platform/docs/features/sub-plat/sub-plat-overview).
+Platform](https://mozilla.github.io/ecosystem-platform/relying-parties/reference/sub-plat-overview).
 At a high level, to set up Relay premium subscription, we:
 
 1. [Enable Firefox Accounts Authentication](#recommended-enable-firefox-accounts-authentication) as described above.

@@ -69,31 +69,32 @@ export function useApiV1<Data = unknown>(
   route: string | null,
   swrOptions: Partial<SWRConfiguration> = {}
 ): SWRResponse<Data, FetchError> {
+  const onErrorRetry: typeof SWRConfig.defaultValue.onErrorRetry = (
+    error: unknown | FetchError,
+    key,
+    config,
+    revalidate,
+    revalidateOpts
+  ) => {
+    if (error instanceof FetchError && error.response.ok === false) {
+      // When the request got rejected by the back-end, do not retry:
+      return;
+    }
+    // Otherwise, use SWR's default exponential back-off to retry:
+    SWRConfig.defaultValue.onErrorRetry(
+      error,
+      key,
+      config,
+      revalidate,
+      revalidateOpts
+    );
+  };
   // TODO: Also use the sessionId cookie in the key,
   //       to ensure no data is cached from different users?
   //       (This is currently enforced by doing a full page refresh when logging out.)
   const result = useSWR(route, fetcher, {
     revalidateOnFocus: false,
-    onErrorRetry: (
-      error: unknown | FetchError,
-      key,
-      config: Parameters<typeof SWRConfig.defaultValue.onErrorRetry>[2],
-      revalidate,
-      revalidateOpts
-    ) => {
-      if (error instanceof FetchError && error.response.ok === false) {
-        // When the request got rejected by the back-end, do not retry:
-        return;
-      }
-      // Otherwise, use SWR's default exponential back-off to retry:
-      SWRConfig.defaultValue.onErrorRetry(
-        error,
-        key,
-        config,
-        revalidate,
-        revalidateOpts
-      );
-    },
+    onErrorRetry: onErrorRetry,
     ...swrOptions,
   }) as SWRResponse<Data, FetchError>;
   return result;

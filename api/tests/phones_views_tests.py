@@ -86,7 +86,7 @@ def test_phone_get_endpoints_require_auth(endpoint):
     client = APIClient()
     path = f"/api/v1/{endpoint}/"
     response = client.get(path)
-    assert response.status_code == 403
+    assert response.status_code == 401
 
     free_user = baker.make(User)
     client.force_authenticate(free_user)
@@ -619,10 +619,10 @@ def test_vcard_valid_lookup_key(phone_user):
 
 def test_resend_welcome_sms_requires_phone_user():
     client = APIClient()
-    path = "/api/v1/realphone/resend_welcome_sms"
+    path = "/api/v1/realphone/resend_welcome_sms/"
     response = client.post(path)
 
-    assert response.status_code == 403
+    assert response.status_code == 401
 
 
 def test_resend_welcome_sms(phone_user, mocked_twilio_client):
@@ -633,7 +633,7 @@ def test_resend_welcome_sms(phone_user, mocked_twilio_client):
     mocked_twilio_client.reset_mock()
     client = APIClient()
     client.force_authenticate(phone_user)
-    path = "/api/v1/realphone/resend_welcome_sms"
+    path = "/api/v1/realphone/resend_welcome_sms/"
     response = client.post(path)
 
     assert response.status_code == 201
