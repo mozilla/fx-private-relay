@@ -239,7 +239,7 @@ jobs:
             exit $TEST_STATUS
 
       - store_test_results:
-          path: /tmp/workspace/test-results
+          path: /tmp/workspace/test-results/pytest
 
       - persist_to_workspace:
           root: /tmp/workspace
