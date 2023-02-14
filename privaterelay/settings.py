@@ -774,9 +774,9 @@ FXA_SUBSCRIPTIONS_URL = config(
     "FXA_SUBSCRIPTIONS_URL", f"{FXA_BASE_ORIGIN}/subscriptions"
 )
 # check https://mozilla.github.io/ecosystem-platform/api#tag/Subscriptions/operation/getOauthMozillasubscriptionsCustomerBillingandsubscriptions
-FXA_SUBSCRIPTION_ENDPOINT = config(
-    "FXA_SUBSCRIPTION_ENDPOINT",
-    "https://api.accounts.firefox.com/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions",
+FXA_ACCOUNTS_ENDPOINT = config(
+    "FXA_ACCOUNTS_ENDPOINT",
+    "https://api.accounts.firefox.com/v1",
 )
 FXA_SUPPORT_URL = config("FXA_SUPPORT_URL", f"{FXA_BASE_ORIGIN}/support/")
 

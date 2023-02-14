@@ -110,7 +110,10 @@ def get_subscription_data_from_fxa(
 def get_phone_subscription_dates(social_account):
     date_subscribed_phone = start_date = end_date = None
 
-    detailed_subscription_endpoint = settings.FXA_SUBSCRIPTION_ENDPOINT
+    detailed_subscription_endpoint = (
+        settings.FXA_ACCOUNTS_ENDPOINT
+        + "/oauth/mozilla-subscriptions/customer/billing-and-subscriptions"
+    )
     subscription_data = get_subscription_data_from_fxa(
         social_account, detailed_subscription_endpoint
     )
