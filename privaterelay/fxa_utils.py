@@ -10,8 +10,6 @@ from requests_oauthlib import OAuth2Session
 import logging
 import sentry_sdk
 
-from emails.models import Profile
-
 
 logger = logging.getLogger("events")
 
@@ -124,18 +122,23 @@ def get_phone_subscription_dates(social_account):
             social_account, detailed_subscription_endpoint
         )
     if "subscriptions" not in subscription_data.keys():
-        # failed to get subscriptions data which may mean user never had subscription and/or there is data mismatch with FxA
+        # failed to get subscriptions data which may mean user never had subscription
+        # and/or there is data mismatch with FxA
         profile = social_account.user.profile
         profile.date_subscribed_phone = None
         profile.save()
-        # User who was flagged for having phone subscriptions did not actually have phone subscriptions
+        # User who was flagged for having phone subscriptions
+        # did not actually have phone subscriptions
         logger.warning("no_subscription_data")
         return date_subscribed_phone, start_date, end_date
 
     product_w_phone_capabilites = [settings.PHONE_PROD_ID, settings.BUNDLE_PROD_ID]
     phone_subscription_data = None
     for sub in subscription_data.get("subscriptions", []):
-        # If a user upgrade subscription e.g. from monthly to yearly or from phone to VPN bundle will there be both data or replaced
+        # Even if a user upgrade subscription e.g. from monthly to yearly
+        # or from phone to VPN bundle use the last subscription subscription dates
+        # Later, when the subscription details only show one valid subsription
+        # this information can be updated
         if sub.get("product_id") in product_w_phone_capabilites:
             subscription_created_timestamp = sub.get(
                 "created", datetime.now(timezone.utc).timestamp()
