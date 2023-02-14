@@ -14,7 +14,7 @@ django-referrer-policy==1.0
 djangorestframework==3.14.0
 django-waffle==3.0.0
 dockerflow==2022.8.0
-drf-yasg==1.21.4
+drf-yasg==1.21.5
 google-measurement-protocol==1.1.0
 gunicorn==20.1.0
 jwcrypto==1.4.2
@@ -25,12 +25,12 @@ PyJWT==2.6.0
 python-decouple==3.7
 pyOpenSSL==23.0.0
 requests==2.28.2
-sentry-sdk==1.14.0
+sentry-sdk==1.15.0
 whitenoise==6.3.0
 
 # phones app
-phonenumbers==8.13.5
-twilio==7.16.2
+phonenumbers==8.13.6
+twilio==7.16.3
 vobject==0.9.6.1
 
 # tests
