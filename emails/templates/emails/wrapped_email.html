@@ -19,6 +19,12 @@
       src: local('Inter Regular'), local('Inter-Regular'), url(https://relay.firefox.com/fonts/Inter/Inter-Regular.4232a675a077.woff2?v=3.18) format('woff');
     }
 
+    @font-face {
+      font-family: 'inter medium';
+      font-style: bold; 
+      src: local('Inter Medium'), local('Inter-Medium'), url(https://relay.firefox.com/fonts/Inter/Inter-Medium.woff2?v=3.18) format('woff');
+    }
+
     * {
       box-sizing: border-box;
     }
@@ -37,7 +43,7 @@
       color: #0060DF;
       transition: all 0.2s ease;
       text-underline-offset: 2px;
-      font-family: 'inter';
+      font-family: 'inter medium', Arial, sans-serif !important;
     }
 
     a:hover {
