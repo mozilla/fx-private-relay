@@ -159,10 +159,10 @@
         flex-direction: column;
         gap: $spacing-md;
         margin-top: $spacing-md;
-        align-items: flex-start;
+        align-items: center;
 
         @media #{$mq-lg} {
-          align-items: center;
+          align-items: flex-start;
         }
 
         .button {
