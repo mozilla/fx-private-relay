@@ -268,9 +268,9 @@ $toastify-toast-close-button: var(--toast-close-button);
   // the content without preventing the header/mobile menu from overlapping it.
   isolation: isolate;
 
-  @media screen and (min-width: $screen-md) {
-    background-color: $color-light-gray-10;
-  }
+  // @media screen and (min-width: $screen-md) {
+  //   background-color: $color-light-gray-10;
+  // }
 }
 
 .gray-bg {

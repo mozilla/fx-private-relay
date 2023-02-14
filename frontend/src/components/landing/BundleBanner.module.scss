@@ -157,18 +157,16 @@
       .bottom-section {
         display: flex;
         flex-direction: column;
-        gap: $spacing-lg;
-        font-weight: 600;
+        gap: $spacing-md;
         margin-top: $spacing-md;
-        align-items: center;
+        align-items: flex-start;
 
         @media #{$mq-lg} {
-          flex-direction: row;
-          gap: $spacing-md;
-          align-self: flex-start;
+          align-items: center;
         }
 
         .button {
+          font-weight: 600;
           flex: 1 0 auto;
           background: white;
           color: $color-blue-50;

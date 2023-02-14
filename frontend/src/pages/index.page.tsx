@@ -77,9 +77,6 @@ const Home: NextPage = () => {
             <h2 className={styles.headline}>
               {l10n.getString("how-it-works-section-title")}
             </h2>
-            <p className={styles.lead}>
-              {l10n.getString("landing-how-it-works-body-2")}
-            </p>
             <ol className={styles.steps}>
               <li className={styles.step}>
                 <Image src={HowItWorks1} alt="" />

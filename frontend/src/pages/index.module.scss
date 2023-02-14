@@ -62,6 +62,7 @@
 
 .how-it-works-wrapper {
   background-color: $color-white;
+  margin-top: $layout-md;
 }
 
 .how-it-works {
@@ -73,6 +74,8 @@
   h2 {
     @include text-title-sm;
     font-family: $font-stack-firefox;
+    text-align: center;
+    margin-bottom: $layout-sm;
   }
 
   h2,
@@ -109,13 +112,15 @@
     }
 
     h3 {
-      @include font-firefox;
-      @include text-title-2xs;
-      padding-top: $spacing-2xl;
+      @include text-title-3xs;
+      font-family: $font-stack-base;
+      font-weight: 600;
+      padding-top: $spacing-md;
+      line-height: 1.5;
     }
 
     p {
-      padding-top: $spacing-sm;
+      padding: $spacing-md 0;
     }
 
     .step {
@@ -169,8 +174,8 @@
   gap: $spacing-2xl;
   flex-direction: column-reverse;
   align-items: center;
-  margin-top: $layout-lg;
   padding: 0 $spacing-md $spacing-md $spacing-md;
+  margin-top: $layout-xl;
 
   &.non-premium-country {
     display: flex;
