@@ -18,7 +18,7 @@
       font-style: normal;
       src: local('Inter Regular'), local('Inter-Regular'), url(https://relay.firefox.com/fonts/Inter/Inter-Regular.4232a675a077.woff2?v=3.18) format('woff');
     }
-    
+
     * {
       box-sizing: border-box;
     }
@@ -57,9 +57,8 @@
     }
 
     .email-trackers-removed-icon {
-      margin-right: 5px;
-      position: relative;
-      top: 5px;
+      margin-right: 5px; 
+      vertical-align: bottom; 
     }
 
     @media screen and (max-width: 768px) {
@@ -122,7 +121,7 @@
                 </td> 
                 <td class="header-block" width="50%" align="right"> 
                   <p style="margin: 0 30px 0 0; display: inline-block;">
-                    <img class="email-trackers-removed-icon" width="18" src="{{ SITE_ORIGIN }}/static/images/email-images/email-trackers-removed-icon.png" alt="email trackers removed icon"/>   
+                    <img class="email-trackers-removed-icon" width="15" src="{{ SITE_ORIGIN }}/static/images/email-images/email-trackers-removed-icon.png" alt="email trackers removed icon"/>   
                     {% comment %}
                       Create this as a link if we have a report link to show 
                     {% endcomment %}
