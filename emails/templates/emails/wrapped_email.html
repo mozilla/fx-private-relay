@@ -13,77 +13,83 @@
     <meta name="viewport" content="width=device-width"/>
     <title>Firefox Relay</title>
     <style> 
-      @font-face {
-              font-family: 'inter';
-              font-style: normal; 
-              src: local('Inter Regular'), local('Inter-Regular'), url(https://relay.firefox.com/fonts/Inter/Inter-Regular.4232a675a077.woff2?v=3.18) format('woff');
-          }
-      @font-face {
-      font-family: 'inter medium';
-      font-style: bold; 
-      src: local('Inter Medium'), local('Inter-Medium'), url(https://relay.firefox.com/fonts/Inter/Inter-Medium.woff2?v=3.18) format('woff');
-      }
-      * {
+    @font-face {
+      font-family: 'inter';
+      font-style: normal;
+      src: local('Inter Regular'), local('Inter-Regular'), url(https://relay.firefox.com/fonts/Inter/Inter-Regular.4232a675a077.woff2?v=3.18) format('woff');
+    }
+    
+    * {
       box-sizing: border-box;
-      } 
-      body {
-          font-family: 'inter', Arial, sans-serif !important; 
-          color: #3D3D3D;
-      }
-      p {
-        color: #FFFFFF;
-        font-size: 12px; 
-      }
-      .forwarded-by {
-        font-family: 'inter medium';
-      }
-      a { 
-          color: #0060DF;
-          transition: all 0.2s ease;
-          text-underline-offset: 2px;
-          font-family: 'inter medium';
-      }
-      a:hover {
-          color: #20123ad5;
-          transition: all 0.2s ease;
-      }
-      a.container-link {
-        color: #FFFFFF;
-        font-size: 12px; 
-      }
-      a:hover,
-      a:focus,
-      a:active {
-          transition: all 0.2s ease;
-      }
-      @media screen and (max-width: 768px) {
-        .header-block {
-          display: block;
-          width: 100%;
-          text-align: left;
-        }
+    }
 
-        .header-block:nth-child(2) {
-          margin-left: 40px; 
-        }
+    body {
+      font-family: 'inter', Arial, sans-serif !important;
+      color: #3D3D3D;
+    }
 
-        .header-block:nth-child(2) > p {
-          width: 100%;
-          display: block;
-        }
+    p {
+      color: #FFFFFF;
+      font-size: 12px;
+    }
 
-        .footer-block {
-          display: block;
-          width: 100%;
-          text-align: center;
-        }
+    a {
+      color: #0060DF;
+      transition: all 0.2s ease;
+      text-underline-offset: 2px;
+      font-family: 'inter';
+    }
 
-        .footer-block .container-link img {
-          height: 45px;
-          width: auto;
-        }
+    a:hover {
+      color: #20123ad5;
+      transition: all 0.2s ease;
+    }
+
+    a.container-link {
+      color: #FFFFFF;
+      font-size: 12px;
+    }
+
+    a:hover,
+    a:focus,
+    a:active {
+      transition: all 0.2s ease;
+    }
+
+    .email-trackers-removed-icon {
+      margin-right: 5px;
+      position: relative;
+      top: 5px;
+    }
+
+    @media screen and (max-width: 768px) {
+      .header-block {
+        display: block;
+        width: 100%;
+        text-align: left;
       }
-  </style>
+
+      .header-block:nth-child(2) {
+        margin-left: 40px;
+      }
+
+      .header-block:nth-child(2)>p {
+        width: 100%;
+        display: block;
+      }
+
+      .footer-block {
+        display: block;
+        width: 100%;
+        text-align: center;
+      }
+
+      .footer-block .container-link img {
+        height: 45px;
+        width: auto;
+      }
+    }   
+    </style>
   </head>
   <body style="padding: 0; margin: 0;">
 
@@ -116,8 +122,7 @@
                 </td> 
                 <td class="header-block" width="50%" align="right"> 
                   <p style="margin: 0 30px 0 0; display: inline-block;">
-                    <img width="18" src="{{ SITE_ORIGIN }}/static/images/email-images/email-trackers-removed-icon.png" style="margin-right: 5px; position: relative; top: 5px;" alt="warning icon"/>   
-
+                    <img class="email-trackers-removed-icon" width="18" src="{{ SITE_ORIGIN }}/static/images/email-images/email-trackers-removed-icon.png" alt="email trackers removed icon"/>   
                     {% comment %}
                       Create this as a link if we have a report link to show 
                     {% endcomment %}
