@@ -131,31 +131,37 @@ def get_phone_subscription_dates(social_account):
         )
         return None, None, None
 
+    date_subscribed_phone = start_date = end_date = None
     product_w_phone_capabilites = [settings.PHONE_PROD_ID, settings.BUNDLE_PROD_ID]
-    phone_subscription_data = None
     for sub in subscription_data.get("subscriptions", []):
         # Even if a user upgrade subscription e.g. from monthly to yearly
         # or from phone to VPN bundle use the last subscription subscription dates
         # Later, when the subscription details only show one valid subsription
         # this information can be updated
         if sub.get("product_id") in product_w_phone_capabilites:
-            subscription_created_timestamp = sub.get(
-                "created", datetime.now(timezone.utc).timestamp()
-            )
-            subscription_start_timestamp = sub.get(
-                "current_period_start", datetime.now(timezone.utc).timestamp()
-            )
-            subscription_end_timestamp = sub.get(
-                "current_period_end", datetime.now(timezone.utc).timestamp()
-            )
+            subscription_created_timestamp = sub.get("created")
+            subscription_start_timestamp = sub.get("current_period_start")
+            subscription_end_timestamp = sub.get("current_period_end")
 
-            date_subscribed_phone = datetime.fromtimestamp(
-                subscription_created_timestamp, tz=timezone.utc
+        subscription_date_none = (
+            subscription_created_timestamp
+            and subscription_start_timestamp
+            and subscription_end_timestamp
+        ) is None
+        if subscription_date_none:
+            # subscription dates are required fields according to FxA documentation:
+            # https://mozilla.github.io/ecosystem-platform/api#tag/Subscriptions/operation/getOauthMozillasubscriptionsCustomerBillingandsubscriptions
+            logger.error(
+                "accounts_subscription_subscription_date_invalid",
+                extra={"subscription": sub},
             )
-            start_date = datetime.fromtimestamp(
-                subscription_start_timestamp, tz=timezone.utc
-            )
-            end_date = datetime.fromtimestamp(
-                subscription_end_timestamp, tz=timezone.utc
-            )
+            return None, None, None
+
+        date_subscribed_phone = datetime.fromtimestamp(
+            subscription_created_timestamp, tz=timezone.utc
+        )
+        start_date = datetime.fromtimestamp(
+            subscription_start_timestamp, tz=timezone.utc
+        )
+        end_date = datetime.fromtimestamp(subscription_end_timestamp, tz=timezone.utc)
     return date_subscribed_phone, start_date, end_date
