@@ -77,12 +77,12 @@ def _get_oauth2_session(social_account: SocialAccount) -> OAuth2Session:
     return client
 
 
-def get_subscription_data_from_fxa(
-    social_account: SocialAccount, fxa_url: str = ""
-) -> dict[str, Any]:
-    if fxa_url == "":
-        # https://github.com/mozilla/fxa/blob/main/packages/fxa-profile-server/docs/API.md#get-v1subscriptions
-        fxa_url = FirefoxAccountsOAuth2Adapter.profile_url + "/v1/subscriptions"
+def get_subscription_data_from_fxa(social_account: SocialAccount) -> dict[str, Any]:
+    accounts_subscription_url = (
+        settings.FXA_ACCOUNTS_ENDPOINT
+        + "/oauth/mozilla-subscriptions/customer/billing-and-subscriptions"
+    )
+
     try:
         client = _get_oauth2_session(social_account)
     except NoSocialToken as e:
@@ -90,11 +90,13 @@ def get_subscription_data_from_fxa(
         return {}
 
     try:
-        resp = client.get(fxa_url)
+        # get detailed subscription data from FxA
+        resp = client.get(accounts_subscription_url)
         json_resp = cast(dict[str, Any], resp.json())
+
         if "Requested scopes are not allowed" in json_resp.get("message", ""):
             social_token = SocialToken.objects.get(account=social_account)
-            # refresh user token to get subscription data
+            # refresh user token to expand the scope to get accounts subscription data
             new_token = client.refresh_token(
                 FirefoxAccountsOAuth2Adapter.access_token_url
             )
