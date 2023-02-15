@@ -37,7 +37,6 @@
   .highlighted-feature-description {
     @media screen and #{$mq-md} {
       flex-direction: row-reverse;
-      // max-width: $content-md;
       align-self: center;
       width: 100%;
     }
