@@ -17,7 +17,7 @@ import {
   isBundleAvailableInCountry,
   isPeriodicalPremiumAvailableInCountry,
 } from "../functions/getPlan";
-import { FaqAccordion } from "../components/landing/FaqAccordion";
+import { FaqAccordionLanding } from "../components/landing/FaqAccordion";
 import { Reviews } from "../components/landing/Reviews";
 import { PlanMatrix } from "../components/landing/PlanMatrix";
 import { BundleBanner } from "../components/landing/BundleBanner";
@@ -134,39 +134,7 @@ const Home: NextPage = () => {
               </p>
             </div>
             <div className={styles.entries}>
-              <FaqAccordion
-                entries={[
-                  {
-                    q: l10n.getString("faq-question-availability-question"),
-                    a: l10n.getString("faq-question-availability-answer-v2"),
-                  },
-                  {
-                    q: l10n.getString("faq-question-what-is-question-2"),
-                    a: l10n.getString("faq-question-what-is-answer-2"),
-                  },
-                  {
-                    q: l10n.getString("faq-question-use-cases-question-2"),
-                    a: (
-                      <>
-                        <p>
-                          {l10n.getString(
-                            "faq-question-use-cases-answer-part1-2"
-                          )}
-                        </p>
-                        <p>
-                          {l10n.getString(
-                            "faq-question-use-cases-answer-part2-2"
-                          )}
-                        </p>
-                      </>
-                    ),
-                  },
-                  {
-                    q: l10n.getString("faq-question-browser-support-question"),
-                    a: l10n.getString("faq-question-browser-support-answer-2"),
-                  },
-                ]}
-              />
+              <FaqAccordionLanding />
             </div>
           </div>
         </section>

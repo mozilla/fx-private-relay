@@ -97,13 +97,14 @@
   .steps {
     display: flex;
     flex-direction: column;
-    gap: $layout-xl;
+    gap: $layout-lg;
     list-style-type: none;
     padding: $spacing-2xl 0;
     text-align: start;
     margin: 0;
 
     @media screen and #{$mq-md} {
+      gap: $layout-xl;
       margin: $spacing-2xl $layout-2xl 0 $layout-2xl;
     }
     @media screen and #{$mq-lg} {
