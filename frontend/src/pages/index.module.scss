@@ -32,6 +32,14 @@
     font-family: $font-stack-firefox;
   }
 
+  p {
+    max-width: calc($content-sm + $layout-xl);
+  }
+
+  .cta {
+    margin: $spacing-xl 0;
+    min-width: $content-xs;
+  }
   .social-proof {
     border: 0 solid $color-light-gray-20;
     border-top-width: 1px;
@@ -57,6 +65,7 @@
 
 .how-it-works-wrapper {
   background-color: $color-white;
+  margin-top: $layout-md;
 }
 
 .how-it-works {
@@ -68,6 +77,8 @@
   h2 {
     @include text-title-sm;
     font-family: $font-stack-firefox;
+    text-align: center;
+    margin-bottom: $layout-sm;
   }
 
   h2,
@@ -89,13 +100,14 @@
   .steps {
     display: flex;
     flex-direction: column;
-    gap: $layout-xl;
+    gap: $layout-lg;
     list-style-type: none;
     padding: $spacing-2xl 0;
     text-align: start;
     margin: 0;
 
     @media screen and #{$mq-md} {
+      gap: $layout-xl;
       margin: $spacing-2xl $layout-2xl 0 $layout-2xl;
     }
     @media screen and #{$mq-lg} {
@@ -104,13 +116,15 @@
     }
 
     h3 {
-      @include font-firefox;
-      @include text-title-2xs;
-      padding-top: $spacing-2xl;
+      @include text-title-3xs;
+      font-family: $font-stack-base;
+      font-weight: 600;
+      padding-top: $spacing-md;
+      line-height: 1.5;
     }
 
     p {
-      padding-top: $spacing-sm;
+      padding: $spacing-md 0;
     }
 
     .step {
@@ -145,15 +159,27 @@
   height: $layout-md;
 }
 
+.features {
+  padding: $layout-xs;
+  width: $content-xl;
+  max-width: 100%;
+  margin: 0 auto;
+
+  @media screen and #{$mq-md} {
+    padding: $layout-sm $layout-xs;
+  }
+}
+
 .plans {
   width: $content-max;
   max-width: 100%;
   margin: 0 auto;
-  padding: $spacing-2xl;
   display: flex;
   gap: $spacing-2xl;
   flex-direction: column-reverse;
   align-items: center;
+  padding: 0 $spacing-md $spacing-md $spacing-md;
+  margin-top: $layout-xl;
 
   &.non-premium-country {
     display: flex;
@@ -168,6 +194,7 @@
     text-align: center;
     max-width: $content-md;
     gap: $spacing-lg;
+    margin-top: $layout-xl;
 
     h2 {
       @include text-title-sm;
@@ -184,6 +211,7 @@
 
   @media screen and #{$mq-xl} {
     flex-direction: row;
+    padding: 0 $spacing-2xl $spacing-2xl $spacing-2xl;
 
     .plan-comparison {
       padding: $spacing-2xl;
@@ -259,4 +287,8 @@
     margin-top: 0;
     max-width: 100%;
   }
+}
+
+.gray-bg {
+  background-color: $color-light-gray-10;
 }

@@ -6,7 +6,7 @@ import {
   isBundleAvailableInCountry,
 } from "../../functions/getPlan";
 import { RuntimeData } from "../../hooks/api/runtimeData";
-import { MaskIcon, MozillaVpnWordmark, PhoneIcon, VpnIcon } from "../Icons";
+import { MaskIcon, PhoneIcon, VpnIcon } from "../Icons";
 import styles from "./BundleBanner.module.scss";
 import { LinkButton } from "../Button";
 import womanInBanner400w from "./images/bundle-banner-woman-400w.png";
@@ -14,7 +14,6 @@ import womanInBanner768w from "./images/bundle-banner-woman-768w.png";
 import bundleFloatOne from "./images/bundle-float-1.svg";
 import bundleFloatTwo from "./images/bundle-float-2.svg";
 import bundleFloatThree from "./images/bundle-float-3.svg";
-import bundleLogo from "./images/vpn-and-relay-logo.svg";
 import { trackPlanPurchaseStart } from "../../functions/trackPurchase";
 import { useGaViewPing } from "../../hooks/gaViewPing";
 import { useL10n } from "../../hooks/l10n";
@@ -103,20 +102,16 @@ export const BundleBanner = (props: Props) => {
       {isBundleAvailableInCountry(props.runtimeData) && (
         <div className={styles["second-section"]}>
           <div className={styles["bundle-banner-description"]}>
-            <h2>
-              <Localized
-                id={"bundle-banner-header"}
-                elems={{
-                  "vpn-logo": <VpnWordmark />,
-                }}
-              >
-                <span className={styles["headline"]} />
-              </Localized>
-            </h2>
-            <h3>{l10n.getString("bundle-banner-subheader")}</h3>
-            <p>{l10n.getString("bundle-banner-body-v2", { savings: "40%" })}</p>
-            <p>
-              <strong>{l10n.getString("bundle-banner-plan-header")}</strong>
+            {props.runtimeData && (
+              <h2>
+                {l10n.getString("bundle-banner-header-2", {
+                  monthly_price: getBundlePrice(props.runtimeData, l10n),
+                })}
+              </h2>
+            )}
+            <p>{l10n.getString("bundle-banner-body-3", { savings: "40%" })}</p>
+            <p className={styles["bundle-banner-one-year-plan-headline"]}>
+              <strong>{l10n.getString("bundle-banner-plan-header-2")}</strong>
             </p>
             <ul className={styles["bundle-banner-value-props"]}>
               <li>
@@ -132,34 +127,7 @@ export const BundleBanner = (props: Props) => {
                 {l10n.getString("bundle-banner-plan-modules-mozilla-vpn")}
               </li>
             </ul>
-            <div className={styles["pricing-logo-wrapper"]}>
-              <div className={styles["pricing-wrapper"]}>
-                <Localized
-                  id={"bundle-price-monthly"}
-                  vars={{
-                    monthly_price: getBundlePrice(props.runtimeData, l10n),
-                  }}
-                  elems={{
-                    "monthly-price": <p className={styles["price"]} />,
-                  }}
-                >
-                  <span />
-                </Localized>
-                <Localized
-                  id={"bundle-banner-savings-headline"}
-                  vars={{
-                    savings: "40%",
-                  }}
-                >
-                  <span />
-                </Localized>
-              </div>
-              <Image
-                className={styles["bundle-logo"]}
-                src={bundleLogo}
-                alt={l10n.getString("bundle-banner-alt")}
-              />
-            </div>
+
             <div className={styles["bottom-section"]}>
               <LinkButton
                 ref={bundleUpgradeCta}
@@ -187,14 +155,5 @@ export const BundleBanner = (props: Props) => {
         </div>
       )}
     </div>
-  );
-};
-
-const VpnWordmark = (props: { children?: string }) => {
-  return (
-    <>
-      &nbsp;
-      <MozillaVpnWordmark alt={props.children ?? "Mozilla VPN"} />
-    </>
   );
 };
