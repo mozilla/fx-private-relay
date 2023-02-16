@@ -173,6 +173,7 @@
           font-weight: 600;
           flex: 1 0 auto;
           background: white;
+          max-width: $content-xs;
           color: $color-blue-50;
           padding: $spacing-sm $spacing-md;
           border-radius: $border-radius-sm;
@@ -183,7 +184,7 @@
         }
 
         .money-back-guarantee {
-          @include text-body-sm;
+          @include text-body-xs;
           text-align: center;
 
           @media #{$mq-lg} {

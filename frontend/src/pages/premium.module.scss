@@ -56,7 +56,14 @@
 }
 
 .perks-wrapper {
-  background-color: $color-white;
+  padding: $layout-xs;
+  width: $content-xl;
+  max-width: 100%;
+  margin: 0 auto;
+
+  @media screen and #{$mq-md} {
+    padding: $layout-sm $layout-xs;
+  }
 }
 
 .perks {
