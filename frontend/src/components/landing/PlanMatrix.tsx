@@ -304,7 +304,7 @@ export const PlanMatrix = (props: Props) => {
                   </Link>
                   <small>
                     {l10n.getString(
-                      "plan-matrix-price-period-monthly-footnote"
+                      "plan-matrix-price-period-monthly-footnote-1"
                     )}
                   </small>
                 </div>
@@ -327,7 +327,7 @@ export const PlanMatrix = (props: Props) => {
                         ),
                       }}
                     >
-                      <span />
+                      <span className={styles["discount-notice-container"]} />
                     </Localized>
                   </p>
                 </div>
@@ -348,10 +348,12 @@ export const PlanMatrix = (props: Props) => {
                     }
                     className={styles["pick-button"]}
                   >
-                    {l10n.getString("plan-matrix-upgrade")}
+                    {l10n.getString("plan-matrix-sign-up")}
                   </a>
                   <small>
-                    {l10n.getString("plan-matrix-price-period-yearly-footnote")}
+                    {l10n.getString(
+                      "plan-matrix-price-period-yearly-footnote-1"
+                    )}
                   </small>
                 </div>
               </div>
@@ -371,7 +373,7 @@ export const PlanMatrix = (props: Props) => {
                   </Link>
                   <small>
                     {l10n.getString(
-                      "plan-matrix-price-period-monthly-footnote"
+                      "plan-matrix-price-period-monthly-footnote-1"
                     )}
                   </small>
                 </div>
@@ -571,10 +573,10 @@ export const PlanMatrix = (props: Props) => {
                   }
                   className={styles["pick-button"]}
                 >
-                  {l10n.getString("plan-matrix-upgrade")}
+                  {l10n.getString("plan-matrix-sign-up")}
                 </a>
                 <small>
-                  {l10n.getString("plan-matrix-price-period-yearly-footnote")}
+                  {l10n.getString("plan-matrix-price-period-yearly-footnote-1")}
                 </small>
               </div>
             </div>
@@ -772,10 +774,10 @@ const PricingToggle = (props: PricingToggleProps) => {
           tabIndex={0}
           className={styles["pick-button"]}
         >
-          {l10n.getString("plan-matrix-upgrade")}
+          {l10n.getString("plan-matrix-sign-up")}
         </a>
         <small>
-          {l10n.getString("plan-matrix-price-period-yearly-footnote")}
+          {l10n.getString("plan-matrix-price-period-yearly-footnote-1")}
         </small>
       </Item>
       <Item
@@ -799,10 +801,10 @@ const PricingToggle = (props: PricingToggleProps) => {
           tabIndex={0}
           className={styles["pick-button"]}
         >
-          {l10n.getString("plan-matrix-upgrade")}
+          {l10n.getString("plan-matrix-sign-up")}
         </a>
         <small>
-          {l10n.getString("plan-matrix-price-period-monthly-footnote")}
+          {l10n.getString("plan-matrix-price-period-monthly-footnote-1")}
         </small>
       </Item>
     </PricingTabs>

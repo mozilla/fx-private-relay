@@ -65,7 +65,7 @@ export const FaqAccordionLanding = () => {
       entries={[
         {
           q: l10n.getString("faq-question-availability-question"),
-          a: l10n.getString("faq-question-availability-answer-v2"),
+          a: l10n.getString("faq-question-landing-page-availability"),
           expandedFirst: true,
         },
         {

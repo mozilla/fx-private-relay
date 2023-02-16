@@ -34,6 +34,7 @@ export const HighlightedFeatures = () => {
       <div className={styles["highlighted-feature-wrapper"]}>
         <div className={styles["highlighted-feature-description"]}>
           <>
+            {/* Add "New" pill to new features */}
             {props.isNew && (
               <div className={styles["new-callout-wrapper"]}>{newCallOut}</div>
             )}
@@ -83,13 +84,11 @@ export const HighlightedFeatures = () => {
         <HighlightedItem
           image={BlockPromotionalEmailsImage}
           name={"block-promotions"}
-          isNew
         />
 
         <HighlightedItem
           image={RemoveEmailTrackersImage}
           name={"remove-trackers"}
-          isNew
         />
       </div>
       <div className={styles["section-title-wrapper"]}>

@@ -35,7 +35,8 @@
 
   @media screen and #{$mq-xl} {
     .desktop {
-      display: initial;
+      display: table;
+      table-layout: fixed;
     }
     .mobile {
       display: none;
@@ -51,9 +52,16 @@
     line-height: 100%;
     text-align: center;
 
-    .discount-notice-bolded {
-      font-weight: 800;
-      width: 100%;
+    .discount-notice-container {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-sm;
+
+      .discount-notice-bolded {
+        font-weight: 800;
+        width: 100%;
+        flex: 1;
+      }
     }
   }
 }

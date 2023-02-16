@@ -216,13 +216,14 @@ plan-matrix-price-free = Free
 plan-matrix-price-monthly-calculated = { $monthly_price }/mo.
 plan-matrix-price-period-yearly = Yearly
 plan-matrix-price-period-monthly = Monthly
-plan-matrix-price-period-yearly-footnote = Billed annually. Tax not included.
-plan-matrix-price-period-monthly-footnote = Billed monthly. Tax not included.
+plan-matrix-price-period-yearly-footnote-1 = Billed annually
+plan-matrix-price-period-yearly-footnote-1 = Billed annually
 plan-matrix-price-vpn-discount-promo = <span>Save { $savings }</span> on regular { -brand-name-vpn } price
 
 # Plan CTAs
 
 plan-matrix-upgrade = Upgrade
+plan-matrix-sign-up = Sign Up
 plan-matrix-get-relay-cta = Get { -brand-name-relay }
 plan-matrix-join-waitlist = Join the Waitlist
 
@@ -294,3 +295,5 @@ highlighted-features-section-remove-trackers-body = { -brand-name-relay } can re
 
 landing-faq-headline = Top questions about { -brand-name-firefox-relay }
 landing-faq-cta = See more FAQs about { -brand-name-firefox-relay }
+
+faq-question-landing-page-availability = Free { -brand-name-relay } is available in most countries. { -brand-name-relay-premium } email masking is available in the United States, Germany, United Kingdom, Canada, Singapore, Malaysia, New Zealand, France, Belgium, Austria, Spain, Italy, Switzerland, Netherlands, and Ireland. { -brand-name-relay-premium } phone masking is only available in the US and Canada. 

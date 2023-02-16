@@ -132,21 +132,25 @@
         align-items: center;
       }
 
+      .bundle-banner-one-year-plan-headline {
+        margin-top: $spacing-md;
+      }
+
       .bundle-banner-value-props {
         display: flex;
         flex-direction: column;
         gap: $spacing-sm;
         list-style: none;
 
-        @media #{$mq-lg} {
+        @media #{$mq-xl} {
           flex-direction: row;
         }
 
         li {
+          border-radius: 50px; // custom border radius to follow design spec
           background: rgba(255, 255, 255, 0.1);
           padding: $spacing-sm $spacing-md;
           font-weight: 500;
-          border-radius: $border-radius-sm;
           display: flex;
           flex-direction: row;
           gap: $spacing-sm;
@@ -162,7 +166,7 @@
         align-items: center;
 
         @media #{$mq-lg} {
-          align-items: flex-start;
+          flex-direction: row;
         }
 
         .button {

@@ -110,7 +110,7 @@ export const BundleBanner = (props: Props) => {
               </h2>
             )}
             <p>{l10n.getString("bundle-banner-body-3", { savings: "40%" })}</p>
-            <p>
+            <p className={styles["bundle-banner-one-year-plan-headline"]}>
               <strong>{l10n.getString("bundle-banner-plan-header-2")}</strong>
             </p>
             <ul className={styles["bundle-banner-value-props"]}>
