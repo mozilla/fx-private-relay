@@ -217,7 +217,7 @@ plan-matrix-price-monthly-calculated = { $monthly_price }/mo.
 plan-matrix-price-period-yearly = Yearly
 plan-matrix-price-period-monthly = Monthly
 plan-matrix-price-period-yearly-footnote-1 = Billed annually
-plan-matrix-price-period-yearly-footnote-1 = Billed annually
+plan-matrix-price-period-monthly-footnote-1 = Billed monthly
 plan-matrix-price-vpn-discount-promo = <span>Save { $savings }</span> on regular { -brand-name-vpn } price
 
 # Plan CTAs
