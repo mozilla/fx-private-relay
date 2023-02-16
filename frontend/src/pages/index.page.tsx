@@ -111,11 +111,10 @@ const Home: NextPage = () => {
         */}
         <div className={styles["gray-bg"]}>
           <Reviews />
-          <section id="pricing" className={styles["plans-wrapper"]}>
-            <div className={styles.plans}>
-              <PlanMatrix runtimeData={runtimeData.data} />
-            </div>
-          </section>
+          {/* Anchor link "pricing" exists within the PlanMatrix component */}
+          <div className={styles.plans}>
+            <PlanMatrix runtimeData={runtimeData.data} />
+          </div>
         </div>
         <section id="highlighted-features" className={styles.features}>
           <HighlightedFeatures />

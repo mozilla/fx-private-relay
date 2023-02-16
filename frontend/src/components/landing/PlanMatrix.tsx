@@ -616,10 +616,10 @@ export const PlanMatrix = (props: Props) => {
           {l10n.getString("plan-matrix-offer-body", { savings: "40%" })}
         </p>
       )}
-      <div className={styles["table-wrapper"]}>
+      <section id="pricing" className={styles["table-wrapper"]}>
         {desktopView}
         {mobileView}
-      </div>
+      </section>
     </div>
   );
 };
