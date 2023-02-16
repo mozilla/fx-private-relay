@@ -78,7 +78,7 @@ const PremiumPromo: NextPage = () => {
           <HighlightedFeatures />
         </section>
 
-        <section id="pricing" className={styles["plans-wrapper"]}>
+        <section className={styles["plans-wrapper"]}>
           <div className={styles.plans}>
             <PlanMatrix runtimeData={runtimeData.data} />
           </div>
