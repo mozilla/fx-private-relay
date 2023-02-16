@@ -17,7 +17,7 @@
     gap: $layout-md;
   }
   @media #{$mq-xl} {
-    grid-template-columns: 4fr 6fr;
+    grid-template-columns: 5fr 6fr;
   }
 
   .first-section {
@@ -51,6 +51,8 @@
           position: absolute;
           bottom: 0;
           margin-top: auto;
+          margin-left: $spacing-xs;
+          max-height: 500px; // Magic number: Ensure image does not overlay other sections
         }
       }
     }
@@ -106,7 +108,6 @@
 
   .second-section {
     @media #{$mq-lg} {
-      padding-left: $layout-md;
       display: flex;
       justify-content: flex-end;
     }
@@ -122,9 +123,7 @@
 
       @media #{$mq-lg} {
         height: auto;
-        max-width: 600px;
-        padding: $spacing-2xl 0;
-        margin-right: $spacing-xl;
+        padding: $spacing-2xl $spacing-xl;
       }
 
       .headline {
@@ -133,21 +132,25 @@
         align-items: center;
       }
 
+      .bundle-banner-one-year-plan-headline {
+        margin-top: $spacing-md;
+      }
+
       .bundle-banner-value-props {
         display: flex;
         flex-direction: column;
         gap: $spacing-sm;
         list-style: none;
 
-        @media #{$mq-lg} {
+        @media #{$mq-xl} {
           flex-direction: row;
         }
 
         li {
+          border-radius: 50px; // custom border radius to follow design spec
           background: rgba(255, 255, 255, 0.1);
           padding: $spacing-sm $spacing-md;
           font-weight: 500;
-          border-radius: $border-radius-sm;
           display: flex;
           flex-direction: row;
           gap: $spacing-sm;
@@ -158,20 +161,19 @@
       .bottom-section {
         display: flex;
         flex-direction: column;
-        gap: $spacing-lg;
-        font-weight: 600;
+        gap: $spacing-md;
         margin-top: $spacing-md;
         align-items: center;
 
         @media #{$mq-lg} {
           flex-direction: row;
-          gap: $spacing-md;
-          align-self: flex-start;
         }
 
         .button {
+          font-weight: 600;
           flex: 1 0 auto;
           background: white;
+          max-width: $content-xs;
           color: $color-blue-50;
           padding: $spacing-sm $spacing-md;
           border-radius: $border-radius-sm;
@@ -182,7 +184,7 @@
         }
 
         .money-back-guarantee {
-          @include text-body-sm;
+          @include text-body-xs;
           text-align: center;
 
           @media #{$mq-lg} {

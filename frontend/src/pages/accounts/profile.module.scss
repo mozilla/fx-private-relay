@@ -193,6 +193,10 @@
   // Ensure that the <Tips> card can always overlap elements in the profile,
   // even if they have z-indexes to overlap each other:
   isolation: isolate;
+
+  @media screen and (min-width: $screen-md) {
+    background-color: $color-light-gray-10;
+  }
 }
 
 .main-wrapper,
