@@ -9,7 +9,7 @@
 #
 version: 2.1
 orbs:
-  node: circleci/node@5.0.3
+  node: circleci/node@5.1.0
   python: circleci/python@2.1.1
   heroku: circleci/heroku@1.2.6
 commands:
@@ -38,11 +38,10 @@ jobs:
       - node/install:
           node-version: '18'
       - node/install-packages:
-          app-dir: ./frontend/
+        override-ci-command: npm ci --workspace frontend
       - run:
           name: Build Code
-          command: npm run build
-          working_directory: ./frontend/
+          command: npm run build --workspace frontend
       - save_cache:
           key: v1-frontend-build-{{ .Branch }}-{{ .Revision }}
           paths:
@@ -59,24 +58,20 @@ jobs:
       - node/install:
           node-version: '18'
       - node/install-packages:
-          app-dir: ./frontend/
-
+        override-ci-command: npm ci --workspace frontend
       - run:
           name: Check licences of frontend dependencies
-          command: npm run licensecheck
-          working_directory: ./frontend/
+          command: npm run licensecheck --workspace frontend
       - run:
           name: Lint Code
-          command: npm run lint -- --max-warnings=0
-          working_directory: ./frontend/
+          command: npm run lint --workspace frontend -- --max-warnings=0
       - run:
           name: Test Code
           command: |
             mkdir --parents /tmp/workspace/test-results/frontend-coverage
-            npm test -- \
+            npm test --workspace frontend -- \
               --ci \
               --coverageDirectory=/tmp/workspace/test-results/frontend-coverage
-          working_directory: ./frontend/
       - store_test_results:
           path: frontend/junit.xml
       - store_artifacts:
