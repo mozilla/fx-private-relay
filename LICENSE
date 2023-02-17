@@ -1,6 +1,15 @@
 Mozilla Public License Version 2.0
 ==================================
 
+The following license applies to all files in this repository except to the
+following, which contain images copyright iStockPhoto.com: 
+
+- frontend/src/components/landing/images/bundle-banner-woman-400w.png
+- frontend/src/components/landing/images/bundle-banner-woman-768w.png
+- frontend/src/components/landing/images/bundle-banner-woman-1280w.png
+- frontend/src/components/landing/images/phone-banner-woman.png
+- frontend/src/components/landing/images/phone-banner-woman.webp
+
 1. Definitions
 --------------
 
