@@ -9,7 +9,7 @@ django-csp==3.7
 django-debug-toolbar==3.8.1
 django-filter==22.1
 django-redis==5.2.0
-django-ftl==0.13
+django-ftl==0.14
 django-referrer-policy==1.0
 djangorestframework==3.14.0
 django-waffle==3.0.0
