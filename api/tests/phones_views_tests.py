@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Iterator, Literal, Optional
 from unittest.mock import Mock, patch, call
+from django.test.utils import override_settings
 
 from twilio.request_validator import RequestValidator
 from twilio.rest import Client
@@ -75,9 +76,19 @@ def _make_real_phone(phone_user, **kwargs):
     return RealPhone.objects.create(user=phone_user, number=number, **kwargs)
 
 
-def _make_relay_number(phone_user, **kwargs):
+def _make_relay_number(phone_user, vendor="twilio", **kwargs):
     relay_number = "+19998887777"
-    return RelayNumber.objects.create(user=phone_user, number=relay_number, **kwargs)
+    return RelayNumber.objects.create(
+        user=phone_user, number=relay_number, vendor=vendor, **kwargs
+    )
+
+
+@override_settings(IQ_ENABLED=False)
+def test_iq_endpoint_without_iq_enabled_not_found():
+    client = APIClient()
+    path = "/api/v1/inbound_sms_iq/"
+    response = client.post(path)
+    assert response.status_code == 404
 
 
 @pytest.mark.parametrize("endpoint", ("realphone", "relaynumber"))

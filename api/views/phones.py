@@ -560,18 +560,21 @@ def inbound_sms_iq(request: Request) -> response.Response:
     _validate_iq_request(request)
 
     inbound_body = request.data.get("text", None)
-    inbound_from = phonenumbers.format_number(
-        phonenumbers.parse(request.data.get("from", None), "US"),
-        phonenumbers.PhoneNumberFormat.E164,
-    )
-    iq_num = request.data.get("to", [])[0]
-    inbound_to = phonenumbers.format_number(
-        phonenumbers.parse(iq_num, "US"), phonenumbers.PhoneNumberFormat.E164
-    )
+    inbound_from = request.data.get("from", None)
+    inbound_to = request.data.get("to", None)
     if inbound_body is None or inbound_from is None or inbound_to is None:
         raise exceptions.ValidationError("Request missing from, to, or text.")
 
-    relay_number, real_phone = _get_phone_objects(inbound_to)
+    from_num = phonenumbers.format_number(
+        phonenumbers.parse(inbound_from, "US"),
+        phonenumbers.PhoneNumberFormat.E164,
+    )
+    single_num = inbound_to[0]
+    relay_num = phonenumbers.format_number(
+        phonenumbers.parse(single_num, "US"), phonenumbers.PhoneNumberFormat.E164
+    )
+
+    relay_number, real_phone = _get_phone_objects(relay_num)
     _check_remaining(relay_number, "texts")
 
     # TODO: handle replies
@@ -583,13 +586,13 @@ def inbound_sms_iq(request: Request) -> response.Response:
             template_name="twiml_empty_response.xml",
         )
 
-    inbound_contact = _get_inbound_contact(relay_number, inbound_from)
+    inbound_contact = _get_inbound_contact(relay_number, from_num)
     if inbound_contact:
         _check_and_update_contact(inbound_contact, "texts", relay_number)
 
     iq_formatted_real_num = real_phone.number.replace("+", "")
     text = f"[Relay 📲 {inbound_from}] {inbound_body}"
-    json_body = {"from": iq_num, "to": [iq_formatted_real_num], "text": text}
+    json_body = {"from": relay_num, "to": [iq_formatted_real_num], "text": text}
     resp = requests.post(
         "https://messagebroker.inteliquent.com/msgbroker/rest/publishMessages",
         headers={"Authorization": f"Bearer {settings.IQ_OUTBOUND_API_KEY}"},
