@@ -543,6 +543,14 @@ workflows:
             tags:
               only: /.*/
 
+      - python_job:
+          name: python test iq enabled
+          command: IQ_ENABLED=1 pytest --junit-xml=job-results/pytest-phones-disabled.xml .
+          has_results: true
+          filters:
+            tags:
+              only: /.*/
+
       - test_frontend:
           requires:
             - build_frontend
