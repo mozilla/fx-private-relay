@@ -9,6 +9,7 @@ from twilio.rest import Client
 from django.conf import settings
 
 from rest_framework.test import RequestsClient
+from api.views.phones import compute_iq_mac
 
 from phones.tests.models_tests import make_phone_test_user
 from api.tests.phones_views_tests import _make_real_phone, _make_relay_number
@@ -77,21 +78,18 @@ def test_iq_endpoint_invalid_hash():
 
 def test_iq_endpoint_valid_hash_no_auth_failed_status():
     message_id = "9a09df23-01f3-4e0f-adbc-2a783878a574"
-    combined = settings.IQ_INBOUND_API_KEY + message_id
-    token = hashlib.sha256(combined.encode()).hexdigest()
+    token = compute_iq_mac(message_id)
     client = RequestsClient()
     client.headers.update({"Verificationtoken": token})
     client.headers.update({"MessageId": message_id})
     response = client.post(INBOUND_SMS_PATH)
 
-    assert response.status_code != 401
     assert response.status_code == 400
 
 
 def _prepare_valid_iq_request_client() -> RequestsClient:
     message_id = "9a09df23-01f3-4e0f-adbc-2a783878a574"
-    combined = settings.IQ_INBOUND_API_KEY + message_id
-    token = hashlib.sha256(combined.encode()).hexdigest()
+    token = compute_iq_mac(message_id)
     client = RequestsClient()
     client.headers.update({"Verificationtoken": token})
     client.headers.update({"MessageId": message_id})

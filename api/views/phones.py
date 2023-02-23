@@ -476,6 +476,10 @@ def _try_delete_from_twilio(message):
             raise e
 
 
+def message_body(from_num, body):
+    return f"[Relay 📲 {from_num}] {body}"
+
+
 @decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.AllowAny])
 @decorators.renderer_classes([TemplateTwiMLRenderer])
@@ -538,9 +542,10 @@ def inbound_sms(request):
     client = twilio_client()
     app = twiml_app()
     incr_if_enabled("phones_outbound_sms")
+    body = message_body(inbound_from, inbound_body)
     client.messages.create(
         from_=relay_number.number,
-        body=f"[Relay 📲 {inbound_from}] {inbound_body}",
+        body=body,
         status_callback=app.sms_status_callback,
         to=real_phone.number,
     )
@@ -591,7 +596,7 @@ def inbound_sms_iq(request: Request) -> response.Response:
         _check_and_update_contact(inbound_contact, "texts", relay_number)
 
     iq_formatted_real_num = real_phone.number.replace("+", "")
-    text = f"[Relay 📲 {inbound_from}] {inbound_body}"
+    text = message_body(inbound_from, inbound_body)
     json_body = {"from": relay_num, "to": [iq_formatted_real_num], "text": text}
     resp = requests.post(
         "https://messagebroker.inteliquent.com/msgbroker/rest/publishMessages",
@@ -1106,21 +1111,25 @@ def _validate_twilio_request(request):
         raise exceptions.ValidationError("Invalid request: invalid signature")
 
 
-def _validate_iq_request(request):
+def compute_iq_mac(message_id: str) -> str:
+    iq_api_key = settings.IQ_INBOUND_API_KEY
+    # FIXME: switch to proper hmac when iQ is ready
+    # mac = hmac.new(iq_api_key.encode(), msg=message_id.encode(), digestmod=hashlib.sha256)
+    combined = iq_api_key + message_id
+    return hashlib.sha256(combined.encode()).hexdigest()
+
+
+def _validate_iq_request(request: Request) -> None:
     if "Verificationtoken" not in request._request.headers:
         raise exceptions.AuthenticationFailed("missing Verificationtoken header.")
 
     if "MessageId" not in request._request.headers:
         raise exceptions.AuthenticationFailed("missing MessageId header.")
 
-    iq_api_key = settings.IQ_INBOUND_API_KEY
     message_id = request._request.headers["Messageid"]
+    mac = compute_iq_mac(message_id)
+
     token = request._request.headers["verificationToken"]
 
-    # FIXME: switch to proper hmac when iQ is ready
-    # mac = hmac.new(iq_api_key.encode(), msg=message_id.encode(), digestmod=hashlib.sha256)
-    combined = iq_api_key + message_id
-    mac = hashlib.sha256(combined.encode())
-
-    if mac.hexdigest() != token:
+    if mac != token:
         raise exceptions.AuthenticationFailed("verficiationToken != computed sha256")
