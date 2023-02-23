@@ -7,6 +7,7 @@ nav-phone-dashboard = Phone Masks
 nav-duo-description = Switch dashboards
 nav-duo-email-mask-alt = Email masks
 nav-duo-phone-mask-alt = Phone masks
+nav-footer-stock-photo-legal = Photographs on this page are sourced from iStock, © iStockPhoto.com
 
 setting-api-key-copied-alt = Click to copy
 
@@ -80,7 +81,7 @@ phone-masking-faq-answer-install-app = No, { -brand-name-relay } phone masking w
 phone-masking-faq-question-data = What kinds of data does { -brand-name-relay } phone masking store?
 phone-masking-faq-answer-data = Please see the <a href="{ $url }" { $attrs }>{ -brand-name-firefox-relay } Privacy Policy</a>.
 
-# Phone onboarding button string update (MPP-2442) 
+# Phone onboarding button string update (MPP-2442)
 phone-onboarding-step3-code-success-cta-2 = Search for masks
 
 tips-multi-replies-heading = Reply to any text with your phone mask
@@ -110,11 +111,11 @@ waitlist-privacy-policy-use-phone = Your information will only be used to notify
 waitlist-privacy-policy-use-bundle = Your information will only be used to notify you about { -brand-name-relay } + { -brand-name-vpn } bundle availability.
 
 ## Landing Page refresh
-## HERO SECTION 
+## HERO SECTION
 
 hero-section-title = Protect your identity with secure phone and email masking
-hero-section-body = Our secure, easy-to-use email and phone masks help keep your identity 
-    private so you can sign up for new accounts anonymously, stop spam texts and junk calls, and 
+hero-section-body = Our secure, easy-to-use email and phone masks help keep your identity
+    private so you can sign up for new accounts anonymously, stop spam texts and junk calls, and
     get only the emails you want in your inbox.
 hero-section-cta = Get started
 
@@ -143,7 +144,7 @@ bundle-feature-one = More than { $num_vpn_servers } servers
 bundle-feature-two = More than { $num_vpn_countries } countries
 bundle-feature-three = Fast and secure network
 
-## HOW IT WORKS SECTION 
+## HOW IT WORKS SECTION
 
 how-it-works-section-title = How { -brand-name-relay } email & phone masking works
 
@@ -259,8 +260,8 @@ highlighted-features-section-new-item = New!
 highlighted-features-section-unlimited-masks-headline = Create unlimited email masks
 # Variables:
 #   $mask_limit (number) - the number of masks included with a particular plan
-highlighted-features-section-unlimited-masks-body = Everyone gets { $mask_limit } email masks for free. 
-    But with { -brand-name-relay-premium }, you can generate as many masks as you need to help protect your email inbox 
+highlighted-features-section-unlimited-masks-body = Everyone gets { $mask_limit } email masks for free.
+    But with { -brand-name-relay-premium }, you can generate as many masks as you need to help protect your email inbox
     from spammers, hackers, and online trackers.
 
 # Item 2
@@ -268,27 +269,27 @@ highlighted-features-section-unlimited-masks-body = Everyone gets { $mask_limit 
 highlighted-features-section-masks-on-the-go-headline = Instantly create masks on the go
 # Variables:
 #   $mozmail (string): domain used by Relay masks (mozmail.com)
-highlighted-features-section-masks-on-the-go-body = { -brand-name-relay-premium } gives you a unique { -brand-name-relay } email domain so you can instantly 
-    create new masks anywhere you are. Simply add any word or phrase before the @ symbol. At a restaurant? Use restaurant@yourdomain.{ $mozmail }. 
+highlighted-features-section-masks-on-the-go-body = { -brand-name-relay-premium } gives you a unique { -brand-name-relay } email domain so you can instantly
+    create new masks anywhere you are. Simply add any word or phrase before the @ symbol. At a restaurant? Use restaurant@yourdomain.{ $mozmail }.
     Shopping? Try shop@yourdomain.{ $mozmail }.
 
 # Item 3
 
 highlighted-features-section-replying-headline = Reply to emails & texts anonymously
 highlighted-features-section-replying-body = { -brand-name-relay-premium } lets you respond to emails from your
-    masked email account, so senders will never know your real email address. With phone masking, you can reply 
-    to texts from your masked phone number to protect your real number. 
+    masked email account, so senders will never know your real email address. With phone masking, you can reply
+    to texts from your masked phone number to protect your real number.
 
 # Item 4
 
 highlighted-features-section-block-promotions-headline = Block promotional emails
-highlighted-features-section-block-promotions-body = With { -brand-name-relay-premium }, you can block promotional emails from reaching your 
-    inbox while still receiving emails like receipts or shipping information. 
+highlighted-features-section-block-promotions-body = With { -brand-name-relay-premium }, you can block promotional emails from reaching your
+    inbox while still receiving emails like receipts or shipping information.
 
 # Item 5
 
 highlighted-features-section-remove-trackers-headline = Remove email trackers
-highlighted-features-section-remove-trackers-body = { -brand-name-relay } can remove common email trackers from any emails forwarded to you, helping 
+highlighted-features-section-remove-trackers-body = { -brand-name-relay } can remove common email trackers from any emails forwarded to you, helping
     you stay invisible to trackers and advertisers.
 
 ## FAQ SECTION
@@ -296,4 +297,4 @@ highlighted-features-section-remove-trackers-body = { -brand-name-relay } can re
 landing-faq-headline = Top questions about { -brand-name-firefox-relay }
 landing-faq-cta = See more FAQs about { -brand-name-firefox-relay }
 
-faq-question-landing-page-availability = Free { -brand-name-relay } is available in most countries. { -brand-name-relay-premium } email masking is available in the United States, Germany, United Kingdom, Canada, Singapore, Malaysia, New Zealand, France, Belgium, Austria, Spain, Italy, Switzerland, Netherlands, and Ireland. { -brand-name-relay-premium } phone masking is only available in the US and Canada. 
+faq-question-landing-page-availability = Free { -brand-name-relay } is available in most countries. { -brand-name-relay-premium } email masking is available in the United States, Germany, United Kingdom, Canada, Singapore, Malaysia, New Zealand, France, Belgium, Austria, Spain, Italy, Switzerland, Netherlands, and Ireland. { -brand-name-relay-premium } phone masking is only available in the US and Canada.

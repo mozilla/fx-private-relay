@@ -175,56 +175,61 @@ export const Layout = (props: Props) => {
             {props.children}
           </div>
           <footer className={styles.footer}>
-            <a
-              href="https://www.mozilla.org"
-              className={styles["mozilla-logo"]}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Image
-                src={mozillaLogo}
-                alt={l10n.getString("logo-mozilla-alt")}
-                width={120}
-              />
-            </a>
-            <ul className={styles.meta}>
-              <li>
-                <a
-                  href="https://www.mozilla.org/privacy/firefox-relay/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {l10n.getString("nav-footer-privacy")}
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://www.mozilla.org/about/legal/terms/firefox-relay/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {l10n.getString("nav-footer-relay-terms")}
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://www.mozilla.org/about/legal/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {l10n.getString("nav-footer-legal")}
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://github.com/mozilla/fx-private-relay"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  GitHub
-                </a>
-              </li>
-            </ul>
+            <div className={styles.links}>
+              <a
+                href="https://www.mozilla.org"
+                className={styles["mozilla-logo"]}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Image
+                  src={mozillaLogo}
+                  alt={l10n.getString("logo-mozilla-alt")}
+                  width={120}
+                />
+              </a>
+              <ul className={styles.meta}>
+                <li>
+                  <a
+                    href="https://www.mozilla.org/privacy/firefox-relay/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {l10n.getString("nav-footer-privacy")}
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://www.mozilla.org/about/legal/terms/firefox-relay/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {l10n.getString("nav-footer-relay-terms")}
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://www.mozilla.org/about/legal/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {l10n.getString("nav-footer-legal")}
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://github.com/mozilla/fx-private-relay"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    GitHub
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <small className={styles["stock-photo-disclaimer"]}>
+              {l10n.getString("nav-footer-stock-photo-legal")}
+            </small>
           </footer>
         </div>
       </div>
