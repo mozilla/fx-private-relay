@@ -248,7 +248,7 @@ class RelayNumber(models.Model):
 
     @property
     def storing_phone_log(self) -> bool:
-        return self.user.profile.store_phone_log
+        return bool(self.user.profile.store_phone_log)
 
     def save(self, *args, **kwargs):
         realphone = get_verified_realphone_records(self.user).first()

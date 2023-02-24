@@ -51,6 +51,7 @@ def mocked_twilio_client():
         yield mock_twilio_client
 
 
+@pytest.mark.django_db(transaction=True)
 def test_iq_endpoint_missing_verificationtoken_header():
     client = RequestsClient()
     response = client.post(INBOUND_SMS_PATH)
@@ -59,6 +60,7 @@ def test_iq_endpoint_missing_verificationtoken_header():
     assert "missing Verificationtoken header" in response_body["detail"]
 
 
+@pytest.mark.django_db(transaction=True)
 def test_iq_endpoint_missing_messageid_header():
     client = RequestsClient()
     client.headers.update({"Verificationtoken": "valid"})
@@ -69,6 +71,7 @@ def test_iq_endpoint_missing_messageid_header():
     assert "missing MessageId header" in response_body["detail"]
 
 
+@pytest.mark.django_db(transaction=True)
 def test_iq_endpoint_invalid_hash():
     message_id = "9a09df23-01f3-4e0f-adbc-2a783878a574"
     client = RequestsClient()
@@ -81,6 +84,7 @@ def test_iq_endpoint_invalid_hash():
     assert "verficiationToken != computed sha256" in response_body["detail"]
 
 
+@pytest.mark.django_db(transaction=True)
 def test_iq_endpoint_valid_hash_no_auth_failed_status():
     message_id = "9a09df23-01f3-4e0f-adbc-2a783878a574"
     token = compute_iq_mac(message_id)
@@ -101,6 +105,7 @@ def _prepare_valid_iq_request_client() -> RequestsClient:
     return client
 
 
+@pytest.mark.django_db(transaction=True)
 def test_iq_endpoint_missing_required_params():
     client = _prepare_valid_iq_request_client()
 
