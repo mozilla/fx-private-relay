@@ -527,6 +527,19 @@ workflows:
             tags:
               only: /.*/
 
+      - python_job:
+          name: django 4.2 test
+          # YAML ">-" removes newlines, including the last, needed for
+          # multi-step command that can fail.
+          command: >-
+            pip install --pre --upgrade "Django<5";
+            pytest --maxfail=3 --junit-xml=job-results/pytest-django-4-2.xml .
+          has_results: true
+          allow_fail: true
+          filters:
+            tags:
+              only: /.*/
+
       - test_frontend:
           requires:
             - build_frontend
