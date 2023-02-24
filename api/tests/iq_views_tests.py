@@ -1,15 +1,23 @@
-import hashlib
-import phonenumbers
 import pytest
+
+from django.conf import settings
+
+pytestmark = pytest.mark.skipif(
+    not settings.PHONES_ENABLED, reason="PHONES_ENABLED is False"
+)
+pytestmark = pytest.mark.skipif(not settings.IQ_ENABLED, reason="IQ_ENABLED is False")
+
+import phonenumbers
 import responses
 from unittest.mock import Mock, patch
 
 from twilio.rest import Client
 
-from django.conf import settings
 
 from rest_framework.test import RequestsClient
-from api.views.phones import compute_iq_mac
+
+if settings.PHONES_ENABLED:
+    from api.views.phones import compute_iq_mac
 
 from phones.tests.models_tests import make_phone_test_user
 from api.tests.phones_views_tests import _make_real_phone, _make_relay_number
@@ -17,9 +25,6 @@ from api.tests.phones_views_tests import _make_real_phone, _make_relay_number
 
 API_ROOT = "http://127.0.0.1:8000"
 INBOUND_SMS_PATH = f"{API_ROOT}/api/v1/inbound_sms_iq/"
-
-
-pytestmark = pytest.mark.skipif(not settings.IQ_ENABLED, reason="IQ_ENABLED is False")
 
 
 @pytest.fixture()
