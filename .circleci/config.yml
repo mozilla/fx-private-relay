@@ -524,7 +524,7 @@ workflows:
 
       - python_job:
           name: python test phones disabled
-          command: PHONES_ENABLED=0 pytest --junit-xml=job-results/pytest-phones-disabled.xml .
+          command: PHONES_ENABLED=0 IQ_ENABLED=0 pytest --junit-xml=job-results/pytest-phones-disabled.xml .
           has_results: true
           filters:
             tags:
@@ -545,7 +545,7 @@ workflows:
 
       - python_job:
           name: python test iq enabled
-          command: IQ_ENABLED=1 pytest --junit-xml=job-results/pytest-iq-enabled.xml .
+          command: PHONES_ENABLED=1 IQ_ENABLED=1 pytest --junit-xml=job-results/pytest-iq-enabled.xml .
           has_results: true
           filters:
             tags:

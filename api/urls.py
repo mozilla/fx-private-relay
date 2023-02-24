@@ -68,18 +68,18 @@ urlpatterns = [
     ),
 ]
 
-from .views.phones import (
-    RealPhoneViewSet,
-    RelayNumberViewSet,
-    InboundContactViewSet,
-    inbound_call,
-    inbound_sms,
-    inbound_sms_iq,
-    vCard,
-    sms_status,
-    voice_status,
-    resend_welcome_sms,
-)
+if settings.PHONES_ENABLED:
+    from .views.phones import (
+        RealPhoneViewSet,
+        RelayNumberViewSet,
+        InboundContactViewSet,
+        inbound_call,
+        inbound_sms,
+        vCard,
+        sms_status,
+        voice_status,
+        resend_welcome_sms,
+    )
 
 if settings.PHONES_ENABLED:
     api_router.register(r"realphone", RealPhoneViewSet, "real_phone")
@@ -132,13 +132,16 @@ if settings.PHONES_ENABLED:
     ]
 
 
-urlpatterns += [
-    path(
-        "v1/inbound_sms_iq/",
-        enable_if_setting("IQ_ENABLED")(inbound_sms_iq),
-        name="inbound_sms",
-    ),
-]
+if settings.PHONES_ENABLED and settings.IQ_ENABLED:
+    from .views.phones import inbound_sms_iq
+
+    urlpatterns += [
+        path(
+            "v1/inbound_sms_iq/",
+            enable_if_setting("IQ_ENABLED")(inbound_sms_iq),
+            name="inbound_sms",
+        ),
+    ]
 
 
 urlpatterns += [
