@@ -351,6 +351,9 @@ jobs:
       - run:
           name: Set test defaults
           command: cp .env-dist .env
+      - run:
+          name: Create empty staticfiles directory
+          command: mkdir -p staticfiles
       - when:
           condition: << parameters.production_with_new_migrations >>
           steps:
