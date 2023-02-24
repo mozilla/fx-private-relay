@@ -325,13 +325,18 @@
       border-radius: $toggle-border-radius;
       font-weight: 500;
       color: $color-grey-40;
+      cursor: pointer;
 
-      &:not(.is-selected):not(.is-disabled) {
-        cursor: pointer;
-
+      &:not(.is-selected) {
         &:hover {
           background-color: $color-violet-30;
           color: $color-white;
+        }
+      }
+
+      .is-selected &.is-disabled {
+        &:hover {
+          border: 1px solid $color-violet-70;
         }
       }
 
@@ -345,15 +350,8 @@
       }
 
       &.is-disabled {
-        cursor: help;
         padding-inline: $spacing-md;
-        background-color: transparent;
         color: $color-grey-30;
-        text-decoration: line-through;
-
-        &:hover {
-          color: $color-red-70;
-        }
 
         svg {
           flex: 1 0 10px;
@@ -421,4 +419,35 @@
       text-align: end;
     }
   }
+}
+
+.promotions-locked-description-wrapper {
+  margin-top: $spacing-md;
+  background: $color-grey-05;
+  border-radius: $border-radius-md;
+  padding: $spacing-md;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  strong {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    color: $color-grey-50;
+  }
+
+  // &::before {
+  //   content: "";
+  //   display: block;
+  //   box-sizing: border-box;
+  //   position: relative;
+  //   width: 10px;
+  //   height: 10px;
+  //   border-top: 2px solid;
+  //   border-right: 2px solid;
+  //   transform: rotate(-45deg);
+  //   left: 4px;
+  //   bottom: 2px
+  // }
 }

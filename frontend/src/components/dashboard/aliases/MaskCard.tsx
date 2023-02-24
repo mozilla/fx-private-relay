@@ -251,13 +251,33 @@ export const MaskCard = (props: Props) => {
                     />
                   )}
                   {l10n.getString(
-                    "profile-promo-email-blocking-option-promotionals"
+                    "profile-promo-email-blocking-option-promotions"
                   )}
                 </BlockLevelOption>
                 <BlockLevelOption value="all">
                   {l10n.getString("profile-promo-email-blocking-option-all")}
                 </BlockLevelOption>
               </BlockLevelSegmentedControl>
+              <div className={styles["promotions-locked-description-wrapper"]}>
+                <strong>
+                  <LockIcon
+                    alt={l10n.getString(
+                      "profile-promo-email-blocking-description-promotionals-locked-label"
+                    )}
+                  />
+                  {l10n.getString(
+                    "profile-promo-email-blocking-description-promotionals-locked-label"
+                  )}
+                </strong>
+                <p>
+                  {l10n.getString(
+                    "profile-promo-email-blocking-description-promotionals"
+                  )}
+                </p>
+                <Link href="/premium#pricing" className={styles["upgrade-btn"]}>
+                  {l10n.getString("banner-pack-upgrade-cta")}
+                </Link>
+              </div>
             </div>
             <div className={styles["block-level-setting-description"]}>
               {blockLevel === "all" &&
@@ -348,7 +368,10 @@ const BlockLevelSegmentedControl = (
 };
 
 const BlockLevelOption = (
-  props: AriaRadioProps & { children: ReactNode; title?: string }
+  props: AriaRadioProps & {
+    children: ReactNode;
+    title?: string;
+  }
 ) => {
   const state = useContext(BlockLevelContext);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -356,6 +379,7 @@ const BlockLevelOption = (
   // of <BlockLevelSwitch>, which sets the state in the context:
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const { inputProps, isSelected } = useRadio(props, state!, inputRef);
+
   const { isFocusVisible, focusProps } = useFocusRing();
 
   return (
