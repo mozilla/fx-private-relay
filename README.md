@@ -37,11 +37,17 @@ Please refer to our [coding standards](docs/coding-standards.md) for code styles
 
 2. Create and activate a virtual environment:
 
+   Unix based systems: 
    ```sh
    virtualenv env
    source env/bin/activate
    ```
-
+   Windows: 
+   ```sh
+   python -m venv env
+   source env/Scripts/activate
+   ```
+   
 3. Install Python and Node requirements:
 
    ```sh
