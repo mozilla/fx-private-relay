@@ -1,10 +1,10 @@
-boto3==1.26.64
+boto3==1.26.79
 codetiming==1.4.0
 cryptography==39.0.1
 Django==3.2.18
 dj-database-url==1.2.0
 django-allauth==0.52.0
-django-cors-headers==3.13.0
+django-cors-headers==3.14.0
 django-csp==3.7
 django-debug-toolbar==3.8.1
 django-filter==22.1
@@ -30,7 +30,7 @@ whitenoise==6.3.0
 
 # phones app
 phonenumbers==8.13.6
-twilio==7.16.3
+twilio==7.16.4
 vobject==0.9.6.1
 
 # tests
@@ -48,4 +48,4 @@ mypy==1.0.1
 types-pyOpenSSL==23.0.0.3
 types-requests==2.28.11.13
 django-stubs==1.14.0
-djangorestframework-stubs==1.8.0
+djangorestframework-stubs==1.9.1
