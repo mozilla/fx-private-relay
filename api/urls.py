@@ -111,7 +111,7 @@ if settings.PHONES_ENABLED:
         path("v1/voice_status/", voice_status, name="voice_status"),
         path("v1/call/", call, name="call"),
         path("v1/messages/", messages, name="messages"),
-        path("v1/message/", post_message, name="post_message"),        
+        path("v1/message/", post_message, name="post_message"),
         path(
             "v1/sms_status",
             sms_status,
