@@ -29,6 +29,7 @@ from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 
 from twilio.base.exceptions import TwilioRestException
+from waffle import flag_is_active
 
 from api.views import SaveToRequestUser
 from emails.utils import incr_if_enabled
@@ -748,6 +749,8 @@ def call(request):
     Make a call from the authenticated user's relay number.
 
     """
+    if not flag_is_active(request, "outbound_phone"):
+        return response.Response({"outbound_phone": False}, status=404)
     to = request.data.get("to", None)
     if to is None:
         raise exceptions.ValidationError("Missing 'to' parameter.")
@@ -783,6 +786,8 @@ def post_message(request):
         destination: E.164-formatted phone number
 
     """
+    if not flag_is_active(request, "outbound_phone"):
+        return response.Response({"outbound_phone": False}, status=404)
     relay_number = RelayNumber.objects.get(user=request.user)
     body = request.data.get("body")
     destination_number = request.data.get("destination")
@@ -812,6 +817,8 @@ def messages(request):
     outbound messages.
 
     """
+    if not flag_is_active(request, "outbound_phone"):
+        return response.Response({"outbound_phone": False}, status=404)
     _with = request.data.get("with", None)
     _direction = request.data.get("direction", None)
     relay_number = RelayNumber.objects.get(user=request.user)

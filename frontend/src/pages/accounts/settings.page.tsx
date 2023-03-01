@@ -232,12 +232,14 @@ const Settings: NextPage = () => {
             </span>
           </span>
         </div>
-        <div className={styles["settings-api-qr-code-wrapper"]}>
-          <div className={styles["settings-api-qr-code"]}>
-            <QRCode value={"Token " + profile.api_token} />
+        {isFlagActive(runtimeData.data, "mobile_app") ? (
+          <div className={styles["settings-api-qr-code-wrapper"]}>
+            <div className={styles["settings-api-qr-code"]}>
+              <QRCode value={"Token " + profile.api_token} />
+            </div>
+            <p>Scan the code with your Relay mobile app.</p>
           </div>
-          <p>Scan the code with your Relay mobile app.</p>
-        </div>
+        ) : null}
         <div className={styles["settings-api-key-copy"]}>
           {l10n.getString("settings-api-key-description")}{" "}
           <b>{l10n.getString("settings-api-key-description-bolded")}</b>
