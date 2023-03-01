@@ -60,6 +60,8 @@ Please refer to our [coding standards](docs/coding-standards.md) for code styles
    cd ../
    ```
 
+   Note: If you're running on Windows, you may run into an issue with usage of environment variables in npm scripts. You can force npm to use git-bash: `npm config set script-shell "C:\\Program Files\\Git\\bin\\bash.exe"`. This the default location, your install may be different.
+
 4. Copy `.env` file for
    [`decouple`](https://pypi.org/project/python-decouple/) config:
 
