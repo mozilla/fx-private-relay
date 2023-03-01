@@ -193,8 +193,6 @@ def runtime_data(request):
             "WAFFLE_SWITCHES": switch_values,
             "WAFFLE_SAMPLES": sample_values,
             "MAX_MINUTES_TO_VERIFY_REAL_PHONE": settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE,
-            # TODO: Change this to a flag?
-            "PHONE_CALL_ENABLED": settings.PHONES_CALL_ENABLED,
         }
     )
 

@@ -232,7 +232,7 @@ const Settings: NextPage = () => {
             </span>
           </span>
         </div>
-        {runtimeData.data.PHONES_CALL_ENABLED ? (
+        {isFlagActive(runtimeData.data, "mobile_app") ? (
           <div className={styles["settings-api-qr-code-wrapper"]}>
             <div className={styles["settings-api-qr-code"]}>
               <QRCode value={"Token " + profile.api_token} />

@@ -11,7 +11,8 @@ export type FlagNames =
   | "phone_launch_survey"
   | "multi_replies"
   | "firefox_integration"
-  | "premium_promo_banners";
+  | "premium_promo_banners"
+  | "mobile_app";
 type WaffleFlag = [FlagNames, boolean];
 
 export type PlanData = {
@@ -38,7 +39,6 @@ export type RuntimeData = {
   BASKET_ORIGIN: string;
   WAFFLE_FLAGS: WaffleFlag[];
   MAX_MINUTES_TO_VERIFY_REAL_PHONE: number;
-  PHONES_CALL_ENABLED: boolean;
 };
 
 /**
