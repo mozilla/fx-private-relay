@@ -57,6 +57,7 @@ export type Props = {
 export const MaskCard = (props: Props) => {
   const l10n = useL10n();
   const [justCopied, setJustCopied] = useState(false);
+  const [promoIsSelected, setPromoIsSelectedState] = useState(false);
 
   const expandButtonRef = useRef<HTMLButtonElement>(null);
   const expandButtonState = useToggleState({
@@ -233,7 +234,10 @@ export const MaskCard = (props: Props) => {
                 }}
                 label={l10n.getString("profile-promo-email-blocking-title")}
               >
-                <BlockLevelOption value="none">
+                <BlockLevelOption
+                  value="none"
+                  setPromoSelectedState={setPromoIsSelectedState}
+                >
                   {l10n.getString("profile-promo-email-blocking-option-none")}
                 </BlockLevelOption>
                 <BlockLevelOption
@@ -242,6 +246,9 @@ export const MaskCard = (props: Props) => {
                   title={l10n.getString(
                     "profile-promo-email-blocking-description-promotionals-locked-label"
                   )}
+                  isPromo={true}
+                  promoSelectedState={promoIsSelected}
+                  setPromoSelectedState={setPromoIsSelectedState}
                 >
                   {!props.profile.has_premium && (
                     <LockIcon
@@ -254,32 +261,50 @@ export const MaskCard = (props: Props) => {
                     "profile-promo-email-blocking-option-promotions"
                   )}
                 </BlockLevelOption>
-                <BlockLevelOption value="all">
+                <BlockLevelOption
+                  value="all"
+                  setPromoSelectedState={setPromoIsSelectedState}
+                >
                   {l10n.getString("profile-promo-email-blocking-option-all")}
                 </BlockLevelOption>
               </BlockLevelSegmentedControl>
-              <div className={styles["promotions-locked-description-wrapper"]}>
-                <strong>
-                  <LockIcon
-                    alt={l10n.getString(
+              {promoIsSelected && !props.profile.has_premium ? (
+                <div
+                  className={styles["promotions-locked-description-wrapper"]}
+                >
+                  <strong>
+                    <LockIcon
+                      alt={l10n.getString(
+                        "profile-promo-email-blocking-description-promotionals-locked-label"
+                      )}
+                    />
+                    {l10n.getString(
                       "profile-promo-email-blocking-description-promotionals-locked-label"
                     )}
-                  />
-                  {l10n.getString(
-                    "profile-promo-email-blocking-description-promotionals-locked-label"
-                  )}
-                </strong>
-                <p>
-                  {l10n.getString(
-                    "profile-promo-email-blocking-description-promotionals"
-                  )}
-                </p>
-                <Link href="/premium#pricing" className={styles["upgrade-btn"]}>
-                  {l10n.getString("banner-pack-upgrade-cta")}
-                </Link>
-              </div>
+                  </strong>
+                  <p>
+                    {l10n.getString(
+                      "profile-promo-email-blocking-description-promotionals"
+                    )}
+                  </p>
+                  <Link
+                    href="/premium#pricing"
+                    className={styles["upgrade-btn"]}
+                  >
+                    {l10n.getString("banner-pack-upgrade-cta")}
+                  </Link>
+                </div>
+              ) : null}
             </div>
-            <div className={styles["block-level-setting-description"]}>
+            {/* Only add chevron on mobile for premium users */}
+            <div
+              className={`${styles["block-level-setting-description"]}
+              ${
+                promoIsSelected &&
+                !props.profile.has_premium &&
+                styles["without-chevron"]
+              }`}
+            >
               {blockLevel === "all" &&
                 l10n.getString(
                   "profile-promo-email-blocking-description-all-2"
@@ -371,6 +396,9 @@ const BlockLevelOption = (
   props: AriaRadioProps & {
     children: ReactNode;
     title?: string;
+    isPromo?: boolean;
+    promoSelectedState?: boolean;
+    setPromoSelectedState: (promoSelectedState: boolean) => void;
   }
 ) => {
   const state = useContext(BlockLevelContext);
@@ -379,15 +407,22 @@ const BlockLevelOption = (
   // of <BlockLevelSwitch>, which sets the state in the context:
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const { inputProps, isSelected } = useRadio(props, state!, inputRef);
-
+  // const [promoIsSelected, setPromoIsSelected] = useState(false);
   const { isFocusVisible, focusProps } = useFocusRing();
 
   return (
     <label
       className={`${isSelected ? styles["is-selected"] : ""} ${
         isFocusVisible ? styles["is-focused"] : ""
-      } ${props.isDisabled ? styles["is-disabled"] : ""}`}
+      } ${props.isDisabled ? styles["is-disabled"] : ""} ${
+        props.promoSelectedState ? styles["promo-selected"] : ""
+      }`}
       title={props.title}
+      onClick={() =>
+        props.isPromo
+          ? props.setPromoSelectedState(!props.promoSelectedState)
+          : props.setPromoSelectedState(false)
+      }
     >
       <VisuallyHidden>
         <input {...inputProps} {...focusProps} ref={inputRef} />
