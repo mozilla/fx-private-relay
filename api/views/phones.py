@@ -744,7 +744,7 @@ call_body = openapi.Schema(
 @decorators.permission_classes([permissions.IsAuthenticated, HasPhoneService])
 @swagger_auto_schema(method="post", request_body=call_body)
 @decorators.api_view(["POST"])
-def call(request):
+def outbound_call(request):
     """
     Make a call from the authenticated user's relay number.
 
@@ -777,7 +777,7 @@ message_request_body = openapi.Schema(
 @decorators.permission_classes([permissions.IsAuthenticated, HasPhoneService])
 @swagger_auto_schema(method="post", request_body=message_request_body)
 @decorators.api_view(["POST"])
-def post_message(request):
+def outbound_sms(request):
     """
     Send a message from the user's relay number.
 
@@ -806,7 +806,7 @@ messages_body = openapi.Schema(
 
 @decorators.permission_classes([permissions.IsAuthenticated, HasPhoneService])
 @decorators.api_view(["GET"])
-def messages(request):
+def list_messages(request):
     """
     Get the user's messages.
 
