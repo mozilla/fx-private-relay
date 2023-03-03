@@ -296,10 +296,10 @@ export const MaskCard = (props: Props) => {
                 </div>
               ) : null}
             </div>
-            {/* Only add chevron on mobile for premium users */}
             <div
               className={`${styles["block-level-setting-description"]}
               ${
+                // Only add chevron on mobile for premium users
                 promoIsSelected &&
                 !props.profile.has_premium &&
                 styles["without-chevron"]
@@ -407,7 +407,6 @@ const BlockLevelOption = (
   // of <BlockLevelSwitch>, which sets the state in the context:
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const { inputProps, isSelected } = useRadio(props, state!, inputRef);
-  // const [promoIsSelected, setPromoIsSelected] = useState(false);
   const { isFocusVisible, focusProps } = useFocusRing();
 
   return (
