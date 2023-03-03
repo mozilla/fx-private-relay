@@ -351,8 +351,11 @@ def _update_all_data(
             social_account.user.email = new_email
             social_account.user.save()
             email_address_record = social_account.user.emailaddress_set.first()
-            email_address_record.email = new_email
-            email_address_record.save()
+            if email_address_record:
+                email_address_record.email = new_email
+                email_address_record.save()
+            else:
+                social_account.user.emailaddress_set.create(email=new_email)
             return HttpResponse("202 Accepted", status=202)
     except IntegrityError as e:
         sentry_sdk.capture_exception(e)
