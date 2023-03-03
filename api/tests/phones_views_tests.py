@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Iterator, Literal, Optional
+from typing import Iterator, Literal
 from unittest.mock import Mock, patch, call
 from django.test.utils import override_settings
 
@@ -160,7 +160,7 @@ def test_realphone_post_valid_us_es164_number(phone_user, mocked_twilio_client):
     response = client.post(path, data, format="json")
     assert response.status_code == 201
     assert response.data["number"] == number
-    assert response.data["verified"] == False
+    assert response.data["verified"] is False
     assert response.data["verification_sent_date"] != ""
     assert "Sent verification" in response.data["message"]
 
@@ -193,7 +193,7 @@ def test_realphone_post_valid_ca_es164_number(phone_user, mocked_twilio_client):
     response = client.post(path, data, format="json")
     assert response.status_code == 201
     assert response.data["number"] == number
-    assert response.data["verified"] == False
+    assert response.data["verified"] is False
     assert response.data["verification_sent_date"] != ""
     assert "Sent verification" in response.data["message"]
 
@@ -222,7 +222,7 @@ def test_realphone_post_valid_es164_number_already_sent_code(
     response = client.post(path, data, format="json")
     assert response.status_code == 201
     assert response.data["number"] == number
-    assert response.data["verified"] == False
+    assert response.data["verified"] is False
     assert response.data["verification_sent_date"] != ""
     assert "Sent verification" in response.data["message"]
 
@@ -259,7 +259,7 @@ def test_realphone_post_canadian_number(phone_user, mocked_twilio_client):
     response = client.post(path, data, format="json", HTTP_X_CLIENT_REGION="nl")
     assert response.status_code == 201
     assert response.data["number"] == number
-    assert response.data["verified"] == False
+    assert response.data["verified"] is False
     assert response.data["verification_sent_date"] != ""
     assert "Sent verification" in response.data["message"]
 
@@ -277,7 +277,7 @@ def test_realphone_post_valid_verification_code(phone_user, mocked_twilio_client
     response = client.post(path, data, format="json")
     assert response.status_code == 201
     assert response.data["number"] == real_phone.number
-    assert response.data["verified"] == True
+    assert response.data["verified"] is True
     assert response.data["verified_date"] != ""
 
     mocked_twilio_client.lookups.v1.phone_numbers().fetch.assert_not_called()
@@ -294,8 +294,8 @@ def test_realphone_post_invalid_verification_code(phone_user, mocked_twilio_clie
     assert response.status_code == 400
     assert "Could Not Find" in response.data[0].title()
     real_phone.refresh_from_db()
-    assert real_phone.verified == False
-    assert real_phone.verified_date == None
+    assert real_phone.verified is False
+    assert real_phone.verified_date is None
 
     mocked_twilio_client.lookups.v1.phone_numbers().fetch.assert_not_called()
 
@@ -328,7 +328,7 @@ def test_realphone_patch_verification_code(phone_user, mocked_twilio_client):
     response = client.patch(path, data, format="json")
     assert response.status_code == 200
     assert response.data["number"] == real_phone.number
-    assert response.data["verified"] == True
+    assert response.data["verified"] is True
     assert response.data["verified_date"] != ""
 
     mocked_twilio_client.lookups.v1.phone_numbers().fetch.assert_not_called()
@@ -347,7 +347,7 @@ def test_realphone_patch_verification_code_twice(phone_user, mocked_twilio_clien
     response = client.patch(path, data, format="json")
     assert response.status_code == 200
     assert response.data["number"] == real_phone.number
-    assert response.data["verified"] == True
+    assert response.data["verified"] is True
     assert response.data["verified_date"] != ""
 
     mocked_twilio_client.lookups.v1.phone_numbers().fetch.assert_not_called()
@@ -355,7 +355,7 @@ def test_realphone_patch_verification_code_twice(phone_user, mocked_twilio_clien
     response = client.patch(path, data, format="json")
     assert response.status_code == 200
     assert response.data["number"] == real_phone.number
-    assert response.data["verified"] == True
+    assert response.data["verified"] is True
     assert response.data["verified_date"] != ""
 
 
@@ -369,8 +369,8 @@ def test_realphone_patch_invalid_number(phone_user, mocked_twilio_client):
     response = client.patch(path, data, format="json")
     assert response.status_code == 400
     real_phone.refresh_from_db()
-    assert real_phone.verified == False
-    assert real_phone.verified_date == None
+    assert real_phone.verified is False
+    assert real_phone.verified_date is None
 
     mocked_twilio_client.lookups.v1.phone_numbers().fetch.assert_not_called()
 
@@ -385,8 +385,8 @@ def test_realphone_patch_invalid_verification_code(phone_user, mocked_twilio_cli
     response = client.patch(path, data, format="json")
     assert response.status_code == 400
     real_phone.refresh_from_db()
-    assert real_phone.verified == False
-    assert real_phone.verified_date == None
+    assert real_phone.verified is False
+    assert real_phone.verified_date is None
 
     mocked_twilio_client.lookups.v1.phone_numbers().fetch.assert_not_called()
 
@@ -401,7 +401,7 @@ def test_realphone_delete_cant_delete_verified(phone_user):
 
     assert response.status_code == 400
     real_phone.refresh_from_db()
-    assert real_phone.verified == True
+    assert real_phone.verified is True
 
 
 def test_realphone_delete_non_verified(phone_user):
@@ -438,7 +438,7 @@ def test_relaynumber_post_with_existing_returns_error(phone_user, mocked_twilio_
 def test_relaynumber_patch_to_toggle(phone_user, mocked_twilio_client):
     _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user)
-    assert relay_number.enabled == True
+    assert relay_number.enabled is True
     mock_create = Mock()
     mocked_twilio_client.incoming_phone_numbers.create = mock_create
 
@@ -450,7 +450,7 @@ def test_relaynumber_patch_to_toggle(phone_user, mocked_twilio_client):
 
     assert response.status_code == 200
     relay_number.refresh_from_db()
-    assert relay_number.enabled == False
+    assert relay_number.enabled is False
     mock_create.assert_not_called()
 
     data = {"enabled": True}
@@ -458,7 +458,7 @@ def test_relaynumber_patch_to_toggle(phone_user, mocked_twilio_client):
 
     assert response.status_code == 200
     relay_number.refresh_from_db()
-    assert relay_number.enabled == True
+    assert relay_number.enabled is True
     mock_create.assert_not_called()
 
 
@@ -1278,9 +1278,9 @@ _sms_reply_error_test_cases = {
     "short prefix with multiple matching contacts": (
         "0001 test reply to ambiguous number",
         (
-            "Message failed to send. There is more than one phone number in this thread"
-            " ending in \u20680001\u2069. To retry, start your message with the complete"
-            " number."
+            "Message failed to send. There is more than one phone number in this"
+            " thread ending in \u20680001\u2069. To retry, start your message with the"
+            " complete number."
         ),
     ),
     "short prefix without matching contact": (
@@ -1840,11 +1840,16 @@ def test_voice_status_completed_no_duration_error(phone_user):
 def test_voice_status_completed_reduces_remaining_seconds(
     mocked_events_info, phone_user
 ):
-    # TODO: This test should fail since the Relay Number is disabled and
-    # the POST to our /api/v1/voice_status should ignore the the reduced remaining seconds.
-    # This is currently passing because the voice_status() is not checking
-    # if the user's Relay Number has hit the limit or is disabled (bug logged in MPP-2452).
+    # TODO: This test should fail since the Relay Number is disabled and the
+    # POST to our /api/v1/voice_status should ignore the the reduced remaining
+    # seconds.
+    #
+    # This is currently passing because the voice_status() is not checking if
+    # the user's Relay Number has hit the limit or is disabled (bug logged in
+    # MPP-2452).
+    #
     # Keeping this test so we can correct it once MPP-2452 is completed.
+
     _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=False)
     pre_request_remaining_seconds = relay_number.remaining_seconds
