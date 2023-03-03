@@ -779,7 +779,7 @@ message_request_body = openapi.Schema(
 @decorators.api_view(["POST"])
 def post_message(request):
     """
-    Send a message from the user's realy number.
+    Send a message from the user's relay number.
 
     POST params:
         body: the body of the message
