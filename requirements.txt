@@ -46,6 +46,6 @@ black==22.12.0
 # type hinting
 mypy==1.0.1
 types-pyOpenSSL==23.0.0.3
-types-requests==2.28.11.13
+types-requests==2.28.11.15
 django-stubs==1.14.0
 djangorestframework-stubs==1.9.1
