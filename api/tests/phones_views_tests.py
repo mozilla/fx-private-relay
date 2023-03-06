@@ -11,6 +11,7 @@ from django.contrib.auth.models import User
 
 from model_bakery import baker
 from rest_framework.test import APIClient
+from waffle.models import Flag
 from waffle.testutils import override_flag
 import pytest
 
@@ -30,7 +31,55 @@ pytestmark = pytest.mark.skipif(
 
 @pytest.fixture()
 def phone_user(db):
-    yield make_phone_test_user()
+    return make_phone_test_user()
+
+
+_REAL_PHONE = "+12223334444"
+_RELAY_NUMBER = "+19998887777"
+
+
+def _make_real_phone(phone_user, **kwargs):
+    return RealPhone.objects.create(user=phone_user, number=_REAL_PHONE, **kwargs)
+
+
+def _make_relay_number(phone_user, vendor="twilio", **kwargs):
+    return RelayNumber.objects.create(
+        user=phone_user, number=_RELAY_NUMBER, vendor=vendor, **kwargs
+    )
+
+
+@pytest.fixture()
+def registered_phone_user(phone_user):
+    _make_real_phone(phone_user, verified=True)
+    _make_relay_number(phone_user)
+    return phone_user
+
+
+@pytest.fixture()
+def mobile_app_flag(db):
+    flag = Flag.objects.create(name="mobile_app")
+    yield flag
+    flag.delete()
+
+
+@pytest.fixture()
+def outbound_phone_flag(db):
+    flag = Flag.objects.create(name="outbound_phone")
+    yield flag
+    flag.delete()
+
+
+@pytest.fixture()
+def mobile_app_user(phone_user, mobile_app_flag):
+    mobile_app_flag.users.add(phone_user)
+    return phone_user
+
+
+@pytest.fixture()
+def outbound_phone_user(registered_phone_user, mobile_app_flag, outbound_phone_flag):
+    mobile_app_flag.users.add(registered_phone_user)
+    outbound_phone_flag.users.add(registered_phone_user)
+    return registered_phone_user
 
 
 @pytest.fixture(autouse=True)
@@ -69,18 +118,6 @@ def mocked_twilio_validator():
     ) as mock_twilio_validator:
         mock_twilio_validator.validate = Mock(return_value=True)
         yield mock_twilio_validator
-
-
-def _make_real_phone(phone_user, **kwargs):
-    number = "+12223334444"
-    return RealPhone.objects.create(user=phone_user, number=number, **kwargs)
-
-
-def _make_relay_number(phone_user, vendor="twilio", **kwargs):
-    relay_number = "+19998887777"
-    return RelayNumber.objects.create(
-        user=phone_user, number=relay_number, vendor=vendor, **kwargs
-    )
 
 
 @override_settings(IQ_ENABLED=False)
@@ -1979,3 +2016,64 @@ def test_sms_status_delivered_deletes_message_from_twilio(mocked_twilio_client):
     assert response.status_code == 200
     mocked_twilio_client.messages.assert_called_once_with(message_sid)
     mock_message.delete.assert_called_once()
+
+
+def test_outbound_call_fails_with_no_auth():
+    response = APIClient().post("/api/v1/call/", {"to": "+14045551234"})
+    assert response.status_code == 401
+    assert response.json() == {
+        "detail": "Authentication credentials were not provided."
+    }
+
+
+def test_outbound_call_fails_without_outbound_phone_flag(mobile_app_user):
+    client = APIClient()
+    client.force_authenticate(mobile_app_user)
+    response = client.post("/api/v1/call/", {"to": "+14045551234"})
+    assert response.status_code == 403
+    assert response.json() == {"detail": "Requires outbound_phone waffle flag."}
+
+
+def test_outbound_call_fails_without_number(outbound_phone_user, mocked_twilio_client):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post("/api/v1/call/", {})
+    assert response.status_code == 400
+    assert response.json() == {"to": "Phone number must be provided."}
+
+
+@pytest.mark.xfail(reason="to number is not validated")
+def test_outbound_call_fails_with_short_phone_number(
+    outbound_phone_user, mocked_twilio_client
+):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post("/api/v1/call/", {"to": "555-1234"})
+    assert response.status_code == 400
+    assert response.json() == {"to": "Phone number must be in E.164 format."}
+
+
+@pytest.mark.xfail(reason="to number is not validated")
+def test_outbound_call_fails_with_us_format_number(
+    outbound_phone_user, mocked_twilio_client
+):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post("/api/v1/call/", {"to": "(404) 555-1234"})
+    assert response.status_code == 400
+    assert response.json() == {"to": "Phone number must be in E.164 format."}
+
+
+def test_outbound_call(outbound_phone_user, mocked_twilio_client):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post("/api/v1/call/", {"to": "+14045551234"})
+    assert response.status_code == 200
+    mocked_twilio_client.calls.create.assert_called_once_with(
+        twiml=(
+            "<Response><Say>Dialing +14045551234 ...</Say>"
+            "<Dial>+14045551234</Dial></Response>"
+        ),
+        to=_REAL_PHONE,
+        from_=_RELAY_NUMBER,
+    )

@@ -750,10 +750,13 @@ def outbound_call(request):
 
     """
     if not flag_is_active(request, "outbound_phone"):
-        return response.Response({"outbound_phone": False}, status=404)
+        # Return Permission Denied error
+        return response.Response(
+            {"detail": "Requires outbound_phone waffle flag."}, status=403
+        )
     to = request.data.get("to", None)
     if to is None:
-        raise exceptions.ValidationError("Missing 'to' parameter.")
+        raise exceptions.ValidationError({"to": "Phone number must be provided."})
     real_phone = RealPhone.objects.get(user=request.user)
     relay_number = RelayNumber.objects.get(user=request.user)
     client = twilio_client()
