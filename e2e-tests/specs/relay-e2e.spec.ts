@@ -15,6 +15,10 @@ test.describe('Relay e2e function email forwarding', () => {
       dashboardPage,
       page
     }) => {
+        // This tests creates a new Firefox Account with a new mask, to have
+        // the signup confirmation email show up in the forwarded email count.
+        // This is a pretty slow process:
+        test.slow()
         await dashboardPage.open()
         await checkAuthState(page)
         const forwardedEmailCount = await dashboardPage.checkForwardedEmailCount()

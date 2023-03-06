@@ -11,6 +11,8 @@ test.describe('Free - General Functionalities, Desktop', () => {
   });
   
   test('Check the free user can only create 5 masks, C1553067', async ({ dashboardPage }) => {
+    // Generating five masks takes a while:
+    test.slow()
     await dashboardPage.generateMask(5)
     
     // After five times, the button becomes greyed-out and the user cannot add other masks anymore (TODO: for a free user from a country where Premium is NOT available).
