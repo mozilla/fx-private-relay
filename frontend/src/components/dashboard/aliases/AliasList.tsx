@@ -14,6 +14,8 @@ import { useFlaggedAnchorLinks } from "../../../hooks/flaggedAnchorLinks";
 import { useL10n } from "../../../hooks/l10n";
 import { Localized } from "../../Localized";
 import { VisuallyHidden } from "../../VisuallyHidden";
+import { MaskCard } from "./MaskCard";
+import { isFlagActive } from "../../../functions/waffle";
 
 export type Props = {
   aliases: AliasData[];
@@ -127,21 +129,43 @@ export const AliasList = (props: Props) => {
         key={alias.address + isRandomAlias(alias)}
         id={encodeURIComponent(alias.full_address)}
       >
-        <Alias
-          alias={alias}
-          user={props.user}
-          profile={props.profile}
-          onUpdate={onUpdate}
-          onDelete={() => props.onDelete(alias)}
-          isOpen={
-            openAlias !== undefined &&
-            openAlias.id === alias.id &&
-            openAlias.mask_type === alias.mask_type
-          }
-          onChangeOpen={onChangeOpen}
-          showLabelEditor={props.profile.server_storage || localLabels !== null}
-          runtimeData={props.runtimeData}
-        />
+        {isFlagActive(props.runtimeData, "mask_redesign") ? (
+          <MaskCard
+            mask={alias}
+            user={props.user}
+            profile={props.profile}
+            onUpdate={onUpdate}
+            onDelete={() => props.onDelete(alias)}
+            isOpen={
+              openAlias !== undefined &&
+              openAlias.id === alias.id &&
+              openAlias.mask_type === alias.mask_type
+            }
+            onChangeOpen={onChangeOpen}
+            showLabelEditor={
+              props.profile.server_storage || localLabels !== null
+            }
+            runtimeData={props.runtimeData}
+          />
+        ) : (
+          <Alias
+            alias={alias}
+            user={props.user}
+            profile={props.profile}
+            onUpdate={onUpdate}
+            onDelete={() => props.onDelete(alias)}
+            isOpen={
+              openAlias !== undefined &&
+              openAlias.id === alias.id &&
+              openAlias.mask_type === alias.mask_type
+            }
+            onChangeOpen={onChangeOpen}
+            showLabelEditor={
+              props.profile.server_storage || localLabels !== null
+            }
+            runtimeData={props.runtimeData}
+          />
+        )}
       </li>
     );
   });
