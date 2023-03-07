@@ -586,10 +586,7 @@ def inbound_sms_iq(request: Request) -> response.Response:
 
     number_disabled = _check_disabled(relay_number, "texts")
     if number_disabled:
-        return response.Response(
-            status=200,
-            template_name="twiml_empty_response.xml",
-        )
+        return response.Response(status=200)
 
     inbound_contact = _get_inbound_contact(relay_number, from_num)
     if inbound_contact:
