@@ -20,7 +20,6 @@ import {
   useRadio,
   useRadioGroup,
   useToggleButton,
-  VisuallyHidden,
 } from "react-aria";
 import Link from "next/link";
 import Image from "next/image";
@@ -41,6 +40,7 @@ import { getLocale } from "../../../functions/getLocale";
 import { isFlagActive } from "../../../functions/waffle";
 import { renderDate } from "../../../functions/renderDate";
 import { AliasDeletionButton } from "./AliasDeletionButton";
+import { VisuallyHidden } from "./../../VisuallyHidden";
 
 export type Props = {
   mask: AliasData;
