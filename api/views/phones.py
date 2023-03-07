@@ -593,8 +593,13 @@ def inbound_sms_iq(request: Request) -> response.Response:
         _check_and_update_contact(inbound_contact, "texts", relay_number)
 
     iq_formatted_real_num = real_phone.number.replace("+", "")
+    iq_formatted_relay_num = relay_number.number.replace("+", "")
     text = message_body(inbound_from, inbound_body)
-    json_body = {"from": relay_num, "to": [iq_formatted_real_num], "text": text}
+    json_body = {
+        "from": iq_formatted_relay_num,
+        "to": [iq_formatted_real_num],
+        "text": text,
+    }
     resp = requests.post(
         "https://messagebroker.inteliquent.com/msgbroker/rest/publishMessages",
         headers={"Authorization": f"Bearer {settings.IQ_OUTBOUND_API_KEY}"},
