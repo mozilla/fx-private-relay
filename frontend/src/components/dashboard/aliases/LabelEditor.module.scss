@@ -7,18 +7,29 @@
 .label-input {
   font-family: $font-stack-firefox;
   background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: calc(100% - $spacing-xs);
   border-color: transparent;
+  border-radius: $border-radius-sm;
   padding: $spacing-xs $spacing-sm;
   // The pencil icon is 16px wide
-  padding-right: calc($spacing-sm + 16px);
+  padding-inline-end: calc($spacing-sm + 16px);
+
+  @media screen and (pointer: coarse) {
+    // On touch screens, the pencil is always visible and left-aligned, to be
+    // flush with the placeholder, because the user can't discover that it's
+    // editable through hovering:
+    background-image: url("/icons/edit.svg");
+    background-position: $spacing-xs;
+    padding-inline-end: $spacing-sm;
+    // The pencil icon is 16px wide
+    padding-inline-start: calc($spacing-sm + 16px);
+  }
 
   &:hover,
   &:focus {
     background-image: url("/icons/edit.svg");
-    background-repeat: no-repeat;
-    background-position: calc(100% - $spacing-xs);
     background-color: $color-light-gray-20;
-    border-radius: $border-radius-sm;
   }
 }
 

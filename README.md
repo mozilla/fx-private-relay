@@ -37,11 +37,17 @@ Please refer to our [coding standards](docs/coding-standards.md) for code styles
 
 2. Create and activate a virtual environment:
 
+   Unix based systems: 
    ```sh
    virtualenv env
    source env/bin/activate
    ```
-
+   Windows: 
+   ```sh
+   python -m venv env
+   source env/Scripts/activate
+   ```
+   
 3. Install Python and Node requirements:
 
    ```sh
@@ -53,6 +59,8 @@ Please refer to our [coding standards](docs/coding-standards.md) for code styles
    npm install
    cd ../
    ```
+
+   Note: If you're running on Windows, you may run into an issue with usage of environment variables in npm scripts. You can force npm to use git-bash: `npm config set script-shell "C:\\Program Files\\Git\\bin\\bash.exe"`. This the default location, your install may be different.
 
 4. Copy `.env` file for
    [`decouple`](https://pypi.org/project/python-decouple/) config:
