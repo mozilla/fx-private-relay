@@ -1,13 +1,14 @@
 from dataclasses import dataclass
 from typing import Iterator, Literal
 from unittest.mock import Mock, patch, call
-from django.test.utils import override_settings
+import re
 
 from twilio.request_validator import RequestValidator
 from twilio.rest import Client
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.test.utils import override_settings
 
 from model_bakery import baker
 from rest_framework.test import APIClient
@@ -87,18 +88,45 @@ def mocked_twilio_client():
     """
     Mock PhonesConfig with a mock twilio client
     """
+    re_e164 = re.compile(
+        r"""
+    \+1                    # Initial code
+    (?P<area_code>\d\d\d)  # Area code
+    (?P<exchange>\d\d\d)   # Exchange code
+    (?P<lastfour>\d\d\d\d) # Last 4 digits
+    """,
+        re.VERBOSE,
+    )
+
     with patch(
         "phones.apps.PhonesConfig.twilio_client", spec_set=Client
     ) as mock_twilio_client:
-        mock_fetch = Mock(
-            return_value=Mock(
-                country_code="US", phone_number="+12223334444", carrier="verizon"
+
+        def mock_phone_lookup(number: str | None = None):
+            """Return number details based on the number passed to phone_numbers()"""
+            if number is None:
+                # Allow mocked_twilio_client.lookups.v1.phone_numbers().fetch to work
+                return mocked_twilio_client._pn_return  # type: ignore[attr-defined]
+            match = re_e164.match(number)
+            assert match
+            national_format = (
+                f"({match.group('area_code')}) "
+                f"{match.group('exchange')}-{match.group('lastfour')}"
             )
-        )
-        mock_twilio_client.lookups.v1.phone_numbers = Mock(
-            return_value=Mock(fetch=mock_fetch)
-        )
+            mock_details = Mock(
+                country_code="US",
+                phone_number=number,
+                carrier="verizon",
+                national_format=national_format,
+            )
+            mock_return = Mock(fetch=Mock(return_value=mock_details))
+            mocked_twilio_client._pn_return = mock_return  # type: ignore[attr-defined]
+            return mock_return
+
+        mocked_twilio_client._pn_return = Mock()
+        mock_twilio_client.lookups.v1.phone_numbers.side_effect = mock_phone_lookup
         yield mock_twilio_client
+        mocked_twilio_client._pn_return = Mock()
 
 
 @pytest.fixture(autouse=True)
@@ -275,7 +303,6 @@ def test_realphone_post_valid_es164_number_already_sent_code(
     response = client.post(path, data, format="json")
     assert response.status_code == 409
     mocked_twilio_client.lookups.v1.phone_numbers.assert_not_called()
-    mocked_twilio_client.lookups.v1.phone_numbers().fetch.assert_not_called()
     mocked_twilio_client.messages.create.assert_not_called()
 
 
@@ -2039,10 +2066,9 @@ def test_outbound_call_fails_without_number(outbound_phone_user, mocked_twilio_c
     client.force_authenticate(outbound_phone_user)
     response = client.post("/api/v1/call/", {})
     assert response.status_code == 400
-    assert response.json() == {"to": "Phone number must be provided."}
+    assert response.json() == {"to": "A number is required."}
 
 
-@pytest.mark.xfail(reason="to number is not validated")
 def test_outbound_call_fails_with_short_phone_number(
     outbound_phone_user, mocked_twilio_client
 ):
@@ -2050,18 +2076,10 @@ def test_outbound_call_fails_with_short_phone_number(
     client.force_authenticate(outbound_phone_user)
     response = client.post("/api/v1/call/", {"to": "555-1234"})
     assert response.status_code == 400
-    assert response.json() == {"to": "Phone number must be in E.164 format."}
-
-
-@pytest.mark.xfail(reason="to number is not validated")
-def test_outbound_call_fails_with_us_format_number(
-    outbound_phone_user, mocked_twilio_client
-):
-    client = APIClient()
-    client.force_authenticate(outbound_phone_user)
-    response = client.post("/api/v1/call/", {"to": "(404) 555-1234"})
-    assert response.status_code == 400
-    assert response.json() == {"to": "Phone number must be in E.164 format."}
+    assert response.json() == [
+        "number must be in E.164 format, or in local national format of the country "
+        "detected: None"
+    ]
 
 
 def test_outbound_call(outbound_phone_user, mocked_twilio_client):
@@ -2071,8 +2089,40 @@ def test_outbound_call(outbound_phone_user, mocked_twilio_client):
     assert response.status_code == 200
     mocked_twilio_client.calls.create.assert_called_once_with(
         twiml=(
-            "<Response><Say>Dialing +14045551234 ...</Say>"
+            "<Response><Say>Dialing (404) 555-1234 ...</Say>"
             "<Dial>+14045551234</Dial></Response>"
+        ),
+        to=_REAL_PHONE,
+        from_=_RELAY_NUMBER,
+    )
+
+
+def test_outbound_call_fails_with_us_format_number_but_no_country(
+    outbound_phone_user, mocked_twilio_client
+):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post("/api/v1/call/", {"to": "(404) 555-111"})
+    assert response.status_code == 400
+    assert response.json() == [
+        "number must be in E.164 format, or in local national format of the country "
+        "detected: None"
+    ]
+
+
+def test_outbound_call_with_us_format_and_country(
+    outbound_phone_user, mocked_twilio_client
+):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post(
+        "/api/v1/call/", {"to": "(404) 555-1111"}, HTTP_X_CLIENT_REGION="US"
+    )
+    assert response.status_code == 200
+    mocked_twilio_client.calls.create.assert_called_once_with(
+        twiml=(
+            "<Response><Say>Dialing (404) 555-1111 ...</Say>"
+            "<Dial>+14045551111</Dial></Response>"
         ),
         to=_REAL_PHONE,
         from_=_RELAY_NUMBER,

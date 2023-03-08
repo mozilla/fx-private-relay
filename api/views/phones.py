@@ -368,9 +368,12 @@ class InboundContactViewSet(viewsets.ModelViewSet):
         return InboundContact.objects.filter(relay_number=request_user_relay_num)
 
 
-def _validate_number(request):
+def _validate_number(request, number_field="number"):
+    if number_field not in request.data:
+        raise exceptions.ValidationError({number_field: "A number is required."})
+
     parsed_number = _parse_number(
-        request.data["number"], getattr(request, "country", None)
+        request.data[number_field], getattr(request, "country", None)
     )
     if not parsed_number:
         country = None
@@ -754,14 +757,15 @@ def outbound_call(request):
         return response.Response(
             {"detail": "Requires outbound_phone waffle flag."}, status=403
         )
-    to = request.data.get("to", None)
-    if to is None:
-        raise exceptions.ValidationError({"to": "Phone number must be provided."})
+    to = _validate_number(request, "to")
     real_phone = RealPhone.objects.get(user=request.user)
     relay_number = RelayNumber.objects.get(user=request.user)
     client = twilio_client()
     client.calls.create(
-        twiml=f"<Response><Say>Dialing {to} ...</Say><Dial>{to}</Dial></Response>",
+        twiml=(
+            f"<Response><Say>Dialing {to.national_format} ...</Say>"
+            f"<Dial>{to.phone_number}</Dial></Response>"
+        ),
         to=real_phone.number,
         from_=relay_number.number,
     )
