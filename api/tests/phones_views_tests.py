@@ -2127,3 +2127,41 @@ def test_outbound_call_with_us_format_and_country(
         to=_REAL_PHONE,
         from_=_RELAY_NUMBER,
     )
+
+
+def test_outbound_call_to_service_number_no_country(
+    outbound_phone_user, mocked_twilio_client
+):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post("/api/v1/call/", {"to": "511"})
+    assert response.status_code == 200
+    mocked_twilio_client.calls.create.assert_called_once_with(
+        twiml=("<Response><Say>Dialing 511 ...</Say>" "<Dial>511</Dial></Response>"),
+        to=_REAL_PHONE,
+        from_=_RELAY_NUMBER,
+    )
+
+
+@pytest.mark.parametrize("country", ("US", "CA"))
+def test_outbound_call_to_service_number_with_country(
+    outbound_phone_user, mocked_twilio_client, country
+):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post("/api/v1/call/", {"to": "411"}, HTTP_X_CLIENT_REGION=country)
+    assert response.status_code == 200
+    mocked_twilio_client.calls.create.assert_called_once_with(
+        twiml=("<Response><Say>Dialing 411 ...</Say>" "<Dial>411</Dial></Response>"),
+        to=_REAL_PHONE,
+        from_=_RELAY_NUMBER,
+    )
+
+
+def test_outbound_call_to_service_number_outside_north_america(
+    outbound_phone_user, mocked_twilio_client
+):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post("/api/v1/call/", {"to": "311"}, HTTP_X_CLIENT_REGION="UK")
+    assert response.status_code == 400
