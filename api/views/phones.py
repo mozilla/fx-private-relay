@@ -856,13 +856,27 @@ def outbound_sms(request):
     )
 
 
-messages_body = openapi.Schema(
-    type=openapi.TYPE_OBJECT,
-    properties={"with": openapi.Schema(type=openapi.TYPE_STRING)},
-)
+messages_query = [
+    openapi.Parameter(
+        "with",
+        openapi.IN_QUERY,
+        description="filter to messages with the given E.164 number",
+        type=openapi.TYPE_STRING,
+        required=False,
+    ),
+    openapi.Parameter(
+        "direction",
+        openapi.IN_QUERY,
+        description="filter to inbound or outbound messages",
+        type=openapi.TYPE_STRING,
+        enum=["inbound", "outbound"],
+        required=False,
+    ),
+]
 
 
 @decorators.permission_classes([permissions.IsAuthenticated, HasPhoneService])
+@swagger_auto_schema(method="get", manual_parameters=messages_query)
 @decorators.api_view(["GET"])
 def list_messages(request):
     """
