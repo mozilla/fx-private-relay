@@ -2061,6 +2061,27 @@ def test_outbound_call_fails_without_outbound_phone_flag(mobile_app_user):
     assert response.json() == {"detail": "Requires outbound_phone waffle flag."}
 
 
+def test_outbound_call_fails_without_real_phone(phone_user, outbound_phone_flag):
+    outbound_phone_flag.users.add(phone_user)
+    client = APIClient()
+    client.force_authenticate(phone_user)
+    response = client.post("/api/v1/call/", {"to": "+14045551234"})
+    assert response.status_code == 400
+    assert response.json() == {
+        "detail": "Requires a verified real phone and phone mask."
+    }
+
+
+def test_outbound_call_fails_without_phone_mask(phone_user, outbound_phone_flag):
+    outbound_phone_flag.users.add(phone_user)
+    _make_real_phone(phone_user, verified=True)
+    client = APIClient()
+    client.force_authenticate(phone_user)
+    response = client.post("/api/v1/call/", {"to": "+14045551234"})
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Requires a phone mask."}
+
+
 def test_outbound_call_fails_without_number(outbound_phone_user, mocked_twilio_client):
     client = APIClient()
     client.force_authenticate(outbound_phone_user)

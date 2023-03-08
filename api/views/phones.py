@@ -778,8 +778,17 @@ def outbound_call(request):
         return response.Response(
             {"detail": "Requires outbound_phone waffle flag."}, status=403
         )
-    real_phone = RealPhone.objects.get(user=request.user)
-    relay_number = RelayNumber.objects.get(user=request.user)
+    try:
+        real_phone = RealPhone.objects.get(user=request.user, verified=True)
+    except RealPhone.DoesNotExist:
+        return response.Response(
+            {"detail": "Requires a verified real phone and phone mask."}, status=400
+        )
+    try:
+        relay_number = RelayNumber.objects.get(user=request.user)
+    except RelayNumber.DoesNotExist:
+        return response.Response({"detail": "Requires a phone mask."}, status=400)
+
     client = twilio_client()
 
     # Handle N11 service codes (411, 511, 911) in North America
