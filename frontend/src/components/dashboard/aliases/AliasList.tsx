@@ -201,9 +201,9 @@ export const AliasList = (props: Props) => {
       </Localized>
     ) : null;
 
-  const handleOnChange = (value: string) => { 
+  const handleOnChange = (value: string) => {
     // removes Unicode characters found within the range of 0080 to FFFF
-    setStringFilterInput(value.replace(/[\u{0080}-\u{FFFF}]/gu,"")); 
+    setStringFilterInput(value.replace(/[\u{0080}-\u{FFFF}]/gu, ""));
   };
 
   return (
