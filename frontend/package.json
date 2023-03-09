@@ -65,7 +65,6 @@
     "react-test-renderer": "^18.2.0",
     "sass": "^1.61.0",
     "stylelint": "^15.4.0",
-    "stylelint-config-prettier-scss": "^0.0.1",
     "stylelint-config-recommended-scss": "^9.0.1",
     "stylelint-scss": "^4.6.0",
     "typescript": "^5.0.4"
