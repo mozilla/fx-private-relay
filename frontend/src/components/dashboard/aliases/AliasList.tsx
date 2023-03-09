@@ -201,6 +201,11 @@ export const AliasList = (props: Props) => {
       </Localized>
     ) : null;
 
+  const handleOnChange = (value: string) => {
+    // removes Unicode characters found within the range of 0080 to FFFF
+    setStringFilterInput(value.replace(/[\u{0080}-\u{FFFF}]/gu, ""));
+  };
+
   return (
     <section>
       <div className={styles.controls}>
@@ -216,7 +221,7 @@ export const AliasList = (props: Props) => {
           </VisuallyHidden>
           <input
             value={stringFilterInput}
-            onChange={(e) => setStringFilterInput(e.target.value)}
+            onChange={(e) => handleOnChange(e.target.value)}
             type="search"
             name="stringFilter"
             id="stringFilter"
