@@ -1,9 +1,12 @@
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
+import hashlib
 from typing import Literal, Optional
 import logging
 import re
 import string
+import requests
+from rest_framework.request import Request
 
 from waffle import get_waffle_flag_model
 import django_ftl
@@ -473,6 +476,10 @@ def _try_delete_from_twilio(message):
             raise e
 
 
+def message_body(from_num, body):
+    return f"[Relay 📲 {from_num}] {body}"
+
+
 @decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.AllowAny])
 @decorators.renderer_classes([TemplateTwiMLRenderer])
@@ -535,9 +542,10 @@ def inbound_sms(request):
     client = twilio_client()
     app = twiml_app()
     incr_if_enabled("phones_outbound_sms")
+    body = message_body(inbound_from, inbound_body)
     client.messages.create(
         from_=relay_number.number,
-        body=f"[Relay 📲 {inbound_from}] {inbound_body}",
+        body=body,
         status_callback=app.sms_status_callback,
         to=real_phone.number,
     )
@@ -548,6 +556,63 @@ def inbound_sms(request):
         status=201,
         template_name="twiml_empty_response.xml",
     )
+
+
+@decorators.api_view(["POST"])
+@decorators.permission_classes([permissions.AllowAny])
+def inbound_sms_iq(request: Request) -> response.Response:
+    incr_if_enabled("phones_inbound_sms_iq")
+    _validate_iq_request(request)
+
+    inbound_body = request.data.get("text", None)
+    inbound_from = request.data.get("from", None)
+    inbound_to = request.data.get("to", None)
+    if inbound_body is None or inbound_from is None or inbound_to is None:
+        raise exceptions.ValidationError("Request missing from, to, or text.")
+
+    from_num = phonenumbers.format_number(
+        phonenumbers.parse(inbound_from, "US"),
+        phonenumbers.PhoneNumberFormat.E164,
+    )
+    single_num = inbound_to[0]
+    relay_num = phonenumbers.format_number(
+        phonenumbers.parse(single_num, "US"), phonenumbers.PhoneNumberFormat.E164
+    )
+
+    relay_number, real_phone = _get_phone_objects(relay_num)
+    _check_remaining(relay_number, "texts")
+
+    # TODO: handle replies
+
+    number_disabled = _check_disabled(relay_number, "texts")
+    if number_disabled:
+        return response.Response(status=200)
+
+    inbound_contact = _get_inbound_contact(relay_number, from_num)
+    if inbound_contact:
+        _check_and_update_contact(inbound_contact, "texts", relay_number)
+
+    iq_formatted_real_num = real_phone.number.replace("+", "")
+    iq_formatted_relay_num = relay_number.number.replace("+", "")
+    text = message_body(inbound_from, inbound_body)
+    json_body = {
+        "from": iq_formatted_relay_num,
+        "to": [iq_formatted_real_num],
+        "text": text,
+    }
+    resp = requests.post(
+        "https://messagebroker.inteliquent.com/msgbroker/rest/publishMessages",
+        headers={"Authorization": f"Bearer {settings.IQ_OUTBOUND_API_KEY}"},
+        json=json_body,
+    )
+    if not resp.status_code == 200:
+        raise exceptions.ValidationError("Call data missing Caller or Called.")
+
+    incr_if_enabled("phones_outbound_sms_iq")
+    relay_number.remaining_texts -= 1
+    relay_number.texts_forwarded += 1
+    relay_number.save()
+    return response.Response(status=200)
 
 
 @decorators.api_view(["POST"])
@@ -1046,3 +1111,27 @@ def _validate_twilio_request(request):
     if not validator.validate(url, sorted_params, request_signature):
         incr_if_enabled("phones_invalid_twilio_signature")
         raise exceptions.ValidationError("Invalid request: invalid signature")
+
+
+def compute_iq_mac(message_id: str) -> str:
+    iq_api_key = settings.IQ_INBOUND_API_KEY
+    # FIXME: switch to proper hmac when iQ is ready
+    # mac = hmac.new(iq_api_key.encode(), msg=message_id.encode(), digestmod=hashlib.sha256)
+    combined = iq_api_key + message_id
+    return hashlib.sha256(combined.encode()).hexdigest()
+
+
+def _validate_iq_request(request: Request) -> None:
+    if "Verificationtoken" not in request._request.headers:
+        raise exceptions.AuthenticationFailed("missing Verificationtoken header.")
+
+    if "MessageId" not in request._request.headers:
+        raise exceptions.AuthenticationFailed("missing MessageId header.")
+
+    message_id = request._request.headers["Messageid"]
+    mac = compute_iq_mac(message_id)
+
+    token = request._request.headers["verificationToken"]
+
+    if mac != token:
+        raise exceptions.AuthenticationFailed("verficiationToken != computed sha256")
