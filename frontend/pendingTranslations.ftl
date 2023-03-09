@@ -354,7 +354,7 @@ multi-part-onboarding-continue = Continue
 banner-set-email-domain-headline-action-needed = Action needed
 banner-set-email-domain-headline = Set your unique { -brand-name-relay } email domain
 banner-set-email-domain-step-one-headline = Select your preferred { -brand-name-relay } email domain
-banner-set-email-domain-step-one-body = It's part of your email after the @ symbol.
+banner-set-email-domain-step-one-body = It’s part of your email after the @ symbol.
 banner-set-email-domain-step-two-headline = Use it to instantly create custom { -brand-name-relay } masks
 # Variables:
 #   $mozmail (string): domain used by Relay masks (mozmail.com)
