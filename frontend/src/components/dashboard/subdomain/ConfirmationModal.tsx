@@ -48,20 +48,18 @@ const ConfirmModal = (props: Props) => {
     <PickerDialog
       title={
         <Localized
-          id="modal-domain-register-available-2"
+          id="modal-email-domain-available"
           vars={{
-            subdomain: props.subdomain,
-            domain: getRuntimeConfig().mozmailDomain,
+            custom_domain_full: `${props.subdomain}.mozmail.com`,
           }}
           elems={{
-            subdomain: <span className={styles.subdomain} />,
-            domain: <span className={styles.domain} />,
+            p: <p className={styles.subdomain} />,
           }}
         >
           <span className={styles["modal-title"]} />
         </Localized>
       }
-      headline={l10n.getString("modal-domain-register-good-news")}
+      headline={l10n.getString("modal-email-domain-good-news")}
       onClose={() => props.onClose()}
       isOpen={props.isOpen}
       isDismissable={true}

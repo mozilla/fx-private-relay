@@ -22,6 +22,23 @@
   flex-direction: column;
   justify-content: space-evenly;
 
+  .feature-item-list {
+    list-style-type: none;
+
+    li {
+      margin: $spacing-sm 0;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: $spacing-sm;
+
+      .check-icon {
+        fill: $color-blue-50;
+        width: 20px; // Width of the check icons
+      }
+    }
+  }
+
   h2 {
     @include text-title-sm;
     font-family: $font-stack-firefox;
@@ -37,11 +54,17 @@
   }
 
   .description {
+    @include text-body-sm;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: $spacing-2xl;
     padding-top: $spacing-lg;
+
+    .description-bolded-headline {
+      @include text-body-md;
+      font-weight: 600;
+    }
 
     @media screen and #{$mq-md} {
       flex-direction: row;

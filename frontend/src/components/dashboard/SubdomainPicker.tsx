@@ -61,32 +61,49 @@ export const SubdomainPicker = (props: Props) => {
   return (
     <div className={styles.card} id="mpp-choose-subdomain">
       <div className={styles.description}>
-        <span aria-hidden={true} className={styles["action-step"]}>
-          {l10n.getString("banner-label-action")}
-        </span>
-        <h2>
-          {l10n.getString("banner-register-subdomain-headline-aliases-2")}
-        </h2>
-        <samp className={styles.example} aria-hidden={true}>
-          ***@
-          <span className={styles["subdomain-part"]}>
-            {partialSubdomain !== ""
-              ? partialSubdomain
-              : l10n.getString("banner-register-subdomain-example-address")}
-          </span>
-          .{getRuntimeConfig().mozmailDomain}
-        </samp>
+        <p aria-hidden={true} className={styles["action-step"]}>
+          {l10n.getString("banner-set-email-domain-headline-action-needed")}
+        </p>
+        <h3>{l10n.getString("banner-set-email-domain-headline")}</h3>
         <p className={styles.lead}>
-          {l10n.getString("banner-register-subdomain-copy-2", {
-            mozmail: getRuntimeConfig().mozmailDomain,
-          })}
+          <dl className={styles["instruction-item"]}>
+            <dt>
+              <strong>
+                {l10n.getString("banner-set-email-domain-step-one-headline")}
+              </strong>
+            </dt>
+            <dd>{l10n.getString("banner-set-email-domain-step-one-body")}</dd>
+          </dl>
+          <dl className={styles["instruction-item"]}>
+            <dt>
+              <strong>
+                {l10n.getString("banner-set-email-domain-step-two-headline")}
+              </strong>
+            </dt>
+            <dd>
+              {l10n.getString("banner-set-email-domain-step-two-body", {
+                mozmail: "@mozmail.com",
+              })}
+            </dd>
+          </dl>
         </p>
         <Link href="/faq">
           {l10n.getString("banner-label-data-notification-body-cta")}
         </Link>
       </div>
       <div className={styles.search}>
-        <SubdomainSearchForm onType={onType} onPick={onPick} />
+        <div className={styles.example} aria-hidden={true}>
+          ***@
+          <span className={styles["subdomain-part"]}>
+            {partialSubdomain !== ""
+              ? partialSubdomain
+              : l10n.getString("banner-set-email-domain-placeholder")}
+          </span>
+          .{getRuntimeConfig().mozmailDomain}
+        </div>
+        <div className="input-wrapper">
+          <SubdomainSearchForm onType={onType} onPick={onPick} />
+        </div>
         <Image
           src={Illustration}
           width={200}
