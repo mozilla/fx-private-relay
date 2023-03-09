@@ -37,17 +37,20 @@ To make your local Relay RECEIVE messages you will also:
 1. Add `PHONES_ENABLED=True`
 2. Add `IQ_ENABLED=True`
 3. Add `IQ_OUTBOUND_API_KEY=` (ping @groovecoder for this)
+4. Add `IQ_INBOUND_API_KEY=` (ping @groovecoder for this)
 
 #### Send a test message (Pending)
 
 Now you're ready to send a test message to make sure inteliquent is configured
 correctly. The first message in the Relay phone flow is the verification code:
 
-1. Sign in at http://127.0.0.1:8000/.
-2. Go to [the staging "Relay Email & Phone Protection (127.0.0.1)" purchase page][buy-fonez] and buy a phone
+1. Use http://127.0.0.1:8000/admin/waffle/flag/ to give the `phones` waffle flag to a
+   user
+2. Sign in as that user at http://127.0.0.1:8000/
+3. Go to [the staging "Relay Email & Phone Protection (127.0.0.1)" purchase page][buy-fonez] and buy a phone
    subscription for the user. (Use a [Stripe testing card][stripe-test-cards] like
    `4242424242424242`)
-3. Go to http://127.0.0.1:8000/phone/ and verify your real phone: it will (soon) send an SMS
+4. (PENDING) Go to http://127.0.0.1:8000/phone/ and verify your real phone: it will (soon) send an SMS
    via inteliquent
 
 [buy-fonez]: https://accounts.stage.mozaws.net/subscriptions/products/prod_LgQiSgNi4xL7dq
@@ -87,6 +90,7 @@ Until the UI flow is done, you'll need to use the admin UI to do this:
    - Location: US
 5. Click "Save"
 6. Send a text message to your relay number.
+7. (Note) Replies are not working yet; will be handled in a future PR
 
 - You should see the inteliquent webhook request in your local runserver and you
   should receive the text message to your real phone!
