@@ -12,6 +12,7 @@ from django.test.utils import override_settings
 
 from model_bakery import baker
 from rest_framework.test import APIClient
+from twilio.base.exceptions import TwilioRestException
 from waffle.models import Flag
 from waffle.testutils import override_flag
 import pytest
@@ -2150,39 +2151,42 @@ def test_outbound_call_with_us_format_and_country(
     )
 
 
-def test_outbound_call_to_service_number_no_country(
+def test_outbound_call_to_service_number_from_unknown_country_fails(
     outbound_phone_user, mocked_twilio_client
 ):
     client = APIClient()
     client.force_authenticate(outbound_phone_user)
     response = client.post("/api/v1/call/", {"to": "511"})
-    assert response.status_code == 200
-    mocked_twilio_client.calls.create.assert_called_once_with(
-        twiml=("<Response><Say>Dialing 511 ...</Say>" "<Dial>511</Dial></Response>"),
-        to=_REAL_PHONE,
-        from_=_RELAY_NUMBER,
-    )
+    mocked_twilio_client.lookups.v1.phone_numbers.assert_not_called()
+    assert response.status_code == 400
+    assert response.json() == [
+        "number must be in E.164 format, or in local national format of the country "
+        "detected: None"
+    ]
 
 
-@pytest.mark.parametrize("country", ("US", "CA"))
-def test_outbound_call_to_service_number_with_country(
-    outbound_phone_user, mocked_twilio_client, country
-):
-    client = APIClient()
-    client.force_authenticate(outbound_phone_user)
-    response = client.post("/api/v1/call/", {"to": "411"}, HTTP_X_CLIENT_REGION=country)
-    assert response.status_code == 200
-    mocked_twilio_client.calls.create.assert_called_once_with(
-        twiml=("<Response><Say>Dialing 411 ...</Say>" "<Dial>411</Dial></Response>"),
-        to=_REAL_PHONE,
-        from_=_RELAY_NUMBER,
-    )
-
-
-def test_outbound_call_to_service_number_outside_north_america(
+def test_outbound_call_to_service_number_from_us_fails(
     outbound_phone_user, mocked_twilio_client
 ):
+    service_num = "911"
+    phone_num_service = mocked_twilio_client.lookups.v1.phone_numbers
+    phone_num_service.side_effect = None
+    phone_num_service.return_value.fetch.side_effect = TwilioRestException(
+        uri="/PhoneNumbers/{service_num}",
+        msg=(
+            "Unable to fetch record:"
+            " The requested resource /PhoneNumbers/{service_num} was not found"
+        ),
+        method="GET",
+        status=404,
+        code=20404,
+    )
+
     client = APIClient()
     client.force_authenticate(outbound_phone_user)
-    response = client.post("/api/v1/call/", {"to": "311"}, HTTP_X_CLIENT_REGION="UK")
+    response = client.post(
+        "/api/v1/call/", {"to": service_num}, HTTP_X_CLIENT_REGION="US"
+    )
+    phone_num_service.assert_called_once_with("+1911")
     assert response.status_code == 400
+    assert response.json() == ["Could not get number details for +1911"]

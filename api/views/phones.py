@@ -68,27 +68,6 @@ from ..serializers.phones import (
 logger = logging.getLogger("events")
 info_logger = logging.getLogger("eventsinfo")
 
-# North American N11 service codes
-# https://en.wikipedia.org/wiki/N11_code
-NA_SERVICE_CODES = {
-    211,  # Community services and information
-    311,  # Municipal government services, non-emergency number
-    411,  # Directory assistance
-    511,  # Traffic information or police non-emergency services
-    611,  # Telephone company (telco) customer service and repair
-    711,  # TDD and Relay Services for the deaf and hard of hearing
-    # US: Underground public utility location
-    # CA: Non-emergency health information and services
-    811,
-    911,  # Emergency services
-    # Twilio 911 test number
-    # https://www.twilio.com/docs/sip-trunking/emergency-calling#test-emergencycalling
-    933,
-    # Suicide Crisis Lifeline
-    # https://en.wikipedia.org/wiki/988_Suicide_%26_Crisis_Lifeline
-    988,
-}
-
 
 def twilio_validator():
     phones_config = apps.get_app_config("phones")
@@ -791,27 +770,7 @@ def outbound_call(request):
 
     client = twilio_client()
 
-    # Handle N11 service codes (411, 511, 911) in North America
-    # (or when no request country is identified)
-    raw_to = request.data.get("to", "")
-    try:
-        num_to = int(raw_to)
-    except ValueError:
-        num_to = None
-    country = getattr(request, "country", "us").lower()
-    if num_to and num_to in NA_SERVICE_CODES and country in {"us", "ca"}:
-        # Call North American service code
-        client.calls.create(
-            twiml=(
-                f"<Response><Say>Dialing {num_to} ...</Say>"
-                f"<Dial>{num_to}</Dial></Response>"
-            ),
-            to=real_phone.number,
-            from_=relay_number.number,
-        )
-        return response.Response(status=200)
-
-    to = _validate_number(request, "to")
+    to = _validate_number(request, "to")  # Raises ValidationError on invalid number
     client.calls.create(
         twiml=(
             f"<Response><Say>Dialing {to.national_format} ...</Say>"
