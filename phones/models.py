@@ -210,6 +210,7 @@ def vcard_lookup_key_default():
 class RelayNumber(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     number = models.CharField(max_length=15, db_index=True, unique=True)
+    vendor = models.CharField(max_length=15, default="twilio")
     location = models.CharField(max_length=255)
     country_code = models.CharField(max_length=2, default="US")
     vcard_lookup_key = models.CharField(
@@ -247,7 +248,7 @@ class RelayNumber(models.Model):
 
     @property
     def storing_phone_log(self) -> bool:
-        return self.user.profile.store_phone_log
+        return bool(self.user.profile.store_phone_log)
 
     def save(self, *args, **kwargs):
         realphone = get_verified_realphone_records(self.user).first()
@@ -273,6 +274,10 @@ class RelayNumber(models.Model):
         # is running with TEST creds to avoid charges.
         if settings.TWILIO_TEST_ACCOUNT_SID:
             client = phones_config.twilio_test_client
+
+        # TODO: if IQ_FOR_NEW_NUMBERS, order/buy this number in iQ
+        if not self.vendor == "twilio":
+            return super().save(*args, **kwargs)
 
         twilio_incoming_number = client.incoming_phone_numbers.create(
             phone_number=self.number,
@@ -365,6 +370,10 @@ def register_with_messaging_service(client: Client, number_sid: str) -> None:
 def relaynumber_post_save(sender, instance, created, **kwargs):
     # don't do anything if running migrations
     if type(instance) == MigrationRecorder.Migration:
+        return
+
+    # TODO: if IQ_FOR_NEW_NUMBERS, send welcome message via IQ
+    if not instance.vendor == "twilio":
         return
 
     if created:
