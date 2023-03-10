@@ -13,7 +13,6 @@ from django.test.utils import override_settings
 from model_bakery import baker
 from rest_framework.test import APIClient
 from twilio.base.exceptions import TwilioRestException
-from waffle.models import Flag
 from waffle.testutils import override_flag
 import pytest
 
@@ -51,36 +50,32 @@ def _make_relay_number(phone_user, vendor="twilio", **kwargs):
 
 
 @pytest.fixture()
-def registered_phone_user(phone_user):
+def registered_phone_user(phone_user, mocked_twilio_client):
     _make_real_phone(phone_user, verified=True)
     _make_relay_number(phone_user)
+    mocked_twilio_client.messages.create.reset_mock()  # Forget new user messages
     return phone_user
 
 
 @pytest.fixture()
 def mobile_app_flag(db):
-    flag = Flag.objects.create(name="mobile_app")
-    yield flag
-    flag.delete()
+    with override_flag("mobile_app", active=True):
+        yield
 
 
 @pytest.fixture()
 def outbound_phone_flag(db):
-    flag = Flag.objects.create(name="outbound_phone")
-    yield flag
-    flag.delete()
+    with override_flag("outbound_phone", active=True):
+        yield
 
 
 @pytest.fixture()
 def mobile_app_user(phone_user, mobile_app_flag):
-    mobile_app_flag.users.add(phone_user)
     return phone_user
 
 
 @pytest.fixture()
 def outbound_phone_user(registered_phone_user, mobile_app_flag, outbound_phone_flag):
-    mobile_app_flag.users.add(registered_phone_user)
-    outbound_phone_flag.users.add(registered_phone_user)
     return registered_phone_user
 
 
@@ -2063,7 +2058,6 @@ def test_outbound_call_fails_without_outbound_phone_flag(mobile_app_user):
 
 
 def test_outbound_call_fails_without_real_phone(phone_user, outbound_phone_flag):
-    outbound_phone_flag.users.add(phone_user)
     client = APIClient()
     client.force_authenticate(phone_user)
     response = client.post("/api/v1/call/", {"to": "+14045551234"})
@@ -2074,7 +2068,6 @@ def test_outbound_call_fails_without_real_phone(phone_user, outbound_phone_flag)
 
 
 def test_outbound_call_fails_without_phone_mask(phone_user, outbound_phone_flag):
-    outbound_phone_flag.users.add(phone_user)
     _make_real_phone(phone_user, verified=True)
     client = APIClient()
     client.force_authenticate(phone_user)
@@ -2124,7 +2117,7 @@ def test_outbound_call_fails_with_us_format_number_but_no_country(
 ):
     client = APIClient()
     client.force_authenticate(outbound_phone_user)
-    response = client.post("/api/v1/call/", {"to": "(404) 555-111"})
+    response = client.post("/api/v1/call/", {"to": "(404) 555-1111"})
     assert response.status_code == 400
     assert response.json() == [
         "number must be in E.164 format, or in local national format of the country "
@@ -2190,3 +2183,140 @@ def test_outbound_call_to_service_number_from_us_fails(
     phone_num_service.assert_called_once_with("+1911")
     assert response.status_code == 400
     assert response.json() == ["Could not get number details for +1911"]
+
+
+def test_outbound_sms_fails_with_no_auth():
+    response = APIClient().post("/api/v1/message/", {"to": "+14045551234"})
+    assert response.status_code == 401
+    assert response.json() == {
+        "detail": "Authentication credentials were not provided."
+    }
+
+
+def test_outbound_sms_fails_without_outbound_phone_flag(mobile_app_user):
+    client = APIClient()
+    client.force_authenticate(mobile_app_user)
+    response = client.post("/api/v1/message/", {"to": "+14045551234"})
+    assert response.status_code == 403
+    assert response.json() == {"detail": "Requires outbound_phone waffle flag."}
+
+
+def test_outbound_sms_fails_without_phone_mask(phone_user, outbound_phone_flag):
+    _make_real_phone(phone_user, verified=True)
+    client = APIClient()
+    client.force_authenticate(phone_user)
+    response = client.post("/api/v1/message/", {"to": "+14045551234"})
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Requires a phone mask."}
+
+
+def test_outbound_sms_fails_without_params(outbound_phone_user, mocked_twilio_client):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post("/api/v1/message/", {})
+    assert response.status_code == 400
+    assert response.json() == {
+        "body": "A message body is required.",
+        "destination": "A destination number is required.",
+    }
+
+
+def test_outbound_sms_fails_with_short_phone_number(
+    outbound_phone_user, mocked_twilio_client
+):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post(
+        "/api/v1/message/", {"destination": "555-1234", "body": "Hello!"}
+    )
+    assert response.status_code == 400
+    assert response.json() == [
+        "number must be in E.164 format, or in local national format of the country "
+        "detected: None"
+    ]
+
+
+def test_outbound_sms(outbound_phone_user, mocked_twilio_client):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post(
+        "/api/v1/message/", {"destination": "+14045551234", "body": "Hi!"}
+    )
+    assert response.status_code == 200
+    mocked_twilio_client.messages.create.assert_called_once_with(
+        to="+14045551234", from_=_RELAY_NUMBER, body="Hi!"
+    )
+
+
+def test_outbound_sms_fails_with_us_format_number_but_no_country(
+    outbound_phone_user, mocked_twilio_client
+):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post(
+        "/api/v1/message/", {"destination": "(404) 555-1111", "body": "Hey you!"}
+    )
+    assert response.status_code == 400
+    assert response.json() == [
+        "number must be in E.164 format, or in local national format of the country "
+        "detected: None"
+    ]
+
+
+def test_outbound_sms_with_us_format_and_country(
+    outbound_phone_user, mocked_twilio_client
+):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post(
+        "/api/v1/message/",
+        {"destination": "(404) 555-1111", "body": "Hi from US!"},
+        HTTP_X_CLIENT_REGION="US",
+    )
+    assert response.status_code == 200
+    mocked_twilio_client.messages.create.assert_called_once_with(
+        to="+14045551111", from_=_RELAY_NUMBER, body="Hi from US!"
+    )
+
+
+def test_outbound_sms_to_service_number_from_unknown_country_fails(
+    outbound_phone_user, mocked_twilio_client
+):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post("/api/v1/message/", {"destination": "511", "body": "Help!"})
+    mocked_twilio_client.lookups.v1.phone_numbers.assert_not_called()
+    assert response.status_code == 400
+    assert response.json() == [
+        "number must be in E.164 format, or in local national format of the country "
+        "detected: None"
+    ]
+
+
+def test_outbound_sms_to_service_number_from_us_fails(
+    outbound_phone_user, mocked_twilio_client
+):
+    service_num = "811"
+    phone_num_service = mocked_twilio_client.lookups.v1.phone_numbers
+    phone_num_service.side_effect = None
+    phone_num_service.return_value.fetch.side_effect = TwilioRestException(
+        uri="/PhoneNumbers/{service_num}",
+        msg=(
+            "Unable to fetch record:"
+            " The requested resource /PhoneNumbers/{service_num} was not found"
+        ),
+        method="GET",
+        status=404,
+        code=20404,
+    )
+
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post(
+        "/api/v1/message/",
+        {"destination": service_num, "body": "I'd like to dig!"},
+        HTTP_X_CLIENT_REGION="US",
+    )
+    phone_num_service.assert_called_once_with("+1811")
+    assert response.status_code == 400
+    assert response.json() == ["Could not get number details for +1811"]

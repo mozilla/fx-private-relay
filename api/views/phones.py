@@ -804,15 +804,30 @@ def outbound_sms(request):
 
     """
     if not flag_is_active(request, "outbound_phone"):
-        return response.Response({"outbound_phone": False}, status=404)
-    relay_number = RelayNumber.objects.get(user=request.user)
+        return response.Response(
+            {"detail": "Requires outbound_phone waffle flag."}, status=403
+        )
+    try:
+        relay_number = RelayNumber.objects.get(user=request.user)
+    except RelayNumber.DoesNotExist:
+        return response.Response({"detail": "Requires a phone mask."}, status=400)
+
+    errors = {}
     body = request.data.get("body")
+    if not body:
+        errors["body"] = "A message body is required."
     destination_number = request.data.get("destination")
+    if not destination_number:
+        errors["destination"] = "A destination number is required."
+    if errors:
+        return response.Response(errors, status=400)
+
+    # Raises ValidationError on invalid number
+    to = _validate_number(request, "destination")
+
     client = twilio_client()
-    client.messages.create(from_=relay_number.number, body=body, to=destination_number)
-    return response.Response(
-        status=200,
-    )
+    client.messages.create(from_=relay_number.number, body=body, to=to.phone_number)
+    return response.Response(status=200)
 
 
 messages_query = [
