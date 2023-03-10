@@ -176,7 +176,7 @@
     transition: padding 200ms ease-in-out;
 
     .stats {
-      @media screen and not #{$mq-md} {
+      @media screen and (max-width: $screen-md) {
         display: flex;
         flex-direction: column;
         padding-inline: $spacing-md;
@@ -263,7 +263,7 @@
     }
   }
 
-  @media screen and not #{$mq-md} {
+  @media screen and (max-width: $screen-md) {
     display: flex;
     flex-direction: column;
     gap: $spacing-md;
@@ -398,7 +398,7 @@
 }
 
 .meta {
-  @media screen and not #{$mq-md} {
+  @media screen and (max-width: $screen-md) {
     display: flex;
     flex-direction: column;
 
