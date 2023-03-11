@@ -1,0 +1,321 @@
+{% comment %}
+  Note that Django only loads strings from `app.ftl`, `brands.ftl`, and `phones.ftl`
+  so make sure all email strings are included in those files.
+{% endcomment %}
+{% load ftl %}
+{% load email_extras %}
+{% withftl bundle='privaterelay.ftl_bundles.main' language=language %}
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ request.LANGUAGE_CODE }}" dir="ltr"></html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="x-apple-disable-message-reformatting">  
+  <title>Firefox Relay</title>
+
+  <style type="text/css">
+    @font-face {
+      font-family: 'inter';
+      font-style: normal;
+      src: local('Inter Regular'), local('Inter-Regular'), url(https://relay.firefox.com/fonts/Inter/Inter-Regular.4232a675a077.woff2?v=3.18) format('woff');
+    } 
+    @font-face {
+      font-family: 'inter medium';
+      font-style: bold; 
+      src: local('Inter Medium'), local('Inter-Medium'), url(https://relay.firefox.com/fonts/Inter/Inter-Medium.woff2?v=3.18) format('woff');
+    }
+    @font-face {
+      font-family: 'metropolis medium';
+      font-style: bold; 
+      src: local('Metropolis Medium'), local('Metropolis-Medium'), url(https://relay.firefox.com/fonts/Metropolis/Metropolis-Medium.woff2) format('woff');
+    }
+    @font-face {
+      font-family: 'metropolis bold';
+      font-style: bold; 
+      src: local('Metropolis Bold'), local('Metropolis-Bold'), url(https://relay.firefox.com/fonts/Metropolis/Metropolis-Bold.woff2) format('woff');
+    }
+    body {
+      font-family: 'inter', Arial, sans-serif;
+      color: #3D3D3D;
+    }
+    h1 {
+        font-family: 'metropolis bold';
+    }
+    .button {
+        box-sizing: border-box;
+        padding: 15px 25px;
+        display: inline-block;
+        font-family: 'metropolis medium';
+        text-decoration: none;
+        -webkit-text-size-adjust: none;
+        text-align: center;
+        color: #FFFFFF; 
+        background-color: #0060df; 
+        border-radius: 4px;
+        -webkit-border-radius: 4px;
+        -moz-border-radius: 4px; 
+        width:auto; 
+        max-width:100%; 
+        overflow-wrap: break-word; 
+        word-break: break-word; 
+        word-wrap:break-word;
+        font-size: 16px;
+    }
+    @media only screen and (min-width: 870px) {
+      .row {
+        width: 850px;
+      }
+      .row .col {
+        vertical-align: top;
+      } 
+    }
+     
+    p {
+      margin: 0;
+    }
+     
+    a[x-apple-data-detectors='true'] {
+      color: inherit ;
+      text-decoration: none ;
+    }
+    
+    table,
+    td {
+      color: #000000;
+    } 
+
+    .get-relay-premium {
+      display: block;
+      align-items: center; 
+      width: 100%;
+      margin: 0 auto; 
+      position: relative;
+      padding: 12px;
+      box-sizing: border-box; 
+      color: #FFFFFF;
+      background: #FFFFFF;
+      background-clip: padding-box;  
+      border: solid 2px transparent; 
+      border-radius: 8px; 
+    }
+
+    .get-relay-premium:before {
+      content: '';
+      position: absolute;
+      top: 0; 
+      right: 0; 
+      bottom: 0; 
+      left: 0;
+      /* sets order for clipped background */
+      z-index: -1;
+      /* set to the same width of the border for clipping */
+      margin: -2px;  
+      border-radius: inherit; 
+      background: linear-gradient(to right, rgba(255, 145, 0, 1), rgba(241, 3, 102, 1), rgba(97, 115, 255, 1));
+    }
+     
+  </style> 
+</head>
+
+<body style="margin: 0;padding: 0;-webkit-text-size-adjust: 100%;background-color: #ffffff;color: #000000">
+  <table style="vertical-align: top;min-width: 320px;margin: 0 auto;width:100%" cellpadding="0" cellspacing="0">
+    <tbody>
+      <tr style="vertical-align: top">
+        <td style="word-break: break-word;border-collapse: collapse ;vertical-align: top">
+
+          <!-- header -->
+          <table width="100%" border="0" style="max-width: 850px; display: block;margin:0 auto;">
+              <tbody style="display: block;">
+                <tr style="display: block;">
+                  <td style="display: block;"> 
+                    <img align="center" border="0" src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/relay-wordmark.png" alt="" title="" style="height: auto;float: none;width: 100%;max-width: 125px; margin: 10px auto; display: block;" width="125" /> 
+                  </td>
+                </tr>
+              </tbody>
+          </table>
+
+          <!-- hero section -->
+          <table style="max-width: 850px; display: block;margin:0 auto;background-color: #321c64" cellpadding="0" cellspacing="0" width="100%" border="0">
+            <tbody>
+              <tr>
+                <td style="width: 50%" align="center"> 
+                  <img align="center" border="0" src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/hero-image-en.png" alt="" title="" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block ;border: none;height: auto;float: none;width: 100%;max-width: 425px;" width="425" /> 
+                </td>
+
+                <td style="width: 50%; overflow-wrap:break-word;word-break:break-word;padding:10px;" align="left"> 
+                  <h1 style="margin: 0px; padding: 32px 0 16px 48px; color: #ffffff; line-height: 100%; text-align: left; word-wrap: break-word; font-size: 38px; font-weight: 500px;">Welcome to Firefox Relay</h1>  
+                  <p style="padding: 0 48px; line-height: 140%; color: #ffffff; font-size: 18px;font-family: metropolis medium">Your email address can be used to track you online — we’re here to help put an end to it.</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- what you get -->
+          <table style="max-width: 850px; display: block;margin:0 auto;" cellpadding="0" cellspacing="0" width="100%" border="0">
+            <tbody>
+              <tr>
+                <td style="overflow-wrap:break-word;word-break:break-word;padding: 48px 48px 0 48px;" align="center">
+
+                  <p style="color: #321C64; font-size: 18px; font-family: metropolis medium;">As a Firefox user, you get 5 email masks for free. Use them to hide your real email address, protect your identity, and forward only the emails you want to your inbox. </p> 
+                  <p style="color: #321C64; font-size: 18px; font-family: metropolis medium;margin-top: 20px;">Manage all your masks from your Relay dashboard.</p>
+
+                  <a href="" target="_blank" class="button" style="margin-top: 30px;">View your dashboard</a>
+
+                </td>
+              </tr>
+            </tbody>
+          </table> 
+
+          <!-- separator -->
+          <table height="0px" align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 800px; display: block; margin: 48px auto; border-top: 1px solid rgba(0,0,0,0.1);width: 100%">
+            <tbody>
+              <tr >
+                <td >
+                  <span>&#160;</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- How Relay Works -->
+          <table style="max-width: 850px; padding: 0 48px 32px 48px; display: block; margin: 0 auto;" cellpadding="0" cellspacing="0" width="100%" border="0">
+              <tbody>                
+                  <tr>
+                      <td style="overflow-wrap:break-word;word-break:break-word;padding:10px;" align="left">
+
+                          <h1 style="margin-bottom: 30px; line-height: 140%; text-align: center; word-wrap: break-word; font-size: 22px; color: #321C64;">How Relay works</h1>
+
+                      </td>
+                  </tr>
+
+                  <!-- first row -->
+                  <tr style="margin-bottom: 32px;display: inline-block;">
+                      <td style="padding:0 20px; vertical-align: middle;" align="center">
+
+                          <img align="center" border="0" src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/email-icon.png" alt="" title="" style=" height: auto; width: 100%;max-width: 32px;" width="32" />
+
+                      </td>
+                      <td style="overflow-wrap:break-word;word-break:break-word;padding:10px 20px;font-family:inter;font-size:16px;" align="left">
+
+                          <p style="line-height: 140%; text-align: left; word-wrap: break-word; color: #20123A">
+                            <strong>Use a Relay mask instead of your real email, everywhere</strong> 
+                          </p>
+
+                          <p style="line-height: 140%; text-align: left; word-wrap: break-word;">
+                            Create masks directly on Firefox, with the Relay add-on, or on your Relay dashboard. 
+                          </p>
+
+                      </td>
+                  </tr>
+
+                  <!-- second row -->
+                  <tr style="margin-bottom: 32px;display: inline-block;">
+                      <td style="padding:0 20px; vertical-align: middle;" align="center">
+
+                          <img align="center" border="0" src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/privacy-icon.png" alt="" title="" style=" height: auto; width: 100%;max-width: 32px;" width="32" />
+
+                      </td>
+                      <td style="overflow-wrap:break-word;word-break:break-word;padding:10px 20px;font-family:inter;font-size:16px;" align="left">
+
+                          <p style="line-height: 140%; text-align: left; word-wrap: break-word; color: #20123A">
+                            <strong>We’ll forward all emails to your inbox</strong> 
+                          </p>
+
+                          <p style="line-height: 140%; text-align: left; word-wrap: break-word;">
+                            Senders will never see your real address, and you can block emails any time. 
+                          </p>
+
+                      </td>
+                  </tr>
+
+                  <!-- third row -->
+                  <tr style="margin-bottom: 32px;display: inline-block;">
+                      <td style="padding:0 20px; vertical-align: middle;" align="center">
+
+                          <img align="center" border="0" src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/highlights-icon.png" alt="" title="" style=" height: auto; width: 100%;max-width: 32px;" width="32" />
+
+                      </td>
+                      <td style="overflow-wrap:break-word;word-break:break-word;padding:10px 20px;font-family:inter;font-size:16px;" align="left">
+
+                          <p style="line-height: 140%; text-align: left; word-wrap: break-word; color: #20123A">
+                            <strong>Manage your masks from your Relay dashboard</strong> 
+                          </p>
+
+                          <p style="line-height: 140%; text-align: left; word-wrap: break-word;">
+                            Sign in to create new masks, label your masks, and delete masks that get spam. 
+                          </p>
+
+                      </td>
+                  </tr>
+              </tbody>
+          </table>
+   
+          <!-- Get Relay Premium CTA -->
+          <table class="get-relay-premium" style="max-width: 800px; margin: 0 auto; display: block;" width="100%"  >
+            <tbody>
+              <tr>
+                <td align="left"> 
+                  <img align="center" border="0" src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/phone-messaging-art.png" alt="" title="" style="display: inline-block;border: none;height: auto; width: 100%;max-width: 117px;" width="117" /> 
+                </td>
+
+                <td align="left" style="width: 50%;">
+                  <p style="font-size: 18px; font-family: metropolis bold; color: #321C64; "> Extra protection for your inbox and phone </p>
+                  <p style="font-size: 14px; font-family: inter; color: #0C0C0D; word-wrap: break-word; margin-top: 10px; ">Upgrade to Relay Premium for unlimited email masks — plus a phone mask protect your real number.</p> 
+                </td>
+
+                <td align="center"> 
+                    <a href="" target="_blank" class="button" style="padding: 15px 20px;">Get Relay Premium</a> 
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Questions -->      
+          <table style="max-width: 850px; padding-top: 60px; display: block; margin: 0 auto;" width="100%">
+            <tbody style="display: block;"> 
+              <tr style="display: block;">
+                <td style="display: block; text-align: center;" align="center">
+                  <img src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/union-icon.png" alt="" title="" style="display: block;height: auto;width: 100%;margin: 0 auto;max-width: 26px;" width="26" />
+                  <h1 style="word-wrap: break-word; font-size: 22px;font-family: metropolis bold; color: #321C64; margin-top: 30px;">Questions about Firefox Relay?</h1>
+                  <p style="font-size: 16px; font-family: inter; color: #000000;margin-top: 15px;">Our support team is here to help.</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- separator - shorter width than first one per design -->
+          <table height="0px" align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 750px; display: block; margin: 48px auto; border-top: 1px solid rgba(0,0,0,0.1);width: 100%">
+            <tbody>
+              <tr >
+                <td >
+                  <span>&#160;</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Footer -->
+          <table style="max-width: 850px; display: block; margin: 0 auto 60px auto;" width="100%">
+            <tbody>
+              <tr>
+                <td style="overflow-wrap: break-word;word-break: break-word;width: 70%;margin: 0 auto;display: block;" align="center"> 
+                  <p style="line-height: 140%;font-size: 14px; font-family: inter; color: #0C0C0D;">You’re receiving this automated email as a subscriber of Firefox Relay that used Relay for the first time. If you received it in error, no action is required.</p>
+                  <p style="line-height: 140%;font-size: 14px; font-family: inter; color: #0C0C0D;">For more information, please visit Mozilla Support.</p>
+                  <img align="center" border="0" src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/mozilla-logo.png" alt="" title="" style="height: auto; width: 100%;max-width: 146px; margin: 30px auto; display: block;" width="146" />
+                  <p style="line-height: 140%;font-size: 14px; font-family: inter; color: #0C0C0D;">2 Harrison St. #175, San Francisco, California 94105 USA</p>
+                  <p style="line-height: 140%;font-size: 14px; font-family: inter medium; color: #0C0C0D;margin-top: 15px;"> Legal • Terms &amp; Privacy </p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+        </td>
+      </tr>
+    </tbody>
+  </table> 
+</body>
+
+</html>
+{% endwithftl %}
