@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from typing import Iterator, Literal
 from unittest.mock import Mock, patch, call
 import re
@@ -77,6 +78,88 @@ def mobile_app_user(phone_user, mobile_app_flag):
 @pytest.fixture()
 def outbound_phone_user(registered_phone_user, mobile_app_flag, outbound_phone_flag):
     return registered_phone_user
+
+
+@dataclass
+class MockTwilioMessage:
+    from_: str
+    to: str
+    date_sent: datetime
+    body: str
+
+
+@pytest.fixture()
+def user_with_sms_activity(outbound_phone_user, mocked_twilio_client):
+    """Return a user with SMS inbound and outbound activity."""
+    relay_number = RelayNumber.objects.get(user=outbound_phone_user)
+
+    # First SMS contact
+    InboundContact.objects.create(
+        relay_number=relay_number,
+        inbound_number="+13015550001",
+        last_inbound_date=datetime(2023, 3, 1, 12, 5, tzinfo=timezone.utc),
+        last_inbound_type="text",
+        last_text_date=datetime(2023, 3, 1, 12, 5, tzinfo=timezone.utc),
+    )
+    # Second SMS contact
+    InboundContact.objects.create(
+        relay_number=relay_number,
+        inbound_number="+13015550002",
+        last_inbound_date=datetime(2023, 3, 2, 13, 5, tzinfo=timezone.utc),
+        last_inbound_type="text",
+        last_text_date=datetime(2023, 3, 2, 13, 5, tzinfo=timezone.utc),
+    )
+    # Voice contact
+    InboundContact.objects.create(
+        relay_number=relay_number,
+        inbound_number="+13015550003",
+        last_inbound_date=datetime(2023, 3, 3, 8, 30, tzinfo=timezone.utc),
+        last_inbound_type="call",
+        last_call_date=datetime(2023, 3, 3, 8, 30, tzinfo=timezone.utc),
+    )
+    twilio_messages = [
+        MockTwilioMessage(
+            from_="+13015550001",
+            to=relay_number.number,
+            date_sent=datetime(2023, 3, 1, 12, 0, tzinfo=timezone.utc),
+            body="Send Y to confirm appointment",
+        ),
+        MockTwilioMessage(
+            from_=relay_number.number,
+            to="+13015550001",
+            date_sent=datetime(2023, 3, 1, 12, 5, tzinfo=timezone.utc),
+            body="Y",
+        ),
+        MockTwilioMessage(
+            from_="+13015550002",
+            to=relay_number.number,
+            date_sent=datetime(2023, 3, 2, 13, 0, tzinfo=timezone.utc),
+            body="Donate $100 to Senator Smith?",
+        ),
+        MockTwilioMessage(
+            from_=relay_number.number,
+            to="+13015550002",
+            date_sent=datetime(2023, 3, 2, 13, 5, tzinfo=timezone.utc),
+            body="STOP STOP STOP",
+        ),
+        MockTwilioMessage(
+            from_=relay_number.number,
+            to="+13015550004",
+            date_sent=datetime(2023, 3, 4, 20, 55, tzinfo=timezone.utc),
+            body="U Up?",
+        ),
+    ]
+
+    def mock_list(to=None, from_=None):
+        messages = []
+        for msg in twilio_messages:
+            if (not to or to == msg.to) and (not from_ or from_ == msg.from_):
+                messages.append(msg)
+        return messages
+
+    mocked_twilio_client.messages.list.side_effect = mock_list
+
+    return outbound_phone_user
 
 
 @pytest.fixture(autouse=True)
@@ -2320,3 +2403,220 @@ def test_outbound_sms_to_service_number_from_us_fails(
     phone_num_service.assert_called_once_with("+1811")
     assert response.status_code == 400
     assert response.json() == ["Could not get number details for +1811"]
+
+
+def test_list_messages_fails_with_no_auth():
+    response = APIClient().get("/api/v1/messages/")
+    assert response.status_code == 401
+    assert response.json() == {
+        "detail": "Authentication credentials were not provided."
+    }
+
+
+def test_list_messages_fails_without_outbound_phone_flag(mobile_app_user):
+    client = APIClient()
+    client.force_authenticate(mobile_app_user)
+    response = client.get("/api/v1/messages/")
+    assert response.status_code == 403
+    assert response.json() == {"detail": "Requires outbound_phone waffle flag."}
+
+
+def test_list_messages_fails_without_phone_mask(phone_user, outbound_phone_flag):
+    _make_real_phone(phone_user, verified=True)
+    client = APIClient()
+    client.force_authenticate(phone_user)
+    response = client.get("/api/v1/messages/")
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Requires a phone mask."}
+
+
+def test_list_messages_no_data(outbound_phone_user):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.get("/api/v1/messages/")
+    assert response.status_code == 200
+    assert response.json() == {"inbound_messages": [], "outbound_messages": []}
+
+
+def test_list_messages(user_with_sms_activity):
+    client = APIClient()
+    client.force_authenticate(user_with_sms_activity)
+    response = client.get("/api/v1/messages/")
+    assert response.status_code == 200
+    assert response.json() == {
+        "inbound_messages": [
+            {
+                "body": "Send Y to confirm appointment",
+                "date_sent": "2023-03-01T12:00:00Z",
+                "from": "+13015550001",
+                "to": _RELAY_NUMBER,
+            },
+            {
+                "body": "Donate $100 to Senator Smith?",
+                "date_sent": "2023-03-02T13:00:00Z",
+                "from": "+13015550002",
+                "to": _RELAY_NUMBER,
+            },
+        ],
+        "outbound_messages": [
+            {
+                "body": "Y",
+                "date_sent": "2023-03-01T12:05:00Z",
+                "from": _RELAY_NUMBER,
+                "to": "+13015550001",
+            },
+            {
+                "body": "STOP STOP STOP",
+                "date_sent": "2023-03-02T13:05:00Z",
+                "from": _RELAY_NUMBER,
+                "to": "+13015550002",
+            },
+            {
+                "body": "U Up?",
+                "date_sent": "2023-03-04T20:55:00Z",
+                "from": _RELAY_NUMBER,
+                "to": "+13015550004",
+            },
+        ],
+    }
+
+
+def test_list_messages_only_inbound(user_with_sms_activity):
+    client = APIClient()
+    client.force_authenticate(user_with_sms_activity)
+    response = client.get("/api/v1/messages/", {"direction": "inbound"})
+    assert response.status_code == 200
+    assert response.json() == {
+        "inbound_messages": [
+            {
+                "body": "Send Y to confirm appointment",
+                "date_sent": "2023-03-01T12:00:00Z",
+                "from": "+13015550001",
+                "to": _RELAY_NUMBER,
+            },
+            {
+                "body": "Donate $100 to Senator Smith?",
+                "date_sent": "2023-03-02T13:00:00Z",
+                "from": "+13015550002",
+                "to": _RELAY_NUMBER,
+            },
+        ],
+    }
+
+
+def test_list_messages_only_outbound(user_with_sms_activity):
+    client = APIClient()
+    client.force_authenticate(user_with_sms_activity)
+    response = client.get("/api/v1/messages/", {"direction": "outbound"})
+    assert response.status_code == 200
+    assert response.json() == {
+        "outbound_messages": [
+            {
+                "body": "Y",
+                "date_sent": "2023-03-01T12:05:00Z",
+                "from": _RELAY_NUMBER,
+                "to": "+13015550001",
+            },
+            {
+                "body": "STOP STOP STOP",
+                "date_sent": "2023-03-02T13:05:00Z",
+                "from": _RELAY_NUMBER,
+                "to": "+13015550002",
+            },
+            {
+                "body": "U Up?",
+                "date_sent": "2023-03-04T20:55:00Z",
+                "from": _RELAY_NUMBER,
+                "to": "+13015550004",
+            },
+        ],
+    }
+
+
+def test_list_messages_with_contact(user_with_sms_activity):
+    client = APIClient()
+    client.force_authenticate(user_with_sms_activity)
+    response = client.get("/api/v1/messages/", {"with": "+13015550001"})
+    assert response.status_code == 200
+    assert response.json() == {
+        "inbound_messages": [
+            {
+                "body": "Send Y to confirm appointment",
+                "date_sent": "2023-03-01T12:00:00Z",
+                "from": "+13015550001",
+                "to": _RELAY_NUMBER,
+            },
+        ],
+        "outbound_messages": [
+            {
+                "body": "Y",
+                "date_sent": "2023-03-01T12:05:00Z",
+                "from": _RELAY_NUMBER,
+                "to": "+13015550001",
+            },
+        ],
+    }
+
+
+def test_list_messages_with_contact_only_inbound(user_with_sms_activity):
+    client = APIClient()
+    client.force_authenticate(user_with_sms_activity)
+    response = client.get(
+        "/api/v1/messages/", {"with": "+13015550001", "direction": "inbound"}
+    )
+    assert response.status_code == 200
+    assert response.json() == {
+        "inbound_messages": [
+            {
+                "body": "Send Y to confirm appointment",
+                "date_sent": "2023-03-01T12:00:00Z",
+                "from": "+13015550001",
+                "to": _RELAY_NUMBER,
+            },
+        ],
+    }
+
+
+def test_list_messages_with_contact_only_outbound(user_with_sms_activity):
+    client = APIClient()
+    client.force_authenticate(user_with_sms_activity)
+    response = client.get(
+        "/api/v1/messages/", {"with": "+13015550001", "direction": "outbound"}
+    )
+    assert response.status_code == 200
+    assert response.json() == {
+        "outbound_messages": [
+            {
+                "body": "Y",
+                "date_sent": "2023-03-01T12:05:00Z",
+                "from": _RELAY_NUMBER,
+                "to": "+13015550001",
+            },
+        ],
+    }
+
+
+def test_list_messages_voice_only_contact_has_empty_response(user_with_sms_activity):
+    client = APIClient()
+    client.force_authenticate(user_with_sms_activity)
+    response = client.get("/api/v1/messages/", {"with": "+13015550003"})
+    assert response.status_code == 200
+    assert response.json() == {"inbound_messages": [], "outbound_messages": []}
+
+
+def test_list_messages_fails_with_outbound_only_contact(user_with_sms_activity):
+    client = APIClient()
+    client.force_authenticate(user_with_sms_activity)
+    response = client.get("/api/v1/messages/", {"with": "+13015550004"})
+    assert response.status_code == 400
+    assert response.json() == {"with": "No inbound contacts matching the number"}
+
+
+def test_list_messages_fails_with_invalid_direction(user_with_sms_activity):
+    client = APIClient()
+    client.force_authenticate(user_with_sms_activity)
+    response = client.get("/api/v1/messages/", {"direction": "out"})
+    assert response.status_code == 400
+    assert response.json() == {
+        "direction": "Invalid value, valid values are 'inbound' or 'outbound'"
+    }

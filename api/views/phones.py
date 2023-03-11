@@ -854,92 +854,64 @@ messages_query = [
 @decorators.api_view(["GET"])
 def list_messages(request):
     """
-    Get the user's messages.
+    Get the user's SMS messages sent to or from the phone mask
 
     Pass ?with=<E.164> parameter to filter the messages to only the ones sent between
-    the relay number and the <E.164> number.
+    the phone mask and the <E.164> number.
 
     Pass ?direction=inbound|outbound to filter the messages to only the inbound or
-    outbound messages.
+    outbound messages. If omitted, return both.
 
     """
     if not flag_is_active(request, "outbound_phone"):
-        return response.Response({"outbound_phone": False}, status=404)
-    _with = request.data.get("with", None)
-    _direction = request.data.get("direction", None)
-    relay_number = RelayNumber.objects.get(user=request.user)
+        return response.Response(
+            {"detail": "Requires outbound_phone waffle flag."}, status=403
+        )
+    try:
+        relay_number = RelayNumber.objects.get(user=request.user)
+    except RelayNumber.DoesNotExist:
+        return response.Response({"detail": "Requires a phone mask."}, status=400)
+
+    _with = request.query_params.get("with", None)
+    _direction = request.query_params.get("direction", None)
+    if _direction and _direction not in ("inbound", "outbound"):
+        return response.Response(
+            {"direction": "Invalid value, valid values are 'inbound' or 'outbound'"},
+            status=400,
+        )
 
     contact = None
-    if _with is not None:
-        contact = InboundContact.objects.get(
-            relay_number=relay_number, inbound_number=_with
-        )
+    if _with:
+        try:
+            contact = InboundContact.objects.get(
+                relay_number=relay_number, inbound_number=_with
+            )
+        except InboundContact.DoesNotExist:
+            return response.Response(
+                {"with": "No inbound contacts matching the number"}, status=400
+            )
 
+    data = {}
     client = twilio_client()
-    if contact:
-        inbound_messages = client.messages.list(
-            from_=contact.inbound_number, to=relay_number.number
+    if not _direction or _direction == "inbound":
+        # Query Twilio for SMS messages to the user's phone mask
+        params = {"to": relay_number.number}
+        if contact:
+            # Filter query to SMS from this contact to the phone mask
+            params["from_"] = contact.inbound_number
+        data["inbound_messages"] = convert_twilio_messages_to_dict(
+            client.messages.list(**params)
         )
-        outbound_messages = client.messages.list(
-            from_=relay_number.number, to=contact.inbound_number
+    if not _direction or _direction == "outbound":
+        # Query Twilio for SMS messages from the user's phone mask
+        params = {"from_": relay_number.number}
+        if contact:
+            # Filter query to SMS from the phone mask to this contact
+            params["to"] = contact.inbound_number
+        data["outbound_messages"] = convert_twilio_messages_to_dict(
+            client.messages.list(**params)
         )
-        if not _direction:
-            return response.Response(
-                {
-                    "inbound_messages": inbound_messages,
-                    "outbound_messages": outbound_messages,
-                },
-                status=200,
-            )
-        if _direction == "inbound":
-            return response.Response(
-                {
-                    "inbound_messages": inbound_messages,
-                },
-                status=200,
-            )
-        if _direction == "outbound":
-            return response.Response(
-                {
-                    "outbound_messages": outbound_messages,
-                },
-                status=200,
-            )
-    inbound_messages = convert_twilio_messages_to_dict(
-        client.messages.list(to=relay_number.number)
-    )
-    outbound_messages = convert_twilio_messages_to_dict(
-        client.messages.list(from_=relay_number.number)
-    )
-    if not _direction:
-        return response.Response(
-            {
-                "inbound_messages": inbound_messages,
-                "outbound_messages": outbound_messages,
-            },
-            status=200,
-        )
-    if _direction == "inbound":
-        return response.Response(
-            {
-                "inbound_messages": inbound_messages,
-            },
-            status=200,
-        )
-    if _direction == "outbound":
-        return response.Response(
-            {
-                "outbound_messages": outbound_messages,
-            },
-            status=200,
-        )
-    return response.Response(
-        {
-            "inbound_messages": inbound_messages,
-            "outbound_messages": outbound_messages,
-        },
-        status=200,
-    )
+    return response.Response(data, status=200)
 
 
 def _get_phone_objects(inbound_to):
