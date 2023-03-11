@@ -748,10 +748,9 @@ call_body = openapi.Schema(
 @swagger_auto_schema(method="post", request_body=call_body)
 @decorators.api_view(["POST"])
 def outbound_call(request):
-    """
-    Make a call from the authenticated user's relay number.
-
-    """
+    """Make a call from the authenticated user's relay number."""
+    # TODO: Create or update an OutboundContact (new model) on send, or limit
+    # to InboundContacts.
     if not flag_is_active(request, "outbound_phone"):
         # Return Permission Denied error
         return response.Response(
@@ -803,6 +802,9 @@ def outbound_sms(request):
         destination: E.164-formatted phone number
 
     """
+    # TODO: Create or update an OutboundContact (new model) on send, or limit
+    # to InboundContacts.
+    # TODO: Reduce user's SMS messages for the month by one
     if not flag_is_active(request, "outbound_phone"):
         return response.Response(
             {"detail": "Requires outbound_phone waffle flag."}, status=403
@@ -861,8 +863,10 @@ def list_messages(request):
 
     Pass ?direction=inbound|outbound to filter the messages to only the inbound or
     outbound messages. If omitted, return both.
-
     """
+    # TODO: Support filtering to messages for outbound-only phones.
+    # TODO: Show data from our own (encrypted) store, rather than from Twilio's
+
     if not flag_is_active(request, "outbound_phone"):
         return response.Response(
             {"detail": "Requires outbound_phone waffle flag."}, status=403

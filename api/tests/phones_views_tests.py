@@ -2605,6 +2605,8 @@ def test_list_messages_voice_only_contact_has_empty_response(user_with_sms_activ
 
 
 def test_list_messages_fails_with_outbound_only_contact(user_with_sms_activity):
+    # TODO: This feels like a bug. The contact is shown in the unfiltered view,
+    # but can't be filtered with 'with' because there is no InboundContact
     client = APIClient()
     client.force_authenticate(user_with_sms_activity)
     response = client.get("/api/v1/messages/", {"with": "+13015550004"})
