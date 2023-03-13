@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("emails", "0018_relayaddress_domain"),
         ("emails", "0018_reply_squashed_0022_auto_20210817_0327"),

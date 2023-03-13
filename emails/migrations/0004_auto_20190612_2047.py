@@ -14,7 +14,6 @@ def populate_api_tokens(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("emails", "0003_profile"),
     ]

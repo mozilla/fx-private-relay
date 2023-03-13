@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("emails", "0011_profile_and_address_timestamps_20200710_1817"),
     ]

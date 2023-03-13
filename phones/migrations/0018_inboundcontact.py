@@ -6,7 +6,6 @@ import phones.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("phones", "0017_relaynumber_enabled"),
     ]

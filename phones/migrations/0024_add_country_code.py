@@ -97,7 +97,6 @@ def add_db_default_forward_func(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("phones", "0023_relaynumber_deprecated_remaining_minutes"),
     ]
