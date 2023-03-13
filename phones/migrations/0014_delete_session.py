@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("phones", "0013_relaynumber_vcard_lookup_key"),
     ]

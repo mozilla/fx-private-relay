@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("emails", "0025_copy_profile_tokens_to_rest_framework_authtoken"),
     ]

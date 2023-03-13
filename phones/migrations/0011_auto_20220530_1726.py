@@ -5,7 +5,6 @@ import phones.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("phones", "0010_auto_20220529_1600"),
     ]

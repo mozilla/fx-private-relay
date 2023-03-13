@@ -61,7 +61,6 @@ def add_db_default_forward_func(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("phones", "0026_inboundcontact_add_last_call_and_text_dates"),
     ]
