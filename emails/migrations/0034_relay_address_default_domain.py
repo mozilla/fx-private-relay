@@ -5,7 +5,6 @@ import emails.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("emails", "0033_profile_last_account_flagged"),
     ]

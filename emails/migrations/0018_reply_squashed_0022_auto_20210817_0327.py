@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     replaces = [
         ("emails", "0018_reply"),
         ("emails", "0019_auto_20210817_0318"),

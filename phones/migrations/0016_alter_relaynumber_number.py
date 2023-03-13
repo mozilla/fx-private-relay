@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("phones", "0015_alter_realphone_verification_sent_date"),
     ]

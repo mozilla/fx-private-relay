@@ -63,7 +63,6 @@ def add_db_default_forward_func(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("phones", "0020_inboundcontact_last_inbound_type"),
     ]

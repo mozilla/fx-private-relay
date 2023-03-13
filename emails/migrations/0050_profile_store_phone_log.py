@@ -108,7 +108,6 @@ def add_db_default_forward_func(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("emails", "0049_add_num_level_one_trackers_blocked_fields"),
     ]

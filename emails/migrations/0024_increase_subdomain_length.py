@@ -5,7 +5,6 @@ import emails.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("emails", "0023_add_profile_server_storage_and_relayaddress_generated_for"),
     ]

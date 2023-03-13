@@ -767,7 +767,7 @@ def _reply_allowed(
             address = _get_address(to_address)
             if address.user.profile.has_premium:
                 return True
-        except (ObjectDoesNotExist):
+        except ObjectDoesNotExist:
             return False
     incr_if_enabled("free_user_reply_attempt", 1)
     return False

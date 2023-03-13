@@ -114,7 +114,6 @@ def add_db_default_forward_func(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("emails", "0053_alter_profile_user"),
     ]

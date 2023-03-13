@@ -5,7 +5,6 @@ import emails.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("emails", "0028_copy_subdomain_to_registeredsubdomain"),
     ]

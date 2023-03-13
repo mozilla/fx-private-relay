@@ -146,7 +146,6 @@ def ses_send_raw_email(
     mail,
     address,
 ):
-
     msg_with_headers = _start_message_with_headers(
         subject, from_address, to_address, reply_address
     )
@@ -246,7 +245,6 @@ def _store_reply_record(mail, ses_response, address):
 def ses_relay_email(
     from_address, to_address, subject, message_body, attachments, mail, address
 ):
-
     reply_address = "replies@%s" % get_domains_from_settings().get(
         "RELAY_FIREFOX_DOMAIN"
     )

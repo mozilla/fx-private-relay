@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("emails", "0036_profile_add_index_on_last_account_flagged"),
     ]

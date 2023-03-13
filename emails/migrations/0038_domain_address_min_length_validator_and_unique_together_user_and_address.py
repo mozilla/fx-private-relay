@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("emails", "0037_reply_add_index_on_created_at"),
     ]
