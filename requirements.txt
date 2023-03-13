@@ -22,11 +22,11 @@ markus[datadog]==4.1.0
 pem==21.2.0
 psycopg2==2.9.5
 PyJWT==2.6.0
-python-decouple==3.7
+python-decouple==3.8
 pyOpenSSL==23.0.0
 requests==2.28.2
 sentry-sdk==1.16.0
-whitenoise==6.3.0
+whitenoise==6.4.0
 
 # phones app
 phonenumbers==8.13.6
@@ -34,7 +34,7 @@ twilio==7.16.4
 vobject==0.9.6.1
 
 # tests
-coverage==7.1.0
+coverage==7.2.1
 model-bakery==1.10.1
 pytest-cov==4.0.0
 pytest-django==4.5.2
@@ -44,7 +44,7 @@ responses==0.22.0
 black==22.12.0
 
 # type hinting
-mypy==1.0.1
+mypy==1.1.1
 types-pyOpenSSL==23.0.0.3
 types-requests==2.28.11.15
 django-stubs==1.14.0
