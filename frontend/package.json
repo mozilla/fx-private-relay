@@ -30,7 +30,7 @@
     "react-dom": "18.2.0",
     "react-ga": "^3.3.1",
     "react-intersection-observer": "^9.4.3",
-    "react-stately": "^3.20.0",
+    "react-stately": "^3.21.0",
     "react-toastify": "^9.1.1",
     "swr": "^2.0.4"
   },
