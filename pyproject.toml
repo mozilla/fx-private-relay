@@ -28,6 +28,7 @@ module = [
     "allauth.account.signals",
     "allauth.socialaccount.models",
     "allauth.socialaccount.providers.fxa",
+    "allauth.socialaccount.providers.fxa.provider",
     "allauth.socialaccount.providers.fxa.views",
     "boto3",
     "botocore.config",

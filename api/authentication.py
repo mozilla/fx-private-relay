@@ -8,13 +8,13 @@ from django.conf import settings
 from django.core.cache import cache
 
 from allauth.socialaccount.models import SocialAccount
+from allauth.socialaccount.providers.fxa.provider import FirefoxAccountsProvider
 from rest_framework.authentication import BaseAuthentication, get_authorization_header
 from rest_framework.exceptions import (
     APIException,
     AuthenticationFailed,
     NotFound,
     ParseError,
-    PermissionDenied,
 )
 
 
@@ -45,6 +45,19 @@ def introspect_token(introspect_token_url, token):
         )
         raise AuthenticationFailed("JSONDecodeError from FXA introspect response")
     return fxa_resp_data
+
+
+def auto_register_for_fxa_user(request, token):
+    profile_url = (
+        f"{settings.SOCIALACCOUNT_PROVIDERS['fxa']['PROFILE_ENDPOINT']}/profile"
+    )
+    fxa_profile_resp = requests.get(
+        profile_url, headers={"Authorization": f"Bearer {token}"}
+    )
+    # this is not exactly the request object that FirefoxAccountsProvider expects, but
+    # it has all of the necssary attributes to initiatlize the Provider
+    provider = FirefoxAccountsProvider(request)
+    return provider.sociallogin_from_response(request, fxa_profile_resp)
 
 
 class FxaTokenAuthentication(BaseAuthentication):
@@ -103,7 +116,8 @@ class FxaTokenAuthentication(BaseAuthentication):
         try:
             sa = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
         except SocialAccount.DoesNotExist:
-            raise PermissionDenied("Authenticated user does not have a Relay account.")
+            auto_register_for_fxa_user(request, token)
+            sa = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
         user = sa.user
 
         # cache fxa_resp_data for as long as access_token is valid
