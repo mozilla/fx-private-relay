@@ -87,7 +87,10 @@ export const SubdomainPicker = (props: Props) => {
             </dd>
           </dl>
         </p>
-        <Link href="/premium#pricing">
+        <Link
+          href="https://support.mozilla.org/en-US/kb/register-your-own-domain-firefox-relay-premium"
+          target="_blank"
+        >
           {l10n.getString("banner-set-email-domain-learn-more")}
         </Link>
       </div>
