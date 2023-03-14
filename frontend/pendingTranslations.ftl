@@ -391,3 +391,9 @@ modal-email-domain-success-headline-any-word = Create unlimited masks by adding 
 modal-email-domain-success-body-any-word = At a restaurant? Use restaurant@{ $custom-domain-name }.mozmail.com. Shopping? Use store@{ $custom-domain-name }.mozmail.com.
 modal-email-domain-success-continue = Continue
 
+tooltip-email-domain-explanation-part-one = This valuable feature of your { -brand-name-relay-premium } account lets you choose a unique { -brand-name-relay } email domain that you can use to create unlimited, custom { -brand-name-relay } masks on the go.  
+tooltip-email-domain-explanation-part-two = There’s no need to sign into { -brand-name-relay } to generate a new mask; Simply add any word or phrase before the @ symbol of your { -brand-name-relay } email domain to instantly create a new mask anywhere you are. 
+# Variables:
+#   $mozmail (string): domain used by Relay masks (mozmail.com)
+# "yourdomain" is used as an example custom domain. Keep it lowercase without space, to resemble and actual email address. Example: shopping@johndoe.mozmail.com
+tooltip-email-domain-explanation-part-three = At a restaurant? Use restaurant@yourdomain.{ $mozmail }. <p>Shopping? Try shop@yourdomain.{ $mozmail }</p>

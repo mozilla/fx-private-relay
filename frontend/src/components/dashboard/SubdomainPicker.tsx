@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { useOverlayTriggerState } from "react-stately";
 import { useState } from "react";
 import Image from "next/image";
@@ -9,6 +8,7 @@ import { SubdomainSearchForm } from "./subdomain/SearchForm";
 import { SubdomainConfirmationModal } from "./subdomain/ConfirmationModal";
 import { getRuntimeConfig } from "../../config";
 import { useL10n } from "../../hooks/l10n";
+import Link from "next/link";
 
 export type Props = {
   profile: ProfileData;
@@ -64,7 +64,7 @@ export const SubdomainPicker = (props: Props) => {
         <p aria-hidden={true} className={styles["action-step"]}>
           {l10n.getString("banner-set-email-domain-headline-action-needed")}
         </p>
-        <h3>{l10n.getString("banner-set-email-domain-headline")}</h3>
+        <h3>{l10n.getString("banner-set-email-domain-headline")} </h3>
         <p className={styles.lead}>
           <dl className={styles["instruction-item"]}>
             <dt>
@@ -87,8 +87,8 @@ export const SubdomainPicker = (props: Props) => {
             </dd>
           </dl>
         </p>
-        <Link href="/faq">
-          {l10n.getString("banner-label-data-notification-body-cta")}
+        <Link href="/premium#pricing">
+          {l10n.getString("banner-set-email-domain-learn-more")}
         </Link>
       </div>
       <div className={styles.search}>

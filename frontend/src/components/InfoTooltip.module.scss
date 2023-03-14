@@ -18,13 +18,14 @@
   }
 
   .tooltip {
+    @include text-body-sm;
     $triangleWidth: 10px;
     position: absolute;
     background-color: $color-white;
     box-shadow: $box-shadow-sm;
     border-radius: $border-radius-sm;
     padding: $spacing-md;
-    min-width: $content-xs;
+    min-width: $content-sm;
     margin-top: $triangleWidth;
     margin-left: calc(-1 * ($triangleWidth / 2));
     // Overlap .banner in <Banner>, which is relatively positioned:
