@@ -43,6 +43,11 @@
     h1 {
         font-family: 'metropolis bold';
     }
+    a {
+      color: #0060DF;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
     .button {
         box-sizing: border-box;
         padding: 15px 25px;
@@ -145,8 +150,8 @@
                 </td>
 
                 <td style="width: 50%; overflow-wrap:break-word;word-break:break-word;padding:10px;" align="left"> 
-                  <h1 style="margin: 0px; padding: 32px 0 16px 48px; color: #ffffff; line-height: 100%; text-align: left; word-wrap: break-word; font-size: 38px; font-weight: 500px;">Welcome to Firefox Relay</h1>  
-                  <p style="padding: 0 48px; line-height: 140%; color: #ffffff; font-size: 18px;font-family: metropolis medium">Your email address can be used to track you online — we’re here to help put an end to it.</p>
+                  <h1 style="margin: 0px; padding: 32px 0 16px 48px; color: #ffffff; line-height: 100%; text-align: left; word-wrap: break-word; font-size: 38px; font-weight: 500px;">{% ftlmsg 'first-time-user-email-welcome' %}</h1>  
+                  <p style="padding: 0 48px; line-height: 140%; color: #ffffff; font-size: 18px;font-family: metropolis medium">{% ftlmsg 'first-time-user-email-welcome-subhead' %}</p>
                 </td>
               </tr>
             </tbody>
@@ -158,10 +163,10 @@
               <tr>
                 <td style="overflow-wrap:break-word;word-break:break-word;padding: 48px 48px 0 48px;" align="center">
 
-                  <p style="color: #321C64; font-size: 18px; font-family: metropolis medium;">As a Firefox user, you get 5 email masks for free. Use them to hide your real email address, protect your identity, and forward only the emails you want to your inbox. </p> 
-                  <p style="color: #321C64; font-size: 18px; font-family: metropolis medium;margin-top: 20px;">Manage all your masks from your Relay dashboard.</p>
+                  <p style="color: #321C64; font-size: 18px; font-family: metropolis medium;">{% ftlmsg 'first-time-user-email-hero-primary-text' %}</p> 
+                  <p style="color: #321C64; font-size: 18px; font-family: metropolis medium;margin-top: 20px;">{% ftlmsg 'first-time-user-email-hero-secondary-text' %}</p>
 
-                  <a href="" target="_blank" class="button" style="margin-top: 30px;">View your dashboard</a>
+                  <a href="" target="_blank" class="button" style="margin-top: 30px;">{% ftlmsg 'first-time-user-email-hero-cta' %}</a>
 
                 </td>
               </tr>
@@ -185,7 +190,7 @@
                   <tr>
                       <td style="overflow-wrap:break-word;word-break:break-word;padding:10px;" align="left">
 
-                          <h1 style="margin-bottom: 30px; line-height: 140%; text-align: center; word-wrap: break-word; font-size: 22px; color: #321C64;">How Relay works</h1>
+                          <h1 style="margin-bottom: 30px; line-height: 140%; text-align: center; word-wrap: break-word; font-size: 22px; color: #321C64;">{% ftlmsg 'first-time-user-email-how-title' %}</h1>
 
                       </td>
                   </tr>
@@ -200,11 +205,11 @@
                       <td style="overflow-wrap:break-word;word-break:break-word;padding:10px 20px;font-family:inter;font-size:16px;" align="left">
 
                           <p style="line-height: 140%; text-align: left; word-wrap: break-word; color: #20123A">
-                            <strong>Use a Relay mask instead of your real email, everywhere</strong> 
+                            <strong>{% ftlmsg 'first-time-user-email-how-item-1-header' %}</strong> 
                           </p>
 
                           <p style="line-height: 140%; text-align: left; word-wrap: break-word;">
-                            Create masks directly on Firefox, with the Relay add-on, or on your Relay dashboard. 
+                            {% ftlmsg 'first-time-user-email-how-item-1-subhead-html' %}
                           </p>
 
                       </td>
@@ -220,11 +225,11 @@
                       <td style="overflow-wrap:break-word;word-break:break-word;padding:10px 20px;font-family:inter;font-size:16px;" align="left">
 
                           <p style="line-height: 140%; text-align: left; word-wrap: break-word; color: #20123A">
-                            <strong>We’ll forward all emails to your inbox</strong> 
+                            <strong>{% ftlmsg 'first-time-user-email-how-item-2-header' %}</strong> 
                           </p>
 
                           <p style="line-height: 140%; text-align: left; word-wrap: break-word;">
-                            Senders will never see your real address, and you can block emails any time. 
+                            {% ftlmsg 'first-time-user-email-how-item-2-subhead' %}
                           </p>
 
                       </td>
@@ -240,11 +245,11 @@
                       <td style="overflow-wrap:break-word;word-break:break-word;padding:10px 20px;font-family:inter;font-size:16px;" align="left">
 
                           <p style="line-height: 140%; text-align: left; word-wrap: break-word; color: #20123A">
-                            <strong>Manage your masks from your Relay dashboard</strong> 
+                            <strong>{% ftlmsg 'first-time-user-email-how-item-3-header' %}</strong> 
                           </p>
 
                           <p style="line-height: 140%; text-align: left; word-wrap: break-word;">
-                            Sign in to create new masks, label your masks, and delete masks that get spam. 
+                            {% ftlmsg 'first-time-user-email-how-item-3-subhead-html' url='https://addons.mozilla.org/en-US/firefox/addon/private-relay/' attrs='' %}
                           </p>
 
                       </td>
@@ -261,12 +266,12 @@
                 </td>
 
                 <td align="left" style="width: 50%;">
-                  <p style="font-size: 18px; font-family: metropolis bold; color: #321C64; "> Extra protection for your inbox and phone </p>
-                  <p style="font-size: 14px; font-family: inter; color: #0C0C0D; word-wrap: break-word; margin-top: 10px; ">Upgrade to Relay Premium for unlimited email masks — plus a phone mask protect your real number.</p> 
+                  <p style="font-size: 18px; font-family: metropolis bold; color: #321C64; ">{% ftlmsg 'first-time-user-email-extra-protection-inbox-phone-title' %}</p>
+                  <p style="font-size: 14px; font-family: inter; color: #0C0C0D; word-wrap: break-word; margin-top: 10px; ">{% ftlmsg 'first-time-user-email-extra-protection-inbox-phone-subhead' %}</p> 
                 </td>
 
                 <td align="center"> 
-                    <a href="" target="_blank" class="button" style="padding: 15px 20px;">Get Relay Premium</a> 
+                    <a href="" target="_blank" class="button" style="padding: 15px 20px;">{% ftlmsg 'first-time-user-email-extra-protection-cta' %}</a> 
                 </td>
               </tr>
             </tbody>
@@ -278,8 +283,8 @@
               <tr style="display: block;">
                 <td style="display: block; text-align: center;" align="center">
                   <img src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/union-icon.png" alt="" title="" style="display: block;height: auto;width: 100%;margin: 0 auto;max-width: 26px;" width="26" />
-                  <h1 style="word-wrap: break-word; font-size: 22px;font-family: metropolis bold; color: #321C64; margin-top: 30px;">Questions about Firefox Relay?</h1>
-                  <p style="font-size: 16px; font-family: inter; color: #000000;margin-top: 15px;">Our support team is here to help.</p>
+                  <h1 style="word-wrap: break-word; font-size: 22px;font-family: metropolis bold; color: #321C64; margin-top: 30px;">{% ftlmsg 'first-time-user-email-questions-title' %}</h1>
+                  <p style="font-size: 16px; font-family: inter; color: #000000;margin-top: 15px;">{% ftlmsg 'first-time-user-email-questions-subhead-html' url='https://relay.firefox.com/' attrs=''%}</p>
                 </td>
               </tr>
             </tbody>
@@ -301,11 +306,11 @@
             <tbody>
               <tr>
                 <td style="overflow-wrap: break-word;word-break: break-word;width: 70%;margin: 0 auto;display: block;" align="center"> 
-                  <p style="line-height: 140%;font-size: 14px; font-family: inter; color: #0C0C0D;">You’re receiving this automated email as a subscriber of Firefox Relay that used Relay for the first time. If you received it in error, no action is required.</p>
-                  <p style="line-height: 140%;font-size: 14px; font-family: inter; color: #0C0C0D;">For more information, please visit Mozilla Support.</p>
+                  <p style="line-height: 140%;font-size: 14px; font-family: inter; color: #0C0C0D;">{% ftlmsg 'first-time-user-email-footer-text-1' %}</p>
+                  <p style="line-height: 140%;font-size: 14px; font-family: inter; color: #0C0C0D;">{% ftlmsg 'first-time-user-email-footer-text-2-html' url='https://support.mozilla.org/en-US/' attrs='' %}</p>
                   <img align="center" border="0" src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/mozilla-logo.png" alt="" title="" style="height: auto; width: 100%;max-width: 146px; margin: 30px auto; display: block;" width="146" />
-                  <p style="line-height: 140%;font-size: 14px; font-family: inter; color: #0C0C0D;">2 Harrison St. #175, San Francisco, California 94105 USA</p>
-                  <p style="line-height: 140%;font-size: 14px; font-family: inter medium; color: #0C0C0D;margin-top: 15px;"> Legal • Terms &amp; Privacy </p>
+                  <p style="line-height: 140%;font-size: 14px; font-family: inter; color: #0C0C0D;">{% ftlmsg 'first-time-user-email-footer-text-address' %}</p>
+                  <p style="line-height: 140%;font-size: 14px; font-family: inter medium; color: #0C0C0D;margin-top: 15px;"><a style="color: #0060DF;" href=>{% ftlmsg 'first-time-user-email-footer-text-legal' %}</a> • <a style="color: #0060DF;" href="">{% ftlmsg 'first-time-user-email-footer-text-privacy' %}</a></p>
                 </td>
               </tr>
             </tbody>
