@@ -106,13 +106,13 @@
                    
                   <p style="margin-top: 0; margin-bottom: 5px; display: inline-block;"> 
                     {% with display_email|striptags|urlencode as mask_url %}
-                    <span style="display: block;"> 
+                    <span style="display: block; color: #FFFFFF;"> 
                     {% ftlmsg 'relay-email-forwarded-from' %} 
-                    <a class="container-link" href="{{ SITE_ORIGIN }}/accounts/profile/#{{ mask_url }}" style="margin-right: 30px;"> {{ display_email|striptags }} </a>
+                    <a class="container-link" href="{{ SITE_ORIGIN }}/accounts/profile/#{{ mask_url }}" style="margin-right: 30px;color: #FFFFFF;"> {{ display_email|striptags }} </a>
                     {% endwith %}
                     </span> 
 
-                  <span style="margin-top: 0; margin-bottom: 5px; display: block;">{% ftlmsg 'relay-email-by-line' %} <a class="container-link" href="{{ SITE_ORIGIN }}/accounts/profile" style="margin-right: 30px;">
+                  <span style="margin-top: 0; margin-bottom: 5px; display: block;color: #FFFFFF;">{% ftlmsg 'relay-email-by-line' %} <a class="container-link" href="{{ SITE_ORIGIN }}/accounts/profile" style="margin-right: 30px;color: #FFFFFF;">
                     {% if has_premium %} 
                       {% ftlmsg 'relay-email-premium-by-line-link' %} 
                     {% else %}
@@ -124,13 +124,13 @@
                     
                 </td> 
                 <td class="header-block" width="50%" align="right"> 
-                  <p style="margin: 0 30px 0 0; display: inline-block;">
+                  <p style="margin: 0 30px 0 0; display: inline-block; color: #FFFFFF;">
                     <img class="email-trackers-removed-icon" width="15" src="{{ SITE_ORIGIN }}/static/images/email-images/email-trackers-removed-icon.png" alt="email trackers removed icon"/>   
                     {% comment %}
                       Create this as a link if we have a report link to show 
                     {% endcomment %}
                     {% if tracker_report_link %}
-                    <a class="container-link" href="{{ tracker_report_link  }}"> 
+                    <a class="container-link" href="{{ tracker_report_link  }}" style="color: #FFFFFF;"> 
                       {% ftlmsg 'relay-email-trackers-removed' number=num_level_one_email_trackers_removed %}
                     </a>
                     {% else %}
@@ -141,11 +141,11 @@
                   {% with display_email|striptags|urlencode as mask_url %}
                   <p style="margin: 0; display: inline-block;"> 
                       {% if has_premium %}
-                      <a class="container-link" href="{{ SITE_ORIGIN }}/accounts/profile/#{{ mask_url }}"> 
+                      <a class="container-link" href="{{ SITE_ORIGIN }}/accounts/profile/#{{ mask_url }}" style="color: #FFFFFF;"> 
                         {% ftlmsg 'relay-email-manage-this-mask' %}
                       </a>
                       {% else %} 
-                      <a class="container-link" href="{{ SITE_ORIGIN }}/premium"> 
+                      <a class="container-link" href="{{ SITE_ORIGIN }}/premium" style="color: #FFFFFF;"> 
                         {% ftlmsg 'relay-email-upgrade-for-more-protection' %}
                       </a>
                       {% endif %} 
@@ -177,7 +177,7 @@
                   </a>
                 </td>
                 <td class="footer-block" width="50%" align="right">  
-                  <a class="container-link" href="{{ SITE_ORIGIN }}/accounts/profile">{% ftlmsg 'relay-email-your-dashboard' %}</a>  
+                  <a class="container-link" href="{{ SITE_ORIGIN }}/accounts/profile" style="color: #FFFFFF;">{% ftlmsg 'relay-email-your-dashboard' %}</a>  
                 </td> 
               </tr>
           </table>
