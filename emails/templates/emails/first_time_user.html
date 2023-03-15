@@ -68,33 +68,20 @@
         word-wrap:break-word;
         font-size: 16px;
     }
-    @media only screen and (min-width: 870px) {
-      .row {
-        width: 850px;
-      }
-      .row .col {
-        vertical-align: top;
-      } 
-    }
-     
     p {
       margin: 0;
-    }
-     
+    } 
     a[x-apple-data-detectors='true'] {
       color: inherit ;
       text-decoration: none ;
-    }
-    
+    } 
     table,
     td {
       color: #000000;
-    } 
-
-    .get-relay-premium {
-      display: block;
-      align-items: center; 
-      width: 100%;
+    }  
+    #get-relay-premium-section {
+      display: block; 
+      width: 98%;
       margin: 0 auto; 
       position: relative;
       padding: 12px;
@@ -104,9 +91,8 @@
       background-clip: padding-box;  
       border: solid 2px transparent; 
       border-radius: 8px; 
-    }
-
-    .get-relay-premium:before {
+    } 
+    #get-relay-premium-section:before {
       content: '';
       position: absolute;
       top: 0; 
@@ -120,6 +106,102 @@
       border-radius: inherit; 
       background: linear-gradient(to right, rgba(255, 145, 0, 1), rgba(241, 3, 102, 1), rgba(97, 115, 255, 1));
     }
+    h1.hero-title {
+      font-size: 38px;
+      padding: 32px 0 16px 48px;
+    }
+    p.hero-text {
+      padding: 0 48px;
+      font-size: 18px;
+    }
+    #hero-section td {
+      width: 50%;
+      }
+    #hero-section img {
+      width: 100%;
+    }
+    #what-is-relay-section td {
+      padding: 48px 48px 0 48px;
+    }
+    .separator {
+      width: 100%;
+    }
+    #how-relay-works-section {
+      padding: 0 48px 32px 48px; 
+    }
+    #get-relay-premium-section .content {
+      width: 50%;
+    }
+    #get-relay-premium-section .image img {
+      max-width: 117px;
+    }
+    #get-relay-premium-section .cta a { 
+      font-size: 16px;
+    }
+    @media only screen and (max-width: 768px) {
+      h1.hero-title {
+        font-size: 32px;
+        padding: 0 0 16px 48px;
+      }
+      p.hero-text {
+        font-size: 14px;
+      } 
+      #get-relay-premium-section .image img {
+        max-width: 90px;
+      }
+      #get-relay-premium-section .cta a { 
+        font-size: 14px;
+      }
+    }
+    @media only screen and (max-width: 600px) {
+      h1.hero-title {
+        font-size: 38px;
+        padding: 32px 0 16px 32px
+      }
+      p.hero-text {
+        font-size: 20px;
+        padding: 0 32px 
+      } 
+      #hero-section td {
+        width: 100%;
+        display: table-footer-group;
+      }
+      #hero-section img {
+        width: 90%;
+        margin: 0 auto;
+        display: block;
+      }
+      #what-is-relay-section td {
+        padding: 48px 32px 0 32px;
+      }
+      .separator {
+        width: 80%;
+      }
+      #how-relay-works-section {
+        padding: 0 32px 32px 32px; 
+      }
+      #how-relay-works-section td img {
+        min-width: 20px;
+      }      
+      #get-relay-premium-section {
+        width: 90%;
+      }
+      #get-relay-premium-section td {
+        width: 100%;
+        display: block;
+        margin: 0 auto;
+        text-align: center;
+      }
+      #get-relay-premium-section .content {
+        width: 80%;
+      }
+      #get-relay-premium-section .content .title {
+        padding: 15px 0;
+      }
+      #get-relay-premium-section .cta a {
+        margin: 20px auto;
+      }
+    } 
      
   </style> 
 </head>
@@ -131,37 +213,37 @@
         <td style="word-break: break-word;border-collapse: collapse ;vertical-align: top">
 
           <!-- header -->
-          <table width="100%" border="0" style="max-width: 850px; display: block;margin:0 auto;">
+          <table id="header-section" width="100%" border="0" style="max-width: 850px; display: block;margin:0 auto;">
               <tbody style="display: block;">
                 <tr style="display: block;">
                   <td style="display: block;"> 
-                    <img align="center" border="0" src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/relay-wordmark.png" alt="" title="" style="height: auto;float: none;width: 100%;max-width: 125px; margin: 10px auto; display: block;" width="125" /> 
+                    <img align="center" border="0" src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/relay-wordmark.png" alt="" title="" style="height: auto;float: none;width: 100%;max-width: 125px; margin: 10px auto; display: block;" /> 
                   </td>
                 </tr>
               </tbody>
           </table>
 
           <!-- hero section -->
-          <table style="max-width: 850px; display: block;margin:0 auto;background-color: #321c64" cellpadding="0" cellspacing="0" width="100%" border="0">
+          <table id="hero-section" style="max-width: 850px; display: block;margin:0 auto;background-color: #321c64" cellpadding="0" cellspacing="0" width="100%" border="0">
             <tbody>
               <tr>
-                <td style="width: 50%" align="center"> 
-                  <img align="center" border="0" src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/hero-image-en.png" alt="" title="" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block ;border: none;height: auto;float: none;width: 100%;max-width: 425px;" width="425" /> 
+                <td align="center"> 
+                  <img align="center" border="0" src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/hero-image-en.png" alt="" title="" /> 
                 </td>
 
-                <td style="width: 50%; overflow-wrap:break-word;word-break:break-word;padding:10px;" align="left"> 
-                  <h1 style="margin: 0px; padding: 32px 0 16px 48px; color: #ffffff; line-height: 100%; text-align: left; word-wrap: break-word; font-size: 38px; font-weight: 500px;">{% ftlmsg 'first-time-user-email-welcome' %}</h1>  
-                  <p style="padding: 0 48px; line-height: 140%; color: #ffffff; font-size: 18px;font-family: metropolis medium">{% ftlmsg 'first-time-user-email-welcome-subhead' %}</p>
+                <td style="overflow-wrap:break-word;word-break:break-word;padding:10px;" align="left"> 
+                  <h1 class="hero-title" style="margin: 0px; color: #ffffff; line-height: 100%; text-align: left; word-wrap: break-word; font-weight: 500px;">{% ftlmsg 'first-time-user-email-welcome' %}</h1>  
+                  <p class="hero-text" style="line-height: 140%; color: #ffffff;font-family: metropolis medium">{% ftlmsg 'first-time-user-email-welcome-subhead' %}</p>
                 </td>
               </tr>
             </tbody>
           </table>
 
           <!-- what you get -->
-          <table style="max-width: 850px; display: block;margin:0 auto;" cellpadding="0" cellspacing="0" width="100%" border="0">
+          <table id="what-is-relay-section" style="max-width: 850px; display: block;margin:0 auto;" cellpadding="0" cellspacing="0" width="100%" border="0">
             <tbody>
               <tr>
-                <td style="overflow-wrap:break-word;word-break:break-word;padding: 48px 48px 0 48px;" align="center">
+                <td style="overflow-wrap:break-word;word-break:break-word;" align="center">
 
                   <p style="color: #321C64; font-size: 18px; font-family: metropolis medium;">{% ftlmsg 'first-time-user-email-hero-primary-text' %}</p> 
                   <p style="color: #321C64; font-size: 18px; font-family: metropolis medium;margin-top: 20px;">{% ftlmsg 'first-time-user-email-hero-secondary-text' %}</p>
@@ -174,7 +256,7 @@
           </table> 
 
           <!-- separator -->
-          <table height="0px" align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 800px; display: block; margin: 48px auto; border-top: 1px solid rgba(0,0,0,0.1);width: 100%">
+          <table class="separator" height="0px" align="center" border="0" cellpadding="0" cellspacing="0" style="max-width: 800px; display: block; margin: 48px auto; border-top: 1px solid rgba(0,0,0,0.1);">
             <tbody>
               <tr >
                 <td >
@@ -185,7 +267,7 @@
           </table>
 
           <!-- How Relay Works -->
-          <table style="max-width: 850px; padding: 0 48px 32px 48px; display: block; margin: 0 auto;" cellpadding="0" cellspacing="0" width="100%" border="0">
+          <table id="how-relay-works-section" style="max-width: 850px; display: block; margin: 0 auto;" cellpadding="0" cellspacing="0" width="100%" border="0">
               <tbody>                
                   <tr>
                       <td style="overflow-wrap:break-word;word-break:break-word;padding:10px;" align="left">
@@ -199,7 +281,7 @@
                   <tr style="margin-bottom: 32px;display: inline-block;">
                       <td style="padding:0 20px; vertical-align: middle;" align="center">
 
-                          <img align="center" border="0" src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/email-icon.png" alt="" title="" style=" height: auto; width: 100%;max-width: 32px;" width="32" />
+                          <img align="center" border="0" src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/email-icon.png" alt="" title="" style=" height: auto; width: 100%;max-width: 32px;" />
 
                       </td>
                       <td style="overflow-wrap:break-word;word-break:break-word;padding:10px 20px;font-family:inter;font-size:16px;" align="left">
@@ -219,7 +301,7 @@
                   <tr style="margin-bottom: 32px;display: inline-block;">
                       <td style="padding:0 20px; vertical-align: middle;" align="center">
 
-                          <img align="center" border="0" src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/privacy-icon.png" alt="" title="" style=" height: auto; width: 100%;max-width: 32px;" width="32" />
+                          <img align="center" border="0" src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/privacy-icon.png" alt="" title="" style=" height: auto; width: 100%;max-width: 32px;" />
 
                       </td>
                       <td style="overflow-wrap:break-word;word-break:break-word;padding:10px 20px;font-family:inter;font-size:16px;" align="left">
@@ -239,7 +321,7 @@
                   <tr style="margin-bottom: 32px;display: inline-block;">
                       <td style="padding:0 20px; vertical-align: middle;" align="center">
 
-                          <img align="center" border="0" src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/highlights-icon.png" alt="" title="" style=" height: auto; width: 100%;max-width: 32px;" width="32" />
+                          <img align="center" border="0" src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/highlights-icon.png" alt="" title="" style=" height: auto; width: 100%;max-width: 32px;" />
 
                       </td>
                       <td style="overflow-wrap:break-word;word-break:break-word;padding:10px 20px;font-family:inter;font-size:16px;" align="left">
@@ -258,19 +340,19 @@
           </table>
    
           <!-- Get Relay Premium CTA -->
-          <table class="get-relay-premium" style="max-width: 800px; margin: 0 auto; display: block;" width="100%"  >
+          <table id="get-relay-premium-section" style="max-width: 800px; margin: 0 auto; display: block;">
             <tbody>
               <tr>
-                <td align="left"> 
-                  <img align="center" border="0" src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/phone-messaging-art.png" alt="" title="" style="display: inline-block;border: none;height: auto; width: 100%;max-width: 117px;" width="117" /> 
+                <td class="image" align="left"> 
+                  <img align="center" border="0" src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/phone-messaging-art.png" alt="" title="" style="display: inline-block;border: none;height: auto; width: 100%;" /> 
                 </td>
 
-                <td align="left" style="width: 50%;">
-                  <p style="font-size: 18px; font-family: metropolis bold; color: #321C64; ">{% ftlmsg 'first-time-user-email-extra-protection-inbox-phone-title' %}</p>
-                  <p style="font-size: 14px; font-family: inter; color: #0C0C0D; word-wrap: break-word; margin-top: 10px; ">{% ftlmsg 'first-time-user-email-extra-protection-inbox-phone-subhead' %}</p> 
+                <td class="content" align="left">
+                  <p class="title" style="font-size: 18px; font-family: metropolis bold; color: #321C64; ">{% ftlmsg 'first-time-user-email-extra-protection-inbox-phone-title' %}</p>
+                  <p class="text" style="font-size: 14px; font-family: inter; color: #0C0C0D; word-wrap: break-word; margin-top: 10px; ">{% ftlmsg 'first-time-user-email-extra-protection-inbox-phone-subhead' %}</p> 
                 </td>
 
-                <td align="center"> 
+                <td class="cta" align="center"> 
                     <a href="" target="_blank" class="button" style="padding: 15px 20px;">{% ftlmsg 'first-time-user-email-extra-protection-cta' %}</a> 
                 </td>
               </tr>
@@ -282,16 +364,16 @@
             <tbody style="display: block;"> 
               <tr style="display: block;">
                 <td style="display: block; text-align: center;" align="center">
-                  <img src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/union-icon.png" alt="" title="" style="display: block;height: auto;width: 100%;margin: 0 auto;max-width: 26px;" width="26" />
+                  <img src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/union-icon.png" alt="" title="" style="display: block;height: auto;width: 100%;margin: 0 auto;max-width: 26px;" />
                   <h1 style="word-wrap: break-word; font-size: 22px;font-family: metropolis bold; color: #321C64; margin-top: 30px;">{% ftlmsg 'first-time-user-email-questions-title' %}</h1>
                   <p style="font-size: 16px; font-family: inter; color: #000000;margin-top: 15px;">{% ftlmsg 'first-time-user-email-questions-subhead-html' url='https://relay.firefox.com/' attrs=''%}</p>
                 </td>
               </tr>
             </tbody>
-          </table>
+          </table> 
 
           <!-- separator - shorter width than first one per design -->
-          <table height="0px" align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 750px; display: block; margin: 48px auto; border-top: 1px solid rgba(0,0,0,0.1);width: 100%">
+          <table class="separator" height="0px" align="center" border="0" cellpadding="0" cellspacing="0" style="max-width: 750px; display: block; margin: 48px auto; border-top: 1px solid rgba(0,0,0,0.1);">
             <tbody>
               <tr >
                 <td >
@@ -302,15 +384,15 @@
           </table>
 
           <!-- Footer -->
-          <table style="max-width: 850px; display: block; margin: 0 auto 60px auto;" width="100%">
+          <table id="relay-footer-section" style="max-width: 850px; display: block; margin: 0 auto 60px auto;" width="100%">
             <tbody>
               <tr>
                 <td style="overflow-wrap: break-word;word-break: break-word;width: 70%;margin: 0 auto;display: block;" align="center"> 
                   <p style="line-height: 140%;font-size: 14px; font-family: inter; color: #0C0C0D;">{% ftlmsg 'first-time-user-email-footer-text-1' %}</p>
-                  <p style="line-height: 140%;font-size: 14px; font-family: inter; color: #0C0C0D;">{% ftlmsg 'first-time-user-email-footer-text-2-html' url='https://support.mozilla.org/en-US/' attrs='' %}</p>
-                  <img align="center" border="0" src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/mozilla-logo.png" alt="" title="" style="height: auto; width: 100%;max-width: 146px; margin: 30px auto; display: block;" width="146" />
+                  <p style="line-height: 140%;font-size: 14px; font-family: inter; color: #0C0C0D;">{% ftlmsg 'first-time-user-email-footer-text-2-html' url='https://support.mozilla.org/en-US/' attrs='style="color: #0C0C0D;"' %}</p>
+                  <img align="center" border="0" src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/mozilla-logo.png" alt="" title="" style="height: auto; width: 100%;max-width: 146px; margin: 30px auto; display: block;" />
                   <p style="line-height: 140%;font-size: 14px; font-family: inter; color: #0C0C0D;">{% ftlmsg 'first-time-user-email-footer-text-address' %}</p>
-                  <p style="line-height: 140%;font-size: 14px; font-family: inter medium; color: #0C0C0D;margin-top: 15px;"><a style="color: #0060DF;" href=>{% ftlmsg 'first-time-user-email-footer-text-legal' %}</a> • <a style="color: #0060DF;" href="">{% ftlmsg 'first-time-user-email-footer-text-privacy' %}</a></p>
+                  <p style="line-height: 140%;font-size: 14px; font-family: inter medium; color: #0C0C0D;margin-top: 15px;"><a style="color: #0C0C0D; text-decoration: none; font-weight: 600;" href=>{% ftlmsg 'first-time-user-email-footer-text-legal' %}</a> • <a style="color: #0C0C0D; text-decoration: none; font-weight: 600;" href="">{% ftlmsg 'first-time-user-email-footer-text-privacy' %}</a></p>
                 </td>
               </tr>
             </tbody>
