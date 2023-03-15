@@ -97,6 +97,7 @@ export const PremiumOnboarding = (props: Props) => {
   if (props.profile.onboarding_state === 1) {
     step = (
       <StepTwo
+        onNextStep={props.onNextStep}
         profile={props.profile}
         onPickSubdomain={props.onPickSubdomain}
       />
@@ -142,6 +143,7 @@ export const PremiumOnboarding = (props: Props) => {
 
   if (props.profile.onboarding_state === 2) {
     step = <StepThree />;
+    const { linkHref, linkMessageId } = getAddonDescriptionProps();
 
     const skipAddon = () => {
       props.onNextStep(3);
@@ -173,7 +175,11 @@ export const PremiumOnboarding = (props: Props) => {
             "multi-part-onboarding-premium-extension-button-dashboard"
           )}
         </Button>
-        <button
+        <AddonDescriptionLinkButton
+          linkHref={linkHref}
+          linkMessageId={linkMessageId}
+        />
+        {/* <button
           ref={skipAddonButtonRef}
           onClick={skipAddon}
           className={`is-hidden-with-addon ${styles["get-addon-button"]} ${styles["skip-link"]}`}
@@ -181,13 +187,13 @@ export const PremiumOnboarding = (props: Props) => {
           {l10n.getString(
             "multi-part-onboarding-premium-extension-button-skip"
           )}
-        </button>
+        </button> */}
       </>
     );
 
     skipButton = (
       <button className={styles["skip-link"]} onClick={() => quit()}>
-        {l10n.getString("profile-label-skip")}
+        {l10n.getString("multi-part-onboarding-skip-download-extension")}
       </button>
     );
   }
@@ -313,6 +319,7 @@ const StepOne = () => {
 type Step2Props = {
   profile: ProfileData;
   onPickSubdomain: (subdomain: string) => void;
+  onNextStep: (step: number) => void;
 };
 const StepTwo = (props: Step2Props) => {
   const l10n = useL10n();
@@ -320,20 +327,30 @@ const StepTwo = (props: Step2Props) => {
     props.profile.subdomain === "string"
   );
 
+  const renderConfirmation = () => {
+    setShowSubdomainConfirmation(true);
+    props.onNextStep(2);
+    gaEvent({
+      category: "Premium Onboarding",
+      action: "Engage",
+      label: "onboarding-step-2-continue",
+      value: 2,
+    });
+  };
   const subdomain = showSubdomainConfirmation ? (
     <p className={styles["action-complete"]}>
       <span className={styles.label}>
         <CheckBadgeIcon alt="" width={18} height={18} />
         {l10n.getString("multi-part-onboarding-premium-email-domain-added")}
       </span>
-      <samp>@{props.profile.subdomain}</samp>
+      <div>@{props.profile.subdomain}</div>
       <span className={styles.domain}>.{getRuntimeConfig().mozmailDomain}</span>
     </p>
   ) : (
     <Step2SubdomainPicker
       onPickSubdomain={props.onPickSubdomain}
       profile={props.profile}
-      onComplete={() => setShowSubdomainConfirmation(true)}
+      onComplete={() => renderConfirmation()}
     />
   );
 
@@ -404,7 +421,6 @@ const Step2SubdomainPicker = (props: Step2SubdomainPickerProps) => {
   };
 
   const onComplete = () => {
-    modalState.close();
     props.onComplete();
   };
 
@@ -468,6 +484,11 @@ const StepThree = () => {
               <CheckBadgeIcon alt="" width={18} height={18} />
               {l10n.getString("multi-part-onboarding-premium-extension-added")}
             </div>
+            <p className={`${styles["addon-description"]}`}>
+              {l10n.getString(
+                "multi-part-onboarding-premium-added-extension-body"
+              )}
+            </p>
           </div>
         </div>
       </div>
@@ -506,7 +527,7 @@ const getAddonDescriptionProps = () => {
         "multi-part-onboarding-premium-extension-get-description-2",
       linkHref:
         "https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon",
-      linkMessageId: "multi-part-onboarding-premium-extension-button-download",
+      linkMessageId: "multi-part-onboarding-premium-add-extension-feature-cta",
     };
   }
   if (supportsChromeExtension()) {
@@ -517,8 +538,7 @@ const getAddonDescriptionProps = () => {
         "multi-part-onboarding-premium-chrome-extension-get-description-2",
       linkHref:
         "https://chrome.google.com/webstore/detail/firefox-relay/lknpoadjjkjcmjhbjpcljdednccbldeb?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon",
-      linkMessageId:
-        "multi-part-onboarding-premium-chrome-extension-button-download",
+      linkMessageId: "multi-part-onboarding-premium-add-extension-feature-cta",
     };
   }
   return {
@@ -531,21 +551,18 @@ const getAddonDescriptionProps = () => {
 
 const AddonDescription = () => {
   const isLargeScreen = useMinViewportWidth("md");
-  const { headerMessageId, paragraphMessageId, linkHref, linkMessageId } =
-    getAddonDescriptionProps();
+  const { headerMessageId, paragraphMessageId } = getAddonDescriptionProps();
   if (!isLargeScreen) {
     return null;
   }
   if (supportsAnExtension()) {
     return (
-      <div className={`${styles["addon-description"]} is-hidden-with-addon`}>
-        <AddonDescriptionHeader headerMessageId={headerMessageId} />
-        <AddonDescriptionParagraph paragraphMessageId={paragraphMessageId} />
-        <AddonDescriptionLinkButton
-          linkHref={linkHref}
-          linkMessageId={linkMessageId}
-        />
-      </div>
+      <>
+        <div className={`${styles["addon-description"]} is-hidden-with-addon`}>
+          <AddonDescriptionHeader headerMessageId={headerMessageId} />
+          <AddonDescriptionParagraph paragraphMessageId={paragraphMessageId} />
+        </div>
+      </>
     );
   }
   return null;
@@ -583,7 +600,7 @@ const AddonDescriptionLinkButton = ({
     <LinkButton
       href={linkHref}
       target="_blank"
-      className={styles["get-addon-button"]}
+      className={`is-hidden-with-addon ${styles["get-addon-button"]}`}
     >
       {l10n.getString(linkMessageId)}
     </LinkButton>

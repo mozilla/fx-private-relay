@@ -34,7 +34,7 @@
 
       .check-icon {
         fill: $color-blue-50;
-        width: 20px; // Width of the check icons
+        min-width: 20px; // Width of the check icons
       }
     }
   }
