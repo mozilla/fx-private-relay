@@ -21,6 +21,7 @@ export type Props = {
   isSet: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  onComplete: () => void;
 };
 
 /**
@@ -133,7 +134,7 @@ const SuccessModal = (props: Props) => {
             </ul>
           </p>
 
-          <Button onClick={() => props.onClose()}>
+          <Button onClick={() => props.onComplete()}>
             {l10n.getString("profile-label-continue")}
           </Button>
         </div>

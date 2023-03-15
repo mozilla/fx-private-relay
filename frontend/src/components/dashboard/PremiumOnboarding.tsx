@@ -316,25 +316,26 @@ type Step2Props = {
 };
 const StepTwo = (props: Step2Props) => {
   const l10n = useL10n();
+  const [showSubdomainConfirmation, setShowSubdomainConfirmation] = useState(
+    props.profile.subdomain === "string"
+  );
 
-  const subdomain =
-    typeof props.profile.subdomain === "string" ? (
-      <p className={styles["action-complete"]}>
-        <span className={styles.label}>
-          <CheckBadgeIcon alt="" width={18} height={18} />
-          {l10n.getString("multi-part-onboarding-premium-email-domain-added")}
-        </span>
-        <samp>@{props.profile.subdomain}</samp>
-        <span className={styles.domain}>
-          .{getRuntimeConfig().mozmailDomain}
-        </span>
-      </p>
-    ) : (
-      <Step2SubdomainPicker
-        onPickSubdomain={props.onPickSubdomain}
-        profile={props.profile}
-      />
-    );
+  const subdomain = showSubdomainConfirmation ? (
+    <p className={styles["action-complete"]}>
+      <span className={styles.label}>
+        <CheckBadgeIcon alt="" width={18} height={18} />
+        {l10n.getString("multi-part-onboarding-premium-email-domain-added")}
+      </span>
+      <samp>@{props.profile.subdomain}</samp>
+      <span className={styles.domain}>.{getRuntimeConfig().mozmailDomain}</span>
+    </p>
+  ) : (
+    <Step2SubdomainPicker
+      onPickSubdomain={props.onPickSubdomain}
+      profile={props.profile}
+      onComplete={() => setShowSubdomainConfirmation(true)}
+    />
+  );
 
   return (
     <div className={`${styles.step} ${styles["step-custom-domain"]}`}>
@@ -380,6 +381,7 @@ const StepTwo = (props: Step2Props) => {
 type Step2SubdomainPickerProps = {
   onPickSubdomain: (subdomain: string) => void;
   profile: ProfileData;
+  onComplete: () => void;
 };
 const Step2SubdomainPicker = (props: Step2SubdomainPickerProps) => {
   const l10n = useL10n();
@@ -395,11 +397,15 @@ const Step2SubdomainPicker = (props: Step2SubdomainPickerProps) => {
 
   const onConfirm = () => {
     props.onPickSubdomain(chosenSubdomain);
-    modalState.close();
   };
 
   const onType = (_partial: string) => {
     setPartialSubdomain(_partial);
+  };
+
+  const onComplete = () => {
+    modalState.close();
+    props.onComplete();
   };
 
   const dialog = modalState.isOpen ? (
@@ -409,6 +415,7 @@ const Step2SubdomainPicker = (props: Step2SubdomainPickerProps) => {
       isSet={typeof props.profile.subdomain === "string"}
       onClose={() => modalState.close()}
       onConfirm={onConfirm}
+      onComplete={onComplete}
     />
   ) : null;
 

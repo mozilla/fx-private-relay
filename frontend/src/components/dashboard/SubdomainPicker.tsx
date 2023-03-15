@@ -55,6 +55,7 @@ export const SubdomainPicker = (props: Props) => {
       isSet={typeof props.profile.subdomain === "string"}
       onClose={() => modalState.close()}
       onConfirm={onConfirm}
+      onComplete={() => modalState.close()}
     />
   ) : null;
 
