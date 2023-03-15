@@ -29,23 +29,23 @@
       box-sizing: border-box;
     }
 
-    body {
+    #relay-email {
       font-family: 'inter', Arial, sans-serif;
       color: #3D3D3D;
     }
 
-    p {
+    #relay-email p {
       color: #FFFFFF;
       font-size: 12px;
     }
  
-    a { 
+    a.container-link { 
       transition: all 0.2s ease;
       text-underline-offset: 2px;
       font-family: 'inter medium', Arial, sans-serif;
     }
 
-    a:hover {
+    a.container-link:hover {
       color: #20123ad5;
       transition: all 0.2s ease;
     }
@@ -55,9 +55,9 @@
       font-size: 12px;
     }
 
-    a:hover,
-    a:focus,
-    a:active {
+    a.container-link:hover,
+    a.container-link:focus,
+    a.container-link:active {
       transition: all 0.2s ease;
     }
 
@@ -66,22 +66,7 @@
       vertical-align: bottom; 
     }
 
-    @media screen and (max-width: 768px) {
-      .header-block {
-        display: block;
-        width: 100%;
-        text-align: left;
-      }
-
-      .header-block:nth-child(2) {
-        margin-left: 40px;
-      }
-
-      .header-block:nth-child(2)>p {
-        width: 100%;
-        display: block;
-      }
-
+    @media screen and (max-width: 768px) { 
       .footer-block {
         display: block;
         width: 100%;
@@ -92,19 +77,58 @@
         height: 45px;
         width: auto;
       }
-    }   
+
+      .header-block-left,
+      .header-block-right {
+        display: block;
+        width: 100%;
+        text-align: left;
+      }
+
+      .header-block-right {
+        margin-left: 40px;
+      }
+
+      .relay-trackers-removed,
+      .relay-mask {
+        width: 100%;
+        display: block;
+      } 
+    }  
+    /* this deals with long email addresses */
+    .forwarded-from-email {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 500px;
+      } 
+    @media screen and (max-width: 1200px) {
+      .forwarded-from-email {
+        width: 300px;
+      }
+    }
+    @media screen and (max-width: 768px){
+      .forwarded-from-email { 
+        width: 250px;
+      }  
+    }
+    @media screen and (max-width: 425px) {
+      .forwarded-from-email { 
+        width: 200px;
+      }
+    }
     </style>
   </head>
-  <body style="padding: 0; margin: 0;">
+  <body id="relay-email" style="padding: 0; margin: 0;">
     <!-- Header -->
     <table id="relay-email-header" width="100%" bgcolor="#3D3D3D" style="background: #3D3D3D; padding: 12px 25px; margin-top: 30px; margin-bottom: 30px; width: 96%; border-radius: 6px; max-width: 1200px;" align="center">
       <tr> 
-        <td class="header-block" width="50%" align="left" style="padding-top: 5px;"> 
+        <td class="header-block-left" width="50%" align="left" style="padding-top: 5px;"> 
           <img width="30" src="{{ SITE_ORIGIN }}/static/images/email-images/relay-icon.png" style="margin-right: 5px; display: inline-block; vertical-align: top;" alt="relay icon"/>   
            
           <p style="margin-top: 0; margin-bottom: 5px; display: inline-block;"> 
             {% with display_email|striptags|urlencode as mask_url %}
-            <span style="display: block; color: #FFFFFF;"> 
+            <span class="forwarded-from-email" style="display: block; color: #FFFFFF;"> 
             {% ftlmsg 'relay-email-forwarded-from' %} 
             <a class="container-link" href="{{ SITE_ORIGIN }}/accounts/profile/#{{ mask_url }}" style="margin-right: 30px;color: #FFFFFF;"> {{ display_email|striptags }} </a>
             {% endwith %}
@@ -121,8 +145,8 @@
           </p>  
             
         </td> 
-        <td class="header-block" width="50%" align="right"> 
-          <p style="margin: 0 30px 0 0; display: inline-block; color: #FFFFFF;">
+        <td class="header-block-right" width="50%" align="right"> 
+          <p class="relay-trackers-removed" style="margin: 0 30px 0 0; display: inline-block; color: #FFFFFF;">
             <img class="email-trackers-removed-icon" width="15" src="{{ SITE_ORIGIN }}/static/images/email-images/email-trackers-removed-icon.png" alt="email trackers removed icon"/>   
             {% comment %}
               Create this as a link if we have a report link to show 
@@ -137,7 +161,7 @@
           </p> 
 
           {% with display_email|striptags|urlencode as mask_url %}
-          <p style="margin: 0; display: inline-block;"> 
+          <p class="relay-mask" style="margin: 0; display: inline-block;"> 
               {% if has_premium %}
               <a class="container-link" href="{{ SITE_ORIGIN }}/accounts/profile/#{{ mask_url }}" style="color: #FFFFFF;"> 
                 {% ftlmsg 'relay-email-manage-this-mask' %}
