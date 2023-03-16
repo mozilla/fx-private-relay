@@ -3,16 +3,18 @@ from datetime import datetime, timedelta, timezone
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from allauth.socialaccount.models import SocialAccount
-from waffle.models import Flag
+import logging
 
-from privaterelay.fxa_utils import (
-    get_phone_subscription_dates,
+from emails.models import Profile
+from privaterelay.management.utils import (
+    get_free_phone_social_accounts,
+    get_phone_subscriber_social_accounts,
 )
-from privaterelay.views import update_fxa
 
 if settings.PHONES_ENABLED:
     from phones.models import RelayNumber
+
+logger = logging.getLogger("events")
 
 
 def reset_phone_remaining_stats(user):
@@ -27,69 +29,54 @@ def reset_phone_remaining_stats(user):
     relay_number.save()
 
 
-def update_phone_remaining_stats() -> tuple[int, int]:
-    if not settings.PHONES_ENABLED:
-        return 0, 0
-    accounts_with_phones = []
-    for sub_with_phone in settings.SUBSCRIPTIONS_WITH_PHONE:
-        social_accounts = SocialAccount.objects.filter(
-            extra_data__icontains=sub_with_phone
+def get_next_reset_date(profile: Profile) -> datetime:
+    # TODO: consider moving this as a property in Profile model
+    # assumes that profile being passed have already been checked to have
+    # phone subscription or a free phone user
+    if profile.date_phone_subscription_reset is None:
+        # there is a problem with the sync_phone_related_dates_on_profile
+        # or a new foxfooder whose date_phone_subscription_reset did not get set in
+        logger.error(
+            "phone_user_profile_dates_not_set",
+            extra={
+                "fxa_uid": profile.fxa.uid,
+                "date_subscribed_phone": profile.date_phone_subscription_end,
+                "date_phone_subscription_start": profile.date_phone_subscription_start,
+                "date_phone_subscription_reset": profile.date_phone_subscription_reset,
+                "date_phone_subscription_end": profile.date_phone_subscription_end,
+            },
         )
-        accounts_with_phones.extend(list(social_accounts))
+        return datetime.now(timezone.utc) - timedelta(minutes=15)
+
+    calculated_next_reset_date = profile.date_phone_subscription_reset + timedelta(
+        settings.MAX_DAYS_IN_MONTH
+    )
+    if profile.date_phone_subscription_end is None:
+        return calculated_next_reset_date
+    if profile.date_phone_subscription_end < calculated_next_reset_date:
+        # return the past or the closest next reset date
+        return profile.date_phone_subscription_end
+    return calculated_next_reset_date
+
+
+def update_phone_remaining_stats() -> tuple[int, int]:
+    accounts_with_phones = get_phone_subscriber_social_accounts()
+    free_phones_social_accounts = get_free_phone_social_accounts()
+    accounts_with_phones.update(free_phones_social_accounts)
+
+    if not settings.PHONES_ENABLED or len(accounts_with_phones) == 0:
+        return 0, 0
 
     updated_profiles = []
-    free_phones_flag = Flag.objects.filter(name="free_phones").first()
+    datetime_now = datetime.now(timezone.utc)
     for social_account in accounts_with_phones:
         profile = social_account.user.profile
-        date_subscribed_phone, start_date, end_date = get_phone_subscription_dates(
-            social_account
-        )
-        datetime_now = datetime.now(timezone.utc)
-        if not (date_subscribed_phone and start_date and end_date):
-            if free_phones_flag and free_phones_flag.is_active_for_user(profile.user):
-                if profile.date_phone_subscription_checked is None:
-                    profile.date_phone_subscription_checked = datetime_now
-                profile.save()
-                days_until_end_date = (
-                    datetime_now - profile.date_phone_subscription_checked
-                ).days
-            else:
-                continue
-        else:
-            days_until_end_date = (end_date - start_date).days
-
-        max_num_of_days = 31
-        if profile.date_subscribed_phone is None:
-            profile.date_subscribed_phone = date_subscribed_phone
-        # subscription could have changed, update end date
-        profile.date_phone_subscription_end = end_date
-        profile.save()
-
-        # Re-fetch all FXA data into profile so we can see if the user still has
-        # a phone subscription.
-        update_fxa(social_account)
-        profile.refresh_from_db()
-        if end_date < datetime_now:
-            if profile.has_phone:
-                reset_phone_remaining_stats(profile.user)
-                profile.date_phone_subscription_checked = datetime_now
-                updated_profiles.append(profile)
-        elif days_until_end_date > max_num_of_days:
-            # could be an yearly date use the date_phone_subscription_checked value
-            reset_limits = False
-            if profile.date_phone_subscription_checked is None:
-                # first time phone subscription is checked for the yearly subscription
-                profile.date_phone_subscription_checked = date_subscribed_phone
-            next_time_subscription_should_be_checked = (
-                profile.date_phone_subscription_checked
-                + timedelta(settings.DAYS_PER_BILLING_CYCLE)
-            )
-            if next_time_subscription_should_be_checked <= datetime_now:
-                if profile.has_phone:
-                    reset_phone_remaining_stats(profile.user)
-                    profile.date_phone_subscription_checked = datetime_now
-                    updated_profiles.append(profile)
-        profile.save()
+        next_reset_date = get_next_reset_date(profile)
+        if next_reset_date <= datetime_now:
+            reset_phone_remaining_stats(profile.user)
+            profile.date_phone_subscription_reset = datetime_now
+            profile.save()
+            updated_profiles.append(profile)
     return len(accounts_with_phones), len(updated_profiles)
 
 
