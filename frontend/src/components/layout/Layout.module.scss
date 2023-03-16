@@ -267,10 +267,6 @@ $toastify-toast-close-button: var(--toast-close-button);
   // Create a new stacking context for the content, so we can use z-indexes in
   // the content without preventing the header/mobile menu from overlapping it.
   isolation: isolate;
-
-  @media screen and (min-width: $screen-md) {
-    background-color: $color-light-gray-10;
-  }
 }
 
 .gray-bg {
@@ -280,48 +276,57 @@ $toastify-toast-close-button: var(--toast-close-button);
 .footer {
   background-color: black;
   color: $color-white;
-  font-weight: 700;
-  display: flex;
-  align-items: flex-start;
-  flex-direction: column;
 
-  @media screen and #{$mq-md} {
-    flex-direction: row;
-    align-items: center;
-  }
-
-  .mozilla-logo {
-    padding: $spacing-xl;
-  }
-
-  .meta {
+  .links {
+    font-weight: 700;
     display: flex;
+    align-items: flex-start;
     flex-direction: column;
-    padding: $spacing-lg;
-    list-style-type: none;
-    gap: $spacing-md;
 
     @media screen and #{$mq-md} {
       flex-direction: row;
       align-items: center;
-      margin-left: auto;
     }
 
-    a {
-      padding: $spacing-md;
+    .mozilla-logo {
+      padding: $spacing-xl;
+    }
 
-      img {
-        display: inline-block;
+    .meta {
+      display: flex;
+      flex-direction: column;
+      padding: $spacing-lg;
+      list-style-type: none;
+      gap: $spacing-md;
+
+      @media screen and #{$mq-md} {
+        flex-direction: row;
+        align-items: center;
+        margin-left: auto;
       }
 
-      &:hover {
-        color: $color-light-gray-40;
+      a {
+        padding: $spacing-md;
 
         img {
-          opacity: 0.8;
+          display: inline-block;
+        }
+
+        &:hover {
+          color: $color-light-gray-40;
+
+          img {
+            opacity: 0.8;
+          }
         }
       }
     }
+  }
+
+  .stock-photo-disclaimer {
+    display: block;
+    padding: $spacing-md;
+    text-align: center;
   }
 }
 

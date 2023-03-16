@@ -1,0 +1,475 @@
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "../../../styles/tokens.scss";
+
+.card {
+  background-color: $color-white;
+  border-radius: $border-radius-md;
+  transition: box-shadow 200ms ease-in-out, opacity 200ms ease-in-out;
+
+  &.is-enabled {
+    box-shadow: $box-shadow-sm;
+  }
+  &:not(.is-enabled) {
+    opacity: 0.7;
+  }
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm;
+
+  .summary {
+    flex: 1 1 auto;
+    // Override flex children's default `min-width: auto` to allow the summary
+    // to shrink instead of pushing out the collapse button:
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    @media screen and #{$mq-md} {
+      gap: $spacing-sm;
+      flex-wrap: nowrap;
+    }
+
+    .label-editor-wrapper {
+      @media screen and #{$mq-md} {
+        // Same as .summary's gap:
+        padding-inline-end: $spacing-sm;
+        border-right: 1px solid $color-grey-10;
+      }
+    }
+
+    .copy-button-wrapper {
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+      overflow: hidden;
+    }
+
+    .copy-button {
+      display: flex;
+      align-items: center;
+      gap: $spacing-xs;
+      background-color: transparent;
+      color: $color-blue-50;
+      border-style: none;
+      font-family: $font-stack-firefox;
+      font-weight: 500;
+      border-radius: $border-radius-sm;
+      cursor: pointer;
+
+      &:hover {
+        color: $color-green-70;
+      }
+
+      samp {
+        font-family: inherit;
+        max-width: 250px; // Setting a fixed width to truncate string
+        align-self: start;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        @media screen and #{$mq-sm} {
+          max-width: 350px;
+        }
+        @media screen and #{$mq-md} {
+          max-width: 400px;
+        }
+        @media screen and #{$mq-lg} {
+          max-width: none;
+        }
+      }
+
+      .copy-icon {
+        width: 15px; // Fixed size for the copy icon
+      }
+    }
+
+    .copied-confirmation {
+      background-color: $color-green-50;
+      padding: $spacing-xs $spacing-sm;
+      border-radius: $border-radius-md;
+      font-weight: 600;
+      opacity: 1;
+
+      &[aria-hidden="true"] {
+        opacity: 0;
+        // Only fade out when disappearing:
+        transition: opacity 2s;
+      }
+    }
+
+    .block-level-label {
+      flex: 1 0 auto;
+      text-align: end;
+      color: $color-grey-50;
+      display: none;
+
+      @media screen and #{$mq-lg} {
+        display: initial;
+      }
+    }
+  }
+
+  .expand-button {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    border-style: none;
+    cursor: pointer;
+    color: $color-grey-40;
+    border-radius: $border-radius-sm;
+    width: $layout-sm;
+
+    @media (any-pointer: coarse) {
+      width: $layout-md;
+    }
+
+    &:hover {
+      background-color: $color-grey-05;
+      color: $color-blue-50;
+    }
+
+    svg {
+      transition: transform 200ms;
+    }
+
+    &[aria-pressed="true"] svg {
+      transform: rotate(0.5turn);
+    }
+  }
+}
+
+// This wrapper is a bit of a hack to allow animating the expanding/collapsing
+// of the details area. For more info, see
+// https://chriscoyier.net/2022/12/21/things-css-could-still-use-heading-into-2023/#animate-to-auto
+.details-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  transition: grid-template-rows 500ms ease-in-out;
+
+  @media (prefers-reduced-motion: no-preference) {
+    transition-duration: 200ms;
+  }
+
+  &:not([hidden]) {
+    grid-template-rows: 1fr;
+
+    .details {
+      border-top: 1px solid $color-grey-10;
+
+      @media screen and #{$mq-md} {
+        padding: $spacing-md $spacing-lg;
+      }
+    }
+  }
+
+  .details {
+    min-height: 0;
+    transition: padding 200ms ease-in-out;
+
+    .stats {
+      @media screen and (max-width: $screen-md) {
+        display: flex;
+        flex-direction: column;
+        padding-inline: $spacing-md;
+        border-bottom: 1px solid $color-grey-10;
+
+        .stat {
+          display: flex;
+          justify-content: space-between;
+          padding-block: $spacing-sm;
+
+          &:not(:last-child) {
+            border-bottom: 1px solid $color-grey-10;
+          }
+
+          // De-emphasise stats for:
+          // - blocked emails when a mask is not blocking emails,
+          .is-enabled.is-not-blocking-promotionals &.blocked-stat,
+          // - replies when a mask is not passing through replies,
+          .is-disabled &.replies-stat,
+          // - tracker removal when a mask is not removing trackers, and
+          .is-enabled.is-not-removing-trackers &.trackers-removed-stat,
+          .is-disabled &.trackers-removed-stat,
+          // - forwarded emails when a mask is not forwarding emails.
+          .is-disabled &.forwarded-stat {
+            color: $color-grey-40;
+          }
+
+          dt {
+            @include text-body-md;
+          }
+
+          dd {
+            @include text-body-lg;
+            font-weight: 700;
+          }
+        }
+      }
+      @media screen and #{$mq-md} {
+        display: flex;
+        gap: $spacing-md;
+        justify-content: space-between;
+        width: 100%;
+
+        .stat {
+          flex: 1 1 0;
+          display: flex;
+          flex-direction: column-reverse;
+          align-items: center;
+          background-color: $color-grey-05;
+          padding: $spacing-sm;
+          border-radius: $border-radius-sm;
+
+          // De-emphasise stats for:
+          // - blocked emails when a mask is not blocking emails,
+          .is-enabled.is-not-blocking-promotionals &.blocked-stat,
+          // - replies when a mask is not passing through replies,
+          .is-disabled &.replies-stat,
+          // - tracker removal when a mask is not removing trackers, and
+          .is-enabled.is-not-removing-trackers &.trackers-removed-stat,
+          .is-disabled &.trackers-removed-stat,
+          // - forwarded emails when a mask is not forwarding emails.
+          .is-disabled &.forwarded-stat {
+            color: $color-grey-30;
+          }
+
+          dd {
+            @include text-title-2xs;
+            font-family: $font-stack-firefox;
+            font-weight: 600;
+          }
+        }
+      }
+    }
+  }
+}
+
+.block-level {
+  a {
+    color: $color-blue-50;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  @media screen and (max-width: $screen-md) {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    padding: $spacing-lg;
+    $arrowWidth: 6px;
+
+    .block-level-setting-description {
+      @include text-body-sm;
+      background-color: $color-grey-05;
+      padding: $spacing-lg;
+      border-radius: $border-radius-md;
+      position: relative;
+
+      &::after {
+        content: "";
+        height: $arrowWidth * 2;
+        width: $arrowWidth * 2;
+        position: absolute;
+        top: -1 * $arrowWidth;
+        transform: rotate(45deg);
+        background-color: $color-grey-05;
+      }
+
+      &.without-chevron::after {
+        display: none;
+      }
+    }
+
+    &.is-blocking-none .block-level-setting-description::after {
+      left: calc(calc(100% / 6) - ($spacing-md / 2));
+    }
+
+    &.is-blocking-promotionals .block-level-setting-description::after {
+      left: calc(50% - ($arrowWidth / 2));
+    }
+
+    &.is-blocking-all .block-level-setting-description::after {
+      right: calc(calc(100% / 6) - ($spacing-md / 2));
+    }
+  }
+  @media screen and #{$mq-md} {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2xl;
+    padding: $spacing-lg;
+
+    .block-level-setting {
+      flex: 0 0 $content-sm;
+    }
+
+    .block-level-setting-description {
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+    }
+  }
+}
+
+.block-level-control-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  .block-level-control-label {
+    text-align: center;
+  }
+
+  .block-level-segmented-control {
+    $toggle-border-radius: 40px;
+    background-color: $color-grey-05;
+    border-radius: $toggle-border-radius;
+    border: $border-radius-xs solid $color-grey-10;
+    padding: $spacing-xs;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-md;
+
+    label {
+      flex: 1 1 0;
+      padding: $spacing-xs $spacing-sm;
+      display: flex;
+      gap: $spacing-sm;
+      align-items: center;
+      justify-content: center;
+      background-color: $color-white;
+      border-radius: $toggle-border-radius;
+      font-weight: 500;
+      color: $color-grey-40;
+      cursor: pointer;
+
+      &:not(.is-selected) {
+        &:hover {
+          background-color: $color-violet-30;
+          color: $color-white;
+        }
+      }
+
+      .is-selected &.is-disabled {
+        &:hover {
+          border: 1px solid $color-violet-70;
+        }
+      }
+
+      &.is-selected {
+        background-color: $color-violet-70;
+        color: $color-white;
+      }
+
+      &.is-focused {
+        outline: 3px solid $color-blue-50;
+      }
+
+      &.is-disabled {
+        padding-inline: $spacing-md;
+        color: $color-grey-30;
+
+        @media screen and #{$mq-md} {
+          svg {
+            flex: 1 1 10px;
+          }
+        }
+      }
+
+      &.promo-selected {
+        outline-width: 2px;
+        outline-color: $color-violet-70;
+        outline-style: solid;
+      }
+    }
+  }
+}
+
+.meta {
+  @media screen and (max-width: $screen-md) {
+    display: flex;
+    flex-direction: column;
+
+    dl {
+      @include text-body-sm;
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-md;
+      border-top: 1px solid $color-grey-10;
+      padding: $spacing-lg;
+
+      dd {
+        font-family: $font-stack-firefox;
+        font-weight: 500;
+
+        img {
+          display: none;
+        }
+      }
+    }
+
+    .deletion-button-wrapper {
+      display: flex;
+      flex-direction: column;
+      border-top: 1px solid $color-grey-10;
+      padding: $spacing-md;
+    }
+  }
+  @media screen and #{$mq-md} {
+    display: flex;
+    padding-block: $spacing-lg $spacing-sm;
+    border-top: 1px solid $color-grey-10;
+
+    dl {
+      display: flex;
+      gap: $spacing-2xl;
+      font-weight: 500;
+
+      dt {
+        @include text-body-sm;
+        color: $color-grey-50;
+      }
+
+      dd {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+        color: $color-grey-60;
+      }
+    }
+
+    .deletion-button-wrapper {
+      flex: 1 0 auto;
+      text-align: end;
+    }
+  }
+}
+
+.promotions-locked-description-wrapper {
+  margin-top: $spacing-md;
+  background: $color-grey-05;
+  border-radius: $border-radius-md;
+  padding: $spacing-md;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  strong {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    color: $color-grey-50;
+  }
+}

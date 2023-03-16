@@ -5,7 +5,6 @@ import phones.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("phones", "0009_realphone_verification_sent_date"),
     ]

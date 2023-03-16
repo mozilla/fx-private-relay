@@ -16,7 +16,6 @@ import {
   useOverlay,
   useOverlayPosition,
   useOverlayTrigger,
-  VisuallyHidden,
 } from "react-aria";
 import { useOverlayTriggerState } from "react-stately";
 import { event as gaEvent } from "react-ga";
@@ -65,6 +64,7 @@ import { CountdownTimer } from "../../../CountdownTimer";
 import Link from "next/link";
 import { GiftIcon } from "../../../Icons";
 import { useL10n } from "../../../../hooks/l10n";
+import { VisuallyHidden } from "../../../VisuallyHidden";
 
 export type WhatsNewEntry = {
   title: string;
@@ -506,10 +506,10 @@ export const WhatsNewMenu = (props: Props) => {
     dismissal: useLocalDismissal(
       `whatsnew-feature_firefox-integration_${props.profile.id}`
     ),
-    // Week after release of Firefox 110 (to ensure it was rolled out to everyone)
+    // Week after release of Firefox 111 (to ensure it was rolled out to everyone)
     announcementDate: {
       year: 2023,
-      month: 2,
+      month: 3,
       day: 21,
     },
   };

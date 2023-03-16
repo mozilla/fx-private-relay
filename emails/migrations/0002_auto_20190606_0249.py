@@ -6,7 +6,6 @@ import emails.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("emails", "0001_initial"),
     ]

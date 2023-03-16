@@ -104,7 +104,7 @@ export const Reviews = () => {
     },
   ];
 
-  const reviewCount = 1055;
+  const reviewCount = "1,259";
   const { name, text, rating } = userReviews[currentReview];
 
   const scrollReview = (
@@ -164,7 +164,7 @@ export const Reviews = () => {
             <div className={styles.stars}>{renderStarRating(4)}</div>
             <div className={styles.rating}>
               <p className={styles.title}>
-                {new Intl.NumberFormat(getLocale(l10n)).format(4.2)}
+                {new Intl.NumberFormat(getLocale(l10n)).format(4.1)}
               </p>
               <p className={styles.text}>
                 {l10n.getString("landing-reviews-rating", {
@@ -187,27 +187,31 @@ export const Reviews = () => {
             </button>
 
             <div
-              className={styles["review-container"]}
+              className={styles["review-item"]}
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
             >
+              <div className={styles["quotation-icon"]}>
+                <QuotationIcon alt="" />
+                <QuotationIcon alt="" />
+              </div>
               <div
                 key={currentReview}
                 className={`${styles.review} ${
                   styles[`scroll-${scrollAnimationDirection}`]
                 }`}
               >
-                <div className={styles["quotation-icon"]}>
-                  <QuotationIcon alt="" />
-                  <QuotationIcon alt="" />
-                </div>
-                <div className={styles.details}>
-                  <div className={styles.stars}>{renderStarRating(rating)}</div>
-                  <span className={styles.name}>{name}</span>
-                  <span className={styles.source}>
-                    {l10n.getString("landing-reviews-details-source")}
-                  </span>
+                <div className={styles["review-item"]}>
+                  <div className={styles.details}>
+                    <div className={styles.stars}>
+                      {renderStarRating(rating)}
+                    </div>
+                    <span className={styles.name}>{name}</span>
+                    <span className={styles.source}>
+                      {l10n.getString("landing-reviews-details-source")}
+                    </span>
+                  </div>
                 </div>
                 <div className={styles.text}>
                   {/* if text is an array, we consider it a bulleted list */}

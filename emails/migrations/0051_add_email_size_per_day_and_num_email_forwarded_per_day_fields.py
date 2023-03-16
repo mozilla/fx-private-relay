@@ -67,7 +67,6 @@ def add_db_default_forward_func(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("emails", "0050_profile_store_phone_log"),
     ]

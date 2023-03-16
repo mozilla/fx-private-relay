@@ -605,7 +605,6 @@ class DomainAddrUnavailableException(CannotMakeAddressException):
 
 
 class RelayAddress(models.Model):
-
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     address = models.CharField(max_length=64, default=address_default, unique=True)
     domain = models.PositiveSmallIntegerField(

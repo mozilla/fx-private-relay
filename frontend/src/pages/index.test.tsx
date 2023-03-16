@@ -80,7 +80,7 @@ describe("The landing page", () => {
     render(<Home />);
 
     const phoneFeatureRow = screen.getByRole("rowheader", {
-      name: "[<Localized> with id [plan-matrix-heading-feature-phone-mask] and vars: {}]",
+      name: "[<Localized> with id [plan-matrix-feature-phone-mask] and vars: {}]",
     });
 
     expect(phoneFeatureRow).toBeInTheDocument();
@@ -105,7 +105,7 @@ describe("The landing page", () => {
     render(<Home />);
 
     const phoneFeatureRow = screen.getByRole("rowheader", {
-      name: "[<Localized> with id [plan-matrix-heading-feature-phone-mask] and vars: {}]",
+      name: "[<Localized> with id [plan-matrix-feature-phone-mask] and vars: {}]",
     });
 
     expect(phoneFeatureRow).toBeInTheDocument();
@@ -142,7 +142,7 @@ describe("The landing page", () => {
     render(<Home />);
 
     const vpnFeatureRow = screen.getByRole("rowheader", {
-      name: "[<Localized> with id [plan-matrix-heading-feature-vpn] and vars: {}]",
+      name: "[<Localized> with id [plan-matrix-feature-vpn] and vars: {}]",
     });
 
     expect(vpnFeatureRow).toBeInTheDocument();

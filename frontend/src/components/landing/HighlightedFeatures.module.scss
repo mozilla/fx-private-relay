@@ -1,0 +1,76 @@
+@import "../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+.highlighted-feature-wrapper {
+  display: flex;
+  align-content: center;
+  justify-content: space-between;
+  flex-direction: column-reverse;
+  margin-bottom: $layout-sm;
+
+  @media screen and #{$mq-md} {
+    flex-direction: row-reverse;
+    gap: $spacing-2xl;
+    margin-bottom: $layout-xs;
+
+    &:nth-child(even) {
+      flex-direction: row;
+    }
+  }
+
+  .new-callout-wrapper {
+    margin-bottom: $spacing-md;
+
+    .new-callout {
+      @include text-body-sm;
+      background-color: $color-purple-30;
+      padding: $spacing-xs $spacing-sm;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: $color-white;
+      text-align: center;
+      align-content: center;
+      border-radius: $border-radius-sm;
+    }
+  }
+
+  .highlighted-feature-description {
+    @media screen and #{$mq-md} {
+      flex-direction: row-reverse;
+      align-self: center;
+      width: 100%;
+    }
+
+    .highlighted-feature-headline {
+      @include font-firefox;
+      @include text-body-xl;
+      margin-bottom: $spacing-sm;
+      line-height: 100%;
+    }
+  }
+
+  .highlighted-feature-image {
+    padding: $spacing-md;
+    width: 100%;
+    align-self: center;
+  }
+}
+
+.section-title-wrapper {
+  padding: $spacing-lg $spacing-md $spacing-2xl $spacing-md;
+  align-content: center;
+  justify-content: center;
+  text-align: center;
+
+  h2 {
+    @include font-firefox;
+    @include text-title-sm;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .cta {
+    margin: $spacing-xl 0;
+    min-width: $content-xs;
+  }
+}

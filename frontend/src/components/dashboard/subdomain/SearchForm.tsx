@@ -1,9 +1,9 @@
 import { FormEventHandler, ChangeEventHandler, useState } from "react";
-import { VisuallyHidden } from "react-aria";
 import { toast } from "react-toastify";
 import { authenticatedFetch } from "../../../hooks/api/api";
 import { useL10n } from "../../../hooks/l10n";
 import { Button } from "../../Button";
+import { VisuallyHidden } from "../../VisuallyHidden";
 
 export type Props = {
   onType: (_partial: string) => void;

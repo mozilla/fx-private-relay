@@ -51,7 +51,6 @@ def add_db_default_forward_func(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("phones", "0019_inboundcontact_phones_inbo_relay_n_eaf332_idx"),
     ]

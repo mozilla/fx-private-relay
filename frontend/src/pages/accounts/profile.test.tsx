@@ -86,6 +86,18 @@ describe("The dashboard", () => {
       expect(results).toHaveNoViolations();
     }, 10000); // axe runs a suite of tests that can exceed the default 5s timeout, so we set it to 10s
 
+    it("redesigned mask waffle flag is turned on", async () => {
+      setMockRuntimeDataOnce({ WAFFLE_FLAGS: [["mask_redesign", true]] });
+      const { baseElement } = render(<Profile />);
+
+      let results;
+      await act(async () => {
+        results = await axe(baseElement);
+      });
+
+      expect(results).toHaveNoViolations();
+    }, 10000);
+
     it("passes axe accessibility testing with the Premium user interface", async () => {
       // The label editor sets a timeout when submitted, which axe doesn't wait for.
       // Hence, we disable the label editor by disabling server-side data storage for this user.
@@ -730,7 +742,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const categoryFilterButton = screen.getByRole("button", {
-      name: "l10n string: [profile-filter-category-button-tooltip], with vars: {}",
+      name: "l10n string: [profile-filter-category-button-label], with vars: {}",
     });
 
     expect(categoryFilterButton).toBeInTheDocument();
@@ -750,7 +762,7 @@ describe("The dashboard", () => {
 
     // Open and select a category filter option
     const categoryFilterButton = screen.getByRole("button", {
-      name: "l10n string: [profile-filter-category-button-tooltip], with vars: {}",
+      name: "l10n string: [profile-filter-category-button-label], with vars: {}",
     });
     await userEvent.click(categoryFilterButton);
 
@@ -788,7 +800,7 @@ describe("The dashboard", () => {
 
     // Open and select a category filter option
     const categoryFilterButton = screen.getByRole("button", {
-      name: "l10n string: [profile-filter-category-button-tooltip], with vars: {}",
+      name: "l10n string: [profile-filter-category-button-label], with vars: {}",
     });
     await userEvent.click(categoryFilterButton);
 
@@ -823,7 +835,7 @@ describe("The dashboard", () => {
 
     // Open and select a category filter option
     const categoryFilterButton = screen.getByRole("button", {
-      name: "l10n string: [profile-filter-category-button-tooltip], with vars: {}",
+      name: "l10n string: [profile-filter-category-button-label], with vars: {}",
     });
     await userEvent.click(categoryFilterButton);
 

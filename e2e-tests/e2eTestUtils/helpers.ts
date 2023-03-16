@@ -114,24 +114,24 @@ export const defaultScreenshotOpts: Partial<DefaultScreenshotOpts> = {
 export const checkAuthState = async (page: Page) => {
   try {
     const authStateTitleString = await page.locator('h1').textContent({ timeout: 4000 })
-    const checkIfTitleConatins = (potentialTitle: string) => {
+    const checkIfTitleContains = (potentialTitle: string) => {
       return authStateTitleString?.includes(potentialTitle)
     }
 
     switch (true) {
-      case checkIfTitleConatins('Enter your email'):
+      case checkIfTitleContains('Enter your email'):
         await enterYourEmail(page)
         break;
-      case checkIfTitleConatins('Enter your password'):
+      case checkIfTitleContains('Enter your password'):
         await enterYourPassword(page)
         break;
-      case checkIfTitleConatins('Set your password'):
+      case checkIfTitleContains('Set your password'):
         await setYourPassword(page)
         break;
-      case checkIfTitleConatins('Enter confirmation code'):
+      case checkIfTitleContains('Enter confirmation code'):
         await enterConfirmationCode(page)
         break;
-      case checkIfTitleConatins('Sign in'):
+      case checkIfTitleContains('Sign in'):
         await signIn(page)
         break;
       default:

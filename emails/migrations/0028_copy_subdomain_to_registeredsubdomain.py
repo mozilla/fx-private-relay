@@ -15,7 +15,6 @@ def copy_already_registered_subdomains_from_profile(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("emails", "0027_registeredsubdomain"),
     ]

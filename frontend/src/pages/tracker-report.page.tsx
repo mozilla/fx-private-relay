@@ -11,7 +11,7 @@ import {
   InfoTriangleIcon,
 } from "../components/Icons";
 import Link from "next/link";
-import { FaqAccordion } from "../components/landing/FaqAccordion";
+import { FaqAccordionItem } from "../components/landing/FaqAccordion";
 import { useL10n } from "../hooks/l10n";
 
 // Paste this in your browser console to get a report URL:
@@ -176,7 +176,7 @@ const TrackerReport: NextPage = () => {
               </p>
             </div>
             <div className={styles.entries}>
-              <FaqAccordion
+              <FaqAccordionItem
                 entries={[
                   {
                     q: l10n.getString(

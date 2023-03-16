@@ -1,4 +1,4 @@
-import { useTab, useTabList, useTabPanel, VisuallyHidden } from "react-aria";
+import { useTab, useTabList, useTabPanel } from "react-aria";
 import { Key, ReactNode, useRef } from "react";
 import Link from "next/link";
 import { event as gaEvent } from "react-ga";
@@ -29,6 +29,7 @@ import { setCookie } from "../../functions/cookies";
 import { useL10n } from "../../hooks/l10n";
 import { Localized } from "../Localized";
 import { LinkButton } from "../Button";
+import { VisuallyHidden } from "../VisuallyHidden";
 
 type FeatureList = {
   "email-masks": number;
@@ -166,7 +167,7 @@ export const PlanMatrix = (props: Props) => {
                   onClick={() => countSignIn("plan-matrix-free-cta-desktop")}
                   className={styles["primary-pick-button"]}
                 >
-                  {l10n.getString("plan-matrix-pick")}
+                  {l10n.getString("plan-matrix-get-relay-cta")}
                 </LinkButton>
                 {/*
                 The <small> has space for price-related notices (e.g. "* billed
@@ -301,13 +302,11 @@ export const PlanMatrix = (props: Props) => {
                   >
                     {l10n.getString("plan-matrix-join-waitlist")}
                   </Link>
-                  {/*
-                  The <small> has space for price-related notices (e.g. "* billed
-                  annually"). When there is no such notice, we still want to leave
-                  space for it to prevent the page from jumping around; hence the
-                  empty <small>.
-                  */}
-                  <small>&nbsp;</small>
+                  <small>
+                    {l10n.getString(
+                      "plan-matrix-price-period-monthly-footnote-1"
+                    )}
+                  </small>
                 </div>
               </div>
             )}
@@ -316,15 +315,25 @@ export const PlanMatrix = (props: Props) => {
             {isBundleAvailableInCountry(props.runtimeData) ? (
               <div className={`${styles.pricing}`}>
                 <div className={styles["pricing-toggle-wrapper"]}>
-                  <p className={styles["discount-notice"]}>
-                    {l10n.getString("plan-matrix-price-vpn-discount", {
-                      percentage: "40",
-                    })}
+                  <p className={styles["discount-notice-wrapper"]}>
+                    <Localized
+                      id="plan-matrix-price-vpn-discount-promo"
+                      vars={{
+                        savings: "40%",
+                      }}
+                      elems={{
+                        span: (
+                          <span className={styles["discount-notice-bolded"]} />
+                        ),
+                      }}
+                    >
+                      <span className={styles["discount-notice-container"]} />
+                    </Localized>
                   </p>
                 </div>
                 <div className={styles["pricing-overview"]}>
                   <span className={styles.price}>
-                    {l10n.getString("plan-matrix-price-monthly", {
+                    {l10n.getString("plan-matrix-price-monthly-calculated", {
                       monthly_price: getBundlePrice(props.runtimeData, l10n),
                     })}
                   </span>
@@ -339,10 +348,12 @@ export const PlanMatrix = (props: Props) => {
                     }
                     className={styles["pick-button"]}
                   >
-                    {l10n.getString("plan-matrix-pick")}
+                    {l10n.getString("plan-matrix-sign-up")}
                   </a>
                   <small>
-                    * {l10n.getString("plan-matrix-price-period-yearly-note")}
+                    {l10n.getString(
+                      "plan-matrix-price-period-yearly-footnote-1"
+                    )}
                   </small>
                 </div>
               </div>
@@ -360,13 +371,11 @@ export const PlanMatrix = (props: Props) => {
                   >
                     {l10n.getString("plan-matrix-join-waitlist")}
                   </Link>
-                  {/*
-                  The <small> has space for price-related notices (e.g. "* billed
-                  annually"). When there is no such notice, we still want to leave
-                  space for it to prevent the page from jumping around; hence the
-                  empty <small>.
-                  */}
-                  <small>&nbsp;</small>
+                  <small>
+                    {l10n.getString(
+                      "plan-matrix-price-period-monthly-footnote-1"
+                    )}
+                  </small>
                 </div>
               </div>
             )}
@@ -393,7 +402,7 @@ export const PlanMatrix = (props: Props) => {
                 onClick={() => countSignIn("plan-matrix-free-cta-mobile")}
                 className={styles["primary-pick-button"]}
               >
-                {l10n.getString("plan-matrix-pick")}
+                {l10n.getString("plan-matrix-get-relay-cta")}
               </LinkButton>
             </div>
           </div>
@@ -531,15 +540,25 @@ export const PlanMatrix = (props: Props) => {
           {isBundleAvailableInCountry(props.runtimeData) ? (
             <div className={styles.pricing}>
               <div className={styles["pricing-toggle-wrapper"]}>
-                <p className={styles["discount-notice"]}>
-                  {l10n.getString("plan-matrix-price-vpn-discount", {
-                    percentage: "40",
-                  })}
+                <p className={styles["discount-notice-wrapper"]}>
+                  <Localized
+                    id="plan-matrix-price-vpn-discount-promo"
+                    vars={{
+                      savings: "40%",
+                    }}
+                    elems={{
+                      span: (
+                        <span className={styles["discount-notice-bolded"]} />
+                      ),
+                    }}
+                  >
+                    <span />
+                  </Localized>
                 </p>
               </div>
               <div className={styles["pricing-overview"]}>
                 <span className={styles.price}>
-                  {l10n.getString("plan-matrix-price-monthly", {
+                  {l10n.getString("plan-matrix-price-monthly-calculated", {
                     monthly_price: getBundlePrice(props.runtimeData, l10n),
                   })}
                 </span>
@@ -554,10 +573,10 @@ export const PlanMatrix = (props: Props) => {
                   }
                   className={styles["pick-button"]}
                 >
-                  {l10n.getString("plan-matrix-pick")}
+                  {l10n.getString("plan-matrix-sign-up")}
                 </a>
                 <small>
-                  * {l10n.getString("plan-matrix-price-period-yearly-note")}
+                  {l10n.getString("plan-matrix-price-period-yearly-footnote-1")}
                 </small>
               </div>
             </div>
@@ -587,18 +606,20 @@ export const PlanMatrix = (props: Props) => {
     <div className={styles.wrapper}>
       {isBundleAvailableInCountry(props.runtimeData) && (
         <h2 className={styles["bundle-offer-heading"]}>
-          {l10n.getString("plan-matrix-bundle-offer-heading-2", {
+          {l10n.getString("plan-matrix-offer-title", {
             monthly_price: getBundlePrice(props.runtimeData, l10n),
           })}
         </h2>
       )}
       {isPeriodicalPremiumAvailableInCountry(props.runtimeData) && (
         <p className={styles["bundle-offer-content"]}>
-          {l10n.getString("plan-matrix-bundle-offer-content")}
+          {l10n.getString("plan-matrix-offer-body", { savings: "40%" })}
         </p>
       )}
-      {desktopView}
-      {mobileView}
+      <section id="pricing" className={styles["table-wrapper"]}>
+        {desktopView}
+        {mobileView}
+      </section>
     </div>
   );
 };
@@ -611,7 +632,7 @@ const DesktopFeature = (props: DesktopFeatureProps) => {
   return (
     <tr>
       <Localized
-        id={`plan-matrix-heading-feature-${props.feature}`}
+        id={`plan-matrix-feature-${props.feature}`}
         elems={{
           "vpn-logo": <VpnWordmark />,
         }}
@@ -653,12 +674,12 @@ const MobileFeatureList = (props: MobileFeatureListProps) => {
       const featureDescription =
         feature === "email-masks" && availability === Number.POSITIVE_INFINITY
           ? l10n.getString("plan-matrix-feature-list-email-masks-unlimited")
-          : l10n.getString(`plan-matrix-feature-list-${feature}`, variables);
+          : l10n.getString(`plan-matrix-feature-mobile-${feature}`, variables);
 
       return (
         <li key={feature}>
           <Localized
-            id={`plan-matrix-heading-feature-${feature}`}
+            id={`plan-matrix-feature-mobile-${feature}`}
             elems={{
               "vpn-logo": <VpnWordmark />,
             }}
@@ -737,10 +758,9 @@ const PricingToggle = (props: PricingToggleProps) => {
         title={l10n.getString("plan-matrix-price-period-yearly")}
       >
         <span className={styles.price}>
-          {l10n.getString("plan-matrix-price-monthly", {
+          {l10n.getString("plan-matrix-price-monthly-calculated", {
             monthly_price: props.yearlyBilled.monthly_price,
           })}
-          *
         </span>
         <a
           ref={yearlyButtonRef}
@@ -754,10 +774,10 @@ const PricingToggle = (props: PricingToggleProps) => {
           tabIndex={0}
           className={styles["pick-button"]}
         >
-          {l10n.getString("plan-matrix-pick")}
+          {l10n.getString("plan-matrix-sign-up")}
         </a>
         <small>
-          * {l10n.getString("plan-matrix-price-period-yearly-note")}
+          {l10n.getString("plan-matrix-price-period-yearly-footnote-1")}
         </small>
       </Item>
       <Item
@@ -765,7 +785,7 @@ const PricingToggle = (props: PricingToggleProps) => {
         title={l10n.getString("plan-matrix-price-period-monthly")}
       >
         <span className={styles.price}>
-          {l10n.getString("plan-matrix-price-monthly", {
+          {l10n.getString("plan-matrix-price-monthly-calculated", {
             monthly_price: props.monthlyBilled.monthly_price,
           })}
         </span>
@@ -781,15 +801,11 @@ const PricingToggle = (props: PricingToggleProps) => {
           tabIndex={0}
           className={styles["pick-button"]}
         >
-          {l10n.getString("plan-matrix-pick")}
+          {l10n.getString("plan-matrix-sign-up")}
         </a>
-        {/*
-        The <small> has space for price-related notices (e.g. "* billed
-        annually"). When there is no such notice, we still want to leave
-        space for it to prevent the page from jumping around; hence the
-        empty <small>.
-        */}
-        <small>&nbsp;</small>
+        <small>
+          {l10n.getString("plan-matrix-price-period-monthly-footnote-1")}
+        </small>
       </Item>
     </PricingTabs>
   );

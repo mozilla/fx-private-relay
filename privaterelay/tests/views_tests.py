@@ -128,6 +128,27 @@ class UpdateExtraDataAndEmailTest(TestCase):
         assert sa2.extra_data == extra_data
         assert ea2.email == "user2@example.com"
 
+    def test_update_all_data_no_email_address(self):
+        user = baker.make(User)
+        sa = baker.make(
+            SocialAccount,
+            user=user,
+            provider="fxa",
+            extra_data=json.loads('{"test": "test"}'),
+        )
+        new_extra_data = json.loads('{"test": "updated"}')
+        new_email = "newemail@example.com"
+
+        response = _update_all_data(sa, new_extra_data, new_email)
+
+        assert response.status_code == 202
+
+        sa.refresh_from_db()
+        assert sa.extra_data == new_extra_data
+
+        ea = sa.user.emailaddress_set.get()
+        assert ea.email == new_email
+
 
 @pytest.mark.django_db
 def test_logout_page(client, settings):
