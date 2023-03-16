@@ -437,7 +437,7 @@ const Step2SubdomainPicker = (props: Step2SubdomainPickerProps) => {
 
   return (
     <>
-      <samp className={styles["domain-example"]}>
+      <div className={styles["domain-example"]}>
         ***@
         <span className={styles["customizable-part"]}>
           {partialSubdomain !== ""
@@ -447,7 +447,7 @@ const Step2SubdomainPicker = (props: Step2SubdomainPickerProps) => {
               )}
         </span>
         .{getRuntimeConfig().mozmailDomain}
-      </samp>
+      </div>
       <SubdomainSearchForm onType={onType} onPick={onPick} />
       {dialog}
     </>
@@ -504,11 +504,7 @@ const StepThreeTitle = () => {
   }
   return (
     <h2>
-      {l10n.getString(
-        supportsFirefoxExtension()
-          ? "multi-part-onboarding-premium-extension-get-title"
-          : "multi-part-onboarding-premium-chrome-extension-get-title"
-      )}
+      {l10n.getString("multi-part-onboarding-premium-add-extension-headline")}
     </h2>
   );
 };
@@ -520,36 +516,20 @@ interface AddonDescriptionProps {
   linkMessageId: string;
 }
 const getAddonDescriptionProps = () => {
-  if (supportsFirefoxExtension()) {
-    return {
-      headerMessageId: "multi-part-onboarding-premium-extension-get-title",
-      paragraphMessageId:
-        "multi-part-onboarding-premium-extension-get-description-2",
-      linkHref:
-        "https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon",
-      linkMessageId: "multi-part-onboarding-premium-add-extension-feature-cta",
-    };
-  }
-  if (supportsChromeExtension()) {
-    return {
-      headerMessageId:
-        "multi-part-onboarding-premium-chrome-extension-get-title",
-      paragraphMessageId:
-        "multi-part-onboarding-premium-chrome-extension-get-description-2",
-      linkHref:
-        "https://chrome.google.com/webstore/detail/firefox-relay/lknpoadjjkjcmjhbjpcljdednccbldeb?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon",
-      linkMessageId: "multi-part-onboarding-premium-add-extension-feature-cta",
-    };
-  }
   return {
-    headerMessageId: "",
-    paragraphMessageId: "",
-    linkHref: "",
-    linkMessageId: "",
+    headerMessageId:
+      "multi-part-onboarding-premium-add-extension-feature-headline-create-any-site",
+    paragraphMessageId:
+      "multi-part-onboarding-premium-add-extension-feature-body",
+    linkHref:
+      "https://chrome.google.com/webstore/detail/firefox-relay/lknpoadjjkjcmjhbjpcljdednccbldeb?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon",
+    linkMessageId: "multi-part-onboarding-premium-add-extension-feature-cta",
   };
 };
 
 const AddonDescription = () => {
+  const l10n = useL10n();
+
   const isLargeScreen = useMinViewportWidth("md");
   const { headerMessageId, paragraphMessageId } = getAddonDescriptionProps();
   if (!isLargeScreen) {
@@ -559,6 +539,11 @@ const AddonDescription = () => {
     return (
       <>
         <div className={`${styles["addon-description"]} is-hidden-with-addon`}>
+          <span className={styles["description-caption"]}>
+            {l10n.getString(
+              "multi-part-onboarding-premium-add-extension-feature-headline"
+            )}
+          </span>
           <AddonDescriptionHeader headerMessageId={headerMessageId} />
           <AddonDescriptionParagraph paragraphMessageId={paragraphMessageId} />
         </div>

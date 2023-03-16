@@ -125,8 +125,9 @@
     }
 
     .domain-example {
+      @include font-firefox;
       @include text-title-2xs;
-      color: $color-light-gray-70;
+      color: $color-light-gray-90;
       display: inline-block;
       padding: $spacing-md 0;
       text-overflow: ellipsis;
@@ -135,13 +136,9 @@
       max-width: 100%;
 
       .customizable-part {
-        color: $color-purple-50;
+        color: $color-violet-50;
         font-weight: 700;
       }
-    }
-
-    .subdomain-description {
-      padding: $spacing-md 0;
     }
 
     form {
