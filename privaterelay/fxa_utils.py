@@ -7,6 +7,7 @@ from allauth.socialaccount.models import SocialAccount, SocialToken
 from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
 from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error
 from requests_oauthlib import OAuth2Session
+from waffle.models import Flag
 import logging
 import sentry_sdk
 
@@ -120,15 +121,18 @@ def get_phone_subscription_dates(social_account):
     if "subscriptions" not in subscription_data.keys():
         # failed to get subscriptions data which may mean user never had subscription
         # and/or there is data mismatch with FxA
-        profile = social_account.user.profile
-        profile.date_subscribed_phone = None
-        profile.save()
-        # User who was flagged for having phone subscriptions
-        # did not actually have phone subscriptions
-        logger.error(
-            "accounts_subscription_endpoint_failed",
-            extra={"message": subscription_data.get("message", "")},
+        free_phones_flag = Flag.objects.filter(name="free_phones").first()
+        has_free_phones = free_phones_flag and (
+            free_phones_flag.everyone
+            or free_phones_flag.is_active_for_user(social_account.user)
         )
+        if not has_free_phones:
+            # User who was flagged for having phone subscriptions
+            # did not actually have phone subscriptions
+            logger.error(
+                "accounts_subscription_endpoint_failed",
+                extra={"fxa_message": subscription_data.get("message", "")},
+            )
         return None, None, None
 
     date_subscribed_phone = start_date = end_date = None
