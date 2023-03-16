@@ -179,20 +179,15 @@ export const PremiumOnboarding = (props: Props) => {
           linkHref={linkHref}
           linkMessageId={linkMessageId}
         />
-        {/* <button
-          ref={skipAddonButtonRef}
-          onClick={skipAddon}
-          className={`is-hidden-with-addon ${styles["get-addon-button"]} ${styles["skip-link"]}`}
-        >
-          {l10n.getString(
-            "multi-part-onboarding-premium-extension-button-skip"
-          )}
-        </button> */}
       </>
     );
 
     skipButton = (
-      <button className={styles["skip-link"]} onClick={() => quit()}>
+      <button
+        className={`is-hidden-with-addon ${styles["skip-link"]}`}
+        ref={skipAddonButtonRef}
+        onClick={skipAddon}
+      >
         {l10n.getString("multi-part-onboarding-skip-download-extension")}
       </button>
     );
@@ -516,13 +511,16 @@ interface AddonDescriptionProps {
   linkMessageId: string;
 }
 const getAddonDescriptionProps = () => {
+  const linkForBrowser = supportsChromeExtension()
+    ? "https://chrome.google.com/webstore/detail/firefox-relay/lknpoadjjkjcmjhbjpcljdednccbldeb?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon"
+    : "https://addons.mozilla.org/en-CA/firefox/addon/private-relay/";
+
   return {
     headerMessageId:
       "multi-part-onboarding-premium-add-extension-feature-headline-create-any-site",
     paragraphMessageId:
       "multi-part-onboarding-premium-add-extension-feature-body",
-    linkHref:
-      "https://chrome.google.com/webstore/detail/firefox-relay/lknpoadjjkjcmjhbjpcljdednccbldeb?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon",
+    linkHref: linkForBrowser,
     linkMessageId: "multi-part-onboarding-premium-add-extension-feature-cta",
   };
 };

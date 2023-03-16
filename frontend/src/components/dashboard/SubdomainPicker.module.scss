@@ -83,6 +83,14 @@
     justify-content: space-around;
     width: 100%;
 
+    .input-wrapper {
+      width: calc($content-xs + $layout-sm);
+
+      @media screen and #{$mq-md} {
+        max-width: $content-sm;
+      }
+    }
+
     .example {
       @include font-firefox;
       @include text-title-3xs;
@@ -91,17 +99,13 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow-x: hidden;
+      text-align: center;
       margin: $spacing-md 0;
+      width: 100%;
 
       .subdomain-part {
         color: $color-violet-50;
         font-weight: 700;
-      }
-    }
-
-    .input-wrapper {
-      @media screen and #{$mq-md} {
-        max-width: $content-md;
       }
     }
 

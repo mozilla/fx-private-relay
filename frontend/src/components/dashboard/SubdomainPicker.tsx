@@ -105,7 +105,7 @@ export const SubdomainPicker = (props: Props) => {
           </span>
           .{getRuntimeConfig().mozmailDomain}
         </div>
-        <div className="input-wrapper">
+        <div className={styles["input-wrapper"]}>
           <SubdomainSearchForm onType={onType} onPick={onPick} />
         </div>
         <Image
