@@ -127,13 +127,11 @@ const Profile: NextPage = () => {
           {isPhonesAvailableInCountry(runtimeData.data) ? (
             <DashboardSwitcher />
           ) : null}
-          <div className={styles["gray-bg"]}>
-            <PremiumOnboarding
-              profile={profile}
-              onNextStep={onNextStep}
-              onPickSubdomain={setCustomSubdomain}
-            />
-          </div>
+          <PremiumOnboarding
+            profile={profile}
+            onNextStep={onNextStep}
+            onPickSubdomain={setCustomSubdomain}
+          />
         </Layout>
       </>
     );
