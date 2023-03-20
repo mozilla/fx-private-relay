@@ -59,16 +59,6 @@ export const PremiumOnboarding = (props: Props) => {
     value: 3,
   });
 
-  const quit = () => {
-    props.onNextStep(getRuntimeConfig().maxOnboardingAvailable);
-    gaEvent({
-      category: "Premium Onboarding",
-      action: "Engage",
-      label: "onboarding-skip",
-      value: props.profile.onboarding_state + 1,
-    });
-  };
-
   let step = null;
   let button = null;
   let skipButton = null;
