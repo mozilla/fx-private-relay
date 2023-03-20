@@ -346,6 +346,7 @@ def _update_all_data(
             if newly_phone:
                 incr_if_enabled("user_purchased_phone", 1)
                 profile.date_subscribed_phone = datetime.now(timezone.utc)
+                profile.date_phone_subscription_reset = datetime.now(timezone.utc)
                 profile.save()
             if no_longer_phone:
                 incr_if_enabled("user_has_dropped_phone", 1)
