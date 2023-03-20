@@ -103,7 +103,7 @@ export const PremiumOnboarding = (props: Props) => {
         });
       };
 
-      button = (
+      skipButton = (
         <button
           ref={skipDomainButtonRef}
           onClick={skipDomain}
