@@ -1,16 +1,17 @@
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 import hashlib
-from typing import Literal, Optional
+import json
 import logging
+import phonenumbers
 import re
-import string
 import requests
 from rest_framework.request import Request
+import string
+from typing import Any, Literal, Optional
 
 from waffle import get_waffle_flag_model
 import django_ftl
-import phonenumbers
 
 from django.apps import apps
 from django.conf import settings
@@ -480,6 +481,15 @@ def message_body(from_num, body):
     return f"[Relay 📲 {from_num}] {body}"
 
 
+def _get_user_error_message(real_phone: RealPhone, sms_exception) -> Any:
+    # Send a translated message to the user
+    ftl_code = sms_exception.get_codes().replace("_", "-")
+    ftl_id = f"sms-error-{ftl_code}"
+    with django_ftl.override(real_phone.user.profile.language):
+        user_message = ftl_bundle.format(ftl_id, sms_exception.error_context())
+    return user_message
+
+
 @decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.AllowAny])
 @decorators.renderer_classes([TemplateTwiMLRenderer])
@@ -508,15 +518,14 @@ def inbound_sms(request):
 
     if inbound_from == real_phone.number:
         try:
-            _handle_sms_reply(relay_number, real_phone, inbound_body)
+            relay_number, destination_number, body = _prepare_sms_reply(
+                relay_number, inbound_body
+            )
+            _send_sms_reply(relay_number, destination_number, body)
         except RelaySMSException as sms_exception:
-            # Send a translated message to the user
-            ftl_code = sms_exception.get_codes().replace("_", "-")
-            ftl_id = f"sms-error-{ftl_code}"
-            with django_ftl.override(real_phone.user.profile.language):
-                user_message = ftl_bundle.format(ftl_id, sms_exception.error_context())
+            user_error_message = _get_user_error_message(real_phone, sms_exception)
             twilio_client().messages.create(
-                from_=relay_number.number, body=user_message, to=real_phone.number
+                from_=relay_number.number, body=user_error_message, to=real_phone.number
             )
 
             # Return 400 on critical exceptions
@@ -582,7 +591,25 @@ def inbound_sms_iq(request: Request) -> response.Response:
     relay_number, real_phone = _get_phone_objects(relay_num)
     _check_remaining(relay_number, "texts")
 
-    # TODO: handle replies
+    if from_num == real_phone.number:
+        try:
+            relay_number, destination_number, body = _prepare_sms_reply(
+                relay_number, inbound_body
+            )
+            _send_sms_reply_iq(relay_number, destination_number, body)
+        except RelaySMSException as sms_exception:
+            user_error_message = _get_user_error_message(real_phone, sms_exception)
+            _send_iq_sms(relay_number.number, real_phone.number, user_error_message)
+
+            # Return 400 on critical exceptions
+            if sms_exception.critical:
+                raise exceptions.ValidationError(
+                    sms_exception.detail
+                ) from sms_exception
+        return response.Response(
+            status=200,
+            template_name="twiml_empty_response.xml",
+        )
 
     number_disabled = _check_disabled(relay_number, "texts")
     if number_disabled:
@@ -592,21 +619,8 @@ def inbound_sms_iq(request: Request) -> response.Response:
     if inbound_contact:
         _check_and_update_contact(inbound_contact, "texts", relay_number)
 
-    iq_formatted_real_num = real_phone.number.replace("+", "")
-    iq_formatted_relay_num = relay_number.number.replace("+", "")
     text = message_body(inbound_from, inbound_body)
-    json_body = {
-        "from": iq_formatted_relay_num,
-        "to": [iq_formatted_real_num],
-        "text": text,
-    }
-    resp = requests.post(
-        "https://messagebroker.inteliquent.com/msgbroker/rest/publishMessages",
-        headers={"Authorization": f"Bearer {settings.IQ_OUTBOUND_API_KEY}"},
-        json=json_body,
-    )
-    if not resp.status_code == 200:
-        raise exceptions.ValidationError("Call data missing Caller or Called.")
+    _send_iq_sms(relay_number.number, real_phone.number, text)
 
     incr_if_enabled("phones_outbound_sms_iq")
     relay_number.remaining_texts -= 1
@@ -835,9 +849,9 @@ class NoBodyAfterFullNumber(FullNumberException):
     )
 
 
-def _handle_sms_reply(
-    relay_number: RelayNumber, real_phone: RealPhone, inbound_body: str
-) -> None:
+def _prepare_sms_reply(
+    relay_number: RelayNumber, inbound_body: str
+) -> tuple[RelayNumber, str, str]:
     incr_if_enabled("phones_handle_sms_reply")
     if not relay_number.storing_phone_log:
         # We do not store user's contacts in our database
@@ -882,12 +896,44 @@ def _handle_sms_reply(
         raise NoBodyAfterFullNumber(full_number=match.detected)
 
     # Success, send the relayed reply
+    return (relay_number, destination_number, body)
+
+
+def _send_sms_reply(
+    relay_number: RelayNumber, destination_number: str, body: str
+) -> None:
     client = twilio_client()
     incr_if_enabled("phones_send_sms_reply")
     client.messages.create(from_=relay_number.number, body=body, to=destination_number)
     relay_number.remaining_texts -= 1
     relay_number.texts_forwarded += 1
     relay_number.save()
+
+
+def _send_sms_reply_iq(
+    relay_number: RelayNumber, destination_number: str, body: str
+) -> None:
+    _send_iq_sms(relay_number.number, destination_number, body)
+    relay_number.remaining_texts -= 1
+    relay_number.texts_forwarded += 1
+    relay_number.save()
+
+
+def _send_iq_sms(from_num: str, to_num: str, text: str):
+    iq_formatted_to_num = to_num.replace("+", "")
+    iq_formatted_from_num = from_num.replace("+", "")
+    json_body = {
+        "from": iq_formatted_from_num,
+        "to": [iq_formatted_to_num],
+        "text": text,
+    }
+    resp = requests.post(
+        "https://messagebroker.inteliquent.com/msgbroker/rest/publishMessages",
+        headers={"Authorization": f"Bearer {settings.IQ_OUTBOUND_API_KEY}"},
+        json=json_body,
+    )
+    if resp.status_code < 200 or resp.status_code > 299:
+        raise exceptions.ValidationError(json.loads(resp.content.decode()))
 
 
 @dataclass
