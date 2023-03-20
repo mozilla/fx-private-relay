@@ -397,3 +397,7 @@ tooltip-email-domain-explanation-part-two = There’s no need to sign into { -br
 #   $mozmail (string): domain used by Relay masks (mozmail.com)
 # "yourdomain" is used as an example custom domain. Keep it lowercase without space, to resemble and actual email address. Example: shopping@johndoe.mozmail.com
 tooltip-email-domain-explanation-part-three = At a restaurant? Use restaurant@yourdomain.{ $mozmail }. <p>Shopping? Try shop@yourdomain.{ $mozmail }</p>
+
+## Update reply description onboarding step
+
+multi-part-onboarding-premium-reply-description = Reply to emails without giving away your real address

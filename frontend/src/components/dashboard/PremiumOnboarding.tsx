@@ -15,7 +15,6 @@ import { getRuntimeConfig } from "../../config";
 import { useMinViewportWidth } from "../../hooks/mediaQuery";
 import {
   supportsChromeExtension,
-  supportsFirefoxExtension,
   supportsAnExtension,
 } from "../../functions/userAgent";
 import { CheckBadgeIcon, CheckIcon } from "../Icons";
@@ -280,7 +279,7 @@ const StepOne = () => {
 
   return (
     <div className={`${styles.step} ${styles["step-welcome"]}`}>
-      <div>
+      <div className={styles["title-container"]}>
         <h2>
           {l10n.getString("multi-part-onboarding-premium-welcome-headline")}
         </h2>
@@ -351,7 +350,7 @@ const StepTwo = (props: Step2Props) => {
 
   return (
     <div className={`${styles.step} ${styles["step-custom-domain"]}`}>
-      <div>
+      <div className={styles["title-container"]}>
         <h2>
           {l10n.getString(
             "multi-part-onboarding-premium-email-domain-headline"
@@ -454,7 +453,7 @@ const StepThree = () => {
 
   return (
     <div className={`${styles.step} ${styles["step-addon"]}`}>
-      <div>
+      <div className={styles["title-container"]}>
         <StepThreeTitle />
       </div>
       <div className={styles.description}>
@@ -469,7 +468,7 @@ const StepThree = () => {
               {l10n.getString("onboarding-premium-reply-title-2")}
             </p>
             <br />
-            {l10n.getString("onboarding-premium-reply-description-2")}
+            {l10n.getString("multi-part-onboarding-premium-reply-description")}
           </p>
           <AddonDescription />
           <div
@@ -494,14 +493,11 @@ const StepThree = () => {
 const StepThreeTitle = () => {
   const l10n = useL10n();
   const isLargeScreen = useMinViewportWidth("md");
-  if (!isLargeScreen) {
-    return <h2>{l10n.getString("multi-part-onboarding-reply-headline")}</h2>;
-  }
-  return (
-    <h2>
-      {l10n.getString("multi-part-onboarding-premium-add-extension-headline")}
-    </h2>
-  );
+  const stepThreeTitleString = isLargeScreen
+    ? l10n.getString("multi-part-onboarding-premium-add-extension-headline")
+    : l10n.getString("multi-part-onboarding-reply-headline");
+
+  return <h2>{stepThreeTitleString}</h2>;
 };
 
 interface AddonDescriptionProps {
