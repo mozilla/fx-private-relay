@@ -263,7 +263,7 @@ describe("The dashboard", () => {
     await userEvent.click(searchButton);
 
     const subdomainDialog = screen.getByRole("dialog", {
-      name: '[<Localized> with id [modal-email-domain-available] and vars: {"subdomain":"spongebob"}]',
+      name: '[<Localized> with id [modal-email-domain-available] and vars: {"custom_domain_full":"spongebob"}]',
     });
     expect(subdomainDialog).toBeInTheDocument();
   });
@@ -575,7 +575,7 @@ describe("The dashboard", () => {
     await userEvent.click(searchButton);
 
     const subdomainDialog = screen.getByRole("dialog", {
-      name: '[<Localized> with id [modal-email-domain-available] and vars: {"subdomain":"spongebob"}]',
+      name: '[<Localized> with id [modal-email-domain-available] and vars: {"custom_domain_full":"spongebob"}]',
     });
     expect(subdomainDialog).toBeInTheDocument();
   });
