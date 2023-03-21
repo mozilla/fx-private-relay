@@ -62,18 +62,24 @@ def patch_datetime_now():
         yield expected_now
 
 
-def test_free_phone_user_with_no_date_phone_subscription_reset_gets_phone_limits_updated(
-    patch_datetime_now, db
-):
+@pytest.fixture
+def mock_free_phones_profile():
     account = baker.make(SocialAccount, provider="fxa")
     profile = Profile.objects.get(user=account.user)
+    baker.make(Flag, name="free_phones")
+    free_phones_flag = Flag.objects.filter(name="free_phones").first()
+    free_phones_flag.users.add(profile.user)
+    yield profile
+
+
+def test_free_phone_user_with_no_date_phone_subscription_reset_gets_phone_limits_updated(
+    patch_datetime_now, mock_free_phones_profile
+):
+    profile = mock_free_phones_profile
     baker.make(RealPhone, user=profile.user, verified=True)
     relay_number = baker.make(
         RelayNumber, user=profile.user, remaining_texts=10, remaining_seconds=15
     )
-    baker.make(Flag, name="free_phones")
-    free_phones_flag = Flag.objects.filter(name="free_phones").first()
-    free_phones_flag.users.add(profile.user)
     expected_now = patch_datetime_now
     num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
 
@@ -87,20 +93,16 @@ def test_free_phone_user_with_no_date_phone_subscription_reset_gets_phone_limits
 
 
 def test_free_phone_user_with_no_date_phone_subscription_end_does_not_get_reset_date_updated(
-    patch_datetime_now, db
+    patch_datetime_now, mock_free_phones_profile
 ):
+    profile = mock_free_phones_profile
     expected_now = patch_datetime_now
-    account = baker.make(SocialAccount, provider="fxa")
-    profile = Profile.objects.get(user=account.user)
     profile.date_phone_subscription_reset = expected_now - timedelta(15)
     profile.save()
     baker.make(RealPhone, user=profile.user, verified=True)
     relay_number = baker.make(
         RelayNumber, user=profile.user, remaining_texts=10, remaining_seconds=15
     )
-    baker.make(Flag, name="free_phones")
-    free_phones_flag = Flag.objects.filter(name="free_phones").first()
-    free_phones_flag.users.add(profile.user)
 
     num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
 
@@ -114,20 +116,16 @@ def test_free_phone_user_with_no_date_phone_subscription_end_does_not_get_reset_
 
 
 def test_free_phone_user_with_no_date_phone_subscription_end_phone_limits_updated(
-    patch_datetime_now, db
+    patch_datetime_now, mock_free_phones_profile
 ):
+    profile = mock_free_phones_profile
     expected_now = patch_datetime_now
-    account = baker.make(SocialAccount, provider="fxa")
-    profile = Profile.objects.get(user=account.user)
     profile.date_phone_subscription_reset = expected_now - timedelta(45)
     profile.save()
     baker.make(RealPhone, user=profile.user, verified=True)
     relay_number = baker.make(
         RelayNumber, user=profile.user, remaining_texts=10, remaining_seconds=15
     )
-    baker.make(Flag, name="free_phones")
-    free_phones_flag = Flag.objects.filter(name="free_phones").first()
-    free_phones_flag.users.add(profile.user)
 
     num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
 
