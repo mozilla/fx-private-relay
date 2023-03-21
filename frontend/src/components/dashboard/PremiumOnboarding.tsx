@@ -257,11 +257,12 @@ const StepOne = () => {
               `multi-part-onboarding-premium-welcome-feature-headline-${props.name}`
             )}
           </strong>
-          <p>
+          <br />
+          <span>
             {l10n.getString(
               `multi-part-onboarding-premium-welcome-feature-body-${props.name}`
             )}
-          </p>
+          </span>
         </p>
       </li>
     );
@@ -281,7 +282,7 @@ const StepOne = () => {
       </div>
       <div className={styles.description}>
         <Image src={WomanOnCouch} alt="" width={350} />
-        <p>
+        <div>
           <span className={styles["description-caption"]}>
             {l10n.getString(
               "multi-part-onboarding-premium-welcome-feature-headline"
@@ -294,7 +295,7 @@ const StepOne = () => {
             <FeatureItem name={"custom-inbox-controls"} />
             <FeatureItem name={"anonymous-replies"} />
           </ul>
-        </p>
+        </div>
       </div>
     </div>
   );
