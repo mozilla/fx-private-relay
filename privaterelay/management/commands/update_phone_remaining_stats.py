@@ -60,16 +60,16 @@ def get_next_reset_date(profile: Profile) -> datetime:
 
 
 def update_phone_remaining_stats() -> tuple[int, int]:
-    accounts_with_phones = get_phone_subscriber_social_accounts()
+    social_accounts_with_phones = get_phone_subscriber_social_accounts()
     free_phones_social_accounts = get_free_phone_social_accounts()
-    accounts_with_phones.update(free_phones_social_accounts)
+    social_accounts_with_phones.update(free_phones_social_accounts)
 
-    if not settings.PHONES_ENABLED or len(accounts_with_phones) == 0:
+    if not settings.PHONES_ENABLED or len(social_accounts_with_phones) == 0:
         return 0, 0
 
     updated_profiles = []
     datetime_now = datetime.now(timezone.utc)
-    for social_account in accounts_with_phones:
+    for social_account in social_accounts_with_phones:
         profile = social_account.user.profile
         next_reset_date = get_next_reset_date(profile)
         if next_reset_date <= datetime_now:
@@ -77,7 +77,7 @@ def update_phone_remaining_stats() -> tuple[int, int]:
             profile.date_phone_subscription_reset = datetime_now
             profile.save()
             updated_profiles.append(profile)
-    return len(accounts_with_phones), len(updated_profiles)
+    return len(social_accounts_with_phones), len(updated_profiles)
 
 
 class Command(BaseCommand):

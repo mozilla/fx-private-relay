@@ -14,31 +14,33 @@ logger = logging.getLogger("events")
 
 
 def sync_phone_related_dates_on_profile(group: str) -> int:
-    social_accounts = get_phone_subscriber_social_accounts()
+    social_accounts_with_phones = get_phone_subscriber_social_accounts()
     free_phones_social_accounts = get_free_phone_social_accounts()
     if group == "free":
-        social_accounts = free_phones_social_accounts
+        social_accounts_with_phones = free_phones_social_accounts
     if group == "both":
-        social_accounts.update(free_phones_social_accounts)
+        social_accounts_with_phones.update(free_phones_social_accounts)
 
-    if not settings.PHONES_ENABLED or len(social_accounts) == 0:
+    if not settings.PHONES_ENABLED or len(social_accounts_with_phones) == 0:
         return 0
 
     num_updated_accounts = 0
     datetime_now = datetime.now(timezone.utc)
-    for sa in social_accounts:
-        date_subscribed_phone, start_date, end_date = get_phone_subscription_dates(sa)
-        profile = sa.user.profile
+    for social_account in social_accounts_with_phones:
+        date_subscribed_phone, start_date, end_date = get_phone_subscription_dates(
+            social_account
+        )
+        profile = social_account.user.profile
         if (date_subscribed_phone and start_date and end_date) is None:
             # No subscription info from FxA
             if group == "subscription":
                 # Unsure if social account user should have phone subscription
                 logger.error(
                     "no_subscription_data_in_fxa_for_user_with_phone_subscription",
-                    extra={"fxa_uid": sa.uid},
+                    extra={"fxa_uid": social_account.uid},
                 )
             if (
-                sa in free_phones_social_accounts
+                social_account in free_phones_social_accounts
                 and profile.date_phone_subscription_reset is None
             ):
                 profile.date_phone_subscription_reset = datetime_now.replace(day=1)
