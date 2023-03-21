@@ -72,11 +72,13 @@ def update_phone_remaining_stats() -> tuple[int, int]:
     for social_account in social_accounts_with_phones:
         profile = social_account.user.profile
         next_reset_date = get_next_reset_date(profile)
-        if next_reset_date <= datetime_now:
-            reset_phone_remaining_stats(profile.user)
-            profile.date_phone_subscription_reset = datetime_now
-            profile.save()
-            updated_profiles.append(profile)
+        if next_reset_date > datetime_now:
+            continue
+        # next reset day is now or in the past
+        reset_phone_remaining_stats(profile.user)
+        profile.date_phone_subscription_reset = datetime_now
+        profile.save()
+        updated_profiles.append(profile)
     return len(social_accounts_with_phones), len(updated_profiles)
 
 
