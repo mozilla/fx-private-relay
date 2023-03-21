@@ -258,7 +258,7 @@ describe("The dashboard", () => {
     expect(preview).toBeInTheDocument();
 
     const searchButton = screen.getByRole("button", {
-      name: "l10n string: [banner-register-subdomain-button-search], with vars: {}",
+      name: "l10n string: [banner-set-email-domain-input-search], with vars: {}",
     });
     await userEvent.click(searchButton);
 
@@ -570,7 +570,7 @@ describe("The dashboard", () => {
     expect(preview).toBeInTheDocument();
 
     const searchButton = screen.getByRole("button", {
-      name: "l10n string: [banner-register-subdomain-button-search], with vars: {}",
+      name: "l10n string: [banner-set-email-domain-input-search], with vars: {}",
     });
     await userEvent.click(searchButton);
 
@@ -609,7 +609,7 @@ describe("The dashboard", () => {
     });
     await userEvent.click(skipButton);
 
-    expect(updateFn).toHaveBeenCalledWith(42, { onboarding_state: 2 });
+    expect(updateFn).toHaveBeenCalledWith(42, { onboarding_state: 3 });
   });
 
   it("allows skipping the extension set up during Premium onboarding", async () => {
