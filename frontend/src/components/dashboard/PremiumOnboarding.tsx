@@ -308,9 +308,8 @@ type Step2Props = {
 };
 const StepTwo = (props: Step2Props) => {
   const l10n = useL10n();
-  const [showSubdomainConfirmation, setShowSubdomainConfirmation] = useState(
-    props.profile.subdomain === "string"
-  );
+  const [showSubdomainConfirmation, setShowSubdomainConfirmation] =
+    useState(false);
 
   const [chosenSubdomain, setChosenSubdomain] = useState("");
   const [partialSubdomain, setPartialSubdomain] = useState("");
