@@ -191,8 +191,6 @@ def test_yearly_phone_subscriber_profile_date_fields_all_updated(
 ):
     profile = Profile.objects.get(user=phone_user)
     date_subscribed_phone = datetime.now(timezone.utc) - timedelta(3)
-    profile.date_subscribed_phone = date_subscribed_phone
-    profile.save()
     mocked_dates.return_value = (
         date_subscribed_phone,
         date_subscribed_phone,
