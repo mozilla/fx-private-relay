@@ -263,7 +263,7 @@ describe("The dashboard", () => {
     await userEvent.click(searchButton);
 
     const subdomainDialog = screen.getByRole("dialog", {
-      name: '[<Localized> with id [modal-domain-register-available-2] and vars: {"subdomain":"spongebob","domain":"mozmail.com"}]',
+      name: '[<Localized> with id [modal-email-domain-available] and vars: {"subdomain":"spongebob"}]',
     });
     expect(subdomainDialog).toBeInTheDocument();
   });
@@ -575,7 +575,7 @@ describe("The dashboard", () => {
     await userEvent.click(searchButton);
 
     const subdomainDialog = screen.getByRole("dialog", {
-      name: '[<Localized> with id [modal-domain-register-available-2] and vars: {"subdomain":"spongebob","domain":"mozmail.com"}]',
+      name: '[<Localized> with id [modal-email-domain-available] and vars: {"subdomain":"spongebob"}]',
     });
     expect(subdomainDialog).toBeInTheDocument();
   });
@@ -609,7 +609,7 @@ describe("The dashboard", () => {
     });
     await userEvent.click(skipButton);
 
-    expect(updateFn).toHaveBeenCalledWith(42, { onboarding_state: 3 });
+    expect(updateFn).toHaveBeenCalledWith(42, { onboarding_state: 1 });
   });
 
   it("allows skipping the extension set up during Premium onboarding", async () => {
@@ -625,7 +625,7 @@ describe("The dashboard", () => {
     });
     await userEvent.click(skipButton);
 
-    expect(updateFn).toHaveBeenCalledWith(42, { onboarding_state: 3 });
+    expect(updateFn).toHaveBeenCalledWith(42, { onboarding_state: 2 });
   });
 
   it("allows disabling an alias", async () => {
