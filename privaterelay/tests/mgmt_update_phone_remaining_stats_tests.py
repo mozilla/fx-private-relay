@@ -229,30 +229,37 @@ def test_phone_subscriber_with_phones_reset_31_day_ago_phone_limits_updated(
 
 
 def test_phone_subscriber_with_subscription_end_date_sooner_than_31_days_since_reset_phone_limits_updated(
-    patch_datetime_now, phone_user
+    phone_user,
 ):
-    expected_now = patch_datetime_now
+    datetime_now = datetime.now(timezone.utc)
+    datetime_first_of_march = datetime_now.replace(month=3, day=1)
     profile = Profile.objects.get(user=phone_user)
-    profile.date_subscribed_phone = expected_now.replace(month=1, day=1)
-    new_subscription_start_and_previous_reset_date = expected_now.replace(
+    profile.date_subscribed_phone = datetime_now.replace(month=1, day=1)
+    new_subscription_start_and_previous_reset_date = datetime_now.replace(
         month=2, day=1
     )
     profile.date_phone_subscription_start = (
         new_subscription_start_and_previous_reset_date
     )
-    profile.date_phone_subscription_end = expected_now.replace(month=3, day=1)
+    profile.date_phone_subscription_end = datetime_first_of_march
     profile.date_phone_subscription_reset = (
         new_subscription_start_and_previous_reset_date
     )
     profile.save()
     relay_number = _make_used_relay_number(phone_user)
 
-    # TODO: today needs to be pinned to Mar 1-3 to check that the subscription end date was used
+    # today needs to be pinned to Mar 1-3 to check that the subscription end date was used
     # instead of calculated reset date
-    num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
+    with patch(f"{MOCK_BASE}.datetime") as mocked_datetime:
+        mocked_datetime.combine.return_value = datetime.combine(
+            datetime_first_of_march.date(), datetime.min.time()
+        )
+        mocked_datetime.now.return_value = datetime_first_of_march
+        mocked_datetime.side_effect = lambda *args, **kw: datetime(*args, **kw)
+        num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
 
     profile.refresh_from_db()
-    assert profile.date_phone_subscription_reset == expected_now
+    assert profile.date_phone_subscription_reset == datetime_first_of_march
     assert num_profiles_w_phones == 1
     assert num_profiles_updated == 1
     relay_number.refresh_from_db()
