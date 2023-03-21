@@ -312,16 +312,16 @@ const StepTwo = (props: Step2Props) => {
     props.profile.subdomain === "string"
   );
 
-  const renderConfirmation = () => {
-    setShowSubdomainConfirmation(true);
-    props.onNextStep(2);
-    gaEvent({
-      category: "Premium Onboarding",
-      action: "Engage",
-      label: "onboarding-step-2-continue",
-      value: 2,
-    });
-  };
+  // const renderConfirmation = () => {
+  //   setShowSubdomainConfirmation(true);
+  //   props.onNextStep(2);
+  //   gaEvent({
+  //     category: "Premium Onboarding",
+  //     action: "Engage",
+  //     label: "onboarding-step-2-continue",
+  //     value: 2,
+  //   });
+  // };
   const subdomain = showSubdomainConfirmation ? (
     <p className={styles["action-complete"]}>
       <span className={styles.label}>
@@ -335,7 +335,7 @@ const StepTwo = (props: Step2Props) => {
     <Step2SubdomainPicker
       onPickSubdomain={props.onPickSubdomain}
       profile={props.profile}
-      onComplete={() => renderConfirmation()}
+      onComplete={() => setShowSubdomainConfirmation(true)}
     />
   );
 
@@ -363,15 +363,17 @@ const StepTwo = (props: Step2Props) => {
               )}
             </p>
             <br />
-            <Localized
-              id="multi-part-onboarding-premium-email-domain-feature-body"
-              vars={{ mozmail: "mozmail.com" }}
-              elems={{
-                p: <p />,
-              }}
-            >
-              <span />
-            </Localized>
+            {!showSubdomainConfirmation ? (
+              <Localized
+                id="multi-part-onboarding-premium-email-domain-feature-body"
+                vars={{ mozmail: "mozmail.com" }}
+                elems={{
+                  p: <p />,
+                }}
+              >
+                <span />
+              </Localized>
+            ) : null}
           </p>
           {subdomain}
         </div>
