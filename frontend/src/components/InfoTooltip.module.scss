@@ -25,7 +25,7 @@
     box-shadow: $box-shadow-sm;
     border-radius: $border-radius-sm;
     padding: $spacing-md;
-    min-width: $content-sm;
+    min-width: $content-xs;
     margin-top: $triangleWidth;
     margin-left: calc(-1 * ($triangleWidth / 2));
     // Overlap .banner in <Banner>, which is relatively positioned:
