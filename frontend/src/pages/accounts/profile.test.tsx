@@ -233,7 +233,6 @@ describe("The dashboard", () => {
   it("does not show the domain search form for Premium users that already have a subdomain", () => {
     setMockProfileDataOnce({
       has_premium: true,
-      onboarding_state: 1,
       subdomain: "arbitrary_subdomain",
     });
     render(<Profile />);
@@ -591,7 +590,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const subdomainSearchField = screen.queryByLabelText(
-      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}"
+      "l10n string: [banner-set-email-domain-input-placeholder], with vars: {}"
     );
 
     expect(subdomainSearchField).not.toBeInTheDocument();
