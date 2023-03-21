@@ -312,16 +312,6 @@ const StepTwo = (props: Step2Props) => {
     props.profile.subdomain === "string"
   );
 
-  // const renderConfirmation = () => {
-  //   setShowSubdomainConfirmation(true);
-  //   props.onNextStep(2);
-  //   gaEvent({
-  //     category: "Premium Onboarding",
-  //     action: "Engage",
-  //     label: "onboarding-step-2-continue",
-  //     value: 2,
-  //   });
-  // };
   const subdomain = showSubdomainConfirmation ? (
     <p className={styles["action-complete"]}>
       <span className={styles.label}>
