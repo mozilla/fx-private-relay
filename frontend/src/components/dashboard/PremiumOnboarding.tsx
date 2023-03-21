@@ -312,6 +312,38 @@ const StepTwo = (props: Step2Props) => {
     props.profile.subdomain === "string"
   );
 
+  const [chosenSubdomain, setChosenSubdomain] = useState("");
+  const [partialSubdomain, setPartialSubdomain] = useState("");
+
+  const modalState = useOverlayTriggerState({});
+
+  const onPick = (subdomain: string) => {
+    setChosenSubdomain(subdomain);
+    modalState.open();
+  };
+
+  const onConfirm = () => {
+    props.onPickSubdomain(chosenSubdomain);
+    setShowSubdomainConfirmation(true);
+  };
+
+  const onType = (_partial: string) => {
+    setPartialSubdomain(_partial);
+  };
+
+  // Opens the confirmation and success modal
+  const dialog = modalState.isOpen ? (
+    <SubdomainConfirmationModal
+      subdomain={chosenSubdomain}
+      isOpen={modalState.isOpen}
+      isSet={typeof props.profile.subdomain === "string"}
+      onClose={() => modalState.close()}
+      onConfirm={onConfirm}
+      onComplete={() => modalState.close()}
+    />
+  ) : null;
+
+  // Switches between the custom domain search and display module
   const subdomain = showSubdomainConfirmation ? (
     <p className={styles["action-complete"]}>
       <span className={styles.label}>
@@ -322,11 +354,20 @@ const StepTwo = (props: Step2Props) => {
       <span className={styles.domain}>.{getRuntimeConfig().mozmailDomain}</span>
     </p>
   ) : (
-    <Step2SubdomainPicker
-      onPickSubdomain={props.onPickSubdomain}
-      profile={props.profile}
-      onComplete={() => setShowSubdomainConfirmation(true)}
-    />
+    <>
+      <div className={styles["domain-example"]}>
+        ***@
+        <span className={styles["customizable-part"]}>
+          {partialSubdomain !== ""
+            ? partialSubdomain
+            : l10n.getString(
+                "multi-part-onboarding-premium-email-domain-placeholder"
+              )}
+        </span>
+        .{getRuntimeConfig().mozmailDomain}
+      </div>
+      <SubdomainSearchForm onType={onType} onPick={onPick} />
+    </>
   );
 
   return (
@@ -366,68 +407,10 @@ const StepTwo = (props: Step2Props) => {
             ) : null}
           </p>
           {subdomain}
+          {dialog}
         </div>
       </div>
     </div>
-  );
-};
-
-type Step2SubdomainPickerProps = {
-  onPickSubdomain: (subdomain: string) => void;
-  profile: ProfileData;
-  onComplete: () => void;
-};
-const Step2SubdomainPicker = (props: Step2SubdomainPickerProps) => {
-  const l10n = useL10n();
-  const [chosenSubdomain, setChosenSubdomain] = useState("");
-  const [partialSubdomain, setPartialSubdomain] = useState("");
-
-  const modalState = useOverlayTriggerState({});
-
-  const onPick = (subdomain: string) => {
-    setChosenSubdomain(subdomain);
-    modalState.open();
-  };
-
-  const onConfirm = () => {
-    props.onPickSubdomain(chosenSubdomain);
-  };
-
-  const onType = (_partial: string) => {
-    setPartialSubdomain(_partial);
-  };
-
-  const onComplete = () => {
-    props.onComplete();
-  };
-
-  const dialog = modalState.isOpen ? (
-    <SubdomainConfirmationModal
-      subdomain={chosenSubdomain}
-      isOpen={modalState.isOpen}
-      isSet={typeof props.profile.subdomain === "string"}
-      onClose={() => modalState.close()}
-      onConfirm={onConfirm}
-      onComplete={onComplete}
-    />
-  ) : null;
-
-  return (
-    <>
-      <div className={styles["domain-example"]}>
-        ***@
-        <span className={styles["customizable-part"]}>
-          {partialSubdomain !== ""
-            ? partialSubdomain
-            : l10n.getString(
-                "multi-part-onboarding-premium-email-domain-placeholder"
-              )}
-        </span>
-        .{getRuntimeConfig().mozmailDomain}
-      </div>
-      <SubdomainSearchForm onType={onType} onPick={onPick} />
-      {dialog}
-    </>
   );
 };
 
