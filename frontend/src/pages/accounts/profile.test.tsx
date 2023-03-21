@@ -213,7 +213,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const domainSearchField = screen.getByLabelText(
-      "l10n string: [banner-set-email-domain-input-placeholder], with vars: {}"
+      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}"
     );
 
     expect(domainSearchField).toBeInTheDocument();
@@ -224,7 +224,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const domainSearchField = screen.queryByLabelText(
-      "l10n string: [banner-set-email-domain-input-placeholder], with vars: {}"
+      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}"
     );
 
     expect(domainSearchField).not.toBeInTheDocument();
@@ -238,7 +238,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const domainSearchField = screen.queryByLabelText(
-      "l10n string: [banner-set-email-domain-input-placeholder], with vars: {}"
+      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}"
     );
 
     expect(domainSearchField).not.toBeInTheDocument();
@@ -249,7 +249,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const domainSearchField = screen.getByLabelText(
-      "l10n string: [banner-set-email-domain-input-placeholder], with vars: {}"
+      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}"
     );
 
     await userEvent.type(domainSearchField, "SpoNGeBoB");
@@ -539,7 +539,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const subdomainSearchField = screen.getByLabelText(
-      "l10n string: [banner-set-email-domain-input-placeholder], with vars: {}"
+      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}"
     );
 
     expect(subdomainSearchField).toBeInTheDocument();
@@ -561,7 +561,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const subdomainSearchField = screen.getByLabelText(
-      "l10n string: [banner-set-email-domain-input-placeholder], with vars: {}"
+      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}"
     );
 
     await userEvent.type(subdomainSearchField, "sPoNGeBob");
@@ -590,7 +590,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const subdomainSearchField = screen.queryByLabelText(
-      "l10n string: [banner-set-email-domain-input-placeholder], with vars: {}"
+      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}"
     );
 
     expect(subdomainSearchField).not.toBeInTheDocument();
