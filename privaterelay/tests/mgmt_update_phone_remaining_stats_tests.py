@@ -72,14 +72,20 @@ def mock_free_phones_profile():
     yield profile
 
 
+@pytest.fixture
+def mock_used_relay_number(user):
+    baker.make(RealPhone, user=user, verified=True)
+    relay_number = baker.make(
+        RelayNumber, user=user, remaining_texts=10, remaining_seconds=15
+    )
+    yield relay_number
+
+
 def test_free_phone_user_with_no_date_phone_subscription_reset_gets_phone_limits_updated(
-    patch_datetime_now, mock_free_phones_profile
+    patch_datetime_now, mock_free_phones_profile, mock_used_relay_number
 ):
     profile = mock_free_phones_profile
-    baker.make(RealPhone, user=profile.user, verified=True)
-    relay_number = baker.make(
-        RelayNumber, user=profile.user, remaining_texts=10, remaining_seconds=15
-    )
+    relay_number = mock_used_relay_number(profile.user)
     expected_now = patch_datetime_now
     num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
 
@@ -93,16 +99,13 @@ def test_free_phone_user_with_no_date_phone_subscription_reset_gets_phone_limits
 
 
 def test_free_phone_user_with_no_date_phone_subscription_end_does_not_get_reset_date_updated(
-    patch_datetime_now, mock_free_phones_profile
+    patch_datetime_now, mock_free_phones_profile, mock_used_relay_number
 ):
     profile = mock_free_phones_profile
+    relay_number = mock_used_relay_number(profile.user)
     expected_now = patch_datetime_now
     profile.date_phone_subscription_reset = expected_now - timedelta(15)
     profile.save()
-    baker.make(RealPhone, user=profile.user, verified=True)
-    relay_number = baker.make(
-        RelayNumber, user=profile.user, remaining_texts=10, remaining_seconds=15
-    )
 
     num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
 
@@ -116,16 +119,13 @@ def test_free_phone_user_with_no_date_phone_subscription_end_does_not_get_reset_
 
 
 def test_free_phone_user_with_no_date_phone_subscription_end_phone_limits_updated(
-    patch_datetime_now, mock_free_phones_profile
+    patch_datetime_now, mock_free_phones_profile, mock_used_relay_number
 ):
     profile = mock_free_phones_profile
+    relay_number = mock_used_relay_number(profile.user)
     expected_now = patch_datetime_now
     profile.date_phone_subscription_reset = expected_now - timedelta(45)
     profile.save()
-    baker.make(RealPhone, user=profile.user, verified=True)
-    relay_number = baker.make(
-        RelayNumber, user=profile.user, remaining_texts=10, remaining_seconds=15
-    )
 
     num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
 
@@ -139,7 +139,7 @@ def test_free_phone_user_with_no_date_phone_subscription_end_phone_limits_update
 
 
 def test_phone_subscriber_subscribed_3_day_ago_wo_date_phone_subscription_reset_does_phone_limits_updated(
-    patch_datetime_now, phone_user
+    patch_datetime_now, phone_user, mock_used_relay_number
 ):
     # any users phone users whose date_phone_subscription_reset was not set
     # will get their limits reset and reset date set today
@@ -147,10 +147,7 @@ def test_phone_subscriber_subscribed_3_day_ago_wo_date_phone_subscription_reset_
     profile = Profile.objects.get(user=phone_user)
     profile.date_subscribed_phone = expected_now - timedelta(3)
     profile.save()
-    baker.make(RealPhone, user=phone_user, verified=True)
-    relay_number = baker.make(
-        RelayNumber, user=phone_user, remaining_texts=10, remaining_seconds=15
-    )
+    relay_number = mock_used_relay_number(phone_user)
 
     num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
 
@@ -164,17 +161,14 @@ def test_phone_subscriber_subscribed_3_day_ago_wo_date_phone_subscription_reset_
 
 
 def test_phone_subscriber_w_phones_reset_1_day_ago_does_not_update_stats(
-    patch_datetime_now, phone_user
+    patch_datetime_now, phone_user, mock_used_relay_number
 ):
     expected_now = patch_datetime_now
     profile = Profile.objects.get(user=phone_user)
     reset_datetime = expected_now - timedelta(1)
     profile.date_phone_subscription_reset = reset_datetime
     profile.save()
-    baker.make(RealPhone, user=phone_user, verified=True)
-    relay_number = baker.make(
-        RelayNumber, user=phone_user, remaining_texts=10, remaining_seconds=15
-    )
+    relay_number = mock_used_relay_number(phone_user)
 
     num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
 
@@ -219,19 +213,13 @@ def test_phone_subscriber_w_date_phone_subscription_reset_31_days_ago_and_no_rel
 
 
 def test_phone_subscriber_with_phones_reset_31_day_ago_phone_limits_updated(
-    patch_datetime_now, phone_user
+    patch_datetime_now, phone_user, mock_used_relay_number
 ):
     expected_now = patch_datetime_now
     profile = Profile.objects.get(user=phone_user)
     profile.date_phone_subscription_reset = expected_now - timedelta(31)
     profile.save()
-    _make_real_phone(
-        phone_user, verified=True
-    )  # update other tests to use this util func
-    relay_number = _make_relay_number(phone_user)
-    relay_number.remaining_texts = 10
-    relay_number.remaining_seconds = 15
-    relay_number.save()
+    relay_number = mock_used_relay_number(phone_user)
 
     num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
 
@@ -246,7 +234,7 @@ def test_phone_subscriber_with_phones_reset_31_day_ago_phone_limits_updated(
 
 
 def test_phone_subscriber_with_subscription_end_date_sooner_than_31_days_since_reset_phone_limits_updated(
-    patch_datetime_now, phone_user
+    patch_datetime_now, phone_user, mock_used_relay_number
 ):
     expected_now = patch_datetime_now
     profile = Profile.objects.get(user=phone_user)
@@ -262,13 +250,7 @@ def test_phone_subscriber_with_subscription_end_date_sooner_than_31_days_since_r
         new_subscription_start_and_previous_reset_date
     )
     profile.save()
-    _make_real_phone(
-        phone_user, verified=True
-    )  # update other tests to use this util func
-    relay_number = _make_relay_number(phone_user)
-    relay_number.remaining_texts = 10
-    relay_number.remaining_seconds = 15
-    relay_number.save()
+    relay_number = mock_used_relay_number(phone_user)
 
     # TODO: today needs to be pinned to Mar 1-3 to check that the subscription end date was used
     # instead of calculated reset date
