@@ -599,7 +599,7 @@ describe("The dashboard", () => {
   it("allows skipping the custom domain set up during Premium onboarding", async () => {
     const updateFn: ProfileUpdateFn = jest.fn();
     setMockProfileDataOnce(
-      { id: 42, has_premium: true, onboarding_state: 0 },
+      { id: 42, has_premium: true, onboarding_state: 1 },
       { updater: updateFn }
     );
     render(<Profile />);
@@ -609,13 +609,13 @@ describe("The dashboard", () => {
     });
     await userEvent.click(skipButton);
 
-    expect(updateFn).toHaveBeenCalledWith(42, { onboarding_state: 1 });
+    expect(updateFn).toHaveBeenCalledWith(42, { onboarding_state: 2 });
   });
 
   it("allows skipping the extension set up during Premium onboarding", async () => {
     const updateFn: ProfileUpdateFn = jest.fn();
     setMockProfileDataOnce(
-      { id: 42, has_premium: true, onboarding_state: 0 },
+      { id: 42, has_premium: true, onboarding_state: 2 },
       { updater: updateFn }
     );
     render(<Profile />);
@@ -625,7 +625,7 @@ describe("The dashboard", () => {
     });
     await userEvent.click(skipButton);
 
-    expect(updateFn).toHaveBeenCalledWith(42, { onboarding_state: 2 });
+    expect(updateFn).toHaveBeenCalledWith(42, { onboarding_state: 3 });
   });
 
   it("allows disabling an alias", async () => {
