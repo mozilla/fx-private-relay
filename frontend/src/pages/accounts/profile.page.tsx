@@ -14,7 +14,7 @@ import {
   useOverlayPosition,
   useOverlayTrigger,
 } from "react-aria";
-import { useMenuTriggerState } from "react-stately";
+import { useMenuTriggerState, useOverlayTriggerState } from "react-stately";
 import { toast } from "react-toastify";
 import styles from "./profile.module.scss";
 import BottomBannerIllustration from "../../../public/images/woman-couch-left.svg";
@@ -43,7 +43,6 @@ import { getRuntimeConfig } from "../../config";
 import { SubdomainIndicator } from "../../components/dashboard/subdomain/SubdomainIndicator";
 import { Tips } from "../../components/dashboard/tips/Tips";
 import { getLocale } from "../../functions/getLocale";
-import { InfoTooltip } from "../../components/InfoTooltip";
 import { AddonData } from "../../components/dashboard/AddonData";
 import { useAddonData } from "../../hooks/addon";
 import { CloseIcon } from "../../components/Icons";
@@ -53,6 +52,8 @@ import { usePurchaseTracker } from "../../hooks/purchaseTracker";
 import { PremiumPromoBanners } from "../../components/dashboard/PremiumPromoBanners";
 import { useL10n } from "../../hooks/l10n";
 import { Localized } from "../../components/Localized";
+import { InfoModal } from "../../components/InfoModal";
+import { InfoTooltip } from "../../components/InfoTooltip";
 
 const Profile: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -67,6 +68,8 @@ const Profile: NextPage = () => {
   });
 
   usePurchaseTracker(profileData.data?.[0]);
+
+  const modalState = useOverlayTriggerState({});
 
   if (!userData.isValidating && userData.error) {
     document.location.assign(getRuntimeConfig().fxaLoginUrl);
@@ -220,11 +223,6 @@ const Profile: NextPage = () => {
         <a className={styles["open-button"]} href="#mpp-choose-subdomain">
           {l10n.getString("profile-label-create-subdomain")}
         </a>
-        <InfoTooltip
-          alt={l10n.getString("profile-label-subdomain-tooltip-trigger")}
-        >
-          {l10n.getString("profile-label-subdomain-tooltip")}
-        </InfoTooltip>
       </>
     );
 
@@ -232,6 +230,15 @@ const Profile: NextPage = () => {
     notation: "compact",
     compactDisplay: "short",
   });
+
+  const subdomainTooltipButton = (
+    <button onClick={() => modalState.open()}>icon here</button>
+  );
+
+  const subdomainInfoModal = modalState.isOpen ? (
+    <InfoModal onClose={() => modalState.close()} />
+  ) : null;
+
   // Non-Premium users have only five aliases, making the stats less insightful,
   // so only show them for Premium users:
   const stats = profile.has_premium ? (
@@ -252,6 +259,8 @@ const Profile: NextPage = () => {
           <strong className={styles.subdomain}>
             <CheckBadgeIcon alt="" />
             {subdomainMessage}
+            {subdomainTooltipButton}
+            {subdomainInfoModal}
           </strong>
         </div>
         <dl className={styles["account-stats"]}>
