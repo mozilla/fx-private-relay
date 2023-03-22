@@ -18,7 +18,7 @@
     "prepare": "if [ \"$ON_HEROKU\" != \"True\" ]; then cd .. && husky install frontend/.husky; fi"
   },
   "dependencies": {
-    "@fluent/bundle": "^0.18.0",
+    "@fluent/bundle": "^0.17.1",
     "@fluent/langneg": "^0.7.0",
     "@fluent/react": "^0.14.1",
     "@mozilla-protocol/core": "^16.1.0",
