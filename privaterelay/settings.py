@@ -199,6 +199,7 @@ MAX_MINUTES_TO_VERIFY_REAL_PHONE = config(
 MAX_TEXTS_PER_BILLING_CYCLE = config("MAX_TEXTS_PER_BILLING_CYCLE", 75, cast=int)
 MAX_MINUTES_PER_BILLING_CYCLE = config("MAX_MINUTES_PER_BILLING_CYCLE", 50, cast=int)
 DAYS_PER_BILLING_CYCLE = config("DAYS_PER_BILLING_CYCLE", 30, cast=int)
+MAX_DAYS_IN_MONTH = 31
 IQ_ENABLED = config("IQ_ENABLED", False, cast=bool)
 IQ_FOR_NEW_NUMBERS = config("IQ_FOR_NEW_NUMBERS", False, cast=bool)
 IQ_OUTBOUND_API_KEY = config("IQ_OUTBOUND_API_KEY", None)
@@ -754,7 +755,7 @@ AUTHENTICATION_BACKENDS = (
 SOCIALACCOUNT_PROVIDERS = {
     "fxa": {
         # Note: to request "profile" scope, must be a trusted Mozilla client
-        "SCOPE": ["profile"],
+        "SCOPE": ["profile", "https://identity.mozilla.com/account/subscriptions"],
         "AUTH_PARAMS": {"access_type": "offline"},
         "OAUTH_ENDPOINT": config(
             "FXA_OAUTH_ENDPOINT", "https://oauth.accounts.firefox.com/v1"
@@ -776,6 +777,11 @@ FXA_BASE_ORIGIN = config("FXA_BASE_ORIGIN", "https://accounts.firefox.com")
 FXA_SETTINGS_URL = config("FXA_SETTINGS_URL", f"{FXA_BASE_ORIGIN}/settings")
 FXA_SUBSCRIPTIONS_URL = config(
     "FXA_SUBSCRIPTIONS_URL", f"{FXA_BASE_ORIGIN}/subscriptions"
+)
+# check https://mozilla.github.io/ecosystem-platform/api#tag/Subscriptions/operation/getOauthMozillasubscriptionsCustomerBillingandsubscriptions
+FXA_ACCOUNTS_ENDPOINT = config(
+    "FXA_ACCOUNTS_ENDPOINT",
+    "https://api.accounts.firefox.com/v1",
 )
 FXA_SUPPORT_URL = config("FXA_SUPPORT_URL", f"{FXA_BASE_ORIGIN}/support/")
 

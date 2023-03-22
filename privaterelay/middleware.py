@@ -12,7 +12,11 @@ from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
 from whitenoise.middleware import WhiteNoiseMiddleware
 
-from .views import _get_oauth2_session, update_social_token, NoSocialToken
+from privaterelay.fxa_utils import (
+    _get_oauth2_session,
+    update_social_token,
+    NoSocialToken,
+)
 
 metrics = markus.get_metrics("fx-private-relay")
 
