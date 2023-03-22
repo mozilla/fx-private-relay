@@ -15,12 +15,12 @@ import { getRuntimeConfig } from "../../config";
 import { useMinViewportWidth } from "../../hooks/mediaQuery";
 import {
   supportsChromeExtension,
-  supportsFirefoxExtension,
   supportsAnExtension,
 } from "../../functions/userAgent";
-import { CheckBadgeIcon } from "../Icons";
+import { CheckBadgeIcon, CheckIcon } from "../Icons";
 import { useL10n } from "../../hooks/l10n";
 import { VisuallyHidden } from "../VisuallyHidden";
+import { Localized } from "../Localized";
 
 export type Props = {
   profile: ProfileData;
@@ -59,18 +59,10 @@ export const PremiumOnboarding = (props: Props) => {
     value: 3,
   });
 
-  const quit = () => {
-    props.onNextStep(getRuntimeConfig().maxOnboardingAvailable);
-    gaEvent({
-      category: "Premium Onboarding",
-      action: "Engage",
-      label: "onboarding-skip",
-      value: props.profile.onboarding_state + 1,
-    });
-  };
-
   let step = null;
   let button = null;
+  let skipButton = null;
+
   if (props.profile.onboarding_state === 0) {
     step = <StepOne />;
 
@@ -86,7 +78,7 @@ export const PremiumOnboarding = (props: Props) => {
 
     button = (
       <Button ref={getStartedButtonRef} onClick={getStarted}>
-        {l10n.getString("multi-part-onboarding-premium-welcome-button-start")}
+        {l10n.getString("multi-part-onboarding-premium-welcome-feature-cta")}
       </Button>
     );
   }
@@ -94,6 +86,7 @@ export const PremiumOnboarding = (props: Props) => {
   if (props.profile.onboarding_state === 1) {
     step = (
       <StepTwo
+        onNextStep={props.onNextStep}
         profile={props.profile}
         onPickSubdomain={props.onPickSubdomain}
       />
@@ -110,13 +103,13 @@ export const PremiumOnboarding = (props: Props) => {
         });
       };
 
-      button = (
+      skipButton = (
         <button
           ref={skipDomainButtonRef}
           onClick={skipDomain}
           className={styles["skip-link"]}
         >
-          {l10n.getString("multi-part-onboarding-premium-domain-button-skip-2")}
+          {l10n.getString("multi-part-onboarding-skip")}
         </button>
       );
     } else {
@@ -131,7 +124,7 @@ export const PremiumOnboarding = (props: Props) => {
       };
       button = (
         <Button ref={continueWithDomainButtonRef} onClick={getAddon}>
-          {l10n.getString("profile-label-continue")}
+          {l10n.getString("multi-part-onboarding-continue")}
         </Button>
       );
     }
@@ -139,6 +132,7 @@ export const PremiumOnboarding = (props: Props) => {
 
   if (props.profile.onboarding_state === 2) {
     step = <StepThree />;
+    const { linkHref, linkMessageId } = getAddonDescriptionProps();
 
     const skipAddon = () => {
       props.onNextStep(3);
@@ -170,16 +164,21 @@ export const PremiumOnboarding = (props: Props) => {
             "multi-part-onboarding-premium-extension-button-dashboard"
           )}
         </Button>
-        <button
-          ref={skipAddonButtonRef}
-          onClick={skipAddon}
-          className={`is-hidden-with-addon ${styles["get-addon-button"]} ${styles["skip-link"]}`}
-        >
-          {l10n.getString(
-            "multi-part-onboarding-premium-extension-button-skip"
-          )}
-        </button>
+        <AddonDescriptionLinkButton
+          linkHref={linkHref}
+          linkMessageId={linkMessageId}
+        />
       </>
+    );
+
+    skipButton = (
+      <button
+        className={`is-hidden-with-addon ${styles["skip-link"]}`}
+        ref={skipAddonButtonRef}
+        onClick={skipAddon}
+      >
+        {l10n.getString("multi-part-onboarding-skip-download-extension")}
+      </button>
     );
   }
 
@@ -234,9 +233,7 @@ export const PremiumOnboarding = (props: Props) => {
               <span></span>3
             </li>
           </ol>
-          <button className={styles["skip-link"]} onClick={() => quit()}>
-            {l10n.getString("profile-label-skip")}
-          </button>
+          {skipButton}
         </div>
       </section>
     </>
@@ -245,37 +242,60 @@ export const PremiumOnboarding = (props: Props) => {
 
 const StepOne = () => {
   const l10n = useL10n();
-  const isLargeScreen = useMinViewportWidth("md");
+
+  type FeatureItemProps = {
+    name: string;
+  };
+
+  const FeatureItem = (props: FeatureItemProps) => {
+    return (
+      <li>
+        <CheckIcon alt={""} className={styles["check-icon"]} />
+        <p>
+          <strong>
+            {l10n.getString(
+              `multi-part-onboarding-premium-welcome-feature-headline-${props.name}`
+            )}
+          </strong>
+          <br />
+          <span>
+            {l10n.getString(
+              `multi-part-onboarding-premium-welcome-feature-body-${props.name}`
+            )}
+          </span>
+        </p>
+      </li>
+    );
+  };
 
   return (
     <div className={`${styles.step} ${styles["step-welcome"]}`}>
-      <div>
+      <div className={styles["title-container"]}>
         <h2>
           {l10n.getString("multi-part-onboarding-premium-welcome-headline")}
         </h2>
         <p className={styles.lead}>
-          {l10n.getString("multi-part-onboarding-premium-welcome-subheadline")}
+          {l10n.getString(
+            "multi-part-onboarding-premium-welcome-subheadline-2"
+          )}
         </p>
       </div>
       <div className={styles.description}>
         <Image src={WomanOnCouch} alt="" width={350} />
-        <p>
+        <div>
           <span className={styles["description-caption"]}>
-            {l10n.getString("onboarding-premium-title-detail")}
+            {l10n.getString(
+              "multi-part-onboarding-premium-welcome-feature-headline"
+            )}
           </span>
           <br />
-          <strong>
-            {l10n.getString(
-              "multi-part-onboarding-premium-generate-unlimited-title-2"
-            )}
-          </strong>
-          <br />
-          {l10n.getString(
-            isLargeScreen
-              ? "onboarding-premium-control-description-2"
-              : "multi-part-onboarding-premium-welcome-description-2"
-          )}
-        </p>
+          <ul className={styles["feature-item-list"]}>
+            <FeatureItem name={"unlimited-email-masks"} />
+            <FeatureItem name={"create-masks-on-the-go"} />
+            <FeatureItem name={"custom-inbox-controls"} />
+            <FeatureItem name={"anonymous-replies"} />
+          </ul>
+        </div>
       </div>
     </div>
   );
@@ -284,66 +304,13 @@ const StepOne = () => {
 type Step2Props = {
   profile: ProfileData;
   onPickSubdomain: (subdomain: string) => void;
+  onNextStep: (step: number) => void;
 };
 const StepTwo = (props: Step2Props) => {
   const l10n = useL10n();
+  const [showSubdomainConfirmation, setShowSubdomainConfirmation] =
+    useState(false);
 
-  const subdomain =
-    typeof props.profile.subdomain === "string" ? (
-      <p className={styles["action-complete"]}>
-        <span className={styles.label}>
-          <CheckBadgeIcon alt="" width={18} height={18} />
-          {l10n.getString("profile-label-subdomain")}
-        </span>
-        <samp>@{props.profile.subdomain}</samp>
-        <span className={styles.domain}>
-          .{getRuntimeConfig().mozmailDomain}
-        </span>
-      </p>
-    ) : (
-      <Step2SubdomainPicker
-        onPickSubdomain={props.onPickSubdomain}
-        profile={props.profile}
-      />
-    );
-
-  return (
-    <div className={`${styles.step} ${styles["step-custom-domain"]}`}>
-      <div>
-        <h2>{l10n.getString("multi-part-onboarding-premium-get-subdomain")}</h2>
-      </div>
-      <div className={styles.description}>
-        <Image src={WomanEmail} alt="" width={400} />
-        <div className={styles.content}>
-          <p className={styles["subdomain-description"]}>
-            <span className={styles["description-caption"]}>
-              {l10n.getString("onboarding-premium-title-detail")}
-            </span>
-            <br />
-            <strong>
-              {l10n.getString("onboarding-premium-domain-title-3")}
-            </strong>
-            <br />
-            {l10n.getString(
-              "multi-part-onboarding-premium-get-domain-description-3b",
-              {
-                mozmail: "mozmail.com",
-              }
-            )}
-          </p>
-          {subdomain}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-type Step2SubdomainPickerProps = {
-  onPickSubdomain: (subdomain: string) => void;
-  profile: ProfileData;
-};
-const Step2SubdomainPicker = (props: Step2SubdomainPickerProps) => {
-  const l10n = useL10n();
   const [chosenSubdomain, setChosenSubdomain] = useState("");
   const [partialSubdomain, setPartialSubdomain] = useState("");
 
@@ -356,13 +323,14 @@ const Step2SubdomainPicker = (props: Step2SubdomainPickerProps) => {
 
   const onConfirm = () => {
     props.onPickSubdomain(chosenSubdomain);
-    modalState.close();
+    setShowSubdomainConfirmation(true);
   };
 
   const onType = (_partial: string) => {
     setPartialSubdomain(_partial);
   };
 
+  // Opens the confirmation and success modal
   const dialog = modalState.isOpen ? (
     <SubdomainConfirmationModal
       subdomain={chosenSubdomain}
@@ -370,26 +338,78 @@ const Step2SubdomainPicker = (props: Step2SubdomainPickerProps) => {
       isSet={typeof props.profile.subdomain === "string"}
       onClose={() => modalState.close()}
       onConfirm={onConfirm}
+      onComplete={() => modalState.close()}
     />
   ) : null;
 
-  return (
+  // Switches between the custom domain search and display module
+  const subdomain = showSubdomainConfirmation ? (
+    <p className={styles["action-complete"]}>
+      <span className={styles.label}>
+        <CheckBadgeIcon alt="" width={18} height={18} />
+        {l10n.getString("multi-part-onboarding-premium-email-domain-added")}
+      </span>
+      <div>@{props.profile.subdomain}</div>
+      <span className={styles.domain}>.{getRuntimeConfig().mozmailDomain}</span>
+    </p>
+  ) : (
     <>
-      <p className={styles["subdomain-picker-heading"]}>
-        {l10n.getString("multi-part-onboarding-premium-domain-cta-2")}
-      </p>
-      <samp className={styles["domain-example"]}>
+      <div className={styles["domain-example"]}>
         ***@
         <span className={styles["customizable-part"]}>
           {partialSubdomain !== ""
             ? partialSubdomain
-            : l10n.getString("banner-register-subdomain-example-address")}
+            : l10n.getString(
+                "multi-part-onboarding-premium-email-domain-placeholder"
+              )}
         </span>
         .{getRuntimeConfig().mozmailDomain}
-      </samp>
+      </div>
       <SubdomainSearchForm onType={onType} onPick={onPick} />
-      {dialog}
     </>
+  );
+
+  return (
+    <div className={`${styles.step} ${styles["step-custom-domain"]}`}>
+      <div className={styles["title-container"]}>
+        <h2>
+          {l10n.getString(
+            "multi-part-onboarding-premium-email-domain-headline"
+          )}
+        </h2>
+      </div>
+      <div className={styles.description}>
+        <Image src={WomanEmail} alt="" width={400} />
+        <div className={styles.content}>
+          <p className={styles["subdomain-description"]}>
+            <span className={styles["description-caption"]}>
+              {l10n.getString(
+                "multi-part-onboarding-premium-email-domain-feature-headline"
+              )}
+            </span>
+            <p className={styles["description-bolded-headline"]}>
+              {l10n.getString(
+                "multi-part-onboarding-premium-email-domain-headline-create-masks-on-the-go"
+              )}
+            </p>
+            <br />
+            {!showSubdomainConfirmation ? (
+              <Localized
+                id="multi-part-onboarding-premium-email-domain-feature-body"
+                vars={{ mozmail: "mozmail.com" }}
+                elems={{
+                  p: <p />,
+                }}
+              >
+                <span />
+              </Localized>
+            ) : null}
+          </p>
+          {subdomain}
+          {dialog}
+        </div>
+      </div>
+    </div>
   );
 };
 
@@ -398,7 +418,7 @@ const StepThree = () => {
 
   return (
     <div className={`${styles.step} ${styles["step-addon"]}`}>
-      <div>
+      <div className={styles["title-container"]}>
         <StepThreeTitle />
       </div>
       <div className={styles.description}>
@@ -409,11 +429,11 @@ const StepThree = () => {
               {l10n.getString("onboarding-premium-title-detail")}
             </span>
             <br />
-            <strong>
+            <p className={styles["description-bolded-headline"]}>
               {l10n.getString("onboarding-premium-reply-title-2")}
-            </strong>
+            </p>
             <br />
-            {l10n.getString("onboarding-premium-reply-description-2")}
+            {l10n.getString("multi-part-onboarding-premium-reply-description")}
           </p>
           <AddonDescription />
           <div
@@ -423,6 +443,11 @@ const StepThree = () => {
               <CheckBadgeIcon alt="" width={18} height={18} />
               {l10n.getString("multi-part-onboarding-premium-extension-added")}
             </div>
+            <p className={`${styles["addon-description"]}`}>
+              {l10n.getString(
+                "multi-part-onboarding-premium-added-extension-body"
+              )}
+            </p>
           </div>
         </div>
       </div>
@@ -433,18 +458,11 @@ const StepThree = () => {
 const StepThreeTitle = () => {
   const l10n = useL10n();
   const isLargeScreen = useMinViewportWidth("md");
-  if (!isLargeScreen) {
-    return <h2>{l10n.getString("multi-part-onboarding-reply-headline")}</h2>;
-  }
-  return (
-    <h2>
-      {l10n.getString(
-        supportsFirefoxExtension()
-          ? "multi-part-onboarding-premium-extension-get-title"
-          : "multi-part-onboarding-premium-chrome-extension-get-title"
-      )}
-    </h2>
-  );
+  const stepThreeTitleString = isLargeScreen
+    ? l10n.getString("multi-part-onboarding-premium-add-extension-headline")
+    : l10n.getString("multi-part-onboarding-reply-headline");
+
+  return <h2>{stepThreeTitleString}</h2>;
 };
 
 interface AddonDescriptionProps {
@@ -454,53 +472,41 @@ interface AddonDescriptionProps {
   linkMessageId: string;
 }
 const getAddonDescriptionProps = () => {
-  if (supportsFirefoxExtension()) {
-    return {
-      headerMessageId: "multi-part-onboarding-premium-extension-get-title",
-      paragraphMessageId:
-        "multi-part-onboarding-premium-extension-get-description-2",
-      linkHref:
-        "https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon",
-      linkMessageId: "multi-part-onboarding-premium-extension-button-download",
-    };
-  }
-  if (supportsChromeExtension()) {
-    return {
-      headerMessageId:
-        "multi-part-onboarding-premium-chrome-extension-get-title",
-      paragraphMessageId:
-        "multi-part-onboarding-premium-chrome-extension-get-description-2",
-      linkHref:
-        "https://chrome.google.com/webstore/detail/firefox-relay/lknpoadjjkjcmjhbjpcljdednccbldeb?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon",
-      linkMessageId:
-        "multi-part-onboarding-premium-chrome-extension-button-download",
-    };
-  }
+  const linkForBrowser = supportsChromeExtension()
+    ? "https://chrome.google.com/webstore/detail/firefox-relay/lknpoadjjkjcmjhbjpcljdednccbldeb?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon"
+    : "https://addons.mozilla.org/en-CA/firefox/addon/private-relay/";
+
   return {
-    headerMessageId: "",
-    paragraphMessageId: "",
-    linkHref: "",
-    linkMessageId: "",
+    headerMessageId:
+      "multi-part-onboarding-premium-add-extension-feature-headline-create-any-site",
+    paragraphMessageId:
+      "multi-part-onboarding-premium-add-extension-feature-body",
+    linkHref: linkForBrowser,
+    linkMessageId: "multi-part-onboarding-premium-add-extension-feature-cta",
   };
 };
 
 const AddonDescription = () => {
+  const l10n = useL10n();
+
   const isLargeScreen = useMinViewportWidth("md");
-  const { headerMessageId, paragraphMessageId, linkHref, linkMessageId } =
-    getAddonDescriptionProps();
+  const { headerMessageId, paragraphMessageId } = getAddonDescriptionProps();
   if (!isLargeScreen) {
     return null;
   }
   if (supportsAnExtension()) {
     return (
-      <div className={`${styles["addon-description"]} is-hidden-with-addon`}>
-        <AddonDescriptionHeader headerMessageId={headerMessageId} />
-        <AddonDescriptionParagraph paragraphMessageId={paragraphMessageId} />
-        <AddonDescriptionLinkButton
-          linkHref={linkHref}
-          linkMessageId={linkMessageId}
-        />
-      </div>
+      <>
+        <div className={`${styles["addon-description"]} is-hidden-with-addon`}>
+          <span className={styles["description-caption"]}>
+            {l10n.getString(
+              "multi-part-onboarding-premium-add-extension-feature-headline"
+            )}
+          </span>
+          <AddonDescriptionHeader headerMessageId={headerMessageId} />
+          <AddonDescriptionParagraph paragraphMessageId={paragraphMessageId} />
+        </div>
+      </>
     );
   }
   return null;
@@ -538,7 +544,7 @@ const AddonDescriptionLinkButton = ({
     <LinkButton
       href={linkHref}
       target="_blank"
-      className={styles["get-addon-button"]}
+      className={`is-hidden-with-addon ${styles["get-addon-button"]}`}
     >
       {l10n.getString(linkMessageId)}
     </LinkButton>

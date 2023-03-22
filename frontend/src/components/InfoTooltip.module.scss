@@ -18,6 +18,7 @@
   }
 
   .tooltip {
+    @include text-body-sm;
     $triangleWidth: 10px;
     position: absolute;
     background-color: $color-white;

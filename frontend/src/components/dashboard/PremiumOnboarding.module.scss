@@ -22,6 +22,27 @@
   flex-direction: column;
   justify-content: space-evenly;
 
+  .title-container {
+    margin: $spacing-xl 0 $spacing-lg 0;
+  }
+
+  .feature-item-list {
+    list-style-type: none;
+
+    li {
+      margin: $spacing-sm 0;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: $spacing-sm;
+
+      .check-icon {
+        fill: $color-blue-50;
+        min-width: 20px; // Width of the check icons
+      }
+    }
+  }
+
   h2 {
     @include text-title-sm;
     font-family: $font-stack-firefox;
@@ -37,11 +58,19 @@
   }
 
   .description {
+    @include text-body-sm;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: $spacing-2xl;
     padding-top: $spacing-lg;
+    max-width: $content-lg;
+    align-self: center;
+
+    .description-bolded-headline {
+      @include text-body-md;
+      font-weight: 600;
+    }
 
     @media screen and #{$mq-md} {
       flex-direction: row;
@@ -102,8 +131,9 @@
     }
 
     .domain-example {
+      @include font-firefox;
       @include text-title-2xs;
-      color: $color-light-gray-70;
+      color: $color-light-gray-90;
       display: inline-block;
       padding: $spacing-md 0;
       text-overflow: ellipsis;
@@ -112,13 +142,9 @@
       max-width: 100%;
 
       .customizable-part {
-        color: $color-purple-50;
+        color: $color-violet-50;
         font-weight: 700;
       }
-    }
-
-    .subdomain-description {
-      padding: $spacing-md 0;
     }
 
     form {
@@ -131,7 +157,6 @@
         justify-content: space-between;
         align-items: center;
         margin: 0;
-        width: 80%;
       }
 
       input {

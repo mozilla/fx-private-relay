@@ -213,7 +213,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const domainSearchField = screen.getByLabelText(
-      "l10n string: [banner-choose-subdomain-input-placeholder-3], with vars: {}"
+      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}"
     );
 
     expect(domainSearchField).toBeInTheDocument();
@@ -224,7 +224,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const domainSearchField = screen.queryByLabelText(
-      "l10n string: [banner-choose-subdomain-input-placeholder-3], with vars: {}"
+      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}"
     );
 
     expect(domainSearchField).not.toBeInTheDocument();
@@ -238,7 +238,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const domainSearchField = screen.queryByLabelText(
-      "l10n string: [banner-choose-subdomain-input-placeholder-3], with vars: {}"
+      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}"
     );
 
     expect(domainSearchField).not.toBeInTheDocument();
@@ -249,7 +249,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const domainSearchField = screen.getByLabelText(
-      "l10n string: [banner-choose-subdomain-input-placeholder-3], with vars: {}"
+      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}"
     );
 
     await userEvent.type(domainSearchField, "SpoNGeBoB");
@@ -258,12 +258,12 @@ describe("The dashboard", () => {
     expect(preview).toBeInTheDocument();
 
     const searchButton = screen.getByRole("button", {
-      name: "l10n string: [banner-register-subdomain-button-search], with vars: {}",
+      name: "l10n string: [banner-set-email-domain-input-search], with vars: {}",
     });
     await userEvent.click(searchButton);
 
     const subdomainDialog = screen.getByRole("dialog", {
-      name: '[<Localized> with id [modal-domain-register-available-2] and vars: {"subdomain":"spongebob","domain":"mozmail.com"}]',
+      name: '[<Localized> with id [modal-email-domain-available] and vars: {"custom_domain_full":"spongebob.mozmail.com"}]',
     });
     expect(subdomainDialog).toBeInTheDocument();
   });
@@ -539,7 +539,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const subdomainSearchField = screen.getByLabelText(
-      "l10n string: [banner-choose-subdomain-input-placeholder-3], with vars: {}"
+      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}"
     );
 
     expect(subdomainSearchField).toBeInTheDocument();
@@ -561,7 +561,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const subdomainSearchField = screen.getByLabelText(
-      "l10n string: [banner-choose-subdomain-input-placeholder-3], with vars: {}"
+      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}"
     );
 
     await userEvent.type(subdomainSearchField, "sPoNGeBob");
@@ -570,12 +570,12 @@ describe("The dashboard", () => {
     expect(preview).toBeInTheDocument();
 
     const searchButton = screen.getByRole("button", {
-      name: "l10n string: [banner-register-subdomain-button-search], with vars: {}",
+      name: "l10n string: [banner-set-email-domain-input-search], with vars: {}",
     });
     await userEvent.click(searchButton);
 
     const subdomainDialog = screen.getByRole("dialog", {
-      name: '[<Localized> with id [modal-domain-register-available-2] and vars: {"subdomain":"spongebob","domain":"mozmail.com"}]',
+      name: '[<Localized> with id [modal-email-domain-available] and vars: {"custom_domain_full":"spongebob.mozmail.com"}]',
     });
     expect(subdomainDialog).toBeInTheDocument();
   });
@@ -590,22 +590,38 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const subdomainSearchField = screen.queryByLabelText(
-      "l10n string: [banner-choose-subdomain-input-placeholder-3], with vars: {}"
+      "l10n string: [banner-set-email-domain-input-placeholder], with vars: {}"
     );
 
     expect(subdomainSearchField).not.toBeInTheDocument();
   });
 
-  it("allows skipping the Premium onboarding", async () => {
+  it("allows skipping the custom domain set up during Premium onboarding", async () => {
     const updateFn: ProfileUpdateFn = jest.fn();
     setMockProfileDataOnce(
-      { id: 42, has_premium: true, onboarding_state: 0 },
+      { id: 42, has_premium: true, onboarding_state: 1 },
       { updater: updateFn }
     );
     render(<Profile />);
 
     const skipButton = screen.getByRole("button", {
-      name: "l10n string: [profile-label-skip], with vars: {}",
+      name: "l10n string: [multi-part-onboarding-skip], with vars: {}",
+    });
+    await userEvent.click(skipButton);
+
+    expect(updateFn).toHaveBeenCalledWith(42, { onboarding_state: 2 });
+  });
+
+  it("allows skipping the extension set up during Premium onboarding", async () => {
+    const updateFn: ProfileUpdateFn = jest.fn();
+    setMockProfileDataOnce(
+      { id: 42, has_premium: true, onboarding_state: 2 },
+      { updater: updateFn }
+    );
+    render(<Profile />);
+
+    const skipButton = screen.getByRole("button", {
+      name: "l10n string: [multi-part-onboarding-skip-download-extension], with vars: {}",
     });
     await userEvent.click(skipButton);
 

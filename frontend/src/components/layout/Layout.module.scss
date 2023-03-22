@@ -267,6 +267,7 @@ $toastify-toast-close-button: var(--toast-close-button);
   // Create a new stacking context for the content, so we can use z-indexes in
   // the content without preventing the header/mobile menu from overlapping it.
   isolation: isolate;
+  background-color: $color-light-gray-10;
 }
 
 .gray-bg {

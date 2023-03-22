@@ -8,12 +8,9 @@ import {
   usePreventScroll,
   AriaOverlayProps,
 } from "react-aria";
-import Image from "next/image";
 import styles from "./ConfirmationModal.module.scss";
-import { CheckCircleIcon } from "../../Icons";
-import PartyIllustration from "./images/success-party.svg";
+import { CheckCircleIcon, CheckIcon } from "../../Icons";
 import { SubdomainConfirmationForm } from "./ConfirmationForm";
-import { getRuntimeConfig } from "../../../config";
 import { Button } from "../../Button";
 import { useL10n } from "../../../hooks/l10n";
 import { Localized } from "../../Localized";
@@ -24,6 +21,7 @@ export type Props = {
   isSet: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  onComplete: () => void;
 };
 
 /**
@@ -48,20 +46,18 @@ const ConfirmModal = (props: Props) => {
     <PickerDialog
       title={
         <Localized
-          id="modal-domain-register-available-2"
+          id="modal-email-domain-available"
           vars={{
-            subdomain: props.subdomain,
-            domain: getRuntimeConfig().mozmailDomain,
+            custom_domain_full: `${props.subdomain}.mozmail.com`,
           }}
           elems={{
-            subdomain: <span className={styles.subdomain} />,
-            domain: <span className={styles.domain} />,
+            p: <p className={styles.subdomain} />,
           }}
         >
           <span className={styles["modal-title"]} />
         </Localized>
       }
-      headline={l10n.getString("modal-domain-register-good-news")}
+      headline={l10n.getString("modal-email-domain-good-news")}
       onClose={() => props.onClose()}
       isOpen={props.isOpen}
       isDismissable={true}
@@ -83,14 +79,12 @@ const SuccessModal = (props: Props) => {
       <PickerDialog
         title={
           <Localized
-            id="modal-domain-register-success-3"
+            id="modal-email-domain-success-subheadline"
             vars={{
-              subdomain: props.subdomain,
-              domain: getRuntimeConfig().mozmailDomain,
+              custom_domain_full: `${props.subdomain}.mozmail.com`,
             }}
             elems={{
-              subdomain: <span className={styles.subdomain} />,
-              domain: <span className={styles.domain} />,
+              p: <p className={styles.subdomain} />,
             }}
           >
             <span className={styles["modal-title"]} />
@@ -102,9 +96,45 @@ const SuccessModal = (props: Props) => {
         isDismissable={true}
       >
         <div className={styles["picked-confirmation-body"]}>
-          <Image src={PartyIllustration} alt="" />
-          <p>{l10n.getString("modal-domain-register-success-copy-2")}</p>
-          <Button onClick={() => props.onClose()}>
+          <p className={styles["picked-confirmation-body-content"]}>
+            <ul className={styles["feature-item-list"]}>
+              <li>
+                <CheckIcon alt={""} className={styles["check-icon"]} />
+                <p>
+                  <strong>
+                    {l10n.getString(
+                      "modal-email-domain-success-headline-on-the-go"
+                    )}
+                  </strong>
+                  <p>
+                    {l10n.getString(
+                      "modal-email-domain-success-body-on-the-go"
+                    )}
+                  </p>
+                </p>
+              </li>
+              <li>
+                <CheckIcon alt={""} className={styles["check-icon"]} />
+                <p>
+                  <strong>
+                    {l10n.getString(
+                      "modal-email-domain-success-headline-any-word"
+                    )}
+                  </strong>
+                  <p>
+                    {l10n.getString(
+                      "modal-email-domain-success-body-any-word",
+                      {
+                        custom_domain_full: `@${props.subdomain}.mozmail.com`,
+                      }
+                    )}
+                  </p>
+                </p>
+              </li>
+            </ul>
+          </p>
+
+          <Button onClick={() => props.onComplete()}>
             {l10n.getString("profile-label-continue")}
           </Button>
         </div>

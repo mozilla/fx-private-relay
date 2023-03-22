@@ -51,11 +51,14 @@
       border-right-style: solid;
       margin-right: $spacing-lg;
       padding-right: $spacing-lg;
+      align-self: start;
     }
 
     .action-step {
       @include text-body-sm;
-      color: $color-purple-60;
+      color: $color-violet-50;
+      margin-top: 0;
+      margin-bottom: $spacing-md;
     }
 
     h2 {
@@ -63,23 +66,13 @@
       padding: $spacing-sm 0;
     }
 
-    .example {
-      @include text-title-2xs;
-      color: $color-light-gray-90;
-      display: block;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      overflow-x: hidden;
-
-      .subdomain-part {
-        color: $color-purple-50;
-        font-weight: 700;
-      }
-    }
-
     .lead {
       @include text-body-sm;
       padding: $spacing-md 0;
+      color: $color-grey-50;
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-md;
     }
   }
 
@@ -89,6 +82,32 @@
     align-items: center;
     justify-content: space-around;
     width: 100%;
+
+    .input-wrapper {
+      width: calc($content-xs + $layout-sm);
+
+      @media screen and #{$mq-md} {
+        max-width: $content-sm;
+      }
+    }
+
+    .example {
+      @include font-firefox;
+      @include text-title-3xs;
+      color: $color-light-gray-90;
+      display: block;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow-x: hidden;
+      text-align: center;
+      margin: $spacing-md 0;
+      width: 100%;
+
+      .subdomain-part {
+        color: $color-violet-50;
+        font-weight: 700;
+      }
+    }
 
     @media screen and #{$mq-md} {
       width: 50%;
@@ -102,7 +121,6 @@
       @media screen and #{$mq-md} {
         flex-direction: row;
         justify-content: space-between;
-        align-items: center;
       }
 
       input {

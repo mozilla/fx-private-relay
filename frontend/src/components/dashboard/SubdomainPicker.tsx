@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { useOverlayTriggerState } from "react-stately";
 import { useState } from "react";
 import Image from "next/image";
@@ -9,6 +8,7 @@ import { SubdomainSearchForm } from "./subdomain/SearchForm";
 import { SubdomainConfirmationModal } from "./subdomain/ConfirmationModal";
 import { getRuntimeConfig } from "../../config";
 import { useL10n } from "../../hooks/l10n";
+import Link from "next/link";
 
 export type Props = {
   profile: ProfileData;
@@ -55,38 +55,59 @@ export const SubdomainPicker = (props: Props) => {
       isSet={typeof props.profile.subdomain === "string"}
       onClose={() => modalState.close()}
       onConfirm={onConfirm}
+      onComplete={() => modalState.close()}
     />
   ) : null;
 
   return (
     <div className={styles.card} id="mpp-choose-subdomain">
       <div className={styles.description}>
-        <span aria-hidden={true} className={styles["action-step"]}>
-          {l10n.getString("banner-label-action")}
-        </span>
-        <h2>
-          {l10n.getString("banner-register-subdomain-headline-aliases-2")}
-        </h2>
-        <samp className={styles.example} aria-hidden={true}>
+        <p aria-hidden={true} className={styles["action-step"]}>
+          {l10n.getString("banner-set-email-domain-headline-action-needed")}
+        </p>
+        <h3>{l10n.getString("banner-set-email-domain-headline")} </h3>
+        <p className={styles.lead}>
+          <dl className={styles["instruction-item"]}>
+            <dt>
+              <strong>
+                {l10n.getString("banner-set-email-domain-step-one-headline")}
+              </strong>
+            </dt>
+            <dd>{l10n.getString("banner-set-email-domain-step-one-body")}</dd>
+          </dl>
+          <dl className={styles["instruction-item"]}>
+            <dt>
+              <strong>
+                {l10n.getString("banner-set-email-domain-step-two-headline")}
+              </strong>
+            </dt>
+            <dd>
+              {l10n.getString("banner-set-email-domain-step-two-body", {
+                mozmail: "@mozmail.com",
+              })}
+            </dd>
+          </dl>
+        </p>
+        <Link
+          href="https://support.mozilla.org/en-US/kb/register-your-own-domain-firefox-relay-premium"
+          target="_blank"
+        >
+          {l10n.getString("banner-set-email-domain-learn-more")}
+        </Link>
+      </div>
+      <div className={styles.search}>
+        <div className={styles.example} aria-hidden={true}>
           ***@
           <span className={styles["subdomain-part"]}>
             {partialSubdomain !== ""
               ? partialSubdomain
-              : l10n.getString("banner-register-subdomain-example-address")}
+              : l10n.getString("banner-set-email-domain-placeholder")}
           </span>
           .{getRuntimeConfig().mozmailDomain}
-        </samp>
-        <p className={styles.lead}>
-          {l10n.getString("banner-register-subdomain-copy-2", {
-            mozmail: getRuntimeConfig().mozmailDomain,
-          })}
-        </p>
-        <Link href="/faq">
-          {l10n.getString("banner-label-data-notification-body-cta")}
-        </Link>
-      </div>
-      <div className={styles.search}>
-        <SubdomainSearchForm onType={onType} onPick={onPick} />
+        </div>
+        <div className={styles["input-wrapper"]}>
+          <SubdomainSearchForm onType={onType} onPick={onPick} />
+        </div>
         <Image
           src={Illustration}
           width={200}

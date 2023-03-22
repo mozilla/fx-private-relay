@@ -269,9 +269,8 @@ highlighted-features-section-unlimited-masks-body = Everyone gets { $mask_limit 
 highlighted-features-section-masks-on-the-go-headline = Instantly create masks on the go
 # Variables:
 #   $mozmail (string): domain used by Relay masks (mozmail.com)
-highlighted-features-section-masks-on-the-go-body = { -brand-name-relay-premium } gives you a unique { -brand-name-relay } email domain so you can instantly
-    create new masks anywhere you are. Simply add any word or phrase before the @ symbol. At a restaurant? Use restaurant@yourdomain.{ $mozmail }.
-    Shopping? Try shop@yourdomain.{ $mozmail }.
+highlighted-features-section-masks-on-the-go-body = { -brand-name-relay-premium } gives you a unique { -brand-name-relay } email domain so you can instantly 
+    create new masks anywhere you are. Simply add any word or phrase before the @ symbol. Shopping? Try shop@yourdomain.{ $mozmail }.
 
 # Item 3
 
@@ -297,4 +296,104 @@ highlighted-features-section-remove-trackers-body = { -brand-name-relay } can re
 landing-faq-headline = Top questions about { -brand-name-firefox-relay }
 landing-faq-cta = See more FAQs about { -brand-name-firefox-relay }
 
-faq-question-landing-page-availability = Free { -brand-name-relay } is available in most countries. { -brand-name-relay-premium } email masking is available in the United States, Germany, United Kingdom, Canada, Singapore, Malaysia, New Zealand, France, Belgium, Austria, Spain, Italy, Switzerland, Netherlands, and Ireland. { -brand-name-relay-premium } phone masking is only available in the US and Canada.
+faq-question-landing-page-availability = Free { -brand-name-relay } is available in most countries. { -brand-name-relay-premium } email masking is available in the United States, Germany, United Kingdom, Canada, Singapore, Malaysia, New Zealand, France, Belgium, Austria, Spain, Italy, Switzerland, Netherlands, and Ireland. { -brand-name-relay-premium } phone masking is only available in the US and Canada. 
+
+## Step 1 Premium Onboarding
+
+multi-part-onboarding-premium-welcome-headline = Welcome to { -brand-name-relay-premium }
+multi-part-onboarding-premium-welcome-subheadline-2 = Let’s set you up to get the most out of your { -brand-name-premium } account.
+multi-part-onboarding-premium-welcome-feature-headline = With { -brand-name-firefox-relay-premium } you get:
+multi-part-onboarding-premium-welcome-feature-headline-unlimited-email-masks = Unlimited email masks
+multi-part-onboarding-premium-welcome-feature-body-unlimited-email-masks = Enhance your privacy and security with a unique mask for every site
+multi-part-onboarding-premium-welcome-feature-headline-create-masks-on-the-go = Instantly create masks on-the-go
+multi-part-onboarding-premium-welcome-feature-body-create-masks-on-the-go = Get a unique { -brand-name-relay } email domain for instant, easy-to-remember mask creation
+multi-part-onboarding-premium-welcome-feature-headline-custom-inbox-controls = Custom inbox controls
+multi-part-onboarding-premium-welcome-feature-body-custom-inbox-controls = Control the type of emails that get forwarded to your inbox
+multi-part-onboarding-premium-welcome-feature-headline-anonymous-replies = Anonymous replies
+multi-part-onboarding-premium-welcome-feature-body-anonymous-replies = Respond to forwarded emails without sharing your real email address
+multi-part-onboarding-premium-welcome-feature-cta = Set up { -brand-name-relay-premium }
+
+## Step 2 Set Custom Domain
+
+multi-part-onboarding-premium-email-domain-headline = Set your unique { -brand-name-relay } email domain
+multi-part-onboarding-premium-email-domain-feature-headline = With a unique { -brand-name-relay } email domain you can:
+multi-part-onboarding-premium-email-domain-headline-create-masks-on-the-go = Instantly create masks on-the-go
+# Variables:
+#   $mozmail (string): domain used by Relay masks (mozmail.com)
+# "yourdomain" is used as an example custom domain. Keep it lowercase without space, to resemble and actual email address. Example: shopping@johndoe.mozmail.com
+multi-part-onboarding-premium-email-domain-feature-body = Select your preferred { -brand-name-relay } email domain, then instantly create new masks by adding any word or phrase before the @ symbol. <p>Shopping? Use shop@yourdomain.{ $mozmail }.</p>
+multi-part-onboarding-premium-email-domain-feature-input-placeholder = Search a word or phrase
+multi-part-onboarding-premium-email-domain-feature-input-search = Search
+# This string is used in the example subdomain mask. Keep it lowercase and
+# without spaces, to resemble an actual email address, and make sure it’s
+# translated consistently across other strings.
+multi-part-onboarding-premium-email-domain-placeholder = yourdomain
+multi-part-onboarding-premium-email-domain-added = Your email domain:
+
+## Step 3 Add Relay Extension
+
+multi-part-onboarding-premium-add-extension-headline = Add the { -brand-name-relay } extension
+multi-part-onboarding-premium-add-extension-feature-headline = With the { -brand-name-relay } extension you can: 
+multi-part-onboarding-premium-add-extension-feature-headline-create-any-site = Create new { -brand-name-relay } masks from any website
+multi-part-onboarding-premium-add-extension-feature-body = The { -brand-name-relay } extension lets you instantly create new masks whenever websites ask for your email address — just look for the { -brand-name-relay } icon.
+multi-part-onboarding-premium-add-extension-feature-cta = Add { -brand-name-relay } extension
+
+## Step 3 Relay Extension Added
+
+multi-part-onboarding-premium-extension-added = { -brand-name-relay } extension added!
+multi-part-onboarding-premium-added-extension-body = You’ll no longer need to sign into { -brand-name-relay } to generate a new mask — just look for the Relay icon when websites ask for your email address.
+
+multi-part-onboarding-premium-extension-button-dashboard = Go to Dashboard
+multi-part-onboarding-skip = Skip, I’ll set this up later
+multi-part-onboarding-skip-download-extension = Skip, I’ll download the extension later
+multi-part-onboarding-continue = Continue
+
+## Set domain banner
+
+banner-set-email-domain-headline-action-needed = Action needed
+banner-set-email-domain-headline = Set your unique { -brand-name-relay } email domain
+banner-set-email-domain-step-one-headline = Select your preferred { -brand-name-relay } email domain
+banner-set-email-domain-step-one-body = It’s part of your email after the @ symbol.
+banner-set-email-domain-step-two-headline = Use it to instantly create custom { -brand-name-relay } masks
+# Variables:
+#   $mozmail (string): domain used by Relay masks (mozmail.com)
+# "yourdomain" is used as an example custom domain. Keep it lowercase without space, to resemble and actual email address. Example: shopping@johndoe.mozmail.com
+banner-set-email-domain-step-two-body = Just add a word or phrase before the @ symbol. Shopping? Use shop@yourdomain.{ $mozmail }.
+banner-set-email-domain-input-placeholder-label = Search an email domain
+banner-set-email-domain-input-placeholder = Search a word or phrase
+banner-set-email-domain-input-search = Search
+# This string is used in the example subdomain mask. Keep it lowercase and
+# without spaces, to resemble an actual email address, and make sure it’s
+# translated consistently across other strings.
+banner-set-email-domain-placeholder = yourdomain
+banner-set-email-domain-learn-more = Learn more
+
+modal-email-domain-good-news = Good news!
+# Variables:
+#   $custom-domain-full (string) - This is the full custom domain mask the user wants to use for custom domain-based relay addresses. E.g. @customdomain.mozmail.com is available
+modal-email-domain-available = <p>{ $custom_domain_full }</p> is available
+modal-email-domain-available-body = You can only register one unique { -brand-name-relay } email domain. <p>You won’t be able to change this later.</p>
+modal-email-domain-cancel = Cancel
+modal-email-domain-register = Register
+modal-domain-register-success-title = Success!
+# Variables:
+#   $custom-domain-full (string) - This is the full custom domain mask the user wants to use for custom domain-based relay addresses. E.g. @customdomain.mozmail.com is now your unique email domain!
+modal-email-domain-success-subheadline = <p>{ $custom_domain_full }</p> is now your { -brand-name-relay } email domain!
+modal-email-domain-success-headline-on-the-go = Use this to generate new { -brand-name-relay } masks on-the-go
+modal-email-domain-success-body-on-the-go =  No need to sign into { -brand-name-relay } to create a new mask. 
+modal-email-domain-success-headline-any-word = Create unlimited masks by adding any word or phrase
+# Variables:
+#   $custom-domain-full (string) - This is the full custom domain mask the user wants to use for custom domain-based relay addresses. E.g. @customdomain.mozmail.com is now your unique email domain!
+modal-email-domain-success-body-any-word = Shopping? Use store{ $custom_domain_full }.
+modal-email-domain-success-continue = Continue
+
+tooltip-email-domain-explanation-part-one = This valuable feature of your { -brand-name-relay-premium } account lets you choose a unique { -brand-name-relay } email domain that you can use to create unlimited, custom { -brand-name-relay } masks on the go.  
+tooltip-email-domain-explanation-part-two = There’s no need to sign into { -brand-name-relay } to generate a new mask; Simply add any word or phrase before the @ symbol of your { -brand-name-relay } email domain to instantly create a new mask anywhere you are. 
+# Variables:
+#   $mozmail (string): domain used by Relay masks (mozmail.com)
+# "yourdomain" is used as an example custom domain. Keep it lowercase without space, to resemble and actual email address. Example: shopping@johndoe.mozmail.com
+tooltip-email-domain-explanation-part-three = At a restaurant? Use restaurant@yourdomain.{ $mozmail }. <p>Shopping? Try shop@yourdomain.{ $mozmail }</p>
+
+## Update reply description onboarding step
+
+multi-part-onboarding-premium-reply-description = Reply to emails without giving away your real address
