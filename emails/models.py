@@ -87,7 +87,11 @@ class Profile(models.Model):
     num_address_deleted = models.PositiveIntegerField(default=0)
     date_subscribed = models.DateTimeField(blank=True, null=True)
     date_subscribed_phone = models.DateTimeField(blank=True, null=True)
+    # TODO: delete date_phone_subscription_checked in favor of date_phone_subscription_next_reset
     date_phone_subscription_checked = models.DateTimeField(blank=True, null=True)
+    date_phone_subscription_start = models.DateTimeField(blank=True, null=True)
+    date_phone_subscription_reset = models.DateTimeField(blank=True, null=True)
+    date_phone_subscription_end = models.DateTimeField(blank=True, null=True)
     address_last_deleted = models.DateTimeField(blank=True, null=True, db_index=True)
     last_soft_bounce = models.DateTimeField(blank=True, null=True, db_index=True)
     last_hard_bounce = models.DateTimeField(blank=True, null=True, db_index=True)

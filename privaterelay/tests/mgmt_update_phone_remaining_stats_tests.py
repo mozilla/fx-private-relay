@@ -7,6 +7,10 @@ import pytest
 
 from django.conf import settings
 
+from allauth.socialaccount.models import SocialAccount
+from model_bakery import baker
+from waffle.models import Flag
+
 pytestmark = pytest.mark.skipif(
     not settings.PHONES_ENABLED, reason="PHONES_ENABLED is False"
 )
@@ -15,15 +19,15 @@ from emails.models import Profile
 
 if settings.PHONES_ENABLED:
     from phones.tests.models_tests import make_phone_test_user
+    from phones.models import RealPhone, RelayNumber
 
-from api.tests.phones_views_tests import (
-    _make_real_phone,
-    _make_relay_number,
-    mocked_twilio_client,
-)
-from ..management.commands.update_phone_remaining_stats import (
+from api.tests.phones_views_tests import mocked_twilio_client
+from privaterelay.management.commands.update_phone_remaining_stats import (
     update_phone_remaining_stats,
 )
+
+
+MOCK_BASE = "privaterelay.management.commands.update_phone_remaining_stats"
 
 
 @pytest.fixture()
@@ -32,63 +36,233 @@ def phone_user(db):
 
 
 def test_no_accounts_with_phones(db):
-    update_phone_remaining_stats()
+    num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
+    assert num_profiles_w_phones == 0
+    assert num_profiles_updated == 0
 
 
-def test_one_account_with_phones_checked_1_day_ago(phone_user):
-    profile = Profile.objects.get(user=phone_user)
-    pre_update_datetime = datetime.now(timezone.utc) - timedelta(1)
-    profile.date_phone_subscription_checked = pre_update_datetime
-    profile.save()
+@pytest.fixture
+def patch_datetime_now():
+    """
+    Selectively patch datatime.now() for emails models
 
-    updated_profiles = update_phone_remaining_stats()
+    https://docs.python.org/3/library/unittest.mock-examples.html#partial-mocking
+    """
+    with patch(f"{MOCK_BASE}.datetime") as mocked_datetime:
+        expected_now = datetime.now(timezone.utc)
+        mocked_datetime.combine.return_value = datetime.combine(
+            expected_now.date(), datetime.min.time()
+        )
+        mocked_datetime.now.return_value = expected_now
+        mocked_datetime.side_effect = lambda *args, **kw: datetime(*args, **kw)
+        yield expected_now
 
-    profile.refresh_from_db()
-    assert profile.date_phone_subscription_checked == pre_update_datetime
-    assert len(updated_profiles) == 0
+
+@pytest.fixture
+def mock_free_phones_profile(db):
+    account = baker.make(SocialAccount, provider="fxa")
+    profile = Profile.objects.get(user=account.user)
+    baker.make(Flag, name="free_phones")
+    free_phones_flag = Flag.objects.filter(name="free_phones").first()
+    free_phones_flag.users.add(profile.user)
+    yield profile
 
 
-def test_one_account_with_phones_checked_31_day_ago_no_relay_number(phone_user):
-    profile = Profile.objects.get(user=phone_user)
-    pre_update_datetime = datetime.now(timezone.utc) - timedelta(31)
-    profile.date_phone_subscription_checked = pre_update_datetime
-    profile.save()
-
-    with patch(
-        "privaterelay.management.commands.update_phone_remaining_stats.update_fxa"
-    ):
-        updated_profiles = update_phone_remaining_stats()
-
-    profile.refresh_from_db()
-    assert (
-        profile.date_phone_subscription_checked.date()
-        == datetime.now(timezone.utc).today().date()
+def _make_used_relay_number(user):
+    baker.make(RealPhone, user=user, verified=True)
+    relay_number = baker.make(
+        RelayNumber, user=user, remaining_texts=10, remaining_seconds=15
     )
-    assert len(updated_profiles) == 1
-    assert profile in updated_profiles
+    return relay_number
 
 
-def test_one_account_with_phones_checked_31_day_ago_with_relay_number(phone_user):
-    profile = Profile.objects.get(user=phone_user)
-    pre_update_datetime = datetime.now(timezone.utc) - timedelta(31)
-    profile.date_phone_subscription_checked = pre_update_datetime
-    profile.save()
-    _make_real_phone(phone_user, verified=True)
-    relay_number = _make_relay_number(phone_user)
-    relay_number.remaining_texts = 6
-    relay_number.remaining_seconds = 25 * 60
-    relay_number.save()
-
-    with patch(
-        "privaterelay.management.commands.update_phone_remaining_stats.update_fxa"
-    ):
-        updated_profiles = update_phone_remaining_stats()
+def test_free_phone_user_with_no_date_phone_subscription_reset_gets_phone_limits_updated(
+    patch_datetime_now, mock_free_phones_profile
+):
+    profile = mock_free_phones_profile
+    relay_number = _make_used_relay_number(profile.user)
+    expected_now = patch_datetime_now
+    num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
 
     profile.refresh_from_db()
+    assert profile.date_phone_subscription_reset == expected_now
+    assert num_profiles_w_phones == 1
+    assert num_profiles_updated == 1
     relay_number.refresh_from_db()
-    assert profile.date_phone_subscription_checked >= pre_update_datetime
-    assert len(updated_profiles) == 1
-    assert profile in updated_profiles
+    assert relay_number.remaining_texts == settings.MAX_TEXTS_PER_BILLING_CYCLE
+    assert relay_number.remaining_seconds == settings.MAX_MINUTES_PER_BILLING_CYCLE * 60
+
+
+def test_free_phone_user_with_no_date_phone_subscription_end_does_not_get_reset_date_updated(
+    patch_datetime_now, mock_free_phones_profile
+):
+    profile = mock_free_phones_profile
+    relay_number = _make_used_relay_number(profile.user)
+    expected_now = patch_datetime_now
+    profile.date_phone_subscription_reset = expected_now - timedelta(15)
+    profile.save()
+
+    num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
+
+    profile.refresh_from_db()
+    assert profile.date_phone_subscription_reset == expected_now - timedelta(15)
+    assert num_profiles_w_phones == 1
+    assert num_profiles_updated == 0
+    relay_number.refresh_from_db()
+    assert relay_number.remaining_texts == 10
+    assert relay_number.remaining_seconds == 15
+
+
+def test_free_phone_user_with_no_date_phone_subscription_end_phone_limits_updated(
+    patch_datetime_now, mock_free_phones_profile
+):
+    profile = mock_free_phones_profile
+    relay_number = _make_used_relay_number(profile.user)
+    expected_now = patch_datetime_now
+    profile.date_phone_subscription_reset = expected_now - timedelta(45)
+    profile.save()
+
+    num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
+
+    profile.refresh_from_db()
+    assert profile.date_phone_subscription_reset == expected_now
+    assert num_profiles_w_phones == 1
+    assert num_profiles_updated == 1
+    relay_number.refresh_from_db()
+    assert relay_number.remaining_texts == settings.MAX_TEXTS_PER_BILLING_CYCLE
+    assert relay_number.remaining_seconds == settings.MAX_MINUTES_PER_BILLING_CYCLE * 60
+
+
+def test_phone_subscriber_subscribed_3_day_ago_wo_date_phone_subscription_reset_does_phone_limits_updated(
+    patch_datetime_now, phone_user
+):
+    # any users phone users whose date_phone_subscription_reset was not set
+    # will get their limits reset and reset date set today
+    expected_now = patch_datetime_now
+    profile = Profile.objects.get(user=phone_user)
+    profile.date_subscribed_phone = expected_now - timedelta(3)
+    profile.save()
+    relay_number = _make_used_relay_number(phone_user)
+
+    num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
+
+    profile.refresh_from_db()
+    assert profile.date_phone_subscription_reset == expected_now
+    assert num_profiles_w_phones == 1
+    assert num_profiles_updated == 1
+    relay_number.refresh_from_db()
+    assert relay_number.remaining_texts == settings.MAX_TEXTS_PER_BILLING_CYCLE
+    assert relay_number.remaining_seconds == settings.MAX_MINUTES_PER_BILLING_CYCLE * 60
+
+
+def test_phone_subscriber_w_phones_reset_1_day_ago_does_not_update_stats(
+    patch_datetime_now, phone_user
+):
+    expected_now = patch_datetime_now
+    profile = Profile.objects.get(user=phone_user)
+    reset_datetime = expected_now - timedelta(1)
+    profile.date_phone_subscription_reset = reset_datetime
+    profile.save()
+    relay_number = _make_used_relay_number(phone_user)
+
+    num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
+
+    profile.refresh_from_db()
+    assert profile.date_phone_subscription_reset == reset_datetime
+    assert num_profiles_w_phones == 1
+    assert num_profiles_updated == 0
+    relay_number.refresh_from_db()
+    assert relay_number.remaining_texts == 10
+    assert relay_number.remaining_seconds == 15
+
+
+def test_phone_subscriber_wo_date_phone_subscription_reset_and_no_relay_number_reset_date_updated(
+    patch_datetime_now, phone_user
+):
+    expected_now = patch_datetime_now
+    profile = Profile.objects.get(user=phone_user)
+    profile.save()
+
+    num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
+
+    profile.refresh_from_db()
+    assert profile.date_phone_subscription_reset == expected_now
+    assert num_profiles_w_phones == 1
+    assert num_profiles_updated == 1
+
+
+def test_phone_subscriber_w_date_phone_subscription_reset_31_days_ago_and_no_relay_number_reset_date_updated(
+    patch_datetime_now, phone_user
+):
+    expected_now = patch_datetime_now
+    profile = Profile.objects.get(user=phone_user)
+    profile.date_phone_subscription_reset = expected_now - timedelta(31)
+    profile.save()
+
+    num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
+
+    profile.refresh_from_db()
+    assert profile.date_phone_subscription_reset == expected_now
+    assert num_profiles_w_phones == 1
+    assert num_profiles_updated == 1
+
+
+def test_phone_subscriber_with_phones_reset_31_day_ago_phone_limits_updated(
+    patch_datetime_now, phone_user
+):
+    expected_now = patch_datetime_now
+    profile = Profile.objects.get(user=phone_user)
+    profile.date_phone_subscription_reset = expected_now - timedelta(31)
+    profile.save()
+    relay_number = _make_used_relay_number(phone_user)
+
+    num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
+
+    profile.refresh_from_db()
+    assert profile.date_phone_subscription_reset == expected_now
+    assert num_profiles_w_phones == 1
+    assert num_profiles_updated == 1
+    relay_number.refresh_from_db()
+    assert relay_number.remaining_texts == settings.MAX_TEXTS_PER_BILLING_CYCLE
+    assert relay_number.remaining_minutes == settings.MAX_MINUTES_PER_BILLING_CYCLE
+    assert relay_number.remaining_seconds == settings.MAX_MINUTES_PER_BILLING_CYCLE * 60
+
+
+def test_phone_subscriber_with_subscription_end_date_sooner_than_31_days_since_reset_phone_limits_updated(
+    phone_user,
+):
+    datetime_now = datetime.now(timezone.utc)
+    datetime_first_of_march = datetime_now.replace(month=3, day=1)
+    profile = Profile.objects.get(user=phone_user)
+    profile.date_subscribed_phone = datetime_now.replace(month=1, day=1)
+    new_subscription_start_and_previous_reset_date = datetime_now.replace(
+        month=2, day=1
+    )
+    profile.date_phone_subscription_start = (
+        new_subscription_start_and_previous_reset_date
+    )
+    profile.date_phone_subscription_end = datetime_first_of_march
+    profile.date_phone_subscription_reset = (
+        new_subscription_start_and_previous_reset_date
+    )
+    profile.save()
+    relay_number = _make_used_relay_number(phone_user)
+
+    # today needs to be pinned to Mar 1-3 to check that the subscription end date was used
+    # instead of calculated reset date
+    with patch(f"{MOCK_BASE}.datetime") as mocked_datetime:
+        mocked_datetime.combine.return_value = datetime.combine(
+            datetime_first_of_march.date(), datetime.min.time()
+        )
+        mocked_datetime.now.return_value = datetime_first_of_march
+        mocked_datetime.side_effect = lambda *args, **kw: datetime(*args, **kw)
+        num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
+
+    profile.refresh_from_db()
+    assert profile.date_phone_subscription_reset == datetime_first_of_march
+    assert num_profiles_w_phones == 1
+    assert num_profiles_updated == 1
+    relay_number.refresh_from_db()
     assert relay_number.remaining_texts == settings.MAX_TEXTS_PER_BILLING_CYCLE
     assert relay_number.remaining_minutes == settings.MAX_MINUTES_PER_BILLING_CYCLE
     assert relay_number.remaining_seconds == settings.MAX_MINUTES_PER_BILLING_CYCLE * 60
