@@ -37,9 +37,7 @@ const SuccessModal = (props: Props) => {
         onClose={() => props.onClose()}
         isDismissable={true}
       >
-        <div className={styles["picked-confirmation-body"]}>
-          something goes here
-        </div>
+        <div className={styles["picked-confirmation-body"]}>Body goes here</div>
       </PickerDialog>
     </div>
   );
