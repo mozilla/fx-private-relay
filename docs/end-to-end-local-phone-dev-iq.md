@@ -6,10 +6,10 @@ So, a full local end-to-end phone setup works like this:
 ```mermaid
 sequenceDiagram
 
-    555-555-5555->>inteliqent: SMS
+    555-555-5555->>inteliquent: SMS
     inteliquent->>your-domain.loca.lt (127.0.0.1): POST /api/v1/inbound_sms_iq
-    your-domain.loca.lt (127.0.0.1)->>inteliqent: POST /msgbroker/rest/publishMessages
-    inteliqent->>999-999-9999: SMS
+    your-domain.loca.lt (127.0.0.1)->>inteliquent: POST /msgbroker/rest/publishMessages
+    inteliquent->>999-999-9999: SMS
 
 ```
 
