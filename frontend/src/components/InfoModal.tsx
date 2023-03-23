@@ -60,15 +60,6 @@ const PickerDialog = (props: PickerDialogProps & AriaOverlayProps) => {
   return (
     <div className={styles.underlay} {...underlayProps}>
       <FocusScope contain restoreFocus autoFocus>
-        {props.exitBtn ? (
-          <button
-            {...cancelButton.buttonProps}
-            ref={cancelButtonRef}
-            className={styles["dismiss-button"]}
-          >
-            <CloseIcon alt="" />
-          </button>
-        ) : null}
         <div
           className={styles["dialog-wrapper"]}
           {...overlayProps}
@@ -76,10 +67,21 @@ const PickerDialog = (props: PickerDialogProps & AriaOverlayProps) => {
           {...modalProps}
           ref={wrapperRef}
         >
-          <div className={styles.hero}>
-            <h3 className={styles.headline}>{props.headline}</h3>
+          {props.exitBtn ? (
+            <button
+              {...cancelButton.buttonProps}
+              ref={cancelButtonRef}
+              className={styles["dismiss-button"]}
+            >
+              <CloseIcon alt="" />
+            </button>
+          ) : null}
+          <div className={styles["dialog-container"]}>
+            <div className={styles.hero}>
+              <h3 className={styles.headline}>{props.headline}</h3>
+            </div>
+            <div className={styles["modal-body"]}>{props.body}</div>
           </div>
-          <div className={styles["modal-body"]}>{props.body}</div>
         </div>
       </FocusScope>
     </div>

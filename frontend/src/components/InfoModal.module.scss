@@ -13,48 +13,59 @@
   top: 0;
 
   .dialog-wrapper {
-    $illustrationOverlap: $spacing-lg;
     background: $color-white;
     border-radius: $border-radius-md;
     box-shadow: $box-shadow-sm;
     max-width: 90%;
-    padding: $spacing-md;
+    position: relative;
     width: calc((#{$content-sm} + #{$content-md}) / 2); // 560px
 
-    .hero {
-      padding: $spacing-md 0;
-      position: relative;
-      text-align: start;
+    .dismiss-button {
+      align-items: center;
+      background-color: transparent;
+      border-radius: $border-radius-sm;
+      border-style: none;
+      cursor: pointer;
+      display: flex;
+      height: 30px;
+      justify-content: center;
+      position: absolute;
+      right: $spacing-sm;
+      top: $spacing-sm;
+      width: 30px;
 
-      .headline {
-        @include text-title-3xs;
-        font-family: $font-stack-firefox;
-        font-weight: 700;
-      }
-
-      .dismiss-button {
-        align-items: center;
-        background-color: transparent;
-        border-radius: $border-radius-sm;
-        border-style: none;
-        cursor: pointer;
-        display: flex;
-        height: 30px;
-        justify-content: center;
-        position: absolute;
-        right: $spacing-sm;
-        top: $spacing-sm;
-        width: 30px;
-
-        &:hover {
-          background-color: $color-blue-50;
-          color: $color-white;
-        }
+      &:hover {
+        background-color: $color-blue-50;
+        color: $color-white;
       }
     }
 
-    .modal-body {
-      @include text-body-sm;
+    .dialog-container {
+      padding: $spacing-md;
+
+      @media screen and #{$mq-md} {
+        padding: $spacing-lg $spacing-xl;
+      }
+
+      .hero {
+        padding: $spacing-sm 0;
+        text-align: start;
+        width: 90%; // Shorter width to make room for the close button on mobile
+
+        @media screen and #{$mq-md} {
+          width: 100%;
+        }
+
+        .headline {
+          @include text-title-3xs;
+          font-family: $font-stack-firefox;
+          font-weight: 700;
+        }
+      }
+
+      .modal-body {
+        @include text-body-sm;
+      }
     }
   }
 }
