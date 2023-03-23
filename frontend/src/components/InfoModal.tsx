@@ -1,4 +1,4 @@
-import { ReactElement, ReactNode, useRef } from "react";
+import { ReactElement, useRef } from "react";
 import {
   OverlayContainer,
   FocusScope,
@@ -10,25 +10,47 @@ import {
   useButton,
 } from "react-aria";
 import styles from "./InfoModal.module.scss";
-import { useL10n } from "../hooks/l10n";
+import { CloseIcon } from "./Icons";
 
 export type Props = {
   onClose: () => void;
+  isOpen: boolean;
+  modalTitle: string | ReactElement;
+  modalBodyText: string | ReactElement;
 };
 
 /**
- * Modal in which the user can confirm that they really want to permanently claim a given subdomain.
+ * Informational modal
  */
+
 export const InfoModal = (props: Props) => {
   return (
     <OverlayContainer>
-      <SuccessModal {...props} />
+      <PickerDialog
+        isOpen={props.isOpen}
+        headline={props.modalTitle}
+        body={props.modalBodyText}
+        onClose={() => props.onClose()}
+        isDismissable={true}
+        exitBtn={true}
+      ></PickerDialog>
     </OverlayContainer>
   );
 };
 
-const SuccessModal = (props: Props) => {
-  const l10n = useL10n();
+type PickerDialogProps = {
+  headline: string | ReactElement;
+  body: string | ReactElement;
+  isOpen: boolean;
+  onClose: () => void;
+  exitBtn: boolean;
+};
+const PickerDialog = (props: PickerDialogProps & AriaOverlayProps) => {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const { overlayProps, underlayProps } = useOverlay(props, wrapperRef);
+  usePreventScroll();
+  const { modalProps } = useModal();
+  const { dialogProps } = useDialog({}, wrapperRef);
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const cancelButton = useButton(
     { onPress: () => props.onClose() },
@@ -36,42 +58,17 @@ const SuccessModal = (props: Props) => {
   );
 
   return (
-    <div className={styles["picked-confirmation"]}>
-      <PickerDialog
-        title="title"
-        headline="headline"
-        onClose={() => props.onClose()}
-        isDismissable={true}
-      >
-        <div className={styles["picked-confirmation-body"]}>Body goes here</div>
-        <button
-          {...cancelButton.buttonProps}
-          ref={cancelButtonRef}
-          className={styles["cancel-button"]}
-        >
-          {l10n.getString("profile-label-cancel")}
-        </button>
-      </PickerDialog>
-    </div>
-  );
-};
-
-type PickerDialogProps = {
-  title: string | ReactElement;
-  headline: string;
-  children: ReactNode;
-  onClose?: () => void;
-};
-const PickerDialog = (props: PickerDialogProps & AriaOverlayProps) => {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const { overlayProps, underlayProps } = useOverlay(props, wrapperRef);
-  usePreventScroll();
-  const { modalProps } = useModal();
-  const { dialogProps, titleProps } = useDialog({}, wrapperRef);
-
-  return (
     <div className={styles.underlay} {...underlayProps}>
       <FocusScope contain restoreFocus autoFocus>
+        {props.exitBtn ? (
+          <button
+            {...cancelButton.buttonProps}
+            ref={cancelButtonRef}
+            className={styles["dismiss-button"]}
+          >
+            <CloseIcon alt="" />
+          </button>
+        ) : null}
         <div
           className={styles["dialog-wrapper"]}
           {...overlayProps}
@@ -80,10 +77,9 @@ const PickerDialog = (props: PickerDialogProps & AriaOverlayProps) => {
           ref={wrapperRef}
         >
           <div className={styles.hero}>
-            <span className={styles.headline}>{props.headline}</span>
-            <h3 {...titleProps}>{props.title}</h3>
+            <h3 className={styles.headline}>{props.headline}</h3>
           </div>
-          {props.children}
+          <div className={styles["modal-body"]}>{props.body}</div>
         </div>
       </FocusScope>
     </div>

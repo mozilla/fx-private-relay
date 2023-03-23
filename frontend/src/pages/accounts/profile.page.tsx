@@ -53,7 +53,6 @@ import { PremiumPromoBanners } from "../../components/dashboard/PremiumPromoBann
 import { useL10n } from "../../hooks/l10n";
 import { Localized } from "../../components/Localized";
 import { InfoModal } from "../../components/InfoModal";
-import { InfoTooltip } from "../../components/InfoTooltip";
 
 const Profile: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -235,8 +234,33 @@ const Profile: NextPage = () => {
     <button onClick={() => modalState.open()}>icon here</button>
   );
 
+  const subdomainExplanationBody = (
+    <>
+      <p>{l10n.getString("tooltip-email-domain-explanation-part-one")}</p>
+      <br />
+      <p>{l10n.getString("tooltip-email-domain-explanation-part-two")}</p>
+      <br />
+      <p>
+        <Localized
+          id="tooltip-email-domain-explanation-part-three"
+          vars={{ mozmail: "mozmail.com" }}
+          elems={{
+            p: <p />,
+          }}
+        >
+          <span />
+        </Localized>
+      </p>
+    </>
+  );
+
   const subdomainInfoModal = modalState.isOpen ? (
-    <InfoModal onClose={() => modalState.close()} />
+    <InfoModal
+      isOpen={modalState.isOpen}
+      onClose={() => modalState.close()}
+      modalTitle={l10n.getString("tooltip-email-domain-explanation-title")}
+      modalBodyText={subdomainExplanationBody}
+    />
   ) : null;
 
   // Non-Premium users have only five aliases, making the stats less insightful,

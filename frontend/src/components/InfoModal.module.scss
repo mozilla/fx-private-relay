@@ -2,76 +2,59 @@
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 
 .underlay {
-  position: fixed;
-  background-color: rgba($color-black, 0.4);
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
   align-items: center;
+  background-color: rgba($color-black, 0.4);
+  bottom: 0;
+  display: flex;
   justify-content: center;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
 
   .dialog-wrapper {
+    $illustrationOverlap: $spacing-lg;
     background: $color-white;
-    width: calc((#{$content-sm} + #{$content-md}) / 2); // 560px
-    max-width: 90%;
     border-radius: $border-radius-md;
     box-shadow: $box-shadow-sm;
+    max-width: 90%;
     padding: $spacing-md;
-
-    $illustrationOverlap: $spacing-lg;
+    width: calc((#{$content-sm} + #{$content-md}) / 2); // 560px
 
     .hero {
-      @include text-title-3xs;
-      font-family: $font-stack-firefox;
-      font-weight: 700;
-      text-align: center;
-      border-radius: $border-radius-md;
-      background-color: $color-light-gray-10;
-      padding: $spacing-lg $spacing-md;
-
-      .picked-confirmation & {
-        padding-bottom: $illustrationOverlap + $spacing-lg;
-      }
+      padding: $spacing-md 0;
+      position: relative;
+      text-align: start;
 
       .headline {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: $spacing-sm 0;
-        gap: $spacing-sm;
+        @include text-title-3xs;
+        font-family: $font-stack-firefox;
+        font-weight: 700;
       }
 
-      .modal-title {
-        font-weight: 400;
+      .dismiss-button {
+        align-items: center;
+        background-color: transparent;
+        border-radius: $border-radius-sm;
+        border-style: none;
+        cursor: pointer;
+        display: flex;
+        height: 30px;
+        justify-content: center;
+        position: absolute;
+        right: $spacing-sm;
+        top: $spacing-sm;
+        width: 30px;
 
-        .subdomain {
-          @include text-title-xs;
-          display: block;
-          font-weight: 700;
-          margin-bottom: $spacing-sm;
-          padding: $spacing-sm 0;
-
-          &::before {
-            content: "@";
-          }
+        &:hover {
+          background-color: $color-blue-50;
+          color: $color-white;
         }
       }
     }
 
-    .picked-confirmation-body {
-      display: flex;
-      flex-direction: column;
-      gap: $spacing-md;
-      align-items: center;
-      margin-top: -1 * $illustrationOverlap;
-
-      p {
-        @include text-body-xs;
-        text-align: center;
-        padding: 0 $spacing-2xl;
-      }
+    .modal-body {
+      @include text-body-sm;
     }
   }
 }
