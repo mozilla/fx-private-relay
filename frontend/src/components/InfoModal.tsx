@@ -7,6 +7,7 @@ import {
   useOverlay,
   usePreventScroll,
   AriaOverlayProps,
+  useButton,
 } from "react-aria";
 import styles from "./InfoModal.module.scss";
 import { useL10n } from "../hooks/l10n";
@@ -28,6 +29,11 @@ export const InfoModal = (props: Props) => {
 
 const SuccessModal = (props: Props) => {
   const l10n = useL10n();
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
+  const cancelButton = useButton(
+    { onPress: () => props.onClose() },
+    cancelButtonRef
+  );
 
   return (
     <div className={styles["picked-confirmation"]}>
@@ -38,6 +44,13 @@ const SuccessModal = (props: Props) => {
         isDismissable={true}
       >
         <div className={styles["picked-confirmation-body"]}>Body goes here</div>
+        <button
+          {...cancelButton.buttonProps}
+          ref={cancelButtonRef}
+          className={styles["cancel-button"]}
+        >
+          {l10n.getString("profile-label-cancel")}
+        </button>
       </PickerDialog>
     </div>
   );
