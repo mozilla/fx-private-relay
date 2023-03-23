@@ -40,6 +40,15 @@
         align-items: center;
         gap: $spacing-sm;
         color: $color-blue-50;
+
+        .info-icon {
+          align-items: center;
+          background-color: transparent;
+          border-style: none;
+          color: $color-light-gray-70;
+          cursor: pointer;
+          display: flex;
+        }
       }
 
       .profile-registered-domain-value {

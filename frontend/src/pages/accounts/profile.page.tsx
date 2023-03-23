@@ -18,7 +18,7 @@ import { useMenuTriggerState, useOverlayTriggerState } from "react-stately";
 import { toast } from "react-toastify";
 import styles from "./profile.module.scss";
 import BottomBannerIllustration from "../../../public/images/woman-couch-left.svg";
-import { CheckBadgeIcon } from "../../components/Icons";
+import { CheckBadgeIcon, InfoIcon } from "../../components/Icons";
 import { Layout } from "../../components/layout/Layout";
 import { useProfiles } from "../../hooks/api/profile";
 import {
@@ -231,7 +231,13 @@ const Profile: NextPage = () => {
   });
 
   const subdomainTooltipButton = (
-    <button onClick={() => modalState.open()}>icon here</button>
+    <button className={styles["info-icon"]} onClick={() => modalState.open()}>
+      <InfoIcon
+        alt={l10n.getString("tooltip-email-domain-explanation-title")}
+        width={18}
+        height={18}
+      />
+    </button>
   );
 
   const subdomainExplanationBody = (
