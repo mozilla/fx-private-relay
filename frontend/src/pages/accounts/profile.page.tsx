@@ -18,7 +18,7 @@ import { useMenuTriggerState, useOverlayTriggerState } from "react-stately";
 import { toast } from "react-toastify";
 import styles from "./profile.module.scss";
 import BottomBannerIllustration from "../../../public/images/woman-couch-left.svg";
-import { BellIcon, CheckBadgeIcon, InfoIcon } from "../../components/Icons";
+import { PencilIcon, CheckBadgeIcon, InfoIcon } from "../../components/Icons";
 import { Layout } from "../../components/layout/Layout";
 import { useProfiles } from "../../hooks/api/profile";
 import {
@@ -200,7 +200,7 @@ const Profile: NextPage = () => {
   const subdomainMessage =
     typeof profile.subdomain === "string" ? (
       <>
-        <span>{l10n.getString("profile-label-subdomain")}</span>
+        <span>{l10n.getString("profile-label-subdomain-2")}</span>
         <span className={styles["profile-registered-domain-value"]}>
           <SubdomainIndicator
             subdomain={profile.subdomain}
@@ -290,7 +290,7 @@ const Profile: NextPage = () => {
             {typeof profile.subdomain === "string" ? (
               <CheckBadgeIcon alt="" />
             ) : (
-              <BellIcon alt="" className={styles["bell-icon"]} />
+              <PencilIcon alt="" className={styles["bell-icon"]} />
             )}
             {subdomainMessage}
             {subdomainTooltipButton}
