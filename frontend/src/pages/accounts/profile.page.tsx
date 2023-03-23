@@ -18,7 +18,7 @@ import { useMenuTriggerState, useOverlayTriggerState } from "react-stately";
 import { toast } from "react-toastify";
 import styles from "./profile.module.scss";
 import BottomBannerIllustration from "../../../public/images/woman-couch-left.svg";
-import { CheckBadgeIcon, InfoIcon } from "../../components/Icons";
+import { BellIcon, CheckBadgeIcon, InfoIcon } from "../../components/Icons";
 import { Layout } from "../../components/layout/Layout";
 import { useProfiles } from "../../hooks/api/profile";
 import {
@@ -287,7 +287,11 @@ const Profile: NextPage = () => {
             <span className={styles.greeting} />
           </Localized>
           <strong className={styles.subdomain}>
-            <CheckBadgeIcon alt="" />
+            {typeof profile.subdomain === "string" ? (
+              <CheckBadgeIcon alt="" />
+            ) : (
+              <BellIcon alt="" className={styles["bell-icon"]} />
+            )}
             {subdomainMessage}
             {subdomainTooltipButton}
             {subdomainInfoModal}

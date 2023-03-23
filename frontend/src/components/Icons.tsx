@@ -1004,3 +1004,38 @@ export const MozillaVpnWordmark = ({
     </svg>
   );
 };
+
+// Keywords: subdomainset, notification, bell, ring, alert
+export const BellIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 30 30"
+      width={16}
+      height={16}
+      {...props}
+      className={`${props.className ?? ""} ${styles["colorify-stroke"]}`}
+    >
+      <path
+        d="M4.44024 14.9998C6.25248 16.8331 7.1586 18.6664 7.1586 21.4164C7.1586 24.1664 8.97083 27.8345 11.6892 27.8338C14.4075 27.8331 28 14.0831 28 11.3331C28 8.5831 24.3748 6.74976 21.6565 6.74976C18.9381 6.74976 17.1259 5.8331 15.3137 3.99976C13.5014 2.16643 8.06471 0.333097 4.44024 3.99976C0.815775 7.66643 2.62801 13.1664 4.44024 14.9998Z"
+        stroke-width="4"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M23.4688 26.9167L27.0932 23.25C27.0932 23.25 27.3357 25.0833 26.1871 26C25.0385 26.9167 23.4688 26.9167 23.4688 26.9167Z"
+        stroke-width="4"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  );
+};
