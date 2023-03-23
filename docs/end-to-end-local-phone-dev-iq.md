@@ -36,8 +36,10 @@ To make your local Relay RECEIVE messages you will also:
 
 1. Add `PHONES_ENABLED=True`
 2. Add `IQ_ENABLED=True`
-3. Add `IQ_OUTBOUND_API_KEY=` (ping @groovecoder for this)
-4. Add `IQ_INBOUND_API_KEY=` (ping @groovecoder for this)
+3. Add `IQ_FOR_VERIFICATION=True`
+4. Add `IQ_MAIN_NUMBER=` (ping @groovecoder for this)
+5. Add `IQ_OUTBOUND_API_KEY=` (ping @groovecoder for this)
+6. Add `IQ_INBOUND_API_KEY=` (ping @groovecoder for this)
 
 #### Send a test message (Pending)
 
@@ -50,8 +52,8 @@ correctly. The first message in the Relay phone flow is the verification code:
 3. Go to [the staging "Relay Email & Phone Protection (127.0.0.1)" purchase page][buy-fonez] and buy a phone
    subscription for the user. (Use a [Stripe testing card][stripe-test-cards] like
    `4242424242424242`)
-4. (PENDING) Go to http://127.0.0.1:8000/phone/ and verify your real phone: it will (soon) send an SMS
-   via inteliquent
+4. Go to http://127.0.0.1:8000/phone/ and verify your real phone: it will send an SMS
+   via inteliquent from the `IQ_MAIN_NUMBER` above.
 
 [buy-fonez]: https://accounts.stage.mozaws.net/subscriptions/products/prod_LgQiSgNi4xL7dq
 [stripe-test-cards]: https://stripe.com/docs/testing#cards

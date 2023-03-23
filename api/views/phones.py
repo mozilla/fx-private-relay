@@ -42,6 +42,7 @@ from phones.models import (
     get_valid_realphone_verification_record,
     get_verified_realphone_record,
     get_verified_realphone_records,
+    phones_config,
     send_welcome_message,
     suggested_numbers,
     location_numbers,
@@ -582,6 +583,7 @@ def inbound_sms(request):
 def inbound_sms_iq(request: Request) -> response.Response:
     incr_if_enabled("phones_inbound_sms_iq")
     _validate_iq_request(request)
+    config = phones_config()
 
     inbound_body = request.data.get("text", None)
     inbound_from = request.data.get("from", None)
@@ -606,14 +608,16 @@ def inbound_sms_iq(request: Request) -> response.Response:
             relay_number, destination_number, body = _prepare_sms_reply(
                 relay_number, inbound_body
             )
-            _send_iq_sms(relay_number.number, destination_number, body)
+            config.send_iq_sms(destination_number, relay_number.number, body)
             relay_number.remaining_texts -= 1
             relay_number.texts_forwarded += 1
             relay_number.save()
             incr_if_enabled("phones_send_sms_reply_iq")
         except RelaySMSException as sms_exception:
             user_error_message = _get_user_error_message(real_phone, sms_exception)
-            _send_iq_sms(relay_number.number, real_phone.number, user_error_message)
+            config.send_iq_sms(
+                real_phone.number, relay_number.number, user_error_message
+            )
 
             # Return 400 on critical exceptions
             if sms_exception.critical:
@@ -634,7 +638,7 @@ def inbound_sms_iq(request: Request) -> response.Response:
         _check_and_update_contact(inbound_contact, "texts", relay_number)
 
     text = message_body(inbound_from, inbound_body)
-    _send_iq_sms(relay_number.number, real_phone.number, text)
+    config.send_iq_sms(real_phone.number, relay_number.number, text)
 
     relay_number.remaining_texts -= 1
     relay_number.texts_forwarded += 1
@@ -909,24 +913,6 @@ def _prepare_sms_reply(
         raise NoBodyAfterFullNumber(full_number=match.detected)
 
     return (relay_number, destination_number, body)
-
-
-def _send_iq_sms(from_num: str, to_num: str, text: str):
-    incr_if_enabled("phones_outbound_sms_iq")
-    iq_formatted_to_num = to_num.replace("+", "")
-    iq_formatted_from_num = from_num.replace("+", "")
-    json_body = {
-        "from": iq_formatted_from_num,
-        "to": [iq_formatted_to_num],
-        "text": text,
-    }
-    resp = requests.post(
-        "https://messagebroker.inteliquent.com/msgbroker/rest/publishMessages",
-        headers={"Authorization": f"Bearer {settings.IQ_OUTBOUND_API_KEY}"},
-        json=json_body,
-    )
-    if resp.status_code < 200 or resp.status_code > 299:
-        raise exceptions.ValidationError(json.loads(resp.content.decode()))
 
 
 @dataclass
