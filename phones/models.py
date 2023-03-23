@@ -39,6 +39,14 @@ def twilio_client() -> Client:
     return phones_config.twilio_client
 
 
+def phones_config():
+    from .apps import PhonesConfig
+
+    phones_config = apps.get_app_config("phones")
+    assert isinstance(phones_config, PhonesConfig)
+    return phones_config
+
+
 def verification_code_default():
     return str(secrets.randbelow(1000000)).zfill(6)
 
@@ -191,11 +199,16 @@ def realphone_post_save(sender, instance, created, **kwargs):
     if created:
         # only send verification_code when creating new record
         incr_if_enabled("phones_RealPhone.post_save_created_send_verification")
+        text_body = (
+            f"Your Firefox Relay verification code is {instance.verification_code}"
+        )
+        if settings.IQ_FOR_VERIFICATION:
+            config = phones_config()
+            config.send_iq_sms(instance.number, settings.IQ_MAIN_NUMBER, text_body)
+            return
         client = twilio_client()
         client.messages.create(
-            body=(
-                f"Your Firefox Relay verification code is {instance.verification_code}"
-            ),
+            body=text_body,
             from_=settings.TWILIO_MAIN_NUMBER,
             to=instance.number,
         )
