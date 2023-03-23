@@ -485,6 +485,9 @@ def _get_user_error_message(real_phone: RealPhone, sms_exception) -> Any:
     # Send a translated message to the user
     ftl_code = sms_exception.get_codes().replace("_", "-")
     ftl_id = f"sms-error-{ftl_code}"
+    # log the error in English
+    with django_ftl.override("en"):
+        logger.exception(ftl_bundle.format(ftl_id, sms_exception.error_context()))
     with django_ftl.override(real_phone.user.profile.language):
         user_message = ftl_bundle.format(ftl_id, sms_exception.error_context())
     return user_message
@@ -521,7 +524,14 @@ def inbound_sms(request):
             relay_number, destination_number, body = _prepare_sms_reply(
                 relay_number, inbound_body
             )
-            _send_sms_reply(relay_number, destination_number, body)
+            client = twilio_client()
+            incr_if_enabled("phones_send_sms_reply")
+            client.messages.create(
+                from_=relay_number.number, body=body, to=destination_number
+            )
+            relay_number.remaining_texts -= 1
+            relay_number.texts_forwarded += 1
+            relay_number.save()
         except RelaySMSException as sms_exception:
             user_error_message = _get_user_error_message(real_phone, sms_exception)
             twilio_client().messages.create(
@@ -596,7 +606,11 @@ def inbound_sms_iq(request: Request) -> response.Response:
             relay_number, destination_number, body = _prepare_sms_reply(
                 relay_number, inbound_body
             )
-            _send_sms_reply_iq(relay_number, destination_number, body)
+            _send_iq_sms(relay_number.number, destination_number, body)
+            relay_number.remaining_texts -= 1
+            relay_number.texts_forwarded += 1
+            relay_number.save()
+            incr_if_enabled("phones_send_sms_reply_iq")
         except RelaySMSException as sms_exception:
             user_error_message = _get_user_error_message(real_phone, sms_exception)
             _send_iq_sms(relay_number.number, real_phone.number, user_error_message)
@@ -622,7 +636,6 @@ def inbound_sms_iq(request: Request) -> response.Response:
     text = message_body(inbound_from, inbound_body)
     _send_iq_sms(relay_number.number, real_phone.number, text)
 
-    incr_if_enabled("phones_outbound_sms_iq")
     relay_number.remaining_texts -= 1
     relay_number.texts_forwarded += 1
     relay_number.save()
@@ -895,31 +908,11 @@ def _prepare_sms_reply(
     if match and not body and match.match_type == "full":
         raise NoBodyAfterFullNumber(full_number=match.detected)
 
-    # Success, send the relayed reply
     return (relay_number, destination_number, body)
 
 
-def _send_sms_reply(
-    relay_number: RelayNumber, destination_number: str, body: str
-) -> None:
-    client = twilio_client()
-    incr_if_enabled("phones_send_sms_reply")
-    client.messages.create(from_=relay_number.number, body=body, to=destination_number)
-    relay_number.remaining_texts -= 1
-    relay_number.texts_forwarded += 1
-    relay_number.save()
-
-
-def _send_sms_reply_iq(
-    relay_number: RelayNumber, destination_number: str, body: str
-) -> None:
-    _send_iq_sms(relay_number.number, destination_number, body)
-    relay_number.remaining_texts -= 1
-    relay_number.texts_forwarded += 1
-    relay_number.save()
-
-
 def _send_iq_sms(from_num: str, to_num: str, text: str):
+    incr_if_enabled("phones_outbound_sms_iq")
     iq_formatted_to_num = to_num.replace("+", "")
     iq_formatted_from_num = from_num.replace("+", "")
     json_body = {
