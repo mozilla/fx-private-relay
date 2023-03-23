@@ -1016,9 +1016,9 @@ export const PencilIcon = ({
       aria-label={alt}
       aria-hidden={alt === ""}
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 25 25"
-      width={20}
-      height={20}
+      viewBox="0 0 12 12"
+      width={15}
+      height={15}
       {...props}
       className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
     >

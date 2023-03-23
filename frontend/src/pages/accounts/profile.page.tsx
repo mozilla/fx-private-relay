@@ -200,7 +200,7 @@ const Profile: NextPage = () => {
   const subdomainMessage =
     typeof profile.subdomain === "string" ? (
       <>
-        <span>{l10n.getString("profile-label-subdomain-2")}</span>
+        <span>{l10n.getString("profile-label-custom-domain")}</span>
         <span className={styles["profile-registered-domain-value"]}>
           <SubdomainIndicator
             subdomain={profile.subdomain}
@@ -220,7 +220,7 @@ const Profile: NextPage = () => {
     ) : (
       <>
         <a className={styles["open-button"]} href="#mpp-choose-subdomain">
-          {l10n.getString("profile-label-create-subdomain")}
+          {l10n.getString("profile-label-set-your-custom-domain")}
         </a>
       </>
     );
@@ -290,7 +290,7 @@ const Profile: NextPage = () => {
             {typeof profile.subdomain === "string" ? (
               <CheckBadgeIcon alt="" />
             ) : (
-              <PencilIcon alt="" className={styles["bell-icon"]} />
+              <PencilIcon alt="" className={styles["pencil-icon"]} />
             )}
             {subdomainMessage}
             {subdomainTooltipButton}

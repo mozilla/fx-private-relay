@@ -299,5 +299,7 @@ landing-faq-cta = See more FAQs about { -brand-name-firefox-relay }
 faq-question-landing-page-availability = Free { -brand-name-relay } is available in most countries. { -brand-name-relay-premium } email masking is available in the United States, Germany, United Kingdom, Canada, Singapore, Malaysia, New Zealand, France, Belgium, Austria, Spain, Italy, Switzerland, Netherlands, and Ireland. { -brand-name-relay-premium } phone masking is only available in the US and Canada.
 
 tooltip-email-domain-explanation-title = About your unique { -brand-name-relay } Email Domain
-profile-label-subdomain-2 = Your { -brand-name-relay } Email Domain:
+
+profile-label-custom-domain = Your { -brand-name-relay } email domain:
+profile-label-set-your-custom-domain = Set your unique { -brand-name-relay } email domain
 
