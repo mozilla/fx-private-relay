@@ -1017,8 +1017,8 @@ export const PencilIcon = ({
       aria-hidden={alt === ""}
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 25 25"
-      width={19}
-      height={19}
+      width={20}
+      height={20}
       {...props}
       className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
     >
