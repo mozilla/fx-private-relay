@@ -1,0 +1,71 @@
+@import "../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+.underlay {
+  align-items: center;
+  background-color: rgba($color-black, 0.4);
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+
+  .dialog-wrapper {
+    background: $color-white;
+    border-radius: $border-radius-md;
+    box-shadow: $box-shadow-sm;
+    max-width: 90%;
+    position: relative;
+    width: calc((#{$content-sm} + #{$content-md}) / 2); // 560px
+
+    .dismiss-button {
+      align-items: center;
+      background-color: transparent;
+      border-radius: $border-radius-sm;
+      border-style: none;
+      cursor: pointer;
+      display: flex;
+      height: 30px;
+      justify-content: center;
+      position: absolute;
+      right: $spacing-sm;
+      top: $spacing-sm;
+      width: 30px;
+
+      &:hover {
+        background-color: $color-blue-50;
+        color: $color-white;
+      }
+    }
+
+    .dialog-container {
+      padding: $spacing-md;
+
+      @media screen and #{$mq-md} {
+        padding: $spacing-lg $spacing-xl;
+      }
+
+      .hero {
+        padding: $spacing-sm 0;
+        text-align: start;
+        width: 90%; // Shorter width to make room for the close button on mobile
+
+        @media screen and #{$mq-md} {
+          width: 100%;
+        }
+
+        .headline {
+          @include text-title-3xs;
+          font-family: $font-stack-firefox;
+          font-weight: 700;
+        }
+      }
+
+      .modal-body {
+        @include text-body-sm;
+      }
+    }
+  }
+}

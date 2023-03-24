@@ -14,11 +14,11 @@ import {
   useOverlayPosition,
   useOverlayTrigger,
 } from "react-aria";
-import { useMenuTriggerState } from "react-stately";
+import { useMenuTriggerState, useOverlayTriggerState } from "react-stately";
 import { toast } from "react-toastify";
 import styles from "./profile.module.scss";
 import BottomBannerIllustration from "../../../public/images/woman-couch-left.svg";
-import { CheckBadgeIcon } from "../../components/Icons";
+import { PencilIcon, CheckBadgeIcon, InfoIcon } from "../../components/Icons";
 import { Layout } from "../../components/layout/Layout";
 import { useProfiles } from "../../hooks/api/profile";
 import {
@@ -43,7 +43,6 @@ import { getRuntimeConfig } from "../../config";
 import { SubdomainIndicator } from "../../components/dashboard/subdomain/SubdomainIndicator";
 import { Tips } from "../../components/dashboard/tips/Tips";
 import { getLocale } from "../../functions/getLocale";
-import { InfoTooltip } from "../../components/InfoTooltip";
 import { AddonData } from "../../components/dashboard/AddonData";
 import { useAddonData } from "../../hooks/addon";
 import { CloseIcon } from "../../components/Icons";
@@ -53,6 +52,7 @@ import { usePurchaseTracker } from "../../hooks/purchaseTracker";
 import { PremiumPromoBanners } from "../../components/dashboard/PremiumPromoBanners";
 import { useL10n } from "../../hooks/l10n";
 import { Localized } from "../../components/Localized";
+import { InfoModal } from "../../components/InfoModal";
 
 const Profile: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -67,6 +67,8 @@ const Profile: NextPage = () => {
   });
 
   usePurchaseTracker(profileData.data?.[0]);
+
+  const modalState = useOverlayTriggerState({});
 
   if (!userData.isValidating && userData.error) {
     document.location.assign(getRuntimeConfig().fxaLoginUrl);
@@ -198,7 +200,7 @@ const Profile: NextPage = () => {
   const subdomainMessage =
     typeof profile.subdomain === "string" ? (
       <>
-        <span>{l10n.getString("profile-label-subdomain")}</span>
+        <span>{l10n.getString("profile-label-custom-domain")}</span>
         <span className={styles["profile-registered-domain-value"]}>
           <SubdomainIndicator
             subdomain={profile.subdomain}
@@ -218,13 +220,8 @@ const Profile: NextPage = () => {
     ) : (
       <>
         <a className={styles["open-button"]} href="#mpp-choose-subdomain">
-          {l10n.getString("profile-label-create-subdomain")}
+          {l10n.getString("profile-label-set-your-custom-domain")}
         </a>
-        <InfoTooltip
-          alt={l10n.getString("profile-label-subdomain-tooltip-trigger")}
-        >
-          {l10n.getString("profile-label-subdomain-tooltip")}
-        </InfoTooltip>
       </>
     );
 
@@ -232,6 +229,46 @@ const Profile: NextPage = () => {
     notation: "compact",
     compactDisplay: "short",
   });
+
+  const subdomainTooltipButton = (
+    <button className={styles["info-icon"]} onClick={() => modalState.open()}>
+      <InfoIcon
+        alt={l10n.getString("tooltip-email-domain-explanation-title")}
+        width={18}
+        height={18}
+      />
+    </button>
+  );
+
+  const subdomainExplanationBody = (
+    <>
+      <p>{l10n.getString("tooltip-email-domain-explanation-part-one")}</p>
+      <br />
+      <p>{l10n.getString("tooltip-email-domain-explanation-part-two")}</p>
+      <br />
+      <p>
+        <Localized
+          id="tooltip-email-domain-explanation-part-three"
+          vars={{ mozmail: "mozmail.com" }}
+          elems={{
+            p: <p />,
+          }}
+        >
+          <span />
+        </Localized>
+      </p>
+    </>
+  );
+
+  const subdomainInfoModal = modalState.isOpen ? (
+    <InfoModal
+      isOpen={modalState.isOpen}
+      onClose={() => modalState.close()}
+      modalTitle={l10n.getString("tooltip-email-domain-explanation-title")}
+      modalBodyText={subdomainExplanationBody}
+    />
+  ) : null;
+
   // Non-Premium users have only five aliases, making the stats less insightful,
   // so only show them for Premium users:
   const stats = profile.has_premium ? (
@@ -250,8 +287,14 @@ const Profile: NextPage = () => {
             <span className={styles.greeting} />
           </Localized>
           <strong className={styles.subdomain}>
-            <CheckBadgeIcon alt="" />
+            {typeof profile.subdomain === "string" ? (
+              <CheckBadgeIcon alt="" />
+            ) : (
+              <PencilIcon alt="" className={styles["pencil-icon"]} />
+            )}
             {subdomainMessage}
+            {subdomainTooltipButton}
+            {subdomainInfoModal}
           </strong>
         </div>
         <dl className={styles["account-stats"]}>
