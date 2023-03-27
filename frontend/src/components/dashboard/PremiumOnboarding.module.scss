@@ -139,7 +139,11 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow-x: hidden;
-      max-width: 100%;
+      max-width: $content-xs;
+
+      @media screen and #{$mq-md} {
+        max-width: 100%;
+      }
 
       .customizable-part {
         color: $color-violet-50;

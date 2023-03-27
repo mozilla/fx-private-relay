@@ -13,10 +13,7 @@ import { SubdomainSearchForm } from "./subdomain/SearchForm";
 import { SubdomainConfirmationModal } from "./subdomain/ConfirmationModal";
 import { getRuntimeConfig } from "../../config";
 import { useMinViewportWidth } from "../../hooks/mediaQuery";
-import {
-  supportsChromeExtension,
-  supportsAnExtension,
-} from "../../functions/userAgent";
+import { supportsChromeExtension } from "../../functions/userAgent";
 import { CheckBadgeIcon, CheckIcon } from "../Icons";
 import { useL10n } from "../../hooks/l10n";
 import { VisuallyHidden } from "../VisuallyHidden";
@@ -158,7 +155,7 @@ export const PremiumOnboarding = (props: Props) => {
         <Button
           ref={continueWithAddonButtonRef}
           onClick={goToDashboard}
-          className={`is-visible-with-addon ${styles["go-to-dashboard-button"]}`}
+          className={`${styles["go-to-dashboard-button"]} is-visible-with-addon`}
         >
           {l10n.getString(
             "multi-part-onboarding-premium-extension-button-dashboard"
@@ -494,31 +491,25 @@ const AddonDescription = () => {
   if (!isLargeScreen) {
     return null;
   }
-  if (supportsAnExtension()) {
-    return (
-      <>
-        <div className={`${styles["addon-description"]} is-hidden-with-addon`}>
-          <span className={styles["description-caption"]}>
-            {l10n.getString(
-              "multi-part-onboarding-premium-add-extension-feature-headline"
-            )}
-          </span>
-          <AddonDescriptionHeader headerMessageId={headerMessageId} />
-          <AddonDescriptionParagraph paragraphMessageId={paragraphMessageId} />
-        </div>
-      </>
-    );
-  }
-  return null;
+  return (
+    <>
+      <div className={`${styles["addon-description"]} is-hidden-with-addon`}>
+        <span className={styles["description-caption"]}>
+          {l10n.getString(
+            "multi-part-onboarding-premium-add-extension-feature-headline"
+          )}
+        </span>
+        <AddonDescriptionHeader headerMessageId={headerMessageId} />
+        <AddonDescriptionParagraph paragraphMessageId={paragraphMessageId} />
+      </div>
+    </>
+  );
 };
 
 const AddonDescriptionHeader = ({
   headerMessageId,
 }: Pick<AddonDescriptionProps, "headerMessageId">) => {
   const l10n = useL10n();
-  if (!supportsAnExtension()) {
-    return null;
-  }
   return <h3>{l10n.getString(headerMessageId)}</h3>;
 };
 
@@ -526,9 +517,6 @@ const AddonDescriptionParagraph = ({
   paragraphMessageId,
 }: Pick<AddonDescriptionProps, "paragraphMessageId">) => {
   const l10n = useL10n();
-  if (!supportsAnExtension()) {
-    return null;
-  }
   return <p>{l10n.getString(paragraphMessageId)}</p>;
 };
 
@@ -537,9 +525,6 @@ const AddonDescriptionLinkButton = ({
   linkMessageId,
 }: Pick<AddonDescriptionProps, "linkHref" | "linkMessageId">) => {
   const l10n = useL10n();
-  if (!supportsAnExtension()) {
-    return null;
-  }
   return (
     <LinkButton
       href={linkHref}
