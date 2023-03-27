@@ -30,6 +30,8 @@ export type Props = {
  */
 export const PremiumOnboarding = (props: Props) => {
   const l10n = useL10n();
+  const isLargeScreen = useMinViewportWidth("md");
+
   const getStartedButtonRef = useGaViewPing({
     category: "Premium Onboarding",
     label: "onboarding-step-1-continue",
@@ -155,7 +157,9 @@ export const PremiumOnboarding = (props: Props) => {
         <Button
           ref={continueWithAddonButtonRef}
           onClick={goToDashboard}
-          className={`${styles["go-to-dashboard-button"]} is-visible-with-addon`}
+          className={`${styles["go-to-dashboard-button"]} ${
+            isLargeScreen ? `is-visible-with-addon` : ""
+          }`}
         >
           {l10n.getString(
             "multi-part-onboarding-premium-extension-button-dashboard"
@@ -168,15 +172,15 @@ export const PremiumOnboarding = (props: Props) => {
       </>
     );
 
-    skipButton = (
+    skipButton = isLargeScreen ? (
       <button
-        className={`is-hidden-with-addon ${styles["skip-link"]}`}
+        className={`${styles["skip-link"]} is-hidden-with-addon`}
         ref={skipAddonButtonRef}
         onClick={skipAddon}
       >
         {l10n.getString("multi-part-onboarding-skip-download-extension")}
       </button>
-    );
+    ) : null;
   }
 
   return (
@@ -230,6 +234,7 @@ export const PremiumOnboarding = (props: Props) => {
               <span></span>3
             </li>
           </ol>
+
           {skipButton}
         </div>
       </section>
