@@ -1093,6 +1093,9 @@ def _check_disabled(relay_number, contact_type):
 
 
 def _check_remaining(relay_number, resource_type):
+    # Check the owner of the relay number (still) has phone service
+    if not relay_number.user.profile.has_phone:
+        raise exceptions.ValidationError("Number owner does not have phone service")
     model_attr = f"remaining_{resource_type}"
     if getattr(relay_number, model_attr) <= 0:
         incr_if_enabled(f"phones_out_of_{resource_type}")

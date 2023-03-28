@@ -1,3 +1,4 @@
+from allauth.socialaccount.models import SocialAccount
 import pytest
 
 from django.conf import settings
@@ -216,6 +217,34 @@ def test_reply_with_no_remaining_texts(phone_user):
     assert rsp.call_count == 0
     relay_number.refresh_from_db()
     assert relay_number.remaining_texts == 0
+
+
+@pytest.mark.django_db(transaction=True)
+@responses.activate()
+def test_reply_with_no_phone_capability(phone_user):
+    rsp = responses.add(responses.POST, IQ_MESSAGE_PATH, status=200)
+    real_phone = _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user, "inteliquent")
+    sa = SocialAccount.objects.get(user=phone_user)
+    sa.extra_data = {"avatar": "avatar.png", "subscriptions": []}
+    sa.save()
+
+    client = _prepare_valid_iq_request_client()
+    formatted_to = _iq_fmt(relay_number.number)
+    formatted_from = _iq_fmt(real_phone.number)
+    data = {
+        "from": formatted_from,
+        "to": [
+            formatted_to,
+        ],
+        "text": "test reply",
+    }
+    resp = client.post(INBOUND_SMS_PATH, json=data)
+
+    assert resp.status_code == 400
+    decoded_content = resp.content.decode()
+    assert "Number owner does not have phone service" in decoded_content
+    assert rsp.call_count == 0
 
 
 @pytest.mark.django_db(transaction=True)
