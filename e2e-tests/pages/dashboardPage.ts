@@ -27,6 +27,7 @@ export class DashboardPage {
     readonly emailMasksUsedAmount: Locator
     readonly maskCard: string
     readonly maskCardExpanded: Locator
+    readonly maskCardExpandButton: Locator
     readonly maskCardHeader: Locator
     readonly maskCardForwardEmail: Locator
     readonly maskCardCreatedDate: Locator
@@ -59,7 +60,7 @@ export class DashboardPage {
         this.toastCloseButton = '//div[starts-with(@class, "Layout_close")]'
         this.signOutButton = page.locator('button:has-text("Sign Out")').first()
         this.signOutToastAlert = page.locator('//div[@class="Toastify__toast-body"]')
-        
+
         // dashboard elements
         this.upgradeNowButton = page.locator('a:has-text("Upgrade Now")')
         this.upgradeButton = page.locator('a:has-text("Upgrade")').first()
@@ -67,7 +68,7 @@ export class DashboardPage {
         this.dashboardPageWithoutHeader = page.locator('//main[starts-with(@class, "profile_profile-wrapper")]')
         this.emailsForwardedAmount = page.locator('(//dd[starts-with(@class, "profile_value")])[3]')
         this.emailsBlockedAmount = page.locator('(//dd[starts-with(@class, "profile_value")])[2]')
-        this.emailMasksUsedAmount = page.locator('(//dd[starts-with(@class, "profile_value")])[1]')        
+        this.emailMasksUsedAmount = page.locator('(//dd[starts-with(@class, "profile_value")])[1]')
         this.generateNewMaskButton = page.locator('button:has-text("Generate new mask")')
         this.maxMaskLimitButton = page.locator('//div[starts-with(@class, "AliasList_controls")]//a[starts-with(@class, "Button_button")]')
         this.bottomUgradeBanner = page.locator('//div[starts-with(@class, "profile_bottom-banner-wrapper")]')
@@ -76,25 +77,26 @@ export class DashboardPage {
         this.dashBoardWithoutMasksEmail = page.locator('//section[starts-with(@class, "profile_no-premium-header")]')
 
         // mask card elements
-        this.maskCard = '//div[starts-with(@class, "Alias_alias-card")]'
-        this.maskCardExpanded = page.locator('//ul/li//div[contains(@class, "Alias_is-expanded")]').first()
-        this.maskCardHeader = page.locator('//*[starts-with(@class, "Alias_main-data")]')
-        this.maskCardGeneratedEmail = page.locator('(//span[starts-with(@class, "Alias_copy-button")]/button)[1]')
+        this.maskCard = '//div[starts-with(@class, "MaskCard_card")]'
+        this.maskCardExpanded = page.locator('//button[starts-with(@class, "MaskCard_expand")]')
+        this.maskCardExpandButton = page.locator('//button[starts-with(@class, "MaskCard_expand")]')
+        this.maskCardHeader = page.locator('//div[starts-with(@class, "MaskCard_summary")]')
+        this.maskCardGeneratedEmail = page.locator('//button[starts-with(@class, "MaskCard_copy")]/samp').first()
         this.maskCardForwardEmail = page.locator('//div[starts-with(@class, "Alias_forward-target")]')
         this.maskCardCreatedDate = page.locator('//div[starts-with(@class, "Alias_date-created")]')
-        this.maskCardForwardedAmount = page.locator('(//span[contains(@class, "Alias_forwarded-stat")])[1]')
+        this.maskCardForwardedAmount = page.locator('//div[contains(@class, "MaskCard_forwarded")]/dd').first()
         this.maskCardRepliesAmount = page.locator('(//span[contains(@class, "Alias_blocked-stat")])[2]')
         this.maskCardBlockedAmount = page.locator('(//span[contains(@class, "Alias_blocked-stat")])[1]')
-        this.maskCardDeleteButton = page.locator('(//button[starts-with(@class, "AliasDeletionButton_deletion")])[1]')
-        this.maskCardCancelButton = page.locator('(//button[starts-with(@class, "AliasDeletionButton_cancel-button")])[1]')
+        this.maskCardDeleteButton = page.locator('button:has-text("Delete")')
+        this.maskCardCancelButton = page.locator('button:has-text("Cancel")')
         this.maskCardDeleteDialogModal = page.locator('//div[starts-with(@class, "AliasDeletionButton_dialog-wrapper")]')
         this.maskCardDeleteDialogModalEmailString = page.locator('//div[starts-with(@class, "AliasDeletionButton_dialog-wrapper")]//strong')
         this.maskCardDeleteDialogModalGeneratedEmail = page.locator('//div[starts-with(@class, "AliasDeletionButton_dialog-wrapper")]//samp')
         this.maskCardDeleteConfirmationCheckbox = page.locator('#confirmDeletion')
         this.maskCardFinalDeleteButton = page.locator('//button[contains(@class, "Button_is-destructive")]')
-    } 
+    }
 
-    async open() {        
+    async open() {
         await this.page.goto('/accounts/profile/');
     }
 
@@ -103,15 +105,15 @@ export class DashboardPage {
         if(numberOfMasks === 0){
             return
         }
-           
+
         // generate a new mask and confirm
         await this.generateNewMaskButton.click()
         await this.page.waitForSelector(this.maskCard, { timeout: 3000 })
-        
+
         // randomize between 1.5-2.5 secs between each generate to deal with issue of multiple quick clicks
         await this.page.waitForTimeout((Math.random() * 2500) + 1500)
         await this.generateMask(numberOfMasks - 1)
-    }    
+    }
 
     async upgrade(){
         await Promise.all([
@@ -136,7 +138,7 @@ export class DashboardPage {
         }
     }
 
-    async maybeDeleteMasks(clearAll = true, numberOfMasks = 1){               
+    async maybeDeleteMasks(clearAll = true, numberOfMasks = 1){
         let isExpanded = false
 
         // check number of masks available
@@ -146,35 +148,33 @@ export class DashboardPage {
 
         // if clear all, check if there's an expanded mask card
         if(clearAll){
-            try {                
-                await this.page.waitForSelector(this.maskCard, { timeout: 3000 })                
+            try {
+                await this.page.waitForSelector(this.maskCard, { timeout: 3000 })
                 numberOfMasks = await this.page.locator(this.maskCard).count()
             } catch (error) {
                 console.error('There are no masks to delete')
                 return
             }
-            
+
             try {
-                isExpanded = await this.maskCardExpanded.isVisible()
-            } catch {}
-        }        
-        
-        // locate mask expand button only if mask is not already expanded        
-        if(numberOfMasks && !isExpanded){
-            try {
-                const anchorLocator = `(//div[starts-with(@class, "Alias_expand-toggle")])[${numberOfMasks}]/button`
-                await this.page.waitForSelector(anchorLocator, { timeout: 3000 })
-                await this.page.locator(anchorLocator).click()
+                isExpanded = await this.page.getByRole('button', { expanded: true }).first().isVisible()
             } catch {}
         }
-        
-        // delete flow        
+
+        // locate mask expand button only if mask is not already expanded
+        if(numberOfMasks && !isExpanded){
+            try {
+                await this.maskCardExpanded.first().click()
+            } catch {}
+        }
+
+        // delete flow
         if(numberOfMasks){
-            const currentMaskCardDeleteButton = this.page.locator(`(//button[starts-with(@class, "AliasDeletionButton_deletion")])[${numberOfMasks}]`)
+            const currentMaskCardDeleteButton = this.page.locator('button:has-text("Delete")').first()
             await currentMaskCardDeleteButton.click()
             await this.maskCardDeleteConfirmationCheckbox.click()
-            await this.maskCardFinalDeleteButton.click()            
-        }        
+            await this.maskCardFinalDeleteButton.click()
+        }
 
         // wait for 500 ms and run flow again with the next masks
         await this.page.waitForTimeout(500)
@@ -186,34 +186,30 @@ export class DashboardPage {
         await this.open()
         await checkAuthState(this.page)
         await this.maybeDeleteMasks()
-        
+
         // create mask and use generated mask email to test email forwarding feature
         await this.generateMask(1)
         const generatedMaskEmail = await this.maskCardGeneratedEmail.textContent()
-            
-        await this.page.goto("https://monitor.firefox.com/")
-    
-        const checkForBreachesEmailInput = this.page.locator('#scan-email').first();
-        const newsLetterCheckBox = '.create-fxa-checkbox-checkmark';
-        const CheckForBreachesButton = this.page.locator('#scan-user-email [data-entrypoint="fx-monitor-check-for-breaches-blue-btn"]').first();
-    
-        await checkForBreachesEmailInput.fill(generatedMaskEmail as string)
-        await this.page.check(newsLetterCheckBox)    
-        await Promise.all([
-          this.page.waitForNavigation(),
-          CheckForBreachesButton.click()
-        ]);
-    
+
+        await this.page.goto("https://monitor.firefox.com/", { waitUntil: 'networkidle' })
+
+        const monitorLoginButton = this.page.getByRole('link', { name: 'Get started' })
+        await monitorLoginButton.first().click()
+        const monitorEmailInput = this.page.locator('.input-text')
+        const submitButton = this.page.locator('#submit-btn')
+        await monitorEmailInput.fill(generatedMaskEmail as string)
+        await submitButton.click()
+
         const passwordInputField = this.page.locator('#password');
         const passwordConfirmInputField = this.page.locator('#vpassword');
         const ageInputField = this.page.locator('#age');
         const createAccountButton = this.page.locator('#submit-btn');
-    
+
         await passwordInputField.fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string);
         await passwordConfirmInputField.fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string);
         await ageInputField.fill('31');
         await createAccountButton.click()
-    
+
         // wait for email to be forward to restmail
         await getVerificationCode(process.env.E2E_TEST_ACCOUNT_FREE as string, this.page)
     }
@@ -227,12 +223,17 @@ export class DashboardPage {
         await this.FAQButton.click()
         await this.homeButton.click()
 
+        // check if card is expanded
+        if(!(await this.page.getByRole('button', { expanded: true }).first().isVisible())){
+            await this.maskCardExpanded.first().click()
+        }
+
         // check the forward emails count, if not 0, return the current value
         const forwardCount = await this.maskCardForwardedAmount.textContent()
-        if(forwardCount !== "0Forwarded"){
+        if(forwardCount !== "0"){
             return forwardCount;
         }
-    
+
         await this.page.waitForTimeout(1000)
         return this.checkForwardedEmailCount(attempts - 1)
     }
