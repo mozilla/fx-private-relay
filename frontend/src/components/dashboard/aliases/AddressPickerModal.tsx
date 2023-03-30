@@ -15,7 +15,6 @@ import {
   useDialog,
   useModal,
   useOverlay,
-  usePreventScroll,
   useButton,
   AriaOverlayProps,
 } from "react-aria";
@@ -189,7 +188,6 @@ type PickerDialogProps = {
 const PickerDialog = (props: PickerDialogProps & AriaOverlayProps) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const { overlayProps, underlayProps } = useOverlay(props, wrapperRef);
-  usePreventScroll();
   const { modalProps } = useModal();
   const { dialogProps, titleProps } = useDialog({}, wrapperRef);
 
