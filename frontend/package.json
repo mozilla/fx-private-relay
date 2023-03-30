@@ -71,7 +71,8 @@
     "typescript": "^5.0.2"
   },
   "volta": {
-    "node": "18.13.0"
+    "node": "18.12.1",
+    "npm": "8.19.2"
   },
   "overrides": {
     "react@<18": "18.2.0"
