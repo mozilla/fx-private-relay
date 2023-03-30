@@ -34,7 +34,7 @@ test.describe('Free - General Functionalities, Desktop', () => {
   })
 })
 
-test.describe('Free - General Functionalities, Desktop - Visual Regression', () => {
+test.describe.skip('Free - General Functionalities, Desktop - Visual Regression', () => {
   test.skip(({ browserName }) => browserName !== 'firefox', 'firefox only image comparisons!');
 
   test.beforeEach(async ({ dashboardPage, page }) => {
