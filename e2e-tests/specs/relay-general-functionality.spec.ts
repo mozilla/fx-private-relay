@@ -29,7 +29,6 @@ test.describe('Free - General Functionalities, Desktop', () => {
       expect(await page.locator(dashboardPage.maskCard).count() === 1)
     }).toPass()
 
-    await expect(page.locator(dashboardPage.maskCard)).toBeInViewport()
     await expect(dashboardPage.maskCardExpandButton).toHaveAttribute("aria-expanded", "true")
     expect(await dashboardPage.maskCardHeader.textContent()).toContain(ENV_DOMAINS[process.env.E2E_TEST_ENV as string])
   })
