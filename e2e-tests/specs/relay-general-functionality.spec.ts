@@ -79,7 +79,7 @@ test.describe('Free - General Functionalities, Desktop - Visual Regression', () 
     ]});
   })
 
-  test.fixme('Check that the user can delete an mask, and is prompted to confirm before they delete, C1553071', async ({ dashboardPage, page }) => {
+  test.skip('Check that the user can delete an mask, and is prompted to confirm before they delete, C1553071', async ({ dashboardPage, page }) => {
     await expect(async () => {
       await dashboardPage.generateMask(1)
       expect(await page.locator(dashboardPage.maskCard).count() === 1)
