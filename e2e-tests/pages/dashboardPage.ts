@@ -141,6 +141,10 @@ export class DashboardPage {
     async maybeDeleteMasks(clearAll = true, numberOfMasks = 1){
         let isExpanded = false
 
+        try {
+            numberOfMasks = await this.page.locator(this.maskCard).count()
+        } catch(err){}
+
         // check number of masks available
         if(numberOfMasks === 0){
             return
@@ -150,7 +154,6 @@ export class DashboardPage {
         if(clearAll){
             try {
                 await this.page.waitForSelector(this.maskCard, { timeout: 3000 })
-                numberOfMasks = await this.page.locator(this.maskCard).count()
             } catch (error) {
                 console.error('There are no masks to delete')
                 return
