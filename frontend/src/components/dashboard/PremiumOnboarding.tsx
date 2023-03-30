@@ -432,10 +432,12 @@ const StepThree = () => {
             </span>
             <br />
             <p className={styles["description-bolded-headline"]}>
-              {l10n.getString("onboarding-premium-reply-title-2")}
+              {l10n.getString(
+                "multi-part-onboarding-premium-reply-description"
+              )}
             </p>
             <br />
-            {l10n.getString("multi-part-onboarding-premium-reply-description")}
+            {l10n.getString("onboarding-premium-reply-description-2")}
           </p>
           <AddonDescription />
           <div
