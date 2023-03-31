@@ -1,11 +1,11 @@
-"""Framework for tasks that identify data issues and (if possible) clean them up"""
-
 from __future__ import annotations
-
 from typing import Any, Optional
+import logging
 
 Counts = dict[str, dict[str, int]]
 CleanupData = dict[str, Any]
+
+logger = logging.getLogger(__name__)
 
 
 class DataIssueTask:
@@ -16,14 +16,10 @@ class DataIssueTask:
     check_description: str  # A sentence describing what this cleaner is checking.
     can_clean: bool  # True if the issue can be automatically cleaned
 
-    _counts: Optional[Counts]
-    _cleanup_data: Optional[CleanupData]
-    _cleaned: bool
-
     def __init__(self):
-        self._counts = None
-        self._cleanup_data = None
-        self._cleaned = False
+        self._counts: Optional[Counts] = None
+        self._cleanup_data: Optional[CleanupData] = None
+        self._cleaned: bool = False
 
     @property
     def counts(self) -> Counts:
@@ -51,7 +47,6 @@ class DataIssueTask:
     def _clean(self) -> int:
         """
         Clean the detected items.
-
         Returns the number of cleaned items. Implementors can add detailed
         counts to self._counts as needed.
         """
