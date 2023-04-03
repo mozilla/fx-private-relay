@@ -18,7 +18,7 @@ drf-yasg==1.21.5
 google-measurement-protocol==1.1.0
 gunicorn==20.1.0
 jwcrypto==1.4.2
-markus[datadog]==4.1.0
+markus[datadog]==4.2.0
 pem==21.2.0
 psycopg2==2.9.5
 PyJWT==2.6.0
