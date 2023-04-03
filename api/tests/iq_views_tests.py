@@ -54,7 +54,9 @@ def mocked_twilio_client():
 
 def _make_real_phone_with_mock_iq(phone_user, **kwargs):
     responses.add(responses.POST, settings.IQ_MESSAGE_PATH, status=200)
-    return _make_real_phone(phone_user, **kwargs)
+    real_phone = _make_real_phone(phone_user, **kwargs)
+    responses.reset()
+    return real_phone
 
 
 @pytest.mark.django_db(transaction=True)
@@ -167,7 +169,6 @@ def test_iq_endpoint_disabled_number(phone_user):
 @pytest.mark.django_db(transaction=True)
 @responses.activate()
 def test_iq_endpoint_success(phone_user):
-    rsp = responses.add(responses.POST, settings.IQ_MESSAGE_PATH, status=200)
     _make_real_phone_with_mock_iq(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, "inteliquent")
     pre_inbound_remaining_texts = relay_number.remaining_texts
@@ -181,6 +182,8 @@ def test_iq_endpoint_success(phone_user):
         "text": "test body",
     }
 
+    # add response for forwarded text
+    rsp = responses.add(responses.POST, settings.IQ_MESSAGE_PATH, status=200)
     resp = client.post(INBOUND_SMS_PATH, json=data)
 
     assert resp.status_code == 200
@@ -197,9 +200,9 @@ def test_reply_with_no_remaining_texts(phone_user):
     relay_number = _make_relay_number(phone_user, "inteliquent")
     relay_number.remaining_texts = 0
     relay_number.save()
-
     # add a response for error message sent to user
     rsp = responses.add(responses.POST, settings.IQ_MESSAGE_PATH, status=200)
+
     client = _prepare_valid_iq_request_client()
     formatted_to = iq_fmt(relay_number.number)
     formatted_from = iq_fmt(real_phone.number)
@@ -228,8 +231,9 @@ def test_reply_with_no_phone_capability(phone_user):
     sa = SocialAccount.objects.get(user=phone_user)
     sa.extra_data = {"avatar": "avatar.png", "subscriptions": []}
     sa.save()
-
+    # add response that should NOT be called
     rsp = responses.add(responses.POST, settings.IQ_MESSAGE_PATH, status=200)
+
     client = _prepare_valid_iq_request_client()
     formatted_to = iq_fmt(relay_number.number)
     formatted_from = iq_fmt(real_phone.number)
@@ -245,16 +249,13 @@ def test_reply_with_no_phone_capability(phone_user):
     assert resp.status_code == 400
     decoded_content = resp.content.decode()
     assert "Number owner does not have phone service" in decoded_content
-    # only the 1 message sent during _make_real_phone
-    assert rsp.call_count == 1
+    assert rsp.call_count == 0
 
 
 @pytest.mark.django_db(transaction=True)
 @responses.activate()
 def test_reply_without_previous_sender_error(phone_user):
-    # add a response for _make_real_phone
-    responses.add(responses.POST, settings.IQ_MESSAGE_PATH, status=200)
-    real_phone = _make_real_phone(phone_user, verified=True)
+    real_phone = _make_real_phone_with_mock_iq(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, "inteliquent")
     client = _prepare_valid_iq_request_client()
     formatted_to = iq_fmt(relay_number.number)
@@ -295,9 +296,7 @@ def test_reply_without_previous_sender_error(phone_user):
 @pytest.mark.django_db(transaction=True)
 @responses.activate()
 def test_reply_with_previous_sender_works(phone_user):
-    # add a response for _make_real_phone
-    responses.add(responses.POST, settings.IQ_MESSAGE_PATH, status=200)
-    real_phone = _make_real_phone(phone_user, verified=True)
+    real_phone = _make_real_phone_with_mock_iq(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, "inteliquent")
     inbound_contact = InboundContact.objects.create(
         relay_number=relay_number, inbound_number="+15556660000"
