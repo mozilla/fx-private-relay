@@ -2,7 +2,27 @@
 // should be used instead, but of course this hook can use it just fine:
 // eslint-disable-next-line no-restricted-imports
 import { ReactLocalization, useLocalization } from "@fluent/react";
-import { useEffect, useState } from "react";
+import { createElement, Fragment, useEffect, useState } from "react";
+
+/**
+ * Equivalent to ReactLocalization.getString, but returns a React Fragment.
+ *
+ * This is useful because it allows you to replace tags in localised strings
+ * with HTML elements, without needing to reach out to <Localized>.
+ *
+ * (This method got booted out of @fluent/react proper because it's so simple,
+ * but it's pretty useful:
+ * https://github.com/projectfluent/fluent.js/pull/595#discussion_r967011632)
+ */
+type GetFragment = (
+  id: Parameters<ReactLocalization["getString"]>[0],
+  args?: Parameters<ReactLocalization["getElement"]>[2],
+  fallback?: Parameters<ReactLocalization["getString"]>[2]
+) => ReturnType<ReactLocalization["getElement"]>;
+
+type ExtendedReactLocalization = ReactLocalization & {
+  getFragment: GetFragment;
+};
 
 /**
  * Wraps @fluent/react's useLocalization to be consistent between prerender and first render
@@ -17,16 +37,19 @@ import { useEffect, useState } from "react";
  * rendered when both prerendering and doing the first client-side render, and
  * only after that use the language that aligns with the user's preferences.
  */
-export const useL10n = (): ReactLocalization => {
+export const useL10n = (): ExtendedReactLocalization => {
   const { l10n } = useLocalization();
   const [isPrerendering, setIsPrerendering] = useState(true);
+
+  const getFragment: GetFragment = (id, args, fallback) =>
+    l10n.getElement(createElement(Fragment, null, fallback ?? id), id, args);
 
   useEffect(() => {
     setIsPrerendering(false);
   }, []);
 
   if (isPrerendering) {
-    const prerenderingL10n: ReactLocalization = {
+    const prerenderingL10n: ExtendedReactLocalization = {
       getBundle: l10n.getBundle,
       bundles: l10n.bundles,
       parseMarkup: l10n.parseMarkup,
@@ -44,10 +67,15 @@ export const useL10n = (): ReactLocalization => {
         return l10n.getString(id, vars, fallback);
       },
       getElement: l10n.getElement,
+      getFragment: getFragment,
     };
 
     return prerenderingL10n;
   }
 
-  return l10n;
+  const extendedL10n: ExtendedReactLocalization =
+    l10n as ExtendedReactLocalization;
+  extendedL10n.getFragment = getFragment;
+
+  return extendedL10n;
 };
