@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, timezone
 from math import floor
 from typing import Iterator, Optional
 import logging
+import phonenumbers
 import secrets
 import string
 
@@ -130,6 +131,10 @@ def get_last_text_sender(relay_number: "RelayNumber") -> Optional["InboundContac
         return latest_by_old_method
 
     return latest
+
+
+def iq_fmt(e164_number: str) -> str:
+    return "1" + str(phonenumbers.parse(e164_number, "E164").national_number)
 
 
 class RealPhone(models.Model):
