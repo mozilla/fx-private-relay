@@ -43,6 +43,7 @@ export const useL10n = (): ReactLocalization => {
 
         return l10n.getString(id, vars, fallback);
       },
+      getElement: l10n.getElement,
     };
 
     return prerenderingL10n;
