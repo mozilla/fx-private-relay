@@ -177,6 +177,19 @@ const AliasTypeMenuButton = (props: AliasTypeMenuButtonProps) => {
     triggerState,
     triggerRef
   );
+  // `menuProps` has an `autoFocus` property that is not compatible with the
+  // `autoFocus` property for HTMLElements, because it can also be of type
+  // `FocusStrategy` (i.e. the string "first" or "last") at the time of writing.
+  // Since its values get spread onto an HTMLUListElement, we ignore those
+  // values. See
+  // https://github.com/mozilla/fx-private-relay/pull/3261#issuecomment-1493840024
+  const menuPropsWithoutAutofocus = {
+    ...menuProps,
+    autoFocus:
+      typeof menuProps.autoFocus === "boolean"
+        ? menuProps.autoFocus
+        : undefined,
+  };
 
   const triggerButtonProps = useButton(
     menuTriggerProps,
@@ -193,7 +206,7 @@ const AliasTypeMenuButton = (props: AliasTypeMenuButtonProps) => {
         <AliasTypeMenuPopup
           {...props}
           aria-label={l10n.getString("profile-label-generate-new-alias-2")}
-          domProps={menuProps}
+          domProps={menuPropsWithoutAutofocus}
           autoFocus={triggerState.focusStrategy}
           onClose={() => triggerState.close()}
         />
