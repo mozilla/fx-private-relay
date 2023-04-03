@@ -47,7 +47,7 @@
     "@typescript-eslint/parser": "^5.55.0",
     "babel-jest": "^29.4.2",
     "chokidar-cli": "^3.0.0",
-    "eslint": "^8.36.0",
+    "eslint": "^8.37.0",
     "eslint-config-next": "^13.2.4",
     "eslint-plugin-jest-dom": "^4.0.3",
     "eslint-plugin-testing-library": "^5.10.2",
