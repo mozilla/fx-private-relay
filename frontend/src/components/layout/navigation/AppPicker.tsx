@@ -241,6 +241,19 @@ const AppPickerTrigger = ({
     appPickerTriggerState,
     triggerButtonRef
   );
+  // `menuProps` has an `autoFocus` property that is not compatible with the
+  // `autoFocus` property for HTMLElements, because it can also be of type
+  // `FocusStrategy` (i.e. the string "first" or "last") at the time of writing.
+  // Since its values get spread onto an HTMLDivElement, we ignore those values.
+  // See
+  // https://github.com/mozilla/fx-private-relay/pull/3261#issuecomment-1493840024
+  const menuPropsWithoutAutofocus = {
+    ...menuProps,
+    autoFocus:
+      typeof menuProps.autoFocus === "boolean"
+        ? menuProps.autoFocus
+        : undefined,
+  };
 
   const triggerButtonProps = useButton(
     menuTriggerProps,
@@ -278,7 +291,7 @@ const AppPickerTrigger = ({
         <AppPickerPopup
           {...otherProps}
           aria-label={l10n.getString("bento-button-title")}
-          domProps={menuProps}
+          domProps={menuPropsWithoutAutofocus}
           autoFocus={appPickerTriggerState.focusStrategy}
           onClose={() => appPickerTriggerState.close()}
         />
