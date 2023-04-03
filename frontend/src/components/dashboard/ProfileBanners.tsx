@@ -29,7 +29,6 @@ import { useMinViewportWidth } from "../../hooks/mediaQuery";
 import { AliasData } from "../../hooks/api/aliases";
 import { PremiumPromoBanners } from "./PremiumPromoBanners";
 import { useL10n } from "../../hooks/l10n";
-import { Localized } from "../Localized";
 
 export type Props = {
   profile: ProfileData;
@@ -135,19 +134,16 @@ const BounceBanner = (props: BounceBannerProps) => {
 
   return (
     <Banner type="warning" title={l10n.getString("banner-bounced-headline")}>
-      <Localized
-        id="banner-bounced-copy"
-        vars={{
+      {l10n.getFragment("banner-bounced-copy", {
+        vars: {
           username: props.email,
           bounce_type: props.profile.bounce_status[1],
           date: renderDate(props.profile.next_email_try, l10n),
-        }}
-        elems={{
+        },
+        elems: {
           em: <em />,
-        }}
-      >
-        <p />
-      </Localized>
+        },
+      })}
     </Banner>
   );
 };
