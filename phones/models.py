@@ -499,6 +499,11 @@ def location_numbers(location, country_code="US"):
     return convert_twilio_numbers_to_dict(twilio_nums)
 
 
+def iq_location_numbers(location, country_code="US"):
+    phones_config = apps.get_app_config("phones")
+    return phones_config.search_iq_numbers(location)
+
+
 def area_code_numbers(area_code, country_code="US"):
     client = twilio_client()
     avail_nums = client.available_phone_numbers(country_code)

@@ -39,6 +39,7 @@ class PhonesConfig(AppConfig):
             )
         return Client(settings.TWILIO_TEST_ACCOUNT_SID, settings.TWILIO_TEST_AUTH_TOKEN)
 
+
     @cached_property
     def twilio_validator(self) -> RequestValidator:
         if not settings.TWILIO_AUTH_TOKEN:

@@ -203,9 +203,21 @@ MAX_DAYS_IN_MONTH = 31
 IQ_ENABLED = config("IQ_ENABLED", False, cast=bool)
 IQ_FOR_VERIFICATION = config("IQ_FOR_VERIFICATION", False, cast=bool)
 IQ_FOR_NEW_NUMBERS = config("IQ_FOR_NEW_NUMBERS", False, cast=bool)
+
 IQ_MAIN_NUMBER = config("IQ_MAIN_NUMBER", "")
 IQ_OUTBOUND_API_KEY: str | bool = config("IQ_OUTBOUND_API_KEY", "", cast=str)
 IQ_INBOUND_API_KEY = config("IQ_INBOUND_API_KEY", "")
+
+IQ_OAUTH_TOKEN_ORIGIN = config(
+    "IQ_TOKEN_ORIGIN", "https://services-token.inteliquent.com", cast=str
+)
+IQ_OAUTH_TOKEN_PATH = f"{IQ_OAUTH_TOKEN_ORIGIN}/oauth2/token"
+
+IQ_API_ORIGIN = config("IQ_API_ORIGIN", "https://services.inteliquent.com")
+IQ_API_BASE: str = f"{IQ_API_ORIGIN}/Services/2.0.0"
+IQ_API_KEY = config("IQ_API_KEY", "")
+IQ_API_SECRET = config("IQ_API_SECRET", "")
+
 IQ_MESSAGE_API_ORIGIN = config(
     "IQ_MESSAGE_API_ORIGIN", "https://messagebroker.inteliquent.com"
 )

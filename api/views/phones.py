@@ -30,7 +30,7 @@ from twilio.base.exceptions import TwilioRestException
 
 from api.views import SaveToRequestUser
 from emails.utils import incr_if_enabled
-from phones.iq_utils import send_iq_sms
+from phones.iq_utils import search_iq_numbers, send_iq_sms
 
 from phones.models import (
     InboundContact,
@@ -350,6 +350,35 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         area_code = request.query_params.get("area_code")
         if area_code is not None:
             numbers = area_code_numbers(area_code, country_code)
+            return response.Response(numbers)
+
+        return response.Response({}, 404)
+
+    @decorators.action(detail=False)
+    def iq_search(self, request):
+        """
+        Search for available numbers.
+
+        This endpoints uses the underlying [Search Telephone Number Inventory][search] API.
+
+        Accepted query params:
+          * ?location=
+            * Will be passed to `/tnInventory` `city` param
+          * ?area_code=
+            * Will be passed to `/tnInventory` `tnMask` param
+
+        [search]: https://portal.inteliquent.com/CustomerPortal/resources/api_docs/ver2/index.html#tag/Telephone-Number/paths/~1tnInventory/post
+        """  # noqa: E501  # ignore long line for URL
+        incr_if_enabled("phones_RelayNumberViewSet.iq_search")
+
+        location = request.query_params.get("location")
+        if location is not None:
+            numbers = search_iq_numbers(location=location)
+            return response.Response(numbers)
+
+        area_code = request.query_params.get("area_code")
+        if area_code is not None:
+            numbers = search_iq_numbers(area_code=area_code)
             return response.Response(numbers)
 
         return response.Response({}, 404)
