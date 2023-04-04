@@ -45,7 +45,7 @@ const PremiumPromo: NextPage = () => {
       href="/premium/waitlist"
       title={l10n.getString("premium-promo-availability-warning-2")}
     >
-      {l10n.getString("waitlist-submit-label")}
+      {l10n.getString("waitlist-submit-label-2")}
     </LinkButton>
   );
 

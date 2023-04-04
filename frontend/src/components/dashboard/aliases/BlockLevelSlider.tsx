@@ -465,7 +465,7 @@ function getLabelForBlockLevel(
     case "none":
       return l10n.getString("profile-promo-email-blocking-option-none");
     case "promotional":
-      return l10n.getString("profile-promo-email-blocking-option-promotionals");
+      return l10n.getString("profile-promo-email-blocking-option-promotions");
     case "all":
       return l10n.getString("profile-promo-email-blocking-option-all");
   }
