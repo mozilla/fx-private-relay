@@ -30,7 +30,8 @@ body,
   font-family: $font-stack-base;
 
   @media screen and #{$mq-lg} {
-    height: 100%;
+    // Ensures that the footer stays at the bottom
+    height: 100vh;
   }
 }
 
