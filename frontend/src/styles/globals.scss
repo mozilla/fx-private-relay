@@ -28,6 +28,10 @@ body,
 #__next,
 #overlayProvider {
   font-family: $font-stack-base;
+
+  @media screen and #{$mq-lg} {
+    height: 100%;
+  }
 }
 
 html {
