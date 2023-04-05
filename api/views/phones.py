@@ -1,11 +1,9 @@
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 import hashlib
-import json
 import logging
 import phonenumbers
 import re
-import requests
 from rest_framework.request import Request
 import string
 from typing import Any, Literal, Optional
@@ -32,6 +30,7 @@ from twilio.base.exceptions import TwilioRestException
 
 from api.views import SaveToRequestUser
 from emails.utils import incr_if_enabled
+from phones.iq_utils import send_iq_sms
 
 from phones.models import (
     InboundContact,
@@ -42,7 +41,6 @@ from phones.models import (
     get_valid_realphone_verification_record,
     get_verified_realphone_record,
     get_verified_realphone_records,
-    phones_config,
     send_welcome_message,
     suggested_numbers,
     location_numbers,
@@ -583,7 +581,6 @@ def inbound_sms(request):
 def inbound_sms_iq(request: Request) -> response.Response:
     incr_if_enabled("phones_inbound_sms_iq")
     _validate_iq_request(request)
-    config = phones_config()
 
     inbound_body = request.data.get("text", None)
     inbound_from = request.data.get("from", None)
@@ -608,16 +605,14 @@ def inbound_sms_iq(request: Request) -> response.Response:
             relay_number, destination_number, body = _prepare_sms_reply(
                 relay_number, inbound_body
             )
-            config.send_iq_sms(destination_number, relay_number.number, body)
+            send_iq_sms(destination_number, relay_number.number, body)
             relay_number.remaining_texts -= 1
             relay_number.texts_forwarded += 1
             relay_number.save()
             incr_if_enabled("phones_send_sms_reply_iq")
         except RelaySMSException as sms_exception:
             user_error_message = _get_user_error_message(real_phone, sms_exception)
-            config.send_iq_sms(
-                real_phone.number, relay_number.number, user_error_message
-            )
+            send_iq_sms(real_phone.number, relay_number.number, user_error_message)
 
             # Return 400 on critical exceptions
             if sms_exception.critical:
@@ -638,7 +633,7 @@ def inbound_sms_iq(request: Request) -> response.Response:
         _check_and_update_contact(inbound_contact, "texts", relay_number)
 
     text = message_body(inbound_from, inbound_body)
-    config.send_iq_sms(real_phone.number, relay_number.number, text)
+    send_iq_sms(real_phone.number, relay_number.number, text)
 
     relay_number.remaining_texts -= 1
     relay_number.texts_forwarded += 1

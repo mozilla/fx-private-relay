@@ -21,6 +21,7 @@ from twilio.base.exceptions import TwilioRestException
 from twilio.rest import Client
 
 from emails.utils import incr_if_enabled
+from phones.iq_utils import send_iq_sms
 
 logger = logging.getLogger("eventsinfo")
 
@@ -208,8 +209,7 @@ def realphone_post_save(sender, instance, created, **kwargs):
             f"Your Firefox Relay verification code is {instance.verification_code}"
         )
         if settings.IQ_FOR_VERIFICATION:
-            config = phones_config()
-            config.send_iq_sms(instance.number, settings.IQ_MAIN_NUMBER, text_body)
+            send_iq_sms(instance.number, settings.IQ_MAIN_NUMBER, text_body)
             return
         client = twilio_client()
         client.messages.create(

@@ -1,7 +1,5 @@
-import json
 import logging
 
-import requests
 from twilio.base.instance_resource import InstanceResource
 from twilio.request_validator import RequestValidator
 from twilio.rest import Client
@@ -9,8 +7,6 @@ from twilio.rest import Client
 from django.apps import AppConfig
 from django.conf import settings
 from django.utils.functional import cached_property
-
-from rest_framework import exceptions
 
 
 logger = logging.getLogger("events")
@@ -48,19 +44,3 @@ class PhonesConfig(AppConfig):
         if not settings.TWILIO_AUTH_TOKEN:
             raise Exception("Must define TWILIO_AUTH_TOKEN")
         return RequestValidator(settings.TWILIO_AUTH_TOKEN)
-
-    def send_iq_sms(self, to_num: str, from_num: str, text: str) -> None:
-        iq_formatted_to_num = to_num.replace("+", "")
-        iq_formatted_from_num = from_num.replace("+", "")
-        json_body = {
-            "from": iq_formatted_from_num,
-            "to": [iq_formatted_to_num],
-            "text": text,
-        }
-        resp = requests.post(
-            "https://messagebroker.inteliquent.com/msgbroker/rest/publishMessages",
-            headers={"Authorization": f"Bearer {settings.IQ_OUTBOUND_API_KEY}"},
-            json=json_body,
-        )
-        if resp.status_code < 200 or resp.status_code > 299:
-            raise exceptions.ValidationError(json.loads(resp.content.decode()))

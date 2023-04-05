@@ -53,7 +53,7 @@ def mocked_twilio_client():
 
 
 def _make_real_phone_with_mock_iq(phone_user, **kwargs):
-    responses.add(responses.POST, settings.IQ_MESSAGE_PATH, status=200)
+    responses.add(responses.POST, settings.IQ_PUBLISH_MESSAGE_URL, status=200)
     real_phone = _make_real_phone(phone_user, **kwargs)
     responses.reset()
     return real_phone
@@ -183,7 +183,7 @@ def test_iq_endpoint_success(phone_user):
     }
 
     # add response for forwarded text
-    rsp = responses.add(responses.POST, settings.IQ_MESSAGE_PATH, status=200)
+    rsp = responses.add(responses.POST, settings.IQ_PUBLISH_MESSAGE_URL, status=200)
     resp = client.post(INBOUND_SMS_PATH, json=data)
 
     assert resp.status_code == 200
@@ -201,7 +201,7 @@ def test_reply_with_no_remaining_texts(phone_user):
     relay_number.remaining_texts = 0
     relay_number.save()
     # add a response for error message sent to user
-    rsp = responses.add(responses.POST, settings.IQ_MESSAGE_PATH, status=200)
+    rsp = responses.add(responses.POST, settings.IQ_PUBLISH_MESSAGE_URL, status=200)
 
     client = _prepare_valid_iq_request_client()
     formatted_to = iq_fmt(relay_number.number)
@@ -232,7 +232,7 @@ def test_reply_with_no_phone_capability(phone_user):
     sa.extra_data = {"avatar": "avatar.png", "subscriptions": []}
     sa.save()
     # add response that should NOT be called
-    rsp = responses.add(responses.POST, settings.IQ_MESSAGE_PATH, status=200)
+    rsp = responses.add(responses.POST, settings.IQ_PUBLISH_MESSAGE_URL, status=200)
 
     client = _prepare_valid_iq_request_client()
     formatted_to = iq_fmt(relay_number.number)
@@ -265,7 +265,7 @@ def test_reply_without_previous_sender_error(phone_user):
     error_msg = "You can only reply to phone numbers that have sent you a text message."
     rsp = responses.add(
         responses.POST,
-        settings.IQ_MESSAGE_PATH,
+        settings.IQ_PUBLISH_MESSAGE_URL,
         status=200,
         match=[
             responses.matchers.json_params_matcher(
@@ -309,7 +309,7 @@ def test_reply_with_previous_sender_works(phone_user):
     # add a response for sending error back to user
     rsp = responses.add(
         responses.POST,
-        settings.IQ_MESSAGE_PATH,
+        settings.IQ_PUBLISH_MESSAGE_URL,
         status=200,
         match=[
             responses.matchers.json_params_matcher(

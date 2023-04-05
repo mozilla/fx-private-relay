@@ -159,7 +159,7 @@ def test_create_realphone_creates_iq_message(phone_user):
     iq_number = iq_fmt(number)
     resp = responses.add(
         responses.POST,
-        settings.IQ_MESSAGE_PATH,
+        settings.IQ_PUBLISH_MESSAGE_URL,
         status=200,
         match=[
             responses.matchers.json_params_matcher(
