@@ -5,7 +5,7 @@ from django.conf import settings
 
 from allauth.socialaccount.models import SocialAccount, SocialToken
 from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
-from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error
+from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error, TokenExpiredError
 from requests_oauthlib import OAuth2Session
 from waffle.models import Flag
 import logging
@@ -67,6 +67,9 @@ def _get_oauth2_session(social_account: SocialAccount) -> OAuth2Session:
         "expires_in": expires_in,
     }
 
+    # TODO: find out why the auto_refresh and token_updater is not working
+    # and instead we are manually refreshing the token at
+    # FxAToRequest and get_subscription_data_from_fxa
     client = OAuth2Session(
         client_id,
         scope=settings.SOCIALACCOUNT_PROVIDERS["fxa"]["SCOPE"],
@@ -76,6 +79,14 @@ def _get_oauth2_session(social_account: SocialAccount) -> OAuth2Session:
         token_updater=_token_updater,
     )
     return client
+
+
+def _refresh_token(client, social_account):
+    social_token = SocialToken.objects.get(account=social_account)
+    # refresh user token to expand the scope to get accounts subscription data
+    new_token = client.refresh_token(FirefoxAccountsOAuth2Adapter.access_token_url)
+    update_social_token(social_token, new_token)
+    return {"social_token": new_token, "refreshed": True}
 
 
 def get_subscription_data_from_fxa(social_account: SocialAccount) -> dict[str, Any]:
@@ -96,15 +107,14 @@ def get_subscription_data_from_fxa(social_account: SocialAccount) -> dict[str, A
         json_resp = cast(dict[str, Any], resp.json())
 
         if "Requested scopes are not allowed" in json_resp.get("message", ""):
-            social_token = SocialToken.objects.get(account=social_account)
-            # refresh user token to expand the scope to get accounts subscription data
-            new_token = client.refresh_token(
-                FirefoxAccountsOAuth2Adapter.access_token_url
-            )
-            update_social_token(social_token, new_token)
-            json_resp = {"social_token": new_token, "refreshed": True}
+            logger.error("accounts_subscription_scope_failed")
+            json_resp = _refresh_token(client, social_account)
+    except TokenExpiredError as e:
+        sentry_sdk.capture_exception(e)
+        json_resp = _refresh_token(client, social_account)
     except CustomOAuth2Error as e:
         sentry_sdk.capture_exception(e)
+        json_resp = {}
     return json_resp
 
 
@@ -116,7 +126,6 @@ def get_phone_subscription_dates(social_account):
         # retry getting detailed subscription data
         subscription_data = get_subscription_data_from_fxa(social_account)
         if "refreshed" in subscription_data.keys():
-            logger.error("accounts_subscription_scope_failed")
             return None, None, None
     if "subscriptions" not in subscription_data.keys():
         # failed to get subscriptions data which may mean user never had subscription
