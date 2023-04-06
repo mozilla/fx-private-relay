@@ -1,11 +1,9 @@
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 import hashlib
-import json
 import logging
 import phonenumbers
 import re
-import requests
 from rest_framework.request import Request
 import string
 from typing import Any, Literal, Optional
@@ -32,6 +30,7 @@ from twilio.base.exceptions import TwilioRestException
 
 from api.views import SaveToRequestUser
 from emails.utils import incr_if_enabled
+from phones.iq_utils import send_iq_sms
 
 from phones.models import (
     InboundContact,
@@ -606,14 +605,14 @@ def inbound_sms_iq(request: Request) -> response.Response:
             relay_number, destination_number, body = _prepare_sms_reply(
                 relay_number, inbound_body
             )
-            _send_iq_sms(relay_number.number, destination_number, body)
+            send_iq_sms(destination_number, relay_number.number, body)
             relay_number.remaining_texts -= 1
             relay_number.texts_forwarded += 1
             relay_number.save()
             incr_if_enabled("phones_send_sms_reply_iq")
         except RelaySMSException as sms_exception:
             user_error_message = _get_user_error_message(real_phone, sms_exception)
-            _send_iq_sms(relay_number.number, real_phone.number, user_error_message)
+            send_iq_sms(real_phone.number, relay_number.number, user_error_message)
 
             # Return 400 on critical exceptions
             if sms_exception.critical:
@@ -634,7 +633,7 @@ def inbound_sms_iq(request: Request) -> response.Response:
         _check_and_update_contact(inbound_contact, "texts", relay_number)
 
     text = message_body(inbound_from, inbound_body)
-    _send_iq_sms(relay_number.number, real_phone.number, text)
+    send_iq_sms(real_phone.number, relay_number.number, text)
 
     relay_number.remaining_texts -= 1
     relay_number.texts_forwarded += 1
@@ -909,24 +908,6 @@ def _prepare_sms_reply(
         raise NoBodyAfterFullNumber(full_number=match.detected)
 
     return (relay_number, destination_number, body)
-
-
-def _send_iq_sms(from_num: str, to_num: str, text: str):
-    incr_if_enabled("phones_outbound_sms_iq")
-    iq_formatted_to_num = to_num.replace("+", "")
-    iq_formatted_from_num = from_num.replace("+", "")
-    json_body = {
-        "from": iq_formatted_from_num,
-        "to": [iq_formatted_to_num],
-        "text": text,
-    }
-    resp = requests.post(
-        "https://messagebroker.inteliquent.com/msgbroker/rest/publishMessages",
-        headers={"Authorization": f"Bearer {settings.IQ_OUTBOUND_API_KEY}"},
-        json=json_body,
-    )
-    if resp.status_code < 200 or resp.status_code > 299:
-        raise exceptions.ValidationError(json.loads(resp.content.decode()))
 
 
 @dataclass

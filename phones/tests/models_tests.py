@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, timezone
 from types import SimpleNamespace
 import pytest
 import random
+import responses
 from uuid import uuid4
 from unittest.mock import Mock, patch, call
 
@@ -9,6 +10,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.exceptions import BadRequest, ValidationError
+from django.test import override_settings
 
 from allauth.socialaccount.models import SocialAccount, SocialToken
 from model_bakery import baker
@@ -26,6 +28,7 @@ if settings.PHONES_ENABLED:
         get_last_text_sender,
         location_numbers,
         suggested_numbers,
+        iq_fmt,
     )
 
 
@@ -146,6 +149,32 @@ def test_create_realphone_creates_twilio_message(phone_user, mock_twilio_client)
     call_kwargs = mock_twilio_client.messages.create.call_args.kwargs
     assert call_kwargs["to"] == number
     assert "verification code" in call_kwargs["body"]
+
+
+@override_settings(IQ_FOR_VERIFICATION=True)
+@responses.activate()
+@pytest.mark.skipif(not settings.IQ_ENABLED, reason="IQ_ENABLED is false")
+def test_create_realphone_creates_iq_message(phone_user):
+    number = "+12223334444"
+    iq_number = iq_fmt(number)
+    resp = responses.add(
+        responses.POST,
+        settings.IQ_PUBLISH_MESSAGE_URL,
+        status=200,
+        match=[
+            responses.matchers.json_params_matcher(
+                {
+                    "to": [iq_number],
+                    "from": settings.IQ_MAIN_NUMBER,
+                },
+                strict_match=False,
+            )
+        ],
+    )
+
+    RealPhone.objects.create(user=phone_user, verified=True, number=number)
+
+    assert resp.call_count == 1
 
 
 def test_create_second_realphone_for_user_raises_exception(
