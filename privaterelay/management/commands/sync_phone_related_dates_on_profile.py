@@ -27,7 +27,6 @@ def sync_phone_related_dates_on_profile(group: str) -> int:
     num_updated_accounts = 0
     datetime_now = datetime.now(timezone.utc)
     for social_account in social_accounts_with_phones:
-        print(social_account)
         date_subscribed_phone, start_date, end_date = get_phone_subscription_dates(
             social_account
         )
