@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import styles from "./AliasList.module.scss";
 import { AliasData, isRandomAlias } from "../../../hooks/api/aliases";
 import { ProfileData } from "../../../hooks/api/profile";
@@ -57,6 +57,15 @@ export const AliasList = (props: Props) => {
   const [existingAliases, setExistingAliases] = useState<AliasData[]>(
     props.aliases
   );
+
+  const stringFilterButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const searchIcon = stringFilterButtonRef.current;
+    if (stringFilterVisible && searchIcon) {
+      searchIcon.focus();
+    }
+  });
 
   useEffect(() => {
     if (props.aliases.length === 0) {
@@ -234,7 +243,10 @@ export const AliasList = (props: Props) => {
         <button
           onClick={() => setStringFilterVisible(!stringFilterVisible)}
           title={l10n.getString("profile-filter-search-placeholder-2")}
-          className={styles["string-filter-toggle"]}
+          className={`${styles["string-filter-toggle"]} ${
+            stringFilterVisible ? styles["active"] : ""
+          }`}
+          ref={stringFilterButtonRef}
         >
           <SearchIcon
             alt={l10n.getString("profile-filter-search-placeholder-2")}
