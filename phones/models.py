@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, timezone
 from math import floor
 from typing import Iterator, Optional
 import logging
+import phonenumbers
 import secrets
 import string
 
@@ -20,6 +21,7 @@ from twilio.base.exceptions import TwilioRestException
 from twilio.rest import Client
 
 from emails.utils import incr_if_enabled
+from phones.iq_utils import send_iq_sms
 
 logger = logging.getLogger("eventsinfo")
 
@@ -124,6 +126,10 @@ def get_last_text_sender(relay_number: "RelayNumber") -> Optional["InboundContac
     return latest
 
 
+def iq_fmt(e164_number: str) -> str:
+    return "1" + str(phonenumbers.parse(e164_number, "E164").national_number)
+
+
 class RealPhone(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     number = models.CharField(max_length=15)
@@ -191,11 +197,15 @@ def realphone_post_save(sender, instance, created, **kwargs):
     if created:
         # only send verification_code when creating new record
         incr_if_enabled("phones_RealPhone.post_save_created_send_verification")
+        text_body = (
+            f"Your Firefox Relay verification code is {instance.verification_code}"
+        )
+        if settings.IQ_FOR_VERIFICATION:
+            send_iq_sms(instance.number, settings.IQ_MAIN_NUMBER, text_body)
+            return
         client = twilio_client()
         client.messages.create(
-            body=(
-                f"Your Firefox Relay verification code is {instance.verification_code}"
-            ),
+            body=text_body,
             from_=settings.TWILIO_MAIN_NUMBER,
             to=instance.number,
         )
