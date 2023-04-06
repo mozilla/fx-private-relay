@@ -59,8 +59,10 @@
   align-items: center;
   justify-content: center;
 
-  &.active {
+  &.active,
+  &:hover {
     background-color: $color-white;
+    color: $color-blue-50;
   }
 
   img {

@@ -58,15 +58,6 @@ export const AliasList = (props: Props) => {
     props.aliases
   );
 
-  const stringFilterButtonRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    const searchIcon = stringFilterButtonRef.current;
-    if (stringFilterVisible && searchIcon) {
-      searchIcon.focus();
-    }
-  });
-
   useEffect(() => {
     if (props.aliases.length === 0) {
       setOpenAlias(undefined);
@@ -246,7 +237,7 @@ export const AliasList = (props: Props) => {
           className={`${styles["string-filter-toggle"]} ${
             stringFilterVisible ? styles["active"] : ""
           }`}
-          ref={stringFilterButtonRef}
+          autoFocus={stringFilterVisible ? true : false}
         >
           <SearchIcon
             alt={l10n.getString("profile-filter-search-placeholder-2")}
