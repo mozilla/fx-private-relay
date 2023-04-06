@@ -41,14 +41,6 @@ def twilio_client() -> Client:
     return phones_config.twilio_client
 
 
-def phones_config():
-    from .apps import PhonesConfig
-
-    phones_config = apps.get_app_config("phones")
-    assert isinstance(phones_config, PhonesConfig)
-    return phones_config
-
-
 def verification_code_default():
     return str(secrets.randbelow(1000000)).zfill(6)
 

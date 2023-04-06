@@ -204,13 +204,13 @@ IQ_ENABLED = config("IQ_ENABLED", False, cast=bool)
 IQ_FOR_VERIFICATION = config("IQ_FOR_VERIFICATION", False, cast=bool)
 IQ_FOR_NEW_NUMBERS = config("IQ_FOR_NEW_NUMBERS", False, cast=bool)
 IQ_MAIN_NUMBER = config("IQ_MAIN_NUMBER", "")
-IQ_OUTBOUND_API_KEY = config("IQ_OUTBOUND_API_KEY", None)
+IQ_OUTBOUND_API_KEY: str | bool = config("IQ_OUTBOUND_API_KEY", "", cast=str)
 IQ_INBOUND_API_KEY = config("IQ_INBOUND_API_KEY", "")
 IQ_MESSAGE_API_ORIGIN = config(
-    "IQ_MESSAGE_API_ROOT", "https://messagebroker.inteliquent.com"
+    "IQ_MESSAGE_API_ORIGIN", "https://messagebroker.inteliquent.com"
 )
 IQ_MESSAGE_PATH = "/msgbroker/rest/publishMessages"
-IQ_PUBLISH_MESSAGE_URL = f"{IQ_MESSAGE_API_ORIGIN}{IQ_MESSAGE_PATH}"
+IQ_PUBLISH_MESSAGE_URL: str = f"{IQ_MESSAGE_API_ORIGIN}{IQ_MESSAGE_PATH}"
 
 DJANGO_STATSD_ENABLED = config("DJANGO_STATSD_ENABLED", False, cast=bool)
 STATSD_DEBUG = config("STATSD_DEBUG", False, cast=bool)
