@@ -31,7 +31,7 @@ body,
 
   @media screen and #{$mq-lg} {
     // Ensures that the footer stays at the bottom
-    height: 100vh;
+    height: 100%;
   }
 }
 
