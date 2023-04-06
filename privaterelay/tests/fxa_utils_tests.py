@@ -29,9 +29,9 @@ def phone_user(db):
 
 
 @patch(f"{MOCK_BASE}.get_subscription_data_from_fxa")
-def test_get_phone_subscription_dates_refreshed_twice(mocked_phone_dates, phone_user):
+def test_get_phone_subscription_dates_refreshed_twice(mocked_data_from_fxa, phone_user):
     social_account = SocialAccount.objects.get(user=phone_user)
-    mocked_phone_dates.return_value = {"social_token": "new token", "refreshed": True}
+    mocked_data_from_fxa.return_value = {"social_token": "new token", "refreshed": True}
     (
         date_subscribed_phone,
         date_phone_subscription_start,
@@ -46,10 +46,10 @@ def test_get_phone_subscription_dates_refreshed_twice(mocked_phone_dates, phone_
 @patch(f"{MOCK_BASE}.get_subscription_data_from_fxa")
 @patch(f"{MOCK_BASE}.logger.error")
 def test_get_phone_subscription_dates_subscription_not_in_data_no_free_phone(
-    mocked_logger, mocked_phone_dates, phone_user
+    mocked_logger, mocked_data_from_fxa, phone_user
 ):
     social_account = SocialAccount.objects.get(user=phone_user)
-    mocked_phone_dates.return_value = {"message": "dummy text"}
+    mocked_data_from_fxa.return_value = {"message": "dummy text"}
     (
         date_subscribed_phone,
         date_phone_subscription_start,
@@ -68,14 +68,14 @@ def test_get_phone_subscription_dates_subscription_not_in_data_no_free_phone(
 @patch(f"{MOCK_BASE}.get_subscription_data_from_fxa")
 @patch(f"{MOCK_BASE}.logger.error")
 def test_get_phone_subscription_dates_subscription_not_in_data_has_free_phone(
-    mocked_logger, mocked_phone_dates, phone_user
+    mocked_logger, mocked_data_from_fxa, phone_user
 ):
     social_account = SocialAccount.objects.get(user=phone_user)
     baker.make(Flag, name="free_phones")
     free_phones_flag = Flag.objects.filter(name="free_phones").first()
     free_phones_flag.users.add(phone_user)
     free_phones_flag.save()
-    mocked_phone_dates.return_value = {"message": "dummy text"}
+    mocked_data_from_fxa.return_value = {"message": "dummy text"}
     (
         date_subscribed_phone,
         date_phone_subscription_start,
@@ -91,7 +91,7 @@ def test_get_phone_subscription_dates_subscription_not_in_data_has_free_phone(
 @patch(f"{MOCK_BASE}.get_subscription_data_from_fxa")
 @patch(f"{MOCK_BASE}.logger.error")
 def test_get_phone_subscription_dates_subscription_not_phones(
-    mocked_logger, mocked_phone_dates, phone_user
+    mocked_logger, mocked_data_from_fxa, phone_user
 ):
     social_account = SocialAccount.objects.get(user=phone_user)
     sample_subscription_data = {
@@ -108,7 +108,7 @@ def test_get_phone_subscription_dates_subscription_not_phones(
         "product_name": "MDN Plus",
     }
     # Sample subscription data from https://mozilla.sentry.io/issues/4062336484/events/b798a75eb05c4f67937309bf8148ab8e/?project=4503976951152641
-    mocked_phone_dates.return_value = {"subscriptions": [sample_subscription_data]}
+    mocked_data_from_fxa.return_value = {"subscriptions": [sample_subscription_data]}
     (
         date_subscribed_phone,
         date_phone_subscription_start,
@@ -124,7 +124,7 @@ def test_get_phone_subscription_dates_subscription_not_phones(
 @patch(f"{MOCK_BASE}.get_subscription_data_from_fxa")
 @patch(f"{MOCK_BASE}.logger.error")
 def test_get_phone_subscription_dates_subscription_has_invalid_phone_susbscription_data(
-    mocked_logger, mocked_phone_dates, phone_user
+    mocked_logger, mocked_data_from_fxa, phone_user
 ):
     social_account = SocialAccount.objects.get(user=phone_user)
     sample_subscription_data = {
@@ -137,7 +137,7 @@ def test_get_phone_subscription_dates_subscription_has_invalid_phone_susbscripti
         "product_id": settings.PHONE_PROD_ID,
         "product_name": "Relay Email & Phone Protection",
     }
-    mocked_phone_dates.return_value = {"subscriptions": [sample_subscription_data]}
+    mocked_data_from_fxa.return_value = {"subscriptions": [sample_subscription_data]}
     (
         date_subscribed_phone,
         date_phone_subscription_start,
@@ -156,7 +156,7 @@ def test_get_phone_subscription_dates_subscription_has_invalid_phone_susbscripti
 @patch(f"{MOCK_BASE}.get_subscription_data_from_fxa")
 @patch(f"{MOCK_BASE}.logger.error")
 def test_get_phone_subscription_dates_subscription_has_phone_subscription_data(
-    mocked_logger, mocked_phone_dates, phone_user
+    mocked_logger, mocked_data_from_fxa, phone_user
 ):
     first_day_this_month = datetime.now(timezone.utc).replace(day=1)
     first_day_next_month = (first_day_this_month + timedelta(31)).replace(day=1)
@@ -175,7 +175,7 @@ def test_get_phone_subscription_dates_subscription_has_phone_subscription_data(
         "product_name": "Relay Email & Phone Protection",
     }
     # Sample subscription data from https://mozilla.sentry.io/issues/4062336484/events/b798a75eb05c4f67937309bf8148ab8e/?project=4503976951152641
-    mocked_phone_dates.return_value = {"subscriptions": [sample_subscription_data]}
+    mocked_data_from_fxa.return_value = {"subscriptions": [sample_subscription_data]}
     (
         date_subscribed_phone,
         date_phone_subscription_start,
