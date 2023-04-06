@@ -12,6 +12,10 @@ from model_bakery import baker
 from privaterelay.fxa_utils import get_phone_subscription_dates
 from waffle.models import Flag
 
+pytestmark = pytest.mark.skipif(
+    not settings.PHONES_ENABLED, reason="PHONES_ENABLED is False"
+)
+
 if settings.PHONES_ENABLED:
     from phones.tests.models_tests import make_phone_test_user
 
