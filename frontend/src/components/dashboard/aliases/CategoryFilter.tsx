@@ -81,8 +81,8 @@ export const CategoryFilter = (props: Props) => {
       >
         <FilterIcon
           alt={l10n.getString("profile-filter-category-button-label")}
-          // width={20}
-          // height={20}
+          width={20}
+          height={20}
         />
       </button>
       <OverlayContainer>
