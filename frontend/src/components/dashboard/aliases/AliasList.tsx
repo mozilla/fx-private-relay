@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import styles from "./AliasList.module.scss";
 import { AliasData, isRandomAlias } from "../../../hooks/api/aliases";
 import { ProfileData } from "../../../hooks/api/profile";
@@ -237,7 +237,6 @@ export const AliasList = (props: Props) => {
           className={`${styles["string-filter-toggle"]} ${
             stringFilterVisible ? styles["active"] : ""
           }`}
-          autoFocus={stringFilterVisible ? true : false}
         >
           <SearchIcon
             alt={l10n.getString("profile-filter-search-placeholder-2")}
