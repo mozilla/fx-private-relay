@@ -234,7 +234,9 @@ export const AliasList = (props: Props) => {
         <button
           onClick={() => setStringFilterVisible(!stringFilterVisible)}
           title={l10n.getString("profile-filter-search-placeholder-2")}
-          className={styles["string-filter-toggle"]}
+          className={`${styles["string-filter-toggle"]} ${
+            stringFilterVisible ? styles["active"] : ""
+          }`}
         >
           <SearchIcon
             alt={l10n.getString("profile-filter-search-placeholder-2")}

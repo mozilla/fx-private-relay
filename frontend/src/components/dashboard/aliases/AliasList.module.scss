@@ -53,15 +53,16 @@
   color: $color-dark-gray-50;
   border-radius: 100%;
   border-style: none;
-  width: 36px;
-  height: 36px;
+  padding: $spacing-sm;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
 
+  &.active,
   &:hover {
     background-color: $color-white;
+    color: $color-blue-50;
   }
 
   img {
@@ -126,7 +127,11 @@
 }
 
 .category-filter {
-  padding-right: $spacing-md;
+  padding-left: $spacing-xs;
+
+  @media screen and #{$mq-md} {
+    padding-left: $spacing-md;
+  }
 }
 
 .empty-state-message {
