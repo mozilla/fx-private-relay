@@ -71,7 +71,7 @@ export const SubdomainPicker = (props: Props) => {
           {l10n.getString("banner-set-email-domain-headline-action-needed")}
         </p>
         <h3>{l10n.getString("banner-set-email-domain-headline")} </h3>
-        <p className={styles.lead}>
+        <div className={styles.lead}>
           <dl className={styles["instruction-item"]}>
             <dt>
               <strong>
@@ -92,7 +92,7 @@ export const SubdomainPicker = (props: Props) => {
               })}
             </dd>
           </dl>
-        </p>
+        </div>
         <Link
           href="https://support.mozilla.org/en-US/kb/register-your-own-domain-firefox-relay-premium"
           target="_blank"
