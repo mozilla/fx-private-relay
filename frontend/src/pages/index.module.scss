@@ -41,11 +41,9 @@
     min-width: $content-xs;
   }
   .social-proof {
-    border: 0 solid $color-light-gray-20;
-    border-top-width: 1px;
-    border-bottom-width: 1px;
     padding: $spacing-lg 0;
     width: 100%;
+    max-width: 55%;
 
     @media screen and #{$mq-md} {
       width: auto;
@@ -291,4 +289,20 @@
 
 .gray-bg {
   background-color: $color-light-gray-10;
+}
+
+.testimonials-wrapper {
+  p {
+    font-family: $font-stack-base;
+    @include text-body-lg;
+  }
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  gap: 18px;
+  border: 0 solid $color-light-gray-20;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
 }
