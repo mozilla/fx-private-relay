@@ -294,6 +294,7 @@
 .testimonials-wrapper {
   p {
     font-family: $font-stack-base;
+
     @include text-body-lg;
   }
 
