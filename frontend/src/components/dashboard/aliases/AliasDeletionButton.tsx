@@ -49,7 +49,12 @@ export const AliasDeletionButton = (props: Props) => {
   const modalState = useOverlayTriggerState({});
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const cancelButton = useButton(
-    { onPress: () => modalState.close() },
+    {
+      onPress: () => {
+        modalState.close();
+        setConfirmCheckbox(false);
+      },
+    },
     cancelButtonRef
   );
 
