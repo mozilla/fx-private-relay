@@ -89,3 +89,38 @@ export const FaqAccordionLanding = () => {
     />
   );
 };
+
+export const FaqAccordionTracker = () => {
+  const l10n = useL10n();
+
+  return (
+    <FaqAccordionItem
+      entries={[
+        {
+          q: l10n.getString("faq-question-define-tracker-question"),
+          a: (
+            <p>
+              {l10n.getString("faq-question-define-tracker-answer-partone")}
+              <br />
+              <br />
+              {l10n.getString("faq-question-define-tracker-answer-parttwo")}
+            </p>
+          ),
+          expandedFirst: true,
+        },
+        {
+          q: l10n.getString("faq-question-disable-trackerremoval-question"),
+          a: l10n.getString("faq-question-disable-trackerremoval-answer"),
+        },
+        {
+          q: l10n.getString("faq-question-bulk-trackerremoval-question"),
+          a: l10n.getString("faq-question-bulk-trackerremoval-answer"),
+        },
+        {
+          q: l10n.getString("faq-question-trackerremoval-breakage-question"),
+          a: l10n.getString("faq-question-trackerremoval-breakage-answer"),
+        },
+      ]}
+    />
+  );
+};

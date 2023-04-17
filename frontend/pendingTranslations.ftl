@@ -303,3 +303,21 @@ tooltip-email-domain-explanation-title = About your unique { -brand-name-relay }
 profile-label-custom-domain = Your { -brand-name-relay } email domain:
 profile-label-set-your-custom-domain = Set your unique { -brand-name-relay } email domain
 
+
+contains-tracker-title = This link or image contains a tracker
+
+# Variables:
+#   $sender (string) - Sender of the email, e.g. person@email.com
+#   $datetime (string) - Time and date of when the email was sent, e.g. 05/06/2023 at 10:53pm EST
+contains-tracker-description =     Email trackers are surveillance tools that companies embed in emails to track your
+    online behavior. To protect your privacy, we removed this tracker from the email sent 
+    by { $sender } on { $datetime }. 
+
+contains-tracker-warning-title = Would you still like to view the link?
+contains-tracker-warning-description = Warning: Clicking on this link will send information about you back to the sender
+contains-tracker-warning-view-link-cta = Yes, view link
+
+contains-tracker-faq-section-title = Frequently asked questions about email trackers
+faq-question-define-tracker-question = What are email trackers?
+faq-question-define-tracker-answer-partone = Email tracking is a common surveillance and advertising tool that has taken over many inboxes. These trackers can be used to understand more about your online behavior, your interests, and your email activity.
+faq-question-define-tracker-answer-parttwo = A company or organization will embed a tracker in emails sent to you, usually hidden within an image or a link. When the email is opened, code within the tracker sends data back to the company.

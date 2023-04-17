@@ -5,7 +5,7 @@ import { useRuntimeData } from "../hooks/api/runtimeData";
 import { useL10n } from "../hooks/l10n";
 import { LinkButton } from "../components/Button";
 import { InfoIcon } from "../components/Icons";
-import { FaqAccordionLanding } from "../components/landing/FaqAccordion";
+import { FaqAccordionTracker } from "../components/landing/FaqAccordion";
 
 const ContainsTracker: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -51,11 +51,11 @@ const ContainsTracker: NextPage = () => {
           <div className={styles.faq}>
             <div className={styles.lead}>
               <h2 className={styles.headline}>
-                {l10n.getString("landing-faq-headline")}
+                {l10n.getString("contains-tracker-faq-section-title")}
               </h2>
             </div>
             <div className={styles.entries}>
-              <FaqAccordionLanding />
+              <FaqAccordionTracker />
             </div>
           </div>
         </section>
