@@ -92,8 +92,11 @@ describe("<AliasDeletionButton>", () => {
       name: "l10n string: [profile-label-cancel], with vars: {}",
     });
 
+   // Click confirmation checkbox on modal
     await userEvent.click(firstPromptCheckbox);
+    // Click cancel button to dismiss modal
     await userEvent.click(firstPromptCancelButton);
+    // Click delete button again
     await userEvent.click(button);
     
     const secondPrompt = screen.getByRole("dialog");
