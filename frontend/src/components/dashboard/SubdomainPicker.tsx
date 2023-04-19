@@ -9,6 +9,7 @@ import { SubdomainConfirmationModal } from "./subdomain/ConfirmationModal";
 import { getRuntimeConfig } from "../../config";
 import { useL10n } from "../../hooks/l10n";
 import Link from "next/link";
+import { useFlaggedAnchorLinks } from "../../hooks/flaggedAnchorLinks";
 
 export type Props = {
   profile: ProfileData;
@@ -24,6 +25,10 @@ export const SubdomainPicker = (props: Props) => {
   const [partialSubdomain, setPartialSubdomain] = useState("");
 
   const modalState = useOverlayTriggerState({});
+
+  // When <SubdomainPicker> gets added to the page, if there's an anchor link in the
+  // URL pointing to register a subdomain, scroll to that banner:
+  useFlaggedAnchorLinks([props.profile], ["mpp-choose-subdomain"]);
 
   if (
     !props.profile.has_premium ||
