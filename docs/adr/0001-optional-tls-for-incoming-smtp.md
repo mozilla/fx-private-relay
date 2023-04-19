@@ -140,6 +140,11 @@ or create filter rules based on TLS.
 
 ## Links
 
+- [Why do websites block Relay masks?][MPP_2922_DOC] (Mozilla-only) -
+  The technical report from an investigation of risks to the Relay service
+  ([MPP-2922][MPP_2922]). This identified the TLS requirement as the biggest
+  cause of Relay masks being blocked at website registration.
+
 - [Email receiving - Creating receipt rules][SES_RULES] -
   This is the AWS documentation for setting up email receiving, and includes
   the step for making inbound TLS to required or optional:
@@ -151,5 +156,7 @@ or create filter rules based on TLS.
 - [Is it still "wrong" to require STARTTLS on incoming SMTP messages][SERVERFAULT_Q] -
   2014 discussion of the pros and cons. The accepted answers says it should be optional.
 
+[MPP_2922_DOC]: https://docs.google.com/document/d/10mZUt8TiVflmx-d4pIyZ2YyFZh4NOPydo1l_i4Prlhk/view
+[MPP_2922]: https://mozilla-hub.atlassian.net/browse/MPP-2922
 [SES_RULES]: https://docs.aws.amazon.com/ses/latest/dg/receiving-email-receipt-rules-console-walkthrough.html
 [SERVERFAULT_Q]: https://serverfault.com/q/623692/3455
