@@ -22,6 +22,10 @@ class RelayMessageFinder(DjangoMessageFinder):
         return base_dirs + pending_dirs
 
 
+# The django_ftl package requires the names of the Fluent files.
+# Only the ones with strings used by the backend are loaded.
+# See frontend/src/functions/getL10n.ts for frontend bundle setup.
+# The frontend, which uses more strings, loads all files ending in .ftl.
 main = Bundle(
     [
         "brands.ftl",  # Brand names, used in other messages
