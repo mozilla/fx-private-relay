@@ -23,5 +23,12 @@ class RelayMessageFinder(DjangoMessageFinder):
 
 
 main = Bundle(
-    ["app.ftl", "brands.ftl", "phones.ftl", "pending.ftl"], finder=RelayMessageFinder()
+    [
+        "brands.ftl",  # Brand names, used in other messages
+        "layout.ftl",  # Strings in HTML <meta> tags, etc.
+        "misc.ftl",  # Error messages
+        "pending.ftl",  # The backend pending translations, ./en/pending.ftl
+        "phones.ftl",  # SMS errors
+    ],
+    finder=RelayMessageFinder(),
 )
