@@ -31,10 +31,9 @@
   background-color: $color-white;
 
   .faq {
-    width: $content-max;
-    max-width: 100%;
+    max-width: $content-xl;
     margin: 0 auto;
-    padding: $spacing-lg;
+    padding: 0 $layout-sm;
     display: flex;
     flex-direction: column;
 
@@ -42,7 +41,7 @@
       flex: 0.6;
 
       @media screen and #{$mq-md} {
-        padding: 0 $spacing-2xl;
+        padding: $spacing-2xl $spacing-2xl 0 0;
       }
 
       .headline {
@@ -69,11 +68,7 @@
 
     .entries {
       flex: 1;
-      padding-top: $spacing-lg;
-
-      @media screen and #{$mq-md} {
-        padding: 0 $spacing-2xl;
-      }
+      padding: $spacing-lg 0;
     }
 
     @media screen and #{$mq-md} {
