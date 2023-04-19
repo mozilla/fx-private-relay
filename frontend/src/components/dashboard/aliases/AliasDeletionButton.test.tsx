@@ -74,10 +74,7 @@ describe("<AliasDeletionButton>", () => {
 
   it("resets the inputs on the confirmation prompt when reopened, after clicking the Cancel button", async () => {
     render(
-      <div>
-
-        <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />
-      </div>
+      <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />
     );
 
     const button = screen.getByRole("button", {
@@ -92,13 +89,13 @@ describe("<AliasDeletionButton>", () => {
       name: "l10n string: [profile-label-cancel], with vars: {}",
     });
 
-   // Click confirmation checkbox on modal
+    // Click confirmation checkbox on modal
     await userEvent.click(firstPromptCheckbox);
     // Click cancel button to dismiss modal
     await userEvent.click(firstPromptCancelButton);
     // Click delete button again
     await userEvent.click(button);
-    
+
     const secondPrompt = screen.getByRole("dialog");
     const secondPromptDeleteButton = within(secondPrompt).getByRole("button", {
       name: "l10n string: [profile-label-delete], with vars: {}",
@@ -111,10 +108,7 @@ describe("<AliasDeletionButton>", () => {
 
   it("resets the inputs on the confirmation prompt when reopened, after clicking off the propmt", async () => {
     render(
-      <div>
-        <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />
-        <aside></aside>
-      </div>
+      <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />
     );
 
     const button = screen.getByRole("button", {
@@ -123,14 +117,16 @@ describe("<AliasDeletionButton>", () => {
 
     await userEvent.click(button);
 
-    const aside = screen.getByRole("complementary");
     const firstPrompt = screen.getByRole("dialog");
     const firstPromptCheckbox = within(firstPrompt).getByRole("checkbox");
 
+    // Click confirmation checkbox on modal
     await userEvent.click(firstPromptCheckbox);
-    await userEvent.click(aside);
+    // Click outside modal to dismiss modal
+    await userEvent.click(document.body);
+    // Click delete button again
     await userEvent.click(button);
-    
+
     const secondPrompt = screen.getByRole("dialog");
     const secondPromptDeleteButton = within(secondPrompt).getByRole("button", {
       name: "l10n string: [profile-label-delete], with vars: {}",
