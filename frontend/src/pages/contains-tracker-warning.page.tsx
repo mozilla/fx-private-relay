@@ -6,6 +6,7 @@ import { useL10n } from "../hooks/l10n";
 import { LinkButton } from "../components/Button";
 import { InfoIcon } from "../components/Icons";
 import { FaqAccordionTracker } from "../components/landing/FaqAccordion";
+import { Banner } from "../components/Banner";
 
 const ContainsTracker: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -23,6 +24,20 @@ const ContainsTracker: NextPage = () => {
 
   const linkToView = "#";
 
+  const TrackerWarningBanner = (
+    <Banner
+      type="warning"
+      title={l10n.getString("contains-tracker-warning-title")}
+      cta={{
+        content: l10n.getString("contains-tracker-warning-view-link-cta"),
+        size: "large",
+        target: linkToView,
+      }}
+    >
+      {l10n.getString("contains-tracker-warning-description")}
+    </Banner>
+  );
+
   return (
     <Layout theme="free" runtimeData={runtimeData.data}>
       <main>
@@ -31,7 +46,7 @@ const ContainsTracker: NextPage = () => {
             <h1>{l10n.getString("contains-tracker-title")}</h1>
             <p>{TrackerWarningDescription}</p>
 
-            <div className={styles["contains-tracker-warning-banner"]}>
+            {/* <div className={styles["contains-tracker-warning-banner"]}>
               <div>
                 <dt>
                   <InfoIcon alt="" />
@@ -44,7 +59,8 @@ const ContainsTracker: NextPage = () => {
               <LinkButton href={linkToView}>
                 {l10n.getString("contains-tracker-warning-view-link-cta")}
               </LinkButton>
-            </div>
+            </div> */}
+            {TrackerWarningBanner}
           </div>
         </section>
         <section id="faq" className={styles["faq-wrapper"]}>
