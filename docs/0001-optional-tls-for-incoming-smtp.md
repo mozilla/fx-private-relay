@@ -124,8 +124,8 @@ our user's true email.
 `STARTTLS` will now be forwarded to Relay users.
 
 **Bad** - Relay users will not know if an email was sent with TLS or not.
-Amazon SES does not provide this data. This prevents Relay from allowing users
-to decide about requiring TLS, or creating filter rules based on TLS.
+Amazon SES does not provide this data. So Relay users can't require TLS
+or create filter rules based on TLS.
 
 **Bad** - We may see an increase in unwanted emails. One mail administrator
 [reports][SERVERFAULT_COMMENT]:
