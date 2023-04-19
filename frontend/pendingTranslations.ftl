@@ -311,7 +311,7 @@ contains-tracker-title = This link or image contains a tracker
 #   $datetime (string) - Time and date of when the email was sent, e.g. 05/06/2023 at 10:53pm EST
 contains-tracker-description =     Email trackers are surveillance tools that companies embed in emails to track your
     online behavior. To protect your privacy, we removed this tracker from the email sent 
-    by { $sender } on { $datetime }. 
+    by <u>{ $sender }</u> on { $datetime }. 
 
 contains-tracker-warning-title = Would you still like to view the link?
 contains-tracker-warning-description = Warning: Clicking on this link will send information about you back to the sender

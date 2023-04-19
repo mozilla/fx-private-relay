@@ -2,18 +2,28 @@
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 
 .contains-tracker-container {
-  display: flex;
-  flex-direction: column;
-  max-width: $content-lg;
-  margin: $layout-md auto;
+  margin: $layout-sm;
 
-  .contains-tracker-warning-banner {
-    background: $color-white;
-    box-shadow: $box-shadow-sm;
+  @media screen and #{$mq-md} {
+    max-width: $content-xl;
+    margin: $layout-md auto;
+    padding: 0 $layout-sm;
+  }
+
+  .details-section {
+    gap: $layout-xs;
     display: flex;
-    border-radius: $border-radius-md;
-    flex-direction: row;
-    justify-content: space-between;
+    flex-direction: column;
+
+    h1 {
+      font-family: $font-stack-firefox;
+      border-bottom: 1px solid $color-light-gray-30;
+      padding-bottom: $spacing-xs;
+    }
+
+    .warning-banner {
+      margin-top: $spacing-sm;
+    }
   }
 }
 
@@ -29,17 +39,21 @@
     flex-direction: column;
 
     .lead {
-      flex: 1 0 0;
+      flex: 0.6;
 
       @media screen and #{$mq-md} {
         padding: 0 $spacing-2xl;
       }
 
       .headline {
-        @include text-title-sm;
+        @include text-title-xs;
         font-family: $font-stack-firefox;
-        font-weight: 500;
+        font-weight: 700;
         padding: $spacing-md 0;
+
+        @media screen and #{$mq-md} {
+          @include text-title-2xs;
+        }
       }
 
       .read-more {
@@ -54,7 +68,7 @@
     }
 
     .entries {
-      flex: 1 0 0;
+      flex: 1;
       padding-top: $spacing-lg;
 
       @media screen and #{$mq-md} {
