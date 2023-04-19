@@ -74,7 +74,7 @@ risk.
 
 **Good** - With the "Required TLS" setting, we can be sure that a third party
 can not view or modify the email in transit. One example from 2014 is
-[ISPs in Thailand and the US][EFF-STARTTLS] stripping the `STARTTLS` flag
+[ISPs in Thailand and the US][EFF_STARTTLS] stripping the `STARTTLS` flag
 from SMTP sessions, making it looks like TLS was not supported and forcing
 email to be sent in the clear. They may have done this to read data from the
 email or to modify it in flight.
@@ -85,7 +85,7 @@ report all Relay masks as invalid. Examples are the Email Dossier on
 [Kickbox][KICKBOX], a email verification provider with over 150,000 clients.
 
 **Bad** - Some emails are discarded when TLS is required. The Google report on
-[Email encryption in transit][GOOGLE-EMAIL] shows 95% of inbound emails in 2022
+[Email encryption in transit][GOOGLE_EMAIL] shows 95% of inbound emails in 2022
 were sent with TLS encryption, and 5% were not. Relay users may be surprised if
 5% of emails are discarded, especially if their true email provider accepts
 them.
@@ -109,8 +109,8 @@ Our inbound SMTP server, via `dig mozmail.com MX`, is provided by AWS SES:
 mozmail.com.		600	IN	MX	10 inbound-smtp.us-west-2.amazonaws.com.
 ```
 
-[EFF-STARTTLS]: https://www.eff.org/deeplinks/2014/11/starttls-downgrade-attacks
-[GOOGLE-EMAIL]: https://transparencyreport.google.com/safer-email/overview
+[EFF_STARTTLS]: https://www.eff.org/deeplinks/2014/11/starttls-downgrade-attacks
+[GOOGLE_EMAIL]: https://transparencyreport.google.com/safer-email/overview
 [RFC3207]: https://www.rfc-editor.org/rfc/rfc3207
 [CENTRALOPS]: https://centralops.net/co/
 [KICKBOX]: https://kickbox.com/
