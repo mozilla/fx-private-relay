@@ -116,7 +116,9 @@ export const Layout = (props: Props) => {
   );
 
   const PlainPageHeader = (
-    <header className={`${styles.header} ${styles["is-transparent"]}`}>
+    <header
+      className={`${styles.header} ${styles["is-grey"]} ${styles["plain-page"]}`}
+    >
       <div className={`${styles["logo-wrapper"]} ${styles["plain-page"]}`}>
         <Link href={homePath} className={styles.logo}>
           {RelayHeaderLogo}
