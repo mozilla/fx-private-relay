@@ -170,6 +170,10 @@ $toastify-toast-close-button: var(--toast-close-button);
     align-items: center;
     max-width: calc(100% - $spacing-md);
 
+    &.plain-page {
+      justify-content: center;
+    }
+
     .logo {
       display: inline-flex;
       align-items: center;
@@ -234,6 +238,10 @@ $toastify-toast-close-button: var(--toast-close-button);
   &.is-light {
     background-color: $color-white;
     color: $color-grey-40;
+  }
+
+  &.is-transparent {
+    background-color: none;
   }
 
   @media screen and #{$mq-md} {

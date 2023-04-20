@@ -102,6 +102,29 @@ export const Layout = (props: Props) => {
       </div>
     );
   };
+
+  const RelayHeaderLogo = (
+    <>
+      <Image src={logo} alt="" className={styles.logomark} width={42} />
+      <Image
+        src={logoType}
+        alt={l10n.getString("logo-alt")}
+        className={styles.logotype}
+        height={20}
+      />
+    </>
+  );
+
+  const PlainPageHeader = (
+    <header className={`${styles.header} ${styles["is-transparent"]}`}>
+      <div className={`${styles["logo-wrapper"]} ${styles["plain-page"]}`}>
+        <Link href={homePath} className={styles.logo}>
+          {RelayHeaderLogo}
+        </Link>
+      </div>
+    </header>
+  );
+
   return (
     <>
       <PageMetadata />
@@ -111,28 +134,19 @@ export const Layout = (props: Props) => {
           profile={profiles.data?.[0]}
           runtimeData={props.runtimeData}
         />
-        {props.theme !== "plain" ? (
+        {props.theme === "plain" ? (
+          PlainPageHeader
+        ) : (
           <header className={`${styles.header} ${darkClass}`}>
             <div className={styles["logo-wrapper"]}>
               <Link href={homePath} className={styles.logo}>
-                {router.pathname === "/vpn-relay-welcome" ? (
-                  <Image src={vpnRelayLogo} alt="" height={32} />
-                ) : (
-                  <>
-                    <Image
-                      src={logo}
-                      alt=""
-                      className={styles.logomark}
-                      width={42}
-                    />
-                    <Image
-                      src={logoType}
-                      alt={logoAlt}
-                      className={styles.logotype}
-                      height={20}
-                    />
-                  </>
-                )}
+                <>
+                  {router.pathname === "/vpn-relay-welcome" ? (
+                    <Image src={vpnRelayLogo} alt="" height={32} />
+                  ) : (
+                    RelayHeaderLogo
+                  )}
+                </>
               </Link>
             </div>
             <div className={styles["nav-wrapper"]}>
@@ -145,29 +159,6 @@ export const Layout = (props: Props) => {
                 profile={profiles.data?.[0]}
               />
             </div>
-          </header>
-        ) : (
-          <header className={`${styles.header} ${darkClass}`}>
-            <Link href={homePath} className={styles.logo}>
-              {router.pathname === "/vpn-relay-welcome" ? (
-                <Image src={vpnRelayLogo} alt="" height={32} />
-              ) : (
-                <>
-                  <Image
-                    src={logo}
-                    alt=""
-                    className={styles.logomark}
-                    width={42}
-                  />
-                  <Image
-                    src={logoType}
-                    alt={logoAlt}
-                    className={styles.logotype}
-                    height={20}
-                  />
-                </>
-              )}
-            </Link>
           </header>
         )}
 
