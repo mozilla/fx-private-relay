@@ -28,6 +28,11 @@ body,
 #__next,
 #overlayProvider {
   font-family: $font-stack-base;
+
+  @media screen and #{$mq-lg} {
+    // Ensures that the footer stays at the bottom
+    height: 100%;
+  }
 }
 
 html {
