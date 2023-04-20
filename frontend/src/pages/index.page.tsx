@@ -55,11 +55,14 @@ const Home: NextPage = () => {
             >
               {l10n.getString("hero-section-cta")}
             </LinkButton>
-            <Image
-              src={Testimonials}
-              alt="Forbes, ZDNet, Lifehacker, PCMag"
-              className={styles["social-proof"]}
-            />
+            <div className={styles["testimonials-wrapper"]}>
+              <p>{l10n.getString("hero-section-social-proof")}:</p>
+              <Image
+                src={Testimonials}
+                alt="Forbes, ZDNet, Lifehacker, PCMag"
+                className={styles["social-proof"]}
+              />
+            </div>
           </div>
           <div className={styles["demo-phone"]}>
             <DemoPhone

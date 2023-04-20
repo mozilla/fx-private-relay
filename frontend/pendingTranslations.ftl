@@ -303,3 +303,4 @@ tooltip-email-domain-explanation-title = About your unique { -brand-name-relay }
 profile-label-custom-domain = Your { -brand-name-relay } email domain:
 profile-label-set-your-custom-domain = Set your unique { -brand-name-relay } email domain
 
+hero-section-social-proof = As seen in
