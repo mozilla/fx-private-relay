@@ -227,9 +227,6 @@ export const Layout = (props: Props) => {
                 </li>
               </ul>
             </div>
-            <small className={styles["stock-photo-disclaimer"]}>
-              {l10n.getString("nav-footer-stock-photo-legal")}
-            </small>
           </footer>
         </div>
       </div>
