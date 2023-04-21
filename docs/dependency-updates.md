@@ -164,3 +164,9 @@ dropdown at `/premium/waitlist`, so if you see that, it's all good.
 Used to run basic code formatting when committing. You can verify that these
 work locally by changing formatting (e.g. changing `"` into `'`) and checking
 that it gets changed back (resulting in an empty commit) when committing.
+
+### `chokidar-cli`
+
+To watch files when running `npm run watch`. You can verify that this still
+works by running that command and making sure that the server restarts if you
+edit a source file.
