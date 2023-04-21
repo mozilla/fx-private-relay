@@ -2,14 +2,13 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 import hashlib
 import logging
-import phonenumbers
 import re
-from rest_framework.request import Request
 import string
 from typing import Any, Literal, Optional
 
 from waffle import get_waffle_flag_model
 import django_ftl
+import phonenumbers
 
 from django.apps import apps
 from django.conf import settings
@@ -25,8 +24,12 @@ from rest_framework import (
     exceptions,
 )
 from rest_framework.generics import get_object_or_404
+from rest_framework.request import Request
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 
 from twilio.base.exceptions import TwilioRestException
+from waffle import flag_is_active
 
 from api.views import SaveToRequestUser
 from emails.utils import incr_if_enabled
@@ -365,9 +368,12 @@ class InboundContactViewSet(viewsets.ModelViewSet):
         return InboundContact.objects.filter(relay_number=request_user_relay_num)
 
 
-def _validate_number(request):
+def _validate_number(request, number_field="number"):
+    if number_field not in request.data:
+        raise exceptions.ValidationError({number_field: "A number is required."})
+
     parsed_number = _parse_number(
-        request.data["number"], getattr(request, "country", None)
+        request.data[number_field], getattr(request, "country", None)
     )
     if not parsed_number:
         country = None
@@ -729,6 +735,187 @@ def sms_status(request):
     message = client.messages(message_sid)
     _try_delete_from_twilio(message)
     return response.Response(status=200)
+
+
+call_body = openapi.Schema(
+    type=openapi.TYPE_OBJECT,
+    required=["to"],
+    properties={"to": openapi.Schema(type=openapi.TYPE_STRING)},
+)
+
+
+@decorators.permission_classes([permissions.IsAuthenticated, HasPhoneService])
+@swagger_auto_schema(method="post", request_body=call_body)
+@decorators.api_view(["POST"])
+def outbound_call(request):
+    """Make a call from the authenticated user's relay number."""
+    # TODO: Create or update an OutboundContact (new model) on send, or limit
+    # to InboundContacts.
+    if not flag_is_active(request, "outbound_phone"):
+        # Return Permission Denied error
+        return response.Response(
+            {"detail": "Requires outbound_phone waffle flag."}, status=403
+        )
+    try:
+        real_phone = RealPhone.objects.get(user=request.user, verified=True)
+    except RealPhone.DoesNotExist:
+        return response.Response(
+            {"detail": "Requires a verified real phone and phone mask."}, status=400
+        )
+    try:
+        relay_number = RelayNumber.objects.get(user=request.user)
+    except RelayNumber.DoesNotExist:
+        return response.Response({"detail": "Requires a phone mask."}, status=400)
+
+    client = twilio_client()
+
+    to = _validate_number(request, "to")  # Raises ValidationError on invalid number
+    client.calls.create(
+        twiml=(
+            f"<Response><Say>Dialing {to.national_format} ...</Say>"
+            f"<Dial>{to.phone_number}</Dial></Response>"
+        ),
+        to=real_phone.number,
+        from_=relay_number.number,
+    )
+    return response.Response(status=200)
+
+
+message_request_body = openapi.Schema(
+    type=openapi.TYPE_OBJECT,
+    properties={
+        "body": openapi.Schema(type=openapi.TYPE_STRING),
+        "destination": openapi.Schema(type=openapi.TYPE_STRING),
+    },
+)
+
+
+@decorators.permission_classes([permissions.IsAuthenticated, HasPhoneService])
+@swagger_auto_schema(method="post", request_body=message_request_body)
+@decorators.api_view(["POST"])
+def outbound_sms(request):
+    """
+    Send a message from the user's relay number.
+
+    POST params:
+        body: the body of the message
+        destination: E.164-formatted phone number
+
+    """
+    # TODO: Create or update an OutboundContact (new model) on send, or limit
+    # to InboundContacts.
+    # TODO: Reduce user's SMS messages for the month by one
+    if not flag_is_active(request, "outbound_phone"):
+        return response.Response(
+            {"detail": "Requires outbound_phone waffle flag."}, status=403
+        )
+    try:
+        relay_number = RelayNumber.objects.get(user=request.user)
+    except RelayNumber.DoesNotExist:
+        return response.Response({"detail": "Requires a phone mask."}, status=400)
+
+    errors = {}
+    body = request.data.get("body")
+    if not body:
+        errors["body"] = "A message body is required."
+    destination_number = request.data.get("destination")
+    if not destination_number:
+        errors["destination"] = "A destination number is required."
+    if errors:
+        return response.Response(errors, status=400)
+
+    # Raises ValidationError on invalid number
+    to = _validate_number(request, "destination")
+
+    client = twilio_client()
+    client.messages.create(from_=relay_number.number, body=body, to=to.phone_number)
+    return response.Response(status=200)
+
+
+messages_query = [
+    openapi.Parameter(
+        "with",
+        openapi.IN_QUERY,
+        description="filter to messages with the given E.164 number",
+        type=openapi.TYPE_STRING,
+        required=False,
+    ),
+    openapi.Parameter(
+        "direction",
+        openapi.IN_QUERY,
+        description="filter to inbound or outbound messages",
+        type=openapi.TYPE_STRING,
+        enum=["inbound", "outbound"],
+        required=False,
+    ),
+]
+
+
+@decorators.permission_classes([permissions.IsAuthenticated, HasPhoneService])
+@swagger_auto_schema(method="get", manual_parameters=messages_query)
+@decorators.api_view(["GET"])
+def list_messages(request):
+    """
+    Get the user's SMS messages sent to or from the phone mask
+
+    Pass ?with=<E.164> parameter to filter the messages to only the ones sent between
+    the phone mask and the <E.164> number.
+
+    Pass ?direction=inbound|outbound to filter the messages to only the inbound or
+    outbound messages. If omitted, return both.
+    """
+    # TODO: Support filtering to messages for outbound-only phones.
+    # TODO: Show data from our own (encrypted) store, rather than from Twilio's
+
+    if not flag_is_active(request, "outbound_phone"):
+        return response.Response(
+            {"detail": "Requires outbound_phone waffle flag."}, status=403
+        )
+    try:
+        relay_number = RelayNumber.objects.get(user=request.user)
+    except RelayNumber.DoesNotExist:
+        return response.Response({"detail": "Requires a phone mask."}, status=400)
+
+    _with = request.query_params.get("with", None)
+    _direction = request.query_params.get("direction", None)
+    if _direction and _direction not in ("inbound", "outbound"):
+        return response.Response(
+            {"direction": "Invalid value, valid values are 'inbound' or 'outbound'"},
+            status=400,
+        )
+
+    contact = None
+    if _with:
+        try:
+            contact = InboundContact.objects.get(
+                relay_number=relay_number, inbound_number=_with
+            )
+        except InboundContact.DoesNotExist:
+            return response.Response(
+                {"with": "No inbound contacts matching the number"}, status=400
+            )
+
+    data = {}
+    client = twilio_client()
+    if not _direction or _direction == "inbound":
+        # Query Twilio for SMS messages to the user's phone mask
+        params = {"to": relay_number.number}
+        if contact:
+            # Filter query to SMS from this contact to the phone mask
+            params["from_"] = contact.inbound_number
+        data["inbound_messages"] = convert_twilio_messages_to_dict(
+            client.messages.list(**params)
+        )
+    if not _direction or _direction == "outbound":
+        # Query Twilio for SMS messages from the user's phone mask
+        params = {"from_": relay_number.number}
+        if contact:
+            # Filter query to SMS from the phone mask to this contact
+            params["to"] = contact.inbound_number
+        data["outbound_messages"] = convert_twilio_messages_to_dict(
+            client.messages.list(**params)
+        )
+    return response.Response(data, status=200)
 
 
 def _get_phone_objects(inbound_to):
@@ -1139,7 +1326,9 @@ def _validate_twilio_request(request):
 def compute_iq_mac(message_id: str) -> str:
     iq_api_key = settings.IQ_INBOUND_API_KEY
     # FIXME: switch to proper hmac when iQ is ready
-    # mac = hmac.new(iq_api_key.encode(), msg=message_id.encode(), digestmod=hashlib.sha256)
+    # mac = hmac.new(
+    #     iq_api_key.encode(), msg=message_id.encode(), digestmod=hashlib.sha256
+    # )
     combined = iq_api_key + message_id
     return hashlib.sha256(combined.encode()).hexdigest()
 
@@ -1158,3 +1347,19 @@ def _validate_iq_request(request: Request) -> None:
 
     if mac != token:
         raise exceptions.AuthenticationFailed("verficiationToken != computed sha256")
+
+
+def convert_twilio_messages_to_dict(twilio_messages):
+    """
+    To serialize twilio messages to JSON for the API,
+    we need to convert them into dictionaries.
+    """
+    messages_as_dicts = []
+    for twilio_message in twilio_messages:
+        message = {}
+        message["from"] = twilio_message.from_
+        message["to"] = twilio_message.to
+        message["date_sent"] = twilio_message.date_sent
+        message["body"] = twilio_message.body
+        messages_as_dicts.append(message)
+    return messages_as_dicts
