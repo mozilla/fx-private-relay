@@ -210,8 +210,8 @@ class RemoveTrackers(TestCase):
 
     def test_complex_general_tracker_replaced_with_relay_content(self):
         content = (
-            '<a href="https://open.tracker.com/foo/bar.html">A link</a>\n'
-            + '<img src="https://open.tracker.com/foo/bar.jpg">An image</img>'
+            "<a href='https://foo.open.tracker.com/foo/bar.html'>A link</a>\n"
+            + "<img src='https://bar.open.tracker.com/foo/bar.jpg'>An image</img>"
         )
         from_address = "spammer@email.com"
         changed_content, tracker_details = remove_trackers(content, from_address)
@@ -224,8 +224,8 @@ class RemoveTrackers(TestCase):
 
     def test_complex_single_quote_general_tracker_replaced_with_relay_content(self):
         content = (
-            '<a href="https://open.tracker.com/foo/bar.html">A link</a>\n'
-            + '<img src="https://open.tracker.com/foo/bar.jpg">An image</img>'
+            "<a href='https://foo.open.tracker.com/foo/bar.html'>A link</a>\n"
+            + "<img src='https://bar.open.tracker.com/foo/bar.jpg'>An image</img>"
         )
         from_address = "spammer@email.com"
         changed_content, tracker_details = remove_trackers(content, from_address)
@@ -238,8 +238,8 @@ class RemoveTrackers(TestCase):
 
     def test_no_tracker_replaced_with_relay_content(self):
         content = (
-            '<a href="https://open.tracker.com/foo/bar.html">A link</a>\n'
-            + '<img src="https://open.tracker.com/foo/bar.jpg">An image</img>'
+            '<a href="https://fooopen.tracker.com/foo/bar.html">A link</a>\n'
+            + '<img src="https://baropen.tracker.com/foo/bar.jpg">An image</img>'
         )
         from_address = "spammer@email.com"
         changed_content, tracker_details = remove_trackers(content, from_address)
