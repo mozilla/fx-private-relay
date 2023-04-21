@@ -199,7 +199,7 @@ class RemoveTrackers(TestCase):
             '<a href="https://open.tracker.com/foo/bar.html">A link</a>\n'
             + '<img src="https://open.tracker.com/foo/bar.jpg">An image</img>'
         )
-        from_address = "spammer@gmail.com"
+        from_address = "spammer@email.com"
         changed_content, tracker_details = remove_trackers(content, from_address)
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
@@ -213,7 +213,7 @@ class RemoveTrackers(TestCase):
             '<a href="https://open.tracker.com/foo/bar.html">A link</a>\n'
             + '<img src="https://open.tracker.com/foo/bar.jpg">An image</img>'
         )
-        from_address = "spammer@gmail.com"
+        from_address = "spammer@email.com"
         changed_content, tracker_details = remove_trackers(content, from_address)
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
@@ -227,7 +227,7 @@ class RemoveTrackers(TestCase):
             '<a href="https://open.tracker.com/foo/bar.html">A link</a>\n'
             + '<img src="https://open.tracker.com/foo/bar.jpg">An image</img>'
         )
-        from_address = "spammer@gmail.com"
+        from_address = "spammer@email.com"
         changed_content, tracker_details = remove_trackers(content, from_address)
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
@@ -241,7 +241,7 @@ class RemoveTrackers(TestCase):
             '<a href="https://open.tracker.com/foo/bar.html">A link</a>\n'
             + '<img src="https://open.tracker.com/foo/bar.jpg">An image</img>'
         )
-        from_address = "spammer@gmail.com"
+        from_address = "spammer@email.com"
         changed_content, tracker_details = remove_trackers(content, from_address)
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
@@ -256,7 +256,7 @@ class RemoveTrackers(TestCase):
         self,
     ):
         content = "<a href='https://foo.open.tracker.com/foo/bar.html?src=trckr.com'>A link</a>"
-        from_address = "spammer@gmail.com"
+        from_address = "spammer@email.com"
         changed_content, tracker_details = remove_trackers(content, from_address)
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
@@ -269,7 +269,7 @@ class RemoveTrackers(TestCase):
         self,
     ):
         content = "<a href='https://foo.open.tracker.com/foo/bar.html?src=trckr.com'>trckr.com</a>"
-        from_address = "spammer@gmail.com"
+        from_address = "spammer@email.com"
         changed_content, tracker_details = remove_trackers(content, from_address)
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
@@ -283,7 +283,7 @@ class RemoveTrackers(TestCase):
             '<a href="https://strict.tracker.com/foo/bar.html">A link</a>\n'
             + '<img src="https://strict.tracker.com/foo/bar.jpg">An image</img>'
         )
-        from_address = "spammer@gmail.com"
+        from_address = "spammer@email.com"
         changed_content, tracker_details = remove_trackers(content, from_address)
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
