@@ -118,7 +118,7 @@ export const FaqAccordionTracker = () => {
         },
         {
           q: l10n.getString("faq-question-trackerremoval-breakage-question"),
-          a: l10n.getString("faq-question-trackerremoval-breakage-answer"),
+          a: l10n.getString("faq-question-trackerremoval-breakage-answer-2"),
         },
       ]}
     />

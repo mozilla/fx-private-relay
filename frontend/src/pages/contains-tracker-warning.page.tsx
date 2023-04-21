@@ -41,7 +41,7 @@ const ContainsTracker: NextPage = () => {
 
   return (
     <Layout theme="plain" runtimeData={runtimeData.data}>
-      <main>
+      <main className={styles["contains-tracker-main"]}>
         <section className={styles["contains-tracker-container"]}>
           <div className={styles["details-section"]}>
             <h1>{l10n.getString("contains-tracker-title")}</h1>

@@ -33,6 +33,7 @@ import { useL10n } from "../../hooks/l10n";
 
 export type Props = {
   children: ReactNode;
+  // Plain page used for pages without the typical header bag, e.g. tracker report page
   theme?: "free" | "premium" | "plain";
   runtimeData?: RuntimeData;
 };
@@ -108,7 +109,7 @@ export const Layout = (props: Props) => {
       <Image src={logo} alt="" className={styles.logomark} width={42} />
       <Image
         src={logoType}
-        alt={l10n.getString("logo-alt")}
+        alt={logoAlt}
         className={styles.logotype}
         height={20}
       />
