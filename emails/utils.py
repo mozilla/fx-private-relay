@@ -471,7 +471,7 @@ def remove_trackers(
         )
         changed_content, matched = re.subn(
             pattern,
-            rf"\g<1>{settings.SITE_ORIGIN}{tracker_warning_page}",
+            rf"\g<1>{settings.SITE_ORIGIN}{tracker_warning_page}\g<1>",
             changed_content,
         )
         tracker_removed += matched
