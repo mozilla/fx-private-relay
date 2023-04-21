@@ -88,7 +88,7 @@ export const SubdomainPicker = (props: Props) => {
             </dt>
             <dd>
               {l10n.getString("banner-set-email-domain-step-two-body", {
-                mozmail: "@mozmail.com",
+                mozmail: "mozmail.com",
               })}
             </dd>
           </dl>
