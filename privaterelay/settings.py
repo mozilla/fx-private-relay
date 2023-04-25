@@ -918,7 +918,7 @@ sentry_sdk.init(
     dsn=config("SENTRY_DSN", None),
     integrations=[DjangoIntegration()],
     debug=SENTRY_DEBUG,
-    with_locals=DEBUG,
+    include_local_variables=DEBUG,
     release=sentry_release,
     environment=SENTRY_ENVIRONMENT,
 )
