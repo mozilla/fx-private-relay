@@ -448,11 +448,7 @@ def count_all_trackers(html_content):
     )
 
 
-def remove_trackers(
-    html_content,
-    from_address,
-    level="general",
-):
+def remove_trackers(html_content, from_address, level="general"):
     trackers = general_trackers() if level == "general" else strict_trackers()
     tracker_removed = 0
     changed_content = html_content
