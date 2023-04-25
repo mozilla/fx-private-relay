@@ -184,7 +184,7 @@ def _start_message_with_headers(
     msg["To"] = to_address
     msg["Reply-To"] = reply_address
     if isinstance(relay_address, (RelayAddress, DomainAddress)):
-        msg["X-Forwarded-For"] = str(relay_address.id)
+        msg["X-Forwarded-For"] = str(relay_address.full_address)
     return msg
 
 
