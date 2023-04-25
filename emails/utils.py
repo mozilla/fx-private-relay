@@ -463,7 +463,7 @@ def remove_trackers(html_content, from_address, level="general"):
             "original_link": original_link,
         }
         tracker_warning_page = "contains-tracker-warning/#" + json.dumps(
-            tracker_link_details
+            tracker_link_details, separators=(",", ":")
         )
         changed_content, matched = re.subn(
             pattern,
