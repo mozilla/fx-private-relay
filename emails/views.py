@@ -516,10 +516,10 @@ def _sns_message(message_json):
     if html_content:
         incr_if_enabled("email_with_html_content", 1)
         tracker_removal_flag = Flag.objects.filter(name="tracker_removal").first()
-        tracker_removal_flag_active = tracker_removal_flag and {
+        tracker_removal_flag_active = tracker_removal_flag and (
             tracker_removal_flag.is_active_for_user(address.user)
             or tracker_removal_flag.everyone
-        }
+        )
         if tracker_removal_flag_active and user_profile.remove_level_one_email_trackers:
             html_content, tracker_details = remove_trackers(html_content, from_address)
             removed_count = tracker_details["tracker_removed"]
