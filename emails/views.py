@@ -577,6 +577,7 @@ def _sns_message(message_json):
         attachments,
         mail,
         address,
+        from_address,
     )
     if response.status_code == 503:
         # early return the response to trigger SNS to re-attempt
@@ -832,6 +833,7 @@ def _handle_reply(from_address, message_json, to_address):
             outbound_from_address,
             mail,
             address,
+            from_address,
         )
         reply_record.increment_num_replied()
         profile = address.user.profile

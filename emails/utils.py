@@ -145,9 +145,10 @@ def ses_send_raw_email(
     reply_address,
     mail,
     address,
+    original_from_address,
 ):
     msg_with_headers = _start_message_with_headers(
-        subject, from_address, to_address, reply_address, address
+        subject, from_address, to_address, reply_address, address, original_from_address
     )
     msg_with_body = _add_body_to_message(msg_with_headers, message_body)
     msg_with_attachments = _add_attachments_to_message(msg_with_body, attachments)
@@ -174,15 +175,23 @@ def ses_send_raw_email(
 
 
 def _start_message_with_headers(
-    subject, from_address, to_address, reply_address, relay_address
+    subject,
+    from_address,
+    to_address,
+    reply_address,
+    relay_address,
+    original_from_address,
 ):
     # Create a multipart/mixed parent container.
     msg = MIMEMultipart("mixed")
     # Add subject, from and to lines.
     msg["Subject"] = subject
-    msg["From"] = from_address
+    msg["From"] = original_from_address
     msg["To"] = to_address
     msg["Reply-To"] = reply_address
+    msg["Resent-From"] = from_address
+    msg["Resent-Sender"] = reply_address
+    msg["Resent-To"] = to_address
     if isinstance(relay_address, (RelayAddress, DomainAddress)):
         msg["X-Forwarded-For"] = str(relay_address.full_address)
     return msg
@@ -247,7 +256,14 @@ def _store_reply_record(mail, ses_response, address):
 
 
 def ses_relay_email(
-    from_address, to_address, subject, message_body, attachments, mail, address
+    from_address,
+    to_address,
+    subject,
+    message_body,
+    attachments,
+    mail,
+    address,
+    original_from_address,
 ):
     reply_address = "replies@%s" % get_domains_from_settings().get(
         "RELAY_FIREFOX_DOMAIN"
@@ -262,6 +278,7 @@ def ses_relay_email(
         reply_address,
         mail,
         address,
+        original_from_address,
     )
     return response
 
