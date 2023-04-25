@@ -519,9 +519,10 @@ def _sns_message(message_json):
         tracker_removal_flag_active = (
             tracker_removal_flag
             and tracker_removal_flag.is_active_for_user(address.user)
+            or tracker_removal_flag.everyone
         )
         if tracker_removal_flag_active and user_profile.remove_level_one_email_trackers:
-            html_content, tracker_details = remove_trackers(html_content)
+            html_content, tracker_details = remove_trackers(html_content, from_address)
             removed_count = tracker_details["tracker_removed"]
             datetime_now = int(
                 datetime.now(timezone.utc).timestamp() * 1000
