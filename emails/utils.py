@@ -448,24 +448,23 @@ def count_all_trackers(html_content):
     )
 
 
-def remove_trackers(html_content, level="general"):
+def remove_trackers(html_content, from_address, level="general"):
     trackers = general_trackers() if level == "general" else strict_trackers()
     tracker_removed = 0
     changed_content = html_content
-    # datetime_now = int(datetime.now(timezone.utc).timestamp() * 1000)
-    pattern = convert_domains_to_regex_patterns(tracker)
-    # original_link = re.match(pattern, changed_content)
-    # tracker_link_details = {
-    #     "sender": from_address,
-    #     "received_at": datetime_now,
-    #     "original_link": original_link,
-    # }
 
     for tracker in trackers:
-        # tracker_warning_page = "contains-tracker-warning/#" + json.dumps(
-        #     tracker_link_details
-        # )
-        tracker_warning_page = "contains-tracker-warning/"
+        pattern = convert_domains_to_regex_patterns(tracker)
+        original_link = re.match(pattern, changed_content)
+        datetime_now = int(datetime.now(timezone.utc).timestamp() * 1000)
+        tracker_link_details = {
+            "sender": from_address,
+            "received_at": datetime_now,
+            "original_link": original_link,
+        }
+        tracker_warning_page = "contains-tracker-warning/#" + json.dumps(
+            tracker_link_details
+        )
         changed_content, matched = re.subn(
             pattern,
             rf"\g<1>{settings.SITE_ORIGIN}/{tracker_warning_page}\g<1>",
