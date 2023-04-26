@@ -179,14 +179,14 @@ class RemoveTrackers(TestCase):
     url = "https://test.com/contains-tracker-warning/#"
     url_trackerwarning_data = {
         "sender": "spammer@email.com",
-        "received_at": "1682468813",
+        "received_at": "1682469186151",
         "original_link": "open.tracker.com",
     }
 
     def setUp(self):
         self.expected_content = (
-            f'<a href="{self.url}{self.url_trackerwarning_data}">A link</a>\n'
-            + f'<img src="{self.url}{self.url_trackerwarning_data}">An image</img>\n'
+            f'<a href="{self.url}{self.url_trackerwarning_data}">A link</a>'
+            + f'<img src="{self.url}{self.url_trackerwarning_data}">An image</img>'
         )
         self.patcher1 = patch(
             "emails.utils.general_trackers",
@@ -269,7 +269,7 @@ class RemoveTrackers(TestCase):
 
         assert (
             changed_content
-            == f'<a href="{self.url}{self.url_trackerwarning_data}">A link</a>\n'
+            == f'<a href="{self.url}{self.url_trackerwarning_data}">A link</a>'
         )
         assert general_removed == 1
         assert general_count == 1
