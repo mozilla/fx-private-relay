@@ -533,7 +533,9 @@ export const WhatsNewMenu = (props: Props) => {
   });
   entriesNotInFuture.sort(entriesDescByDateSorter);
 
-  const newEntries = entriesNotInFuture.filter((entry) => {
+  const newEntries: WhatsNewEntry[] = [];
+  const archiveEntries: WhatsNewEntry[] = [];
+  const isNewEntry = (entry: WhatsNewEntry): boolean => {
     const entryDate = new Date(
       Date.UTC(
         entry.announcementDate.year,
@@ -545,7 +547,15 @@ export const WhatsNewMenu = (props: Props) => {
     // Automatically move entries to the archive after 30 days:
     const isExpired = ageInMilliSeconds > 30 * 24 * 60 * 60 * 1000;
     return !entry.dismissal.isDismissed && !isExpired;
-  });
+  };
+
+  for (const entry of entriesNotInFuture) {
+    if (isNewEntry(entry)) {
+      newEntries.push(entry);
+    } else {
+      archiveEntries.push(entry);
+    }
+  }
 
   const { triggerProps, overlayProps } = useOverlayTrigger(
     { type: "dialog" },
@@ -609,7 +619,7 @@ export const WhatsNewMenu = (props: Props) => {
           >
             <WhatsNewDashboard
               new={newEntries}
-              archive={entriesNotInFuture}
+              archive={archiveEntries}
               onClose={() => triggerState.close()}
             />
           </WhatsNewPopover>
