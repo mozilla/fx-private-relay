@@ -285,7 +285,7 @@ class RemoveTrackers(TestCase):
 
         assert (
             changed_content
-            == f'<a href="{self.url}{self.url_trackerwarning_data}">trckr.com</a>\n'
+            == f'<a href="{self.url}{self.url_trackerwarning_data}">trckr.com</a>'
         )
         assert general_removed == 1
         assert general_count == 1
