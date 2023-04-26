@@ -179,21 +179,25 @@ class FormattingToolsTest(TestCase):
 @override_settings(SITE_ORIGIN="https://test.com")
 class RemoveTrackers(TestCase):
     url = "https://test.com/contains-tracker-warning/#"
-    url_trackerwarning_data = urllib.parse.quote_plus(
-        json.dumps(
-            {
-                "sender": "spammer@email.com",
-                "received_at": "1682472064",
-                "original_link": "open.tracker.com",
-            },
-            separators=(",", ":"),
+    hyperlink = "https://open.tracker.com/foo/bar.html"
+    imagelink = "https://open.tracker.com/foo/bar.jpg"
+
+    def url_trackerwarning_data(self, link):
+        return urllib.parse.quote_plus(
+            json.dumps(
+                {
+                    "sender": "spammer@email.com",
+                    "received_at": "1682472064",
+                    "original_link": link,
+                },
+                separators=(",", ":"),
+            )
         )
-    )
 
     def setUp(self):
         self.expected_content = (
-            f'<a href="{self.url}{self.url_trackerwarning_data}">A link</a>\n'
-            + f'<img src="{self.url}{self.url_trackerwarning_data}">An image</img>'
+            f'<a href="{self.url}{self.url_trackerwarning_data(self.hyperlink)}">A link</a>\n'
+            + f'<img src="{self.url}{self.url_trackerwarning_data(self.imagelink)}">An image</img>'
         )
         self.patcher1 = patch(
             "emails.utils.general_trackers",
