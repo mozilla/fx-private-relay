@@ -456,7 +456,7 @@ def remove_trackers(html_content, from_address, level="general"):
     for tracker in trackers:
         pattern = convert_domains_to_regex_patterns(tracker)
         # original_link = re.match(pattern, changed_content)
-        datetime_now = int(datetime.now(timezone.utc).timestamp() * 1000)
+        datetime_now = int(datetime.now(timezone.utc).timestamp())
         tracker_link_details = {
             "sender": from_address,
             "received_at": datetime_now,
