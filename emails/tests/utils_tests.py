@@ -1,5 +1,4 @@
 from email.utils import parseaddr
-from datetime import datetime, timezone
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
@@ -177,9 +176,12 @@ class FormattingToolsTest(TestCase):
 
 @override_settings(SITE_ORIGIN="https://test.com")
 class RemoveTrackers(TestCase):
-    datetime_now = "1682468813"
     url = "https://test.com/contains-tracker-warning/#"
-    url_trackerwarning_data = f'{{"sender":"spammer@email.com","received_at":{datetime_now},"original_link":null}}'
+    url_trackerwarning_data = {
+        "sender": "spammer@email.com",
+        "received_at": "1682468813",
+        "original_link": "open.tracker.com",
+    }
 
     def setUp(self):
         self.expected_content = (
