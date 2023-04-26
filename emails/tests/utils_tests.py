@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from unittest.mock import patch
 from model_bakery import baker
+import urllib.parse
 from waffle.models import Flag
 import json
 
@@ -178,13 +179,15 @@ class FormattingToolsTest(TestCase):
 @override_settings(SITE_ORIGIN="https://test.com")
 class RemoveTrackers(TestCase):
     url = "https://test.com/contains-tracker-warning/#"
-    url_trackerwarning_data = json.dumps(
-        {
-            "sender": "spammer@email.com",
-            "received_at": "1682472064",
-            "original_link": "open.tracker.com",
-        },
-        separators=(",", ":"),
+    url_trackerwarning_data = urllib.parse.quote_plus(
+        json.dumps(
+            {
+                "sender": "spammer@email.com",
+                "received_at": "1682472064",
+                "original_link": "open.tracker.com",
+            },
+            separators=(",", ":"),
+        )
     )
 
     def setUp(self):

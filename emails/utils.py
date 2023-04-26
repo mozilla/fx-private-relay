@@ -20,6 +20,7 @@ import jwcrypto.jwe
 import jwcrypto.jwk
 import markus
 import logging
+import urllib.parse
 from waffle.models import Flag
 
 from django.apps import apps
@@ -27,7 +28,6 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from django.http import HttpResponse
 from django.template.defaultfilters import linebreaksbr, urlize
-from urllib.parse import urlparse
 
 from .models import (
     DomainAddress,
@@ -128,7 +128,7 @@ def gauge_if_enabled(name, value, tags=None):
 
 
 def get_email_domain_from_settings():
-    email_network_locality = urlparse(settings.SITE_ORIGIN).netloc
+    email_network_locality = urllib.parse.urlparse(settings.SITE_ORIGIN).netloc
     # on dev server we need to add "mail" prefix
     # because we can’t publish MX records on Heroku
     if settings.RELAY_CHANNEL == "dev":
@@ -455,14 +455,13 @@ def remove_trackers(html_content, from_address, datetime_now, level="general"):
 
     for tracker in trackers:
         pattern = convert_domains_to_regex_patterns(tracker)
-        # original_link = re.match(pattern, changed_content)
         tracker_link_details = {
             "sender": from_address,
             "received_at": datetime_now,
             "original_link": tracker,
         }
-        tracker_warning_page = "contains-tracker-warning/#" + json.dumps(
-            tracker_link_details, separators=(",", ":")
+        tracker_warning_page = "contains-tracker-warning/#" + urllib.parse.quote_plus(
+            json.dumps(tracker_link_details, separators=(",", ":"))
         )
         changed_content, matched = re.subn(
             pattern,
