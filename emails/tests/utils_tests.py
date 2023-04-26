@@ -5,6 +5,8 @@ from django.test import TestCase, override_settings
 from unittest.mock import patch
 from model_bakery import baker
 from waffle.models import Flag
+from datetime import datetime, timezone
+import json
 
 from emails.models import get_domains_from_settings
 from emails.utils import (
@@ -176,17 +178,19 @@ class FormattingToolsTest(TestCase):
 
 @override_settings(SITE_ORIGIN="https://test.com")
 class RemoveTrackers(TestCase):
+    datetime_now = int(datetime.now(timezone.utc).timestamp())
+
     url = "https://test.com/contains-tracker-warning/#"
     url_trackerwarning_data = {
         "sender": "spammer@email.com",
-        "received_at": "1682469186151",
+        "received_at": {datetime_now},
         "original_link": "open.tracker.com",
     }
 
     def setUp(self):
         self.expected_content = (
-            f'<a href="{self.url}{self.url_trackerwarning_data}">A link</a>'
-            + f'<img src="{self.url}{self.url_trackerwarning_data}">An image</img>'
+            f'<a href="{self.url}{json.dumps(self.url_trackerwarning_data, separators=(",", ":"))}">A link</a>'
+            + f'<img src="{self.url}{json.dumps(self.url_trackerwarning_data, separators=(",", ":"))}">An image</img>'
         )
         self.patcher1 = patch(
             "emails.utils.general_trackers",
@@ -269,7 +273,7 @@ class RemoveTrackers(TestCase):
 
         assert (
             changed_content
-            == f'<a href="{self.url}{self.url_trackerwarning_data}">A link</a>'
+            == f'<a href="{self.url}{json.dumps(self.url_trackerwarning_data, separators=(",", ":"))}">A link</a>'
         )
         assert general_removed == 1
         assert general_count == 1
@@ -285,7 +289,7 @@ class RemoveTrackers(TestCase):
 
         assert (
             changed_content
-            == f'<a href="{self.url}{self.url_trackerwarning_data}">trckr.com</a>'
+            == f'<a href="{self.url}{json.dumps(self.url_trackerwarning_data, separators=(",", ":"))}">trckr.com</a>'
         )
         assert general_removed == 1
         assert general_count == 1
