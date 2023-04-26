@@ -5,7 +5,6 @@ from django.test import TestCase, override_settings
 from unittest.mock import patch
 from model_bakery import baker
 from waffle.models import Flag
-from datetime import datetime, timezone
 import json
 
 from emails.models import get_domains_from_settings
@@ -178,13 +177,11 @@ class FormattingToolsTest(TestCase):
 
 @override_settings(SITE_ORIGIN="https://test.com")
 class RemoveTrackers(TestCase):
-    datetime_now = int(datetime.now(timezone.utc).timestamp())
-
     url = "https://test.com/contains-tracker-warning/#"
     url_trackerwarning_data = json.dumps(
         {
             "sender": "spammer@email.com",
-            "received_at": {datetime_now},
+            "received_at": "1682472064",
             "original_link": "open.tracker.com",
         },
         separators=(",", ":"),
@@ -192,7 +189,7 @@ class RemoveTrackers(TestCase):
 
     def setUp(self):
         self.expected_content = (
-            f'<a href="{self.url}{self.url_trackerwarning_data}">A link</a>'
+            f'<a href="{self.url}{self.url_trackerwarning_data}">A link</a>\n'
             + f'<img src="{self.url}{self.url_trackerwarning_data}">An image</img>'
         )
         self.patcher1 = patch(
@@ -213,7 +210,10 @@ class RemoveTrackers(TestCase):
             + '<img src="https://open.tracker.com/foo/bar.jpg">An image</img>'
         )
         from_address = "spammer@email.com"
-        changed_content, tracker_details = remove_trackers(content, from_address)
+        datetime_now = "1682472064"
+        changed_content, tracker_details = remove_trackers(
+            content, from_address, datetime_now
+        )
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
 
@@ -223,11 +223,14 @@ class RemoveTrackers(TestCase):
 
     def test_complex_general_tracker_replaced_with_relay_content(self):
         content = (
-            "<a href='https://foo.open.tracker.com/foo/bar.html'>A link</a>\n"
-            + "<img src='https://bar.open.tracker.com/foo/bar.jpg'>An image</img>"
+            '<a href="https://foo.open.tracker.com/foo/bar.html">A link</a>\n'
+            + '<img src="https://bar.open.tracker.com/foo/bar.jpg">An image</img>'
         )
         from_address = "spammer@email.com"
-        changed_content, tracker_details = remove_trackers(content, from_address)
+        datetime_now = "1682472064"
+        changed_content, tracker_details = remove_trackers(
+            content, from_address, datetime_now
+        )
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
 
@@ -241,7 +244,10 @@ class RemoveTrackers(TestCase):
             + "<img src='https://bar.open.tracker.com/foo/bar.jpg'>An image</img>"
         )
         from_address = "spammer@email.com"
-        changed_content, tracker_details = remove_trackers(content, from_address)
+        datetime_now = "1682472064"
+        changed_content, tracker_details = remove_trackers(
+            content, from_address, datetime_now
+        )
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
 
@@ -251,11 +257,14 @@ class RemoveTrackers(TestCase):
 
     def test_no_tracker_replaced_with_relay_content(self):
         content = (
-            '<a href="https://fooopen.tracker.com/foo/bar.html">A link</a>\n'
-            + '<img src="https://baropen.tracker.com/foo/bar.jpg">An image</img>'
+            "<a href='https://fooopen.tracker.com/foo/bar.html'>A link</a>\n"
+            + "<img src='https://baropen.tracker.com/foo/bar.jpg'>An image</img>"
         )
         from_address = "spammer@email.com"
-        changed_content, tracker_details = remove_trackers(content, from_address)
+        datetime_now = "1682472064"
+        changed_content, tracker_details = remove_trackers(
+            content, from_address, datetime_now
+        )
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
 
@@ -270,13 +279,16 @@ class RemoveTrackers(TestCase):
     ):
         content = "<a href='https://foo.open.tracker.com/foo/bar.html?src=trckr.com'>A link</a>"
         from_address = "spammer@email.com"
-        changed_content, tracker_details = remove_trackers(content, from_address)
+        datetime_now = "1682472064"
+        changed_content, tracker_details = remove_trackers(
+            content, from_address, datetime_now
+        )
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
 
         assert (
             changed_content
-            == f'<a href="{self.url}{self.url_trackerwarning_data}">A link</a>'
+            == f"<a href='{self.url}{self.url_trackerwarning_data}'>A link</a>"
         )
         assert general_removed == 1
         assert general_count == 1
@@ -286,13 +298,16 @@ class RemoveTrackers(TestCase):
     ):
         content = "<a href='https://foo.open.tracker.com/foo/bar.html?src=trckr.com'>trckr.com</a>"
         from_address = "spammer@email.com"
-        changed_content, tracker_details = remove_trackers(content, from_address)
+        datetime_now = "1682472064"
+        changed_content, tracker_details = remove_trackers(
+            content, from_address, datetime_now
+        )
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
 
         assert (
             changed_content
-            == f'<a href="{self.url}{self.url_trackerwarning_data}">trckr.com</a>'
+            == f"<a href='{self.url}{self.url_trackerwarning_data}'>trckr.com</a>"
         )
         assert general_removed == 1
         assert general_count == 1
@@ -303,7 +318,10 @@ class RemoveTrackers(TestCase):
             + '<img src="https://strict.tracker.com/foo/bar.jpg">An image</img>'
         )
         from_address = "spammer@email.com"
-        changed_content, tracker_details = remove_trackers(content, from_address)
+        datetime_now = "1682472064"
+        changed_content, tracker_details = remove_trackers(
+            content, from_address, datetime_now
+        )
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
 
