@@ -177,7 +177,7 @@ class FormattingToolsTest(TestCase):
 
 @override_settings(SITE_ORIGIN="https://test.com")
 class RemoveTrackers(TestCase):
-    datetime_now = int(datetime.now(timezone.utc).timestamp() * 1000)
+    datetime_now = "1682468813"
     url = "https://test.com/contains-tracker-warning/#"
     url_trackerwarning_data = f'{{"sender":"spammer@email.com","received_at":{datetime_now},"original_link":null}}'
 

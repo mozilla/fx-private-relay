@@ -460,7 +460,7 @@ def remove_trackers(html_content, from_address, level="general"):
         tracker_link_details = {
             "sender": from_address,
             "received_at": datetime_now,
-            "original_link": pattern,
+            "original_link": tracker,
         }
         tracker_warning_page = "contains-tracker-warning/#" + json.dumps(
             tracker_link_details, separators=(",", ":")
