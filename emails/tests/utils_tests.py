@@ -1,5 +1,5 @@
 from email.utils import parseaddr
-
+from datetime import datetime, timezone
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
@@ -177,10 +177,14 @@ class FormattingToolsTest(TestCase):
 
 @override_settings(SITE_ORIGIN="https://test.com")
 class RemoveTrackers(TestCase):
+    datetime_now = int(datetime.now(timezone.utc).timestamp() * 1000)
+    url = "https://test.com/contains-tracker-warning/#"
+    url_trackerwarning_data = f'{{"sender":"spammer@email.com","received_at":{datetime_now},"original_link":null}}'
+
     def setUp(self):
         self.expected_content = (
-            '<a href="https://test.com/faq">A link</a>\n'
-            + '<img src="https://test.com/faq">An image</img>'
+            f'<a href="{self.url}{self.url_trackerwarning_data}">A link</a>\n'
+            + f'<img src="{self.url}{self.url_trackerwarning_data}">An image</img>\n'
         )
         self.patcher1 = patch(
             "emails.utils.general_trackers",
@@ -261,7 +265,10 @@ class RemoveTrackers(TestCase):
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
 
-        assert changed_content == "<a href='https://test.com/faq'>A link</a>"
+        assert (
+            changed_content
+            == f'<a href="{self.url}{self.url_trackerwarning_data}">A link</a>\n'
+        )
         assert general_removed == 1
         assert general_count == 1
 
@@ -274,7 +281,10 @@ class RemoveTrackers(TestCase):
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
 
-        assert changed_content == "<a href='https://test.com/faq'>trckr.com</a>"
+        assert (
+            changed_content
+            == f'<a href="{self.url}{self.url_trackerwarning_data}">trckr.com</a>\n'
+        )
         assert general_removed == 1
         assert general_count == 1
 
