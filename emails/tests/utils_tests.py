@@ -182,7 +182,7 @@ class RemoveTrackers(TestCase):
     hyperlink_simple = "https://open.tracker.com/foo/bar.html"
     imagelink_simple = "https://open.tracker.com/foo/bar.jpg"
     hyperlink_complex = "https://foo.open.tracker.com/foo/bar.html"
-    imagelink_complex = "https://foo.open.tracker.com/foo/bar.jpg"
+    imagelink_complex = "https://bar.open.tracker.com/foo/bar.jpg"
     hyperlink_tracker_in_tracker = (
         "https://foo.open.tracker.com/foo/bar.html?src=trckr.com"
     )
@@ -269,9 +269,9 @@ class RemoveTrackers(TestCase):
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
 
-        assert changed_content == self.expected_content(self.hyperlink_complex).replace(
-            '"', "'"
-        )
+        assert changed_content == self.expected_content(
+            self.hyperlink_complex, self.imagelink_complex
+        ).replace('"', "'")
         assert general_removed == 2
         assert general_count == 2
 
