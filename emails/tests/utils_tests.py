@@ -179,8 +179,13 @@ class FormattingToolsTest(TestCase):
 @override_settings(SITE_ORIGIN="https://test.com")
 class RemoveTrackers(TestCase):
     url = "https://test.com/contains-tracker-warning/#"
-    hyperlink = "https://open.tracker.com/foo/bar.html"
-    imagelink = "https://open.tracker.com/foo/bar.jpg"
+    hyperlink_simple = "https://open.tracker.com/foo/bar.html"
+    imagelink_simple = "https://open.tracker.com/foo/bar.jpg"
+    hyperlink_complex = "https://foo.open.tracker.com/foo/bar.html"
+    imagelink_complex = "https://foo.open.tracker.com/foo/bar.jpg"
+    hyperlink_tracker_in_tracker = (
+        "https://foo.open.tracker.com/foo/bar.html?src=trckr.com"
+    )
 
     def url_trackerwarning_data(self, link):
         return urllib.parse.quote_plus(
@@ -194,11 +199,13 @@ class RemoveTrackers(TestCase):
             )
         )
 
-    def setUp(self):
-        self.expected_content = (
-            f'<a href="{self.url}{self.url_trackerwarning_data(self.hyperlink)}">A link</a>\n'
-            + f'<img src="{self.url}{self.url_trackerwarning_data(self.imagelink)}">An image</img>'
+    def expected_content(self, hyperlink, imagelink):
+        return (
+            f'<a href="{self.url}{self.url_trackerwarning_data(hyperlink)}">A link</a>\n'
+            + f'<img src="{self.url}{self.url_trackerwarning_data(imagelink)}">An image</img>'
         )
+
+    def setUp(self):
         self.patcher1 = patch(
             "emails.utils.general_trackers",
             return_value=["trckr.com", "open.tracker.com"],
@@ -224,7 +231,9 @@ class RemoveTrackers(TestCase):
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
 
-        assert changed_content == self.expected_content
+        assert changed_content == self.expected_content(
+            self.hyperlink_simple, self.imagelink_simple
+        )
         assert general_removed == 2
         assert general_count == 2
 
@@ -241,7 +250,9 @@ class RemoveTrackers(TestCase):
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
 
-        assert changed_content == self.expected_content
+        assert changed_content == self.expected_content(
+            self.hyperlink_complex, self.imagelink_complex
+        )
         assert general_removed == 2
         assert general_count == 2
 
@@ -258,7 +269,9 @@ class RemoveTrackers(TestCase):
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
 
-        assert changed_content == self.expected_content.replace('"', "'")
+        assert changed_content == self.expected_content(self.hyperlink_complex).replace(
+            '"', "'"
+        )
         assert general_removed == 2
         assert general_count == 2
 
@@ -295,7 +308,7 @@ class RemoveTrackers(TestCase):
 
         assert (
             changed_content
-            == f"<a href='{self.url}{self.url_trackerwarning_data}'>A link</a>"
+            == f"<a href='{self.url}{self.url_trackerwarning_data(self.hyperlink_tracker_in_tracker)}'>A link</a>"
         )
         assert general_removed == 1
         assert general_count == 1
@@ -314,7 +327,7 @@ class RemoveTrackers(TestCase):
 
         assert (
             changed_content
-            == f"<a href='{self.url}{self.url_trackerwarning_data}'>trckr.com</a>"
+            == f"<a href='{self.url}{self.url_trackerwarning_data(self.hyperlink_tracker_in_tracker)}'>trckr.com</a>"
         )
         assert general_removed == 1
         assert general_count == 1
