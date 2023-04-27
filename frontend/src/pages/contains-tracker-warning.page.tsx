@@ -34,7 +34,14 @@ const ContainsTracker: NextPage = () => {
     l10n.getFragment("contains-tracker-description", {
       vars: {
         sender: trackerData.sender,
-        datetime: new Date(trackerData.received_at).toLocaleString(),
+        datetime: new Date(trackerData.received_at).toLocaleString("en-US", {
+          month: "2-digit",
+          day: "2-digit",
+          year: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+          timeZoneName: "short",
+        }),
       },
       elems: {
         u: <u />,
