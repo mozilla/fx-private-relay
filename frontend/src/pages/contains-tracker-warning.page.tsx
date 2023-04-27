@@ -5,34 +5,50 @@ import { useRuntimeData } from "../hooks/api/runtimeData";
 import { useL10n } from "../hooks/l10n";
 import { FaqAccordionTracker } from "../components/landing/FaqAccordion";
 import { Banner } from "../components/Banner";
+import { useEffect, useState } from "react";
+
+type TrackerWarningData = {
+  sender: string;
+  received_at: number;
+  original_link: string;
+};
 
 const ContainsTracker: NextPage = () => {
   const runtimeData = useRuntimeData();
   const l10n = useL10n();
+  const [trackerData, setTrackerData] = useState<TrackerWarningData | null>();
 
-  const TrackerWarningDescription = l10n.getFragment(
-    "contains-tracker-description",
-    {
+  useEffect(() => {
+    function updateTrackerData() {
+      setTrackerData(parseHash(window.location.hash));
+    }
+    updateTrackerData();
+    window.addEventListener("hashchange", updateTrackerData);
+    return () => {
+      window.removeEventListener("hashchange", updateTrackerData);
+    };
+  }, []);
+
+  const TrackerWarningDescription =
+    trackerData &&
+    l10n.getFragment("contains-tracker-description", {
       vars: {
-        sender: "someone@email.com",
-        datetime: "05/06/2023 at 10:53pm EST",
+        sender: trackerData.sender,
+        datetime: new Date(trackerData.received_at).toLocaleString(),
       },
       elems: {
         u: <u />,
       },
-    }
-  );
+    });
 
-  const linkToView = "#";
-
-  const TrackerWarningBanner = (
+  const TrackerWarningBanner = trackerData && (
     <Banner
       type="warning"
       title={l10n.getString("contains-tracker-warning-title")}
       cta={{
         content: l10n.getString("contains-tracker-warning-view-link-cta"),
         size: "large",
-        target: linkToView,
+        target: trackerData.original_link,
       }}
     >
       {l10n.getString("contains-tracker-warning-description")}
@@ -67,5 +83,34 @@ const ContainsTracker: NextPage = () => {
     </Layout>
   );
 };
+
+function parseHash(hash: string): TrackerWarningData | null {
+  try {
+    const data: unknown = JSON.parse(decodeURIComponent(hash.substring(1)));
+    if (!containsReportData(data)) {
+      return null;
+    }
+    return {
+      sender: data.sender,
+      received_at: data.received_at,
+      original_link: data.original_link,
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
+// This function does runtime type checking on user input,
+// so we don't know its type at compile time yet:
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function containsReportData(parsed: any): parsed is TrackerWarningData {
+  return (
+    typeof parsed === "object" &&
+    parsed !== null &&
+    typeof parsed.sender === "string" &&
+    Number.isInteger(parsed.received_at) &&
+    typeof parsed.original_link === "string"
+  );
+}
 
 export default ContainsTracker;

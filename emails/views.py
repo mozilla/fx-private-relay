@@ -513,7 +513,7 @@ def _sns_message(message_json):
     message_body = {}
     tracker_report_link = ""
     removed_count = 0
-    datetime_now = int(datetime.now(timezone.utc).timestamp())
+    datetime_now = int(datetime.now(timezone.utc).timestamp() * 1000)
 
     if html_content:
         incr_if_enabled("email_with_html_content", 1)
