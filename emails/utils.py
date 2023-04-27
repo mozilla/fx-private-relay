@@ -456,20 +456,22 @@ def remove_trackers(html_content, from_address, datetime_now, level="general"):
 
     for tracker in trackers:
         pattern = convert_domains_to_regex_patterns(tracker)
-        if not (original_link := re.search(pattern, changed_content)):
-            continue
-        tracker_link_details = {
-            "sender": from_address,
-            "received_at": datetime_now,
-            "original_link": original_link.group(0),
-        }
-        tracker_warning_page = "contains-tracker-warning/#" + urllib.parse.quote_plus(
-            json.dumps(tracker_link_details, separators=(",", ":"))
-        )
+
+        def convert_to_tracker_warning_link(matchobj):
+            quote, original_link, _ = matchobj.groups()
+            tracker_link_details = {
+                "sender": from_address,
+                "received_at": datetime_now,
+                "original_link": original_link,
+            }
+            anchor = urllib.parse.quote_plus(
+                json.dumps(tracker_link_details, separators=(",", ":"))
+            )
+            url = f"{settings.SITE_ORIGIN}/contains-tracker-warning/#{anchor}"
+            return f"{quote}{url}{quote}"
+
         changed_content, matched = re.subn(
-            pattern,
-            rf"\g<1>{settings.SITE_ORIGIN}/{tracker_warning_page}\g<1>",
-            changed_content,
+            pattern, convert_to_tracker_warning_link, changed_content
         )
         tracker_removed += matched
 
