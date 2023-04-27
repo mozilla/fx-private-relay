@@ -52,12 +52,11 @@
     display: flex;
     flex-wrap: wrap;
     flex: 1 1 $content-xs;
-    padding-left: $spacing-md;
-    // padding: $spacing-xs $spacing-md $spacing-md $spacing-md;
+    padding: $spacing-xs $spacing-md $spacing-md $spacing-md;
 
-    // @media screen and #{$mq-sm} {
-    //   padding: $spacing-md;
-    // }
+    @media screen and #{$mq-sm} {
+      padding: $spacing-md;
+    }
     @media screen and #{$mq-lg} {
       flex-wrap: nowrap;
     }
@@ -73,7 +72,7 @@
   }
 
   .banner:not(.promo):not(.info) & {
-    // padding: $spacing-xs $spacing-lg $spacing-md;
+    padding: $spacing-xs $spacing-lg $spacing-md;
     border-left-width: 4px;
     border-left-style: solid;
   }
