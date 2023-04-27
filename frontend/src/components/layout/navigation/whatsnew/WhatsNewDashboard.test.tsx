@@ -41,17 +41,13 @@ function getMockEntry(
 
 describe("The 'What's new' dashboard", () => {
   it("displays new entries by default", () => {
-    const allEntries: WhatsNewEntry[] = [
-      getMockEntry(1),
-      getMockEntry(2),
-      getMockEntry(3),
-    ];
-    const newEntries = [allEntries[0], allEntries[1]];
+    const newEntries = [getMockEntry(1), getMockEntry(2)];
+    const archiveEntries = [getMockEntry(3)];
 
     render(
       <WhatsNewDashboard
         new={newEntries}
-        archive={allEntries}
+        archive={archiveEntries}
         onClose={jest.fn()}
       />
     );
@@ -61,18 +57,14 @@ describe("The 'What's new' dashboard", () => {
     expect(menuItems).toHaveLength(2);
   });
 
-  it("allows viewing all entries", async () => {
-    const allEntries: WhatsNewEntry[] = [
-      getMockEntry(1),
-      getMockEntry(2),
-      getMockEntry(3),
-    ];
-    const newEntries = [allEntries[0], allEntries[1]];
+  it("allows viewing archived entries", async () => {
+    const newEntries = [getMockEntry(1), getMockEntry(2)];
+    const archiveEntries = [getMockEntry(3), getMockEntry(4), getMockEntry(5)];
 
     render(
       <WhatsNewDashboard
         new={newEntries}
-        archive={allEntries}
+        archive={archiveEntries}
         onClose={jest.fn()}
       />
     );
@@ -91,17 +83,13 @@ describe("The 'What's new' dashboard", () => {
   });
 
   it("dismisses an entry when it is viewed", async () => {
-    const allEntries: WhatsNewEntry[] = [
-      getMockEntry(1),
-      getMockEntry(2),
-      getMockEntry(3),
-    ];
-    const newEntries = [allEntries[0], allEntries[1]];
+    const newEntries = [getMockEntry(1), getMockEntry(2)];
+    const archiveEntries = [getMockEntry(3)];
 
     render(
       <WhatsNewDashboard
         new={newEntries}
-        archive={allEntries}
+        archive={archiveEntries}
         onClose={jest.fn()}
       />
     );
@@ -109,21 +97,17 @@ describe("The 'What's new' dashboard", () => {
     const menuItems = screen.getAllByRole("menuitem");
     await userEvent.click(menuItems[1]);
 
-    expect(allEntries[1].dismissal.dismiss).toHaveBeenCalledTimes(1);
+    expect(newEntries[1].dismissal.dismiss).toHaveBeenCalledTimes(1);
   });
 
   it("dismisses all new entries when clicking 'Clear all'", async () => {
-    const allEntries: WhatsNewEntry[] = [
-      getMockEntry(1),
-      getMockEntry(2),
-      getMockEntry(3),
-    ];
-    const newEntries = [allEntries[0], allEntries[1]];
+    const newEntries = [getMockEntry(1), getMockEntry(2)];
+    const archiveEntries = [getMockEntry(3)];
 
     render(
       <WhatsNewDashboard
         new={newEntries}
-        archive={allEntries}
+        archive={archiveEntries}
         onClose={jest.fn()}
       />
     );
@@ -133,51 +117,43 @@ describe("The 'What's new' dashboard", () => {
     });
     await userEvent.click(clearAllButton);
 
-    expect(allEntries[0].dismissal.dismiss).toHaveBeenCalledTimes(1);
-    expect(allEntries[1].dismissal.dismiss).toHaveBeenCalledTimes(1);
+    expect(newEntries[0].dismissal.dismiss).toHaveBeenCalledTimes(1);
+    expect(newEntries[1].dismissal.dismiss).toHaveBeenCalledTimes(1);
   });
 
   it("shows an entry's content when clicking it", async () => {
-    const allEntries: WhatsNewEntry[] = [
-      getMockEntry(1),
-      getMockEntry(2),
-      getMockEntry(3),
-    ];
-    const newEntries = [allEntries[0], allEntries[1]];
+    const newEntries = [getMockEntry(1), getMockEntry(2)];
+    const archiveEntries = [getMockEntry(3)];
 
     render(
       <WhatsNewDashboard
         new={newEntries}
-        archive={allEntries}
+        archive={archiveEntries}
         onClose={jest.fn()}
       />
     );
 
-    expect(screen.queryByText(allEntries[1].content)).not.toBeInTheDocument();
+    expect(screen.queryByText(newEntries[1].content)).not.toBeInTheDocument();
 
     const menuItems = screen.getAllByRole("menuitem");
     await userEvent.click(menuItems[1]);
 
-    expect(screen.getByText(allEntries[1].content)).toBeInTheDocument();
+    expect(screen.getByText(newEntries[1].content)).toBeInTheDocument();
   });
 
   it("can go back to overview of all new features after clicking one of them", async () => {
-    const allEntries: WhatsNewEntry[] = [
-      getMockEntry(1),
-      getMockEntry(2),
-      getMockEntry(3),
-    ];
-    const newEntries = [allEntries[0], allEntries[1]];
+    const newEntries = [getMockEntry(1), getMockEntry(2)];
+    const archiveEntries = [getMockEntry(3)];
 
     render(
       <WhatsNewDashboard
         new={newEntries}
-        archive={allEntries}
+        archive={archiveEntries}
         onClose={jest.fn()}
       />
     );
 
-    expect(screen.queryByText(allEntries[1]?.content)).not.toBeInTheDocument();
+    expect(screen.queryByText(newEntries[1]?.content)).not.toBeInTheDocument();
 
     const menuItems = screen.getAllByRole("menuitem");
     await userEvent.click(menuItems[1]);
@@ -193,17 +169,13 @@ describe("The 'What's new' dashboard", () => {
   });
 
   it("shows an empty state view when there are no entries to show", () => {
-    const allEntries: WhatsNewEntry[] = [
-      getMockEntry(1),
-      getMockEntry(2),
-      getMockEntry(3),
-    ];
     const newEntries: WhatsNewEntry[] = [];
+    const archiveEntries: WhatsNewEntry[] = [];
 
     render(
       <WhatsNewDashboard
         new={newEntries}
-        archive={allEntries}
+        archive={archiveEntries}
         onClose={jest.fn()}
       />
     );
@@ -214,17 +186,13 @@ describe("The 'What's new' dashboard", () => {
   });
 
   it("measures how often people switch tabs", async () => {
-    const allEntries: WhatsNewEntry[] = [
-      getMockEntry(1),
-      getMockEntry(2),
-      getMockEntry(3),
-    ];
-    const newEntries = [allEntries[0], allEntries[1]];
+    const newEntries = [getMockEntry(1), getMockEntry(2)];
+    const archiveEntries = [getMockEntry(3)];
 
     render(
       <WhatsNewDashboard
         new={newEntries}
-        archive={allEntries}
+        archive={archiveEntries}
         onClose={jest.fn()}
       />
     );
@@ -247,17 +215,13 @@ describe("The 'What's new' dashboard", () => {
   });
 
   it("measures how often entries are opened", async () => {
-    const allEntries: WhatsNewEntry[] = [
-      getMockEntry(1),
-      getMockEntry(2),
-      getMockEntry(3),
-    ];
-    const newEntries = [allEntries[0], allEntries[1]];
+    const newEntries = [getMockEntry(1), getMockEntry(2)];
+    const archiveEntries = [getMockEntry(3)];
 
     render(
       <WhatsNewDashboard
         new={newEntries}
-        archive={allEntries}
+        archive={archiveEntries}
         onClose={jest.fn()}
       />
     );
@@ -269,22 +233,18 @@ describe("The 'What's new' dashboard", () => {
     expect(mockReactGa.event).toHaveBeenCalledWith({
       category: "News",
       action: "Open entry",
-      label: allEntries[1].title,
+      label: newEntries[1].title,
     });
   });
 
   it("measures how often entries are closed", async () => {
-    const allEntries: WhatsNewEntry[] = [
-      getMockEntry(1),
-      getMockEntry(2),
-      getMockEntry(3),
-    ];
-    const newEntries = [allEntries[0], allEntries[1]];
+    const newEntries = [getMockEntry(1), getMockEntry(2)];
+    const archiveEntries = [getMockEntry(3)];
 
     render(
       <WhatsNewDashboard
         new={newEntries}
-        archive={allEntries}
+        archive={archiveEntries}
         onClose={jest.fn()}
       />
     );
@@ -301,22 +261,18 @@ describe("The 'What's new' dashboard", () => {
     expect(mockReactGa.event).toHaveBeenCalledWith({
       category: "News",
       action: "Close entry",
-      label: allEntries[1].title,
+      label: newEntries[1].title,
     });
   });
 
   it("measures how often all new entries are moved to the 'History' tab at once", async () => {
-    const allEntries: WhatsNewEntry[] = [
-      getMockEntry(1),
-      getMockEntry(2),
-      getMockEntry(3),
-    ];
-    const newEntries = [allEntries[0], allEntries[1]];
+    const newEntries = [getMockEntry(1), getMockEntry(2)];
+    const archiveEntries = [getMockEntry(3)];
 
     render(
       <WhatsNewDashboard
         new={newEntries}
-        archive={allEntries}
+        archive={archiveEntries}
         onClose={jest.fn()}
       />
     );
