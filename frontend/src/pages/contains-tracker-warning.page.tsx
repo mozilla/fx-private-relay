@@ -3,9 +3,9 @@ import styles from "./contains-tracker-warning.module.scss";
 import { Layout } from "../components/layout/Layout";
 import { useRuntimeData } from "../hooks/api/runtimeData";
 import { useL10n } from "../hooks/l10n";
-import { FaqAccordionTracker } from "../components/landing/FaqAccordion";
 import { Banner } from "../components/Banner";
 import { useEffect, useState } from "react";
+import { FaqAccordionItem } from "../components/landing/FaqAccordion";
 
 type TrackerWarningData = {
   sender: string;
@@ -82,7 +82,50 @@ const ContainsTracker: NextPage = () => {
               </h2>
             </div>
             <div className={styles.entries}>
-              <FaqAccordionTracker />
+              <FaqAccordionItem
+                entries={[
+                  {
+                    q: l10n.getString("faq-question-define-tracker-question"),
+                    a: (
+                      <p>
+                        {l10n.getString(
+                          "faq-question-define-tracker-answer-partone"
+                        )}
+                        <br />
+                        <br />
+                        {l10n.getString(
+                          "faq-question-define-tracker-answer-parttwo"
+                        )}
+                      </p>
+                    ),
+                    expandedFirst: true,
+                  },
+                  {
+                    q: l10n.getString(
+                      "faq-question-disable-trackerremoval-question"
+                    ),
+                    a: l10n.getString(
+                      "faq-question-disable-trackerremoval-answer"
+                    ),
+                  },
+                  {
+                    q: l10n.getString(
+                      "faq-question-bulk-trackerremoval-question"
+                    ),
+                    a: l10n.getString(
+                      "faq-question-bulk-trackerremoval-answer"
+                    ),
+                  },
+                  {
+                    q: l10n.getString(
+                      "faq-question-trackerremoval-breakage-question"
+                    ),
+                    a: l10n.getString(
+                      "faq-question-trackerremoval-breakage-answer-2"
+                    ),
+                  },
+                ]}
+              />
             </div>
           </div>
         </section>
