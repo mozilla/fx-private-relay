@@ -141,7 +141,7 @@ const Home: NextPage = () => {
                   {
                     q: l10n.getString("faq-question-availability-question"),
                     a: l10n.getString("faq-question-landing-page-availability"),
-                    expandedFirst: true,
+                    expanded: true,
                   },
                   {
                     q: l10n.getString("faq-question-what-is-question-2"),
