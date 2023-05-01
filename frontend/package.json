@@ -33,7 +33,7 @@
     "react-qr-code": "^2.0.11",
     "react-stately": "^3.22.0",
     "react-toastify": "^9.1.2",
-    "swr": "^2.1.0"
+    "swr": "^2.1.5"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^13.3.1",
