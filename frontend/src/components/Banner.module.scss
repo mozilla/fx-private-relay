@@ -1,6 +1,6 @@
-@import "../styles/tokens.scss";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 @import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+@import "../styles/tokens.scss";
 
 .banner {
   border-radius: $border-radius-md;
@@ -89,7 +89,7 @@
 
   .info-icon {
     align-self: center;
-    color: $color-yellow-50;
+    color: $color-violet-30;
   }
 }
 
@@ -150,14 +150,14 @@
 
   .icon {
     flex: 0 0 auto;
-    margin-right: $spacing-md;
+    margin-right: $spacing-xs;
 
     .warning & {
       color: $color-yellow-50;
     }
 
     .info & {
-      color: $color-yellow-50;
+      color: $color-violet-30;
     }
   }
 }
