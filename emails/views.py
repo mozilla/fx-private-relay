@@ -513,15 +513,20 @@ def _sns_message(message_json):
     message_body = {}
     tracker_report_link = ""
     removed_count = 0
+    # frontend expects a timestamp in milliseconds
+    datetime_now = int(datetime.now(timezone.utc).timestamp() * 1000)
+
     if html_content:
         incr_if_enabled("email_with_html_content", 1)
         tracker_removal_flag = Flag.objects.filter(name="tracker_removal").first()
-        tracker_removal_flag_active = (
-            tracker_removal_flag
-            and tracker_removal_flag.is_active_for_user(address.user)
+        tracker_removal_flag_active = tracker_removal_flag and (
+            tracker_removal_flag.is_active_for_user(address.user)
+            or tracker_removal_flag.everyone
         )
         if tracker_removal_flag_active and user_profile.remove_level_one_email_trackers:
-            html_content, tracker_details = remove_trackers(html_content)
+            html_content, tracker_details = remove_trackers(
+                html_content, from_address, datetime_now
+            )
             removed_count = tracker_details["tracker_removed"]
             datetime_now = int(
                 datetime.now(timezone.utc).timestamp() * 1000

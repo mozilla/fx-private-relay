@@ -19,6 +19,7 @@ import jwcrypto.jwe
 import jwcrypto.jwk
 import markus
 import logging
+from urllib.parse import quote_plus, urlparse
 from waffle.models import Flag
 
 from django.apps import apps
@@ -26,7 +27,6 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from django.http import HttpResponse
 from django.template.defaultfilters import linebreaksbr, urlize
-from urllib.parse import urlparse
 
 from .models import (
     DomainAddress,
@@ -447,15 +447,27 @@ def count_all_trackers(html_content):
     )
 
 
-def remove_trackers(html_content, level="general"):
+def remove_trackers(html_content, from_address, datetime_now, level="general"):
     trackers = general_trackers() if level == "general" else strict_trackers()
     tracker_removed = 0
     changed_content = html_content
 
     for tracker in trackers:
         pattern = convert_domains_to_regex_patterns(tracker)
+
+        def convert_to_tracker_warning_link(matchobj):
+            quote, original_link, _ = matchobj.groups()
+            tracker_link_details = {
+                "sender": from_address,
+                "received_at": datetime_now,
+                "original_link": original_link,
+            }
+            anchor = quote_plus(json.dumps(tracker_link_details, separators=(",", ":")))
+            url = f"{settings.SITE_ORIGIN}/contains-tracker-warning/#{anchor}"
+            return f"{quote}{url}{quote}"
+
         changed_content, matched = re.subn(
-            pattern, rf"\g<1>{settings.SITE_ORIGIN}/faq\g<1>", changed_content
+            pattern, convert_to_tracker_warning_link, changed_content
         )
         tracker_removed += matched
 
