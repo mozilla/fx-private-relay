@@ -47,5 +47,5 @@ black==23.3.0
 mypy==1.2.0
 types-requests==2.28.11.17
 types-pyOpenSSL==23.1.0.2
-django-stubs==1.16.0
+django-stubs==4.2.0
 djangorestframework-stubs==1.10.0
