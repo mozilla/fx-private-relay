@@ -25,7 +25,7 @@ PyJWT==2.6.0
 python-decouple==3.8
 pyOpenSSL==23.1.1
 requests==2.28.2
-sentry-sdk==1.21.0
+sentry-sdk==1.21.1
 whitenoise==6.4.0
 
 # phones app
