@@ -162,6 +162,7 @@ const NoFirefoxBanner = () => {
         target:
           "https://www.mozilla.org/firefox/new/?utm_source=fx-relay&utm_medium=banner&utm_campaign=download-fx",
         content: l10n.getString("banner-download-firefox-cta"),
+        size: "large",
       }}
     >
       <p>{l10n.getString("banner-download-firefox-copy-2")}</p>
@@ -183,6 +184,7 @@ const NoAddonBanner = () => {
         target:
           "https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=banner&utm_campaign=install-addon",
         content: l10n.getString("banner-download-install-extension-cta"),
+        size: "large",
       }}
       hiddenWithAddon={true}
     >
@@ -207,6 +209,7 @@ const NoChromeExtensionBanner = () => {
         target:
           "https://chrome.google.com/webstore/detail/firefox-relay/lknpoadjjkjcmjhbjpcljdednccbldeb?utm_source=fx-relay&utm_medium=banner&utm_campaign=install-addon",
         content: l10n.getString("banner-download-install-chrome-extension-cta"),
+        size: "large",
       }}
       hiddenWithAddon={true}
     >

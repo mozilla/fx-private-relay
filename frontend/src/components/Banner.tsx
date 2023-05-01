@@ -3,7 +3,7 @@ import { OutboundLink } from "react-ga";
 import Link from "next/link";
 import styles from "./Banner.module.scss";
 import { useLocalDismissal } from "../hooks/localDismissal";
-import { CloseIcon, WarningFilledIcon, InfoFilledIcon } from "./Icons";
+import { CloseIcon, WarningFilledIcon, InfoBulbIcon } from "./Icons";
 import { useGaViewPing } from "../hooks/gaViewPing";
 import { useL10n } from "../hooks/l10n";
 
@@ -41,7 +41,7 @@ export const Banner = (props: BannerProps) => {
   const infoIcon =
     type === "info" ? (
       <div className={styles["info-icon"]}>
-        <InfoFilledIcon alt="" className={styles.icon} width={20} height={20} />
+        <InfoBulbIcon alt="" className={styles.icon} width={20} height={20} />
       </div>
     ) : null;
 
