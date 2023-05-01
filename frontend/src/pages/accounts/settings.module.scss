@@ -175,6 +175,11 @@ $field-gap: $spacing-lg;
   width: 100%;
 }
 
+.settings-api-qr-code {
+  height: auto;
+  max-width: 200px;
+}
+
 .copy-button-wrapper {
   display: flex;
   flex-direction: row;
