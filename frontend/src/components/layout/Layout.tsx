@@ -8,7 +8,7 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import { ToastContainer, toast, Slide } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import "react-toastify/scss/main.scss";
 import styles from "./Layout.module.scss";
 import logoTypeLight from "./images/fx-private-relay-logotype-light.svg";
 import logoTypeDark from "./images/fx-private-relay-logotype-dark.svg";
