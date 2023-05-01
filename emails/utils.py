@@ -1,6 +1,5 @@
 import base64
 import contextlib
-from datetime import datetime, timezone
 from email.header import Header
 from email.headerregistry import Address
 from email.mime.multipart import MIMEMultipart
@@ -20,8 +19,7 @@ import jwcrypto.jwe
 import jwcrypto.jwk
 import markus
 import logging
-import urllib.parse
-from urllib.parse import urlparse
+from urllib.parse import quote_plus, urlparse
 from waffle.models import Flag
 
 from django.apps import apps
@@ -464,9 +462,7 @@ def remove_trackers(html_content, from_address, datetime_now, level="general"):
                 "received_at": datetime_now,
                 "original_link": original_link,
             }
-            anchor = urllib.parse.quote_plus(
-                json.dumps(tracker_link_details, separators=(",", ":"))
-            )
+            anchor = quote_plus(json.dumps(tracker_link_details, separators=(",", ":")))
             url = f"{settings.SITE_ORIGIN}/contains-tracker-warning/#{anchor}"
             return f"{quote}{url}{quote}"
 

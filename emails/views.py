@@ -513,6 +513,7 @@ def _sns_message(message_json):
     message_body = {}
     tracker_report_link = ""
     removed_count = 0
+    # frontend expects a timestamp in milliseconds
     datetime_now = int(datetime.now(timezone.utc).timestamp() * 1000)
 
     if html_content:
