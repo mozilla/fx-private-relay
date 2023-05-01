@@ -55,6 +55,8 @@
   flex-wrap: wrap;
 
   .banner.promo & {
+    // .banner's border-radius - .banner's padding.
+    // This is what makes .banner.promo appear as a 2px-wide border:
     border-radius: calc($border-radius-md - 2px);
   }
 
