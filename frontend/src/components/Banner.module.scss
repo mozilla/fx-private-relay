@@ -7,19 +7,25 @@
   padding: $spacing-md;
   background-color: $color-white;
   position: relative;
-
-  .banner.info & {
-    padding: $spacing-xs;
-  }
-
-  &:not(.promo) {
-    box-shadow: $box-shadow-sm;
-  }
+  box-shadow: $box-shadow-sm;
 
   &.promo {
     // This is the gradient border width (which is implemented as a background image):
     padding: 2px;
+    box-shadow: none;
     background-image: $firefoxGradient;
+  }
+
+  &.warning {
+    padding: $spacing-sm;
+  }
+
+  &.info {
+    @include text-body-sm;
+
+    @media screen and #{$mq-sm} {
+      padding: 0 $spacing-sm;
+    }
   }
 
   .dismiss-button {
@@ -48,11 +54,28 @@
   background-color: $color-white;
   flex-wrap: wrap;
 
+  .banner.promo & {
+    border-radius: calc($border-radius-md - 2px);
+  }
+
   .title-and-large-cta-wrapper {
     display: flex;
     flex-wrap: wrap;
     flex: 1 1 $content-xs;
     padding: $spacing-xs $spacing-md $spacing-md $spacing-md;
+
+    .title-text {
+      flex: 1 1 auto;
+
+      .banner.warning & {
+        @media screen and #{$mq-sm} {
+          padding-left: $spacing-md;
+          border-left-width: 4px;
+          border-left-style: solid;
+          border-color: $color-yellow-50;
+        }
+      }
+    }
 
     @media screen and #{$mq-sm} {
       padding: $spacing-md;
@@ -62,34 +85,9 @@
     }
   }
 
-  .title-text {
-    flex: 1 1 auto;
-  }
-
   .info-icon {
     align-self: center;
     color: $color-yellow-50;
-  }
-
-  .banner:not(.promo):not(.info) & {
-    padding: $spacing-xs $spacing-lg $spacing-md;
-    border-left-width: 4px;
-    border-left-style: solid;
-  }
-
-  .banner.info & {
-    @include text-body-sm;
-    padding: 0 $spacing-sm 0 $spacing-md;
-  }
-
-  .banner.promo & {
-    // .banner's border-radius - .banner's padding.
-    // This is what makes .banner.promo appear as a 2px-wide border:
-    border-radius: calc($border-radius-md - 2px);
-  }
-
-  .warning & {
-    border-color: $color-yellow-50;
   }
 }
 
@@ -103,7 +101,7 @@
   }
 
   img {
-    width: 60px;
+    max-width: 100px;
   }
 }
 
@@ -112,6 +110,7 @@
   border-bottom: 1px solid $color-light-gray-20;
   align-items: center;
   margin: 0 $spacing-md;
+  padding-top: $spacing-sm;
   width: 100%;
 
   @media screen and #{$mq-sm} {
@@ -139,7 +138,7 @@
   font-family: $font-stack-firefox;
   display: flex;
   align-items: center;
-  padding: $spacing-md 0;
+  padding: $spacing-sm 0 $spacing-md 0;
 
   .banner.info & {
     @include text-body-sm;
@@ -165,7 +164,7 @@
   a,
   button {
     display: inline-block;
-    padding: $spacing-md 0;
+    padding-top: $spacing-md;
     font-weight: 700;
     color: $color-blue-50;
     cursor: pointer;
@@ -202,7 +201,7 @@
 
   a {
     display: block;
-    padding: $spacing-md $spacing-lg;
+    padding: $spacing-sm $spacing-md;
     font-weight: 700;
     border: 2px solid $color-blue-50;
     color: $color-blue-50;
