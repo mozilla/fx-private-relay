@@ -53,7 +53,7 @@ first-time-user-email-how-item-3-subhead-html =  <a href="{ $url }" { $attrs }>S
 first-time-user-email-extra-protection-inbox-title = Extra protection for your inbox
 first-time-user-email-extra-protection-inbox-phone-title = Extra protection for your inbox and phone
 first-time-user-email-extra-protection-inbox-subhead = Upgrade to { -brand-name-relay-premium } to get unlimited email masks, a custom { -brand-name-relay } domain, and custom inbox controls.
-first-time-user-email-extra-protection-inbox-phone-subhead = Upgrade to { -brand-name-relay-premium } for unlimited email masks — plus a phone mask protect your real number.
+first-time-user-email-extra-protection-inbox-phone-subhead = Upgrade to { -brand-name-relay-premium } for unlimited email masks — plus a phone mask to protect your real number.
 first-time-user-email-extra-protection-cta = Get { -brand-name-relay-premium }
 
 first-time-user-email-questions-title = Questions about { -brand-name-firefox-relay }? 
