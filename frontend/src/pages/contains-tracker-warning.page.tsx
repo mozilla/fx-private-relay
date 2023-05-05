@@ -4,7 +4,7 @@ import { Layout } from "../components/layout/Layout";
 import { useRuntimeData } from "../hooks/api/runtimeData";
 import { useL10n } from "../hooks/l10n";
 import { FaqAccordionTracker } from "../components/landing/FaqAccordion";
-import { Banner, BannerCta } from "../components/Banner";
+import { BannerCta } from "../components/Banner";
 import { useEffect, useState } from "react";
 import { RoundedInfoTriangleIcon } from "../components/Icons";
 
@@ -71,18 +71,6 @@ const ContainsTracker: NextPage = () => {
         />
       </div>
     </>
-
-    // <Banner
-    //   type="warning"
-    //   title={l10n.getString("contains-tracker-warning-title")}
-    //   cta={{
-    //     content: l10n.getString("contains-tracker-warning-view-link-cta"),
-    //     size: "large",
-    //     target: trackerData.original_link,
-    //   }}
-    // >
-    //   {l10n.getString("contains-tracker-warning-description")}
-    // </Banner>
   );
 
   return (
