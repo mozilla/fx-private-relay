@@ -1,4 +1,4 @@
-import { ReactNode, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import styles from "./FaqAccordion.module.scss";
 import { PlusIcon } from "../Icons";
 import { useL10n } from "../../hooks/l10n";
@@ -38,6 +38,11 @@ const QAndA = (props: { entry: Entry }) => {
     }
     return isToggled || props.entry.expandedFirst ? isExpanded : isCollapsed;
   }
+
+  // Focus on the first item when expandedFirst is set to true
+  useEffect(() => {
+    props.entry.expandedFirst && buttonRef.current?.focus();
+  });
 
   return (
     <div className={`${styles.entry} ${setToggleView()}`}>

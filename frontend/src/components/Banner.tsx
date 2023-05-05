@@ -130,6 +130,7 @@ type BannerCtaProps = {
    * Callback to run when the call-to-action is activated. Optional if `target` is provided.
    */
   onClick?: () => void;
+  className?: string;
   gaViewPing?: Parameters<typeof useGaViewPing>[0];
   size?: "medium" | "large";
 } & ({ target: string } | { onClick: () => void }); // At least one of `target` and `onClick` is required:
@@ -140,9 +141,9 @@ export const BannerCta = (props: BannerCtaProps) => {
   if (typeof props.target !== "string") {
     return (
       <div
-        className={
+        className={`${
           props.size === "large" ? styles["cta-large-button"] : styles.cta
-        }
+        } ${props.className}`}
       >
         <button onClick={props.onClick}>
           <span ref={ctaRef}>{props.content}</span>
@@ -155,9 +156,9 @@ export const BannerCta = (props: BannerCtaProps) => {
   if (props.target.startsWith("/")) {
     return (
       <div
-        className={
+        className={`${
           props.size === "large" ? styles["cta-large-button"] : styles.cta
-        }
+        } ${props.className}`}
       >
         <Link href={props.target} onClick={props.onClick} ref={ctaRef}>
           {props.content}
@@ -169,9 +170,9 @@ export const BannerCta = (props: BannerCtaProps) => {
   // When given a URL to link to in `target`, render an <a> (via <OutboundLink>):
   return (
     <div
-      className={
+      className={`${
         props.size === "large" ? styles["cta-large-button"] : styles.cta
-      }
+      } ${props.className}`}
     >
       <OutboundLink
         to={props.target}
