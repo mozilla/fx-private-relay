@@ -83,6 +83,10 @@ h6 {
   isolation: isolate;
 }
 
+input[type="search"]::-webkit-search-decoration {
+  display: none;
+}
+
 // Styles in the `add-on-overrides` layer (which the add-on injects)
 // should override those in the `add-on-overridable` layer.
 @layer add-on-overridable, add-on-overrides;
