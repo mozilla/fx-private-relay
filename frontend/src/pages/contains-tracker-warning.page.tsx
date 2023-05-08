@@ -93,7 +93,50 @@ const ContainsTracker: NextPage = () => {
               </h2>
             </div>
             <div className={styles.entries}>
-              <FaqAccordionTracker />
+              <FaqAccordionItem
+                defaultExpandedIndex={0}
+                entries={[
+                  {
+                    q: l10n.getString("faq-question-define-tracker-question"),
+                    a: (
+                      <p>
+                        {l10n.getString(
+                          "faq-question-define-tracker-answer-partone"
+                        )}
+                        <br />
+                        <br />
+                        {l10n.getString(
+                          "faq-question-define-tracker-answer-parttwo"
+                        )}
+                      </p>
+                    ),
+                  },
+                  {
+                    q: l10n.getString(
+                      "faq-question-disable-trackerremoval-question"
+                    ),
+                    a: l10n.getString(
+                      "faq-question-disable-trackerremoval-answer"
+                    ),
+                  },
+                  {
+                    q: l10n.getString(
+                      "faq-question-bulk-trackerremoval-question"
+                    ),
+                    a: l10n.getString(
+                      "faq-question-bulk-trackerremoval-answer"
+                    ),
+                  },
+                  {
+                    q: l10n.getString(
+                      "faq-question-trackerremoval-breakage-question"
+                    ),
+                    a: l10n.getString(
+                      "faq-question-trackerremoval-breakage-answer-2"
+                    ),
+                  },
+                ]}
+              />
             </div>
           </div>
         </section>
