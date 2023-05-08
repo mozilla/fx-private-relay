@@ -24,7 +24,7 @@ psycopg2==2.9.6
 PyJWT==2.6.0
 python-decouple==3.8
 pyOpenSSL==23.1.1
-requests==2.29.0
+requests==2.30.0
 sentry-sdk==1.22.1
 whitenoise==6.4.0
 
