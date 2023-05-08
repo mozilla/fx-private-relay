@@ -83,6 +83,7 @@ const ContainsTracker: NextPage = () => {
             </div>
             <div className={styles.entries}>
               <FaqAccordionItem
+                defaultExpandedIndex={0}
                 entries={[
                   {
                     q: l10n.getString("faq-question-define-tracker-question"),
@@ -98,7 +99,6 @@ const ContainsTracker: NextPage = () => {
                         )}
                       </p>
                     ),
-                    expandedFirst: true,
                   },
                   {
                     q: l10n.getString(
