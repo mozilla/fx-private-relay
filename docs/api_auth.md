@@ -46,7 +46,7 @@ sequenceDiagram
 
 Similarly to the add-on, Firefox uses the [the FXA OAuth service][fxa-oauth] /oauth/token endpoint with `scope: ["https://identity.mozilla.com/apps/relay"]` to get the scoped access token that expires every 24 hours (see which calls [`getOAuthToken`][searchfox-getoauthtoken] [`accessTokenWithSessionToken`][searchfox-accesstokenwithsessiontoken]).
 
-After successful OAuth flow with FXA, Firefox uses this token to authenticate all requests to Relay by including an `Authorization: Bearer {fxa-access-token}` header in all API requests. Since the token was generated from FXA and not in Relay, Firefox must hit Relay's /api/v1/terms-accepted-user endpoint to ensure that user has accepted the Terms of Service and for a new user and profile to be created on Relay.
+Like the add-on, Firefox uses this token to authenticate all requests to Relay. Firefox includes an `Authorization: Bearer {fxa-access-token}` header in all API requests. Unlike the add-on, Firefox must first `POST` to the Relay `/api/v1/terms-accepted-user` endpoint to state that the user accepted the Terms of Service. This `POST` will also create the new user and profile records in Relay.
 
 ```mermaid
 sequenceDiagram
