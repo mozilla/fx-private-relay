@@ -5,51 +5,53 @@ import { PlusIcon } from "../Icons";
 export type Entry = {
   q: string;
   a: ReactNode;
-  expanded?: boolean;
 };
 
 export type Props = {
   entries: Entry[];
+  defaultExpandedIndex?: number;
 };
 
 /**
  * Highlight a selection of questions from the FAQ, allowing people to expand them to see the answers.
  */
 export const FaqAccordionItem = (props: Props) => {
-  const [entries, setEntries] = useState(props.entries);
+  const [expandedIndex, setExpandedIndex] = useState(
+    props.defaultExpandedIndex ?? 0
+  );
 
-  function handleToggle(q: string) {
-    setEntries(entries.map((entry) => ({
-      q: entry.q,
-      a: entry.a,
-      expanded: entry.q === q && !entry.expanded,
-    })));
-  }
-
-  return <dl>{
-    entries.map((entry) => (
-      <QAndA key={entry.q} entry={entry} onToggle={handleToggle} />
-    ))
-  }</dl>;
+  return (
+    <dl>
+      {props.entries.map((entry, index) => (
+        <QAndA
+          key={entry.q}
+          entry={entry}
+          isExpanded={expandedIndex === index}
+          onToggle={() => setExpandedIndex(index)}
+        />
+      ))}
+    </dl>
+  );
 };
 
-const QAndA = (props: { entry: Entry, onToggle: (q: string) => void }) => {
+const QAndA = (props: {
+  entry: Entry;
+  isExpanded: boolean;
+  onToggle: () => void;
+}) => {
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   function setToggleView() {
     const isExpanded = styles["is-expanded"];
     const isCollapsed = styles["is-collapsed"];
 
-    return props.entry.expanded ? isExpanded : isCollapsed;
+    return props.isExpanded ? isExpanded : isCollapsed;
   }
 
   return (
     <div className={`${styles.entry} ${setToggleView()}`}>
       <dt>
-        <button
-          onClick={() => props.onToggle(props.entry.q)}
-          ref={buttonRef}
-        >
+        <button onClick={() => props.onToggle()} ref={buttonRef}>
           <span>{props.entry.q}</span>
           <PlusIcon alt="" className={styles["plus-icon"]} />
         </button>

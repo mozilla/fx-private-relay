@@ -137,11 +137,11 @@ const Home: NextPage = () => {
             </div>
             <div className={styles.entries}>
               <FaqAccordionItem
+                defaultExpandedIndex={0}
                 entries={[
                   {
                     q: l10n.getString("faq-question-availability-question"),
                     a: l10n.getString("faq-question-landing-page-availability"),
-                    expanded: true,
                   },
                   {
                     q: l10n.getString("faq-question-what-is-question-2"),
@@ -151,8 +151,16 @@ const Home: NextPage = () => {
                     q: l10n.getString("faq-question-use-cases-question-2"),
                     a: (
                       <>
-                        <p>{l10n.getString("faq-question-use-cases-answer-part1-2")}</p>
-                        <p>{l10n.getString("faq-question-use-cases-answer-part2-2")}</p>
+                        <p>
+                          {l10n.getString(
+                            "faq-question-use-cases-answer-part1-2"
+                          )}
+                        </p>
+                        <p>
+                          {l10n.getString(
+                            "faq-question-use-cases-answer-part2-2"
+                          )}
+                        </p>
                       </>
                     ),
                   },
