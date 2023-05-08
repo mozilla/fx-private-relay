@@ -54,16 +54,20 @@ sequenceDiagram
     participant FXA
     participant Relay
 
-rect rgba(34, 0, 51, .09)
+    rect rgba(204, 153, 255, .09)
     note right of Firefox: OAuth2 Flow
     Firefox->>FXA: POST /oauth/token/
     FXA->>Firefox: JSON: {Relay access token valid for 24 hrs}
     end
+    rect rgba(153, 204, 255, .09)
+    note right of Firefox: Firefox User Accepts ToS
     Firefox->>Relay: POST /api/v1/terms-accepted-user Authorization: Token {token}
     Relay->>FXA: POST /v1/introspect {token}
     FXA->>Relay: 200 OK
-    Relay->>Relay: Create new user and profile on DB if FxA user does not exist
+    Relay->>Relay: Create new user on DB if Fxa user DNE
     Relay->>Firefox: 201 Created or 202 User already exists
+    end
+    rect rgba(255, 255, 153, .09)
     note right of Firefox: Request new Relay Address
     Firefox->>Relay: POST /api/v1/relayaddresses Authorization: Token {token}
     Note over Relay,FXA: FxaTokenAuthentication
@@ -71,6 +75,7 @@ rect rgba(34, 0, 51, .09)
     FXA->>Relay: 200 OK
     Relay->>Relay: Verify user exists on our DB
     Relay->>Firefox: 201 Created {"id":, "address":, ...} or 401 Unauthorized
+    end
 ```
 
 [drf]: https://www.django-rest-framework.org/
