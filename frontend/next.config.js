@@ -100,6 +100,9 @@ module.exports = withBundleAnalyzer({
     // https://nextjs.org/docs/messages/export-image-api
     unoptimized: true,
   },
+  // See https://nextjs.org/blog/next-13-3#static-export-for-app-router and
+  // https://nextjs.org/docs/pages/building-your-application/deploying/static-exports
+  output: "export",
   webpack: (config, options) => {
     config.module.rules.push({
       test: /\.ftl/,
