@@ -22,7 +22,7 @@ export const FaqAccordionItem = (props: Props) => {
 
   return (
     <dl>
-      {props.entries.map((entry, index) => (
+      {props.entries.map((entry: Entry, index) => (
         <QAndA
           key={entry.q}
           entry={entry}
@@ -41,13 +41,20 @@ const QAndA = (props: {
 }) => {
   const buttonRef = useRef<HTMLButtonElement>(null);
 
+  useEffect(() => {
+    // Set the focus on the button when the component is mounted
+    if (props.isExpanded) {
+      buttonRef.current?.focus();
+    }
+  }, [props.isExpanded]);
+
   function setToggleView() {
     const isExpanded = styles["is-expanded"];
     const isCollapsed = styles["is-collapsed"];
 
     return props.isExpanded ? isExpanded : isCollapsed;
   }
- 
+
   return (
     <div className={`${styles.entry} ${setToggleView()}`}>
       <dt>

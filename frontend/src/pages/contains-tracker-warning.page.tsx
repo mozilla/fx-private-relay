@@ -84,7 +84,6 @@ const ContainsTracker: NextPage = () => {
           {l10n.getString("faq-question-define-tracker-answer-parttwo")}
         </p>
       ),
-      expandedFirst: true,
     },
     {
       q: l10n.getString("faq-question-disable-trackerremoval-question"),
