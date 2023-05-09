@@ -120,7 +120,7 @@ const ContainsTracker: NextPage = () => {
               </h2>
             </div>
             <div className={styles.entries}>
-              <FaqAccordionItem entries={entries}/>
+              <FaqAccordionItem entries={entries} />
             </div>
           </div>
         </section>
