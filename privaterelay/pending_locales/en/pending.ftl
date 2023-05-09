@@ -37,6 +37,7 @@ other-reply-not-forwarded-2 = Your reply was not sent to { $sender }.
 ## Email sent to first time free users 
 
 first-time-user-email-welcome = Welcome to { -brand-name-firefox-relay }
+first-time-user-email-preheader = Email masking to protect your identity
 first-time-user-email-welcome-subhead = Your email address can be used to track you online — we’re here to help put an end to it.
 first-time-user-email-hero-primary-text = As a { -brand-name-firefox } user, you get 5 email masks for free. Use them to hide your real email address, protect your identity, and forward only the emails you want to your inbox. 
 first-time-user-email-hero-secondary-text = Manage all your masks from your Relay dashboard.

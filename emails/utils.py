@@ -10,6 +10,8 @@ from functools import cache
 import json
 import pathlib
 import re
+from django.http.request import HttpRequest
+from django.template.loader import render_to_string
 import requests
 
 from botocore.exceptions import ClientError
@@ -28,9 +30,10 @@ from django.contrib.auth.models import Group
 from django.http import HttpResponse
 from django.template.defaultfilters import linebreaksbr, urlize
 
+from privaterelay.utils import get_countries_info_from_request_and_mapping
+
 from .models import (
     DomainAddress,
-    Profile,
     RelayAddress,
     Reply,
     get_domains_from_settings,
@@ -133,6 +136,20 @@ def get_email_domain_from_settings():
     if settings.RELAY_CHANNEL == "dev":
         email_network_locality = f"mail.{email_network_locality}"
     return email_network_locality
+
+
+def get_welcome_email_html(request: HttpRequest) -> str:
+    bundle_plans = get_countries_info_from_request_and_mapping(
+        request, settings.BUNDLE_PLAN_COUNTRY_LANG_MAPPING
+    )
+    return render_to_string(
+        "emails/first_time_user.html",
+        {
+            "in_bundle_country": bundle_plans["available_in_country"],
+            "SITE_ORIGIN": settings.SITE_ORIGIN,
+        },
+        request,
+    )
 
 
 @time_if_enabled("ses_send_raw_email")

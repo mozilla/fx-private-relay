@@ -1,8 +1,13 @@
+from django.apps import apps
+from django.conf import settings
 from django.dispatch import receiver
 
 from allauth.account.signals import user_signed_up, user_logged_in
+from mypy_boto3_ses.client import SESClient
 
-from emails.utils import incr_if_enabled
+from emails.utils import get_welcome_email_html, incr_if_enabled
+
+from .ftl_bundles import main as ftl_bundle
 
 
 @receiver(user_signed_up)
@@ -12,6 +17,23 @@ def record_user_signed_up(request, user, **kwargs):
     # so we have to set a user_created session var for user_logged_in receiver
     request.session["user_created"] = True
     request.session.modified = True
+
+    ses_client: SESClient = apps.get_app_config("emails").ses_client
+    ses_client.send_email(
+        Destination={
+            "ToAddresses": [user.email],
+        },
+        Source=settings.RELAY_FROM_ADDRESS,
+        Message={
+            "Body": {
+                "Html": {"Charset": "UTF-8", "Data": get_welcome_email_html(request)}
+            },
+            "Subject": {
+                "Charset": "UTF-8",
+                "Data": ftl_bundle.format("first-time-user-email-welcome"),
+            },
+        },
+    )
 
 
 @receiver(user_logged_in)

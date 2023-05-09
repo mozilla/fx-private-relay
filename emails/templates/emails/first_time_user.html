@@ -207,6 +207,9 @@
 </head>
 
 <body style="margin: 0;padding: 0;-webkit-text-size-adjust: 100%;background-color: #ffffff;color: #000000">
+  <div style="display:none; font-size: 1px; line-height: 1px; max-height: 0px; max-width:0px; opacity: 0; overflow: hidden;">
+      {% ftlmsg 'first-time-user-email-preheader' %}
+  </div>
   <table style="vertical-align: top;min-width: 320px;margin: 0 auto;width:100%" cellpadding="0" cellspacing="0">
     <tbody>
       <tr style="vertical-align: top">
@@ -248,7 +251,7 @@
                   <p style="color: #321C64; font-size: 18px; font-family: metropolis medium;">{% ftlmsg 'first-time-user-email-hero-primary-text' %}</p> 
                   <p style="color: #321C64; font-size: 18px; font-family: metropolis medium;margin-top: 20px;">{% ftlmsg 'first-time-user-email-hero-secondary-text' %}</p>
 
-                  <a href="" target="_blank" class="button" style="margin-top: 30px;">{% ftlmsg 'first-time-user-email-hero-cta' %}</a>
+                  <a href="{{ SITE_ORIGIN }}/accounts/profile/?utm_campaign=first_email&utm_source=email&utm_medium=email" target="_blank" class="button" style="margin-top: 30px;" rel="noreferrer">{% ftlmsg 'first-time-user-email-hero-cta' %}</a>
 
                 </td>
               </tr>
@@ -291,7 +294,7 @@
                           </p>
 
                           <p style="line-height: 140%; text-align: left; word-wrap: break-word;">
-                            {% ftlmsg 'first-time-user-email-how-item-1-subhead-html' %}
+                            {% ftlmsg 'first-time-user-email-how-item-1-subhead-html' url='https://addons.mozilla.org/firefox/addon/private-relay/?utm_campaign=relay_first_email&utm_source=email&utm_medium=email' %}
                           </p>
 
                       </td>
@@ -331,7 +334,7 @@
                           </p>
 
                           <p style="line-height: 140%; text-align: left; word-wrap: break-word;">
-                            {% ftlmsg 'first-time-user-email-how-item-3-subhead-html' url='https://addons.mozilla.org/en-US/firefox/addon/private-relay/' attrs='' %}
+                            {% ftlmsg 'first-time-user-email-how-item-3-subhead-html' url=SITE_ORIGIN %}
                           </p>
 
                       </td>
@@ -353,7 +356,7 @@
                 </td>
 
                 <td class="cta" align="center"> 
-                    <a href="" target="_blank" class="button" style="padding: 15px 20px;">{% ftlmsg 'first-time-user-email-extra-protection-cta' %}</a> 
+                    <a href="{{ SITE_ORIGIN }}/premium/?utm_campaign=first_email&utm_source=email&utm_medium=email" target="_blank" class="button" style="padding: 15px 20px;" rel="noreferrer">{% ftlmsg 'first-time-user-email-extra-protection-cta' %}</a> 
                 </td>
               </tr>
             </tbody>
@@ -366,7 +369,7 @@
                 <td style="display: block; text-align: center;" align="center">
                   <img src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/union-icon.png" alt="" title="" style="display: block;height: auto;width: 100%;margin: 0 auto;max-width: 26px;" />
                   <h1 style="word-wrap: break-word; font-size: 22px;font-family: metropolis bold; color: #321C64; margin-top: 30px;">{% ftlmsg 'first-time-user-email-questions-title' %}</h1>
-                  <p style="font-size: 16px; font-family: inter; color: #000000;margin-top: 15px;">{% ftlmsg 'first-time-user-email-questions-subhead-html' url='https://relay.firefox.com/' attrs=''%}</p>
+                  <p style="font-size: 16px; font-family: inter; color: #000000;margin-top: 15px;">{% ftlmsg 'first-time-user-email-questions-subhead-html' url='https://support.mozilla.org/products/relay?utm_campaign=relay_first_email&utm_source=email&utm_medium=email' attrs=''%}</p>
                 </td>
               </tr>
             </tbody>
@@ -389,10 +392,10 @@
               <tr>
                 <td style="overflow-wrap: break-word;word-break: break-word;width: 70%;margin: 0 auto;display: block;" align="center"> 
                   <p style="line-height: 140%;font-size: 14px; font-family: inter; color: #0C0C0D;">{% ftlmsg 'first-time-user-email-footer-text-1' %}</p>
-                  <p style="line-height: 140%;font-size: 14px; font-family: inter; color: #0C0C0D;">{% ftlmsg 'first-time-user-email-footer-text-2-html' url='https://support.mozilla.org/en-US/' attrs='style="color: #0C0C0D;"' %}</p>
+                  <p style="line-height: 140%;font-size: 14px; font-family: inter; color: #0C0C0D;">{% ftlmsg 'first-time-user-email-footer-text-2-html' url='https://support.mozilla.org/products/relay?utm_campaign=relay_first_email&utm_source=email&utm_medium=email' attrs='style="color: #0C0C0D;"' %}</p>
                   <img align="center" border="0" src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/mozilla-logo.png" alt="" title="" style="height: auto; width: 100%;max-width: 146px; margin: 30px auto; display: block;" />
                   <p style="line-height: 140%;font-size: 14px; font-family: inter; color: #0C0C0D;">{% ftlmsg 'first-time-user-email-footer-text-address' %}</p>
-                  <p style="line-height: 140%;font-size: 14px; font-family: inter medium; color: #0C0C0D;margin-top: 15px;"><a style="color: #0C0C0D; text-decoration: none; font-weight: 600;" href=>{% ftlmsg 'first-time-user-email-footer-text-legal' %}</a> • <a style="color: #0C0C0D; text-decoration: none; font-weight: 600;" href="">{% ftlmsg 'first-time-user-email-footer-text-privacy' %}</a></p>
+                  <p style="line-height: 140%;font-size: 14px; font-family: inter medium; color: #0C0C0D;margin-top: 15px;"><a style="color: #0C0C0D; text-decoration: none; font-weight: 600;" href="https://www.mozilla.org/about/legal/terms/firefox-relay/?utm_campaign=first_email&utm_source=email&utm_medium=email" target="_blank" rel="noreferrer">{% ftlmsg 'first-time-user-email-footer-text-legal' %}</a> • <a style="color: #0C0C0D; text-decoration: none; font-weight: 600;" href="https://www.mozilla.org/privacy/firefox-relay/?utm_campaign=first_email&utm_source=email&utm_medium=email" target="_blank" rel="noreferrer">{% ftlmsg 'first-time-user-email-footer-text-privacy' %}</a></p>
                 </td>
               </tr>
             </tbody>

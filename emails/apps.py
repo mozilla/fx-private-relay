@@ -3,6 +3,7 @@ import os
 
 import boto3
 from botocore.config import Config
+from mypy_boto3_ses.client import SESClient
 
 from django.apps import AppConfig
 from django.conf import settings
@@ -13,6 +14,7 @@ logger = logging.getLogger("events")
 
 class EmailsConfig(AppConfig):
     name = "emails"
+    ses_client: SESClient
 
     def __init__(self, app_name, app_module):
         super(EmailsConfig, self).__init__(app_name, app_module)

@@ -85,7 +85,7 @@ def first_time_user_test(request):
     Settings like language can be given in the querystring, otherwise settings
     come from a random free profile.
     """
-    email_context = {"in_bundle_country": True}
+    email_context = {"in_bundle_country": True, "SITE_ORIGIN": settings.SITE_ORIGIN}
     return render(request, "emails/first_time_user.html", email_context)
 
 
