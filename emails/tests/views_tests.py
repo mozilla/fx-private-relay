@@ -254,6 +254,9 @@ class BounceHandlingTest(TestCase):
 class ComplaintHandlingTest(TestCase):
     """Test Complaint notifications and events."""
 
+    def setUp(self):
+        self.user = baker.make(User, email="relayuser@test.com")
+
     @pytest.fixture(autouse=True)
     def use_caplog(self, caplog):
         self.caplog = caplog
@@ -271,7 +274,7 @@ class ComplaintHandlingTest(TestCase):
             "notificationType": "Complaint",
             "complaint": {
                 "userAgent": "ExampleCorp Feedback Loop (V0.01)",
-                "complainedRecipients": [{"emailAddress": "recipient1@example.com"}],
+                "complainedRecipients": [{"emailAddress": self.user.email}],
                 "complaintFeedbackType": "abuse",
                 "arrivalDate": "2009-12-03T04:24:21.000-05:00",
                 "timestamp": "2012-05-25T14:59:38.623Z",
@@ -284,10 +287,30 @@ class ComplaintHandlingTest(TestCase):
         with MetricsMock() as mm:
             response = _sns_notification(json_body)
         assert response.status_code == 200
-        mm.assert_incr_once("fx.private.relay.email_complaint")
-        assert len(self.caplog.records) == 1
-        record = self.caplog.records[0]
-        assert record.msg == "complaint_received"
+
+        mm.assert_incr_once(
+            "fx.private.relay.email_complaint",
+            tags=[
+                "complaint_subtype:none",
+                "complaint_feedback:abuse",
+                "user_match:found",
+                "relay_action:no_action",
+            ],
+        )
+        assert len(self.caplog.records) == 2
+        record1, record2 = self.caplog.records
+        assert record1.msg == "complaint_notification"
+        assert record1.complaint_subtype is None
+        assert record1.complaint_user_agent == "ExampleCorp Feedback Loop (V0.01)"
+        assert record1.complaint_feedback == "abuse"
+        assert record1.user_match == "found"
+        assert record1.relay_action == "no_action"
+        assert record1.domain == "test.com"
+
+        assert record2.msg == "complaint_received"
+        assert record2.recipient_domains == ["test.com"]
+        assert record2.subtype is None
+        assert record2.feedback == "abuse"
 
 
 class SNSNotificationRemoveEmailsInS3Test(TestCase):
