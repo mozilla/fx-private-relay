@@ -18,6 +18,9 @@ def record_user_signed_up(request, user, **kwargs):
     request.session["user_created"] = True
     request.session.modified = True
 
+
+@receiver(user_signed_up)
+def send_first_email(request, user, **kwargs):
     ses_client: SESClient = apps.get_app_config("emails").ses_client
     ses_client.send_email(
         Destination={
