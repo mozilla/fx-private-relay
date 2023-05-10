@@ -842,6 +842,7 @@ if DEBUG and not IN_PYTEST:
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
+        "api.authentication.FxaResourceTokenAuthentication",
         "api.authentication.FxaTokenAuthentication",
         "rest_framework.authentication.TokenAuthentication",
         "rest_framework.authentication.SessionAuthentication",
