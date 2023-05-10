@@ -134,3 +134,46 @@ class FxaTokenAuthentication(BaseAuthentication):
             return (user, token)
         else:
             raise NotFound()
+
+
+class FxaResourceTokenAuthentication(BaseAuthentication):
+    def authenticate_header(self, request):
+        # Note: we need to implement this function to make DRF return a 401 status code
+        # when we raise AuthenticationFailed, rather than a 403.
+        # See https://www.django-rest-framework.org/api-guide/authentication/#custom-authentication
+        return "Bearer"
+
+    def authenticate(self, request):
+        authorization = get_authorization_header(request).decode()
+        if not authorization or not authorization.startswith("Bearer "):
+            # If the request has no Bearer token, return None to attempt the next
+            # auth scheme in the REST_FRAMEWORK AUTHENTICATION_CLASSES list
+            return None
+
+        token = authorization.split(" ")[1]
+        if token == "":
+            raise ParseError("Missing FXA Token after 'Bearer'.")
+
+        fxa_uid = get_fxa_uid_from_oauth_token(token)
+        try:
+            sa = SocialAccount.objects.get(uid=fxa_uid, provider="fxa_resource")
+        except SocialAccount.DoesNotExist:
+            raise PermissionDenied("Authenticated user does not have a Relay account.")
+        user = sa.user
+
+        # cache fxa_resp_data for as long as access_token is valid
+        # TODO: revisit this since the token can expire before its time
+        # Note: FXA iat and exp are timestamps in *milliseconds*
+        # fxa_token_exp_time = int(fxa_resp_data.get("json").get("exp") / 1000)
+        # now_time = int(datetime.now(timezone.utc).timestamp())
+        # cache_timeout = fxa_token_exp_time - now_time
+
+        # Store FxA response for 60 seconds (errors, inactive users, etc.) or
+        # until access_token expires (matched Relay user)
+        # if not cached_fxa_resp_data:
+        #     cache.set(cache_key, fxa_resp_data, cache_timeout)
+
+        if user:
+            return (user, token)
+        else:
+            raise NotFound()
