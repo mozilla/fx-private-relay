@@ -938,6 +938,9 @@ def _handle_bounce(message_json):
     """
     Handle an AWS SES bounce notification.
 
+    For more information, see:
+    https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#bounce-object
+
     Returns:
     * 404 response if any email address does not match a user,
     * 200 response if all match or none are given
@@ -949,17 +952,14 @@ def _handle_bounce(message_json):
     * relay_action: 'no_action', 'auto_block_spam', 'hard_bounce', 'soft_bounce'
 
     Emits an info log "bounce_notification", same data as metric, plus:
-    * bounce_action - 'action' from bounced recipient data, or None
-    * bounce_status - 'status' from bounced recipient data, or None
-    * bounce_diagnostic - 'diagnosticCode' from bounced recipient data, or None
-    * bounce_extra - Extra data from bounce_recipient data, if any
-    * domain - User's domain, if an address was given
+    * bounce_action: 'action' from bounced recipient data, or None
+    * bounce_status: 'status' from bounced recipient data, or None
+    * bounce_diagnostic: 'diagnosticCode' from bounced recipient data, or None
+    * bounce_extra: Extra data from bounce_recipient data, if any
+    * domain: User's real email address domain, if an address was given
 
     Emits a legacy log "bounced recipient domain: {domain}", with data from
     bounced recipient data, without the email address.
-
-    For more information, see:
-    https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#bounce-object
     """
     bounce = message_json.get("bounce", {})
     bounce_type = bounce.get("bounceType", "none")
