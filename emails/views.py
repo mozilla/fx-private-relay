@@ -948,7 +948,7 @@ def _handle_bounce(message_json):
     Emits a counter metric "email_bounce" with these tags:
     * bounce_type: 'permanent', 'transient', 'undetermined', 'none' if omitted
     * bounce_subtype: 'undetermined', 'general', etc., 'none' if omitted
-    * user: 'found', 'missing', error states 'no_address' and 'no_recipients'
+    * user_match: 'found', 'missing', error states 'no_address' and 'no_recipients'
     * relay_action: 'no_action', 'auto_block_spam', 'hard_bounce', 'soft_bounce'
 
     Emits an info log "bounce_notification", same data as metric, plus:
@@ -976,7 +976,7 @@ def _handle_bounce(message_json):
             "bounce_action": recipient.pop("action", ""),
             "bounce_status": recipient.pop("status", ""),
             "bounce_diagnostic": recipient.pop("diagnosticCode", ""),
-            "user": "no_address",
+            "user_match": "no_address",
             "relay_action": "no_action",
         }
         if recipient:
@@ -993,11 +993,11 @@ def _handle_bounce(message_json):
         try:
             user = User.objects.get(email=recipient_address)
             profile = user.profile
-            data["user"] = "found"
+            data["user_match"] = "found"
         except User.DoesNotExist:
             # TODO: handle bounce for a user who no longer exists
             # add to SES account-wide suppression list?
-            data["user"] = "missing"
+            data["user_match"] = "missing"
             continue
 
         action = None
@@ -1020,13 +1020,13 @@ def _handle_bounce(message_json):
 
     if not bounce_data:
         # Data when there are no identified recipients
-        bounce_data = [{"user": "no_recipients", "relay_action": "no_action"}]
+        bounce_data = [{"user_match": "no_recipients", "relay_action": "no_action"}]
 
     for data in bounce_data:
         tags = {
             "bounce_type": bounce_type,
             "bounce_subtype": bounce_subtype,
-            "user": data["user"],
+            "user_match": data["user_match"],
             "relay_action": data["relay_action"],
         }
         incr_if_enabled(
@@ -1049,7 +1049,7 @@ def _handle_bounce(message_json):
                 f"bounced recipient domain: {recipient_domain}", extra=legacy_extra
             )
 
-    if any(data["user"] == "missing" for data in bounce_data):
+    if any(data["user_match"] == "missing" for data in bounce_data):
         return HttpResponse("Address does not exist", status=404)
     return HttpResponse("OK", status=200)
 
