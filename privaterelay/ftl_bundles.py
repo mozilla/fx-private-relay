@@ -33,6 +33,7 @@ main = Bundle(
         "misc.ftl",  # Error messages
         "pending.ftl",  # The backend pending translations, ./en/pending.ftl
         "phones.ftl",  # SMS errors
+        "faq.ftl",  # email-size-limit
     ],
     finder=RelayMessageFinder(),
 )
