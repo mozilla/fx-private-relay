@@ -5,6 +5,7 @@ from django.dispatch import receiver
 from allauth.account.signals import user_signed_up, user_logged_in
 from mypy_boto3_ses.client import SESClient
 from mypy_boto3_ses.type_defs import ContentTypeDef
+from waffle.models import Flag
 
 from emails.utils import get_welcome_email, incr_if_enabled
 
@@ -26,6 +27,12 @@ def _ses_message_props(data: str) -> ContentTypeDef:
 
 @receiver(user_signed_up)
 def send_first_email(request, user, **kwargs):
+    welcome_email_flag = Flag.objects.filter(name="welcome_email").first()
+    has_welcome_email = welcome_email_flag and (
+        welcome_email_flag.everyone or welcome_email_flag.is_active_for_user(user)
+    )
+    if not has_welcome_email:
+        return
     ses_client: SESClient = apps.get_app_config("emails").ses_client
     ses_client.send_email(
         Destination={

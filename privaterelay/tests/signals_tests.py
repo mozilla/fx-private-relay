@@ -7,6 +7,7 @@ from django.http.response import HttpResponse
 from django.test.client import RequestFactory
 from model_bakery import baker
 import pytest
+from waffle.models import Flag
 
 from privaterelay.signals import record_user_signed_up, send_first_email
 
@@ -37,7 +38,22 @@ def test_record_user_signed_up_telemetry():
 
 
 @pytest.mark.django_db
+def test_record_user_signed_up_send_first_email_requires_flag(mock_ses_client):
+    test_user_email = "testuser@test.com"
+    user = baker.make(User, email=test_user_email)
+    rf = RequestFactory()
+    sign_up_request = rf.get(
+        "/accounts/fxa/login/callback/?code=test&state=test&action=signin"
+    )
+    send_first_email(sign_up_request, user)
+
+    assert not mock_ses_client.send_email.called
+
+
+@pytest.mark.django_db
 def test_record_user_signed_up_send_first_email(mock_ses_client):
+    welcome_email_flag = Flag.objects.create(name="welcome_email", everyone=True)
+    welcome_email_flag.save()
     test_user_email = "testuser@test.com"
     user = baker.make(User, email=test_user_email)
     rf = RequestFactory()
