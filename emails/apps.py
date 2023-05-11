@@ -27,13 +27,14 @@ class EmailsConfig(AppConfig):
     @cached_property
     def s3_client(self):
         try:
-            return Config(
+            s3_config = Config(
                 region_name=settings.AWS_REGION,
                 retries={
                     "max_attempts": 1,  # this includes the initial attempt to get the email
                     "mode": "standard",
                 },
             )
+            return boto3.client("s3", config=s3_config)
         except Exception:
             logger.exception("exception during S3 connect")
 
