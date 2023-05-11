@@ -138,12 +138,12 @@ def get_email_domain_from_settings():
     return email_network_locality
 
 
-def get_welcome_email_html(request: HttpRequest) -> str:
+def get_welcome_email(request: HttpRequest, format: str) -> str:
     bundle_plans = get_countries_info_from_request_and_mapping(
         request, settings.BUNDLE_PLAN_COUNTRY_LANG_MAPPING
     )
     return render_to_string(
-        "emails/first_time_user.html",
+        f"emails/first_time_user.{format}",
         {
             "in_bundle_country": bundle_plans["available_in_country"],
             "SITE_ORIGIN": settings.SITE_ORIGIN,

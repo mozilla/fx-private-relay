@@ -4,8 +4,9 @@ from django.dispatch import receiver
 
 from allauth.account.signals import user_signed_up, user_logged_in
 from mypy_boto3_ses.client import SESClient
+from mypy_boto3_ses.type_defs import ContentTypeDef
 
-from emails.utils import get_welcome_email_html, incr_if_enabled
+from emails.utils import get_welcome_email, incr_if_enabled
 
 from .ftl_bundles import main as ftl_bundle
 
@@ -19,6 +20,10 @@ def record_user_signed_up(request, user, **kwargs):
     request.session.modified = True
 
 
+def _ses_message_props(data: str) -> ContentTypeDef:
+    return {"Charset": "UTF-8", "Data": data}
+
+
 @receiver(user_signed_up)
 def send_first_email(request, user, **kwargs):
     ses_client: SESClient = apps.get_app_config("emails").ses_client
@@ -28,12 +33,12 @@ def send_first_email(request, user, **kwargs):
         },
         Source=settings.RELAY_FROM_ADDRESS,
         Message={
+            "Subject": _ses_message_props(
+                ftl_bundle.format("first-time-user-email-welcome")
+            ),
             "Body": {
-                "Html": {"Charset": "UTF-8", "Data": get_welcome_email_html(request)}
-            },
-            "Subject": {
-                "Charset": "UTF-8",
-                "Data": ftl_bundle.format("first-time-user-email-welcome"),
+                "Html": _ses_message_props(get_welcome_email(request, "html")),
+                "Text": _ses_message_props(get_welcome_email(request, "txt")),
             },
         },
     )

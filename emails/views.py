@@ -86,6 +86,13 @@ def first_time_user_test(request):
     come from a random free profile.
     """
     email_context = {"in_bundle_country": True, "SITE_ORIGIN": settings.SITE_ORIGIN}
+    if request.GET.get("format", "html") == "text":
+        return render(
+            request,
+            "emails/first_time_user.txt",
+            email_context,
+            "text/plain; charset=utf-8",
+        )
     return render(request, "emails/first_time_user.html", email_context)
 
 
