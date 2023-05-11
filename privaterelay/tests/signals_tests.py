@@ -58,7 +58,7 @@ def test_record_user_signed_up_send_first_email(mock_ses_client):
     assert from_address == settings.RELAY_FROM_ADDRESS
     assert subject == "Welcome to \u2068Firefox Relay\u2069"
     assert (
-        f'href="{settings.SITE_ORIGIN}/accounts/profile/?utm_campaign=first_email&utm_source=email&utm_medium=email"'
+        f'href="{settings.SITE_ORIGIN}/accounts/profile/?utm_campaign=relay-onboarding&utm_source=relay-onboarding&utm_medium=email&utm_content=hero-cta"'
         in html_body
     )
     assert "View your dashboard" in html_body
