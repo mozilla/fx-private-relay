@@ -1,8 +1,8 @@
 # Use Optional TLS for the Incoming SMTP Server
 
-- Status: Proposed
+- Status: Accepted
 - Deciders: Luke Crouch, Tony Cinotto
-- Date: 2022-04-18
+- Date: 2022-04-24
 
 Technical Story: [MPP-2663](https://mozilla-hub.atlassian.net/browse/MPP-2847)
 
@@ -54,19 +54,31 @@ flowchart TD
 
 Chosen option: **2. Switch to "Optional TLS" for incoming email**, because it
 allows Relay masks to be used on more websites, for an acceptable level of
-risk.
+risk. This was implemented on 2023-04-24 ([MPP-2847][MPP_2847]), and failing
+website were re-checked ([MPP-3055][MPP_3055]).
+
+[MPP_2847]: https://mozilla-hub.atlassian.net/browse/MPP-2847
+[MPP_3055]: https://mozilla-hub.atlassian.net/browse/MPP-3055
 
 ### Positive Consequences
 
-- Relay masks will be accepted on more websites. In a sample of 5 websites with
-  registration issues, 4 were fixed with Optional TLS.
-- Some email delivery issues may be resolved.
+- Relay masks are accepted on more websites. In a sample of 5 websites with
+  registration issues, 4 were fixed with Optional TLS on the development server.
+  The impact was less in production, with 20 of 40 websites now accepting Relay
+  masks and the remaining 20 still blocking Relay masks at registration.
+- Most verification emails are now delivered, with one known website still not
+  delivering verification emails.
 
 ### Negative Consequences
 
 - AWS does not provide information if an email was sent over TLS or not.
-  Currently, we know all emails were sent over TLS.
-- Relay users may see more unwanted email.
+  Previously, we knew all emails were sent over TLS.
+- Relay users may see more unwanted email. We have not seen customer service
+  reports that can be definitely linked to this change. When comparing the week
+  before (April 17 to 23) to the week after the change (May 1 to 7), the bounce
+  rate increased from 0.857% to 0.958% (target is 2% or lower), and the
+  complaint rate from 0.113% to 0.134% (target is 0.1% or lower). This is a
+  small but acceptable increase for both rates.
 
 ## Pros and Cons of the Options
 
