@@ -48,7 +48,13 @@ const TrackerReport: NextPage = () => {
       </div>
     );
   }
-  if (reportData === null) {
+
+  // check if reportData is null and check if trackers are set.
+  if (
+    reportData === null ||
+    !reportData.trackers ||
+    Object.keys(reportData.trackers).length === 0
+  ) {
     return (
       <div className={styles["load-error"]}>
         {l10n.getString("trackerreport-load-error")}
