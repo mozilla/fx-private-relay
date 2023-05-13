@@ -1,13 +1,16 @@
+import pytest
 from unittest.mock import patch
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.test.client import RequestFactory
+
 from model_bakery import baker
-import pytest
 from waffle.models import Flag
+from waffle.testutils import override_flag
 
 from privaterelay.signals import record_user_signed_up, send_first_email
 
@@ -50,10 +53,9 @@ def test_record_user_signed_up_send_first_email_requires_flag(mock_ses_client):
     assert not mock_ses_client.send_email.called
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
+@override_flag("welcome_email", active=True)
 def test_record_user_signed_up_send_first_email(mock_ses_client):
-    welcome_email_flag = Flag.objects.create(name="welcome_email", everyone=True)
-    welcome_email_flag.save()
     test_user_email = "testuser@test.com"
     user = baker.make(User, email=test_user_email)
     rf = RequestFactory()
