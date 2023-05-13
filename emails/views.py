@@ -88,7 +88,7 @@ def first_time_user_test(request):
     in_bundle_country = strtobool(request.GET.get("in_bundle_country", "yes"))
     email_context = {
         "in_bundle_country": in_bundle_country,
-        "SITE_ORIGIN": settings.SITE_ORIGIN
+        "SITE_ORIGIN": settings.SITE_ORIGIN,
     }
     if request.GET.get("format", "html") == "text":
         return render(
