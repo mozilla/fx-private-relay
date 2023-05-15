@@ -1091,7 +1091,7 @@ def _handle_complaint(message_json):
     * complaint_subtype: 'onaccounsuppressionlist', or 'none' if omitted
     * complaint_feedback - feedback enumeration from ISP or 'none'
     * user_match: 'found', 'missing', error states 'no_address' and 'no_recipients'
-    * relay_action: 'no_action'
+    * relay_action: 'no_action', 'auto_block_spam'
 
     Emits an info log "complaint_notification", same data as metric, plus:
     * complaint_user_agent - identifies the client used to file the complaint
@@ -1131,11 +1131,16 @@ def _handle_complaint(message_json):
         data["domain"] = recipient_domain
 
         try:
-            User.objects.get(email=recipient_address)
+            user = User.objects.get(email=recipient_address)
+            profile = user.profile
             data["user_match"] = "found"
         except User.DoesNotExist:
             data["user_match"] = "missing"
             continue
+
+        data["relay_action"] = "auto_block_spam"
+        profile.auto_block_spam = True
+        profile.save()
 
     if not complaint_data:
         # Data when there are no identified recipients

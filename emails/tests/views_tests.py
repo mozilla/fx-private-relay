@@ -270,6 +270,8 @@ class ComplaintHandlingTest(TestCase):
         Example derived from:
         https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
         """
+        assert self.user.profile.auto_block_spam is False
+
         complaint = {
             "notificationType": "Complaint",
             "complaint": {
@@ -288,13 +290,16 @@ class ComplaintHandlingTest(TestCase):
             response = _sns_notification(json_body)
         assert response.status_code == 200
 
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam is True
+
         mm.assert_incr_once(
             "fx.private.relay.email_complaint",
             tags=[
                 "complaint_subtype:none",
                 "complaint_feedback:abuse",
                 "user_match:found",
-                "relay_action:no_action",
+                "relay_action:auto_block_spam",
             ],
         )
         assert len(self.caplog.records) == 2
@@ -304,7 +309,7 @@ class ComplaintHandlingTest(TestCase):
         assert record1.complaint_user_agent == "ExampleCorp Feedback Loop (V0.01)"
         assert record1.complaint_feedback == "abuse"
         assert record1.user_match == "found"
-        assert record1.relay_action == "no_action"
+        assert record1.relay_action == "auto_block_spam"
         assert record1.domain == "test.com"
 
         assert record2.msg == "complaint_received"
