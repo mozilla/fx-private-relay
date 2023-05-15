@@ -916,7 +916,7 @@ if SENTRY_ENVIRONMENT == "prod" and SITE_ORIGIN != "https://relay.firefox.com":
 
 sentry_sdk.init(
     dsn=config("SENTRY_DSN", None),
-    integrations=[DjangoIntegration()],
+    integrations=[DjangoIntegration(cache_spans=not DEBUG)],
     debug=SENTRY_DEBUG,
     include_local_variables=DEBUG,
     release=sentry_release,
