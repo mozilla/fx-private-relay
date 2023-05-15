@@ -79,6 +79,27 @@ class ReplyHeadersNotFound(Exception):
         self.message = message
 
 
+def first_time_user_test(request):
+    """
+    Demonstrate rendering of the "First time Relay user" email.
+    Settings like language can be given in the querystring, otherwise settings
+    come from a random free profile.
+    """
+    in_bundle_country = strtobool(request.GET.get("in_bundle_country", "yes"))
+    email_context = {
+        "in_bundle_country": in_bundle_country,
+        "SITE_ORIGIN": settings.SITE_ORIGIN,
+    }
+    if request.GET.get("format", "html") == "text":
+        return render(
+            request,
+            "emails/first_time_user.txt",
+            email_context,
+            "text/plain; charset=utf-8",
+        )
+    return render(request, "emails/first_time_user.html", email_context)
+
+
 def reply_requires_premium_test(request):
     """
     Demonstrate rendering of the "Reply requires premium" email.
