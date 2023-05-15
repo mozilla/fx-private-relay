@@ -4,7 +4,7 @@
 .wrapper {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1 0;
 
   // See https://fkhadra.github.io/react-toastify/how-to-style#override-css-variables
   --toastify-toast-width: 95%;
@@ -140,7 +140,7 @@ $toastify-toast-close-button: var(--toast-close-button);
   min-width: 20px;
 }
 
-.header {
+.header-outer {
   position: sticky;
   left: 0;
   top: 0;
@@ -152,6 +152,11 @@ $toastify-toast-close-button: var(--toast-close-button);
   // Thus, upping the z-index stack the header, and menus
   // expanding from it, on top again:
   z-index: 1;
+}
+
+.header-inner {
+  position: relative;
+  z-index: 2;
   display: grid;
   grid-template-columns: 1fr;
   grid-template-areas:
@@ -258,17 +263,6 @@ $toastify-toast-close-button: var(--toast-close-button);
 }
 
 .non-header-wrapper {
-  // This `overflow` ensures that the `position: sticky` on `.mobile-menu`
-  // in <MobileNavigation> is sticky relative to this wrapper, i.e. will always
-  // stay below the header bar.
-  // For more info, see
-  // https://developer.mozilla.org/en-US/docs/Web/CSS/position#sticky,
-  // and specifically:
-  // > Note that a sticky element "sticks" to its nearest ancestor that has a
-  // > "scrolling mechanism" (created when overflow is hidden, scroll, auto, or
-  // > overlay), even if that ancestor isn't the nearest actually scrolling
-  // > ancestor.
-  overflow: auto;
   height: 100%;
   display: flex;
   flex-direction: column;

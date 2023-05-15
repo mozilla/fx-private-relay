@@ -3,14 +3,12 @@
 
 .mobile-menu {
   width: 100%;
-  position: sticky;
-  top: 0;
+  position: relative;
   // z-index of 1 (so it overlaps content)
   // allows menu to slide under main navigation header
   z-index: 1;
   // `height: 0` prevents the menu from taking up space when it's not expanded:
   height: 0;
-  flex-direction: column;
 }
 
 #mobile-menu {
