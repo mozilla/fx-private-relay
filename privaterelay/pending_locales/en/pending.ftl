@@ -7,13 +7,20 @@
 relay-email-upgrade-for-more-protection = Upgrade for more protection
 relay-email-manage-this-mask = Manage this mask
 relay-email-your-dashboard = Your dashboard
-# The by line for the premium email header that reads "by Firefox Relay Premium"
-relay-email-by-line = by
-# This is used by relay-email-premium-by-line to create a sentence like "by Firefox Relay Premium"
-relay-email-premium-by-line-link = { -brand-name-firefox-relay-premium }
-# This is used by relay-email-by-line to create a sentence like "by Firefox Relay"
-relay-email-by-line-link = { -brand-name-firefox-relay }
-relay-email-forwarded-from = Forwarded from
+
+# The byline for the premium email header that reads "by Firefox Relay Premium"
+# $url - The URL of the Relay dashboard
+# $attrs - Inline attributes for the <a> link
+relay-email-premium-byline-html = by <a href="{ $url }" { $attrs }>{ -brand-name-firefox-relay-premium }</a>
+
+# The byline for the email header that reads "by Firefox Relay"
+# $url - The URL of the Relay dashboard
+# $attrs - Inline attributes for the <a> link
+relay-email-byline-html = by <a href="{ $url }" { $attrs }>{ -brand-name-firefox-relay }</a>
+
+# The link to manage this Relay mask
+relay-email-forwarded-from-html = Forwarded from <a href="{ $url }" { $attrs }>{ $email_address }</a>
+
 # $number - the number of email trackers removed
 relay-email-trackers-removed = { $number } email trackers removed
 
