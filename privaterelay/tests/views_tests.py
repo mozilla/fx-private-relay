@@ -326,13 +326,7 @@ def get_fxa_event_jwt(
         "jti": str(uuid4()),
         "events": {event_key: event_data},
     }
-    return jwt.encode(
-        payload,
-        # expects str, but RSAPublicKey allowed
-        # https://github.com/jpadilla/pyjwt/issues/660
-        signing_key,  # type: ignore
-        algorithm="RS256",
-    )
+    return jwt.encode(payload, signing_key, algorithm="RS256")
 
 
 def test_fxa_rp_events_password_change(
