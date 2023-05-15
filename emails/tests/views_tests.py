@@ -21,6 +21,7 @@ from markus.testing import MetricsMock
 from model_bakery import baker
 import pytest
 
+from privaterelay.ftl_bundles import main
 from emails.models import (
     address_hash,
     DeletedAddress,
@@ -1171,6 +1172,10 @@ def test_wrapped_email_test(
     has_tracker_report_link,
     num_level_one_email_trackers_removed,
 ):
+    # Reload Fluent files to regenerate errors
+    if language == "en":
+        main.reload()
+
     data = {
         "language": language,
         "has_premium": has_premium,
@@ -1212,7 +1217,8 @@ def test_wrapped_email_test(
 @pytest.mark.parametrize("forwarded", ("False", "True"))
 @pytest.mark.parametrize("content_type", ("text/plain", "text/html"))
 @pytest.mark.django_db
-def test_reply_requires_premium_test(rf, forwarded, content_type):
+def test_reply_requires_premium_test(rf, forwarded, content_type, caplog):
+    main.reload()  # Reload Fluent files to regenerate errors
     url = (
         "/emails/reply_requires_premium_test"
         f"?forwarded={forwarded}&content-type={content_type}"
@@ -1230,6 +1236,11 @@ def test_reply_requires_premium_test(rf, forwarded, content_type):
         assert "We’ve sent this reply" in html
     else:
         assert "Your reply was not sent" in html
+
+    # Check that all Fluent IDs were in the English corpus
+    for log_name, log_level, message in caplog.record_tuples:
+        if log_name == "django_ftl.message_errors":
+            pytest.fail(message)
 
 
 @pytest.mark.django_db
