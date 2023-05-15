@@ -25,16 +25,7 @@ relay-email-forwarded-from = Forwarded from
 # $number - the number of email trackers removed
 relay-email-trackers-removed = { $number } email trackers removed
 
-## Email sent to free users who try to reply
-
-# Variables
-#   $sender (string) - the original sender's email address
-other-reply-not-forwarded = Your reply was NOT sent to { $sender }.
-# Variables
-#   $sender (string) - the original sender's email address
-other-reply-not-forwarded-2 = Your reply was not sent to { $sender }.
-
-## Email sent to first time free users 
+## Email sent to first time free users
 
 first-time-user-email-welcome = Welcome to { -brand-name-firefox-relay }
 first-time-user-email-preheader = Email masking to protect your identity
