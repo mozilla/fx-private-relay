@@ -28,35 +28,12 @@ body,
 #__next,
 #overlayProvider {
   font-family: $font-stack-base;
+  height: 100%;
+}
 
-  // It looks like a Chrome/Blink bug results in the entire page moving up when
-  // the user toggles the Forwarding control (e.g. from blocking all to blocking
-  // promotional emails), and the bottom of the page being just whitespace.
-  // The reason this looks to be a chrome bug is that adding `position: fixed`
-  // and then removing it again to the `#__next` element fixes the issue,
-  // even though that ends us up with the original styles.
-  // Removing `height: 100%` and `overflow: hidden` causes the following issues:
-  // - The footer isn't pushed to the bottom of the viewport anymore if the
-  //   page isn't tall enough (e.g. settings page on desktop). See
-  //   https://github.com/mozilla/fx-private-relay/issues/3223
-  // - The mobile menu doesn't stay fixed to the top of the viewport. See
-  //   https://github.com/mozilla/fx-private-relay/issues/3407
-  // Since the Blink bug is most impactful on mobile (where the erroneous
-  // whitespace covers the entire viewport), we accept the above bugs there.
-  // See also:
-  // - https://github.com/mozilla/fx-private-relay/pull/3222
-  // - https://github.com/mozilla/fx-private-relay/issues/3223
-  // - https://github.com/mozilla/fx-private-relay/issues/3406
-  @media screen and #{$mq-lg} {
-    height: 100%;
-    // In <Layout> all content is wrapped in a `.non-header-wrapper` that has its
-    // own `overflow` applied, to allow the header and mobile menu to remain fixed
-    // in place. However, in Blink- and WebKit-based browsers, this resulted in
-    // empty space at the bottom of the page, below the footer.
-    // Since the user can scroll in `.non-header-wrapper`, everything outside that
-    // that still overflows these elements can safely be hidden:
-    overflow: hidden;
-  }
+#overlayProvider {
+  display: flex;
+  flex-direction: column;
 }
 
 html {

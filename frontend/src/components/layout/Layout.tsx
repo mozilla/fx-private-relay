@@ -117,15 +117,15 @@ export const Layout = (props: Props) => {
   );
 
   const PlainPageHeader = (
-    <header
-      className={`${styles.header} ${styles["is-grey"]} ${styles["plain-page"]}`}
+    <div
+      className={`${styles["header-inner"]} ${styles["is-grey"]} ${styles["plain-page"]}`}
     >
       <div className={`${styles["logo-wrapper"]} ${styles["plain-page"]}`}>
         <Link href={homePath} className={styles.logo}>
           {RelayHeaderLogo}
         </Link>
       </div>
-    </header>
+    </div>
   );
 
   return (
@@ -137,33 +137,43 @@ export const Layout = (props: Props) => {
           profile={profiles.data?.[0]}
           runtimeData={props.runtimeData}
         />
-        {props.theme === "plain" ? (
-          PlainPageHeader
-        ) : (
-          <header className={`${styles.header} ${darkClass}`}>
-            <div className={styles["logo-wrapper"]}>
-              <Link href={homePath} className={styles.logo}>
-                <>
-                  {router.pathname === "/vpn-relay-welcome" ? (
-                    <Image src={vpnRelayLogo} alt="" height={32} />
-                  ) : (
-                    RelayHeaderLogo
-                  )}
-                </>
-              </Link>
+        <header className={styles["header-outer"]}>
+          {props.theme === "plain" ? (
+            PlainPageHeader
+          ) : (
+            <div className={`${styles["header-inner"]} ${darkClass}`}>
+              <div className={styles["logo-wrapper"]}>
+                <Link href={homePath} className={styles.logo}>
+                  <>
+                    {router.pathname === "/vpn-relay-welcome" ? (
+                      <Image src={vpnRelayLogo} alt="" height={32} />
+                    ) : (
+                      RelayHeaderLogo
+                    )}
+                  </>
+                </Link>
+              </div>
+              <div className={styles["nav-wrapper"]}>
+                <Navigation
+                  mobileMenuExpanded={mobileMenuExpanded}
+                  theme={isDark ? "free" : "premium"}
+                  handleToggle={handleToggle}
+                  hasPremium={hasPremium}
+                  isLoggedIn={isLoggedIn}
+                  profile={profiles.data?.[0]}
+                />
+              </div>
             </div>
-            <div className={styles["nav-wrapper"]}>
-              <Navigation
-                mobileMenuExpanded={mobileMenuExpanded}
-                theme={isDark ? "free" : "premium"}
-                handleToggle={handleToggle}
-                hasPremium={hasPremium}
-                isLoggedIn={isLoggedIn}
-                profile={profiles.data?.[0]}
-              />
-            </div>
-          </header>
-        )}
+          )}
+          <MobileNavigation
+            mobileMenuExpanded={mobileMenuExpanded}
+            hasPremium={hasPremium}
+            isPhonesAvailable={isPhonesAvailableInCountry(props.runtimeData)}
+            isLoggedIn={isLoggedIn}
+            userEmail={usersData?.email}
+            userAvatar={profiles.data?.[0].avatar}
+          />
+        </header>
 
         <ToastContainer
           icon={false}
@@ -178,14 +188,6 @@ export const Layout = (props: Props) => {
         />
 
         <div className={styles["non-header-wrapper"]}>
-          <MobileNavigation
-            mobileMenuExpanded={mobileMenuExpanded}
-            hasPremium={hasPremium}
-            isPhonesAvailable={isPhonesAvailableInCountry(props.runtimeData)}
-            isLoggedIn={isLoggedIn}
-            userEmail={usersData?.email}
-            userAvatar={profiles.data?.[0].avatar}
-          />
           <div
             className={`${styles.content} ${
               router.pathname === "/phone" ? styles["gray-bg"] : null
