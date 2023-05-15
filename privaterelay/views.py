@@ -14,6 +14,7 @@ import jwt
 from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error
 from requests_oauthlib import OAuth2Session
 import sentry_sdk
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 
 from django.apps import apps
 from django.conf import settings
@@ -237,6 +238,7 @@ def _verify_jwt_with_fxa_key(
     for verifying_key in verifying_keys:
         if verifying_key["alg"] == "RS256":
             public_key = jwt.algorithms.RSAAlgorithm.from_jwk(json.dumps(verifying_key))
+            assert isinstance(public_key, RSAPublicKey)
             try:
                 security_event = jwt.decode(
                     req_jwt,
