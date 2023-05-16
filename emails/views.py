@@ -1,3 +1,4 @@
+from copy import deepcopy
 from datetime import datetime, timezone
 from email import message_from_bytes, policy
 from email.mime.multipart import MIMEMultipart
@@ -1076,27 +1077,102 @@ def _handle_bounce(message_json):
 
 
 def _handle_complaint(message_json):
-    incr_if_enabled("email_complaint")
-    complaint = message_json.get("complaint")
-    complained_recipients = complaint.get("complainedRecipients")
-    subtype = complaint.get("complaintSubType")
-    feedback = complaint.get("complaintFeedbackType")
-    recipient_domains = []
+    """
+    Handle an AWS SES complaint notification.
+
+    For more information, see:
+    https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
+
+    Returns:
+    * 404 response if any email address does not match a user,
+    * 200 response if all match or none are given
+
+    Emits a counter metric "email_complaint" with these tags:
+    * complaint_subtype: 'onaccounsuppressionlist', or 'none' if omitted
+    * complaint_feedback - feedback enumeration from ISP or 'none'
+    * user_match: 'found', 'missing', error states 'no_address' and 'no_recipients'
+    * relay_action: 'no_action', 'auto_block_spam'
+
+    Emits an info log "complaint_notification", same data as metric, plus:
+    * complaint_user_agent - identifies the client used to file the complaint
+    * complaint_extra - Extra data from complainedRecipients data, if any
+    * domain - User's domain, if an address was given
+
+    Emits a legacy log "complaint_received", with data:
+    * recipient_domains: list of extracted user domains
+    * subtype: 'onaccounsuppressionlist', or 'none'
+    * feedback: feedback from ISP or 'none'
+    """
+    complaint = deepcopy(message_json.get("complaint", {}))
+    complained_recipients = complaint.pop("complainedRecipients", [])
+    subtype = complaint.pop("complaintSubType", None)
+    user_agent = complaint.pop("userAgent", None)
+    feedback = complaint.pop("complaintFeedbackType", None)
+
+    complaint_data = []
     for recipient in complained_recipients:
-        recipient_address = recipient.get("emailAddress")
+        recipient_address = recipient.pop("emailAddress", None)
+        data = {
+            "complaint_subtype": subtype,
+            "complaint_user_agent": user_agent,
+            "complaint_feedback": feedback,
+            "user_match": "no_address",
+            "relay_action": "no_action",
+        }
+        if recipient:
+            data["complaint_extra"] = recipient.copy()
+        complaint_data.append(data)
+
         if recipient_address is None:
             continue
+
         recipient_address = parseaddr(recipient_address)[1]
         recipient_domain = recipient_address.split("@")[1]
-        recipient_domains.append(recipient_domain)
+        data["domain"] = recipient_domain
+
+        try:
+            user = User.objects.get(email=recipient_address)
+            profile = user.profile
+            data["user_match"] = "found"
+        except User.DoesNotExist:
+            data["user_match"] = "missing"
+            continue
+
+        data["relay_action"] = "auto_block_spam"
+        profile.auto_block_spam = True
+        profile.save()
+
+    if not complaint_data:
+        # Data when there are no identified recipients
+        complaint_data = [{"user_match": "no_recipients", "relay_action": "no_action"}]
+
+    for data in complaint_data:
+        tags = {
+            "complaint_subtype": subtype or "none",
+            "complaint_feedback": feedback or "none",
+            "user_match": data["user_match"],
+            "relay_action": data["relay_action"],
+        }
+        incr_if_enabled(
+            "email_complaint",
+            1,
+            tags=[generate_tag(key, val) for key, val in tags.items()],
+        )
+        info_logger.info("complaint_notification", extra=data)
+
+    # Legacy log, can be removed Q4 2023
+    domains = [data["domain"] for data in complaint_data if "domain" in data]
     info_logger.info(
         "complaint_received",
         extra={
-            "recipient_domains": sorted(recipient_domains),
+            "recipient_domains": sorted(domains),
             "subtype": subtype,
             "feedback": feedback,
         },
     )
+
+    if any(data["user_match"] == "missing" for data in complaint_data):
+        return HttpResponse("Address does not exist", status=404)
     return HttpResponse("OK", status=200)
 
 
