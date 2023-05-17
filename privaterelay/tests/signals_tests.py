@@ -12,6 +12,7 @@ from model_bakery import baker
 from waffle.models import Flag
 from waffle.testutils import override_flag
 
+from privaterelay.ftl_bundles import main
 from privaterelay.signals import record_user_signed_up, send_first_email
 
 
@@ -55,7 +56,8 @@ def test_record_user_signed_up_send_first_email_requires_flag(mock_ses_client):
 
 @pytest.mark.django_db(transaction=True)
 @override_flag("welcome_email", active=True)
-def test_record_user_signed_up_send_first_email(mock_ses_client):
+def test_record_user_signed_up_send_first_email(mock_ses_client, caplog):
+    main.reload()  # Reload Fluent files to regenerate errors
     test_user_email = "testuser@test.com"
     user = baker.make(User, email=test_user_email)
     rf = RequestFactory()
@@ -80,3 +82,7 @@ def test_record_user_signed_up_send_first_email(mock_ses_client):
         in html_body
     )
     assert "View your dashboard" in html_body
+
+    for log_name, log_level, message in caplog.record_tuples:
+        if log_name == "django_ftl.message_errors":
+            pytest.fail(message)
