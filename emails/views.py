@@ -149,8 +149,6 @@ def wrap_html_email(
         "tracker_report_link": tracker_report_link,
         "num_level_one_email_trackers_removed": num_level_one_email_trackers_removed,
         "SITE_ORIGIN": settings.SITE_ORIGIN,
-        "survey_text": settings.RECRUITMENT_EMAIL_BANNER_TEXT,
-        "survey_link": settings.RECRUITMENT_EMAIL_BANNER_LINK,
     }
     return render_to_string("emails/wrapped_email.html", email_context)
 
