@@ -1152,8 +1152,7 @@ def test_wrapped_email_test_from_profile(rf):
     assert "<li><strong>has_attachment</strong>:Yes" in no_space_html
     assert "<li><strong>has_tracker_report_link</strong>:No" in no_space_html
     assert (
-        "<li><strong>has_num_level_one_email_trackers_removed</strong>:No"
-        in no_space_html
+        "<li><strong>num_level_one_email_trackers_removed</strong>:0" in no_space_html
     )
 
 
@@ -1162,7 +1161,7 @@ def test_wrapped_email_test_from_profile(rf):
 @pytest.mark.parametrize("in_premium_country", ("Yes", "No"))
 @pytest.mark.parametrize("has_attachment", ("Yes", "No"))
 @pytest.mark.parametrize("has_tracker_report_link", ("Yes", "No"))
-@pytest.mark.parametrize("num_level_one_email_trackers_removed", ("1", "0"))
+@pytest.mark.parametrize("num_level_one_email_trackers_removed", ("0", "1", "2"))
 def test_wrapped_email_test(
     rf,
     caplog,
@@ -1205,12 +1204,9 @@ def test_wrapped_email_test(
     assert (
         f"<li><strong>has_tracker_report_link</strong>:{has_tracker_report_link}"
     ) in no_space_html
-    has_num_level_one_email_trackers_removed = (
-        "Yes" if int(num_level_one_email_trackers_removed) else "No"
-    )
     assert (
-        "<li><strong>has_num_level_one_email_trackers_removed</strong>:"
-        f"{has_num_level_one_email_trackers_removed}"
+        "<li><strong>num_level_one_email_trackers_removed</strong>:"
+        f"{num_level_one_email_trackers_removed}"
     ) in no_space_html
 
 

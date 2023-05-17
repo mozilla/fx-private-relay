@@ -244,8 +244,8 @@ def wrapped_email_test(request):
         {"Yes" if has_tracker_report_link else "No"}
       </li>
       <li>
-        <strong>has_num_level_one_email_trackers_removed</strong>:
-        {"Yes" if num_level_one_email_trackers_removed else "No"}
+        <strong>num_level_one_email_trackers_removed</strong>:
+        {num_level_one_email_trackers_removed}
       </li>
     </ul>
     """

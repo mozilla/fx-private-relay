@@ -21,8 +21,12 @@ relay-email-byline-html = by <a href="{ $url }" { $attrs }>{ -brand-name-firefox
 # The link to manage this Relay mask
 relay-email-forwarded-from-html = Forwarded from <a href="{ $url }" { $attrs }>{ $email_address }</a>
 
-# $number - the number of email trackers removed
-relay-email-trackers-removed = { $number } email trackers removed
+# $number (number) - the number of email trackers removed
+relay-email-trackers-removed =
+    { $number ->
+         [one] 1 email tracker removed
+        *[other] { $number } email trackers removed
+    }
 
 ## Email sent to first time free users
 
