@@ -95,8 +95,6 @@ setting-label-collection-description-3 = Enable account names for email masks
 setting-label-collection-off-warning-3 = { -brand-name-firefox-relay } will store the websites where you’ve used your email masks, and label your masks with those websites so you can easily identify them. Turning this off means you won’t be able to see where you’ve used each mask, and your account names will no longer sync between devices.
 settings-warning-collection-off-description-3 = { -brand-name-relay } is not currently allowed to label your email masks with the websites where you’ve used them. To change this, enable account names for email maks under “Privacy.”
 
-faq-question-8-answer-3-html = { -brand-name-firefox-relay } collects the websites where you’ve used your email masks, and labels your masks with those websites so you can easily identify them. You can opt out of this on your Settings page, under Privacy. But please note, turning that setting off means you won’t be able to see where you’ve used each mask, and your account names will no longer sync between devices. You can learn more about the data { -brand-name-firefox-relay } collects in our <a href="{ $url }" { $attrs }>Privacy Notice</a>.
-
 phone-onboarding-step2-sub-body = This phone number will be connected to your { -brand-name-relay } account and cannot be changed.
 
 waitlist-heading-2 = Join the { -brand-name-relay-premium } waitlist
@@ -296,8 +294,6 @@ highlighted-features-section-remove-trackers-body = { -brand-name-relay } can re
 landing-faq-headline = Top questions about { -brand-name-firefox-relay }
 landing-faq-cta = See more FAQs about { -brand-name-firefox-relay }
 
-faq-question-landing-page-availability = Free { -brand-name-relay } is available in most countries. { -brand-name-relay-premium } email masking is available in the United States, Germany, United Kingdom, Canada, Singapore, Malaysia, New Zealand, France, Belgium, Austria, Spain, Italy, Switzerland, Netherlands, and Ireland. { -brand-name-relay-premium } phone masking is only available in the US and Canada.
-
 tooltip-email-domain-explanation-title = About your unique { -brand-name-relay } Email Domain
 
 profile-label-custom-domain = Your { -brand-name-relay } email domain:
@@ -319,7 +315,4 @@ contains-tracker-warning-description = Warning: Clicking on this link will send 
 contains-tracker-warning-view-link-cta = Yes, view link
 
 contains-tracker-faq-section-title = Frequently asked questions about email trackers
-faq-question-define-tracker-question = What are email trackers?
-faq-question-define-tracker-answer-partone = Email tracking is a common surveillance and advertising tool that has taken over many inboxes. These trackers can be used to understand more about your online behavior, your interests, and your email activity.
-faq-question-define-tracker-answer-parttwo = A company or organization will embed a tracker in emails sent to you, usually hidden within an image or a link. When the email is opened, code within the tracker sends data back to the company.
 
