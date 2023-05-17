@@ -2,13 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-nav-email-dashboard = Email Masks
-nav-phone-dashboard = Phone Masks
-nav-duo-description = Switch dashboards
-nav-duo-email-mask-alt = Email masks
-nav-duo-phone-mask-alt = Phone masks
-nav-footer-stock-photo-legal = Photographs on this page are sourced from iStock, © iStockPhoto.com
-
 setting-api-key-copied-alt = Click to copy
 
 whatsnew-feature-firefox-integration-heading = { -brand-name-relay } is now available in { -brand-name-firefox } password manager
