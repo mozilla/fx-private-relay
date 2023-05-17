@@ -15,6 +15,7 @@ import shlex
 from tempfile import SpooledTemporaryFile
 from textwrap import dedent
 from typing import Any, Optional
+from urllib.parse import urlencode
 
 from botocore.exceptions import ClientError
 from decouple import strtobool
@@ -216,36 +217,81 @@ def wrapped_email_test(request):
     else:
         num_level_one_email_trackers_removed = 0
 
+    path = "/emails/wrapped_email_test"
+    old_query = {
+        "language": language,
+        "has_premium": "Yes" if has_premium else "No",
+        "in_premium_country": "Yes" if in_premium_country else "No",
+        "has_attachment": "Yes" if has_attachment else "No",
+        "has_tracker_report_link": "Yes" if has_tracker_report_link else "No",
+        "num_level_one_email_trackers_removed": num_level_one_email_trackers_removed,
+    }
+
+    def switch_link(key, value):
+        if request.GET.get(key, None) == value:
+            return str(value)
+        new_query = old_query.copy()
+        new_query[key] = value
+        return f'<a href="{path}?{urlencode(new_query)}">{value}</a>'
+
     html_content = dedent(
         f"""\
     <p>
       <strong>Email rendering Test</strong>
     </p>
-    <p>Settings:</p>
+    <p>Settings: (<a href="{path}">clear all</a>)</p>
     <ul>
       <li>
         <strong>language</strong>:
         {escape(language)}
+        (switch to
+        {switch_link("language", "en-us")},
+        {switch_link("language", "de")},
+        {switch_link("language", "en-gb")},
+        {switch_link("language", "fr")},
+        {switch_link("language", "ru-ru")},
+        {switch_link("language", "es-es")},
+        {switch_link("language", "pt-br")},
+        {switch_link("language", "it-it")},
+        {switch_link("language", "en-ca")},
+        {switch_link("language", "de-de")},
+        {switch_link("language", "es-mx")})
       </li>
       <li>
         <strong>has_premium</strong>:
         {"Yes" if has_premium else "No"}
+        (switch to
+        {switch_link("has_premium", "Yes")},
+        {switch_link("has_premium", "No")})
       </li>
       <li>
         <strong>in_premium_country</strong>:
         {"Yes" if in_premium_country else "No"}
+        (switch to
+        {switch_link("in_premium_country", "Yes")},
+        {switch_link("in_premium_country", "No")})
       </li>
       <li>
         <strong>has_attachment</strong>:
         {"Yes" if has_attachment else "No"}
+        (switch to
+        {switch_link("has_attachment", "Yes")},
+        {switch_link("has_attachment", "No")})
       </li>
       <li>
         <strong>has_tracker_report_link</strong>:
         {"Yes" if has_tracker_report_link else "No"}
+        (switch to
+        {switch_link("has_tracker_report_link", "Yes")},
+        {switch_link("has_tracker_report_link", "No")})
       </li>
       <li>
         <strong>num_level_one_email_trackers_removed</strong>:
         {num_level_one_email_trackers_removed}
+        (switch to
+        {switch_link("num_level_one_email_trackers_removed", "0")},
+        {switch_link("num_level_one_email_trackers_removed", "1")},
+        {switch_link("num_level_one_email_trackers_removed", "2")})
       </li>
     </ul>
     """
