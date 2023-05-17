@@ -294,8 +294,6 @@ highlighted-features-section-remove-trackers-body = { -brand-name-relay } can re
 landing-faq-headline = Top questions about { -brand-name-firefox-relay }
 landing-faq-cta = See more FAQs about { -brand-name-firefox-relay }
 
-tooltip-email-domain-explanation-title = About your unique { -brand-name-relay } Email Domain
-
 profile-label-custom-domain = Your { -brand-name-relay } email domain:
 profile-label-set-your-custom-domain = Set your unique { -brand-name-relay } email domain
 
