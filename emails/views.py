@@ -222,20 +222,32 @@ def wrapped_email_test(request):
       <strong>Email rendering Test</strong>
     </p>
     <p>Settings:</p>
-    <dl>
-      <dt>language</dt>
-        <dd>{escape(language)}</dd>
-      <dt>has_premium</dt>
-        <dd>{"Yes" if has_premium else "No"}</dd>
-      <dt>in_premium_country</dt>
-        <dd>{"Yes" if in_premium_country else "No"}</dd>
-      <dt>has_attachment</dt>
-        <dd>{"Yes" if has_attachment else "No"}</dd>
-      <dt>has_tracker_report_link</dt>
-        <dd>{"Yes" if has_tracker_report_link else "No"}</dd>
-      <dt>has_num_level_one_email_trackers_removed</dt>
-        <dd>{"Yes" if num_level_one_email_trackers_removed else "No"}</dd>
-    </dl>
+    <ul>
+      <li>
+        <strong>language</strong>:
+        {escape(language)}
+      </li>
+      <li>
+        <strong>has_premium</strong>:
+        {"Yes" if has_premium else "No"}
+      </li>
+      <li>
+        <strong>in_premium_country</strong>:
+        {"Yes" if in_premium_country else "No"}
+      </li>
+      <li>
+        <strong>has_attachment</strong>:
+        {"Yes" if has_attachment else "No"}
+      </li>
+      <li>
+        <strong>has_tracker_report_link</strong>:
+        {"Yes" if has_tracker_report_link else "No"}
+      </li>
+      <li>
+        <strong>has_num_level_one_email_trackers_removed</strong>:
+        {"Yes" if num_level_one_email_trackers_removed else "No"}
+      </li>
+    </ul>
     """
     )
 

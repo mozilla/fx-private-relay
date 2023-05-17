@@ -1146,13 +1146,14 @@ def test_wrapped_email_test_from_profile(rf):
     response = wrapped_email_test(request)
     assert response.status_code == 200
     no_space_html = re.sub(r"\s+", "", response.content.decode())
-    assert "<dt>language</dt><dd>de</dd>" in no_space_html
-    assert "<dt>has_premium</dt><dd>No</dd>" in no_space_html
-    assert "<dt>in_premium_country</dt><dd>Yes</dd>" in no_space_html
-    assert "<dt>has_attachment</dt><dd>Yes</dd>" in no_space_html
-    assert "<dt>has_tracker_report_link</dt><dd>No</dd>" in no_space_html
+    assert "<li><strong>language</strong>:de" in no_space_html
+    assert "<li><strong>has_premium</strong>:No" in no_space_html
+    assert "<li><strong>in_premium_country</strong>:Yes" in no_space_html
+    assert "<li><strong>has_attachment</strong>:Yes" in no_space_html
+    assert "<li><strong>has_tracker_report_link</strong>:No" in no_space_html
     assert (
-        "<dt>has_num_level_one_email_trackers_removed</dt><dd>No</dd>" in no_space_html
+        "<li><strong>has_num_level_one_email_trackers_removed</strong>:No"
+        in no_space_html
     )
 
 
@@ -1195,22 +1196,21 @@ def test_wrapped_email_test(
                 pytest.fail(message)
 
     no_space_html = re.sub(r"\s+", "", response.content.decode())
-    assert f"<dt>language</dt><dd>{language}</dd>" in no_space_html
-    assert f"<dt>has_premium</dt><dd>{has_premium}</dd>" in no_space_html
+    assert f"<li><strong>language</strong>:{language}" in no_space_html
+    assert f"<li><strong>has_premium</strong>:{has_premium}" in no_space_html
     assert (
-        f"<dt>in_premium_country</dt><dd>{in_premium_country}</dd>"
+        f"<li><strong>in_premium_country</strong>:{in_premium_country}"
     ) in no_space_html
-    assert f"<dt>has_attachment</dt><dd>{has_attachment}</dd>" in no_space_html
-    assert f"<dt>has_attachment</dt><dd>{has_attachment}</dd>" in no_space_html
+    assert f"<li><strong>has_attachment</strong>:{has_attachment}" in no_space_html
     assert (
-        "<dt>has_tracker_report_link</dt>" f"<dd>{has_tracker_report_link}</dd>"
+        f"<li><strong>has_tracker_report_link</strong>:{has_tracker_report_link}"
     ) in no_space_html
     has_num_level_one_email_trackers_removed = (
         "Yes" if int(num_level_one_email_trackers_removed) else "No"
     )
     assert (
-        "<dt>has_num_level_one_email_trackers_removed</dt>"
-        f"<dd>{has_num_level_one_email_trackers_removed}</dd>"
+        "<li><strong>has_num_level_one_email_trackers_removed</strong>:"
+        f"{has_num_level_one_email_trackers_removed}"
     ) in no_space_html
 
 
