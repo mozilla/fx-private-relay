@@ -136,7 +136,6 @@ def wrap_html_email(
     has_premium,
     in_premium_country,
     display_email,
-    has_attachment,
     num_level_one_email_trackers_removed=None,
     tracker_report_link=0,
 ):
@@ -147,7 +146,6 @@ def wrap_html_email(
         "has_premium": has_premium,
         "in_premium_country": in_premium_country,
         "display_email": display_email,
-        "has_attachment": has_attachment,
         "tracker_report_link": tracker_report_link,
         "num_level_one_email_trackers_removed": num_level_one_email_trackers_removed,
         "SITE_ORIGIN": settings.SITE_ORIGIN,
@@ -166,8 +164,7 @@ def wrapped_email_test(request):
     """
 
     if all(
-        key in request.GET
-        for key in ("language", "has_premium", "in_premium_country", "has_attachment")
+        key in request.GET for key in ("language", "has_premium", "in_premium_country")
     ):
         user_profile = None
     else:
@@ -190,11 +187,6 @@ def wrapped_email_test(request):
     else:
         assert user_profile is not None
         in_premium_country = user_profile.fxa_locale_in_premium_country
-
-    if "has_attachment" in request.GET:
-        has_attachment = strtobool(request.GET["has_attachment"])
-    else:
-        has_attachment = True
 
     if "has_tracker_report_link" in request.GET:
         has_tracker_report_link = strtobool(request.GET["has_tracker_report_link"])
@@ -222,7 +214,6 @@ def wrapped_email_test(request):
         "language": language,
         "has_premium": "Yes" if has_premium else "No",
         "in_premium_country": "Yes" if in_premium_country else "No",
-        "has_attachment": "Yes" if has_attachment else "No",
         "has_tracker_report_link": "Yes" if has_tracker_report_link else "No",
         "num_level_one_email_trackers_removed": num_level_one_email_trackers_removed,
     }
@@ -272,13 +263,6 @@ def wrapped_email_test(request):
         {switch_link("in_premium_country", "No")})
       </li>
       <li>
-        <strong>has_attachment</strong>:
-        {"Yes" if has_attachment else "No"}
-        (switch to
-        {switch_link("has_attachment", "Yes")},
-        {switch_link("has_attachment", "No")})
-      </li>
-      <li>
         <strong>has_tracker_report_link</strong>:
         {"Yes" if has_tracker_report_link else "No"}
         (switch to
@@ -304,7 +288,6 @@ def wrapped_email_test(request):
         in_premium_country=in_premium_country,
         tracker_report_link=tracker_report_link,
         display_email="test@relay.firefox.com",
-        has_attachment=has_attachment,
         num_level_one_email_trackers_removed=num_level_one_email_trackers_removed,
     )
     return HttpResponse(wrapped_email)
@@ -631,7 +614,6 @@ def _sns_message(message_json):
             has_premium=user_profile.has_premium,
             in_premium_country=user_profile.fxa_locale_in_premium_country,
             display_email=display_email,
-            has_attachment=bool(attachments),
             tracker_report_link=tracker_report_link,
             num_level_one_email_trackers_removed=removed_count,
         )
@@ -639,16 +621,12 @@ def _sns_message(message_json):
 
     if text_content:
         incr_if_enabled("email_with_text_content", 1)
-        attachment_msg = (
-            "Firefox Relay supports email forwarding (including attachments) "
-            "of email up to 150KB in size. To learn more visit {site}{faq}\n"
-        ).format(site=settings.SITE_ORIGIN, faq="/faq/")
         relay_header_text = (
             "This email was sent to your alias "
-            "{alias}. To stop receiving emails sent to this alias, "
+            f"{to_address}. To stop receiving emails sent to this alias, "
             "update the forwarding settings in your dashboard.\n"
-            "{extra_msg}---Begin Email---\n"
-        ).format(alias=to_address, extra_msg=attachment_msg)
+            "---Begin Email---\n"
+        )
         wrapped_text = relay_header_text + text_content
         message_body["Text"] = {"Charset": "UTF-8", "Data": wrapped_text}
 
