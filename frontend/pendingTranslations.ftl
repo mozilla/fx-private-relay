@@ -15,8 +15,3 @@ settings-warning-collection-off-heading-3 = Your email mask account names are tu
 setting-label-collection-description-3 = Enable account names for email masks
 setting-label-collection-off-warning-3 = { -brand-name-firefox-relay } will store the websites where you’ve used your email masks, and label your masks with those websites so you can easily identify them. Turning this off means you won’t be able to see where you’ve used each mask, and your account names will no longer sync between devices.
 settings-warning-collection-off-description-3 = { -brand-name-relay } is not currently allowed to label your email masks with the websites where you’ve used them. To change this, enable account names for email maks under “Privacy.”
-
-## FAQ SECTION
-
-profile-label-custom-domain = Your { -brand-name-relay } email domain:
-profile-label-set-your-custom-domain = Set your unique { -brand-name-relay } email domain
