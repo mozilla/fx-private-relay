@@ -186,20 +186,6 @@ def wrapped_email_test(request):
         assert user_profile is not None
         in_premium_country = user_profile.fxa_locale_in_premium_country
 
-    if "has_tracker_report_link" in request.GET:
-        has_tracker_report_link = strtobool(request.GET["has_tracker_report_link"])
-    else:
-        has_tracker_report_link = False
-    if has_tracker_report_link:
-        tracker_report_link = (
-            "/tracker-report/#{"
-            '"sender": "sender@example.com", '
-            '"received_at": 1658434657, '
-            '"trackers": {"fake-tracker.example.com": 2}}'
-        )
-    else:
-        tracker_report_link = ""
-
     if "num_level_one_email_trackers_removed" in request.GET:
         num_level_one_email_trackers_removed = int(
             request.GET["num_level_one_email_trackers_removed"]
@@ -207,17 +193,39 @@ def wrapped_email_test(request):
     else:
         num_level_one_email_trackers_removed = 0
 
+    if "has_tracker_report_link" in request.GET:
+        has_tracker_report_link = strtobool(request.GET["has_tracker_report_link"])
+    else:
+        has_tracker_report_link = False
+    if has_tracker_report_link:
+        if num_level_one_email_trackers_removed:
+            trackers = {
+                "fake-tracker.example.com": num_level_one_email_trackers_removed
+            }
+        else:
+            trackers = {}
+        tracker_report_link = (
+            "/tracker-report/#{"
+            '"sender": "sender@example.com", '
+            '"received_at": 1658434657, '
+            f'"trackers": { json.dumps(trackers) }{ "}" }'
+        )
+    else:
+        tracker_report_link = ""
+
     path = "/emails/wrapped_email_test"
     old_query = {
         "language": language,
         "has_premium": "Yes" if has_premium else "No",
         "in_premium_country": "Yes" if in_premium_country else "No",
         "has_tracker_report_link": "Yes" if has_tracker_report_link else "No",
-        "num_level_one_email_trackers_removed": num_level_one_email_trackers_removed,
+        "num_level_one_email_trackers_removed": str(
+            num_level_one_email_trackers_removed
+        ),
     }
 
     def switch_link(key, value):
-        if request.GET.get(key, None) == value:
+        if old_query[key] == value:
             return str(value)
         new_query = old_query.copy()
         new_query[key] = value
