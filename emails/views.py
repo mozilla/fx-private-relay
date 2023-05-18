@@ -198,7 +198,8 @@ def wrapped_email_test(request):
             "/tracker-report/#{"
             '"sender": "sender@example.com", '
             '"received_at": 1658434657, '
-            f'"trackers": { json.dumps(trackers) }{ "}" }'
+            f'"trackers": { json.dumps(trackers) }'
+            "}"
         )
     else:
         tracker_report_link = ""
