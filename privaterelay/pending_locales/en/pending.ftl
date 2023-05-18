@@ -63,6 +63,5 @@ first-time-user-email-footer-text-1 = You’re receiving this automated email as
 # $attrs - In-line attributes for the link
 first-time-user-email-footer-text-2-html = For more information, please visit <a href="{ $url }" { $attrs }>{ -brand-name-mozilla } Support</a>.
 first-time-user-email-footer-text-2-text = For more information, please visit { -brand-name-mozilla } Support.
-first-time-user-email-footer-text-address = 2 Harrison St. #175, San Francisco, California 94105 USA
 first-time-user-email-footer-text-legal = Legal
 first-time-user-email-footer-text-privacy = Terms & Privacy
