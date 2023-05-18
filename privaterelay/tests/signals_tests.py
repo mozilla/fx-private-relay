@@ -9,7 +9,6 @@ from django.http.response import HttpResponse
 from django.test.client import RequestFactory
 
 from model_bakery import baker
-from waffle.models import Flag
 from waffle.testutils import override_flag
 
 from privaterelay.ftl_bundles import main
@@ -54,9 +53,11 @@ def test_record_user_signed_up_send_first_email_requires_flag(mock_ses_client):
     assert not mock_ses_client.send_email.called
 
 
+# TODO: add another lang_code when messages are available in another locale
 @pytest.mark.django_db(transaction=True)
+@pytest.mark.parametrize("lang_code", ("en",))
 @override_flag("welcome_email", active=True)
-def test_record_user_signed_up_send_first_email(mock_ses_client, caplog):
+def test_record_user_signed_up_send_first_email(lang_code, mock_ses_client, caplog):
     main.reload()  # Reload Fluent files to regenerate errors
     test_user_email = "testuser@test.com"
     user = baker.make(User, email=test_user_email)
@@ -64,6 +65,7 @@ def test_record_user_signed_up_send_first_email(mock_ses_client, caplog):
     sign_up_request = rf.get(
         "/accounts/fxa/login/callback/?code=test&state=test&action=signin"
     )
+    sign_up_request.LANGUAGE_CODE = lang_code
     send_first_email(sign_up_request, user)
 
     mock_ses_client.send_email.assert_called_once()
@@ -77,6 +79,10 @@ def test_record_user_signed_up_send_first_email(mock_ses_client, caplog):
     assert to_addresses[0] == test_user_email
     assert from_address == settings.RELAY_FROM_ADDRESS
     assert subject == "Welcome to \u2068Firefox Relay\u2069"
+    assert (
+        f'src="{settings.SITE_ORIGIN}/static/images/email-images/first-time-user/hero-image-{lang_code}.png"'
+        in html_body
+    )
     assert (
         f'href="{settings.SITE_ORIGIN}/accounts/profile/?utm_campaign=relay-onboarding&utm_source=relay-onboarding&utm_medium=email&utm_content=hero-cta"'
         in html_body
