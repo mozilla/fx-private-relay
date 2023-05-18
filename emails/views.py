@@ -134,7 +134,6 @@ def wrap_html_email(
     original_html,
     language,
     has_premium,
-    in_premium_country,
     display_email,
     num_level_one_email_trackers_removed=None,
     tracker_report_link=0,
@@ -144,7 +143,6 @@ def wrap_html_email(
         "original_html": original_html,
         "language": language,
         "has_premium": has_premium,
-        "in_premium_country": in_premium_country,
         "display_email": display_email,
         "tracker_report_link": tracker_report_link,
         "num_level_one_email_trackers_removed": num_level_one_email_trackers_removed,
@@ -161,9 +159,7 @@ def wrapped_email_test(request):
     come from a randomly chosen profile.
     """
 
-    if all(
-        key in request.GET for key in ("language", "has_premium", "in_premium_country")
-    ):
+    if all(key in request.GET for key in ("language", "has_premium")):
         user_profile = None
     else:
         user_profile = Profile.objects.order_by("?").first()
@@ -179,12 +175,6 @@ def wrapped_email_test(request):
     else:
         assert user_profile is not None
         has_premium = user_profile.has_premium
-
-    if "in_premium_country" in request.GET:
-        in_premium_country = strtobool(request.GET["in_premium_country"])
-    else:
-        assert user_profile is not None
-        in_premium_country = user_profile.fxa_locale_in_premium_country
 
     if "num_level_one_email_trackers_removed" in request.GET:
         num_level_one_email_trackers_removed = int(
@@ -217,7 +207,6 @@ def wrapped_email_test(request):
     old_query = {
         "language": language,
         "has_premium": "Yes" if has_premium else "No",
-        "in_premium_country": "Yes" if in_premium_country else "No",
         "has_tracker_report_link": "Yes" if has_tracker_report_link else "No",
         "num_level_one_email_trackers_removed": str(
             num_level_one_email_trackers_removed
@@ -262,13 +251,6 @@ def wrapped_email_test(request):
         {switch_link("has_premium", "No")})
       </li>
       <li>
-        <strong>in_premium_country</strong>:
-        {"Yes" if in_premium_country else "No"}
-        (switch to
-        {switch_link("in_premium_country", "Yes")},
-        {switch_link("in_premium_country", "No")})
-      </li>
-      <li>
         <strong>has_tracker_report_link</strong>:
         {"Yes" if has_tracker_report_link else "No"}
         (switch to
@@ -291,7 +273,6 @@ def wrapped_email_test(request):
         original_html=html_content,
         language=language,
         has_premium=has_premium,
-        in_premium_country=in_premium_country,
         tracker_report_link=tracker_report_link,
         display_email="test@relay.firefox.com",
         num_level_one_email_trackers_removed=num_level_one_email_trackers_removed,
@@ -618,7 +599,6 @@ def _sns_message(message_json):
             original_html=html_content,
             language=user_profile.language,
             has_premium=user_profile.has_premium,
-            in_premium_country=user_profile.fxa_locale_in_premium_country,
             display_email=display_email,
             tracker_report_link=tracker_report_link,
             num_level_one_email_trackers_removed=removed_count,

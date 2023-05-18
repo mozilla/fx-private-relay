@@ -1148,7 +1148,6 @@ def test_wrapped_email_test_from_profile(rf):
     no_space_html = re.sub(r"\s+", "", response.content.decode())
     assert "<li><strong>language</strong>:de" in no_space_html
     assert "<li><strong>has_premium</strong>:No" in no_space_html
-    assert "<li><strong>in_premium_country</strong>:Yes" in no_space_html
     assert "<li><strong>has_tracker_report_link</strong>:No" in no_space_html
     assert (
         "<li><strong>num_level_one_email_trackers_removed</strong>:0" in no_space_html
@@ -1157,7 +1156,6 @@ def test_wrapped_email_test_from_profile(rf):
 
 @pytest.mark.parametrize("language", ("en", "fy-NL", "ja"))
 @pytest.mark.parametrize("has_premium", ("Yes", "No"))
-@pytest.mark.parametrize("in_premium_country", ("Yes", "No"))
 @pytest.mark.parametrize("has_tracker_report_link", ("Yes", "No"))
 @pytest.mark.parametrize("num_level_one_email_trackers_removed", ("0", "1", "2"))
 def test_wrapped_email_test(
@@ -1165,7 +1163,6 @@ def test_wrapped_email_test(
     caplog,
     language,
     has_premium,
-    in_premium_country,
     has_tracker_report_link,
     num_level_one_email_trackers_removed,
 ):
@@ -1176,7 +1173,6 @@ def test_wrapped_email_test(
     data = {
         "language": language,
         "has_premium": has_premium,
-        "in_premium_country": in_premium_country,
         "has_tracker_report_link": has_tracker_report_link,
         "num_level_one_email_trackers_removed": num_level_one_email_trackers_removed,
     }
@@ -1193,9 +1189,6 @@ def test_wrapped_email_test(
     no_space_html = re.sub(r"\s+", "", response.content.decode())
     assert f"<li><strong>language</strong>:{language}" in no_space_html
     assert f"<li><strong>has_premium</strong>:{has_premium}" in no_space_html
-    assert (
-        f"<li><strong>in_premium_country</strong>:{in_premium_country}"
-    ) in no_space_html
     assert (
         f"<li><strong>has_tracker_report_link</strong>:{has_tracker_report_link}"
     ) in no_space_html
