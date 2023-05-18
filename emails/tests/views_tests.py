@@ -1146,29 +1146,23 @@ def test_wrapped_email_test_from_profile(rf):
     response = wrapped_email_test(request)
     assert response.status_code == 200
     no_space_html = re.sub(r"\s+", "", response.content.decode())
-    assert "<dt>language</dt><dd>de</dd>" in no_space_html
-    assert "<dt>has_premium</dt><dd>No</dd>" in no_space_html
-    assert "<dt>in_premium_country</dt><dd>Yes</dd>" in no_space_html
-    assert "<dt>has_attachment</dt><dd>Yes</dd>" in no_space_html
-    assert "<dt>has_tracker_report_link</dt><dd>No</dd>" in no_space_html
+    assert "<li><strong>language</strong>:de" in no_space_html
+    assert "<li><strong>has_premium</strong>:No" in no_space_html
+    assert "<li><strong>has_tracker_report_link</strong>:No" in no_space_html
     assert (
-        "<dt>has_num_level_one_email_trackers_removed</dt><dd>No</dd>" in no_space_html
+        "<li><strong>num_level_one_email_trackers_removed</strong>:0" in no_space_html
     )
 
 
 @pytest.mark.parametrize("language", ("en", "fy-NL", "ja"))
 @pytest.mark.parametrize("has_premium", ("Yes", "No"))
-@pytest.mark.parametrize("in_premium_country", ("Yes", "No"))
-@pytest.mark.parametrize("has_attachment", ("Yes", "No"))
 @pytest.mark.parametrize("has_tracker_report_link", ("Yes", "No"))
-@pytest.mark.parametrize("num_level_one_email_trackers_removed", ("1", "0"))
+@pytest.mark.parametrize("num_level_one_email_trackers_removed", ("0", "1", "2"))
 def test_wrapped_email_test(
     rf,
     caplog,
     language,
     has_premium,
-    in_premium_country,
-    has_attachment,
     has_tracker_report_link,
     num_level_one_email_trackers_removed,
 ):
@@ -1179,8 +1173,6 @@ def test_wrapped_email_test(
     data = {
         "language": language,
         "has_premium": has_premium,
-        "in_premium_country": in_premium_country,
-        "has_attachment": has_attachment,
         "has_tracker_report_link": has_tracker_report_link,
         "num_level_one_email_trackers_removed": num_level_one_email_trackers_removed,
     }
@@ -1195,22 +1187,14 @@ def test_wrapped_email_test(
                 pytest.fail(message)
 
     no_space_html = re.sub(r"\s+", "", response.content.decode())
-    assert f"<dt>language</dt><dd>{language}</dd>" in no_space_html
-    assert f"<dt>has_premium</dt><dd>{has_premium}</dd>" in no_space_html
+    assert f"<li><strong>language</strong>:{language}" in no_space_html
+    assert f"<li><strong>has_premium</strong>:{has_premium}" in no_space_html
     assert (
-        f"<dt>in_premium_country</dt><dd>{in_premium_country}</dd>"
+        f"<li><strong>has_tracker_report_link</strong>:{has_tracker_report_link}"
     ) in no_space_html
-    assert f"<dt>has_attachment</dt><dd>{has_attachment}</dd>" in no_space_html
-    assert f"<dt>has_attachment</dt><dd>{has_attachment}</dd>" in no_space_html
     assert (
-        "<dt>has_tracker_report_link</dt>" f"<dd>{has_tracker_report_link}</dd>"
-    ) in no_space_html
-    has_num_level_one_email_trackers_removed = (
-        "Yes" if int(num_level_one_email_trackers_removed) else "No"
-    )
-    assert (
-        "<dt>has_num_level_one_email_trackers_removed</dt>"
-        f"<dd>{has_num_level_one_email_trackers_removed}</dd>"
+        "<li><strong>num_level_one_email_trackers_removed</strong>:"
+        f"{num_level_one_email_trackers_removed}"
     ) in no_space_html
 
 
