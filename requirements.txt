@@ -1,4 +1,4 @@
-boto3==1.26.133
+boto3==1.26.137
 codetiming==1.4.0
 cryptography==40.0.2
 Django==3.2.19
