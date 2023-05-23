@@ -51,13 +51,13 @@ const Faq: NextPage = () => {
         id={"phone-masking-faq-question-forwarded-texts"}
         question={l10n.getString("phone-masking-faq-question-forwarded-texts")}
       >
-        <p>{l10n.getString("phone-masking-faq-answer-forwarded-texts")}</p>
+        <p>{l10n.getString("phone-masking-faq-answer-forwarded-texts-2")}</p>
       </QAndA>
       <QAndA
         id={"phone-masking-faq-question-pictures"}
         question={l10n.getString("phone-masking-faq-question-pictures")}
       >
-        <p>{l10n.getString("phone-masking-faq-answer-pictures")}</p>
+        <p>{l10n.getString("phone-masking-faq-answer-pictures-2")}</p>
       </QAndA>
       <QAndA
         id={"phone-masking-faq-question-historical"}
