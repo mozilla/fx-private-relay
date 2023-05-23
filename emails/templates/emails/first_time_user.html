@@ -7,7 +7,7 @@
 {% withftl bundle='privaterelay.ftl_bundles.main' language=language %}
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ request.LANGUAGE_CODE }}" dir="ltr"></html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ language }}" dir="ltr"></html>
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -231,7 +231,7 @@
             <tbody>
               <tr>
                 <td align="center"> 
-                  <img align="center" border="0" src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/hero-image-en.png" alt="" title="" /> 
+                    <img align="center" border="0" src="{{ hero_img_src }}" alt="" title="" style="width:425px;max-width:425px;"/> 
                 </td>
 
                 <td style="overflow-wrap:break-word;word-break:break-word;padding:10px;" align="left"> 
