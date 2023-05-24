@@ -1,7 +1,6 @@
 module.exports = {
   "extends": [
     "stylelint-config-recommended-scss",
-    "stylelint-config-prettier-scss"
   ],
   "plugins": [
     "stylelint-scss"
@@ -22,17 +21,11 @@ module.exports = {
       }
     ],
     "at-rule-no-unknown": null,
-    "block-opening-brace-newline-after": "always",
-    "block-closing-brace-newline-after": "always",
     "declaration-block-no-shorthand-property-overrides": true,
-    "declaration-block-semicolon-newline-after": "always",
-    "declaration-colon-space-after": "always-single-line",
-    "declaration-colon-space-before": "never",
     "declaration-no-important" : true,
     "font-weight-notation": "numeric",
     "function-url-quotes": "always",
     "no-descending-specificity": null,
-    "no-missing-end-of-source-newline": true,
     "selector-class-pattern": [
       "^([a-z][a-z0-9]*)(-[a-z0-9]+)*$",
       {

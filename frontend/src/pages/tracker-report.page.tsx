@@ -23,7 +23,7 @@ import { useL10n } from "../hooks/l10n";
 type ReportData = {
   sender: string;
   received_at: number;
-  trackers: Record<string, number>;
+  trackers?: Record<string, number>;
 };
 
 const TrackerReport: NextPage = () => {
@@ -48,6 +48,8 @@ const TrackerReport: NextPage = () => {
       </div>
     );
   }
+
+  // check if reportData is null and check if trackers are set.
   if (reportData === null) {
     return (
       <div className={styles["load-error"]}>
@@ -56,7 +58,7 @@ const TrackerReport: NextPage = () => {
     );
   }
 
-  const trackers = Object.entries(reportData.trackers).sort(
+  const trackers = Object.entries(reportData.trackers ?? {}).sort(
     ([_trackerA, countA], [_trackerB, countB]) => countB - countA
   );
   const trackerListing =
@@ -122,8 +124,9 @@ const TrackerReport: NextPage = () => {
                 <dt>{l10n.getString("trackerreport-meta-count-heading")}</dt>
                 <dd>
                   {l10n.getString("trackerreport-trackers-value", {
-                    count: Object.values(reportData.trackers).reduce(
-                      (acc, count) => acc + count
+                    count: Object.values(reportData.trackers ?? {}).reduce(
+                      (acc, count) => acc + count,
+                      0
                     ),
                   })}
                 </dd>
@@ -240,8 +243,8 @@ function containsReportData(parsed: any): parsed is ReportData {
     parsed !== null &&
     typeof parsed.sender === "string" &&
     Number.isInteger(parsed.received_at) &&
-    typeof parsed.trackers === "object" &&
-    Object.entries(parsed.trackers).every(
+    ["undefined", "object"].includes(typeof parsed.trackers) &&
+    Object.entries(parsed.trackers ?? {}).every(
       ([tracker, count]: [unknown, unknown]) =>
         typeof tracker === "string" && Number.isInteger(count)
     )

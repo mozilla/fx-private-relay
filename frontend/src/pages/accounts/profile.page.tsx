@@ -5,6 +5,7 @@ import {
   HTMLAttributes,
   ReactNode,
   RefObject,
+  useEffect,
   useRef,
 } from "react";
 import {
@@ -53,6 +54,7 @@ import { PremiumPromoBanners } from "../../components/dashboard/PremiumPromoBann
 import { useL10n } from "../../hooks/l10n";
 import { Localized } from "../../components/Localized";
 import { InfoModal } from "../../components/InfoModal";
+import { clearCookie, getCookie, setCookie } from "../../functions/cookies";
 
 const Profile: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -65,12 +67,22 @@ const Profile: NextPage = () => {
     category: "Purchase Button",
     label: "profile-bottom-promo",
   });
+  useEffect(() => {
+    const hash = getCookie("profile-location-hash");
+    if (hash) {
+      document.location.hash = hash;
+      clearCookie("profile-location-hash");
+    }
+  });
 
   usePurchaseTracker(profileData.data?.[0]);
 
   const modalState = useOverlayTriggerState({});
 
   if (!userData.isValidating && userData.error) {
+    if (document.location.hash) {
+      setCookie("profile-location-hash", document.location.hash);
+    }
     document.location.assign(getRuntimeConfig().fxaLoginUrl);
   }
 

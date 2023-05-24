@@ -1,16 +1,19 @@
 from dataclasses import dataclass
-from typing import Iterator, Literal, Optional
+from datetime import datetime, timezone
+from typing import Iterator, Literal
 from unittest.mock import Mock, patch, call
-from django.test.utils import override_settings
+import re
 
 from twilio.request_validator import RequestValidator
 from twilio.rest import Client
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.test.utils import override_settings
 
 from model_bakery import baker
 from rest_framework.test import APIClient
+from twilio.base.exceptions import TwilioRestException
 from waffle.testutils import override_flag
 import pytest
 
@@ -30,7 +33,133 @@ pytestmark = pytest.mark.skipif(
 
 @pytest.fixture()
 def phone_user(db):
-    yield make_phone_test_user()
+    return make_phone_test_user()
+
+
+_REAL_PHONE = "+12223334444"
+_RELAY_NUMBER = "+19998887777"
+
+
+def _make_real_phone(phone_user, **kwargs):
+    return RealPhone.objects.create(user=phone_user, number=_REAL_PHONE, **kwargs)
+
+
+def _make_relay_number(phone_user, vendor="twilio", **kwargs):
+    return RelayNumber.objects.create(
+        user=phone_user, number=_RELAY_NUMBER, vendor=vendor, **kwargs
+    )
+
+
+@pytest.fixture()
+def registered_phone_user(phone_user, mocked_twilio_client):
+    _make_real_phone(phone_user, verified=True)
+    _make_relay_number(phone_user)
+    mocked_twilio_client.messages.create.reset_mock()  # Forget new user messages
+    return phone_user
+
+
+@pytest.fixture()
+def mobile_app_flag(db):
+    with override_flag("mobile_app", active=True):
+        yield
+
+
+@pytest.fixture()
+def outbound_phone_flag(db):
+    with override_flag("outbound_phone", active=True):
+        yield
+
+
+@pytest.fixture()
+def mobile_app_user(phone_user, mobile_app_flag):
+    return phone_user
+
+
+@pytest.fixture()
+def outbound_phone_user(registered_phone_user, mobile_app_flag, outbound_phone_flag):
+    return registered_phone_user
+
+
+@dataclass
+class MockTwilioMessage:
+    from_: str
+    to: str
+    date_sent: datetime
+    body: str
+
+
+@pytest.fixture()
+def user_with_sms_activity(outbound_phone_user, mocked_twilio_client):
+    """Return a user with SMS inbound and outbound activity."""
+    relay_number = RelayNumber.objects.get(user=outbound_phone_user)
+
+    # First SMS contact
+    InboundContact.objects.create(
+        relay_number=relay_number,
+        inbound_number="+13015550001",
+        last_inbound_date=datetime(2023, 3, 1, 12, 5, tzinfo=timezone.utc),
+        last_inbound_type="text",
+        last_text_date=datetime(2023, 3, 1, 12, 5, tzinfo=timezone.utc),
+    )
+    # Second SMS contact
+    InboundContact.objects.create(
+        relay_number=relay_number,
+        inbound_number="+13015550002",
+        last_inbound_date=datetime(2023, 3, 2, 13, 5, tzinfo=timezone.utc),
+        last_inbound_type="text",
+        last_text_date=datetime(2023, 3, 2, 13, 5, tzinfo=timezone.utc),
+    )
+    # Voice contact
+    InboundContact.objects.create(
+        relay_number=relay_number,
+        inbound_number="+13015550003",
+        last_inbound_date=datetime(2023, 3, 3, 8, 30, tzinfo=timezone.utc),
+        last_inbound_type="call",
+        last_call_date=datetime(2023, 3, 3, 8, 30, tzinfo=timezone.utc),
+    )
+    twilio_messages = [
+        MockTwilioMessage(
+            from_="+13015550001",
+            to=relay_number.number,
+            date_sent=datetime(2023, 3, 1, 12, 0, tzinfo=timezone.utc),
+            body="Send Y to confirm appointment",
+        ),
+        MockTwilioMessage(
+            from_=relay_number.number,
+            to="+13015550001",
+            date_sent=datetime(2023, 3, 1, 12, 5, tzinfo=timezone.utc),
+            body="Y",
+        ),
+        MockTwilioMessage(
+            from_="+13015550002",
+            to=relay_number.number,
+            date_sent=datetime(2023, 3, 2, 13, 0, tzinfo=timezone.utc),
+            body="Donate $100 to Senator Smith?",
+        ),
+        MockTwilioMessage(
+            from_=relay_number.number,
+            to="+13015550002",
+            date_sent=datetime(2023, 3, 2, 13, 5, tzinfo=timezone.utc),
+            body="STOP STOP STOP",
+        ),
+        MockTwilioMessage(
+            from_=relay_number.number,
+            to="+13015550004",
+            date_sent=datetime(2023, 3, 4, 20, 55, tzinfo=timezone.utc),
+            body="U Up?",
+        ),
+    ]
+
+    def mock_list(to=None, from_=None):
+        messages = []
+        for msg in twilio_messages:
+            if (not to or to == msg.to) and (not from_ or from_ == msg.from_):
+                messages.append(msg)
+        return messages
+
+    mocked_twilio_client.messages.list.side_effect = mock_list
+
+    return outbound_phone_user
 
 
 @pytest.fixture(autouse=True)
@@ -38,18 +167,45 @@ def mocked_twilio_client():
     """
     Mock PhonesConfig with a mock twilio client
     """
+    re_e164 = re.compile(
+        r"""
+    \+1                    # Initial code
+    (?P<area_code>\d\d\d)  # Area code
+    (?P<exchange>\d\d\d)   # Exchange code
+    (?P<lastfour>\d\d\d\d) # Last 4 digits
+    """,
+        re.VERBOSE,
+    )
+
     with patch(
         "phones.apps.PhonesConfig.twilio_client", spec_set=Client
     ) as mock_twilio_client:
-        mock_fetch = Mock(
-            return_value=Mock(
-                country_code="US", phone_number="+12223334444", carrier="verizon"
+
+        def mock_phone_lookup(number: str | None = None):
+            """Return number details based on the number passed to phone_numbers()"""
+            if number is None:
+                # Allow mocked_twilio_client.lookups.v1.phone_numbers().fetch to work
+                return mocked_twilio_client._pn_return  # type: ignore[attr-defined]
+            match = re_e164.match(number)
+            assert match
+            national_format = (
+                f"({match.group('area_code')}) "
+                f"{match.group('exchange')}-{match.group('lastfour')}"
             )
-        )
-        mock_twilio_client.lookups.v1.phone_numbers = Mock(
-            return_value=Mock(fetch=mock_fetch)
-        )
+            mock_details = Mock(
+                country_code="US",
+                phone_number=number,
+                carrier="verizon",
+                national_format=national_format,
+            )
+            mock_return = Mock(fetch=Mock(return_value=mock_details))
+            mocked_twilio_client._pn_return = mock_return  # type: ignore[attr-defined]
+            return mock_return
+
+        mocked_twilio_client._pn_return = Mock()
+        mock_twilio_client.lookups.v1.phone_numbers.side_effect = mock_phone_lookup
         yield mock_twilio_client
+        mocked_twilio_client._pn_return = Mock()
 
 
 @pytest.fixture(autouse=True)
@@ -69,18 +225,6 @@ def mocked_twilio_validator():
     ) as mock_twilio_validator:
         mock_twilio_validator.validate = Mock(return_value=True)
         yield mock_twilio_validator
-
-
-def _make_real_phone(phone_user, **kwargs):
-    number = "+12223334444"
-    return RealPhone.objects.create(user=phone_user, number=number, **kwargs)
-
-
-def _make_relay_number(phone_user, vendor="twilio", **kwargs):
-    relay_number = "+19998887777"
-    return RelayNumber.objects.create(
-        user=phone_user, number=relay_number, vendor=vendor, **kwargs
-    )
 
 
 @override_settings(IQ_ENABLED=False)
@@ -160,7 +304,7 @@ def test_realphone_post_valid_us_es164_number(phone_user, mocked_twilio_client):
     response = client.post(path, data, format="json")
     assert response.status_code == 201
     assert response.data["number"] == number
-    assert response.data["verified"] == False
+    assert response.data["verified"] is False
     assert response.data["verification_sent_date"] != ""
     assert "Sent verification" in response.data["message"]
 
@@ -193,7 +337,7 @@ def test_realphone_post_valid_ca_es164_number(phone_user, mocked_twilio_client):
     response = client.post(path, data, format="json")
     assert response.status_code == 201
     assert response.data["number"] == number
-    assert response.data["verified"] == False
+    assert response.data["verified"] is False
     assert response.data["verification_sent_date"] != ""
     assert "Sent verification" in response.data["message"]
 
@@ -222,7 +366,7 @@ def test_realphone_post_valid_es164_number_already_sent_code(
     response = client.post(path, data, format="json")
     assert response.status_code == 201
     assert response.data["number"] == number
-    assert response.data["verified"] == False
+    assert response.data["verified"] is False
     assert response.data["verification_sent_date"] != ""
     assert "Sent verification" in response.data["message"]
 
@@ -238,7 +382,6 @@ def test_realphone_post_valid_es164_number_already_sent_code(
     response = client.post(path, data, format="json")
     assert response.status_code == 409
     mocked_twilio_client.lookups.v1.phone_numbers.assert_not_called()
-    mocked_twilio_client.lookups.v1.phone_numbers().fetch.assert_not_called()
     mocked_twilio_client.messages.create.assert_not_called()
 
 
@@ -259,7 +402,7 @@ def test_realphone_post_canadian_number(phone_user, mocked_twilio_client):
     response = client.post(path, data, format="json", HTTP_X_CLIENT_REGION="nl")
     assert response.status_code == 201
     assert response.data["number"] == number
-    assert response.data["verified"] == False
+    assert response.data["verified"] is False
     assert response.data["verification_sent_date"] != ""
     assert "Sent verification" in response.data["message"]
 
@@ -277,7 +420,7 @@ def test_realphone_post_valid_verification_code(phone_user, mocked_twilio_client
     response = client.post(path, data, format="json")
     assert response.status_code == 201
     assert response.data["number"] == real_phone.number
-    assert response.data["verified"] == True
+    assert response.data["verified"] is True
     assert response.data["verified_date"] != ""
 
     mocked_twilio_client.lookups.v1.phone_numbers().fetch.assert_not_called()
@@ -294,8 +437,8 @@ def test_realphone_post_invalid_verification_code(phone_user, mocked_twilio_clie
     assert response.status_code == 400
     assert "Could Not Find" in response.data[0].title()
     real_phone.refresh_from_db()
-    assert real_phone.verified == False
-    assert real_phone.verified_date == None
+    assert real_phone.verified is False
+    assert real_phone.verified_date is None
 
     mocked_twilio_client.lookups.v1.phone_numbers().fetch.assert_not_called()
 
@@ -328,7 +471,7 @@ def test_realphone_patch_verification_code(phone_user, mocked_twilio_client):
     response = client.patch(path, data, format="json")
     assert response.status_code == 200
     assert response.data["number"] == real_phone.number
-    assert response.data["verified"] == True
+    assert response.data["verified"] is True
     assert response.data["verified_date"] != ""
 
     mocked_twilio_client.lookups.v1.phone_numbers().fetch.assert_not_called()
@@ -347,7 +490,7 @@ def test_realphone_patch_verification_code_twice(phone_user, mocked_twilio_clien
     response = client.patch(path, data, format="json")
     assert response.status_code == 200
     assert response.data["number"] == real_phone.number
-    assert response.data["verified"] == True
+    assert response.data["verified"] is True
     assert response.data["verified_date"] != ""
 
     mocked_twilio_client.lookups.v1.phone_numbers().fetch.assert_not_called()
@@ -355,7 +498,7 @@ def test_realphone_patch_verification_code_twice(phone_user, mocked_twilio_clien
     response = client.patch(path, data, format="json")
     assert response.status_code == 200
     assert response.data["number"] == real_phone.number
-    assert response.data["verified"] == True
+    assert response.data["verified"] is True
     assert response.data["verified_date"] != ""
 
 
@@ -369,8 +512,8 @@ def test_realphone_patch_invalid_number(phone_user, mocked_twilio_client):
     response = client.patch(path, data, format="json")
     assert response.status_code == 400
     real_phone.refresh_from_db()
-    assert real_phone.verified == False
-    assert real_phone.verified_date == None
+    assert real_phone.verified is False
+    assert real_phone.verified_date is None
 
     mocked_twilio_client.lookups.v1.phone_numbers().fetch.assert_not_called()
 
@@ -385,8 +528,8 @@ def test_realphone_patch_invalid_verification_code(phone_user, mocked_twilio_cli
     response = client.patch(path, data, format="json")
     assert response.status_code == 400
     real_phone.refresh_from_db()
-    assert real_phone.verified == False
-    assert real_phone.verified_date == None
+    assert real_phone.verified is False
+    assert real_phone.verified_date is None
 
     mocked_twilio_client.lookups.v1.phone_numbers().fetch.assert_not_called()
 
@@ -401,7 +544,7 @@ def test_realphone_delete_cant_delete_verified(phone_user):
 
     assert response.status_code == 400
     real_phone.refresh_from_db()
-    assert real_phone.verified == True
+    assert real_phone.verified is True
 
 
 def test_realphone_delete_non_verified(phone_user):
@@ -438,7 +581,7 @@ def test_relaynumber_post_with_existing_returns_error(phone_user, mocked_twilio_
 def test_relaynumber_patch_to_toggle(phone_user, mocked_twilio_client):
     _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user)
-    assert relay_number.enabled == True
+    assert relay_number.enabled is True
     mock_create = Mock()
     mocked_twilio_client.incoming_phone_numbers.create = mock_create
 
@@ -450,7 +593,7 @@ def test_relaynumber_patch_to_toggle(phone_user, mocked_twilio_client):
 
     assert response.status_code == 200
     relay_number.refresh_from_db()
-    assert relay_number.enabled == False
+    assert relay_number.enabled is False
     mock_create.assert_not_called()
 
     data = {"enabled": True}
@@ -458,7 +601,7 @@ def test_relaynumber_patch_to_toggle(phone_user, mocked_twilio_client):
 
     assert response.status_code == 200
     relay_number.refresh_from_db()
-    assert relay_number.enabled == True
+    assert relay_number.enabled is True
     mock_create.assert_not_called()
 
 
@@ -1278,9 +1421,9 @@ _sms_reply_error_test_cases = {
     "short prefix with multiple matching contacts": (
         "0001 test reply to ambiguous number",
         (
-            "Message failed to send. There is more than one phone number in this thread"
-            " ending in \u20680001\u2069. To retry, start your message with the complete"
-            " number."
+            "Message failed to send. There is more than one phone number in this"
+            " thread ending in \u20680001\u2069. To retry, start your message with the"
+            " complete number."
         ),
     ),
     "short prefix without matching contact": (
@@ -1840,11 +1983,16 @@ def test_voice_status_completed_no_duration_error(phone_user):
 def test_voice_status_completed_reduces_remaining_seconds(
     mocked_events_info, phone_user
 ):
-    # TODO: This test should fail since the Relay Number is disabled and
-    # the POST to our /api/v1/voice_status should ignore the the reduced remaining seconds.
-    # This is currently passing because the voice_status() is not checking
-    # if the user's Relay Number has hit the limit or is disabled (bug logged in MPP-2452).
+    # TODO: This test should fail since the Relay Number is disabled and the
+    # POST to our /api/v1/voice_status should ignore the the reduced remaining
+    # seconds.
+    #
+    # This is currently passing because the voice_status() is not checking if
+    # the user's Relay Number has hit the limit or is disabled (bug logged in
+    # MPP-2452).
+    #
     # Keeping this test so we can correct it once MPP-2452 is completed.
+
     _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=False)
     pre_request_remaining_seconds = relay_number.remaining_seconds
@@ -1974,3 +2122,503 @@ def test_sms_status_delivered_deletes_message_from_twilio(mocked_twilio_client):
     assert response.status_code == 200
     mocked_twilio_client.messages.assert_called_once_with(message_sid)
     mock_message.delete.assert_called_once()
+
+
+def test_outbound_call_fails_with_no_auth():
+    response = APIClient().post("/api/v1/call/", {"to": "+14045551234"})
+    assert response.status_code == 401
+    assert response.json() == {
+        "detail": "Authentication credentials were not provided."
+    }
+
+
+def test_outbound_call_fails_without_outbound_phone_flag(mobile_app_user):
+    client = APIClient()
+    client.force_authenticate(mobile_app_user)
+    response = client.post("/api/v1/call/", {"to": "+14045551234"})
+    assert response.status_code == 403
+    assert response.json() == {"detail": "Requires outbound_phone waffle flag."}
+
+
+def test_outbound_call_fails_without_real_phone(phone_user, outbound_phone_flag):
+    client = APIClient()
+    client.force_authenticate(phone_user)
+    response = client.post("/api/v1/call/", {"to": "+14045551234"})
+    assert response.status_code == 400
+    assert response.json() == {
+        "detail": "Requires a verified real phone and phone mask."
+    }
+
+
+def test_outbound_call_fails_without_phone_mask(phone_user, outbound_phone_flag):
+    _make_real_phone(phone_user, verified=True)
+    client = APIClient()
+    client.force_authenticate(phone_user)
+    response = client.post("/api/v1/call/", {"to": "+14045551234"})
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Requires a phone mask."}
+
+
+def test_outbound_call_fails_without_number(outbound_phone_user, mocked_twilio_client):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post("/api/v1/call/", {})
+    assert response.status_code == 400
+    assert response.json() == {"to": "A number is required."}
+
+
+def test_outbound_call_fails_with_short_phone_number(
+    outbound_phone_user, mocked_twilio_client
+):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post("/api/v1/call/", {"to": "555-1234"})
+    assert response.status_code == 400
+    assert response.json() == [
+        "number must be in E.164 format, or in local national format of the country "
+        "detected: None"
+    ]
+
+
+def test_outbound_call(outbound_phone_user, mocked_twilio_client):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post("/api/v1/call/", {"to": "+14045551234"})
+    assert response.status_code == 200
+    mocked_twilio_client.calls.create.assert_called_once_with(
+        twiml=(
+            "<Response><Say>Dialing (404) 555-1234 ...</Say>"
+            "<Dial>+14045551234</Dial></Response>"
+        ),
+        to=_REAL_PHONE,
+        from_=_RELAY_NUMBER,
+    )
+
+
+def test_outbound_call_fails_with_us_format_number_but_no_country(
+    outbound_phone_user, mocked_twilio_client
+):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post("/api/v1/call/", {"to": "(404) 555-1111"})
+    assert response.status_code == 400
+    assert response.json() == [
+        "number must be in E.164 format, or in local national format of the country "
+        "detected: None"
+    ]
+
+
+def test_outbound_call_with_us_format_and_country(
+    outbound_phone_user, mocked_twilio_client
+):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post(
+        "/api/v1/call/", {"to": "(404) 555-1111"}, HTTP_X_CLIENT_REGION="US"
+    )
+    assert response.status_code == 200
+    mocked_twilio_client.calls.create.assert_called_once_with(
+        twiml=(
+            "<Response><Say>Dialing (404) 555-1111 ...</Say>"
+            "<Dial>+14045551111</Dial></Response>"
+        ),
+        to=_REAL_PHONE,
+        from_=_RELAY_NUMBER,
+    )
+
+
+def test_outbound_call_to_service_number_from_unknown_country_fails(
+    outbound_phone_user, mocked_twilio_client
+):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post("/api/v1/call/", {"to": "511"})
+    mocked_twilio_client.lookups.v1.phone_numbers.assert_not_called()
+    assert response.status_code == 400
+    assert response.json() == [
+        "number must be in E.164 format, or in local national format of the country "
+        "detected: None"
+    ]
+
+
+def test_outbound_call_to_service_number_from_us_fails(
+    outbound_phone_user, mocked_twilio_client
+):
+    service_num = "911"
+    phone_num_service = mocked_twilio_client.lookups.v1.phone_numbers
+    phone_num_service.side_effect = None
+    phone_num_service.return_value.fetch.side_effect = TwilioRestException(
+        uri="/PhoneNumbers/{service_num}",
+        msg=(
+            "Unable to fetch record:"
+            " The requested resource /PhoneNumbers/{service_num} was not found"
+        ),
+        method="GET",
+        status=404,
+        code=20404,
+    )
+
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post(
+        "/api/v1/call/", {"to": service_num}, HTTP_X_CLIENT_REGION="US"
+    )
+    phone_num_service.assert_called_once_with("+1911")
+    assert response.status_code == 400
+    assert response.json() == ["Could not get number details for +1911"]
+
+
+def test_outbound_sms_fails_with_no_auth():
+    response = APIClient().post("/api/v1/message/", {"to": "+14045551234"})
+    assert response.status_code == 401
+    assert response.json() == {
+        "detail": "Authentication credentials were not provided."
+    }
+
+
+def test_outbound_sms_fails_without_outbound_phone_flag(mobile_app_user):
+    client = APIClient()
+    client.force_authenticate(mobile_app_user)
+    response = client.post("/api/v1/message/", {"to": "+14045551234"})
+    assert response.status_code == 403
+    assert response.json() == {"detail": "Requires outbound_phone waffle flag."}
+
+
+def test_outbound_sms_fails_without_phone_mask(phone_user, outbound_phone_flag):
+    _make_real_phone(phone_user, verified=True)
+    client = APIClient()
+    client.force_authenticate(phone_user)
+    response = client.post("/api/v1/message/", {"to": "+14045551234"})
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Requires a phone mask."}
+
+
+def test_outbound_sms_fails_without_params(outbound_phone_user, mocked_twilio_client):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post("/api/v1/message/", {})
+    assert response.status_code == 400
+    assert response.json() == {
+        "body": "A message body is required.",
+        "destination": "A destination number is required.",
+    }
+
+
+def test_outbound_sms_fails_with_short_phone_number(
+    outbound_phone_user, mocked_twilio_client
+):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post(
+        "/api/v1/message/", {"destination": "555-1234", "body": "Hello!"}
+    )
+    assert response.status_code == 400
+    assert response.json() == [
+        "number must be in E.164 format, or in local national format of the country "
+        "detected: None"
+    ]
+
+
+def test_outbound_sms(outbound_phone_user, mocked_twilio_client):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post(
+        "/api/v1/message/", {"destination": "+14045551234", "body": "Hi!"}
+    )
+    assert response.status_code == 200
+    mocked_twilio_client.messages.create.assert_called_once_with(
+        to="+14045551234", from_=_RELAY_NUMBER, body="Hi!"
+    )
+
+
+def test_outbound_sms_fails_with_us_format_number_but_no_country(
+    outbound_phone_user, mocked_twilio_client
+):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post(
+        "/api/v1/message/", {"destination": "(404) 555-1111", "body": "Hey you!"}
+    )
+    assert response.status_code == 400
+    assert response.json() == [
+        "number must be in E.164 format, or in local national format of the country "
+        "detected: None"
+    ]
+
+
+def test_outbound_sms_with_us_format_and_country(
+    outbound_phone_user, mocked_twilio_client
+):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post(
+        "/api/v1/message/",
+        {"destination": "(404) 555-1111", "body": "Hi from US!"},
+        HTTP_X_CLIENT_REGION="US",
+    )
+    assert response.status_code == 200
+    mocked_twilio_client.messages.create.assert_called_once_with(
+        to="+14045551111", from_=_RELAY_NUMBER, body="Hi from US!"
+    )
+
+
+def test_outbound_sms_to_service_number_from_unknown_country_fails(
+    outbound_phone_user, mocked_twilio_client
+):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post("/api/v1/message/", {"destination": "511", "body": "Help!"})
+    mocked_twilio_client.lookups.v1.phone_numbers.assert_not_called()
+    assert response.status_code == 400
+    assert response.json() == [
+        "number must be in E.164 format, or in local national format of the country "
+        "detected: None"
+    ]
+
+
+def test_outbound_sms_to_service_number_from_us_fails(
+    outbound_phone_user, mocked_twilio_client
+):
+    service_num = "811"
+    phone_num_service = mocked_twilio_client.lookups.v1.phone_numbers
+    phone_num_service.side_effect = None
+    phone_num_service.return_value.fetch.side_effect = TwilioRestException(
+        uri="/PhoneNumbers/{service_num}",
+        msg=(
+            "Unable to fetch record:"
+            " The requested resource /PhoneNumbers/{service_num} was not found"
+        ),
+        method="GET",
+        status=404,
+        code=20404,
+    )
+
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.post(
+        "/api/v1/message/",
+        {"destination": service_num, "body": "I'd like to dig!"},
+        HTTP_X_CLIENT_REGION="US",
+    )
+    phone_num_service.assert_called_once_with("+1811")
+    assert response.status_code == 400
+    assert response.json() == ["Could not get number details for +1811"]
+
+
+def test_list_messages_fails_with_no_auth():
+    response = APIClient().get("/api/v1/messages/")
+    assert response.status_code == 401
+    assert response.json() == {
+        "detail": "Authentication credentials were not provided."
+    }
+
+
+def test_list_messages_fails_without_outbound_phone_flag(mobile_app_user):
+    client = APIClient()
+    client.force_authenticate(mobile_app_user)
+    response = client.get("/api/v1/messages/")
+    assert response.status_code == 403
+    assert response.json() == {"detail": "Requires outbound_phone waffle flag."}
+
+
+def test_list_messages_fails_without_phone_mask(phone_user, outbound_phone_flag):
+    _make_real_phone(phone_user, verified=True)
+    client = APIClient()
+    client.force_authenticate(phone_user)
+    response = client.get("/api/v1/messages/")
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Requires a phone mask."}
+
+
+def test_list_messages_no_data(outbound_phone_user):
+    client = APIClient()
+    client.force_authenticate(outbound_phone_user)
+    response = client.get("/api/v1/messages/")
+    assert response.status_code == 200
+    assert response.json() == {"inbound_messages": [], "outbound_messages": []}
+
+
+def test_list_messages(user_with_sms_activity):
+    client = APIClient()
+    client.force_authenticate(user_with_sms_activity)
+    response = client.get("/api/v1/messages/")
+    assert response.status_code == 200
+    assert response.json() == {
+        "inbound_messages": [
+            {
+                "body": "Send Y to confirm appointment",
+                "date_sent": "2023-03-01T12:00:00Z",
+                "from": "+13015550001",
+                "to": _RELAY_NUMBER,
+            },
+            {
+                "body": "Donate $100 to Senator Smith?",
+                "date_sent": "2023-03-02T13:00:00Z",
+                "from": "+13015550002",
+                "to": _RELAY_NUMBER,
+            },
+        ],
+        "outbound_messages": [
+            {
+                "body": "Y",
+                "date_sent": "2023-03-01T12:05:00Z",
+                "from": _RELAY_NUMBER,
+                "to": "+13015550001",
+            },
+            {
+                "body": "STOP STOP STOP",
+                "date_sent": "2023-03-02T13:05:00Z",
+                "from": _RELAY_NUMBER,
+                "to": "+13015550002",
+            },
+            {
+                "body": "U Up?",
+                "date_sent": "2023-03-04T20:55:00Z",
+                "from": _RELAY_NUMBER,
+                "to": "+13015550004",
+            },
+        ],
+    }
+
+
+def test_list_messages_only_inbound(user_with_sms_activity):
+    client = APIClient()
+    client.force_authenticate(user_with_sms_activity)
+    response = client.get("/api/v1/messages/", {"direction": "inbound"})
+    assert response.status_code == 200
+    assert response.json() == {
+        "inbound_messages": [
+            {
+                "body": "Send Y to confirm appointment",
+                "date_sent": "2023-03-01T12:00:00Z",
+                "from": "+13015550001",
+                "to": _RELAY_NUMBER,
+            },
+            {
+                "body": "Donate $100 to Senator Smith?",
+                "date_sent": "2023-03-02T13:00:00Z",
+                "from": "+13015550002",
+                "to": _RELAY_NUMBER,
+            },
+        ],
+    }
+
+
+def test_list_messages_only_outbound(user_with_sms_activity):
+    client = APIClient()
+    client.force_authenticate(user_with_sms_activity)
+    response = client.get("/api/v1/messages/", {"direction": "outbound"})
+    assert response.status_code == 200
+    assert response.json() == {
+        "outbound_messages": [
+            {
+                "body": "Y",
+                "date_sent": "2023-03-01T12:05:00Z",
+                "from": _RELAY_NUMBER,
+                "to": "+13015550001",
+            },
+            {
+                "body": "STOP STOP STOP",
+                "date_sent": "2023-03-02T13:05:00Z",
+                "from": _RELAY_NUMBER,
+                "to": "+13015550002",
+            },
+            {
+                "body": "U Up?",
+                "date_sent": "2023-03-04T20:55:00Z",
+                "from": _RELAY_NUMBER,
+                "to": "+13015550004",
+            },
+        ],
+    }
+
+
+def test_list_messages_with_contact(user_with_sms_activity):
+    client = APIClient()
+    client.force_authenticate(user_with_sms_activity)
+    response = client.get("/api/v1/messages/", {"with": "+13015550001"})
+    assert response.status_code == 200
+    assert response.json() == {
+        "inbound_messages": [
+            {
+                "body": "Send Y to confirm appointment",
+                "date_sent": "2023-03-01T12:00:00Z",
+                "from": "+13015550001",
+                "to": _RELAY_NUMBER,
+            },
+        ],
+        "outbound_messages": [
+            {
+                "body": "Y",
+                "date_sent": "2023-03-01T12:05:00Z",
+                "from": _RELAY_NUMBER,
+                "to": "+13015550001",
+            },
+        ],
+    }
+
+
+def test_list_messages_with_contact_only_inbound(user_with_sms_activity):
+    client = APIClient()
+    client.force_authenticate(user_with_sms_activity)
+    response = client.get(
+        "/api/v1/messages/", {"with": "+13015550001", "direction": "inbound"}
+    )
+    assert response.status_code == 200
+    assert response.json() == {
+        "inbound_messages": [
+            {
+                "body": "Send Y to confirm appointment",
+                "date_sent": "2023-03-01T12:00:00Z",
+                "from": "+13015550001",
+                "to": _RELAY_NUMBER,
+            },
+        ],
+    }
+
+
+def test_list_messages_with_contact_only_outbound(user_with_sms_activity):
+    client = APIClient()
+    client.force_authenticate(user_with_sms_activity)
+    response = client.get(
+        "/api/v1/messages/", {"with": "+13015550001", "direction": "outbound"}
+    )
+    assert response.status_code == 200
+    assert response.json() == {
+        "outbound_messages": [
+            {
+                "body": "Y",
+                "date_sent": "2023-03-01T12:05:00Z",
+                "from": _RELAY_NUMBER,
+                "to": "+13015550001",
+            },
+        ],
+    }
+
+
+def test_list_messages_voice_only_contact_has_empty_response(user_with_sms_activity):
+    client = APIClient()
+    client.force_authenticate(user_with_sms_activity)
+    response = client.get("/api/v1/messages/", {"with": "+13015550003"})
+    assert response.status_code == 200
+    assert response.json() == {"inbound_messages": [], "outbound_messages": []}
+
+
+def test_list_messages_fails_with_outbound_only_contact(user_with_sms_activity):
+    # TODO: This feels like a bug. The contact is shown in the unfiltered view,
+    # but can't be filtered with 'with' because there is no InboundContact
+    client = APIClient()
+    client.force_authenticate(user_with_sms_activity)
+    response = client.get("/api/v1/messages/", {"with": "+13015550004"})
+    assert response.status_code == 400
+    assert response.json() == {"with": "No inbound contacts matching the number"}
+
+
+def test_list_messages_fails_with_invalid_direction(user_with_sms_activity):
+    client = APIClient()
+    client.force_authenticate(user_with_sms_activity)
+    response = client.get("/api/v1/messages/", {"direction": "out"})
+    assert response.status_code == 400
+    assert response.json() == {
+        "direction": "Invalid value, valid values are 'inbound' or 'outbound'"
+    }

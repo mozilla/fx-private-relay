@@ -10,6 +10,8 @@ from functools import cache
 import json
 import pathlib
 import re
+from django.http.request import HttpRequest
+from django.template.loader import render_to_string
 import requests
 
 from botocore.exceptions import ClientError
@@ -19,6 +21,7 @@ import jwcrypto.jwe
 import jwcrypto.jwk
 import markus
 import logging
+from urllib.parse import quote_plus, urlparse
 from waffle.models import Flag
 
 from django.apps import apps
@@ -26,11 +29,11 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from django.http import HttpResponse
 from django.template.defaultfilters import linebreaksbr, urlize
-from urllib.parse import urlparse
+
+from privaterelay.utils import get_countries_info_from_request_and_mapping
 
 from .models import (
     DomainAddress,
-    Profile,
     RelayAddress,
     Reply,
     get_domains_from_settings,
@@ -133,6 +136,50 @@ def get_email_domain_from_settings():
     if settings.RELAY_CHANNEL == "dev":
         email_network_locality = f"mail.{email_network_locality}"
     return email_network_locality
+
+
+def _get_hero_img_src(lang_code):
+    img_locale = "en"
+    avail_l10n_image_codes = [
+        "cs",
+        "de",
+        "en",
+        "es",
+        "fi",
+        "fr",
+        "hu",
+        "id",
+        "it",
+        "ja",
+        "nl",
+        "pt",
+        "ru",
+        "sv",
+        "zh",
+    ]
+    for avail_l10n_image_code in avail_l10n_image_codes:
+        if avail_l10n_image_code.startswith(lang_code):
+            img_locale = avail_l10n_image_code
+
+    return f"{settings.SITE_ORIGIN}/static/images/email-images/first-time-user/hero-image-{img_locale}.png"
+
+
+def get_welcome_email(request: HttpRequest, format: str) -> str:
+    bundle_plans = get_countries_info_from_request_and_mapping(
+        request, settings.BUNDLE_PLAN_COUNTRY_LANG_MAPPING
+    )
+    lang_code = request.LANGUAGE_CODE
+    hero_img_src = _get_hero_img_src(lang_code)
+    return render_to_string(
+        f"emails/first_time_user.{format}",
+        {
+            "in_bundle_country": bundle_plans["available_in_country"],
+            "SITE_ORIGIN": settings.SITE_ORIGIN,
+            "hero_img_src": hero_img_src,
+            "language": lang_code,
+        },
+        request,
+    )
 
 
 @time_if_enabled("ses_send_raw_email")
@@ -447,15 +494,27 @@ def count_all_trackers(html_content):
     )
 
 
-def remove_trackers(html_content, level="general"):
+def remove_trackers(html_content, from_address, datetime_now, level="general"):
     trackers = general_trackers() if level == "general" else strict_trackers()
     tracker_removed = 0
     changed_content = html_content
 
     for tracker in trackers:
         pattern = convert_domains_to_regex_patterns(tracker)
+
+        def convert_to_tracker_warning_link(matchobj):
+            quote, original_link, _ = matchobj.groups()
+            tracker_link_details = {
+                "sender": from_address,
+                "received_at": datetime_now,
+                "original_link": original_link,
+            }
+            anchor = quote_plus(json.dumps(tracker_link_details, separators=(",", ":")))
+            url = f"{settings.SITE_ORIGIN}/contains-tracker-warning/#{anchor}"
+            return f"{quote}{url}{quote}"
+
         changed_content, matched = re.subn(
-            pattern, rf"\g<1>{settings.SITE_ORIGIN}/faq\g<1>", changed_content
+            pattern, convert_to_tracker_warning_link, changed_content
         )
         tracker_removed += matched
 

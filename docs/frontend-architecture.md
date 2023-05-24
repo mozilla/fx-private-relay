@@ -207,20 +207,20 @@ In essence, the data is a URL encoded JSON object with three fields:
 
 An example:
 
-  {
-    "sender": "email@example.com",
-    "received_at": 1655288077484,
-    "trackers": {
-      "ads.facebook.com": 1,
-      "ads.googletagmanager.com": 2
+    {
+      "sender": "email@example.com",
+      "received_at": 1655288077484,
+      "trackers": {
+        "ads.facebook.com": 1,
+        "ads.googletagmanager.com": 2
+      }
     }
-  }
 
 You can generate this URL yourself by pasing the following in your browser
 console, changing the contents of `JSON.stringify()` with your desired values:
 
-  { let url = new URL("http://localhost:3000/tracker-report"); url.hash = JSON.stringify({ sender: "email@example.com", received_at: Date.now(), trackers: { "ads.facebook.com": 1, "ads.googletagmanager.com": 2 } }); url.href }
+    { let url = new URL("http://localhost:3000/tracker-report"); url.hash = JSON.stringify({ sender: "email@example.com", received_at: Date.now(), trackers: { "ads.facebook.com": 1, "ads.googletagmanager.com": 2 } }); url.href }
 
 This generates the following URL:
 
-  http://localhost:3000/tracker-report#{%22sender%22:%22email@example.com%22,%22received_at%22:1655288077484,%22trackers%22:{%22ads.facebook.com%22:1,%22ads.googletagmanager.com%22:2}}
+    http://localhost:3000/tracker-report#{%22sender%22:%22email@example.com%22,%22received_at%22:1655288077484,%22trackers%22:{%22ads.facebook.com%22:1,%22ads.googletagmanager.com%22:2}}

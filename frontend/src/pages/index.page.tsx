@@ -17,7 +17,7 @@ import {
   isBundleAvailableInCountry,
   isPeriodicalPremiumAvailableInCountry,
 } from "../functions/getPlan";
-import { FaqAccordionLanding } from "../components/landing/FaqAccordion";
+import { FaqAccordionItem } from "../components/landing/FaqAccordion";
 import { Reviews } from "../components/landing/Reviews";
 import { PlanMatrix } from "../components/landing/PlanMatrix";
 import { BundleBanner } from "../components/landing/BundleBanner";
@@ -55,11 +55,14 @@ const Home: NextPage = () => {
             >
               {l10n.getString("hero-section-cta")}
             </LinkButton>
-            <Image
-              src={Testimonials}
-              alt="Forbes, ZDNet, Lifehacker, PCMag"
-              className={styles["social-proof"]}
-            />
+            <div className={styles["testimonials-wrapper"]}>
+              <p>{l10n.getString("hero-section-social-proof")}:</p>
+              <Image
+                src={Testimonials}
+                alt="Forbes, ZDNet, Lifehacker, PCMag"
+                className={styles["social-proof"]}
+              />
+            </div>
           </div>
           <div className={styles["demo-phone"]}>
             <DemoPhone
@@ -133,7 +136,40 @@ const Home: NextPage = () => {
               </p>
             </div>
             <div className={styles.entries}>
-              <FaqAccordionLanding />
+              <FaqAccordionItem
+                defaultExpandedIndex={0}
+                entries={[
+                  {
+                    q: l10n.getString("faq-question-availability-question"),
+                    a: l10n.getString("faq-question-landing-page-availability"),
+                  },
+                  {
+                    q: l10n.getString("faq-question-what-is-question-2"),
+                    a: l10n.getString("faq-question-what-is-answer-2"),
+                  },
+                  {
+                    q: l10n.getString("faq-question-use-cases-question-2"),
+                    a: (
+                      <>
+                        <p>
+                          {l10n.getString(
+                            "faq-question-use-cases-answer-part1-2"
+                          )}
+                        </p>
+                        <p>
+                          {l10n.getString(
+                            "faq-question-use-cases-answer-part2-2"
+                          )}
+                        </p>
+                      </>
+                    ),
+                  },
+                  {
+                    q: l10n.getString("faq-question-browser-support-question"),
+                    a: l10n.getString("faq-question-browser-support-answer-2"),
+                  },
+                ]}
+              />
             </div>
           </div>
         </section>
