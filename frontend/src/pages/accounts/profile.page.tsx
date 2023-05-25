@@ -5,7 +5,6 @@ import {
   HTMLAttributes,
   ReactNode,
   RefObject,
-  useEffect,
   useRef,
 } from "react";
 import {
@@ -67,13 +66,11 @@ const Profile: NextPage = () => {
     category: "Purchase Button",
     label: "profile-bottom-promo",
   });
-  useEffect(() => {
-    const hash = getCookie("profile-location-hash");
-    if (hash) {
-      document.location.hash = hash;
-      clearCookie("profile-location-hash");
-    }
-  });
+  const hash = getCookie("profile-location-hash");
+  if (hash) {
+    document.location.hash = hash;
+    clearCookie("profile-location-hash");
+  }
 
   usePurchaseTracker(profileData.data?.[0]);
 
