@@ -157,9 +157,9 @@ def _get_hero_img_src(lang_code):
         "sv",
         "zh",
     ]
-    for avail_l10n_image_code in avail_l10n_image_codes:
-        if avail_l10n_image_code.startswith(lang_code):
-            img_locale = avail_l10n_image_code
+    major_lang = lang_code.split("-")[0]
+    if major_lang in avail_l10n_image_codes:
+        img_locale = major_lang
 
     return f"{settings.SITE_ORIGIN}/static/images/email-images/first-time-user/hero-image-{img_locale}.png"
 
