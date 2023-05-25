@@ -1,0 +1,17 @@
+name: No unresolved conflicts
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+jobs:
+  detect-unresolved-conflicts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: List files with merge conflict markers
+        run: git --no-pager grep "<<<<<<<" ":(exclude).github/workflows/conflicts.yml" || true
+      - name: Fail or succeed job if any files with merge conflict markers have been checked in
+        # Find lines containing "<<<<<<<", then count the number of lines.
+        # 0 matching lines results in exit code 0, i.e. success.
+        run: exit $(git grep "<<<<<<<" ":(exclude).github/workflows/conflicts.yml" | wc --lines)
