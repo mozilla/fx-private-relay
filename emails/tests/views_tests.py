@@ -21,6 +21,7 @@ from markus.testing import MetricsMock
 from model_bakery import baker
 import pytest
 
+from privaterelay.ftl_bundles import main
 from emails.models import (
     address_hash,
     DeletedAddress,
@@ -254,6 +255,9 @@ class BounceHandlingTest(TestCase):
 class ComplaintHandlingTest(TestCase):
     """Test Complaint notifications and events."""
 
+    def setUp(self):
+        self.user = baker.make(User, email="relayuser@test.com")
+
     @pytest.fixture(autouse=True)
     def use_caplog(self, caplog):
         self.caplog = caplog
@@ -267,11 +271,13 @@ class ComplaintHandlingTest(TestCase):
         Example derived from:
         https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
         """
+        assert self.user.profile.auto_block_spam is False
+
         complaint = {
             "notificationType": "Complaint",
             "complaint": {
                 "userAgent": "ExampleCorp Feedback Loop (V0.01)",
-                "complainedRecipients": [{"emailAddress": "recipient1@example.com"}],
+                "complainedRecipients": [{"emailAddress": self.user.email}],
                 "complaintFeedbackType": "abuse",
                 "arrivalDate": "2009-12-03T04:24:21.000-05:00",
                 "timestamp": "2012-05-25T14:59:38.623Z",
@@ -284,10 +290,33 @@ class ComplaintHandlingTest(TestCase):
         with MetricsMock() as mm:
             response = _sns_notification(json_body)
         assert response.status_code == 200
-        mm.assert_incr_once("fx.private.relay.email_complaint")
-        assert len(self.caplog.records) == 1
-        record = self.caplog.records[0]
-        assert record.msg == "complaint_received"
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam is True
+
+        mm.assert_incr_once(
+            "fx.private.relay.email_complaint",
+            tags=[
+                "complaint_subtype:none",
+                "complaint_feedback:abuse",
+                "user_match:found",
+                "relay_action:auto_block_spam",
+            ],
+        )
+        assert len(self.caplog.records) == 2
+        record1, record2 = self.caplog.records
+        assert record1.msg == "complaint_notification"
+        assert record1.complaint_subtype is None
+        assert record1.complaint_user_agent == "ExampleCorp Feedback Loop (V0.01)"
+        assert record1.complaint_feedback == "abuse"
+        assert record1.user_match == "found"
+        assert record1.relay_action == "auto_block_spam"
+        assert record1.domain == "test.com"
+
+        assert record2.msg == "complaint_received"
+        assert record2.recipient_domains == ["test.com"]
+        assert record2.subtype is None
+        assert record2.feedback == "abuse"
 
 
 class SNSNotificationRemoveEmailsInS3Test(TestCase):
@@ -1117,37 +1146,33 @@ def test_wrapped_email_test_from_profile(rf):
     response = wrapped_email_test(request)
     assert response.status_code == 200
     no_space_html = re.sub(r"\s+", "", response.content.decode())
-    assert "<dt>language</dt><dd>de</dd>" in no_space_html
-    assert "<dt>has_premium</dt><dd>No</dd>" in no_space_html
-    assert "<dt>in_premium_country</dt><dd>Yes</dd>" in no_space_html
-    assert "<dt>has_attachment</dt><dd>Yes</dd>" in no_space_html
-    assert "<dt>has_tracker_report_link</dt><dd>No</dd>" in no_space_html
+    assert "<li><strong>language</strong>:de" in no_space_html
+    assert "<li><strong>has_premium</strong>:No" in no_space_html
+    assert "<li><strong>has_tracker_report_link</strong>:No" in no_space_html
     assert (
-        "<dt>has_num_level_one_email_trackers_removed</dt><dd>No</dd>" in no_space_html
+        "<li><strong>num_level_one_email_trackers_removed</strong>:0" in no_space_html
     )
 
 
 @pytest.mark.parametrize("language", ("en", "fy-NL", "ja"))
 @pytest.mark.parametrize("has_premium", ("Yes", "No"))
-@pytest.mark.parametrize("in_premium_country", ("Yes", "No"))
-@pytest.mark.parametrize("has_attachment", ("Yes", "No"))
 @pytest.mark.parametrize("has_tracker_report_link", ("Yes", "No"))
-@pytest.mark.parametrize("num_level_one_email_trackers_removed", ("1", "0"))
+@pytest.mark.parametrize("num_level_one_email_trackers_removed", ("0", "1", "2"))
 def test_wrapped_email_test(
     rf,
     caplog,
     language,
     has_premium,
-    in_premium_country,
-    has_attachment,
     has_tracker_report_link,
     num_level_one_email_trackers_removed,
 ):
+    # Reload Fluent files to regenerate errors
+    if language == "en":
+        main.reload()
+
     data = {
         "language": language,
         "has_premium": has_premium,
-        "in_premium_country": in_premium_country,
-        "has_attachment": has_attachment,
         "has_tracker_report_link": has_tracker_report_link,
         "num_level_one_email_trackers_removed": num_level_one_email_trackers_removed,
     }
@@ -1162,29 +1187,22 @@ def test_wrapped_email_test(
                 pytest.fail(message)
 
     no_space_html = re.sub(r"\s+", "", response.content.decode())
-    assert f"<dt>language</dt><dd>{language}</dd>" in no_space_html
-    assert f"<dt>has_premium</dt><dd>{has_premium}</dd>" in no_space_html
+    assert f"<li><strong>language</strong>:{language}" in no_space_html
+    assert f"<li><strong>has_premium</strong>:{has_premium}" in no_space_html
     assert (
-        f"<dt>in_premium_country</dt><dd>{in_premium_country}</dd>"
+        f"<li><strong>has_tracker_report_link</strong>:{has_tracker_report_link}"
     ) in no_space_html
-    assert f"<dt>has_attachment</dt><dd>{has_attachment}</dd>" in no_space_html
-    assert f"<dt>has_attachment</dt><dd>{has_attachment}</dd>" in no_space_html
     assert (
-        "<dt>has_tracker_report_link</dt>" f"<dd>{has_tracker_report_link}</dd>"
-    ) in no_space_html
-    has_num_level_one_email_trackers_removed = (
-        "Yes" if int(num_level_one_email_trackers_removed) else "No"
-    )
-    assert (
-        "<dt>has_num_level_one_email_trackers_removed</dt>"
-        f"<dd>{has_num_level_one_email_trackers_removed}</dd>"
+        "<li><strong>num_level_one_email_trackers_removed</strong>:"
+        f"{num_level_one_email_trackers_removed}"
     ) in no_space_html
 
 
 @pytest.mark.parametrize("forwarded", ("False", "True"))
 @pytest.mark.parametrize("content_type", ("text/plain", "text/html"))
 @pytest.mark.django_db
-def test_reply_requires_premium_test(rf, forwarded, content_type):
+def test_reply_requires_premium_test(rf, forwarded, content_type, caplog):
+    main.reload()  # Reload Fluent files to regenerate errors
     url = (
         "/emails/reply_requires_premium_test"
         f"?forwarded={forwarded}&content-type={content_type}"
@@ -1202,6 +1220,11 @@ def test_reply_requires_premium_test(rf, forwarded, content_type):
         assert "We’ve sent this reply" in html
     else:
         assert "Your reply was not sent" in html
+
+    # Check that all Fluent IDs were in the English corpus
+    for log_name, log_level, message in caplog.record_tuples:
+        if log_name == "django_ftl.message_errors":
+            pytest.fail(message)
 
 
 @pytest.mark.django_db
