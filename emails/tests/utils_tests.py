@@ -290,9 +290,11 @@ class RemoveTrackers(TestCase):
             general_count == general_removed
         )  # count uses the same regex pattern as removing trackers
 
-    def test_general_tracker_embedded_in_another_tracker_replaced_only_once_with_relay_content(
-        self,
-    ):
+    def test_general_tracker_embedded_in_another_tracker_replaced_only_once(self):
+        """
+        Test that a general tracker embedded in the URL of another tracker is
+        replaced only once with the relay content.
+        """
         content = (
             "<a href='https://foo.open.tracker.com/foo/bar.html?src=trckr.com'>"
             "A link</a>"
@@ -312,9 +314,11 @@ class RemoveTrackers(TestCase):
         assert general_removed == 1
         assert general_count == 1
 
-    def test_general_tracker_also_in_text_tracker_replaced_only_once_with_relay_content(
-        self,
-    ):
+    def test_general_tracker_also_in_text_tracker_replaced_only_once(self):
+        """
+        Test that a general tracker embedded in another tracker, and also in the text
+        of the link, is replaced only once with the relay content.
+        """
         content = (
             "<a href='https://foo.open.tracker.com/foo/bar.html?src=trckr.com'>"
             "trckr.com</a>"
