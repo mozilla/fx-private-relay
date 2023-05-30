@@ -102,7 +102,6 @@ FAIL_TEST_IF_CALLED = Exception("This function should not have been called.")
 
 class SNSNotificationTest(TestCase):
     def setUp(self):
-        # FIXME: this should make an object so that the test passes
         self.user = baker.make(User)
         self.profile = self.user.profile
         self.sa = baker.make(SocialAccount, user=self.user, provider="fxa")
