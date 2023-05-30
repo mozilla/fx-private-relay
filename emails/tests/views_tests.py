@@ -167,7 +167,7 @@ class SNSNotificationTest(TestCase):
 
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
-        assert self.ra.last_used_at.date() == datetime.today().date()
+        assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
 
     def test_list_email_sns_notification(self):
         """By default, list emails should still forward."""
@@ -176,7 +176,7 @@ class SNSNotificationTest(TestCase):
         self.mock_send_raw_email.assert_called_once()
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
-        assert self.ra.last_used_at.date() == datetime.today().date()
+        assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
 
     def test_block_list_email_sns_notification(self):
         """When an alias is blocking list emails, list emails should not forward."""
@@ -217,7 +217,7 @@ class SNSNotificationTest(TestCase):
         self.mock_send_raw_email.assert_called_once()
         da = DomainAddress.objects.get(user=self.premium_user, address="wildcard")
         assert da.num_forwarded == 1
-        assert da.last_used_at.date() == datetime.today().date()
+        assert (datetime.now(tz=timezone.utc) - da.last_used_at).seconds < 2.0
 
     def test_successful_email_relay_message_removed_from_s3(self):
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
@@ -226,7 +226,7 @@ class SNSNotificationTest(TestCase):
         self.mock_remove_message_from_s3.assert_called_once()
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
-        assert self.ra.last_used_at.date() == datetime.today().date()
+        assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
 
     def test_unsuccessful_email_relay_message_not_removed_from_s3(self):
         self.mock_send_raw_email.side_effect = ClientError(
