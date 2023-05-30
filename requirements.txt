@@ -34,7 +34,7 @@ twilio==8.2.1
 vobject==0.9.6.1
 
 # tests
-coverage==7.2.6
+coverage==7.2.7
 model-bakery==1.11.0
 pytest-cov==4.1.0
 pytest-django==4.5.2
@@ -45,10 +45,10 @@ black==23.3.0
 
 # type hinting
 mypy==1.3.0
-types-requests==2.31.0.0
+types-requests==2.31.0.1
 types-pyOpenSSL==23.1.0.3
 django-stubs==4.2.0
 djangorestframework-stubs==3.14.0
 boto3-stubs==1.26.142
-botocore-stubs==1.29.141
+botocore-stubs==1.29.142
 mypy-boto3-ses==1.26.0.post1
