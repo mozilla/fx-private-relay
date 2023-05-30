@@ -61,4 +61,4 @@ class EmailsConfig(AppConfig):
         return terms
 
     def ready(self):
-        import emails.signals
+        import emails.signals  # noqa: F401 (imported but unused warning)
