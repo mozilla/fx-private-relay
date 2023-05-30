@@ -118,26 +118,27 @@ class SNSNotificationTest(TestCase):
         self.addCleanup(patcher.stop)
 
         patcher2 = patch(
-            "emails.views.ses_relay_email",
+            "emails.utils.ses_send_raw_email",
             return_value=HttpResponse("Successfully relayed emails"),
         )
-        self.mock_ses_relay_email = patcher2.start()
+        self.mock_ses_send_raw_email = patcher2.start()
         self.addCleanup(patcher2.stop)
 
     @override_settings(RELAY_FROM_ADDRESS="reply@relay.example.com")
     def test_single_recipient_sns_notification(self):
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
 
-        self.mock_ses_relay_email.assert_called_once()
+        self.mock_ses_send_raw_email.assert_called_once()
         (
             from_address,
             to_address,
             subject,
             message_body,
             attachments,
+            reply_address,
             mail,
             address,
-        ) = self.mock_ses_relay_email.call_args[0]
+        ) = self.mock_ses_send_raw_email.call_args[0]
         assert from_address == (
             "=?utf-8?q?=22fxastage=40protonmail=2Ecom_=5Bvia_Relay=5D=22?="
             " <reply@relay.example.com>"
@@ -146,6 +147,7 @@ class SNSNotificationTest(TestCase):
         assert subject == "localized email header + footer"
         assert sorted(message_body.keys()) == ["Html", "Text"]
         assert attachments == []
+        assert reply_address
         assert sorted(mail.keys()) == [
             "commonHeaders",
             "destination",
@@ -165,7 +167,7 @@ class SNSNotificationTest(TestCase):
         """By default, list emails should still forward."""
         _sns_notification(EMAIL_SNS_BODIES["single_recipient_list"])
 
-        self.mock_ses_relay_email.assert_called_once()
+        self.mock_ses_send_raw_email.assert_called_once()
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at.date() == datetime.today().date()
@@ -179,7 +181,7 @@ class SNSNotificationTest(TestCase):
 
         _sns_notification(EMAIL_SNS_BODIES["single_recipient_list"])
 
-        self.mock_ses_relay_email.assert_not_called()
+        self.mock_ses_send_raw_email.assert_not_called()
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 0
         assert self.ra.num_blocked == 1
@@ -188,7 +190,7 @@ class SNSNotificationTest(TestCase):
         """For a default user, spam email will still relay."""
         _sns_notification(EMAIL_SNS_BODIES["spamVerdict_FAIL"])
 
-        self.mock_ses_relay_email.assert_called_once()
+        self.mock_ses_send_raw_email.assert_called_once()
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
 
@@ -199,14 +201,14 @@ class SNSNotificationTest(TestCase):
 
         _sns_notification(EMAIL_SNS_BODIES["spamVerdict_FAIL"])
 
-        self.mock_ses_relay_email.assert_not_called()
+        self.mock_ses_send_raw_email.assert_not_called()
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 0
 
     def test_domain_recipient(self):
         _sns_notification(EMAIL_SNS_BODIES["domain_recipient"])
 
-        self.mock_ses_relay_email.assert_called_once()
+        self.mock_ses_send_raw_email.assert_called_once()
         da = DomainAddress.objects.get(user=self.premium_user, address="wildcard")
         assert da.num_forwarded == 1
         assert da.last_used_at.date() == datetime.today().date()
@@ -214,19 +216,19 @@ class SNSNotificationTest(TestCase):
     def test_successful_email_relay_message_removed_from_s3(self):
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
 
-        self.mock_ses_relay_email.assert_called_once()
+        self.mock_ses_send_raw_email.assert_called_once()
         self.mock_remove_message_from_s3.assert_called_once()
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at.date() == datetime.today().date()
 
     def test_unsuccessful_email_relay_message_not_removed_from_s3(self):
-        self.mock_ses_relay_email.return_value = HttpResponse(
+        self.mock_ses_send_raw_email.return_value = HttpResponse(
             "Failed to relay email", status=500
         )
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
 
-        self.mock_ses_relay_email.assert_called_once()
+        self.mock_ses_send_raw_email.assert_called_once()
         self.mock_remove_message_from_s3.assert_not_called()
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
