@@ -125,10 +125,39 @@ class SNSNotificationTest(TestCase):
         self.mock_ses_relay_email = patcher2.start()
         self.addCleanup(patcher2.stop)
 
+    @override_settings(RELAY_FROM_ADDRESS="reply@relay.example.com")
     def test_single_recipient_sns_notification(self):
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
 
         self.mock_ses_relay_email.assert_called_once()
+        (
+            from_address,
+            to_address,
+            subject,
+            message_body,
+            attachments,
+            mail,
+            address,
+        ) = self.mock_ses_relay_email.call_args[0]
+        assert from_address == (
+            "=?utf-8?q?=22fxastage=40protonmail=2Ecom_=5Bvia_Relay=5D=22?="
+            " <reply@relay.example.com>"
+        )
+        assert to_address == ""
+        assert subject == "localized email header + footer"
+        assert sorted(message_body.keys()) == ["Html", "Text"]
+        assert attachments == []
+        assert sorted(mail.keys()) == [
+            "commonHeaders",
+            "destination",
+            "headers",
+            "headersTruncated",
+            "messageId",
+            "source",
+            "timestamp",
+        ]
+        assert address == self.ra
+
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at.date() == datetime.today().date()
