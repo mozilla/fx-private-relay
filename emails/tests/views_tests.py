@@ -101,6 +101,7 @@ for email_file in glob.glob(
 FAIL_TEST_IF_CALLED = Exception("This function should not have been called.")
 
 
+@override_settings(RELAY_FROM_ADDRESS="reply@relay.example.com")
 class SNSNotificationTest(TestCase):
     def setUp(self):
         self.user = baker.make(User, email="user@example.com")
@@ -142,7 +143,6 @@ class SNSNotificationTest(TestCase):
             headers[key] = val
         raise Exception("Never found message body!")
 
-    @override_settings(RELAY_FROM_ADDRESS="reply@relay.example.com")
     def test_single_recipient_sns_notification(self) -> None:
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
 
@@ -156,14 +156,15 @@ class SNSNotificationTest(TestCase):
         )
         assert destinations == ["user@example.com"]
         headers = self.get_headers_from_raw_message(raw_message)
-        expected = ["Content-Type", "From", "MIME-Version", "Reply-To", "Subject", "To"]
-        assert sorted(headers.keys()) == expected
-        assert headers["Content-Type"].startswith('multipart/mixed; boundary="========')
-        assert headers["MIME-Version"] == "1.0"
-        assert headers["Subject"] == "localized email header + footer"
-        assert headers["From"] == source
-        assert headers["To"] == "user@example.com"
-        assert headers["Reply-To"] == "replies@default.com"
+        content_type = headers.pop("Content-Type")
+        assert content_type.startswith('multipart/mixed; boundary="========')
+        assert headers == {
+            "Subject": "localized email header + footer",
+            "MIME-Version": "1.0",
+            "From": source,
+            "To": "user@example.com",
+            "Reply-To": "replies@default.com",
+        }
 
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
@@ -174,6 +175,20 @@ class SNSNotificationTest(TestCase):
         _sns_notification(EMAIL_SNS_BODIES["single_recipient_list"])
 
         self.mock_send_raw_email.assert_called_once()
+        raw_message = self.mock_send_raw_email.call_args[1]["RawMessage"]["Data"]
+        headers = self.get_headers_from_raw_message(raw_message)
+        assert headers == {
+            "Content-Type": headers["Content-Type"],
+            "Subject": "localized email header + footer",
+            "MIME-Version": "1.0",
+            "From": (
+                "=?utf-8?q?=22fxastage=40protonmail=2Ecom_=5Bvia_Relay=5D=22?="
+                " <reply@relay.example.com>"
+            ),
+            "To": "user@example.com",
+            "Reply-To": "replies@default.com",
+        }
+
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
@@ -215,6 +230,20 @@ class SNSNotificationTest(TestCase):
         _sns_notification(EMAIL_SNS_BODIES["domain_recipient"])
 
         self.mock_send_raw_email.assert_called_once()
+        raw_message = self.mock_send_raw_email.call_args[1]["RawMessage"]["Data"]
+        headers = self.get_headers_from_raw_message(raw_message)
+        assert headers == {
+            "Content-Type": headers["Content-Type"],
+            "Subject": "localized email header + footer",
+            "MIME-Version": "1.0",
+            "From": (
+                "=?utf-8?q?=22fxastage=40protonmail=2Ecom_=5Bvia_Relay=5D=22?="
+                " <replies@default.com>"
+            ),
+            "To": "premium@email.com",
+            "Reply-To": "replies@default.com",
+        }
+
         da = DomainAddress.objects.get(user=self.premium_user, address="wildcard")
         assert da.num_forwarded == 1
         assert da.last_used_at
