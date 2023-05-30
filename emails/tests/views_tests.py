@@ -162,7 +162,7 @@ class SNSNotificationTest(TestCase):
         assert self.ra.last_used_at.date() == datetime.today().date()
 
     def test_list_email_sns_notification(self):
-        # by default, list emails should still forward
+        """By default, list emails should still forward."""
         _sns_notification(EMAIL_SNS_BODIES["single_recipient_list"])
 
         self.mock_ses_relay_email.assert_called_once()
@@ -171,7 +171,7 @@ class SNSNotificationTest(TestCase):
         assert self.ra.last_used_at.date() == datetime.today().date()
 
     def test_block_list_email_sns_notification(self):
-        # when an alias is blocking list emails, list emails should not forward
+        """When an alias is blocking list emails, list emails should not forward."""
         self.ra.user = self.premium_user
         self.ra.save()
         self.ra.block_list_emails = True
@@ -185,7 +185,7 @@ class SNSNotificationTest(TestCase):
         assert self.ra.num_blocked == 1
 
     def test_spamVerdict_FAIL_default_still_relays(self):
-        # for a default user, spam email will still relay
+        """For a default user, spam email will still relay."""
         _sns_notification(EMAIL_SNS_BODIES["spamVerdict_FAIL"])
 
         self.mock_ses_relay_email.assert_called_once()
@@ -193,7 +193,7 @@ class SNSNotificationTest(TestCase):
         assert self.ra.num_forwarded == 1
 
     def test_spamVerdict_FAIL_auto_block_doesnt_relay(self):
-        # when user has auto_block_spam=True, spam will not relay
+        """When a user has auto_block_spam=True, spam will not relay."""
         self.profile.auto_block_spam = True
         self.profile.save()
 
