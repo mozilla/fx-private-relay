@@ -47,7 +47,10 @@ info_logger = logging.getLogger("eventsinfo")
 study_logger = logging.getLogger("studymetrics")
 metrics = markus.get_metrics("fx-private-relay")
 
-shavar_prod_lists_url = "https://raw.githubusercontent.com/mozilla-services/shavar-prod-lists/master/disconnect-blacklist.json"
+shavar_prod_lists_url = (
+    "https://raw.githubusercontent.com/mozilla-services/shavar-prod-lists/"
+    "master/disconnect-blacklist.json"
+)
 EMAILS_FOLDER_PATH = pathlib.Path(__file__).parent
 TRACKER_FOLDER_PATH = EMAILS_FOLDER_PATH / "tracker_lists"
 
@@ -161,7 +164,10 @@ def _get_hero_img_src(lang_code):
     if major_lang in avail_l10n_image_codes:
         img_locale = major_lang
 
-    return f"{settings.SITE_ORIGIN}/static/images/email-images/first-time-user/hero-image-{img_locale}.png"
+    return (
+        settings.SITE_ORIGIN
+        + f"/static/images/email-images/first-time-user/hero-image-{img_locale}.png"
+    )
 
 
 def get_welcome_email(request: HttpRequest, format: str) -> str:
