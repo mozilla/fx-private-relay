@@ -2,7 +2,8 @@ from base64 import b64decode
 from copy import deepcopy
 from datetime import datetime, timezone
 from email.message import EmailMessage
-from unittest.mock import patch
+from unittest.mock import patch, Mock
+from uuid import uuid4
 import glob
 import io
 import json
@@ -102,7 +103,7 @@ FAIL_TEST_IF_CALLED = Exception("This function should not have been called.")
 
 class SNSNotificationTest(TestCase):
     def setUp(self):
-        self.user = baker.make(User)
+        self.user = baker.make(User, email="user@example.com")
         self.profile = self.user.profile
         self.sa = baker.make(SocialAccount, user=self.user, provider="fxa")
         self.ra = baker.make(
@@ -117,47 +118,52 @@ class SNSNotificationTest(TestCase):
         self.mock_remove_message_from_s3 = patcher.start()
         self.addCleanup(patcher.stop)
 
-        patcher2 = patch(
-            "emails.utils.ses_send_raw_email",
-            return_value=HttpResponse("Successfully relayed emails"),
+        self.mock_send_raw_email = Mock(
+            spec_set=[], return_value={"MessageId": str(uuid4())}
         )
-        self.mock_ses_send_raw_email = patcher2.start()
+        patcher2 = patch(
+            "emails.apps.EmailsConfig.ses_client",
+            spec_set=["send_raw_email"],
+            send_raw_email=self.mock_send_raw_email,
+        )
+        patcher2.start()
         self.addCleanup(patcher2.stop)
+
+    def get_headers_from_raw_message(self, raw_message: str) -> dict[str, str]:
+        """Get headers from a raw email message (RFC 5322)"""
+        headers: dict[str, str] = {}
+        for line in raw_message.splitlines():
+            if not line:
+                # Start of message body, done with headers
+                return headers
+            assert ": " in line
+            key, val = line.split(": ", 1)
+            assert key not in headers
+            headers[key] = val
+        raise Exception("Never found message body!")
 
     @override_settings(RELAY_FROM_ADDRESS="reply@relay.example.com")
     def test_single_recipient_sns_notification(self):
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
 
-        self.mock_ses_send_raw_email.assert_called_once()
-        (
-            from_address,
-            to_address,
-            subject,
-            message_body,
-            attachments,
-            reply_address,
-            mail,
-            address,
-        ) = self.mock_ses_send_raw_email.call_args[0]
-        assert from_address == (
+        self.mock_send_raw_email.assert_called_once()
+        source = self.mock_send_raw_email.call_args[1]["Source"]
+        destinations = self.mock_send_raw_email.call_args[1]["Destinations"]
+        raw_message = self.mock_send_raw_email.call_args[1]["RawMessage"]["Data"]
+        assert source == (
             "=?utf-8?q?=22fxastage=40protonmail=2Ecom_=5Bvia_Relay=5D=22?="
             " <reply@relay.example.com>"
         )
-        assert to_address == ""
-        assert subject == "localized email header + footer"
-        assert sorted(message_body.keys()) == ["Html", "Text"]
-        assert attachments == []
-        assert reply_address
-        assert sorted(mail.keys()) == [
-            "commonHeaders",
-            "destination",
-            "headers",
-            "headersTruncated",
-            "messageId",
-            "source",
-            "timestamp",
-        ]
-        assert address == self.ra
+        assert destinations == ["user@example.com"]
+        headers = self.get_headers_from_raw_message(raw_message)
+        expected = ["Content-Type", "From", "MIME-Version", "Reply-To", "Subject", "To"]
+        assert sorted(headers.keys()) == expected
+        assert headers["Content-Type"].startswith('multipart/mixed; boundary="========')
+        assert headers["MIME-Version"] == "1.0"
+        assert headers["Subject"] == "localized email header + footer"
+        assert headers["From"] == source
+        assert headers["To"] == "user@example.com"
+        assert headers["Reply-To"] == "replies@default.com"
 
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
@@ -167,7 +173,7 @@ class SNSNotificationTest(TestCase):
         """By default, list emails should still forward."""
         _sns_notification(EMAIL_SNS_BODIES["single_recipient_list"])
 
-        self.mock_ses_send_raw_email.assert_called_once()
+        self.mock_send_raw_email.assert_called_once()
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at.date() == datetime.today().date()
@@ -181,7 +187,7 @@ class SNSNotificationTest(TestCase):
 
         _sns_notification(EMAIL_SNS_BODIES["single_recipient_list"])
 
-        self.mock_ses_send_raw_email.assert_not_called()
+        self.mock_send_raw_email.assert_not_called()
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 0
         assert self.ra.num_blocked == 1
@@ -190,7 +196,7 @@ class SNSNotificationTest(TestCase):
         """For a default user, spam email will still relay."""
         _sns_notification(EMAIL_SNS_BODIES["spamVerdict_FAIL"])
 
-        self.mock_ses_send_raw_email.assert_called_once()
+        self.mock_send_raw_email.assert_called_once()
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
 
@@ -201,14 +207,14 @@ class SNSNotificationTest(TestCase):
 
         _sns_notification(EMAIL_SNS_BODIES["spamVerdict_FAIL"])
 
-        self.mock_ses_send_raw_email.assert_not_called()
+        self.mock_send_raw_email.assert_not_called()
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 0
 
     def test_domain_recipient(self):
         _sns_notification(EMAIL_SNS_BODIES["domain_recipient"])
 
-        self.mock_ses_send_raw_email.assert_called_once()
+        self.mock_send_raw_email.assert_called_once()
         da = DomainAddress.objects.get(user=self.premium_user, address="wildcard")
         assert da.num_forwarded == 1
         assert da.last_used_at.date() == datetime.today().date()
@@ -216,23 +222,25 @@ class SNSNotificationTest(TestCase):
     def test_successful_email_relay_message_removed_from_s3(self):
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
 
-        self.mock_ses_send_raw_email.assert_called_once()
+        self.mock_send_raw_email.assert_called_once()
         self.mock_remove_message_from_s3.assert_called_once()
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at.date() == datetime.today().date()
 
     def test_unsuccessful_email_relay_message_not_removed_from_s3(self):
-        self.mock_ses_send_raw_email.return_value = HttpResponse(
-            "Failed to relay email", status=500
+        self.mock_send_raw_email.side_effect = ClientError(
+            error_response={"Error": {"Code": "the code", "Message": "the message"}},
+            operation_name="SES.send_raw_email",
         )
-        _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
+        response = _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
+        assert response.status_code == 503
 
-        self.mock_ses_send_raw_email.assert_called_once()
+        self.mock_send_raw_email.assert_called_once()
         self.mock_remove_message_from_s3.assert_not_called()
         self.ra.refresh_from_db()
-        assert self.ra.num_forwarded == 1
-        assert self.ra.last_used_at.date() == datetime.today().date()
+        assert self.ra.num_forwarded == 0
+        assert self.ra.last_used_at is None
 
 
 class BounceHandlingTest(TestCase):
