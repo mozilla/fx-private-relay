@@ -130,8 +130,10 @@ class SNSNotificationTest(TestCase):
         send_raw_email_patcher.start()
         self.addCleanup(send_raw_email_patcher.stop)
 
-    def get_headers_from_raw_message(self, raw_message: str) -> dict[str, str]:
-        """Get headers from a raw email message (RFC 5322)"""
+    def get_headers_from_mock_send_raw_email(self) -> dict[str, str]:
+        """Get headers from the message sent by mocked ses_client.send_raw_email"""
+        self.mock_send_raw_email.assert_called_once()
+        raw_message = self.mock_send_raw_email.call_args[1]["RawMessage"]["Data"]
         headers: dict[str, str] = {}
         for line in raw_message.splitlines():
             if not line:
@@ -146,16 +148,14 @@ class SNSNotificationTest(TestCase):
     def test_single_recipient_sns_notification(self) -> None:
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
 
-        self.mock_send_raw_email.assert_called_once()
+        headers = self.get_headers_from_mock_send_raw_email()
         source = self.mock_send_raw_email.call_args[1]["Source"]
         destinations = self.mock_send_raw_email.call_args[1]["Destinations"]
-        raw_message = self.mock_send_raw_email.call_args[1]["RawMessage"]["Data"]
         assert source == (
             "=?utf-8?q?=22fxastage=40protonmail=2Ecom_=5Bvia_Relay=5D=22?="
             " <reply@relay.example.com>"
         )
         assert destinations == ["user@example.com"]
-        headers = self.get_headers_from_raw_message(raw_message)
         content_type = headers.pop("Content-Type")
         assert content_type.startswith('multipart/mixed; boundary="========')
         assert headers == {
@@ -174,9 +174,7 @@ class SNSNotificationTest(TestCase):
         """By default, list emails should still forward."""
         _sns_notification(EMAIL_SNS_BODIES["single_recipient_list"])
 
-        self.mock_send_raw_email.assert_called_once()
-        raw_message = self.mock_send_raw_email.call_args[1]["RawMessage"]["Data"]
-        headers = self.get_headers_from_raw_message(raw_message)
+        headers = self.get_headers_from_mock_send_raw_email()
         assert headers == {
             "Content-Type": headers["Content-Type"],
             "Subject": "localized email header + footer",
@@ -229,9 +227,7 @@ class SNSNotificationTest(TestCase):
     def test_domain_recipient(self) -> None:
         _sns_notification(EMAIL_SNS_BODIES["domain_recipient"])
 
-        self.mock_send_raw_email.assert_called_once()
-        raw_message = self.mock_send_raw_email.call_args[1]["RawMessage"]["Data"]
-        headers = self.get_headers_from_raw_message(raw_message)
+        headers = self.get_headers_from_mock_send_raw_email()
         assert headers == {
             "Content-Type": headers["Content-Type"],
             "Subject": "localized email header + footer",
@@ -306,12 +302,10 @@ class SNSNotificationTest(TestCase):
         response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
         assert response.status_code == 200
 
-        self.mock_send_raw_email.assert_called_once()
         self.mock_remove_message_from_s3.assert_called_once()
         mock_get_content.assert_called_once()
 
-        raw_message = self.mock_send_raw_email.call_args[1]["RawMessage"]["Data"]
-        headers = self.get_headers_from_raw_message(raw_message)
+        headers = self.get_headers_from_mock_send_raw_email()
         assert headers == {
             "Content-Type": headers["Content-Type"],
             "Subject": "Re: Test Mozilla User New Domain Address",
