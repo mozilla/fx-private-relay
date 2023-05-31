@@ -115,20 +115,20 @@ class SNSNotificationTest(TestCase):
         self.premium_profile.subdomain = "subdomain"
         self.premium_profile.save()
 
-        patcher = patch("emails.views.remove_message_from_s3")
-        self.mock_remove_message_from_s3 = patcher.start()
-        self.addCleanup(patcher.stop)
+        remove_s3_patcher = patch("emails.views.remove_message_from_s3")
+        self.mock_remove_message_from_s3 = remove_s3_patcher.start()
+        self.addCleanup(remove_s3_patcher.stop)
 
         self.mock_send_raw_email = Mock(
             spec_set=[], return_value={"MessageId": str(uuid4())}
         )
-        patcher2 = patch(
+        send_raw_email_patcher = patch(
             "emails.apps.EmailsConfig.ses_client",
             spec_set=["send_raw_email"],
             send_raw_email=self.mock_send_raw_email,
         )
-        patcher2.start()
-        self.addCleanup(patcher2.stop)
+        send_raw_email_patcher.start()
+        self.addCleanup(send_raw_email_patcher.stop)
 
     def get_headers_from_raw_message(self, raw_message: str) -> dict[str, str]:
         """Get headers from a raw email message (RFC 5322)"""
