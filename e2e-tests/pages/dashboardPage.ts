@@ -194,14 +194,16 @@ export class DashboardPage {
         await this.generateMask(1)
         const generatedMaskEmail = await this.maskCardGeneratedEmail.textContent()
 
+        // TODO: Replace with a page under control of Relay team
         await this.page.goto("https://monitor.firefox.com/", { waitUntil: 'networkidle' })
 
-        const monitorLoginButton = this.page.getByRole('link', { name: 'Get started' })
-        await monitorLoginButton.first().click()
-        const monitorEmailInput = this.page.locator('.input-text')
-        const submitButton = this.page.locator('#submit-btn')
+        const monitorEmailInput = this.page.locator('#scan-email-address')
+        const submitButton = this.page.locator('button.primary')
         await monitorEmailInput.fill(generatedMaskEmail as string)
         await submitButton.click()
+
+        const signupButton = this.page.locator('button.primary')
+        await signupButton.click()
 
         const passwordInputField = this.page.locator('#password');
         const passwordConfirmInputField = this.page.locator('#vpassword');
