@@ -272,6 +272,61 @@ class SNSNotificationTest(TestCase):
         assert self.ra.num_forwarded == 0
         assert self.ra.last_used_at is None
 
+    @patch("emails.views._get_text_html_attachments")
+    def test_reply(self, mock_get_content) -> None:
+        """The headers of a reply refer to the Relay mask."""
+
+        # Create a premium user matching the s3_stored_replies sender
+        user = baker.make(User, email="source@sender.com")
+        user.profile.server_storage = True
+        user.profile.date_subscribed = datetime.now(tz=timezone.utc)
+        user.profile.save()
+        upgrade_test_user_to_premium(user)
+
+        # Create a Reply record matching the s3_stored_replies headers
+        lookup_key, encryption_key = derive_reply_keys(
+            get_message_id_bytes("CA+J4FJFw0TXCr63y9dGcauvCGaZ7pXxspzOjEDhRpg5Zh4ziWg")
+        )
+        metadata = {
+            "message-id": str(uuid4()),
+            "from": "sender@external.example.com",
+        }
+        encrypted_metadata = encrypt_reply_metadata(encryption_key, metadata)
+        relay_address = baker.make(RelayAddress, user=user, address="a1b2c3d4")
+        Reply.objects.create(
+            lookup=b64_lookup_key(lookup_key),
+            encrypted_metadata=encrypted_metadata,
+            relay_address=relay_address,
+        )
+
+        # Mock loading a simple reply email message from S3
+        mock_get_content.return_value = ("this is a text reply", None, [], None)
+
+        # Successfully reply to a previous sender
+        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
+        assert response.status_code == 200
+
+        self.mock_send_raw_email.assert_called_once()
+        self.mock_remove_message_from_s3.assert_called_once()
+        mock_get_content.assert_called_once()
+
+        raw_message = self.mock_send_raw_email.call_args[1]["RawMessage"]["Data"]
+        headers = self.get_headers_from_raw_message(raw_message)
+        assert headers == {
+            "Content-Type": headers["Content-Type"],
+            "Subject": "Re: Test Mozilla User New Domain Address",
+            "MIME-Version": "1.0",
+            "From": "a1b2c3d4@test.com",
+            "Reply-To": "a1b2c3d4@test.com",
+            "To": "sender@external.example.com",
+        }
+
+        relay_address.refresh_from_db()
+        assert relay_address.num_replied == 1
+        last_used_at = relay_address.last_used_at
+        assert last_used_at
+        assert (datetime.now(tz=timezone.utc) - last_used_at).seconds < 2.0
+
 
 class BounceHandlingTest(TestCase):
     def setUp(self):
