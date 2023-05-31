@@ -327,7 +327,7 @@ class RemoveTrackers(TestCase):
 
         expected_content = (
             f"<a href='{self.url}"
-            "{self.url_trackerwarning_data(self.hyperlink_tracker_in_tracker)}'>"
+            f"{self.url_trackerwarning_data(self.hyperlink_tracker_in_tracker)}'>"
             "trckr.com</a>"
         )
         assert changed_content == expected_content
