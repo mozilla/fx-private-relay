@@ -257,20 +257,20 @@ def _start_message_with_headers(
 def _add_body_to_message(
     msg: MIMEMultipart, message_body: MessageBody
 ) -> MIMEMultipart:
-    charset = "UTF-8"
     # Create a multipart/alternative child container.
     msg_body = MIMEMultipart("alternative")
 
-    # Encode the text and HTML content and set the character encoding.
-    # This step is necessary if you're sending a message with characters
-    # outside the ASCII range.
     if "Text" in message_body:
         body_text = message_body["Text"]["Data"]
-        textpart = MIMEText(body_text.encode(charset), "plain", charset)  # type: ignore
+        # Let MIMEText determine if us-ascii encoding will work
+        textpart = MIMEText(body_text, "plain")
         msg_body.attach(textpart)
     if "Html" in message_body:
         body_html = message_body["Html"]["Data"]
-        htmlpart = MIMEText(body_html.encode(charset), "html", charset)  # type: ignore
+        # Our translated strings contain U+2068 (First Strong Isolate) and
+        # U+2069 (Pop Directional Isolate), us-ascii will not work
+        # so save time by suggesting utf-8 encoding
+        htmlpart = MIMEText(body_html, "html", "utf-8")
         msg_body.attach(htmlpart)
 
     # Attach the multipart/alternative child container to the multipart/mixed
