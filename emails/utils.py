@@ -26,7 +26,7 @@ from waffle.models import Flag
 
 from django.apps import apps
 from django.conf import settings
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
 from django.http import HttpResponse
 from django.template.defaultfilters import linebreaksbr, urlize
 
@@ -170,11 +170,11 @@ def _get_hero_img_src(lang_code):
     )
 
 
-def get_welcome_email(request: HttpRequest, format: str) -> str:
+def get_welcome_email(request: HttpRequest, user: User, format: str) -> str:
     bundle_plans = get_countries_info_from_request_and_mapping(
         request, settings.BUNDLE_PLAN_COUNTRY_LANG_MAPPING
     )
-    lang_code = request.LANGUAGE_CODE
+    lang_code = user.profile.language
     hero_img_src = _get_hero_img_src(lang_code)
     return render_to_string(
         f"emails/first_time_user.{format}",
