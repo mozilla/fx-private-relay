@@ -161,7 +161,7 @@ if DJANGO_ALLOWED_SUBNET:
 ADMIN_ENABLED = config("ADMIN_ENABLED", False, cast=bool)
 
 
-AWS_REGION = config("AWS_REGION", None)
+AWS_REGION: str | None = config("AWS_REGION", None)
 AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID", None)
 AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY", None)
 AWS_SNS_TOPIC = set(config("AWS_SNS_TOPIC", "", cast=Csv()))
@@ -335,7 +335,7 @@ TEMPLATES = [
 
 RELAY_FIREFOX_DOMAIN = config("RELAY_FIREFOX_DOMAIN", "relay.firefox.com", cast=str)
 MOZMAIL_DOMAIN = config("MOZMAIL_DOMAIN", "mozmail.com", cast=str)
-MAX_NUM_FREE_ALIASES = config("MAX_NUM_FREE_ALIASES", 5, cast=int)
+MAX_NUM_FREE_ALIASES: int = config("MAX_NUM_FREE_ALIASES", 5, cast=int)
 PERIODICAL_PREMIUM_PROD_ID = config("PERIODICAL_PREMIUM_PROD_ID", "", cast=str)
 PREMIUM_PLAN_ID_US_MONTHLY = config(
     "PREMIUM_PLAN_ID_US_MONTHLY", "price_1LXUcnJNcmPzuWtRpbNOajYS", cast=str
@@ -788,7 +788,7 @@ FXA_SETTINGS_URL = config("FXA_SETTINGS_URL", f"{FXA_BASE_ORIGIN}/settings")
 FXA_SUBSCRIPTIONS_URL = config(
     "FXA_SUBSCRIPTIONS_URL", f"{FXA_BASE_ORIGIN}/subscriptions"
 )
-# check https://mozilla.github.io/ecosystem-platform/api#tag/Subscriptions/operation/getOauthMozillasubscriptionsCustomerBillingandsubscriptions
+# check https://mozilla.github.io/ecosystem-platform/api#tag/Subscriptions/operation/getOauthMozillasubscriptionsCustomerBillingandsubscriptions  # noqa: E501 (line too long)
 FXA_ACCOUNTS_ENDPOINT = config(
     "FXA_ACCOUNTS_ENDPOINT",
     "https://api.accounts.firefox.com/v1",
