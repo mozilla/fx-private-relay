@@ -703,6 +703,9 @@ LANGUAGE_CODE = "en"
 LANGUAGES = DEFAULT_LANGUAGES + [
     ("zh-tw", "Chinese"),
     ("zh-cn", "Chinese"),
+    ("es-es", "Spanish"),
+    ("pt-pt", "Portuguese"),
+    ("skr", "Saraiki"),
 ]
 
 TIME_ZONE = "UTC"
