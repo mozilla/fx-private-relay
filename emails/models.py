@@ -14,7 +14,6 @@ from django.core.exceptions import BadRequest
 from django.core.validators import MinLengthValidator
 from django.db import models, transaction
 from django.dispatch import receiver
-from django.utils.functional import cached_property
 from django.utils.translation.trans_real import (
     parse_accept_lang_header,
     get_supported_language_variant,
@@ -195,19 +194,26 @@ class Profile(models.Model):
     def avatar(self):
         return self.fxa.extra_data.get("avatar")
 
-    @cached_property
+    @property
     def relay_addresses(self):
-        # TODO: Remove cached_property, to avoid cache invalidation
         return RelayAddress.objects.filter(user=self.user)
 
-    @cached_property
+    @property
     def domain_addresses(self):
-        # TODO: Remove cached_property, to avoid cache invalidation
         return DomainAddress.objects.filter(user=self.user)
 
     @property
-    def num_active_address(self):
-        return len(self.relay_addresses) + len(self.domain_addresses)
+    def total_masks(self) -> int:
+        ra_count: int = self.relay_addresses.count()
+        da_count: int = self.domain_addresses.count()
+        return ra_count + da_count
+
+    @property
+    def at_mask_limit(self) -> bool:
+        if self.has_premium:
+            return False
+        ra_count: int = self.relay_addresses.count()
+        return ra_count >= settings.MAX_NUM_FREE_ALIASES
 
     def check_bounce_pause(self):
         if self.last_hard_bounce:
@@ -255,8 +261,8 @@ class Profile(models.Model):
         return None
 
     @property
-    def at_max_free_aliases(self):
-        relay_addresses_count = len(self.relay_addresses)
+    def at_max_free_aliases(self) -> bool:
+        relay_addresses_count: int = self.relay_addresses.count()
         return relay_addresses_count >= settings.MAX_NUM_FREE_ALIASES
 
     @property
