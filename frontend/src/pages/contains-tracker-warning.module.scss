@@ -7,8 +7,8 @@
   .warning-banner-wrapper {
     display: flex;
     gap: 10px;
-    background-color: #ffffff;
-    padding: 24px 16px;
+    background-color: $color-white;
+    padding: $spacing-lg $spacing-md;
     border-radius: $border-radius-sm;
     box-shadow: $box-shadow-sm;
     justify-content: space-between;
@@ -92,6 +92,7 @@
     flex-direction: column;
 
     .lead {
+      // flex value is 0.35 to make sure the text is not too wide and to reflect design specs
       flex: 0.35;
 
       @media screen and #{$mq-md} {

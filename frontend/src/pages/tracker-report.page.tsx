@@ -182,6 +182,21 @@ const TrackerReport: NextPage = () => {
               <FaqAccordionItem
                 entries={[
                   {
+                    q: l10n.getString("faq-question-define-tracker-question"),
+                    a: (
+                      <p>
+                        {l10n.getString(
+                          "faq-question-define-tracker-answer-partone"
+                        )}
+                        <br />
+                        <br />
+                        {l10n.getString(
+                          "faq-question-define-tracker-answer-parttwo"
+                        )}
+                      </p>
+                    ),
+                  },
+                  {
                     q: l10n.getString(
                       "faq-question-disable-trackerremoval-question"
                     ),
