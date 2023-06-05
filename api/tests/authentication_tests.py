@@ -342,7 +342,6 @@ class FxaTokenAuthenticationTest(TestCase):
 
     @responses.activate()
     def test_200_resp_from_fxa_for_user_returns_user_and_caches(self):
-        # TODO: this test errors because I have commented out the caching on authenticate
         self.sa = baker.make(SocialAccount, uid=self.uid, provider="fxa")
         user_token = "user-123"
         client = APIClient()
