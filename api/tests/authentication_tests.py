@@ -15,6 +15,7 @@ from rest_framework.exceptions import (
 )
 from rest_framework.test import APIClient
 
+from api import authentication
 from ..authentication import (
     FxaTokenAuthentication,
     get_cache_key,
@@ -27,27 +28,19 @@ MOCK_BASE = "api.authentication"
 
 
 def _setup_fxa_response(status_code: int, json: dict | str):
-    fxa_verify_path = "https://oauth.stage.mozaws.net/v1/introspect"
-    responses.add(responses.POST, fxa_verify_path, status=status_code, json=json)
-    return {"status_code": status_code, "json": json}
-
-
-def _setup_fxa_response_request_exception(status_code: int, json: dict | str):
-    fxa_verify_path = "https://oauth.stage.mozaws.net/v1/introspect"
-    resp = responses.Response(
-        method="POST",
-        url=fxa_verify_path,
-        body=Timeout(),
+    responses.add(
+        responses.POST,
+        authentication.INTROSPECT_TOKEN_URL,
         status=status_code,
         json=json,
     )
-    responses.add(resp)
-    return {"status_code": status_code}
+    return {"status_code": status_code, "json": json}
 
 
 def _setup_fxa_response_no_json(status_code: int):
-    fxa_verify_path = "https://oauth.stage.mozaws.net/v1/introspect"
-    responses.add(responses.POST, fxa_verify_path, status=status_code)
+    responses.add(
+        responses.POST, authentication.INTROSPECT_TOKEN_URL, status=status_code
+    )
     return {"status_code": status_code}
 
 
@@ -56,7 +49,7 @@ class AuthenticationMiscellaneous(TestCase):
         self.auth = FxaTokenAuthentication
         self.factory = RequestFactory()
         self.path = "/api/v1/relayaddresses"
-        self.fxa_verify_path = "https://oauth.stage.mozaws.net/v1/introspect"
+        self.fxa_verify_path = authentication.INTROSPECT_TOKEN_URL
         self.uid = "relay-user-fxa-uid"
 
     def tearDown(self):
@@ -69,7 +62,7 @@ class AuthenticationMiscellaneous(TestCase):
         cache_key = get_cache_key(invalid_token)
 
         try:
-            introspect_token(cache_key, invalid_token)
+            introspect_token(invalid_token)
         except AuthenticationFailed as e:
             assert str(e.detail) == "JSONDecodeError from FXA introspect response"
             assert responses.assert_call_count(self.fxa_verify_path, 1) is True
@@ -90,7 +83,7 @@ class AuthenticationMiscellaneous(TestCase):
 
         assert cache.get(cache_key) is None
 
-        fxa_resp_data = introspect_token(cache_key, valid_token)
+        fxa_resp_data = introspect_token(valid_token)
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
         assert fxa_resp_data == expected_fxa_resp_data
 
@@ -244,7 +237,7 @@ class FxaTokenAuthenticationTest(TestCase):
         self.auth = FxaTokenAuthentication
         self.factory = RequestFactory()
         self.path = "/api/v1/relayaddresses"
-        self.fxa_verify_path = "https://oauth.stage.mozaws.net/v1/introspect"
+        self.fxa_verify_path = authentication.INTROSPECT_TOKEN_URL
         self.uid = "relay-user-fxa-uid"
 
     def tearDown(self):

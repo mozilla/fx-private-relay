@@ -28,7 +28,7 @@ def get_cache_key(token):
     return hash(token)
 
 
-def introspect_token(cache_key, token):
+def introspect_token(token):
     try:
         fxa_resp = requests.post(INTROSPECT_TOKEN_URL, json={"token": token})
     except:
@@ -67,7 +67,7 @@ def get_fxa_uid_from_oauth_token(token):
             fxa_resp_data = cached_fxa_resp_data
         else:
             # no cached data, get new
-            fxa_resp_data = introspect_token(cache_key, token)
+            fxa_resp_data = introspect_token(token)
     except AuthenticationFailed:
         raise
     finally:
