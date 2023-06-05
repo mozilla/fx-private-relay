@@ -1,10 +1,11 @@
 import { NextPage } from "next";
+import Image from "next/image";
 import { event as gaEvent } from "react-ga";
 import styles from "./premium.module.scss";
 import { Layout } from "../components/layout/Layout";
 import { useGaViewPing } from "../hooks/gaViewPing";
 import { LinkButton } from "../components/Button";
-import { DemoPhone } from "../components/landing/DemoPhone";
+import HeroImage from "./images/relay-hero-image.svg";
 import { useRuntimeData } from "../hooks/api/runtimeData";
 import {
   isBundleAvailableInCountry,
@@ -61,10 +62,8 @@ const PremiumPromo: NextPage = () => {
             {cta}
             <p>{l10n.getString("premium-promo-availability-warning-2")}</p>
           </div>
-          <div className={styles["demo-phone"]}>
-            <DemoPhone
-              premium={isPeriodicalPremiumAvailableInCountry(runtimeData.data)}
-            />
+          <div className={styles["hero-image"]}>
+            <Image src={HeroImage} alt="" />
           </div>
         </section>
 

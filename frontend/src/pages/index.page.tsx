@@ -7,16 +7,13 @@ import Testimonials from "../../public/images/hero-brands.svg";
 import HowItWorks1 from "../../public/images/how-it-works-1.svg";
 import HowItWorks2 from "../../public/images/how-it-works-2.svg";
 import HowItWorks3 from "../../public/images/how-it-works-3.svg";
+import HeroImage from "./images/relay-hero-image.svg";
 import { useUsers } from "../hooks/api/user";
 import { Layout } from "../components/layout/Layout";
 import { useGaViewPing } from "../hooks/gaViewPing";
 import { LinkButton } from "../components/Button";
-import { DemoPhone } from "../components/landing/DemoPhone";
 import { useRuntimeData } from "../hooks/api/runtimeData";
-import {
-  isBundleAvailableInCountry,
-  isPeriodicalPremiumAvailableInCountry,
-} from "../functions/getPlan";
+import { isBundleAvailableInCountry } from "../functions/getPlan";
 import { FaqAccordionItem } from "../components/landing/FaqAccordion";
 import { Reviews } from "../components/landing/Reviews";
 import { PlanMatrix } from "../components/landing/PlanMatrix";
@@ -64,10 +61,8 @@ const Home: NextPage = () => {
               />
             </div>
           </div>
-          <div className={styles["demo-phone"]}>
-            <DemoPhone
-              premium={isPeriodicalPremiumAvailableInCountry(runtimeData.data)}
-            />
+          <div className={styles["hero-image"]}>
+            <Image src={HeroImage} alt="" />
           </div>
         </section>
         {isBundleAvailableInCountry(runtimeData.data) && (
