@@ -389,11 +389,11 @@ const StepTwo = (props: Step2Props) => {
                 "multi-part-onboarding-premium-email-domain-feature-headline"
               )}
             </span>
-            <p className={styles["description-bolded-headline"]}>
+            <span className={styles["description-bolded-headline"]}>
               {l10n.getString(
                 "multi-part-onboarding-premium-email-domain-headline-create-masks-on-the-go"
               )}
-            </p>
+            </span>
             <br />
             {!showSubdomainConfirmation ? (
               <Localized
@@ -431,11 +431,11 @@ const StepThree = () => {
               {l10n.getString("onboarding-premium-title-detail")}
             </span>
             <br />
-            <p className={styles["description-bolded-headline"]}>
+            <span className={styles["description-bolded-headline"]}>
               {l10n.getString(
                 "multi-part-onboarding-premium-reply-description"
               )}
-            </p>
+            </span>
             <br />
             {l10n.getString("onboarding-premium-reply-description-2")}
           </p>

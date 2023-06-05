@@ -1,3 +1,4 @@
+from copy import deepcopy
 from datetime import datetime, timezone
 from email import message_from_bytes, policy
 from email.mime.multipart import MIMEMultipart
@@ -14,6 +15,7 @@ import shlex
 from tempfile import SpooledTemporaryFile
 from textwrap import dedent
 from typing import Any, Optional
+from urllib.parse import urlencode
 
 from botocore.exceptions import ClientError
 from decouple import strtobool
@@ -79,6 +81,27 @@ class ReplyHeadersNotFound(Exception):
         self.message = message
 
 
+def first_time_user_test(request):
+    """
+    Demonstrate rendering of the "First time Relay user" email.
+    Settings like language can be given in the querystring, otherwise settings
+    come from a random free profile.
+    """
+    in_bundle_country = strtobool(request.GET.get("in_bundle_country", "yes"))
+    email_context = {
+        "in_bundle_country": in_bundle_country,
+        "SITE_ORIGIN": settings.SITE_ORIGIN,
+    }
+    if request.GET.get("format", "html") == "text":
+        return render(
+            request,
+            "emails/first_time_user.txt",
+            email_context,
+            "text/plain; charset=utf-8",
+        )
+    return render(request, "emails/first_time_user.html", email_context)
+
+
 def reply_requires_premium_test(request):
     """
     Demonstrate rendering of the "Reply requires premium" email.
@@ -111,9 +134,7 @@ def wrap_html_email(
     original_html,
     language,
     has_premium,
-    in_premium_country,
     display_email,
-    has_attachment,
     num_level_one_email_trackers_removed=None,
     tracker_report_link=0,
 ):
@@ -122,14 +143,10 @@ def wrap_html_email(
         "original_html": original_html,
         "language": language,
         "has_premium": has_premium,
-        "in_premium_country": in_premium_country,
         "display_email": display_email,
-        "has_attachment": has_attachment,
         "tracker_report_link": tracker_report_link,
         "num_level_one_email_trackers_removed": num_level_one_email_trackers_removed,
         "SITE_ORIGIN": settings.SITE_ORIGIN,
-        "survey_text": settings.RECRUITMENT_EMAIL_BANNER_TEXT,
-        "survey_link": settings.RECRUITMENT_EMAIL_BANNER_LINK,
     }
     return render_to_string("emails/wrapped_email.html", email_context)
 
@@ -142,10 +159,7 @@ def wrapped_email_test(request):
     come from a randomly chosen profile.
     """
 
-    if all(
-        key in request.GET
-        for key in ("language", "has_premium", "in_premium_country", "has_attachment")
-    ):
+    if all(key in request.GET for key in ("language", "has_premium")):
         user_profile = None
     else:
         user_profile = Profile.objects.order_by("?").first()
@@ -162,31 +176,6 @@ def wrapped_email_test(request):
         assert user_profile is not None
         has_premium = user_profile.has_premium
 
-    if "in_premium_country" in request.GET:
-        in_premium_country = strtobool(request.GET["in_premium_country"])
-    else:
-        assert user_profile is not None
-        in_premium_country = user_profile.fxa_locale_in_premium_country
-
-    if "has_attachment" in request.GET:
-        has_attachment = strtobool(request.GET["has_attachment"])
-    else:
-        has_attachment = True
-
-    if "has_tracker_report_link" in request.GET:
-        has_tracker_report_link = strtobool(request.GET["has_tracker_report_link"])
-    else:
-        has_tracker_report_link = False
-    if has_tracker_report_link:
-        tracker_report_link = (
-            "/tracker-report/#{"
-            '"sender": "sender@example.com", '
-            '"received_at": 1658434657, '
-            '"trackers": {"fake-tracker.example.com": 2}}'
-        )
-    else:
-        tracker_report_link = ""
-
     if "num_level_one_email_trackers_removed" in request.GET:
         num_level_one_email_trackers_removed = int(
             request.GET["num_level_one_email_trackers_removed"]
@@ -194,26 +183,90 @@ def wrapped_email_test(request):
     else:
         num_level_one_email_trackers_removed = 0
 
+    if "has_tracker_report_link" in request.GET:
+        has_tracker_report_link = strtobool(request.GET["has_tracker_report_link"])
+    else:
+        has_tracker_report_link = False
+    if has_tracker_report_link:
+        if num_level_one_email_trackers_removed:
+            trackers = {
+                "fake-tracker.example.com": num_level_one_email_trackers_removed
+            }
+        else:
+            trackers = {}
+        tracker_report_link = (
+            "/tracker-report/#{"
+            '"sender": "sender@example.com", '
+            '"received_at": 1658434657, '
+            f'"trackers": { json.dumps(trackers) }'
+            "}"
+        )
+    else:
+        tracker_report_link = ""
+
+    path = "/emails/wrapped_email_test"
+    old_query = {
+        "language": language,
+        "has_premium": "Yes" if has_premium else "No",
+        "has_tracker_report_link": "Yes" if has_tracker_report_link else "No",
+        "num_level_one_email_trackers_removed": str(
+            num_level_one_email_trackers_removed
+        ),
+    }
+
+    def switch_link(key, value):
+        if old_query[key] == value:
+            return str(value)
+        new_query = old_query.copy()
+        new_query[key] = value
+        return f'<a href="{path}?{urlencode(new_query)}">{value}</a>'
+
     html_content = dedent(
         f"""\
     <p>
       <strong>Email rendering Test</strong>
     </p>
-    <p>Settings:</p>
-    <dl>
-      <dt>language</dt>
-        <dd>{escape(language)}</dd>
-      <dt>has_premium</dt>
-        <dd>{"Yes" if has_premium else "No"}</dd>
-      <dt>in_premium_country</dt>
-        <dd>{"Yes" if in_premium_country else "No"}</dd>
-      <dt>has_attachment</dt>
-        <dd>{"Yes" if has_attachment else "No"}</dd>
-      <dt>has_tracker_report_link</dt>
-        <dd>{"Yes" if has_tracker_report_link else "No"}</dd>
-      <dt>has_num_level_one_email_trackers_removed</dt>
-        <dd>{"Yes" if num_level_one_email_trackers_removed else "No"}</dd>
-    </dl>
+    <p>Settings: (<a href="{path}">clear all</a>)</p>
+    <ul>
+      <li>
+        <strong>language</strong>:
+        {escape(language)}
+        (switch to
+        {switch_link("language", "en-us")},
+        {switch_link("language", "de")},
+        {switch_link("language", "en-gb")},
+        {switch_link("language", "fr")},
+        {switch_link("language", "ru-ru")},
+        {switch_link("language", "es-es")},
+        {switch_link("language", "pt-br")},
+        {switch_link("language", "it-it")},
+        {switch_link("language", "en-ca")},
+        {switch_link("language", "de-de")},
+        {switch_link("language", "es-mx")})
+      </li>
+      <li>
+        <strong>has_premium</strong>:
+        {"Yes" if has_premium else "No"}
+        (switch to
+        {switch_link("has_premium", "Yes")},
+        {switch_link("has_premium", "No")})
+      </li>
+      <li>
+        <strong>has_tracker_report_link</strong>:
+        {"Yes" if has_tracker_report_link else "No"}
+        (switch to
+        {switch_link("has_tracker_report_link", "Yes")},
+        {switch_link("has_tracker_report_link", "No")})
+      </li>
+      <li>
+        <strong>num_level_one_email_trackers_removed</strong>:
+        {num_level_one_email_trackers_removed}
+        (switch to
+        {switch_link("num_level_one_email_trackers_removed", "0")},
+        {switch_link("num_level_one_email_trackers_removed", "1")},
+        {switch_link("num_level_one_email_trackers_removed", "2")})
+      </li>
+    </ul>
     """
     )
 
@@ -221,10 +274,8 @@ def wrapped_email_test(request):
         original_html=html_content,
         language=language,
         has_premium=has_premium,
-        in_premium_country=in_premium_country,
         tracker_report_link=tracker_report_link,
         display_email="test@relay.firefox.com",
-        has_attachment=has_attachment,
         num_level_one_email_trackers_removed=num_level_one_email_trackers_removed,
     )
     return HttpResponse(wrapped_email)
@@ -549,9 +600,7 @@ def _sns_message(message_json):
             original_html=html_content,
             language=user_profile.language,
             has_premium=user_profile.has_premium,
-            in_premium_country=user_profile.fxa_locale_in_premium_country,
             display_email=display_email,
-            has_attachment=bool(attachments),
             tracker_report_link=tracker_report_link,
             num_level_one_email_trackers_removed=removed_count,
         )
@@ -559,16 +608,12 @@ def _sns_message(message_json):
 
     if text_content:
         incr_if_enabled("email_with_text_content", 1)
-        attachment_msg = (
-            "Firefox Relay supports email forwarding (including attachments) "
-            "of email up to 150KB in size. To learn more visit {site}{faq}\n"
-        ).format(site=settings.SITE_ORIGIN, faq="/faq/")
         relay_header_text = (
             "This email was sent to your alias "
-            "{alias}. To stop receiving emails sent to this alias, "
+            f"{to_address}. To stop receiving emails sent to this alias, "
             "update the forwarding settings in your dashboard.\n"
-            "{extra_msg}---Begin Email---\n"
-        ).format(alias=to_address, extra_msg=attachment_msg)
+            "---Begin Email---\n"
+        )
         wrapped_text = relay_header_text + text_content
         message_body["Text"] = {"Charset": "UTF-8", "Data": wrapped_text}
 
@@ -935,70 +980,222 @@ def _get_address(address: str) -> RelayAddress | DomainAddress:
 
 
 def _handle_bounce(message_json):
-    incr_if_enabled("email_bounce", 1)
-    bounce = message_json.get("bounce")
-    bounced_recipients = bounce.get("bouncedRecipients")
+    """
+    Handle an AWS SES bounce notification.
+
+    For more information, see:
+    https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#bounce-object
+
+    Returns:
+    * 404 response if any email address does not match a user,
+    * 200 response if all match or none are given
+
+    Emits a counter metric "email_bounce" with these tags:
+    * bounce_type: 'permanent', 'transient', 'undetermined', 'none' if omitted
+    * bounce_subtype: 'undetermined', 'general', etc., 'none' if omitted
+    * user_match: 'found', 'missing', error states 'no_address' and 'no_recipients'
+    * relay_action: 'no_action', 'auto_block_spam', 'hard_bounce', 'soft_bounce'
+
+    Emits an info log "bounce_notification", same data as metric, plus:
+    * bounce_action: 'action' from bounced recipient data, or None
+    * bounce_status: 'status' from bounced recipient data, or None
+    * bounce_diagnostic: 'diagnosticCode' from bounced recipient data, or None
+    * bounce_extra: Extra data from bounce_recipient data, if any
+    * domain: User's real email address domain, if an address was given
+
+    Emits a legacy log "bounced recipient domain: {domain}", with data from
+    bounced recipient data, without the email address.
+    """
+    bounce = message_json.get("bounce", {})
+    bounce_type = bounce.get("bounceType", "none")
+    bounce_subtype = bounce.get("bounceSubType", "none")
+    bounced_recipients = bounce.get("bouncedRecipients", [])
+
+    now = datetime.now(timezone.utc)
+    bounce_data = []
     for recipient in bounced_recipients:
         recipient_address = recipient.pop("emailAddress", None)
+        data = {
+            "bounce_type": bounce_type,
+            "bounce_subtype": bounce_subtype,
+            "bounce_action": recipient.pop("action", ""),
+            "bounce_status": recipient.pop("status", ""),
+            "bounce_diagnostic": recipient.pop("diagnosticCode", ""),
+            "user_match": "no_address",
+            "relay_action": "no_action",
+        }
+        if recipient:
+            data["bounce_extra"] = recipient.copy()
+        bounce_data.append(data)
+
         if recipient_address is None:
             continue
+
         recipient_address = parseaddr(recipient_address)[1]
         recipient_domain = recipient_address.split("@")[1]
-        info_logger.info(
-            f"bounced recipient domain: {recipient_domain}", extra=recipient
-        )
+        data["domain"] = recipient_domain
+
         try:
             user = User.objects.get(email=recipient_address)
             profile = user.profile
+            data["user_match"] = "found"
         except User.DoesNotExist:
-            incr_if_enabled("email_bounce_relay_user_gone", 1)
             # TODO: handle bounce for a user who no longer exists
             # add to SES account-wide suppression list?
-            return HttpResponse("Address does not exist", status=404)
-        now = datetime.now(timezone.utc)
-        incr_if_enabled(
-            "email_bounce_%s_%s"
-            % (bounce.get("bounceType"), bounce.get("bounceSubType")),
-            1,
-        )
-        # if an email bounced as spam, set to auto block spam for this user
-        # and DON'T set them into bounce pause state
-        if any("spam" in val.lower() for val in recipient.values()):
-            profile.auto_block_spam = True
-            profile.save()
+            data["user_match"] = "missing"
             continue
-        if bounce.get("bounceType") == "Permanent":
+
+        action = None
+        if "spam" in data["bounce_diagnostic"].lower():
+            # if an email bounced as spam, set to auto block spam for this user
+            # and DON'T set them into bounce pause state
+            action = "auto_block_spam"
+            profile.auto_block_spam = True
+        elif bounce_type == "Permanent":
+            # TODO: handle sub-types: 'General', 'NoEmail', etc.
+            action = "hard_bounce"
             profile.last_hard_bounce = now
-        if bounce.get("bounceType") == "Transient":
+        elif bounce_type == "Transient":
+            # TODO: handle sub-types: 'MessageTooLarge', 'AttachmentRejected', etc.
+            action = "soft_bounce"
             profile.last_soft_bounce = now
-            # TODO: handle sub-types: 'MessageTooLarge', 'AttachmentRejected',
-            # 'ContentRejected'
-        profile.save()
+        if action:
+            data["relay_action"] = action
+            profile.save()
+
+    if not bounce_data:
+        # Data when there are no identified recipients
+        bounce_data = [{"user_match": "no_recipients", "relay_action": "no_action"}]
+
+    for data in bounce_data:
+        tags = {
+            "bounce_type": bounce_type,
+            "bounce_subtype": bounce_subtype,
+            "user_match": data["user_match"],
+            "relay_action": data["relay_action"],
+        }
+        incr_if_enabled(
+            "email_bounce",
+            1,
+            tags=[generate_tag(key, val) for key, val in tags.items()],
+        )
+        info_logger.info("bounce_notification", extra=data)
+
+        # Legacy log, can be removed Q4 2023
+        recipient_domain = data.get("domain")
+        if recipient_domain:
+            legacy_extra = {
+                "action": data.get("bounce_action"),
+                "status": data.get("bounce_status"),
+                "diagnosticCode": data.get("bounce_diagnostic"),
+            }
+            legacy_extra.update(data.get("bounce_extra", {}))
+            info_logger.info(
+                f"bounced recipient domain: {recipient_domain}", extra=legacy_extra
+            )
+
+    if any(data["user_match"] == "missing" for data in bounce_data):
+        return HttpResponse("Address does not exist", status=404)
     return HttpResponse("OK", status=200)
 
 
 def _handle_complaint(message_json):
-    incr_if_enabled("email_complaint")
-    complaint = message_json.get("complaint")
-    complained_recipients = complaint.get("complainedRecipients")
-    subtype = complaint.get("complaintSubType")
-    feedback = complaint.get("complaintFeedbackType")
-    recipient_domains = []
+    """
+    Handle an AWS SES complaint notification.
+
+    For more information, see:
+    https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
+
+    Returns:
+    * 404 response if any email address does not match a user,
+    * 200 response if all match or none are given
+
+    Emits a counter metric "email_complaint" with these tags:
+    * complaint_subtype: 'onaccounsuppressionlist', or 'none' if omitted
+    * complaint_feedback - feedback enumeration from ISP or 'none'
+    * user_match: 'found', 'missing', error states 'no_address' and 'no_recipients'
+    * relay_action: 'no_action', 'auto_block_spam'
+
+    Emits an info log "complaint_notification", same data as metric, plus:
+    * complaint_user_agent - identifies the client used to file the complaint
+    * complaint_extra - Extra data from complainedRecipients data, if any
+    * domain - User's domain, if an address was given
+
+    Emits a legacy log "complaint_received", with data:
+    * recipient_domains: list of extracted user domains
+    * subtype: 'onaccounsuppressionlist', or 'none'
+    * feedback: feedback from ISP or 'none'
+    """
+    complaint = deepcopy(message_json.get("complaint", {}))
+    complained_recipients = complaint.pop("complainedRecipients", [])
+    subtype = complaint.pop("complaintSubType", None)
+    user_agent = complaint.pop("userAgent", None)
+    feedback = complaint.pop("complaintFeedbackType", None)
+
+    complaint_data = []
     for recipient in complained_recipients:
-        recipient_address = recipient.get("emailAddress")
+        recipient_address = recipient.pop("emailAddress", None)
+        data = {
+            "complaint_subtype": subtype,
+            "complaint_user_agent": user_agent,
+            "complaint_feedback": feedback,
+            "user_match": "no_address",
+            "relay_action": "no_action",
+        }
+        if recipient:
+            data["complaint_extra"] = recipient.copy()
+        complaint_data.append(data)
+
         if recipient_address is None:
             continue
+
         recipient_address = parseaddr(recipient_address)[1]
         recipient_domain = recipient_address.split("@")[1]
-        recipient_domains.append(recipient_domain)
+        data["domain"] = recipient_domain
+
+        try:
+            user = User.objects.get(email=recipient_address)
+            profile = user.profile
+            data["user_match"] = "found"
+        except User.DoesNotExist:
+            data["user_match"] = "missing"
+            continue
+
+        data["relay_action"] = "auto_block_spam"
+        profile.auto_block_spam = True
+        profile.save()
+
+    if not complaint_data:
+        # Data when there are no identified recipients
+        complaint_data = [{"user_match": "no_recipients", "relay_action": "no_action"}]
+
+    for data in complaint_data:
+        tags = {
+            "complaint_subtype": subtype or "none",
+            "complaint_feedback": feedback or "none",
+            "user_match": data["user_match"],
+            "relay_action": data["relay_action"],
+        }
+        incr_if_enabled(
+            "email_complaint",
+            1,
+            tags=[generate_tag(key, val) for key, val in tags.items()],
+        )
+        info_logger.info("complaint_notification", extra=data)
+
+    # Legacy log, can be removed Q4 2023
+    domains = [data["domain"] for data in complaint_data if "domain" in data]
     info_logger.info(
         "complaint_received",
         extra={
-            "recipient_domains": sorted(recipient_domains),
+            "recipient_domains": sorted(domains),
             "subtype": subtype,
             "feedback": feedback,
         },
     )
+
+    if any(data["user_match"] == "missing" for data in complaint_data):
+        return HttpResponse("Address does not exist", status=404)
     return HttpResponse("OK", status=200)
 
 

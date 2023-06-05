@@ -203,8 +203,10 @@ class RemoveTrackers(TestCase):
 
     def expected_content(self, hyperlink, imagelink):
         return (
-            f'<a href="{self.url}{self.url_trackerwarning_data(hyperlink)}">A link</a>\n'
-            + f'<img src="{self.url}{self.url_trackerwarning_data(imagelink)}">An image</img>'
+            f'<a href="{self.url}{self.url_trackerwarning_data(hyperlink)}">'
+            "A link</a>\n"
+            f'<img src="{self.url}{self.url_trackerwarning_data(imagelink)}">'
+            "An image</img>"
         )
 
     def setUp(self):
@@ -288,37 +290,51 @@ class RemoveTrackers(TestCase):
             general_count == general_removed
         )  # count uses the same regex pattern as removing trackers
 
-    def test_general_tracker_embedded_in_another_tracker_replaced_only_once_with_relay_content(
-        self,
-    ):
-        content = "<a href='https://foo.open.tracker.com/foo/bar.html?src=trckr.com'>A link</a>"
+    def test_general_tracker_embedded_in_another_tracker_replaced_only_once(self):
+        """
+        Test that a general tracker embedded in the URL of another tracker is
+        replaced only once with the relay content.
+        """
+        content = (
+            "<a href='https://foo.open.tracker.com/foo/bar.html?src=trckr.com'>"
+            "A link</a>"
+        )
         changed_content, tracker_details = remove_trackers(
             content, self.from_address, self.datetime_now
         )
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
 
-        assert (
-            changed_content
-            == f"<a href='{self.url}{self.url_trackerwarning_data(self.hyperlink_tracker_in_tracker)}'>A link</a>"
+        expected_content = (
+            f"<a href='{self.url}"
+            f"{self.url_trackerwarning_data(self.hyperlink_tracker_in_tracker)}'>"
+            "A link</a>"
         )
+        assert changed_content == expected_content
         assert general_removed == 1
         assert general_count == 1
 
-    def test_general_tracker_also_in_text_tracker_replaced_only_once_with_relay_content(
-        self,
-    ):
-        content = "<a href='https://foo.open.tracker.com/foo/bar.html?src=trckr.com'>trckr.com</a>"
+    def test_general_tracker_also_in_text_tracker_replaced_only_once(self):
+        """
+        Test that a general tracker embedded in another tracker, and also in the text
+        of the link, is replaced only once with the relay content.
+        """
+        content = (
+            "<a href='https://foo.open.tracker.com/foo/bar.html?src=trckr.com'>"
+            "trckr.com</a>"
+        )
         changed_content, tracker_details = remove_trackers(
             content, self.from_address, self.datetime_now
         )
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
 
-        assert (
-            changed_content
-            == f"<a href='{self.url}{self.url_trackerwarning_data(self.hyperlink_tracker_in_tracker)}'>trckr.com</a>"
+        expected_content = (
+            f"<a href='{self.url}"
+            f"{self.url_trackerwarning_data(self.hyperlink_tracker_in_tracker)}'>"
+            "trckr.com</a>"
         )
+        assert changed_content == expected_content
         assert general_removed == 1
         assert general_count == 1
 

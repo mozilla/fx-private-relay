@@ -70,6 +70,7 @@
     .description-bolded-headline {
       @include text-body-md;
       font-weight: 600;
+      display: block;
     }
 
     @media screen and #{$mq-md} {

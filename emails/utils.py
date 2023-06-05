@@ -7,9 +7,13 @@ from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from email.utils import parseaddr
 from functools import cache
+from io import IOBase
+from typing import cast, Any, Callable, Literal, TypeVar
 import json
 import pathlib
 import re
+from django.http.request import HttpRequest
+from django.template.loader import render_to_string
 import requests
 
 from botocore.exceptions import ClientError
@@ -24,13 +28,15 @@ from waffle.models import Flag
 
 from django.apps import apps
 from django.conf import settings
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
 from django.http import HttpResponse
 from django.template.defaultfilters import linebreaksbr, urlize
 
+from privaterelay.utils import get_countries_info_from_request_and_mapping
+
+from .apps import EmailsConfig
 from .models import (
     DomainAddress,
-    Profile,
     RelayAddress,
     Reply,
     get_domains_from_settings,
@@ -44,7 +50,10 @@ info_logger = logging.getLogger("eventsinfo")
 study_logger = logging.getLogger("studymetrics")
 metrics = markus.get_metrics("fx-private-relay")
 
-shavar_prod_lists_url = "https://raw.githubusercontent.com/mozilla-services/shavar-prod-lists/master/disconnect-blacklist.json"
+shavar_prod_lists_url = (
+    "https://raw.githubusercontent.com/mozilla-services/shavar-prod-lists/"
+    "master/disconnect-blacklist.json"
+)
 EMAILS_FOLDER_PATH = pathlib.Path(__file__).parent
 TRACKER_FOLDER_PATH = EMAILS_FOLDER_PATH / "tracker_lists"
 
@@ -95,8 +104,11 @@ def strict_trackers():
     return get_trackers(level=2)
 
 
-def time_if_enabled(name):
-    def timing_decorator(func):
+_TimedFunction = TypeVar("_TimedFunction", bound=Callable[..., Any])
+
+
+def time_if_enabled(name: str) -> Callable[[_TimedFunction], _TimedFunction]:
+    def timing_decorator(func: _TimedFunction) -> _TimedFunction:
         def func_wrapper(*args, **kwargs):
             ctx_manager = (
                 metrics.timer(name)
@@ -106,7 +118,7 @@ def time_if_enabled(name):
             with ctx_manager:
                 return func(*args, **kwargs)
 
-        return func_wrapper
+        return cast(_TimedFunction, func_wrapper)
 
     return timing_decorator
 
@@ -135,27 +147,83 @@ def get_email_domain_from_settings():
     return email_network_locality
 
 
+def _get_hero_img_src(lang_code):
+    img_locale = "en"
+    avail_l10n_image_codes = [
+        "cs",
+        "de",
+        "en",
+        "es",
+        "fi",
+        "fr",
+        "hu",
+        "id",
+        "it",
+        "ja",
+        "nl",
+        "pt",
+        "ru",
+        "sv",
+        "zh",
+    ]
+    major_lang = lang_code.split("-")[0]
+    if major_lang in avail_l10n_image_codes:
+        img_locale = major_lang
+
+    return (
+        settings.SITE_ORIGIN
+        + f"/static/images/email-images/first-time-user/hero-image-{img_locale}.png"
+    )
+
+
+def get_welcome_email(request: HttpRequest, user: User, format: str) -> str:
+    bundle_plans = get_countries_info_from_request_and_mapping(
+        request, settings.BUNDLE_PLAN_COUNTRY_LANG_MAPPING
+    )
+    lang_code = user.profile.language
+    hero_img_src = _get_hero_img_src(lang_code)
+    return render_to_string(
+        f"emails/first_time_user.{format}",
+        {
+            "in_bundle_country": bundle_plans["available_in_country"],
+            "SITE_ORIGIN": settings.SITE_ORIGIN,
+            "hero_img_src": hero_img_src,
+            "language": lang_code,
+        },
+        request,
+    )
+
+
+MessageBodyContent = dict[Literal["Charset", "Data"], str]
+MessageBody = dict[Literal["Text", "Html"], MessageBodyContent]
+AttachmentPair = tuple[str, IOBase]
+MailJSON = dict[str, Any]
+
+
 @time_if_enabled("ses_send_raw_email")
 def ses_send_raw_email(
-    from_address,
-    to_address,
-    subject,
-    message_body,
-    attachments,
-    reply_address,
-    mail,
-    address,
-):
+    from_address: str,
+    to_address: str,
+    subject: str,
+    message_body: MessageBody,
+    attachments: list[AttachmentPair],
+    reply_address: str,
+    mail: MailJSON,
+    address: RelayAddress | DomainAddress,
+) -> HttpResponse:
     msg_with_headers = _start_message_with_headers(
         subject, from_address, to_address, reply_address
     )
     msg_with_body = _add_body_to_message(msg_with_headers, message_body)
     msg_with_attachments = _add_attachments_to_message(msg_with_body, attachments)
 
+    emails_config = apps.get_app_config("emails")
+    assert isinstance(emails_config, EmailsConfig)
+    ses_client = emails_config.ses_client
+    assert ses_client
+    assert settings.AWS_SES_CONFIGSET
     try:
-        # Provide the contents of the email.
-        emails_config = apps.get_app_config("emails")
-        ses_response = emails_config.ses_client.send_raw_email(
+        ses_response = ses_client.send_raw_email(
             Source=from_address,
             Destinations=[to_address],
             RawMessage={
@@ -173,7 +241,9 @@ def ses_send_raw_email(
     return HttpResponse("Sent email to final recipient.", status=200)
 
 
-def _start_message_with_headers(subject, from_address, to_address, reply_address):
+def _start_message_with_headers(
+    subject: str, from_address: str, to_address: str, reply_address: str
+) -> MIMEMultipart:
     # Create a multipart/mixed parent container.
     msg = MIMEMultipart("mixed")
     # Add subject, from and to lines.
@@ -184,21 +254,23 @@ def _start_message_with_headers(subject, from_address, to_address, reply_address
     return msg
 
 
-def _add_body_to_message(msg, message_body):
-    charset = "UTF-8"
+def _add_body_to_message(
+    msg: MIMEMultipart, message_body: MessageBody
+) -> MIMEMultipart:
     # Create a multipart/alternative child container.
     msg_body = MIMEMultipart("alternative")
 
-    # Encode the text and HTML content and set the character encoding.
-    # This step is necessary if you're sending a message with characters
-    # outside the ASCII range.
     if "Text" in message_body:
         body_text = message_body["Text"]["Data"]
-        textpart = MIMEText(body_text.encode(charset), "plain", charset)
+        # Let MIMEText determine if us-ascii encoding will work
+        textpart = MIMEText(body_text, "plain")
         msg_body.attach(textpart)
     if "Html" in message_body:
         body_html = message_body["Html"]["Data"]
-        htmlpart = MIMEText(body_html.encode(charset), "html", charset)
+        # Our translated strings contain U+2068 (First Strong Isolate) and
+        # U+2069 (Pop Directional Isolate), us-ascii will not work
+        # so save time by suggesting utf-8 encoding
+        htmlpart = MIMEText(body_html, "html", "utf-8")
         msg_body.attach(htmlpart)
 
     # Attach the multipart/alternative child container to the multipart/mixed
@@ -207,7 +279,9 @@ def _add_body_to_message(msg, message_body):
     return msg
 
 
-def _add_attachments_to_message(msg, attachments):
+def _add_attachments_to_message(
+    msg: MIMEMultipart, attachments: list[AttachmentPair]
+) -> MIMEMultipart:
     # attach attachments
     for actual_att_name, attachment in attachments:
         # Define the attachment part and encode it using MIMEApplication.
@@ -223,7 +297,7 @@ def _add_attachments_to_message(msg, attachments):
     return msg
 
 
-def _store_reply_record(mail, ses_response, address):
+def _store_reply_record(mail: MailJSON, ses_response, address) -> MailJSON:
     # After relaying email, store a Reply record for it
     reply_metadata = {}
     for header in mail["headers"]:
@@ -233,7 +307,10 @@ def _store_reply_record(mail, ses_response, address):
     (lookup_key, encryption_key) = derive_reply_keys(message_id_bytes)
     lookup = b64_lookup_key(lookup_key)
     encrypted_metadata = encrypt_reply_metadata(encryption_key, reply_metadata)
-    reply_create_args = {"lookup": lookup, "encrypted_metadata": encrypted_metadata}
+    reply_create_args: dict[str, Any] = {
+        "lookup": lookup,
+        "encrypted_metadata": encrypted_metadata,
+    }
     if type(address) == DomainAddress:
         reply_create_args["domain_address"] = address
     elif type(address) == RelayAddress:
@@ -243,8 +320,14 @@ def _store_reply_record(mail, ses_response, address):
 
 
 def ses_relay_email(
-    from_address, to_address, subject, message_body, attachments, mail, address
-):
+    from_address: str,
+    to_address: str,
+    subject: str,
+    message_body: MessageBody,
+    attachments: list[AttachmentPair],
+    mail: MailJSON,
+    address: RelayAddress | DomainAddress,
+) -> HttpResponse:
     reply_address = "replies@%s" % get_domains_from_settings().get(
         "RELAY_FIREFOX_DOMAIN"
     )
@@ -298,16 +381,16 @@ def generate_relay_From(original_from_address, user_profile=None):
     return formatted_from_address
 
 
-def get_message_id_bytes(message_id_str):
+def get_message_id_bytes(message_id_str: str) -> bytes:
     message_id = message_id_str.split("@", 1)[0].rsplit("<", 1)[-1].strip()
     return message_id.encode()
 
 
-def b64_lookup_key(lookup_key):
+def b64_lookup_key(lookup_key: bytes) -> str:
     return base64.urlsafe_b64encode(lookup_key).decode("ascii")
 
 
-def derive_reply_keys(message_id):
+def derive_reply_keys(message_id: bytes) -> tuple[bytes, bytes]:
     """Derive the lookup key and encrytion key from an aliased message id."""
     algorithm = hashes.SHA256()
     hkdf = HKDFExpand(algorithm=algorithm, length=16, info=b"replay replies lookup key")
@@ -319,7 +402,7 @@ def derive_reply_keys(message_id):
     return (lookup_key, encryption_key)
 
 
-def encrypt_reply_metadata(key, payload):
+def encrypt_reply_metadata(key: bytes, payload: dict[str, str]) -> str:
     """Encrypt the given payload into a JWE, using the given key."""
     # This is a bit dumb, we have to base64-encode the key in order to load it :-/
     k = jwcrypto.jwk.JWK(
@@ -328,7 +411,7 @@ def encrypt_reply_metadata(key, payload):
     e = jwcrypto.jwe.JWE(
         json.dumps(payload), json.dumps({"alg": "dir", "enc": "A256GCM"}), recipient=k
     )
-    return e.serialize(compact=True)
+    return cast(str, e.serialize(compact=True))
 
 
 def decrypt_reply_metadata(key, jwe):
@@ -364,7 +447,7 @@ def _get_bucket_and_key_from_s3_json(message_json):
         if "S3" in message_json_receipt["action"]["type"]:
             bucket = message_json_receipt["action"]["bucketName"]
             object_key = message_json_receipt["action"]["objectKey"]
-    except (KeyError, TypeError) as e:
+    except (KeyError, TypeError):
         logger.error(
             "sns_inbound_message_receipt_malformed",
             extra={"receipt_action": message_json_receipt["action"]},

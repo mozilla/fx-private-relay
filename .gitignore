@@ -16,3 +16,4 @@ junit.xml
 state.json
 har/
 allure-results/
+allure-report/
