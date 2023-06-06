@@ -308,7 +308,6 @@ MIDDLEWARE += [
     "django_referrer_policy.middleware.ReferrerPolicyMiddleware",
     "dockerflow.django.middleware.DockerflowMiddleware",
     "waffle.middleware.WaffleMiddleware",
-    "privaterelay.middleware.FxAToRequest",
     "privaterelay.middleware.AddDetectedCountryToRequestAndResponseHeaders",
     "privaterelay.middleware.StoreFirstVisit",
 ]

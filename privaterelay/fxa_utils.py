@@ -68,8 +68,7 @@ def _get_oauth2_session(social_account: SocialAccount) -> OAuth2Session:
     }
 
     # TODO: find out why the auto_refresh and token_updater is not working
-    # and instead we are manually refreshing the token at
-    # FxAToRequest and get_subscription_data_from_fxa
+    # and instead we are manually refreshing the token at get_subscription_data_from_fxa
     client = OAuth2Session(
         client_id,
         scope=settings.SOCIALACCOUNT_PROVIDERS["fxa"]["SCOPE"],
