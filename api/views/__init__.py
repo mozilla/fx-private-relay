@@ -199,18 +199,12 @@ def terms_accepted_user(request):
             data={"detail": e.detail.title()}, status=e.status_code
         )
     status_code = 201
-    # from allauth.socialaccount.providers.fxa.views import oauth2_login, oauth2_callback
-    # login_resp = oauth2_login(request)
-    # import ipdb; ipdb.set_trace()
-    # return login_resp
+
     try:
         sa = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
         status_code = 202
     except SocialAccount.DoesNotExist:
         # User does not exist, create a new Relay user
-        # fxa_auth_resp = requests.post(
-        #     FirefoxAccountsOAuth2Adapter.authorize_url, headers={"Authorization": f"Bearer {token}"}
-        # )
         profile_url = (
             f"{settings.SOCIALACCOUNT_PROVIDERS['fxa']['PROFILE_ENDPOINT']}/profile"
         )
@@ -233,11 +227,10 @@ def terms_accepted_user(request):
         # No social token information is stored (no Social Token object created).
         login_resp = complete_social_login(request, social_login)
         # TODO: distinguish the created user from RP flow
-        # import ipdb; ipdb.set_trace()
         # We might need to add a new user as seen in https://github.com/pennersr/djangco-allauth/blob/77368a84903d32283f07a260819893ec15df78fb/allauth/socialaccount/helpers.py#L180
         sa = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
-        sa.provider = "fxa_resource"
-        sa.save()
+        # sa.provider = "fxa_resource"
+        # sa.save()
     info_logger.info(
         "terms_accepted_user",
         extra={"social_account": sa.uid, "status_code": status_code},
