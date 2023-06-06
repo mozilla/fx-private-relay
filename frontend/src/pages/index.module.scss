@@ -8,7 +8,7 @@
   width: $content-max;
   max-width: 100%;
   margin: 0 auto;
-  padding: $spacing-lg;
+  padding: $spacing-2xl $spacing-lg;
 
   @media screen and #{$mq-md} {
     flex-direction: row;
