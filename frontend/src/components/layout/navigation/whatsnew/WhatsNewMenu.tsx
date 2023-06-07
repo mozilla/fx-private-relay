@@ -535,7 +535,7 @@ export const WhatsNewMenu = (props: Props) => {
         cta={
           <a
             className={styles.cta}
-            href="https://www.mozilla.org/en-US/newsletter/security-and-privacy/"
+            href="https://www.mozilla.org/newsletter/security-and-privacy/"
             target="_blank"
           >
             {l10n.getString("whatsnew-feature-mailing-list-cta")}
@@ -554,7 +554,9 @@ export const WhatsNewMenu = (props: Props) => {
     },
   };
 
-  entries.push(mailingListAnnouncement);
+  if (isFlagActive(props.runtimeData, "mailing_list_announcement")) {
+    entries.push(mailingListAnnouncement);
+  }
 
   const entriesNotInFuture = entries.filter((entry) => {
     const entryDate = new Date(
