@@ -127,6 +127,8 @@ class ProfileSerializer(serializers.ModelSerializer):
             "emails_replied",
             "level_one_trackers_blocked",
             "remove_level_one_email_trackers",
+            "total_masks",
+            "at_mask_limit",
         ]
         read_only_fields = [
             "id",
@@ -142,6 +144,8 @@ class ProfileSerializer(serializers.ModelSerializer):
             "emails_forwarded",
             "emails_replied",
             "level_one_trackers_blocked",
+            "total_masks",
+            "at_mask_limit",
         ]
 
 
