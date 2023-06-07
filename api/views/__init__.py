@@ -226,11 +226,11 @@ def terms_accepted_user(request):
         # Since this is a Resource Provider/Server flow and are NOT a Relying Party (RP) of FXA
         # No social token information is stored (no Social Token object created).
         login_resp = complete_social_login(request, social_login)
-        # TODO: distinguish the created user from RP flow
-        # We might need to add a new user as seen in https://github.com/pennersr/djangco-allauth/blob/77368a84903d32283f07a260819893ec15df78fb/allauth/socialaccount/helpers.py#L180
         sa = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
-        # sa.provider = "fxa_resource"
-        # sa.save()
+        # Indicate profile was created from the resource flow
+        profile = sa.user.profile
+        profile.created_by = "firefox_resource"
+        profile.save()
     info_logger.info(
         "terms_accepted_user",
         extra={"social_account": sa.uid, "status_code": status_code},

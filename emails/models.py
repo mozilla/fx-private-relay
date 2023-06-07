@@ -120,6 +120,8 @@ class Profile(models.Model):
     onboarding_state = models.PositiveIntegerField(default=0)
     auto_block_spam = models.BooleanField(default=False)
     forwarded_first_reply = models.BooleanField(default=False)
+    # Empty string means the profile was created through relying party flow
+    created_by = models.CharField(blank=True, null=True, max_length=63)
 
     def __str__(self):
         return "%s Profile" % self.user
