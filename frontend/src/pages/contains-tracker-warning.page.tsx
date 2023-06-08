@@ -4,9 +4,9 @@ import { Layout } from "../components/layout/Layout";
 import { useRuntimeData } from "../hooks/api/runtimeData";
 import { useL10n } from "../hooks/l10n";
 import { FaqAccordionItem } from "../components/landing/FaqAccordion";
-import { BannerCta } from "../components/Banner";
 import { useEffect, useState } from "react";
 import { RoundedInfoTriangleIcon } from "../components/Icons";
+import { OutboundLink } from "react-ga";
 
 type TrackerWarningData = {
   sender: string;
@@ -63,12 +63,20 @@ const ContainsTracker: NextPage = () => {
         </div>
       </div>
       <div className={styles["warning-banner-button"]}>
-        <BannerCta
-          content={l10n.getString("contains-tracker-warning-view-link-cta")}
-          size={"large"}
-          target={trackerData.original_link}
-          className={styles["cta-button"]}
-        />
+        <div className={styles["cta-button"]}>
+          <OutboundLink
+            to={trackerData.original_link}
+            eventLabel={l10n.getString(
+              "contains-tracker-warning-view-link-cta"
+            )}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span>
+              {l10n.getString("contains-tracker-warning-view-link-cta")}
+            </span>
+          </OutboundLink>
+        </div>
       </div>
     </>
   );
@@ -94,6 +102,7 @@ const ContainsTracker: NextPage = () => {
             </div>
             <div className={styles.entries}>
               <FaqAccordionItem
+                autoFocus={true}
                 entries={[
                   {
                     q: l10n.getString("faq-question-define-tracker-question"),

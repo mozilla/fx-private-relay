@@ -184,16 +184,18 @@ const TrackerReport: NextPage = () => {
                   {
                     q: l10n.getString("faq-question-define-tracker-question"),
                     a: (
-                      <p>
-                        {l10n.getString(
-                          "faq-question-define-tracker-answer-partone"
-                        )}
-                        <br />
-                        <br />
-                        {l10n.getString(
-                          "faq-question-define-tracker-answer-parttwo"
-                        )}
-                      </p>
+                      <>
+                        <p>
+                          {l10n.getString(
+                            "faq-question-define-tracker-answer-partone"
+                          )}
+                        </p>
+                        <p>
+                          {l10n.getString(
+                            "faq-question-define-tracker-answer-parttwo"
+                          )}
+                        </p>
+                      </>
                     ),
                   },
                   {

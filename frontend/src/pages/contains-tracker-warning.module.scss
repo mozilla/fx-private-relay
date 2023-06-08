@@ -29,6 +29,10 @@
         border: none;
         background-color: $color-grey-10;
         white-space: nowrap;
+        align-self: center;
+        margin: 0 0 0 auto;
+        padding: $spacing-md;
+        border-radius: $border-radius-sm;
       }
     }
 
@@ -93,7 +97,8 @@
 
     .lead {
       // flex value is 0.35 to make sure the text is not too wide and to reflect design specs
-      flex: 0.35;
+      flex-basis: 0;
+      flex-grow: 0.35;
 
       @media screen and #{$mq-md} {
         padding: $spacing-2xl $spacing-2xl 0 0;

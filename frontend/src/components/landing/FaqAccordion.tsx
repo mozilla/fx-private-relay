@@ -9,6 +9,7 @@ export type Entry = {
 
 export type Props = {
   entries: Entry[];
+  autoFocus?: boolean;
   defaultExpandedIndex?: number;
 };
 
@@ -19,6 +20,7 @@ export const FaqAccordionItem = (props: Props) => {
   const [expandedIndex, setExpandedIndex] = useState(
     props.defaultExpandedIndex ?? 0
   );
+  const { autoFocus } = props;
 
   return (
     <dl>
@@ -28,6 +30,7 @@ export const FaqAccordionItem = (props: Props) => {
           entry={entry}
           isExpanded={expandedIndex === index}
           onToggle={() => setExpandedIndex(index)}
+          autoFocus={autoFocus && index === expandedIndex}
         />
       ))}
     </dl>
@@ -38,15 +41,15 @@ const QAndA = (props: {
   entry: Entry;
   isExpanded: boolean;
   onToggle: () => void;
+  autoFocus?: boolean;
 }) => {
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    // Set the focus on the button when the component is mounted
-    if (props.isExpanded) {
+    if (props.isExpanded && props.autoFocus) {
       buttonRef.current?.focus();
     }
-  }, [props.isExpanded]);
+  }, [props.isExpanded, props.autoFocus]);
 
   function setToggleView() {
     const isExpanded = styles["is-expanded"];
