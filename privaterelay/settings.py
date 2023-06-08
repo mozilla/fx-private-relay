@@ -718,6 +718,29 @@ SENTRY_ENVIRONMENT = config("SENTRY_ENVIRONMENT", RELAY_CHANNEL)
 if SENTRY_ENVIRONMENT == "prod" and SITE_ORIGIN != "https://relay.firefox.com":
     SENTRY_ENVIRONMENT = "local"
 
+SENTRY_PROD_TRACE_SAMPLE_RATE = config(
+    "SENTRY_PROD_TRACE_SAMPLE_RATE", 0.001, cast=float
+)
+
+
+def sentry_traces_sampler(_) -> float:
+    if SENTRY_ENVIRONMENT == "prod":
+        return SENTRY_PROD_TRACE_SAMPLE_RATE
+    return 1.0
+
+
+# The profiles_sample_rate setting is *relative to* the traces_sample_rate setting. So,
+# this value is multiplied by the traces sample rate. So the profile rates are:
+# local: 1*1 = 100%
+# dev: 1*1 = 100%
+# stage: 0.1*1 = 10% of requests are profiled
+# prod: 0.1*0.001 = 1% of requests are profiled
+def sentry_profile_sampler(_) -> float:
+    if SENTRY_ENVIRONMENT in ["local", "dev"]:
+        return 1.0
+    return 0.1
+
+
 sentry_sdk.init(
     dsn=config("SENTRY_DSN", None),
     integrations=[DjangoIntegration(cache_spans=not DEBUG)],
@@ -725,6 +748,8 @@ sentry_sdk.init(
     include_local_variables=DEBUG,
     release=sentry_release,
     environment=SENTRY_ENVIRONMENT,
+    traces_sample_rate=1.0,
+    profiles_sample_rate=1.0,
 )
 # Duplicates events for unhandled exceptions, but without useful tracebacks
 ignore_logger("request.summary")
