@@ -130,15 +130,21 @@ class SNSNotificationTest(TestCase):
         send_raw_email_patcher.start()
         self.addCleanup(send_raw_email_patcher.stop)
 
-    def get_headers_from_mock_send_raw_email(self) -> dict[str, str]:
-        """Get headers from the message sent by mocked ses_client.send_raw_email"""
+    def get_details_from_mock_send_raw_email(self) -> tuple[str, str, dict[str, str]]:
+        """
+        Get sender, recipient, and headers from the message sent by mocked
+        ses_client.send_raw_email
+        """
         self.mock_send_raw_email.assert_called_once()
+        source = self.mock_send_raw_email.call_args[1]["Source"]
+        destinations = self.mock_send_raw_email.call_args[1]["Destinations"]
+        assert len(destinations) == 1
         raw_message = self.mock_send_raw_email.call_args[1]["RawMessage"]["Data"]
         headers: dict[str, str] = {}
         for line in raw_message.splitlines():
             if not line:
                 # Start of message body, done with headers
-                return headers
+                return source, destinations[0], headers
             assert ": " in line
             key, val = line.split(": ", 1)
             assert key not in headers
@@ -148,20 +154,18 @@ class SNSNotificationTest(TestCase):
     def test_single_recipient_sns_notification(self) -> None:
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
 
-        headers = self.get_headers_from_mock_send_raw_email()
-        source = self.mock_send_raw_email.call_args[1]["Source"]
-        destinations = self.mock_send_raw_email.call_args[1]["Destinations"]
-        assert source == (
+        sender, recipient, headers = self.get_details_from_mock_send_raw_email()
+        assert sender == (
             "=?utf-8?q?=22fxastage=40protonmail=2Ecom_=5Bvia_Relay=5D=22?="
             " <reply@relay.example.com>"
         )
-        assert destinations == ["user@example.com"]
+        assert recipient == "user@example.com"
         content_type = headers.pop("Content-Type")
         assert content_type.startswith('multipart/mixed; boundary="========')
         assert headers == {
             "Subject": "localized email header + footer",
             "MIME-Version": "1.0",
-            "From": source,
+            "From": sender,
             "To": "user@example.com",
             "Reply-To": "replies@default.com",
         }
@@ -174,15 +178,17 @@ class SNSNotificationTest(TestCase):
         """By default, list emails should still forward."""
         _sns_notification(EMAIL_SNS_BODIES["single_recipient_list"])
 
-        headers = self.get_headers_from_mock_send_raw_email()
+        sender, recipient, headers = self.get_details_from_mock_send_raw_email()
+        assert sender == (
+            "=?utf-8?q?=22fxastage=40protonmail=2Ecom_=5Bvia_Relay=5D=22?="
+            " <reply@relay.example.com>"
+        )
+        assert recipient == "user@example.com"
         assert headers == {
             "Content-Type": headers["Content-Type"],
             "Subject": "localized email header + footer",
             "MIME-Version": "1.0",
-            "From": (
-                "=?utf-8?q?=22fxastage=40protonmail=2Ecom_=5Bvia_Relay=5D=22?="
-                " <reply@relay.example.com>"
-            ),
+            "From": sender,
             "To": "user@example.com",
             "Reply-To": "replies@default.com",
         }
@@ -227,15 +233,17 @@ class SNSNotificationTest(TestCase):
     def test_domain_recipient(self) -> None:
         _sns_notification(EMAIL_SNS_BODIES["domain_recipient"])
 
-        headers = self.get_headers_from_mock_send_raw_email()
+        sender, recipient, headers = self.get_details_from_mock_send_raw_email()
+        assert sender == (
+            "=?utf-8?q?=22fxastage=40protonmail=2Ecom_=5Bvia_Relay=5D=22?="
+            " <replies@default.com>"
+        )
+        assert recipient == "premium@email.com"
         assert headers == {
             "Content-Type": headers["Content-Type"],
             "Subject": "localized email header + footer",
             "MIME-Version": "1.0",
-            "From": (
-                "=?utf-8?q?=22fxastage=40protonmail=2Ecom_=5Bvia_Relay=5D=22?="
-                " <replies@default.com>"
-            ),
+            "From": sender,
             "To": "premium@email.com",
             "Reply-To": "replies@default.com",
         }
@@ -305,7 +313,9 @@ class SNSNotificationTest(TestCase):
         self.mock_remove_message_from_s3.assert_called_once()
         mock_get_content.assert_called_once()
 
-        headers = self.get_headers_from_mock_send_raw_email()
+        sender, recipient, headers = self.get_details_from_mock_send_raw_email()
+        assert sender == "a1b2c3d4@test.com"
+        assert recipient == "sender@external.example.com"
         assert headers == {
             "Content-Type": headers["Content-Type"],
             "Subject": "Re: Test Mozilla User New Domain Address",
