@@ -620,13 +620,15 @@ def _sns_message(message_json):
     to_address = user_profile.user.email
     formatted_from_address = generate_relay_From(from_address, user_profile)
     response = ses_relay_email(
-        formatted_from_address,
-        to_address,
-        subject,
-        message_body,
-        attachments,
-        mail,
-        address,
+        from_header=formatted_from_address,
+        to_header=to_address,
+        subject_header=subject,
+        from_address=formatted_from_address,
+        to_address=to_address,
+        message_body=message_body,
+        attachments=attachments,
+        mail=mail,
+        address=address,
     )
     if response.status_code == 503:
         # early return the response to trigger SNS to re-attempt
@@ -874,14 +876,16 @@ def _handle_reply(from_address, message_json, to_address):
 
     try:
         response = ses_send_raw_email(
-            outbound_from_address,
-            to_address,
-            subject,
-            message_body,
-            attachments,
-            outbound_from_address,
-            mail,
-            address,
+            from_header=outbound_from_address,
+            to_header=to_address,
+            subject_header=subject,
+            reply_to_header=outbound_from_address,
+            from_address=outbound_from_address,
+            to_address=to_address,
+            message_body=message_body,
+            attachments=attachments,
+            mail=mail,
+            address=address,
         )
         reply_record.increment_num_replied()
         profile = address.user.profile

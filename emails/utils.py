@@ -203,17 +203,23 @@ MailJSON = dict[str, Any]
 
 @time_if_enabled("ses_send_raw_email")
 def ses_send_raw_email(
+    *,
+    from_header: str,
+    to_header: str,
+    subject_header: str,
+    reply_to_header: str,
     from_address: str,
     to_address: str,
-    subject: str,
-    message_body: MessageBody,
     attachments: list[AttachmentPair],
-    reply_address: str,
+    message_body: MessageBody,
     mail: MailJSON,
     address: RelayAddress | DomainAddress,
 ) -> HttpResponse:
     msg_with_headers = _start_message_with_headers(
-        subject, from_address, to_address, reply_address
+        subject_header=subject_header,
+        from_header=from_header,
+        to_header=to_header,
+        reply_to_header=reply_to_header,
     )
     msg_with_body = _add_body_to_message(msg_with_headers, message_body)
     msg_with_attachments = _add_attachments_to_message(msg_with_body, attachments)
@@ -243,15 +249,18 @@ def ses_send_raw_email(
 
 
 def _start_message_with_headers(
-    subject: str, from_address: str, to_address: str, reply_address: str
+    subject_header: str,
+    from_header: str,
+    to_header: str,
+    reply_to_header: str,
 ) -> MIMEMultipart:
     # Create a multipart/mixed parent container.
     msg = MIMEMultipart("mixed")
     # Add subject, from and to lines.
-    msg["Subject"] = subject
-    msg["From"] = from_address
-    msg["To"] = to_address
-    msg["Reply-To"] = reply_address
+    msg["Subject"] = subject_header
+    msg["From"] = from_header
+    msg["To"] = to_header
+    msg["Reply-To"] = reply_to_header
     return msg
 
 
@@ -321,27 +330,31 @@ def _store_reply_record(mail: MailJSON, ses_response, address) -> MailJSON:
 
 
 def ses_relay_email(
+    *,
+    from_header: str,
+    to_header: str,
+    subject_header: str,
     from_address: str,
     to_address: str,
-    subject: str,
     message_body: MessageBody,
     attachments: list[AttachmentPair],
     mail: MailJSON,
     address: RelayAddress | DomainAddress,
 ) -> HttpResponse:
-    reply_address = "replies@%s" % get_domains_from_settings().get(
-        "RELAY_FIREFOX_DOMAIN"
-    )
+    relay_firefox_domain = get_domains_from_settings().get("RELAY_FIREFOX_DOMAIN")
+    reply_address = f"replies@{relay_firefox_domain}"
 
     response = ses_send_raw_email(
-        from_address,
-        to_address,
-        subject,
-        message_body,
-        attachments,
-        reply_address,
-        mail,
-        address,
+        from_header=from_header,
+        to_header=to_header,
+        subject_header=subject_header,
+        reply_to_header=reply_address,
+        from_address=from_address,
+        to_address=to_address,
+        message_body=message_body,
+        attachments=attachments,
+        mail=mail,
+        address=address,
     )
     return response
 
