@@ -42,6 +42,8 @@ import BundleIcon from "./images/bundle-promo-icon.svg";
 import OfferCountdownIcon from "./images/offer-countdown-icon.svg";
 import FirefoxIntegrationHero from "./images/firefox-integration-hero.svg";
 import FirefoxIntegrationIcon from "./images/firefox-integration-icon.svg";
+import MailingListHero from "./images/mailing-list-hero.svg";
+import MailingListIcon from "./images/mailing-list-icon.svg";
 import { WhatsNewComponentContent, WhatsNewContent } from "./WhatsNewContent";
 import {
   DismissalData,
@@ -518,6 +520,42 @@ export const WhatsNewMenu = (props: Props) => {
     isUsingFirefox()
   ) {
     entries.push(firefoxIntegrationAnnouncement);
+  }
+
+  const mailingListAnnouncement: WhatsNewEntry = {
+    title: l10n.getString("whatsnew-feature-mailing-list-heading"),
+    snippet: l10n.getString("whatsnew-feature-mailing-list-snippet"),
+    content: (
+      <WhatsNewContent
+        description={l10n.getString(
+          "whatsnew-feature-mailing-list-description"
+        )}
+        heading={l10n.getString("whatsnew-feature-mailing-list-heading")}
+        image={MailingListHero}
+        cta={
+          <a
+            className={styles.cta}
+            href="https://www.mozilla.org/newsletter/security-and-privacy/"
+            target="_blank"
+          >
+            {l10n.getString("whatsnew-feature-mailing-list-cta")}
+          </a>
+        }
+      />
+    ),
+    icon: MailingListIcon,
+    dismissal: useLocalDismissal(
+      `whatsnew-feature_mailing-list_${props.profile.id}`
+    ),
+    announcementDate: {
+      year: 2023,
+      month: 6,
+      day: 3,
+    },
+  };
+
+  if (isFlagActive(props.runtimeData, "mailing_list_announcement")) {
+    entries.push(mailingListAnnouncement);
   }
 
   const entriesNotInFuture = entries.filter((entry) => {

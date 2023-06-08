@@ -11,6 +11,7 @@ export type FlagNames =
   | "phone_launch_survey"
   | "multi_replies"
   | "firefox_integration"
+  | "mailing_list_announcement"
   | "premium_promo_banners"
   | "mask_redesign"
   | "mobile_app";
