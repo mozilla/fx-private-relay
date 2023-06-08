@@ -37,6 +37,7 @@ from privaterelay.utils import get_countries_info_from_request_and_mapping
 from .apps import EmailsConfig
 from .models import (
     DomainAddress,
+    Profile,
     RelayAddress,
     Reply,
     get_domains_from_settings,
@@ -349,11 +350,12 @@ def urlize_and_linebreaks(text, autoescape=True):
     return linebreaksbr(urlize(text, autoescape=autoescape), autoescape=autoescape)
 
 
-def generate_relay_From(original_from_address, user_profile=None):
+def reply_address_for_user(user_profile: Profile | None = None) -> str:
     _, relay_from_address = parseaddr(settings.RELAY_FROM_ADDRESS)
     try:
         new_from_flag = Flag.objects.get(name=NEW_FROM_ADDRESS_FLAG_NAME)
         if user_profile and new_from_flag.is_active_for_user(user_profile.user):
+            # TODO: should this also check if the flag is set for everyone?
             _, relay_from_address = parseaddr(settings.NEW_RELAY_FROM_ADDRESS)
     except Flag.DoesNotExist:
         pass
@@ -361,6 +363,12 @@ def generate_relay_From(original_from_address, user_profile=None):
         _, relay_from_address = parseaddr(
             "replies@%s" % get_domains_from_settings().get("RELAY_FIREFOX_DOMAIN")
         )
+    return relay_from_address
+
+
+def generate_relay_From(
+    original_from_address: str, user_profile: Profile | None = None
+) -> str:
     # RFC 2822 (https://tools.ietf.org/html/rfc2822#section-2.1.1)
     # says email header lines must not be more than 998 chars long.
     # Encoding display names to longer than 998 chars will add wrap
@@ -375,6 +383,7 @@ def generate_relay_From(original_from_address, user_profile=None):
     )
 
     display_name = Header('"%s [via Relay]"' % (original_from_address), "UTF-8")
+    relay_from_address = reply_address_for_user(user_profile)
     formatted_from_address = str(
         Address(display_name.encode(maxlinelen=998), addr_spec=relay_from_address)
     )
