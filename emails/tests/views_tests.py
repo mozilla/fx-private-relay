@@ -20,6 +20,7 @@ from botocore.exceptions import ClientError
 from markus.main import MetricsRecord
 from markus.testing import MetricsMock
 from model_bakery import baker
+from waffle.testutils import override_flag
 import pytest
 
 from privaterelay.ftl_bundles import main
@@ -33,6 +34,7 @@ from emails.models import (
     get_domains_from_settings,
 )
 from emails.utils import (
+    RESENDER_HEADERS_FLAG_NAME,
     b64_lookup_key,
     decrypt_reply_metadata,
     derive_reply_keys,
@@ -151,7 +153,7 @@ class SNSNotificationTest(TestCase):
             headers[key] = val
         raise Exception("Never found message body!")
 
-    def test_single_recipient_sns_notification(self) -> None:
+    def test_single_recipient_sns_notification_legacy_headers(self) -> None:
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
 
         sender, recipient, headers = self.get_details_from_mock_send_raw_email()
@@ -174,7 +176,30 @@ class SNSNotificationTest(TestCase):
         assert self.ra.num_forwarded == 1
         assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
 
-    def test_list_email_sns_notification(self) -> None:
+    @override_flag(RESENDER_HEADERS_FLAG_NAME, active=True)
+    def test_single_recipient_sns_notification(self) -> None:
+        _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
+
+        sender, recipient, headers = self.get_details_from_mock_send_raw_email()
+        assert sender == "reply@relay.example.com"
+        assert recipient == "user@example.com"
+        content_type = headers.pop("Content-Type")
+        assert content_type.startswith('multipart/mixed; boundary="========')
+        assert headers == {
+            "Subject": "localized email header + footer",
+            "MIME-Version": "1.0",
+            "From": '"fxastage@protonmail.com [via Relay]" <fxastage@protonmail.com>',
+            "To": "user@example.com",
+            "Reply-To": "reply@relay.example.com",
+            "Resent-From": "ebsbdsan7@test.com",
+            "Resent-Sender": "reply@relay.example.com",
+        }
+
+        self.ra.refresh_from_db()
+        assert self.ra.num_forwarded == 1
+        assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
+
+    def test_list_email_sns_notification_legacy_headers(self) -> None:
         """By default, list emails should still forward."""
         _sns_notification(EMAIL_SNS_BODIES["single_recipient_list"])
 
@@ -191,6 +216,29 @@ class SNSNotificationTest(TestCase):
             "From": sender,
             "To": "user@example.com",
             "Reply-To": "replies@default.com",
+        }
+
+        self.ra.refresh_from_db()
+        assert self.ra.num_forwarded == 1
+        assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
+
+    @override_flag(RESENDER_HEADERS_FLAG_NAME, active=True)
+    def test_list_email_sns_notification(self) -> None:
+        """By default, list emails should still forward."""
+        _sns_notification(EMAIL_SNS_BODIES["single_recipient_list"])
+
+        sender, recipient, headers = self.get_details_from_mock_send_raw_email()
+        assert sender == "reply@relay.example.com"
+        assert recipient == "user@example.com"
+        assert headers == {
+            "Content-Type": headers["Content-Type"],
+            "Subject": "localized email header + footer",
+            "MIME-Version": "1.0",
+            "From": '"fxastage@protonmail.com [via Relay]" <fxastage@protonmail.com>',
+            "To": "user@example.com",
+            "Reply-To": "reply@relay.example.com",
+            "Resent-From": "ebsbdsan7@test.com",
+            "Resent-Sender": "reply@relay.example.com",
         }
 
         self.ra.refresh_from_db()
@@ -230,7 +278,7 @@ class SNSNotificationTest(TestCase):
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 0
 
-    def test_domain_recipient(self) -> None:
+    def test_domain_recipient_legacy_headers(self) -> None:
         _sns_notification(EMAIL_SNS_BODIES["domain_recipient"])
 
         sender, recipient, headers = self.get_details_from_mock_send_raw_email()
@@ -246,6 +294,29 @@ class SNSNotificationTest(TestCase):
             "From": sender,
             "To": "premium@email.com",
             "Reply-To": "replies@default.com",
+        }
+
+        da = DomainAddress.objects.get(user=self.premium_user, address="wildcard")
+        assert da.num_forwarded == 1
+        assert da.last_used_at
+        assert (datetime.now(tz=timezone.utc) - da.last_used_at).seconds < 2.0
+
+    @override_flag(RESENDER_HEADERS_FLAG_NAME, active=True)
+    def test_domain_recipient(self) -> None:
+        _sns_notification(EMAIL_SNS_BODIES["domain_recipient"])
+
+        sender, recipient, headers = self.get_details_from_mock_send_raw_email()
+        assert sender == "replies@default.com"
+        assert recipient == "premium@email.com"
+        assert headers == {
+            "Content-Type": headers["Content-Type"],
+            "Subject": "localized email header + footer",
+            "MIME-Version": "1.0",
+            "From": '"fxastage@protonmail.com [via Relay]" <fxastage@protonmail.com>',
+            "To": "premium@email.com",
+            "Reply-To": "replies@default.com",
+            "Resent-From": "wildcard@subdomain.test.com",
+            "Resent-Sender": "replies@default.com",
         }
 
         da = DomainAddress.objects.get(user=self.premium_user, address="wildcard")
@@ -277,9 +348,8 @@ class SNSNotificationTest(TestCase):
         assert self.ra.last_used_at is None
 
     @patch("emails.views._get_text_html_attachments")
-    def test_reply(self, mock_get_content) -> None:
+    def test_reply(self, mock_get_content, resender_headers=True) -> None:
         """The headers of a reply refer to the Relay mask."""
-
         # Create a premium user matching the s3_stored_replies sender
         user = baker.make(User, email="source@sender.com")
         user.profile.server_storage = True
@@ -307,7 +377,9 @@ class SNSNotificationTest(TestCase):
         mock_get_content.return_value = ("this is a text reply", None, [], None)
 
         # Successfully reply to a previous sender
-        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
+        # Headers are the same before and after the resender change
+        with override_flag(RESENDER_HEADERS_FLAG_NAME, active=resender_headers):
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
         assert response.status_code == 200
 
         self.mock_remove_message_from_s3.assert_called_once()
@@ -330,6 +402,9 @@ class SNSNotificationTest(TestCase):
         last_used_at = relay_address.last_used_at
         assert last_used_at
         assert (datetime.now(tz=timezone.utc) - last_used_at).seconds < 2.0
+
+    def test_reply_legacy_headers(self) -> None:
+        self.test_reply(resender_headers=False)
 
 
 class BounceHandlingTest(TestCase):

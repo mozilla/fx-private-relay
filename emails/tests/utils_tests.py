@@ -7,10 +7,12 @@ from unittest.mock import patch
 from model_bakery import baker
 from waffle.models import Flag
 import json
+import pytest
 
 from emails.models import get_domains_from_settings
 from emails.utils import (
     NEW_FROM_ADDRESS_FLAG_NAME,
+    generate_from_header,
     generate_relay_From,
     get_email_domain_from_settings,
     remove_trackers,
@@ -174,6 +176,64 @@ class FormattingToolsTest(TestCase):
             "RELAY_FIREFOX_DOMAIN": "default.com",
             "MOZMAIL_DOMAIN": "test.com",
         }
+
+
+GENERATE_FROM_TESTS = {
+    "with_umlaut": (
+        '"foö bär" <foo@bar.com>',
+        "=?utf-8?b?Zm/DtiBiw6RyIFt2aWEgUmVsYXld?= <foo@bar.com>",
+    ),
+    "realistic_address": (
+        "something real <somethingreal@protonmail.com>",
+        '"something real [via Relay]" <somethingreal@protonmail.com>',
+    ),
+    "just_email": (
+        "foo@bar.example.com",
+        '"foo@bar.example.com [via Relay]" <foo@bar.example.com>',
+    ),
+    "too_long_original_address": (
+        f"l{'o' * 90}ng <long@long.example.com>",
+        f'"l{"o" * 67}... [via Relay]" <long@long.example.com>',
+    ),
+    "too_long_with_umlat": (
+        f"l{'ö' * 90}ng <long-umlat@long.example.com>",
+        (
+            f"=?utf-8?b?bM{'O2w7bDts' * 22}O2w7bDtuKApiBbdmlhIFJlbGF5XQ==?="
+            " <long-umlat@long.example.com>"
+        ),
+    ),
+    "with_linebreak_chars": (
+        '"Ter\ry \n ct\u2028" <info@lines.example.org>',
+        '"Tery  ct [via Relay]" <info@lines.example.org>',
+    ),
+    "exactly_long": (
+        (
+            "This_display_name_is_exactly_71_characters_long_and_no_more__I_promise!"
+            " <exact@jerk.example.com>"
+        ),
+        (
+            '"This_display_name_is_exactly_71_characters_long_and_no_more__I_promise!'
+            ' [via Relay]" <exact@jerk.example.com>'
+        ),
+    ),
+}
+
+
+@pytest.mark.parametrize(
+    "original_from_address,expected_header",
+    GENERATE_FROM_TESTS.values(),
+    ids=GENERATE_FROM_TESTS.keys(),
+)
+def test_generate_from_header(original_from_address, expected_header):
+    from_header = generate_from_header(original_from_address)
+    assert from_header == expected_header
+    if "=?utf-8?b?" in from_header:
+        max_length = 226  # utf-8, base64 encoding maximum
+    else:
+        max_length = 78
+    first_part, rest = from_header.split(" ", 1)
+    header_line = f"From: {first_part}"
+    assert len(header_line) <= max_length
 
 
 @override_settings(SITE_ORIGIN="https://test.com")

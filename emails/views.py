@@ -51,21 +51,24 @@ from .models import (
     Reply,
 )
 from .utils import (
+    RESENDER_HEADERS_FLAG_NAME,
     _get_bucket_and_key_from_s3_json,
     b64_lookup_key,
-    remove_trackers,
     count_all_trackers,
-    get_message_content_from_s3,
-    incr_if_enabled,
-    histogram_if_enabled,
-    ses_relay_email,
-    urlize_and_linebreaks,
-    derive_reply_keys,
     decrypt_reply_metadata,
-    remove_message_from_s3,
-    ses_send_raw_email,
-    get_message_id_bytes,
+    derive_reply_keys,
+    generate_from_header,
     generate_relay_From,
+    get_message_content_from_s3,
+    get_message_id_bytes,
+    histogram_if_enabled,
+    incr_if_enabled,
+    remove_message_from_s3,
+    remove_trackers,
+    reply_address_for_user,
+    ses_relay_email,
+    ses_send_raw_email,
+    urlize_and_linebreaks,
 )
 from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 
@@ -617,19 +620,46 @@ def _sns_message(message_json):
         wrapped_text = relay_header_text + text_content
         message_body["Text"] = {"Charset": "UTF-8", "Data": wrapped_text}
 
-    to_address = user_profile.user.email
-    formatted_from_address = generate_relay_From(from_address, user_profile)
-    response = ses_relay_email(
-        from_header=formatted_from_address,
-        to_header=to_address,
-        subject_header=subject,
-        from_address=formatted_from_address,
-        to_address=to_address,
-        message_body=message_body,
-        attachments=attachments,
-        mail=mail,
-        address=address,
+    resender_headers_flag, _ = Flag.objects.get_or_create(
+        name=RESENDER_HEADERS_FLAG_NAME,
+        defaults={"note": "MPP-2117: Filter-friendly mail headers"},
     )
+    resender_headers = (
+        resender_headers_flag.is_active_for_user(user_profile.user)
+        or resender_headers_flag.everyone
+    )
+    if resender_headers:
+        true_address = user_profile.user.email
+        reply_address = reply_address_for_user(user_profile)
+        from_header = generate_from_header(from_address)
+        response = ses_relay_email(
+            from_header=from_header,
+            to_header=true_address,
+            subject_header=subject,
+            reply_to_header=reply_address,
+            resent_from_header=to_address,
+            resent_sender_header=reply_address,
+            from_address=reply_address,
+            to_address=true_address,
+            message_body=message_body,
+            attachments=attachments,
+            mail=mail,
+            address=address,
+        )
+    else:
+        to_address = user_profile.user.email
+        formatted_from_address = generate_relay_From(from_address, user_profile)
+        response = ses_relay_email(
+            from_header=formatted_from_address,
+            to_header=to_address,
+            subject_header=subject,
+            from_address=formatted_from_address,
+            to_address=to_address,
+            message_body=message_body,
+            attachments=attachments,
+            mail=mail,
+            address=address,
+        )
     if response.status_code == 503:
         # early return the response to trigger SNS to re-attempt
         return response
