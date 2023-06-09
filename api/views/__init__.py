@@ -17,6 +17,7 @@ from rest_framework.response import Response
 from rest_framework.views import exception_handler
 from rest_framework.serializers import ValidationError
 
+from allauth.account.adapter import get_adapter as get_account_adapter  # type: ignore
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.helpers import complete_social_login  # type: ignore
 from allauth.socialaccount.providers.fxa.provider import FirefoxAccountsProvider  # type: ignore
@@ -211,6 +212,7 @@ def terms_accepted_user(request):
         fxa_profile_resp = requests.get(
             profile_url, headers={"Authorization": f"Bearer {token}"}
         )
+
         # this is not exactly the request object that FirefoxAccountsProvider expects, but
         # it has all of the necssary attributes to initiatlize the Provider
         provider = FirefoxAccountsProvider(request)
@@ -225,7 +227,12 @@ def terms_accepted_user(request):
         # create new SocialAccount, User, and Profile for the new Relay user from Firefox
         # Since this is a Resource Provider/Server flow and are NOT a Relying Party (RP) of FXA
         # No social token information is stored (no Social Token object created).
-        login_resp = complete_social_login(request, social_login)
+        complete_social_login(request, social_login)
+        # complete_social_login writes ['account_verified_email', 'user_created', '_auth_user_id', '_auth_user_backend', '_auth_user_hash']
+        # on request.session which sets the cookie because complete_social_login does the "login"
+        # Clear the session since the user did not actually login by logging out
+        if request.user.is_authenticated:
+            get_account_adapter(request).logout(request)
         sa = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
         # Indicate profile was created from the resource flow
         profile = sa.user.profile
