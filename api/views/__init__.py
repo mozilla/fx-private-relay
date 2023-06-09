@@ -18,8 +18,8 @@ from rest_framework.views import exception_handler
 from rest_framework.serializers import ValidationError
 
 from allauth.socialaccount.models import SocialAccount
-from allauth.socialaccount.helpers import complete_social_login  # type: ignore
-from allauth.socialaccount.providers.fxa.provider import FirefoxAccountsProvider  # type: ignore
+from allauth.socialaccount.helpers import complete_social_login
+from allauth.socialaccount.providers.fxa.provider import FirefoxAccountsProvider
 from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
 from django_filters import rest_framework as filters
 from drf_yasg.utils import swagger_auto_schema
