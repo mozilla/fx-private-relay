@@ -25,7 +25,6 @@ import jwcrypto.jwk
 import markus
 import logging
 from urllib.parse import quote_plus, urlparse
-from waffle.models import Flag
 
 from django.apps import apps
 from django.conf import settings
@@ -45,7 +44,6 @@ from .models import (
 )
 
 
-NEW_FROM_ADDRESS_FLAG_NAME = "new_from_address"  # TODO: Remove, off for everyone
 RESENDER_HEADERS_FLAG_NAME = "resender_headers"
 
 logger = logging.getLogger("events")
@@ -389,18 +387,12 @@ def urlize_and_linebreaks(text, autoescape=True):
 
 
 def reply_address_for_user(user_profile: Profile | None = None) -> str:
-    _, relay_from_address = parseaddr(settings.RELAY_FROM_ADDRESS)
-    try:
-        # TODO: remove, inactive for everyone
-        new_from_flag = Flag.objects.get(name=NEW_FROM_ADDRESS_FLAG_NAME)
-        if user_profile and new_from_flag.is_active_for_user(user_profile.user):
-            _, relay_from_address = parseaddr(settings.NEW_RELAY_FROM_ADDRESS)
-    except Flag.DoesNotExist:
-        pass
     if user_profile and user_profile.has_premium:
         _, relay_from_address = parseaddr(
             "replies@%s" % get_domains_from_settings().get("RELAY_FIREFOX_DOMAIN")
         )
+    else:
+        _, relay_from_address = parseaddr(settings.RELAY_FROM_ADDRESS)
     return relay_from_address
 
 
