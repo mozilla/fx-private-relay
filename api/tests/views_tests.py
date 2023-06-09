@@ -1,12 +1,25 @@
+from datetime import datetime
 import pytest
 from model_bakery import baker
+import responses
 
 from django.contrib.auth.models import User
-from django.test import override_settings
+from django.core.cache import cache
+from django.test import (
+    override_settings,
+    RequestFactory,
+    TestCase,
+)
 from django.utils import timezone
 from django.urls import reverse
 from rest_framework.test import APIClient
 
+from api import authentication
+from api.authentication import get_cache_key
+from api.tests.authentication_tests import (
+    _setup_fxa_response,
+    _setup_fxa_response_no_json,
+)
 from emails.models import RelayAddress
 from emails.tests.models_tests import make_free_test_user, make_premium_test_user
 
@@ -201,3 +214,166 @@ def test_post_relayaddress_flagged_error(free_user, free_api_client) -> None:
         "detail": "Your account is on pause.",
         "error_code": "account_is_paused",
     }
+
+
+class TermsAcceptedUserViewTest(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.path = "/api/v1/terms-accepted-user/"
+        self.fxa_verify_path = authentication.INTROSPECT_TOKEN_URL
+        self.uid = "relay-user-fxa-uid"
+
+    def _setup_client(self, token):
+        self.client = APIClient()
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+
+    def tearDown(self):
+        cache.clear()
+
+    def test_no_authorization_header_returns_400(self):
+        client = APIClient()
+        response = client.post(self.path)
+
+        assert response.status_code == 400
+        assert response.json()["detail"] == "Missing Bearer header."
+
+    def test_no_token_returns_400(self):
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION="Bearer ")
+        response = client.post(self.path)
+
+        assert response.status_code == 400
+        assert response.json()["detail"] == "Missing FXA Token after 'Bearer'."
+
+    @responses.activate()
+    def test_invalid_bearer_token_error_from_fxa_returns_500_and_cache_returns_500(
+        self,
+    ):
+        fxa_response = _setup_fxa_response(401, {"error": "401"})
+        not_found_token = "not-found-123"
+        self._setup_client(not_found_token)
+
+        assert cache.get(get_cache_key(not_found_token)) is None
+
+        response = self.client.post(self.path)
+        assert response.status_code == 500
+        assert response.json()["detail"] == "Did not receive a 200 response from FXA."
+        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert cache.get(get_cache_key(not_found_token)) == fxa_response
+
+        # now check that the code does NOT make another fxa request
+        response = self.client.post(self.path)
+        assert response.status_code == 500
+        assert response.json()["detail"] == "Did not receive a 200 response from FXA."
+        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+
+    @responses.activate()
+    def test_jsondecodeerror_returns_401_and_cache_returns_500(
+        self,
+    ):
+        _setup_fxa_response_no_json(200)
+        err_fxa_response = {"status_code": None, "json": {}}
+        invalid_token = "invalid-123"
+        cache_key = get_cache_key(invalid_token)
+        self._setup_client(invalid_token)
+
+        assert cache.get(cache_key) is None
+
+        # get fxa response with no status code for the first time
+        response = self.client.post(self.path)
+        assert response.status_code == 401
+        assert (
+            response.json()["detail"] == "Jsondecodeerror From Fxa Introspect Response"
+        )
+        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert cache.get(cache_key) == err_fxa_response
+
+        # now check that the 2nd call did NOT make another fxa request
+        response = self.client.post(self.path)
+        assert response.status_code == 500
+        assert response.json()["detail"] == "Previous FXA call failed, wait to retry."
+        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+
+    @responses.activate()
+    def test_non_200_response_from_fxa_returns_500_and_cache_returns_500(
+        self,
+    ):
+        now_time = int(datetime.now().timestamp())
+        # Note: FXA iat and exp are timestamps in *milliseconds*
+        exp_time = (now_time + 60 * 60) * 1000
+        fxa_response = _setup_fxa_response(
+            401, {"active": False, "sub": self.uid, "exp": exp_time}
+        )
+        invalid_token = "invalid-123"
+        cache_key = get_cache_key(invalid_token)
+        self._setup_client(invalid_token)
+
+        assert cache.get(cache_key) is None
+
+        # get fxa response with non-200 response for the first time
+        response = self.client.post(self.path)
+        assert response.status_code == 500
+        assert response.json()["detail"] == "Did not receive a 200 response from FXA."
+        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert cache.get(cache_key) == fxa_response
+
+        # now check that the 2nd call did NOT make another fxa request
+        response = self.client.post(self.path)
+        assert response.status_code == 500
+        assert response.json()["detail"] == "Did not receive a 200 response from FXA."
+        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+
+    @responses.activate()
+    def test_inactive_fxa_oauth_token_returns_401_and_cache_returns_401(
+        self,
+    ):
+        now_time = int(datetime.now().timestamp())
+        # Note: FXA iat and exp are timestamps in *milliseconds*
+        old_exp_time = (now_time - 60 * 60) * 1000
+        fxa_response = _setup_fxa_response(
+            200, {"active": False, "sub": self.uid, "exp": old_exp_time}
+        )
+        invalid_token = "invalid-123"
+        cache_key = get_cache_key(invalid_token)
+        self._setup_client(invalid_token)
+
+        assert cache.get(cache_key) is None
+
+        # get fxa response with token inactive for the first time
+        response = self.client.post(self.path)
+        assert response.status_code == 401
+        assert response.json()["detail"] == "Fxa Returned Active: False For Token."
+        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert cache.get(cache_key) == fxa_response
+
+        # now check that the 2nd call did NOT make another fxa request
+        response = self.client.post(self.path)
+        assert response.status_code == 401
+        assert response.json()["detail"] == "Fxa Returned Active: False For Token."
+        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert cache.get(cache_key) == fxa_response
+
+    @responses.activate()
+    def test_fxa_responds_with_no_fxa_uid_returns_404_and_cache_returns_404(self):
+        user_token = "user-123"
+        now_time = int(datetime.now().timestamp())
+        # Note: FXA iat and exp are timestamps in *milliseconds*
+        exp_time = (now_time + 60 * 60) * 1000
+        fxa_response = _setup_fxa_response(200, {"active": True, "exp": exp_time})
+        cache_key = get_cache_key(user_token)
+        self._setup_client(user_token)
+
+        assert cache.get(cache_key) is None
+
+        # get fxa response with no fxa uid for the first time
+        response = self.client.post(self.path)
+        assert response.status_code == 404
+        assert response.json()["detail"] == "FXA did not return an FXA UID."
+        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert cache.get(cache_key) == fxa_response
+
+        # now check that the 2nd call did NOT make another fxa request
+        response = self.client.post(self.path)
+        assert response.status_code == 404
+        assert response.json()["detail"] == "FXA did not return an FXA UID."
+        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
