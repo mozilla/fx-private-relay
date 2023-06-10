@@ -108,7 +108,7 @@ const Home: NextPage = () => {
           Need to wait on design audit to fix white/grey background 
           discrepanies between pages. 
         */}
-        <div className={styles["gray-bg"]}>
+        <div className={`${styles["gray-bg"]} ${styles["reviews-container"]}`}>
           <Reviews />
           {/* Anchor link "pricing" exists within the PlanMatrix component */}
           <div className={styles.plans}>

@@ -63,7 +63,8 @@
 
 .how-it-works-wrapper {
   background-color: $color-white;
-  margin-top: $layout-md;
+  // Magic number: 64px allows us to have an even spacing between sections on pages
+  padding: calc($spacing-xl * 2) $spacing-md;
 }
 
 .how-it-works {
@@ -224,6 +225,8 @@
 
 .faq-wrapper {
   background-color: $color-white;
+  // Magic number: 64px allows us to have an even spacing between sections on pages
+  padding: calc($spacing-xl * 2) $spacing-md;
 }
 
 .faq {
@@ -277,8 +280,8 @@
 .bundle-banner-section {
   width: 100%;
   margin: 0 auto;
-  padding: $spacing-lg $spacing-md;
-  margin-top: $layout-lg;
+  // Magic number: 64px allows us to have an even spacing between sections on pages
+  padding: calc($spacing-xl * 2) $spacing-md;
 
   @media screen and #{$mq-md} {
     width: $content-max;
@@ -289,6 +292,11 @@
 
 .gray-bg {
   background-color: $color-light-gray-10;
+}
+
+.reviews-container {
+  // Magic number: 64px allows us to have an even spacing between sections on pages
+  padding: calc($spacing-xl * 2) $spacing-md;
 }
 
 .testimonials-wrapper {
