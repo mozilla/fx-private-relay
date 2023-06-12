@@ -438,7 +438,7 @@ def generate_from_header(original_from_address: str) -> str:
 
     # Truncate the to 71 characters, so the sender portion fits on the first
     # line of a multi-line "From:" header, if it is ASCII. A utf-8 encoded
-    # header will be 226 lines, still below the 998 limit of RFC 5322 2.1.1.
+    # header will be 226 chars, still below the 998 limit of RFC 5322 2.1.1.
     max_len = 71
     if len(display_name) > max_len:
         ellipsis = "..."  # ASCII Ellipsis
