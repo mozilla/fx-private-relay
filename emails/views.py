@@ -73,6 +73,7 @@ from .utils import (
 from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 
 from privaterelay.ftl_bundles import main as ftl_bundle
+from privaterelay.utils import flag_is_active_for_user
 
 
 logger = logging.getLogger("events")
@@ -620,16 +621,8 @@ def _sns_message(message_json):
         wrapped_text = relay_header_text + text_content
         message_body["Text"] = {"Charset": "UTF-8", "Data": wrapped_text}
 
-    resender_headers_flag, _ = Flag.objects.get_or_create(
-        name=RESENDER_HEADERS_FLAG_NAME,
-        defaults={"note": "MPP-2117: Filter-friendly mail headers"},
-    )
-    resender_headers = (
-        resender_headers_flag.is_active_for_user(user_profile.user)
-        or resender_headers_flag.everyone
-    )
-    if resender_headers:
-        true_address = user_profile.user.email
+    true_address = user_profile.user.email
+    if flag_is_active_for_user(RESENDER_HEADERS_FLAG_NAME, user_profile.user):
         reply_address = reply_address_for_user(user_profile)
         from_header = generate_from_header(from_address)
         response = ses_relay_email(
@@ -647,14 +640,13 @@ def _sns_message(message_json):
             address=address,
         )
     else:
-        to_address = user_profile.user.email
         formatted_from_address = generate_relay_From(from_address, user_profile)
         response = ses_relay_email(
             from_header=formatted_from_address,
-            to_header=to_address,
+            to_header=true_address,
             subject_header=subject,
             from_address=formatted_from_address,
-            to_address=to_address,
+            to_address=true_address,
             message_body=message_body,
             attachments=attachments,
             mail=mail,
