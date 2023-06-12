@@ -1,4 +1,4 @@
-boto3==1.26.146
+boto3==1.26.151
 codetiming==1.4.0
 cryptography==41.0.1
 Django==3.2.19
@@ -25,7 +25,7 @@ PyJWT==2.7.0
 python-decouple==3.8
 pyOpenSSL==23.2.0
 requests==2.31.0
-sentry-sdk==1.25.0
+sentry-sdk==1.25.1
 whitenoise==6.4.0
 
 # phones app
@@ -35,7 +35,7 @@ vobject==0.9.6.1
 
 # tests
 coverage==7.2.7
-model-bakery==1.11.0
+model-bakery==1.12.0
 pytest-cov==4.1.0
 pytest-django==4.5.2
 responses==0.23.1
@@ -49,6 +49,6 @@ types-requests==2.31.0.1
 types-pyOpenSSL==23.2.0.0
 django-stubs==4.2.1
 djangorestframework-stubs==3.14.1
-boto3-stubs==1.26.146
-botocore-stubs==1.29.146
+boto3-stubs==1.26.151
+botocore-stubs==1.29.151
 mypy-boto3-ses==1.26.0.post1
