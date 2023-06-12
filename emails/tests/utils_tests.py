@@ -145,7 +145,14 @@ class FormattingToolsTest(TestCase):
         }
 
 
-GENERATE_FROM_TESTS = {
+# Test cases for test_generate_from_header
+# key: name of test case
+# value: 2-element tuple of
+#   original_from_address: The From: header in the original message
+#   expected_header: The expected From: header returned by generate_from_header
+
+
+GENERATE_FROM_TEST_CASES = {
     "with_umlaut": (
         '"foö bär" <foo@bar.com>',
         "=?utf-8?b?Zm/DtiBiw6RyIFt2aWEgUmVsYXld?= <foo@bar.com>",
@@ -188,8 +195,8 @@ GENERATE_FROM_TESTS = {
 
 @pytest.mark.parametrize(
     "original_from_address,expected_header",
-    GENERATE_FROM_TESTS.values(),
-    ids=GENERATE_FROM_TESTS.keys(),
+    GENERATE_FROM_TEST_CASES.values(),
+    ids=GENERATE_FROM_TEST_CASES.keys(),
 )
 def test_generate_from_header(original_from_address, expected_header):
     from_header = generate_from_header(original_from_address)
