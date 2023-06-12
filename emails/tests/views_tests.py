@@ -769,7 +769,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
 
     @patch("emails.views._get_text_html_attachments")
     @patch("emails.views.remove_message_from_s3")
-    def test_get_text_hteml_s3_client_error_email_in_s3_not_deleted(
+    def test_get_text_html_s3_client_error_email_in_s3_not_deleted(
         self,
         mocked_message_removed,
         mocked_get_text_html,
@@ -783,53 +783,53 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         assert response.status_code == 503
         assert response.content == b"Cannot fetch the message content from S3"
 
-    @patch("emails.views.ses_relay_email")
+    @patch("emails.apps.EmailsConfig.ses_client", spec_set=["send_raw_email"])
     @patch("emails.views._get_text_html_attachments")
     @patch("emails.views.remove_message_from_s3")
     def test_ses_client_error_email_in_s3_not_deleted(
         self,
         mocked_message_removed,
         mocked_get_text_html,
-        mocked_relay_email,
+        mocked_ses_client,
     ):
-        mocked_get_text_html.return_value = ("text_content", None, ["attachments"], 50)
-        mocked_relay_email.return_value = HttpResponse("SES client failed", status=503)
+        mocked_get_text_html.return_value = ("text_content", None, [], 50)
+        mocked_ses_client.send_raw_email.side_effect = SEND_RAW_EMAIL_FAILED
 
         response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
         mocked_message_removed.assert_not_called()
         assert response.status_code == 503
-        assert response.content == b"SES client failed"
+        assert response.content == b"SES client error on Raw Email"
 
-    @patch("emails.views.ses_relay_email")
+    @patch("emails.apps.EmailsConfig.ses_client", spec_set=["send_raw_email"])
     @patch("emails.views._get_text_html_attachments")
     @patch("emails.views.remove_message_from_s3")
     def test_successful_email_in_s3_deleted(
         self,
         mocked_message_removed,
         mocked_get_text_html,
-        mocked_relay_email,
+        mocked_ses_client,
     ):
-        mocked_get_text_html.return_value = ("text_content", None, ["attachments"], 50)
-        mocked_relay_email.return_value = HttpResponse("Email relayed", status=200)
+        mocked_get_text_html.return_value = ("text_content", None, [], 50)
+        mocked_ses_client.send_raw_email.return_value = {"MessageId": "NICE"}
 
         response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
         mocked_message_removed.called_once_with(self.bucket, self.key)
         assert response.status_code == 200
-        assert response.content == b"Email relayed"
+        assert response.content == b"Sent email to final recipient."
 
     @override_settings(STATSD_ENABLED=True)
-    @patch("emails.views.ses_relay_email")
+    @patch("emails.apps.EmailsConfig.ses_client", spec_set=["send_raw_email"])
     @patch("emails.views._get_text_html_attachments")
     @patch("emails.views.remove_message_from_s3")
     def test_dmarc_failure_s3_deleted(
         self,
         mocked_message_removed,
         mocked_get_text_html,
-        mocked_relay_email,
+        mocked_ses_client,
     ):
         """A message with a failing DMARC and a "reject" policy is rejected."""
-        mocked_get_text_html.return_value = ("text_content", None, ["attachments"], 50)
-        mocked_relay_email.side_effect = FAIL_TEST_IF_CALLED
+        mocked_get_text_html.return_value.side_effect = FAIL_TEST_IF_CALLED
+        mocked_ses_client.send_raw_email.side_effect = FAIL_TEST_IF_CALLED
 
         with MetricsMock() as mm:
             response = _sns_notification(EMAIL_SNS_BODIES["dmarc_failed"])
