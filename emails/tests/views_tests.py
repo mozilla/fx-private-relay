@@ -153,7 +153,7 @@ class SNSNotificationTest(TestCase):
             headers[key] = val
         raise Exception("Never found message body!")
 
-    def test_single_recipient_sns_notification_legacy_headers(self) -> None:
+    def test_single_recipient_sns_notification(self) -> None:
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
 
         sender, recipient, headers = self.get_details_from_mock_send_raw_email()
@@ -177,7 +177,7 @@ class SNSNotificationTest(TestCase):
         assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
 
     @override_flag(RESENDER_HEADERS_FLAG_NAME, active=True)
-    def test_single_recipient_sns_notification(self) -> None:
+    def test_single_recipient_sns_notification_resender_headers(self) -> None:
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
 
         sender, recipient, headers = self.get_details_from_mock_send_raw_email()
@@ -199,7 +199,7 @@ class SNSNotificationTest(TestCase):
         assert self.ra.num_forwarded == 1
         assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
 
-    def test_list_email_sns_notification_legacy_headers(self) -> None:
+    def test_list_email_sns_notification(self) -> None:
         """By default, list emails should still forward."""
         _sns_notification(EMAIL_SNS_BODIES["single_recipient_list"])
 
@@ -223,7 +223,7 @@ class SNSNotificationTest(TestCase):
         assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
 
     @override_flag(RESENDER_HEADERS_FLAG_NAME, active=True)
-    def test_list_email_sns_notification(self) -> None:
+    def test_list_email_sns_notification_resender_headers(self) -> None:
         """By default, list emails should still forward."""
         _sns_notification(EMAIL_SNS_BODIES["single_recipient_list"])
 
@@ -278,7 +278,7 @@ class SNSNotificationTest(TestCase):
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 0
 
-    def test_domain_recipient_legacy_headers(self) -> None:
+    def test_domain_recipient(self) -> None:
         _sns_notification(EMAIL_SNS_BODIES["domain_recipient"])
 
         sender, recipient, headers = self.get_details_from_mock_send_raw_email()
@@ -302,7 +302,7 @@ class SNSNotificationTest(TestCase):
         assert (datetime.now(tz=timezone.utc) - da.last_used_at).seconds < 2.0
 
     @override_flag(RESENDER_HEADERS_FLAG_NAME, active=True)
-    def test_domain_recipient(self) -> None:
+    def test_domain_recipient_resender_headers(self) -> None:
         _sns_notification(EMAIL_SNS_BODIES["domain_recipient"])
 
         sender, recipient, headers = self.get_details_from_mock_send_raw_email()
@@ -348,7 +348,7 @@ class SNSNotificationTest(TestCase):
         assert self.ra.last_used_at is None
 
     @patch("emails.views._get_text_html_attachments")
-    def test_reply(self, mock_get_content, resender_headers=True) -> None:
+    def test_reply(self, mock_get_content, resender_headers=False) -> None:
         """The headers of a reply refer to the Relay mask."""
         # Create a premium user matching the s3_stored_replies sender
         user = baker.make(User, email="source@sender.com")
@@ -403,8 +403,8 @@ class SNSNotificationTest(TestCase):
         assert last_used_at
         assert (datetime.now(tz=timezone.utc) - last_used_at).seconds < 2.0
 
-    def test_reply_legacy_headers(self) -> None:
-        self.test_reply(resender_headers=False)
+    def test_reply_resender_headers(self) -> None:
+        self.test_reply(resender_headers=True)
 
 
 class BounceHandlingTest(TestCase):
