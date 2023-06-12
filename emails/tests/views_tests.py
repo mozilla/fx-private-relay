@@ -844,45 +844,39 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
 
 class SnsMessageTest(TestCase):
     def setUp(self) -> None:
-        self.user = baker.make(User)
-        self.profile = self.user.profile
-        assert self.profile is not None
-        self.sa: SocialAccount = baker.make(
-            SocialAccount, user=self.user, provider="fxa"
-        )
+        self.message_json = json.loads(EMAIL_SNS_BODIES["s3_stored"]["Message"])
+        assert self.message_json["mail"]["destination"] == ["sender@test.com"]
+
+        # Create a matching user and address for the recipients "sender@test.com"
+        user = baker.make(User)
+        baker.make(SocialAccount, user=user, provider="fxa")
         # test.com is the second domain listed and has the numerical value 2
-        self.address = baker.make(
-            RelayAddress, user=self.user, address="sender", domain=2
-        )
+        baker.make(RelayAddress, user=user, address="sender", domain=2)
 
-        self.bucket = "test-bucket"
-        self.key = "/emails/objectkey123"
-
-        patcher = patch(
+        get_text_html_attachments_patcher = patch(
             "emails.views._get_text_html_attachments",
-            return_value=("text", "html", "attachments", 50),
+            return_value=("text", "html", [], 50),
         )
-        patcher.start()
-        self.addCleanup(patcher.stop)
+        get_text_html_attachments_patcher.start()
+        self.addCleanup(get_text_html_attachments_patcher.stop)
 
-    @patch("emails.views.ses_relay_email")
-    def test_ses_relay_email_has_client_error_early_exits(self, mocked_ses_relay_email):
-        message_json = json.loads(EMAIL_SNS_BODIES["s3_stored"]["Message"])
-        mocked_ses_relay_email.return_value = HttpResponse(status=503)
+        ses_client_patcher = patch(
+            "emails.apps.EmailsConfig.ses_client",
+            spec_set=["send_raw_email"],
+        )
+        self.mock_ses_client = ses_client_patcher.start()
+        self.addCleanup(ses_client_patcher.stop)
 
-        response = _sns_message(message_json)
-        mocked_ses_relay_email.assert_called_once()
+    def test_ses_send_raw_email_has_client_error_early_exits(self):
+        self.mock_ses_client.send_raw_email.side_effect = SEND_RAW_EMAIL_FAILED
+        response = _sns_message(self.message_json)
+        self.mock_ses_client.send_raw_email.assert_called_once()
         assert response.status_code == 503
 
-    @patch("emails.views.ses_relay_email")
-    def test_ses_relay_email_email_relayed_email_deleted_from_s3(
-        self, mocked_ses_relay_email
-    ):
-        message_json = json.loads(EMAIL_SNS_BODIES["s3_stored"]["Message"])
-        mocked_ses_relay_email.return_value = HttpResponse(status=200)
-
-        response = _sns_message(message_json)
-        mocked_ses_relay_email.assert_called_once()
+    def test_ses_send_raw_email_email_relayed_email_deleted_from_s3(self):
+        self.mock_ses_client.send_raw_email.return_value = {"MessageId": str(uuid4())}
+        response = _sns_message(self.message_json)
+        self.mock_ses_client.send_raw_email.assert_called_once()
         assert response.status_code == 200
 
 
