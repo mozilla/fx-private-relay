@@ -24,7 +24,7 @@
     "@mozilla-protocol/core": "^17.0.1",
     "chokidar-cli": "^3.0.0",
     "cldr-localenames-modern": "^43.0.0",
-    "msw": "^1.2.1",
+    "msw": "^1.2.2",
     "react": "18.2.0",
     "react-aria": "^3.25.0",
     "react-dom": "18.2.0",
