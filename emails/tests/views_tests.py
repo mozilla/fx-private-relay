@@ -100,6 +100,13 @@ for email_file in glob.glob(
 # for test and assert it was never called.
 FAIL_TEST_IF_CALLED = Exception("This function should not have been called.")
 
+# Set mocked ses_client.send_raw_email.side_effect = SEND_RAW_EMAIL_FAILED to
+# simulate an error
+SEND_RAW_EMAIL_FAILED = ClientError(
+    operation_name="SES.send_raw_email",
+    error_response={"Error": {"Code": "the code", "Message": "the message"}},
+)
+
 
 @override_settings(RELAY_FROM_ADDRESS="reply@relay.example.com")
 class SNSNotificationTest(TestCase):
@@ -263,10 +270,7 @@ class SNSNotificationTest(TestCase):
         assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
 
     def test_unsuccessful_email_relay_message_not_removed_from_s3(self) -> None:
-        self.mock_send_raw_email.side_effect = ClientError(
-            error_response={"Error": {"Code": "the code", "Message": "the message"}},
-            operation_name="SES.send_raw_email",
-        )
+        self.mock_send_raw_email.side_effect = SEND_RAW_EMAIL_FAILED
         response = _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
         assert response.status_code == 503
 
