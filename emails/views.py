@@ -2,7 +2,6 @@ from copy import deepcopy
 from datetime import datetime, timezone
 from email import message_from_bytes, policy
 from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from email.utils import parseaddr
 import html
 import json
@@ -54,6 +53,7 @@ from .utils import (
     _get_bucket_and_key_from_s3_json,
     b64_lookup_key,
     count_all_trackers,
+    create_message,
     decrypt_reply_metadata,
     derive_reply_keys,
     generate_relay_From,
@@ -714,49 +714,42 @@ def _strip_localpart_tag(address):
 
 
 def _build_reply_requires_premium_email(
-    from_address,
-    reply_record,
-    message_id,
-    decrypted_metadata,
-):
-    # If we haven't forwaded a first reply for this user yet, _reply_allowed
+    from_address: str,
+    reply_record: Reply,
+    message_id: str | None,
+    decrypted_metadata: dict[str, Any] | None,
+) -> MIMEMultipart:
+    # If we haven't forwarded a first reply for this user yet, _reply_allowed
     # will forward.  So, tell the user we forwarded it.
     forwarded = not reply_record.address.user.profile.forwarded_first_reply
-    sender = ""
+    sender: str | None = None
     if decrypted_metadata is not None:
         sender = decrypted_metadata.get("reply-to") or decrypted_metadata.get("from")
     ctx = {
-        "sender": sender,
+        "sender": sender or "",
         "forwarded": forwarded,
         "SITE_ORIGIN": settings.SITE_ORIGIN,
     }
     html_body = render_to_string("emails/reply_requires_premium.html", ctx)
     text_body = render_to_string("emails/reply_requires_premium.txt", ctx)
-
-    # We build the raw multipart MIME message to specify a custom In-Reply-To header
-    msg = MIMEMultipart("mixed")
     subject_ftl_id = "replies-not-included-in-free-account-header"
     subject = ftl_bundle.format(subject_ftl_id)
-    msg["Subject"] = subject
 
-    domain = get_domains_from_settings().get("RELAY_FIREFOX_DOMAIN")
-    msg["From"] = f"replies@{domain}"
-
-    msg["To"] = from_address
-
+    headers: OutgoingHeaders = {
+        "Subject": subject,
+        "From": get_reply_to_address(),
+        "To": from_address,
+    }
     if message_id:
-        msg["In-Reply-To"] = message_id
-        msg["References"] = message_id
+        headers["In-Reply-To"] = message_id
+        headers["References"] = message_id
 
-    # Compose the full raw message together
-    charset = "utf-8"
-    msg_body = MIMEMultipart("alternative")
-    text_part = MIMEText(text_body, "plain", charset)
-    html_part = MIMEText(html_body, "html", charset)
-    msg_body.attach(text_part)
-    msg_body.attach(html_part)
-    msg.attach(msg_body)
+    message_body: MessageBody = {
+        "Html": {"Charset": "utf-8", "Data": html_body},
+        "Text": {"Charset": "utf-8", "Data": text_body},
+    }
 
+    msg = create_message(headers, message_body)
     return msg
 
 

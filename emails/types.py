@@ -12,6 +12,8 @@ AttachmentPair = tuple[str, IOBase]
 # Headers for outgoing emails
 OutgoingHeaderName = Literal[
     "From",
+    "In-Reply-To",
+    "References",
     "Reply-To",
     "Subject",
     "To",

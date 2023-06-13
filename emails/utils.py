@@ -221,10 +221,12 @@ def ses_send_raw_email(
 def create_message(
     headers: OutgoingHeaders,
     message_body: MessageBody,
-    attachments: list[AttachmentPair],
+    attachments: list[AttachmentPair] | None = None,
 ) -> MIMEMultipart:
     msg_with_headers = _start_message_with_headers(headers)
     msg_with_body = _add_body_to_message(msg_with_headers, message_body)
+    if not attachments:
+        return msg_with_body
     msg_with_attachments = _add_attachments_to_message(msg_with_body, attachments)
     return msg_with_attachments
 
