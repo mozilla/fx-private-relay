@@ -234,7 +234,7 @@ class FxaTokenAuthenticationTest(TestCase):
     def setUp(self):
         self.auth = FxaTokenAuthentication
         self.factory = RequestFactory()
-        self.path = "/api/v1/relayaddresses"
+        self.path = "/api/v1/relayaddresses/"
         self.fxa_verify_path = INTROSPECT_TOKEN_URL
         self.uid = "relay-user-fxa-uid"
 
@@ -368,3 +368,56 @@ class FxaTokenAuthenticationTest(TestCase):
         # now check that the 2nd call did NOT make another fxa request
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
         assert cache.get(get_cache_key(user_token)) == fxa_response
+
+    @responses.activate()
+    def test_write_requests_make_calls_to_fxa(self):
+        self.sa = baker.make(SocialAccount, uid=self.uid, provider="fxa")
+        user_token = "user-123"
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION=f"Bearer {user_token}")
+        now_time = int(datetime.now().timestamp())
+        # Note: FXA iat and exp are timestamps in *milliseconds*
+        exp_time = (now_time + 60 * 60) * 1000
+        fxa_response = _setup_fxa_response(
+            200, {"active": True, "sub": self.uid, "exp": exp_time}
+        )
+
+        assert cache.get(get_cache_key(user_token)) is None
+
+        # check the endpoint status code
+        response = client.get("/api/v1/relayaddresses/")
+        assert response.status_code == 200
+        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert cache.get(get_cache_key(user_token)) == fxa_response
+
+        # check the function returns the right user
+        headers = {"HTTP_AUTHORIZATION": f"Bearer {user_token}"}
+        get_addresses_req = self.factory.get(self.path, **headers)
+        auth_return = self.auth.authenticate(self.auth, get_addresses_req)
+        assert auth_return == (self.sa.user, user_token)
+
+        # now check that the 2nd GET request did NOT make another fxa request
+        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert cache.get(get_cache_key(user_token)) == fxa_response
+
+        headers = {"HTTP_AUTHORIZATION": f"Bearer {user_token}"}
+
+        # send POST to /api/v1/relayaddresses and check that cache is used - i.e.,
+        # FXA is *NOT* called
+        post_addresses_req = self.factory.post(self.path, **headers)
+        auth_return = self.auth.authenticate(self.auth, post_addresses_req)
+        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+
+        # send POST to another API endpoint and check that cache is NOT used
+        post_webcompat = self.factory.post("/api/v1/report_webcompat_issue", **headers)
+        auth_return = self.auth.authenticate(self.auth, post_webcompat)
+        assert responses.assert_call_count(self.fxa_verify_path, 2) is True
+
+        # send other write requests and check that FXA *IS* called
+        put_addresses_req = self.factory.put(self.path, **headers)
+        auth_return = self.auth.authenticate(self.auth, put_addresses_req)
+        assert responses.assert_call_count(self.fxa_verify_path, 3) is True
+
+        delete_addresses_req = self.factory.delete(self.path, **headers)
+        auth_return = self.auth.authenticate(self.auth, delete_addresses_req)
+        assert responses.assert_call_count(self.fxa_verify_path, 4) is True
