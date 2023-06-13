@@ -1,4 +1,4 @@
-import { ReactNode, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import styles from "./FaqAccordion.module.scss";
 import { PlusIcon } from "../Icons";
 
@@ -9,6 +9,7 @@ export type Entry = {
 
 export type Props = {
   entries: Entry[];
+  autoFocus?: boolean;
   defaultExpandedIndex?: number;
 };
 
@@ -19,15 +20,17 @@ export const FaqAccordionItem = (props: Props) => {
   const [expandedIndex, setExpandedIndex] = useState(
     props.defaultExpandedIndex ?? 0
   );
+  const { autoFocus } = props;
 
   return (
     <dl>
-      {props.entries.map((entry, index) => (
+      {props.entries.map((entry: Entry, index) => (
         <QAndA
           key={entry.q}
           entry={entry}
           isExpanded={expandedIndex === index}
           onToggle={() => setExpandedIndex(index)}
+          autoFocus={autoFocus && index === expandedIndex}
         />
       ))}
     </dl>
@@ -38,8 +41,15 @@ const QAndA = (props: {
   entry: Entry;
   isExpanded: boolean;
   onToggle: () => void;
+  autoFocus?: boolean;
 }) => {
   const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (props.isExpanded && props.autoFocus) {
+      buttonRef.current?.focus();
+    }
+  }, [props.isExpanded, props.autoFocus]);
 
   function setToggleView() {
     const isExpanded = styles["is-expanded"];
