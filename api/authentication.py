@@ -50,30 +50,33 @@ def introspect_token(token):
     return fxa_resp_data
 
 
-def get_fxa_uid_from_oauth_token(token):
-    cache_key = get_cache_key(token)
+def get_fxa_uid_from_oauth_token(token, use_cache=True):
     # set a default cache_timeout, but this will be overriden to match
     # the 'exp' time in the JWT returned by FxA
     cache_timeout = 60
+    cache_key = get_cache_key(token)
 
-    # set a default fxa_resp_data, so any error during introspection
-    # will still cache for at least cache_timeout to prevent an outage
-    # from causing useless run-away repetitive introspection requests
-    fxa_resp_data = {"status_code": None, "json": {}}
-    try:
-        cached_fxa_resp_data = cache.get(cache_key)
+    if not use_cache:
+        fxa_resp_data = introspect_token(token)
+    else:
+        # set a default fxa_resp_data, so any error during introspection
+        # will still cache for at least cache_timeout to prevent an outage
+        # from causing useless run-away repetitive introspection requests
+        fxa_resp_data = {"status_code": None, "json": {}}
+        try:
+            cached_fxa_resp_data = cache.get(cache_key)
 
-        if cached_fxa_resp_data:
-            fxa_resp_data = cached_fxa_resp_data
-        else:
-            # no cached data, get new
-            fxa_resp_data = introspect_token(token)
-    except AuthenticationFailed:
-        raise
-    finally:
-        # Store potential valid response, errors, inactive users, etc. from FxA
-        # for at least 60 seconds. Valid access_token cache extended after checking.
-        cache.set(cache_key, fxa_resp_data, cache_timeout)
+            if cached_fxa_resp_data:
+                fxa_resp_data = cached_fxa_resp_data
+            else:
+                # no cached data, get new
+                fxa_resp_data = introspect_token(token)
+        except AuthenticationFailed:
+            raise
+        finally:
+            # Store potential valid response, errors, inactive users, etc. from FxA
+            # for at least 60 seconds. Valid access_token cache extended after checking.
+            cache.set(cache_key, fxa_resp_data, cache_timeout)
 
     if fxa_resp_data["status_code"] is None:
         raise APIException("Previous FXA call failed, wait to retry.")
@@ -123,7 +126,13 @@ class FxaTokenAuthentication(BaseAuthentication):
         if token == "":
             raise ParseError("Missing FXA Token after 'Bearer'.")
 
-        fxa_uid = get_fxa_uid_from_oauth_token(token)
+        use_cache = True
+        method = request.method
+        if method in ["POST", "DELETE", "PUT"]:
+            use_cache = False
+            if method == "POST" and request.path == "/api/v1/relayaddresses/":
+                use_cache = True
+        fxa_uid = get_fxa_uid_from_oauth_token(token, use_cache)
         try:
             sa = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
         except SocialAccount.DoesNotExist:
