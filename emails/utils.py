@@ -7,8 +7,7 @@ from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from email.utils import parseaddr
 from functools import cache
-from io import IOBase
-from typing import cast, Any, Callable, Literal, TypeVar
+from typing import cast, Any, Callable, TypeVar
 import json
 import pathlib
 import re
@@ -41,6 +40,7 @@ from .models import (
     Reply,
     get_domains_from_settings,
 )
+from .types import AttachmentPair, AWS_MailJSON, MessageBody
 
 
 logger = logging.getLogger("events")
@@ -192,12 +192,6 @@ def get_welcome_email(request: HttpRequest, user: User, format: str) -> str:
     )
 
 
-MessageBodyContent = dict[Literal["Charset", "Data"], str]
-MessageBody = dict[Literal["Text", "Html"], MessageBodyContent]
-AttachmentPair = tuple[str, IOBase]
-MailJSON = dict[str, Any]
-
-
 @time_if_enabled("ses_send_raw_email")
 def ses_send_raw_email(
     from_address: str,
@@ -206,7 +200,7 @@ def ses_send_raw_email(
     message_body: MessageBody,
     attachments: list[AttachmentPair],
     reply_address: str,
-    mail: MailJSON,
+    mail: AWS_MailJSON,
     address: RelayAddress | DomainAddress,
 ) -> HttpResponse:
     msg_with_headers = _start_message_with_headers(
@@ -295,7 +289,7 @@ def _add_attachments_to_message(
     return msg
 
 
-def _store_reply_record(mail: MailJSON, ses_response, address) -> MailJSON:
+def _store_reply_record(mail: AWS_MailJSON, ses_response, address) -> AWS_MailJSON:
     # After relaying email, store a Reply record for it
     reply_metadata = {}
     for header in mail["headers"]:
@@ -323,7 +317,7 @@ def ses_relay_email(
     subject: str,
     message_body: MessageBody,
     attachments: list[AttachmentPair],
-    mail: MailJSON,
+    mail: AWS_MailJSON,
     address: RelayAddress | DomainAddress,
 ) -> HttpResponse:
     reply_address = "replies@%s" % get_domains_from_settings().get(
