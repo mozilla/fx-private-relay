@@ -320,9 +320,7 @@ def ses_relay_email(
     mail: AWS_MailJSON,
     address: RelayAddress | DomainAddress,
 ) -> HttpResponse:
-    reply_address = "replies@%s" % get_domains_from_settings().get(
-        "RELAY_FIREFOX_DOMAIN"
-    )
+    reply_address = get_reply_to_address()
     headers: OutgoingHeaders = {
         "Subject": subject,
         "From": from_address,
@@ -345,16 +343,20 @@ def urlize_and_linebreaks(text, autoescape=True):
     return linebreaksbr(urlize(text, autoescape=autoescape), autoescape=autoescape)
 
 
-def generate_relay_From(
-    original_from_address: str, user_profile: Profile | None = None
-) -> str:
-    if user_profile and user_profile.has_premium:
-        _, relay_from_address = parseaddr(
+def get_reply_to_address(premium: bool = True) -> str:
+    """Return the address that relays replies."""
+    if premium:
+        _, reply_to_address = parseaddr(
             "replies@%s" % get_domains_from_settings().get("RELAY_FIREFOX_DOMAIN")
         )
     else:
-        _, relay_from_address = parseaddr(settings.RELAY_FROM_ADDRESS)
+        _, reply_to_address = parseaddr(settings.RELAY_FROM_ADDRESS)
+    return reply_to_address
 
+
+def generate_relay_From(
+    original_from_address: str, user_profile: Profile | None = None
+) -> str:
     # RFC 2822 (https://tools.ietf.org/html/rfc2822#section-2.1.1)
     # says email header lines must not be more than 998 chars long.
     # Encoding display names to longer than 998 chars will add wrap
@@ -369,6 +371,8 @@ def generate_relay_From(
     )
 
     display_name = Header('"%s [via Relay]"' % (original_from_address), "UTF-8")
+    user_has_premium = bool(user_profile and user_profile.has_premium)
+    relay_from_address = get_reply_to_address(user_has_premium)
     formatted_from_address = str(
         Address(display_name.encode(maxlinelen=998), addr_spec=relay_from_address)
     )
