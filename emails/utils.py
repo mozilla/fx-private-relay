@@ -194,21 +194,14 @@ def get_welcome_email(request: HttpRequest, user: User, format: str) -> str:
 
 @time_if_enabled("ses_send_raw_email")
 def ses_send_raw_email(
-    from_address: str,
-    to_address: str,
-    subject: str,
+    source_address: str,
+    destination_address: str,
+    headers: OutgoingHeaders,
     message_body: MessageBody,
     attachments: list[AttachmentPair],
-    reply_address: str,
     mail: AWS_MailJSON,
     address: RelayAddress | DomainAddress,
 ) -> HttpResponse:
-    headers: OutgoingHeaders = {
-        "Subject": subject,
-        "From": from_address,
-        "To": to_address,
-        "Reply-To": reply_address,
-    }
     message = create_message(headers, message_body, attachments)
 
     emails_config = apps.get_app_config("emails")
@@ -218,8 +211,8 @@ def ses_send_raw_email(
     assert settings.AWS_SES_CONFIGSET
     try:
         ses_response = ses_client.send_raw_email(
-            Source=from_address,
-            Destinations=[to_address],
+            Source=source_address,
+            Destinations=[destination_address],
             RawMessage={"Data": message.as_string()},
             ConfigurationSetName=settings.AWS_SES_CONFIGSET,
         )
@@ -330,14 +323,18 @@ def ses_relay_email(
     reply_address = "replies@%s" % get_domains_from_settings().get(
         "RELAY_FIREFOX_DOMAIN"
     )
-
+    headers: OutgoingHeaders = {
+        "Subject": subject,
+        "From": from_address,
+        "To": to_address,
+        "Reply-To": reply_address,
+    }
     response = ses_send_raw_email(
         from_address,
         to_address,
-        subject,
+        headers,
         message_body,
         attachments,
-        reply_address,
         mail,
         address,
     )

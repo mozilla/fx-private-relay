@@ -49,6 +49,7 @@ from .models import (
     get_domain_numerical,
     get_domains_from_settings,
 )
+from .types import AWS_SNSMessageJSON, MessageBody, OutgoingHeaders
 from .utils import (
     _get_bucket_and_key_from_s3_json,
     b64_lookup_key,
@@ -819,7 +820,9 @@ def _reply_allowed(
     return False
 
 
-def _handle_reply(from_address, message_json, to_address):
+def _handle_reply(
+    from_address: str, message_json: AWS_SNSMessageJSON, to_address: str
+) -> HttpResponse:
     mail = message_json["mail"]
     try:
         (lookup_key, encryption_key) = _get_keys_from_headers(mail["headers"])
@@ -861,21 +864,26 @@ def _handle_reply(from_address, message_json, to_address):
         # we are returning a 500 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
-    message_body = {}
+    message_body: MessageBody = {}
     if html_content:
         message_body["Html"] = {"Charset": "UTF-8", "Data": html_content}
 
     if text_content:
         message_body["Text"] = {"Charset": "UTF-8", "Data": text_content}
 
+    headers: OutgoingHeaders = {
+        "Subject": subject,
+        "From": outbound_from_address,
+        "To": to_address,
+        "Reply-To": outbound_from_address,
+    }
     try:
         response = ses_send_raw_email(
             outbound_from_address,
             to_address,
-            subject,
+            headers,
             message_body,
             attachments,
-            outbound_from_address,
             mail,
             address,
         )
