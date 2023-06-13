@@ -24,7 +24,6 @@ import jwcrypto.jwk
 import markus
 import logging
 from urllib.parse import quote_plus, urlparse
-from waffle.models import Flag
 
 from django.apps import apps
 from django.conf import settings
@@ -37,13 +36,12 @@ from privaterelay.utils import get_countries_info_from_request_and_mapping
 from .apps import EmailsConfig
 from .models import (
     DomainAddress,
+    Profile,
     RelayAddress,
     Reply,
     get_domains_from_settings,
 )
 
-
-NEW_FROM_ADDRESS_FLAG_NAME = "new_from_address"
 
 logger = logging.getLogger("events")
 info_logger = logging.getLogger("eventsinfo")
@@ -349,18 +347,16 @@ def urlize_and_linebreaks(text, autoescape=True):
     return linebreaksbr(urlize(text, autoescape=autoescape), autoescape=autoescape)
 
 
-def generate_relay_From(original_from_address, user_profile=None):
-    _, relay_from_address = parseaddr(settings.RELAY_FROM_ADDRESS)
-    try:
-        new_from_flag = Flag.objects.get(name=NEW_FROM_ADDRESS_FLAG_NAME)
-        if user_profile and new_from_flag.is_active_for_user(user_profile.user):
-            _, relay_from_address = parseaddr(settings.NEW_RELAY_FROM_ADDRESS)
-    except Flag.DoesNotExist:
-        pass
+def generate_relay_From(
+    original_from_address: str, user_profile: Profile | None = None
+) -> str:
     if user_profile and user_profile.has_premium:
         _, relay_from_address = parseaddr(
             "replies@%s" % get_domains_from_settings().get("RELAY_FIREFOX_DOMAIN")
         )
+    else:
+        _, relay_from_address = parseaddr(settings.RELAY_FROM_ADDRESS)
+
     # RFC 2822 (https://tools.ietf.org/html/rfc2822#section-2.1.1)
     # says email header lines must not be more than 998 chars long.
     # Encoding display names to longer than 998 chars will add wrap
