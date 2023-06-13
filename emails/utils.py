@@ -281,13 +281,15 @@ def _add_attachments_to_message(
     return msg
 
 
-def _store_reply_record(mail: AWS_MailJSON, ses_response, address) -> AWS_MailJSON:
+def _store_reply_record(
+    mail: AWS_MailJSON, message_id: str, address: RelayAddress | DomainAddress
+) -> AWS_MailJSON:
     # After relaying email, store a Reply record for it
     reply_metadata = {}
     for header in mail["headers"]:
         if header["name"].lower() in ["message-id", "from", "reply-to"]:
             reply_metadata[header["name"].lower()] = header["value"]
-    message_id_bytes = get_message_id_bytes(ses_response["MessageId"])
+    message_id_bytes = get_message_id_bytes(message_id)
     (lookup_key, encryption_key) = derive_reply_keys(message_id_bytes)
     lookup = b64_lookup_key(lookup_key)
     encrypted_metadata = encrypt_reply_metadata(encryption_key, reply_metadata)
@@ -319,7 +321,8 @@ def ses_relay_email(
         # 503 service unavailable reponse to SNS so it can retry
         return HttpResponse("SES client error on Raw Email", status=503)
 
-    _store_reply_record(mail, ses_response, address)
+    message_id = ses_response["MessageId"]
+    _store_reply_record(mail, message_id, address)
     return HttpResponse("Sent email to final recipient.", status=200)
 
 
