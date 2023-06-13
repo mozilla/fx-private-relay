@@ -9,6 +9,15 @@ MessageBody = dict[Literal["Text", "Html"], MessageBodyContent]
 # Attachment path and data stream
 AttachmentPair = tuple[str, IOBase]
 
+# Headers for outgoing emails
+OutgoingHeaderName = Literal[
+    "From",
+    "Reply-To",
+    "Subject",
+    "To",
+]
+OutgoingHeaders = dict[OutgoingHeaderName, str]
+
 # AWS "mail" element in Received notification
 # See https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html
 AWS_MailJSON = dict[str, Any]
