@@ -209,9 +209,7 @@ def ses_send_raw_email(
         "To": to_address,
         "Reply-To": reply_address,
     }
-    msg_with_headers = _start_message_with_headers(headers)
-    msg_with_body = _add_body_to_message(msg_with_headers, message_body)
-    msg_with_attachments = _add_attachments_to_message(msg_with_body, attachments)
+    message = create_message(headers, message_body, attachments)
 
     emails_config = apps.get_app_config("emails")
     assert isinstance(emails_config, EmailsConfig)
@@ -222,9 +220,7 @@ def ses_send_raw_email(
         ses_response = ses_client.send_raw_email(
             Source=from_address,
             Destinations=[to_address],
-            RawMessage={
-                "Data": msg_with_attachments.as_string(),
-            },
+            RawMessage={"Data": message.as_string()},
             ConfigurationSetName=settings.AWS_SES_CONFIGSET,
         )
         incr_if_enabled("ses_send_raw_email", 1)
@@ -235,6 +231,17 @@ def ses_send_raw_email(
         # 503 service unavailable reponse to SNS so it can retry
         return HttpResponse("SES client error on Raw Email", status=503)
     return HttpResponse("Sent email to final recipient.", status=200)
+
+
+def create_message(
+    headers: OutgoingHeaders,
+    message_body: MessageBody,
+    attachments: list[AttachmentPair],
+) -> MIMEMultipart:
+    msg_with_headers = _start_message_with_headers(headers)
+    msg_with_body = _add_body_to_message(msg_with_headers, message_body)
+    msg_with_attachments = _add_attachments_to_message(msg_with_body, attachments)
+    return msg_with_attachments
 
 
 def _start_message_with_headers(headers: OutgoingHeaders) -> MIMEMultipart:
