@@ -194,7 +194,7 @@ def terms_accepted_user(request):
         raise ParseError("Missing FXA Token after 'Bearer'.")
 
     try:
-        fxa_uid = get_fxa_uid_from_oauth_token(token)
+        fxa_uid = get_fxa_uid_from_oauth_token(token, use_cache=False)
     except AuthenticationFailed as e:
         # AuthenticationFailed exception returns 403 instead of 401 because we are not
         # using the proper config that comes with the authentication_classes
