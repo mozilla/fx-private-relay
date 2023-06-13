@@ -15,12 +15,12 @@ from rest_framework.exceptions import (
 )
 from rest_framework.test import APIClient
 
-from api import authentication
 from ..authentication import (
     FxaTokenAuthentication,
     get_cache_key,
     get_fxa_uid_from_oauth_token,
     introspect_token,
+    INTROSPECT_TOKEN_URL,
 )
 
 
@@ -30,7 +30,7 @@ MOCK_BASE = "api.authentication"
 def _setup_fxa_response(status_code: int, json: dict | str):
     responses.add(
         responses.POST,
-        authentication.INTROSPECT_TOKEN_URL,
+        INTROSPECT_TOKEN_URL,
         status=status_code,
         json=json,
     )
@@ -38,9 +38,7 @@ def _setup_fxa_response(status_code: int, json: dict | str):
 
 
 def _setup_fxa_response_no_json(status_code: int):
-    responses.add(
-        responses.POST, authentication.INTROSPECT_TOKEN_URL, status=status_code
-    )
+    responses.add(responses.POST, INTROSPECT_TOKEN_URL, status=status_code)
     return {"status_code": status_code}
 
 
@@ -49,7 +47,7 @@ class AuthenticationMiscellaneous(TestCase):
         self.auth = FxaTokenAuthentication
         self.factory = RequestFactory()
         self.path = "/api/v1/relayaddresses"
-        self.fxa_verify_path = authentication.INTROSPECT_TOKEN_URL
+        self.fxa_verify_path = INTROSPECT_TOKEN_URL
         self.uid = "relay-user-fxa-uid"
 
     def tearDown(self):
@@ -237,7 +235,7 @@ class FxaTokenAuthenticationTest(TestCase):
         self.auth = FxaTokenAuthentication
         self.factory = RequestFactory()
         self.path = "/api/v1/relayaddresses"
-        self.fxa_verify_path = authentication.INTROSPECT_TOKEN_URL
+        self.fxa_verify_path = INTROSPECT_TOKEN_URL
         self.uid = "relay-user-fxa-uid"
 
     def tearDown(self):

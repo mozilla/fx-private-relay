@@ -14,8 +14,7 @@ from django.utils import timezone
 from django.urls import reverse
 from rest_framework.test import APIClient
 
-from api import authentication
-from api.authentication import get_cache_key
+from api.authentication import get_cache_key, INTROSPECT_TOKEN_URL
 from api.tests.authentication_tests import (
     _setup_fxa_response,
     _setup_fxa_response_no_json,
@@ -220,7 +219,7 @@ class TermsAcceptedUserViewTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.path = "/api/v1/terms-accepted-user/"
-        self.fxa_verify_path = authentication.INTROSPECT_TOKEN_URL
+        self.fxa_verify_path = INTROSPECT_TOKEN_URL
         self.uid = "relay-user-fxa-uid"
 
     def _setup_client(self, token):
