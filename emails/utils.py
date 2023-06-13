@@ -196,14 +196,10 @@ def get_welcome_email(request: HttpRequest, user: User, format: str) -> str:
 def ses_send_raw_email(
     source_address: str,
     destination_address: str,
-    headers: OutgoingHeaders,
-    message_body: MessageBody,
-    attachments: list[AttachmentPair],
+    message: MIMEMultipart,
     mail: AWS_MailJSON,
     address: RelayAddress | DomainAddress,
 ) -> HttpResponse:
-    message = create_message(headers, message_body, attachments)
-
     emails_config = apps.get_app_config("emails")
     assert isinstance(emails_config, EmailsConfig)
     ses_client = emails_config.ses_client
@@ -320,12 +316,11 @@ def ses_relay_email(
     mail: AWS_MailJSON,
     address: RelayAddress | DomainAddress,
 ) -> HttpResponse:
+    message = create_message(headers, message_body, attachments)
     response = ses_send_raw_email(
         source_address,
         destination_address,
-        headers,
-        message_body,
-        attachments,
+        message,
         mail,
         address,
     )
