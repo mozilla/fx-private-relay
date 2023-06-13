@@ -23,7 +23,6 @@ from sentry_sdk import capture_message
 from markus.utils import generate_tag
 from waffle import sample_is_active
 
-from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
@@ -34,8 +33,6 @@ from django.template.loader import render_to_string
 from django.utils.html import escape
 from django.views.decorators.csrf import csrf_exempt
 
-
-from .apps import EmailsConfig
 
 from .models import (
     CannotMakeAddressException,
@@ -65,6 +62,7 @@ from .utils import (
     remove_message_from_s3,
     remove_trackers,
     ses_relay_email,
+    ses_send_raw_email,
     urlize_and_linebreaks,
 )
 from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
@@ -759,24 +757,21 @@ def _set_forwarded_first_reply(profile):
 
 
 def _send_reply_requires_premium_email(
-    from_address,
-    reply_record,
-    message_id,
-    decrypted_metadata,
-):
+    from_address: str,
+    reply_record: Reply,
+    message_id: str | None,
+    decrypted_metadata: dict[str, Any] | None,
+) -> None:
     msg = _build_reply_requires_premium_email(
         from_address, reply_record, message_id, decrypted_metadata
     )
     try:
-        emails_config = apps.get_app_config("emails")
-        assert isinstance(emails_config, EmailsConfig)
-        emails_config.ses_client.send_raw_email(
-            ConfigurationSetName=settings.AWS_SES_CONFIGSET,
-            Source=settings.RELAY_FROM_ADDRESS,
-            Destinations=[from_address],
-            RawMessage={"Data": msg.as_string()},
+        ses_send_raw_email(
+            source_address=get_reply_to_address(premium=False),
+            destination_address=from_address,
+            message=msg,
         )
-        # If we haven't forwaded a first reply for this user yet, _reply_allowed will.
+        # If we haven't forwarded a first reply for this user yet, _reply_allowed will.
         # So, updated the DB.
         _set_forwarded_first_reply(reply_record.address.user.profile)
     except ClientError as e:
