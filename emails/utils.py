@@ -312,24 +312,17 @@ def _store_reply_record(mail: AWS_MailJSON, ses_response, address) -> AWS_MailJS
 
 
 def ses_relay_email(
-    from_address: str,
-    to_address: str,
-    subject: str,
+    source_address: str,
+    destination_address: str,
+    headers: OutgoingHeaders,
     message_body: MessageBody,
     attachments: list[AttachmentPair],
     mail: AWS_MailJSON,
     address: RelayAddress | DomainAddress,
 ) -> HttpResponse:
-    reply_address = get_reply_to_address()
-    headers: OutgoingHeaders = {
-        "Subject": subject,
-        "From": from_address,
-        "To": to_address,
-        "Reply-To": reply_address,
-    }
     response = ses_send_raw_email(
-        from_address,
-        to_address,
+        source_address,
+        destination_address,
         headers,
         message_body,
         attachments,

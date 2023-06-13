@@ -59,12 +59,12 @@ from .utils import (
     generate_relay_From,
     get_message_content_from_s3,
     get_message_id_bytes,
+    get_reply_to_address,
     histogram_if_enabled,
     incr_if_enabled,
     remove_message_from_s3,
     remove_trackers,
     ses_relay_email,
-    ses_send_raw_email,
     urlize_and_linebreaks,
 )
 from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
@@ -614,12 +614,20 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         wrapped_text = relay_header_text + text_content
         message_body["Text"] = {"Charset": "UTF-8", "Data": wrapped_text}
 
-    to_address = user_profile.user.email
+    destination_address = user_profile.user.email
     formatted_from_address = generate_relay_From(from_address, user_profile)
+    source_address = formatted_from_address
+    reply_address = get_reply_to_address()
+    headers: OutgoingHeaders = {
+        "Subject": subject,
+        "From": formatted_from_address,
+        "To": destination_address,
+        "Reply-To": reply_address,
+    }
     response = ses_relay_email(
-        formatted_from_address,
-        to_address,
-        subject,
+        source_address,
+        destination_address,
+        headers,
         message_body,
         attachments,
         mail,
@@ -878,7 +886,7 @@ def _handle_reply(
         "Reply-To": outbound_from_address,
     }
     try:
-        response = ses_send_raw_email(
+        response = ses_relay_email(
             outbound_from_address,
             to_address,
             headers,
