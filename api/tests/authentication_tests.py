@@ -18,6 +18,13 @@ def _setup_fxa_response(status_code: int, json: dict | str):
     return {"status_code": status_code, "json": json}
 
 
+def _setup_fxa_response_no_json(status_code: int):
+    responses.add(
+        responses.POST, "https://oauth.stage.mozaws.net/v1/introspect", status=status_code
+    )
+    return {"status_code": status_code}
+
+
 class FxaTokenAuthenticationTest(TestCase):
     def setUp(self):
         self.auth = FxaTokenAuthentication
@@ -153,3 +160,30 @@ class FxaTokenAuthenticationTest(TestCase):
         # now check that the 2nd call did NOT make another fxa request
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
         assert cache.get(get_cache_key(user_token)) == fxa_response
+
+    @responses.activate()
+    def test_jsondecodeerror_returns_401_and_cache_returns_500(
+        self,
+    ):
+        _setup_fxa_response_no_json(200)
+        err_fxa_response = {"status_code": None, "json": {}}
+        invalid_token = "invalid-123"
+        cache_key = get_cache_key(invalid_token)
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION=f"Bearer {invalid_token}")
+
+        assert cache.get(cache_key) is None
+
+        # get fxa response with no status code for the first time
+        response = client.get("/api/v1/relayaddresses/")
+        assert response.status_code == 401
+        assert (
+            response.json()["detail"] == "JSONDecodeError from FXA introspect response"
+        )
+        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert cache.get(cache_key) == err_fxa_response
+
+        # now check that the 2nd call did NOT make another fxa request
+        response = client.get("/api/v1/relayaddresses/")
+        assert response.status_code == 500
+        assert response.json()["detail"] == "Previous FXA call failed, wait to retry."
