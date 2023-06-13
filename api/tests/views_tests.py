@@ -3,6 +3,7 @@ import pytest
 from model_bakery import baker
 import responses
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.test import (
@@ -14,12 +15,15 @@ from django.utils import timezone
 from django.urls import reverse
 from rest_framework.test import APIClient
 
+from allauth.socialaccount.models import SocialAccount
+
 from api.authentication import get_cache_key, INTROSPECT_TOKEN_URL
 from api.tests.authentication_tests import (
     _setup_fxa_response,
     _setup_fxa_response_no_json,
 )
-from emails.models import RelayAddress
+from api.views import FXA_PROFILE_URL
+from emails.models import Profile, RelayAddress
 from emails.tests.models_tests import make_free_test_user, make_premium_test_user
 
 
@@ -228,6 +232,58 @@ class TermsAcceptedUserViewTest(TestCase):
 
     def tearDown(self):
         cache.clear()
+
+    @responses.activate()
+    def test_201_new_user_created_and_202_user_exists(
+        self,
+    ):
+        email = "user@email.com"
+        user_token = "user-123"
+        self._setup_client(user_token)
+        now_time = int(datetime.now().timestamp())
+        # Note: FXA iat and exp are timestamps in *milliseconds*
+        exp_time = (now_time + 60 * 60) * 1000
+        fxa_response = _setup_fxa_response(
+            200, {"active": True, "sub": self.uid, "exp": exp_time}
+        )
+        # setup fxa profile reponse
+        profile_json = {
+            "email": email,
+            "amrValues": ["pwd", "email"],
+            "twoFactorAuthentication": False,
+            "metricsEnabled": True,
+            "uid": self.uid,
+            "avatar": "https://profile.stage.mozaws.net/v1/avatar/t",
+            "avatarDefault": False,
+        }
+        responses.add(
+            responses.GET,
+            FXA_PROFILE_URL,
+            status=200,
+            json=profile_json,
+        )
+        cache_key = get_cache_key(user_token)
+
+        # get fxa response with 201 response for new user and profile created
+        response = self.client.post(self.path)
+        assert response.status_code == 201
+        assert response.data is None
+        # ensure no session cookie was set
+        assert len(response.cookies.keys()) == 1
+        assert "csrftoken" in response.cookies
+        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert responses.assert_call_count(FXA_PROFILE_URL, 1) is True
+        assert cache.get(cache_key) == fxa_response
+        assert SocialAccount.objects.filter(user__email=email).count() == 1
+        assert Profile.objects.filter(user__email=email).count() == 1
+        assert Profile.objects.get(user__email=email).created_by == "firefox_resource"
+
+        # now check that the 2nd call returns 202
+        response = self.client.post(self.path)
+        assert response.status_code == 202
+        assert response.data is None
+        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert responses.assert_call_count(FXA_PROFILE_URL, 1) is True
 
     def test_no_authorization_header_returns_400(self):
         client = APIClient()

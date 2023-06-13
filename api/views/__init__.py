@@ -74,6 +74,9 @@ schema_view = get_schema_view(
     public=settings.DEBUG,
     permission_classes=[permissions.AllowAny],
 )
+FXA_PROFILE_URL = (
+    f"{settings.SOCIALACCOUNT_PROVIDERS['fxa']['PROFILE_ENDPOINT']}/profile"
+)
 
 
 class SaveToRequestUser:
@@ -206,11 +209,8 @@ def terms_accepted_user(request):
         status_code = 202
     except SocialAccount.DoesNotExist:
         # User does not exist, create a new Relay user
-        profile_url = (
-            f"{settings.SOCIALACCOUNT_PROVIDERS['fxa']['PROFILE_ENDPOINT']}/profile"
-        )
         fxa_profile_resp = requests.get(
-            profile_url, headers={"Authorization": f"Bearer {token}"}
+            FXA_PROFILE_URL, headers={"Authorization": f"Bearer {token}"}
         )
 
         # this is not exactly the request object that FirefoxAccountsProvider expects, but
