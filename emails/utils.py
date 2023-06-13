@@ -18,6 +18,7 @@ import requests
 from botocore.exceptions import ClientError
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.hkdf import HKDFExpand
+from mypy_boto3_ses.type_defs import SendRawEmailResponseTypeDef
 import jwcrypto.jwe
 import jwcrypto.jwk
 import markus
@@ -197,9 +198,7 @@ def ses_send_raw_email(
     source_address: str,
     destination_address: str,
     message: MIMEMultipart,
-    mail: AWS_MailJSON,
-    address: RelayAddress | DomainAddress,
-) -> HttpResponse:
+) -> SendRawEmailResponseTypeDef:
     emails_config = apps.get_app_config("emails")
     assert isinstance(emails_config, EmailsConfig)
     ses_client = emails_config.ses_client
@@ -213,13 +212,10 @@ def ses_send_raw_email(
             ConfigurationSetName=settings.AWS_SES_CONFIGSET,
         )
         incr_if_enabled("ses_send_raw_email", 1)
-
-        _store_reply_record(mail, ses_response, address)
+        return ses_response
     except ClientError as e:
         logger.error("ses_client_error_raw_email", extra=e.response["Error"])
-        # 503 service unavailable reponse to SNS so it can retry
-        return HttpResponse("SES client error on Raw Email", status=503)
-    return HttpResponse("Sent email to final recipient.", status=200)
+        raise
 
 
 def create_message(
@@ -317,14 +313,14 @@ def ses_relay_email(
     address: RelayAddress | DomainAddress,
 ) -> HttpResponse:
     message = create_message(headers, message_body, attachments)
-    response = ses_send_raw_email(
-        source_address,
-        destination_address,
-        message,
-        mail,
-        address,
-    )
-    return response
+    try:
+        ses_response = ses_send_raw_email(source_address, destination_address, message)
+    except ClientError:
+        # 503 service unavailable reponse to SNS so it can retry
+        return HttpResponse("SES client error on Raw Email", status=503)
+
+    _store_reply_record(mail, ses_response, address)
+    return HttpResponse("Sent email to final recipient.", status=200)
 
 
 def urlize_and_linebreaks(text, autoescape=True):
