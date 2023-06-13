@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from model_bakery import baker
-from requests.exceptions import Timeout
 import responses
 
 from django.core.cache import cache
@@ -57,7 +56,6 @@ class AuthenticationMiscellaneous(TestCase):
     def test_introspect_token_catches_JSONDecodeError_raises_AuthenticationFailed(self):
         _setup_fxa_response_no_json(200)
         invalid_token = "invalid-123"
-        cache_key = get_cache_key(invalid_token)
 
         try:
             introspect_token(invalid_token)
@@ -162,7 +160,7 @@ class AuthenticationMiscellaneous(TestCase):
 
         # now check that the 2nd call did NOT make another fxa request
         try:
-            fxa_uid = get_fxa_uid_from_oauth_token(invalid_token)
+            get_fxa_uid_from_oauth_token(invalid_token)
         except APIException as e:
             assert str(e.detail) == "Did not receive a 200 response from FXA."
             assert responses.assert_call_count(self.fxa_verify_path, 1) is True
@@ -194,7 +192,7 @@ class AuthenticationMiscellaneous(TestCase):
 
         # now check that the 2nd call did NOT make another fxa request
         try:
-            fxa_uid = get_fxa_uid_from_oauth_token(invalid_token)
+            get_fxa_uid_from_oauth_token(invalid_token)
         except AuthenticationFailed as e:
             assert str(e.detail) == "FXA returned active: False for token."
             assert responses.assert_call_count(self.fxa_verify_path, 1) is True
@@ -222,7 +220,7 @@ class AuthenticationMiscellaneous(TestCase):
 
         # now check that the 2nd call did NOT make another fxa request
         try:
-            fxa_uid = get_fxa_uid_from_oauth_token(user_token)
+            get_fxa_uid_from_oauth_token(user_token)
         except NotFound as e:
             assert str(e.detail) == "FXA did not return an FXA UID."
             assert responses.assert_call_count(self.fxa_verify_path, 1) is True
