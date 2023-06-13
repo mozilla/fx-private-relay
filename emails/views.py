@@ -39,32 +39,32 @@ from django.views.decorators.csrf import csrf_exempt
 from .apps import EmailsConfig
 
 from .models import (
-    address_hash,
     CannotMakeAddressException,
-    get_domain_numerical,
-    get_domains_from_settings,
     DeletedAddress,
     DomainAddress,
     Profile,
     RelayAddress,
     Reply,
+    address_hash,
+    get_domain_numerical,
+    get_domains_from_settings,
 )
 from .utils import (
     _get_bucket_and_key_from_s3_json,
     b64_lookup_key,
-    remove_trackers,
     count_all_trackers,
-    get_message_content_from_s3,
-    incr_if_enabled,
-    histogram_if_enabled,
-    ses_relay_email,
-    urlize_and_linebreaks,
-    derive_reply_keys,
     decrypt_reply_metadata,
-    remove_message_from_s3,
-    ses_send_raw_email,
-    get_message_id_bytes,
+    derive_reply_keys,
     generate_relay_From,
+    get_message_content_from_s3,
+    get_message_id_bytes,
+    histogram_if_enabled,
+    incr_if_enabled,
+    remove_message_from_s3,
+    remove_trackers,
+    ses_relay_email,
+    ses_send_raw_email,
+    urlize_and_linebreaks,
 )
 from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 

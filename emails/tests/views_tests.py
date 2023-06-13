@@ -24,12 +24,12 @@ import pytest
 
 from privaterelay.ftl_bundles import main
 from emails.models import (
-    address_hash,
     DeletedAddress,
     DomainAddress,
     Profile,
     RelayAddress,
     Reply,
+    address_hash,
     get_domains_from_settings,
 )
 from emails.utils import (
@@ -40,18 +40,18 @@ from emails.utils import (
     get_message_id_bytes,
 )
 from emails.views import (
+    ReplyHeadersNotFound,
+    _build_reply_requires_premium_email,
     _get_address,
     _get_attachment,
     _get_keys_from_headers,
     _record_receipt_verdicts,
-    _build_reply_requires_premium_email,
     _set_forwarded_first_reply,
     _sns_message,
     _sns_notification,
     reply_requires_premium_test,
     validate_sns_arn_and_type,
     wrapped_email_test,
-    ReplyHeadersNotFound,
 )
 
 from .models_tests import (
