@@ -53,6 +53,7 @@ from .utils import (
     create_message,
     decrypt_reply_metadata,
     derive_reply_keys,
+    generate_from_header,
     generate_relay_From,
     get_message_content_from_s3,
     get_message_id_bytes,
@@ -70,6 +71,7 @@ from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 from privaterelay.ftl_bundles import main as ftl_bundle
 from privaterelay.utils import flag_is_active_in_task
 
+RESENDER_HEADERS_FLAG_NAME = "resender_headers"
 
 logger = logging.getLogger("events")
 info_logger = logging.getLogger("eventsinfo")
@@ -612,16 +614,27 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         wrapped_text = relay_header_text + text_content
         message_body["Text"] = {"Charset": "UTF-8", "Data": wrapped_text}
 
+    use_resender_headers = flag_is_active_in_task(
+        RESENDER_HEADERS_FLAG_NAME, user_profile.user
+    )
     destination_address = user_profile.user.email
-    formatted_from_address = generate_relay_From(from_address, user_profile)
-    source_address = formatted_from_address
     reply_address = get_reply_to_address()
+    if use_resender_headers:
+        from_header = generate_from_header(from_address, to_address)
+        source_address = reply_address
+    else:
+        from_header = generate_relay_From(from_address, user_profile)
+        source_address = from_header
+
     headers: OutgoingHeaders = {
         "Subject": subject,
-        "From": formatted_from_address,
+        "From": from_header,
         "To": destination_address,
         "Reply-To": reply_address,
     }
+    if use_resender_headers:
+        headers["Resent-From"] = from_address
+
     response = ses_relay_email(
         source_address,
         destination_address,

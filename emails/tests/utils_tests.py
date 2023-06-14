@@ -1,4 +1,6 @@
+from base64 import b64encode
 from email.utils import parseaddr
+from typing import Literal
 from urllib.parse import quote_plus
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -6,9 +8,11 @@ from django.test import TestCase, override_settings
 from unittest.mock import patch
 from model_bakery import baker
 import json
+import pytest
 
 from emails.models import get_domains_from_settings
 from emails.utils import (
+    generate_from_header,
     generate_relay_From,
     get_email_domain_from_settings,
     remove_trackers,
@@ -141,6 +145,96 @@ class FormattingToolsTest(TestCase):
             "RELAY_FIREFOX_DOMAIN": "default.com",
             "MOZMAIL_DOMAIN": "test.com",
         }
+
+
+def _utf8b(value: str) -> str:
+    """Encode a string in UTF-8 binary (base64), like an email header"""
+    b64 = b64encode(value.encode()).decode()
+    return f"=?utf-8?b?{b64}?="
+
+
+# Test cases for test_generate_from_header
+# key: The pytest test ID
+# value: a dictionary with the test params:
+#   in_from: The From: header in the original message
+#   in_to: The To: header in the original message (the Relay mask)
+#   out_from: The From: header returned by generate_from_header
+_GENERATE_FROM_TEST_CASE_DEF = dict[Literal["in_from", "in_to", "out_from"], str]
+GENERATE_FROM_TEST_CASES: dict[str, _GENERATE_FROM_TEST_CASE_DEF] = {
+    "with_umlaut": {
+        "in_from": '"foö bär" <foo@bar.com>',
+        "in_to": "mask@relay.example.com",
+        "out_from": _utf8b("foö bär <foo@bar.com> [via Relay]")
+        + " <mask@relay.example.com>",
+    },
+    "realistic_address": {
+        "in_from": "something real <somethingreal@protonmail.com>",
+        "in_to": "ab12dc34@relay.example.com",
+        "out_from": (
+            '"something real <somethingreal@protonmail.com> [via Relay]"'
+            " <ab12dc34@relay.example.com>"
+        ),
+    },
+    "just_email": {
+        "in_from": "foo@bar.example.com",
+        "in_to": "foobar@premium.relay.example.com",
+        "out_from": (
+            '"foo@bar.example.com [via Relay]" <foobar@premium.relay.example.com>'
+        ),
+    },
+    "too_long_original_address": {
+        "in_from": f"l{'o' * 90}ng <long@long.example.com>",
+        "in_to": (
+            "my_very_long_custom_alias@my_very_long_premium_name.relay.example.com"
+        ),
+        "out_from": (
+            f'"l{"o" * 67}... <long@long.example.com> [via Relay]"'
+            " <my_very_long_custom_alias@my_very_long_premium_name.relay.example.com>"
+        ),
+    },
+    "too_long_with_umlat": {
+        "in_from": f"l{'ö' * 90}ng <long-umlat@long.example.com>",
+        "in_to": "umlat123@relay.example.com",
+        "out_from": (
+            _utf8b(f"l{'ö' * 69}… <long-umlat@long.example.com> [via Relay]")
+            + " <umlat123@relay.example.com>"
+        ),
+    },
+    "with_linebreak_chars": {
+        "in_from": '"Ter\ry \n ct\u2028" <info@lines.example.org>',
+        "in_to": "xyz987@relay.example.com",
+        "out_from": (
+            '"Tery  ct <info@lines.example.org> [via Relay]" <xyz987@relay.example.com>'
+        ),
+    },
+    "exactly_long": {
+        "in_from": (
+            "This_display_name_is_exactly_71_characters_long_and_no_more__I_promise!"
+            " <exact@jerk.example.com>"
+        ),
+        "in_to": "from_the_jerk@mysubdomain.relay.example.com",
+        "out_from": (
+            '"This_display_name_is_exactly_71_characters_long_and_no_more__I_promise!'
+            ' <exact@jerk.example.com> [via Relay]"'
+            " <from_the_jerk@mysubdomain.relay.example.com>"
+        ),
+    },
+}
+
+
+@pytest.mark.parametrize(
+    "params", GENERATE_FROM_TEST_CASES.values(), ids=GENERATE_FROM_TEST_CASES.keys()
+)
+def test_generate_from_header(params):
+    from_header = generate_from_header(params["in_from"], params["in_to"])
+    assert from_header == params["out_from"]
+    if "=?utf-8?b?" in from_header:
+        max_length = 266  # utf-8, base64 encoding maximum
+    else:
+        max_length = 78
+    first_part, rest = from_header.split(" ", 1)
+    header_line = f"From: {first_part}"
+    assert len(header_line) <= max_length
 
 
 @override_settings(SITE_ORIGIN="https://test.com")
