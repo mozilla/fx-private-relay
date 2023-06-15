@@ -169,6 +169,16 @@ class FlagSerializer(serializers.ModelSerializer):
             "id",
         ]
 
+    def validate_everyone(self, value):
+        """
+        Turn False into None. This disables the flag for most, but allows users
+        and groups to still have the flag. Setting the flag to False would also
+        disable the flag for those users.
+        """
+        if value:
+            return True
+        return None
+
     def validate(self, data):
         if (data.get("name", "").lower() == "manage_flags") or (
             hasattr(self, "instance")
