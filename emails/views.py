@@ -421,7 +421,7 @@ def _get_relay_recipient_from_message_json(message_json):
     return _get_recipient_with_relay_domain(recipients)
 
 
-def _sns_message(message_json):
+def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     incr_if_enabled("sns_inbound_Notification_Received", 1)
     notification_type = message_json.get("notificationType")
     event_type = message_json.get("eventType")
@@ -562,7 +562,7 @@ def _sns_message(message_json):
     # and apply default link styles
     display_email = re.sub("([@.:])", r"<span>\1</span>", to_address)
 
-    message_body = {}
+    message_body: MessageBody = {}
     tracker_report_link = ""
     removed_count = 0
     # frontend expects a timestamp in milliseconds
@@ -983,7 +983,7 @@ def _get_address(address: str) -> RelayAddress | DomainAddress:
         raise e
 
 
-def _handle_bounce(message_json):
+def _handle_bounce(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     """
     Handle an AWS SES bounce notification.
 
@@ -1103,7 +1103,7 @@ def _handle_bounce(message_json):
     return HttpResponse("OK", status=200)
 
 
-def _handle_complaint(message_json):
+def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     """
     Handle an AWS SES complaint notification.
 
