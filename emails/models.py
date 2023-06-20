@@ -20,9 +20,9 @@ from django.utils.translation.trans_real import (
 )
 
 from rest_framework.authtoken.models import Token
-from waffle.models import Flag
 
 from api.exceptions import ErrorContextType, RelayAPIException
+from privaterelay.utils import flag_is_active_in_task
 
 
 emails_config = apps.get_app_config("emails")
@@ -307,16 +307,10 @@ class Profile(models.Model):
         if not self.fxa:
             return False
         if settings.RELAY_CHANNEL != "prod" and not settings.IN_PYTEST:
-            try:
-                phone_flag = Flag.objects.get(name="phones")
-            except Flag.DoesNotExist:
+            if not flag_is_active_in_task("phone", self.user):
                 return False
-            if not phone_flag.is_active_for_user(self.user):
-                return False
-        flags = Flag.objects.filter(name="free_phones")
-        for flag in flags:
-            if flag.is_active_for_user(self.user):
-                return True
+        if flag_is_active_in_task("free_phones", self.user):
+            return True
         user_subscriptions = self.fxa.extra_data.get("subscriptions", [])
         for sub in settings.SUBSCRIPTIONS_WITH_PHONE:
             if sub in user_subscriptions:
