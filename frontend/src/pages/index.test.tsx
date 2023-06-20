@@ -117,7 +117,7 @@ describe("The landing page", () => {
     render(<Home />);
 
     const bundleColumn = screen.getByRole("columnheader", {
-      name: "l10n string: [plan-matrix-heading-plan-bundle], with vars: {}",
+      name: "l10n string: [plan-matrix-heading-plan-bundle-2], with vars: {}",
     });
 
     expect(bundleColumn).toBeInTheDocument();
@@ -154,7 +154,7 @@ describe("The landing page", () => {
     render(<Home />);
 
     const vpnFeatureRow = screen.getByRole("columnheader", {
-      name: "l10n string: [plan-matrix-heading-plan-bundle], with vars: {}",
+      name: "l10n string: [plan-matrix-heading-plan-bundle-2], with vars: {}",
     });
 
     expect(vpnFeatureRow).toBeInTheDocument();

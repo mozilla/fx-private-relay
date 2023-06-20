@@ -6,12 +6,13 @@ type LanguageCode = string;
 export type FlagNames =
   | "manage_flags"
   | "interview_recruitment"
-  | "new_from_address"
   | "tracker_removal"
   | "phone_launch_survey"
   | "multi_replies"
   | "firefox_integration"
+  | "mailing_list_announcement"
   | "premium_promo_banners"
+  | "eu_country_expansion"
   | "mask_redesign"
   | "mobile_app";
 type WaffleFlag = [FlagNames, boolean];

@@ -39,6 +39,7 @@ stub is out-of-date when updating the package.
 
 Add the same data here:
 
-|package name|version|module name|
-|-:|-:|-:|
-|`python-decouple`|3.6|`decouple`|
+|      package name | version | module name |
+| ----------------: | ------: | ----------: |
+|   `django-waffle` |   3.0.0 |    `waffle` |
+| `python-decouple` |     3.6 |  `decouple` |

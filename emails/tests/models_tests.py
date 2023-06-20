@@ -462,6 +462,34 @@ class ProfileTest(TestCase):
         )
         assert premium_user.profile.has_premium is True
 
+    def test_total_masks(self):
+        upgrade_test_user_to_premium(self.profile.user)
+        self.profile.add_subdomain("totalmasks")
+        assert self.profile.total_masks == 0
+        num_relay_addresses = random.randint(0, 2)
+        for _ in list(range(num_relay_addresses)):
+            baker.make(RelayAddress, user=self.profile.user)
+        num_domain_addresses = random.randint(0, 2)
+        for i in list(range(num_domain_addresses)):
+            baker.make(DomainAddress, user=self.profile.user, address=f"mask{i}")
+        assert self.profile.total_masks == num_relay_addresses + num_domain_addresses
+
+    def test_at_mask_limit_premium_user_returns_False(self):
+        premium_user = baker.make(User)
+        baker.make(
+            SocialAccount,
+            user=premium_user,
+            provider="fxa",
+            extra_data={"subscriptions": [unlimited_subscription()]},
+        )
+        assert premium_user.profile.at_mask_limit is False
+
+    def test_at_mask_limit_free_user(self):
+        assert self.profile.at_mask_limit is False
+        for _ in list(range(settings.MAX_NUM_FREE_ALIASES)):
+            baker.make(RelayAddress, user=self.profile.user)
+        assert self.profile.at_mask_limit is True
+
     def test_add_subdomain_to_new_unlimited_profile(self):
         subdomain = "newpremium"
         premium_user = baker.make(User)

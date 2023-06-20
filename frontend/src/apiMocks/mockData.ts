@@ -75,7 +75,6 @@ export const mockedRuntimeData: RuntimeData = {
     available_in_country: true,
   },
   WAFFLE_FLAGS: [
-    ["new_from_address", true],
     ["tracker_removal", true],
     ["phone_launch_survey", true],
     ["multi_replies", true],

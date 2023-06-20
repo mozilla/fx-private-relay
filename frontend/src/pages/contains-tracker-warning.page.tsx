@@ -3,9 +3,10 @@ import styles from "./contains-tracker-warning.module.scss";
 import { Layout } from "../components/layout/Layout";
 import { useRuntimeData } from "../hooks/api/runtimeData";
 import { useL10n } from "../hooks/l10n";
-import { Banner } from "../components/Banner";
-import { useEffect, useState } from "react";
 import { FaqAccordionItem } from "../components/landing/FaqAccordion";
+import { useEffect, useState } from "react";
+import { RoundedInfoTriangleIcon } from "../components/Icons";
+import { OutboundLink } from "react-ga";
 
 type TrackerWarningData = {
   sender: string;
@@ -49,17 +50,35 @@ const ContainsTracker: NextPage = () => {
     });
 
   const TrackerWarningBanner = trackerData && (
-    <Banner
-      type="warning"
-      title={l10n.getString("contains-tracker-warning-title")}
-      cta={{
-        content: l10n.getString("contains-tracker-warning-view-link-cta"),
-        size: "large",
-        target: trackerData.original_link,
-      }}
-    >
-      {l10n.getString("contains-tracker-warning-description")}
-    </Banner>
+    <>
+      <div className={styles["warning-banner-container"]}>
+        <RoundedInfoTriangleIcon width={28} height={28} alt="" />
+        <div className={styles["warning-banner-title-section"]}>
+          <h2 className={styles["warning-banner-title"]}>
+            {l10n.getString("contains-tracker-warning-title")}
+          </h2>
+          <p className={styles["warning-banner-description"]}>
+            {l10n.getString("contains-tracker-warning-description")}
+          </p>
+        </div>
+      </div>
+      <div className={styles["warning-banner-button"]}>
+        <div className={styles["cta-button"]}>
+          <OutboundLink
+            to={trackerData.original_link}
+            eventLabel={l10n.getString(
+              "contains-tracker-warning-view-link-cta"
+            )}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span>
+              {l10n.getString("contains-tracker-warning-view-link-cta")}
+            </span>
+          </OutboundLink>
+        </div>
+      </div>
+    </>
   );
 
   return (
@@ -69,7 +88,7 @@ const ContainsTracker: NextPage = () => {
           <div className={styles["details-section"]}>
             <h1>{l10n.getString("contains-tracker-title")}</h1>
             <p>{TrackerWarningDescription}</p>
-            <div className={styles["warning-banner"]}>
+            <div className={styles["warning-banner-wrapper"]}>
               {TrackerWarningBanner}
             </div>
           </div>
@@ -83,7 +102,7 @@ const ContainsTracker: NextPage = () => {
             </div>
             <div className={styles.entries}>
               <FaqAccordionItem
-                defaultExpandedIndex={0}
+                autoFocus={true}
                 entries={[
                   {
                     q: l10n.getString("faq-question-define-tracker-question"),

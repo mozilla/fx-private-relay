@@ -117,11 +117,11 @@ export const PlanMatrix = (props: Props) => {
           </th>
           {isBundleAvailableInCountry(props.runtimeData) ? (
             <th scope="col" className={styles.recommended}>
-              <b>{l10n.getString("plan-matrix-heading-plan-bundle")}</b>
+              <b>{l10n.getString("plan-matrix-heading-plan-bundle-2")}</b>
             </th>
           ) : (
             <th scope="col">
-              {l10n.getString("plan-matrix-heading-plan-bundle")}
+              {l10n.getString("plan-matrix-heading-plan-bundle-2")}
             </th>
           )}
         </tr>
@@ -535,7 +535,7 @@ export const PlanMatrix = (props: Props) => {
               : ""
           }`}
         >
-          <h3>{l10n.getString("plan-matrix-heading-plan-bundle")}</h3>
+          <h3>{l10n.getString("plan-matrix-heading-plan-bundle-2")}</h3>
           <MobileFeatureList list={bundleFeatures} />
           {isBundleAvailableInCountry(props.runtimeData) ? (
             <div className={styles.pricing}>

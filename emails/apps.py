@@ -3,6 +3,8 @@ import os
 
 import boto3
 from botocore.config import Config
+from django.utils.functional import cached_property
+from mypy_boto3_ses.client import SESClient
 
 from django.apps import AppConfig
 from django.conf import settings
@@ -14,24 +16,37 @@ logger = logging.getLogger("events")
 class EmailsConfig(AppConfig):
     name = "emails"
 
-    def __init__(self, app_name, app_module):
-        super(EmailsConfig, self).__init__(app_name, app_module)
+    @cached_property
+    def ses_client(self) -> SESClient | None:
         try:
-            self.ses_client = boto3.client("ses", region_name=settings.AWS_REGION)
+            return boto3.client("ses", region_name=settings.AWS_REGION)
+        except Exception:
+            logger.exception("exception during SES connect")
+            return None
+
+    @cached_property
+    def s3_client(self):
+        try:
             s3_config = Config(
                 region_name=settings.AWS_REGION,
                 retries={
-                    "max_attempts": 1,  # this includes the initial attempt to get the email
+                    # max_attempts includes the initial attempt to get the email
+                    # so this does not retry with backoff, to avoid timeouts
+                    "max_attempts": 1,
                     "mode": "standard",
                 },
             )
-            self.s3_client = boto3.client("s3", config=s3_config)
+            return boto3.client("s3", config=s3_config)
         except Exception:
-            logger.exception("exception during SES connect")
+            logger.exception("exception during S3 connect")
+
+    def __init__(self, app_name, app_module):
+        super(EmailsConfig, self).__init__(app_name, app_module)
 
         # badwords file from:
         # https://www.cs.cmu.edu/~biglou/resources/bad-words.txt
-        # Using `.text` extension because of https://github.com/dependabot/dependabot-core/issues/1657
+        # Using `.text` extension because of
+        # https://github.com/dependabot/dependabot-core/issues/1657
         self.badwords = self._load_terms("badwords.text")
         self.blocklist = self._load_terms("blocklist.text")
 
@@ -46,4 +61,4 @@ class EmailsConfig(AppConfig):
         return terms
 
     def ready(self):
-        import emails.signals
+        import emails.signals  # noqa: F401 (imported but unused warning)
