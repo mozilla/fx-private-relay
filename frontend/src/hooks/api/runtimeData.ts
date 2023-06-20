@@ -6,7 +6,6 @@ type LanguageCode = string;
 export type FlagNames =
   | "manage_flags"
   | "interview_recruitment"
-  | "new_from_address"
   | "tracker_removal"
   | "phone_launch_survey"
   | "multi_replies"
