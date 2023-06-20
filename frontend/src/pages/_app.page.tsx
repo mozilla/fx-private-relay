@@ -14,6 +14,7 @@ import { ReactAriaI18nProvider } from "../components/ReactAriaI18nProvider";
 import { initialiseApiMocks } from "../apiMocks/initialise";
 import { mockIds } from "../apiMocks/mockData";
 import { useIsLoggedIn } from "../hooks/session";
+import { loadStripe } from "@stripe/stripe-js";
 
 if (process.env.NEXT_PUBLIC_MOCK_API === "true") {
   initialiseApiMocks();
@@ -46,6 +47,18 @@ function MyApp({ Component, pageProps }: AppProps) {
   const [l10n, setL10n] = useState<ReactLocalization>(
     getL10n({ deterministicLocales: true })
   );
+
+  useEffect(() => {
+    const stripeKey = process.env.STRIPE_PUBLISHABLE_KEY;
+
+    if (stripeKey) {
+      const loadStripeJs = async () => {
+        await loadStripe(stripeKey);
+      };
+
+      loadStripeJs();
+    }
+  }, []);
 
   useEffect(() => {
     // When pre-rendering and on the first render, we deterministically load the

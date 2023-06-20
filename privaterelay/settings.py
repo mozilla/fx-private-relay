@@ -105,10 +105,11 @@ CSP_CONNECT_SRC = (
     "https://location.services.mozilla.com",
     BASKET_ORIGIN,
 )
-CSP_DEFAULT_SRC = ("'self'",)
+CSP_DEFAULT_SRC = ("'self'", "https://js.stripe.com/")
 CSP_SCRIPT_SRC = [
     "'self'",
     "https://www.google-analytics.com/",
+    "https://js.stripe.com/",
 ]
 CSP_FONT_SRC = ["'self'", "https://relay.firefox.com/"]
 CSP_OBJECT_SRC = ("'none'",)
