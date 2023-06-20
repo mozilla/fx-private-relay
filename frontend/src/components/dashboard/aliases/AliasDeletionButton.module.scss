@@ -43,6 +43,7 @@
     border-radius: $border-radius-md;
     box-shadow: $box-shadow-sm;
     padding: $spacing-md;
+    overflow-wrap: break-word;
 
     .hero {
       @include text-title-3xs;
