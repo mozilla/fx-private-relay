@@ -33,8 +33,8 @@ import TrackerRemovalHero from "./images/tracker-removal-hero.svg";
 import TrackerRemovalIcon from "./images/tracker-removal-icon.svg";
 import PremiumSwedenHero from "./images/premium-expansion-sweden-hero.svg";
 import PremiumSwedenIcon from "./images/premium-expansion-sweden-icon.svg";
-import premiumEuExpansionHero from "./images/eu-expansion-hero.svg";
-import premiumEuExpansionIcon from "./images/eu-expansion-icon.svg";
+import PremiumEuExpansionHero from "./images/eu-expansion-hero.svg";
+import PremiumEuExpansionIcon from "./images/eu-expansion-icon.svg";
 import PremiumFinlandHero from "./images/premium-expansion-finland-hero.svg";
 import PremiumFinlandIcon from "./images/premium-expansion-finland-icon.svg";
 import PhoneMaskingHero from "./images/phone-masking-hero.svg";
@@ -344,7 +344,7 @@ export const WhatsNewMenu = (props: Props) => {
         heading={l10n.getString(
           "whatsnew-feature-premium-expansion-eu-heading"
         )}
-        image={premiumEuExpansionHero}
+        image={PremiumEuExpansionHero}
         cta={
           <Link href="/premium#pricing" legacyBehavior>
             <span className={styles.cta}>
@@ -354,9 +354,9 @@ export const WhatsNewMenu = (props: Props) => {
         }
       />
     ),
-    icon: premiumEuExpansionIcon,
+    icon: PremiumEuExpansionIcon,
     dismissal: useLocalDismissal(
-      `whatsnew-feature_premium-expansion-eu_${props.profile.id}`
+      `whatsnew-feature_premium-expansion-eu_2023_${props.profile.id}`
     ),
     announcementDate: {
       year: 2023,
