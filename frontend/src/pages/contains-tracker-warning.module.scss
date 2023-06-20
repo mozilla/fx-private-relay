@@ -1,0 +1,140 @@
+@import "../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+.contains-tracker-container {
+  margin: $layout-sm;
+
+  .warning-banner-wrapper {
+    display: flex;
+    gap: 10px;
+    background-color: $color-white;
+    padding: $spacing-lg $spacing-md;
+    border-radius: $border-radius-sm;
+    box-shadow: $box-shadow-sm;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-direction: column;
+
+    @media screen and #{$mq-md} {
+      flex-direction: row;
+      align-items: center;
+    }
+
+    .cta-button {
+      a {
+        font-size: 15px;
+        font-weight: 600;
+        font-family: $font-stack-firefox;
+        color: $color-black;
+        border: none;
+        background-color: $color-grey-10;
+        white-space: nowrap;
+        align-self: center;
+        margin: 0 0 0 auto;
+        padding: $spacing-md;
+        border-radius: $border-radius-sm;
+      }
+    }
+
+    .warning-banner-container {
+      display: flex;
+      gap: 10px;
+    }
+
+    svg {
+      fill: $color-yellow-50;
+      min-width: 28px;
+      min-height: 28px;
+    }
+
+    h2 {
+      font-size: 18px;
+      font-weight: 600;
+      font-family: $font-stack-firefox;
+      color: $color-grey-50;
+    }
+
+    p {
+      font-size: 16px;
+      font-weight: 400;
+      font-family: $font-stack-base;
+      color: $color-grey-40;
+    }
+  }
+
+  @media screen and #{$mq-md} {
+    max-width: $content-xl;
+    margin: $layout-md auto;
+    padding: 0 $layout-sm;
+  }
+
+  .details-section {
+    gap: $layout-xs;
+    display: flex;
+    flex-direction: column;
+
+    h1 {
+      font-family: $font-stack-firefox;
+      border-bottom: 1px solid $color-light-gray-30;
+      padding-bottom: $spacing-xs;
+    }
+
+    .warning-banner {
+      margin-top: $spacing-sm;
+    }
+  }
+}
+
+.faq-wrapper {
+  background-color: $color-white;
+
+  .faq {
+    max-width: $content-xl;
+    margin: 0 auto;
+    padding: 0 $layout-sm;
+    display: flex;
+    flex-direction: column;
+
+    .lead {
+      // flex value is 0.35 to make sure the text is not too wide and to reflect design specs
+      flex-basis: 0;
+      flex-grow: 0.35;
+
+      @media screen and #{$mq-md} {
+        padding: $spacing-2xl $spacing-2xl 0 0;
+      }
+
+      .headline {
+        @include text-title-xs;
+        font-family: $font-stack-firefox;
+        font-weight: 700;
+        padding: $spacing-md 0;
+        color: $color-violet-90;
+
+        @media screen and #{$mq-md} {
+          @include text-title-2xs;
+        }
+      }
+
+      .read-more {
+        color: $color-blue-50;
+        font-weight: 700;
+        text-decoration: underline;
+
+        &:hover {
+          text-decoration: none;
+        }
+      }
+    }
+
+    .entries {
+      flex: 1;
+      padding: $spacing-lg 0;
+    }
+
+    @media screen and #{$mq-md} {
+      flex-direction: row;
+      gap: $spacing-md;
+    }
+  }
+}

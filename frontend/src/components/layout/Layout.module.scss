@@ -160,6 +160,11 @@ $toastify-toast-close-button: var(--toast-close-button);
   width: 100%;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.06);
 
+  &.plain-page {
+    position: relative;
+    box-shadow: none;
+  }
+
   @media screen and #{$mq-md} {
     grid-template-areas: "logoWrapper navWrapper appPickerWrapper userMenuWrapper";
   }
@@ -169,6 +174,11 @@ $toastify-toast-close-button: var(--toast-close-button);
     display: flex;
     align-items: center;
     max-width: calc(100% - $spacing-md);
+
+    &.plain-page {
+      padding-top: $layout-sm;
+      justify-content: center;
+    }
 
     .logo {
       display: inline-flex;
@@ -234,6 +244,10 @@ $toastify-toast-close-button: var(--toast-close-button);
   &.is-light {
     background-color: $color-white;
     color: $color-grey-40;
+  }
+
+  &.is-grey {
+    background-color: $color-light-gray-10;
   }
 
   @media screen and #{$mq-md} {

@@ -19,15 +19,18 @@ from rest_framework.exceptions import (
 
 
 logger = logging.getLogger("events")
+INTROSPECT_TOKEN_URL = (
+    "%s/introspect" % settings.SOCIALACCOUNT_PROVIDERS["fxa"]["OAUTH_ENDPOINT"]
+)
 
 
 def get_cache_key(token):
     return hash(token)
 
 
-def introspect_token(introspect_token_url, token):
+def introspect_token(token):
     try:
-        fxa_resp = requests.post(introspect_token_url, json={"token": token})
+        fxa_resp = requests.post(INTROSPECT_TOKEN_URL, json={"token": token})
     except:
         logger.error(
             "Could not introspect token with FXA.",
@@ -45,6 +48,64 @@ def introspect_token(introspect_token_url, token):
         )
         raise AuthenticationFailed("JSONDecodeError from FXA introspect response")
     return fxa_resp_data
+
+
+def get_fxa_uid_from_oauth_token(token, use_cache=True):
+    # set a default cache_timeout, but this will be overriden to match
+    # the 'exp' time in the JWT returned by FxA
+    cache_timeout = 60
+    cache_key = get_cache_key(token)
+
+    if not use_cache:
+        fxa_resp_data = introspect_token(token)
+    else:
+        # set a default fxa_resp_data, so any error during introspection
+        # will still cache for at least cache_timeout to prevent an outage
+        # from causing useless run-away repetitive introspection requests
+        fxa_resp_data = {"status_code": None, "json": {}}
+        try:
+            cached_fxa_resp_data = cache.get(cache_key)
+
+            if cached_fxa_resp_data:
+                fxa_resp_data = cached_fxa_resp_data
+            else:
+                # no cached data, get new
+                fxa_resp_data = introspect_token(token)
+        except AuthenticationFailed:
+            raise
+        finally:
+            # Store potential valid response, errors, inactive users, etc. from FxA
+            # for at least 60 seconds. Valid access_token cache extended after checking.
+            cache.set(cache_key, fxa_resp_data, cache_timeout)
+
+    if fxa_resp_data["status_code"] is None:
+        raise APIException("Previous FXA call failed, wait to retry.")
+
+    if not fxa_resp_data["status_code"] == 200:
+        raise APIException("Did not receive a 200 response from FXA.")
+
+    if not fxa_resp_data["json"].get("active"):
+        raise AuthenticationFailed("FXA returned active: False for token.", code=401)
+
+    # FxA user is active, check for the associated Relay account
+    fxa_uid = fxa_resp_data.get("json", {}).get("sub")
+    if not fxa_uid:
+        raise NotFound("FXA did not return an FXA UID.")
+
+    # cache valid access_token and fxa_resp_data until access_token expiration
+    # TODO: revisit this since the token can expire before its time
+    if type(fxa_resp_data.get("json").get("exp")) is int:
+        # Note: FXA iat and exp are timestamps in *milliseconds*
+        fxa_token_exp_time = int(fxa_resp_data.get("json").get("exp") / 1000)
+        now_time = int(datetime.now(timezone.utc).timestamp())
+        fxa_token_exp_cache_timeout = fxa_token_exp_time - now_time
+        if fxa_token_exp_cache_timeout > cache_timeout:
+            # cache until access_token expires (matched Relay user)
+            # this handles cases where the token already expired
+            cache_timeout = fxa_token_exp_cache_timeout
+    cache.set(cache_key, fxa_resp_data, cache_timeout)
+
+    return fxa_uid
 
 
 class FxaTokenAuthentication(BaseAuthentication):
@@ -65,57 +126,18 @@ class FxaTokenAuthentication(BaseAuthentication):
         if token == "":
             raise ParseError("Missing FXA Token after 'Bearer'.")
 
-        cache_key = get_cache_key(token)
-        # set a default cache_timeout, but this will be overriden to match
-        # the 'exp' time in the JWT returned by FXA
-        cache_timeout = 60
-        cached_fxa_resp_data = fxa_resp_data = cache.get(cache_key)
-        if not fxa_resp_data:
-            # set a default fxa_resp_data, so any error during introspection
-            # will still cache for at least cache_timeout to prevent an outage
-            # from causing useless run-away repetitive introspection requests
-            fxa_resp_data = {"status_code": None, "json": {}}
-            introspect_token_url = (
-                "%s/introspect"
-                % settings.SOCIALACCOUNT_PROVIDERS["fxa"]["OAUTH_ENDPOINT"]
-            )
-            try:
-                fxa_resp_data = introspect_token(introspect_token_url, token)
-            except AuthenticationFailed:
-                raise
-            finally:
-                cache.set(cache_key, fxa_resp_data, cache_timeout)
-
-        user = None
-        if fxa_resp_data["status_code"] is None:
-            raise APIException("Previous FXA call failed, wait to retry.")
-
-        if not fxa_resp_data["status_code"] == 200:
-            raise APIException("Did not receive a 200 response from FXA.")
-
-        if not fxa_resp_data["json"].get("active"):
-            raise AuthenticationFailed("FXA returned active: False for token.")
-
-        # FxA user is active, check for the associated Relay account
-        fxa_uid = fxa_resp_data.get("json", {}).get("sub")
-        if not fxa_uid:
-            raise NotFound("FXA did not return an FXA UID.")
+        use_cache = True
+        method = request.method
+        if method in ["POST", "DELETE", "PUT"]:
+            use_cache = False
+            if method == "POST" and request.path == "/api/v1/relayaddresses/":
+                use_cache = True
+        fxa_uid = get_fxa_uid_from_oauth_token(token, use_cache)
         try:
             sa = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
         except SocialAccount.DoesNotExist:
             raise PermissionDenied("Authenticated user does not have a Relay account.")
         user = sa.user
-
-        # cache fxa_resp_data for as long as access_token is valid
-        # Note: FXA iat and exp are timestamps in *milliseconds*
-        fxa_token_exp_time = int(fxa_resp_data.get("json").get("exp") / 1000)
-        now_time = int(datetime.now(timezone.utc).timestamp())
-        cache_timeout = fxa_token_exp_time - now_time
-
-        # Store FxA response for 60 seconds (errors, inactive users, etc.) or
-        # until access_token expires (matched Relay user)
-        if not cached_fxa_resp_data:
-            cache.set(cache_key, fxa_resp_data, cache_timeout)
 
         if user:
             return (user, token)

@@ -127,6 +127,8 @@ class ProfileSerializer(serializers.ModelSerializer):
             "emails_replied",
             "level_one_trackers_blocked",
             "remove_level_one_email_trackers",
+            "total_masks",
+            "at_mask_limit",
         ]
         read_only_fields = [
             "id",
@@ -142,6 +144,8 @@ class ProfileSerializer(serializers.ModelSerializer):
             "emails_forwarded",
             "emails_replied",
             "level_one_trackers_blocked",
+            "total_masks",
+            "at_mask_limit",
         ]
 
 
@@ -164,6 +168,16 @@ class FlagSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
         ]
+
+    def validate_everyone(self, value):
+        """
+        Turn False into None. This disables the flag for most, but allows users
+        and groups to still have the flag. Setting the flag to False would also
+        disable the flag for those users.
+        """
+        if value:
+            return True
+        return None
 
     def validate(self, data):
         if (data.get("name", "").lower() == "manage_flags") or (

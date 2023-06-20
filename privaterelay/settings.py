@@ -161,7 +161,7 @@ if DJANGO_ALLOWED_SUBNET:
 ADMIN_ENABLED = config("ADMIN_ENABLED", False, cast=bool)
 
 
-AWS_REGION = config("AWS_REGION", None)
+AWS_REGION: str | None = config("AWS_REGION", None)
 AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID", None)
 AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY", None)
 AWS_SNS_TOPIC = set(config("AWS_SNS_TOPIC", "", cast=Csv()))
@@ -174,7 +174,6 @@ AWS_SQS_EMAIL_DLQ_URL = config("AWS_SQS_EMAIL_DLQ_URL", None)
 AWS_SQS_QUEUE_URL = config("AWS_SQS_QUEUE_URL", None)
 
 RELAY_FROM_ADDRESS = config("RELAY_FROM_ADDRESS", None)
-NEW_RELAY_FROM_ADDRESS = config("NEW_RELAY_FROM_ADDRESS")
 GOOGLE_ANALYTICS_ID = config("GOOGLE_ANALYTICS_ID", None)
 INCLUDE_VPN_BANNER = config("INCLUDE_VPN_BANNER", False, cast=bool)
 RECRUITMENT_BANNER_LINK = config("RECRUITMENT_BANNER_LINK", None)
@@ -308,7 +307,6 @@ MIDDLEWARE += [
     "django_referrer_policy.middleware.ReferrerPolicyMiddleware",
     "dockerflow.django.middleware.DockerflowMiddleware",
     "waffle.middleware.WaffleMiddleware",
-    "privaterelay.middleware.FxAToRequest",
     "privaterelay.middleware.AddDetectedCountryToRequestAndResponseHeaders",
     "privaterelay.middleware.StoreFirstVisit",
 ]
@@ -335,7 +333,7 @@ TEMPLATES = [
 
 RELAY_FIREFOX_DOMAIN = config("RELAY_FIREFOX_DOMAIN", "relay.firefox.com", cast=str)
 MOZMAIL_DOMAIN = config("MOZMAIL_DOMAIN", "mozmail.com", cast=str)
-MAX_NUM_FREE_ALIASES = config("MAX_NUM_FREE_ALIASES", 5, cast=int)
+MAX_NUM_FREE_ALIASES: int = config("MAX_NUM_FREE_ALIASES", 5, cast=int)
 PERIODICAL_PREMIUM_PROD_ID = config("PERIODICAL_PREMIUM_PROD_ID", "", cast=str)
 PREMIUM_PLAN_ID_US_MONTHLY = config(
     "PREMIUM_PLAN_ID_US_MONTHLY", "price_1LXUcnJNcmPzuWtRpbNOajYS", cast=str
@@ -703,6 +701,9 @@ LANGUAGE_CODE = "en"
 LANGUAGES = DEFAULT_LANGUAGES + [
     ("zh-tw", "Chinese"),
     ("zh-cn", "Chinese"),
+    ("es-es", "Spanish"),
+    ("pt-pt", "Portuguese"),
+    ("skr", "Saraiki"),
 ]
 
 TIME_ZONE = "UTC"
@@ -785,7 +786,7 @@ FXA_SETTINGS_URL = config("FXA_SETTINGS_URL", f"{FXA_BASE_ORIGIN}/settings")
 FXA_SUBSCRIPTIONS_URL = config(
     "FXA_SUBSCRIPTIONS_URL", f"{FXA_BASE_ORIGIN}/subscriptions"
 )
-# check https://mozilla.github.io/ecosystem-platform/api#tag/Subscriptions/operation/getOauthMozillasubscriptionsCustomerBillingandsubscriptions
+# check https://mozilla.github.io/ecosystem-platform/api#tag/Subscriptions/operation/getOauthMozillasubscriptionsCustomerBillingandsubscriptions  # noqa: E501 (line too long)
 FXA_ACCOUNTS_ENDPOINT = config(
     "FXA_ACCOUNTS_ENDPOINT",
     "https://api.accounts.firefox.com/v1",
@@ -916,7 +917,7 @@ if SENTRY_ENVIRONMENT == "prod" and SITE_ORIGIN != "https://relay.firefox.com":
 
 sentry_sdk.init(
     dsn=config("SENTRY_DSN", None),
-    integrations=[DjangoIntegration()],
+    integrations=[DjangoIntegration(cache_spans=not DEBUG)],
     debug=SENTRY_DEBUG,
     include_local_variables=DEBUG,
     release=sentry_release,

@@ -33,7 +33,8 @@ import { useL10n } from "../../hooks/l10n";
 
 export type Props = {
   children: ReactNode;
-  theme?: "free" | "premium";
+  // Plain page used for pages without the typical header bag, e.g. tracker report page
+  theme?: "free" | "premium" | "plain";
   runtimeData?: RuntimeData;
 };
 
@@ -102,6 +103,31 @@ export const Layout = (props: Props) => {
       </div>
     );
   };
+
+  const RelayHeaderLogo = (
+    <>
+      <Image src={logo} alt="" className={styles.logomark} width={42} />
+      <Image
+        src={logoType}
+        alt={logoAlt}
+        className={styles.logotype}
+        height={20}
+      />
+    </>
+  );
+
+  const PlainPageHeader = (
+    <header
+      className={`${styles.header} ${styles["is-grey"]} ${styles["plain-page"]}`}
+    >
+      <div className={`${styles["logo-wrapper"]} ${styles["plain-page"]}`}>
+        <Link href={homePath} className={styles.logo}>
+          {RelayHeaderLogo}
+        </Link>
+      </div>
+    </header>
+  );
+
   return (
     <>
       <PageMetadata />
@@ -111,40 +137,33 @@ export const Layout = (props: Props) => {
           profile={profiles.data?.[0]}
           runtimeData={props.runtimeData}
         />
-        <header className={`${styles.header} ${darkClass}`}>
-          <div className={styles["logo-wrapper"]}>
-            <Link href={homePath} className={styles.logo}>
-              {router.pathname === "/vpn-relay-welcome" ? (
-                <Image src={vpnRelayLogo} alt="" height={32} />
-              ) : (
+        {props.theme === "plain" ? (
+          PlainPageHeader
+        ) : (
+          <header className={`${styles.header} ${darkClass}`}>
+            <div className={styles["logo-wrapper"]}>
+              <Link href={homePath} className={styles.logo}>
                 <>
-                  <Image
-                    src={logo}
-                    alt=""
-                    className={styles.logomark}
-                    width={42}
-                  />
-                  <Image
-                    src={logoType}
-                    alt={logoAlt}
-                    className={styles.logotype}
-                    height={20}
-                  />
+                  {router.pathname === "/vpn-relay-welcome" ? (
+                    <Image src={vpnRelayLogo} alt="" height={32} />
+                  ) : (
+                    RelayHeaderLogo
+                  )}
                 </>
-              )}
-            </Link>
-          </div>
-          <div className={styles["nav-wrapper"]}>
-            <Navigation
-              mobileMenuExpanded={mobileMenuExpanded}
-              theme={isDark ? "free" : "premium"}
-              handleToggle={handleToggle}
-              hasPremium={hasPremium}
-              isLoggedIn={isLoggedIn}
-              profile={profiles.data?.[0]}
-            />
-          </div>
-        </header>
+              </Link>
+            </div>
+            <div className={styles["nav-wrapper"]}>
+              <Navigation
+                mobileMenuExpanded={mobileMenuExpanded}
+                theme={isDark ? "free" : "premium"}
+                handleToggle={handleToggle}
+                hasPremium={hasPremium}
+                isLoggedIn={isLoggedIn}
+                profile={profiles.data?.[0]}
+              />
+            </div>
+          </header>
+        )}
 
         <ToastContainer
           icon={false}

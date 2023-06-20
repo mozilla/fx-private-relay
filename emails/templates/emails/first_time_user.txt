@@ -1,0 +1,40 @@
+{% load ftl %}{% load email_extras %}{% withftl bundle='privaterelay.ftl_bundles.main' language=language %}{% ftlmsg 'first-time-user-email-welcome' %}
+
+{% ftlmsg 'first-time-user-email-welcome-subhead' %}
+
+{% ftlmsg 'first-time-user-email-hero-primary-text' %}
+
+{% ftlmsg 'first-time-user-email-hero-secondary-text' %}
+{{ SITE_ORIGIN }}/accounts/profile/
+
+{% ftlmsg 'first-time-user-email-how-title' %}
+
+{% ftlmsg 'first-time-user-email-how-item-1-header' %}
+{% ftlmsg 'first-time-user-email-how-item-1-subhead-text' %}
+https://addons.mozilla.org/firefox/addon/private-relay/
+
+{% ftlmsg 'first-time-user-email-how-item-2-header' %}
+{% ftlmsg 'first-time-user-email-how-item-2-subhead' %}
+
+{% ftlmsg 'first-time-user-email-how-item-3-header' %}
+{% ftlmsg 'first-time-user-email-how-item-3-subhead-text' %}
+{{ SITE_ORIGIN }}/accounts/profile/
+
+{% ftlmsg 'first-time-user-email-extra-protection-inbox-phone-title' %}
+{% ftlmsg 'first-time-user-email-extra-protection-inbox-phone-subhead' %}
+{{ SITE_ORIGIN }}/premium/
+
+{% ftlmsg 'first-time-user-email-questions-title' %}
+{% ftlmsg 'first-time-user-email-questions-subhead-text' %}
+https://support.mozilla.org/products/relay
+
+{% ftlmsg 'first-time-user-email-footer-text-1' %}{% ftlmsg 'first-time-user-email-footer-text-2-text' %}
+https://support.mozilla.org/products/relay
+
+2 Harrison St. #175, San Francisco, California 94105 USA
+
+{% ftlmsg 'first-time-user-email-footer-text-legal' %}
+https://www.mozilla.org/about/legal/terms/firefox-relay/
+
+{% ftlmsg 'first-time-user-email-footer-text-privacy' %}
+https://www.mozilla.org/privacy/firefox-relay/{% endwithftl %}

@@ -2,53 +2,14 @@ from datetime import datetime, timezone
 import time
 
 import markus
-from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error
 
 from django.conf import settings
-from django.contrib.auth import logout
 from django.shortcuts import redirect
 
-from allauth.socialaccount.models import SocialToken
-from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
 from whitenoise.middleware import WhiteNoiseMiddleware
 
-from privaterelay.fxa_utils import (
-    _get_oauth2_session,
-    update_social_token,
-    NoSocialToken,
-)
 
 metrics = markus.get_metrics("fx-private-relay")
-
-
-class FxAToRequest:
-    def __init__(self, get_response):
-        self.get_response = get_response
-
-    def __call__(self, request):
-        if not request.user.is_authenticated:
-            return self.get_response(request)
-
-        fxa_account = request.user.socialaccount_set.filter(provider="fxa").first()
-
-        if not fxa_account:
-            return self.get_response(request)
-
-        social_token = SocialToken.objects.get(account=fxa_account)
-        # if the user's FXA access token has expired; try to get a new one
-        if social_token.expires_at < datetime.now(timezone.utc):
-            try:
-                client = _get_oauth2_session(fxa_account)
-                new_token = client.refresh_token(
-                    FirefoxAccountsOAuth2Adapter.access_token_url
-                )
-                update_social_token(social_token, new_token)
-            except (CustomOAuth2Error, NoSocialToken):
-                logout(request)
-                return redirect("/")
-
-        request.fxa_account = fxa_account
-        return self.get_response(request)
 
 
 class RedirectRootIfLoggedIn:

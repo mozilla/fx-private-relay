@@ -23,6 +23,15 @@ import jwt
 import pytest
 import responses
 
+from emails.models import (
+    DeletedAddress,
+    DomainAddress,
+    Profile,
+    RelayAddress,
+    address_hash,
+)
+from emails.tests.models_tests import unlimited_subscription
+
 from ..apps import PrivateRelayConfig
 from ..fxa_utils import NoSocialToken
 from ..views import _update_all_data, fxa_verifying_keys
@@ -200,6 +209,8 @@ class FxaRpEventsSetupData:
     mock_fxa_verifying_keys: Mock
     mock_responses: responses.RequestsMock
     profile_response: FxaProfileResponse
+    ra: RelayAddress
+    da: DomainAddress
 
 
 @pytest.fixture
@@ -216,9 +227,11 @@ def setup_fxa_rp_events(
 
     # Create user subscribed to emails and phones
     user = baker.make(User, email="test@example.com")
-    user.profile.server_storage = True
-    user.profile.date_subscribed = timezone.now()
-    user.profile.save()
+    profile = user.profile
+    assert isinstance(profile, Profile)
+    profile.server_storage = True
+    profile.date_subscribed = timezone.now()
+    profile.save()
 
     # Create FxA app, account, token, etc.
     fxa_app: SocialApp = baker.make(SocialApp, provider="fxa")
@@ -231,7 +244,7 @@ def setup_fxa_rp_events(
         "uid": str(uuid4()),
         "avatar": "https://profile.stage.mozaws.net/v1/avatar/t",
         "avatarDefault": False,
-        "subscriptions": ["test-unlimited", "test-phone"],
+        "subscriptions": [unlimited_subscription(), "test-phone"],
     }
     fxa_acct: SocialAccount = baker.make(
         SocialAccount,
@@ -247,6 +260,10 @@ def setup_fxa_rp_events(
         expires_at=timezone.now() + timedelta(days=2),
     )
     baker.make(EmailAddress, user=user, email=user.email)
+
+    ra = baker.make(RelayAddress, user=user)
+    profile.add_subdomain("premiumuser")
+    da = baker.make(DomainAddress, user=user, address="premium")
 
     # Setup mock fxa_verifying_key
     fxa_public_key = mock_fxa_signing_key.public_key()
@@ -296,6 +313,8 @@ def setup_fxa_rp_events(
             mock_fxa_verifying_keys=mock_fxa_verifying_keys,
             mock_responses=mock_responses,
             profile_response=profile_response,
+            ra=ra,
+            da=da,
         )
 
 
@@ -326,13 +345,7 @@ def get_fxa_event_jwt(
         "jti": str(uuid4()),
         "events": {event_key: event_data},
     }
-    return jwt.encode(
-        payload,
-        # expects str, but RSAPublicKey allowed
-        # https://github.com/jpadilla/pyjwt/issues/660
-        signing_key,  # type: ignore
-        algorithm="RS256",
-    )
+    return jwt.encode(payload, signing_key, algorithm="RS256")
 
 
 def test_fxa_rp_events_password_change(
@@ -489,6 +502,18 @@ def test_fxa_rp_events_delete_user(
     )
     auth_header = f"Bearer {event_jwt}"
 
+    ra = setup_fxa_rp_events.ra
+    da = setup_fxa_rp_events.da
+    assert isinstance(ra, RelayAddress)
+    assert RelayAddress.objects.filter(id=ra.id).exists()
+    assert DomainAddress.objects.filter(id=da.id).exists()
+    assert not DeletedAddress.objects.filter(
+        address_hash=address_hash(ra.address)
+    ).exists()
+    assert not DeletedAddress.objects.filter(
+        address_hash=address_hash(da.address)
+    ).exists()
+
     with MetricsMock() as mm:
         response = client.get("/fxa-rp-events", HTTP_AUTHORIZATION=auth_header)
     assert mm.get_records() == []
@@ -498,3 +523,11 @@ def test_fxa_rp_events_delete_user(
     ]
     assert response.status_code == 200
     assert not User.objects.filter(id=setup_fxa_rp_events.user.id).exists()
+    assert not RelayAddress.objects.filter(id=ra.id).exists()
+    assert not DomainAddress.objects.filter(id=da.id).exists()
+    ra_address_hash = address_hash(ra.address)
+    assert DeletedAddress.objects.filter(address_hash=ra_address_hash).exists()
+    da_address_hash = address_hash(
+        da.address, da.user.profile.subdomain, da.domain_value
+    )
+    assert DeletedAddress.objects.filter(address_hash=da_address_hash).exists()

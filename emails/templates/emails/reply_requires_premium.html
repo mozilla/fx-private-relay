@@ -1,6 +1,6 @@
 {% comment %}
-  Note that Django only loads strings from `app.ftl`, `brands.ftl`, and `phones.ftl`
-  so make sure all email strings are included in those files.
+  Note that Django only loads strings from some Fluent files.
+  See privaterelay/ftl_bundles.py.
 {% endcomment %}
 {% load ftl %}
 {% load email_extras %}
@@ -11,7 +11,6 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width"/>
-    <title>Firefox Relay</title>
     <style> 
         @font-face {
                 font-family: 'inter';
