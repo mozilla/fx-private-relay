@@ -5,12 +5,10 @@ from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from unittest.mock import patch
 from model_bakery import baker
-from waffle.models import Flag
 import json
 
 from emails.models import get_domains_from_settings
 from emails.utils import (
-    NEW_FROM_ADDRESS_FLAG_NAME,
     generate_relay_From,
     get_email_domain_from_settings,
     remove_trackers,
@@ -94,36 +92,9 @@ class FormattingToolsTest(TestCase):
         )
         assert formatted_from_address == expected_formatted_from
 
-    @override_settings(
-        RELAY_FROM_ADDRESS="noreply@relaytests.com",
-        NEW_RELAY_FROM_ADDRESS="new_from@relaytests.com",
-    )
-    def test_generate_relay_From_with_new_from_user(self):
+    @override_settings(RELAY_FROM_ADDRESS="noreply@relaytests.com")
+    def test_generate_relay_From_with_free_user(self):
         free_user = make_free_test_user()
-        new_from_flag = Flag.objects.create(name=NEW_FROM_ADDRESS_FLAG_NAME)
-        new_from_flag.users.add(free_user)
-        original_from_address = '"foo bar" <foo@bar.com>'
-        formatted_from_address = generate_relay_From(
-            original_from_address, free_user.profile
-        )
-        expected_encoded_display_name = (
-            "=?utf-8?b?IiJmb28gYmFyIiA8Zm9vQGJhci5jb20+IFt2aWEgUmVsYXldIg==?="
-        )
-        expected_formatted_from = "%s <%s>" % (
-            expected_encoded_display_name,
-            "new_from@relaytests.com",
-        )
-        assert formatted_from_address == expected_formatted_from
-        # WTF? TestCase tearDown doesn't clear out this waffle flag?
-        new_from_flag.users.remove(free_user)
-
-    @override_settings(
-        RELAY_FROM_ADDRESS="noreply@relaytests.com",
-        NEW_RELAY_FROM_ADDRESS="new_from@relaytests.com",
-    )
-    def test_generate_relay_From_with_non_flagged_user(self):
-        free_user = make_free_test_user()
-        Flag.objects.create(name=NEW_FROM_ADDRESS_FLAG_NAME)
         original_from_address = '"foo bar" <foo@bar.com>'
         formatted_from_address = generate_relay_From(
             original_from_address, free_user.profile
@@ -137,13 +108,9 @@ class FormattingToolsTest(TestCase):
         )
         assert formatted_from_address == expected_formatted_from
 
-    @override_settings(
-        RELAY_FROM_ADDRESS="noreply@relaytests.com",
-        NEW_RELAY_FROM_ADDRESS="new_from@relaytests.com",
-    )
+    @override_settings(RELAY_FROM_ADDRESS="noreply@relaytests.com")
     def test_generate_relay_From_with_no_user_profile_somehow(self):
         free_user = baker.make(User)
-        Flag.objects.create(name=NEW_FROM_ADDRESS_FLAG_NAME)
         original_from_address = '"foo bar" <foo@bar.com>'
         formatted_from_address = generate_relay_From(
             original_from_address, free_user.profile
@@ -203,8 +170,10 @@ class RemoveTrackers(TestCase):
 
     def expected_content(self, hyperlink, imagelink):
         return (
-            f'<a href="{self.url}{self.url_trackerwarning_data(hyperlink)}">A link</a>\n'
-            + f'<img src="{self.url}{self.url_trackerwarning_data(imagelink)}">An image</img>'
+            f'<a href="{self.url}{self.url_trackerwarning_data(hyperlink)}">'
+            "A link</a>\n"
+            f'<img src="{self.url}{self.url_trackerwarning_data(imagelink)}">'
+            "An image</img>"
         )
 
     def setUp(self):
@@ -288,37 +257,51 @@ class RemoveTrackers(TestCase):
             general_count == general_removed
         )  # count uses the same regex pattern as removing trackers
 
-    def test_general_tracker_embedded_in_another_tracker_replaced_only_once_with_relay_content(
-        self,
-    ):
-        content = "<a href='https://foo.open.tracker.com/foo/bar.html?src=trckr.com'>A link</a>"
+    def test_general_tracker_embedded_in_another_tracker_replaced_only_once(self):
+        """
+        Test that a general tracker embedded in the URL of another tracker is
+        replaced only once with the relay content.
+        """
+        content = (
+            "<a href='https://foo.open.tracker.com/foo/bar.html?src=trckr.com'>"
+            "A link</a>"
+        )
         changed_content, tracker_details = remove_trackers(
             content, self.from_address, self.datetime_now
         )
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
 
-        assert (
-            changed_content
-            == f"<a href='{self.url}{self.url_trackerwarning_data(self.hyperlink_tracker_in_tracker)}'>A link</a>"
+        expected_content = (
+            f"<a href='{self.url}"
+            f"{self.url_trackerwarning_data(self.hyperlink_tracker_in_tracker)}'>"
+            "A link</a>"
         )
+        assert changed_content == expected_content
         assert general_removed == 1
         assert general_count == 1
 
-    def test_general_tracker_also_in_text_tracker_replaced_only_once_with_relay_content(
-        self,
-    ):
-        content = "<a href='https://foo.open.tracker.com/foo/bar.html?src=trckr.com'>trckr.com</a>"
+    def test_general_tracker_also_in_text_tracker_replaced_only_once(self):
+        """
+        Test that a general tracker embedded in another tracker, and also in the text
+        of the link, is replaced only once with the relay content.
+        """
+        content = (
+            "<a href='https://foo.open.tracker.com/foo/bar.html?src=trckr.com'>"
+            "trckr.com</a>"
+        )
         changed_content, tracker_details = remove_trackers(
             content, self.from_address, self.datetime_now
         )
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
 
-        assert (
-            changed_content
-            == f"<a href='{self.url}{self.url_trackerwarning_data(self.hyperlink_tracker_in_tracker)}'>trckr.com</a>"
+        expected_content = (
+            f"<a href='{self.url}"
+            f"{self.url_trackerwarning_data(self.hyperlink_tracker_in_tracker)}'>"
+            "trckr.com</a>"
         )
+        assert changed_content == expected_content
         assert general_removed == 1
         assert general_count == 1
 

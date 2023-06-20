@@ -1,10 +1,11 @@
 import { NextPage } from "next";
+import Image from "next/image";
 import { event as gaEvent } from "react-ga";
 import styles from "./premium.module.scss";
 import { Layout } from "../components/layout/Layout";
 import { useGaViewPing } from "../hooks/gaViewPing";
 import { LinkButton } from "../components/Button";
-import { DemoPhone } from "../components/landing/DemoPhone";
+import HeroImage from "./images/relay-hero-image.svg";
 import { useRuntimeData } from "../hooks/api/runtimeData";
 import {
   isBundleAvailableInCountry,
@@ -16,6 +17,7 @@ import { useFlaggedAnchorLinks } from "../hooks/flaggedAnchorLinks";
 import { useL10n } from "../hooks/l10n";
 import { Localized } from "../components/Localized";
 import { HighlightedFeatures } from "../components/landing/HighlightedFeatures";
+import { isFlagActive } from "../functions/waffle";
 
 const PremiumPromo: NextPage = () => {
   const l10n = useL10n();
@@ -43,7 +45,11 @@ const PremiumPromo: NextPage = () => {
   ) : (
     <LinkButton
       href="/premium/waitlist"
-      title={l10n.getString("premium-promo-availability-warning-2")}
+      title={
+        isFlagActive(runtimeData.data, "eu_country_expansion")
+          ? l10n.getString("premium-promo-availability-warning-3")
+          : l10n.getString("premium-promo-availability-warning-2")
+      }
     >
       {l10n.getString("waitlist-submit-label-2")}
     </LinkButton>
@@ -59,12 +65,14 @@ const PremiumPromo: NextPage = () => {
               <p />
             </Localized>
             {cta}
-            <p>{l10n.getString("premium-promo-availability-warning-2")}</p>
+            <p>
+              {isFlagActive(runtimeData.data, "eu_country_expansion")
+                ? l10n.getString("premium-promo-availability-warning-3")
+                : l10n.getString("premium-promo-availability-warning-2")}
+            </p>
           </div>
-          <div className={styles["demo-phone"]}>
-            <DemoPhone
-              premium={isPeriodicalPremiumAvailableInCountry(runtimeData.data)}
-            />
+          <div className={styles["hero-image"]}>
+            <Image src={HeroImage} alt="" />
           </div>
         </section>
 

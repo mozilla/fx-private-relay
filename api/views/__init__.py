@@ -1,15 +1,27 @@
+import json
 import logging
+import requests
 from typing import Mapping, Optional
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 
-from rest_framework.exceptions import APIException
+from rest_framework.authentication import get_authorization_header
+from rest_framework.exceptions import (
+    APIException,
+    AuthenticationFailed,
+    ParseError,
+)
 from rest_framework.response import Response
 from rest_framework.views import exception_handler
 from rest_framework.serializers import ValidationError
 
+from allauth.account.adapter import get_adapter as get_account_adapter  # type: ignore
+from allauth.socialaccount.models import SocialAccount
+from allauth.socialaccount.helpers import complete_social_login  # type: ignore
+from allauth.socialaccount.providers.fxa.provider import FirefoxAccountsProvider  # type: ignore
+from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
 from django_filters import rest_framework as filters
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg.views import get_schema_view
@@ -37,7 +49,7 @@ from emails.models import (
     RelayAddress,
 )
 
-
+from ..authentication import get_fxa_uid_from_oauth_token
 from ..exceptions import ConflictError, RelayAPIException
 from ..permissions import IsOwner, CanManageFlags
 from ..serializers import (
@@ -61,6 +73,9 @@ schema_view = get_schema_view(
     ),
     public=settings.DEBUG,
     permission_classes=[permissions.AllowAny],
+)
+FXA_PROFILE_URL = (
+    f"{settings.SOCIALACCOUNT_PROVIDERS['fxa']['PROFILE_ENDPOINT']}/profile"
 )
 
 
@@ -161,6 +176,73 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return User.objects.filter(id=self.request.user.id)
+
+
+@decorators.api_view(["POST"])
+@decorators.permission_classes([permissions.AllowAny])
+@decorators.authentication_classes([])
+def terms_accepted_user(request):
+    # Setting authentication_classes to empty due to
+    # authentication still happening despite permissions being set to allowany
+    # https://forum.djangoproject.com/t/solved-allowany-override-does-not-work-on-apiview/9754
+    authorization = get_authorization_header(request).decode()
+    if not authorization or not authorization.startswith("Bearer "):
+        raise ParseError("Missing Bearer header.")
+
+    token = authorization.split(" ")[1]
+    if token == "":
+        raise ParseError("Missing FXA Token after 'Bearer'.")
+
+    try:
+        fxa_uid = get_fxa_uid_from_oauth_token(token, use_cache=False)
+    except AuthenticationFailed as e:
+        # AuthenticationFailed exception returns 403 instead of 401 because we are not
+        # using the proper config that comes with the authentication_classes
+        # Read more: https://www.django-rest-framework.org/api-guide/authentication/#custom-authentication
+        return response.Response(
+            data={"detail": e.detail.title()}, status=e.status_code
+        )
+    status_code = 201
+
+    try:
+        sa = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
+        status_code = 202
+    except SocialAccount.DoesNotExist:
+        # User does not exist, create a new Relay user
+        fxa_profile_resp = requests.get(
+            FXA_PROFILE_URL, headers={"Authorization": f"Bearer {token}"}
+        )
+
+        # this is not exactly the request object that FirefoxAccountsProvider expects, but
+        # it has all of the necssary attributes to initiatlize the Provider
+        provider = FirefoxAccountsProvider(request)
+        # This may not save the new user that was created
+        # https://github.com/pennersr/django-allauth/blob/77368a84903d32283f07a260819893ec15df78fb/allauth/socialaccount/providers/base/provider.py#L44
+        social_login = provider.sociallogin_from_response(
+            request, json.loads(fxa_profile_resp.content)
+        )
+        # Complete social login is called by callback
+        # (see https://github.com/pennersr/django-allauth/blob/77368a84903d32283f07a260819893ec15df78fb/allauth/socialaccount/providers/oauth/views.py#L118)
+        # which is what we are mimicking to
+        # create new SocialAccount, User, and Profile for the new Relay user from Firefox
+        # Since this is a Resource Provider/Server flow and are NOT a Relying Party (RP) of FXA
+        # No social token information is stored (no Social Token object created).
+        complete_social_login(request, social_login)
+        # complete_social_login writes ['account_verified_email', 'user_created', '_auth_user_id', '_auth_user_backend', '_auth_user_hash']
+        # on request.session which sets the cookie because complete_social_login does the "login"
+        # The user did not actually log in, logout to clear the session
+        if request.user.is_authenticated:
+            get_account_adapter(request).logout(request)
+        sa = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
+        # Indicate profile was created from the resource flow
+        profile = sa.user.profile
+        profile.created_by = "firefox_resource"
+        profile.save()
+    info_logger.info(
+        "terms_accepted_user",
+        extra={"social_account": sa.uid, "status_code": status_code},
+    )
+    return response.Response(status=status_code)
 
 
 @decorators.api_view()

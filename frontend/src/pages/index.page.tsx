@@ -7,16 +7,13 @@ import Testimonials from "../../public/images/hero-brands.svg";
 import HowItWorks1 from "../../public/images/how-it-works-1.svg";
 import HowItWorks2 from "../../public/images/how-it-works-2.svg";
 import HowItWorks3 from "../../public/images/how-it-works-3.svg";
+import HeroImage from "./images/relay-hero-image.svg";
 import { useUsers } from "../hooks/api/user";
 import { Layout } from "../components/layout/Layout";
 import { useGaViewPing } from "../hooks/gaViewPing";
 import { LinkButton } from "../components/Button";
-import { DemoPhone } from "../components/landing/DemoPhone";
 import { useRuntimeData } from "../hooks/api/runtimeData";
-import {
-  isBundleAvailableInCountry,
-  isPeriodicalPremiumAvailableInCountry,
-} from "../functions/getPlan";
+import { isBundleAvailableInCountry } from "../functions/getPlan";
 import { FaqAccordionItem } from "../components/landing/FaqAccordion";
 import { Reviews } from "../components/landing/Reviews";
 import { PlanMatrix } from "../components/landing/PlanMatrix";
@@ -24,6 +21,7 @@ import { BundleBanner } from "../components/landing/BundleBanner";
 import { useFlaggedAnchorLinks } from "../hooks/flaggedAnchorLinks";
 import { useL10n } from "../hooks/l10n";
 import { HighlightedFeatures } from "../components/landing/HighlightedFeatures";
+import { isFlagActive } from "../functions/waffle";
 
 const Home: NextPage = () => {
   const l10n = useL10n();
@@ -64,10 +62,8 @@ const Home: NextPage = () => {
               />
             </div>
           </div>
-          <div className={styles["demo-phone"]}>
-            <DemoPhone
-              premium={isPeriodicalPremiumAvailableInCountry(runtimeData.data)}
-            />
+          <div className={styles["hero-image"]}>
+            <Image src={HeroImage} alt="" />
           </div>
         </section>
         {isBundleAvailableInCountry(runtimeData.data) && (
@@ -112,7 +108,7 @@ const Home: NextPage = () => {
           Need to wait on design audit to fix white/grey background 
           discrepanies between pages. 
         */}
-        <div className={styles["gray-bg"]}>
+        <div className={`${styles["gray-bg"]} ${styles["reviews-container"]}`}>
           <Reviews />
           {/* Anchor link "pricing" exists within the PlanMatrix component */}
           <div className={styles.plans}>
@@ -141,7 +137,11 @@ const Home: NextPage = () => {
                 entries={[
                   {
                     q: l10n.getString("faq-question-availability-question"),
-                    a: l10n.getString("faq-question-landing-page-availability"),
+                    a: isFlagActive(runtimeData.data, "eu_country_expansion")
+                      ? l10n.getString("faq-question-availability-answer-v3")
+                      : l10n.getString(
+                          "faq-question-landing-page-availability"
+                        ),
                   },
                   {
                     q: l10n.getString("faq-question-what-is-question-2"),

@@ -7,9 +7,10 @@ from allauth.socialaccount.models import SocialAccount, SocialToken
 from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
 from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error, TokenExpiredError
 from requests_oauthlib import OAuth2Session
-from waffle.models import Flag
 import logging
 import sentry_sdk
+
+from .utils import flag_is_active_in_task
 
 
 logger = logging.getLogger("events")
@@ -68,8 +69,7 @@ def _get_oauth2_session(social_account: SocialAccount) -> OAuth2Session:
     }
 
     # TODO: find out why the auto_refresh and token_updater is not working
-    # and instead we are manually refreshing the token at
-    # FxAToRequest and get_subscription_data_from_fxa
+    # and instead we are manually refreshing the token at get_subscription_data_from_fxa
     client = OAuth2Session(
         client_id,
         scope=settings.SOCIALACCOUNT_PROVIDERS["fxa"]["SCOPE"],
@@ -130,12 +130,7 @@ def get_phone_subscription_dates(social_account):
     if "subscriptions" not in subscription_data.keys():
         # failed to get subscriptions data which may mean user never had subscription
         # and/or there is data mismatch with FxA
-        free_phones_flag = Flag.objects.filter(name="free_phones").first()
-        has_free_phones = free_phones_flag and (
-            free_phones_flag.everyone
-            or free_phones_flag.is_active_for_user(social_account.user)
-        )
-        if not has_free_phones:
+        if not flag_is_active_in_task("free_phones", social_account.user):
             # User who was flagged for having phone subscriptions
             # did not actually have phone subscriptions
             logger.error(

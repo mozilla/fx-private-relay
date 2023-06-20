@@ -13,6 +13,7 @@ from .views import (
     report_webcompat_issue,
     runtime_data,
     schema_view,
+    terms_accepted_user,
 )
 
 
@@ -58,6 +59,11 @@ urlpatterns = [
         "v1/swagger<swagger_format:format>/",
         enable_if_setting("API_DOCS_ENABLED")(schema_view.without_ui(cache_timeout=0)),
         name="schema-json",
+    ),
+    path(
+        "v1/terms-accepted-user/",
+        terms_accepted_user,
+        name="terms_accepted_user",
     ),
     path(
         "v1/docs/",

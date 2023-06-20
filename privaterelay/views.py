@@ -26,7 +26,12 @@ import sentry_sdk
 
 # from silk.profiling.profiler import silk_profile
 
-from emails.models import CannotMakeSubdomainException, valid_available_subdomain
+from emails.models import (
+    CannotMakeSubdomainException,
+    DomainAddress,
+    RelayAddress,
+    valid_available_subdomain,
+)
 from emails.utils import incr_if_enabled
 from privaterelay.fxa_utils import _get_oauth2_session, NoSocialToken
 
@@ -367,9 +372,13 @@ def _update_all_data(
 def _handle_fxa_delete(
     authentic_jwt: FxAEvent, social_account: SocialAccount, event_key: str
 ) -> None:
-    # TODO: Loop over the user's relay addresses and manually call delete()
-    # to create hard bounce receipt rules in SES,
-    # because cascade deletes like this don't necessarily call delete()
+    # Using for loops here because QuerySet.delete() does a bulk delete which does
+    # not call the model delete() methods that create DeletedAddress records
+    for relay_address in RelayAddress.objects.filter(user=social_account.user):
+        relay_address.delete()
+    for domain_address in DomainAddress.objects.filter(user=social_account.user):
+        domain_address.delete()
+
     social_account.user.delete()
     info_logger.info(
         "fxa_rp_event",

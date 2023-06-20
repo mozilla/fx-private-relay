@@ -23,7 +23,6 @@ from django.shortcuts import render
 from sentry_sdk import capture_message
 from markus.utils import generate_tag
 from waffle import sample_is_active
-from waffle.models import Flag
 
 from django.apps import apps
 from django.conf import settings
@@ -70,6 +69,7 @@ from .utils import (
 from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 
 from privaterelay.ftl_bundles import main as ftl_bundle
+from privaterelay.utils import flag_is_active_in_task
 
 
 logger = logging.getLogger("events")
@@ -569,12 +569,8 @@ def _sns_message(message_json):
 
     if html_content:
         incr_if_enabled("email_with_html_content", 1)
-        tracker_removal_flag = Flag.objects.filter(name="tracker_removal").first()
-        tracker_removal_flag_active = tracker_removal_flag and (
-            tracker_removal_flag.is_active_for_user(address.user)
-            or tracker_removal_flag.everyone
-        )
-        if tracker_removal_flag_active and user_profile.remove_level_one_email_trackers:
+        tracker_removal_active = flag_is_active_in_task("tracker_removal", address.user)
+        if tracker_removal_active and user_profile.remove_level_one_email_trackers:
             html_content, tracker_details = remove_trackers(
                 html_content, from_address, datetime_now
             )
