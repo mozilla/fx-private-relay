@@ -503,19 +503,46 @@ class ProfileAtMaskLimitTest(ProfileTestCase):
         assert self.profile.at_mask_limit is True
 
 
-class ProfileTest(ProfileTestCase):
-    def test_add_subdomain_to_new_unlimited_profile(self):
-        subdomain = "newpremium"
-        premium_user = baker.make(User)
-        baker.make(
-            SocialAccount,
-            user=premium_user,
-            provider="fxa",
-            extra_data={"subscriptions": [unlimited_subscription()]},
-        )
-        premium_profile = Profile.objects.get(user=premium_user)
-        assert premium_profile.add_subdomain(subdomain) == subdomain
+class ProfileAddSubdomainTest(ProfileTestCase):
+    """Tests for Profile.add_subdomain()"""
 
+    def test_new_unlimited_profile(self) -> None:
+        self.upgrade_to_premium()
+        assert self.profile.add_subdomain("newpremium") == "newpremium"
+
+    def test_lowercases_subdomain_value(self) -> None:
+        self.upgrade_to_premium()
+        assert self.profile.add_subdomain("mIxEdcAsE") == "mixedcase"
+
+    def test_non_premium_user_raises_exception(self) -> None:
+        expected_msg = "error-premium-set-subdomain"
+        with self.assertRaisesMessage(CannotMakeSubdomainException, expected_msg):
+            self.profile.add_subdomain("test")
+
+    def test_calling_again_raises_exception(self) -> None:
+        self.upgrade_to_premium()
+        subdomain = "test"
+        self.profile.subdomain = subdomain
+        self.profile.save()
+
+        expected_msg = "error-premium-cannot-change-subdomain"
+        with self.assertRaisesMessage(CannotMakeSubdomainException, expected_msg):
+            self.profile.add_subdomain(subdomain)
+
+    def test_badword_subdomain_raises_exception(self) -> None:
+        self.upgrade_to_premium()
+        expected_msg = "error-subdomain-not-available"
+        with self.assertRaisesMessage(CannotMakeSubdomainException, expected_msg):
+            self.profile.add_subdomain("angry")
+
+    def test_blocked_word_subdomain_raises_exception(self) -> None:
+        self.upgrade_to_premium()
+        expected_msg = "error-subdomain-not-available"
+        with self.assertRaisesMessage(CannotMakeSubdomainException, expected_msg):
+            self.profile.add_subdomain("mozilla")
+
+
+class ProfileTest(ProfileTestCase):
     def test_setting_direct_Profile_subdomain_lowercases_subdomain_value(self):
         premium_user = baker.make(User)
         baker.make(
@@ -528,88 +555,6 @@ class ProfileTest(ProfileTestCase):
         premium_profile.subdomain = "mIxEdcAsE"
         premium_profile.save()
         assert premium_profile.subdomain == "mixedcase"
-
-    def test_add_subdomain_lowercases_subdomain_value(self):
-        subdomain = "mIxEdcAsE"
-        premium_user = baker.make(User)
-        baker.make(
-            SocialAccount,
-            user=premium_user,
-            provider="fxa",
-            extra_data={"subscriptions": [unlimited_subscription()]},
-        )
-        premium_profile = Profile.objects.get(user=premium_user)
-        assert premium_profile.add_subdomain(subdomain) == "mixedcase"
-
-    def test_add_subdomain_to_non_premium_user_raises_exception(self):
-        subdomain = "test"
-        non_premium_profile = baker.make(User).profile
-        try:
-            non_premium_profile.add_subdomain(subdomain)
-        except CannotMakeSubdomainException as e:
-            assert e.message == "error-premium-set-subdomain"
-            return
-        self.fail("Should have raised CannotMakeSubdomainException")
-
-    def test_add_subdomain_to_unlimited_profile_with_subdomain_raises_exception(self):
-        subdomain = "test"
-        premium_user = baker.make(User)
-        baker.make(
-            SocialAccount,
-            user=premium_user,
-            provider="fxa",
-            extra_data={"subscriptions": [unlimited_subscription()]},
-        )
-        premium_profile = Profile.objects.get(user=premium_user)
-        premium_profile.subdomain = subdomain
-        premium_profile.save()
-
-        try:
-            premium_profile.add_subdomain(subdomain)
-        except CannotMakeSubdomainException as e:
-            assert e.message == "error-premium-cannot-change-subdomain"
-            return
-        self.fail("Should have raised CannotMakeSubdomainException")
-
-    def test_add_subdomain_to_unlimited_profile_with_badword_subdomain_raises_exception(
-        self,
-    ):
-        subdomain = "angry"
-        premium_user = baker.make(User)
-        baker.make(
-            SocialAccount,
-            user=premium_user,
-            provider="fxa",
-            extra_data={"subscriptions": [unlimited_subscription()]},
-        )
-        premium_profile = Profile.objects.get(user=premium_user)
-
-        try:
-            premium_profile.add_subdomain(subdomain)
-        except CannotMakeSubdomainException as e:
-            assert e.message == "error-subdomain-not-available"
-            return
-        self.fail("Should have raised CannotMakeSubdomainException")
-
-    def test_add_subdomain_to_unlimited_profile_with_blocked_word_subdomain_raises_exception(
-        self,
-    ):
-        subdomain = "mozilla"
-        premium_user = baker.make(User)
-        baker.make(
-            SocialAccount,
-            user=premium_user,
-            provider="fxa",
-            extra_data={"subscriptions": [unlimited_subscription()]},
-        )
-        premium_profile = Profile.objects.get(user=premium_user)
-
-        try:
-            premium_profile.add_subdomain(subdomain)
-        except CannotMakeSubdomainException as e:
-            assert e.message == "error-subdomain-not-available"
-            return
-        self.fail("Should have raised CannotMakeSubdomainException")
 
     def test_subdomain_available_bad_word_returns_False(self):
         with self.assertRaises(CannotMakeSubdomainException):
