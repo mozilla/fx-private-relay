@@ -473,9 +473,11 @@ class ProfileHasPhoneTest(ProfileTestCase):
         assert self.profile.has_phone is False
 
 
-class ProfileTest(ProfileTestCase):
-    def test_total_masks(self):
-        upgrade_test_user_to_premium(self.profile.user)
+class ProfileTotalMasksTest(ProfileTestCase):
+    """Tests for Profile.total_masks"""
+
+    def test_total_masks(self) -> None:
+        self.upgrade_to_premium()
         self.profile.add_subdomain("totalmasks")
         assert self.profile.total_masks == 0
         num_relay_addresses = random.randint(0, 2)
@@ -486,6 +488,8 @@ class ProfileTest(ProfileTestCase):
             baker.make(DomainAddress, user=self.profile.user, address=f"mask{i}")
         assert self.profile.total_masks == num_relay_addresses + num_domain_addresses
 
+
+class ProfileTest(ProfileTestCase):
     def test_at_mask_limit_premium_user_returns_False(self):
         premium_user = baker.make(User)
         baker.make(
