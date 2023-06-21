@@ -414,41 +414,27 @@ class ProfileNextEmailTryDateTest(ProfileTestCase):
         assert self.profile.next_email_try.date() == expected_next_try_date.date()
 
 
-class ProfileTest(ProfileTestCase):
-    def test_last_bounce_date_no_bounces_returns_None(self):
+class ProfileLastBounceDateTest(ProfileTestCase):
+    """Tests for Profile.last_bounce_date"""
+
+    def test_no_bounces_returns_None(self) -> None:
         assert self.profile.last_bounce_date is None
 
-    def test_last_bounce_date_soft_bounce_returns_its_date(self):
-        last_soft_bounce = datetime.now(timezone.utc) - timedelta(
-            days=settings.SOFT_BOUNCE_ALLOWED_DAYS - 1
-        )
-        self.profile.last_soft_bounce = last_soft_bounce
-        self.profile.save()
-
+    def test_soft_bounce_returns_its_date(self) -> None:
+        self.set_soft_bounce()
         assert self.profile.last_bounce_date == self.profile.last_soft_bounce
 
-    def test_last_bounce_date_hard_bounce_returns_its_date(self):
-        last_hard_bounce = datetime.now(timezone.utc) - timedelta(
-            days=settings.HARD_BOUNCE_ALLOWED_DAYS - 1
-        )
-        self.profile.last_hard_bounce = last_hard_bounce
-        self.profile.save()
-
+    def test_hard_bounce_returns_its_date(self) -> None:
+        self.set_hard_bounce()
         assert self.profile.last_bounce_date == self.profile.last_hard_bounce
 
-    def test_last_bounce_date_hard_and_soft_bounces_returns_hard_date(self):
-        last_soft_bounce = datetime.now(timezone.utc) - timedelta(
-            days=settings.SOFT_BOUNCE_ALLOWED_DAYS - 1
-        )
-        self.profile.last_soft_bounce = last_soft_bounce
-        last_hard_bounce = datetime.now(timezone.utc) - timedelta(
-            days=settings.HARD_BOUNCE_ALLOWED_DAYS - 1
-        )
-        self.profile.last_hard_bounce = last_hard_bounce
-        self.profile.save()
-
+    def test_hard_and_soft_bounces_returns_hard_date(self) -> None:
+        self.set_soft_bounce()
+        self.set_hard_bounce()
         assert self.profile.last_bounce_date == self.profile.last_hard_bounce
 
+
+class ProfileTest(ProfileTestCase):
     def test_has_premium_default_False(self):
         assert self.profile.has_premium is False
 
