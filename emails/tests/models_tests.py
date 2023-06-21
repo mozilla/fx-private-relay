@@ -302,6 +302,10 @@ class ProfileTestCase(TestCase):
 
         return expected_now
 
+
+class ProfileBounceTestCase(ProfileTestCase):
+    """Base class for Profile tests that check for bounces."""
+
     def set_hard_bounce(self) -> datetime:
         """
         Set a hard bounce pause for the profile, return the bounce time.
@@ -329,7 +333,7 @@ class ProfileTestCase(TestCase):
         return self.profile.last_soft_bounce
 
 
-class ProfileCheckBouncePause(ProfileTestCase):
+class ProfileCheckBouncePause(ProfileBounceTestCase):
     """Tests for Profile.check_bounce_pause()"""
 
     def test_no_bounces(self) -> None:
@@ -384,7 +388,7 @@ class ProfileCheckBouncePause(ProfileTestCase):
         assert self.profile.last_soft_bounce is None
 
 
-class ProfileNextEmailTryDateTest(ProfileTestCase):
+class ProfileNextEmailTryDateTest(ProfileBounceTestCase):
     """Tests for Profile.next_email_try"""
 
     def test_no_bounces_returns_today(self) -> None:
@@ -414,7 +418,7 @@ class ProfileNextEmailTryDateTest(ProfileTestCase):
         assert self.profile.next_email_try.date() == expected_next_try_date.date()
 
 
-class ProfileLastBounceDateTest(ProfileTestCase):
+class ProfileLastBounceDateTest(ProfileBounceTestCase):
     """Tests for Profile.last_bounce_date"""
 
     def test_no_bounces_returns_None(self) -> None:
