@@ -551,6 +551,77 @@ class ProfileSaveTest(ProfileTestCase):
         self.profile.save()
         assert self.profile.subdomain == "mixedcase"
 
+    TEST_DESCRIPTION = "test description"
+    TEST_USED_ON = TEST_GENERATED_FOR = "secret.com"
+
+    def add_relay_address(self) -> RelayAddress:
+        return baker.make(
+            RelayAddress,
+            user=self.profile.user,
+            description=self.TEST_DESCRIPTION,
+            generated_for=self.TEST_GENERATED_FOR,
+            used_on=self.TEST_USED_ON,
+        )
+
+    def test_save_server_storage_true_doesnt_delete_data(self) -> None:
+        relay_address = self.add_relay_address()
+        self.profile.server_storage = True
+        self.profile.save()
+
+        relay_address.refresh_from_db()
+        assert relay_address.description == self.TEST_DESCRIPTION
+        assert relay_address.generated_for == self.TEST_GENERATED_FOR
+        assert relay_address.used_on == self.TEST_USED_ON
+
+    def test_save_server_storage_false_deletes_data(self) -> None:
+        relay_address = self.add_relay_address()
+        self.profile.server_storage = False
+        self.profile.save()
+
+        relay_address.refresh_from_db()
+        assert relay_address.description == ""
+        assert relay_address.generated_for == ""
+        assert relay_address.used_on == ""
+
+    def add_four_relay_addresses(self, user: User | None = None) -> list[RelayAddress]:
+        if user is None:
+            user = self.profile.user
+        return baker.make(
+            RelayAddress,
+            user=user,
+            description=self.TEST_DESCRIPTION,
+            generated_for=self.TEST_GENERATED_FOR,
+            used_on=self.TEST_USED_ON,
+            _quantity=4,
+        )
+
+    def test_save_server_storage_false_deletes_ALL_data(self) -> None:
+        self.add_four_relay_addresses()
+        self.profile.server_storage = False
+        self.profile.save()
+
+        for relay_address in RelayAddress.objects.filter(user=self.profile.user):
+            assert relay_address.description == ""
+            assert relay_address.generated_for == ""
+
+    def test_save_server_storage_false_only_deletes_that_profiles_data(self) -> None:
+        other_user = make_free_test_user()
+        assert other_user.profile.server_storage is True
+        self.add_four_relay_addresses()
+        self.add_four_relay_addresses(user=other_user)
+        self.profile.server_storage = False
+        self.profile.save()
+
+        for relay_address in RelayAddress.objects.filter(user=self.profile.user):
+            assert relay_address.description == ""
+            assert relay_address.generated_for == ""
+            assert relay_address.used_on == ""
+
+        for relay_address in RelayAddress.objects.filter(user=other_user):
+            assert relay_address.description == self.TEST_DESCRIPTION
+            assert relay_address.generated_for == self.TEST_GENERATED_FOR
+            assert relay_address.used_on == self.TEST_USED_ON
+
 
 class ValidAvailableSubdomainTest(TestCase):
     """Tests for valid_available_subdomain()"""
@@ -627,96 +698,6 @@ class ProfileDisplayNameTest(ProfileTestCase):
 
 
 class ProfileTest(ProfileTestCase):
-    def test_save_server_storage_true_doesnt_delete_data(self):
-        test_desc = "test description"
-        test_generated_for = "secret.com"
-        test_used_on = "secret.com"
-        relay_address = baker.make(
-            RelayAddress,
-            user=self.profile.user,
-            description=test_desc,
-            generated_for=test_generated_for,
-            used_on=test_used_on,
-        )
-        self.profile.server_storage = True
-        self.profile.save()
-
-        assert relay_address.description == test_desc
-        assert relay_address.generated_for == test_generated_for
-        assert relay_address.used_on == test_used_on
-
-    def test_save_server_storage_false_deletes_data(self):
-        test_desc = "test description"
-        test_generated_for = "secret.com"
-        test_used_on = "secret.com"
-        relay_address = baker.make(
-            RelayAddress,
-            user=self.profile.user,
-            description=test_desc,
-            generated_for=test_generated_for,
-            used_on=test_used_on,
-        )
-        self.profile.server_storage = False
-        self.profile.save()
-
-        relay_address.refresh_from_db()
-        assert relay_address.description == ""
-        assert relay_address.generated_for == ""
-        assert relay_address.used_on == ""
-
-    def test_save_server_storage_false_deletes_ALL_data(self):
-        test_desc = "test description"
-        test_generated_for = "secret.com"
-        baker.make(
-            RelayAddress,
-            user=self.profile.user,
-            description=test_desc,
-            generated_for=test_generated_for,
-            _quantity=4,
-        )
-        self.profile.server_storage = False
-        self.profile.save()
-
-        for relay_address in RelayAddress.objects.filter(user=self.profile.user):
-            assert relay_address.description == ""
-            assert relay_address.generated_for == ""
-
-    def test_save_server_storage_false_only_deletes_that_profiles_data(self):
-        test_desc = "test description"
-        test_generated_for = "secret.com"
-        baker.make(
-            RelayAddress,
-            user=self.profile.user,
-            description=test_desc,
-            generated_for=test_generated_for,
-            _quantity=4,
-        )
-
-        server_stored_data_user = baker.make(User)
-        server_stored_data_profile = server_stored_data_user.profile
-        server_stored_data_profile.server_storage = True
-        server_stored_data_profile.save()
-        baker.make(
-            RelayAddress,
-            user=server_stored_data_profile.user,
-            description=test_desc,
-            generated_for=test_generated_for,
-            _quantity=4,
-        )
-
-        self.profile.server_storage = False
-        self.profile.save()
-
-        for relay_address in RelayAddress.objects.filter(user=self.profile.user):
-            assert relay_address.description == ""
-            assert relay_address.generated_for == ""
-
-        for relay_address in RelayAddress.objects.filter(
-            user=server_stored_data_profile.user
-        ):
-            assert relay_address.description == test_desc
-            assert relay_address.generated_for == test_generated_for
-
     def test_language_with_no_fxa_extra_data_locale_returns_default_en(self):
         baker.make(SocialAccount, user=self.profile.user, provider="fxa")
         assert self.profile.language == "en"
