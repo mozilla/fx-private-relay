@@ -767,12 +767,14 @@ class ProfileJoinedBeforePremiumReleaseTest(ProfileTestCase):
         assert self.profile.joined_before_premium_release is False
 
 
-class ProfileTest(ProfileTestCase):
-    def test_user_created_after_premium_release_server_storage_True(self):
-        user = baker.make(User)
-        profile = Profile.objects.get(user=user)
-        assert profile.server_storage
+class ProfileDefaultsTest(ProfileTestCase):
+    """Tests for default Profile values"""
 
+    def test_user_created_after_premium_release_server_storage_True(self) -> None:
+        assert self.profile.server_storage
+
+
+class ProfileTest(ProfileTestCase):
     def test_emails_replied_preimum_user_aggregates_sum_of_replies_from_all_addresses(
         self,
     ):
