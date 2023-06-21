@@ -14,6 +14,7 @@ import { ReactAriaI18nProvider } from "../components/ReactAriaI18nProvider";
 import { initialiseApiMocks } from "../apiMocks/initialise";
 import { mockIds } from "../apiMocks/mockData";
 import { useIsLoggedIn } from "../hooks/session";
+import "@stripe/stripe-js";
 
 if (process.env.NEXT_PUBLIC_MOCK_API === "true") {
   initialiseApiMocks();
