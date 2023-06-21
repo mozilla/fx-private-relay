@@ -715,70 +715,45 @@ class ProfileLanguageTest(ProfileTestCase):
         assert self.profile.language == "de"
 
 
-class ProfileTest(ProfileTestCase):
-    def test_locale_in_premium_country_returns_True_if_premium_available(self):
-        baker.make(
-            SocialAccount,
-            user=self.profile.user,
-            provider="fxa",
-            extra_data={"locale": "de-DE,en-xx;q=0.9,en;q=0.8"},
-        )
+class ProfileFxaLocaleInPremiumCountryTest(ProfileTestCase):
+    """Tests for Profile.fxa_locale_in_premium_country"""
+
+    def set_fxa_locale(self, locale: str) -> None:
+        social_account = self.get_or_create_social_account()
+        social_account.extra_data["locale"] = locale
+        social_account.save()
+
+    def test_when_premium_available_returns_True(self) -> None:
+        self.set_fxa_locale("de-DE,en-xx;q=0.9,en;q=0.8")
         assert self.profile.fxa_locale_in_premium_country is True
 
-    def test_locale_in_premium_country_returns_False_if_premium_unavailable(self):
-        baker.make(
-            SocialAccount,
-            user=self.profile.user,
-            provider="fxa",
-            extra_data={"locale": "en;q=0.8"},
-        )
+    def test_when_premium_unavailable_returns_False(self) -> None:
+        self.set_fxa_locale("en;q=0.8")
         assert self.profile.fxa_locale_in_premium_country is False
 
-    def test_locale_in_premium_country_returns_True_if_premium_available_in_country_with_same_language_code(
-        self,
-    ):
-        baker.make(
-            SocialAccount,
-            user=self.profile.user,
-            provider="fxa",
-            extra_data={"locale": "de;q=0.8"},
-        )
+    def test_when_premium_available_by_language_code_returns_True(self) -> None:
+        self.set_fxa_locale("de;q=0.8")
         assert self.profile.fxa_locale_in_premium_country is True
 
-    def test_locale_in_premium_country_returns_False_if_premium_not_available_in_country_with_same_language_code(
-        self,
-    ):
-        baker.make(
-            SocialAccount,
-            user=self.profile.user,
-            provider="fxa",
-            extra_data={"locale": "xx;q=0.8"},
-        )
+    def test_when_premium_unavailable_by_language_code_returns_False(self) -> None:
+        self.set_fxa_locale("xx;q=0.8")
         assert self.profile.fxa_locale_in_premium_country is False
 
-    def test_locale_in_premium_country_returns_False_if_no_fxa_account(self):
+    def test_no_fxa_account_returns_False(self) -> None:
         assert self.profile.fxa_locale_in_premium_country is False
 
     @override_flag("eu_country_expansion", active=True)
-    def test_locale_in_premium_country_with_eu_expansion_flag(self):
-        baker.make(
-            SocialAccount,
-            user=self.profile.user,
-            provider="fxa",
-            extra_data={"locale": "et-ee,et;q=0.8"},
-        )
+    def test_in_estonia_with_eu_expansion_flag(self):
+        self.set_fxa_locale("et-ee,et;q=0.8")
         assert self.profile.fxa_locale_in_premium_country is True
 
     @override_flag("eu_country_expansion", active=False)
-    def test_locale_in_premium_country_without_eu_expansion_flag(self):
-        baker.make(
-            SocialAccount,
-            user=self.profile.user,
-            provider="fxa",
-            extra_data={"locale": "et-ee,et;q=0.8"},
-        )
+    def test_in_estonia_without_eu_expansion_flag(self):
+        self.set_fxa_locale("et-ee,et;q=0.8")
         assert self.profile.fxa_locale_in_premium_country is False
 
+
+class ProfileTest(ProfileTestCase):
     def test_user_joined_before_premium_release_returns_True(self):
         user = baker.make(
             User, date_joined=datetime.fromisoformat("2021-10-18 17:00:00+00:00")
