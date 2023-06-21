@@ -275,14 +275,15 @@ class RelayAddressTest(TestCase):
         assert relay_address.used_on == ""
 
 
-class ProfileTest(TestCase):
-    def setUp(self):
+class ProfileTestCase(TestCase):
+    """Base class for Profile tests."""
+
+    def setUp(self) -> None:
         user = baker.make(User)
         self.profile = user.profile
-        self.profile.server_storage = True
-        self.profile.save()
+        assert self.profile.server_storage is True
 
-    def patch_datetime_now(self):
+    def patch_datetime_now(self) -> datetime:
         """
         Selectively patch datatime.now() for emails models
 
@@ -301,53 +302,66 @@ class ProfileTest(TestCase):
 
         return expected_now
 
-    def test_bounce_paused_no_bounces(self):
+    def set_hard_bounce(self) -> datetime:
+        """
+        Set a hard bounce pause for the profile, return the bounce time.
+
+        This happens when the user's email server reports a hard bounce, such as
+        saying the email does not exist.
+        """
+        self.profile.last_hard_bounce = datetime.now(timezone.utc) - timedelta(
+            days=settings.HARD_BOUNCE_ALLOWED_DAYS - 1
+        )
+        self.profile.save()
+        return self.profile.last_hard_bounce
+
+    def set_soft_bounce(self) -> datetime:
+        """
+        Set a soft bounce for the profile, return the bounce time.
+
+        This happens when the user's email server reports a soft bounce, such as
+        saying the user's mailbox is full.
+        """
+        self.profile.last_soft_bounce = datetime.now(timezone.utc) - timedelta(
+            days=settings.SOFT_BOUNCE_ALLOWED_DAYS - 1
+        )
+        self.profile.save()
+        return self.profile.last_soft_bounce
+
+
+class ProfileCheckBouncePause(ProfileTestCase):
+    """Tests for Profile.check_bounce_pause()"""
+
+    def test_no_bounces(self) -> None:
         bounce_paused, bounce_type = self.profile.check_bounce_pause()
 
         assert bounce_paused is False
         assert bounce_type == ""
 
-    def test_bounce_paused_hard_bounce_pending(self):
-        self.profile.last_hard_bounce = datetime.now(timezone.utc) - timedelta(
-            days=settings.HARD_BOUNCE_ALLOWED_DAYS - 1
-        )
-        self.profile.save()
-
+    def test_hard_bounce_pending(self) -> None:
+        self.set_hard_bounce()
         bounce_paused, bounce_type = self.profile.check_bounce_pause()
-
         assert bounce_paused is True
         assert bounce_type == "hard"
 
-    def test_bounce_paused_soft_bounce_pending(self):
-        self.profile.last_soft_bounce = datetime.now(timezone.utc) - timedelta(
-            days=settings.SOFT_BOUNCE_ALLOWED_DAYS - 1
-        )
-        self.profile.save()
-
+    def test_soft_bounce_pending(self) -> None:
+        self.set_soft_bounce()
         bounce_paused, bounce_type = self.profile.check_bounce_pause()
-
         assert bounce_paused is True
         assert bounce_type == "soft"
 
-    def test_bounce_paused_hardd_and_soft_bounce_pending_shows_hard(self):
-        self.profile.last_hard_bounce = datetime.now(timezone.utc) - timedelta(
-            days=settings.HARD_BOUNCE_ALLOWED_DAYS - 1
-        )
-        self.profile.last_soft_bounce = datetime.now(timezone.utc) - timedelta(
-            days=settings.SOFT_BOUNCE_ALLOWED_DAYS - 1
-        )
-        self.profile.save()
+    def test_hard_and_soft_bounce_pending_shows_hard(self) -> None:
+        self.set_hard_bounce()
+        self.set_soft_bounce()
         bounce_paused, bounce_type = self.profile.check_bounce_pause()
-
         assert bounce_paused is True
         assert bounce_type == "hard"
 
-    def test_bounce_paused_hard_bounce_over_resets_timer(self):
+    def test_hard_bounce_over_resets_timer(self) -> None:
         self.profile.last_hard_bounce = datetime.now(timezone.utc) - timedelta(
             days=settings.HARD_BOUNCE_ALLOWED_DAYS + 1
         )
         self.profile.save()
-
         assert self.profile.last_hard_bounce is not None
 
         bounce_paused, bounce_type = self.profile.check_bounce_pause()
@@ -356,12 +370,11 @@ class ProfileTest(TestCase):
         assert bounce_type == ""
         assert self.profile.last_hard_bounce is None
 
-    def test_bounce_paused_soft_bounce_over_resets_timer(self):
+    def test_soft_bounce_over_resets_timer(self) -> None:
         self.profile.last_soft_bounce = datetime.now(timezone.utc) - timedelta(
             days=settings.SOFT_BOUNCE_ALLOWED_DAYS + 1
         )
         self.profile.save()
-
         assert self.profile.last_soft_bounce is not None
 
         bounce_paused, bounce_type = self.profile.check_bounce_pause()
@@ -370,6 +383,8 @@ class ProfileTest(TestCase):
         assert bounce_type == ""
         assert self.profile.last_soft_bounce is None
 
+
+class ProfileTest(ProfileTestCase):
     def test_next_email_try_no_bounces_returns_today(self):
         assert self.profile.next_email_try.date() == datetime.now(timezone.utc).date()
 
