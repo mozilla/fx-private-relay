@@ -697,23 +697,25 @@ class ProfileDisplayNameTest(ProfileTestCase):
         assert self.profile.display_name is None
 
 
-class ProfileTest(ProfileTestCase):
-    def test_language_with_no_fxa_extra_data_locale_returns_default_en(self):
-        baker.make(SocialAccount, user=self.profile.user, provider="fxa")
+class ProfileLanguageTest(ProfileTestCase):
+    """Test Profile.language"""
+
+    def test_no_fxa_extra_data_locale_returns_default_en(self) -> None:
+        social_account = self.get_or_create_social_account()
+        assert "locale" not in social_account.extra_data
         assert self.profile.language == "en"
 
-    def test_language_with_no_fxa_locale_returns_default_en(self):
+    def test_no_fxa_locale_returns_default_en(self) -> None:
         assert self.profile.language == "en"
 
-    def test_language_with_fxa_locale_de_returns_de(self):
-        baker.make(
-            SocialAccount,
-            user=self.profile.user,
-            provider="fxa",
-            extra_data={"locale": "de,en-US;q=0.9,en;q=0.8"},
-        )
+    def test_fxa_locale_de_returns_de(self) -> None:
+        social_account = self.get_or_create_social_account()
+        social_account.extra_data["locale"] = "de,en-US;q=0.9,en;q=0.8"
+        social_account.save()
         assert self.profile.language == "de"
 
+
+class ProfileTest(ProfileTestCase):
     def test_locale_in_premium_country_returns_True_if_premium_available(self):
         baker.make(
             SocialAccount,
