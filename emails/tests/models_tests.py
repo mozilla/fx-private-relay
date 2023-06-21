@@ -384,50 +384,37 @@ class ProfileCheckBouncePause(ProfileTestCase):
         assert self.profile.last_soft_bounce is None
 
 
-class ProfileTest(ProfileTestCase):
-    def test_next_email_try_no_bounces_returns_today(self):
+class ProfileNextEmailTryDateTest(ProfileTestCase):
+    """Tests for Profile.next_email_try"""
+
+    def test_no_bounces_returns_today(self) -> None:
         assert self.profile.next_email_try.date() == datetime.now(timezone.utc).date()
 
-    def test_next_email_try_hard_bounce_returns_proper_datemath(self):
-        last_hard_bounce = datetime.now(timezone.utc) - timedelta(
-            days=settings.HARD_BOUNCE_ALLOWED_DAYS - 1
-        )
-        self.profile.last_hard_bounce = last_hard_bounce
-        self.profile.save()
-
+    def test_hard_bounce_returns_proper_datemath(self) -> None:
+        last_hard_bounce = self.set_hard_bounce()
         expected_next_try_date = last_hard_bounce + timedelta(
             days=settings.HARD_BOUNCE_ALLOWED_DAYS
         )
         assert self.profile.next_email_try.date() == expected_next_try_date.date()
 
-    def test_next_email_try_soft_bounce_returns_proper_datemath(self):
-        last_soft_bounce = datetime.now(timezone.utc) - timedelta(
-            days=settings.SOFT_BOUNCE_ALLOWED_DAYS - 1
-        )
-        self.profile.last_soft_bounce = last_soft_bounce
-        self.profile.save()
-
+    def test_soft_bounce_returns_proper_datemath(self) -> None:
+        last_soft_bounce = self.set_soft_bounce()
         expected_next_try_date = last_soft_bounce + timedelta(
             days=settings.SOFT_BOUNCE_ALLOWED_DAYS
         )
         assert self.profile.next_email_try.date() == expected_next_try_date.date()
 
-    def test_next_email_try_hard_and_soft_bounce_returns_hard_datemath(self):
-        last_soft_bounce = datetime.now(timezone.utc) - timedelta(
-            days=settings.SOFT_BOUNCE_ALLOWED_DAYS - 1
-        )
-        self.profile.last_soft_bounce = last_soft_bounce
-        last_hard_bounce = datetime.now(timezone.utc) - timedelta(
-            days=settings.HARD_BOUNCE_ALLOWED_DAYS - 1
-        )
-        self.profile.last_hard_bounce = last_hard_bounce
-        self.profile.save()
-
+    def test_hard_and_soft_bounce_returns_hard_datemath(self) -> None:
+        last_soft_bounce = self.set_soft_bounce()
+        last_hard_bounce = self.set_hard_bounce()
+        assert last_soft_bounce != last_hard_bounce
         expected_next_try_date = last_hard_bounce + timedelta(
             days=settings.HARD_BOUNCE_ALLOWED_DAYS
         )
         assert self.profile.next_email_try.date() == expected_next_try_date.date()
 
+
+class ProfileTest(ProfileTestCase):
     def test_last_bounce_date_no_bounces_returns_None(self):
         assert self.profile.last_bounce_date is None
 
