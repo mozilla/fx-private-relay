@@ -250,15 +250,15 @@ class RelayAddressTest(TestCase):
             relay_address.block_list_emails = True
             relay_address.save()
         relay_address.refresh_from_db()
-        assert relay_address.block_list_emails == False
+        assert relay_address.block_list_emails is False
 
     def test_premium_user_can_set_block_list_emails(self):
         relay_address = RelayAddress.objects.create(user=self.premium_user)
-        assert relay_address.block_list_emails == False
+        assert relay_address.block_list_emails is False
         relay_address.block_list_emails = True
         relay_address.save()
         relay_address.refresh_from_db()
-        assert relay_address.block_list_emails == True
+        assert relay_address.block_list_emails is True
 
     def test_storageless_user_cant_set_label(self):
         relay_address = RelayAddress.objects.create(user=self.storageless_user)
@@ -663,7 +663,7 @@ class ProfileTest(TestCase):
             valid_available_subdomain("my@domain")
 
     def test_subdomain_available_with_dash_returns_True(self):
-        assert valid_available_subdomain("my-domain") == True
+        assert valid_available_subdomain("my-domain") is True
 
     def test_subdomain_available_with_dash_at_front_returns_False(self):
         with self.assertRaises(CannotMakeSubdomainException):
@@ -1161,11 +1161,11 @@ class DomainAddressTest(TestCase):
         domain_address = DomainAddress.objects.create(
             user=self.user, address="lower-case"
         )
-        assert domain_address.block_list_emails == False
+        assert domain_address.block_list_emails is False
         domain_address.block_list_emails = True
         domain_address.save()
         domain_address.refresh_from_db()
-        assert domain_address.block_list_emails == True
+        assert domain_address.block_list_emails is True
 
     def test_storageless_user_cant_set_labels(self):
         domain_address = DomainAddress.objects.create(
