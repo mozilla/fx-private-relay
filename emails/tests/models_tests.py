@@ -552,78 +552,66 @@ class ProfileSaveTest(ProfileTestCase):
         assert self.profile.subdomain == "mixedcase"
 
 
-class ProfileTest(ProfileTestCase):
-    def test_subdomain_available_bad_word_returns_False(self):
-        with self.assertRaises(CannotMakeSubdomainException):
+class ValidAvailableSubdomainTest(TestCase):
+    """Tests for valid_available_subdomain()"""
+
+    ERR_NOT_AVAIL = "error-subdomain-not-available"
+
+    def reserve_subdomain_for_new_user(self, subdomain: str) -> User:
+        user = make_premium_test_user()
+        user.profile.add_subdomain(subdomain)
+        return user
+
+    def test_bad_word_raises(self) -> None:
+        with self.assertRaisesMessage(CannotMakeSubdomainException, self.ERR_NOT_AVAIL):
             valid_available_subdomain("angry")
 
-    def test_subdomain_available_blocked_word_returns_False(self):
-        with self.assertRaises(CannotMakeSubdomainException):
+    def test_blocked_word_raises(self) -> None:
+        with self.assertRaisesMessage(CannotMakeSubdomainException, self.ERR_NOT_AVAIL):
             valid_available_subdomain("mozilla")
 
-    def test_subdomain_available_taken_returns_False(self):
-        premium_user = baker.make(User)
-        baker.make(
-            SocialAccount,
-            user=premium_user,
-            provider="fxa",
-            extra_data={"subscriptions": [unlimited_subscription()]},
-        )
-        premium_profile = Profile.objects.get(user=premium_user)
-        premium_profile.add_subdomain("thisisfine")
-        with self.assertRaises(CannotMakeSubdomainException):
-            valid_available_subdomain("thisisfine")
+    def test_taken_subdomain_raises(self) -> None:
+        subdomain = "thisisfine"
+        self.reserve_subdomain_for_new_user(subdomain)
+        with self.assertRaisesMessage(CannotMakeSubdomainException, self.ERR_NOT_AVAIL):
+            valid_available_subdomain(subdomain)
 
-    def test_subdomain_available_taken_returns_False_case_insensitive(self):
-        premium_user = baker.make(User)
-        baker.make(
-            SocialAccount,
-            user=premium_user,
-            provider="fxa",
-            extra_data={"subscriptions": [unlimited_subscription()]},
-        )
-        premium_profile = Profile.objects.get(user=premium_user)
-        premium_profile.add_subdomain("thIsIsfInE")
-        with self.assertRaises(CannotMakeSubdomainException):
+    def test_taken_subdomain_different_case_raises(self) -> None:
+        self.reserve_subdomain_for_new_user("thIsIsfInE")
+        with self.assertRaisesMessage(CannotMakeSubdomainException, self.ERR_NOT_AVAIL):
             valid_available_subdomain("THiSiSFiNe")
 
-    def test_valid_available_subdomain_taken_returns_False_for_inactive_subdomain(self):
-        # subdomains registered in now deleted profiles are considered
-        # inactive subdomains
-        premium_user = baker.make(User)
-        baker.make(
-            SocialAccount,
-            user=premium_user,
-            provider="fxa",
-            extra_data={"subscriptions": [unlimited_subscription()]},
-        )
-        premium_profile = Profile.objects.get(user=premium_user)
-        premium_profile.add_subdomain("thisisfine")
-        premium_user.delete()
+    def test_inactive_subdomain_raises(self) -> None:
+        """subdomains registered by now deleted profiles are not available."""
+        subdomain = "thisisfine"
+        user = self.reserve_subdomain_for_new_user(subdomain)
+        user.delete()
 
         registered_subdomain_count = RegisteredSubdomain.objects.filter(
-            subdomain_hash=hash_subdomain("thisisfine")
+            subdomain_hash=hash_subdomain(subdomain)
         ).count()
-        assert Profile.objects.filter(subdomain="thisisfine").count() == 0
+        assert Profile.objects.filter(subdomain=subdomain).count() == 0
         assert registered_subdomain_count == 1
-        with self.assertRaises(CannotMakeSubdomainException):
-            valid_available_subdomain("thisisfine")
+        with self.assertRaisesMessage(CannotMakeSubdomainException, self.ERR_NOT_AVAIL):
+            valid_available_subdomain(subdomain)
 
-    def test_subdomain_available_with_space_returns_False(self):
-        with self.assertRaises(CannotMakeSubdomainException):
+    def test_subdomain_with_space_raises(self) -> None:
+        with self.assertRaisesMessage(CannotMakeSubdomainException, self.ERR_NOT_AVAIL):
             valid_available_subdomain("my domain")
 
-    def test_subdomain_available_with_special_char_returns_False(self):
-        with self.assertRaises(CannotMakeSubdomainException):
+    def test_subdomain_with_special_char_raises(self) -> None:
+        with self.assertRaisesMessage(CannotMakeSubdomainException, self.ERR_NOT_AVAIL):
             valid_available_subdomain("my@domain")
 
-    def test_subdomain_available_with_dash_returns_True(self):
+    def test_subdomain_with_dash_returns_True(self) -> None:
         assert valid_available_subdomain("my-domain") is True
 
-    def test_subdomain_available_with_dash_at_front_returns_False(self):
-        with self.assertRaises(CannotMakeSubdomainException):
+    def test_subdomain_with_dash_at_front_raises(self) -> None:
+        with self.assertRaisesMessage(CannotMakeSubdomainException, self.ERR_NOT_AVAIL):
             valid_available_subdomain("-mydomain")
 
+
+class ProfileTest(ProfileTestCase):
     def test_display_name_exists(self):
         display_name = "Display Name"
         social_account = baker.make(
