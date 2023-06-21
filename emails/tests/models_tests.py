@@ -611,20 +611,22 @@ class ValidAvailableSubdomainTest(TestCase):
             valid_available_subdomain("-mydomain")
 
 
-class ProfileTest(ProfileTestCase):
-    def test_display_name_exists(self):
+class ProfileDisplayNameTest(ProfileTestCase):
+    """Tests for Profile.display_name"""
+
+    def test_exists(self) -> None:
         display_name = "Display Name"
-        social_account = baker.make(
-            SocialAccount, provider="fxa", extra_data={"displayName": display_name}
-        )
-        profile = Profile.objects.get(user=social_account.user)
-        assert profile.display_name == display_name
+        social_account = self.get_or_create_social_account()
+        social_account.extra_data["displayName"] = display_name
+        social_account.save()
+        assert self.profile.display_name == display_name
 
-    def test_display_name_does_not_exist(self):
-        social_account = baker.make(SocialAccount, provider="fxa", extra_data={})
-        profile = Profile.objects.get(user=social_account.user)
-        assert profile.display_name is None
+    def test_display_name_does_not_exist(self) -> None:
+        self.get_or_create_social_account()
+        assert self.profile.display_name is None
 
+
+class ProfileTest(ProfileTestCase):
     def test_save_server_storage_true_doesnt_delete_data(self):
         test_desc = "test description"
         test_generated_for = "secret.com"
