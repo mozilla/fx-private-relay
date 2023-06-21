@@ -857,7 +857,7 @@ def _handle_reply(
             logger.error("s3_object_does_not_exist", extra=e.response["Error"])
             return HttpResponse("Email not in S3", status=404)
         logger.error("s3_client_error_get_email", extra=e.response["Error"])
-        # we are returning a 500 so that SNS can retry the email processing
+        # we are returning a 5XX so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
     message_body: MessageBody = {}
