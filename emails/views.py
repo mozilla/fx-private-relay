@@ -720,7 +720,7 @@ def _build_reply_requires_premium_email(
     # If we haven't forwarded a first reply for this user yet, _reply_allowed
     # will forward.  So, tell the user we forwarded it.
     forwarded = not reply_record.address.user.profile.forwarded_first_reply
-    sender: str | None = None
+    sender: str | None = ""
     if decrypted_metadata is not None:
         sender = decrypted_metadata.get("reply-to") or decrypted_metadata.get("from")
     ctx = {
@@ -857,7 +857,7 @@ def _handle_reply(
             logger.error("s3_object_does_not_exist", extra=e.response["Error"])
             return HttpResponse("Email not in S3", status=404)
         logger.error("s3_client_error_get_email", extra=e.response["Error"])
-        # we are returning a 5XX so that SNS can retry the email processing
+        # we are returning a 500 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
     message_body: MessageBody = {}
