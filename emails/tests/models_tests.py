@@ -284,25 +284,6 @@ class ProfileTestCase(TestCase):
         self.profile = user.profile
         assert self.profile.server_storage is True
 
-    def patch_datetime_now(self) -> datetime:
-        """
-        Selectively patch datatime.now() for emails models
-
-        https://docs.python.org/3/library/unittest.mock-examples.html#partial-mocking
-        """
-        patcher = patch("emails.models.datetime")
-        mocked_datetime = patcher.start()
-        self.addCleanup(patcher.stop)
-
-        expected_now = datetime.now(timezone.utc)
-        mocked_datetime.combine.return_value = datetime.combine(
-            datetime.now(timezone.utc).date(), datetime.min.time()
-        )
-        mocked_datetime.now.return_value = expected_now
-        mocked_datetime.side_effect = lambda *args, **kw: datetime(*args, **kw)
-
-        return expected_now
-
     def get_or_create_social_account(self) -> SocialAccount:
         """Get the test user's social account, creating if needed."""
         social_account, _ = SocialAccount.objects.get_or_create(
@@ -799,64 +780,76 @@ class ProfileEmailsRepliedTest(ProfileTestCase):
         assert self.profile.emails_replied == 8
 
 
-class ProfileTest(ProfileTestCase):
-    @patch("emails.models.abuse_logger.info")
+class ProfileUpdateAbuseMetricTest(ProfileTestCase):
+    """Tests for Profile.update_abuse_metric()"""
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.get_or_create_social_account()
+        self.abuse_metric = baker.make(AbuseMetrics, user=self.profile.user)
+
+        patcher_logger = patch("emails.models.abuse_logger.info")
+        self.mocked_abuse_info = patcher_logger.start()
+        self.addCleanup(patcher_logger.stop)
+
+        # Selectively patch datatime.now() for emails models
+        # https://docs.python.org/3/library/unittest.mock-examples.html#partial-mocking
+        patcher = patch("emails.models.datetime")
+        mocked_datetime = patcher.start()
+        self.addCleanup(patcher.stop)
+
+        self.expected_now = datetime.now(timezone.utc)
+        mocked_datetime.combine.return_value = datetime.combine(
+            datetime.now(timezone.utc).date(), datetime.min.time()
+        )
+        mocked_datetime.now.return_value = self.expected_now
+        mocked_datetime.side_effect = lambda *args, **kw: datetime(*args, **kw)
+
     @override_settings(MAX_FORWARDED_PER_DAY=5)
-    def test_update_abuse_metric_flags_profile_when_emails_forwarded_abuse_threshold_met(
-        self, mocked_abuse_info
-    ):
-        expected_now = self.patch_datetime_now()
-        user = make_premium_test_user()
-        baker.make(AbuseMetrics, user=user, num_email_forwarded_per_day=4)
-        profile = user.profile
+    def test_flags_profile_when_emails_forwarded_abuse_threshold_met(self) -> None:
+        self.abuse_metric.num_email_forwarded_per_day = 4
+        self.abuse_metric.save()
+        assert self.profile.last_account_flagged is None
 
-        assert profile.last_account_flagged is None
-        profile.update_abuse_metric(email_forwarded=True)
+        self.profile.update_abuse_metric(email_forwarded=True)
+        self.abuse_metric.refresh_from_db()
 
-        abuse_metrics = AbuseMetrics.objects.get(user=user)
-
-        mocked_abuse_info.assert_called_once_with(
+        self.mocked_abuse_info.assert_called_once_with(
             "Abuse flagged",
             extra={
-                "uid": profile.fxa.uid,
-                "flagged": expected_now.timestamp(),
+                "uid": self.profile.fxa.uid,
+                "flagged": self.expected_now.timestamp(),
                 "replies": 0,
                 "addresses": 0,
                 "forwarded": 5,
                 "forwarded_size_in_bytes": 0,
             },
         )
-        assert abuse_metrics.num_email_forwarded_per_day == 5
-        assert profile.last_account_flagged == expected_now
+        assert self.abuse_metric.num_email_forwarded_per_day == 5
+        assert self.profile.last_account_flagged == self.expected_now
 
-    @patch("emails.models.abuse_logger.info")
     @override_settings(MAX_FORWARDED_EMAIL_SIZE_PER_DAY=100)
-    def test_update_abuse_metric_flags_profile_when_forwarded_email_size_abuse_threshold_met(
-        self, mocked_abuse_info
-    ):
-        expected_now = self.patch_datetime_now()
-        user = make_premium_test_user()
-        baker.make(AbuseMetrics, user=user, forwarded_email_size_per_day=50)
-        profile = user.profile
+    def test_flags_profile_when_forwarded_email_size_abuse_threshold_met(self) -> None:
+        self.abuse_metric.forwarded_email_size_per_day = 50
+        self.abuse_metric.save()
+        assert self.profile.last_account_flagged is None
 
-        assert profile.last_account_flagged is None
-        profile.update_abuse_metric(forwarded_email_size=50)
+        self.profile.update_abuse_metric(forwarded_email_size=50)
+        self.abuse_metric.refresh_from_db()
 
-        abuse_metrics = AbuseMetrics.objects.get(user=user)
-
-        mocked_abuse_info.assert_called_once_with(
+        self.mocked_abuse_info.assert_called_once_with(
             "Abuse flagged",
             extra={
-                "uid": profile.fxa.uid,
-                "flagged": expected_now.timestamp(),
+                "uid": self.profile.fxa.uid,
+                "flagged": self.expected_now.timestamp(),
                 "replies": 0,
                 "addresses": 0,
                 "forwarded": 0,
                 "forwarded_size_in_bytes": 100,
             },
         )
-        assert abuse_metrics.forwarded_email_size_per_day == 100
-        assert profile.last_account_flagged == expected_now
+        assert self.abuse_metric.forwarded_email_size_per_day == 100
+        assert self.profile.last_account_flagged == self.expected_now
 
 
 class DomainAddressTest(TestCase):
