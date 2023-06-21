@@ -542,20 +542,17 @@ class ProfileAddSubdomainTest(ProfileTestCase):
             self.profile.add_subdomain("mozilla")
 
 
-class ProfileTest(ProfileTestCase):
-    def test_setting_direct_Profile_subdomain_lowercases_subdomain_value(self):
-        premium_user = baker.make(User)
-        baker.make(
-            SocialAccount,
-            user=premium_user,
-            provider="fxa",
-            extra_data={"subscriptions": [unlimited_subscription()]},
-        )
-        premium_profile = Profile.objects.get(user=premium_user)
-        premium_profile.subdomain = "mIxEdcAsE"
-        premium_profile.save()
-        assert premium_profile.subdomain == "mixedcase"
+class ProfileSaveTest(ProfileTestCase):
+    """Tests for Profile.save()"""
 
+    def test_lowercases_subdomain_value(self) -> None:
+        self.upgrade_to_premium()
+        self.profile.subdomain = "mIxEdcAsE"
+        self.profile.save()
+        assert self.profile.subdomain == "mixedcase"
+
+
+class ProfileTest(ProfileTestCase):
     def test_subdomain_available_bad_word_returns_False(self):
         with self.assertRaises(CannotMakeSubdomainException):
             valid_available_subdomain("angry")
