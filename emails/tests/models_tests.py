@@ -466,10 +466,14 @@ class ProfileHasPremiumTest(ProfileTestCase):
         assert self.profile.has_premium is True
 
 
-class ProfileTest(ProfileTestCase):
-    def test_has_phone_default_False(self):
+class ProfileHasPhoneTest(ProfileTestCase):
+    """Tests for Profile.has_phone"""
+
+    def test_default_False(self) -> None:
         assert self.profile.has_phone is False
 
+
+class ProfileTest(ProfileTestCase):
     def test_total_masks(self):
         upgrade_test_user_to_premium(self.profile.user)
         self.profile.add_subdomain("totalmasks")
