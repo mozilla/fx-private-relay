@@ -773,31 +773,33 @@ class ProfileDefaultsTest(ProfileTestCase):
     def test_user_created_after_premium_release_server_storage_True(self) -> None:
         assert self.profile.server_storage
 
+    def test_emails_replied_new_user_aggregates_sum_of_replies_to_zero(self) -> None:
+        assert self.profile.emails_replied == 0
 
-class ProfileTest(ProfileTestCase):
-    def test_emails_replied_preimum_user_aggregates_sum_of_replies_from_all_addresses(
-        self,
-    ):
-        subdomain = "test"
-        user = make_premium_test_user()
-        user_profile = user.profile
-        user_profile.subdomain = subdomain
-        user_profile.num_email_replied_in_deleted_address = 1
-        user_profile.save()
-        baker.make(RelayAddress, user=user, num_replied=3)
-        baker.make(DomainAddress, user=user, address="lower-case", num_replied=5)
 
-        assert user_profile.emails_replied == 9
+class ProfileEmailsRepliedTest(ProfileTestCase):
+    """Tests for Profile.emails_replied"""
 
-    def test_emails_replied_user_aggregates_sum_of_replies_from_relay_addresses(self):
+    def test_premium_user_aggregates_replies_from_all_addresses(self) -> None:
+        self.upgrade_to_premium()
+        self.profile.subdomain = "test"
+        self.profile.num_email_replied_in_deleted_address = 1
+        self.profile.save()
+        baker.make(RelayAddress, user=self.profile.user, num_replied=3)
+        baker.make(
+            DomainAddress, user=self.profile.user, address="lower-case", num_replied=5
+        )
+
+        assert self.profile.emails_replied == 9
+
+    def test_free_user_aggregates_replies_from_relay_addresses(self) -> None:
         baker.make(RelayAddress, user=self.profile.user, num_replied=3)
         baker.make(RelayAddress, user=self.profile.user, num_replied=5)
 
         assert self.profile.emails_replied == 8
 
-    def test_emails_replied_new_user_aggregates_sum_of_replies_to_zero(self):
-        assert self.profile.emails_replied == 0
 
+class ProfileTest(ProfileTestCase):
     @patch("emails.signals.incr_if_enabled")
     @patch("emails.signals.info_logger.info")
     def test_remove_level_one_email_trackers_enabled_emits_metric_and_logs(
