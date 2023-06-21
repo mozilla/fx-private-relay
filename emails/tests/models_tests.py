@@ -3,6 +3,7 @@ from hashlib import sha256
 import random
 from unittest import skip
 from unittest.mock import patch
+from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -72,7 +73,7 @@ def make_storageless_test_user():
     return storageless_user
 
 
-def unlimited_subscription():
+def unlimited_subscription() -> str:
     return random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
 
 
@@ -302,6 +303,22 @@ class ProfileTestCase(TestCase):
 
         return expected_now
 
+    def get_or_create_social_account(self) -> SocialAccount:
+        """Get the test user's social account, creating if needed."""
+        social_account, _ = SocialAccount.objects.get_or_create(
+            user=self.profile.user,
+            provider="fxa",
+            uid=str(uuid4()),
+            defaults={"extra_data": {"avatar": "image.png", "subscriptions": []}},
+        )
+        return social_account
+
+    def upgrade_to_premium(self) -> None:
+        """Add a unlimited subscription to the user."""
+        social_account = self.get_or_create_social_account()
+        social_account.extra_data["subscriptions"].append(unlimited_subscription())
+        social_account.save()
+
 
 class ProfileBounceTestCase(ProfileTestCase):
     """Base class for Profile tests that check for bounces."""
@@ -438,22 +455,20 @@ class ProfileLastBounceDateTest(ProfileBounceTestCase):
         assert self.profile.last_bounce_date == self.profile.last_hard_bounce
 
 
-class ProfileTest(ProfileTestCase):
-    def test_has_premium_default_False(self):
+class ProfileHasPremiumTest(ProfileTestCase):
+    """Tests for Profile.has_premium"""
+
+    def test_default_False(self) -> None:
         assert self.profile.has_premium is False
 
+    def test_unlimited_subsription_returns_True(self) -> None:
+        self.upgrade_to_premium()
+        assert self.profile.has_premium is True
+
+
+class ProfileTest(ProfileTestCase):
     def test_has_phone_default_False(self):
         assert self.profile.has_phone is False
-
-    def test_has_premium_with_unlimited_subsription_returns_True(self):
-        premium_user = baker.make(User)
-        baker.make(
-            SocialAccount,
-            user=premium_user,
-            provider="fxa",
-            extra_data={"subscriptions": [unlimited_subscription()]},
-        )
-        assert premium_user.profile.has_premium is True
 
     def test_total_masks(self):
         upgrade_test_user_to_premium(self.profile.user)
