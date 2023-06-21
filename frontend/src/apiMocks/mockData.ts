@@ -6,7 +6,7 @@ import { ProfileData } from "../hooks/api/profile";
 import { RuntimeData } from "../hooks/api/runtimeData";
 import { UserData } from "../hooks/api/user";
 
-export const mockIds = ["empty", "onboarding", "some", "full"] as const;
+export const mockIds = ["demo", "empty", "onboarding", "some", "full"] as const;
 
 // This is the same for all mock users, at this time:
 export const mockedRuntimeData: RuntimeData = {
@@ -86,6 +86,7 @@ export const mockedRuntimeData: RuntimeData = {
 };
 
 export const mockedUsers: Record<(typeof mockIds)[number], UserData> = {
+  demo: { email: "jfoxfire@mozilla.com" },
   empty: { email: "empty@example.com" },
   onboarding: { email: "onboarding@example.com" },
   some: { email: "some@example.com" },
@@ -93,6 +94,26 @@ export const mockedUsers: Record<(typeof mockIds)[number], UserData> = {
 };
 
 export const mockedProfiles: Record<(typeof mockIds)[number], ProfileData> = {
+  demo: {
+    api_token: "demo",
+    avatar: "https://profile.accounts.firefox.com/v1/avatar/j",
+    bounce_status: [false, ""],
+    date_subscribed: null,
+    remove_level_one_email_trackers: false,
+    has_premium: true,
+    has_phone: true,
+    has_vpn: true,
+    id: 4,
+    next_email_try: "2020-04-09T00:00:00.000Z",
+    onboarding_state: 3,
+    server_storage: true,
+    store_phone_log: true,
+    subdomain: "foxmask",
+    emails_blocked: 23,
+    emails_forwarded: 30,
+    emails_replied: 0,
+    level_one_trackers_blocked: 0,
+  },
   empty: {
     api_token: "empty",
     avatar: "https://profile.accounts.firefox.com/v1/avatar/e",
@@ -178,6 +199,71 @@ export const mockedRelayaddresses: Record<
   (typeof mockIds)[number],
   RandomAliasData[]
 > = {
+  demo: [
+    {
+      address: "207ylqt0h",
+      full_address: "207ylqt0h@mozmail.com",
+      created_at: "2023-05-11T17:25:35.556Z",
+      description: "Restaurants",
+      domain: 1,
+      enabled: false,
+      block_list_emails: true,
+      block_level_one_trackers: false,
+      generated_for: "grubhub.com",
+      id: 0,
+      last_modified_at: "2023-05-11T17:25:35.556Z",
+      last_used_at: "2023-05-11T17:25:35.556Z",
+      num_blocked: 0,
+      num_forwarded: 2,
+      num_replied: 0,
+      num_spam: 0,
+      num_level_one_trackers_blocked: 0,
+      mask_type: "random",
+      used_on: "grubhub.com",
+    },
+    {
+      address: "4mptbp2r0",
+      full_address: "4mptbp2r0@mozmail.com",
+      created_at: "2023-05-11T17:23:48.858Z",
+      description: "Online Shopping",
+      domain: 1,
+      enabled: true,
+      block_list_emails: true,
+      block_level_one_trackers: false,
+      generated_for: "",
+      id: 1,
+      last_modified_at: "2023-05-11T17:23:48.858Z",
+      last_used_at: "2023-05-11T17:23:48.858Z",
+      num_blocked: 23,
+      num_forwarded: 28,
+      num_replied: 0,
+      num_spam: 0,
+      num_level_one_trackers_blocked: 0,
+      mask_type: "random",
+      used_on: "",
+    },
+    {
+      address: "1h8vu6nkz",
+      full_address: "1h8vu6nkz@mozmail.com",
+      created_at: "2023-05-15T17:14:10.880Z",
+      description: "News",
+      domain: 1,
+      enabled: true,
+      block_list_emails: false,
+      block_level_one_trackers: false,
+      generated_for: "",
+      id: 2,
+      last_modified_at: "2023-05-15T17:14:10.880Z",
+      last_used_at: "2023-05-15T17:14:10.880Z",
+      num_blocked: 0,
+      num_forwarded: 0,
+      num_replied: 0,
+      num_spam: 0,
+      num_level_one_trackers_blocked: 0,
+      mask_type: "random",
+      used_on: "",
+    },
+  ],
   empty: [],
   onboarding: [],
   some: [
@@ -273,6 +359,7 @@ export const mockedDomainaddresses: Record<
   (typeof mockIds)[number],
   CustomAliasData[]
 > = {
+  demo: [],
   empty: [],
   onboarding: [],
   some: [],
@@ -302,6 +389,7 @@ export const mockedDomainaddresses: Record<
 
 export const mockedRealphones: Record<(typeof mockIds)[number], RealPhoneData> =
   {
+    demo: [],
     empty: [],
     onboarding: [],
     some: [
@@ -332,6 +420,7 @@ export const mockedRelaynumbers: Record<
   (typeof mockIds)[number],
   RelayNumberData
 > = {
+  demo: [],
   empty: [],
   onboarding: [],
   some: [
@@ -374,6 +463,7 @@ export const mockedInboundContacts: Record<
   (typeof mockIds)[number],
   InboundContactData
 > = {
+  demo: [],
   empty: [],
   onboarding: [],
   some: [
