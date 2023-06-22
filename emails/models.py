@@ -307,7 +307,7 @@ class Profile(models.Model):
         if not self.fxa:
             return False
         if settings.RELAY_CHANNEL != "prod" and not settings.IN_PYTEST:
-            if not flag_is_active_in_task("phone", self.user):
+            if not flag_is_active_in_task("phones", self.user):
                 return False
         if flag_is_active_in_task("free_phones", self.user):
             return True
