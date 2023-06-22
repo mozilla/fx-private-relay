@@ -38,6 +38,24 @@ class GetPremiumCountryLangTest(TestCase):
         assert cc == "at"
         assert lang == "de"
 
+    def test_en_fallback(self) -> None:
+        cc, lang = get_premium_country_lang("en,")
+        assert cc == "us"
+        assert lang == "en"
+
+    def test_first_lang_fallback_two_parts(self) -> None:
+        accept_lang = "sgn-us,"  # American Sign Language
+        cc, lang = get_premium_country_lang(accept_lang)
+        assert cc == "us"
+        assert lang == "en"
+
+    @pytest.mark.xfail(strict=True, reason="bug in handling 3-part languages")
+    def test_first_lang_fallback_three_parts(self) -> None:
+        accept_lang = "sgn-ch-de,"  # Swiss German Sign Language
+        cc, lang = get_premium_country_lang(accept_lang)
+        assert cc == "ch"
+        assert lang == "fr"
+
 
 #
 # flag_is_active_in_task tests
