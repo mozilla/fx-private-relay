@@ -49,7 +49,6 @@ class GetPremiumCountryLangTest(TestCase):
         assert cc == "us"
         assert lang == "en"
 
-    @pytest.mark.xfail(strict=True, reason="bug in handling 3-part languages")
     def test_first_lang_fallback_three_parts(self) -> None:
         accept_lang = "sgn-ch-de,"  # Swiss German Sign Language
         cc, lang = get_premium_country_lang(accept_lang)
