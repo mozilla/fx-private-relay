@@ -11,7 +11,7 @@ export const PageMetadata = () => {
 
   return (
     <Head>
-      <link rel="icon" type="image/svg+xml" href={favicon.src}></link>
+      <link rel="icon" type="image/svg+xml" href={"/favicon.svg"}></link>
       <title>{l10n.getString("meta-title")}</title>
       <meta name="description" content={l10n.getString("meta-description-2")} />
       <meta
