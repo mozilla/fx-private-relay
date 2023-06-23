@@ -15,6 +15,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms import model_to_dict
 
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import (
     decorators,
     permissions,
@@ -25,8 +26,6 @@ from rest_framework import (
 )
 from rest_framework.generics import get_object_or_404
 from rest_framework.request import Request
-from drf_yasg import openapi
-from drf_yasg.utils import swagger_auto_schema
 
 from twilio.base.exceptions import TwilioRestException
 from waffle import flag_is_active
@@ -737,15 +736,12 @@ def sms_status(request):
     return response.Response(status=200)
 
 
-call_body = openapi.Schema(
-    type=openapi.TYPE_OBJECT,
-    required=["to"],
-    properties={"to": openapi.Schema(type=openapi.TYPE_STRING)},
-)
-
-
 @decorators.permission_classes([permissions.IsAuthenticated, HasPhoneService])
-@swagger_auto_schema(method="post", request_body=call_body)
+@extend_schema(
+    parameters=[OpenApiParameter(name="to", required=True, type=str)],
+    methods=["POST"],
+    responses={200: None},
+)
 @decorators.api_view(["POST"])
 def outbound_call(request):
     """Make a call from the authenticated user's relay number."""
@@ -781,17 +777,15 @@ def outbound_call(request):
     return response.Response(status=200)
 
 
-message_request_body = openapi.Schema(
-    type=openapi.TYPE_OBJECT,
-    properties={
-        "body": openapi.Schema(type=openapi.TYPE_STRING),
-        "destination": openapi.Schema(type=openapi.TYPE_STRING),
-    },
-)
-
-
 @decorators.permission_classes([permissions.IsAuthenticated, HasPhoneService])
-@swagger_auto_schema(method="post", request_body=message_request_body)
+@extend_schema(
+    parameters=[
+        OpenApiParameter(name="body", required=True, type=str),
+        OpenApiParameter(name="destination", required=True, type=str),
+    ],
+    methods=["POST"],
+    responses={200: None},
+)
 @decorators.api_view(["POST"])
 def outbound_sms(request):
     """
@@ -832,27 +826,24 @@ def outbound_sms(request):
     return response.Response(status=200)
 
 
-messages_query = [
-    openapi.Parameter(
-        "with",
-        openapi.IN_QUERY,
-        description="filter to messages with the given E.164 number",
-        type=openapi.TYPE_STRING,
-        required=False,
-    ),
-    openapi.Parameter(
-        "direction",
-        openapi.IN_QUERY,
-        description="filter to inbound or outbound messages",
-        type=openapi.TYPE_STRING,
-        enum=["inbound", "outbound"],
-        required=False,
-    ),
-]
-
-
 @decorators.permission_classes([permissions.IsAuthenticated, HasPhoneService])
-@swagger_auto_schema(method="get", manual_parameters=messages_query)
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name="with",
+            type=str,
+            required=False,
+            description="filter to messages with the given E.164 number",
+        ),
+        OpenApiParameter(
+            name="direction",
+            type=str,
+            required=False,
+            description="filter to inbound or outbound messages",
+        ),
+    ],
+    methods=["GET"],
+)
 @decorators.api_view(["GET"])
 def list_messages(request):
     """

@@ -7,8 +7,7 @@ from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from email.utils import parseaddr
 from functools import cache
-from io import IOBase
-from typing import cast, Any, Callable, Literal, TypeVar
+from typing import cast, Any, Callable, TypeVar
 import json
 import pathlib
 import re
@@ -19,6 +18,7 @@ import requests
 from botocore.exceptions import ClientError
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.hkdf import HKDFExpand
+from mypy_boto3_ses.type_defs import SendRawEmailResponseTypeDef
 import jwcrypto.jwe
 import jwcrypto.jwk
 import markus
@@ -41,6 +41,7 @@ from .models import (
     Reply,
     get_domains_from_settings,
 )
+from .types import AttachmentPair, AWS_MailJSON, MessageBody, OutgoingHeaders
 
 
 logger = logging.getLogger("events")
@@ -192,29 +193,12 @@ def get_welcome_email(request: HttpRequest, user: User, format: str) -> str:
     )
 
 
-MessageBodyContent = dict[Literal["Charset", "Data"], str]
-MessageBody = dict[Literal["Text", "Html"], MessageBodyContent]
-AttachmentPair = tuple[str, IOBase]
-MailJSON = dict[str, Any]
-
-
 @time_if_enabled("ses_send_raw_email")
 def ses_send_raw_email(
-    from_address: str,
-    to_address: str,
-    subject: str,
-    message_body: MessageBody,
-    attachments: list[AttachmentPair],
-    reply_address: str,
-    mail: MailJSON,
-    address: RelayAddress | DomainAddress,
-) -> HttpResponse:
-    msg_with_headers = _start_message_with_headers(
-        subject, from_address, to_address, reply_address
-    )
-    msg_with_body = _add_body_to_message(msg_with_headers, message_body)
-    msg_with_attachments = _add_attachments_to_message(msg_with_body, attachments)
-
+    source_address: str,
+    destination_address: str,
+    message: MIMEMultipart,
+) -> SendRawEmailResponseTypeDef:
     emails_config = apps.get_app_config("emails")
     assert isinstance(emails_config, EmailsConfig)
     ses_client = emails_config.ses_client
@@ -222,33 +206,37 @@ def ses_send_raw_email(
     assert settings.AWS_SES_CONFIGSET
     try:
         ses_response = ses_client.send_raw_email(
-            Source=from_address,
-            Destinations=[to_address],
-            RawMessage={
-                "Data": msg_with_attachments.as_string(),
-            },
+            Source=source_address,
+            Destinations=[destination_address],
+            RawMessage={"Data": message.as_string()},
             ConfigurationSetName=settings.AWS_SES_CONFIGSET,
         )
         incr_if_enabled("ses_send_raw_email", 1)
-
-        _store_reply_record(mail, ses_response, address)
+        return ses_response
     except ClientError as e:
         logger.error("ses_client_error_raw_email", extra=e.response["Error"])
-        # 503 service unavailable reponse to SNS so it can retry
-        return HttpResponse("SES client error on Raw Email", status=503)
-    return HttpResponse("Sent email to final recipient.", status=200)
+        raise
 
 
-def _start_message_with_headers(
-    subject: str, from_address: str, to_address: str, reply_address: str
+def create_message(
+    headers: OutgoingHeaders,
+    message_body: MessageBody,
+    attachments: list[AttachmentPair] | None = None,
 ) -> MIMEMultipart:
+    msg_with_headers = _start_message_with_headers(headers)
+    msg_with_body = _add_body_to_message(msg_with_headers, message_body)
+    if not attachments:
+        return msg_with_body
+    msg_with_attachments = _add_attachments_to_message(msg_with_body, attachments)
+    return msg_with_attachments
+
+
+def _start_message_with_headers(headers: OutgoingHeaders) -> MIMEMultipart:
     # Create a multipart/mixed parent container.
     msg = MIMEMultipart("mixed")
-    # Add subject, from and to lines.
-    msg["Subject"] = subject
-    msg["From"] = from_address
-    msg["To"] = to_address
-    msg["Reply-To"] = reply_address
+    # Add headers
+    for name, value in headers.items():
+        msg[name] = value
     return msg
 
 
@@ -295,13 +283,15 @@ def _add_attachments_to_message(
     return msg
 
 
-def _store_reply_record(mail: MailJSON, ses_response, address) -> MailJSON:
+def _store_reply_record(
+    mail: AWS_MailJSON, message_id: str, address: RelayAddress | DomainAddress
+) -> AWS_MailJSON:
     # After relaying email, store a Reply record for it
     reply_metadata = {}
     for header in mail["headers"]:
         if header["name"].lower() in ["message-id", "from", "reply-to"]:
             reply_metadata[header["name"].lower()] = header["value"]
-    message_id_bytes = get_message_id_bytes(ses_response["MessageId"])
+    message_id_bytes = get_message_id_bytes(message_id)
     (lookup_key, encryption_key) = derive_reply_keys(message_id_bytes)
     lookup = b64_lookup_key(lookup_key)
     encrypted_metadata = encrypt_reply_metadata(encryption_key, reply_metadata)
@@ -318,45 +308,44 @@ def _store_reply_record(mail: MailJSON, ses_response, address) -> MailJSON:
 
 
 def ses_relay_email(
-    from_address: str,
-    to_address: str,
-    subject: str,
+    source_address: str,
+    destination_address: str,
+    headers: OutgoingHeaders,
     message_body: MessageBody,
     attachments: list[AttachmentPair],
-    mail: MailJSON,
+    mail: AWS_MailJSON,
     address: RelayAddress | DomainAddress,
 ) -> HttpResponse:
-    reply_address = "replies@%s" % get_domains_from_settings().get(
-        "RELAY_FIREFOX_DOMAIN"
-    )
+    message = create_message(headers, message_body, attachments)
+    try:
+        ses_response = ses_send_raw_email(source_address, destination_address, message)
+    except ClientError:
+        # 503 service unavailable reponse to SNS so it can retry
+        return HttpResponse("SES client error on Raw Email", status=503)
 
-    response = ses_send_raw_email(
-        from_address,
-        to_address,
-        subject,
-        message_body,
-        attachments,
-        reply_address,
-        mail,
-        address,
-    )
-    return response
+    message_id = ses_response["MessageId"]
+    _store_reply_record(mail, message_id, address)
+    return HttpResponse("Sent email to final recipient.", status=200)
 
 
 def urlize_and_linebreaks(text, autoescape=True):
     return linebreaksbr(urlize(text, autoescape=autoescape), autoescape=autoescape)
 
 
-def generate_relay_From(
-    original_from_address: str, user_profile: Profile | None = None
-) -> str:
-    if user_profile and user_profile.has_premium:
-        _, relay_from_address = parseaddr(
+def get_reply_to_address(premium: bool = True) -> str:
+    """Return the address that relays replies."""
+    if premium:
+        _, reply_to_address = parseaddr(
             "replies@%s" % get_domains_from_settings().get("RELAY_FIREFOX_DOMAIN")
         )
     else:
-        _, relay_from_address = parseaddr(settings.RELAY_FROM_ADDRESS)
+        _, reply_to_address = parseaddr(settings.RELAY_FROM_ADDRESS)
+    return reply_to_address
 
+
+def generate_relay_From(
+    original_from_address: str, user_profile: Profile | None = None
+) -> str:
     # RFC 2822 (https://tools.ietf.org/html/rfc2822#section-2.1.1)
     # says email header lines must not be more than 998 chars long.
     # Encoding display names to longer than 998 chars will add wrap
@@ -371,6 +360,8 @@ def generate_relay_From(
     )
 
     display_name = Header('"%s [via Relay]"' % (original_from_address), "UTF-8")
+    user_has_premium = bool(user_profile and user_profile.has_premium)
+    relay_from_address = get_reply_to_address(user_has_premium)
     formatted_from_address = str(
         Address(display_name.encode(maxlinelen=998), addr_spec=relay_from_address)
     )

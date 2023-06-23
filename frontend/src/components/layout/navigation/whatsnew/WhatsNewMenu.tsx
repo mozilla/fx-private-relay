@@ -33,6 +33,8 @@ import TrackerRemovalHero from "./images/tracker-removal-hero.svg";
 import TrackerRemovalIcon from "./images/tracker-removal-icon.svg";
 import PremiumSwedenHero from "./images/premium-expansion-sweden-hero.svg";
 import PremiumSwedenIcon from "./images/premium-expansion-sweden-icon.svg";
+import PremiumEuExpansionHero from "./images/eu-expansion-hero.svg";
+import PremiumEuExpansionIcon from "./images/eu-expansion-icon.svg";
 import PremiumFinlandHero from "./images/premium-expansion-finland-hero.svg";
 import PremiumFinlandIcon from "./images/premium-expansion-finland-icon.svg";
 import PhoneMaskingHero from "./images/phone-masking-hero.svg";
@@ -329,6 +331,48 @@ export const WhatsNewMenu = (props: Props) => {
     !props.profile.has_premium
   ) {
     entries.push(premiumInFinland);
+  }
+
+  const premiumEuExpansion: WhatsNewEntry = {
+    title: l10n.getString("whatsnew-feature-premium-expansion-eu-heading"),
+    snippet: l10n.getString("whatsnew-feature-premium-expansion-eu-snippet"),
+    content: (
+      <WhatsNewContent
+        description={l10n.getString(
+          "whatsnew-feature-premium-expansion-eu-description"
+        )}
+        heading={l10n.getString(
+          "whatsnew-feature-premium-expansion-eu-heading"
+        )}
+        image={PremiumEuExpansionHero}
+        cta={
+          <Link href="/premium#pricing" legacyBehavior>
+            <span className={styles.cta}>
+              {l10n.getString("whatsnew-feature-premium-expansion-eu-cta")}
+            </span>
+          </Link>
+        }
+      />
+    ),
+    icon: PremiumEuExpansionIcon,
+    dismissal: useLocalDismissal(
+      `whatsnew-feature_premium-expansion-eu_2023_${props.profile.id}`
+    ),
+    announcementDate: {
+      year: 2023,
+      month: 6,
+      day: 20,
+    },
+  };
+
+  if (
+    isFlagActive(props.runtimeData, "eu_country_expansion") &&
+    !props.profile.has_premium &&
+    ["cy", "ee", "gr", "lv", "lt", "lu", "mt", "pt", "sk", "si"].includes(
+      props.runtimeData.PERIODICAL_PREMIUM_PLANS.country_code.toLowerCase()
+    )
+  ) {
+    entries.push(premiumEuExpansion);
   }
 
   const trackerRemoval: WhatsNewEntry = {

@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 
+from drf_spectacular.utils import extend_schema
 from rest_framework.authentication import get_authorization_header
 from rest_framework.exceptions import (
     APIException,
@@ -23,9 +24,6 @@ from allauth.socialaccount.helpers import complete_social_login  # type: ignore
 from allauth.socialaccount.providers.fxa.provider import FirefoxAccountsProvider  # type: ignore
 from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
 from django_filters import rest_framework as filters
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg.views import get_schema_view
-from drf_yasg import openapi
 from waffle import get_waffle_flag_model
 from waffle.models import Switch, Sample
 from rest_framework import (
@@ -64,16 +62,6 @@ from ..serializers import (
 from privaterelay.ftl_bundles import main as ftl_bundle
 
 info_logger = logging.getLogger("eventsinfo")
-schema_view = get_schema_view(
-    openapi.Info(
-        title="Relay API",
-        default_version="v1",
-        description="API endpints for Relay back-end",
-        contact=openapi.Contact(email="lcrouch+relayapi@mozilla.com"),
-    ),
-    public=settings.DEBUG,
-    permission_classes=[permissions.AllowAny],
-)
 FXA_PROFILE_URL = (
     f"{settings.SOCIALACCOUNT_PROVIDERS['fxa']['PROFILE_ENDPOINT']}/profile"
 )
@@ -302,9 +290,9 @@ class FlagViewSet(viewsets.ModelViewSet):
         return flags
 
 
-@swagger_auto_schema(methods=["post"], request_body=WebcompatIssueSerializer)
-@decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.IsAuthenticated])
+@extend_schema(methods=["POST"], request=WebcompatIssueSerializer)
+@decorators.api_view(["POST"])
 def report_webcompat_issue(request):
     serializer = WebcompatIssueSerializer(data=request.data)
     if serializer.is_valid():

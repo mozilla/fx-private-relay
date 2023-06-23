@@ -250,8 +250,23 @@ INSTALLED_APPS = [
 API_DOCS_ENABLED = config("API_DOCS_ENABLED", False, cast=bool) or DEBUG
 if API_DOCS_ENABLED:
     INSTALLED_APPS += [
-        "drf_yasg",
+        "drf_spectacular",
+        "drf_spectacular_sidecar",
     ]
+    CSP_IMG_SRC += ["'self'", "data:", "https://cdn.redoc.ly"]
+    CSP_SCRIPT_SRC.append(f"blob:{SITE_ORIGIN}")
+    if "'unsafe-inline'" not in CSP_SCRIPT_SRC:
+        CSP_SCRIPT_SRC.append("'unsafe-inline'")
+    CSP_STYLE_SRC += (
+        "'self'",
+        "'unsafe-inline'",
+        "https://fonts.googleapis.com",
+    )
+    CSP_FONT_SRC += [
+        "'self'",
+        "https://fonts.gstatic.com",
+    ]
+    CSP_WORKER_SRC = ("'self'", "blob:")
 
 if DEBUG:
     INSTALLED_APPS += [
@@ -852,6 +867,18 @@ REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": DRF_RENDERERS,
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "EXCEPTION_HANDLER": "api.views.relay_exception_handler",
+}
+if API_DOCS_ENABLED:
+    REST_FRAMEWORK["DEFAULT_SCHEMA_CLASS"] = "drf_spectacular.openapi.AutoSchema"
+
+SPECTACULAR_SETTINGS = {
+    "SWAGGER_UI_DIST": "SIDECAR",
+    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
+    "REDOC_DIST": "SIDECAR",
+    "TITLE": "Firefox Relay API",
+    "DESCRIPTION": "Keep your email safe from hackers and trackers. This API is built with Django REST Framework and powers the Relay website UI, add-on, Firefox browser, and 3rd-party app integrations.",
+    "VERSION": "1.0",
+    "SERVE_INCLUDE_SCHEMA": False,
 }
 
 PHONE_RATE_LIMIT = "5/minute"
