@@ -615,6 +615,9 @@ PERIODICAL_PREMIUM_PLAN_ID_MATRIX = {
                 "currency": "EUR",
             },
         },
+        # TODO: clarify this entry
+        # "cy" the language code means Welsh
+        # "cy" means "Cyprus" in our usage, which is probably Greek or Turkish
         "cy": {
             "monthly": {
                 "id": "price_1NH9saJNcmPzuWtRpffF5I59",
@@ -729,8 +732,11 @@ PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
     "sg": {
         "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["gb"],
     },
+}
+EU_EXPANSION_PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
     # Cyprus
     "cy": {
+        # TODO: Welsh (cy) seems wrong. Maybe el (greek) and tr (turkish)?
         "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["cy"],
     },
     # Estonia
