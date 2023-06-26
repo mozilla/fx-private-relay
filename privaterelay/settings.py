@@ -507,6 +507,129 @@ PERIODICAL_PREMIUM_PLAN_ID_MATRIX = {
                 "currency": "EUR",
             },
         },
+        "si": {
+            "monthly": {
+                "id": "price_1NHALmJNcmPzuWtR2nIoAzEt",
+                "price": 1.99,
+                "currency": "EUR",
+            },
+            "yearly": {
+                "id": "price_1NHAL9JNcmPzuWtRSZ3BWQs0",
+                "price": 0.99,
+                "currency": "EUR",
+            },
+        },
+        "sk": {
+            "monthly": {
+                "id": "price_1NHAJsJNcmPzuWtR71WX0Pz9",
+                "price": 1.99,
+                "currency": "EUR",
+            },
+            "yearly": {
+                "id": "price_1NHAKYJNcmPzuWtRtETl30gb",
+                "price": 0.99,
+                "currency": "EUR",
+            },
+        },
+        "pt": {
+            "monthly": {
+                "id": "price_1NHAI1JNcmPzuWtRx8jXjkrQ",
+                "price": 1.99,
+                "currency": "EUR",
+            },
+            "yearly": {
+                "id": "price_1NHAHWJNcmPzuWtRCRMnWyvK",
+                "price": 0.99,
+                "currency": "EUR",
+            },
+        },
+        "lu": {
+            "monthly": {
+                "id": "price_1NHAFZJNcmPzuWtRm5A7w5qJ",
+                "price": 1.99,
+                "currency": "EUR",
+            },
+            "yearly": {
+                "id": "price_1NHAF8JNcmPzuWtRG1FiPK0N",
+                "price": 0.99,
+                "currency": "EUR",
+            },
+        },
+        "lt": {
+            "monthly": {
+                "id": "price_1NHACcJNcmPzuWtR5ZJeVtJA",
+                "price": 1.99,
+                "currency": "EUR",
+            },
+            "yearly": {
+                "id": "price_1NHADOJNcmPzuWtR2PSMBMLr",
+                "price": 0.99,
+                "currency": "EUR",
+            },
+        },
+        "lv": {
+            "monthly": {
+                "id": "price_1NHAASJNcmPzuWtRpcliwx0R",
+                "price": 1.99,
+                "currency": "EUR",
+            },
+            "yearly": {
+                "id": "price_1NHA9lJNcmPzuWtRLf7DV6GA",
+                "price": 0.99,
+                "currency": "EUR",
+            },
+        },
+        "gr": {
+            "monthly": {
+                "id": "price_1NHA5CJNcmPzuWtR1JSmxqFA",
+                "price": 1.99,
+                "currency": "EUR",
+            },
+            "yearly": {
+                "id": "price_1NHA4lJNcmPzuWtRniS23IuE",
+                "price": 0.99,
+                "currency": "EUR",
+            },
+        },
+        "ee": {
+            "monthly": {
+                "id": "price_1NHA1tJNcmPzuWtRvSeyiVYH",
+                "price": 1.99,
+                "currency": "EUR",
+            },
+            "yearly": {
+                "id": "price_1NHA2TJNcmPzuWtR10yknZHf",
+                "price": 0.99,
+                "currency": "EUR",
+            },
+        },
+        "mt": {
+            "monthly": {
+                "id": "price_1NH9yxJNcmPzuWtRChanpIQU",
+                "price": 1.99,
+                "currency": "EUR",
+            },
+            "yearly": {
+                "id": "price_1NH9y3JNcmPzuWtRIJkQos9q",
+                "price": 0.99,
+                "currency": "EUR",
+            },
+        },
+        # TODO: clarify this entry
+        # "cy" the language code means Welsh
+        # "cy" means "Cyprus" in our usage, which is probably Greek or Turkish
+        "cy": {
+            "monthly": {
+                "id": "price_1NH9saJNcmPzuWtRpffF5I59",
+                "price": 1.99,
+                "currency": "EUR",
+            },
+            "yearly": {
+                "id": "price_1NH9rKJNcmPzuWtRzDiXCeEG",
+                "price": 0.99,
+                "currency": "EUR",
+            },
+        },
     },
     "usd": {
         "en": {
@@ -535,6 +658,7 @@ PERIODICAL_PREMIUM_PLAN_ID_MATRIX = {
         },
     },
 }
+
 PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
     # Austria
     "at": {
@@ -584,23 +708,72 @@ PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
     "fi": {
         "fi": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["fi"],
     },
+    # United States
     "us": {
         "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["en"],
     },
+    # United Kingdom
     "gb": {
         "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["gb"],
     },
+    # Canada
     "ca": {
         "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["en"],
     },
+    # New Zealand
     "nz": {
         "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["gb"],
     },
+    # Malaysia
     "my": {
         "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["gb"],
     },
+    # Singapore
     "sg": {
         "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["gb"],
+    },
+}
+EU_EXPANSION_PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
+    # Cyprus
+    "cy": {
+        # TODO: Welsh (cy) seems wrong. Maybe el (greek) and tr (turkish)?
+        "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["cy"],
+    },
+    # Estonia
+    "ee": {
+        "et": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["ee"],
+    },
+    # Greece
+    "gr": {
+        "el": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["gr"],
+    },
+    # Latvia
+    "lv": {
+        "lv": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["lv"],
+    },
+    # Lithuania
+    "lt": {
+        "lt": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["lt"],
+    },
+    # Luxembourg
+    "lu": {
+        "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["lu"],
+    },
+    # Malta
+    "mt": {
+        "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["mt"],
+    },
+    # Portugal
+    "pt": {
+        "pt": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["pt"],
+    },
+    # Slovakia
+    "sk": {
+        "sk": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["sk"],
+    },
+    # Slovenia
+    "si": {
+        "sl": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["si"],
     },
 }
 

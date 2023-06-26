@@ -13,6 +13,7 @@ from django.test import (
 )
 
 from allauth.socialaccount.models import SocialAccount
+from waffle.testutils import override_flag
 import pytest
 
 from model_bakery import baker
@@ -828,6 +829,26 @@ class ProfileTest(TestCase):
         assert self.profile.fxa_locale_in_premium_country is False
 
     def test_locale_in_premium_country_returns_False_if_no_fxa_account(self):
+        assert self.profile.fxa_locale_in_premium_country is False
+
+    @override_flag("eu_country_expansion", active=True)
+    def test_locale_in_premium_country_with_eu_expansion_flag(self):
+        baker.make(
+            SocialAccount,
+            user=self.profile.user,
+            provider="fxa",
+            extra_data={"locale": "et-ee,et;q=0.8"},
+        )
+        assert self.profile.fxa_locale_in_premium_country is True
+
+    @override_flag("eu_country_expansion", active=False)
+    def test_locale_in_premium_country_without_eu_expansion_flag(self):
+        baker.make(
+            SocialAccount,
+            user=self.profile.user,
+            provider="fxa",
+            extra_data={"locale": "et-ee,et;q=0.8"},
+        )
         assert self.profile.fxa_locale_in_premium_country is False
 
     def test_user_joined_before_premium_release_returns_True(self):
