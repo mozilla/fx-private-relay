@@ -147,7 +147,7 @@ class FormattingToolsTest(TestCase):
         }
 
 
-def _utf8b(value: str) -> str:
+def _encode_as_base64_utf8_str(value: str) -> str:
     """Encode a string in UTF-8 binary (base64), like an email header"""
     b64 = b64encode(value.encode()).decode()
     return f"=?utf-8?b?{b64}?="
@@ -164,7 +164,7 @@ GENERATE_FROM_TEST_CASES: dict[str, _GENERATE_FROM_TEST_CASE_DEF] = {
     "with_umlaut": {
         "in_from": '"foö bär" <foo@bar.com>',
         "in_to": "mask@relay.example.com",
-        "out_from": _utf8b("foö bär <foo@bar.com> [via Relay]")
+        "out_from": _encode_as_base64_utf8_str("foö bär <foo@bar.com> [via Relay]")
         + " <mask@relay.example.com>",
     },
     "realistic_address": {
@@ -196,7 +196,9 @@ GENERATE_FROM_TEST_CASES: dict[str, _GENERATE_FROM_TEST_CASE_DEF] = {
         "in_from": f"l{'ö' * 90}ng <long-umlat@long.example.com>",
         "in_to": "umlat123@relay.example.com",
         "out_from": (
-            _utf8b(f"l{'ö' * 69}… <long-umlat@long.example.com> [via Relay]")
+            _encode_as_base64_utf8_str(
+                f"l{'ö' * 69}… <long-umlat@long.example.com> [via Relay]"
+            )
             + " <umlat123@relay.example.com>"
         ),
     },
