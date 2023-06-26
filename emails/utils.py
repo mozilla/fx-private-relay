@@ -5,7 +5,7 @@ from email.headerregistry import Address
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
-from email.utils import parseaddr
+from email.utils import formataddr, parseaddr
 from functools import cache
 from typing import cast, Any, Callable, TypeVar
 import json
@@ -13,6 +13,7 @@ import pathlib
 import re
 from django.http.request import HttpRequest
 from django.template.loader import render_to_string
+from django.utils.text import Truncator
 import requests
 
 from botocore.exceptions import ClientError
@@ -366,6 +367,52 @@ def generate_relay_From(
         Address(display_name.encode(maxlinelen=998), addr_spec=relay_from_address)
     )
     return formatted_from_address
+
+
+def truncate(max_length: int, value: str) -> str:
+    """
+    Truncate a string to a maximum length.
+
+    If the value is all ASCII, the truncation suffix will be ...
+    If the value is non-ASCII, the truncation suffix will be … (Unicode ellipsis)
+    """
+    if len(value) <= max_length:
+        return value
+    ellipsis = "..."  # ASCII Ellipsis
+    try:
+        value.encode("ascii")
+    except UnicodeEncodeError:
+        ellipsis = "…"
+    return Truncator(value).chars(max_length, truncate=ellipsis)
+
+
+def generate_from_header(original_from_address: str, relay_mask: str) -> str:
+    """
+    Return a From: header str using the original sender and a display name that
+    refers to Relay.
+
+    This format was introduced in June 2023 with MPP-2117.
+    """
+    oneline_from_address = (
+        original_from_address.replace("\u2028", "").replace("\r", "").replace("\n", "")
+    )
+    display_name, original_address = parseaddr(oneline_from_address)
+    parsed_address = Address(addr_spec=original_address)
+
+    # Truncate the to 71 characters, so the sender portion fits on the first
+    # line of a multi-line "From:" header, if it is ASCII. A utf-8 encoded
+    # header will be 226 chars, still below the 998 limit of RFC 5322 2.1.1.
+    max_length = 71
+
+    if display_name:
+        short_name = truncate(max_length, display_name)
+        short_address = truncate(max_length, parsed_address.addr_spec)
+        sender = f"{short_name} <{short_address}>"
+    else:
+        # Use the email address if the display name was not originally set
+        display_name = parsed_address.addr_spec
+        sender = truncate(max_length, display_name)
+    return formataddr((f"{sender} [via Relay]", relay_mask))
 
 
 def get_message_id_bytes(message_id_str: str) -> bytes:

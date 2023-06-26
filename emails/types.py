@@ -15,6 +15,7 @@ OutgoingHeaderName = Literal[
     "In-Reply-To",
     "References",
     "Reply-To",
+    "Resent-From",
     "Subject",
     "To",
 ]
