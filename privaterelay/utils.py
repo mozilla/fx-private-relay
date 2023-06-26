@@ -57,13 +57,15 @@ def get_premium_country_lang(accept_lang, mapping, cc=None):
     return cc, "en"
 
 
-def get_premium_country_language_mapping():
+def get_premium_country_language_mapping(eu_country_expansion):
     mapping = settings.PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING.copy()
+    if eu_country_expansion:
+        mapping.update(settings.EU_EXPANSION_PREMIUM_PLAN_COUNTRY_LANG_MAPPING)
     return mapping
 
 
-def get_premium_countries():
-    mapping = get_premium_country_language_mapping()
+def get_premium_countries(eu_country_expansion):
+    mapping = get_premium_country_language_mapping(eu_country_expansion)
     return set(mapping.keys())
 
 

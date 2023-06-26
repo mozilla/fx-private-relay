@@ -23,7 +23,7 @@ from ..utils import (
 
 class GetPremiumCountryLangTest(TestCase):
     def setUp(self):
-        self.mapping = get_premium_country_language_mapping()
+        self.mapping = get_premium_country_language_mapping(None)
 
     def test_get_premium_country_lang(self):
         cc, lang = get_premium_country_lang("en-au,", self.mapping)
@@ -58,6 +58,18 @@ class GetPremiumCountryLangTest(TestCase):
         cc, lang = get_premium_country_lang(accept_lang, self.mapping)
         assert cc == "ch"
         assert lang == "fr"
+
+    def test_eu_country_expansion_active(self) -> None:
+        mapping = get_premium_country_language_mapping(eu_country_expansion=True)
+        cc, lang = get_premium_country_lang("et-ee", mapping)
+        assert cc == "ee"
+        assert lang == "et"
+
+    def test_eu_country_expansion_inactive(self) -> None:
+        mapping = get_premium_country_language_mapping(eu_country_expansion=False)
+        cc, lang = get_premium_country_lang("et-ee", mapping)
+        assert cc == "ee"
+        assert lang == "en"
 
 
 #

@@ -24,7 +24,7 @@ from allauth.socialaccount.helpers import complete_social_login  # type: ignore
 from allauth.socialaccount.providers.fxa.provider import FirefoxAccountsProvider  # type: ignore
 from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
 from django_filters import rest_framework as filters
-from waffle import get_waffle_flag_model
+from waffle import flag_is_active, get_waffle_flag_model
 from waffle.models import Switch, Sample
 from rest_framework import (
     decorators,
@@ -243,7 +243,8 @@ def runtime_data(request):
     switch_values = [(s.name, s.is_active()) for s in switches]
     samples = Sample.get_all()
     sample_values = [(s.name, s.is_active()) for s in samples]
-    premium_mapping = get_premium_country_language_mapping()
+    eu_country_expansion = flag_is_active(request, "eu_country_expansion")
+    premium_mapping = get_premium_country_language_mapping(eu_country_expansion)
     return response.Response(
         {
             "FXA_ORIGIN": settings.FXA_BASE_ORIGIN,

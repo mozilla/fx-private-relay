@@ -172,7 +172,10 @@ class Profile(models.Model):
     def fxa_locale_in_premium_country(self):
         if self.fxa and self.fxa.extra_data.get("locale"):
             accept_langs = parse_accept_lang_header(self.fxa.extra_data.get("locale"))
-            premium_countries = get_premium_countries()
+            eu_country_expansion = flag_is_active_in_task(
+                "eu_country_expansion", self.user
+            )
+            premium_countries = get_premium_countries(eu_country_expansion)
             if (
                 len(accept_langs) >= 1
                 and len(accept_langs[0][0].split("-")) >= 2
