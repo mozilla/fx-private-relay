@@ -38,6 +38,7 @@ from emails.utils import incr_if_enabled
 
 from privaterelay.utils import (
     get_countries_info_from_request_and_mapping,
+    get_premium_country_language_mapping,
 )
 
 from emails.models import (
@@ -242,6 +243,7 @@ def runtime_data(request):
     switch_values = [(s.name, s.is_active()) for s in switches]
     samples = Sample.get_all()
     sample_values = [(s.name, s.is_active()) for s in samples]
+    premium_mapping = get_premium_country_language_mapping()
     return response.Response(
         {
             "FXA_ORIGIN": settings.FXA_BASE_ORIGIN,
@@ -250,7 +252,7 @@ def runtime_data(request):
             "BUNDLE_PRODUCT_ID": settings.BUNDLE_PROD_ID,
             "PHONE_PRODUCT_ID": settings.PHONE_PROD_ID,
             "PERIODICAL_PREMIUM_PLANS": get_countries_info_from_request_and_mapping(
-                request, settings.PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING
+                request, premium_mapping
             ),
             "PHONE_PLANS": get_countries_info_from_request_and_mapping(
                 request, settings.PHONE_PLAN_COUNTRY_LANG_MAPPING

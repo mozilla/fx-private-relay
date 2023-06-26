@@ -17,41 +17,45 @@ import pytest
 from ..utils import (
     flag_is_active_in_task,
     get_premium_country_lang,
+    get_premium_country_language_mapping,
 )
 
 
 class GetPremiumCountryLangTest(TestCase):
+    def setUp(self):
+        self.mapping = get_premium_country_language_mapping()
+
     def test_get_premium_country_lang(self):
-        cc, lang = get_premium_country_lang("en-au,")
+        cc, lang = get_premium_country_lang("en-au,", self.mapping)
         assert cc == "au"
         assert lang == "en"
 
-        cc, lang = get_premium_country_lang("en-us,")
+        cc, lang = get_premium_country_lang("en-us,", self.mapping)
         assert cc == "us"
         assert lang == "en"
 
-        cc, lang = get_premium_country_lang("de-be,")
+        cc, lang = get_premium_country_lang("de-be,", self.mapping)
         assert cc == "be"
         assert lang == "de"
 
-        cc, lang = get_premium_country_lang("de-be,", "at")
+        cc, lang = get_premium_country_lang("de-be,", self.mapping, "at")
         assert cc == "at"
         assert lang == "de"
 
     def test_en_fallback(self) -> None:
-        cc, lang = get_premium_country_lang("en,")
+        cc, lang = get_premium_country_lang("en,", self.mapping)
         assert cc == "us"
         assert lang == "en"
 
     def test_first_lang_fallback_two_parts(self) -> None:
         accept_lang = "sgn-us,"  # American Sign Language
-        cc, lang = get_premium_country_lang(accept_lang)
+        cc, lang = get_premium_country_lang(accept_lang, self.mapping)
         assert cc == "us"
         assert lang == "en"
 
     def test_first_lang_fallback_three_parts(self) -> None:
         accept_lang = "sgn-ch-de,"  # Swiss German Sign Language
-        cc, lang = get_premium_country_lang(accept_lang)
+        cc, lang = get_premium_country_lang(accept_lang, self.mapping)
         assert cc == "ch"
         assert lang == "fr"
 

@@ -16,7 +16,7 @@ from waffle.utils import (
 
 
 def get_countries_info_from_request_and_mapping(request, mapping):
-    country_code = _get_cc_from_request(request)
+    country_code = _get_cc_from_request(request, mapping)
     countries = mapping.keys()
     available_in_country = country_code in countries
     return {
@@ -27,17 +27,19 @@ def get_countries_info_from_request_and_mapping(request, mapping):
     }
 
 
-def _get_cc_from_request(request):
+def _get_cc_from_request(request, premium_mapping):
     if "X-Client-Region" in request.headers:
         return request.headers["X-Client-Region"].lower()
     if "Accept-Language" in request.headers:
-        return get_premium_country_lang(request.headers["Accept-Language"])[0]
+        return get_premium_country_lang(
+            request.headers["Accept-Language"], premium_mapping
+        )[0]
     if settings.DEBUG:
         return "us"
     return "us"
 
 
-def get_premium_country_lang(accept_lang, cc=None):
+def get_premium_country_lang(accept_lang, mapping, cc=None):
     lang = accept_lang.split(",")[0]
     lang_parts = lang.split("-") if lang and "-" in lang else [lang]
     lang = lang_parts[0].lower()
@@ -48,12 +50,21 @@ def get_premium_country_lang(accept_lang, cc=None):
         if cc == "en":
             cc = "us"
 
-    if cc in settings.PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys():
-        languages = settings.PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING[cc]
+    if languages := mapping.get(cc):
         if lang in languages.keys():
             return cc, lang
         return cc, list(languages.keys())[0]
     return cc, "en"
+
+
+def get_premium_country_language_mapping():
+    mapping = settings.PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING.copy()
+    return mapping
+
+
+def get_premium_countries():
+    mapping = get_premium_country_language_mapping()
+    return set(mapping.keys())
 
 
 def enable_or_404(
