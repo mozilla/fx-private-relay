@@ -1,6 +1,5 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
-import favicon from "../../../public/favicon.svg";
 import socialMediaImage from "./images/share-relay.jpg";
 import { getRuntimeConfig } from "../../config";
 import { useL10n } from "../../hooks/l10n";
@@ -11,7 +10,7 @@ export const PageMetadata = () => {
 
   return (
     <Head>
-      <link rel="icon" type="image/svg+xml" href={favicon.src}></link>
+      <link rel="icon" type="image/svg+xml" href="/favicon.svg"></link>
       <title>{l10n.getString("meta-title")}</title>
       <meta name="description" content={l10n.getString("meta-description-2")} />
       <meta
