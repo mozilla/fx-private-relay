@@ -1049,7 +1049,11 @@ SPECTACULAR_SETTINGS = {
     "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
     "REDOC_DIST": "SIDECAR",
     "TITLE": "Firefox Relay API",
-    "DESCRIPTION": "Keep your email safe from hackers and trackers. This API is built with Django REST Framework and powers the Relay website UI, add-on, Firefox browser, and 3rd-party app integrations.",
+    "DESCRIPTION": (
+        "Keep your email safe from hackers and trackers. This API is built with"
+        " Django REST Framework and powers the Relay website UI, add-on,"
+        " Firefox browser, and 3rd-party app integrations."
+    ),
     "VERSION": "1.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }
