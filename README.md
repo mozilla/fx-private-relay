@@ -37,17 +37,22 @@ Please refer to our [coding standards](docs/coding-standards.md) for code styles
 
 2. Create and activate a virtual environment:
 
-   Unix based systems: 
+   Unix based systems:
+
    ```sh
    virtualenv env
    source env/bin/activate
    ```
-   Windows: 
+
+   Windows:
+
    ```sh
    python -m venv env
-   source env/Scripts/activate
+   .\env\Scripts\activate
    ```
-   
+
+   Note: If you're running on Windows and get an error message stating that executing scripts are disabled on your computer, go into the Windows powershell and type `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Unrestricted`, then try again.
+
 3. Install Python and Node requirements:
 
    ```sh
