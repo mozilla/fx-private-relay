@@ -36,10 +36,8 @@ from rest_framework import (
 )
 from emails.utils import incr_if_enabled
 
-from privaterelay.utils import (
-    get_countries_info_from_request_and_mapping,
-    get_premium_country_language_mapping,
-)
+from privaterelay.plans import get_premium_country_language_mapping
+from privaterelay.utils import get_countries_info_from_request_and_mapping
 
 from emails.models import (
     CannotMakeAddressException,
