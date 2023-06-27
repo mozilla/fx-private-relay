@@ -123,24 +123,24 @@
           <img width="30" src="{{ SITE_ORIGIN }}/static/images/email-images/relay-icon.png" style="margin-right: 5px; display: inline-block; vertical-align: top;" alt="relay icon"/>
 
           <p style="margin-top: 0; margin-bottom: 5px; display: inline-block;">
-            <span class="forwarded-from-email" style="display: block; color: #FFFFFF;">
+            <span class="forwarded-from-email" style="display: block; color: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
             {% with display_email|striptags|urlencode as mask_url %}
-            {% ftlmsg 'relay-email-forwarded-from-html' url=SITE_ORIGIN|add:'/accounts/profile/#'|add:mask_url attrs='class="container-link" style="margin-right: 30px;color: #FFFFFF;"' email_address=display_email|striptags %}
+            {% ftlmsg 'relay-email-forwarded-from-html' url=SITE_ORIGIN|add:'/accounts/profile/#'|add:mask_url attrs='class="container-link" style="margin-right: 30px;color: #FFFFFF;font-size: 12px;"' email_address=display_email|striptags %}
             {% endwith %}
             </span>
 
-          <span style="margin-top: 0; margin-bottom: 5px; display: block;color: #FFFFFF;">
+          <span style="margin-top: 0; margin-bottom: 5px; display: block;color: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
             {% if has_premium %}
-              {% ftlmsg 'relay-email-premium-byline-html' url=SITE_ORIGIN|add:'/accounts/profile/' attrs='class="container-link" style="margin-right: 30px;color: #FFFFFF;"' %}
+              {% ftlmsg 'relay-email-premium-byline-html' url=SITE_ORIGIN|add:'/accounts/profile/' attrs='class="container-link" style="margin-right: 30px;color: #FFFFFF;font-size: 12px;"' %}
             {% else %}
-              {% ftlmsg 'relay-email-byline-html' url=SITE_ORIGIN|add:'/accounts/profile/' attrs='class="container-link" style="margin-right: 30px;color: #FFFFFF;"' %}
+              {% ftlmsg 'relay-email-byline-html' url=SITE_ORIGIN|add:'/accounts/profile/' attrs='class="container-link" style="margin-right: 30px;color: #FFFFFF;font-size: 12px;"' %}
             {% endif %}
           </span>
           </p>
 
         </td>
         <td class="header-block-right" width="50%" align="right">
-          <p class="relay-trackers-removed" style="margin: 0 30px 0 0; display: inline-block; color: #FFFFFF;">
+          <p class="relay-trackers-removed" style="margin: 0 30px 0 0; display: inline-block; color: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
             <img class="email-trackers-removed-icon" width="15" src="{{ SITE_ORIGIN }}/static/images/email-images/email-trackers-removed-icon.png" alt="email trackers removed icon"/>
             {% comment %}
               Create this as a link if we have a report link to show
