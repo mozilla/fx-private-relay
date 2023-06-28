@@ -1,29 +1,149 @@
 """Paid plans for Relay"""
 
+from typing import Literal, TypedDict
+
 from django.conf import settings
 
 
-def get_premium_country_language_mapping(eu_country_expansion):
+# ISO 4217 currency identifier
+# See https://en.wikipedia.org/wiki/ISO_4217
+CurrencyStr = Literal[
+    "CHF",  # Swiss Franc, Fr. or fr.
+    "EUR",  # Euro, €
+    "USD",  # US Dollar, $
+]
+
+# ISO 4217 currency identifer, lowercased for matrix key
+# TODO: Replace with CurrencyStr
+LowerCurrencyKey = Literal[
+    "chf",  # Swiss Franc, Fr. or fr.
+    "euro",  # Euro, €
+    "usd",  # US Dollar, $
+]
+
+# ISO 639 language codes handled by Relay
+# Uses the 2-letter ISO 639-1 code if available, otherwise the 3-letter ISO 639-2 code.
+# See https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+# and https://www.loc.gov/standards/iso639-2/php/English_list.php
+LanguageStr = Literal[
+    "de",  # German
+    "el",  # Greek, Modern (1453-)
+    "en",  # English
+    "es",  # Spanish
+    "et",  # Estonian
+    "fi",  # Finnish
+    "fr",  # French
+    "it",  # Italian
+    "lt",  # Lithuanian
+    "lv",  # Latvian
+    "nl",  # Dutch
+    "pt",  # Portuguese
+    "sk",  # Slovak
+    "sl",  # Slovernian
+    "sv",  # Swedish
+]
+
+# Country codes with Stripe plans. Most lowercased IS0 3166 codes, some outliers
+# TODO: Replace with ISO 3166 codes
+StripeCountryStr = Literal[
+    "cy",  # Cyprus
+    "de",  # Germany (or German-speaking Switzerland)
+    "ee",  # Estonia
+    "es",  # Spain
+    "fi",  # Finland
+    "fr",  # France (or French-speaking Switzerland)
+    "gr",  # Greece
+    "ie",  # Ireland
+    "it",  # Italy (or Italian-speaking Switzerland)
+    "lt",  # Lithuania
+    "lu",  # Luxembourg
+    "lv",  # Latvia
+    "mt",  # Malta
+    "nl",  # Netherlands
+    "pt",  # Portugual
+    "se",  # Sweden
+    "si",  # Slovenia
+    "sk",  # Slovakia
+    "en",  # United States (should be US)
+    "gb",  # United Kingdom
+]
+
+# Periodic subscription categories
+PeriodStr = Literal["monthly", "yearly"]
+
+
+# A Stripe Price, along with key details for Relay website
+# https://stripe.com/docs/api/prices/object
+class StripePriceDef(TypedDict):
+    id: str  # Must start with "price_"
+    price: float
+    currency: CurrencyStr
+
+
+PricesForPeriodDict = dict[PeriodStr, StripePriceDef]
+PricePeriodsForCountryDict = dict[StripeCountryStr, PricesForPeriodDict]
+CountryPricePeriodsForCurrencyDict = dict[LowerCurrencyKey, PricePeriodsForCountryDict]
+
+# Lowercased ISO 3166 country codes handled by Relay
+# Specifically, the two-letter ISO 3116-1 alpha-2 codes
+# See https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
+# and https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
+LowerCountryStr = Literal[
+    "at",  # Austria
+    "be",  # Belgium
+    "ca",  # Canada
+    "ch",  # Switzerland
+    "cy",  # Cyprus
+    "de",  # Germany
+    "ee",  # Estonia
+    "es",  # Spain
+    "fi",  # Finland
+    "fr",  # France
+    "gb",  # United Kingdom
+    "gr",  # Greece
+    "ie",  # Ireland
+    "it",  # Italy
+    "lt",  # Lituania
+    "lu",  # Luxembourg
+    "lv",  # Latvia
+    "mt",  # Malta
+    "my",  # Malaysia
+    "nl",  # Netherlands
+    "nz",  # New Zealand
+    "pt",  # Portugal
+    "se",  # Sweden
+    "sg",  # Singapore
+    "si",  # Slovenia
+    "sk",  # Slovakia
+    "us",  # United States
+]
+PricePeriodsForLanguageDict = dict[LanguageStr, PricesForPeriodDict]
+PlanCountryLangMapping = dict[LowerCountryStr, PricePeriodsForLanguageDict]
+
+
+def get_premium_country_language_mapping(
+    eu_country_expansion: bool | None,
+) -> PlanCountryLangMapping:
     mapping = _PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING.copy()
     if eu_country_expansion:
         mapping.update(_EU_EXPANSION_PREMIUM_PLAN_COUNTRY_LANG_MAPPING)
     return mapping
 
 
-def get_premium_countries(eu_country_expansion):
+def get_premium_countries(eu_country_expansion: bool | None) -> set[LowerCountryStr]:
     mapping = get_premium_country_language_mapping(eu_country_expansion)
     return set(mapping.keys())
 
 
-def get_phone_country_language_mapping():
+def get_phone_country_language_mapping() -> PlanCountryLangMapping:
     return _PHONE_PLAN_COUNTRY_LANG_MAPPING
 
 
-def get_bundle_country_language_mapping():
+def get_bundle_country_language_mapping() -> PlanCountryLangMapping:
     return _BUNDLE_PLAN_COUNTRY_LANG_MAPPING.copy()
 
 
-_PERIODICAL_PREMIUM_PLAN_ID_MATRIX = {
+_PERIODICAL_PREMIUM_PLAN_ID_MATRIX: CountryPricePeriodsForCurrencyDict = {
     "chf": {
         "de": {
             "monthly": {
@@ -311,7 +431,7 @@ _PERIODICAL_PREMIUM_PLAN_ID_MATRIX = {
     },
 }
 
-_PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
+_PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING: PlanCountryLangMapping = {
     # Austria
     "at": {
         "de": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["de"],
@@ -385,7 +505,7 @@ _PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
         "en": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["gb"],
     },
 }
-_EU_EXPANSION_PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
+_EU_EXPANSION_PREMIUM_PLAN_COUNTRY_LANG_MAPPING: PlanCountryLangMapping = {
     # Cyprus
     "cy": {
         # TODO: Welsh (cy) seems wrong. Maybe el (greek) and tr (turkish)?
@@ -429,7 +549,7 @@ _EU_EXPANSION_PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
     },
 }
 
-_PHONE_PLAN_ID_MATRIX = {
+_PHONE_PLAN_ID_MATRIX: CountryPricePeriodsForCurrencyDict = {
     "usd": {
         "en": {
             "monthly": {
@@ -445,7 +565,7 @@ _PHONE_PLAN_ID_MATRIX = {
         },
     },
 }
-_PHONE_PLAN_COUNTRY_LANG_MAPPING = {
+_PHONE_PLAN_COUNTRY_LANG_MAPPING: PlanCountryLangMapping = {
     "us": {
         "en": _PHONE_PLAN_ID_MATRIX["usd"]["en"],
     },
@@ -454,7 +574,7 @@ _PHONE_PLAN_COUNTRY_LANG_MAPPING = {
     },
 }
 
-_BUNDLE_PLAN_ID_MATRIX = {
+_BUNDLE_PLAN_ID_MATRIX: CountryPricePeriodsForCurrencyDict = {
     "usd": {
         "en": {
             "yearly": {
@@ -467,7 +587,7 @@ _BUNDLE_PLAN_ID_MATRIX = {
         },
     },
 }
-_BUNDLE_PLAN_COUNTRY_LANG_MAPPING = {
+_BUNDLE_PLAN_COUNTRY_LANG_MAPPING: PlanCountryLangMapping = {
     "us": {
         "en": _BUNDLE_PLAN_ID_MATRIX["usd"]["en"],
     },

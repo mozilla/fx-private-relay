@@ -1,5 +1,6 @@
 """Tests for privaterelay/plans.py"""
 
+from typing import Literal
 import pytest
 
 from privaterelay.plans import (
@@ -7,6 +8,8 @@ from privaterelay.plans import (
     get_phone_country_language_mapping,
     get_premium_countries,
     get_premium_country_language_mapping,
+    LowerCountryStr,
+    LanguageStr,
 )
 
 _PREMIUM_COUNTRIES = [
@@ -128,7 +131,10 @@ _PREMIUM_PRICES = {
 )
 @pytest.mark.parametrize("eu_expansion", (True, None))
 def test_get_premium_country_language_mapping(
-    country, language, price_data_key, eu_expansion
+    country: LowerCountryStr,
+    language: LanguageStr,
+    price_data_key: str,
+    eu_expansion: Literal[True, None],
 ) -> None:
     mapping = get_premium_country_language_mapping(eu_country_expansion=eu_expansion)
     if country in _EU_EXPANSION_PREMIUM_COUNTRIES and not eu_expansion:
@@ -169,7 +175,9 @@ _PHONE_PRICES = {
         ("ca", "en", "en-US"),
     ),
 )
-def test_get_phone_country_language_mapping(country, language, price_data_key) -> None:
+def test_get_phone_country_language_mapping(
+    country: LowerCountryStr, language: LanguageStr, price_data_key: str
+) -> None:
     mapping = get_phone_country_language_mapping()
     assert country in mapping
     assert language in mapping[country]
@@ -206,7 +214,9 @@ _BUNDLE_PRICES = {
         ("ca", "en", "en-US"),
     ),
 )
-def test_get_bundle_country_language_mapping(country, language, price_data_key) -> None:
+def test_get_bundle_country_language_mapping(
+    country: LowerCountryStr, language: LanguageStr, price_data_key: str
+) -> None:
     mapping = get_bundle_country_language_mapping()
     assert country in mapping
     assert language in mapping[country]
