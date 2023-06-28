@@ -13,3 +13,11 @@ def get_premium_country_language_mapping(eu_country_expansion):
 def get_premium_countries(eu_country_expansion):
     mapping = get_premium_country_language_mapping(eu_country_expansion)
     return set(mapping.keys())
+
+
+def get_phone_country_language_mapping():
+    return settings.PHONE_PLAN_COUNTRY_LANG_MAPPING
+
+
+def get_bundle_country_language_mapping():
+    return settings.BUNDLE_PLAN_COUNTRY_LANG_MAPPING.copy()

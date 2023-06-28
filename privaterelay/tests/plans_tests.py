@@ -3,6 +3,8 @@
 import pytest
 
 from privaterelay.plans import (
+    get_bundle_country_language_mapping,
+    get_phone_country_language_mapping,
     get_premium_countries,
     get_premium_country_language_mapping,
 )
@@ -143,6 +145,75 @@ def test_get_premium_country_language_mapping(
             "price": monthly_price,
             "currency": currency,
         },
+        "yearly": {
+            "id": f"price{yearly_sid}",
+            "price": yearly_price,
+            "currency": currency,
+        },
+    }
+    assert prices == expected_prices
+
+
+_PHONE_PRICE_DATA = {
+    "en-US": ("USD", "_1Li0w8JNcmPzuWtR2rGU80P3", "_1Li15WJNcmPzuWtRIh0F4VwP"),
+}
+_PHONE_PRICES = {
+    "USD": (4.99, 3.99),
+}
+
+
+@pytest.mark.parametrize(
+    "country,language,price_data_key",
+    (
+        ("us", "en", "en-US"),
+        ("ca", "en", "en-US"),
+    ),
+)
+def test_get_phone_country_language_mapping(country, language, price_data_key) -> None:
+    mapping = get_phone_country_language_mapping()
+    assert country in mapping
+    assert language in mapping[country]
+    prices = mapping[country][language]
+    currency, monthly_sid, yearly_sid = _PHONE_PRICE_DATA[price_data_key]
+    monthly_price, yearly_price = _PHONE_PRICES[currency]
+    expected_prices = {
+        "monthly": {
+            "id": f"price{monthly_sid}",
+            "price": monthly_price,
+            "currency": currency,
+        },
+        "yearly": {
+            "id": f"price{yearly_sid}",
+            "price": yearly_price,
+            "currency": currency,
+        },
+    }
+    assert prices == expected_prices
+
+
+_BUNDLE_PRICE_DATA = {
+    "en-US": ("USD", "_1LwoSDJNcmPzuWtR6wPJZeoh"),
+}
+_BUNDLE_PRICES = {
+    "USD": 6.99,
+}
+
+
+@pytest.mark.parametrize(
+    "country,language,price_data_key",
+    (
+        ("us", "en", "en-US"),
+        ("ca", "en", "en-US"),
+    ),
+)
+def test_get_bundle_country_language_mapping(country, language, price_data_key) -> None:
+    mapping = get_bundle_country_language_mapping()
+    assert country in mapping
+    assert language in mapping[country]
+    prices = mapping[country][language]
+    currency, yearly_sid = _BUNDLE_PRICE_DATA[price_data_key]
+    yearly_price = _BUNDLE_PRICES[currency]
+    expected_prices = {
         "yearly": {
             "id": f"price{yearly_sid}",
             "price": yearly_price,
