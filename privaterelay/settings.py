@@ -1171,6 +1171,7 @@ markus.configure(backends=_MARKUS_BACKENDS)
 if USE_SILK:
     SILKY_PYTHON_PROFILER = True
     SILKY_PYTHON_PROFILER_BINARY = True
+    SILKY_PYTHON_PROFILER_RESULT_PATH = ".silk-profiler"
 
 # Settings for manage.py process_emails_from_sqs
 PROCESS_EMAIL_BATCH_SIZE = config(
