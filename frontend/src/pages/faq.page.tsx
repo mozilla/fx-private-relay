@@ -309,7 +309,7 @@ const Faq: NextPage = () => {
               >
                 <p>
                   {isFlagActive(runtimeData.data, "eu_country_expansion")
-                    ? l10n.getString("faq-question-availability-answer-v3")
+                    ? l10n.getString("faq-question-availability-answer-v4")
                     : l10n.getString("faq-question-availability-answer-v2")}
                 </p>
               </QAndA>
