@@ -1,6 +1,7 @@
 """Tests for privaterelay/plans.py"""
 
 from typing import Literal
+from pytest_django.fixtures import SettingsWrapper
 import pytest
 
 from privaterelay.plans import (
@@ -12,6 +13,18 @@ from privaterelay.plans import (
     get_premium_countries,
     get_premium_country_language_mapping,
 )
+
+
+@pytest.fixture(autouse=True)
+def plan_settings(settings: SettingsWrapper) -> SettingsWrapper:
+    """Set price IDs to the production defaults."""
+    settings.PREMIUM_PLAN_ID_US_MONTHLY = "price_1LXUcnJNcmPzuWtRpbNOajYS"
+    settings.PREMIUM_PLAN_ID_US_YEARLY = "price_1LXUdlJNcmPzuWtRKTYg7mpZ"
+    settings.PHONE_PLAN_ID_US_MONTHLY = "price_1Li0w8JNcmPzuWtR2rGU80P3"
+    settings.PHONE_PLAN_ID_US_YEARLY = "price_1Li15WJNcmPzuWtRIh0F4VwP"
+    settings.BUNDLE_PLAN_ID_US = "price_1LwoSDJNcmPzuWtR6wPJZeoh"
+    return settings
+
 
 _PREMIUM_COUNTRIES = [
     "at",
@@ -184,6 +197,22 @@ def test_get_premium_country_language_mapping(
         )
 
 
+def test_get_premium_country_language_mapping_overrides(
+    plan_settings: SettingsWrapper,
+) -> None:
+    stage_monthly_id = "price_1LiMjeKb9q6OnNsLzwixHuRz"
+    stage_yearly_id = "price_1LiMlBKb9q6OnNsL7tvrtI7y"
+    assert plan_settings.PREMIUM_PLAN_ID_US_MONTHLY != stage_monthly_id
+    plan_settings.PREMIUM_PLAN_ID_US_MONTHLY = stage_monthly_id
+    assert plan_settings.PREMIUM_PLAN_ID_US_YEARLY != stage_yearly_id
+    plan_settings.PREMIUM_PLAN_ID_US_YEARLY = stage_yearly_id
+    mapping = get_premium_country_language_mapping(True)
+    assert mapping["us"]["en"]["monthly"]["id"] == stage_monthly_id
+    assert mapping["us"]["en"]["yearly"]["id"] == stage_yearly_id
+    assert mapping["ca"]["en"]["monthly"]["id"] == stage_monthly_id
+    assert mapping["ca"]["en"]["yearly"]["id"] == stage_yearly_id
+
+
 _PHONE_PRICE_DATA = {
     "en-US": ("USD", "_1Li0w8JNcmPzuWtR2rGU80P3", "_1Li15WJNcmPzuWtRIh0F4VwP"),
 }
@@ -210,6 +239,22 @@ def test_get_phone_country_language_mapping(
         _PHONE_PRICE_DATA,
         _PHONE_PRICES,
     )
+
+
+def test_get_phone_country_language_mapping_overrides(
+    plan_settings: SettingsWrapper,
+) -> None:
+    stage_monthly_id = "price_1LDqw3Kb9q6OnNsL6XIDst28"
+    stage_yearly_id = "price_1Lhd35Kb9q6OnNsL9bAxjUGq"
+    assert plan_settings.PHONE_PLAN_ID_US_MONTHLY != stage_monthly_id
+    plan_settings.PHONE_PLAN_ID_US_MONTHLY = stage_monthly_id
+    assert plan_settings.PHONE_PLAN_ID_US_YEARLY != stage_yearly_id
+    plan_settings.PHONE_PLAN_ID_US_YEARLY = stage_yearly_id
+    mapping = get_phone_country_language_mapping()
+    assert mapping["us"]["en"]["monthly"]["id"] == stage_monthly_id
+    assert mapping["us"]["en"]["yearly"]["id"] == stage_yearly_id
+    assert mapping["ca"]["en"]["monthly"]["id"] == stage_monthly_id
+    assert mapping["ca"]["en"]["yearly"]["id"] == stage_yearly_id
 
 
 _BUNDLE_PRICE_DATA = {
@@ -244,3 +289,14 @@ def test_get_bundle_country_language_mapping(
         },
     }
     assert prices == expected_prices
+
+
+def test_get_bundle_country_language_mapping_overrides(
+    plan_settings: SettingsWrapper,
+) -> None:
+    stage_yearly_id = "price_1Lwp7uKb9q6OnNsLQYzpzUs5"
+    assert plan_settings.BUNDLE_PLAN_ID_US != stage_yearly_id
+    plan_settings.BUNDLE_PLAN_ID_US = stage_yearly_id
+    mapping = get_bundle_country_language_mapping()
+    assert mapping["us"]["en"]["yearly"]["id"] == stage_yearly_id
+    assert mapping["ca"]["en"]["yearly"]["id"] == stage_yearly_id

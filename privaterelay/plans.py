@@ -127,6 +127,8 @@ def get_premium_country_language_mapping(
     mapping = _PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING.copy()
     if eu_country_expansion:
         mapping.update(_EU_EXPANSION_PREMIUM_PLAN_COUNTRY_LANG_MAPPING)
+    mapping["us"]["en"]["monthly"]["id"] = settings.PREMIUM_PLAN_ID_US_MONTHLY
+    mapping["us"]["en"]["yearly"]["id"] = settings.PREMIUM_PLAN_ID_US_YEARLY
     return mapping
 
 
@@ -136,11 +138,16 @@ def get_premium_countries(eu_country_expansion: bool | None) -> set[LowerCountry
 
 
 def get_phone_country_language_mapping() -> PlanCountryLangMapping:
-    return _PHONE_PLAN_COUNTRY_LANG_MAPPING
+    mapping = _PHONE_PLAN_COUNTRY_LANG_MAPPING.copy()
+    mapping["us"]["en"]["monthly"]["id"] = settings.PHONE_PLAN_ID_US_MONTHLY
+    mapping["us"]["en"]["yearly"]["id"] = settings.PHONE_PLAN_ID_US_YEARLY
+    return mapping
 
 
 def get_bundle_country_language_mapping() -> PlanCountryLangMapping:
-    return _BUNDLE_PLAN_COUNTRY_LANG_MAPPING.copy()
+    mapping = _BUNDLE_PLAN_COUNTRY_LANG_MAPPING.copy()
+    mapping["us"]["en"]["yearly"]["id"] = settings.BUNDLE_PLAN_ID_US
+    return mapping
 
 
 _PERIODICAL_PREMIUM_PLAN_ID_MATRIX: CountryPricePeriodsForCurrencyDict = {
@@ -406,12 +413,12 @@ _PERIODICAL_PREMIUM_PLAN_ID_MATRIX: CountryPricePeriodsForCurrencyDict = {
     "usd": {
         "en": {
             "monthly": {
-                "id": settings.PREMIUM_PLAN_ID_US_MONTHLY,
+                "id": "price_1LXUcnJNcmPzuWtRpbNOajYS",
                 "price": 1.99,
                 "currency": "USD",
             },
             "yearly": {
-                "id": settings.PREMIUM_PLAN_ID_US_YEARLY,
+                "id": "price_1LXUdlJNcmPzuWtRKTYg7mpZ",
                 "price": 0.99,
                 "currency": "USD",
             },
@@ -553,12 +560,12 @@ _PHONE_PLAN_ID_MATRIX: CountryPricePeriodsForCurrencyDict = {
     "usd": {
         "en": {
             "monthly": {
-                "id": settings.PHONE_PLAN_ID_US_MONTHLY,
+                "id": "price_1Li0w8JNcmPzuWtR2rGU80P3",
                 "price": 4.99,
                 "currency": "USD",
             },
             "yearly": {
-                "id": settings.PHONE_PLAN_ID_US_YEARLY,
+                "id": "price_1Li15WJNcmPzuWtRIh0F4VwP",
                 "price": 3.99,
                 "currency": "USD",
             },
@@ -580,7 +587,7 @@ _BUNDLE_PLAN_ID_MATRIX: CountryPricePeriodsForCurrencyDict = {
             "yearly": {
                 # To allow testing the subscription flow on stage, we can set
                 # a custom plan ID via an environment variable:
-                "id": settings.BUNDLE_PLAN_ID_US,
+                "id": "price_1LwoSDJNcmPzuWtR6wPJZeoh",
                 "price": 6.99,
                 "currency": "USD",
             },
