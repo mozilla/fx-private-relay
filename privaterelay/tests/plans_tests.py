@@ -4,12 +4,13 @@ from typing import Literal
 import pytest
 
 from privaterelay.plans import (
+    LanguageStr,
+    LowerCountryStr,
+    PlanCountryLangMapping,
     get_bundle_country_language_mapping,
     get_phone_country_language_mapping,
     get_premium_countries,
     get_premium_country_language_mapping,
-    LowerCountryStr,
-    LanguageStr,
 )
 
 _PREMIUM_COUNTRIES = [
@@ -92,6 +93,39 @@ _PREMIUM_PRICES = {
 }
 
 
+def check_country_language_mapping_for_monthly_plan(
+    country: LowerCountryStr,
+    language: LanguageStr,
+    price_data_key: str,
+    mapping: PlanCountryLangMapping,
+    price_data_by_key: dict[str, tuple[str, str, str]],
+    prices_by_currency: dict[str, tuple[float, float]],
+) -> None:
+    """
+    Perform PlanCountryLangMapping checks for monthly plans.
+
+    This is used for the premium and phone plans.
+    """
+    assert country in mapping
+    assert language in mapping[country]
+    prices = mapping[country][language]
+    currency, monthly_sid, yearly_sid = price_data_by_key[price_data_key]
+    monthly_price, yearly_price = prices_by_currency[currency]
+    expected_prices = {
+        "monthly": {
+            "id": f"price{monthly_sid}",
+            "price": monthly_price,
+            "currency": currency,
+        },
+        "yearly": {
+            "id": f"price{yearly_sid}",
+            "price": yearly_price,
+            "currency": currency,
+        },
+    }
+    assert prices == expected_prices
+
+
 @pytest.mark.parametrize(
     "country,language,price_data_key",
     (
@@ -139,25 +173,15 @@ def test_get_premium_country_language_mapping(
     mapping = get_premium_country_language_mapping(eu_country_expansion=eu_expansion)
     if country in _EU_EXPANSION_PREMIUM_COUNTRIES and not eu_expansion:
         assert country not in mapping
-        return
-    assert country in mapping
-    assert language in mapping[country]
-    prices = mapping[country][language]
-    currency, monthly_sid, yearly_sid = _PREMIUM_PRICE_DATA[price_data_key]
-    monthly_price, yearly_price = _PREMIUM_PRICES[currency]
-    expected_prices = {
-        "monthly": {
-            "id": f"price{monthly_sid}",
-            "price": monthly_price,
-            "currency": currency,
-        },
-        "yearly": {
-            "id": f"price{yearly_sid}",
-            "price": yearly_price,
-            "currency": currency,
-        },
-    }
-    assert prices == expected_prices
+    else:
+        check_country_language_mapping_for_monthly_plan(
+            country,
+            language,
+            price_data_key,
+            mapping,
+            _PREMIUM_PRICE_DATA,
+            _PREMIUM_PRICES,
+        )
 
 
 _PHONE_PRICE_DATA = {
@@ -178,25 +202,14 @@ _PHONE_PRICES = {
 def test_get_phone_country_language_mapping(
     country: LowerCountryStr, language: LanguageStr, price_data_key: str
 ) -> None:
-    mapping = get_phone_country_language_mapping()
-    assert country in mapping
-    assert language in mapping[country]
-    prices = mapping[country][language]
-    currency, monthly_sid, yearly_sid = _PHONE_PRICE_DATA[price_data_key]
-    monthly_price, yearly_price = _PHONE_PRICES[currency]
-    expected_prices = {
-        "monthly": {
-            "id": f"price{monthly_sid}",
-            "price": monthly_price,
-            "currency": currency,
-        },
-        "yearly": {
-            "id": f"price{yearly_sid}",
-            "price": yearly_price,
-            "currency": currency,
-        },
-    }
-    assert prices == expected_prices
+    check_country_language_mapping_for_monthly_plan(
+        country,
+        language,
+        price_data_key,
+        get_phone_country_language_mapping(),
+        _PHONE_PRICE_DATA,
+        _PHONE_PRICES,
+    )
 
 
 _BUNDLE_PRICE_DATA = {
