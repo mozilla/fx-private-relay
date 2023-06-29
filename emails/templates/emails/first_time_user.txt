@@ -31,7 +31,7 @@ https://support.mozilla.org/products/relay
 {% ftlmsg 'first-time-user-email-footer-text-1' %}{% ftlmsg 'first-time-user-email-footer-text-2-text' %}
 https://support.mozilla.org/products/relay
 
-2 Harrison St. #175, San Francisco, California 94105 USA
+149 New Montgomery St, 4th Floor, San Francisco, CA 94105
 
 {% ftlmsg 'first-time-user-email-footer-text-legal' %}
 https://www.mozilla.org/about/legal/terms/firefox-relay/
