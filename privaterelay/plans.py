@@ -1,4 +1,58 @@
-"""Paid plans for Relay"""
+"""
+Paid plans for Relay
+
+There is currently a free plan and 3 paid plans:
+
+* free - limited random email masks, one replies
+* premium - unlimited email masks, replies, and a custom subdomain
+* phones - premium, plus a phone mask
+* bundle - premium and phones, plus Mozilla VPN
+
+The public interface are the function get_premium_country_language_mapping,
+get_phone_country_language_mapping, and get_bundle_country_language_mapping,
+all which return a PlanCountryLangMapping dict, which has this structure:
+
+{
+  "at": {
+    "de": {
+      "monthly": {
+        "id": "price_1LYC79JNcmPzuWtRU7Q238yL",
+        "price": 1.99,
+        "currency": "EUR",
+      },
+      "yearly": {
+        "id": "price_1LYC7xJNcmPzuWtRcdKXCVZp",
+        "price": 0.99,
+        "currency": "EUR",
+      },
+    },
+  },
+  ...
+}
+
+This says that Austria (RelayCountryStr "at") defaults to German (LanguageStr "de"),
+and has a monthly and a yearly plan. The monthly plan has a Stripe ID of
+"price_1LYC79JNcmPzuWtRU7Q238yL", and costs €1.99 (CurrencyStr "EUR"). The yearly
+plan has a Stripe ID of "price_1LYC7xJNcmPzuWtRcdKXCVZp", and costs €11.88 a year,
+equivalent to €0.99 a month.
+
+The top-level keys say which countries are supported. The function get_premium_countries
+returns these as a set, when the rest of the data is unneeded.
+
+The second-level keys are the languages for that country. When the country is known but
+the language is not, or is not one of the listed languages, the first language is the
+default for that country.
+
+The third-level keys are the plan periods. Premium and phones are available on
+monthly and yearly periods, and bundle is yearly only.
+
+The raw data is stored in two dicts:
+* _STRIPE_PLAN_DATA
+* _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE
+
+These are extended to support more countries, languages, plans, etc. They are parsed
+on first use to create the PlanCountryLangMapping, and served from cache on later uses.
+"""
 
 from copy import deepcopy
 from functools import lru_cache
@@ -14,21 +68,25 @@ from django.conf import settings
 def get_premium_country_language_mapping(
     eu_country_expansion: bool | None,
 ) -> "PlanCountryLangMapping":
+    """Get mapping for premium countries (unlimited masks, custom subdomain)"""
     return _country_language_mapping(
         "premium", eu_country_expansion=eu_country_expansion
     )
 
 
 def get_premium_countries(eu_country_expansion: bool | None) -> set["RelayCountryStr"]:
+    """Get the country codes where Relay premium can be sold."""
     mapping = get_premium_country_language_mapping(eu_country_expansion)
     return set(mapping.keys())
 
 
 def get_phone_country_language_mapping() -> "PlanCountryLangMapping":
+    """Get mapping for phone countries (premium + phone mask)"""
     return _country_language_mapping("phones")
 
 
 def get_bundle_country_language_mapping() -> "PlanCountryLangMapping":
+    """Get mapping for bundle countries (premium + phone mask + VPN)"""
     return _country_language_mapping("bundle")
 
 
@@ -171,7 +229,7 @@ _STRIPE_PLAN_DATA: "_StripePlanData" = {
             "USD": {"monthly": 4.99, "monthly_when_yearly": 3.99},
         },
         "countries_and_regions": {
-            "US": {
+            "US": {  # United States
                 "currency": "USD",
                 "monthly_id": "price_1Li0w8JNcmPzuWtR2rGU80P3",
                 "yearly_id": "price_1Li15WJNcmPzuWtRIh0F4VwP",
@@ -184,7 +242,7 @@ _STRIPE_PLAN_DATA: "_StripePlanData" = {
             "USD": {"monthly_when_yearly": 6.99},
         },
         "countries_and_regions": {
-            "US": {
+            "US": {  # United States
                 "currency": "USD",
                 "yearly_id": "price_1LwoSDJNcmPzuWtR6wPJZeoh",
             }
@@ -194,7 +252,15 @@ _STRIPE_PLAN_DATA: "_StripePlanData" = {
 
 
 # Map of Relay-supported countries to languages and their plans
-# The first / only language entry is the default language for that country
+# The top-level key is the plan, or a psuedo-plan for waffled expansion
+# The second-level key is the RelayCountryStr, such as "ca" for Canada
+# The third-level key is a LanguageStr, such as "en" for English. The first language
+#   key is the default for that country
+# The third-level value is a _CountryStr, such as "US" for the United States,
+#   or a _RegionalLanguageStr, such as "de-CH" for German (Switzerland). This is an
+#   index into the _STRIPE_PLAN_DATA. Multiple entries may point to the same Stripe
+#   country data. The Stripe "US" entry can be overridden by settings to support
+#   testing in non-production environments.
 _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE: "_RelayPlansByCountryAndLanguage" = {
     "premium": {
         "at": {"de": "DE"},  # Austria
@@ -442,6 +508,7 @@ def _country_language_mapping(
     plan: _RelayBasePlanKey,
     eu_country_expansion: bool | None = None,
 ) -> PlanCountryLangMapping:
+    """Get plan mapping with cache parameters."""
     return _cached_country_language_mapping(
         plan=plan,
         eu_country_expansion=bool(eu_country_expansion),
@@ -463,6 +530,7 @@ def _cached_country_language_mapping(
     us_phone_yearly_price_id: str,
     us_bundle_yearly_price_id: str,
 ) -> PlanCountryLangMapping:
+    """Create the plan mapping with settings overrides."""
     if plan == "premium":
         relay_countries = _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE["premium"].copy()
         if eu_country_expansion:
@@ -522,6 +590,7 @@ def _get_stripe_data_with_overrides(
     us_phone_yearly_price_id: str,
     us_bundle_yearly_price_id: str,
 ) -> "_StripePlanData":
+    """Returns the Stripe plan data with settings overrides."""
     plan_data = deepcopy(_STRIPE_PLAN_DATA)
     plan_data["premium"]["countries_and_regions"]["US"][
         "monthly_id"
