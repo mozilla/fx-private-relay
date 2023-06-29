@@ -6,7 +6,7 @@ import pytest
 
 from privaterelay.plans import (
     LanguageStr,
-    LowerCountryStr,
+    RelayCountryStr,
     PlanCountryLangMapping,
     get_bundle_country_language_mapping,
     get_phone_country_language_mapping,
@@ -107,7 +107,7 @@ _PREMIUM_PRICES = {
 
 
 def check_country_language_mapping_for_monthly_plan(
-    country: LowerCountryStr,
+    country: RelayCountryStr,
     language: LanguageStr,
     price_data_key: str,
     mapping: PlanCountryLangMapping,
@@ -178,7 +178,7 @@ def check_country_language_mapping_for_monthly_plan(
 )
 @pytest.mark.parametrize("eu_expansion", (True, None))
 def test_get_premium_country_language_mapping(
-    country: LowerCountryStr,
+    country: RelayCountryStr,
     language: LanguageStr,
     price_data_key: str,
     eu_expansion: Literal[True, None],
@@ -229,7 +229,7 @@ _PHONE_PRICES = {
     ),
 )
 def test_get_phone_country_language_mapping(
-    country: LowerCountryStr, language: LanguageStr, price_data_key: str
+    country: RelayCountryStr, language: LanguageStr, price_data_key: str
 ) -> None:
     check_country_language_mapping_for_monthly_plan(
         country,
@@ -273,7 +273,7 @@ _BUNDLE_PRICES = {
     ),
 )
 def test_get_bundle_country_language_mapping(
-    country: LowerCountryStr, language: LanguageStr, price_data_key: str
+    country: RelayCountryStr, language: LanguageStr, price_data_key: str
 ) -> None:
     mapping = get_bundle_country_language_mapping()
     assert country in mapping

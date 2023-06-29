@@ -1,9 +1,253 @@
 """Paid plans for Relay"""
 
+from copy import deepcopy
+from functools import lru_cache
 from typing import Literal, TypedDict
 
 from django.conf import settings
 
+#
+# Public functions
+#
+
+
+def get_premium_country_language_mapping(
+    eu_country_expansion: bool | None,
+) -> "PlanCountryLangMapping":
+    return _country_language_mapping(
+        "premium", eu_country_expansion=eu_country_expansion
+    )
+
+
+def get_premium_countries(eu_country_expansion: bool | None) -> set["RelayCountryStr"]:
+    mapping = get_premium_country_language_mapping(eu_country_expansion)
+    return set(mapping.keys())
+
+
+def get_phone_country_language_mapping() -> "PlanCountryLangMapping":
+    return _country_language_mapping("phones")
+
+
+def get_bundle_country_language_mapping() -> "PlanCountryLangMapping":
+    return _country_language_mapping("bundle")
+
+
+#
+# Data
+#
+
+# Selected Stripe data
+# The "source of truth" is the Stripe data, this copy is used for upsell views
+# and directing users to the correct Stripe purchase page.
+_STRIPE_PLAN_DATA: "_StripePlanData" = {
+    "premium": {
+        "periods": "monthly_and_yearly",
+        "prices": {
+            "CHF": {"monthly": 2.00, "monthly_when_yearly": 1.00},
+            "EUR": {"monthly": 1.99, "monthly_when_yearly": 0.99},
+            "USD": {"monthly": 1.99, "monthly_when_yearly": 0.99},
+        },
+        "countries_and_regions": {
+            "de-CH": {  # German-speaking Switzerland
+                "currency": "CHF",
+                "monthly_id": "price_1LYCqOJNcmPzuWtRuIXpQRxi",
+                "yearly_id": "price_1LYCqyJNcmPzuWtR3Um5qDPu",
+            },
+            "fr-CH": {  # French-speaking Switzerland
+                "currency": "CHF",
+                "monthly_id": "price_1LYCvpJNcmPzuWtRq9ci2gXi",
+                "yearly_id": "price_1LYCwMJNcmPzuWtRm6ebmq2N",
+            },
+            "it-CH": {  # Italian-speaking Switzerland
+                "currency": "CHF",
+                "monthly_id": "price_1LYCiBJNcmPzuWtRxtI8D5Uy",
+                "yearly_id": "price_1LYClxJNcmPzuWtRWjslDdkG",
+            },
+            "CY": {  # Cyprus
+                "currency": "EUR",
+                "monthly_id": "price_1NH9saJNcmPzuWtRpffF5I59",
+                "yearly_id": "price_1NH9rKJNcmPzuWtRzDiXCeEG",
+            },
+            "DE": {  # Germany
+                "currency": "EUR",
+                "monthly_id": "price_1LYC79JNcmPzuWtRU7Q238yL",
+                "yearly_id": "price_1LYC7xJNcmPzuWtRcdKXCVZp",
+            },
+            "EE": {  # Estonia
+                "currency": "EUR",
+                "monthly_id": "price_1NHA1tJNcmPzuWtRvSeyiVYH",
+                "yearly_id": "price_1NHA2TJNcmPzuWtR10yknZHf",
+            },
+            "ES": {  # Spain
+                "currency": "EUR",
+                "monthly_id": "price_1LYCWmJNcmPzuWtRtopZog9E",
+                "yearly_id": "price_1LYCXNJNcmPzuWtRu586XOFf",
+            },
+            "FI": {  # Finland
+                "currency": "EUR",
+                "monthly_id": "price_1LYBn9JNcmPzuWtRI3nvHgMi",
+                "yearly_id": "price_1LYBq1JNcmPzuWtRmyEa08Wv",
+            },
+            "FR": {  # France
+                "currency": "EUR",
+                "monthly_id": "price_1LYBuLJNcmPzuWtRn58XQcky",
+                "yearly_id": "price_1LYBwcJNcmPzuWtRpgoWcb03",
+            },
+            "GB": {  # United Kingdom
+                "currency": "USD",
+                "monthly_id": "price_1LYCHpJNcmPzuWtRhrhSYOKB",
+                "yearly_id": "price_1LYCIlJNcmPzuWtRQtYLA92j",
+            },
+            "GR": {  # Greece
+                "currency": "EUR",
+                "monthly_id": "price_1NHA5CJNcmPzuWtR1JSmxqFA",
+                "yearly_id": "price_1NHA4lJNcmPzuWtRniS23IuE",
+            },
+            "IE": {  # Ireland
+                "currency": "EUR",
+                "monthly_id": "price_1LhdrkJNcmPzuWtRvCc4hsI2",
+                "yearly_id": "price_1LhdprJNcmPzuWtR7HqzkXTS",
+            },
+            "IT": {  # Italy
+                "currency": "EUR",
+                "monthly_id": "price_1LYCMrJNcmPzuWtRTP9vD8wY",
+                "yearly_id": "price_1LYCN2JNcmPzuWtRtWz7yMno",
+            },
+            "LT": {  # Lithuania
+                "currency": "EUR",
+                "monthly_id": "price_1NHACcJNcmPzuWtR5ZJeVtJA",
+                "yearly_id": "price_1NHADOJNcmPzuWtR2PSMBMLr",
+            },
+            "LU": {  # Luxembourg
+                "currency": "EUR",
+                "monthly_id": "price_1NHAFZJNcmPzuWtRm5A7w5qJ",
+                "yearly_id": "price_1NHAF8JNcmPzuWtRG1FiPK0N",
+            },
+            "LV": {  # Latvia
+                "currency": "EUR",
+                "monthly_id": "price_1NHAASJNcmPzuWtRpcliwx0R",
+                "yearly_id": "price_1NHA9lJNcmPzuWtRLf7DV6GA",
+            },
+            "MT": {  # Malta
+                "currency": "EUR",
+                "monthly_id": "price_1NH9yxJNcmPzuWtRChanpIQU",
+                "yearly_id": "price_1NH9y3JNcmPzuWtRIJkQos9q",
+            },
+            "NL": {  # Netherlands
+                "currency": "EUR",
+                "monthly_id": "price_1LYCdLJNcmPzuWtR0J1EHoJ0",
+                "yearly_id": "price_1LYCdtJNcmPzuWtRVm4jLzq2",
+            },
+            "PT": {  # Portugal
+                "currency": "EUR",
+                "monthly_id": "price_1NHAI1JNcmPzuWtRx8jXjkrQ",
+                "yearly_id": "price_1NHAHWJNcmPzuWtRCRMnWyvK",
+            },
+            "SE": {  # Sweden
+                "currency": "EUR",
+                "monthly_id": "price_1LYBblJNcmPzuWtRGRHIoYZ5",
+                "yearly_id": "price_1LYBeMJNcmPzuWtRT5A931WH",
+            },
+            "SI": {  # Slovenia
+                "currency": "EUR",
+                "monthly_id": "price_1NHALmJNcmPzuWtR2nIoAzEt",
+                "yearly_id": "price_1NHAL9JNcmPzuWtRSZ3BWQs0",
+            },
+            "SK": {  # Slovakia
+                "currency": "EUR",
+                "monthly_id": "price_1NHAJsJNcmPzuWtR71WX0Pz9",
+                "yearly_id": "price_1NHAKYJNcmPzuWtRtETl30gb",
+            },
+            "US": {  # United States
+                "currency": "USD",
+                "monthly_id": "price_1LXUcnJNcmPzuWtRpbNOajYS",
+                "yearly_id": "price_1LXUdlJNcmPzuWtRKTYg7mpZ",
+            },
+        },
+    },
+    "phones": {
+        "periods": "monthly_and_yearly",
+        "prices": {
+            "USD": {"monthly": 4.99, "monthly_when_yearly": 3.99},
+        },
+        "countries_and_regions": {
+            "US": {
+                "currency": "USD",
+                "monthly_id": "price_1Li0w8JNcmPzuWtR2rGU80P3",
+                "yearly_id": "price_1Li15WJNcmPzuWtRIh0F4VwP",
+            }
+        },
+    },
+    "bundle": {
+        "periods": "yearly",
+        "prices": {
+            "USD": {"monthly_when_yearly": 6.99},
+        },
+        "countries_and_regions": {
+            "US": {
+                "currency": "USD",
+                "yearly_id": "price_1LwoSDJNcmPzuWtR6wPJZeoh",
+            }
+        },
+    },
+}
+
+
+# Map of Relay-supported countries to languages and their plans
+# The first / only language entry is the default language for that country
+_RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE: "_RelayPlansByCountryAndLanguage" = {
+    "premium": {
+        "at": {"de": "DE"},  # Austria
+        "be": {  # Belgium
+            "fr": "FR",
+            "de": "DE",
+            "nl": "NL",
+        },
+        "ch": {  # Switzerland
+            "fr": "fr-CH",
+            "de": "de-CH",
+            "it": "it-CH",
+        },
+        "de": {"de": "DE"},  # Germany
+        "es": {"es": "ES"},  # Spain
+        "fr": {"fr": "FR"},  # France
+        "ie": {"en": "IE"},  # Ireland
+        "it": {"it": "IT"},  # Italy
+        "nl": {"nl": "NL"},  # Netherlands
+        "se": {"sv": "SE"},  # Sweden
+        "fi": {"fi": "FI"},  # Finland
+        "us": {"en": "US"},  # United States
+        "gb": {"en": "GB"},  # United Kingdom
+        "ca": {"en": "US"},  # Canada
+        "nz": {"en": "GB"},  # New Zealand
+        "my": {"en": "GB"},  # Malaysia
+        "sg": {"en": "GB"},  # Singapore
+    },
+    "premium_eu_expansion": {
+        "cy": {"en": "CY"},  # Cyprus
+        "ee": {"et": "EE"},  # Estonia
+        "gr": {"el": "GR"},  # Greece
+        "lv": {"lv": "LV"},  # Latvia
+        "lt": {"lt": "LT"},  # Lithuania
+        "lu": {"en": "LU"},  # Luxembourg
+        "mt": {"en": "MT"},  # Malta
+        "pt": {"pt": "PT"},  # Portugal
+        "sk": {"sk": "SK"},  # Slovakia
+        "si": {"sl": "SI"},  # Slovenia
+    },
+    "phones": {
+        "us": {"en": "US"},  # United States
+        "ca": {"en": "US"},  # Canada
+    },
+    "bundle": {
+        "us": {"en": "US"},  # United States
+        "ca": {"en": "US"},  # Canada
+    },
+}
+
+#
+# Public types
+#
 
 # ISO 4217 currency identifier
 # See https://en.wikipedia.org/wiki/ISO_4217
@@ -13,16 +257,8 @@ CurrencyStr = Literal[
     "USD",  # US Dollar, $
 ]
 
-# ISO 4217 currency identifer, lowercased for matrix key
-# TODO: Replace with CurrencyStr
-LowerCurrencyKey = Literal[
-    "chf",  # Swiss Franc, Fr. or fr.
-    "euro",  # Euro, €
-    "usd",  # US Dollar, $
-]
-
 # ISO 639 language codes handled by Relay
-# Uses the 2-letter ISO 639-1 code if available, otherwise the 3-letter ISO 639-2 code.
+# Use the 2-letter ISO 639-1 code if available, otherwise the 3-letter ISO 639-2 code.
 # See https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
 # and https://www.loc.gov/standards/iso639-2/php/English_list.php
 LanguageStr = Literal[
@@ -43,52 +279,11 @@ LanguageStr = Literal[
     "sv",  # Swedish
 ]
 
-# Country codes with Stripe plans. Most lowercased IS0 3166 codes, some outliers
-# TODO: Replace with ISO 3166 codes
-StripeCountryStr = Literal[
-    "cy",  # Cyprus
-    "de",  # Germany (or German-speaking Switzerland)
-    "ee",  # Estonia
-    "es",  # Spain
-    "fi",  # Finland
-    "fr",  # France (or French-speaking Switzerland)
-    "gr",  # Greece
-    "ie",  # Ireland
-    "it",  # Italy (or Italian-speaking Switzerland)
-    "lt",  # Lithuania
-    "lu",  # Luxembourg
-    "lv",  # Latvia
-    "mt",  # Malta
-    "nl",  # Netherlands
-    "pt",  # Portugual
-    "se",  # Sweden
-    "si",  # Slovenia
-    "sk",  # Slovakia
-    "en",  # United States (should be US)
-    "gb",  # United Kingdom
-]
-
-# Periodic subscription categories
-PeriodStr = Literal["monthly", "yearly"]
-
-
-# A Stripe Price, along with key details for Relay website
-# https://stripe.com/docs/api/prices/object
-class StripePriceDef(TypedDict):
-    id: str  # Must start with "price_"
-    price: float
-    currency: CurrencyStr
-
-
-PricesForPeriodDict = dict[PeriodStr, StripePriceDef]
-PricePeriodsForCountryDict = dict[StripeCountryStr, PricesForPeriodDict]
-CountryPricePeriodsForCurrencyDict = dict[LowerCurrencyKey, PricePeriodsForCountryDict]
-
 # Lowercased ISO 3166 country codes handled by Relay
 # Specifically, the two-letter ISO 3116-1 alpha-2 codes
 # See https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
 # and https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
-LowerCountryStr = Literal[
+RelayCountryStr = Literal[
     "at",  # Austria
     "be",  # Belgium
     "ca",  # Canada
@@ -117,488 +312,230 @@ LowerCountryStr = Literal[
     "sk",  # Slovakia
     "us",  # United States
 ]
+
+# Periodic subscription categories
+PeriodStr = Literal["monthly", "yearly"]
+
+# A Stripe Price, along with key details for Relay website
+# https://stripe.com/docs/api/prices/object
+StripePriceDef = TypedDict(
+    "StripePriceDef",
+    {
+        "id": str,  # Must start with "price_"
+        "price": float,
+        "currency": CurrencyStr,
+    },
+)
+PricesForPeriodDict = dict[PeriodStr, StripePriceDef]
 PricePeriodsForLanguageDict = dict[LanguageStr, PricesForPeriodDict]
-PlanCountryLangMapping = dict[LowerCountryStr, PricePeriodsForLanguageDict]
+PlanCountryLangMapping = dict[RelayCountryStr, PricePeriodsForLanguageDict]
+
+#
+# Private types
+#
+
+# ISO 3166 country codes for Stripe prices
+# Specifically, the two-letter ISO 3116-1 alpha-2 codes
+# See https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
+# and https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
+_CountryStr = Literal[
+    "CY",  # Cyprus
+    "DE",  # Germany
+    "EE",  # Estonia
+    "ES",  # Spain
+    "FI",  # Finland
+    "FR",  # France
+    "GB",  # United Kingdom
+    "GR",  # Greece
+    "IE",  # Ireland
+    "IT",  # Italy
+    "LT",  # Lithuania
+    "LU",  # Luxembourg
+    "LV",  # Latvia
+    "MT",  # Malta
+    "NL",  # Netherlands
+    "PT",  # Portugal
+    "SE",  # Sweden
+    "SI",  # Slovenia
+    "SK",  # Slovakia
+    "US",  # United States
+]
+
+# RFC 5646 regional language tags handled by Relay
+# Typically an ISO 639 language code, a dash, and an ISO 3166 country code
+_RegionalLanguageStr = Literal[
+    "de-CH",  # German (Swiss)
+    "fr-CH",  # French (Swiss)
+    "it-CH",  # Italian (Swiss)
+]
+
+# Types for _STRIPE_PLAN_DATA
+_StripePlanData = TypedDict(
+    "_StripePlanData",
+    {
+        "premium": "_StripeMonthlyPlanDetails",
+        "phones": "_StripeMonthlyPlanDetails",
+        "bundle": "_StripeYearlyPlanDetails",
+    },
+)
+_StripeMonthlyPlanDetails = TypedDict(
+    "_StripeMonthlyPlanDetails",
+    {
+        "periods": Literal["monthly_and_yearly"],
+        "prices": "_StripeMonthlyPriceData",
+        "countries_and_regions": "_StripeMonthlyCountryAndRegionDetails",
+    },
+)
+_StripeYearlyPlanDetails = TypedDict(
+    "_StripeYearlyPlanDetails",
+    {
+        "periods": Literal["yearly"],
+        "prices": "_StripeYearlyPriceData",
+        "countries_and_regions": "_StripeYearlyCountryAndRegionDetails",
+    },
+)
+_StripeMonthlyPriceData = dict[CurrencyStr, "_StripeMonthlyPriceDetails"]
+_StripeYearlyPriceData = dict[CurrencyStr, "_StripeYearlyPriceDetails"]
+_StripeMonthlyPriceDetails = TypedDict(
+    "_StripeMonthlyPriceDetails", {"monthly": float, "monthly_when_yearly": float}
+)
+_StripeYearlyPriceDetails = TypedDict(
+    "_StripeYearlyPriceDetails", {"monthly_when_yearly": float}
+)
+_StripeMonthlyCountryAndRegionDetails = dict[
+    "_StripeCountryOrRegion", "_StripeMonthlyCountryDetails"
+]
+_StripeYearlyCountryAndRegionDetails = dict[
+    "_StripeCountryOrRegion", "_StripeYearlyCountryDetails"
+]
+_StripeCountryOrRegion = _CountryStr | _RegionalLanguageStr
+_StripeMonthlyCountryDetails = TypedDict(
+    "_StripeMonthlyCountryDetails",
+    {
+        "currency": CurrencyStr,
+        "monthly_id": str,
+        "yearly_id": str,
+    },
+)
+_StripeYearlyCountryDetails = TypedDict(
+    "_StripeYearlyCountryDetails",
+    {
+        "currency": CurrencyStr,
+        "yearly_id": str,
+    },
+)
+
+# Types for _RelayPlansByCountryAndLanguage
+_RelayPlansByCountryAndLanguage = dict["_RelayPlanKey", "_RelayPlanCountryData"]
+_RelayBasePlanKey = Literal["premium", "phones", "bundle"]
+_RelayPlanKey = _RelayBasePlanKey | Literal["premium_eu_expansion"]
+_RelayPlanCountryData = dict[RelayCountryStr, "_RelayCountryLanguageData"]
+_RelayCountryLanguageData = dict[LanguageStr, _StripeCountryOrRegion]
 
 
-def get_premium_country_language_mapping(
-    eu_country_expansion: bool | None,
+#
+# Private functions
+#
+
+
+def _country_language_mapping(
+    plan: _RelayBasePlanKey,
+    eu_country_expansion: bool | None = None,
 ) -> PlanCountryLangMapping:
-    mapping = _PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING.copy()
-    if eu_country_expansion:
-        mapping.update(_EU_EXPANSION_PREMIUM_PLAN_COUNTRY_LANG_MAPPING)
-    mapping["us"]["en"]["monthly"]["id"] = settings.PREMIUM_PLAN_ID_US_MONTHLY
-    mapping["us"]["en"]["yearly"]["id"] = settings.PREMIUM_PLAN_ID_US_YEARLY
+    return _cached_country_language_mapping(
+        plan=plan,
+        eu_country_expansion=bool(eu_country_expansion),
+        us_premium_monthly_price_id=settings.PREMIUM_PLAN_ID_US_MONTHLY,
+        us_premium_yearly_price_id=settings.PREMIUM_PLAN_ID_US_YEARLY,
+        us_phone_monthly_price_id=settings.PHONE_PLAN_ID_US_MONTHLY,
+        us_phone_yearly_price_id=settings.PHONE_PLAN_ID_US_YEARLY,
+        us_bundle_yearly_price_id=settings.BUNDLE_PLAN_ID_US,
+    )
+
+
+@lru_cache
+def _cached_country_language_mapping(
+    plan: _RelayBasePlanKey,
+    eu_country_expansion: bool,
+    us_premium_monthly_price_id: str,
+    us_premium_yearly_price_id: str,
+    us_phone_monthly_price_id: str,
+    us_phone_yearly_price_id: str,
+    us_bundle_yearly_price_id: str,
+) -> PlanCountryLangMapping:
+    if plan == "premium":
+        relay_countries = _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE["premium"].copy()
+        if eu_country_expansion:
+            relay_countries.update(
+                _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE["premium_eu_expansion"]
+            )
+    else:
+        relay_countries = _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE[plan]
+    stripe_data = _get_stripe_data_with_overrides(
+        us_premium_monthly_price_id=us_premium_monthly_price_id,
+        us_premium_yearly_price_id=us_premium_yearly_price_id,
+        us_phone_monthly_price_id=us_phone_monthly_price_id,
+        us_phone_yearly_price_id=us_phone_yearly_price_id,
+        us_bundle_yearly_price_id=us_bundle_yearly_price_id,
+    )[plan]
+    stripe_periods = stripe_data["periods"]
+    stripe_prices = stripe_data["prices"]
+    stripe_countries = stripe_data["countries_and_regions"]
+
+    mapping: PlanCountryLangMapping = {}
+    for relay_country, languages in relay_countries.items():
+        lang_to_period_details: PricePeriodsForLanguageDict = {}
+        for lang, stripe_country in languages.items():
+            stripe_details = stripe_countries[stripe_country]
+            currency = stripe_details["currency"]
+            prices = stripe_prices[stripe_details["currency"]]
+            period_to_details: PricesForPeriodDict = {}
+            if stripe_periods == "monthly_and_yearly":
+                # mypy thinks stripe_details _could_ be _StripeYearlyPriceDetails,
+                # so extra asserts are needed to make mypy happy.
+                monthly_id = str(stripe_details.get("monthly_id"))
+                assert monthly_id.startswith("price_")
+                price = prices.get("monthly", 0.0)
+                assert price and isinstance(price, float)
+                period_to_details["monthly"] = {
+                    "id": monthly_id,
+                    "currency": currency,
+                    "price": price,
+                }
+            yearly_id = stripe_details["yearly_id"]
+            assert yearly_id.startswith("price_")
+            period_to_details["yearly"] = {
+                "id": yearly_id,
+                "currency": currency,
+                "price": prices["monthly_when_yearly"],
+            }
+            lang_to_period_details[lang] = period_to_details
+        mapping[relay_country] = lang_to_period_details
     return mapping
 
 
-def get_premium_countries(eu_country_expansion: bool | None) -> set[LowerCountryStr]:
-    mapping = get_premium_country_language_mapping(eu_country_expansion)
-    return set(mapping.keys())
-
-
-def get_phone_country_language_mapping() -> PlanCountryLangMapping:
-    mapping = _PHONE_PLAN_COUNTRY_LANG_MAPPING.copy()
-    mapping["us"]["en"]["monthly"]["id"] = settings.PHONE_PLAN_ID_US_MONTHLY
-    mapping["us"]["en"]["yearly"]["id"] = settings.PHONE_PLAN_ID_US_YEARLY
-    return mapping
-
-
-def get_bundle_country_language_mapping() -> PlanCountryLangMapping:
-    mapping = _BUNDLE_PLAN_COUNTRY_LANG_MAPPING.copy()
-    mapping["us"]["en"]["yearly"]["id"] = settings.BUNDLE_PLAN_ID_US
-    return mapping
-
-
-_PERIODICAL_PREMIUM_PLAN_ID_MATRIX: CountryPricePeriodsForCurrencyDict = {
-    "chf": {
-        "de": {
-            "monthly": {
-                "id": "price_1LYCqOJNcmPzuWtRuIXpQRxi",
-                "price": 2.00,
-                "currency": "CHF",
-            },
-            "yearly": {
-                "id": "price_1LYCqyJNcmPzuWtR3Um5qDPu",
-                "price": 1.00,
-                "currency": "CHF",
-            },
-        },
-        "fr": {
-            "monthly": {
-                "id": "price_1LYCvpJNcmPzuWtRq9ci2gXi",
-                "price": 2.00,
-                "currency": "CHF",
-            },
-            "yearly": {
-                "id": "price_1LYCwMJNcmPzuWtRm6ebmq2N",
-                "price": 1.00,
-                "currency": "CHF",
-            },
-        },
-        "it": {
-            "monthly": {
-                "id": "price_1LYCiBJNcmPzuWtRxtI8D5Uy",
-                "price": 2.00,
-                "currency": "CHF",
-            },
-            "yearly": {
-                "id": "price_1LYClxJNcmPzuWtRWjslDdkG",
-                "price": 1.00,
-                "currency": "CHF",
-            },
-        },
-    },
-    "euro": {
-        "de": {
-            "monthly": {
-                "id": "price_1LYC79JNcmPzuWtRU7Q238yL",
-                "price": 1.99,
-                "currency": "EUR",
-            },
-            "yearly": {
-                "id": "price_1LYC7xJNcmPzuWtRcdKXCVZp",
-                "price": 0.99,
-                "currency": "EUR",
-            },
-        },
-        "es": {
-            "monthly": {
-                "id": "price_1LYCWmJNcmPzuWtRtopZog9E",
-                "price": 1.99,
-                "currency": "EUR",
-            },
-            "yearly": {
-                "id": "price_1LYCXNJNcmPzuWtRu586XOFf",
-                "price": 0.99,
-                "currency": "EUR",
-            },
-        },
-        "fr": {
-            "monthly": {
-                "id": "price_1LYBuLJNcmPzuWtRn58XQcky",
-                "price": 1.99,
-                "currency": "EUR",
-            },
-            "yearly": {
-                "id": "price_1LYBwcJNcmPzuWtRpgoWcb03",
-                "price": 0.99,
-                "currency": "EUR",
-            },
-        },
-        "it": {
-            "monthly": {
-                "id": "price_1LYCMrJNcmPzuWtRTP9vD8wY",
-                "price": 1.99,
-                "currency": "EUR",
-            },
-            "yearly": {
-                "id": "price_1LYCN2JNcmPzuWtRtWz7yMno",
-                "price": 0.99,
-                "currency": "EUR",
-            },
-        },
-        "nl": {
-            "monthly": {
-                "id": "price_1LYCdLJNcmPzuWtR0J1EHoJ0",
-                "price": 1.99,
-                "currency": "EUR",
-            },
-            "yearly": {
-                "id": "price_1LYCdtJNcmPzuWtRVm4jLzq2",
-                "price": 0.99,
-                "currency": "EUR",
-            },
-        },
-        "ie": {
-            "monthly": {
-                "id": "price_1LhdrkJNcmPzuWtRvCc4hsI2",
-                "price": 1.99,
-                "currency": "EUR",
-            },
-            "yearly": {
-                "id": "price_1LhdprJNcmPzuWtR7HqzkXTS",
-                "price": 0.99,
-                "currency": "EUR",
-            },
-        },
-        "se": {
-            "monthly": {
-                "id": "price_1LYBblJNcmPzuWtRGRHIoYZ5",
-                "price": 1.99,
-                "currency": "EUR",
-            },
-            "yearly": {
-                "id": "price_1LYBeMJNcmPzuWtRT5A931WH",
-                "price": 0.99,
-                "currency": "EUR",
-            },
-        },
-        "fi": {
-            "monthly": {
-                "id": "price_1LYBn9JNcmPzuWtRI3nvHgMi",
-                "price": 1.99,
-                "currency": "EUR",
-            },
-            "yearly": {
-                "id": "price_1LYBq1JNcmPzuWtRmyEa08Wv",
-                "price": 0.99,
-                "currency": "EUR",
-            },
-        },
-        "si": {
-            "monthly": {
-                "id": "price_1NHALmJNcmPzuWtR2nIoAzEt",
-                "price": 1.99,
-                "currency": "EUR",
-            },
-            "yearly": {
-                "id": "price_1NHAL9JNcmPzuWtRSZ3BWQs0",
-                "price": 0.99,
-                "currency": "EUR",
-            },
-        },
-        "sk": {
-            "monthly": {
-                "id": "price_1NHAJsJNcmPzuWtR71WX0Pz9",
-                "price": 1.99,
-                "currency": "EUR",
-            },
-            "yearly": {
-                "id": "price_1NHAKYJNcmPzuWtRtETl30gb",
-                "price": 0.99,
-                "currency": "EUR",
-            },
-        },
-        "pt": {
-            "monthly": {
-                "id": "price_1NHAI1JNcmPzuWtRx8jXjkrQ",
-                "price": 1.99,
-                "currency": "EUR",
-            },
-            "yearly": {
-                "id": "price_1NHAHWJNcmPzuWtRCRMnWyvK",
-                "price": 0.99,
-                "currency": "EUR",
-            },
-        },
-        "lu": {
-            "monthly": {
-                "id": "price_1NHAFZJNcmPzuWtRm5A7w5qJ",
-                "price": 1.99,
-                "currency": "EUR",
-            },
-            "yearly": {
-                "id": "price_1NHAF8JNcmPzuWtRG1FiPK0N",
-                "price": 0.99,
-                "currency": "EUR",
-            },
-        },
-        "lt": {
-            "monthly": {
-                "id": "price_1NHACcJNcmPzuWtR5ZJeVtJA",
-                "price": 1.99,
-                "currency": "EUR",
-            },
-            "yearly": {
-                "id": "price_1NHADOJNcmPzuWtR2PSMBMLr",
-                "price": 0.99,
-                "currency": "EUR",
-            },
-        },
-        "lv": {
-            "monthly": {
-                "id": "price_1NHAASJNcmPzuWtRpcliwx0R",
-                "price": 1.99,
-                "currency": "EUR",
-            },
-            "yearly": {
-                "id": "price_1NHA9lJNcmPzuWtRLf7DV6GA",
-                "price": 0.99,
-                "currency": "EUR",
-            },
-        },
-        "gr": {
-            "monthly": {
-                "id": "price_1NHA5CJNcmPzuWtR1JSmxqFA",
-                "price": 1.99,
-                "currency": "EUR",
-            },
-            "yearly": {
-                "id": "price_1NHA4lJNcmPzuWtRniS23IuE",
-                "price": 0.99,
-                "currency": "EUR",
-            },
-        },
-        "ee": {
-            "monthly": {
-                "id": "price_1NHA1tJNcmPzuWtRvSeyiVYH",
-                "price": 1.99,
-                "currency": "EUR",
-            },
-            "yearly": {
-                "id": "price_1NHA2TJNcmPzuWtR10yknZHf",
-                "price": 0.99,
-                "currency": "EUR",
-            },
-        },
-        "mt": {
-            "monthly": {
-                "id": "price_1NH9yxJNcmPzuWtRChanpIQU",
-                "price": 1.99,
-                "currency": "EUR",
-            },
-            "yearly": {
-                "id": "price_1NH9y3JNcmPzuWtRIJkQos9q",
-                "price": 0.99,
-                "currency": "EUR",
-            },
-        },
-        # TODO: clarify this entry
-        # "cy" the language code means Welsh
-        # "cy" means "Cyprus" in our usage, which is probably Greek or Turkish
-        "cy": {
-            "monthly": {
-                "id": "price_1NH9saJNcmPzuWtRpffF5I59",
-                "price": 1.99,
-                "currency": "EUR",
-            },
-            "yearly": {
-                "id": "price_1NH9rKJNcmPzuWtRzDiXCeEG",
-                "price": 0.99,
-                "currency": "EUR",
-            },
-        },
-    },
-    "usd": {
-        "en": {
-            "monthly": {
-                "id": "price_1LXUcnJNcmPzuWtRpbNOajYS",
-                "price": 1.99,
-                "currency": "USD",
-            },
-            "yearly": {
-                "id": "price_1LXUdlJNcmPzuWtRKTYg7mpZ",
-                "price": 0.99,
-                "currency": "USD",
-            },
-        },
-        "gb": {
-            "monthly": {
-                "id": "price_1LYCHpJNcmPzuWtRhrhSYOKB",
-                "price": 1.99,
-                "currency": "USD",
-            },
-            "yearly": {
-                "id": "price_1LYCIlJNcmPzuWtRQtYLA92j",
-                "price": 0.99,
-                "currency": "USD",
-            },
-        },
-    },
-}
-
-_PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING: PlanCountryLangMapping = {
-    # Austria
-    "at": {
-        "de": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["de"],
-    },
-    # Belgium
-    "be": {
-        "fr": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["fr"],
-        "de": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["de"],
-        "nl": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["nl"],
-    },
-    # Switzerland
-    "ch": {
-        "fr": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["chf"]["fr"],
-        "de": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["chf"]["de"],
-        "it": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["chf"]["it"],
-    },
-    # Germany
-    "de": {
-        "de": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["de"],
-    },
-    # Spain
-    "es": {
-        "es": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["es"],
-    },
-    # France
-    "fr": {
-        "fr": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["fr"],
-    },
-    # Ireland
-    "ie": {
-        "en": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["ie"],
-    },
-    # Italy
-    "it": {
-        "it": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["it"],
-    },
-    # Netherlands
-    "nl": {
-        "nl": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["nl"],
-    },
-    # Sweden
-    "se": {
-        "sv": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["se"],
-    },
-    # Finland
-    "fi": {
-        "fi": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["fi"],
-    },
-    # United States
-    "us": {
-        "en": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["en"],
-    },
-    # United Kingdom
-    "gb": {
-        "en": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["gb"],
-    },
-    # Canada
-    "ca": {
-        "en": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["en"],
-    },
-    # New Zealand
-    "nz": {
-        "en": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["gb"],
-    },
-    # Malaysia
-    "my": {
-        "en": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["gb"],
-    },
-    # Singapore
-    "sg": {
-        "en": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["gb"],
-    },
-}
-_EU_EXPANSION_PREMIUM_PLAN_COUNTRY_LANG_MAPPING: PlanCountryLangMapping = {
-    # Cyprus
-    "cy": {
-        # TODO: Welsh (cy) seems wrong. Maybe el (greek) and tr (turkish)?
-        "en": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["cy"],
-    },
-    # Estonia
-    "ee": {
-        "et": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["ee"],
-    },
-    # Greece
-    "gr": {
-        "el": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["gr"],
-    },
-    # Latvia
-    "lv": {
-        "lv": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["lv"],
-    },
-    # Lithuania
-    "lt": {
-        "lt": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["lt"],
-    },
-    # Luxembourg
-    "lu": {
-        "en": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["lu"],
-    },
-    # Malta
-    "mt": {
-        "en": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["mt"],
-    },
-    # Portugal
-    "pt": {
-        "pt": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["pt"],
-    },
-    # Slovakia
-    "sk": {
-        "sk": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["sk"],
-    },
-    # Slovenia
-    "si": {
-        "sl": _PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["si"],
-    },
-}
-
-_PHONE_PLAN_ID_MATRIX: CountryPricePeriodsForCurrencyDict = {
-    "usd": {
-        "en": {
-            "monthly": {
-                "id": "price_1Li0w8JNcmPzuWtR2rGU80P3",
-                "price": 4.99,
-                "currency": "USD",
-            },
-            "yearly": {
-                "id": "price_1Li15WJNcmPzuWtRIh0F4VwP",
-                "price": 3.99,
-                "currency": "USD",
-            },
-        },
-    },
-}
-_PHONE_PLAN_COUNTRY_LANG_MAPPING: PlanCountryLangMapping = {
-    "us": {
-        "en": _PHONE_PLAN_ID_MATRIX["usd"]["en"],
-    },
-    "ca": {
-        "en": _PHONE_PLAN_ID_MATRIX["usd"]["en"],
-    },
-}
-
-_BUNDLE_PLAN_ID_MATRIX: CountryPricePeriodsForCurrencyDict = {
-    "usd": {
-        "en": {
-            "yearly": {
-                # To allow testing the subscription flow on stage, we can set
-                # a custom plan ID via an environment variable:
-                "id": "price_1LwoSDJNcmPzuWtR6wPJZeoh",
-                "price": 6.99,
-                "currency": "USD",
-            },
-        },
-    },
-}
-_BUNDLE_PLAN_COUNTRY_LANG_MAPPING: PlanCountryLangMapping = {
-    "us": {
-        "en": _BUNDLE_PLAN_ID_MATRIX["usd"]["en"],
-    },
-    "ca": {
-        "en": _BUNDLE_PLAN_ID_MATRIX["usd"]["en"],
-    },
-}
+@lru_cache
+def _get_stripe_data_with_overrides(
+    us_premium_monthly_price_id: str,
+    us_premium_yearly_price_id: str,
+    us_phone_monthly_price_id: str,
+    us_phone_yearly_price_id: str,
+    us_bundle_yearly_price_id: str,
+) -> "_StripePlanData":
+    plan_data = deepcopy(_STRIPE_PLAN_DATA)
+    plan_data["premium"]["countries_and_regions"]["US"][
+        "monthly_id"
+    ] = us_premium_monthly_price_id
+    plan_data["premium"]["countries_and_regions"]["US"][
+        "yearly_id"
+    ] = us_premium_yearly_price_id
+    plan_data["phones"]["countries_and_regions"]["US"][
+        "monthly_id"
+    ] = us_phone_monthly_price_id
+    plan_data["phones"]["countries_and_regions"]["US"][
+        "yearly_id"
+    ] = us_phone_yearly_price_id
+    plan_data["bundle"]["countries_and_regions"]["US"][
+        "yearly_id"
+    ] = us_bundle_yearly_price_id
+    return plan_data
