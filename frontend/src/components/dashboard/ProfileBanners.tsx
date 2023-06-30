@@ -89,7 +89,13 @@ export const ProfileBanners = (props: Props) => {
     banners.push(<NoFirefoxBanner key="firefox-banner" />);
   }
 
-  if (supportsFirefoxExtension() && isLargeScreen) {
+  if (
+    supportsFirefoxExtension() &&
+    isLargeScreen &&
+    // This identifies mock data used for demonstration purposes.
+    // See /frontend/src/apiMocks/mockData.ts:
+    props.profile.api_token !== "demo"
+  ) {
     // This pushes a banner promoting the add-on - detecting the add-on
     // and determining whether to show it based on that is a bit slow,
     // so we'll just let the add-on hide it:

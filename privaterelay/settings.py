@@ -103,12 +103,15 @@ CSP_CONNECT_SRC = (
     "https://www.google-analytics.com/",
     "https://accounts.firefox.com",
     "https://location.services.mozilla.com",
+    "https://api.stripe.com",
     BASKET_ORIGIN,
 )
 CSP_DEFAULT_SRC = ("'self'",)
+CSP_FRAME_SRC = ("https://js.stripe.com", "https://hooks.stripe.com")
 CSP_SCRIPT_SRC = [
     "'self'",
     "https://www.google-analytics.com/",
+    "https://js.stripe.com/",
 ]
 CSP_FONT_SRC = ["'self'", "https://relay.firefox.com/"]
 CSP_OBJECT_SRC = ("'none'",)
@@ -247,8 +250,23 @@ INSTALLED_APPS = [
 API_DOCS_ENABLED = config("API_DOCS_ENABLED", False, cast=bool) or DEBUG
 if API_DOCS_ENABLED:
     INSTALLED_APPS += [
-        "drf_yasg",
+        "drf_spectacular",
+        "drf_spectacular_sidecar",
     ]
+    CSP_IMG_SRC += ["'self'", "data:", "https://cdn.redoc.ly"]
+    CSP_SCRIPT_SRC.append(f"blob:{SITE_ORIGIN}")
+    if "'unsafe-inline'" not in CSP_SCRIPT_SRC:
+        CSP_SCRIPT_SRC.append("'unsafe-inline'")
+    CSP_STYLE_SRC += (
+        "'self'",
+        "'unsafe-inline'",
+        "https://fonts.googleapis.com",
+    )
+    CSP_FONT_SRC += [
+        "'self'",
+        "https://fonts.gstatic.com",
+    ]
+    CSP_WORKER_SRC = ("'self'", "blob:")
 
 if DEBUG:
     INSTALLED_APPS += [
@@ -489,6 +507,129 @@ PERIODICAL_PREMIUM_PLAN_ID_MATRIX = {
                 "currency": "EUR",
             },
         },
+        "si": {
+            "monthly": {
+                "id": "price_1NHALmJNcmPzuWtR2nIoAzEt",
+                "price": 1.99,
+                "currency": "EUR",
+            },
+            "yearly": {
+                "id": "price_1NHAL9JNcmPzuWtRSZ3BWQs0",
+                "price": 0.99,
+                "currency": "EUR",
+            },
+        },
+        "sk": {
+            "monthly": {
+                "id": "price_1NHAJsJNcmPzuWtR71WX0Pz9",
+                "price": 1.99,
+                "currency": "EUR",
+            },
+            "yearly": {
+                "id": "price_1NHAKYJNcmPzuWtRtETl30gb",
+                "price": 0.99,
+                "currency": "EUR",
+            },
+        },
+        "pt": {
+            "monthly": {
+                "id": "price_1NHAI1JNcmPzuWtRx8jXjkrQ",
+                "price": 1.99,
+                "currency": "EUR",
+            },
+            "yearly": {
+                "id": "price_1NHAHWJNcmPzuWtRCRMnWyvK",
+                "price": 0.99,
+                "currency": "EUR",
+            },
+        },
+        "lu": {
+            "monthly": {
+                "id": "price_1NHAFZJNcmPzuWtRm5A7w5qJ",
+                "price": 1.99,
+                "currency": "EUR",
+            },
+            "yearly": {
+                "id": "price_1NHAF8JNcmPzuWtRG1FiPK0N",
+                "price": 0.99,
+                "currency": "EUR",
+            },
+        },
+        "lt": {
+            "monthly": {
+                "id": "price_1NHACcJNcmPzuWtR5ZJeVtJA",
+                "price": 1.99,
+                "currency": "EUR",
+            },
+            "yearly": {
+                "id": "price_1NHADOJNcmPzuWtR2PSMBMLr",
+                "price": 0.99,
+                "currency": "EUR",
+            },
+        },
+        "lv": {
+            "monthly": {
+                "id": "price_1NHAASJNcmPzuWtRpcliwx0R",
+                "price": 1.99,
+                "currency": "EUR",
+            },
+            "yearly": {
+                "id": "price_1NHA9lJNcmPzuWtRLf7DV6GA",
+                "price": 0.99,
+                "currency": "EUR",
+            },
+        },
+        "gr": {
+            "monthly": {
+                "id": "price_1NHA5CJNcmPzuWtR1JSmxqFA",
+                "price": 1.99,
+                "currency": "EUR",
+            },
+            "yearly": {
+                "id": "price_1NHA4lJNcmPzuWtRniS23IuE",
+                "price": 0.99,
+                "currency": "EUR",
+            },
+        },
+        "ee": {
+            "monthly": {
+                "id": "price_1NHA1tJNcmPzuWtRvSeyiVYH",
+                "price": 1.99,
+                "currency": "EUR",
+            },
+            "yearly": {
+                "id": "price_1NHA2TJNcmPzuWtR10yknZHf",
+                "price": 0.99,
+                "currency": "EUR",
+            },
+        },
+        "mt": {
+            "monthly": {
+                "id": "price_1NH9yxJNcmPzuWtRChanpIQU",
+                "price": 1.99,
+                "currency": "EUR",
+            },
+            "yearly": {
+                "id": "price_1NH9y3JNcmPzuWtRIJkQos9q",
+                "price": 0.99,
+                "currency": "EUR",
+            },
+        },
+        # TODO: clarify this entry
+        # "cy" the language code means Welsh
+        # "cy" means "Cyprus" in our usage, which is probably Greek or Turkish
+        "cy": {
+            "monthly": {
+                "id": "price_1NH9saJNcmPzuWtRpffF5I59",
+                "price": 1.99,
+                "currency": "EUR",
+            },
+            "yearly": {
+                "id": "price_1NH9rKJNcmPzuWtRzDiXCeEG",
+                "price": 0.99,
+                "currency": "EUR",
+            },
+        },
     },
     "usd": {
         "en": {
@@ -517,6 +658,7 @@ PERIODICAL_PREMIUM_PLAN_ID_MATRIX = {
         },
     },
 }
+
 PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
     # Austria
     "at": {
@@ -566,23 +708,72 @@ PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
     "fi": {
         "fi": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["fi"],
     },
+    # United States
     "us": {
         "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["en"],
     },
+    # United Kingdom
     "gb": {
         "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["gb"],
     },
+    # Canada
     "ca": {
         "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["en"],
     },
+    # New Zealand
     "nz": {
         "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["gb"],
     },
+    # Malaysia
     "my": {
         "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["gb"],
     },
+    # Singapore
     "sg": {
         "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["gb"],
+    },
+}
+EU_EXPANSION_PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
+    # Cyprus
+    "cy": {
+        # TODO: Welsh (cy) seems wrong. Maybe el (greek) and tr (turkish)?
+        "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["cy"],
+    },
+    # Estonia
+    "ee": {
+        "et": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["ee"],
+    },
+    # Greece
+    "gr": {
+        "el": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["gr"],
+    },
+    # Latvia
+    "lv": {
+        "lv": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["lv"],
+    },
+    # Lithuania
+    "lt": {
+        "lt": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["lt"],
+    },
+    # Luxembourg
+    "lu": {
+        "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["lu"],
+    },
+    # Malta
+    "mt": {
+        "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["mt"],
+    },
+    # Portugal
+    "pt": {
+        "pt": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["pt"],
+    },
+    # Slovakia
+    "sk": {
+        "sk": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["sk"],
+    },
+    # Slovenia
+    "si": {
+        "sl": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["si"],
     },
 }
 
@@ -849,6 +1040,22 @@ REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": DRF_RENDERERS,
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "EXCEPTION_HANDLER": "api.views.relay_exception_handler",
+}
+if API_DOCS_ENABLED:
+    REST_FRAMEWORK["DEFAULT_SCHEMA_CLASS"] = "drf_spectacular.openapi.AutoSchema"
+
+SPECTACULAR_SETTINGS = {
+    "SWAGGER_UI_DIST": "SIDECAR",
+    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
+    "REDOC_DIST": "SIDECAR",
+    "TITLE": "Firefox Relay API",
+    "DESCRIPTION": (
+        "Keep your email safe from hackers and trackers. This API is built with"
+        " Django REST Framework and powers the Relay website UI, add-on,"
+        " Firefox browser, and 3rd-party app integrations."
+    ),
+    "VERSION": "1.0",
+    "SERVE_INCLUDE_SCHEMA": False,
 }
 
 PHONE_RATE_LIMIT = "5/minute"

@@ -1,6 +1,11 @@
 from django.conf import settings
 from django.urls import include, path, register_converter
 
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
+)
 from rest_framework import routers
 
 from privaterelay.utils import enable_if_setting
@@ -12,7 +17,6 @@ from .views import (
     FlagViewSet,
     report_webcompat_issue,
     runtime_data,
-    schema_view,
     terms_accepted_user,
 )
 
@@ -56,21 +60,28 @@ urlpatterns = [
         name="report_webcompat_issue",
     ),
     path(
-        "v1/swagger<swagger_format:format>/",
-        enable_if_setting("API_DOCS_ENABLED")(schema_view.without_ui(cache_timeout=0)),
-        name="schema-json",
-    ),
-    path(
         "v1/terms-accepted-user/",
         terms_accepted_user,
         name="terms_accepted_user",
     ),
     path(
+        "v1/schema/",
+        enable_if_setting("API_DOCS_ENABLED")(SpectacularAPIView.as_view()),
+        name="schema",
+    ),
+    path(
         "v1/docs/",
         enable_if_setting("API_DOCS_ENABLED")(
-            schema_view.with_ui("swagger", cache_timeout=0)
+            SpectacularSwaggerView.as_view(url_name="schema")
         ),
         name="schema-swagger-ui",
+    ),
+    path(
+        "v1/docs/redoc/",
+        enable_if_setting("API_DOCS_ENABLED")(
+            SpectacularRedocView.as_view(url_name="schema")
+        ),
+        name="schema-redoc-ui",
     ),
 ]
 

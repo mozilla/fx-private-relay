@@ -2,7 +2,6 @@ from copy import deepcopy
 from datetime import datetime, timezone
 from email import message_from_bytes, policy
 from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from email.utils import parseaddr
 import html
 import json
@@ -24,7 +23,6 @@ from sentry_sdk import capture_message
 from markus.utils import generate_tag
 from waffle import sample_is_active
 
-from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
@@ -36,41 +34,44 @@ from django.utils.html import escape
 from django.views.decorators.csrf import csrf_exempt
 
 
-from .apps import EmailsConfig
-
 from .models import (
-    address_hash,
     CannotMakeAddressException,
-    get_domain_numerical,
-    get_domains_from_settings,
     DeletedAddress,
     DomainAddress,
     Profile,
     RelayAddress,
     Reply,
+    address_hash,
+    get_domain_numerical,
+    get_domains_from_settings,
 )
+from .types import AWS_SNSMessageJSON, MessageBody, OutgoingHeaders
 from .utils import (
     _get_bucket_and_key_from_s3_json,
     b64_lookup_key,
-    remove_trackers,
     count_all_trackers,
-    get_message_content_from_s3,
-    incr_if_enabled,
-    histogram_if_enabled,
-    ses_relay_email,
-    urlize_and_linebreaks,
-    derive_reply_keys,
+    create_message,
     decrypt_reply_metadata,
-    remove_message_from_s3,
-    ses_send_raw_email,
-    get_message_id_bytes,
+    derive_reply_keys,
+    generate_from_header,
     generate_relay_From,
+    get_message_content_from_s3,
+    get_message_id_bytes,
+    get_reply_to_address,
+    histogram_if_enabled,
+    incr_if_enabled,
+    remove_message_from_s3,
+    remove_trackers,
+    ses_relay_email,
+    ses_send_raw_email,
+    urlize_and_linebreaks,
 )
 from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 
 from privaterelay.ftl_bundles import main as ftl_bundle
 from privaterelay.utils import flag_is_active_in_task
 
+RESENDER_HEADERS_FLAG_NAME = "resender_headers"
 
 logger = logging.getLogger("events")
 info_logger = logging.getLogger("eventsinfo")
@@ -420,7 +421,7 @@ def _get_relay_recipient_from_message_json(message_json):
     return _get_recipient_with_relay_domain(recipients)
 
 
-def _sns_message(message_json):
+def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     incr_if_enabled("sns_inbound_Notification_Received", 1)
     notification_type = message_json.get("notificationType")
     event_type = message_json.get("eventType")
@@ -561,7 +562,7 @@ def _sns_message(message_json):
     # and apply default link styles
     display_email = re.sub("([@.:])", r"<span>\1</span>", to_address)
 
-    message_body = {}
+    message_body: MessageBody = {}
     tracker_report_link = ""
     removed_count = 0
     # frontend expects a timestamp in milliseconds
@@ -613,12 +614,31 @@ def _sns_message(message_json):
         wrapped_text = relay_header_text + text_content
         message_body["Text"] = {"Charset": "UTF-8", "Data": wrapped_text}
 
-    to_address = user_profile.user.email
-    formatted_from_address = generate_relay_From(from_address, user_profile)
+    use_resender_headers = flag_is_active_in_task(
+        RESENDER_HEADERS_FLAG_NAME, user_profile.user
+    )
+    destination_address = user_profile.user.email
+    reply_address = get_reply_to_address()
+    if use_resender_headers:
+        from_header = generate_from_header(from_address, to_address)
+        source_address = reply_address
+    else:
+        from_header = generate_relay_From(from_address, user_profile)
+        source_address = from_header
+
+    headers: OutgoingHeaders = {
+        "Subject": subject,
+        "From": from_header,
+        "To": destination_address,
+        "Reply-To": reply_address,
+    }
+    if use_resender_headers:
+        headers["Resent-From"] = from_address
+
     response = ses_relay_email(
-        formatted_from_address,
-        to_address,
-        subject,
+        source_address,
+        destination_address,
+        headers,
         message_body,
         attachments,
         mail,
@@ -705,49 +725,42 @@ def _strip_localpart_tag(address):
 
 
 def _build_reply_requires_premium_email(
-    from_address,
-    reply_record,
-    message_id,
-    decrypted_metadata,
-):
-    # If we haven't forwaded a first reply for this user yet, _reply_allowed
+    from_address: str,
+    reply_record: Reply,
+    message_id: str | None,
+    decrypted_metadata: dict[str, Any] | None,
+) -> MIMEMultipart:
+    # If we haven't forwarded a first reply for this user yet, _reply_allowed
     # will forward.  So, tell the user we forwarded it.
     forwarded = not reply_record.address.user.profile.forwarded_first_reply
-    sender = ""
+    sender: str | None = ""
     if decrypted_metadata is not None:
         sender = decrypted_metadata.get("reply-to") or decrypted_metadata.get("from")
     ctx = {
-        "sender": sender,
+        "sender": sender or "",
         "forwarded": forwarded,
         "SITE_ORIGIN": settings.SITE_ORIGIN,
     }
     html_body = render_to_string("emails/reply_requires_premium.html", ctx)
     text_body = render_to_string("emails/reply_requires_premium.txt", ctx)
-
-    # We build the raw multipart MIME message to specify a custom In-Reply-To header
-    msg = MIMEMultipart("mixed")
     subject_ftl_id = "replies-not-included-in-free-account-header"
     subject = ftl_bundle.format(subject_ftl_id)
-    msg["Subject"] = subject
 
-    domain = get_domains_from_settings().get("RELAY_FIREFOX_DOMAIN")
-    msg["From"] = f"replies@{domain}"
-
-    msg["To"] = from_address
-
+    headers: OutgoingHeaders = {
+        "Subject": subject,
+        "From": get_reply_to_address(),
+        "To": from_address,
+    }
     if message_id:
-        msg["In-Reply-To"] = message_id
-        msg["References"] = message_id
+        headers["In-Reply-To"] = message_id
+        headers["References"] = message_id
 
-    # Compose the full raw message together
-    charset = "utf-8"
-    msg_body = MIMEMultipart("alternative")
-    text_part = MIMEText(text_body, "plain", charset)
-    html_part = MIMEText(html_body, "html", charset)
-    msg_body.attach(text_part)
-    msg_body.attach(html_part)
-    msg.attach(msg_body)
+    message_body: MessageBody = {
+        "Html": {"Charset": "utf-8", "Data": html_body},
+        "Text": {"Charset": "utf-8", "Data": text_body},
+    }
 
+    msg = create_message(headers, message_body)
     return msg
 
 
@@ -757,24 +770,21 @@ def _set_forwarded_first_reply(profile):
 
 
 def _send_reply_requires_premium_email(
-    from_address,
-    reply_record,
-    message_id,
-    decrypted_metadata,
-):
+    from_address: str,
+    reply_record: Reply,
+    message_id: str | None,
+    decrypted_metadata: dict[str, Any] | None,
+) -> None:
     msg = _build_reply_requires_premium_email(
         from_address, reply_record, message_id, decrypted_metadata
     )
     try:
-        emails_config = apps.get_app_config("emails")
-        assert isinstance(emails_config, EmailsConfig)
-        emails_config.ses_client.send_raw_email(
-            ConfigurationSetName=settings.AWS_SES_CONFIGSET,
-            Source=settings.RELAY_FROM_ADDRESS,
-            Destinations=[from_address],
-            RawMessage={"Data": msg.as_string()},
+        ses_send_raw_email(
+            source_address=get_reply_to_address(premium=False),
+            destination_address=from_address,
+            message=msg,
         )
-        # If we haven't forwaded a first reply for this user yet, _reply_allowed will.
+        # If we haven't forwarded a first reply for this user yet, _reply_allowed will.
         # So, updated the DB.
         _set_forwarded_first_reply(reply_record.address.user.profile)
     except ClientError as e:
@@ -819,7 +829,9 @@ def _reply_allowed(
     return False
 
 
-def _handle_reply(from_address, message_json, to_address):
+def _handle_reply(
+    from_address: str, message_json: AWS_SNSMessageJSON, to_address: str
+) -> HttpResponse:
     mail = message_json["mail"]
     try:
         (lookup_key, encryption_key) = _get_keys_from_headers(mail["headers"])
@@ -861,21 +873,26 @@ def _handle_reply(from_address, message_json, to_address):
         # we are returning a 500 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
-    message_body = {}
+    message_body: MessageBody = {}
     if html_content:
         message_body["Html"] = {"Charset": "UTF-8", "Data": html_content}
 
     if text_content:
         message_body["Text"] = {"Charset": "UTF-8", "Data": text_content}
 
+    headers: OutgoingHeaders = {
+        "Subject": subject,
+        "From": outbound_from_address,
+        "To": to_address,
+        "Reply-To": outbound_from_address,
+    }
     try:
-        response = ses_send_raw_email(
+        response = ses_relay_email(
             outbound_from_address,
             to_address,
-            subject,
+            headers,
             message_body,
             attachments,
-            outbound_from_address,
             mail,
             address,
         )
@@ -975,7 +992,7 @@ def _get_address(address: str) -> RelayAddress | DomainAddress:
         raise e
 
 
-def _handle_bounce(message_json):
+def _handle_bounce(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     """
     Handle an AWS SES bounce notification.
 
@@ -1095,7 +1112,7 @@ def _handle_bounce(message_json):
     return HttpResponse("OK", status=200)
 
 
-def _handle_complaint(message_json):
+def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     """
     Handle an AWS SES complaint notification.
 

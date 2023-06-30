@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 
+from drf_spectacular.utils import extend_schema
 from rest_framework.authentication import get_authorization_header
 from rest_framework.exceptions import (
     APIException,
@@ -23,10 +24,7 @@ from allauth.socialaccount.helpers import complete_social_login  # type: ignore
 from allauth.socialaccount.providers.fxa.provider import FirefoxAccountsProvider  # type: ignore
 from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
 from django_filters import rest_framework as filters
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg.views import get_schema_view
-from drf_yasg import openapi
-from waffle import get_waffle_flag_model
+from waffle import flag_is_active, get_waffle_flag_model
 from waffle.models import Switch, Sample
 from rest_framework import (
     decorators,
@@ -40,6 +38,7 @@ from emails.utils import incr_if_enabled
 
 from privaterelay.utils import (
     get_countries_info_from_request_and_mapping,
+    get_premium_country_language_mapping,
 )
 
 from emails.models import (
@@ -64,16 +63,6 @@ from ..serializers import (
 from privaterelay.ftl_bundles import main as ftl_bundle
 
 info_logger = logging.getLogger("eventsinfo")
-schema_view = get_schema_view(
-    openapi.Info(
-        title="Relay API",
-        default_version="v1",
-        description="API endpints for Relay back-end",
-        contact=openapi.Contact(email="lcrouch+relayapi@mozilla.com"),
-    ),
-    public=settings.DEBUG,
-    permission_classes=[permissions.AllowAny],
-)
 FXA_PROFILE_URL = (
     f"{settings.SOCIALACCOUNT_PROVIDERS['fxa']['PROFILE_ENDPOINT']}/profile"
 )
@@ -254,6 +243,8 @@ def runtime_data(request):
     switch_values = [(s.name, s.is_active()) for s in switches]
     samples = Sample.get_all()
     sample_values = [(s.name, s.is_active()) for s in samples]
+    eu_country_expansion = flag_is_active(request, "eu_country_expansion")
+    premium_mapping = get_premium_country_language_mapping(eu_country_expansion)
     return response.Response(
         {
             "FXA_ORIGIN": settings.FXA_BASE_ORIGIN,
@@ -262,7 +253,7 @@ def runtime_data(request):
             "BUNDLE_PRODUCT_ID": settings.BUNDLE_PROD_ID,
             "PHONE_PRODUCT_ID": settings.PHONE_PROD_ID,
             "PERIODICAL_PREMIUM_PLANS": get_countries_info_from_request_and_mapping(
-                request, settings.PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING
+                request, premium_mapping
             ),
             "PHONE_PLANS": get_countries_info_from_request_and_mapping(
                 request, settings.PHONE_PLAN_COUNTRY_LANG_MAPPING
@@ -302,9 +293,9 @@ class FlagViewSet(viewsets.ModelViewSet):
         return flags
 
 
-@swagger_auto_schema(methods=["post"], request_body=WebcompatIssueSerializer)
-@decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.IsAuthenticated])
+@extend_schema(methods=["POST"], request=WebcompatIssueSerializer)
+@decorators.api_view(["POST"])
 def report_webcompat_issue(request):
     serializer = WebcompatIssueSerializer(data=request.data)
     if serializer.is_valid():
