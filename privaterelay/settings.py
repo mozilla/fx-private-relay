@@ -867,6 +867,12 @@ if REDIS_URL:
     }
     SESSION_ENGINE = "django.contrib.sessions.backends.cache"
     SESSION_CACHE_ALIAS = "default"
+elif RELAY_CHANNEL == "local":
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -1171,6 +1177,7 @@ markus.configure(backends=_MARKUS_BACKENDS)
 if USE_SILK:
     SILKY_PYTHON_PROFILER = True
     SILKY_PYTHON_PROFILER_BINARY = True
+    SILKY_PYTHON_PROFILER_RESULT_PATH = ".silk-profiler"
 
 # Settings for manage.py process_emails_from_sqs
 PROCESS_EMAIL_BATCH_SIZE = config(
