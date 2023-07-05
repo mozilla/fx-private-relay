@@ -138,7 +138,7 @@ const Home: NextPage = () => {
                   {
                     q: l10n.getString("faq-question-availability-question"),
                     a: isFlagActive(runtimeData.data, "eu_country_expansion")
-                      ? l10n.getString("faq-question-availability-answer-v3")
+                      ? l10n.getString("faq-question-availability-answer-v4")
                       : l10n.getString(
                           "faq-question-landing-page-availability"
                         ),
