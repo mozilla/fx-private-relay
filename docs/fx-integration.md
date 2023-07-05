@@ -21,8 +21,9 @@ TODO: Link to tech doc for Firefox/FXA integration.
 Firefox uses [`FxAccounts.getOAuthToken`][fxa-getOAuthToken], which `POST`s to [the FXA
 `/oauth/token` endpoint][fxa-oauth-token] to get an access token with these scopes:
 
-- `profile`
-- `https://identity.mozilla.com/apps/relay`
+- `profile`: allows Relay to access the user's profile data which contains the user's primary email, profile pic, and more. See more information about the `profile` scope at [FxA doc](https://mozilla.github.io/ecosystem-platform/reference/oauth-details#profile-data)
+- `https://identity.mozilla.com/apps/relay`: enforces the token to be only used by Relay as a [resource server](https://www.oauth.com/oauth2-servers/the-resource-server/)
+   - Read more about resource server scoped access key on [FxA's development](https://mozilla.github.io/ecosystem-platform/relying-parties/tutorials/integration-with-fxa#development) doc part 8.
 
 By default, these access tokens expire in 24 hours. When they expire, Firefox
 automatically requests a new access token for the user.
