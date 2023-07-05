@@ -682,7 +682,7 @@ class RelayAddress(models.Model):
 def check_user_can_make_another_address(profile: Profile) -> None:
     if profile.is_flagged:
         raise AccountIsPausedException()
-    # MPP-3021: return early for premim users to avoid at_max_free_aliases DB query
+    # MPP-3021: return early for premium users to avoid at_max_free_aliases DB query
     if profile.has_premium:
         return
     if profile.at_max_free_aliases:
