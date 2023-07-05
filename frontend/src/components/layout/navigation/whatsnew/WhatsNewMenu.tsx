@@ -368,7 +368,25 @@ export const WhatsNewMenu = (props: Props) => {
   if (
     isFlagActive(props.runtimeData, "eu_country_expansion") &&
     !props.profile.has_premium &&
-    ["cy", "ee", "gr", "lv", "lt", "lu", "mt", "pt", "sk", "si"].includes(
+    [
+      "bg",
+      "cs",
+      "cy",
+      "da",
+      "ee",
+      "gr",
+      "hr",
+      "hu",
+      "lt",
+      "lv",
+      "lu",
+      "mt",
+      "pl",
+      "pt",
+      "ro",
+      "si",
+      "sk",
+    ].includes(
       props.runtimeData.PERIODICAL_PREMIUM_PLANS.country_code.toLowerCase()
     )
   ) {
