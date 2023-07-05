@@ -2,8 +2,10 @@
   Note that Django only loads strings from some Fluent files.
   See privaterelay/ftl_bundles.py.
 {% endcomment %}
+{% load cache %}
 {% load ftl %}
 {% load email_extras %}
+{% cache 86400 welcome_email_html language %}
 {% withftl bundle='privaterelay.ftl_bundles.main' language=language %}
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -410,3 +412,4 @@
 
 </html>
 {% endwithftl %}
+{% endcache %}

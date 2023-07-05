@@ -134,8 +134,11 @@ class FxaTokenAuthentication(BaseAuthentication):
                 use_cache = True
         fxa_uid = get_fxa_uid_from_oauth_token(token, use_cache)
         try:
-            sa = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
-        except SocialAccount.DoesNotExist:
+            # MPP-3021: select_related user object to save DB query
+            sa = SocialAccount.objects.filter(
+                uid=fxa_uid, provider="fxa"
+            ).select_related("user")[0]
+        except IndexError:
             raise PermissionDenied("Authenticated user does not have a Relay account.")
         user = sa.user
 

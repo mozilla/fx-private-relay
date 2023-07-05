@@ -1,4 +1,4 @@
-{% load ftl %}{% load email_extras %}{% withftl bundle='privaterelay.ftl_bundles.main' language=language %}{% ftlmsg 'first-time-user-email-welcome' %}
+{% load cache %}{% load ftl %}{% load email_extras %}{% cache 86400 welcome_email_txt language %}{% withftl bundle='privaterelay.ftl_bundles.main' language=language %}{% ftlmsg 'first-time-user-email-welcome' %}
 
 {% ftlmsg 'first-time-user-email-welcome-subhead' %}
 
@@ -37,4 +37,4 @@ https://support.mozilla.org/products/relay
 https://www.mozilla.org/about/legal/terms/firefox-relay/
 
 {% ftlmsg 'first-time-user-email-footer-text-privacy' %}
-https://www.mozilla.org/privacy/firefox-relay/{% endwithftl %}
+https://www.mozilla.org/privacy/firefox-relay/{% endwithftl %}{% endcache %}
