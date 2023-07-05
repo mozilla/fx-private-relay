@@ -47,7 +47,7 @@ const PremiumPromo: NextPage = () => {
       href="/premium/waitlist"
       title={
         isFlagActive(runtimeData.data, "eu_country_expansion")
-          ? l10n.getString("premium-promo-availability-warning-3")
+          ? l10n.getString("premium-promo-availability-warning-4")
           : l10n.getString("premium-promo-availability-warning-2")
       }
     >
@@ -67,7 +67,7 @@ const PremiumPromo: NextPage = () => {
             {cta}
             <p>
               {isFlagActive(runtimeData.data, "eu_country_expansion")
-                ? l10n.getString("premium-promo-availability-warning-3")
+                ? l10n.getString("premium-promo-availability-warning-4")
                 : l10n.getString("premium-promo-availability-warning-2")}
             </p>
           </div>
