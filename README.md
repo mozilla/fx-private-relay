@@ -48,10 +48,10 @@ Please refer to our [coding standards](docs/coding-standards.md) for code styles
 
    ```sh
    python -m venv env
-   source env/bin/activate
+   source env/Scripts/activate
    ```
 
-   If you are not using Git Bash on Windows, instead of typing `source env/bin/activate`, type `.\env\Scripts\activate`.
+   If you are not using Git Bash on Windows, instead of typing `source env/Scripts/activate`, type `.\env\Scripts\activate`.
 
    Note: If you're running on Windows and get an error message stating that executing scripts are disabled on your computer, go into the Windows powershell and type `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Unrestricted`, then try again.
 
