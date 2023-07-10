@@ -274,6 +274,7 @@ _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE: "_RelayPlansByCountryAndLanguage" = {
             "de": "DE",
             "nl": "NL",
         },
+        "ca": {"en": "US"},  # Canada
         "ch": {  # Switzerland
             "fr": "fr-CH",
             "de": "de-CH",
@@ -281,38 +282,37 @@ _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE: "_RelayPlansByCountryAndLanguage" = {
         },
         "de": {"de": "DE"},  # Germany
         "es": {"es": "ES"},  # Spain
+        "fi": {"fi": "FI"},  # Finland
         "fr": {"fr": "FR"},  # France
+        "gb": {"en": "GB"},  # United Kingdom
         "ie": {"en": "IE"},  # Ireland
         "it": {"it": "IT"},  # Italy
-        "nl": {"nl": "NL"},  # Netherlands
-        "se": {"sv": "SE"},  # Sweden
-        "fi": {"fi": "FI"},  # Finland
-        "us": {"en": "US"},  # United States
-        "gb": {"en": "GB"},  # United Kingdom
-        "ca": {"en": "US"},  # Canada
-        "nz": {"en": "GB"},  # New Zealand
         "my": {"en": "GB"},  # Malaysia
+        "nl": {"nl": "NL"},  # Netherlands
+        "nz": {"en": "GB"},  # New Zealand
+        "se": {"sv": "SE"},  # Sweden
         "sg": {"en": "GB"},  # Singapore
+        "us": {"en": "US"},  # United States
     },
     "premium_eu_expansion": {
         "cy": {"en": "CY"},  # Cyprus
         "ee": {"et": "EE"},  # Estonia
         "gr": {"el": "GR"},  # Greece
-        "lv": {"lv": "LV"},  # Latvia
         "lt": {"lt": "LT"},  # Lithuania
         "lu": {"en": "LU"},  # Luxembourg
+        "lv": {"lv": "LV"},  # Latvia
         "mt": {"en": "MT"},  # Malta
         "pt": {"pt": "PT"},  # Portugal
-        "sk": {"sk": "SK"},  # Slovakia
         "si": {"sl": "SI"},  # Slovenia
+        "sk": {"sk": "SK"},  # Slovakia
     },
     "phones": {
-        "us": {"en": "US"},  # United States
         "ca": {"en": "US"},  # Canada
+        "us": {"en": "US"},  # United States
     },
     "bundle": {
-        "us": {"en": "US"},  # United States
         "ca": {"en": "US"},  # Canada
+        "us": {"en": "US"},  # United States
     },
 }
 
@@ -513,7 +513,7 @@ def _country_language_mapping(
     plan: _RelayBasePlanKey,
     eu_country_expansion: bool | None = None,
 ) -> PlanCountryLangMapping:
-    """Get plan mapping with cache parameters."""
+    """Get plan mapping with cache parameters"""
     return _cached_country_language_mapping(
         plan=plan,
         eu_country_expansion=bool(eu_country_expansion),
@@ -535,7 +535,7 @@ def _cached_country_language_mapping(
     us_phone_yearly_price_id: str,
     us_bundle_yearly_price_id: str,
 ) -> PlanCountryLangMapping:
-    """Create the plan mapping with settings overrides."""
+    """Create the plan mapping with settings overrides"""
     if plan == "premium":
         relay_countries = _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE["premium"].copy()
         if eu_country_expansion:
@@ -595,7 +595,7 @@ def _get_stripe_data_with_overrides(
     us_phone_yearly_price_id: str,
     us_bundle_yearly_price_id: str,
 ) -> "_StripePlanData":
-    """Returns the Stripe plan data with settings overrides."""
+    """Returns the Stripe plan data with settings overrides"""
     plan_data = deepcopy(_STRIPE_PLAN_DATA)
     plan_data["premium"]["countries_and_regions"]["US"][
         "monthly_id"
