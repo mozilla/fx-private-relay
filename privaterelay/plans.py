@@ -181,13 +181,106 @@ def get_bundle_country_language_mapping() -> PlanCountryLangMapping:
 
 
 #
-# Data
+# Private types for Selected Stripe data (_STRIPE_PLAN_DATA)
 #
+
+# ISO 3166 country codes for Stripe prices
+# Specifically, the two-letter ISO 3116-1 alpha-2 codes
+# See https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
+# and https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
+_CountryStr = Literal[
+    "CY",  # Cyprus
+    "DE",  # Germany
+    "EE",  # Estonia
+    "ES",  # Spain
+    "FI",  # Finland
+    "FR",  # France
+    "GB",  # United Kingdom
+    "GR",  # Greece
+    "IE",  # Ireland
+    "IT",  # Italy
+    "LT",  # Lithuania
+    "LU",  # Luxembourg
+    "LV",  # Latvia
+    "MT",  # Malta
+    "NL",  # Netherlands
+    "PT",  # Portugal
+    "SE",  # Sweden
+    "SI",  # Slovenia
+    "SK",  # Slovakia
+    "US",  # United States
+]
+
+# RFC 5646 regional language tags handled by Relay
+# Typically an ISO 639 language code, a dash, and an ISO 3166 country code
+_RegionalLanguageStr = Literal[
+    "de-CH",  # German (Swiss)
+    "fr-CH",  # French (Swiss)
+    "it-CH",  # Italian (Swiss)
+]
+
+# Stripe plans are associated with a country or country-language pair
+_StripeCountryOrRegion = _CountryStr | _RegionalLanguageStr
+
+# Types for _STRIPE_PLAN_DATA
+_StripePlanData = TypedDict(
+    "_StripePlanData",
+    {
+        "premium": "_StripeMonthlyPlanDetails",
+        "phones": "_StripeMonthlyPlanDetails",
+        "bundle": "_StripeYearlyPlanDetails",
+    },
+)
+_StripeMonthlyPlanDetails = TypedDict(
+    "_StripeMonthlyPlanDetails",
+    {
+        "periods": Literal["monthly_and_yearly"],
+        "prices": "_StripeMonthlyPriceData",
+        "countries_and_regions": "_StripeMonthlyCountryAndRegionDetails",
+    },
+)
+_StripeYearlyPlanDetails = TypedDict(
+    "_StripeYearlyPlanDetails",
+    {
+        "periods": Literal["yearly"],
+        "prices": "_StripeYearlyPriceData",
+        "countries_and_regions": "_StripeYearlyCountryAndRegionDetails",
+    },
+)
+_StripeMonthlyPriceData = dict[CurrencyStr, "_StripeMonthlyPriceDetails"]
+_StripeYearlyPriceData = dict[CurrencyStr, "_StripeYearlyPriceDetails"]
+_StripeMonthlyPriceDetails = TypedDict(
+    "_StripeMonthlyPriceDetails", {"monthly": float, "monthly_when_yearly": float}
+)
+_StripeYearlyPriceDetails = TypedDict(
+    "_StripeYearlyPriceDetails", {"monthly_when_yearly": float}
+)
+_StripeMonthlyCountryAndRegionDetails = dict[
+    _StripeCountryOrRegion, "_StripeMonthlyCountryDetails"
+]
+_StripeYearlyCountryAndRegionDetails = dict[
+    _StripeCountryOrRegion, "_StripeYearlyCountryDetails"
+]
+_StripeMonthlyCountryDetails = TypedDict(
+    "_StripeMonthlyCountryDetails",
+    {
+        "currency": CurrencyStr,
+        "monthly_id": str,
+        "yearly_id": str,
+    },
+)
+_StripeYearlyCountryDetails = TypedDict(
+    "_StripeYearlyCountryDetails",
+    {
+        "currency": CurrencyStr,
+        "yearly_id": str,
+    },
+)
 
 # Selected Stripe data
 # The "source of truth" is the Stripe data, this copy is used for upsell views
 # and directing users to the correct Stripe purchase page.
-_STRIPE_PLAN_DATA: "_StripePlanData" = {
+_STRIPE_PLAN_DATA: _StripePlanData = {
     "premium": {
         "periods": "monthly_and_yearly",
         "prices": {
@@ -341,6 +434,14 @@ _STRIPE_PLAN_DATA: "_StripePlanData" = {
 }
 
 
+# Private types for _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE
+_RelayPlansByCountryAndLanguage = dict["_RelayPlanKey", "_RelayPlanCountryData"]
+_RelayBasePlanKey = Literal["premium", "phones", "bundle"]
+_RelayPlanKey = _RelayBasePlanKey | Literal["premium_eu_expansion"]
+_RelayPlanCountryData = dict[RelayCountryStr, "_RelayCountryLanguageData"]
+_RelayCountryLanguageData = dict[LanguageStr, _StripeCountryOrRegion]
+
+
 # Map of Relay-supported countries to languages and their plans
 # The top-level key is the plan, or a psuedo-plan for waffled expansion
 # The second-level key is the RelayCountryStr, such as "ca" for Canada
@@ -351,7 +452,7 @@ _STRIPE_PLAN_DATA: "_StripePlanData" = {
 #   index into the _STRIPE_PLAN_DATA. Multiple entries may point to the same Stripe
 #   country data. The Stripe "US" entry can be overridden by settings to support
 #   testing in non-production environments.
-_RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE: "_RelayPlansByCountryAndLanguage" = {
+_RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE: _RelayPlansByCountryAndLanguage = {
     "premium": {
         "at": {"de": "DE"},  # Austria
         "be": {  # Belgium
@@ -400,109 +501,6 @@ _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE: "_RelayPlansByCountryAndLanguage" = {
         "us": {"en": "US"},  # United States
     },
 }
-
-
-#
-# Private types
-#
-
-# ISO 3166 country codes for Stripe prices
-# Specifically, the two-letter ISO 3116-1 alpha-2 codes
-# See https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
-# and https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
-_CountryStr = Literal[
-    "CY",  # Cyprus
-    "DE",  # Germany
-    "EE",  # Estonia
-    "ES",  # Spain
-    "FI",  # Finland
-    "FR",  # France
-    "GB",  # United Kingdom
-    "GR",  # Greece
-    "IE",  # Ireland
-    "IT",  # Italy
-    "LT",  # Lithuania
-    "LU",  # Luxembourg
-    "LV",  # Latvia
-    "MT",  # Malta
-    "NL",  # Netherlands
-    "PT",  # Portugal
-    "SE",  # Sweden
-    "SI",  # Slovenia
-    "SK",  # Slovakia
-    "US",  # United States
-]
-
-# RFC 5646 regional language tags handled by Relay
-# Typically an ISO 639 language code, a dash, and an ISO 3166 country code
-_RegionalLanguageStr = Literal[
-    "de-CH",  # German (Swiss)
-    "fr-CH",  # French (Swiss)
-    "it-CH",  # Italian (Swiss)
-]
-
-# Types for _STRIPE_PLAN_DATA
-_StripePlanData = TypedDict(
-    "_StripePlanData",
-    {
-        "premium": "_StripeMonthlyPlanDetails",
-        "phones": "_StripeMonthlyPlanDetails",
-        "bundle": "_StripeYearlyPlanDetails",
-    },
-)
-_StripeMonthlyPlanDetails = TypedDict(
-    "_StripeMonthlyPlanDetails",
-    {
-        "periods": Literal["monthly_and_yearly"],
-        "prices": "_StripeMonthlyPriceData",
-        "countries_and_regions": "_StripeMonthlyCountryAndRegionDetails",
-    },
-)
-_StripeYearlyPlanDetails = TypedDict(
-    "_StripeYearlyPlanDetails",
-    {
-        "periods": Literal["yearly"],
-        "prices": "_StripeYearlyPriceData",
-        "countries_and_regions": "_StripeYearlyCountryAndRegionDetails",
-    },
-)
-_StripeMonthlyPriceData = dict[CurrencyStr, "_StripeMonthlyPriceDetails"]
-_StripeYearlyPriceData = dict[CurrencyStr, "_StripeYearlyPriceDetails"]
-_StripeMonthlyPriceDetails = TypedDict(
-    "_StripeMonthlyPriceDetails", {"monthly": float, "monthly_when_yearly": float}
-)
-_StripeYearlyPriceDetails = TypedDict(
-    "_StripeYearlyPriceDetails", {"monthly_when_yearly": float}
-)
-_StripeMonthlyCountryAndRegionDetails = dict[
-    "_StripeCountryOrRegion", "_StripeMonthlyCountryDetails"
-]
-_StripeYearlyCountryAndRegionDetails = dict[
-    "_StripeCountryOrRegion", "_StripeYearlyCountryDetails"
-]
-_StripeCountryOrRegion = _CountryStr | _RegionalLanguageStr
-_StripeMonthlyCountryDetails = TypedDict(
-    "_StripeMonthlyCountryDetails",
-    {
-        "currency": CurrencyStr,
-        "monthly_id": str,
-        "yearly_id": str,
-    },
-)
-_StripeYearlyCountryDetails = TypedDict(
-    "_StripeYearlyCountryDetails",
-    {
-        "currency": CurrencyStr,
-        "yearly_id": str,
-    },
-)
-
-# Types for _RelayPlansByCountryAndLanguage
-_RelayPlansByCountryAndLanguage = dict["_RelayPlanKey", "_RelayPlanCountryData"]
-_RelayBasePlanKey = Literal["premium", "phones", "bundle"]
-_RelayPlanKey = _RelayBasePlanKey | Literal["premium_eu_expansion"]
-_RelayPlanCountryData = dict[RelayCountryStr, "_RelayCountryLanguageData"]
-_RelayCountryLanguageData = dict[LanguageStr, _StripeCountryOrRegion]
 
 
 #
@@ -595,7 +593,7 @@ def _get_stripe_data_with_overrides(
     us_phone_monthly_price_id: str,
     us_phone_yearly_price_id: str,
     us_bundle_yearly_price_id: str,
-) -> "_StripePlanData":
+) -> _StripePlanData:
     """Returns the Stripe plan data with settings overrides"""
     plan_data = deepcopy(_STRIPE_PLAN_DATA)
     plan_data["premium"]["countries_and_regions"]["US"][
