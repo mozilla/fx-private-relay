@@ -66,31 +66,116 @@ from typing import Literal, TypedDict
 from django.conf import settings
 
 #
+# Public types
+#
+
+# ISO 4217 currency identifier
+# See https://en.wikipedia.org/wiki/ISO_4217
+CurrencyStr = Literal[
+    "CHF",  # Swiss Franc, Fr. or fr.
+    "EUR",  # Euro, €
+    "USD",  # US Dollar, $
+]
+
+# ISO 639 language codes handled by Relay
+# Use the 2-letter ISO 639-1 code if available, otherwise the 3-letter ISO 639-2 code.
+# See https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+# and https://www.loc.gov/standards/iso639-2/php/English_list.php
+LanguageStr = Literal[
+    "de",  # German
+    "el",  # Greek, Modern (1453-)
+    "en",  # English
+    "es",  # Spanish
+    "et",  # Estonian
+    "fi",  # Finnish
+    "fr",  # French
+    "it",  # Italian
+    "lt",  # Lithuanian
+    "lv",  # Latvian
+    "nl",  # Dutch
+    "pt",  # Portuguese
+    "sk",  # Slovak
+    "sl",  # Slovernian
+    "sv",  # Swedish
+]
+
+# Lowercased ISO 3166 country codes handled by Relay
+# Specifically, the two-letter ISO 3116-1 alpha-2 codes
+# See https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
+# and https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
+RelayCountryStr = Literal[
+    "at",  # Austria
+    "be",  # Belgium
+    "ca",  # Canada
+    "ch",  # Switzerland
+    "cy",  # Cyprus
+    "de",  # Germany
+    "ee",  # Estonia
+    "es",  # Spain
+    "fi",  # Finland
+    "fr",  # France
+    "gb",  # United Kingdom
+    "gr",  # Greece
+    "ie",  # Ireland
+    "it",  # Italy
+    "lt",  # Lituania
+    "lu",  # Luxembourg
+    "lv",  # Latvia
+    "mt",  # Malta
+    "my",  # Malaysia
+    "nl",  # Netherlands
+    "nz",  # New Zealand
+    "pt",  # Portugal
+    "se",  # Sweden
+    "sg",  # Singapore
+    "si",  # Slovenia
+    "sk",  # Slovakia
+    "us",  # United States
+]
+
+# Periodic subscription categories
+PeriodStr = Literal["monthly", "yearly"]
+
+# A Stripe Price, along with key details for Relay website
+# https://stripe.com/docs/api/prices/object
+StripePriceDef = TypedDict(
+    "StripePriceDef",
+    {
+        "id": str,  # Must start with "price_"
+        "price": float,
+        "currency": CurrencyStr,
+    },
+)
+PricesForPeriodDict = dict[PeriodStr, StripePriceDef]
+PricePeriodsForLanguageDict = dict[LanguageStr, PricesForPeriodDict]
+PlanCountryLangMapping = dict[RelayCountryStr, PricePeriodsForLanguageDict]
+
+#
 # Public functions
 #
 
 
 def get_premium_country_language_mapping(
     eu_country_expansion: bool | None,
-) -> "PlanCountryLangMapping":
+) -> PlanCountryLangMapping:
     """Get mapping for premium countries (unlimited masks, custom subdomain)"""
     return _country_language_mapping(
         "premium", eu_country_expansion=eu_country_expansion
     )
 
 
-def get_premium_countries(eu_country_expansion: bool | None) -> set["RelayCountryStr"]:
+def get_premium_countries(eu_country_expansion: bool | None) -> set[RelayCountryStr]:
     """Get the country codes where Relay premium can be sold"""
     mapping = get_premium_country_language_mapping(eu_country_expansion)
     return set(mapping.keys())
 
 
-def get_phone_country_language_mapping() -> "PlanCountryLangMapping":
+def get_phone_country_language_mapping() -> PlanCountryLangMapping:
     """Get mapping for phone countries (premium + phone mask)"""
     return _country_language_mapping("phones")
 
 
-def get_bundle_country_language_mapping() -> "PlanCountryLangMapping":
+def get_bundle_country_language_mapping() -> PlanCountryLangMapping:
     """Get mapping for bundle countries (premium + phone mask + VPN)"""
     return _country_language_mapping("bundle")
 
@@ -316,90 +401,6 @@ _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE: "_RelayPlansByCountryAndLanguage" = {
     },
 }
 
-#
-# Public types
-#
-
-# ISO 4217 currency identifier
-# See https://en.wikipedia.org/wiki/ISO_4217
-CurrencyStr = Literal[
-    "CHF",  # Swiss Franc, Fr. or fr.
-    "EUR",  # Euro, €
-    "USD",  # US Dollar, $
-]
-
-# ISO 639 language codes handled by Relay
-# Use the 2-letter ISO 639-1 code if available, otherwise the 3-letter ISO 639-2 code.
-# See https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
-# and https://www.loc.gov/standards/iso639-2/php/English_list.php
-LanguageStr = Literal[
-    "de",  # German
-    "el",  # Greek, Modern (1453-)
-    "en",  # English
-    "es",  # Spanish
-    "et",  # Estonian
-    "fi",  # Finnish
-    "fr",  # French
-    "it",  # Italian
-    "lt",  # Lithuanian
-    "lv",  # Latvian
-    "nl",  # Dutch
-    "pt",  # Portuguese
-    "sk",  # Slovak
-    "sl",  # Slovernian
-    "sv",  # Swedish
-]
-
-# Lowercased ISO 3166 country codes handled by Relay
-# Specifically, the two-letter ISO 3116-1 alpha-2 codes
-# See https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
-# and https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
-RelayCountryStr = Literal[
-    "at",  # Austria
-    "be",  # Belgium
-    "ca",  # Canada
-    "ch",  # Switzerland
-    "cy",  # Cyprus
-    "de",  # Germany
-    "ee",  # Estonia
-    "es",  # Spain
-    "fi",  # Finland
-    "fr",  # France
-    "gb",  # United Kingdom
-    "gr",  # Greece
-    "ie",  # Ireland
-    "it",  # Italy
-    "lt",  # Lituania
-    "lu",  # Luxembourg
-    "lv",  # Latvia
-    "mt",  # Malta
-    "my",  # Malaysia
-    "nl",  # Netherlands
-    "nz",  # New Zealand
-    "pt",  # Portugal
-    "se",  # Sweden
-    "sg",  # Singapore
-    "si",  # Slovenia
-    "sk",  # Slovakia
-    "us",  # United States
-]
-
-# Periodic subscription categories
-PeriodStr = Literal["monthly", "yearly"]
-
-# A Stripe Price, along with key details for Relay website
-# https://stripe.com/docs/api/prices/object
-StripePriceDef = TypedDict(
-    "StripePriceDef",
-    {
-        "id": str,  # Must start with "price_"
-        "price": float,
-        "currency": CurrencyStr,
-    },
-)
-PricesForPeriodDict = dict[PeriodStr, StripePriceDef]
-PricePeriodsForLanguageDict = dict[LanguageStr, PricesForPeriodDict]
-PlanCountryLangMapping = dict[RelayCountryStr, PricePeriodsForLanguageDict]
 
 #
 # Private types
