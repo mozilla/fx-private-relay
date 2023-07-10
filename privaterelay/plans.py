@@ -3,14 +3,19 @@ Paid plans for Relay
 
 There is currently a free plan and 3 paid plans:
 
-* free - limited random email masks, one replies
+* free - limited random email masks, one reply
 * premium - unlimited email masks, replies, and a custom subdomain
 * phones - premium, plus a phone mask
 * bundle - premium and phones, plus Mozilla VPN
 
-The public interface are the function get_premium_country_language_mapping,
-get_phone_country_language_mapping, and get_bundle_country_language_mapping,
-all which return a PlanCountryLangMapping dict, which has this structure:
+These functions get the details of the paid plans:
+
+* get_premium_country_language_mapping
+  * get_premium_countries
+* get_phone_country_language_mapping
+* get_bundle_country_language_mapping
+
+They all return a PlanCountryLangMapping dict, which has this structure:
 
 {
   "at": {
@@ -75,7 +80,7 @@ def get_premium_country_language_mapping(
 
 
 def get_premium_countries(eu_country_expansion: bool | None) -> set["RelayCountryStr"]:
-    """Get the country codes where Relay premium can be sold."""
+    """Get the country codes where Relay premium can be sold"""
     mapping = get_premium_country_language_mapping(eu_country_expansion)
     return set(mapping.keys())
 
