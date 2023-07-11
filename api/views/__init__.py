@@ -36,10 +36,12 @@ from rest_framework import (
 )
 from emails.utils import incr_if_enabled
 
-from privaterelay.utils import (
-    get_countries_info_from_request_and_mapping,
+from privaterelay.plans import (
+    get_bundle_country_language_mapping,
     get_premium_country_language_mapping,
+    get_phone_country_language_mapping,
 )
+from privaterelay.utils import get_countries_info_from_request_and_mapping
 
 from emails.models import (
     CannotMakeAddressException,
@@ -256,16 +258,18 @@ def runtime_data(request):
                 request, premium_mapping
             ),
             "PHONE_PLANS": get_countries_info_from_request_and_mapping(
-                request, settings.PHONE_PLAN_COUNTRY_LANG_MAPPING
+                request, get_phone_country_language_mapping()
             ),
             "BUNDLE_PLANS": get_countries_info_from_request_and_mapping(
-                request, settings.BUNDLE_PLAN_COUNTRY_LANG_MAPPING
+                request, get_bundle_country_language_mapping()
             ),
             "BASKET_ORIGIN": settings.BASKET_ORIGIN,
             "WAFFLE_FLAGS": flag_values,
             "WAFFLE_SWITCHES": switch_values,
             "WAFFLE_SAMPLES": sample_values,
-            "MAX_MINUTES_TO_VERIFY_REAL_PHONE": settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE,
+            "MAX_MINUTES_TO_VERIFY_REAL_PHONE": (
+                settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE
+            ),
         }
     )
 

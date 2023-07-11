@@ -22,7 +22,8 @@ from django.utils.translation.trans_real import (
 from rest_framework.authtoken.models import Token
 
 from api.exceptions import ErrorContextType, RelayAPIException
-from privaterelay.utils import flag_is_active_in_task, get_premium_countries
+from privaterelay.plans import get_premium_countries
+from privaterelay.utils import flag_is_active_in_task
 
 
 emails_config = apps.get_app_config("emails")

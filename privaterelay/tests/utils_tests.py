@@ -14,10 +14,10 @@ from waffle.testutils import override_flag
 from waffle.utils import get_cache as get_waffle_cache
 import pytest
 
+from ..plans import get_premium_country_language_mapping
 from ..utils import (
     flag_is_active_in_task,
     get_premium_country_lang,
-    get_premium_country_language_mapping,
 )
 
 
