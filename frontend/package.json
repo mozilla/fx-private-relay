@@ -47,7 +47,7 @@
     "@types/react": "^18.2.14",
     "@typescript-eslint/eslint-plugin": "^5.60.0",
     "@typescript-eslint/parser": "^5.60.1",
-    "babel-jest": "^29.4.2",
+    "babel-jest": "^29.6.1",
     "eslint": "^8.44.0",
     "eslint-config-next": "^13.4.7",
     "eslint-plugin-jest-dom": "^5.0.1",
