@@ -56,6 +56,14 @@ _EU_EXPANSION_PREMIUM_COUNTRIES = [
     "pt",
     "sk",
     "si",
+    # Added with MPP-3202
+    "bg",
+    "cz",
+    "dk",
+    "hr",
+    "hu",
+    "pl",
+    "ro",
 ]
 _NON_PREMIUM_COUNTRY = "mx"
 
@@ -98,11 +106,23 @@ _PREMIUM_PRICE_DATA = {
     "sk": ("EUR", "_1NHAJsJNcmPzuWtR71WX0Pz9", "_1NHAKYJNcmPzuWtRtETl30gb"),
     "sl": ("EUR", "_1NHALmJNcmPzuWtR2nIoAzEt", "_1NHAL9JNcmPzuWtRSZ3BWQs0"),
     "sv": ("EUR", "_1LYBblJNcmPzuWtRGRHIoYZ5", "_1LYBeMJNcmPzuWtRT5A931WH"),
+    # Added with MPP-3202
+    "bg": ("EUR", "_1NOSjBJNcmPzuWtRMQwYp5u1", "_1NOSkTJNcmPzuWtRpbKwsLcw"),
+    "cs": ("CZK", "_1NNkAlJNcmPzuWtRxsfrXacj", "_1NNkDHJNcmPzuWtRHnQmCDGP"),
+    "da": ("DKK", "_1NNfPCJNcmPzuWtR3SNA8gqG", "_1NNfLoJNcmPzuWtRpmLc9lst"),
+    "en-HR": ("EUR", "_1NOSznJNcmPzuWtRH7CEeAwA", "_1NOT0WJNcmPzuWtRpeNDEjvC"),
+    "hu": ("EUR", "_1NOOJAJNcmPzuWtRV7Kmwmdm", "_1NOOKvJNcmPzuWtR2DEWIRE4"),
+    "pl": ("PLN", "_1NNKGJJNcmPzuWtRTlP7GKWW", "_1NNfCvJNcmPzuWtRCvFppHqt"),
+    "ro": ("EUR", "_1NOOEnJNcmPzuWtRicUvOyUy", "_1NOOEJJNcmPzuWtRyHqMe2jb"),
 }
 _PREMIUM_PRICES = {
     "CHF": (2.0, 1.0),
     "EUR": (1.99, 0.99),
     "USD": (1.99, 0.99),
+    # Added with MPP-3202
+    "CZK": (47.0, 23.0),
+    "DKK": (15.0, 7.0),
+    "PLN": (8.0, 5.0),
 }
 
 
@@ -174,6 +194,14 @@ def check_country_language_mapping_for_monthly_plan(
         ("pt", "pt", "pt"),
         ("sk", "sk", "sk"),
         ("si", "sl", "sl"),
+        # Added with MPP-3202
+        ("bg", "bg", "bg"),
+        ("cz", "cs", "cs"),
+        ("dk", "da", "da"),
+        ("hr", "en", "en-HR"),
+        ("hu", "hu", "hu"),
+        ("pl", "pl", "pl"),
+        ("ro", "ro", "ro"),
     ),
 )
 @pytest.mark.parametrize("eu_expansion", (True, None))
