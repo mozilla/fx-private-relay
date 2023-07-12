@@ -476,11 +476,20 @@ class ProfileAtMaskLimitTest(ProfileTestCase):
     def test_premium_user_returns_False(self) -> None:
         self.upgrade_to_premium()
         assert self.profile.at_mask_limit is False
+        baker.make(
+            RelayAddress,
+            user=self.profile.user,
+            _quantity=settings.MAX_NUM_FREE_ALIASES,
+        )
+        assert self.profile.at_mask_limit is False
 
     def test_free_user(self) -> None:
         assert self.profile.at_mask_limit is False
-        for _ in range(settings.MAX_NUM_FREE_ALIASES):
-            baker.make(RelayAddress, user=self.profile.user)
+        baker.make(
+            RelayAddress,
+            user=self.profile.user,
+            _quantity=settings.MAX_NUM_FREE_ALIASES,
+        )
         assert self.profile.at_mask_limit is True
 
 
