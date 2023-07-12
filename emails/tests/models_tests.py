@@ -186,10 +186,9 @@ class RelayAddressTest(TestCase):
 
     @override_settings(MAX_NUM_FREE_ALIASES=5, MAX_ADDRESS_CREATION_PER_DAY=10)
     def test_create_has_limit(self) -> None:
-        for _ in range(10):
-            RelayAddress.objects.create(user=self.premium_user_profile.user)
+        baker.make(RelayAddress, user=self.premium_user, _quantity=10)
         with pytest.raises(CannotMakeAddressException) as exc_info:
-            RelayAddress.objects.create(user=self.premium_user_profile.user)
+            RelayAddress.objects.create(user=self.premium_user)
         assert exc_info.value.get_codes() == "account_is_paused"
         relay_address_count = RelayAddress.objects.filter(
             user=self.premium_user_profile.user
@@ -197,16 +196,20 @@ class RelayAddressTest(TestCase):
         assert relay_address_count == 10
 
     def test_create_premium_user_can_exceed_free_limit(self):
-        for i in range(settings.MAX_NUM_FREE_ALIASES + 1):
-            RelayAddress.objects.create(user=self.premium_user_profile.user)
+        baker.make(
+            RelayAddress,
+            user=self.premium_user,
+            _quantity=settings.MAX_NUM_FREE_ALIASES + 1,
+        )
         relay_addresses = RelayAddress.objects.filter(
             user=self.premium_user
         ).values_list("address", flat=True)
         assert len(relay_addresses) == settings.MAX_NUM_FREE_ALIASES + 1
 
     def test_create_non_premium_user_cannot_pass_free_limit(self) -> None:
-        for _ in range(settings.MAX_NUM_FREE_ALIASES):
-            RelayAddress.objects.create(user=self.user_profile.user)
+        baker.make(
+            RelayAddress, user=self.user, _quantity=settings.MAX_NUM_FREE_ALIASES
+        )
         with pytest.raises(CannotMakeAddressException) as exc_info:
             RelayAddress.objects.create(user=self.user_profile.user)
         assert exc_info.value.get_codes() == "free_tier_limit"
