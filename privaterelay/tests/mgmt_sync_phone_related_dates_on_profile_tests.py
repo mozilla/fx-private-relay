@@ -6,6 +6,7 @@ from unittest.mock import patch
 import pytest
 
 from django.conf import settings
+from django.core.management import call_command
 
 from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
@@ -22,6 +23,7 @@ if settings.PHONES_ENABLED:
 
 from privaterelay.management.commands.sync_phone_related_dates_on_profile import (
     sync_phone_related_dates_on_profile,
+    CommandParser,
 )
 
 
@@ -229,3 +231,13 @@ def test_yearly_phone_subscriber_with_subscription_date_older_than_31_days_profi
     assert profile.date_phone_subscription_start == date_subscribed_phone
     assert profile.date_phone_subscription_end == date_subscribed_phone + timedelta(365)
     assert num_profiles_updated == 1
+
+
+@pytest.mark.django_db
+def test_command_sync_phone(capsys):
+    call_command("sync_phone_related_dates_on_profile", "--group", "free")
+    out, err = capsys.readouterr()
+
+    updated_accounts = int(out.split(" ")[0])
+
+    assert updated_accounts == 0
