@@ -73,7 +73,10 @@ from django.conf import settings
 # See https://en.wikipedia.org/wiki/ISO_4217
 CurrencyStr = Literal[
     "CHF",  # Swiss Franc, Fr. or fr.
+    "CZK",  # Czech koruna, Kč
+    "DKK",  # Danish krone, kr.
     "EUR",  # Euro, €
+    "PLN",  # Polish złoty, zł
     "USD",  # US Dollar, $
 ]
 
@@ -82,6 +85,9 @@ CurrencyStr = Literal[
 # See https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
 # and https://www.loc.gov/standards/iso639-2/php/English_list.php
 LanguageStr = Literal[
+    "bg",  # Bulgarian
+    "cs",  # Czech
+    "da",  # Danish
     "de",  # German
     "el",  # Greek, Modern (1453-)
     "en",  # English
@@ -89,13 +95,16 @@ LanguageStr = Literal[
     "et",  # Estonian
     "fi",  # Finnish
     "fr",  # French
+    "hu",  # Hungarian
     "it",  # Italian
     "lt",  # Lithuanian
     "lv",  # Latvian
     "nl",  # Dutch
+    "pl",  # Polish
     "pt",  # Portuguese
+    "ro",  # Romanian
     "sk",  # Slovak
-    "sl",  # Slovernian
+    "sl",  # Slovenian / Slovene
     "sv",  # Swedish
 ]
 
@@ -106,16 +115,21 @@ LanguageStr = Literal[
 RelayCountryStr = Literal[
     "at",  # Austria
     "be",  # Belgium
+    "bg",  # Bulgaria
     "ca",  # Canada
     "ch",  # Switzerland
     "cy",  # Cyprus
+    "cz",  # Czech Republic / Czechia
     "de",  # Germany
+    "dk",  # Denmark
     "ee",  # Estonia
     "es",  # Spain
     "fi",  # Finland
     "fr",  # France
     "gb",  # United Kingdom
     "gr",  # Greece
+    "hr",  # Croatia
+    "hu",  # Hungary
     "ie",  # Ireland
     "it",  # Italy
     "lt",  # Lituania
@@ -125,7 +139,9 @@ RelayCountryStr = Literal[
     "my",  # Malaysia
     "nl",  # Netherlands
     "nz",  # New Zealand
+    "pl",  # Poland
     "pt",  # Portugal
+    "ro",  # Romania
     "se",  # Sweden
     "sg",  # Singapore
     "si",  # Slovenia
@@ -189,14 +205,19 @@ def get_bundle_country_language_mapping() -> PlanCountryLangMapping:
 # See https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
 # and https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
 _CountryStr = Literal[
+    "BG",  # Bulgaria
     "CY",  # Cyprus
+    "CZ",  # Czech Republic / Czechia
     "DE",  # Germany
+    "DK",  # Denmark
     "EE",  # Estonia
     "ES",  # Spain
     "FI",  # Finland
     "FR",  # France
     "GB",  # United Kingdom
     "GR",  # Greece
+    "HR",  # Croatia
+    "HU",  # Hungary
     "IE",  # Ireland
     "IT",  # Italy
     "LT",  # Lithuania
@@ -204,7 +225,9 @@ _CountryStr = Literal[
     "LV",  # Latvia
     "MT",  # Malta
     "NL",  # Netherlands
+    "PL",  # Poland
     "PT",  # Portugal
+    "RO",  # Romania
     "SE",  # Sweden
     "SI",  # Slovenia
     "SK",  # Slovakia
@@ -285,7 +308,10 @@ _STRIPE_PLAN_DATA: _StripePlanData = {
         "periods": "monthly_and_yearly",
         "prices": {
             "CHF": {"monthly": 2.00, "monthly_when_yearly": 1.00},
+            "CZK": {"monthly": 47.0, "monthly_when_yearly": 23.0},
+            "DKK": {"monthly": 15.0, "monthly_when_yearly": 7.00},
             "EUR": {"monthly": 1.99, "monthly_when_yearly": 0.99},
+            "PLN": {"monthly": 8.00, "monthly_when_yearly": 5.00},
             "USD": {"monthly": 1.99, "monthly_when_yearly": 0.99},
         },
         "countries_and_regions": {
@@ -304,15 +330,30 @@ _STRIPE_PLAN_DATA: _StripePlanData = {
                 "monthly_id": "price_1LYCiBJNcmPzuWtRxtI8D5Uy",
                 "yearly_id": "price_1LYClxJNcmPzuWtRWjslDdkG",
             },
+            "BG": {  # Bulgaria
+                "currency": "EUR",
+                "monthly_id": "price_1NOSjBJNcmPzuWtRMQwYp5u1",
+                "yearly_id": "price_1NOSkTJNcmPzuWtRpbKwsLcw",
+            },
             "CY": {  # Cyprus
                 "currency": "EUR",
                 "monthly_id": "price_1NH9saJNcmPzuWtRpffF5I59",
                 "yearly_id": "price_1NH9rKJNcmPzuWtRzDiXCeEG",
             },
+            "CZ": {  # Czech Republic / Czechia
+                "currency": "CZK",
+                "monthly_id": "price_1NNkAlJNcmPzuWtRxsfrXacj",
+                "yearly_id": "price_1NNkDHJNcmPzuWtRHnQmCDGP",
+            },
             "DE": {  # Germany
                 "currency": "EUR",
                 "monthly_id": "price_1LYC79JNcmPzuWtRU7Q238yL",
                 "yearly_id": "price_1LYC7xJNcmPzuWtRcdKXCVZp",
+            },
+            "DK": {  # Denmark
+                "currency": "DKK",
+                "monthly_id": "price_1NNfPCJNcmPzuWtR3SNA8gqG",
+                "yearly_id": "price_1NNfLoJNcmPzuWtRpmLc9lst",
             },
             "EE": {  # Estonia
                 "currency": "EUR",
@@ -343,6 +384,16 @@ _STRIPE_PLAN_DATA: _StripePlanData = {
                 "currency": "EUR",
                 "monthly_id": "price_1NHA5CJNcmPzuWtR1JSmxqFA",
                 "yearly_id": "price_1NHA4lJNcmPzuWtRniS23IuE",
+            },
+            "HR": {  # Croatia
+                "currency": "EUR",
+                "monthly_id": "price_1NOSznJNcmPzuWtRH7CEeAwA",
+                "yearly_id": "price_1NOT0WJNcmPzuWtRpeNDEjvC",
+            },
+            "HU": {  # Hungary
+                "currency": "EUR",
+                "monthly_id": "price_1NOOJAJNcmPzuWtRV7Kmwmdm",
+                "yearly_id": "price_1NOOKvJNcmPzuWtR2DEWIRE4",
             },
             "IE": {  # Ireland
                 "currency": "EUR",
@@ -379,10 +430,20 @@ _STRIPE_PLAN_DATA: _StripePlanData = {
                 "monthly_id": "price_1LYCdLJNcmPzuWtR0J1EHoJ0",
                 "yearly_id": "price_1LYCdtJNcmPzuWtRVm4jLzq2",
             },
+            "PL": {  # Poland
+                "currency": "PLN",
+                "monthly_id": "price_1NNKGJJNcmPzuWtRTlP7GKWW",
+                "yearly_id": "price_1NNfCvJNcmPzuWtRCvFppHqt",
+            },
             "PT": {  # Portugal
                 "currency": "EUR",
                 "monthly_id": "price_1NHAI1JNcmPzuWtRx8jXjkrQ",
                 "yearly_id": "price_1NHAHWJNcmPzuWtRCRMnWyvK",
+            },
+            "RO": {  # Romania
+                "currency": "EUR",
+                "monthly_id": "price_1NOOEnJNcmPzuWtRicUvOyUy",
+                "yearly_id": "price_1NOOEJJNcmPzuWtRyHqMe2jb",
             },
             "SE": {  # Sweden
                 "currency": "EUR",
@@ -481,14 +542,21 @@ _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE: _RelayPlansByCountryAndLanguage = {
         "us": {"en": "US"},  # United States
     },
     "premium_eu_expansion": {
+        "bg": {"bg": "BG"},  # Bulgaria
         "cy": {"en": "CY"},  # Cyprus
+        "cz": {"cs": "CZ"},  # Czech Republic / Czechia
+        "dk": {"da": "DK"},  # Denmark
         "ee": {"et": "EE"},  # Estonia
         "gr": {"el": "GR"},  # Greece
+        "hr": {"en": "HR"},  # Croatia (language may change from English)
+        "hu": {"hu": "HU"},  # Hungary
         "lt": {"lt": "LT"},  # Lithuania
-        "lu": {"en": "LU"},  # Luxembourg
+        "lu": {"en": "LU"},  # Luxembourg (language may change from English)
         "lv": {"lv": "LV"},  # Latvia
-        "mt": {"en": "MT"},  # Malta
+        "mt": {"en": "MT"},  # Malta (language may change from English)
+        "pl": {"pl": "PL"},  # Poland
         "pt": {"pt": "PT"},  # Portugal
+        "ro": {"ro": "RO"},  # Romania
         "si": {"sl": "SI"},  # Slovenia
         "sk": {"sk": "SK"},  # Slovakia
     },
