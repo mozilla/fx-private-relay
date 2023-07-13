@@ -3,6 +3,7 @@ from hashlib import sha256
 import random
 from unittest import skip
 from unittest.mock import patch
+from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -72,7 +73,7 @@ def make_storageless_test_user():
     return storageless_user
 
 
-def unlimited_subscription():
+def unlimited_subscription() -> str:
     return random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
 
 
@@ -185,10 +186,13 @@ class RelayAddressTest(TestCase):
 
     @override_settings(MAX_NUM_FREE_ALIASES=5, MAX_ADDRESS_CREATION_PER_DAY=10)
     def test_create_has_limit(self) -> None:
-        for _ in range(10):
-            RelayAddress.objects.create(user=self.premium_user_profile.user)
+        baker.make(
+            RelayAddress,
+            user=self.premium_user,
+            _quantity=settings.MAX_ADDRESS_CREATION_PER_DAY,
+        )
         with pytest.raises(CannotMakeAddressException) as exc_info:
-            RelayAddress.objects.create(user=self.premium_user_profile.user)
+            RelayAddress.objects.create(user=self.premium_user)
         assert exc_info.value.get_codes() == "account_is_paused"
         relay_address_count = RelayAddress.objects.filter(
             user=self.premium_user_profile.user
@@ -196,16 +200,20 @@ class RelayAddressTest(TestCase):
         assert relay_address_count == 10
 
     def test_create_premium_user_can_exceed_free_limit(self):
-        for i in range(settings.MAX_NUM_FREE_ALIASES + 1):
-            RelayAddress.objects.create(user=self.premium_user_profile.user)
+        baker.make(
+            RelayAddress,
+            user=self.premium_user,
+            _quantity=settings.MAX_NUM_FREE_ALIASES + 1,
+        )
         relay_addresses = RelayAddress.objects.filter(
             user=self.premium_user
         ).values_list("address", flat=True)
         assert len(relay_addresses) == settings.MAX_NUM_FREE_ALIASES + 1
 
     def test_create_non_premium_user_cannot_pass_free_limit(self) -> None:
-        for _ in range(settings.MAX_NUM_FREE_ALIASES):
-            RelayAddress.objects.create(user=self.user_profile.user)
+        baker.make(
+            RelayAddress, user=self.user, _quantity=settings.MAX_NUM_FREE_ALIASES
+        )
         with pytest.raises(CannotMakeAddressException) as exc_info:
             RelayAddress.objects.create(user=self.user_profile.user)
         assert exc_info.value.get_codes() == "free_tier_limit"
@@ -250,15 +258,15 @@ class RelayAddressTest(TestCase):
             relay_address.block_list_emails = True
             relay_address.save()
         relay_address.refresh_from_db()
-        assert relay_address.block_list_emails == False
+        assert relay_address.block_list_emails is False
 
     def test_premium_user_can_set_block_list_emails(self):
         relay_address = RelayAddress.objects.create(user=self.premium_user)
-        assert relay_address.block_list_emails == False
+        assert relay_address.block_list_emails is False
         relay_address.block_list_emails = True
         relay_address.save()
         relay_address.refresh_from_db()
-        assert relay_address.block_list_emails == True
+        assert relay_address.block_list_emails is True
 
     def test_storageless_user_cant_set_label(self):
         relay_address = RelayAddress.objects.create(user=self.storageless_user)
@@ -275,79 +283,94 @@ class RelayAddressTest(TestCase):
         assert relay_address.used_on == ""
 
 
-class ProfileTest(TestCase):
-    def setUp(self):
+class ProfileTestCase(TestCase):
+    """Base class for Profile tests."""
+
+    def setUp(self) -> None:
         user = baker.make(User)
         self.profile = user.profile
-        self.profile.server_storage = True
-        self.profile.save()
+        assert self.profile.server_storage is True
 
-    def patch_datetime_now(self):
-        """
-        Selectively patch datatime.now() for emails models
-
-        https://docs.python.org/3/library/unittest.mock-examples.html#partial-mocking
-        """
-        patcher = patch("emails.models.datetime")
-        mocked_datetime = patcher.start()
-        self.addCleanup(patcher.stop)
-
-        expected_now = datetime.now(timezone.utc)
-        mocked_datetime.combine.return_value = datetime.combine(
-            datetime.now(timezone.utc).date(), datetime.min.time()
+    def get_or_create_social_account(self) -> SocialAccount:
+        """Get the test user's social account, creating if needed."""
+        social_account, _ = SocialAccount.objects.get_or_create(
+            user=self.profile.user,
+            provider="fxa",
+            uid=str(uuid4()),
+            defaults={"extra_data": {"avatar": "image.png", "subscriptions": []}},
         )
-        mocked_datetime.now.return_value = expected_now
-        mocked_datetime.side_effect = lambda *args, **kw: datetime(*args, **kw)
+        return social_account
 
-        return expected_now
+    def upgrade_to_premium(self) -> None:
+        """Add a unlimited subscription to the user."""
+        social_account = self.get_or_create_social_account()
+        social_account.extra_data["subscriptions"].append(unlimited_subscription())
+        social_account.save()
 
-    def test_bounce_paused_no_bounces(self):
+
+class ProfileBounceTestCase(ProfileTestCase):
+    """Base class for Profile tests that check for bounces."""
+
+    def set_hard_bounce(self) -> datetime:
+        """
+        Set a hard bounce pause for the profile, return the bounce time.
+
+        This happens when the user's email server reports a hard bounce, such as
+        saying the email does not exist.
+        """
+        self.profile.last_hard_bounce = datetime.now(timezone.utc) - timedelta(
+            days=settings.HARD_BOUNCE_ALLOWED_DAYS - 1
+        )
+        self.profile.save()
+        return self.profile.last_hard_bounce
+
+    def set_soft_bounce(self) -> datetime:
+        """
+        Set a soft bounce for the profile, return the bounce time.
+
+        This happens when the user's email server reports a soft bounce, such as
+        saying the user's mailbox is full.
+        """
+        self.profile.last_soft_bounce = datetime.now(timezone.utc) - timedelta(
+            days=settings.SOFT_BOUNCE_ALLOWED_DAYS - 1
+        )
+        self.profile.save()
+        return self.profile.last_soft_bounce
+
+
+class ProfileCheckBouncePause(ProfileBounceTestCase):
+    """Tests for Profile.check_bounce_pause()"""
+
+    def test_no_bounces(self) -> None:
         bounce_paused, bounce_type = self.profile.check_bounce_pause()
 
         assert bounce_paused is False
         assert bounce_type == ""
 
-    def test_bounce_paused_hard_bounce_pending(self):
-        self.profile.last_hard_bounce = datetime.now(timezone.utc) - timedelta(
-            days=settings.HARD_BOUNCE_ALLOWED_DAYS - 1
-        )
-        self.profile.save()
-
+    def test_hard_bounce_pending(self) -> None:
+        self.set_hard_bounce()
         bounce_paused, bounce_type = self.profile.check_bounce_pause()
-
         assert bounce_paused is True
         assert bounce_type == "hard"
 
-    def test_bounce_paused_soft_bounce_pending(self):
-        self.profile.last_soft_bounce = datetime.now(timezone.utc) - timedelta(
-            days=settings.SOFT_BOUNCE_ALLOWED_DAYS - 1
-        )
-        self.profile.save()
-
+    def test_soft_bounce_pending(self) -> None:
+        self.set_soft_bounce()
         bounce_paused, bounce_type = self.profile.check_bounce_pause()
-
         assert bounce_paused is True
         assert bounce_type == "soft"
 
-    def test_bounce_paused_hardd_and_soft_bounce_pending_shows_hard(self):
-        self.profile.last_hard_bounce = datetime.now(timezone.utc) - timedelta(
-            days=settings.HARD_BOUNCE_ALLOWED_DAYS - 1
-        )
-        self.profile.last_soft_bounce = datetime.now(timezone.utc) - timedelta(
-            days=settings.SOFT_BOUNCE_ALLOWED_DAYS - 1
-        )
-        self.profile.save()
+    def test_hard_and_soft_bounce_pending_shows_hard(self) -> None:
+        self.set_hard_bounce()
+        self.set_soft_bounce()
         bounce_paused, bounce_type = self.profile.check_bounce_pause()
-
         assert bounce_paused is True
         assert bounce_type == "hard"
 
-    def test_bounce_paused_hard_bounce_over_resets_timer(self):
+    def test_hard_bounce_over_resets_timer(self) -> None:
         self.profile.last_hard_bounce = datetime.now(timezone.utc) - timedelta(
             days=settings.HARD_BOUNCE_ALLOWED_DAYS + 1
         )
         self.profile.save()
-
         assert self.profile.last_hard_bounce is not None
 
         bounce_paused, bounce_type = self.profile.check_bounce_pause()
@@ -356,12 +379,11 @@ class ProfileTest(TestCase):
         assert bounce_type == ""
         assert self.profile.last_hard_bounce is None
 
-    def test_bounce_paused_soft_bounce_over_resets_timer(self):
+    def test_soft_bounce_over_resets_timer(self) -> None:
         self.profile.last_soft_bounce = datetime.now(timezone.utc) - timedelta(
             days=settings.SOFT_BOUNCE_ALLOWED_DAYS + 1
         )
         self.profile.save()
-
         assert self.profile.last_soft_bounce is not None
 
         bounce_paused, bounce_type = self.profile.check_bounce_pause()
@@ -370,101 +392,80 @@ class ProfileTest(TestCase):
         assert bounce_type == ""
         assert self.profile.last_soft_bounce is None
 
-    def test_next_email_try_no_bounces_returns_today(self):
+
+class ProfileNextEmailTryDateTest(ProfileBounceTestCase):
+    """Tests for Profile.next_email_try"""
+
+    def test_no_bounces_returns_today(self) -> None:
         assert self.profile.next_email_try.date() == datetime.now(timezone.utc).date()
 
-    def test_next_email_try_hard_bounce_returns_proper_datemath(self):
-        last_hard_bounce = datetime.now(timezone.utc) - timedelta(
-            days=settings.HARD_BOUNCE_ALLOWED_DAYS - 1
-        )
-        self.profile.last_hard_bounce = last_hard_bounce
-        self.profile.save()
-
+    def test_hard_bounce_returns_proper_datemath(self) -> None:
+        last_hard_bounce = self.set_hard_bounce()
         expected_next_try_date = last_hard_bounce + timedelta(
             days=settings.HARD_BOUNCE_ALLOWED_DAYS
         )
         assert self.profile.next_email_try.date() == expected_next_try_date.date()
 
-    def test_next_email_try_soft_bounce_returns_proper_datemath(self):
-        last_soft_bounce = datetime.now(timezone.utc) - timedelta(
-            days=settings.SOFT_BOUNCE_ALLOWED_DAYS - 1
-        )
-        self.profile.last_soft_bounce = last_soft_bounce
-        self.profile.save()
-
+    def test_soft_bounce_returns_proper_datemath(self) -> None:
+        last_soft_bounce = self.set_soft_bounce()
         expected_next_try_date = last_soft_bounce + timedelta(
             days=settings.SOFT_BOUNCE_ALLOWED_DAYS
         )
         assert self.profile.next_email_try.date() == expected_next_try_date.date()
 
-    def test_next_email_try_hard_and_soft_bounce_returns_hard_datemath(self):
-        last_soft_bounce = datetime.now(timezone.utc) - timedelta(
-            days=settings.SOFT_BOUNCE_ALLOWED_DAYS - 1
-        )
-        self.profile.last_soft_bounce = last_soft_bounce
-        last_hard_bounce = datetime.now(timezone.utc) - timedelta(
-            days=settings.HARD_BOUNCE_ALLOWED_DAYS - 1
-        )
-        self.profile.last_hard_bounce = last_hard_bounce
-        self.profile.save()
-
+    def test_hard_and_soft_bounce_returns_hard_datemath(self) -> None:
+        last_soft_bounce = self.set_soft_bounce()
+        last_hard_bounce = self.set_hard_bounce()
+        assert last_soft_bounce != last_hard_bounce
         expected_next_try_date = last_hard_bounce + timedelta(
             days=settings.HARD_BOUNCE_ALLOWED_DAYS
         )
         assert self.profile.next_email_try.date() == expected_next_try_date.date()
 
-    def test_last_bounce_date_no_bounces_returns_None(self):
+
+class ProfileLastBounceDateTest(ProfileBounceTestCase):
+    """Tests for Profile.last_bounce_date"""
+
+    def test_no_bounces_returns_None(self) -> None:
         assert self.profile.last_bounce_date is None
 
-    def test_last_bounce_date_soft_bounce_returns_its_date(self):
-        last_soft_bounce = datetime.now(timezone.utc) - timedelta(
-            days=settings.SOFT_BOUNCE_ALLOWED_DAYS - 1
-        )
-        self.profile.last_soft_bounce = last_soft_bounce
-        self.profile.save()
-
+    def test_soft_bounce_returns_its_date(self) -> None:
+        self.set_soft_bounce()
         assert self.profile.last_bounce_date == self.profile.last_soft_bounce
 
-    def test_last_bounce_date_hard_bounce_returns_its_date(self):
-        last_hard_bounce = datetime.now(timezone.utc) - timedelta(
-            days=settings.HARD_BOUNCE_ALLOWED_DAYS - 1
-        )
-        self.profile.last_hard_bounce = last_hard_bounce
-        self.profile.save()
-
+    def test_hard_bounce_returns_its_date(self) -> None:
+        self.set_hard_bounce()
         assert self.profile.last_bounce_date == self.profile.last_hard_bounce
 
-    def test_last_bounce_date_hard_and_soft_bounces_returns_hard_date(self):
-        last_soft_bounce = datetime.now(timezone.utc) - timedelta(
-            days=settings.SOFT_BOUNCE_ALLOWED_DAYS - 1
-        )
-        self.profile.last_soft_bounce = last_soft_bounce
-        last_hard_bounce = datetime.now(timezone.utc) - timedelta(
-            days=settings.HARD_BOUNCE_ALLOWED_DAYS - 1
-        )
-        self.profile.last_hard_bounce = last_hard_bounce
-        self.profile.save()
-
+    def test_hard_and_soft_bounces_returns_hard_date(self) -> None:
+        self.set_soft_bounce()
+        self.set_hard_bounce()
         assert self.profile.last_bounce_date == self.profile.last_hard_bounce
 
-    def test_has_premium_default_False(self):
+
+class ProfileHasPremiumTest(ProfileTestCase):
+    """Tests for Profile.has_premium"""
+
+    def test_default_False(self) -> None:
         assert self.profile.has_premium is False
 
-    def test_has_phone_default_False(self):
+    def test_unlimited_subsription_returns_True(self) -> None:
+        self.upgrade_to_premium()
+        assert self.profile.has_premium is True
+
+
+class ProfileHasPhoneTest(ProfileTestCase):
+    """Tests for Profile.has_phone"""
+
+    def test_default_False(self) -> None:
         assert self.profile.has_phone is False
 
-    def test_has_premium_with_unlimited_subsription_returns_True(self):
-        premium_user = baker.make(User)
-        baker.make(
-            SocialAccount,
-            user=premium_user,
-            provider="fxa",
-            extra_data={"subscriptions": [unlimited_subscription()]},
-        )
-        assert premium_user.profile.has_premium is True
 
-    def test_total_masks(self):
-        upgrade_test_user_to_premium(self.profile.user)
+class ProfileTotalMasksTest(ProfileTestCase):
+    """Tests for Profile.total_masks"""
+
+    def test_total_masks(self) -> None:
+        self.upgrade_to_premium()
         self.profile.add_subdomain("totalmasks")
         assert self.profile.total_masks == 0
         num_relay_addresses = random.randint(0, 2)
@@ -475,242 +476,102 @@ class ProfileTest(TestCase):
             baker.make(DomainAddress, user=self.profile.user, address=f"mask{i}")
         assert self.profile.total_masks == num_relay_addresses + num_domain_addresses
 
-    def test_at_mask_limit_premium_user_returns_False(self):
-        premium_user = baker.make(User)
-        baker.make(
-            SocialAccount,
-            user=premium_user,
-            provider="fxa",
-            extra_data={"subscriptions": [unlimited_subscription()]},
-        )
-        assert premium_user.profile.at_mask_limit is False
 
-    def test_at_mask_limit_free_user(self):
+class ProfileAtMaskLimitTest(ProfileTestCase):
+    """Tests for Profile.at_mask_limit"""
+
+    def test_premium_user_returns_False(self) -> None:
+        self.upgrade_to_premium()
         assert self.profile.at_mask_limit is False
-        for _ in list(range(settings.MAX_NUM_FREE_ALIASES)):
-            baker.make(RelayAddress, user=self.profile.user)
-        assert self.profile.at_mask_limit is True
-
-    def test_add_subdomain_to_new_unlimited_profile(self):
-        subdomain = "newpremium"
-        premium_user = baker.make(User)
         baker.make(
-            SocialAccount,
-            user=premium_user,
-            provider="fxa",
-            extra_data={"subscriptions": [unlimited_subscription()]},
-        )
-        premium_profile = Profile.objects.get(user=premium_user)
-        assert premium_profile.add_subdomain(subdomain) == subdomain
-
-    def test_setting_direct_Profile_subdomain_lowercases_subdomain_value(self):
-        premium_user = baker.make(User)
-        baker.make(
-            SocialAccount,
-            user=premium_user,
-            provider="fxa",
-            extra_data={"subscriptions": [unlimited_subscription()]},
-        )
-        premium_profile = Profile.objects.get(user=premium_user)
-        premium_profile.subdomain = "mIxEdcAsE"
-        premium_profile.save()
-        assert premium_profile.subdomain == "mixedcase"
-
-    def test_add_subdomain_lowercases_subdomain_value(self):
-        subdomain = "mIxEdcAsE"
-        premium_user = baker.make(User)
-        baker.make(
-            SocialAccount,
-            user=premium_user,
-            provider="fxa",
-            extra_data={"subscriptions": [unlimited_subscription()]},
-        )
-        premium_profile = Profile.objects.get(user=premium_user)
-        assert premium_profile.add_subdomain(subdomain) == "mixedcase"
-
-    def test_add_subdomain_to_non_premium_user_raises_exception(self):
-        subdomain = "test"
-        non_premium_profile = baker.make(User).profile
-        try:
-            non_premium_profile.add_subdomain(subdomain)
-        except CannotMakeSubdomainException as e:
-            assert e.message == "error-premium-set-subdomain"
-            return
-        self.fail("Should have raised CannotMakeSubdomainException")
-
-    def test_add_subdomain_to_unlimited_profile_with_subdomain_raises_exception(self):
-        subdomain = "test"
-        premium_user = baker.make(User)
-        baker.make(
-            SocialAccount,
-            user=premium_user,
-            provider="fxa",
-            extra_data={"subscriptions": [unlimited_subscription()]},
-        )
-        premium_profile = Profile.objects.get(user=premium_user)
-        premium_profile.subdomain = subdomain
-        premium_profile.save()
-
-        try:
-            premium_profile.add_subdomain(subdomain)
-        except CannotMakeSubdomainException as e:
-            assert e.message == "error-premium-cannot-change-subdomain"
-            return
-        self.fail("Should have raised CannotMakeSubdomainException")
-
-    def test_add_subdomain_to_unlimited_profile_with_badword_subdomain_raises_exception(
-        self,
-    ):
-        subdomain = "angry"
-        premium_user = baker.make(User)
-        baker.make(
-            SocialAccount,
-            user=premium_user,
-            provider="fxa",
-            extra_data={"subscriptions": [unlimited_subscription()]},
-        )
-        premium_profile = Profile.objects.get(user=premium_user)
-
-        try:
-            premium_profile.add_subdomain(subdomain)
-        except CannotMakeSubdomainException as e:
-            assert e.message == "error-subdomain-not-available"
-            return
-        self.fail("Should have raised CannotMakeSubdomainException")
-
-    def test_add_subdomain_to_unlimited_profile_with_blocked_word_subdomain_raises_exception(
-        self,
-    ):
-        subdomain = "mozilla"
-        premium_user = baker.make(User)
-        baker.make(
-            SocialAccount,
-            user=premium_user,
-            provider="fxa",
-            extra_data={"subscriptions": [unlimited_subscription()]},
-        )
-        premium_profile = Profile.objects.get(user=premium_user)
-
-        try:
-            premium_profile.add_subdomain(subdomain)
-        except CannotMakeSubdomainException as e:
-            assert e.message == "error-subdomain-not-available"
-            return
-        self.fail("Should have raised CannotMakeSubdomainException")
-
-    def test_subdomain_available_bad_word_returns_False(self):
-        with self.assertRaises(CannotMakeSubdomainException):
-            valid_available_subdomain("angry")
-
-    def test_subdomain_available_blocked_word_returns_False(self):
-        with self.assertRaises(CannotMakeSubdomainException):
-            valid_available_subdomain("mozilla")
-
-    def test_subdomain_available_taken_returns_False(self):
-        premium_user = baker.make(User)
-        baker.make(
-            SocialAccount,
-            user=premium_user,
-            provider="fxa",
-            extra_data={"subscriptions": [unlimited_subscription()]},
-        )
-        premium_profile = Profile.objects.get(user=premium_user)
-        premium_profile.add_subdomain("thisisfine")
-        with self.assertRaises(CannotMakeSubdomainException):
-            valid_available_subdomain("thisisfine")
-
-    def test_subdomain_available_taken_returns_False_case_insensitive(self):
-        premium_user = baker.make(User)
-        baker.make(
-            SocialAccount,
-            user=premium_user,
-            provider="fxa",
-            extra_data={"subscriptions": [unlimited_subscription()]},
-        )
-        premium_profile = Profile.objects.get(user=premium_user)
-        premium_profile.add_subdomain("thIsIsfInE")
-        with self.assertRaises(CannotMakeSubdomainException):
-            valid_available_subdomain("THiSiSFiNe")
-
-    def test_valid_available_subdomain_taken_returns_False_for_inactive_subdomain(self):
-        # subdomains registered in now deleted profiles are considered
-        # inactive subdomains
-        premium_user = baker.make(User)
-        baker.make(
-            SocialAccount,
-            user=premium_user,
-            provider="fxa",
-            extra_data={"subscriptions": [unlimited_subscription()]},
-        )
-        premium_profile = Profile.objects.get(user=premium_user)
-        premium_profile.add_subdomain("thisisfine")
-        premium_user.delete()
-
-        registered_subdomain_count = RegisteredSubdomain.objects.filter(
-            subdomain_hash=hash_subdomain("thisisfine")
-        ).count()
-        assert Profile.objects.filter(subdomain="thisisfine").count() == 0
-        assert registered_subdomain_count == 1
-        with self.assertRaises(CannotMakeSubdomainException):
-            valid_available_subdomain("thisisfine")
-
-    def test_subdomain_available_with_space_returns_False(self):
-        with self.assertRaises(CannotMakeSubdomainException):
-            valid_available_subdomain("my domain")
-
-    def test_subdomain_available_with_special_char_returns_False(self):
-        with self.assertRaises(CannotMakeSubdomainException):
-            valid_available_subdomain("my@domain")
-
-    def test_subdomain_available_with_dash_returns_True(self):
-        assert valid_available_subdomain("my-domain") == True
-
-    def test_subdomain_available_with_dash_at_front_returns_False(self):
-        with self.assertRaises(CannotMakeSubdomainException):
-            valid_available_subdomain("-mydomain")
-
-    def test_display_name_exists(self):
-        display_name = "Display Name"
-        social_account = baker.make(
-            SocialAccount, provider="fxa", extra_data={"displayName": display_name}
-        )
-        profile = Profile.objects.get(user=social_account.user)
-        assert profile.display_name == display_name
-
-    def test_display_name_does_not_exist(self):
-        social_account = baker.make(SocialAccount, provider="fxa", extra_data={})
-        profile = Profile.objects.get(user=social_account.user)
-        assert profile.display_name is None
-
-    def test_save_server_storage_true_doesnt_delete_data(self):
-        test_desc = "test description"
-        test_generated_for = "secret.com"
-        test_used_on = "secret.com"
-        relay_address = baker.make(
             RelayAddress,
             user=self.profile.user,
-            description=test_desc,
-            generated_for=test_generated_for,
-            used_on=test_used_on,
+            _quantity=settings.MAX_NUM_FREE_ALIASES,
         )
+        assert self.profile.at_mask_limit is False
+
+    def test_free_user(self) -> None:
+        assert self.profile.at_mask_limit is False
+        baker.make(
+            RelayAddress,
+            user=self.profile.user,
+            _quantity=settings.MAX_NUM_FREE_ALIASES,
+        )
+        assert self.profile.at_mask_limit is True
+
+
+class ProfileAddSubdomainTest(ProfileTestCase):
+    """Tests for Profile.add_subdomain()"""
+
+    def test_new_unlimited_profile(self) -> None:
+        self.upgrade_to_premium()
+        assert self.profile.add_subdomain("newpremium") == "newpremium"
+
+    def test_lowercases_subdomain_value(self) -> None:
+        self.upgrade_to_premium()
+        assert self.profile.add_subdomain("mIxEdcAsE") == "mixedcase"
+
+    def test_non_premium_user_raises_exception(self) -> None:
+        expected_msg = "error-premium-set-subdomain"
+        with self.assertRaisesMessage(CannotMakeSubdomainException, expected_msg):
+            self.profile.add_subdomain("test")
+
+    def test_calling_again_raises_exception(self) -> None:
+        self.upgrade_to_premium()
+        subdomain = "test"
+        self.profile.subdomain = subdomain
+        self.profile.save()
+
+        expected_msg = "error-premium-cannot-change-subdomain"
+        with self.assertRaisesMessage(CannotMakeSubdomainException, expected_msg):
+            self.profile.add_subdomain(subdomain)
+
+    def test_badword_subdomain_raises_exception(self) -> None:
+        self.upgrade_to_premium()
+        expected_msg = "error-subdomain-not-available"
+        with self.assertRaisesMessage(CannotMakeSubdomainException, expected_msg):
+            self.profile.add_subdomain("angry")
+
+    def test_blocked_word_subdomain_raises_exception(self) -> None:
+        self.upgrade_to_premium()
+        expected_msg = "error-subdomain-not-available"
+        with self.assertRaisesMessage(CannotMakeSubdomainException, expected_msg):
+            self.profile.add_subdomain("mozilla")
+
+
+class ProfileSaveTest(ProfileTestCase):
+    """Tests for Profile.save()"""
+
+    def test_lowercases_subdomain_value(self) -> None:
+        self.upgrade_to_premium()
+        self.profile.subdomain = "mIxEdcAsE"
+        self.profile.save()
+        assert self.profile.subdomain == "mixedcase"
+
+    TEST_DESCRIPTION = "test description"
+    TEST_USED_ON = TEST_GENERATED_FOR = "secret.com"
+
+    def add_relay_address(self) -> RelayAddress:
+        return baker.make(
+            RelayAddress,
+            user=self.profile.user,
+            description=self.TEST_DESCRIPTION,
+            generated_for=self.TEST_GENERATED_FOR,
+            used_on=self.TEST_USED_ON,
+        )
+
+    def test_save_server_storage_true_doesnt_delete_data(self) -> None:
+        relay_address = self.add_relay_address()
         self.profile.server_storage = True
         self.profile.save()
 
-        assert relay_address.description == test_desc
-        assert relay_address.generated_for == test_generated_for
-        assert relay_address.used_on == test_used_on
+        relay_address.refresh_from_db()
+        assert relay_address.description == self.TEST_DESCRIPTION
+        assert relay_address.generated_for == self.TEST_GENERATED_FOR
+        assert relay_address.used_on == self.TEST_USED_ON
 
-    def test_save_server_storage_false_deletes_data(self):
-        test_desc = "test description"
-        test_generated_for = "secret.com"
-        test_used_on = "secret.com"
-        relay_address = baker.make(
-            RelayAddress,
-            user=self.profile.user,
-            description=test_desc,
-            generated_for=test_generated_for,
-            used_on=test_used_on,
-        )
+    def test_save_server_storage_false_deletes_data(self) -> None:
+        relay_address = self.add_relay_address()
         self.profile.server_storage = False
         self.profile.save()
 
@@ -719,16 +580,20 @@ class ProfileTest(TestCase):
         assert relay_address.generated_for == ""
         assert relay_address.used_on == ""
 
-    def test_save_server_storage_false_deletes_ALL_data(self):
-        test_desc = "test description"
-        test_generated_for = "secret.com"
-        baker.make(
+    def add_four_relay_addresses(self, user: User | None = None) -> list[RelayAddress]:
+        if user is None:
+            user = self.profile.user
+        return baker.make(
             RelayAddress,
-            user=self.profile.user,
-            description=test_desc,
-            generated_for=test_generated_for,
+            user=user,
+            description=self.TEST_DESCRIPTION,
+            generated_for=self.TEST_GENERATED_FOR,
+            used_on=self.TEST_USED_ON,
             _quantity=4,
         )
+
+    def test_save_server_storage_false_deletes_ALL_data(self) -> None:
+        self.add_four_relay_addresses()
         self.profile.server_storage = False
         self.profile.save()
 
@@ -736,310 +601,271 @@ class ProfileTest(TestCase):
             assert relay_address.description == ""
             assert relay_address.generated_for == ""
 
-    def test_save_server_storage_false_only_deletes_that_profiles_data(self):
-        test_desc = "test description"
-        test_generated_for = "secret.com"
-        baker.make(
-            RelayAddress,
-            user=self.profile.user,
-            description=test_desc,
-            generated_for=test_generated_for,
-            _quantity=4,
-        )
-
-        server_stored_data_user = baker.make(User)
-        server_stored_data_profile = server_stored_data_user.profile
-        server_stored_data_profile.server_storage = True
-        server_stored_data_profile.save()
-        baker.make(
-            RelayAddress,
-            user=server_stored_data_profile.user,
-            description=test_desc,
-            generated_for=test_generated_for,
-            _quantity=4,
-        )
-
+    def test_save_server_storage_false_only_deletes_that_profiles_data(self) -> None:
+        other_user = make_free_test_user()
+        assert other_user.profile.server_storage is True
+        self.add_four_relay_addresses()
+        self.add_four_relay_addresses(user=other_user)
         self.profile.server_storage = False
         self.profile.save()
 
         for relay_address in RelayAddress.objects.filter(user=self.profile.user):
             assert relay_address.description == ""
             assert relay_address.generated_for == ""
+            assert relay_address.used_on == ""
 
-        for relay_address in RelayAddress.objects.filter(
-            user=server_stored_data_profile.user
-        ):
-            assert relay_address.description == test_desc
-            assert relay_address.generated_for == test_generated_for
+        for relay_address in RelayAddress.objects.filter(user=other_user):
+            assert relay_address.description == self.TEST_DESCRIPTION
+            assert relay_address.generated_for == self.TEST_GENERATED_FOR
+            assert relay_address.used_on == self.TEST_USED_ON
 
-    def test_language_with_no_fxa_extra_data_locale_returns_default_en(self):
-        baker.make(SocialAccount, user=self.profile.user, provider="fxa")
+
+class ValidAvailableSubdomainTest(TestCase):
+    """Tests for valid_available_subdomain()"""
+
+    ERR_NOT_AVAIL = "error-subdomain-not-available"
+
+    def reserve_subdomain_for_new_user(self, subdomain: str) -> User:
+        user = make_premium_test_user()
+        user.profile.add_subdomain(subdomain)
+        return user
+
+    def test_bad_word_raises(self) -> None:
+        with self.assertRaisesMessage(CannotMakeSubdomainException, self.ERR_NOT_AVAIL):
+            valid_available_subdomain("angry")
+
+    def test_blocked_word_raises(self) -> None:
+        with self.assertRaisesMessage(CannotMakeSubdomainException, self.ERR_NOT_AVAIL):
+            valid_available_subdomain("mozilla")
+
+    def test_taken_subdomain_raises(self) -> None:
+        subdomain = "thisisfine"
+        self.reserve_subdomain_for_new_user(subdomain)
+        with self.assertRaisesMessage(CannotMakeSubdomainException, self.ERR_NOT_AVAIL):
+            valid_available_subdomain(subdomain)
+
+    def test_taken_subdomain_different_case_raises(self) -> None:
+        self.reserve_subdomain_for_new_user("thIsIsfInE")
+        with self.assertRaisesMessage(CannotMakeSubdomainException, self.ERR_NOT_AVAIL):
+            valid_available_subdomain("THiSiSFiNe")
+
+    def test_inactive_subdomain_raises(self) -> None:
+        """subdomains registered by now deleted profiles are not available."""
+        subdomain = "thisisfine"
+        user = self.reserve_subdomain_for_new_user(subdomain)
+        user.delete()
+
+        registered_subdomain_count = RegisteredSubdomain.objects.filter(
+            subdomain_hash=hash_subdomain(subdomain)
+        ).count()
+        assert Profile.objects.filter(subdomain=subdomain).count() == 0
+        assert registered_subdomain_count == 1
+        with self.assertRaisesMessage(CannotMakeSubdomainException, self.ERR_NOT_AVAIL):
+            valid_available_subdomain(subdomain)
+
+    def test_subdomain_with_space_raises(self) -> None:
+        with self.assertRaisesMessage(CannotMakeSubdomainException, self.ERR_NOT_AVAIL):
+            valid_available_subdomain("my domain")
+
+    def test_subdomain_with_special_char_raises(self) -> None:
+        with self.assertRaisesMessage(CannotMakeSubdomainException, self.ERR_NOT_AVAIL):
+            valid_available_subdomain("my@domain")
+
+    def test_subdomain_with_dash_returns_True(self) -> None:
+        assert valid_available_subdomain("my-domain") is True
+
+    def test_subdomain_with_dash_at_front_raises(self) -> None:
+        with self.assertRaisesMessage(CannotMakeSubdomainException, self.ERR_NOT_AVAIL):
+            valid_available_subdomain("-mydomain")
+
+
+class ProfileDisplayNameTest(ProfileTestCase):
+    """Tests for Profile.display_name"""
+
+    def test_exists(self) -> None:
+        display_name = "Display Name"
+        social_account = self.get_or_create_social_account()
+        social_account.extra_data["displayName"] = display_name
+        social_account.save()
+        assert self.profile.display_name == display_name
+
+    def test_display_name_does_not_exist(self) -> None:
+        self.get_or_create_social_account()
+        assert self.profile.display_name is None
+
+
+class ProfileLanguageTest(ProfileTestCase):
+    """Test Profile.language"""
+
+    def test_no_fxa_extra_data_locale_returns_default_en(self) -> None:
+        social_account = self.get_or_create_social_account()
+        assert "locale" not in social_account.extra_data
         assert self.profile.language == "en"
 
-    def test_language_with_no_fxa_locale_returns_default_en(self):
+    def test_no_fxa_locale_returns_default_en(self) -> None:
         assert self.profile.language == "en"
 
-    def test_language_with_fxa_locale_de_returns_de(self):
-        baker.make(
-            SocialAccount,
-            user=self.profile.user,
-            provider="fxa",
-            extra_data={"locale": "de,en-US;q=0.9,en;q=0.8"},
-        )
+    def test_fxa_locale_de_returns_de(self) -> None:
+        social_account = self.get_or_create_social_account()
+        social_account.extra_data["locale"] = "de,en-US;q=0.9,en;q=0.8"
+        social_account.save()
         assert self.profile.language == "de"
 
-    def test_locale_in_premium_country_returns_True_if_premium_available(self):
-        baker.make(
-            SocialAccount,
-            user=self.profile.user,
-            provider="fxa",
-            extra_data={"locale": "de-DE,en-xx;q=0.9,en;q=0.8"},
-        )
+
+class ProfileFxaLocaleInPremiumCountryTest(ProfileTestCase):
+    """Tests for Profile.fxa_locale_in_premium_country"""
+
+    def set_fxa_locale(self, locale: str) -> None:
+        social_account = self.get_or_create_social_account()
+        social_account.extra_data["locale"] = locale
+        social_account.save()
+
+    def test_when_premium_available_returns_True(self) -> None:
+        self.set_fxa_locale("de-DE,en-xx;q=0.9,en;q=0.8")
         assert self.profile.fxa_locale_in_premium_country is True
 
-    def test_locale_in_premium_country_returns_False_if_premium_unavailable(self):
-        baker.make(
-            SocialAccount,
-            user=self.profile.user,
-            provider="fxa",
-            extra_data={"locale": "en;q=0.8"},
-        )
+    def test_when_premium_unavailable_returns_False(self) -> None:
+        self.set_fxa_locale("en;q=0.8")
         assert self.profile.fxa_locale_in_premium_country is False
 
-    def test_locale_in_premium_country_returns_True_if_premium_available_in_country_with_same_language_code(
-        self,
-    ):
-        baker.make(
-            SocialAccount,
-            user=self.profile.user,
-            provider="fxa",
-            extra_data={"locale": "de;q=0.8"},
-        )
+    def test_when_premium_available_by_language_code_returns_True(self) -> None:
+        self.set_fxa_locale("de;q=0.8")
         assert self.profile.fxa_locale_in_premium_country is True
 
-    def test_locale_in_premium_country_returns_False_if_premium_not_available_in_country_with_same_language_code(
-        self,
-    ):
-        baker.make(
-            SocialAccount,
-            user=self.profile.user,
-            provider="fxa",
-            extra_data={"locale": "xx;q=0.8"},
-        )
+    def test_when_premium_unavailable_by_language_code_returns_False(self) -> None:
+        self.set_fxa_locale("xx;q=0.8")
         assert self.profile.fxa_locale_in_premium_country is False
 
-    def test_locale_in_premium_country_returns_False_if_no_fxa_account(self):
+    def test_no_fxa_account_returns_False(self) -> None:
         assert self.profile.fxa_locale_in_premium_country is False
 
     @override_flag("eu_country_expansion", active=True)
-    def test_locale_in_premium_country_with_eu_expansion_flag(self):
-        baker.make(
-            SocialAccount,
-            user=self.profile.user,
-            provider="fxa",
-            extra_data={"locale": "et-ee,et;q=0.8"},
-        )
+    def test_in_estonia_with_eu_expansion_flag(self):
+        self.set_fxa_locale("et-ee,et;q=0.8")
         assert self.profile.fxa_locale_in_premium_country is True
 
     @override_flag("eu_country_expansion", active=False)
-    def test_locale_in_premium_country_without_eu_expansion_flag(self):
-        baker.make(
-            SocialAccount,
-            user=self.profile.user,
-            provider="fxa",
-            extra_data={"locale": "et-ee,et;q=0.8"},
-        )
+    def test_in_estonia_without_eu_expansion_flag(self):
+        self.set_fxa_locale("et-ee,et;q=0.8")
         assert self.profile.fxa_locale_in_premium_country is False
 
-    def test_user_joined_before_premium_release_returns_True(self):
-        user = baker.make(
-            User, date_joined=datetime.fromisoformat("2021-10-18 17:00:00+00:00")
+
+class ProfileJoinedBeforePremiumReleaseTest(ProfileTestCase):
+    """Tests for Profile.joined_before_premium_release"""
+
+    def test_returns_True(self) -> None:
+        before = "2021-10-18 17:00:00+00:00"
+        self.profile.user.date_joined = datetime.fromisoformat(before)
+        assert self.profile.joined_before_premium_release
+
+    def test_returns_False(self) -> None:
+        after = "2021-10-28 17:00:00+00:00"
+        self.profile.user.date_joined = datetime.fromisoformat(after)
+        assert self.profile.joined_before_premium_release is False
+
+
+class ProfileDefaultsTest(ProfileTestCase):
+    """Tests for default Profile values"""
+
+    def test_user_created_after_premium_release_server_storage_True(self) -> None:
+        assert self.profile.server_storage
+
+    def test_emails_replied_new_user_aggregates_sum_of_replies_to_zero(self) -> None:
+        assert self.profile.emails_replied == 0
+
+
+class ProfileEmailsRepliedTest(ProfileTestCase):
+    """Tests for Profile.emails_replied"""
+
+    def test_premium_user_aggregates_replies_from_all_addresses(self) -> None:
+        self.upgrade_to_premium()
+        self.profile.subdomain = "test"
+        self.profile.num_email_replied_in_deleted_address = 1
+        self.profile.save()
+        baker.make(RelayAddress, user=self.profile.user, num_replied=3)
+        baker.make(
+            DomainAddress, user=self.profile.user, address="lower-case", num_replied=5
         )
-        profile = Profile.objects.get(user=user)
-        assert profile.joined_before_premium_release
 
-    def test_user_joined_before_premium_release_returns_False(self):
-        user = baker.make(
-            User, date_joined=datetime.fromisoformat("2021-10-28 17:00:00+00:00")
-        )
-        profile = Profile.objects.get(user=user)
-        assert profile.joined_before_premium_release is False
+        assert self.profile.emails_replied == 9
 
-    def test_user_created_after_premium_release_server_storage_True(self):
-        user = baker.make(User)
-        profile = Profile.objects.get(user=user)
-        assert profile.server_storage
-
-    def test_emails_replied_preimum_user_aggregates_sum_of_replies_from_all_addresses(
-        self,
-    ):
-        subdomain = "test"
-        user = make_premium_test_user()
-        user_profile = user.profile
-        user_profile.subdomain = subdomain
-        user_profile.num_email_replied_in_deleted_address = 1
-        user_profile.save()
-        baker.make(RelayAddress, user=user, num_replied=3)
-        baker.make(DomainAddress, user=user, address="lower-case", num_replied=5)
-
-        assert user_profile.emails_replied == 9
-
-    def test_emails_replied_user_aggregates_sum_of_replies_from_relay_addresses(self):
+    def test_free_user_aggregates_replies_from_relay_addresses(self) -> None:
         baker.make(RelayAddress, user=self.profile.user, num_replied=3)
         baker.make(RelayAddress, user=self.profile.user, num_replied=5)
 
         assert self.profile.emails_replied == 8
 
-    def test_emails_replied_new_user_aggregates_sum_of_replies_to_zero(self):
-        assert self.profile.emails_replied == 0
 
-    @patch("emails.signals.incr_if_enabled")
-    @patch("emails.signals.info_logger.info")
-    def test_remove_level_one_email_trackers_enabled_emits_metric_and_logs(
-        self, mocked_events_info, mocked_incr
-    ):
-        baker.make(
-            SocialAccount,
-            user=self.profile.user,
-            provider="fxa",
+class ProfileUpdateAbuseMetricTest(ProfileTestCase):
+    """Tests for Profile.update_abuse_metric()"""
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.get_or_create_social_account()
+        self.abuse_metric = baker.make(AbuseMetrics, user=self.profile.user)
+
+        patcher_logger = patch("emails.models.abuse_logger.info")
+        self.mocked_abuse_info = patcher_logger.start()
+        self.addCleanup(patcher_logger.stop)
+
+        # Selectively patch datatime.now() for emails models
+        # https://docs.python.org/3/library/unittest.mock-examples.html#partial-mocking
+        patcher = patch("emails.models.datetime")
+        mocked_datetime = patcher.start()
+        self.addCleanup(patcher.stop)
+
+        self.expected_now = datetime.now(timezone.utc)
+        mocked_datetime.combine.return_value = datetime.combine(
+            datetime.now(timezone.utc).date(), datetime.min.time()
         )
-        self.profile.remove_level_one_email_trackers = True
-        self.profile.save()
+        mocked_datetime.now.return_value = self.expected_now
+        mocked_datetime.side_effect = lambda *args, **kw: datetime(*args, **kw)
 
-        expected_hashed_uid = sha256(self.profile.fxa.uid.encode("utf-8")).hexdigest()
-        mocked_incr.assert_called_once_with("tracker_removal_enabled")
-        mocked_events_info.assert_called_once_with(
-            "tracker_removal_feature",
-            extra={
-                "enabled": True,
-                "hashed_uid": expected_hashed_uid,
-            },
-        )
-
-    @patch("emails.signals.incr_if_enabled")
-    @patch("emails.signals.info_logger.info")
-    def test_remove_level_one_email_trackers_disabled_emits_metric_and_logs(
-        self, mocked_events_info, mocked_incr
-    ):
-        user = baker.make(User)
-        Profile.objects.filter(user_id=user.id).update(
-            remove_level_one_email_trackers=True
-        )
-        baker.make(SocialAccount, user=user, provider="fxa")
-        profile = user.profile
-        profile.remove_level_one_email_trackers = False
-        profile.save()
-
-        expected_hashed_uid = sha256(profile.fxa.uid.encode("utf-8")).hexdigest()
-        mocked_incr.assert_called_once_with("tracker_removal_disabled")
-        mocked_events_info.assert_called_once_with(
-            "tracker_removal_feature",
-            extra={
-                "enabled": False,
-                "hashed_uid": expected_hashed_uid,
-            },
-        )
-
-    @patch("emails.signals.incr_if_enabled")
-    @patch("emails.signals.info_logger.info")
-    def test_remove_level_one_email_trackers_unchanged_does_not_emit_metric_and_logs(
-        self, mocked_events_info, mocked_incr
-    ):
-        baker.make(
-            SocialAccount,
-            user=self.profile.user,
-            provider="fxa",
-        )
-        self.profile.remove_level_one_email_trackers = False
-        self.profile.save()
-
-        mocked_incr.assert_not_called()
-        mocked_events_info.assert_not_called()
-
-    @patch("emails.signals.incr_if_enabled")
-    @patch("emails.signals.info_logger.info")
-    def test_remove_level_one_email_trackers_unchanged_different_field_changed_does_not_emit_metric_and_logs(
-        self, mocked_events_info, mocked_incr
-    ):
-        baker.make(
-            SocialAccount,
-            user=self.profile.user,
-            provider="fxa",
-        )
-        self.profile.server_storage = False
-        self.profile.save()
-
-        mocked_incr.assert_not_called()
-        mocked_events_info.assert_not_called()
-
-    @patch("emails.signals.incr_if_enabled")
-    @patch("emails.signals.info_logger.info")
-    def test_profile_created_does_not_emit_metric_and_logs_from_measure_feature_usage_signal(
-        self, mocked_events_info, mocked_incr
-    ):
-        user = baker.make(User)
-        assert user.profile
-
-        mocked_incr.assert_not_called()
-        mocked_events_info.assert_not_called()
-
-    @patch("emails.models.abuse_logger.info")
     @override_settings(MAX_FORWARDED_PER_DAY=5)
-    def test_update_abuse_metric_flags_profile_when_emails_forwarded_abuse_threshold_met(
-        self, mocked_abuse_info
-    ):
-        expected_now = self.patch_datetime_now()
-        user = make_premium_test_user()
-        baker.make(AbuseMetrics, user=user, num_email_forwarded_per_day=4)
-        profile = user.profile
+    def test_flags_profile_when_emails_forwarded_abuse_threshold_met(self) -> None:
+        self.abuse_metric.num_email_forwarded_per_day = 4
+        self.abuse_metric.save()
+        assert self.profile.last_account_flagged is None
 
-        assert profile.last_account_flagged is None
-        profile.update_abuse_metric(email_forwarded=True)
+        self.profile.update_abuse_metric(email_forwarded=True)
+        self.abuse_metric.refresh_from_db()
 
-        abuse_metrics = AbuseMetrics.objects.get(user=user)
-
-        mocked_abuse_info.assert_called_once_with(
+        self.mocked_abuse_info.assert_called_once_with(
             "Abuse flagged",
             extra={
-                "uid": profile.fxa.uid,
-                "flagged": expected_now.timestamp(),
+                "uid": self.profile.fxa.uid,
+                "flagged": self.expected_now.timestamp(),
                 "replies": 0,
                 "addresses": 0,
                 "forwarded": 5,
                 "forwarded_size_in_bytes": 0,
             },
         )
-        assert abuse_metrics.num_email_forwarded_per_day == 5
-        assert profile.last_account_flagged == expected_now
+        assert self.abuse_metric.num_email_forwarded_per_day == 5
+        assert self.profile.last_account_flagged == self.expected_now
 
-    @patch("emails.models.abuse_logger.info")
     @override_settings(MAX_FORWARDED_EMAIL_SIZE_PER_DAY=100)
-    def test_update_abuse_metric_flags_profile_when_forwarded_email_size_abuse_threshold_met(
-        self, mocked_abuse_info
-    ):
-        expected_now = self.patch_datetime_now()
-        user = make_premium_test_user()
-        baker.make(AbuseMetrics, user=user, forwarded_email_size_per_day=50)
-        profile = user.profile
+    def test_flags_profile_when_forwarded_email_size_abuse_threshold_met(self) -> None:
+        self.abuse_metric.forwarded_email_size_per_day = 50
+        self.abuse_metric.save()
+        assert self.profile.last_account_flagged is None
 
-        assert profile.last_account_flagged is None
-        profile.update_abuse_metric(forwarded_email_size=50)
+        self.profile.update_abuse_metric(forwarded_email_size=50)
+        self.abuse_metric.refresh_from_db()
 
-        abuse_metrics = AbuseMetrics.objects.get(user=user)
-
-        mocked_abuse_info.assert_called_once_with(
+        self.mocked_abuse_info.assert_called_once_with(
             "Abuse flagged",
             extra={
-                "uid": profile.fxa.uid,
-                "flagged": expected_now.timestamp(),
+                "uid": self.profile.fxa.uid,
+                "flagged": self.expected_now.timestamp(),
                 "replies": 0,
                 "addresses": 0,
                 "forwarded": 0,
                 "forwarded_size_in_bytes": 100,
             },
         )
-        assert abuse_metrics.forwarded_email_size_per_day == 100
-        assert profile.last_account_flagged == expected_now
+        assert self.abuse_metric.forwarded_email_size_per_day == 100
+        assert self.profile.last_account_flagged == self.expected_now
 
 
 class DomainAddressTest(TestCase):
@@ -1161,11 +987,11 @@ class DomainAddressTest(TestCase):
         domain_address = DomainAddress.objects.create(
             user=self.user, address="lower-case"
         )
-        assert domain_address.block_list_emails == False
+        assert domain_address.block_list_emails is False
         domain_address.block_list_emails = True
         domain_address.save()
         domain_address.refresh_from_db()
-        assert domain_address.block_list_emails == True
+        assert domain_address.block_list_emails is True
 
     def test_storageless_user_cant_set_labels(self):
         domain_address = DomainAddress.objects.create(
