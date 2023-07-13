@@ -304,3 +304,15 @@ def test_phone_subscriber_with_subscription_end_date_after_reset_phone_limits_up
     assert num_profiles_updated == 1
     relay_number.refresh_from_db()
     assert relay_number.remaining_texts == settings.MAX_TEXTS_PER_BILLING_CYCLE
+
+
+@pytest.mark.django_db
+def test_update_phones_command(capsys):
+    call_command("update_phone_remaining_stats")
+    out, err = capsys.readouterr()
+
+    out = out.split(" ")
+    numProfiles, numReset = int(out[2]), int(out[4])
+
+    assert numProfiles == 0
+    assert numReset == 0
