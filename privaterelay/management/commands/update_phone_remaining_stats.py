@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.contrib.auth.models import User
 
 import logging
 
@@ -17,7 +18,7 @@ if settings.PHONES_ENABLED:
 logger = logging.getLogger("events")
 
 
-def reset_phone_remaining_stats(user):
+def reset_phone_remaining_stats(user: User) -> None:
     # re-set remaining_texts and remaining_seconds to the maximum value
     try:
         relay_number = RelayNumber.objects.get(user=user)
