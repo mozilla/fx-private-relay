@@ -227,7 +227,6 @@ def test_patch_relayaddress_free_user_cannot_set_block_list_emails(
     assert ra.block_list_emails is False
 
 
-@pytest.mark.xfail(reason="MPP-3186: Free user can not clear block_list_emails")
 def test_patch_relayaddress_format_premium_user_can_clear_block_list_emails(
     premium_user, prem_api_client
 ) -> None:
