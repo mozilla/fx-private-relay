@@ -186,7 +186,11 @@ class RelayAddressTest(TestCase):
 
     @override_settings(MAX_NUM_FREE_ALIASES=5, MAX_ADDRESS_CREATION_PER_DAY=10)
     def test_create_has_limit(self) -> None:
-        baker.make(RelayAddress, user=self.premium_user, _quantity=10)
+        baker.make(
+            RelayAddress,
+            user=self.premium_user,
+            _quantity=settings.MAX_ADDRESS_CREATION_PER_DAY,
+        )
         with pytest.raises(CannotMakeAddressException) as exc_info:
             RelayAddress.objects.create(user=self.premium_user)
         assert exc_info.value.get_codes() == "account_is_paused"
