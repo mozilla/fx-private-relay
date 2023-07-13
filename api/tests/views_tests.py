@@ -210,6 +210,50 @@ def test_post_relayaddress_flagged_error(free_user, free_api_client) -> None:
     }
 
 
+def test_patch_relayaddress_free_user_cannot_set_block_list_emails(
+    free_user, free_api_client
+) -> None:
+    """A free user cannot set block_list_emails to True"""
+    ra = baker.make(RelayAddress, user=free_user, enabled=True, block_list_emails=False)
+    response = free_api_client.patch(
+        reverse("relayaddress-detail", args=[ra.id]),
+        {"enabled": False, "block_list_emails": True},
+        format="json",
+    )
+    assert response.status_code == 401
+    assert response.json() == {"detail": "Must be premium to set block_list_emails."}
+    ra.refresh_from_db()
+    assert ra.enabled is True
+    assert ra.block_list_emails is False
+
+
+def test_patch_relayaddress_format_premium_user_can_clear_block_list_emails(
+    premium_user, prem_api_client
+) -> None:
+    """A formerly-premium user can set block_list_emails to False"""
+    # Create a Relay Address with promotions blocked
+    ra = baker.make(
+        RelayAddress, user=premium_user, enabled=False, block_list_emails=True
+    )
+
+    # Unsubscribe the premium user
+    fxa_account = premium_user.profile.fxa
+    fxa_account.extra_data["subscriptions"] = []
+    fxa_account.save()
+    assert not premium_user.profile.has_premium
+
+    # Re-enable the Relay Address
+    response = prem_api_client.patch(
+        reverse("relayaddress-detail", args=[ra.id]),
+        {"enabled": True, "block_list_emails": False},
+        format="json",
+    )
+    assert response.status_code == 200
+    ra.refresh_from_db()
+    assert ra.enabled is True
+    assert ra.block_list_emails is False
+
+
 class TermsAcceptedUserViewTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()

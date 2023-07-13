@@ -22,14 +22,8 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 
 def check_premium_for_block_list_emails(sender, instance, **kwargs):
-    if not instance.user.profile.has_premium:
-        try:
-            obj = sender.objects.get(pk=instance.pk)
-            if obj.block_list_emails != instance.block_list_emails:
-                raise BadRequest("Must be premium to set block_list_emails")
-        except sender.DoesNotExist:
-            if instance.block_list_emails:
-                raise BadRequest("Must be premium to set block_list_emails")
+    if instance.block_list_emails and not instance.user.profile.has_premium:
+        raise BadRequest("Must be premium to set block_list_emails")
 
 
 @receiver(pre_save, sender=Profile)
