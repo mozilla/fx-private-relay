@@ -12,7 +12,8 @@ from model_bakery import baker
 from pytest_django.fixtures import SettingsWrapper
 import pytest
 
-from ..models import InboundContact, RealPhone, RelayNumber
+if settings.PHONES_ENABLED:
+    from ..models import InboundContact, RealPhone, RelayNumber
 
 pytestmark = pytest.mark.skipif(
     not settings.PHONES_ENABLED, reason="PHONES_ENABLED is False"
