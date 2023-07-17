@@ -103,7 +103,6 @@ LanguageStr = Literal[
     "it",  # Italian
     "lt",  # Lithuanian
     "lv",  # Latvian
-    "mt",  # Maltese
     "nl",  # Dutch
     "pl",  # Polish
     "pt",  # Portuguese
@@ -512,7 +511,10 @@ _RelayCountryLanguageData = dict[LanguageStr, _StripeCountryOrRegion]
 # The top-level key is the plan, or a psuedo-plan for waffled expansion
 # The second-level key is the RelayCountryStr, such as "ca" for Canada
 # The third-level key is a LanguageStr, such as "en" for English. The first language
-#   key is the default for that country
+#   key is the default for that country. Multiple keys are only needed when
+#   there are multiple plans for a country (Belgium and Switzerland), distinguished by
+#   the language. In the 2023 EU expansion, we instead created a plan per country, so
+#   only one third-level entry is needed, and the language is not used.
 # The third-level value is a _CountryStr, such as "US" for the United States,
 #   or a _RegionalLanguageStr, such as "de-CH" for German (Switzerland). This is an
 #   index into the _STRIPE_PLAN_DATA. Multiple entries may point to the same Stripe
@@ -556,16 +558,9 @@ _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE: _RelayPlansByCountryAndLanguage = {
         "hr": {"hr": "HR"},  # Croatia
         "hu": {"hu": "HU"},  # Hungary
         "lt": {"lt": "LT"},  # Lithuania
-        "lu": {  # Luxembourg
-            "fr": "LU",
-            "de": "LU",
-            "en": "LU",
-        },
+        "lu": {"fr": "LU"},  # Luxembourg
         "lv": {"lv": "LV"},  # Latvia
-        "mt": {  # Malta
-            "en": "MT",
-            "mt": "MT",
-        },
+        "mt": {"en": "MT"},  # Malta
         "pl": {"pl": "PL"},  # Poland
         "pt": {"pt": "PT"},  # Portugal
         "ro": {"ro": "RO"},  # Romania

@@ -190,7 +190,7 @@ def check_country_language_mapping_for_monthly_plan(
         ("lv", "lv", "lv"),
         ("lt", "lt", "lt"),
         ("lu", "fr", "fr-LU"),
-        ("mt", "mt", "mt"),
+        ("mt", "en", "mt"),
         ("pt", "pt", "pt"),
         ("sk", "sk", "sk"),
         ("si", "sl", "sl"),
