@@ -44,7 +44,7 @@ pytest-django==4.5.2
 responses==0.23.1
 
 # linting
-black==23.3.0
+black==23.7.0
 
 # type hinting
 boto3-stubs==1.28.1
