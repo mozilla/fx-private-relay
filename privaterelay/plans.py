@@ -81,6 +81,9 @@ CurrencyStr = Literal[
 ]
 
 # ISO 639 language codes handled by Relay
+# These are the 3rd-level keys in _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE, and are
+# unrelated to the supported languages in Pontoon.
+#
 # Use the 2-letter ISO 639-1 code if available, otherwise the 3-letter ISO 639-2 code.
 # See https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
 # and https://www.loc.gov/standards/iso639-2/php/English_list.php
