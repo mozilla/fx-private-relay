@@ -95,10 +95,12 @@ LanguageStr = Literal[
     "et",  # Estonian
     "fi",  # Finnish
     "fr",  # French
+    "hr",  # Croatian
     "hu",  # Hungarian
     "it",  # Italian
     "lt",  # Lithuanian
     "lv",  # Latvian
+    "mt",  # Maltese
     "nl",  # Dutch
     "pl",  # Polish
     "pt",  # Portuguese
@@ -543,17 +545,24 @@ _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE: _RelayPlansByCountryAndLanguage = {
     },
     "premium_eu_expansion": {
         "bg": {"bg": "BG"},  # Bulgaria
-        "cy": {"en": "CY"},  # Cyprus
+        "cy": {"el": "CY"},  # Cyprus
         "cz": {"cs": "CZ"},  # Czech Republic / Czechia
         "dk": {"da": "DK"},  # Denmark
         "ee": {"et": "EE"},  # Estonia
         "gr": {"el": "GR"},  # Greece
-        "hr": {"en": "HR"},  # Croatia (language may change from English)
+        "hr": {"hr": "HR"},  # Croatia
         "hu": {"hu": "HU"},  # Hungary
         "lt": {"lt": "LT"},  # Lithuania
-        "lu": {"en": "LU"},  # Luxembourg (language may change from English)
+        "lu": {  # Luxembourg
+            "fr": "LU",
+            "de": "LU",
+            "en": "LU",
+        },
         "lv": {"lv": "LV"},  # Latvia
-        "mt": {"en": "MT"},  # Malta (language may change from English)
+        "mt": {  # Malta
+            "en": "MT",
+            "mt": "MT",
+        },
         "pl": {"pl": "PL"},  # Poland
         "pt": {"pt": "PT"},  # Portugal
         "ro": {"ro": "RO"},  # Romania
