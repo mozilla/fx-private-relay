@@ -81,6 +81,9 @@ CurrencyStr = Literal[
 ]
 
 # ISO 639 language codes handled by Relay
+# These are the 3rd-level keys in _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE, and are
+# unrelated to the supported languages in Pontoon.
+#
 # Use the 2-letter ISO 639-1 code if available, otherwise the 3-letter ISO 639-2 code.
 # See https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
 # and https://www.loc.gov/standards/iso639-2/php/English_list.php
@@ -95,6 +98,7 @@ LanguageStr = Literal[
     "et",  # Estonian
     "fi",  # Finnish
     "fr",  # French
+    "hr",  # Croatian
     "hu",  # Hungarian
     "it",  # Italian
     "lt",  # Lithuanian
@@ -507,7 +511,10 @@ _RelayCountryLanguageData = dict[LanguageStr, _StripeCountryOrRegion]
 # The top-level key is the plan, or a psuedo-plan for waffled expansion
 # The second-level key is the RelayCountryStr, such as "ca" for Canada
 # The third-level key is a LanguageStr, such as "en" for English. The first language
-#   key is the default for that country
+#   key is the default for that country. Multiple keys are only needed when
+#   there are multiple plans for a country (Belgium and Switzerland), distinguished by
+#   the language. In the 2023 EU expansion, we instead created a plan per country, so
+#   only one third-level entry is needed, and the language is not used.
 # The third-level value is a _CountryStr, such as "US" for the United States,
 #   or a _RegionalLanguageStr, such as "de-CH" for German (Switzerland). This is an
 #   index into the _STRIPE_PLAN_DATA. Multiple entries may point to the same Stripe
@@ -543,17 +550,17 @@ _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE: _RelayPlansByCountryAndLanguage = {
     },
     "premium_eu_expansion": {
         "bg": {"bg": "BG"},  # Bulgaria
-        "cy": {"en": "CY"},  # Cyprus
+        "cy": {"el": "CY"},  # Cyprus
         "cz": {"cs": "CZ"},  # Czech Republic / Czechia
         "dk": {"da": "DK"},  # Denmark
         "ee": {"et": "EE"},  # Estonia
         "gr": {"el": "GR"},  # Greece
-        "hr": {"en": "HR"},  # Croatia (language may change from English)
+        "hr": {"hr": "HR"},  # Croatia
         "hu": {"hu": "HU"},  # Hungary
         "lt": {"lt": "LT"},  # Lithuania
-        "lu": {"en": "LU"},  # Luxembourg (language may change from English)
+        "lu": {"fr": "LU"},  # Luxembourg
         "lv": {"lv": "LV"},  # Latvia
-        "mt": {"en": "MT"},  # Malta (language may change from English)
+        "mt": {"en": "MT"},  # Malta
         "pl": {"pl": "PL"},  # Poland
         "pt": {"pt": "PT"},  # Portugal
         "ro": {"ro": "RO"},  # Romania
