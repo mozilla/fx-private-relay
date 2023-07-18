@@ -29,6 +29,7 @@ from privaterelay.management.commands.update_phone_remaining_stats import (
 
 
 MOCK_BASE = "privaterelay.management.commands.update_phone_remaining_stats"
+UPDATE_COMMAND = "update_phone_remaining_stats"
 
 
 @pytest.fixture()
@@ -307,12 +308,39 @@ def test_phone_subscriber_with_subscription_end_date_after_reset_phone_limits_up
 
 
 @pytest.mark.django_db
-def test_update_phones_command(capsys):
-    call_command("update_phone_remaining_stats")
+def test_update_user_with_command(
+    capsys,
+    patch_datetime_now,
+    phone_user,
+):
+    expected_now = patch_datetime_now
+    profile = Profile.objects.get(user=phone_user)
+    profile.date_phone_subscription_reset = expected_now - timedelta(31)
+    profile.save()
+    relay_number = _make_used_relay_number(phone_user)
+
+    call_command(UPDATE_COMMAND)
     out, err = capsys.readouterr()
 
     out = out.split(" ")
-    numProfiles, numReset = int(out[2]), int(out[4])
+    num_profiles_w_phones, num_profiles_updated = int(out[2]), int(out[4])
 
-    assert numProfiles == 0
-    assert numReset == 0
+    profile.refresh_from_db()
+    assert profile.date_phone_subscription_reset == expected_now
+    assert num_profiles_w_phones == 1
+    assert num_profiles_updated == 1
+
+
+@pytest.mark.django_db
+def test_update_phones_command(
+    capsys,
+):
+    call_command(UPDATE_COMMAND)
+    out, err = capsys.readouterr()
+
+    out = out.split(" ")
+    # dependent on the string outputted from executing the command.
+    num_profiles_w_phones, num_profiles_updated = int(out[2]), int(out[4])
+
+    assert num_profiles_w_phones == 0
+    assert num_profiles_updated == 0
