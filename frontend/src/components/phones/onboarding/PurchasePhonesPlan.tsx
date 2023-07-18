@@ -86,7 +86,7 @@ const PricingToggle = (props: PricingToggleProps) => {
               { plan: "phones", billing_period: "yearly" },
               {
                 label: "phone-onboarding-purchase-yearly-cta",
-              }
+              },
             )
           }
           // tabIndex tells react-aria that this element is focusable
@@ -113,7 +113,7 @@ const PricingToggle = (props: PricingToggleProps) => {
               { plan: "phones", billing_period: "monthly" },
               {
                 label: "phone-onboarding-purchase-monthly-cta",
-              }
+              },
             )
           }
           // tabIndex tells react-aria that this element is focusable

@@ -30,7 +30,7 @@ export function useFirstSeen(): Date | null {
     currentTimestamp.toString(),
     {
       maxAgeInSeconds: 10 * 365 * 24 * 60 * 60,
-    }
+    },
   );
   return new Date(currentTimestamp);
 }

@@ -4,7 +4,7 @@ import { getLocale } from "./getLocale";
 
 const getPlan = <P extends Partial<PlanData>>(
   productData: ProductData<P>,
-  billingPeriod: keyof P
+  billingPeriod: keyof P,
 ) => {
   const languageCode = navigator.language.split("-")[0].toLowerCase();
   const countryPlans =
@@ -18,7 +18,7 @@ const getPlan = <P extends Partial<PlanData>>(
 export const getPeriodicalPremiumPrice = (
   runtimeData: RuntimeDataWithPeriodicalPremiumAvailable,
   billingPeriod: keyof PlanData,
-  l10n: ReactLocalization
+  l10n: ReactLocalization,
 ) => {
   const plan = getPlan(runtimeData.PERIODICAL_PREMIUM_PLANS, billingPeriod);
   const formatter = new Intl.NumberFormat(getLocale(l10n), {
@@ -32,7 +32,7 @@ export const getPeriodicalPremiumPrice = (
  */
 export const getPeriodicalPremiumSubscribeLink = (
   runtimeData: RuntimeDataWithPeriodicalPremiumAvailable,
-  billingPeriod: keyof PlanData
+  billingPeriod: keyof PlanData,
 ) => {
   const plan = getPlan(runtimeData.PERIODICAL_PREMIUM_PLANS, billingPeriod);
 
@@ -42,7 +42,7 @@ export const getPeriodicalPremiumSubscribeLink = (
 export const getPhonesPrice = (
   runtimeData: RuntimeDataWithPhonesAvailable,
   billingPeriod: keyof PlanData,
-  l10n: ReactLocalization
+  l10n: ReactLocalization,
 ) => {
   const plan = getPlan(runtimeData.PHONE_PLANS, billingPeriod);
   const formatter = new Intl.NumberFormat(getLocale(l10n), {
@@ -53,7 +53,7 @@ export const getPhonesPrice = (
 };
 export const getPhoneSubscribeLink = (
   runtimeData: RuntimeDataWithPhonesAvailable,
-  billingPeriod: keyof PlanData
+  billingPeriod: keyof PlanData,
 ) => {
   const plan = getPlan(runtimeData.PHONE_PLANS, billingPeriod);
   return `${runtimeData.FXA_ORIGIN}/subscriptions/products/${runtimeData.PHONE_PRODUCT_ID}?plan=${plan.id}`;
@@ -61,7 +61,7 @@ export const getPhoneSubscribeLink = (
 
 export const getBundlePrice = (
   runtimeData: RuntimeDataWithBundleAvailable,
-  l10n: ReactLocalization
+  l10n: ReactLocalization,
 ) => {
   const plan = getPlan(runtimeData.BUNDLE_PLANS, "yearly");
   const formatter = new Intl.NumberFormat(getLocale(l10n), {
@@ -71,7 +71,7 @@ export const getBundlePrice = (
   return formatter.format(plan.price);
 };
 export const getBundleSubscribeLink = (
-  runtimeData: RuntimeDataWithBundleAvailable
+  runtimeData: RuntimeDataWithBundleAvailable,
 ) => {
   const plan = getPlan(runtimeData.BUNDLE_PLANS, "yearly");
   return `${runtimeData.FXA_ORIGIN}/subscriptions/products/${runtimeData.BUNDLE_PRODUCT_ID}?plan=${plan.id}`;
@@ -93,19 +93,19 @@ export type RuntimeDataWithBundleAvailable =
   RuntimeDataWithPlanAvailable<"BUNDLE_PLANS">;
 
 export function isPeriodicalPremiumAvailableInCountry(
-  runtimeData: RuntimeData | undefined
+  runtimeData: RuntimeData | undefined,
 ): runtimeData is RuntimeDataWithPeriodicalPremiumAvailable {
   return runtimeData?.PERIODICAL_PREMIUM_PLANS?.available_in_country === true;
 }
 
 export function isPhonesAvailableInCountry(
-  runtimeData: RuntimeData | undefined
+  runtimeData: RuntimeData | undefined,
 ): runtimeData is RuntimeDataWithPhonesAvailable {
   return runtimeData?.PHONE_PLANS?.available_in_country === true;
 }
 
 export function isBundleAvailableInCountry(
-  runtimeData: RuntimeData | undefined
+  runtimeData: RuntimeData | undefined,
 ): runtimeData is RuntimeDataWithBundleAvailable {
   return runtimeData?.BUNDLE_PLANS?.available_in_country === true;
 }

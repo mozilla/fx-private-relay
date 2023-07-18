@@ -26,7 +26,7 @@ export const SubdomainSearchForm = (props: Props) => {
         l10n.getString("error-subdomain-not-available-2", {
           unavailable_subdomain: subdomainInput,
         }),
-        { type: "error" }
+        { type: "error" },
       );
       return;
     }
@@ -51,7 +51,7 @@ export const SubdomainSearchForm = (props: Props) => {
         value={subdomainInput}
         onInput={onInput}
         placeholder={l10n.getString(
-          "banner-set-email-domain-input-placeholder"
+          "banner-set-email-domain-input-placeholder",
         )}
         name="subdomain"
         id="subdomain"
@@ -68,7 +68,7 @@ export const SubdomainSearchForm = (props: Props) => {
 
 async function getAvailability(subdomain: string) {
   const checkResponse = await authenticatedFetch(
-    `/accounts/profile/subdomain?subdomain=${subdomain}`
+    `/accounts/profile/subdomain?subdomain=${subdomain}`,
   );
   if (!checkResponse.ok) {
     return false;

@@ -277,7 +277,9 @@
         height: 5px;
         background-color: $color-light-gray-20;
         margin-bottom: $spacing-xs;
-        transition: box-shadow 1s ease-out, color 0.2s ease-out;
+        transition:
+          box-shadow 1s ease-out,
+          color 0.2s ease-out;
       }
 
       &.is-completed {

@@ -86,7 +86,7 @@ export const Tips = (props: Props) => {
 
   // If the user has Premium, show a tip about how to claim a custom subdomain:
   const customAliasDismissal = useLocalDismissal(
-    `tips_customAlias_${props.profile.id}`
+    `tips_customAlias_${props.profile.id}`,
   );
   const customMaskTip = {
     id: "custom-subdomain",
@@ -242,7 +242,7 @@ const TipsCarousel = (props: Parameters<typeof useTabListState>[0]) => {
   const { tabListProps } = useTabList(
     { ...props, orientation: "horizontal" },
     tabListState,
-    tabListRef
+    tabListRef,
   );
 
   const tipSwitcher =
@@ -283,7 +283,7 @@ const PanelDot = (props: PanelDotProps) => {
   const { tabProps } = useTab(
     { key: props.item.key },
     props.tabListState,
-    dotRef
+    dotRef,
   );
   const isSelected = props.tabListState.selectedKey === props.item.key;
   const alt = l10n.getString("tips-switcher-label", {
@@ -340,7 +340,7 @@ const TipPanel = ({
       panelRef.current = element;
       inViewRef(element);
     },
-    [inViewRef]
+    [inViewRef],
   );
 
   const { tabPanelProps } = useTabPanel(
@@ -350,7 +350,7 @@ const TipPanel = ({
     // but because we're using a MutableRefObject (due to useGaViewPing, by
     // virtue of its use of useInView, not accepting an existing Ref), we need
     // to explicitly tell it that that, too, is a Ref:
-    panelRef as RefObject<HTMLDivElement>
+    panelRef as RefObject<HTMLDivElement>,
   );
 
   return (

@@ -15,7 +15,7 @@ export function initialiseApiMocks() {
           !req.url.pathname.startsWith("/fonts/") &&
           !req.url.pathname.startsWith("/icons/") &&
           !req.url.href.startsWith(
-            "https://profile.accounts.firefox.com/v1/avatar/"
+            "https://profile.accounts.firefox.com/v1/avatar/",
           )
         ) {
           print.warning();

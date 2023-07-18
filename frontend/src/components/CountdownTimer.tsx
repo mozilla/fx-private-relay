@@ -45,24 +45,24 @@ export const CountdownTimer = (props: Props) => {
 
 export function getRemainingTimeParts(remainingMilliseconds: number) {
   const remainingDays = Math.floor(
-    remainingMilliseconds / (1000 * 60 * 60 * 24)
+    remainingMilliseconds / (1000 * 60 * 60 * 24),
   );
   const remainingHours = Math.floor(
     (remainingMilliseconds - remainingDays * (1000 * 60 * 60 * 24)) /
-      (1000 * 60 * 60)
+      (1000 * 60 * 60),
   );
   const remainingMinutes = Math.floor(
     (remainingMilliseconds -
       remainingDays * (1000 * 60 * 60 * 24) -
       remainingHours * (1000 * 60 * 60)) /
-      (1000 * 60)
+      (1000 * 60),
   );
   const remainingSeconds = Math.floor(
     (remainingMilliseconds -
       remainingDays * (1000 * 60 * 60 * 24) -
       remainingHours * (1000 * 60 * 60) -
       remainingMinutes * (1000 * 60)) /
-      1000
+      1000,
   );
 
   return {

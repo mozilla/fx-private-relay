@@ -27,10 +27,10 @@ export type ProfilesData = [ProfileData];
 
 export type ProfileUpdateFn = (
   id: ProfileData["id"],
-  data: Omit<Partial<ProfileData>, "subdomain">
+  data: Omit<Partial<ProfileData>, "subdomain">,
 ) => Promise<Response>;
 export type SetSubdomainFn = (
-  subdomain: Exclude<ProfileData["subdomain"], null>
+  subdomain: Exclude<ProfileData["subdomain"], null>,
 ) => Promise<Response>;
 
 /**
@@ -52,7 +52,7 @@ export function useProfiles(): SWRResponse<ProfilesData, unknown> & {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       config: any,
       revalidate: Parameters<typeof SWRConfig.defaultValue.onErrorRetry>[3],
-      revalidateOpts: Parameters<typeof SWRConfig.defaultValue.onErrorRetry>[4]
+      revalidateOpts: Parameters<typeof SWRConfig.defaultValue.onErrorRetry>[4],
     ) => {
       if (error instanceof FetchError && error.response.status === 401) {
         // When the user is not logged in, this API returns a 401.
@@ -64,7 +64,7 @@ export function useProfiles(): SWRResponse<ProfilesData, unknown> & {
         key,
         config,
         revalidate,
-        revalidateOpts
+        revalidateOpts,
       );
     },
   }) as SWRResponse<ProfilesData, FetchError>;
@@ -108,14 +108,14 @@ export function useProfiles(): SWRResponse<ProfilesData, unknown> & {
  */
 const profileFetcher = async (
   url: string,
-  requestInit: RequestInit
+  requestInit: RequestInit,
 ): Promise<ProfilesData> => {
   const isToldByFxaToRefresh =
     document.location.search.indexOf("fxa_refresh=1") !== -1;
 
   if (isToldByFxaToRefresh) {
     const refreshResponse = await authenticatedFetch(
-      "/accounts/profile/refresh"
+      "/accounts/profile/refresh",
     );
     await refreshResponse.json();
   }

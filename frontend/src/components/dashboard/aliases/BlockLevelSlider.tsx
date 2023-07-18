@@ -67,7 +67,7 @@ export const BlockLevelSlider = (props: Props) => {
         // However, since you still can't access that value directly on
         // `sliderState`, we'll still need `onlyThumbIndex` anyway, so for
         // consistency, we're still using a single-element array.
-        (value as [number])[onlyThumbIndex]
+        (value as [number])[onlyThumbIndex],
       );
       gaEvent({
         category: "Dashboard Alias Settings",
@@ -86,7 +86,7 @@ export const BlockLevelSlider = (props: Props) => {
   const { groupProps, trackProps, labelProps, outputProps } = useSlider(
     sliderSettings,
     sliderState,
-    trackRef
+    trackRef,
   );
 
   const lockIcon = props.hasPremium ? null : (
@@ -98,7 +98,7 @@ export const BlockLevelSlider = (props: Props) => {
       <br />
       <span className={styles["premium-only-marker"]}>
         {l10n.getString(
-          "profile-promo-email-blocking-option-promotionals-premiumonly-marker"
+          "profile-promo-email-blocking-option-promotionals-premiumonly-marker",
         )}
       </span>
     </>
@@ -122,7 +122,7 @@ export const BlockLevelSlider = (props: Props) => {
               className={getTrackStopClassNames(
                 props.alias,
                 sliderState,
-                "none"
+                "none",
               )}
             >
               <Image src={UmbrellaClosedMobile} alt="" />
@@ -139,7 +139,7 @@ export const BlockLevelSlider = (props: Props) => {
                 className={getTrackStopClassNames(
                   props.alias,
                   sliderState,
-                  "promotional"
+                  "promotional",
                 )}
               >
                 <Image src={UmbrellaSemiMobile} alt="" />
@@ -152,7 +152,7 @@ export const BlockLevelSlider = (props: Props) => {
               className={getTrackStopClassNames(
                 props.alias,
                 sliderState,
-                "all"
+                "all",
               )}
             >
               <Image src={UmbrellaOpenMobile} alt="" />
@@ -193,12 +193,12 @@ export const BlockLevelSlider = (props: Props) => {
       <output {...outputProps} className={styles["value-description"]}>
         <BlockLevelIllustration
           level={getBlockLevelFromSliderValue(
-            sliderState.getThumbValue(onlyThumbIndex)
+            sliderState.getThumbValue(onlyThumbIndex),
           )}
         />
         <BlockLevelDescription
           level={getBlockLevelFromSliderValue(
-            sliderState.getThumbValue(onlyThumbIndex)
+            sliderState.getThumbValue(onlyThumbIndex),
           )}
         />
       </output>
@@ -218,7 +218,7 @@ const Thumb = (props: ThumbProps) => {
       trackRef: props.trackRef,
       inputRef: inputRef,
     },
-    props.sliderState
+    props.sliderState,
   );
 
   const { focusProps, isFocusVisible } = useFocusRing();
@@ -262,7 +262,7 @@ const BlockLevelDescription = (props: { level: BlockLevel }) => {
     return (
       <span className={styles["value-description-content"]}>
         {l10n.getString(
-          "profile-promo-email-blocking-description-promotionals"
+          "profile-promo-email-blocking-description-promotionals",
         )}
         <Link href="/faq#faq-promotional-email-blocking">
           {l10n.getString("banner-label-data-notification-body-cta")}
@@ -309,7 +309,7 @@ const PromotionalTrackStopGhost = (props: PromotionalTrackStopGhostProps) => {
       type: "dialog",
     },
     overlayTriggerState,
-    triggerRef
+    triggerRef,
   );
   const { buttonProps } = useButton(triggerProps, triggerRef);
 
@@ -354,7 +354,7 @@ const PromotionalTooltip = (props: PromotionalTooltipProps) => {
   const overlayRef = useRef<HTMLDivElement>(null);
   const { overlayProps, underlayProps } = useOverlay(
     { isOpen: true, onClose: props.onClose, isDismissable: true },
-    overlayRef
+    overlayRef,
   );
 
   const { modalProps } = useModal();
@@ -373,19 +373,19 @@ const PromotionalTooltip = (props: PromotionalTooltipProps) => {
     {
       onPress: () => props.onClose(),
     },
-    closeButtonRef
+    closeButtonRef,
   ).buttonProps;
 
   const link = props.premiumAvailableInCountry ? (
     <Link href="/premium/">
       {l10n.getString(
-        "profile-promo-email-blocking-description-promotionals-locked-cta"
+        "profile-promo-email-blocking-description-promotionals-locked-cta",
       )}
     </Link>
   ) : (
     <Link href="/premium/waitlist">
       {l10n.getString(
-        "profile-promo-email-blocking-description-promotionals-locked-waitlist-cta"
+        "profile-promo-email-blocking-description-promotionals-locked-waitlist-cta",
       )}
     </Link>
   );
@@ -399,7 +399,7 @@ const PromotionalTooltip = (props: PromotionalTooltipProps) => {
             dialogProps,
             props.overlayProps,
             overlayPositionProps,
-            modalProps
+            modalProps,
           )}
           ref={overlayRef}
           className={styles["upgrade-tooltip"]}
@@ -413,11 +413,11 @@ const PromotionalTooltip = (props: PromotionalTooltipProps) => {
             <b className={styles["locked-message"]} {...titleProps}>
               <LockIcon alt="" className={styles["lock-icon"]} />
               {l10n.getString(
-                "profile-promo-email-blocking-description-promotionals-locked-label"
+                "profile-promo-email-blocking-description-promotionals-locked-label",
               )}
             </b>
             {l10n.getString(
-              "profile-promo-email-blocking-description-promotionals"
+              "profile-promo-email-blocking-description-promotionals",
             )}
             {link}
           </span>
@@ -428,7 +428,7 @@ const PromotionalTooltip = (props: PromotionalTooltipProps) => {
           >
             <CloseIcon
               alt={l10n.getString(
-                "profile-promo-email-blocking-description-promotionals-locked-close"
+                "profile-promo-email-blocking-description-promotionals-locked-close",
               )}
             />
           </button>
@@ -459,7 +459,7 @@ function getBlockLevelFromSliderValue(value: number): BlockLevel {
 }
 function getLabelForBlockLevel(
   blockLevel: BlockLevel,
-  l10n: ReactLocalization
+  l10n: ReactLocalization,
 ): string {
   switch (blockLevel) {
     case "none":
@@ -495,7 +495,7 @@ class SliderValueFormatter implements Intl.NumberFormat {
   // interface, but react-aria should only call the `.format` method:
   formatRangeToParts(
     _startDate: number | bigint,
-    _endDate: number | bigint
+    _endDate: number | bigint,
   ): Intl.NumberRangeFormatPart[] {
     throw new Error("Method not implemented.");
   }
@@ -503,7 +503,7 @@ class SliderValueFormatter implements Intl.NumberFormat {
   format(value: number): string {
     return getLabelForBlockLevel(
       getBlockLevelFromSliderValue(value),
-      this.l10n
+      this.l10n,
     );
   }
 }
@@ -521,7 +521,7 @@ function getBlockLevelGaEventLabel(blockLevel: BlockLevel): string {
 
 const isBlockLevelActive = (
   alias: AliasData,
-  blockLevel: BlockLevel
+  blockLevel: BlockLevel,
 ): boolean => {
   if (
     blockLevel === "none" &&
@@ -545,7 +545,7 @@ const isBlockLevelActive = (
 const getTrackStopClassNames = (
   alias: AliasData,
   sliderState: SliderState,
-  blockLevel: BlockLevel
+  blockLevel: BlockLevel,
 ): string => {
   const isActiveClass = isBlockLevelActive(alias, blockLevel)
     ? styles["is-active"]

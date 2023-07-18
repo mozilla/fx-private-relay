@@ -59,7 +59,7 @@ const TrackerReport: NextPage = () => {
   }
 
   const trackers = Object.entries(reportData.trackers ?? {}).sort(
-    ([_trackerA, countA], [_trackerB, countB]) => countB - countA
+    ([_trackerA, countA], [_trackerB, countB]) => countB - countA,
   );
   const trackerListing =
     trackers.length === 0 ? (
@@ -126,7 +126,7 @@ const TrackerReport: NextPage = () => {
                   {l10n.getString("trackerreport-trackers-value", {
                     count: Object.values(reportData.trackers ?? {}).reduce(
                       (acc, count) => acc + count,
-                      0
+                      0,
                     ),
                   })}
                 </dd>
@@ -151,12 +151,12 @@ const TrackerReport: NextPage = () => {
               </h2>
               <p>
                 {l10n.getString(
-                  "trackerreport-trackers-explainer-content-part1"
+                  "trackerreport-trackers-explainer-content-part1",
                 )}
               </p>
               <p>
                 {l10n.getString(
-                  "trackerreport-trackers-explainer-content-part2"
+                  "trackerreport-trackers-explainer-content-part2",
                 )}
               </p>
               <div className={styles["breakage-warning"]}>
@@ -187,12 +187,12 @@ const TrackerReport: NextPage = () => {
                       <>
                         <p>
                           {l10n.getString(
-                            "faq-question-define-tracker-answer-partone"
+                            "faq-question-define-tracker-answer-partone",
                           )}
                         </p>
                         <p>
                           {l10n.getString(
-                            "faq-question-define-tracker-answer-parttwo"
+                            "faq-question-define-tracker-answer-parttwo",
                           )}
                         </p>
                       </>
@@ -200,26 +200,26 @@ const TrackerReport: NextPage = () => {
                   },
                   {
                     q: l10n.getString(
-                      "faq-question-disable-trackerremoval-question"
+                      "faq-question-disable-trackerremoval-question",
                     ),
                     a: l10n.getString(
-                      "faq-question-disable-trackerremoval-answer"
+                      "faq-question-disable-trackerremoval-answer",
                     ),
                   },
                   {
                     q: l10n.getString(
-                      "faq-question-bulk-trackerremoval-question"
+                      "faq-question-bulk-trackerremoval-question",
                     ),
                     a: l10n.getString(
-                      "faq-question-bulk-trackerremoval-answer"
+                      "faq-question-bulk-trackerremoval-answer",
                     ),
                   },
                   {
                     q: l10n.getString(
-                      "faq-question-trackerremoval-breakage-question"
+                      "faq-question-trackerremoval-breakage-question",
                     ),
                     a: l10n.getString(
-                      "faq-question-trackerremoval-breakage-answer-2"
+                      "faq-question-trackerremoval-breakage-answer-2",
                     ),
                   },
                 ]}
@@ -263,7 +263,7 @@ function containsReportData(parsed: any): parsed is ReportData {
     ["undefined", "object"].includes(typeof parsed.trackers) &&
     Object.entries(parsed.trackers ?? {}).every(
       ([tracker, count]: [unknown, unknown]) =>
-        typeof tracker === "string" && Number.isInteger(count)
+        typeof tracker === "string" && Number.isInteger(count),
     )
   );
 }

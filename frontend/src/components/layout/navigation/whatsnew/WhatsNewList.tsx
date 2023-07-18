@@ -31,12 +31,12 @@ export const WhatsNewList = (props: Props) => {
       aria-label={props["aria-label"]}
       onSelect={(key) => {
         const selectedItem = props.entries.find(
-          (entry) => encodeURI(entry.title) === key
+          (entry) => encodeURI(entry.title) === key,
         );
         /* istanbul ignore if [Types can't represent that a `selectedItem` should always be found, but it should.] */
         if (!selectedItem) {
           console.error(
-            `WhatsNewListMenu.onSelect: [${key}] not found in the contained Items.`
+            `WhatsNewListMenu.onSelect: [${key}] not found in the contained Items.`,
           );
           return;
         }
@@ -64,7 +64,7 @@ const WhatsNewListMenu = (props: WhatsNewListMenuProps) => {
   const { menuProps } = useMenu(
     { selectionMode: "single", ...props },
     menuState,
-    menuRef
+    menuRef,
   );
 
   return (
@@ -100,7 +100,7 @@ const WhatsNewListMenuItem = (props: WhatsNewListMenuItemProps) => {
       onAction: () => props.onSelect(),
     },
     props.state,
-    menuItemRef
+    menuItemRef,
   );
 
   return (

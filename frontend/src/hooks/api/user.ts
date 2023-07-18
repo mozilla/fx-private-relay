@@ -17,7 +17,7 @@ export function useUsers() {
       key,
       config,
       revalidate,
-      revalidateOpts
+      revalidateOpts,
     ) => {
       if (error instanceof FetchError && error.response.status === 401) {
         // When the user is not logged in, this API returns a 401.
@@ -29,7 +29,7 @@ export function useUsers() {
         key,
         config,
         revalidate,
-        revalidateOpts
+        revalidateOpts,
       );
     },
   });

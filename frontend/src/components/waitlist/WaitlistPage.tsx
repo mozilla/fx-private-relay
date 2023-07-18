@@ -30,12 +30,12 @@ export const WaitlistPage = (props: Props) => {
     props.supportedLocales.find(
       (supportedLocale) =>
         supportedLocale.toLowerCase() ===
-        currentLocale.split("-")[0].toLowerCase()
-    ) ?? "en"
+        currentLocale.split("-")[0].toLowerCase(),
+    ) ?? "en",
   );
   const usersData = useUsers();
   const [email, setEmail] = useState<string | undefined>(
-    usersData.data?.[0]?.email
+    usersData.data?.[0]?.email,
   );
 
   useEffect(() => {
@@ -53,7 +53,7 @@ export const WaitlistPage = (props: Props) => {
     if (!email) {
       // Modern browsers should prevent this from happening, due to the `required` attribute:
       console.error(
-        "WaitlistPage.onSubmit: form submitted while required input field was empty."
+        "WaitlistPage.onSubmit: form submitted while required input field was empty.",
       );
       return;
     }
@@ -108,7 +108,7 @@ export const WaitlistPage = (props: Props) => {
                 required={true}
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder={l10n.getString(
-                  "waitlist-control-email-placeholder"
+                  "waitlist-control-email-placeholder",
                 )}
               />
             </div>
@@ -123,7 +123,7 @@ export const WaitlistPage = (props: Props) => {
                 value={country ?? currentCountry ?? "US"}
                 onChange={(event) =>
                   setCountry(
-                    event.target.selectedOptions.item(0)?.value ?? country
+                    event.target.selectedOptions.item(0)?.value ?? country,
                   )
                 }
                 required={true}
@@ -140,7 +140,7 @@ export const WaitlistPage = (props: Props) => {
                 value={locale}
                 onChange={(event) =>
                   setLocale(
-                    event.target.selectedOptions.item(0)?.value ?? locale
+                    event.target.selectedOptions.item(0)?.value ?? locale,
                   )
                 }
                 supportedLocales={props.supportedLocales}

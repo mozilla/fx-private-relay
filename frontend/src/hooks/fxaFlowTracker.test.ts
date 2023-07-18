@@ -14,9 +14,9 @@ describe("getLoginUrl", () => {
       getLoginUrl("some_entrypoint", {
         flowBeginTime: "1990-11-12T13:37:42.000Z",
         flowId: "some_flow_id",
-      })
+      }),
     ).toBe(
-      "https://mock-login.com/?form_type=button&entrypoint=some_entrypoint&flowId=some_flow_id&flowBeginTime=1990-11-12T13%3A37%3A42.000Z"
+      "https://mock-login.com/?form_type=button&entrypoint=some_entrypoint&flowId=some_flow_id&flowBeginTime=1990-11-12T13%3A37%3A42.000Z",
     );
   });
 
@@ -30,9 +30,9 @@ describe("getLoginUrl", () => {
       getLoginUrl("some_entrypoint", {
         flowBeginTime: "1990-11-12T13:37:42.000Z",
         flowId: "some_flow_id",
-      })
+      }),
     ).toBe(
-      "https://mock-login.com/?some_query=param&form_type=button&entrypoint=some_entrypoint&flowId=some_flow_id&flowBeginTime=1990-11-12T13%3A37%3A42.000Z"
+      "https://mock-login.com/?some_query=param&form_type=button&entrypoint=some_entrypoint&flowId=some_flow_id&flowBeginTime=1990-11-12T13%3A37%3A42.000Z",
     );
   });
 
@@ -46,9 +46,9 @@ describe("getLoginUrl", () => {
       getLoginUrl("some_entrypoint", {
         flowBeginTime: "1990-11-12T13:37:42.000Z",
         flowId: "some_flow_id",
-      })
+      }),
     ).toBe(
-      "/login?form_type=button&entrypoint=some_entrypoint&flowId=some_flow_id&flowBeginTime=1990-11-12T13%3A37%3A42.000Z"
+      "/login?form_type=button&entrypoint=some_entrypoint&flowId=some_flow_id&flowBeginTime=1990-11-12T13%3A37%3A42.000Z",
     );
   });
 });

@@ -5,7 +5,7 @@
  */
 export function formatPhone(
   phoneNumber: string,
-  options?: { withCountryCode?: boolean; digitsOnly?: boolean }
+  options?: { withCountryCode?: boolean; digitsOnly?: boolean },
 ): string {
   // remove country code by default
   // remove all none numeric characters

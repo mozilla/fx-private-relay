@@ -19,7 +19,7 @@ import { DependencyList, useEffect } from "react";
  */
 export function useFlaggedAnchorLinks(
   dependencies: DependencyList,
-  allowedTargetElementIds?: string[]
+  allowedTargetElementIds?: string[],
 ) {
   useEffect(() => {
     if (document.location.hash.length <= 1) {
@@ -32,7 +32,7 @@ export function useFlaggedAnchorLinks(
       return;
     }
     const targetElement = document.getElementById(
-      document.location.hash.substring(1)
+      document.location.hash.substring(1),
     );
     targetElement?.scrollIntoView();
     // The hooks linter can't statically analyse a dynamic dependency list,

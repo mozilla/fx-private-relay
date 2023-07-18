@@ -96,7 +96,7 @@ export const PhoneDashboard = (props: Props) => {
   const forwardToggleButtonProps = useToggleButton(
     {},
     forwardToggleState,
-    forwardToggleButtonRef
+    forwardToggleButtonRef,
   ).buttonProps;
 
   const copyPhoneNumber: MouseEventHandler<HTMLButtonElement> = () => {
@@ -172,10 +172,10 @@ export const PhoneDashboard = (props: Props) => {
           title={
             forwardToggleState.isSelected
               ? l10n.getString(
-                  "phone-dashboard-forwarding-toggle-disable-tooltip"
+                  "phone-dashboard-forwarding-toggle-disable-tooltip",
                 )
               : l10n.getString(
-                  "phone-dashboard-forwarding-toggle-enable-tooltip"
+                  "phone-dashboard-forwarding-toggle-enable-tooltip",
                 )
           }
         >

@@ -43,7 +43,7 @@ export const AddressPickerModal = (props: Props) => {
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const cancelButton = useButton(
     { onPress: () => props.onClose() },
-    cancelButtonRef
+    cancelButtonRef,
   );
   /**
    * We need a Ref to the address picker field so that we can call the browser's
@@ -62,7 +62,7 @@ export const AddressPickerModal = (props: Props) => {
   };
   const onBlur: FocusEventHandler<HTMLInputElement> = () => {
     addressFieldRef.current?.setCustomValidity(
-      getAddressValidationMessage(address, l10n) ?? ""
+      getAddressValidationMessage(address, l10n) ?? "",
     );
     addressFieldRef.current?.reportValidity();
   };
@@ -104,7 +104,7 @@ export const AddressPickerModal = (props: Props) => {
               <div className={styles.prefix}>
                 <label htmlFor="address">
                   {l10n.getString(
-                    "modal-custom-alias-picker-form-prefix-label-2"
+                    "modal-custom-alias-picker-form-prefix-label-2",
                   )}
                 </label>
                 <input
@@ -116,7 +116,7 @@ export const AddressPickerModal = (props: Props) => {
                   onBlur={onBlur}
                   ref={addressFieldRef}
                   placeholder={l10n.getString(
-                    "modal-custom-alias-picker-form-prefix-placeholder"
+                    "modal-custom-alias-picker-form-prefix-placeholder",
                   )}
                   autoCapitalize="none"
                 />
@@ -135,22 +135,22 @@ export const AddressPickerModal = (props: Props) => {
               />
               <label htmlFor="promotionalsBlocking">
                 {l10n.getString(
-                  "popover-custom-alias-explainer-promotional-block-checkbox"
+                  "popover-custom-alias-explainer-promotional-block-checkbox",
                 )}
               </label>
               <InfoTooltip
                 alt={l10n.getString(
-                  "popover-custom-alias-explainer-promotional-block-tooltip-trigger"
+                  "popover-custom-alias-explainer-promotional-block-tooltip-trigger",
                 )}
               >
                 <h3>
                   {l10n.getString(
-                    "popover-custom-alias-explainer-promotional-block-checkbox"
+                    "popover-custom-alias-explainer-promotional-block-checkbox",
                   )}
                 </h3>
                 <p className={styles["promotionals-blocking-description"]}>
                   {l10n.getString(
-                    "popover-custom-alias-explainer-promotional-block-tooltip-2"
+                    "popover-custom-alias-explainer-promotional-block-tooltip-2",
                   )}
                   <Link href="/faq#faq-promotional-email-blocking">
                     {l10n.getString("banner-label-data-notification-body-cta")}
@@ -168,7 +168,7 @@ export const AddressPickerModal = (props: Props) => {
               </button>
               <Button type="submit" disabled={address.length === 0}>
                 {l10n.getString(
-                  "modal-custom-alias-picker-form-submit-label-2"
+                  "modal-custom-alias-picker-form-submit-label-2",
                 )}
               </Button>
             </div>
@@ -213,14 +213,14 @@ const PickerDialog = (props: PickerDialogProps & AriaOverlayProps) => {
 
 export function getAddressValidationMessage(
   address: string,
-  l10n: ReactLocalization
+  l10n: ReactLocalization,
 ): null | string {
   if (address.length === 0) {
     return null;
   }
   if (address.includes(" ")) {
     return l10n.getString(
-      "modal-custom-alias-picker-form-prefix-spaces-warning"
+      "modal-custom-alias-picker-form-prefix-spaces-warning",
     );
   }
   // Regular expression:
@@ -239,7 +239,7 @@ export function getAddressValidationMessage(
   // validation (`valid_address_pattern` in emails/models.py).
   if (!/^[a-z0-9]([a-z0-9-.]{0,61}[a-z0-9])?$/.test(address)) {
     return l10n.getString(
-      "modal-custom-alias-picker-form-prefix-invalid-warning-2"
+      "modal-custom-alias-picker-form-prefix-invalid-warning-2",
     );
   }
   return null;

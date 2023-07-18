@@ -67,7 +67,7 @@ export const MaskCard = (props: Props) => {
   const expandButtonProps = useToggleButton(
     {},
     expandButtonState,
-    expandButtonRef
+    expandButtonRef,
   ).buttonProps;
   // Used to link the expandButton to the area-to-be-expanded:
   const detailsElementId = useId();
@@ -143,7 +143,7 @@ export const MaskCard = (props: Props) => {
               ? l10n.getString("profile-promo-email-blocking-label-none")
               : props.mask.block_list_emails === true
               ? l10n.getString(
-                  "profile-promo-email-blocking-label-promotionals"
+                  "profile-promo-email-blocking-label-promotionals",
                 )
               : null}
           </div>
@@ -159,7 +159,7 @@ export const MaskCard = (props: Props) => {
             alt={l10n.getString(
               expandButtonState.isSelected
                 ? "profile-details-collapse"
-                : "profile-details-expand"
+                : "profile-details-expand",
             )}
             width={16}
             height={16}
@@ -201,7 +201,7 @@ export const MaskCard = (props: Props) => {
                   <dt>{l10n.getString("profile-label-trackers-removed")}</dt>
                   <dd>
                     {statNumberFormatter.format(
-                      props.mask.num_level_one_trackers_blocked
+                      props.mask.num_level_one_trackers_blocked,
                     )}
                   </dd>
                 </div>
@@ -244,7 +244,7 @@ export const MaskCard = (props: Props) => {
                   value="promotionals"
                   isDisabled={!props.profile.has_premium}
                   title={l10n.getString(
-                    "profile-promo-email-blocking-description-promotionals-locked-label"
+                    "profile-promo-email-blocking-description-promotionals-locked-label",
                   )}
                   isPromo={true}
                   promoSelectedState={promoIsSelected}
@@ -253,12 +253,12 @@ export const MaskCard = (props: Props) => {
                   {!props.profile.has_premium && (
                     <LockIcon
                       alt={l10n.getString(
-                        "profile-promo-email-blocking-description-promotionals-locked-label"
+                        "profile-promo-email-blocking-description-promotionals-locked-label",
                       )}
                     />
                   )}
                   {l10n.getString(
-                    "profile-promo-email-blocking-option-promotions"
+                    "profile-promo-email-blocking-option-promotions",
                   )}
                 </BlockLevelOption>
                 <BlockLevelOption
@@ -275,16 +275,16 @@ export const MaskCard = (props: Props) => {
                   <strong>
                     <LockIcon
                       alt={l10n.getString(
-                        "profile-promo-email-blocking-description-promotionals-locked-label"
+                        "profile-promo-email-blocking-description-promotionals-locked-label",
                       )}
                     />
                     {l10n.getString(
-                      "profile-promo-email-blocking-description-promotionals-locked-label"
+                      "profile-promo-email-blocking-description-promotionals-locked-label",
                     )}
                   </strong>
                   <p>
                     {l10n.getString(
-                      "profile-promo-email-blocking-description-promotionals"
+                      "profile-promo-email-blocking-description-promotionals",
                     )}
                   </p>
                   <Link
@@ -307,19 +307,19 @@ export const MaskCard = (props: Props) => {
             >
               {blockLevel === "all" &&
                 l10n.getString(
-                  "profile-promo-email-blocking-description-all-2"
+                  "profile-promo-email-blocking-description-all-2",
                 )}
               {blockLevel === "promotionals" && (
                 <>
                   <p>
                     {l10n.getString(
-                      "profile-promo-email-blocking-description-promotionals"
+                      "profile-promo-email-blocking-description-promotionals",
                     )}
                   </p>
                   <p>
                     <Link href="/faq#faq-promotional-email-blocking">
                       {l10n.getString(
-                        "banner-label-data-notification-body-cta"
+                        "banner-label-data-notification-body-cta",
                       )}
                     </Link>
                   </p>
@@ -327,7 +327,7 @@ export const MaskCard = (props: Props) => {
               )}
               {blockLevel === "none" &&
                 l10n.getString(
-                  "profile-promo-email-blocking-description-none-2"
+                  "profile-promo-email-blocking-description-none-2",
                 )}
             </div>
           </div>
@@ -370,12 +370,12 @@ const BlockLevelContext = createContext<RadioGroupState | null>(null);
 const BlockLevelSegmentedControl = (
   props: { children: ReactElement[] } & RadioGroupProps &
     AriaRadioGroupProps &
-    Required<Pick<AriaRadioGroupProps, "label">>
+    Required<Pick<AriaRadioGroupProps, "label">>,
 ) => {
   const state = useRadioGroupState(props);
   const { radioGroupProps, labelProps } = useRadioGroup(
     { orientation: "horizontal", ...props },
-    state
+    state,
   );
 
   return (
@@ -399,7 +399,7 @@ const BlockLevelOption = (
     isPromo?: boolean;
     promoSelectedState?: boolean;
     setPromoSelectedState: (promoSelectedState: boolean) => void;
-  }
+  },
 ) => {
   const state = useContext(BlockLevelContext);
   const inputRef = useRef<HTMLInputElement>(null);

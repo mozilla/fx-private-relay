@@ -56,7 +56,7 @@ export const Alias = (props: Props) => {
   const expandButtonProps = useToggleButton(
     {},
     expandButtonState,
-    expandButtonRef
+    expandButtonRef,
   ).buttonProps;
 
   const address = getFullAddress(props.alias);
@@ -197,7 +197,7 @@ export const Alias = (props: Props) => {
               alt={l10n.getString(
                 expandButtonState.isSelected
                   ? "profile-details-collapse"
-                  : "profile-details-expand"
+                  : "profile-details-expand",
               )}
               width={16}
               height={16}
@@ -218,7 +218,7 @@ export const Alias = (props: Props) => {
             onChange={setBlockLevel}
             hasPremium={props.profile.has_premium}
             premiumAvailableInCountry={isPeriodicalPremiumAvailableInCountry(
-              props.runtimeData
+              props.runtimeData,
             )}
           />
         </div>
@@ -292,7 +292,7 @@ const Stats = (props: StatsProps) => {
           <TrackersRemovedTooltip>
             <span className={styles.number}>
               {numberFormatter.format(
-                props.alias.num_level_one_trackers_blocked
+                props.alias.num_level_one_trackers_blocked,
               )}
             </span>
             <span className={styles.label}>
@@ -479,7 +479,7 @@ const TrackerRemovalIndicator = (props: TrackerRemovalIndicatorProps) => {
   const { triggerProps, tooltipProps: triggerTooltipProps } = useTooltipTrigger(
     {},
     tooltipState,
-    triggerRef
+    triggerRef,
   );
   const { tooltipProps } = useTooltip(triggerTooltipProps, tooltipState);
 

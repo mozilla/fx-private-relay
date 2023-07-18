@@ -76,7 +76,7 @@ const VpnRelayWelcome: NextPage = () => {
               <p>{l10n.getString("vpn-relay-go-vpn-body")}</p>
               <LinkButton
                 href={`https://vpn.mozilla.org/vpn/download/?utm_source=${encodeURIComponent(
-                  referringSiteUrl
+                  referringSiteUrl,
                 )}&utm_medium=referral&utm_campaign=vpn-relay-welcome&utm_content=download-button`}
                 target="_blank"
                 className={styles["get-addon-button"]}

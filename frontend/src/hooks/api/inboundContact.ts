@@ -19,12 +19,12 @@ export type InboundContact = {
 export type InboundContactData = Array<InboundContact>;
 
 export type InboundContactNumber = (
-  inbound_number: string
+  inbound_number: string,
 ) => Promise<Response>;
 
 export type UpdateForwardingToPhone = (
   enabled: boolean,
-  id: number
+  id: number,
 ) => Promise<Response>;
 
 export function useInboundContact(): SWRResponse<
@@ -38,7 +38,7 @@ export function useInboundContact(): SWRResponse<
 
   const setForwardingState: UpdateForwardingToPhone = async (
     blocked: boolean,
-    id: number
+    id: number,
   ) => {
     const response = await apiFetch(`/inboundcontact/${id}/`, {
       method: "PATCH",

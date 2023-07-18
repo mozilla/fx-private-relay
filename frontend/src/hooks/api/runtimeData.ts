@@ -57,7 +57,7 @@ export function useRuntimeData() {
       revalidateIfStale: false,
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-    }
+    },
   );
   return runtimeData;
 }

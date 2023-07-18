@@ -43,7 +43,7 @@ export const AliasDeletionButton = (props: Props) => {
     {
       onPress: () => modalState.open(),
     },
-    openModalButtonRef
+    openModalButtonRef,
   ).buttonProps;
 
   const modalState = useOverlayTriggerState({
@@ -52,7 +52,7 @@ export const AliasDeletionButton = (props: Props) => {
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const cancelButton = useButton(
     { onPress: () => modalState.close() },
-    cancelButtonRef
+    cancelButtonRef,
   );
 
   const onConfirm: FormEventHandler = (event) => {
@@ -86,7 +86,7 @@ export const AliasDeletionButton = (props: Props) => {
           {l10n.getString(
             isRandomAlias(props.alias)
               ? "modal-delete-warning-upgrade-2"
-              : "modal-delete-domain-address-warning-upgrade-2"
+              : "modal-delete-domain-address-warning-upgrade-2",
           )}
         </p>
         <form onSubmit={onConfirm} className={styles.confirm}>
@@ -142,7 +142,7 @@ type ConfirmationDialogProps = {
   onClose?: () => void;
 };
 const ConfirmationDialog = (
-  props: ConfirmationDialogProps & AriaOverlayProps
+  props: ConfirmationDialogProps & AriaOverlayProps,
 ) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const { overlayProps, underlayProps } = useOverlay(props, wrapperRef);

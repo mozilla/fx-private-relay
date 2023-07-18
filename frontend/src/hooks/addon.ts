@@ -40,7 +40,7 @@ const defaultAddonData: AddonData = {
 function useMutationObserver(
   elementRef: RefObject<HTMLElement>,
   options: MutationObserverInit,
-  callback: MutationCallback
+  callback: MutationCallback,
 ) {
   const [observer, setObserver] = useState<MutationObserver>();
 
@@ -95,7 +95,7 @@ const parseAddonData = (addonElement: HTMLElement): AddonData => {
   let addonData: AddonData = {
     sendEvent: (type, data = {}) => {
       addonElement.dispatchEvent(
-        new CustomEvent("website", { detail: { ...data, type: type } })
+        new CustomEvent("website", { detail: { ...data, type: type } }),
       );
     },
   };
@@ -125,12 +125,12 @@ const parseAddonData = (addonElement: HTMLElement): AddonData => {
  * @returns The data that should be set as the element's props, to ensure they're aligned with its in-DOM attributes.
  */
 export function useAddonElementWatcher(
-  addonElementRef: RefObject<HTMLElement>
+  addonElementRef: RefObject<HTMLElement>,
 ): AddonData {
   const [addonData, setAddonData] = useState<AddonData>(
     addonElementRef.current !== null
       ? parseAddonData(addonElementRef.current)
-      : defaultAddonData
+      : defaultAddonData,
   );
   useEffect(() => {
     if (addonElementRef.current === null) {
@@ -159,7 +159,7 @@ export function useAddonElementWatcher(
         return newAddonData;
       });
     },
-    [setAddonData]
+    [setAddonData],
   );
 
   useMutationObserver(addonElementRef, { attributes: true }, mutationListener);

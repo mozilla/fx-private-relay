@@ -16,7 +16,9 @@ export function makeToast(l10n: ReactLocalization, usersData?: UserData) {
   if (checkUserSignIn && typeof usersData !== "undefined") {
     clearCookie("user-sign-in");
     return toast.success(
-      l10n.getString("success-signed-in-message", { username: usersData.email })
+      l10n.getString("success-signed-in-message", {
+        username: usersData.email,
+      }),
     );
   }
 }

@@ -18,7 +18,7 @@ jest.mock("next/router", () => mockNextRouter);
 jest.mock("react-intersection-observer", () => mockReactIntersectionObsever);
 jest.mock(
   "../../../hooks/fxaFlowTracker.ts",
-  () => mockUseFxaFlowTrackerModule
+  () => mockUseFxaFlowTrackerModule,
 );
 jest.mock("../../../hooks/l10n.ts", () => mockUseL10nModule);
 jest.mock("../../../config.ts", () => mockConfigModule);
@@ -35,7 +35,7 @@ describe("<Navigation>", () => {
         hasPremium={false}
         isLoggedIn={false}
         theme="free"
-      />
+      />,
     );
 
     const landingLink = screen.getByRole("link", {
@@ -52,7 +52,7 @@ describe("<Navigation>", () => {
         hasPremium={false}
         isLoggedIn={true}
         theme="premium"
-      />
+      />,
     );
 
     const emailDashboardLink = screen.getByRole("link", {
@@ -70,7 +70,7 @@ describe("<Navigation>", () => {
         hasPremium={true}
         isLoggedIn={true}
         theme="premium"
-      />
+      />,
     );
 
     const phoneDashboardLink = screen.queryByRole("link", {
@@ -88,7 +88,7 @@ describe("<Navigation>", () => {
         hasPremium={true}
         isLoggedIn={true}
         theme="premium"
-      />
+      />,
     );
 
     const phoneDashboardLink = screen.getByRole("link", {

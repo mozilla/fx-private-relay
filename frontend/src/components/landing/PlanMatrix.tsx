@@ -186,11 +186,11 @@ export const PlanMatrix = (props: Props) => {
                   monthly_price: getPeriodicalPremiumPrice(
                     props.runtimeData,
                     "monthly",
-                    l10n
+                    l10n,
                   ),
                   subscribeLink: getPeriodicalPremiumSubscribeLink(
                     props.runtimeData,
-                    "monthly"
+                    "monthly",
                   ),
                   gaViewPing: {
                     category: "Purchase monthly Premium button",
@@ -205,11 +205,11 @@ export const PlanMatrix = (props: Props) => {
                   monthly_price: getPeriodicalPremiumPrice(
                     props.runtimeData,
                     "yearly",
-                    l10n
+                    l10n,
                   ),
                   subscribeLink: getPeriodicalPremiumSubscribeLink(
                     props.runtimeData,
-                    "yearly"
+                    "yearly",
                   ),
                   gaViewPing: {
                     category: "Purchase yearly Premium button",
@@ -253,11 +253,11 @@ export const PlanMatrix = (props: Props) => {
                   monthly_price: getPhonesPrice(
                     props.runtimeData,
                     "monthly",
-                    l10n
+                    l10n,
                   ),
                   subscribeLink: getPhoneSubscribeLink(
                     props.runtimeData,
-                    "monthly"
+                    "monthly",
                   ),
                   gaViewPing: {
                     category: "Purchase monthly Premium+phones button",
@@ -272,11 +272,11 @@ export const PlanMatrix = (props: Props) => {
                   monthly_price: getPhonesPrice(
                     props.runtimeData,
                     "yearly",
-                    l10n
+                    l10n,
                   ),
                   subscribeLink: getPhoneSubscribeLink(
                     props.runtimeData,
-                    "yearly"
+                    "yearly",
                   ),
                   gaViewPing: {
                     category: "Purchase yearly Premium+phones button",
@@ -304,7 +304,7 @@ export const PlanMatrix = (props: Props) => {
                   </Link>
                   <small>
                     {l10n.getString(
-                      "plan-matrix-price-period-monthly-footnote-1"
+                      "plan-matrix-price-period-monthly-footnote-1",
                     )}
                   </small>
                 </div>
@@ -343,7 +343,7 @@ export const PlanMatrix = (props: Props) => {
                     onClick={() =>
                       trackPlanPurchaseStart(
                         { plan: "bundle" },
-                        { label: "plan-matrix-bundle-cta-desktop" }
+                        { label: "plan-matrix-bundle-cta-desktop" },
                       )
                     }
                     className={styles["pick-button"]}
@@ -352,7 +352,7 @@ export const PlanMatrix = (props: Props) => {
                   </a>
                   <small>
                     {l10n.getString(
-                      "plan-matrix-price-period-yearly-footnote-1"
+                      "plan-matrix-price-period-yearly-footnote-1",
                     )}
                   </small>
                 </div>
@@ -373,7 +373,7 @@ export const PlanMatrix = (props: Props) => {
                   </Link>
                   <small>
                     {l10n.getString(
-                      "plan-matrix-price-period-monthly-footnote-1"
+                      "plan-matrix-price-period-monthly-footnote-1",
                     )}
                   </small>
                 </div>
@@ -416,11 +416,11 @@ export const PlanMatrix = (props: Props) => {
                 monthly_price: getPeriodicalPremiumPrice(
                   props.runtimeData,
                   "monthly",
-                  l10n
+                  l10n,
                 ),
                 subscribeLink: getPeriodicalPremiumSubscribeLink(
                   props.runtimeData,
-                  "monthly"
+                  "monthly",
                 ),
                 gaViewPing: {
                   category: "Purchase monthly Premium button",
@@ -435,11 +435,11 @@ export const PlanMatrix = (props: Props) => {
                 monthly_price: getPeriodicalPremiumPrice(
                   props.runtimeData,
                   "yearly",
-                  l10n
+                  l10n,
                 ),
                 subscribeLink: getPeriodicalPremiumSubscribeLink(
                   props.runtimeData,
-                  "yearly"
+                  "yearly",
                 ),
                 gaViewPing: {
                   category: "Purchase yearly Premium button",
@@ -478,11 +478,11 @@ export const PlanMatrix = (props: Props) => {
                 monthly_price: getPhonesPrice(
                   props.runtimeData,
                   "monthly",
-                  l10n
+                  l10n,
                 ),
                 subscribeLink: getPhoneSubscribeLink(
                   props.runtimeData,
-                  "monthly"
+                  "monthly",
                 ),
                 gaViewPing: {
                   category: "Purchase monthly Premium+phones button",
@@ -497,11 +497,11 @@ export const PlanMatrix = (props: Props) => {
                 monthly_price: getPhonesPrice(
                   props.runtimeData,
                   "yearly",
-                  l10n
+                  l10n,
                 ),
                 subscribeLink: getPhoneSubscribeLink(
                   props.runtimeData,
-                  "yearly"
+                  "yearly",
                 ),
                 gaViewPing: {
                   category: "Purchase yearly Premium+phones button",
@@ -568,7 +568,7 @@ export const PlanMatrix = (props: Props) => {
                   onClick={() =>
                     trackPlanPurchaseStart(
                       { plan: "bundle" },
-                      { label: "plan-matrix-bundle-cta-mobile" }
+                      { label: "plan-matrix-bundle-cta-mobile" },
                     )
                   }
                   className={styles["pick-button"]}
@@ -664,7 +664,7 @@ const MobileFeatureList = (props: MobileFeatureListProps) => {
   const lis = Object.entries(props.list)
     .filter(
       ([_feature, availability]) =>
-        typeof availability !== "boolean" || availability
+        typeof availability !== "boolean" || availability,
     )
     .map(([feature, availability]) => {
       const variables =

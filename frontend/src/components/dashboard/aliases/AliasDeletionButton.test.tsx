@@ -16,7 +16,7 @@ jest.mock("../../../components/Localized.tsx", () => mockLocalizedModule);
 describe("<AliasDeletionButton>", () => {
   it("displays a usable button to delete an alias", () => {
     render(
-      <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />
+      <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />,
     );
 
     const button = screen.getByRole("button", {
@@ -29,7 +29,7 @@ describe("<AliasDeletionButton>", () => {
 
   it("displays a confirmation prompt, with an unchecked checkbox and a disabled button", async () => {
     render(
-      <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />
+      <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />,
     );
 
     const button = screen.getByRole("button", {
@@ -51,7 +51,7 @@ describe("<AliasDeletionButton>", () => {
 
   it("enables the delete button on the confirmation prompt, once the checkbox is checked", async () => {
     render(
-      <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />
+      <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />,
     );
 
     const button = screen.getByRole("button", {
@@ -74,7 +74,7 @@ describe("<AliasDeletionButton>", () => {
 
   it("resets the inputs on the confirmation prompt when reopened, after clicking the Cancel button", async () => {
     render(
-      <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />
+      <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />,
     );
 
     const button = screen.getByRole("button", {
@@ -108,7 +108,7 @@ describe("<AliasDeletionButton>", () => {
 
   it("resets the inputs on the confirmation prompt when reopened, after clicking off the propmt", async () => {
     render(
-      <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />
+      <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />,
     );
 
     const button = screen.getByRole("button", {

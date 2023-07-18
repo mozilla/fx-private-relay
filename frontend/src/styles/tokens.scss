@@ -8,7 +8,9 @@ $firefoxGradient: linear-gradient(
 );
 
 // For use with box-shadow:
-$buttonFocusOutline: 0 0 0 1px #0a84ff, 0 0 0 1px #0a84ff,
+$buttonFocusOutline:
+  0 0 0 1px #0a84ff,
+  0 0 0 1px #0a84ff,
   0 0 0 4px rgba(10, 132, 255, 0.3);
 
 // Overwrite the Protocol colours with Nebula colours:

@@ -40,7 +40,7 @@ export type Props = {
   onCreate: (
     options:
       | { mask_type: "random" }
-      | { mask_type: "custom"; address: string; blockPromotionals: boolean }
+      | { mask_type: "custom"; address: string; blockPromotionals: boolean },
   ) => void;
 };
 
@@ -109,7 +109,7 @@ type AliasTypeMenuProps = {
   onCreate: (
     options:
       | { mask_type: "random" }
-      | { mask_type: "custom"; address: string; blockPromotionals: boolean }
+      | { mask_type: "custom"; address: string; blockPromotionals: boolean },
   ) => void;
 };
 const AliasTypeMenu = (props: AliasTypeMenuProps) => {
@@ -128,7 +128,7 @@ const AliasTypeMenu = (props: AliasTypeMenuProps) => {
 
   const onPick = (
     address: string,
-    settings: { blockPromotionals: boolean }
+    settings: { blockPromotionals: boolean },
   ) => {
     props.onCreate({
       mask_type: "custom",
@@ -175,7 +175,7 @@ const AliasTypeMenuButton = (props: AliasTypeMenuButtonProps) => {
   const { menuTriggerProps, menuProps } = useMenuTrigger(
     {},
     triggerState,
-    triggerRef
+    triggerRef,
   );
   // `menuProps` has an `autoFocus` property that is not compatible with the
   // `autoFocus` property for HTMLElements, because it can also be of type
@@ -193,7 +193,7 @@ const AliasTypeMenuButton = (props: AliasTypeMenuButtonProps) => {
 
   const triggerButtonProps = useButton(
     menuTriggerProps,
-    triggerRef
+    triggerRef,
   ).buttonProps;
 
   return (
@@ -235,7 +235,7 @@ const AliasTypeMenuPopup = (props: AliasTypeMenuPopupProps) => {
       isOpen: true,
       isDismissable: true,
     },
-    overlayRef
+    overlayRef,
   );
 
   // <FocusScope> ensures that focus is restored back to the
@@ -290,7 +290,7 @@ const AliasTypeMenuItem = (props: AliasTypeMenuItemProps) => {
       onClose: props.onClose,
     },
     props.state,
-    menuItemRef
+    menuItemRef,
   ).menuItemProps;
 
   const [_isFocused, setIsFocused] = useState(false);

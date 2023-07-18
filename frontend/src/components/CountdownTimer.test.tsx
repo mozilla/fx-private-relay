@@ -40,7 +40,7 @@ describe("getRemainingTimeParts", () => {
 
   it("knows when there are zero days left", () => {
     expect(
-      getRemainingTimeParts(4 * 60 * 60 * 1000 + 3 * 60 * 1000 + 2 * 1000 + 42)
+      getRemainingTimeParts(4 * 60 * 60 * 1000 + 3 * 60 * 1000 + 2 * 1000 + 42),
     ).toStrictEqual({
       remainingDays: 0,
       remainingHours: 4,
@@ -56,8 +56,8 @@ describe("getRemainingTimeParts", () => {
           4 * 60 * 60 * 1000 +
           3 * 60 * 1000 +
           2 * 1000 +
-          42
-      )
+          42,
+      ),
     ).toStrictEqual({
       remainingDays: 5,
       remainingHours: 4,
@@ -69,8 +69,8 @@ describe("getRemainingTimeParts", () => {
   it("can deal with hours reaching zero with multiple days left", () => {
     expect(
       getRemainingTimeParts(
-        5 * 24 * 60 * 60 * 1000 + 3 * 60 * 1000 + 2 * 1000 + 42
-      )
+        5 * 24 * 60 * 60 * 1000 + 3 * 60 * 1000 + 2 * 1000 + 42,
+      ),
     ).toStrictEqual({
       remainingDays: 5,
       remainingHours: 0,
@@ -82,8 +82,8 @@ describe("getRemainingTimeParts", () => {
   it("can deal with minutes reaching zero with multiple days left", () => {
     expect(
       getRemainingTimeParts(
-        5 * 24 * 60 * 60 * 1000 + 4 * 60 * 60 * 1000 + 2 * 1000 + 42
-      )
+        5 * 24 * 60 * 60 * 1000 + 4 * 60 * 60 * 1000 + 2 * 1000 + 42,
+      ),
     ).toStrictEqual({
       remainingDays: 5,
       remainingHours: 4,
@@ -99,8 +99,8 @@ describe("getRemainingTimeParts", () => {
           23 * 60 * 60 * 1000 +
           3 * 60 * 1000 +
           2 * 1000 +
-          42
-      )
+          42,
+      ),
     ).toStrictEqual({
       remainingDays: 5,
       remainingHours: 23,
@@ -116,8 +116,8 @@ describe("getRemainingTimeParts", () => {
           4 * 60 * 60 * 1000 +
           59 * 60 * 1000 +
           2 * 1000 +
-          42
-      )
+          42,
+      ),
     ).toStrictEqual({
       remainingDays: 5,
       remainingHours: 4,
@@ -133,8 +133,8 @@ describe("getRemainingTimeParts", () => {
           4 * 60 * 60 * 1000 +
           3 * 60 * 1000 +
           59 * 1000 +
-          42
-      )
+          42,
+      ),
     ).toStrictEqual({
       remainingDays: 5,
       remainingHours: 4,
@@ -152,9 +152,9 @@ describe("getRemainingTimeParts", () => {
         (timeInMilliseconds) => {
           const remainingTimeParts = getRemainingTimeParts(timeInMilliseconds);
           expect(remainingTimeParts.remainingDays).toBeGreaterThanOrEqual(0);
-        }
+        },
       ),
-      { numRuns: runs }
+      { numRuns: runs },
     );
   });
 
@@ -167,9 +167,9 @@ describe("getRemainingTimeParts", () => {
         (timeInMilliseconds) => {
           const remainingTimeParts = getRemainingTimeParts(timeInMilliseconds);
           expect(remainingTimeParts.remainingHours).toBeLessThan(24);
-        }
+        },
       ),
-      { numRuns: runs }
+      { numRuns: runs },
     );
   });
 
@@ -182,9 +182,9 @@ describe("getRemainingTimeParts", () => {
         (timeInMilliseconds) => {
           const remainingTimeParts = getRemainingTimeParts(timeInMilliseconds);
           expect(remainingTimeParts.remainingHours).toBeGreaterThanOrEqual(0);
-        }
+        },
       ),
-      { numRuns: runs }
+      { numRuns: runs },
     );
   });
 
@@ -197,9 +197,9 @@ describe("getRemainingTimeParts", () => {
         (timeInMilliseconds) => {
           const remainingTimeParts = getRemainingTimeParts(timeInMilliseconds);
           expect(remainingTimeParts.remainingMinutes).toBeLessThan(60);
-        }
+        },
       ),
-      { numRuns: runs }
+      { numRuns: runs },
     );
   });
 
@@ -212,9 +212,9 @@ describe("getRemainingTimeParts", () => {
         (timeInMilliseconds) => {
           const remainingTimeParts = getRemainingTimeParts(timeInMilliseconds);
           expect(remainingTimeParts.remainingMinutes).toBeGreaterThanOrEqual(0);
-        }
+        },
       ),
-      { numRuns: runs }
+      { numRuns: runs },
     );
   });
 
@@ -227,9 +227,9 @@ describe("getRemainingTimeParts", () => {
         (timeInMilliseconds) => {
           const remainingTimeParts = getRemainingTimeParts(timeInMilliseconds);
           expect(remainingTimeParts.remainingSeconds).toBeLessThan(60);
-        }
+        },
       ),
-      { numRuns: runs }
+      { numRuns: runs },
     );
   });
 
@@ -242,9 +242,9 @@ describe("getRemainingTimeParts", () => {
         (timeInMilliseconds) => {
           const remainingTimeParts = getRemainingTimeParts(timeInMilliseconds);
           expect(remainingTimeParts.remainingSeconds).toBeGreaterThanOrEqual(0);
-        }
+        },
       ),
-      { numRuns: runs }
+      { numRuns: runs },
     );
   });
 
@@ -258,7 +258,7 @@ describe("getRemainingTimeParts", () => {
           fc.nat({ max: 23 }),
           fc.nat({ max: 59 }),
           fc.nat({ max: 59 }),
-          fc.nat({ max: 999 })
+          fc.nat({ max: 999 }),
         ),
         ([days, hours, minutes, seconds, milliseconds]) => {
           const remainingTimeParts = getRemainingTimeParts(
@@ -266,15 +266,15 @@ describe("getRemainingTimeParts", () => {
               hours * 60 * 60 * 1000 +
               minutes * 60 * 1000 +
               seconds * 1000 +
-              milliseconds
+              milliseconds,
           );
           expect(remainingTimeParts.remainingDays).toBe(days);
           expect(remainingTimeParts.remainingHours).toBe(hours);
           expect(remainingTimeParts.remainingMinutes).toBe(minutes);
           expect(remainingTimeParts.remainingSeconds).toBe(seconds);
-        }
+        },
       ),
-      { numRuns: runs }
+      { numRuns: runs },
     );
   });
 });

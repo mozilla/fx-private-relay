@@ -6,7 +6,7 @@ export type RuntimeDataWithWaffle = RuntimeData & {
 
 export function isFlagActive(
   runtimeData: RuntimeData | undefined,
-  flagName: FlagNames
+  flagName: FlagNames,
 ): runtimeData is RuntimeDataWithWaffle {
   if (runtimeData?.WAFFLE_FLAGS) {
     for (const flag of runtimeData.WAFFLE_FLAGS) {

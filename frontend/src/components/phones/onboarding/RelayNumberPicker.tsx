@@ -110,7 +110,7 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
         ...relayNumberSuggestionsData.data.other_areas_options,
         ...relayNumberSuggestionsData.data.same_prefix_options,
         ...relayNumberSuggestionsData.data.random_options,
-      ].map((suggestion) => suggestion.phone_number)
+      ].map((suggestion) => suggestion.phone_number),
     );
   }
 
@@ -146,7 +146,7 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
     if (data) {
       // add new relay number suggestions
       setRelayNumberSuggestions(
-        data.map((suggestion) => suggestion.phone_number)
+        data.map((suggestion) => suggestion.phone_number),
       );
 
       // reset relay number index
@@ -175,7 +175,7 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
       setRelayNumberIndex(
         newRelayNumberIndex >= relayNumberSuggestions.length
           ? 0
-          : newRelayNumberIndex
+          : newRelayNumberIndex,
       );
     }
   };
@@ -260,7 +260,7 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
           }
         >
           {l10n.getString(
-            "phone-onboarding-step4-button-register-phone-number"
+            "phone-onboarding-step4-button-register-phone-number",
           )}
         </Button>
       </form>
@@ -322,12 +322,12 @@ const RelayNumberConfirmation = (props: RelayNumberConfirmationProps) => {
         </h3>
         <p>
           {l10n.getString(
-            "phone-onboarding-step4-code-success-subhead-body-p1"
+            "phone-onboarding-step4-code-success-subhead-body-p1",
           )}
         </p>
         <p>
           {l10n.getString(
-            "phone-onboarding-step4-code-success-subhead-body-p2"
+            "phone-onboarding-step4-code-success-subhead-body-p2",
           )}
         </p>
         <Button onClick={() => props.onComplete()} className={styles.button}>

@@ -19,7 +19,7 @@ describe("getAddressValidationMessage", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
     expect(getAddressValidationMessage("invalid address", mockL10n)).toBe(
-      "String ID: modal-custom-alias-picker-form-prefix-spaces-warning"
+      "String ID: modal-custom-alias-picker-form-prefix-spaces-warning",
     );
   });
 
@@ -29,7 +29,7 @@ describe("getAddressValidationMessage", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
     expect(
-      getAddressValidationMessage("invalid address (╯ ͠° ͟ʖ ͡°)╯┻━┻ ", mockL10n)
+      getAddressValidationMessage("invalid address (╯ ͠° ͟ʖ ͡°)╯┻━┻ ", mockL10n),
     ).toBe("String ID: modal-custom-alias-picker-form-prefix-spaces-warning");
   });
 
@@ -39,7 +39,7 @@ describe("getAddressValidationMessage", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
     expect(getAddressValidationMessage("π", mockL10n)).toBe(
-      "String ID: modal-custom-alias-picker-form-prefix-invalid-warning-2"
+      "String ID: modal-custom-alias-picker-form-prefix-invalid-warning-2",
     );
   });
 
@@ -49,7 +49,7 @@ describe("getAddressValidationMessage", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
     expect(getAddressValidationMessage("Invalid-address", mockL10n)).toBe(
-      "String ID: modal-custom-alias-picker-form-prefix-invalid-warning-2"
+      "String ID: modal-custom-alias-picker-form-prefix-invalid-warning-2",
     );
   });
 
@@ -59,7 +59,7 @@ describe("getAddressValidationMessage", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
     expect(getAddressValidationMessage("-invalid-address", mockL10n)).toBe(
-      "String ID: modal-custom-alias-picker-form-prefix-invalid-warning-2"
+      "String ID: modal-custom-alias-picker-form-prefix-invalid-warning-2",
     );
   });
 
@@ -69,7 +69,7 @@ describe("getAddressValidationMessage", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
     expect(getAddressValidationMessage("invalid-address-", mockL10n)).toBe(
-      "String ID: modal-custom-alias-picker-form-prefix-invalid-warning-2"
+      "String ID: modal-custom-alias-picker-form-prefix-invalid-warning-2",
     );
   });
 
@@ -79,7 +79,7 @@ describe("getAddressValidationMessage", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
     expect(getAddressValidationMessage(".invalid.address", mockL10n)).toBe(
-      "String ID: modal-custom-alias-picker-form-prefix-invalid-warning-2"
+      "String ID: modal-custom-alias-picker-form-prefix-invalid-warning-2",
     );
   });
 
@@ -89,7 +89,7 @@ describe("getAddressValidationMessage", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
     expect(getAddressValidationMessage("invalid.address.", mockL10n)).toBe(
-      "String ID: modal-custom-alias-picker-form-prefix-invalid-warning-2"
+      "String ID: modal-custom-alias-picker-form-prefix-invalid-warning-2",
     );
   });
 
@@ -99,7 +99,7 @@ describe("getAddressValidationMessage", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
     expect(getAddressValidationMessage("-", mockL10n)).toBe(
-      "String ID: modal-custom-alias-picker-form-prefix-invalid-warning-2"
+      "String ID: modal-custom-alias-picker-form-prefix-invalid-warning-2",
     );
   });
 });

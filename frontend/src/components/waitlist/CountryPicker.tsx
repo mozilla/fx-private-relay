@@ -34,8 +34,8 @@ export const CountryPicker = (props: Props) => {
     .filter(
       ([code]) =>
         !["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].some((nr) =>
-          code.includes(nr)
-        )
+          code.includes(nr),
+        ),
     )
     .sort(([_codeA, nameA], [_codeB, nameB]) => nameA.localeCompare(nameB))
     .map(([code, name]) => (

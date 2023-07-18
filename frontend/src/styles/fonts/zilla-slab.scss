@@ -2,7 +2,8 @@
   font-family: "Zilla Slab";
   font-style: normal;
   font-weight: 700;
-  src: local("Zilla Slab-Bold"),
+  src:
+    local("Zilla Slab-Bold"),
     url("/fonts/Zilla_Slab/ZillaSlab-Bold.woff2") format("woff2");
   font-display: swap;
 }
@@ -11,7 +12,8 @@
   font-family: "Zilla Slab";
   font-style: normal;
   font-weight: 600;
-  src: local("Zilla Slab-SemiBold"),
+  src:
+    local("Zilla Slab-SemiBold"),
     url("/fonts/Zilla_Slab/ZillaSlab-SemiBold.woff2") format("woff2");
   font-display: swap;
 }
@@ -20,7 +22,8 @@
   font-family: "Zilla Slab";
   font-style: normal;
   font-weight: 500;
-  src: local("Zilla Slab-Medium"),
+  src:
+    local("Zilla Slab-Medium"),
     url("/fonts/Zilla_Slab/ZillaSlab-Medium.woff2") format("woff2");
   font-display: swap;
 }
@@ -29,7 +32,8 @@
   font-family: "Zilla Slab";
   font-style: normal;
   font-weight: 300;
-  src: local("Zilla Slab-Light"),
+  src:
+    local("Zilla Slab-Light"),
     url("/fonts/Zilla_Slab/ZillaSlab-Light.woff2") format("woff2");
   font-display: swap;
 }

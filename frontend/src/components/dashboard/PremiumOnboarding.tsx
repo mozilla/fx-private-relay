@@ -162,7 +162,7 @@ export const PremiumOnboarding = (props: Props) => {
           }`}
         >
           {l10n.getString(
-            "multi-part-onboarding-premium-extension-button-dashboard"
+            "multi-part-onboarding-premium-extension-button-dashboard",
           )}
         </Button>
         <AddonDescriptionLinkButton
@@ -256,13 +256,13 @@ const StepOne = () => {
         <p>
           <strong>
             {l10n.getString(
-              `multi-part-onboarding-premium-welcome-feature-headline-${props.name}`
+              `multi-part-onboarding-premium-welcome-feature-headline-${props.name}`,
             )}
           </strong>
           <br />
           <span>
             {l10n.getString(
-              `multi-part-onboarding-premium-welcome-feature-body-${props.name}`
+              `multi-part-onboarding-premium-welcome-feature-body-${props.name}`,
             )}
           </span>
         </p>
@@ -278,7 +278,7 @@ const StepOne = () => {
         </h2>
         <p className={styles.lead}>
           {l10n.getString(
-            "multi-part-onboarding-premium-welcome-subheadline-2"
+            "multi-part-onboarding-premium-welcome-subheadline-2",
           )}
         </p>
       </div>
@@ -287,7 +287,7 @@ const StepOne = () => {
         <div>
           <span className={styles["description-caption"]}>
             {l10n.getString(
-              "multi-part-onboarding-premium-welcome-feature-headline"
+              "multi-part-onboarding-premium-welcome-feature-headline",
             )}
           </span>
           <br />
@@ -362,7 +362,7 @@ const StepTwo = (props: Step2Props) => {
           {partialSubdomain !== ""
             ? partialSubdomain
             : l10n.getString(
-                "multi-part-onboarding-premium-email-domain-placeholder"
+                "multi-part-onboarding-premium-email-domain-placeholder",
               )}
         </span>
         .{getRuntimeConfig().mozmailDomain}
@@ -376,7 +376,7 @@ const StepTwo = (props: Step2Props) => {
       <div className={styles["title-container"]}>
         <h2>
           {l10n.getString(
-            "multi-part-onboarding-premium-email-domain-headline"
+            "multi-part-onboarding-premium-email-domain-headline",
           )}
         </h2>
       </div>
@@ -386,12 +386,12 @@ const StepTwo = (props: Step2Props) => {
           <p className={styles["subdomain-description"]}>
             <span className={styles["description-caption"]}>
               {l10n.getString(
-                "multi-part-onboarding-premium-email-domain-feature-headline"
+                "multi-part-onboarding-premium-email-domain-feature-headline",
               )}
             </span>
             <span className={styles["description-bolded-headline"]}>
               {l10n.getString(
-                "multi-part-onboarding-premium-email-domain-headline-create-masks-on-the-go"
+                "multi-part-onboarding-premium-email-domain-headline-create-masks-on-the-go",
               )}
             </span>
             <br />
@@ -433,7 +433,7 @@ const StepThree = () => {
             <br />
             <span className={styles["description-bolded-headline"]}>
               {l10n.getString(
-                "multi-part-onboarding-premium-reply-description"
+                "multi-part-onboarding-premium-reply-description",
               )}
             </span>
             <br />
@@ -449,7 +449,7 @@ const StepThree = () => {
             </div>
             <p className={`${styles["addon-description"]}`}>
               {l10n.getString(
-                "multi-part-onboarding-premium-added-extension-body"
+                "multi-part-onboarding-premium-added-extension-body",
               )}
             </p>
           </div>
@@ -503,7 +503,7 @@ const AddonDescription = () => {
       <div className={`${styles["addon-description"]} is-hidden-with-addon`}>
         <span className={styles["description-caption"]}>
           {l10n.getString(
-            "multi-part-onboarding-premium-add-extension-feature-headline"
+            "multi-part-onboarding-premium-add-extension-feature-headline",
           )}
         </span>
         <AddonDescriptionHeader headerMessageId={headerMessageId} />

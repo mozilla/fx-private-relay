@@ -14,7 +14,7 @@ jest.mock("../../../../hooks/l10n.ts", () => mockUseL10nModule);
 
 function getMockEntry(
   id: number,
-  options: { expired?: boolean; dismissed?: boolean } = {}
+  options: { expired?: boolean; dismissed?: boolean } = {},
 ): WhatsNewEntry {
   const subtractTime = options.expired ? 30 * 24 * 60 * 60 * 1000 + 1 : 0;
   const annDate = new Date(Date.now() - subtractTime);
@@ -53,7 +53,7 @@ describe("The 'What's new' dashboard", () => {
         new={newEntries}
         archive={allEntries}
         onClose={jest.fn()}
-      />
+      />,
     );
 
     const menuItems = screen.getAllByRole("menuitem");
@@ -74,7 +74,7 @@ describe("The 'What's new' dashboard", () => {
         new={newEntries}
         archive={allEntries}
         onClose={jest.fn()}
-      />
+      />,
     );
 
     expect(screen.getAllByRole("menuitem")).toHaveLength(2);
@@ -82,7 +82,7 @@ describe("The 'What's new' dashboard", () => {
     const tabs = screen.getAllByRole("tab");
     expect(tabs).toHaveLength(2);
     expect(tabs[1]).toHaveTextContent(
-      "l10n string: [whatsnew-tab-archive-label], with vars: {}"
+      "l10n string: [whatsnew-tab-archive-label], with vars: {}",
     );
 
     await userEvent.click(tabs[1]);
@@ -103,7 +103,7 @@ describe("The 'What's new' dashboard", () => {
         new={newEntries}
         archive={allEntries}
         onClose={jest.fn()}
-      />
+      />,
     );
 
     const menuItems = screen.getAllByRole("menuitem");
@@ -125,7 +125,7 @@ describe("The 'What's new' dashboard", () => {
         new={newEntries}
         archive={allEntries}
         onClose={jest.fn()}
-      />
+      />,
     );
 
     const clearAllButton = screen.getByRole("button", {
@@ -150,7 +150,7 @@ describe("The 'What's new' dashboard", () => {
         new={newEntries}
         archive={allEntries}
         onClose={jest.fn()}
-      />
+      />,
     );
 
     expect(screen.queryByText(allEntries[1].content)).not.toBeInTheDocument();
@@ -174,7 +174,7 @@ describe("The 'What's new' dashboard", () => {
         new={newEntries}
         archive={allEntries}
         onClose={jest.fn()}
-      />
+      />,
     );
 
     expect(screen.queryByText(allEntries[1]?.content)).not.toBeInTheDocument();
@@ -205,11 +205,11 @@ describe("The 'What's new' dashboard", () => {
         new={newEntries}
         archive={allEntries}
         onClose={jest.fn()}
-      />
+      />,
     );
 
     expect(
-      screen.getByText("l10n string: [whatsnew-empty-message], with vars: {}")
+      screen.getByText("l10n string: [whatsnew-empty-message], with vars: {}"),
     ).toBeInTheDocument();
   });
 
@@ -226,7 +226,7 @@ describe("The 'What's new' dashboard", () => {
         new={newEntries}
         archive={allEntries}
         onClose={jest.fn()}
-      />
+      />,
     );
 
     const tabs = screen.getAllByRole("tab");
@@ -259,7 +259,7 @@ describe("The 'What's new' dashboard", () => {
         new={newEntries}
         archive={allEntries}
         onClose={jest.fn()}
-      />
+      />,
     );
 
     const menuItems = screen.getAllByRole("menuitem");
@@ -286,7 +286,7 @@ describe("The 'What's new' dashboard", () => {
         new={newEntries}
         archive={allEntries}
         onClose={jest.fn()}
-      />
+      />,
     );
 
     const menuItems = screen.getAllByRole("menuitem");
@@ -318,7 +318,7 @@ describe("The 'What's new' dashboard", () => {
         new={newEntries}
         archive={allEntries}
         onClose={jest.fn()}
-      />
+      />,
     );
 
     const clearAllButton = screen.getByRole("button", {

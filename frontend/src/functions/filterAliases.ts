@@ -13,7 +13,7 @@ export type Filters = {
  */
 export const filterAliases = (
   aliases: AliasData[],
-  filters: Filters
+  filters: Filters,
 ): AliasData[] => {
   const stringFilter = filters.string.toLowerCase();
   const matchesStringFilter = (alias: AliasData) => {

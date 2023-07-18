@@ -53,7 +53,7 @@ jest.mock("../../hooks/api/api.ts", () => ({
     Promise.resolve({
       ok: true,
       json: () => Promise.resolve({ available: true }),
-    })
+    }),
   ),
 }));
 jest.mock("../../hooks/gaViewPing.ts");
@@ -213,7 +213,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const domainSearchField = screen.getByLabelText(
-      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}"
+      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}",
     );
 
     expect(domainSearchField).toBeInTheDocument();
@@ -224,7 +224,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const domainSearchField = screen.queryByLabelText(
-      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}"
+      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}",
     );
 
     expect(domainSearchField).not.toBeInTheDocument();
@@ -238,7 +238,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const domainSearchField = screen.queryByLabelText(
-      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}"
+      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}",
     );
 
     expect(domainSearchField).not.toBeInTheDocument();
@@ -249,7 +249,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const domainSearchField = screen.getByLabelText(
-      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}"
+      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}",
     );
 
     await userEvent.type(domainSearchField, "SpoNGeBoB");
@@ -456,7 +456,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const searchFilter = screen.getAllByLabelText(
-      "l10n string: [profile-filter-search-placeholder-2], with vars: {}"
+      "l10n string: [profile-filter-search-placeholder-2], with vars: {}",
     );
 
     expect(searchFilter[0]).toBeInTheDocument();
@@ -468,7 +468,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const searchFilter = screen.getAllByLabelText(
-      "l10n string: [profile-filter-search-placeholder-2], with vars: {}"
+      "l10n string: [profile-filter-search-placeholder-2], with vars: {}",
     );
 
     expect(searchFilter[0]).toBeInTheDocument();
@@ -493,7 +493,7 @@ describe("The dashboard", () => {
 
     // The alias filter servers as a proxy here for the aliases being shown:
     const searchFilter = screen.queryByLabelText(
-      "l10n string: [profile-filter-search-placeholder-2], with vars: {}"
+      "l10n string: [profile-filter-search-placeholder-2], with vars: {}",
     );
 
     expect(searchFilter).not.toBeInTheDocument();
@@ -522,7 +522,7 @@ describe("The dashboard", () => {
     // used by the add-on) is fine here:
     // eslint-disable-next-line testing-library/no-node-access, testing-library/no-container
     const addonDataElements = container.getElementsByTagName(
-      "firefox-private-relay-addon-data"
+      "firefox-private-relay-addon-data",
     );
 
     expect(addonDataElements).toHaveLength(1);
@@ -539,7 +539,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const subdomainSearchField = screen.getByLabelText(
-      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}"
+      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}",
     );
 
     expect(subdomainSearchField).toBeInTheDocument();
@@ -561,7 +561,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const subdomainSearchField = screen.getByLabelText(
-      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}"
+      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}",
     );
 
     await userEvent.type(subdomainSearchField, "sPoNGeBob");
@@ -590,7 +590,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const subdomainSearchField = screen.queryByLabelText(
-      "l10n string: [banner-set-email-domain-input-placeholder], with vars: {}"
+      "l10n string: [banner-set-email-domain-input-placeholder], with vars: {}",
     );
 
     expect(subdomainSearchField).not.toBeInTheDocument();
@@ -600,7 +600,7 @@ describe("The dashboard", () => {
     const updateFn: ProfileUpdateFn = jest.fn();
     setMockProfileDataOnce(
       { id: 42, has_premium: true, onboarding_state: 1 },
-      { updater: updateFn }
+      { updater: updateFn },
     );
     render(<Profile />);
 
@@ -616,7 +616,7 @@ describe("The dashboard", () => {
     const updateFn: ProfileUpdateFn = jest.fn();
     setMockProfileDataOnce(
       { id: 42, has_premium: true, onboarding_state: 2 },
-      { updater: updateFn }
+      { updater: updateFn },
     );
     render(<Profile />);
 
@@ -632,7 +632,7 @@ describe("The dashboard", () => {
     const updateFn: AliasUpdateFn = jest.fn();
     setMockAliasesDataOnce(
       { random: [{ enabled: true, id: 42 }], custom: [] },
-      { updater: updateFn }
+      { updater: updateFn },
     );
     render(<Profile />);
 
@@ -655,13 +655,13 @@ describe("The dashboard", () => {
     expect(console.error).toHaveBeenCalledWith(
       "Warning: Received NaN for the `%s` attribute. If this is expected, cast the value to a string.%s",
       "value",
-      expect.any(String)
+      expect.any(String),
     );
     console.error = originalConsoleError;
 
     expect(updateFn).toHaveBeenCalledWith(
       expect.objectContaining({ id: 42, mask_type: "random" }),
-      { enabled: false }
+      { enabled: false },
     );
   });
 
@@ -783,7 +783,7 @@ describe("The dashboard", () => {
     await userEvent.click(categoryFilterButton);
 
     const categoryFilterCheckboxCustomMask = screen.getByLabelText(
-      "l10n string: [profile-filter-category-option-custom-masks], with vars: {}"
+      "l10n string: [profile-filter-category-option-custom-masks], with vars: {}",
     );
     await userEvent.click(categoryFilterCheckboxCustomMask);
 
@@ -821,7 +821,7 @@ describe("The dashboard", () => {
     await userEvent.click(categoryFilterButton);
 
     const categoryFilterCheckboxRandomMask = screen.getByLabelText(
-      "l10n string: [profile-filter-category-option-random-masks], with vars: {}"
+      "l10n string: [profile-filter-category-option-random-masks], with vars: {}",
     );
     await userEvent.click(categoryFilterCheckboxRandomMask);
 
@@ -856,7 +856,7 @@ describe("The dashboard", () => {
     await userEvent.click(categoryFilterButton);
 
     const categoryFilterCheckboxCustomMask = screen.getByLabelText(
-      "l10n string: [profile-filter-category-option-custom-masks], with vars: {}"
+      "l10n string: [profile-filter-category-option-custom-masks], with vars: {}",
     );
     await userEvent.click(categoryFilterCheckboxCustomMask);
 
@@ -893,7 +893,7 @@ describe("The dashboard", () => {
     // used by the add-on) is fine here:
     // eslint-disable-next-line testing-library/no-node-access, testing-library/no-container
     const addonDataElements = container.getElementsByTagName(
-      "firefox-private-relay-addon-data"
+      "firefox-private-relay-addon-data",
     );
 
     expect(addonDataElements).toHaveLength(1);
@@ -928,7 +928,7 @@ describe("The dashboard", () => {
     await userEvent.click(aliasDeleteButton);
 
     const confirmationCheckbox = screen.getByLabelText(
-      "l10n string: [modal-delete-confirmation-2], with vars: {}"
+      "l10n string: [modal-delete-confirmation-2], with vars: {}",
     );
     await userEvent.click(confirmationCheckbox);
 
@@ -969,7 +969,7 @@ describe("The dashboard", () => {
         name: "l10n string: [tips-header-title], with vars: {}",
       });
       const customMaskTip = screen.getByText(
-        "l10n string: [tips-custom-alias-heading-2], with vars: {}"
+        "l10n string: [tips-custom-alias-heading-2], with vars: {}",
       );
 
       expect(tipsHeader).toBeInTheDocument();
@@ -982,7 +982,7 @@ describe("The dashboard", () => {
       render(<Profile />);
 
       const customMaskTip = screen.queryByText(
-        "l10n string: [tips-custom-alias-heading-2], with vars: {}"
+        "l10n string: [tips-custom-alias-heading-2], with vars: {}",
       );
 
       expect(customMaskTip).not.toBeInTheDocument();
@@ -1052,7 +1052,7 @@ describe("The dashboard", () => {
       });
       const generateCustomAliasMenuItem = screen.getByRole("menuitem", {
         name: `l10n string: [profile-label-generate-new-alias-menu-custom-2], with vars: ${JSON.stringify(
-          { subdomain: "some_subdomain" }
+          { subdomain: "some_subdomain" },
         )}`,
       });
 

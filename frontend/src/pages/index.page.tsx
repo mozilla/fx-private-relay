@@ -140,7 +140,7 @@ const Home: NextPage = () => {
                     a: isFlagActive(runtimeData.data, "eu_country_expansion")
                       ? l10n.getString("faq-question-availability-answer-v4")
                       : l10n.getString(
-                          "faq-question-landing-page-availability"
+                          "faq-question-landing-page-availability",
                         ),
                   },
                   {
@@ -153,12 +153,12 @@ const Home: NextPage = () => {
                       <>
                         <p>
                           {l10n.getString(
-                            "faq-question-use-cases-answer-part1-2"
+                            "faq-question-use-cases-answer-part1-2",
                           )}
                         </p>
                         <p>
                           {l10n.getString(
-                            "faq-question-use-cases-answer-part2-2"
+                            "faq-question-use-cases-answer-part2-2",
                           )}
                         </p>
                       </>

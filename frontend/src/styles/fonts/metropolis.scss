@@ -2,7 +2,8 @@
   font-family: "Metropolis";
   font-style: normal;
   font-weight: 700;
-  src: local("Metropolis-Bold"),
+  src:
+    local("Metropolis-Bold"),
     url("/fonts/Metropolis/Metropolis-Bold.woff2") format("woff2");
   font-display: swap;
 }
@@ -11,7 +12,8 @@
   font-family: "Metropolis";
   font-style: normal;
   font-weight: 600;
-  src: local("Metropolis-SemiBold"),
+  src:
+    local("Metropolis-SemiBold"),
     url("/fonts/Metropolis/Metropolis-SemiBold.woff2") format("woff2");
   font-display: swap;
 }
@@ -20,7 +22,8 @@
   font-family: "Metropolis";
   font-style: normal;
   font-weight: 500;
-  src: local("Metropolis-Medium"),
+  src:
+    local("Metropolis-Medium"),
     url("/fonts/Metropolis/Metropolis-Medium.woff2") format("woff2");
   font-display: swap;
 }
@@ -29,7 +32,8 @@
   font-family: "Metropolis";
   font-style: normal;
   font-weight: 300;
-  src: local("Metropolis-Light"),
+  src:
+    local("Metropolis-Light"),
     url("/fonts/Metropolis/Metropolis-Light.woff2") format("woff2");
   font-display: swap;
 }

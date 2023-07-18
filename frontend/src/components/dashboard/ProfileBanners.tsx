@@ -61,7 +61,7 @@ export const ProfileBanners = (props: Props) => {
         key="bounce-banner"
         email={props.user.email}
         profile={props.profile}
-      />
+      />,
     );
   }
 
@@ -71,7 +71,7 @@ export const ProfileBanners = (props: Props) => {
         key="bundle-promo"
         runtimeData={props.runtimeData}
         profileData={props.profile}
-      />
+      />,
     );
   }
 
@@ -80,7 +80,7 @@ export const ProfileBanners = (props: Props) => {
       key="subdomain-picker"
       profile={props.profile}
       onCreate={props.onCreateSubdomain}
-    />
+    />,
   );
 
   // Don't show the "Get Firefox" banner if we have an extension available,
@@ -122,7 +122,7 @@ export const ProfileBanners = (props: Props) => {
             <LoyalistPremiumBanner
               key="premium-banner"
               runtimeData={props.runtimeData}
-            />
+            />,
             // <NoPremiumBanner key="premium-banner" runtimeData={props.runtimeData} />
           );
     }
@@ -206,7 +206,7 @@ const NoChromeExtensionBanner = () => {
     <Banner
       type="promo"
       title={l10n.getString(
-        "banner-download-install-chrome-extension-headline"
+        "banner-download-install-chrome-extension-headline",
       )}
       illustration={{
         img: <Image src={AddonIllustration} alt="" width={60} height={60} />,
@@ -286,7 +286,7 @@ const LoyalistPremiumBanner = (props: NoPremiumBannerProps) => {
           monthly_price: getPeriodicalPremiumPrice(
             props.runtimeData,
             "yearly",
-            l10n
+            l10n,
           ),
         })}
       </p>

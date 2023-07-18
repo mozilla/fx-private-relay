@@ -103,7 +103,7 @@ const Profile: NextPage = () => {
         l10n.getString("error-subdomain-not-available-2", {
           unavailable_subdomain: customSubdomain,
         }),
-        { type: "error" }
+        { type: "error" },
       );
     }
     addonData.sendEvent("subdomainClaimed", { subdomain: customSubdomain });
@@ -111,7 +111,7 @@ const Profile: NextPage = () => {
 
   const allAliases = getAllAliases(
     aliasData.randomAliasData.data,
-    aliasData.customAliasData.data
+    aliasData.customAliasData.data,
   );
 
   if (
@@ -151,13 +151,13 @@ const Profile: NextPage = () => {
   const createAlias = async (
     options:
       | { mask_type: "random" }
-      | { mask_type: "custom"; address: string; blockPromotionals: boolean }
+      | { mask_type: "custom"; address: string; blockPromotionals: boolean },
   ) => {
     try {
       const response = await aliasData.create(options);
       if (!response.ok) {
         throw new Error(
-          "Immediately caught to land in the same code path as failed requests."
+          "Immediately caught to land in the same code path as failed requests.",
         );
       }
       addonData.sendEvent("aliasListUpdate");
@@ -168,13 +168,13 @@ const Profile: NextPage = () => {
 
   const updateAlias = async (
     alias: AliasData,
-    updatedFields: Partial<AliasData>
+    updatedFields: Partial<AliasData>,
   ) => {
     try {
       const response = await aliasData.update(alias, updatedFields);
       if (!response.ok) {
         throw new Error(
-          "Immediately caught to land in the same code path as failed requests."
+          "Immediately caught to land in the same code path as failed requests.",
         );
       }
     } catch (error) {
@@ -182,7 +182,7 @@ const Profile: NextPage = () => {
         l10n.getString("error-mask-update-failed", {
           alias: getFullAddress(alias),
         }),
-        { type: "error" }
+        { type: "error" },
       );
     }
   };
@@ -192,7 +192,7 @@ const Profile: NextPage = () => {
       const response = await aliasData.delete(alias);
       if (!response.ok) {
         throw new Error(
-          "Immediately caught to land in the same code path as failed requests."
+          "Immediately caught to land in the same code path as failed requests.",
         );
       }
       addonData.sendEvent("aliasListUpdate");
@@ -201,7 +201,7 @@ const Profile: NextPage = () => {
         l10n.getString("error-mask-delete-failed", {
           alias: getFullAddress(alias),
         }),
-        { type: "error" }
+        { type: "error" },
       );
     }
   };
@@ -215,7 +215,7 @@ const Profile: NextPage = () => {
             subdomain={profile.subdomain}
             onCreateAlias={(
               address: string,
-              settings: { blockPromotionals: boolean }
+              settings: { blockPromotionals: boolean },
             ) =>
               createAlias({
                 mask_type: "custom",
@@ -345,12 +345,12 @@ const Profile: NextPage = () => {
                   <StatExplainer>
                     <p>
                       {l10n.getString(
-                        "profile-stat-label-trackers-learn-more-part1"
+                        "profile-stat-label-trackers-learn-more-part1",
                       )}
                     </p>
                     <p>
                       {l10n.getString(
-                        "profile-stat-label-trackers-learn-more-part2-2"
+                        "profile-stat-label-trackers-learn-more-part2-2",
                       )}
                     </p>
                   </StatExplainer>
@@ -485,13 +485,13 @@ const StatExplainer = (props: { children: React.ReactNode }) => {
   const { triggerProps } = useOverlayTrigger(
     { type: "dialog" },
     explainerState,
-    openButtonRef
+    openButtonRef,
   );
 
   const openButtonProps = useButton(triggerProps, openButtonRef).buttonProps;
   const closeButtonProps = useButton(
     { onPress: explainerState.close },
-    closeButtonRef
+    closeButtonRef,
   ).buttonProps;
 
   const positionProps = useOverlayPosition({
@@ -551,7 +551,7 @@ const StatExplainerTooltip = forwardRef<
 >(function StatExplainerTooltipWithForwardedRef(props, overlayRef) {
   const { overlayProps } = useOverlay(
     props.overlayProps,
-    overlayRef as RefObject<HTMLDivElement>
+    overlayRef as RefObject<HTMLDivElement>,
   );
 
   return (

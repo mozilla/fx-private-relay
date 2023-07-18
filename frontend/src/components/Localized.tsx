@@ -38,7 +38,7 @@ export const Localized = (props: LocalizedProps) => {
       cloneElement(
         props.children,
         {},
-        <>{l10n.getString(props.id, props.vars)}</>
+        <>{l10n.getString(props.id, props.vars)}</>,
       )
     ) : (
       <>{l10n.getString(props.id, props.vars)}</>

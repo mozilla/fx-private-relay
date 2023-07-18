@@ -72,7 +72,7 @@ export type WhatsNewComponentContentProps = {
  * Content of a "What's New" entry with a component as the hero
  */
 export const WhatsNewComponentContent = (
-  props: WhatsNewComponentContentProps
+  props: WhatsNewComponentContentProps,
 ) => {
   return (
     <div className={styles.wrapper}>

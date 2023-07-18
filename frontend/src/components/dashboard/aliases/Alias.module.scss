@@ -6,7 +6,8 @@ $toggleTransitionDuration: 200ms;
 .alias-card {
   border-radius: $border-radius-md;
   padding: 0;
-  transition: background-color $toggleTransitionDuration ease,
+  transition:
+    background-color $toggleTransitionDuration ease,
     box-shadow $toggleTransitionDuration ease;
   background-size: cover;
   background-position: top;
@@ -372,7 +373,10 @@ $trackerRemovalIndicatorWidth: 20px;
   max-height: 0;
   overflow: hidden;
   border-top: 1px solid transparent;
-  transition: max-height 200ms, border-color 200ms, padding 200ms;
+  transition:
+    max-height 200ms,
+    border-color 200ms,
+    padding 200ms;
   display: flex;
   flex-direction: column;
   gap: $spacing-md;

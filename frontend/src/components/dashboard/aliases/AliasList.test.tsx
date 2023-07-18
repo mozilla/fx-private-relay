@@ -18,7 +18,7 @@ describe("<AliasList>", () => {
     const updateCallback = jest.fn();
     const storeLocalLabelCallback = jest.fn();
     LocalLabelsMock.setMockLocalLabelsOnce(
-      LocalLabelsMock.getReturnValueWithoutAddon(storeLocalLabelCallback)
+      LocalLabelsMock.getReturnValueWithoutAddon(storeLocalLabelCallback),
     );
     render(
       <AliasList
@@ -28,7 +28,7 @@ describe("<AliasList>", () => {
         onDelete={jest.fn()}
         profile={getMockProfileData({ server_storage: true })}
         user={{ email: "arbitrary@example.com" }}
-      />
+      />,
     );
 
     const labelField = screen.getByRole("textbox");
@@ -45,7 +45,7 @@ describe("<AliasList>", () => {
     const updateCallback = jest.fn();
     const storeLocalLabelCallback = jest.fn();
     LocalLabelsMock.setMockLocalLabelsOnce(
-      LocalLabelsMock.getReturnValueWithAddon([], storeLocalLabelCallback)
+      LocalLabelsMock.getReturnValueWithAddon([], storeLocalLabelCallback),
     );
     render(
       <AliasList
@@ -55,7 +55,7 @@ describe("<AliasList>", () => {
         onDelete={jest.fn()}
         profile={getMockProfileData({ server_storage: false })}
         user={{ email: "arbitrary@example.com" }}
-      />
+      />,
     );
 
     const labelField = screen.getByRole("textbox");
@@ -67,7 +67,7 @@ describe("<AliasList>", () => {
     expect(updateCallback).toHaveBeenCalledWith(expect.anything(), {});
     expect(storeLocalLabelCallback).toHaveBeenCalledWith(
       expect.anything(),
-      "Some label"
+      "Some label",
     );
   });
 
@@ -75,7 +75,7 @@ describe("<AliasList>", () => {
     const updateCallback = jest.fn();
     const storeLocalLabelCallback = jest.fn();
     LocalLabelsMock.setMockLocalLabelsOnce(
-      LocalLabelsMock.getReturnValueWithAddon([], storeLocalLabelCallback)
+      LocalLabelsMock.getReturnValueWithAddon([], storeLocalLabelCallback),
     );
     render(
       <AliasList
@@ -85,7 +85,7 @@ describe("<AliasList>", () => {
         onDelete={jest.fn()}
         profile={getMockProfileData({ server_storage: true })}
         user={{ email: "arbitrary@example.com" }}
-      />
+      />,
     );
 
     const labelField = screen.getByRole("textbox");
@@ -100,7 +100,7 @@ describe("<AliasList>", () => {
 
   it("does not provide the option to edit the label if server-side storage is disabled, and local storage is not available (i.e. the user does not have the add-on)", async () => {
     LocalLabelsMock.setMockLocalLabelsOnce(
-      LocalLabelsMock.getReturnValueWithoutAddon()
+      LocalLabelsMock.getReturnValueWithoutAddon(),
     );
     render(
       <AliasList
@@ -110,7 +110,7 @@ describe("<AliasList>", () => {
         onDelete={jest.fn()}
         profile={getMockProfileData({ server_storage: false })}
         user={{ email: "arbitrary@example.com" }}
-      />
+      />,
     );
 
     const labelField = screen.queryByRole("textbox");
@@ -131,7 +131,7 @@ describe("<AliasList>", () => {
         onDelete={jest.fn()}
         profile={getMockProfileData({ server_storage: true })}
         user={{ email: "arbitrary@example.com" }}
-      />
+      />,
     );
 
     const stringFilterField = screen.getByRole("searchbox");
@@ -143,7 +143,7 @@ describe("<AliasList>", () => {
     await userEvent.type(stringFilterField, "arbitrary other description");
 
     const aliasElementNotMatchingFilter = screen.queryByText(
-      mockAlias.full_address
+      mockAlias.full_address,
     );
     expect(aliasElementNotMatchingFilter).not.toBeInTheDocument();
   });
@@ -153,8 +153,8 @@ describe("<AliasList>", () => {
     LocalLabelsMock.setMockLocalLabels(
       LocalLabelsMock.getReturnValueWithAddon(
         [{ ...mockAlias, description: "some local description" }],
-        jest.fn()
-      )
+        jest.fn(),
+      ),
     );
     render(
       <AliasList
@@ -164,7 +164,7 @@ describe("<AliasList>", () => {
         onDelete={jest.fn()}
         profile={getMockProfileData({ server_storage: false })}
         user={{ email: "arbitrary@example.com" }}
-      />
+      />,
     );
 
     const stringFilterField = screen.getByRole("searchbox");
@@ -176,7 +176,7 @@ describe("<AliasList>", () => {
     await userEvent.type(stringFilterField, "arbitrary other description");
 
     const aliasElementNotMatchingFilter = screen.queryByText(
-      mockAlias.full_address
+      mockAlias.full_address,
     );
     expect(aliasElementNotMatchingFilter).not.toBeInTheDocument();
   });

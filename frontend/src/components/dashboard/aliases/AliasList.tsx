@@ -25,7 +25,7 @@ export type Props = {
   onCreate: (
     options:
       | { mask_type: "random" }
-      | { mask_type: "custom"; address: string; blockPromotionals: boolean }
+      | { mask_type: "custom"; address: string; blockPromotionals: boolean },
   ) => void;
   onUpdate: (alias: AliasData, updatedFields: Partial<AliasData>) => void;
   onDelete: (alias: AliasData) => void;
@@ -44,18 +44,18 @@ export const AliasList = (props: Props) => {
   // URL pointing to a mask, scroll to that mask:
   useFlaggedAnchorLinks(
     [],
-    props.aliases.map((alias) => encodeURIComponent(alias.full_address))
+    props.aliases.map((alias) => encodeURIComponent(alias.full_address)),
   );
   const [openAlias, setOpenAlias] = useState<AliasData | undefined>(
     // If the mask was focused on by an anchor link, expand that one on page load:
     props.aliases.find(
       (alias) =>
         alias.full_address ===
-        decodeURIComponent(document.location.hash.substring(1))
-    )
+        decodeURIComponent(document.location.hash.substring(1)),
+    ),
   );
   const [existingAliases, setExistingAliases] = useState<AliasData[]>(
-    props.aliases
+    props.aliases,
   );
 
   useEffect(() => {
@@ -64,7 +64,7 @@ export const AliasList = (props: Props) => {
     } else {
       const existingAliasIds = existingAliases.map((alias) => alias.id);
       const newAliases = props.aliases.filter(
-        (alias) => existingAliasIds.indexOf(alias.id) === -1
+        (alias) => existingAliasIds.indexOf(alias.id) === -1,
       );
       if (newAliases.length !== 0) {
         setOpenAlias(newAliases[0]);
@@ -86,7 +86,8 @@ export const AliasList = (props: Props) => {
     ) {
       const localLabel = localLabels.find(
         (localLabel) =>
-          localLabel.id === alias.id && localLabel.mask_type === alias.mask_type
+          localLabel.id === alias.id &&
+          localLabel.mask_type === alias.mask_type,
       );
       if (localLabel !== undefined) {
         aliasWithLocalLabel.description = localLabel.description;
@@ -99,7 +100,7 @@ export const AliasList = (props: Props) => {
     filterAliases(aliasesWithLocalLabels, {
       ...categoryFilters,
       string: stringFilterInput,
-    })
+    }),
   );
 
   const aliasCards = aliases.map((alias) => {

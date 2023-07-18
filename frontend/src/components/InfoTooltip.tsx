@@ -16,7 +16,7 @@ export const InfoTooltip = (props: Props) => {
   const tooltipTrigger = useTooltipTrigger({}, tooltipTriggerState, triggerRef);
   const { tooltipProps } = useTooltip(
     tooltipTrigger.tooltipProps,
-    tooltipTriggerState
+    tooltipTriggerState,
   );
 
   return (

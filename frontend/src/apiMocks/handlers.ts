@@ -16,7 +16,7 @@ import {
 } from "./mockData";
 
 export function getHandlers(
-  defaultMockId: null | (typeof mockIds)[number] = null
+  defaultMockId: null | (typeof mockIds)[number] = null,
 ): RestHandler[] {
   const handlers: RestHandler[] = [];
 
@@ -32,28 +32,28 @@ export function getHandlers(
 
   const addGetHandler: (...args: Parameters<typeof rest.get>) => void = (
     path,
-    resolver
+    resolver,
   ) => {
     handlers.push(rest.get(path, resolver));
     handlers.push(rest.get(`http://127.0.0.1:8000${path}`, resolver));
   };
   const addPatchHandler: (...args: Parameters<typeof rest.patch>) => void = (
     path,
-    resolver
+    resolver,
   ) => {
     handlers.push(rest.patch(path, resolver));
     handlers.push(rest.patch(`http://127.0.0.1:8000${path}`, resolver));
   };
   const addPostHandler: (...args: Parameters<typeof rest.post>) => void = (
     path,
-    resolver
+    resolver,
   ) => {
     handlers.push(rest.post(path, resolver));
     handlers.push(rest.post(`http://127.0.0.1:8000${path}`, resolver));
   };
   const addDeleteHandler: (...args: Parameters<typeof rest.delete>) => void = (
     path,
-    resolver
+    resolver,
   ) => {
     handlers.push(rest.delete(path, resolver));
     handlers.push(rest.delete(`http://127.0.0.1:8000${path}`, resolver));
@@ -83,7 +83,7 @@ export function getHandlers(
         ctx.json({
           message: "error-subdomain-not-available",
           subdomain: "not-available",
-        })
+        }),
       );
     }
 
@@ -178,7 +178,7 @@ export function getHandlers(
 
     const ownAddresses = mockedRelayaddresses[mockId];
     const index = ownAddresses.findIndex(
-      (address) => address.id === Number.parseInt(req.params.id as string, 10)
+      (address) => address.id === Number.parseInt(req.params.id as string, 10),
     );
     if (index === -1) {
       return res(ctx.status(404));
@@ -199,7 +199,7 @@ export function getHandlers(
 
     const ownAddresses = mockedRelayaddresses[mockId];
     const index = ownAddresses.findIndex(
-      (address) => address.id === Number.parseInt(req.params.id as string, 10)
+      (address) => address.id === Number.parseInt(req.params.id as string, 10),
     );
     if (index === -1) {
       return res(ctx.status(404));
@@ -259,7 +259,7 @@ export function getHandlers(
 
     const ownAddresses = mockedDomainaddresses[mockId];
     const index = ownAddresses.findIndex(
-      (address) => address.id === Number.parseInt(req.params.id as string, 10)
+      (address) => address.id === Number.parseInt(req.params.id as string, 10),
     );
     if (index === -1) {
       return res(ctx.status(404));
@@ -281,7 +281,7 @@ export function getHandlers(
 
     const ownAddresses = mockedDomainaddresses[mockId];
     const index = ownAddresses.findIndex(
-      (address) => address.id === Number.parseInt(req.params.id as string, 10)
+      (address) => address.id === Number.parseInt(req.params.id as string, 10),
     );
     if (index === -1) {
       return res(ctx.status(404));
@@ -310,7 +310,7 @@ export function getHandlers(
     const body = (await req.json()) as NewNumber | Verification;
 
     const isVerification = (
-      request: NewNumber | Verification
+      request: NewNumber | Verification,
     ): request is Verification => {
       return typeof (request as Verification).verification_code === "string";
     };
@@ -351,7 +351,7 @@ export function getHandlers(
     }
     const relevantRealPhone = mockedRealphones[mockId].find(
       (realPhone) =>
-        realPhone.id === Number.parseInt(req.params.id as string, 10)
+        realPhone.id === Number.parseInt(req.params.id as string, 10),
     );
     return res(ctx.status(200), ctx.json(relevantRealPhone));
   });
@@ -497,8 +497,10 @@ export function getHandlers(
     return res(
       ctx.status(200),
       ctx.json(
-        mockedRelaynumbers[mockId][Number.parseInt(req.params.id as string, 10)]
-      )
+        mockedRelaynumbers[mockId][
+          Number.parseInt(req.params.id as string, 10)
+        ],
+      ),
     );
   });
 
@@ -511,7 +513,7 @@ export function getHandlers(
     const ownRelayNumbers = mockedRelaynumbers[mockId];
     const index = ownRelayNumbers.findIndex(
       (relayNumber) =>
-        relayNumber.id === Number.parseInt(req.params.id as string, 10)
+        relayNumber.id === Number.parseInt(req.params.id as string, 10),
     );
     if (index === -1) {
       return res(ctx.status(404));
@@ -537,7 +539,7 @@ export function getHandlers(
   handlers.push(
     rest.post("https://basket-mock.com/news/subscribe/", (_req, res, ctx) => {
       return res(ctx.status(200), ctx.json({ status: "ok" }));
-    })
+    }),
   );
   handlers.push(
     rest.get("https://accounts.firefox.com/metrics-flow", (_req, res, ctx) => {
@@ -546,9 +548,9 @@ export function getHandlers(
         ctx.json({
           flowId: "mock-flow-id",
           flowBeginTime: Date.now(),
-        })
+        }),
       );
-    })
+    }),
   );
 
   return handlers;

@@ -46,7 +46,7 @@ const getProducts = (referringSiteUrl: string) => ({
   monitor: {
     id: "monitor",
     url: `https://monitor.firefox.com/?utm_source=${encodeURIComponent(
-      referringSiteUrl
+      referringSiteUrl,
     )}&utm_medium=referral&utm_campaign=bento&utm_content=desktop`,
     gaLabel: "fx-monitor",
   },
@@ -58,21 +58,21 @@ const getProducts = (referringSiteUrl: string) => ({
   fxDesktop: {
     id: "fxDesktop",
     url: `https://www.mozilla.org/firefox/new/?utm_source=${encodeURIComponent(
-      referringSiteUrl
+      referringSiteUrl,
     )}&utm_medium=referral&utm_campaign=bento&utm_content=desktop`,
     gaLabel: "fx-desktop",
   },
   fxMobile: {
     id: "fxMobile",
     url: `https://www.mozilla.org/firefox/browsers/mobile/?utm_source=${encodeURIComponent(
-      referringSiteUrl
+      referringSiteUrl,
     )}&utm_medium=referral&utm_campaign=bento&utm_content=desktop`,
     gaLabel: "fx-mobile",
   },
   vpn: {
     id: "vpn",
     url: `https://www.mozilla.org/products/vpn/?utm_source=${encodeURIComponent(
-      referringSiteUrl
+      referringSiteUrl,
     )}&utm_medium=referral&utm_campaign=bento&utm_content=desktop`,
     gaLabel: "vpn",
   },
@@ -92,7 +92,7 @@ export const AppPicker = (props: Props) => {
   const products = getProducts(
     typeof document !== "undefined"
       ? document.location.host
-      : "relay.firefox.com"
+      : "relay.firefox.com",
   );
   const linkRefs: Record<
     keyof typeof products,
@@ -205,7 +205,7 @@ export const AppPicker = (props: Props) => {
         <a
           ref={mozillaLinkRef}
           href={`https://www.mozilla.org/?utm_source=${encodeURIComponent(
-            getRuntimeConfig().frontendOrigin
+            getRuntimeConfig().frontendOrigin,
           )}&utm_medium=referral&utm_campaign=bento&utm_content=desktop`}
           className={`${styles["menu-link"]} ${styles["mozilla-link"]}`}
           target="_blank"
@@ -239,7 +239,7 @@ const AppPickerTrigger = ({
   const { menuTriggerProps, menuProps } = useMenuTrigger(
     {},
     appPickerTriggerState,
-    triggerButtonRef
+    triggerButtonRef,
   );
   // `menuProps` has an `autoFocus` property that is not compatible with the
   // `autoFocus` property for HTMLElements, because it can also be of type
@@ -257,7 +257,7 @@ const AppPickerTrigger = ({
 
   const triggerButtonProps = useButton(
     menuTriggerProps,
-    triggerButtonRef
+    triggerButtonRef,
   ).buttonProps;
 
   useEffect(() => {
@@ -321,7 +321,7 @@ const AppPickerPopup = (props: AppPickerPopupProps) => {
       isOpen: true,
       isDismissable: true,
     },
-    overlayRef
+    overlayRef,
   );
 
   // <FocusScope> ensures that focus is restored back to the
@@ -382,7 +382,7 @@ const AppPickerItem = (props: AppPickerItemProps) => {
       onClose: props.onClose,
     },
     props.state,
-    menuItemRef
+    menuItemRef,
   ).menuItemProps;
 
   const [_isFocused, setIsFocused] = useState(false);

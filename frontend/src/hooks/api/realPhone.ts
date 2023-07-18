@@ -38,7 +38,7 @@ export function isNotVerified(phone: RealPhone): phone is UnverifiedPhone {
 }
 
 export function hasPendingVerification(
-  phone: RealPhone
+  phone: RealPhone,
 ): phone is UnverifiedPhone {
   // Short circuit logic if there's no verification sent yet,
   // or if the phone number has already been verified:
@@ -51,7 +51,7 @@ export function hasPendingVerification(
   }
 
   const verificationSentDate = parseDate(
-    phone.verification_sent_date
+    phone.verification_sent_date,
   ).getTime();
   const currentDateMinus5Mins = new Date().getTime() - 5 * 60 * 1000;
 
@@ -61,7 +61,7 @@ export function hasPendingVerification(
 export type RealPhonesData = [RealPhoneData];
 
 export type PhoneNumberRequestVerificationFn = (
-  phoneNumber: string
+  phoneNumber: string,
 ) => Promise<Response>;
 
 export type ResendWelcomeSMSFn = () => Promise<Response>;
@@ -72,7 +72,7 @@ export type RealPhoneVerification = Pick<
 >;
 export type PhoneNumberSubmitVerificationFn = (
   id: number,
-  obj: RealPhoneVerification
+  obj: RealPhoneVerification,
 ) => Promise<Response>;
 
 export type RequestPhoneRemovalFn = (id: number) => Promise<Response>;
@@ -94,7 +94,7 @@ export function useRealPhonesData(): SWRResponse<RealPhoneData, unknown> & {
    */
   const submitPhoneVerification: PhoneNumberSubmitVerificationFn = async (
     id,
-    obj
+    obj,
   ) => {
     const response = await apiFetch(`/realphone/${id}/`, {
       method: "PATCH",
@@ -108,7 +108,7 @@ export function useRealPhonesData(): SWRResponse<RealPhoneData, unknown> & {
    * Request a one-time password to validate a real phone number.
    */
   const requestPhoneVerification: PhoneNumberRequestVerificationFn = async (
-    phoneNumber
+    phoneNumber,
   ) => {
     // TODO: Validate number as E.164
     // https://blog.kevinchisholm.com/javascript/javascript-e164-phone-number-validation/

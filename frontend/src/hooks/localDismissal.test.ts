@@ -20,7 +20,7 @@ describe("useLocalDismissal", () => {
     mockCookiesModule.getCookie.mockReturnValue(undefined);
     const { result, rerender } = renderHook(
       (key: string) => useLocalDismissal(key),
-      { initialProps: "key1" }
+      { initialProps: "key1" },
     );
 
     const dismissal = result.current;
@@ -40,7 +40,7 @@ describe("useLocalDismissal", () => {
     // `duration`) ago:
     mockCookiesModule.getCookie.mockReturnValue((Date.now() - 1001).toString());
     const { result } = renderHook(() =>
-      useLocalDismissal("arbitrary_key", { duration: 1 })
+      useLocalDismissal("arbitrary_key", { duration: 1 }),
     );
 
     const dismissal = result.current;
@@ -70,14 +70,14 @@ describe("useLocalDismissal", () => {
     expect(mockCookiesModule.setCookie).toHaveBeenCalledWith(
       "some_key_dismissed",
       expect.any(String),
-      { maxAgeInSeconds: 100 * 365 * 24 * 60 * 60 }
+      { maxAgeInSeconds: 100 * 365 * 24 * 60 * 60 },
     );
   });
 
   it("sets the cookie's expiration time to the given value", () => {
     mockCookiesModule.getCookie.mockReturnValue(undefined);
     const { result } = renderHook(() =>
-      useLocalDismissal("some_key", { duration: 1337 })
+      useLocalDismissal("some_key", { duration: 1337 }),
     );
 
     act(() => {
@@ -87,7 +87,7 @@ describe("useLocalDismissal", () => {
     expect(mockCookiesModule.setCookie).toHaveBeenCalledWith(
       "some_key_dismissed",
       expect.any(String),
-      { maxAgeInSeconds: 1337 }
+      { maxAgeInSeconds: 1337 },
     );
   });
 
@@ -114,14 +114,14 @@ describe("useLocalDismissal", () => {
     expect(mockCookiesModule.setCookie).toHaveBeenCalledWith(
       "some_key_dismissed",
       expect.any(String),
-      { maxAgeInSeconds: 100 * 365 * 24 * 60 * 60 }
+      { maxAgeInSeconds: 100 * 365 * 24 * 60 * 60 },
     );
   });
 
   it("sets the cookie's expiration time to the given value, also for `soft` dismissals", () => {
     mockCookiesModule.getCookie.mockReturnValue(undefined);
     const { result } = renderHook(() =>
-      useLocalDismissal("some_key", { duration: 1337 })
+      useLocalDismissal("some_key", { duration: 1337 }),
     );
 
     act(() => {
@@ -131,7 +131,7 @@ describe("useLocalDismissal", () => {
     expect(mockCookiesModule.setCookie).toHaveBeenCalledWith(
       "some_key_dismissed",
       expect.any(String),
-      { maxAgeInSeconds: 1337 }
+      { maxAgeInSeconds: 1337 },
     );
   });
 });
