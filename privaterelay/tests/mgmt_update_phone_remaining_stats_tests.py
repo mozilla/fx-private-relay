@@ -6,6 +6,7 @@ from unittest.mock import patch
 import pytest
 
 from django.conf import settings
+from django.core.management import call_command
 
 from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
@@ -28,6 +29,7 @@ from privaterelay.management.commands.update_phone_remaining_stats import (
 
 
 MOCK_BASE = "privaterelay.management.commands.update_phone_remaining_stats"
+UPDATE_COMMAND = "update_phone_remaining_stats"
 
 
 @pytest.fixture()
@@ -266,3 +268,79 @@ def test_phone_subscriber_with_subscription_end_date_sooner_than_31_days_since_r
     assert relay_number.remaining_texts == settings.MAX_TEXTS_PER_BILLING_CYCLE
     assert relay_number.remaining_minutes == settings.MAX_MINUTES_PER_BILLING_CYCLE
     assert relay_number.remaining_seconds == settings.MAX_MINUTES_PER_BILLING_CYCLE * 60
+
+
+def test_phone_subscriber_with_subscription_end_date_after_reset_phone_limits_updated(
+    phone_user,
+):
+    datetime_now = datetime.now(timezone.utc)
+    datetime_first_of_march = datetime_now.replace(month=3, day=4)
+    profile = Profile.objects.get(user=phone_user)
+    profile.date_subscribed_phone = datetime_now.replace(month=1, day=2)
+    new_subscription_start_and_previous_reset_date = datetime_now.replace(
+        month=2, day=1
+    )
+    profile.date_phone_subscription_start = (
+        new_subscription_start_and_previous_reset_date
+    )
+    profile.date_phone_subscription_end = datetime_first_of_march
+    profile.date_phone_subscription_reset = (
+        new_subscription_start_and_previous_reset_date
+    )
+    profile.save()
+    relay_number = _make_used_relay_number(phone_user)
+
+    # today must be after march 3rd, to use the calculated reset date (subscription end date >= calculated_next_reset_date)
+    with patch(f"{MOCK_BASE}.datetime") as mocked_datetime:
+        mocked_datetime.combine.return_value = datetime.combine(
+            datetime_first_of_march.date(), datetime.min.time()
+        )
+        mocked_datetime.now.return_value = datetime_first_of_march
+        mocked_datetime.side_effect = lambda *args, **kw: datetime(*args, **kw)
+        num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
+
+    profile.refresh_from_db()
+    assert profile.date_phone_subscription_reset == datetime_first_of_march
+    assert num_profiles_w_phones == 1
+    assert num_profiles_updated == 1
+    relay_number.refresh_from_db()
+    assert relay_number.remaining_texts == settings.MAX_TEXTS_PER_BILLING_CYCLE
+
+
+@pytest.mark.django_db
+def test_update_user_with_command(
+    capsys,
+    patch_datetime_now,
+    phone_user,
+):
+    expected_now = patch_datetime_now
+    profile = Profile.objects.get(user=phone_user)
+    profile.date_phone_subscription_reset = expected_now - timedelta(31)
+    profile.save()
+    relay_number = _make_used_relay_number(phone_user)
+
+    call_command(UPDATE_COMMAND)
+    out, err = capsys.readouterr()
+
+    out = out.split(" ")
+    num_profiles_w_phones, num_profiles_updated = int(out[2]), int(out[4])
+
+    profile.refresh_from_db()
+    assert profile.date_phone_subscription_reset == expected_now
+    assert num_profiles_w_phones == 1
+    assert num_profiles_updated == 1
+
+
+@pytest.mark.django_db
+def test_update_phones_command(
+    capsys,
+):
+    call_command(UPDATE_COMMAND)
+    out, err = capsys.readouterr()
+
+    out = out.split(" ")
+    # dependent on the string outputted from executing the command.
+    num_profiles_w_phones, num_profiles_updated = int(out[2]), int(out[4])
+
+    assert num_profiles_w_phones == 0
+    assert num_profiles_updated == 0
