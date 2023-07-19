@@ -14,7 +14,6 @@ from waffle.testutils import override_flag
 from waffle.utils import get_cache as get_waffle_cache
 import pytest
 
-from ..plans import get_premium_country_language_mapping
 from ..utils import (
     flag_is_active_in_task,
     get_premium_country_lang,
@@ -22,50 +21,24 @@ from ..utils import (
 
 
 class GetPremiumCountryLangTest(TestCase):
-    def setUp(self):
-        self.mapping = get_premium_country_language_mapping(None)
-
-    def test_get_premium_country_lang(self):
-        cc, lang = get_premium_country_lang("en-au,", self.mapping)
-        assert cc == "au"
-        assert lang == "en"
-
-        cc, lang = get_premium_country_lang("en-us,", self.mapping)
-        assert cc == "us"
-        assert lang == "en"
-
-        cc, lang = get_premium_country_lang("de-be,", self.mapping)
-        assert cc == "be"
-        assert lang == "de"
+    def test_get_premium_country_lang(self) -> None:
+        assert get_premium_country_lang("en-au,") == "au"
+        assert get_premium_country_lang("en-us,") == "us"
+        assert get_premium_country_lang("de-be,") == "be"
 
     def test_en_fallback(self) -> None:
-        cc, lang = get_premium_country_lang("en,", self.mapping)
-        assert cc == "us"
-        assert lang == "en"
+        assert get_premium_country_lang("en,") == "us"
 
     def test_first_lang_fallback_two_parts(self) -> None:
         accept_lang = "sgn-us,"  # American Sign Language
-        cc, lang = get_premium_country_lang(accept_lang, self.mapping)
-        assert cc == "us"
-        assert lang == "en"
+        assert get_premium_country_lang(accept_lang) == "us"
 
     def test_first_lang_fallback_three_parts(self) -> None:
         accept_lang = "sgn-ch-de,"  # Swiss German Sign Language
-        cc, lang = get_premium_country_lang(accept_lang, self.mapping)
-        assert cc == "ch"
-        assert lang == "fr"
+        assert get_premium_country_lang(accept_lang) == "ch"
 
-    def test_eu_country_expansion_active(self) -> None:
-        mapping = get_premium_country_language_mapping(eu_country_expansion=True)
-        cc, lang = get_premium_country_lang("et-ee", mapping)
-        assert cc == "ee"
-        assert lang == "et"
-
-    def test_eu_country_expansion_inactive(self) -> None:
-        mapping = get_premium_country_language_mapping(eu_country_expansion=False)
-        cc, lang = get_premium_country_lang("et-ee", mapping)
-        assert cc == "ee"
-        assert lang == "en"
+    def test_eu_country_expansion(self) -> None:
+        assert get_premium_country_lang("et-ee") == "ee"
 
 
 #
