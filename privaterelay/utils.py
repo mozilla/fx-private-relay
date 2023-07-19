@@ -1,11 +1,13 @@
 from decimal import Decimal
 from functools import wraps
+from string import ascii_lowercase
 from typing import Callable
 import random
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser
 from django.http import Http404
+from django.utils.translation.trans_real import parse_accept_lang_header
 
 from waffle import get_waffle_flag_model
 from waffle.models import logger as waffle_logger
@@ -47,27 +49,33 @@ def guess_country_from_accept_lang(accept_lang: str) -> str:
     """
     Guess the user's country from the Accept-Language header
 
+    Return is a 2-letter ISO 3166 country code, lowercased.
+
     The header may come directly from a web request, or may be the header
     captured by Firefox Accounts (FxA) at signup.
+    "us" is returned when the accept_lang parameter is 'weird' ('*', invalid, etc.),
 
     See RFC 9110, "HTTP Semantics", section 12.5.4, "Accept-Language"
     See RFC 4646, "Tags for Identifying Languages", and examples in Appendix B
-
-    TODO: handle headers with quality portion ("en; q=1")
     """
-    rawlang = accept_lang.split(",")[0]
-    if rawlang and "-" in rawlang:
-        subtags = rawlang.split("-")
-    else:
-        subtags = [rawlang]
+    lang_q_pairs = parse_accept_lang_header(accept_lang)
+    if not lang_q_pairs:
+        return "us"
+    top_lang_tag = lang_q_pairs[0][0]
+    if not top_lang_tag or top_lang_tag == "*":
+        return "us"
 
+    subtags = top_lang_tag.split("-")
     if len(subtags) >= 2:
-        # Use the region subtag of a Language-Region tag as the country
+        # Try the region subtag of a Language-Region tag as the country
         cc = subtags[1].lower()
-    else:
-        # Guess the country from a simple language tag
-        lang = subtags[0].lower()
-        cc = _PRIMARY_LANGUAGE_TO_COUNTRY.get(lang, lang)
+        # Subtag is an ISO 3166 country code when it is 2 alpha characters
+        if len(cc) == 2 and all(c in ascii_lowercase for c in cc):
+            return cc
+
+    # Guess the country from a simple language tag
+    lang = subtags[0].lower()
+    cc = _PRIMARY_LANGUAGE_TO_COUNTRY.get(lang, lang)
     return cc
 
 

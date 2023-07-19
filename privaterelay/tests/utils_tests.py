@@ -29,6 +29,35 @@ from ..utils import (
         ("sgn-us", "us"),  # American Sign Language
         ("sgn-ch-de", "ch"),  # Swiss German Sign Language
         ("et-ee", "ee"),
+        # Good headers, from Django test test_parse_spec_http_header
+        ("de", "de"),
+        ("en-AU", "au"),
+        ("es-419", "es"),
+        ("*;q=1.00", "us"),
+        ("en-AU;q=0.123", "au"),
+        ("en-au;q=0.5", "au"),
+        ("en-au;q=1.0", "au"),
+        ("da, en-gb;q=0.25, en;q=0.5", "da"),
+        ("de,en-au;q=0.75,en-us;q=0.5,en;q=0.25,es;q=0.125,fa;q=0.125", "de"),
+        ("*", "us"),
+        ("de;q=0.", "de"),
+        ("en; q=1,", "us"),
+        ("en; q=1.0, * ; q=0.5", "us"),
+        # Bad headers, from Django test test_parse_spec_http_header
+        ("en-gb;q=1.0000", "us"),
+        ("en;q=0.1234", "us"),
+        ("en;q=.2", "us"),
+        ("abcdefghi-au", "us"),
+        ("**", "us"),
+        ("en,,gb", "us"),
+        ("en-au;q=0.1.0", "us"),
+        (("X" * 97) + "Z,en", "us"),
+        ("da, en-gb;q=0.8, en;q=0.7,#", "us"),
+        ("de;q=2.0", "us"),
+        ("de;q=0.a", "us"),
+        ("12-345", "us"),
+        ("", "us"),
+        ("en;q=1e0", "us"),
     ),
 )
 def test_guess_country_from_accept_lang(accept_lang, expected_country_code) -> None:
