@@ -4,7 +4,6 @@ import logging
 
 from django.contrib.auth.models import AbstractBaseUser, Group, User
 from django.core.cache.backends.base import BaseCache
-from django.test import TestCase
 
 from _pytest.fixtures import SubRequest
 from _pytest.logging import LogCaptureFixture
@@ -20,25 +19,20 @@ from ..utils import (
 )
 
 
-class GetPremiumCountryLangTest(TestCase):
-    def test_get_premium_country_lang(self) -> None:
-        assert get_premium_country_lang("en-au,") == "au"
-        assert get_premium_country_lang("en-us,") == "us"
-        assert get_premium_country_lang("de-be,") == "be"
-
-    def test_en_fallback(self) -> None:
-        assert get_premium_country_lang("en,") == "us"
-
-    def test_first_lang_fallback_two_parts(self) -> None:
-        accept_lang = "sgn-us,"  # American Sign Language
-        assert get_premium_country_lang(accept_lang) == "us"
-
-    def test_first_lang_fallback_three_parts(self) -> None:
-        accept_lang = "sgn-ch-de,"  # Swiss German Sign Language
-        assert get_premium_country_lang(accept_lang) == "ch"
-
-    def test_eu_country_expansion(self) -> None:
-        assert get_premium_country_lang("et-ee") == "ee"
+@pytest.mark.parametrize(
+    "accept_lang,expected_country_code",
+    (
+        ("en-au,", "au"),
+        ("en-us,", "us"),
+        ("de-be,", "be"),
+        ("en", "us"),
+        ("sgn-us", "us"),  # American Sign Language
+        ("sgn-ch-de", "ch"),  # Swiss German Sign Language
+        ("et-ee", "ee"),
+    ),
+)
+def test_get_premium_country_lang(accept_lang, expected_country_code) -> None:
+    assert get_premium_country_lang(accept_lang) == expected_country_code
 
 
 #
