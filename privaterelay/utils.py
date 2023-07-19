@@ -37,11 +37,147 @@ def _get_cc_from_request(request):
     return "us"
 
 
-# Map a primary language to the most probably country
-# For many west European countries, the language has the same code as the country.
-# For example, German (de) has the same code as Germany (de)
+# Map a primary language to the most probable country
+# Top country derived from CLDR42 Supplemental Data, Language-Territory Information
+# with the exception of Spanish (es), which is mapped to Spain (es) instead of
+# Mexico (mx), which has the most speakers, but usually specifies es-MX.
 _PRIMARY_LANGUAGE_TO_COUNTRY = {
-    "en": "us",  # English -> United States
+    "ace": "id",  # # Acehnese -> Indonesia
+    "ach": "ug",  # Acholi -> Uganda
+    "af": "za",  # Afrikaans -> South Africa
+    "an": "es",  # Aragonese -> Spain
+    "ar": "eg",  # Arabic -> Egypt
+    "arn": "cl",  # Mapudungun -> Chile
+    "as": "in",  # Assamese -> India
+    "ast": "es",  # Asturian -> Spain
+    "az": "az",  # Azerbaijani -> Azerbaijan
+    "be": "by",  # Belerusian -> Belarus
+    "bg": "bg",  # Bulgarian -> Bulgaria
+    "bn": "bd",  # Bengali -> Bangladesh
+    "bo": "cn",  # Tibetan -> China
+    "br": "fr",  # Breton -> France
+    "brx": "in",  # Bodo -> India
+    "bs": "ba",  # Bosnian -> Bosnia and Herzegovina
+    "ca": "fr",  # Catalan -> France
+    "cak": "mx",  # Kaqchikel -> Mexico
+    "ckb": "iq",  # Central Kurdish -> Iraq
+    "cs": "cz",  # Czech -> Czech Republic
+    "cv": "ru",  # Chuvash -> Russia
+    "cy": "gb",  # Welsh -> United Kingdom
+    "da": "dk",  # Danish -> Denmark
+    "de": "de",  # German -> Germany
+    "dsb": "de",  # Lower Sorbian -> Germany
+    "el": "gr",  # Greek -> Greece
+    "en": "us",  # English -> Canada
+    "eo": "sm",  # Esperanto -> San Marino
+    "es": "es",  # Spanish -> Spain (instead of Mexico, top by population)
+    "et": "ee",  # Estonian -> Estonia
+    "eu": "es",  # Basque -> Spain
+    "fa": "ir",  # Persian -> Iran
+    "ff": "sn",  # Fulah -> Senegal
+    "fi": "fi",  # Finnish -> Finland
+    "fr": "fr",  # French -> France
+    "frp": "fr",  # Arpitan -> France
+    "fur": "it",  # Friulian -> Italy
+    "fy": "nl",  # Frisian -> Netherlands
+    "ga": "ie",  # Irish -> Ireland
+    "gd": "gb",  # Scottish Gaelic -> United Kingdom
+    "gl": "es",  # Galician -> Spain
+    "gn": "py",  # Guarani -> Paraguay
+    "gu": "in",  # Gujarati -> India
+    "gv": "im",  # Manx -> Isle of Man
+    "he": "il",  # Hebrew -> Israel
+    "hi": "in",  # Hindi -> India
+    "hr": "hr",  # Croatian -> Croatia
+    "hsb": "de",  # Upper Sorbian -> Germany
+    "hu": "hu",  # Hungarian -> Hungary
+    "hy": "am",  # Armenian -> Armenia
+    "hye": "am",  # Armenian Eastern Classic Orthography -> Armenia
+    "ia": "fr",  # Interlingua -> France
+    "id": "id",  # Indonesian -> Indonesia
+    "ilo": "ph",  # Iloko -> Philippines
+    "is": "is",  # Icelandic -> Iceland
+    "it": "it",  # Italian -> Italy
+    "ixl": "mx",  # Ixil -> Mexico
+    "ja": "jp",  # Japanese -> Japan
+    "jiv": "mx",  # Shuar -> Mexico
+    "ka": "ge",  # Georgian -> Georgia
+    "kab": "dz",  # Kayble -> Algeria
+    "kk": "kz",  # Kazakh -> Kazakhstan
+    "km": "kh",  # Khmer -> Cambodia
+    "kn": "in",  # Kannada -> India
+    "ko": "kr",  # Korean -> South Korea
+    "ks": "in",  # Kashmiri -> India
+    "lb": "lu",  # Luxembourgish -> Luxembourg
+    "lg": "ug",  # Luganda -> Uganda
+    "lij": "it",  # Ligurian -> Italy
+    "lo": "la",  # Lao -> Laos
+    "lt": "lt",  # Lithuanian -> Lithuania
+    "ltg": "lv",  # Latgalian -> Latvia
+    "lus": "us",  # Mizo -> United States
+    "lv": "lv",  # Latvian -> Latvia
+    "mai": "in",  # Maithili -> India
+    "meh": "mx",  # Mixteco Yucuhiti -> Mexico
+    "mix": "mx",  # Mixtepec Mixtec -> Mexico
+    "mk": "mk",  # Macedonian -> North Macedonia
+    "ml": "in",  # Malayalam -> India
+    "mr": "in",  # Marathi -> India
+    "ms": "my",  # Malay -> Malaysia
+    "my": "mm",  # Burmese -> Myanmar
+    "nb": "no",  # Norwegian Bokmål -> Norway
+    "ne": "np",  # Nepali -> Nepal
+    "nl": "nl",  # Dutch -> Netherlands
+    "nn": "no",  # Norwegian Nynorsk -> Norway
+    "oc": "fr",  # Occitan -> France
+    "or": "in",  # Odia -> India
+    "pa": "in",  # Punjabi -> India
+    "pl": "pl",  # Polish -> Poland
+    "ppl": "mx",  # Náhuat Pipil -> Mexico
+    "pt": "br",  # Portuguese -> Brazil
+    "quc": "gt",  # K'iche' -> Guatemala
+    "rm": "ch",  # Romansh -> Switzerland
+    "ro": "ro",  # Romanian -> Romania
+    "ru": "ru",  # Russian -> Russia
+    "sat": "in",  # Santali (Ol Chiki) -> India
+    "sc": "it",  # Sardinian -> Italy
+    "scn": "it",  # Sicilian -> Italy
+    "sco": "gb",  # Scots -> United Kingdom
+    "si": "lk",  # Sinhala -> Sri Lanka
+    "sk": "sk",  # Slovak -> Slovakia
+    "skr": "pk",  # Saraiki -> Pakistan
+    "sl": "si",  # Slovenian -> Slovenia
+    "son": "ml",  # Songhay -> Mali
+    "sq": "al",  # Albanian -> Albania
+    "sr": "rs",  # Serbian -> Serbia
+    "sv": "se",  # Swedish -> Sweeden
+    "sw": "tz",  # Swahili -> Tanzania
+    "szl": "pl",  # Silesian -> Poland
+    "ta": "in",  # Tamil -> India
+    "te": "in",  # Telugu -> India
+    "tg": "tj",  # Tajik -> Tajikistan
+    "th": "th",  # Thai -> Thailand
+    "tl": "ph",  # Tagalog -> Philippines
+    "tr": "tr",  # Turkish or Crimean Tatar -> Turkey
+    "trs": "mx",  # Triqui -> Mexico
+    "uk": "ua",  # Ukrainian -> Ukraine
+    "ur": "pk",  # Urdu -> Pakistan
+    "uz": "uz",  # Uzbek -> Uzbekistan
+    "vi": "vn",  # Vietnamese -> Vietnam
+    "wo": "sn",  # Wolof -> Senegal
+    "xcl": "am",  # Armenian Classic -> Armenia
+    "xh": "za",  # Xhosa -> South Africa
+    "zam": "mx",  # Miahuatlán Zapotec -> Mexico
+    "zh": "cn",  # Chinese -> China
+}
+
+# Special cases for language tags
+_LANGUAGE_TAG_TO_COUNTRY_OVERRIDE = {
+    # Would be Catalan in Valencian script -> France
+    # Change to Valencian -> Spain
+    ("ca", "valencia"): "es",
+    # Would be Galician (Greenland) -> Greenland
+    # Change to Galician (Galicia region of Spain) -> Spain
+    ("gl", "gl"): "es",
 }
 
 
@@ -58,7 +194,7 @@ def guess_country_from_accept_lang(accept_lang: str) -> str:
     See RFC 9110, "HTTP Semantics", section 12.5.4, "Accept-Language"
     See RFC 4646, "Tags for Identifying Languages", and examples in Appendix B
     """
-    lang_q_pairs = parse_accept_lang_header(accept_lang)
+    lang_q_pairs = parse_accept_lang_header(accept_lang.strip())
     if not lang_q_pairs:
         return "us"
     top_lang_tag = lang_q_pairs[0][0]
@@ -66,15 +202,23 @@ def guess_country_from_accept_lang(accept_lang: str) -> str:
         return "us"
 
     subtags = top_lang_tag.split("-")
+    lang = subtags[0].lower()
+
     if len(subtags) >= 2:
         # Try the region subtag of a Language-Region tag as the country
         cc = subtags[1].lower()
+
+        # Look for a special case
+        try:
+            return _LANGUAGE_TAG_TO_COUNTRY_OVERRIDE[(lang, cc)]
+        except KeyError:
+            pass
+
         # Subtag is an ISO 3166 country code when it is 2 alpha characters
         if len(cc) == 2 and all(c in ascii_lowercase for c in cc):
             return cc
 
     # Guess the country from a simple language tag
-    lang = subtags[0].lower()
     cc = _PRIMARY_LANGUAGE_TO_COUNTRY.get(lang, lang)
     return cc
 
