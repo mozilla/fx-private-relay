@@ -736,9 +736,9 @@ class ProfileFxaLocaleInPremiumCountryTest(ProfileTestCase):
         self.set_fxa_locale("de;q=0.8")
         assert self.profile.fxa_locale_in_premium_country is True
 
-    def test_when_invalid_language_code_returns_True(self) -> None:
-        self.set_fxa_locale("xx;q=0.8")  # Invalid code, treated as 'us'
-        assert self.profile.fxa_locale_in_premium_country is True
+    def test_invalid_language_code_returns_False(self) -> None:
+        self.set_fxa_locale("xx;q=0.8")
+        assert self.profile.fxa_locale_in_premium_country is False
 
     def test_when_premium_unavailable_by_language_code_returns_False(self) -> None:
         self.set_fxa_locale("zh;q=0.8")

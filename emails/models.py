@@ -23,7 +23,11 @@ from rest_framework.authtoken.models import Token
 
 from api.exceptions import ErrorContextType, RelayAPIException
 from privaterelay.plans import get_premium_countries
-from privaterelay.utils import flag_is_active_in_task, guess_country_from_accept_lang
+from privaterelay.utils import (
+    AcceptLanguageError,
+    flag_is_active_in_task,
+    guess_country_from_accept_lang,
+)
 
 
 emails_config = apps.get_app_config("emails")
@@ -172,7 +176,10 @@ class Profile(models.Model):
     @property
     def fxa_locale_in_premium_country(self) -> bool:
         if self.fxa and self.fxa.extra_data.get("locale"):
-            country = guess_country_from_accept_lang(self.fxa.extra_data["locale"])
+            try:
+                country = guess_country_from_accept_lang(self.fxa.extra_data["locale"])
+            except AcceptLanguageError:
+                return False
             eu_country_expansion = flag_is_active_in_task(
                 "eu_country_expansion", self.user
             )

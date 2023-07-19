@@ -184,15 +184,24 @@ _LANGUAGE_TAG_TO_COUNTRY_OVERRIDE = {
 }
 
 
+class AcceptLanguageError(ValueError):
+    """There was an issue processing the Accept-Language header."""
+
+    def __init__(self, message, accept_lang):
+        super().__init__(message)
+        self.accept_lang = accept_lang
+
+
 def guess_country_from_accept_lang(accept_lang: str) -> str:
     """
     Guess the user's country from the Accept-Language header
 
     Return is a 2-letter ISO 3166 country code, lowercased.
 
+    If an issue is detected, a AcceptLanguageError is raised.
+
     The header may come directly from a web request, or may be the header
     captured by Firefox Accounts (FxA) at signup.
-    "us" is returned when the accept_lang parameter is 'weird' ('*', invalid, etc.),
 
     Even with all this logic and special casing, it is still more accurate to
     use a GeoIP lookup or a country code provided by the infrastructure.
@@ -202,17 +211,17 @@ def guess_country_from_accept_lang(accept_lang: str) -> str:
     """
     lang_q_pairs = parse_accept_lang_header(accept_lang.strip())
     if not lang_q_pairs:
-        return "us"
+        raise AcceptLanguageError("Invalid Accept-Language string", accept_lang)
     top_lang_tag = lang_q_pairs[0][0]
 
     subtags = top_lang_tag.split("-")
     lang = subtags[0].lower()
     if len(lang) < 2:
-        # Grandfathered tag, invalid tag, or '*' for any
-        return "us"
+        raise AcceptLanguageError("Grandfathered tag, invalid tag, or '*'", accept_lang)
     if len(lang) == 3 and lang[0] == "q" and lang[1] <= "t":
-        # RFC 5646 2.2.1 "Primary Language Subtag" point 3 reserved for private use
-        return "us"
+        raise AcceptLanguageError(
+            "Language reserved for private use (RFC 5646 2.2.1)", accept_lang
+        )
 
     for maybe_region_raw in subtags[1:]:
         maybe_region = maybe_region_raw.lower()
@@ -242,9 +251,11 @@ def guess_country_from_accept_lang(accept_lang: str) -> str:
         # Subtag is probably a script, like "Hans" in "zh-Hans-CN"
         # Loop to the next subtag, which might be a ISO 3166 country code
 
-    # Guess the country from a simple language tag, default to United States
-    cc = _PRIMARY_LANGUAGE_TO_COUNTRY.get(lang, "us")
-    return cc
+    # Guess the country from a simple language tag
+    try:
+        return _PRIMARY_LANGUAGE_TO_COUNTRY[lang]
+    except KeyError:
+        raise AcceptLanguageError("Unknown langauge", accept_lang)
 
 
 def enable_or_404(

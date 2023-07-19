@@ -14,6 +14,7 @@ from waffle.utils import get_cache as get_waffle_cache
 import pytest
 
 from ..utils import (
+    AcceptLanguageError,
     flag_is_active_in_task,
     guess_country_from_accept_lang,
 )
@@ -33,31 +34,14 @@ from ..utils import (
         ("de", "de"),
         ("en-AU", "au"),
         ("es-419", "mx"),
-        ("*;q=1.00", "us"),
         ("en-AU;q=0.123", "au"),
         ("en-au;q=0.5", "au"),
         ("en-au;q=1.0", "au"),
         ("da, en-gb;q=0.25, en;q=0.5", "dk"),
         ("de,en-au;q=0.75,en-us;q=0.5,en;q=0.25,es;q=0.125,fa;q=0.125", "de"),
-        ("*", "us"),
         ("de;q=0.", "de"),
         ("en; q=1,", "us"),
         ("en; q=1.0, * ; q=0.5", "us"),
-        # Bad headers, from Django test test_parse_spec_http_header
-        ("en-gb;q=1.0000", "us"),
-        ("en;q=0.1234", "us"),
-        ("en;q=.2", "us"),
-        ("abcdefghi-au", "us"),
-        ("**", "us"),
-        ("en,,gb", "us"),
-        ("en-au;q=0.1.0", "us"),
-        (("X" * 97) + "Z,en", "us"),
-        ("da, en-gb;q=0.8, en;q=0.7,#", "us"),
-        ("de;q=2.0", "us"),
-        ("de;q=0.a", "us"),
-        ("12-345", "us"),
-        ("", "us"),
-        ("en;q=1e0", "us"),
         # Default Accept-Language headers from Firefox
         # https://pontoon.mozilla.org/de/firefox/toolkit/chrome/global/intl.properties/?string=81017
         ("ace, id, en-US, en", "id"),  # Acehnese -> Indonesia
@@ -199,7 +183,6 @@ from ..utils import (
         ("de", "de"),  # German -> Germany
         ("fr", "fr"),  # French -> France
         ("ja", "jp"),  # Japanese -> Japan
-        ("i-enochian", "us"),  # Enochian (grandfathered) -> US
         # RFC 5646 - Language subtag plus Script subtag
         ("zh-Hant", "cn"),  # Chinese in Traditional Chinese script -> China
         ("zh-Hans", "cn"),  # Chinese in Simplified Chinese script -> China
@@ -231,8 +214,6 @@ from ..utils import (
         ("de-CH-x-phonebk", "ch"),  # Swiss German with private use subtag
         ("az-Arab-x-AZE-derbend", "az"),  # another private use subtag
         # RFC 5646 - Private use registry values
-        ("x-whatever", "us"),  # private use using the singleton 'x'
-        ("qaa-Qaaa-QM-x-southern", "us"),  # all private tags
         ("de-Qaaa", "de"),  # German, with a private script
         ("sr-Latn-QM", "rs"),  # Serbian, Latin-script, private region
         ("sr-Qaaa-CS", "cs"),  # Serbian, private script, for Serbia and Montenegro
@@ -242,12 +223,46 @@ from ..utils import (
         ("en-a-myext-b-another", "us"),
         # RFC 5646 - Invalid tags
         ("de-419-DE", "de"),  # two region tags
-        ("a-DE", "us"),  # single-character subtag in primary position
         ("ar-a-aaa-b-bbb-a-ccc", "eg"),  # two extensions with same 1 char prefix 'a'
     ),
 )
 def test_guess_country_from_accept_lang(accept_lang, expected_country_code) -> None:
     assert guess_country_from_accept_lang(accept_lang) == expected_country_code
+
+
+@pytest.mark.parametrize(
+    "accept_lang",
+    (
+        # Good headers, from Django test test_parse_spec_http_header
+        "*;q=1.00",  # Accept any language
+        "*",
+        # Bad headers, from Django test test_parse_spec_http_header
+        "en-gb;q=1.0000",
+        "en;q=0.1234",
+        "en;q=.2",
+        "abcdefghi-au",
+        "**",
+        "en,,gb",
+        "en-au;q=0.1.0",
+        ("X" * 97) + "Z,en",
+        "da, en-gb;q=0.8, en;q=0.7,#",
+        "de;q=2.0",
+        "de;q=0.a",
+        "12-345",
+        "",
+        "en;q=1e0",
+        # RFC 5646 - Simple language subtag
+        "i-enochian",  # Enochian (grandfathered) -> US
+        # RFC 5646 - Private use registry values
+        "x-whatever",  # private use using the singleton 'x'
+        "qaa-Qaaa-QM-x-southern",  # all private tags
+        # RFC 5646 - Invalid tags
+        "a-DE",  # single-character subtag in primary position
+    ),
+)
+def test_guess_country_from_accept_lang_fails(accept_lang) -> None:
+    with pytest.raises(AcceptLanguageError):
+        guess_country_from_accept_lang(accept_lang)
 
 
 #
