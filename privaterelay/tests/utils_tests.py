@@ -235,9 +235,6 @@ def test_guess_country_from_accept_lang(accept_lang, expected_country_code) -> N
 @pytest.mark.parametrize(
     "accept_lang",
     (
-        # Good headers, from Django test test_parse_spec_http_header
-        "*;q=1.00",  # Accept any language
-        "*",
         # Bad headers, from Django test test_parse_spec_http_header
         "en-gb;q=1.0000",
         "en;q=0.1234",
@@ -253,18 +250,58 @@ def test_guess_country_from_accept_lang(accept_lang, expected_country_code) -> N
         "12-345",
         "",
         "en;q=1e0",
-        # RFC 5646 - Simple language subtag
-        "i-enochian",  # Enochian (grandfathered) -> US
-        # RFC 5646 - Private use registry values
-        "x-whatever",  # private use using the singleton 'x'
-        "qaa-Qaaa-QM-x-southern",  # all private tags
-        # RFC 5646 - Invalid tags
-        "a-DE",  # single-character subtag in primary position
+        "-",
     ),
 )
-def test_guess_country_from_accept_lang_fails(accept_lang) -> None:
-    with pytest.raises(AcceptLanguageError):
+def test_guess_country_from_accept_lang_invalid_fails(accept_lang) -> None:
+    """AcceptLanguageError is raised when an Accept-Language string is invalid."""
+    with pytest.raises(AcceptLanguageError) as exc_info:
         guess_country_from_accept_lang(accept_lang)
+    assert str(exc_info.value) == "Invalid Accept-Language string"
+    assert exc_info.value.accept_lang == accept_lang
+
+
+@pytest.mark.parametrize("accept_lang", ("i-enochian", "i-klingon"))
+def test_guess_country_from_accept_lang_irregular_fails(accept_lang) -> None:
+    """AcceptLanguageError is raised when an i-X irregular language is first."""
+    with pytest.raises(AcceptLanguageError) as exc_info:
+        guess_country_from_accept_lang(accept_lang)
+    assert str(exc_info.value) == "Irregular language tag"
+    assert exc_info.value.accept_lang == accept_lang
+
+
+def test_guess_country_from_accept_lang_x_private_use_fails() -> None:
+    """AcceptLanguageError is raised when a x-X private-use language is first."""
+    with pytest.raises(AcceptLanguageError) as exc_info:
+        guess_country_from_accept_lang("x-whatever")
+    assert str(exc_info.value) == "Private-use language tag"
+    assert exc_info.value.accept_lang == "x-whatever"
+
+
+def test_guess_country_from_accept_lang_qxx_private_use_fails() -> None:
+    """AcceptLanguageError is raised when a qXX private-use language is first."""
+    with pytest.raises(AcceptLanguageError) as exc_info:
+        guess_country_from_accept_lang("qaa-Qaaa-QM-x-southern")
+    assert str(exc_info.value) == "Private-use language tag (RFC 5646 2.2.1)"
+    assert exc_info.value.accept_lang == "qaa-Qaaa-QM-x-southern"
+
+
+@pytest.mark.parametrize("accept_lang", ("*;q=1.00", "*"))
+def test_guess_country_from_accept_lang_wildcard_fails(accept_lang) -> None:
+    """AcceptLanguageError is raised when wildcard language is first."""
+    with pytest.raises(AcceptLanguageError) as exc_info:
+        guess_country_from_accept_lang(accept_lang)
+    assert str(exc_info.value) == "Wildcard language tag"
+    assert exc_info.value.accept_lang == accept_lang
+
+
+@pytest.mark.parametrize("accept_lang", ("a-DE", "b-DE"))
+def test_guess_country_from_accept_lang_short_primary_lang_fails(accept_lang) -> None:
+    """AcceptLanguageError is raised when a one-character primary language is first."""
+    with pytest.raises(AcceptLanguageError) as exc_info:
+        guess_country_from_accept_lang(accept_lang)
+    assert str(exc_info.value) == "Invalid one-character primary language"
+    assert exc_info.value.accept_lang == accept_lang
 
 
 def test_get_countries_info_bad_accept_language(rf) -> None:

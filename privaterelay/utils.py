@@ -230,11 +230,17 @@ def guess_country_from_accept_lang(accept_lang: str) -> str:
 
     subtags = top_lang_tag.split("-")
     lang = subtags[0].lower()
+    if lang == "i":
+        raise AcceptLanguageError("Irregular language tag", accept_lang)
+    if lang == "x":
+        raise AcceptLanguageError("Private-use language tag", accept_lang)
+    if lang == "*":
+        raise AcceptLanguageError("Wildcard language tag", accept_lang)
     if len(lang) < 2:
-        raise AcceptLanguageError("Grandfathered tag, invalid tag, or '*'", accept_lang)
+        raise AcceptLanguageError("Invalid one-character primary language", accept_lang)
     if len(lang) == 3 and lang[0] == "q" and lang[1] <= "t":
         raise AcceptLanguageError(
-            "Language reserved for private use (RFC 5646 2.2.1)", accept_lang
+            "Private-use language tag (RFC 5646 2.2.1)", accept_lang
         )
 
     for maybe_region_raw in subtags[1:]:
