@@ -1,12 +1,12 @@
 from decimal import Decimal
 from functools import wraps
 from string import ascii_lowercase
-from typing import Callable
+from typing import Callable, TypedDict
 import random
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser
-from django.http import Http404
+from django.http import Http404, HttpRequest
 from django.utils.translation.trans_real import parse_accept_lang_header
 
 from waffle import get_waffle_flag_model
@@ -16,10 +16,21 @@ from waffle.utils import (
     get_setting as get_waffle_setting,
 )
 
+from .plans import PlanCountryLangMapping, RelayCountryStr
 
-def get_countries_info_from_request_and_mapping(request, mapping):
+
+class CountryInfo(TypedDict):
+    country_code: str
+    countries: list[RelayCountryStr]
+    available_in_country: bool
+    plan_country_lang_mapping: PlanCountryLangMapping
+
+
+def get_countries_info_from_request_and_mapping(
+    request: HttpRequest, mapping: PlanCountryLangMapping
+) -> CountryInfo:
     country_code = _get_cc_from_request(request)
-    countries = mapping.keys()
+    countries = sorted(mapping.keys())
     available_in_country = country_code in countries
     return {
         "country_code": country_code,
@@ -29,11 +40,14 @@ def get_countries_info_from_request_and_mapping(request, mapping):
     }
 
 
-def _get_cc_from_request(request):
+def _get_cc_from_request(request: HttpRequest) -> str:
     if "X-Client-Region" in request.headers:
         return request.headers["X-Client-Region"].lower()
     if "Accept-Language" in request.headers:
-        return guess_country_from_accept_lang(request.headers["Accept-Language"])
+        try:
+            return guess_country_from_accept_lang(request.headers["Accept-Language"])
+        except AcceptLanguageError:
+            return ""
     return "us"
 
 

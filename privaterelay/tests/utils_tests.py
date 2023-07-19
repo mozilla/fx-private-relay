@@ -13,9 +13,11 @@ from waffle.testutils import override_flag
 from waffle.utils import get_cache as get_waffle_cache
 import pytest
 
+from ..plans import get_premium_country_language_mapping
 from ..utils import (
     AcceptLanguageError,
     flag_is_active_in_task,
+    get_countries_info_from_request_and_mapping,
     guess_country_from_accept_lang,
 )
 
@@ -263,6 +265,18 @@ def test_guess_country_from_accept_lang(accept_lang, expected_country_code) -> N
 def test_guess_country_from_accept_lang_fails(accept_lang) -> None:
     with pytest.raises(AcceptLanguageError):
         guess_country_from_accept_lang(accept_lang)
+
+
+def test_get_countries_info_bad_accept_language(rf) -> None:
+    request = rf.get("/api/v1/runtime_data", HTTP_ACCEPT_LANGUAGE="xx")
+    mapping = get_premium_country_language_mapping(None)
+    result = get_countries_info_from_request_and_mapping(request, mapping)
+    assert result == {
+        "country_code": "",
+        "countries": sorted(mapping.keys()),
+        "available_in_country": False,
+        "plan_country_lang_mapping": mapping,
+    }
 
 
 #
