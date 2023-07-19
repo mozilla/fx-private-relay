@@ -23,7 +23,7 @@ from rest_framework.authtoken.models import Token
 
 from api.exceptions import ErrorContextType, RelayAPIException
 from privaterelay.plans import get_premium_countries
-from privaterelay.utils import flag_is_active_in_task
+from privaterelay.utils import flag_is_active_in_task, guess_country_from_accept_lang
 
 
 emails_config = apps.get_app_config("emails")
@@ -166,32 +166,18 @@ class Profile(models.Model):
 
     # This method returns whether the locale associated with the user's Firefox account
     # includes a country code from a Premium country. This is less accurate than using
-    # get_countries_info_from_request_and_mapping(), which uses a GeoIP lookup, so prefer
-    # using that if a request context is available. In other contexts, e.g. when
-    # sending an email, this method can be useful.
+    # get_countries_info_from_request_and_mapping(), which can use a GeoIP lookup, so
+    # prefer using that if a request context is available. In other contexts, for
+    # example when sending an email, this method can be useful.
     @property
-    def fxa_locale_in_premium_country(self):
+    def fxa_locale_in_premium_country(self) -> bool:
         if self.fxa and self.fxa.extra_data.get("locale"):
-            accept_langs = parse_accept_lang_header(self.fxa.extra_data.get("locale"))
+            country = guess_country_from_accept_lang(self.fxa.extra_data["locale"])
             eu_country_expansion = flag_is_active_in_task(
                 "eu_country_expansion", self.user
             )
             premium_countries = get_premium_countries(eu_country_expansion)
-            if (
-                len(accept_langs) >= 1
-                and len(accept_langs[0][0].split("-")) >= 2
-                and accept_langs[0][0].split("-")[1] in premium_countries
-            ):
-                return True
-            # If a language but no country is known, check if there's a country
-            # whose code is the same as the language code and has Premium available.
-            # (For example, if the locale is just the language code `fr` rather than
-            # `fr-fr`, it will still match country code `fr`.)
-            if (
-                len(accept_langs) >= 1
-                and len(accept_langs[0][0].split("-")) == 1
-                and accept_langs[0][0].split("-")[0] in premium_countries
-            ):
+            if country in premium_countries:
                 return True
         return False
 

@@ -724,8 +724,12 @@ class ProfileFxaLocaleInPremiumCountryTest(ProfileTestCase):
         self.set_fxa_locale("de-DE,en-xx;q=0.9,en;q=0.8")
         assert self.profile.fxa_locale_in_premium_country is True
 
-    def test_when_premium_unavailable_returns_False(self) -> None:
+    def test_en_implies_premium_available(self) -> None:
         self.set_fxa_locale("en;q=0.8")
+        assert self.profile.fxa_locale_in_premium_country is True
+
+    def test_when_premium_unavailable_returns_False(self) -> None:
+        self.set_fxa_locale("en-IN, en;q=0.8")
         assert self.profile.fxa_locale_in_premium_country is False
 
     def test_when_premium_available_by_language_code_returns_True(self) -> None:
