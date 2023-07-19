@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta, timezone
-
 from django.conf import settings
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandParser
 
 from privaterelay.fxa_utils import get_phone_subscription_dates
 from privaterelay.management.utils import (
@@ -68,14 +67,13 @@ def sync_phone_related_dates_on_profile(group: str) -> int:
 class Command(BaseCommand):
     help = "Sync date_subscribed_phone, date_phone_limits_reset, date_phone_subscription_end fields on Profile by syncing with Firefox Accounts data"
 
-    def add_arguments(self, parser):
+    def add_arguments(self, parser: CommandParser) -> None:
         parser.add_argument(
             "--group",
             default="subscription",
             choices=["subscription", "free", "both"],
             help="Choose phone subscription users, free phone users, or both. Defaults to subscription users.",
         )
-        return super().add_arguments(parser)
 
     def handle(self, *args, **options):
         group = options["group"]
