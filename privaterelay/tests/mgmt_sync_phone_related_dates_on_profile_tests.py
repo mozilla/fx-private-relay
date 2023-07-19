@@ -23,7 +23,6 @@ if settings.PHONES_ENABLED:
 
 from privaterelay.management.commands.sync_phone_related_dates_on_profile import (
     sync_phone_related_dates_on_profile,
-    CommandParser,
 )
 
 
