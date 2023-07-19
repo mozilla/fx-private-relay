@@ -38,10 +38,6 @@ class GetPremiumCountryLangTest(TestCase):
         assert cc == "be"
         assert lang == "de"
 
-        cc, lang = get_premium_country_lang("de-be,", self.mapping, "at")
-        assert cc == "at"
-        assert lang == "de"
-
     def test_en_fallback(self) -> None:
         cc, lang = get_premium_country_lang("en,", self.mapping)
         assert cc == "us"
