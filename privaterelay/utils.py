@@ -31,7 +31,7 @@ def _get_cc_from_request(request):
     if "X-Client-Region" in request.headers:
         return request.headers["X-Client-Region"].lower()
     if "Accept-Language" in request.headers:
-        return get_premium_country_lang(request.headers["Accept-Language"])
+        return guess_country_from_accept_lang(request.headers["Accept-Language"])
     return "us"
 
 
@@ -43,7 +43,18 @@ _PRIMARY_LANGUAGE_TO_COUNTRY = {
 }
 
 
-def get_premium_country_lang(accept_lang):
+def guess_country_from_accept_lang(accept_lang: str) -> str:
+    """
+    Guess the user's country from the Accept-Language header
+
+    The header may come directly from a web request, or may be the header
+    captured by Firefox Accounts (FxA) at signup.
+
+    See RFC 9110, "HTTP Semantics", section 12.5.4, "Accept-Language"
+    See RFC 4646, "Tags for Identifying Languages", and examples in Appendix B
+
+    TODO: handle headers with quality portion ("en; q=1")
+    """
     rawlang = accept_lang.split(",")[0]
     if rawlang and "-" in rawlang:
         subtags = rawlang.split("-")

@@ -15,7 +15,7 @@ import pytest
 
 from ..utils import (
     flag_is_active_in_task,
-    get_premium_country_lang,
+    guess_country_from_accept_lang,
 )
 
 
@@ -31,8 +31,8 @@ from ..utils import (
         ("et-ee", "ee"),
     ),
 )
-def test_get_premium_country_lang(accept_lang, expected_country_code) -> None:
-    assert get_premium_country_lang(accept_lang) == expected_country_code
+def test_guess_country_from_accept_lang(accept_lang, expected_country_code) -> None:
+    assert guess_country_from_accept_lang(accept_lang) == expected_country_code
 
 
 #
