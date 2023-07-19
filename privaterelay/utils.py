@@ -175,6 +175,9 @@ _LANGUAGE_TAG_TO_COUNTRY_OVERRIDE = {
     # Would be Catalan in Valencian script -> France
     # Change to Valencian -> Spain
     ("ca", "valencia"): "es",
+    # Spanish in UN region 419 (Latin America and Carribean)
+    # Pick Mexico, which has highest number of Spanish speakers
+    ("es", "419"): "mx",
     # Would be Galician (Greenland) -> Greenland
     # Change to Galician (Galicia region of Spain) -> Spain
     ("gl", "gl"): "es",
@@ -191,32 +194,53 @@ def guess_country_from_accept_lang(accept_lang: str) -> str:
     captured by Firefox Accounts (FxA) at signup.
     "us" is returned when the accept_lang parameter is 'weird' ('*', invalid, etc.),
 
+    Even with all this logic and special casing, it is still more accurate to
+    use a GeoIP lookup or a country code provided by the infrastructure.
+
     See RFC 9110, "HTTP Semantics", section 12.5.4, "Accept-Language"
-    See RFC 4646, "Tags for Identifying Languages", and examples in Appendix B
+    See RFC 5646, "Tags for Identifying Languages", and examples in Appendix A
     """
     lang_q_pairs = parse_accept_lang_header(accept_lang.strip())
     if not lang_q_pairs:
         return "us"
     top_lang_tag = lang_q_pairs[0][0]
-    if not top_lang_tag or top_lang_tag == "*":
-        return "us"
 
     subtags = top_lang_tag.split("-")
     lang = subtags[0].lower()
+    if len(lang) < 2:
+        # Grandfathered tag, invalid tag, or '*' for any
+        return "us"
+    if len(lang) == 3 and lang[0] == "q" and lang[1] <= "t":
+        # RFC 5646 2.2.1 "Primary Language Subtag" point 3 reserved for private use
+        return "us"
 
-    if len(subtags) >= 2:
-        # Try the region subtag of a Language-Region tag as the country
-        cc = subtags[1].lower()
+    for maybe_region_raw in subtags[1:]:
+        maybe_region = maybe_region_raw.lower()
 
         # Look for a special case
         try:
-            return _LANGUAGE_TAG_TO_COUNTRY_OVERRIDE[(lang, cc)]
+            return _LANGUAGE_TAG_TO_COUNTRY_OVERRIDE[(lang, maybe_region)]
         except KeyError:
             pass
 
-        # Subtag is an ISO 3166 country code when it is 2 alpha characters
-        if len(cc) == 2 and all(c in ascii_lowercase for c in cc):
-            return cc
+        if len(maybe_region) <= 1:
+            # One-character extension or empty, stop processing
+            break
+        if (
+            len(maybe_region) == 2
+            and all(c in ascii_lowercase for c in maybe_region)
+            and
+            # RFC 5646 2.2.4 "Region Subtag" point 6, reserved subtags
+            maybe_region != "aa"
+            and maybe_region != "zz"
+            and maybe_region[0] != "x"
+            and (maybe_region[0] != "q" or maybe_region[1] < "m")
+        ):
+            # Subtag is a non-private ISO 3166 country code
+            return maybe_region
+
+        # Subtag is probably a script, like "Hans" in "zh-Hans-CN"
+        # Loop to the next subtag, which might be a ISO 3166 country code
 
     # Guess the country from a simple language tag
     cc = _PRIMARY_LANGUAGE_TO_COUNTRY.get(lang, lang)

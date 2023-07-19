@@ -32,7 +32,7 @@ from ..utils import (
         # Good headers, from Django test test_parse_spec_http_header
         ("de", "de"),
         ("en-AU", "au"),
-        ("es-419", "es"),
+        ("es-419", "mx"),
         ("*;q=1.00", "us"),
         ("en-AU;q=0.123", "au"),
         ("en-au;q=0.5", "au"),
@@ -194,6 +194,56 @@ from ..utils import (
         ("zam, es-MX, es, en-US, en", "mx"),  # Miahuatlán Zapotec
         ("zh-CN, zh, zh-TW, zh-HK, en-US, en", "cn"),  # Chinese (China)
         ("zh-tw, zh, en-us, en", "tw"),  # Chinese (Taiwan)
+        # Test cases from RFC 5646, "Tags for Identifying Languages", Appendix A
+        # RFC 5646 - Simple language subtag
+        ("de", "de"),  # German -> Germany
+        ("fr", "fr"),  # French -> France
+        ("ja", "jp"),  # Japanese -> Japan
+        ("i-enochian", "us"),  # Enochian (grandfathered) -> US
+        # RFC 5646 - Language subtag plus Script subtag
+        ("zh-Hant", "cn"),  # Chinese in Traditional Chinese script -> China
+        ("zh-Hans", "cn"),  # Chinese in Simplified Chinese script -> China
+        ("sr-Cyrl", "rs"),  # Serbian in Cyrillic script -> Serbia
+        ("sr-Latn", "rs"),  # Serbian in Latin script -> Serbia
+        # RFC 5646 - Extended language subtags with primary language subtag counterparts
+        ("zh-cmn-Hans-CN", "cn"),  # Chinese, Mandarin, Simplified script, in China
+        ("cmn-Hans-CN", "cn"),  # Mandarin Chinese, Simplified script, as used in China
+        ("zh-yue-HK", "hk"),  # Chinese, Cantonese, as used in Hong Kong SAR
+        ("yue-HK", "hk"),  # Cantonese Chinese, as used in Hong Kong SAR
+        # RFC 5646 - Language-Script-Region
+        ("zh-Hans-CN", "cn"),  # Chinese in Simplified script in mainland China -> China
+        ("sr-Latn-RS", "rs"),  # Serbian in Latin script in Serbia
+        ("zh-Hans-TW", "tw"),  # Chinese in Simplified script in Taiwan (added)
+        # RFC 5646 - Language-Variant
+        ("sl-rozaj", "si"),  # Resian dialect of Slovenian -> Slovenia
+        ("sl-rozaj-biske", "si"),  # San Giorgio dialect of Resian dialect of Slovenian
+        ("sl-nedis", "si"),  # Nadiza dialect of Slovenian -> Slovenia
+        # RFC 5646 - Language-Region-Variant
+        ("de-CH-1901", "ch"),  # German as used in Switzerland using the 1901 variant
+        ("sl-IT-nedis", "it"),  # Slovenian as used in Italy, Nadiza dialect
+        # RFC 5646 - Language-Script-Region-Variant
+        ("hy-Latn-IT-arevela", "it"),  # Eastern Armenian in Latin script, in Italy
+        # RFC 5646 - Language-Region
+        ("de-DE", "de"),  # German for Germany
+        ("en-US", "us"),  # English as used in the United States
+        ("es-419", "mx"),  # Spanish in Latin America and Caribbean region (UN code)
+        # RFC 5646 - Private use subtags
+        ("de-CH-x-phonebk", "ch"),  # Swiss German with private use subtag
+        ("az-Arab-x-AZE-derbend", "az"),  # another private use subtag
+        # RFC 5646 - Private use registry values
+        ("x-whatever", "us"),  # private use using the singleton 'x'
+        ("qaa-Qaaa-QM-x-southern", "us"),  # all private tags
+        ("de-Qaaa", "de"),  # German, with a private script
+        ("sr-Latn-QM", "rs"),  # Serbian, Latin-script, private region
+        ("sr-Qaaa-CS", "cs"),  # Serbian, private script, for Serbia and Montenegro
+        # RFC 5646 - Examples of possible tags that use extensions
+        ("en-US-u-islamCal", "us"),
+        ("zh-CN-a-myext-x-private", "cn"),
+        ("en-a-myext-b-another", "us"),
+        # RFC 5646 - Invalid tags
+        ("de-419-DE", "de"),  # two region tags
+        ("a-DE", "us"),  # single-character subtag in primary position
+        ("ar-a-aaa-b-bbb-a-ccc", "eg"),  # two extensions with same 1 char prefix 'a'
     ),
 )
 def test_guess_country_from_accept_lang(accept_lang, expected_country_code) -> None:
