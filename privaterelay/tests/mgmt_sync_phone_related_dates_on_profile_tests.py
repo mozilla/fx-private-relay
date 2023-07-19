@@ -28,6 +28,7 @@ from privaterelay.management.commands.sync_phone_related_dates_on_profile import
 
 
 MOCK_BASE = "privaterelay.management.commands.sync_phone_related_dates_on_profile"
+SYNC_COMMAND = "sync_phone_related_dates_on_profile"
 
 
 @pytest.fixture()
@@ -234,10 +235,41 @@ def test_yearly_phone_subscriber_with_subscription_date_older_than_31_days_profi
 
 
 @pytest.mark.django_db
-def test_command_sync_phone(capsys):
-    call_command("sync_phone_related_dates_on_profile", "--group", "free")
+@patch(f"{MOCK_BASE}.get_phone_subscription_dates")
+def test_command_with_one_update(
+    mocked_dates,
+    patch_datetime_now,
+    phone_user,
+    capsys,
+):
+    profile = Profile.objects.get(user=phone_user)
+    date_subscribed_phone = datetime.now(timezone.utc)
+    profile.date_subscribed_phone = date_subscribed_phone
+    profile.save()
+    mocked_dates.return_value = (
+        date_subscribed_phone,
+        date_subscribed_phone,
+        date_subscribed_phone + timedelta(365),
+    )
+    call_command(SYNC_COMMAND, "--group", "subscription")
+    out, err = capsys.readouterr()
+    num_profiles_updated = int(out.split(" ")[0])
+
+    profile.refresh_from_db()
+    assert profile.date_phone_subscription_reset == date_subscribed_phone
+    assert profile.date_subscribed_phone == date_subscribed_phone
+    assert profile.date_phone_subscription_start == date_subscribed_phone
+    assert profile.date_phone_subscription_end == date_subscribed_phone + timedelta(365)
+    assert num_profiles_updated == 1
+
+
+@pytest.mark.django_db
+def test_command_sync_phone(
+    capsys,
+):
+    call_command(SYNC_COMMAND, "--group", "free")
     out, err = capsys.readouterr()
 
-    updated_accounts = int(out.split(" ")[0])
+    num_profiles_updated = int(out.split(" ")[0])
 
-    assert updated_accounts == 0
+    assert num_profiles_updated == 0
