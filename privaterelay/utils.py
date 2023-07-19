@@ -242,8 +242,8 @@ def guess_country_from_accept_lang(accept_lang: str) -> str:
         # Subtag is probably a script, like "Hans" in "zh-Hans-CN"
         # Loop to the next subtag, which might be a ISO 3166 country code
 
-    # Guess the country from a simple language tag
-    cc = _PRIMARY_LANGUAGE_TO_COUNTRY.get(lang, lang)
+    # Guess the country from a simple language tag, default to United States
+    cc = _PRIMARY_LANGUAGE_TO_COUNTRY.get(lang, "us")
     return cc
 
 
