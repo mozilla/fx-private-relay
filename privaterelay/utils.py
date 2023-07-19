@@ -35,15 +35,28 @@ def _get_cc_from_request(request):
     return "us"
 
 
+# Map a primary language to the most probably country
+# For many west European countries, the language has the same code as the country.
+# For example, German (de) has the same code as Germany (de)
+_PRIMARY_LANGUAGE_TO_COUNTRY = {
+    "en": "us",  # English -> United States
+}
+
+
 def get_premium_country_lang(accept_lang):
-    lang = accept_lang.split(",")[0]
-    lang_parts = lang.split("-") if lang and "-" in lang else [lang]
-    lang = lang_parts[0].lower()
-    cc = lang_parts[1] if len(lang_parts) >= 2 else lang_parts[0]
-    cc = cc.lower()
-    # if the language was just "en", default to US
-    if cc == "en":
-        cc = "us"
+    rawlang = accept_lang.split(",")[0]
+    if rawlang and "-" in rawlang:
+        subtags = rawlang.split("-")
+    else:
+        subtags = [rawlang]
+
+    if len(subtags) >= 2:
+        # Use the region subtag of a Language-Region tag as the country
+        cc = subtags[1].lower()
+    else:
+        # Guess the country from a simple language tag
+        lang = subtags[0].lower()
+        cc = _PRIMARY_LANGUAGE_TO_COUNTRY.get(lang, lang)
     return cc
 
 
