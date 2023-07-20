@@ -6,12 +6,12 @@ from django.contrib.auth.models import User
 from django.core.management import call_command, CommandError
 from django.conf import settings
 
-from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
 from pytest_django.fixtures import SettingsWrapper
 import pytest
 
 if settings.PHONES_ENABLED:
+    from .models_tests import make_phone_test_user
     from ..models import InboundContact, RealPhone, RelayNumber
 
 pytestmark = pytest.mark.skipif(
@@ -23,7 +23,6 @@ THE_COMMAND = "delete_phone_data"
 @pytest.fixture(autouse=True)
 def test_settings(settings: SettingsWrapper) -> SettingsWrapper:
     """Override settings for tests"""
-    settings.SUBSCRIPTIONS_WITH_PHONE = ["PHONE_SUBSCRIPTION"]
     settings.PHONES_NO_CLIENT_CALLS_IN_TEST = True
     return settings
 
@@ -33,21 +32,9 @@ def phone_user(db: None, test_settings: SettingsWrapper) -> User:
     """Return a Relay user with phone setup and phone usage."""
     # Create the user
     now = datetime.now(tz=timezone.utc)
-    phone_user = baker.make(User, email="phone_user@example.com")
+    phone_user = make_phone_test_user()
     phone_user.profile.date_subscribed = now - timedelta(days=15)
     phone_user.profile.save()
-
-    # Add FxA with phone subscription
-    baker.make(
-        SocialAccount,
-        user=phone_user,
-        provider="fxa",
-        uid="decd14f50fce4865b0fd06afcd9d2c4d",
-        extra_data={
-            "avatar": "http://avatar.example.com/avatar.jpg",
-            "subscriptions": [settings.SUBSCRIPTIONS_WITH_PHONE[0]],
-        },
-    )
 
     # Add confirmed real phone
     baker.make(
@@ -96,7 +83,7 @@ def test_active_user(phone_user: User) -> None:
     expected_stdout = f"""\
 Found a matching user:
 
-* FxA ID: decd14f50fce4865b0fd06afcd9d2c4d
+* FxA ID: {phone_user.profile.fxa.uid}
 * User ID: {phone_user.id}
 * Email: phone_user@example.com
 * Real Phone: +12005550123
@@ -125,7 +112,7 @@ def test_no_contacts(phone_user: User) -> None:
     expected_stdout = f"""\
 Found a matching user:
 
-* FxA ID: decd14f50fce4865b0fd06afcd9d2c4d
+* FxA ID: {phone_user.profile.fxa.uid}
 * User ID: {phone_user.id}
 * Email: phone_user@example.com
 * Real Phone: +12005550123
@@ -153,7 +140,7 @@ def test_no_relay_phone(phone_user: User) -> None:
     expected_stdout = f"""\
 Found a matching user:
 
-* FxA ID: decd14f50fce4865b0fd06afcd9d2c4d
+* FxA ID: {phone_user.profile.fxa.uid}
 * User ID: {phone_user.id}
 * Email: phone_user@example.com
 * Real Phone: +12005550123
@@ -180,7 +167,7 @@ def test_no_real_phone(phone_user: User) -> None:
     expected_stdout = f"""\
 Found a matching user:
 
-* FxA ID: decd14f50fce4865b0fd06afcd9d2c4d
+* FxA ID: {phone_user.profile.fxa.uid}
 * User ID: {phone_user.id}
 * Email: phone_user@example.com
 * Real Phone: <NO REAL PHONE>
@@ -215,7 +202,7 @@ def test_confirm_yes_active_user(phone_user: User) -> None:
     expected_stdout = f"""\
 Found a matching user:
 
-* FxA ID: decd14f50fce4865b0fd06afcd9d2c4d
+* FxA ID: {phone_user.profile.fxa.uid}
 * User ID: {phone_user.id}
 * Email: phone_user@example.com
 * Real Phone: +12005550123
@@ -241,7 +228,7 @@ def test_confirm_no_active_user(phone_user: User) -> None:
     expected_stdout = f"""\
 Found a matching user:
 
-* FxA ID: decd14f50fce4865b0fd06afcd9d2c4d
+* FxA ID: {phone_user.profile.fxa.uid}
 * User ID: {phone_user.id}
 * Email: phone_user@example.com
 * Real Phone: +12005550123
@@ -268,7 +255,7 @@ def test_confirm_retry_active_user(phone_user: User) -> None:
     expected_stdout = f"""\
 Found a matching user:
 
-* FxA ID: decd14f50fce4865b0fd06afcd9d2c4d
+* FxA ID: {phone_user.profile.fxa.uid}
 * User ID: {phone_user.id}
 * Email: phone_user@example.com
 * Real Phone: +12005550123
@@ -300,7 +287,7 @@ def test_confirmation_skipped_when_no_data(phone_user: User) -> None:
     expected_stdout = f"""\
 Found a matching user:
 
-* FxA ID: decd14f50fce4865b0fd06afcd9d2c4d
+* FxA ID: {phone_user.profile.fxa.uid}
 * User ID: {phone_user.id}
 * Email: phone_user@example.com
 * Real Phone: <NO REAL PHONE>
