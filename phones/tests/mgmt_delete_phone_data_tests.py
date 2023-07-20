@@ -1,5 +1,6 @@
 from datetime import datetime, timezone, timedelta
 from io import StringIO
+from unittest.mock import patch
 
 from django.contrib.auth.models import User
 from django.core.management import call_command, CommandError
@@ -206,9 +207,10 @@ def test_user_not_found() -> None:
 
 
 def test_confirm_yes_active_user(phone_user: User) -> None:
-    """A dry run reports user data and that there is data to delete."""
+    """When the user confirms yes, the data is deleted."""
     stdout = StringIO()
-    call_command(THE_COMMAND, phone_user.profile.fxa.uid, stdout=stdout)
+    with patch("builtins.input", return_value="Y"):
+        call_command(THE_COMMAND, phone_user.profile.fxa.uid, stdout=stdout)
 
     expected_stdout = f"""\
 Found a matching user:
@@ -220,7 +222,33 @@ Found a matching user:
 * Relay Phone: +13015550123
 * Inbound Contacts: 2
 
-User has phone data to delete.
+Deleted user's phone data.
+"""
+    assert stdout.getvalue() == expected_stdout
+
+    phone_user.refresh_from_db()
+    assert phone_user.profile.has_phone
+    assert not RealPhone.objects.filter(user=phone_user).exists()
+    assert not RelayNumber.objects.filter(user=phone_user).exists()
+
+
+def test_confirm_no_active_user(phone_user: User) -> None:
+    """When the user confirms no, the data is not deleted."""
+    stdout = StringIO()
+    with patch("builtins.input", return_value="n"):
+        call_command(THE_COMMAND, phone_user.profile.fxa.uid, stdout=stdout)
+
+    expected_stdout = f"""\
+Found a matching user:
+
+* FxA ID: decd14f50fce4865b0fd06afcd9d2c4d
+* User ID: {phone_user.id}
+* Email: phone_user@example.com
+* Real Phone: +12005550123
+* Relay Phone: +13015550123
+* Inbound Contacts: 2
+
+User still has their phone data... FOR NOW!
 """
     assert stdout.getvalue() == expected_stdout
 
@@ -231,8 +259,38 @@ User has phone data to delete.
     assert InboundContact.objects.filter(relay_number=relay_number).count() == 2
 
 
-def test_confirmation_no_data(phone_user: User) -> None:
-    """A dry run reports user data and that there is no data to delete."""
+def test_confirm_retry_active_user(phone_user: User) -> None:
+    """The user keeps trying until they answer Y or N."""
+    stdout = StringIO()
+    with patch("builtins.input", side_effect=("maybe", "ok no", "no", "n")):
+        call_command(THE_COMMAND, phone_user.profile.fxa.uid, stdout=stdout)
+
+    expected_stdout = f"""\
+Found a matching user:
+
+* FxA ID: decd14f50fce4865b0fd06afcd9d2c4d
+* User ID: {phone_user.id}
+* Email: phone_user@example.com
+* Real Phone: +12005550123
+* Relay Phone: +13015550123
+* Inbound Contacts: 2
+
+Please answer 'Y' or 'N'
+Please answer 'Y' or 'N'
+Please answer 'Y' or 'N'
+User still has their phone data... FOR NOW!
+"""
+    assert stdout.getvalue() == expected_stdout
+
+    phone_user.refresh_from_db()
+    assert phone_user.profile.has_phone
+    assert RealPhone.objects.filter(user=phone_user).exists()
+    relay_number = RelayNumber.objects.get(user=phone_user)
+    assert InboundContact.objects.filter(relay_number=relay_number).count() == 2
+
+
+def test_confirmation_skipped_when_no_data(phone_user: User) -> None:
+    """When the user does not have data, confirmation is skipped."""
     RelayNumber.objects.filter(user=phone_user).delete()
     RealPhone.objects.filter(user=phone_user).delete()
 
@@ -255,7 +313,7 @@ User has NO PHONE DATA to delete.
 
 
 @pytest.mark.django_db
-def test_confirmation_not_found() -> None:
+def test_confirmation_skipped_when_not_found() -> None:
     """The command fails if a matching user is not found."""
     stdout = StringIO()
     with pytest.raises(CommandError) as excinfo:
