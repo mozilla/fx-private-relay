@@ -9,7 +9,7 @@
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](https://raw.githubusercontent.com/mozilla/fx-private-relay/main/LICENSE)
 ![Repo Size](https://img.shields.io/github/repo-size/Mozilla/fx-private-relay)
 [![Coverage Status](https://coveralls.io/repos/github/mozilla/fx-private-relay/badge.svg?branch=main)](https://coveralls.io/github/mozilla/fx-private-relay?branch=main)
-[![Coverage Status](https://img.shields.io/badge/whatsdeployed-dev,stage,prod-green.svg)](https://whatsdeployed.io/s/60j/mozilla/fx-private-relay)
+[![What's Deployed](https://img.shields.io/badge/whatsdeployed-dev,stage,prod-green.svg)](https://whatsdeployed.io/s/60j/mozilla/fx-private-relay)
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/mozilla/fx-private-relay/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/mozilla/fx-private-relay/tree/main)
  
 
