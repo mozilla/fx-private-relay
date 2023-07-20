@@ -1,7 +1,5 @@
 from datetime import datetime, timezone, timedelta
 from io import StringIO
-from typing import Iterator
-from unittest.mock import Mock, patch
 
 from django.contrib.auth.models import User
 from django.core.management import call_command, CommandError
@@ -25,14 +23,8 @@ THE_COMMAND = "delete_phone_data"
 def test_settings(settings: SettingsWrapper) -> SettingsWrapper:
     """Override settings for tests"""
     settings.SUBSCRIPTIONS_WITH_PHONE = ["PHONE_SUBSCRIPTION"]
+    settings.PHONES_NO_CLIENT_CALLS_IN_TEST = True
     return settings
-
-
-@pytest.fixture(autouse=True)
-def mock_twilio_client() -> Iterator[Mock]:
-    """Mock PhonesConfig with a mock twilio client"""
-    with patch("phones.apps.PhonesConfig.twilio_client") as mock_twilio_client:
-        yield mock_twilio_client
 
 
 @pytest.fixture
