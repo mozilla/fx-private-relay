@@ -9,9 +9,55 @@ from allauth.socialaccount.models import SocialAccount
 from phones.models import InboundContact, RealPhone, RelayNumber
 
 
+class Command(BaseCommand):
+    help = "Deletes phone data, so a user can re-enroll."
+
+    def add_arguments(self, parser: ArgumentParser) -> None:
+        parser.add_argument("fxa_id", help="The user's FxA ID")
+        parser.add_argument(
+            "-y",
+            "--yes",
+            action="store_true",
+            help="Skip confirmation and delete any found data",
+        )
+
+    def handle(self, *args: Any, **kwargs: Any) -> None | str:
+        fxa_id: str = kwargs["fxa_id"]
+        skip_confirmation: bool = kwargs["yes"]
+
+        try:
+            data = _PhoneData.from_fxa(fxa_id)
+        except SocialAccount.DoesNotExist:
+            raise CommandError(f"No user with FxA ID '{fxa_id}'.")
+
+        report = f"Found a matching user:\n\n{data.bullet_report()}\n"
+        self.stdout.write(report)
+
+        if not data.has_data:
+            return "User has NO PHONE DATA to delete."
+
+        confirmed = skip_confirmation or self.confirm()
+        if confirmed:
+            data.reset()
+            return "Deleted user's phone data."
+        return "User still has their phone data... FOR NOW!"
+
+    def confirm(self) -> bool:
+        answer = ""
+        first_time = True
+        while answer not in ("Y", "N"):
+            if first_time:
+                first_time = False
+            else:
+                self.stdout.write("Please answer 'Y' or 'N'")
+            raw_answer = input("Delete this user's phone data? (Y/N) ")
+            answer = raw_answer.strip().upper()
+        return answer == "Y"
+
+
 @dataclass
-class PhoneData:
-    """Holds phone data for a user."""
+class _PhoneData:
+    """Helper class to hold phone data for a user."""
 
     fxa: SocialAccount
     real_phone: RealPhone | None = None
@@ -19,7 +65,7 @@ class PhoneData:
     inbound_contact_count: int = 0
 
     @classmethod
-    def from_fxa(cls, fxa_id: str) -> "PhoneData":
+    def from_fxa(cls, fxa_id: str) -> "_PhoneData":
         """Initialize from an FxA ID."""
         fxa = SocialAccount.objects.get(provider="fxa", uid=fxa_id)
 
@@ -81,49 +127,3 @@ class PhoneData:
             self.relay_phone.delete()
         if self.real_phone:
             self.real_phone.delete()
-
-
-class Command(BaseCommand):
-    help = "Deletes phone data, so a user can re-enroll."
-
-    def add_arguments(self, parser: ArgumentParser) -> None:
-        parser.add_argument("fxa_id", help="The user's FxA ID")
-        parser.add_argument(
-            "-y",
-            "--yes",
-            action="store_true",
-            help="Skip confirmation and delete any found data",
-        )
-
-    def handle(self, *args: Any, **kwargs: Any) -> None | str:
-        fxa_id: str = kwargs["fxa_id"]
-        skip_confirmation: bool = kwargs["yes"]
-
-        try:
-            data = PhoneData.from_fxa(fxa_id)
-        except SocialAccount.DoesNotExist:
-            raise CommandError(f"No user with FxA ID '{fxa_id}'.")
-
-        report = f"Found a matching user:\n\n{data.bullet_report()}\n"
-        self.stdout.write(report)
-
-        if not data.has_data:
-            return "User has NO PHONE DATA to delete."
-
-        confirmed = skip_confirmation or self.confirm()
-        if confirmed:
-            data.reset()
-            return "Deleted user's phone data."
-        return "User still has their phone data... FOR NOW!"
-
-    def confirm(self) -> bool:
-        answer = ""
-        first_time = True
-        while answer not in ("Y", "N"):
-            if first_time:
-                first_time = False
-            else:
-                self.stdout.write("Please answer 'Y' or 'N'")
-            raw_answer = input("Delete this user's phone data? (Y/N) ")
-            answer = raw_answer.strip().upper()
-        return answer == "Y"
