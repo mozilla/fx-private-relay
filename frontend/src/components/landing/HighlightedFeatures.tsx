@@ -40,13 +40,13 @@ export const HighlightedFeatures = () => {
             )}
             <h3 className={styles["highlighted-feature-headline"]}>
               {l10n.getString(
-                `highlighted-features-section-${props.name}-headline`
+                `highlighted-features-section-${props.name}-headline`,
               )}
             </h3>
             <p className={styles["highlighted-feature-body"]}>
               {l10n.getString(
                 `highlighted-features-section-${props.name}-body`,
-                variables
+                variables,
               )}
             </p>
           </>

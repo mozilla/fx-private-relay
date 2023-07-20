@@ -11,22 +11,22 @@ it("returns only digits if specified", () => {
   const phoneNumberWithoutCountryCode = "2505551234";
 
   expect(formatPhone(phoneNumberWithCountryCode, { digitsOnly: true })).toBe(
-    "2505551234"
+    "2505551234",
   );
   expect(formatPhone(phoneNumberWithoutCountryCode, { digitsOnly: true })).toBe(
-    "2505551234"
+    "2505551234",
   );
   expect(
     formatPhone(phoneNumberWithCountryCode, {
       digitsOnly: true,
       withCountryCode: true,
-    })
+    }),
   ).toBe("+12505551234");
   expect(
     formatPhone(phoneNumberWithoutCountryCode, {
       digitsOnly: true,
       withCountryCode: true,
-    })
+    }),
   ).toBe("+12505551234");
 });
 
@@ -43,10 +43,10 @@ it("returns a formatted number with country code if requested", () => {
   const phoneNumberWithoutCountryCode = "2505551234";
 
   expect(
-    formatPhone(phoneNumberWithCountryCode, { withCountryCode: true })
+    formatPhone(phoneNumberWithCountryCode, { withCountryCode: true }),
   ).toBe("+1 (250) 555 - 1234");
   expect(
-    formatPhone(phoneNumberWithoutCountryCode, { withCountryCode: true })
+    formatPhone(phoneNumberWithoutCountryCode, { withCountryCode: true }),
   ).toBe("+1 (250) 555 - 1234");
 });
 
@@ -55,11 +55,11 @@ it("returns a formatted number", () => {
   const phoneNumberWithoutCountryCode = "(250) 555 - 1234";
 
   expect(
-    formatPhone(phoneNumberWithCountryCode, { withCountryCode: true })
+    formatPhone(phoneNumberWithCountryCode, { withCountryCode: true }),
   ).toBe("+1 (250) 555 - 1234");
   expect(formatPhone(phoneNumberWithCountryCode)).toBe("(250) 555 - 1234");
   expect(
-    formatPhone(phoneNumberWithoutCountryCode, { withCountryCode: true })
+    formatPhone(phoneNumberWithoutCountryCode, { withCountryCode: true }),
   ).toBe("+1 (250) 555 - 1234");
   expect(formatPhone(phoneNumberWithoutCountryCode)).toBe("(250) 555 - 1234");
 });

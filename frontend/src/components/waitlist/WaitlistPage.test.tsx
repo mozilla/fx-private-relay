@@ -66,7 +66,7 @@ describe("The waitlist", () => {
           legalese={<>Arbitrary legalese footer.</>}
           newsletterId="arbitrary-newsletter-id"
           supportedLocales={["en"]}
-        />
+        />,
       );
 
       let results;
@@ -89,11 +89,11 @@ describe("The waitlist", () => {
         legalese={<>Arbitrary legalese footer.</>}
         newsletterId="arbitrary-newsletter-id"
         supportedLocales={["en"]}
-      />
+      />,
     );
 
     const emailInput = screen.getByLabelText(
-      "l10n string: [waitlist-control-email-label], with vars: {}"
+      "l10n string: [waitlist-control-email-label], with vars: {}",
     );
     await userEvent.clear(emailInput);
     await userEvent.type(emailInput, "some_email@example.com");
@@ -106,7 +106,7 @@ describe("The waitlist", () => {
     expect(global.fetch).toHaveBeenCalledTimes(1);
     expect(global.fetch).toHaveBeenCalledWith(
       expect.any(String),
-      expect.objectContaining({ body: expect.any(String) })
+      expect.objectContaining({ body: expect.any(String) }),
     );
     const requestBody = (global.fetch as jest.Mock).mock.calls[0][1].body;
     const params = new URLSearchParams(requestBody);
@@ -125,11 +125,11 @@ describe("The waitlist", () => {
         legalese={<>Arbitrary legalese footer.</>}
         newsletterId="arbitrary-newsletter-id"
         supportedLocales={["en"]}
-      />
+      />,
     );
 
     const emailInput = screen.getByLabelText(
-      "l10n string: [waitlist-control-email-label], with vars: {}"
+      "l10n string: [waitlist-control-email-label], with vars: {}",
     );
     await userEvent.clear(emailInput);
     await userEvent.type(emailInput, "arbitrary_email@example.com");
@@ -142,7 +142,7 @@ describe("The waitlist", () => {
     expect(global.fetch).toHaveBeenCalledTimes(1);
     expect(global.fetch).toHaveBeenCalledWith(
       "https://some-basket-url.com/news/subscribe/",
-      expect.anything()
+      expect.anything(),
     );
     // Restore the original runtime data mocks:
     setMockRuntimeData();

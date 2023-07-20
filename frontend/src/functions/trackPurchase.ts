@@ -46,7 +46,7 @@ export const getCookieId = (plan: Plan): string => {
  */
 export const trackPlanPurchaseStart = (
   plan: Plan,
-  args?: PurchaseTrackingArgs
+  args?: PurchaseTrackingArgs,
 ) => {
   gaEvent({
     ...args,

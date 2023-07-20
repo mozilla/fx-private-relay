@@ -16,7 +16,7 @@ export const NpsSurvey = () => {
   const profileData = useProfiles();
   const dismissal = useLocalDismissal(
     "nps-survey_" + profileData.data?.[0].id,
-    { duration: 30 * 24 * 60 * 60 }
+    { duration: 30 * 24 * 60 * 60 },
   );
   const firstSeen = useFirstSeen();
   const isLoggedIn = useIsLoggedIn();

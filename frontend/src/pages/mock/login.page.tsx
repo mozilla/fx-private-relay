@@ -139,7 +139,7 @@ function byUseDate(a: UsedToken, b: UsedToken) {
 function isFirstInstance(
   value: UsedToken,
   index: number,
-  fullArray: UsedToken[]
+  fullArray: UsedToken[],
 ): boolean {
   return fullArray.findIndex((token) => token.token === value.token) === index;
 }

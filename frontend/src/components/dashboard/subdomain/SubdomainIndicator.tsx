@@ -28,7 +28,7 @@ export type Props = {
   subdomain: string | null;
   onCreateAlias: (
     address: string,
-    settings: { blockPromotionals: boolean }
+    settings: { blockPromotionals: boolean },
   ) => void;
 };
 
@@ -52,7 +52,7 @@ type ExplainerTriggerProps = {
   subdomain: string;
   onCreateAlias: (
     address: string,
-    settings: { blockPromotionals: boolean }
+    settings: { blockPromotionals: boolean },
   ) => void;
 };
 const ExplainerTrigger = (props: ExplainerTriggerProps) => {
@@ -66,11 +66,11 @@ const ExplainerTrigger = (props: ExplainerTriggerProps) => {
 
   const openButtonProps = useButton(
     { onPress: () => explainerState.open() },
-    openButtonRef
+    openButtonRef,
   ).buttonProps;
   const closeButtonProps = useButton(
     { onPress: () => explainerState.close() },
-    closeButtonRef
+    closeButtonRef,
   ).buttonProps;
   const generateButtonProps = useButton(
     {
@@ -79,7 +79,7 @@ const ExplainerTrigger = (props: ExplainerTriggerProps) => {
         addressPickerState.open();
       },
     },
-    generateButtonRef
+    generateButtonRef,
   ).buttonProps;
 
   const positionProps = useOverlayPosition({
@@ -92,7 +92,7 @@ const ExplainerTrigger = (props: ExplainerTriggerProps) => {
 
   const onPick = (
     address: string,
-    settings: { blockPromotionals: boolean }
+    settings: { blockPromotionals: boolean },
   ) => {
     props.onCreateAlias(address, settings);
     addressPickerState.close();
@@ -121,7 +121,7 @@ const ExplainerTrigger = (props: ExplainerTriggerProps) => {
             </p>
             <p className={styles["button-heading"]}>
               {l10n.getString(
-                "popover-custom-alias-explainer-generate-button-heading-2"
+                "popover-custom-alias-explainer-generate-button-heading-2",
               )}
             </p>
             <button
@@ -130,7 +130,7 @@ const ExplainerTrigger = (props: ExplainerTriggerProps) => {
               className={styles["generate-button"]}
             >
               {l10n.getString(
-                "popover-custom-alias-explainer-generate-button-label-2"
+                "popover-custom-alias-explainer-generate-button-label-2",
               )}
             </button>
             <button
@@ -140,7 +140,7 @@ const ExplainerTrigger = (props: ExplainerTriggerProps) => {
             >
               <CloseIcon
                 alt={l10n.getString(
-                  "popover-custom-alias-explainer-close-button-label"
+                  "popover-custom-alias-explainer-close-button-label",
                 )}
               />
             </button>
@@ -170,14 +170,14 @@ const Explainer = forwardRef<HTMLDivElement, ExplainerProps>(
 
     const { overlayProps } = useOverlay(
       props,
-      overlayRef as RefObject<HTMLDivElement>
+      overlayRef as RefObject<HTMLDivElement>,
     );
 
     const { modalProps } = useModal();
 
     const { dialogProps, titleProps } = useDialog(
       {},
-      overlayRef as RefObject<HTMLDivElement>
+      overlayRef as RefObject<HTMLDivElement>,
     );
 
     // On small screens, this is a dialog at the top of the viewport.
@@ -187,7 +187,7 @@ const Explainer = forwardRef<HTMLDivElement, ExplainerProps>(
       overlayProps,
       positionProps,
       dialogProps,
-      modalProps
+      modalProps,
     );
 
     return (
@@ -208,5 +208,5 @@ const Explainer = forwardRef<HTMLDivElement, ExplainerProps>(
         </div>
       </FocusScope>
     );
-  }
+  },
 );

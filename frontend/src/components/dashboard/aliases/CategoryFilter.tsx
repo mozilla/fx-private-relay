@@ -49,7 +49,7 @@ export const CategoryFilter = (props: Props) => {
   const { triggerProps, overlayProps } = useOverlayTrigger(
     { type: "listbox" },
     menuState,
-    triggerRef
+    triggerRef,
   );
 
   const positionProps = useOverlayPosition({
@@ -107,14 +107,14 @@ type FilterMenuProps = HTMLAttributes<HTMLDivElement> & {
 const FilterMenu = forwardRef<HTMLDivElement, FilterMenuProps>(
   function FilterMenuWithForwardedRef(
     { selectedFilters, onClose, isOpen, ...otherProps },
-    overlayRef
+    overlayRef,
   ) {
     const l10n = useL10n();
     const [domainType, setDomainType] = useState<Filters["domainType"]>(
-      selectedFilters.domainType
+      selectedFilters.domainType,
     );
     const [status, setStatus] = useState<Filters["status"]>(
-      selectedFilters.status
+      selectedFilters.status,
     );
     const saveAndClose = () => {
       onClose({ selectedFilters: { domainType, status } });
@@ -134,7 +134,7 @@ const FilterMenu = forwardRef<HTMLDivElement, FilterMenuProps>(
         isOpen: isOpen,
         isDismissable: true,
       },
-      overlayRef as RefObject<HTMLDivElement>
+      overlayRef as RefObject<HTMLDivElement>,
     );
 
     const onSubmit: FormEventHandler = (event) => {
@@ -211,7 +211,7 @@ const FilterMenu = forwardRef<HTMLDivElement, FilterMenuProps>(
                 id="promoBlockingAliases"
               />
               {l10n.getString(
-                "profile-filter-category-option-promo-blocking-masks"
+                "profile-filter-category-option-promo-blocking-masks",
               )}
             </label>
             <label>
@@ -238,5 +238,5 @@ const FilterMenu = forwardRef<HTMLDivElement, FilterMenuProps>(
         </div>
       </FocusScope>
     );
-  }
+  },
 );

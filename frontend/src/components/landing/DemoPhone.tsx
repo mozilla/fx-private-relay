@@ -25,7 +25,7 @@ export const DemoPhone = (props: Props) => {
 
   const getScreenshotImage = (
     isPremium: boolean,
-    lang: string
+    lang: string,
   ): StaticImageData => {
     if (lang === "fr") {
       return PremiumScreenshotFr;

@@ -502,7 +502,7 @@ export const mockedInboundContacts: Record<
       relay_number: 150,
       inbound_number: "+18089251571",
       last_inbound_date: new Date(
-        Date.now() - 24 * 60 * 60 * 1000
+        Date.now() - 24 * 60 * 60 * 1000,
       ).toISOString(),
       last_inbound_type: "text",
       num_calls: 45,

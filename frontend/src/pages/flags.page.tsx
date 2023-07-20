@@ -67,7 +67,7 @@ const Flags: NextPage = () => {
           and therefore cannot be {enable ? "enabled" : "disabled"} for
           everyone.
         </>,
-        { type: "error" }
+        { type: "error" },
       );
       return;
     }
@@ -80,7 +80,7 @@ const Flags: NextPage = () => {
           Flag <output>{flagInput}</output> {enable ? "enabled" : "disabled"}{" "}
           successfully
         </>,
-        { type: "success" }
+        { type: "success" },
       );
       // Don't make it too easy to update multiple flags in a row
       // (to avoid making mistakes):
@@ -92,7 +92,7 @@ const Flags: NextPage = () => {
           Something went wrong {enable ? "enabling" : "disabling"} flag{" "}
           <output>{flagInput}</output>
         </>,
-        { type: "error" }
+        { type: "error" },
       );
     }
     return;

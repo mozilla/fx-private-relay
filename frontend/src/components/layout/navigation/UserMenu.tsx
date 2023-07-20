@@ -221,7 +221,7 @@ const UserMenuTrigger = ({
   const { menuTriggerProps, menuProps } = useMenuTrigger(
     {},
     userMenuTriggerState,
-    triggerButtonRef
+    triggerButtonRef,
   );
   // `menuProps` has an `autoFocus` property that is not compatible with the
   // `autoFocus` property for HTMLElements, because it can also be of type
@@ -239,7 +239,7 @@ const UserMenuTrigger = ({
 
   const triggerButtonProps = useButton(
     menuTriggerProps,
-    triggerButtonRef
+    triggerButtonRef,
   ).buttonProps;
 
   return (
@@ -285,7 +285,7 @@ const UserMenuPopup = (props: UserMenuPopupProps) => {
       isOpen: true,
       isDismissable: true,
     },
-    overlayRef
+    overlayRef,
   );
 
   // <FocusScope> ensures that focus is restored back to the
@@ -340,7 +340,7 @@ const UserMenuItem = (props: UserMenuItemProps) => {
       onClose: props.onClose,
     },
     props.state,
-    menuItemRef
+    menuItemRef,
   ).menuItemProps;
 
   const [_isFocused, setIsFocused] = useState(false);

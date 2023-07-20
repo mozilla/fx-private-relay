@@ -16,7 +16,7 @@ export const SignUpButton = (props: Props): JSX.Element => {
   });
   const signUpUrl = getLoginUrl(
     "relay-sign-up-header",
-    signUpFxaFlowTracker.flowData
+    signUpFxaFlowTracker.flowData,
   );
 
   return (

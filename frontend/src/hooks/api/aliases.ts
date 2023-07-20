@@ -41,11 +41,11 @@ export type AliasData = RandomAliasData | CustomAliasData;
 export type AliasCreateFn = (
   options:
     | { mask_type: "random" }
-    | { mask_type: "custom"; address: string; blockPromotionals: boolean }
+    | { mask_type: "custom"; address: string; blockPromotionals: boolean },
 ) => Promise<Response>;
 export type AliasUpdateFn = (
   alias: Pick<CommonAliasData, "id" | "mask_type">,
-  updatedFields: Partial<AliasData>
+  updatedFields: Partial<AliasData>,
 ) => Promise<Response>;
 export type AliasDeleteFn = (alias: AliasData) => Promise<Response>;
 
@@ -147,7 +147,7 @@ export function isRandomAlias(alias: AliasData): alias is RandomAliasData {
 
 export function getAllAliases(
   randomAliases: RandomAliasData[],
-  customAliases: CustomAliasData[]
+  customAliases: CustomAliasData[],
 ): AliasData[] {
   return (randomAliases as AliasData[]).concat(customAliases);
 }
@@ -171,7 +171,7 @@ export function getFullAddress(alias: AliasData) {
  */
 export function isBlockingLevelOneTrackers(
   alias: AliasData,
-  profile: ProfileData
+  profile: ProfileData,
 ): boolean {
   if (typeof alias.block_level_one_trackers === "boolean") {
     return alias.block_level_one_trackers;

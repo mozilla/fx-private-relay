@@ -24,7 +24,7 @@ export type SetCookieOptions = {
 export function setCookie(
   cookieId: string,
   value: string,
-  options: SetCookieOptions = {}
+  options: SetCookieOptions = {},
 ) {
   const maxAgeString =
     typeof options.maxAgeInSeconds === "number"

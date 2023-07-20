@@ -25,12 +25,12 @@ export type DismissalOptions = {
  */
 export function useLocalDismissal(
   key: string,
-  options: DismissalOptions = {}
+  options: DismissalOptions = {},
 ): DismissalData {
   const cookieId = key + "_dismissed";
 
   const [isDismissed, setIsDismissed] = useState(
-    hasDismissedCookie(cookieId, options.duration)
+    hasDismissedCookie(cookieId, options.duration),
   );
 
   // Whenever `key` (and therefore `cookieId`) changes, re-check the appropriate

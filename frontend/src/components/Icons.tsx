@@ -167,7 +167,7 @@ export const CloseIcon = ({
 
 /** Bento button that inherits the text color of its container */
 export const BentoIcon = (
-  props: SVGProps<SVGSVGElement> & { alt?: string }
+  props: SVGProps<SVGSVGElement> & { alt?: string },
 ) => {
   return (
     <svg
@@ -193,7 +193,7 @@ export const BentoIcon = (
 
 /** Icon to indicate links that open in a new tab, that inherits the text color of its container */
 export const NewTabIcon = (
-  props: SVGProps<SVGSVGElement> & { alt?: string }
+  props: SVGProps<SVGSVGElement> & { alt?: string },
 ) => {
   const l10n = useL10n();
 

@@ -65,7 +65,7 @@ const AdvancedIdentityBanner = () => {
     <Banner
       type="promo"
       title={l10n.getString(
-        "banner-ab-premium-promo-advanced-identity-headline"
+        "banner-ab-premium-promo-advanced-identity-headline",
       )}
       illustration={{
         img: phoneImage,
@@ -90,7 +90,7 @@ const ControlReceiverBanner = () => {
     <Banner
       type="promo"
       title={l10n.getString(
-        "banner-ab-premium-promo-control-receiver-headline"
+        "banner-ab-premium-promo-control-receiver-headline",
       )}
       illustration={{
         img: phoneImage,
@@ -115,7 +115,7 @@ const ExtraProtectionBanner = () => {
     <Banner
       type="promo"
       title={l10n.getString(
-        "banner-ab-premium-promo-extra-protection-headline"
+        "banner-ab-premium-promo-extra-protection-headline",
       )}
       illustration={{
         img: phoneImage,

@@ -7,7 +7,7 @@ import { getCsrfToken } from "../../functions/cookies";
  */
 export const authenticatedFetch = async (
   path: string,
-  init?: Parameters<typeof fetch>[1]
+  init?: Parameters<typeof fetch>[1],
 ) => {
   let authToken;
   if (
@@ -24,7 +24,7 @@ export const authenticatedFetch = async (
   const headers = new Headers(init?.headers ?? undefined);
   headers.set(
     "Content-Type",
-    headers.get("Content-Type") ?? "application/json"
+    headers.get("Content-Type") ?? "application/json",
   );
   headers.set("Accept", headers.get("Accept") ?? "application/json");
   if (typeof authToken === "string") {
@@ -47,7 +47,7 @@ export const authenticatedFetch = async (
 
 export const apiFetch = async (
   route: string,
-  init?: Parameters<typeof fetch>[1]
+  init?: Parameters<typeof fetch>[1],
 ) => {
   const path = `/api/v1${route}`;
   return authenticatedFetch(path, init);
@@ -67,14 +67,14 @@ const fetcher: Fetcher = async (route: string, init?: RequestInit) => {
  */
 export function useApiV1<Data = unknown>(
   route: string | null,
-  swrOptions: Partial<SWRConfiguration> = {}
+  swrOptions: Partial<SWRConfiguration> = {},
 ): SWRResponse<Data, FetchError> {
   const onErrorRetry: typeof SWRConfig.defaultValue.onErrorRetry = (
     error: unknown | FetchError,
     key,
     config,
     revalidate,
-    revalidateOpts
+    revalidateOpts,
   ) => {
     if (error instanceof FetchError && error.response.ok === false) {
       // When the request got rejected by the back-end, do not retry:
@@ -86,7 +86,7 @@ export function useApiV1<Data = unknown>(
       key,
       config,
       revalidate,
-      revalidateOpts
+      revalidateOpts,
     );
   };
   // TODO: Also use the sessionId cookie in the key,

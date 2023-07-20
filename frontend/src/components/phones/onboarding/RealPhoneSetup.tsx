@@ -28,10 +28,10 @@ type RealPhoneSetupProps = {
 };
 export const RealPhoneSetup = (props: RealPhoneSetupProps) => {
   const phonesPendingVerification = props.unverifiedRealPhones.filter(
-    hasPendingVerification
+    hasPendingVerification,
   );
   const [isEnteringNumber, setIsEnteringNumber] = useState(
-    phonesPendingVerification.length === 0
+    phonesPendingVerification.length === 0,
   );
 
   if (isEnteringNumber || phonesPendingVerification.length === 0) {
@@ -110,7 +110,7 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
 
     // submit the request for phone verification
     const res = await props.requestPhoneVerification(
-      phoneNumberWithCountryCode
+      phoneNumberWithCountryCode,
     );
 
     /**
@@ -164,7 +164,7 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
               styles["phone-input"]
             }`}
             placeholder={l10n.getString(
-              "phone-onboarding-step2-input-placeholder"
+              "phone-onboarding-step2-input-placeholder",
             )}
             type="tel"
             autoComplete="tel"
@@ -197,15 +197,15 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
   const l10n = useL10n();
   const phoneWithMostRecentlySentVerificationCode =
     getPhoneWithMostRecentlySentVerificationCode(
-      props.phonesPendingVerification
+      props.phonesPendingVerification,
     );
   const [verificationCode, setVerificationCode] = useState("");
 
   const verificationSentDate = parseDate(
-    phoneWithMostRecentlySentVerificationCode.verification_sent_date
+    phoneWithMostRecentlySentVerificationCode.verification_sent_date,
   );
   const [remainingTime, setRemainingTime] = useState(
-    getRemainingTime(verificationSentDate, props.maxMinutesToVerify)
+    getRemainingTime(verificationSentDate, props.maxMinutesToVerify),
   );
   /** `undefined` if verification hasn't been attempted yet */
   const [isVerifiedSuccessfully, setIsVerifiedSuccessfully] =
@@ -220,7 +220,7 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
 
   const onInvalid: FormEventHandler<HTMLInputElement> = (event) => {
     event.currentTarget.setCustomValidity(
-      l10n.getString("phone-onboarding-step3-input-placeholder")
+      l10n.getString("phone-onboarding-step3-input-placeholder"),
     );
   };
 
@@ -232,7 +232,7 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
       {
         number: phoneWithMostRecentlySentVerificationCode.number,
         verification_code: verificationCode,
-      }
+      },
     );
 
     setIsVerifiedSuccessfully(response.ok);
@@ -240,13 +240,13 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
 
   const onSendNewCode = async () => {
     props.requestPhoneVerification(
-      phoneWithMostRecentlySentVerificationCode.number
+      phoneWithMostRecentlySentVerificationCode.number,
     );
   };
 
   useInterval(() => {
     setRemainingTime(
-      getRemainingTime(verificationSentDate, props.maxMinutesToVerify)
+      getRemainingTime(verificationSentDate, props.maxMinutesToVerify),
     );
   }, 1000);
 
@@ -310,7 +310,7 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
           id="phone-onboarding-step3-body"
           vars={{
             phone_number: formatPhone(
-              phoneWithMostRecentlySentVerificationCode.number
+              phoneWithMostRecentlySentVerificationCode.number,
             ),
             remaining_seconds: secondCountdown,
             remaining_minutes: minuteCountdown,
@@ -367,7 +367,7 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
 
 function getRemainingTime(
   verificationSentTime: Date,
-  maxMinutesToVerify: number
+  maxMinutesToVerify: number,
 ): number {
   const currentTime = new Date().getTime();
   const elapsedTime = currentTime - verificationSentTime.getTime();
@@ -376,7 +376,7 @@ function getRemainingTime(
 }
 
 function getPhoneWithMostRecentlySentVerificationCode(
-  phones: UnverifiedPhone[]
+  phones: UnverifiedPhone[],
 ) {
   const mostRecentVerifiedPhone = [...phones].sort((a, b) => {
     const sendDateA = parseDate(a.verification_sent_date).getTime();

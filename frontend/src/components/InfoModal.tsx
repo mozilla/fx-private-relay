@@ -54,7 +54,7 @@ const PickerDialog = (props: PickerDialogProps & AriaOverlayProps) => {
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const cancelButton = useButton(
     { onPress: () => props.onClose() },
-    cancelButtonRef
+    cancelButtonRef,
   );
 
   return (

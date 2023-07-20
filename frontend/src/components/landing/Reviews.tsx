@@ -37,14 +37,14 @@ export const Reviews = () => {
 
   const slideLeftButton = useButton(
     { onPress: () => scrollReview(currentReview, userReviews, "right") },
-    slideLeftButtonRef
+    slideLeftButtonRef,
   );
 
   const slideRightButtonRef = useRef<HTMLButtonElement>(null);
 
   const slideRightButton = useButton(
     { onPress: () => scrollReview(currentReview, userReviews, "left") },
-    slideRightButtonRef
+    slideRightButtonRef,
   );
 
   // Get initial user position on touch
@@ -110,7 +110,7 @@ export const Reviews = () => {
   const scrollReview = (
     count: number,
     reviews: UserReview[],
-    direction: Direction
+    direction: Direction,
   ): void => {
     if (direction === "right") {
       setCurrentReview(count < reviews.length - 1 ? count + 1 : 0);
@@ -131,7 +131,7 @@ export const Reviews = () => {
         <StarIcon className={styles.star} key={index} alt="" />
       ) : (
         <StarIcon className={styles["empty-star"]} key={index} alt="" />
-      )
+      ),
     );
 
   // Render a bulleted list if review is an array of strings.
@@ -224,7 +224,7 @@ export const Reviews = () => {
               {...slideRightButton.buttonProps}
               ref={slideRightButtonRef}
               aria-label={l10n.getString(
-                "landing-reviews-show-previous-button"
+                "landing-reviews-show-previous-button",
               )}
               className={`${styles.chevron} ${styles["hidden-mobile"]}`}
             >
@@ -248,7 +248,7 @@ export const Reviews = () => {
               {...slideRightButton.buttonProps}
               ref={slideRightButtonRef}
               aria-label={l10n.getString(
-                "landing-reviews-show-previous-button"
+                "landing-reviews-show-previous-button",
               )}
               className={`${styles.chevron}`}
             >

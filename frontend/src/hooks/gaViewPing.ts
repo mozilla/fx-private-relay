@@ -12,7 +12,7 @@ export type GaViewPingArgs = Omit<EventArgs, "action" | "nonInteraction">;
  */
 export function useGaViewPing(
   args: GaViewPingArgs | null,
-  options?: IntersectionOptions
+  options?: IntersectionOptions,
 ) {
   const { ref } = useInView({
     threshold: 1,

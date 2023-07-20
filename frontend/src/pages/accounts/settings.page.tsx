@@ -40,13 +40,13 @@ const Settings: NextPage = () => {
   const aliasData = useAliases();
   const addonData = useAddonData();
   const [labelCollectionEnabled, setLabelCollectionEnabled] = useState(
-    profileData.data?.[0].server_storage
+    profileData.data?.[0].server_storage,
   );
   const [trackerRemovalEnabled, setTrackerRemovalEnabled] = useState(
-    profileData.data?.[0].remove_level_one_email_trackers
+    profileData.data?.[0].remove_level_one_email_trackers,
   );
   const [phoneCallerSMSLogEnabled, setPhoneCallerSMSLogEnabled] = useState(
-    profileData.data?.[0].store_phone_log
+    profileData.data?.[0].store_phone_log,
   );
   const [phoneCallerSMSLogEnabledLabel, setPhoneCallerSMSLogEnabledLabel] =
     useState(false);
@@ -114,7 +114,7 @@ const Settings: NextPage = () => {
           const localLabel = localLabels?.find(
             (localLabel) =>
               localLabel.mask_type === alias.mask_type &&
-              localLabel.id === alias.id
+              localLabel.id === alias.id,
           );
           if (typeof localLabel !== "undefined") {
             aliasData.update(alias, {
@@ -284,7 +284,7 @@ const Settings: NextPage = () => {
     ) : null;
 
   const phoneCallerSMSLogSetting = isPhonesAvailableInCountry(
-    runtimeData.data
+    runtimeData.data,
   ) ? (
     <div className={styles.field}>
       <h2 className={styles["field-heading"]}>

@@ -44,26 +44,26 @@ type Props = {
  */
 export const CsatSurvey = (props: Props) => {
   const free7DaysDismissal = useLocalDismissal(
-    "csat-survey-free-7days_" + props.profile.id
+    "csat-survey-free-7days_" + props.profile.id,
   );
   const free30DaysDismissal = useLocalDismissal(
-    "csat-survey-free-30days_" + props.profile.id
+    "csat-survey-free-30days_" + props.profile.id,
   );
   const free90DaysDismissal = useLocalDismissal(
     "csat-survey-free-90days_" + props.profile.id,
     // After the third month, show every three months:
-    { duration: 90 * 24 * 60 * 60 }
+    { duration: 90 * 24 * 60 * 60 },
   );
   const premium7DaysDismissal = useLocalDismissal(
-    "csat-survey-premium-7days_" + props.profile.id
+    "csat-survey-premium-7days_" + props.profile.id,
   );
   const premium30DaysDismissal = useLocalDismissal(
-    "csat-survey-premium-30days_" + props.profile.id
+    "csat-survey-premium-30days_" + props.profile.id,
   );
   const premium90DaysDismissal = useLocalDismissal(
     "csat-survey-premium-90days_" + props.profile.id,
     // After the third month, show every three months:
-    { duration: 90 * 24 * 60 * 60 }
+    { duration: 90 * 24 * 60 * 60 },
   );
   const firstSeen = useFirstSeen();
   const l10n = useL10n();
@@ -183,7 +183,7 @@ export const CsatSurvey = (props: Props) => {
       // Metric 12 in Google Analytics is "CSAT Satisfaction Value",
       // i.e. it tracks where users are Satisfied, Neutral or Dissatisfied:
       metric12: getNumericValueOfSatisfactionCategory(
-        getCategoryOfSatisfaction(satisfaction)
+        getCategoryOfSatisfaction(satisfaction),
       ),
     });
   };
@@ -271,7 +271,7 @@ export const CsatSurvey = (props: Props) => {
 };
 
 function getNumericValueOfSatisfaction(
-  satisfaction: keyof SurveyLinks
+  satisfaction: keyof SurveyLinks,
 ): 1 | 2 | 3 | 4 | 5 {
   switch (satisfaction) {
     case "Very Dissatisfied":
@@ -289,7 +289,7 @@ function getNumericValueOfSatisfaction(
 
 type SatisfactionCategory = "Dissatisfied" | "Neutral" | "Satisfied";
 function getCategoryOfSatisfaction(
-  satisfaction: keyof SurveyLinks
+  satisfaction: keyof SurveyLinks,
 ): SatisfactionCategory {
   switch (satisfaction) {
     case "Very Dissatisfied":
@@ -304,7 +304,7 @@ function getCategoryOfSatisfaction(
 }
 
 function getNumericValueOfSatisfactionCategory(
-  satisfactionCategory: SatisfactionCategory
+  satisfactionCategory: SatisfactionCategory,
 ): -1 | 0 | 1 {
   switch (satisfactionCategory) {
     case "Dissatisfied":

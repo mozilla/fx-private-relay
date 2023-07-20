@@ -17,7 +17,7 @@ export const SignInButton = (props: Props): JSX.Element => {
   });
   const signInUrl = getLoginUrl(
     "relay-sign-in-header",
-    signInFxaFlowTracker.flowData
+    signInFxaFlowTracker.flowData,
   );
 
   return (

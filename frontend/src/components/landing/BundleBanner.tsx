@@ -136,7 +136,7 @@ export const BundleBanner = (props: Props) => {
                 onClick={() =>
                   trackPlanPurchaseStart(
                     { plan: "bundle" },
-                    { label: "bundle-banner-upgrade-promo" }
+                    { label: "bundle-banner-upgrade-promo" },
                   )
                 }
               >

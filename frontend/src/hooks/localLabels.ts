@@ -33,7 +33,7 @@ export type NotEnabled = [null, SetLocalLabel];
 export function useLocalLabels(): LocalLabelHook | NotEnabled {
   const addonData = useAddonData();
   const [localLabels, setLocalLabels] = useState<LocalLabel[]>(
-    addonData.localLabels ?? []
+    addonData.localLabels ?? [],
   );
 
   if (addonData.present !== true) {
@@ -46,10 +46,10 @@ export function useLocalLabels(): LocalLabelHook | NotEnabled {
     // Replace existing labels for this alias:
     const oldLocalLabel = localLabels.find(
       (localLabel) =>
-        localLabel.id === alias.id && localLabel.mask_type === maskType
+        localLabel.id === alias.id && localLabel.mask_type === maskType,
     );
     const newLocalLabels = localLabels.filter(
-      (localLabel) => localLabel !== oldLocalLabel
+      (localLabel) => localLabel !== oldLocalLabel,
     );
 
     newLocalLabels.push({

@@ -103,12 +103,12 @@ const SuccessModal = (props: Props) => {
                 <p>
                   <strong>
                     {l10n.getString(
-                      "modal-email-domain-success-headline-on-the-go"
+                      "modal-email-domain-success-headline-on-the-go",
                     )}
                   </strong>
                   <p>
                     {l10n.getString(
-                      "modal-email-domain-success-body-on-the-go"
+                      "modal-email-domain-success-body-on-the-go",
                     )}
                   </p>
                 </p>
@@ -118,7 +118,7 @@ const SuccessModal = (props: Props) => {
                 <p>
                   <strong>
                     {l10n.getString(
-                      "modal-email-domain-success-headline-any-word"
+                      "modal-email-domain-success-headline-any-word",
                     )}
                   </strong>
                   <p>
@@ -126,7 +126,7 @@ const SuccessModal = (props: Props) => {
                       "modal-email-domain-success-body-any-word",
                       {
                         custom_domain_full: `@${props.subdomain}.mozmail.com`,
-                      }
+                      },
                     )}
                   </p>
                 </p>

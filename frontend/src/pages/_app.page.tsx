@@ -44,7 +44,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   const addonData = useAddonElementWatcher(addonDataElementRef);
   const [l10n, setL10n] = useState<ReactLocalization>(
-    getL10n({ deterministicLocales: true })
+    getL10n({ deterministicLocales: true }),
   );
 
   useEffect(() => {
@@ -71,7 +71,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     });
     const cookies = document.cookie.split("; ");
     const gaEventCookies = cookies.filter((item) =>
-      item.trim().startsWith("server_ga_event:")
+      item.trim().startsWith("server_ga_event:"),
     );
     gaEventCookies.forEach((item) => {
       const serverEventLabel = item.split("=")[1];

@@ -69,8 +69,8 @@ describe("The settings screen", () => {
 
     await userEvent.click(
       screen.getByLabelText(
-        "l10n string: [setting-label-collection-description-3], with vars: {}"
-      )
+        "l10n string: [setting-label-collection-description-3], with vars: {}",
+      ),
     );
 
     const toggleWarning = screen.getByRole("alert");
@@ -95,14 +95,14 @@ describe("The settings screen", () => {
 
     await userEvent.click(
       screen.getByLabelText(
-        "l10n string: [setting-label-collection-description-3], with vars: {}"
-      )
+        "l10n string: [setting-label-collection-description-3], with vars: {}",
+      ),
     );
 
     await userEvent.click(
       screen.getByRole("button", {
         name: "l10n string: [settings-button-save-label], with vars: {}",
-      })
+      }),
     );
 
     expect(addonNotifier).toHaveBeenCalledWith("serverStorageChange");
@@ -116,14 +116,14 @@ describe("The settings screen", () => {
 
     await userEvent.click(
       screen.getByLabelText(
-        "l10n string: [setting-label-collection-description-3], with vars: {}"
-      )
+        "l10n string: [setting-label-collection-description-3], with vars: {}",
+      ),
     );
 
     await userEvent.click(
       screen.getByRole("button", {
         name: "l10n string: [settings-button-save-label], with vars: {}",
-      })
+      }),
     );
 
     expect(addonNotifier).toHaveBeenCalledWith("serverStorageChange");

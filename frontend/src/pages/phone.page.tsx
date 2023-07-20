@@ -27,11 +27,11 @@ const Phone: NextPage = () => {
   const relayNumberData = useRelayNumber();
   const [isInOnboarding, setIsInOnboarding] = useState<boolean>();
   const welcomeScreenDismissal = useLocalDismissal(
-    `phone-welcome-screen-${profile?.id}`
+    `phone-welcome-screen-${profile?.id}`,
   );
 
   const resendWelcomeSMSDismissal = useLocalDismissal(
-    `resend-sms-banner-${profile?.id}`
+    `resend-sms-banner-${profile?.id}`,
   );
 
   const realPhoneData = useRealPhonesData();

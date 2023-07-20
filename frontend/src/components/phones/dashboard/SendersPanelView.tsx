@@ -78,7 +78,7 @@ export const SendersPanelView = (props: Props) => {
         (a, b) =>
           // Sort by last sent date
           parseDate(b.last_inbound_date).getTime() -
-          parseDate(a.last_inbound_date).getTime()
+          parseDate(a.last_inbound_date).getTime(),
       )
       .map((data) => {
         return (

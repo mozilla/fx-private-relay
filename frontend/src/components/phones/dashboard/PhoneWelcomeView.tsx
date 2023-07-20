@@ -120,11 +120,11 @@ export const PhoneWelcomeView = (props: PhoneWelcomePageProps) => {
                     await props.onRequestContactCard();
                     toast(
                       l10n.getString(
-                        "phone-banner-resend-welcome-sms-toast-msg"
+                        "phone-banner-resend-welcome-sms-toast-msg",
                       ),
                       {
                         type: "success",
-                      }
+                      },
                     );
                     props.dismissal.resendSMS.dismiss();
                   }}
@@ -136,7 +136,7 @@ export const PhoneWelcomeView = (props: PhoneWelcomePageProps) => {
             </>
           }
           demoHeading={l10n.getString(
-            "phone-masking-splash-save-contact-example"
+            "phone-masking-splash-save-contact-example",
           )}
           demoInput={
             <>
@@ -158,7 +158,7 @@ export const PhoneWelcomeView = (props: PhoneWelcomePageProps) => {
           body={l10n.getString("phone-masking-splash-replies-body")}
           demoHeading={l10n.getString("phone-masking-splash-replies-example")}
           demoInput={l10n.getString(
-            "phone-masking-splash-replies-example-text"
+            "phone-masking-splash-replies-example-text",
           )}
           demoImage={
             <div className={styles["demo-img"]}>

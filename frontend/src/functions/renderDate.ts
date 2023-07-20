@@ -7,7 +7,7 @@ import { parseDate } from "./parseDate";
  */
 export const renderDate = (
   iso8601DateString: string,
-  l10n: ReactLocalization
+  l10n: ReactLocalization,
 ): string => {
   const formatter = new Intl.DateTimeFormat(getLocale(l10n), {
     dateStyle: "medium",

@@ -15,7 +15,7 @@ export function getL10n(options: { deterministicLocales: boolean }) {
   const translationsContext = (require as any).context(
     "../../../privaterelay/locales",
     true,
-    /\.ftl$/
+    /\.ftl$/,
   );
   const RESOURCES: Record<string, FluentResource[]> = {};
 
@@ -42,13 +42,13 @@ export function getL10n(options: { deterministicLocales: boolean }) {
       // render either:
       options.deterministicLocales ? [] : (userLocales as string[]),
       Object.keys(RESOURCES),
-      { defaultLocale: "en" }
+      { defaultLocale: "en" },
     );
 
     for (const locale of currentLocales) {
       if (typeof RESOURCES[locale] === "undefined") {
         throw new Error(
-          `Locale [${locale}] not found. You might want to run \`git submodule update --remote\` at the root of this repository?`
+          `Locale [${locale}] not found. You might want to run \`git submodule update --remote\` at the root of this repository?`,
         );
       }
       const bundle = new FluentBundle(locale);
@@ -59,30 +59,30 @@ export function getL10n(options: { deterministicLocales: boolean }) {
         // `require` isn't usually valid JS, so skip type checking for that:
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const pendingTranslations = (require as any)(
-          "../../pendingTranslations.ftl"
+          "../../pendingTranslations.ftl",
         );
         const pendingTranslationsResource = new FluentResource(
-          pendingTranslations
+          pendingTranslations,
         );
         bundle.addResource(pendingTranslationsResource);
         if (process.env.NEXT_PUBLIC_DEBUG === "true") {
           // All string IDs in `pendingTranslations.ftl`:
           const pendingTranslationsIds = pendingTranslationsResource.body.map(
-            (stringData) => stringData.id
+            (stringData) => stringData.id,
           );
           // All string IDs in all English FTL files:
           const mergedEnglishTranslationIds = RESOURCES.en.flatMap(
             (enResource) => {
               return enResource.body.map((stringData) => stringData.id);
-            }
+            },
           );
           const unmergedStrings = pendingTranslationsIds.filter(
-            (id) => !mergedEnglishTranslationIds.includes(id)
+            (id) => !mergedEnglishTranslationIds.includes(id),
           );
           if (unmergedStrings.length > 0) {
             console.warn(
               `The following ${unmergedStrings.length} strings have not yet been merged into the l10n repository, and thus cannot be translated yet:`,
-              unmergedStrings
+              unmergedStrings,
             );
           }
         }
@@ -107,9 +107,9 @@ export function getL10n(options: { deterministicLocales: boolean }) {
   // bundles. You can store it in your app's state.
   const l10n = new ReactLocalization(
     generateBundles(
-      typeof navigator !== "undefined" ? navigator.languages : []
+      typeof navigator !== "undefined" ? navigator.languages : [],
     ),
-    parseMarkup
+    parseMarkup,
   );
   return l10n;
 }

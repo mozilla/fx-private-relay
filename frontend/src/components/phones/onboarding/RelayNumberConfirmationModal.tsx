@@ -49,7 +49,7 @@ export const RelayNumberConfirmationModal = (props: Props) => {
             disabled={props.relayNumber.length === 0}
           >
             {l10n.getString(
-              "phone-onboarding-step4-button-confirm-relay-number"
+              "phone-onboarding-step4-button-confirm-relay-number",
             )}
           </Button>
         </div>
@@ -64,7 +64,7 @@ type ConfirmationDialogProps = {
   onClose?: () => void;
 };
 const ConfirmationDialog = (
-  props: ConfirmationDialogProps & AriaOverlayProps
+  props: ConfirmationDialogProps & AriaOverlayProps,
 ) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const { overlayProps, underlayProps } = useOverlay(props, wrapperRef);

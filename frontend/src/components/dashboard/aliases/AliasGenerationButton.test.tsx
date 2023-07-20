@@ -23,14 +23,14 @@ describe("<AliasGenerationButton>", () => {
         profile={getMockProfileData({ has_premium: false })}
         onCreate={jest.fn()}
         runtimeData={getMockRuntimeDataWithoutPremium()}
-      />
+      />,
     );
 
     const button = screen.getByRole("button");
 
     expect(button).toBeEnabled();
     expect(button).toHaveTextContent(
-      "l10n string: [profile-label-generate-new-alias-2], with vars: {}"
+      "l10n string: [profile-label-generate-new-alias-2], with vars: {}",
     );
   });
 
@@ -48,14 +48,14 @@ describe("<AliasGenerationButton>", () => {
         profile={getMockProfileData({ has_premium: true })}
         onCreate={jest.fn()}
         runtimeData={getMockRuntimeDataWithoutPremium()}
-      />
+      />,
     );
 
     const button = screen.getByRole("button");
 
     expect(button).toBeEnabled();
     expect(button).toHaveTextContent(
-      "l10n string: [profile-label-generate-new-alias-2], with vars: {}"
+      "l10n string: [profile-label-generate-new-alias-2], with vars: {}",
     );
   });
 
@@ -72,13 +72,13 @@ describe("<AliasGenerationButton>", () => {
         profile={getMockProfileData({ has_premium: false })}
         onCreate={jest.fn()}
         runtimeData={getMockRuntimeDataWithPeriodicalPremium()}
-      />
+      />,
     );
 
     const button = screen.getByRole("link");
 
     expect(button).toHaveTextContent(
-      "l10n string: [profile-label-upgrade-2], with vars: {}"
+      "l10n string: [profile-label-upgrade-2], with vars: {}",
     );
   });
 
@@ -95,7 +95,7 @@ describe("<AliasGenerationButton>", () => {
         profile={getMockProfileData({ has_premium: false })}
         onCreate={jest.fn()}
         runtimeData={getMockRuntimeDataWithoutPremium()}
-      />
+      />,
     );
 
     const button = screen.getByRole("button");
@@ -119,7 +119,7 @@ describe("<AliasGenerationButton>", () => {
         })}
         onCreate={jest.fn()}
         runtimeData={getMockRuntimeDataWithoutPremium()}
-      />
+      />,
     );
 
     const button = screen.getByRole("button");
@@ -142,14 +142,14 @@ describe("<AliasGenerationButton>", () => {
           profile={getMockProfileData({ has_premium: true, subdomain: null })}
           onCreate={jest.fn()}
           runtimeData={getMockRuntimeDataWithoutPremium()}
-        />
+        />,
       );
 
       const button = screen.getByRole("button");
 
       expect(button).toBeEnabled();
       expect(button).toHaveTextContent(
-        "l10n string: [profile-label-generate-new-alias-2], with vars: {}"
+        "l10n string: [profile-label-generate-new-alias-2], with vars: {}",
       );
     });
 
@@ -180,7 +180,7 @@ describe("<AliasGenerationButton>", () => {
           })}
           onCreate={jest.fn()}
           runtimeData={getMockRuntimeDataWithoutPremium()}
-        />
+        />,
       );
 
       const dropDownButton = screen.getByRole("button");
@@ -190,7 +190,7 @@ describe("<AliasGenerationButton>", () => {
 
       expect(dropDownButton).toBeEnabled();
       expect(dropDownButton).toHaveTextContent(
-        "l10n string: [profile-label-generate-new-alias-2], with vars: {}"
+        "l10n string: [profile-label-generate-new-alias-2], with vars: {}",
       );
       expect(menu).toBeInTheDocument();
       expect(menuItems).toHaveLength(2);

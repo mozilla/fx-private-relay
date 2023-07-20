@@ -67,7 +67,7 @@ const ContainsTracker: NextPage = () => {
           <OutboundLink
             to={trackerData.original_link}
             eventLabel={l10n.getString(
-              "contains-tracker-warning-view-link-cta"
+              "contains-tracker-warning-view-link-cta",
             )}
             target="_blank"
             rel="noopener noreferrer"
@@ -109,38 +109,38 @@ const ContainsTracker: NextPage = () => {
                     a: (
                       <p>
                         {l10n.getString(
-                          "faq-question-define-tracker-answer-partone"
+                          "faq-question-define-tracker-answer-partone",
                         )}
                         <br />
                         <br />
                         {l10n.getString(
-                          "faq-question-define-tracker-answer-parttwo"
+                          "faq-question-define-tracker-answer-parttwo",
                         )}
                       </p>
                     ),
                   },
                   {
                     q: l10n.getString(
-                      "faq-question-disable-trackerremoval-question"
+                      "faq-question-disable-trackerremoval-question",
                     ),
                     a: l10n.getString(
-                      "faq-question-disable-trackerremoval-answer"
+                      "faq-question-disable-trackerremoval-answer",
                     ),
                   },
                   {
                     q: l10n.getString(
-                      "faq-question-bulk-trackerremoval-question"
+                      "faq-question-bulk-trackerremoval-question",
                     ),
                     a: l10n.getString(
-                      "faq-question-bulk-trackerremoval-answer"
+                      "faq-question-bulk-trackerremoval-answer",
                     ),
                   },
                   {
                     q: l10n.getString(
-                      "faq-question-trackerremoval-breakage-question"
+                      "faq-question-trackerremoval-breakage-question",
                     ),
                     a: l10n.getString(
-                      "faq-question-trackerremoval-breakage-answer-2"
+                      "faq-question-trackerremoval-breakage-answer-2",
                     ),
                   },
                 ]}

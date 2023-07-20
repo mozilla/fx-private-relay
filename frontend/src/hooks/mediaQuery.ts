@@ -3,7 +3,7 @@ import variables from "./mediaQuery.module.scss";
 
 function useMediaQueryImp(mediaQuery: string): boolean {
   const [mediaQueryList, setMediaQueryList] = useState(
-    window.matchMedia(mediaQuery)
+    window.matchMedia(mediaQuery),
   );
   useEffect(() => {
     setMediaQueryList(window.matchMedia(mediaQuery));
@@ -12,7 +12,7 @@ function useMediaQueryImp(mediaQuery: string): boolean {
   const [matches, setMatches] = useState(mediaQueryList.matches);
   useEffect(() => {
     const changeListener: Parameters<MediaQueryList["addEventListener"]>[1] = (
-      _changedList
+      _changedList,
     ) => {
       setMatches(mediaQueryList.matches);
     };
@@ -37,7 +37,7 @@ export const useMediaQuery =
  * @returns Whether the current viewport width matches that media query.
  */
 export function useMinViewportWidth(
-  width: "xs" | "sm" | "md" | "lg" | "xl"
+  width: "xs" | "sm" | "md" | "lg" | "xl",
 ): boolean {
   let mediaQuery = "";
   if (width === "xl") {

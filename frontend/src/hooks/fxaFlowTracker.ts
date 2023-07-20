@@ -20,7 +20,7 @@ export type FlowData = {
  */
 export function useFxaFlowTracker(
   args: FxaFlowTrackerArgs | null,
-  options?: IntersectionOptions
+  options?: IntersectionOptions,
 ) {
   const runtimeData = useRuntimeData();
   const { ref } = useInView({
@@ -38,8 +38,8 @@ export function useFxaFlowTracker(
 
       fetch(
         `${fxaOrigin}/metrics-flow?form_type=other&entrypoint=${encodeURIComponent(
-          args.entrypoint
-        )}&utm_source=${encodeURIComponent(document.location.host)}`
+          args.entrypoint,
+        )}&utm_source=${encodeURIComponent(document.location.host)}`,
       )
         .then(async (response) => {
           if (!response.ok) {
@@ -85,7 +85,7 @@ export function getLoginUrl(entrypoint: string, flowData?: FlowData): string {
     loginUrl,
     typeof document !== "undefined"
       ? document.location.origin
-      : "https://relay.firefox.com"
+      : "https://relay.firefox.com",
   );
   urlObject.searchParams.append("form_type", "button");
   urlObject.searchParams.append("entrypoint", entrypoint);
@@ -93,7 +93,7 @@ export function getLoginUrl(entrypoint: string, flowData?: FlowData): string {
     urlObject.searchParams.append("flowId", flowData.flowId);
     urlObject.searchParams.append(
       "flowBeginTime",
-      flowData.flowBeginTime.toString()
+      flowData.flowBeginTime.toString(),
     );
   }
 

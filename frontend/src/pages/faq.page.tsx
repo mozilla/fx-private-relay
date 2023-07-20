@@ -36,7 +36,7 @@ const Faq: NextPage = () => {
       <QAndA
         id={"phone-masking-faq-question-change-phone-mask"}
         question={l10n.getString(
-          "phone-masking-faq-question-change-phone-mask"
+          "phone-masking-faq-question-change-phone-mask",
         )}
       >
         <p>{l10n.getString("phone-masking-faq-answer-change-phone-mask")}</p>
@@ -159,13 +159,13 @@ const Faq: NextPage = () => {
 
   const trackerBlockingFaqs = isFlagActive(
     runtimeData.data,
-    "tracker_removal"
+    "tracker_removal",
   ) ? (
     <>
       <QAndA
         id="faq-disable-trackerremoval"
         question={l10n.getString(
-          "faq-question-disable-trackerremoval-question"
+          "faq-question-disable-trackerremoval-question",
         )}
       >
         <p>{l10n.getString("faq-question-disable-trackerremoval-answer")}</p>
@@ -179,7 +179,7 @@ const Faq: NextPage = () => {
       <QAndA
         id="faq-trackerremoval-breakage"
         question={l10n.getString(
-          "faq-question-trackerremoval-breakage-question"
+          "faq-question-trackerremoval-breakage-question",
         )}
       >
         <p>{l10n.getString("faq-question-trackerremoval-breakage-answer-2")}</p>
@@ -205,7 +205,7 @@ const Faq: NextPage = () => {
               <QAndA
                 id="faq-missing-emails"
                 question={l10n.getString(
-                  "faq-question-missing-emails-question-2"
+                  "faq-question-missing-emails-question-2",
                 )}
               >
                 <p>
@@ -214,12 +214,12 @@ const Faq: NextPage = () => {
                 <ul>
                   <li>
                     {l10n.getString(
-                      "faq-question-missing-emails-answer-reason-spam"
+                      "faq-question-missing-emails-answer-reason-spam",
                     )}
                   </li>
                   <li>
                     {l10n.getString(
-                      "faq-question-missing-emails-answer-reason-blocked-2"
+                      "faq-question-missing-emails-answer-reason-blocked-2",
                     )}
                   </li>
                   <li>
@@ -228,22 +228,22 @@ const Faq: NextPage = () => {
                       {
                         size: getRuntimeConfig().emailSizeLimitNumber,
                         unit: getRuntimeConfig().emailSizeLimitUnit,
-                      }
+                      },
                     )}
                   </li>
                   <li>
                     {l10n.getString(
-                      "faq-question-missing-emails-answer-reason-not-accepted-2"
+                      "faq-question-missing-emails-answer-reason-not-accepted-2",
                     )}
                   </li>
                   <li>
                     {l10n.getString(
-                      "faq-question-missing-emails-answer-reason-turned-off-2"
+                      "faq-question-missing-emails-answer-reason-turned-off-2",
                     )}
                   </li>
                   <li>
                     {l10n.getString(
-                      "faq-question-missing-emails-answer-reason-delay"
+                      "faq-question-missing-emails-answer-reason-delay",
                     )}
                   </li>
                 </ul>
@@ -322,19 +322,19 @@ const Faq: NextPage = () => {
               <QAndA
                 id="faq-subdomain-question"
                 question={l10n.getString(
-                  "faq-question-subdomain-characters-question"
+                  "faq-question-subdomain-characters-question",
                 )}
               >
                 <p>
                   {l10n.getString(
-                    "faq-question-subdomain-characters-answer-v2"
+                    "faq-question-subdomain-characters-answer-v2",
                   )}
                 </p>
               </QAndA>
               <QAndA
                 id="faq-browser-support"
                 question={l10n.getString(
-                  "faq-question-browser-support-question"
+                  "faq-question-browser-support-question",
                 )}
               >
                 <p>{l10n.getString("faq-question-browser-support-answer-2")}</p>
@@ -365,7 +365,7 @@ const Faq: NextPage = () => {
               <QAndA
                 id="faq-unsubscribe-domain"
                 question={l10n.getString(
-                  "faq-question-unsubscribe-domain-question-2"
+                  "faq-question-unsubscribe-domain-question-2",
                 )}
               >
                 <p>
@@ -421,7 +421,7 @@ const Faq: NextPage = () => {
               <QAndA
                 id="faq-acceptable-use"
                 question={l10n.getString(
-                  "faq-question-acceptable-use-question"
+                  "faq-question-acceptable-use-question",
                 )}
               >
                 <Localized
@@ -445,17 +445,17 @@ const Faq: NextPage = () => {
                 <ul>
                   <li>
                     {l10n.getString(
-                      "faq-question-acceptable-use-answer-measure-account"
+                      "faq-question-acceptable-use-answer-measure-account",
                     )}
                   </li>
                   <li>
                     {l10n.getString(
-                      "faq-question-acceptable-use-answer-measure-unlimited-payment-2"
+                      "faq-question-acceptable-use-answer-measure-unlimited-payment-2",
                     )}
                   </li>
                   <li>
                     {l10n.getString(
-                      "faq-question-acceptable-use-answer-measure-rate-limit-2"
+                      "faq-question-acceptable-use-answer-measure-rate-limit-2",
                     )}
                   </li>
                 </ul>
@@ -481,19 +481,19 @@ const Faq: NextPage = () => {
               <QAndA
                 id="faq-promotional-email-blocking"
                 question={l10n.getString(
-                  "faq-question-promotional-email-blocking-question"
+                  "faq-question-promotional-email-blocking-question",
                 )}
               >
                 <p>
                   {l10n.getString(
-                    "faq-question-promotional-email-blocking-answer"
+                    "faq-question-promotional-email-blocking-answer",
                   )}
                 </p>
               </QAndA>
               <QAndA
                 id="faq-detect-promotional"
                 question={l10n.getString(
-                  "faq-question-detect-promotional-question"
+                  "faq-question-detect-promotional-question",
                 )}
               >
                 <p>

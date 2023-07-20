@@ -4,7 +4,9 @@
 .card {
   background-color: $color-white;
   border-radius: $border-radius-md;
-  transition: box-shadow 200ms ease-in-out, opacity 200ms ease-in-out;
+  transition:
+    box-shadow 200ms ease-in-out,
+    opacity 200ms ease-in-out;
 
   &.is-enabled {
     box-shadow: $box-shadow-sm;

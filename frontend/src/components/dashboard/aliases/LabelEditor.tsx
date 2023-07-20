@@ -45,7 +45,7 @@ export const LabelEditor = (props: Props) => {
   };
   const onBlur: FocusEventHandler<HTMLInputElement> = (_event) => {
     formRef.current?.dispatchEvent(
-      new Event("submit", { bubbles: true, cancelable: true })
+      new Event("submit", { bubbles: true, cancelable: true }),
     );
   };
 

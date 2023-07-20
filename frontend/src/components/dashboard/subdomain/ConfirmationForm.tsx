@@ -22,7 +22,7 @@ export const SubdomainConfirmationForm = (props: Props) => {
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const cancelButton = useButton(
     { onPress: () => props.onCancel() },
-    cancelButtonRef
+    cancelButtonRef,
   );
 
   const onSubmit: FormEventHandler = (event) => {

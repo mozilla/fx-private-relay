@@ -20,12 +20,12 @@ export type RelayNumber = {
 export type RelayNumberData = Array<RelayNumber>;
 
 export type PhoneNumberRegisterRelayNumberFn = (
-  phoneNumber: string
+  phoneNumber: string,
 ) => Promise<Response>;
 
 export type UpdateForwardingToPhone = (
   enabled: boolean,
-  id: number
+  id: number,
 ) => Promise<Response>;
 
 export type UseRelayNumberOptions = Partial<{
@@ -42,13 +42,13 @@ export type UseRelayNumberOptions = Partial<{
  * Get relay (masked) phone number records for the authenticated user with our API using [SWR](https://swr.vercel.app).
  */
 export function useRelayNumber(
-  options: UseRelayNumberOptions = {}
+  options: UseRelayNumberOptions = {},
 ): SWRResponse<RelayNumberData, unknown> & {
   registerRelayNumber: PhoneNumberRegisterRelayNumberFn;
   setForwardingState: UpdateForwardingToPhone;
 } {
   const relayNumber: SWRResponse<RelayNumberData, unknown> = useApiV1(
-    options.disable === true ? null : "/relaynumber/"
+    options.disable === true ? null : "/relaynumber/",
   );
 
   // TODO: Add post function to same API url
@@ -56,7 +56,7 @@ export function useRelayNumber(
    * Register selected Relay number
    */
   const registerRelayNumber: PhoneNumberRegisterRelayNumberFn = async (
-    phoneNumber
+    phoneNumber,
   ) => {
     // TODO: Validate number as E.164
     // https://blog.kevinchisholm.com/javascript/javascript-e164-phone-number-validation/
@@ -72,7 +72,7 @@ export function useRelayNumber(
    */
   const setForwardingState: UpdateForwardingToPhone = async (
     enabled: boolean,
-    id: number
+    id: number,
   ) => {
     const response = await apiFetch(`/relaynumber/${id}/`, {
       method: "PATCH",

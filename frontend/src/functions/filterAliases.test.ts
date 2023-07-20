@@ -7,7 +7,7 @@ import { filterAliases, Filters } from "./filterAliases";
 
 const getMockedAliasMatching = (
   filters: Partial<Filters>,
-  customSubdomain = "arbitrary_subdomain"
+  customSubdomain = "arbitrary_subdomain",
 ): AliasData => {
   const alias = {
     address: filters.string ?? "arbitrary_string",
@@ -136,7 +136,7 @@ it("can filter out non-random domains", () => {
   ];
 
   expect(
-    filterAliases(aliases, { string: "", domainType: "random" })
+    filterAliases(aliases, { string: "", domainType: "random" }),
   ).toStrictEqual([aliases[0]]);
 });
 
@@ -147,7 +147,7 @@ it("can filter out non-random domains", () => {
   ];
 
   expect(
-    filterAliases(aliases, { string: "", domainType: "custom" })
+    filterAliases(aliases, { string: "", domainType: "custom" }),
   ).toStrictEqual([aliases[1]]);
 });
 
@@ -159,7 +159,7 @@ it("can filter out blocking aliases", () => {
   ];
 
   expect(
-    filterAliases(aliases, { string: "", status: "forwarding" })
+    filterAliases(aliases, { string: "", status: "forwarding" }),
   ).toStrictEqual([aliases[2]]);
 });
 
@@ -171,7 +171,7 @@ it("can filter out aliases that are blocking promotional emails", () => {
   ];
 
   expect(
-    filterAliases(aliases, { string: "", status: "promo-blocking" })
+    filterAliases(aliases, { string: "", status: "promo-blocking" }),
   ).toStrictEqual([aliases[1]]);
 });
 
@@ -183,7 +183,7 @@ it("can filter out forwarding aliases", () => {
   ];
 
   expect(
-    filterAliases(aliases, { string: "", status: "blocking" })
+    filterAliases(aliases, { string: "", status: "blocking" }),
   ).toStrictEqual([aliases[0]]);
 });
 
@@ -201,6 +201,6 @@ it("can combine filters", () => {
   ];
 
   expect(
-    filterAliases(aliases, { string: "some", status: "forwarding" })
+    filterAliases(aliases, { string: "some", status: "forwarding" }),
   ).toStrictEqual([aliases[2]]);
 });

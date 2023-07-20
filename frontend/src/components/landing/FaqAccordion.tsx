@@ -18,7 +18,7 @@ export type Props = {
  */
 export const FaqAccordionItem = (props: Props) => {
   const [expandedIndex, setExpandedIndex] = useState(
-    props.defaultExpandedIndex ?? 0
+    props.defaultExpandedIndex ?? 0,
   );
   const { autoFocus } = props;
 
