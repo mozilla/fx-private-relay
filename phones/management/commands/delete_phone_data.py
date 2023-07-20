@@ -15,15 +15,15 @@ class Command(BaseCommand):
     def add_arguments(self, parser: ArgumentParser) -> None:
         parser.add_argument("fxa_id", help="The user's FxA ID")
         parser.add_argument(
-            "-y",
-            "--yes",
+            "-f",
+            "--force",
             action="store_true",
             help="Skip confirmation and delete any found data",
         )
 
     def handle(self, *args: Any, **kwargs: Any) -> None | str:
         fxa_id: str = kwargs["fxa_id"]
-        skip_confirmation: bool = kwargs["yes"]
+        skip_confirmation: bool = kwargs["force"]
 
         try:
             data = _PhoneData.from_fxa(fxa_id)

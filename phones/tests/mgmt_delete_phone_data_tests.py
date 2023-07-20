@@ -78,7 +78,7 @@ def test_active_user(phone_user: User) -> None:
     assert InboundContact.objects.filter(relay_number=relay_number).count() == 2
 
     stdout = StringIO()
-    call_command(THE_COMMAND, phone_user.profile.fxa.uid, "--yes", stdout=stdout)
+    call_command(THE_COMMAND, phone_user.profile.fxa.uid, "--force", stdout=stdout)
 
     expected_stdout = f"""\
 Found a matching user:
@@ -107,7 +107,7 @@ def test_no_contacts(phone_user: User) -> None:
     InboundContact.objects.filter(relay_number=relay_number).delete()
 
     stdout = StringIO()
-    call_command(THE_COMMAND, phone_user.profile.fxa.uid, "--yes", stdout=stdout)
+    call_command(THE_COMMAND, phone_user.profile.fxa.uid, "--force", stdout=stdout)
 
     expected_stdout = f"""\
 Found a matching user:
@@ -135,7 +135,7 @@ def test_no_relay_phone(phone_user: User) -> None:
     RelayNumber.objects.filter(user=phone_user).delete()
 
     stdout = StringIO()
-    call_command(THE_COMMAND, phone_user.profile.fxa.uid, "--yes", stdout=stdout)
+    call_command(THE_COMMAND, phone_user.profile.fxa.uid, "--force", stdout=stdout)
 
     expected_stdout = f"""\
 Found a matching user:
@@ -162,7 +162,7 @@ def test_no_real_phone(phone_user: User) -> None:
     RealPhone.objects.filter(user=phone_user).delete()
 
     stdout = StringIO()
-    call_command(THE_COMMAND, phone_user.profile.fxa.uid, "--yes", stdout=stdout)
+    call_command(THE_COMMAND, phone_user.profile.fxa.uid, "--force", stdout=stdout)
 
     expected_stdout = f"""\
 Found a matching user:
@@ -188,7 +188,7 @@ def test_user_not_found() -> None:
     """The command fails if a matching user is not found."""
     stdout = StringIO()
     with pytest.raises(CommandError) as excinfo:
-        call_command(THE_COMMAND, "unknown_fxa_id", "--yes", stdout=stdout)
+        call_command(THE_COMMAND, "unknown_fxa_id", "--force", stdout=stdout)
     assert str(excinfo.value) == "No user with FxA ID 'unknown_fxa_id'."
     assert stdout.getvalue() == ""
 
