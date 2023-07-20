@@ -247,10 +247,8 @@ def guess_country_from_accept_lang(accept_lang: str) -> str:
         maybe_region = maybe_region_raw.lower()
 
         # Look for a special case
-        try:
-            return _LANGUAGE_TAG_TO_COUNTRY_OVERRIDE[(lang, maybe_region)]
-        except KeyError:
-            pass
+        if override := _LANGUAGE_TAG_TO_COUNTRY_OVERRIDE.get((lang, maybe_region)):
+            return override
 
         if len(maybe_region) <= 1:
             # One-character extension or empty, stop processing
