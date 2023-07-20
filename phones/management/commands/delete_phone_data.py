@@ -44,8 +44,8 @@ class PhoneData:
         )
 
     @property
-    def has_phone_data(self) -> bool:
-        """Return True if the user has phone data."""
+    def has_data(self) -> bool:
+        """Return True if the user has phone data to reset."""
         return self.real_phone is not None
 
     @property
@@ -108,11 +108,11 @@ class Command(BaseCommand):
         self.stdout.write(report)
 
         if dry_run:
-            if data.has_phone_data:
+            if data.has_data:
                 return "User has phone data to delete."
             return "User has no phone data to delete."
 
-        if data.has_phone_data:
+        if data.has_data:
             data.reset()
             return "Deleted user's phone data."
         return "No action taken, since the user has no phone data."
