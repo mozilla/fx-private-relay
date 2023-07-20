@@ -89,15 +89,15 @@ class Command(BaseCommand):
     def add_arguments(self, parser: ArgumentParser) -> None:
         parser.add_argument("fxa_id", help="The user's FxA ID")
         parser.add_argument(
-            "-n",
-            "--dry-run",
+            "-y",
+            "--yes",
             action="store_true",
-            help="Report but do not delete phone data",
+            help="Skip confirmation and delete any found data",
         )
 
     def handle(self, *args: Any, **kwargs: Any) -> None | str:
         fxa_id: str = kwargs["fxa_id"]
-        dry_run: bool = kwargs["dry_run"]
+        skip_confirmation: bool = kwargs["yes"]
 
         try:
             data = PhoneData.from_fxa(fxa_id)
@@ -107,12 +107,23 @@ class Command(BaseCommand):
         report = f"Found a matching user:\n\n{data.bullet_report()}\n"
         self.stdout.write(report)
 
-        if dry_run:
-            if data.has_data:
-                return "User has phone data to delete."
-            return "User has no phone data to delete."
+        if not data.has_data:
+            return "User has NO PHONE DATA to delete."
 
-        if data.has_data:
+        confirmed = skip_confirmation or self.confirm()
+        if confirmed:
             data.reset()
             return "Deleted user's phone data."
-        return "No action taken, since the user has no phone data."
+        return "User still has their phone data... FOR NOW!"
+
+    def confirm(self) -> bool:
+        answer = ""
+        first_time = True
+        while answer not in ("Y", "N"):
+            if first_time:
+                first_time = False
+            else:
+                self.stdout.write("Please answer 'Y' or 'N'")
+            raw_answer = input("Delete this user's phone data? (Y/N) ")
+            answer = raw_answer.strip().upper()
+        return answer == "Y"
