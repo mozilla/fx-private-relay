@@ -40,7 +40,6 @@ import { useGaViewPing } from "../../hooks/gaViewPing";
 import { PremiumOnboarding } from "../../components/dashboard/PremiumOnboarding";
 import { Onboarding } from "../../components/dashboard/Onboarding";
 import { getRuntimeConfig } from "../../config";
-import { SubdomainIndicator } from "../../components/dashboard/subdomain/SubdomainIndicator";
 import { Tips } from "../../components/dashboard/tips/Tips";
 import { getLocale } from "../../functions/getLocale";
 import { AddonData } from "../../components/dashboard/AddonData";
@@ -211,19 +210,7 @@ const Profile: NextPage = () => {
       <>
         <span>{l10n.getString("profile-label-custom-domain")}</span>
         <span className={styles["profile-registered-domain-value"]}>
-          <SubdomainIndicator
-            subdomain={profile.subdomain}
-            onCreateAlias={(
-              address: string,
-              settings: { blockPromotionals: boolean },
-            ) =>
-              createAlias({
-                mask_type: "custom",
-                address: address,
-                blockPromotionals: settings.blockPromotionals,
-              })
-            }
-          />
+          @{profile.subdomain}.{getRuntimeConfig().mozmailDomain}
         </span>
       </>
     ) : (
