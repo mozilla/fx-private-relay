@@ -328,7 +328,7 @@ class FxaTokenAuthenticationTest(TestCase):
         assert response.status_code == 403
         assert (
             response.json()["detail"]
-            == "Authenticated user does not have a Relay account."
+            == "Authenticated user does not have a Relay account. Have they accepted the terms?"
         )
         assert cache.get(get_cache_key(non_user_token)) == fxa_response
 
