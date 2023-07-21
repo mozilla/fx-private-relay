@@ -139,7 +139,9 @@ class FxaTokenAuthentication(BaseAuthentication):
                 uid=fxa_uid, provider="fxa"
             ).select_related("user")[0]
         except IndexError:
-            raise PermissionDenied("Authenticated user does not have a Relay account.")
+            raise PermissionDenied(
+                "Authenticated user does not have a Relay account. Have they accepted the terms?"
+            )
         user = sa.user
 
         if user:
