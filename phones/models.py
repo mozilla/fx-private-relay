@@ -38,6 +38,7 @@ def twilio_client() -> Client:
 
     phones_config = apps.get_app_config("phones")
     assert isinstance(phones_config, PhonesConfig)
+    assert not settings.PHONES_NO_CLIENT_CALLS_IN_TEST
     return phones_config.twilio_client
 
 
@@ -200,6 +201,8 @@ def realphone_post_save(sender, instance, created, **kwargs):
         text_body = (
             f"Your Firefox Relay verification code is {instance.verification_code}"
         )
+        if settings.PHONES_NO_CLIENT_CALLS_IN_TEST:
+            return
         if settings.IQ_FOR_VERIFICATION:
             send_iq_sms(instance.number, settings.IQ_MAIN_NUMBER, text_body)
             return
@@ -276,24 +279,25 @@ class RelayNumber(models.Model):
         if RelayNumber.objects.filter(number=self.number).exists():
             raise ValidationError("This number is already claimed.")
 
-        # Before saving into DB provision the number in Twilio
-        phones_config = apps.get_app_config("phones")
-        client = twilio_client()
-
-        # Since this will charge the Twilio account, first see if this
-        # is running with TEST creds to avoid charges.
-        if settings.TWILIO_TEST_ACCOUNT_SID:
-            client = phones_config.twilio_test_client
-
-        # TODO: if IQ_FOR_NEW_NUMBERS, order/buy this number in iQ
-        if not self.vendor == "twilio":
-            return super().save(*args, **kwargs)
-
-        twilio_incoming_number = client.incoming_phone_numbers.create(
-            phone_number=self.number,
-            sms_application_sid=settings.TWILIO_SMS_APPLICATION_SID,
-            voice_application_sid=settings.TWILIO_SMS_APPLICATION_SID,
+        use_twilio = (
+            self.vendor == "twilio" and not settings.PHONES_NO_CLIENT_CALLS_IN_TEST
         )
+
+        if use_twilio:
+            # Before saving into DB provision the number in Twilio
+            phones_config = apps.get_app_config("phones")
+            client = twilio_client()
+
+            # Since this will charge the Twilio account, first see if this
+            # is running with TEST creds to avoid charges.
+            if settings.TWILIO_TEST_ACCOUNT_SID:
+                client = phones_config.twilio_test_client
+
+            twilio_incoming_number = client.incoming_phone_numbers.create(
+                phone_number=self.number,
+                sms_application_sid=settings.TWILIO_SMS_APPLICATION_SID,
+                voice_application_sid=settings.TWILIO_SMS_APPLICATION_SID,
+            )
 
         # Assume number was selected through suggested_numbers, so same country
         # as realphone
@@ -301,7 +305,7 @@ class RelayNumber(models.Model):
 
         # Add US numbers to the Relay messaging service, so it goes into our
         # US A2P 10DLC campaign
-        if self.country_code == "US":
+        if use_twilio and self.country_code == "US":
             if settings.TWILIO_MESSAGING_SERVICE_SID:
                 register_with_messaging_service(client, twilio_incoming_number.sid)
             else:
@@ -388,8 +392,9 @@ def relaynumber_post_save(sender, instance, created, **kwargs):
 
     if created:
         incr_if_enabled("phones_RelayNumber.post_save_created_send_welcome")
-        # only send welcome vCard when creating new record
-        send_welcome_message(instance.user, instance)
+        if not settings.PHONES_NO_CLIENT_CALLS_IN_TEST:
+            # only send welcome vCard when creating new record
+            send_welcome_message(instance.user, instance)
 
 
 def send_welcome_message(user, relay_number):

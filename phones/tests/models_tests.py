@@ -74,10 +74,12 @@ def mock_twilio_client(twilio_number_sid: str):
         yield mock_twilio_client
 
 
-def make_phone_test_user():
-    phone_user = baker.make(User)
+def make_phone_test_user() -> User:
+    phone_user = baker.make(User, email="phone_user@example.com")
     phone_user_profile = Profile.objects.get(user=phone_user)
-    phone_user_profile.date_subscribed = datetime.now(tz=timezone.utc)
+    phone_user_profile.date_subscribed = datetime.now(tz=timezone.utc) - timedelta(
+        days=15
+    )
     phone_user_profile.save()
     upgrade_test_user_to_phone(phone_user)
     return phone_user
@@ -89,6 +91,7 @@ def upgrade_test_user_to_phone(user):
         SocialAccount,
         user=user,
         provider="fxa",
+        uid=str(uuid4()).replace("-", ""),
         extra_data={"avatar": "avatar.png", "subscriptions": [random_sub]},
     )
     baker.make(
