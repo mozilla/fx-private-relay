@@ -217,7 +217,7 @@
 .bundle-banner-section {
   width: 100%;
   margin: 0 auto;
-  padding: calc($spacing-xl * 2) $spacing-md;
+  padding: calc($spacing-2xl * 2) $spacing-md;
   margin-top: $layout-lg;
 
   @media screen and #{$mq-md} {

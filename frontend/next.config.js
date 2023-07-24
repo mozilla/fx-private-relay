@@ -73,11 +73,7 @@ if (process.env.NODE_ENV === "development") {
 
 /** @type {import('next').NextConfig} */
 module.exports = withBundleAnalyzer({
-  // react-aria doesn't support React 18's stricter StrictMode yet. Hopefully
-  // we can re-enable this when it does. See
-  // https://github.com/adobe/react-spectrum/issues/779 and
-  // https://reactjs.org/blog/2022/03/08/react-18-upgrade-guide.html#updates-to-strict-mode
-  reactStrictMode: false,
+  reactStrictMode: true,
   // This custom value for `pageExtensions` ensures that
   // test files are not picked up as pages to render by Next.js.
   // See https://nextjs.org/docs/api-reference/next.config.js/custom-page-extensions
