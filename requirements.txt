@@ -53,5 +53,5 @@ django-stubs==4.2.3
 djangorestframework-stubs==3.14.2
 mypy-boto3-ses==1.28.0
 mypy==1.4.1
-types-pyOpenSSL==23.2.0.1
+types-pyOpenSSL==23.2.0.2
 types-requests==2.31.0.1
