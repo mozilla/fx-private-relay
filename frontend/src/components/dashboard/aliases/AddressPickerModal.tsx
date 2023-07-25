@@ -19,8 +19,7 @@ import {
   AriaOverlayProps,
 } from "react-aria";
 import styles from "./AddressPickerModal.module.scss";
-import { InfoIcon } from "../../Icons";
-import { getRuntimeConfig } from "../../../config";
+import { InfoBulbIcon } from "../../Icons";
 import { Button } from "../../Button";
 import { InfoTooltip } from "../../InfoTooltip";
 import { useL10n } from "../../../hooks/l10n";
@@ -90,17 +89,8 @@ export const AddressPickerModal = (props: Props) => {
           isOpen={props.isOpen}
           isDismissable={true}
         >
-          <div className={styles.warning}>
-            <span className={styles["warning-icon"]}>
-              <InfoIcon alt="" />
-            </span>
-            <p>{l10n.getString("modal-custom-alias-picker-warning-2")}</p>
-          </div>
           <form onSubmit={onSubmit}>
             <div className={styles["form-wrapper"]}>
-              <p className={styles["form-heading"]}>
-                {l10n.getString("modal-custom-alias-picker-form-heading-2")}
-              </p>
               <div className={styles.prefix}>
                 <label htmlFor="address">
                   {l10n.getString(
@@ -121,9 +111,6 @@ export const AddressPickerModal = (props: Props) => {
                   autoCapitalize="none"
                 />
               </div>
-              <span className={styles.suffix}>
-                @<b>{props.subdomain}</b>.{getRuntimeConfig().mozmailDomain}
-              </span>
             </div>
             <div className={styles["promotionals-blocking-control"]}>
               <input
@@ -142,6 +129,7 @@ export const AddressPickerModal = (props: Props) => {
                 alt={l10n.getString(
                   "popover-custom-alias-explainer-promotional-block-tooltip-trigger",
                 )}
+                color="black"
               >
                 <h3>
                   {l10n.getString(
@@ -158,6 +146,13 @@ export const AddressPickerModal = (props: Props) => {
                 </p>
               </InfoTooltip>
             </div>
+            <div className={styles.tip}>
+              <span className={styles["tip-icon"]}>
+                <InfoBulbIcon alt="" />
+              </span>
+              <p>{l10n.getString("modal-custom-alias-picker-tip-2")}</p>
+            </div>
+            <hr />
             <div className={styles.buttons}>
               <button
                 {...cancelButton.buttonProps}
