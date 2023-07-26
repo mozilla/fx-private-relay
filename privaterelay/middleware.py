@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 import time
+from urllib.parse import urlparse, parse_qs
 
 import markus
 
@@ -10,6 +11,23 @@ from whitenoise.middleware import WhiteNoiseMiddleware
 
 
 metrics = markus.get_metrics("fx-private-relay")
+
+
+class StoreUtmsInCookie:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # Store utm_ values in cookie so we can send them in GA pings after redirecting
+        # thru FxA flow.
+        response = self.get_response(request)
+        if "utm_" in request.get_full_path():
+            parsed_url = urlparse(request.build_absolute_uri())
+            parsed_qs = parse_qs(parsed_url.query)
+            for param in parsed_qs:
+                if param.startswith("utm_"):
+                    response.set_cookie(param, parsed_qs[param][0])
+        return response
 
 
 class RedirectRootIfLoggedIn:
