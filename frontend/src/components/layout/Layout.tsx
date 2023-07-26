@@ -48,7 +48,7 @@ export const Layout = (props: Props) => {
   const router = useRouter();
   const hasPremium: boolean = profiles.data?.[0].has_premium ?? false;
   const usersData = useUsers().data?.[0];
-  const [mobileMenuExpanded, setMobileMenuExpanded] = useState<boolean>();
+  const [mobileMenuExpanded, setMobileMenuExpanded] = useState<boolean>(false);
 
   useEffect(() => {
     makeToast(l10n, usersData);
