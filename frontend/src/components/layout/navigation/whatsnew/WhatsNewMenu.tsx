@@ -370,9 +370,9 @@ export const WhatsNewMenu = (props: Props) => {
     !props.profile.has_premium &&
     [
       "bg",
-      "cs",
+      "cz",
       "cy",
-      "da",
+      "dk",
       "ee",
       "gr",
       "hr",
@@ -387,7 +387,7 @@ export const WhatsNewMenu = (props: Props) => {
       "si",
       "sk",
     ].includes(
-      props.runtimeData.PERIODICAL_PREMIUM_PLANS.country_code.toLowerCase(),
+      props.runtimeData.PERIODICAL_PREMIUM_PLANS.country_code.toLowerCase()
     )
   ) {
     entries.push(premiumEuExpansion);
