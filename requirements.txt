@@ -19,7 +19,7 @@ drf-yasg==1.21.7
 drf-spectacular==0.26.4
 drf-spectacular-sidecar==2023.7.1
 google-measurement-protocol==1.1.0
-gunicorn==20.1.0
+gunicorn==21.2.0
 jwcrypto==1.5.0
 markus[datadog]==4.2.0
 pem==23.1.0
