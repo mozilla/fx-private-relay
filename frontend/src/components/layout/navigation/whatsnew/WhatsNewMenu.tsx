@@ -356,12 +356,12 @@ export const WhatsNewMenu = (props: Props) => {
     ),
     icon: PremiumEuExpansionIcon,
     dismissal: useLocalDismissal(
-      `whatsnew-feature_premium-expansion-eu_2023_${props.profile.id}`,
+      `whatsnew-feature_premium-eu-expansion_2023_${props.profile.id}`,
     ),
     announcementDate: {
       year: 2023,
-      month: 6,
-      day: 20,
+      month: 7,
+      day: 26,
     },
   };
 
