@@ -145,7 +145,7 @@ export const WhatsNewMenu = (props: Props) => {
             {
               size: 10,
               unit: "MB",
-            }
+            },
           )}
           heading={l10n.getString("whatsnew-feature-size-limit-heading")}
           image={SizeLimitHero}
@@ -161,7 +161,7 @@ export const WhatsNewMenu = (props: Props) => {
       ),
       icon: SizeLimitIcon,
       dismissal: useLocalDismissal(
-        `whatsnew-feature_size-limit_${props.profile.id}`
+        `whatsnew-feature_size-limit_${props.profile.id}`,
       ),
       announcementDate: {
         year: 2022,
@@ -177,7 +177,7 @@ export const WhatsNewMenu = (props: Props) => {
     content: (
       <WhatsNewContent
         description={l10n.getString(
-          "whatsnew-feature-forward-some-description"
+          "whatsnew-feature-forward-some-description",
         )}
         heading={l10n.getString("whatsnew-feature-forward-some-heading")}
         image={ForwardSomeHero}
@@ -185,7 +185,7 @@ export const WhatsNewMenu = (props: Props) => {
     ),
     icon: ForwardSomeIcon,
     dismissal: useLocalDismissal(
-      `whatsnew-feature_sign-back-in_${props.profile.id}`
+      `whatsnew-feature_sign-back-in_${props.profile.id}`,
     ),
     announcementDate: {
       year: 2022,
@@ -203,7 +203,7 @@ export const WhatsNewMenu = (props: Props) => {
     content: (
       <WhatsNewContent
         description={l10n.getString(
-          "whatsnew-feature-sign-back-in-description"
+          "whatsnew-feature-sign-back-in-description",
         )}
         heading={l10n.getString("whatsnew-feature-sign-back-in-heading")}
         image={SignBackInHero}
@@ -211,7 +211,7 @@ export const WhatsNewMenu = (props: Props) => {
     ),
     icon: SignBackInIcon,
     dismissal: useLocalDismissal(
-      `whatsnew-feature_sign-back-in_${props.profile.id}`
+      `whatsnew-feature_sign-back-in_${props.profile.id}`,
     ),
     announcementDate: {
       year: 2022,
@@ -229,7 +229,7 @@ export const WhatsNewMenu = (props: Props) => {
     content: (
       <WhatsNewContent
         description={l10n.getString(
-          "whatsnew-feature-alias-to-mask-description"
+          "whatsnew-feature-alias-to-mask-description",
         )}
         heading={l10n.getString("whatsnew-feature-alias-to-mask-heading")}
         image={aliasToMaskHero}
@@ -237,7 +237,7 @@ export const WhatsNewMenu = (props: Props) => {
     ),
     icon: aliasToMaskIcon,
     dismissal: useLocalDismissal(
-      `whatsnew-feature_alias-to-mask_${props.profile.id}`
+      `whatsnew-feature_alias-to-mask_${props.profile.id}`,
     ),
     announcementDate: {
       year: 2022,
@@ -275,17 +275,17 @@ export const WhatsNewMenu = (props: Props) => {
     content: (
       <WhatsNewContent
         description={l10n.getString(
-          "whatsnew-feature-premium-expansion-description"
+          "whatsnew-feature-premium-expansion-description",
         )}
         heading={l10n.getString(
-          "whatsnew-feature-premium-expansion-sweden-heading"
+          "whatsnew-feature-premium-expansion-sweden-heading",
         )}
         image={PremiumSwedenHero}
       />
     ),
     icon: PremiumSwedenIcon,
     dismissal: useLocalDismissal(
-      `whatsnew-feature_premium-expansion-sweden_${props.profile.id}`
+      `whatsnew-feature_premium-expansion-sweden_${props.profile.id}`,
     ),
     announcementDate: {
       year: 2022,
@@ -307,17 +307,17 @@ export const WhatsNewMenu = (props: Props) => {
     content: (
       <WhatsNewContent
         description={l10n.getString(
-          "whatsnew-feature-premium-expansion-description"
+          "whatsnew-feature-premium-expansion-description",
         )}
         heading={l10n.getString(
-          "whatsnew-feature-premium-expansion-finland-heading"
+          "whatsnew-feature-premium-expansion-finland-heading",
         )}
         image={PremiumFinlandHero}
       />
     ),
     icon: PremiumFinlandIcon,
     dismissal: useLocalDismissal(
-      `whatsnew-feature_premium-expansion-finland_${props.profile.id}`
+      `whatsnew-feature_premium-expansion-finland_${props.profile.id}`,
     ),
     announcementDate: {
       year: 2022,
@@ -339,10 +339,10 @@ export const WhatsNewMenu = (props: Props) => {
     content: (
       <WhatsNewContent
         description={l10n.getString(
-          "whatsnew-feature-premium-expansion-eu-description"
+          "whatsnew-feature-premium-expansion-eu-description",
         )}
         heading={l10n.getString(
-          "whatsnew-feature-premium-expansion-eu-heading"
+          "whatsnew-feature-premium-expansion-eu-heading",
         )}
         image={PremiumEuExpansionHero}
         cta={
@@ -356,12 +356,12 @@ export const WhatsNewMenu = (props: Props) => {
     ),
     icon: PremiumEuExpansionIcon,
     dismissal: useLocalDismissal(
-      `whatsnew-feature_premium-eu-expansion_2023_${props.profile.id}`
+      `whatsnew-feature_premium-expansion-eu_2023_${props.profile.id}`,
     ),
     announcementDate: {
       year: 2023,
-      month: 7,
-      day: 26,
+      month: 6,
+      day: 20,
     },
   };
 
@@ -387,7 +387,7 @@ export const WhatsNewMenu = (props: Props) => {
       "si",
       "sk",
     ].includes(
-      props.runtimeData.PERIODICAL_PREMIUM_PLANS.country_code.toLowerCase()
+      props.runtimeData.PERIODICAL_PREMIUM_PLANS.country_code.toLowerCase(),
     )
   ) {
     entries.push(premiumEuExpansion);
@@ -399,7 +399,7 @@ export const WhatsNewMenu = (props: Props) => {
     content: (
       <WhatsNewContent
         description={l10n.getString(
-          "whatsnew-feature-tracker-removal-description-2"
+          "whatsnew-feature-tracker-removal-description-2",
         )}
         heading={l10n.getString("whatsnew-feature-tracker-removal-heading")}
         image={TrackerRemovalHero}
@@ -407,7 +407,7 @@ export const WhatsNewMenu = (props: Props) => {
     ),
     icon: TrackerRemovalIcon,
     dismissal: useLocalDismissal(
-      `whatsnew-feature_tracker-removal_${props.profile.id}`
+      `whatsnew-feature_tracker-removal_${props.profile.id}`,
     ),
     announcementDate: {
       year: 2022,
@@ -435,7 +435,7 @@ export const WhatsNewMenu = (props: Props) => {
       <WhatsNewComponentContent
         description={l10n.getString(
           "whatsnew-feature-offer-countdown-description",
-          { end_date: endDateFormatter.format(introPricingOfferEndDate) }
+          { end_date: endDateFormatter.format(introPricingOfferEndDate) },
         )}
         heading={l10n.getString("whatsnew-feature-offer-countdown-heading")}
         hero={
@@ -447,7 +447,7 @@ export const WhatsNewMenu = (props: Props) => {
     ),
     icon: OfferCountdownIcon,
     dismissal: useLocalDismissal(
-      `whatsnew-feature_offer-countdown_${props.profile.id}`
+      `whatsnew-feature_offer-countdown_${props.profile.id}`,
     ),
     announcementDate: {
       year: 2022,
@@ -560,7 +560,7 @@ export const WhatsNewMenu = (props: Props) => {
     content: (
       <WhatsNewContent
         description={l10n.getString(
-          "whatsnew-feature-firefox-integration-description"
+          "whatsnew-feature-firefox-integration-description",
         )}
         heading={l10n.getString("whatsnew-feature-firefox-integration-heading")}
         image={FirefoxIntegrationHero}
@@ -568,7 +568,7 @@ export const WhatsNewMenu = (props: Props) => {
     ),
     icon: FirefoxIntegrationIcon,
     dismissal: useLocalDismissal(
-      `whatsnew-feature_firefox-integration_${props.profile.id}`
+      `whatsnew-feature_firefox-integration_${props.profile.id}`,
     ),
     // Week after release of Firefox 111 (to ensure it was rolled out to everyone)
     announcementDate: {
@@ -590,7 +590,7 @@ export const WhatsNewMenu = (props: Props) => {
     content: (
       <WhatsNewContent
         description={l10n.getString(
-          "whatsnew-feature-mailing-list-description"
+          "whatsnew-feature-mailing-list-description",
         )}
         heading={l10n.getString("whatsnew-feature-mailing-list-heading")}
         image={MailingListHero}
@@ -607,7 +607,7 @@ export const WhatsNewMenu = (props: Props) => {
     ),
     icon: MailingListIcon,
     dismissal: useLocalDismissal(
-      `whatsnew-feature_mailing-list_${props.profile.id}`
+      `whatsnew-feature_mailing-list_${props.profile.id}`,
     ),
     announcementDate: {
       year: 2023,
@@ -625,8 +625,8 @@ export const WhatsNewMenu = (props: Props) => {
       Date.UTC(
         entry.announcementDate.year,
         entry.announcementDate.month - 1,
-        entry.announcementDate.day
-      )
+        entry.announcementDate.day,
+      ),
     );
     // Filter out entries that are in the future:
     return entryDate.getTime() <= Date.now();
@@ -638,8 +638,8 @@ export const WhatsNewMenu = (props: Props) => {
       Date.UTC(
         entry.announcementDate.year,
         entry.announcementDate.month - 1,
-        entry.announcementDate.day
-      )
+        entry.announcementDate.day,
+      ),
     );
     const ageInMilliSeconds = Date.now() - entryDate.getTime();
     // Automatically move entries to the archive after 30 days:
@@ -650,7 +650,7 @@ export const WhatsNewMenu = (props: Props) => {
   const { triggerProps, overlayProps } = useOverlayTrigger(
     { type: "dialog" },
     triggerState,
-    triggerRef
+    triggerRef,
   );
 
   const positionProps = useOverlayPosition({
@@ -733,21 +733,21 @@ const WhatsNewPopover = forwardRef<HTMLDivElement, PopoverProps>(
         isOpen: isOpen,
         isDismissable: true,
       },
-      ref as RefObject<HTMLDivElement>
+      ref as RefObject<HTMLDivElement>,
     );
 
     const { modalProps } = useModal();
 
     const { dialogProps, titleProps } = useDialog(
       {},
-      ref as RefObject<HTMLDivElement>
+      ref as RefObject<HTMLDivElement>,
     );
 
     const mergedOverlayProps = mergeProps(
       overlayProps,
       dialogProps,
       otherProps,
-      modalProps
+      modalProps,
     );
 
     return (
@@ -769,13 +769,13 @@ const WhatsNewPopover = forwardRef<HTMLDivElement, PopoverProps>(
         </div>
       </FocusScope>
     );
-  }
+  },
 );
 WhatsNewPopover.displayName = "WhatsNewPopover";
 
 const entriesDescByDateSorter: Parameters<Array<WhatsNewEntry>["sort"]>[0] = (
   entryA,
-  entryB
+  entryB,
 ) => {
   const dateANr =
     entryA.announcementDate.year +
