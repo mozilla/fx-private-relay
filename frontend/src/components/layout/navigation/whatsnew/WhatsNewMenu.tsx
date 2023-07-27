@@ -370,9 +370,9 @@ export const WhatsNewMenu = (props: Props) => {
     !props.profile.has_premium &&
     [
       "bg",
-      "cs",
+      "cz",
       "cy",
-      "da",
+      "dk",
       "ee",
       "gr",
       "hr",
