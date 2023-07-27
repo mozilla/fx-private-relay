@@ -41,8 +41,9 @@ def get_countries_info_from_request_and_mapping(
 
 
 def _get_cc_from_request(request: HttpRequest) -> str:
-    if "X-Client-Region" in request.headers:
-        return request.headers["X-Client-Region"].lower()
+    for header in request.headers:
+        if header.lower() == "x-client-region":
+            return request.headers["header"].lower()
     if "Accept-Language" in request.headers:
         try:
             return guess_country_from_accept_lang(request.headers["Accept-Language"])

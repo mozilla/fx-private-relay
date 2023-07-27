@@ -37,12 +37,14 @@ class AddDetectedCountryToRequestAndResponseHeaders:
         self.get_response = get_response
 
     def __call__(self, request):
-        region_key = "X-Client-Region"
+        region_key = "x-client-region"
         region_dict = None
-        if region_key in request.headers:
-            region_dict = request.headers
-        if region_key in request.GET:
-            region_dict = request.GET
+        for header in request.headers:
+            if header.lower() == region_key:
+                region_dict = request.headers
+        for param in request.GET:
+            if param.lower() == region_key:
+                region_dict = request.GET
         if not region_dict:
             return self.get_response(request)
 
