@@ -14,7 +14,7 @@ import {
   useOverlayPosition,
   useOverlayTrigger,
 } from "react-aria";
-import { useMenuTriggerState, useOverlayTriggerState } from "react-stately";
+import { useMenuTriggerState } from "react-stately";
 import { toast } from "react-toastify";
 import styles from "./profile.module.scss";
 import BottomBannerIllustration from "../../../public/images/woman-couch-left.svg";
@@ -63,7 +63,7 @@ const Profile: NextPage = () => {
   const aliasData = useAliases();
   const addonData = useAddonData();
   const l10n = useL10n();
-  const isLargeScreen = useMinViewportWidth("md")
+  const isLargeScreen = useMinViewportWidth("md");
   const bottomBannerSubscriptionLinkRef = useGaViewPing({
     category: "Purchase Button",
     label: "profile-bottom-promo",
