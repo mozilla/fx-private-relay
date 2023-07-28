@@ -94,7 +94,7 @@ export const AddressPickerModal = (props: Props) => {
               <div className={styles.prefix}>
                 <label htmlFor="address">
                   {l10n.getString(
-                    "modal-custom-alias-picker-form-prefix-label-2",
+                    "modal-custom-alias-picker-form-prefix-label-v3",
                   )}
                 </label>
                 <input
@@ -106,7 +106,7 @@ export const AddressPickerModal = (props: Props) => {
                   onBlur={onBlur}
                   ref={addressFieldRef}
                   placeholder={l10n.getString(
-                    "modal-custom-alias-picker-form-prefix-placeholder",
+                    "modal-custom-alias-picker-form-prefix-placeholder-v2",
                   )}
                   autoCapitalize="none"
                 />
@@ -129,7 +129,7 @@ export const AddressPickerModal = (props: Props) => {
                 alt={l10n.getString(
                   "popover-custom-alias-explainer-promotional-block-tooltip-trigger",
                 )}
-                color="black"
+                iconColor="black"
               >
                 <h3>
                   {l10n.getString(
@@ -150,7 +150,7 @@ export const AddressPickerModal = (props: Props) => {
               <span className={styles["tip-icon"]}>
                 <InfoBulbIcon alt="" />
               </span>
-              <p>{l10n.getString("modal-custom-alias-picker-tip-2")}</p>
+              <p>{l10n.getString("modal-custom-alias-picker-tip")}</p>
             </div>
             <hr />
             <div className={styles.buttons}>

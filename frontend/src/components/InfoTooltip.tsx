@@ -7,7 +7,7 @@ import { InfoIcon } from "./Icons";
 export type Props = {
   children: ReactNode;
   alt: string;
-  color: string;
+  iconColor: string;
 };
 
 export const InfoTooltip = (props: Props) => {
@@ -30,7 +30,12 @@ export const InfoTooltip = (props: Props) => {
         {...tooltipTrigger.triggerProps}
         className={styles.trigger}
       >
-        <InfoIcon alt={props.alt} color={props.color} width={18} height={18} />
+        <InfoIcon
+          alt={props.alt}
+          color={props.iconColor}
+          width={18}
+          height={18}
+        />
       </button>
       {tooltipTriggerState.isOpen && (
         <span

@@ -18,7 +18,6 @@ premium-promo-availability-warning-4 = { -brand-name-relay-premium } is availabl
 faq-question-availability-answer-v4 = Free { -brand-name-relay } is available in most countries. { -brand-name-relay-premium } is available in Austria, Bulgaria, Belgium, Canada, Croatia, Cyprus, Czech Republic, Denmark, Estonia, Finland, France, Germany, Greece, Hungary, Ireland, Italy, Latvia, Lithuania, Luxembourg, Malaysia, Malta, Netherlands, New Zealand, Poland, Portugal, Romania, Singapore, Slovakia, Slovenia, Spain, Sweden, Switzerland, United Kingdom, and the United States.
 
 # Updated custom mask generation modal
-modal-custom-alias-picker-heading-2 = Create a new custom mask
-modal-custom-alias-picker-form-prefix-label-2 = Enter the text that goes before the @ symbol:
-modal-custom-alias-picker-form-prefix-placeholder = @customdomain.mozmail.com 
-modal-custom-alias-picker-tip-2 = Tip: To create a custom mask anytime, make it up on the spot. If you use your Relay domain, it’ll work, even if you didn’t generate it here first.
+modal-custom-alias-picker-tip = Tip: To create a custom mask anytime, make it up on the spot. If you use your Relay domain, it’ll work, even if you didn’t generate it here first.
+modal-custom-alias-picker-form-prefix-placeholder-v2 = @customdomain.mozmail.com 
+modal-custom-alias-picker-form-prefix-label-v3 = Enter the text that goes before the @ symbol:
