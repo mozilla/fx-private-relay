@@ -27,18 +27,18 @@
     height: 12px;
     width: 12px;
     position: absolute;
-    top: -6px;
+    top: -6px; // Top, left: needed for tooltip arrow pointer
     left: 12px;
     transform: rotate(45deg);
     background-color: $color-white;
     display: none;
   }
 
-  @media screen and (min-width: 970px) {
+  @media screen and #{$mq-lg} {
     // On wider screens, the popover is attached to the indicator:
     inset: unset;
     position: unset;
-    max-width: 546px;
+    max-width: 8px + $content-sm; // Magic number to avoid empty space near domain name
 
     &::before {
       display: initial;
@@ -55,6 +55,7 @@
   p {
     @include text-body-sm;
   }
+
   .close-button {
     position: absolute;
     top: $spacing-sm;
@@ -62,8 +63,8 @@
     background-color: transparent;
     border-style: none;
     border-radius: $border-radius-sm;
-    width: 20px + $spacing-sm;
-    height: 20px + $spacing-sm;
+    width: $spacing-lg;
+    height: $spacing-lg;
     cursor: pointer;
 
     &:hover {
