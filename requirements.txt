@@ -47,7 +47,7 @@ responses==0.23.1
 black==23.7.0
 
 # type hinting
-boto3-stubs==1.28.3.post2
+boto3-stubs==1.28.9
 botocore-stubs==1.31.9
 django-stubs==4.2.3
 djangorestframework-stubs==3.14.2
