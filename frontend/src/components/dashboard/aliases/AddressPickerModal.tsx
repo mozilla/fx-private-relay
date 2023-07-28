@@ -94,7 +94,7 @@ export const AddressPickerModal = (props: Props) => {
               <div className={styles.prefix}>
                 <label htmlFor="address">
                   {l10n.getString(
-                    "modal-custom-alias-picker-form-prefix-label-v3",
+                    "modal-custom-alias-picker-form-prefix-label-3",
                   )}
                 </label>
                 <input
@@ -106,7 +106,7 @@ export const AddressPickerModal = (props: Props) => {
                   onBlur={onBlur}
                   ref={addressFieldRef}
                   placeholder={l10n.getString(
-                    "modal-custom-alias-picker-form-prefix-placeholder-v2",
+                    "modal-custom-alias-picker-form-prefix-placeholder-2",
                   )}
                   autoCapitalize="none"
                 />
