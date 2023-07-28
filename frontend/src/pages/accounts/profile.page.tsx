@@ -63,7 +63,6 @@ const Profile: NextPage = () => {
   const aliasData = useAliases();
   const addonData = useAddonData();
   const l10n = useL10n();
-  const isLargeScreen = useMinViewportWidth("md");
   const bottomBannerSubscriptionLinkRef = useGaViewPing({
     category: "Purchase Button",
     label: "profile-bottom-promo",
@@ -262,7 +261,8 @@ const Profile: NextPage = () => {
               <PencilIcon alt="" className={styles["pencil-icon"]} />
             )}
             {subdomainMessage}
-            <SubdomainInfoTooltip isLargeScreen={isLargeScreen} />
+            <SubdomainInfoTooltip />
+            
           </strong>
         </div>
         <dl className={styles["account-stats"]}>

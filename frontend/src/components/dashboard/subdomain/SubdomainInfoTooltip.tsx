@@ -24,16 +24,14 @@ import styles from "./SubdomainInfoTooltip.module.scss";
 import { Localized } from "../../Localized";
 import { InfoModal } from "../../InfoModal";
 
-export type Props = {
-  isLargeScreen: boolean;
-};
-
 /**
  * Shows the user more info on how to use their Relay custom domain mask.
  */
-export const SubdomainInfoTooltip = (props: Props) => {
+export const SubdomainInfoTooltip = () => {
+  const isLargeScreen = useMinViewportWidth("md");
+
   return (
-    <>{props.isLargeScreen ? <ExplainerTrigger /> : <MobileExplainerModal />}</>
+    <>{isLargeScreen ? <ExplainerTrigger /> : <MobileExplainerModal />}</>
   );
 };
 
