@@ -71,12 +71,12 @@ export const MobileNavigation = (props: Props) => {
   return (
     <nav
       aria-label={l10n.getString("nav-menu-mobile")}
-      className={`${styles["mobile-menu"]}`}
+      className={`${styles["mobile-menu"]} ${toggleMenuStateClass}`}
     >
       {/* Below we have conditional rendering of menu items  */}
       <ul
         id={`${styles["mobile-menu"]}`}
-        className={`${styles["menu-item-list"]} ${toggleMenuStateClass}`}
+        className={`${styles["menu-item-list"]}`}
       >
         {isLoggedIn && (
           <li className={`${styles["menu-item"]} ${styles["user-info"]}`}>

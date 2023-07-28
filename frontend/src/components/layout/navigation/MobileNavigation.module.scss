@@ -9,6 +9,11 @@
   z-index: 1;
   max-height: calc(100vh - 100%);
   overflow-y: auto;
+  pointer-events: none;
+
+  &.is-active {
+    pointer-events: auto;
+  }
 }
 
 #mobile-menu {
@@ -20,23 +25,23 @@
   // otherwise it might get exposed when the browser "overscrolls":
   opacity: 0;
 
-  &.not-active {
+  .not-active & {
     animation: slide-out 300ms cubic-bezier(0.52, -0.14, 0.31, 1.2);
     animation-iteration-count: 1;
     animation-fill-mode: forwards;
   }
 
-  &.is-active {
+  .is-active & {
     animation: slide-in 450ms cubic-bezier(0.52, -0.14, 0.31, 1.2);
     animation-iteration-count: 1;
     animation-fill-mode: forwards;
   }
 
   @media (prefers-reduced-motion) {
-    &.not-active {
+    .not-active & {
       animation: none;
     }
-    &.is-active {
+    .is-active & {
       animation: none;
     }
   }
