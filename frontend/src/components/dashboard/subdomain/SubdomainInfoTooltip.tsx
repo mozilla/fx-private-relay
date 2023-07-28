@@ -30,9 +30,7 @@ import { InfoModal } from "../../InfoModal";
 export const SubdomainInfoTooltip = () => {
   const isLargeScreen = useMinViewportWidth("md");
 
-  return (
-    <>{isLargeScreen ? <ExplainerTrigger /> : <MobileExplainerModal />}</>
-  );
+  return <>{isLargeScreen ? <ExplainerTrigger /> : <MobileExplainerModal />}</>;
 };
 
 const MobileExplainerModal = () => {

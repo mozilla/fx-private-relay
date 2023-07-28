@@ -53,7 +53,6 @@ import { PremiumPromoBanners } from "../../components/dashboard/PremiumPromoBann
 import { useL10n } from "../../hooks/l10n";
 import { Localized } from "../../components/Localized";
 import { clearCookie, getCookie, setCookie } from "../../functions/cookies";
-import { useMinViewportWidth } from "../../hooks/mediaQuery";
 import { SubdomainInfoTooltip } from "../../components/dashboard/subdomain/SubdomainInfoTooltip";
 
 const Profile: NextPage = () => {
@@ -262,7 +261,6 @@ const Profile: NextPage = () => {
             )}
             {subdomainMessage}
             <SubdomainInfoTooltip />
-            
           </strong>
         </div>
         <dl className={styles["account-stats"]}>
