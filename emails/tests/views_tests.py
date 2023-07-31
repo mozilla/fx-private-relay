@@ -265,7 +265,7 @@ class SNSNotificationTest(TestCase):
         assert self.ra.num_blocked == 1
 
     def test_block_list_email_former_premium_user(self) -> None:
-        """When an alias is blocking list emails, list emails should not forward."""
+        """List emails are forwarded for formerly premium users."""
         self.ra.user = self.premium_user
         self.ra.save()
         self.ra.block_list_emails = True
