@@ -530,8 +530,12 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     incr_if_enabled("email_for_active_address", 1)
 
     # if address is blocking list emails, and email is from list, early return
-    email_is_from_list = _check_email_from_list(mail["headers"])
-    if address and address.block_list_emails and email_is_from_list:
+    if (
+        address
+        and address.block_list_emails
+        and user_profile.has_premium
+        and _check_email_from_list(mail["headers"])
+    ):
         incr_if_enabled("list_email_for_address_blocking_lists", 1)
         address.num_blocked += 1
         address.save(update_fields=["num_blocked"])
@@ -653,7 +657,7 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     )
     address.num_forwarded += 1
     address.last_used_at = datetime.now(timezone.utc)
-    address.save(update_fields=["num_forwarded", "last_used_at"])
+    address.save(update_fields=["num_forwarded", "last_used_at", "block_list_emails"])
     return response
 
 
