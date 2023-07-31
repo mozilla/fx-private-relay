@@ -7,11 +7,7 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.exceptions import BadRequest
-from django.test import (
-    override_settings,
-    TestCase,
-)
+from django.test import override_settings, TestCase
 
 from allauth.socialaccount.models import SocialAccount
 from waffle.testutils import override_flag
@@ -254,9 +250,8 @@ class RelayAddressTest(TestCase):
 
     def test_free_user_cant_set_block_list_emails(self):
         relay_address = RelayAddress.objects.create(user=self.user)
-        with self.assertRaises(BadRequest):
-            relay_address.block_list_emails = True
-            relay_address.save()
+        relay_address.block_list_emails = True
+        relay_address.save()
         relay_address.refresh_from_db()
         assert relay_address.block_list_emails is False
 
@@ -267,6 +262,22 @@ class RelayAddressTest(TestCase):
         relay_address.save()
         relay_address.refresh_from_db()
         assert relay_address.block_list_emails is True
+
+    def test_formerly_premium_user_clears_block_list_emails(self):
+        relay_address = RelayAddress.objects.create(
+            user=self.premium_user, block_list_emails=True
+        )
+        relay_address.refresh_from_db()
+        assert relay_address.block_list_emails is True
+
+        # Remove premium from user
+        fxa_account = self.premium_user.profile.fxa
+        fxa_account.extra_data["subscriptions"] = []
+        fxa_account.save()
+        assert not self.premium_user.profile.has_premium
+
+        relay_address.save()
+        assert relay_address.block_list_emails is False
 
     def test_storageless_user_cant_set_label(self):
         relay_address = RelayAddress.objects.create(user=self.storageless_user)
@@ -1000,6 +1011,22 @@ class DomainAddressTest(TestCase):
         domain_address.save()
         domain_address.refresh_from_db()
         assert domain_address.block_list_emails is True
+
+    def test_formerly_premium_user_clears_block_list_emails(self):
+        domain_address = DomainAddress.objects.create(
+            user=self.user, address="coupons", block_list_emails=True
+        )
+        domain_address.refresh_from_db()
+        assert domain_address.block_list_emails is True
+
+        # Remove premium from user
+        fxa_account = self.user.profile.fxa
+        fxa_account.extra_data["subscriptions"] = []
+        fxa_account.save()
+        assert not self.user.profile.has_premium
+
+        domain_address.save()
+        assert domain_address.block_list_emails is False
 
     def test_storageless_user_cant_set_labels(self):
         domain_address = DomainAddress.objects.create(

@@ -662,6 +662,8 @@ class RelayAddress(models.Model):
             self.description = ""
             self.generated_for = ""
             self.used_on = ""
+        if not self.user.profile.has_premium:
+            self.block_list_emails = False
         return super().save(*args, **kwargs)
 
     @property
@@ -764,7 +766,8 @@ class DomainAddress(models.Model):
             if not pattern_valid or address_contains_badword:
                 raise DomainAddrUnavailableException(unavailable_address=self.address)
             user_profile.update_abuse_metric(address_created=True)
-        # TODO: validate user is premium to set block_list_emails
+        if not user_profile.has_premium:
+            self.block_list_emails = False
         if not user_profile.server_storage:
             self.description = ""
         return super().save(*args, **kwargs)

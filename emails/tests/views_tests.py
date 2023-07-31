@@ -264,6 +264,28 @@ class SNSNotificationTest(TestCase):
         assert self.ra.num_forwarded == 0
         assert self.ra.num_blocked == 1
 
+    def test_block_list_email_former_premium_user(self) -> None:
+        """List emails are forwarded for formerly premium users."""
+        self.ra.user = self.premium_user
+        self.ra.save()
+        self.ra.block_list_emails = True
+        self.ra.save()
+
+        # Remove premium from the user
+        fxa_account = self.premium_user.profile.fxa
+        fxa_account.extra_data["subscriptions"] = []
+        fxa_account.save()
+        assert not self.premium_user.profile.has_premium
+        self.ra.refresh_from_db()
+
+        _sns_notification(EMAIL_SNS_BODIES["single_recipient_list"])
+
+        self.mock_send_raw_email.assert_called_once()
+        self.ra.refresh_from_db()
+        assert self.ra.num_forwarded == 1
+        assert self.ra.num_blocked == 0
+        assert self.ra.block_list_emails is False
+
     def test_spamVerdict_FAIL_default_still_relays(self) -> None:
         """For a default user, spam email will still relay."""
         _sns_notification(EMAIL_SNS_BODIES["spamVerdict_FAIL"])
