@@ -3,11 +3,10 @@ import logging
 
 from django.contrib.auth.models import User
 
-from django.core.exceptions import BadRequest
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
-from emails.models import DomainAddress, Profile, RelayAddress
+from emails.models import Profile
 from emails.utils import incr_if_enabled, set_user_group
 
 
@@ -19,11 +18,6 @@ def create_user_profile(sender, instance, created, **kwargs):
     if created:
         set_user_group(instance)
         Profile.objects.create(user=instance)
-
-
-def check_premium_for_block_list_emails(sender, instance, **kwargs):
-    if instance.block_list_emails and not instance.user.profile.has_premium:
-        raise BadRequest("Must be premium to set block_list_emails")
 
 
 @receiver(pre_save, sender=Profile)
@@ -51,7 +45,3 @@ def measure_feature_usage(sender, instance, **kwargs):
                 "hashed_uid": sha256(instance.fxa.uid.encode("utf-8")).hexdigest(),
             },
         )
-
-
-pre_save.connect(check_premium_for_block_list_emails, sender=RelayAddress)
-pre_save.connect(check_premium_for_block_list_emails, sender=DomainAddress)
