@@ -14,11 +14,11 @@ import {
   useOverlayPosition,
   useOverlayTrigger,
 } from "react-aria";
-import { useMenuTriggerState, useOverlayTriggerState } from "react-stately";
+import { useMenuTriggerState } from "react-stately";
 import { toast } from "react-toastify";
 import styles from "./profile.module.scss";
 import BottomBannerIllustration from "../../../public/images/woman-couch-left.svg";
-import { PencilIcon, CheckBadgeIcon, InfoIcon } from "../../components/Icons";
+import { PencilIcon, CheckBadgeIcon } from "../../components/Icons";
 import { Layout } from "../../components/layout/Layout";
 import { useProfiles } from "../../hooks/api/profile";
 import {
@@ -51,8 +51,8 @@ import { usePurchaseTracker } from "../../hooks/purchaseTracker";
 import { PremiumPromoBanners } from "../../components/dashboard/PremiumPromoBanners";
 import { useL10n } from "../../hooks/l10n";
 import { Localized } from "../../components/Localized";
-import { InfoModal } from "../../components/InfoModal";
 import { clearCookie, getCookie, setCookie } from "../../functions/cookies";
+import { SubdomainInfoTooltip } from "../../components/dashboard/subdomain/SubdomainInfoTooltip";
 
 const Profile: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -70,10 +70,7 @@ const Profile: NextPage = () => {
     document.location.hash = hash;
     clearCookie("profile-location-hash");
   }
-
   usePurchaseTracker(profileData.data?.[0]);
-
-  const modalState = useOverlayTriggerState({});
 
   if (!userData.isValidating && userData.error) {
     if (document.location.hash) {
@@ -226,45 +223,6 @@ const Profile: NextPage = () => {
     compactDisplay: "short",
   });
 
-  const subdomainTooltipButton = (
-    <button className={styles["info-icon"]} onClick={() => modalState.open()}>
-      <InfoIcon
-        alt={l10n.getString("tooltip-email-domain-explanation-title")}
-        width={18}
-        height={18}
-      />
-    </button>
-  );
-
-  const subdomainExplanationBody = (
-    <>
-      <p>{l10n.getString("tooltip-email-domain-explanation-part-one")}</p>
-      <br />
-      <p>{l10n.getString("tooltip-email-domain-explanation-part-two")}</p>
-      <br />
-      <p>
-        <Localized
-          id="tooltip-email-domain-explanation-part-three"
-          vars={{ mozmail: "mozmail.com" }}
-          elems={{
-            p: <p />,
-          }}
-        >
-          <span />
-        </Localized>
-      </p>
-    </>
-  );
-
-  const subdomainInfoModal = modalState.isOpen ? (
-    <InfoModal
-      isOpen={modalState.isOpen}
-      onClose={() => modalState.close()}
-      modalTitle={l10n.getString("tooltip-email-domain-explanation-title")}
-      modalBodyText={subdomainExplanationBody}
-    />
-  ) : null;
-
   // Non-Premium users have only five aliases, making the stats less insightful,
   // so only show them for Premium users:
   const stats = profile.has_premium ? (
@@ -289,8 +247,7 @@ const Profile: NextPage = () => {
               <PencilIcon alt="" className={styles["pencil-icon"]} />
             )}
             {subdomainMessage}
-            {subdomainTooltipButton}
-            {subdomainInfoModal}
+            <SubdomainInfoTooltip />
           </strong>
         </div>
         <dl className={styles["account-stats"]}>

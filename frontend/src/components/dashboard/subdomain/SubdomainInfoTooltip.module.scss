@@ -1,0 +1,74 @@
+@import "../../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "~@mozilla-protocol/core/protocol/css/includes/mixins/typography";
+
+.info-icon {
+  align-items: center;
+  background-color: transparent;
+  border-style: none;
+  color: $color-light-gray-70;
+  cursor: pointer;
+  display: flex;
+}
+
+.explainer-wrapper {
+  background-color: $color-white;
+  box-shadow: $box-shadow-sm;
+  border-radius: $border-radius-md;
+  padding: $spacing-lg;
+  // On small screens, appear as a modal at the top of the viewport:
+  top: $spacing-lg;
+  left: $spacing-lg;
+  right: $spacing-lg;
+  position: absolute;
+
+  &::before {
+    content: "";
+    height: 12px;
+    width: 12px;
+    position: absolute;
+    top: -6px; // Top, left: needed for tooltip arrow pointer
+    left: 12px;
+    transform: rotate(45deg);
+    background-color: $color-white;
+    display: none;
+  }
+
+  @media screen and #{$mq-lg} {
+    // On wider screens, the popover is attached to the indicator:
+    inset: unset;
+    position: unset;
+    max-width: 8px + $content-sm; // Magic number to avoid empty space near domain name
+
+    &::before {
+      display: initial;
+    }
+  }
+
+  h3 {
+    @include text-title-3xs;
+
+    font-family: $font-stack-firefox;
+    margin-bottom: $spacing-sm;
+  }
+
+  p {
+    @include text-body-sm;
+  }
+
+  .close-button {
+    position: absolute;
+    top: $spacing-sm;
+    right: $spacing-sm;
+    background-color: transparent;
+    border-style: none;
+    border-radius: $border-radius-sm;
+    width: $spacing-lg;
+    height: $spacing-lg;
+    cursor: pointer;
+
+    &:hover {
+      color: $color-blue-50;
+    }
+  }
+}
