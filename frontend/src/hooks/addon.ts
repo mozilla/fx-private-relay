@@ -70,7 +70,7 @@ function useMutationObserver(
  */
 const attributeParsers: Record<
   string,
-  (addonElement: Element) => Partial<AddonData>
+  (_addonElement: Element) => Partial<AddonData>
 > = {
   "data-addon-installed": (addonElement) => ({
     present: addonElement.getAttribute("data-addon-installed") === "true",
