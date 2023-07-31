@@ -274,7 +274,7 @@ def test_phone_subscriber_with_subscription_end_date_after_reset_phone_limits_up
     phone_user,
 ):
     datetime_now = datetime.now(timezone.utc)
-    datetime_first_of_march = datetime_now.replace(month=3, day=4)
+    datetime_fourth_of_march = datetime_now.replace(month=3, day=4)
     profile = Profile.objects.get(user=phone_user)
     profile.date_subscribed_phone = datetime_now.replace(month=1, day=2)
     new_subscription_start_and_previous_reset_date = datetime_now.replace(
@@ -283,7 +283,7 @@ def test_phone_subscriber_with_subscription_end_date_after_reset_phone_limits_up
     profile.date_phone_subscription_start = (
         new_subscription_start_and_previous_reset_date
     )
-    profile.date_phone_subscription_end = datetime_first_of_march
+    profile.date_phone_subscription_end = datetime_fourth_of_march
     profile.date_phone_subscription_reset = (
         new_subscription_start_and_previous_reset_date
     )
@@ -293,14 +293,14 @@ def test_phone_subscriber_with_subscription_end_date_after_reset_phone_limits_up
     # today must be after march 3rd, to use the calculated reset date (subscription end date >= calculated_next_reset_date)
     with patch(f"{MOCK_BASE}.datetime") as mocked_datetime:
         mocked_datetime.combine.return_value = datetime.combine(
-            datetime_first_of_march.date(), datetime.min.time()
+            datetime_fourth_of_march.date(), datetime.min.time()
         )
-        mocked_datetime.now.return_value = datetime_first_of_march
+        mocked_datetime.now.return_value = datetime_fourth_of_march
         mocked_datetime.side_effect = lambda *args, **kw: datetime(*args, **kw)
         num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
 
     profile.refresh_from_db()
-    assert profile.date_phone_subscription_reset == datetime_first_of_march
+    assert profile.date_phone_subscription_reset == datetime_fourth_of_march
     assert num_profiles_w_phones == 1
     assert num_profiles_updated == 1
     relay_number.refresh_from_db()
