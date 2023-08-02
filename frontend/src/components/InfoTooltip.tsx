@@ -29,6 +29,7 @@ export const InfoTooltip = (props: Props) => {
         type="button"
         {...tooltipTrigger.triggerProps}
         className={styles.trigger}
+        disabled
       >
         <InfoIcon
           alt={props.alt}
