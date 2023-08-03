@@ -12,7 +12,7 @@ export type Props = {
 
 export const InfoTooltip = (props: Props) => {
   const tooltipTriggerState = useTooltipTriggerState({ delay: 0 });
-  const triggerRef = useRef<HTMLButtonElement>(null);
+  const triggerRef = useRef<HTMLSpanElement>(null);
 
   const tooltipTrigger = useTooltipTrigger({}, tooltipTriggerState, triggerRef);
   const { tooltipProps } = useTooltip(
@@ -22,14 +22,10 @@ export const InfoTooltip = (props: Props) => {
 
   return (
     <span className={styles.wrapper}>
-      <button
+      <span
         ref={triggerRef}
-        // Set to type="button" to prevent wrapping forms from being submitted
-        // when the info icon is clicked:
-        type="button"
         {...tooltipTrigger.triggerProps}
         className={styles.trigger}
-        disabled
       >
         <InfoIcon
           alt={props.alt}
@@ -37,7 +33,7 @@ export const InfoTooltip = (props: Props) => {
           width={18}
           height={18}
         />
-      </button>
+      </span>
       {tooltipTriggerState.isOpen && (
         <span
           className={styles.tooltip}
