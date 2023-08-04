@@ -5,6 +5,28 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    groups:
+      eslint:
+        patterns:
+          - "@typescript-eslint/*"
+          - "eslint*"
+        exclude-patterns:
+          - "eslint-config-next"
+      jest:
+        patterns:
+          - "babel-jest"
+          - "jest"
+          - "jest-environment-jsdom"
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "react-test-renderer"
+      testing-library:
+        patterns:
+          - "@testing-library/dom"
+          - "@testing-library/react"
+          - "@testing-library/user-event"
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
