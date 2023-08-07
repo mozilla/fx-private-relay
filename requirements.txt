@@ -41,7 +41,7 @@ coverage==7.2.7
 model-bakery==1.12.0
 pytest-cov==4.1.0
 pytest-django==4.5.2
-responses==0.23.1
+responses==0.23.3
 
 # linting
 black==23.7.0
