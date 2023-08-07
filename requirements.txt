@@ -12,7 +12,7 @@ django-redis==5.3.0
 django-ftl==0.14
 django-referrer-policy==1.0
 djangorestframework==3.14.0
-django-waffle==3.0.0
+django-waffle==4.0.0
 dockerflow==2022.8.0
 # TODO: remove after https://github.com/mozilla/fx-private-relay/pull/3575 is merged
 drf-yasg==1.21.7
