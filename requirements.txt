@@ -17,7 +17,7 @@ dockerflow==2022.8.0
 # TODO: remove after https://github.com/mozilla/fx-private-relay/pull/3575 is merged
 drf-yasg==1.21.7
 drf-spectacular==0.26.4
-drf-spectacular-sidecar==2023.7.1
+drf-spectacular-sidecar==2023.8.1
 google-measurement-protocol==1.1.0
 gunicorn==21.2.0
 jwcrypto==1.5.0
