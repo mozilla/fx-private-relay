@@ -578,7 +578,8 @@ def _cached_country_language_mapping(
             lang: _get_stripe_prices(stripe_country, stripe_data)
             for lang, stripe_country in languages.items()
         }
-    return mapping
+    # Sort by country code
+    return {code: mapping[code] for code in sorted(mapping)}
 
 
 def _get_stripe_prices(
