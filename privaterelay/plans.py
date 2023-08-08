@@ -258,6 +258,7 @@ _StripePlanData = TypedDict(
         "bundle": _StripeYearlyPlanDetails,
     },
 )
+_StripePlanDetails = _StripeMonthlyPlanDetails | _StripeYearlyPlanDetails
 
 # Selected Stripe data
 # The "source of truth" is the Stripe data, this copy is used for upsell views
@@ -565,40 +566,45 @@ def _cached_country_language_mapping(
         us_phone_yearly_price_id=us_phone_yearly_price_id,
         us_bundle_yearly_price_id=us_bundle_yearly_price_id,
     )[plan]
-    stripe_periods = stripe_data["periods"]
-    stripe_prices = stripe_data["prices"]
-    stripe_countries = stripe_data["countries_and_regions"]
 
     mapping: PlanCountryLangMapping = {}
     for relay_country, languages in relay_countries.items():
-        lang_to_period_details: PricePeriodsForLanguageDict = {}
-        for lang, stripe_country in languages.items():
-            stripe_details = stripe_countries[stripe_country]
-            currency = stripe_details["currency"]
-            prices = stripe_prices[stripe_details["currency"]]
-            period_to_details: PricesForPeriodDict = {}
-            if stripe_periods == "monthly_and_yearly":
-                # mypy thinks stripe_details _could_ be _StripeYearlyPriceDetails,
-                # so extra asserts are needed to make mypy happy.
-                monthly_id = str(stripe_details.get("monthly_id"))
-                assert monthly_id.startswith("price_")
-                price = prices.get("monthly", 0.0)
-                assert price and isinstance(price, float)
-                period_to_details["monthly"] = {
-                    "id": monthly_id,
-                    "currency": currency,
-                    "price": price,
-                }
-            yearly_id = stripe_details["yearly_id"]
-            assert yearly_id.startswith("price_")
-            period_to_details["yearly"] = {
-                "id": yearly_id,
-                "currency": currency,
-                "price": prices["monthly_when_yearly"],
-            }
-            lang_to_period_details[lang] = period_to_details
-        mapping[relay_country] = lang_to_period_details
+        assert relay_country not in mapping
+        mapping[relay_country] = {
+            lang: _get_stripe_prices(stripe_country, stripe_data)
+            for lang, stripe_country in languages.items()
+        }
     return mapping
+
+
+def _get_stripe_prices(
+    country_or_region: _CountryOrRegion, data: _StripePlanDetails
+) -> PricesForPeriodDict:
+    """Return the Stripe monthly and yearly price data for the given country."""
+    stripe_details = data["countries_and_regions"][country_or_region]
+    currency = stripe_details["currency"]
+    prices = data["prices"][currency]
+    period_to_details: PricesForPeriodDict = {}
+    if data["periods"] == "monthly_and_yearly":
+        # mypy thinks stripe_details _could_ be _StripeYearlyPriceDetails,
+        # so extra asserts are needed to make mypy happy.
+        monthly_id = str(stripe_details.get("monthly_id"))
+        assert monthly_id.startswith("price_")
+        price = prices.get("monthly", 0.0)
+        assert price and isinstance(price, float)
+        period_to_details["monthly"] = {
+            "id": monthly_id,
+            "currency": currency,
+            "price": price,
+        }
+    yearly_id = stripe_details["yearly_id"]
+    assert yearly_id.startswith("price_")
+    period_to_details["yearly"] = {
+        "id": yearly_id,
+        "currency": currency,
+        "price": prices["monthly_when_yearly"],
+    }
+    return period_to_details
 
 
 @lru_cache
