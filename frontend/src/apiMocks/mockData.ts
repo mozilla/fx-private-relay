@@ -17,9 +17,9 @@ export const mockedRuntimeData: RuntimeData = {
   PHONE_PRODUCT_ID: "prod_123456789",
   BUNDLE_PRODUCT_ID: "prod_123456789",
   PERIODICAL_PREMIUM_PLANS: {
-    country_code: "nl",
+    country_code: "NL",
     plan_country_lang_mapping: {
-      nl: {
+      NL: {
         nl: {
           monthly: {
             id: "price_1JmROfJNcmPzuWtR6od8OfDW",
@@ -34,13 +34,13 @@ export const mockedRuntimeData: RuntimeData = {
         },
       },
     },
-    countries: ["nl"],
+    countries: ["NL"],
     available_in_country: true,
   },
   PHONE_PLANS: {
-    country_code: "nl",
+    country_code: "NL",
     plan_country_lang_mapping: {
-      nl: {
+      NL: {
         nl: {
           monthly: {
             id: "price_1JmROfJNcmPzuWtR6od8OfDW",
@@ -55,13 +55,13 @@ export const mockedRuntimeData: RuntimeData = {
         },
       },
     },
-    countries: ["nl"],
+    countries: ["NL"],
     available_in_country: true,
   },
   BUNDLE_PLANS: {
-    country_code: "nl",
+    country_code: "NL",
     plan_country_lang_mapping: {
-      nl: {
+      NL: {
         nl: {
           yearly: {
             id: "price_1JmROfJNcmPzuWtR6od8OfDW",
@@ -71,7 +71,7 @@ export const mockedRuntimeData: RuntimeData = {
         },
       },
     },
-    countries: ["nl"],
+    countries: ["NL"],
     available_in_country: true,
   },
   WAFFLE_FLAGS: [

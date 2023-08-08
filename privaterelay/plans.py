@@ -18,7 +18,7 @@ These functions get the details of the paid plans:
 They all return a PlanCountryLangMapping dict, which has this structure:
 
 {
-  "at": {
+  "AT": {
     "de": {
       "monthly": {
         "id": "price_1LYC79JNcmPzuWtRU7Q238yL",
@@ -35,7 +35,7 @@ They all return a PlanCountryLangMapping dict, which has this structure:
   ...
 }
 
-This says that Austria (RelayCountryStr "at") defaults to German (LanguageStr "de"),
+This says that Austria (RelayCountryStr "AT") defaults to German (LanguageStr "de"),
 and has a monthly and a yearly plan. The monthly plan has a Stripe ID of
 "price_1LYC79JNcmPzuWtRU7Q238yL", and costs €1.99 (CurrencyStr "EUR"). The yearly
 plan has a Stripe ID of "price_1LYC7xJNcmPzuWtRcdKXCVZp", and costs €11.88 a year,
@@ -61,7 +61,7 @@ on first use to create the PlanCountryLangMapping, and served from cache on late
 
 from copy import deepcopy
 from functools import lru_cache
-from typing import Literal, TypedDict
+from typing import get_args, Literal, TypedDict
 
 from django.conf import settings
 
@@ -112,46 +112,47 @@ LanguageStr = Literal[
     "sv",  # Swedish
 ]
 
-# Lowercased ISO 3166 country codes handled by Relay
+# ISO 3166 country codes handled by Relay
 # Specifically, the two-letter ISO 3116-1 alpha-2 codes
 # See https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
 # and https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
 RelayCountryStr = Literal[
-    "at",  # Austria
-    "be",  # Belgium
-    "bg",  # Bulgaria
-    "ca",  # Canada
-    "ch",  # Switzerland
-    "cy",  # Cyprus
-    "cz",  # Czech Republic / Czechia
-    "de",  # Germany
-    "dk",  # Denmark
-    "ee",  # Estonia
-    "es",  # Spain
-    "fi",  # Finland
-    "fr",  # France
-    "gb",  # United Kingdom
-    "gr",  # Greece
-    "hr",  # Croatia
-    "hu",  # Hungary
-    "ie",  # Ireland
-    "it",  # Italy
-    "lt",  # Lituania
-    "lu",  # Luxembourg
-    "lv",  # Latvia
-    "mt",  # Malta
-    "my",  # Malaysia
-    "nl",  # Netherlands
-    "nz",  # New Zealand
-    "pl",  # Poland
-    "pt",  # Portugal
-    "ro",  # Romania
-    "se",  # Sweden
-    "sg",  # Singapore
-    "si",  # Slovenia
-    "sk",  # Slovakia
-    "us",  # United States
+    "AT",  # Austria
+    "BE",  # Belgium
+    "BG",  # Bulgaria
+    "CA",  # Canada
+    "CH",  # Switzerland
+    "CY",  # Cyprus
+    "CZ",  # Czech Republic / Czechia
+    "DE",  # Germany
+    "DK",  # Denmark
+    "EE",  # Estonia
+    "ES",  # Spain
+    "FI",  # Finland
+    "FR",  # France
+    "GB",  # United Kingdom
+    "GR",  # Greece
+    "HR",  # Croatia
+    "HU",  # Hungary
+    "IE",  # Ireland
+    "IT",  # Italy
+    "LT",  # Lituania
+    "LU",  # Luxembourg
+    "LV",  # Latvia
+    "MT",  # Malta
+    "MY",  # Malaysia
+    "NL",  # Netherlands
+    "NZ",  # New Zealand
+    "PL",  # Poland
+    "PT",  # Portugal
+    "RO",  # Romania
+    "SE",  # Sweden
+    "SG",  # Singapore
+    "SI",  # Slovenia
+    "SK",  # Slovakia
+    "US",  # United States
 ]
+relay_countries = set(get_args(RelayCountryStr))
 
 # Periodic subscription categories
 PeriodStr = Literal["monthly", "yearly"]
@@ -517,56 +518,56 @@ _RelayPlansByCountryAndLanguage = dict[
 #   testing in non-production environments.
 _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE: _RelayPlansByCountryAndLanguage = {
     "premium": {
-        "at": {"de": "DE"},  # Austria
-        "be": {  # Belgium
+        "AT": {"de": "DE"},  # Austria
+        "BE": {  # Belgium
             "fr": "FR",
             "de": "DE",
             "nl": "NL",
         },
-        "bg": {"bg": "BG"},  # Bulgaria
-        "ca": {"en": "US"},  # Canada
-        "ch": {  # Switzerland
+        "BG": {"bg": "BG"},  # Bulgaria
+        "CA": {"en": "US"},  # Canada
+        "CH": {  # Switzerland
             "fr": "fr-CH",
             "de": "de-CH",
             "it": "it-CH",
         },
-        "cy": {"el": "CY"},  # Cyprus
-        "cz": {"cs": "CZ"},  # Czech Republic / Czechia
-        "de": {"de": "DE"},  # Germany
-        "dk": {"da": "DK"},  # Denmark
-        "ee": {"et": "EE"},  # Estonia
-        "es": {"es": "ES"},  # Spain
-        "fi": {"fi": "FI"},  # Finland
-        "fr": {"fr": "FR"},  # France
-        "gb": {"en": "GB"},  # United Kingdom
-        "gr": {"el": "GR"},  # Greece
-        "hr": {"hr": "HR"},  # Croatia
-        "hu": {"hu": "HU"},  # Hungary
-        "ie": {"en": "IE"},  # Ireland
-        "it": {"it": "IT"},  # Italy
-        "lt": {"lt": "LT"},  # Lithuania
-        "lu": {"fr": "LU"},  # Luxembourg
-        "lv": {"lv": "LV"},  # Latvia
-        "mt": {"en": "MT"},  # Malta
-        "my": {"en": "GB"},  # Malaysia
-        "nl": {"nl": "NL"},  # Netherlands
-        "nz": {"en": "GB"},  # New Zealand
-        "pl": {"pl": "PL"},  # Poland
-        "pt": {"pt": "PT"},  # Portugal
-        "ro": {"ro": "RO"},  # Romania
-        "se": {"sv": "SE"},  # Sweden
-        "sg": {"en": "GB"},  # Singapore
-        "si": {"sl": "SI"},  # Slovenia
-        "sk": {"sk": "SK"},  # Slovakia
-        "us": {"en": "US"},  # United States
+        "CY": {"el": "CY"},  # Cyprus
+        "CZ": {"cs": "CZ"},  # Czech Republic / Czechia
+        "DE": {"de": "DE"},  # Germany
+        "DK": {"da": "DK"},  # Denmark
+        "EE": {"et": "EE"},  # Estonia
+        "ES": {"es": "ES"},  # Spain
+        "FI": {"fi": "FI"},  # Finland
+        "FR": {"fr": "FR"},  # France
+        "GB": {"en": "GB"},  # United Kingdom
+        "GR": {"el": "GR"},  # Greece
+        "HR": {"hr": "HR"},  # Croatia
+        "HU": {"hu": "HU"},  # Hungary
+        "IE": {"en": "IE"},  # Ireland
+        "IT": {"it": "IT"},  # Italy
+        "LT": {"lt": "LT"},  # Lithuania
+        "LU": {"fr": "LU"},  # Luxembourg
+        "LV": {"lv": "LV"},  # Latvia
+        "MT": {"en": "MT"},  # Malta
+        "MY": {"en": "GB"},  # Malaysia
+        "NL": {"nl": "NL"},  # Netherlands
+        "NZ": {"en": "GB"},  # New Zealand
+        "PL": {"pl": "PL"},  # Poland
+        "PT": {"pt": "PT"},  # Portugal
+        "RO": {"ro": "RO"},  # Romania
+        "SE": {"sv": "SE"},  # Sweden
+        "SG": {"en": "GB"},  # Singapore
+        "SI": {"sl": "SI"},  # Slovenia
+        "SK": {"sk": "SK"},  # Slovakia
+        "US": {"en": "US"},  # United States
     },
     "phones": {
-        "ca": {"en": "US"},  # Canada
-        "us": {"en": "US"},  # United States
+        "CA": {"en": "US"},  # Canada
+        "US": {"en": "US"},  # United States
     },
     "bundle": {
-        "ca": {"en": "US"},  # Canada
-        "us": {"en": "US"},  # United States
+        "CA": {"en": "US"},  # Canada
+        "US": {"en": "US"},  # United States
     },
 }
 
