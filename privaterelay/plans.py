@@ -201,40 +201,6 @@ def get_bundle_country_language_mapping() -> PlanCountryLangMapping:
 # Private types for Selected Stripe data (_STRIPE_PLAN_DATA)
 #
 
-# ISO 3166 country codes for Stripe prices
-# Specifically, the two-letter ISO 3116-1 alpha-2 codes
-# See https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
-# and https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
-_StripeCountryStr = Literal[
-    "BG",  # Bulgaria
-    "CY",  # Cyprus
-    "CZ",  # Czech Republic / Czechia
-    "DE",  # Germany
-    "DK",  # Denmark
-    "EE",  # Estonia
-    "ES",  # Spain
-    "FI",  # Finland
-    "FR",  # France
-    "GB",  # United Kingdom
-    "GR",  # Greece
-    "HR",  # Croatia
-    "HU",  # Hungary
-    "IE",  # Ireland
-    "IT",  # Italy
-    "LT",  # Lithuania
-    "LU",  # Luxembourg
-    "LV",  # Latvia
-    "MT",  # Malta
-    "NL",  # Netherlands
-    "PL",  # Poland
-    "PT",  # Portugal
-    "RO",  # Romania
-    "SE",  # Sweden
-    "SI",  # Slovenia
-    "SK",  # Slovakia
-    "US",  # United States
-]
-
 # RFC 5646 regional language tags handled by Relay
 # Typically an ISO 639 language code, a dash, and an ISO 3166 country code
 _RegionalLanguageStr = Literal[
@@ -244,7 +210,7 @@ _RegionalLanguageStr = Literal[
 ]
 
 # Stripe plans are associated with a country or country-language pair
-_StripeCountryOrRegion = _StripeCountryStr | _RegionalLanguageStr
+_CountryOrRegion = CountryStr | _RegionalLanguageStr
 
 # Types for _STRIPE_PLAN_DATA
 _StripeMonthlyPriceDetails = TypedDict(
@@ -263,9 +229,7 @@ _StripeMonthlyPlanDetails = TypedDict(
     {
         "periods": Literal["monthly_and_yearly"],
         "prices": dict[CurrencyStr, _StripeMonthlyPriceDetails],
-        "countries_and_regions": dict[
-            _StripeCountryOrRegion, _StripeMonthlyCountryDetails
-        ],
+        "countries_and_regions": dict[_CountryOrRegion, _StripeMonthlyCountryDetails],
     },
 )
 _StripeYearlyPriceDetails = TypedDict(
@@ -283,9 +247,7 @@ _StripeYearlyPlanDetails = TypedDict(
     {
         "periods": Literal["yearly"],
         "prices": dict[CurrencyStr, _StripeYearlyPriceDetails],
-        "countries_and_regions": dict[
-            _StripeCountryOrRegion, _StripeYearlyCountryDetails
-        ],
+        "countries_and_regions": dict[_CountryOrRegion, _StripeYearlyCountryDetails],
     },
 )
 _StripePlanData = TypedDict(
@@ -495,7 +457,7 @@ _STRIPE_PLAN_DATA: _StripePlanData = {
 # Private types for _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE
 _RelayPlanCategory = Literal["premium", "phones", "bundle"]
 _RelayPlansByCountryAndLanguage = dict[
-    _RelayPlanCategory, dict[CountryStr, dict[LanguageStr, _StripeCountryOrRegion]]
+    _RelayPlanCategory, dict[CountryStr, dict[LanguageStr, _CountryOrRegion]]
 ]
 
 
