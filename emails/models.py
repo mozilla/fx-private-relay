@@ -180,10 +180,7 @@ class Profile(models.Model):
                 country = guess_country_from_accept_lang(self.fxa.extra_data["locale"])
             except AcceptLanguageError:
                 return False
-            eu_country_expansion = flag_is_active_in_task(
-                "eu_country_expansion", self.user
-            )
-            premium_countries = get_premium_countries(eu_country_expansion)
+            premium_countries = get_premium_countries()
             if country in premium_countries:
                 return True
         return False
