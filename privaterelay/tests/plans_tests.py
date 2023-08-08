@@ -4,8 +4,8 @@ from pytest_django.fixtures import SettingsWrapper
 import pytest
 
 from privaterelay.plans import (
+    CountryStr,
     LanguageStr,
-    RelayCountryStr,
     PlanCountryLangMapping,
     get_bundle_country_language_mapping,
     get_phone_country_language_mapping,
@@ -77,7 +77,7 @@ _PREMIUM_PRICES = {
 
 
 def check_country_language_mapping_for_monthly_plan(
-    country: RelayCountryStr,
+    country: CountryStr,
     language: LanguageStr,
     price_data_key: str,
     mapping: PlanCountryLangMapping,
@@ -154,7 +154,7 @@ def check_country_language_mapping_for_monthly_plan(
     ),
 )
 def test_get_premium_country_language_mapping(
-    country: RelayCountryStr,
+    country: CountryStr,
     language: LanguageStr,
     price_data_key: str,
 ) -> None:
@@ -196,15 +196,11 @@ _PHONE_PRICES = {
     ),
 )
 def test_get_phone_country_language_mapping(
-    country: RelayCountryStr, language: LanguageStr, price_data_key: str
+    country: CountryStr, language: LanguageStr, price_data_key: str
 ) -> None:
+    mapping = get_phone_country_language_mapping()
     check_country_language_mapping_for_monthly_plan(
-        country,
-        language,
-        price_data_key,
-        get_phone_country_language_mapping(),
-        _PHONE_PRICE_DATA,
-        _PHONE_PRICES,
+        country, language, price_data_key, mapping, _PHONE_PRICE_DATA, _PHONE_PRICES
     )
 
 
@@ -240,7 +236,7 @@ _BUNDLE_PRICES = {
     ),
 )
 def test_get_bundle_country_language_mapping(
-    country: RelayCountryStr, language: LanguageStr, price_data_key: str
+    country: CountryStr, language: LanguageStr, price_data_key: str
 ) -> None:
     mapping = get_bundle_country_language_mapping()
     assert country in mapping

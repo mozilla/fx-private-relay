@@ -116,7 +116,7 @@ LanguageStr = Literal[
 # Specifically, the two-letter ISO 3116-1 alpha-2 codes
 # See https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
 # and https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
-RelayCountryStr = Literal[
+CountryStr = Literal[
     "AT",  # Austria
     "BE",  # Belgium
     "BG",  # Bulgaria
@@ -152,7 +152,7 @@ RelayCountryStr = Literal[
     "SK",  # Slovakia
     "US",  # United States
 ]
-relay_countries = set(get_args(RelayCountryStr))
+relay_countries = set(get_args(CountryStr))
 
 # Periodic subscription categories
 PeriodStr = Literal["monthly", "yearly"]
@@ -169,7 +169,7 @@ StripePriceDef = TypedDict(
 )
 PricesForPeriodDict = dict[PeriodStr, StripePriceDef]
 PricePeriodsForLanguageDict = dict[LanguageStr, PricesForPeriodDict]
-PlanCountryLangMapping = dict[RelayCountryStr, PricePeriodsForLanguageDict]
+PlanCountryLangMapping = dict[CountryStr, PricePeriodsForLanguageDict]
 
 #
 # Public functions
@@ -181,7 +181,7 @@ def get_premium_country_language_mapping() -> PlanCountryLangMapping:
     return _country_language_mapping("premium")
 
 
-def get_premium_countries() -> set[RelayCountryStr]:
+def get_premium_countries() -> set[CountryStr]:
     """Get the country codes where Relay premium can be sold"""
     mapping = get_premium_country_language_mapping()
     return set(mapping.keys())
@@ -205,7 +205,7 @@ def get_bundle_country_language_mapping() -> PlanCountryLangMapping:
 # Specifically, the two-letter ISO 3116-1 alpha-2 codes
 # See https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
 # and https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
-_CountryStr = Literal[
+_StripeCountryStr = Literal[
     "BG",  # Bulgaria
     "CY",  # Cyprus
     "CZ",  # Czech Republic / Czechia
@@ -244,7 +244,7 @@ _RegionalLanguageStr = Literal[
 ]
 
 # Stripe plans are associated with a country or country-language pair
-_StripeCountryOrRegion = _CountryStr | _RegionalLanguageStr
+_StripeCountryOrRegion = _StripeCountryStr | _RegionalLanguageStr
 
 # Types for _STRIPE_PLAN_DATA
 _StripePlanData = TypedDict(
@@ -499,7 +499,7 @@ _STRIPE_PLAN_DATA: _StripePlanData = {
 # Private types for _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE
 _RelayPlanCategory = Literal["premium", "phones", "bundle"]
 _RelayPlansByCountryAndLanguage = dict[
-    _RelayPlanCategory, dict[RelayCountryStr, dict[LanguageStr, _StripeCountryOrRegion]]
+    _RelayPlanCategory, dict[CountryStr, dict[LanguageStr, _StripeCountryOrRegion]]
 ]
 
 

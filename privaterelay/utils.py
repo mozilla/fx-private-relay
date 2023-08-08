@@ -16,12 +16,12 @@ from waffle.utils import (
     get_setting as get_waffle_setting,
 )
 
-from .plans import PlanCountryLangMapping, RelayCountryStr
+from .plans import PlanCountryLangMapping, CountryStr
 
 
 class CountryInfo(TypedDict):
     country_code: str
-    countries: list[RelayCountryStr]
+    countries: list[CountryStr]
     available_in_country: bool
     plan_country_lang_mapping: PlanCountryLangMapping
 
