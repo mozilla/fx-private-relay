@@ -19,7 +19,7 @@ They all return a PlanCountryLangMapping dict, which has this structure:
 
 {
   "AT": {
-    "de": {
+    "*": {
       "monthly": {
         "id": "price_1LYC79JNcmPzuWtRU7Q238yL",
         "price": 1.99,
@@ -35,8 +35,8 @@ They all return a PlanCountryLangMapping dict, which has this structure:
   ...
 }
 
-This says that Austria (RelayCountryStr "AT") defaults to German (LanguageStr "de"),
-and has a monthly and a yearly plan. The monthly plan has a Stripe ID of
+This says that Austria (RelayCountryStr "AT") with any language ("*")
+has a monthly and a yearly plan. The monthly plan has a Stripe ID of
 "price_1LYC79JNcmPzuWtRU7Q238yL", and costs €1.99 (CurrencyStr "EUR"). The yearly
 plan has a Stripe ID of "price_1LYC7xJNcmPzuWtRcdKXCVZp", and costs €11.88 a year,
 equivalent to €0.99 a month.
@@ -44,7 +44,8 @@ equivalent to €0.99 a month.
 The top-level keys say which countries are supported. The function get_premium_countries
 returns these as a set, when the rest of the data is unneeded.
 
-The second-level keys are the languages for that country. When the country is known but
+The second-level keys are the languages for that country. When all languages in that
+country have the same plan, the single entry is "*". When the country is known but
 the language is not, or is not one of the listed languages, the first language is the
 default for that country.
 
@@ -53,7 +54,7 @@ monthly and yearly periods, and bundle is yearly only.
 
 The raw data is stored in two dicts:
 * _STRIPE_PLAN_DATA
-* _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE
+* _RELAY_PLANS
 
 These are extended to support more countries, languages, plans, etc. They are parsed
 on first use to create the PlanCountryLangMapping, and served from cache on later uses.
@@ -81,35 +82,17 @@ CurrencyStr = Literal[
 ]
 
 # ISO 639 language codes handled by Relay
-# These are the 3rd-level keys in _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE, and are
-# unrelated to the supported languages in Pontoon.
+# These are the 4th-level keys in _RELAY_PLANS[$PLAN][by_country_and_lang][$COUNTRY],
+# and are unrelated to the supported languages in Pontoon.
 #
 # Use the 2-letter ISO 639-1 code if available, otherwise the 3-letter ISO 639-2 code.
 # See https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
 # and https://www.loc.gov/standards/iso639-2/php/English_list.php
 LanguageStr = Literal[
-    "bg",  # Bulgarian
-    "cs",  # Czech
-    "da",  # Danish
     "de",  # German
-    "el",  # Greek, Modern (1453-)
-    "en",  # English
-    "es",  # Spanish
-    "et",  # Estonian
-    "fi",  # Finnish
     "fr",  # French
-    "hr",  # Croatian
-    "hu",  # Hungarian
     "it",  # Italian
-    "lt",  # Lithuanian
-    "lv",  # Latvian
     "nl",  # Dutch
-    "pl",  # Polish
-    "pt",  # Portuguese
-    "ro",  # Romanian
-    "sk",  # Slovak
-    "sl",  # Slovenian / Slovene
-    "sv",  # Swedish
 ]
 
 # ISO 3166 country codes handled by Relay
@@ -168,7 +151,8 @@ StripePriceDef = TypedDict(
     },
 )
 PricesForPeriodDict = dict[PeriodStr, StripePriceDef]
-PricePeriodsForLanguageDict = dict[LanguageStr, PricesForPeriodDict]
+LanguageOrAny = LanguageStr | Literal["*"]
+PricePeriodsForLanguageDict = dict[LanguageOrAny, PricesForPeriodDict]
 PlanCountryLangMapping = dict[CountryStr, PricePeriodsForLanguageDict]
 
 #
@@ -455,78 +439,90 @@ _STRIPE_PLAN_DATA: _StripePlanData = {
 }
 
 
-# Private types for _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE
+# Private types for _RELAY_PLANS
 _RelayPlanCategory = Literal["premium", "phones", "bundle"]
-_RelayPlansByCountryAndLanguage = dict[
-    _RelayPlanCategory, dict[CountryStr, dict[LanguageStr, _CountryOrRegion]]
-]
+_RelayPlansByType = TypedDict(
+    "_RelayPlansByType",
+    {
+        "by_country_and_lang": dict[CountryStr, dict[LanguageStr, _CountryOrRegion]],
+        "by_country_override": dict[CountryStr, CountryStr],
+        "by_country": list[CountryStr],
+    },
+    total=False,
+)
+_RelayPlans = dict[_RelayPlanCategory, _RelayPlansByType]
 
 
 # Map of Relay-supported countries to languages and their plans
-# The top-level key is the plan, or a psuedo-plan for waffled expansion
-# The second-level key is the RelayCountryStr, such as "ca" for Canada
-# The third-level key is a LanguageStr, such as "en" for English. The first language
-#   key is the default for that country. Multiple keys are only needed when
-#   there are multiple plans for a country (Belgium and Switzerland), distinguished by
-#   the language. In the 2023 EU expansion, we instead created a plan per country, so
-#   only one third-level entry is needed, and the language is not used.
-# The third-level value is a _CountryStr, such as "US" for the United States,
-#   or a _RegionalLanguageStr, such as "de-CH" for German (Switzerland). This is an
-#   index into the _STRIPE_PLAN_DATA. Multiple entries may point to the same Stripe
-#   country data. The Stripe "US" entry can be overridden by settings to support
-#   testing in non-production environments.
-_RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE: _RelayPlansByCountryAndLanguage = {
+# The top-level key is the plan type, "premium" or "phones" or "bundle"
+# The second-level key is a map from criteria to the Stripe plan country index:
+#   - "by_country": The plan is indexed by the original country code.
+#   - "by_country_override": The plan is indexed by a different country code.
+#     For example, the "phones" plan in Canada ("CA") is the same as the United
+#     States ("US") plan.
+#   - "by_country_and_lang": The plan is indexed by country and language. For
+#     example, German speakers in Belgium have a different plan ("DE") than Dutch
+#     speakers ("NL"). The first language has the default plan index if none match.
+# The different maps are used to find the CountryStr that is an index into the
+# _STRIPE_PLAN_DATA for that plan type.
+_RELAY_PLANS: _RelayPlans = {
     "premium": {
-        "AT": {"de": "DE"},  # Austria
-        "BE": {  # Belgium
-            "fr": "FR",
-            "de": "DE",
-            "nl": "NL",
+        "by_country": [
+            "BG",  # Bulgaria
+            "CY",  # Cyprus
+            "CZ",  # Czech Republic / Czechia
+            "DE",  # Germany
+            "DK",  # Denmark
+            "EE",  # Estonia
+            "ES",  # Spain
+            "FI",  # Finland
+            "FR",  # France
+            "GB",  # United Kingdom
+            "GR",  # Greece
+            "HR",  # Croatia
+            "HU",  # Hungary
+            "IE",  # Ireland
+            "IT",  # Italy
+            "LT",  # Lithuania
+            "LU",  # Luxembourg
+            "LV",  # Latvia
+            "MT",  # Malta
+            "NL",  # Netherlands
+            "PL",  # Poland
+            "PT",  # Portugal
+            "RO",  # Romania
+            "SE",  # Sweden
+            "SI",  # Slovenia
+            "SK",  # Slovakia
+            "US",  # United States
+        ],
+        "by_country_override": {
+            "AT": "DE",  # Austria -> Germany
+            "CA": "US",  # Canada -> United States
+            "MY": "GB",  # Malaysia -> United Kingdom
+            "NZ": "GB",  # New Zealand -> United Kingdom
+            "SG": "GB",  # Singapore -> United Kingdom
         },
-        "BG": {"bg": "BG"},  # Bulgaria
-        "CA": {"en": "US"},  # Canada
-        "CH": {  # Switzerland
-            "fr": "fr-CH",
-            "de": "de-CH",
-            "it": "it-CH",
+        "by_country_and_lang": {
+            "BE": {  # Belgium
+                "fr": "FR",  # French-speaking Belgium -> France
+                "de": "DE",  # German-speaking Belgium -> Germany
+                "nl": "NL",  # Dutch-speaking Belgium -> Netherlands
+            },
+            "CH": {  # Switzerland
+                "fr": "fr-CH",  # French-speaking Swiss
+                "de": "de-CH",  # Germany-speaking Swiss
+                "it": "it-CH",  # Italian-speaking Swiss
+            },
         },
-        "CY": {"el": "CY"},  # Cyprus
-        "CZ": {"cs": "CZ"},  # Czech Republic / Czechia
-        "DE": {"de": "DE"},  # Germany
-        "DK": {"da": "DK"},  # Denmark
-        "EE": {"et": "EE"},  # Estonia
-        "ES": {"es": "ES"},  # Spain
-        "FI": {"fi": "FI"},  # Finland
-        "FR": {"fr": "FR"},  # France
-        "GB": {"en": "GB"},  # United Kingdom
-        "GR": {"el": "GR"},  # Greece
-        "HR": {"hr": "HR"},  # Croatia
-        "HU": {"hu": "HU"},  # Hungary
-        "IE": {"en": "IE"},  # Ireland
-        "IT": {"it": "IT"},  # Italy
-        "LT": {"lt": "LT"},  # Lithuania
-        "LU": {"fr": "LU"},  # Luxembourg
-        "LV": {"lv": "LV"},  # Latvia
-        "MT": {"en": "MT"},  # Malta
-        "MY": {"en": "GB"},  # Malaysia
-        "NL": {"nl": "NL"},  # Netherlands
-        "NZ": {"en": "GB"},  # New Zealand
-        "PL": {"pl": "PL"},  # Poland
-        "PT": {"pt": "PT"},  # Portugal
-        "RO": {"ro": "RO"},  # Romania
-        "SE": {"sv": "SE"},  # Sweden
-        "SG": {"en": "GB"},  # Singapore
-        "SI": {"sl": "SI"},  # Slovenia
-        "SK": {"sk": "SK"},  # Slovakia
-        "US": {"en": "US"},  # United States
     },
     "phones": {
-        "CA": {"en": "US"},  # Canada
-        "US": {"en": "US"},  # United States
+        "by_country": ["US"],  # United States
+        "by_country_override": {"CA": "US"},  # Canada -> United States
     },
     "bundle": {
-        "CA": {"en": "US"},  # Canada
-        "US": {"en": "US"},  # United States
+        "by_country": ["US"],  # United States
+        "by_country_override": {"CA": "US"},  # Canada -> United States
     },
 }
 
@@ -558,7 +554,7 @@ def _cached_country_language_mapping(
     us_bundle_yearly_price_id: str,
 ) -> PlanCountryLangMapping:
     """Create the plan mapping with settings overrides"""
-    relay_countries = _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE[plan]
+    relay_maps = _RELAY_PLANS[plan]
     stripe_data = _get_stripe_data_with_overrides(
         us_premium_monthly_price_id=us_premium_monthly_price_id,
         us_premium_yearly_price_id=us_premium_yearly_price_id,
@@ -568,7 +564,15 @@ def _cached_country_language_mapping(
     )[plan]
 
     mapping: PlanCountryLangMapping = {}
-    for relay_country, languages in relay_countries.items():
+    for relay_country in relay_maps.get("by_country", []):
+        assert relay_country not in mapping
+        mapping[relay_country] = {"*": _get_stripe_prices(relay_country, stripe_data)}
+
+    for relay_country, override in relay_maps.get("by_country_override", {}).items():
+        assert relay_country not in mapping
+        mapping[relay_country] = {"*": _get_stripe_prices(override, stripe_data)}
+
+    for relay_country, languages in relay_maps.get("by_country_and_lang", {}).items():
         assert relay_country not in mapping
         mapping[relay_country] = {
             lang: _get_stripe_prices(stripe_country, stripe_data)

@@ -20,7 +20,7 @@ export const mockedRuntimeData: RuntimeData = {
     country_code: "NL",
     plan_country_lang_mapping: {
       NL: {
-        nl: {
+        "*": {
           monthly: {
             id: "price_1JmROfJNcmPzuWtR6od8OfDW",
             price: 2.5,
@@ -41,7 +41,7 @@ export const mockedRuntimeData: RuntimeData = {
     country_code: "NL",
     plan_country_lang_mapping: {
       NL: {
-        nl: {
+        "*": {
           monthly: {
             id: "price_1JmROfJNcmPzuWtR6od8OfDW",
             price: 5.99,
@@ -62,7 +62,7 @@ export const mockedRuntimeData: RuntimeData = {
     country_code: "NL",
     plan_country_lang_mapping: {
       NL: {
-        nl: {
+        "*": {
           yearly: {
             id: "price_1JmROfJNcmPzuWtR6od8OfDW",
             price: 8.99,

@@ -5,7 +5,7 @@ import pytest
 
 from privaterelay.plans import (
     CountryStr,
-    LanguageStr,
+    LanguageOrAny,
     PlanCountryLangMapping,
     get_bundle_country_language_mapping,
     get_phone_country_language_mapping,
@@ -76,7 +76,7 @@ _PREMIUM_PRICES = {
 
 def check_country_language_mapping_for_monthly_plan(
     country: CountryStr,
-    language: LanguageStr,
+    language: LanguageOrAny,
     price_data_key: str,
     mapping: PlanCountryLangMapping,
     price_data_by_key: dict[str, tuple[str, str, str]],
@@ -110,49 +110,49 @@ def check_country_language_mapping_for_monthly_plan(
 @pytest.mark.parametrize(
     "country,language,price_data_key",
     (
-        ("AT", "de", "DE"),
+        ("AT", "*", "DE"),
         ("BE", "de", "DE"),
         ("BE", "fr", "FR"),
         ("BE", "nl", "NL"),
-        ("BG", "bg", "BG"),
-        ("CA", "en", "en-US"),
+        ("BG", "*", "BG"),
+        ("CA", "*", "en-US"),
         ("CH", "de", "de-CH"),
         ("CH", "fr", "fr-CH"),
         ("CH", "it", "it-CH"),
-        ("CY", "el", "el-CY"),
-        ("CZ", "cs", "CS"),
-        ("DE", "de", "DE"),
-        ("DK", "da", "DA"),
-        ("EE", "et", "ET"),
-        ("ES", "es", "ES"),
-        ("FI", "fi", "FI"),
-        ("FR", "fr", "FR"),
-        ("GB", "en", "en-GB"),
-        ("GR", "el", "el-GR"),
-        ("HR", "hr", "HR"),
-        ("HU", "hu", "HU"),
-        ("IE", "en", "en-IE"),
-        ("IT", "it", "IT"),
-        ("LT", "lt", "LT"),
-        ("LU", "fr", "fr-LU"),
-        ("LV", "lv", "LV"),
-        ("MT", "en", "MT"),
-        ("MY", "en", "en-GB"),
-        ("NL", "nl", "NL"),
-        ("NZ", "en", "en-GB"),
-        ("PL", "pl", "PL"),
-        ("PT", "pt", "PT"),
-        ("RO", "ro", "RO"),
-        ("SE", "sv", "SV"),
-        ("SG", "en", "en-GB"),
-        ("SI", "sl", "SL"),
-        ("SK", "sk", "SK"),
-        ("US", "en", "en-US"),
+        ("CY", "*", "el-CY"),
+        ("CZ", "*", "CS"),
+        ("DE", "*", "DE"),
+        ("DK", "*", "DA"),
+        ("EE", "*", "ET"),
+        ("ES", "*", "ES"),
+        ("FI", "*", "FI"),
+        ("FR", "*", "FR"),
+        ("GB", "*", "en-GB"),
+        ("GR", "*", "el-GR"),
+        ("HR", "*", "HR"),
+        ("HU", "*", "HU"),
+        ("IE", "*", "en-IE"),
+        ("IT", "*", "IT"),
+        ("LT", "*", "LT"),
+        ("LU", "*", "fr-LU"),
+        ("LV", "*", "LV"),
+        ("MT", "*", "MT"),
+        ("MY", "*", "en-GB"),
+        ("NL", "*", "NL"),
+        ("NZ", "*", "en-GB"),
+        ("PL", "*", "PL"),
+        ("PT", "*", "PT"),
+        ("RO", "*", "RO"),
+        ("SE", "*", "SV"),
+        ("SG", "*", "en-GB"),
+        ("SI", "*", "SL"),
+        ("SK", "*", "SK"),
+        ("US", "*", "en-US"),
     ),
 )
 def test_get_premium_country_language_mapping(
     country: CountryStr,
-    language: LanguageStr,
+    language: LanguageOrAny,
     price_data_key: str,
 ) -> None:
     mapping = get_premium_country_language_mapping()
@@ -171,10 +171,10 @@ def test_get_premium_country_language_mapping_overrides(
     assert plan_settings.PREMIUM_PLAN_ID_US_YEARLY != stage_yearly_id
     plan_settings.PREMIUM_PLAN_ID_US_YEARLY = stage_yearly_id
     mapping = get_premium_country_language_mapping()
-    assert mapping["US"]["en"]["monthly"]["id"] == stage_monthly_id
-    assert mapping["US"]["en"]["yearly"]["id"] == stage_yearly_id
-    assert mapping["CA"]["en"]["monthly"]["id"] == stage_monthly_id
-    assert mapping["CA"]["en"]["yearly"]["id"] == stage_yearly_id
+    assert mapping["US"]["*"]["monthly"]["id"] == stage_monthly_id
+    assert mapping["US"]["*"]["yearly"]["id"] == stage_yearly_id
+    assert mapping["CA"]["*"]["monthly"]["id"] == stage_monthly_id
+    assert mapping["CA"]["*"]["yearly"]["id"] == stage_yearly_id
 
 
 _PHONE_PRICE_DATA = {
@@ -188,12 +188,12 @@ _PHONE_PRICES = {
 @pytest.mark.parametrize(
     "country,language,price_data_key",
     (
-        ("CA", "en", "en-US"),
-        ("US", "en", "en-US"),
+        ("CA", "*", "en-US"),
+        ("US", "*", "en-US"),
     ),
 )
 def test_get_phone_country_language_mapping(
-    country: CountryStr, language: LanguageStr, price_data_key: str
+    country: CountryStr, language: LanguageOrAny, price_data_key: str
 ) -> None:
     mapping = get_phone_country_language_mapping()
     check_country_language_mapping_for_monthly_plan(
@@ -211,10 +211,10 @@ def test_get_phone_country_language_mapping_overrides(
     assert plan_settings.PHONE_PLAN_ID_US_YEARLY != stage_yearly_id
     plan_settings.PHONE_PLAN_ID_US_YEARLY = stage_yearly_id
     mapping = get_phone_country_language_mapping()
-    assert mapping["US"]["en"]["monthly"]["id"] == stage_monthly_id
-    assert mapping["US"]["en"]["yearly"]["id"] == stage_yearly_id
-    assert mapping["CA"]["en"]["monthly"]["id"] == stage_monthly_id
-    assert mapping["CA"]["en"]["yearly"]["id"] == stage_yearly_id
+    assert mapping["US"]["*"]["monthly"]["id"] == stage_monthly_id
+    assert mapping["US"]["*"]["yearly"]["id"] == stage_yearly_id
+    assert mapping["CA"]["*"]["monthly"]["id"] == stage_monthly_id
+    assert mapping["CA"]["*"]["yearly"]["id"] == stage_yearly_id
 
 
 _BUNDLE_PRICE_DATA = {
@@ -228,12 +228,12 @@ _BUNDLE_PRICES = {
 @pytest.mark.parametrize(
     "country,language,price_data_key",
     (
-        ("CA", "en", "en-US"),
-        ("US", "en", "en-US"),
+        ("CA", "*", "en-US"),
+        ("US", "*", "en-US"),
     ),
 )
 def test_get_bundle_country_language_mapping(
-    country: CountryStr, language: LanguageStr, price_data_key: str
+    country: CountryStr, language: LanguageOrAny, price_data_key: str
 ) -> None:
     mapping = get_bundle_country_language_mapping()
     assert country in mapping
@@ -258,5 +258,5 @@ def test_get_bundle_country_language_mapping_overrides(
     assert plan_settings.BUNDLE_PLAN_ID_US != stage_yearly_id
     plan_settings.BUNDLE_PLAN_ID_US = stage_yearly_id
     mapping = get_bundle_country_language_mapping()
-    assert mapping["US"]["en"]["yearly"]["id"] == stage_yearly_id
-    assert mapping["CA"]["en"]["yearly"]["id"] == stage_yearly_id
+    assert mapping["US"]["*"]["yearly"]["id"] == stage_yearly_id
+    assert mapping["CA"]["*"]["yearly"]["id"] == stage_yearly_id
