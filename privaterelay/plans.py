@@ -247,44 +247,9 @@ _RegionalLanguageStr = Literal[
 _StripeCountryOrRegion = _StripeCountryStr | _RegionalLanguageStr
 
 # Types for _STRIPE_PLAN_DATA
-_StripePlanData = TypedDict(
-    "_StripePlanData",
-    {
-        "premium": "_StripeMonthlyPlanDetails",
-        "phones": "_StripeMonthlyPlanDetails",
-        "bundle": "_StripeYearlyPlanDetails",
-    },
-)
-_StripeMonthlyPlanDetails = TypedDict(
-    "_StripeMonthlyPlanDetails",
-    {
-        "periods": Literal["monthly_and_yearly"],
-        "prices": "_StripeMonthlyPriceData",
-        "countries_and_regions": "_StripeMonthlyCountryAndRegionDetails",
-    },
-)
-_StripeYearlyPlanDetails = TypedDict(
-    "_StripeYearlyPlanDetails",
-    {
-        "periods": Literal["yearly"],
-        "prices": "_StripeYearlyPriceData",
-        "countries_and_regions": "_StripeYearlyCountryAndRegionDetails",
-    },
-)
-_StripeMonthlyPriceData = dict[CurrencyStr, "_StripeMonthlyPriceDetails"]
-_StripeYearlyPriceData = dict[CurrencyStr, "_StripeYearlyPriceDetails"]
 _StripeMonthlyPriceDetails = TypedDict(
     "_StripeMonthlyPriceDetails", {"monthly": float, "monthly_when_yearly": float}
 )
-_StripeYearlyPriceDetails = TypedDict(
-    "_StripeYearlyPriceDetails", {"monthly_when_yearly": float}
-)
-_StripeMonthlyCountryAndRegionDetails = dict[
-    _StripeCountryOrRegion, "_StripeMonthlyCountryDetails"
-]
-_StripeYearlyCountryAndRegionDetails = dict[
-    _StripeCountryOrRegion, "_StripeYearlyCountryDetails"
-]
 _StripeMonthlyCountryDetails = TypedDict(
     "_StripeMonthlyCountryDetails",
     {
@@ -293,11 +258,42 @@ _StripeMonthlyCountryDetails = TypedDict(
         "yearly_id": str,
     },
 )
+_StripeMonthlyPlanDetails = TypedDict(
+    "_StripeMonthlyPlanDetails",
+    {
+        "periods": Literal["monthly_and_yearly"],
+        "prices": dict[CurrencyStr, _StripeMonthlyPriceDetails],
+        "countries_and_regions": dict[
+            _StripeCountryOrRegion, _StripeMonthlyCountryDetails
+        ],
+    },
+)
+_StripeYearlyPriceDetails = TypedDict(
+    "_StripeYearlyPriceDetails", {"monthly_when_yearly": float}
+)
 _StripeYearlyCountryDetails = TypedDict(
     "_StripeYearlyCountryDetails",
     {
         "currency": CurrencyStr,
         "yearly_id": str,
+    },
+)
+_StripeYearlyPlanDetails = TypedDict(
+    "_StripeYearlyPlanDetails",
+    {
+        "periods": Literal["yearly"],
+        "prices": dict[CurrencyStr, _StripeYearlyPriceDetails],
+        "countries_and_regions": dict[
+            _StripeCountryOrRegion, _StripeYearlyCountryDetails
+        ],
+    },
+)
+_StripePlanData = TypedDict(
+    "_StripePlanData",
+    {
+        "premium": _StripeMonthlyPlanDetails,
+        "phones": _StripeMonthlyPlanDetails,
+        "bundle": _StripeYearlyPlanDetails,
     },
 )
 
