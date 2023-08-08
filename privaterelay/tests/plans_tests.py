@@ -1,6 +1,5 @@
 """Tests for privaterelay/plans.py"""
 
-from typing import Literal
 from pytest_django.fixtures import SettingsWrapper
 import pytest
 
@@ -29,56 +28,45 @@ def plan_settings(settings: SettingsWrapper) -> SettingsWrapper:
 _PREMIUM_COUNTRIES = [
     "at",
     "be",
+    "bg",
     "ca",
     "ch",
+    "cy",
+    "cz",
     "de",
+    "dk",
+    "ee",
     "es",
     "fi",
     "fr",
     "gb",
+    "gr",
+    "hr",
+    "hu",
     "ie",
     "it",
+    "lt",
+    "lu",
+    "lv",
+    "mt",
     "my",
     "nl",
     "nz",
+    "pl",
+    "pt",
+    "ro",
     "se",
     "sg",
-    "us",
-]
-_EU_EXPANSION_PREMIUM_COUNTRIES = [
-    "cy",
-    "ee",
-    "gr",
-    "lv",
-    "lt",
-    "lu",
-    "mt",
-    "pt",
-    "sk",
     "si",
-    # Added with MPP-3202
-    "bg",
-    "cz",
-    "dk",
-    "hr",
-    "hu",
-    "pl",
-    "ro",
+    "sk",
+    "us",
 ]
 _NON_PREMIUM_COUNTRY = "mx"
 
 
-def test_get_premium_countries_without_eu_country_expansion() -> None:
-    premium_countries = get_premium_countries(eu_country_expansion=False)
+def test_get_premium_countries() -> None:
+    premium_countries = get_premium_countries()
     assert sorted(premium_countries) == sorted(_PREMIUM_COUNTRIES)
-    assert _NON_PREMIUM_COUNTRY not in premium_countries
-
-
-def test_get_premium_countries_with_eu_country_expansion() -> None:
-    premium_countries = get_premium_countries(eu_country_expansion=True)
-    assert sorted(premium_countries) == sorted(
-        _PREMIUM_COUNTRIES + _EU_EXPANSION_PREMIUM_COUNTRIES
-    )
     assert _NON_PREMIUM_COUNTRY not in premium_countries
 
 
@@ -204,25 +192,15 @@ def check_country_language_mapping_for_monthly_plan(
         ("ro", "ro", "ro"),
     ),
 )
-@pytest.mark.parametrize("eu_expansion", (True, None))
 def test_get_premium_country_language_mapping(
     country: RelayCountryStr,
     language: LanguageStr,
     price_data_key: str,
-    eu_expansion: Literal[True, None],
 ) -> None:
-    mapping = get_premium_country_language_mapping(eu_country_expansion=eu_expansion)
-    if country in _EU_EXPANSION_PREMIUM_COUNTRIES and not eu_expansion:
-        assert country not in mapping
-    else:
-        check_country_language_mapping_for_monthly_plan(
-            country,
-            language,
-            price_data_key,
-            mapping,
-            _PREMIUM_PRICE_DATA,
-            _PREMIUM_PRICES,
-        )
+    mapping = get_premium_country_language_mapping()
+    check_country_language_mapping_for_monthly_plan(
+        country, language, price_data_key, mapping, _PREMIUM_PRICE_DATA, _PREMIUM_PRICES
+    )
 
 
 def test_get_premium_country_language_mapping_overrides(
@@ -234,7 +212,7 @@ def test_get_premium_country_language_mapping_overrides(
     plan_settings.PREMIUM_PLAN_ID_US_MONTHLY = stage_monthly_id
     assert plan_settings.PREMIUM_PLAN_ID_US_YEARLY != stage_yearly_id
     plan_settings.PREMIUM_PLAN_ID_US_YEARLY = stage_yearly_id
-    mapping = get_premium_country_language_mapping(True)
+    mapping = get_premium_country_language_mapping()
     assert mapping["us"]["en"]["monthly"]["id"] == stage_monthly_id
     assert mapping["us"]["en"]["yearly"]["id"] == stage_yearly_id
     assert mapping["ca"]["en"]["monthly"]["id"] == stage_monthly_id

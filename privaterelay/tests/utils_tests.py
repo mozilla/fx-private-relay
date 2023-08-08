@@ -306,7 +306,7 @@ def test_guess_country_from_accept_lang_short_primary_lang_fails(accept_lang) ->
 
 def test_get_countries_info_bad_accept_language(rf) -> None:
     request = rf.get("/api/v1/runtime_data", HTTP_ACCEPT_LANGUAGE="xx")
-    mapping = get_premium_country_language_mapping(None)
+    mapping = get_premium_country_language_mapping()
     result = get_countries_info_from_request_and_mapping(request, mapping)
     assert result == {
         "country_code": "",
