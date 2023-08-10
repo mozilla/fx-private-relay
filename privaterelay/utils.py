@@ -1,6 +1,6 @@
 from decimal import Decimal
 from functools import wraps
-from string import ascii_lowercase
+from string import ascii_uppercase
 from typing import Callable, TypedDict
 import random
 
@@ -16,12 +16,12 @@ from waffle.utils import (
     get_setting as get_waffle_setting,
 )
 
-from .plans import PlanCountryLangMapping, RelayCountryStr
+from .plans import PlanCountryLangMapping, CountryStr
 
 
 class CountryInfo(TypedDict):
     country_code: str
-    countries: list[RelayCountryStr]
+    countries: list[CountryStr]
     available_in_country: bool
     plan_country_lang_mapping: PlanCountryLangMapping
 
@@ -59,7 +59,7 @@ def _get_cc_from_request(request: HttpRequest) -> str:
         return request.headers["X-Client-Region"].lower()
     if "Accept-Language" in request.headers:
         return _get_cc_from_lang(request.headers["Accept-Language"])
-    return "us"
+    return "US"
 
 
 def _get_cc_from_lang(accept_lang: str) -> str:
@@ -74,145 +74,145 @@ def _get_cc_from_lang(accept_lang: str) -> str:
 # with the exception of Spanish (es), which is mapped to Spain (es) instead of
 # Mexico (mx), which has the most speakers, but usually specifies es-MX.
 _PRIMARY_LANGUAGE_TO_COUNTRY = {
-    "ace": "id",  # # Acehnese -> Indonesia
-    "ach": "ug",  # Acholi -> Uganda
-    "af": "za",  # Afrikaans -> South Africa
-    "an": "es",  # Aragonese -> Spain
-    "ar": "eg",  # Arabic -> Egypt
-    "arn": "cl",  # Mapudungun -> Chile
-    "as": "in",  # Assamese -> India
-    "ast": "es",  # Asturian -> Spain
-    "az": "az",  # Azerbaijani -> Azerbaijan
-    "be": "by",  # Belerusian -> Belarus
-    "bg": "bg",  # Bulgarian -> Bulgaria
-    "bn": "bd",  # Bengali -> Bangladesh
-    "bo": "cn",  # Tibetan -> China
-    "br": "fr",  # Breton -> France
-    "brx": "in",  # Bodo -> India
-    "bs": "ba",  # Bosnian -> Bosnia and Herzegovina
-    "ca": "fr",  # Catalan -> France
-    "cak": "mx",  # Kaqchikel -> Mexico
-    "ckb": "iq",  # Central Kurdish -> Iraq
-    "cs": "cz",  # Czech -> Czech Republic
-    "cv": "ru",  # Chuvash -> Russia
-    "cy": "gb",  # Welsh -> United Kingdom
-    "da": "dk",  # Danish -> Denmark
-    "de": "de",  # German -> Germany
-    "dsb": "de",  # Lower Sorbian -> Germany
-    "el": "gr",  # Greek -> Greece
-    "en": "us",  # English -> Canada
-    "eo": "sm",  # Esperanto -> San Marino
-    "es": "es",  # Spanish -> Spain (instead of Mexico, top by population)
-    "et": "ee",  # Estonian -> Estonia
-    "eu": "es",  # Basque -> Spain
-    "fa": "ir",  # Persian -> Iran
-    "ff": "sn",  # Fulah -> Senegal
-    "fi": "fi",  # Finnish -> Finland
-    "fr": "fr",  # French -> France
-    "frp": "fr",  # Arpitan -> France
-    "fur": "it",  # Friulian -> Italy
-    "fy": "nl",  # Frisian -> Netherlands
-    "ga": "ie",  # Irish -> Ireland
-    "gd": "gb",  # Scottish Gaelic -> United Kingdom
-    "gl": "es",  # Galician -> Spain
-    "gn": "py",  # Guarani -> Paraguay
-    "gu": "in",  # Gujarati -> India
-    "gv": "im",  # Manx -> Isle of Man
-    "he": "il",  # Hebrew -> Israel
-    "hi": "in",  # Hindi -> India
-    "hr": "hr",  # Croatian -> Croatia
-    "hsb": "de",  # Upper Sorbian -> Germany
-    "hu": "hu",  # Hungarian -> Hungary
-    "hy": "am",  # Armenian -> Armenia
-    "hye": "am",  # Armenian Eastern Classic Orthography -> Armenia
-    "ia": "fr",  # Interlingua -> France
-    "id": "id",  # Indonesian -> Indonesia
-    "ilo": "ph",  # Iloko -> Philippines
-    "is": "is",  # Icelandic -> Iceland
-    "it": "it",  # Italian -> Italy
-    "ixl": "mx",  # Ixil -> Mexico
-    "ja": "jp",  # Japanese -> Japan
-    "jiv": "mx",  # Shuar -> Mexico
-    "ka": "ge",  # Georgian -> Georgia
-    "kab": "dz",  # Kayble -> Algeria
-    "kk": "kz",  # Kazakh -> Kazakhstan
-    "km": "kh",  # Khmer -> Cambodia
-    "kn": "in",  # Kannada -> India
-    "ko": "kr",  # Korean -> South Korea
-    "ks": "in",  # Kashmiri -> India
-    "lb": "lu",  # Luxembourgish -> Luxembourg
-    "lg": "ug",  # Luganda -> Uganda
-    "lij": "it",  # Ligurian -> Italy
-    "lo": "la",  # Lao -> Laos
-    "lt": "lt",  # Lithuanian -> Lithuania
-    "ltg": "lv",  # Latgalian -> Latvia
-    "lus": "us",  # Mizo -> United States
-    "lv": "lv",  # Latvian -> Latvia
-    "mai": "in",  # Maithili -> India
-    "meh": "mx",  # Mixteco Yucuhiti -> Mexico
-    "mix": "mx",  # Mixtepec Mixtec -> Mexico
-    "mk": "mk",  # Macedonian -> North Macedonia
-    "ml": "in",  # Malayalam -> India
-    "mr": "in",  # Marathi -> India
-    "ms": "my",  # Malay -> Malaysia
-    "my": "mm",  # Burmese -> Myanmar
-    "nb": "no",  # Norwegian Bokmål -> Norway
-    "ne": "np",  # Nepali -> Nepal
-    "nl": "nl",  # Dutch -> Netherlands
-    "nn": "no",  # Norwegian Nynorsk -> Norway
-    "oc": "fr",  # Occitan -> France
-    "or": "in",  # Odia -> India
-    "pa": "in",  # Punjabi -> India
-    "pl": "pl",  # Polish -> Poland
-    "ppl": "mx",  # Náhuat Pipil -> Mexico
-    "pt": "br",  # Portuguese -> Brazil
-    "quc": "gt",  # K'iche' -> Guatemala
-    "rm": "ch",  # Romansh -> Switzerland
-    "ro": "ro",  # Romanian -> Romania
-    "ru": "ru",  # Russian -> Russia
-    "sat": "in",  # Santali (Ol Chiki) -> India
-    "sc": "it",  # Sardinian -> Italy
-    "scn": "it",  # Sicilian -> Italy
-    "sco": "gb",  # Scots -> United Kingdom
-    "si": "lk",  # Sinhala -> Sri Lanka
-    "sk": "sk",  # Slovak -> Slovakia
-    "skr": "pk",  # Saraiki -> Pakistan
-    "sl": "si",  # Slovenian -> Slovenia
-    "son": "ml",  # Songhay -> Mali
-    "sq": "al",  # Albanian -> Albania
-    "sr": "rs",  # Serbian -> Serbia
-    "sv": "se",  # Swedish -> Sweeden
-    "sw": "tz",  # Swahili -> Tanzania
-    "szl": "pl",  # Silesian -> Poland
-    "ta": "in",  # Tamil -> India
-    "te": "in",  # Telugu -> India
-    "tg": "tj",  # Tajik -> Tajikistan
-    "th": "th",  # Thai -> Thailand
-    "tl": "ph",  # Tagalog -> Philippines
-    "tr": "tr",  # Turkish or Crimean Tatar -> Turkey
-    "trs": "mx",  # Triqui -> Mexico
-    "uk": "ua",  # Ukrainian -> Ukraine
-    "ur": "pk",  # Urdu -> Pakistan
-    "uz": "uz",  # Uzbek -> Uzbekistan
-    "vi": "vn",  # Vietnamese -> Vietnam
-    "wo": "sn",  # Wolof -> Senegal
-    "xcl": "am",  # Armenian Classic -> Armenia
-    "xh": "za",  # Xhosa -> South Africa
-    "zam": "mx",  # Miahuatlán Zapotec -> Mexico
-    "zh": "cn",  # Chinese -> China
+    "ace": "ID",  # # Acehnese -> Indonesia
+    "ach": "UG",  # Acholi -> Uganda
+    "af": "ZA",  # Afrikaans -> South Africa
+    "an": "ES",  # Aragonese -> Spain
+    "ar": "EG",  # Arabic -> Egypt
+    "arn": "CL",  # Mapudungun -> Chile
+    "as": "IN",  # Assamese -> India
+    "ast": "ES",  # Asturian -> Spain
+    "az": "AZ",  # Azerbaijani -> Azerbaijan
+    "be": "BY",  # Belerusian -> Belarus
+    "bg": "BG",  # Bulgarian -> Bulgaria
+    "bn": "BD",  # Bengali -> Bangladesh
+    "bo": "CN",  # Tibetan -> China
+    "br": "FR",  # Breton -> France
+    "brx": "IN",  # Bodo -> India
+    "bs": "BA",  # Bosnian -> Bosnia and Herzegovina
+    "ca": "FR",  # Catalan -> France
+    "cak": "MX",  # Kaqchikel -> Mexico
+    "ckb": "IQ",  # Central Kurdish -> Iraq
+    "cs": "CZ",  # Czech -> Czech Republic
+    "cv": "RU",  # Chuvash -> Russia
+    "cy": "GB",  # Welsh -> United Kingdom
+    "da": "DK",  # Danish -> Denmark
+    "de": "DE",  # German -> Germany
+    "dsb": "DE",  # Lower Sorbian -> Germany
+    "el": "GR",  # Greek -> Greece
+    "en": "US",  # English -> Canada
+    "eo": "SM",  # Esperanto -> San Marino
+    "es": "ES",  # Spanish -> Spain (instead of Mexico, top by population)
+    "et": "EE",  # Estonian -> Estonia
+    "eu": "ES",  # Basque -> Spain
+    "fa": "IR",  # Persian -> Iran
+    "ff": "SN",  # Fulah -> Senegal
+    "fi": "FI",  # Finnish -> Finland
+    "fr": "FR",  # French -> France
+    "frp": "FR",  # Arpitan -> France
+    "fur": "IT",  # Friulian -> Italy
+    "fy": "NL",  # Frisian -> Netherlands
+    "ga": "IE",  # Irish -> Ireland
+    "gd": "GB",  # Scottish Gaelic -> United Kingdom
+    "gl": "ES",  # Galician -> Spain
+    "gn": "PY",  # Guarani -> Paraguay
+    "gu": "IN",  # Gujarati -> India
+    "gv": "IM",  # Manx -> Isle of Man
+    "he": "IL",  # Hebrew -> Israel
+    "hi": "IN",  # Hindi -> India
+    "hr": "HR",  # Croatian -> Croatia
+    "hsb": "DE",  # Upper Sorbian -> Germany
+    "hu": "HU",  # Hungarian -> Hungary
+    "hy": "AM",  # Armenian -> Armenia
+    "hye": "AM",  # Armenian Eastern Classic Orthography -> Armenia
+    "ia": "FR",  # Interlingua -> France
+    "id": "ID",  # Indonesian -> Indonesia
+    "ilo": "PH",  # Iloko -> Philippines
+    "is": "IS",  # Icelandic -> Iceland
+    "it": "IT",  # Italian -> Italy
+    "ixl": "MX",  # Ixil -> Mexico
+    "ja": "JP",  # Japanese -> Japan
+    "jiv": "MX",  # Shuar -> Mexico
+    "ka": "GE",  # Georgian -> Georgia
+    "kab": "DZ",  # Kayble -> Algeria
+    "kk": "KZ",  # Kazakh -> Kazakhstan
+    "km": "KH",  # Khmer -> Cambodia
+    "kn": "IN",  # Kannada -> India
+    "ko": "KR",  # Korean -> South Korea
+    "ks": "IN",  # Kashmiri -> India
+    "lb": "LU",  # Luxembourgish -> Luxembourg
+    "lg": "UG",  # Luganda -> Uganda
+    "lij": "IT",  # Ligurian -> Italy
+    "lo": "LA",  # Lao -> Laos
+    "lt": "LT",  # Lithuanian -> Lithuania
+    "ltg": "LV",  # Latgalian -> Latvia
+    "lus": "US",  # Mizo -> United States
+    "lv": "LV",  # Latvian -> Latvia
+    "mai": "IN",  # Maithili -> India
+    "meh": "MX",  # Mixteco Yucuhiti -> Mexico
+    "mix": "MX",  # Mixtepec Mixtec -> Mexico
+    "mk": "MK",  # Macedonian -> North Macedonia
+    "ml": "IN",  # Malayalam -> India
+    "mr": "IN",  # Marathi -> India
+    "ms": "MY",  # Malay -> Malaysia
+    "my": "MM",  # Burmese -> Myanmar
+    "nb": "NO",  # Norwegian Bokmål -> Norway
+    "ne": "NP",  # Nepali -> Nepal
+    "nl": "NL",  # Dutch -> Netherlands
+    "nn": "NO",  # Norwegian Nynorsk -> Norway
+    "oc": "FR",  # Occitan -> France
+    "or": "IN",  # Odia -> India
+    "pa": "IN",  # Punjabi -> India
+    "pl": "PL",  # Polish -> Poland
+    "ppl": "MX",  # Náhuat Pipil -> Mexico
+    "pt": "BR",  # Portuguese -> Brazil
+    "quc": "GT",  # K'iche' -> Guatemala
+    "rm": "CH",  # Romansh -> Switzerland
+    "ro": "RO",  # Romanian -> Romania
+    "ru": "RU",  # Russian -> Russia
+    "sat": "IN",  # Santali (Ol Chiki) -> India
+    "sc": "IT",  # Sardinian -> Italy
+    "scn": "IT",  # Sicilian -> Italy
+    "sco": "GB",  # Scots -> United Kingdom
+    "si": "LK",  # Sinhala -> Sri Lanka
+    "sk": "SK",  # Slovak -> Slovakia
+    "skr": "PK",  # Saraiki -> Pakistan
+    "sl": "SI",  # Slovenian -> Slovenia
+    "son": "ML",  # Songhay -> Mali
+    "sq": "AL",  # Albanian -> Albania
+    "sr": "RS",  # Serbian -> Serbia
+    "sv": "SE",  # Swedish -> Sweeden
+    "sw": "TZ",  # Swahili -> Tanzania
+    "szl": "PL",  # Silesian -> Poland
+    "ta": "IN",  # Tamil -> India
+    "te": "IN",  # Telugu -> India
+    "tg": "TJ",  # Tajik -> Tajikistan
+    "th": "TH",  # Thai -> Thailand
+    "tl": "PH",  # Tagalog -> Philippines
+    "tr": "TR",  # Turkish or Crimean Tatar -> Turkey
+    "trs": "MX",  # Triqui -> Mexico
+    "uk": "UA",  # Ukrainian -> Ukraine
+    "ur": "PK",  # Urdu -> Pakistan
+    "uz": "UZ",  # Uzbek -> Uzbekistan
+    "vi": "VN",  # Vietnamese -> Vietnam
+    "wo": "SN",  # Wolof -> Senegal
+    "xcl": "AM",  # Armenian Classic -> Armenia
+    "xh": "ZA",  # Xhosa -> South Africa
+    "zam": "MX",  # Miahuatlán Zapotec -> Mexico
+    "zh": "CN",  # Chinese -> China
 }
 
 # Special cases for language tags
 _LANGUAGE_TAG_TO_COUNTRY_OVERRIDE = {
     # Would be Catalan in Valencian script -> France
     # Change to Valencian -> Spain
-    ("ca", "valencia"): "es",
+    ("ca", "VALENCIA"): "ES",
     # Spanish in UN region 419 (Latin America and Carribean)
     # Pick Mexico, which has highest number of Spanish speakers
-    ("es", "419"): "mx",
+    ("es", "419"): "MX",
     # Would be Galician (Greenland) -> Greenland
     # Change to Galician (Galicia region of Spain) -> Spain
-    ("gl", "gl"): "es",
+    ("gl", "GL"): "ES",
 }
 
 
@@ -228,7 +228,7 @@ def guess_country_from_accept_lang(accept_lang: str) -> str:
     """
     Guess the user's country from the Accept-Language header
 
-    Return is a 2-letter ISO 3166 country code, lowercased.
+    Return is a 2-letter ISO 3166 country code
 
     If an issue is detected, a AcceptLanguageError is raised.
 
@@ -262,7 +262,7 @@ def guess_country_from_accept_lang(accept_lang: str) -> str:
         )
 
     for maybe_region_raw in subtags[1:]:
-        maybe_region = maybe_region_raw.lower()
+        maybe_region = maybe_region_raw.upper()
 
         # Look for a special case
         if override := _LANGUAGE_TAG_TO_COUNTRY_OVERRIDE.get((lang, maybe_region)):
@@ -273,13 +273,13 @@ def guess_country_from_accept_lang(accept_lang: str) -> str:
             break
         if (
             len(maybe_region) == 2
-            and all(c in ascii_lowercase for c in maybe_region)
+            and all(c in ascii_uppercase for c in maybe_region)
             and
             # RFC 5646 2.2.4 "Region Subtag" point 6, reserved subtags
-            maybe_region != "aa"
-            and maybe_region != "zz"
-            and maybe_region[0] != "x"
-            and (maybe_region[0] != "q" or maybe_region[1] < "m")
+            maybe_region != "AA"
+            and maybe_region != "ZZ"
+            and maybe_region[0] != "X"
+            and (maybe_region[0] != "Q" or maybe_region[1] < "M")
         ):
             # Subtag is a non-private ISO 3166 country code
             return maybe_region

@@ -15,11 +15,11 @@ const mockedUseRuntimeData = useRuntimeData as jest.MockedFunction<
 function getAvailableProductData(): ProductData {
   return {
     available_in_country: true,
-    countries: ["nl"],
-    country_code: "nl",
+    countries: ["NL"],
+    country_code: "NL",
     plan_country_lang_mapping: {
-      nl: {
-        nl: {
+      NL: {
+        "*": {
           monthly: {
             id: "price_1JmROfJNcmPzuWtR6od8OfDW",
             price: 0.99,
@@ -39,7 +39,7 @@ function getUnavailableProductData(): ProductData {
   return {
     available_in_country: false,
     countries: [],
-    country_code: "be",
+    country_code: "BE",
     plan_country_lang_mapping: {},
   };
 }
@@ -106,7 +106,7 @@ export function getMockRuntimeDataWithoutPremium(): RuntimeData {
 }
 
 function getReturnValue(
-  runtimeData?: Partial<RuntimeData>
+  runtimeData?: Partial<RuntimeData>,
 ): ReturnType<typeof useRuntimeData> {
   return {
     isValidating: false,

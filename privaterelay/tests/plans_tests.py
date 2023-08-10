@@ -4,13 +4,14 @@ from pytest_django.fixtures import SettingsWrapper
 import pytest
 
 from privaterelay.plans import (
-    LanguageStr,
-    RelayCountryStr,
+    CountryStr,
+    LanguageOrAny,
     PlanCountryLangMapping,
     get_bundle_country_language_mapping,
     get_phone_country_language_mapping,
     get_premium_countries,
     get_premium_country_language_mapping,
+    relay_countries,
 )
 
 
@@ -25,98 +26,57 @@ def plan_settings(settings: SettingsWrapper) -> SettingsWrapper:
     return settings
 
 
-_PREMIUM_COUNTRIES = [
-    "at",
-    "be",
-    "bg",
-    "ca",
-    "ch",
-    "cy",
-    "cz",
-    "de",
-    "dk",
-    "ee",
-    "es",
-    "fi",
-    "fr",
-    "gb",
-    "gr",
-    "hr",
-    "hu",
-    "ie",
-    "it",
-    "lt",
-    "lu",
-    "lv",
-    "mt",
-    "my",
-    "nl",
-    "nz",
-    "pl",
-    "pt",
-    "ro",
-    "se",
-    "sg",
-    "si",
-    "sk",
-    "us",
-]
-_NON_PREMIUM_COUNTRY = "mx"
-
-
 def test_get_premium_countries() -> None:
     premium_countries = get_premium_countries()
-    assert sorted(premium_countries) == sorted(_PREMIUM_COUNTRIES)
-    assert _NON_PREMIUM_COUNTRY not in premium_countries
+    assert sorted(premium_countries) == sorted(relay_countries)
+    assert "MX" not in premium_countries
 
 
 _PREMIUM_PRICE_DATA = {
+    "BG": ("EUR", "_1NOSjBJNcmPzuWtRMQwYp5u1", "_1NOSkTJNcmPzuWtRpbKwsLcw"),
+    "CS": ("CZK", "_1NNkAlJNcmPzuWtRxsfrXacj", "_1NNkDHJNcmPzuWtRHnQmCDGP"),
+    "DA": ("DKK", "_1NNfPCJNcmPzuWtR3SNA8gqG", "_1NNfLoJNcmPzuWtRpmLc9lst"),
+    "DE": ("EUR", "_1LYC79JNcmPzuWtRU7Q238yL", "_1LYC7xJNcmPzuWtRcdKXCVZp"),
+    "ES": ("EUR", "_1LYCWmJNcmPzuWtRtopZog9E", "_1LYCXNJNcmPzuWtRu586XOFf"),
+    "ET": ("EUR", "_1NHA1tJNcmPzuWtRvSeyiVYH", "_1NHA2TJNcmPzuWtR10yknZHf"),
+    "FI": ("EUR", "_1LYBn9JNcmPzuWtRI3nvHgMi", "_1LYBq1JNcmPzuWtRmyEa08Wv"),
+    "FR": ("EUR", "_1LYBuLJNcmPzuWtRn58XQcky", "_1LYBwcJNcmPzuWtRpgoWcb03"),
+    "HR": ("EUR", "_1NOSznJNcmPzuWtRH7CEeAwA", "_1NOT0WJNcmPzuWtRpeNDEjvC"),
+    "HU": ("EUR", "_1NOOJAJNcmPzuWtRV7Kmwmdm", "_1NOOKvJNcmPzuWtR2DEWIRE4"),
+    "IT": ("EUR", "_1LYCMrJNcmPzuWtRTP9vD8wY", "_1LYCN2JNcmPzuWtRtWz7yMno"),
+    "LT": ("EUR", "_1NHACcJNcmPzuWtR5ZJeVtJA", "_1NHADOJNcmPzuWtR2PSMBMLr"),
+    "LV": ("EUR", "_1NHAASJNcmPzuWtRpcliwx0R", "_1NHA9lJNcmPzuWtRLf7DV6GA"),
+    "MT": ("EUR", "_1NH9yxJNcmPzuWtRChanpIQU", "_1NH9y3JNcmPzuWtRIJkQos9q"),
+    "NL": ("EUR", "_1LYCdLJNcmPzuWtR0J1EHoJ0", "_1LYCdtJNcmPzuWtRVm4jLzq2"),
+    "PL": ("PLN", "_1NNKGJJNcmPzuWtRTlP7GKWW", "_1NNfCvJNcmPzuWtRCvFppHqt"),
+    "PT": ("EUR", "_1NHAI1JNcmPzuWtRx8jXjkrQ", "_1NHAHWJNcmPzuWtRCRMnWyvK"),
+    "RO": ("EUR", "_1NOOEnJNcmPzuWtRicUvOyUy", "_1NOOEJJNcmPzuWtRyHqMe2jb"),
+    "SK": ("EUR", "_1NHAJsJNcmPzuWtR71WX0Pz9", "_1NHAKYJNcmPzuWtRtETl30gb"),
+    "SL": ("EUR", "_1NHALmJNcmPzuWtR2nIoAzEt", "_1NHAL9JNcmPzuWtRSZ3BWQs0"),
+    "SV": ("EUR", "_1LYBblJNcmPzuWtRGRHIoYZ5", "_1LYBeMJNcmPzuWtRT5A931WH"),
     "de-CH": ("CHF", "_1LYCqOJNcmPzuWtRuIXpQRxi", "_1LYCqyJNcmPzuWtR3Um5qDPu"),
-    "de": ("EUR", "_1LYC79JNcmPzuWtRU7Q238yL", "_1LYC7xJNcmPzuWtRcdKXCVZp"),
-    "el-GR": ("EUR", "_1NHA5CJNcmPzuWtR1JSmxqFA", "_1NHA4lJNcmPzuWtRniS23IuE"),
-    "en-IE": ("EUR", "_1LhdrkJNcmPzuWtRvCc4hsI2", "_1LhdprJNcmPzuWtR7HqzkXTS"),
     "el-CY": ("EUR", "_1NH9saJNcmPzuWtRpffF5I59", "_1NH9rKJNcmPzuWtRzDiXCeEG"),
-    "mt": ("EUR", "_1NH9yxJNcmPzuWtRChanpIQU", "_1NH9y3JNcmPzuWtRIJkQos9q"),
-    "fr-LU": ("EUR", "_1NHAFZJNcmPzuWtRm5A7w5qJ", "_1NHAF8JNcmPzuWtRG1FiPK0N"),
-    "en-US": ("USD", "_1LXUcnJNcmPzuWtRpbNOajYS", "_1LXUdlJNcmPzuWtRKTYg7mpZ"),
+    "el-GR": ("EUR", "_1NHA5CJNcmPzuWtR1JSmxqFA", "_1NHA4lJNcmPzuWtRniS23IuE"),
     "en-GB": ("USD", "_1LYCHpJNcmPzuWtRhrhSYOKB", "_1LYCIlJNcmPzuWtRQtYLA92j"),
-    "es": ("EUR", "_1LYCWmJNcmPzuWtRtopZog9E", "_1LYCXNJNcmPzuWtRu586XOFf"),
-    "et": ("EUR", "_1NHA1tJNcmPzuWtRvSeyiVYH", "_1NHA2TJNcmPzuWtR10yknZHf"),
-    "fi": ("EUR", "_1LYBn9JNcmPzuWtRI3nvHgMi", "_1LYBq1JNcmPzuWtRmyEa08Wv"),
+    "en-IE": ("EUR", "_1LhdrkJNcmPzuWtRvCc4hsI2", "_1LhdprJNcmPzuWtR7HqzkXTS"),
+    "en-US": ("USD", "_1LXUcnJNcmPzuWtRpbNOajYS", "_1LXUdlJNcmPzuWtRKTYg7mpZ"),
     "fr-CH": ("CHF", "_1LYCvpJNcmPzuWtRq9ci2gXi", "_1LYCwMJNcmPzuWtRm6ebmq2N"),
-    "fr": ("EUR", "_1LYBuLJNcmPzuWtRn58XQcky", "_1LYBwcJNcmPzuWtRpgoWcb03"),
+    "fr-LU": ("EUR", "_1NHAFZJNcmPzuWtRm5A7w5qJ", "_1NHAF8JNcmPzuWtRG1FiPK0N"),
     "it-CH": ("CHF", "_1LYCiBJNcmPzuWtRxtI8D5Uy", "_1LYClxJNcmPzuWtRWjslDdkG"),
-    "it": ("EUR", "_1LYCMrJNcmPzuWtRTP9vD8wY", "_1LYCN2JNcmPzuWtRtWz7yMno"),
-    "lt": ("EUR", "_1NHACcJNcmPzuWtR5ZJeVtJA", "_1NHADOJNcmPzuWtR2PSMBMLr"),
-    "lv": ("EUR", "_1NHAASJNcmPzuWtRpcliwx0R", "_1NHA9lJNcmPzuWtRLf7DV6GA"),
-    "nl": ("EUR", "_1LYCdLJNcmPzuWtR0J1EHoJ0", "_1LYCdtJNcmPzuWtRVm4jLzq2"),
-    "pt": ("EUR", "_1NHAI1JNcmPzuWtRx8jXjkrQ", "_1NHAHWJNcmPzuWtRCRMnWyvK"),
-    "sk": ("EUR", "_1NHAJsJNcmPzuWtR71WX0Pz9", "_1NHAKYJNcmPzuWtRtETl30gb"),
-    "sl": ("EUR", "_1NHALmJNcmPzuWtR2nIoAzEt", "_1NHAL9JNcmPzuWtRSZ3BWQs0"),
-    "sv": ("EUR", "_1LYBblJNcmPzuWtRGRHIoYZ5", "_1LYBeMJNcmPzuWtRT5A931WH"),
-    # Added with MPP-3202
-    "bg": ("EUR", "_1NOSjBJNcmPzuWtRMQwYp5u1", "_1NOSkTJNcmPzuWtRpbKwsLcw"),
-    "cs": ("CZK", "_1NNkAlJNcmPzuWtRxsfrXacj", "_1NNkDHJNcmPzuWtRHnQmCDGP"),
-    "da": ("DKK", "_1NNfPCJNcmPzuWtR3SNA8gqG", "_1NNfLoJNcmPzuWtRpmLc9lst"),
-    "hr": ("EUR", "_1NOSznJNcmPzuWtRH7CEeAwA", "_1NOT0WJNcmPzuWtRpeNDEjvC"),
-    "hu": ("EUR", "_1NOOJAJNcmPzuWtRV7Kmwmdm", "_1NOOKvJNcmPzuWtR2DEWIRE4"),
-    "pl": ("PLN", "_1NNKGJJNcmPzuWtRTlP7GKWW", "_1NNfCvJNcmPzuWtRCvFppHqt"),
-    "ro": ("EUR", "_1NOOEnJNcmPzuWtRicUvOyUy", "_1NOOEJJNcmPzuWtRyHqMe2jb"),
 }
 _PREMIUM_PRICES = {
     "CHF": (2.0, 1.0),
-    "EUR": (1.99, 0.99),
-    "USD": (1.99, 0.99),
-    # Added with MPP-3202
     "CZK": (47.0, 23.0),
     "DKK": (15.0, 7.0),
+    "EUR": (1.99, 0.99),
     "PLN": (8.0, 5.0),
+    "USD": (1.99, 0.99),
 }
 
 
 def check_country_language_mapping_for_monthly_plan(
-    country: RelayCountryStr,
-    language: LanguageStr,
+    country: CountryStr,
+    language: LanguageOrAny,
     price_data_key: str,
     mapping: PlanCountryLangMapping,
     price_data_by_key: dict[str, tuple[str, str, str]],
@@ -150,51 +110,49 @@ def check_country_language_mapping_for_monthly_plan(
 @pytest.mark.parametrize(
     "country,language,price_data_key",
     (
-        ("at", "de", "de"),
-        ("at", "de", "de"),
-        ("be", "fr", "fr"),
-        ("be", "de", "de"),
-        ("be", "nl", "nl"),
-        ("ch", "fr", "fr-CH"),
-        ("ch", "de", "de-CH"),
-        ("ch", "it", "it-CH"),
-        ("de", "de", "de"),
-        ("es", "es", "es"),
-        ("fr", "fr", "fr"),
-        ("ie", "en", "en-IE"),
-        ("it", "it", "it"),
-        ("nl", "nl", "nl"),
-        ("se", "sv", "sv"),
-        ("fi", "fi", "fi"),
-        ("us", "en", "en-US"),
-        ("gb", "en", "en-GB"),
-        ("ca", "en", "en-US"),
-        ("nz", "en", "en-GB"),
-        ("my", "en", "en-GB"),
-        ("sg", "en", "en-GB"),
-        ("cy", "el", "el-CY"),
-        ("ee", "et", "et"),
-        ("gr", "el", "el-GR"),
-        ("lv", "lv", "lv"),
-        ("lt", "lt", "lt"),
-        ("lu", "fr", "fr-LU"),
-        ("mt", "en", "mt"),
-        ("pt", "pt", "pt"),
-        ("sk", "sk", "sk"),
-        ("si", "sl", "sl"),
-        # Added with MPP-3202
-        ("bg", "bg", "bg"),
-        ("cz", "cs", "cs"),
-        ("dk", "da", "da"),
-        ("hr", "hr", "hr"),
-        ("hu", "hu", "hu"),
-        ("pl", "pl", "pl"),
-        ("ro", "ro", "ro"),
+        ("AT", "*", "DE"),
+        ("BE", "de", "DE"),
+        ("BE", "fr", "FR"),
+        ("BE", "nl", "NL"),
+        ("BG", "*", "BG"),
+        ("CA", "*", "en-US"),
+        ("CH", "de", "de-CH"),
+        ("CH", "fr", "fr-CH"),
+        ("CH", "it", "it-CH"),
+        ("CY", "*", "el-CY"),
+        ("CZ", "*", "CS"),
+        ("DE", "*", "DE"),
+        ("DK", "*", "DA"),
+        ("EE", "*", "ET"),
+        ("ES", "*", "ES"),
+        ("FI", "*", "FI"),
+        ("FR", "*", "FR"),
+        ("GB", "*", "en-GB"),
+        ("GR", "*", "el-GR"),
+        ("HR", "*", "HR"),
+        ("HU", "*", "HU"),
+        ("IE", "*", "en-IE"),
+        ("IT", "*", "IT"),
+        ("LT", "*", "LT"),
+        ("LU", "*", "fr-LU"),
+        ("LV", "*", "LV"),
+        ("MT", "*", "MT"),
+        ("MY", "*", "en-GB"),
+        ("NL", "*", "NL"),
+        ("NZ", "*", "en-GB"),
+        ("PL", "*", "PL"),
+        ("PT", "*", "PT"),
+        ("RO", "*", "RO"),
+        ("SE", "*", "SV"),
+        ("SG", "*", "en-GB"),
+        ("SI", "*", "SL"),
+        ("SK", "*", "SK"),
+        ("US", "*", "en-US"),
     ),
 )
 def test_get_premium_country_language_mapping(
-    country: RelayCountryStr,
-    language: LanguageStr,
+    country: CountryStr,
+    language: LanguageOrAny,
     price_data_key: str,
 ) -> None:
     mapping = get_premium_country_language_mapping()
@@ -213,10 +171,10 @@ def test_get_premium_country_language_mapping_overrides(
     assert plan_settings.PREMIUM_PLAN_ID_US_YEARLY != stage_yearly_id
     plan_settings.PREMIUM_PLAN_ID_US_YEARLY = stage_yearly_id
     mapping = get_premium_country_language_mapping()
-    assert mapping["us"]["en"]["monthly"]["id"] == stage_monthly_id
-    assert mapping["us"]["en"]["yearly"]["id"] == stage_yearly_id
-    assert mapping["ca"]["en"]["monthly"]["id"] == stage_monthly_id
-    assert mapping["ca"]["en"]["yearly"]["id"] == stage_yearly_id
+    assert mapping["US"]["*"]["monthly"]["id"] == stage_monthly_id
+    assert mapping["US"]["*"]["yearly"]["id"] == stage_yearly_id
+    assert mapping["CA"]["*"]["monthly"]["id"] == stage_monthly_id
+    assert mapping["CA"]["*"]["yearly"]["id"] == stage_yearly_id
 
 
 _PHONE_PRICE_DATA = {
@@ -230,20 +188,16 @@ _PHONE_PRICES = {
 @pytest.mark.parametrize(
     "country,language,price_data_key",
     (
-        ("us", "en", "en-US"),
-        ("ca", "en", "en-US"),
+        ("CA", "*", "en-US"),
+        ("US", "*", "en-US"),
     ),
 )
 def test_get_phone_country_language_mapping(
-    country: RelayCountryStr, language: LanguageStr, price_data_key: str
+    country: CountryStr, language: LanguageOrAny, price_data_key: str
 ) -> None:
+    mapping = get_phone_country_language_mapping()
     check_country_language_mapping_for_monthly_plan(
-        country,
-        language,
-        price_data_key,
-        get_phone_country_language_mapping(),
-        _PHONE_PRICE_DATA,
-        _PHONE_PRICES,
+        country, language, price_data_key, mapping, _PHONE_PRICE_DATA, _PHONE_PRICES
     )
 
 
@@ -257,10 +211,10 @@ def test_get_phone_country_language_mapping_overrides(
     assert plan_settings.PHONE_PLAN_ID_US_YEARLY != stage_yearly_id
     plan_settings.PHONE_PLAN_ID_US_YEARLY = stage_yearly_id
     mapping = get_phone_country_language_mapping()
-    assert mapping["us"]["en"]["monthly"]["id"] == stage_monthly_id
-    assert mapping["us"]["en"]["yearly"]["id"] == stage_yearly_id
-    assert mapping["ca"]["en"]["monthly"]["id"] == stage_monthly_id
-    assert mapping["ca"]["en"]["yearly"]["id"] == stage_yearly_id
+    assert mapping["US"]["*"]["monthly"]["id"] == stage_monthly_id
+    assert mapping["US"]["*"]["yearly"]["id"] == stage_yearly_id
+    assert mapping["CA"]["*"]["monthly"]["id"] == stage_monthly_id
+    assert mapping["CA"]["*"]["yearly"]["id"] == stage_yearly_id
 
 
 _BUNDLE_PRICE_DATA = {
@@ -274,12 +228,12 @@ _BUNDLE_PRICES = {
 @pytest.mark.parametrize(
     "country,language,price_data_key",
     (
-        ("us", "en", "en-US"),
-        ("ca", "en", "en-US"),
+        ("CA", "*", "en-US"),
+        ("US", "*", "en-US"),
     ),
 )
 def test_get_bundle_country_language_mapping(
-    country: RelayCountryStr, language: LanguageStr, price_data_key: str
+    country: CountryStr, language: LanguageOrAny, price_data_key: str
 ) -> None:
     mapping = get_bundle_country_language_mapping()
     assert country in mapping
@@ -304,5 +258,5 @@ def test_get_bundle_country_language_mapping_overrides(
     assert plan_settings.BUNDLE_PLAN_ID_US != stage_yearly_id
     plan_settings.BUNDLE_PLAN_ID_US = stage_yearly_id
     mapping = get_bundle_country_language_mapping()
-    assert mapping["us"]["en"]["yearly"]["id"] == stage_yearly_id
-    assert mapping["ca"]["en"]["yearly"]["id"] == stage_yearly_id
+    assert mapping["US"]["*"]["yearly"]["id"] == stage_yearly_id
+    assert mapping["CA"]["*"]["yearly"]["id"] == stage_yearly_id

@@ -25,207 +25,207 @@ from ..utils import (
 @pytest.mark.parametrize(
     "accept_lang,expected_country_code",
     (
-        ("en-au,", "au"),
-        ("en-us,", "us"),
-        ("de-be,", "be"),
-        ("en", "us"),
-        ("sgn-us", "us"),  # American Sign Language
-        ("sgn-ch-de", "ch"),  # Swiss German Sign Language
-        ("et-ee", "ee"),
+        ("en-au,", "AU"),
+        ("en-us,", "US"),
+        ("de-be,", "BE"),
+        ("en", "US"),
+        ("sgn-us", "US"),  # American Sign Language
+        ("sgn-ch-de", "CH"),  # Swiss German Sign Language
+        ("et-ee", "EE"),
         # Good headers, from Django test test_parse_spec_http_header
-        ("de", "de"),
-        ("en-AU", "au"),
-        ("es-419", "mx"),
-        ("en-AU;q=0.123", "au"),
-        ("en-au;q=0.5", "au"),
-        ("en-au;q=1.0", "au"),
-        ("da, en-gb;q=0.25, en;q=0.5", "dk"),
-        ("de,en-au;q=0.75,en-us;q=0.5,en;q=0.25,es;q=0.125,fa;q=0.125", "de"),
-        ("de;q=0.", "de"),
-        ("en; q=1,", "us"),
-        ("en; q=1.0, * ; q=0.5", "us"),
+        ("de", "DE"),
+        ("en-AU", "AU"),
+        ("es-419", "MX"),
+        ("en-AU;q=0.123", "AU"),
+        ("en-au;q=0.5", "AU"),
+        ("en-au;q=1.0", "AU"),
+        ("da, en-gb;q=0.25, en;q=0.5", "DK"),
+        ("de,en-au;q=0.75,en-us;q=0.5,en;q=0.25,es;q=0.125,fa;q=0.125", "DE"),
+        ("de;q=0.", "DE"),
+        ("en; q=1,", "US"),
+        ("en; q=1.0, * ; q=0.5", "US"),
         # Default Accept-Language headers from Firefox
         # https://pontoon.mozilla.org/de/firefox/toolkit/chrome/global/intl.properties/?string=81017
-        ("ace, id, en-US, en", "id"),  # Acehnese -> Indonesia
-        ("ach, en-GB, en-US, en", "ug"),  # Acholi -> Uganda
-        ("af, en-ZA, en-GB, en-US, en", "za"),  # Afrikaans -> South Africa
-        ("ar, en-us, en", "eg"),  # Arabic -> Egypt
-        ("arn,es-CL,es-AR,es-MX,es-ES,es,en-US,en", "cl"),  # Mapudungun -> Chile
-        ("an, es-ES, es, ca, en-US, en", "es"),  # Aragonese -> Spain
-        ("as, en-us, en", "in"),  # Assamese -> India
-        ("ast, es-ES, es, en-US, en", "es"),  # Asturian -> Spain
-        ("az-AZ, az, en-US, en", "az"),  # Azerbaijani -> Azerbaijan
-        ("be, en-US, en", "by"),  # Belerusian -> Belarus
-        ("bg, en-US, en", "bg"),  # Bulgarian -> Bulgaria
-        ("bn, en-US, en", "bd"),  # Bengali -> Bangladesh
-        ("bn-in, bn, en-us, en", "in"),  # Bengali (India) -> India
-        ("bo-CN,bo-IN,bo,en-US, en", "cn"),  # Tibetan -> China
-        ("br, fr-FR, fr, en-US, en", "fr"),  # Breton -> France
-        ("brx,as,en-US,en", "in"),  # Bodo -> India
-        ("bs-ba, bs, en-us, en", "ba"),  # Bosnian -> Bosnia and Herzegovina
-        ("ca, en-us, en", "fr"),  # Catalan -> France
-        ("ca-valencia, ca, en-us, en", "es"),  # Catalan (Valencian) -> Spain
-        ("cak, kaq, es, en-us, en", "mx"),  # Kaqchikel -> Mexico
-        ("ckb,en-US,en", "iq"),  # Central Kurdish -> Iraq
-        ("cs, sk, en-US, en", "cz"),  # Czech -> Czech Republic
-        ("cv, en-US, en", "ru"),  # Chuvash -> Russia
-        ("cy-GB, cy, en-US, en", "gb"),  # Welsh -> United Kingdom
-        ("da, en-us, en", "dk"),  # Danish -> Denmark
-        ("de, en-US, en", "de"),  # German -> Germany
-        ("dsb, hsb, de, en-US, en", "de"),  # Lower Sorbian -> Germany
-        ("el-GR, el, en-US, en", "gr"),  # Greek -> Greece
-        ("en-CA, en-US, en", "ca"),  # English (Canadian) -> Canada
-        ("en-GB, en", "gb"),  # English (Great Britain) -> United Kingdom
-        ("eo, en-US, en", "sm"),  # Esperanto -> San Marino
-        ("es-AR, es, en-US, en", "ar"),  # Spanish (Argentina) -> Argentina
-        ("es-CL, es, en-US, en", "cl"),  # Spanish (Chile) -> Chile
-        ("es-ES, es, en-US, en", "es"),  # Spanish (Spain) -> Spain
-        ("es-MX, es, en-US, en", "mx"),  # Spanish (Mexico) -> Mexico
-        ("et, et-ee, en-us, en", "ee"),  # Estonian -> Estonia
-        ("eu, en-us, en", "es"),  # Basque -> Spain
-        ("fa-ir, fa, en-us, en", "ir"),  # Persian -> Iran
-        ("ff, fr-FR, fr, en-GB, en-US, en", "sn"),  # Fulah -> Senegal
-        ("fi-fi, fi, en-us, en", "fi"),  # Finnish -> Finland
-        ("fr, fr-fr, en-us, en", "fr"),  # French -> France
-        ("frp, fr-FR, fr, en-US, en", "fr"),  # Arpitan -> France
-        ("fur-IT, fur, it-IT, it, en-US, en", "it"),  # Friulian -> Italy
-        ("fy-nl, fy, nl, en-us, en ", "nl"),  # Frisian -> Netherlands
-        ("ga-ie, ga, en-ie, en-gb, en-us, en", "ie"),  # Irish -> Ireland
-        ("gd-gb, gd, en-gb, en-us, en", "gb"),  # Gaelic, Scottish -> United Kingdom
-        ("gl-gl, gl, en-us, en", "es"),  # Galician -> Spain
-        ("gn, es, en-US, en", "py"),  # Guarani -> Paraguay
-        ("gu-in, gu, en-us, en", "in"),  # Gujarati -> India
-        ("gv,en-GB,en-US,en", "im"),  # Manx -> Isle of Man
-        ("he, he-IL, en-US, en", "il"),  # Hebrew -> Israel
-        ("hi-in, hi, en-us, en", "in"),  # Hindi -> India
-        ("hr, hr-HR, en-US, en", "hr"),  # Croatian -> Croatia
-        ("hsb, dsb, de, en-US, en", "de"),  # Upper Sorbian -> Germany
-        ("hu-hu, hu, en-US, en", "hu"),  # Hungarian -> Hungary
-        ("hy-AM,hy,en-us,en", "am"),  # Armenian -> Armenia
-        ("hye,hy,en-US,en", "am"),  # Armenian Eastern Classic Orthography -> Armenia
-        ("ia, en-US, en", "fr"),  # Interlingua -> France
-        ("id, en-us, en", "id"),  # Indonesian -> Indonesia
-        ("ilo-PH, ilo, en-US, en", "ph"),  # Iloko -> Philippines
-        ("is, en-us, en", "is"),  # Icelandic -> Iceland
-        ("it-IT, it, en-US, en", "it"),  # Italian -> Italy
-        ("ixl, es-MX, es, en-US, en", "mx"),  # Ixil -> Mexico
-        ("ja, en-US, en", "jp"),  # Japanese -> Japan
-        ("jiv, es, en-US, en", "mx"),  # Shuar -> Mexico
-        ("ka-GE,ka,en-US,en", "ge"),  # Georgian -> Georgia
-        ("kab-DZ,kab,fr-FR,fr,en-US,en", "dz"),  # Kayble -> Algeria
-        ("kk, ru, ru-RU, en-US, en", "kz"),  # Kazakh -> Kazakhstan
-        ("km, en-US, en", "kh"),  # Khmer -> Cambodia
-        ("kn-IN, kn, en-us, en", "in"),  # Kannada -> India
-        ("ko-KR, ko, en-US, en", "kr"),  # Korean -> South Korea
-        ("ks,en-US,en", "in"),  # Kashmiri -> India
-        ("lb, de-DE, de, en-US, en", "lu"),  # Luxembourgish -> Luxembourg
-        ("lg, en-gb, en-us, en", "ug"),  # Luganda -> Uganda
-        ("lij, it, en-US, en", "it"),  # Ligurian -> Italy
-        ("lo, en-US, en", "la"),  # Lao -> Laos
-        ("lt, en-us, en, ru, pl", "lt"),  # Lithuanian -> Lithuania
-        ("ltg, lv, en-US, en", "lv"),  # Latgalian -> Latvia
-        ("lus,en-US,en", "us"),  # Mizo -> United States
-        ("lv, en-us, en", "lv"),  # Latvian -> Latvia
-        ("mai, hi-IN, en", "in"),  # Maithili -> India
-        ("meh,es-MX,es,en-US,en", "mx"),  # Mixteco Yucuhiti -> Mexico
-        ("mix,es-MX,es,en-US,en", "mx"),  # Mixtepec Mixtec -> Mexico
-        ("mk-mk, mk, en-us, en", "mk"),  # Macedonian -> North Macedonia
-        ("ml-in, ml, en-US, en", "in"),  # Malayalam -> India
-        ("mr-IN, mr, en-US, en", "in"),  # Marathi -> India
-        ("ms,en-us, en", "my"),  # Malay -> Malaysia
-        ("my, en-GB, en", "mm"),  # Burmese -> Myanmar
-        ("nb-no, nb, no-no, no, nn-no, nn, en-us, en", "no"),  # No. Bokmål -> Norway
-        ("ne-NP, ne, en-US, en", "np"),  # Nepali -> Nepal
-        ("nl, en-US, en", "nl"),  # Dutch -> Netherlands
-        ("nn-no, nn, no-no, no, nb-no, nb, en-us, en", "no"),  # No. Nynorsk -> Norway
-        ("oc, ca, fr, es, it, en-US, en", "fr"),  # Occitan -> France
-        ("or, en-US, en", "in"),  # Odia -> India
-        ("pa, pa-in, en-us, en", "in"),  # Punjabi -> India
-        ("pl, en-US, en", "pl"),  # Polish -> Poland
-        ("ppl,es-MX,es,en-US,en", "mx"),  # Náhuat Pipil -> Mexico
-        ("pt-BR, pt, en-US, en", "br"),  # Portuguese (Brazil) -> Brazil
-        ("pt-PT, pt, en, en-US", "pt"),  # Portuguese (Portugal) -> Portugal
-        ("quc,es-MX,es,en-US,en", "gt"),  # K'iche' -> Guatemala
-        ("rm, rm-ch, de-CH, de, en-us, en", "ch"),  # Romansh -> Switzerland
-        ("ro-RO, ro, en-US, en-GB, en", "ro"),  # Romanian -> Romania
-        ("ru-RU, ru, en-US, en", "ru"),  # Russian -> Russia
-        ("sat, en-US, en", "in"),  # Santali (Ol Chiki) -> India
-        ("sc, it-IT, it, en-US, en", "it"),  # Sardinian -> Italy
-        ("scn, it-IT, it, en-US, en", "it"),  # Sicilian -> Italy
-        ("sco,en-GB,en", "gb"),  # Scots -> United Kingdom
-        ("si-LK, si, en-US, en", "lk"),  # Sinhala -> Sri Lanka
-        ("sk, cs, en-US, en", "sk"),  # Slovak -> Slovakia
-        ("skr,en-US,en", "pk"),  # Saraiki -> Pakistan
-        ("sl, en-gb, en", "si"),  # Slovenian -> Slovenia
-        ("son, son-ml, fr, en-us, en", "ml"),  # Songhay -> Mali
-        ("sq, sq-AL, en-us, en", "al"),  # Albanian -> Albania
-        ("sr-RS, sr, en-US, en", "rs"),  # Serbian -> Serbia
-        ("sv-SE, sv, en-US, en", "se"),  # Swedish -> Sweeden
-        ("sw, en-US, en", "tz"),  # Swahili -> Tanzania
-        ("szl,pl-PL,pl,en,de", "pl"),  # Silesian -> Poland
-        ("ta-IN, ta, en-US, en", "in"),  # Tamil -> India
-        ("te-in, te, en-us, en", "in"),  # Telugu -> India
-        ("tg, en-US, en", "tj"),  # Tajik -> Tajikistan
-        ("th, en-US, en", "th"),  # Thai -> Thailand
-        ("tl-PH, tl, en-US, en", "ph"),  # Tagalog -> Philippines
-        ("tr-TR, tr, en-US, en", "tr"),  # Turkish OR Crimean Tatar -> Turkey
-        ("trs,es-MX,es,en-US,en", "mx"),  # Triqui -> Mexico
-        ("uk-UA, uk, en-US, en", "ua"),  # Ukrainian -> Ukraine
-        ("ur-PK, ur, en-US, en", "pk"),  # Urdu -> Pakistan
-        ("uz, ru, en, en-US", "uz"),  # Uzbek -> Uzbekistan
-        ("vi-vn, vi, en-us, en", "vn"),  # Vietnamese -> Vietnam
-        ("wo, en-US, en", "sn"),  # Wolof -> Senegal
-        ("xcl,hy,en-US,en", "am"),  # Armenian Classic -> Armenia
-        ("xh-ZA, xh, en-US, en", "za"),  # Xhosa
-        ("zam, es-MX, es, en-US, en", "mx"),  # Miahuatlán Zapotec
-        ("zh-CN, zh, zh-TW, zh-HK, en-US, en", "cn"),  # Chinese (China)
-        ("zh-tw, zh, en-us, en", "tw"),  # Chinese (Taiwan)
+        ("ace, id, en-US, en", "ID"),  # Acehnese -> Indonesia
+        ("ach, en-GB, en-US, en", "UG"),  # Acholi -> Uganda
+        ("af, en-ZA, en-GB, en-US, en", "ZA"),  # Afrikaans -> South Africa
+        ("ar, en-us, en", "EG"),  # Arabic -> Egypt
+        ("arn,es-CL,es-AR,es-MX,es-ES,es,en-US,en", "CL"),  # Mapudungun -> Chile
+        ("an, es-ES, es, ca, en-US, en", "ES"),  # Aragonese -> Spain
+        ("as, en-us, en", "IN"),  # Assamese -> India
+        ("ast, es-ES, es, en-US, en", "ES"),  # Asturian -> Spain
+        ("az-AZ, az, en-US, en", "AZ"),  # Azerbaijani -> Azerbaijan
+        ("be, en-US, en", "BY"),  # Belerusian -> Belarus
+        ("bg, en-US, en", "BG"),  # Bulgarian -> Bulgaria
+        ("bn, en-US, en", "BD"),  # Bengali -> Bangladesh
+        ("bn-in, bn, en-us, en", "IN"),  # Bengali (India) -> India
+        ("bo-CN,bo-IN,bo,en-US, en", "CN"),  # Tibetan -> China
+        ("br, fr-FR, fr, en-US, en", "FR"),  # Breton -> France
+        ("brx,as,en-US,en", "IN"),  # Bodo -> India
+        ("bs-ba, bs, en-us, en", "BA"),  # Bosnian -> Bosnia and Herzegovina
+        ("ca, en-us, en", "FR"),  # Catalan -> France
+        ("ca-valencia, ca, en-us, en", "ES"),  # Catalan (Valencian) -> Spain
+        ("cak, kaq, es, en-us, en", "MX"),  # Kaqchikel -> Mexico
+        ("ckb,en-US,en", "IQ"),  # Central Kurdish -> Iraq
+        ("cs, sk, en-US, en", "CZ"),  # Czech -> Czech Republic
+        ("cv, en-US, en", "RU"),  # Chuvash -> Russia
+        ("cy-GB, cy, en-US, en", "GB"),  # Welsh -> United Kingdom
+        ("da, en-us, en", "DK"),  # Danish -> Denmark
+        ("de, en-US, en", "DE"),  # German -> Germany
+        ("dsb, hsb, de, en-US, en", "DE"),  # Lower Sorbian -> Germany
+        ("el-GR, el, en-US, en", "GR"),  # Greek -> Greece
+        ("en-CA, en-US, en", "CA"),  # English (Canadian) -> Canada
+        ("en-GB, en", "GB"),  # English (Great Britain) -> United Kingdom
+        ("eo, en-US, en", "SM"),  # Esperanto -> San Marino
+        ("es-AR, es, en-US, en", "AR"),  # Spanish (Argentina) -> Argentina
+        ("es-CL, es, en-US, en", "CL"),  # Spanish (Chile) -> Chile
+        ("es-ES, es, en-US, en", "ES"),  # Spanish (Spain) -> Spain
+        ("es-MX, es, en-US, en", "MX"),  # Spanish (Mexico) -> Mexico
+        ("et, et-ee, en-us, en", "EE"),  # Estonian -> Estonia
+        ("eu, en-us, en", "ES"),  # Basque -> Spain
+        ("fa-ir, fa, en-us, en", "IR"),  # Persian -> Iran
+        ("ff, fr-FR, fr, en-GB, en-US, en", "SN"),  # Fulah -> Senegal
+        ("fi-fi, fi, en-us, en", "FI"),  # Finnish -> Finland
+        ("fr, fr-fr, en-us, en", "FR"),  # French -> France
+        ("frp, fr-FR, fr, en-US, en", "FR"),  # Arpitan -> France
+        ("fur-IT, fur, it-IT, it, en-US, en", "IT"),  # Friulian -> Italy
+        ("fy-nl, fy, nl, en-us, en ", "NL"),  # Frisian -> Netherlands
+        ("ga-ie, ga, en-ie, en-gb, en-us, en", "IE"),  # Irish -> Ireland
+        ("gd-gb, gd, en-gb, en-us, en", "GB"),  # Gaelic, Scottish -> United Kingdom
+        ("gl-gl, gl, en-us, en", "ES"),  # Galician -> Spain
+        ("gn, es, en-US, en", "PY"),  # Guarani -> Paraguay
+        ("gu-in, gu, en-us, en", "IN"),  # Gujarati -> India
+        ("gv,en-GB,en-US,en", "IM"),  # Manx -> Isle of Man
+        ("he, he-IL, en-US, en", "IL"),  # Hebrew -> Israel
+        ("hi-in, hi, en-us, en", "IN"),  # Hindi -> India
+        ("hr, hr-HR, en-US, en", "HR"),  # Croatian -> Croatia
+        ("hsb, dsb, de, en-US, en", "DE"),  # Upper Sorbian -> Germany
+        ("hu-hu, hu, en-US, en", "HU"),  # Hungarian -> Hungary
+        ("hy-AM,hy,en-us,en", "AM"),  # Armenian -> Armenia
+        ("hye,hy,en-US,en", "AM"),  # Armenian Eastern Classic Orthography -> Armenia
+        ("ia, en-US, en", "FR"),  # Interlingua -> France
+        ("id, en-us, en", "ID"),  # Indonesian -> Indonesia
+        ("ilo-PH, ilo, en-US, en", "PH"),  # Iloko -> Philippines
+        ("is, en-us, en", "IS"),  # Icelandic -> Iceland
+        ("it-IT, it, en-US, en", "IT"),  # Italian -> Italy
+        ("ixl, es-MX, es, en-US, en", "MX"),  # Ixil -> Mexico
+        ("ja, en-US, en", "JP"),  # Japanese -> Japan
+        ("jiv, es, en-US, en", "MX"),  # Shuar -> Mexico
+        ("ka-GE,ka,en-US,en", "GE"),  # Georgian -> Georgia
+        ("kab-DZ,kab,fr-FR,fr,en-US,en", "DZ"),  # Kayble -> Algeria
+        ("kk, ru, ru-RU, en-US, en", "KZ"),  # Kazakh -> Kazakhstan
+        ("km, en-US, en", "KH"),  # Khmer -> Cambodia
+        ("kn-IN, kn, en-us, en", "IN"),  # Kannada -> India
+        ("ko-KR, ko, en-US, en", "KR"),  # Korean -> South Korea
+        ("ks,en-US,en", "IN"),  # Kashmiri -> India
+        ("lb, de-DE, de, en-US, en", "LU"),  # Luxembourgish -> Luxembourg
+        ("lg, en-gb, en-us, en", "UG"),  # Luganda -> Uganda
+        ("lij, it, en-US, en", "IT"),  # Ligurian -> Italy
+        ("lo, en-US, en", "LA"),  # Lao -> Laos
+        ("lt, en-us, en, ru, pl", "LT"),  # Lithuanian -> Lithuania
+        ("ltg, lv, en-US, en", "LV"),  # Latgalian -> Latvia
+        ("lus,en-US,en", "US"),  # Mizo -> United States
+        ("lv, en-us, en", "LV"),  # Latvian -> Latvia
+        ("mai, hi-IN, en", "IN"),  # Maithili -> India
+        ("meh,es-MX,es,en-US,en", "MX"),  # Mixteco Yucuhiti -> Mexico
+        ("mix,es-MX,es,en-US,en", "MX"),  # Mixtepec Mixtec -> Mexico
+        ("mk-mk, mk, en-us, en", "MK"),  # Macedonian -> North Macedonia
+        ("ml-in, ml, en-US, en", "IN"),  # Malayalam -> India
+        ("mr-IN, mr, en-US, en", "IN"),  # Marathi -> India
+        ("ms,en-us, en", "MY"),  # Malay -> Malaysia
+        ("my, en-GB, en", "MM"),  # Burmese -> Myanmar
+        ("nb-no, nb, no-no, no, nn-no, nn, en-us, en", "NO"),  # No. Bokmål -> Norway
+        ("ne-NP, ne, en-US, en", "NP"),  # Nepali -> Nepal
+        ("nl, en-US, en", "NL"),  # Dutch -> Netherlands
+        ("nn-no, nn, no-no, no, nb-no, nb, en-us, en", "NO"),  # No. Nynorsk -> Norway
+        ("oc, ca, fr, es, it, en-US, en", "FR"),  # Occitan -> France
+        ("or, en-US, en", "IN"),  # Odia -> India
+        ("pa, pa-in, en-us, en", "IN"),  # Punjabi -> India
+        ("pl, en-US, en", "PL"),  # Polish -> Poland
+        ("ppl,es-MX,es,en-US,en", "MX"),  # Náhuat Pipil -> Mexico
+        ("pt-BR, pt, en-US, en", "BR"),  # Portuguese (Brazil) -> Brazil
+        ("pt-PT, pt, en, en-US", "PT"),  # Portuguese (Portugal) -> Portugal
+        ("quc,es-MX,es,en-US,en", "GT"),  # K'iche' -> Guatemala
+        ("rm, rm-ch, de-CH, de, en-us, en", "CH"),  # Romansh -> Switzerland
+        ("ro-RO, ro, en-US, en-GB, en", "RO"),  # Romanian -> Romania
+        ("ru-RU, ru, en-US, en", "RU"),  # Russian -> Russia
+        ("sat, en-US, en", "IN"),  # Santali (Ol Chiki) -> India
+        ("sc, it-IT, it, en-US, en", "IT"),  # Sardinian -> Italy
+        ("scn, it-IT, it, en-US, en", "IT"),  # Sicilian -> Italy
+        ("sco,en-GB,en", "GB"),  # Scots -> United Kingdom
+        ("si-LK, si, en-US, en", "LK"),  # Sinhala -> Sri Lanka
+        ("sk, cs, en-US, en", "SK"),  # Slovak -> Slovakia
+        ("skr,en-US,en", "PK"),  # Saraiki -> Pakistan
+        ("sl, en-gb, en", "SI"),  # Slovenian -> Slovenia
+        ("son, son-ml, fr, en-us, en", "ML"),  # Songhay -> Mali
+        ("sq, sq-AL, en-us, en", "AL"),  # Albanian -> Albania
+        ("sr-RS, sr, en-US, en", "RS"),  # Serbian -> Serbia
+        ("sv-SE, sv, en-US, en", "SE"),  # Swedish -> Sweeden
+        ("sw, en-US, en", "TZ"),  # Swahili -> Tanzania
+        ("szl,pl-PL,pl,en,de", "PL"),  # Silesian -> Poland
+        ("ta-IN, ta, en-US, en", "IN"),  # Tamil -> India
+        ("te-in, te, en-us, en", "IN"),  # Telugu -> India
+        ("tg, en-US, en", "TJ"),  # Tajik -> Tajikistan
+        ("th, en-US, en", "TH"),  # Thai -> Thailand
+        ("tl-PH, tl, en-US, en", "PH"),  # Tagalog -> Philippines
+        ("tr-TR, tr, en-US, en", "TR"),  # Turkish OR Crimean Tatar -> Turkey
+        ("trs,es-MX,es,en-US,en", "MX"),  # Triqui -> Mexico
+        ("uk-UA, uk, en-US, en", "UA"),  # Ukrainian -> Ukraine
+        ("ur-PK, ur, en-US, en", "PK"),  # Urdu -> Pakistan
+        ("uz, ru, en, en-US", "UZ"),  # Uzbek -> Uzbekistan
+        ("vi-vn, vi, en-us, en", "VN"),  # Vietnamese -> Vietnam
+        ("wo, en-US, en", "SN"),  # Wolof -> Senegal
+        ("xcl,hy,en-US,en", "AM"),  # Armenian Classic -> Armenia
+        ("xh-ZA, xh, en-US, en", "ZA"),  # Xhosa
+        ("zam, es-MX, es, en-US, en", "MX"),  # Miahuatlán Zapotec
+        ("zh-CN, zh, zh-TW, zh-HK, en-US, en", "CN"),  # Chinese (China)
+        ("zh-tw, zh, en-us, en", "TW"),  # Chinese (Taiwan)
         # Test cases from RFC 5646, "Tags for Identifying Languages", Appendix A
         # RFC 5646 - Simple language subtag
-        ("de", "de"),  # German -> Germany
-        ("fr", "fr"),  # French -> France
-        ("ja", "jp"),  # Japanese -> Japan
+        ("de", "DE"),  # German -> Germany
+        ("fr", "FR"),  # French -> France
+        ("ja", "JP"),  # Japanese -> Japan
         # RFC 5646 - Language subtag plus Script subtag
-        ("zh-Hant", "cn"),  # Chinese in Traditional Chinese script -> China
-        ("zh-Hans", "cn"),  # Chinese in Simplified Chinese script -> China
-        ("sr-Cyrl", "rs"),  # Serbian in Cyrillic script -> Serbia
-        ("sr-Latn", "rs"),  # Serbian in Latin script -> Serbia
+        ("zh-Hant", "CN"),  # Chinese in Traditional Chinese script -> China
+        ("zh-Hans", "CN"),  # Chinese in Simplified Chinese script -> China
+        ("sr-Cyrl", "RS"),  # Serbian in Cyrillic script -> Serbia
+        ("sr-Latn", "RS"),  # Serbian in Latin script -> Serbia
         # RFC 5646 - Extended language subtags with primary language subtag counterparts
-        ("zh-cmn-Hans-CN", "cn"),  # Chinese, Mandarin, Simplified script, in China
-        ("cmn-Hans-CN", "cn"),  # Mandarin Chinese, Simplified script, as used in China
-        ("zh-yue-HK", "hk"),  # Chinese, Cantonese, as used in Hong Kong SAR
-        ("yue-HK", "hk"),  # Cantonese Chinese, as used in Hong Kong SAR
+        ("zh-cmn-Hans-CN", "CN"),  # Chinese, Mandarin, Simplified script, in China
+        ("cmn-Hans-CN", "CN"),  # Mandarin Chinese, Simplified script, as used in China
+        ("zh-yue-HK", "HK"),  # Chinese, Cantonese, as used in Hong Kong SAR
+        ("yue-HK", "HK"),  # Cantonese Chinese, as used in Hong Kong SAR
         # RFC 5646 - Language-Script-Region
-        ("zh-Hans-CN", "cn"),  # Chinese in Simplified script in mainland China -> China
-        ("sr-Latn-RS", "rs"),  # Serbian in Latin script in Serbia
-        ("zh-Hans-TW", "tw"),  # Chinese in Simplified script in Taiwan (added)
+        ("zh-Hans-CN", "CN"),  # Chinese in Simplified script in mainland China -> China
+        ("sr-Latn-RS", "RS"),  # Serbian in Latin script in Serbia
+        ("zh-Hans-TW", "TW"),  # Chinese in Simplified script in Taiwan (added)
         # RFC 5646 - Language-Variant
-        ("sl-rozaj", "si"),  # Resian dialect of Slovenian -> Slovenia
-        ("sl-rozaj-biske", "si"),  # San Giorgio dialect of Resian dialect of Slovenian
-        ("sl-nedis", "si"),  # Nadiza dialect of Slovenian -> Slovenia
+        ("sl-rozaj", "SI"),  # Resian dialect of Slovenian -> Slovenia
+        ("sl-rozaj-biske", "SI"),  # San Giorgio dialect of Resian dialect of Slovenian
+        ("sl-nedis", "SI"),  # Nadiza dialect of Slovenian -> Slovenia
         # RFC 5646 - Language-Region-Variant
-        ("de-CH-1901", "ch"),  # German as used in Switzerland using the 1901 variant
-        ("sl-IT-nedis", "it"),  # Slovenian as used in Italy, Nadiza dialect
+        ("de-CH-1901", "CH"),  # German as used in Switzerland using the 1901 variant
+        ("sl-IT-nedis", "IT"),  # Slovenian as used in Italy, Nadiza dialect
         # RFC 5646 - Language-Script-Region-Variant
-        ("hy-Latn-IT-arevela", "it"),  # Eastern Armenian in Latin script, in Italy
+        ("hy-Latn-IT-arevela", "IT"),  # Eastern Armenian in Latin script, in Italy
         # RFC 5646 - Language-Region
-        ("de-DE", "de"),  # German for Germany
-        ("en-US", "us"),  # English as used in the United States
-        ("es-419", "mx"),  # Spanish in Latin America and Caribbean region (UN code)
+        ("de-DE", "DE"),  # German for Germany
+        ("en-US", "US"),  # English as used in the United States
+        ("es-419", "MX"),  # Spanish in Latin America and Caribbean region (UN code)
         # RFC 5646 - Private use subtags
-        ("de-CH-x-phonebk", "ch"),  # Swiss German with private use subtag
-        ("az-Arab-x-AZE-derbend", "az"),  # another private use subtag
+        ("de-CH-x-phonebk", "CH"),  # Swiss German with private use subtag
+        ("az-Arab-x-AZE-derbend", "AZ"),  # another private use subtag
         # RFC 5646 - Private use registry values
-        ("de-Qaaa", "de"),  # German, with a private script
-        ("sr-Latn-QM", "rs"),  # Serbian, Latin-script, private region
-        ("sr-Qaaa-CS", "cs"),  # Serbian, private script, for Serbia and Montenegro
+        ("de-Qaaa", "DE"),  # German, with a private script
+        ("sr-Latn-QM", "RS"),  # Serbian, Latin-script, private region
+        ("sr-Qaaa-CS", "CS"),  # Serbian, private script, for Serbia and Montenegro
         # RFC 5646 - Examples of possible tags that use extensions
-        ("en-US-u-islamCal", "us"),
-        ("zh-CN-a-myext-x-private", "cn"),
-        ("en-a-myext-b-another", "us"),
+        ("en-US-u-islamCal", "US"),
+        ("zh-CN-a-myext-x-private", "CN"),
+        ("en-a-myext-b-another", "US"),
         # RFC 5646 - Invalid tags
-        ("de-419-DE", "de"),  # two region tags
-        ("ar-a-aaa-b-bbb-a-ccc", "eg"),  # two extensions with same 1 char prefix 'a'
+        ("de-419-DE", "DE"),  # two region tags
+        ("ar-a-aaa-b-bbb-a-ccc", "EG"),  # two extensions with same 1 char prefix 'a'
     ),
 )
 def test_guess_country_from_accept_lang(accept_lang, expected_country_code) -> None:
