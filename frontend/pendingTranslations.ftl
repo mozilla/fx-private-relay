@@ -30,5 +30,5 @@ profile-maxed-aliases-with-phone-header = Maximize your email and phone protecti
 profile-maxed-aliases-without-phone-header = Maximize your { -brand-name-relay } email protection
 profile-maxed-aliases-with-phone-description = You’ve hit your { $limit }-mask limit on your free { -brand-name-relay } account. Upgrade to { -brand-name-relay-premium } for unlimited email masks, plus the ability to protect your phone number.
 profile-maxed-aliases-without-phone-description = You’ve hit your { $limit }-mask limit on your free { -brand-name-relay } account. Upgrade to { -brand-name-relay-premium } for unlimited email masks.
-profile-maxed-aliases-cta = Upgrade to Premium
-profile-label-set-your-custom-domain-free-user = Get your own email domain with Premium
+profile-maxed-aliases-cta = Upgrade to { -brand-name-premium }
+profile-label-set-your-custom-domain-free-user = Get your own email domain with { -brand-name-premium }

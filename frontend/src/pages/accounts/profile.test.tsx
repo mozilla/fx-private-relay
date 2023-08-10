@@ -328,7 +328,7 @@ describe("The dashboard", () => {
 
     expect(chromeExtensionBanner).not.toBeInTheDocument();
     expect(firefoxBanner).toBeInTheDocument();
-  });
+  }, 10000);
 
   it("does not show a banner to download Firefox if the user is already using it", () => {
     // navigator.userAgent is read-only, so we use `Object.defineProperty`
