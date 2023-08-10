@@ -5,7 +5,8 @@ from django.db import migrations, models
 
 def add_db_default_forward_func(apps, schema_editor):
     """
-    Add a database default of 3000 for remaining_seconds, for PostgreSQL and SQLite3
+    Add a database default of false for sent_welcome_email, for PostgreSQL and SQLite3
+    Note: set sent_welcome_email = true for existing users
 
     Using `./manage.py sqlmigrate` for the SQL, and the technique from:
     https://stackoverflow.com/a/45232678/10612
