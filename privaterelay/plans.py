@@ -175,18 +175,14 @@ PlanCountryLangMapping = dict[RelayCountryStr, PricePeriodsForLanguageDict]
 #
 
 
-def get_premium_country_language_mapping(
-    eu_country_expansion: bool | None,
-) -> PlanCountryLangMapping:
+def get_premium_country_language_mapping() -> PlanCountryLangMapping:
     """Get mapping for premium countries (unlimited masks, custom subdomain)"""
-    return _country_language_mapping(
-        "premium", eu_country_expansion=eu_country_expansion
-    )
+    return _country_language_mapping("premium")
 
 
-def get_premium_countries(eu_country_expansion: bool | None) -> set[RelayCountryStr]:
+def get_premium_countries() -> set[RelayCountryStr]:
     """Get the country codes where Relay premium can be sold"""
-    mapping = get_premium_country_language_mapping(eu_country_expansion)
+    mapping = get_premium_country_language_mapping()
     return set(mapping.keys())
 
 
@@ -500,11 +496,10 @@ _STRIPE_PLAN_DATA: _StripePlanData = {
 
 
 # Private types for _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE
-_RelayPlansByCountryAndLanguage = dict["_RelayPlanKey", "_RelayPlanCountryData"]
-_RelayBasePlanKey = Literal["premium", "phones", "bundle"]
-_RelayPlanKey = _RelayBasePlanKey | Literal["premium_eu_expansion"]
-_RelayPlanCountryData = dict[RelayCountryStr, "_RelayCountryLanguageData"]
-_RelayCountryLanguageData = dict[LanguageStr, _StripeCountryOrRegion]
+_RelayPlanCategory = Literal["premium", "phones", "bundle"]
+_RelayPlansByCountryAndLanguage = dict[
+    _RelayPlanCategory, dict[RelayCountryStr, dict[LanguageStr, _StripeCountryOrRegion]]
+]
 
 
 # Map of Relay-supported countries to languages and their plans
@@ -528,44 +523,42 @@ _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE: _RelayPlansByCountryAndLanguage = {
             "de": "DE",
             "nl": "NL",
         },
+        "bg": {"bg": "BG"},  # Bulgaria
         "ca": {"en": "US"},  # Canada
         "ch": {  # Switzerland
             "fr": "fr-CH",
             "de": "de-CH",
             "it": "it-CH",
         },
+        "cy": {"el": "CY"},  # Cyprus
+        "cz": {"cs": "CZ"},  # Czech Republic / Czechia
         "de": {"de": "DE"},  # Germany
+        "dk": {"da": "DK"},  # Denmark
+        "ee": {"et": "EE"},  # Estonia
         "es": {"es": "ES"},  # Spain
         "fi": {"fi": "FI"},  # Finland
         "fr": {"fr": "FR"},  # France
         "gb": {"en": "GB"},  # United Kingdom
-        "ie": {"en": "IE"},  # Ireland
-        "it": {"it": "IT"},  # Italy
-        "my": {"en": "GB"},  # Malaysia
-        "nl": {"nl": "NL"},  # Netherlands
-        "nz": {"en": "GB"},  # New Zealand
-        "se": {"sv": "SE"},  # Sweden
-        "sg": {"en": "GB"},  # Singapore
-        "us": {"en": "US"},  # United States
-    },
-    "premium_eu_expansion": {
-        "bg": {"bg": "BG"},  # Bulgaria
-        "cy": {"el": "CY"},  # Cyprus
-        "cz": {"cs": "CZ"},  # Czech Republic / Czechia
-        "dk": {"da": "DK"},  # Denmark
-        "ee": {"et": "EE"},  # Estonia
         "gr": {"el": "GR"},  # Greece
         "hr": {"hr": "HR"},  # Croatia
         "hu": {"hu": "HU"},  # Hungary
+        "ie": {"en": "IE"},  # Ireland
+        "it": {"it": "IT"},  # Italy
         "lt": {"lt": "LT"},  # Lithuania
         "lu": {"fr": "LU"},  # Luxembourg
         "lv": {"lv": "LV"},  # Latvia
         "mt": {"en": "MT"},  # Malta
+        "my": {"en": "GB"},  # Malaysia
+        "nl": {"nl": "NL"},  # Netherlands
+        "nz": {"en": "GB"},  # New Zealand
         "pl": {"pl": "PL"},  # Poland
         "pt": {"pt": "PT"},  # Portugal
         "ro": {"ro": "RO"},  # Romania
+        "se": {"sv": "SE"},  # Sweden
+        "sg": {"en": "GB"},  # Singapore
         "si": {"sl": "SI"},  # Slovenia
         "sk": {"sk": "SK"},  # Slovakia
+        "us": {"en": "US"},  # United States
     },
     "phones": {
         "ca": {"en": "US"},  # Canada
@@ -583,14 +576,10 @@ _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE: _RelayPlansByCountryAndLanguage = {
 #
 
 
-def _country_language_mapping(
-    plan: _RelayBasePlanKey,
-    eu_country_expansion: bool | None = None,
-) -> PlanCountryLangMapping:
+def _country_language_mapping(plan: _RelayPlanCategory) -> PlanCountryLangMapping:
     """Get plan mapping with cache parameters"""
     return _cached_country_language_mapping(
         plan=plan,
-        eu_country_expansion=bool(eu_country_expansion),
         us_premium_monthly_price_id=settings.PREMIUM_PLAN_ID_US_MONTHLY,
         us_premium_yearly_price_id=settings.PREMIUM_PLAN_ID_US_YEARLY,
         us_phone_monthly_price_id=settings.PHONE_PLAN_ID_US_MONTHLY,
@@ -601,8 +590,7 @@ def _country_language_mapping(
 
 @lru_cache
 def _cached_country_language_mapping(
-    plan: _RelayBasePlanKey,
-    eu_country_expansion: bool,
+    plan: _RelayPlanCategory,
     us_premium_monthly_price_id: str,
     us_premium_yearly_price_id: str,
     us_phone_monthly_price_id: str,
@@ -610,14 +598,7 @@ def _cached_country_language_mapping(
     us_bundle_yearly_price_id: str,
 ) -> PlanCountryLangMapping:
     """Create the plan mapping with settings overrides"""
-    if plan == "premium":
-        relay_countries = _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE["premium"].copy()
-        if eu_country_expansion:
-            relay_countries.update(
-                _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE["premium_eu_expansion"]
-            )
-    else:
-        relay_countries = _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE[plan]
+    relay_countries = _RELAY_PLANS_BY_COUNTRY_AND_LANGUAGE[plan]
     stripe_data = _get_stripe_data_with_overrides(
         us_premium_monthly_price_id=us_premium_monthly_price_id,
         us_premium_yearly_price_id=us_premium_yearly_price_id,

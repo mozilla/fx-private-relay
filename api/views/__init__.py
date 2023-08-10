@@ -245,8 +245,6 @@ def runtime_data(request):
     switch_values = [(s.name, s.is_active()) for s in switches]
     samples = Sample.get_all()
     sample_values = [(s.name, s.is_active()) for s in samples]
-    eu_country_expansion = flag_is_active(request, "eu_country_expansion")
-    premium_mapping = get_premium_country_language_mapping(eu_country_expansion)
     return response.Response(
         {
             "FXA_ORIGIN": settings.FXA_BASE_ORIGIN,
@@ -255,7 +253,7 @@ def runtime_data(request):
             "BUNDLE_PRODUCT_ID": settings.BUNDLE_PROD_ID,
             "PHONE_PRODUCT_ID": settings.PHONE_PROD_ID,
             "PERIODICAL_PREMIUM_PLANS": get_countries_info_from_request_and_mapping(
-                request, premium_mapping
+                request, get_premium_country_language_mapping()
             ),
             "PHONE_PLANS": get_countries_info_from_request_and_mapping(
                 request, get_phone_country_language_mapping()
