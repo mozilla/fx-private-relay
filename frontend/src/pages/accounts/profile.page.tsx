@@ -9,15 +9,21 @@ import {
 } from "react";
 import {
   FocusScope,
+  mergeProps,
   useButton,
   useOverlay,
   useOverlayPosition,
   useOverlayTrigger,
+  useTooltip,
+  useTooltipTrigger,
 } from "react-aria";
-import { useMenuTriggerState } from "react-stately";
+import { useMenuTriggerState, useTooltipTriggerState } from "react-stately";
 import { toast } from "react-toastify";
 import styles from "./profile.module.scss";
 import BottomBannerIllustration from "../../../public/images/woman-couch-left.svg";
+import UpsellBannerUs from "./images/upsell-banner-us.svg";
+import UpsellBannerNonUs from "./images/upsell-banner-nonus.svg";
+import UpsellBannerStar from "./images/upsell-banner-star.svg";
 import { PencilIcon, CheckBadgeIcon } from "../../components/Icons";
 import { Layout } from "../../components/layout/Layout";
 import { useProfiles } from "../../hooks/api/profile";
@@ -202,6 +208,9 @@ const Profile: NextPage = () => {
     }
   };
 
+  const freeMaskLimit = 5;
+  const freeMaskLimitReached = allAliases.length >= 5 && !profile.has_premium;
+
   const subdomainMessage =
     typeof profile.subdomain === "string" ? (
       <>
@@ -223,9 +232,46 @@ const Profile: NextPage = () => {
     compactDisplay: "short",
   });
 
-  // Non-Premium users have only five aliases, making the stats less insightful,
-  // so only show them for Premium users:
-  const stats = profile.has_premium ? (
+  type TooltipProps = {
+    children: ReactNode;
+  };
+ 
+  const MaxedMasksTooltip = (props: TooltipProps) => { 
+    const l10n = useL10n();
+    const triggerState = useTooltipTriggerState({ delay: 0 });
+    const triggerRef = useRef<HTMLSpanElement>(null);
+    const tooltipTrigger = useTooltipTrigger({}, triggerState, triggerRef);
+    const { tooltipProps } = useTooltip({}, triggerState);
+
+    return (
+      <div className={styles["stat-wrapper"]}>
+        <span
+          ref={triggerRef}
+          {...tooltipTrigger.triggerProps}
+          className={`${styles.stat} ${styles["forwarded-stat"]}`}
+        >
+          {props.children}
+        </span>
+        {triggerState.isOpen && (
+          <div
+            {...mergeProps(tooltipTrigger.tooltipProps, tooltipProps)}
+            className={styles.tooltip}
+          >
+            <p>
+              <span>
+                {l10n.getString("profile-maxed-aliases-tooltip", {
+                  limit: freeMaskLimit,
+                })}
+              </span>
+            </p>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Show stats for free users and premium users 
+  const stats = (
     <section className={styles.header}>
       <div className={styles["header-wrapper"]}>
         <div className={styles["user-details"]}>
@@ -244,7 +290,7 @@ const Profile: NextPage = () => {
             {typeof profile.subdomain === "string" ? (
               <CheckBadgeIcon alt="" />
             ) : (
-              <PencilIcon alt="" className={styles["pencil-icon"]} />
+              <Image src={UpsellBannerStar} className={styles["star-icon"]} alt="" />
             )}
             {subdomainMessage}
             <SubdomainInfoTooltip />
@@ -255,9 +301,19 @@ const Profile: NextPage = () => {
             <dt className={styles.label}>
               {l10n.getString("profile-stat-label-aliases-used-2")}
             </dt>
-            <dd className={styles.value}>
-              {numberFormatter.format(allAliases.length)}
-            </dd>
+            {allAliases.length >= 5 &&
+            !profile.has_premium &&
+            isPhonesAvailableInCountry(runtimeData.data) ? (
+              <MaxedMasksTooltip>
+                <dd className={`${styles.value} ${styles.maxed}`}>
+                  {numberFormatter.format(allAliases.length)}
+                </dd>
+              </MaxedMasksTooltip>
+            ) : (
+              <dd className={`${styles.value}`}>
+                {numberFormatter.format(allAliases.length)}
+              </dd>
+            )}
           </div>
           <div className={styles.stat}>
             <dt className={styles.label}>
@@ -304,15 +360,7 @@ const Profile: NextPage = () => {
         </dl>
       </div>
     </section>
-  ) : (
-    <Localized
-      id="profile-label-welcome-html"
-      vars={{ email: user.email }}
-      elems={{ span: <span /> }}
-    >
-      <section className={styles["no-premium-header"]} />
-    </Localized>
-  );
+  )  
 
   const bottomPremiumSection =
     profile.has_premium ||
@@ -373,6 +421,44 @@ const Profile: NextPage = () => {
   const topBanners = allAliases.length > 0 ? banners : null;
   const bottomBanners = allAliases.length === 0 ? banners : null;
 
+  // Render the upsell banner when a user has reached the free mask limit
+  const UpsellBanner = () =>
+    freeMaskLimitReached && isPhonesAvailableInCountry(runtimeData.data) ? (
+      <div className={styles["upsell-banner"]}>
+        <div className={styles["upsell-banner-wrapper"]}>
+          <div className={styles["upsell-banner-content"]}>
+            <p className={styles["upsell-banner-header"]}>
+              {isPhonesAvailableInCountry(runtimeData.data)
+                ? l10n.getString("profile-maxed-aliases-with-phone-header")
+                : l10n.getString("profile-maxed-aliases-without-phone-header")}
+            </p>
+            <p className={styles["upsell-banner-description"]}>
+              {l10n.getString(
+                isPhonesAvailableInCountry(runtimeData.data)
+                  ? "profile-maxed-aliases-with-phone-description"
+                  : "profile-maxed-aliases-without-phone-description",
+                {
+                  limit: freeMaskLimit,
+                }
+              )}
+            </p>
+            <LinkButton href="/premium#pricing">
+              {l10n.getString("profile-maxed-aliases-cta")}
+            </LinkButton>
+          </div>
+          <Image
+          className={styles["upsell-banner-image"]}
+            src={
+              isPhonesAvailableInCountry(runtimeData.data)
+                ? UpsellBannerUs
+                : UpsellBannerNonUs
+            }
+            alt=""
+          />
+        </div>
+      </div>
+    ) : null;
+
   return (
     <>
       <AddonData
@@ -384,6 +470,7 @@ const Profile: NextPage = () => {
         totalEmailTrackersRemoved={profile.level_one_trackers_blocked}
       />
       <Layout runtimeData={runtimeData.data}>
+        <UpsellBanner />
         {isPhonesAvailableInCountry(runtimeData.data) ? (
           <DashboardSwitcher />
         ) : null}
