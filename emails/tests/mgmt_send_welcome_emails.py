@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.core.management import call_command
 
 from allauth.socialaccount.models import SocialAccount
-from django_ftl import activate
+import django_ftl
 
 from emails.models import Profile
 from emails.tests.models_tests import make_free_test_user
@@ -38,14 +38,18 @@ def test_no_profiles_need_welcome_email(caplog: pytest.LogCaptureFixture):
 def test_no_locale_defaults_to_en(
     mock_ses_client: MagicMock, caplog: pytest.LogCaptureFixture
 ):
+    ftl_bundle.reload()
     user = _make_user_who_needs_welcome_email_with_locale("")
 
     call_command(COMMAND_NAME)
     _assert_caplog_for_1_email_to_user(user, caplog)
 
-    to_addresses, source, body_html = _get_send_email_args(mock_ses_client)
+    to_addresses, source, subject, body_html = _get_send_email_args(mock_ses_client)
     assert to_addresses == [user.email]
     assert source == settings.RELAY_FROM_ADDRESS
+    with django_ftl.override("en"):
+        expected_subject = ftl_bundle.format("first-time-user-email-welcome")
+    assert subject == expected_subject
     assert 'lang="en"' in body_html
 
 
@@ -56,15 +60,18 @@ def test_send_welcome_emails(
 ):
     ftl_bundle.reload()
     user = _make_user_who_needs_welcome_email_with_locale(locale)
-    activate(user.profile.language)
 
     call_command(COMMAND_NAME)
     _assert_caplog_for_1_email_to_user(user, caplog)
 
-    to_addresses, source, body_html = _get_send_email_args(mock_ses_client)
+    to_addresses, source, subject, body_html = _get_send_email_args(mock_ses_client)
     assert to_addresses == [user.email]
     assert source == settings.RELAY_FROM_ADDRESS
-    assert ftl_bundle.format("first-time-user-email-hero-cta") in body_html
+    with django_ftl.override(user.profile.language):
+        expected_subject = ftl_bundle.format("first-time-user-email-welcome")
+        expected_cta = ftl_bundle.format("first-time-user-email-hero-cta")
+    assert subject == expected_subject
+    assert expected_cta in body_html
 
 
 def _make_user_who_needs_welcome_email_with_locale(locale: str = "") -> User:
@@ -96,5 +103,6 @@ def _get_send_email_args(mock_ses_client: MagicMock) -> Tuple:
     call_args = mock_ses_client.send_email.call_args[1]
     to_addresses = call_args["Destination"]["ToAddresses"]
     source = call_args["Source"]
+    subject = call_args["Message"]["Subject"]["Data"]
     body_html = call_args["Message"]["Body"]["Html"]["Data"]
-    return to_addresses, source, body_html
+    return to_addresses, source, subject, body_html

@@ -7,6 +7,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from allauth.socialaccount.models import SocialAccount
+import django_ftl
 
 from emails.apps import EmailsConfig
 from emails.models import Profile
@@ -43,6 +44,8 @@ def send_welcome_email(profile: Profile, **kwargs):
     ses_client = app_config.ses_client
     assert ses_client
     assert settings.RELAY_FROM_ADDRESS
+    with django_ftl.override(profile.language):
+        translated_subject = ftl_bundle.format("first-time-user-email-welcome")
     try:
         ses_client.send_email(
             Destination={
@@ -50,9 +53,7 @@ def send_welcome_email(profile: Profile, **kwargs):
             },
             Source=settings.RELAY_FROM_ADDRESS,
             Message={
-                "Subject": _ses_message_props(
-                    ftl_bundle.format("first-time-user-email-welcome")
-                ),
+                "Subject": _ses_message_props(translated_subject),
                 "Body": {
                     "Html": _ses_message_props(get_welcome_email(user, "html")),
                     "Text": _ses_message_props(get_welcome_email(user, "txt")),
