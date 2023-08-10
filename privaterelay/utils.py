@@ -40,15 +40,33 @@ def get_countries_info_from_request_and_mapping(
     }
 
 
+def get_countries_info_from_lang_and_mapping(
+    accept_lang: str, mapping: PlanCountryLangMapping
+) -> CountryInfo:
+    country_code = _get_cc_from_lang(accept_lang)
+    countries = sorted(mapping.keys())
+    available_in_country = country_code in countries
+    return {
+        "country_code": country_code,
+        "countries": countries,
+        "available_in_country": available_in_country,
+        "plan_country_lang_mapping": mapping,
+    }
+
+
 def _get_cc_from_request(request: HttpRequest) -> str:
     if "X-Client-Region" in request.headers:
         return request.headers["X-Client-Region"].lower()
     if "Accept-Language" in request.headers:
-        try:
-            return guess_country_from_accept_lang(request.headers["Accept-Language"])
-        except AcceptLanguageError:
-            return ""
+        return _get_cc_from_lang(request.headers["Accept-Language"])
     return "us"
+
+
+def _get_cc_from_lang(accept_lang: str) -> str:
+    try:
+        return guess_country_from_accept_lang(accept_lang)
+    except AcceptLanguageError:
+        return ""
 
 
 # Map a primary language to the most probable country

@@ -127,6 +127,7 @@ class Profile(models.Model):
     forwarded_first_reply = models.BooleanField(default=False)
     # Empty string means the profile was created through relying party flow
     created_by = models.CharField(blank=True, null=True, max_length=63)
+    sent_welcome_email = models.BooleanField(default=False)
 
     def __str__(self):
         return "%s Profile" % self.user

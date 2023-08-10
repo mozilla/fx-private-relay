@@ -11,7 +11,6 @@ from typing import cast, Any, Callable, TypeVar
 import json
 import pathlib
 import re
-from django.http.request import HttpRequest
 from django.template.loader import render_to_string
 from django.utils.text import Truncator
 import requests
@@ -32,8 +31,10 @@ from django.contrib.auth.models import Group, User
 from django.http import HttpResponse
 from django.template.defaultfilters import linebreaksbr, urlize
 
+from allauth.socialaccount.models import SocialAccount
+
 from privaterelay.plans import get_bundle_country_language_mapping
-from privaterelay.utils import get_countries_info_from_request_and_mapping
+from privaterelay.utils import get_countries_info_from_lang_and_mapping
 
 from .apps import EmailsConfig
 from .models import (
@@ -177,9 +178,10 @@ def _get_hero_img_src(lang_code):
     )
 
 
-def get_welcome_email(request: HttpRequest, user: User, format: str) -> str:
-    bundle_plans = get_countries_info_from_request_and_mapping(
-        request, get_bundle_country_language_mapping()
+def get_welcome_email(user: User, format: str) -> str:
+    sa = SocialAccount.objects.get(user=user)
+    bundle_plans = get_countries_info_from_lang_and_mapping(
+        sa.extra_data.get("locale", "en"), get_bundle_country_language_mapping()
     )
     lang_code = user.profile.language
     hero_img_src = _get_hero_img_src(lang_code)
@@ -191,7 +193,6 @@ def get_welcome_email(request: HttpRequest, user: User, format: str) -> str:
             "hero_img_src": hero_img_src,
             "language": lang_code,
         },
-        request,
     )
 
 
