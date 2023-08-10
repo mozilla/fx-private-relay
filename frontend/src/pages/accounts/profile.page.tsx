@@ -88,7 +88,7 @@ const Profile: NextPage = () => {
     !aliasData.randomAliasData.data ||
     !aliasData.customAliasData.data
   ) {
-    // TODO: Show a loading spinner?
+    // TODO: Show a loading spinner? Test change
     return null;
   }
 
