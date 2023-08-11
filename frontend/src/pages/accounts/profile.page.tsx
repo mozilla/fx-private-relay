@@ -258,11 +258,9 @@ const Profile: NextPage = () => {
             className={styles.tooltip}
           >
             <p>
-              <span>
-                {l10n.getString("profile-maxed-aliases-tooltip", {
-                  limit: freeMaskLimit,
-                })}
-              </span>
+              {l10n.getString("profile-maxed-aliases-tooltip", {
+                limit: freeMaskLimit,
+              })}
             </p>
           </div>
         )}
