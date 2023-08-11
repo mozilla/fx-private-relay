@@ -208,7 +208,8 @@ const Profile: NextPage = () => {
   };
 
   const freeMaskLimit = getRuntimeConfig().maxFreeAliases;
-  const freeMaskLimitReached = allAliases.length >= freeMaskLimit && !profile.has_premium;
+  const freeMaskLimitReached =
+    allAliases.length >= freeMaskLimit && !profile.has_premium;
 
   const subdomainMessage =
     typeof profile.subdomain === "string" ? (
@@ -234,8 +235,8 @@ const Profile: NextPage = () => {
   type TooltipProps = {
     children: ReactNode;
   };
- 
-  const MaxedMasksTooltip = (props: TooltipProps) => { 
+
+  const MaxedMasksTooltip = (props: TooltipProps) => {
     const l10n = useL10n();
     const triggerState = useTooltipTriggerState({ delay: 0 });
     const triggerRef = useRef<HTMLSpanElement>(null);
@@ -269,7 +270,7 @@ const Profile: NextPage = () => {
     );
   };
 
-  // Show stats for free users and premium users 
+  // Show stats for free users and premium users
   const stats = (
     <section className={styles.header}>
       <div className={styles["header-wrapper"]}>
@@ -359,7 +360,7 @@ const Profile: NextPage = () => {
         </dl>
       </div>
     </section>
-  )  
+  );
 
   const bottomPremiumSection =
     profile.has_premium ||
@@ -438,7 +439,7 @@ const Profile: NextPage = () => {
                   : "profile-maxed-aliases-without-phone-description",
                 {
                   limit: freeMaskLimit,
-                }
+                },
               )}
             </p>
             <LinkButton href="/premium#pricing">
@@ -446,7 +447,7 @@ const Profile: NextPage = () => {
             </LinkButton>
           </div>
           <Image
-          className={styles["upsell-banner-image"]}
+            className={styles["upsell-banner-image"]}
             src={
               isPhonesAvailableInCountry(runtimeData.data)
                 ? UpsellBannerUs
