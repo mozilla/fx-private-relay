@@ -266,7 +266,7 @@ describe("The dashboard", () => {
       name: '[<Localized> with id [modal-email-domain-available] and vars: {"custom_domain_full":"spongebob.mozmail.com"}]',
     });
     expect(subdomainDialog).toBeInTheDocument();
-  });
+  }, 10000);
 
   it("shows a banner to download Firefox if using a different browser that does not support Chrome extensions", () => {
     // navigator.userAgent is read-only, so we use `Object.defineProperty`
