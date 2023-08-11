@@ -7,7 +7,7 @@
     "url": "https://github.com/mozilla/fx-private-relay/issues"
   },
   "devDependencies": {
-    "@playwright/test": "1.36.1",
+    "@playwright/test": "1.36.2",
     "dotenv": "^16.3.1"
   },
   "volta": {
