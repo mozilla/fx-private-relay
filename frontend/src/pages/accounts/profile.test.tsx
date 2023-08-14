@@ -315,8 +315,9 @@ describe("The dashboard", () => {
         "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36",
       configurable: true,
     });
-    setMockMinViewportWidthOnce(false);
+    setMockMinViewportWidth(false);
     render(<Profile />);
+    setMockMinViewportWidth(true);
     Object.defineProperty(navigator, "userAgent", { value: previousUserAgent });
 
     const chromeExtensionBanner = screen.queryByRole("link", {
@@ -340,6 +341,7 @@ describe("The dashboard", () => {
       configurable: true,
     });
     render(<Profile />);
+    setMockMinViewportWidth(true);
     Object.defineProperty(navigator, "userAgent", { value: previousUserAgent });
 
     const firefoxBanner = screen.queryByRole("link", {
@@ -377,8 +379,9 @@ describe("The dashboard", () => {
         "Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:57.0) Gecko/20100101 Firefox/57.0",
       configurable: true,
     });
-    setMockMinViewportWidthOnce(false);
+    setMockMinViewportWidth(false);
     render(<Profile />);
+    setMockMinViewportWidth(true);
     Object.defineProperty(navigator, "userAgent", { value: previousUserAgent });
 
     const addonBanner = screen.queryByRole("link", {
