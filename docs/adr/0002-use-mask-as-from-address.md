@@ -142,9 +142,9 @@ Resent-From: offers@servicex.example.com
 - Good, because the email mask is available for filtering.
 - Good, because Proton Mail organizes by mask in conversation mode.
 - Good, because it rewards usage of a mask on a single service, which is better
-  for user privacy and is compatible with the Relay business model.
+  for user privacy.
 - Bad, because of a small increased probability of delivery to spam, due to the
-  reputation of `mozmail.com` versus `mozilla.com`.
+  reputation of `mozmail.com` versus `firefox.com`.
 
 In QA testing in August 2023, emails from one service were sent to spam with
 the new `From:` address, while were delivered to the inbox with the old `From:`
@@ -174,9 +174,8 @@ Resent-From: offers@servicex.example.com
 - Good, because the email mask plus original email is available for filtering.
 - Good, because Proton Mail organizes by mask in conversation mode.
 - Bad, because of a small increased probability of delivery to spam, due to the
-  reputation of `mozmail.com` versus `mozilla.com`.
-- Bad, because it encourages reuse of masks, which is worse for user privacy
-  and for the Relay business model.
+  reputation of `mozmail.com` versus `firefox.com`.
+- Bad, because it encourages reuse of masks, which is worse for user privacy.
 
 ## Links
 
