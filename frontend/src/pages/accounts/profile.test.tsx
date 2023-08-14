@@ -24,9 +24,7 @@ import {
   setMockRuntimeDataOnce,
 } from "../../../__mocks__/hooks/api/runtimeData";
 import { mockGetLocaleModule } from "../../../__mocks__/functions/getLocale";
-import {
-  setMockMinViewportWidth,
-} from "../../../__mocks__/hooks/mediaQuery";
+import { setMockMinViewportWidth } from "../../../__mocks__/hooks/mediaQuery";
 import { mockUseFxaFlowTrackerModule } from "../../../__mocks__/hooks/fxaFlowTracker";
 import { setMockAddonData } from "../../../__mocks__/hooks/addon";
 import { setMockRelayNumberData } from "../../../__mocks__/hooks/api/relayNumber";
