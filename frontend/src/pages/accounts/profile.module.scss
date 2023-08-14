@@ -258,6 +258,15 @@
     color: $color-white;
   }
 
+  .upsell-banner-header {
+    @include text-title-md;
+    font-weight: 700;
+  }
+
+  .upsell-banner-description {
+    @include text-body-lg;
+  }
+
   .upsell-banner-wrapper {
     display: flex;
     align-items: center;
@@ -272,18 +281,9 @@
     }
   }
 
-  .upsell-banner-header {
-    @include text-title-md;
-    font-weight: 700;
-  }
-
   .upsell-banner-image {
     max-width: $content-md;
     width: 100%;
-  }
-
-  .upsell-banner-description {
-    @include text-body-lg;
   }
 
   .upsell-banner-content {
