@@ -1,5 +1,3 @@
-import ReactGa from "react-ga";
-
 export function getCookie(cookieId: string): string | undefined {
   if (typeof document === "undefined") {
     // When server-side rendering:
@@ -42,32 +40,4 @@ export function clearCookie(cookieId: string) {
 
 export function getCsrfToken(): string | undefined {
   return getCookie("csrftoken");
-}
-
-export function convertUtmCookieToGaField(
-  utmCookie: string,
-): ReactGa.FieldsObject {
-  /*
-   * To preserve utm url param values thru FxA redirects, the server-side
-   * middleware:StoreUtmsInCookie stores utm params in cookies with this format:
-   * utm_medium=firefox-desktop;
-   * utm_source=modal;
-   * utm_content=manage-masks-global;
-   *
-   * analytics.js traffic source field names are in this format:
-   * campaignMedium
-   * campaignSource
-   * campaignContent
-   *
-   * So, convert the cookie names and values to GA field names & values
-   */
-  const campaignField = utmCookie.split("=");
-  const campaignFieldName = campaignField[0].replace("utm_", "");
-  const capitalizedCampaignFieldName =
-    campaignFieldName.charAt(0).toUpperCase() + campaignFieldName.slice(1);
-  const campaignFieldValue = campaignField[1];
-  const gaField: ReactGa.FieldsObject = {};
-  const gaFieldName = `campaign${capitalizedCampaignFieldName}`;
-  gaField[gaFieldName] = campaignFieldValue;
-  return gaField;
 }

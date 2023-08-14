@@ -312,7 +312,6 @@ if DEBUG:
 MIDDLEWARE += [
     "django.middleware.security.SecurityMiddleware",
     "csp.middleware.CSPMiddleware",
-    "privaterelay.middleware.StoreUtmsInCookie",
     "privaterelay.middleware.RedirectRootIfLoggedIn",
     "privaterelay.middleware.RelayStaticFilesMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
