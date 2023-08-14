@@ -146,9 +146,9 @@ Resent-From: offers@servicex.example.com
 - Bad, because of a small increased probability of delivery to spam, due to the
   reputation of `mozmail.com` versus `firefox.com`.
 
-In QA testing in August 2023, emails from one service were sent to spam with
-the new `From:` address, while were delivered to the inbox with the old `From:`
-address from Option 1, while over 100 saw no difference in Inbox delivery.
+In QA testing in August 2023, over 100 services had no delivery
+change with the new `From:` address. For one service, the email went
+to spam instead of the inbox.
 
 ### Option 4: Use the Relay Mask Plus Derived Prefix as the `From:` Address
 
