@@ -26,7 +26,6 @@ import {
 import { mockGetLocaleModule } from "../../../__mocks__/functions/getLocale";
 import {
   setMockMinViewportWidth,
-  setMockMinViewportWidthOnce,
 } from "../../../__mocks__/hooks/mediaQuery";
 import { mockUseFxaFlowTrackerModule } from "../../../__mocks__/hooks/fxaFlowTracker";
 import { setMockAddonData } from "../../../__mocks__/hooks/addon";
