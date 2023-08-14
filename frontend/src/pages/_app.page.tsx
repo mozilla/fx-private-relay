@@ -66,19 +66,26 @@ function MyApp({ Component, pageProps }: AppProps) {
       titleCase: false,
       debug: process.env.NEXT_PUBLIC_DEBUG === "true",
     });
-    const gaFields: ReactGa.FieldsObject = {
-      anonymizeIp: true,
-      transport: "beacon",
-    };
     const cookies = document.cookie.split("; ");
-    cookies.forEach((item) => {
-      if (item.trim().startsWith("utm_")) {
-        const cookieId = item.split("=")[0];
-        Object.assign(gaFields, convertUtmCookieToGaField(item));
-        clearCookie(cookieId);
-      }
-    });
-    ReactGa.set(gaFields);
+    if (cookies.some((cookie) => cookie.trim().startsWith("utm_"))) {
+      const gaFields: ReactGa.FieldsObject = {
+        anonymizeIp: true,
+        transport: "beacon",
+      };
+      cookies.forEach((item) => {
+        if (item.trim().startsWith("utm_")) {
+          const cookieId = item.split("=")[0];
+          Object.assign(gaFields, convertUtmCookieToGaField(item));
+          clearCookie(cookieId);
+        }
+      });
+      ReactGa.set(gaFields);
+    } else {
+      ReactGa.set({
+        anonymizeIp: true,
+        transport: "beacon",
+      });
+    }
     const gaEventCookies = cookies.filter((item) =>
       item.trim().startsWith("server_ga_event:"),
     );
