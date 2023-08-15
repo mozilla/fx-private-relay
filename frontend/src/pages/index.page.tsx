@@ -21,7 +21,6 @@ import { BundleBanner } from "../components/landing/BundleBanner";
 import { useFlaggedAnchorLinks } from "../hooks/flaggedAnchorLinks";
 import { useL10n } from "../hooks/l10n";
 import { HighlightedFeatures } from "../components/landing/HighlightedFeatures";
-import { isFlagActive } from "../functions/waffle";
 
 const Home: NextPage = () => {
   const l10n = useL10n();
@@ -137,11 +136,7 @@ const Home: NextPage = () => {
                 entries={[
                   {
                     q: l10n.getString("faq-question-availability-question"),
-                    a: isFlagActive(runtimeData.data, "eu_country_expansion")
-                      ? l10n.getString("faq-question-availability-answer-v4")
-                      : l10n.getString(
-                          "faq-question-landing-page-availability",
-                        ),
+                    a: l10n.getString("faq-question-availability-answer-v4"),
                   },
                   {
                     q: l10n.getString("faq-question-what-is-question-2"),

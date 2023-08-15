@@ -17,7 +17,6 @@ import { useFlaggedAnchorLinks } from "../hooks/flaggedAnchorLinks";
 import { useL10n } from "../hooks/l10n";
 import { Localized } from "../components/Localized";
 import { HighlightedFeatures } from "../components/landing/HighlightedFeatures";
-import { isFlagActive } from "../functions/waffle";
 
 const PremiumPromo: NextPage = () => {
   const l10n = useL10n();
@@ -45,11 +44,7 @@ const PremiumPromo: NextPage = () => {
   ) : (
     <LinkButton
       href="/premium/waitlist"
-      title={
-        isFlagActive(runtimeData.data, "eu_country_expansion")
-          ? l10n.getString("premium-promo-availability-warning-4")
-          : l10n.getString("premium-promo-availability-warning-2")
-      }
+      title={l10n.getString("premium-promo-availability-warning-4")}
     >
       {l10n.getString("waitlist-submit-label-2")}
     </LinkButton>
@@ -65,11 +60,7 @@ const PremiumPromo: NextPage = () => {
               <p />
             </Localized>
             {cta}
-            <p>
-              {isFlagActive(runtimeData.data, "eu_country_expansion")
-                ? l10n.getString("premium-promo-availability-warning-4")
-                : l10n.getString("premium-promo-availability-warning-2")}
-            </p>
+            <p>{l10n.getString("premium-promo-availability-warning-4")}</p>
           </div>
           <div className={styles["hero-image"]}>
             <Image src={HeroImage} alt="" />
