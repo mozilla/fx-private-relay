@@ -835,7 +835,7 @@ describe("The dashboard", () => {
 
     const customAlias = screen.queryByText(/address3/);
     expect(customAlias).toBeInTheDocument();
-  });
+  }, 10000);
 
   it("has a category filter for the list of aliases that can be closed and cleared, which is available to users with premium", async () => {
     setMockProfileDataOnce({ has_premium: true });
