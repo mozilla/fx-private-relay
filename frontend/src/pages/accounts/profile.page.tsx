@@ -70,6 +70,10 @@ const Profile: NextPage = () => {
     category: "Purchase Button",
     label: "profile-bottom-promo",
   });
+  const headerBannerSubscriptionLinkRef = useGaViewPing({
+    category: "Purchase Button",
+    label: "upgrade-premium-header-mask-limit",
+  });
   const hash = getCookie("profile-location-hash");
   if (hash) {
     document.location.hash = hash;
@@ -440,7 +444,10 @@ const Profile: NextPage = () => {
                 },
               )}
             </p>
-            <LinkButton href="/premium#pricing">
+            <LinkButton
+              href="/premium#pricing"
+              ref={headerBannerSubscriptionLinkRef}
+            >
               {l10n.getString("profile-maxed-aliases-cta")}
             </LinkButton>
           </div>
