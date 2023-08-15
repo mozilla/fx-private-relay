@@ -7,7 +7,9 @@ comes in.
 Typically, we receive update notifications from
 [Dependabot](https://docs.github.com/en/code-security/dependabot/dependabot-alerts/about-dependabot-alerts),
 which periodically checks for new versions of dependencies, and then submits
-pull requests to update them.
+pull requests to update them. Project members can view the
+[details of the latest dependency scans](https://github.com/mozilla/fx-private-relay/network/updates)
+to troubleshoot issues.
 
 Some terms to be aware of:
 
