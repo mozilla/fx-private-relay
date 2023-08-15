@@ -241,3 +241,10 @@ are not ready to update, to get them out of the PR queue.
 We skip non-LTS versions (such as 5.0.0 and 5.1.0). Use the comment
 `@dependabot ignore this minor version` to close the PR and avoid new updates for
 that series.
+
+### django-debug-toolbar
+
+This package is development-only, and updates are generally safe to merge. To test,
+update the package, start the server, and load `/emails/wrapped_email_test` locally.
+The toolbar will be on the right side of the page, either expanded or minimized as
+"DjDT" in the upper right corner.
