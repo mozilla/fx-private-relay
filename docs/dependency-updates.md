@@ -33,10 +33,11 @@ you're doing on the `main` branch. If the results differ, there's probably an
 issue with the update.
 **Make sure to do a fresh install of the dependencies when switching branches!**
 
-You can line up multiple Dependabot PRs for merging by adding the comment
-`@dependabot merge`. Dependabot will then automatically keep the PR up-to-date
-with changes in `main`, and merge it if the Checks continue to run successfully.
-Alternatively, you can use the CLI tool [`pmac`](https://github.com/willkg/paul-mclendahand).
+You can line up multiple Dependabot PRs for merging by using the "Merge when ready"
+button to add to the merge queue. The suggested comment `@dependabot merge`
+does not work with the merge queue, and will not merge the PR.
+Alternatively, you can use the CLI tool [`pmac`](https://github.com/willkg/paul-mclendahand)
+to manually group updates into a single PR.
 
 ## npm
 
