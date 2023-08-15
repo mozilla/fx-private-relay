@@ -307,11 +307,7 @@ const Faq: NextPage = () => {
                 id="faq-availability"
                 question={l10n.getString("faq-question-availability-question")}
               >
-                <p>
-                  {isFlagActive(runtimeData.data, "eu_country_expansion")
-                    ? l10n.getString("faq-question-availability-answer-v4")
-                    : l10n.getString("faq-question-availability-answer-v2")}
-                </p>
+                <p>{l10n.getString("faq-question-availability-answer-v4")}</p>
               </QAndA>
               <QAndA
                 id="faq-replies"

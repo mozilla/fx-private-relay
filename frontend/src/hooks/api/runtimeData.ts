@@ -12,7 +12,6 @@ export type FlagNames =
   | "firefox_integration"
   | "mailing_list_announcement"
   | "premium_promo_banners"
-  | "eu_country_expansion"
   | "mask_redesign"
   | "mobile_app";
 type WaffleFlag = [FlagNames, boolean];

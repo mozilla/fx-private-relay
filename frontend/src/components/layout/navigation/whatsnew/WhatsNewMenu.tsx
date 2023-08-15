@@ -366,7 +366,7 @@ export const WhatsNewMenu = (props: Props) => {
   };
 
   if (
-    isFlagActive(props.runtimeData, "eu_country_expansion") &&
+    typeof props.runtimeData !== "undefined" &&
     !props.profile.has_premium &&
     [
       "bg",
