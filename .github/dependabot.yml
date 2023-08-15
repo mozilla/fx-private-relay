@@ -32,6 +32,23 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    groups:
+      testing-libraries:
+        patterns:
+          - "coverage"
+          - "model-bakery"
+          - "pytest-cov"
+          - "pytest-django"
+          - "responses"
+      typing-stubs:
+        patterns:
+          - "boto3-stubs"
+          - "botocore-stubs"
+          - "django-stubs"
+          - "djangorestframework-stubs"
+          - "mypy-boto3-ses"
+          - "types-pyOpenSSL"
+          - "types-requests"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
