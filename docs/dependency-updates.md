@@ -173,3 +173,71 @@ that it gets changed back (resulting in an empty commit) when committing.
 To watch files when running `npm run watch`. You can verify that this still
 works by running that command and making sure that the server restarts if you
 edit a source file.
+
+## pip / Python
+
+The Python requirements are in `/requirements.txt` at the project root. We
+do not distinguish between development and production requirements for Python.
+We recommend setting up and using a Python virtual environment, to keep Relay
+packages distinct from other system packages - see the
+[Development setup instructions](https://github.com/mozilla/fx-private-relay#development)
+for details.
+The command `python -m pip install -r requirements.txt` will install the packages.
+
+In general, Python library developers write release notes, even if Dependabot has
+trouble finding and linking to them. It is worth reading the release notes to
+determine the changes from the previous version, and take note of suggested changes
+to the Relay codebase.
+
+Python developers often follow the
+[Python version support schedule](https://www.python.org/downloads/), dropping support
+for old Python versions even with few code changes. These are often released as minor
+version updates, occasionally as major updates, but are generally safe updates
+for Relay. The currently used Python version can be found in several places, such
+as the
+[Development setup instructions](https://github.com/mozilla/fx-private-relay#development).
+Relay engineers attempt to update to new Python versions within 12
+months of their release.
+
+What follows is a list of dependencies and how to check for potential breakage
+when they release new versions:
+
+### black
+
+For linters, see the details of the `black style check` test step for any breaking
+syntax changes. If this test step passes, the upgrade is probably OK, and any warnings
+can be handled in later PRs.
+
+### pytest and plugins, coverage, model-bakery, responses
+
+For testing tools, a successful CI test run means the upgrade is probably OK, and any
+new warnings can be handled in later PRs.
+
+### mypy and type stub libraries
+
+For mypy and stub libraries, see the details of the `mypy type check` test step for any
+breaking typing changes. If this test step passes, the upgrade is probably OK, and any
+new warnings can be handled in later PRs.
+
+### boto3
+
+This library is generated from the API definition files for Amazon Web Services, and has
+an update almost every week. A successful CI test run means the upgrade is OK. See the
+upgrade notes for a taste of the changes AWS developers are making.
+
+### django
+
+Relay currently uses a Long Term Support (LTS) release of Django. See the
+[Django download page](https://www.djangoproject.com/download/) for version details.
+Patch versions of the current version (such as 3.2.19 to 3.2.20) are often
+security updates, and the release notes should be read to determine the impact
+to Relay, as well as merged as soon as possible.
+
+We try to update to the next LTS version within the year of release. This is often a
+multi-week process, requiring updates to several resources, and tracked in a GitHub
+issue and project task. Close dependency updates to the next LTS version if you
+are not ready to update, to get them out of the PR queue.
+
+We skip non-LTS versions (such as 5.0.0 and 5.1.0). Use the comment
+`@dependabot ignore this minor version` to close the PR and avoid new updates for
+that series.
