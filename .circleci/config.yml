@@ -71,6 +71,7 @@ jobs:
             mkdir --parents /tmp/workspace/test-results/frontend-coverage
             npm test --workspace frontend -- \
               --ci \
+              --runInBand \
               --coverageDirectory=/tmp/workspace/test-results/frontend-coverage
       - store_test_results:
           path: frontend/junit.xml
