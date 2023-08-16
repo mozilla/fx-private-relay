@@ -316,7 +316,6 @@ def test_get_countries_info_bad_accept_language(rf) -> None:
     }
 
 
-@pytest.mark.xfail(reason="MPP-3363")
 def test_get_countries_info_cdn_language(rf) -> None:
     request = rf.get("/api/v1/runtime_data", HTTP_X_CLIENT_REGION="DE")
     mapping = get_premium_country_language_mapping()
