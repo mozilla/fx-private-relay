@@ -316,6 +316,30 @@ def test_get_countries_info_bad_accept_language(rf) -> None:
     }
 
 
+def test_get_countries_info_cdn_language(rf) -> None:
+    request = rf.get("/api/v1/runtime_data", HTTP_X_CLIENT_REGION="DE")
+    mapping = get_premium_country_language_mapping()
+    result = get_countries_info_from_request_and_mapping(request, mapping)
+    assert result == {
+        "country_code": "DE",
+        "countries": sorted(mapping.keys()),
+        "available_in_country": True,
+        "plan_country_lang_mapping": mapping,
+    }
+
+
+def test_get_countries_info_no_language(rf) -> None:
+    request = rf.get("/api/v1/runtime_data")
+    mapping = get_premium_country_language_mapping()
+    result = get_countries_info_from_request_and_mapping(request, mapping)
+    assert result == {
+        "country_code": "US",
+        "countries": sorted(mapping.keys()),
+        "available_in_country": True,
+        "plan_country_lang_mapping": mapping,
+    }
+
+
 #
 # flag_is_active_in_task tests
 #
