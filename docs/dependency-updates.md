@@ -221,9 +221,24 @@ new warnings can be handled in later PRs.
 
 ### boto3
 
-This library is generated from the API definition files for Amazon Web Services, and has
-an update almost every week. A successful CI test run means the upgrade is OK. See the
-upgrade notes for a taste of the changes AWS developers are making.
+This is the interface library for Amazon Web Services (AWS). This library is
+generated from the API definition files, and has multiple patch updates most
+weeks. A successful CI test run means the upgrade is OK.
+
+See the upgrade notes for a taste of the changes AWS developers are making to
+the services we use. We use clients for the following services in code:
+
+- S3 - Simple Storage Service
+- SES - Simple Email Service
+- SQS - Simple Queue Service
+
+We use these additional AWS services in the Relay system:
+
+- CloudFront - Content delivery network
+- IAM - Identity and Access Management
+- KMS - Key Management Service
+- Route53 - Domain Name Service
+- SNS - Simple Notification Service
 
 ### django
 
