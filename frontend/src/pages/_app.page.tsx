@@ -14,7 +14,6 @@ import { initialiseApiMocks } from "../apiMocks/initialise";
 import { mockIds } from "../apiMocks/mockData";
 import { useIsLoggedIn } from "../hooks/session";
 import "@stripe/stripe-js";
-import { clearCookie, convertUtmCookieToGaField } from "../functions/cookies";
 
 if (process.env.NEXT_PUBLIC_MOCK_API === "true") {
   initialiseApiMocks();
@@ -66,19 +65,11 @@ function MyApp({ Component, pageProps }: AppProps) {
       titleCase: false,
       debug: process.env.NEXT_PUBLIC_DEBUG === "true",
     });
-    const gaFields: ReactGa.FieldsObject = {
+    ReactGa.set({
       anonymizeIp: true,
       transport: "beacon",
-    };
-    const cookies = document.cookie.split("; ");
-    cookies.forEach((item) => {
-      if (item.trim().startsWith("utm_")) {
-        const cookieId = item.split("=")[0];
-        Object.assign(gaFields, convertUtmCookieToGaField(item));
-        clearCookie(cookieId);
-      }
     });
-    ReactGa.set(gaFields);
+    const cookies = document.cookie.split("; ");
     const gaEventCookies = cookies.filter((item) =>
       item.trim().startsWith("server_ga_event:"),
     );
