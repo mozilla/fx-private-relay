@@ -263,7 +263,7 @@ describe("The dashboard", () => {
       name: '[<Localized> with id [modal-email-domain-available] and vars: {"custom_domain_full":"spongebob.mozmail.com"}]',
     });
     expect(subdomainDialog).toBeInTheDocument();
-  }, 10000);
+  });
 
   it("shows a banner to download Firefox if using a different browser that does not support Chrome extensions", () => {
     // navigator.userAgent is read-only, so we use `Object.defineProperty`
@@ -326,7 +326,7 @@ describe("The dashboard", () => {
 
     expect(chromeExtensionBanner).not.toBeInTheDocument();
     expect(firefoxBanner).toBeInTheDocument();
-  }, 10000);
+  });
 
   it("does not show a banner to download Firefox if the user is already using it", () => {
     // navigator.userAgent is read-only, so we use `Object.defineProperty`
@@ -338,7 +338,6 @@ describe("The dashboard", () => {
       configurable: true,
     });
     render(<Profile />);
-    setMockMinViewportWidth(true);
     Object.defineProperty(navigator, "userAgent", { value: previousUserAgent });
 
     const firefoxBanner = screen.queryByRole("link", {
@@ -386,6 +385,32 @@ describe("The dashboard", () => {
     });
 
     expect(addonBanner).not.toBeInTheDocument();
+  });
+
+  it("does not show the UpsellBanner when the user is premium", () => {
+    // Mock user profile data with premium status
+    const mockUserProfile = {
+      has_premium: true, // User is premium
+      emails_blocked: 0, // Number of blocked emails
+      emails_forwarded: 0, // Number of forwarded emails
+      level_one_trackers_blocked: 0, // Number of level one trackers blocked
+    };
+    
+    // Mock runtime data
+    const mockRuntimeData = {
+      data: {
+        // Mock flag and other data as needed
+      },
+    };
+
+    // Render the Profile component
+    render(<Profile profile={mockUserProfile} runtimeData={mockRuntimeData} />);
+    
+    // Check if the UpsellBanner is not in the document
+    const upsellBanner = screen.queryByRole('link', {
+      name: 'l10n string: [profile-maxed-aliases-cta], with vars: {}',
+    });
+    expect(upsellBanner).not.toBeInTheDocument();
   });
 
   it("tells the add-on to hide the banner to install the add-on", () => {
@@ -835,7 +860,7 @@ describe("The dashboard", () => {
 
     const customAlias = screen.queryByText(/address3/);
     expect(customAlias).toBeInTheDocument();
-  }, 10000);
+  });
 
   it("has a category filter for the list of aliases that can be closed and cleared, which is available to users with premium", async () => {
     setMockProfileDataOnce({ has_premium: true });
