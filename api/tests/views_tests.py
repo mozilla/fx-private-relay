@@ -121,8 +121,36 @@ def test_patch_premium_user_subdomain_cannot_be_changed(
     )
 
     ret_data = response.json()
+    premium_profile.refresh_from_db()
 
     assert ret_data["subdomain"] == original_subdomain
+    assert premium_profile.subdomain == original_subdomain
+    assert response.status_code == 200
+
+
+def test_patch_profile_fields_are_read_only_by_default(premium_user, prem_api_client):
+    """A field in the Profile model should be read only by default if it is not mentioned in the ProfileSerializer class fields.
+
+    Tested two fields, date_subscribed and num_address_deleted to see if the behavior matches what is described here: https://www.django-rest-framework.org/api-guide/serializers/#specifying-read-only-fields
+    """
+    premium_profile = premium_user.profile
+    expected_num_address_deleted = premium_profile.num_address_deleted
+    expected_date_subscribed = premium_profile.date_subscribed
+
+    response = prem_api_client.patch(
+        reverse(viewname="profiles-detail", args=[premium_user.id]),
+        data={
+            "date_subscribed": "2023-08-12T13:12:13.850828Z",
+            "num_address_deleted": 5,
+        },
+        format="json",
+    )
+
+    premium_profile.refresh_from_db()
+
+    assert premium_profile.num_address_deleted == expected_num_address_deleted
+    assert premium_profile.date_subscribed == expected_date_subscribed
+    assert response.status_code == 200
 
 
 def test_post_domainaddress_user_flagged_error(premium_user, prem_api_client) -> None:
