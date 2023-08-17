@@ -70,10 +70,6 @@ const Profile: NextPage = () => {
     category: "Purchase Button",
     label: "profile-bottom-promo",
   });
-  const headerBannerSubscriptionLinkRef = useGaViewPing({
-    category: "Purchase Button",
-    label: "upgrade-premium-header-mask-limit",
-  });
   const hash = getCookie("profile-location-hash");
   if (hash) {
     document.location.hash = hash;
@@ -306,11 +302,11 @@ const Profile: NextPage = () => {
             {allAliases.length >= freeMaskLimit &&
             !profile.has_premium &&
             isPhonesAvailableInCountry(runtimeData.data) ? (
-              <MaxedMasksTooltip>
-                <dd className={`${styles.value} ${styles.maxed}`}>
+              <dd className={`${styles.value} ${styles.maxed}`}>
+                <MaxedMasksTooltip>
                   {numberFormatter.format(allAliases.length)}
-                </dd>
-              </MaxedMasksTooltip>
+                </MaxedMasksTooltip>
+              </dd>
             ) : (
               <dd className={`${styles.value}`}>
                 {numberFormatter.format(allAliases.length)}
@@ -424,45 +420,47 @@ const Profile: NextPage = () => {
   const bottomBanners = allAliases.length === 0 ? banners : null;
 
   // Render the upsell banner when a user has reached the free mask limit
-  const UpsellBanner = () =>
-    freeMaskLimitReached && isPhonesAvailableInCountry(runtimeData.data) ? (
-      <div className={styles["upsell-banner"]}>
-        <div className={styles["upsell-banner-wrapper"]}>
-          <div className={styles["upsell-banner-content"]}>
-            <p className={styles["upsell-banner-header"]}>
-              {isPhonesAvailableInCountry(runtimeData.data)
-                ? l10n.getString("profile-maxed-aliases-with-phone-header")
-                : l10n.getString("profile-maxed-aliases-without-phone-header")}
-            </p>
-            <p className={styles["upsell-banner-description"]}>
-              {l10n.getString(
-                isPhonesAvailableInCountry(runtimeData.data)
-                  ? "profile-maxed-aliases-with-phone-description"
-                  : "profile-maxed-aliases-without-phone-description",
-                {
-                  limit: freeMaskLimit,
-                },
-              )}
-            </p>
-            <LinkButton
-              href="/premium#pricing"
-              ref={headerBannerSubscriptionLinkRef}
-            >
-              {l10n.getString("profile-maxed-aliases-cta")}
-            </LinkButton>
-          </div>
-          <Image
-            className={styles["upsell-banner-image"]}
-            src={
+  const UpsellBanner = () => (
+    <div className={styles["upsell-banner"]}>
+      <div className={styles["upsell-banner-wrapper"]}>
+        <div className={styles["upsell-banner-content"]}>
+          <p className={styles["upsell-banner-header"]}>
+            {isPhonesAvailableInCountry(runtimeData.data)
+              ? l10n.getString("profile-maxed-aliases-with-phone-header")
+              : l10n.getString("profile-maxed-aliases-without-phone-header")}
+          </p>
+          <p className={styles["upsell-banner-description"]}>
+            {l10n.getString(
               isPhonesAvailableInCountry(runtimeData.data)
-                ? UpsellBannerUs
-                : UpsellBannerNonUs
-            }
-            alt=""
-          />
+                ? "profile-maxed-aliases-with-phone-description"
+                : "profile-maxed-aliases-without-phone-description",
+              {
+                limit: freeMaskLimit,
+              },
+            )}
+          </p>
+          <LinkButton
+            href="/premium#pricing"
+            ref={useGaViewPing({
+              category: "Purchase Button",
+              label: "upgrade-premium-header-mask-limit",
+            })}
+          >
+            {l10n.getString("profile-maxed-aliases-cta")}
+          </LinkButton>
         </div>
+        <Image
+          className={styles["upsell-banner-image"]}
+          src={
+            isPhonesAvailableInCountry(runtimeData.data)
+              ? UpsellBannerUs
+              : UpsellBannerNonUs
+          }
+          alt=""
+        />
       </div>
-    ) : null;
+    </div>
+  );
 
   return (
     <>
@@ -475,7 +473,7 @@ const Profile: NextPage = () => {
         totalEmailTrackersRemoved={profile.level_one_trackers_blocked}
       />
       <Layout runtimeData={runtimeData.data}>
-        <UpsellBanner />
+        {freeMaskLimitReached && <UpsellBanner />}
         {isPhonesAvailableInCountry(runtimeData.data) ? (
           <DashboardSwitcher />
         ) : null}

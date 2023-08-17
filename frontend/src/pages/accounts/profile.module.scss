@@ -83,6 +83,7 @@
           color: $color-white;
           max-width: calc(100% - 2 * $spacing-xs);
           top: calc(100% + $arrowWidth + $spacing-xs);
+          font-weight: 400;
           right: $spacing-xs;
           background-color: $color-purple-80;
           box-shadow: $box-shadow-sm;
