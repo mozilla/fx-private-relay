@@ -132,6 +132,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             "id",
+            "subdomain",
             "has_premium",
             "has_phone",
             "has_vpn",

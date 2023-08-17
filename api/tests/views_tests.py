@@ -104,6 +104,27 @@ def test_post_domainaddress_no_subdomain_error(premium_user, prem_api_client) ->
     }
 
 
+def test_patch_premium_user_subdomain_cannot_be_changed(
+    premium_user, prem_api_client
+) -> None:
+    """A premium user should not be able to edit their subdomain."""
+    premium_profile = premium_user.profile
+    original_subdomain = "helloworld"
+    premium_profile.subdomain = original_subdomain
+    premium_profile.save()
+
+    new_subdomain = "helloworldd"
+    response = prem_api_client.patch(
+        reverse(viewname="profiles-detail", args=[premium_user.id]),
+        data={"subdomain": new_subdomain},
+        format="json",
+    )
+
+    ret_data = response.json()
+
+    assert ret_data["subdomain"] == original_subdomain
+
+
 def test_post_domainaddress_user_flagged_error(premium_user, prem_api_client) -> None:
     """A flagged user cannot create a new domain address."""
     premium_profile = premium_user.profile
