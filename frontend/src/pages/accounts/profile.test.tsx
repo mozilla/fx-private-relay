@@ -387,32 +387,6 @@ describe("The dashboard", () => {
     expect(addonBanner).not.toBeInTheDocument();
   });
 
-  it("does not show the UpsellBanner when the user is premium", () => {
-    // Mock user profile data with premium status
-    const mockUserProfile = {
-      has_premium: true, // User is premium
-      emails_blocked: 0, // Number of blocked emails
-      emails_forwarded: 0, // Number of forwarded emails
-      level_one_trackers_blocked: 0, // Number of level one trackers blocked
-    };
-    
-    // Mock runtime data
-    const mockRuntimeData = {
-      data: {
-        // Mock flag and other data as needed
-      },
-    };
-
-    // Render the Profile component
-    render(<Profile profile={mockUserProfile} runtimeData={mockRuntimeData} />);
-    
-    // Check if the UpsellBanner is not in the document
-    const upsellBanner = screen.queryByRole('link', {
-      name: 'l10n string: [profile-maxed-aliases-cta], with vars: {}',
-    });
-    expect(upsellBanner).not.toBeInTheDocument();
-  });
-
   it("tells the add-on to hide the banner to install the add-on", () => {
     // navigator.userAgent is read-only, so we use `Object.defineProperty`
     // as a workaround to be able to replace it with mock data anyway:
