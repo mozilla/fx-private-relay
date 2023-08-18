@@ -170,7 +170,7 @@ GitHub Flow:
 3. Create a pull request to `main`
 4. Address review comments
 5. Merge pull request
-6. Make and push a new tag. E.g.: `2022.08.02.01`
+6. Make and push a new tag. E.g.: `2022.08.02.1`
 
 ```mermaid
 %%{init: { 'theme': 'base' } }%%
@@ -196,7 +196,7 @@ GitHub Flow:
        branch stage-fix-2022.08.02
        commit
        checkout main
-       merge stage-fix-2022.08.02 tag: "2022.08.02.01"
+       merge stage-fix-2022.08.02 tag: "2022.08.02.1"
 ```
 
 ### "Dirty `main`" flow
@@ -237,7 +237,7 @@ from the stage-fix branch.
        commit
        checkout main
        branch stage-fix-2022.08.02
-       commit tag: "2022.08.02.01"
+       commit tag: "2022.08.02.1"
        checkout main
        merge change-3
        merge stage-fix-2022.08.02
@@ -249,8 +249,8 @@ Whether you make a "clean" or "dirty" stage-fix, after you push the new tag to
 GitHub, you should [make a pre-release on GitHub][github-new-release] for the
 new release tag.
 
-1. Choose the tag you just pushed (e.g., `2022.08.02.01`)
-2. Type the same tag name for the releae title (e.g., `2022.08.02.01`)
+1. Choose the tag you just pushed (e.g., `2022.08.02.1`)
+2. Type the same tag name for the releae title (e.g., `2022.08.02.1`)
 3. Click "Previous tag:" and choose the previous tag. (e.g., `2022.08.02`)
 4. Click the "Generate release notes" button!
 5. Check the pre-release box.
@@ -282,7 +282,7 @@ new release tag.
        branch stage-fix-1
        commit
        checkout main
-       merge stage-fix-1 tag: "2022.08.02.01"
+       merge stage-fix-1 tag: "2022.08.02.1"
        checkout main
        merge change-3
        branch change-4
