@@ -71,12 +71,61 @@
         display: flex;
       }
 
+      .stat-wrapper {
+        position: relative;
+
+        $arrowWidth: 6px;
+
+        .tooltip {
+          @include text-body-sm;
+          position: absolute;
+          width: $content-xs;
+          color: $color-white;
+          max-width: calc(100% - 2 * $spacing-xs);
+          top: calc(100% + $arrowWidth + $spacing-xs);
+          font-weight: 400;
+          right: $spacing-xs;
+          background-color: $color-purple-80;
+          box-shadow: $box-shadow-sm;
+          display: flex;
+          flex-direction: column;
+          gap: $spacing-sm;
+          padding: $spacing-md $spacing-md;
+          border-radius: $border-radius-sm;
+          // Prevent other .stat-wrapper elements from overlapping this tooltip:
+          z-index: 2;
+
+          @media screen and #{$mq-lg} {
+            // The wrapper doesn't span the full width on large screens,
+            // so limiting the tooltip to its wrapper's size makes it too thin:
+            max-width: unset;
+          }
+
+          &::before {
+            content: "";
+            height: 2 * $arrowWidth;
+            width: 2 * $arrowWidth;
+            position: absolute;
+            top: -1 * $arrowWidth;
+            right: $spacing-md;
+            transform: rotate(45deg);
+            background-color: $color-purple-80;
+            border-top: 1px solid $color-purple-80;
+            border-left: 1px solid $color-purple-80;
+          }
+        }
+
+        // Makes sure the tooltip does not get a border on hover
+        .stat {
+          border: none;
+        }
+      }
+
       .stat {
         flex: 1 0 auto;
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: space-between;
         gap: $spacing-xs;
         padding: $spacing-md;
         background-color: $color-white;
@@ -102,6 +151,10 @@
         .label {
           @include text-body-sm;
           color: $color-dark-gray-10;
+        }
+
+        .maxed {
+          color: $color-purple-50;
         }
 
         .value {
@@ -194,6 +247,53 @@
         }
       }
     }
+  }
+}
+
+.upsell-banner {
+  background-color: $color-blue-90;
+
+  .upsell-banner-description,
+  .upsell-banner-header {
+    @include font-firefox;
+    color: $color-white;
+  }
+
+  .upsell-banner-header {
+    @include text-title-md;
+    font-weight: 700;
+  }
+
+  .upsell-banner-description {
+    @include text-body-lg;
+  }
+
+  .upsell-banner-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column-reverse;
+    padding: $spacing-xl 0;
+    gap: $spacing-2xl;
+
+    @media screen and #{$mq-lg} {
+      flex-direction: row;
+      gap: $spacing-xs;
+    }
+  }
+
+  .upsell-banner-image {
+    max-width: $content-md;
+    width: 100%;
+  }
+
+  .upsell-banner-content {
+    max-width: $content-md;
+    display: flex;
+    gap: $spacing-lg;
+    padding: 0 $spacing-xl;
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 

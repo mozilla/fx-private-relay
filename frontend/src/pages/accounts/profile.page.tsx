@@ -9,15 +9,20 @@ import {
 } from "react";
 import {
   FocusScope,
+  mergeProps,
   useButton,
   useOverlay,
   useOverlayPosition,
   useOverlayTrigger,
+  useTooltip,
+  useTooltipTrigger,
 } from "react-aria";
-import { useMenuTriggerState } from "react-stately";
+import { useMenuTriggerState, useTooltipTriggerState } from "react-stately";
 import { toast } from "react-toastify";
 import styles from "./profile.module.scss";
 import BottomBannerIllustration from "../../../public/images/woman-couch-left.svg";
+import UpsellBannerUs from "./images/upsell-banner-us.svg";
+import UpsellBannerNonUs from "./images/upsell-banner-nonus.svg";
 import { PencilIcon, CheckBadgeIcon } from "../../components/Icons";
 import { Layout } from "../../components/layout/Layout";
 import { useProfiles } from "../../hooks/api/profile";
@@ -202,6 +207,10 @@ const Profile: NextPage = () => {
     }
   };
 
+  const freeMaskLimit = getRuntimeConfig().maxFreeAliases;
+  const freeMaskLimitReached =
+    allAliases.length >= freeMaskLimit && !profile.has_premium;
+
   const subdomainMessage =
     typeof profile.subdomain === "string" ? (
       <>
@@ -213,7 +222,7 @@ const Profile: NextPage = () => {
     ) : (
       <>
         <a className={styles["open-button"]} href="#mpp-choose-subdomain">
-          {l10n.getString("profile-label-set-your-custom-domain")}
+          {l10n.getString("profile-label-set-your-custom-domain-free-user")}
         </a>
       </>
     );
@@ -223,9 +232,44 @@ const Profile: NextPage = () => {
     compactDisplay: "short",
   });
 
-  // Non-Premium users have only five aliases, making the stats less insightful,
-  // so only show them for Premium users:
-  const stats = profile.has_premium ? (
+  type TooltipProps = {
+    children: ReactNode;
+  };
+
+  const MaxedMasksTooltip = (props: TooltipProps) => {
+    const l10n = useL10n();
+    const triggerState = useTooltipTriggerState({ delay: 0 });
+    const triggerRef = useRef<HTMLSpanElement>(null);
+    const tooltipTrigger = useTooltipTrigger({}, triggerState, triggerRef);
+    const { tooltipProps } = useTooltip({}, triggerState);
+
+    return (
+      <div className={styles["stat-wrapper"]}>
+        <span
+          ref={triggerRef}
+          {...tooltipTrigger.triggerProps}
+          className={`${styles.stat} ${styles["forwarded-stat"]}`}
+        >
+          {props.children}
+        </span>
+        {triggerState.isOpen && (
+          <div
+            {...mergeProps(tooltipTrigger.tooltipProps, tooltipProps)}
+            className={styles.tooltip}
+          >
+            <p>
+              {l10n.getString("profile-maxed-aliases-tooltip", {
+                limit: freeMaskLimit,
+              })}
+            </p>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Show stats for free users and premium users
+  const stats = (
     <section className={styles.header}>
       <div className={styles["header-wrapper"]}>
         <div className={styles["user-details"]}>
@@ -255,9 +299,19 @@ const Profile: NextPage = () => {
             <dt className={styles.label}>
               {l10n.getString("profile-stat-label-aliases-used-2")}
             </dt>
-            <dd className={styles.value}>
-              {numberFormatter.format(allAliases.length)}
-            </dd>
+            {allAliases.length >= freeMaskLimit &&
+            !profile.has_premium &&
+            isPhonesAvailableInCountry(runtimeData.data) ? (
+              <dd className={`${styles.value} ${styles.maxed}`}>
+                <MaxedMasksTooltip>
+                  {numberFormatter.format(allAliases.length)}
+                </MaxedMasksTooltip>
+              </dd>
+            ) : (
+              <dd className={`${styles.value}`}>
+                {numberFormatter.format(allAliases.length)}
+              </dd>
+            )}
           </div>
           <div className={styles.stat}>
             <dt className={styles.label}>
@@ -304,14 +358,6 @@ const Profile: NextPage = () => {
         </dl>
       </div>
     </section>
-  ) : (
-    <Localized
-      id="profile-label-welcome-html"
-      vars={{ email: user.email }}
-      elems={{ span: <span /> }}
-    >
-      <section className={styles["no-premium-header"]} />
-    </Localized>
   );
 
   const bottomPremiumSection =
@@ -373,6 +419,49 @@ const Profile: NextPage = () => {
   const topBanners = allAliases.length > 0 ? banners : null;
   const bottomBanners = allAliases.length === 0 ? banners : null;
 
+  // Render the upsell banner when a user has reached the free mask limit
+  const UpsellBanner = () => (
+    <div className={styles["upsell-banner"]}>
+      <div className={styles["upsell-banner-wrapper"]}>
+        <div className={styles["upsell-banner-content"]}>
+          <p className={styles["upsell-banner-header"]}>
+            {isPhonesAvailableInCountry(runtimeData.data)
+              ? l10n.getString("profile-maxed-aliases-with-phone-header")
+              : l10n.getString("profile-maxed-aliases-without-phone-header")}
+          </p>
+          <p className={styles["upsell-banner-description"]}>
+            {l10n.getString(
+              isPhonesAvailableInCountry(runtimeData.data)
+                ? "profile-maxed-aliases-with-phone-description"
+                : "profile-maxed-aliases-without-phone-description",
+              {
+                limit: freeMaskLimit,
+              },
+            )}
+          </p>
+          <LinkButton
+            href="/premium#pricing"
+            ref={useGaViewPing({
+              category: "Purchase Button",
+              label: "upgrade-premium-header-mask-limit",
+            })}
+          >
+            {l10n.getString("profile-maxed-aliases-cta")}
+          </LinkButton>
+        </div>
+        <Image
+          className={styles["upsell-banner-image"]}
+          src={
+            isPhonesAvailableInCountry(runtimeData.data)
+              ? UpsellBannerUs
+              : UpsellBannerNonUs
+          }
+          alt=""
+        />
+      </div>
+    </div>
+  );
+
   return (
     <>
       <AddonData
@@ -384,6 +473,7 @@ const Profile: NextPage = () => {
         totalEmailTrackersRemoved={profile.level_one_trackers_blocked}
       />
       <Layout runtimeData={runtimeData.data}>
+        {freeMaskLimitReached && <UpsellBanner />}
         {isPhonesAvailableInCountry(runtimeData.data) ? (
           <DashboardSwitcher />
         ) : null}
