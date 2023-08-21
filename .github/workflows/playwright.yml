@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3.5.2
-      - uses: actions/setup-node@v3.8.0
+      - uses: actions/setup-node@v3.8.1
         with:
           node-version-file: 'frontend/package.json'
           cache: 'npm'
