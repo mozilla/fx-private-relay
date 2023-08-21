@@ -40,7 +40,7 @@
     "@next/bundle-analyzer": "^13.4.16",
     "@next/eslint-plugin-next": "^13.4.19",
     "@testing-library/dom": "^9.3.1",
-    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/jest-dom": "^6.0.1",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.4.3",
     "@types/jest-axe": "^3.5.5",
