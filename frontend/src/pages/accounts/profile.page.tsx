@@ -299,9 +299,12 @@ const Profile: NextPage = () => {
             <dt className={styles.label}>
               {l10n.getString("profile-stat-label-aliases-used-2")}
             </dt>
-            {allAliases.length >= freeMaskLimit &&
-            !profile.has_premium &&
-            isPhonesAvailableInCountry(runtimeData.data) ? (
+            {/* If premium is available in the user's country and 
+            the user has reached their free mask limit and 
+            they are a free user, show the maxed masks tooltip */}
+            {isPeriodicalPremiumAvailableInCountry(runtimeData.data) &&
+            allAliases.length >= freeMaskLimit &&
+            !profile.has_premium ? (
               <dd className={`${styles.value} ${styles.maxed}`}>
                 <MaxedMasksTooltip>
                   {numberFormatter.format(allAliases.length)}
@@ -473,7 +476,12 @@ const Profile: NextPage = () => {
         totalEmailTrackersRemoved={profile.level_one_trackers_blocked}
       />
       <Layout runtimeData={runtimeData.data}>
-        {freeMaskLimitReached && <UpsellBanner />}
+        {/* If free user has reached their free mask limit and 
+        premium is available in their country, show upsell banner */}
+        {freeMaskLimitReached &&
+          isPeriodicalPremiumAvailableInCountry(runtimeData.data) && (
+            <UpsellBanner />
+          )}
         {isPhonesAvailableInCountry(runtimeData.data) ? (
           <DashboardSwitcher />
         ) : null}
