@@ -125,30 +125,70 @@ After you push the tag to GitHub, you should also
 [make a pre-release on GitHub][github-new-release] for the tag.
 
 1. Choose the tag you just pushed (e.g., `2022.08.02`)
-2. Type the same tag name for the releae title (e.g., `2022.08.02`)
-3. Click "Previous tag:" and choose the tag currently on production.
-   - You can find this at [the `__version__` endpoint][prod-version].
+2. Type the same tag name for the release title (e.g., `2022.08.02`)
+3. Click "Previous tag:" and choose the tag for comparison.
+   - If the last release was a standard release, use the release currently on production.
+     You can find this at [the `__version__` endpoint][prod-version].
+   - If the last release was a hot fix, use the "regular" release before the hot fix.
+     For example, if the current release is `2022.08.02.1`, use `2022.08.02` as the
+     previous release.
 4. Click the "Generate release notes" button!
-5. Check the pre-release box.
-6. Click "Publish release"
+5. Edit the generated notes to add a planned release summary and organize PRs
+   into sections, such as:
+
+   ```
+   Planned for release to relay.firefox.com on August 9th, 2022.
+
+   ## User-facing changes
+   * PRs that will change what users see, good candidates for QA tests
+
+   ### Upcoming Features
+   * PRs that are behind feature flags, if any, with note: (behind flag `the_flag_name`)
+
+   ## Other changes
+   * PRs for backend changes, documentation, etc
+
+   ## Dependency updates
+   * All the Dependabot PRs
+
+   **Full Changelog**: Keep this link
+   ```
+
+6. Check the pre-release box.
+7. Click "Publish release"
 
 ## Release to Prod
 
 We leave the tag on [Stage][stage] for a week so that we (and especially QA)
-can check the tag on GCP infrastucture before we deploy it to production. To
-deploy the tag to production:
+can check the tag on GCP infrastucture before we deploy it to production.
+
+On Monday, after the Release Readiness Review:
 
 1. File an [SRE ticket][sre-board] to deploy the tag to [Prod][prod].
    - Include a link to the GitHub Release
    - You can assign it directly to our primary SRE for the day
-2. When SRE starts the deploy, "cloudops-jenkins" will send status messages
+2. On the GitHub release, update the summary with a reference to the ticket:
+   ```
+   Planned for release to relay.firefox.com on August 9th, 2022 with SVCSE-1385.
+   ```
+
+On Tuesday:
+
+1. When SRE starts the deploy, "cloudops-jenkins" will send status messages
    into the #fx-private-relay-eng channel.
-3. When you see `PROMOTE PROD COMPLETE`, do some checks on prod:
+2. When you see `PROMOTE PROD COMPLETE`, do some checks on prod:
    - Spot-check the site for basic functionality
    - Check [sentry prod project](https://mozilla.sentry.io/releases/?environment=prod) for a spike in any new issues
    - Check [grafana dashboard](https://earthangel-b40313e5.influxcloud.net/d/qiwPC76Zk/fx-private-relay?orgId=1&refresh=1m&from=now-1h&to=now) for any unexpected spike in ops
    - [Run end-to-end tests](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml) on prod (Note: as of 2023-07-12 these are known-broken. 😢)
-4. Update the GitHub Release from "pre-release" to a full release and reference the production deploy SRE Jira ticket.
+3. Update the GitHub release:
+   - Update the summary:
+     ```
+     Released to relay.firefox.com on August 9th, 2022 with SVCSE-1385.
+     ```
+   - De-select "Set as a pre-release",
+   - Select "Set as the latest release"
+   - Click "Update release"
 
 ## Stage-fixes
 
