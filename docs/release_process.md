@@ -151,7 +151,7 @@ After you push the tag to GitHub, you should also
    ## Dependency updates
    * All the Dependabot PRs
 
-   **Full Changelog**: Keep this link
+   **Full Changelog**: Keep the link generated from the automated GitHub release generation.
    ```
 
 6. Check the pre-release box.
@@ -180,7 +180,7 @@ On Tuesday:
    - Spot-check the site for basic functionality
    - Check [sentry prod project](https://mozilla.sentry.io/releases/?environment=prod) for a spike in any new issues
    - Check [grafana dashboard](https://earthangel-b40313e5.influxcloud.net/d/qiwPC76Zk/fx-private-relay?orgId=1&refresh=1m&from=now-1h&to=now) for any unexpected spike in ops
-   - [Run end-to-end tests](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml) on prod (Note: as of 2023-07-12 these are known-broken. 😢)
+   - (optional) [Run end-to-end tests](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml) on prod (Note: as of 2023-07-12 these are known-broken. 😢)
 3. Update the GitHub release:
    - Update the summary:
      ```
