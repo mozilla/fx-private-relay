@@ -69,6 +69,10 @@ button.trigger {
   border-radius: $border-radius-sm;
   width: min($content-sm, calc(100vw - 2 * $spacing-md));
 
+  button {
+    padding: 0;
+  }
+
   &::before {
     content: "";
     height: 12px;
