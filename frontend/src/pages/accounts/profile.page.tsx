@@ -303,8 +303,7 @@ const Profile: NextPage = () => {
             the user has reached their free mask limit and 
             they are a free user, show the maxed masks tooltip */}
             {isPeriodicalPremiumAvailableInCountry(runtimeData.data) &&
-            allAliases.length >= freeMaskLimit &&
-            !profile.has_premium ? (
+            freeMaskLimitReached ? (
               <dd className={`${styles.value} ${styles.maxed}`}>
                 <MaxedMasksTooltip>
                   {numberFormatter.format(allAliases.length)}
