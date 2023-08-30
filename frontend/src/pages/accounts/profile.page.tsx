@@ -17,7 +17,6 @@ import {
   useTooltip,
   useTooltipTrigger,
 } from "react-aria";
-import ReactGa from "react-ga";
 import { useMenuTriggerState, useTooltipTriggerState } from "react-stately";
 import { toast } from "react-toastify";
 import styles from "./profile.module.scss";
@@ -79,12 +78,16 @@ const Profile: NextPage = () => {
   usePurchaseTracker(profileData.data?.[0]);
 
   if (!userData.isValidating && userData.error) {
-    // Send the pageview ping before redirecting so utms are recorded
-    ReactGa.pageview(document.location.href);
     if (document.location.hash) {
       setCookie("profile-location-hash", document.location.hash);
     }
-    document.location.assign(getRuntimeConfig().fxaLoginUrl);
+    // Add url params to auth_params so django-allauth will send them to FXA
+    const originalUrlParams = document.location.search.replace("?", "");
+    const fxaLoginWithAuthParams =
+      getRuntimeConfig().fxaLoginUrl +
+      "&auth_params=" +
+      encodeURIComponent(originalUrlParams);
+    document.location.assign(fxaLoginWithAuthParams);
   }
 
   const profile = profileData.data?.[0];

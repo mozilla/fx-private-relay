@@ -24,6 +24,7 @@ django_settings_module = "privaterelay.settings"
 ignore_missing_imports = true
 module = [
     "allauth.account",
+    "allauth.account.adapter",
     "allauth.account.models",
     "allauth.account.signals",
     "allauth.socialaccount.models",

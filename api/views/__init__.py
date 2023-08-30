@@ -18,7 +18,7 @@ from rest_framework.response import Response
 from rest_framework.views import exception_handler
 from rest_framework.serializers import ValidationError
 
-from allauth.account.adapter import get_adapter as get_account_adapter  # type: ignore
+from allauth.account.adapter import get_adapter as get_account_adapter
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.helpers import complete_social_login  # type: ignore
 from allauth.socialaccount.providers.fxa.provider import FirefoxAccountsProvider  # type: ignore
