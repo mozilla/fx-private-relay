@@ -6,6 +6,10 @@ from waffle import get_waffle_flag_model
 
 from emails.models import DomainAddress, Profile, RelayAddress
 
+import logging
+
+log = logging.getLogger(__name__)
+
 
 class PremiumValidatorsMixin:
     # the user must be premium to set block_list_emails=True
@@ -105,7 +109,39 @@ class DomainAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerialize
         ]
 
 
-class ProfileSerializer(serializers.ModelSerializer):
+class StrictReadOnlyFieldsMixin:
+    """Raises a validation error (400) if read only fields are in the body of requests."""
+
+    # Gets added to "error_messages" in the Serializer class using this mixin
+    default_error_messages = {"read_only": ("This field is read only")}
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+
+        if not hasattr(self, "initial_data"):
+            return attrs
+
+        # Getting the declared read only fields and read only fields from Meta
+        read_only_fields = set(
+            field_name for field_name, field in self.fields.items() if field.read_only
+        ).union(set(getattr(self.Meta, "read_only_fields", set())))
+        received_read_only_fields = set(self.initial_data).intersection(
+            read_only_fields
+        )
+
+        if received_read_only_fields:
+            errors = {}
+            for field_name in received_read_only_fields:
+                errors[field_name] = serializers.ErrorDetail(
+                    self.error_messages["read_only"], code="read_only"
+                )
+
+            raise serializers.ValidationError(errors)
+
+        return attrs
+
+
+class ProfileSerializer(StrictReadOnlyFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = [
