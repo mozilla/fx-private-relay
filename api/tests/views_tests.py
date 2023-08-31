@@ -111,6 +111,7 @@ def test_patch_premium_user_subdomain_cannot_be_changed(
     premium_profile = premium_user.profile
     original_subdomain = "helloworld"
     premium_profile.subdomain = original_subdomain
+    READ_ONLY_RES = "This field is read only"
     premium_profile.save()
 
     new_subdomain = "helloworldd"
@@ -123,9 +124,9 @@ def test_patch_premium_user_subdomain_cannot_be_changed(
     ret_data = response.json()
     premium_profile.refresh_from_db()
 
-    assert ret_data["subdomain"] == original_subdomain
+    assert ret_data["subdomain"][0] == READ_ONLY_RES
     assert premium_profile.subdomain == original_subdomain
-    assert response.status_code == 200
+    assert response.status_code == 400
 
 
 def test_patch_profile_fields_are_read_only_by_default(premium_user, prem_api_client):
@@ -150,7 +151,7 @@ def test_patch_profile_fields_are_read_only_by_default(premium_user, prem_api_cl
 
     assert premium_profile.num_address_deleted == expected_num_address_deleted
     assert premium_profile.date_subscribed == expected_date_subscribed
-    assert response.status_code == 200
+    assert response.status_code == 400
 
 
 def test_post_domainaddress_user_flagged_error(premium_user, prem_api_client) -> None:
