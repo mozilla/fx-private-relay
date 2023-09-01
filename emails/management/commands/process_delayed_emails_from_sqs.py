@@ -64,9 +64,8 @@ class Command(BaseCommand):
             for message in messages:
                 try:
                     _verify_and_run_sns_inbound_on_message(message)
-                except:
-                    exc_type, _, _ = sys.exc_info()
-                    logger.exception(f"dlq_processing_error_{exc_type}")
+                except Exception as e:
+                    logger.exception(f"dlq_processing_error_{type(e)}")
                 finally:
                     message.delete()
             messages = dl_queue.receive_messages(
