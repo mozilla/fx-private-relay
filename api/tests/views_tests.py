@@ -111,7 +111,6 @@ def test_patch_premium_user_subdomain_cannot_be_changed(
     premium_profile = premium_user.profile
     original_subdomain = "helloworld"
     premium_profile.subdomain = original_subdomain
-    READ_ONLY_RES = "This field is read only"
     premium_profile.save()
 
     new_subdomain = "helloworldd"
@@ -124,7 +123,7 @@ def test_patch_premium_user_subdomain_cannot_be_changed(
     ret_data = response.json()
     premium_profile.refresh_from_db()
 
-    assert ret_data["subdomain"][0] == READ_ONLY_RES
+    assert ret_data["subdomain"][0] == "This field is read only"
     assert premium_profile.subdomain == original_subdomain
     assert response.status_code == 400
 
