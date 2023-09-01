@@ -22,7 +22,9 @@ if settings.PHONES_ENABLED:
     from phones.tests.models_tests import make_phone_test_user
     from phones.models import RealPhone, RelayNumber
 
-from api.tests.phones_views_tests import mocked_twilio_client
+# Import auto-loaded mock Twilio client to avoid real API calls
+from api.tests.phones_views_tests import mocked_twilio_client  # noqa: F401
+
 from privaterelay.management.commands.update_phone_remaining_stats import (
     update_phone_remaining_stats,
 )

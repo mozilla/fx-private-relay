@@ -50,8 +50,6 @@ if settings.DEBUG:
         path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     ]
 if settings.USE_SILK:
-    import silk
-
     urlpatterns.append(path("silk/", include("silk.urls", namespace="silk")))
 
 if settings.ADMIN_ENABLED:

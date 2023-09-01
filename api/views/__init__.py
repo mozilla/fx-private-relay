@@ -10,21 +10,18 @@ from django.db import IntegrityError
 from drf_spectacular.utils import extend_schema
 from rest_framework.authentication import get_authorization_header
 from rest_framework.exceptions import (
-    APIException,
     AuthenticationFailed,
     ParseError,
 )
 from rest_framework.response import Response
 from rest_framework.views import exception_handler
-from rest_framework.serializers import ValidationError
 
 from allauth.account.adapter import get_adapter as get_account_adapter
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.helpers import complete_social_login  # type: ignore
 from allauth.socialaccount.providers.fxa.provider import FirefoxAccountsProvider  # type: ignore
-from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
 from django_filters import rest_framework as filters
-from waffle import flag_is_active, get_waffle_flag_model
+from waffle import get_waffle_flag_model
 from waffle.models import Switch, Sample
 from rest_framework import (
     decorators,
@@ -32,7 +29,6 @@ from rest_framework import (
     response,
     status,
     viewsets,
-    exceptions,
 )
 from emails.utils import incr_if_enabled
 
@@ -44,7 +40,6 @@ from privaterelay.plans import (
 from privaterelay.utils import get_countries_info_from_request_and_mapping
 
 from emails.models import (
-    CannotMakeAddressException,
     DomainAddress,
     Profile,
     RelayAddress,

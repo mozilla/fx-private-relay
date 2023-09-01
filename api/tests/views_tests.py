@@ -3,11 +3,9 @@ import pytest
 from model_bakery import baker
 import responses
 
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.test import (
-    override_settings,
     RequestFactory,
     TestCase,
 )

@@ -1,13 +1,10 @@
 from datetime import datetime, timezone, timedelta
-from unittest.mock import ANY, patch
 import json
 import logging
 
 import pytest
 
 from django.core.management import call_command, CommandError
-
-from emails.management.commands.check_health import Command
 
 
 @pytest.fixture(autouse=True)

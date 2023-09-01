@@ -10,7 +10,7 @@ Changes:
 * Simplified interfaces of Csv and Choices to our usage
 """
 from collections.abc import Sequence
-from typing import Any, Callable, Generic, Optional, TypeVar, Union, overload
+from typing import Any, Callable, Generic, TypeVar, Union, overload
 
 # Unreleased as of 3.6 - accepts a bool
 # def strtobool(value: Union[str, bool]) -> bool: ...
