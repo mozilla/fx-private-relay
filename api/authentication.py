@@ -92,9 +92,9 @@ def get_fxa_uid_from_oauth_token(token, use_cache=True):
 
     # cache valid access_token and fxa_resp_data until access_token expiration
     # TODO: revisit this since the token can expire before its time
-    if type(fxa_resp_data.get("json").get("exp")) is int:
+    if isinstance(fxa_resp_data.get("json").get("exp"), int):
         # Note: FXA iat and exp are timestamps in *milliseconds*
-        fxa_token_exp_time = int(fxa_resp_data.get("json").get("exp") / 1000)
+        fxa_token_exp_time = int(fxa_resp_data["json"]["exp"] / 1000)
         now_time = int(datetime.now(timezone.utc).timestamp())
         fxa_token_exp_cache_timeout = fxa_token_exp_time - now_time
         if fxa_token_exp_cache_timeout > cache_timeout:
