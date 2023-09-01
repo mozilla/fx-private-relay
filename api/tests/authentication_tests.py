@@ -108,7 +108,7 @@ class AuthenticationMiscellaneous(TestCase):
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
 
     @responses.activate()
-    def test_get_fxa_uid_from_oauth_token_status_code_None_uses_cached_response_returns_error_response(
+    def test_get_fxa_uid_from_oauth_token_status_code_None_uses_cached_response_returns_error_response(  # noqa: E501
         self,
     ):
         _setup_fxa_response_no_json(200)
@@ -136,7 +136,7 @@ class AuthenticationMiscellaneous(TestCase):
         self.fail("Should have raised APIException")
 
     @responses.activate()
-    def test_get_fxa_uid_from_oauth_token_status_code_not_200_uses_cached_response_returns_error_response(
+    def test_get_fxa_uid_from_oauth_token_status_code_not_200_uses_cached_response_returns_error_response(  # noqa: E501
         self,
     ):
         now_time = int(datetime.now().timestamp())
@@ -168,7 +168,7 @@ class AuthenticationMiscellaneous(TestCase):
         self.fail("Should have raised APIException")
 
     @responses.activate()
-    def test_get_fxa_uid_from_oauth_token_not_active_uses_cached_response_returns_error_response(
+    def test_get_fxa_uid_from_oauth_token_not_active_uses_cached_response_returns_error_response(  # noqa: E501
         self,
     ):
         now_time = int(datetime.now().timestamp())
@@ -326,10 +326,11 @@ class FxaTokenAuthenticationTest(TestCase):
 
         response = client.get("/api/v1/relayaddresses/")
         assert response.status_code == 403
-        assert (
-            response.json()["detail"]
-            == "Authenticated user does not have a Relay account. Have they accepted the terms?"
+        expected_detail = (
+            "Authenticated user does not have a Relay account."
+            " Have they accepted the terms?"
         )
+        assert response.json()["detail"] == expected_detail
         assert cache.get(get_cache_key(non_user_token)) == fxa_response
 
         # the code does NOT make another fxa request

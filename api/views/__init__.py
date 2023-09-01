@@ -184,7 +184,8 @@ def terms_accepted_user(request):
     except AuthenticationFailed as e:
         # AuthenticationFailed exception returns 403 instead of 401 because we are not
         # using the proper config that comes with the authentication_classes
-        # Read more: https://www.django-rest-framework.org/api-guide/authentication/#custom-authentication
+        # Read more:
+        # https://www.django-rest-framework.org/api-guide/authentication/#custom-authentication
         return response.Response(
             data={"detail": e.detail.title()}, status=e.status_code
         )
@@ -199,8 +200,9 @@ def terms_accepted_user(request):
             FXA_PROFILE_URL, headers={"Authorization": f"Bearer {token}"}
         )
 
-        # this is not exactly the request object that FirefoxAccountsProvider expects, but
-        # it has all of the necssary attributes to initiatlize the Provider
+        # This is not exactly the request object that FirefoxAccountsProvider
+        #  expects, but it has all of the necessary attributes to initialize
+        #  the Provider
         provider = FirefoxAccountsProvider(request)
         # This may not save the new user that was created
         # https://github.com/pennersr/django-allauth/blob/77368a84903d32283f07a260819893ec15df78fb/allauth/socialaccount/providers/base/provider.py#L44
@@ -208,14 +210,17 @@ def terms_accepted_user(request):
             request, json.loads(fxa_profile_resp.content)
         )
         # Complete social login is called by callback
-        # (see https://github.com/pennersr/django-allauth/blob/77368a84903d32283f07a260819893ec15df78fb/allauth/socialaccount/providers/oauth/views.py#L118)
-        # which is what we are mimicking to
-        # create new SocialAccount, User, and Profile for the new Relay user from Firefox
-        # Since this is a Resource Provider/Server flow and are NOT a Relying Party (RP) of FXA
-        # No social token information is stored (no Social Token object created).
+        # https://github.com/pennersr/django-allauth/blob/77368a84903d32283f07a260819893ec15df78fb/allauth/socialaccount/providers/oauth/views.py#L118
+        #  which is what we are mimicking to create new SocialAccount, User, and
+        #  Profile for the new Relay user from Firefox
+        # Since this is a Resource Provider/Server flow and are NOT a Relying
+        #  Party (RP) of FXA ro social token information is stored (no Social
+        #  Token object created).
         complete_social_login(request, social_login)
-        # complete_social_login writes ['account_verified_email', 'user_created', '_auth_user_id', '_auth_user_backend', '_auth_user_hash']
-        # on request.session which sets the cookie because complete_social_login does the "login"
+        # complete_social_login writes ['account_verified_email',
+        #  'user_created', '_auth_user_id', '_auth_user_backend',
+        #  '_auth_user_hash'] on request.session which sets the cookie because
+        #  complete_social_login does the "login".
         # The user did not actually log in, logout to clear the session
         if request.user.is_authenticated:
             get_account_adapter(request).logout(request)
@@ -309,8 +314,9 @@ def relay_exception_handler(exc: Exception, context: Mapping) -> Optional[Respon
     """
     Add error information to response data.
 
-    When the error is a RelayAPIException, these additional fields may be present and
-    the information will be translated if an Accept-Language header is added to the request:
+    When the error is a RelayAPIException, these additional fields may be
+    present and the information will be translated if an Accept-Language header
+    is added to the request:
 
     error_code - A string identifying the error, for client-side translation
     error_context - Additional data needed for client-side translation

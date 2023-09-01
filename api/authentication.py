@@ -109,8 +109,8 @@ def get_fxa_uid_from_oauth_token(token, use_cache=True):
 class FxaTokenAuthentication(BaseAuthentication):
     def authenticate_header(self, request):
         # Note: we need to implement this function to make DRF return a 401 status code
-        # when we raise AuthenticationFailed, rather than a 403.
-        # See https://www.django-rest-framework.org/api-guide/authentication/#custom-authentication
+        # when we raise AuthenticationFailed, rather than a 403.  See
+        # https://www.django-rest-framework.org/api-guide/authentication/#custom-authentication
         return "Bearer"
 
     def authenticate(self, request):
@@ -138,7 +138,8 @@ class FxaTokenAuthentication(BaseAuthentication):
             ).select_related("user")[0]
         except IndexError:
             raise PermissionDenied(
-                "Authenticated user does not have a Relay account. Have they accepted the terms?"
+                "Authenticated user does not have a Relay account."
+                " Have they accepted the terms?"
             )
         user = sa.user
 

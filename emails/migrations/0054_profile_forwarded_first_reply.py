@@ -20,23 +20,31 @@ def add_db_default_forward_func(apps, schema_editor):
             'CREATE TABLE "new__emails_profile" '
             '("id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,'
             ' "api_token" char(32) NOT NULL,'
-            ' "user_id" integer NOT NULL UNIQUE REFERENCES "auth_user" ("id") DEFERRABLE INITIALLY DEFERRED,'
+            ' "user_id" integer NOT NULL UNIQUE REFERENCES "auth_user" ("id")'
+            " DEFERRABLE INITIALLY DEFERRED,"
             ' "address_last_deleted" datetime NULL,'
-            ' "num_address_deleted" integer unsigned NOT NULL CHECK ("num_address_deleted" >= 0),'
+            ' "num_address_deleted" integer unsigned NOT NULL'
+            ' CHECK ("num_address_deleted" >= 0),'
             ' "last_hard_bounce" datetime NULL,'
             ' "last_soft_bounce" datetime NULL,'
             ' "subdomain" varchar(63) NULL UNIQUE,'
             ' "server_storage" bool NOT NULL,'
-            ' "num_email_blocked_in_deleted_address" integer unsigned NOT NULL CHECK ("num_email_blocked_in_deleted_address" >= 0),'
-            ' "num_email_forwarded_in_deleted_address" integer unsigned NOT NULL CHECK ("num_email_forwarded_in_deleted_address" >= 0),'
-            ' "num_email_spam_in_deleted_address" integer unsigned NOT NULL CHECK ("num_email_spam_in_deleted_address" >= 0),'
-            ' "onboarding_state" integer unsigned NOT NULL CHECK ("onboarding_state" >= 0),'
+            ' "num_email_blocked_in_deleted_address" integer unsigned NOT NULL'
+            ' CHECK ("num_email_blocked_in_deleted_address" >= 0),'
+            ' "num_email_forwarded_in_deleted_address" integer unsigned NOT NULL'
+            ' CHECK ("num_email_forwarded_in_deleted_address" >= 0),'
+            ' "num_email_spam_in_deleted_address" integer unsigned NOT NULL'
+            ' CHECK ("num_email_spam_in_deleted_address" >= 0),'
+            ' "onboarding_state" integer unsigned NOT NULL'
+            ' CHECK ("onboarding_state" >= 0),'
             ' "last_account_flagged" datetime NULL,'
             ' "date_subscribed" datetime NULL,'
             ' "auto_block_spam" bool NOT NULL,'
-            ' "num_email_replied_in_deleted_address" integer unsigned NOT NULL CHECK ("num_email_replied_in_deleted_address" >= 0),'
+            ' "num_email_replied_in_deleted_address" integer unsigned NOT NULL'
+            ' CHECK ("num_email_replied_in_deleted_address" >= 0),'
             ' "remove_level_one_email_trackers" bool NULL,'
-            ' "num_level_one_trackers_blocked_in_deleted_address" integer unsigned NULL CHECK ("num_level_one_trackers_blocked_in_deleted_address" >= 0),'
+            ' "num_level_one_trackers_blocked_in_deleted_address" integer unsigned NULL'
+            ' CHECK ("num_level_one_trackers_blocked_in_deleted_address" >= 0),'
             ' "store_phone_log" bool NOT NULL,'
             ' "date_phone_subscription_checked" datetime NULL,'
             ' "date_subscribed_phone" datetime NULL,'
@@ -98,16 +106,20 @@ def add_db_default_forward_func(apps, schema_editor):
             'ALTER TABLE "new__emails_profile" RENAME TO "emails_profile";'
         )
         schema_editor.execute(
-            'CREATE INDEX "emails_profile_address_last_deleted_188d9e79" ON "emails_profile" ("address_last_deleted");'
+            'CREATE INDEX "emails_profile_address_last_deleted_188d9e79"'
+            ' ON "emails_profile" ("address_last_deleted");'
         )
         schema_editor.execute(
-            'CREATE INDEX "emails_profile_last_hard_bounce_fefe494f" ON "emails_profile" ("last_hard_bounce");'
+            'CREATE INDEX "emails_profile_last_hard_bounce_fefe494f"'
+            ' ON "emails_profile" ("last_hard_bounce");'
         )
         schema_editor.execute(
-            'CREATE INDEX "emails_profile_last_soft_bounce_642ab37d" ON "emails_profile" ("last_soft_bounce");'
+            'CREATE INDEX "emails_profile_last_soft_bounce_642ab37d"'
+            ' ON "emails_profile" ("last_soft_bounce");'
         )
         schema_editor.execute(
-            'CREATE INDEX "emails_profile_last_account_flagged_f40cbf85" ON "emails_profile" ("last_account_flagged");'
+            'CREATE INDEX "emails_profile_last_account_flagged_f40cbf85"'
+            ' ON "emails_profile" ("last_account_flagged");'
         )
     else:
         raise Exception(f'Unknown database vendor "{schema_editor.connection.vendor}"')

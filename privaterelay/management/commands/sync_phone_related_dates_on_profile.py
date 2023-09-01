@@ -52,7 +52,8 @@ def sync_phone_related_dates_on_profile(group: str) -> int:
         profile.date_phone_subscription_start = start_date
         profile.date_phone_subscription_end = end_date
         if profile.date_phone_subscription_reset is None:
-            # initialize the reset date for phone subscription users to the start of the subscription
+            # initialize the reset date for phone subscription users to the
+            # start of the subscription
             profile.date_phone_subscription_reset = start_date
         thirtyone_days_ago = datetime_now - timedelta(settings.MAX_DAYS_IN_MONTH)
         while profile.date_phone_subscription_reset < thirtyone_days_ago:
@@ -65,14 +66,21 @@ def sync_phone_related_dates_on_profile(group: str) -> int:
 
 
 class Command(BaseCommand):
-    help = "Sync date_subscribed_phone, date_phone_limits_reset, date_phone_subscription_end fields on Profile by syncing with Firefox Accounts data"
+    help = (
+        "Sync date_subscribed_phone, date_phone_limits_reset,"
+        " date_phone_subscription_end fields on Profile by syncing with"
+        " Firefox Accounts data"
+    )
 
     def add_arguments(self, parser: CommandParser) -> None:
         parser.add_argument(
             "--group",
             default="subscription",
             choices=["subscription", "free", "both"],
-            help="Choose phone subscription users, free phone users, or both. Defaults to subscription users.",
+            help=(
+                "Choose phone subscription users, free phone users, or both."
+                " Defaults to subscription users."
+            ),
         )
 
     def handle(self, *args, **options):

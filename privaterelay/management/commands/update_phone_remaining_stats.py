@@ -89,5 +89,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
         print(
-            f"Out of {num_profiles_w_phones} profiles, {num_profiles_updated} limits were reset"
+            f"Out of {num_profiles_w_phones} profiles,"
+            f" {num_profiles_updated} limits were reset"
         )

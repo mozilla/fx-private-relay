@@ -103,7 +103,7 @@ def test_free_phone_user_gets_only_date_phone_subscription_reset_field_updated(
 
 
 @patch(f"{MOCK_BASE}.get_phone_subscription_dates")
-def test_free_phone_user_with_existing_date_phone_subscription_reset_field_does_not_update(
+def test_free_phone_user_with_existing_date_phone_subscription_reset_field_does_not_update(  # noqa: E501
     mocked_dates, patch_datetime_now, db
 ):
     expected_now = patch_datetime_now
@@ -152,7 +152,7 @@ def test_monthly_phone_subscriber_profile_date_fields_all_updated(
 
 
 @patch(f"{MOCK_BASE}.get_phone_subscription_dates")
-def test_monthly_phone_subscriber_renewed_subscription_profile_date_phone_subscription_start_and_end_updated(
+def test_monthly_phone_subscriber_renewed_subscription_profile_date_phone_subscription_start_and_end_updated(  # noqa: E501
     mocked_dates, patch_datetime_now, phone_user
 ):
     profile = Profile.objects.get(user=phone_user)
@@ -210,7 +210,7 @@ def test_yearly_phone_subscriber_profile_date_fields_all_updated(
 
 
 @patch(f"{MOCK_BASE}.get_phone_subscription_dates")
-def test_yearly_phone_subscriber_with_subscription_date_older_than_31_days_profile_date_fields_all_updated(
+def test_yearly_phone_subscriber_with_subscription_date_older_than_31_days_profile_date_fields_all_updated(  # noqa: E501
     mocked_dates, patch_datetime_now, phone_user
 ):
     profile = Profile.objects.get(user=phone_user)

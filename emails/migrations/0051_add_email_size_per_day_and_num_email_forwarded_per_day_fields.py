@@ -5,7 +5,8 @@ from django.db import migrations, models
 
 def add_db_default_forward_func(apps, schema_editor):
     """
-    Add field forwarded_email_size_per_day and num_email_forwarded_per_day to abusemetrics
+    Add field forwarded_email_size_per_day and num_email_forwarded_per_day to
+    abusemetrics
 
     Using `./manage.py sqlmigrate` for the SQL, and the technique from:
     https://stackoverflow.com/a/45232678/10612
@@ -22,11 +23,16 @@ def add_db_default_forward_func(apps, schema_editor):
             ' "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,'
             ' "first_recorded" datetime NOT NULL,'
             ' "last_recorded" datetime NOT NULL,'
-            ' "num_address_created_per_day" smallint unsigned NOT NULL CHECK ("num_address_created_per_day" >= 0),'
-            ' "num_replies_per_day" smallint unsigned NOT NULL CHECK ("num_replies_per_day" >= 0),'
-            ' "user_id" integer NOT NULL REFERENCES "auth_user" ("id") DEFERRABLE INITIALLY DEFERRED,'
-            ' "forwarded_email_size_per_day" bigint unsigned NOT NULL DEFAULT 0 CHECK ("forwarded_email_size_per_day" >= 0),'
-            ' "num_email_forwarded_per_day" smallint unsigned NOT NULL DEFAULT 0 CHECK ("num_email_forwarded_per_day" >= 0));'
+            ' "num_address_created_per_day" smallint unsigned NOT NULL'
+            ' CHECK ("num_address_created_per_day" >= 0),'
+            ' "num_replies_per_day" smallint unsigned NOT NULL'
+            ' CHECK ("num_replies_per_day" >= 0),'
+            ' "user_id" integer NOT NULL REFERENCES "auth_user" ("id")'
+            " DEFERRABLE INITIALLY DEFERRED,"
+            ' "forwarded_email_size_per_day" bigint unsigned NOT NULL DEFAULT 0'
+            ' CHECK ("forwarded_email_size_per_day" >= 0),'
+            ' "num_email_forwarded_per_day" smallint unsigned NOT NULL DEFAULT 0'
+            ' CHECK ("num_email_forwarded_per_day" >= 0));'
         )
         schema_editor.execute(
             'INSERT INTO "new__emails_abusemetrics" ('
@@ -51,16 +57,21 @@ def add_db_default_forward_func(apps, schema_editor):
             'ALTER TABLE "new__emails_abusemetrics" RENAME TO "emails_abusemetrics";'
         )
         schema_editor.execute(
-            'CREATE UNIQUE INDEX "emails_abusemetrics_user_id_first_recorded_e22d0d1c_uniq" ON "emails_abusemetrics" ("user_id", "first_recorded");'
+            "CREATE UNIQUE INDEX"
+            ' "emails_abusemetrics_user_id_first_recorded_e22d0d1c_uniq"'
+            ' ON "emails_abusemetrics" ("user_id", "first_recorded");'
         )
         schema_editor.execute(
-            'CREATE INDEX "emails_abusemetrics_first_recorded_640bb4fd" ON "emails_abusemetrics" ("first_recorded");'
+            'CREATE INDEX "emails_abusemetrics_first_recorded_640bb4fd"'
+            ' ON "emails_abusemetrics" ("first_recorded");'
         )
         schema_editor.execute(
-            'CREATE INDEX "emails_abusemetrics_last_recorded_d592fe63" ON "emails_abusemetrics" ("last_recorded");'
+            'CREATE INDEX "emails_abusemetrics_last_recorded_d592fe63"'
+            ' ON "emails_abusemetrics" ("last_recorded");'
         )
         schema_editor.execute(
-            'CREATE INDEX "emails_abusemetrics_user_id_cf2800c3" ON "emails_abusemetrics" ("user_id");'
+            'CREATE INDEX "emails_abusemetrics_user_id_cf2800c3"'
+            ' ON "emails_abusemetrics" ("user_id");'
         )
     else:
         raise Exception(f'Unknown database vendor "{schema_editor.connection.vendor}"')

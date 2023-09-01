@@ -23,28 +23,38 @@ def add_db_default_forward_func(apps, schema_editor):
             '  "last_inbound_date" datetime NOT NULL,'
             "  \"last_inbound_type\" varchar(4) NOT NULL DEFAULT 'text',"
             '  "num_calls" integer unsigned NOT NULL CHECK ("num_calls" >= 0),'
-            '  "num_calls_blocked" integer unsigned NOT NULL CHECK ("num_calls_blocked" >= 0),'
+            '  "num_calls_blocked" integer unsigned NOT NULL'
+            ' CHECK ("num_calls_blocked" >= 0),'
             '  "num_texts" integer unsigned NOT NULL CHECK ("num_texts" >= 0),'
-            '  "num_texts_blocked" integer unsigned NOT NULL CHECK ("num_texts_blocked" >= 0),'
+            '  "num_texts_blocked" integer unsigned NOT NULL'
+            ' CHECK ("num_texts_blocked" >= 0),'
             '  "blocked" bool NOT NULL,'
-            '  "relay_number_id" integer NOT NULL REFERENCES "phones_relaynumber" ("id")'
+            '  "relay_number_id" integer NOT NULL'
+            ' REFERENCES "phones_relaynumber" ("id")'
             "   DEFERRABLE INITIALLY DEFERRED);"
         )
         schema_editor.execute(
             'INSERT INTO "new__phones_inboundcontact"'
-            ' ("id", "inbound_number", "last_inbound_date", "last_inbound_type", "num_calls", "num_calls_blocked", "num_texts", "num_texts_blocked", "blocked", "relay_number_id")'
-            ' SELECT "id", "inbound_number", "last_inbound_date", "text", "num_calls", "num_calls_blocked", "num_texts", "num_texts_blocked", "blocked", "relay_number_id"'
+            ' ("id", "inbound_number", "last_inbound_date", "last_inbound_type",'
+            ' "num_calls", "num_calls_blocked", "num_texts", "num_texts_blocked",'
+            ' "blocked", "relay_number_id")'
+            ' SELECT "id", "inbound_number", "last_inbound_date", "text",'
+            ' "num_calls", "num_calls_blocked", "num_texts", "num_texts_blocked",'
+            ' "blocked", "relay_number_id"'
             ' FROM "phones_inboundcontact";'
         )
         schema_editor.execute('DROP TABLE "phones_inboundcontact";')
         schema_editor.execute(
-            'ALTER TABLE "new__phones_inboundcontact" RENAME TO "phones_inboundcontact";'
+            'ALTER TABLE "new__phones_inboundcontact"'
+            ' RENAME TO "phones_inboundcontact";'
         )
         schema_editor.execute(
-            'CREATE INDEX "phones_inboundcontact_relay_number_id_f95dbf8c" ON "phones_inboundcontact" ("relay_number_id");'
+            'CREATE INDEX "phones_inboundcontact_relay_number_id_f95dbf8c"'
+            ' ON "phones_inboundcontact" ("relay_number_id");'
         )
         schema_editor.execute(
-            'CREATE INDEX "phones_inbo_relay_n_eaf332_idx" ON "phones_inboundcontact" ("relay_number_id", "inbound_number");'
+            'CREATE INDEX "phones_inbo_relay_n_eaf332_idx" ON "phones_inboundcontact"'
+            ' ("relay_number_id", "inbound_number");'
         )
     else:
         raise Exception(f'Unknown database vendor "{schema_editor.connection.vendor}"')

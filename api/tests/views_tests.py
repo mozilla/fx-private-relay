@@ -133,9 +133,13 @@ def test_post_domainaddress_bad_address_error(prem_api_client) -> None:
     assert response.status_code == 400
     ret_data = response.json()
     # Add unicode characters to get around Fluent.js using unicode isolation.
-    # See https://github.com/projectfluent/fluent.js/wiki/Unicode-Isolation for more info
+    # For more info, see
+    # https://github.com/projectfluent/fluent.js/wiki/Unicode-Isolation
     assert ret_data == {
-        "detail": "“\u2068myNewAlias\u2069” could not be created. Please try again with a different mask name.",
+        "detail": (
+            "“\u2068myNewAlias\u2069” could not be created."
+            " Please try again with a different mask name."
+        ),
         "error_code": "address_unavailable",
         "error_context": {"unavailable_address": "myNewAlias"},
     }
@@ -150,9 +154,13 @@ def test_post_domainaddress_free_user_error(free_api_client):
     assert response.status_code == 403
     ret_data = response.json()
     # Add unicode characters to get around Fluent.js using unicode isolation.
-    # See https://github.com/projectfluent/fluent.js/wiki/Unicode-Isolation for more info
+    # For more info, see
+    # https://github.com/projectfluent/fluent.js/wiki/Unicode-Isolation
     assert ret_data == {
-        "detail": "Your free account does not include custom subdomains for masks. To create custom masks, upgrade to \u2068Relay Premium\u2069.",
+        "detail": (
+            "Your free account does not include custom subdomains for masks."
+            " To create custom masks, upgrade to \u2068Relay Premium\u2069."
+        ),
         "error_code": "free_tier_no_subdomain_masks",
     }
 
@@ -180,12 +188,15 @@ def test_post_relayaddress_free_mask_email_limit_error(
     assert response.status_code == 403
     ret_data = response.json()
     # Add unicode characters to get around Fluent.js using unicode isolation.
-    # See https://github.com/projectfluent/fluent.js/wiki/Unicode-Isolation for more info
+    # For more info, see
+    # https://github.com/projectfluent/fluent.js/wiki/Unicode-Isolation
 
     assert ret_data == {
         "detail": (
             "You’ve used all"
-            f" \u2068{settings.MAX_NUM_FREE_ALIASES}\u2069 email masks included with your free account. You can reuse an existing mask, but using a unique mask for each account is the most secure option."
+            f" \u2068{settings.MAX_NUM_FREE_ALIASES}\u2069 email masks included with"
+            " your free account. You can reuse an existing mask, but using a unique"
+            " mask for each account is the most secure option."
         ),
         "error_code": "free_tier_limit",
         "error_context": {"free_tier_limit": 5},

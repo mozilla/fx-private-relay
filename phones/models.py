@@ -405,8 +405,8 @@ def send_welcome_message(user, relay_number):
     client = twilio_client()
     client.messages.create(
         body=(
-            "Welcome to Relay phone masking! 🎉 Please add your number to your contacts."
-            " This will help you identify your Relay messages and calls."
+            "Welcome to Relay phone masking! 🎉 Please add your number to your"
+            " contacts. This will help you identify your Relay messages and calls."
         ),
         from_=settings.TWILIO_MAIN_NUMBER,
         to=real_phone.number,

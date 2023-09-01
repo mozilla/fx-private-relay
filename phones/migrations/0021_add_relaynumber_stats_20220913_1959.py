@@ -40,10 +40,10 @@ def add_db_default_forward_func(apps, schema_editor):
         schema_editor.execute(
             'INSERT INTO "new__phones_relaynumber"'
             ' ("id", "number", "location", "user_id", "vcard_lookup_key", "enabled",'
-            ' "remaining_texts", "remaining_minutes", "calls_forwarded", "calls_blocked", '
-            ' "texts_forwarded", "texts_blocked") '
-            ' SELECT "id", "number", "location", "user_id", "vcard_lookup_key", "enabled", '
-            " 75, 50, 0, 0, 0, 0 "
+            ' "remaining_texts", "remaining_minutes", "calls_forwarded",'
+            ' "calls_blocked", "texts_forwarded", "texts_blocked") '
+            ' SELECT "id", "number", "location", "user_id", "vcard_lookup_key",'
+            ' "enabled", 75, 50, 0, 0, 0, 0 '
             ' FROM "phones_relaynumber";'
         )
         schema_editor.execute('DROP TABLE "phones_relaynumber";')
