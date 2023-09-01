@@ -394,7 +394,7 @@ jobs:
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
-      - image: cimg/postgres:11.13
+      - image: cimg/postgres:14.7
         environment:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: 6edef2d746f2274cab951a452d5fc13d
