@@ -12,15 +12,7 @@ from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
 from waffle.models import Flag
 
-pytestmark = pytest.mark.skipif(
-    not settings.PHONES_ENABLED, reason="PHONES_ENABLED is False"
-)
-
 from emails.models import Profile
-
-if settings.PHONES_ENABLED:
-    from phones.tests.models_tests import make_phone_test_user
-    from phones.models import RealPhone, RelayNumber
 
 # Import auto-loaded mock Twilio client to avoid real API calls
 from api.tests.phones_views_tests import mocked_twilio_client  # noqa: F401
@@ -28,6 +20,14 @@ from api.tests.phones_views_tests import mocked_twilio_client  # noqa: F401
 from privaterelay.management.commands.update_phone_remaining_stats import (
     update_phone_remaining_stats,
 )
+
+pytestmark = pytest.mark.skipif(
+    not settings.PHONES_ENABLED, reason="PHONES_ENABLED is False"
+)
+
+if settings.PHONES_ENABLED:
+    from phones.tests.models_tests import make_phone_test_user
+    from phones.models import RealPhone, RelayNumber
 
 
 MOCK_BASE = "privaterelay.management.commands.update_phone_remaining_stats"

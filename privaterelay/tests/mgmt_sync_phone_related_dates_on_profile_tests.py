@@ -12,17 +12,17 @@ from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
 from waffle.models import Flag
 
-pytestmark = pytest.mark.skipif(
-    not settings.PHONES_ENABLED, reason="PHONES_ENABLED is False"
-)
-
 from emails.models import Profile
+
+from privaterelay.management.commands.sync_phone_related_dates_on_profile import (
+    sync_phone_related_dates_on_profile,
+)
 
 if settings.PHONES_ENABLED:
     from phones.tests.models_tests import make_phone_test_user
 
-from privaterelay.management.commands.sync_phone_related_dates_on_profile import (
-    sync_phone_related_dates_on_profile,
+pytestmark = pytest.mark.skipif(
+    not settings.PHONES_ENABLED, reason="PHONES_ENABLED is False"
 )
 
 
