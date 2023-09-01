@@ -16,6 +16,7 @@ from rest_framework.exceptions import (
     ParseError,
     PermissionDenied,
 )
+from sentry_sdk import capture_exception
 
 
 logger = logging.getLogger("events")
@@ -31,11 +32,8 @@ def get_cache_key(token):
 def introspect_token(token):
     try:
         fxa_resp = requests.post(INTROSPECT_TOKEN_URL, json={"token": token})
-    except:
-        logger.error(
-            "Could not introspect token with FXA.",
-            extra={"fxa_response": shlex.quote(fxa_resp.text)},
-        )
+    except requests.RequestException:
+        capture_exception()
         raise AuthenticationFailed("Could not introspect token with FXA.")
 
     fxa_resp_data = {"status_code": fxa_resp.status_code, "json": {}}
