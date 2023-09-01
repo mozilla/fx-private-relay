@@ -23,7 +23,7 @@ import styles from "./profile.module.scss";
 import BottomBannerIllustration from "../../../public/images/woman-couch-left.svg";
 import UpsellBannerUs from "./images/upsell-banner-us.svg";
 import UpsellBannerNonUs from "./images/upsell-banner-nonus.svg";
-import { PencilIcon, CheckBadgeIcon } from "../../components/Icons";
+import { CheckBadgeIcon, LockIcon } from "../../components/Icons";
 import { Layout } from "../../components/layout/Layout";
 import { useProfiles } from "../../hooks/api/profile";
 import {
@@ -221,7 +221,7 @@ const Profile: NextPage = () => {
       </>
     ) : (
       <>
-        <a className={styles["open-button"]} href="#mpp-choose-subdomain">
+        <a className={styles["open-button"]} href="/premium#pricing">
           {l10n.getString("profile-label-set-your-custom-domain-free-user")}
         </a>
       </>
@@ -288,7 +288,7 @@ const Profile: NextPage = () => {
             {typeof profile.subdomain === "string" ? (
               <CheckBadgeIcon alt="" />
             ) : (
-              <PencilIcon alt="" className={styles["pencil-icon"]} />
+              <LockIcon alt="" className={styles["lock-icon"]} />
             )}
             {subdomainMessage}
             <SubdomainInfoTooltip />

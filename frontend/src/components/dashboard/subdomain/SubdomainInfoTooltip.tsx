@@ -23,6 +23,7 @@ import { useL10n } from "../../../hooks/l10n";
 import styles from "./SubdomainInfoTooltip.module.scss";
 import { Localized } from "../../Localized";
 import { InfoModal } from "../../InfoModal";
+import { useProfiles } from "../../../hooks/api/profile";
 
 /**
  * Shows the user more info on how to use their Relay custom domain mask.
@@ -35,6 +36,9 @@ export const SubdomainInfoTooltip = () => {
 
 const MobileExplainerModal = () => {
   const modalState = useOverlayTriggerState({});
+  const profileData = useProfiles();
+  const profile = profileData.data?.[0];
+  const has_premium = profile && profile.has_premium;
   const l10n = useL10n();
 
   const subdomainTooltipButton = (
@@ -45,14 +49,18 @@ const MobileExplainerModal = () => {
       }}
     >
       <InfoIcon
-        alt={l10n.getString("tooltip-email-domain-explanation-title")}
+        alt={l10n.getString(
+          has_premium
+            ? "tooltip-email-domain-explanation-title"
+            : "tooltip-email-domain-explanation-title-free",
+        )}
         width={18}
         height={18}
       />
     </button>
   );
 
-  const subdomainExplanationBody = (
+  const subdomainExplanationBody = has_premium ? (
     <>
       <p>{l10n.getString("tooltip-email-domain-explanation-part-one")}</p>
       <br />
@@ -70,6 +78,8 @@ const MobileExplainerModal = () => {
         </Localized>
       </p>
     </>
+  ) : (
+    <p>{l10n.getString("tooltip-email-domain-explanation-part-one-free")}</p>
   );
 
   const subdomainInfoModal = modalState.isOpen ? (
@@ -95,6 +105,9 @@ const ExplainerTrigger = () => {
   const overlayRef = useRef<HTMLDivElement>(null);
   const openButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const profileData = useProfiles();
+  const profile = profileData.data?.[0];
+  const has_premium = profile && profile.has_premium;
 
   const openButtonProps = useButton(
     { onPress: () => explainerState.open() },
@@ -121,7 +134,11 @@ const ExplainerTrigger = () => {
         ref={openButtonRef}
       >
         <InfoIcon
-          alt={l10n.getString("tooltip-email-domain-explanation-title")}
+          alt={l10n.getString(
+            has_premium
+              ? "tooltip-email-domain-explanation-title"
+              : "tooltip-email-domain-explanation-title-free",
+          )}
           width={18}
           height={18}
         />
@@ -135,21 +152,35 @@ const ExplainerTrigger = () => {
             positionProps={positionProps}
             ref={overlayRef}
           >
-            <p>{l10n.getString("tooltip-email-domain-explanation-part-one")}</p>
-            <br />
-            <p>{l10n.getString("tooltip-email-domain-explanation-part-two")}</p>
-            <br />
-            <p>
-              <Localized
-                id="tooltip-email-domain-explanation-part-three"
-                vars={{ mozmail: "mozmail.com" }}
-                elems={{
-                  p: <p />,
-                }}
-              >
-                <span />
-              </Localized>
-            </p>
+            {has_premium ? (
+              <>
+                <p>
+                  {l10n.getString("tooltip-email-domain-explanation-part-one")}
+                </p>
+                <br />
+                <p>
+                  {l10n.getString("tooltip-email-domain-explanation-part-two")}
+                </p>
+                <br />
+                <p>
+                  <Localized
+                    id="tooltip-email-domain-explanation-part-three"
+                    vars={{ mozmail: "mozmail.com" }}
+                    elems={{
+                      p: <p />,
+                    }}
+                  >
+                    <span />
+                  </Localized>
+                </p>
+              </>
+            ) : (
+              <p>
+                {l10n.getString(
+                  "tooltip-email-domain-explanation-part-one-free",
+                )}
+              </p>
+            )}
             <button
               {...closeButtonProps}
               ref={closeButtonRef}
