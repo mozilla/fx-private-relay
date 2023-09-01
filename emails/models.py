@@ -778,7 +778,6 @@ class DomainAddress(models.Model):
     def make_domain_address(user_profile, address=None, made_via_email=False):
         check_user_can_make_domain_address(user_profile)
 
-        address_contains_badword = False
         if not address:
             # FIXME: if the alias is randomly generated and has bad words
             # we should retry like make_relay_address does

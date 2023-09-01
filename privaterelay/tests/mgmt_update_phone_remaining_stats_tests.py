@@ -319,7 +319,7 @@ def test_update_user_with_command(
     profile = Profile.objects.get(user=phone_user)
     profile.date_phone_subscription_reset = expected_now - timedelta(31)
     profile.save()
-    relay_number = _make_used_relay_number(phone_user)
+    _make_used_relay_number(phone_user)
 
     call_command(UPDATE_COMMAND)
     out, err = capsys.readouterr()

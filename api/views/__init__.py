@@ -137,7 +137,7 @@ class DomainAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     def perform_create(self, serializer):
         try:
             serializer.save(user=self.request.user)
-        except IntegrityError as e:
+        except IntegrityError:
             domain_address = DomainAddress.objects.filter(
                 user=self.request.user, address=serializer.validated_data.get("address")
             ).first()
