@@ -33,6 +33,5 @@ profile-maxed-aliases-without-phone-description = You’ve hit your { $limit }-m
 profile-maxed-aliases-cta = Upgrade to { -brand-name-premium }
 profile-label-set-your-custom-domain-free-user = Get your own email domain with { -brand-name-premium }
 
-
 tooltip-email-domain-explanation-title-free = Get your own { -brand-name-relay } Email Domain
 tooltip-email-domain-explanation-part-one-free = With { -brand-name-premium }, you can create unlimited, custom { -brand-name-relay } masks on the go using a unique { -brand-name-relay } email domain — you won’t even have to generate them here first.
