@@ -241,12 +241,12 @@ class FxaTokenAuthenticationTest(TestCase):
 
     def test_no_authorization_header_returns_none(self):
         get_addresses_req = self.factory.get(self.path)
-        assert self.auth.authenticate(self.auth, get_addresses_req) == None
+        assert self.auth.authenticate(self.auth, get_addresses_req) is None
 
     def test_no_bearer_in_authorization_returns_none(self):
         headers = {"HTTP_AUTHORIZATION": "unexpected 123"}
         get_addresses_req = self.factory.get(self.path, **headers)
-        assert self.auth.authenticate(self.auth, get_addresses_req) == None
+        assert self.auth.authenticate(self.auth, get_addresses_req) is None
 
     def test_no_token_returns_400(self):
         client = APIClient()
