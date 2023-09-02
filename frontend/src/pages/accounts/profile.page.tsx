@@ -221,7 +221,12 @@ const Profile: NextPage = () => {
       </>
     ) : (
       <>
-        <a className={styles["open-button"]} href="/premium#pricing">
+        <a
+          className={styles["open-button"]}
+          href={
+            profile.has_premium ? "#mpp-choose-subdomain" : "/premium#pricing"
+          }
+        >
           {l10n.getString("profile-label-set-your-custom-domain-free-user")}
         </a>
       </>
@@ -291,7 +296,7 @@ const Profile: NextPage = () => {
               <LockIcon alt="" className={styles["lock-icon"]} />
             )}
             {subdomainMessage}
-            <SubdomainInfoTooltip />
+            <SubdomainInfoTooltip hasPremium={profile.has_premium} />
           </strong>
         </div>
         <dl className={styles["account-stats"]}>

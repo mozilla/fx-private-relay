@@ -23,22 +23,36 @@ import { useL10n } from "../../../hooks/l10n";
 import styles from "./SubdomainInfoTooltip.module.scss";
 import { Localized } from "../../Localized";
 import { InfoModal } from "../../InfoModal";
-import { useProfiles } from "../../../hooks/api/profile";
+
+export type Props = {
+  hasPremium: boolean;
+};
 
 /**
  * Shows the user more info on how to use their Relay custom domain mask.
  */
-export const SubdomainInfoTooltip = () => {
+export const SubdomainInfoTooltip = (props: Props) => {
   const isLargeScreen = useMinViewportWidth("md");
+  const { hasPremium } = props;
 
-  return <>{isLargeScreen ? <ExplainerTrigger /> : <MobileExplainerModal />}</>;
+  return (
+    <>
+      {isLargeScreen ? (
+        <ExplainerTrigger hasPremium={hasPremium} />
+      ) : (
+        <MobileExplainerModal hasPremium={hasPremium} />
+      )}
+    </>
+  );
 };
 
-const MobileExplainerModal = () => {
+export type MobileExplainerModalProps = {
+  hasPremium: boolean;
+};
+
+const MobileExplainerModal = (props: MobileExplainerModalProps) => {
   const modalState = useOverlayTriggerState({});
-  const profileData = useProfiles();
-  const profile = profileData.data?.[0];
-  const has_premium = profile && profile.has_premium;
+  const { hasPremium } = props;
   const l10n = useL10n();
 
   const subdomainTooltipButton = (
@@ -50,7 +64,7 @@ const MobileExplainerModal = () => {
     >
       <InfoIcon
         alt={l10n.getString(
-          has_premium
+          hasPremium
             ? "tooltip-email-domain-explanation-title"
             : "tooltip-email-domain-explanation-title-free",
         )}
@@ -60,7 +74,7 @@ const MobileExplainerModal = () => {
     </button>
   );
 
-  const subdomainExplanationBody = has_premium ? (
+  const subdomainExplanationBody = hasPremium ? (
     <>
       <p>{l10n.getString("tooltip-email-domain-explanation-part-one")}</p>
       <br />
@@ -99,15 +113,17 @@ const MobileExplainerModal = () => {
   );
 };
 
-const ExplainerTrigger = () => {
+export type ExplainerTriggerProps = {
+  hasPremium: boolean;
+};
+
+const ExplainerTrigger = (props: ExplainerTriggerProps) => {
   const l10n = useL10n();
   const explainerState = useOverlayTriggerState({});
   const overlayRef = useRef<HTMLDivElement>(null);
   const openButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const profileData = useProfiles();
-  const profile = profileData.data?.[0];
-  const has_premium = profile && profile.has_premium;
+  const { hasPremium } = props;
 
   const openButtonProps = useButton(
     { onPress: () => explainerState.open() },
@@ -135,7 +151,7 @@ const ExplainerTrigger = () => {
       >
         <InfoIcon
           alt={l10n.getString(
-            has_premium
+            hasPremium
               ? "tooltip-email-domain-explanation-title"
               : "tooltip-email-domain-explanation-title-free",
           )}
@@ -152,7 +168,7 @@ const ExplainerTrigger = () => {
             positionProps={positionProps}
             ref={overlayRef}
           >
-            {has_premium ? (
+            {hasPremium ? (
               <>
                 <p>
                   {l10n.getString("tooltip-email-domain-explanation-part-one")}
