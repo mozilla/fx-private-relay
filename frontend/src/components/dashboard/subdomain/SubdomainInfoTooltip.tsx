@@ -24,14 +24,14 @@ import styles from "./SubdomainInfoTooltip.module.scss";
 import { Localized } from "../../Localized";
 import { InfoModal } from "../../InfoModal";
 
-export type Props = {
+export type SubdomainInfoTooltipProps = {
   hasPremium: boolean;
 };
 
 /**
  * Shows the user more info on how to use their Relay custom domain mask.
  */
-export const SubdomainInfoTooltip = (props: Props) => {
+export const SubdomainInfoTooltip = (props: SubdomainInfoTooltipProps) => {
   const isLargeScreen = useMinViewportWidth("md");
   const { hasPremium } = props;
 
