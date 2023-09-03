@@ -18,8 +18,8 @@ from rest_framework.views import exception_handler
 
 from allauth.account.adapter import get_adapter as get_account_adapter
 from allauth.socialaccount.models import SocialAccount
-from allauth.socialaccount.helpers import complete_social_login  # type: ignore
-from allauth.socialaccount.providers.fxa.provider import FirefoxAccountsProvider  # type: ignore
+from allauth.socialaccount.helpers import complete_social_login
+from allauth.socialaccount.providers.fxa.provider import FirefoxAccountsProvider
 from django_filters import rest_framework as filters
 from waffle import get_waffle_flag_model
 from waffle.models import Switch, Sample
