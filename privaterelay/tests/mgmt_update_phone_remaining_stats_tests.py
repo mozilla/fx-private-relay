@@ -3,20 +3,17 @@ Tests for private_relay/management/commands/cleanup_data.py
 """
 from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
-import pytest
 
+import pytest
+from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.core.management import call_command
-
-from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
 from waffle.models import Flag
 
-from emails.models import Profile
-
 # Import auto-loaded mock Twilio client to avoid real API calls
 from api.tests.phones_views_tests import mocked_twilio_client  # noqa: F401
-
+from emails.models import Profile
 from privaterelay.management.commands.update_phone_remaining_stats import (
     update_phone_remaining_stats,
 )
@@ -26,8 +23,8 @@ pytestmark = pytest.mark.skipif(
 )
 
 if settings.PHONES_ENABLED:
-    from phones.tests.models_tests import make_phone_test_user
     from phones.models import RealPhone, RelayNumber
+    from phones.tests.models_tests import make_phone_test_user
 
 
 MOCK_BASE = "privaterelay.management.commands.update_phone_remaining_stats"

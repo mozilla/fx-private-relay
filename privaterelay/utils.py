@@ -1,22 +1,23 @@
+import random
 from decimal import Decimal
 from functools import wraps
 from string import ascii_uppercase
 from typing import Callable, TypedDict
-import random
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser
 from django.http import Http404, HttpRequest
 from django.utils.translation.trans_real import parse_accept_lang_header
-
 from waffle import get_waffle_flag_model
 from waffle.models import logger as waffle_logger
 from waffle.utils import (
     get_cache as get_waffle_cache,
+)
+from waffle.utils import (
     get_setting as get_waffle_setting,
 )
 
-from .plans import PlanCountryLangMapping, CountryStr
+from .plans import CountryStr, PlanCountryLangMapping
 
 
 class CountryInfo(TypedDict):

@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.urls import include, path, register_converter
-
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularRedocView,
@@ -9,12 +8,13 @@ from drf_spectacular.views import (
 from rest_framework import routers
 
 from privaterelay.utils import enable_if_setting
+
 from .views import (
     DomainAddressViewSet,
-    RelayAddressViewSet,
-    ProfileViewSet,
-    UserViewSet,
     FlagViewSet,
+    ProfileViewSet,
+    RelayAddressViewSet,
+    UserViewSet,
     report_webcompat_issue,
     runtime_data,
     terms_accepted_user,
@@ -87,18 +87,18 @@ urlpatterns = [
 
 if settings.PHONES_ENABLED:
     from .views.phones import (
-        outbound_call,
-        list_messages,
-        outbound_sms,
+        InboundContactViewSet,
         RealPhoneViewSet,
         RelayNumberViewSet,
-        InboundContactViewSet,
         inbound_call,
         inbound_sms,
-        vCard,
-        sms_status,
-        voice_status,
+        list_messages,
+        outbound_call,
+        outbound_sms,
         resend_welcome_sms,
+        sms_status,
+        vCard,
+        voice_status,
     )
 
 if settings.PHONES_ENABLED:

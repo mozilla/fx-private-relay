@@ -1,6 +1,4 @@
 import vobject
-
-
 from rest_framework import renderers
 
 

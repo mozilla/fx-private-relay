@@ -1,22 +1,21 @@
+import logging
+import secrets
+import string
 from datetime import datetime, timedelta, timezone
 from math import floor
 from typing import Iterator, Optional
-import logging
-import phonenumbers
-import secrets
-import string
 
+import phonenumbers
 from django.apps import apps
-from django.contrib.auth.models import User
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.exceptions import BadRequest, ValidationError
-from django.db.migrations.recorder import MigrationRecorder
 from django.db import models
+from django.db.migrations.recorder import MigrationRecorder
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 from django.urls import reverse
-
 from twilio.base.exceptions import TwilioRestException
 from twilio.rest import Client
 

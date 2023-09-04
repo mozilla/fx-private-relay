@@ -1,21 +1,20 @@
 from datetime import datetime
-import pytest
-from model_bakery import baker
-import responses
 
+import pytest
+import responses
+from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.test import (
     RequestFactory,
     TestCase,
 )
-from django.utils import timezone
 from django.urls import reverse
+from django.utils import timezone
+from model_bakery import baker
 from rest_framework.test import APIClient
 
-from allauth.socialaccount.models import SocialAccount
-
-from api.authentication import get_cache_key, INTROSPECT_TOKEN_URL
+from api.authentication import INTROSPECT_TOKEN_URL, get_cache_key
 from api.tests.authentication_tests import (
     _setup_fxa_response,
     _setup_fxa_response_no_json,

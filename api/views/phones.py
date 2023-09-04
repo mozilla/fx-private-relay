@@ -1,52 +1,47 @@
-from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
 import hashlib
 import logging
 import re
 import string
+from dataclasses import asdict, dataclass, field
+from datetime import datetime, timezone
 from typing import Any, Literal, Optional
 
-from waffle import get_waffle_flag_model
 import django_ftl
 import phonenumbers
-
 from django.apps import apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms import model_to_dict
-
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import (
     decorators,
+    exceptions,
     permissions,
     response,
     throttling,
     viewsets,
-    exceptions,
 )
 from rest_framework.generics import get_object_or_404
 from rest_framework.request import Request
-
 from twilio.base.exceptions import TwilioRestException
-from waffle import flag_is_active
+from waffle import flag_is_active, get_waffle_flag_model
 
 from api.views import SaveToRequestUser
 from emails.utils import incr_if_enabled
 from phones.iq_utils import send_iq_sms
-
 from phones.models import (
     InboundContact,
     RealPhone,
     RelayNumber,
+    area_code_numbers,
     get_last_text_sender,
     get_pending_unverified_realphone_records,
     get_valid_realphone_verification_record,
     get_verified_realphone_record,
     get_verified_realphone_records,
+    location_numbers,
     send_welcome_message,
     suggested_numbers,
-    location_numbers,
-    area_code_numbers,
     twilio_client,
 )
 from privaterelay.ftl_bundles import main as ftl_bundle
@@ -62,7 +57,6 @@ from ..serializers.phones import (
     RealPhoneSerializer,
     RelayNumberSerializer,
 )
-
 
 logger = logging.getLogger("events")
 info_logger = logging.getLogger("eventsinfo")

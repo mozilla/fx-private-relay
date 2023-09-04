@@ -11,24 +11,22 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 from __future__ import annotations
-from typing import Any, Optional, TYPE_CHECKING
+
+import base64
 import ipaddress
 import os
 import sys
+from hashlib import sha512
+from typing import TYPE_CHECKING, Any, Optional
 
-
-from decouple import config, Choices, Csv
+import dj_database_url
 import django_stubs_ext
 import markus
 import sentry_sdk
+from decouple import Choices, Csv, config
+from django.conf.global_settings import LANGUAGES as DEFAULT_LANGUAGES
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import ignore_logger
-from hashlib import sha512
-import base64
-
-from django.conf.global_settings import LANGUAGES as DEFAULT_LANGUAGES
-
-import dj_database_url
 
 if TYPE_CHECKING:
     import wsgiref.headers

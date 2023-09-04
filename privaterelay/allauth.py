@@ -1,7 +1,7 @@
 from urllib.parse import urlencode
-from django.shortcuts import resolve_url
 
 from allauth.account.adapter import DefaultAccountAdapter
+from django.shortcuts import resolve_url
 
 
 class AccountAdapter(DefaultAccountAdapter):

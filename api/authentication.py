@@ -1,13 +1,11 @@
-from datetime import datetime, timezone
 import logging
 import shlex
+from datetime import datetime, timezone
 
 import requests
-
+from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.core.cache import cache
-
-from allauth.socialaccount.models import SocialAccount
 from rest_framework.authentication import BaseAuthentication, get_authorization_header
 from rest_framework.exceptions import (
     APIException,
@@ -17,7 +15,6 @@ from rest_framework.exceptions import (
     PermissionDenied,
 )
 from sentry_sdk import capture_exception
-
 
 logger = logging.getLogger("events")
 INTROSPECT_TOKEN_URL = (

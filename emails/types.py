@@ -1,6 +1,6 @@
 """Types for email functions"""
-from typing import Any, Literal
 from io import IOBase
+from typing import Any, Literal
 
 # Relay container for email content
 MessageBodyContent = dict[Literal["Charset", "Data"], str]

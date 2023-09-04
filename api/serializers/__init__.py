@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User
 from django.db.models import prefetch_related_objects
-
-from rest_framework import serializers, exceptions
+from rest_framework import exceptions, serializers
 from waffle import get_waffle_flag_model
 
 from emails.models import DomainAddress, Profile, RelayAddress

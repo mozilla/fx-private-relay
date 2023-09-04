@@ -1,19 +1,17 @@
+import json
 from datetime import datetime, timezone
 from typing import Any, Generator
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 from uuid import uuid4
-import json
 
-from botocore.exceptions import ClientError
-from markus.testing import MetricsMock
-import pytest
 import OpenSSL
-
+import pytest
+from botocore.exceptions import ClientError
 from django.core.management import call_command
 from django.core.management.base import CommandError
+from markus.testing import MetricsMock
 
 from emails.tests.views_tests import EMAIL_SNS_BODIES
-
 
 COMMAND_NAME = "process_emails_from_sqs"
 MOCK_BASE = "emails.management.commands.process_emails_from_sqs"

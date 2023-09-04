@@ -62,7 +62,7 @@ on first use to create the PlanCountryLangMapping, and served from cache on late
 
 from copy import deepcopy
 from functools import lru_cache
-from typing import get_args, Literal, TypedDict
+from typing import Literal, TypedDict, get_args
 
 from django.conf import settings
 

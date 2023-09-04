@@ -1,17 +1,15 @@
+import logging
 from datetime import datetime, timedelta, timezone
 from typing import Any, cast
 
-from django.conf import settings
-
+import sentry_sdk
 from allauth.socialaccount.models import SocialAccount, SocialToken
 from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
+from django.conf import settings
 from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error, TokenExpiredError
 from requests_oauthlib import OAuth2Session
-import logging
-import sentry_sdk
 
 from .utils import flag_is_active_in_task
-
 
 logger = logging.getLogger("events")
 

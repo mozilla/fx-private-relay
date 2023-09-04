@@ -3,10 +3,10 @@ CommandFromDjangoSettings is a base class for commands that get parameters from
 Django settings.
 """
 
+import textwrap
 from argparse import RawDescriptionHelpFormatter
 from collections import namedtuple
 from shutil import get_terminal_size
-import textwrap
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError, DjangoHelpFormatter

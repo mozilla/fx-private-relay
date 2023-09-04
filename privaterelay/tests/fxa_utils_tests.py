@@ -3,14 +3,14 @@ Tests for private_relay/fxa_utils.py
 """
 from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
+
 import pytest
-
-from django.conf import settings
-
 from allauth.socialaccount.models import SocialAccount
+from django.conf import settings
 from model_bakery import baker
-from privaterelay.fxa_utils import get_phone_subscription_dates
 from waffle.models import Flag
+
+from privaterelay.fxa_utils import get_phone_subscription_dates
 
 pytestmark = pytest.mark.skipif(
     not settings.PHONES_ENABLED, reason="PHONES_ENABLED is False"

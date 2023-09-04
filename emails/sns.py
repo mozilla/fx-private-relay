@@ -3,16 +3,14 @@
 
 import base64
 import logging
-import pem
 from urllib.request import urlopen
 
-from OpenSSL import crypto
-
+import pem
 from django.conf import settings
 from django.core.cache import caches
 from django.core.exceptions import SuspiciousOperation
 from django.utils.encoding import smart_bytes
-
+from OpenSSL import crypto
 
 logger = logging.getLogger("events")
 

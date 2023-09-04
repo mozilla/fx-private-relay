@@ -6,9 +6,8 @@ Non-empty databases are tested in the cleaner tests.
 """
 from io import StringIO
 
-from django.core.management import call_command
-
 import pytest
+from django.core.management import call_command
 
 from emails.tests.cleaners_tests import setup_profile_mismatch_test_data
 

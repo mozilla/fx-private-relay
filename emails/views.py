@@ -1,16 +1,16 @@
-from copy import deepcopy
-from datetime import datetime, timezone
-from email import message_from_bytes, policy
-from email.mime.multipart import MIMEMultipart
-from email.utils import parseaddr
 import html
 import json
-from json import JSONDecodeError
 import logging
 import mimetypes
 import os
 import re
 import shlex
+from copy import deepcopy
+from datetime import datetime, timezone
+from email import message_from_bytes, policy
+from email.mime.multipart import MIMEMultipart
+from email.utils import parseaddr
+from json import JSONDecodeError
 from tempfile import SpooledTemporaryFile
 from textwrap import dedent
 from typing import Any, Optional
@@ -18,21 +18,22 @@ from urllib.parse import urlencode
 
 from botocore.exceptions import ClientError
 from decouple import strtobool
-from django.shortcuts import render
-from sentry_sdk import capture_message
-from markus.utils import generate_tag
-from waffle import sample_is_active
-
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import prefetch_related_objects
 from django.http import HttpResponse
+from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.utils.html import escape
 from django.views.decorators.csrf import csrf_exempt
+from markus.utils import generate_tag
+from sentry_sdk import capture_message
+from waffle import sample_is_active
 
+from privaterelay.ftl_bundles import main as ftl_bundle
+from privaterelay.utils import flag_is_active_in_task
 
 from .models import (
     CannotMakeAddressException,
@@ -45,6 +46,7 @@ from .models import (
     get_domain_numerical,
     get_domains_from_settings,
 )
+from .sns import SUPPORTED_SNS_TYPES, verify_from_sns
 from .types import AWS_SNSMessageJSON, MessageBody, OutgoingHeaders
 from .utils import (
     _get_bucket_and_key_from_s3_json,
@@ -66,10 +68,6 @@ from .utils import (
     ses_send_raw_email,
     urlize_and_linebreaks,
 )
-from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
-
-from privaterelay.ftl_bundles import main as ftl_bundle
-from privaterelay.utils import flag_is_active_in_task
 
 RESENDER_HEADERS_FLAG_NAME = "resender_headers"
 

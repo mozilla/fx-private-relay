@@ -1,37 +1,35 @@
+import random
 from datetime import datetime, timedelta, timezone
 from hashlib import sha256
-import random
 from unittest import skip
 from unittest.mock import patch
 from uuid import uuid4
 
+import pytest
+from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.test import override_settings, TestCase
-
-from allauth.socialaccount.models import SocialAccount
-import pytest
-
+from django.test import TestCase, override_settings
 from model_bakery import baker
 
 from ..models import (
     AbuseMetrics,
-    address_hash,
     CannotMakeAddressException,
     CannotMakeSubdomainException,
     DeletedAddress,
     DomainAddress,
-    get_domains_from_settings,
-    get_domain_numerical,
-    has_bad_words,
-    hash_subdomain,
-    is_blocklisted,
     Profile,
     RegisteredSubdomain,
     RelayAddress,
-    valid_available_subdomain,
+    address_hash,
+    get_domain_numerical,
+    get_domains_from_settings,
+    has_bad_words,
+    hash_subdomain,
+    is_blocklisted,
     valid_address,
     valid_address_pattern,
+    valid_available_subdomain,
 )
 
 

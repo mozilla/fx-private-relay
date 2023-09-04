@@ -5,13 +5,11 @@ import time
 
 import boto3
 from botocore.exceptions import ClientError
-
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from emails.views import _sns_inbound_logic, validate_sns_arn_and_type, verify_from_sns
 from emails.utils import incr_if_enabled
-
+from emails.views import _sns_inbound_logic, validate_sns_arn_and_type, verify_from_sns
 
 logger = logging.getLogger("events")
 info_logger = logging.getLogger("eventsinfo")

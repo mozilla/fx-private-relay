@@ -1,15 +1,13 @@
+import pytest
 from django.urls import reverse
-
 from model_bakery import baker
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 from waffle.models import Flag
-import pytest
-
-from emails.models import RelayAddress
-from emails.tests.models_tests import make_free_test_user, make_premium_test_user
 
 from api.serializers import FlagSerializer
+from emails.models import RelayAddress
+from emails.tests.models_tests import make_free_test_user, make_premium_test_user
 
 
 class PremiumValidatorsTest(APITestCase):

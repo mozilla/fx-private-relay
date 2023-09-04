@@ -1,3 +1,12 @@
+[tool.django-stubs]
+django_settings_module = "privaterelay.settings"
+
+[tool.isort]
+profile = "black"
+py_version=310
+known_django = "django"
+sections = "FUTURE,STDLIB,DJANGO,THIRDPARTY,FIRSTPARTY,LOCALFOLDER"
+
 [tool.mypy]
 plugins = ["mypy_django_plugin.main"]
 mypy_path = "$MYPY_CONFIG_FILE_DIR/mypy_stubs"
@@ -16,9 +25,6 @@ disallow_untyped_calls = false
 disallow_incomplete_defs = false
 disallow_untyped_defs = false
 no_implicit_reexport = false
-
-[tool.django-stubs]
-django_settings_module = "privaterelay.settings"
 
 [[tool.mypy.overrides]]
 ignore_missing_imports = true
@@ -51,6 +57,7 @@ module = [
     "markus.utils",
     "oauthlib.oauth2.rfc6749.errors",
     "requests_oauthlib",
+    "silk",
     "twilio.base.instance_resource",
     "twilio.base.exceptions",
     "twilio.rest",
@@ -63,9 +70,10 @@ module = [
     "whitenoise.storage",
 ]
 
-[[tool.mypy.overrides]]
-# Optional modules or in-progress features
-ignore_missing_imports = true
-module = [
-    "silk",
+[tool.ruff]
+select = [
+    "E",  # pycodestyle errors
+    "F",  # pyflakes
+    "W",  # pycodestyle warnings
+    "I",  # isort
 ]

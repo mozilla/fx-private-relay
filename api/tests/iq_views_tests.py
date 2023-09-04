@@ -1,19 +1,14 @@
-from allauth.socialaccount.models import SocialAccount
-import pytest
-
-from django.conf import settings
-
-import responses
 from unittest.mock import Mock, patch
 
+import pytest
+import responses
+from allauth.socialaccount.models import SocialAccount
+from django.conf import settings
+from rest_framework.test import RequestsClient
 from twilio.rest import Client
 
-
-from rest_framework.test import RequestsClient
-
-
-from phones.tests.models_tests import make_phone_test_user
 from api.tests.phones_views_tests import _make_real_phone, _make_relay_number
+from phones.tests.models_tests import make_phone_test_user
 
 if settings.PHONES_ENABLED:
     from api.views.phones import compute_iq_mac

@@ -1,14 +1,15 @@
+import json
 from base64 import b64encode
 from email.utils import parseaddr
 from typing import Literal
+from unittest.mock import patch
 from urllib.parse import quote_plus
+
+import pytest
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
-from unittest.mock import patch
 from model_bakery import baker
-import json
-import pytest
 
 from emails.models import get_domains_from_settings
 from emails.utils import (

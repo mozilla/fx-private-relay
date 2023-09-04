@@ -1,9 +1,7 @@
 from rest_framework import permissions
-
-from emails.models import Profile
-
 from waffle import flag_is_active
 
+from emails.models import Profile
 
 READ_METHODS = ["GET", "HEAD"]
 

@@ -11,9 +11,9 @@ https://docs.python.org/3/library/datetime.html#datetime.datetime.isoformat
 https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
 """
 
-from datetime import datetime, timezone
 import json
 import logging
+from datetime import datetime, timezone
 
 from django.core.management.base import CommandError
 

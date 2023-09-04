@@ -1,11 +1,10 @@
-from typing import Any
-import requests
 import os
+from typing import Any
 
+import requests
 from django.apps import AppConfig
 from django.conf import settings
 from django.utils.functional import cached_property
-
 
 ROOT_DIR = os.path.abspath(os.curdir)
 

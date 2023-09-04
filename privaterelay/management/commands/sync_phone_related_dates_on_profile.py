@@ -1,4 +1,6 @@
+import logging
 from datetime import datetime, timedelta, timezone
+
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandParser
 
@@ -7,7 +9,6 @@ from privaterelay.management.utils import (
     get_free_phone_social_accounts,
     get_phone_subscriber_social_accounts,
 )
-import logging
 
 logger = logging.getLogger("events")
 

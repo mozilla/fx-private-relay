@@ -1,29 +1,27 @@
-from base64 import b64decode
-from copy import deepcopy
-from datetime import datetime, timezone
-from email.message import EmailMessage
-from unittest.mock import patch, Mock
-from uuid import uuid4
 import glob
 import io
 import json
 import os
 import re
+from base64 import b64decode
+from copy import deepcopy
+from datetime import datetime, timezone
+from email.message import EmailMessage
+from unittest.mock import Mock, patch
+from uuid import uuid4
 
+import pytest
+from allauth.socialaccount.models import SocialAccount
+from botocore.exceptions import ClientError
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
-from django.test import override_settings, Client, SimpleTestCase, TestCase
-
-from allauth.socialaccount.models import SocialAccount
-from botocore.exceptions import ClientError
+from django.test import Client, SimpleTestCase, TestCase, override_settings
 from markus.main import MetricsRecord
 from markus.testing import MetricsMock
 from model_bakery import baker
 from waffle.testutils import override_flag
-import pytest
 
-from privaterelay.ftl_bundles import main
 from emails.models import (
     DeletedAddress,
     DomainAddress,
@@ -55,6 +53,7 @@ from emails.views import (
     validate_sns_arn_and_type,
     wrapped_email_test,
 )
+from privaterelay.ftl_bundles import main
 
 from .models_tests import (
     make_free_test_user,

@@ -1,7 +1,6 @@
 import os.path
 
 from django.utils.functional import cached_property
-
 from django_ftl.bundles import Bundle, DjangoMessageFinder
 
 

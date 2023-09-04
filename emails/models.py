@@ -1,12 +1,13 @@
-from collections import namedtuple
-from datetime import datetime, timedelta, timezone
-from hashlib import sha256
-from typing import Optional
 import logging
 import random
 import re
 import string
 import uuid
+from collections import namedtuple
+from datetime import datetime, timedelta, timezone
+from hashlib import sha256
+from typing import Optional
+
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -15,10 +16,9 @@ from django.core.validators import MinLengthValidator
 from django.db import models, transaction
 from django.dispatch import receiver
 from django.utils.translation.trans_real import (
-    parse_accept_lang_header,
     get_supported_language_variant,
+    parse_accept_lang_header,
 )
-
 from rest_framework.authtoken.models import Token
 
 from api.exceptions import ErrorContextType, RelayAPIException
@@ -28,7 +28,6 @@ from privaterelay.utils import (
     flag_is_active_in_task,
     guess_country_from_accept_lang,
 )
-
 
 emails_config = apps.get_app_config("emails")
 logger = logging.getLogger("events")

@@ -1,37 +1,35 @@
 import base64
 import contextlib
-from email.header import Header
-from email.headerregistry import Address
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.application import MIMEApplication
-from email.utils import formataddr, parseaddr
-from functools import cache
-from typing import cast, Any, Callable, TypeVar
 import json
+import logging
 import pathlib
 import re
-from django.template.loader import render_to_string
-from django.utils.text import Truncator
-import requests
+from email.header import Header
+from email.headerregistry import Address
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.utils import formataddr, parseaddr
+from functools import cache
+from typing import Any, Callable, TypeVar, cast
+from urllib.parse import quote_plus, urlparse
 
-from botocore.exceptions import ClientError
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.hkdf import HKDFExpand
-from mypy_boto3_ses.type_defs import SendRawEmailResponseTypeDef
 import jwcrypto.jwe
 import jwcrypto.jwk
 import markus
-import logging
-from urllib.parse import quote_plus, urlparse
-
+import requests
+from allauth.socialaccount.models import SocialAccount
+from botocore.exceptions import ClientError
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.hkdf import HKDFExpand
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.http import HttpResponse
 from django.template.defaultfilters import linebreaksbr, urlize
-
-from allauth.socialaccount.models import SocialAccount
+from django.template.loader import render_to_string
+from django.utils.text import Truncator
+from mypy_boto3_ses.type_defs import SendRawEmailResponseTypeDef
 
 from privaterelay.plans import get_bundle_country_language_mapping
 from privaterelay.utils import get_countries_info_from_lang_and_mapping
@@ -45,7 +43,6 @@ from .models import (
     get_domains_from_settings,
 )
 from .types import AttachmentPair, AWS_MailJSON, MessageBody, OutgoingHeaders
-
 
 logger = logging.getLogger("events")
 info_logger = logging.getLogger("eventsinfo")
