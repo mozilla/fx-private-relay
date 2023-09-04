@@ -6,5 +6,5 @@ module.exports = {
       .map((file) => file.split(process.cwd())[1])
       .join(" --file ")}`,
   "*.md": "prettier --write",
-  "*.py": ["black", "mypy"],
+  "*.py": ["black", "mypy", "ruff check --fix"],
 }
