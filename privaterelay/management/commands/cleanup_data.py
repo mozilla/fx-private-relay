@@ -6,8 +6,9 @@ from argparse import RawDescriptionHelpFormatter
 from shutil import get_terminal_size
 from typing import TYPE_CHECKING, Any, Optional
 
-from codetiming import Timer
 from django.core.management.base import BaseCommand, DjangoHelpFormatter
+
+from codetiming import Timer
 
 from emails.cleaners import MissingProfileCleaner, ServerStorageCleaner
 

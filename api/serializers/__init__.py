@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db.models import prefetch_related_objects
+
 from rest_framework import exceptions, serializers
 from waffle import get_waffle_flag_model
 

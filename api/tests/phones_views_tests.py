@@ -4,10 +4,11 @@ from datetime import datetime, timezone
 from typing import Iterator, Literal
 from unittest.mock import Mock, call, patch
 
-import pytest
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test.utils import override_settings
+
+import pytest
 from model_bakery import baker
 from rest_framework.test import APIClient
 from twilio.base.exceptions import TwilioRestException

@@ -2,8 +2,9 @@ from argparse import ArgumentParser
 from dataclasses import dataclass
 from typing import Any
 
-from allauth.socialaccount.models import SocialAccount
 from django.core.management.base import BaseCommand, CommandError
+
+from allauth.socialaccount.models import SocialAccount
 
 from phones.models import InboundContact, RealPhone, RelayNumber
 

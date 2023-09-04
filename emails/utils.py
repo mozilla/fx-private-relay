@@ -14,6 +14,14 @@ from functools import cache
 from typing import Any, Callable, TypeVar, cast
 from urllib.parse import quote_plus, urlparse
 
+from django.apps import apps
+from django.conf import settings
+from django.contrib.auth.models import Group, User
+from django.http import HttpResponse
+from django.template.defaultfilters import linebreaksbr, urlize
+from django.template.loader import render_to_string
+from django.utils.text import Truncator
+
 import jwcrypto.jwe
 import jwcrypto.jwk
 import markus
@@ -22,13 +30,6 @@ from allauth.socialaccount.models import SocialAccount
 from botocore.exceptions import ClientError
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.hkdf import HKDFExpand
-from django.apps import apps
-from django.conf import settings
-from django.contrib.auth.models import Group, User
-from django.http import HttpResponse
-from django.template.defaultfilters import linebreaksbr, urlize
-from django.template.loader import render_to_string
-from django.utils.text import Truncator
 from mypy_boto3_ses.type_defs import SendRawEmailResponseTypeDef
 
 from privaterelay.plans import get_bundle_country_language_mapping

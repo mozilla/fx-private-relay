@@ -5,11 +5,12 @@ from unittest import skip
 from unittest.mock import patch
 from uuid import uuid4
 
-import pytest
-from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
+
+import pytest
+from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
 
 from ..models import (

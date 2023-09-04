@@ -1,11 +1,12 @@
 import logging
 import os
 
-import boto3
-from botocore.config import Config
 from django.apps import AppConfig
 from django.conf import settings
 from django.utils.functional import cached_property
+
+import boto3
+from botocore.config import Config
 from mypy_boto3_ses.client import SESClient
 
 logger = logging.getLogger("events")

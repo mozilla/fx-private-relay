@@ -19,6 +19,7 @@ from django.utils.translation.trans_real import (
     get_supported_language_variant,
     parse_accept_lang_header,
 )
+
 from rest_framework.authtoken.models import Token
 
 from api.exceptions import ErrorContextType, RelayAPIException

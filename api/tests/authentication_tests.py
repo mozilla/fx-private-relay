@@ -1,9 +1,10 @@
 from datetime import datetime
 
-import responses
-from allauth.socialaccount.models import SocialAccount
 from django.core.cache import cache
 from django.test import RequestFactory, TestCase
+
+import responses
+from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
 from rest_framework.exceptions import (
     APIException,

@@ -4,14 +4,15 @@ from types import SimpleNamespace
 from unittest.mock import Mock, call, patch
 from uuid import uuid4
 
-import pytest
-import responses
-from allauth.socialaccount.models import SocialAccount, SocialToken
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.exceptions import BadRequest, ValidationError
 from django.test import override_settings
+
+import pytest
+import responses
+from allauth.socialaccount.models import SocialAccount, SocialToken
 from model_bakery import baker
 from twilio.base.exceptions import TwilioRestException
 

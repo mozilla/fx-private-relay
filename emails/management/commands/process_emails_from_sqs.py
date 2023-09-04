@@ -17,11 +17,12 @@ import time
 from datetime import datetime, timezone
 from urllib.parse import urlsplit
 
+from django.core.management.base import CommandError
+
 import boto3
 import OpenSSL
 from botocore.exceptions import ClientError
 from codetiming import Timer
-from django.core.management.base import CommandError
 from markus.utils import generate_tag
 
 from emails.management.command_from_django_settings import (

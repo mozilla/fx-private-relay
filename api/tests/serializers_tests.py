@@ -1,5 +1,6 @@
-import pytest
 from django.urls import reverse
+
+import pytest
 from model_bakery import baker
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase

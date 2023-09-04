@@ -4,9 +4,10 @@ Tests for private_relay/fxa_utils.py
 from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
 
+from django.conf import settings
+
 import pytest
 from allauth.socialaccount.models import SocialAccount
-from django.conf import settings
 from model_bakery import baker
 from waffle.models import Flag
 

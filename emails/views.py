@@ -16,8 +16,6 @@ from textwrap import dedent
 from typing import Any, Optional
 from urllib.parse import urlencode
 
-from botocore.exceptions import ClientError
-from decouple import strtobool
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
@@ -28,6 +26,9 @@ from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.utils.html import escape
 from django.views.decorators.csrf import csrf_exempt
+
+from botocore.exceptions import ClientError
+from decouple import strtobool
 from markus.utils import generate_tag
 from sentry_sdk import capture_message
 from waffle import sample_is_active

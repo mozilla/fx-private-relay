@@ -1,5 +1,6 @@
-from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
+
+from allauth.socialaccount.models import SocialAccount
 from waffle.models import Flag
 
 

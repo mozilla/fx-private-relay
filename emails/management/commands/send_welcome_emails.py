@@ -1,10 +1,11 @@
 import logging
 
-import django_ftl
-from allauth.socialaccount.models import SocialAccount
 from django.apps import apps
 from django.conf import settings
 from django.core.management.base import BaseCommand
+
+import django_ftl
+from allauth.socialaccount.models import SocialAccount
 from mypy_boto3_ses.type_defs import ContentTypeDef
 
 from emails.apps import EmailsConfig

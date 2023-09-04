@@ -4,11 +4,12 @@ from typing import Any, Generator
 from unittest.mock import Mock, patch
 from uuid import uuid4
 
+from django.core.management import call_command
+from django.core.management.base import CommandError
+
 import OpenSSL
 import pytest
 from botocore.exceptions import ClientError
-from django.core.management import call_command
-from django.core.management.base import CommandError
 from markus.testing import MetricsMock
 
 from emails.tests.views_tests import EMAIL_SNS_BODIES

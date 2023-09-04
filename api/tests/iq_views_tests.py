@@ -1,9 +1,10 @@
 from unittest.mock import Mock, patch
 
+from django.conf import settings
+
 import pytest
 import responses
 from allauth.socialaccount.models import SocialAccount
-from django.conf import settings
 from rest_framework.test import RequestsClient
 from twilio.rest import Client
 

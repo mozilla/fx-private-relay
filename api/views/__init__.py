@@ -2,14 +2,15 @@ import json
 import logging
 from typing import Mapping, Optional
 
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.db import IntegrityError
+
 import requests
 from allauth.account.adapter import get_adapter as get_account_adapter
 from allauth.socialaccount.helpers import complete_social_login
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers.fxa.provider import FirefoxAccountsProvider
-from django.conf import settings
-from django.contrib.auth.models import User
-from django.db import IntegrityError
 from django_filters import rest_framework as filters
 from drf_spectacular.utils import extend_schema
 from rest_framework import (

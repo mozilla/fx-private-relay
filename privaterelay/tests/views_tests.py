@@ -7,6 +7,10 @@ from typing import Any, Iterator, Literal
 from unittest.mock import Mock, patch
 from uuid import uuid4
 
+from django.contrib.auth.models import User
+from django.test import Client, TestCase
+from django.utils import timezone
+
 import jwt
 import pytest
 import responses
@@ -16,9 +20,6 @@ from cryptography.hazmat.primitives.asymmetric.rsa import (
     RSAPrivateKey,
     generate_private_key,
 )
-from django.contrib.auth.models import User
-from django.test import Client, TestCase
-from django.utils import timezone
 from markus.testing import MetricsMock
 from model_bakery import baker
 

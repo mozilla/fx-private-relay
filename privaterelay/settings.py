@@ -19,12 +19,13 @@ import sys
 from hashlib import sha512
 from typing import TYPE_CHECKING, Any, Optional
 
+from django.conf.global_settings import LANGUAGES as DEFAULT_LANGUAGES
+
 import dj_database_url
 import django_stubs_ext
 import markus
 import sentry_sdk
 from decouple import Choices, Csv, config
-from django.conf.global_settings import LANGUAGES as DEFAULT_LANGUAGES
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import ignore_logger
 

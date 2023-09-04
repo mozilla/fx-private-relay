@@ -1,12 +1,6 @@
 [tool.django-stubs]
 django_settings_module = "privaterelay.settings"
 
-[tool.isort]
-profile = "black"
-py_version=310
-known_django = "django"
-sections = "FUTURE,STDLIB,DJANGO,THIRDPARTY,FIRSTPARTY,LOCALFOLDER"
-
 [tool.mypy]
 plugins = ["mypy_django_plugin.main"]
 mypy_path = "$MYPY_CONFIG_FILE_DIR/mypy_stubs"
@@ -77,3 +71,9 @@ select = [
     "W",  # pycodestyle warnings
     "I",  # isort
 ]
+
+[tool.ruff.isort]
+section-order = ["future", "standard-library", "django", "third-party", "first-party", "local-folder"]
+
+[tool.ruff.isort.sections]
+django = ["django"]

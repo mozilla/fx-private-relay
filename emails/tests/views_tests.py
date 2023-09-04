@@ -10,13 +10,14 @@ from email.message import EmailMessage
 from unittest.mock import Mock, patch
 from uuid import uuid4
 
-import pytest
-from allauth.socialaccount.models import SocialAccount
-from botocore.exceptions import ClientError
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 from django.test import Client, SimpleTestCase, TestCase, override_settings
+
+import pytest
+from allauth.socialaccount.models import SocialAccount
+from botocore.exceptions import ClientError
 from markus.main import MetricsRecord
 from markus.testing import MetricsMock
 from model_bakery import baker

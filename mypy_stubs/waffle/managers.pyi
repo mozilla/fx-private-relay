@@ -5,6 +5,7 @@
 from typing import TypeVar
 
 from django.db import models
+
 from waffle.models import BaseModel
 
 _BASE_T = TypeVar("_BASE_T", bound=BaseModel)

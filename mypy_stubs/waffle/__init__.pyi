@@ -5,6 +5,7 @@
 from typing import Literal, overload
 
 from django.http import HttpRequest
+
 from waffle.models import Flag, Sample, Switch
 
 VERSION: tuple[int, ...]

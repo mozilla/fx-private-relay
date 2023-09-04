@@ -2,11 +2,12 @@ import logging
 from typing import Iterator
 from unittest.mock import patch
 
+from django.contrib.auth.models import AbstractBaseUser, Group, User
+from django.core.cache.backends.base import BaseCache
+
 import pytest
 from _pytest.fixtures import SubRequest
 from _pytest.logging import LogCaptureFixture
-from django.contrib.auth.models import AbstractBaseUser, Group, User
-from django.core.cache.backends.base import BaseCache
 from pytest_django.fixtures import SettingsWrapper
 from waffle.models import Flag
 from waffle.testutils import override_flag

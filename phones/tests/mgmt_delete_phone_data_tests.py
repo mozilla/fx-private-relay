@@ -2,10 +2,11 @@ from datetime import datetime, timedelta, timezone
 from io import StringIO
 from unittest.mock import patch
 
-import pytest
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.management import CommandError, call_command
+
+import pytest
 from model_bakery import baker
 from pytest_django.fixtures import SettingsWrapper
 

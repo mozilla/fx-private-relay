@@ -1,12 +1,13 @@
 from typing import Tuple
 from unittest.mock import MagicMock, patch
 
-import django_ftl
-import pytest
-from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.management import call_command
+
+import django_ftl
+import pytest
+from allauth.socialaccount.models import SocialAccount
 
 from emails.models import Profile
 from emails.tests.models_tests import make_free_test_user

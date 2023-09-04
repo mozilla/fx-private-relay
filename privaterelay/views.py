@@ -6,11 +6,6 @@ from functools import lru_cache
 from hashlib import sha256
 from typing import Any, Iterable, Optional, TypedDict
 
-import jwt
-import sentry_sdk
-from allauth.socialaccount.models import SocialAccount, SocialApp
-from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
-from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 from django.apps import apps
 from django.conf import settings
 from django.db import IntegrityError, connections, transaction
@@ -19,6 +14,12 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+
+import jwt
+import sentry_sdk
+from allauth.socialaccount.models import SocialAccount, SocialApp
+from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 from google_measurement_protocol import event, report
 from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error
 from rest_framework.decorators import api_view, schema

@@ -2,10 +2,11 @@ import logging
 import shlex
 from datetime import datetime, timezone
 
-import requests
-from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.core.cache import cache
+
+import requests
+from allauth.socialaccount.models import SocialAccount
 from rest_framework.authentication import BaseAuthentication, get_authorization_header
 from rest_framework.exceptions import (
     APIException,

@@ -8,6 +8,7 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser
 from django.http import Http404, HttpRequest
 from django.utils.translation.trans_real import parse_accept_lang_header
+
 from waffle import get_waffle_flag_model
 from waffle.models import logger as waffle_logger
 from waffle.utils import (

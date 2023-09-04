@@ -1,5 +1,6 @@
-from allauth.account.signals import user_logged_in, user_signed_up
 from django.dispatch import receiver
+
+from allauth.account.signals import user_logged_in, user_signed_up
 
 from emails.utils import incr_if_enabled
 

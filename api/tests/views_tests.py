@@ -1,8 +1,5 @@
 from datetime import datetime
 
-import pytest
-import responses
-from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.test import (
@@ -11,6 +8,10 @@ from django.test import (
 )
 from django.urls import reverse
 from django.utils import timezone
+
+import pytest
+import responses
+from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
 from rest_framework.test import APIClient
 

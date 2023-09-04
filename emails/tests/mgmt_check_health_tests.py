@@ -2,8 +2,9 @@ import json
 import logging
 from datetime import datetime, timedelta, timezone
 
-import pytest
 from django.core.management import CommandError, call_command
+
+import pytest
 
 
 @pytest.fixture(autouse=True)
