@@ -92,6 +92,7 @@
 .stars {
   display: flex;
   flex-direction: row;
+  padding-left: $spacing-xs;
 }
 
 .star {
@@ -152,6 +153,7 @@
 
   .review-item {
     display: flex;
+    overflow: hidden;
   }
 
   .review {
