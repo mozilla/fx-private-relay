@@ -23,7 +23,7 @@ import styles from "./profile.module.scss";
 import BottomBannerIllustration from "../../../public/images/woman-couch-left.svg";
 import UpsellBannerUs from "./images/upsell-banner-us.svg";
 import UpsellBannerNonUs from "./images/upsell-banner-nonus.svg";
-import { PencilIcon, CheckBadgeIcon } from "../../components/Icons";
+import { CheckBadgeIcon, LockIcon, PencilIcon } from "../../components/Icons";
 import { Layout } from "../../components/layout/Layout";
 import { useProfiles } from "../../hooks/api/profile";
 import {
@@ -58,6 +58,7 @@ import { useL10n } from "../../hooks/l10n";
 import { Localized } from "../../components/Localized";
 import { clearCookie, getCookie, setCookie } from "../../functions/cookies";
 import { SubdomainInfoTooltip } from "../../components/dashboard/subdomain/SubdomainInfoTooltip";
+import Link from "next/link";
 
 const Profile: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -225,12 +226,14 @@ const Profile: NextPage = () => {
           @{profile.subdomain}.{getRuntimeConfig().mozmailDomain}
         </span>
       </>
+    ) : profile.has_premium ? (
+      <a className={styles["open-button"]} href="#mpp-choose-subdomain">
+        {l10n.getString("profile-label-set-your-custom-domain-free-user")}
+      </a>
     ) : (
-      <>
-        <a className={styles["open-button"]} href="#mpp-choose-subdomain">
-          {l10n.getString("profile-label-set-your-custom-domain-free-user")}
-        </a>
-      </>
+      <Link className={styles["open-button"]} href={"/premium#pricing"}>
+        {l10n.getString("profile-label-set-your-custom-domain-free-user")}
+      </Link>
     );
 
   const numberFormatter = new Intl.NumberFormat(getLocale(l10n), {
@@ -291,13 +294,18 @@ const Profile: NextPage = () => {
             <span className={styles.greeting} />
           </Localized>
           <strong className={styles.subdomain}>
-            {typeof profile.subdomain === "string" ? (
+            {/* render check badge if subdomain is set and user has premium
+            render pencil icon if subdomain is not set but user has premium
+            render lock icon by default */}
+            {typeof profile.subdomain === "string" && profile.has_premium ? (
               <CheckBadgeIcon alt="" />
-            ) : (
+            ) : typeof profile.subdomain !== "string" && profile.has_premium ? (
               <PencilIcon alt="" className={styles["pencil-icon"]} />
+            ) : (
+              <LockIcon alt="" className={styles["lock-icon"]} />
             )}
             {subdomainMessage}
-            <SubdomainInfoTooltip />
+            <SubdomainInfoTooltip hasPremium={profile.has_premium} />
           </strong>
         </div>
         <dl className={styles["account-stats"]}>

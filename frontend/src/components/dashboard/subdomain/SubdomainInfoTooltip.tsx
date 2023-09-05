@@ -24,17 +24,35 @@ import styles from "./SubdomainInfoTooltip.module.scss";
 import { Localized } from "../../Localized";
 import { InfoModal } from "../../InfoModal";
 
+export type SubdomainInfoTooltipProps = {
+  hasPremium: boolean;
+};
+
 /**
  * Shows the user more info on how to use their Relay custom domain mask.
  */
-export const SubdomainInfoTooltip = () => {
+export const SubdomainInfoTooltip = (props: SubdomainInfoTooltipProps) => {
   const isLargeScreen = useMinViewportWidth("md");
+  const { hasPremium } = props;
 
-  return <>{isLargeScreen ? <ExplainerTrigger /> : <MobileExplainerModal />}</>;
+  return (
+    <>
+      {isLargeScreen ? (
+        <ExplainerTrigger hasPremium={hasPremium} />
+      ) : (
+        <MobileExplainerModal hasPremium={hasPremium} />
+      )}
+    </>
+  );
 };
 
-const MobileExplainerModal = () => {
+export type MobileExplainerModalProps = {
+  hasPremium: boolean;
+};
+
+const MobileExplainerModal = (props: MobileExplainerModalProps) => {
   const modalState = useOverlayTriggerState({});
+  const { hasPremium } = props;
   const l10n = useL10n();
 
   const subdomainTooltipButton = (
@@ -45,14 +63,18 @@ const MobileExplainerModal = () => {
       }}
     >
       <InfoIcon
-        alt={l10n.getString("tooltip-email-domain-explanation-title")}
+        alt={l10n.getString(
+          hasPremium
+            ? "tooltip-email-domain-explanation-title"
+            : "tooltip-email-domain-explanation-title-free",
+        )}
         width={18}
         height={18}
       />
     </button>
   );
 
-  const subdomainExplanationBody = (
+  const subdomainExplanationBody = hasPremium ? (
     <>
       <p>{l10n.getString("tooltip-email-domain-explanation-part-one")}</p>
       <br />
@@ -70,6 +92,8 @@ const MobileExplainerModal = () => {
         </Localized>
       </p>
     </>
+  ) : (
+    <p>{l10n.getString("tooltip-email-domain-explanation-part-one-free")}</p>
   );
 
   const subdomainInfoModal = modalState.isOpen ? (
@@ -89,12 +113,17 @@ const MobileExplainerModal = () => {
   );
 };
 
-const ExplainerTrigger = () => {
+export type ExplainerTriggerProps = {
+  hasPremium: boolean;
+};
+
+const ExplainerTrigger = (props: ExplainerTriggerProps) => {
   const l10n = useL10n();
   const explainerState = useOverlayTriggerState({});
   const overlayRef = useRef<HTMLDivElement>(null);
   const openButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const { hasPremium } = props;
 
   const openButtonProps = useButton(
     { onPress: () => explainerState.open() },
@@ -121,7 +150,11 @@ const ExplainerTrigger = () => {
         ref={openButtonRef}
       >
         <InfoIcon
-          alt={l10n.getString("tooltip-email-domain-explanation-title")}
+          alt={l10n.getString(
+            hasPremium
+              ? "tooltip-email-domain-explanation-title"
+              : "tooltip-email-domain-explanation-title-free",
+          )}
           width={18}
           height={18}
         />
@@ -135,21 +168,35 @@ const ExplainerTrigger = () => {
             positionProps={positionProps}
             ref={overlayRef}
           >
-            <p>{l10n.getString("tooltip-email-domain-explanation-part-one")}</p>
-            <br />
-            <p>{l10n.getString("tooltip-email-domain-explanation-part-two")}</p>
-            <br />
-            <p>
-              <Localized
-                id="tooltip-email-domain-explanation-part-three"
-                vars={{ mozmail: "mozmail.com" }}
-                elems={{
-                  p: <p />,
-                }}
-              >
-                <span />
-              </Localized>
-            </p>
+            {hasPremium ? (
+              <>
+                <p>
+                  {l10n.getString("tooltip-email-domain-explanation-part-one")}
+                </p>
+                <br />
+                <p>
+                  {l10n.getString("tooltip-email-domain-explanation-part-two")}
+                </p>
+                <br />
+                <p>
+                  <Localized
+                    id="tooltip-email-domain-explanation-part-three"
+                    vars={{ mozmail: "mozmail.com" }}
+                    elems={{
+                      p: <p />,
+                    }}
+                  >
+                    <span />
+                  </Localized>
+                </p>
+              </>
+            ) : (
+              <p>
+                {l10n.getString(
+                  "tooltip-email-domain-explanation-part-one-free",
+                )}
+              </p>
+            )}
             <button
               {...closeButtonProps}
               ref={closeButtonRef}
