@@ -220,13 +220,12 @@ const Profile: NextPage = () => {
           @{profile.subdomain}.{getRuntimeConfig().mozmailDomain}
         </span>
       </>
+    ) : profile.has_premium ? (
+      <a className={styles["open-button"]} href="#mpp-choose-subdomain">
+        {l10n.getString("profile-label-set-your-custom-domain-free-user")}
+      </a>
     ) : (
-      <Link
-        className={styles["open-button"]}
-        href={
-          profile.has_premium ? "#mpp-choose-subdomain" : "/premium#pricing"
-        }
-      >
+      <Link className={styles["open-button"]} href={"/premium#pricing"}>
         {l10n.getString("profile-label-set-your-custom-domain-free-user")}
       </Link>
     );
