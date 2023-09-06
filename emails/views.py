@@ -13,7 +13,7 @@ import re
 import shlex
 from tempfile import SpooledTemporaryFile
 from textwrap import dedent
-from typing import Any, Optional
+from typing import Any, Literal, Optional
 from urllib.parse import urlencode
 
 from botocore.exceptions import ClientError
@@ -132,13 +132,13 @@ def reply_requires_premium_test(request):
 
 
 def wrap_html_email(
-    original_html,
-    language,
-    has_premium,
-    display_email,
-    num_level_one_email_trackers_removed=None,
-    tracker_report_link=0,
-):
+    original_html: str,
+    language: str,
+    has_premium: bool,
+    display_email: str,
+    num_level_one_email_trackers_removed: int | None = None,
+    tracker_report_link: str | None = None,
+) -> str:
     """Add Relay banners, surveys, etc. to an HTML email"""
     email_context = {
         "original_html": original_html,
@@ -558,65 +558,16 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         # we are returning a 503 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
-    # sample tracker numbers
-    if sample_is_active("tracker-sample") and html_content:
-        count_all_trackers(html_content)
-
-    # scramble alias so that clients don't recognize it
-    # and apply default link styles
-    display_email = re.sub("([@.:])", r"<span>\1</span>", to_address)
-
     message_body: MessageBody = {}
-    tracker_report_link = ""
-    removed_count = 0
-    # frontend expects a timestamp in milliseconds
-    datetime_now = int(datetime.now(timezone.utc).timestamp() * 1000)
 
     if html_content:
-        incr_if_enabled("email_with_html_content", 1)
-        tracker_removal_active = flag_is_active_in_task("tracker_removal", address.user)
-        if tracker_removal_active and user_profile.remove_level_one_email_trackers:
-            html_content, tracker_details = remove_trackers(
-                html_content, from_address, datetime_now
-            )
-            removed_count = tracker_details["tracker_removed"]
-            datetime_now = int(
-                datetime.now(timezone.utc).timestamp() * 1000
-            )  # frontend is expecting in milli seconds
-            tracker_report_details = {
-                "sender": from_address,
-                "received_at": datetime_now,
-                "trackers": tracker_details["level_one"]["trackers"],
-            }
-            tracker_report_link = (
-                f"{settings.SITE_ORIGIN}/tracker-report/#"
-                + json.dumps(tracker_report_details)
-            )
-            address.num_level_one_trackers_blocked = (
-                address.num_level_one_trackers_blocked or 0
-            ) + removed_count
-            address.save()
-
-        wrapped_html = wrap_html_email(
-            original_html=html_content,
-            language=user_profile.language,
-            has_premium=user_profile.has_premium,
-            display_email=display_email,
-            tracker_report_link=tracker_report_link,
-            num_level_one_email_trackers_removed=removed_count,
+        converted_html = _convert_html_content(
+            html_content, address, to_address, from_address
         )
-        message_body["Html"] = {"Charset": "UTF-8", "Data": wrapped_html}
-
+        message_body["Html"] = {"Charset": "UTF-8", "Data": converted_html}
     if text_content:
-        incr_if_enabled("email_with_text_content", 1)
-        relay_header_text = (
-            "This email was sent to your alias "
-            f"{to_address}. To stop receiving emails sent to this alias, "
-            "update the forwarding settings in your dashboard.\n"
-            "---Begin Email---\n"
-        )
-        wrapped_text = relay_header_text + text_content
-        message_body["Text"] = {"Charset": "UTF-8", "Data": wrapped_text}
+        converted_text = _convert_text_content(text_content, to_address)
+        message_body["Text"] = {"Charset": "UTF-8", "Data": converted_text}
 
     use_resender_headers = flag_is_active_in_task(
         RESENDER_HEADERS_FLAG_NAME, user_profile.user
@@ -659,6 +610,69 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     address.last_used_at = datetime.now(timezone.utc)
     address.save(update_fields=["num_forwarded", "last_used_at", "block_list_emails"])
     return response
+
+
+def _convert_html_content(
+    html_content: str,
+    address: RelayAddress | DomainAddress,
+    to_address: str,
+    from_address: str,
+) -> str:
+    # frontend expects a timestamp in milliseconds
+    datetime_now = int(datetime.now(timezone.utc).timestamp() * 1000)
+    user_profile = address.user.profile
+
+    # scramble alias so that clients don't recognize it
+    # and apply default link styles
+    display_email = re.sub("([@.:])", r"<span>\1</span>", to_address)
+
+    # sample tracker numbers
+    if sample_is_active("tracker-sample") and html_content:
+        count_all_trackers(html_content)
+
+    incr_if_enabled("email_with_html_content", 1)
+    tracker_report_link = ""
+    removed_count = 0
+    tracker_removal_active = flag_is_active_in_task("tracker_removal", address.user)
+    if tracker_removal_active and user_profile.remove_level_one_email_trackers:
+        html_content, tracker_details = remove_trackers(
+            html_content, from_address, datetime_now
+        )
+        removed_count = tracker_details["tracker_removed"]
+        tracker_report_details = {
+            "sender": from_address,
+            "received_at": datetime_now,
+            "trackers": tracker_details["level_one"]["trackers"],
+        }
+        tracker_report_link = f"{settings.SITE_ORIGIN}/tracker-report/#" + json.dumps(
+            tracker_report_details
+        )
+        address.num_level_one_trackers_blocked = (
+            address.num_level_one_trackers_blocked or 0
+        ) + removed_count
+        address.save()
+
+    wrapped_html = wrap_html_email(
+        original_html=html_content,
+        language=user_profile.language,
+        has_premium=user_profile.has_premium,
+        display_email=display_email,
+        tracker_report_link=tracker_report_link,
+        num_level_one_email_trackers_removed=removed_count,
+    )
+    return wrapped_html
+
+
+def _convert_text_content(text_content: str, to_address: str) -> str:
+    incr_if_enabled("email_with_text_content", 1)
+    relay_header_text = (
+        "This email was sent to your alias "
+        f"{to_address}. To stop receiving emails sent to this alias, "
+        "update the forwarding settings in your dashboard.\n"
+        "---Begin Email---\n"
+    )
+    wrapped_text = relay_header_text + text_content
+    return wrapped_text
 
 
 def _get_verdict(receipt, verdict_type):
