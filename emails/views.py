@@ -18,6 +18,7 @@ from typing import Any, Literal, Optional
 from urllib.parse import urlencode
 
 from botocore.exceptions import ClientError
+from codetiming import Timer
 from decouple import strtobool
 from django.shortcuts import render
 from sentry_sdk import capture_message
@@ -1234,10 +1235,21 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
 def _get_text_html_attachments(
     message_json: AWS_SNSMessageJSON,
 ) -> tuple[str | None, str | None, list[AttachmentPair], int]:
-    email_message, email_size = _get_email_message(message_json)
-    text_content, html_content, attachments = _get_all_contents(email_message)
-    # TODO: add logs on the entire size of the email and the time it takes to
-    # download/process
+    with Timer(logger=None) as load_timer:
+        email_message, email_size = _get_email_message(message_json)
+    with Timer(logger=None) as parse_timer:
+        text_content, html_content, attachments = _get_all_contents(email_message)
+    info_logger.info(
+        "email_loaded",
+        extra={
+            "size": email_size,
+            "load_time_s": round(load_timer.last, 3),
+            "parse_time_s": round(parse_timer.last, 3),
+            "has_html": html_content is not None,
+            "has_text": text_content is not None,
+            "attachment_count": len(attachments),
+        },
+    )
     return text_content, html_content, attachments, email_size
 
 
