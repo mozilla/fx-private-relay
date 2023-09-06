@@ -1,4 +1,5 @@
 """Types for email functions"""
+from tempfile import SpooledTemporaryFile
 from typing import Any, Literal
 from io import IOBase
 
@@ -7,7 +8,7 @@ MessageBodyContent = dict[Literal["Charset", "Data"], str]
 MessageBody = dict[Literal["Text", "Html"], MessageBodyContent]
 
 # Attachment path and data stream
-AttachmentPair = tuple[str, IOBase]
+AttachmentPair = tuple[str | None, IOBase | SpooledTemporaryFile[bytes]]
 
 # Headers for outgoing emails
 OutgoingHeaderName = Literal[

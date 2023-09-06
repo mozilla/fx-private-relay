@@ -1,6 +1,7 @@
 from copy import deepcopy
 from datetime import datetime, timezone
 from email import message_from_bytes, policy
+from email.message import EmailMessage, Message
 from email.mime.multipart import MIMEMultipart
 from email.utils import parseaddr
 import html
@@ -45,7 +46,7 @@ from .models import (
     get_domain_numerical,
     get_domains_from_settings,
 )
-from .types import AWS_SNSMessageJSON, MessageBody, OutgoingHeaders
+from .types import AttachmentPair, AWS_SNSMessageJSON, MessageBody, OutgoingHeaders
 from .utils import (
     _get_bucket_and_key_from_s3_json,
     b64_lookup_key,
@@ -1230,7 +1231,17 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     return HttpResponse("OK", status=200)
 
 
-def _get_text_html_attachments(message_json):
+def _get_text_html_attachments(
+    message_json: AWS_SNSMessageJSON,
+) -> tuple[str | None, str | None, list[AttachmentPair], int]:
+    email_message, email_size = _get_email_message(message_json)
+    text_content, html_content, attachments = _get_all_contents(email_message)
+    # TODO: add logs on the entire size of the email and the time it takes to
+    # download/process
+    return text_content, html_content, attachments, email_size
+
+
+def _get_email_message(message_json: AWS_SNSMessageJSON) -> tuple[EmailMessage, int]:
     if "content" in message_json:
         # email content in sns message
         message_content = message_json["content"].encode("utf-8")
@@ -1240,15 +1251,15 @@ def _get_text_html_attachments(message_json):
         message_content = get_message_content_from_s3(bucket, object_key)
     email_size = len(message_content)
     histogram_if_enabled("relayed_email.size", email_size)
-    bytes_email_message = message_from_bytes(message_content, policy=policy.default)
+    email_message = message_from_bytes(message_content, policy=policy.default)
+    # python/typeshed issue 2418
+    # The Python 3.2 default was Message, 3.6 uses policy.message_factory, and
+    # policy.default.message_factory is EmailMessage
+    assert isinstance(email_message, EmailMessage)
+    return email_message, email_size
 
-    text_content, html_content, attachments = _get_all_contents(bytes_email_message)
-    # TODO: add logs on the entire size of the email and the time it takes to
-    # download/process
-    return text_content, html_content, attachments, email_size
 
-
-def _get_attachment(part):
+def _get_attachment(part: Message) -> AttachmentPair:
     incr_if_enabled("email_with_attachment", 1)
     fn = part.get_filename()
     ct = part.get_content_type()
@@ -1257,10 +1268,9 @@ def _get_attachment(part):
     if fn:
         extension = os.path.splitext(fn)[1]
     else:
-        extension = mimetypes.guess_extension(ct)
-    tag_type = "attachment"
-    attachment_extension_tag = generate_tag(tag_type, extension)
-    attachment_content_type_tag = generate_tag(tag_type, ct)
+        extension = mimetypes.guess_extension(ct) or "None"
+    attachment_extension_tag = generate_tag("extension", extension)
+    attachment_content_type_tag = generate_tag("content_type", ct)
     histogram_if_enabled(
         "attachment.size",
         payload_size,
@@ -1274,7 +1284,9 @@ def _get_attachment(part):
     return fn, attachment
 
 
-def _get_all_contents(email_message):
+def _get_all_contents(
+    email_message: EmailMessage,
+) -> tuple[str | None, str | None, list[AttachmentPair]]:
     text_content = None
     html_content = None
     attachments = []
