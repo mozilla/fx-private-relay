@@ -432,6 +432,86 @@ class SNSNotificationTest(TestCase):
     def test_reply_resender_headers(self) -> None:
         self.test_reply(resender_headers=True)
 
+    @pytest.mark.xfail(reason="inline images are discarded")
+    def test_inline_image(self) -> None:
+        path = os.path.join(real_abs_cwd, "fixtures", "inline-image.email")
+        email = open(path, "r").read()
+        content_id = "Content-ID: <0A0AD2F8-6672-45A8-8248-0AC6C7282970>"
+        assert content_id in email
+        test_sns_message = {
+            "notificationType": "Received",
+            "mail": {
+                "timestamp": "2023-09-05T21:42:46.100Z",
+                "source": "friend@mail.example.com",
+                "messageId": "CAJwPAzZ1F8G-0KSCS73x2FX+iG5HMo9+Dndy4GkNVnR28+M1tA@mail.gmail.com",
+                "destination": ["ebsbdsan7@test.com"],
+                "headersTruncated": False,
+                "headers": [
+                    {"name": "Date", "value": "Tue, 5 Sep 2023 14:42:46 -0700"},
+                    {
+                        "name": "To",
+                        "value": "Your Relay Address <ebsbdsan7@test.com>",
+                    },
+                    {"name": "From", "value": "Your Friend <friend@mail.example.com>"},
+                    {"name": "Subject", "value": "Test Email"},
+                    {
+                        "name": "Message-ID",
+                        "value": "<CAJwPAzZ1F8G-0KSCS73x2FX+iG5HMo9+Dndy4GkNVnR28+M1tA@mail.gmail.com>",
+                    },
+                    {"name": "Mime-Version", "value": "1.0 (MailClient 1.1.1)"},
+                    {
+                        "name": "Content-Type",
+                        "value": 'multipart/alternative; boundary="b1_1tMoOzirX5rNUK0QIqMdSQB8hwcBeFGHtIfEtmvEG0k"',
+                    },
+                ],
+                "commonHeaders": {
+                    "from": ["Your Friend <friend@mail.example.com>"],
+                    "date": "Tue, 5 Sep 2023 14:42:46 -0700",
+                    "to": ["Your Relay Address <ebsbdsan7@test.com>"],
+                    "messageId": "<CAJwPAzZ1F8G-0KSCS73x2FX+iG5HMo9+Dndy4GkNVnR28+M1tA@mail.gmail.com>",
+                    "subject": "Test Email",
+                },
+            },
+            "receipt": {
+                "timestamp": "2023-09-05T21:42:46.100Z",
+                "processingTimeMillis": 1432,
+                "recipients": ["ebsbdsan7@test.com"],
+                "spamVerdict": {"status": "PASS"},
+                "virusVerdict": {"status": "PASS"},
+                "spfVerdict": {"status": "PASS"},
+                "dkimVerdict": {"status": "PASS"},
+                "dmarcVerdict": {"status": "PASS"},
+                "action": {
+                    "type": "SNS",
+                    "topicArn": "arn:aws:sns:us-east-1:168781634622:ses-inbound-grelay",
+                    "encoding": "UTF8",
+                },
+            },
+            "content": email,
+        }
+        test_sns_notification = {
+            "Type": "Notification",
+            "MessageId": "0c88fe80-acbc-484a-ae19-52e05555d609",
+            "TopicArn": "arn:aws:sns:us-east-1:168781634622:ses-inbound-grelay",
+            "Subject": "Test Email",
+            "Message": json.dumps(test_sns_message),
+            "Timestamp": "2023-09-05T21:42:46.200Z",
+            "SignatureVersion": "1",
+            "Signature": "BvlKJoLKcxcGsVloKnY7PKuqgY1EsSi1D5SVlHYtxRcsvuXVUDrdEvTlcWYNBiCpbaM/3kGYeXyb8uuWsdcNnT20zKLlpIP1dZhEV4o70aiM/35MxNfgAvA3NXkddRCQ2l+iplqtuRYdJ2XFkYJypECsoif9sRxB2jBW5bIz4vwjoeZdQCwMwBKQFsSGOr5Zc1pPE/5js9gZpBZlpsgRi2N4wj2sjBF0PyyO26UhGgWGwK1F7y1hpo90+PHRnD4W/XYc1flLu29hIaamgtXIbxol0xthMg0TtSfV9Q0MDJkpnsfOt/AsqvfZquIzGWyP2xpppuDLPf4MkftIbS4tpQ==",
+            "SigningCertURL": "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-7ff5318490ec183fbaddaa2a969abfda.pem",
+            "UnsubscribeURL": "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:168781634622:ses-inbound-grelay:f1e4420c-3b67-4cb2-b6db-4d22fd45916e",
+        }
+        _sns_notification(test_sns_notification)
+
+        self.mock_send_raw_email.assert_called_once()
+        self.mock_remove_message_from_s3.assert_called_once()
+        self.ra.refresh_from_db()
+        assert self.ra.num_forwarded == 1
+        assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
+
+        raw_message = self.mock_send_raw_email.call_args[1]["RawMessage"]["Data"]
+        assert content_id in raw_message
+
 
 class BounceHandlingTest(TestCase):
     def setUp(self):
