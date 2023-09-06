@@ -545,6 +545,27 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
 
     subject = common_headers.get("subject", "")
 
+    use_resender_headers = flag_is_active_in_task(
+        RESENDER_HEADERS_FLAG_NAME, user_profile.user
+    )
+    destination_address = user_profile.user.email
+    reply_address = get_reply_to_address()
+    if use_resender_headers:
+        from_header = generate_from_header(from_address, to_address)
+        source_address = reply_address
+    else:
+        from_header = generate_relay_From(from_address, user_profile)
+        source_address = from_header
+
+    headers: OutgoingHeaders = {
+        "Subject": subject,
+        "From": from_header,
+        "To": destination_address,
+        "Reply-To": reply_address,
+    }
+    if use_resender_headers:
+        headers["Resent-From"] = from_address
+
     try:
         (
             text_content,
@@ -570,27 +591,6 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     if text_content:
         converted_text = _convert_text_content(text_content, to_address)
         message_body["Text"] = {"Charset": "UTF-8", "Data": converted_text}
-
-    use_resender_headers = flag_is_active_in_task(
-        RESENDER_HEADERS_FLAG_NAME, user_profile.user
-    )
-    destination_address = user_profile.user.email
-    reply_address = get_reply_to_address()
-    if use_resender_headers:
-        from_header = generate_from_header(from_address, to_address)
-        source_address = reply_address
-    else:
-        from_header = generate_relay_From(from_address, user_profile)
-        source_address = from_header
-
-    headers: OutgoingHeaders = {
-        "Subject": subject,
-        "From": from_header,
-        "To": destination_address,
-        "Reply-To": reply_address,
-    }
-    if use_resender_headers:
-        headers["Resent-From"] = from_address
 
     response = ses_relay_email(
         source_address,
