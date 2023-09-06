@@ -44,7 +44,7 @@ sequenceDiagram
 
 ## Firefox OAuth Token Authentication and Accept Terms of Service
 
-Similarly to the add-on, Firefox uses the [the FXA OAuth service][fxa-oauth] /oauth/token endpoint with `scope: ["https://identity.mozilla.com/apps/relay"]` to get the scoped access token that expires every 24 hours (see which calls [`getOAuthToken`][searchfox-getoauthtoken] [`accessTokenWithSessionToken`][searchfox-accesstokenwithsessiontoken]).
+Similarly to the add-on, Firefox uses the [the FXA OAuth service][fxa-oauth] `/oauth/token` endpoint with `scope: ["https://identity.mozilla.com/apps/relay"]` to get the scoped access token that expires every 24 hours (see which calls [`getOAuthToken`][searchfox-getoauthtoken] [`accessTokenWithSessionToken`][searchfox-accesstokenwithsessiontoken]).
 
 Like the add-on, Firefox uses this token to authenticate all requests to Relay. Firefox includes an `Authorization: Bearer {fxa-access-token}` header in all API requests. Unlike the add-on, Firefox must first `POST` to the Relay `/api/v1/terms-accepted-user` endpoint to state that the user accepted the Terms of Service. This `POST` will also create the new user and profile records in Relay.
 

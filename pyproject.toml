@@ -23,13 +23,8 @@ django_settings_module = "privaterelay.settings"
 [[tool.mypy.overrides]]
 ignore_missing_imports = true
 module = [
-    "allauth.account",
-    "allauth.account.adapter",
-    "allauth.account.models",
-    "allauth.account.signals",
-    "allauth.socialaccount.models",
-    "allauth.socialaccount.providers.fxa",
-    "allauth.socialaccount.providers.fxa.views",
+    "allauth.account.*",
+    "allauth.socialaccount.*",
     "boto3",
     "botocore.config",
     "botocore.exceptions",
