@@ -10,12 +10,9 @@ Technical Story: [MPP-3328](https://mozilla-hub.atlassian.net/browse/MPP-3328)
 
 ## Context and Problem Statement
 
-To reduce the response time from when the user interacts with the UI on Firefox for [MPP-3257](https://mozilla-hub.atlassian.net/browse/MPP-3257),
-Relay added a welcome email for new users that gets processed via `send_first_email` receiver that looks for the `user_signed_up` signal. For Phase 2 of Relay integration to Firefox, we added a `/api/v1/terms-accepted-user/` endpoint to create new users with the [resource flow](OAUTH_RESOURCE_SERVER) instead of relying party flow. A typical response from POST request to `/api/v1/terms-accepted-user/`` ranges from 1000-1200ms. The response with the welcome email processing removed is 700-900ms. The maximum time saved from separating the welcome email could be as high as 300ms. Meanwhile we need to ensure that a new user who joins Relay gets welcome email.
+Relay sends a welcome email for new users. The `send_first_email` function in privaterelay/signals.py handles the allauth `user_signed_up signal`. `send_first_email` makes request to AWS SES API before Relay responds to clients. This adds as much as 300ms to the Relay API response time during new user creation which slows down the Firefox Relay Phase 2 integration UI. See [MPP-3257](https://mozilla-hub.atlassian.net/browse/MPP-3257) for more details.
 
-To improve response time for `/api/v1/terms-accepted-user/` and provide reliable welcome email to new users joining Relay, how should the welcome email be processed?
-
-[OAUTH_RESOURCE_SERVER]: https://www.oauth.com/oauth2-servers/the-resource-server/
+This ADR explores options to reduce new user creation response time by separating the send the welcome email.
 
 ## Decision Drivers
 
@@ -40,16 +37,17 @@ Proceeded with **Option 3. Implement cron job to send welcome email** because it
 
 ### Negative Consequences
 
-- Potential longer welcome email processing time for new users if Relay suddenly gets too many new users.
+- A sudden spike of new users could delay welcome emails.
 
 ## Pros and Cons of the Options
 
 ### Option 1: Implement Redis Queue to send welcome email
 
-[Redis Queue](REDIS_QUEUE) would be a new addition to our infrastructure but can be used to more quickly send the welcome email for new users who join Relay.
+[Redis Queue](REDIS_QUEUE) would be Relay's first attempt at using Redis worker outside of the Redis session and backend cache with [django-redis](https://pypi.org/project/django-redis/) but can be used to more quickly send the welcome email for new users who join Relay.
 
 - Good, because it reduces the overhead of signal/receiver and delay in responding to Firefox during the `/api/v1/terms-accepted-user` endpoint call.
-- Good, because marketing team has worked on converting their service, Basket, to using this so we could reuse some setup. Example code snippet using the `@rq_task` decorator [here](https://github.com/mozmeao/basket/blob/main/basket/news/tasks.py) and the command for running the workers [here](https://github.com/mozmeao/basket/blob/main/basket/base/management/commands/rqworker.py).
+- Good, because marketing team has worked on converting their service, Basket, to using this so we could follow their infrstracture and code setup.
+  - Example code snippet using the `@rq_task` decorator [here](https://github.com/mozmeao/basket/blob/main/basket/news/tasks.py) and the command for running the workers [here](https://github.com/mozmeao/basket/blob/main/basket/base/management/commands/rqworker.py).
 - Bad, because [Redis persistence](https://redis.io/docs/management/persistence/) adjacent problems which require infrastructure work.
 
 ### Option 2: Utilize Basket API to send welcome email
