@@ -65,7 +65,7 @@ Proceeded with **Option 3. Implement cron job to send welcome email** because it
 
 Relay already has [many scheduled jobs](https://dashboard.heroku.com/apps/fx-private-relay/scheduler) setup to handle asynchronous work ranging from maintainig old data to renewing monthly phone limits for users.
 
-- Good, because command created to send welcome email can be reused if or when we move to Option 1 using Redis Queue
+- Good, because code created to send welcome email can be reused if or when we move to Option 1 using Redis Queue
 - Good, because lowest implementation complexity due to previous use of scheduled jobs
 - Bad, because unlike Redis Queue where more workers can be added to deal with the thundering herd problem, current cron job infrastructure uses set resources.
 
