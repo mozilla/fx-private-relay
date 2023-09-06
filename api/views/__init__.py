@@ -7,24 +7,21 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework.authentication import get_authorization_header
 from rest_framework.exceptions import (
-    APIException,
     AuthenticationFailed,
     ParseError,
 )
 from rest_framework.response import Response
 from rest_framework.views import exception_handler
-from rest_framework.serializers import ValidationError
 
 from allauth.account.adapter import get_adapter as get_account_adapter
 from allauth.socialaccount.models import SocialAccount
-from allauth.socialaccount.helpers import complete_social_login  # type: ignore
-from allauth.socialaccount.providers.fxa.provider import FirefoxAccountsProvider  # type: ignore
-from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
+from allauth.socialaccount.helpers import complete_social_login
+from allauth.socialaccount.providers.fxa.provider import FirefoxAccountsProvider
 from django_filters import rest_framework as filters
-from waffle import flag_is_active, get_waffle_flag_model
+from waffle import get_waffle_flag_model
 from waffle.models import Switch, Sample
 from rest_framework import (
     decorators,
@@ -32,7 +29,6 @@ from rest_framework import (
     response,
     status,
     viewsets,
-    exceptions,
 )
 from emails.utils import incr_if_enabled
 
@@ -44,7 +40,6 @@ from privaterelay.plans import (
 from privaterelay.utils import get_countries_info_from_request_and_mapping
 
 from emails.models import (
-    CannotMakeAddressException,
     DomainAddress,
     Profile,
     RelayAddress,
@@ -142,7 +137,7 @@ class DomainAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     def perform_create(self, serializer):
         try:
             serializer.save(user=self.request.user)
-        except IntegrityError as e:
+        except IntegrityError:
             domain_address = DomainAddress.objects.filter(
                 user=self.request.user, address=serializer.validated_data.get("address")
             ).first()
@@ -169,10 +164,31 @@ class UserViewSet(viewsets.ModelViewSet):
         return User.objects.filter(id=self.request.user.id)
 
 
+@extend_schema(
+    responses={
+        201: OpenApiResponse(description="Created; returned when user is created."),
+        202: OpenApiResponse(
+            description="Accepted; returned when user already exists."
+        ),
+        400: OpenApiResponse(
+            description="Bad request; returned when request is missing Authorization: Bearer header or token value."
+        ),
+        401: OpenApiResponse(
+            description="Unauthorized; returned when the FXA token is invalid or expired."
+        ),
+    },
+)
 @decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.AllowAny])
 @decorators.authentication_classes([])
 def terms_accepted_user(request):
+    """
+    Create a Relay user from an FXA token.
+
+    See [API Auth doc][api-auth-doc] for details.
+
+    [api-auth-doc]: https://github.com/mozilla/fx-private-relay/blob/main/docs/api_auth.md#firefox-oauth-token-authentication-and-accept-terms-of-service
+    """
     # Setting authentication_classes to empty due to
     # authentication still happening despite permissions being set to allowany
     # https://forum.djangoproject.com/t/solved-allowany-override-does-not-work-on-apiview/9754
