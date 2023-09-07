@@ -41,8 +41,5 @@
 4. Se Yeon
 
 [Release-to-stage]: https://github.com/mozilla/fx-private-relay/blob/main/docs/release_process.md#release-to-stage
-
-
 [sentry-releases]:https://mozilla.sentry.io/releases/
-
 [stage-fixes]: https://github.com/mozilla/fx-private-relay/blob/main/docs/release_process.md#stage-fixes
