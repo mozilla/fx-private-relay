@@ -578,6 +578,7 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
     received_email = email_context["email"]
+    email_size = email_context["size_bytes"]
 
     sample_trackers = bool(sample_is_active("tracker_sample"))
     tracker_removal_flag = flag_is_active_in_task("tracker_removal", address.user)
@@ -585,35 +586,47 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         tracker_removal_flag and user_profile.remove_level_one_email_trackers
     )
 
-    outgoing_email, level_one_trackers_removed = _convert_content(
-        received_email,
-        headers,
-        to_address,
-        from_address,
-        user_profile.language,
-        user_profile.has_premium,
-        sample_trackers,
-        remove_level_one_trackers,
-    )
+    with Timer(logger=None) as convert_timer:
+        outgoing_email, level_one_trackers_removed = _convert_content(
+            received_email,
+            headers,
+            to_address,
+            from_address,
+            user_profile.language,
+            user_profile.has_premium,
+            sample_trackers,
+            remove_level_one_trackers,
+        )
     if level_one_trackers_removed:
         address.num_level_one_trackers_blocked = (
             address.num_level_one_trackers_blocked or 0
         ) + level_one_trackers_removed
         address.save()
 
-    try:
-        ses_response = ses_send_raw_email(
-            source_address, destination_address, outgoing_email
-        )
-    except ClientError:
-        # 503 service unavailable reponse to SNS so it can retry
-        return HttpResponse("SES client error on Raw Email", status=503)
+    with Timer(logger=None) as send_timer:
+        try:
+            ses_response = ses_send_raw_email(
+                source_address, destination_address, outgoing_email
+            )
+        except ClientError:
+            # 503 service unavailable reponse to SNS so it can retry
+            return HttpResponse("SES client error on Raw Email", status=503)
+
+    info_logger.info(
+        "email_forwarded",
+        extra={
+            "size": email_size,
+            "load_time_s": email_context["load_time_s"],
+            "convert_time_s": round(convert_timer.last, 3),
+            "send_time_s": round(send_timer.last, 3),
+        },
+    )
 
     message_id = ses_response["MessageId"]
     _store_reply_record(mail, message_id, address)
 
     user_profile.update_abuse_metric(
-        email_forwarded=True, forwarded_email_size=email_context["size_bytes"]
+        email_forwarded=True, forwarded_email_size=email_size
     )
     address.num_forwarded += 1
     address.last_used_at = datetime.now(timezone.utc)
@@ -1352,7 +1365,7 @@ class _EmailWithContext(TypedDict):
     email: EmailMessage
     size_bytes: int
     transport: Literal["sns", "s3"]
-    download_time_s: float
+    load_time_s: float
 
 
 def _get_email_with_context(message_json: AWS_SNSMessageJSON) -> _EmailWithContext:
@@ -1377,7 +1390,7 @@ def _get_email_with_context(message_json: AWS_SNSMessageJSON) -> _EmailWithConte
         email=email_message,
         size_bytes=email_size,
         transport=transport,
-        download_time_s=round(load_timer.last, 3),
+        load_time_s=round(load_timer.last, 3),
     )
 
 
