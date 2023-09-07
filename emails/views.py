@@ -50,6 +50,7 @@ from .models import (
 from .types import AttachmentPair, AWS_SNSMessageJSON, MessageBody, OutgoingHeaders
 from .utils import (
     _get_bucket_and_key_from_s3_json,
+    _store_reply_record,
     b64_lookup_key,
     count_all_trackers,
     create_message,
@@ -567,12 +568,7 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         headers["Resent-From"] = from_address
 
     try:
-        (
-            text_content,
-            html_content,
-            attachments,
-            email_size,
-        ) = _get_text_html_attachments(message_json)
+        received_email, email_size = _get_email_message(message_json)
     except ClientError as e:
         if e.response["Error"].get("Code", "") == "NoSuchKey":
             logger.error("s3_object_does_not_exist", extra=e.response["Error"])
@@ -581,29 +577,24 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         # we are returning a 503 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
-    message_body: MessageBody = {}
-
-    if html_content:
-        converted_html = _convert_html_content(
-            html_content, address, to_address, from_address
-        )
-        message_body["Html"] = {"Charset": "UTF-8", "Data": converted_html}
-    if text_content:
-        converted_text = _convert_text_content(text_content, to_address)
-        message_body["Text"] = {"Charset": "UTF-8", "Data": converted_text}
-
-    response = ses_relay_email(
-        source_address,
-        destination_address,
+    outgoing_email = _convert_content(
+        received_email,
         headers,
-        message_body,
-        attachments,
-        mail,
         address,
+        to_address,
+        from_address,
     )
-    if response.status_code == 503:
-        # early return the response to trigger SNS to re-attempt
-        return response
+
+    try:
+        ses_response = ses_send_raw_email(
+            source_address, destination_address, outgoing_email
+        )
+    except ClientError:
+        # 503 service unavailable reponse to SNS so it can retry
+        return HttpResponse("SES client error on Raw Email", status=503)
+
+    message_id = ses_response["MessageId"]
+    _store_reply_record(mail, message_id, address)
 
     user_profile.update_abuse_metric(
         email_forwarded=True, forwarded_email_size=email_size
@@ -611,7 +602,63 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     address.num_forwarded += 1
     address.last_used_at = datetime.now(timezone.utc)
     address.save(update_fields=["num_forwarded", "last_used_at", "block_list_emails"])
-    return response
+    return HttpResponse("Sent email to final recipient.", status=200)
+
+
+def _convert_content(
+    email_message: EmailMessage,
+    headers: OutgoingHeaders,
+    address: RelayAddress | DomainAddress,
+    to_address: str,
+    from_address: str,
+) -> EmailMessage:
+    # Look for changes to top-level headers
+    drop_headers = set(
+        _h.lower()
+        for _h in (
+            "Authentication-Results",
+            "DKIM-Signature",
+            "Date",
+            "List-Unsubscribe",
+            "Message-ID",
+            "Received-SPF",
+            "Return-Path",
+            "Received",
+            "X-SES-DKIM-SIGNATURE",
+            "X-SES-RECEIPT",
+            "X-SES-Spam-Verdict",
+            "X-SES-Virus-Verdict",
+            "X-Spam-Checker-Version",
+            "X-Spam-Status",
+        )
+    )
+    keep_headers = set(_h.lower() for _h in ("Content-Type", "MIME-Version"))
+    to_drop: list[str] = []
+    replacements: set[str] = set(_k.lower() for _k in headers.keys())
+
+    for header, value in email_message.items():
+        header_lower = header.lower()
+        if header_lower in replacements:
+            pass
+        elif header_lower in drop_headers:
+            to_drop.append(header)
+        elif header_lower not in keep_headers:
+            print(f"dropping header {header}: {value}")
+
+    # Change the headers
+    for header in to_drop:
+        del email_message[header]
+        assert email_message.as_string()
+    for header, value in headers.items():
+        del email_message[header]
+        email_message[header] = value
+        assert email_message.as_string()
+
+    # Find the content
+    body = email_message.get_body()  # returns text, html, or related
+    # TODO: here
+
+    return email_message
 
 
 def _convert_html_content(
@@ -749,7 +796,7 @@ def _build_reply_requires_premium_email(
     reply_record: Reply,
     message_id: str | None,
     decrypted_metadata: dict[str, Any] | None,
-) -> MIMEMultipart:
+) -> EmailMessage:
     # If we haven't forwarded a first reply for this user yet, _reply_allowed
     # will forward.  So, tell the user we forwarded it.
     forwarded = not reply_record.address.user.profile.forwarded_first_reply
