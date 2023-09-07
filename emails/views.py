@@ -654,9 +654,22 @@ def _convert_content(
         email_message[header] = value
         assert email_message.as_string()
 
-    # Find the content
-    body = email_message.get_body()  # returns text, html, or related
-    # TODO: here
+    # Find and replace the content
+    # TODO: Test the results of this conversion
+    text_body = email_message.get_body("text")
+    if text_body:
+        assert isinstance(text_body, EmailMessage)
+        text_content = text_body.get_content()
+        new_text_content = _convert_text_content(text_content, to_address)
+        text_body.set_content(new_text_content)
+    html_body = email_message.get_body("html")
+    if html_body:
+        assert isinstance(html_body, EmailMessage)
+        html_content = html_body.get_content()
+        new_content = _convert_html_content(
+            html_content, address, to_address, from_address
+        )
+        html_body.set_content(new_content)
 
     return email_message
 
