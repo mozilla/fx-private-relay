@@ -104,6 +104,149 @@ def test_post_domainaddress_no_subdomain_error(premium_user, prem_api_client) ->
     }
 
 
+def test_patch_premium_user_subdomain_cannot_be_changed(
+    premium_user, prem_api_client
+) -> None:
+    """A premium user should not be able to edit their subdomain."""
+    premium_profile = premium_user.profile
+    original_subdomain = "helloworld"
+    premium_profile.subdomain = original_subdomain
+    premium_profile.save()
+
+    new_subdomain = "helloworldd"
+    response = prem_api_client.patch(
+        reverse(viewname="profiles-detail", args=[premium_user.id]),
+        data={"subdomain": new_subdomain},
+        format="json",
+    )
+
+    ret_data = response.json()
+    premium_profile.refresh_from_db()
+
+    assert ret_data.get("subdomain", [""])[0] == "This field is read only"
+    assert premium_profile.subdomain == original_subdomain
+    assert response.status_code == 400
+
+
+def test_patch_profile_fields_are_read_only_by_default(premium_user, prem_api_client):
+    """
+    A field in the Profile model should be read only by default, and return a 400 response code
+    (see StrictReadOnlyFieldsMixin in api/serializers/__init__.py), if it is not mentioned in the ProfileSerializer class fields.
+
+    Two fields were tested, num_address_deleted, and sent_welcome_email to see if the behavior matches what is described here: https://www.django-rest-framework.org/api-guide/serializers/#specifying-read-only-fields
+    """
+    premium_profile = premium_user.profile
+    expected_num_address_deleted = premium_profile.num_address_deleted
+    expected_sent_welcome_email = premium_profile.sent_welcome_email
+
+    response = prem_api_client.patch(
+        reverse(viewname="profiles-detail", args=[premium_user.id]),
+        data={
+            "num_address_deleted": 5,
+            "sent_welcome_email": True,
+        },
+        format="json",
+    )
+
+    ret_data = response.json()
+    premium_profile.refresh_from_db()
+
+    assert premium_profile.num_address_deleted == expected_num_address_deleted
+    assert premium_profile.sent_welcome_email == expected_sent_welcome_email
+    assert ret_data.get("sent_welcome_email", [""])[0] == "This field is read only"
+    assert ret_data.get("num_address_deleted", [""])[0] == "This field is read only"
+    assert response.status_code == 400
+
+
+def test_profile_non_read_only_fields_update_correctly(premium_user, prem_api_client):
+    """
+    A field that is not read only should update correctly on a patch request.
+
+    "Not read only" meaning that it was defined in the serializers fields, but not read_only_fields.
+    """
+    premium_profile = premium_user.profile
+    old_onboarding_state = premium_profile.onboarding_state
+    old_email_tracker_remove_value = premium_profile.remove_level_one_email_trackers
+
+    response = prem_api_client.patch(
+        reverse(viewname="profiles-detail", args=[premium_user.id]),
+        data={
+            "onboarding_state": 1,
+            "remove_level_one_email_trackers": True,
+        },
+        format="json",
+    )
+
+    ret_data = response.json()
+    premium_profile.refresh_from_db()
+
+    assert (
+        ret_data.get("remove_level_one_email_trackers", None)
+        != old_email_tracker_remove_value
+    )
+    assert (
+        premium_profile.remove_level_one_email_trackers
+        != old_email_tracker_remove_value
+    )
+    assert premium_profile.remove_level_one_email_trackers is True
+    assert ret_data.get("remove_level_one_email_trackers", None) is True
+    assert ret_data.get("onboarding_state", None) != old_onboarding_state
+    assert premium_profile.onboarding_state == 1
+    assert ret_data.get("onboarding_state", None) == 1
+    assert response.status_code == 200
+
+
+def test_profile_patch_with_model_and_serializer_fields(premium_user, prem_api_client):
+    premium_profile = premium_user.profile
+
+    response = prem_api_client.patch(
+        reverse(viewname="profiles-detail", args=[premium_user.id]),
+        data={"subdomain": "vanilla", "num_address_deleted": 5},
+        format="json",
+    )
+
+    premium_profile.refresh_from_db()
+
+    assert response.status_code == 400
+    assert premium_profile.subdomain != "vanilla"
+    assert premium_profile.num_address_deleted == 0
+
+
+def test_profile_patch_with_non_read_only_and_read_only_fields(
+    premium_user, prem_api_client
+):
+    """A request that includes at least one read only field will give a 400 response"""
+    premium_profile = premium_user.profile
+    old_onboarding_state = premium_profile.onboarding_state
+
+    response = prem_api_client.patch(
+        reverse(viewname="profiles-detail", args=[premium_user.id]),
+        data={"onboarding_state": 1, "subdomain": "vanilla"},
+        format="json",
+    )
+
+    ret_data = response.json()
+    premium_profile.refresh_from_db()
+
+    assert premium_profile.onboarding_state == old_onboarding_state
+    assert ret_data.get("subdomain", [""])[0] == "This field is read only"
+    assert response.status_code == 400
+
+
+def test_profile_patch_fields_that_dont_exist(premium_user, prem_api_client):
+    """A request sent with only fields that don't exist give a 200 response (this is the default behavior django provides, we decided to leave it as is)"""
+    response = prem_api_client.patch(
+        reverse(viewname="profiles-detail", args=[premium_user.id]),
+        data={
+            "nonsense": False,
+            "blabla": "blabla",
+        },
+        format="json",
+    )
+
+    assert response.status_code == 200
+
+
 def test_post_domainaddress_user_flagged_error(premium_user, prem_api_client) -> None:
     """A flagged user cannot create a new domain address."""
     premium_profile = premium_user.profile
