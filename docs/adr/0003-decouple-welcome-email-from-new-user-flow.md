@@ -10,7 +10,7 @@ Technical Story: [MPP-3328](https://mozilla-hub.atlassian.net/browse/MPP-3328)
 
 ## Context and Problem Statement
 
-Relay sends a welcome email for new users. The `send_first_email` function in privaterelay/signals.py handles the allauth `user_signed_up signal`. `send_first_email` makes request to AWS SES API before Relay responds to clients. This adds as much as 300ms to the Relay API response time during new user creation which slows down the Firefox Relay Phase 2 integration UI. See [MPP-3257](https://mozilla-hub.atlassian.net/browse/MPP-3257) for more details.
+Relay sends a welcome email for new users. The `send_first_email` function in privaterelay/signals.py handles the allauth `user_signed_up` signal. `send_first_email` makes request to AWS SES API before Relay responds to clients. This adds as much as 300ms to the Relay API response time during new user creation which slows down the Firefox Relay Phase 2 integration UI. See [MPP-3257](https://mozilla-hub.atlassian.net/browse/MPP-3257) for more details.
 
 This ADR explores options to reduce new user creation response time by separating the send the welcome email.
 
@@ -68,8 +68,10 @@ Relay already has [many scheduled jobs](https://dashboard.heroku.com/apps/fx-pri
 
 ## Links
 
-[BASKET]: https://basket.readthedocs.io/
-
 - See [Basket PR 1069](https://github.com/mozmeao/basket/pull/1069) for transitioning tasks to use rq
-  [REDIS_QUEUE]: https://python-rq.org/
+  - Example use of `@rq_task` decorator [here](https://github.com/mozmeao/basket/blob/main/basket/news/tasks.py) to convert code to task.
+  - The command for running the workers [here](https://github.com/mozmeao/basket/blob/main/basket/base/management/commands/rqworker.py).
 - For more reliable Redis queue processesing consider [Redis persistence](https://redis.io/docs/management/persistence/)
+
+[BASKET]: https://basket.readthedocs.io/
+[REDIS_QUEUE]: https://python-rq.org/
