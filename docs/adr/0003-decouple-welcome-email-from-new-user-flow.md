@@ -45,9 +45,8 @@ Proceeded with **Option 3. Implement cron job to send welcome email** because it
 
 [Redis Queue](REDIS_QUEUE) would be Relay's first attempt at using Redis worker outside of the Redis session and backend cache with [django-redis](https://pypi.org/project/django-redis/) but can be used to more quickly send the welcome email for new users who join Relay.
 
-- Good, because it reduces the overhead of signal/receiver and delay in responding to Firefox during the `/api/v1/terms-accepted-user` endpoint call.
-- Good, because marketing team has worked on converting their service, Basket, to using this so we could follow their infrstracture and code setup.
-  - Example code snippet using the `@rq_task` decorator [here](https://github.com/mozmeao/basket/blob/main/basket/news/tasks.py) and the command for running the workers [here](https://github.com/mozmeao/basket/blob/main/basket/base/management/commands/rqworker.py).
+- Good, because users can immediately receive welcome email.
+- Good, because Relay team can share knowledge and practice with other Mozilla teams that use Redis queue.
 - Bad, because [Redis persistence](https://redis.io/docs/management/persistence/) adjacent problems which require infrastructure work.
 
 ### Option 2: Utilize Basket API to send welcome email
@@ -55,16 +54,16 @@ Proceeded with **Option 3. Implement cron job to send welcome email** because it
 [Basket API](BASKET), Mozilla's newsletter service for the marketing team, would be a reuse and expansion of Relay's marketing email for users signed up for premium email, phone, and bundle waitlist. Basket handles both transactional and marketing emails. Examples of transactional email is processing primary email address change (transaction) which results in email about the address update. Examples of marketing emails is sending a user about premium subscription being available in their region.
 
 - Good, because Relay has used Basket for waitlists before and this expands on the existing use of Basket.
-- Good, because it is less complex since the problem is handled external to Relay--less code and no new infrastracture needed in Relay to support Option 1.
+- Good, because Relay does not increase in complexity since the problem is handled external to Relay.
 - Bad, because Basket is mainly used for marketing purposes and it currently does not have a way to distinguish between transactional and marketing emails.
-- Bad, because it is recommended that the services own their transactional emails.
+- Bad, because general recommendation is that the services own their transactional emails.
 
 ### Option 3: Implement cron job to send welcome email
 
 Relay already has [many scheduled jobs](https://dashboard.heroku.com/apps/fx-private-relay/scheduler) setup to handle asynchronous work ranging from maintainig old data to renewing monthly phone limits for users.
 
-- Good, because code created to send welcome email can be reused if or when we move to Option 1 using Redis Queue
-- Good, because lowest implementation complexity due to previous use of scheduled jobs
+- Good, because Relay can reuse code to send welcome email if or when we move to Option 1 using Redis Queue.
+- Good, because this option is inline with how we used scheduled jobs and is the lowest complexity to implement.
 - Bad, because unlike Redis Queue where more workers can be added to deal with the thundering herd problem, current cron job infrastructure uses set resources.
 
 ## Links
