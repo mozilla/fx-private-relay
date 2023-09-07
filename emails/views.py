@@ -619,16 +619,10 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     return HttpResponse("Sent email to final recipient.", status=200)
 
 
-def _convert_content(
+def _replace_headers(
     received_email: EmailMessage,
     headers: OutgoingHeaders,
-    to_address: str,
-    from_address: str,
-    language: str,
-    has_premium: bool,
-    sample_trackers: bool,
-    remove_level_one_trackers: bool,
-) -> tuple[EmailMessage, int]:
+) -> EmailMessage:
     # Look for changes to top-level headers
     drop_headers = set(
         _h.lower()
@@ -670,6 +664,21 @@ def _convert_content(
         del received_email[header]
         received_email[header] = value
         assert received_email.as_string()
+
+    return received_email
+
+
+def _convert_content(
+    received_email: EmailMessage,
+    headers: OutgoingHeaders,
+    to_address: str,
+    from_address: str,
+    language: str,
+    has_premium: bool,
+    sample_trackers: bool,
+    remove_level_one_trackers: bool,
+) -> tuple[EmailMessage, int]:
+    received_email = _replace_headers(received_email, headers)
 
     # Find and replace the content
     # TODO: Test the results of this conversion
