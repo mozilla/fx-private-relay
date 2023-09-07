@@ -30,12 +30,12 @@ Chosen option: "[option 1]", because [justification. e.g., only option, which me
 
 ### Positive Consequences <!-- optional -->
 
-- [e.g., improvement of quality attribute satisfaction, follow-up decisions required, …]
+- [e.g., chosen option improves reliability, etc. …]
 - …
 
 ### Negative Consequences <!-- optional -->
 
-- [e.g., compromising quality attribute, follow-up decisions required, …]
+- [e.g., chosen option adds complexity, etc. …]
 - …
 
 ## Pros and Cons of the Options <!-- optional -->
