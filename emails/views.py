@@ -14,7 +14,7 @@ import re
 import shlex
 from tempfile import SpooledTemporaryFile
 from textwrap import dedent
-from typing import Any, Literal, Optional
+from typing import Any, Literal, Optional, TypedDict
 from urllib.parse import urlencode
 
 from botocore.exceptions import ClientError
@@ -568,7 +568,7 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         headers["Resent-From"] = from_address
 
     try:
-        received_email, email_size = _get_email_message(message_json)
+        email_context = _get_email_with_context(message_json)
     except ClientError as e:
         if e.response["Error"].get("Code", "") == "NoSuchKey":
             logger.error("s3_object_does_not_exist", extra=e.response["Error"])
@@ -576,6 +576,8 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         logger.error("s3_client_error_get_email", extra=e.response["Error"])
         # we are returning a 503 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
+
+    received_email = email_context["email"]
 
     sample_trackers = bool(sample_is_active("tracker_sample"))
     tracker_removal_flag = flag_is_active_in_task("tracker_removal", address.user)
@@ -611,7 +613,7 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     _store_reply_record(mail, message_id, address)
 
     user_profile.update_abuse_metric(
-        email_forwarded=True, forwarded_email_size=email_size
+        email_forwarded=True, forwarded_email_size=email_context["size_bytes"]
     )
     address.num_forwarded += 1
     address.last_used_at = datetime.now(timezone.utc)
@@ -1327,7 +1329,9 @@ def _get_text_html_attachments(
     message_json: AWS_SNSMessageJSON,
 ) -> tuple[str | None, str | None, list[AttachmentPair], int]:
     with Timer(logger=None) as load_timer:
-        email_message, email_size = _get_email_message(message_json)
+        context = _get_email_with_context(message_json)
+    email_message = context["email"]
+    email_size = context["size_bytes"]
     with Timer(logger=None) as parse_timer:
         text_content, html_content, attachments = _get_all_contents(email_message)
     info_logger.info(
@@ -1344,22 +1348,37 @@ def _get_text_html_attachments(
     return text_content, html_content, attachments, email_size
 
 
-def _get_email_message(message_json: AWS_SNSMessageJSON) -> tuple[EmailMessage, int]:
-    if "content" in message_json:
-        # email content in sns message
-        message_content = message_json["content"].encode("utf-8")
-    else:
-        # assume email content in S3
-        bucket, object_key = _get_bucket_and_key_from_s3_json(message_json)
-        message_content = get_message_content_from_s3(bucket, object_key)
-    email_size = len(message_content)
-    histogram_if_enabled("relayed_email.size", email_size)
-    email_message = message_from_bytes(message_content, policy=policy.default)
+class _EmailWithContext(TypedDict):
+    email: EmailMessage
+    size_bytes: int
+    transport: Literal["sns", "s3"]
+    download_time_s: float
+
+
+def _get_email_with_context(message_json: AWS_SNSMessageJSON) -> _EmailWithContext:
+    with Timer(logger=None) as load_timer:
+        if "content" in message_json:
+            # email content in sns message
+            message_content = message_json["content"].encode("utf-8")
+            transport: Literal["sns", "s3"] = "sns"
+        else:
+            # assume email content in S3
+            bucket, object_key = _get_bucket_and_key_from_s3_json(message_json)
+            message_content = get_message_content_from_s3(bucket, object_key)
+            transport = "s3"
+        email_size = len(message_content)
+        histogram_if_enabled("relayed_email.size", email_size)
+        email_message = message_from_bytes(message_content, policy=policy.default)
     # python/typeshed issue 2418
     # The Python 3.2 default was Message, 3.6 uses policy.message_factory, and
     # policy.default.message_factory is EmailMessage
     assert isinstance(email_message, EmailMessage)
-    return email_message, email_size
+    return _EmailWithContext(
+        email=email_message,
+        size_bytes=email_size,
+        transport=transport,
+        download_time_s=round(load_timer.last, 3),
+    )
 
 
 def _get_attachment(part: Message) -> AttachmentPair:

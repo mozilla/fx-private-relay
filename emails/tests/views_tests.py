@@ -950,14 +950,14 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         assert response.status_code == 200
         assert response.content == b"Address is not accepting list emails."
 
-    @patch("emails.views._get_email_message")
+    @patch("emails.views.get_message_content_from_s3")
     @patch("emails.views.remove_message_from_s3")
     def test_get_text_html_s3_client_error_email_in_s3_not_deleted(
         self,
         mocked_message_removed,
-        mocked_get_email_message,
+        mocked_get_message_content_from_s3,
     ):
-        mocked_get_email_message.side_effect = ClientError(
+        mocked_get_message_content_from_s3.side_effect = ClientError(
             {"Error": {"error": "message"}}, ""
         )
 
@@ -967,15 +967,15 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         assert response.content == b"Cannot fetch the message content from S3"
 
     @patch("emails.apps.EmailsConfig.ses_client", spec_set=["send_raw_email"])
-    @patch("emails.views._get_email_message")
+    @patch("emails.views.get_message_content_from_s3")
     @patch("emails.views.remove_message_from_s3")
     def test_ses_client_error_email_in_s3_not_deleted(
         self,
         mocked_message_removed,
-        mocked_get_email_message,
+        mocked_get_message_content_from_s3,
         mocked_ses_client,
     ):
-        mocked_get_email_message.return_value = (self.test_email, 10)
+        mocked_get_message_content_from_s3.return_value = self.test_email.as_bytes()
         mocked_ses_client.send_raw_email.side_effect = SEND_RAW_EMAIL_FAILED
 
         response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
@@ -984,15 +984,15 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         assert response.content.decode() == "SES client error on Raw Email"
 
     @patch("emails.apps.EmailsConfig.ses_client", spec_set=["send_raw_email"])
-    @patch("emails.views._get_email_message")
+    @patch("emails.views.get_message_content_from_s3")
     @patch("emails.views.remove_message_from_s3")
     def test_successful_email_in_s3_deleted(
         self,
         mocked_message_removed,
-        mocked_get_email_message,
+        mocked_get_message_content_from_s3,
         mocked_ses_client,
     ):
-        mocked_get_email_message.return_value = (self.test_email, 10)
+        mocked_get_message_content_from_s3.return_value = self.test_email.as_bytes()
         mocked_ses_client.send_raw_email.return_value = {"MessageId": "NICE"}
 
         response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
@@ -1002,16 +1002,16 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
 
     @override_settings(STATSD_ENABLED=True)
     @patch("emails.apps.EmailsConfig.ses_client", spec_set=["send_raw_email"])
-    @patch("emails.views._get_text_html_attachments")
+    @patch("emails.views.get_message_content_from_s3")
     @patch("emails.views.remove_message_from_s3")
     def test_dmarc_failure_s3_deleted(
         self,
         mocked_message_removed,
-        mocked_get_text_html,
+        mocked_get_message_content_from_s3,
         mocked_ses_client,
     ):
         """A message with a failing DMARC and a "reject" policy is rejected."""
-        mocked_get_text_html.return_value.side_effect = FAIL_TEST_IF_CALLED
+        mocked_get_message_content_from_s3 = FAIL_TEST_IF_CALLED
         mocked_ses_client.send_raw_email.side_effect = FAIL_TEST_IF_CALLED
 
         with MetricsMock() as mm:
@@ -1038,12 +1038,12 @@ class SnsMessageTest(TestCase):
 
         test_email = EmailMessage()
         test_email.set_content("text")
-        get_email_message_patcher = patch(
-            "emails.views._get_email_message",
-            return_value=(test_email, len(test_email.as_string())),
+        get_message_content_from_s3_patcher = patch(
+            "emails.views.get_message_content_from_s3",
+            return_value=test_email.as_bytes(),
         )
-        get_email_message_patcher.start()
-        self.addCleanup(get_email_message_patcher.stop)
+        get_message_content_from_s3_patcher.start()
+        self.addCleanup(get_message_content_from_s3_patcher.stop)
 
         ses_client_patcher = patch(
             "emails.apps.EmailsConfig.ses_client",
