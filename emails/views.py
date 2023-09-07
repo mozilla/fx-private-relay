@@ -577,13 +577,27 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         # we are returning a 503 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
-    outgoing_email = _convert_content(
+    sample_trackers = bool(sample_is_active("tracker_sample"))
+    tracker_removal_flag = flag_is_active_in_task("tracker_removal", address.user)
+    remove_level_one_trackers = bool(
+        tracker_removal_flag and user_profile.remove_level_one_email_trackers
+    )
+
+    outgoing_email, level_one_trackers_removed = _convert_content(
         received_email,
         headers,
-        address,
         to_address,
         from_address,
+        user_profile.language,
+        user_profile.has_premium,
+        sample_trackers,
+        remove_level_one_trackers,
     )
+    if level_one_trackers_removed:
+        address.num_level_one_trackers_blocked = (
+            address.num_level_one_trackers_blocked or 0
+        ) + level_one_trackers_removed
+        address.save()
 
     try:
         ses_response = ses_send_raw_email(
@@ -606,12 +620,15 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
 
 
 def _convert_content(
-    email_message: EmailMessage,
+    received_email: EmailMessage,
     headers: OutgoingHeaders,
-    address: RelayAddress | DomainAddress,
     to_address: str,
     from_address: str,
-) -> EmailMessage:
+    language: str,
+    has_premium: bool,
+    sample_trackers: bool,
+    remove_level_one_trackers: bool,
+) -> tuple[EmailMessage, int]:
     # Look for changes to top-level headers
     drop_headers = set(
         _h.lower()
@@ -636,7 +653,7 @@ def _convert_content(
     to_drop: list[str] = []
     replacements: set[str] = set(_k.lower() for _k in headers.keys())
 
-    for header, value in email_message.items():
+    for header, value in received_email.items():
         header_lower = header.lower()
         if header_lower in replacements:
             pass
@@ -647,82 +664,87 @@ def _convert_content(
 
     # Change the headers
     for header in to_drop:
-        del email_message[header]
-        assert email_message.as_string()
+        del received_email[header]
+        assert received_email.as_string()
     for header, value in headers.items():
-        del email_message[header]
-        email_message[header] = value
-        assert email_message.as_string()
+        del received_email[header]
+        received_email[header] = value
+        assert received_email.as_string()
 
     # Find and replace the content
     # TODO: Test the results of this conversion
-    text_body = email_message.get_body("plain")
+    text_body = received_email.get_body("plain")
     if text_body:
         assert isinstance(text_body, EmailMessage)
         text_content = text_body.get_content()
         new_text_content = _convert_text_content(text_content, to_address)
         text_body.set_content(new_text_content)
-    html_body = email_message.get_body("html")
+    html_body = received_email.get_body("html")
+    level_one_trackers_removed = 0
     if html_body:
         assert isinstance(html_body, EmailMessage)
         html_content = html_body.get_content()
-        new_content = _convert_html_content(
-            html_content, address, to_address, from_address
+        new_content, level_one_trackers_removed = _convert_html_content(
+            html_content,
+            to_address,
+            from_address,
+            language,
+            has_premium,
+            sample_trackers,
+            remove_level_one_trackers,
         )
         html_body.set_content(new_content)
 
-    return email_message
+    return (received_email, level_one_trackers_removed)
 
 
 def _convert_html_content(
     html_content: str,
-    address: RelayAddress | DomainAddress,
     to_address: str,
     from_address: str,
-) -> str:
+    language: str,
+    has_premium: bool,
+    sample_trackers: bool,
+    remove_level_one_trackers: bool,
+) -> tuple[str, int]:
     # frontend expects a timestamp in milliseconds
-    datetime_now = int(datetime.now(timezone.utc).timestamp() * 1000)
-    user_profile = address.user.profile
+    datetime_now_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
+    # user_profile = address.user.profile
 
     # scramble alias so that clients don't recognize it
     # and apply default link styles
     display_email = re.sub("([@.:])", r"<span>\1</span>", to_address)
 
     # sample tracker numbers
-    if sample_is_active("tracker-sample") and html_content:
+    if sample_trackers:
         count_all_trackers(html_content)
 
     incr_if_enabled("email_with_html_content", 1)
     tracker_report_link = ""
     removed_count = 0
-    tracker_removal_active = flag_is_active_in_task("tracker_removal", address.user)
-    if tracker_removal_active and user_profile.remove_level_one_email_trackers:
+    if remove_level_one_trackers:
         html_content, tracker_details = remove_trackers(
-            html_content, from_address, datetime_now
+            html_content, from_address, datetime_now_ms
         )
         removed_count = tracker_details["tracker_removed"]
         tracker_report_details = {
             "sender": from_address,
-            "received_at": datetime_now,
+            "received_at": datetime_now_ms,
             "trackers": tracker_details["level_one"]["trackers"],
         }
         tracker_report_link = f"{settings.SITE_ORIGIN}/tracker-report/#" + json.dumps(
             tracker_report_details
         )
-        address.num_level_one_trackers_blocked = (
-            address.num_level_one_trackers_blocked or 0
-        ) + removed_count
-        address.save()
 
     wrapped_html = wrap_html_email(
         original_html=html_content,
-        language=user_profile.language,
-        has_premium=user_profile.has_premium,
+        language=language,
+        has_premium=has_premium,
         display_email=display_email,
         tracker_report_link=tracker_report_link,
         num_level_one_email_trackers_removed=removed_count,
     )
-    return wrapped_html
+    return wrapped_html, removed_count
 
 
 def _convert_text_content(text_content: str, to_address: str) -> str:
