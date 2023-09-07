@@ -656,7 +656,7 @@ def _convert_content(
 
     # Find and replace the content
     # TODO: Test the results of this conversion
-    text_body = email_message.get_body("text")
+    text_body = email_message.get_body("plain")
     if text_body:
         assert isinstance(text_body, EmailMessage)
         text_content = text_body.get_content()
