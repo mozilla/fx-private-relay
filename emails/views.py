@@ -50,7 +50,7 @@ from .models import (
 from .types import AttachmentPair, AWS_SNSMessageJSON, MessageBody, OutgoingHeaders
 from .utils import (
     _get_bucket_and_key_from_s3_json,
-    _store_reply_record,
+    create_reply_record,
     b64_lookup_key,
     count_all_trackers,
     create_message,
@@ -65,7 +65,6 @@ from .utils import (
     incr_if_enabled,
     remove_message_from_s3,
     remove_trackers,
-    ses_relay_email,
     ses_send_raw_email,
     urlize_and_linebreaks,
 )
@@ -622,8 +621,7 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         },
     )
 
-    message_id = ses_response["MessageId"]
-    _store_reply_record(mail, message_id, address)
+    create_reply_record(mail, ses_response["MessageId"], address)
 
     user_profile.update_abuse_metric(
         email_forwarded=True, forwarded_email_size=email_size
@@ -1012,7 +1010,7 @@ def _handle_reply(
         return HttpResponse("SES client error", status=400)
 
     message_id = ses_response["MessageId"]
-    _store_reply_record(mail, message_id, address)
+    create_reply_record(mail, ses_response["MessageId"], address)
     reply_record.increment_num_replied()
     profile = address.user.profile
     profile.update_abuse_metric(replied=True)

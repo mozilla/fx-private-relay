@@ -286,7 +286,7 @@ def _add_attachments_to_message(
     return msg
 
 
-def _store_reply_record(
+def create_reply_record(
     mail: AWS_MailJSON, message_id: str, address: RelayAddress | DomainAddress
 ) -> AWS_MailJSON:
     # After relaying email, store a Reply record for it
@@ -308,27 +308,6 @@ def _store_reply_record(
         reply_create_args["relay_address"] = address
     Reply.objects.create(**reply_create_args)
     return mail
-
-
-def ses_relay_email(
-    source_address: str,
-    destination_address: str,
-    headers: OutgoingHeaders,
-    message_body: MessageBody,
-    attachments: list[AttachmentPair],
-    mail: AWS_MailJSON,
-    address: RelayAddress | DomainAddress,
-) -> HttpResponse:
-    message = create_message(headers, message_body, attachments)
-    try:
-        ses_response = ses_send_raw_email(source_address, destination_address, message)
-    except ClientError:
-        # 503 service unavailable reponse to SNS so it can retry
-        return HttpResponse("SES client error on Raw Email", status=503)
-
-    message_id = ses_response["MessageId"]
-    _store_reply_record(mail, message_id, address)
-    return HttpResponse("Sent email to final recipient.", status=200)
 
 
 def urlize_and_linebreaks(text, autoescape=True):
