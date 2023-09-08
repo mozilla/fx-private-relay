@@ -638,48 +638,25 @@ def _replace_headers(
     received_email: EmailMessage,
     headers: OutgoingHeaders,
 ) -> EmailMessage:
-    # Look for changes to top-level headers
-    drop_headers = set(
-        _h.lower()
-        for _h in (
-            "Authentication-Results",
-            "DKIM-Signature",
-            "Date",
-            "List-Unsubscribe",
-            "Message-ID",
-            "Received-SPF",
-            "Return-Path",
-            "Received",
-            "X-SES-DKIM-SIGNATURE",
-            "X-SES-RECEIPT",
-            "X-SES-Spam-Verdict",
-            "X-SES-Virus-Verdict",
-            "X-Spam-Checker-Version",
-            "X-Spam-Status",
-        )
-    )
-    keep_headers = set(_h.lower() for _h in ("Content-Type", "MIME-Version"))
+    # Look for headers to drop
     to_drop: list[str] = []
     replacements: set[str] = set(_k.lower() for _k in headers.keys())
 
     for header, value in received_email.items():
         header_lower = header.lower()
-        if header_lower in replacements:
-            pass
-        elif header_lower in drop_headers:
+        if (
+            header_lower not in replacements
+            and header_lower != "mime-version"
+            and not header_lower.startswith("content-")
+        ):
             to_drop.append(header)
-        elif header_lower not in keep_headers:
-            print(f"dropping header {header}: {value}")
-            to_drop.append(header)
-
-    # Change the headers
     for header in to_drop:
         del received_email[header]
-        assert received_email.as_string()
+
+    # Replace the requested headers
     for header, value in headers.items():
         del received_email[header]
         received_email[header] = value
-        assert received_email.as_string()
 
     return received_email
 

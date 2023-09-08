@@ -34,6 +34,7 @@ from emails.models import (
     get_domains_from_settings,
 )
 from emails.utils import (
+    ReplyMetadata,
     b64_lookup_key,
     decrypt_reply_metadata,
     derive_reply_keys,
@@ -392,7 +393,7 @@ class SNSNotificationTest(TestCase):
         lookup_key, encryption_key = derive_reply_keys(
             get_message_id_bytes("CA+J4FJFw0TXCr63y9dGcauvCGaZ7pXxspzOjEDhRpg5Zh4ziWg")
         )
-        metadata = {
+        metadata: ReplyMetadata = {
             "message-id": str(uuid4()),
             "from": "sender@external.example.com",
         }
@@ -427,7 +428,8 @@ class SNSNotificationTest(TestCase):
         assert sender == "a1b2c3d4@test.com"
         assert recipient == "sender@external.example.com"
         assert headers == {
-            "Content-Type": headers["Content-Type"],
+            "Content-Type": 'text/plain; charset="utf-8"',
+            "Content-Transfer-Encoding": "7bit",
             "Subject": "Re: Test Mozilla User New Domain Address",
             "From": sender,
             "Reply-To": sender,
