@@ -52,6 +52,8 @@ PREMIUM_DOMAINS = ["mozilla.com", "getpocket.com", "mozillafoundation.org"]
 
 
 def valid_available_subdomain(subdomain, *args, **kwargs):
+    if not subdomain:
+        raise CannotMakeSubdomainException("error-subdomain-cannot-be-empty-or-null")
     # valid subdomains:
     #   can't start or end with a hyphen
     #   must be 1-63 alphanumeric characters and/or hyphens
@@ -367,13 +369,23 @@ class Profile(models.Model):
         return date_created < datetime.fromisoformat("2021-10-22 17:00:00+00:00")
 
     def add_subdomain(self, subdomain):
+        # Handles if the subdomain is "" or None
+        if not subdomain:
+            raise CannotMakeSubdomainException(
+                "error-subdomain-cannot-be-empty-or-null"
+            )
+
         # subdomain must be all lowercase
         subdomain = subdomain.lower()
+
         if not self.has_premium:
             raise CannotMakeSubdomainException("error-premium-set-subdomain")
         if self.subdomain is not None:
             raise CannotMakeSubdomainException("error-premium-cannot-change-subdomain")
         self.subdomain = subdomain
+        # The validator defined in the subdomain field does not get run in full_clean() when self.subdomain is "" or None
+        # So we need to run the validator again to catch these cases.
+        valid_available_subdomain(subdomain)
         self.full_clean()
         self.save()
 

@@ -548,6 +548,27 @@ class ProfileAddSubdomainTest(ProfileTestCase):
         with self.assertRaisesMessage(CannotMakeSubdomainException, expected_msg):
             self.profile.add_subdomain("mozilla")
 
+    def test_empty_subdomain_raises(self) -> None:
+        self.upgrade_to_premium()
+        expected_msg = "error-subdomain-cannot-be-empty-or-null"
+
+        with self.assertRaisesMessage(CannotMakeSubdomainException, expected_msg):
+            self.profile.add_subdomain("")
+
+    def test_null_subdomain_raises(self) -> None:
+        self.upgrade_to_premium()
+        expected_msg = "error-subdomain-cannot-be-empty-or-null"
+
+        with self.assertRaisesMessage(CannotMakeSubdomainException, expected_msg):
+            self.profile.add_subdomain(None)
+
+    def test_subdomain_with_space_at_end_raises(self) -> None:
+        self.upgrade_to_premium()
+        expected_msg = "error-subdomain-not-available"
+
+        with self.assertRaisesMessage(CannotMakeSubdomainException, expected_msg):
+            self.profile.add_subdomain("mydomain ")
+
 
 class ProfileSaveTest(ProfileTestCase):
     """Tests for Profile.save()"""
@@ -634,6 +655,7 @@ class ValidAvailableSubdomainTest(TestCase):
     """Tests for valid_available_subdomain()"""
 
     ERR_NOT_AVAIL = "error-subdomain-not-available"
+    ERR_EMPTY_OR_NULL = "error-subdomain-cannot-be-empty-or-null"
 
     def reserve_subdomain_for_new_user(self, subdomain: str) -> User:
         user = make_premium_test_user()
@@ -687,6 +709,22 @@ class ValidAvailableSubdomainTest(TestCase):
     def test_subdomain_with_dash_at_front_raises(self) -> None:
         with self.assertRaisesMessage(CannotMakeSubdomainException, self.ERR_NOT_AVAIL):
             valid_available_subdomain("-mydomain")
+
+    def test_empty_subdomain_raises(self) -> None:
+        with self.assertRaisesMessage(
+            CannotMakeSubdomainException, self.ERR_EMPTY_OR_NULL
+        ):
+            valid_available_subdomain("")
+
+    def test_null_subdomain_raises(self) -> None:
+        with self.assertRaisesMessage(
+            CannotMakeSubdomainException, self.ERR_EMPTY_OR_NULL
+        ):
+            valid_available_subdomain(None)
+
+    def test_subdomain_with_space_at_end_raises(self) -> None:
+        with self.assertRaisesMessage(CannotMakeSubdomainException, self.ERR_NOT_AVAIL):
+            valid_available_subdomain("mydomain ")
 
 
 class ProfileDisplayNameTest(ProfileTestCase):
