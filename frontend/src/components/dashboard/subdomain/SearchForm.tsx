@@ -20,6 +20,7 @@ export const SubdomainSearchForm = (props: Props) => {
   const onSubmit: FormEventHandler = async (event) => {
     event.preventDefault();
 
+    // Encoding URI component to handle trailing white spaces
     const isAvailable = await getAvailability(
       encodeURIComponent(subdomainInput),
     );
