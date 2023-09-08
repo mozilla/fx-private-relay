@@ -48,7 +48,6 @@
       display: flex;
       align-items: center;
       gap: $spacing-sm;
-      overflow: hidden;
     }
 
     .copy-button {
@@ -76,13 +75,18 @@
         text-overflow: ellipsis;
 
         @media screen and #{$mq-sm} {
-          max-width: 350px;
+          max-width: 350px; // Flex items wrap on smaller screens, hence there is more space
         }
         @media screen and #{$mq-md} {
+          max-width: 320px;
+        }
+        @media screen and (min-width: $content-lg) {
           max-width: 400px;
         }
         @media screen and #{$mq-lg} {
-          max-width: none;
+          max-width: calc(
+            $content-md - 100px
+          ); // Handles long custom domains, prevents going off page.
         }
       }
 
@@ -97,6 +101,16 @@
       border-radius: $border-radius-md;
       font-weight: 600;
       opacity: 1;
+      pointer-events: none;
+
+      @media screen and (max-width: $screen-sm) {
+        @include text-body-sm;
+      }
+      @media screen and (max-width: 380px) {
+        // Magic number: 380px to avoid element going off screen.
+        position: absolute;
+        right: $spacing-lg;
+      }
 
       &[aria-hidden="true"] {
         opacity: 0;
