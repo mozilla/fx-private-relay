@@ -1,7 +1,8 @@
 from base64 import b64decode
 from copy import deepcopy
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from email.message import EmailMessage
+from email import message_from_string, policy
 from unittest.mock import patch, Mock
 from uuid import uuid4
 import glob
@@ -24,6 +25,7 @@ from waffle.testutils import override_flag
 import pytest
 
 from privaterelay.ftl_bundles import main
+from emails.types import AWS_SNSMessageJSON
 from emails.models import (
     DeletedAddress,
     DomainAddress,
@@ -97,6 +99,16 @@ for email_file in glob.glob(
         sns_body = json.load(f)
         INVALID_SNS_BODIES[file_type] = sns_body
 
+EMAIL_FIXTURES = {}
+email_file_suffix = ".email"
+for email_file in glob.glob(
+    os.path.join(real_abs_cwd, "fixtures", "*" + email_file_suffix)
+):
+    file_name = os.path.basename(email_file)
+    file_type = file_name[: -len(email_file_suffix)]
+    with open(email_file, "r") as f:
+        EMAIL_FIXTURES[file_type] = f.read()
+
 
 # Set mocked_function.side_effect = FAIL_TEST_IF_CALLED to safely disable a function
 # for test and assert it was never called.
@@ -167,6 +179,57 @@ class SNSNotificationTest(TestCase):
                 headers[key] = val
                 last_key = key
         raise Exception("Never found message body!")
+
+    def convert_email_to_sns_notification(self, email_text: str) -> AWS_SNSMessageJSON:
+        """Convert a serialized email message to an AWS SNS received notification."""
+        email = message_from_string(email_text, policy=policy.default)
+        topic_arn = "arn:aws:sns:us-east-1:168781634622:ses-inbound-grelay"
+        sns_message = {
+            "notificationType": "Received",
+            "mail": {
+                "timestamp": email["Date"].datetime.isoformat(),
+                "source": email["From"].addresses[0].addr_spec,
+                "messageId": email["Message-ID"],
+                "destination": [addr.addr_spec for addr in email["To"].addresses],
+                "headersTruncated": False,
+                "headers": [{"name": _h, "value": _v} for _h, _v in email.items()],
+                "commonHeaders": {
+                    "from": [str(addr) for addr in email["From"].addresses],
+                    "date": email["Date"],
+                    "to": [str(addr) for addr in email["To"].addresses],
+                    "messageId": email["Message-ID"],
+                    "subject": email["Subject"],
+                },
+            },
+            "receipt": {
+                "timestamp": (
+                    email["Date"].datetime + timedelta(seconds=1)
+                ).isoformat(),
+                "processingTimeMillis": 1001,
+                "recipients": [addr.addr_spec for addr in email["To"].addresses],
+                "spamVerdict": {"status": "PASS"},
+                "virusVerdict": {"status": "PASS"},
+                "spfVerdict": {"status": "PASS"},
+                "dkimVerdict": {"status": "PASS"},
+                "dmarcVerdict": {"status": "PASS"},
+                "action": {"type": "SNS", "topicArn": topic_arn, "encoding": "UTF8"},
+            },
+            "content": email_text,
+        }
+        base_url = "https://sns.us-east-1.amazonaws.example.com"
+        sns_notification = {
+            "Type": "Notification",
+            "MessageId": str(uuid4()),
+            "TopicArn": topic_arn,
+            "Subject": email["Subject"],
+            "Message": json.dumps(sns_message),
+            "Timestamp": (email["Date"].datetime + timedelta(seconds=2)).isoformat(),
+            "SignatureVersion": "1",
+            "Signature": "invalid-signature",
+            "SigningCertURL": f"{base_url}/SimpleNotificationService-abcd1234.pem",
+            "UnsubscribeURL": f"{base_url}/?Action=Unsubscribe&SubscriptionArn={topic_arn}:{uuid4()}",
+        }
+        return sns_notification
 
     def test_single_recipient_sns_notification(self) -> None:
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
@@ -447,73 +510,10 @@ class SNSNotificationTest(TestCase):
         self.test_reply(resender_headers=True)
 
     def test_inline_image(self) -> None:
-        path = os.path.join(real_abs_cwd, "fixtures", "inline-image.email")
-        email = open(path, "r").read()
+        email_text = EMAIL_FIXTURES["inline-image"]
         content_id = "Content-ID: <0A0AD2F8-6672-45A8-8248-0AC6C7282970>"
-        assert content_id in email
-        test_sns_message = {
-            "notificationType": "Received",
-            "mail": {
-                "timestamp": "2023-09-05T21:42:46.100Z",
-                "source": "friend@mail.example.com",
-                "messageId": "CAJwPAzZ1F8G-0KSCS73x2FX+iG5HMo9+Dndy4GkNVnR28+M1tA@mail.gmail.com",
-                "destination": ["ebsbdsan7@test.com"],
-                "headersTruncated": False,
-                "headers": [
-                    {"name": "Date", "value": "Tue, 5 Sep 2023 14:42:46 -0700"},
-                    {
-                        "name": "To",
-                        "value": "Your Relay Address <ebsbdsan7@test.com>",
-                    },
-                    {"name": "From", "value": "Your Friend <friend@mail.example.com>"},
-                    {"name": "Subject", "value": "Test Email"},
-                    {
-                        "name": "Message-ID",
-                        "value": "<CAJwPAzZ1F8G-0KSCS73x2FX+iG5HMo9+Dndy4GkNVnR28+M1tA@mail.gmail.com>",
-                    },
-                    {"name": "Mime-Version", "value": "1.0 (MailClient 1.1.1)"},
-                    {
-                        "name": "Content-Type",
-                        "value": 'multipart/alternative; boundary="b1_1tMoOzirX5rNUK0QIqMdSQB8hwcBeFGHtIfEtmvEG0k"',
-                    },
-                ],
-                "commonHeaders": {
-                    "from": ["Your Friend <friend@mail.example.com>"],
-                    "date": "Tue, 5 Sep 2023 14:42:46 -0700",
-                    "to": ["Your Relay Address <ebsbdsan7@test.com>"],
-                    "messageId": "<CAJwPAzZ1F8G-0KSCS73x2FX+iG5HMo9+Dndy4GkNVnR28+M1tA@mail.gmail.com>",
-                    "subject": "Test Email",
-                },
-            },
-            "receipt": {
-                "timestamp": "2023-09-05T21:42:46.100Z",
-                "processingTimeMillis": 1432,
-                "recipients": ["ebsbdsan7@test.com"],
-                "spamVerdict": {"status": "PASS"},
-                "virusVerdict": {"status": "PASS"},
-                "spfVerdict": {"status": "PASS"},
-                "dkimVerdict": {"status": "PASS"},
-                "dmarcVerdict": {"status": "PASS"},
-                "action": {
-                    "type": "SNS",
-                    "topicArn": "arn:aws:sns:us-east-1:168781634622:ses-inbound-grelay",
-                    "encoding": "UTF8",
-                },
-            },
-            "content": email,
-        }
-        test_sns_notification = {
-            "Type": "Notification",
-            "MessageId": "0c88fe80-acbc-484a-ae19-52e05555d609",
-            "TopicArn": "arn:aws:sns:us-east-1:168781634622:ses-inbound-grelay",
-            "Subject": "Test Email",
-            "Message": json.dumps(test_sns_message),
-            "Timestamp": "2023-09-05T21:42:46.200Z",
-            "SignatureVersion": "1",
-            "Signature": "BvlKJoLKcxcGsVloKnY7PKuqgY1EsSi1D5SVlHYtxRcsvuXVUDrdEvTlcWYNBiCpbaM/3kGYeXyb8uuWsdcNnT20zKLlpIP1dZhEV4o70aiM/35MxNfgAvA3NXkddRCQ2l+iplqtuRYdJ2XFkYJypECsoif9sRxB2jBW5bIz4vwjoeZdQCwMwBKQFsSGOr5Zc1pPE/5js9gZpBZlpsgRi2N4wj2sjBF0PyyO26UhGgWGwK1F7y1hpo90+PHRnD4W/XYc1flLu29hIaamgtXIbxol0xthMg0TtSfV9Q0MDJkpnsfOt/AsqvfZquIzGWyP2xpppuDLPf4MkftIbS4tpQ==",
-            "SigningCertURL": "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-7ff5318490ec183fbaddaa2a969abfda.pem",
-            "UnsubscribeURL": "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:168781634622:ses-inbound-grelay:f1e4420c-3b67-4cb2-b6db-4d22fd45916e",
-        }
+        assert content_id in email_text
+        test_sns_notification = self.convert_email_to_sns_notification(email_text)
         _sns_notification(test_sns_notification)
 
         self.mock_send_raw_email.assert_called_once()
