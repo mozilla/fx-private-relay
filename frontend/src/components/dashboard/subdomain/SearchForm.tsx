@@ -20,7 +20,9 @@ export const SubdomainSearchForm = (props: Props) => {
   const onSubmit: FormEventHandler = async (event) => {
     event.preventDefault();
 
-    const isAvailable = await getAvailability(subdomainInput);
+    const isAvailable = await getAvailability(
+      encodeURIComponent(subdomainInput),
+    );
     if (!isAvailable) {
       toast(
         l10n.getString("error-subdomain-not-available-2", {
