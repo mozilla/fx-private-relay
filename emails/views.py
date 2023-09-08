@@ -670,6 +670,7 @@ def _replace_headers(
             to_drop.append(header)
         elif header_lower not in keep_headers:
             print(f"dropping header {header}: {value}")
+            to_drop.append(header)
 
     # Change the headers
     for header in to_drop:
@@ -988,9 +989,7 @@ def _handle_reply(
     to_address = decrypted_metadata.get("reply-to") or decrypted_metadata.get("from")
 
     try:
-        text_content, html_content, attachments, _ = _get_text_html_attachments(
-            message_json
-        )
+        email_context = _get_email_with_context(message_json)
     except ClientError as e:
         if e.response["Error"].get("Code", "") == "NoSuchKey":
             logger.error("s3_object_does_not_exist", extra=e.response["Error"])
@@ -999,36 +998,25 @@ def _handle_reply(
         # we are returning a 500 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
-    message_body: MessageBody = {}
-    if html_content:
-        message_body["Html"] = {"Charset": "UTF-8", "Data": html_content}
-
-    if text_content:
-        message_body["Text"] = {"Charset": "UTF-8", "Data": text_content}
-
     headers: OutgoingHeaders = {
         "Subject": subject,
         "From": outbound_from_address,
         "To": to_address,
         "Reply-To": outbound_from_address,
     }
+    message = _replace_headers(email_context["email"], headers)
     try:
-        response = ses_relay_email(
-            outbound_from_address,
-            to_address,
-            headers,
-            message_body,
-            attachments,
-            mail,
-            address,
-        )
-        reply_record.increment_num_replied()
-        profile = address.user.profile
-        profile.update_abuse_metric(replied=True)
-        return response
+        ses_response = ses_send_raw_email(outbound_from_address, to_address, message)
     except ClientError as e:
         logger.error("ses_client_error", extra=e.response["Error"])
         return HttpResponse("SES client error", status=400)
+
+    message_id = ses_response["MessageId"]
+    _store_reply_record(mail, message_id, address)
+    reply_record.increment_num_replied()
+    profile = address.user.profile
+    profile.update_abuse_metric(replied=True)
+    return HttpResponse("Sent email to final recipient.", status=200)
 
 
 def _get_domain_address(local_portion: str, domain_portion: str) -> DomainAddress:
@@ -1338,29 +1326,6 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     return HttpResponse("OK", status=200)
 
 
-def _get_text_html_attachments(
-    message_json: AWS_SNSMessageJSON,
-) -> tuple[str | None, str | None, list[AttachmentPair], int]:
-    with Timer(logger=None) as load_timer:
-        context = _get_email_with_context(message_json)
-    email_message = context["email"]
-    email_size = context["size_bytes"]
-    with Timer(logger=None) as parse_timer:
-        text_content, html_content, attachments = _get_all_contents(email_message)
-    info_logger.info(
-        "email_loaded",
-        extra={
-            "size": email_size,
-            "load_time_s": round(load_timer.last, 3),
-            "parse_time_s": round(parse_timer.last, 3),
-            "has_html": html_content is not None,
-            "has_text": text_content is not None,
-            "attachment_count": len(attachments),
-        },
-    )
-    return text_content, html_content, attachments, email_size
-
-
 class _EmailWithContext(TypedDict):
     email: EmailMessage
     size_bytes: int
@@ -1392,65 +1357,3 @@ def _get_email_with_context(message_json: AWS_SNSMessageJSON) -> _EmailWithConte
         transport=transport,
         load_time_s=round(load_timer.last, 3),
     )
-
-
-def _get_attachment(part: Message) -> AttachmentPair:
-    incr_if_enabled("email_with_attachment", 1)
-    fn = part.get_filename()
-    ct = part.get_content_type()
-    payload = part.get_payload(decode=True)
-    payload_size = len(payload)
-    if fn:
-        extension = os.path.splitext(fn)[1]
-    else:
-        extension = mimetypes.guess_extension(ct) or "None"
-    attachment_extension_tag = generate_tag("extension", extension)
-    attachment_content_type_tag = generate_tag("content_type", ct)
-    histogram_if_enabled(
-        "attachment.size",
-        payload_size,
-        [attachment_extension_tag, attachment_content_type_tag],
-    )
-
-    attachment = SpooledTemporaryFile(
-        max_size=150 * 1000, prefix="relay_attachment_"  # 150KB max from SES
-    )
-    attachment.write(payload)
-    return fn, attachment
-
-
-def _get_all_contents(
-    email_message: EmailMessage,
-) -> tuple[str | None, str | None, list[AttachmentPair]]:
-    text_content = None
-    html_content = None
-    attachments = []
-    if email_message.is_multipart():
-        for part in email_message.walk():
-            try:
-                if part.is_attachment():
-                    att_name, att = _get_attachment(part)
-                    attachments.append((att_name, att))
-                    continue
-                if part.get_content_type() == "text/plain":
-                    text_content = part.get_content()
-                if part.get_content_type() == "text/html":
-                    html_content = part.get_content()
-            except KeyError:
-                # log the un-handled content type but don't stop processing
-                logger.error(
-                    "part.get_content()", extra={"type": part.get_content_type()}
-                )
-        histogram_if_enabled("attachment.count_per_email", len(attachments))
-        if text_content is not None and html_content is None:
-            html_content = urlize_and_linebreaks(text_content)
-    else:
-        if email_message.get_content_type() == "text/plain":
-            text_content = email_message.get_content()
-            html_content = urlize_and_linebreaks(email_message.get_content())
-        if email_message.get_content_type() == "text/html":
-            html_content = email_message.get_content()
-
-    # TODO: if html_content is still None, wrap the text_content with our
-    # header and footer HTML and send that as the html_content
-    return text_content, html_content, attachments

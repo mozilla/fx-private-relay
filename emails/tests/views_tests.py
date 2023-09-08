@@ -45,7 +45,6 @@ from emails.views import (
     ReplyHeadersNotFound,
     _build_reply_requires_premium_email,
     _get_address,
-    _get_attachment,
     _get_keys_from_headers,
     _record_receipt_verdicts,
     _set_forwarded_first_reply,
@@ -378,7 +377,7 @@ class SNSNotificationTest(TestCase):
         assert self.ra.num_forwarded == 0
         assert self.ra.last_used_at is None
 
-    @patch("emails.views._get_text_html_attachments")
+    @patch("emails.views.get_message_content_from_s3")
     def test_reply(self, mock_get_content, resender_headers=False) -> None:
         """The headers of a reply refer to the Relay mask."""
 
@@ -406,7 +405,14 @@ class SNSNotificationTest(TestCase):
         )
 
         # Mock loading a simple reply email message from S3
-        mock_get_content.return_value = ("this is a text reply", None, [], None)
+        email = EmailMessage()
+        payload = json.loads(EMAIL_SNS_BODIES["s3_stored_replies"]["Message"])
+        for header in payload["mail"]["headers"]:
+            l_name = header["name"].lower()
+            if l_name != "mime-version" and not l_name.startswith("content-"):
+                email[header["name"]] = email[header["value"]]
+        email.set_content("this is a text reply")
+        mock_get_content.return_value = email.as_bytes()
 
         # Successfully reply to a previous sender
         # Headers are the same before and after the resender change
@@ -426,6 +432,7 @@ class SNSNotificationTest(TestCase):
             "From": sender,
             "Reply-To": sender,
             "To": recipient,
+            "MIME-Version": "1.0",
         }
 
         relay_address.refresh_from_db()
@@ -1163,82 +1170,6 @@ class GetAddressTest(TestCase):
         assert address.user == self.user
         assert address.address == "unknown"
         assert DomainAddress.objects.filter(user=self.user).count() == 2
-
-
-class GetAttachmentTests(TestCase):
-    def setUp(self):
-        # Binary string of 10 chars * 16,000 = 160,000 byte string, longer than
-        # 150k max size of SpooledTemporaryFile, so it is written to disk
-        self.long_data = b"0123456789" * 16_000
-
-    def create_message(self, data, mimetype, filename):
-        """Create an EmailMessage with an attachment."""
-        message = EmailMessage()
-        message["Subject"] = "A Test Message"
-        message["From"] = "test sender <sender@example.com>"
-        message["To"] = "test receiver <receiver@example.com>"
-        message.preamble = "This email has attachments.\n"
-
-        assert isinstance(data, bytes)
-        maintype, subtype = mimetype.split("/", 1)
-        assert maintype
-        assert subtype
-        message.add_attachment(
-            data, maintype=maintype, subtype=subtype, filename=filename
-        )
-        return message
-
-    def get_name_and_stream(self, message):
-        """Get the first attachment's filename and data stream from a message."""
-        for part in message.walk():
-            if part.is_attachment():
-                name, stream = _get_attachment(part)
-                self.addCleanup(stream.close)
-                return name, stream
-        return None, None
-
-    def test_short_attachment(self):
-        """A short attachment is stored in memory"""
-        message = self.create_message(b"A short attachment", "text/plain", "short.txt")
-        name, stream = self.get_name_and_stream(message)
-        assert name == "short.txt"
-        assert isinstance(stream._file, io.BytesIO)
-
-    def test_long_attachment(self):
-        """A long attachment is stored on disk"""
-        message = self.create_message(
-            self.long_data, "application/octet-stream", "long.txt"
-        )
-        name, stream = self.get_name_and_stream(message)
-        assert name == "long.txt"
-        assert isinstance(stream._file, io.BufferedRandom)
-
-    def test_attachment_unicode_filename(self):
-        """A unicode filename can be stored on disk"""
-        filename = "Some Binary data 😀.bin"
-        message = self.create_message(
-            self.long_data, "application/octet-stream", filename
-        )
-        name, stream = self.get_name_and_stream(message)
-        assert name == filename
-        assert isinstance(stream._file, io.BufferedRandom)
-
-    def test_attachment_url_filename(self):
-        """A URL filename can be stored on disk"""
-        filename = "https://example.com/data.bin"
-        message = self.create_message(
-            self.long_data, "application/octet-stream", filename
-        )
-        name, stream = self.get_name_and_stream(message)
-        assert name == filename
-        assert isinstance(stream._file, io.BufferedRandom)
-
-    def test_attachment_no_filename(self):
-        """An attachment without a filename can be stored on disk"""
-        message = self.create_message(self.long_data, "application/octet-stream", None)
-        name, stream = self.get_name_and_stream(message)
-        assert name is None
-        assert isinstance(stream._file, io.BufferedRandom)
 
 
 TEST_AWS_SNS_TOPIC = "arn:aws:sns:us-east-1:111222333:relay"
