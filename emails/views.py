@@ -573,7 +573,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         headers["Resent-From"] = from_address
 
     try:
-        email_context = _get_email_with_context(message_json)
+        received_email, email_context = _get_email_and_context(message_json)
     except ClientError as e:
         if e.response["Error"].get("Code", "") == "NoSuchKey":
             logger.error("s3_object_does_not_exist", extra=e.response["Error"])
@@ -582,8 +582,6 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         # we are returning a 503 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
-    received_email = email_context["email"]
-    email_size = email_context["size_bytes"]
     reply_metadata = get_reply_metadata(received_email)
 
     sample_trackers = bool(sample_is_active("tracker_sample"))
@@ -621,17 +619,17 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     info_logger.info(
         "email_forwarded",
         extra={
-            "size": email_size,
-            "load_time_s": email_context["load_time_s"],
-            "convert_time_s": round(convert_timer.last, 3),
-            "send_time_s": round(send_timer.last, 3),
+            "email_size": email_context["size_bytes"],
+            "email_load_time_s": email_context["load_time_s"],
+            "email_convert_time_s": round(convert_timer.last, 3),
+            "email_send_time_s": round(send_timer.last, 3),
         },
     )
 
     create_reply_record(reply_metadata, ses_response["MessageId"], address)
 
     user_profile.update_abuse_metric(
-        email_forwarded=True, forwarded_email_size=email_size
+        email_forwarded=True, forwarded_email_size=email_context["size_bytes"]
     )
     address.num_forwarded += 1
     address.last_used_at = datetime.now(timezone.utc)
@@ -971,7 +969,7 @@ def _handle_reply(
     to_address = decrypted_metadata.get("reply-to") or decrypted_metadata.get("from")
 
     try:
-        email_context = _get_email_with_context(message_json)
+        reply_email, email_context = _get_email_and_context(message_json)
     except ClientError as e:
         if e.response["Error"].get("Code", "") == "NoSuchKey":
             logger.error("s3_object_does_not_exist", extra=e.response["Error"])
@@ -986,9 +984,8 @@ def _handle_reply(
         "To": to_address,
         "Reply-To": outbound_from_address,
     }
-    incoming_email = email_context["email"]
-    reply_metadata = get_reply_metadata(incoming_email)
-    outgoing_email = _replace_headers(email_context["email"], headers)
+    reply_metadata = get_reply_metadata(reply_email)
+    outgoing_email = _replace_headers(reply_email, headers)
     try:
         ses_response = ses_send_raw_email(
             outbound_from_address, to_address, outgoing_email
@@ -1311,14 +1308,15 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     return HttpResponse("OK", status=200)
 
 
-class _EmailWithContext(TypedDict):
-    email: EmailMessage
+class _EmailContext(TypedDict):
     size_bytes: int
     transport: Literal["sns", "s3"]
     load_time_s: float
 
 
-def _get_email_with_context(message_json: AWS_SNSMessageJSON) -> _EmailWithContext:
+def _get_email_and_context(
+    message_json: AWS_SNSMessageJSON,
+) -> tuple[EmailMessage, _EmailContext]:
     with Timer(logger=None) as load_timer:
         if "content" in message_json:
             # email content in sns message
@@ -1336,8 +1334,7 @@ def _get_email_with_context(message_json: AWS_SNSMessageJSON) -> _EmailWithConte
     # The Python 3.2 default was Message, 3.6 uses policy.message_factory, and
     # policy.default.message_factory is EmailMessage
     assert isinstance(email_message, EmailMessage)
-    return _EmailWithContext(
-        email=email_message,
+    return email_message, _EmailContext(
         size_bytes=email_size,
         transport=transport,
         load_time_s=round(load_timer.last, 3),
