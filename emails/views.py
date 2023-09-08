@@ -60,6 +60,7 @@ from .utils import (
     generate_relay_From,
     get_message_content_from_s3,
     get_message_id_bytes,
+    get_reply_metadata,
     get_reply_to_address,
     histogram_if_enabled,
     incr_if_enabled,
@@ -578,6 +579,7 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
 
     received_email = email_context["email"]
     email_size = email_context["size_bytes"]
+    reply_metadata = get_reply_metadata(received_email)
 
     sample_trackers = bool(sample_is_active("tracker_sample"))
     tracker_removal_flag = flag_is_active_in_task("tracker_removal", address.user)
@@ -621,7 +623,7 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         },
     )
 
-    create_reply_record(mail, ses_response["MessageId"], address)
+    create_reply_record(reply_metadata, ses_response["MessageId"], address)
 
     user_profile.update_abuse_metric(
         email_forwarded=True, forwarded_email_size=email_size
@@ -1002,15 +1004,18 @@ def _handle_reply(
         "To": to_address,
         "Reply-To": outbound_from_address,
     }
-    message = _replace_headers(email_context["email"], headers)
+    incoming_email = email_context["email"]
+    reply_metadata = get_reply_metadata(incoming_email)
+    outgoing_email = _replace_headers(email_context["email"], headers)
     try:
-        ses_response = ses_send_raw_email(outbound_from_address, to_address, message)
+        ses_response = ses_send_raw_email(
+            outbound_from_address, to_address, outgoing_email
+        )
     except ClientError as e:
         logger.error("ses_client_error", extra=e.response["Error"])
         return HttpResponse("SES client error", status=400)
 
-    message_id = ses_response["MessageId"]
-    create_reply_record(mail, ses_response["MessageId"], address)
+    create_reply_record(reply_metadata, ses_response["MessageId"], address)
     reply_record.increment_num_replied()
     profile = address.user.profile
     profile.update_abuse_metric(replied=True)

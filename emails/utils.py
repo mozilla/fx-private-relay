@@ -8,7 +8,7 @@ from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from email.utils import formataddr, parseaddr
 from functools import cache
-from typing import cast, Any, Callable, TypeVar
+from typing import cast, Any, Callable, Literal, TypedDict, TypeVar
 import json
 import pathlib
 import re
@@ -286,18 +286,29 @@ def _add_attachments_to_message(
     return msg
 
 
+REPLY_METADATA_NAMES = set(("message-id", "from", "reply-to"))
+ReplyMetadata = TypedDict(
+    "ReplyMetadata", {"message-id": str, "from": str, "reply-to": str}, total=False
+)
+
+
+def get_reply_metadata(email: EmailMessage) -> ReplyMetadata:
+    data = ReplyMetadata()
+    for header, value in email.items():
+        header_lower = header.lower()
+        if header_lower in REPLY_METADATA_NAMES:
+            data[cast(Literal["message-id", "from", "reply-to"], header_lower)] = value
+    return data
+
+
 def create_reply_record(
-    mail: AWS_MailJSON, message_id: str, address: RelayAddress | DomainAddress
-) -> AWS_MailJSON:
+    metadata: ReplyMetadata, message_id: str, address: RelayAddress | DomainAddress
+) -> Reply:
     # After relaying email, store a Reply record for it
-    reply_metadata = {}
-    for header in mail["headers"]:
-        if header["name"].lower() in ["message-id", "from", "reply-to"]:
-            reply_metadata[header["name"].lower()] = header["value"]
     message_id_bytes = get_message_id_bytes(message_id)
     (lookup_key, encryption_key) = derive_reply_keys(message_id_bytes)
     lookup = b64_lookup_key(lookup_key)
-    encrypted_metadata = encrypt_reply_metadata(encryption_key, reply_metadata)
+    encrypted_metadata = encrypt_reply_metadata(encryption_key, metadata)
     reply_create_args: dict[str, Any] = {
         "lookup": lookup,
         "encrypted_metadata": encrypted_metadata,
@@ -306,8 +317,7 @@ def create_reply_record(
         reply_create_args["domain_address"] = address
     elif type(address) == RelayAddress:
         reply_create_args["relay_address"] = address
-    Reply.objects.create(**reply_create_args)
-    return mail
+    return Reply.objects.create(**reply_create_args)
 
 
 def urlize_and_linebreaks(text, autoescape=True):
@@ -417,7 +427,7 @@ def derive_reply_keys(message_id: bytes) -> tuple[bytes, bytes]:
     return (lookup_key, encryption_key)
 
 
-def encrypt_reply_metadata(key: bytes, payload: dict[str, str]) -> str:
+def encrypt_reply_metadata(key: bytes, payload: ReplyMetadata) -> str:
     """Encrypt the given payload into a JWE, using the given key."""
     # This is a bit dumb, we have to base64-encode the key in order to load it :-/
     k = jwcrypto.jwk.JWK(
