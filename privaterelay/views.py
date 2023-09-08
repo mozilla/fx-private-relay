@@ -86,7 +86,7 @@ def profile_subdomain(request):
             available = valid_available_subdomain(subdomain)
             return JsonResponse({"available": available})
         else:
-            subdomain = request.POST.get("subdomain", "")
+            subdomain = request.POST.get("subdomain", None)
             profile.add_subdomain(subdomain)
             return JsonResponse(
                 {"status": "Accepted", "message": "success-subdomain-registered"},
