@@ -432,6 +432,11 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         return _handle_bounce(message_json)
     if notification_type == "Complaint" or event_type == "Complaint":
         return _handle_complaint(message_json)
+    assert notification_type == "Received" and event_type is None
+    return _handle_received(message_json)
+
+
+def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     mail = message_json["mail"]
     if "commonHeaders" not in mail:
         logger.error("SNS message without commonHeaders")
@@ -588,7 +593,7 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     )
 
     with Timer(logger=None) as convert_timer:
-        outgoing_email, level_one_trackers_removed = _convert_content(
+        outgoing_email, level_one_trackers_removed = _convert_to_forwarded_email(
             received_email,
             headers,
             to_address,
@@ -634,34 +639,7 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     return HttpResponse("Sent email to final recipient.", status=200)
 
 
-def _replace_headers(
-    received_email: EmailMessage,
-    headers: OutgoingHeaders,
-) -> EmailMessage:
-    # Look for headers to drop
-    to_drop: list[str] = []
-    replacements: set[str] = set(_k.lower() for _k in headers.keys())
-
-    for header, value in received_email.items():
-        header_lower = header.lower()
-        if (
-            header_lower not in replacements
-            and header_lower != "mime-version"
-            and not header_lower.startswith("content-")
-        ):
-            to_drop.append(header)
-    for header in to_drop:
-        del received_email[header]
-
-    # Replace the requested headers
-    for header, value in headers.items():
-        del received_email[header]
-        received_email[header] = value
-
-    return received_email
-
-
-def _convert_content(
+def _convert_to_forwarded_email(
     received_email: EmailMessage,
     headers: OutgoingHeaders,
     to_address: str,
@@ -759,6 +737,33 @@ def _convert_text_content(text_content: str, to_address: str) -> str:
     )
     wrapped_text = relay_header_text + text_content
     return wrapped_text
+
+
+def _replace_headers(
+    received_email: EmailMessage,
+    headers: OutgoingHeaders,
+) -> EmailMessage:
+    # Look for headers to drop
+    to_drop: list[str] = []
+    replacements: set[str] = set(_k.lower() for _k in headers.keys())
+
+    for header, value in received_email.items():
+        header_lower = header.lower()
+        if (
+            header_lower not in replacements
+            and header_lower != "mime-version"
+            and not header_lower.startswith("content-")
+        ):
+            to_drop.append(header)
+    for header in to_drop:
+        del received_email[header]
+
+    # Replace the requested headers
+    for header, value in headers.items():
+        del received_email[header]
+        received_email[header] = value
+
+    return received_email
 
 
 def _get_verdict(receipt, verdict_type):
