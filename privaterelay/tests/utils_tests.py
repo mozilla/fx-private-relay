@@ -373,6 +373,7 @@ def flag_user(
 ) -> User | None:
     """Return a Django user, and load fixtures for waffle tests."""
     if request.param == "with_user":
+        assert hasattr(django_user_model, "objects")
         user = django_user_model.objects.create(username="flag_user")
         assert isinstance(user, User)
         return user
