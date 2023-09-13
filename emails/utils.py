@@ -1,6 +1,5 @@
 import base64
 import contextlib
-from email.header import Header
 from email.headerregistry import Address
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -39,7 +38,6 @@ from privaterelay.utils import get_countries_info_from_lang_and_mapping
 from .apps import EmailsConfig
 from .models import (
     DomainAddress,
-    Profile,
     RelayAddress,
     Reply,
     get_domains_from_settings,
@@ -344,31 +342,6 @@ def get_reply_to_address(premium: bool = True) -> str:
     else:
         _, reply_to_address = parseaddr(settings.RELAY_FROM_ADDRESS)
     return reply_to_address
-
-
-def generate_relay_From(
-    original_from_address: str, user_profile: Profile | None = None
-) -> str:
-    # RFC 2822 (https://tools.ietf.org/html/rfc2822#section-2.1.1)
-    # says email header lines must not be more than 998 chars long.
-    # Encoding display names to longer than 998 chars will add wrap
-    # characters which are unsafe. (See https://bugs.python.org/issue39073)
-    # So, truncate the original sender to 900 chars so we can add our
-    # "[via Relay] <relayfrom>" and encode it all.
-    if len(original_from_address) > 998:
-        original_from_address = "%s ..." % original_from_address[:900]
-    # line breaks in From: will encode to unsafe chars, so strip them.
-    original_from_address = (
-        original_from_address.replace("\u2028", "").replace("\r", "").replace("\n", "")
-    )
-
-    display_name = Header('"%s [via Relay]"' % (original_from_address), "UTF-8")
-    user_has_premium = bool(user_profile and user_profile.has_premium)
-    relay_from_address = get_reply_to_address(user_has_premium)
-    formatted_from_address = str(
-        Address(display_name.encode(maxlinelen=998), addr_spec=relay_from_address)
-    )
-    return formatted_from_address
 
 
 def truncate(max_length: int, value: str) -> str:

@@ -13,7 +13,6 @@ import pytest
 from emails.models import get_domains_from_settings
 from emails.utils import (
     generate_from_header,
-    generate_relay_From,
     get_email_domain_from_settings,
     remove_trackers,
 )
@@ -21,125 +20,19 @@ from emails.utils import (
 from .models_tests import make_free_test_user, make_premium_test_user
 
 
-class FormattingToolsTest(TestCase):
-    def setUp(self):
-        _, self.relay_from = parseaddr(settings.RELAY_FROM_ADDRESS)
-        domain = get_domains_from_settings().get("RELAY_FIREFOX_DOMAIN")
-        _, self.premium_from = parseaddr(f"replies@{domain}")
-
-    def test_generate_relay_From_with_umlaut(self):
-        original_from_address = '"foö bär" <foo@bar.com>'
-        formatted_from_address = generate_relay_From(original_from_address)
-
-        expected_encoded_display_name = (
-            "=?utf-8?b?IiJmb8O2IGLDpHIiIDxmb29AYmFyLmNvbT4gW3ZpYSBSZWxheV0i?="
-        )
-        expected_formatted_from = "%s %s" % (
-            expected_encoded_display_name,
-            "<%s>" % self.relay_from,
-        )
-        assert formatted_from_address == expected_formatted_from
-
-    def test_generate_relay_From_with_realistic_address(self):
-        original_from_address = "something real <somethingreal@protonmail.com>"
-        formatted_from_address = generate_relay_From(original_from_address)
-
-        expected_encoded_display_name = (
-            "=?utf-8?q?=22something_real_=3Csomethingreal=40protonmail=2Ecom"
-            "=3E_=5Bvia_Relay=5D=22?="
-        )
-        expected_formatted_from = "%s %s" % (
-            expected_encoded_display_name,
-            "<%s>" % self.relay_from,
-        )
-        assert formatted_from_address == expected_formatted_from
-
-    def test_generate_relay_From_with_rfc_2822_invalid_address(self):
-        original_from_address = "l%sng <long@long.com>" % ("o" * 999)
-        formatted_from_address = generate_relay_From(original_from_address)
-
-        expected_encoded_display_name = (
-            "=?utf-8?q?=22l%s_=2E=2E=2E_=5Bvia_Relay=5D=22?=" % ("o" * 899)
-        )
-        expected_formatted_from = "%s %s" % (
-            expected_encoded_display_name,
-            "<%s>" % self.relay_from,
-        )
-        assert formatted_from_address == expected_formatted_from
-
-    def test_generate_relay_From_with_linebreak_chars(self):
-        original_from_address = '"Ter\ry \n ct\u2028" <info@a...t.org>'
-        formatted_from_address = generate_relay_From(original_from_address)
-
-        expected_encoded_display_name = (
-            "=?utf-8?b?IiJUZXJ5ICBjdCIgPGluZm9AYS4uLnQub3JnPiBbdmlhIFJlbGF5XSI" "=?="
-        )
-        expected_formatted_from = "%s %s" % (
-            expected_encoded_display_name,
-            "<%s>" % self.relay_from,
-        )
-        assert formatted_from_address == expected_formatted_from
-
-    def test_generate_relay_From_with_premium_user(self):
-        premium_user = make_premium_test_user()
-        original_from_address = '"foo bar" <foo@bar.com>'
-        formatted_from_address = generate_relay_From(
-            original_from_address, premium_user.profile
-        )
-
-        expected_encoded_display_name = (
-            "=?utf-8?b?IiJmb28gYmFyIiA8Zm9vQGJhci5jb20+IFt2aWEgUmVsYXldIg==?="
-        )
-        expected_formatted_from = "%s <%s>" % (
-            expected_encoded_display_name,
-            self.premium_from,
-        )
-        assert formatted_from_address == expected_formatted_from
-
-    @override_settings(RELAY_FROM_ADDRESS="noreply@relaytests.com")
-    def test_generate_relay_From_with_free_user(self):
-        free_user = make_free_test_user()
-        original_from_address = '"foo bar" <foo@bar.com>'
-        formatted_from_address = generate_relay_From(
-            original_from_address, free_user.profile
-        )
-        expected_encoded_display_name = (
-            "=?utf-8?b?IiJmb28gYmFyIiA8Zm9vQGJhci5jb20+IFt2aWEgUmVsYXldIg==?="
-        )
-        expected_formatted_from = "%s <%s>" % (
-            expected_encoded_display_name,
-            "noreply@relaytests.com",
-        )
-        assert formatted_from_address == expected_formatted_from
-
-    @override_settings(RELAY_FROM_ADDRESS="noreply@relaytests.com")
-    def test_generate_relay_From_with_no_user_profile_somehow(self):
-        free_user = baker.make(User)
-        original_from_address = '"foo bar" <foo@bar.com>'
-        formatted_from_address = generate_relay_From(
-            original_from_address, free_user.profile
-        )
-        expected_encoded_display_name = (
-            "=?utf-8?b?IiJmb28gYmFyIiA8Zm9vQGJhci5jb20+IFt2aWEgUmVsYXldIg==?="
-        )
-        expected_formatted_from = "%s <%s>" % (
-            expected_encoded_display_name,
-            "noreply@relaytests.com",
-        )
-        assert formatted_from_address == expected_formatted_from
-
+class GetEmailDomainFromSettingsTest(TestCase):
     @override_settings(RELAY_CHANNEL="dev", SITE_ORIGIN="https://test.com")
-    def test_get_email_domain_from_settings_on_dev(self):
+    def test_get_email_domain_from_settings_on_dev(self) -> None:
         email_domain = get_email_domain_from_settings()
         assert "mail.test.com" == email_domain
 
     @override_settings(RELAY_CHANNEL="test", SITE_ORIGIN="https://test.com")
-    def test_get_email_domain_from_settings_not_on_dev(self):
+    def test_get_email_domain_from_settings_not_on_dev(self) -> None:
         email_domain = get_email_domain_from_settings()
         assert "test.com" == email_domain
 
     @override_settings(RELAY_FIREFOX_DOMAIN="firefox.com", MOZMAIL_DOMAIN="mozmail.com")
-    def test_get_domains_from_settings(self):
+    def test_get_domains_from_settings(self) -> None:
         domains = get_domains_from_settings()
         assert domains == {
             "RELAY_FIREFOX_DOMAIN": "default.com",
