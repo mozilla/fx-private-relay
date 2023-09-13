@@ -90,7 +90,6 @@ submodule when switching branches, set the configuration:
 
 ```sh
 git config --global submodule.recurse true
-
 ```
 
 [git-submodules]: https://git-scm.com/book/en/v2/Git-Tools-Submodules
@@ -320,7 +319,7 @@ new content and purchase flows.
 >
 > This is because many language-switcher extensions are not allowed to run on Firefox
 > Accounts, and email forwarding processes use the `Accept-Language` header captured by
-> Firefox Account. See
+> Firefox Accounts. See
 > [Identifying The User's Preferred Languages](#identifying-the-users-preferred-languages)
 > for more information.
 
