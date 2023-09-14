@@ -1,4 +1,5 @@
 from base64 import b64encode
+from email.errors import InvalidHeaderDefect
 from email.utils import parseaddr
 from typing import Literal
 from urllib.parse import quote_plus
@@ -120,7 +121,7 @@ GENERATE_FROM_TEST_CASES: dict[str, _GENERATE_FROM_TEST_CASE_DEF] = {
 @pytest.mark.parametrize(
     "params", GENERATE_FROM_TEST_CASES.values(), ids=GENERATE_FROM_TEST_CASES.keys()
 )
-def test_generate_from_header(params):
+def test_generate_from_header(params: _GENERATE_FROM_TEST_CASE_DEF) -> None:
     from_header = generate_from_header(params["in_from"], params["in_to"])
     assert from_header == params["out_from"]
     if "=?utf-8?b?" in from_header:
@@ -130,6 +131,26 @@ def test_generate_from_header(params):
     first_part, rest = from_header.split(" ", 1)
     header_line = f"From: {first_part}"
     assert len(header_line) <= max_length
+
+
+def test_generate_from_header_no_domain(caplog: pytest.LogCaptureFixture) -> None:
+    with pytest.raises(InvalidHeaderDefect):
+        generate_from_header('"I am groot" <groot>', "groot@groot.relay.example.com")
+    assert len(caplog.records) == 1
+    record = caplog.records[0]
+    assert record.msg == "generate_from_header"
+    assert getattr(record, "exception_type") == "InvalidHeaderDefect"
+    assert getattr(record, "original_from_address") == '"I am groot" <groot>'
+
+
+def test_generate_from_header_no_address(caplog: pytest.LogCaptureFixture) -> None:
+    with pytest.raises(IndexError):
+        generate_from_header('"I am groot" <>', "groot@groot.relay.example.com")
+    assert len(caplog.records) == 1
+    record = caplog.records[0]
+    assert record.msg == "generate_from_header"
+    assert getattr(record, "exception_type") == "IndexError"
+    assert getattr(record, "original_from_address") == '"I am groot" <>'
 
 
 @override_settings(SITE_ORIGIN="https://test.com")

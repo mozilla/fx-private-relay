@@ -1,5 +1,6 @@
 import base64
 import contextlib
+from email.errors import InvalidHeaderDefect
 from email.headerregistry import Address
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -372,7 +373,18 @@ def generate_from_header(original_from_address: str, relay_mask: str) -> str:
         original_from_address.replace("\u2028", "").replace("\r", "").replace("\n", "")
     )
     display_name, original_address = parseaddr(oneline_from_address)
-    parsed_address = Address(addr_spec=original_address)
+    try:
+        parsed_address = Address(addr_spec=original_address)
+    except (InvalidHeaderDefect, IndexError) as e:
+        # TODO: MPP-3407, MPP-3417 - Determine how to handle these
+        info_logger.error(
+            "generate_from_header",
+            extra={
+                "exception_type": type(e).__name__,
+                "original_from_address": original_from_address,
+            },
+        )
+        raise
 
     # Truncate the display name to 71 characters, so the sender portion fits on the
     # first line of a multi-line "From:" header, if it is ASCII. A utf-8 encoded header
