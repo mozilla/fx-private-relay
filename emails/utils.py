@@ -374,9 +374,9 @@ def generate_from_header(original_from_address: str, relay_mask: str) -> str:
     display_name, original_address = parseaddr(oneline_from_address)
     parsed_address = Address(addr_spec=original_address)
 
-    # Truncate the to 71 characters, so the sender portion fits on the first
-    # line of a multi-line "From:" header, if it is ASCII. A utf-8 encoded
-    # header will be 226 chars, still below the 998 limit of RFC 5322 2.1.1.
+    # Truncate the display name to 71 characters, so the sender portion fits on the
+    # first line of a multi-line "From:" header, if it is ASCII. A utf-8 encoded header
+    # will be 226 chars, still below the 998 limit of RFC 5322 2.1.1.
     max_length = 71
 
     if display_name:
