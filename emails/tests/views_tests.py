@@ -111,10 +111,12 @@ SEND_RAW_EMAIL_FAILED = ClientError(
 
 @override_settings(RELAY_FROM_ADDRESS="reply@relay.example.com")
 class SNSNotificationTest(TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.user = baker.make(User, email="user@example.com")
         self.profile = self.user.profile
-        self.sa = baker.make(SocialAccount, user=self.user, provider="fxa")
+        self.sa: SocialAccount = baker.make(
+            SocialAccount, user=self.user, provider="fxa"
+        )
         self.ra = baker.make(
             RelayAddress, user=self.user, address="ebsbdsan7", domain=2
         )
@@ -178,6 +180,7 @@ class SNSNotificationTest(TestCase):
 
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
+        assert self.ra.last_used_at is not None
         assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
 
     def test_list_email_sns_notification(self) -> None:
@@ -199,6 +202,7 @@ class SNSNotificationTest(TestCase):
 
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
+        assert self.ra.last_used_at is not None
         assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
 
     def test_block_list_email_sns_notification(self) -> None:
@@ -286,6 +290,7 @@ class SNSNotificationTest(TestCase):
         self.mock_remove_message_from_s3.assert_called_once()
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
+        assert self.ra.last_used_at is not None
         assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
 
     def test_unsuccessful_email_relay_message_not_removed_from_s3(self) -> None:
