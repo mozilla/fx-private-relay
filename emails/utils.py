@@ -1,6 +1,6 @@
 import base64
 import contextlib
-from email.header import Header
+from email.errors import InvalidHeaderDefect
 from email.headerregistry import Address
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -39,7 +39,6 @@ from privaterelay.utils import get_countries_info_from_lang_and_mapping
 from .apps import EmailsConfig
 from .models import (
     DomainAddress,
-    Profile,
     RelayAddress,
     Reply,
     get_domains_from_settings,
@@ -346,31 +345,6 @@ def get_reply_to_address(premium: bool = True) -> str:
     return reply_to_address
 
 
-def generate_relay_From(
-    original_from_address: str, user_profile: Profile | None = None
-) -> str:
-    # RFC 2822 (https://tools.ietf.org/html/rfc2822#section-2.1.1)
-    # says email header lines must not be more than 998 chars long.
-    # Encoding display names to longer than 998 chars will add wrap
-    # characters which are unsafe. (See https://bugs.python.org/issue39073)
-    # So, truncate the original sender to 900 chars so we can add our
-    # "[via Relay] <relayfrom>" and encode it all.
-    if len(original_from_address) > 998:
-        original_from_address = "%s ..." % original_from_address[:900]
-    # line breaks in From: will encode to unsafe chars, so strip them.
-    original_from_address = (
-        original_from_address.replace("\u2028", "").replace("\r", "").replace("\n", "")
-    )
-
-    display_name = Header('"%s [via Relay]"' % (original_from_address), "UTF-8")
-    user_has_premium = bool(user_profile and user_profile.has_premium)
-    relay_from_address = get_reply_to_address(user_has_premium)
-    formatted_from_address = str(
-        Address(display_name.encode(maxlinelen=998), addr_spec=relay_from_address)
-    )
-    return formatted_from_address
-
-
 def truncate(max_length: int, value: str) -> str:
     """
     Truncate a string to a maximum length.
@@ -399,11 +373,22 @@ def generate_from_header(original_from_address: str, relay_mask: str) -> str:
         original_from_address.replace("\u2028", "").replace("\r", "").replace("\n", "")
     )
     display_name, original_address = parseaddr(oneline_from_address)
-    parsed_address = Address(addr_spec=original_address)
+    try:
+        parsed_address = Address(addr_spec=original_address)
+    except (InvalidHeaderDefect, IndexError) as e:
+        # TODO: MPP-3407, MPP-3417 - Determine how to handle these
+        info_logger.error(
+            "generate_from_header",
+            extra={
+                "exception_type": type(e).__name__,
+                "original_from_address": original_from_address,
+            },
+        )
+        raise
 
-    # Truncate the to 71 characters, so the sender portion fits on the first
-    # line of a multi-line "From:" header, if it is ASCII. A utf-8 encoded
-    # header will be 226 chars, still below the 998 limit of RFC 5322 2.1.1.
+    # Truncate the display name to 71 characters, so the sender portion fits on the
+    # first line of a multi-line "From:" header, if it is ASCII. A utf-8 encoded header
+    # will be 226 chars, still below the 998 limit of RFC 5322 2.1.1.
     max_length = 71
 
     if display_name:
