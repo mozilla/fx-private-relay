@@ -17,14 +17,14 @@
 
 3. Monday
     
-    a. Release Readiness Review (led by Easy)
+    a. [Release Readiness Review][release-ready] (led by Easy)
       * Demo changes already in prod
       * Highlight changes in upcoming release
       * Designate next release engineer
     
-    b. Write SRE ticket, mention authors, reference in release notes
+    b. [Write SRE ticket, mention authors, reference in release notes][release-to-prod]
 
- 4. Tuesday
+ 4. Tuesday 
 
     a. SRE releases the tag to production
 
@@ -40,6 +40,8 @@
 3. Luke
 4. Se Yeon
 
-[Release-to-stage]: https://github.com/mozilla/fx-private-relay/blob/main/docs/release_process.md#release-to-stage
+[elease-to-stage]: https://github.com/mozilla/fx-private-relay/blob/main/docs/release_process.md#release-to-stage
 [sentry-releases]:https://mozilla.sentry.io/releases/
 [stage-fixes]: https://github.com/mozilla/fx-private-relay/blob/main/docs/release_process.md#stage-fixes
+[release-ready]: https://mozilla-hub.atlassian.net/wiki/spaces/SECPRV/pages/165675132/Sprint+Process#Release-Readiness-Review-(Relay)
+[release-to-prod]: https://github.com/mozilla/fx-private-relay/blob/main/docs/release_process.md#release-to-prod
