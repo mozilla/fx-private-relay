@@ -40,7 +40,7 @@
 3. Luke
 4. Se Yeon
 
-[elease-to-stage]: https://github.com/mozilla/fx-private-relay/blob/main/docs/release_process.md#release-to-stage
+[release-to-stage]: https://github.com/mozilla/fx-private-relay/blob/main/docs/release_process.md#release-to-stage
 [sentry-releases]:https://mozilla.sentry.io/releases/
 [stage-fixes]: https://github.com/mozilla/fx-private-relay/blob/main/docs/release_process.md#stage-fixes
 [release-ready]: https://mozilla-hub.atlassian.net/wiki/spaces/SECPRV/pages/165675132/Sprint+Process#Release-Readiness-Review-(Relay)
