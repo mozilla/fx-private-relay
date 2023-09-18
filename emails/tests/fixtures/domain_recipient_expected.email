@@ -1,13 +1,14 @@
-Content-Type: multipart/mixed; boundary="==[BOUNDARY0]=="
-MIME-Version: 1.0
 Subject: localized email header + footer
 From: "fxastage@protonmail.com [via Relay]" <wildcard@subdomain.test.com>
 To: premium@email.com
 Reply-To: replies@default.com
 Resent-From: fxastage@protonmail.com
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="==[BOUNDARY0]=="
 
 --==[BOUNDARY0]==
-Content-Type: multipart/alternative; boundary="==[BOUNDARY1]=="
+Content-Type: multipart/alternative;
+ boundary="==[BOUNDARY1]=="
 MIME-Version: 1.0
 
 --==[BOUNDARY1]==

@@ -1,12 +1,13 @@
-Content-Type: multipart/mixed; boundary="==[BOUNDARY0]=="
-MIME-Version: 1.0
 Subject: Re: Test Mozilla User New Domain Address
 From: a1b2c3d4@test.com
 To: sender@external.example.com
 Reply-To: a1b2c3d4@test.com
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="==[BOUNDARY0]=="
 
 --==[BOUNDARY0]==
-Content-Type: multipart/alternative; boundary="==[BOUNDARY1]=="
+Content-Type: multipart/alternative;
+ boundary="==[BOUNDARY1]=="
 MIME-Version: 1.0
 
 --==[BOUNDARY1]==
