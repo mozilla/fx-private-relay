@@ -1,8 +1,17 @@
 # Internationalization, Localization, and Translation
 
 Relay users come from several regions and speak various languages. Relay developers need
-to consider internationalization and localization (see [Terms](#terms)) when designing
-features and making changes. This overview includes Mozilla- and Relay-specific notes.
+to prepare for these variations when implementing features. Specialists call this design
+discipline _internationalization_ and _localization_ (see [Terms](#terms)). This overview
+includes Mozilla- and Relay-specific notes.
+
+<!--
+  Note: This manual table of contents (TOC) duplicates a GitHub feature, a table of
+  contents behind a UI element:
+  https://github.blog/changelog/2021-04-13-table-of-contents-support-in-markdown-files/
+  If maintenance of this TOC becomes a larger burden than the benefit of an overview,
+  then consider removing it.
+-->
 
 - [How a User Experiences Relay](#how-a-user-experiences-relay)
 - [Development Workflows](#development-workflows)
@@ -29,10 +38,10 @@ features and making changes. This overview includes Mozilla- and Relay-specific 
 
 Localization affects the user's experience in several ways.
 
-When an user first visits the Relay website, their browser gets the English server-side
-rendered page, and then the page is re-rendered by JavaScript into their preferred
-language. When none of the user's preferred languages are available, then the user gets
-English.
+When an user first visits the Relay website, their browser gets the page in English.
+The English page is pre-rendered for fast loading. The page is then
+re-rendered into their preferred language. When none of the user's preferred languages
+are available, then the user gets English.
 
 The user sees different plan details based on their region. On the homepage there is a
 table comparing Relay premium plans. If a premium plan is available in their region,
@@ -40,34 +49,39 @@ they see a price in their local currency. If a premium plan is not available, th
 sees a prompt to join a waitlist. The FAQ also changes, to omit entries for plans that
 are unavailable in the user's region.
 
-When a user selects a sign-in button (in the page header, labeled "Sign Up" and "Sign
-In" in the English localization), they go to the Firefox Accounts website, and see
-content in their preferred language. If they enter a new email, they go through Firefox
-Account creation, and Firefox Accounts stores their preferred language on their profile.
+A new or logged-out user sees the sign-in buttons in the page header. The button text is
+"Sign Up" and "Sign In" in the English localization. The text will be different if the
+user's preferred language is not English. When a user selects a sign-in button, they go
+to the Firefox Accounts website. This website is also in their preferred language. If
+they enter a new email, they go through account creation. Firefox Accounts stores their
+real email and preferred language on their new profile.
 
-When a user receives a forwarded email, there is a header and footer surrounding the
-forwarded email content, translated into their preferred language, captured at Firefox
-Account creation.
+The user generates a Relay email mask, which they use instead of their real email on
+other websites. When that website sends an email to the Relay email mask, Relay forwards
+the email to the user's real email. The forwarded email has header and footer sections
+surrounding the original content. These sections appear in the user's preferred language
+from their Firefox Account.
 
-When a user selects a premium plan, they go to the Firefox Subscriptions website. The
-page appears in their preferred language, except for the product details, which are in
-the primary supported language for their region. The price is in their region's
-currency.
+When a user selects a premium plan, they go to the Firefox Subscriptions website. Most
+of the content appears in their preferred language. The product details are in the
+primary supported language for their region. This may be different from the user's
+preferred language. The price is in their region's currency.
 
-When a user installs the Relay Add-On, the content is also in their preferred language,
-and reflects the Relay premium plan availability in their region.
+When a user installs the Relay Add-On, the content is also in their preferred language.
+The Add-On reflects the Relay premium plan availability in their region.
 
 ## Development Workflows
 
-See "Working with translations" in the project [README.md][readme-wwt] for basic
-instructions on working with translations, such as adding new strings.
+The project `README.md` has basic instructions on ["working with
+translations"][readme-wwt]. This section has more details.
 
 [readme-wwt]: ../README.md#working-with-translations
 
 ### Loading Translations
 
 The translations are in a separate repository, and included as a
-[submodule][git-submodules].
+[submodule][git-submodules]. This combines a separate repository with a
+specific commit in that repository.
 
 When cloning a repo, you can also fetch the translations:
 
@@ -83,10 +97,10 @@ git submodule init
 git submodule update
 ```
 
-When checking out a branch, `git status` may show `privaterelay/locales` has changed,
-when it is just synced with the branch. To sync the translations with the branch, you
-can run `git submodule update --remote`. To automatically sync the translations
-submodule when switching branches, set the configuration:
+When checking out a branch, `git status` may show `privaterelay/locales` has changed.
+This is because the submodule commit is out of sync with the branch. To sync the
+submodule with the branch, you can run `git submodule update --remote`. To automate
+syncing the translations submodule, set the configuration:
 
 ```sh
 git config --global submodule.recurse true
@@ -96,12 +110,13 @@ git config --global submodule.recurse true
 
 ### Rebasing a Branch
 
-When rebasing a branch to pick up changes from `main`, you may see
-`privaterelay/locales` in the "Changes not staged for commit". **Do not add this
-directory**, as it may revert translations to an earlier version.
+When rebasing a branch to pick up changes from `main`, the submodule commit may now be
+out of sync. You may see `privaterelay/locales` in the "Changes not staged for commit".
+**Do not add this directory**, as it may revert translations to an earlier version.
 
-If you already added it to "Changes to be committed" (also known as the staging area),
-for example with `git add -u`, you can remove it with:
+If you already added it, for example with `git add -u`, it is now in the staging area.
+This is the "official" name of the "Changes to be committed" section. You can remove it
+with:
 
 ```sh
 git restore --staged privaterelay/locales
@@ -117,8 +132,8 @@ git checkout -- privaterelay/locales/
 
 ### Reverting a Translation Commit
 
-If you accidentally commit an update to `privaterelay/locales`, you can remove it with
-`git rebase`. This is a powerful tool that requires deeper understanding of `git`. See
+If you commit an update to `privaterelay/locales`, you can remove it with `git rebase`.
+This is a powerful tool that requires deeper understanding of `git`. See
 [About Git][gh-git] for a tutorial, and
 [On undoing, fixing, or removing commits in git][sr-fixup] for a guided experience.
 
@@ -128,51 +143,58 @@ If you accidentally commit an update to `privaterelay/locales`, you can remove i
    in your editor.
 4. Edit the commit line, changing from `pick` to `edit`. Save the rebase plan and exit
    the editor to start the rebase.
-5. When rebasing gets to the target the commit, run `git checkout head~1 --
-privaterelay/locales` to get the submodule version _before_ your change and
-   automatically stage it (put it into "Changes to be committed").
+5. When rebasing gets to the target the commit, run
+   `git checkout head~1 -- privaterelay/locales`. This sets the submodule version
+   _before_ your change and stages it. You can run `git status` to confirm it is in
+   "Changes to be committed".
 6. Run `git rebase --continue` to continue the rebase.
 
 If the only change in the commit was updating the submodule, you'll now have an empty
-commit. You can remove it with another interactive rebase by removing the commit line
-(which `git` will annotate with a `# empty` suffix).
+commit. You can remove it with another interactive rebase by removing the commit line.
+In the rebase planner, `git` will annotate the line with an `# empty` suffix.
 
 [gh-git]: https://docs.github.com/en/get-started/using-git/about-git
 [sr-fixup]: https://sethrobertson.github.io/GitFixUm/fixup.html
 
 ### Nightly Translation Updates
 
-A GitHub action ["Fetch latest strings from the l10n repo"][ga-l10n] runs at midnight
-UTC and updates the `privaterelay/locales` submodule to the latest commit. The commit
-message is "Merge in latest l10n strings". If there are no translation updates, then
-there will be no commit, but the action will still finish successfully.
+A GitHub action, ["Fetch latest strings from the l10n repo"][action-l10n], updates
+translations. The action runs at midnight UTC. It updates the `privaterelay/locales`
+submodule to the latest commit. The commit message is "Merge in latest l10n strings". If
+there are no translation updates, then there will be no commit. The action status is
+still "success" if there are no updates.
 
 The action uses a Personal Access Token (PAT), required to create the commit. If the
 nightly update fails, check that the PAT is still valid, and regenerate as needed.
 
-[ga-l10n]: https://github.com/mozilla/fx-private-relay/actions/workflows/l10n-sync.yml
+[action-l10n]: https://github.com/mozilla/fx-private-relay/actions/workflows/l10n-sync.yml
 
 ### Adding New Translatable Strings During Development
 
-If this is your first time working with translations, read the [Fluent Syntax
-Guide][fl-syntax] while looking at some Relay `.ftl` files. This guide documents the
-syntax and promotes specific usage, such as:
+Relay translations use [Fluent localization system][fluent]. To start working with translations,
+read the documentation from the Fluent team.
+
+Read the [Fluent Syntax Guide][fl-syntax] while looking at some Relay `.ftl` files. This
+guide documents the syntax and promotes specific usage, such as:
 
 - [Variables][fl-syntax-variables] for strings with inserted values
 - [References][fl-syntax-references] for using strings like product names inside other strings
 - [Selectors][fl-syntax-selectors] for strings that include a number or count
 
-The document [Good Practices for Developers][good-practice] has useful tips for writing
-strings, such as:
+The Fluent document [Good Practices for Developers][good-practice] has useful tips.
 
-- Write Everything Twice
-- Prefer separate messages over variants for UI logic
+Use pending translations when developing content for Relay. This is because the English
+text can change many times during development. If these string entered the mature
+translation process, these changes would cause problems. The i18n team reviews mature
+translation changes. Translation teams spend time and effort translating strings.
+Development progress would slow down., and translators would waste effort. Pending
+translations avoid these issues.
 
-Use pending translations when developing new content or updating content for Relay. The
-product manager and other reviewers can make tweaks to the content during acceptance,
-without throwing away translator work or requiring ID updates. The pending translations
-for the frontend are in [frontend/pendingTranslations.ftl][], and the pending
-translations for the backend are in [privaterelay/pending_locales/en/pending.ftl][].
+The pending translations for the front end are in [frontend/pendingTranslations.ftl][].
+The pending translations for the back end are in
+[privaterelay/pending_locales/en/pending.ftl][]. If both the front and back ends need
+the string, duplicate it to both files. These files are in the Relay codebase, not the
+translations submodule.
 
 When updating content, add a digit to the string ID to help make it clear that this will
 replace another string. For example, `premium-promo-availability-warning-4` replaces
@@ -182,38 +204,45 @@ replace another string. For example, `premium-promo-availability-warning-4` repl
 [fl-syntax-selectors]: https://projectfluent.org/fluent/guide/selectors.html
 [fl-syntax-variables]: https://projectfluent.org/fluent/guide/variables.html
 [fl-syntax]: https://projectfluent.org/fluent/guide/
+[fluent]: https://projectfluent.org/
 [frontend/pendingTranslations.ftl]: https://github.com/mozilla/fx-private-relay/blob/main/frontend/pendingTranslations.ftl
 [good-practice]: https://github.com/projectfluent/fluent/wiki/Good-Practices-for-Developers
 [privaterelay/pending_locales/en/pending.ftl]: https://github.com/mozilla/fx-private-relay/blob/main/privaterelay/pending_locales/en/pending.ftl
 
 #### Translatable Strings with Embedded HTML
 
-Some Relay strings are more natural with embedded HTML, especially prose that links to
-other content. For Relay strings that include HTML, set the string to the complete
-sentence or UI element, and inject element attributes as variables. For example, if the
-rendered HTML is:
+Translation is simple when the string has no embedded formatting. Some Relay strings are
+more natural with embedded HTML. For example, prose that links to other content may have
+an embedded `<a>` element.
+
+For Relay strings that include HTML, set the string to the complete sentence or UI
+element. Inject element attributes as variables. For example, if the rendered HTML is:
 
 ```html
 <p class="relay-footnote">
   To change your email preference, see
-  <a class="never-blue" href="https://relay.firefox.com/accounts/settings/">
+  <a class="a-ext-link" href="https://relay.firefox.com/accounts/settings/">
     Relay Settings
   </a>
 </p>
 ```
 
-The Fluent string would be something like:
+The Fluent string, with helper comments, would be something like:
 
 ```text
+#   { $settings_url } (url) - full link to the settings page
+#   { $link_attrs } (string) - specific attributes added to links
+#   { settings-headline } (string) - the title of the settings page
 email-footer-pref-link =
   To change your email preference, see
-  <a href="${ settings_url }" ${ link_attrs }>{ settings-headline }</a>
+  <a href="{ $settings_url }" { $link_attrs }>{ settings-headline }</a>
 ```
 
-Translators can re-arrange the sentence as needed for their language, while avoiding
-mistranslating a URL or HTML attributes. The Pontoon UI helps translators with HTML
-strings, and Pontoon linters detect some translation issues such as malformed HTML and
-missing variables.
+Translators can re-arrange the sentence as needed for their language. The Pontoon UI
+helps translators translate HTML strings. Pontoon linters detect some translation issues
+such as malformed HTML and missing variables. The URL and attributes are not part of the
+string. Translators can not break them by changing them like translations. The values
+can change in the future without requiring re-translation.
 
 The Django email template may look like:
 
@@ -221,7 +250,7 @@ The Django email template may look like:
 <p class="relay-footnote">
   {% ftlmsg 'email-footer-pref-link'
   settings_url=SITE_ORIGIN|add:'/accounts/settings/'
-  link_attrs='class="never-blue"' %}
+  link_attrs='class="a-ext-link"' %}
 </p>
 ```
 
@@ -236,9 +265,9 @@ The `privaterelay/locales` directory is a checkout of the git repository
 [mozilla-l10n/fx-private-relay-i10n][]. To add new strings for translation,
 open a pull request against that repository.
 
-The `privaterelay/locales` checkout is an `https` checkout by default, requiring a
-GitHub password when pushing the branch. To switch to an `ssh` checkout and use your SSH
-key:
+The `privaterelay/locales` checkout is an `https` checkout by default. You will need to
+authenticate with a GitHub password when pushing the branch. To switch to an `ssh`
+checkout and authenticate with your SSH key:
 
 ```sh
 cd privaterelay/locales
@@ -254,9 +283,12 @@ git fetch
 git checkout main
 ```
 
-Copy translations from [frontend/pendingTranslations.ftl][] and / or
-[privaterelay/pending_locales/en/pending.ftl][] to the proper files in
+Copy translations from the pending translations to the proper files in
 `private/locales/en/`. Do not change the translation files for other languages.
+The pending translations for the front end are in [frontend/pendingTranslations.ftl][].
+The pending translations for the back end are in
+[privaterelay/pending_locales/en/pending.ftl][]. A change can include strings from both
+files.
 
 When ready, create and push a branch:
 
@@ -268,13 +300,12 @@ git commit -u
 git push -u origin message-updates-yyymmdd
 ```
 
-You can then visit [mozilla-l10n/fx-private-relay-i10n][] to create the pull request,
-and make changes locally for any code review feedback.
+You can then visit [mozilla-l10n/fx-private-relay-i10n][] to create the pull request.
+You can make changes in the local submodule branch for any code review feedback.
 
-After the l10n team merges the new strings, the next nightly translation update brings
-them into Relay's `main` branch. At that point, you should create a pull request to
-remove the redundant strings from `frontend/pendingTranslations.ftl` and
-`privaterelay/pending_locales/en/pending.ftl`.
+After approval, the l10n team merges the new strings. The next nightly translation
+update brings the new strings into Relay's `main` branch. You should then
+create a pull request to remove the redundant strings from the pending files.
 
 [mozilla-l10n/fx-private-relay-i10n]: https://github.com/mozilla-l10n/fx-private-relay-l10n
 
