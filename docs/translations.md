@@ -191,11 +191,10 @@ Development progress would slow down., and translators would waste effort. Pendi
 translations avoid these issues.
 
 The pending translations for the front end are in [frontend/pendingTranslations.ftl][].
-The same for the back end are in
-[privaterelay/pending_locales/en/pending.ftl][]. If both the front and back ends need
-the string, duplicate it to both files. These files are in the Relay codebase, not the
-translations submodule. Include pending translation changes with the pull request that
-uses them.
+The back end strings are in [privaterelay/pending_locales/en/pending.ftl][]. If both the
+front and back ends need the string, duplicate it to both files. These files are in the
+Relay codebase, not the translations submodule. Include pending translation changes with
+the pull request that uses them.
 
 **Do not re-use IDs for new or updated strings**. The translations of an existing string
 are valid and used in live content. When updating content, add a digit to the string ID
@@ -632,23 +631,30 @@ region.
 
 ### Identifying Available Plans and Prices
 
-The user's region determines what premium plans are available. The API sends this
-data from [/api/v1/runtime_data][], and the website adjusts content based on
-availability in the user's region.
+The user's region determines what premium plans are available. The API sends this data
+from [/api/v1/runtime_data][]. The website adjusts content based on availability in the
+user's region.
 
-The subscription platform uses [Stripe][stripe]. A [Stripe product][stripe-product]
-represents each Relay plan, such as the premium email service.
-A [Stripe price][stripe-price] represents what a user will pay, and is a combination
-of plan / product, region(s), language, and the term (monthly or yearly). Many
-regions have their own price, such as Denmark, which uses the Danish language and the krone.
-Others share the price of a nearby region, such as Austria, which uses Germany's prices
-in German and Euros. A minority, such as Belgium and Switzerland, are more complex,
-choosing a price based on language. See [privaterelay/plans.py][] for details.
+The subscription platform (version 2) uses [Stripe][stripe]. A
+[Stripe product][stripe-product] represents each Relay plan, such as the premium email
+service. A [Stripe price][stripe-price] represents how a user will pay. The price has
+an associate plan / product, a currency, tax details, and the term. Many Relay plans have
+monthly and yearly subscription terms. The VPN bundle has yearly terms.
 
-The "price" includes a translation of the plan / products details, which is the main
-reason that language is a sometimes a factor in price selection. A user purchasing a
-Relay plan will see the product details in the "price" language, and the rest of the
-webpage in their browser preferred language, which could be the same or different.
+The subscription platform associates a price with a region. Product reports may use this
+to segment purchasers by region.
+
+The subscription platform associates a price with a language. On the subscription page,
+product details appear in the price language. The rest of the subscription page appear
+in the user's preferred language. For most users, the price language and preferred
+language should be the same.
+
+Many regions have their own price, such as Denmark, which uses the Danish language and
+the krone. Others share the price of a nearby region, such as Austria, which uses
+Germany's prices in German and Euros. A minority are more complex, choosing a price
+based on language. Belgium users share the price in Euros of a neighbor, based on
+language. Switzerland has separate prices for German, French, and Italian speakers.
+All the Swiss prices are in Swiss Francs. See [privaterelay/plans.py][] for details.
 
 [/api/v1/runtime_data]: https://relay.firefox.com/api/v1/runtime_data
 [stripe-product]: https://stripe.com/docs/api/products
@@ -657,80 +663,91 @@ webpage in their browser preferred language, which could be the same or differen
 
 Relay developers will see these terms as they work in this topic:
 
-- **Internationalization** - The design and engineering effort to make it
-  possible to adapt a service to various languages and regions with minimal or no
-  engineering changes. This is often abbreviated **i18n**, to stand for the starting
-  letter "i", the next 18 letters, and the ending letter "n". This abbreviation
+- **[Internationalization][]**: Designing a service to adapt to different locales
+  without per-locale code changes. This is often abbreviated **i18n**, to stand for the
+  starting letter "i", the next 18 letters, and the ending letter "n". This abbreviation
   also avoids the spelling differences between American and British English.
-- **Localization** - The process for adapting software to a specific locale,
-  including translating text and using locale-specific features. This is often
-  abbreviated **L10n**, in a similar way to i18n, but with a capital "L" since a
-  lowercase "l" might look like an uppercase "I".
-- **Locale** - A shared set of parameters, such as language, currency, number
-  date, and time formats shared by a group of users. The identifier for many locales is
-  the combination of a language code and a region code. An example is `"en-US"` to
-  specify English speakers in America, implying US Dollars (USD, "$5.99"), left-to-right
-  text, commas as thousands separators (525,960 minutes in a year), as well as the
-  default date and time formats ("9/12/2023" for September 12, 2023).
-- **Region** - An [administrative division][admin-div] that can be the basis for a
-  locale. Mozilla prefers to use "Region" instead of **Country**, as "Region" can
-  includes areas that useful for defining locales but may fall short of universal
-  recognition as a country.
-- **Language** - A spoken or written language. A language can have a simple
-  identifier, such as `"en"` for English; a regional variant, such as `"de-CH"` for
-  German spoken in Switzerland; or a more complex identifier, such as `"zh-CN-Hans"`,
-  for Chinese as spoken in mainland China with Simplified Chinese characters.
-- **Translation** - The process of adapting language strings or patterns to a
-  second language. This is one aspect of Localization.
+- **[Localization][]**: Adapting software to a specific locale. This includes translating
+  text and using locale-specific formats. This is often abbreviated **L10n**, in a
+  similar way to i18n. A capital "L" avoids confusing a lowercase "l" with an
+  uppercase "I".
+- **[Locale][]**: Shared cultural conventions that appear in a user interface. This
+  can include language, script and currencies. It can also include formats for prices,
+  numbers, dates, and times. The identifier for many locales is the combination of a
+  language code and a region code. An example is `"en-US"` to specify English speakers
+  in America. It implies the English alphabet in left-to-right text. Prices should be
+  in US Dollars (USD, "$5.99"). Numbers use commas as thousands separators (525,960
+  minutes in a year). The first number in a short date the month ("9/12/2023" for
+  September 12, 2023). English-speaking users in other regions share some of these
+  conventions. Other conventions, like currency and date formats, will vary.
+- **[Region][]**: An [administrative division][] that can be the basis for a
+  locale. Mozilla prefers to use "Region" instead of "**Country**" when talking about
+  localization. A Region can include areas within a country and areas that span
+  countries.
+- **[Language][]**: A spoken or written system of communication. English is a broad
+  language category. A language can be specific to a region, such as German spoken in
+  Switzerland. In localization, the written system can be important as well. For
+  example, Chinese can vary between mainland China and other regions. It can also
+  use Simplified or Traditional Chinese script when written.
+- **[Translation][]**: The process of adapting language strings or patterns to a
+  second language. This is one aspect of Localization. At Mozilla, American English is
+  the source language for interface text.
 
-[admin-div]: https://en.wikipedia.org/wiki/Administrative_division
+[Internationalization]: https://en.wikipedia.org/wiki/Internationalization_and_localization
+[Localization]: https://en.wikipedia.org/wiki/Internationalization_and_localization
+[Locale]: https://en.wikipedia.org/wiki/Locale_(computer_software)
+[Language]: https://en.wikipedia.org/wiki/Language
+[Translation]: https://en.wikipedia.org/wiki/Translation
+[administrative division]: https://en.wikipedia.org/wiki/Administrative_division
+[Region]: https://en.wikipedia.org/wiki/Region
 
 ## Standards for Identifiers
 
 There are internet standard identifiers for regions, languages, locales, and currency.
-In most cases, Mozilla uses the standard identifiers, but there are exceptions, mostly
-in legacy cases. Relay users should follow the standards, unless Mozilla has an
+In most cases, Mozilla uses the standard identifiers. There are exceptions for common
+usage and legacy cases. Relay users should follow the standards, unless Mozilla has an
 established exception.
 
-- **Region** - [ISO 3166][] is a multi-part standard for identifying countries,
+- **Region**: [ISO 3166][] is a multi-part standard for identifying countries,
   territories, and subdivisions. The [ISO 3166-1 alpha-2][] code (two uppercase
-  letters) is widely used as region identifiers.
-  - Mozilla uses the ISO 3166-1 alpha-2 code for a region when available. Some
-    exceptions are [Valencia][], which uses `"valencia"`, and the [Surselva Region][],
-    which uses `"sursilv"`.
-- **Language** - [ISO 639][] is a multi-part standard for identifying languages.
+  letters) is common as a region identifier.
+  - Mozilla uses the ISO 3166-1 alpha-2 code for a region when available. An
+    exception is [Valencia][], which uses `"valencia"`. Another is the
+    [Surselva Region][], which uses `"sursilv"`.
+- **Language**: [ISO 639][] is a multi-part standard for identifying languages.
   Wikipedia has a [useful table][iso-639-1-list] of [ISO 639-1][] codes (two lowercase
-  letters), and the Library of Congress has a [table of languages][iso-639-2-list] that
-  lists the languages with an [ISO 639-2][] code (three lowercase letters) and their ISO
-  639-1 codes.
-  - Mozilla uses the ISO 639-1 two-letter code when available, falling back to the ISO
+  letters). The Library of Congress has a [table of languages][iso-639-2-list]
+  with [ISO 639-2][] codes (three lowercase letters). This table has the related
+  ISO 639-1 codes, when available.
+  - Mozilla uses the ISO 639-1 two-letter code when available. Mozilla falls back to the ISO
     639-2 three-letter code (such as `"yue"` for [Cantonese][]).
-- **Locale** - Locales are usually identified by a language tag, a language identifier
-  plus extra identifiers as needed. [BCP 47][] collects two RFCs, [RFC 4647][],
-  "Matching of Language Tags", and [RFC 5646][], "Tags for Identifying Languages". RFC
-  5646 defines the format of these tags, used in the "Accept-Language" header
-  ([RFC 9110][]) by a web browser for the user's preferred language.
+- **Locale**: Locales are usually identified by a language tag. This is a language
+  identifier, plus extra identifiers as needed. [RFC 5646][], "Tags for Identifying
+  Languages", defines language tags. This RFC is the second half of [BCP 47][].
+  The "Accept-Language" header ([RFC 9110][]) uses language tags. This
+  header is how a web browser communicates the user's preferred language.
   - Pontoon uses `"en"`, rather than `"en-US"`, for [English][] as written in the
-    [United States][]. Other English-speaking locales include the region, such as
-    `"en-GB"` for English as written in the [United Kingdom][].
-  - For most localizations, the default Firefox `Accept-Language` header ends in
-    the fallback languages "`en-US, en`" (see the [intl.properties][intl-props] group).
-  - Mozilla uses the identifiers
-    `"zh-CN"` for [Simplified Chinese as common in China][pt-zh-CN] and
-    `"zh-TW"` for [Traditional Chinese as common in Taiwan][pt-zh-TW].
-    [Most browsers][so-browsers], including [Firefox][pt-zh-CN-intl-prop],
-    follow this convention for the `Accept-Language` header.
-    Recent standards may instead emphasize the script (such as
-    `"zh-Hans"` for Han Simplified, or `"zh-Hans-CN"` to specify China, and
-    `"zh-Hant"` for Han Traditional, or `"zh-Hant-TW"` to specify Taiwan).
+    [United States][]. Other English-speaking locales include the region. For example,
+    `"en-GB"` identifies English as used in the [United Kingdom][] .
+  - The default Firefox `Accept-Language` header for every language includes `"en"`.
+    Most also include "`en-US`". See ["Identifying the User's Preferred Languages"][] for
+    more details.
+  - Mozilla uses the language tag `"zh-CN"` for
+    [Simplified Chinese as common in China][pt-zh-CN]. The language tag `"zh-TW"` stands
+    for [Traditional Chinese as common in Taiwan][pt-zh-TW]. Recent standards may
+    instead emphasize the script. For example, `"zh-Hans"` means Han Simplified, and
+    `"zh-Hant"` means Han Traditional. A region can make the tag more specific, such as
+    `"zh-Hans-CN"`. [Most browsers][so-browsers], including
+    [Firefox][pt-zh-CN-intl-prop], use `"zh-CN"` and `"zh-TW"` in the `Accept-Language`
+    header. Mozilla web services may need to handle the `-Hans` and `-Hant` variants.
   - [RFC 9110][] specifies "quality values", or "qvalues" to weight language
-    preferences, such as `"Accept-Language: en-US,en;q=0.5"`. In general,
-    browsers such as Firefox do not use qvalues, since they break some websites.
-    Instead, the order of languages is the order of preference.
-- **Currency** - [ISO 4217][] defines codes for currencies.
-  - The Subscription Platform and Relay use the upper-case,
-    three-letter codes, such as `"USD"` for United States dollars and `"EUR"` for
-    Euros.
+    preferences. The header `"Accept-Language: en-US,en;q=0.5"` uses qvalues. Some
+    websites break when parsing a header with qvalues. Firefox and other browsers do not
+    use qvalues in `Accept-Language` defaults. Instead, the order of languages is the
+    order of preference.
+- **Currency**: [ISO 4217][] defines codes for currencies.
+  - The Subscription Platform and Relay use the upper-case, three-letter codes. Some
+    examples are `"USD"` for United States dollars and `"EUR"` for Euros.
 
 [BCP 47]: https://www.rfc-editor.org/info/bcp47
 [Cantonese]: https://en.wikipedia.org/wiki/Cantonese
@@ -754,3 +771,4 @@ established exception.
 [pt-zh-CN]: https://pontoon.mozilla.org/zh-CN/
 [pt-zh-TW]: https://pontoon.mozilla.org/zh-TW/
 [so-browsers]: https://stackoverflow.com/questions/69709824/what-is-the-typical-chinese-language-code-for-the-accept-language-header
+["Identifying the User's Preferred Languages"]: #identifying-the-users-preferred-languages
