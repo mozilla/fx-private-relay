@@ -26,7 +26,7 @@ export const WaitlistPage = (props: Props) => {
     runtimeData.data?.PERIODICAL_PREMIUM_PLANS.country_code.toUpperCase() ??
     (currentLocale.split("-")[1]?.toUpperCase() as string | undefined);
   const [country, setCountry] = useState<string>();
-  const [locale, setLocale] = useState<string>('en');
+  const [locale, setLocale] = useState<string>("en");
   const usersData = useUsers();
   const [email, setEmail] = useState<string | undefined>(
     usersData.data?.[0]?.email,
@@ -42,13 +42,14 @@ export const WaitlistPage = (props: Props) => {
   }, [email, usersData]);
 
   useEffect(() => {
-    setLocale(props.supportedLocales.find(
-      (supportedLocale) =>
-        supportedLocale.toLowerCase() ===
-        currentLocale.split("-")[0].toLowerCase(),
-    ) ?? "en")
-  }, [currentLocale, props.supportedLocales])
-
+    setLocale(
+      props.supportedLocales.find(
+        (supportedLocale) =>
+          supportedLocale.toLowerCase() ===
+          currentLocale.split("-")[0].toLowerCase(),
+      ) ?? "en",
+    );
+  }, [currentLocale, props.supportedLocales]);
 
   const onSubmit: FormEventHandler = async (event) => {
     event.preventDefault();
