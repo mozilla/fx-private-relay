@@ -93,7 +93,7 @@ def client_error_on_invalid_email(*args, **kwargs):
 @pytest.mark.django_db
 def test_invalid_email_address_skips_invalid(
     mock_ses_client: MagicMock, caplog: pytest.LogCaptureFixture
-):
+) -> None:
     mock_ses_client.send_email.side_effect = client_error_on_invalid_email
     invalid_email_user = make_free_test_user("♩♪♫♬♭♮♯@±×÷√.com")
     invalid_email_user.profile.sent_welcome_email = False
