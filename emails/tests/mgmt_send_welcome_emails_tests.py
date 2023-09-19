@@ -2,6 +2,8 @@ import pytest
 from typing import Tuple
 from unittest.mock import MagicMock, patch
 
+from botocore.exceptions import ClientError
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.management import call_command
@@ -72,6 +74,49 @@ def test_send_welcome_emails(
         expected_cta = ftl_bundle.format("first-time-user-email-hero-cta")
     assert subject == expected_subject
     assert expected_cta in body_html
+
+
+def client_error_on_invalid_email(*args, **kwargs):
+    for address in kwargs["Destination"]["ToAddresses"]:
+        if "±×÷√" in address:
+            raise ClientError(
+                operation_name="SendEmail",
+                error_response={
+                    "Error": {
+                        "Code": "InvalidParameterValue",
+                        "Message": "Invalid email address",
+                    }
+                },
+            )
+
+
+@pytest.mark.django_db
+def test_invalid_email_address_skips_invalid(
+    mock_ses_client: MagicMock, caplog: pytest.LogCaptureFixture
+):
+    mock_ses_client.send_email.side_effect = client_error_on_invalid_email
+    invalid_email_user = make_free_test_user("♩♪♫♬♭♮♯@±×÷√.com")
+    invalid_email_user.profile.sent_welcome_email = False
+    invalid_email_user.profile.save()
+
+    valid_email_user = make_free_test_user("valid_email@user.com")
+    valid_email_user.profile.sent_welcome_email = False
+    valid_email_user.profile.save()
+
+    call_command(COMMAND_NAME)
+
+    invalid_email_user.profile.refresh_from_db()
+    assert invalid_email_user.profile.sent_welcome_email == False
+
+    rec1, rec2, rec3, rec4, rec5 = caplog.records
+    assert "Starting" in rec1.getMessage()
+    assert rec2.getMessage() == "Emails to send: 2"
+    assert (
+        f"ClientError while sending welcome email to user ID: {invalid_email_user.id}"
+        in rec3.getMessage()
+    )
+    assert f"Sent welcome email to user ID: {valid_email_user.id}" in rec4.getMessage()
+    assert "Exiting" in rec5.getMessage()
 
 
 def _make_user_who_needs_welcome_email_with_locale(locale: str = "") -> User:
