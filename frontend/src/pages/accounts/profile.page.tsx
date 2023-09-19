@@ -17,6 +17,7 @@ import {
   useTooltip,
   useTooltipTrigger,
 } from "react-aria";
+import { event as gaEvent } from "react-ga";
 import { useMenuTriggerState, useTooltipTriggerState } from "react-stately";
 import { toast } from "react-toastify";
 import styles from "./profile.module.scss";
@@ -407,6 +408,13 @@ const Profile: NextPage = () => {
             <LinkButton
               href="/premium#pricing"
               ref={bottomBannerSubscriptionLinkRef}
+              onClick={() => {
+                gaEvent({
+                  category: "Purchase Button",
+                  action: "Engage",
+                  label: "profile-bottom-promo",
+                });
+              }}
             >
               {l10n.getString("banner-pack-upgrade-cta")}
             </LinkButton>
