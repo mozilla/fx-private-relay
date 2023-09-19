@@ -556,7 +556,7 @@ done when they are busy or out of office.
 Translations for Relay, and many projects at Mozilla, use the [Fluent format][fluent].
 The ["en" bundle][relay-l10n-en] (American / generic English) has the source
 translations. Developers split the translations into functional areas, such as
-[`faq.ftl`][] for the [FAQ page][]. The other language bundles are translations of the
+[faq.ftl][] for the [FAQ page][]. The other language bundles are translations of the
 `"en"` bundle, coordinated in Pontoon. The continuous integration process creates Docker
 images that include the translations. The [Django back end][ftl-bundles] uses select
 Fluent files. The front end uses translations embedded into the JavaScript during
@@ -579,7 +579,6 @@ their language.
 [Firefox Relay Add-on]: https://addons.mozilla.org/firefox/addon/private-relay/
 [Firefox Relay Website]: https://relay.firefox.com/
 [addons.mozilla.org]: https://addons.mozilla.org/
-[fluent]: https://projectfluent.org/
 [ftl-bundles]: https://github.com/mozilla/fx-private-relay/blob/main/privaterelay/ftl_bundles.py
 [ga-l10n-sync]: https://github.com/mozilla/fx-private-relay/actions/workflows/l10n-sync.yml
 [mozilla-l10n/fx-private-relay-add-on-l10n]: https://github.com/mozilla-l10n/fx-private-relay-add-on-l10n
@@ -758,7 +757,6 @@ established exception.
 [ISO 639-1]: https://en.wikipedia.org/wiki/ISO_639-1
 [ISO 639-2]: https://en.wikipedia.org/wiki/ISO_639-2
 [ISO 639]: https://en.wikipedia.org/wiki/ISO_639
-[RFC 4647]: https://www.rfc-editor.org/rfc/rfc4647.html
 [RFC 5646]: https://www.rfc-editor.org/rfc/rfc5646.html
 [RFC 9110]: https://www.rfc-editor.org/rfc/rfc9110#field.accept-language
 [Surselva Region]: https://en.wikipedia.org/wiki/Surselva_Region
