@@ -2,6 +2,8 @@ import logging
 
 from mypy_boto3_ses.type_defs import ContentTypeDef
 
+from botocore.exceptions import ClientError
+
 from django.apps import apps
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -29,7 +31,6 @@ class Command(BaseCommand):
         logger.info(f"Emails to send: {emails_to_send}")
         for profile in profiles_without_welcome_email:
             send_welcome_email(profile)
-            logger.info(f"Sent welcome email to user ID: {profile.user.id}")
         logger.info("Exiting send_welcome_emails")
 
 
@@ -60,11 +61,16 @@ def send_welcome_email(profile: Profile, **kwargs):
                 },
             },
         )
+        logger.info(f"Sent welcome email to user ID: {profile.user.id}")
+        profile.sent_welcome_email = True
+        profile.save()
     # Don't send welcome emails to users with no social account.
     # E.g., users created thru admin tools.
     # TODO?: move this check deeper into get_welcome_email ?
     except SocialAccount.DoesNotExist:
-        pass
-
-    profile.sent_welcome_email = True
-    profile.save()
+        profile.sent_welcome_email = True
+        profile.save()
+    except ClientError:
+        logger.error(
+            f"ClientError while sending welcome email to user ID: {profile.user.id}."
+        )

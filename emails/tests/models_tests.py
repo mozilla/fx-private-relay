@@ -35,8 +35,11 @@ from ..models import (
 )
 
 
-def make_free_test_user() -> User:
-    user = baker.make(User)
+def make_free_test_user(email: str = "") -> User:
+    if email:
+        user = baker.make(User, email=email)
+    else:
+        user = baker.make(User)
     user_profile = Profile.objects.get(user=user)
     user_profile.server_storage = True
     user_profile.save()
