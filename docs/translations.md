@@ -46,8 +46,8 @@ are available, then the user gets English.
 The user sees different plan details based on their region. On the homepage there is a
 table comparing Relay premium plans. If a premium plan is available in their region,
 they see a price in their local currency. If a premium plan is not available, the user
-sees a prompt to join a waitlist. The FAQ also changes, to omit entries for plans that
-are unavailable in the user's region.
+sees a prompt to join a waitlist. The FAQ also changes, to omit entries for unavailable
+plans.
 
 A new or logged-out user sees the sign-in buttons in the page header. The button text is
 "Sign Up" and "Sign In" in the English localization. The text will be different if the
@@ -72,16 +72,16 @@ The Add-On reflects the Relay premium plan availability in their region.
 
 ## Development Workflows
 
-The project `README.md` has basic instructions on ["working with
-translations"][readme-wwt]. This section has more details.
+The project `README.md` has basic instructions on
+[working with translations][readme-wwt]. This section has more details.
 
 [readme-wwt]: ../README.md#working-with-translations
 
 ### Loading Translations
 
 The translations are in a separate repository, and included as a
-[submodule][git-submodules]. This combines a separate repository with a
-specific commit in that repository.
+[submodule][git-submodules]. This references a specific commit in
+a separate repository.
 
 When cloning a repo, you can also fetch the translations:
 
@@ -99,8 +99,13 @@ git submodule update
 
 When checking out a branch, `git status` may show `privaterelay/locales` has changed.
 This is because the submodule commit is out of sync with the branch. To sync the
-submodule with the branch, you can run `git submodule update --remote`. To automate
-syncing the translations submodule, set the configuration:
+submodule with the branch, run:
+
+```sh
+git submodule update --remote
+```
+
+To automate syncing the translations submodule, set the configuration:
 
 ```sh
 git config --global submodule.recurse true
@@ -137,8 +142,10 @@ This is a powerful tool that requires deeper understanding of `git`. See
 [About Git][gh-git] for a tutorial, and
 [On undoing, fixing, or removing commits in git][sr-fixup] for a guided experience.
 
+The process is:
+
 1. Run `git rebase origin/main`, and take care of any conflicts.
-2. Find the commit that changed locals with `git log -- privaterelay/locales`.
+2. Find the commit that changed the submodule with `git log -- privaterelay/locales`.
 3. Start an interactive rebase with `git rebase -i origin/main`. A rebase plan will open
    in your editor.
 4. Edit the commit line, changing from `pick` to `edit`. Save the rebase plan and exit
@@ -158,11 +165,11 @@ In the rebase planner, `git` will annotate the line with an `# empty` suffix.
 
 ### Nightly Translation Updates
 
-A GitHub action, ["Fetch latest strings from the l10n repo"][action-l10n], updates
+A GitHub action, [Fetch latest strings from the l10n repo][action-l10n], updates
 translations. The action runs at midnight UTC. It updates the `privaterelay/locales`
 submodule to the latest commit. The commit message is "Merge in latest l10n strings". If
 there are no translation updates, then there will be no commit. The action status is
-still "success" if there are no updates.
+still "success".
 
 The action uses a Personal Access Token (PAT), required to create the commit. If the
 nightly update fails, check that the PAT is still valid, and regenerate as needed.
@@ -171,23 +178,23 @@ nightly update fails, check that the PAT is still valid, and regenerate as neede
 
 ### Adding New Translatable Strings During Development
 
-Relay translations use [Fluent localization system][fluent]. To start working with translations,
+Relay translations use the [Fluent localization system][fluent]. To start working with translations,
 **read the documentation from the Fluent team**.
 
 Read the [Fluent Syntax Guide][fl-syntax] while looking at some Relay `.ftl` files. This
-guide documents the syntax and promotes specific usage, such as:
+guide describes the syntax and promotes specific usage, such as:
 
 - [Variables][fl-syntax-variables] for strings with inserted values
-- [References][fl-syntax-references] for using strings like product names inside other strings
-- [Selectors][fl-syntax-selectors] for strings that include a number or count
+- [References][fl-syntax-references] for product names inside other strings
+- [Selectors][fl-syntax-selectors] for including a number or count
 
 The Fluent document [Good Practices for Developers][good-practice] has useful tips.
 
 **Use pending translations when developing content for Relay**. This is because the
-English text can change many times during development. If these string entered the
-mature translation process, these changes would cause problems. The i18n team reviews
-mature translation changes. Translation teams spend time and effort translating strings.
-Development progress would slow down., and translators would waste effort. Pending
+English text can change many times during development. Strings that are still changing
+are not a good fit for the translation process. The Localization team reviews
+translation changes. Translation teams spend time and effort translating strings.
+Development progress would slow down, and translators would waste effort. Pending
 translations avoid these issues.
 
 The pending translations for the front end are in [frontend/pendingTranslations.ftl][].
@@ -196,7 +203,7 @@ front and back ends need the string, duplicate it to both files. These files are
 Relay codebase, not the translations submodule. Include pending translation changes with
 the pull request that uses them.
 
-**Do not re-use IDs for new or updated strings**. The translations of an existing string
+**Do not re-use IDs for new or updated strings**. The translations of existing strings
 are valid and used in live content. When updating content, add a digit to the string ID
 to signal it will replace another string. For example,
 `premium-promo-availability-warning-4` replaces `premium-promo-availability-warning-3`.
@@ -218,7 +225,9 @@ more natural with embedded HTML. For example, prose that links to other content 
 an embedded `<a>` element.
 
 For Relay strings that include HTML, set the string to the complete sentence or UI
-element. Inject element attributes as variables. For example, if the rendered HTML is:
+element. Inject element attributes as variables.
+
+For example, if the rendered HTML is:
 
 ```html
 <p class="relay-footnote">
@@ -229,7 +238,7 @@ element. Inject element attributes as variables. For example, if the rendered HT
 </p>
 ```
 
-The Fluent string, with helper comments, would be something like:
+The Fluent string, with helper comments, could be:
 
 ```text
 #   { $settings_url } (url) - full link to the settings page
@@ -241,12 +250,12 @@ email-footer-pref-link =
 ```
 
 Translators can re-arrange the sentence as needed for their language. The Pontoon UI
-helps translators translate HTML strings. Pontoon linters detect some translation issues
+helps translators with HTML strings. Pontoon linters detect some translation issues
 such as malformed HTML and missing variables. The URL and attributes are not part of the
 string. Translators can not break them by changing them like translations. The values
 can change in the future without requiring re-translation.
 
-The Django email template may look like:
+The Django email template could be:
 
 ```html
 <p class="relay-footnote">
@@ -256,8 +265,8 @@ The Django email template may look like:
 </p>
 ```
 
-The frontend uses the `<Localized>` component for strings with embedded HTML. See the
-[profile-label-welcome-html][] code for details.
+The front end uses the `<Localized>` component for strings with embedded HTML. See the
+[profile-label-welcome-html][] code for an example.
 
 [profile-label-welcome-html]: https://github.com/mozilla/fx-private-relay/blob/f5c5ebf568639810db45de1ebb69f2498600d58c/frontend/src/pages/accounts/profile.page.tsx#L285-L293
 
@@ -286,9 +295,9 @@ git checkout main
 ```
 
 Copy translations from the pending translations to the proper files in
-`private/locales/en/`. Do not change the translation files for other languages.
-The pending translations for the front end are in [frontend/pendingTranslations.ftl][].
-The same for the back end are in
+`private/locales/en/`. Do not change the translation files for other languages. Pontoon
+handles those during import and export. The pending translations for the front end are
+in [frontend/pendingTranslations.ftl][]. The same for the back end are in
 [privaterelay/pending_locales/en/pending.ftl][]. A change can include strings from both
 files.
 
@@ -305,7 +314,7 @@ git push -u origin message-updates-yyymmdd
 You can then visit [mozilla-l10n/fx-private-relay-l10n][] to create the pull request.
 You can make changes in the local submodule branch for any code review feedback.
 
-After approval, the Mozilla l10n team merges the new strings. The next nightly
+After approval, the Localization team merges the new strings. The next nightly
 translation update brings the new strings into Relay's `main` branch. You should then
 create a pull request to remove the redundant strings from the pending files.
 
@@ -314,51 +323,42 @@ create a pull request to remove the redundant strings from the pending files.
 ### Expanding a Premium Plan
 
 Adding new regions to a premium plan is a cross-company effort. The Legal team ensures
-Mozilla can do business in the new region. The Subscription Platform integrates the
+Mozilla can do business in the new region. The Subscription Platform team integrates the
 expanded tax requirements. The Localization team identifies languages for the new
 region. Quality Assurance tests the experience in the new region and language. Customer
 Support expands support documents. Managers at several levels coordinate the work.
 
 Premium plan expansion can take months. A Relay engineer should **create a waffle flag
 for the expansion effort**. This allows engineers to ship partial changes without
-affecting current users. Staff with the flag enabled can test expansion code in stage
-and production.
+affecting current users.
 
 The Subscription Platform (version 2) uses [Stripe][stripe] for paid services. A
 [Stripe Price][stripe-price] tracks currency, taxes, and a subscription term. Relay
 subscription terms are monthly or yearly. There are usually two prices per region, one
-for each term. The Subscription Platform also uses a price to track language and region.
+for each term. The Subscription Platform also uses the price to track language and region.
 The product details are in the selected language. The Localization team helps pick the
-region's primary language. Product reports use the price to segment purchases by region.
+region's primary language. The product reports use the price to segment purchases by
+region.
 
-The Relay product manager create the Prices on the Stripe webpage. The product manager
+The Relay product manager create the prices on the Stripe webpage. The product manager
 shares the new price IDs with the Relay engineers. In some cases, complex criteria
 selects the price for a region. For example, a region can use the prices of a different
 region. Another case is when a region has per-language prices. The manager highlights
 these complex cases.
 
-The product manager shares the new price IDs with the Relay engineers. In some cases,
-complex criteria selects the price for a region. For example, a region can use the
-prices of a different region. Another case is when a region has per-language prices.
-The manager highlights these complex cases.
-
 The Relay engineer updates the data structures in [privaterelay/plans.py][]:
 
-1. New currencies in `CurrencyStr`
-2. New regions in `CountryStr`
-3. New prices details in `_STRIPE_PLAN_DATA`
-4. A new section in `_RELAY_PLANS`, such as `premium_expansion`, with the expanded
+1. Add new currencies in `CurrencyStr`
+2. Add new regions in `CountryStr`
+3. Add new prices details in `_STRIPE_PLAN_DATA`
+4. Add a new section in `_RELAY_PLANS`, such as `premium_expansion`, with the expanded
    regions
 5. Update the relevant functions to take a boolean signalling the waffle flag is
    on or off. See [PR #3745][pr-3745], which retired the 2023 expansion flag, for
    details.
 
-Relay staff can turn on the waffle flag for themselves and others. With an enabled flag,
-users can view new content and test buying a subscription.
-
-In development and stage, there are test prices connected to the
-[Stripe test mode][stripe-test]. A test visitor from the United States will get these
-prices. Other regions get the production prices.
+Relay staff can turn on the expansion flag for themselves and others. With an enabled
+flag, users can view new content and test buying a subscription.
 
 > [!NOTE]
 > Testing subscriptions in a new region requires setting the preferred language.
@@ -367,7 +367,7 @@ prices. Other regions get the production prices.
 >
 > Do not use a language-switcher extension. Many extensions are not allowed to run on Firefox
 > Accounts. Inconsistent language preferences may invalidate testing. See
-> [Identifying The User's Preferred Languages](#identifying-the-users-preferred-languages)
+> "[Identifying The User's Preferred Languages](#identifying-the-users-preferred-languages)"
 > for more information.
 
 When the expansion ships to all users, a Relay engineer can cleanup the data
@@ -382,21 +382,20 @@ structures:
 [pr-3745]: https://github.com/mozilla/fx-private-relay/pull/3745
 [stripe]: https://stripe.com
 [stripe-price]: https://stripe.com/docs/api/prices
-[stripe-test]: https://stripe.com/docs/test-mode
 
 ### Viewing Translation Errors
 
-The web server library [django-ftl][] logs when a translation is not available. The log
+The back-end library [django-ftl][] logs when a translation is not available. The log
 message writes to `stderr` with severity `ERROR` and name `django_ftl.message_errors`.
 The log message looks like:
 
 > FTL exception for locale [es-mx], message 'relay-email-your-dashboard',
 > args {}: KeyError('relay-email-your-dashboard')"
 
-The report [FTL Errors in Relay Production][ftl-report] gathers and categorizes recent
-errors. The filter "supported" means Relay has an assigned language team in Pontoon. The
-other filters are by locale and key (or string ID). A Relay engineer uses this report to
-detect issues with a team's translation. The report also implies the traffic volume for
+The report "[FTL Errors in Relay Production][ftl-report]" gathers and categorizes recent
+errors. The filter _supported_ means Relay has an assigned language team in Pontoon. The
+other filters are by _locale_ and _key_ (or string ID). A Relay engineer uses this report to
+detect issues with a team's translation. The report also measures the traffic volume for
 unsupported languages.
 
 The source query defines the list of supported languages. The list needs an update when
@@ -411,8 +410,8 @@ catch issues in translated strings with manual testing.
 
 ## The Technical Details of Translation
 
-Relay supports 26 languages (as of September 2023). This section details the
-technologies used to deploy those translations.
+Relay supports over 20 languages. This section details the technologies used to deploy
+those translations.
 
 > [!WARNING]
 > None of Relay's supported languages use [right-to-left scripts][].
@@ -430,18 +429,19 @@ technologies used to deploy those translations.
 The browser communicates the user's preferred languages with each web request. The
 [`Accept-Language` header][accept-lang] encodes this preference. The default header for
 Firefox downloaded in the US is "`en-US, en`". This header specifies a preference for
-English as spoken in the United States. If that is not available, it specifies to
-fallback to generic English.
+English as spoken in the United States. If that is not available, fallback to generic
+English.
 
+Browsers detect a user's desired language when setting up for the first time. For
+example, a browser could ask the operating system. The browser defaults change based on
+the language. A Firefox user could change the defaults by typing `about:config` in the
+location bar. After accepting the risk, they can find and change the key
+`intl.accept_languages`. This changes the `Accept-Language` header sent to websites.
 Most users do not change their language settings and keep the browser defaults.
-Browsers use different methods to detect a user's language and pick good defaults.
-A Firefox user could change the defaults by typing `about:config` in the location bar.
-After accepting the risk, they can find and change the key `intl.accept_languages`. This
-changes the `Accept-Language` header sent to websites.
 
 Translators use Pontoon to set the value for `intl.accept_languages`. See the
 [intl.properties][intl-props] group, LOCALES tab, for values for each language.
-Note that most end in "`en-US, en`" as fallback languages. All include `en` for
+Note that many end in "`en-US, en`" as fallback languages. All include "`en`" for
 generic English.
 
 Some browser extensions allow changing `Accept-Language`. This can be useful for testing
@@ -477,9 +477,10 @@ are no supported languages, the code falls back to English (`"en"`).
 ### Managing Languages and Translations
 
 Mozilla uses [Pontoon][pontoon] to identify supported languages and coordinate
-translation work. [Volunteer translation teams][pt-teams] coordinate their own
-translation work. They set translation standards and decide which projects to support.
-Locale codes identify translation teams. Many teams identifiers are a language code
+translations. [Volunteer translation teams][pt-teams] coordinate their own
+translation work. They set standards and decide which projects to support.
+
+Language tags identify translation teams. Many team identifiers are a language code
 (such as "`fr`" for [French][pt-fr], or `"scn"` for [Sicilian][pt-scn]). Other teams
 use a language-plus-region code, such as `"es-ES"` for
 [Spanish spoken in Spain][pt-es-ES]. A longer code is `"ca-valencia"` for
@@ -488,8 +489,8 @@ use a language-plus-region code, such as `"es-ES"` for
 Some teams are active and quick to translate, such as the [French][pt-fr] and
 [German][pt-de] teams. Some teams volunteer to translate a project, such as
 [Interlingua][pt-ia-relay]. Other teams have few or no active members, such as
-[Luxembourgish][pt-lb]. Small teams focus their resources on a few projects. The Mozilla
-localization team (Slack channel `#l10n`) is familiar with team capacity. This team
+[Luxembourgish][pt-lb]. These small teams focus their resources on a few projects. The
+Localization team (Slack channel `#l10n`) is familiar with team capacity. This team
 decides when to expand a project to new languages. They reach out to the language
 team leads to ask for expansion.
 
@@ -539,7 +540,7 @@ Some relevant repositories include:
 - [mozilla-l10n/sumo-l10n][] for [support.mozilla.org][]
 - [mozilla/addons-frontend][] for [addons.mozilla.org][]
 
-Pontoon writes new translations as new commits to their repository. Relay projects
+Pontoon writes translation updates as new commits to their repository. Relay projects
 include the translation repositories as [git submodules][git-submodules], such as
 [privaterelay/locales][]. A submodule references a specific commit in a separate
 repository. A [GitHub action][ga-l10n-sync] updates this commit to the latest each
@@ -548,16 +549,16 @@ night. This action synchronizes the main Relay branch with the latest translatio
 This synchronization strategy works best for Relay. It balances up-to-date translation
 changes against the complexity of submodules. There are other strategies. Some
 projects allow Pontoon to write to their code repository. This clutters commit history
-with translations. It also runs continuous integration tests for each translation. Other
-projects keep a copy of translations and sync them when needed. This requires manual
-work, documentation, and discipline. It often falls to a single engineer, and is not
-done when they are busy or out of office.
+with translations. It also runs continuous integration tests for each translation
+update. Other projects keep a copy of translations and sync them when needed. This
+requires manual work, documentation, and discipline. It often falls to a single
+engineer, and is not done when they are busy or out of office.
 
 Translations for Relay, and many projects at Mozilla, use the [Fluent format][fluent].
 The ["en" bundle][relay-l10n-en] (American / generic English) has the source
 translations. Developers split the translations into functional areas, such as
 [faq.ftl][] for the [FAQ page][]. The other language bundles are translations of the
-`"en"` bundle, coordinated in Pontoon. The continuous integration process creates Docker
+`"en"` bundle, coordinated in Pontoon. Relay's continuous testing creates Docker
 images that include the translations. The [Django back end][ftl-bundles] uses select
 Fluent files. The front end uses translations embedded into the JavaScript during
 Docker image creation.
@@ -567,13 +568,13 @@ in-progress strings are in the Relay repository. The source strings change often
 development. The front end uses [frontend/pendingTranslations.ftl][]. The back end code
 uses [privaterelay/pending_locales/en/pending.ftl][].
 
-Approved strings are ready for translation. The developers open a pull request to the
-translation repository. The localization team reviews the new strings. When the
-localization team merges the changes, Pontoon imports the new strings. The language
-teams translate the strings. Pontoon exports them to the translation repository. The
-nightly action updates the submodule to pull in the latest translations. The release
-Docker image includes the new translations. Once released, the users see the content in
-their language.
+New approved strings go through several steps to get translated. The developers open a
+pull request to the translation repository. The Localization team reviews the new
+strings. When the Localization team merges the changes, Pontoon imports the new strings.
+The language teams translate the strings. Pontoon exports them to the translation
+repository. The nightly action updates the submodule to pull in the latest translations.
+The release Docker image includes the new translations. Once released, the users see the
+content in their language.
 
 [Firefox Accounts]: https://accounts.firefox.com/
 [Firefox Relay Add-on]: https://addons.mozilla.org/firefox/addon/private-relay/
@@ -605,7 +606,7 @@ technologies used to distinguish users by region.
 ### Identifying the User's Region
 
 The stage and production deployments use similar load balancers. These set a
-`X-Client-Region` header based on their IP address. There is no way for a user to
+`X-Client-Region` header based on the visitor's IP address. There is no way for a user to
 override this region selection. A tester can use a [VPN][moz-vpn] to change their
 IP address and their detected region.
 
@@ -614,13 +615,12 @@ addresses do not have a clear region. The development deployment does not have t
 header. Local development also omits the header.
 
 Without a `X-Client-Region` header, the code guesses a region from the `Accept-Language`
-header. The `Accept-Language` fallback looks for a language code with a regional
-variant. For example, the language code `"es-MX"` (Mexican Spanish) implies region code
-`"MX"` (Mexico). When there is no regional variant, the code guesses a probable region
-from a [lookup table][]. The lookup table uses Unicode
-[Common Locale Data Repository][cldr] (CLDR) [Supplemental Data][cldr-sup]. The
-[Language-Territory Information][cldr-lti] includes estimates of language speakers by
-region.
+header. The language fallback looks for a language code with a regional variant. For
+example, the language code `"es-MX"` (Mexican Spanish) implies region code `"MX"`
+(Mexico). When there is no regional variant, the code guesses a probable region from a
+[lookup table][]. The lookup table uses Unicode [Common Locale Data Repository][cldr]
+(CLDR) [Supplemental Data][cldr-sup]. The [Language-Territory Information][cldr-lti]
+data includes estimates of language speakers by region.
 
 [cldr-lti]: https://www.unicode.org/cldr/charts/42/supplemental/language_territory_information.html
 [cldr-sup]: https://www.unicode.org/cldr/charts/42/supplemental/index.html
@@ -637,14 +637,14 @@ user's region.
 The subscription platform (version 2) uses [Stripe][stripe]. A
 [Stripe product][stripe-product] represents each Relay plan, such as the premium email
 service. A [Stripe price][stripe-price] represents how a user will pay. The price has
-an associate plan / product, a currency, tax details, and the term. Many Relay plans have
+an associated product, a currency, tax details, and a term. Many Relay plans have
 monthly and yearly subscription terms. The VPN bundle has yearly terms.
 
 The subscription platform associates a price with a region. Product reports may use this
 to segment purchasers by region.
 
 The subscription platform associates a price with a language. On the subscription page,
-product details appear in the price language. The rest of the subscription page appear
+product details appear in the price language. The rest of the subscription page appears
 in the user's preferred language. For most users, the price language and preferred
 language should be the same.
 
@@ -655,8 +655,14 @@ based on language. Belgium users share the price in Euros of a neighbor, based o
 language. Switzerland has separate prices for German, French, and Italian speakers.
 All the Swiss prices are in Swiss Francs. See [privaterelay/plans.py][] for details.
 
+In development and stage, there are test prices connected to the
+[Stripe test mode][stripe-test]. One feature of test mode is fake credit cards. These
+cards allow testing without paying real money, and testing failure modes. A test visitor
+from the United States will get these prices. Other regions get the production prices.
+
 [/api/v1/runtime_data]: https://relay.firefox.com/api/v1/runtime_data
 [stripe-product]: https://stripe.com/docs/api/products
+[stripe-test]: https://stripe.com/docs/test-mode
 
 ## Terms
 
@@ -671,18 +677,17 @@ Relay developers will see these terms as they work in this topic:
   similar way to i18n. A capital "L" avoids confusing a lowercase "l" with an
   uppercase "I".
 - **[Locale][]**: Shared cultural conventions that appear in a user interface. This
-  can include language, script and currencies. It can also include formats for prices,
-  numbers, dates, and times. The identifier for many locales is the combination of a
-  language code and a region code. An example is `"en-US"` to specify English speakers
-  in America. It implies the English alphabet in left-to-right text. Prices should be
-  in US Dollars (USD, "$5.99"). Numbers use commas as thousands separators (525,960
-  minutes in a year). The first number in a short date the month ("9/12/2023" for
-  September 12, 2023). English-speaking users in other regions share some of these
-  conventions. Other conventions, like currency and date formats, will vary.
+  can include language, letters, and currencies. It can also include formats for prices,
+  numbers, dates, and times. For example, American English can be a locale. This locale
+  uses the English alphabet in left-to-right text. Prices are in US Dollars (USD, "$5.99").
+  Numbers use commas as thousands separators (525,960 minutes in a year). The first
+  number in a short date is the month ("9/12/2023" for September 12, 2023).
+  English-speaking users in other regions share some of these conventions. Other
+  conventions, like currency and date formats, will vary.
 - **[Region][]**: An [administrative division][] that can be the basis for a
   locale. Mozilla prefers to use "Region" instead of "**Country**" when talking about
-  localization. A Region can include areas within a country and areas that span
-  countries.
+  localization. A region can include areas within a country, as well as areas that
+  span countries.
 - **[Language][]**: A spoken or written system of communication. English is a broad
   language category. A language can be specific to a region, such as German spoken in
   Switzerland. In localization, the written system can be important as well. For
@@ -710,7 +715,8 @@ established exception.
 - **Region**: [ISO 3166][] is a multi-part standard for identifying countries,
   territories, and subdivisions. The [ISO 3166-1 alpha-2][] code (two uppercase
   letters) is common as a region identifier.
-  - Mozilla uses the ISO 3166-1 alpha-2 code for a region when available. An
+  - Mozilla uses the ISO 3166-1 alpha-2 code for a region when available. For example,
+    `"US"` identifies the United States, and `"DE"` identifies Germany. An
     exception is [Valencia][], which uses `"valencia"`. Another is the
     [Surselva Region][], which uses `"sursilv"`.
 - **Language**: [ISO 639][] is a multi-part standard for identifying languages.
@@ -718,13 +724,16 @@ established exception.
   letters). The Library of Congress has a [table of languages][iso-639-2-list]
   with [ISO 639-2][] codes (three lowercase letters). This table has the related
   ISO 639-1 codes, when available.
-  - Mozilla uses the ISO 639-1 two-letter code when available. Mozilla falls back to the ISO
+  - Mozilla uses the ISO 639-1 two-letter code when available. For example, `"en"`
+    identifies English, and `"fr"` identifies French. Mozilla falls back to the ISO
     639-2 three-letter code (such as `"yue"` for [Cantonese][]).
 - **Locale**: Locales are usually identified by a language tag. This is a language
   identifier, plus extra identifiers as needed. [RFC 5646][], "Tags for Identifying
   Languages", defines language tags. This RFC is the second half of [BCP 47][].
   The "Accept-Language" header ([RFC 9110][]) uses language tags. This
   header is how a web browser communicates the user's preferred language.
+  - Mozilla uses language tags to identify locales. For
+    example, `"fr"` identifies generic French, and `"es-ES"` for Spanish in Spain.
   - Pontoon uses `"en"`, rather than `"en-US"`, for [English][] as written in the
     [United States][]. Other English-speaking locales include the region. For example,
     `"en-GB"` identifies English as used in the [United Kingdom][] .
@@ -745,8 +754,8 @@ established exception.
     use qvalues in `Accept-Language` defaults. Instead, the order of languages is the
     order of preference.
 - **Currency**: [ISO 4217][] defines codes for currencies.
-  - The Subscription Platform and Relay use the upper-case, three-letter codes. Some
-    examples are `"USD"` for United States dollars and `"EUR"` for Euros.
+  - The Subscription Platform and Relay use the upper-case, three-letter codes.
+    For example, `"USD"` for United States dollars and `"EUR"` for Euros.
 
 [BCP 47]: https://www.rfc-editor.org/info/bcp47
 [Cantonese]: https://en.wikipedia.org/wiki/Cantonese
