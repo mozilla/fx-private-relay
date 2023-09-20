@@ -56,7 +56,7 @@ they enter a new email, they go through account creation. Firefox Accounts store
 real email and preferred language on their new profile.
 
 The user generates a Relay email mask, which they use instead of their real email on
-other websites. When that website sends an email to the Relay email mask, Relay forwards
+other services. When that service sends an email to the Relay email mask, Relay forwards
 the email to the user's real email. The forwarded email has header and footer sections
 surrounding the original content. These sections appear in the user's preferred language
 from their Firefox Account.
@@ -400,8 +400,8 @@ The source query defines the list of supported languages. The list needs an upda
 a new language team takes on the Relay project. A Relay engineer can update the query,
 called a "data source" in Looker, to add the new team.
 
-There are no error reports for the front-end website or the add-on. Relay engineers or QA
-catch issues in translated strings with manual testing.
+There are no error reports for the front end or the add-on. Relay engineers or QA catch
+issues in translated strings with manual testing.
 
 [django-ftl]: https://github.com/django-ftl/django-ftl
 [FTL Errors in Relay Production]: https://lookerstudio.google.com/reporting/63983869-6199-43b8-acb5-52971ffdd023
@@ -443,10 +443,10 @@ Note that many end in "`en-US, en`" as fallback languages. All include "`en`" fo
 generic English.
 
 Some browser extensions allow changing `Accept-Language`. This can be useful for testing
-translations on the Relay website. Extensions are be
-[disabled on some websites][] due to security concerns. These websites
-include Firefox Accounts and the Subscription Platform. Do not use language-switcher
-extensions when testing user flows for buying subscriptions.
+translations on the Relay front end. Extensions are [disabled on some websites][] due to
+security concerns. These websites include Firefox Accounts and the Subscription
+Platform. Do not use language-switcher extensions when testing user flows for buying
+subscriptions.
 
 [`Accept-Language` header]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language
 [intl.properties]: https://pontoon.mozilla.org/es-ES/firefox/toolkit/chrome/global/intl.properties/?string=81017
@@ -630,7 +630,7 @@ language speakers by region.
 ### Identifying Available Plans and Prices
 
 The user's region determines what premium plans are available. The API sends this data
-from [/api/v1/runtime_data][]. The website adjusts content based on availability in the
+in [/api/v1/runtime_data][]. The front end adjusts content based on availability in the
 user's region.
 
 The subscription platform (version 2) uses [Stripe][]. A [Stripe product][] represents
