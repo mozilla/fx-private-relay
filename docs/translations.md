@@ -351,7 +351,7 @@ The Relay engineer updates the data structures in [privaterelay/plans.py][]:
 3. Add new prices details in `_STRIPE_PLAN_DATA`
 4. Add a new section in `_RELAY_PLANS`, such as `premium_expansion`, with the expanded
    regions
-5. Update the relevant functions to take a boolean signalling the waffle flag is
+5. Update the relevant functions to take a boolean signaling the waffle flag is
    on or off. See [PR #3745][], which retired the 2023 expansion flag, for
    details.
 
