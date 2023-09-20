@@ -68,35 +68,23 @@ single_rec_file = os.path.join(
     real_abs_cwd, "fixtures", "single_recipient_sns_body.json"
 )
 
-EMAIL_SNS_BODIES = {}
-file_suffix = "_email_sns_body.json"
-for email_file in glob.glob(os.path.join(real_abs_cwd, "fixtures", "*" + file_suffix)):
-    file_name = os.path.basename(email_file)
-    email_type = file_name[: -len(file_suffix)]
-    with open(email_file, "r") as f:
-        email_sns_body = json.load(f)
-        EMAIL_SNS_BODIES[email_type] = email_sns_body
 
-BOUNCE_SNS_BODIES = {}
-for bounce_type in ["soft", "hard", "spam"]:
-    bounce_file = os.path.join(
-        real_abs_cwd, "fixtures", "%s_bounce_sns_body.json" % bounce_type
-    )
-    with open(bounce_file, "r") as f:
-        bounce_sns_body = json.load(f)
-        BOUNCE_SNS_BODIES[bounce_type] = bounce_sns_body
+def load_fixtures(file_suffix: str) -> dict[str, AWS_SNSMessageJSON]:
+    """Load all fixtures with a particular suffix."""
+    path = os.path.join(real_abs_cwd, "fixtures", "*" + file_suffix)
+    fixtures: dict[str, AWS_SNSMessageJSON] = {}
+    for fixture_file in glob.glob(path):
+        file_name = os.path.basename(fixture_file)
+        key = file_name[: -len(file_suffix)]
+        assert key not in fixtures
+        with open(fixture_file, "r") as f:
+            fixtures[key] = json.load(f)
+    return fixtures
 
-INVALID_SNS_BODIES = {}
-inv_file_suffix = "_invalid_sns_body.json"
-for email_file in glob.glob(
-    os.path.join(real_abs_cwd, "fixtures", "*" + inv_file_suffix)
-):
-    file_name = os.path.basename(email_file)
-    file_type = file_name[: -len(inv_file_suffix)]
-    with open(email_file, "r") as f:
-        sns_body = json.load(f)
-        INVALID_SNS_BODIES[file_type] = sns_body
 
+EMAIL_SNS_BODIES = load_fixtures("_email_sns_body.json")
+BOUNCE_SNS_BODIES = load_fixtures("_bounce_sns_body.json")
+INVALID_SNS_BODIES = load_fixtures("_invalid_sns_body.json")
 
 # Set mocked_function.side_effect = FAIL_TEST_IF_CALLED to safely disable a function
 # for test and assert it was never called.
