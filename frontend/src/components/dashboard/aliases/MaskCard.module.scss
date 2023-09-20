@@ -30,6 +30,7 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
+    position: relative;
 
     @media screen and #{$mq-md} {
       gap: $spacing-sm;
@@ -47,7 +48,11 @@
     .copy-button-wrapper {
       display: flex;
       align-items: center;
-      gap: $spacing-sm;
+      position: relative;
+
+      @media screen and #{$mq-md} {
+        gap: $spacing-sm;
+      }
     }
 
     .copy-button {
@@ -83,7 +88,7 @@
         @media screen and (min-width: $content-lg) {
           max-width: 400px;
         }
-        @media screen and #{$mq-lg} {
+        @media screen and (min-width: calc($screen-lg + 120px)) {
           max-width: calc(
             $content-md - 100px
           ); // Handles long custom domains, prevents going off page.
@@ -102,14 +107,15 @@
       font-weight: 600;
       opacity: 1;
       pointer-events: none;
+      z-index: 2;
 
-      @media screen and (max-width: $screen-sm) {
+      @media screen and (max-width: $screen-md) {
         @include text-body-sm;
       }
       @media screen and (max-width: 380px) {
         // Magic number: 380px to avoid element going off screen.
         position: absolute;
-        right: $spacing-lg;
+        right: 0;
       }
 
       &[aria-hidden="true"] {
@@ -127,6 +133,8 @@
 
       @media screen and #{$mq-lg} {
         display: initial;
+        position: absolute;
+        right: 0;
       }
     }
   }
@@ -142,6 +150,7 @@
     color: $color-grey-40;
     border-radius: $border-radius-sm;
     width: $layout-sm;
+    z-index: 999;
 
     @media (any-pointer: coarse) {
       width: $layout-md;
