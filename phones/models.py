@@ -233,13 +233,6 @@ class RelayNumber(models.Model):
     remaining_seconds = models.IntegerField(
         default=settings.MAX_MINUTES_PER_BILLING_CYCLE * 60
     )
-    # keep remaining_minutes column until the next deploy
-    deprecated_remaining_minutes = models.IntegerField(
-        db_column="remaining_minutes",
-        null=True,
-        blank=True,
-        default=settings.MAX_MINUTES_PER_BILLING_CYCLE,
-    )
     remaining_texts = models.IntegerField(default=settings.MAX_TEXTS_PER_BILLING_CYCLE)
     calls_forwarded = models.IntegerField(default=0)
     calls_blocked = models.IntegerField(default=0)
