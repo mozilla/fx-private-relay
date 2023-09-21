@@ -20,7 +20,6 @@ from botocore.exceptions import ClientError
 from markus.main import MetricsRecord
 from markus.testing import MetricsMock
 from model_bakery import baker
-from waffle.testutils import override_flag
 import pytest
 
 from privaterelay.ftl_bundles import main
