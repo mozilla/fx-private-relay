@@ -2,6 +2,7 @@ from base64 import b64decode
 from copy import deepcopy
 from datetime import datetime, timezone
 from email.message import EmailMessage
+from typing import cast
 from unittest.mock import patch, Mock
 from uuid import uuid4
 import glob
@@ -69,22 +70,36 @@ single_rec_file = os.path.join(
 )
 
 
-def load_fixtures(file_suffix: str) -> dict[str, AWS_SNSMessageJSON]:
+def load_fixtures(file_suffix: str) -> dict[str, AWS_SNSMessageJSON | str]:
     """Load all fixtures with a particular suffix."""
     path = os.path.join(real_abs_cwd, "fixtures", "*" + file_suffix)
-    fixtures: dict[str, AWS_SNSMessageJSON] = {}
+    ext = os.path.splitext(file_suffix)[1]
+    fixtures: dict[str, AWS_SNSMessageJSON | str] = {}
     for fixture_file in glob.glob(path):
         file_name = os.path.basename(fixture_file)
         key = file_name[: -len(file_suffix)]
         assert key not in fixtures
         with open(fixture_file, "r") as f:
-            fixtures[key] = json.load(f)
+            if ext == ".json":
+                fixtures[key] = json.load(f)
+            else:
+                assert ext == ".email"
+                fixtures[key] = f.read()
     return fixtures
 
 
-EMAIL_SNS_BODIES = load_fixtures("_email_sns_body.json")
-BOUNCE_SNS_BODIES = load_fixtures("_bounce_sns_body.json")
-INVALID_SNS_BODIES = load_fixtures("_invalid_sns_body.json")
+def load_sns_fixtures(file_suffix: str) -> dict[str, AWS_SNSMessageJSON]:
+    return cast(dict[str, AWS_SNSMessageJSON], load_fixtures(file_suffix + ".json"))
+
+
+def load_email_fixtures(file_suffix: str) -> dict[str, str]:
+    return cast(dict[str, str], load_fixtures(file_suffix + ".email"))
+
+
+EMAIL_SNS_BODIES = load_sns_fixtures("_email_sns_body")
+BOUNCE_SNS_BODIES = load_sns_fixtures("_bounce_sns_body")
+INVALID_SNS_BODIES = load_sns_fixtures("_invalid_sns_body")
+EMAIL_EXPECTED = load_email_fixtures("_expected")
 
 # Set mocked_function.side_effect = FAIL_TEST_IF_CALLED to safely disable a function
 # for test and assert it was never called.
@@ -121,6 +136,45 @@ def create_email_from_notification(
     return email.as_bytes()
 
 
+def assert_email_equals(output_email: str, name: str) -> None:
+    """
+    Assert the output equals the expected email, after replacements.
+
+    The MIME boundary strings have random content, are replaced with
+    "==[BOUNDARY#]==", with a number based on order found in the email.
+
+    If the output does not match, write the output to the fixtures
+    directory. This allows using other diff tools, and makes it easy
+    to capture new outputs when the email format changes.
+    """
+    expected = EMAIL_EXPECTED[name]
+
+    # Convert the output_email to a generic version
+    generic_email_lines: list[str] = []
+    mime_boundaries: dict[str, str] = {}
+    boundary_re = re.compile(r' boundary="(.*)"')
+    for line in output_email.splitlines():
+        if " boundary=" in line:
+            # Capture the MIME boundary and replace with generic
+            cap = boundary_re.search(line)
+            assert cap
+            boundary = cap.group(1)
+            assert boundary not in mime_boundaries
+            generic_boundary = f"==[BOUNDARY{len(mime_boundaries)}]=="
+            mime_boundaries[boundary] = generic_boundary
+
+        generic_line = line
+        for boundary, generic_boundary in mime_boundaries.items():
+            generic_line = generic_line.replace(boundary, generic_boundary)
+        generic_email_lines.append(generic_line)
+
+    generic_email = "\n".join(generic_email_lines) + "\n"
+    if generic_email != expected:
+        path = os.path.join(real_abs_cwd, "fixtures", name + "_actual.email")
+        open(path, "w").write(generic_email)
+    assert generic_email == expected
+
+
 @override_settings(RELAY_FROM_ADDRESS="reply@relay.example.com")
 class SNSNotificationTest(TestCase):
     def setUp(self) -> None:
@@ -152,9 +206,11 @@ class SNSNotificationTest(TestCase):
         send_raw_email_patcher.start()
         self.addCleanup(send_raw_email_patcher.stop)
 
-    def get_details_from_mock_send_raw_email(self) -> tuple[str, str, dict[str, str]]:
+    def get_details_from_mock_send_raw_email(
+        self,
+    ) -> tuple[str, str, dict[str, str], str]:
         """
-        Get sender, recipient, and headers from the message sent by mocked
+        Get sender, recipient, headers, and email from the message sent by mocked
         ses_client.send_raw_email
         """
         self.mock_send_raw_email.assert_called_once()
@@ -166,7 +222,7 @@ class SNSNotificationTest(TestCase):
         for line in raw_message.splitlines():
             if not line:
                 # Start of message body, done with headers
-                return source, destinations[0], headers
+                return source, destinations[0], headers, raw_message
             assert ": " in line
             key, val = line.split(": ", 1)
             assert key not in headers
@@ -176,7 +232,7 @@ class SNSNotificationTest(TestCase):
     def test_single_recipient_sns_notification(self) -> None:
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
 
-        sender, recipient, headers = self.get_details_from_mock_send_raw_email()
+        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
         assert sender == "replies@default.com"
         assert recipient == "user@example.com"
         content_type = headers.pop("Content-Type")
@@ -189,6 +245,7 @@ class SNSNotificationTest(TestCase):
             "Reply-To": "replies@default.com",
             "Resent-From": "fxastage@protonmail.com",
         }
+        assert_email_equals(email, "single_recipient")
 
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
@@ -199,7 +256,7 @@ class SNSNotificationTest(TestCase):
         """By default, list emails should still forward."""
         _sns_notification(EMAIL_SNS_BODIES["single_recipient_list"])
 
-        sender, recipient, headers = self.get_details_from_mock_send_raw_email()
+        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
         assert sender == "replies@default.com"
         assert recipient == "user@example.com"
         assert headers == {
@@ -211,6 +268,7 @@ class SNSNotificationTest(TestCase):
             "Reply-To": "replies@default.com",
             "Resent-From": "fxastage@protonmail.com",
         }
+        assert_email_equals(email, "single_recipient_list")
 
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
@@ -275,7 +333,7 @@ class SNSNotificationTest(TestCase):
     def test_domain_recipient(self) -> None:
         _sns_notification(EMAIL_SNS_BODIES["domain_recipient"])
 
-        sender, recipient, headers = self.get_details_from_mock_send_raw_email()
+        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
         assert sender == "replies@default.com"
         assert recipient == "premium@email.com"
         assert headers == {
@@ -289,6 +347,7 @@ class SNSNotificationTest(TestCase):
             "Reply-To": "replies@default.com",
             "Resent-From": "fxastage@protonmail.com",
         }
+        assert_email_equals(email, "domain_recipient")
 
         da = DomainAddress.objects.get(user=self.premium_user, address="wildcard")
         assert da.num_forwarded == 1
@@ -355,7 +414,7 @@ class SNSNotificationTest(TestCase):
         self.mock_remove_message_from_s3.assert_called_once()
         mock_get_content.assert_called_once()
 
-        sender, recipient, headers = self.get_details_from_mock_send_raw_email()
+        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
         assert sender == "a1b2c3d4@test.com"
         assert recipient == "sender@external.example.com"
         assert headers == {
@@ -366,6 +425,7 @@ class SNSNotificationTest(TestCase):
             "Reply-To": sender,
             "To": recipient,
         }
+        assert_email_equals(email, "s3_stored_replies")
 
         relay_address.refresh_from_db()
         assert relay_address.num_replied == 1
