@@ -1,4 +1,6 @@
 import { ReactNode } from "react";
+import { event as gaEvent } from "react-ga";
+
 import Image from "next/image";
 import styles from "./ProfileBanners.module.scss";
 import PhoneIllustration from "./images/phone-premium-promo.svg";
@@ -50,6 +52,17 @@ const StopSpamBanner = () => {
         size: "large",
         target: "/premium#pricing",
         content: l10n.getString("banner-ab-premium-promo-cta"),
+        gaViewPing: {
+          category: "Purchase button",
+          label: "premium-promo-stop-spam",
+        },
+        onClick: () => {
+          gaEvent({
+            category: "Purchase button",
+            action: "Engage",
+            label: "premium-promo-stop-spam",
+          });
+        },
       }}
     >
       <p>{l10n.getString("banner-ab-premium-promo-stop-spam-body")}</p>
@@ -75,6 +88,17 @@ const AdvancedIdentityBanner = () => {
         size: "large",
         target: "/premium#pricing",
         content: l10n.getString("banner-ab-premium-promo-cta"),
+        gaViewPing: {
+          category: "Purchase button",
+          label: "premium-promo-advanced-identity",
+        },
+        onClick: () => {
+          gaEvent({
+            category: "Purchase button",
+            action: "Engage",
+            label: "premium-promo-advanced-identity",
+          });
+        },
       }}
     >
       <p>{l10n.getString("banner-ab-premium-promo-advanced-identity-body")}</p>
@@ -100,6 +124,17 @@ const ControlReceiverBanner = () => {
         size: "large",
         target: "/premium#pricing",
         content: l10n.getString("banner-ab-premium-promo-cta"),
+        gaViewPing: {
+          category: "Purchase button",
+          label: "premium-promo-control-receiver",
+        },
+        onClick: () => {
+          gaEvent({
+            category: "Purchase button",
+            action: "Engage",
+            label: "premium-promo-control-receiver",
+          });
+        },
       }}
     >
       <p>{l10n.getString("banner-ab-premium-promo-control-receiver-body")}</p>
@@ -125,6 +160,17 @@ const ExtraProtectionBanner = () => {
         size: "large",
         target: "/premium#pricing",
         content: l10n.getString("banner-ab-premium-promo-cta"),
+        gaViewPing: {
+          category: "Purchase button",
+          label: "premium-promo-extra-protection",
+        },
+        onClick: () => {
+          gaEvent({
+            category: "Purchase button",
+            action: "Engage",
+            label: "premium-promo-extra-protection",
+          });
+        },
       }}
     >
       <p>{l10n.getString("banner-ab-premium-promo-extra-protection-body")}</p>
