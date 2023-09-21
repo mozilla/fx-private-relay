@@ -1,4 +1,6 @@
 import { ReactNode } from "react";
+import { event as gaEvent } from "react-ga";
+
 import Image from "next/image";
 import styles from "./ProfileBanners.module.scss";
 import FirefoxLogo from "./images/fx-logo.svg";
@@ -169,6 +171,17 @@ const NoFirefoxBanner = () => {
           "https://www.mozilla.org/firefox/new/?utm_source=fx-relay&utm_medium=banner&utm_campaign=download-fx",
         content: l10n.getString("banner-download-firefox-cta"),
         size: "large",
+        gaViewPing: {
+          category: "Download Firefox",
+          label: "profile-banner-download-firefox",
+        },
+        onClick: () => {
+          gaEvent({
+            category: "Download Firefox",
+            action: "Engage",
+            label: "profile-banner-download-firefox",
+          });
+        },
       }}
     >
       <p>{l10n.getString("banner-download-firefox-copy-2")}</p>
@@ -191,6 +204,17 @@ const NoAddonBanner = () => {
           "https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=banner&utm_campaign=install-addon",
         content: l10n.getString("banner-download-install-extension-cta"),
         size: "large",
+        gaViewPing: {
+          category: "Download Extension",
+          label: "profile-banner-download-firefox-extension",
+        },
+        onClick: () => {
+          gaEvent({
+            category: "Download Firefox",
+            action: "Engage",
+            label: "profile-banner-download-firefox-extension",
+          });
+        },
       }}
       hiddenWithAddon={true}
     >
@@ -216,6 +240,17 @@ const NoChromeExtensionBanner = () => {
           "https://chrome.google.com/webstore/detail/firefox-relay/lknpoadjjkjcmjhbjpcljdednccbldeb?utm_source=fx-relay&utm_medium=banner&utm_campaign=install-addon",
         content: l10n.getString("banner-download-install-chrome-extension-cta"),
         size: "large",
+        gaViewPing: {
+          category: "Download Extension",
+          label: "profile-banner-download-chrome-extension",
+        },
+        onClick: () => {
+          gaEvent({
+            category: "Download Firefox",
+            action: "Engage",
+            label: "profile-banner-download-chrome-extension",
+          });
+        },
       }}
       hiddenWithAddon={true}
     >
@@ -253,6 +288,13 @@ const NoPremiumBanner = (props: NoPremiumBannerProps) => {
           category: "Purchase Button",
           label: "profile-banner-promo",
         },
+        onClick: () => {
+          gaEvent({
+            category: "Purchase Button",
+            action: "Engage",
+            label: "profile-banner-promo",
+          });
+        },
       }}
     >
       <p>{l10n.getString("banner-upgrade-copy-2")}</p>
@@ -278,6 +320,13 @@ const LoyalistPremiumBanner = (props: NoPremiumBannerProps) => {
         gaViewPing: {
           category: "Purchase Button",
           label: "profile-banner-loyalist-promo",
+        },
+        onClick: () => {
+          gaEvent({
+            category: "Purchase Button",
+            action: "Engage",
+            label: "profile-banner-loyalist-promo",
+          });
         },
       }}
     >
@@ -316,6 +365,17 @@ const BundlePromoBanner = (props: BundleBannerProps) => {
       cta={{
         target: "/premium#pricing",
         size: "large",
+        gaViewPing: {
+          category: "Purchase Bundle button",
+          label: "profile-banner-bundle-promo",
+        },
+        onClick: () => {
+          gaEvent({
+            category: "Purchase Bundle button",
+            action: "Engage",
+            label: "profile-banner-bundle-promo",
+          });
+        },
         content: l10n.getString("bundle-banner-dashboard-upgrade-cta"),
       }}
       dismissal={{

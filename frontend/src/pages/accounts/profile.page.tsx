@@ -17,6 +17,7 @@ import {
   useTooltip,
   useTooltipTrigger,
 } from "react-aria";
+import { event as gaEvent } from "react-ga";
 import { useMenuTriggerState, useTooltipTriggerState } from "react-stately";
 import { toast } from "react-toastify";
 import styles from "./profile.module.scss";
@@ -70,6 +71,10 @@ const Profile: NextPage = () => {
   const bottomBannerSubscriptionLinkRef = useGaViewPing({
     category: "Purchase Button",
     label: "profile-bottom-promo",
+  });
+  const setCustomDomainLinkRef = useGaViewPing({
+    category: "Purchase Button",
+    label: "profile-set-custom-domain",
   });
   const hash = getCookie("profile-location-hash");
   if (hash) {
@@ -231,7 +236,18 @@ const Profile: NextPage = () => {
         {l10n.getString("profile-label-set-your-custom-domain-free-user")}
       </a>
     ) : (
-      <Link className={styles["open-button"]} href={"/premium#pricing"}>
+      <Link
+        className={styles["open-button"]}
+        href={"/premium#pricing"}
+        ref={setCustomDomainLinkRef}
+        onClick={() => {
+          gaEvent({
+            category: "Purchase Button",
+            action: "Engage",
+            label: "profile-set-custom-domain",
+          });
+        }}
+      >
         {l10n.getString("profile-label-set-your-custom-domain-free-user")}
       </Link>
     );
@@ -407,6 +423,13 @@ const Profile: NextPage = () => {
             <LinkButton
               href="/premium#pricing"
               ref={bottomBannerSubscriptionLinkRef}
+              onClick={() => {
+                gaEvent({
+                  category: "Purchase Button",
+                  action: "Engage",
+                  label: "profile-bottom-promo",
+                });
+              }}
             >
               {l10n.getString("banner-pack-upgrade-cta")}
             </LinkButton>
@@ -461,6 +484,13 @@ const Profile: NextPage = () => {
               category: "Purchase Button",
               label: "upgrade-premium-header-mask-limit",
             })}
+            onClick={() => {
+              gaEvent({
+                category: "Purchase Button",
+                action: "Engage",
+                label: "upgrade-premium-header-mask-limit",
+              });
+            }}
           >
             {l10n.getString("profile-maxed-aliases-cta")}
           </LinkButton>
