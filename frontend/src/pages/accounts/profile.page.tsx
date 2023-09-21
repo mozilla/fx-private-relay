@@ -484,6 +484,13 @@ const Profile: NextPage = () => {
               category: "Purchase Button",
               label: "upgrade-premium-header-mask-limit",
             })}
+            onClick={() => {
+              gaEvent({
+                category: "Purchase Button",
+                action: "Engage",
+                label: "upgrade-premium-header-mask-limit",
+              });
+            }}
           >
             {l10n.getString("profile-maxed-aliases-cta")}
           </LinkButton>
