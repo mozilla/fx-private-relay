@@ -11,6 +11,7 @@ import {
   AriaOverlayProps,
 } from "react-aria";
 import { AriaMenuItemProps } from "@react-aria/menu";
+import { event as gaEvent } from "react-ga";
 import {
   Item,
   MenuTriggerState,
@@ -75,7 +76,17 @@ export const AliasGenerationButton = (props: Props) => {
     // If the user does not have Premium, has reached the alias limit,
     // and Premium is available to them, prompt them to upgrade:
     return (
-      <LinkButton href="/premium#pricing" ref={getUnlimitedButtonRef}>
+      <LinkButton
+        href="/premium#pricing"
+        ref={getUnlimitedButtonRef}
+        onClick={() => {
+          gaEvent({
+            category: "Purchase Button",
+            action: "Engage",
+            label: "profile-create-alias-upgrade-promo",
+          });
+        }}
+      >
         {l10n.getString("profile-label-upgrade-2")}
       </LinkButton>
     );
