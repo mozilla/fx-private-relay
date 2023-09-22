@@ -107,13 +107,12 @@
       font-weight: 600;
       opacity: 1;
       pointer-events: none;
-      z-index: 2;
+      z-index: 2; // Places copied label above promotions label
 
       @media screen and (max-width: $screen-md) {
         @include text-body-sm;
       }
       @media screen and (max-width: 380px) {
-        // Magic number: 380px to avoid element going off screen.
         position: absolute;
         right: 0;
       }
