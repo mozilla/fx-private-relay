@@ -1,5 +1,4 @@
 from base64 import b64encode
-from email.errors import InvalidHeaderDefect
 from email.utils import parseaddr
 from typing import Literal
 from urllib.parse import quote_plus
@@ -16,6 +15,7 @@ from emails.utils import (
     generate_from_header,
     get_email_domain_from_settings,
     remove_trackers,
+    InvalidFromHeader,
 )
 
 from .models_tests import make_free_test_user, make_premium_test_user
@@ -133,24 +133,21 @@ def test_generate_from_header(params: _GENERATE_FROM_TEST_CASE_DEF) -> None:
     assert len(header_line) <= max_length
 
 
-def test_generate_from_header_no_domain(caplog: pytest.LogCaptureFixture) -> None:
-    with pytest.raises(InvalidHeaderDefect):
-        generate_from_header('"I am groot" <groot>', "groot@groot.relay.example.com")
-    assert len(caplog.records) == 1
-    record = caplog.records[0]
-    assert record.msg == "generate_from_header"
-    assert getattr(record, "exception_type") == "InvalidHeaderDefect"
-    assert getattr(record, "original_from_address") == '"I am groot" <groot>'
+GENERATE_FROM_HEADER_RAISES_CASES = {
+    "no_domain": '"I am groot" <groot>',
+    "no_address": '"I am groot" <>',
+    "utf_8_encoded": _encode_as_base64_utf8_str('"I am groot" <groot@groot.gr>'),
+}
 
 
-def test_generate_from_header_no_address(caplog: pytest.LogCaptureFixture) -> None:
-    with pytest.raises(IndexError):
-        generate_from_header('"I am groot" <>', "groot@groot.relay.example.com")
-    assert len(caplog.records) == 1
-    record = caplog.records[0]
-    assert record.msg == "generate_from_header"
-    assert getattr(record, "exception_type") == "IndexError"
-    assert getattr(record, "original_from_address") == '"I am groot" <>'
+@pytest.mark.parametrize(
+    "address",
+    GENERATE_FROM_HEADER_RAISES_CASES.values(),
+    ids=GENERATE_FROM_HEADER_RAISES_CASES.keys(),
+)
+def test_generate_from_header_raises(address) -> None:
+    with pytest.raises(InvalidFromHeader):
+        generate_from_header(address, "failures@relay.example.com")
 
 
 @override_settings(SITE_ORIGIN="https://test.com")
