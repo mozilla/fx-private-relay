@@ -48,10 +48,12 @@
     .copy-button-wrapper {
       display: flex;
       align-items: center;
-      position: relative;
 
       @media screen and #{$mq-md} {
         gap: $spacing-sm;
+      }
+      @media screen and (max-width: $screen-xs) {
+        overflow: hidden;
       }
     }
 
@@ -112,7 +114,7 @@
       @media screen and (max-width: $screen-md) {
         @include text-body-sm;
       }
-      @media screen and (max-width: 380px) {
+      @media screen and (max-width: $content-sm) {
         position: absolute;
         right: 0;
       }
