@@ -42,14 +42,19 @@ export const WaitlistPage = (props: Props) => {
   }, [email, usersData]);
 
   useEffect(() => {
-    setLocale(
-      props.supportedLocales.find(
-        (supportedLocale) =>
-          supportedLocale.toLowerCase() ===
-          currentLocale.split("-")[0].toLowerCase(),
-      ) ?? "en",
-    );
-  }, [currentLocale, props.supportedLocales]);
+    // Check if navigator and navigator.language are available
+    if (navigator && navigator.language) {
+      const userLanguage = navigator.language.toLowerCase();
+
+      // Find the supported locale that matches the user's language
+      const matchedLocale = props.supportedLocales.find(
+        (supportedLocale) => supportedLocale.toLowerCase() === userLanguage,
+      );
+
+      // Set the locale to the matched locale or fallback to "en" if not found
+      setLocale(matchedLocale || "en");
+    }
+  }, [props.supportedLocales]);
 
   const onSubmit: FormEventHandler = async (event) => {
     event.preventDefault();
