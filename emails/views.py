@@ -28,7 +28,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import prefetch_related_objects
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
 from django.template.loader import render_to_string
 from django.utils.html import escape
 from django.views.decorators.csrf import csrf_exempt
@@ -134,13 +134,13 @@ def reply_requires_premium_test(request):
 
 
 def wrap_html_email(
-    original_html,
-    language,
-    has_premium,
-    display_email,
-    num_level_one_email_trackers_removed=None,
-    tracker_report_link=0,
-):
+    original_html: str,
+    language: str,
+    has_premium: bool,
+    display_email: str,
+    num_level_one_email_trackers_removed: int | None = None,
+    tracker_report_link: str | None = None,
+) -> str:
     """Add Relay banners, surveys, etc. to an HTML email"""
     email_context = {
         "original_html": original_html,
@@ -154,7 +154,7 @@ def wrap_html_email(
     return render_to_string("emails/wrapped_email.html", email_context)
 
 
-def wrapped_email_test(request):
+def wrapped_email_test(request: HttpRequest) -> HttpResponse:
     """
     Demonstrate rendering of forwarded HTML emails.
 
