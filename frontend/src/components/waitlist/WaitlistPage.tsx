@@ -44,7 +44,7 @@ export const WaitlistPage = (props: Props) => {
   useEffect(() => {
     // Check if navigator and navigator.language are available
     if (navigator && navigator.language) {
-      const userLanguage = navigator.language.toLowerCase();
+      const userLanguage = navigator.language.split("-")[0].toLowerCase();
 
       // Find the supported locale that matches the user's language
       const matchedLocale = props.supportedLocales.find(
