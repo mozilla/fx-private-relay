@@ -10,7 +10,8 @@ incoming email. Their names all end in `_email_sns_body.json`.
 - `dmarc_failed_email_sns_body.json` - Email that failed the [DMARC][] check,
   and the relevant domain's policy is to reject the email.
 - `domain_recipient_email_sns_body.json` - Email to a premium domain email mask.
-- `replies_email_sns_body.json` - Email from a Relay user
+- `replies_email_sns_body.json` - Email from a Relay user, in reply to a previous
+  message forwarded to the user.
 - `s3_stored_email_sns_body.json` - Email content is stored in S3, not embedded in the
   notification.
 - `s3_stored_replies_email_sns_body.json` - Email content for a reply to a forwarded
@@ -37,10 +38,13 @@ fixtures start with the name of the related SNS JSON fixture, and end in
 When the expected mail does not match the actual forwarded mail, the test creates a file
 with the actual output (after standardization). These files end in `_actual.email`
 instead of `_expected.email`. These can be used in a different tool, such as XCode's
-[Opendiff][], to view the differences. They can also be used when changing the email
-content. Once the developer is happy with the new content, they can replace
-`_expected.email` with the contents of `_actual.email`. These files are ignored by git,
-via the `.gitignore` file in this directory.
+[Opendiff][], to view the differences.
+
+They can also be used when changing the email content. For example, if we change the
+format of the HTML wrapper, then the email content will change. Once the developer is
+happy with the new content, they can replace `_expected.email` with the contents of
+`_actual.email`. These files are ignored by git, via the `.gitignore` file in this
+directory.
 
 [Opendiff]: https://keith.github.io/xcode-man-pages/opendiff.1.html
 
