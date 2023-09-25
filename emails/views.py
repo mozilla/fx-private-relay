@@ -431,6 +431,37 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         return _handle_bounce(message_json)
     if notification_type == "Complaint" or event_type == "Complaint":
         return _handle_complaint(message_json)
+    assert notification_type == "Received" and event_type is None
+    return _handle_received(message_json)
+
+
+def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
+    """
+    Handle an AWS SES received notification.
+
+    For more information, see:
+    https://docs.aws.amazon.com/ses/latest/dg/receiving-email-notifications-contents.html
+    https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html
+
+    Returns (may be incomplete):
+    * 200 if the email was sent, the Relay address is disabled, the Relay user is
+      flagged for abuse, the email is under a bounce pause, the email was suppressed
+      for spam, the list email was blocked, or the noreply address was the recipient.
+    * 400 if commonHeaders entry is missing, the Relay recipient address is malformed,
+      the email failed DMARC with reject policy, or the email is a reply chain to a
+      non-premium user.
+    * 404 if an S3-stored email was not found, no Relay address was found in the "To",
+      "CC", or "BCC" fields, or the Relay address is not in the database.
+    * 503 if the "From" address is malformed, the S3 client returned an error different
+      from "not found", or the SES client fails
+
+    And many other returns conditions if the email is a reply. The HTTP returns are an
+    artifact from an earlier time when emails were sent to a webhook. Currently,
+    production instead pulls events from a queue.
+
+    TODO: Return a more appropriate status object
+    TODO: Document the metrics emitted
+    """
     mail = message_json["mail"]
     if "commonHeaders" not in mail:
         logger.error("SNS message without commonHeaders")
