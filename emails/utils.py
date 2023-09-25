@@ -2,6 +2,7 @@ import base64
 import contextlib
 from email.errors import InvalidHeaderDefect
 from email.headerregistry import Address
+from email.message import EmailMessage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
@@ -199,7 +200,7 @@ def get_welcome_email(user: User, format: str) -> str:
 def ses_send_raw_email(
     source_address: str,
     destination_address: str,
-    message: MIMEMultipart,
+    message: EmailMessage,
 ) -> SendRawEmailResponseTypeDef:
     emails_config = apps.get_app_config("emails")
     assert isinstance(emails_config, EmailsConfig)
@@ -224,7 +225,7 @@ def create_message(
     headers: OutgoingHeaders,
     message_body: MessageBody,
     attachments: list[AttachmentPair] | None = None,
-) -> MIMEMultipart:
+) -> EmailMessage:
     msg_with_headers = _start_message_with_headers(headers)
     msg_with_body = _add_body_to_message(msg_with_headers, message_body)
     if not attachments:
@@ -233,18 +234,20 @@ def create_message(
     return msg_with_attachments
 
 
-def _start_message_with_headers(headers: OutgoingHeaders) -> MIMEMultipart:
-    # Create a multipart/mixed parent container.
-    msg = MIMEMultipart("mixed")
+def _start_message_with_headers(headers: OutgoingHeaders) -> EmailMessage:
+    msg = EmailMessage()
+
     # Add headers
     for name, value in headers.items():
         msg[name] = value
+
+    if "MIME-Version" not in msg:
+        msg["MIME-Version"] = "1.0"
+    msg.make_mixed()
     return msg
 
 
-def _add_body_to_message(
-    msg: MIMEMultipart, message_body: MessageBody
-) -> MIMEMultipart:
+def _add_body_to_message(msg: EmailMessage, message_body: MessageBody) -> EmailMessage:
     # Create a multipart/alternative child container.
     msg_body = MIMEMultipart("alternative")
 
@@ -268,8 +271,8 @@ def _add_body_to_message(
 
 
 def _add_attachments_to_message(
-    msg: MIMEMultipart, attachments: list[AttachmentPair]
-) -> MIMEMultipart:
+    msg: EmailMessage, attachments: list[AttachmentPair]
+) -> EmailMessage:
     # attach attachments
     for actual_att_name, attachment in attachments:
         # Define the attachment part and encode it using MIMEApplication.

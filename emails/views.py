@@ -1,7 +1,7 @@
 from copy import deepcopy
 from datetime import datetime, timezone
 from email import message_from_bytes, policy
-from email.mime.multipart import MIMEMultipart
+from email.message import EmailMessage
 from email.utils import parseaddr
 import html
 import json
@@ -45,7 +45,11 @@ from .models import (
     get_domain_numerical,
     get_domains_from_settings,
 )
-from .types import AWS_SNSMessageJSON, MessageBody, OutgoingHeaders
+from .types import (
+    AWS_SNSMessageJSON,
+    MessageBody,
+    OutgoingHeaders,
+)
 from .utils import (
     _get_bucket_and_key_from_s3_json,
     b64_lookup_key,
@@ -739,7 +743,7 @@ def _build_reply_requires_premium_email(
     reply_record: Reply,
     message_id: str | None,
     decrypted_metadata: dict[str, Any] | None,
-) -> MIMEMultipart:
+) -> EmailMessage:
     # If we haven't forwarded a first reply for this user yet, _reply_allowed
     # will forward.  So, tell the user we forwarded it.
     forwarded = not reply_record.address.user.profile.forwarded_first_reply
