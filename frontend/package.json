@@ -60,7 +60,7 @@
     "jest-junit": "^16.0.0",
     "license-checker": "^25.0.1",
     "lint-staged": "^14.0.1",
-    "next": "^13.4.19",
+    "next": "^13.5.2",
     "prettier": "3.0.3",
     "react-test-renderer": "^18.2.0",
     "sass": "^1.67.0",
