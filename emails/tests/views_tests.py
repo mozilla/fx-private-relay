@@ -140,12 +140,19 @@ def assert_email_equals(output_email: str, name: str) -> None:
     """
     Assert the output equals the expected email, after replacements.
 
-    The MIME boundary strings have random content, are replaced with
-    "==[BOUNDARY#]==", with a number based on order found in the email.
+    This function replaces MIME boundary strings, which change each test run.  The
+    replacement is "==[BOUNDARY#]==", where "#" is the order the string appears in the
+    email.
 
-    If the output does not match, write the output to the fixtures
-    directory. This allows using other diff tools, and makes it easy
-    to capture new outputs when the email format changes.
+    Per RFC 1521, 7.2.1, MIME boundary strings must not appear in the bounded content.
+    Most email providers use random number generators when finding a unique string.
+    Python's email library generates a large random value for email boundary strings.
+    These strings are different with each test run. The replacement strings do not
+    vary between test runs, and are still unique for different MIME sections.
+
+    If the output does not match, write the output to the fixtures directory. This
+    allows using other diff tools, and makes it easy to capture new outputs when the
+    email format changes.
     """
     expected = EMAIL_EXPECTED[name]
 
