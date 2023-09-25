@@ -877,6 +877,22 @@ def _reply_allowed(
 def _handle_reply(
     from_address: str, message_json: AWS_SNSMessageJSON, to_address: str
 ) -> HttpResponse:
+    """
+    Handle a reply from a Relay user to an external email.
+
+    Returns (may be incomplete):
+    * 200 if the reply was sent
+    * 400 if the In-Reply-To and References headers are missing, none of the References
+      headers are a reply record, or the SES client raises an error
+    * 403 if the Relay user is not allowed to reply
+    * 404 if the S3-stored email is not found, or there is no matching Reply record in
+      the database
+    * 503 if the S3 client returns an error (other than not found), or the SES client
+      returns an error
+
+    TODO: Return a more appropriate status object (see _handle_received)
+    TODO: Document metrics emitted
+    """
     mail = message_json["mail"]
     try:
         (lookup_key, encryption_key) = _get_keys_from_headers(mail["headers"])
