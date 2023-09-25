@@ -39,6 +39,7 @@ from emails.utils import (
     derive_reply_keys,
     encrypt_reply_metadata,
     get_message_id_bytes,
+    InvalidFromHeader,
 )
 from emails.views import (
     ReplyHeadersNotFound,
@@ -353,6 +354,30 @@ class SNSNotificationTest(TestCase):
         last_used_at = relay_address.last_used_at
         assert last_used_at
         assert (datetime.now(tz=timezone.utc) - last_used_at).seconds < 2.0
+
+    @patch("emails.views.generate_from_header", side_effect=InvalidFromHeader())
+    @patch("emails.views.info_logger")
+    def test_invalid_from_header(self, mock_logger, mock_generate_from_header) -> None:
+        """For MPP-3407, show logging for failed from address"""
+        response = _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
+        assert response.status_code == 503
+        mock_logger.error.assert_called_once_with(
+            "generate_from_header",
+            extra={
+                "from_address": "fxastage@protonmail.com",
+                "source": "fxastage@protonmail.com",
+                "common_headers_from": ["fxastage <fxastage@protonmail.com>"],
+                "headers_from": [
+                    {"name": "From", "value": "fxastage <fxastage@protonmail.com>"}
+                ],
+            },
+        )
+
+        self.mock_send_raw_email.assert_not_called()
+        self.mock_remove_message_from_s3.assert_not_called()
+        self.ra.refresh_from_db()
+        assert self.ra.num_forwarded == 0
+        assert self.ra.last_used_at is None
 
 
 class BounceHandlingTest(TestCase):

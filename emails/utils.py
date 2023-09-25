@@ -362,6 +362,10 @@ def truncate(max_length: int, value: str) -> str:
     return Truncator(value).chars(max_length, truncate=ellipsis)
 
 
+class InvalidFromHeader(Exception):
+    pass
+
+
 def generate_from_header(original_from_address: str, relay_mask: str) -> str:
     """
     Return a From: header str using the original sender and a display name that
@@ -377,14 +381,7 @@ def generate_from_header(original_from_address: str, relay_mask: str) -> str:
         parsed_address = Address(addr_spec=original_address)
     except (InvalidHeaderDefect, IndexError) as e:
         # TODO: MPP-3407, MPP-3417 - Determine how to handle these
-        info_logger.error(
-            "generate_from_header",
-            extra={
-                "exception_type": type(e).__name__,
-                "original_from_address": original_from_address,
-            },
-        )
-        raise
+        raise InvalidFromHeader from e
 
     # Truncate the display name to 71 characters, so the sender portion fits on the
     # first line of a multi-line "From:" header, if it is ASCII. A utf-8 encoded header

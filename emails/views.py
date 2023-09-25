@@ -64,6 +64,7 @@ from .utils import (
     ses_relay_email,
     ses_send_raw_email,
     urlize_and_linebreaks,
+    InvalidFromHeader,
 )
 from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 
@@ -617,7 +618,24 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
 
     destination_address = user_profile.user.email
     reply_address = get_reply_to_address()
-    from_header = generate_from_header(from_address, to_address)
+    try:
+        from_header = generate_from_header(from_address, to_address)
+    except InvalidFromHeader:
+        # TODO: MPP-3407, MPP-3417 - Determine how to handle these
+        header_from = []
+        for header in mail["headers"]:
+            if header["name"].lower() == "from":
+                header_from.append(header)
+        info_logger.error(
+            "generate_from_header",
+            extra={
+                "from_address": from_address,
+                "source": mail["source"],
+                "common_headers_from": common_headers["from"],
+                "headers_from": header_from,
+            },
+        )
+        return HttpResponse("Cannot parse the From address", status=503)
 
     headers: OutgoingHeaders = {
         "Subject": subject,
