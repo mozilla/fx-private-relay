@@ -90,10 +90,9 @@
         @media screen and (min-width: $content-lg) {
           max-width: 400px;
         }
-        @media screen and (min-width: calc($screen-lg + 120px)) {
-          max-width: calc(
-            $content-md - 100px
-          ); // Handles long custom domains, prevents going off page.
+        // Stops long mask domain from cutting into the "Block promotions label"
+        @media screen and (min-width: calc($content-xl)) {
+          max-width: calc($content-md - 100px);
         }
       }
 
@@ -151,7 +150,7 @@
     color: $color-grey-40;
     border-radius: $border-radius-sm;
     width: $layout-sm;
-    z-index: 999;
+    z-index: 3; // Ensures that the button gets placed above the copied label (needed for long custom domains at viewport width ~ 780px)
 
     @media (any-pointer: coarse) {
       width: $layout-md;
