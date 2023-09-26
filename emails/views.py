@@ -594,10 +594,6 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         # we are returning a 503 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
-    # sample tracker numbers
-    if sample_is_active("tracker-sample") and html_content:
-        count_all_trackers(html_content)
-
     message_body: MessageBody = {}
 
     if html_content:
