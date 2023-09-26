@@ -577,8 +577,38 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         address.save(update_fields=["num_blocked"])
         return HttpResponse("Address is not accepting list emails.")
 
+    # Collect new headers
     subject = common_headers.get("subject", "")
+    destination_address = user_profile.user.email
+    reply_address = get_reply_to_address()
+    try:
+        from_header = generate_from_header(from_address, to_address)
+    except InvalidFromHeader:
+        # TODO: MPP-3407, MPP-3417 - Determine how to handle these
+        header_from = []
+        for header in mail["headers"]:
+            if header["name"].lower() == "from":
+                header_from.append(header)
+        info_logger.error(
+            "generate_from_header",
+            extra={
+                "from_address": from_address,
+                "source": mail["source"],
+                "common_headers_from": common_headers["from"],
+                "headers_from": header_from,
+            },
+        )
+        return HttpResponse("Cannot parse the From address", status=503)
 
+    headers: OutgoingHeaders = {
+        "Subject": subject,
+        "From": from_header,
+        "To": destination_address,
+        "Reply-To": reply_address,
+        "Resent-From": from_address,
+    }
+
+    # Get incoming email
     try:
         (
             text_content,
@@ -594,6 +624,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         # we are returning a 503 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
+    # Convert to new email
     message_body: MessageBody = {}
 
     if html_content:
@@ -628,35 +659,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         )
         message_body["Text"] = new_text_content
 
-    destination_address = user_profile.user.email
-    reply_address = get_reply_to_address()
-    try:
-        from_header = generate_from_header(from_address, to_address)
-    except InvalidFromHeader:
-        # TODO: MPP-3407, MPP-3417 - Determine how to handle these
-        header_from = []
-        for header in mail["headers"]:
-            if header["name"].lower() == "from":
-                header_from.append(header)
-        info_logger.error(
-            "generate_from_header",
-            extra={
-                "from_address": from_address,
-                "source": mail["source"],
-                "common_headers_from": common_headers["from"],
-                "headers_from": header_from,
-            },
-        )
-        return HttpResponse("Cannot parse the From address", status=503)
-
-    headers: OutgoingHeaders = {
-        "Subject": subject,
-        "From": from_header,
-        "To": destination_address,
-        "Reply-To": reply_address,
-        "Resent-From": from_address,
-    }
-
+    # Finalize and send new email
     response = ses_relay_email(
         reply_address,
         destination_address,
