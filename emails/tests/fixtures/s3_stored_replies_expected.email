@@ -18,12 +18,11 @@ Content-Transfer-Encoding: 7bit
 this is a text reply
 
 --==[BOUNDARY1]==
-Content-Type: text/html; charset="utf-8"
+Content-Type: text/html; charset="us-ascii"
 MIME-Version: 1.0
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 7bit
 
-dGhpcyBpcyBhIHRleHQgcmVwbHk8YnI+
-
+this is a text reply<br>
 --==[BOUNDARY1]==--
 
 --==[BOUNDARY0]==--
