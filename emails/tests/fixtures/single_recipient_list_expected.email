@@ -1,46 +1,51 @@
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="==[BOUNDARY0]=="
 Subject: localized email header + footer
 From: "fxastage@protonmail.com [via Relay]" <ebsbdsan7@test.com>
 To: user@example.com
 Reply-To: replies@default.com
 Resent-From: fxastage@protonmail.com
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="==[BOUNDARY0]=="
+
+This is a multi-part message in MIME format.
 
 --==[BOUNDARY0]==
-Content-Type: multipart/alternative;
- boundary="==[BOUNDARY1]=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 
---==[BOUNDARY1]==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-
-This email was sent to your alias ebsbdsan7@test.com. To stop receiving emails sent to this alias, update the forwarding settings in your dashboard.
+This email was sent to your alias ebsbdsan7@test.com. To stop receiving email=
+s sent to this alias, update the forwarding settings in your dashboard.
 ---Begin Email---
 should work
 
 Sent with [ProtonMail](https://protonmail.com/) Secure Email.
---==[BOUNDARY1]==
-Content-Type: text/html; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+--==[BOUNDARY0]==
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/T=
+R/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns=3D"http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="width=device-width"/>
+    <meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dutf-8" =
+/>
+    <meta name=3D"viewport" content=3D"width=3Ddevice-width"/>
     <style>
     @font-face {
       font-family: 'inter';
       font-style: normal;
-      src: local('Inter Regular'), local('Inter-Regular'), url(https://relay.firefox.com/fonts/Inter/Inter-Regular.4232a675a077.woff2?v=3.18) format('woff');
+      src: local('Inter Regular'), local('Inter-Regular'), url(https://relay.=
+firefox.com/fonts/Inter/Inter-Regular.4232a675a077.woff2?v=3D3.18) format('wo=
+ff');
     }
     @font-face {
       font-family: 'inter medium';
       font-style: bold;
-      src: local('Inter Medium'), local('Inter-Medium'), url(https://relay.firefox.com/fonts/Inter/Inter-Medium.woff2?v=3.18) format('woff');
+      src: local('Inter Medium'), local('Inter-Medium'), url(https://relay.fi=
+refox.com/fonts/Inter/Inter-Medium.woff2?v=3D3.18) format('woff');
     }
     * {
       box-sizing: border-box;
@@ -122,28 +127,45 @@ Content-Transfer-Encoding: 7bit
     }
     </style>
   </head>
-  <body id="relay-email" style="padding: 0; margin: 0;">
+  <body id=3D"relay-email" style=3D"padding: 0; margin: 0;">
     <!-- Header -->
-    <table id="relay-email-header" width="100%" bgcolor="#3D3D3D" style="background: #3D3D3D; padding: 12px 25px; margin-top: 30px; margin-bottom: 30px; width: 96%; border-radius: 6px; max-width: 1200px;" align="center">
+    <table id=3D"relay-email-header" width=3D"100%" bgcolor=3D"#3D3D3D" style=
+=3D"background: #3D3D3D; padding: 12px 25px; margin-top: 30px; margin-bottom:=
+ 30px; width: 96%; border-radius: 6px; max-width: 1200px;" align=3D"center">
       <tr>
-        <td class="header-block-left" width="50%" align="left" style="padding-top: 5px;">
-          <img width="30" src="http://127.0.0.1:8000/static/images/email-images/relay-icon.png" style="margin-right: 5px; display: inline-block; vertical-align: top;" alt="relay icon"/>
-          <p style="margin-top: 0; margin-bottom: 5px; display: inline-block;">
-            <span class="forwarded-from-email" style="display: block; color: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
-            Forwarded from <a href="http://127.0.0.1:8000/accounts/profile/#ebsbdsan7%40test.com" class="container-link" style="margin-right: 30px;color: #FFFFFF;font-size: 12px;">ebsbdsan7@test.com</a>
+        <td class=3D"header-block-left" width=3D"50%" align=3D"left" style=3D=
+"padding-top: 5px;">
+          <img width=3D"30" src=3D"http://127.0.0.1:8000/static/images/email-=
+images/relay-icon.png" style=3D"margin-right: 5px; display: inline-block; ver=
+tical-align: top;" alt=3D"relay icon"/>
+          <p style=3D"margin-top: 0; margin-bottom: 5px; display: inline-bloc=
+k;">
+            <span class=3D"forwarded-from-email" style=3D"display: block; col=
+or: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
+            Forwarded from <a href=3D"http://127.0.0.1:8000/accounts/profile/=
+#ebsbdsan7%40test.com" class=3D"container-link" style=3D"margin-right: 30px;c=
+olor: #FFFFFF;font-size: 12px;">ebsbdsan7@test.com</a>
             </span>
-          <span style="margin-top: 0; margin-bottom: 5px; display: block;color: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
-              by <a href="http://127.0.0.1:8000/accounts/profile/" class="container-link" style="margin-right: 30px;color: #FFFFFF;font-size: 12px;">Firefox Relay</a>
+          <span style=3D"margin-top: 0; margin-bottom: 5px; display: block;co=
+lor: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
+              by <a href=3D"http://127.0.0.1:8000/accounts/profile/" class=3D=
+"container-link" style=3D"margin-right: 30px;color: #FFFFFF;font-size: 12px;"=
+>Firefox Relay</a>
           </span>
           </p>
         </td>
-        <td class="header-block-right" width="50%" align="right">
-          <p class="relay-trackers-removed" style="margin: 0 30px 0 0; display: inline-block; color: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
-            <img class="email-trackers-removed-icon" width="15" src="http://127.0.0.1:8000/static/images/email-images/email-trackers-removed-icon.png" alt="email trackers removed icon"/>
-              <span dir="auto">0</span> email trackers removed
+        <td class=3D"header-block-right" width=3D"50%" align=3D"right">
+          <p class=3D"relay-trackers-removed" style=3D"margin: 0 30px 0 0; di=
+splay: inline-block; color: #FFFFFF; font-family: 'inter', Arial, sans-serif;=
+ font-size: 12px;">
+            <img class=3D"email-trackers-removed-icon" width=3D"15" src=3D"ht=
+tp://127.0.0.1:8000/static/images/email-images/email-trackers-removed-icon.pn=
+g" alt=3D"email trackers removed icon"/>
+              <span dir=3D"auto">0</span> email trackers removed
           </p>
-          <p class="relay-mask" style="margin: 0; display: inline-block;">
-              <a class="container-link" href="http://127.0.0.1:8000/premium" style="color: #FFFFFF;">
+          <p class=3D"relay-mask" style=3D"margin: 0; display: inline-block;">
+              <a class=3D"container-link" href=3D"http://127.0.0.1:8000/premi=
+um" style=3D"color: #FFFFFF;">
                 Upgrade for more protection
               </a>
           </p>
@@ -151,29 +173,42 @@ Content-Transfer-Encoding: 7bit
       </tr>
     </table>
     <!-- Email Body -->
-    <table id="relay-email-body" width="100%" style="padding: 0; max-width:700px;" align="center">
+    <table id=3D"relay-email-body" width=3D"100%" style=3D"padding: 0; max-wi=
+dth:700px;" align=3D"center">
       <tr>
-        <td width="100%" style="padding-left: 15px; padding-right: 15px;">
-          <div style="font-family: arial; font-size: 14px;"><div style="font-family: arial; font-size: 14px;">should work<br></div><div style="font-family: arial; font-size: 14px;"><br></div><div style="font-family: arial; font-size: 14px;" class="protonmail_signature_block"><div class="protonmail_signature_block-user protonmail_signature_block-empty"></div><div class="protonmail_signature_block-proton">Sent with <a rel="noopener noreferrer" href="https://protonmail.com/" target="_blank">ProtonMail</a> Secure Email.</div></div></div><div style="font-family: arial; font-size: 14px;"><br></div>
+        <td width=3D"100%" style=3D"padding-left: 15px; padding-right: 15px;">
+          <div style=3D"font-family: arial; font-size: 14px;"><div style=3D"f=
+ont-family: arial; font-size: 14px;">should work<br></div><div style=3D"font-=
+family: arial; font-size: 14px;"><br></div><div style=3D"font-family: arial; =
+font-size: 14px;" class=3D"protonmail_signature_block"><div class=3D"protonma=
+il_signature_block-user protonmail_signature_block-empty"></div><div class=3D=
+"protonmail_signature_block-proton">Sent with <a rel=3D"noopener noreferrer" =
+href=3D"https://protonmail.com/" target=3D"_blank">ProtonMail</a> Secure Emai=
+l.</div></div></div><div style=3D"font-family: arial; font-size: 14px;"><br><=
+/div>
         </td>
       </tr>
     </table>
     <!-- Footer -->
-    <table id="relay-email-footer" width="100%" bgcolor="#3D3D3D" style="background: #3D3D3D; padding: 12px 25px; margin-top: 30px; margin-bottom: 30px; width: 96%; border-radius: 6px; max-width: 1200px;" align="center">
+    <table id=3D"relay-email-footer" width=3D"100%" bgcolor=3D"#3D3D3D" style=
+=3D"background: #3D3D3D; padding: 12px 25px; margin-top: 30px; margin-bottom:=
+ 30px; width: 96%; border-radius: 6px; max-width: 1200px;" align=3D"center">
       <tr>
-        <td class="footer-block" width="50%" align="left">
-          <a class="container-link" href="http://127.0.0.1:8000">
-            <img width="110" src="http://127.0.0.1:8000/static/images/email-images/relay-logo-emails-dark-bg.png" style="margin: 0;" alt="relay logo"/>
+        <td class=3D"footer-block" width=3D"50%" align=3D"left">
+          <a class=3D"container-link" href=3D"http://127.0.0.1:8000">
+            <img width=3D"110" src=3D"http://127.0.0.1:8000/static/images/ema=
+il-images/relay-logo-emails-dark-bg.png" style=3D"margin: 0;" alt=3D"relay lo=
+go"/>
           </a>
         </td>
-        <td class="footer-block" width="50%" align="right">
-          <a class="container-link" href="http://127.0.0.1:8000/accounts/profile" style="color: #FFFFFF;">Your dashboard</a>
+        <td class=3D"footer-block" width=3D"50%" align=3D"right">
+          <a class=3D"container-link" href=3D"http://127.0.0.1:8000/accounts/=
+profile" style=3D"color: #FFFFFF;">Your dashboard</a>
         </td>
       </tr>
     </table>
   </body>
 </html>
 
---==[BOUNDARY1]==--
-
 --==[BOUNDARY0]==--
+

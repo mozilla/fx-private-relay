@@ -1,141 +1,234 @@
+Mime-Version: 1.0 (MailClient 1.1.1)
+Content-Type: multipart/related;
+	type="multipart/alternative";
+	boundary="MailClient=_85CB3D2B-71DA-4F6C-9F70-F0735457C609"
 Subject: Test Email
 From: "friend@mail.example.com [via Relay]" <ebsbdsan7@test.com>
 To: user@example.com
 Reply-To: replies@default.com
 Resent-From: friend@mail.example.com
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="==[BOUNDARY0]=="
 
---==[BOUNDARY0]==
+--MailClient=_85CB3D2B-71DA-4F6C-9F70-F0735457C609
 Content-Type: multipart/alternative;
- boundary="==[BOUNDARY1]=="
-MIME-Version: 1.0
+	boundary="MailClient=_0C16924A-AE2E-42A3-B146-6CF67E5439A3"
 
---==[BOUNDARY1]==
+--MailClient=_0C16924A-AE2E-42A3-B146-6CF67E5439A3
 Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: base64
 
-VGhpcyBlbWFpbCB3YXMgc2VudCB0byB5b3VyIGFsaWFzIGVic2Jkc2FuN0B0ZXN0LmNvbS4gVG8g
-c3RvcCByZWNlaXZpbmcgZW1haWxzIHNlbnQgdG8gdGhpcyBhbGlhcywgdXBkYXRlIHRoZSBmb3J3
-YXJkaW5nIHNldHRpbmdzIGluIHlvdXIgZGFzaGJvYXJkLgotLS1CZWdpbiBFbWFpbC0tLQpIZXJl
-IGlzIGFuIGlubGluZSBpbWFnZToKCuKAkyBZb3VyIEZyaWVuZA==
+This email was sent to your alias ebsbdsan7@test.com. To stop receiving email=
+s sent to this alias, update the forwarding settings in your dashboard.
+---Begin Email---
+Here is an inline image:
 
---==[BOUNDARY1]==
+=E2=80=93 Your Friend
+
+--MailClient=_0C16924A-AE2E-42A3-B146-6CF67E5439A3
 Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/T=
+R/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns=3D"http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dutf-8" =
+/>
+    <meta name=3D"viewport" content=3D"width=3Ddevice-width"/>
+    <style>
+    @font-face {
+      font-family: 'inter';
+      font-style: normal;
+      src: local('Inter Regular'), local('Inter-Regular'), url(https://relay.=
+firefox.com/fonts/Inter/Inter-Regular.4232a675a077.woff2?v=3D3.18) format('wo=
+ff');
+    }
+    @font-face {
+      font-family: 'inter medium';
+      font-style: bold;
+      src: local('Inter Medium'), local('Inter-Medium'), url(https://relay.fi=
+refox.com/fonts/Inter/Inter-Medium.woff2?v=3D3.18) format('woff');
+    }
+    * {
+      box-sizing: border-box;
+    }
+    #relay-email-header,
+    #relay-email-footer {
+      font-family: 'inter', Arial, sans-serif;
+      color: #FFFFFF;
+      font-size: 12px;
+    }
+    a.container-link {
+      transition: all 0.2s ease;
+      text-underline-offset: 2px;
+      font-family: 'inter medium', Arial, sans-serif;
+    }
+    a.container-link:hover {
+      color: #20123ad5;
+      transition: all 0.2s ease;
+    }
+    a.container-link {
+      color: #FFFFFF;
+      font-size: 12px;
+    }
+    a.container-link:hover,
+    a.container-link:focus,
+    a.container-link:active {
+      transition: all 0.2s ease;
+    }
+    .email-trackers-removed-icon {
+      margin-right: 5px;
+      vertical-align: bottom;
+    }
+    @media screen and (max-width: 768px) {
+      .footer-block {
+        display: block;
+        width: 100%;
+        text-align: center;
+      }
+      .footer-block .container-link img {
+        height: 45px;
+        width: auto;
+      }
+      .header-block-left,
+      .header-block-right {
+        display: block;
+        width: 100%;
+        text-align: left;
+      }
+      .header-block-right {
+        margin-left: 40px;
+      }
+      .relay-trackers-removed,
+      .relay-mask {
+        width: 100%;
+        display: block;
+      }
+    }
+    /* this deals with long email addresses */
+    .forwarded-from-email {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 500px;
+      }
+    @media screen and (max-width: 1200px) {
+      .forwarded-from-email {
+        width: 300px;
+      }
+    }
+    @media screen and (max-width: 768px){
+      .forwarded-from-email {
+        width: 250px;
+      }
+    }
+    @media screen and (max-width: 425px) {
+      .forwarded-from-email {
+        width: 200px;
+      }
+    }
+    </style>
+  </head>
+  <body id=3D"relay-email" style=3D"padding: 0; margin: 0;">
+    <!-- Header -->
+    <table id=3D"relay-email-header" width=3D"100%" bgcolor=3D"#3D3D3D" style=
+=3D"background: #3D3D3D; padding: 12px 25px; margin-top: 30px; margin-bottom:=
+ 30px; width: 96%; border-radius: 6px; max-width: 1200px;" align=3D"center">
+      <tr>
+        <td class=3D"header-block-left" width=3D"50%" align=3D"left" style=3D=
+"padding-top: 5px;">
+          <img width=3D"30" src=3D"http://127.0.0.1:8000/static/images/email-=
+images/relay-icon.png" style=3D"margin-right: 5px; display: inline-block; ver=
+tical-align: top;" alt=3D"relay icon"/>
+          <p style=3D"margin-top: 0; margin-bottom: 5px; display: inline-bloc=
+k;">
+            <span class=3D"forwarded-from-email" style=3D"display: block; col=
+or: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
+            Forwarded from <a href=3D"http://127.0.0.1:8000/accounts/profile/=
+#ebsbdsan7%40test.com" class=3D"container-link" style=3D"margin-right: 30px;c=
+olor: #FFFFFF;font-size: 12px;">ebsbdsan7@test.com</a>
+            </span>
+          <span style=3D"margin-top: 0; margin-bottom: 5px; display: block;co=
+lor: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
+              by <a href=3D"http://127.0.0.1:8000/accounts/profile/" class=3D=
+"container-link" style=3D"margin-right: 30px;color: #FFFFFF;font-size: 12px;"=
+>Firefox Relay</a>
+          </span>
+          </p>
+        </td>
+        <td class=3D"header-block-right" width=3D"50%" align=3D"right">
+          <p class=3D"relay-trackers-removed" style=3D"margin: 0 30px 0 0; di=
+splay: inline-block; color: #FFFFFF; font-family: 'inter', Arial, sans-serif;=
+ font-size: 12px;">
+            <img class=3D"email-trackers-removed-icon" width=3D"15" src=3D"ht=
+tp://127.0.0.1:8000/static/images/email-images/email-trackers-removed-icon.pn=
+g" alt=3D"email trackers removed icon"/>
+              <span dir=3D"auto">0</span> email trackers removed
+          </p>
+          <p class=3D"relay-mask" style=3D"margin: 0; display: inline-block;">
+              <a class=3D"container-link" href=3D"http://127.0.0.1:8000/premi=
+um" style=3D"color: #FFFFFF;">
+                Upgrade for more protection
+              </a>
+          </p>
+        </td>
+      </tr>
+    </table>
+    <!-- Email Body -->
+    <table id=3D"relay-email-body" width=3D"100%" style=3D"padding: 0; max-wi=
+dth:700px;" align=3D"center">
+      <tr>
+        <td width=3D"100%" style=3D"padding-left: 15px; padding-right: 15px;">
+          <!doctype html><html><body><div dir=3D"ltr">Here is an inline image=
+:&nbsp;<img src=3D"cid:0A0AD2F8-6672-45A8-8248-0AC6C7282970" style=3D"max-wid=
+th: 100%; width: 12px;"><div><br></div><div dir=3D"ltr"><ul style=3D"list-sty=
+le-type: &quot;=E2=80=93  &quot;; margin: 0px; padding-inline-start: 1.8em;" =
+dir=3D"ltr"><li>Your Friend</li></ul></div></div></body></html>
+        </td>
+      </tr>
+    </table>
+    <!-- Footer -->
+    <table id=3D"relay-email-footer" width=3D"100%" bgcolor=3D"#3D3D3D" style=
+=3D"background: #3D3D3D; padding: 12px 25px; margin-top: 30px; margin-bottom:=
+ 30px; width: 96%; border-radius: 6px; max-width: 1200px;" align=3D"center">
+      <tr>
+        <td class=3D"footer-block" width=3D"50%" align=3D"left">
+          <a class=3D"container-link" href=3D"http://127.0.0.1:8000">
+            <img width=3D"110" src=3D"http://127.0.0.1:8000/static/images/ema=
+il-images/relay-logo-emails-dark-bg.png" style=3D"margin: 0;" alt=3D"relay lo=
+go"/>
+          </a>
+        </td>
+        <td class=3D"footer-block" width=3D"50%" align=3D"right">
+          <a class=3D"container-link" href=3D"http://127.0.0.1:8000/accounts/=
+profile" style=3D"color: #FFFFFF;">Your dashboard</a>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+
+--MailClient=_0C16924A-AE2E-42A3-B146-6CF67E5439A3--
+
+--MailClient=_85CB3D2B-71DA-4F6C-9F70-F0735457C609
+Content-Type: image/png;
+	name="clock-purple.png"
 Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+	filename="clock-purple.png"
+Content-ID: <0A0AD2F8-6672-45A8-8248-0AC6C7282970>
 
-PCFET0NUWVBFIGh0bWwgUFVCTElDICItLy9XM0MvL0RURCBYSFRNTCAxLjAgU3RyaWN0Ly9FTiIg
-Imh0dHA6Ly93d3cudzMub3JnL1RSL3hodG1sMS9EVEQveGh0bWwxLXN0cmljdC5kdGQiPgo8aHRt
-bCB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94aHRtbCI+CiAgPGhlYWQ+CiAgICA8bWV0
-YSBodHRwLWVxdWl2PSJDb250ZW50LVR5cGUiIGNvbnRlbnQ9InRleHQvaHRtbDsgY2hhcnNldD11
-dGYtOCIgLz4KICAgIDxtZXRhIG5hbWU9InZpZXdwb3J0IiBjb250ZW50PSJ3aWR0aD1kZXZpY2Ut
-d2lkdGgiLz4KICAgIDxzdHlsZT4KICAgIEBmb250LWZhY2UgewogICAgICBmb250LWZhbWlseTog
-J2ludGVyJzsKICAgICAgZm9udC1zdHlsZTogbm9ybWFsOwogICAgICBzcmM6IGxvY2FsKCdJbnRl
-ciBSZWd1bGFyJyksIGxvY2FsKCdJbnRlci1SZWd1bGFyJyksIHVybChodHRwczovL3JlbGF5LmZp
-cmVmb3guY29tL2ZvbnRzL0ludGVyL0ludGVyLVJlZ3VsYXIuNDIzMmE2NzVhMDc3LndvZmYyP3Y9
-My4xOCkgZm9ybWF0KCd3b2ZmJyk7CiAgICB9CiAgICBAZm9udC1mYWNlIHsKICAgICAgZm9udC1m
-YW1pbHk6ICdpbnRlciBtZWRpdW0nOwogICAgICBmb250LXN0eWxlOiBib2xkOwogICAgICBzcmM6
-IGxvY2FsKCdJbnRlciBNZWRpdW0nKSwgbG9jYWwoJ0ludGVyLU1lZGl1bScpLCB1cmwoaHR0cHM6
-Ly9yZWxheS5maXJlZm94LmNvbS9mb250cy9JbnRlci9JbnRlci1NZWRpdW0ud29mZjI/dj0zLjE4
-KSBmb3JtYXQoJ3dvZmYnKTsKICAgIH0KICAgICogewogICAgICBib3gtc2l6aW5nOiBib3JkZXIt
-Ym94OwogICAgfQogICAgI3JlbGF5LWVtYWlsLWhlYWRlciwKICAgICNyZWxheS1lbWFpbC1mb290
-ZXIgewogICAgICBmb250LWZhbWlseTogJ2ludGVyJywgQXJpYWwsIHNhbnMtc2VyaWY7CiAgICAg
-IGNvbG9yOiAjRkZGRkZGOwogICAgICBmb250LXNpemU6IDEycHg7CiAgICB9CiAgICBhLmNvbnRh
-aW5lci1saW5rIHsKICAgICAgdHJhbnNpdGlvbjogYWxsIDAuMnMgZWFzZTsKICAgICAgdGV4dC11
-bmRlcmxpbmUtb2Zmc2V0OiAycHg7CiAgICAgIGZvbnQtZmFtaWx5OiAnaW50ZXIgbWVkaXVtJywg
-QXJpYWwsIHNhbnMtc2VyaWY7CiAgICB9CiAgICBhLmNvbnRhaW5lci1saW5rOmhvdmVyIHsKICAg
-ICAgY29sb3I6ICMyMDEyM2FkNTsKICAgICAgdHJhbnNpdGlvbjogYWxsIDAuMnMgZWFzZTsKICAg
-IH0KICAgIGEuY29udGFpbmVyLWxpbmsgewogICAgICBjb2xvcjogI0ZGRkZGRjsKICAgICAgZm9u
-dC1zaXplOiAxMnB4OwogICAgfQogICAgYS5jb250YWluZXItbGluazpob3ZlciwKICAgIGEuY29u
-dGFpbmVyLWxpbms6Zm9jdXMsCiAgICBhLmNvbnRhaW5lci1saW5rOmFjdGl2ZSB7CiAgICAgIHRy
-YW5zaXRpb246IGFsbCAwLjJzIGVhc2U7CiAgICB9CiAgICAuZW1haWwtdHJhY2tlcnMtcmVtb3Zl
-ZC1pY29uIHsKICAgICAgbWFyZ2luLXJpZ2h0OiA1cHg7CiAgICAgIHZlcnRpY2FsLWFsaWduOiBi
-b3R0b207CiAgICB9CiAgICBAbWVkaWEgc2NyZWVuIGFuZCAobWF4LXdpZHRoOiA3NjhweCkgewog
-ICAgICAuZm9vdGVyLWJsb2NrIHsKICAgICAgICBkaXNwbGF5OiBibG9jazsKICAgICAgICB3aWR0
-aDogMTAwJTsKICAgICAgICB0ZXh0LWFsaWduOiBjZW50ZXI7CiAgICAgIH0KICAgICAgLmZvb3Rl
-ci1ibG9jayAuY29udGFpbmVyLWxpbmsgaW1nIHsKICAgICAgICBoZWlnaHQ6IDQ1cHg7CiAgICAg
-ICAgd2lkdGg6IGF1dG87CiAgICAgIH0KICAgICAgLmhlYWRlci1ibG9jay1sZWZ0LAogICAgICAu
-aGVhZGVyLWJsb2NrLXJpZ2h0IHsKICAgICAgICBkaXNwbGF5OiBibG9jazsKICAgICAgICB3aWR0
-aDogMTAwJTsKICAgICAgICB0ZXh0LWFsaWduOiBsZWZ0OwogICAgICB9CiAgICAgIC5oZWFkZXIt
-YmxvY2stcmlnaHQgewogICAgICAgIG1hcmdpbi1sZWZ0OiA0MHB4OwogICAgICB9CiAgICAgIC5y
-ZWxheS10cmFja2Vycy1yZW1vdmVkLAogICAgICAucmVsYXktbWFzayB7CiAgICAgICAgd2lkdGg6
-IDEwMCU7CiAgICAgICAgZGlzcGxheTogYmxvY2s7CiAgICAgIH0KICAgIH0KICAgIC8qIHRoaXMg
-ZGVhbHMgd2l0aCBsb25nIGVtYWlsIGFkZHJlc3NlcyAqLwogICAgLmZvcndhcmRlZC1mcm9tLWVt
-YWlsIHsKICAgICAgICB3aGl0ZS1zcGFjZTogbm93cmFwOwogICAgICAgIG92ZXJmbG93OiBoaWRk
-ZW47CiAgICAgICAgdGV4dC1vdmVyZmxvdzogZWxsaXBzaXM7CiAgICAgICAgd2lkdGg6IDUwMHB4
-OwogICAgICB9CiAgICBAbWVkaWEgc2NyZWVuIGFuZCAobWF4LXdpZHRoOiAxMjAwcHgpIHsKICAg
-ICAgLmZvcndhcmRlZC1mcm9tLWVtYWlsIHsKICAgICAgICB3aWR0aDogMzAwcHg7CiAgICAgIH0K
-ICAgIH0KICAgIEBtZWRpYSBzY3JlZW4gYW5kIChtYXgtd2lkdGg6IDc2OHB4KXsKICAgICAgLmZv
-cndhcmRlZC1mcm9tLWVtYWlsIHsKICAgICAgICB3aWR0aDogMjUwcHg7CiAgICAgIH0KICAgIH0K
-ICAgIEBtZWRpYSBzY3JlZW4gYW5kIChtYXgtd2lkdGg6IDQyNXB4KSB7CiAgICAgIC5mb3J3YXJk
-ZWQtZnJvbS1lbWFpbCB7CiAgICAgICAgd2lkdGg6IDIwMHB4OwogICAgICB9CiAgICB9CiAgICA8
-L3N0eWxlPgogIDwvaGVhZD4KICA8Ym9keSBpZD0icmVsYXktZW1haWwiIHN0eWxlPSJwYWRkaW5n
-OiAwOyBtYXJnaW46IDA7Ij4KICAgIDwhLS0gSGVhZGVyIC0tPgogICAgPHRhYmxlIGlkPSJyZWxh
-eS1lbWFpbC1oZWFkZXIiIHdpZHRoPSIxMDAlIiBiZ2NvbG9yPSIjM0QzRDNEIiBzdHlsZT0iYmFj
-a2dyb3VuZDogIzNEM0QzRDsgcGFkZGluZzogMTJweCAyNXB4OyBtYXJnaW4tdG9wOiAzMHB4OyBt
-YXJnaW4tYm90dG9tOiAzMHB4OyB3aWR0aDogOTYlOyBib3JkZXItcmFkaXVzOiA2cHg7IG1heC13
-aWR0aDogMTIwMHB4OyIgYWxpZ249ImNlbnRlciI+CiAgICAgIDx0cj4KICAgICAgICA8dGQgY2xh
-c3M9ImhlYWRlci1ibG9jay1sZWZ0IiB3aWR0aD0iNTAlIiBhbGlnbj0ibGVmdCIgc3R5bGU9InBh
-ZGRpbmctdG9wOiA1cHg7Ij4KICAgICAgICAgIDxpbWcgd2lkdGg9IjMwIiBzcmM9Imh0dHA6Ly8x
-MjcuMC4wLjE6ODAwMC9zdGF0aWMvaW1hZ2VzL2VtYWlsLWltYWdlcy9yZWxheS1pY29uLnBuZyIg
-c3R5bGU9Im1hcmdpbi1yaWdodDogNXB4OyBkaXNwbGF5OiBpbmxpbmUtYmxvY2s7IHZlcnRpY2Fs
-LWFsaWduOiB0b3A7IiBhbHQ9InJlbGF5IGljb24iLz4KICAgICAgICAgIDxwIHN0eWxlPSJtYXJn
-aW4tdG9wOiAwOyBtYXJnaW4tYm90dG9tOiA1cHg7IGRpc3BsYXk6IGlubGluZS1ibG9jazsiPgog
-ICAgICAgICAgICA8c3BhbiBjbGFzcz0iZm9yd2FyZGVkLWZyb20tZW1haWwiIHN0eWxlPSJkaXNw
-bGF5OiBibG9jazsgY29sb3I6ICNGRkZGRkY7IGZvbnQtZmFtaWx5OiAnaW50ZXInLCBBcmlhbCwg
-c2Fucy1zZXJpZjsgZm9udC1zaXplOiAxMnB4OyI+CiAgICAgICAgICAgIEZvcndhcmRlZCBmcm9t
-IDxhIGhyZWY9Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hY2NvdW50cy9wcm9maWxlLyNlYnNiZHNh
-bjclNDB0ZXN0LmNvbSIgY2xhc3M9ImNvbnRhaW5lci1saW5rIiBzdHlsZT0ibWFyZ2luLXJpZ2h0
-OiAzMHB4O2NvbG9yOiAjRkZGRkZGO2ZvbnQtc2l6ZTogMTJweDsiPmVic2Jkc2FuN0B0ZXN0LmNv
-bTwvYT4KICAgICAgICAgICAgPC9zcGFuPgogICAgICAgICAgPHNwYW4gc3R5bGU9Im1hcmdpbi10
-b3A6IDA7IG1hcmdpbi1ib3R0b206IDVweDsgZGlzcGxheTogYmxvY2s7Y29sb3I6ICNGRkZGRkY7
-IGZvbnQtZmFtaWx5OiAnaW50ZXInLCBBcmlhbCwgc2Fucy1zZXJpZjsgZm9udC1zaXplOiAxMnB4
-OyI+CiAgICAgICAgICAgICAgYnkgPGEgaHJlZj0iaHR0cDovLzEyNy4wLjAuMTo4MDAwL2FjY291
-bnRzL3Byb2ZpbGUvIiBjbGFzcz0iY29udGFpbmVyLWxpbmsiIHN0eWxlPSJtYXJnaW4tcmlnaHQ6
-IDMwcHg7Y29sb3I6ICNGRkZGRkY7Zm9udC1zaXplOiAxMnB4OyI+RmlyZWZveCBSZWxheTwvYT4K
-ICAgICAgICAgIDwvc3Bhbj4KICAgICAgICAgIDwvcD4KICAgICAgICA8L3RkPgogICAgICAgIDx0
-ZCBjbGFzcz0iaGVhZGVyLWJsb2NrLXJpZ2h0IiB3aWR0aD0iNTAlIiBhbGlnbj0icmlnaHQiPgog
-ICAgICAgICAgPHAgY2xhc3M9InJlbGF5LXRyYWNrZXJzLXJlbW92ZWQiIHN0eWxlPSJtYXJnaW46
-IDAgMzBweCAwIDA7IGRpc3BsYXk6IGlubGluZS1ibG9jazsgY29sb3I6ICNGRkZGRkY7IGZvbnQt
-ZmFtaWx5OiAnaW50ZXInLCBBcmlhbCwgc2Fucy1zZXJpZjsgZm9udC1zaXplOiAxMnB4OyI+CiAg
-ICAgICAgICAgIDxpbWcgY2xhc3M9ImVtYWlsLXRyYWNrZXJzLXJlbW92ZWQtaWNvbiIgd2lkdGg9
-IjE1IiBzcmM9Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9zdGF0aWMvaW1hZ2VzL2VtYWlsLWltYWdl
-cy9lbWFpbC10cmFja2Vycy1yZW1vdmVkLWljb24ucG5nIiBhbHQ9ImVtYWlsIHRyYWNrZXJzIHJl
-bW92ZWQgaWNvbiIvPgogICAgICAgICAgICAgIDxzcGFuIGRpcj0iYXV0byI+MDwvc3Bhbj4gZW1h
-aWwgdHJhY2tlcnMgcmVtb3ZlZAogICAgICAgICAgPC9wPgogICAgICAgICAgPHAgY2xhc3M9InJl
-bGF5LW1hc2siIHN0eWxlPSJtYXJnaW46IDA7IGRpc3BsYXk6IGlubGluZS1ibG9jazsiPgogICAg
-ICAgICAgICAgIDxhIGNsYXNzPSJjb250YWluZXItbGluayIgaHJlZj0iaHR0cDovLzEyNy4wLjAu
-MTo4MDAwL3ByZW1pdW0iIHN0eWxlPSJjb2xvcjogI0ZGRkZGRjsiPgogICAgICAgICAgICAgICAg
-VXBncmFkZSBmb3IgbW9yZSBwcm90ZWN0aW9uCiAgICAgICAgICAgICAgPC9hPgogICAgICAgICAg
-PC9wPgogICAgICAgIDwvdGQ+CiAgICAgIDwvdHI+CiAgICA8L3RhYmxlPgogICAgPCEtLSBFbWFp
-bCBCb2R5IC0tPgogICAgPHRhYmxlIGlkPSJyZWxheS1lbWFpbC1ib2R5IiB3aWR0aD0iMTAwJSIg
-c3R5bGU9InBhZGRpbmc6IDA7IG1heC13aWR0aDo3MDBweDsiIGFsaWduPSJjZW50ZXIiPgogICAg
-ICA8dHI+CiAgICAgICAgPHRkIHdpZHRoPSIxMDAlIiBzdHlsZT0icGFkZGluZy1sZWZ0OiAxNXB4
-OyBwYWRkaW5nLXJpZ2h0OiAxNXB4OyI+CiAgICAgICAgICA8IWRvY3R5cGUgaHRtbD48aHRtbD48
-Ym9keT48ZGl2IGRpcj0ibHRyIj5IZXJlIGlzIGFuIGlubGluZSBpbWFnZTombmJzcDs8aW1nIHNy
-Yz0iY2lkOjBBMEFEMkY4LTY2NzItNDVBOC04MjQ4LTBBQzZDNzI4Mjk3MCIgc3R5bGU9Im1heC13
-aWR0aDogMTAwJTsgd2lkdGg6IDEycHg7Ij48ZGl2Pjxicj48L2Rpdj48ZGl2IGRpcj0ibHRyIj48
-dWwgc3R5bGU9Imxpc3Qtc3R5bGUtdHlwZTogJnF1b3Q74oCTICAmcXVvdDs7IG1hcmdpbjogMHB4
-OyBwYWRkaW5nLWlubGluZS1zdGFydDogMS44ZW07IiBkaXI9Imx0ciI+PGxpPllvdXIgRnJpZW5k
-PC9saT48L3VsPjwvZGl2PjwvZGl2PjwvYm9keT48L2h0bWw+CiAgICAgICAgPC90ZD4KICAgICAg
-PC90cj4KICAgIDwvdGFibGU+CiAgICA8IS0tIEZvb3RlciAtLT4KICAgIDx0YWJsZSBpZD0icmVs
-YXktZW1haWwtZm9vdGVyIiB3aWR0aD0iMTAwJSIgYmdjb2xvcj0iIzNEM0QzRCIgc3R5bGU9ImJh
-Y2tncm91bmQ6ICMzRDNEM0Q7IHBhZGRpbmc6IDEycHggMjVweDsgbWFyZ2luLXRvcDogMzBweDsg
-bWFyZ2luLWJvdHRvbTogMzBweDsgd2lkdGg6IDk2JTsgYm9yZGVyLXJhZGl1czogNnB4OyBtYXgt
-d2lkdGg6IDEyMDBweDsiIGFsaWduPSJjZW50ZXIiPgogICAgICA8dHI+CiAgICAgICAgPHRkIGNs
-YXNzPSJmb290ZXItYmxvY2siIHdpZHRoPSI1MCUiIGFsaWduPSJsZWZ0Ij4KICAgICAgICAgIDxh
-IGNsYXNzPSJjb250YWluZXItbGluayIgaHJlZj0iaHR0cDovLzEyNy4wLjAuMTo4MDAwIj4KICAg
-ICAgICAgICAgPGltZyB3aWR0aD0iMTEwIiBzcmM9Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9zdGF0
-aWMvaW1hZ2VzL2VtYWlsLWltYWdlcy9yZWxheS1sb2dvLWVtYWlscy1kYXJrLWJnLnBuZyIgc3R5
-bGU9Im1hcmdpbjogMDsiIGFsdD0icmVsYXkgbG9nbyIvPgogICAgICAgICAgPC9hPgogICAgICAg
-IDwvdGQ+CiAgICAgICAgPHRkIGNsYXNzPSJmb290ZXItYmxvY2siIHdpZHRoPSI1MCUiIGFsaWdu
-PSJyaWdodCI+CiAgICAgICAgICA8YSBjbGFzcz0iY29udGFpbmVyLWxpbmsiIGhyZWY9Imh0dHA6
-Ly8xMjcuMC4wLjE6ODAwMC9hY2NvdW50cy9wcm9maWxlIiBzdHlsZT0iY29sb3I6ICNGRkZGRkY7
-Ij5Zb3VyIGRhc2hib2FyZDwvYT4KICAgICAgICA8L3RkPgogICAgICA8L3RyPgogICAgPC90YWJs
-ZT4KICA8L2JvZHk+CjwvaHRtbD4K
+iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAA
+GXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAeFJREFUOI2Nk79rU1EcxT/f+14S
+neoPnNXB4qARKZ2DrQ51tsSki4KNLoa0+gf4D9ikGaRpILrEUBxFIgjpIji4KAUrumRylBaxNTF5
+xyEv+oit9kzfeznnfO89936NEZTTuiCPeYkp4BQQAG3glXNU83X7EOXbsHh8Q4e2uxQROcCNGofo
+Cx5t97j/4Jl1GRKXZnV4q8NLxB2gj7GCkerBibhxzIwpoBJ2vHvU50UlpxiAD+B8ikAK+CK4tvDU
+3ox0XgfWl7OqSjQFl3e+8RDIWymjJPAO6AlSC40/4lJGnwoNG486ldKaxPEa8Jwj6czIhVnUouIQ
+Z0ZDKKzZW6AOeIG45SSmAQJR3ye4v2BQA0BccQyeCr/Px4MaeDE2w/KkP9zcge4e3K+ljBRZfy40
+bPy7TzfxEzA8n8EnOZvwmQBaUXWhYcf3OkF8l3PhFdpuKDJj9qBXcMZcaNByLmAVEGJ+OauJ/4nL
+13VRYh4IAo9Vl1+z9xgVwJNoltKa/Jc4MJ4DcROVxbptGEB5RongCE3gEoMw6wY1L8am7dLpeSRx
+ZMPOcaDltriab1rn9zCVZ5TQGEUZt9l/mAJgZSzBvZtP7AdEpnGIpTmdd31yGNPAaaAPtAUtOaqL
+dduI8n8BrMOp3hG9OkYAAAAASUVORK5CYII=
+--MailClient=_85CB3D2B-71DA-4F6C-9F70-F0735457C609--
 
---==[BOUNDARY1]==--
-
---==[BOUNDARY0]==--

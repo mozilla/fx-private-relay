@@ -13,10 +13,11 @@ import re
 import shlex
 from tempfile import SpooledTemporaryFile
 from textwrap import dedent
-from typing import Any, Optional
+from typing import Any, Literal, Optional
 from urllib.parse import urlencode
 
 from botocore.exceptions import ClientError
+from codetiming import Timer
 from decouple import strtobool
 from django.shortcuts import render
 from sentry_sdk import capture_message
@@ -46,7 +47,6 @@ from .models import (
     get_domains_from_settings,
 )
 from .types import (
-    AttachmentPair,
     AWS_SNSMessageJSON,
     MessageBody,
     OutgoingHeaders,
@@ -612,12 +612,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
 
     # Get incoming email
     try:
-        (
-            text_content,
-            html_content,
-            attachments,
-            email_size,
-        ) = _get_text_html_attachments(message_json)
+        (email, email_size, transport, load_time_s) = _get_email(message_json)
     except ClientError as e:
         if e.response["Error"].get("Code", "") == "NoSuchKey":
             logger.error("s3_object_does_not_exist", extra=e.response["Error"])
@@ -632,15 +627,8 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     remove_level_one_trackers = bool(
         tracker_removal_flag and user_profile.remove_level_one_email_trackers
     )
-    (
-        outgoing_email,
-        level_one_trackers_removed,
-        has_html,
-        has_text,
-    ) = _convert_to_forwarded_email(
-        text_content=text_content,
-        html_content=html_content,
-        attachments=attachments,
+    level_one_trackers_removed, has_html, has_text = _convert_to_forwarded_email(
+        email=email,
         headers=headers,
         to_address=to_address,
         from_address=from_address,
@@ -659,7 +647,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         ses_response = ses_send_raw_email(
             source_address=reply_address,
             destination_address=destination_address,
-            message=outgoing_email,
+            message=email,
         )
     except ClientError:
         # 503 service unavailable reponse to SNS so it can retry
@@ -755,10 +743,35 @@ def _strip_localpart_tag(address):
     return f"{subaddress_parts[0]}@{domain}"
 
 
+_TransportType = Literal["sns", "s3"]
+
+
+def _get_email(
+    message_json: AWS_SNSMessageJSON,
+) -> tuple[EmailMessage, int, _TransportType, float]:
+    with Timer(logger=None) as load_timer:
+        if "content" in message_json:
+            # email content in sns message
+            message_content = message_json["content"].encode("utf-8")
+            transport: Literal["sns", "s3"] = "sns"
+        else:
+            # assume email content in S3
+            bucket, object_key = _get_bucket_and_key_from_s3_json(message_json)
+            message_content = get_message_content_from_s3(bucket, object_key)
+            transport = "s3"
+        email_size = len(message_content)
+        histogram_if_enabled("relayed_email.size", email_size)
+        email_message = message_from_bytes(message_content, policy=policy.default)
+    # python/typeshed issue 2418
+    # The Python 3.2 default was Message, 3.6 uses policy.message_factory, and
+    # policy.default.message_factory is EmailMessage
+    assert isinstance(email_message, EmailMessage)
+    load_time_s = round(load_timer.last, 3)
+    return (email_message, email_size, transport, load_time_s)
+
+
 def _convert_to_forwarded_email(
-    text_content: str | None,
-    html_content: str | None,
-    attachments: list[AttachmentPair],
+    email: EmailMessage,
     headers: OutgoingHeaders,
     to_address: str,
     from_address: str,
@@ -767,38 +780,74 @@ def _convert_to_forwarded_email(
     sample_trackers: bool,
     remove_level_one_trackers: bool,
     now: datetime | None = None,
-) -> tuple[EmailMessage, int, bool, bool]:
-    message_body: MessageBody = {}
+) -> tuple[int, bool, bool]:
+    """
+    Convert an email to a forwarded email.
 
+    The conversion happens in-place - the "email" passed in will be altered.
+
+    Return is a tuple:
+    - level_one_trackers_removed (int) - Number of trackers removed
+    - has_html - True if the email has an HTML representation
+    - has_text - True if the email has a plain text representation
+    """
+    _replace_headers(email, headers)
+
+    # Find and replace text content
+    text_body = email.get_body("plain")
+    has_text = False
+    if text_body:
+        has_text = True
+        assert isinstance(text_body, EmailMessage)
+        text_content = text_body.get_content()
+        new_text_content = _convert_text_content(text_content, to_address)
+        text_body.set_content(new_text_content)
+
+    # Find and replace HTML content
+    html_body = email.get_body("html")
     level_one_trackers_removed = 0
-    new_html_content: str | None = None
-    if html_content:
-        new_html_content, level_one_trackers_removed = _convert_html_content(
-            html_content=html_content,
-            to_address=to_address,
-            from_address=from_address,
-            language=language,
-            has_premium=has_premium,
-            sample_trackers=sample_trackers,
-            remove_level_one_trackers=remove_level_one_trackers,
-            now=now,
+    has_html = False
+    if html_body:
+        has_html = True
+        assert isinstance(html_body, EmailMessage)
+        html_content = html_body.get_content()
+        new_content, level_one_trackers_removed = _convert_html_content(
+            html_content,
+            to_address,
+            from_address,
+            language,
+            has_premium,
+            sample_trackers,
+            remove_level_one_trackers,
         )
-        message_body["Html"] = new_html_content
+        html_body.set_content(new_content, subtype="html")
 
-    new_text_content: str | None = None
-    if text_content:
-        new_text_content = _convert_text_content(
-            text_content=text_content,
-            to_address=to_address,
-        )
-        message_body["Text"] = new_text_content
-    message = create_message(headers, message_body, attachments)
-    return (
-        message,
-        level_one_trackers_removed,
-        "Html" in message_body,
-        "Text" in message_body,
-    )
+    return (level_one_trackers_removed, has_html, has_text)
+
+
+def _replace_headers(email: EmailMessage, headers: OutgoingHeaders) -> None:
+    """Replace the headers in email with new headers."""
+    # Look for headers to drop
+    to_drop: list[str] = []
+    replacements: set[str] = set(_k.lower() for _k in headers.keys())
+
+    for header, value in email.items():
+        header_lower = header.lower()
+        if (
+            header_lower not in replacements
+            and header_lower != "mime-version"
+            and not header_lower.startswith("content-")
+        ):
+            to_drop.append(header)
+
+    # Drop headers that should be dropped
+    for header in to_drop:
+        del email[header]
+
+    # Replace the requested headers
+    for header, value in headers.items():
+        del email[header]
+        email[header] = value
 
 
 def _convert_html_content(

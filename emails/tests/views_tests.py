@@ -337,7 +337,7 @@ class SNSNotificationTest(TestCase):
         assert sender == "replies@default.com"
         assert recipient == "user@example.com"
         content_type = headers.pop("Content-Type")
-        assert content_type.startswith('multipart/mixed; boundary="========')
+        assert content_type.startswith('multipart/alternative; boundary="b1_1tMoOzirX')
         assert headers == {
             "Subject": "localized email header + footer",
             "MIME-Version": "1.0",
@@ -355,15 +355,10 @@ class SNSNotificationTest(TestCase):
 
     def test_single_french_recipient_sns_notification(self) -> None:
         """
-        The email content can contain non-ASCII characters and be base64 encoded.
+        The email content can contain non-ASCII characters.
 
         In this case, the HTML content is wrapped in the Relay header translated
         to French.
-
-        This is a design choice. Relay could convert non-ASCII characters to HTML
-        escaped characters. For example, 'Transféré' could be 'Transf&#233;r&#233;',
-        via `html.encode('ascii', errors='xmlcharrefreplace').decode()`. However,
-        mail clients don't care, only devs looking at "view source".
         """
         self.sa.extra_data = {"locale": "fr, fr-fr, en-us, en"}
         self.sa.save()
@@ -375,7 +370,7 @@ class SNSNotificationTest(TestCase):
         assert sender == "replies@default.com"
         assert recipient == "user@example.com"
         content_type = headers.pop("Content-Type")
-        assert content_type.startswith('multipart/mixed; boundary="========')
+        assert content_type.startswith('multipart/alternative; boundary="b1_1tMo')
         assert headers == {
             "Subject": "localized email header + footer",
             "MIME-Version": "1.0",
@@ -386,7 +381,7 @@ class SNSNotificationTest(TestCase):
         }
         assert_email_equals(email, "single_recipient_fr")
         assert 'Content-Type: text/html; charset="utf-8"' in email
-        assert "Content-Transfer-Encoding: base64" in email
+        assert "Content-Transfer-Encoding: quoted-printable" in email
 
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
@@ -613,7 +608,6 @@ class SNSNotificationTest(TestCase):
         assert self.ra.num_forwarded == 0
         assert self.ra.last_used_at is None
 
-    @pytest.mark.xfail(reason="Issue #691: inline images are discarded")
     def test_inline_image(self) -> None:
         email_text = EMAIL_INCOMING["inline_image"]
         content_id = "Content-ID: <0A0AD2F8-6672-45A8-8248-0AC6C7282970>"
@@ -630,7 +624,7 @@ class SNSNotificationTest(TestCase):
             "To": recipient,
             "Reply-To": sender,
             "Resent-From": "friend@mail.example.com",
-            "MIME-Version": "1.0",
+            "Mime-Version": "1.0 (MailClient 1.1.1)",
             "Content-Type": headers["Content-Type"],
         }
         assert_email_equals(email, "inline_image")
@@ -709,6 +703,7 @@ class SNSNotificationTest(TestCase):
             "Reply-To": sender,
             "Resent-From": "root@server.example.com",
             "Content-Type": headers["Content-Type"],
+            "Content-Transfer-Encoding": "quoted-printable",
             "MIME-Version": "1.0",
         }
         assert_email_equals(email, "plain_text", replace_mime_boundaries=True)
