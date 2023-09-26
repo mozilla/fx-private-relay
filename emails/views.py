@@ -46,12 +46,14 @@ from .models import (
     get_domains_from_settings,
 )
 from .types import (
+    AttachmentPair,
     AWS_SNSMessageJSON,
     MessageBody,
     OutgoingHeaders,
 )
 from .utils import (
     _get_bucket_and_key_from_s3_json,
+    _store_reply_record,
     b64_lookup_key,
     count_all_trackers,
     create_message,
@@ -625,61 +627,65 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
     # Convert to new email
-    message_body: MessageBody = {}
-
-    if html_content:
-        incr_if_enabled("email_with_html_content", 1)
-        sample_trackers = bool(sample_is_active("tracker_sample"))
-        tracker_removal_flag = flag_is_active_in_task("tracker_removal", address.user)
-        remove_level_one_trackers = bool(
-            tracker_removal_flag and user_profile.remove_level_one_email_trackers
-        )
-        new_html_content, level_one_trackers_removed = _convert_html_content(
-            html_content=html_content,
-            to_address=to_address,
-            from_address=from_address,
-            language=user_profile.language,
-            has_premium=user_profile.has_premium,
-            sample_trackers=sample_trackers,
-            remove_level_one_trackers=remove_level_one_trackers,
-            now=datetime.now(timezone.utc),
-        )
-        if level_one_trackers_removed:
-            address.num_level_one_trackers_blocked = (
-                address.num_level_one_trackers_blocked or 0
-            ) + level_one_trackers_removed
-            address.save()
-        message_body["Html"] = new_html_content
-
-    if text_content:
-        incr_if_enabled("email_with_text_content", 1)
-        new_text_content = _convert_text_content(
-            text_content=text_content,
-            to_address=to_address,
-        )
-        message_body["Text"] = new_text_content
-
-    # Finalize and send new email
-    response = ses_relay_email(
-        reply_address,
-        destination_address,
-        headers,
-        message_body,
-        attachments,
-        mail,
-        address,
+    sample_trackers = bool(sample_is_active("tracker_sample"))
+    tracker_removal_flag = flag_is_active_in_task("tracker_removal", address.user)
+    remove_level_one_trackers = bool(
+        tracker_removal_flag and user_profile.remove_level_one_email_trackers
     )
-    if response.status_code == 503:
-        # early return the response to trigger SNS to re-attempt
-        return response
+    (
+        outgoing_email,
+        level_one_trackers_removed,
+        has_html,
+        has_text,
+    ) = _convert_to_forwarded_email(
+        text_content=text_content,
+        html_content=html_content,
+        attachments=attachments,
+        headers=headers,
+        to_address=to_address,
+        from_address=from_address,
+        language=user_profile.language,
+        has_premium=user_profile.has_premium,
+        sample_trackers=sample_trackers,
+        remove_level_one_trackers=remove_level_one_trackers,
+    )
+    if has_html:
+        incr_if_enabled("email_with_html_content", 1)
+    if has_text:
+        incr_if_enabled("email_with_text_content", 1)
+
+    # Send new email
+    try:
+        ses_response = ses_send_raw_email(
+            source_address=reply_address,
+            destination_address=destination_address,
+            message=outgoing_email,
+        )
+    except ClientError:
+        # 503 service unavailable reponse to SNS so it can retry
+        return HttpResponse("SES client error on Raw Email", status=503)
+
+    message_id = ses_response["MessageId"]
+    _store_reply_record(mail, message_id, address)
 
     user_profile.update_abuse_metric(
         email_forwarded=True, forwarded_email_size=email_size
     )
     address.num_forwarded += 1
     address.last_used_at = datetime.now(timezone.utc)
-    address.save(update_fields=["num_forwarded", "last_used_at", "block_list_emails"])
-    return response
+    if level_one_trackers_removed:
+        address.num_level_one_trackers_blocked = (
+            address.num_level_one_trackers_blocked or 0
+        ) + level_one_trackers_removed
+    address.save(
+        update_fields=[
+            "num_forwarded",
+            "last_used_at",
+            "block_list_emails",
+            "num_level_one_trackers_blocked",
+        ]
+    )
+    return HttpResponse("Sent email to final recipient.", status=200)
 
 
 def _get_verdict(receipt, verdict_type):
@@ -747,6 +753,52 @@ def _strip_localpart_tag(address):
     [localpart, domain] = address.split("@")
     subaddress_parts = localpart.split("+")
     return f"{subaddress_parts[0]}@{domain}"
+
+
+def _convert_to_forwarded_email(
+    text_content: str | None,
+    html_content: str | None,
+    attachments: list[AttachmentPair],
+    headers: OutgoingHeaders,
+    to_address: str,
+    from_address: str,
+    language: str,
+    has_premium: bool,
+    sample_trackers: bool,
+    remove_level_one_trackers: bool,
+    now: datetime | None = None,
+) -> tuple[EmailMessage, int, bool, bool]:
+    message_body: MessageBody = {}
+
+    level_one_trackers_removed = 0
+    new_html_content: str | None = None
+    if html_content:
+        new_html_content, level_one_trackers_removed = _convert_html_content(
+            html_content=html_content,
+            to_address=to_address,
+            from_address=from_address,
+            language=language,
+            has_premium=has_premium,
+            sample_trackers=sample_trackers,
+            remove_level_one_trackers=remove_level_one_trackers,
+            now=now,
+        )
+        message_body["Html"] = new_html_content
+
+    new_text_content: str | None = None
+    if text_content:
+        new_text_content = _convert_text_content(
+            text_content=text_content,
+            to_address=to_address,
+        )
+        message_body["Text"] = new_text_content
+    message = create_message(headers, message_body, attachments)
+    return (
+        message,
+        level_one_trackers_removed,
+        "Html" in message_body,
+        "Text" in message_body,
+    )
 
 
 def _convert_html_content(
