@@ -595,50 +595,31 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     if sample_is_active("tracker-sample") and html_content:
         count_all_trackers(html_content)
 
-    # scramble alias so that clients don't recognize it
-    # and apply default link styles
-    display_email = re.sub("([@.:])", r"<span>\1</span>", to_address)
-
     message_body: MessageBody = {}
-    tracker_report_link = ""
-    removed_count = 0
-    # frontend expects a timestamp in milliseconds
-    datetime_now = int(datetime.now(timezone.utc).timestamp() * 1000)
 
     if html_content:
         incr_if_enabled("email_with_html_content", 1)
-        tracker_removal_active = flag_is_active_in_task("tracker_removal", address.user)
-        if tracker_removal_active and user_profile.remove_level_one_email_trackers:
-            html_content, tracker_details = remove_trackers(
-                html_content, from_address, datetime_now
-            )
-            removed_count = tracker_details["tracker_removed"]
-            datetime_now = int(
-                datetime.now(timezone.utc).timestamp() * 1000
-            )  # frontend is expecting in milli seconds
-            tracker_report_details = {
-                "sender": from_address,
-                "received_at": datetime_now,
-                "trackers": tracker_details["level_one"]["trackers"],
-            }
-            tracker_report_link = (
-                f"{settings.SITE_ORIGIN}/tracker-report/#"
-                + json.dumps(tracker_report_details)
-            )
-            address.num_level_one_trackers_blocked = (
-                address.num_level_one_trackers_blocked or 0
-            ) + removed_count
-            address.save()
-
-        wrapped_html = wrap_html_email(
-            original_html=html_content,
+        sample_trackers = bool(sample_is_active("tracker_sample"))
+        tracker_removal_flag = flag_is_active_in_task("tracker_removal", address.user)
+        remove_level_one_trackers = bool(
+            tracker_removal_flag and user_profile.remove_level_one_email_trackers
+        )
+        new_html_content, level_one_trackers_removed = _convert_html_content(
+            html_content=html_content,
+            to_address=to_address,
+            from_address=from_address,
             language=user_profile.language,
             has_premium=user_profile.has_premium,
-            display_email=display_email,
-            tracker_report_link=tracker_report_link,
-            num_level_one_email_trackers_removed=removed_count,
+            sample_trackers=sample_trackers,
+            remove_level_one_trackers=remove_level_one_trackers,
+            now=datetime.now(timezone.utc),
         )
-        message_body["Html"] = {"Charset": "UTF-8", "Data": wrapped_html}
+        if level_one_trackers_removed:
+            address.num_level_one_trackers_blocked = (
+                address.num_level_one_trackers_blocked or 0
+            ) + level_one_trackers_removed
+            address.save()
+        message_body["Html"] = {"Charset": "UTF-8", "Data": new_html_content}
 
     if text_content:
         incr_if_enabled("email_with_text_content", 1)
@@ -767,6 +748,57 @@ def _strip_localpart_tag(address):
     [localpart, domain] = address.split("@")
     subaddress_parts = localpart.split("+")
     return f"{subaddress_parts[0]}@{domain}"
+
+
+def _convert_html_content(
+    html_content: str,
+    to_address: str,
+    from_address: str,
+    language: str,
+    has_premium: bool,
+    sample_trackers: bool,
+    remove_level_one_trackers: bool,
+    now: datetime | None = None,
+) -> tuple[str, int]:
+    # frontend expects a timestamp in milliseconds
+    now = now or datetime.now(timezone.utc)
+    datetime_now_ms = int(now.timestamp() * 1000)
+    # user_profile = address.user.profile
+
+    # scramble alias so that clients don't recognize it
+    # and apply default link styles
+    display_email = re.sub("([@.:])", r"<span>\1</span>", to_address)
+
+    # sample tracker numbers
+    if sample_trackers:
+        count_all_trackers(html_content)
+
+    incr_if_enabled("email_with_html_content", 1)
+    tracker_report_link = ""
+    removed_count = 0
+    if remove_level_one_trackers:
+        html_content, tracker_details = remove_trackers(
+            html_content, from_address, datetime_now_ms
+        )
+        removed_count = tracker_details["tracker_removed"]
+        tracker_report_details = {
+            "sender": from_address,
+            "received_at": datetime_now_ms,
+            "trackers": tracker_details["level_one"]["trackers"],
+        }
+        tracker_report_link = f"{settings.SITE_ORIGIN}/tracker-report/#" + json.dumps(
+            tracker_report_details
+        )
+
+    wrapped_html = wrap_html_email(
+        original_html=html_content,
+        language=language,
+        has_premium=has_premium,
+        display_email=display_email,
+        tracker_report_link=tracker_report_link,
+        num_level_one_email_trackers_removed=removed_count,
+    )
+    return wrapped_html, removed_count
 
 
 def _build_reply_requires_premium_email(
