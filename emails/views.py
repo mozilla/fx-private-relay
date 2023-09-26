@@ -773,7 +773,6 @@ def _convert_html_content(
     if sample_trackers:
         count_all_trackers(html_content)
 
-    incr_if_enabled("email_with_html_content", 1)
     tracker_report_link = ""
     removed_count = 0
     if remove_level_one_trackers:
