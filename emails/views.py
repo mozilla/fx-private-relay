@@ -623,14 +623,11 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
 
     if text_content:
         incr_if_enabled("email_with_text_content", 1)
-        relay_header_text = (
-            "This email was sent to your alias "
-            f"{to_address}. To stop receiving emails sent to this alias, "
-            "update the forwarding settings in your dashboard.\n"
-            "---Begin Email---\n"
+        new_text_content = _convert_text_content(
+            text_content=text_content,
+            to_address=to_address,
         )
-        wrapped_text = relay_header_text + text_content
-        message_body["Text"] = {"Charset": "UTF-8", "Data": wrapped_text}
+        message_body["Text"] = {"Charset": "UTF-8", "Data": new_text_content}
 
     destination_address = user_profile.user.email
     reply_address = get_reply_to_address()
@@ -799,6 +796,17 @@ def _convert_html_content(
         num_level_one_email_trackers_removed=removed_count,
     )
     return wrapped_html, removed_count
+
+
+def _convert_text_content(text_content: str, to_address: str) -> str:
+    relay_header_text = (
+        "This email was sent to your alias "
+        f"{to_address}. To stop receiving emails sent to this alias, "
+        "update the forwarding settings in your dashboard.\n"
+        "---Begin Email---\n"
+    )
+    wrapped_text = relay_header_text + text_content
+    return wrapped_text
 
 
 def _build_reply_requires_premium_email(
