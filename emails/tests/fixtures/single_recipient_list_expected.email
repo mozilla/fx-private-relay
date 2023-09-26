@@ -22,126 +22,157 @@ should work
 
 Sent with [ProtonMail](https://protonmail.com/) Secure Email.
 --==[BOUNDARY1]==
-Content-Type: text/html; charset="utf-8"
+Content-Type: text/html; charset="us-ascii"
 MIME-Version: 1.0
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 7bit
 
-CgoKCgo8IURPQ1RZUEUgaHRtbCBQVUJMSUMgIi0vL1czQy8vRFREIFhIVE1MIDEuMCBTdHJpY3Qv
-L0VOIiAiaHR0cDovL3d3dy53My5vcmcvVFIveGh0bWwxL0RURC94aHRtbDEtc3RyaWN0LmR0ZCI+
-CjxodG1sIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hodG1sIj4KICA8aGVhZD4KICAg
-IDxtZXRhIGh0dHAtZXF1aXY9IkNvbnRlbnQtVHlwZSIgY29udGVudD0idGV4dC9odG1sOyBjaGFy
-c2V0PXV0Zi04IiAvPgogICAgPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRl
-dmljZS13aWR0aCIvPgogICAgPHN0eWxlPgogICAgQGZvbnQtZmFjZSB7CiAgICAgIGZvbnQtZmFt
-aWx5OiAnaW50ZXInOwogICAgICBmb250LXN0eWxlOiBub3JtYWw7CiAgICAgIHNyYzogbG9jYWwo
-J0ludGVyIFJlZ3VsYXInKSwgbG9jYWwoJ0ludGVyLVJlZ3VsYXInKSwgdXJsKGh0dHBzOi8vcmVs
-YXkuZmlyZWZveC5jb20vZm9udHMvSW50ZXIvSW50ZXItUmVndWxhci40MjMyYTY3NWEwNzcud29m
-ZjI/dj0zLjE4KSBmb3JtYXQoJ3dvZmYnKTsKICAgIH0KCiAgICBAZm9udC1mYWNlIHsKICAgICAg
-Zm9udC1mYW1pbHk6ICdpbnRlciBtZWRpdW0nOwogICAgICBmb250LXN0eWxlOiBib2xkOwogICAg
-ICBzcmM6IGxvY2FsKCdJbnRlciBNZWRpdW0nKSwgbG9jYWwoJ0ludGVyLU1lZGl1bScpLCB1cmwo
-aHR0cHM6Ly9yZWxheS5maXJlZm94LmNvbS9mb250cy9JbnRlci9JbnRlci1NZWRpdW0ud29mZjI/
-dj0zLjE4KSBmb3JtYXQoJ3dvZmYnKTsKICAgIH0KCiAgICAqIHsKICAgICAgYm94LXNpemluZzog
-Ym9yZGVyLWJveDsKICAgIH0KCiAgICAjcmVsYXktZW1haWwtaGVhZGVyLAogICAgI3JlbGF5LWVt
-YWlsLWZvb3RlciB7CiAgICAgIGZvbnQtZmFtaWx5OiAnaW50ZXInLCBBcmlhbCwgc2Fucy1zZXJp
-ZjsKICAgICAgY29sb3I6ICNGRkZGRkY7CiAgICAgIGZvbnQtc2l6ZTogMTJweDsKICAgIH0KCiAg
-ICBhLmNvbnRhaW5lci1saW5rIHsKICAgICAgdHJhbnNpdGlvbjogYWxsIDAuMnMgZWFzZTsKICAg
-ICAgdGV4dC11bmRlcmxpbmUtb2Zmc2V0OiAycHg7CiAgICAgIGZvbnQtZmFtaWx5OiAnaW50ZXIg
-bWVkaXVtJywgQXJpYWwsIHNhbnMtc2VyaWY7CiAgICB9CgogICAgYS5jb250YWluZXItbGluazpo
-b3ZlciB7CiAgICAgIGNvbG9yOiAjMjAxMjNhZDU7CiAgICAgIHRyYW5zaXRpb246IGFsbCAwLjJz
-IGVhc2U7CiAgICB9CgogICAgYS5jb250YWluZXItbGluayB7CiAgICAgIGNvbG9yOiAjRkZGRkZG
-OwogICAgICBmb250LXNpemU6IDEycHg7CiAgICB9CgogICAgYS5jb250YWluZXItbGluazpob3Zl
-ciwKICAgIGEuY29udGFpbmVyLWxpbms6Zm9jdXMsCiAgICBhLmNvbnRhaW5lci1saW5rOmFjdGl2
-ZSB7CiAgICAgIHRyYW5zaXRpb246IGFsbCAwLjJzIGVhc2U7CiAgICB9CgogICAgLmVtYWlsLXRy
-YWNrZXJzLXJlbW92ZWQtaWNvbiB7CiAgICAgIG1hcmdpbi1yaWdodDogNXB4OwogICAgICB2ZXJ0
-aWNhbC1hbGlnbjogYm90dG9tOwogICAgfQoKICAgIEBtZWRpYSBzY3JlZW4gYW5kIChtYXgtd2lk
-dGg6IDc2OHB4KSB7CiAgICAgIC5mb290ZXItYmxvY2sgewogICAgICAgIGRpc3BsYXk6IGJsb2Nr
-OwogICAgICAgIHdpZHRoOiAxMDAlOwogICAgICAgIHRleHQtYWxpZ246IGNlbnRlcjsKICAgICAg
-fQoKICAgICAgLmZvb3Rlci1ibG9jayAuY29udGFpbmVyLWxpbmsgaW1nIHsKICAgICAgICBoZWln
-aHQ6IDQ1cHg7CiAgICAgICAgd2lkdGg6IGF1dG87CiAgICAgIH0KCiAgICAgIC5oZWFkZXItYmxv
-Y2stbGVmdCwKICAgICAgLmhlYWRlci1ibG9jay1yaWdodCB7CiAgICAgICAgZGlzcGxheTogYmxv
-Y2s7CiAgICAgICAgd2lkdGg6IDEwMCU7CiAgICAgICAgdGV4dC1hbGlnbjogbGVmdDsKICAgICAg
-fQoKICAgICAgLmhlYWRlci1ibG9jay1yaWdodCB7CiAgICAgICAgbWFyZ2luLWxlZnQ6IDQwcHg7
-CiAgICAgIH0KCiAgICAgIC5yZWxheS10cmFja2Vycy1yZW1vdmVkLAogICAgICAucmVsYXktbWFz
-ayB7CiAgICAgICAgd2lkdGg6IDEwMCU7CiAgICAgICAgZGlzcGxheTogYmxvY2s7CiAgICAgIH0K
-ICAgIH0KICAgIC8qIHRoaXMgZGVhbHMgd2l0aCBsb25nIGVtYWlsIGFkZHJlc3NlcyAqLwogICAg
-LmZvcndhcmRlZC1mcm9tLWVtYWlsIHsKICAgICAgICB3aGl0ZS1zcGFjZTogbm93cmFwOwogICAg
-ICAgIG92ZXJmbG93OiBoaWRkZW47CiAgICAgICAgdGV4dC1vdmVyZmxvdzogZWxsaXBzaXM7CiAg
-ICAgICAgd2lkdGg6IDUwMHB4OwogICAgICB9CiAgICBAbWVkaWEgc2NyZWVuIGFuZCAobWF4LXdp
-ZHRoOiAxMjAwcHgpIHsKICAgICAgLmZvcndhcmRlZC1mcm9tLWVtYWlsIHsKICAgICAgICB3aWR0
-aDogMzAwcHg7CiAgICAgIH0KICAgIH0KICAgIEBtZWRpYSBzY3JlZW4gYW5kIChtYXgtd2lkdGg6
-IDc2OHB4KXsKICAgICAgLmZvcndhcmRlZC1mcm9tLWVtYWlsIHsKICAgICAgICB3aWR0aDogMjUw
-cHg7CiAgICAgIH0KICAgIH0KICAgIEBtZWRpYSBzY3JlZW4gYW5kIChtYXgtd2lkdGg6IDQyNXB4
-KSB7CiAgICAgIC5mb3J3YXJkZWQtZnJvbS1lbWFpbCB7CiAgICAgICAgd2lkdGg6IDIwMHB4Owog
-ICAgICB9CiAgICB9CiAgICA8L3N0eWxlPgogIDwvaGVhZD4KICA8Ym9keSBpZD0icmVsYXktZW1h
-aWwiIHN0eWxlPSJwYWRkaW5nOiAwOyBtYXJnaW46IDA7Ij4KICAgIDwhLS0gSGVhZGVyIC0tPgog
-ICAgPHRhYmxlIGlkPSJyZWxheS1lbWFpbC1oZWFkZXIiIHdpZHRoPSIxMDAlIiBiZ2NvbG9yPSIj
-M0QzRDNEIiBzdHlsZT0iYmFja2dyb3VuZDogIzNEM0QzRDsgcGFkZGluZzogMTJweCAyNXB4OyBt
-YXJnaW4tdG9wOiAzMHB4OyBtYXJnaW4tYm90dG9tOiAzMHB4OyB3aWR0aDogOTYlOyBib3JkZXIt
-cmFkaXVzOiA2cHg7IG1heC13aWR0aDogMTIwMHB4OyIgYWxpZ249ImNlbnRlciI+CiAgICAgIDx0
-cj4KICAgICAgICA8dGQgY2xhc3M9ImhlYWRlci1ibG9jay1sZWZ0IiB3aWR0aD0iNTAlIiBhbGln
-bj0ibGVmdCIgc3R5bGU9InBhZGRpbmctdG9wOiA1cHg7Ij4KICAgICAgICAgIDxpbWcgd2lkdGg9
-IjMwIiBzcmM9Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9zdGF0aWMvaW1hZ2VzL2VtYWlsLWltYWdl
-cy9yZWxheS1pY29uLnBuZyIgc3R5bGU9Im1hcmdpbi1yaWdodDogNXB4OyBkaXNwbGF5OiBpbmxp
-bmUtYmxvY2s7IHZlcnRpY2FsLWFsaWduOiB0b3A7IiBhbHQ9InJlbGF5IGljb24iLz4KCiAgICAg
-ICAgICA8cCBzdHlsZT0ibWFyZ2luLXRvcDogMDsgbWFyZ2luLWJvdHRvbTogNXB4OyBkaXNwbGF5
-OiBpbmxpbmUtYmxvY2s7Ij4KICAgICAgICAgICAgPHNwYW4gY2xhc3M9ImZvcndhcmRlZC1mcm9t
-LWVtYWlsIiBzdHlsZT0iZGlzcGxheTogYmxvY2s7IGNvbG9yOiAjRkZGRkZGOyBmb250LWZhbWls
-eTogJ2ludGVyJywgQXJpYWwsIHNhbnMtc2VyaWY7IGZvbnQtc2l6ZTogMTJweDsiPgogICAgICAg
-ICAgICAKICAgICAgICAgICAgRm9yd2FyZGVkIGZyb20gPGEgaHJlZj0iaHR0cDovLzEyNy4wLjAu
-MTo4MDAwL2FjY291bnRzL3Byb2ZpbGUvI2Vic2Jkc2FuNyU0MHRlc3QuY29tIiBjbGFzcz0iY29u
-dGFpbmVyLWxpbmsiIHN0eWxlPSJtYXJnaW4tcmlnaHQ6IDMwcHg7Y29sb3I6ICNGRkZGRkY7Zm9u
-dC1zaXplOiAxMnB4OyI+ZWJzYmRzYW43QHRlc3QuY29tPC9hPgogICAgICAgICAgICAKICAgICAg
-ICAgICAgPC9zcGFuPgoKICAgICAgICAgIDxzcGFuIHN0eWxlPSJtYXJnaW4tdG9wOiAwOyBtYXJn
-aW4tYm90dG9tOiA1cHg7IGRpc3BsYXk6IGJsb2NrO2NvbG9yOiAjRkZGRkZGOyBmb250LWZhbWls
-eTogJ2ludGVyJywgQXJpYWwsIHNhbnMtc2VyaWY7IGZvbnQtc2l6ZTogMTJweDsiPgogICAgICAg
-ICAgICAKICAgICAgICAgICAgICBieSA8YSBocmVmPSJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYWNj
-b3VudHMvcHJvZmlsZS8iIGNsYXNzPSJjb250YWluZXItbGluayIgc3R5bGU9Im1hcmdpbi1yaWdo
-dDogMzBweDtjb2xvcjogI0ZGRkZGRjtmb250LXNpemU6IDEycHg7Ij5GaXJlZm94IFJlbGF5PC9h
-PgogICAgICAgICAgICAKICAgICAgICAgIDwvc3Bhbj4KICAgICAgICAgIDwvcD4KCiAgICAgICAg
-PC90ZD4KICAgICAgICA8dGQgY2xhc3M9ImhlYWRlci1ibG9jay1yaWdodCIgd2lkdGg9IjUwJSIg
-YWxpZ249InJpZ2h0Ij4KICAgICAgICAgIDxwIGNsYXNzPSJyZWxheS10cmFja2Vycy1yZW1vdmVk
-IiBzdHlsZT0ibWFyZ2luOiAwIDMwcHggMCAwOyBkaXNwbGF5OiBpbmxpbmUtYmxvY2s7IGNvbG9y
-OiAjRkZGRkZGOyBmb250LWZhbWlseTogJ2ludGVyJywgQXJpYWwsIHNhbnMtc2VyaWY7IGZvbnQt
-c2l6ZTogMTJweDsiPgogICAgICAgICAgICA8aW1nIGNsYXNzPSJlbWFpbC10cmFja2Vycy1yZW1v
-dmVkLWljb24iIHdpZHRoPSIxNSIgc3JjPSJodHRwOi8vMTI3LjAuMC4xOjgwMDAvc3RhdGljL2lt
-YWdlcy9lbWFpbC1pbWFnZXMvZW1haWwtdHJhY2tlcnMtcmVtb3ZlZC1pY29uLnBuZyIgYWx0PSJl
-bWFpbCB0cmFja2VycyByZW1vdmVkIGljb24iLz4KICAgICAgICAgICAgCiAgICAgICAgICAgIAog
-ICAgICAgICAgICAgIOKBqDDigakgZW1haWwgdHJhY2tlcnMgcmVtb3ZlZAogICAgICAgICAgICAK
-ICAgICAgICAgIDwvcD4KCiAgICAgICAgICAKICAgICAgICAgIDxwIGNsYXNzPSJyZWxheS1tYXNr
-IiBzdHlsZT0ibWFyZ2luOiAwOyBkaXNwbGF5OiBpbmxpbmUtYmxvY2s7Ij4KICAgICAgICAgICAg
-ICAKICAgICAgICAgICAgICAKICAgICAgICAgICAgICA8YSBjbGFzcz0iY29udGFpbmVyLWxpbmsi
-IGhyZWY9Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9wcmVtaXVtIiBzdHlsZT0iY29sb3I6ICNGRkZG
-RkY7Ij4KICAgICAgICAgICAgICAgIFVwZ3JhZGUgZm9yIG1vcmUgcHJvdGVjdGlvbgogICAgICAg
-ICAgICAgIDwvYT4KICAgICAgICAgICAgICAKICAgICAgICAgIDwvcD4KICAgICAgICAgIAogICAg
-ICAgIDwvdGQ+CiAgICAgIDwvdHI+CiAgICA8L3RhYmxlPgoKICAgIDwhLS0gRW1haWwgQm9keSAt
-LT4KICAgIDx0YWJsZSBpZD0icmVsYXktZW1haWwtYm9keSIgd2lkdGg9IjEwMCUiIHN0eWxlPSJw
-YWRkaW5nOiAwOyBtYXgtd2lkdGg6NzAwcHg7IiBhbGlnbj0iY2VudGVyIj4KICAgICAgPHRyPgog
-ICAgICAgIDx0ZCB3aWR0aD0iMTAwJSIgc3R5bGU9InBhZGRpbmctbGVmdDogMTVweDsgcGFkZGlu
-Zy1yaWdodDogMTVweDsiPgogICAgICAgICAgPGRpdiBzdHlsZT0iZm9udC1mYW1pbHk6IGFyaWFs
-OyBmb250LXNpemU6IDE0cHg7Ij48ZGl2IHN0eWxlPSJmb250LWZhbWlseTogYXJpYWw7IGZvbnQt
-c2l6ZTogMTRweDsiPnNob3VsZCB3b3JrPGJyPjwvZGl2PjxkaXYgc3R5bGU9ImZvbnQtZmFtaWx5
-OiBhcmlhbDsgZm9udC1zaXplOiAxNHB4OyI+PGJyPjwvZGl2PjxkaXYgc3R5bGU9ImZvbnQtZmFt
-aWx5OiBhcmlhbDsgZm9udC1zaXplOiAxNHB4OyIgY2xhc3M9InByb3Rvbm1haWxfc2lnbmF0dXJl
-X2Jsb2NrIj48ZGl2IGNsYXNzPSJwcm90b25tYWlsX3NpZ25hdHVyZV9ibG9jay11c2VyIHByb3Rv
-bm1haWxfc2lnbmF0dXJlX2Jsb2NrLWVtcHR5Ij48L2Rpdj48ZGl2IGNsYXNzPSJwcm90b25tYWls
-X3NpZ25hdHVyZV9ibG9jay1wcm90b24iPlNlbnQgd2l0aCA8YSByZWw9Im5vb3BlbmVyIG5vcmVm
-ZXJyZXIiIGhyZWY9Imh0dHBzOi8vcHJvdG9ubWFpbC5jb20vIiB0YXJnZXQ9Il9ibGFuayI+UHJv
-dG9uTWFpbDwvYT4gU2VjdXJlIEVtYWlsLjwvZGl2PjwvZGl2PjwvZGl2PjxkaXYgc3R5bGU9ImZv
-bnQtZmFtaWx5OiBhcmlhbDsgZm9udC1zaXplOiAxNHB4OyI+PGJyPjwvZGl2PgogICAgICAgIDwv
-dGQ+CiAgICAgIDwvdHI+CiAgICA8L3RhYmxlPgoKICAgIDwhLS0gRm9vdGVyIC0tPgogICAgPHRh
-YmxlIGlkPSJyZWxheS1lbWFpbC1mb290ZXIiIHdpZHRoPSIxMDAlIiBiZ2NvbG9yPSIjM0QzRDNE
-IiBzdHlsZT0iYmFja2dyb3VuZDogIzNEM0QzRDsgcGFkZGluZzogMTJweCAyNXB4OyBtYXJnaW4t
-dG9wOiAzMHB4OyBtYXJnaW4tYm90dG9tOiAzMHB4OyB3aWR0aDogOTYlOyBib3JkZXItcmFkaXVz
-OiA2cHg7IG1heC13aWR0aDogMTIwMHB4OyIgYWxpZ249ImNlbnRlciI+CiAgICAgIDx0cj4KICAg
-ICAgICA8dGQgY2xhc3M9ImZvb3Rlci1ibG9jayIgd2lkdGg9IjUwJSIgYWxpZ249ImxlZnQiPgog
-ICAgICAgICAgPGEgY2xhc3M9ImNvbnRhaW5lci1saW5rIiBocmVmPSJodHRwOi8vMTI3LjAuMC4x
-OjgwMDAiPgogICAgICAgICAgICA8aW1nIHdpZHRoPSIxMTAiIHNyYz0iaHR0cDovLzEyNy4wLjAu
-MTo4MDAwL3N0YXRpYy9pbWFnZXMvZW1haWwtaW1hZ2VzL3JlbGF5LWxvZ28tZW1haWxzLWRhcmst
-YmcucG5nIiBzdHlsZT0ibWFyZ2luOiAwOyIgYWx0PSJyZWxheSBsb2dvIi8+CiAgICAgICAgICA8
-L2E+CiAgICAgICAgPC90ZD4KICAgICAgICA8dGQgY2xhc3M9ImZvb3Rlci1ibG9jayIgd2lkdGg9
-IjUwJSIgYWxpZ249InJpZ2h0Ij4KICAgICAgICAgIDxhIGNsYXNzPSJjb250YWluZXItbGluayIg
-aHJlZj0iaHR0cDovLzEyNy4wLjAuMTo4MDAwL2FjY291bnRzL3Byb2ZpbGUiIHN0eWxlPSJjb2xv
-cjogI0ZGRkZGRjsiPllvdXIgZGFzaGJvYXJkPC9hPgogICAgICAgIDwvdGQ+CiAgICAgIDwvdHI+
-CiAgICA8L3RhYmxlPgoKICA8L2JvZHk+CjwvaHRtbD4KCg==
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width"/>
+    <style>
+    @font-face {
+      font-family: 'inter';
+      font-style: normal;
+      src: local('Inter Regular'), local('Inter-Regular'), url(https://relay.firefox.com/fonts/Inter/Inter-Regular.4232a675a077.woff2?v=3.18) format('woff');
+    }
+    @font-face {
+      font-family: 'inter medium';
+      font-style: bold;
+      src: local('Inter Medium'), local('Inter-Medium'), url(https://relay.firefox.com/fonts/Inter/Inter-Medium.woff2?v=3.18) format('woff');
+    }
+    * {
+      box-sizing: border-box;
+    }
+    #relay-email-header,
+    #relay-email-footer {
+      font-family: 'inter', Arial, sans-serif;
+      color: #FFFFFF;
+      font-size: 12px;
+    }
+    a.container-link {
+      transition: all 0.2s ease;
+      text-underline-offset: 2px;
+      font-family: 'inter medium', Arial, sans-serif;
+    }
+    a.container-link:hover {
+      color: #20123ad5;
+      transition: all 0.2s ease;
+    }
+    a.container-link {
+      color: #FFFFFF;
+      font-size: 12px;
+    }
+    a.container-link:hover,
+    a.container-link:focus,
+    a.container-link:active {
+      transition: all 0.2s ease;
+    }
+    .email-trackers-removed-icon {
+      margin-right: 5px;
+      vertical-align: bottom;
+    }
+    @media screen and (max-width: 768px) {
+      .footer-block {
+        display: block;
+        width: 100%;
+        text-align: center;
+      }
+      .footer-block .container-link img {
+        height: 45px;
+        width: auto;
+      }
+      .header-block-left,
+      .header-block-right {
+        display: block;
+        width: 100%;
+        text-align: left;
+      }
+      .header-block-right {
+        margin-left: 40px;
+      }
+      .relay-trackers-removed,
+      .relay-mask {
+        width: 100%;
+        display: block;
+      }
+    }
+    /* this deals with long email addresses */
+    .forwarded-from-email {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 500px;
+      }
+    @media screen and (max-width: 1200px) {
+      .forwarded-from-email {
+        width: 300px;
+      }
+    }
+    @media screen and (max-width: 768px){
+      .forwarded-from-email {
+        width: 250px;
+      }
+    }
+    @media screen and (max-width: 425px) {
+      .forwarded-from-email {
+        width: 200px;
+      }
+    }
+    </style>
+  </head>
+  <body id="relay-email" style="padding: 0; margin: 0;">
+    <!-- Header -->
+    <table id="relay-email-header" width="100%" bgcolor="#3D3D3D" style="background: #3D3D3D; padding: 12px 25px; margin-top: 30px; margin-bottom: 30px; width: 96%; border-radius: 6px; max-width: 1200px;" align="center">
+      <tr>
+        <td class="header-block-left" width="50%" align="left" style="padding-top: 5px;">
+          <img width="30" src="http://127.0.0.1:8000/static/images/email-images/relay-icon.png" style="margin-right: 5px; display: inline-block; vertical-align: top;" alt="relay icon"/>
+          <p style="margin-top: 0; margin-bottom: 5px; display: inline-block;">
+            <span class="forwarded-from-email" style="display: block; color: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
+            Forwarded from <a href="http://127.0.0.1:8000/accounts/profile/#ebsbdsan7%40test.com" class="container-link" style="margin-right: 30px;color: #FFFFFF;font-size: 12px;">ebsbdsan7@test.com</a>
+            </span>
+          <span style="margin-top: 0; margin-bottom: 5px; display: block;color: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
+              by <a href="http://127.0.0.1:8000/accounts/profile/" class="container-link" style="margin-right: 30px;color: #FFFFFF;font-size: 12px;">Firefox Relay</a>
+          </span>
+          </p>
+        </td>
+        <td class="header-block-right" width="50%" align="right">
+          <p class="relay-trackers-removed" style="margin: 0 30px 0 0; display: inline-block; color: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
+            <img class="email-trackers-removed-icon" width="15" src="http://127.0.0.1:8000/static/images/email-images/email-trackers-removed-icon.png" alt="email trackers removed icon"/>
+              <span dir="auto">0</span> email trackers removed
+          </p>
+          <p class="relay-mask" style="margin: 0; display: inline-block;">
+              <a class="container-link" href="http://127.0.0.1:8000/premium" style="color: #FFFFFF;">
+                Upgrade for more protection
+              </a>
+          </p>
+        </td>
+      </tr>
+    </table>
+    <!-- Email Body -->
+    <table id="relay-email-body" width="100%" style="padding: 0; max-width:700px;" align="center">
+      <tr>
+        <td width="100%" style="padding-left: 15px; padding-right: 15px;">
+          <div style="font-family: arial; font-size: 14px;"><div style="font-family: arial; font-size: 14px;">should work<br></div><div style="font-family: arial; font-size: 14px;"><br></div><div style="font-family: arial; font-size: 14px;" class="protonmail_signature_block"><div class="protonmail_signature_block-user protonmail_signature_block-empty"></div><div class="protonmail_signature_block-proton">Sent with <a rel="noopener noreferrer" href="https://protonmail.com/" target="_blank">ProtonMail</a> Secure Email.</div></div></div><div style="font-family: arial; font-size: 14px;"><br></div>
+        </td>
+      </tr>
+    </table>
+    <!-- Footer -->
+    <table id="relay-email-footer" width="100%" bgcolor="#3D3D3D" style="background: #3D3D3D; padding: 12px 25px; margin-top: 30px; margin-bottom: 30px; width: 96%; border-radius: 6px; max-width: 1200px;" align="center">
+      <tr>
+        <td class="footer-block" width="50%" align="left">
+          <a class="container-link" href="http://127.0.0.1:8000">
+            <img width="110" src="http://127.0.0.1:8000/static/images/email-images/relay-logo-emails-dark-bg.png" style="margin: 0;" alt="relay logo"/>
+          </a>
+        </td>
+        <td class="footer-block" width="50%" align="right">
+          <a class="container-link" href="http://127.0.0.1:8000/accounts/profile" style="color: #FFFFFF;">Your dashboard</a>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
 
 --==[BOUNDARY1]==--
 

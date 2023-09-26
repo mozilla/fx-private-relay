@@ -151,7 +151,10 @@ def wrap_html_email(
         "num_level_one_email_trackers_removed": num_level_one_email_trackers_removed,
         "SITE_ORIGIN": settings.SITE_ORIGIN,
     }
-    return render_to_string("emails/wrapped_email.html", email_context)
+    content = render_to_string("emails/wrapped_email.html", email_context)
+    # Remove empty lines
+    content_lines = [line for line in content.splitlines() if line.strip()]
+    return "\n".join(content_lines) + "\n"
 
 
 def wrapped_email_test(request: HttpRequest) -> HttpResponse:
