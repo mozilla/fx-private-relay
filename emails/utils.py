@@ -252,12 +252,11 @@ def _add_body_to_message(msg: EmailMessage, message_body: MessageBody) -> EmailM
     msg_body = MIMEMultipart("alternative")
 
     if "Text" in message_body:
-        body_text = message_body["Text"]["Data"]
-        # Let MIMEText determine if us-ascii encoding will work
+        body_text = message_body["Text"]
         textpart = MIMEText(body_text, "plain")
         msg_body.attach(textpart)
     if "Html" in message_body:
-        body_html = message_body["Html"]["Data"]
+        body_html = message_body["Html"]
         htmlpart = MIMEText(body_html, "html")
         msg_body.attach(htmlpart)
 

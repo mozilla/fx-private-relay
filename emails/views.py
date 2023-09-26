@@ -622,7 +622,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
                 address.num_level_one_trackers_blocked or 0
             ) + level_one_trackers_removed
             address.save()
-        message_body["Html"] = {"Charset": "UTF-8", "Data": new_html_content}
+        message_body["Html"] = new_html_content
 
     if text_content:
         incr_if_enabled("email_with_text_content", 1)
@@ -630,7 +630,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             text_content=text_content,
             to_address=to_address,
         )
-        message_body["Text"] = {"Charset": "UTF-8", "Data": new_text_content}
+        message_body["Text"] = new_text_content
 
     destination_address = user_profile.user.email
     reply_address = get_reply_to_address()
@@ -844,8 +844,8 @@ def _build_reply_requires_premium_email(
         headers["References"] = message_id
 
     message_body: MessageBody = {
-        "Html": {"Charset": "utf-8", "Data": html_body},
-        "Text": {"Charset": "utf-8", "Data": text_body},
+        "Html": html_body,
+        "Text": text_body,
     }
 
     msg = create_message(headers, message_body)
@@ -979,10 +979,9 @@ def _handle_reply(
 
     message_body: MessageBody = {}
     if html_content:
-        message_body["Html"] = {"Charset": "UTF-8", "Data": html_content}
-
+        message_body["Html"] = html_content
     if text_content:
-        message_body["Text"] = {"Charset": "UTF-8", "Data": text_content}
+        message_body["Text"] = text_content
 
     headers: OutgoingHeaders = {
         "Subject": subject,
