@@ -30,7 +30,7 @@ def convert_fsi_to_span(text, autoescape=True):
     Replace Fluent's unicode isolating characters with HTML markup.
 
     U+2068 is FIRST-STRONG ISOLATE (FSI), direction depends on content
-    U+2069 is POP DIRECTIONAL ISOLATE, ends FSI and other isolates
+    U+2069 is POP DIRECTIONAL ISOLATE (PDI), ends FSI and other isolates
     HTML equivalent is <span dir="auto">...</span>
 
     See:
@@ -38,7 +38,7 @@ def convert_fsi_to_span(text, autoescape=True):
     """
     try:
         pre_fsi, after_fsi = text.split("\u2068", 1)
-        middle, post_pop = after_fsi.split("\u2069", 1)
+        middle, post_pdi = after_fsi.split("\u2069", 1)
     except ValueError:
         # No FSI or POP DIRECTIONAL ISOLATE, or in wrong sequence
         return text
@@ -46,5 +46,5 @@ def convert_fsi_to_span(text, autoescape=True):
         esc = conditional_escape
     else:
         esc = lambda x: x  # noqa: E731
-    result = f'{esc(pre_fsi)}<span dir="auto">{esc(middle)}</span>{esc(post_pop)}'
+    result = f'{esc(pre_fsi)}<span dir="auto">{esc(middle)}</span>{esc(post_pdi)}'
     return mark_safe(result)
