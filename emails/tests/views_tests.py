@@ -1,6 +1,7 @@
 from base64 import b64decode
 from copy import deepcopy
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+from email import message_from_string, policy
 from email.message import EmailMessage
 from typing import cast
 from unittest.mock import patch, Mock
@@ -99,6 +100,7 @@ def load_email_fixtures(file_suffix: str) -> dict[str, str]:
 EMAIL_SNS_BODIES = load_sns_fixtures("_email_sns_body")
 BOUNCE_SNS_BODIES = load_sns_fixtures("_bounce_sns_body")
 INVALID_SNS_BODIES = load_sns_fixtures("_invalid_sns_body")
+EMAIL_INCOMING = load_email_fixtures("_incoming")
 EMAIL_EXPECTED = load_email_fixtures("_expected")
 
 # Set mocked_function.side_effect = FAIL_TEST_IF_CALLED to safely disable a function
@@ -135,6 +137,64 @@ def create_email_from_notification(
     assert email["Content-Type"].startswith("multipart/alternative")
     email.add_alternative(text, subtype="plain")
     return email.as_bytes()
+
+
+def create_notification_from_email(email_text: str) -> AWS_SNSMessageJSON:
+    """
+    Create an SNS notification from a raw serialized email.
+
+    The notification will have the headers from the email, a passing receipt,
+    and other mocked items. The email will be included in the notification
+    body, not loaded from (mock) S3.
+    """
+    email = message_from_string(email_text, policy=policy.default)
+    topic_arn = "arn:aws:sns:us-east-1:168781634622:ses-inbound-grelay"
+    sns_message = {
+        "notificationType": "Received",
+        "mail": {
+            "timestamp": email["Date"].datetime.isoformat(),
+            "source": email["From"].addresses[0].addr_spec,
+            "messageId": email["Message-ID"],
+            "destination": [addr.addr_spec for addr in email["To"].addresses],
+            "headersTruncated": False,
+            "headers": [{"name": _h, "value": _v} for _h, _v in email.items()],
+            "commonHeaders": {
+                "from": [str(addr) for addr in email["From"].addresses],
+                "date": email["Date"],
+                "to": [str(addr) for addr in email["To"].addresses],
+                "messageId": email["Message-ID"],
+                "subject": email["Subject"],
+            },
+        },
+        "receipt": {
+            "timestamp": (email["Date"].datetime + timedelta(seconds=1)).isoformat(),
+            "processingTimeMillis": 1001,
+            "recipients": [addr.addr_spec for addr in email["To"].addresses],
+            "spamVerdict": {"status": "PASS"},
+            "virusVerdict": {"status": "PASS"},
+            "spfVerdict": {"status": "PASS"},
+            "dkimVerdict": {"status": "PASS"},
+            "dmarcVerdict": {"status": "PASS"},
+            "action": {"type": "SNS", "topicArn": topic_arn, "encoding": "UTF8"},
+        },
+        "content": email_text,
+    }
+    base_url = "https://sns.us-east-1.amazonaws.example.com"
+    sns_notification = {
+        "Type": "Notification",
+        "MessageId": str(uuid4()),
+        "TopicArn": topic_arn,
+        "Subject": email["Subject"],
+        "Message": json.dumps(sns_message),
+        "Timestamp": (email["Date"].datetime + timedelta(seconds=2)).isoformat(),
+        "SignatureVersion": "1",
+        "Signature": "invalid-signature",
+        "SigningCertURL": f"{base_url}/SimpleNotificationService-abcd1234.pem",
+        "UnsubscribeURL": (
+            f"{base_url}/?Action=Unsubscribe&SubscriptionArn={topic_arn}:{uuid4()}"
+        ),
+    }
+    return sns_notification
 
 
 def assert_email_equals(
@@ -537,6 +597,35 @@ class SNSNotificationTest(TestCase):
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 0
         assert self.ra.last_used_at is None
+
+    @pytest.mark.xfail(reason="Issue #691: inline images are discarded")
+    def test_inline_image(self) -> None:
+        email_text = EMAIL_INCOMING["inline_image"]
+        content_id = "Content-ID: <0A0AD2F8-6672-45A8-8248-0AC6C7282970>"
+        test_sns_notification = create_notification_from_email(email_text)
+        _sns_notification(test_sns_notification)
+
+        self.mock_send_raw_email.assert_called_once()
+        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
+        assert sender == "replies@default.com"
+        assert recipient == "user@example.com"
+        assert headers == {
+            "Subject": "Test Email",
+            "From": '"friend@mail.example.com [via Relay]" <ebsbdsan7@test.com>',
+            "To": recipient,
+            "Reply-To": sender,
+            "Resent-From": "friend@mail.example.com",
+            "MIME-Version": "1.0",
+            "Content-Type": headers["Content-Type"],
+        }
+        assert_email_equals(email, "inline_image")
+        assert content_id in email  # Issue 691
+
+        self.mock_remove_message_from_s3.assert_called_once()
+        self.ra.refresh_from_db()
+        assert self.ra.num_forwarded == 1
+        assert self.ra.last_used_at
+        assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
 
 
 class BounceHandlingTest(TestCase):

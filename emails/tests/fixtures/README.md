@@ -4,7 +4,18 @@ These fixtures are used in `emails/tests/views_tests.py`
 
 ## Incoming Emails
 
-Some fixtures capture the [SNS][] Delivery [notification JSON][] representing an
+Incoming Email fixtures come in two varieties. The original fixtures capture the [SNS][]
+Delivery [notification JSON][] representing an incoming email. The newer fixtures are
+the raw incoming emails.
+
+Both fixtures have related fixtures for the expected output email.
+
+[notification JSON]: https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html
+[SNS]: https://aws.amazon.com/sns/
+
+### Incoming Emails with SNS Notification JSON
+
+These fixtures capture the [SNS][] Delivery [notification JSON][] representing an
 incoming email. Their names all end in `_email_sns_body.json`.
 
 - `dmarc_failed_email_sns_body.json` - Email that failed the [DMARC][] check,
@@ -21,14 +32,25 @@ incoming email. Their names all end in `_email_sns_body.json`.
   list, would be blocked by "block promotions" setting.
 - `spamVerdict_FAIL_email_sns_body.json` - Email that AWS identified as spam
 
-[notification JSON]: https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html
 [DMARC]: https://en.wikipedia.org/wiki/DMARC
-[SNS]: https://aws.amazon.com/sns/
 
-There are related fixtures for the expected forwarded email. Some content, such as MIME
-boundary strings, are standardized to remove variation from test to test. These
-fixtures start with the name of the related SNS JSON fixture, and end in
-`_expected.email`.
+### Incoming Emails as raw emails
+
+These fixtures were created outside of an SNS notification, such as exporting from a
+mail client. They are stored in the [Internet Message Format][] (IMF).
+
+- `inline_image_incoming.email` - Contains an inline image, referenced in the HTML by
+  content ID
+
+[Internet Message Format]: https://datatracker.ietf.org/doc/html/rfc5322
+
+### Expected output email
+
+There are related fixtures for the expected output email. They are stored in the
+[Internet Message Format][]. These fixtures often start with the name of the related
+fixture, and end in `_expected.email`.
+
+The output fixtures for incoming emails with SNS Notification JSON:
 
 - `domain_recipient_expected.email`
 - `s3_stored_replies_expected.email` - With text content `this is a text reply`
@@ -37,10 +59,14 @@ fixtures start with the name of the related SNS JSON fixture, and end in
 - `single_recipient_fr_expected.email` - To a Relay user preferring French
 - `single_recipient_list_expected.email`
 
-When the expected mail does not match the actual forwarded mail, the test creates a file
-with the actual output (after standardization). These files end in `_actual.email`
-instead of `_expected.email`. These can be used in a different tool, such as XCode's
-[Opendiff][], to view the differences.
+The output fixtures for raw incoming emails:
+
+- `inline_image_expected.email`
+
+When the expected mail does not match the actual output mail, the test creates a file
+with the actual output. These files end in `_actual.email` instead of `_expected.email`.
+These can be used in a different tool, such as XCode's [Opendiff][], to view the
+differences.
 
 They can also be used when changing the email content. For example, if we change the
 format of the HTML wrapper, then the email content will change. Once the developer is
