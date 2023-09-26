@@ -41,6 +41,7 @@
 2. Lloan
 3. Luke
 4. Se Yeon
+5. Rafee
 
 [release-to-stage]: https://github.com/mozilla/fx-private-relay/blob/main/docs/release_process.md#release-to-stage
 [sentry-releases]: https://mozilla.sentry.io/releases/
