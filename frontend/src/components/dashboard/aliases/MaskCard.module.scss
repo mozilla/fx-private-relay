@@ -91,7 +91,7 @@
           max-width: 400px;
         }
         // Stops long mask domain from cutting into the "Block promotions label"
-        @media screen and (min-width: calc($content-xl)) {
+        @media screen and (min-width: $content-xl) {
           max-width: calc($content-md - 100px);
         }
       }
