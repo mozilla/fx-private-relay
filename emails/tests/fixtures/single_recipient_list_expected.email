@@ -1,6 +1,6 @@
 MIME-Version: 1.0
 Content-Type: multipart/alternative;
- boundary="==[BOUNDARY0]=="
+ boundary="b1_1tMoOzirX5rNUK0QIqMdSQB8hwcBeFGHtIfEtmvEG0k"
 Subject: localized email header + footer
 From: "fxastage@protonmail.com [via Relay]" <ebsbdsan7@test.com>
 To: user@example.com
@@ -9,7 +9,7 @@ Resent-From: fxastage@protonmail.com
 
 This is a multi-part message in MIME format.
 
---==[BOUNDARY0]==
+--b1_1tMoOzirX5rNUK0QIqMdSQB8hwcBeFGHtIfEtmvEG0k
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
@@ -21,7 +21,7 @@ should work
 
 Sent with [ProtonMail](https://protonmail.com/) Secure Email.
 
---==[BOUNDARY0]==
+--b1_1tMoOzirX5rNUK0QIqMdSQB8hwcBeFGHtIfEtmvEG0k
 Content-Type: text/html; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
@@ -210,5 +210,5 @@ profile" style=3D"color: #FFFFFF;">Your dashboard</a>
   </body>
 </html>
 
---==[BOUNDARY0]==--
+--b1_1tMoOzirX5rNUK0QIqMdSQB8hwcBeFGHtIfEtmvEG0k--
 

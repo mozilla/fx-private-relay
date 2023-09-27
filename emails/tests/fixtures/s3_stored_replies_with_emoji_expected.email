@@ -1,15 +1,15 @@
 MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="==[BOUNDARY0]=="
+Content-Type: multipart/alternative; boundary="0000000000003d386c05ccffc614"
 Subject: Re: Test Mozilla User New Domain Address
 From: a1b2c3d4@test.com
 To: sender@external.example.com
 Reply-To: a1b2c3d4@test.com
 
---==[BOUNDARY0]==
+--0000000000003d386c05ccffc614
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 MIME-Version: 1.0
 
 8J+RjSBUaGFua3MgSSBnb3QgaXQhCg==
 
---==[BOUNDARY0]==--
+--0000000000003d386c05ccffc614--

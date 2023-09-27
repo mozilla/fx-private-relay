@@ -205,7 +205,7 @@ def create_notification_from_email(email_text: str) -> AWS_SNSMessageJSON:
 
 
 def assert_email_equals(
-    output_email: str, name: str, replace_mime_boundaries: bool = True
+    output_email: str, name: str, replace_mime_boundaries: bool = False
 ) -> None:
     """
     Assert the output equals the expected email, after optional replacements.

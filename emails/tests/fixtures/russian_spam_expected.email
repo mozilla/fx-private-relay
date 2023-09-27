@@ -1,5 +1,5 @@
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="==[BOUNDARY0]=="
+Content-Type: multipart/mixed; boundary="MXFqWmhZLWxxWm5TTC1OaQ=="
 Subject: =?utf-8?b?0J/RgNC40LPQu9Cw0YjQtdC90LjQtSAgfCDQl9Cw0YfQtdC8INC4INC6?=
  =?utf-8?b?0LDQuiDQstC10YHRgtC4INCx0LjQt9C90LXRgSDQsiDQkNGE0YDQuNC60LU/?=
 From: "hello@ac.spam.example.com [via Relay]" <ebsbdsan7@test.com>
@@ -7,7 +7,7 @@ To: user@example.com
 Reply-To: replies@default.com
 Resent-From: hello@ac.spam.example.com
 
---==[BOUNDARY0]==
+--MXFqWmhZLWxxWm5TTC1OaQ==
 Content-Type: multipart/alternative; 
 	boundary="----=_Part_23720677_711349626.1695364304550"
 
@@ -239,4 +239,4 @@ profile" style=3D"color: #FFFFFF;">Your dashboard</a>
 
 ------=_Part_23720677_711349626.1695364304550--
 
---==[BOUNDARY0]==--
+--MXFqWmhZLWxxWm5TTC1OaQ==--
