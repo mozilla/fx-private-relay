@@ -759,7 +759,6 @@ def _convert_html_content(
     # frontend expects a timestamp in milliseconds
     now = now or datetime.now(timezone.utc)
     datetime_now_ms = int(now.timestamp() * 1000)
-    # user_profile = address.user.profile
 
     # scramble alias so that clients don't recognize it
     # and apply default link styles
