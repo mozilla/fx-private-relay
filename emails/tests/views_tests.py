@@ -259,6 +259,46 @@ class SNSNotificationTest(TestCase):
         assert self.ra.last_used_at is not None
         assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
 
+    def test_single_french_recipient_sns_notification(self) -> None:
+        """
+        The email content can contain non-ASCII characters and be base64 encoded.
+
+        In this case, the HTML content is wrapped in the Relay header translated
+        to French.
+
+        This is a design choice. Relay could convert non-ASCII characters to HTML
+        escaped characters. For example, 'Transféré' could be 'Transf&#233;r&#233;',
+        via `html.encode('ascii', errors='xmlcharrefreplace').decode()`. However,
+        mail clients don't care, only devs looking at "view source".
+        """
+        self.sa.extra_data = {"locale": "fr, fr-fr, en-us, en"}
+        self.sa.save()
+        assert self.profile.language == "fr"
+
+        _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
+
+        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
+        assert sender == "replies@default.com"
+        assert recipient == "user@example.com"
+        content_type = headers.pop("Content-Type")
+        assert content_type.startswith('multipart/mixed; boundary="========')
+        assert headers == {
+            "Subject": "localized email header + footer",
+            "MIME-Version": "1.0",
+            "From": '"fxastage@protonmail.com [via Relay]" <ebsbdsan7@test.com>',
+            "To": "user@example.com",
+            "Reply-To": "replies@default.com",
+            "Resent-From": "fxastage@protonmail.com",
+        }
+        assert_email_equals(email, "single_recipient_fr")
+        assert 'Content-Type: text/html; charset="utf-8"' in email
+        assert "Content-Transfer-Encoding: base64" in email
+
+        self.ra.refresh_from_db()
+        assert self.ra.num_forwarded == 1
+        assert self.ra.last_used_at is not None
+        assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
+
     def test_list_email_sns_notification(self) -> None:
         """By default, list emails should still forward."""
         _sns_notification(EMAIL_SNS_BODIES["single_recipient_list"])
