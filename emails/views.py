@@ -1,9 +1,11 @@
 from copy import deepcopy
 from datetime import datetime, timezone
 from email import message_from_bytes, policy
+from email.iterators import _structure
 from email.message import EmailMessage
 from email.utils import parseaddr
 import html
+from io import StringIO
 import json
 from json import JSONDecodeError
 import logging
@@ -794,6 +796,7 @@ def _convert_to_forwarded_email(
 
     # Find and replace text content
     text_body = email.get_body("plain")
+    text_content = None
     has_text = False
     if text_body:
         has_text = True
@@ -820,6 +823,28 @@ def _convert_to_forwarded_email(
             remove_level_one_trackers,
         )
         html_body.set_content(new_content, subtype="html")
+    elif text_content:
+        # Try to use the text content to generate HTML content
+        html_content = urlize_and_linebreaks(text_content)
+        new_content, level_one_trackers_removed = _convert_html_content(
+            html_content,
+            to_address,
+            from_address,
+            language,
+            has_premium,
+            sample_trackers,
+            remove_level_one_trackers,
+        )
+        assert isinstance(text_body, EmailMessage)
+        try:
+            text_body.add_alternative(new_content, subtype="html")
+        except TypeError as e:
+            out = StringIO()
+            _structure(email, fp=out)
+            info_logger.error(
+                "Adding HTML alternate failed",
+                extra={"exception": str(e), "structure": out.getvalue()},
+            )
 
     return (level_one_trackers_removed, has_html, has_text)
 

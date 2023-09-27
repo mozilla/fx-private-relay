@@ -703,7 +703,6 @@ class SNSNotificationTest(TestCase):
             "Reply-To": sender,
             "Resent-From": "root@server.example.com",
             "Content-Type": headers["Content-Type"],
-            "Content-Transfer-Encoding": "quoted-printable",
             "MIME-Version": "1.0",
         }
         assert_email_equals(email, "plain_text", replace_mime_boundaries=True)
