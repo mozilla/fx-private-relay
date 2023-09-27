@@ -305,14 +305,22 @@ class SNSNotificationTest(TestCase):
         assert len(destinations) == 1
         raw_message = self.mock_send_raw_email.call_args[1]["RawMessage"]["Data"]
         headers: dict[str, str] = {}
+        last_key = None
         for line in raw_message.splitlines():
             if not line:
                 # Start of message body, done with headers
                 return source, destinations[0], headers, raw_message
-            assert ": " in line
-            key, val = line.split(": ", 1)
-            assert key not in headers
-            headers[key] = val
+            if line[0] in (" ", "\t"):
+                # Continuation of last header
+                assert last_key
+                headers[last_key] += line
+            else:
+                # New headers
+                assert ": " in line
+                key, val = line.split(": ", 1)
+                assert key not in headers
+                headers[key] = val
+                last_key = key
         raise Exception("Never found message body!")
 
     def test_single_recipient_sns_notification(self) -> None:
@@ -620,6 +628,56 @@ class SNSNotificationTest(TestCase):
         }
         assert_email_equals(email, "inline_image")
         assert content_id in email  # Issue 691
+
+        self.mock_remove_message_from_s3.assert_called_once()
+        self.ra.refresh_from_db()
+        assert self.ra.num_forwarded == 1
+        assert self.ra.last_used_at
+        assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
+
+    def test_russian_spam(self) -> None:
+        """
+        Base64-encoded input content can be processed.
+
+        Python picks the output encoding it thinks will be most compact. See:
+        https://docs.python.org/3/library/email.contentmanager.html#email.contentmanager.set_content
+
+        The plain text remains in base64, due to high proportion of Russian characters.
+        The HTML version is converted to quoted-printable, due to the high proportion
+        of ASCII characters.
+        """
+        email_text = EMAIL_INCOMING["russian_spam"]
+        test_sns_notification = create_notification_from_email(email_text)
+        _sns_notification(test_sns_notification)
+
+        self.mock_send_raw_email.assert_called_once()
+        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
+        assert sender == "replies@default.com"
+        assert recipient == "user@example.com"
+
+        # Subject translates as "Invitation | Why and how to do business in Africa?"
+        # Because of Russian characters, it is UTF-8 text encoded in Base63
+        expected_subject_b64 = (
+            "0J/RgNC40LPQu9Cw0YjQtdC90LjQtSAgfCDQl9Cw0YfQtdC8INC4INC6",
+            "0LDQuiDQstC10YHRgtC4INCx0LjQt9C90LXRgSDQsiDQkNGE0YDQuNC60LU/",
+        )
+        subject = b64decode("".join(expected_subject_b64)).decode()
+        assert subject == "Приглашение  | Зачем и как вести бизнес в Африке?"
+        expected_subject_header = " ".join(
+            f"=?utf-8?b?{val}?=" for val in expected_subject_b64
+        )
+
+        assert headers["Content-Type"].startswith('multipart/mixed; boundary="')
+        assert headers == {
+            "Subject": expected_subject_header,
+            "From": '"hello@ac.spam.example.com [via Relay]" <ebsbdsan7@test.com>',
+            "To": recipient,
+            "Reply-To": sender,
+            "Resent-From": "hello@ac.spam.example.com",
+            "Content-Type": headers["Content-Type"],
+            "MIME-Version": "1.0",
+        }
+        assert_email_equals(email, "russian_spam")
 
         self.mock_remove_message_from_s3.assert_called_once()
         self.ra.refresh_from_db()

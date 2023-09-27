@@ -41,6 +41,7 @@ mail client. They are stored in the [Internet Message Format][] (IMF).
 
 - `inline_image_incoming.email` - Contains an inline image, referenced in the HTML by
   content ID
+- `russian_spam_incoming.email` - Contains UTF-8 encoded headers, Base64-encoded content
 
 [Internet Message Format]: https://datatracker.ietf.org/doc/html/rfc5322
 
