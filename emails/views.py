@@ -9,11 +9,8 @@ from io import StringIO
 import json
 from json import JSONDecodeError
 import logging
-import mimetypes
-import os
 import re
 import shlex
-from tempfile import SpooledTemporaryFile
 from textwrap import dedent
 from typing import Any, Literal, Optional
 from urllib.parse import urlencode
@@ -1428,82 +1425,3 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     if any(data["user_match"] == "missing" for data in complaint_data):
         return HttpResponse("Address does not exist", status=404)
     return HttpResponse("OK", status=200)
-
-
-def _get_text_html_attachments(message_json):
-    if "content" in message_json:
-        # email content in sns message
-        message_content = message_json["content"].encode("utf-8")
-    else:
-        # assume email content in S3
-        bucket, object_key = _get_bucket_and_key_from_s3_json(message_json)
-        message_content = get_message_content_from_s3(bucket, object_key)
-    email_size = len(message_content)
-    histogram_if_enabled("relayed_email.size", email_size)
-    bytes_email_message = message_from_bytes(message_content, policy=policy.default)
-
-    text_content, html_content, attachments = _get_all_contents(bytes_email_message)
-    # TODO: add logs on the entire size of the email and the time it takes to
-    # download/process
-    return text_content, html_content, attachments, email_size
-
-
-def _get_attachment(part):
-    incr_if_enabled("email_with_attachment", 1)
-    fn = part.get_filename()
-    ct = part.get_content_type()
-    payload = part.get_payload(decode=True)
-    payload_size = len(payload)
-    if fn:
-        extension = os.path.splitext(fn)[1]
-    else:
-        extension = mimetypes.guess_extension(ct)
-    tag_type = "attachment"
-    attachment_extension_tag = generate_tag(tag_type, extension)
-    attachment_content_type_tag = generate_tag(tag_type, ct)
-    histogram_if_enabled(
-        "attachment.size",
-        payload_size,
-        [attachment_extension_tag, attachment_content_type_tag],
-    )
-
-    attachment = SpooledTemporaryFile(
-        max_size=150 * 1000, prefix="relay_attachment_"  # 150KB max from SES
-    )
-    attachment.write(payload)
-    return fn, attachment
-
-
-def _get_all_contents(email_message):
-    text_content = None
-    html_content = None
-    attachments = []
-    if email_message.is_multipart():
-        for part in email_message.walk():
-            try:
-                if part.is_attachment():
-                    att_name, att = _get_attachment(part)
-                    attachments.append((att_name, att))
-                    continue
-                if part.get_content_type() == "text/plain":
-                    text_content = part.get_content()
-                if part.get_content_type() == "text/html":
-                    html_content = part.get_content()
-            except KeyError:
-                # log the un-handled content type but don't stop processing
-                logger.error(
-                    "part.get_content()", extra={"type": part.get_content_type()}
-                )
-        histogram_if_enabled("attachment.count_per_email", len(attachments))
-        if text_content is not None and html_content is None:
-            html_content = urlize_and_linebreaks(text_content)
-    else:
-        if email_message.get_content_type() == "text/plain":
-            text_content = email_message.get_content()
-            html_content = urlize_and_linebreaks(email_message.get_content())
-        if email_message.get_content_type() == "text/html":
-            html_content = email_message.get_content()
-
-    # TODO: if html_content is still None, wrap the text_content with our
-    # header and footer HTML and send that as the html_content
-    return text_content, html_content, attachments

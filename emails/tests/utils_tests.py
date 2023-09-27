@@ -1,12 +1,8 @@
 from base64 import b64encode
-from email.utils import parseaddr
 from typing import Literal
 from urllib.parse import quote_plus
-from django.conf import settings
-from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from unittest.mock import patch
-from model_bakery import baker
 import json
 import pytest
 
@@ -17,8 +13,7 @@ from emails.utils import (
     remove_trackers,
     InvalidFromHeader,
 )
-
-from .models_tests import make_free_test_user, make_premium_test_user
+from .models_tests import make_free_test_user, make_premium_test_user  # noqa: F401
 
 
 class GetEmailDomainFromSettingsTest(TestCase):
