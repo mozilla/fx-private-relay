@@ -424,7 +424,12 @@ class SNSNotificationTest(TestCase):
         assert self.ra.last_used_at is None
 
     @patch("emails.views.get_message_content_from_s3")
-    def test_reply(self, mock_get_content) -> None:
+    def test_reply(
+        self,
+        mock_get_content,
+        text: str = "this is a text reply",
+        expected_fixture_name: str = "s3_stored_replies",
+    ) -> str:
         """The headers of a reply refer to the Relay mask."""
 
         # Create a premium user matching the s3_stored_replies sender
@@ -452,7 +457,7 @@ class SNSNotificationTest(TestCase):
 
         # Mock loading a simple reply email message from S3
         mock_get_content.return_value = create_email_from_notification(
-            EMAIL_SNS_BODIES["s3_stored_replies"], text="this is a text reply"
+            EMAIL_SNS_BODIES["s3_stored_replies"], text=text
         )
 
         # Successfully reply to a previous sender
@@ -473,13 +478,23 @@ class SNSNotificationTest(TestCase):
             "Reply-To": sender,
             "To": recipient,
         }
-        assert_email_equals(email, "s3_stored_replies")
+        assert_email_equals(email, expected_fixture_name)
 
         relay_address.refresh_from_db()
         assert relay_address.num_replied == 1
         last_used_at = relay_address.last_used_at
         assert last_used_at
         assert (datetime.now(tz=timezone.utc) - last_used_at).seconds < 2.0
+        return email
+
+    def test_reply_with_emoji_in_text(self) -> None:
+        """An email with emoji text content is sent with UTF-8 encoding."""
+        email = self.test_reply(
+            text="👍 Thanks I got it!",
+            expected_fixture_name="s3_stored_replies_with_emoji",
+        )
+        assert 'Content-Type: text/plain; charset="utf-8"' in email
+        assert "Content-Transfer-Encoding: base64" in email
 
     @patch("emails.views.generate_from_header", side_effect=InvalidFromHeader())
     @patch("emails.views.info_logger")

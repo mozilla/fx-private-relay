@@ -1,0 +1,29 @@
+Subject: Re: Test Mozilla User New Domain Address
+From: a1b2c3d4@test.com
+To: sender@external.example.com
+Reply-To: a1b2c3d4@test.com
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="==[BOUNDARY0]=="
+
+--==[BOUNDARY0]==
+Content-Type: multipart/alternative;
+ boundary="==[BOUNDARY1]=="
+MIME-Version: 1.0
+
+--==[BOUNDARY1]==
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
+
+8J+RjSBUaGFua3MgSSBnb3QgaXQhCg==
+
+--==[BOUNDARY1]==
+Content-Type: text/html; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
+
+8J+RjSBUaGFua3MgSSBnb3QgaXQhPGJyPg==
+
+--==[BOUNDARY1]==--
+
+--==[BOUNDARY0]==--
