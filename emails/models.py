@@ -171,7 +171,7 @@ class Profile(models.Model):
                     continue
         return "en"
 
-    # This method returns whether the locale associated with the user's Firefox account
+    # This method returns whether the locale associated with the user's Mozilla account
     # includes a country code from a Premium country. This is less accurate than using
     # get_countries_info_from_request_and_mapping(), which can use a GeoIP lookup, so
     # prefer using that if a request context is available. In other contexts, for
