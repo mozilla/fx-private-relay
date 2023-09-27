@@ -131,8 +131,9 @@ def create_email_from_notification(
     email = EmailMessage()
     assert "headers" in mail_data
     for entry in mail_data["headers"]:
-        email[entry["name"]] = email[entry["value"]]
-    email.set_content(text)
+        email[entry["name"]] = entry["value"]
+    assert email["Content-Type"].startswith("multipart/alternative")
+    email.add_alternative(text, subtype="plain")
     return email.as_bytes()
 
 
@@ -253,6 +254,46 @@ class SNSNotificationTest(TestCase):
             "Resent-From": "fxastage@protonmail.com",
         }
         assert_email_equals(email, "single_recipient")
+
+        self.ra.refresh_from_db()
+        assert self.ra.num_forwarded == 1
+        assert self.ra.last_used_at is not None
+        assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
+
+    def test_single_french_recipient_sns_notification(self) -> None:
+        """
+        The email content can contain non-ASCII characters and be base64 encoded.
+
+        In this case, the HTML content is wrapped in the Relay header translated
+        to French.
+
+        This is a design choice. Relay could convert non-ASCII characters to HTML
+        escaped characters. For example, 'Transféré' could be 'Transf&#233;r&#233;',
+        via `html.encode('ascii', errors='xmlcharrefreplace').decode()`. However,
+        mail clients don't care, only devs looking at "view source".
+        """
+        self.sa.extra_data = {"locale": "fr, fr-fr, en-us, en"}
+        self.sa.save()
+        assert self.profile.language == "fr"
+
+        _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
+
+        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
+        assert sender == "replies@default.com"
+        assert recipient == "user@example.com"
+        content_type = headers.pop("Content-Type")
+        assert content_type.startswith('multipart/mixed; boundary="========')
+        assert headers == {
+            "Subject": "localized email header + footer",
+            "MIME-Version": "1.0",
+            "From": '"fxastage@protonmail.com [via Relay]" <ebsbdsan7@test.com>',
+            "To": "user@example.com",
+            "Reply-To": "replies@default.com",
+            "Resent-From": "fxastage@protonmail.com",
+        }
+        assert_email_equals(email, "single_recipient_fr")
+        assert 'Content-Type: text/html; charset="utf-8"' in email
+        assert "Content-Transfer-Encoding: base64" in email
 
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
@@ -383,7 +424,12 @@ class SNSNotificationTest(TestCase):
         assert self.ra.last_used_at is None
 
     @patch("emails.views.get_message_content_from_s3")
-    def test_reply(self, mock_get_content) -> None:
+    def test_reply(
+        self,
+        mock_get_content,
+        text: str = "this is a text reply",
+        expected_fixture_name: str = "s3_stored_replies",
+    ) -> str:
         """The headers of a reply refer to the Relay mask."""
 
         # Create a premium user matching the s3_stored_replies sender
@@ -411,7 +457,7 @@ class SNSNotificationTest(TestCase):
 
         # Mock loading a simple reply email message from S3
         mock_get_content.return_value = create_email_from_notification(
-            EMAIL_SNS_BODIES["s3_stored_replies"], text="this is a text reply"
+            EMAIL_SNS_BODIES["s3_stored_replies"], text=text
         )
 
         # Successfully reply to a previous sender
@@ -432,13 +478,23 @@ class SNSNotificationTest(TestCase):
             "Reply-To": sender,
             "To": recipient,
         }
-        assert_email_equals(email, "s3_stored_replies")
+        assert_email_equals(email, expected_fixture_name)
 
         relay_address.refresh_from_db()
         assert relay_address.num_replied == 1
         last_used_at = relay_address.last_used_at
         assert last_used_at
         assert (datetime.now(tz=timezone.utc) - last_used_at).seconds < 2.0
+        return email
+
+    def test_reply_with_emoji_in_text(self) -> None:
+        """An email with emoji text content is sent with UTF-8 encoding."""
+        email = self.test_reply(
+            text="👍 Thanks I got it!",
+            expected_fixture_name="s3_stored_replies_with_emoji",
+        )
+        assert 'Content-Type: text/plain; charset="utf-8"' in email
+        assert "Content-Transfer-Encoding: base64" in email
 
     @patch("emails.views.generate_from_header", side_effect=InvalidFromHeader())
     @patch("emails.views.info_logger")

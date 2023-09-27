@@ -28,7 +28,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import prefetch_related_objects
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
 from django.template.loader import render_to_string
 from django.utils.html import escape
 from django.views.decorators.csrf import csrf_exempt
@@ -134,13 +134,13 @@ def reply_requires_premium_test(request):
 
 
 def wrap_html_email(
-    original_html,
-    language,
-    has_premium,
-    display_email,
-    num_level_one_email_trackers_removed=None,
-    tracker_report_link=0,
-):
+    original_html: str,
+    language: str,
+    has_premium: bool,
+    display_email: str,
+    num_level_one_email_trackers_removed: int | None = None,
+    tracker_report_link: str | None = None,
+) -> str:
     """Add Relay banners, surveys, etc. to an HTML email"""
     email_context = {
         "original_html": original_html,
@@ -151,10 +151,13 @@ def wrap_html_email(
         "num_level_one_email_trackers_removed": num_level_one_email_trackers_removed,
         "SITE_ORIGIN": settings.SITE_ORIGIN,
     }
-    return render_to_string("emails/wrapped_email.html", email_context)
+    content = render_to_string("emails/wrapped_email.html", email_context)
+    # Remove empty lines
+    content_lines = [line for line in content.splitlines() if line.strip()]
+    return "\n".join(content_lines) + "\n"
 
 
-def wrapped_email_test(request):
+def wrapped_email_test(request: HttpRequest) -> HttpResponse:
     """
     Demonstrate rendering of forwarded HTML emails.
 
@@ -431,6 +434,37 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         return _handle_bounce(message_json)
     if notification_type == "Complaint" or event_type == "Complaint":
         return _handle_complaint(message_json)
+    assert notification_type == "Received" and event_type is None
+    return _handle_received(message_json)
+
+
+def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
+    """
+    Handle an AWS SES received notification.
+
+    For more information, see:
+    https://docs.aws.amazon.com/ses/latest/dg/receiving-email-notifications-contents.html
+    https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html
+
+    Returns (may be incomplete):
+    * 200 if the email was sent, the Relay address is disabled, the Relay user is
+      flagged for abuse, the email is under a bounce pause, the email was suppressed
+      for spam, the list email was blocked, or the noreply address was the recipient.
+    * 400 if commonHeaders entry is missing, the Relay recipient address is malformed,
+      the email failed DMARC with reject policy, or the email is a reply chain to a
+      non-premium user.
+    * 404 if an S3-stored email was not found, no Relay address was found in the "To",
+      "CC", or "BCC" fields, or the Relay address is not in the database.
+    * 503 if the "From" address is malformed, the S3 client returned an error different
+      from "not found", or the SES client fails
+
+    And many other returns conditions if the email is a reply. The HTTP returns are an
+    artifact from an earlier time when emails were sent to a webhook. Currently,
+    production instead pulls events from a queue.
+
+    TODO: Return a more appropriate status object
+    TODO: Document the metrics emitted
+    """
     mail = message_json["mail"]
     if "commonHeaders" not in mail:
         logger.error("SNS message without commonHeaders")
@@ -560,65 +594,39 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         # we are returning a 503 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
-    # sample tracker numbers
-    if sample_is_active("tracker-sample") and html_content:
-        count_all_trackers(html_content)
-
-    # scramble alias so that clients don't recognize it
-    # and apply default link styles
-    display_email = re.sub("([@.:])", r"<span>\1</span>", to_address)
-
     message_body: MessageBody = {}
-    tracker_report_link = ""
-    removed_count = 0
-    # frontend expects a timestamp in milliseconds
-    datetime_now = int(datetime.now(timezone.utc).timestamp() * 1000)
 
     if html_content:
         incr_if_enabled("email_with_html_content", 1)
-        tracker_removal_active = flag_is_active_in_task("tracker_removal", address.user)
-        if tracker_removal_active and user_profile.remove_level_one_email_trackers:
-            html_content, tracker_details = remove_trackers(
-                html_content, from_address, datetime_now
-            )
-            removed_count = tracker_details["tracker_removed"]
-            datetime_now = int(
-                datetime.now(timezone.utc).timestamp() * 1000
-            )  # frontend is expecting in milli seconds
-            tracker_report_details = {
-                "sender": from_address,
-                "received_at": datetime_now,
-                "trackers": tracker_details["level_one"]["trackers"],
-            }
-            tracker_report_link = (
-                f"{settings.SITE_ORIGIN}/tracker-report/#"
-                + json.dumps(tracker_report_details)
-            )
-            address.num_level_one_trackers_blocked = (
-                address.num_level_one_trackers_blocked or 0
-            ) + removed_count
-            address.save()
-
-        wrapped_html = wrap_html_email(
-            original_html=html_content,
+        sample_trackers = bool(sample_is_active("tracker_sample"))
+        tracker_removal_flag = flag_is_active_in_task("tracker_removal", address.user)
+        remove_level_one_trackers = bool(
+            tracker_removal_flag and user_profile.remove_level_one_email_trackers
+        )
+        new_html_content, level_one_trackers_removed = _convert_html_content(
+            html_content=html_content,
+            to_address=to_address,
+            from_address=from_address,
             language=user_profile.language,
             has_premium=user_profile.has_premium,
-            display_email=display_email,
-            tracker_report_link=tracker_report_link,
-            num_level_one_email_trackers_removed=removed_count,
+            sample_trackers=sample_trackers,
+            remove_level_one_trackers=remove_level_one_trackers,
+            now=datetime.now(timezone.utc),
         )
-        message_body["Html"] = {"Charset": "UTF-8", "Data": wrapped_html}
+        if level_one_trackers_removed:
+            address.num_level_one_trackers_blocked = (
+                address.num_level_one_trackers_blocked or 0
+            ) + level_one_trackers_removed
+            address.save()
+        message_body["Html"] = new_html_content
 
     if text_content:
         incr_if_enabled("email_with_text_content", 1)
-        relay_header_text = (
-            "This email was sent to your alias "
-            f"{to_address}. To stop receiving emails sent to this alias, "
-            "update the forwarding settings in your dashboard.\n"
-            "---Begin Email---\n"
+        new_text_content = _convert_text_content(
+            text_content=text_content,
+            to_address=to_address,
         )
-        wrapped_text = relay_header_text + text_content
-        message_body["Text"] = {"Charset": "UTF-8", "Data": wrapped_text}
+        message_body["Text"] = new_text_content
 
     destination_address = user_profile.user.email
     reply_address = get_reply_to_address()
@@ -738,6 +746,66 @@ def _strip_localpart_tag(address):
     return f"{subaddress_parts[0]}@{domain}"
 
 
+def _convert_html_content(
+    html_content: str,
+    to_address: str,
+    from_address: str,
+    language: str,
+    has_premium: bool,
+    sample_trackers: bool,
+    remove_level_one_trackers: bool,
+    now: datetime | None = None,
+) -> tuple[str, int]:
+    # frontend expects a timestamp in milliseconds
+    now = now or datetime.now(timezone.utc)
+    datetime_now_ms = int(now.timestamp() * 1000)
+
+    # scramble alias so that clients don't recognize it
+    # and apply default link styles
+    display_email = re.sub("([@.:])", r"<span>\1</span>", to_address)
+
+    # sample tracker numbers
+    if sample_trackers:
+        count_all_trackers(html_content)
+
+    tracker_report_link = ""
+    removed_count = 0
+    if remove_level_one_trackers:
+        html_content, tracker_details = remove_trackers(
+            html_content, from_address, datetime_now_ms
+        )
+        removed_count = tracker_details["tracker_removed"]
+        tracker_report_details = {
+            "sender": from_address,
+            "received_at": datetime_now_ms,
+            "trackers": tracker_details["level_one"]["trackers"],
+        }
+        tracker_report_link = f"{settings.SITE_ORIGIN}/tracker-report/#" + json.dumps(
+            tracker_report_details
+        )
+
+    wrapped_html = wrap_html_email(
+        original_html=html_content,
+        language=language,
+        has_premium=has_premium,
+        display_email=display_email,
+        tracker_report_link=tracker_report_link,
+        num_level_one_email_trackers_removed=removed_count,
+    )
+    return wrapped_html, removed_count
+
+
+def _convert_text_content(text_content: str, to_address: str) -> str:
+    relay_header_text = (
+        "This email was sent to your alias "
+        f"{to_address}. To stop receiving emails sent to this alias, "
+        "update the forwarding settings in your dashboard.\n"
+        "---Begin Email---\n"
+    )
+    wrapped_text = relay_header_text + text_content
+    return wrapped_text
+
+
 def _build_reply_requires_premium_email(
     from_address: str,
     reply_record: Reply,
@@ -770,8 +838,8 @@ def _build_reply_requires_premium_email(
         headers["References"] = message_id
 
     message_body: MessageBody = {
-        "Html": {"Charset": "utf-8", "Data": html_body},
-        "Text": {"Charset": "utf-8", "Data": text_body},
+        "Html": html_body,
+        "Text": text_body,
     }
 
     msg = create_message(headers, message_body)
@@ -846,6 +914,22 @@ def _reply_allowed(
 def _handle_reply(
     from_address: str, message_json: AWS_SNSMessageJSON, to_address: str
 ) -> HttpResponse:
+    """
+    Handle a reply from a Relay user to an external email.
+
+    Returns (may be incomplete):
+    * 200 if the reply was sent
+    * 400 if the In-Reply-To and References headers are missing, none of the References
+      headers are a reply record, or the SES client raises an error
+    * 403 if the Relay user is not allowed to reply
+    * 404 if the S3-stored email is not found, or there is no matching Reply record in
+      the database
+    * 503 if the S3 client returns an error (other than not found), or the SES client
+      returns an error
+
+    TODO: Return a more appropriate status object (see _handle_received)
+    TODO: Document metrics emitted
+    """
     mail = message_json["mail"]
     try:
         (lookup_key, encryption_key) = _get_keys_from_headers(mail["headers"])
@@ -889,10 +973,9 @@ def _handle_reply(
 
     message_body: MessageBody = {}
     if html_content:
-        message_body["Html"] = {"Charset": "UTF-8", "Data": html_content}
-
+        message_body["Html"] = html_content
     if text_content:
-        message_body["Text"] = {"Charset": "UTF-8", "Data": text_content}
+        message_body["Text"] = text_content
 
     headers: OutgoingHeaders = {
         "Subject": subject,

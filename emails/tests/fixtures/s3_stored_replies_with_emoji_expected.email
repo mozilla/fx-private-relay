@@ -11,18 +11,19 @@ Content-Type: multipart/alternative;
 MIME-Version: 1.0
 
 --==[BOUNDARY1]==
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
 
-this is a text reply
+8J+RjSBUaGFua3MgSSBnb3QgaXQhCg==
 
 --==[BOUNDARY1]==
-Content-Type: text/html; charset="us-ascii"
+Content-Type: text/html; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
 
-this is a text reply<br>
+8J+RjSBUaGFua3MgSSBnb3QgaXQhPGJyPg==
+
 --==[BOUNDARY1]==--
 
 --==[BOUNDARY0]==--

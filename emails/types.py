@@ -3,8 +3,7 @@ from typing import Any, Literal
 from io import IOBase
 
 # Relay container for email content
-MessageBodyContent = dict[Literal["Charset", "Data"], str]
-MessageBody = dict[Literal["Text", "Html"], MessageBodyContent]
+MessageBody = dict[Literal["Text", "Html"], str]
 
 # Attachment path and data stream
 AttachmentPair = tuple[str, IOBase]
