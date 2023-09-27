@@ -67,7 +67,6 @@ from .utils import (
     incr_if_enabled,
     remove_message_from_s3,
     remove_trackers,
-    ses_relay_email,
     ses_send_raw_email,
     urlize_and_linebreaks,
     InvalidFromHeader,
@@ -1062,11 +1061,15 @@ def _handle_reply(
     incr_if_enabled("reply_email", 1)
     subject = mail["commonHeaders"].get("subject", "")
     to_address = decrypted_metadata.get("reply-to") or decrypted_metadata.get("from")
+    headers: OutgoingHeaders = {
+        "Subject": subject,
+        "From": outbound_from_address,
+        "To": to_address,
+        "Reply-To": outbound_from_address,
+    }
 
     try:
-        text_content, html_content, attachments, _ = _get_text_html_attachments(
-            message_json
-        )
+        (email, email_size, transport, load_time_s) = _get_email(message_json)
     except ClientError as e:
         if e.response["Error"].get("Code", "") == "NoSuchKey":
             logger.error("s3_object_does_not_exist", extra=e.response["Error"])
@@ -1075,35 +1078,24 @@ def _handle_reply(
         # we are returning a 500 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
-    message_body: MessageBody = {}
-    if html_content:
-        message_body["Html"] = html_content
-    if text_content:
-        message_body["Text"] = text_content
+    # Convert to a reply email
+    # TODO: Issue #1747 - Remove wrapper / prefix in replies
+    _replace_headers(email, headers)
 
-    headers: OutgoingHeaders = {
-        "Subject": subject,
-        "From": outbound_from_address,
-        "To": to_address,
-        "Reply-To": outbound_from_address,
-    }
     try:
-        response = ses_relay_email(
-            outbound_from_address,
-            to_address,
-            headers,
-            message_body,
-            attachments,
-            mail,
-            address,
+        ses_send_raw_email(
+            source_address=outbound_from_address,
+            destination_address=to_address,
+            message=email,
         )
-        reply_record.increment_num_replied()
-        profile = address.user.profile
-        profile.update_abuse_metric(replied=True)
-        return response
     except ClientError as e:
         logger.error("ses_client_error", extra=e.response["Error"])
         return HttpResponse("SES client error", status=400)
+
+    reply_record.increment_num_replied()
+    profile = address.user.profile
+    profile.update_abuse_metric(replied=True)
+    return HttpResponse("Sent email to final recipient.", status=200)
 
 
 def _get_domain_address(local_portion: str, domain_portion: str) -> DomainAddress:
