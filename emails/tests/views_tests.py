@@ -131,8 +131,9 @@ def create_email_from_notification(
     email = EmailMessage()
     assert "headers" in mail_data
     for entry in mail_data["headers"]:
-        email[entry["name"]] = email[entry["value"]]
-    email.set_content(text)
+        email[entry["name"]] = entry["value"]
+    assert email["Content-Type"].startswith("multipart/alternative")
+    email.add_alternative(text, subtype="plain")
     return email.as_bytes()
 
 
