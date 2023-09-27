@@ -685,6 +685,33 @@ class SNSNotificationTest(TestCase):
         assert self.ra.last_used_at
         assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
 
+    def test_plain_text(self) -> None:
+        """A plain-text only email gets an HTML part."""
+        email_text = EMAIL_INCOMING["plain_text"]
+        test_sns_notification = create_notification_from_email(email_text)
+        _sns_notification(test_sns_notification)
+
+        self.mock_send_raw_email.assert_called_once()
+        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
+        assert sender == "replies@default.com"
+        assert recipient == "user@example.com"
+        assert headers == {
+            "Subject": "Text-Only Email",
+            "From": '"root@server.example.com [via Relay]" <ebsbdsan7@test.com>',
+            "To": recipient,
+            "Reply-To": sender,
+            "Resent-From": "root@server.example.com",
+            "Content-Type": headers["Content-Type"],
+            "MIME-Version": "1.0",
+        }
+        assert_email_equals(email, "plain_text", replace_mime_boundaries=True)
+
+        self.mock_remove_message_from_s3.assert_called_once()
+        self.ra.refresh_from_db()
+        assert self.ra.num_forwarded == 1
+        assert self.ra.last_used_at
+        assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
+
 
 class BounceHandlingTest(TestCase):
     def setUp(self):
