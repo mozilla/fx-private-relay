@@ -1,4 +1,5 @@
 # Translation and Localization
+
 Translations are maintained in separate repositories that are managed by the
 [Mozilla Localization Team](https://github.com/mozilla-l10n). There is a
 Pontoon project for the
@@ -21,7 +22,7 @@ are also embedded in the JavaScript during the build process, so that the
 website text is translated.
 
 The user's desired language is parsed from the `Accept-Language` header,
-provided by their browser. When the user signs up for a Firefox Account, their
+provided by their browser. When the user signs up for a Mozilla Account, their
 `Accept-Language` header is captured, and this is used for translated headers in
 forwarded emails. When a user visits the Relay website or uses the add-on,
 their current `Accept-Language` header is used.

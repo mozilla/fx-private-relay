@@ -16,6 +16,7 @@ import { useRuntimeData } from "../../../hooks/api/runtimeData";
 import { getRuntimeConfig } from "../../../config";
 import { getCsrfToken } from "../../../functions/cookies";
 import { useL10n } from "../../../hooks/l10n";
+import { isFlagActive } from "../../../functions/waffle";
 
 export type MenuItem = {
   url: string;
@@ -95,7 +96,7 @@ export const MobileNavigation = (props: Props) => {
                 rel="noopener noreferrer"
                 className={styles["settings-link"]}
               >
-                {l10n.getString("nav-profile-manage-fxa")}
+                {l10n.getString(isFlagActive(runtimeData.data, "firefox-account-rebrand") ? "nav-profile-manage-fxa" : "nav-profile-manage-fxa-v2")}
                 <NewTabIcon width={12} height={18} viewBox="0 0 16 18" alt="" />
               </a>
             </span>

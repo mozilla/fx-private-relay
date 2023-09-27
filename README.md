@@ -2,16 +2,15 @@
 <img src="https://raw.githubusercontent.com/mozilla/fx-private-relay/11ad17e197e23a0453bfb74fa3670c87cfc35e36/frontend/src/components/landing/images/logo-firefox-relay.svg" width="250" />
 </p>
 
-
-# Private Relay 
+# Private Relay
 
 <!-- Badges include: license, size of repository, overall coverage for project via coveralls.io on main branch, status of what is deployed via whatsdeployed.io and our circleci status for main branch. -->
+
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](https://raw.githubusercontent.com/mozilla/fx-private-relay/main/LICENSE)
 ![Repo Size](https://img.shields.io/github/repo-size/Mozilla/fx-private-relay)
 [![Coverage Status](https://coveralls.io/repos/github/mozilla/fx-private-relay/badge.svg?branch=main)](https://coveralls.io/github/mozilla/fx-private-relay?branch=main)
 [![What's Deployed](https://img.shields.io/badge/whatsdeployed-dev,stage,prod-green.svg)](https://whatsdeployed.io/s/60j/mozilla/fx-private-relay)
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/mozilla/fx-private-relay/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/mozilla/fx-private-relay/tree/main)
- 
 
 Private Relay provides generated email addresses to use in place of personal
 email addresses.
@@ -30,7 +29,7 @@ them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content
       - [Getting the latest translations](#getting-the-latest-translations)
       - [Add/update messages for translation](#addupdate-messages-for-translation)
       - [Commit translations for release](#commit-translations-for-release)
-    - [Recommended: Enable Firefox Accounts authentication](#recommended-enable-firefox-accounts-authentication)
+    - [Recommended: Enable Mozilla Accounts authentication](#recommended-enable-mozilla-accounts-authentication)
     - [Optional: Install and run the add-on locally](#optional-install-and-run-the-add-on-locally)
     - [Optional: Run a development server to compile the frontend](#optional-run-a-development-server-to-compile-the-frontend)
     - [Optional: Enable Premium Features](#optional-enable-premium-features)
@@ -39,6 +38,7 @@ them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content
   - [Production Environments](#production-environments)
     - [Requirements](#requirements-1)
     - [Environment Variables](#environment-variables)
+
 ## Development
 
 Please refer to our [coding standards](docs/coding-standards.md) for code styles, naming conventions and other methodologies.
@@ -194,9 +194,9 @@ of the translations submodule:
 An automated process updates the submodule daily, bringing in any new changes
 and translations from the Localization Team.
 
-### Recommended: Enable Firefox Accounts authentication
+### Recommended: Enable Mozilla Accounts authentication
 
-To enable Firefox Accounts authentication on your local server, you can use the
+To enable Mozilla Accounts authentication on your local server, you can use the
 "Firefox Private Relay local dev" OAuth app on accounts.stage.mozaws.net.
 
 To do so:
@@ -222,11 +222,11 @@ To do so:
 
 6. [Go to the django-allauth social app admin
    page](http://127.0.0.1:8000/admin/socialaccount/socialapp/), sign in with the
-   superuser account you created above, and add a social app for Firefox Accounts:
+   superuser account you created above, and add a social app for Mozilla Accounts:
 
 | Field      | Value                                                   |
 | ---------- | ------------------------------------------------------- |
-| Provider   | Firefox Accounts                                        |
+| Provider   | Mozilla Accounts                                        |
 | Name       | `accounts.stage.mozaws.net`                             |
 | Client id  | `9ebfe2c2f9ea3c58`                                      |
 | Secret key | Request this from `#fx-private-relay-eng` Slack channel |
@@ -274,7 +274,7 @@ To enable the premium Relay features, we integrate with the [FXA Subscription
 Platform](https://mozilla.github.io/ecosystem-platform/relying-parties/reference/sub-plat-overview).
 At a high level, to set up Relay premium subscription, we:
 
-1. [Enable Firefox Accounts Authentication](#recommended-enable-firefox-accounts-authentication) as described above.
+1. [Enable Mozilla Accounts Authentication](#recommended-enable-firefox-accounts-authentication) as described above.
 
 2. Create a product & price in our [Stripe dashboard](https://dashboard.stripe.com/).
    (Ask in #subscription-platform Slack channel to get access to our Stripe dashboard.)
@@ -286,7 +286,7 @@ At a high level, to set up Relay premium subscription, we:
 
 In detail:
 
-1. [Enable Firefox Accounts Authentication](#recommended-enable-firefox-accounts-authentication) as described above.
+1. [Enable Mozilla Accounts Authentication](#recommended-enable-firefox-accounts-authentication) as described above.
 
 2. Go to our [Stripe dashboard](https://dashboard.stripe.com/).
    (Ask in #subscription-platform Slack channel to get access to our Stripe dashboard.)

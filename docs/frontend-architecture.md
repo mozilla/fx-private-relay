@@ -84,14 +84,14 @@ different sets of data are defined for different user IDs, defined in the
 (IDs are inspired by [the nine states of design](https://medium.com/swlh/the-nine-states-of-design-5bfe9b3d6d85)):
 
 - `empty`: A user that just signed up for Relay, but has not created any aliases
-           yet, nor have they upgraded to Premium.
+  yet, nor have they upgraded to Premium.
 - `onboarding`: A user that has just upgraded to Premium, but hasn't completed
-                the Premium onboarding flow yet.
+  the Premium onboarding flow yet.
 - `some`: A user that has an account that has seen some use: they've upgraded to
-          Premium, and have created some aliases.
+  Premium, and have created some aliases.
 - `full`: A user that has utilised most of the features of Relay. They have
-          Premium, set up a custom domain, have both random and custom aliases,
-          and have experienced an email bounce.
+  Premium, set up a custom domain, have both random and custom aliases,
+  and have experienced an email bounce.
 
 If you append `?mockId=<mockId>` (e.g. `?mockId=some`) to the URL, it will
 automatically log in as that mocked user. This is useful to quickly showcase a
@@ -122,7 +122,7 @@ happen in either direction, there are four situations to consider:
 This is mainly to tell the add-on which user is currently logged in, and data
 about them. (There are also plans to minimise this to only share the API key
 with the add-on, which can then fetch the rest of the data from the API
-directly, and even to have the add-on authenticate against Firefox Accounts
+directly, and even to have the add-on authenticate against Mozilla Accounts
 directly and then being able to communicate with the API without even needing to
 interact with the website.)
 

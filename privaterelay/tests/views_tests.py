@@ -332,7 +332,7 @@ def get_fxa_event_jwt(
     iat_skew: int = 0,
 ) -> str:
     """
-    Return valid Firefox Accounts relying party event JWT
+    Return valid Mozilla Accounts relying party event JWT
 
     See https://github.com/mozilla/fxa/tree/main/packages/fxa-event-broker
     """

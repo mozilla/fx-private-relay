@@ -440,8 +440,8 @@ const Faq: NextPage = () => {
                 </Localized>
                 <ul>
                   <li>
-                    {l10n.getString(
-                      "faq-question-acceptable-use-answer-measure-account",
+                    {l10n.getString( isFlagActive(runtimeData.data, "firefox-account-rebrand") ?
+                      "faq-question-acceptable-use-answer-measure-account" : "faq-question-acceptable-use-answer-measure-account-v2",
                     )}
                   </li>
                   <li>

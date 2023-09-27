@@ -35,3 +35,12 @@ profile-label-set-your-custom-domain-free-user = Get your own email domain with 
 
 tooltip-email-domain-explanation-title-free = Get your own { -brand-name-relay } email domain
 tooltip-email-domain-explanation-part-one-free = With { -brand-name-premium }, you can create unlimited, custom { -brand-name-relay } masks on the go using a unique { -brand-name-relay } email domain — you won’t even have to generate them here first.
+
+nav-profile-manage-fxa-v2 = Manage your { -brand-name-mozilla-account(capitalization: "uppercase") }
+nav-profile-image-alt-v2 = { -brand-name-mozilla-account(capitalization: "uppercase") } Avatar
+faq-question-acceptable-use-answer-measure-account-v2 = Requiring a { -brand-name-mozilla-account(capitalization: "uppercase") } with a verified email address
+-brand-name-mozilla-account =
+    { $capitalization ->
+       *[lowercase] Mozilla account
+        [uppercase] Mozilla Account
+    } 
