@@ -1641,11 +1641,9 @@ def test_build_reply_requires_premium_email_first_time_includes_forward_text():
     assert msg["From"] == expected_From
     assert msg["To"] == relay_address.full_address
 
-    multipart_payload = msg.get_payload()[0]
-    first_part = multipart_payload.get_payload()[0]
-    second_part = multipart_payload.get_payload()[1]
-    text_content = b64decode(first_part.get_payload()).decode()
-    html_content = b64decode(second_part.get_payload()).decode()
+    text_part, html_part = msg.get_payload()
+    text_content = text_part.get_payload()
+    html_content = html_part.get_payload()
     assert "sent this reply" in text_content
     assert "sent this reply" in html_content
 
@@ -1697,11 +1695,9 @@ def test_build_reply_requires_premium_email_after_forward():
     assert msg["From"] == expected_From
     assert msg["To"] == relay_address.full_address
 
-    multipart_payload = msg.get_payload()[0]
-    first_part = multipart_payload.get_payload()[0]
-    second_part = multipart_payload.get_payload()[1]
-    text_content = b64decode(first_part.get_payload()).decode()
-    html_content = b64decode(second_part.get_payload()).decode()
+    text_part, html_part = msg.get_payload()
+    text_content = text_part.get_payload()
+    html_content = html_part.get_payload()
     assert "Your reply was not sent" in text_content
     assert "Your reply was not sent" in html_content
 

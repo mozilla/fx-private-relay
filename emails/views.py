@@ -47,7 +47,6 @@ from .models import (
 )
 from .types import (
     AWS_SNSMessageJSON,
-    MessageBody,
     OutgoingHeaders,
 )
 from .utils import (
@@ -55,7 +54,6 @@ from .utils import (
     _store_reply_record,
     b64_lookup_key,
     count_all_trackers,
-    create_message,
     decrypt_reply_metadata,
     derive_reply_keys,
     generate_from_header,
@@ -950,24 +948,17 @@ def _build_reply_requires_premium_email(
     }
     html_body = render_to_string("emails/reply_requires_premium.html", ctx)
     text_body = render_to_string("emails/reply_requires_premium.txt", ctx)
-    subject_ftl_id = "replies-not-included-in-free-account-header"
-    subject = ftl_bundle.format(subject_ftl_id)
 
-    headers: OutgoingHeaders = {
-        "Subject": subject,
-        "From": get_reply_to_address(),
-        "To": from_address,
-    }
+    # Create the message
+    msg = EmailMessage()
+    msg["Subject"] = ftl_bundle.format("replies-not-included-in-free-account-header")
+    msg["From"] = get_reply_to_address()
+    msg["To"] = from_address
     if message_id:
-        headers["In-Reply-To"] = message_id
-        headers["References"] = message_id
-
-    message_body: MessageBody = {
-        "Html": html_body,
-        "Text": text_body,
-    }
-
-    msg = create_message(headers, message_body)
+        msg["In-Reply-To"] = message_id
+        msg["References"] = message_id
+    msg.set_content(text_body)
+    msg.add_alternative(html_body, subtype="html")
     return msg
 
 

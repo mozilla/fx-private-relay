@@ -4,126 +4,183 @@ To: w41fwbt4q@test.com
 In-Reply-To: <relay-user-msg-id-456@usersemail.com>
 References: <relay-user-msg-id-456@usersemail.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="==[BOUNDARY0]=="
+Content-Type: multipart/alternative;
+ boundary="==[BOUNDARY0]=="
 
 --==[BOUNDARY0]==
-Content-Type: multipart/alternative;
- boundary="==[BOUNDARY1]=="
-MIME-Version: 1.0
-
---==[BOUNDARY1]==
 Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: quoted-printable
 
-CgoKVXBncmFkZSBmb3IgbW9yZSBwcm90ZWN0aW9uCgpSZXBsaWVzIGFyZSBub3QgaW5jbHVkZWQg
-d2l0aCB5b3VyIGZyZWUgYWNjb3VudAoKCldl4oCZdmUgc2VudCB0aGlzIHJlcGx5IHRvIOKBqGV4
-dGVybmFsX3NlbmRlckB0ZXN0LmNvbeKBqS4gQnV0IG1vdmluZyBmb3J3YXJkLCB5b3VyIHJlcGxp
-ZXMgd2lsbCBub3QgYmUgc2VudC4KClJlcGx5aW5nIHRvIGZvcndhcmRlZCBlbWFpbHMgZnJvbSB5
-b3VyIG1hc2tlZCBlbWFpbCBpcyBvbmx5IGF2YWlsYWJsZSB3aXRoIOKBqEZpcmVmb3ggUmVsYXkg
-UHJlbWl1beKBqS4KaHR0cDovLzEyNy4wLjAuMTo4MDAwL3ByZW1pdW0vP3V0bV9jYW1wYWlnbj1l
-bWFpbF9yZXBsaWVzJmFtcDt1dG1fc291cmNlPWVtYWlsJmFtcDt1dG1fbWVkaXVtPWVtYWlsCgo=
 
---==[BOUNDARY1]==
+
+
+Upgrade for more protection
+
+Replies are not included with your free account
+
+
+We=E2=80=99ve sent this reply to =E2=81=A8external_sender@test.com=E2=81=A9. =
+But moving forward, your replies will not be sent.
+
+Replying to forwarded emails from your masked email is only available with =
+=E2=81=A8Firefox Relay Premium=E2=81=A9.
+http://127.0.0.1:8000/premium/?utm_campaign=3Demail_replies&amp;utm_source=3D=
+email&amp;utm_medium=3Demail
+
+
+--==[BOUNDARY0]==
 Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: base64
 
-CgoKCgo8IURPQ1RZUEUgaHRtbCBQVUJMSUMgIi0vL1czQy8vRFREIFhIVE1MIDEuMCBTdHJpY3Qv
-L0VOIiAiaHR0cDovL3d3dy53My5vcmcvVFIveGh0bWwxL0RURC94aHRtbDEtc3RyaWN0LmR0ZCI+
-CjxodG1sIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hodG1sIiBsYW5nPSIiIGRpcj0i
-bHRyIj48L2h0bWw+CiAgPGhlYWQ+CiAgICA8bWV0YSBodHRwLWVxdWl2PSJDb250ZW50LVR5cGUi
-IGNvbnRlbnQ9InRleHQvaHRtbDsgY2hhcnNldD11dGYtOCIgLz4KICAgIDxtZXRhIG5hbWU9InZp
-ZXdwb3J0IiBjb250ZW50PSJ3aWR0aD1kZXZpY2Utd2lkdGgiLz4KICAgIDxzdHlsZT4gCiAgICAg
-ICAgQGZvbnQtZmFjZSB7CiAgICAgICAgICAgICAgICBmb250LWZhbWlseTogJ2ludGVyJzsKICAg
-ICAgICAgICAgICAgIGZvbnQtc3R5bGU6IG5vcm1hbDsKICAgICAgICAgICAgICAgIGZvbnQtd2Vp
-Z2h0OiA1MDA7CiAgICAgICAgICAgICAgICBzcmM6IGxvY2FsKCdJbnRlciBSZWd1bGFyJyksIGxv
-Y2FsKCdJbnRlci1SZWd1bGFyJyksIHVybChodHRwczovL3JlbGF5LmZpcmVmb3guY29tL2ZvbnRz
-L0ludGVyL0ludGVyLVJlZ3VsYXIuNDIzMmE2NzVhMDc3LndvZmYyP3Y9My4xOCkgZm9ybWF0KCd3
-b2ZmJyk7CiAgICAgICAgICAgIH0KICAgICAgICBAZm9udC1mYWNlIHsKICAgICAgICBmb250LWZh
-bWlseTogJ2ludGVyIG1lZGl1bSc7CiAgICAgICAgZm9udC1zdHlsZTogYm9sZDsKICAgICAgICBm
-b250LXdlaWdodDogNjAwOwogICAgICAgIHNyYzogbG9jYWwoJ0ludGVyIE1lZGl1bScpLCBsb2Nh
-bCgnSW50ZXItTWVkaXVtJyksIHVybChodHRwczovL3JlbGF5LmZpcmVmb3guY29tL2ZvbnRzL0lu
-dGVyL0ludGVyLU1lZGl1bS4wMjdkMTRlN2QzNWIud29mZjI/dj0zLjE4KSBmb3JtYXQoJ3dvZmYn
-KTsKICAgICAgICB9CiAgICAgICAgICAgICogewogICAgICAgICAgICBib3gtc2l6aW5nOiBib3Jk
-ZXItYm94OwogICAgICAgICAgICB9IAogICAgICAgIGJvZHkgewogICAgICAgICAgICBmb250LWZh
-bWlseTogJ2ludGVyJywgQXJpYWwsIHNhbnMtc2VyaWYgIWltcG9ydGFudDsgCiAgICAgICAgICAg
-IGNvbG9yOiAjM0QzRDNEOwogICAgICAgIH0KICAgICAgICBhIHsgCiAgICAgICAgICAgIGNvbG9y
-OiAjMDA2MERGOwogICAgICAgICAgICB0cmFuc2l0aW9uOiBhbGwgMC4ycyBlYXNlOwogICAgICAg
-IH0KICAgICAgICBhOmhvdmVyIHsKICAgICAgICAgICAgY29sb3I6ICMyMDEyM2FkNTsKICAgICAg
-ICAgICAgdHJhbnNpdGlvbjogYWxsIDAuMnMgZWFzZTsKICAgICAgICB9CiAgICAgICAgYS5jb250
-YWluZXItbGluayB7CiAgICAgICAgICBjb2xvcjogI0ZGRkZGRjsKICAgICAgICAgIGZvbnQtc2l6
-ZTogMTJweDsKICAgICAgICB9CiAgICAgICAgYTpob3ZlciwKICAgICAgICBhOmZvY3VzLAogICAg
-ICAgIGE6YWN0aXZlIHsKICAgICAgICAgICAgdHJhbnNpdGlvbjogYWxsIDAuMnMgZWFzZTsKICAg
-ICAgICB9CiAgICA8L3N0eWxlPgogIDwvaGVhZD4KICA8Ym9keSBzdHlsZT0icGFkZGluZzogMDsg
-bWFyZ2luOiAwOyI+CiAgICAKICAgIDwhLS0gdGVtcG9yYXJ5IGhlYWRlciAtLT4KICAgIDx0YWJs
-ZSB3aWR0aD0iMTAwJSIgYmdjb2xvcj0iIzNEM0QzRCIgc3R5bGU9ImJhY2tncm91bmQ6ICMzRDNE
-M0Q7IHBhZGRpbmctdG9wOiAxMnB4OyBwYWRkaW5nLXJpZ2h0OiAxMnB4OyBwYWRkaW5nLWxlZnQ6
-IDEycHg7IHBhZGRpbmctYm90dG9tOjEycHg7IG1hcmdpbi10b3A6IDMwcHg7IG1hcmdpbi1ib3R0
-b206IDMwcHg7IHdpZHRoOiA5NiU7IGJvcmRlci1yYWRpdXM6IDZweDsiIGFsaWduPSJjZW50ZXIi
-PgogICAgICAgIDx0cj4KICAgICAgICAgICAgPHRkIGFsaWduPSJjZW50ZXIiIHZhbGlnbj0idG9w
-IiB3aWR0aD0iMTAwJSIgc3R5bGU9Im1heC13aWR0aDo4MDBweDsgcGFkZGluZy10b3A6IDBweDsg
-cGFkZGluZy1ib3R0b206IDBweDsiPgogICAgICAgICAgICA8dGFibGUgd2lkdGg9IjEwMCUiIHN0
-eWxlPSJtYXgtd2lkdGg6NzAwcHg7IHRleHQtYWxpZ246IGNlbnRlcjsgYm9yZGVyLWNvbGxhcHNl
-OiBjb2xsYXBzZTsiPgogICAgICAgICAgICAgICAgPHRyPgogICAgICAgICAgICAgICAgPHRkIHdp
-ZHRoPSI1MCUiIHN0eWxlPSJsaW5lLWhlaWdodDogMTUwJTsiIGFsaWduPSJsZWZ0Ij4gCiAgICAg
-ICAgICAgICAgICAgICAgICA8aW1nIHdpZHRoPSIxNTUiIHNyYz0iaHR0cDovLzEyNy4wLjAuMTo4
-MDAwL3N0YXRpYy9pbWFnZXMvZW1haWwtaW1hZ2VzL3JlbGF5LWxvZ28tZW1haWxzLWRhcmstYmcu
-cG5nIiBzdHlsZT0ibWFyZ2luOiAwIDVweDsiIGFsdD0id2FybmluZyBpY29uIi8+ICAgCiAgICAg
-ICAgICAgICAgICA8L3RkPgogICAgICAgICAgICAgICAgPHRkIHdpZHRoPSI1MCUiIHN0eWxlPSJs
-aW5lLWhlaWdodDogMTUwJTsiIGFsaWduPSJyaWdodCI+IAogICAgICAgICAgICAgICAgICAgIDxh
-IGNsYXNzPSJjb250YWluZXItbGluayIgaHJlZj0iaHR0cDovLzEyNy4wLjAuMTo4MDAwL3ByZW1p
-dW0vP3V0bV9jYW1wYWlnbj1lbWFpbF9yZXBsaWVzJmFtcDt1dG1fc291cmNlPWVtYWlsJmFtcDt1
-dG1fbWVkaXVtPWVtYWlsIj5VcGdyYWRlIGZvciBtb3JlIHByb3RlY3Rpb248L2E+IAogICAgICAg
-ICAgICAgICAgPC90ZD4KICAgICAgICAgICAgICAgIDwvdHI+CiAgICAgICAgICAgIDwvdGFibGU+
-CiAgICAgICAgICAgIDwvdGQ+CiAgICAgICAgPC90cj4KICAgIDwvdGFibGU+ICAKICAgIAogICAg
-PHRhYmxlIHJvbGU9InByZXNlbnRhdGlvbiIgYm9yZGVyPSIwIiBjZWxscGFkZGluZz0iMCIgY2Vs
-bHNwYWNpbmc9IjEwcHgiIHN0eWxlPSJwYWRkaW5nOiA2MHB4IDMwcHggMTIwcHggMzBweDsiIGFs
-aWduPSJjZW50ZXIiPgogICAgICAgIDx0cj4KICAgICAgICAgICAgPHRkIHN0eWxlPSJtYXgtd2lk
-dGg6ODAwcHg7IHBhZGRpbmctdG9wOiAwcHg7IHBhZGRpbmctYm90dG9tOiAwcHg7IHRleHQtYWxp
-Z246IGNlbnRlcjsiPgogICAgICAgICAgICAgICAgPGgyIHN0eWxlPSJmb250LWZhbWlseTogJ2lu
-dGVyIG1lZGl1bSc7Ij4gCiAgICAgICAgICAgICAgICAgICAgPGltZyB3aWR0aD0iMTgiIHNyYz0i
-aHR0cDovLzEyNy4wLjAuMTo4MDAwL3N0YXRpYy9pbWFnZXMvZW1haWwtaW1hZ2VzL3dhcm5pbmcu
-cG5nIiBzdHlsZT0ibWFyZ2luOiAwIDVweDsiIGFsdD0id2FybmluZyBpY29uIi8+CiAgICAgICAg
-ICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgIFJlcGxpZXMgYXJlIG5vdCBpbmNs
-dWRlZCB3aXRoIHlvdXIgZnJlZSBhY2NvdW50CiAgICAgICAgICAgICAgICAgICAgCiAgICAgICAg
-ICAgICAgICA8L2gyPgogICAgICAgICAgICAgICAgPHAgc3R5bGU9ImxpbmUtaGVpZ2h0OiAyMDAl
-OyBtYXJnaW4tYm90dG9tOiAzMHB4OyBwYWRkaW5nOiAyMHB4IDYwcHggMjBweCA2MHB4Ij4KICAg
-ICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgV2XigJl2ZSBzZW50IHRo
-aXMgcmVwbHkgdG8g4oGoZXh0ZXJuYWxfc2VuZGVyQHRlc3QuY29t4oGpLiBCdXQgbW92aW5nIGZv
-cndhcmQsIHlvdXIgcmVwbGllcyB3aWxsIG5vdCBiZSBzZW50LgogICAgICAgICAgICAgICAgICAg
-IAogICAgICAgICAgICAgICAgICAgIFJlcGx5aW5nIHRvIGZvcndhcmRlZCBlbWFpbHMgZnJvbSB5
-b3VyIG1hc2tlZCBlbWFpbCBpcyBvbmx5IGF2YWlsYWJsZSB3aXRoIOKBqEZpcmVmb3ggUmVsYXkg
-UHJlbWl1beKBqS4KICAgICAgICAgICAgICAgIDwvcD4gCiAgICAgICAgICAgICAgICA8YSBocmVm
-PSJodHRwOi8vMTI3LjAuMC4xOjgwMDAvcHJlbWl1bS8/dXRtX2NhbXBhaWduPWVtYWlsX3JlcGxp
-ZXMmYW1wO3V0bV9zb3VyY2U9ZW1haWwmYW1wO3V0bV9tZWRpdW09ZW1haWwiIHN0eWxlPSJtYXJn
-aW46IDEwcHggMDsiPlVwZ3JhZGUgbm93IHRvIHNlbmQgcmVwbGllczwvYT4KICAgICAgICAgICAg
-PC90ZD4gCiAgICAgICAgPC90cj4KICAgIDwvdGFibGU+CgogICAgPCEtLSB0ZW1wb3JhcnkgZm9v
-dGVyIC0tPgogICAgPHRhYmxlIHdpZHRoPSIxMDAlIiBiZ2NvbG9yPSIjM0QzRDNEIiBzdHlsZT0i
-YmFja2dyb3VuZDogIzNEM0QzRDsgcGFkZGluZy10b3A6IDEycHg7IHBhZGRpbmctcmlnaHQ6IDEy
-cHg7IHBhZGRpbmctbGVmdDogMTJweDsgcGFkZGluZy1ib3R0b206MTJweDsgbWFyZ2luLXRvcDog
-MzBweDsgbWFyZ2luLWJvdHRvbTogMzBweDsgd2lkdGg6IDk2JTsgYm9yZGVyLXJhZGl1czogNnB4
-OyIgYWxpZ249ImNlbnRlciI+CiAgICAgIDx0cj4KICAgICAgICAgIDx0ZCBhbGlnbj0iY2VudGVy
-IiB2YWxpZ249InRvcCIgd2lkdGg9IjEwMCUiIHN0eWxlPSJtYXgtd2lkdGg6ODAwcHg7IHBhZGRp
-bmctdG9wOiAwcHg7IHBhZGRpbmctYm90dG9tOiAwcHg7Ij4KICAgICAgICAgIDx0YWJsZSB3aWR0
-aD0iMTAwJSIgc3R5bGU9Im1heC13aWR0aDo3MDBweDsgdGV4dC1hbGlnbjogY2VudGVyOyBib3Jk
-ZXItY29sbGFwc2U6IGNvbGxhcHNlOyI+CiAgICAgICAgICAgICAgPHRyPgogICAgICAgICAgICAg
-IDx0ZCB3aWR0aD0iNTAlIiBzdHlsZT0ibGluZS1oZWlnaHQ6IDE1MCU7IiBhbGlnbj0ibGVmdCI+
-IAogICAgICAgICAgICAgICAgICAgIDxpbWcgd2lkdGg9IjExMCIgc3JjPSJodHRwOi8vMTI3LjAu
-MC4xOjgwMDAvc3RhdGljL2ltYWdlcy9lbWFpbC1pbWFnZXMvcmVsYXktbG9nby1lbWFpbHMtZGFy
-ay1iZy5wbmciIHN0eWxlPSJtYXJnaW46IDAgNXB4OyIgYWx0PSJ3YXJuaW5nIGljb24iLz4gICAK
-ICAgICAgICAgICAgICA8L3RkPgogICAgICAgICAgICAgIDx0ZCB3aWR0aD0iNTAlIiBzdHlsZT0i
-bGluZS1oZWlnaHQ6IDE1MCU7IiBhbGlnbj0icmlnaHQiPiAKICAgICAgICAgICAgICA8YSBjbGFz
-cz0iY29udGFpbmVyLWxpbmsiIGhyZWY9Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9wcmVtaXVtLz91
-dG1fY2FtcGFpZ249ZW1haWxfcmVwbGllcyZhbXA7dXRtX3NvdXJjZT1lbWFpbCZhbXA7dXRtX21l
-ZGl1bT1lbWFpbCIgc3R5bGU9Im1hcmdpbi1yaWdodDogMzBweDsiPlVwZ3JhZGUgdG8g4oGoRmly
-ZWZveCBSZWxheSBQcmVtaXVt4oGpPC9hPiAKICAgICAgICAgICAgICA8YSBjbGFzcz0iY29udGFp
-bmVyLWxpbmsiIGhyZWY9Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hY2NvdW50cy9wcm9maWxlLz91
-dG1fY2FtcGFpZ249ZW1haWxfcmVwbGllcyZhbXA7dXRtX3NvdXJjZT1lbWFpbCZhbXA7dXRtX21l
-ZGl1bT1lbWFpbCI+TWFuYWdlIHlvdXIgbWFza3M8L2E+IAogICAgICAgICAgICAgIDwvdGQ+IAog
-ICAgICAgICAgPC90YWJsZT4KICAgICAgICAgIDwvdGQ+CiAgICAgIDwvdHI+CiAgPC90YWJsZT4g
-IAoKICA8L2JvZHk+CjwvaHRtbD4KCg==
 
---==[BOUNDARY1]==--
+
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/T=
+R/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns=3D"http://www.w3.org/1999/xhtml" lang=3D"" dir=3D"ltr"></html>
+  <head>
+    <meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dutf-8" =
+/>
+    <meta name=3D"viewport" content=3D"width=3Ddevice-width"/>
+    <style>=20
+        @font-face {
+                font-family: 'inter';
+                font-style: normal;
+                font-weight: 500;
+                src: local('Inter Regular'), local('Inter-Regular'), url(http=
+s://relay.firefox.com/fonts/Inter/Inter-Regular.4232a675a077.woff2?v=3D3.18) =
+format('woff');
+            }
+        @font-face {
+        font-family: 'inter medium';
+        font-style: bold;
+        font-weight: 600;
+        src: local('Inter Medium'), local('Inter-Medium'), url(https://relay.=
+firefox.com/fonts/Inter/Inter-Medium.027d14e7d35b.woff2?v=3D3.18) format('wof=
+f');
+        }
+            * {
+            box-sizing: border-box;
+            }=20
+        body {
+            font-family: 'inter', Arial, sans-serif !important;=20
+            color: #3D3D3D;
+        }
+        a {=20
+            color: #0060DF;
+            transition: all 0.2s ease;
+        }
+        a:hover {
+            color: #20123ad5;
+            transition: all 0.2s ease;
+        }
+        a.container-link {
+          color: #FFFFFF;
+          font-size: 12px;
+        }
+        a:hover,
+        a:focus,
+        a:active {
+            transition: all 0.2s ease;
+        }
+    </style>
+  </head>
+  <body style=3D"padding: 0; margin: 0;">
+   =20
+    <!-- temporary header -->
+    <table width=3D"100%" bgcolor=3D"#3D3D3D" style=3D"background: #3D3D3D; p=
+adding-top: 12px; padding-right: 12px; padding-left: 12px; padding-bottom:12p=
+x; margin-top: 30px; margin-bottom: 30px; width: 96%; border-radius: 6px;" al=
+ign=3D"center">
+        <tr>
+            <td align=3D"center" valign=3D"top" width=3D"100%" style=3D"max-w=
+idth:800px; padding-top: 0px; padding-bottom: 0px;">
+            <table width=3D"100%" style=3D"max-width:700px; text-align: cente=
+r; border-collapse: collapse;">
+                <tr>
+                <td width=3D"50%" style=3D"line-height: 150%;" align=3D"left"=
+>=20
+                      <img width=3D"155" src=3D"http://127.0.0.1:8000/static/=
+images/email-images/relay-logo-emails-dark-bg.png" style=3D"margin: 0 5px;" a=
+lt=3D"warning icon"/>  =20
+                </td>
+                <td width=3D"50%" style=3D"line-height: 150%;" align=3D"right=
+">=20
+                    <a class=3D"container-link" href=3D"http://127.0.0.1:8000=
+/premium/?utm_campaign=3Demail_replies&amp;utm_source=3Demail&amp;utm_medium=
+=3Demail">Upgrade for more protection</a>=20
+                </td>
+                </tr>
+            </table>
+            </td>
+        </tr>
+    </table> =20
+   =20
+    <table role=3D"presentation" border=3D"0" cellpadding=3D"0" cellspacing=
+=3D"10px" style=3D"padding: 60px 30px 120px 30px;" align=3D"center">
+        <tr>
+            <td style=3D"max-width:800px; padding-top: 0px; padding-bottom: 0=
+px; text-align: center;">
+                <h2 style=3D"font-family: 'inter medium';">=20
+                    <img width=3D"18" src=3D"http://127.0.0.1:8000/static/ima=
+ges/email-images/warning.png" style=3D"margin: 0 5px;" alt=3D"warning icon"/>
+                   =20
+                        Replies are not included with your free account
+                   =20
+                </h2>
+                <p style=3D"line-height: 200%; margin-bottom: 30px; padding: =
+20px 60px 20px 60px">
+                   =20
+                        We=E2=80=99ve sent this reply to =E2=81=A8external_se=
+nder@test.com=E2=81=A9. But moving forward, your replies will not be sent.
+                   =20
+                    Replying to forwarded emails from your masked email is on=
+ly available with =E2=81=A8Firefox Relay Premium=E2=81=A9.
+                </p>=20
+                <a href=3D"http://127.0.0.1:8000/premium/?utm_campaign=3Demai=
+l_replies&amp;utm_source=3Demail&amp;utm_medium=3Demail" style=3D"margin: 10p=
+x 0;">Upgrade now to send replies</a>
+            </td>=20
+        </tr>
+    </table>
+
+    <!-- temporary footer -->
+    <table width=3D"100%" bgcolor=3D"#3D3D3D" style=3D"background: #3D3D3D; p=
+adding-top: 12px; padding-right: 12px; padding-left: 12px; padding-bottom:12p=
+x; margin-top: 30px; margin-bottom: 30px; width: 96%; border-radius: 6px;" al=
+ign=3D"center">
+      <tr>
+          <td align=3D"center" valign=3D"top" width=3D"100%" style=3D"max-wid=
+th:800px; padding-top: 0px; padding-bottom: 0px;">
+          <table width=3D"100%" style=3D"max-width:700px; text-align: center;=
+ border-collapse: collapse;">
+              <tr>
+              <td width=3D"50%" style=3D"line-height: 150%;" align=3D"left"> =
+
+                    <img width=3D"110" src=3D"http://127.0.0.1:8000/static/im=
+ages/email-images/relay-logo-emails-dark-bg.png" style=3D"margin: 0 5px;" alt=
+=3D"warning icon"/>  =20
+              </td>
+              <td width=3D"50%" style=3D"line-height: 150%;" align=3D"right">=
+=20
+              <a class=3D"container-link" href=3D"http://127.0.0.1:8000/premi=
+um/?utm_campaign=3Demail_replies&amp;utm_source=3Demail&amp;utm_medium=3Demai=
+l" style=3D"margin-right: 30px;">Upgrade to =E2=81=A8Firefox Relay Premium=E2=
+=81=A9</a>=20
+              <a class=3D"container-link" href=3D"http://127.0.0.1:8000/accou=
+nts/profile/?utm_campaign=3Demail_replies&amp;utm_source=3Demail&amp;utm_medi=
+um=3Demail">Manage your masks</a>=20
+              </td>=20
+          </table>
+          </td>
+      </tr>
+  </table> =20
+
+  </body>
+</html>
+
 
 --==[BOUNDARY0]==--
