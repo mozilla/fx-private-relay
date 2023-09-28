@@ -64,7 +64,7 @@ To prevent the error we need to:
 
 [RemoveField operation]: https://docs.djangoproject.com/en/3.2/ref/migration-operations/#removefield
 
-### Term
+## Terms
 
 <!-- TODO: MPP-3464 Add terminology definitions -->
 
