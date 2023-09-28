@@ -4,26 +4,31 @@ From Django 3.2 documentation on [Migrations](https://docs.djangoproject.com/en/
 
 > Migrations are Django’s way of propagating changes you make to your models (adding a field, deleting a model, etc.) into your database schema. They’re designed to be mostly automatic, but you’ll need to know when to make migrations, when to run them, and the common problems you might run into.
 
-For creating migrations use [Django's built-in commands](https://docs.djangoproject.com/en/3.2/topics/migrations/#the-commands).
+For creating migrations use Django's built-in commands [here](https://docs.djangoproject.com/en/3.2/topics/migrations/#the-commands).
 
-### Adding New Model Field and Migrations
+### Deleting Existing Model or Model Field
 
-When adding new fields in an existing model, there is a possibility that the code referencing the fields can run before the new fields are populated with default values in the database. There are two ways to handle this race condition:
+Like adding a new field in an existing model, when deleting an existing model or a field in the model there is a possibility that the code referencing the fields can run while the table or the column no longer exists in the database. All reference to the field and the field is removed from the code. The Django migration command `./manage.py makemigrations` utilizes [RemoveField operation][] from `django.db.migrations` and deletes the corresponding column in the database. The code and the database can be misaligned when:
 
-1. Run `./manage.py sqlmigrate` and manually update the SQL query to accept `NULL` value for the new field in the databse. See example of this in [emails/migrations/0054_profile_forwarded_first_reply.py](https://github.com/mozilla/fx-private-relay/blob/main/emails/migrations/0054_profile_forwarded_first_reply.py). The migration for the newly added Django field `forwarded_first_reply` is set to default to `False` for new entries, while [this code](https://github.com/mozilla/fx-private-relay/blob/main/emails/migrations/0054_profile_forwarded_first_reply.py#L43) sets the database column `forwarded_first_reply` to allow `NULL` value. As a result, new instance of the model `Profile` will be populated with the defualt value `False` on the Django level while the old entries and the database level allows `forwarded_first_reply` column to be `NULL`.
+1. Version X code is happily running in several pods.
+2. The migrations for Version X+1 run.
+   - Old columns are removed.
+3. Version X code needs to run happily against the X+1 database:
+   - [!NOTE] When writing to an existing table, version X should not refer to deleted columns.
+   - The deleted field is already removed from the Django model in version X.
+   - Meanwhile the column remains in the database.
+4. Canary pod with Version X+1 starts. It is running the same time as all the Version X pods.
+5. Kubernetes rollout of Version X+1 starts:
+   - New pod with Version X+1 starts.
+   - When the Version X+1 pod is running, the Version X pod is shut down. This continues until no pods run Version X.
+6. Version X+1 code is happily running in several pods.
+   [!WARNING] Error happens when Version X or Version X+1 code refers to the deleted column.
 
-- Cons: Discrepancy between the code and the database. Room for error on generating our own SQL queries that requires the engineers to tinker with the Django's `sqlmigrate` command.
-
-2. Add `null=True` and `blank=True` the argument to the new Django fieldso that the model field's value can be null or empty. Read more about `null` and `blank` Django field arguments [here](https://docs.djangoproject.com/en/4.2/ref/models/fields/#field-options).
-
-- Cons: It is best practice to remove the `null` and `blank` especially if there is a default value set. This results in additional follow-up pull request with the changes on the code and migration to reflect the schema changes on the database. The follow-up PR can be merged only after the initial migrations with `null` and `blank` set to `True` are applied on production
-
-Our current preference is to use Option 1 but it is not requirement.
-
-### Deleting Existing Model or Model Field and Migrations
-
-Similar to when adding a new field in an existing model, when deleting an existing model or a field in the model, there is a possibility that the code referencing the fields can run while the table or the column no longer exists in the database. To prevent such errors we need to:
+To prevent the error we need to:
 
 1. Remove all references of the field or the model in the code.
-2. Deploy the code removals to production.
-3. Then create a migration that removes the field or the model from the database.
+2. Deploy the removals to production.
+3. Then remove the field or model from the `models.py` file and create a migration that removes the column or the table from the database.
+4. Deploy the model changes and its migration to production.
+
+[RemoveField operation]: https://docs.djangoproject.com/en/3.2/ref/migration-operations/#removefield
