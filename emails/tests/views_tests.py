@@ -1680,7 +1680,9 @@ def test_reply_requires_premium_test(rf, forwarded, content_type, caplog):
 def test_build_reply_requires_premium_email_first_time_includes_forward_text():
     # First create a valid reply record from an external sender to a free Relay user
     free_user = make_free_test_user()
-    relay_address = baker.make(RelayAddress, user=free_user)
+    relay_address = baker.make(
+        RelayAddress, user=free_user, address="w41fwbt4q", domain=2
+    )
 
     original_sender = "external_sender@test.com"
     original_msg_id = "<external-msg-id-123@test.com>"
@@ -1701,7 +1703,7 @@ def test_build_reply_requires_premium_email_first_time_includes_forward_text():
     )
 
     # Now send a reply from the free Relay user to the external sender
-    test_from = relay_address.address
+    test_from = relay_address.full_address
     test_msg_id = "<relay-user-msg-id-456@usersemail.com>"
     decrypted_metadata = json.loads(
         decrypt_reply_metadata(encryption_key, reply_record.encrypted_metadata)
@@ -1714,7 +1716,7 @@ def test_build_reply_requires_premium_email_first_time_includes_forward_text():
     expected_From = f"replies@{domain}"
     assert msg["Subject"] == "Replies are not included with your free account"
     assert msg["From"] == expected_From
-    assert msg["To"] == relay_address.address
+    assert msg["To"] == relay_address.full_address
 
     multipart_payload = msg.get_payload()[0]
     first_part = multipart_payload.get_payload()[0]
@@ -1724,12 +1726,18 @@ def test_build_reply_requires_premium_email_first_time_includes_forward_text():
     assert "sent this reply" in text_content
     assert "sent this reply" in html_content
 
+    assert_email_equals(
+        msg.as_string(), "reply_requires_premium_first", replace_mime_boundaries=True
+    )
+
 
 @pytest.mark.django_db
 def test_build_reply_requires_premium_email_after_forward():
     # First create a valid reply record from an external sender to a free Relay user
     free_user = make_free_test_user()
-    relay_address = baker.make(RelayAddress, user=free_user)
+    relay_address = baker.make(
+        RelayAddress, user=free_user, address="w41fwbt4q", domain=2
+    )
     _set_forwarded_first_reply(free_user.profile)
 
     original_sender = "external_sender@test.com"
@@ -1751,7 +1759,7 @@ def test_build_reply_requires_premium_email_after_forward():
     )
 
     # Now send a reply from the free Relay user to the external sender
-    test_from = relay_address.address
+    test_from = relay_address.full_address
     test_msg_id = "<relay-user-msg-id-456@usersemail.com>"
     decrypted_metadata = json.loads(
         decrypt_reply_metadata(encryption_key, reply_record.encrypted_metadata)
@@ -1764,7 +1772,7 @@ def test_build_reply_requires_premium_email_after_forward():
     expected_From = f"replies@{domain}"
     assert msg["Subject"] == "Replies are not included with your free account"
     assert msg["From"] == expected_From
-    assert msg["To"] == relay_address.address
+    assert msg["To"] == relay_address.full_address
 
     multipart_payload = msg.get_payload()[0]
     first_part = multipart_payload.get_payload()[0]
@@ -1773,6 +1781,10 @@ def test_build_reply_requires_premium_email_after_forward():
     html_content = b64decode(second_part.get_payload()).decode()
     assert "Your reply was not sent" in text_content
     assert "Your reply was not sent" in html_content
+
+    assert_email_equals(
+        msg.as_string(), "reply_requires_premium_second", replace_mime_boundaries=True
+    )
 
 
 def test_get_keys_from_headers_no_reply_headers():

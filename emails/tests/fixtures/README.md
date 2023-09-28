@@ -41,6 +41,7 @@ mail client. They are stored in the [Internet Message Format][] (IMF).
 
 - `inline_image_incoming.email` - Contains an inline image, referenced in the HTML by
   content ID
+- `plain_text_incoming.email` - A simple email with only plain text content
 - `russian_spam_incoming.email` - Contains UTF-8 encoded headers, Base64-encoded content
 
 [Internet Message Format]: https://datatracker.ietf.org/doc/html/rfc5322
@@ -54,6 +55,8 @@ fixture, and end in `_expected.email`.
 The output fixtures for incoming emails with SNS Notification JSON:
 
 - `domain_recipient_expected.email`
+- `reply_requires_premium_first_expected.email` - Tells user the first reply is sent
+- `reply_requires_premium_second_expected.email` - Tells user the next reply is not sent
 - `s3_stored_replies_expected.email` - With text content `this is a text reply`
 - `s3_stored_replies_with_emoji_expected.email` - With text content `👍 Thanks I got it!`
 - `single_recipient_expected.email` - To a Relay user preferring English
@@ -63,6 +66,8 @@ The output fixtures for incoming emails with SNS Notification JSON:
 The output fixtures for raw incoming emails:
 
 - `inline_image_expected.email`
+- `plain_text_expected.email`
+- `russian_spam_expected.email`
 
 When the expected mail does not match the actual output mail, the test creates a file
 with the actual output. These files end in `_actual.email` instead of `_expected.email`.
