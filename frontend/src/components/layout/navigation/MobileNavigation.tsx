@@ -96,7 +96,11 @@ export const MobileNavigation = (props: Props) => {
                 rel="noopener noreferrer"
                 className={styles["settings-link"]}
               >
-                {l10n.getString(isFlagActive(runtimeData.data, "firefox_account_rebrand") ? "nav-profile-manage-fxa" : "nav-profile-manage-fxa-v2")}
+                {l10n.getString(
+                  isFlagActive(runtimeData.data, "firefox_account_rebrand")
+                    ? "nav-profile-manage-fxa"
+                    : "nav-profile-manage-fxa-v2",
+                )}
                 <NewTabIcon width={12} height={18} viewBox="0 0 16 18" alt="" />
               </a>
             </span>
