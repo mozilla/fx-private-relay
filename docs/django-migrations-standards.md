@@ -25,5 +25,5 @@ Our current preference is to use Option 1 but it is not requirement.
 Similar to when adding a new field in an existing model, when deleting an existing model or a field in the model, there is a possibility that the code referencing the fields can run while the table or the column no longer exists in the database. To prevent such errors we need to:
 
 1. Remove all references of the field or the model in the code.
-2. Deploy the removals to production.
+2. Deploy the code removals to production.
 3. Then create a migration that removes the field or the model from the database.
