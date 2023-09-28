@@ -441,9 +441,7 @@ const Faq: NextPage = () => {
                 <ul>
                   <li>
                     {l10n.getString(
-                      isFlagActive(runtimeData.data, "firefox_account_rebrand")
-                        ? "faq-question-acceptable-use-answer-measure-account"
-                        : "faq-question-acceptable-use-answer-measure-account-v2",
+                      "faq-question-acceptable-use-answer-measure-account-v2",
                     )}
                   </li>
                   <li>
