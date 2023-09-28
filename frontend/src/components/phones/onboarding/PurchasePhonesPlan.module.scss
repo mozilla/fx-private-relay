@@ -10,6 +10,7 @@
   margin: 0 auto;
   padding: $spacing-2xl $spacing-lg;
   width: 100%;
+  overflow-x: hidden;
 
   h2 {
     @include text-title-xs;
@@ -73,6 +74,10 @@
     padding: $spacing-lg $spacing-2xl;
     border-radius: $border-radius-md;
     box-shadow: $box-shadow-sm;
+
+    @media screen and (max-width: $screen-sm) {
+      padding: $spacing-lg;
+    }
 
     h3 {
       @include text-body-md;
