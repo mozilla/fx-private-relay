@@ -24,6 +24,8 @@ The Django migration command `./manage.py makemigrations` utilizes [AddField ope
 6. Version X+1 code is happily running in several pods.
    [!WARNING] Misaligned code and database happens in Step 3 when Version X adds a new entry to the table without proper default set. In Step 6, the Version X+1 retrieves the entry. The fetched entry added by Version X does not meet the field validation in Version X+1 causing validation error.
 
+<!-- TODO: MPP-3464 Add instructions to prevent or mitigate the error while add new field -->
+
 [AddField operation]: https://docs.djangoproject.com/en/3.2/ref/migration-operations/#addfield
 
 ### Deleting Existing Model or Model Field
@@ -52,6 +54,16 @@ To prevent the error we need to:
 4. Deploy the model changes and its migration to production.
 
 [RemoveField operation]: https://docs.djangoproject.com/en/3.2/ref/migration-operations/#removefield
+
+### Term
+
+<!-- TODO: MPP-3464 Add terminology definitions -->
+
+Field
+Column
+Migration
+Model
+Entry
 
 ## Links
 
