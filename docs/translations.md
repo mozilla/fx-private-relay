@@ -293,7 +293,7 @@ git checkout main
 ```
 
 Copy translations from the pending translations to the proper files in
-`private/locales/en/`. Do not change the translation files for other languages. Pontoon
+`privaterelay/locales/en/`. Do not change the translation files for other languages. Pontoon
 handles those during import and export. The pending translations for the front end are
 in [frontend/pendingTranslations.ftl][]. The same for the back end are in
 [privaterelay/pending_locales/en/pending.ftl][]. A change can include strings from both
