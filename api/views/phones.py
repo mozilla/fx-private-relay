@@ -1137,7 +1137,8 @@ def _match_senders_by_prefix(
         contacts = InboundContact.objects.filter(relay_number=relay_number).all()
         contacts_by_number: dict[str, InboundContact] = {}
         for contact in contacts:
-            pn = phonenumbers.parse(contact.inbound_number)
+            # TODO: don't default to US when we support other regions
+            pn = phonenumbers.parse(contact.inbound_number, "US")
             e164 = phonenumbers.format_number(pn, phonenumbers.PhoneNumberFormat.E164)
             if e164 not in contacts_by_number:
                 contacts_by_number[e164] = contact
