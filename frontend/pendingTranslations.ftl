@@ -36,6 +36,6 @@ profile-label-set-your-custom-domain-free-user = Get your own email domain with 
 tooltip-email-domain-explanation-title-free = Get your own { -brand-name-relay } email domain
 tooltip-email-domain-explanation-part-one-free = With { -brand-name-premium }, you can create unlimited, custom { -brand-name-relay } masks on the go using a unique { -brand-name-relay } email domain — you won’t even have to generate them here first.
 
-nav-profile-manage-fxa-v2 = Manage your account
+nav-profile-manage-account = Manage your account
 nav-profile-image-alt-v2 = account avatar
 faq-question-acceptable-use-answer-measure-account-v2 = Requiring an account with a verified email address
