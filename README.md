@@ -222,7 +222,7 @@ To do so:
 
 6. [Go to the django-allauth social app admin
    page](http://127.0.0.1:8000/admin/socialaccount/socialapp/), sign in with the
-   superuser account you created above, and add a social app for Mozilla Accounts:
+   superuser account you created above, and add a social app for Firefox Accounts:
 
 | Field      | Value                                                   |
 | ---------- | ------------------------------------------------------- |
