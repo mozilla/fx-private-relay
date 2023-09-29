@@ -3,7 +3,7 @@
 </p>
 
 
-# Private Relay
+# Private Relay 
 
 <!-- Badges include: license, size of repository, overall coverage for project via coveralls.io on main branch, status of what is deployed via whatsdeployed.io and our circleci status for main branch. -->
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](https://raw.githubusercontent.com/mozilla/fx-private-relay/main/LICENSE)
@@ -11,7 +11,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/mozilla/fx-private-relay/badge.svg?branch=main)](https://coveralls.io/github/mozilla/fx-private-relay?branch=main)
 [![What's Deployed](https://img.shields.io/badge/whatsdeployed-dev,stage,prod-green.svg)](https://whatsdeployed.io/s/60j/mozilla/fx-private-relay)
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/mozilla/fx-private-relay/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/mozilla/fx-private-relay/tree/main)
-
+ 
 
 Private Relay provides generated email addresses to use in place of personal
 email addresses.
