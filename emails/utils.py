@@ -3,9 +3,6 @@ import contextlib
 from email.errors import InvalidHeaderDefect
 from email.headerregistry import Address
 from email.message import EmailMessage
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.application import MIMEApplication
 from email.utils import formataddr, parseaddr
 from functools import cache
 from typing import cast, Any, Callable, TypeVar
@@ -43,7 +40,7 @@ from .models import (
     Reply,
     get_domains_from_settings,
 )
-from .types import AttachmentPair, AWS_MailJSON, MessageBody, OutgoingHeaders
+from .types import AWS_MailJSON
 
 
 logger = logging.getLogger("events")
@@ -218,69 +215,6 @@ def ses_send_raw_email(
     except ClientError as e:
         logger.error("ses_client_error_raw_email", extra=e.response["Error"])
         raise
-
-
-def create_message(
-    headers: OutgoingHeaders,
-    message_body: MessageBody,
-    attachments: list[AttachmentPair] | None = None,
-) -> EmailMessage:
-    msg_with_headers = _start_message_with_headers(headers)
-    msg_with_body = _add_body_to_message(msg_with_headers, message_body)
-    if not attachments:
-        return msg_with_body
-    msg_with_attachments = _add_attachments_to_message(msg_with_body, attachments)
-    return msg_with_attachments
-
-
-def _start_message_with_headers(headers: OutgoingHeaders) -> EmailMessage:
-    msg = EmailMessage()
-
-    # Add headers
-    for name, value in headers.items():
-        msg[name] = value
-
-    if "MIME-Version" not in msg:
-        msg["MIME-Version"] = "1.0"
-    msg.make_mixed()
-    return msg
-
-
-def _add_body_to_message(msg: EmailMessage, message_body: MessageBody) -> EmailMessage:
-    # Create a multipart/alternative child container.
-    msg_body = MIMEMultipart("alternative")
-
-    if "Text" in message_body:
-        body_text = message_body["Text"]
-        textpart = MIMEText(body_text, "plain")
-        msg_body.attach(textpart)
-    if "Html" in message_body:
-        body_html = message_body["Html"]
-        htmlpart = MIMEText(body_html, "html")
-        msg_body.attach(htmlpart)
-
-    # Attach the multipart/alternative child container to the multipart/mixed
-    # parent container.
-    msg.attach(msg_body)
-    return msg
-
-
-def _add_attachments_to_message(
-    msg: EmailMessage, attachments: list[AttachmentPair]
-) -> EmailMessage:
-    # attach attachments
-    for actual_att_name, attachment in attachments:
-        # Define the attachment part and encode it using MIMEApplication.
-        attachment.seek(0)
-        att = MIMEApplication(attachment.read())
-
-        # Add a header to tell the email client to treat this
-        # part as an attachment, and to give the attachment a name.
-        att.add_header("Content-Disposition", "attachment", filename=actual_att_name)
-        # Add the attachment to the parent container.
-        msg.attach(att)
-        attachment.close()
-    return msg
 
 
 def _store_reply_record(
