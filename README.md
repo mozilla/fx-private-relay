@@ -39,7 +39,6 @@ them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content
   - [Production Environments](#production-environments)
     - [Requirements](#requirements-1)
     - [Environment Variables](#environment-variables)
-
 ## Development
 
 Please refer to our [coding standards](docs/coding-standards.md) for code styles, naming conventions and other methodologies.

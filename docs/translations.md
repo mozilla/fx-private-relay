@@ -1,5 +1,4 @@
 # Translation and Localization
-
 Translations are maintained in separate repositories that are managed by the
 [Mozilla Localization Team](https://github.com/mozilla-l10n). There is a
 Pontoon project for the
