@@ -1,8 +1,8 @@
-## Email test fixtures
+# Email test fixtures
 
 These fixtures are used in `emails/tests/views_tests.py`
 
-### Incoming Emails
+## Incoming Emails
 
 Some fixtures capture the [SNS][] Delivery [notification JSON][] representing an
 incoming email. Their names all end in `_email_sns_body.json`.
@@ -32,7 +32,9 @@ fixtures start with the name of the related SNS JSON fixture, and end in
 
 - `domain_recipient_expected.email`
 - `s3_stored_replies_expected.email` - With text content `this is a text reply`
-- `single_recipient_expected.email`
+- `s3_stored_replies_with_emoji_expected.email` - With text content `👍 Thanks I got it!`
+- `single_recipient_expected.email` - To a Relay user preferring English
+- `single_recipient_fr_expected.email` - To a Relay user preferring French
 - `single_recipient_list_expected.email`
 
 When the expected mail does not match the actual forwarded mail, the test creates a file
@@ -48,7 +50,7 @@ directory.
 
 [Opendiff]: https://keith.github.io/xcode-man-pages/opendiff.1.html
 
-### Bounce notifications
+## Bounce notifications
 
 Some fixtures represent SNS Bounce notifications:
 
@@ -56,8 +58,9 @@ Some fixtures represent SNS Bounce notifications:
 - `soft_bounce_sns_body.json` - A soft bounce. Re-trying may fix the issue.
 - `spam_bounce_sns_body.json` - A soft bounce. Sending with different content may work.
 
-### Other notifications
+## Other notifications
 
-This SNS notification is not handled by our system.
+This SNS notification is not handled by our system. It is included to test how our
+system handles unknown notifications.
 
 - `subscription_confirmation_invalid_sns_body.json`
