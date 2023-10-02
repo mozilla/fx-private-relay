@@ -608,7 +608,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
 
     # Get incoming email
     try:
-        (email, email_size, transport, load_time_s) = _get_email(message_json)
+        (incoming_email_bytes, transport, load_time_s) = _get_email_bytes(message_json)
     except ClientError as e:
         if e.response["Error"].get("Code", "") == "NoSuchKey":
             logger.error("s3_object_does_not_exist", extra=e.response["Error"])
@@ -623,8 +623,13 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     remove_level_one_trackers = bool(
         tracker_removal_flag and user_profile.remove_level_one_email_trackers
     )
-    level_one_trackers_removed, has_html, has_text = _convert_to_forwarded_email(
-        email=email,
+    (
+        forwarded_email,
+        level_one_trackers_removed,
+        has_html,
+        has_text,
+    ) = _convert_to_forwarded_email(
+        incoming_email_bytes=incoming_email_bytes,
         headers=headers,
         to_address=to_address,
         from_address=from_address,
@@ -643,7 +648,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         ses_response = ses_send_raw_email(
             source_address=reply_address,
             destination_address=destination_address,
-            message=email,
+            message=forwarded_email,
         )
     except ClientError:
         # 503 service unavailable reponse to SNS so it can retry
@@ -653,7 +658,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     _store_reply_record(mail, message_id, address)
 
     user_profile.update_abuse_metric(
-        email_forwarded=True, forwarded_email_size=email_size
+        email_forwarded=True, forwarded_email_size=len(incoming_email_bytes)
     )
     address.num_forwarded += 1
     address.last_used_at = datetime.now(timezone.utc)
@@ -742,9 +747,9 @@ def _strip_localpart_tag(address):
 _TransportType = Literal["sns", "s3"]
 
 
-def _get_email(
+def _get_email_bytes(
     message_json: AWS_SNSMessageJSON,
-) -> tuple[EmailMessage, int, _TransportType, float]:
+) -> tuple[bytes, _TransportType, float]:
     with Timer(logger=None) as load_timer:
         if "content" in message_json:
             # email content in sns message
@@ -755,19 +760,13 @@ def _get_email(
             bucket, object_key = _get_bucket_and_key_from_s3_json(message_json)
             message_content = get_message_content_from_s3(bucket, object_key)
             transport = "s3"
-        email_size = len(message_content)
-        histogram_if_enabled("relayed_email.size", email_size)
-        email_message = message_from_bytes(message_content, policy=policy.default)
-    # python/typeshed issue 2418
-    # The Python 3.2 default was Message, 3.6 uses policy.message_factory, and
-    # policy.default.message_factory is EmailMessage
-    assert isinstance(email_message, EmailMessage)
+        histogram_if_enabled("relayed_email.size", len(message_content))
     load_time_s = round(load_timer.last, 3)
-    return (email_message, email_size, transport, load_time_s)
+    return (message_content, transport, load_time_s)
 
 
 def _convert_to_forwarded_email(
-    email: EmailMessage,
+    incoming_email_bytes: bytes,
     headers: OutgoingHeaders,
     to_address: str,
     from_address: str,
@@ -776,17 +775,22 @@ def _convert_to_forwarded_email(
     sample_trackers: bool,
     remove_level_one_trackers: bool,
     now: datetime | None = None,
-) -> tuple[int, bool, bool]:
+) -> tuple[EmailMessage, int, bool, bool]:
     """
-    Convert an email to a forwarded email.
-
-    The conversion happens in-place - the "email" passed in will be altered.
+    Convert an email (as bytes) to a forwarded email.
 
     Return is a tuple:
+    - email - The forwarded email
     - level_one_trackers_removed (int) - Number of trackers removed
     - has_html - True if the email has an HTML representation
     - has_text - True if the email has a plain text representation
     """
+    email = message_from_bytes(incoming_email_bytes, policy=policy.default)
+    # python/typeshed issue 2418
+    # The Python 3.2 default was Message, 3.6 uses policy.message_factory, and
+    # policy.default.message_factory is EmailMessage
+    assert isinstance(email, EmailMessage)
+
     _replace_headers(email, headers)
 
     # Find and replace text content
@@ -841,7 +845,7 @@ def _convert_to_forwarded_email(
                 extra={"exception": str(e), "structure": out.getvalue()},
             )
 
-    return (level_one_trackers_removed, has_html, has_text)
+    return (email, level_one_trackers_removed, has_html, has_text)
 
 
 def _replace_headers(email: EmailMessage, headers: OutgoingHeaders) -> None:
@@ -1082,7 +1086,7 @@ def _handle_reply(
     }
 
     try:
-        (email, email_size, transport, load_time_s) = _get_email(message_json)
+        (email_bytes, transport, load_time_s) = _get_email_bytes(message_json)
     except ClientError as e:
         if e.response["Error"].get("Code", "") == "NoSuchKey":
             logger.error("s3_object_does_not_exist", extra=e.response["Error"])
@@ -1090,6 +1094,9 @@ def _handle_reply(
         logger.error("s3_client_error_get_email", extra=e.response["Error"])
         # we are returning a 500 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
+
+    email = message_from_bytes(email_bytes, policy=policy.default)
+    assert isinstance(email, EmailMessage)
 
     # Convert to a reply email
     # TODO: Issue #1747 - Remove wrapper / prefix in replies
