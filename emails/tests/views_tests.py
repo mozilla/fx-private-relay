@@ -143,9 +143,16 @@ def create_notification_from_email(email_text: str) -> AWS_SNSMessageJSON:
     """
     Create an SNS notification from a raw serialized email.
 
-    The notification will have the headers from the email, a passing receipt,
-    and other mocked items. The email will be included in the notification
-    body, not loaded from (mock) S3.
+    The SNS notification is designed to be processed by _handle_received, and can be
+    processed by _sns_inbound_logic and _sns_notification, which will pass it to
+    _handle_received. It will not pass the external view sns_inbound, because it will
+    fail signature checking, since it has a fake Signature and SigningCertURL.
+
+    The SNS notification has a passing receipt, such as a passing spamVerdict,
+    virusVerdict, and dmarcVerdict.
+
+    The SNS notification will have the headers from the email and other mocked items.
+    The email will be included in the notification body, not loaded from (mock) S3.
     """
     email = message_from_string(email_text, policy=policy.default)
     topic_arn = "arn:aws:sns:us-east-1:168781634622:ses-inbound-grelay"
