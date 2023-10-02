@@ -8,8 +8,6 @@ Incoming Email fixtures come in two varieties. The original fixtures capture the
 Delivery [notification JSON][] representing an incoming email. The newer fixtures are
 the raw incoming emails.
 
-Both fixtures have related fixtures for the expected output email.
-
 [notification JSON]: https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html
 [SNS]: https://aws.amazon.com/sns/
 
@@ -46,9 +44,9 @@ mail client. They are stored in the [Internet Message Format][] (IMF).
 
 [Internet Message Format]: https://datatracker.ietf.org/doc/html/rfc5322
 
-### Expected output email
+## Expected Outgoing Emails
 
-There are related fixtures for the expected output email. They are stored in the
+These fixtures represent the expected output email. They are stored in the
 [Internet Message Format][]. These fixtures often start with the name of the related
 fixture, and end in `_expected.email`.
 
@@ -66,7 +64,8 @@ The output fixtures for incoming emails with SNS Notification JSON:
 The output fixtures for raw incoming emails:
 
 - `inline_image_expected.email`
-- `plain_text_expected.email`
+- `plain_text_expected.email` - Demonstrates that an HTML section was added, including
+  the Relay header and footer.
 - `russian_spam_expected.email`
 
 When the expected mail does not match the actual output mail, the test creates a file
