@@ -35,3 +35,12 @@ profile-label-set-your-custom-domain-free-user = Get your own email domain with 
 
 tooltip-email-domain-explanation-title-free = Get your own { -brand-name-relay } email domain
 tooltip-email-domain-explanation-part-one-free = With { -brand-name-premium }, you can create unlimited, custom { -brand-name-relay } masks on the go using a unique { -brand-name-relay } email domain — you won’t even have to generate them here first.
+
+profile-free-onboarding--welcome-headline = Welcome to { -brand-name-relay }
+profile-free-onboarding--welcome-description = Let’s create your first email mask.
+profile-free-onboarding--welcome-item-headline-1 = Use free email masks to protect your real address
+profile-free-onboarding--welcome-item-description-1 = Anywhere you need an email address, use an email mask instead.
+profile-free-onboarding--welcome-item-headline-2 = What’s an email mask?
+profile-free-onboarding--welcome-item-description-2 = { -brand-name-relay } email masks are anonymous email addresses that forward messages to your real address. Let’s create your first one together.
+profile-free-onboarding--welcome-generate-new-mask = Generate new mask
+profile-free-onboarding--skip-step-one = Skip

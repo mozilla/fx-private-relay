@@ -60,6 +60,7 @@ import { Localized } from "../../components/Localized";
 import { clearCookie, getCookie, setCookie } from "../../functions/cookies";
 import { SubdomainInfoTooltip } from "../../components/dashboard/subdomain/SubdomainInfoTooltip";
 import Link from "next/link";
+import { FreeOnboarding } from "../../components/dashboard/FreeOnboarding";
 
 const Profile: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -161,6 +162,47 @@ const Profile: NextPage = () => {
     );
   }
 
+  const freeMaskLimit = getRuntimeConfig().maxFreeAliases;
+  const freeMaskLimitReached =
+    allAliases.length >= freeMaskLimit && !profile.has_premium;
+
+  if (
+    isFlagActive(runtimeData.data, "free_user_onboarding") &&
+    !profile.has_premium &&
+    profile.onboarding_state < getRuntimeConfig().maxOnboardingAvailable
+  ) {
+    const onNextStep = (step: number) => {
+      profileData.update(profile.id, {
+        onboarding_state: step,
+      });
+    };
+
+    return (
+      <>
+        <AddonData
+          aliases={allAliases}
+          profile={profile}
+          runtimeData={runtimeData.data}
+          totalBlockedEmails={profile.emails_blocked}
+          totalForwardedEmails={profile.emails_forwarded}
+          totalEmailTrackersRemoved={profile.level_one_trackers_blocked}
+        />
+        <Layout runtimeData={runtimeData.data}>
+          {isPhonesAvailableInCountry(runtimeData.data) ? (
+            <DashboardSwitcher />
+          ) : null}
+          <FreeOnboarding
+            profile={profile}
+            onNextStep={onNextStep}
+            onPickSubdomain={setCustomSubdomain}
+            generateNewMask={() => createAlias({ mask_type: "random" })}
+            hasReachedFreeMaskLimit={freeMaskLimitReached}
+          />
+        </Layout>
+      </>
+    );
+  }
+
   const createAlias = async (
     options:
       | { mask_type: "random" }
@@ -218,11 +260,7 @@ const Profile: NextPage = () => {
       );
     }
   };
-
-  const freeMaskLimit = getRuntimeConfig().maxFreeAliases;
-  const freeMaskLimitReached =
-    allAliases.length >= freeMaskLimit && !profile.has_premium;
-
+ 
   const subdomainMessage =
     typeof profile.subdomain === "string" ? (
       <>
