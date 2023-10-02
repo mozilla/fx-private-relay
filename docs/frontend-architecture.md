@@ -122,7 +122,7 @@ happen in either direction, there are four situations to consider:
 This is mainly to tell the add-on which user is currently logged in, and data
 about them. (There are also plans to minimise this to only share the API key
 with the add-on, which can then fetch the rest of the data from the API
-directly, and even to have the add-on authenticate against Firefox Accounts
+directly, and even to have the add-on authenticate against Mozilla Accounts
 directly and then being able to communicate with the API without even needing to
 interact with the website.)
 

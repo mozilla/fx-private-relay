@@ -21,7 +21,7 @@ const VpnRelayWelcome: NextPage = () => {
 
   useEffect(() => {
     // Tell the backend that there will probably be new subscriptions.
-    // It will then ask Firefox Accounts for up-to-date subscription information,
+    // It will then ask Mozilla Accounts for up-to-date subscription information,
     // and have that ready for the next request to `/profiles`.
     authenticatedFetch("/accounts/profile/refresh");
   }, []);

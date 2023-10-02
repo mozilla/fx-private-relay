@@ -19,7 +19,7 @@ sequenceDiagram
 * Your own domain and the ability to publish MX and CNAME records to it
 * AWS account
 * (Suggested) [ngrok.io][ngrok] account
-* Enable Firefox Accounts authentication (see README)
+* Enable Mozilla Accounts authentication (see README)
 
 ## Overview
 At a high level, you will need to:
@@ -90,7 +90,7 @@ In a different console, run the development server. Ensure:
 * The destination host works, such as http://127.0.0.1:8000
 * The ngrok.io hostname works, such as https://myrelay.ngrok.io
 
-Firefox Accounts authentication doesn't work with multiple domains. Most
+Mozilla Accounts authentication doesn't work with multiple domains. Most
 developers will continue to log in with FxA at http://127.0.0.1:8000
 
 #### Create SNS topic subscription that sends HTTPS POSTs to your local server

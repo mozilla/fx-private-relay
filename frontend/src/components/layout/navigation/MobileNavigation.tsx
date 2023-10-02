@@ -95,7 +95,7 @@ export const MobileNavigation = (props: Props) => {
                 rel="noopener noreferrer"
                 className={styles["settings-link"]}
               >
-                {l10n.getString("nav-profile-manage-fxa")}
+                {l10n.getString("nav-profile-manage-account")}
                 <NewTabIcon width={12} height={18} viewBox="0 0 16 18" alt="" />
               </a>
             </span>
