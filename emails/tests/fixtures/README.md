@@ -41,6 +41,9 @@ mail client. They are stored in the [Internet Message Format][] (IMF).
   content ID
 - `plain_text_incoming.email` - A simple email with only plain text content
 - `russian_spam_incoming.email` - Contains UTF-8 encoded headers, Base64-encoded content
+  - _TODO:_ Replace this with a legitimate email with UTF-8 encoded headers and
+    content, to avoid unintentional overlap with
+    `spamVerdict_FAIL_email_sns_body.json`.
 
 [Internet Message Format]: https://datatracker.ietf.org/doc/html/rfc5322
 
