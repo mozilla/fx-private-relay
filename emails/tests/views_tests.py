@@ -663,7 +663,7 @@ class SNSNotificationTest(TestCase):
         assert recipient == "user@example.com"
 
         # Subject translates as "Invitation | Why and how to do business in Africa?"
-        # Because of Russian characters, it is UTF-8 text encoded in Base63
+        # Because of Russian characters, it is UTF-8 text encoded in Base64
         expected_subject_b64 = (
             "0J/RgNC40LPQu9Cw0YjQtdC90LjQtSAgfCDQl9Cw0YfQtdC8INC4INC6",
             "0LDQuiDQstC10YHRgtC4INCx0LjQt9C90LXRgSDQsiDQkNGE0YDQuNC60LU/",
