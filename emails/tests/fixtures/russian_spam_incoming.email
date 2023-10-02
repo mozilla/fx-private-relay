@@ -1,0 +1,110 @@
+Delivered-To: ebsbdsan7@test.com
+Received: by 2002:a05:7412:a929:b0:e7:a5e5:903c with SMTP id b41csp989344rdf;
+        Thu, 21 Sep 2023 23:31:45 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IG8RBf1pcRvujS33VxElVjb7ZSpBs7PaR0e1rTLf4rTYZgBWcgQYHUjcb7R4tfAlNmtCWzw
+X-Received: by 2002:a19:4f4b:0:b0:503:90d:e0df with SMTP id a11-20020a194f4b000000b00503090de0dfmr5471208lfk.34.1695364304929;
+        Thu, 21 Sep 2023 23:31:44 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1695364304; cv=none;
+        d=google.com; s=arc-20160816;
+        b=uELi3+qX1Y0w6CLWGqi/yZ0j1rGOwLVuw0kX+xCwYZr74puBIUWJH85xkXNJY6c8hd
+         UR0Hi6lc0ByYNRrubwS9gFMMmhLDloeFcTFHZGHCJUtM6Hw4or1sEtOV0bG2TIqYataL
+         yK5ukzzFcaCwdrt71zGE5FumkOg5zTn6dNkAoAJ4BWdW1GNiu/FkNptMVoBm3lM0ygzM
+         GNYuq7ja5UkgWI5aXkcxtNPS5HnNAvLSEDf+IGKS+yrk6JR0t8nlVCPGq7sSuR/Yy5s5
+         skWa1vDLNUsUV+9xmSzpuYQ4tKRR/bC/KPsiC11fiVMQ9Pk1faPJjVHHxsoYLUm/0rnp
+         ZR1g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=date:precedence:list-unsubscribe:list-id:list-help:mime-version
+         :subject:message-id:to:sender:from:dkim-signature:dkim-signature;
+        bh=HqX/lkd7ZaIjIPZWBrjlO048vN61vWQGgGCPLoIBGNI=;
+        fh=jrLTt/SRHj5lJNVh6WtWUi/b3GTRFdIBjH/JzqKuBzA=;
+        b=sZoEKIybbOpOMwHOg1NJqNHUXb2FBTXmM+2JQJyijxCZS0swff1Npk4FuGKNTp+mVp
+         bl+Y612AKKSwk5Y+qodf+A+PAUf5Nm6tcF1Q/x6ztmzJjf1SG1hYLAzY9ib9RUCqQYPm
+         2wPq/agveXrEQuSAlCgPrIaSu5fEFjFlnP2NvHOw675NPCMgM8ljSF/HuOVF49JNJcRV
+         1X4mo2gx5MAlMwlwP05RJJZzBzurgx3lqDN8DHIbpEQarobrai9sTaDYgjv+TbPzP87X
+         gegWMJyjFUUXGz7DuVgfqCnbNH733W0FirVeEf+9Kjz77SKt9Bo8rIky/4miMT5Axa91
+         iKEg==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@usndr.com header.s=jan2010 header.b=aDdCjEza;
+       dkim=pass header.i=@topeml.com header.s=jul2015 header.b=mWPCR+YS;
+       spf=pass (google.com: domain of spammer@spamdomain.example.com designates 203.0.113.171 as permitted sender) smtp.mailfrom=spammer@spamdomain.example.com
+Return-Path: <spammer@spamdomain.example.com>
+Received: from smtp592.emlone.com (smtp592.emlone.com. [203.0.113.171])
+        by mx.google.com with ESMTPS id f26-20020a19ae1a000000b004fcd57334fcsi1013143lfc.88.2023.09.21.23.31.44
+        for <ebsbdsan7@test.com>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 21 Sep 2023 23:31:44 -0700 (PDT)
+Received-SPF: pass (google.com: domain of spammer@spamdomain.example.com designates 203.0.113.171 as permitted sender) client-ip=203.0.113.171;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@usndr.com header.s=jan2010 header.b=aDdCjEza;
+       dkim=pass header.i=@topeml.com header.s=jul2015 header.b=mWPCR+YS;
+       spf=pass (google.com: domain of spammer@spamdomain.example.com designates 203.0.113.171 as permitted sender) smtp.mailfrom=spammer@spamdomain.example.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=jan2010; d=usndr.com;
+ h=From:Sender:To:Message-Id:Subject:MIME-Version:Content-Type:List-Help:
+ List-Id:List-Unsubscribe:Date:no;
+ bh=HqX/lkd7ZaIjIPZWBrjlO048vN61vWQGgGCPLoIBGNI=;
+ b=aDdCjEza1GGJvohtXl2GhquIPqHh6jxoO1xSh7FtdPE3/b/AV4G6u1TOAVzVhug2yyNoWVoy0lV0
+   IeaKFGdx1/W0V2ztqLfclxS73YBQhzF4NxGhDPnOy2HUN7RuuTZM3WPZP4iNBQiep17YUw0/54t0
+   jsGYsQ0fF8ACMH7o+L0=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=jul2015; d=topeml.com;
+ h=From:Sender:To:Message-Id:Subject:MIME-Version:Content-Type:List-Help:
+ List-Id:List-Unsubscribe:Date;
+ bh=HqX/lkd7ZaIjIPZWBrjlO048vN61vWQGgGCPLoIBGNI=;
+ b=mWPCR+YS23KEFVJqaOsbmfKckSyzlSfRe/Rh8mH31EHoACq57fhFJYJUhH2xGPZ9bQlbIdiYtLv6
+   MW3Ft4igsLZd3388I5wYkvjdTwjtzJ6mVDY2ctqWnWGh+uoe6esr6+C565aUKENbXtpddF5M3pFo
+   uMTOLPXR6If52P3f+ag=
+Received: by stmp.spamgateway.example.com id abc123 for <ebsbdsan7@test.com>; Fri, 22 Sep 2023 06:33:12 +0000 (envelope-from <spammer@spamdomain.example.com>)
+Return-Path: spammer@spamdomain.example.com
+From: =?UTF-8?B?0JDQpNCg0JjQmtCQINCX0J7QktCB0KIh?= <hello@ac.spam.example.com>
+Sender: =?UTF-8?B?0JDQpNCg0JjQmtCQINCX0J7QktCB0KIh?= <hello@ac.spam.example.com>
+To: ebsbdsan7@test.com
+Message-Id: <E1qjZhY-lqZnSL-Ni@ucs.example.com>
+Subject: =?UTF-8?B?0J/RgNC40LPQu9Cw0YjQtdC90LjQtSAgfCDQl9Cw0YfQtdC8INC4INC6?=
+ =?UTF-8?B?0LDQuiDQstC10YHRgtC4INCx0LjQt9C90LXRgSDQsiDQkNGE0YDQuNC60LU/?=
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="MXFqWmhZLWxxWm5TTC1OaQ=="
+List-Help: <https://support.spammer.example.com/ru/help/forsubscribers>
+List-Id: 207
+List-Unsubscribe: <https://support.spammer.example.com/ru/v5/unsubscribe/immediately>
+Precedence: bulk
+X-Complaints-To: abuse@spammer.example.com
+Date: Fri, 22 Sep 2023 06:33:12 +0000
+
+--MXFqWmhZLWxxWm5TTC1OaQ==
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_23720677_711349626.1695364304550"
+
+------=_Part_23720677_711349626.1695364304550
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
+
+0JfQsNGH0LXQvCDQuCDQutCw0Log0LLQtdGB0YLQuCDQsdC40LfQvdC10YEg0LIg0JDRhNGA0LjQ
+utC1PwoK0KPQstCw0LbQsNC10LzRi9C1INCz0L7RgdC/0L7QtNCwIQoK0J/RgNC40LPQu9Cw0YjQ
+sNGOINCy0LDRgSDQv9GA0LjQvdGP0YLRjCDRg9GH0LDRgdGC0LjQtSDQsiDQvNC+0LXQuSDQutC+
+0L3RhNC10YDQtdC90YbQuNC4LgoK0J/QntCf0JDQodCi0Kwg0J3QkCDQktCh0KLQoNCV0KfQowoK
+0J7RgtC/0LjRgdC60LAgKGh0dHBzOi8vc3VwcG9ydC5zcGFtbWVyLmV4YW1wbGUuY29tL3J1L3Y1
+L3Vuc3Vic2NyaWJlL2ltbWVkaWF0ZWx5KQ==
+------=_Part_23720677_711349626.1695364304550
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: base64
+
+CjwhRE9DVFlQRSBodG1sPgo8aHRtbCBsYW5nPSJydSI+CjxoZWFkPgo8dGl0bGU+PC90aXRsZT4K
+PG1ldGEgaHR0cC1lcXVpdj0iQ29udGVudC1UeXBlIiBjb250ZW50PSJ0ZXh0L2h0bWw7IGNoYXJz
+ZXQ9dXRmLTgiPgo8bWV0YSBuYW1lPSJ2aWV3cG9ydCIgY29udGVudD0id2lkdGg9ZGV2aWNlLXdp
+ZHRoLGluaXRpYWwtc2NhbGU9MSI+CjwvaGVhZD4KPGJvZHkgc3R5bGU9ImJhY2tncm91bmQtY29s
+b3I6I2M1YzRjZjttYXJnaW46MDtwYWRkaW5nOjA7LXdlYmtpdC10ZXh0LXNpemUtYWRqdXN0Om5v
+bmU7dGV4dC1zaXplLWFkanVzdDpub25lIj4KPHA+PHN0cm9uZz7Ql9Cw0YfQtdC8INC4INC60LDQ
+uiDQstC10YHRgtC4INCx0LjQt9C90LXRgSDQsiDQkNGE0YDQuNC60LU/PC9zdHJvbmc+PC9wPgo8
+cD7Qo9Cy0LDQttCw0LXQvNGL0LUg0LPQvtGB0L/QvtC00LAhPC9wPgo8cD7Qn9GA0LjQs9C70LDR
+iNCw0Y4g0LLQsNGBINC/0YDQuNC90Y/RgtGMINGD0YfQsNGB0YLQuNC1INCyINC80L7QtdC5INC6
+0L7QvdGE0LXRgNC10L3RhtC40LguPC9wPgo8cD48c3Ryb25nPtCf0J7Qn9CQ0KHQotCsINCd0JAg
+0JLQodCi0KDQldCn0KM8L3N0cm9uZz48L3A+CjxkaXYgY2xhc3Mgc3R5bGU9ImZvbnQtc2l6ZTox
+NHB4O2ZvbnQtZmFtaWx5OkhlbHZldGljYSBOZXVlLEhlbHZldGljYSxBcmlhbCxzYW5zLXNlcmlm
+O21zby1saW5lLWhlaWdodC1hbHQ6MTYuOHB4O2NvbG9yOiM5MzkzYTA7bGluZS1oZWlnaHQ6MS4y
+Ij4KPHAgc3R5bGU9Im1hcmdpbjowO2ZvbnQtc2l6ZToxNHB4O3RleHQtYWxpZ246Y2VudGVyO21z
+by1saW5lLWhlaWdodC1hbHQ6MTYuOHB4Ij4KICA8YSBocmVmPSJodHRwczovL3N1cHBvcnQuc3Bh
+bW1lci5leGFtcGxlLmNvbS9ydS91bnN1YnNjcmliZSIgdGFyZ2V0PSJfYmxhbmsiIHN0eWxlPSJ0
+ZXh0LWRlY29yYXRpb246IG5vbmU7IGNvbG9yOiAjOTM5M2EwOyIgcmVsPSJub29wZW5lciI+0J7R
+gtC/0LjRgdC60LA8L2E+CjwvcD4KPC9kaXY+CjwvYm9keT4KPC9odG1sPgo=
+------=_Part_23720677_711349626.1695364304550--
+
+--MXFqWmhZLWxxWm5TTC1OaQ==--
