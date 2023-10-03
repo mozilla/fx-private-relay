@@ -679,7 +679,9 @@ Many Relay plans have monthly and yearly subscription terms. The VPN bundle only
 yearly subscription term.
 
 The Subscription Platform associates a price with a region. Product reports may use this
-to segment purchasers by region.
+to segment purchasers by region. Relay detects the user's region and determines what
+plans are available. Relay selects the relevant price ID when sending a user to the
+Subscription Platform. The Subscription Platform [does not confirm the user's region][].
 
 The Subscription Platform associates a price with a language. On the subscription page,
 product details appear in the price language. The rest of the subscription page appears
@@ -693,6 +695,12 @@ based on language. Belgium users share the price in Euros of a neighbor, based o
 language. Switzerland has separate prices for German, French, and Italian speakers.
 All the Swiss prices are in Swiss Francs. See [privaterelay/plans.py][] for details.
 
+The Subscription Platform supports certain [markets and currencies][]. The Subscription
+Platform has configured Stripe to reject payments from outside these markets.
+A Relay user's payment method, such as a credit card, has a payment region. The
+user region detected by Relay may differ from the user's payment region. Relay may say a
+user can buy a plan, and then Stripe may reject payment.
+
 In development and stage, there are test prices connected to the [Stripe test mode][].
 One feature of test mode is fake credit cards. These cards allow testing without paying
 real money, and testing failure modes. A test visitor from the United States will get
@@ -702,6 +710,8 @@ these prices. Other regions get the production prices.
 [Stripe product]: https://stripe.com/docs/api/products
 [Stripe test mode]: https://stripe.com/docs/test-mode
 [Subscription Platform]: https://mozilla.github.io/ecosystem-platform/relying-parties/reference/sub-plat-features
+[does not confirm the user's region]: https://mozilla.github.io/ecosystem-platform/relying-parties/reference/sub-plat-features#geo-restrictions
+[markets and currencies]: https://mozilla-hub.atlassian.net/wiki/spaces/FJT/pages/173539548/Supported+Markets+and+Currencies
 
 ## Terms
 
