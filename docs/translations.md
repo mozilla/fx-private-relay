@@ -761,13 +761,9 @@ In most cases, Mozilla uses the standard identifiers. There are exceptions for c
 usage and legacy cases. Relay users should follow the standards, unless Mozilla has an
 established exception.
 
-- **Region**: [ISO 3166][] is a multi-part standard for identifying countries,
-  territories, and subdivisions. The [ISO 3166-1 alpha-2][] code (two uppercase
-  letters) is common as a region identifier.
-  - Mozilla uses the ISO 3166-1 alpha-2 code for a region when available. For example,
-    `"US"` identifies the United States, and `"DE"` identifies Germany. An
-    exception is [Valencia][], which uses `"valencia"`. Another is the
-    [Surselva Region][], which uses `"sursilv"`.
+- **Currency**: [ISO 4217][] defines codes for currencies.
+  - The Subscription Platform and Relay use the upper-case, three-letter codes.
+    For example, `"USD"` for United States dollars and `"EUR"` for Euros.
 - **Language**: [ISO 639][] is a multi-part standard for identifying languages.
   Library of Congress has a [table of languages][] with [ISO 639-2][] codes (three
   Wikipedia has a [useful table][] of [ISO 639-1][] codes (two lowercase letters). The
@@ -801,9 +797,13 @@ established exception.
     websites break when parsing a header with qvalues. Firefox and other browsers do not
     use qvalues in `Accept-Language` defaults. Instead, the order of languages is the
     order of preference.
-- **Currency**: [ISO 4217][] defines codes for currencies.
-  - The Subscription Platform and Relay use the upper-case, three-letter codes.
-    For example, `"USD"` for United States dollars and `"EUR"` for Euros.
+- **Region**: [ISO 3166][] is a multi-part standard for identifying countries,
+  territories, and subdivisions. The [ISO 3166-1 alpha-2][] code (two uppercase
+  letters) is common as a region identifier.
+  - Mozilla uses the ISO 3166-1 alpha-2 code for a region when available. For example,
+    `"US"` identifies the United States, and `"DE"` identifies Germany. An
+    exception is [Valencia][], which uses `"valencia"`. Another is the
+    [Surselva Region][], which uses `"sursilv"`.
 
 ["Identifying the User's Preferred Languages"]: #identifying-the-users-preferred-languages
 [BCP 47]: https://www.rfc-editor.org/info/bcp47
