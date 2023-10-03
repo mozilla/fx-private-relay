@@ -66,6 +66,19 @@ of the content appears in their preferred language. The product details are in t
 primary supported language for their region. This may be different from the user's
 preferred language. The price is in their region's currency.
 
+The Relay phone plan is a premium plan that is available in Canada and the United
+States. The user cannot buy a phone plan unless they are in one of those countries. A
+new premium user submits their real number. Relay sends a message to the user's number
+with a verification code. After verifying their real number, the user picks a Relay mask
+number. Relay only suggests mask numbers from the same country as the user's real phone.
+After the user selects a Relay mask number, Relay sends an welcome message from their
+mask number. Relay sends all the messages with English text.
+
+When an external contact sends an SMS text to a mask number, the service forwards the
+message to the Relay user. The forwarded message has a prefix identifying the sender's
+number. The content is not translated. When an external contact calls the mask number,
+Relay starts a call with the Relay user.
+
 When a user installs the Relay Add-On, the content is also in their preferred language.
 The Add-On reflects the Relay premium plan availability in their region.
 
