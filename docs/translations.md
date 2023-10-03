@@ -318,7 +318,8 @@ When ready, create and push a branch:
 cd privaterelay/locales
 git branch message-updates-yyymmdd
 git status
-git commit -u
+git add -u
+git commit
 git push -u origin message-updates-yyymmdd
 ```
 
