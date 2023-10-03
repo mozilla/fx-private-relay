@@ -39,7 +39,7 @@ includes Mozilla- and Relay-specific notes.
 
 Localization affects the user's experience in several ways.
 
-When an user first visits the Relay website, their browser gets the page in English.
+When a user first visits the Relay website, their browser gets the page in English.
 The English page is pre-rendered for fast loading. The page is then
 re-rendered into their preferred language. When none of the user's preferred languages
 are available, then the user gets English.
@@ -73,7 +73,7 @@ States. The user cannot buy a phone plan unless they are in one of those countri
 new premium user submits their real number. Relay sends a message to the user's number
 with a verification code. After verifying their real number, the user picks a Relay mask
 number. Relay only suggests mask numbers from the same country as the user's real phone.
-After the user selects a Relay mask number, Relay sends an welcome message from their
+After the user selects a Relay mask number, Relay sends a welcome message from their
 mask number. Relay sends all the messages with English text.
 
 When an external contact sends an SMS text to a mask number, the service forwards the
@@ -265,7 +265,7 @@ email-footer-pref-link =
 Translators can re-arrange the sentence as needed for their language. The Pontoon UI
 helps translators with HTML strings. Pontoon linters detect some translation issues
 such as malformed HTML and missing variables. The URL and attributes are not part of the
-string. Translators can not break them by changing them like translations. The values
+string. Translators cannot break them by changing them like translations. The values
 can change in the future without requiring re-translation.
 
 The Django email template could be:
@@ -662,7 +662,7 @@ layouts. Compare them to a left-to-right layout such as the [French localization
 
 Relay premium plans are not available world-wide, only in some regions. As of September
 2023, the premium email service is available in 34 regions. Phone infrastructure varies,
-so the phone service in available in only 2 regions. This section details the
+so the phone service is available in only 2 regions. This section details the
 technologies used to distinguish users by region.
 
 ### Identifying the User's Region
