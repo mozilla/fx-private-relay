@@ -629,8 +629,9 @@ default Relay language is English, the same language as this document. English u
 Latin script, written left-to-right.
 
 > [!WARNING]
-> None of Relay's supported languages use [right-to-left scripts][]. For other Mozilla
-> projects, it was a challenge to support the first right-to-left (RTL) language.
+> None of Relay's supported languages use [right-to-left scripts][]. Other Mozilla
+> projects support right-to-left (RTL) languages. They spent significant time and effort
+> to add the first RTL language.
 
 To add the first RTL script, developers must educate themselves on [internationalization
 techniques][]. Designers will learn RTL conventions. Developers examine every webpage,
@@ -789,8 +790,8 @@ established exception.
   - The Subscription Platform and Relay use the upper-case, three-letter codes.
     For example, `"USD"` for United States dollars and `"EUR"` for Euros.
 - **Language**: [ISO 639][] is a multi-part standard for identifying languages.
-  Library of Congress has a [table of languages][] with [ISO 639-2][] codes (three
   Wikipedia has a [useful table][] of [ISO 639-1][] codes (two lowercase letters). The
+  Library of Congress has a [table of languages][] with [ISO 639-2][] codes (three
   lowercase letters). This table has the related ISO 639-1 codes, when available.
   - Mozilla uses the ISO 639-1 two-letter code when available. For example, `"en"`
     identifies English, and `"fr"` identifies French. Mozilla falls back to the ISO
