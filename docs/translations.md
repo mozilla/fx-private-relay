@@ -152,8 +152,8 @@ git checkout -- privaterelay/locales/
 
 If you commit an update to `privaterelay/locales`, you can remove it with `git rebase`.
 This is a powerful tool that requires deeper understanding of `git`. See [About Git][]
-for a tutorial, and [On undoing, fixing, or removing commits in git][] for a guided
-experience.
+for a tutorial. See [On undoing, fixing, or removing commits in git][] for a guided
+experience. See [Oh Shit, Git!?!] for an emotional experience.
 
 The process is:
 
@@ -175,6 +175,7 @@ In the rebase planner, `git` will annotate the line with an `# empty` suffix.
 
 [About Git]: https://docs.github.com/en/get-started/using-git/about-git
 [On undoing, fixing, or removing commits in git]: https://sethrobertson.github.io/GitFixUm/fixup.html
+[Oh Shit, Git!?!]: https://ohshitgit.com/
 
 ### Nightly Translation Updates
 
