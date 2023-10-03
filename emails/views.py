@@ -1,22 +1,22 @@
 from copy import deepcopy
 from datetime import datetime, timezone
 from email import message_from_bytes, policy
+from email.iterators import _structure
 from email.message import EmailMessage
 from email.utils import parseaddr
 import html
+from io import StringIO
 import json
 from json import JSONDecodeError
 import logging
-import mimetypes
-import os
 import re
 import shlex
-from tempfile import SpooledTemporaryFile
 from textwrap import dedent
-from typing import Any, Optional
+from typing import Any, Literal, Optional
 from urllib.parse import urlencode
 
 from botocore.exceptions import ClientError
+from codetiming import Timer
 from decouple import strtobool
 from django.shortcuts import render
 from sentry_sdk import capture_message
@@ -47,14 +47,13 @@ from .models import (
 )
 from .types import (
     AWS_SNSMessageJSON,
-    MessageBody,
     OutgoingHeaders,
 )
 from .utils import (
     _get_bucket_and_key_from_s3_json,
+    _store_reply_record,
     b64_lookup_key,
     count_all_trackers,
-    create_message,
     decrypt_reply_metadata,
     derive_reply_keys,
     generate_from_header,
@@ -65,7 +64,6 @@ from .utils import (
     incr_if_enabled,
     remove_message_from_s3,
     remove_trackers,
-    ses_relay_email,
     ses_send_raw_email,
     urlize_and_linebreaks,
     InvalidFromHeader,
@@ -577,57 +575,8 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         address.save(update_fields=["num_blocked"])
         return HttpResponse("Address is not accepting list emails.")
 
+    # Collect new headers
     subject = common_headers.get("subject", "")
-
-    try:
-        (
-            text_content,
-            html_content,
-            attachments,
-            email_size,
-        ) = _get_text_html_attachments(message_json)
-    except ClientError as e:
-        if e.response["Error"].get("Code", "") == "NoSuchKey":
-            logger.error("s3_object_does_not_exist", extra=e.response["Error"])
-            return HttpResponse("Email not in S3", status=404)
-        logger.error("s3_client_error_get_email", extra=e.response["Error"])
-        # we are returning a 503 so that SNS can retry the email processing
-        return HttpResponse("Cannot fetch the message content from S3", status=503)
-
-    message_body: MessageBody = {}
-
-    if html_content:
-        incr_if_enabled("email_with_html_content", 1)
-        sample_trackers = bool(sample_is_active("tracker_sample"))
-        tracker_removal_flag = flag_is_active_in_task("tracker_removal", address.user)
-        remove_level_one_trackers = bool(
-            tracker_removal_flag and user_profile.remove_level_one_email_trackers
-        )
-        new_html_content, level_one_trackers_removed = _convert_html_content(
-            html_content=html_content,
-            to_address=to_address,
-            from_address=from_address,
-            language=user_profile.language,
-            has_premium=user_profile.has_premium,
-            sample_trackers=sample_trackers,
-            remove_level_one_trackers=remove_level_one_trackers,
-            now=datetime.now(timezone.utc),
-        )
-        if level_one_trackers_removed:
-            address.num_level_one_trackers_blocked = (
-                address.num_level_one_trackers_blocked or 0
-            ) + level_one_trackers_removed
-            address.save()
-        message_body["Html"] = new_html_content
-
-    if text_content:
-        incr_if_enabled("email_with_text_content", 1)
-        new_text_content = _convert_text_content(
-            text_content=text_content,
-            to_address=to_address,
-        )
-        message_body["Text"] = new_text_content
-
     destination_address = user_profile.user.email
     reply_address = get_reply_to_address()
     try:
@@ -657,26 +606,75 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         "Resent-From": from_address,
     }
 
-    response = ses_relay_email(
-        reply_address,
-        destination_address,
-        headers,
-        message_body,
-        attachments,
-        mail,
-        address,
+    # Get incoming email
+    try:
+        (incoming_email_bytes, transport, load_time_s) = _get_email_bytes(message_json)
+    except ClientError as e:
+        if e.response["Error"].get("Code", "") == "NoSuchKey":
+            logger.error("s3_object_does_not_exist", extra=e.response["Error"])
+            return HttpResponse("Email not in S3", status=404)
+        logger.error("s3_client_error_get_email", extra=e.response["Error"])
+        # we are returning a 503 so that SNS can retry the email processing
+        return HttpResponse("Cannot fetch the message content from S3", status=503)
+
+    # Convert to new email
+    sample_trackers = bool(sample_is_active("tracker_sample"))
+    tracker_removal_flag = flag_is_active_in_task("tracker_removal", address.user)
+    remove_level_one_trackers = bool(
+        tracker_removal_flag and user_profile.remove_level_one_email_trackers
     )
-    if response.status_code == 503:
-        # early return the response to trigger SNS to re-attempt
-        return response
+    (
+        forwarded_email,
+        level_one_trackers_removed,
+        has_html,
+        has_text,
+    ) = _convert_to_forwarded_email(
+        incoming_email_bytes=incoming_email_bytes,
+        headers=headers,
+        to_address=to_address,
+        from_address=from_address,
+        language=user_profile.language,
+        has_premium=user_profile.has_premium,
+        sample_trackers=sample_trackers,
+        remove_level_one_trackers=remove_level_one_trackers,
+    )
+    if has_html:
+        incr_if_enabled("email_with_html_content", 1)
+    if has_text:
+        incr_if_enabled("email_with_text_content", 1)
+
+    # Send new email
+    try:
+        ses_response = ses_send_raw_email(
+            source_address=reply_address,
+            destination_address=destination_address,
+            message=forwarded_email,
+        )
+    except ClientError:
+        # 503 service unavailable reponse to SNS so it can retry
+        return HttpResponse("SES client error on Raw Email", status=503)
+
+    message_id = ses_response["MessageId"]
+    _store_reply_record(mail, message_id, address)
 
     user_profile.update_abuse_metric(
-        email_forwarded=True, forwarded_email_size=email_size
+        email_forwarded=True, forwarded_email_size=len(incoming_email_bytes)
     )
     address.num_forwarded += 1
     address.last_used_at = datetime.now(timezone.utc)
-    address.save(update_fields=["num_forwarded", "last_used_at", "block_list_emails"])
-    return response
+    if level_one_trackers_removed:
+        address.num_level_one_trackers_blocked = (
+            address.num_level_one_trackers_blocked or 0
+        ) + level_one_trackers_removed
+    address.save(
+        update_fields=[
+            "num_forwarded",
+            "last_used_at",
+            "block_list_emails",
+            "num_level_one_trackers_blocked",
+        ]
+    )
+    return HttpResponse("Sent email to final recipient.", status=200)
 
 
 def _get_verdict(receipt, verdict_type):
@@ -744,6 +742,135 @@ def _strip_localpart_tag(address):
     [localpart, domain] = address.split("@")
     subaddress_parts = localpart.split("+")
     return f"{subaddress_parts[0]}@{domain}"
+
+
+_TransportType = Literal["sns", "s3"]
+
+
+def _get_email_bytes(
+    message_json: AWS_SNSMessageJSON,
+) -> tuple[bytes, _TransportType, float]:
+    with Timer(logger=None) as load_timer:
+        if "content" in message_json:
+            # email content in sns message
+            message_content = message_json["content"].encode("utf-8")
+            transport: Literal["sns", "s3"] = "sns"
+        else:
+            # assume email content in S3
+            bucket, object_key = _get_bucket_and_key_from_s3_json(message_json)
+            message_content = get_message_content_from_s3(bucket, object_key)
+            transport = "s3"
+        histogram_if_enabled("relayed_email.size", len(message_content))
+    load_time_s = round(load_timer.last, 3)
+    return (message_content, transport, load_time_s)
+
+
+def _convert_to_forwarded_email(
+    incoming_email_bytes: bytes,
+    headers: OutgoingHeaders,
+    to_address: str,
+    from_address: str,
+    language: str,
+    has_premium: bool,
+    sample_trackers: bool,
+    remove_level_one_trackers: bool,
+    now: datetime | None = None,
+) -> tuple[EmailMessage, int, bool, bool]:
+    """
+    Convert an email (as bytes) to a forwarded email.
+
+    Return is a tuple:
+    - email - The forwarded email
+    - level_one_trackers_removed (int) - Number of trackers removed
+    - has_html - True if the email has an HTML representation
+    - has_text - True if the email has a plain text representation
+    """
+    email = message_from_bytes(incoming_email_bytes, policy=policy.default)
+    # python/typeshed issue 2418
+    # The Python 3.2 default was Message, 3.6 uses policy.message_factory, and
+    # policy.default.message_factory is EmailMessage
+    assert isinstance(email, EmailMessage)
+
+    _replace_headers(email, headers)
+
+    # Find and replace text content
+    text_body = email.get_body("plain")
+    text_content = None
+    has_text = False
+    if text_body:
+        has_text = True
+        assert isinstance(text_body, EmailMessage)
+        text_content = text_body.get_content()
+        new_text_content = _convert_text_content(text_content, to_address)
+        text_body.set_content(new_text_content)
+
+    # Find and replace HTML content
+    html_body = email.get_body("html")
+    level_one_trackers_removed = 0
+    has_html = False
+    if html_body:
+        has_html = True
+        assert isinstance(html_body, EmailMessage)
+        html_content = html_body.get_content()
+        new_content, level_one_trackers_removed = _convert_html_content(
+            html_content,
+            to_address,
+            from_address,
+            language,
+            has_premium,
+            sample_trackers,
+            remove_level_one_trackers,
+        )
+        html_body.set_content(new_content, subtype="html")
+    elif text_content:
+        # Try to use the text content to generate HTML content
+        html_content = urlize_and_linebreaks(text_content)
+        new_content, level_one_trackers_removed = _convert_html_content(
+            html_content,
+            to_address,
+            from_address,
+            language,
+            has_premium,
+            sample_trackers,
+            remove_level_one_trackers,
+        )
+        assert isinstance(text_body, EmailMessage)
+        try:
+            text_body.add_alternative(new_content, subtype="html")
+        except TypeError as e:
+            out = StringIO()
+            _structure(email, fp=out)
+            info_logger.error(
+                "Adding HTML alternate failed",
+                extra={"exception": str(e), "structure": out.getvalue()},
+            )
+
+    return (email, level_one_trackers_removed, has_html, has_text)
+
+
+def _replace_headers(email: EmailMessage, headers: OutgoingHeaders) -> None:
+    """Replace the headers in email with new headers."""
+    # Look for headers to drop
+    to_drop: list[str] = []
+    replacements: set[str] = set(_k.lower() for _k in headers.keys())
+
+    for header, value in email.items():
+        header_lower = header.lower()
+        if (
+            header_lower not in replacements
+            and header_lower != "mime-version"
+            and not header_lower.startswith("content-")
+        ):
+            to_drop.append(header)
+
+    # Drop headers that should be dropped
+    for header in to_drop:
+        del email[header]
+
+    # Replace the requested headers
+    for header, value in headers.items():
+        del email[header]
+        email[header] = value
 
 
 def _convert_html_content(
@@ -825,24 +952,17 @@ def _build_reply_requires_premium_email(
     }
     html_body = render_to_string("emails/reply_requires_premium.html", ctx)
     text_body = render_to_string("emails/reply_requires_premium.txt", ctx)
-    subject_ftl_id = "replies-not-included-in-free-account-header"
-    subject = ftl_bundle.format(subject_ftl_id)
 
-    headers: OutgoingHeaders = {
-        "Subject": subject,
-        "From": get_reply_to_address(),
-        "To": from_address,
-    }
+    # Create the message
+    msg = EmailMessage()
+    msg["Subject"] = ftl_bundle.format("replies-not-included-in-free-account-header")
+    msg["From"] = get_reply_to_address()
+    msg["To"] = from_address
     if message_id:
-        headers["In-Reply-To"] = message_id
-        headers["References"] = message_id
-
-    message_body: MessageBody = {
-        "Html": html_body,
-        "Text": text_body,
-    }
-
-    msg = create_message(headers, message_body)
+        msg["In-Reply-To"] = message_id
+        msg["References"] = message_id
+    msg.set_content(text_body)
+    msg.add_alternative(html_body, subtype="html")
     return msg
 
 
@@ -958,11 +1078,15 @@ def _handle_reply(
     incr_if_enabled("reply_email", 1)
     subject = mail["commonHeaders"].get("subject", "")
     to_address = decrypted_metadata.get("reply-to") or decrypted_metadata.get("from")
+    headers: OutgoingHeaders = {
+        "Subject": subject,
+        "From": outbound_from_address,
+        "To": to_address,
+        "Reply-To": outbound_from_address,
+    }
 
     try:
-        text_content, html_content, attachments, _ = _get_text_html_attachments(
-            message_json
-        )
+        (email_bytes, transport, load_time_s) = _get_email_bytes(message_json)
     except ClientError as e:
         if e.response["Error"].get("Code", "") == "NoSuchKey":
             logger.error("s3_object_does_not_exist", extra=e.response["Error"])
@@ -971,35 +1095,27 @@ def _handle_reply(
         # we are returning a 500 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
-    message_body: MessageBody = {}
-    if html_content:
-        message_body["Html"] = html_content
-    if text_content:
-        message_body["Text"] = text_content
+    email = message_from_bytes(email_bytes, policy=policy.default)
+    assert isinstance(email, EmailMessage)
 
-    headers: OutgoingHeaders = {
-        "Subject": subject,
-        "From": outbound_from_address,
-        "To": to_address,
-        "Reply-To": outbound_from_address,
-    }
+    # Convert to a reply email
+    # TODO: Issue #1747 - Remove wrapper / prefix in replies
+    _replace_headers(email, headers)
+
     try:
-        response = ses_relay_email(
-            outbound_from_address,
-            to_address,
-            headers,
-            message_body,
-            attachments,
-            mail,
-            address,
+        ses_send_raw_email(
+            source_address=outbound_from_address,
+            destination_address=to_address,
+            message=email,
         )
-        reply_record.increment_num_replied()
-        profile = address.user.profile
-        profile.update_abuse_metric(replied=True)
-        return response
     except ClientError as e:
         logger.error("ses_client_error", extra=e.response["Error"])
         return HttpResponse("SES client error", status=400)
+
+    reply_record.increment_num_replied()
+    profile = address.user.profile
+    profile.update_abuse_metric(replied=True)
+    return HttpResponse("Sent email to final recipient.", status=200)
 
 
 def _get_domain_address(local_portion: str, domain_portion: str) -> DomainAddress:
@@ -1307,82 +1423,3 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     if any(data["user_match"] == "missing" for data in complaint_data):
         return HttpResponse("Address does not exist", status=404)
     return HttpResponse("OK", status=200)
-
-
-def _get_text_html_attachments(message_json):
-    if "content" in message_json:
-        # email content in sns message
-        message_content = message_json["content"].encode("utf-8")
-    else:
-        # assume email content in S3
-        bucket, object_key = _get_bucket_and_key_from_s3_json(message_json)
-        message_content = get_message_content_from_s3(bucket, object_key)
-    email_size = len(message_content)
-    histogram_if_enabled("relayed_email.size", email_size)
-    bytes_email_message = message_from_bytes(message_content, policy=policy.default)
-
-    text_content, html_content, attachments = _get_all_contents(bytes_email_message)
-    # TODO: add logs on the entire size of the email and the time it takes to
-    # download/process
-    return text_content, html_content, attachments, email_size
-
-
-def _get_attachment(part):
-    incr_if_enabled("email_with_attachment", 1)
-    fn = part.get_filename()
-    ct = part.get_content_type()
-    payload = part.get_payload(decode=True)
-    payload_size = len(payload)
-    if fn:
-        extension = os.path.splitext(fn)[1]
-    else:
-        extension = mimetypes.guess_extension(ct)
-    tag_type = "attachment"
-    attachment_extension_tag = generate_tag(tag_type, extension)
-    attachment_content_type_tag = generate_tag(tag_type, ct)
-    histogram_if_enabled(
-        "attachment.size",
-        payload_size,
-        [attachment_extension_tag, attachment_content_type_tag],
-    )
-
-    attachment = SpooledTemporaryFile(
-        max_size=150 * 1000, prefix="relay_attachment_"  # 150KB max from SES
-    )
-    attachment.write(payload)
-    return fn, attachment
-
-
-def _get_all_contents(email_message):
-    text_content = None
-    html_content = None
-    attachments = []
-    if email_message.is_multipart():
-        for part in email_message.walk():
-            try:
-                if part.is_attachment():
-                    att_name, att = _get_attachment(part)
-                    attachments.append((att_name, att))
-                    continue
-                if part.get_content_type() == "text/plain":
-                    text_content = part.get_content()
-                if part.get_content_type() == "text/html":
-                    html_content = part.get_content()
-            except KeyError:
-                # log the un-handled content type but don't stop processing
-                logger.error(
-                    "part.get_content()", extra={"type": part.get_content_type()}
-                )
-        histogram_if_enabled("attachment.count_per_email", len(attachments))
-        if text_content is not None and html_content is None:
-            html_content = urlize_and_linebreaks(text_content)
-    else:
-        if email_message.get_content_type() == "text/plain":
-            text_content = email_message.get_content()
-            html_content = urlize_and_linebreaks(email_message.get_content())
-        if email_message.get_content_type() == "text/html":
-            html_content = email_message.get_content()
-
-    # TODO: if html_content is still None, wrap the text_content with our
-    # header and footer HTML and send that as the html_content
-    return text_content, html_content, attachments

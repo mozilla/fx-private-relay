@@ -1,12 +1,5 @@
 """Types for email functions"""
 from typing import Any, Literal
-from io import IOBase
-
-# Relay container for email content
-MessageBody = dict[Literal["Text", "Html"], str]
-
-# Attachment path and data stream
-AttachmentPair = tuple[str, IOBase]
 
 # Headers for outgoing emails
 OutgoingHeaderName = Literal[

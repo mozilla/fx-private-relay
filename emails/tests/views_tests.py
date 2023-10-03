@@ -7,7 +7,6 @@ from typing import cast
 from unittest.mock import patch, Mock
 from uuid import uuid4
 import glob
-import io
 import json
 import os
 import re
@@ -47,7 +46,6 @@ from emails.views import (
     ReplyHeadersNotFound,
     _build_reply_requires_premium_email,
     _get_address,
-    _get_attachment,
     _get_keys_from_headers,
     _record_receipt_verdicts,
     _set_forwarded_first_reply,
@@ -205,7 +203,7 @@ def create_notification_from_email(email_text: str) -> AWS_SNSMessageJSON:
 
 
 def assert_email_equals(
-    output_email: str, name: str, replace_mime_boundaries: bool = True
+    output_email: str, name: str, replace_mime_boundaries: bool = False
 ) -> None:
     """
     Assert the output equals the expected email, after optional replacements.
@@ -337,7 +335,7 @@ class SNSNotificationTest(TestCase):
         assert sender == "replies@default.com"
         assert recipient == "user@example.com"
         content_type = headers.pop("Content-Type")
-        assert content_type.startswith('multipart/mixed; boundary="========')
+        assert content_type.startswith('multipart/alternative; boundary="b1_1tMoOzirX')
         assert headers == {
             "Subject": "localized email header + footer",
             "MIME-Version": "1.0",
@@ -355,15 +353,10 @@ class SNSNotificationTest(TestCase):
 
     def test_single_french_recipient_sns_notification(self) -> None:
         """
-        The email content can contain non-ASCII characters and be base64 encoded.
+        The email content can contain non-ASCII characters.
 
         In this case, the HTML content is wrapped in the Relay header translated
         to French.
-
-        This is a design choice. Relay could convert non-ASCII characters to HTML
-        escaped characters. For example, 'Transféré' could be 'Transf&#233;r&#233;',
-        via `html.encode('ascii', errors='xmlcharrefreplace').decode()`. However,
-        mail clients don't care, only devs looking at "view source".
         """
         self.sa.extra_data = {"locale": "fr, fr-fr, en-us, en"}
         self.sa.save()
@@ -375,7 +368,7 @@ class SNSNotificationTest(TestCase):
         assert sender == "replies@default.com"
         assert recipient == "user@example.com"
         content_type = headers.pop("Content-Type")
-        assert content_type.startswith('multipart/mixed; boundary="========')
+        assert content_type.startswith('multipart/alternative; boundary="b1_1tMo')
         assert headers == {
             "Subject": "localized email header + footer",
             "MIME-Version": "1.0",
@@ -386,7 +379,7 @@ class SNSNotificationTest(TestCase):
         }
         assert_email_equals(email, "single_recipient_fr")
         assert 'Content-Type: text/html; charset="utf-8"' in email
-        assert "Content-Transfer-Encoding: base64" in email
+        assert "Content-Transfer-Encoding: quoted-printable" in email
 
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
@@ -613,7 +606,6 @@ class SNSNotificationTest(TestCase):
         assert self.ra.num_forwarded == 0
         assert self.ra.last_used_at is None
 
-    @pytest.mark.xfail(reason="Issue #691: inline images are discarded")
     def test_inline_image(self) -> None:
         email_text = EMAIL_INCOMING["inline_image"]
         content_id = "Content-ID: <0A0AD2F8-6672-45A8-8248-0AC6C7282970>"
@@ -630,7 +622,7 @@ class SNSNotificationTest(TestCase):
             "To": recipient,
             "Reply-To": sender,
             "Resent-From": "friend@mail.example.com",
-            "MIME-Version": "1.0",
+            "Mime-Version": "1.0 (MailClient 1.1.1)",
             "Content-Type": headers["Content-Type"],
         }
         assert_email_equals(email, "inline_image")
@@ -1332,82 +1324,6 @@ class GetAddressTest(TestCase):
         assert DomainAddress.objects.filter(user=self.user).count() == 2
 
 
-class GetAttachmentTests(TestCase):
-    def setUp(self):
-        # Binary string of 10 chars * 16,000 = 160,000 byte string, longer than
-        # 150k max size of SpooledTemporaryFile, so it is written to disk
-        self.long_data = b"0123456789" * 16_000
-
-    def create_message(self, data, mimetype, filename):
-        """Create an EmailMessage with an attachment."""
-        message = EmailMessage()
-        message["Subject"] = "A Test Message"
-        message["From"] = "test sender <sender@example.com>"
-        message["To"] = "test receiver <receiver@example.com>"
-        message.preamble = "This email has attachments.\n"
-
-        assert isinstance(data, bytes)
-        maintype, subtype = mimetype.split("/", 1)
-        assert maintype
-        assert subtype
-        message.add_attachment(
-            data, maintype=maintype, subtype=subtype, filename=filename
-        )
-        return message
-
-    def get_name_and_stream(self, message):
-        """Get the first attachment's filename and data stream from a message."""
-        for part in message.walk():
-            if part.is_attachment():
-                name, stream = _get_attachment(part)
-                self.addCleanup(stream.close)
-                return name, stream
-        return None, None
-
-    def test_short_attachment(self):
-        """A short attachment is stored in memory"""
-        message = self.create_message(b"A short attachment", "text/plain", "short.txt")
-        name, stream = self.get_name_and_stream(message)
-        assert name == "short.txt"
-        assert isinstance(stream._file, io.BytesIO)
-
-    def test_long_attachment(self):
-        """A long attachment is stored on disk"""
-        message = self.create_message(
-            self.long_data, "application/octet-stream", "long.txt"
-        )
-        name, stream = self.get_name_and_stream(message)
-        assert name == "long.txt"
-        assert isinstance(stream._file, io.BufferedRandom)
-
-    def test_attachment_unicode_filename(self):
-        """A unicode filename can be stored on disk"""
-        filename = "Some Binary data 😀.bin"
-        message = self.create_message(
-            self.long_data, "application/octet-stream", filename
-        )
-        name, stream = self.get_name_and_stream(message)
-        assert name == filename
-        assert isinstance(stream._file, io.BufferedRandom)
-
-    def test_attachment_url_filename(self):
-        """A URL filename can be stored on disk"""
-        filename = "https://example.com/data.bin"
-        message = self.create_message(
-            self.long_data, "application/octet-stream", filename
-        )
-        name, stream = self.get_name_and_stream(message)
-        assert name == filename
-        assert isinstance(stream._file, io.BufferedRandom)
-
-    def test_attachment_no_filename(self):
-        """An attachment without a filename can be stored on disk"""
-        message = self.create_message(self.long_data, "application/octet-stream", None)
-        name, stream = self.get_name_and_stream(message)
-        assert name is None
-        assert isinstance(stream._file, io.BufferedRandom)
-
-
 TEST_AWS_SNS_TOPIC = "arn:aws:sns:us-east-1:111222333:relay"
 TEST_AWS_SNS_TOPIC2 = TEST_AWS_SNS_TOPIC + "-alt"
 
@@ -1725,11 +1641,9 @@ def test_build_reply_requires_premium_email_first_time_includes_forward_text():
     assert msg["From"] == expected_From
     assert msg["To"] == relay_address.full_address
 
-    multipart_payload = msg.get_payload()[0]
-    first_part = multipart_payload.get_payload()[0]
-    second_part = multipart_payload.get_payload()[1]
-    text_content = b64decode(first_part.get_payload()).decode()
-    html_content = b64decode(second_part.get_payload()).decode()
+    text_part, html_part = msg.get_payload()
+    text_content = text_part.get_payload()
+    html_content = html_part.get_payload()
     assert "sent this reply" in text_content
     assert "sent this reply" in html_content
 
@@ -1781,11 +1695,9 @@ def test_build_reply_requires_premium_email_after_forward():
     assert msg["From"] == expected_From
     assert msg["To"] == relay_address.full_address
 
-    multipart_payload = msg.get_payload()[0]
-    first_part = multipart_payload.get_payload()[0]
-    second_part = multipart_payload.get_payload()[1]
-    text_content = b64decode(first_part.get_payload()).decode()
-    html_content = b64decode(second_part.get_payload()).decode()
+    text_part, html_part = msg.get_payload()
+    text_content = text_part.get_payload()
+    html_content = html_part.get_payload()
     assert "Your reply was not sent" in text_content
     assert "Your reply was not sent" in html_content
 

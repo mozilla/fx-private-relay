@@ -3,9 +3,6 @@ import contextlib
 from email.errors import InvalidHeaderDefect
 from email.headerregistry import Address
 from email.message import EmailMessage
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.application import MIMEApplication
 from email.utils import formataddr, parseaddr
 from functools import cache
 from typing import cast, Any, Callable, TypeVar
@@ -29,7 +26,6 @@ from urllib.parse import quote_plus, urlparse
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import Group, User
-from django.http import HttpResponse
 from django.template.defaultfilters import linebreaksbr, urlize
 
 from allauth.socialaccount.models import SocialAccount
@@ -44,7 +40,7 @@ from .models import (
     Reply,
     get_domains_from_settings,
 )
-from .types import AttachmentPair, AWS_MailJSON, MessageBody, OutgoingHeaders
+from .types import AWS_MailJSON
 
 
 logger = logging.getLogger("events")
@@ -221,69 +217,6 @@ def ses_send_raw_email(
         raise
 
 
-def create_message(
-    headers: OutgoingHeaders,
-    message_body: MessageBody,
-    attachments: list[AttachmentPair] | None = None,
-) -> EmailMessage:
-    msg_with_headers = _start_message_with_headers(headers)
-    msg_with_body = _add_body_to_message(msg_with_headers, message_body)
-    if not attachments:
-        return msg_with_body
-    msg_with_attachments = _add_attachments_to_message(msg_with_body, attachments)
-    return msg_with_attachments
-
-
-def _start_message_with_headers(headers: OutgoingHeaders) -> EmailMessage:
-    msg = EmailMessage()
-
-    # Add headers
-    for name, value in headers.items():
-        msg[name] = value
-
-    if "MIME-Version" not in msg:
-        msg["MIME-Version"] = "1.0"
-    msg.make_mixed()
-    return msg
-
-
-def _add_body_to_message(msg: EmailMessage, message_body: MessageBody) -> EmailMessage:
-    # Create a multipart/alternative child container.
-    msg_body = MIMEMultipart("alternative")
-
-    if "Text" in message_body:
-        body_text = message_body["Text"]
-        textpart = MIMEText(body_text, "plain")
-        msg_body.attach(textpart)
-    if "Html" in message_body:
-        body_html = message_body["Html"]
-        htmlpart = MIMEText(body_html, "html")
-        msg_body.attach(htmlpart)
-
-    # Attach the multipart/alternative child container to the multipart/mixed
-    # parent container.
-    msg.attach(msg_body)
-    return msg
-
-
-def _add_attachments_to_message(
-    msg: EmailMessage, attachments: list[AttachmentPair]
-) -> EmailMessage:
-    # attach attachments
-    for actual_att_name, attachment in attachments:
-        # Define the attachment part and encode it using MIMEApplication.
-        attachment.seek(0)
-        att = MIMEApplication(attachment.read())
-
-        # Add a header to tell the email client to treat this
-        # part as an attachment, and to give the attachment a name.
-        att.add_header("Content-Disposition", "attachment", filename=actual_att_name)
-        # Add the attachment to the parent container.
-        msg.attach(att)
-        attachment.close()
-    return msg
-
-
 def _store_reply_record(
     mail: AWS_MailJSON, message_id: str, address: RelayAddress | DomainAddress
 ) -> AWS_MailJSON:
@@ -306,27 +239,6 @@ def _store_reply_record(
         reply_create_args["relay_address"] = address
     Reply.objects.create(**reply_create_args)
     return mail
-
-
-def ses_relay_email(
-    source_address: str,
-    destination_address: str,
-    headers: OutgoingHeaders,
-    message_body: MessageBody,
-    attachments: list[AttachmentPair],
-    mail: AWS_MailJSON,
-    address: RelayAddress | DomainAddress,
-) -> HttpResponse:
-    message = create_message(headers, message_body, attachments)
-    try:
-        ses_response = ses_send_raw_email(source_address, destination_address, message)
-    except ClientError:
-        # 503 service unavailable reponse to SNS so it can retry
-        return HttpResponse("SES client error on Raw Email", status=503)
-
-    message_id = ses_response["MessageId"]
-    _store_reply_record(mail, message_id, address)
-    return HttpResponse("Sent email to final recipient.", status=200)
 
 
 def urlize_and_linebreaks(text, autoescape=True):
