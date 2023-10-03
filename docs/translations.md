@@ -53,17 +53,17 @@ plans.
 A new or logged-out user sees the sign-in buttons in the page header. The button text is
 "Sign Up" and "Sign In" in the English localization. The text will be different if the
 user's preferred language is not English. When a user selects a sign-in button, they go
-to the Firefox Accounts website. This website is also in their preferred language. If
-they enter a new email, they go through account creation. Firefox Accounts stores their
-real email and preferred language on their new profile.
+to the Accounts website. This website is also in their preferred language. If they enter
+a new email, they go through account creation. Their new account profile stores their
+real email and preferred language.
 
 The user generates a Relay email mask, which they use instead of their real email on
 other services. When that service sends an email to the Relay email mask, Relay forwards
 the email to the user's real email. The forwarded email has header and footer sections
 surrounding the original content. These sections appear in the user's preferred language
-from their Firefox Account.
+from their Mozilla account.
 
-When a user selects a premium plan, they go to the Firefox Subscriptions website. Most
+When a user selects a premium plan, they go to the Subscription Platform website. Most
 of the content appears in their preferred language. The product details are in the
 primary supported language for their region. This may be different from the user's
 preferred language. The price is in their region's currency.
@@ -383,10 +383,10 @@ flag, users can view new content and test buying a subscription.
 > [!NOTE]
 > Testing subscriptions in a new region requires setting the preferred language.
 > Change the browser language preference, `intl.accept_languagues` in `about:config`.
-> Use a Firefox Account created with that language preference.
+> Use a Mozilla account created with that language preference.
 >
-> Do not use a language-switcher extension. Many extensions are not allowed to run on Firefox
-> Accounts. Inconsistent language preferences may invalidate testing. See
+> Do not use a language-switcher extension. Many extensions are not allowed to run on the
+> Accounts website. Inconsistent language preferences may invalidate testing. See
 > "[Identifying The User's Preferred Languages](#identifying-the-users-preferred-languages)"
 > for more information.
 
@@ -455,9 +455,8 @@ generic English.
 
 Some browser extensions allow changing `Accept-Language`. This can be useful for testing
 translations on the Relay front end. Extensions are [disabled on some websites][] due to
-security concerns. These websites include Firefox Accounts and the Subscription
-Platform. Do not use language-switcher extensions when testing user flows for buying
-subscriptions.
+security concerns. These websites include Accounts and the Subscription Platform. Do not
+use language-switcher extensions when testing user flows for buying subscriptions.
 
 [`Accept-Language` header]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language
 [intl.properties]: https://pontoon.mozilla.org/es-ES/firefox/toolkit/chrome/global/intl.properties/?string=81017
@@ -468,12 +467,12 @@ subscriptions.
 Relay may not support the user's top preferred language, but picks the best match.
 Different contexts use different implementations:
 
-| Context            | Implementation                          | `Accept-Language` source      | Content Scope  |
-| :----------------- | :-------------------------------------- | :---------------------------- | :------------- |
-| API and Web Server | [Django middleware][]                   | Web Browser                   | Error messages |
-| Background Tasks   | [Django's parse_accept_lang_header()][] | Firefox Accounts (at sign-up) | Emails         |
-| Website            | [@fluent/langneg][]                     | Web Browser                   | Relay Website  |
-| Add-On             | [i18n API][]                            | Web Browser                   | Add-on         |
+| Context            | Implementation                          | `Accept-Language` source     | Content Scope  |
+| :----------------- | :-------------------------------------- | :--------------------------- | :------------- |
+| API and Web Server | [Django middleware][]                   | Web Browser                  | Error messages |
+| Background Tasks   | [Django's parse_accept_lang_header()][] | Mozilla account (at sign-up) | Emails         |
+| Website            | [@fluent/langneg][]                     | Web Browser                  | Relay Website  |
+| Add-On             | [i18n API][]                            | Web Browser                  | Add-on         |
 
 Each implementation parses the `Accept-Language` header into languages. They start at
 the first entry and continue until there is a match to a supported language. If there
@@ -507,7 +506,7 @@ supported languages as of September 2023, include:
 
 - [Firefox Relay Website][pontoon-relay-website] (26 languages)
 - [Firefox Relay Add-on][pontoon-relay-add-on] (26 languages)
-- [Firefox Accounts][pontoon-fxa] (78 languages)
+- [Accounts][pontoon-accounts] (78 languages)
 - [Mozilla.org][pontoon-mozilla-org] (98 languages)
 - [SUMO][pontoon-sumo] for [support.mozilla.org][support-for-relay] (87 languages)
 - [AMO Frontend][pontoon-amo-frontend] for [addons.mozilla.org][addons-relay-page] (64 languages)
@@ -529,8 +528,8 @@ Relay staff may identify critical strings in other projects for integration effo
 [Spanish spoken in Spain]: https://pontoon.mozilla.org/es-ES/
 [Volunteer translation teams]: https://pontoon.mozilla.org/teams/
 [addons-relay-page]: https://addons.mozilla.org/en-US/firefox/addon/private-relay/
+[pontoon-accounts]: https://pontoon.mozilla.org/projects/firefox-accounts/
 [pontoon-amo-frontend]: https://pontoon.mozilla.org/projects/amo-frontend/
-[pontoon-fxa]: https://pontoon.mozilla.org/projects/firefox-accounts/
 [pontoon-mozilla-org]: https://pontoon.mozilla.org/projects/mozillaorg/
 [pontoon-relay-add-on]: https://pontoon.mozilla.org/projects/firefox-relay-add-on/
 [pontoon-relay-website]: https://pontoon.mozilla.org/projects/firefox-relay-website/
@@ -546,7 +545,7 @@ relevant repositories include:
 
 - [mozilla-l10n/fx-private-relay-l10n][] for the [Firefox Relay Website][]
 - [mozilla-l10n/fx-private-relay-add-on-l10n][] for the [Firefox Relay Add-on][]
-- [mozilla/fxa-content-server-l10n][] for [Firefox Accounts][],
+- [mozilla/fxa-content-server-l10n][] for [Accounts][],
   including [subscription pages][]
 - [mozilla-l10n/www-l10n][] for [mozilla.org][]
 - [mozilla-l10n/sumo-l10n][] for [support.mozilla.org][]
@@ -575,9 +574,9 @@ The [Django back end][] uses select Fluent files. The front end uses translation
 embedded into the JavaScript during Docker image creation.
 
 ["en" bundle]: https://github.com/mozilla-l10n/fx-private-relay-l10n/tree/main/en
+[Accounts]: https://accounts.firefox.com/
 [Django back end]: https://github.com/mozilla/fx-private-relay/blob/main/privaterelay/ftl_bundles.py
 [FAQ page]: https://relay.firefox.com/faq/
-[Firefox Accounts]: https://accounts.firefox.com/
 [Firefox Relay Add-on]: https://addons.mozilla.org/firefox/addon/private-relay/
 [Firefox Relay Website]: https://relay.firefox.com/
 [Fluent format]: https://projectfluent.org/
