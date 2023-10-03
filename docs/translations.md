@@ -327,8 +327,14 @@ You can then visit [mozilla-l10n/fx-private-relay-l10n][] to create the pull req
 You can make changes in the local submodule branch for any code review feedback.
 
 After approval, the Localization team merges the new strings. The next nightly
-translation update brings the new strings into Relay's `main` branch. You should then
-create a pull request to remove the redundant strings from the pending files.
+translation update brings the new strings into Relay's `main` branch.
+
+At this point, the pending translations have redundant strings. The Fluent code may log
+warnings about these strings. The duplicate strings may confuse Relay engineers. Create
+a new Relay pull request to remove the migrated strings. The pending translations for
+the front end are in [frontend/pendingTranslations.ftl][]. The same for the back end are
+in [privaterelay/pending_locales/en/pending.ftl][]. A change can include removing
+strings from both files.
 
 [mozilla-l10n/fx-private-relay-l10n]: https://github.com/mozilla-l10n/fx-private-relay-l10n
 
