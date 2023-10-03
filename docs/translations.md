@@ -521,8 +521,11 @@ supported languages as of September 2023, include:
 - [SUMO][pontoon-sumo] for [support.mozilla.org][support-for-relay] (87 languages)
 - [AMO Frontend][pontoon-amo-frontend] for [addons.mozilla.org][addons-relay-page] (64 languages)
 
-Relay staff can check translation status on the Pontoon project sites. They may use
-the completeness of translated strings to decide to turn on a feature for a region.
+Relay staff can check translation status on the Pontoon project sites. They may use the
+completeness of translated strings to decide to turn on a feature for a region. They
+may focus on completeness of the Relay-specific project. These are the projects for the
+[Firefox Relay Website][pontoon-relay] and the [Add-on][pontoon-relay-add-on].
+Relay staff may identify critical strings in other projects for integration efforts.
 
 [Catalan spoken in the Valencian Community of Spain]: https://pontoon.mozilla.org/ca-valencia/
 [French]: https://pontoon.mozilla.org/fr/
