@@ -710,10 +710,11 @@ Relay developers will see these terms as they work in this topic:
   without per-locale code changes. This is often abbreviated **i18n**, to stand for the
   starting letter "i", the next 18 letters, and the ending letter "n". This abbreviation
   also avoids the spelling differences between American and British English.
-- **[Localization][]**: Adapting software to a specific locale. This includes translating
-  text and using locale-specific formats. This is often abbreviated **L10n**, in a
-  similar way to i18n. A capital "L" avoids confusing a lowercase "l" with an
-  uppercase "I".
+- **[Language][]**: A spoken or written system of communication. English is a broad
+  language category. A language can be specific to a region, such as German spoken in
+  Switzerland. In localization, the written system can be important as well. For
+  example, Chinese can vary between mainland China and other regions. It can also
+  use Simplified or Traditional Chinese script when written.
 - **[Locale][]**: Shared cultural conventions that appear in a user interface. This
   can include language, letters, and currencies. It can also include formats for prices,
   numbers, dates, and times. For example, American English can be a locale. This locale
@@ -722,15 +723,14 @@ Relay developers will see these terms as they work in this topic:
   number in a short date is the month ("9/12/2023" for September 12, 2023).
   English-speaking users in other regions share some of these conventions. Other
   conventions, like currency and date formats, will vary.
+- **[Localization][]**: Adapting software to a specific locale. This includes translating
+  text and using locale-specific formats. This is often abbreviated **L10n**, in a
+  similar way to i18n. A capital "L" avoids confusing a lowercase "l" with an
+  uppercase "I".
 - **[Region][]**: An [administrative division][] that can be the basis for a
   locale. Mozilla prefers to use "Region" instead of "**Country**" when talking about
   localization. A region can include areas within a country, as well as areas that
   span countries.
-- **[Language][]**: A spoken or written system of communication. English is a broad
-  language category. A language can be specific to a region, such as German spoken in
-  Switzerland. In localization, the written system can be important as well. For
-  example, Chinese can vary between mainland China and other regions. It can also
-  use Simplified or Traditional Chinese script when written.
 - **[Translation][]**: The process of adapting language strings or patterns to a
   second language. This is one aspect of Localization. At Mozilla, American English is
   the source language for interface text.
