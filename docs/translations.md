@@ -675,8 +675,8 @@ user's region.
 The subscription platform (version 2) uses [Stripe][]. A [Stripe product][] represents
 each Relay plan, such as the premium email service. A [Stripe price][] represents how a
 user will pay. The price has an associated product, a currency, tax details, and a term.
-Many Relay plans have monthly and yearly subscription terms. The VPN bundle has yearly
-terms.
+Many Relay plans have monthly and yearly subscription terms. The VPN bundle only has a
+yearly subscription term.
 
 The subscription platform associates a price with a region. Product reports may use this
 to segment purchasers by region.
