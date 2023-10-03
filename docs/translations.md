@@ -514,7 +514,7 @@ reach out to the language team leads to ask for expansion.
 Language support varies among [Mozilla projects][]. Some relevant projects, and the
 supported languages as of September 2023, include:
 
-- [Firefox Relay Website][pontoon-relay] (26 languages)
+- [Firefox Relay Website][pontoon-relay-website] (26 languages)
 - [Firefox Relay Add-on][pontoon-relay-add-on] (26 languages)
 - [Firefox Accounts][pontoon-fxa] (78 languages)
 - [Mozilla.org][pontoon-mozilla-org] (98 languages)
@@ -524,7 +524,7 @@ supported languages as of September 2023, include:
 Relay staff can check translation status on the Pontoon project sites. They may use the
 completeness of translated strings to decide to turn on a feature for a region. They
 may focus on completeness of the Relay-specific project. These are the projects for the
-[Firefox Relay Website][pontoon-relay] and the [Add-on][pontoon-relay-add-on].
+[Firefox Relay Website][pontoon-relay-website] and the [Add-on][pontoon-relay-add-on].
 Relay staff may identify critical strings in other projects for integration efforts.
 
 [Catalan spoken in the Valencian Community of Spain]: https://pontoon.mozilla.org/ca-valencia/
@@ -542,7 +542,7 @@ Relay staff may identify critical strings in other projects for integration effo
 [pontoon-fxa]: https://pontoon.mozilla.org/projects/firefox-accounts/
 [pontoon-mozilla-org]: https://pontoon.mozilla.org/projects/mozillaorg/
 [pontoon-relay-add-on]: https://pontoon.mozilla.org/projects/firefox-relay-add-on/
-[pontoon-relay]: https://pontoon.mozilla.org/projects/firefox-relay-website/
+[pontoon-relay-website]: https://pontoon.mozilla.org/projects/firefox-relay-website/
 [pontoon-sumo]: https://pontoon.mozilla.org/projects/sumo/
 [support-for-relay]: https://support.mozilla.org/en-US/products/relay
 
