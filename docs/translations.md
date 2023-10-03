@@ -28,6 +28,7 @@ includes Mozilla- and Relay-specific notes.
   - [Managing Languages and Translations](#managing-languages-and-translations)
   - [Shipping Translations](#shipping-translations)
   - [Adding New Translations](#adding-new-translations)
+  - [Relay Assumes Left-To-Right Script](#relay-assumes-left-to-right-script)
 - [The Technical Details of Region Selection](#the-technical-details-of-region-selection)
   - [Identifying the User's Region](#identifying-the-users-region)
   - [Identifying Available Plans and Prices](#identifying-available-plans-and-prices)
@@ -432,17 +433,6 @@ issues in translated strings with manual testing.
 Relay supports over 20 languages. This section details the technologies used to deploy
 those translations.
 
-> [!WARNING]
-> None of Relay's supported languages use [right-to-left scripts][].
-> [Hebrew][], [Arabic][], and [Persian][] are the most widespread right-to-left
-> modern writing systems. The Relay engineers will spend significant effort to
-> support the first right-to-left script.
-
-[Arabic]: https://en.wikipedia.org/wiki/Arabic_script
-[Hebrew]: https://en.wikipedia.org/wiki/Hebrew_alphabet
-[Persian]: https://en.wikipedia.org/wiki/Persian_alphabet
-[right-to-left scripts]: https://en.wikipedia.org/wiki/Right-to-left_script
-
 ### Identifying the User's Preferred Languages
 
 The browser communicates the user's preferred languages with each web request. The
@@ -632,6 +622,41 @@ high-level steps are:
 
 The section [Submitting Pending Translations](#submitting-pending-translations) details the
 development process.
+
+### Relay Assumes Left-To-Right Script
+
+All Relay-supported languages use a left-to-right (LTR) script. For example, the
+default Relay language is English, the same language as this document. English uses the
+Latin script, written left-to-right.
+
+> [!WARNING]
+> None of Relay's supported languages use [right-to-left scripts][]. For other Mozilla
+> projects, it was a challenge to support the first right-to-left (RTL) language.
+
+To add the first RTL script, developers must educate themselves on [internationalization
+techniques][]. Designers will learn RTL conventions. Developers examine every webpage,
+email, and UI element. The content should work regardless of text direction. Buttons
+should flow with the text direction. Some existing translation strings will change and
+need re-translation. The new language translation team will want to review strings in
+the context of the website.
+
+The first right-to-left language is the hardest. The next languages are as easy to add
+as other left-to-right languages.
+
+[Hebrew][], [Arabic][], and [Persian][] are the most widespread right-to-left modern
+writing systems. The support website has localized content in [Hebrew][support-hebrew],
+[Arabic][support-arabic], and [Persian][support-persian]. These pages show right-to-left
+layouts. Compare them to a left-to-right layout such as the [French localization][].
+
+[Arabic]: https://en.wikipedia.org/wiki/Arabic_script
+[Hebrew]: https://en.wikipedia.org/wiki/Hebrew_alphabet
+[Persian]: https://en.wikipedia.org/wiki/Persian_alphabet
+[right-to-left scripts]: https://en.wikipedia.org/wiki/Right-to-left_script
+[internationalization techniques]: https://www.w3.org/International/techniques/authoring-html
+[support-hebrew]: https://support.mozilla.org/he/
+[support-arabic]: https://support.mozilla.org/ar/
+[support-persian]: https://support.mozilla.org/fa/
+[French localization]: https://support.mozilla.org/fr/
 
 ## The Technical Details of Region Selection
 
