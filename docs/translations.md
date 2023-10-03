@@ -672,16 +672,16 @@ The user's region determines what premium plans are available. The API sends thi
 in [/api/v1/runtime_data][]. The front end adjusts content based on availability in the
 user's region.
 
-The subscription platform (version 2) uses [Stripe][]. A [Stripe product][] represents
+The [Subscription Platform][] (version 2) uses [Stripe][]. A [Stripe product][] represents
 each Relay plan, such as the premium email service. A [Stripe price][] represents how a
 user will pay. The price has an associated product, a currency, tax details, and a term.
 Many Relay plans have monthly and yearly subscription terms. The VPN bundle only has a
 yearly subscription term.
 
-The subscription platform associates a price with a region. Product reports may use this
+The Subscription Platform associates a price with a region. Product reports may use this
 to segment purchasers by region.
 
-The subscription platform associates a price with a language. On the subscription page,
+The Subscription Platform associates a price with a language. On the subscription page,
 product details appear in the price language. The rest of the subscription page appears
 in the user's preferred language. For most users, the price language and preferred
 language should be the same.
@@ -701,6 +701,7 @@ these prices. Other regions get the production prices.
 [/api/v1/runtime_data]: https://relay.firefox.com/api/v1/runtime_data
 [Stripe product]: https://stripe.com/docs/api/products
 [Stripe test mode]: https://stripe.com/docs/test-mode
+[Subscription Platform]: https://mozilla.github.io/ecosystem-platform/relying-parties/reference/sub-plat-features
 
 ## Terms
 
