@@ -27,6 +27,7 @@ includes Mozilla- and Relay-specific notes.
   - [Picking the Language](#picking-the-language)
   - [Managing Languages and Translations](#managing-languages-and-translations)
   - [Shipping Translations](#shipping-translations)
+  - [Adding New Translations](#adding-new-translations)
 - [The Technical Details of Region Selection](#the-technical-details-of-region-selection)
   - [Identifying the User's Region](#identifying-the-users-region)
   - [Identifying Available Plans and Prices](#identifying-available-plans-and-prices)
@@ -583,19 +584,6 @@ Pontoon. Relay's continuous testing creates Docker images that include the trans
 The [Django back end][] uses select Fluent files. The front end uses translations
 embedded into the JavaScript during Docker image creation.
 
-Relay developers create new translatable strings when updating the service. The
-in-progress strings are in the Relay repository. The source strings change often during
-development. The front end uses [frontend/pendingTranslations.ftl][]. The back end code
-uses [privaterelay/pending_locales/en/pending.ftl][].
-
-New approved strings go through several steps to get translated. The developers open a
-pull request to the translation repository. The Localization team reviews the new
-strings. When the Localization team merges the changes, Pontoon imports the new strings.
-The language teams translate the strings. Pontoon exports them to the translation
-repository. The nightly action updates the submodule to pull in the latest translations.
-The release Docker image includes the new translations. Once released, the users see the
-content in their language.
-
 ["en" bundle]: https://github.com/mozilla-l10n/fx-private-relay-l10n/tree/main/en
 [Django back end]: https://github.com/mozilla/fx-private-relay/blob/main/privaterelay/ftl_bundles.py
 [FAQ page]: https://relay.firefox.com/faq/
@@ -617,6 +605,33 @@ content in their language.
 [privaterelay/locales]: https://github.com/mozilla/fx-private-relay/tree/main/privaterelay
 [subscription pages]: https://subscriptions.firefox.com/subscriptions
 [support.mozilla.org]: https://support.mozilla.org/
+
+### Adding New Translations
+
+Many teams and systems work together to get new translations to Relay users. The
+high-level steps are:
+
+1. A Relay designer and copy-editor create designs with new strings.
+2. A Relay developer adds pending strings to the Relay repository.
+3. Relay staff refine the strings during feature development.
+4. A Relay developer submits the strings to the translation repository.
+5. The Localization team reviews the strings.
+6. The Localization team merges the accepted strings into the translation repository.
+7. Pontoon imports the new strings.
+8. Translators translate the new strings.
+9. Pontoon exports translations to the translation repository.
+10. The nightly GitHub action updates the Relay repository with the latest translations.
+11. The continuous testing process builds a release Docker image with the
+    translations.
+12. The continuous integration process releases the Docker image to the stage environment.
+13. The Quality Assurance (QA) team checks the stage environment. They verify the
+    features and translations.
+14. A Service Reliability Engineer (SRE) releases the Docker image to the production
+    environment. Users see the new content in their language.
+15. A Relay developer removes the pending strings from the Relay repository.
+
+The section [Submitting Pending Translations](#submitting-pending-translations) details the
+development process.
 
 ## The Technical Details of Region Selection
 
