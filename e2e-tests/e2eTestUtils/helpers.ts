@@ -26,7 +26,6 @@ export const getVerificationCode = async (testEmail: string, page: Page, attempt
   );
   const resJson = await res.json();
   if (resJson.length) {
-    console.log('something returned: ', resJson);
     const verificationCode = resJson[0].headers['x-verify-short-code']
     return verificationCode;
   }
@@ -112,10 +111,7 @@ export const defaultScreenshotOpts: Partial<DefaultScreenshotOpts> = {
   maxDiffPixelRatio: 0.04
 };
 
-export const EXPECT_TIMEOUT_MS = 2000
-
 export const checkAuthState = async (page: Page) => {
-  console.log('should come through here, line');
   try {
     const authStateTitleString = await page.locator('h1').first()?.textContent({ timeout: 4000 })
     const checkIfTitleContains = (potentialTitle: string) => {
