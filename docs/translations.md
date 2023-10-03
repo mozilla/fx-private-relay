@@ -642,8 +642,9 @@ technologies used to distinguish users by region.
 
 ### Identifying the User's Region
 
-The stage and production deployments use similar load balancers. These set a
-`X-Client-Region` header based on the visitor's IP address. There is no way for a user to
+The stage and production deployments use similar load balancers. The Service Reliability
+Engineers (SREs) configured these to add an `X-Client-Region` header. The header value
+is the visitor's region, based on their IP address. There is no way for a user to
 override this region selection. A tester can use a [VPN][] to change their IP address
 and their detected region.
 
