@@ -1,6 +1,7 @@
 from base64 import b64decode
 from copy import deepcopy
 from datetime import datetime, timedelta, timezone
+from textwrap import dedent
 from email import message_from_string, policy
 from email.message import EmailMessage
 from typing import cast
@@ -710,6 +711,78 @@ class SNSNotificationTest(TestCase):
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at
         assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
+
+    @patch("emails.views.info_logger")
+    def test_invalid_from_commas(self, mock_logger) -> None:
+        """
+        A From: header with commas in an unquoted display name breaks forwarding.
+
+        AWS parses these headers as a single email, Python as a list of emails.
+        One of the root causes of MPP-3407.
+        """
+        email_text = dedent(
+            """\
+        Subject: Re: Meeting of the Union
+        From: Norton I., Emperor of the United States <norton@sf.us.example.com>
+        To: ebsbdsan7@test.com
+        Date: Sat, 17 Sep 1859 11:33:12 -0700
+        Content-Type: text/plain; charset="utf-8"
+
+        The meeting will be on February 1st at the Musical Hall. Come early, plan
+        for the entire day. - Norton I, Emperor of the United States
+        """
+        )
+        test_sns_notification = create_notification_from_email(email_text)
+
+        # Python parses differently than AWS
+        msg = json.loads(test_sns_notification["Message"])
+        mail = msg["mail"]
+        assert mail["commonHeaders"]["from"] == [
+            '"Norton I."',
+            "Emperor of the United States <norton@sf.us.example.com>",
+        ]
+        assert mail["source"] == '"Norton I."'
+        assert msg
+        from_entry = None
+        for entry in mail["headers"]:
+            if entry["name"] == "From":
+                from_entry = entry
+                break
+        assert from_entry
+        assert from_entry["value"] == (
+            '"Norton I.", Emperor of the United States <norton@sf.us.example.com>'
+        )
+
+        # Set to AWS parsing
+        aws_from = "Norton I., Emperor of the United States <norton@sf.us.example.com>"
+        mail["commonHeaders"]["from"] = [aws_from]
+        mail["source"] = "norton@sf.us.example.com"
+        from_entry["value"] = aws_from
+        test_sns_notification["Message"] = json.dumps(msg)
+
+        result = _sns_notification(test_sns_notification)
+        assert result.status_code == 503
+        self.mock_send_raw_email.assert_not_called()
+        mock_logger.error.assert_called_once_with(
+            "generate_from_header",
+            extra={
+                "from_address": "Norton",
+                "source": "norton@sf.us.example.com",
+                "common_headers_from": [
+                    "Norton I., Emperor of the United States "
+                    "<norton@sf.us.example.com>"
+                ],
+                "headers_from": [
+                    {
+                        "name": "From",
+                        "value": (
+                            "Norton I., Emperor of the United States "
+                            "<norton@sf.us.example.com>"
+                        ),
+                    }
+                ],
+            },
+        )
 
 
 class BounceHandlingTest(TestCase):
