@@ -1,5 +1,6 @@
 import json
 import logging
+from django.urls.exceptions import NoReverseMatch
 import requests
 from typing import Mapping, Optional
 
@@ -59,6 +60,7 @@ from ..serializers import (
 
 from privaterelay.ftl_bundles import main as ftl_bundle
 
+logger = logging.getLogger("events")
 info_logger = logging.getLogger("eventsinfo")
 FXA_PROFILE_URL = (
     f"{settings.SOCIALACCOUNT_PROVIDERS['fxa']['PROFILE_ENDPOINT']}/profile"
@@ -234,12 +236,27 @@ def terms_accepted_user(request):
         # create new SocialAccount, User, and Profile for the new Relay user from Firefox
         # Since this is a Resource Provider/Server flow and are NOT a Relying Party (RP) of FXA
         # No social token information is stored (no Social Token object created).
-        complete_social_login(request, social_login)
-        # complete_social_login writes ['account_verified_email', 'user_created', '_auth_user_id', '_auth_user_backend', '_auth_user_hash']
-        # on request.session which sets the cookie because complete_social_login does the "login"
-        # The user did not actually log in, logout to clear the session
-        if request.user.is_authenticated:
-            get_account_adapter(request).logout(request)
+        try:
+            complete_social_login(request, social_login)
+            # complete_social_login writes ['account_verified_email', 'user_created', '_auth_user_id', '_auth_user_backend', '_auth_user_hash']
+            # on request.session which sets the cookie because complete_social_login does the "login"
+            # The user did not actually log in, logout to clear the session
+            if request.user.is_authenticated:
+                get_account_adapter(request).logout(request)
+        except NoReverseMatch as e:
+            # TODO: use this logging to fix the underlying issue
+            # https://mozilla-hub.atlassian.net/browse/MPP-3473
+            if "socialaccount_signup" in e.args[0]:
+                logger.error(
+                    "socialaccount_signup_error",
+                    extra={
+                        "exception": str(e),
+                        "fxa_uid": fxa_uid,
+                        "social_login_state": social_login.state,
+                    },
+                )
+                return response.Response(status=500)
+            raise e
         sa = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
         # Indicate profile was created from the resource flow
         profile = sa.user.profile
