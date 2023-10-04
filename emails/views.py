@@ -480,7 +480,18 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         return HttpResponse("Address does not exist", status=404)
 
     _record_receipt_verdicts(receipt, "relay_recipient")
-    from_address = parse_email_header(common_headers["from"][0])[0][1]
+    from_addresses = parse_email_header(common_headers["from"][0])
+    if not from_addresses:
+        info_logger.error(
+            "_handle_received: no from address",
+            extra={
+                "source": mail["source"],
+                "common_headers_from": common_headers["from"],
+            },
+        )
+        return HttpResponse("Unable to parse From address", status=400)
+    from_address = from_addresses[0][1]
+
     try:
         [to_local_portion, to_domain_portion] = to_address.split("@")
     except ValueError:

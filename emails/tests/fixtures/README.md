@@ -37,10 +37,12 @@ incoming email. Their names all end in `_email_sns_body.json`.
 These fixtures were created outside of an SNS notification, such as exporting from a
 mail client. They are stored in the [Internet Message Format][] (IMF).
 
-- `emperor_norton_incoming.email` - The From: address contains an unquoted display name
+- `emperor_norton_incoming.email` - The `From:` address contains an unquoted display name
   with a comma. AWS parses it as one email, Python as two emails, the first invalid.
 - `inline_image_incoming.email` - Contains an inline image, referenced in the HTML by
   content ID
+- `nested_brackets_incoming.email` - The `From:` address is invalid, contains two levels
+  of nested `<>` brackets.
 - `plain_text_incoming.email` - A simple email with only plain text content
 - `russian_spam_incoming.email` - Contains UTF-8 encoded headers, Base64-encoded content
   - _TODO:_ Replace this with a legitimate email with UTF-8 encoded headers and

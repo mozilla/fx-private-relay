@@ -751,6 +751,42 @@ class SNSNotificationTest(TestCase):
         _, _, _, mail = self.get_details_from_mock_send_raw_email()
         assert_email_equals(mail, "emperor_norton", replace_mime_boundaries=True)
 
+    @patch("emails.views.info_logger")
+    def test_from_with_nested_brackets_is_error(self, mock_logger) -> None:
+        email_text = EMAIL_INCOMING["nested_brackets_service"]
+        test_sns_notification = create_notification_from_email(email_text)
+
+        # Python parses differently than AWS
+        msg = json.loads(test_sns_notification["Message"])
+        mail = msg["mail"]
+        assert mail["commonHeaders"]["from"] == ['The Service <"The Service">']
+        assert mail["source"] == '"The Service"'
+        from_entry = None
+        for entry in mail["headers"]:
+            if entry["name"] == "From":
+                from_entry = entry
+                break
+        assert from_entry
+        assert from_entry["value"] == 'The Service <"The Service">'
+
+        # Set to AWS parsing
+        aws_from = "The Service <The Service <hello@theservice.example.com>>"
+        mail["commonHeaders"]["from"] = [aws_from]
+        mail["source"] = "theservice.example.com"
+        from_entry["value"] = aws_from
+        test_sns_notification["Message"] = json.dumps(msg)
+
+        result = _sns_notification(test_sns_notification)
+        assert result.status_code == 400
+        self.mock_send_raw_email.assert_not_called()
+        mock_logger.error.assert_called_once_with(
+            "_handle_received: no from address",
+            extra={
+                "source": "theservice.example.com",
+                "common_headers_from": [aws_from],
+            },
+        )
+
 
 class BounceHandlingTest(TestCase):
     def setUp(self):
