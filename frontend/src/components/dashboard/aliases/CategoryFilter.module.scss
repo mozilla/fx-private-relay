@@ -22,7 +22,7 @@
   background-color: $color-white;
   border-radius: $border-radius-md;
   font-family: $font-stack-firefox;
-
+  overflow-y: auto;
   .filter-form {
     display: flex;
     flex-direction: column;
