@@ -161,7 +161,7 @@ def parse_email_header(header_value: str) -> list[tuple[str, str]]:
     for address in address_list.addresses:
         for mailbox in address.all_mailboxes:
             addr_spec = mailbox.addr_spec
-            if addr_spec and "@" in addr_spec:
+            if addr_spec and addr_spec.count("@") == 1:
                 pairs.append((mailbox.display_name or "", addr_spec))
     return pairs
 
