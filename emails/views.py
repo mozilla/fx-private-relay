@@ -67,6 +67,7 @@ from .utils import (
     ses_send_raw_email,
     urlize_and_linebreaks,
     InvalidFromHeader,
+    parse_email_header,
 )
 from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 
@@ -479,7 +480,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         return HttpResponse("Address does not exist", status=404)
 
     _record_receipt_verdicts(receipt, "relay_recipient")
-    from_address = parseaddr(common_headers["from"][0])[1]
+    from_address = parse_email_header(common_headers["from"][0])[0][1]
     try:
         [to_local_portion, to_domain_portion] = to_address.split("@")
     except ValueError:

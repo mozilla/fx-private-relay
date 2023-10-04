@@ -37,6 +37,8 @@ incoming email. Their names all end in `_email_sns_body.json`.
 These fixtures were created outside of an SNS notification, such as exporting from a
 mail client. They are stored in the [Internet Message Format][] (IMF).
 
+- `emperor_norton_incoming.email` - The From: address contains an unquoted display name
+  with a comma. AWS parses it as one email, Python as two emails, the first invalid.
 - `inline_image_incoming.email` - Contains an inline image, referenced in the HTML by
   content ID
 - `plain_text_incoming.email` - A simple email with only plain text content
@@ -66,10 +68,11 @@ The output fixtures for incoming emails with SNS Notification JSON:
 
 The output fixtures for raw incoming emails:
 
-- `inline_image_expected.email`
+- `emperor_norton_expected.email` - The email address was extracted
+- `inline_image_expected.email` - The inline image is forwarded
 - `plain_text_expected.email` - Demonstrates that an HTML section was added, including
   the Relay header and footer.
-- `russian_spam_expected.email`
+- `russian_spam_expected.email` - The UTF-8-encoded subject is forwarded
 
 When the expected mail does not match the actual output mail, the test creates a file
 with the actual output. These files end in `_actual.email` instead of `_expected.email`.
