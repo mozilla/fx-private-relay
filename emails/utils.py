@@ -1,7 +1,7 @@
 import base64
 import contextlib
 from email.errors import InvalidHeaderDefect
-from email.headerregistry import Address
+from email.headerregistry import Address, AddressHeader
 from email.message import EmailMessage
 from email.utils import formataddr, parseaddr
 from functools import cache
@@ -143,6 +143,27 @@ def get_email_domain_from_settings():
     if settings.RELAY_CHANNEL == "dev":
         email_network_locality = f"mail.{email_network_locality}"
     return email_network_locality
+
+
+def parse_email_header(header_value: str) -> list[tuple[str, str]]:
+    """
+    Extract the (display name, email address) pairs from a header value.
+
+    This is useful when working with header values provided by a
+    AWS SES delivery notification.
+
+    email.utils.parseaddr() works with well-formed emails, but fails in
+    cases with badly formed emails where an email address could still
+    be extracted.
+    """
+    address_list = AddressHeader.value_parser(header_value)
+    pairs: list[tuple[str, str]] = []
+    for address in address_list.addresses:
+        for mailbox in address.all_mailboxes:
+            addr_spec = mailbox.addr_spec
+            if addr_spec and "@" in addr_spec:
+                pairs.append((mailbox.display_name or "", addr_spec))
+    return pairs
 
 
 def _get_hero_img_src(lang_code):
