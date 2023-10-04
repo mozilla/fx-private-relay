@@ -15,7 +15,10 @@
 
    b. Co-ordinate, re-tag for [stage fixes][stage-fixes] as needed
 
-   - Latest tag to auto-deploy to Stage should not happen after Thursday to ensure stage is stable and had plenty of time to be test by QA before the tag is pushed to production on Tuesday.
+   - Allow ample time for QA testing which are done during European hours
+
+> [!WARNING]
+> Don't tag after Thursday, so QA has a stable stage environment to test before the Tuesday deployment to production.
 
 3. Monday
 
