@@ -213,7 +213,7 @@ export class DashboardPage {
         await this.page.locator('#submit-btn').click()
         await this.page.waitForURL('**/confirm_signup_code**')
 
-        // verification email from fxa to generatedMaskEmail should be forwardedd to E2E_TEST_ACCOUNT_FREE
+        // verification email from fxa to generatedMaskEmail should be forwarded to E2E_TEST_ACCOUNT_FREE
         await getVerificationCode(process.env.E2E_TEST_ACCOUNT_FREE as string, this.page)
     }
 
