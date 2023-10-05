@@ -2,16 +2,16 @@
 <img src="https://raw.githubusercontent.com/mozilla/fx-private-relay/11ad17e197e23a0453bfb74fa3670c87cfc35e36/frontend/src/components/landing/images/logo-firefox-relay.svg" width="250" />
 </p>
 
-
-# Private Relay 
+# Private Relay
 
 <!-- Badges include: license, size of repository, overall coverage for project via coveralls.io on main branch, status of what is deployed via whatsdeployed.io and our circleci status for main branch. -->
+
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](https://raw.githubusercontent.com/mozilla/fx-private-relay/main/LICENSE)
 ![Repo Size](https://img.shields.io/github/repo-size/Mozilla/fx-private-relay)
 [![Coverage Status](https://coveralls.io/repos/github/mozilla/fx-private-relay/badge.svg?branch=main)](https://coveralls.io/github/mozilla/fx-private-relay?branch=main)
 [![What's Deployed](https://img.shields.io/badge/whatsdeployed-dev,stage,prod-green.svg)](https://whatsdeployed.io/s/60j/mozilla/fx-private-relay)
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/mozilla/fx-private-relay/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/mozilla/fx-private-relay/tree/main)
- 
+[![Relay e2e Tests](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml/badge.svg)](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml)
 
 Private Relay provides generated email addresses to use in place of personal
 email addresses.
@@ -39,6 +39,7 @@ them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content
   - [Production Environments](#production-environments)
     - [Requirements](#requirements-1)
     - [Environment Variables](#environment-variables)
+
 ## Development
 
 Please refer to our [coding standards](docs/coding-standards.md) for code styles, naming conventions and other methodologies.
