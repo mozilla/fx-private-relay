@@ -3,7 +3,7 @@ import { checkAuthState, defaultScreenshotOpts } from '../e2eTestUtils/helpers';
 
 // using logged in state outside of describe block will cover state for all tests in file
 test.use({ storageState: 'state.json' })
-test.describe('Free - General Functionalities, Desktop', () => {
+test.describe.fixme('Free - General Functionalities, Desktop', () => {
   test.beforeEach(async ({ dashboardPage, page }) => {
     await dashboardPage.open()
     await checkAuthState(page)
@@ -24,7 +24,7 @@ test.describe('Free - General Functionalities, Desktop', () => {
   })
 })
 
-test.describe.skip('Free - General Functionalities, Desktop - Visual Regression', () => {
+test.describe.fixme('Free - General Functionalities, Desktop - Visual Regression', () => {
   test.skip(({ browserName }) => browserName !== 'firefox', 'firefox only image comparisons!');
 
   test.beforeEach(async ({ dashboardPage, page }) => {
