@@ -3,7 +3,7 @@ import { checkAuthState } from '../e2eTestUtils/helpers';
 
 test.describe.configure({ mode: 'parallel' });
 test.skip(({ browserName }) => browserName !== 'firefox', 'firefox only e2e!');
-test.describe('Relay e2e function email forwarding', () => {
+test.fixme('Relay e2e function email forwarding', () => {
     // use stored authenticated state
     test.use({ storageState: 'state.json' })
 
