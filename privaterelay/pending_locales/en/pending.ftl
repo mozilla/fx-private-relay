@@ -6,7 +6,7 @@
 
 our-promise-header = Our promise to you
 our-promise-content = { -brand-name-relay } email masks forward to your email inbox any messages sent to that email mask—without revealing your real email address to the sender.
-what-can-you-do-with-relay-title = What can you do with { -brand-name-firefox-relay }
+what-can-you-do-with-relay-title = What can you do with { -brand-name-firefox-relay }?
 what-can-you-do-with-relay-point-one = Get emails without revealing your real email address to senders
 what-can-you-do-with-relay-point-one-subpoint-html = Just share an email mask instead. Email masks will forward emails to your inbox. You can create masks directly on { -brand-name-firefox }, with the <a href="{ $url }" { $attrs }>{ -brand-name-relay } extension</a>, or on your { -brand-name-relay } dashboard.
 what-can-you-do-with-relay-point-two = Keep websites and spammers from easily tracking who you are

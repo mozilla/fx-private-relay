@@ -110,6 +110,7 @@ See privaterelay/ftl_bundles.py.
       margin: -2px;
       border-radius: inherit;
       background: radial-gradient(100% 100% at 100% 0%, #B833E1 0%, #9059FF 33.33%, #B833E1 60.42%, #073072 100%);
+      opacity: 90%;
     }
 
     #what-you-can-do-with-relay {
@@ -198,8 +199,6 @@ See privaterelay/ftl_bundles.py.
         max-width: 350px;
     }
 
-  
-
     @media screen and (max-width: 768px) {
       .forwarded-from-email {
         width: 250px;
@@ -222,13 +221,7 @@ See privaterelay/ftl_bundles.py.
       
       #hero td {
         display: block;
-
-      }
-      td {
-        padding: 0 !important;
-      }
-      #hero td {
-        padding-left: 16px !important;
+        padding: 0 0 0 24px !important;
       }
       .arrow-img {
         display: none !important;
@@ -243,17 +236,19 @@ See privaterelay/ftl_bundles.py.
       
     }
 
-    @media screen and (max-width: 600px) {
-      #what-you-can-do-with-relay {
-        padding: 0 32px 32px 32px;
+    @media screen and (max-width: 490px) {
+      #our-promise-section *:not(:last-child) {
+        margin-bottom: 32px;
       }
-
+      #what-you-can-do-with-relay {
+        padding: 16px;
+      }
       #what-you-can-do-with-relay td img {
         min-width: 20px;
       }
-    }
-
-    @media screen and (max-width: 490px) {
+      #view-your-dashboard {
+        margin: 32px 0 !important;
+      }
       .forwarded-from-email {
         width: 200px;
       }
@@ -269,14 +264,13 @@ See privaterelay/ftl_bundles.py.
       }
       .arrow-img-two {
         width: 102px !important;
-
       }
     }
 
-    @media screen and (max-width: 400px) {
+    @media screen and (max-width: 420px) {
       .arrow-img-two {
-        width: 92px !important;
-        right: 20px;
+        width: 82px !important;
+        right: 15px;
       }
       
     }
@@ -402,12 +396,12 @@ See privaterelay/ftl_bundles.py.
 
               <!-- first row -->
               <tr style="margin-bottom: 16px;display: inline-block;">
-                <td style="padding:0 20px; vertical-align: middle;" align="center">
+                <td style="padding-right: 20px; vertical-align: top;" align="center">
                   <img align="center" border="0"
                     src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-forwarded/browsing-graphic.png" alt="" title=""
                     style="height: auto; width: 48px;" />
                 </td>
-                <td style="overflow-wrap:break-word;word-break:break-word;padding:10px 20px;font-size:16px;"
+                <td style="overflow-wrap:break-word;word-break:break-word;font-size:16px;"
                   align="left">
 
                   <p style="color: #20123A">
@@ -423,13 +417,13 @@ See privaterelay/ftl_bundles.py.
 
               <!-- second row -->
               <tr style="margin-bottom: 16px;display: inline-block;">
-                <td style="padding:0 20px; vertical-align: middle;" align="center">
+                <td style="padding-right: 20px; vertical-align: top;" align="center">
                   <img align="center" border="0"
                     src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-forwarded/privacy-illustration.png" alt="" title=""
                     style="height: auto; width: 48px;" />
                 </td>
                 <td
-                  style="overflow-wrap:break-word;word-break:break-word;padding:10px 20px;font-family:inter, system-ui, sans-serif;font-size:16px;"
+                  style="overflow-wrap:break-word;word-break:break-word;font-family:inter, system-ui, sans-serif;font-size:16px;"
                   align="left">
                   <p style="color: #20123A">
                     <strong>{% ftlmsg 'what-can-you-do-with-relay-point-two' %}</strong>
@@ -442,13 +436,13 @@ See privaterelay/ftl_bundles.py.
 
               <!-- third row -->
               <tr style="margin-bottom: 16px;display: inline-block;">
-                <td style="padding:0 20px; vertical-align: middle;" align="center">
+                <td style="padding-right: 20px; vertical-align: top;" align="center">
                   <img align="center" border="0"
                     src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-forwarded/umbrella.png" alt=""
                     title="" style="height: auto; width: 48px;" />
                 </td>
                 <td
-                  style="overflow-wrap:break-word;word-break:break-word;padding:10px 20px;font-family:inter, system-ui, sans-serif;font-size:16px;"
+                  style="overflow-wrap:break-word;word-break:break-word; font-family:inter, system-ui, sans-serif;font-size:16px;"
                   align="left">
 
                   <p style="color: #20123A">
@@ -464,18 +458,18 @@ See privaterelay/ftl_bundles.py.
           </table>
 
           <!-- View your dashboard button -->
-          <table id="view-your-dashboard" style="max-width: 850px;margin:0 auto 64px auto;" cellpadding="0"
+          <table id="view-your-dashboard" style="max-width: 850px;margin:32px auto 64px auto;" cellpadding="0"
             cellspacing="0" width="100%" border="0">
             <tbody>
               <tr>
                 <td align="center">
                   <a href="{{ SITE_ORIGIN }}/accounts/profile/?utm_campaign=relay-onboarding&utm_source=relay-onboarding&utm_medium=email&utm_content=hero-cta"
-                    target="_blank" class="button" style="margin-top: 30px; color: #FFFFFF;" rel="noreferrer">
+                    target="_blank" class="button" style="color: #FFFFFF;" rel="noreferrer">
                     {% ftlmsg 'first-time-user-email-hero-cta' %}
                   </a>
                   <img class="arrow-img-two" align="" border="0"
                   src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-forwarded/arrow-down.png" alt=""
-                  title="" style="position:absolute; height: auto; width: 122px; margin-top: -50px;" />
+                  title="" style="position:absolute; height: auto; width: 122px; margin-top: -66px;" />
                 </td>
               </tr>
             </tbody>
