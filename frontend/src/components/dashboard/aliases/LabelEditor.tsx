@@ -10,6 +10,7 @@ import styles from "./LabelEditor.module.scss";
 
 export type Props = {
   label: string;
+  placeholder?: string;
   onSubmit: (newLabel: string) => void;
 };
 
@@ -58,7 +59,9 @@ export const LabelEditor = (props: Props) => {
         aria-label={l10n.getString("profile-label-edit-2")}
         ref={inputRef}
         className={styles["label-input"]}
-        placeholder={l10n.getString("profile-label-placeholder")}
+        placeholder={
+          props.placeholder ?? l10n.getString("profile-label-placeholder")
+        }
         type="text"
         maxLength={50}
         // Require at least one non-whitespace character:

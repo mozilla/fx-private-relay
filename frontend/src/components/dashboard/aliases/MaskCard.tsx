@@ -41,6 +41,7 @@ import { isFlagActive } from "../../../functions/waffle";
 import { renderDate } from "../../../functions/renderDate";
 import { AliasDeletionButton } from "./AliasDeletionButton";
 import { VisuallyHidden } from "./../../VisuallyHidden";
+import HorizontalArrow from "./../images/free-onboarding-horizontal-arrow.svg";
 
 export type Props = {
   mask: AliasData;
@@ -52,6 +53,8 @@ export type Props = {
   onChangeOpen: (isOpen: boolean) => void;
   showLabelEditor?: boolean;
   runtimeData?: RuntimeData;
+  placeholder?: string;
+  isOnboarding?: boolean;
 };
 
 export const MaskCard = (props: Props) => {
@@ -94,6 +97,7 @@ export const MaskCard = (props: Props) => {
     isBlockingLevelOneTrackers(props.mask, props.profile)
       ? styles["is-removing-trackers"]
       : styles["is-not-removing-trackers"],
+    props.isOnboarding ? styles["is-onboarding"] : "",
   ].join(" ");
 
   const blockLevel =
@@ -111,6 +115,7 @@ export const MaskCard = (props: Props) => {
             <div className={styles["label-editor-wrapper"]}>
               <LabelEditor
                 label={props.mask.description}
+                placeholder={props.placeholder}
                 onSubmit={(newLabel) =>
                   props.onUpdate({ description: newLabel })
                 }
@@ -212,6 +217,18 @@ export const MaskCard = (props: Props) => {
               styles[`is-blocking-${blockLevel}`]
             }`}
           >
+            {props.isOnboarding && props.isOpen && (
+              <div className={styles["onboarding-alias-container"]}>
+                <Image src={HorizontalArrow} alt="" />
+                <div className={styles["onboarding-alias-text"]}>
+                  <p>
+                    {l10n.getString(
+                      "profile-free-onboarding--copy-mask-what-emails-to-block",
+                    )}
+                  </p>
+                </div>
+              </div>
+            )}
             <div className={styles["block-level-setting"]}>
               <BlockLevelSegmentedControl
                 defaultValue={blockLevel}
@@ -348,12 +365,14 @@ export const MaskCard = (props: Props) => {
                 </dd>
               </div>
             </dl>
-            <div className={styles["deletion-button-wrapper"]}>
-              <AliasDeletionButton
-                onDelete={props.onDelete}
-                alias={props.mask}
-              />
-            </div>
+            {!props.isOnboarding && (
+              <div className={styles["deletion-button-wrapper"]}>
+                <AliasDeletionButton
+                  onDelete={props.onDelete}
+                  alias={props.mask}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

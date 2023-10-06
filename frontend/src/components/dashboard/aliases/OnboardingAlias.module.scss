@@ -1,0 +1,36 @@
+@import "../../../styles/tokens.scss";
+
+.onboarding-alias-container {
+  display: block;
+  /* provides extra outer padding for the gradient container */
+  width: $content-sm;
+  margin: 0 auto;
+  position: relative;
+  padding: 12px;
+  box-sizing: border-box;
+  color: $color-black;
+  background: $color-white;
+  background-clip: padding-box;
+  border: solid 2px transparent;
+  border-radius: 8px;
+}
+
+.onboarding-alias-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  /* sets order for clipped background */
+  z-index: -1;
+  /* set to the same width of the border for clipping */
+  margin: -2px;
+  border-radius: inherit;
+  background: linear-gradient(
+    to right,
+    rgba(255, 145, 0, 1),
+    rgba(241, 3, 102, 1),
+    rgba(97, 115, 255, 1)
+  );
+}

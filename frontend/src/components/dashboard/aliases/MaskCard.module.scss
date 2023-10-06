@@ -179,6 +179,7 @@
   grid-template-rows: 0fr;
   overflow: hidden;
   transition: grid-template-rows 500ms ease-in-out;
+  position: relative;
 
   @media (prefers-reduced-motion: no-preference) {
     transition-duration: 200ms;
@@ -497,4 +498,23 @@
     gap: $spacing-sm;
     color: $color-grey-50;
   }
+}
+
+.onboarding-alias-container {
+  width: $content-xs;
+  position: absolute;
+  padding: $spacing-sm $spacing-md;
+  color: $color-black;
+  background: $color-white;
+  border: solid 4px $color-purple-50;
+  border-radius: 8px;
+  right: $spacing-xl;
+  box-shadow: $box-shadow-md;
+}
+
+.onboarding-alias-container img {
+  position: absolute;
+  left: -138px;
+  top: -21px;
+  width: 145px;
 }

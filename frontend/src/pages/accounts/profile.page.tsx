@@ -166,43 +166,6 @@ const Profile: NextPage = () => {
   const freeMaskLimitReached =
     allAliases.length >= freeMaskLimit && !profile.has_premium;
 
-  if (
-    isFlagActive(runtimeData.data, "free_user_onboarding") &&
-    !profile.has_premium &&
-    profile.onboarding_state < getRuntimeConfig().maxOnboardingAvailable
-  ) {
-    const onNextStep = (step: number) => {
-      profileData.update(profile.id, {
-        onboarding_state: step,
-      });
-    };
-
-    return (
-      <>
-        <AddonData
-          aliases={allAliases}
-          profile={profile}
-          runtimeData={runtimeData.data}
-          totalBlockedEmails={profile.emails_blocked}
-          totalForwardedEmails={profile.emails_forwarded}
-          totalEmailTrackersRemoved={profile.level_one_trackers_blocked}
-        />
-        <Layout runtimeData={runtimeData.data}>
-          {isPhonesAvailableInCountry(runtimeData.data) ? (
-            <DashboardSwitcher />
-          ) : null}
-          <FreeOnboarding
-            profile={profile}
-            onNextStep={onNextStep}
-            onPickSubdomain={setCustomSubdomain}
-            generateNewMask={() => createAlias({ mask_type: "random" })}
-            hasReachedFreeMaskLimit={freeMaskLimitReached}
-          />
-        </Layout>
-      </>
-    );
-  }
-
   const createAlias = async (
     options:
       | { mask_type: "random" }
@@ -260,7 +223,49 @@ const Profile: NextPage = () => {
       );
     }
   };
- 
+
+  if (
+    isFlagActive(runtimeData.data, "free_user_onboarding") &&
+    !profile.has_premium &&
+    profile.onboarding_state < getRuntimeConfig().maxOnboardingAvailable
+  ) {
+    console.log(getRuntimeConfig().maxOnboardingAvailable);
+    const onNextStep = (step: number) => {
+      profileData.update(profile.id, {
+        onboarding_state: step,
+      });
+    };
+
+    return (
+      <>
+        <AddonData
+          aliases={allAliases}
+          profile={profile}
+          runtimeData={runtimeData.data}
+          totalBlockedEmails={profile.emails_blocked}
+          totalForwardedEmails={profile.emails_forwarded}
+          totalEmailTrackersRemoved={profile.level_one_trackers_blocked}
+        />
+        <Layout runtimeData={runtimeData.data}>
+          {isPhonesAvailableInCountry(runtimeData.data) ? (
+            <DashboardSwitcher />
+          ) : null}
+          <FreeOnboarding
+            profile={profile}
+            onNextStep={onNextStep}
+            onPickSubdomain={setCustomSubdomain}
+            aliases={allAliases}
+            generateNewMask={() => createAlias({ mask_type: "random" })}
+            hasReachedFreeMaskLimit={freeMaskLimitReached}
+            user={user}
+            runtimeData={runtimeData.data}
+            onUpdate={() => {}}
+          />
+        </Layout>
+      </>
+    );
+  }
+
   const subdomainMessage =
     typeof profile.subdomain === "string" ? (
       <>
