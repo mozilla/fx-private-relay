@@ -1,0 +1,579 @@
+{% comment %}
+Note that Django only loads strings from some Fluent files.
+See privaterelay/ftl_bundles.py.
+{% endcomment %}
+{% load ftl %}
+{% load email_extras %}
+{% withftl bundle='privaterelay.ftl_bundles.main' language=language %}
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width" />
+  <style>
+    @font-face {
+      font-family: 'inter';
+      font-style: normal;
+      src: local('Inter Regular'), local('Inter-Regular'), url(https://relay.firefox.com/fonts/Inter/Inter-Regular.4232a675a077.woff2?v=3.18) format('woff');
+    }
+
+    @font-face {
+      font-family: 'inter medium';
+      font-style: bold;
+      src: local('Inter Medium'), local('Inter-Medium'), url(https://relay.firefox.com/fonts/Inter/Inter-Medium.woff2?v=3.18) format('woff');
+    }
+
+    @font-face {
+      font-family: 'metropolis medium';
+      font-style: bold;
+      src: local('Metropolis Medium'), local('Metropolis-Medium'), url(https://relay.firefox.com/fonts/Metropolis/Metropolis-Medium.woff2) format('woff');
+    }
+
+    @font-face {
+      font-family: 'metropolis bold';
+      font-style: bold;
+      src: local('Metropolis Bold'), local('Metropolis-Bold'), url(https://relay.firefox.com/fonts/Metropolis/Metropolis-Bold.woff2) format('woff');
+    }
+
+    body {
+      font-family: 'inter', system-ui, sans-serif;
+      color: #3D3D3D;
+    }
+
+    h1 {
+      font-family: 'metropolis bold', system-ui, sans-serif;
+    }
+
+    a {
+      color: #0060DF;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+
+    .button {
+      box-sizing: border-box;
+      padding: 15px 25px;
+      display: inline-block;
+      font-family: 'metropolis medium', system-ui, sans-serif;
+      text-decoration: none;
+      -webkit-text-size-adjust: none;
+      text-align: center;
+      color: #FFFFFF;
+      background-color: #0060df;
+      border-radius: 4px;
+      -webkit-border-radius: 4px;
+      -moz-border-radius: 4px;
+      width: auto;
+      max-width: 100%;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      word-wrap: break-word;
+      font-size: 16px;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    a[x-apple-data-detectors='true'] {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    table,
+    td {
+      color: #000000;
+    }
+
+    #our-promise-section {
+      display: block;
+      /* provides extra outer padding for the gradient container */
+      width: 100%;
+      margin: 0;
+      position: relative;
+      box-sizing: border-box;
+      background-clip: padding-box;
+    }
+
+    #our-promise-section:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      /* sets order for clipped background */
+      z-index: -1;
+      /* set to the same width of the border for clipping */
+      margin: -2px;
+      border-radius: inherit;
+      background: radial-gradient(100% 100% at 100% 0%, #B833E1 0%, #9059FF 33.33%, #B833E1 60.42%, #073072 100%);
+    }
+
+    #what-you-can-do-with-relay {
+      padding: 0 48px 32px 48px;
+      display: block;
+      /* provides extra outer padding for the gradient container */
+      width: calc(100% - 20px);
+      position: relative;
+      box-sizing: border-box;
+      color: #FFFFFF;
+      background: #FFFFFF;
+      background-clip: padding-box;
+      border: solid 3px transparent;
+      border-radius: 8px;
+    }
+
+    #what-you-can-do-with-relay p {
+      font-family: inter, system-ui, sans-serif;
+      line-height: 140%;
+      text-align: left;
+      word-wrap: break-word;
+    }
+
+    #what-you-can-do-with-relay p:first-child {
+      margin-bottom: 8px;
+    }
+
+    #what-you-can-do-with-relay:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      /* sets order for clipped background */
+      z-index: -1;
+      /* set to the same width of the border for clipping */
+      margin: -3px;
+      border-radius: inherit;
+      background: radial-gradient(100% 100% at 100% 0%, #9D62FC 0%, #FD3296 100%);
+    }
+
+    #relay-email-header {
+      padding: 12px 25px;
+    }
+
+    #relay-email-header,
+    #relay-email-footer {
+      font-family: 'inter', Arial, sans-serif;
+      color: #FFFFFF;
+      font-size: 12px;
+    }
+
+    a.container-link {
+      transition: all 0.2s ease;
+      text-underline-offset: 2px;
+      font-family: 'inter medium', Arial, sans-serif;
+    }
+
+    a.container-link:hover {
+      color: #20123ad5;
+      transition: all 0.2s ease;
+    }
+
+    a.container-link {
+      color: #FFFFFF;
+      font-size: 12px;
+    }
+
+    a.container-link:hover,
+    a.container-link:focus,
+    a.container-link:active {
+      transition: all 0.2s ease;
+    }
+
+    .email-trackers-removed-icon {
+      margin-right: 5px;
+      vertical-align: bottom;
+    }
+
+    /* this deals with long email addresses */
+    .forwarded-from-email {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 350px;
+    }
+
+  
+
+    @media screen and (max-width: 768px) {
+      .forwarded-from-email {
+        width: 250px;
+      }
+
+      .footer-block {
+        display: block;
+        width: 100%;
+        text-align: center;
+      }
+
+      .footer-block .container-link img {
+        height: 45px;
+        width: auto;
+      }
+
+      #relay-email-header {
+        padding: 8px 4px;
+      }
+      
+      #hero td {
+        display: block;
+
+      }
+      td {
+        padding: 0 !important;
+      }
+      #hero td {
+        padding-left: 16px !important;
+      }
+      .arrow-img {
+        display: none !important;
+      }
+      #hero-mask-img {
+        text-align: center;
+      }
+      #hero-desc {
+        max-width: 100% !important;
+        margin-bottom: 32px;
+      }
+      
+    }
+
+    @media screen and (max-width: 600px) {
+      #what-you-can-do-with-relay {
+        padding: 0 32px 32px 32px;
+      }
+
+      #what-you-can-do-with-relay td img {
+        min-width: 20px;
+      }
+    }
+
+    @media screen and (max-width: 490px) {
+      .forwarded-from-email {
+        width: 200px;
+      }
+      .header-block-left *,
+      .header-block-right * {
+        font-size: 8px !important;
+      }
+      .email-trackers-removed-icon {
+        width: 10px;
+      }
+      .relay-icon {
+        width: 20px;
+      }
+      .arrow-img-two {
+        width: 102px !important;
+
+      }
+    }
+
+    @media screen and (max-width: 400px) {
+      .arrow-img-two {
+        width: 92px !important;
+        right: 20px;
+      }
+      
+    }
+  </style>
+</head>
+
+<body id="relay-email" style="padding: 0; margin: 0;">
+  <table style="vertical-align: top;min-width: 320px;margin: 0 auto;width:100%" cellpadding="0" cellspacing="0">
+    <tbody>
+      <tr style="vertical-align: top">
+        <td style="word-break: break-word;border-collapse: collapse ;vertical-align: top">
+          <!-- Header -->
+          <table id="relay-email-header" width="100%" bgcolor="#3D3D3D"
+            style="background: #3D3D3D; margin-top: 30px; margin-bottom: 30px; width: 100%; border-radius: 6px; max-width: 850px;"
+            align="center">
+            <tr>
+              <td class="header-block-left" align="left" style="padding-top: 5px;">
+                <img class="relay-icon" width="30" src="{{ SITE_ORIGIN }}/static/images/email-images/relay-icon.png"
+                  style="margin-right: 5px; display: inline-block; vertical-align: top;" alt="relay icon" />
+
+                <p style="margin-top: 0; display: inline-block;">
+                  <span class="forwarded-from-email"
+                    style="display: block; color: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
+                    {% with display_email|striptags|urlencode as mask_url %}
+                    {% ftlmsg 'relay-email-forwarded-from-html' url=SITE_ORIGIN|add:'/accounts/profile/#'|add:mask_url attrs='class="container-link" style="margin-right: 30px;color: #FFFFFF;font-size: 12px;"' email_address=display_email|striptags %}
+                    {% endwith %}
+                  </span>
+
+                  <span
+                    style="margin-top: 0; margin-bottom: 5px; display: block;color: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
+                    {% if has_premium %}
+                    {% ftlmsg 'relay-email-premium-byline-html' url=SITE_ORIGIN|add:'/accounts/profile/' attrs='class="container-link" style="margin-right: 30px;color: #FFFFFF;font-size: 12px;"' %}
+                    {% else %}
+                    {% ftlmsg 'relay-email-byline-html' url=SITE_ORIGIN|add:'/accounts/profile/' attrs='class="container-link" style="margin-right: 30px;color: #FFFFFF;font-size: 12px;"' %}
+                    {% endif %}
+                  </span>
+                </p>
+
+              </td>
+              <td class="header-block-right" align="right">
+                <p class="relay-trackers-removed"
+                  style="display: block; color: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
+                  <img class="email-trackers-removed-icon" width="15"
+                    src="{{ SITE_ORIGIN }}/static/images/email-images/email-trackers-removed-icon.png"
+                    alt="email trackers removed icon" />
+                  {% comment %}
+                  Create this as a link if we have a report link to show
+                  {% endcomment %}
+                  {% ftlmsg 'relay-email-trackers-removed' number=num_level_one_email_trackers_removed as num_level_one_email_trackers_removed %}
+                  {% if num_level_one_email_trackers_removed > 0 and tracker_report_link %}
+                  <a class="container-link" href="{{ tracker_report_link  }}" style="color: #FFFFFF;">
+                    {{ num_level_one_email_trackers_removed | convert_fsi_to_span }}
+                  </a>
+                  {% else %}
+                  {{ num_level_one_email_trackers_removed | convert_fsi_to_span }}
+                  {% endif %}
+                </p>
+
+                {% with display_email|striptags|urlencode as mask_url %}
+                <p class="relay-mask" style="margin: 0; display: block;">
+                  {% if has_premium %}
+                  <a class="container-link" href="{{ SITE_ORIGIN }}/accounts/profile/#{{ mask_url }}"
+                    style="color: #FFFFFF;">
+                    {% ftlmsg 'relay-email-manage-this-mask' %}
+                  </a>
+                  {% else %}
+                  {% comment %}
+                  Users in a premium eligible country will be asked to sign up.
+                  Users not in a premium eligible country will be asked to join the waitlist at /premium/waitlist.
+                  {% endcomment %}
+                  <a class="container-link" href="{{ SITE_ORIGIN }}/premium" style="color: #FFFFFF;">
+                    {% ftlmsg 'relay-email-upgrade-for-more-protection' %}
+                    <!-- CHANGE THIS TO "MANAGE MASKS" -->
+                  </a>
+                  {% endif %}
+                </p>
+                {% endwith %}
+              </td>
+            </tr>
+          </table>
+
+          <!-- Hero section -->
+          <table id="hero" style="max-width:850px;margin:48px auto 64px auto;" cellpadding="0"
+            cellspacing="0" width="100%" border="0">
+            <tbody>
+              <tr>
+                <td align="right">
+                  <img class="arrow-img" align="center" border="0"
+                  src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-forwarded/arrow-up.png" alt=""
+                  title="" style="display: inline-block;border: none; height: auto; width: 126px; position:absolute; top: 120px;" />
+                
+                </td>
+                <td id="hero-desc" style="padding-left: 120px;max-width: 280px; height: auto;" align="left">
+                  <h1 style="margin-top: 0;text-align: left; word-wrap: break-word; font-size: 38px; color: #321C64;">
+                    {% ftlmsg 'forwarded-email-hero-header' %}
+                  </h1>
+                  <p style="font-family: metropolis medium, system-ui, sans-serif; text-align: left; word-wrap: break-word; font-size: 18px; color: #321C64;">
+                    {% ftlmsg 'forwarded-email-hero-desc' %}
+                  </p>
+                </td>
+                <td id="hero-mask-img" style="padding-right:90px;" align="right">
+                  <img align="center" border="0"
+                  src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-forwarded/privacy-illustration.png" alt=""
+                  title="" style="display: inline-block;border: none; height: auto; max-width: 250px;" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- What you can do with relay -->
+          <table id="what-you-can-do-with-relay" style="max-width: 850px; display: block; margin: 0 auto;"
+            cellpadding="0" cellspacing="0" width="100%" border="0">
+            <tbody>
+              <tr>
+                <td style="overflow-wrap:break-word;word-break:break-word;padding:10px;" align="left">
+
+                  <h1
+                    style="line-height: 140%; text-align: center; word-wrap: break-word; font-size: 24px; color: #321C64;">
+                    {% ftlmsg 'what-can-you-do-with-relay-title' %}</h1>
+
+                </td>
+              </tr>
+
+              <!-- first row -->
+              <tr style="margin-bottom: 16px;display: inline-block;">
+                <td style="padding:0 20px; vertical-align: middle;" align="center">
+                  <img align="center" border="0"
+                    src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-forwarded/browsing-graphic.png" alt="" title=""
+                    style="height: auto; width: 48px;" />
+                </td>
+                <td style="overflow-wrap:break-word;word-break:break-word;padding:10px 20px;font-size:16px;"
+                  align="left">
+
+                  <p style="color: #20123A">
+                    <strong>{% ftlmsg 'what-can-you-do-with-relay-point-one' %}</strong>
+                  </p>
+
+                  <p style="font-size:14px;">
+                    {% ftlmsg 'what-can-you-do-with-relay-point-one-subpoint-html' url='https://addons.mozilla.org/firefox/addon/private-relay/?utm_campaign=relay-onboarding&utm_source=relay-onboarding&utm_medium=email&utm_content=addon-cta' attrs='' %}
+                  </p>
+
+                </td>
+              </tr>
+
+              <!-- second row -->
+              <tr style="margin-bottom: 16px;display: inline-block;">
+                <td style="padding:0 20px; vertical-align: middle;" align="center">
+                  <img align="center" border="0"
+                    src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-forwarded/privacy-illustration.png" alt="" title=""
+                    style="height: auto; width: 48px;" />
+                </td>
+                <td
+                  style="overflow-wrap:break-word;word-break:break-word;padding:10px 20px;font-family:inter, system-ui, sans-serif;font-size:16px;"
+                  align="left">
+                  <p style="color: #20123A">
+                    <strong>{% ftlmsg 'what-can-you-do-with-relay-point-two' %}</strong>
+                  </p>
+                  <p style="font-size:14px;">
+                    {% ftlmsg 'what-can-you-do-with-relay-point-two-subpoint' %}
+                  </p>
+                </td>
+              </tr>
+
+              <!-- third row -->
+              <tr style="margin-bottom: 16px;display: inline-block;">
+                <td style="padding:0 20px; vertical-align: middle;" align="center">
+                  <img align="center" border="0"
+                    src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-forwarded/umbrella.png" alt=""
+                    title="" style="height: auto; width: 48px;" />
+                </td>
+                <td
+                  style="overflow-wrap:break-word;word-break:break-word;padding:10px 20px;font-family:inter, system-ui, sans-serif;font-size:16px;"
+                  align="left">
+
+                  <p style="color: #20123A">
+                    <strong>{% ftlmsg 'what-can-you-do-with-relay-point-three' %}</strong>
+                  </p>
+
+                  <p style="font-size:14px;">
+                    {% ftlmsg 'what-can-you-do-with-relay-point-three-subpoint' %}
+                  </p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- View your dashboard button -->
+          <table id="view-your-dashboard" style="max-width: 850px;margin:0 auto 64px auto;" cellpadding="0"
+            cellspacing="0" width="100%" border="0">
+            <tbody>
+              <tr>
+                <td align="center">
+                  <a href="{{ SITE_ORIGIN }}/accounts/profile/?utm_campaign=relay-onboarding&utm_source=relay-onboarding&utm_medium=email&utm_content=hero-cta"
+                    target="_blank" class="button" style="margin-top: 30px; color: #FFFFFF;" rel="noreferrer">
+                    {% ftlmsg 'first-time-user-email-hero-cta' %}
+                  </a>
+                  <img class="arrow-img-two" align="" border="0"
+                  src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-forwarded/arrow-down.png" alt=""
+                  title="" style="position:absolute; height: auto; width: 122px; margin-top: -50px;" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Our promise -->
+          <table id="our-promise-section" style="max-width: 850px; display: block;margin:0 auto;" cellpadding="0"
+            cellspacing="0" width="100%" border="0">
+            <tbody>
+              <tr>
+                <td style="overflow-wrap:break-word;word-break:break-word;padding: 32px 48px 48px 48px;" align="center">
+                  <img align="center" border="0"
+                    src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-forwarded/lock-illustration.png" alt=""
+                    title="" style="display: inline-block;border: none;height: auto; max-width: 90px;" />
+
+                  <p class="title"
+                    style="font-size: 24px; font-family: metropolis bold, system-ui, sans-serif; color: #ffffff; margin-top: 8px;">
+                    {% ftlmsg 'our-promise-header' %}</p>
+                  <p class="text"
+                    style="font-size: 18px; line-height:20px; font-family: metropolis medium, system-ui, sans-serif; color: #ffffff; word-wrap: break-word; margin-top: 24px; ">
+                    {% ftlmsg 'our-promise-content' %}</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Questions -->
+          <table style="max-width: 850px; padding-top: 60px; display: block; margin: 0 auto;" width="100%">
+            <tbody style="display: block;">
+              <tr style="display: block;">
+                <td style="display: block; text-align: center;" align="center">
+                  <img src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/union-icon.png" alt="" title=""
+                    style="display: block;height: auto;width: 100%;margin: 0 auto;max-width: 26px;" />
+                  <h1
+                    style="word-wrap: break-word; font-size: 22px;font-family: metropolis bold, system-ui, sans-serif; color: #321C64; margin-top: 30px;">
+                    {% ftlmsg 'first-time-user-email-questions-title' %}</h1>
+                  <p
+                    style="font-size: 16px; font-family: inter, system-ui, sans-serif; color: #000000;margin-top: 15px;">
+                    {% ftlmsg 'first-time-user-email-questions-subhead-html' url='https://support.mozilla.org/products/relay?utm_campaign=relay-onboarding&utm_source=relay-onboarding&utm_medium=email&utm_content=questions-link' attrs=''%}</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- separator - shorter width than first one per design -->
+          <table class="separator" height="0px" align="center" border="0" cellpadding="0" cellspacing="0"
+            style="max-width: 750px; display: block; margin: 48px auto; border-top: 1px solid rgba(0,0,0,0.1);">
+            <tbody>
+              <tr>
+                <td>
+                  <span>&#160;</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Footer -->
+          <table id="relay-footer-section" style="max-width: 850px; display: block; margin: 0 auto 60px auto;"
+            width="100%">
+            <tbody>
+              <tr>
+                <td style="overflow-wrap: break-word;word-break: break-word;width: 70%;margin: 0 auto;display: block;"
+                  align="center">
+                  <p
+                    style="line-height: 140%;font-size: 14px; font-family: inter, system-ui, sans-serif; color: #0C0C0D;">
+                    {% ftlmsg 'first-time-user-email-footer-text-1' %}</p>
+                  <p
+                    style="line-height: 140%;font-size: 14px; font-family: inter, system-ui, sans-serif; color: #0C0C0D;">
+                    {% ftlmsg 'first-time-user-email-footer-text-2-html' url='https://support.mozilla.org/products/relay?utm_campaign=relay-onboarding&utm_source=relay-onboarding&utm_medium=email&utm_content=footer-support-link' attrs='style="color: #0C0C0D;"' %}</p>
+                  <img align="center" border="0"
+                    src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/mozilla-logo.png" alt="" title=""
+                    style="height: auto; width: 100%;max-width: 146px; margin: 30px auto; display: block;" />
+                  <p
+                    style="line-height: 140%;font-size: 14px; font-family: inter, system-ui, sans-serif; color: #0C0C0D;">
+                    149 New Montgomery St, 4th Floor, San Francisco, CA 94105</p>
+
+                  <p
+                    style="line-height: 140%;font-size: 14px; font-family: inter medium, system-ui, sans-serif; color: #0C0C0D;margin-top: 15px;">
+                    <a style="color: #0C0C0D; text-decoration: none; font-weight: 600;"
+                      href="https://www.mozilla.org/about/legal/terms/firefox-relay/?utm_campaign=relay-onboarding&utm_source=relay-onboarding&utm_medium=email&utm_content=footer-legal-link"
+                      target="_blank" rel="noreferrer">{% ftlmsg 'first-time-user-email-footer-text-legal' %}
+                    </a> • 
+                    <a
+                      style="color: #0C0C0D; text-decoration: none; font-weight: 600;"
+                      href="https://www.mozilla.org/privacy/firefox-relay/?utm_campaign=relay-onboarding&utm_source=relay-onboarding&utm_medium=email&utm_content=footer-privacy-link"
+                      target="_blank" rel="noreferrer">{% ftlmsg 'first-time-user-email-footer-text-privacy' %}</a>
+                  </p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+</body>
+
+</html>
+{% endwithftl %}

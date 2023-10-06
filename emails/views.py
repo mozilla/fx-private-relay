@@ -131,6 +131,18 @@ def reply_requires_premium_test(request):
     return render(request, "emails/reply_requires_premium.html", email_context)
 
 
+def first_forwarded_email_test(request: HttpRequest) -> HttpResponse:
+    # TO DO: Update with correct context when trigger is created
+    email_context = {
+        "sender": "test@example.com",
+        "display_email": "test@example.com",
+        "SITE_ORIGIN": settings.SITE_ORIGIN,
+        "has_premium": True,
+        "num_level_one_email_trackers_removed": 100,
+    }
+    return render(request, "emails/first_forwarded_email.html", email_context)
+
+
 def wrap_html_email(
     original_html: str,
     language: str,
