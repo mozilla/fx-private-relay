@@ -71,6 +71,7 @@
 
 .modal-title {
   font-weight: 600;
+
   @include text-body-md;
   color: $color-grey-50;
 }
@@ -94,8 +95,8 @@
   border-radius: $border-radius-sm;
   font-weight: 100;
   padding: $spacing-sm $spacing-md;
+
   @include text-body-sm;
-  font-family: $font-stack-firefox;
   color: $color-grey-40;
   width: 100%;
 }

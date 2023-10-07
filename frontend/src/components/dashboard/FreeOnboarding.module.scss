@@ -94,6 +94,7 @@
 
   .headline {
     font-weight: 700;
+    
     @include text-body-md;
     font-family: $font-stack-firefox;
     color: $color-blue-80;
@@ -274,6 +275,7 @@
 
 .headline {
   font-weight: 700;
+
   @include text-body-md;
   font-family: $font-stack-firefox;
   color: $color-blue-80;
