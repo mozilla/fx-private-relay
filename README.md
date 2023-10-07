@@ -30,7 +30,7 @@ them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content
       - [Getting the latest translations](#getting-the-latest-translations)
       - [Add/update messages for translation](#addupdate-messages-for-translation)
       - [Commit translations for release](#commit-translations-for-release)
-    - [Recommended: Enable Firefox Accounts authentication](#recommended-enable-firefox-accounts-authentication)
+    - [Recommended: Enable Mozilla Accounts authentication](#recommended-enable-mozilla-accounts-authentication)
     - [Optional: Install and run the add-on locally](#optional-install-and-run-the-add-on-locally)
     - [Optional: Run a development server to compile the frontend](#optional-run-a-development-server-to-compile-the-frontend)
     - [Optional: Enable Premium Features](#optional-enable-premium-features)
@@ -194,9 +194,9 @@ of the translations submodule:
 An automated process updates the submodule daily, bringing in any new changes
 and translations from the Localization Team.
 
-### Recommended: Enable Firefox Accounts authentication
+### Recommended: Enable Mozilla Accounts authentication
 
-To enable Firefox Accounts authentication on your local server, you can use the
+To enable Mozilla Accounts authentication on your local server, you can use the
 "Firefox Private Relay local dev" OAuth app on accounts.stage.mozaws.net.
 
 To do so:
@@ -226,7 +226,7 @@ To do so:
 
 | Field      | Value                                                   |
 | ---------- | ------------------------------------------------------- |
-| Provider   | Firefox Accounts                                        |
+| Provider   | Mozilla Accounts                                        |
 | Name       | `accounts.stage.mozaws.net`                             |
 | Client id  | `9ebfe2c2f9ea3c58`                                      |
 | Secret key | Request this from `#fx-private-relay-eng` Slack channel |
@@ -274,7 +274,7 @@ To enable the premium Relay features, we integrate with the [FXA Subscription
 Platform](https://mozilla.github.io/ecosystem-platform/relying-parties/reference/sub-plat-overview).
 At a high level, to set up Relay premium subscription, we:
 
-1. [Enable Firefox Accounts Authentication](#recommended-enable-firefox-accounts-authentication) as described above.
+1. [Enable Mozilla Accounts Authentication](#recommended-enable-firefox-accounts-authentication) as described above.
 
 2. Create a product & price in our [Stripe dashboard](https://dashboard.stripe.com/).
    (Ask in #subscription-platform Slack channel to get access to our Stripe dashboard.)
@@ -286,7 +286,7 @@ At a high level, to set up Relay premium subscription, we:
 
 In detail:
 
-1. [Enable Firefox Accounts Authentication](#recommended-enable-firefox-accounts-authentication) as described above.
+1. [Enable Mozilla Accounts Authentication](#recommended-enable-firefox-accounts-authentication) as described above.
 
 2. Go to our [Stripe dashboard](https://dashboard.stripe.com/).
    (Ask in #subscription-platform Slack channel to get access to our Stripe dashboard.)

@@ -233,7 +233,7 @@ def guess_country_from_accept_lang(accept_lang: str) -> str:
     If an issue is detected, a AcceptLanguageError is raised.
 
     The header may come directly from a web request, or may be the header
-    captured by Firefox Accounts (FxA) at signup.
+    captured by Mozilla Accounts (FxA) at signup.
 
     Even with all this logic and special casing, it is still more accurate to
     use a GeoIP lookup or a country code provided by the infrastructure.

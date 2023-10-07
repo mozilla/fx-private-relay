@@ -1,12 +1,12 @@
 from base64 import b64decode
 from copy import deepcopy
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+from email import message_from_string, policy
 from email.message import EmailMessage
 from typing import cast
 from unittest.mock import patch, Mock
 from uuid import uuid4
 import glob
-import io
 import json
 import os
 import re
@@ -46,7 +46,6 @@ from emails.views import (
     ReplyHeadersNotFound,
     _build_reply_requires_premium_email,
     _get_address,
-    _get_attachment,
     _get_keys_from_headers,
     _record_receipt_verdicts,
     _set_forwarded_first_reply,
@@ -99,6 +98,7 @@ def load_email_fixtures(file_suffix: str) -> dict[str, str]:
 EMAIL_SNS_BODIES = load_sns_fixtures("_email_sns_body")
 BOUNCE_SNS_BODIES = load_sns_fixtures("_bounce_sns_body")
 INVALID_SNS_BODIES = load_sns_fixtures("_invalid_sns_body")
+EMAIL_INCOMING = load_email_fixtures("_incoming")
 EMAIL_EXPECTED = load_email_fixtures("_expected")
 
 # Set mocked_function.side_effect = FAIL_TEST_IF_CALLED to safely disable a function
@@ -137,19 +137,80 @@ def create_email_from_notification(
     return email.as_bytes()
 
 
-def assert_email_equals(output_email: str, name: str) -> None:
+def create_notification_from_email(email_text: str) -> AWS_SNSMessageJSON:
     """
-    Assert the output equals the expected email, after replacements.
+    Create an SNS notification from a raw serialized email.
 
-    This function replaces MIME boundary strings, which change each test run.  The
-    replacement is "==[BOUNDARY#]==", where "#" is the order the string appears in the
-    email.
+    The SNS notification is designed to be processed by _handle_received, and can be
+    processed by _sns_inbound_logic and _sns_notification, which will pass it to
+    _handle_received. It will not pass the external view sns_inbound, because it will
+    fail signature checking, since it has a fake Signature and SigningCertURL.
 
-    Per RFC 1521, 7.2.1, MIME boundary strings must not appear in the bounded content.
-    Most email providers use random number generators when finding a unique string.
-    Python's email library generates a large random value for email boundary strings.
-    These strings are different with each test run. The replacement strings do not
-    vary between test runs, and are still unique for different MIME sections.
+    The SNS notification has a passing receipt, such as a passing spamVerdict,
+    virusVerdict, and dmarcVerdict.
+
+    The SNS notification will have the headers from the email and other mocked items.
+    The email will be included in the notification body, not loaded from (mock) S3.
+    """
+    email = message_from_string(email_text, policy=policy.default)
+    topic_arn = "arn:aws:sns:us-east-1:168781634622:ses-inbound-grelay"
+    sns_message = {
+        "notificationType": "Received",
+        "mail": {
+            "timestamp": email["Date"].datetime.isoformat(),
+            "source": email["From"].addresses[0].addr_spec,
+            "messageId": email["Message-ID"],
+            "destination": [addr.addr_spec for addr in email["To"].addresses],
+            "headersTruncated": False,
+            "headers": [{"name": _h, "value": _v} for _h, _v in email.items()],
+            "commonHeaders": {
+                "from": [str(addr) for addr in email["From"].addresses],
+                "date": email["Date"],
+                "to": [str(addr) for addr in email["To"].addresses],
+                "messageId": email["Message-ID"],
+                "subject": email["Subject"],
+            },
+        },
+        "receipt": {
+            "timestamp": (email["Date"].datetime + timedelta(seconds=1)).isoformat(),
+            "processingTimeMillis": 1001,
+            "recipients": [addr.addr_spec for addr in email["To"].addresses],
+            "spamVerdict": {"status": "PASS"},
+            "virusVerdict": {"status": "PASS"},
+            "spfVerdict": {"status": "PASS"},
+            "dkimVerdict": {"status": "PASS"},
+            "dmarcVerdict": {"status": "PASS"},
+            "action": {"type": "SNS", "topicArn": topic_arn, "encoding": "UTF8"},
+        },
+        "content": email_text,
+    }
+    base_url = "https://sns.us-east-1.amazonaws.example.com"
+    sns_notification = {
+        "Type": "Notification",
+        "MessageId": str(uuid4()),
+        "TopicArn": topic_arn,
+        "Subject": email["Subject"],
+        "Message": json.dumps(sns_message),
+        "Timestamp": (email["Date"].datetime + timedelta(seconds=2)).isoformat(),
+        "SignatureVersion": "1",
+        "Signature": "invalid-signature",
+        "SigningCertURL": f"{base_url}/SimpleNotificationService-abcd1234.pem",
+        "UnsubscribeURL": (
+            f"{base_url}/?Action=Unsubscribe&SubscriptionArn={topic_arn}:{uuid4()}"
+        ),
+    }
+    return sns_notification
+
+
+def assert_email_equals(
+    output_email: str, name: str, replace_mime_boundaries: bool = False
+) -> None:
+    """
+    Assert the output equals the expected email, after optional replacements.
+
+    If Python generated new sections in the email, such as creating an HTML section for
+    a text-only email, then set replace_mime_boundaries=True to replace MIME boundaries
+    with text that does not change between runs.
 
     If the output does not match, write the output to the fixtures directory. This
     allows using other diff tools, and makes it easy to capture new outputs when the
@@ -157,11 +218,36 @@ def assert_email_equals(output_email: str, name: str) -> None:
     """
     expected = EMAIL_EXPECTED[name]
 
-    # Convert the output_email to a generic version
+    # If requested, convert MIME boundaries in the the output_email
+    if replace_mime_boundaries:
+        test_output_email = _replace_mime_boundaries(output_email)
+    else:
+        test_output_email = output_email
+
+    if test_output_email != expected:
+        path = os.path.join(real_abs_cwd, "fixtures", name + "_actual.email")
+        open(path, "w").write(test_output_email)
+    assert test_output_email == expected
+
+
+def _replace_mime_boundaries(email: str) -> str:
+    """
+    Replace MIME boundary strings.  The replacement is "==[BOUNDARY#]==", where "#" is
+    the order the string appears in the email.
+
+    Per RFC 1521, 7.2.1, MIME boundary strings must not appear in the bounded content.
+    Most email providers use random number generators when finding a unique string.
+    Python's email library generates a large random value for email boundary strings.
+    If the Python email library generates boundary strings (for example, creating an
+    HTML section for a text-only email), the boundary strings are different with each
+    test run. The replacement strings do not vary between test runs, and are still
+    unique for different MIME sections.
+    """
+
     generic_email_lines: list[str] = []
     mime_boundaries: dict[str, str] = {}
     boundary_re = re.compile(r' boundary="(.*)"')
-    for line in output_email.splitlines():
+    for line in email.splitlines():
         if " boundary=" in line:
             # Capture the MIME boundary and replace with generic
             cap = boundary_re.search(line)
@@ -177,10 +263,7 @@ def assert_email_equals(output_email: str, name: str) -> None:
         generic_email_lines.append(generic_line)
 
     generic_email = "\n".join(generic_email_lines) + "\n"
-    if generic_email != expected:
-        path = os.path.join(real_abs_cwd, "fixtures", name + "_actual.email")
-        open(path, "w").write(generic_email)
-    assert generic_email == expected
+    return generic_email
 
 
 @override_settings(RELAY_FROM_ADDRESS="reply@relay.example.com")
@@ -227,14 +310,22 @@ class SNSNotificationTest(TestCase):
         assert len(destinations) == 1
         raw_message = self.mock_send_raw_email.call_args[1]["RawMessage"]["Data"]
         headers: dict[str, str] = {}
+        last_key = None
         for line in raw_message.splitlines():
             if not line:
                 # Start of message body, done with headers
                 return source, destinations[0], headers, raw_message
-            assert ": " in line
-            key, val = line.split(": ", 1)
-            assert key not in headers
-            headers[key] = val
+            if line[0] in (" ", "\t"):
+                # Continuation of last header
+                assert last_key
+                headers[last_key] += line
+            else:
+                # New headers
+                assert ": " in line
+                key, val = line.split(": ", 1)
+                assert key not in headers
+                headers[key] = val
+                last_key = key
         raise Exception("Never found message body!")
 
     def test_single_recipient_sns_notification(self) -> None:
@@ -244,7 +335,7 @@ class SNSNotificationTest(TestCase):
         assert sender == "replies@default.com"
         assert recipient == "user@example.com"
         content_type = headers.pop("Content-Type")
-        assert content_type.startswith('multipart/mixed; boundary="========')
+        assert content_type.startswith('multipart/alternative; boundary="b1_1tMoOzirX')
         assert headers == {
             "Subject": "localized email header + footer",
             "MIME-Version": "1.0",
@@ -262,15 +353,10 @@ class SNSNotificationTest(TestCase):
 
     def test_single_french_recipient_sns_notification(self) -> None:
         """
-        The email content can contain non-ASCII characters and be base64 encoded.
+        The email content can contain non-ASCII characters.
 
         In this case, the HTML content is wrapped in the Relay header translated
         to French.
-
-        This is a design choice. Relay could convert non-ASCII characters to HTML
-        escaped characters. For example, 'Transféré' could be 'Transf&#233;r&#233;',
-        via `html.encode('ascii', errors='xmlcharrefreplace').decode()`. However,
-        mail clients don't care, only devs looking at "view source".
         """
         self.sa.extra_data = {"locale": "fr, fr-fr, en-us, en"}
         self.sa.save()
@@ -282,7 +368,7 @@ class SNSNotificationTest(TestCase):
         assert sender == "replies@default.com"
         assert recipient == "user@example.com"
         content_type = headers.pop("Content-Type")
-        assert content_type.startswith('multipart/mixed; boundary="========')
+        assert content_type.startswith('multipart/alternative; boundary="b1_1tMo')
         assert headers == {
             "Subject": "localized email header + footer",
             "MIME-Version": "1.0",
@@ -293,7 +379,7 @@ class SNSNotificationTest(TestCase):
         }
         assert_email_equals(email, "single_recipient_fr")
         assert 'Content-Type: text/html; charset="utf-8"' in email
-        assert "Content-Transfer-Encoding: base64" in email
+        assert "Content-Transfer-Encoding: quoted-printable" in email
 
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
@@ -519,6 +605,111 @@ class SNSNotificationTest(TestCase):
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 0
         assert self.ra.last_used_at is None
+
+    def test_inline_image(self) -> None:
+        email_text = EMAIL_INCOMING["inline_image"]
+        content_id = "Content-ID: <0A0AD2F8-6672-45A8-8248-0AC6C7282970>"
+        test_sns_notification = create_notification_from_email(email_text)
+        _sns_notification(test_sns_notification)
+
+        self.mock_send_raw_email.assert_called_once()
+        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
+        assert sender == "replies@default.com"
+        assert recipient == "user@example.com"
+        assert headers == {
+            "Subject": "Test Email",
+            "From": '"friend@mail.example.com [via Relay]" <ebsbdsan7@test.com>',
+            "To": recipient,
+            "Reply-To": sender,
+            "Resent-From": "friend@mail.example.com",
+            "Mime-Version": "1.0 (MailClient 1.1.1)",
+            "Content-Type": headers["Content-Type"],
+        }
+        assert_email_equals(email, "inline_image")
+        assert content_id in email  # Issue 691
+
+        self.mock_remove_message_from_s3.assert_called_once()
+        self.ra.refresh_from_db()
+        assert self.ra.num_forwarded == 1
+        assert self.ra.last_used_at
+        assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
+
+    def test_russian_spam(self) -> None:
+        """
+        Base64-encoded input content can be processed.
+
+        Python picks the output encoding it thinks will be most compact. See:
+        https://docs.python.org/3/library/email.contentmanager.html#email.contentmanager.set_content
+
+        The plain text remains in base64, due to high proportion of Russian characters.
+        The HTML version is converted to quoted-printable, due to the high proportion
+        of ASCII characters.
+        """
+        email_text = EMAIL_INCOMING["russian_spam"]
+        test_sns_notification = create_notification_from_email(email_text)
+        _sns_notification(test_sns_notification)
+
+        self.mock_send_raw_email.assert_called_once()
+        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
+        assert sender == "replies@default.com"
+        assert recipient == "user@example.com"
+
+        # Subject translates as "Invitation | Why and how to do business in Africa?"
+        # Because of Russian characters, it is UTF-8 text encoded in Base64
+        expected_subject_b64 = (
+            "0J/RgNC40LPQu9Cw0YjQtdC90LjQtSAgfCDQl9Cw0YfQtdC8INC4INC6",
+            "0LDQuiDQstC10YHRgtC4INCx0LjQt9C90LXRgSDQsiDQkNGE0YDQuNC60LU/",
+        )
+        subject = b64decode("".join(expected_subject_b64)).decode()
+        assert subject == "Приглашение  | Зачем и как вести бизнес в Африке?"
+        expected_subject_header = " ".join(
+            f"=?utf-8?b?{val}?=" for val in expected_subject_b64
+        )
+
+        assert headers["Content-Type"].startswith('multipart/mixed; boundary="')
+        assert headers == {
+            "Subject": expected_subject_header,
+            "From": '"hello@ac.spam.example.com [via Relay]" <ebsbdsan7@test.com>',
+            "To": recipient,
+            "Reply-To": sender,
+            "Resent-From": "hello@ac.spam.example.com",
+            "Content-Type": headers["Content-Type"],
+            "MIME-Version": "1.0",
+        }
+        assert_email_equals(email, "russian_spam")
+
+        self.mock_remove_message_from_s3.assert_called_once()
+        self.ra.refresh_from_db()
+        assert self.ra.num_forwarded == 1
+        assert self.ra.last_used_at
+        assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
+
+    def test_plain_text(self) -> None:
+        """A plain-text only email gets an HTML part."""
+        email_text = EMAIL_INCOMING["plain_text"]
+        test_sns_notification = create_notification_from_email(email_text)
+        _sns_notification(test_sns_notification)
+
+        self.mock_send_raw_email.assert_called_once()
+        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
+        assert sender == "replies@default.com"
+        assert recipient == "user@example.com"
+        assert headers == {
+            "Subject": "Text-Only Email",
+            "From": '"root@server.example.com [via Relay]" <ebsbdsan7@test.com>',
+            "To": recipient,
+            "Reply-To": sender,
+            "Resent-From": "root@server.example.com",
+            "Content-Type": headers["Content-Type"],
+            "MIME-Version": "1.0",
+        }
+        assert_email_equals(email, "plain_text", replace_mime_boundaries=True)
+
+        self.mock_remove_message_from_s3.assert_called_once()
+        self.ra.refresh_from_db()
+        assert self.ra.num_forwarded == 1
+        assert self.ra.last_used_at
+        assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
 
 
 class BounceHandlingTest(TestCase):
@@ -1133,82 +1324,6 @@ class GetAddressTest(TestCase):
         assert DomainAddress.objects.filter(user=self.user).count() == 2
 
 
-class GetAttachmentTests(TestCase):
-    def setUp(self):
-        # Binary string of 10 chars * 16,000 = 160,000 byte string, longer than
-        # 150k max size of SpooledTemporaryFile, so it is written to disk
-        self.long_data = b"0123456789" * 16_000
-
-    def create_message(self, data, mimetype, filename):
-        """Create an EmailMessage with an attachment."""
-        message = EmailMessage()
-        message["Subject"] = "A Test Message"
-        message["From"] = "test sender <sender@example.com>"
-        message["To"] = "test receiver <receiver@example.com>"
-        message.preamble = "This email has attachments.\n"
-
-        assert isinstance(data, bytes)
-        maintype, subtype = mimetype.split("/", 1)
-        assert maintype
-        assert subtype
-        message.add_attachment(
-            data, maintype=maintype, subtype=subtype, filename=filename
-        )
-        return message
-
-    def get_name_and_stream(self, message):
-        """Get the first attachment's filename and data stream from a message."""
-        for part in message.walk():
-            if part.is_attachment():
-                name, stream = _get_attachment(part)
-                self.addCleanup(stream.close)
-                return name, stream
-        return None, None
-
-    def test_short_attachment(self):
-        """A short attachment is stored in memory"""
-        message = self.create_message(b"A short attachment", "text/plain", "short.txt")
-        name, stream = self.get_name_and_stream(message)
-        assert name == "short.txt"
-        assert isinstance(stream._file, io.BytesIO)
-
-    def test_long_attachment(self):
-        """A long attachment is stored on disk"""
-        message = self.create_message(
-            self.long_data, "application/octet-stream", "long.txt"
-        )
-        name, stream = self.get_name_and_stream(message)
-        assert name == "long.txt"
-        assert isinstance(stream._file, io.BufferedRandom)
-
-    def test_attachment_unicode_filename(self):
-        """A unicode filename can be stored on disk"""
-        filename = "Some Binary data 😀.bin"
-        message = self.create_message(
-            self.long_data, "application/octet-stream", filename
-        )
-        name, stream = self.get_name_and_stream(message)
-        assert name == filename
-        assert isinstance(stream._file, io.BufferedRandom)
-
-    def test_attachment_url_filename(self):
-        """A URL filename can be stored on disk"""
-        filename = "https://example.com/data.bin"
-        message = self.create_message(
-            self.long_data, "application/octet-stream", filename
-        )
-        name, stream = self.get_name_and_stream(message)
-        assert name == filename
-        assert isinstance(stream._file, io.BufferedRandom)
-
-    def test_attachment_no_filename(self):
-        """An attachment without a filename can be stored on disk"""
-        message = self.create_message(self.long_data, "application/octet-stream", None)
-        name, stream = self.get_name_and_stream(message)
-        assert name is None
-        assert isinstance(stream._file, io.BufferedRandom)
-
-
 TEST_AWS_SNS_TOPIC = "arn:aws:sns:us-east-1:111222333:relay"
 TEST_AWS_SNS_TOPIC2 = TEST_AWS_SNS_TOPIC + "-alt"
 
@@ -1488,7 +1603,9 @@ def test_reply_requires_premium_test(rf, forwarded, content_type, caplog):
 def test_build_reply_requires_premium_email_first_time_includes_forward_text():
     # First create a valid reply record from an external sender to a free Relay user
     free_user = make_free_test_user()
-    relay_address = baker.make(RelayAddress, user=free_user)
+    relay_address = baker.make(
+        RelayAddress, user=free_user, address="w41fwbt4q", domain=2
+    )
 
     original_sender = "external_sender@test.com"
     original_msg_id = "<external-msg-id-123@test.com>"
@@ -1509,7 +1626,7 @@ def test_build_reply_requires_premium_email_first_time_includes_forward_text():
     )
 
     # Now send a reply from the free Relay user to the external sender
-    test_from = relay_address.address
+    test_from = relay_address.full_address
     test_msg_id = "<relay-user-msg-id-456@usersemail.com>"
     decrypted_metadata = json.loads(
         decrypt_reply_metadata(encryption_key, reply_record.encrypted_metadata)
@@ -1522,22 +1639,26 @@ def test_build_reply_requires_premium_email_first_time_includes_forward_text():
     expected_From = f"replies@{domain}"
     assert msg["Subject"] == "Replies are not included with your free account"
     assert msg["From"] == expected_From
-    assert msg["To"] == relay_address.address
+    assert msg["To"] == relay_address.full_address
 
-    multipart_payload = msg.get_payload()[0]
-    first_part = multipart_payload.get_payload()[0]
-    second_part = multipart_payload.get_payload()[1]
-    text_content = b64decode(first_part.get_payload()).decode()
-    html_content = b64decode(second_part.get_payload()).decode()
+    text_part, html_part = msg.get_payload()
+    text_content = text_part.get_payload()
+    html_content = html_part.get_payload()
     assert "sent this reply" in text_content
     assert "sent this reply" in html_content
+
+    assert_email_equals(
+        msg.as_string(), "reply_requires_premium_first", replace_mime_boundaries=True
+    )
 
 
 @pytest.mark.django_db
 def test_build_reply_requires_premium_email_after_forward():
     # First create a valid reply record from an external sender to a free Relay user
     free_user = make_free_test_user()
-    relay_address = baker.make(RelayAddress, user=free_user)
+    relay_address = baker.make(
+        RelayAddress, user=free_user, address="w41fwbt4q", domain=2
+    )
     _set_forwarded_first_reply(free_user.profile)
 
     original_sender = "external_sender@test.com"
@@ -1559,7 +1680,7 @@ def test_build_reply_requires_premium_email_after_forward():
     )
 
     # Now send a reply from the free Relay user to the external sender
-    test_from = relay_address.address
+    test_from = relay_address.full_address
     test_msg_id = "<relay-user-msg-id-456@usersemail.com>"
     decrypted_metadata = json.loads(
         decrypt_reply_metadata(encryption_key, reply_record.encrypted_metadata)
@@ -1572,15 +1693,17 @@ def test_build_reply_requires_premium_email_after_forward():
     expected_From = f"replies@{domain}"
     assert msg["Subject"] == "Replies are not included with your free account"
     assert msg["From"] == expected_From
-    assert msg["To"] == relay_address.address
+    assert msg["To"] == relay_address.full_address
 
-    multipart_payload = msg.get_payload()[0]
-    first_part = multipart_payload.get_payload()[0]
-    second_part = multipart_payload.get_payload()[1]
-    text_content = b64decode(first_part.get_payload()).decode()
-    html_content = b64decode(second_part.get_payload()).decode()
+    text_part, html_part = msg.get_payload()
+    text_content = text_part.get_payload()
+    html_content = html_part.get_payload()
     assert "Your reply was not sent" in text_content
     assert "Your reply was not sent" in html_content
+
+    assert_email_equals(
+        msg.as_string(), "reply_requires_premium_second", replace_mime_boundaries=True
+    )
 
 
 def test_get_keys_from_headers_no_reply_headers():

@@ -1280,6 +1280,8 @@ def multi_reply(
         ("+13025550001", "text"),  # Same last 4 digits as below
         ("+13035550001", "text"),  # Same last 4 digits as above
         ("+13045551301", "text"),  # Last 4 match first 4 of oldest
+        ("64192", "text"),  # shortcode
+        ("+15062345678", "text"),  # CA number
         ("+13055550002", "text"),  # Text from number
         ("+13055550002", "call"),  # Call from same number
         ("+14045550003", "call"),  # Most recent call, never texted

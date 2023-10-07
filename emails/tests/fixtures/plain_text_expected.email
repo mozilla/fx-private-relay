@@ -1,27 +1,23 @@
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
- boundary="b1_1tMoOzirX5rNUK0QIqMdSQB8hwcBeFGHtIfEtmvEG0k"
-Subject: localized email header + footer
-From: "fxastage@protonmail.com [via Relay]" <ebsbdsan7@test.com>
+Subject: Text-Only Email
+From: "root@server.example.com [via Relay]" <ebsbdsan7@test.com>
 To: user@example.com
 Reply-To: replies@default.com
-Resent-From: fxastage@protonmail.com
+Resent-From: root@server.example.com
+Content-Type: multipart/alternative;
+ boundary="==[BOUNDARY0]=="
 
-This is a multi-part message in MIME format.
-
---b1_1tMoOzirX5rNUK0QIqMdSQB8hwcBeFGHtIfEtmvEG0k
+--==[BOUNDARY0]==
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
 
 This email was sent to your alias ebsbdsan7@test.com. To stop receiving email=
 s sent to this alias, update the forwarding settings in your dashboard.
 ---Begin Email---
-should work
+This is a text-only email.
+See https://text.example.com
 
-Sent with [ProtonMail](https://protonmail.com/) Secure Email.
-
---b1_1tMoOzirX5rNUK0QIqMdSQB8hwcBeFGHtIfEtmvEG0k
+--==[BOUNDARY0]==
 Content-Type: text/html; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
@@ -142,15 +138,15 @@ tical-align: top;" alt=3D"relay icon"/>
 k;">
             <span class=3D"forwarded-from-email" style=3D"display: block; col=
 or: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
-            Transf=C3=A9r=C3=A9 depuis <a href=3D"http://127.0.0.1:8000/accou=
-nts/profile/#ebsbdsan7%40test.com" class=3D"container-link" style=3D"margin-r=
-ight: 30px;color: #FFFFFF;font-size: 12px;">ebsbdsan7@test.com</a>
+            Forwarded from <a href=3D"http://127.0.0.1:8000/accounts/profile/=
+#ebsbdsan7%40test.com" class=3D"container-link" style=3D"margin-right: 30px;c=
+olor: #FFFFFF;font-size: 12px;">ebsbdsan7@test.com</a>
             </span>
           <span style=3D"margin-top: 0; margin-bottom: 5px; display: block;co=
 lor: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
-              par <a href=3D"http://127.0.0.1:8000/accounts/profile/" class=
-=3D"container-link" style=3D"margin-right: 30px;color: #FFFFFF;font-size: 12p=
-x;">Firefox Relay</a>
+              by <a href=3D"http://127.0.0.1:8000/accounts/profile/" class=3D=
+"container-link" style=3D"margin-right: 30px;color: #FFFFFF;font-size: 12px;"=
+>Firefox Relay</a>
           </span>
           </p>
         </td>
@@ -161,13 +157,12 @@ splay: inline-block; color: #FFFFFF; font-family: 'inter', Arial, sans-serif;=
             <img class=3D"email-trackers-removed-icon" width=3D"15" src=3D"ht=
 tp://127.0.0.1:8000/static/images/email-images/email-trackers-removed-icon.pn=
 g" alt=3D"email trackers removed icon"/>
-              <span dir=3D"auto">0</span>=C2=A0traqueur d=E2=80=99e-mail supp=
-rim=C3=A9
+              <span dir=3D"auto">0</span> email trackers removed
           </p>
           <p class=3D"relay-mask" style=3D"margin: 0; display: inline-block;">
               <a class=3D"container-link" href=3D"http://127.0.0.1:8000/premi=
 um" style=3D"color: #FFFFFF;">
-                Souscrivez maintenant pour davantage de protection
+                Upgrade for more protection
               </a>
           </p>
         </td>
@@ -178,15 +173,8 @@ um" style=3D"color: #FFFFFF;">
 dth:700px;" align=3D"center">
       <tr>
         <td width=3D"100%" style=3D"padding-left: 15px; padding-right: 15px;">
-          <div style=3D"font-family: arial; font-size: 14px;"><div style=3D"f=
-ont-family: arial; font-size: 14px;">should work<br></div><div style=3D"font-=
-family: arial; font-size: 14px;"><br></div><div style=3D"font-family: arial; =
-font-size: 14px;" class=3D"protonmail_signature_block"><div class=3D"protonma=
-il_signature_block-user protonmail_signature_block-empty"></div><div class=3D=
-"protonmail_signature_block-proton">Sent with <a rel=3D"noopener noreferrer" =
-href=3D"https://protonmail.com/" target=3D"_blank">ProtonMail</a> Secure Emai=
-l.</div></div></div><div style=3D"font-family: arial; font-size: 14px;"><br><=
-/div>
+          This is a text-only email.<br>See <a href=3D"https://text.example.c=
+om" rel=3D"nofollow">https://text.example.com</a><br>
         </td>
       </tr>
     </table>
@@ -204,12 +192,11 @@ go"/>
         </td>
         <td class=3D"footer-block" width=3D"50%" align=3D"right">
           <a class=3D"container-link" href=3D"http://127.0.0.1:8000/accounts/=
-profile" style=3D"color: #FFFFFF;">Votre tableau de bord</a>
+profile" style=3D"color: #FFFFFF;">Your dashboard</a>
         </td>
       </tr>
     </table>
   </body>
 </html>
 
---b1_1tMoOzirX5rNUK0QIqMdSQB8hwcBeFGHtIfEtmvEG0k--
-
+--==[BOUNDARY0]==--

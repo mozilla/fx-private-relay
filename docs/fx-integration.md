@@ -20,7 +20,7 @@ Firefox users signed into the browser with their FxA.
 ## Firefox users sign into their browsers with their FxA
 
 Relay has to forward emails to someone's existing email address. So, to use Relay, users
-create a [Firefox Account][sumo-fxa], which requires and verifies an existing email address.
+create a [Mozilla Account][sumo-fxa], which requires and verifies an existing email address.
 
 TODO: Link to tech doc for Firefox/FxA integration.
 

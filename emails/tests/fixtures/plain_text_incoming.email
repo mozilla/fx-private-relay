@@ -1,0 +1,10 @@
+Subject: Text-Only Email
+From: A server <root@server.example.com>
+To: ebsbdsan7@test.com
+Date: Wed, 27 Sep 2023 16:33:12 +0000
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+
+This is a text-only email.
+See https://text.example.com

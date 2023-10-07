@@ -1,0 +1,185 @@
+Subject: Replies are not included with your free account
+From: replies@default.com
+To: w41fwbt4q@test.com
+In-Reply-To: <relay-user-msg-id-456@usersemail.com>
+References: <relay-user-msg-id-456@usersemail.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="==[BOUNDARY0]=="
+
+--==[BOUNDARY0]==
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+
+
+
+
+Upgrade for more protection
+
+Your reply was not sent
+
+
+Your reply was not sent to =E2=81=A8external_sender@test.com=E2=81=A9.
+
+Replying to forwarded emails from your masked email is only available with =
+=E2=81=A8Firefox Relay Premium=E2=81=A9.
+http://127.0.0.1:8000/premium/?utm_campaign=3Demail_replies&amp;utm_source=3D=
+email&amp;utm_medium=3Demail
+
+
+--==[BOUNDARY0]==
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+
+
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/T=
+R/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns=3D"http://www.w3.org/1999/xhtml" lang=3D"" dir=3D"ltr"></html>
+  <head>
+    <meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dutf-8" =
+/>
+    <meta name=3D"viewport" content=3D"width=3Ddevice-width"/>
+    <style>=20
+        @font-face {
+                font-family: 'inter';
+                font-style: normal;
+                font-weight: 500;
+                src: local('Inter Regular'), local('Inter-Regular'), url(http=
+s://relay.firefox.com/fonts/Inter/Inter-Regular.4232a675a077.woff2?v=3D3.18) =
+format('woff');
+            }
+        @font-face {
+        font-family: 'inter medium';
+        font-style: bold;
+        font-weight: 600;
+        src: local('Inter Medium'), local('Inter-Medium'), url(https://relay.=
+firefox.com/fonts/Inter/Inter-Medium.027d14e7d35b.woff2?v=3D3.18) format('wof=
+f');
+        }
+            * {
+            box-sizing: border-box;
+            }=20
+        body {
+            font-family: 'inter', Arial, sans-serif !important;=20
+            color: #3D3D3D;
+        }
+        a {=20
+            color: #0060DF;
+            transition: all 0.2s ease;
+        }
+        a:hover {
+            color: #20123ad5;
+            transition: all 0.2s ease;
+        }
+        a.container-link {
+          color: #FFFFFF;
+          font-size: 12px;
+        }
+        a:hover,
+        a:focus,
+        a:active {
+            transition: all 0.2s ease;
+        }
+    </style>
+  </head>
+  <body style=3D"padding: 0; margin: 0;">
+   =20
+    <!-- temporary header -->
+    <table width=3D"100%" bgcolor=3D"#3D3D3D" style=3D"background: #3D3D3D; p=
+adding-top: 12px; padding-right: 12px; padding-left: 12px; padding-bottom:12p=
+x; margin-top: 30px; margin-bottom: 30px; width: 96%; border-radius: 6px;" al=
+ign=3D"center">
+        <tr>
+            <td align=3D"center" valign=3D"top" width=3D"100%" style=3D"max-w=
+idth:800px; padding-top: 0px; padding-bottom: 0px;">
+            <table width=3D"100%" style=3D"max-width:700px; text-align: cente=
+r; border-collapse: collapse;">
+                <tr>
+                <td width=3D"50%" style=3D"line-height: 150%;" align=3D"left"=
+>=20
+                      <img width=3D"155" src=3D"http://127.0.0.1:8000/static/=
+images/email-images/relay-logo-emails-dark-bg.png" style=3D"margin: 0 5px;" a=
+lt=3D"warning icon"/>  =20
+                </td>
+                <td width=3D"50%" style=3D"line-height: 150%;" align=3D"right=
+">=20
+                    <a class=3D"container-link" href=3D"http://127.0.0.1:8000=
+/premium/?utm_campaign=3Demail_replies&amp;utm_source=3Demail&amp;utm_medium=
+=3Demail">Upgrade for more protection</a>=20
+                </td>
+                </tr>
+            </table>
+            </td>
+        </tr>
+    </table> =20
+   =20
+    <table role=3D"presentation" border=3D"0" cellpadding=3D"0" cellspacing=
+=3D"10px" style=3D"padding: 60px 30px 120px 30px;" align=3D"center">
+        <tr>
+            <td style=3D"max-width:800px; padding-top: 0px; padding-bottom: 0=
+px; text-align: center;">
+                <h2 style=3D"font-family: 'inter medium';">=20
+                    <img width=3D"18" src=3D"http://127.0.0.1:8000/static/ima=
+ges/email-images/warning.png" style=3D"margin: 0 5px;" alt=3D"warning icon"/>
+                   =20
+                        Your reply was not sent
+                   =20
+                </h2>
+                <p style=3D"line-height: 200%; margin-bottom: 30px; padding: =
+20px 60px 20px 60px">
+                   =20
+                        Your reply was not sent to =E2=81=A8external_sender@t=
+est.com=E2=81=A9.
+                   =20
+                    Replying to forwarded emails from your masked email is on=
+ly available with =E2=81=A8Firefox Relay Premium=E2=81=A9.
+                </p>=20
+                <a href=3D"http://127.0.0.1:8000/premium/?utm_campaign=3Demai=
+l_replies&amp;utm_source=3Demail&amp;utm_medium=3Demail" style=3D"margin: 10p=
+x 0;">Upgrade now to send replies</a>
+            </td>=20
+        </tr>
+    </table>
+
+    <!-- temporary footer -->
+    <table width=3D"100%" bgcolor=3D"#3D3D3D" style=3D"background: #3D3D3D; p=
+adding-top: 12px; padding-right: 12px; padding-left: 12px; padding-bottom:12p=
+x; margin-top: 30px; margin-bottom: 30px; width: 96%; border-radius: 6px;" al=
+ign=3D"center">
+      <tr>
+          <td align=3D"center" valign=3D"top" width=3D"100%" style=3D"max-wid=
+th:800px; padding-top: 0px; padding-bottom: 0px;">
+          <table width=3D"100%" style=3D"max-width:700px; text-align: center;=
+ border-collapse: collapse;">
+              <tr>
+              <td width=3D"50%" style=3D"line-height: 150%;" align=3D"left"> =
+
+                    <img width=3D"110" src=3D"http://127.0.0.1:8000/static/im=
+ages/email-images/relay-logo-emails-dark-bg.png" style=3D"margin: 0 5px;" alt=
+=3D"warning icon"/>  =20
+              </td>
+              <td width=3D"50%" style=3D"line-height: 150%;" align=3D"right">=
+=20
+              <a class=3D"container-link" href=3D"http://127.0.0.1:8000/premi=
+um/?utm_campaign=3Demail_replies&amp;utm_source=3Demail&amp;utm_medium=3Demai=
+l" style=3D"margin-right: 30px;">Upgrade to =E2=81=A8Firefox Relay Premium=E2=
+=81=A9</a>=20
+              <a class=3D"container-link" href=3D"http://127.0.0.1:8000/accou=
+nts/profile/?utm_campaign=3Demail_replies&amp;utm_source=3Demail&amp;utm_medi=
+um=3Demail">Manage your masks</a>=20
+              </td>=20
+          </table>
+          </td>
+      </tr>
+  </table> =20
+
+  </body>
+</html>
+
+
+--==[BOUNDARY0]==--

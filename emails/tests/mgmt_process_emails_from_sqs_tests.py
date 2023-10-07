@@ -13,6 +13,7 @@ from django.core.management import call_command
 from django.core.management.base import CommandError
 
 from emails.tests.views_tests import EMAIL_SNS_BODIES
+from privaterelay.tests.utils import log_extra
 
 
 COMMAND_NAME = "process_emails_from_sqs"
@@ -152,40 +153,6 @@ def make_client_error(message="Unknown", code="Unknown", operation_name="Unknown
     """Create a minimal botocore.exceptions.ClientError"""
     err_response = {"Error": {"Message": message, "Code": code}}
     return ClientError(err_response, operation_name)
-
-
-def log_extra(log_record):
-    """Reconstruct the "extra" argument to the log call"""
-    omit_log_record_keys = set(
-        (
-            "args",
-            "created",
-            "exc_info",
-            "exc_text",
-            "filename",
-            "funcName",
-            "levelname",
-            "levelno",
-            "lineno",
-            "message",
-            "module",
-            "msecs",
-            "msg",
-            "name",
-            "pathname",
-            "process",
-            "processName",
-            "relativeCreated",
-            "stack_info",
-            "thread",
-            "threadName",
-        )
-    )
-    return {
-        key: val
-        for key, val in log_record.__dict__.items()
-        if key not in omit_log_record_keys
-    }
 
 
 def summary_from_exit_log(caplog_fixture):

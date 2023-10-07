@@ -1,27 +1,32 @@
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
- boundary="b1_1tMoOzirX5rNUK0QIqMdSQB8hwcBeFGHtIfEtmvEG0k"
-Subject: localized email header + footer
-From: "fxastage@protonmail.com [via Relay]" <ebsbdsan7@test.com>
+Content-Type: multipart/mixed; boundary="MXFqWmhZLWxxWm5TTC1OaQ=="
+Subject: =?utf-8?b?0J/RgNC40LPQu9Cw0YjQtdC90LjQtSAgfCDQl9Cw0YfQtdC8INC4INC6?=
+ =?utf-8?b?0LDQuiDQstC10YHRgtC4INCx0LjQt9C90LXRgSDQsiDQkNGE0YDQuNC60LU/?=
+From: "hello@ac.spam.example.com [via Relay]" <ebsbdsan7@test.com>
 To: user@example.com
 Reply-To: replies@default.com
-Resent-From: fxastage@protonmail.com
+Resent-From: hello@ac.spam.example.com
 
-This is a multi-part message in MIME format.
+--MXFqWmhZLWxxWm5TTC1OaQ==
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_23720677_711349626.1695364304550"
 
---b1_1tMoOzirX5rNUK0QIqMdSQB8hwcBeFGHtIfEtmvEG0k
+------=_Part_23720677_711349626.1695364304550
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
 
-This email was sent to your alias ebsbdsan7@test.com. To stop receiving email=
-s sent to this alias, update the forwarding settings in your dashboard.
----Begin Email---
-should work
+VGhpcyBlbWFpbCB3YXMgc2VudCB0byB5b3VyIGFsaWFzIGVic2Jkc2FuN0B0ZXN0LmNvbS4gVG8g
+c3RvcCByZWNlaXZpbmcgZW1haWxzIHNlbnQgdG8gdGhpcyBhbGlhcywgdXBkYXRlIHRoZSBmb3J3
+YXJkaW5nIHNldHRpbmdzIGluIHlvdXIgZGFzaGJvYXJkLgotLS1CZWdpbiBFbWFpbC0tLQrQl9Cw
+0YfQtdC8INC4INC60LDQuiDQstC10YHRgtC4INCx0LjQt9C90LXRgSDQsiDQkNGE0YDQuNC60LU/
+CgrQo9Cy0LDQttCw0LXQvNGL0LUg0LPQvtGB0L/QvtC00LAhCgrQn9GA0LjQs9C70LDRiNCw0Y4g
+0LLQsNGBINC/0YDQuNC90Y/RgtGMINGD0YfQsNGB0YLQuNC1INCyINC80L7QtdC5INC60L7QvdGE
+0LXRgNC10L3RhtC40LguCgrQn9Ce0J/QkNCh0KLQrCDQndCQINCS0KHQotCg0JXQp9CjCgrQntGC
+0L/QuNGB0LrQsCAoaHR0cHM6Ly9zdXBwb3J0LnNwYW1tZXIuZXhhbXBsZS5jb20vcnUvdjUvdW5z
+dWJzY3JpYmUvaW1tZWRpYXRlbHkpCg==
 
-Sent with [ProtonMail](https://protonmail.com/) Secure Email.
-
---b1_1tMoOzirX5rNUK0QIqMdSQB8hwcBeFGHtIfEtmvEG0k
+------=_Part_23720677_711349626.1695364304550
 Content-Type: text/html; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
@@ -142,15 +147,15 @@ tical-align: top;" alt=3D"relay icon"/>
 k;">
             <span class=3D"forwarded-from-email" style=3D"display: block; col=
 or: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
-            Transf=C3=A9r=C3=A9 depuis <a href=3D"http://127.0.0.1:8000/accou=
-nts/profile/#ebsbdsan7%40test.com" class=3D"container-link" style=3D"margin-r=
-ight: 30px;color: #FFFFFF;font-size: 12px;">ebsbdsan7@test.com</a>
+            Forwarded from <a href=3D"http://127.0.0.1:8000/accounts/profile/=
+#ebsbdsan7%40test.com" class=3D"container-link" style=3D"margin-right: 30px;c=
+olor: #FFFFFF;font-size: 12px;">ebsbdsan7@test.com</a>
             </span>
           <span style=3D"margin-top: 0; margin-bottom: 5px; display: block;co=
 lor: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
-              par <a href=3D"http://127.0.0.1:8000/accounts/profile/" class=
-=3D"container-link" style=3D"margin-right: 30px;color: #FFFFFF;font-size: 12p=
-x;">Firefox Relay</a>
+              by <a href=3D"http://127.0.0.1:8000/accounts/profile/" class=3D=
+"container-link" style=3D"margin-right: 30px;color: #FFFFFF;font-size: 12px;"=
+>Firefox Relay</a>
           </span>
           </p>
         </td>
@@ -161,13 +166,12 @@ splay: inline-block; color: #FFFFFF; font-family: 'inter', Arial, sans-serif;=
             <img class=3D"email-trackers-removed-icon" width=3D"15" src=3D"ht=
 tp://127.0.0.1:8000/static/images/email-images/email-trackers-removed-icon.pn=
 g" alt=3D"email trackers removed icon"/>
-              <span dir=3D"auto">0</span>=C2=A0traqueur d=E2=80=99e-mail supp=
-rim=C3=A9
+              <span dir=3D"auto">0</span> email trackers removed
           </p>
           <p class=3D"relay-mask" style=3D"margin: 0; display: inline-block;">
               <a class=3D"container-link" href=3D"http://127.0.0.1:8000/premi=
 um" style=3D"color: #FFFFFF;">
-                Souscrivez maintenant pour davantage de protection
+                Upgrade for more protection
               </a>
           </p>
         </td>
@@ -178,15 +182,37 @@ um" style=3D"color: #FFFFFF;">
 dth:700px;" align=3D"center">
       <tr>
         <td width=3D"100%" style=3D"padding-left: 15px; padding-right: 15px;">
-          <div style=3D"font-family: arial; font-size: 14px;"><div style=3D"f=
-ont-family: arial; font-size: 14px;">should work<br></div><div style=3D"font-=
-family: arial; font-size: 14px;"><br></div><div style=3D"font-family: arial; =
-font-size: 14px;" class=3D"protonmail_signature_block"><div class=3D"protonma=
-il_signature_block-user protonmail_signature_block-empty"></div><div class=3D=
-"protonmail_signature_block-proton">Sent with <a rel=3D"noopener noreferrer" =
-href=3D"https://protonmail.com/" target=3D"_blank">ProtonMail</a> Secure Emai=
-l.</div></div></div><div style=3D"font-family: arial; font-size: 14px;"><br><=
-/div>
+<!DOCTYPE html>
+<html lang=3D"ru">
+<head>
+<title></title>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dutf-8">
+<meta name=3D"viewport" content=3D"width=3Ddevice-width,initial-scale=3D1">
+</head>
+<body style=3D"background-color:#c5c4cf;margin:0;padding:0;-webkit-text-size-=
+adjust:none;text-size-adjust:none">
+<p><strong>=D0=97=D0=B0=D1=87=D0=B5=D0=BC =D0=B8 =D0=BA=D0=B0=D0=BA =D0=B2=D0=
+=B5=D1=81=D1=82=D0=B8 =D0=B1=D0=B8=D0=B7=D0=BD=D0=B5=D1=81 =D0=B2 =D0=90=D1=
+=84=D1=80=D0=B8=D0=BA=D0=B5?</strong></p>
+<p>=D0=A3=D0=B2=D0=B0=D0=B6=D0=B0=D0=B5=D0=BC=D1=8B=D0=B5 =D0=B3=D0=BE=D1=81=
+=D0=BF=D0=BE=D0=B4=D0=B0!</p>
+<p>=D0=9F=D1=80=D0=B8=D0=B3=D0=BB=D0=B0=D1=88=D0=B0=D1=8E =D0=B2=D0=B0=D1=81 =
+=D0=BF=D1=80=D0=B8=D0=BD=D1=8F=D1=82=D1=8C =D1=83=D1=87=D0=B0=D1=81=D1=82=D0=
+=B8=D0=B5 =D0=B2 =D0=BC=D0=BE=D0=B5=D0=B9 =D0=BA=D0=BE=D0=BD=D1=84=D0=B5=D1=
+=80=D0=B5=D0=BD=D1=86=D0=B8=D0=B8.</p>
+<p><strong>=D0=9F=D0=9E=D0=9F=D0=90=D0=A1=D0=A2=D0=AC =D0=9D=D0=90 =D0=92=D0=
+=A1=D0=A2=D0=A0=D0=95=D0=A7=D0=A3</strong></p>
+<div class style=3D"font-size:14px;font-family:Helvetica Neue,Helvetica,Arial=
+,sans-serif;mso-line-height-alt:16.8px;color:#9393a0;line-height:1.2">
+<p style=3D"margin:0;font-size:14px;text-align:center;mso-line-height-alt:16.=
+8px">
+  <a href=3D"https://support.spammer.example.com/ru/unsubscribe" target=3D"_b=
+lank" style=3D"text-decoration: none; color: #9393a0;" rel=3D"noopener">=D0=
+=9E=D1=82=D0=BF=D0=B8=D1=81=D0=BA=D0=B0</a>
+</p>
+</div>
+</body>
+</html>
         </td>
       </tr>
     </table>
@@ -204,12 +230,13 @@ go"/>
         </td>
         <td class=3D"footer-block" width=3D"50%" align=3D"right">
           <a class=3D"container-link" href=3D"http://127.0.0.1:8000/accounts/=
-profile" style=3D"color: #FFFFFF;">Votre tableau de bord</a>
+profile" style=3D"color: #FFFFFF;">Your dashboard</a>
         </td>
       </tr>
     </table>
   </body>
 </html>
 
---b1_1tMoOzirX5rNUK0QIqMdSQB8hwcBeFGHtIfEtmvEG0k--
+------=_Part_23720677_711349626.1695364304550--
 
+--MXFqWmhZLWxxWm5TTC1OaQ==--
