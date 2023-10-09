@@ -4,6 +4,7 @@ import logging
 
 from django.contrib.auth.models import AbstractBaseUser, Group, User
 from django.core.cache.backends.base import BaseCache
+from django.test import RequestFactory
 
 from _pytest.fixtures import SubRequest
 from _pytest.logging import LogCaptureFixture
@@ -304,7 +305,9 @@ def test_guess_country_from_accept_lang_short_primary_lang_fails(accept_lang) ->
     assert exc_info.value.accept_lang == accept_lang
 
 
-def test_get_countries_info_bad_accept_language(rf) -> None:
+def test_get_countries_info_bad_accept_language(
+    rf: RequestFactory, caplog: LogCaptureFixture
+) -> None:
     request = rf.get("/api/v1/runtime_data", HTTP_ACCEPT_LANGUAGE="xx")
     mapping = get_premium_country_language_mapping()
     result = get_countries_info_from_request_and_mapping(request, mapping)
@@ -314,9 +317,18 @@ def test_get_countries_info_bad_accept_language(rf) -> None:
         "available_in_country": False,
         "plan_country_lang_mapping": mapping,
     }
+    assert len(caplog.records) == 1
+    record = caplog.records[0]
+    assert getattr(record, "selected") == "accept_lang"
+    assert not hasattr(record, "cdn_region")
+    assert getattr(record, "accept_lang") == "xx"
+    assert getattr(record, "accept_lang_region") == ""
+    assert getattr(record, "region") == ""
 
 
-def test_get_countries_info_cdn_language(rf) -> None:
+def test_get_countries_info_cdn_language(
+    rf: RequestFactory, caplog: LogCaptureFixture
+) -> None:
     request = rf.get("/api/v1/runtime_data", HTTP_X_CLIENT_REGION="DE")
     mapping = get_premium_country_language_mapping()
     result = get_countries_info_from_request_and_mapping(request, mapping)
@@ -326,9 +338,18 @@ def test_get_countries_info_cdn_language(rf) -> None:
         "available_in_country": True,
         "plan_country_lang_mapping": mapping,
     }
+    assert len(caplog.records) == 1
+    record = caplog.records[0]
+    assert getattr(record, "selected") == "cdn"
+    assert getattr(record, "cdn_region", "DE")
+    assert not hasattr(record, "accept_lang")
+    assert not hasattr(record, "accept_lang_region")
+    assert getattr(record, "region") == "DE"
 
 
-def test_get_countries_info_no_language(rf) -> None:
+def test_get_countries_info_no_language(
+    rf: RequestFactory, caplog: LogCaptureFixture
+) -> None:
     request = rf.get("/api/v1/runtime_data")
     mapping = get_premium_country_language_mapping()
     result = get_countries_info_from_request_and_mapping(request, mapping)
@@ -338,6 +359,13 @@ def test_get_countries_info_no_language(rf) -> None:
         "available_in_country": True,
         "plan_country_lang_mapping": mapping,
     }
+    assert len(caplog.records) == 1
+    record = caplog.records[0]
+    assert getattr(record, "selected") == "fallback"
+    assert not hasattr(record, "cdn_region")
+    assert not hasattr(record, "accept_lang")
+    assert not hasattr(record, "accept_lang_region")
+    assert getattr(record, "region") == "US"
 
 
 #
