@@ -15,6 +15,11 @@
 
    b. Co-ordinate, re-tag for [stage fixes][stage-fixes] as needed
 
+   - Allow ample time for QA testing which are done during European hours
+
+> [!WARNING]
+> Don't tag after Thursday, so QA has a stable stage environment to test before the Tuesday deployment to production.
+
 3. Monday
 
    a. [Release Readiness Review][release-ready] (led by Easy)
@@ -41,6 +46,7 @@
 2. Lloan
 3. Luke
 4. Se Yeon
+5. Rafee
 
 [release-to-stage]: https://github.com/mozilla/fx-private-relay/blob/main/docs/release_process.md#release-to-stage
 [sentry-releases]: https://mozilla.sentry.io/releases/

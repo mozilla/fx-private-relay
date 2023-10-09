@@ -625,16 +625,34 @@ if IN_PYTEST or RELAY_CHANNEL in ["local", "dev"]:
 # an auth token:
 ACCOUNT_LOGOUT_ON_GET = DEBUG
 
+# TODO: introduce an environment variable to control CORS_ALLOWED_ORIGINS
+# https://mozilla-hub.atlassian.net/browse/MPP-3468
 CORS_URLS_REGEX = r"^/api/"
 CORS_ALLOWED_ORIGINS = [
     "https://vault.bitwarden.com",
+    "https://vault.bitwarden.eu",
 ]
 if RELAY_CHANNEL in ["dev", "stage"]:
-    CORS_ALLOWED_ORIGINS += ["https://vault.qa.bitwarden.pw"]
+    CORS_ALLOWED_ORIGINS += [
+        "https://vault.qa.bitwarden.pw",
+        "https://vault.euqa.bitwarden.pw",
+    ]
+# Allow origins for each environment to help debug cors headers
 if RELAY_CHANNEL == "local":
     # In local dev, next runs on localhost and makes requests to /accounts/
-    CORS_ALLOWED_ORIGINS += ["http://localhost:3000"]
+    CORS_ALLOWED_ORIGINS += [
+        "http://localhost:3000",
+        "http://127.0.0.1:8000",
+    ]
     CORS_URLS_REGEX = r"^/(api|accounts)/"
+if RELAY_CHANNEL == "dev":
+    CORS_ALLOWED_ORIGINS += [
+        "https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+    ]
+if RELAY_CHANNEL == "stage":
+    CORS_ALLOWED_ORIGINS += [
+        "https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+    ]
 
 CSRF_TRUSTED_ORIGINS = []
 if RELAY_CHANNEL == "local":

@@ -104,7 +104,7 @@ export function useProfiles(): SWRResponse<ProfilesData, unknown> & {
 /**
  * Instead of using the `fetcher` from `api.ts`, this fetcher is specific to the profiles API.
  * The reason that it's needed is that we have to tell the back-end to re-fetch data from
- * Firefox Accounts if the user was sent back here after trying to subscribe to Premium.
+ * Mozilla Accounts if the user was sent back here after trying to subscribe to Premium.
  */
 const profileFetcher = async (
   url: string,

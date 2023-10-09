@@ -1,0 +1,55 @@
+Mime-Version: 1.0 (MailClient 1.1.1)
+Date: Tue, 5 Sep 2023 14:42:46 -0700
+Subject: Test Email
+From: Your Friend <friend@mail.example.com>
+To: Your Relay Address <ebsbdsan7@test.com>
+Content-Type: multipart/related;
+	type="multipart/alternative";
+	boundary="MailClient=_85CB3D2B-71DA-4F6C-9F70-F0735457C609"
+Message-Id: <CAJwPAzZ1F8G-0KSCS73x2FX+iG5HMo9+Dndy4GkNVnR28+M1tA@mail.gmail.com>
+
+--MailClient=_85CB3D2B-71DA-4F6C-9F70-F0735457C609
+Content-Type: multipart/alternative;
+	boundary="MailClient=_0C16924A-AE2E-42A3-B146-6CF67E5439A3"
+
+--MailClient=_0C16924A-AE2E-42A3-B146-6CF67E5439A3
+Content-Type: text/plain;
+	charset=utf-8
+Content-Transfer-Encoding: Quoted-Printable
+
+Here is an inline image:
+
+=E2=80=93 Your Friend
+--MailClient=_0C16924A-AE2E-42A3-B146-6CF67E5439A3
+Content-Type: text/html;
+	charset=utf-8
+Content-Transfer-Encoding: Quoted-Printable
+
+<!doctype html><html><body><div dir=3D"ltr">Here is an inline image:&nbsp;<=
+img src=3D"cid:0A0AD2F8-6672-45A8-8248-0AC6C7282970" style=3D"max-width: 10=
+0%; width: 12px;"><div><br></div><div dir=3D"ltr"><ul style=3D"list-style-t=
+ype: &quot;=E2=80=93  &quot;; margin: 0px; padding-inline-start: 1.8em;" di=
+r=3D"ltr"><li>Your Friend</li></ul></div></div></body></html>
+
+--MailClient=_0C16924A-AE2E-42A3-B146-6CF67E5439A3--
+--MailClient=_85CB3D2B-71DA-4F6C-9F70-F0735457C609
+Content-Type: image/png;
+	name="clock-purple.png"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+	filename="clock-purple.png"
+Content-ID: <0A0AD2F8-6672-45A8-8248-0AC6C7282970>
+
+iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAA
+GXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAeFJREFUOI2Nk79rU1EcxT/f+14S
+neoPnNXB4qARKZ2DrQ51tsSki4KNLoa0+gf4D9ikGaRpILrEUBxFIgjpIji4KAUrumRylBaxNTF5
+xyEv+oit9kzfeznnfO89936NEZTTuiCPeYkp4BQQAG3glXNU83X7EOXbsHh8Q4e2uxQROcCNGofo
+Cx5t97j/4Jl1GRKXZnV4q8NLxB2gj7GCkerBibhxzIwpoBJ2vHvU50UlpxiAD+B8ikAK+CK4tvDU
+3ox0XgfWl7OqSjQFl3e+8RDIWymjJPAO6AlSC40/4lJGnwoNG486ldKaxPEa8Jwj6czIhVnUouIQ
+Z0ZDKKzZW6AOeIG45SSmAQJR3ye4v2BQA0BccQyeCr/Px4MaeDE2w/KkP9zcge4e3K+ljBRZfy40
+bPy7TzfxEzA8n8EnOZvwmQBaUXWhYcf3OkF8l3PhFdpuKDJj9qBXcMZcaNByLmAVEGJ+OauJ/4nL
+13VRYh4IAo9Vl1+z9xgVwJNoltKa/Jc4MJ4DcROVxbptGEB5RongCE3gEoMw6wY1L8am7dLpeSRx
+ZMPOcaDltriab1rn9zCVZ5TQGEUZt9l/mAJgZSzBvZtP7AdEpnGIpTmdd31yGNPAaaAPtAUtOaqL
+dduI8n8BrMOp3hG9OkYAAAAASUVORK5CYII=
+--MailClient=_85CB3D2B-71DA-4F6C-9F70-F0735457C609--
+

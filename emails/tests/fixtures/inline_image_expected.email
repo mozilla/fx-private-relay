@@ -1,15 +1,18 @@
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
- boundary="b1_1tMoOzirX5rNUK0QIqMdSQB8hwcBeFGHtIfEtmvEG0k"
-Subject: localized email header + footer
-From: "fxastage@protonmail.com [via Relay]" <ebsbdsan7@test.com>
+Mime-Version: 1.0 (MailClient 1.1.1)
+Content-Type: multipart/related;
+	type="multipart/alternative";
+	boundary="MailClient=_85CB3D2B-71DA-4F6C-9F70-F0735457C609"
+Subject: Test Email
+From: "friend@mail.example.com [via Relay]" <ebsbdsan7@test.com>
 To: user@example.com
 Reply-To: replies@default.com
-Resent-From: fxastage@protonmail.com
+Resent-From: friend@mail.example.com
 
-This is a multi-part message in MIME format.
+--MailClient=_85CB3D2B-71DA-4F6C-9F70-F0735457C609
+Content-Type: multipart/alternative;
+	boundary="MailClient=_0C16924A-AE2E-42A3-B146-6CF67E5439A3"
 
---b1_1tMoOzirX5rNUK0QIqMdSQB8hwcBeFGHtIfEtmvEG0k
+--MailClient=_0C16924A-AE2E-42A3-B146-6CF67E5439A3
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
@@ -17,11 +20,11 @@ MIME-Version: 1.0
 This email was sent to your alias ebsbdsan7@test.com. To stop receiving email=
 s sent to this alias, update the forwarding settings in your dashboard.
 ---Begin Email---
-should work
+Here is an inline image:
 
-Sent with [ProtonMail](https://protonmail.com/) Secure Email.
+=E2=80=93 Your Friend
 
---b1_1tMoOzirX5rNUK0QIqMdSQB8hwcBeFGHtIfEtmvEG0k
+--MailClient=_0C16924A-AE2E-42A3-B146-6CF67E5439A3
 Content-Type: text/html; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
@@ -142,15 +145,15 @@ tical-align: top;" alt=3D"relay icon"/>
 k;">
             <span class=3D"forwarded-from-email" style=3D"display: block; col=
 or: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
-            Transf=C3=A9r=C3=A9 depuis <a href=3D"http://127.0.0.1:8000/accou=
-nts/profile/#ebsbdsan7%40test.com" class=3D"container-link" style=3D"margin-r=
-ight: 30px;color: #FFFFFF;font-size: 12px;">ebsbdsan7@test.com</a>
+            Forwarded from <a href=3D"http://127.0.0.1:8000/accounts/profile/=
+#ebsbdsan7%40test.com" class=3D"container-link" style=3D"margin-right: 30px;c=
+olor: #FFFFFF;font-size: 12px;">ebsbdsan7@test.com</a>
             </span>
           <span style=3D"margin-top: 0; margin-bottom: 5px; display: block;co=
 lor: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
-              par <a href=3D"http://127.0.0.1:8000/accounts/profile/" class=
-=3D"container-link" style=3D"margin-right: 30px;color: #FFFFFF;font-size: 12p=
-x;">Firefox Relay</a>
+              by <a href=3D"http://127.0.0.1:8000/accounts/profile/" class=3D=
+"container-link" style=3D"margin-right: 30px;color: #FFFFFF;font-size: 12px;"=
+>Firefox Relay</a>
           </span>
           </p>
         </td>
@@ -161,13 +164,12 @@ splay: inline-block; color: #FFFFFF; font-family: 'inter', Arial, sans-serif;=
             <img class=3D"email-trackers-removed-icon" width=3D"15" src=3D"ht=
 tp://127.0.0.1:8000/static/images/email-images/email-trackers-removed-icon.pn=
 g" alt=3D"email trackers removed icon"/>
-              <span dir=3D"auto">0</span>=C2=A0traqueur d=E2=80=99e-mail supp=
-rim=C3=A9
+              <span dir=3D"auto">0</span> email trackers removed
           </p>
           <p class=3D"relay-mask" style=3D"margin: 0; display: inline-block;">
               <a class=3D"container-link" href=3D"http://127.0.0.1:8000/premi=
 um" style=3D"color: #FFFFFF;">
-                Souscrivez maintenant pour davantage de protection
+                Upgrade for more protection
               </a>
           </p>
         </td>
@@ -178,15 +180,11 @@ um" style=3D"color: #FFFFFF;">
 dth:700px;" align=3D"center">
       <tr>
         <td width=3D"100%" style=3D"padding-left: 15px; padding-right: 15px;">
-          <div style=3D"font-family: arial; font-size: 14px;"><div style=3D"f=
-ont-family: arial; font-size: 14px;">should work<br></div><div style=3D"font-=
-family: arial; font-size: 14px;"><br></div><div style=3D"font-family: arial; =
-font-size: 14px;" class=3D"protonmail_signature_block"><div class=3D"protonma=
-il_signature_block-user protonmail_signature_block-empty"></div><div class=3D=
-"protonmail_signature_block-proton">Sent with <a rel=3D"noopener noreferrer" =
-href=3D"https://protonmail.com/" target=3D"_blank">ProtonMail</a> Secure Emai=
-l.</div></div></div><div style=3D"font-family: arial; font-size: 14px;"><br><=
-/div>
+          <!doctype html><html><body><div dir=3D"ltr">Here is an inline image=
+:&nbsp;<img src=3D"cid:0A0AD2F8-6672-45A8-8248-0AC6C7282970" style=3D"max-wid=
+th: 100%; width: 12px;"><div><br></div><div dir=3D"ltr"><ul style=3D"list-sty=
+le-type: &quot;=E2=80=93  &quot;; margin: 0px; padding-inline-start: 1.8em;" =
+dir=3D"ltr"><li>Your Friend</li></ul></div></div></body></html>
         </td>
       </tr>
     </table>
@@ -204,12 +202,33 @@ go"/>
         </td>
         <td class=3D"footer-block" width=3D"50%" align=3D"right">
           <a class=3D"container-link" href=3D"http://127.0.0.1:8000/accounts/=
-profile" style=3D"color: #FFFFFF;">Votre tableau de bord</a>
+profile" style=3D"color: #FFFFFF;">Your dashboard</a>
         </td>
       </tr>
     </table>
   </body>
 </html>
 
---b1_1tMoOzirX5rNUK0QIqMdSQB8hwcBeFGHtIfEtmvEG0k--
+--MailClient=_0C16924A-AE2E-42A3-B146-6CF67E5439A3--
+
+--MailClient=_85CB3D2B-71DA-4F6C-9F70-F0735457C609
+Content-Type: image/png;
+	name="clock-purple.png"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+	filename="clock-purple.png"
+Content-ID: <0A0AD2F8-6672-45A8-8248-0AC6C7282970>
+
+iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAA
+GXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAeFJREFUOI2Nk79rU1EcxT/f+14S
+neoPnNXB4qARKZ2DrQ51tsSki4KNLoa0+gf4D9ikGaRpILrEUBxFIgjpIji4KAUrumRylBaxNTF5
+xyEv+oit9kzfeznnfO89936NEZTTuiCPeYkp4BQQAG3glXNU83X7EOXbsHh8Q4e2uxQROcCNGofo
+Cx5t97j/4Jl1GRKXZnV4q8NLxB2gj7GCkerBibhxzIwpoBJ2vHvU50UlpxiAD+B8ikAK+CK4tvDU
+3ox0XgfWl7OqSjQFl3e+8RDIWymjJPAO6AlSC40/4lJGnwoNG486ldKaxPEa8Jwj6czIhVnUouIQ
+Z0ZDKKzZW6AOeIG45SSmAQJR3ye4v2BQA0BccQyeCr/Px4MaeDE2w/KkP9zcge4e3K+ljBRZfy40
+bPy7TzfxEzA8n8EnOZvwmQBaUXWhYcf3OkF8l3PhFdpuKDJj9qBXcMZcaNByLmAVEGJ+OauJ/4nL
+13VRYh4IAo9Vl1+z9xgVwJNoltKa/Jc4MJ4DcROVxbptGEB5RongCE3gEoMw6wY1L8am7dLpeSRx
+ZMPOcaDltriab1rn9zCVZ5TQGEUZt9l/mAJgZSzBvZtP7AdEpnGIpTmdd31yGNPAaaAPtAUtOaqL
+dduI8n8BrMOp3hG9OkYAAAAASUVORK5CYII=
+--MailClient=_85CB3D2B-71DA-4F6C-9F70-F0735457C609--
 
