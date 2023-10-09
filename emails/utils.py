@@ -16,7 +16,7 @@ import requests
 from botocore.exceptions import ClientError
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.hkdf import HKDFExpand
-from mypy_boto3_ses.type_defs import SendRawEmailResponseTypeDef
+from mypy_boto3_ses.type_defs import ContentTypeDef, SendRawEmailResponseTypeDef
 import jwcrypto.jwe
 import jwcrypto.jwk
 import markus
@@ -54,6 +54,10 @@ shavar_prod_lists_url = (
 )
 EMAILS_FOLDER_PATH = pathlib.Path(__file__).parent
 TRACKER_FOLDER_PATH = EMAILS_FOLDER_PATH / "tracker_lists"
+
+
+def ses_message_props(data: str) -> ContentTypeDef:
+    return {"Charset": "UTF-8", "Data": data}
 
 
 def get_trackers(level):
