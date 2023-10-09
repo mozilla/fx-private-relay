@@ -58,7 +58,9 @@ class AddDetectedCountryToRequestAndResponseHeaders:
 def _get_metric_view_name(request):
     if request.resolver_match:
         view = request.resolver_match.func
-        return f"{view.__module__}.{view.view_class.__name__}"
+        if hasattr(view, "view_class"):
+            return f"{view.__module__}.{view.view_class.__name__}"
+        return f"{view.__module__}.{view.__name__}"
     return "<unknown_view>"
 
 
