@@ -318,7 +318,7 @@ const StepOne = () => {
         <Image src={WomanEmail} alt="" width={475} />
         <div className={styles["content-text"]}>
           <div>
-            <Image src={CheckMark} alt="" />
+            <Image className={styles["hidden-mobile"]} src={CheckMark} alt="" />
             <p className={styles["headline"]}>
               {l10n.getString(
                 "profile-free-onboarding--welcome-item-headline-1",
@@ -438,7 +438,9 @@ const StepThree = () => {
   const l10n = useL10n();
 
   return (
-    <div className={`${styles.step} ${styles["step-copy-mask"]}`}>
+    <div
+      className={`${styles.step} ${styles["step-copy-mask"]} ${styles["mask-use"]}`}
+    >
       <div className={styles["copy-mask-header"]}>
         <h1>{l10n.getString("profile-free-onboarding--addon-headline")}</h1>
         <p>{l10n.getString("profile-free-onboarding--addon-subheadline")}</p>

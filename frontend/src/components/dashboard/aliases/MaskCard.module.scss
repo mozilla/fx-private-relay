@@ -510,6 +510,11 @@
   border-radius: 8px;
   right: $spacing-xl;
   box-shadow: $box-shadow-md;
+  display: none;
+
+  @media screen and #{$mq-lg} {
+    display: block;
+  }
 }
 
 .onboarding-alias-container img {
