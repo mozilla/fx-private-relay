@@ -1,6 +1,5 @@
 from datetime import datetime, timezone
 from typing import Callable
-import logging
 import time
 
 import markus
@@ -13,7 +12,6 @@ from whitenoise.middleware import WhiteNoiseMiddleware
 
 
 metrics = markus.get_metrics("fx-private-relay")
-info_logger = logging.getLogger("eventsinfo")
 
 
 class RedirectRootIfLoggedIn:
@@ -70,7 +68,6 @@ class ResponseMetrics:
 
     def __call__(self, request: HttpRequest) -> HttpResponse:
         start_time = time.time()
-        setattr(request, "region_details", {})
         response = self.get_response(request)
         delta = time.time() - start_time
 
@@ -85,14 +82,6 @@ class ResponseMetrics:
                 f"method:{request.method}",
             ],
         )
-
-        response_extra = {
-            "status_code": response.status_code,
-            "view_name": view_name,
-            "method": request.method,
-            "time_s": round(delta, 3),
-        }
-        info_logger.info("response", extra=response_extra)
 
         return response
 
