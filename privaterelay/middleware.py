@@ -1,15 +1,19 @@
 from datetime import datetime, timezone
+from typing import Callable
+import logging
 import time
 
 import markus
 
 from django.conf import settings
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 
 from whitenoise.middleware import WhiteNoiseMiddleware
 
 
 metrics = markus.get_metrics("fx-private-relay")
+info_logger = logging.getLogger("eventsinfo")
 
 
 class RedirectRootIfLoggedIn:
@@ -61,11 +65,12 @@ def _get_metric_view_name(request):
 
 
 class ResponseMetrics:
-    def __init__(self, get_response):
+    def __init__(self, get_response: Callable[[HttpRequest], HttpResponse]) -> None:
         self.get_response = get_response
 
-    def __call__(self, request):
+    def __call__(self, request: HttpRequest) -> HttpResponse:
         start_time = time.time()
+        setattr(request, "region_details", {})
         response = self.get_response(request)
         delta = time.time() - start_time
 
@@ -80,6 +85,14 @@ class ResponseMetrics:
                 f"method:{request.method}",
             ],
         )
+
+        response_extra = {
+            "status_code": response.status_code,
+            "view_name": view_name,
+            "method": request.method,
+            "time_s": round(delta, 3),
+        }
+        info_logger.info("response", extra=response_extra)
 
         return response
 
