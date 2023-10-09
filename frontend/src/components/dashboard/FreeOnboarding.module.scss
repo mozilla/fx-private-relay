@@ -63,6 +63,7 @@
   display: none;
   position: relative;
   margin: 0 auto;
+  /* both calculations below deal with alignment of custom art element */
   left: calc($spacing-2xl * 2);
   bottom: calc($spacing-2xl * -1);
   width: 150px;
@@ -72,6 +73,7 @@
   }
 }
 
+/* this allows for the gradient border around an elmeent */
 .content-wrapper-copy-mask-items::before {
   content: "";
   position: absolute;
@@ -95,11 +97,11 @@
 .content-item {
   display: flex;
   flex-direction: row;
-  gap: 24px;
+  gap: $spacing-lg;
 
   .content-text {
     display: flex;
-    gap: 12px;
+    gap: $spacing-md;
     align-items: flex-start;
     flex-direction: column;
   }
@@ -263,7 +265,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 5px;
+    gap: $spacing-xs;
 
     h1 {
       @include text-title-sm;
@@ -356,6 +358,7 @@
   }
 
   .next-link {
+    /* allows for flush positioning of link to next page with pagination component */
     margin: calc($spacing-lg * -1) 0 $spacing-xs $spacing-sm;
     display: flex;
     align-items: center;
@@ -372,6 +375,7 @@
     }
   }
 
+  /* this code is copied from progress bar used in premium onboarding */
   progress {
     width: 100%;
     max-width: $content-md;
@@ -457,11 +461,13 @@
       position: absolute;
     }
 
+    /* custom art element that requires absolute positioning */
     .large-arrow {
       bottom: calc($spacing-2xl * -1);
       right: calc($spacing-lg * -5);
     }
 
+    /* custom art element that requires absolute positioning */
     .small-arrow {
       bottom: calc($spacing-2xl * -1);
       left: calc($spacing-lg * -5);
