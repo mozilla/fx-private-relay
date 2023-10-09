@@ -14,7 +14,7 @@ def test_response_metrics(settings: SettingsWrapper, client: Client) -> None:
     settings.DJANGO_STATSD_ENABLED = True
 
     with MetricsMock() as mm:
-        response = client.get("/api/v1/runtime_data")
+        response = client.get("/api/v1/runtime_data/")
     mm.assert_timing_once(
         "fx.private.relay.response",
         tags=["status:200", "view:api.views.runtime_data", "method:GET"],
