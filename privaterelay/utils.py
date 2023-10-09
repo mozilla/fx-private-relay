@@ -2,6 +2,7 @@ from decimal import Decimal
 from functools import wraps
 from string import ascii_uppercase
 from typing import Callable, TypedDict
+import logging
 import random
 
 from django.conf import settings
@@ -17,6 +18,8 @@ from waffle.utils import (
 )
 
 from .plans import PlanCountryLangMapping, CountryStr
+
+info_logger = logging.getLogger("eventsinfo")
 
 
 class CountryInfo(TypedDict):
@@ -55,11 +58,36 @@ def get_countries_info_from_lang_and_mapping(
 
 
 def _get_cc_from_request(request: HttpRequest) -> str:
+    """Determine the user's region / country code."""
+
+    log_data: dict[str, str] = {}
+    cdn_region = None
+    region = None
     if "X-Client-Region" in request.headers:
-        return request.headers["X-Client-Region"].upper()
+        cdn_region = region = request.headers["X-Client-Region"].upper()
+        log_data["cdn_region"] = cdn_region
+        log_data["selected"] = "cdn"
+
+    accept_language_region = None
     if "Accept-Language" in request.headers:
-        return _get_cc_from_lang(request.headers["Accept-Language"])
-    return "US"
+        accept_language_region = _get_cc_from_lang(request.headers["Accept-Language"])
+        log_data["accept_lang_region"] = accept_language_region
+        if region is None:
+            region = accept_language_region
+            log_data["selected"] = "accept_lang"
+
+    if region is None:
+        region = "US"
+        log_data["selected"] = "fallback"
+    log_data["region"] = region
+
+    # MPP-3284: Log details of region selection. Only log once per request, since some
+    # endpoints, like /api/v1/runtime_data, call this multiple times.
+    if not getattr(request, "_logged_region_details", False):
+        setattr(request, "_logged_region_details", True)
+        info_logger.info("region_details", extra=log_data)
+
+    return region
 
 
 def _get_cc_from_lang(accept_lang: str) -> str:
