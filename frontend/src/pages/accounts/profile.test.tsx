@@ -1,5 +1,5 @@
 import React from "react";
-import { act, render, screen } from "@testing-library/react";
+import { act, render, screen, within, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import { mockNextRouter } from "../../../__mocks__/modules/next__router";
@@ -18,6 +18,7 @@ import {
   setMockAliasesDataOnce,
 } from "../../../__mocks__/hooks/api/aliases";
 import {
+  getMockRuntimeDataWithPhones,
   getMockRuntimeDataWithoutPremium,
   getMockRuntimeDataWithPeriodicalPremium,
   setMockRuntimeData,
@@ -447,6 +448,151 @@ describe("The dashboard", () => {
     });
 
     expect(premiumBanner).not.toBeInTheDocument();
+  });
+
+  it("shows an upsell banner if user hits mask limit and Premium is available in their country", () => {
+    setMockAliasesDataOnce({ random: [{ enabled: true, id: 42 }], custom: [] });
+    setMockProfileDataOnce({ has_premium: false });
+    setMockRuntimeDataOnce(getMockRuntimeDataWithPeriodicalPremium());
+    const mockedConfig = mockConfigModule.getRuntimeConfig();
+    // getRuntimeConfig() is called frequently, so mock its return value,
+    // then restore the original mock at the end of this test:
+    mockConfigModule.getRuntimeConfig.mockReturnValue({
+      ...mockedConfig,
+      maxFreeAliases: 1,
+    });
+
+    render(<Profile />);
+
+    const upsellBanner = screen.queryByRole("link", {
+      name: "l10n string: [profile-maxed-aliases-cta], with vars: {}",
+    });
+
+    expect(upsellBanner).toBeInTheDocument();
+    mockConfigModule.getRuntimeConfig.mockReturnValue(mockedConfig);
+  });
+
+  it("shows correct upsell banner for US country", () => {
+    setMockAliasesDataOnce({ random: [{ enabled: true, id: 42 }], custom: [] });
+    setMockProfileDataOnce({ has_premium: false });
+    setMockRuntimeDataOnce(getMockRuntimeDataWithPhones());
+    const mockedConfig = mockConfigModule.getRuntimeConfig();
+    // getRuntimeConfig() is called frequently, so mock its return value,
+    // then restore the original mock at the end of this test:
+    mockConfigModule.getRuntimeConfig.mockReturnValue({
+      ...mockedConfig,
+      maxFreeAliases: 1,
+    });
+
+    render(<Profile />);
+
+    const bannerHeaderUS = screen.getByText(
+      "l10n string: [profile-maxed-aliases-with-phone-header], with vars: {}",
+    );
+
+    const bannerDescriptionUS = screen.getByText(
+      `l10n string: [profile-maxed-aliases-with-phone-description], with vars: {"limit":${
+        mockConfigModule.getRuntimeConfig().maxFreeAliases
+      }}`,
+    );
+
+    expect(bannerHeaderUS).toBeInTheDocument();
+    expect(bannerDescriptionUS).toBeInTheDocument();
+
+    mockConfigModule.getRuntimeConfig.mockReturnValue(mockedConfig);
+  });
+
+  it("shows correct upsell banner for non-US country", async () => {
+    setMockAliasesDataOnce({ random: [{ enabled: true, id: 42 }], custom: [] });
+    setMockProfileDataOnce({ has_premium: false });
+    setMockRuntimeDataOnce(getMockRuntimeDataWithPeriodicalPremium());
+    const mockedConfig = mockConfigModule.getRuntimeConfig();
+    // getRuntimeConfig() is called frequently, so mock its return value,
+    // then restore the original mock at the end of this test:
+    mockConfigModule.getRuntimeConfig.mockReturnValue({
+      ...mockedConfig,
+      maxFreeAliases: 1,
+    });
+
+    render(<Profile />);
+
+    const bannerHeaderNonUS = screen.getByText(
+      "l10n string: [profile-maxed-aliases-without-phone-header], with vars: {}",
+    );
+
+    const bannerDescriptionNonUS = screen.getByText(
+      `l10n string: [profile-maxed-aliases-without-phone-description], with vars: {"limit":${
+        mockConfigModule.getRuntimeConfig().maxFreeAliases
+      }}`,
+    );
+
+    expect(bannerHeaderNonUS).toBeInTheDocument();
+    expect(bannerDescriptionNonUS).toBeInTheDocument();
+
+    mockConfigModule.getRuntimeConfig.mockReturnValue(mockedConfig);
+  });
+
+  it("shows tooltip when user hovers over the number of masks when user reach the limit", async () => {
+    setMockAliasesDataOnce({ random: [{ enabled: true, id: 42 }], custom: [] });
+    setMockProfileDataOnce({ has_premium: false });
+    setMockRuntimeDataOnce(getMockRuntimeDataWithPeriodicalPremium());
+    const mockedConfig = mockConfigModule.getRuntimeConfig();
+    // getRuntimeConfig() is called frequently, so mock its return value,
+    // then restore the original mock at the end of this test:
+    mockConfigModule.getRuntimeConfig.mockReturnValue({
+      ...mockedConfig,
+      maxFreeAliases: 1,
+    });
+
+    render(<Profile />);
+
+    const totalAliases = screen.getByText(/profile-stat-label-aliases-used-2/);
+
+    expect(
+      screen.queryByText(/profile-maxed-aliases-tooltip/),
+    ).not.toBeInTheDocument();
+
+    // eslint-disable-next-line testing-library/no-node-access
+    const parent = totalAliases.parentElement as HTMLElement;
+    const trigger = within(parent).getByText(
+      `${mockConfigModule.getRuntimeConfig().maxFreeAliases}`,
+    );
+
+    await userEvent.hover(trigger);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/profile-maxed-aliases-tooltip/),
+      ).toBeInTheDocument();
+    });
+
+    mockConfigModule.getRuntimeConfig.mockReturnValue(mockedConfig);
+  }, 10000);
+
+  it("Upgrade to premium CTA takes user to premium price plans", async () => {
+    setMockAliasesDataOnce({ random: [{ enabled: true, id: 42 }], custom: [] });
+    setMockProfileDataOnce({ has_premium: false });
+    setMockRuntimeDataOnce(getMockRuntimeDataWithPeriodicalPremium());
+    const mockedConfig = mockConfigModule.getRuntimeConfig();
+    // getRuntimeConfig() is called frequently, so mock its return value,
+    // then restore the original mock at the end of this test:
+    mockConfigModule.getRuntimeConfig.mockReturnValue({
+      ...mockedConfig,
+      maxFreeAliases: 1,
+    });
+
+    render(<Profile />);
+
+    const upsellBanner = screen.getByRole("link", {
+      name: "l10n string: [profile-maxed-aliases-cta], with vars: {}",
+    });
+
+    expect(upsellBanner).toHaveAttribute(
+      "href",
+      expect.stringMatching("/premium#pricing"),
+    );
+
+    mockConfigModule.getRuntimeConfig.mockReturnValue(mockedConfig);
   });
 
   it("shows a search field to filter aliases if the user has Premium", () => {
