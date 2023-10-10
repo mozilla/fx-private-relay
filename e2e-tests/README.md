@@ -41,3 +41,5 @@ E2E_TEST_ACCOUNT_PASSWORD=<arbitrary password>
 ```
 npm run test:e2e
 ```
+
+[![Relay e2e Tests](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml/badge.svg)](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml)
