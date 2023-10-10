@@ -319,7 +319,7 @@ def test_get_countries_info_bad_accept_language(
     }
     assert len(caplog.records) == 1
     record = caplog.records[0]
-    assert getattr(record, "selected") == "accept_lang"
+    assert getattr(record, "region_method") == "accept_lang"
     assert not hasattr(record, "cdn_region")
     assert getattr(record, "accept_lang") == "xx"
     assert getattr(record, "accept_lang_region") == ""
@@ -340,7 +340,7 @@ def test_get_countries_info_cdn_language(
     }
     assert len(caplog.records) == 1
     record = caplog.records[0]
-    assert getattr(record, "selected") == "cdn"
+    assert getattr(record, "region_method") == "cdn"
     assert getattr(record, "cdn_region", "DE")
     assert not hasattr(record, "accept_lang")
     assert not hasattr(record, "accept_lang_region")
@@ -361,7 +361,7 @@ def test_get_countries_info_no_language(
     }
     assert len(caplog.records) == 1
     record = caplog.records[0]
-    assert getattr(record, "selected") == "fallback"
+    assert getattr(record, "region_method") == "fallback"
     assert not hasattr(record, "cdn_region")
     assert not hasattr(record, "accept_lang")
     assert not hasattr(record, "accept_lang_region")

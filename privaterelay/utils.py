@@ -66,7 +66,7 @@ def _get_cc_from_request(request: HttpRequest) -> str:
     if "X-Client-Region" in request.headers:
         cdn_region = region = request.headers["X-Client-Region"].upper()
         log_data["cdn_region"] = cdn_region
-        log_data["selected"] = "cdn"
+        log_data["region_method"] = "cdn"
 
     accept_language_region = None
     if "Accept-Language" in request.headers:
@@ -75,11 +75,11 @@ def _get_cc_from_request(request: HttpRequest) -> str:
         log_data["accept_lang_region"] = accept_language_region
         if region is None:
             region = accept_language_region
-            log_data["selected"] = "accept_lang"
+            log_data["region_method"] = "accept_lang"
 
     if region is None:
         region = "US"
-        log_data["selected"] = "fallback"
+        log_data["region_method"] = "fallback"
     log_data["region"] = region
 
     # MPP-3284: Log details of region selection. Only log once per request, since some
