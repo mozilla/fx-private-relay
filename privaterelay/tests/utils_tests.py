@@ -347,6 +347,31 @@ def test_get_countries_info_cdn_language(
     assert getattr(record, "region") == "DE"
 
 
+def test_get_countries_info_cdn_and_accept_language_uses_cdn(
+    rf: RequestFactory, caplog: LogCaptureFixture
+) -> None:
+    request = rf.get(
+        "/api/v1/runtime_data",
+        HTTP_X_CLIENT_REGION="CA",
+        HTTP_ACCEPT_LANGUAGE="en-US, en",
+    )
+    mapping = get_premium_country_language_mapping()
+    result = get_countries_info_from_request_and_mapping(request, mapping)
+    assert result == {
+        "country_code": "CA",
+        "countries": sorted(mapping.keys()),
+        "available_in_country": True,
+        "plan_country_lang_mapping": mapping,
+    }
+    assert len(caplog.records) == 1
+    record = caplog.records[0]
+    assert getattr(record, "region_method") == "cdn"
+    assert getattr(record, "cdn_region", "CA")
+    assert getattr(record, "accept_lang", "en-US, en")
+    assert getattr(record, "accept_lang_region", "US")
+    assert getattr(record, "region") == "CA"
+
+
 def test_get_countries_info_no_language(
     rf: RequestFactory, caplog: LogCaptureFixture
 ) -> None:
