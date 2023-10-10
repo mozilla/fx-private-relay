@@ -133,7 +133,7 @@ export const UserMenu = (props: Props) => {
     >
       <Item
         key={itemKeys.account}
-        textValue={l10n.getString("nav-profile-manage-fxa")}
+        textValue={l10n.getString("nav-profile-manage-account")}
       >
         <span className={styles["account-menu-item"]}>
           <b className={styles["user-email"]}>{usersData.data[0].email}</b>
@@ -144,7 +144,7 @@ export const UserMenu = (props: Props) => {
             rel="noopener noreferrer"
             className={styles["settings-link"]}
           >
-            {l10n.getString("nav-profile-manage-fxa")}
+            {l10n.getString("nav-profile-manage-account")}
             <NewTabIcon alt="" />
           </a>
         </span>
