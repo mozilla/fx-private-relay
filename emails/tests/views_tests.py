@@ -718,34 +718,7 @@ class SNSNotificationTest(TestCase):
         AWS parses these headers as a single email, Python as a list of emails.
         One of the root causes of MPP-3407.
         """
-        email_text = EMAIL_INCOMING["emperor_norton"]
-        test_sns_notification = create_notification_from_email(email_text)
-
-        # Python parses differently than AWS
-        msg = json.loads(test_sns_notification["Message"])
-        mail = msg["mail"]
-        assert mail["commonHeaders"]["from"] == [
-            '"Norton I."',
-            "Emperor of the United States <norton@sf.us.example.com>",
-        ]
-        assert mail["source"] == '"Norton I."'
-        from_entry = None
-        for entry in mail["headers"]:
-            if entry["name"] == "From":
-                from_entry = entry
-                break
-        assert from_entry
-        assert from_entry["value"] == (
-            '"Norton I.", Emperor of the United States <norton@sf.us.example.com>'
-        )
-
-        # Set to AWS parsing
-        aws_from = "Norton I., Emperor of the United States <norton@sf.us.example.com>"
-        mail["commonHeaders"]["from"] = [aws_from]
-        mail["source"] = "norton@sf.us.example.com"
-        from_entry["value"] = aws_from
-        test_sns_notification["Message"] = json.dumps(msg)
-
+        test_sns_notification = EMAIL_SNS_BODIES["emperor_norton"]
         _sns_notification(test_sns_notification)
         self.mock_send_raw_email.assert_called_once()
         _, _, _, mail = self.get_details_from_mock_send_raw_email()
@@ -753,29 +726,7 @@ class SNSNotificationTest(TestCase):
 
     @patch("emails.views.info_logger")
     def test_from_with_nested_brackets_is_error(self, mock_logger) -> None:
-        email_text = EMAIL_INCOMING["nested_brackets_service"]
-        test_sns_notification = create_notification_from_email(email_text)
-
-        # Python parses differently than AWS
-        msg = json.loads(test_sns_notification["Message"])
-        mail = msg["mail"]
-        assert mail["commonHeaders"]["from"] == ['The Service <"The Service">']
-        assert mail["source"] == '"The Service"'
-        from_entry = None
-        for entry in mail["headers"]:
-            if entry["name"] == "From":
-                from_entry = entry
-                break
-        assert from_entry
-        assert from_entry["value"] == 'The Service <"The Service">'
-
-        # Set to AWS parsing
-        aws_from = "The Service <The Service <hello@theservice.example.com>>"
-        mail["commonHeaders"]["from"] = [aws_from]
-        mail["source"] = "theservice.example.com"
-        from_entry["value"] = aws_from
-        test_sns_notification["Message"] = json.dumps(msg)
-
+        test_sns_notification = EMAIL_SNS_BODIES["nested_brackets_service"]
         result = _sns_notification(test_sns_notification)
         assert result.status_code == 400
         self.mock_send_raw_email.assert_not_called()
@@ -783,7 +734,9 @@ class SNSNotificationTest(TestCase):
             "_handle_received: no from address",
             extra={
                 "source": "theservice.example.com",
-                "common_headers_from": [aws_from],
+                "common_headers_from": [
+                    "The Service <The Service <hello@theservice.example.com>>"
+                ],
             },
         )
 

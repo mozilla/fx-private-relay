@@ -1,0 +1,12 @@
+{
+  "Type": "Notification",
+  "MessageId": "c80a062f-607d-450d-b4a0-39a65d1c1fea",
+  "TopicArn": "arn:aws:sns:us-east-1:168781634622:ses-inbound-grelay",
+  "Subject": "Welcome to our service!",
+  "Message": "{\"notificationType\": \"Received\", \"mail\": {\"timestamp\": \"2023-10-04T12:16:22\", \"source\": \"theservice.example.com\", \"messageId\": null, \"destination\": [\"ebsbdsan7@test.com\"], \"headersTruncated\": false, \"headers\": [{\"name\": \"Subject\", \"value\": \"Welcome to our service!\"}, {\"name\": \"From\", \"value\": \"The Service <The Service <hello@theservice.example.com>>\"}, {\"name\": \"To\", \"value\": \"ebsbdsan7@test.com\"}, {\"name\": \"Date\", \"value\": \"Wed, 04 Oct 2023 12:16:22 -0000\"}, {\"name\": \"Content-Type\", \"value\": \"text/plain; charset=\\\"utf-8\\\"\"}], \"commonHeaders\": {\"from\": [\"The Service <The Service <hello@theservice.example.com>>\"], \"date\": \"Wed, 04 Oct 2023 12:16:22 -0000\", \"to\": [\"ebsbdsan7@test.com\"], \"messageId\": null, \"subject\": \"Welcome to our service!\"}}, \"receipt\": {\"timestamp\": \"2023-10-04T12:16:23\", \"processingTimeMillis\": 1001, \"recipients\": [\"ebsbdsan7@test.com\"], \"spamVerdict\": {\"status\": \"PASS\"}, \"virusVerdict\": {\"status\": \"PASS\"}, \"spfVerdict\": {\"status\": \"PASS\"}, \"dkimVerdict\": {\"status\": \"PASS\"}, \"dmarcVerdict\": {\"status\": \"PASS\"}, \"action\": {\"type\": \"SNS\", \"topicArn\": \"arn:aws:sns:us-east-1:168781634622:ses-inbound-grelay\", \"encoding\": \"UTF8\"}}, \"content\": \"Subject: Welcome to our service!\\nFrom: The Service <The Service <hello@theservice.example.com>>\\nTo: ebsbdsan7@test.com\\nDate: Wed, 4 Oct 2023 12:16:22 -0000\\nContent-Type: text/plain; charset=\\\"utf-8\\\"\\n\\nWelcome to our service! Please login at:\\n\\nhttps://theservice.example.com/login\\n\"}",
+  "Timestamp": "2023-10-04T12:16:24",
+  "SignatureVersion": "1",
+  "Signature": "invalid-signature",
+  "SigningCertURL": "https://sns.us-east-1.amazonaws.example.com/SimpleNotificationService-abcd1234.pem",
+  "UnsubscribeURL": "https://sns.us-east-1.amazonaws.example.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:168781634622:ses-inbound-grelay:1678a71a-d062-493a-a06e-cb8aeb6170d6"
+}
