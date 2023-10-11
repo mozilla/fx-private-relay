@@ -369,7 +369,9 @@ def first_forwarded_email(request):
         translated_subject = ftl_bundle.format("first-forwarded-email-subject")
     first_forwarded_email_html = render_to_string(
         "emails/first_forwarded_email.html",
-        {},
+        {
+            "SITE_ORIGIN": settings.SITE_ORIGIN,
+        },
     )
     wrapped_email = wrap_html_email(
         first_forwarded_email_html,
