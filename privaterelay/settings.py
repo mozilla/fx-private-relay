@@ -614,9 +614,11 @@ SPECTACULAR_SETTINGS = {
     "SERVE_INCLUDE_SCHEMA": False,
 }
 
-PHONE_RATE_LIMIT = "5/minute"
 if IN_PYTEST or RELAY_CHANNEL in ["local", "dev"]:
-    PHONE_RATE_LIMIT = "1000/minute"
+    _DEFAULT_PHONE_RATE_LIMIT = "1000/minute"
+else:
+    _DEFAULT_PHONE_RATE_LIMIT = "5/minute"
+PHONE_RATE_LIMIT = config("PHONE_RATE_LIMIT", _DEFAULT_PHONE_RATE_LIMIT)
 
 # Turn on logging out on GET in development.
 # This allows `/mock/logout/` in the front-end to clear the
