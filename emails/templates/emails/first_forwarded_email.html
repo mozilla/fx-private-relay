@@ -153,11 +153,6 @@ See privaterelay/ftl_bundles.py.
       background: radial-gradient(100% 100% at 100% 0%, #9D62FC 0%, #FD3296 100%);
     }
 
-    #relay-email-header {
-      padding: 12px 25px;
-    }
-
-    #relay-email-header,
     #relay-email-footer {
       font-family: 'inter', Arial, sans-serif;
       color: #FFFFFF;
@@ -186,24 +181,7 @@ See privaterelay/ftl_bundles.py.
       transition: all 0.2s ease;
     }
 
-    .email-trackers-removed-icon {
-      margin-right: 5px;
-      vertical-align: bottom;
-    }
-
-    /* this deals with long email addresses */
-    .forwarded-from-email {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 350px;
-    }
-
     @media screen and (max-width: 768px) {
-      .forwarded-from-email {
-        width: 250px;
-      }
-
       .footer-block {
         display: block;
         width: 100%;
@@ -213,10 +191,6 @@ See privaterelay/ftl_bundles.py.
       .footer-block .container-link img {
         height: 45px;
         width: auto;
-      }
-
-      #relay-email-header {
-        padding: 8px 4px;
       }
       
       #hero td {
@@ -249,16 +223,6 @@ See privaterelay/ftl_bundles.py.
       #view-your-dashboard {
         margin: 32px 0 !important;
       }
-      .forwarded-from-email {
-        width: 200px;
-      }
-      .header-block-left *,
-      .header-block-right * {
-        font-size: 8px !important;
-      }
-      .email-trackers-removed-icon {
-        width: 10px;
-      }
       .relay-icon {
         width: 20px;
       }
@@ -282,76 +246,6 @@ See privaterelay/ftl_bundles.py.
     <tbody>
       <tr style="vertical-align: top">
         <td style="word-break: break-word;border-collapse: collapse ;vertical-align: top">
-          <!-- Header -->
-          <table id="relay-email-header" width="100%" bgcolor="#3D3D3D"
-            style="background: #3D3D3D; margin-top: 30px; margin-bottom: 30px; width: 100%; border-radius: 6px; max-width: 850px;"
-            align="center">
-            <tr>
-              <td class="header-block-left" align="left" style="padding-top: 5px;">
-                <img class="relay-icon" width="30" src="{{ SITE_ORIGIN }}/static/images/email-images/relay-icon.png"
-                  style="margin-right: 5px; display: inline-block; vertical-align: top;" alt="relay icon" />
-
-                <p style="margin-top: 0; display: inline-block;">
-                  <span class="forwarded-from-email"
-                    style="display: block; color: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
-                    {% with display_email|striptags|urlencode as mask_url %}
-                    {% ftlmsg 'relay-email-forwarded-from-html' url=SITE_ORIGIN|add:'/accounts/profile/#'|add:mask_url attrs='class="container-link" style="margin-right: 30px;color: #FFFFFF;font-size: 12px;"' email_address=display_email|striptags %}
-                    {% endwith %}
-                  </span>
-
-                  <span
-                    style="margin-top: 0; margin-bottom: 5px; display: block;color: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
-                    {% if has_premium %}
-                    {% ftlmsg 'relay-email-premium-byline-html' url=SITE_ORIGIN|add:'/accounts/profile/' attrs='class="container-link" style="margin-right: 30px;color: #FFFFFF;font-size: 12px;"' %}
-                    {% else %}
-                    {% ftlmsg 'relay-email-byline-html' url=SITE_ORIGIN|add:'/accounts/profile/' attrs='class="container-link" style="margin-right: 30px;color: #FFFFFF;font-size: 12px;"' %}
-                    {% endif %}
-                  </span>
-                </p>
-
-              </td>
-              <td class="header-block-right" align="right">
-                <p class="relay-trackers-removed"
-                  style="display: block; color: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
-                  <img class="email-trackers-removed-icon" width="15"
-                    src="{{ SITE_ORIGIN }}/static/images/email-images/email-trackers-removed-icon.png"
-                    alt="email trackers removed icon" />
-                  {% comment %}
-                  Create this as a link if we have a report link to show
-                  {% endcomment %}
-                  {% ftlmsg 'relay-email-trackers-removed' number=num_level_one_email_trackers_removed as num_level_one_email_trackers_removed %}
-                  {% if num_level_one_email_trackers_removed > 0 and tracker_report_link %}
-                  <a class="container-link" href="{{ tracker_report_link  }}" style="color: #FFFFFF;">
-                    {{ num_level_one_email_trackers_removed | convert_fsi_to_span }}
-                  </a>
-                  {% else %}
-                  {{ num_level_one_email_trackers_removed | convert_fsi_to_span }}
-                  {% endif %}
-                </p>
-
-                {% with display_email|striptags|urlencode as mask_url %}
-                <p class="relay-mask" style="margin: 0; display: block;">
-                  {% if has_premium %}
-                  <a class="container-link" href="{{ SITE_ORIGIN }}/accounts/profile/#{{ mask_url }}"
-                    style="color: #FFFFFF;">
-                    {% ftlmsg 'relay-email-manage-this-mask' %}
-                  </a>
-                  {% else %}
-                  {% comment %}
-                  Users in a premium eligible country will be asked to sign up.
-                  Users not in a premium eligible country will be asked to join the waitlist at /premium/waitlist.
-                  {% endcomment %}
-                  <a class="container-link" href="{{ SITE_ORIGIN }}/premium" style="color: #FFFFFF;">
-                    {% ftlmsg 'relay-email-upgrade-for-more-protection' %}
-                    <!-- CHANGE THIS TO "MANAGE MASKS" -->
-                  </a>
-                  {% endif %}
-                </p>
-                {% endwith %}
-              </td>
-            </tr>
-          </table>
-
           <!-- Hero section -->
           <table id="hero" style="max-width:850px;margin:48px auto 64px auto;" cellpadding="0"
             cellspacing="0" width="100%" border="0">
