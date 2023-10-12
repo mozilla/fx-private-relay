@@ -1,3 +1,13 @@
+"""
+API views for emails and accounts
+
+TODO: Move these functions to mirror the Django apps
+
+Email stuff should be in api/views/emails.py
+Runtime data should be in api/views/privaterelay.py
+Profile stuff is strange - model is in emails, but probably should be in privaterelay.
+"""
+
 import json
 import logging
 from django.urls.exceptions import NoReverseMatch
