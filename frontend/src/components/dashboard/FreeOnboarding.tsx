@@ -116,7 +116,7 @@ export const FreeOnboarding = (props: Props) => {
   }
 
   if (props.profile.onboarding_state === 1) {
-    const skipMeskTesting = () => {
+    const skipMaskTesting = () => {
       props.onNextStep(3);
     };
 
@@ -181,7 +181,7 @@ export const FreeOnboarding = (props: Props) => {
       <button
         ref={skipStepTwoButtonRef}
         className={styles["skip-link"]}
-        onClick={skipMeskTesting}
+        onClick={skipMaskTesting}
       >
         {l10n.getString("profile-free-onboarding--skip-step")}
       </button>
@@ -191,7 +191,7 @@ export const FreeOnboarding = (props: Props) => {
   if (props.profile.onboarding_state === 2) {
     const linkForBrowser = supportsChromeExtension()
       ? "https://chrome.google.com/webstore/detail/firefox-relay/lknpoadjjkjcmjhbjpcljdednccbldeb?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon"
-      : "https://addons.mozilla.org/en-CA/firefox/addon/private-relay/";
+      : "https://addons.mozilla.org/firefox/addon/private-relay/";
 
     const skipAddonStep = () => {
       props.onNextStep(3);
@@ -250,58 +250,56 @@ export const FreeOnboarding = (props: Props) => {
   }
 
   return (
-    <>
-      <section className={styles.onboarding}>
-        {step}
-        <div className={styles.controls}>
-          {button}
-          <div className={styles["progress-container"]}>
-            <VisuallyHidden>
-              <progress
-                max={getRuntimeConfig().maxOnboardingAvailable}
-                value={props.profile.onboarding_state + 1}
-              >
-                {l10n.getString("multi-part-onboarding-step-counter", {
-                  step: props.profile.onboarding_state,
-                  max: getRuntimeConfig().maxOnboardingAvailable,
-                })}
-              </progress>
-            </VisuallyHidden>
-            {next}
-            <ol className={styles["styled-progress-bar"]} aria-hidden={true}>
-              <li
-                className={
-                  props.profile.onboarding_state >= 0
-                    ? styles["is-completed"]
-                    : undefined
-                }
-              >
-                <span></span>1
-              </li>
-              <li
-                className={
-                  props.profile.onboarding_state >= 1
-                    ? styles["is-completed"]
-                    : undefined
-                }
-              >
-                <span></span>2
-              </li>
-              <li
-                className={
-                  props.profile.onboarding_state >= 2
-                    ? styles["is-completed"]
-                    : undefined
-                }
-              >
-                <span></span>3
-              </li>
-            </ol>
-          </div>
-          {skipButton}
+    <section className={styles.onboarding}>
+      {step}
+      <div className={styles.controls}>
+        {button}
+        <div className={styles["progress-container"]}>
+          <VisuallyHidden>
+            <progress
+              max={getRuntimeConfig().maxOnboardingAvailable}
+              value={props.profile.onboarding_state + 1}
+            >
+              {l10n.getString("multi-part-onboarding-step-counter", {
+                step: props.profile.onboarding_state,
+                max: getRuntimeConfig().maxOnboardingAvailable,
+              })}
+            </progress>
+          </VisuallyHidden>
+          {next}
+          <ol className={styles["styled-progress-bar"]} aria-hidden={true}>
+            <li
+              className={
+                props.profile.onboarding_state >= 0
+                  ? styles["is-completed"]
+                  : undefined
+              }
+            >
+              <span></span>1
+            </li>
+            <li
+              className={
+                props.profile.onboarding_state >= 1
+                  ? styles["is-completed"]
+                  : undefined
+              }
+            >
+              <span></span>2
+            </li>
+            <li
+              className={
+                props.profile.onboarding_state >= 2
+                  ? styles["is-completed"]
+                  : undefined
+              }
+            >
+              <span></span>3
+            </li>
+          </ol>
         </div>
-      </section>
-    </>
+        {skipButton}
+      </div>
+    </section>
   );
 };
 

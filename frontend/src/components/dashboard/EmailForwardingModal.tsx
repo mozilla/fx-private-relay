@@ -154,6 +154,7 @@ type PickerDialogProps = {
 
 const PickerDialog = (props: PickerDialogProps & AriaOverlayProps) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const l10n = useL10n();
   const { overlayProps, underlayProps } = useOverlay(props, wrapperRef);
   usePreventScroll();
   const { modalProps } = useModal();
@@ -171,7 +172,7 @@ const PickerDialog = (props: PickerDialogProps & AriaOverlayProps) => {
         >
           <CloseIcon
             className={styles["close-icon"]}
-            alt=""
+            alt={l10n.getString("profile-free-onboarding--close-modal")}
             onClick={props.onClose}
           />
           <div className={styles.hero}>
