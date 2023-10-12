@@ -98,7 +98,7 @@ export const setEnvVariables = async (email: string) => {
   // stage will currently be the default
   process.env['E2E_TEST_ENV'] = process.env.E2E_TEST_ENV as string ?? 'stage';
   process.env['E2E_TEST_ACCOUNT_FREE'] = email;
-  process.env['E2E_TEST_BASE_URL'] = ENV_URLS[process.env.E2E_TEST_ENV as string] ?? 'https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net'
+  process.env['E2E_TEST_BASE_URL'] = ENV_URLS[process.env.E2E_TEST_ENV as string] ?? ENV_URLS.stage
 }
 
 interface DefaultScreenshotOpts {

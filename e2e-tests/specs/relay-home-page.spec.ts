@@ -22,19 +22,19 @@ test.describe('Check header buttons and their redirects,  C1812638',  () => {
     await landingPage.open()
   });
 
-  test('Verify home FAQ button redirect', async ({ landingPage }) => {
+  test.only('Verify home FAQ button redirect', async ({ landingPage }) => {
     const FAQRedirectLink = await landingPage.FAQButton.getAttribute('href')
-    expect(FAQRedirectLink).toEqual("/faq/")
+    expect(FAQRedirectLink).toEqual('/faq/')
   })
 
   test('Verify home button redirect', async ({ landingPage }) => {
     const homeRedirectLink = await landingPage.homeButton.getAttribute('href')
-    expect(homeRedirectLink).toEqual("/")
+    expect(homeRedirectLink).toEqual('/')
   })
 
   test('Verify home firefox logo redirect', async ({ landingPage }) => {
     const firefoxLogoRedirectLink = await landingPage.firefoxLogo.getAttribute('href')
-    expect(firefoxLogoRedirectLink).toEqual("/")
+    expect(firefoxLogoRedirectLink).toEqual('/')
   })
 
   test('Verify sign in button authentication flow, C1818784', async ({ landingPage, authPage }) => {
