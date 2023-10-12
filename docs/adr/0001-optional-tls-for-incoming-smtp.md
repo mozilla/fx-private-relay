@@ -2,7 +2,7 @@
 
 - Status: Accepted
 - Deciders: Luke Crouch, Tony Cinotto
-- Date: 2022-04-24
+- Date: 2023-04-24
 
 Technical Story: [MPP-2663](https://mozilla-hub.atlassian.net/browse/MPP-2847)
 

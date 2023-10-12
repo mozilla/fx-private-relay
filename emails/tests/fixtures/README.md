@@ -19,6 +19,11 @@ incoming email. Their names all end in `_email_sns_body.json`.
 - `dmarc_failed_email_sns_body.json` - Email that failed the [DMARC][] check,
   and the relevant domain's policy is to reject the email.
 - `domain_recipient_email_sns_body.json` - Email to a premium domain email mask.
+- `emperor_norton_incoming_email_sns_body.json` - The `From:` address contains an
+  unquoted display name with a comma. AWS parses it as one email, Python as two emails,
+  the first invalid.
+- `nested_brackets_incoming_email_sns_body.json` - The `From:` address is invalid,
+  contains two levels of nested `<>` brackets.
 - `replies_email_sns_body.json` - Email from a Relay user, in reply to a previous
   message forwarded to the user.
 - `s3_stored_email_sns_body.json` - Email content is stored in S3, not embedded in the
@@ -56,6 +61,7 @@ fixture, and end in `_expected.email`.
 The output fixtures for incoming emails with SNS Notification JSON:
 
 - `domain_recipient_expected.email`
+- `emperor_norton_expected.email` - The email address was extracted
 - `reply_requires_premium_first_expected.email` - Tells user the first reply is sent
 - `reply_requires_premium_second_expected.email` - Tells user the next reply is not sent
 - `s3_stored_replies_expected.email` - With text content `this is a text reply`
@@ -66,10 +72,10 @@ The output fixtures for incoming emails with SNS Notification JSON:
 
 The output fixtures for raw incoming emails:
 
-- `inline_image_expected.email`
+- `inline_image_expected.email` - The inline image is forwarded
 - `plain_text_expected.email` - Demonstrates that an HTML section was added, including
   the Relay header and footer.
-- `russian_spam_expected.email`
+- `russian_spam_expected.email` - The UTF-8-encoded subject is forwarded
 
 When the expected mail does not match the actual output mail, the test creates a file
 with the actual output. These files end in `_actual.email` instead of `_expected.email`.
