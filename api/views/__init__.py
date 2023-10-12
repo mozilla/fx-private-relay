@@ -374,53 +374,55 @@ def first_forwarded_email(request):
         return response.Response(
             {"detail": "Requires free_user_onboarding waffle flag."}, status=403
         )
+
     serializer = FirstForwardedEmailSerializer(data=request.data)
-    if serializer.is_valid():
-        mask = serializer.data.get("mask")
-        user = request.user
-        try:
-            address = _get_address(mask)
-            RelayAddress.objects.get(user=user, address=address)
-        except ObjectDoesNotExist:
-            return response.Response(
-                f"{mask} does not exist for user.", status=status.HTTP_404_NOT_FOUND
-            )
-        profile = user.profile
-        app_config = apps.get_app_config("emails")
-        assert isinstance(app_config, EmailsConfig)
-        ses_client = app_config.ses_client
-        assert ses_client
-        assert settings.RELAY_FROM_ADDRESS
-        with django_ftl.override(profile.language):
-            translated_subject = ftl_bundle.format("forwarded-email-hero-header")
-        first_forwarded_email_html = render_to_string(
-            "emails/first_forwarded_email.html",
-            {
-                "SITE_ORIGIN": settings.SITE_ORIGIN,
-            },
+    if not serializer.is_valid():
+        return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    mask = serializer.data.get("mask")
+    user = request.user
+    try:
+        address = _get_address(mask)
+        RelayAddress.objects.get(user=user, address=address)
+    except ObjectDoesNotExist:
+        return response.Response(
+            f"{mask} does not exist for user.", status=status.HTTP_404_NOT_FOUND
         )
-        from_address = generate_from_header(settings.RELAY_FROM_ADDRESS, mask)
-        wrapped_email = wrap_html_email(
-            first_forwarded_email_html,
-            profile.language,
-            profile.has_premium,
-            from_address,
-        )
-        ses_client.send_email(
-            Destination={
-                "ToAddresses": [user.email],
+    profile = user.profile
+    app_config = apps.get_app_config("emails")
+    assert isinstance(app_config, EmailsConfig)
+    ses_client = app_config.ses_client
+    assert ses_client
+    assert settings.RELAY_FROM_ADDRESS
+    with django_ftl.override(profile.language):
+        translated_subject = ftl_bundle.format("forwarded-email-hero-header")
+    first_forwarded_email_html = render_to_string(
+        "emails/first_forwarded_email.html",
+        {
+            "SITE_ORIGIN": settings.SITE_ORIGIN,
+        },
+    )
+    from_address = generate_from_header(settings.RELAY_FROM_ADDRESS, mask)
+    wrapped_email = wrap_html_email(
+        first_forwarded_email_html,
+        profile.language,
+        profile.has_premium,
+        from_address,
+    )
+    ses_client.send_email(
+        Destination={
+            "ToAddresses": [user.email],
+        },
+        Source=from_address,
+        Message={
+            "Subject": ses_message_props(translated_subject),
+            "Body": {
+                "Html": ses_message_props(wrapped_email),
             },
-            Source=from_address,
-            Message={
-                "Subject": ses_message_props(translated_subject),
-                "Body": {
-                    "Html": ses_message_props(wrapped_email),
-                },
-            },
-        )
-        logger.info(f"Sent first_forwarded_email to user ID: {user.id}")
-        return response.Response(status=status.HTTP_201_CREATED)
-    return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        },
+    )
+    logger.info(f"Sent first_forwarded_email to user ID: {user.id}")
+    return response.Response(status=status.HTTP_201_CREATED)
 
 
 def relay_exception_handler(exc: Exception, context: Mapping) -> Optional[Response]:
