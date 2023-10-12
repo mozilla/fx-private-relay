@@ -8,7 +8,6 @@ Runtime data should be in api/views/privaterelay.py
 Profile stuff is strange - model is in emails, but probably should be in privaterelay.
 """
 
-import json
 import logging
 from django.urls.exceptions import NoReverseMatch
 import requests
@@ -238,7 +237,7 @@ def terms_accepted_user(request):
         # This may not save the new user that was created
         # https://github.com/pennersr/django-allauth/blob/77368a84903d32283f07a260819893ec15df78fb/allauth/socialaccount/providers/base/provider.py#L44
         social_login = provider.sociallogin_from_response(
-            request, json.loads(fxa_profile_resp.content)
+            request, fxa_profile_resp.json()
         )
         # Complete social login is called by callback
         # (see https://github.com/pennersr/django-allauth/blob/77368a84903d32283f07a260819893ec15df78fb/allauth/socialaccount/providers/oauth/views.py#L118)
