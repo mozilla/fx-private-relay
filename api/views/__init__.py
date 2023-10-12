@@ -1,5 +1,6 @@
 import json
 import logging
+from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.urls.exceptions import NoReverseMatch
 import requests
@@ -380,7 +381,7 @@ def first_forwarded_email(request):
         try:
             address = _get_address(mask)
             RelayAddress.objects.get(user=user, address=address)
-        except RelayAddress.DoesNotExist:
+        except ObjectDoesNotExist:
             return response.Response(
                 f"{mask} does not exist for user.", status=status.HTTP_404_NOT_FOUND
             )
