@@ -230,6 +230,18 @@ def terms_accepted_user(request):
         fxa_profile_resp = requests.get(
             FXA_PROFILE_URL, headers={"Authorization": f"Bearer {token}"}
         )
+        if not (fxa_profile_resp.ok and fxa_profile_resp.content):
+            logger.error(
+                "terms_accepted_user: bad account profile response",
+                extra={
+                    "status_code": fxa_profile_resp.status_code,
+                    "content": fxa_profile_resp.content,
+                },
+            )
+            return response.Response(
+                data={"detail": "Did not receive a 200 response for account profile."},
+                status=500,
+            )
 
         # this is not exactly the request object that FirefoxAccountsProvider expects, but
         # it has all of the necssary attributes to initiatlize the Provider
