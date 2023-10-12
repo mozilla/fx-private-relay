@@ -61,6 +61,7 @@ import { clearCookie, getCookie, setCookie } from "../../functions/cookies";
 import { SubdomainInfoTooltip } from "../../components/dashboard/subdomain/SubdomainInfoTooltip";
 import Link from "next/link";
 import { FreeOnboarding } from "../../components/dashboard/FreeOnboarding";
+import Confetti from "react-confetti";
 
 const Profile: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -69,6 +70,8 @@ const Profile: NextPage = () => {
   const aliasData = useAliases();
   const addonData = useAddonData();
   const l10n = useL10n();
+  const freeOnboardingCelebrationStep =
+    getRuntimeConfig().maxOnboardingAvailable + 1;
   const bottomBannerSubscriptionLinkRef = useGaViewPing({
     category: "Purchase Button",
     label: "profile-bottom-promo",
@@ -128,6 +131,7 @@ const Profile: NextPage = () => {
     aliasData.customAliasData.data,
   );
 
+  // premium user onboarding experience
   if (
     profile.has_premium &&
     profile.onboarding_state < getRuntimeConfig().maxOnboardingAvailable
@@ -224,12 +228,12 @@ const Profile: NextPage = () => {
     }
   };
 
+  // free user onboarding experience
   if (
     isFlagActive(runtimeData.data, "free_user_onboarding") &&
     !profile.has_premium &&
     profile.onboarding_state < getRuntimeConfig().maxOnboardingAvailable
   ) {
-    console.log(getRuntimeConfig().maxOnboardingAvailable);
     const onNextStep = (step: number) => {
       profileData.update(profile.id, {
         onboarding_state: step,
@@ -561,6 +565,20 @@ const Profile: NextPage = () => {
         totalForwardedEmails={profile.emails_forwarded}
         totalEmailTrackersRemoved={profile.level_one_trackers_blocked}
       />
+      {isFlagActive(runtimeData.data, "free_user_onboarding") &&
+        !profile.has_premium &&
+        profile.onboarding_state < freeOnboardingCelebrationStep && (
+          <Confetti
+            tweenDuration={5000}
+            gravity={0.2}
+            recycle={false}
+            onConfettiComplete={() => {
+              profileData.update(profile.id, {
+                onboarding_state: freeOnboardingCelebrationStep,
+              });
+            }}
+          />
+        )}
       <Layout runtimeData={runtimeData.data}>
         {/* If free user has reached their free mask limit and 
         premium is available in their country, show upsell banner */}
