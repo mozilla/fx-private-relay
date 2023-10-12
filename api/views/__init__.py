@@ -25,7 +25,7 @@ from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.helpers import complete_social_login
 from allauth.socialaccount.providers.fxa.provider import FirefoxAccountsProvider
 from django_filters import rest_framework as filters
-from waffle import get_waffle_flag_model
+from waffle import flag_is_active, get_waffle_flag_model
 from waffle.models import Switch, Sample
 from rest_framework import (
     decorators,
@@ -36,8 +36,8 @@ from rest_framework import (
     viewsets,
 )
 from emails.apps import EmailsConfig
-from emails.utils import incr_if_enabled, ses_message_props
-from emails.views import wrap_html_email
+from emails.utils import generate_from_header, incr_if_enabled, ses_message_props
+from emails.views import wrap_html_email, _get_address
 
 from privaterelay.plans import (
     get_bundle_country_language_mapping,
@@ -57,6 +57,7 @@ from ..exceptions import ConflictError, RelayAPIException
 from ..permissions import IsOwner, CanManageFlags
 from ..serializers import (
     DomainAddressSerializer,
+    FirstForwardedEmailSerializer,
     ProfileSerializer,
     RelayAddressSerializer,
     UserSerializer,
@@ -354,45 +355,71 @@ class FirstForwardedEmailRateThrottle(throttling.UserRateThrottle):
 
 
 @decorators.permission_classes([permissions.IsAuthenticated])
+@extend_schema(methods=["POST"], request=FirstForwardedEmailSerializer)
 @decorators.api_view(["POST"])
 @decorators.throttle_classes([FirstForwardedEmailRateThrottle])
 def first_forwarded_email(request):
-    # Send first_forwarded_email to request user
-    user = request.user
-    profile = user.profile
-    app_config = apps.get_app_config("emails")
-    assert isinstance(app_config, EmailsConfig)
-    ses_client = app_config.ses_client
-    assert ses_client
-    assert settings.RELAY_FROM_ADDRESS
-    with django_ftl.override(profile.language):
-        translated_subject = ftl_bundle.format("first-forwarded-email-subject")
-    first_forwarded_email_html = render_to_string(
-        "emails/first_forwarded_email.html",
-        {
-            "SITE_ORIGIN": settings.SITE_ORIGIN,
-        },
-    )
-    wrapped_email = wrap_html_email(
-        first_forwarded_email_html,
-        profile.language,
-        profile.has_premium,
-        "test@relay.firefox.com",
-    )
-    ses_client.send_email(
-        Destination={
-            "ToAddresses": [user.email],
-        },
-        Source=settings.RELAY_FROM_ADDRESS,
-        Message={
-            "Subject": ses_message_props(translated_subject),
-            "Body": {
-                "Html": ses_message_props(wrapped_email),
+    """
+    Requires `free_user_onboarding` flag to be active for the user.
+
+    Send the `first_forwarded_email.html` email to the user via a mask.
+    See [/emails/first_forwarded_email](/emails/first_forwarded_email).
+
+    Note: `mask` value must be a `RelayAddress` that belongs to the authenticated user.
+    A `DomainAddress` will not work.
+    """
+    if not flag_is_active(request, "free_user_onboarding"):
+        # Return Permission Denied error
+        return response.Response(
+            {"detail": "Requires free_user_onboarding waffle flag."}, status=403
+        )
+    serializer = FirstForwardedEmailSerializer(data=request.data)
+    if serializer.is_valid():
+        mask = serializer.data.get("mask")
+        user = request.user
+        try:
+            address = _get_address(mask)
+            RelayAddress.objects.get(user=user, address=address)
+        except RelayAddress.DoesNotExist:
+            return response.Response(
+                f"{mask} does not exist for user.", status=status.HTTP_404_NOT_FOUND
+            )
+        profile = user.profile
+        app_config = apps.get_app_config("emails")
+        assert isinstance(app_config, EmailsConfig)
+        ses_client = app_config.ses_client
+        assert ses_client
+        assert settings.RELAY_FROM_ADDRESS
+        with django_ftl.override(profile.language):
+            translated_subject = ftl_bundle.format("forwarded-email-hero-header")
+        first_forwarded_email_html = render_to_string(
+            "emails/first_forwarded_email.html",
+            {
+                "SITE_ORIGIN": settings.SITE_ORIGIN,
             },
-        },
-    )
-    logger.info(f"Sent first_forwarded_email to user ID: {user.id}")
-    return response.Response(status=status.HTTP_201_CREATED)
+        )
+        from_address = generate_from_header(settings.RELAY_FROM_ADDRESS, mask)
+        wrapped_email = wrap_html_email(
+            first_forwarded_email_html,
+            profile.language,
+            profile.has_premium,
+            from_address,
+        )
+        ses_client.send_email(
+            Destination={
+                "ToAddresses": [user.email],
+            },
+            Source=from_address,
+            Message={
+                "Subject": ses_message_props(translated_subject),
+                "Body": {
+                    "Html": ses_message_props(wrapped_email),
+                },
+            },
+        )
+        logger.info(f"Sent first_forwarded_email to user ID: {user.id}")
+        return response.Response(status=status.HTTP_201_CREATED)
+    return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 def relay_exception_handler(exc: Exception, context: Mapping) -> Optional[Response]:
