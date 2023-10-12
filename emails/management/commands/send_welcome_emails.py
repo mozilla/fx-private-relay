@@ -13,7 +13,7 @@ import django_ftl
 
 from emails.apps import EmailsConfig
 from emails.models import Profile
-from emails.utils import get_welcome_email
+from emails.utils import get_welcome_email, ses_message_props
 from privaterelay.ftl_bundles import main as ftl_bundle
 
 logger = logging.getLogger("eventsinfo.send_welcome_emails")
@@ -54,10 +54,10 @@ def send_welcome_email(profile: Profile, **kwargs):
             },
             Source=settings.RELAY_FROM_ADDRESS,
             Message={
-                "Subject": _ses_message_props(translated_subject),
+                "Subject": ses_message_props(translated_subject),
                 "Body": {
-                    "Html": _ses_message_props(get_welcome_email(user, "html")),
-                    "Text": _ses_message_props(get_welcome_email(user, "txt")),
+                    "Html": ses_message_props(get_welcome_email(user, "html")),
+                    "Text": ses_message_props(get_welcome_email(user, "txt")),
                 },
             },
         )

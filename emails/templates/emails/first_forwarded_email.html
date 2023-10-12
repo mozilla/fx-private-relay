@@ -87,44 +87,17 @@ See privaterelay/ftl_bundles.py.
       color: #000000;
     }
 
-    #our-promise-section {
-      display: block;
-      /* provides extra outer padding for the gradient container */
-      width: 100%;
-      margin: 0;
-      position: relative;
-      box-sizing: border-box;
-      background-clip: padding-box;
-    }
-
-    #our-promise-section:before {
-      content: '';
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      /* sets order for clipped background */
-      z-index: -1;
-      /* set to the same width of the border for clipping */
-      margin: -2px;
-      border-radius: inherit;
-      background: radial-gradient(100% 100% at 100% 0%, #B833E1 0%, #9059FF 33.33%, #B833E1 60.42%, #073072 100%);
-      opacity: 90%;
-    }
-
     #what-you-can-do-with-relay {
-      padding: 0 48px 32px 48px;
+      padding: 32px 48px 32px 48px;
+      width: 95%;
       display: block;
-      /* provides extra outer padding for the gradient container */
-      width: calc(100% - 20px);
       position: relative;
-      box-sizing: border-box;
-      color: #FFFFFF;
-      background: #FFFFFF;
-      background-clip: padding-box;
       border: solid 3px transparent;
       border-radius: 8px;
+      background: radial-gradient(#FFFFFF, #FFFFFF), 
+        radial-gradient(100% 100% at 100% 0%, #9D62FC 0%, #FD3296 100%);
+      background-origin: border-box;
+      background-clip: padding-box, border-box;
     }
 
     #what-you-can-do-with-relay p {
@@ -136,21 +109,6 @@ See privaterelay/ftl_bundles.py.
 
     #what-you-can-do-with-relay p:first-child {
       margin-bottom: 8px;
-    }
-
-    #what-you-can-do-with-relay:before {
-      content: '';
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      /* sets order for clipped background */
-      z-index: -1;
-      /* set to the same width of the border for clipping */
-      margin: -3px;
-      border-radius: inherit;
-      background: radial-gradient(100% 100% at 100% 0%, #9D62FC 0%, #FD3296 100%);
     }
 
     #relay-email-footer {
@@ -245,19 +203,18 @@ See privaterelay/ftl_bundles.py.
   <table style="vertical-align: top;min-width: 320px;margin: 0 auto;width:100%" cellpadding="0" cellspacing="0">
     <tbody>
       <tr style="vertical-align: top">
-        <td style="word-break: break-word;border-collapse: collapse ;vertical-align: top">
+        <td style="word-break: break-word;border-collapse: collapse;vertical-align: top">
           <!-- Hero section -->
-          <table id="hero" style="max-width:850px;margin:48px auto 64px auto;" cellpadding="0"
+          <table id="hero" style="max-width:850px;margin:0 auto 48px auto;" cellpadding="0"
             cellspacing="0" width="100%" border="0">
             <tbody>
               <tr>
-                <td align="right">
+                <td style="vertical-align: top;" align="right">
                   <img class="arrow-img" align="center" border="0"
                   src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-forwarded/arrow-up.png" alt=""
-                  title="" style="display: inline-block;border: none; height: auto; width: 126px; position:absolute; top: 120px;" />
-                
+                  title="" style="display: inline-block;border: none; height: auto; max-width: 126px;" />  
                 </td>
-                <td id="hero-desc" style="padding-left: 120px;max-width: 280px; height: auto;" align="left">
+                <td id="hero-desc" style="padding-top: 40px; max-width: 280px; height: auto;" align="left">
                   <h1 style="margin-top: 0;text-align: left; word-wrap: break-word; font-size: 38px; color: #321C64;">
                     {% ftlmsg 'forwarded-email-hero-header' %}
                   </h1>
@@ -265,7 +222,7 @@ See privaterelay/ftl_bundles.py.
                     {% ftlmsg 'forwarded-email-hero-desc' %}
                   </p>
                 </td>
-                <td id="hero-mask-img" style="padding-right:90px;" align="right">
+                <td id="hero-mask-img" style="vertical-align: top; padding-top: 40px;" align="left">
                   <img align="center" border="0"
                   src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-forwarded/privacy-illustration.png" alt=""
                   title="" style="display: inline-block;border: none; height: auto; max-width: 250px;" />
@@ -275,16 +232,14 @@ See privaterelay/ftl_bundles.py.
           </table>
 
           <!-- What you can do with relay -->
-          <table id="what-you-can-do-with-relay" style="max-width: 850px; display: block; margin: 0 auto;"
+          <table id="what-you-can-do-with-relay"  style="max-width: 850px; display: block; margin: 0 auto;"
             cellpadding="0" cellspacing="0" width="100%" border="0">
             <tbody>
               <tr>
-                <td style="overflow-wrap:break-word;word-break:break-word;padding:10px;" align="left">
-
+                <td style="overflow-wrap:break-word;word-break:break-word;" align="left">
                   <h1
                     style="line-height: 140%; text-align: center; word-wrap: break-word; font-size: 24px; color: #321C64;">
                     {% ftlmsg 'what-can-you-do-with-relay-title' %}</h1>
-
                 </td>
               </tr>
 
@@ -350,7 +305,7 @@ See privaterelay/ftl_bundles.py.
               </tr>
             </tbody>
           </table>
-
+        
           <!-- View your dashboard button -->
           <table id="view-your-dashboard" style="max-width: 850px;margin:32px auto 64px auto;" cellpadding="0"
             cellspacing="0" width="100%" border="0">
@@ -361,27 +316,27 @@ See privaterelay/ftl_bundles.py.
                     target="_blank" class="button" style="color: #FFFFFF;" rel="noreferrer">
                     {% ftlmsg 'first-time-user-email-hero-cta' %}
                   </a>
-                  <img class="arrow-img-two" align="" border="0"
-                  src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-forwarded/arrow-down.png" alt=""
-                  title="" style="position:absolute; height: auto; width: 122px; margin-top: -66px;" />
                 </td>
               </tr>
             </tbody>
           </table>
 
           <!-- Our promise -->
-          <table id="our-promise-section" style="max-width: 850px; display: block;margin:0 auto;" cellpadding="0"
-            cellspacing="0" width="100%" border="0">
+          <!-- bgcolor for fallback, as outlook does not support gradient backgrounds -->
+          <table id="our-promise-section" bgcolor="#45278D" style="max-width: 850px; display:block;margin:0 auto;width:100%; background-clip: padding-box; box-sizing: border-box; position: relative;
+          background: radial-gradient(100% 100% at 100% 0%, #B833E1 0%, #9059FF 33.33%, #B833E1 60.42%, #073072 100%);
+          opacity:90%;" cellpadding="0" cellspacing="0" width="100%" border="0">
             <tbody>
               <tr>
                 <td style="overflow-wrap:break-word;word-break:break-word;padding: 32px 48px 48px 48px;" align="center">
                   <img align="center" border="0"
                     src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-forwarded/lock-illustration.png" alt=""
-                    title="" style="display: inline-block;border: none;height: auto; max-width: 90px;" />
-
-                  <p class="title"
-                    style="font-size: 24px; font-family: metropolis bold, system-ui, sans-serif; color: #ffffff; margin-top: 8px;">
-                    {% ftlmsg 'our-promise-header' %}</p>
+                    title="" style="display: inline-block;border: none;height: auto;max-height:90px;max-width: 90px;" />
+                  <strong>
+                    <p class="title"
+                      style="font-size: 24px; font-family: metropolis bold, system-ui, sans-serif; color: #ffffff; margin-top: 8px;">
+                      {% ftlmsg 'our-promise-header' %}</p>
+                  </strong>
                   <p class="text"
                     style="font-size: 18px; line-height:20px; font-family: metropolis medium, system-ui, sans-serif; color: #ffffff; word-wrap: break-word; margin-top: 24px; ">
                     {% ftlmsg 'our-promise-content' %}</p>
@@ -455,7 +410,6 @@ See privaterelay/ftl_bundles.py.
               </tr>
             </tbody>
           </table>
-
         </td>
       </tr>
     </tbody>

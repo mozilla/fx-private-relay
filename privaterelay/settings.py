@@ -586,6 +586,10 @@ if DEBUG and not IN_PYTEST:
         "rest_framework.renderers.BrowsableAPIRenderer",
     ]
 
+FIRST_EMAIL_RATE_LIMIT = config("FIRST_EMAIL_RATE_LIMIT", "5/minute")
+if IN_PYTEST or RELAY_CHANNEL in ["local", "dev"]:
+    FIRST_EMAIL_RATE_LIMIT = "1000/minute"
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "api.authentication.FxaTokenAuthentication",
