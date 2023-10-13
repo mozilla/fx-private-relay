@@ -466,6 +466,22 @@ class TermsAcceptedUserViewTest(TestCase):
         assert responses.assert_call_count(self.fxa_verify_path, 2) is True
         assert responses.assert_call_count(FXA_PROFILE_URL, 1) is True
 
+    @responses.activate()
+    def test_failed_profile_fetch_for_new_user_returns_500(self):
+        user_token = "user-123"
+        self._setup_client(user_token)
+        now_time = int(datetime.now().timestamp())
+        exp_time = (now_time + 60 * 60) * 1000
+        _setup_fxa_response(200, {"active": True, "sub": self.uid, "exp": exp_time})
+        # FxA profile server is down
+        responses.add(responses.GET, FXA_PROFILE_URL, status=502, body="")
+        response = self.client.post(self.path)
+
+        assert response.status_code == 500
+        assert response.json()["detail"] == (
+            "Did not receive a 200 response for account profile."
+        )
+
     def test_no_authorization_header_returns_400(self):
         client = APIClient()
         response = client.post(self.path)
