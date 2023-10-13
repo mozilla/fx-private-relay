@@ -475,9 +475,8 @@ class TermsAcceptedUserViewTest(TestCase):
         _setup_fxa_response(200, {"active": True, "sub": self.uid, "exp": exp_time})
         # FxA profile server is down
         responses.add(responses.GET, FXA_PROFILE_URL, status=502, body="")
-
-        # get fxa response with 201 response for new user and profile created
         response = self.client.post(self.path)
+
         assert response.status_code == 500
         assert response.json()["detail"] == (
             "Did not receive a 200 response for account profile."
