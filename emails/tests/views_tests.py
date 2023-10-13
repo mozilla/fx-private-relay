@@ -740,6 +740,11 @@ class SNSNotificationTest(TestCase):
             },
         )
 
+    def test_invalid_message_id_is_error(self) -> None:
+        email_text = EMAIL_INCOMING["message_id_in_brackets"]
+        with pytest.raises(IndexError):
+            create_notification_from_email(email_text)
+
 
 class BounceHandlingTest(TestCase):
     def setUp(self):
