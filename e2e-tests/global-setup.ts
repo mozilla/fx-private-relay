@@ -24,7 +24,7 @@ async function globalSetup() {
     // get verification code from restmail
     const verificationCode = await getVerificationCode(randomEmail, page)
     await authPage.enterVerificationCode(verificationCode)
-    
+
     await page.context().storageState({ path: 'state.json' });
     await browser.close();
 }

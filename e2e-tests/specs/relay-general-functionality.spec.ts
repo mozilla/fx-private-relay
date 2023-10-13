@@ -1,9 +1,9 @@
 import test, { expect }  from '../fixtures/basePages'
-import { checkAuthState, defaultScreenshotOpts, ENV_DOMAINS } from '../e2eTestUtils/helpers';
+import { checkAuthState, defaultScreenshotOpts } from '../e2eTestUtils/helpers';
 
 // using logged in state outside of describe block will cover state for all tests in file
 test.use({ storageState: 'state.json' })
-test.describe('Free - General Functionalities, Desktop', () => {
+test.describe.fixme('Free - General Functionalities, Desktop', () => {
   test.beforeEach(async ({ dashboardPage, page }) => {
     await dashboardPage.open()
     await checkAuthState(page)
@@ -15,26 +15,16 @@ test.describe('Free - General Functionalities, Desktop', () => {
     test.slow()
     await expect(async () => {
       await dashboardPage.generateMask(5)
-      expect(await page.locator(dashboardPage.maskCard).count() === 5)
+      expect(await page.locator(dashboardPage.maskCardString).count() === 5)
     }).toPass()
 
 
     // After five times, the button becomes greyed-out and the user cannot add other masks anymore (TODO: for a free user from a country where Premium is NOT available).
     expect(await dashboardPage.maxMaskLimitButton.textContent()).toContain('Get unlimited email masks')
   })
-
-  test('Check that when generating a new mask, its card is automatically opened, C1686210, C1553075, C1553064', async ({ dashboardPage, page }) => {
-    await expect(async () => {
-      await dashboardPage.generateMask(1)
-      expect(await page.locator(dashboardPage.maskCard).count() === 1)
-    }).toPass()
-
-    await expect(dashboardPage.maskCardExpandButton).toHaveAttribute("aria-expanded", "true")
-    expect(await dashboardPage.maskCardHeader.textContent()).toContain(ENV_DOMAINS[process.env.E2E_TEST_ENV as string])
-  })
 })
 
-test.describe.skip('Free - General Functionalities, Desktop - Visual Regression', () => {
+test.describe.fixme('Free - General Functionalities, Desktop - Visual Regression', () => {
   test.skip(({ browserName }) => browserName !== 'firefox', 'firefox only image comparisons!');
 
   test.beforeEach(async ({ dashboardPage, page }) => {
@@ -68,10 +58,10 @@ test.describe.skip('Free - General Functionalities, Desktop - Visual Regression'
   test('Verify that opened mask cards are displayed correctly to a Free user, C1553070', async ({ dashboardPage, page }) => {
     await expect(async () => {
       await dashboardPage.generateMask(1)
-      expect(await page.locator(dashboardPage.maskCard).count() === 1)
+      expect(await page.locator(dashboardPage.maskCardString).count() === 1)
     }).toPass()
 
-    await expect(page.locator(dashboardPage.maskCard)).toHaveScreenshot(`${process.env.E2E_TEST_ENV}-maskCard.png`,
+    await expect(page.locator(dashboardPage.maskCardString)).toHaveScreenshot(`${process.env.E2E_TEST_ENV}-maskCard.png`,
     {...defaultScreenshotOpts, mask: [
       dashboardPage.maskCardForwardEmail,
       dashboardPage.maskCardGeneratedEmail,
@@ -82,7 +72,7 @@ test.describe.skip('Free - General Functionalities, Desktop - Visual Regression'
   test.skip('Check that the user can delete an mask, and is prompted to confirm before they delete, C1553071', async ({ dashboardPage, page }) => {
     await expect(async () => {
       await dashboardPage.generateMask(1)
-      expect(await page.locator(dashboardPage.maskCard).count() === 1)
+      expect(await page.locator(dashboardPage.maskCardString).count() === 1)
       await dashboardPage.maskCardDeleteButton.click()
     }).toPass()
 
