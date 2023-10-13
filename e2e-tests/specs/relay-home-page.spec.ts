@@ -22,7 +22,7 @@ test.describe('Check header buttons and their redirects,  C1812638',  () => {
     await landingPage.open()
   });
 
-  test.only('Verify home FAQ button redirect', async ({ landingPage }) => {
+  test('Verify home FAQ button redirect', async ({ landingPage }) => {
     const FAQRedirectLink = await landingPage.FAQButton.getAttribute('href')
     expect(FAQRedirectLink).toEqual('/faq/')
   })
