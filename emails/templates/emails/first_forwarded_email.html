@@ -88,14 +88,12 @@ See privaterelay/ftl_bundles.py.
     }
 
     #what-you-can-do-with-relay {
-      padding: 32px 48px 32px 48px;
+      padding: 16px 48px 32px 48px;
       width: 95%;
       display: block;
       position: relative;
-      border: solid 3px transparent;
+      border: solid 3px #9059FF;
       border-radius: 8px;
-      background: radial-gradient(#FFFFFF, #FFFFFF), 
-        radial-gradient(100% 100% at 100% 0%, #9D62FC 0%, #FD3296 100%);
       background-origin: border-box;
       background-clip: padding-box, border-box;
     }
@@ -192,9 +190,12 @@ See privaterelay/ftl_bundles.py.
     @media screen and (max-width: 420px) {
       .arrow-img-two {
         width: 82px !important;
-        right: 15px;
+        margin-left: 260px !important;
       }
-      
+
+      #view-your-dashboard {
+        margin-top: 4px !important;
+      }
     }
   </style>
 </head>
@@ -238,7 +239,7 @@ See privaterelay/ftl_bundles.py.
               <tr>
                 <td style="overflow-wrap:break-word;word-break:break-word;" align="left">
                   <h1
-                    style="line-height: 140%; text-align: center; word-wrap: break-word; font-size: 24px; color: #321C64;">
+                    style="line-height: 140%; text-align: center; word-wrap: break-word; font-size: 24px; margin-bottom: 24px; color: #321C64;">
                     {% ftlmsg 'what-can-you-do-with-relay-title' %}</h1>
                 </td>
               </tr>
@@ -307,9 +308,16 @@ See privaterelay/ftl_bundles.py.
           </table>
         
           <!-- View your dashboard button -->
-          <table id="view-your-dashboard" style="max-width: 850px;margin:32px auto 64px auto;" cellpadding="0"
+          <table id="view-your-dashboard" style="max-width: 850px;margin:8px auto 64px auto;" cellpadding="0"
             cellspacing="0" width="100%" border="0">
             <tbody>
+              <tr align="center">
+                <td>
+                  <img class="arrow-img-two" align="" border="0"
+                  src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-forwarded/arrow-down.png" alt=""
+                  title="" style="height: auto; max-width: 122px; margin-left: 320px;" />
+                </td>
+              </tr>
               <tr>
                 <td align="center">
                   <a href="{{ SITE_ORIGIN }}/accounts/profile/?utm_campaign=relay-onboarding&utm_source=relay-onboarding&utm_medium=email&utm_content=first-forwarded-email"
