@@ -507,7 +507,7 @@
   color: $color-black;
   background: $color-white;
   border: solid 4px $color-purple-50;
-  border-radius: 8px;
+  border-radius: $border-radius-md;
   right: $spacing-xl;
   box-shadow: $box-shadow-md;
   display: none;
