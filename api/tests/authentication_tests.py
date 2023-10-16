@@ -26,6 +26,11 @@ from ..authentication import (
 MOCK_BASE = "api.authentication"
 
 
+# TODO MPP-3527 - Many tests mock FxA responses. This one should specify that it is
+# mocking the introspection URL. It could also be refactored to a pytest fixture, or a
+# nullable.
+
+
 def _setup_fxa_response(status_code: int, json: dict | str):
     responses.add(
         responses.POST,

@@ -22,7 +22,7 @@ commands:
 executors:
   python:
     docker:
-      - image: cimg/python:3.10.11
+      - image: cimg/python:3.10.13
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
@@ -270,7 +270,7 @@ jobs:
 
   upload_coverage:
     docker:
-      - image: cimg/python:3.10.11-node
+      - image: cimg/python:3.10.13-node
     steps:
       - attach_workspace:
           at: /tmp/workspace
@@ -390,7 +390,7 @@ jobs:
 
   python_test_postgres:
     docker:
-      - image: cimg/python:3.10.11
+      - image: cimg/python:3.10.13
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS

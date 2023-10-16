@@ -25,7 +25,8 @@ export class DashboardPage {
     readonly emailsForwardedAmount: Locator
     readonly emailsBlockedAmount: Locator
     readonly emailMasksUsedAmount: Locator
-    readonly maskCard: string
+    readonly maskCard: Locator
+    readonly maskCardString: string
     readonly maskCardExpanded: Locator
     readonly maskCardExpandButton: Locator
     readonly maskCardHeader: Locator
@@ -77,7 +78,8 @@ export class DashboardPage {
         this.dashBoardWithoutMasksEmail = page.locator('//section[starts-with(@class, "profile_no-premium-header")]')
 
         // mask card elements
-        this.maskCard = '//div[starts-with(@class, "MaskCard_card")]'
+        this.maskCard = page.getByRole('button', { name: 'Generate new mask' })
+        this.maskCardString = '//div[starts-with(@class, "MaskCard_card")]'
         this.maskCardExpanded = page.locator('//button[starts-with(@class, "MaskCard_expand")]')
         this.maskCardExpandButton = page.locator('//button[starts-with(@class, "MaskCard_expand")]')
         this.maskCardHeader = page.locator('//div[starts-with(@class, "MaskCard_summary")]')
@@ -108,7 +110,7 @@ export class DashboardPage {
 
         // generate a new mask and confirm
         await this.generateNewMaskButton.click()
-        await this.page.waitForSelector(this.maskCard, { timeout: 3000 })
+        await this.page.waitForSelector(this.maskCardString, { timeout: 3000 })
 
         // randomize between 1.5-2.5 secs between each generate to deal with issue of multiple quick clicks
         await this.page.waitForTimeout((Math.random() * 2500) + 1500)
@@ -142,7 +144,7 @@ export class DashboardPage {
         let isExpanded = false
 
         try {
-            numberOfMasks = await this.page.locator(this.maskCard).count()
+            numberOfMasks = await this.page.locator(this.maskCardString).count()
         } catch(err){}
 
         // check number of masks available
@@ -153,7 +155,7 @@ export class DashboardPage {
         // if clear all, check if there's an expanded mask card
         if(clearAll){
             try {
-                await this.page.waitForSelector(this.maskCard, { timeout: 3000 })
+                await this.page.waitForSelector(this.maskCardString, { timeout: 3000 })
             } catch (error) {
                 console.error('There are no masks to delete')
                 return
@@ -196,26 +198,22 @@ export class DashboardPage {
 
         // TODO: Replace with a page under control of Relay team
         await this.page.goto("https://monitor.firefox.com/", { waitUntil: 'networkidle' })
+        await this.page.locator('#scan-email-address').fill(generatedMaskEmail as string)
+        await this.page.locator('button.primary').click()
+        await this.page.waitForURL('**/scan**')
 
-        const monitorEmailInput = this.page.locator('#scan-email-address')
-        const submitButton = this.page.locator('button.primary')
-        await monitorEmailInput.fill(generatedMaskEmail as string)
-        await submitButton.click()
+        await this.page.getByRole('link', {name: 'Get alerts about new breaches'}).click()
 
-        const signupButton = this.page.locator('button.primary')
-        await signupButton.click()
+        await this.page.locator('input[name=email]').fill(generatedMaskEmail as string)
+        await this.page.locator('#submit-btn').click()
 
-        const passwordInputField = this.page.locator('#password');
-        const passwordConfirmInputField = this.page.locator('#vpassword');
-        const ageInputField = this.page.locator('#age');
-        const createAccountButton = this.page.locator('#submit-btn');
+        await this.page.locator('#password').fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string);
+        await this.page.locator('#vpassword').fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string);
+        await this.page.locator('#age').fill('31');
+        await this.page.locator('#submit-btn').click()
+        await this.page.waitForURL('**/confirm_signup_code**')
 
-        await passwordInputField.fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string);
-        await passwordConfirmInputField.fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string);
-        await ageInputField.fill('31');
-        await createAccountButton.click()
-
-        // wait for email to be forward to restmail
+        // verification email from fxa to generatedMaskEmail should be forwarded to E2E_TEST_ACCOUNT_FREE
         await getVerificationCode(process.env.E2E_TEST_ACCOUNT_FREE as string, this.page)
     }
 

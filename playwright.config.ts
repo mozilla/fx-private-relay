@@ -26,7 +26,7 @@ const config: PlaywrightTestConfig = {
 
   // adding missing snapshots for later comparison
   updateSnapshots: 'missing',
-  
+
   expect: {
     /**
      * Maximum time expect() should wait for the condition to be met.
@@ -44,7 +44,7 @@ const config: PlaywrightTestConfig = {
   workers: 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
-    ['line'],
+    ['list'],
     ['html'],
   ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -63,7 +63,7 @@ const config: PlaywrightTestConfig = {
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
-  },  
+  },
 
   /* Configure projects for major browsers */
   projects: [

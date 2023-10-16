@@ -1,10 +1,10 @@
-boto3==1.28.62
+boto3==1.28.63
 codetiming==1.4.0
 cryptography==41.0.4
 Django==3.2.20
 dj-database-url==2.1.0
 django-allauth==0.54.0
-django-cors-headers==4.2.0
+django-cors-headers==4.3.0
 django-csp==3.7
 django-debug-toolbar==4.2.0
 django-filter==23.3
@@ -28,8 +28,8 @@ PyJWT==2.8.0
 python-decouple==3.8
 pyOpenSSL==23.2.0
 requests==2.31.0
-sentry-sdk==1.31.0
-whitenoise==6.5.0
+sentry-sdk==1.32.0
+whitenoise==6.6.0
 
 # phones app
 phonenumbers==8.13.22
@@ -38,7 +38,7 @@ vobject==0.9.6.1
 
 # tests
 coverage==7.3.2
-model-bakery==1.15.0
+model-bakery==1.16.0
 pytest-cov==4.1.0
 pytest-django==4.5.2
 responses==0.23.3
@@ -47,11 +47,11 @@ responses==0.23.3
 black==23.9.1
 
 # type hinting
-boto3-stubs==1.28.62
-botocore-stubs==1.31.62
+boto3-stubs==1.28.63
+botocore-stubs==1.31.63
 django-stubs==4.2.4
 djangorestframework-stubs==3.14.3
 mypy-boto3-ses==1.28.36
-mypy==1.5.1
+mypy==1.6.0
 types-pyOpenSSL==23.2.0.2
-types-requests==2.31.0.8
+types-requests==2.31.0.9
