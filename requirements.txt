@@ -4,7 +4,7 @@ cryptography==41.0.4
 Django==3.2.20
 dj-database-url==2.1.0
 django-allauth==0.54.0
-django-cors-headers==4.2.0
+django-cors-headers==4.3.0
 django-csp==3.7
 django-debug-toolbar==4.2.0
 django-filter==23.3
