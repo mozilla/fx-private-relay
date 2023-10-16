@@ -1,4 +1,13 @@
-import json
+"""
+API views for emails and accounts
+
+TODO: Move these functions to mirror the Django apps
+
+Email stuff should be in api/views/emails.py
+Runtime data should be in api/views/privaterelay.py
+Profile stuff is strange - model is in emails, but probably should be in privaterelay.
+"""
+
 import logging
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
@@ -229,6 +238,18 @@ def terms_accepted_user(request):
         fxa_profile_resp = requests.get(
             FXA_PROFILE_URL, headers={"Authorization": f"Bearer {token}"}
         )
+        if not (fxa_profile_resp.ok and fxa_profile_resp.content):
+            logger.error(
+                "terms_accepted_user: bad account profile response",
+                extra={
+                    "status_code": fxa_profile_resp.status_code,
+                    "content": fxa_profile_resp.content,
+                },
+            )
+            return response.Response(
+                data={"detail": "Did not receive a 200 response for account profile."},
+                status=500,
+            )
 
         # this is not exactly the request object that FirefoxAccountsProvider expects, but
         # it has all of the necssary attributes to initiatlize the Provider
@@ -236,7 +257,7 @@ def terms_accepted_user(request):
         # This may not save the new user that was created
         # https://github.com/pennersr/django-allauth/blob/77368a84903d32283f07a260819893ec15df78fb/allauth/socialaccount/providers/base/provider.py#L44
         social_login = provider.sociallogin_from_response(
-            request, json.loads(fxa_profile_resp.content)
+            request, fxa_profile_resp.json()
         )
         # Complete social login is called by callback
         # (see https://github.com/pennersr/django-allauth/blob/77368a84903d32283f07a260819893ec15df78fb/allauth/socialaccount/providers/oauth/views.py#L118)

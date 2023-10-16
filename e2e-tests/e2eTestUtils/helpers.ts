@@ -17,14 +17,14 @@ export const getVerificationCode = async (testEmail: string, page: Page, attempt
     throw new Error('Unable to retrieve restmail data');
   }
 
-  const context = await request.newContext();  
+  const context = await request.newContext();
   const res = await context.get(
     `http://restmail.net/mail/${testEmail}`,
     {
       failOnStatusCode: false
     }
   );
-  const resJson = await res.json(); 
+  const resJson = await res.json();
   if (resJson.length) {
     const verificationCode = resJson[0].headers['x-verify-short-code']
     return verificationCode;
@@ -42,16 +42,16 @@ export const deleteEmailAddressMessages = async (req: APIRequestContext, testEma
   }
 };
 
-const setYourPassword = async (page: Page) => {  
+const setYourPassword = async (page: Page) => {
   await page.locator('#password').fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string)
   await page.locator('#vpassword').fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string)
   await page.locator('#age').fill('31');
   await page.locator('button:has-text("Create account")').click({force: true})
   await page.waitForTimeout(500)
-  await checkAuthState(page)  
+  await checkAuthState(page)
 }
 
-const enterConfirmationCode = async (page: Page) => {        
+const enterConfirmationCode = async (page: Page) => {
   const maybeVerificationCodeInput = 'div.card input'
   await page.waitForSelector(maybeVerificationCodeInput, { timeout: 2000 })
   const confirmButton = page.locator('#submit-btn')
@@ -89,16 +89,16 @@ const enterYourPassword = async (page: Page) => {
   await checkAuthState(page)
 }
 
-export const generateRandomEmail = async () => {  
+export const generateRandomEmail = async () => {
   return `${Date.now()}_tstact@restmail.net`;
 };
 
-export const setEnvVariables = async (email: string) => {  
+export const setEnvVariables = async (email: string) => {
   // set env variables
-  // stage will currently be the default  
-  process.env['E2E_TEST_ENV'] = process.env.E2E_TEST_ENV || 'stage';
+  // stage will currently be the default
+  process.env['E2E_TEST_ENV'] = process.env.E2E_TEST_ENV as string ?? 'stage';
   process.env['E2E_TEST_ACCOUNT_FREE'] = email;
-  process.env['E2E_TEST_BASE_URL'] = ENV_URLS[process.env.E2E_TEST_ENV as string] || 'https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net'
+  process.env['E2E_TEST_BASE_URL'] = ENV_URLS[process.env.E2E_TEST_ENV as string] ?? ENV_URLS.stage
 }
 
 interface DefaultScreenshotOpts {
@@ -113,7 +113,7 @@ export const defaultScreenshotOpts: Partial<DefaultScreenshotOpts> = {
 
 export const checkAuthState = async (page: Page) => {
   try {
-    const authStateTitleString = await page.locator('h1').textContent({ timeout: 4000 })
+    const authStateTitleString = await page.locator('h1').first()?.textContent({ timeout: 4000 })
     const checkIfTitleContains = (potentialTitle: string) => {
       return authStateTitleString?.includes(potentialTitle)
     }

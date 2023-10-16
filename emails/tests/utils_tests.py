@@ -10,6 +10,7 @@ from emails.models import get_domains_from_settings
 from emails.utils import (
     generate_from_header,
     get_email_domain_from_settings,
+    parse_email_header,
     remove_trackers,
     InvalidFromHeader,
 )
@@ -143,6 +144,69 @@ GENERATE_FROM_HEADER_RAISES_CASES = {
 def test_generate_from_header_raises(address) -> None:
     with pytest.raises(InvalidFromHeader):
         generate_from_header(address, "failures@relay.example.com")
+
+
+PARSE_EMAIL_HEADER_CASES = {
+    "email_only": {
+        "header_value": "email_only@simple.example.com",
+        "expected_out": [("", "email_only@simple.example.com")],
+    },
+    "display_name": {
+        "header_value": '"Display Name" <local@email.example.com>',
+        "expected_out": [("Display Name", "local@email.example.com")],
+    },
+    "two_emails": {
+        "header_value": 'one@multiple.example.com, "Two" <two@multiple.example.com>',
+        "expected_out": [
+            ("", "one@multiple.example.com"),
+            ("Two", "two@multiple.example.com"),
+        ],
+    },
+    "display_name_no_quotes": {
+        "header_value": "Display Name <local@email.example.com>",
+        "expected_out": [("Display Name", "local@email.example.com")],
+    },
+    "display_name_with_comma": {
+        "header_value": (
+            '"Norton I., Emperor of the United States" <norton@us.example.com>'
+        ),
+        "expected_out": [
+            ("Norton I., Emperor of the United States", "norton@us.example.com")
+        ],
+    },
+    "display_name_with_comma_but_no_quotes": {
+        "header_value": (
+            "Norton I., Emperor of the United States <norton@sf.us.example.com>"
+        ),
+        "expected_out": [("Emperor of the United States", "norton@sf.us.example.com")],
+    },
+    "nested_brackets": {
+        "header_value": "Nesting Bird <Nesting Bird <nesting@bird.example.com>>",
+        "expected_out": [],
+    },
+    "windows_1252_encoding": {
+        "header_value": (
+            "=?windows-1252?Q?sos_accessoire_\\(Place_de_march=E9_Cdiscount\\)_?="
+            " <vendeur@sn.example.com>"
+        ),
+        "expected_out": [
+            (
+                "sos accessoire \\(Place de marché Cdiscount\\) ",
+                "vendeur@sn.example.com",
+            ),
+        ],
+    },
+}
+
+
+@pytest.mark.parametrize(
+    "params",
+    PARSE_EMAIL_HEADER_CASES.values(),
+    ids=PARSE_EMAIL_HEADER_CASES.keys(),
+)
+def test_parse_email_header(params) -> None:
+    out = parse_email_header(params["header_value"])
+    assert out == params["expected_out"]
 
 
 @override_settings(SITE_ORIGIN="https://test.com")

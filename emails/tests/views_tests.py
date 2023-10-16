@@ -711,6 +711,35 @@ class SNSNotificationTest(TestCase):
         assert self.ra.last_used_at
         assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
 
+    def test_from_with_unquoted_commas_is_parsed(self) -> None:
+        """
+        A From: header with commas in an unquoted display is forwarded.
+
+        AWS parses these headers as a single email, Python as a list of emails.
+        One of the root causes of MPP-3407.
+        """
+        test_sns_notification = EMAIL_SNS_BODIES["emperor_norton"]
+        _sns_notification(test_sns_notification)
+        self.mock_send_raw_email.assert_called_once()
+        _, _, _, mail = self.get_details_from_mock_send_raw_email()
+        assert_email_equals(mail, "emperor_norton", replace_mime_boundaries=True)
+
+    @patch("emails.views.info_logger")
+    def test_from_with_nested_brackets_is_error(self, mock_logger) -> None:
+        test_sns_notification = EMAIL_SNS_BODIES["nested_brackets_service"]
+        result = _sns_notification(test_sns_notification)
+        assert result.status_code == 400
+        self.mock_send_raw_email.assert_not_called()
+        mock_logger.error.assert_called_once_with(
+            "_handle_received: no from address",
+            extra={
+                "source": "theservice.example.com",
+                "common_headers_from": [
+                    "The Service <The Service <hello@theservice.example.com>>"
+                ],
+            },
+        )
+
 
 class BounceHandlingTest(TestCase):
     def setUp(self):

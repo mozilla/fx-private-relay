@@ -1,6 +1,6 @@
 # Use the Relay mask address as From: address for forwarded emails
 
-- Status: Proposed
+- Status: Accepted
 - Deciders: Luke Crouch, Doris Deng
 - Date: 2023-08-11
 
@@ -43,9 +43,16 @@ forwarded emails.
 
 ## Decision Outcome
 
-Proceeding with testing and deployment of option 3, use the Relay mask as the
-`From:` address. Testing will focus on delivery issues, and quantifying the
-risk of categorization as spam.
+We proceeded with option 3, use the Relay mask as the `From:` address.
+
+The change was tested by staff in July and August 2023. Testing focused on delivery
+issues and quantifying the risk of categorization as spam. The change exposed some
+configuration issues in the staging environment, but worked well in production.
+
+The change was launched to all users in September 2023. There were no negative reports
+from users. There was a minor uptick in spam reports, up to an additional 1 per 1000
+emails. There were some new unhandled processing exceptions, requiring new code to catch
+the exceptions and log the values that caused them.
 
 ### Positive Consequences
 
@@ -77,7 +84,7 @@ Relay forwards with:
 
 ```
 Subject: A special offer for you
-From: "offers@servicex.example.com [via Relay]" replies@relay.firefox.com
+From: "offers@servicex.example.com [via Relay]" <replies@relay.firefox.com>
 To: users-real-email@mail.example.com
 Reply-To: replies@relay.firefox.com
 ```
@@ -101,7 +108,7 @@ Relay forwards with:
 
 ```
 Subject: A special offer for you
-From: "offers@servicex.example.com [via Relay]" offers@servicex.example.com
+From: "offers@servicex.example.com [via Relay]" <offers@servicex.example.com>
 To: users-real-email@mail.example.com
 Reply-To: replies@relay.firefox.com
 Resent-From: r4nd0m@mozmail.com
@@ -132,7 +139,7 @@ Relay forwards with:
 
 ```
 Subject: A special offer for you
-From: "offers@servicex.example.com [via Relay]" r4nd0m@mozmail.com
+From: "offers@servicex.example.com [via Relay]" <r4nd0m@mozmail.com>
 To: users-real-email@mail.example.com
 Reply-To: replies@relay.firefox.com
 Resent-From: offers@servicex.example.com
@@ -164,7 +171,7 @@ Relay forwards with:
 
 ```
 Subject: A special offer for you
-From: "offers@servicex.example.com [via Relay]" r4nd0m+offers_at_servicex.example.com@mozmail.com
+From: "offers@servicex.example.com [via Relay]" <r4nd0m+offers_at_servicex.example.com@mozmail.com>
 To: users-real-email@mail.example.com
 Reply-To: replies@relay.firefox.com
 Resent-From: offers@servicex.example.com

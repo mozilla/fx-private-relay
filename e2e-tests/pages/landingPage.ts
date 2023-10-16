@@ -10,37 +10,37 @@ export class LandingPage {
     readonly planPricingSignUpButton: Locator
     readonly signInButton: Locator
     readonly firefoxAppsServices: Locator
-    readonly firefoxAppsServicesExpanded: Locator
+    readonly firefoxAppsServicesHeading: Locator
     readonly firefoxLogo: Locator
 
     constructor(page: Page){
         this.page = page
         this.header = page.locator('#overlayProvider header')
-        this.FAQButton = page.locator('header >> text=FAQ')
-        this.homeButton = page.locator('header >> text=Home')
+        this.FAQButton = page.getByRole('link', { name: 'FAQ', exact: true })
+        this.homeButton = page.getByRole('link', { name: 'Home', exact: true })
         this.signUpButton = page.locator('a:has-text("Sign Up")').first()
         this.planPricingSignUpButton = page.locator('//a[contains(@class, "Plans_premium-plan")]/div')
         this.subscriptionTitle = page.locator('[data-testid="subscription-create-title"]')
         this.signInButton = page.locator('a:has-text("Sign In")')
-        this.firefoxAppsServices = page.locator('#react-aria-1')
-        this.firefoxAppsServicesExpanded = page.locator('#react-aria-2')
+        this.firefoxAppsServices = page.getByRole('button', { name: 'Firefox apps and services' })
+        this.firefoxAppsServicesHeading = page.getByRole('heading', { name: 'Firefox is tech that fights for your online privacy.' })
         this.firefoxLogo = page.locator('//a[starts-with(@class, "Layout_logo")]')
     }
- 
+
     async open(){
         await this.page.goto(process.env.E2E_TEST_BASE_URL as string)
     }
 
     async goHome(){
         await Promise.all([
-            this.page.waitForNavigation(),
+            this.page.waitForLoadState("networkidle"),
             this.homeButton.click()
         ]);
     }
 
-    async goToFAQ(){        
+    async goToFAQ(){
         await Promise.all([
-            this.page.waitForNavigation(),
+            this.page.waitForURL(/faq/),
             this.FAQButton.click()
         ]);
     }
@@ -61,11 +61,11 @@ export class LandingPage {
     }
 
     async openFirefoxAppsServices(){
-        await this.firefoxAppsServices.click()
+        await this.page.waitForLoadState("networkidle")
+        await this.firefoxAppsServices.click({ force: true })
     }
 
     async clickFirefoxLogo(){
         await this.firefoxLogo.click()
     }
-    
 }
