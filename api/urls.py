@@ -15,6 +15,7 @@ from .views import (
     ProfileViewSet,
     UserViewSet,
     FlagViewSet,
+    first_forwarded_email,
     report_webcompat_issue,
     runtime_data,
     terms_accepted_user,
@@ -82,6 +83,11 @@ urlpatterns = [
             SpectacularRedocView.as_view(url_name="schema")
         ),
         name="schema-redoc-ui",
+    ),
+    path(
+        "v1/first-forwarded-email/",
+        first_forwarded_email,
+        name="first_forwarded_email",
     ),
 ]
 

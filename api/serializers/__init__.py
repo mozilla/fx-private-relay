@@ -241,3 +241,7 @@ class WebcompatIssueSerializer(serializers.Serializer):
     add_on_visual_issue = serializers.BooleanField(required=False, default=False)
     email_not_received = serializers.BooleanField(required=False, default=False)
     other_issue = serializers.CharField(required=False, default="", allow_blank=True)
+
+
+class FirstForwardedEmailSerializer(serializers.Serializer):
+    mask = serializers.EmailField(required=True)
