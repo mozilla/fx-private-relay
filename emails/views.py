@@ -113,7 +113,7 @@ def reply_requires_premium_test(request):
     """
     email_context = {
         "sender": "test@example.com",
-        "forwarded": False,
+        "forwarded": True,
         "SITE_ORIGIN": settings.SITE_ORIGIN,
     }
     for param in request.GET:
