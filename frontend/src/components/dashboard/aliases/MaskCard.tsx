@@ -55,6 +55,7 @@ export type Props = {
   runtimeData?: RuntimeData;
   placeholder?: string;
   isOnboarding?: boolean;
+  children?: ReactNode;
 };
 
 export const MaskCard = (props: Props) => {
@@ -108,275 +109,293 @@ export const MaskCard = (props: Props) => {
       : "none";
 
   return (
-    <div className={classNames}>
-      <div className={styles.bar}>
-        <div className={styles.summary}>
-          {props.showLabelEditor && (
-            <div className={styles["label-editor-wrapper"]}>
-              <LabelEditor
-                label={props.mask.description}
-                placeholder={props.placeholder}
-                onSubmit={(newLabel) =>
-                  props.onUpdate({ description: newLabel })
-                }
-              />
-            </div>
-          )}
-          <div className={styles["copy-button-wrapper"]}>
-            <button
-              className={styles["copy-button"]}
-              title={l10n.getString("profile-label-click-to-copy")}
-              aria-label={l10n.getString("profile-label-click-to-copy-alt", {
-                address: props.mask.full_address,
-              })}
-              onClick={copyAddressToClipboard}
-            >
-              <samp className={styles.address}>{props.mask.full_address}</samp>
-              <span className={styles["copy-icon"]}>
-                <CopyIcon alt="" />
-              </span>
-            </button>
-            <span
-              aria-hidden={!justCopied}
-              className={styles["copied-confirmation"]}
-            >
-              {l10n.getString("profile-label-copied")}
-            </span>
-          </div>
-          <div className={styles["block-level-label"]}>
-            {props.mask.enabled === false
-              ? l10n.getString("profile-promo-email-blocking-label-none")
-              : props.mask.block_list_emails === true
-              ? l10n.getString(
-                  "profile-promo-email-blocking-label-promotionals",
-                )
-              : null}
-          </div>
-        </div>
-        <button
-          {...expandButtonProps}
-          ref={expandButtonRef}
-          className={styles["expand-button"]}
-          aria-expanded={expandButtonState.isSelected}
-          aria-controls={detailsElementId}
-        >
-          <ArrowDownIcon
-            alt={l10n.getString(
-              expandButtonState.isSelected
-                ? "profile-details-collapse"
-                : "profile-details-expand",
-            )}
-            width={16}
-            height={16}
-          />
-        </button>
-      </div>
-      <div
-        id={detailsElementId}
-        className={styles["details-wrapper"]}
-        hidden={!expandButtonState.isSelected}
-      >
-        <div className={styles.details}>
-          <dl className={styles.stats}>
-            <div className={`${styles.stat} ${styles["blocked-stat"]}`}>
-              <dt>{l10n.getString("profile-label-blocked")}</dt>
-              <dd>{statNumberFormatter.format(props.mask.num_blocked)}</dd>
-            </div>
-            <div className={`${styles.stat} ${styles["forwarded-stat"]}`}>
-              <dt>{l10n.getString("profile-label-forwarded")}</dt>
-              <dd>{statNumberFormatter.format(props.mask.num_forwarded)}</dd>
-            </div>
-            {/* If user is not premium, hide the replies count */}
-            {props.profile.has_premium && (
-              <div className={`${styles.stat} ${styles["replies-stat"]}`}>
-                <dt>{l10n.getString("profile-label-replies")}</dt>
-                <dd>{statNumberFormatter.format(props.mask.num_replied)}</dd>
+    <>
+      <div className={classNames}>
+        <div className={styles.bar}>
+          <div className={styles.summary}>
+            {props.showLabelEditor && (
+              <div className={styles["label-editor-wrapper"]}>
+                <LabelEditor
+                  label={props.mask.description}
+                  placeholder={props.placeholder}
+                  onSubmit={(newLabel) =>
+                    props.onUpdate({ description: newLabel })
+                  }
+                />
               </div>
             )}
+            <div className={styles["copy-button-wrapper"]}>
+              <button
+                className={styles["copy-button"]}
+                title={l10n.getString("profile-label-click-to-copy")}
+                aria-label={l10n.getString("profile-label-click-to-copy-alt", {
+                  address: props.mask.full_address,
+                })}
+                onClick={copyAddressToClipboard}
+              >
+                <samp className={styles.address}>
+                  {props.mask.full_address}
+                </samp>
+                <span className={styles["copy-icon"]}>
+                  <CopyIcon alt="" />
+                </span>
+              </button>
+              <span
+                aria-hidden={!justCopied}
+                className={styles["copied-confirmation"]}
+              >
+                {l10n.getString("profile-label-copied")}
+              </span>
+            </div>
+            <div className={styles["block-level-label"]}>
+              {props.mask.enabled === false
+                ? l10n.getString("profile-promo-email-blocking-label-none")
+                : props.mask.block_list_emails === true
+                ? l10n.getString(
+                    "profile-promo-email-blocking-label-promotionals",
+                  )
+                : null}
+            </div>
+          </div>
+          <button
+            {...expandButtonProps}
+            ref={expandButtonRef}
+            className={styles["expand-button"]}
+            aria-expanded={expandButtonState.isSelected}
+            aria-controls={detailsElementId}
+          >
+            <ArrowDownIcon
+              alt={l10n.getString(
+                expandButtonState.isSelected
+                  ? "profile-details-collapse"
+                  : "profile-details-expand",
+              )}
+              width={16}
+              height={16}
+            />
+          </button>
+        </div>
+        <div
+          id={detailsElementId}
+          className={styles["details-wrapper"]}
+          hidden={!expandButtonState.isSelected}
+        >
+          <div className={styles.details}>
+            <dl className={styles.stats}>
+              <div className={`${styles.stat} ${styles["blocked-stat"]}`}>
+                <dt>{l10n.getString("profile-label-blocked")}</dt>
+                <dd>{statNumberFormatter.format(props.mask.num_blocked)}</dd>
+              </div>
+              <div className={`${styles.stat} ${styles["forwarded-stat"]}`}>
+                <dt>{l10n.getString("profile-label-forwarded")}</dt>
+                <dd>{statNumberFormatter.format(props.mask.num_forwarded)}</dd>
+              </div>
+              {/* If user is not premium, hide the replies count */}
+              {props.profile.has_premium && (
+                <div className={`${styles.stat} ${styles["replies-stat"]}`}>
+                  <dt>{l10n.getString("profile-label-replies")}</dt>
+                  <dd>{statNumberFormatter.format(props.mask.num_replied)}</dd>
+                </div>
+              )}
 
-            {/*
+              {/*
               If the back-end does not yet support providing tracker blocking stats,
               hide the blocked trackers count:
             */}
-            {isFlagActive(props.runtimeData, "tracker_removal") &&
-              typeof props.mask.num_level_one_trackers_blocked === "number" && (
-                <div
-                  className={`${styles.stat} ${styles["trackers-removed-stat"]}`}
-                >
-                  <dt>{l10n.getString("profile-label-trackers-removed")}</dt>
-                  <dd>
-                    {statNumberFormatter.format(
-                      props.mask.num_level_one_trackers_blocked,
-                    )}
-                  </dd>
+              {isFlagActive(props.runtimeData, "tracker_removal") &&
+                typeof props.mask.num_level_one_trackers_blocked ===
+                  "number" && (
+                  <div
+                    className={`${styles.stat} ${styles["trackers-removed-stat"]}`}
+                  >
+                    <dt>{l10n.getString("profile-label-trackers-removed")}</dt>
+                    <dd>
+                      {statNumberFormatter.format(
+                        props.mask.num_level_one_trackers_blocked,
+                      )}
+                    </dd>
+                  </div>
+                )}
+            </dl>
+            <div
+              className={`${styles["block-level"]} ${
+                styles[`is-blocking-${blockLevel}`]
+              }`}
+            >
+              {props.isOnboarding && props.isOpen && (
+                <div className={styles["onboarding-alias-container"]}>
+                  <Image src={HorizontalArrow} alt="" />
+                  <div className={styles["onboarding-alias-text"]}>
+                    <p>
+                      {l10n.getString(
+                        "profile-free-onboarding--copy-mask-what-emails-to-block",
+                      )}
+                    </p>
+                  </div>
                 </div>
               )}
-          </dl>
-          <div
-            className={`${styles["block-level"]} ${
-              styles[`is-blocking-${blockLevel}`]
-            }`}
-          >
-            {props.isOnboarding && props.isOpen && (
-              <div className={styles["onboarding-alias-container"]}>
-                <Image src={HorizontalArrow} alt="" />
-                <div className={styles["onboarding-alias-text"]}>
-                  <p>
-                    {l10n.getString(
-                      "profile-free-onboarding--copy-mask-what-emails-to-block",
-                    )}
-                  </p>
-                </div>
-              </div>
-            )}
-            <div className={styles["block-level-setting"]}>
-              <BlockLevelSegmentedControl
-                defaultValue={blockLevel}
-                onChange={(blockLevel) => {
-                  if (blockLevel === "all") {
-                    return props.onUpdate({ enabled: false });
-                  }
-                  if (blockLevel === "promotionals") {
-                    return props.onUpdate({
-                      enabled: true,
-                      block_list_emails: true,
-                    });
-                  }
-                  if (blockLevel === "none") {
-                    return props.onUpdate({
-                      enabled: true,
-                      block_list_emails: false,
-                    });
-                  }
-                }}
-                label={l10n.getString("profile-promo-email-blocking-title")}
-              >
-                <BlockLevelOption
-                  value="none"
-                  setPromoSelectedState={setPromoIsSelectedState}
+              <div className={styles["block-level-setting"]}>
+                <BlockLevelSegmentedControl
+                  defaultValue={blockLevel}
+                  onChange={(blockLevel) => {
+                    if (blockLevel === "all") {
+                      return props.onUpdate({ enabled: false });
+                    }
+                    if (blockLevel === "promotionals") {
+                      return props.onUpdate({
+                        enabled: true,
+                        block_list_emails: true,
+                      });
+                    }
+                    if (blockLevel === "none") {
+                      return props.onUpdate({
+                        enabled: true,
+                        block_list_emails: false,
+                      });
+                    }
+                  }}
+                  label={l10n.getString("profile-promo-email-blocking-title")}
                 >
-                  {l10n.getString("profile-promo-email-blocking-option-none")}
-                </BlockLevelOption>
-                <BlockLevelOption
-                  value="promotionals"
-                  isDisabled={!props.profile.has_premium}
-                  title={l10n.getString(
-                    "profile-promo-email-blocking-description-promotionals-locked-label",
-                  )}
-                  isPromo={true}
-                  promoSelectedState={promoIsSelected}
-                  setPromoSelectedState={setPromoIsSelectedState}
-                >
-                  {!props.profile.has_premium && (
-                    <LockIcon
-                      alt={l10n.getString(
-                        "profile-promo-email-blocking-description-promotionals-locked-label",
-                      )}
-                    />
-                  )}
-                  {l10n.getString(
-                    "profile-promo-email-blocking-option-promotions",
-                  )}
-                </BlockLevelOption>
-                <BlockLevelOption
-                  value="all"
-                  setPromoSelectedState={setPromoIsSelectedState}
-                >
-                  {l10n.getString("profile-promo-email-blocking-option-all")}
-                </BlockLevelOption>
-              </BlockLevelSegmentedControl>
-              {promoIsSelected && !props.profile.has_premium ? (
-                <div
-                  className={styles["promotions-locked-description-wrapper"]}
-                >
-                  <strong>
-                    <LockIcon
-                      alt={l10n.getString(
-                        "profile-promo-email-blocking-description-promotionals-locked-label",
-                      )}
-                    />
-                    {l10n.getString(
+                  <BlockLevelOption
+                    value="none"
+                    setPromoSelectedState={setPromoIsSelectedState}
+                  >
+                    {l10n.getString("profile-promo-email-blocking-option-none")}
+                  </BlockLevelOption>
+                  <BlockLevelOption
+                    value="promotionals"
+                    isDisabled={!props.profile.has_premium}
+                    title={l10n.getString(
                       "profile-promo-email-blocking-description-promotionals-locked-label",
                     )}
-                  </strong>
-                  <p>
-                    {l10n.getString(
-                      "profile-promo-email-blocking-description-promotionals",
-                    )}
-                  </p>
-                  <Link
-                    href="/premium#pricing"
-                    className={styles["upgrade-btn"]}
+                    isPromo={true}
+                    promoSelectedState={promoIsSelected}
+                    setPromoSelectedState={setPromoIsSelectedState}
                   >
-                    {l10n.getString("banner-pack-upgrade-cta")}
-                  </Link>
-                </div>
-              ) : null}
-            </div>
-            <div
-              className={`${styles["block-level-setting-description"]}
+                    {!props.profile.has_premium && (
+                      <LockIcon
+                        alt={l10n.getString(
+                          "profile-promo-email-blocking-description-promotionals-locked-label",
+                        )}
+                      />
+                    )}
+                    {l10n.getString(
+                      "profile-promo-email-blocking-option-promotions",
+                    )}
+                  </BlockLevelOption>
+                  <BlockLevelOption
+                    value="all"
+                    setPromoSelectedState={setPromoIsSelectedState}
+                  >
+                    {l10n.getString("profile-promo-email-blocking-option-all")}
+                  </BlockLevelOption>
+                </BlockLevelSegmentedControl>
+                {promoIsSelected && !props.profile.has_premium ? (
+                  <div
+                    className={styles["promotions-locked-description-wrapper"]}
+                  >
+                    <strong>
+                      <LockIcon
+                        alt={l10n.getString(
+                          "profile-promo-email-blocking-description-promotionals-locked-label",
+                        )}
+                      />
+                      {l10n.getString(
+                        "profile-promo-email-blocking-description-promotionals-locked-label",
+                      )}
+                    </strong>
+                    <p>
+                      {l10n.getString(
+                        "profile-promo-email-blocking-description-promotionals",
+                      )}
+                    </p>
+                    <Link
+                      href="/premium#pricing"
+                      className={styles["upgrade-btn"]}
+                    >
+                      {l10n.getString("banner-pack-upgrade-cta")}
+                    </Link>
+                  </div>
+                ) : null}
+              </div>
+              <div
+                className={`${styles["block-level-setting-description"]}
               ${
                 // Only add chevron on mobile for premium users
                 promoIsSelected &&
                 !props.profile.has_premium &&
                 styles["without-chevron"]
               }`}
-            >
-              {blockLevel === "all" &&
-                l10n.getString(
-                  "profile-promo-email-blocking-description-all-2",
-                )}
-              {blockLevel === "promotionals" && (
-                <>
-                  <p>
-                    {l10n.getString(
-                      "profile-promo-email-blocking-description-promotionals",
-                    )}
-                  </p>
-                  <p>
-                    <Link href="/faq#faq-promotional-email-blocking">
+              >
+                {blockLevel === "all" &&
+                  l10n.getString(
+                    "profile-promo-email-blocking-description-all-2",
+                  )}
+                {blockLevel === "promotionals" && (
+                  <>
+                    <p>
                       {l10n.getString(
-                        "banner-label-data-notification-body-cta",
+                        "profile-promo-email-blocking-description-promotionals",
                       )}
-                    </Link>
-                  </p>
-                </>
-              )}
-              {blockLevel === "none" &&
-                l10n.getString(
-                  "profile-promo-email-blocking-description-none-2",
+                    </p>
+                    <p>
+                      <Link href="/faq#faq-promotional-email-blocking">
+                        {l10n.getString(
+                          "banner-label-data-notification-body-cta",
+                        )}
+                      </Link>
+                    </p>
+                  </>
                 )}
+                {blockLevel === "none" &&
+                  l10n.getString(
+                    "profile-promo-email-blocking-description-none-2",
+                  )}
+              </div>
             </div>
-          </div>
-          <div className={styles.meta}>
-            <dl>
-              <div className={styles.metadata}>
-                <dt>{l10n.getString("profile-label-created")}</dt>
-                <dd>
-                  <Image src={CalendarIcon} alt="" />
-                  {renderDate(props.mask.created_at, l10n)}
-                </dd>
-              </div>
-              <div className={styles.metadata}>
-                <dt>{l10n.getString("profile-label-forward-emails")}</dt>
-                <dd>
-                  <Image src={EmailIcon} alt="" />
-                  {props.user.email}
-                </dd>
-              </div>
-            </dl>
-            {!props.isOnboarding && (
-              <div className={styles["deletion-button-wrapper"]}>
-                <AliasDeletionButton
-                  onDelete={props.onDelete}
-                  alias={props.mask}
-                />
-              </div>
-            )}
+            <div className={styles.meta}>
+              <dl>
+                <div className={styles.metadata}>
+                  <dt>{l10n.getString("profile-label-created")}</dt>
+                  <dd>
+                    <Image src={CalendarIcon} alt="" />
+                    {renderDate(props.mask.created_at, l10n)}
+                  </dd>
+                </div>
+                <div className={styles.metadata}>
+                  <dt>{l10n.getString("profile-label-forward-emails")}</dt>
+                  <dd>
+                    <Image src={EmailIcon} alt="" />
+                    {props.user.email}
+                  </dd>
+                </div>
+              </dl>
+              {!props.isOnboarding && (
+                <div className={styles["deletion-button-wrapper"]}>
+                  <AliasDeletionButton
+                    onDelete={props.onDelete}
+                    alias={props.mask}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+      {props.isOnboarding && (
+        <div
+          className={
+            styles[
+              expandButtonState.isSelected
+                ? "onboarding-open"
+                : "onboarding-closed"
+            ]
+          }
+        >
+          {props.children}
+        </div>
+      )}
+    </>
   );
 };
 

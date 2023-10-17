@@ -263,7 +263,7 @@ const Profile: NextPage = () => {
             hasReachedFreeMaskLimit={freeMaskLimitReached}
             user={user}
             runtimeData={runtimeData.data}
-            onUpdate={() => {}}
+            onUpdate={updateAlias}
           />
         </Layout>
       </>

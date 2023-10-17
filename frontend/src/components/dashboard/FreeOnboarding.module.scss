@@ -46,7 +46,7 @@
   padding: $spacing-lg $spacing-xl;
   margin-top: $spacing-2xl;
   box-sizing: border-box;
-  background: #f9f9fb;
+  background: $color-white;
   background-clip: padding-box;
   border: solid 2px transparent;
   border-radius: $border-radius-md;
@@ -59,17 +59,24 @@
   }
 }
 
-.copy-mask-arrow-element img {
-  display: none;
+.copy-mask-arrow-element {
   position: relative;
+  width: 100px;
   margin: 0 auto;
-  /* both calculations below deal with alignment of custom art element */
-  left: calc($spacing-2xl * 2);
-  bottom: calc($spacing-2xl * -1);
-  width: 150px;
 
-  @media screen and #{$mq-lg} {
-    display: block;
+  img {
+    display: none;
+    position: absolute;
+    width: $layout-xl;
+    position: absolute;
+    height: 125px;
+    /* both calculations below deal with alignment of custom art element - vertical arrow */
+    bottom: -40px;
+    right: -86px;
+
+    @media screen and #{$mq-lg} {
+      display: block;
+    }
   }
 }
 

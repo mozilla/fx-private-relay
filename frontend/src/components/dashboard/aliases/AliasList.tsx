@@ -29,6 +29,8 @@ export type Props = {
   ) => void;
   onUpdate: (alias: AliasData, updatedFields: Partial<AliasData>) => void;
   onDelete: (alias: AliasData) => void;
+  onboarding?: boolean;
+  children?: React.ReactNode;
 };
 
 /**
@@ -40,6 +42,7 @@ export const AliasList = (props: Props) => {
   const [stringFilterVisible, setStringFilterVisible] = useState(false);
   const [categoryFilters, setCategoryFilters] = useState<SelectedFilters>({});
   const [localLabels, storeLocalLabel] = useLocalLabels();
+  const { onboarding = false } = props;
   // When <AliasList> gets added to the page, if there's an anchor link in the
   // URL pointing to a mask, scroll to that mask:
   useFlaggedAnchorLinks(
@@ -147,7 +150,10 @@ export const AliasList = (props: Props) => {
               props.profile.server_storage || localLabels !== null
             }
             runtimeData={props.runtimeData}
-          />
+            isOnboarding={onboarding}
+          >
+            {props.children}
+          </MaskCard>
         ) : (
           <Alias
             alias={alias}
@@ -209,53 +215,62 @@ export const AliasList = (props: Props) => {
 
   return (
     <section>
-      <div className={styles.controls}>
-        <div
-          className={`${styles["string-filter"]} ${
-            stringFilterVisible ? styles["is-visible"] : ""
-          }`}
-        >
-          <VisuallyHidden>
-            <label htmlFor="stringFilter">
-              {l10n.getString("profile-filter-search-placeholder-2")}
-            </label>
-          </VisuallyHidden>
-          <input
-            value={stringFilterInput}
-            onChange={(e) => handleOnChange(e.target.value)}
-            type="search"
-            name="stringFilter"
-            id="stringFilter"
-            placeholder={l10n.getString("profile-filter-search-placeholder-2")}
-          />
-          <span className={styles["match-count"]}>
-            {aliases.length}/{props.aliases.length}
-          </span>
+      {isFlagActive(props.runtimeData, "free_user_onboarding") &&
+      onboarding ? null : (
+        <div className={styles.controls}>
+          <div
+            className={`${styles["string-filter"]} ${
+              stringFilterVisible ? styles["is-visible"] : ""
+            }`}
+          >
+            <VisuallyHidden>
+              <label htmlFor="stringFilter">
+                {l10n.getString("profile-filter-search-placeholder-2")}
+              </label>
+            </VisuallyHidden>
+            <input
+              value={stringFilterInput}
+              onChange={(e) => handleOnChange(e.target.value)}
+              type="search"
+              name="stringFilter"
+              id="stringFilter"
+              placeholder={l10n.getString(
+                "profile-filter-search-placeholder-2",
+              )}
+            />
+            <span className={styles["match-count"]}>
+              {aliases.length}/{props.aliases.length}
+            </span>
+          </div>
+          <button
+            onClick={() => setStringFilterVisible(!stringFilterVisible)}
+            title={l10n.getString("profile-filter-search-placeholder-2")}
+            className={`${styles["string-filter-toggle"]} ${
+              stringFilterVisible ? styles["active"] : ""
+            }`}
+          >
+            <SearchIcon
+              alt={l10n.getString("profile-filter-search-placeholder-2")}
+              width={20}
+              height={20}
+            />
+          </button>
+          {categoryFilter}
+          <div className={styles["new-alias-button"]}>
+            <AliasGenerationButton
+              aliases={props.aliases}
+              profile={props.profile}
+              runtimeData={props.runtimeData}
+              onCreate={props.onCreate}
+            />
+          </div>
         </div>
-        <button
-          onClick={() => setStringFilterVisible(!stringFilterVisible)}
-          title={l10n.getString("profile-filter-search-placeholder-2")}
-          className={`${styles["string-filter-toggle"]} ${
-            stringFilterVisible ? styles["active"] : ""
-          }`}
-        >
-          <SearchIcon
-            alt={l10n.getString("profile-filter-search-placeholder-2")}
-            width={20}
-            height={20}
-          />
-        </button>
-        {categoryFilter}
-        <div className={styles["new-alias-button"]}>
-          <AliasGenerationButton
-            aliases={props.aliases}
-            profile={props.profile}
-            runtimeData={props.runtimeData}
-            onCreate={props.onCreate}
-          />
-        </div>
-      </div>
-      <ul>{aliasCards}</ul>
+      )}
+      <ul>
+        {isFlagActive(props.runtimeData, "free_user_onboarding") && onboarding
+          ? aliasCards[0]
+          : aliasCards}
+      </ul>
       {emptyStateMessage}
     </section>
   );

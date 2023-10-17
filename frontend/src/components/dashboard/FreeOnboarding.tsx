@@ -20,11 +20,11 @@ import { useGaViewPing } from "../../hooks/gaViewPing";
 import { AliasData } from "../../hooks/api/aliases";
 import { UserData } from "../../hooks/api/user";
 import { RuntimeData } from "../../hooks/api/runtimeData";
-import { OnBoardingAlias } from "./aliases/OnboardingAlias";
 import { EmailForwardingModal } from "./EmailForwardingModal";
 import { useState } from "react";
 import { supportsChromeExtension } from "../../functions/userAgent";
 import { CheckBadgeIcon, ChevronRightIcon } from "../Icons";
+import { AliasList } from "./aliases/AliasList";
 
 export type Props = {
   profile: ProfileData;
@@ -60,28 +60,30 @@ export const FreeOnboarding = (props: Props) => {
   const skipStepTwoButtonRef = useGaViewPing({
     category: "Free Onboarding",
     label: "free-onboarding-step-2-skip",
-    value: 2,
+    value: 1,
   });
 
   const nextStepTwoButtonRef = useGaViewPing({
     category: "Free Onboarding",
     label: "free-onboarding-step-2-next",
-    value: 2,
+    value: 1,
   });
 
   const skipStepThreeButtonRef = useGaViewPing({
     category: "Free Onboarding",
     label: "free-onboarding-step-3-skip",
-    value: 3,
+    value: 1,
   });
-
-  if (props.profile) {
-    console.log(props.profile);
-  }
 
   if (props.profile.onboarding_state === 0) {
     const skipMaskCreation = () => {
       props.onNextStep(3);
+      gaEvent({
+        category: "Free Onboarding",
+        action: "Engage",
+        label: "onboarding-step-1-skip",
+        value: 1,
+      });
     };
 
     const createNewMask = () => {
@@ -90,7 +92,7 @@ export const FreeOnboarding = (props: Props) => {
       gaEvent({
         category: "Free Onboarding",
         action: "Engage",
-        label: "onboarding-step-1-continue",
+        label: "onboarding-step-1-create-random-mask",
         value: 1,
       });
     };
@@ -118,6 +120,12 @@ export const FreeOnboarding = (props: Props) => {
   if (props.profile.onboarding_state === 1) {
     const skipMaskTesting = () => {
       props.onNextStep(3);
+      gaEvent({
+        category: "Free Onboarding",
+        action: "Engage",
+        label: "onboarding-step-2-skip",
+        value: 1,
+      });
     };
 
     const nextStep = () => {
@@ -126,7 +134,7 @@ export const FreeOnboarding = (props: Props) => {
         category: "Free Onboarding",
         action: "Engage",
         label: "onboarding-step-2-next",
-        value: 2,
+        value: 1,
       });
     };
 
@@ -136,7 +144,7 @@ export const FreeOnboarding = (props: Props) => {
         category: "Free Onboarding",
         action: "Engage",
         label: "onboarding-step-2-continue",
-        value: 2,
+        value: 1,
       });
     };
 
@@ -149,6 +157,7 @@ export const FreeOnboarding = (props: Props) => {
         continue={forwardedEmail}
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
+        onUpdate={props.onUpdate}
       />
     );
 
@@ -195,6 +204,12 @@ export const FreeOnboarding = (props: Props) => {
 
     const skipAddonStep = () => {
       props.onNextStep(3);
+      gaEvent({
+        category: "Free Onboarding",
+        action: "Engage",
+        label: "onboarding-step-3-skip",
+        value: 1,
+      });
     };
 
     const finish = () => {
@@ -203,7 +218,7 @@ export const FreeOnboarding = (props: Props) => {
         category: "Free Onboarding",
         action: "Engage",
         label: "onboarding-step-3-complete",
-        value: 3,
+        value: 1,
       });
     };
 
@@ -354,6 +369,7 @@ type StepTwoProps = {
   isModalOpen: boolean;
   setIsModalOpen: (isOpen: boolean) => void;
   continue: () => void;
+  onUpdate: (alias: AliasData, updatedFields: Partial<AliasData>) => void;
 };
 
 const StepTwo = (props: StepTwoProps) => {
@@ -386,12 +402,15 @@ const StepTwo = (props: StepTwoProps) => {
         <div className={styles["copy-mask-arrow-element"]}>
           <Image src={VerticalArrow} alt="" />
         </div>
-        <OnBoardingAlias
+        <AliasList
           aliases={props.aliases}
+          onCreate={() => {}}
+          onUpdate={props.onUpdate}
+          onDelete={() => {}}
           profile={props.profile}
           user={props.user}
           runtimeData={props.runtimeData}
-          onUpdate={() => {}}
+          onboarding={true}
         >
           <div className={styles["content-wrapper-copy-mask-items"]}>
             <div className={styles["content-item"]}>
@@ -426,7 +445,7 @@ const StepTwo = (props: StepTwoProps) => {
               </div>
             </div>
           </div>
-        </OnBoardingAlias>
+        </AliasList>
       </div>
     </div>
   );

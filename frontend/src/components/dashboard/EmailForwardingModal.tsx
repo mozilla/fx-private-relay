@@ -23,6 +23,8 @@ import ForwardedEmail from "./images/free-onboarding-forwarding-congratulations.
 import { Button } from "../Button";
 import { StaticImport } from "next/dist/shared/lib/get-img-props";
 import { CloseIcon } from "../Icons";
+import { aliasEmailTest } from "../../hooks/api/aliases";
+import { event as gaEvent } from "react-ga";
 
 export type Props = {
   isOpen: boolean;
@@ -61,13 +63,26 @@ const ConfirmModal = (props: Props) => {
     );
   };
 
-  // TODO: Implement submit to backend.
-  const onSubmit: FormEventHandler = (event) => {
+  const onSubmit: FormEventHandler = async (event) => {
     event.preventDefault();
 
     const isValid = formRef.current?.reportValidity();
+
     if (isValid) {
       inputRef.current?.blur();
+
+      const response = await aliasEmailTest(inputValue);
+
+      if (response) {
+        props.onConfirm();
+
+        gaEvent({
+          category: "Free Onboarding",
+          action: "Engage",
+          label: "onboarding-step-2-forwarding-test",
+          value: 1,
+        });
+      }
     }
   };
 
@@ -100,11 +115,14 @@ const ConfirmModal = (props: Props) => {
             placeholder={l10n.getString(
               "profile-free-onboarding--copy-mask-placeholder-relay-email-mask",
             )}
-            type="text"
+            type="submit"
           />
         </form>
       </div>
-      <Button className={styles["generate-new-mask"]} onClick={props.onConfirm}>
+      <Button
+        className={styles["generate-new-mask"]}
+        onClick={() => formRef.current?.submit()}
+      >
         {l10n.getString("profile-free-onboarding--copy-mask-send-email")}
       </Button>
 

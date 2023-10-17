@@ -500,6 +500,14 @@
   }
 }
 
+.onboarding-open {
+  display: none;
+}
+
+.onboarding-closed {
+  display: block;
+}
+
 .onboarding-alias-container {
   width: $content-xs;
   position: absolute;
