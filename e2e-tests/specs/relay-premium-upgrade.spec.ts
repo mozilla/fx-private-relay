@@ -5,6 +5,8 @@ import { checkAuthState, defaultScreenshotOpts } from '../e2eTestUtils/helpers';
 test.use({ storageState: 'state.json' })
 test.describe.configure({ mode: 'parallel' });
 test.describe('Premium Relay - Purchase Premium Flow, Desktop', () => {
+  test.skip(({ browserName }) => browserName === 'firefox', 'FxA Issue with with authenication');
+
   test.beforeEach(async ({ dashboardPage, page }) => {
     await dashboardPage.open()
     await checkAuthState(page)
