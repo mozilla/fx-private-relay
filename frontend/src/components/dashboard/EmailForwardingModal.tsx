@@ -121,7 +121,8 @@ const ConfirmModal = (props: Props) => {
       </div>
       <Button
         className={styles["generate-new-mask"]}
-        onClick={() => formRef.current?.submit()}
+        type="submit"
+        onClick={onSubmit}
       >
         {l10n.getString("profile-free-onboarding--copy-mask-send-email")}
       </Button>
