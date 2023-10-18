@@ -115,7 +115,7 @@ const ConfirmModal = (props: Props) => {
             placeholder={l10n.getString(
               "profile-free-onboarding--copy-mask-placeholder-relay-email-mask",
             )}
-            type="submit"
+            type="text"
           />
         </form>
       </div>
