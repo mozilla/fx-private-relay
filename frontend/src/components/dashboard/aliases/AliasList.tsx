@@ -38,6 +38,7 @@ export const AliasList = (props: Props) => {
   const l10n = useL10n();
   const [stringFilterInput, setStringFilterInput] = useState("");
   const [stringFilterVisible, setStringFilterVisible] = useState(false);
+  const [resetCheckBoxes, setCheckboxes] = useState(false);
   const [categoryFilters, setCategoryFilters] = useState<SelectedFilters>({});
   const [localLabels, storeLocalLabel] = useLocalLabels();
   // When <AliasList> gets added to the page, if there's an anchor link in the
@@ -178,6 +179,8 @@ export const AliasList = (props: Props) => {
       <CategoryFilter
         onChange={setCategoryFilters}
         selectedFilters={categoryFilters}
+        resetChecks={resetCheckBoxes}
+        setCheckboxes={setCheckboxes}
       />
     </div>
   ) : null;
@@ -191,6 +194,7 @@ export const AliasList = (props: Props) => {
             <button
               onClick={() => {
                 setCategoryFilters({});
+                setCheckboxes(true);
                 setStringFilterInput("");
               }}
               className={styles["clear-filters-button"]}
