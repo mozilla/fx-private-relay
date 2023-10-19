@@ -7,73 +7,164 @@
 {% withftl bundle='privaterelay.ftl_bundles.main' language=language %}
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ request.LANGUAGE_CODE }}" dir="ltr"></html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ request.LANGUAGE_CODE }}" dir="ltr">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width"/>
     <style> 
         @font-face {
-                font-family: 'inter';
-                font-style: normal;
-                font-weight: 500;
-                src: local('Inter Regular'), local('Inter-Regular'), url(https://relay.firefox.com/fonts/Inter/Inter-Regular.4232a675a077.woff2?v=3.18) format('woff');
-            }
-        @font-face {
-        font-family: 'inter medium';
-        font-style: bold;
-        font-weight: 600;
-        src: local('Inter Medium'), local('Inter-Medium'), url(https://relay.firefox.com/fonts/Inter/Inter-Medium.027d14e7d35b.woff2?v=3.18) format('woff');
+            font-family: 'inter';
+            font-style: normal;
+            font-weight: 500;
+            src: local('Inter Regular'), local('Inter-Regular'), url(https://relay.firefox.com/fonts/Inter/Inter-Regular.4232a675a077.woff2?v=3.18) format('woff');
         }
-            * {
+        @font-face {
+            font-family: 'inter medium';
+            font-style: bold;
+            font-weight: 600;
+            src: local('Inter Medium'), local('Inter-Medium'), url(https://relay.firefox.com/fonts/Inter/Inter-Medium.027d14e7d35b.woff2?v=3.18) format('woff');
+        }
+        * {
             box-sizing: border-box;
-            } 
+        } 
         body {
-            font-family: 'inter', Arial, sans-serif !important; 
+            font-family: 'inter', Arial, system-ui, sans-serif !important; 
             color: #3D3D3D;
         }
         a { 
             color: #0060DF;
-            transition: all 0.2s ease;
+            text-decoration: underline !important;
         }
-        a:hover {
-            color: #20123ad5;
+        a.container-link:hover,
+        a.container-link:focus,
+        a.container-link:active {
             transition: all 0.2s ease;
         }
         a.container-link {
           color: #FFFFFF;
-          font-size: 12px;
+          font-size: 14px;
         }
-        a:hover,
-        a:focus,
-        a:active {
-            transition: all 0.2s ease;
+
+        @media screen and (max-width: 768px) {
+            .footer-block {
+                display: block;
+                width: 100% !important;
+                text-align: left !important;
+            }
+            .footer-block a {
+                display: block;
+            }
+            img {
+                margin: 0 !important;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .header-block {
+                display: block;
+                width: 100% !important;
+                text-align: left !important;
+            }
+
+            .container-link {
+                margin-right: 0 !important;
+            }
         }
     </style>
   </head>
-  <body style="padding: 0; margin: 0;">
-    
+
+  <body id="relay-email" style="padding: 0; margin: 0;">
+    <!-- Yahoo mail won't render this stylesheet unless its under the body -->
+    <style> 
+         @font-face {
+            font-family: 'inter';
+            font-style: normal;
+            font-weight: 500;
+            src: local('Inter Regular'), local('Inter-Regular'), url(https://relay.firefox.com/fonts/Inter/Inter-Regular.4232a675a077.woff2?v=3.18) format('woff');
+        }
+        @font-face {
+            font-family: 'inter medium';
+            font-style: bold;
+            font-weight: 600;
+            src: local('Inter Medium'), local('Inter-Medium'), url(https://relay.firefox.com/fonts/Inter/Inter-Medium.027d14e7d35b.woff2?v=3.18) format('woff');
+        }
+        * {
+            box-sizing: border-box;
+        } 
+        body {
+            font-family: 'inter', Arial, system-ui, sans-serif !important; 
+            color: #3D3D3D;
+        }
+        a { 
+            color: #0060DF;
+            text-decoration: underline !important;
+        }
+        a.container-link:hover,
+        a.container-link:focus,
+        a.container-link:active {
+            transition: all 0.2s ease;
+        }
+        a.container-link {
+          color: #FFFFFF;
+          font-size: 14px;
+        }
+        /* AOL mail inserts weird div's with borders with this class name */
+        .qtd-body {
+            display: none !important;
+        }
+        .header-block .qtd-body {
+            padding: 0;
+            margin: 0;
+            border: none;
+        }
+
+        .footer-block .qtd-body {
+            display: none;
+        }
+
+        @media screen and (max-width: 768px) {
+            .footer-block {
+                display: block;
+                width: 100% !important;
+                text-align: left !important;
+            }
+            .footer-block a {
+                display: block;
+            }
+            img {
+                margin: 0 !important;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .header-block {
+                display: block;
+                width: 100% !important;
+                text-align: left !important;
+            }
+
+            .container-link {
+                margin-right: 0 !important;
+            }
+        }
+    </style>
+
     <!-- temporary header -->
-    <table width="100%" bgcolor="#3D3D3D" style="background: #3D3D3D; padding-top: 12px; padding-right: 12px; padding-left: 12px; padding-bottom:12px; margin-top: 30px; margin-bottom: 30px; width: 96%; border-radius: 6px;" align="center">
+    <table id="relay-email-header" width="100%" bgcolor="#3D3D3D" style="background: #3D3D3D; padding: 12px; margin-bottom: 30px; margin-top: 30px; width: 96%; border-radius: 6px; max-width: 1200px;" align="center">
         <tr>
-            <td align="center" valign="top" width="100%" style="max-width:800px; padding-top: 0px; padding-bottom: 0px;">
-            <table width="100%" style="max-width:700px; text-align: center; border-collapse: collapse;">
-                <tr>
-                <td width="50%" style="line-height: 150%;" align="left"> 
-                      <img width="155" src="{{ SITE_ORIGIN }}/static/images/email-images/relay-logo-emails-dark-bg.png" style="margin: 0 5px;" alt="warning icon"/>   
-                </td>
-                <td width="50%" style="line-height: 150%;" align="right"> 
-                    <a class="container-link" href="{{ SITE_ORIGIN|add:"/premium/?utm_campaign=email_replies&utm_source=email&utm_medium=email" }}">{% ftlmsg 'upgrade-for-more-protection' %}</a> 
-                </td>
-                </tr>
-            </table>
+            <td width="50%" class="header-block" style="line-height: 150%;" align="left"> 
+                <img width="155" src="{{ SITE_ORIGIN }}/static/images/email-images/relay-logo-emails-dark-bg.png" style="margin: 0 5px;" alt="warning icon"/>   
+            </td>
+            <td width="50%" class="header-block" align="right"> 
+                <a class="container-link" href="{{ SITE_ORIGIN|add:"/premium/?utm_campaign=email_replies&utm_source=email&utm_medium=email" }}" style="color: white;">{% ftlmsg 'upgrade-for-more-protection' %}</a> 
             </td>
         </tr>
     </table>  
     
     <table role="presentation" border="0" cellpadding="0" cellspacing="10px" style="padding: 60px 30px 120px 30px;" align="center">
         <tr>
-            <td style="max-width:800px; padding-top: 0px; padding-bottom: 0px; text-align: center;">
-                <h2 style="font-family: 'inter medium';"> 
+            <td style="padding-top: 0px; padding-bottom: 0px; text-align: center;">
+                <h2 style="font-family: inter medium, Arial, system-ui, sans-serif;"> 
                     <img width="18" src="{{ SITE_ORIGIN }}/static/images/email-images/warning.png" style="margin: 0 5px;" alt="warning icon"/>
                     {% if forwarded == True %}
                         {% ftlmsg 'replies-not-included-in-free-account-header' %}
@@ -94,24 +185,19 @@
         </tr>
     </table>
 
-    <!-- temporary footer -->
-    <table width="100%" bgcolor="#3D3D3D" style="background: #3D3D3D; padding-top: 12px; padding-right: 12px; padding-left: 12px; padding-bottom:12px; margin-top: 30px; margin-bottom: 30px; width: 96%; border-radius: 6px;" align="center">
-      <tr>
-          <td align="center" valign="top" width="100%" style="max-width:800px; padding-top: 0px; padding-bottom: 0px;">
-          <table width="100%" style="max-width:700px; text-align: center; border-collapse: collapse;">
-              <tr>
-              <td width="50%" style="line-height: 150%;" align="left"> 
-                    <img width="110" src="{{ SITE_ORIGIN }}/static/images/email-images/relay-logo-emails-dark-bg.png" style="margin: 0 5px;" alt="warning icon"/>   
-              </td>
-              <td width="50%" style="line-height: 150%;" align="right"> 
-              <a class="container-link" href="{{ SITE_ORIGIN|add:"/premium/?utm_campaign=email_replies&utm_source=email&utm_medium=email" }}" style="margin-right: 30px;">{% ftlmsg 'upgrade-to-premium' %}</a> 
-              <a class="container-link" href="{{ SITE_ORIGIN|add:"/accounts/profile/?utm_campaign=email_replies&utm_source=email&utm_medium=email" }}">{% ftlmsg 'manage-your-masks' %}</a> 
-              </td> 
-          </table>
-          </td>
-      </tr>
-  </table>  
 
+    <!-- temporary footer -->
+    <table id="relay-email-footer" width="100%" bgcolor="#3D3D3D" style="max-width: 1200px; background: #3D3D3D; padding-top: 12px; padding-right: 12px; padding-left: 12px; padding-bottom:12px; margin-top: 30px; margin-bottom: 30px; width: 96%; border-radius: 6px;" align="center">
+        <tr>
+            <td width="40%" class="footer-block" style="line-height: 150%;" align="left"> 
+                <img width="155" src="{{ SITE_ORIGIN }}/static/images/email-images/relay-logo-emails-dark-bg.png" style="margin: 0 5px;" alt="warning icon"/>   
+            </td>
+            <td class="footer-block" width="60%" style="line-height: 150%;" align="right"> 
+                <a class="container-link" href="{{ SITE_ORIGIN|add:"/premium/?utm_campaign=email_replies&utm_source=email&utm_medium=email" }}" style="margin-right: 30px; color: white;">{% ftlmsg 'upgrade-to-premium' %}</a> 
+                <a class="container-link" href="{{ SITE_ORIGIN|add:"/accounts/profile/?utm_campaign=email_replies&utm_source=email&utm_medium=email" }}" style="color: white;">{% ftlmsg 'manage-your-masks' %}</a> 
+            </td> 
+        </tr>
+    </table>  
   </body>
 </html>
 {% endwithftl %}
