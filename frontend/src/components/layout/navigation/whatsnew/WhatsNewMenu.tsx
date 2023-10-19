@@ -69,6 +69,7 @@ import Link from "next/link";
 import { GiftIcon } from "../../../Icons";
 import { useL10n } from "../../../../hooks/l10n";
 import { VisuallyHidden } from "../../../VisuallyHidden";
+import { useOverlayBugWorkaround } from "../../../../hooks/overlayBugWorkaround";
 
 export type WhatsNewEntry = {
   title: string;
@@ -660,6 +661,7 @@ export const WhatsNewMenu = (props: Props) => {
     offset: 10,
     isOpen: triggerState.isOpen,
   }).overlayProps;
+  const overlayBugWorkaround = useOverlayBugWorkaround(triggerState);
 
   const { buttonProps } = useButton(triggerProps, triggerRef);
 
@@ -681,6 +683,7 @@ export const WhatsNewMenu = (props: Props) => {
 
   return (
     <>
+      {overlayBugWorkaround}
       <button
         {...buttonProps}
         ref={triggerRef}
@@ -697,7 +700,7 @@ export const WhatsNewMenu = (props: Props) => {
         </span>
         {pill}
       </button>
-      {
+      {triggerState.isOpen && (
         <OverlayContainer>
           <WhatsNewPopover
             {...overlayProps}
@@ -714,7 +717,7 @@ export const WhatsNewMenu = (props: Props) => {
             />
           </WhatsNewPopover>
         </OverlayContainer>
-      }
+      )}
     </>
   );
 };
@@ -756,10 +759,6 @@ const WhatsNewPopover = forwardRef<HTMLDivElement, PopoverProps>(
           {...mergedOverlayProps}
           ref={ref}
           className={styles["popover-wrapper"]}
-          style={{
-            ...mergedOverlayProps.style,
-            display: !isOpen ? "none" : mergedOverlayProps.style?.display,
-          }}
         >
           <VisuallyHidden>
             <h2 {...titleProps}>{title}</h2>
