@@ -70,7 +70,7 @@
     width: $layout-xl;
     height: 125px;
     /* both calculations below deal with alignment of custom art element - vertical arrow */
-    bottom: -40px;
+    bottom: -30px;
     right: -86px;
 
     @media screen and #{$mq-lg} {
