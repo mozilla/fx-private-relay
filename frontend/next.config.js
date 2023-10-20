@@ -14,6 +14,7 @@ const runtimeConfigs = {
     mozmailDomain: "mozmail.com",
     googleAnalyticsId: "UA-77033033-33",
     maxOnboardingAvailable: 3,
+    maxOnboardingFreeAvailable: 3,
     featureFlags: {
       // Also add keys here to RuntimeConfig in src/config.ts
       tips: true,

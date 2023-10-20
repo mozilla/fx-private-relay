@@ -75,7 +75,7 @@ export const FreeOnboarding = (props: Props) => {
     value: 1,
   });
 
-  if (props.profile.onboarding_state === 0) {
+  if (props.profile.onboarding_free_state === 0) {
     const skipMaskCreation = () => {
       props.onNextStep(3);
       gaEvent({
@@ -117,7 +117,7 @@ export const FreeOnboarding = (props: Props) => {
     );
   }
 
-  if (props.profile.onboarding_state === 1) {
+  if (props.profile.onboarding_free_state === 1) {
     const skipMaskTesting = () => {
       props.onNextStep(3);
       gaEvent({
@@ -197,7 +197,7 @@ export const FreeOnboarding = (props: Props) => {
     );
   }
 
-  if (props.profile.onboarding_state === 2) {
+  if (props.profile.onboarding_free_state === 2) {
     const linkForBrowser = supportsChromeExtension()
       ? "https://chrome.google.com/webstore/detail/firefox-relay/lknpoadjjkjcmjhbjpcljdednccbldeb?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon"
       : "https://addons.mozilla.org/firefox/addon/private-relay/";
@@ -273,10 +273,10 @@ export const FreeOnboarding = (props: Props) => {
           <VisuallyHidden>
             <progress
               max={getRuntimeConfig().maxOnboardingAvailable}
-              value={props.profile.onboarding_state + 1}
+              value={props.profile.onboarding_free_state + 1}
             >
               {l10n.getString("multi-part-onboarding-step-counter", {
-                step: props.profile.onboarding_state,
+                step: props.profile.onboarding_free_state,
                 max: getRuntimeConfig().maxOnboardingAvailable,
               })}
             </progress>
@@ -285,7 +285,7 @@ export const FreeOnboarding = (props: Props) => {
           <ol className={styles["styled-progress-bar"]} aria-hidden={true}>
             <li
               className={
-                props.profile.onboarding_state >= 0
+                props.profile.onboarding_free_state >= 0
                   ? styles["is-completed"]
                   : undefined
               }
@@ -294,7 +294,7 @@ export const FreeOnboarding = (props: Props) => {
             </li>
             <li
               className={
-                props.profile.onboarding_state >= 1
+                props.profile.onboarding_free_state >= 1
                   ? styles["is-completed"]
                   : undefined
               }
@@ -303,7 +303,7 @@ export const FreeOnboarding = (props: Props) => {
             </li>
             <li
               className={
-                props.profile.onboarding_state >= 2
+                props.profile.onboarding_free_state >= 2
                   ? styles["is-completed"]
                   : undefined
               }

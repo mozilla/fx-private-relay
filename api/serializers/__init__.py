@@ -158,6 +158,7 @@ class ProfileSerializer(StrictReadOnlyFieldsMixin, serializers.ModelSerializer):
             "has_phone",
             "has_vpn",
             "onboarding_state",
+            "onboarding_free_state",
             "date_subscribed",
             "avatar",
             "next_email_try",

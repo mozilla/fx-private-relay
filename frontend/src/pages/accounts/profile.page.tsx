@@ -71,7 +71,8 @@ const Profile: NextPage = () => {
   const addonData = useAddonData();
   const l10n = useL10n();
   const freeOnboardingCelebrationStep =
-    getRuntimeConfig().maxOnboardingAvailable + 1;
+    // +1 because we want to show the celebration confetti after the last step
+    getRuntimeConfig().maxOnboardingFreeAvailable + 1;
   const bottomBannerSubscriptionLinkRef = useGaViewPing({
     category: "Purchase Button",
     label: "profile-bottom-promo",
@@ -232,11 +233,12 @@ const Profile: NextPage = () => {
   if (
     isFlagActive(runtimeData.data, "free_user_onboarding") &&
     !profile.has_premium &&
-    profile.onboarding_state < getRuntimeConfig().maxOnboardingAvailable
+    profile.onboarding_free_state <
+      getRuntimeConfig().maxOnboardingFreeAvailable
   ) {
     const onNextStep = (step: number) => {
       profileData.update(profile.id, {
-        onboarding_state: step,
+        onboarding_free_state: step,
       });
     };
 
@@ -565,8 +567,10 @@ const Profile: NextPage = () => {
         totalForwardedEmails={profile.emails_forwarded}
         totalEmailTrackersRemoved={profile.level_one_trackers_blocked}
       />
+      {/* confetti animation should be shown if user has sent first forwarded email, is a free user, and has not reached the max onboarding step */}
       {isFlagActive(runtimeData.data, "free_user_onboarding") &&
         !profile.has_premium &&
+        profile.forwarded_first_reply &&
         profile.onboarding_state < freeOnboardingCelebrationStep && (
           <Confetti
             tweenDuration={5000}
