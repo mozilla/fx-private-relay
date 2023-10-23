@@ -52,3 +52,58 @@ def test_invalid_message_id():
     email_out_text = email.as_string(policy=relay_policy)
     assert email_in_text == email_out_text
     assert email.defects == []
+
+
+def test_from_with_unquoted_commas():
+    email_in_text = EMAIL_INCOMING["emperor_norton"]
+    email = message_from_string(email_in_text, policy=relay_policy)
+    headers = list(email.items())
+    assert headers == [
+        ("Subject", "Declaration and Meeting of the Union"),
+        (
+            "From",
+            '"Norton I.", Emperor of the United States <norton@sf.us.example.com>',
+        ),
+        ("To", "ebsbdsan7@test.com"),
+        ("Date", "Sat, 17 Sep 1859 11:33:12 -0700"),
+        ("Content-Type", 'text/plain; charset="utf-8"'),
+    ]
+    for name, value in headers:
+        if name != "From":
+            assert not value.defects
+        else:
+            assert len(value.defects) == 4
+            assert all(
+                isinstance(defect, errors.InvalidHeaderDefect)
+                for defect in value.defects
+            )
+    email_out_text = email.as_string(policy=relay_policy)
+    assert email_in_text == email_out_text
+    assert email.defects == []
+
+
+def test_from_with_nested_brackets_service():
+    email_in_text = EMAIL_INCOMING["nested_brackets_service"]
+    email = message_from_string(email_in_text, policy=relay_policy)
+    headers = list(email.items())
+    assert headers == [
+        ("Subject", "Welcome to our service!"),
+        ("From", 'The Service <"The Service">'),
+        ("To", "ebsbdsan7@test.com"),
+        ("Date", "Wed, 04 Oct 2023 12:16:22 -0000"),
+        ("Content-Type", 'text/plain; charset="utf-8"'),
+    ]
+    for name, value in headers:
+        if name != "From":
+            assert not value.defects
+        else:
+            assert len(value.defects) == 7
+            assert all(
+                isinstance(
+                    defect, (errors.InvalidHeaderDefect, errors.ObsoleteHeaderDefect)
+                )
+                for defect in value.defects
+            )
+    email_out_text = email.as_string(policy=relay_policy)
+    assert email_in_text == email_out_text
+    assert email.defects == []
