@@ -1,7 +1,7 @@
 from base64 import b64decode
 from copy import deepcopy
 from datetime import datetime, timedelta, timezone
-from email import message_from_string, policy
+from email import message_from_string
 from email.message import EmailMessage
 from typing import cast
 from unittest.mock import patch, Mock
@@ -55,6 +55,7 @@ from emails.views import (
     validate_sns_arn_and_type,
     wrapped_email_test,
 )
+from emails.policy import relay_policy
 
 from .models_tests import (
     make_free_test_user,
@@ -152,7 +153,7 @@ def create_notification_from_email(email_text: str) -> AWS_SNSMessageJSON:
     The SNS notification will have the headers from the email and other mocked items.
     The email will be included in the notification body, not loaded from (mock) S3.
     """
-    email = message_from_string(email_text, policy=policy.default)
+    email = message_from_string(email_text, policy=relay_policy)
     topic_arn = "arn:aws:sns:us-east-1:168781634622:ses-inbound-grelay"
     sns_message = {
         "notificationType": "Received",
@@ -740,10 +741,27 @@ class SNSNotificationTest(TestCase):
             },
         )
 
-    def test_invalid_message_id_is_error(self) -> None:
+    def test_invalid_message_id_is_forwarded(self) -> None:
         email_text = EMAIL_INCOMING["message_id_in_brackets"]
-        with pytest.raises(IndexError):
-            create_notification_from_email(email_text)
+        test_sns_notification = create_notification_from_email(email_text)
+        result = _sns_notification(test_sns_notification)
+        assert result.status_code == 200
+        self.mock_send_raw_email.assert_called_once()
+        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
+        assert sender == "replies@default.com"
+        assert recipient == "user@example.com"
+        assert headers == {
+            "Content-Type": headers["Content-Type"],
+            "From": '"user@clownshoes.example.com [via Relay]" <ebsbdsan7@test.com>',
+            "MIME-Version": "1.0",
+            "Reply-To": "replies@default.com",
+            "Resent-From": "user@clownshoes.example.com",
+            "Subject": "Message-ID in brackets",
+            "To": "user@example.com",
+        }
+        assert_email_equals(
+            email, "message_id_in_brackets", replace_mime_boundaries=True
+        )
 
 
 class BounceHandlingTest(TestCase):

@@ -1,6 +1,6 @@
 from copy import deepcopy
 from datetime import datetime, timezone
-from email import message_from_bytes, policy
+from email import message_from_bytes
 from email.iterators import _structure
 from email.message import EmailMessage
 from email.utils import parseaddr
@@ -45,6 +45,7 @@ from .models import (
     get_domain_numerical,
     get_domains_from_settings,
 )
+from .policy import relay_policy
 from .types import (
     AWS_SNSMessageJSON,
     OutgoingHeaders,
@@ -809,7 +810,7 @@ def _convert_to_forwarded_email(
     - has_html - True if the email has an HTML representation
     - has_text - True if the email has a plain text representation
     """
-    email = message_from_bytes(incoming_email_bytes, policy=policy.default)
+    email = message_from_bytes(incoming_email_bytes, policy=relay_policy)
     # python/typeshed issue 2418
     # The Python 3.2 default was Message, 3.6 uses policy.message_factory, and
     # policy.default.message_factory is EmailMessage
@@ -1119,7 +1120,7 @@ def _handle_reply(
         # we are returning a 500 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
-    email = message_from_bytes(email_bytes, policy=policy.default)
+    email = message_from_bytes(email_bytes, policy=relay_policy)
     assert isinstance(email, EmailMessage)
 
     # Convert to a reply email
