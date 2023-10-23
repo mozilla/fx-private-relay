@@ -52,6 +52,6 @@ botocore-stubs==1.31.63
 django-stubs==4.2.4
 djangorestframework-stubs==3.14.3
 mypy-boto3-ses==1.28.36
-mypy==1.6.0
+mypy==1.6.1
 types-pyOpenSSL==23.2.0.2
 types-requests==2.31.0.9
