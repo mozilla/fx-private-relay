@@ -52,7 +52,7 @@
     "eslint-config-next": "^13.5.6",
     "eslint-plugin-jest-dom": "^5.1.0",
     "eslint-plugin-testing-library": "^6.1.0",
-    "fast-check": "^3.13.1",
+    "fast-check": "^3.13.2",
     "husky": "^8.0.3",
     "jest": "^29.7.0",
     "jest-axe": "^8.0.0",
