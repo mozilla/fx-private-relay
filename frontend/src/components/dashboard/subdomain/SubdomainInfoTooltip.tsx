@@ -150,11 +150,15 @@ const ExplainerTrigger = (props: ExplainerTriggerProps) => {
         ref={openButtonRef}
       >
         <InfoIcon
-          alt={l10n.getString(
-            hasPremium
-              ? "tooltip-email-domain-explanation-title"
-              : "tooltip-email-domain-explanation-title-free",
-          )}
+          alt={
+            explainerState.isOpen
+              ? ""
+              : l10n.getString(
+                  hasPremium
+                    ? "tooltip-email-domain-explanation-title"
+                    : "tooltip-email-domain-explanation-title-free",
+                )
+          }
           width={18}
           height={18}
         />
