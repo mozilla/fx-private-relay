@@ -47,11 +47,11 @@ responses==0.23.3
 black==23.10.0
 
 # type hinting
-boto3-stubs==1.28.63
-botocore-stubs==1.31.63
-django-stubs==4.2.4
-djangorestframework-stubs==3.14.3
+boto3-stubs==1.28.68
+botocore-stubs==1.31.68
+django-stubs==4.2.5
+djangorestframework-stubs==3.14.4
 mypy-boto3-ses==1.28.36
 mypy==1.6.1
 types-pyOpenSSL==23.2.0.2
-types-requests==2.31.0.9
+types-requests==2.31.0.10
