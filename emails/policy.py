@@ -16,10 +16,4 @@ from email.policy import EmailPolicy
 from .headerregistry import relay_header_factory
 
 
-class RelayPolicy(EmailPolicy):
-    """Relay's EmailPolicy that allows non-RFC headers."""
-
-    pass
-
-
-relay_policy = RelayPolicy(header_factory=relay_header_factory)
+relay_policy = EmailPolicy(header_factory=relay_header_factory)

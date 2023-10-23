@@ -13,13 +13,16 @@ https://github.com/python/cpython/blob/main/Lib/email/headerregistry.py
 from email._header_value_parser import get_unstructured, InvalidMessageID
 from email.headerregistry import (
     MessageIDHeader as PythonMessageIDHeader,
-    HeaderRegistry,
+    HeaderRegistry as PythonHeaderRegistry,
+    UnstructuredHeader,
 )
 from email import errors
 
 from typing import cast, TYPE_CHECKING
 
 if TYPE_CHECKING:
+    # _HeaderParser is a protocol from mypy's typeshed
+    # https://github.com/python/typeshed/blob/main/stdlib/email/headerregistry.pyi
     from email.headerregistry import _HeaderParser
 
 
@@ -27,7 +30,7 @@ class RelayMessageIDHeader(PythonMessageIDHeader):
     """
     Handle an IndexError raised by parsing an invalid Message-ID header.
 
-    This is tracked in
+    This issue is tracked in
     https://github.com/python/cpython/issues/105802
 
     A fix is unmerged as of October 2023:
@@ -52,7 +55,21 @@ class RelayMessageIDHeader(PythonMessageIDHeader):
         kwds["defects"].extend(parse_tree.all_defects)
 
 
-relay_header_factory = HeaderRegistry()
+class RelayHeaderRegistry(PythonHeaderRegistry):
+    """Extend the HeaderRegistry to store the unstructured header."""
+
+    def __call__(self, name, value):
+        """Add the unstructured header as .as_unstructured."""
+        header_instance = super().__call__(name, value)
+        as_unstructured_cls = type(
+            "_UnstructuredHeader", (UnstructuredHeader, self.base_class), {}
+        )
+        as_unstructured = as_unstructured_cls(name, value)
+        header_instance.as_unstructured = as_unstructured
+        return header_instance
+
+
+relay_header_factory = RelayHeaderRegistry()
 relay_header_factory.registry["message-id"] = cast(
     type["_HeaderParser"], RelayMessageIDHeader
 )
