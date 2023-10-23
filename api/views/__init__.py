@@ -13,7 +13,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.urls.exceptions import NoReverseMatch
 import requests
-from typing import Mapping, Optional
+from typing import Any, Optional
 
 from django.apps import apps
 from django.conf import settings
@@ -446,7 +446,9 @@ def first_forwarded_email(request):
     return response.Response(status=status.HTTP_201_CREATED)
 
 
-def relay_exception_handler(exc: Exception, context: Mapping) -> Optional[Response]:
+def relay_exception_handler(
+    exc: Exception, context: dict[str, Any]
+) -> Optional[Response]:
     """
     Add error information to response data.
 
