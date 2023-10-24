@@ -155,21 +155,40 @@ def create_notification_from_email(email_text: str) -> AWS_SNSMessageJSON:
     """
     email = message_from_string(email_text, policy=relay_policy)
     topic_arn = "arn:aws:sns:us-east-1:168781634622:ses-inbound-grelay"
+    if email["Message-ID"]:
+        message_id = email["Message-ID"].as_unstructured
+    else:
+        message_id = None
+    # This function cannot handle malformed To: addresses
+    assert not email["To"].defects
+
     sns_message = {
         "notificationType": "Received",
         "mail": {
             "timestamp": email["Date"].datetime.isoformat(),
-            "source": email["From"].addresses[0].addr_spec,
-            "messageId": email["Message-ID"],
+            # To handle invalid From address, find 'first' address with what looks like
+            # an email portion and use that email, or fallback to invalid@example.com
+            "source": next(
+                (
+                    addr.addr_spec
+                    for addr in email["From"].addresses
+                    if "@" in addr.addr_spec
+                ),
+                "invalid@example.com",
+            ),
+            "messageId": message_id,
             "destination": [addr.addr_spec for addr in email["To"].addresses],
             "headersTruncated": False,
-            "headers": [{"name": _h, "value": _v} for _h, _v in email.items()],
+            "headers": [
+                {"name": _h, "value": str(_v.as_unstructured)}
+                for _h, _v in email.items()
+            ],
             "commonHeaders": {
-                "from": [str(addr) for addr in email["From"].addresses],
+                "from": [email["From"].as_unstructured],
                 "date": email["Date"],
                 "to": [str(addr) for addr in email["To"].addresses],
-                "messageId": email["Message-ID"],
-                "subject": email["Subject"],
+                "messageId": message_id,
+                "subject": email["Subject"].as_unstructured,
             },
         },
         "receipt": {
@@ -190,7 +209,7 @@ def create_notification_from_email(email_text: str) -> AWS_SNSMessageJSON:
         "Type": "Notification",
         "MessageId": str(uuid4()),
         "TopicArn": topic_arn,
-        "Subject": email["Subject"],
+        "Subject": str(email["Subject"].as_unstructured),
         "Message": json.dumps(sns_message),
         "Timestamp": (email["Date"].datetime + timedelta(seconds=2)).isoformat(),
         "SignatureVersion": "1",
@@ -719,7 +738,8 @@ class SNSNotificationTest(TestCase):
         AWS parses these headers as a single email, Python as a list of emails.
         One of the root causes of MPP-3407.
         """
-        test_sns_notification = EMAIL_SNS_BODIES["emperor_norton"]
+        email_text = EMAIL_INCOMING["emperor_norton"]
+        test_sns_notification = create_notification_from_email(email_text)
         _sns_notification(test_sns_notification)
         self.mock_send_raw_email.assert_called_once()
         _, _, _, mail = self.get_details_from_mock_send_raw_email()
@@ -727,14 +747,15 @@ class SNSNotificationTest(TestCase):
 
     @patch("emails.views.info_logger")
     def test_from_with_nested_brackets_is_error(self, mock_logger) -> None:
-        test_sns_notification = EMAIL_SNS_BODIES["nested_brackets_service"]
+        email_text = EMAIL_INCOMING["nested_brackets_service"]
+        test_sns_notification = create_notification_from_email(email_text)
         result = _sns_notification(test_sns_notification)
         assert result.status_code == 400
         self.mock_send_raw_email.assert_not_called()
         mock_logger.error.assert_called_once_with(
             "_handle_received: no from address",
             extra={
-                "source": "theservice.example.com",
+                "source": "invalid@example.com",
                 "common_headers_from": [
                     "The Service <The Service <hello@theservice.example.com>>"
                 ],
