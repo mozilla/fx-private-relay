@@ -25,7 +25,7 @@ def add_db_default_forward_func(apps, schema_editor):
             """
             CREATE TABLE "new__emails_profile" (
                 "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT, 
-                "onboarding_free_state" integer unsigned NOT NULL CHECK ("onboarding_free_state" >= 0), 
+                "onboarding_free_state" integer unsigned NOT NULL CHECK ("onboarding_free_state" >= 0) DEFAULT 0, 
                 "api_token" char(32) NOT NULL, 
                 "user_id" integer NOT NULL UNIQUE REFERENCES "auth_user" ("id") DEFERRABLE INITIALLY DEFERRED, 
                 "address_last_deleted" datetime NULL, 
