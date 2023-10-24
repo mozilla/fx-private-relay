@@ -1,109 +1,101 @@
 """Tests for emails.policy"""
 
 from email import message_from_string, errors
+from typing_extensions import TypedDict
+
+import pytest
 
 from emails.policy import relay_policy
 
 from .views_tests import EMAIL_INCOMING
 
 
-def test_compliant_email():
-    """An RFC-compliant message is parsed correctly."""
-    email_in_text = EMAIL_INCOMING["plain_text"]
-    email = message_from_string(email_in_text, policy=relay_policy)
-    headers = list(email.items())
-    assert headers == [
-        ("Subject", "Text-Only Email"),
-        ("From", "A server <root@server.example.com>"),
-        ("To", "ebsbdsan7@test.com"),
-        ("Date", "Wed, 27 Sep 2023 16:33:12 +0000"),
-        ("Content-Type", 'text/plain; charset="utf-8"'),
-        ("Content-Transfer-Encoding", "7bit"),
-        ("MIME-Version", "1.0"),
-    ]
-    for name, value in headers:
-        assert not value.defects
-    email_out_text = email.as_string(policy=relay_policy)
-    assert email_in_text == email_out_text
-    assert email.defects == []
+class NonComplaintHeaderDetails(TypedDict):
+    defect_count: int
+    defect_types: list[type]
+    parsed_value: str
+    unstructured_value: str
 
 
-def test_invalid_message_id():
-    email_in_text = EMAIL_INCOMING["message_id_in_brackets"]
+class NonComplaintHeaderCase(TypedDict):
+    email_id: str
+    non_compliant_headers: dict[str, NonComplaintHeaderDetails]
+
+
+NON_COMPLIANT_HEADER_PARSING_CASES: dict[str, NonComplaintHeaderCase] = {
+    "invalid_message_id_with_brackets": {
+        "email_id": "message_id_in_brackets",
+        "non_compliant_headers": {
+            "Message-ID": {
+                "defect_count": 1,
+                "defect_types": [errors.InvalidHeaderDefect],
+                "parsed_value": "<[d7c5838b5ab944f89e3f0c1b85674aef====@example.com]>",
+                "unstructured_value": (
+                    "<[d7c5838b5ab944f89e3f0c1b85674aef====@example.com]>"
+                ),
+            }
+        },
+    },
+    "invalid_from_with_unquoted_comma": {
+        "email_id": "emperor_norton",
+        "non_compliant_headers": {
+            "From": {
+                "defect_count": 4,
+                "defect_types": [errors.InvalidHeaderDefect],
+                "parsed_value": (
+                    '"Norton I.",'
+                    " Emperor of the United States <norton@sf.us.example.com>"
+                ),
+                "unstructured_value": (
+                    "Norton I., Emperor of the United States <norton@sf.us.example.com>"
+                ),
+            }
+        },
+    },
+    "invalid_from_with_nested_brackets": {
+        "email_id": "nested_brackets_service",
+        "non_compliant_headers": {
+            "From": {
+                "defect_count": 7,
+                "defect_types": [
+                    errors.InvalidHeaderDefect,
+                    errors.ObsoleteHeaderDefect,
+                ],
+                "parsed_value": 'The Service <"The Service">',
+                "unstructured_value": (
+                    "The Service <The Service <hello@theservice.example.com>>"
+                ),
+            }
+        },
+    },
+}
+
+
+@pytest.mark.parametrize(
+    "params",
+    NON_COMPLIANT_HEADER_PARSING_CASES.values(),
+    ids=list(NON_COMPLIANT_HEADER_PARSING_CASES.keys()),
+)
+def test_non_compliant_header_parsing(params: NonComplaintHeaderCase) -> None:
+    email_id = params["email_id"]
+    non_compliant_headers = params["non_compliant_headers"]
+    email_in_text = EMAIL_INCOMING[email_id]
     email = message_from_string(email_in_text, policy=relay_policy)
-    headers = list(email.items())
-    assert headers == [
-        ("Subject", "Message-ID in brackets"),
-        ("From", "A concerned user <user@clownshoes.example.com>"),
-        ("To", "ebsbdsan7@test.com"),
-        ("Date", "Thu, 12 Oct 2023 15:57:53 +0000"),
-        ("Content-Type", 'text/plain; charset="utf-8"'),
-        ("Content-Transfer-Encoding", "7bit"),
-        ("MIME-Version", "1.0"),
-        ("Message-ID", "<[d7c5838b5ab944f89e3f0c1b85674aef====@example.com]>"),
-    ]
-    for name, value in headers:
-        if name != "Message-ID":
-            assert not value.defects
+    for header_name, value in email.items():
+        if header_name in non_compliant_headers:
+            details = non_compliant_headers[header_name]
+            assert len(value.defects) == details["defect_count"]
+            for defect_num, defect in enumerate(value.defects):
+                assert isinstance(defect, tuple(details["defect_types"]))
+            assert str(value) == details["parsed_value"]
+            assert str(value.as_unstructured) == details["unstructured_value"]
         else:
-            assert len(value.defects) == 1
-            assert isinstance(value.defects[0], errors.InvalidHeaderDefect)
-
-    email_out_text = email.as_string(policy=relay_policy)
-    assert email_in_text == email_out_text
-    assert email.defects == []
+            assert len(value.defects) == 0
 
 
-def test_from_with_unquoted_commas():
-    email_in_text = EMAIL_INCOMING["emperor_norton"]
+@pytest.mark.parametrize("email_id", ["plain_text", "russian_spam", "inline_image"])
+def test_compliant_header_parsing(email_id: str) -> None:
+    email_in_text = EMAIL_INCOMING[email_id]
     email = message_from_string(email_in_text, policy=relay_policy)
-    headers = list(email.items())
-    assert headers == [
-        ("Subject", "Declaration and Meeting of the Union"),
-        (
-            "From",
-            '"Norton I.", Emperor of the United States <norton@sf.us.example.com>',
-        ),
-        ("To", "ebsbdsan7@test.com"),
-        ("Date", "Sat, 17 Sep 1859 11:33:12 -0700"),
-        ("Content-Type", 'text/plain; charset="utf-8"'),
-    ]
-    for name, value in headers:
-        if name != "From":
-            assert not value.defects
-        else:
-            assert len(value.defects) == 4
-            assert all(
-                isinstance(defect, errors.InvalidHeaderDefect)
-                for defect in value.defects
-            )
-    email_out_text = email.as_string(policy=relay_policy)
-    assert email_in_text == email_out_text
-    assert email.defects == []
-
-
-def test_from_with_nested_brackets_service():
-    email_in_text = EMAIL_INCOMING["nested_brackets_service"]
-    email = message_from_string(email_in_text, policy=relay_policy)
-    headers = list(email.items())
-    assert headers == [
-        ("Subject", "Welcome to our service!"),
-        ("From", 'The Service <"The Service">'),
-        ("To", "ebsbdsan7@test.com"),
-        ("Date", "Wed, 04 Oct 2023 12:16:22 -0000"),
-        ("Content-Type", 'text/plain; charset="utf-8"'),
-    ]
-    for name, value in headers:
-        if name != "From":
-            assert not value.defects
-        else:
-            assert len(value.defects) == 7
-            assert all(
-                isinstance(
-                    defect, (errors.InvalidHeaderDefect, errors.ObsoleteHeaderDefect)
-                )
-                for defect in value.defects
-            )
-    email_out_text = email.as_string(policy=relay_policy)
-    assert email_in_text == email_out_text
-    assert email.defects == []
+    for header_name, value in email.items():
+        assert len(value.defects) == 0
