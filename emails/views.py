@@ -1,3 +1,4 @@
+from collections import defaultdict
 from copy import deepcopy
 from datetime import datetime, timezone
 from email import message_from_bytes
@@ -49,6 +50,8 @@ from .policy import relay_policy
 from .types import (
     AWS_SNSMessageJSON,
     OutgoingHeaders,
+    EmailForwardingIssues,
+    EmailHeaderIssues,
 )
 from .utils import (
     _get_bucket_and_key_from_s3_json,
@@ -650,6 +653,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     )
     (
         forwarded_email,
+        issues,
         level_one_trackers_removed,
         has_html,
         has_text,
@@ -667,6 +671,10 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         incr_if_enabled("email_with_html_content", 1)
     if has_text:
         incr_if_enabled("email_with_text_content", 1)
+    if issues:
+        info_logger.warning(
+            "_handle_received: forwarding issues", extra={"issues": issues}
+        )
 
     # Send new email
     try:
@@ -800,12 +808,13 @@ def _convert_to_forwarded_email(
     sample_trackers: bool,
     remove_level_one_trackers: bool,
     now: datetime | None = None,
-) -> tuple[EmailMessage, int, bool, bool]:
+) -> tuple[EmailMessage, EmailForwardingIssues, int, bool, bool]:
     """
     Convert an email (as bytes) to a forwarded email.
 
     Return is a tuple:
     - email - The forwarded email
+    - issues - Any detected issues in conversion
     - level_one_trackers_removed (int) - Number of trackers removed
     - has_html - True if the email has an HTML representation
     - has_text - True if the email has a plain text representation
@@ -816,7 +825,7 @@ def _convert_to_forwarded_email(
     # policy.default.message_factory is EmailMessage
     assert isinstance(email, EmailMessage)
 
-    _replace_headers(email, headers)
+    header_issues = _replace_headers(email, headers)
 
     # Find and replace text content
     text_body = email.get_body("plain")
@@ -870,16 +879,37 @@ def _convert_to_forwarded_email(
                 extra={"exception": str(e), "structure": out.getvalue()},
             )
 
-    return (email, level_one_trackers_removed, has_html, has_text)
+    issues: EmailForwardingIssues = {}
+    if header_issues:
+        issues["headers"] = header_issues
+    return (email, issues, level_one_trackers_removed, has_html, has_text)
 
 
-def _replace_headers(email: EmailMessage, headers: OutgoingHeaders) -> None:
+def _replace_headers(
+    email: EmailMessage, headers: OutgoingHeaders
+) -> EmailHeaderIssues:
     """Replace the headers in email with new headers."""
     # Look for headers to drop
     to_drop: list[str] = []
     replacements: set[str] = set(_k.lower() for _k in headers.keys())
+    issues: EmailHeaderIssues = defaultdict(dict)
 
-    for header, value in email.items():
+    # Detect non-compliant headers in incoming emails
+    for header in email.keys():
+        try:
+            value = email[header]
+        except Exception as e:
+            issues["incoming"][header] = {"exception_on_read": str(e)}
+            value = None
+        if value.defects:
+            issues["incoming"][header] = {
+                "defect_count": len(value.defects),
+                "parsed_value": str(value),
+                "unstructured_value": str(value.as_unstructured),
+            }
+
+    # Collect headers that will not be forwarded
+    for header in email.keys():
         header_lower = header.lower()
         if (
             header_lower not in replacements
@@ -895,7 +925,24 @@ def _replace_headers(email: EmailMessage, headers: OutgoingHeaders) -> None:
     # Replace the requested headers
     for header, value in headers.items():
         del email[header]
-        email[header] = value
+        try:
+            email[header] = value
+        except Exception as e:
+            issues["outgoing"][header] = {"exception_on_write": str(e)}
+            continue
+        try:
+            parsed_value = email[header]
+        except Exception as e:
+            issues["outgoing"][header] = {"exception_on_read": str(e)}
+            continue
+        if parsed_value.defects:
+            issues["outgoing"][header] = {
+                "defect_count": len(parsed_value.defects),
+                "parsed_value": str(parsed_value),
+                "unstructured_value": str(parsed_value.as_unstructured),
+            }
+
+    return dict(issues)
 
 
 def _convert_html_content(

@@ -704,7 +704,8 @@ class SNSNotificationTest(TestCase):
         assert self.ra.last_used_at
         assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
 
-    def test_plain_text(self) -> None:
+    @patch("emails.views.info_logger")
+    def test_plain_text(self, mock_logger: Mock) -> None:
         """A plain-text only email gets an HTML part."""
         email_text = EMAIL_INCOMING["plain_text"]
         test_sns_notification = create_notification_from_email(email_text)
@@ -730,8 +731,10 @@ class SNSNotificationTest(TestCase):
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at
         assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
+        mock_logger.warning.assert_not_called()
 
-    def test_from_with_unquoted_commas_is_parsed(self) -> None:
+    @patch("emails.views.info_logger")
+    def test_from_with_unquoted_commas_is_parsed(self, mock_logger: Mock) -> None:
         """
         A From: header with commas in an unquoted display is forwarded.
 
@@ -744,9 +747,28 @@ class SNSNotificationTest(TestCase):
         self.mock_send_raw_email.assert_called_once()
         _, _, _, mail = self.get_details_from_mock_send_raw_email()
         assert_email_equals(mail, "emperor_norton", replace_mime_boundaries=True)
+        expected_header_errors = {
+            "incoming": {
+                "From": {
+                    "defect_count": 4,
+                    "parsed_value": (
+                        '"Norton I.", Emperor of the United States'
+                        " <norton@sf.us.example.com>"
+                    ),
+                    "unstructured_value": (
+                        "Norton I., Emperor of the United States"
+                        " <norton@sf.us.example.com>"
+                    ),
+                }
+            }
+        }
+        mock_logger.warning.assert_called_once_with(
+            "_handle_received: forwarding issues",
+            extra={"issues": {"headers": expected_header_errors}},
+        )
 
     @patch("emails.views.info_logger")
-    def test_from_with_nested_brackets_is_error(self, mock_logger) -> None:
+    def test_from_with_nested_brackets_is_error(self, mock_logger: Mock) -> None:
         email_text = EMAIL_INCOMING["nested_brackets_service"]
         test_sns_notification = create_notification_from_email(email_text)
         result = _sns_notification(test_sns_notification)
@@ -761,8 +783,10 @@ class SNSNotificationTest(TestCase):
                 ],
             },
         )
+        mock_logger.warning.assert_not_called()
 
-    def test_invalid_message_id_is_forwarded(self) -> None:
+    @patch("emails.views.info_logger")
+    def test_invalid_message_id_is_forwarded(self, mock_logger: Mock) -> None:
         email_text = EMAIL_INCOMING["message_id_in_brackets"]
         test_sns_notification = create_notification_from_email(email_text)
         result = _sns_notification(test_sns_notification)
@@ -782,6 +806,23 @@ class SNSNotificationTest(TestCase):
         }
         assert_email_equals(
             email, "message_id_in_brackets", replace_mime_boundaries=True
+        )
+        expected_header_errors = {
+            "incoming": {
+                "Message-ID": {
+                    "defect_count": 1,
+                    "parsed_value": (
+                        "<[d7c5838b5ab944f89e3f0c1b85674aef====@example.com]>"
+                    ),
+                    "unstructured_value": (
+                        "<[d7c5838b5ab944f89e3f0c1b85674aef====@example.com]>"
+                    ),
+                }
+            }
+        }
+        mock_logger.warning.assert_called_once_with(
+            "_handle_received: forwarding issues",
+            extra={"issues": {"headers": expected_header_errors}},
         )
 
 
