@@ -1,7 +1,7 @@
 from base64 import b64decode
 from copy import deepcopy
 from datetime import datetime, timedelta, timezone
-from email import message_from_string, policy
+from email import message_from_string
 from email.message import EmailMessage
 from typing import cast
 from unittest.mock import patch, Mock
@@ -55,6 +55,7 @@ from emails.views import (
     validate_sns_arn_and_type,
     wrapped_email_test,
 )
+from emails.policy import relay_policy
 
 from .models_tests import (
     make_free_test_user,
@@ -152,23 +153,42 @@ def create_notification_from_email(email_text: str) -> AWS_SNSMessageJSON:
     The SNS notification will have the headers from the email and other mocked items.
     The email will be included in the notification body, not loaded from (mock) S3.
     """
-    email = message_from_string(email_text, policy=policy.default)
+    email = message_from_string(email_text, policy=relay_policy)
     topic_arn = "arn:aws:sns:us-east-1:168781634622:ses-inbound-grelay"
+    if email["Message-ID"]:
+        message_id = email["Message-ID"].as_unstructured
+    else:
+        message_id = None
+    # This function cannot handle malformed To: addresses
+    assert not email["To"].defects
+
     sns_message = {
         "notificationType": "Received",
         "mail": {
             "timestamp": email["Date"].datetime.isoformat(),
-            "source": email["From"].addresses[0].addr_spec,
-            "messageId": email["Message-ID"],
+            # To handle invalid From address, find 'first' address with what looks like
+            # an email portion and use that email, or fallback to invalid@example.com
+            "source": next(
+                (
+                    addr.addr_spec
+                    for addr in email["From"].addresses
+                    if "@" in addr.addr_spec
+                ),
+                "invalid@example.com",
+            ),
+            "messageId": message_id,
             "destination": [addr.addr_spec for addr in email["To"].addresses],
             "headersTruncated": False,
-            "headers": [{"name": _h, "value": _v} for _h, _v in email.items()],
+            "headers": [
+                {"name": _h, "value": str(_v.as_unstructured)}
+                for _h, _v in email.items()
+            ],
             "commonHeaders": {
-                "from": [str(addr) for addr in email["From"].addresses],
+                "from": [email["From"].as_unstructured],
                 "date": email["Date"],
                 "to": [str(addr) for addr in email["To"].addresses],
-                "messageId": email["Message-ID"],
-                "subject": email["Subject"],
+                "messageId": message_id,
+                "subject": email["Subject"].as_unstructured,
             },
         },
         "receipt": {
@@ -189,7 +209,7 @@ def create_notification_from_email(email_text: str) -> AWS_SNSMessageJSON:
         "Type": "Notification",
         "MessageId": str(uuid4()),
         "TopicArn": topic_arn,
-        "Subject": email["Subject"],
+        "Subject": str(email["Subject"].as_unstructured),
         "Message": json.dumps(sns_message),
         "Timestamp": (email["Date"].datetime + timedelta(seconds=2)).isoformat(),
         "SignatureVersion": "1",
@@ -684,7 +704,8 @@ class SNSNotificationTest(TestCase):
         assert self.ra.last_used_at
         assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
 
-    def test_plain_text(self) -> None:
+    @patch("emails.views.info_logger")
+    def test_plain_text(self, mock_logger: Mock) -> None:
         """A plain-text only email gets an HTML part."""
         email_text = EMAIL_INCOMING["plain_text"]
         test_sns_notification = create_notification_from_email(email_text)
@@ -710,34 +731,98 @@ class SNSNotificationTest(TestCase):
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at
         assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
+        mock_logger.warning.assert_not_called()
 
-    def test_from_with_unquoted_commas_is_parsed(self) -> None:
+    @patch("emails.views.info_logger")
+    def test_from_with_unquoted_commas_is_parsed(self, mock_logger: Mock) -> None:
         """
         A From: header with commas in an unquoted display is forwarded.
 
         AWS parses these headers as a single email, Python as a list of emails.
         One of the root causes of MPP-3407.
         """
-        test_sns_notification = EMAIL_SNS_BODIES["emperor_norton"]
+        email_text = EMAIL_INCOMING["emperor_norton"]
+        test_sns_notification = create_notification_from_email(email_text)
         _sns_notification(test_sns_notification)
         self.mock_send_raw_email.assert_called_once()
         _, _, _, mail = self.get_details_from_mock_send_raw_email()
         assert_email_equals(mail, "emperor_norton", replace_mime_boundaries=True)
+        expected_header_errors = {
+            "incoming": {
+                "From": {
+                    "defect_count": 4,
+                    "parsed_value": (
+                        '"Norton I.", Emperor of the United States'
+                        " <norton@sf.us.example.com>"
+                    ),
+                    "unstructured_value": (
+                        "Norton I., Emperor of the United States"
+                        " <norton@sf.us.example.com>"
+                    ),
+                }
+            }
+        }
+        mock_logger.warning.assert_called_once_with(
+            "_handle_received: forwarding issues",
+            extra={"issues": {"headers": expected_header_errors}},
+        )
 
     @patch("emails.views.info_logger")
-    def test_from_with_nested_brackets_is_error(self, mock_logger) -> None:
-        test_sns_notification = EMAIL_SNS_BODIES["nested_brackets_service"]
+    def test_from_with_nested_brackets_is_error(self, mock_logger: Mock) -> None:
+        email_text = EMAIL_INCOMING["nested_brackets_service"]
+        test_sns_notification = create_notification_from_email(email_text)
         result = _sns_notification(test_sns_notification)
         assert result.status_code == 400
         self.mock_send_raw_email.assert_not_called()
         mock_logger.error.assert_called_once_with(
             "_handle_received: no from address",
             extra={
-                "source": "theservice.example.com",
+                "source": "invalid@example.com",
                 "common_headers_from": [
                     "The Service <The Service <hello@theservice.example.com>>"
                 ],
             },
+        )
+        mock_logger.warning.assert_not_called()
+
+    @patch("emails.views.info_logger")
+    def test_invalid_message_id_is_forwarded(self, mock_logger: Mock) -> None:
+        email_text = EMAIL_INCOMING["message_id_in_brackets"]
+        test_sns_notification = create_notification_from_email(email_text)
+        result = _sns_notification(test_sns_notification)
+        assert result.status_code == 200
+        self.mock_send_raw_email.assert_called_once()
+        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
+        assert sender == "replies@default.com"
+        assert recipient == "user@example.com"
+        assert headers == {
+            "Content-Type": headers["Content-Type"],
+            "From": '"user@clownshoes.example.com [via Relay]" <ebsbdsan7@test.com>',
+            "MIME-Version": "1.0",
+            "Reply-To": "replies@default.com",
+            "Resent-From": "user@clownshoes.example.com",
+            "Subject": "Message-ID in brackets",
+            "To": "user@example.com",
+        }
+        assert_email_equals(
+            email, "message_id_in_brackets", replace_mime_boundaries=True
+        )
+        expected_header_errors = {
+            "incoming": {
+                "Message-ID": {
+                    "defect_count": 1,
+                    "parsed_value": (
+                        "<[d7c5838b5ab944f89e3f0c1b85674aef====@example.com]>"
+                    ),
+                    "unstructured_value": (
+                        "<[d7c5838b5ab944f89e3f0c1b85674aef====@example.com]>"
+                    ),
+                }
+            }
+        }
+        mock_logger.warning.assert_called_once_with(
+            "_handle_received: forwarding issues",
+            extra={"issues": {"headers": expected_header_errors}},
         )
 
 

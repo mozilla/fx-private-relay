@@ -1,0 +1,16 @@
+Subject: Message-ID in brackets
+From: "A concerned user" <user@clownshoes.example.com>
+To: ebsbdsan7@test.com
+Date: Thu, 12 Oct 2023 15:57:53 +0000
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Message-ID: <[d7c5838b5ab944f89e3f0c1b85674aef====@example.com]>
+
+The Message-ID format is specified in RFC 5322, 
+3.6.4 "Identification Fields". This email's Message-ID is invalid -
+the square brackets are not allowed at this point. This could be valid:
+
+Message-ID: <myid@[d7c5838b5ab944f89e3f0c1b85674aef====@example.com]>
+
+So maybe there was an ID that was omitted...
