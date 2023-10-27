@@ -148,15 +148,15 @@ export const MaskCard = (props: Props) => {
               </span>
             </div>
             <div className={styles["block-level-label"]}>
-            {props.mask.enabled === false
-              ? l10n.getString("profile-promo-email-blocking-label-none-2")
-              : props.mask.block_list_emails === true
-              ? l10n.getString(
-                  "profile-promo-email-blocking-label-promotionals-2",
-                )
-              : l10n.getString(
-                  "profile-promo-email-blocking-label-forwarding-2",
-                )}
+              {props.mask.enabled === false
+                ? l10n.getString("profile-promo-email-blocking-label-none-2")
+                : props.mask.block_list_emails === true
+                ? l10n.getString(
+                    "profile-promo-email-blocking-label-promotionals-2",
+                  )
+                : l10n.getString(
+                    "profile-promo-email-blocking-label-forwarding-2",
+                  )}
             </div>
           </div>
           <button
