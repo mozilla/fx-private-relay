@@ -10,6 +10,8 @@ export type ProfileData = {
   has_vpn: boolean;
   subdomain: string | null;
   onboarding_state: number;
+  onboarding_free_state: number;
+  forwarded_first_reply: boolean;
   avatar: string;
   date_subscribed: null | DateString;
   remove_level_one_email_trackers: boolean;

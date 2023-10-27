@@ -5,6 +5,7 @@ import {
   RefObject,
   useRef,
   useState,
+  useEffect,
 } from "react";
 import {
   FocusScope,
@@ -30,6 +31,8 @@ export type SelectedFilters = {
 export type Props = {
   selectedFilters: SelectedFilters;
   onChange: (selected: SelectedFilters) => void;
+  resetChecks: boolean;
+  setCheckboxes: (isReset: boolean) => void;
 };
 
 type OnCloseParams = {
@@ -93,6 +96,8 @@ export const CategoryFilter = (props: Props) => {
           isOpen={menuState.isOpen}
           selectedFilters={props.selectedFilters}
           onClose={onClose}
+          resetChecks={props.resetChecks}
+          setCheckboxes={props.setCheckboxes}
         />
       </OverlayContainer>
     </>
@@ -103,10 +108,19 @@ type FilterMenuProps = HTMLAttributes<HTMLDivElement> & {
   selectedFilters: SelectedFilters;
   onClose: (onCloseParams: OnCloseParams) => void;
   isOpen: boolean;
+  resetChecks: boolean;
+  setCheckboxes: (isReset: boolean) => void;
 };
 const FilterMenu = forwardRef<HTMLDivElement, FilterMenuProps>(
   function FilterMenuWithForwardedRef(
-    { selectedFilters, onClose, isOpen, ...otherProps },
+    {
+      selectedFilters,
+      onClose,
+      isOpen,
+      resetChecks,
+      setCheckboxes,
+      ...otherProps
+    },
     overlayRef,
   ) {
     const l10n = useL10n();
@@ -123,6 +137,8 @@ const FilterMenu = forwardRef<HTMLDivElement, FilterMenuProps>(
       onClose({ selectedFilters: { domainType, status }, saveFilters: false });
     };
     const resetAndClose = () => {
+      setDomainType(undefined);
+      setStatus(undefined);
       onClose({
         selectedFilters: { domainType: undefined, status: undefined },
       });
@@ -147,6 +163,14 @@ const FilterMenu = forwardRef<HTMLDivElement, FilterMenuProps>(
     };
 
     const mergedOverlayProps = mergeProps(overlayProps, otherProps);
+
+    // This is for the empty state message, where a user's filters return no alias'
+    // When they click "Clear all filters", the checkboxes should be reset.
+    useEffect(() => {
+      setDomainType(undefined);
+      setStatus(undefined);
+      setCheckboxes(false); // Finished reset, toggle back to false
+    }, [resetChecks, setCheckboxes]);
 
     return (
       <FocusScope contain restoreFocus autoFocus>

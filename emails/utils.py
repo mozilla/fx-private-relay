@@ -228,11 +228,13 @@ def ses_send_raw_email(
     ses_client = emails_config.ses_client
     assert ses_client
     assert settings.AWS_SES_CONFIGSET
+
+    data = message.as_string()
     try:
         ses_response = ses_client.send_raw_email(
             Source=source_address,
             Destinations=[destination_address],
-            RawMessage={"Data": message.as_string()},
+            RawMessage={"Data": data},
             ConfigurationSetName=settings.AWS_SES_CONFIGSET,
         )
         incr_if_enabled("ses_send_raw_email", 1)

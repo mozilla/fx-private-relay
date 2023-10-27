@@ -1,0 +1,110 @@
+@import "../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+.underlay {
+  position: fixed;
+  background-color: rgba($color-black, 0.4);
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .dialog-wrapper {
+    background: $color-light-gray-10;
+    width: calc(100% - $spacing-2xl);
+    border-radius: $border-radius-md;
+    box-shadow: $box-shadow-sm;
+    padding: $spacing-md;
+
+    @media screen and ($mq-md) {
+      width: $content-md;
+    }
+
+    .close-icon {
+      float: right;
+      position: relative;
+    }
+
+    .hero {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-lg;
+      font-family: $font-stack-firefox;
+      font-weight: 400;
+      text-align: center;
+      border-radius: $border-radius-md;
+      background-color: $color-light-gray-10;
+      padding: $spacing-lg $spacing-md;
+      clear: right;
+
+      img {
+        margin: 0 auto;
+      }
+    }
+  }
+}
+
+.paste-email-mask-container {
+  width: 100%;
+  margin: 0 auto;
+
+  .modal-title {
+    text-align: left;
+    margin-bottom: $spacing-sm;
+  }
+
+  .modal-title-success {
+    text-align: center;
+    margin-bottom: $spacing-sm;
+    font-weight: 400;
+  }
+}
+
+.headline {
+  @include text-title-xs;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-sm 0;
+  gap: $spacing-sm;
+  font-weight: 100;
+}
+
+.modal-title {
+  font-weight: 600;
+
+  @include text-body-md;
+  color: $color-grey-50;
+}
+
+.nevermind-link {
+  background-color: transparent;
+  border-style: none;
+  color: $color-blue-50;
+  border-radius: $border-radius-sm;
+
+  &:hover {
+    color: $color-blue-70;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+}
+
+.label-input {
+  font-family: $font-stack-firefox;
+  border: 1px solid $color-grey-30;
+  border-radius: $border-radius-sm;
+  font-weight: 100;
+  padding: $spacing-sm $spacing-md;
+
+  @include text-body-sm;
+  color: $color-grey-40;
+  width: 100%;
+}
+
+.close-icon {
+  cursor: pointer;
+}

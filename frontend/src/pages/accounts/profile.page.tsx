@@ -60,6 +60,8 @@ import { Localized } from "../../components/Localized";
 import { clearCookie, getCookie, setCookie } from "../../functions/cookies";
 import { SubdomainInfoTooltip } from "../../components/dashboard/subdomain/SubdomainInfoTooltip";
 import Link from "next/link";
+import { FreeOnboarding } from "../../components/dashboard/FreeOnboarding";
+import Confetti from "react-confetti";
 
 const Profile: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -68,6 +70,9 @@ const Profile: NextPage = () => {
   const aliasData = useAliases();
   const addonData = useAddonData();
   const l10n = useL10n();
+  const freeOnboardingCelebrationStep =
+    // +1 because we want to show the celebration confetti after the last step
+    getRuntimeConfig().maxOnboardingFreeAvailable + 1;
   const bottomBannerSubscriptionLinkRef = useGaViewPing({
     category: "Purchase Button",
     label: "profile-bottom-promo",
@@ -127,6 +132,7 @@ const Profile: NextPage = () => {
     aliasData.customAliasData.data,
   );
 
+  // premium user onboarding experience
   if (
     profile.has_premium &&
     profile.onboarding_state < getRuntimeConfig().maxOnboardingAvailable
@@ -160,6 +166,10 @@ const Profile: NextPage = () => {
       </>
     );
   }
+
+  const freeMaskLimit = getRuntimeConfig().maxFreeAliases;
+  const freeMaskLimitReached =
+    allAliases.length >= freeMaskLimit && !profile.has_premium;
 
   const createAlias = async (
     options:
@@ -219,9 +229,48 @@ const Profile: NextPage = () => {
     }
   };
 
-  const freeMaskLimit = getRuntimeConfig().maxFreeAliases;
-  const freeMaskLimitReached =
-    allAliases.length >= freeMaskLimit && !profile.has_premium;
+  // free user onboarding experience
+  if (
+    isFlagActive(runtimeData.data, "free_user_onboarding") &&
+    !profile.has_premium &&
+    profile.onboarding_free_state <
+      getRuntimeConfig().maxOnboardingFreeAvailable
+  ) {
+    const onNextStep = (step: number) => {
+      profileData.update(profile.id, {
+        onboarding_free_state: step,
+      });
+    };
+
+    return (
+      <>
+        <AddonData
+          aliases={allAliases}
+          profile={profile}
+          runtimeData={runtimeData.data}
+          totalBlockedEmails={profile.emails_blocked}
+          totalForwardedEmails={profile.emails_forwarded}
+          totalEmailTrackersRemoved={profile.level_one_trackers_blocked}
+        />
+        <Layout runtimeData={runtimeData.data}>
+          {isPhonesAvailableInCountry(runtimeData.data) ? (
+            <DashboardSwitcher />
+          ) : null}
+          <FreeOnboarding
+            profile={profile}
+            onNextStep={onNextStep}
+            onPickSubdomain={setCustomSubdomain}
+            aliases={allAliases}
+            generateNewMask={() => createAlias({ mask_type: "random" })}
+            hasReachedFreeMaskLimit={freeMaskLimitReached}
+            user={user}
+            runtimeData={runtimeData.data}
+            onUpdate={updateAlias}
+          />
+        </Layout>
+      </>
+    );
+  }
 
   const subdomainMessage =
     typeof profile.subdomain === "string" ? (
@@ -518,6 +567,22 @@ const Profile: NextPage = () => {
         totalForwardedEmails={profile.emails_forwarded}
         totalEmailTrackersRemoved={profile.level_one_trackers_blocked}
       />
+      {/* confetti animation should be shown if user has sent first forwarded email, is a free user, and has not reached the max onboarding step */}
+      {isFlagActive(runtimeData.data, "free_user_onboarding") &&
+        !profile.has_premium &&
+        profile.forwarded_first_reply &&
+        profile.onboarding_state < freeOnboardingCelebrationStep && (
+          <Confetti
+            tweenDuration={5000}
+            gravity={0.2}
+            recycle={false}
+            onConfettiComplete={() => {
+              profileData.update(profile.id, {
+                onboarding_state: freeOnboardingCelebrationStep,
+              });
+            }}
+          />
+        )}
       <Layout runtimeData={runtimeData.data}>
         {/* If free user has reached their free mask limit and 
         premium is available in their country, show upsell banner */}

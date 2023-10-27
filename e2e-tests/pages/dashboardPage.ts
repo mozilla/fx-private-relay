@@ -119,7 +119,7 @@ export class DashboardPage {
 
     async upgrade(){
         await Promise.all([
-            this.page.waitForNavigation(),
+            this.page.waitForURL("**/accounts/profile/"),
             this.upgradeButton.click()
         ]);
     }

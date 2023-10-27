@@ -141,6 +141,21 @@ export function useAliases(): {
   };
 }
 
+/**
+ * Send the first_forwarded_email.html email to the user via a mask. See /emails/first_forwarded_email.
+ * Note: mask value must be a RelayAddress that belongs to the authenticated user. A DomainAddress will not work.
+ */
+export async function aliasEmailTest(email: string) {
+  const endpoint = `/first-forwarded-email/`;
+
+  const response = await apiFetch(endpoint, {
+    method: "POST",
+    body: JSON.stringify({ mask: email }),
+  });
+
+  return response.status === 201;
+}
+
 export function isRandomAlias(alias: AliasData): alias is RandomAliasData {
   return alias.mask_type === "random";
 }
