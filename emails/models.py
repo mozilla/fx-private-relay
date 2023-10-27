@@ -125,6 +125,7 @@ class Profile(models.Model):
     # TODO: Schema migration to remove null=True
     remove_level_one_email_trackers = models.BooleanField(null=True, default=False)
     onboarding_state = models.PositiveIntegerField(default=0)
+    onboarding_free_state = models.PositiveIntegerField(default=0)
     auto_block_spam = models.BooleanField(default=False)
     forwarded_first_reply = models.BooleanField(default=False)
     # Empty string means the profile was created through relying party flow

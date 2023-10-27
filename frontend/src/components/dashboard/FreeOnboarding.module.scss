@@ -1,0 +1,504 @@
+@import "../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+
+.onboarding {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.step,
+.controls {
+  width: 100%;
+  max-width: $content-xl;
+  margin: 0 auto;
+  padding: $spacing-lg;
+
+  .generate-new-mask {
+    padding: $spacing-sm $spacing-2xl;
+    margin-bottom: $spacing-lg;
+  }
+}
+
+.step.step-copy-mask {
+  max-width: $content-lg;
+
+  .copy-mask-header {
+    margin-bottom: $spacing-lg;
+
+    @media screen and #{$mq-lg} {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.content-wrapper-copy-mask {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+}
+
+.content-wrapper-copy-mask-items {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding: $spacing-lg $spacing-xl;
+  margin-top: $spacing-2xl;
+  box-sizing: border-box;
+  background: $color-white;
+  background-clip: padding-box;
+  border: solid 2px transparent;
+  border-radius: $border-radius-md;
+
+  hr {
+    background-color: $color-white;
+    height: 2px;
+    width: 100%;
+    margin: $spacing-md 0;
+  }
+}
+
+.copy-mask-arrow-element {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto;
+
+  img {
+    display: none;
+    position: absolute;
+    width: $layout-xl;
+    height: 125px;
+    /* both calculations below deal with alignment of custom art element - vertical arrow */
+    bottom: -30px;
+    right: -86px;
+
+    @media screen and #{$mq-lg} {
+      display: block;
+    }
+  }
+}
+
+/* this allows for the gradient border around an elmeent */
+.content-wrapper-copy-mask-items::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  /* sets order for clipped background */
+  z-index: -1;
+  /* set to the same width of the border for clipping */
+  margin: calc($spacing-xs * -1);
+  border-radius: inherit;
+  background: linear-gradient(
+    to right,
+    rgba(255, 145, 0, 1),
+    rgba(241, 3, 102, 1),
+    rgba(97, 115, 255, 1)
+  );
+}
+
+.content-item {
+  display: flex;
+  flex-direction: row;
+  gap: $spacing-lg;
+
+  .content-text {
+    display: flex;
+    gap: $spacing-md;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .headline {
+    font-weight: 700;
+
+    @include text-body-md;
+    font-family: $font-stack-firefox;
+    color: $color-blue-80;
+  }
+
+  .description {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+  }
+}
+
+.step {
+  flex-grow: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+
+  .action-complete {
+    @include text-body-sm;
+    font-family: $font-stack-firefox;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-md;
+    border-radius: $border-radius-md;
+    background-color: $color-white;
+
+    .label {
+      display: inline-flex;
+      align-items: center;
+      gap: $spacing-xs;
+      padding-bottom: $spacing-xs;
+
+      svg {
+        color: $color-blue-50;
+      }
+    }
+
+    samp {
+      @include text-body-lg;
+      font-family: $font-stack-firefox;
+      font-weight: 700;
+      color: $color-purple-50;
+    }
+
+    .domain {
+      @include text-body-xs;
+      color: $color-light-gray-90;
+    }
+  }
+
+  &.step-custom-domain {
+    max-width: $content-xl;
+
+    .subdomain-picker-heading {
+      padding: $spacing-md 0;
+    }
+
+    .domain-example {
+      @include font-firefox;
+      @include text-title-2xs;
+      color: $color-light-gray-90;
+      display: inline-block;
+      padding: $spacing-md 0;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow-x: hidden;
+      max-width: $content-xs;
+
+      @media screen and #{$mq-md} {
+        max-width: 100%;
+      }
+
+      .customizable-part {
+        color: $color-violet-50;
+        font-weight: 700;
+      }
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      margin: 0 auto;
+
+      @media screen and #{$mq-md} {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        margin: 0;
+      }
+
+      input {
+        @include form-input;
+        flex-grow: 2;
+        margin: 0;
+        margin-bottom: $spacing-md;
+        width: 100%;
+
+        @media screen and #{ $mq-md } {
+          margin: 0;
+          margin-right: $spacing-md;
+        }
+      }
+
+      button {
+        text-align: center;
+      }
+    }
+  }
+
+  &.step-addon {
+    .addon-description {
+      // Hide the description of the add-on on small screens,
+      // because it isn't available on mobile.
+      display: none;
+      padding: $spacing-md 0;
+
+      @media screen and #{$mq-md} {
+        display: block;
+      }
+    }
+
+    @media screen and #{$mq-md} {
+      // Don't show the description of replies on small screens,
+      // to focus on the add-on availability:
+      .reply-description {
+        display: none;
+      }
+      .addon-description {
+        display: block;
+      }
+    }
+
+    h3 {
+      @include text-body-md;
+    }
+
+    .get-addon-button {
+      margin-top: $spacing-md;
+      // The extension isn't available on mobile,
+      // so hide it on small screens:
+      display: none;
+
+      @media screen and #{$mq-md} {
+        display: inline-block;
+      }
+    }
+  }
+
+  .welcome-header,
+  .copy-mask-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-xs;
+
+    h1 {
+      @include text-title-sm;
+      font-weight: 700;
+      font-family: $font-stack-firefox;
+      color: $color-purple-50;
+    }
+
+    p {
+      @include text-body-md;
+      font-weight: 600;
+      font-family: $font-stack-firefox;
+    }
+  }
+
+  .content-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2xl;
+
+    img {
+      margin: $spacing-2xl auto 0 auto;
+      max-width: 300px;
+
+      @media screen and #{$mq-lg} {
+        max-width: unset;
+      }
+    }
+
+    @media screen and #{$mq-md} {
+      flex-direction: row;
+    }
+  }
+}
+
+.hidden-mobile {
+  display: none;
+
+  @media screen and #{$mq-md} {
+    display: inline-block;
+  }
+}
+
+.headline {
+  font-weight: 700;
+
+  @include text-body-md;
+  font-family: $font-stack-firefox;
+  color: $color-blue-80;
+}
+
+.content-text {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+
+  div:nth-child(2) {
+    border: 3px solid $color-white;
+    border-radius: $border-radius-md;
+    padding: $spacing-lg $spacing-2xl;
+  }
+}
+
+.progress-container {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: center;
+  width: 100%;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+  align-items: center;
+  width: 100%;
+
+  .skip-link,
+  .next-link {
+    background-color: transparent;
+    border-style: none;
+    color: $color-blue-50;
+    border-radius: $border-radius-sm;
+
+    &:hover {
+      color: $color-blue-70;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  }
+
+  .next-link {
+    /* allows for flush positioning of link to next page with pagination component */
+    margin: calc($spacing-lg * -1) 0 $spacing-xs $spacing-sm;
+    display: flex;
+    align-items: center;
+  }
+
+  @media screen and (max-width: #{$screen-md}) {
+    .get-addon-button {
+      display: none;
+    }
+
+    .go-to-dashboard-button {
+      display: inline-block;
+      visibility: visible;
+    }
+  }
+
+  /* this code is copied from progress bar used in premium onboarding */
+  progress {
+    width: 100%;
+    max-width: $content-md;
+  }
+
+  .styled-progress-bar {
+    display: flex;
+    width: 100%;
+    max-width: $content-md;
+    gap: $spacing-sm;
+    list-style-type: none;
+
+    li {
+      width: 100%;
+      color: $color-light-gray-90;
+      text-align: center;
+      transition: color 0.2s ease-out;
+
+      span {
+        display: block;
+        height: 5px;
+        background-color: $color-light-gray-20;
+        margin-bottom: $spacing-xs;
+        transition:
+          box-shadow 1s ease-out,
+          color 0.2s ease-out;
+      }
+
+      &.is-completed {
+        color: $color-violet-20;
+
+        span {
+          box-shadow: inset 300px 0 0 0 $color-violet-20;
+        }
+      }
+    }
+  }
+}
+
+.step.mask-use {
+  .addon-content-items {
+    flex-direction: column;
+
+    @media screen and #{$mq-md} {
+      flex-direction: row;
+    }
+  }
+
+  .addon-content-items:nth-child(2) {
+    flex-direction: column-reverse;
+    margin-top: $spacing-2xl;
+
+    @media screen and #{ $mq-md } {
+      flex-direction: row;
+    }
+  }
+
+  .large-arrow,
+  .small-arrow {
+    display: none;
+
+    @media screen and #{$mq-md} {
+      display: flex;
+    }
+  }
+}
+
+.addon-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  margin-top: $spacing-lg;
+
+  .addon-content-items {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: $spacing-2xl;
+    position: relative;
+
+    .large-arrow,
+    .small-arrow {
+      position: absolute;
+    }
+
+    /* custom art element that requires absolute positioning */
+    .large-arrow {
+      bottom: calc($spacing-2xl * -1);
+      right: calc($spacing-lg * -5);
+    }
+
+    /* custom art element that requires absolute positioning */
+    .small-arrow {
+      bottom: calc($spacing-2xl * -1);
+      left: calc($spacing-lg * -5);
+    }
+
+    .headline {
+      @include text-body-lg;
+    }
+
+    .addon-content-text {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-sm;
+      position: relative;
+    }
+  }
+}
+
+.action-complete {
+  text-align: center;
+  background: $color-white;
+  padding: $spacing-sm $spacing-2xl;
+
+  svg {
+    margin: 0 auto;
+  }
+}

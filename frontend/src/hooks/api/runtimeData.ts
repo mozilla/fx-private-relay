@@ -9,6 +9,7 @@ export type FlagNames =
   | "tracker_removal"
   | "phone_launch_survey"
   | "multi_replies"
+  | "free_user_onboarding"
   | "firefox_integration"
   | "mailing_list_announcement"
   | "premium_promo_banners"
