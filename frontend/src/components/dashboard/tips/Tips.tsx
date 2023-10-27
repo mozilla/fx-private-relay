@@ -150,7 +150,7 @@ export const Tips = (props: Props) => {
           </li>
           <li>
             <a
-              href={`https://support.mozilla.org/products/relay/?utm_source=${
+              href={`https://support.mozilla.org/products/relay?utm_source=${
                 getRuntimeConfig().frontendOrigin
               }`}
               target="_blank"
