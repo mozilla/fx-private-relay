@@ -40,6 +40,11 @@ nav-profile-manage-account = Manage your account
 nav-profile-image-alt-v2 = account avatar
 faq-question-acceptable-use-answer-measure-account-v2 = Requiring an account with a verified email address
 
+profile-promo-email-blocking-label-promotionals-2 = Blocking promo emails
+profile-promo-email-blocking-label-none-2 = Blocking all emails
+profile-promo-email-blocking-label-forwarding-2 = Forwarding all emails
+profile-promo-email-blocking-description-none-3 = All emails sent to this mask will be forwarded to your real address.
+
 profile-free-onboarding--welcome-headline = Welcome to { -brand-name-relay }
 profile-free-onboarding--welcome-description = Let’s create your first email mask.
 profile-free-onboarding--welcome-item-headline-1 = Use free email masks to protect your real address
