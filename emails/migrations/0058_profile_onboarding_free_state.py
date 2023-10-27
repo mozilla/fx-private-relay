@@ -16,7 +16,7 @@ def add_db_default_forward_func(apps, schema_editor):
             'ALTER TABLE "emails_profile"'
             ' ALTER COLUMN "onboarding_free_state" SET DEFAULT 0;'
         )
-        # Set all existing profiles to 0 so we don't send them another welcome email
+        # Set all existing profiles to 0 so existing users also see the free onboarding
         schema_editor.execute(
             'UPDATE "emails_profile"' ' SET "onboarding_free_state" = 0;'
         )
