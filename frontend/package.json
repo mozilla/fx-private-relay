@@ -67,7 +67,7 @@
     "sass": "^1.69.4",
     "stylelint": "^15.10.3",
     "stylelint-config-recommended-scss": "^13.0.0",
-    "stylelint-scss": "^5.2.1",
+    "stylelint-scss": "^5.3.0",
     "typescript": "^5.2.2"
   },
   "volta": {
