@@ -901,7 +901,7 @@ def _replace_headers(
         except Exception as e:
             issues["incoming"][header] = {"exception_on_read": str(e)}
             value = None
-        if value.defects:
+        if getattr(value, "defects"):
             issues["incoming"][header] = {
                 "defect_count": len(value.defects),
                 "parsed_value": str(value),
