@@ -825,6 +825,7 @@ def _convert_to_forwarded_email(
     # policy.default.message_factory is EmailMessage
     assert isinstance(email, EmailMessage)
 
+    # Replace headers in the original email
     header_issues = _replace_headers(email, headers)
 
     # Find and replace text content
@@ -888,7 +889,20 @@ def _convert_to_forwarded_email(
 def _replace_headers(
     email: EmailMessage, headers: OutgoingHeaders
 ) -> EmailHeaderIssues:
-    """Replace the headers in email with new headers."""
+    """
+    Replace the headers in email with new headers.
+
+    This replaces headers in the passed email object, rather than returns an altered
+    copy. The primary reason is that the Python email package can read an email with
+    non-compliant headers or content, but can't write it. A read/write is required to
+    create a copy that we then alter. This code instead alters the passed EmailMessage
+    object, making header-specific changes in try / except statements.
+
+    The other reason is the object size. An Email can be up to 10 MB, and we hope to
+    support 40 MB emails someday. Modern servers may be OK with this, but it would be
+    nice to handle the non-compliant headers without crashing before we add a source of
+    memory-related crashes.
+    """
     # Look for headers to drop
     to_drop: list[str] = []
     replacements: set[str] = set(_k.lower() for _k in headers.keys())
