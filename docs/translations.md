@@ -727,10 +727,14 @@ A Relay user's payment method, such as a credit card, has a payment region. The
 user region detected by Relay may differ from the user's payment region. Relay may say a
 user can buy a plan, and then Stripe may reject payment.
 
-In development and stage, there are test prices connected to the [Stripe test mode][].
-One feature of test mode is fake credit cards. These cards allow testing without paying
-real money, and testing failure modes. A test visitor from the United States will get
-these prices. Other regions get the production prices.
+In development and stage, there are test prices connected to the [Stripe test mode][]. A
+test visitor from the United States will get these prices. Other regions get the
+production prices. One feature of test mode is [test credit cards][]. These cards allow
+testing without paying real money, testing failure modes, and testing payments linked to
+other countries. A test card associated with the United States or Canada can be used
+with the test price. A test card associated with a European or other region will be
+rejected with a message like "The currency of this subscription is not valid for the
+country associated with your payment".
 
 [/api/v1/runtime_data]: https://relay.firefox.com/api/v1/runtime_data
 [Stripe product]: https://stripe.com/docs/api/products
@@ -738,6 +742,7 @@ these prices. Other regions get the production prices.
 [Subscription Platform]: https://mozilla.github.io/ecosystem-platform/relying-parties/reference/sub-plat-features
 [does not confirm the user's region]: https://mozilla.github.io/ecosystem-platform/relying-parties/reference/sub-plat-features#geo-restrictions
 [markets and currencies]: https://mozilla-hub.atlassian.net/wiki/spaces/FJT/pages/173539548/Supported+Markets+and+Currencies
+[test credit cards]: https://stripe.com/docs/testing?testing-method=card-numbers#cards
 
 ## Terms
 
