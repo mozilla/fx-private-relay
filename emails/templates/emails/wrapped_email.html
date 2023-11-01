@@ -76,15 +76,17 @@
         width: 300px;
       }
     }
-
+    @media screen and (max-width: 1024px) {
+        .relay-trackers-removed {
+          /* Avoid margin when header-block-right content overflows */
+          display: block !important;
+          margin-right: 0 !important;
+        }
+    }
     @media screen and (max-width: 768px){
       .footer-block {
         display: block;
         width: 100%;
-      }
-      .relay-trackers-removed {
-        display: block !important;
-        margin-right: 0 !important;
       }
       .header-block-left,
       .header-block-right {
