@@ -354,9 +354,9 @@ for the expansion effort**. This allows engineers to ship partial changes withou
 affecting current users.
 
 The Subscription Platform (version 2) uses [Stripe][] for paid services. A
-[Stripe Price][] tracks currency, taxes, and a subscription term. Relay
-subscription terms are monthly or yearly. There are usually two prices per region, one
-for each term. The Subscription Platform also uses the price to track language and region.
+[Stripe Price][] tracks currency, taxes, and a subscription interval. Relay
+subscription intervals are monthly or yearly. There are usually two prices per region, one
+for each interval. The Subscription Platform also uses the price to track language and region.
 The product details are in the selected language. The Localization team helps pick the
 region's primary language. The product reports use the price to segment purchases by
 region.
@@ -700,9 +700,9 @@ user's region.
 
 The [Subscription Platform][] (version 2) uses [Stripe][]. A [Stripe product][] represents
 each Relay plan, such as the premium email service. A [Stripe price][] represents how a
-user will pay. The price has an associated product, a currency, tax details, and a term.
-Many Relay plans have monthly and yearly subscription terms. The VPN bundle only has a
-yearly subscription term.
+user will pay. The price has an associated product, a currency, tax details, and a subscription interval.
+Many Relay plans have monthly and yearly subscription intervals. The VPN bundle only has a
+yearly subscription interval.
 
 The Subscription Platform associates a price with a region. Product reports may use this
 to segment purchasers by region. Relay detects the user's region and determines what
