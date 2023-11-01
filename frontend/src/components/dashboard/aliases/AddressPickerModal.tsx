@@ -23,6 +23,9 @@ import { InfoBulbIcon } from "../../Icons";
 import { Button } from "../../Button";
 import { InfoTooltip } from "../../InfoTooltip";
 import { useL10n } from "../../../hooks/l10n";
+import { useRuntimeData } from "../../../hooks/api/runtimeData";
+import { useProfiles } from "../../../hooks/api/profile";
+import { getRuntimeConfig } from "../../../config";
 
 export type Props = {
   isOpen: boolean;
@@ -36,6 +39,7 @@ export type Props = {
  * while also being educated on why they don't need to do that.
  */
 export const AddressPickerModal = (props: Props) => {
+  const profileData = useProfiles();
   const l10n = useL10n();
   const [address, setAddress] = useState("");
   const [promotionalsBlocking, setPromotionalsBlocking] = useState(false);
@@ -65,7 +69,11 @@ export const AddressPickerModal = (props: Props) => {
     );
     addressFieldRef.current?.reportValidity();
   };
-
+  const profile = profileData.data?.[0];
+  if (!profile) {
+    return null;
+  }
+  
   const onSubmit: FormEventHandler = (event) => {
     event.preventDefault();
 
@@ -106,52 +114,16 @@ export const AddressPickerModal = (props: Props) => {
                   onBlur={onBlur}
                   ref={addressFieldRef}
                   placeholder={l10n.getString(
-                    "modal-custom-alias-picker-form-prefix-placeholder-2",
+                    "modal-custom-alias-picker-form-prefix-placeholder-3",
                   )}
                   autoCapitalize="none"
                 />
+                <label htmlFor="address" className={styles["profile-registered-domain-value"]}>
+                  @{profile.subdomain}.{getRuntimeConfig().mozmailDomain}
+                </label>
               </div>
             </div>
-            <div className={styles["promotionals-blocking-control"]}>
-              <input
-                type="checkbox"
-                id="promotionalsBlocking"
-                onChange={(event) =>
-                  setPromotionalsBlocking(event.target.checked)
-                }
-              />
-              <label htmlFor="promotionalsBlocking">
-                {l10n.getString(
-                  "popover-custom-alias-explainer-promotional-block-checkbox",
-                )}
-              </label>
-              <InfoTooltip
-                alt={l10n.getString(
-                  "popover-custom-alias-explainer-promotional-block-tooltip-trigger",
-                )}
-                iconColor="black"
-              >
-                <h3>
-                  {l10n.getString(
-                    "popover-custom-alias-explainer-promotional-block-checkbox",
-                  )}
-                </h3>
-                <p className={styles["promotionals-blocking-description"]}>
-                  {l10n.getString(
-                    "popover-custom-alias-explainer-promotional-block-tooltip-2",
-                  )}
-                  <Link href="/faq#faq-promotional-email-blocking">
-                    {l10n.getString("banner-label-data-notification-body-cta")}
-                  </Link>
-                </p>
-              </InfoTooltip>
-            </div>
-            <div className={styles.tip}>
-              <span className={styles["tip-icon"]}>
-                <InfoBulbIcon alt="" />
-              </span>
-              <p>{l10n.getString("modal-custom-alias-picker-tip")}</p>
-            </div>
+            
             <hr />
             <div className={styles.buttons}>
               <button

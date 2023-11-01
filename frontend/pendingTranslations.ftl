@@ -19,7 +19,7 @@ faq-question-availability-answer-v4 = Free { -brand-name-relay } is available in
 
 # Updated custom mask generation modal
 modal-custom-alias-picker-tip = Tip: To create a custom mask anytime, make it up on the spot. If you use your { -brand-name-relay } domain, it’ll work, even if you didn’t generate it here first.
-modal-custom-alias-picker-form-prefix-placeholder-2 = @customdomain.mozmail.com 
+modal-custom-alias-picker-form-prefix-placeholder-3 = Enter text
 modal-custom-alias-picker-form-prefix-label-3 = Enter the text that goes before the @ symbol:
 
 # Mask limit has been reached. 

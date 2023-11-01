@@ -101,6 +101,12 @@
           margin-top: $spacing-xl;
         }
 
+        .profile-registered-domain-value {
+          color: $color-blue-50;
+          word-break: break-word;
+          margin-top: $spacing-md;
+        }
+
         input {
           @include form-input;
           // Override form-input's margin:
