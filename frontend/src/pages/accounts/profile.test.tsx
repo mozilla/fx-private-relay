@@ -68,6 +68,21 @@ setMockRelayNumberData();
 setMockMinViewportWidth();
 setMockAddonData();
 
+function setupTestEnvironmentForUpsellBanner() {
+  setMockAliasesDataOnce({ random: [{ enabled: true, id: 42 }], custom: [] });
+  setMockProfileDataOnce({ has_premium: false });
+  setMockRuntimeDataOnce(getMockRuntimeDataWithPeriodicalPremium());
+  const mockedConfig = mockConfigModule.getRuntimeConfig();
+  // getRuntimeConfig() is called frequently, so mock its return value,
+  // then restore the original mock at the end of this test:
+  mockConfigModule.getRuntimeConfig.mockReturnValue({
+    ...mockedConfig,
+    maxFreeAliases: 1,
+  });
+
+  return mockedConfig;
+}
+
 describe("The dashboard", () => {
   describe("under axe accessibility testing", () => {
     it("passes axe accessibility testing", async () => {
@@ -451,16 +466,7 @@ describe("The dashboard", () => {
   });
 
   it("shows an upsell banner if user hits mask limit and Premium is available in their country", () => {
-    setMockAliasesDataOnce({ random: [{ enabled: true, id: 42 }], custom: [] });
-    setMockProfileDataOnce({ has_premium: false });
-    setMockRuntimeDataOnce(getMockRuntimeDataWithPeriodicalPremium());
-    const mockedConfig = mockConfigModule.getRuntimeConfig();
-    // getRuntimeConfig() is called frequently, so mock its return value,
-    // then restore the original mock at the end of this test:
-    mockConfigModule.getRuntimeConfig.mockReturnValue({
-      ...mockedConfig,
-      maxFreeAliases: 1,
-    });
+    const mockedConfig = setupTestEnvironmentForUpsellBanner();
 
     render(<Profile />);
 
@@ -472,7 +478,7 @@ describe("The dashboard", () => {
     mockConfigModule.getRuntimeConfig.mockReturnValue(mockedConfig);
   });
 
-  it("shows correct upsell banner for US country", () => {
+  it("shows correct upsell banner for phone countries", () => {
     setMockAliasesDataOnce({ random: [{ enabled: true, id: 42 }], custom: [] });
     setMockProfileDataOnce({ has_premium: false });
     setMockRuntimeDataOnce(getMockRuntimeDataWithPhones());
@@ -503,16 +509,7 @@ describe("The dashboard", () => {
   });
 
   it("shows correct upsell banner for non-US country", async () => {
-    setMockAliasesDataOnce({ random: [{ enabled: true, id: 42 }], custom: [] });
-    setMockProfileDataOnce({ has_premium: false });
-    setMockRuntimeDataOnce(getMockRuntimeDataWithPeriodicalPremium());
-    const mockedConfig = mockConfigModule.getRuntimeConfig();
-    // getRuntimeConfig() is called frequently, so mock its return value,
-    // then restore the original mock at the end of this test:
-    mockConfigModule.getRuntimeConfig.mockReturnValue({
-      ...mockedConfig,
-      maxFreeAliases: 1,
-    });
+    const mockedConfig = setupTestEnvironmentForUpsellBanner();
 
     render(<Profile />);
 
@@ -533,16 +530,7 @@ describe("The dashboard", () => {
   });
 
   it("shows tooltip when user hovers over the number of masks when user reach the limit", async () => {
-    setMockAliasesDataOnce({ random: [{ enabled: true, id: 42 }], custom: [] });
-    setMockProfileDataOnce({ has_premium: false });
-    setMockRuntimeDataOnce(getMockRuntimeDataWithPeriodicalPremium());
-    const mockedConfig = mockConfigModule.getRuntimeConfig();
-    // getRuntimeConfig() is called frequently, so mock its return value,
-    // then restore the original mock at the end of this test:
-    mockConfigModule.getRuntimeConfig.mockReturnValue({
-      ...mockedConfig,
-      maxFreeAliases: 1,
-    });
+    const mockedConfig = setupTestEnvironmentForUpsellBanner();
 
     render(<Profile />);
 
@@ -570,16 +558,7 @@ describe("The dashboard", () => {
   }, 10000);
 
   it("Upgrade to premium CTA takes user to premium price plans", async () => {
-    setMockAliasesDataOnce({ random: [{ enabled: true, id: 42 }], custom: [] });
-    setMockProfileDataOnce({ has_premium: false });
-    setMockRuntimeDataOnce(getMockRuntimeDataWithPeriodicalPremium());
-    const mockedConfig = mockConfigModule.getRuntimeConfig();
-    // getRuntimeConfig() is called frequently, so mock its return value,
-    // then restore the original mock at the end of this test:
-    mockConfigModule.getRuntimeConfig.mockReturnValue({
-      ...mockedConfig,
-      maxFreeAliases: 1,
-    });
+    const mockedConfig = setupTestEnvironmentForUpsellBanner();
 
     render(<Profile />);
 
