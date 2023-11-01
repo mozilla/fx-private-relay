@@ -61,6 +61,29 @@ number for Relay and set it to your `TWILIO_MAIN_NUMBER` env var.
 1. Add `PHONES_ENABLED=True`
 2. Add `SUBSCRIPTIONS_WITH_PHONE="relay-phones"`
 
+#### Enable phones for the local user
+
+A feature flag is required to use phones outside of production. This
+requirement was added to prevent "subscribing" to the phone service with test
+Stripe credentials. Twilio charges for each reserved phone number, even if
+Stripe is in testing mode.
+
+To add the required flag for every account:
+
+```sh
+./manage.py waffle_flag phones --create --everyone
+```
+
+To add the required flag for some accounts, **first sign-in to create the
+account**. With the new user's email address, you can then configure the flag
+from the command line:
+
+```sh
+./manage.py get_or_create_user_group phone_users
+./manage.py waffle_flag phones --create --append --group phone_users
+./manage.py add_user_to_group user@example.com phone_users
+```
+
 #### Send a test message
 
 Now you're ready to send a test message to make sure Twilio is configured

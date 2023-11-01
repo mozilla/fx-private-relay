@@ -342,6 +342,10 @@ cases](https://docs.google.com/spreadsheets/d/1fMl4LHr1kIuGHfS9jyhLrv5vAyJMBUCr2
 
 You can use [Stripe's test credit card details](https://stripe.com/docs/testing#cards) for payment.
 
+The phone features are further protected by a waffle flag `phones`. In stage,
+you'll need an SRE to add the flag to your test user. On the development
+server, a developer can add the flag.
+
 ## Production Environments
 
 ### Requirements
