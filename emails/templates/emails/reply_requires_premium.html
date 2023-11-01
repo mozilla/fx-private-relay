@@ -45,6 +45,13 @@
           font-size: 14px;
         }
 
+        @media screen and (max-width: 1024px) {
+            .footer-block a {
+                display: block;
+                margin-right: 0 !important;
+            }
+        }
+
         @media screen and (max-width: 768px) {
             .footer-block {
                 display: block;
@@ -122,6 +129,13 @@
             display: none;
         }
 
+        @media screen and (max-width: 1024px) {
+            .footer-block a {
+                display: block;
+                margin-right: 0 !important;
+            }
+        }
+        
         @media screen and (max-width: 768px) {
             .footer-block {
                 display: block;
@@ -163,7 +177,7 @@
     
     <table role="presentation" border="0" cellpadding="0" cellspacing="10px" style="padding: 60px 30px 120px 30px;" align="center">
         <tr>
-            <td style="padding-top: 0px; padding-bottom: 0px; text-align: center;">
+            <td style="max-width:850px; padding-top: 0px; padding-bottom: 0px; text-align: center;">
                 <h2 style="font-family: inter medium, Arial, system-ui, sans-serif;"> 
                     <img width="18" src="{{ SITE_ORIGIN }}/static/images/email-images/warning.png" style="margin: 0 5px;" alt="warning icon"/>
                     {% if forwarded == True %}
