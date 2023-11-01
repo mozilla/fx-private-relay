@@ -119,7 +119,12 @@ export const ProfileBanners = (props: Props) => {
     // Only show updated Premium Banners to users in US/CAN
     {
       isPhonesAvailableInCountry(props.runtimeData)
-        ? banners.push(<PremiumPromoBanners showFirstPremiumBanner={true} />)
+        ? banners.push(
+            <PremiumPromoBanners
+              key="premium-banner"
+              showFirstPremiumBanner={true}
+            />,
+          )
         : banners.push(
             <LoyalistPremiumBanner
               key="premium-banner"
