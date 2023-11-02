@@ -56,6 +56,7 @@ refox.com/fonts/Inter/Inter-Medium.woff2?v=3D3.18) format('woff');
       font-family: 'inter', Arial, sans-serif;
       color: #FFFFFF;
       font-size: 12px;
+      line-height: 140% !important;
     }
     a.container-link {
       transition: all 0.2s ease;
@@ -79,15 +80,29 @@ refox.com/fonts/Inter/Inter-Medium.woff2?v=3D3.18) format('woff');
       margin-right: 5px;
       vertical-align: bottom;
     }
-    @media screen and (max-width: 768px) {
+    /* this deals with long email addresses */
+    .forwarded-from-email {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 500px;
+    }
+    @media screen and (max-width: 1200px) {
+      .forwarded-from-email {
+        width: 300px;
+      }
+    }
+    @media screen and (max-width: 1024px) {
+        .relay-trackers-removed {
+          /* Avoid margin when header-block-right content overflows */
+          display: block !important;
+          margin-right: 0 !important;
+        }
+    }
+    @media screen and (max-width: 768px){
       .footer-block {
         display: block;
         width: 100%;
-        text-align: center;
-      }
-      .footer-block .container-link img {
-        height: 45px;
-        width: auto;
       }
       .header-block-left,
       .header-block-right {
@@ -96,29 +111,22 @@ refox.com/fonts/Inter/Inter-Medium.woff2?v=3D3.18) format('woff');
         text-align: left;
       }
       .header-block-right {
-        margin-left: 40px;
+        margin-top: 4px;
       }
       .relay-trackers-removed,
       .relay-mask {
         width: 100%;
         display: block;
       }
-    }
-    /* this deals with long email addresses */
-    .forwarded-from-email {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        width: 500px;
-      }
-    @media screen and (max-width: 1200px) {
-      .forwarded-from-email {
-        width: 300px;
-      }
-    }
-    @media screen and (max-width: 768px){
       .forwarded-from-email {
         width: 250px;
+      }
+      .footer-block {
+        display: block;
+        text-align: left !important;
+      }
+      .footer-block .container-link.dashboard {
+        margin-left: 5px !important;
       }
     }
     @media screen and (max-width: 425px) {
@@ -131,37 +139,38 @@ refox.com/fonts/Inter/Inter-Medium.woff2?v=3D3.18) format('woff');
   <body id=3D"relay-email" style=3D"padding: 0; margin: 0;">
     <!-- Header -->
     <table id=3D"relay-email-header" width=3D"100%" bgcolor=3D"#3D3D3D" style=
-=3D"background: #3D3D3D; padding: 12px 25px; margin-top: 30px; margin-bottom:=
- 30px; width: 96%; border-radius: 6px; max-width: 1200px;" align=3D"center">
+=3D"background: #3D3D3D; padding: 8px 16px; margin-top: 30px; margin-bottom: =
+30px; width: 96%; border-radius: 6px; max-width: 1200px;" align=3D"center">
       <tr>
-        <td class=3D"header-block-left" width=3D"50%" align=3D"left" style=3D=
-"padding-top: 5px;">
+        <td class=3D"relay-logo-img" style=3D"width: 30px; vertical-align: to=
+p;" >
           <img width=3D"30" src=3D"http://127.0.0.1:8000/static/images/email-=
 images/relay-icon.png" style=3D"margin-right: 5px; display: inline-block; ver=
 tical-align: top;" alt=3D"relay icon"/>
-          <p style=3D"margin-top: 0; margin-bottom: 5px; display: inline-bloc=
-k;">
+        </td>
+        <td class=3D"header-block-left" style=3D"vertical-align: bottom;" wid=
+th=3D"50%" align=3D"left" style=3D"padding-top: 5px;">
+          <p style=3D"margin-top: 0; margin-bottom: 0; vertical-align: middle=
+; display: inline-block;">
             <span class=3D"forwarded-from-email" style=3D"display: block; col=
 or: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
             Forwarded from <a href=3D"http://127.0.0.1:8000/accounts/profile/=
 #ebsbdsan7%40test.com" class=3D"container-link" style=3D"margin-right: 30px;c=
 olor: #FFFFFF;font-size: 12px;">ebsbdsan7@test.com</a>
             </span>
-          <span style=3D"margin-top: 0; margin-bottom: 5px; display: block;co=
-lor: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
-              by <a href=3D"http://127.0.0.1:8000/accounts/profile/" class=3D=
-"container-link" style=3D"margin-right: 30px;color: #FFFFFF;font-size: 12px;"=
->Firefox Relay</a>
-          </span>
+            <span style=3D"margin-top: 0; color: #FFFFFF; font-family: 'inter=
+', Arial, sans-serif; font-size: 12px;">
+                by <a href=3D"http://127.0.0.1:8000/accounts/profile/" class=
+=3D"container-link" style=3D"margin-right: 30px;color: #FFFFFF;font-size: 12p=
+x;">Firefox Relay</a>
+            </span>
           </p>
         </td>
-        <td class=3D"header-block-right" width=3D"50%" align=3D"right">
-          <p class=3D"relay-trackers-removed" style=3D"margin: 0 30px 0 0; di=
-splay: inline-block; color: #FFFFFF; font-family: 'inter', Arial, sans-serif;=
- font-size: 12px;">
-            <img class=3D"email-trackers-removed-icon" width=3D"15" src=3D"ht=
-tp://127.0.0.1:8000/static/images/email-images/email-trackers-removed-icon.pn=
-g" alt=3D"email trackers removed icon"/>
+        <td class=3D"header-block-right" style=3D"vertical-align: bottom;" wi=
+dth=3D"50%" align=3D"right">
+          <p class=3D"relay-trackers-removed" style=3D"margin: 0 16px 0 0; ve=
+rtical-align: bottom; display: inline-block; color: #FFFFFF; font-family: 'in=
+ter', Arial, sans-serif; font-size: 12px;">
               <span dir=3D"auto">0</span> email trackers removed
           </p>
           <p class=3D"relay-mask" style=3D"margin: 0; display: inline-block;">
@@ -188,19 +197,19 @@ t;<br><br>So maybe there was an ID that was omitted...<br>
     </table>
     <!-- Footer -->
     <table id=3D"relay-email-footer" width=3D"100%" bgcolor=3D"#3D3D3D" style=
-=3D"background: #3D3D3D; padding: 12px 25px; margin-top: 30px; margin-bottom:=
- 30px; width: 96%; border-radius: 6px; max-width: 1200px;" align=3D"center">
+=3D"background: #3D3D3D; padding: 8px 16px; margin-top: 30px; margin-bottom: =
+30px; width: 96%; border-radius: 6px; max-width: 1200px;" align=3D"center">
       <tr>
         <td class=3D"footer-block" width=3D"50%" align=3D"left">
           <a class=3D"container-link" href=3D"http://127.0.0.1:8000">
-            <img width=3D"110" src=3D"http://127.0.0.1:8000/static/images/ema=
+            <img width=3D"130" src=3D"http://127.0.0.1:8000/static/images/ema=
 il-images/relay-logo-emails-dark-bg.png" style=3D"margin: 0;" alt=3D"relay lo=
 go"/>
           </a>
         </td>
         <td class=3D"footer-block" width=3D"50%" align=3D"right">
-          <a class=3D"container-link" href=3D"http://127.0.0.1:8000/accounts/=
-profile" style=3D"color: #FFFFFF;">Your dashboard</a>
+          <a class=3D"container-link dashboard" href=3D"http://127.0.0.1:8000=
+/accounts/profile" style=3D"color: #FFFFFF;">Your dashboard</a>
         </td>
       </tr>
     </table>

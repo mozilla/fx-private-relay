@@ -83,6 +83,13 @@ lay.firefox.com/fonts/Inter/Inter-Medium.027d14e7d35b.woff2?v=3D3.18) format(=
           font-size: 14px;
         }
 
+        @media screen and (max-width: 1024px) {
+            .footer-block a {
+                display: block;
+                margin-right: 0 !important;
+            }
+        }
+
         @media screen and (max-width: 768px) {
             .footer-block {
                 display: block;
@@ -164,6 +171,13 @@ lay.firefox.com/fonts/Inter/Inter-Medium.027d14e7d35b.woff2?v=3D3.18) format(=
             display: none;
         }
 
+        @media screen and (max-width: 1024px) {
+            .footer-block a {
+                display: block;
+                margin-right: 0 !important;
+            }
+        }
+       =20
         @media screen and (max-width: 768px) {
             .footer-block {
                 display: block;
@@ -213,8 +227,8 @@ ail" style=3D"color: white;">Upgrade for more protection</a>=20
     <table role=3D"presentation" border=3D"0" cellpadding=3D"0" cellspacing=
 =3D"10px" style=3D"padding: 60px 30px 120px 30px;" align=3D"center">
         <tr>
-            <td style=3D"padding-top: 0px; padding-bottom: 0px; text-align: c=
-enter;">
+            <td style=3D"max-width:850px; padding-top: 0px; padding-bottom: 0=
+px; text-align: center;">
                 <h2 style=3D"font-family: inter medium, Arial, system-ui, san=
 s-serif;">=20
                     <img width=3D"18" src=3D"http://127.0.0.1:8000/static/ima=
