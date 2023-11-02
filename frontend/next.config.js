@@ -7,7 +7,7 @@ const runtimeConfigs = {
     frontendOrigin: "",
     fxaLoginUrl: "/accounts/fxa/login/?process=login",
     fxaLogoutUrl: "/accounts/logout/",
-    supportUrl: "https://support.mozilla.org/products/relay/",
+    supportUrl: "https://support.mozilla.org/products/relay",
     emailSizeLimitNumber: 10,
     emailSizeLimitUnit: "MB",
     maxFreeAliases: 5,
