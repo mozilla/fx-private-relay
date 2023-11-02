@@ -16,19 +16,14 @@ def add_index(
     index_name: str,
     table_name: str,
 ) -> None:
-    concurrently = "CONCURRENTLY" if engine == "postgres" else ""
     if_not_exists = "IF NOT EXISTS" if engine == "postgres" else ""
     schema_editor.execute(
-        f"CREATE INDEX {concurrently} {if_not_exists}"
-        f" {index_name} ON {table_name} (upper(email));"
+        f"CREATE INDEX {if_not_exists} {index_name} ON {table_name} (upper(email));"
     )
 
 
-def drop_index(
-    schema_editor: BaseDatabaseSchemaEditor, engine: Engine, index_name: str
-) -> None:
-    concurrently = "CONCURRENTLY" if engine == "postgres" else ""
-    schema_editor.execute(f"DROP INDEX {concurrently} {index_name};")
+def drop_index(schema_editor: BaseDatabaseSchemaEditor, index_name: str) -> None:
+    schema_editor.execute(f"DROP INDEX {index_name};")
 
 
 def get_engine(schema_editor) -> Engine:
@@ -54,8 +49,7 @@ def add_account_email_index(
 def drop_account_email_index(
     apps: Apps, schema_editor: BaseDatabaseSchemaEditor
 ) -> None:
-    engine = get_engine(schema_editor)
-    drop_index(schema_editor, engine, "account_emailaddress_email_upper")
+    drop_index(schema_editor, "account_emailaddress_email_upper")
 
 
 def add_auth_email_index(apps: Apps, schema_editor: BaseDatabaseSchemaEditor) -> None:
@@ -64,8 +58,7 @@ def add_auth_email_index(apps: Apps, schema_editor: BaseDatabaseSchemaEditor) ->
 
 
 def drop_auth_email_index(apps: Apps, schema_editor: BaseDatabaseSchemaEditor) -> None:
-    engine = get_engine(schema_editor)
-    drop_index(schema_editor, engine, "auth_user_email_upper")
+    drop_index(schema_editor, "auth_user_email_upper")
 
 
 class Migration(migrations.Migration):
