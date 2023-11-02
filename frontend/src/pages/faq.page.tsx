@@ -250,13 +250,13 @@ const Faq: NextPage = () => {
                 <Localized
                   id="faq-question-missing-emails-answer-support-site-html"
                   vars={{
-                    url: "https://support.mozilla.org/products/relay/",
+                    url: "https://support.mozilla.org/products/relay",
                     attrs: "",
                   }}
                   elems={{
                     a: (
                       <a
-                        href="https://support.mozilla.org/products/relay/"
+                        href="https://support.mozilla.org/products/relay"
                         target="_blank"
                         rel="noopener noreferrer"
                       />
