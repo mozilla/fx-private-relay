@@ -17,7 +17,7 @@
   list-style-type: none;
   min-width: $content-xs;
   // Overlap the stats with position: relative in the alias cards:
-  z-index: 2;
+  z-index: 4;
 
   @media screen and #{$mq-xl} {
     inset-inline-end: auto;
