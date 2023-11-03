@@ -14,8 +14,6 @@ django-referrer-policy==1.0
 djangorestframework==3.14.0
 django-waffle==4.0.0
 dockerflow==2022.8.0
-# TODO: remove after https://github.com/mozilla/fx-private-relay/pull/3575 is merged
-drf-yasg==1.21.7
 drf-spectacular==0.26.5
 drf-spectacular-sidecar==2023.10.1
 google-measurement-protocol==1.1.0
