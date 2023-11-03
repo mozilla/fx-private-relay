@@ -22,7 +22,7 @@
 
 3. Monday
 
-   a. [Release Readiness Review][release-ready] (led by Easy)
+   a. [Release Readiness Review][release-ready]
 
    - Demo changes already in prod
    - Highlight changes in upcoming release
@@ -32,13 +32,22 @@
 
 4. Tuesday
 
-   a. SRE releases the tag to production
-
-   b. Update Github Release to current release
-
-   c. Monitor Sentry for production issues
-
-   d. Hand-off Release Engineer duty to next engineer in rotation (GOTO 1.)
+5. SRE releases the tag to production
+6. Run [the e2e tests GitHub action][github-action-e2e-tests]
+   - Branch: select the release tag
+   - Environment: prod
+7. Update the [Github Release][github-release] to current release
+8. Monitor the [Sentry Releases Page][sentry-releases] for new issues in the release
+9. Monitor the [Grafana Operations Dashboard][grafana-dashboard] for anomolies,
+   especially:
+   - [HTTP Requests][grafana-http-requests]
+   - [HTTP Latencies][grafana-http-latencies]
+   - [Postgres CPU][grafana-postgres-cpu]
+   - [SES Operations][grafana-ses-operations]
+   - [Undelivered email][grafana-undelivered-email]
+   - [SES Email sending time][grafana-ses-email-sending-time]
+   - TBD: Phone activity
+10. Hand-off Release Engineer duty to next engineer in rotation (GOTO 1.)
 
 ## Rotation
 
@@ -53,3 +62,12 @@
 [stage-fixes]: https://github.com/mozilla/fx-private-relay/blob/main/docs/release_process.md#stage-fixes
 [release-ready]: https://mozilla-hub.atlassian.net/wiki/spaces/SECPRV/pages/165675132/Sprint+Process#Release-Readiness-Review-(Relay)
 [release-to-prod]: https://github.com/mozilla/fx-private-relay/blob/main/docs/release_process.md#release-to-prod
+[github-action-e2e-tests]: https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml
+[github-release]: https://github.com/mozilla/fx-private-relay/releases
+[grafana-dashboard]: https://earthangel-b40313e5.influxcloud.net/d/qiwPC76Zk/fx-private-relay?orgId=1&refresh=1m
+[grafana-http-requests]: https://earthangel-b40313e5.influxcloud.net/d/qiwPC76Zk/fx-private-relay?orgId=1&refresh=1m&viewPanel=12
+[grafana-http-latencies]: https://earthangel-b40313e5.influxcloud.net/d/qiwPC76Zk/fx-private-relay?orgId=1&refresh=1m&viewPanel=83
+[grafana-postgres-cpu]: https://earthangel-b40313e5.influxcloud.net/d/qiwPC76Zk/fx-private-relay?orgId=1&refresh=1m&viewPanel=15
+[grafana-ses-operations]: https://earthangel-b40313e5.influxcloud.net/d/qiwPC76Zk/fx-private-relay?orgId=1&refresh=1m&viewPanel=54
+[grafana-undelivered-email]: https://earthangel-b40313e5.influxcloud.net/d/qiwPC76Zk/fx-private-relay?orgId=1&refresh=1m&viewPanel=65
+[grafana-ses-email-sending-time]: https://earthangel-b40313e5.influxcloud.net/d/qiwPC76Zk/fx-private-relay?orgId=1&refresh=1m&viewPanel=131
