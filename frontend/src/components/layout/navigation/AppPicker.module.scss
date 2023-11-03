@@ -110,6 +110,7 @@
         width: fit-content;
         box-sizing: content-box;
         border-radius: $border-radius-md;
+        object-fit: contain;
       }
 
       &:hover {
