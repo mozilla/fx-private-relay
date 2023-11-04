@@ -183,6 +183,7 @@ const Profile: NextPage = () => {
           "Immediately caught to land in the same code path as failed requests.",
         );
       }
+      
       addonData.sendEvent("aliasListUpdate");
     } catch (error) {
       toast(l10n.getString("error-mask-create-failed"), { type: "error" });

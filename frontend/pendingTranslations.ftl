@@ -21,6 +21,10 @@ faq-question-availability-answer-v4 = Free { -brand-name-relay } is available in
 modal-custom-alias-picker-tip = Tip: To create a custom mask anytime, make it up on the spot. If you use your { -brand-name-relay } domain, it’ll work, even if you didn’t generate it here first.
 modal-custom-alias-picker-form-prefix-placeholder-3 = Enter text
 modal-custom-alias-picker-form-prefix-label-3 = Enter the text that goes before the @ symbol:
+error-alias-picker-prefix-invalid-uppercase-letters = No upper case letters  
+error-alias-picker-prefix-invalid-symbols = No symbols except periods or hyphens
+error-alias-picker-prefix-invalid = We couldn’t generate a custom mask with that word or phrase. Please try another one.
+success-msg = "Success"
 
 # Mask limit has been reached. 
 # Variables:

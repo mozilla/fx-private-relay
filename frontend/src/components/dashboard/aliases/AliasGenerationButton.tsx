@@ -126,6 +126,7 @@ type AliasTypeMenuProps = {
 const AliasTypeMenu = (props: AliasTypeMenuProps) => {
   const l10n = useL10n();
   const modalState = useOverlayTriggerState({});
+  const [isAliasCreated, setAliasCreated] = useState(false);
 
   const onAction = (key: Key) => {
     if (key === "random") {
@@ -139,15 +140,28 @@ const AliasTypeMenu = (props: AliasTypeMenuProps) => {
 
   const onPick = (
     address: string,
-    settings: { blockPromotionals: boolean },
   ) => {
-    props.onCreate({
-      mask_type: "custom",
-      address: address,
-      blockPromotionals: settings.blockPromotionals,
-    });
-    modalState.close();
+    try {
+      props.onCreate({
+        mask_type: "custom",
+        address: address,
+        blockPromotionals: false,
+      });
+      setAliasCreated(true);
+    } catch (e) {
+      setAliasCreated(false);
+      modalState.close();
+    }
   };
+
+  // Finished the address gen
+  // address is just the entered prefix + domain 
+  // const onFinished = (address) => {
+  //   return props.onUpdate(alias, {
+  //     enabled: true,
+  //     block_list_emails: true,
+  //   });
+  // }
 
   const dialog = modalState.isOpen ? (
     <AddressPickerModal
@@ -155,6 +169,7 @@ const AliasTypeMenu = (props: AliasTypeMenuProps) => {
       onClose={() => modalState.close()}
       onPick={onPick}
       subdomain={props.subdomain}
+      isAliasCreated={isAliasCreated}
     />
   ) : null;
 
