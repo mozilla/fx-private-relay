@@ -99,7 +99,7 @@ export const CsatSurvey = (props: Props) => {
         (firstSeen as Date);
     const daysSinceSubscription =
       (Date.now() - subscriptionDate.getTime()) / 1000 / 60 / 60 / 24;
-     if (daysSinceSubscription >= 90) {
+    if (daysSinceSubscription >= 90) {
       if (!premium90DaysDismissal.isDismissed) {
         reasonToShow = "premium90days";
       }
