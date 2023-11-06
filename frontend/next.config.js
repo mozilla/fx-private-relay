@@ -106,6 +106,27 @@ module.exports = withBundleAnalyzer({
       type: "asset/source",
     });
 
+    // msw/browser is not exported when compiling for Node (see
+    // https://github.com/mswjs/msw/blob/461a1885280451ec0837fdce897f49521b8ff260/package.json#L24)
+    // and msw/node is not exported when compiling for the browser (see
+    // https://github.com/mswjs/msw/blob/461a1885280451ec0837fdce897f49521b8ff260/package.json#L17),
+    // so to avoid build errors, we have to prevent Webpack from trying to
+    // traverse them when building.
+    // See https://github.com/mswjs/msw/issues/1801#issuecomment-1793911389
+    if (options.isServer) {
+      if (Array.isArray(config.resolve.alias)) {
+        config.resolve.alias.push({ name: "msw/browser", alias: false });
+      } else {
+        config.resolve.alias["msw/browser"] = false;
+      }
+    } else {
+      if (Array.isArray(config.resolve.alias)) {
+        config.resolve.alias.push({ name: "msw/node", alias: false });
+      } else {
+        config.resolve.alias["msw/node"] = false;
+      }
+    }
+
     return config;
   },
 });
