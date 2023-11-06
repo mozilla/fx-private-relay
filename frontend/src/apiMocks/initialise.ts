@@ -10,13 +10,12 @@ export function initialiseApiMocks() {
     worker.start({
       // This custom handler supresses the default warnings about not mocking expected requests:
       onUnhandledRequest: (req, print) => {
+        const requestUrl = new URL(req.url);
         if (
-          !req.url.pathname.startsWith("/_next/") &&
-          !req.url.pathname.startsWith("/fonts/") &&
-          !req.url.pathname.startsWith("/icons/") &&
-          !req.url.href.startsWith(
-            "https://profile.accounts.firefox.com/v1/avatar/",
-          )
+          !requestUrl.pathname.startsWith("/_next/") &&
+          !requestUrl.pathname.startsWith("/fonts/") &&
+          !requestUrl.pathname.startsWith("/icons/") &&
+          !req.url.startsWith("https://profile.accounts.firefox.com/v1/avatar/")
         ) {
           print.warning();
         }
