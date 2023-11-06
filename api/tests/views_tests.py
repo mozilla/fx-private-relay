@@ -414,7 +414,7 @@ class TermsAcceptedUserViewTest(TestCase):
     def tearDown(self):
         cache.clear()
 
-    @responses.activate()
+    @responses.activate
     def test_201_new_user_created_and_202_user_exists(
         self,
     ):
@@ -466,7 +466,7 @@ class TermsAcceptedUserViewTest(TestCase):
         assert responses.assert_call_count(self.fxa_verify_path, 2) is True
         assert responses.assert_call_count(FXA_PROFILE_URL, 1) is True
 
-    @responses.activate()
+    @responses.activate
     def test_failed_profile_fetch_for_new_user_returns_500(self):
         user_token = "user-123"
         self._setup_client(user_token)
@@ -497,7 +497,7 @@ class TermsAcceptedUserViewTest(TestCase):
         assert response.status_code == 400
         assert response.json()["detail"] == "Missing FXA Token after 'Bearer'."
 
-    @responses.activate()
+    @responses.activate
     def test_invalid_bearer_token_error_from_fxa_returns_500_and_cache_returns_500(
         self,
     ):
@@ -512,7 +512,7 @@ class TermsAcceptedUserViewTest(TestCase):
         assert response.json()["detail"] == "Did not receive a 200 response from FXA."
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
 
-    @responses.activate()
+    @responses.activate
     def test_jsondecodeerror_returns_401_and_cache_returns_500(
         self,
     ):
@@ -531,7 +531,7 @@ class TermsAcceptedUserViewTest(TestCase):
         )
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
 
-    @responses.activate()
+    @responses.activate
     def test_non_200_response_from_fxa_returns_500_and_cache_returns_500(
         self,
     ):
@@ -551,7 +551,7 @@ class TermsAcceptedUserViewTest(TestCase):
         assert response.json()["detail"] == "Did not receive a 200 response from FXA."
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
 
-    @responses.activate()
+    @responses.activate
     def test_inactive_fxa_oauth_token_returns_401_and_cache_returns_401(
         self,
     ):
@@ -573,7 +573,7 @@ class TermsAcceptedUserViewTest(TestCase):
         assert response.json()["detail"] == "Fxa Returned Active: False For Token."
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
 
-    @responses.activate()
+    @responses.activate
     def test_fxa_responds_with_no_fxa_uid_returns_404_and_cache_returns_404(self):
         user_token = "user-123"
         now_time = int(datetime.now().timestamp())
@@ -599,7 +599,7 @@ def _setup_client(token):
 
 
 @pytest.mark.django_db
-@responses.activate()
+@responses.activate
 def test_duplicate_email_logs_details_for_debugging(caplog: pytest.LogCaptureFixture):
     caplog.set_level(logging.ERROR)
     uid = "relay-user-fxa-uid"
