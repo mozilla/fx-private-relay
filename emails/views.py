@@ -942,7 +942,7 @@ def _replace_headers(
         try:
             email[header] = value
         except Exception as e:
-            issues["outgoing"][header] = {"exception_on_write": str(e)}
+            issues["outgoing"][header] = {"exception_on_write": str(e), "value": value}
             continue
         try:
             parsed_value = email[header]

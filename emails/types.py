@@ -27,6 +27,7 @@ class EmailHeaderExceptionOnReadIssue(TypedDict):
 
 class EmailHeaderExceptionOnWriteIssue(TypedDict):
     exception_on_write: str
+    value: str
 
 
 class EmailHeaderDefectIssue(TypedDict):
