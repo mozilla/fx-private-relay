@@ -155,7 +155,7 @@ def test_create_realphone_creates_twilio_message(phone_user, mock_twilio_client)
 
 
 @override_settings(IQ_FOR_VERIFICATION=True)
-@responses.activate()
+@responses.activate
 @pytest.mark.skipif(not settings.IQ_ENABLED, reason="IQ_ENABLED is false")
 def test_create_realphone_creates_iq_message(phone_user):
     number = "+12223334444"

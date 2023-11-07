@@ -167,7 +167,7 @@ def test_iq_endpoint_disabled_number(phone_user):
 
 
 @pytest.mark.django_db(transaction=True)
-@responses.activate()
+@responses.activate
 def test_iq_endpoint_success(phone_user):
     _make_real_phone_with_mock_iq(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, "inteliquent")
@@ -194,7 +194,7 @@ def test_iq_endpoint_success(phone_user):
 
 
 @pytest.mark.django_db(transaction=True)
-@responses.activate()
+@responses.activate
 def test_reply_with_no_remaining_texts(phone_user):
     real_phone = _make_real_phone_with_mock_iq(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, "inteliquent")
@@ -224,7 +224,7 @@ def test_reply_with_no_remaining_texts(phone_user):
 
 
 @pytest.mark.django_db(transaction=True)
-@responses.activate()
+@responses.activate
 def test_reply_with_no_phone_capability(phone_user):
     real_phone = _make_real_phone_with_mock_iq(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, "inteliquent")
@@ -253,7 +253,7 @@ def test_reply_with_no_phone_capability(phone_user):
 
 
 @pytest.mark.django_db(transaction=True)
-@responses.activate()
+@responses.activate
 def test_reply_without_previous_sender_error(phone_user):
     real_phone = _make_real_phone_with_mock_iq(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, "inteliquent")
@@ -294,7 +294,7 @@ def test_reply_without_previous_sender_error(phone_user):
 
 
 @pytest.mark.django_db(transaction=True)
-@responses.activate()
+@responses.activate
 def test_reply_with_previous_sender_works(phone_user):
     real_phone = _make_real_phone_with_mock_iq(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, "inteliquent")

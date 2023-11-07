@@ -57,7 +57,7 @@ class AuthenticationMiscellaneous(TestCase):
     def tearDown(self):
         cache.clear()
 
-    @responses.activate()
+    @responses.activate
     def test_introspect_token_catches_JSONDecodeError_raises_AuthenticationFailed(self):
         _setup_fxa_response_no_json(200)
         invalid_token = "invalid-123"
@@ -70,7 +70,7 @@ class AuthenticationMiscellaneous(TestCase):
             return
         self.fail("Should have raised AuthenticationFailed")
 
-    @responses.activate()
+    @responses.activate
     def test_introspect_token_returns_fxa_introspect_response(self):
         now_time = int(datetime.now().timestamp())
         # Note: FXA iat and exp are timestamps in *milliseconds*
@@ -88,7 +88,7 @@ class AuthenticationMiscellaneous(TestCase):
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
         assert fxa_resp_data == expected_fxa_resp_data
 
-    @responses.activate()
+    @responses.activate
     def test_get_fxa_uid_from_oauth_token_returns_cached_response(self):
         user_token = "user-123"
         now_time = int(datetime.now().timestamp())
@@ -112,7 +112,7 @@ class AuthenticationMiscellaneous(TestCase):
         assert fxa_uid == self.uid
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
 
-    @responses.activate()
+    @responses.activate
     def test_get_fxa_uid_from_oauth_token_status_code_None_uses_cached_response_returns_error_response(
         self,
     ):
@@ -140,7 +140,7 @@ class AuthenticationMiscellaneous(TestCase):
             return
         self.fail("Should have raised APIException")
 
-    @responses.activate()
+    @responses.activate
     def test_get_fxa_uid_from_oauth_token_status_code_not_200_uses_cached_response_returns_error_response(
         self,
     ):
@@ -172,7 +172,7 @@ class AuthenticationMiscellaneous(TestCase):
             return
         self.fail("Should have raised APIException")
 
-    @responses.activate()
+    @responses.activate
     def test_get_fxa_uid_from_oauth_token_not_active_uses_cached_response_returns_error_response(
         self,
     ):
@@ -204,7 +204,7 @@ class AuthenticationMiscellaneous(TestCase):
             return
         self.fail("Should have raised AuthenticationFailed")
 
-    @responses.activate()
+    @responses.activate
     def test_get_fxa_uid_from_oauth_token_returns_fxa_response_with_no_fxa_uid(self):
         user_token = "user-123"
         now_time = int(datetime.now().timestamp())
@@ -260,7 +260,7 @@ class FxaTokenAuthenticationTest(TestCase):
         assert response.status_code == 400
         assert response.json()["detail"] == "Missing FXA Token after 'Bearer'."
 
-    @responses.activate()
+    @responses.activate
     def test_non_200_resp_from_fxa_raises_error_and_caches(self):
         fxa_response = _setup_fxa_response(401, {"error": "401"})
         not_found_token = "not-found-123"
@@ -280,7 +280,7 @@ class FxaTokenAuthenticationTest(TestCase):
         response = client.get("/api/v1/relayaddresses/")
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
 
-    @responses.activate()
+    @responses.activate
     def test_non_200_non_json_resp_from_fxa_raises_error_and_caches(self):
         fxa_response = _setup_fxa_response(503, "Bad Gateway")
         not_found_token = "fxa-gw-error"
@@ -299,7 +299,7 @@ class FxaTokenAuthenticationTest(TestCase):
         response = client.get("/api/v1/relayaddresses/")
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
 
-    @responses.activate()
+    @responses.activate
     def test_inactive_token_responds_with_401(self):
         fxa_response = _setup_fxa_response(200, {"active": False})
         inactive_token = "inactive-123"
@@ -318,7 +318,7 @@ class FxaTokenAuthenticationTest(TestCase):
         response = client.get("/api/v1/relayaddresses/")
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
 
-    @responses.activate()
+    @responses.activate
     def test_200_resp_from_fxa_no_matching_user_raises_APIException(self):
         fxa_response = _setup_fxa_response(
             200, {"active": True, "sub": "not-a-relay-user"}
@@ -341,7 +341,7 @@ class FxaTokenAuthenticationTest(TestCase):
         response = client.get("/api/v1/relayaddresses/")
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
 
-    @responses.activate()
+    @responses.activate
     def test_200_resp_from_fxa_for_user_returns_user_and_caches(self):
         self.sa = baker.make(SocialAccount, uid=self.uid, provider="fxa")
         user_token = "user-123"
@@ -372,7 +372,7 @@ class FxaTokenAuthenticationTest(TestCase):
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
         assert cache.get(get_cache_key(user_token)) == fxa_response
 
-    @responses.activate()
+    @responses.activate
     def test_write_requests_make_calls_to_fxa(self):
         self.sa = baker.make(SocialAccount, uid=self.uid, provider="fxa")
         user_token = "user-123"
