@@ -331,6 +331,7 @@ MIDDLEWARE += [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.locale.LocaleMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
     "django_ftl.middleware.activate_from_request_language_code",
     "django_referrer_policy.middleware.ReferrerPolicyMiddleware",
     "dockerflow.django.middleware.DockerflowMiddleware",
