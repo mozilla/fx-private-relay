@@ -71,7 +71,7 @@ def test_send_welcome_emails(
     assert source == settings.RELAY_FROM_ADDRESS
     with django_ftl.override(user.profile.language):
         expected_subject = ftl_bundle.format("first-time-user-email-welcome")
-        expected_cta = ftl_bundle.format("first-time-user-email-hero-cta")
+        expected_cta = ftl_bundle.format("first-time-user-email-cta-dashboard-button")
     assert subject == expected_subject
     assert expected_cta in body_html
 
