@@ -26,7 +26,7 @@ class Command(BaseCommand):
         logger.info("Starting send_welcome_emails")
         profiles_without_welcome_email = Profile.objects.filter(
             sent_welcome_email=False
-        )
+        ).order_by("user_id")
         emails_to_send = len(profiles_without_welcome_email)
         logger.info(f"Emails to send: {emails_to_send}")
         for profile in profiles_without_welcome_email:
