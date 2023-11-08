@@ -3,7 +3,7 @@ codetiming==1.4.0
 cryptography==41.0.5
 Django==4.2.7
 dj-database-url==2.1.0
-django-allauth==0.55.2
+django-allauth==0.56.1
 django-cors-headers==4.3.1
 django-csp==3.7
 django-debug-toolbar==4.2.0
