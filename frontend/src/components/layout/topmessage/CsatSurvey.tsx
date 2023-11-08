@@ -143,7 +143,7 @@ export const CsatSurvey = (props: Props) => {
       free7DaysDismissal.dismiss(options);
     }
     if (reasonToShow === "free30days") {
-      free90DaysDismissal.dismiss(options);
+      free30DaysDismissal.dismiss(options);
     }
     if (reasonToShow === "free90days") {
       free90DaysDismissal.dismiss(options);
