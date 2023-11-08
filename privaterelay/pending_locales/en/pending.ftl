@@ -4,3 +4,4 @@
 
 # This is the Django equivalent of frontend/pendingTranslations.ftl
 
+first-time-user-email-cta-dashboard-button = Learn to use { -brand-name-relay }
