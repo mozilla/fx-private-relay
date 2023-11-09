@@ -46,7 +46,7 @@ profile-promo-email-blocking-label-forwarding-2 = Forwarding all emails
 profile-promo-email-blocking-description-none-3 = All emails sent to this mask will be forwarded to your real address.
 
 profile-free-onboarding--welcome-headline = Welcome to { -brand-name-relay }
-profile-free-onboarding--welcome-description = Let’s create your first email mask.
+profile-free-onboarding--welcome-description = Let’s create a new email mask.
 profile-free-onboarding--welcome-item-headline-1 = Use free email masks to protect your real address
 profile-free-onboarding--welcome-item-description-1 = Anywhere you need an email address, use an email mask instead.
 profile-free-onboarding--welcome-item-headline-2 = What’s an email mask?
