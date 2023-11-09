@@ -3,5 +3,3 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 # This is the Django equivalent of frontend/pendingTranslations.ftl
-
-first-time-user-email-cta-dashboard-button = Learn to use { -brand-name-relay }
