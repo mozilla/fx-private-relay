@@ -1,6 +1,6 @@
-@import "../../../styles/tokens.scss";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 @import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+@import "../../../styles/tokens.scss";
 
 .underlay {
   position: fixed;
@@ -244,6 +244,21 @@
       }
     }
 
+    .newly-created-mask {
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+      gap: $spacing-sm;
+      margin-top: $spacing-md;
+
+      p {        
+        font-weight: 700;
+        color: $color-purple-60;
+
+        @include text-body-lg;
+      }
+    }
+
     .promotionals-blocking-control {
       display: flex;
       align-items: center;
@@ -261,7 +276,7 @@
       input[type="checkbox"] {
         width: 20px;
         height: 20px;
-        border: 2px solid $color-grey-20;
+        border: 2px solid $color-grey-40;
         border-radius: $border-radius-sm;
         -webkit-appearance: none;
       }

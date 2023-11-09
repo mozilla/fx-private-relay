@@ -75,13 +75,14 @@ export const AliasList = (props: Props) => {
       }
     }
     setExistingAliases(props.aliases);
+    
   }, [props.aliases, existingAliases]);
 
   if (props.aliases.length === 0) {
     return null;
   }
 
-  const aliasesWithLocalLabels = props.aliases.map((alias) => {
+  const aliasesWithLocalLabels = existingAliases.map((alias) => {
     const aliasWithLocalLabel = { ...alias };
     if (
       alias.description.length === 0 &&
@@ -106,6 +107,10 @@ export const AliasList = (props: Props) => {
       string: stringFilterInput,
     }),
   );
+
+  const findAliasDataFromPrefix = (aliasPrefix: string): AliasData | undefined => {
+    return aliases.find(alias => aliasPrefix === alias.address);
+  }
 
   const aliasCards = aliases.map((alias) => {
     const onUpdate = (updatedFields: Partial<AliasData>) => {
@@ -266,6 +271,8 @@ export const AliasList = (props: Props) => {
               profile={props.profile}
               runtimeData={props.runtimeData}
               onCreate={props.onCreate}
+              onUpdate={props.onUpdate}
+              findAliasDataFromPrefix={findAliasDataFromPrefix}
             />
           </div>
         </div>

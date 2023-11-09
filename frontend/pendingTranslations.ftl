@@ -18,13 +18,17 @@ premium-promo-availability-warning-4 = { -brand-name-relay-premium } is availabl
 faq-question-availability-answer-v4 = Free { -brand-name-relay } is available in most countries. { -brand-name-relay-premium } is available in Austria, Bulgaria, Belgium, Canada, Croatia, Cyprus, Czech Republic, Denmark, Estonia, Finland, France, Germany, Greece, Hungary, Ireland, Italy, Latvia, Lithuania, Luxembourg, Malaysia, Malta, Netherlands, New Zealand, Poland, Portugal, Romania, Singapore, Slovakia, Slovenia, Spain, Sweden, Switzerland, United Kingdom, and the United States.
 
 # Updated custom mask generation modal
-modal-custom-alias-picker-tip = Tip: To create a custom mask anytime, make it up on the spot. If you use your { -brand-name-relay } domain, it’ll work, even if you didn’t generate it here first.
+modal-custom-alias-picker-tip-2 = Tip: To create a custom mask without having to sign in to { -brand-name-relay }, just add any word or phrase before the @ in your { -brand-name-relay } email domain. The first time anyone emails it, your mask will be created automatically.
 modal-custom-alias-picker-form-prefix-placeholder-3 = Enter text
 modal-custom-alias-picker-form-prefix-label-3 = Enter the text that goes before the @ symbol:
 error-alias-picker-prefix-invalid-uppercase-letters = No upper case letters  
 error-alias-picker-prefix-invalid-symbols = No symbols except periods or hyphens
 error-alias-picker-prefix-invalid = We couldn’t generate a custom mask with that word or phrase. Please try another one.
-success-msg = "Success"
+success-msg = Success
+done-msg = Done
+copy-mask = Copy mask
+popover-custom-alias-explainer-promotional-block-checkbox-label = Start blocking promotional emails
+
 
 # Mask limit has been reached. 
 # Variables:
