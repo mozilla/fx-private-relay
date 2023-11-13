@@ -749,19 +749,22 @@ class SNSNotificationTest(TestCase):
         _, _, _, mail = self.get_details_from_mock_send_raw_email()
         assert_email_equals(mail, "emperor_norton", replace_mime_boundaries=True)
         expected_header_errors = {
-            "incoming": {
-                "From": {
-                    "defect_count": 4,
-                    "parsed_value": (
-                        '"Norton I.", Emperor of the United States'
-                        " <norton@sf.us.example.com>"
-                    ),
-                    "unstructured_value": (
-                        "Norton I., Emperor of the United States"
-                        " <norton@sf.us.example.com>"
-                    ),
-                }
-            }
+            "incoming": [
+                (
+                    "From",
+                    {
+                        "defect_count": 4,
+                        "parsed_value": (
+                            '"Norton I.", Emperor of the United States'
+                            " <norton@sf.us.example.com>"
+                        ),
+                        "unstructured_value": (
+                            "Norton I., Emperor of the United States"
+                            " <norton@sf.us.example.com>"
+                        ),
+                    },
+                )
+            ]
         }
         mock_logger.warning.assert_called_once_with(
             "_handle_received: forwarding issues",
@@ -809,17 +812,20 @@ class SNSNotificationTest(TestCase):
             email, "message_id_in_brackets", replace_mime_boundaries=True
         )
         expected_header_errors = {
-            "incoming": {
-                "Message-ID": {
-                    "defect_count": 1,
-                    "parsed_value": (
-                        "<[d7c5838b5ab944f89e3f0c1b85674aef====@example.com]>"
-                    ),
-                    "unstructured_value": (
-                        "<[d7c5838b5ab944f89e3f0c1b85674aef====@example.com]>"
-                    ),
-                }
-            }
+            "incoming": [
+                (
+                    "Message-ID",
+                    {
+                        "defect_count": 1,
+                        "parsed_value": (
+                            "<[d7c5838b5ab944f89e3f0c1b85674aef====@example.com]>"
+                        ),
+                        "unstructured_value": (
+                            "<[d7c5838b5ab944f89e3f0c1b85674aef====@example.com]>"
+                        ),
+                    },
+                )
+            ]
         }
         mock_logger.warning.assert_called_once_with(
             "_handle_received: forwarding issues",
@@ -1903,7 +1909,7 @@ def test_replace_headers_read_error_is_handled() -> None:
         issues = _replace_headers(email, new_headers)
 
     assert issues == {
-        "incoming": {"X-Fail": {"exception_on_read": "RuntimeError('I failed.')"}}
+        "incoming": [("X-Fail", {"exception_on_read": "RuntimeError('I failed.')"})]
     }
     for name, value in new_headers.items():
         assert email[name] == value
