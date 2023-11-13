@@ -21,7 +21,14 @@ import {
   useOverlayTriggerState,
   useTreeState,
 } from "react-stately";
-import { HTMLAttributes, Key, ReactNode, useEffect, useRef, useState } from "react";
+import {
+  HTMLAttributes,
+  Key,
+  ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import styles from "./AliasGenerationButton.module.scss";
 import { ArrowDownIcon, PlusIcon } from "../../Icons";
 import { ProfileData } from "../../../hooks/api/profile";
@@ -42,9 +49,11 @@ export type Props = {
     options:
       | { mask_type: "random" }
       | { mask_type: "custom"; address: string; blockPromotionals: boolean },
+    setAliasGeneratedState?: (flag: boolean) => void,
   ) => void;
   onUpdate: (alias: AliasData, updatedFields: Partial<AliasData>) => void;
-  findAliasDataFromPrefix: (aliasPrefix: string) => AliasData | undefined;  
+  findAliasDataFromPrefix: (aliasPrefix: string) => AliasData | undefined;
+  setGeneratedAlias: (alias: AliasData | undefined) => void;
 };
 
 /**
@@ -104,7 +113,7 @@ export const AliasGenerationButton = (props: Props) => {
         onUpdate={props.onUpdate}
         subdomain={props.profile.subdomain}
         findAliasDataFromPrefix={props.findAliasDataFromPrefix}
-        aliases={props.aliases}
+        setGeneratedAlias={props.setGeneratedAlias}
       />
     );
   }
@@ -126,17 +135,17 @@ type AliasTypeMenuProps = {
     options:
       | { mask_type: "random" }
       | { mask_type: "custom"; address: string; blockPromotionals: boolean },
-      setModalAliasCreated?: (flag: boolean) => void,
+    setAliasGeneratedState?: (flag: boolean) => void,
   ) => void;
   onUpdate: (alias: AliasData, updatedFields: Partial<AliasData>) => void;
   findAliasDataFromPrefix: (aliasPrefix: string) => AliasData | undefined;
-  aliases: AliasData[];
+  setGeneratedAlias: (alias: AliasData | undefined) => void;
 };
 const AliasTypeMenu = (props: AliasTypeMenuProps) => {
   const l10n = useL10n();
   const modalState = useOverlayTriggerState({});
-  const [isAliasCreated, setAliasCreated] = useState(false);
-  
+  const [aliasGeneratedState, setAliasGeneratedState] = useState(false);
+
   const onAction = (key: Key) => {
     if (key === "random") {
       props.onCreate({ mask_type: "random" });
@@ -147,55 +156,56 @@ const AliasTypeMenu = (props: AliasTypeMenuProps) => {
     }
   };
 
-  const onPick = (
-    address: string,
-    setErrorState: (flag: boolean) => void,
-  ) => {
-    props.onCreate({
-      mask_type: "custom",
-      address: address,
-      blockPromotionals: false,
-    }, 
-    (isCreated: boolean) => {
-      setAliasCreated(isCreated);
-      if (!isCreated) { setErrorState(true); } // An error occurred and the mask was not created
-    });
+  const onPick = (address: string, setErrorState: (flag: boolean) => void) => {
+    props.onCreate(
+      {
+        mask_type: "custom",
+        address: address,
+        blockPromotionals: false,
+      },
+      (isCreated: boolean) => {
+        setAliasGeneratedState(isCreated);
+        if (!isCreated) {
+          setErrorState(true);
+        } // Shows the error banner within the modal
+      },
+    );
   };
-  const [promotionalsBlocking, setPromotionalsBlocking] = useState(false);
-  const [address, setAddress] = useState("");
+
+  const onSuccessClose = (
+    aliasToUpdate: AliasData | undefined,
+    blockPromotions: boolean,
+    copyToClipboard: boolean | undefined,
+  ) => {
+    if (aliasToUpdate && blockPromotions) {
+      props.onUpdate(aliasToUpdate, {
+        enabled: true,
+        block_list_emails: blockPromotions,
+      });
+    }
+    if (copyToClipboard) {
+      props.setGeneratedAlias(aliasToUpdate);
+    }
+    modalState.close();
+  };
 
   const dialog = modalState.isOpen ? (
     <AddressPickerModal
       isOpen={modalState.isOpen}
       onClose={() => modalState.close()}
-      onUpdate={props.onUpdate}
+      onUpdate={onSuccessClose}
       onPick={onPick}
       subdomain={props.subdomain}
-      isAliasCreated={isAliasCreated}
+      aliasGeneratedState={aliasGeneratedState}
       findAliasDataFromPrefix={props.findAliasDataFromPrefix}
-      setPromotionalsBlocking={setPromotionalsBlocking}
-      address={address}
-      setAddress={setAddress}
     />
   ) : null;
 
-  const updateMaskPromotions = () => {
-    const newlyCreatedAliasData = props.findAliasDataFromPrefix(address);
-
-    if (newlyCreatedAliasData) {
-      props.onUpdate(newlyCreatedAliasData, {enabled: true, block_list_emails: promotionalsBlocking,});
-      setPromotionalsBlocking(false);
-    }
-  };
-
   useEffect(() => {
-    if (!modalState.isOpen && promotionalsBlocking) {
-      updateMaskPromotions();
-    }
     if (!modalState.isOpen) {
-      setAliasCreated(false);
+      setAliasGeneratedState(false);
     }
-  }, [modalState, address, promotionalsBlocking, props.aliases]);
+  }, [modalState]);
 
   return (
     <>

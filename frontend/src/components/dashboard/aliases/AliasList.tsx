@@ -43,6 +43,9 @@ export const AliasList = (props: Props) => {
   const [resetCheckBoxes, setCheckboxes] = useState(false);
   const [categoryFilters, setCategoryFilters] = useState<SelectedFilters>({});
   const [localLabels, storeLocalLabel] = useLocalLabels();
+  const [generatedAlias, setGeneratedAlias] = useState<AliasData | undefined>(
+    undefined,
+  );
   const { onboarding = false } = props;
   // When <AliasList> gets added to the page, if there's an anchor link in the
   // URL pointing to a mask, scroll to that mask:
@@ -75,14 +78,13 @@ export const AliasList = (props: Props) => {
       }
     }
     setExistingAliases(props.aliases);
-    
   }, [props.aliases, existingAliases]);
 
   if (props.aliases.length === 0) {
     return null;
   }
 
-  const aliasesWithLocalLabels = existingAliases.map((alias) => {
+  const aliasesWithLocalLabels = props.aliases.map((alias) => {
     const aliasWithLocalLabel = { ...alias };
     if (
       alias.description.length === 0 &&
@@ -108,9 +110,11 @@ export const AliasList = (props: Props) => {
     }),
   );
 
-  const findAliasDataFromPrefix = (aliasPrefix: string): AliasData | undefined => {
-    return aliases.find(alias => aliasPrefix === alias.address);
-  }
+  const findAliasDataFromPrefix = (
+    aliasPrefix: string,
+  ): AliasData | undefined => {
+    return aliases.find((alias) => aliasPrefix === alias.address);
+  };
 
   const aliasCards = aliases.map((alias) => {
     const onUpdate = (updatedFields: Partial<AliasData>) => {
@@ -157,6 +161,7 @@ export const AliasList = (props: Props) => {
             }
             runtimeData={props.runtimeData}
             isOnboarding={onboarding}
+            copyAfterMaskGeneration={generatedAlias?.id === alias.id}
           >
             {props.children}
           </MaskCard>
@@ -273,6 +278,7 @@ export const AliasList = (props: Props) => {
               onCreate={props.onCreate}
               onUpdate={props.onUpdate}
               findAliasDataFromPrefix={findAliasDataFromPrefix}
+              setGeneratedAlias={setGeneratedAlias}
             />
           </div>
         </div>

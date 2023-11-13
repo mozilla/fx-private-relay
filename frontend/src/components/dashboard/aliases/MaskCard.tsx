@@ -2,7 +2,9 @@ import {
   createContext,
   ReactElement,
   ReactNode,
+  useCallback,
   useContext,
+  useEffect,
   useId,
   useRef,
   useState,
@@ -56,6 +58,7 @@ export type Props = {
   placeholder?: string;
   isOnboarding?: boolean;
   children?: ReactNode;
+  copyAfterMaskGeneration: boolean;
 };
 
 export const MaskCard = (props: Props) => {
@@ -76,13 +79,19 @@ export const MaskCard = (props: Props) => {
   // Used to link the expandButton to the area-to-be-expanded:
   const detailsElementId = useId();
 
-  const copyAddressToClipboard = () => {
+  const copyAddressToClipboard = useCallback(() => {
     navigator.clipboard.writeText(props.mask.full_address);
     setJustCopied(true);
     setTimeout(() => {
       setJustCopied(false);
     }, 1 * 1000);
-  };
+  }, [props.mask.full_address]);
+
+  useEffect(() => {
+    if (props.copyAfterMaskGeneration) {
+      copyAddressToClipboard();
+    }
+  }, [props.copyAfterMaskGeneration, copyAddressToClipboard]);
 
   const statNumberFormatter = new Intl.NumberFormat(getLocale(l10n), {
     notation: "compact",
@@ -417,6 +426,16 @@ const BlockLevelSegmentedControl = (
     { orientation: "horizontal", ...props },
     state,
   );
+
+  // When the block level state changes externally (i.e. from the custom mask generation success modal), we need to update the block level state within the UI.
+  useEffect(() => {
+    if (props.defaultValue) {
+      state.setSelectedValue(props.defaultValue);
+    }
+    // We only want the state to change when the block level default value changes from an update within a mask generation success modal.
+    // The state itsself is for visually displaying the block level, and should not be added to the dependencies.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.defaultValue]);
 
   return (
     <div {...radioGroupProps} className={styles["block-level-control-wrapper"]}>

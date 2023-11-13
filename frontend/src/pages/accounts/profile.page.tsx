@@ -5,7 +5,6 @@ import {
   HTMLAttributes,
   ReactNode,
   RefObject,
-  useEffect,
   useRef,
 } from "react";
 import {
@@ -176,7 +175,7 @@ const Profile: NextPage = () => {
     options:
       | { mask_type: "random" }
       | { mask_type: "custom"; address: string; blockPromotionals: boolean },
-    setModalAliasCreated?: (flag: boolean) => void
+    setAliasGeneratedState?: (flag: boolean) => void,
   ) => {
     try {
       const response = await aliasData.create(options);
@@ -185,10 +184,14 @@ const Profile: NextPage = () => {
           "Immediately caught to land in the same code path as failed requests.",
         );
       }
-      if (setModalAliasCreated) { setModalAliasCreated(true); }
+      if (setAliasGeneratedState) {
+        setAliasGeneratedState(true);
+      }
       addonData.sendEvent("aliasListUpdate");
     } catch (error) {
-      setModalAliasCreated ? setModalAliasCreated(false) : toast(l10n.getString("error-mask-create-failed"), { type: "error" });
+      setAliasGeneratedState
+        ? setAliasGeneratedState(false)
+        : toast(l10n.getString("error-mask-create-failed"), { type: "error" });
     }
   };
 

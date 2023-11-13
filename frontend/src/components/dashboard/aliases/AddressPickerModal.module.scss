@@ -22,7 +22,7 @@
     padding: $spacing-md;
     outline: none;
     position: relative;
-    
+
     .invalid-address-wrapper {
       position: relative;
       width: 100%;
@@ -34,24 +34,24 @@
         visibility: visible;
         opacity: 1;
       }
-      
+
       .invalid-address-msg {
         display: flex;
         position: absolute;
         box-shadow: $box-shadow-sm;
         border-radius: 4px;
-        border-left: $border-radius-md solid color $color-error; 
+        border-left: $border-radius-md solid color $color-error;
         align-items: center;
         padding: $spacing-sm $spacing-md $spacing-sm $spacing-sm;
         background-color: #fff;
         gap: $spacing-md;
-        
+
         .left-content {
           display: flex;
           align-self: self-start;
           gap: $spacing-sm;
         }
-  
+
         .prefix-error-icon {
           flex: 0 0 auto; // Avoid shrinkage of svg icons
         }
@@ -66,11 +66,10 @@
           &:hover {
             color: $color-blue-50;
           }
-          
         }
       }
     }
-    
+
     .hero {
       @include text-title-3xs;
       font-family: $font-stack-firefox;
@@ -179,7 +178,7 @@
           outline: 5px solid $color-blue-100;
           border: 2px solid $color-blue-50;
 
-          +.wrapper  {
+          + .wrapper {
             display: initial;
           }
         }
@@ -187,27 +186,34 @@
         .wrapper {
           position: relative;
           display: none;
-          
+
           .errors {
             display: flex;
             text-align: left;
             align-items: center;
-            margin-left: $spacing-md;
-            gap: $spacing-sm; 
+            margin: 0 0 $spacing-sm $spacing-sm;
+            gap: $spacing-md;
 
             .check-icon {
-              color: $color-green-75;
+              color: $color-green-80;
               width: calc($spacing-md - $spacing-xs);
               height: calc($spacing-md - $spacing-xs);
+              flex: 0 0 auto;
+            }
+
+            .bullet-icon {
+              flex: 0 0 auto;
             }
 
             .close-icon {
               color: $color-error;
+              flex: 0 0 auto;
             }
           }
 
           .tooltip {
             display: initial;
+
             @include text-body-sm;
             $triangleWidth: 10px;
             position: absolute;
@@ -220,16 +226,16 @@
             left: 0;
             // Overlap .banner in <Banner>, which is relatively positioned:
             z-index: 1;
-        
+
             &:after {
               background-color: $color-white;
-        
+
               content: "\00a0";
               display: block;
               width: $triangleWidth;
               height: $triangleWidth;
               position: absolute;
-        
+
               top: calc(-1 * $triangleWidth / 2);
               transform: rotate(135deg);
             }
@@ -251,7 +257,7 @@
       gap: $spacing-sm;
       margin-top: $spacing-md;
 
-      p {        
+      p {
         font-weight: 700;
         color: $color-purple-60;
 
