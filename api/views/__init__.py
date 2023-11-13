@@ -31,9 +31,9 @@ from rest_framework.response import Response
 from rest_framework.views import exception_handler
 
 from allauth.account.adapter import get_adapter as get_account_adapter
+from allauth.socialaccount.adapter import get_adapter as get_social_adapter
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.helpers import complete_social_login
-from allauth.socialaccount.providers.fxa.provider import FirefoxAccountsProvider
 from django_filters import rest_framework as filters
 from waffle import flag_is_active, get_waffle_flag_model
 from waffle.models import Switch, Sample
@@ -253,7 +253,7 @@ def terms_accepted_user(request):
 
         # this is not exactly the request object that FirefoxAccountsProvider expects, but
         # it has all of the necssary attributes to initiatlize the Provider
-        provider = FirefoxAccountsProvider(request)
+        provider = get_social_adapter().get_provider(request, "fxa")
         # This may not save the new user that was created
         # https://github.com/pennersr/django-allauth/blob/77368a84903d32283f07a260819893ec15df78fb/allauth/socialaccount/providers/base/provider.py#L44
         social_login = provider.sociallogin_from_response(
