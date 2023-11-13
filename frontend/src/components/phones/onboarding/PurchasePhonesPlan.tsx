@@ -15,7 +15,7 @@ import {
   TabListState,
   useTabListState,
 } from "react-stately";
-import { Key, ReactNode, useRef } from "react";
+import { ReactNode, useRef } from "react";
 import { useTab, useTabList, useTabPanel } from "react-aria";
 import { useL10n } from "../../../hooks/l10n";
 
@@ -160,7 +160,7 @@ const PricingTabs = (props: TabListProps<object>) => {
 
 const PricingTab = (props: {
   state: TabListState<object>;
-  item: { key: Key; rendered: ReactNode };
+  item: { key: Parameters<typeof useTab>[0]["key"]; rendered: ReactNode };
 }) => {
   const tabRef = useRef(null);
   const { tabProps } = useTab({ key: props.item.key }, props.state, tabRef);
