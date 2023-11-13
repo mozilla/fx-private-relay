@@ -29,7 +29,7 @@ executors:
 jobs:
   build_frontend:
     docker:
-      - image: cimg/node:18.12
+      - image: cimg/node:18.18
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
@@ -49,7 +49,7 @@ jobs:
 
   test_frontend:
     docker:
-      - image: cimg/node:18.12
+      - image: cimg/node:18.18
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
