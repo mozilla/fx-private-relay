@@ -1902,6 +1902,8 @@ def test_replace_headers_read_error_is_handled() -> None:
     with patch.object(EmailMessage, "__getitem__", getitem_raise_on_x_fail):
         issues = _replace_headers(email, new_headers)
 
-    assert issues == {"incoming": {"X-Fail": {"exception_on_read": "I failed."}}}
+    assert issues == {
+        "incoming": {"X-Fail": {"exception_on_read": "RuntimeError('I failed.')"}}
+    }
     for name, value in new_headers.items():
         assert email[name] == value

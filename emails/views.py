@@ -913,7 +913,7 @@ def _replace_headers(
         try:
             value = email[header]
         except Exception as e:
-            issues["incoming"][header] = {"exception_on_read": str(e)}
+            issues["incoming"][header] = {"exception_on_read": repr(e)}
             value = None
         if getattr(value, "defects", None):
             issues["incoming"][header] = {
@@ -942,12 +942,12 @@ def _replace_headers(
         try:
             email[header] = value
         except Exception as e:
-            issues["outgoing"][header] = {"exception_on_write": str(e), "value": value}
+            issues["outgoing"][header] = {"exception_on_write": repr(e), "value": value}
             continue
         try:
             parsed_value = email[header]
         except Exception as e:
-            issues["outgoing"][header] = {"exception_on_read": str(e)}
+            issues["outgoing"][header] = {"exception_on_read": repr(e)}
             continue
         if parsed_value.defects:
             issues["outgoing"][header] = {
