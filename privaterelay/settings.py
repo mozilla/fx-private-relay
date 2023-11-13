@@ -517,6 +517,7 @@ SOCIALACCOUNT_PROVIDERS = {
         "PROFILE_ENDPOINT": config(
             "FXA_PROFILE_ENDPOINT", "https://profile.accounts.firefox.com/v1"
         ),
+        "VERIFIED_EMAIL": True,  # Assume FxA primary email is verified
     }
 }
 
