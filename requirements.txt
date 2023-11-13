@@ -38,7 +38,7 @@ vobject==0.9.6.1
 coverage==7.3.2
 model-bakery==1.17.0
 pytest-cov==4.1.0
-pytest-django==4.6.0
+pytest-django==4.7.0
 responses==0.24.0
 
 # linting
