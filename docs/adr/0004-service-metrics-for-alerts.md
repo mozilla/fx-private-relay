@@ -70,12 +70,17 @@ Relay ENGR are "alerted" to service issues by a few channels:
   - QA-reported issues in [#fx-private-relay-eng](https://mozilla.slack.com/archives/C013CSYEL5T)
     and [#relay-team](https://mozilla.slack.com/archives/G01CAHTUJ9L)
 
-[example | description | pointer to more information | …] <!-- optional -->
+#### Formalize
 
-- Good, because [argument a]
-- Good, because [argument b]
-- Bad, because [argument c]
-- … <!-- numbers of pros and cons can vary -->
+1. Standardize on the `#relay-alerts` channel as the primary alert channel.
+
+#### Improve
+
+1. Reduce the Sentry "noise" alerts - especially single-event issues like
+   `OperationalError`, `InterfaceError`, and `SystemExit` events.
+2. Instruct CX and QA to use the `#relay-alerts` channel for high-severity production
+   issues.
+   - Note: define "high severity"
 
 ### [option 2]
 
