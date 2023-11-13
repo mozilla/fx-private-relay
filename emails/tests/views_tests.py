@@ -33,7 +33,7 @@ from emails.models import (
     address_hash,
     get_domains_from_settings,
 )
-from emails.types import AWS_SNSMessageJSON
+from emails.types import AWS_SNSMessageJSON, OutgoingHeaders
 from emails.utils import (
     b64_lookup_key,
     decrypt_reply_metadata,
@@ -48,6 +48,7 @@ from emails.views import (
     _get_address,
     _get_keys_from_headers,
     _record_receipt_verdicts,
+    _replace_headers,
     _set_forwarded_first_reply,
     _sns_message,
     _sns_notification,
@@ -1872,3 +1873,35 @@ def test_get_keys_from_headers_references_reply_dne():
     headers = [{"name": "References", "value": msg_ids}]
     with pytest.raises(Reply.DoesNotExist):
         _get_keys_from_headers(headers)
+
+
+def test_replace_headers_read_error_is_handled() -> None:
+    """A header that errors on read is added to issues."""
+    email_text = EMAIL_INCOMING["plain_text"]
+    email = message_from_string(email_text, policy=relay_policy)
+    assert isinstance(email, EmailMessage)
+    new_headers: OutgoingHeaders = {
+        "Subject": "Error Handling Test",
+        "From": "from@example.com",
+        "To": "to@example.com",
+    }
+    for name, value in new_headers.items():
+        assert email[name] != value
+    email["X-Fail"] = "I am OK"  # Do not fail initial parsing
+
+    def getitem_raise_on_x_fail(self, name):
+        """
+        Message.__getitem__ that raises for X-Fail header
+
+        https://github.com/python/cpython/blob/babb787047e0f7807c8238d3b1a3128dac30bd5c/Lib/email/message.py#L409-L418
+        """
+        if name == "X-Fail":
+            raise RuntimeError("I failed.")
+        return self.get(name)
+
+    with patch.object(EmailMessage, "__getitem__", getitem_raise_on_x_fail):
+        issues = _replace_headers(email, new_headers)
+
+    assert issues == {"incoming": {"X-Fail": {"exception_on_read": "I failed."}}}
+    for name, value in new_headers.items():
+        assert email[name] == value
