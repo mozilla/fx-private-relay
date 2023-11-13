@@ -1,4 +1,4 @@
-import { Key, ReactNode, useRef, useState } from "react";
+import { ReactNode, useRef, useState } from "react";
 import { useTab, useTabList, useTabPanel } from "react-aria";
 import { Item, TabListState, useTabListState } from "react-stately";
 import { event as gaEvent } from "react-ga";
@@ -43,7 +43,7 @@ export const WhatsNewDashboard = (props: Props) => {
     });
   };
 
-  const onSelectionChange = (key: Key) => {
+  const onSelectionChange: TabProps["onSelectionChange"] = (key) => {
     // If the user was currently viewing a single news entry, close it:
     setExpandedEntry(undefined);
 
@@ -170,7 +170,7 @@ const Tabs = (props: TabProps) => {
 
 type SwitchTabProps = {
   item: {
-    key: Key;
+    key: Parameters<typeof useTab>[0]["key"];
     rendered: ReactNode;
   };
   state: TabListState<object>;

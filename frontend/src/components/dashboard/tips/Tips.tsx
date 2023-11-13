@@ -1,11 +1,4 @@
-import {
-  useRef,
-  Key,
-  ReactNode,
-  useState,
-  useCallback,
-  RefObject,
-} from "react";
+import { useRef, ReactNode, useState, useCallback, RefObject } from "react";
 import Link from "next/link";
 import { useTabList, useTabPanel, useTab } from "react-aria";
 import { useTabListState, TabListState, Item } from "react-stately";
@@ -271,7 +264,7 @@ const TipsCarousel = (props: Parameters<typeof useTabListState>[0]) => {
 
 type PanelDotProps = {
   item: {
-    key: Key;
+    key: Parameters<typeof useTab>[0]["key"];
     rendered: ReactNode;
     index?: number;
   };
