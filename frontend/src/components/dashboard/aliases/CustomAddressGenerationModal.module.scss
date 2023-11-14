@@ -39,7 +39,7 @@
         display: flex;
         position: absolute;
         box-shadow: $box-shadow-sm;
-        border-radius: 4px;
+        border-radius: $border-radius-sm;
         border-left: $border-radius-md solid color $color-error;
         align-items: center;
         padding: $spacing-sm $spacing-md $spacing-sm $spacing-sm;
@@ -175,7 +175,7 @@
         }
 
         input:focus {
-          outline: 5px solid $color-blue-100;
+          outline: 5px solid rgba($color-informational, 0.4);
           border: 2px solid $color-blue-50;
 
           + .wrapper {
@@ -229,13 +229,15 @@
             &:after {
               background-color: $color-white;
 
-              content: "\00a0";
+              content: "\00a0"; // Empty space to render the pseudo element for the tooltip triangle pointer
               display: block;
               width: $triangleWidth;
               height: $triangleWidth;
               position: absolute;
 
-              top: calc(-1 * $triangleWidth / 2);
+              top: calc(
+                -1 * $triangleWidth / 2
+              ); // Moves the 'triangle' pointer above the tooltip
               transform: rotate(135deg);
             }
           }
