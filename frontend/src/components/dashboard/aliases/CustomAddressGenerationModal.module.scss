@@ -1,6 +1,6 @@
-@import "../../../styles/tokens.scss";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 @import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+@import "../../../styles/tokens.scss";
 
 .underlay {
   position: fixed;
@@ -20,6 +20,55 @@
     border-radius: $border-radius-md;
     box-shadow: $box-shadow-sm;
     padding: $spacing-md;
+    outline: none;
+    position: relative;
+
+    .invalid-address-wrapper {
+      position: relative;
+      width: 100%;
+      visibility: hidden;
+      opacity: 0;
+      transition: all 0.6s ease;
+
+      &.active {
+        visibility: visible;
+        opacity: 1;
+      }
+
+      .invalid-address-msg {
+        display: flex;
+        position: absolute;
+        box-shadow: $box-shadow-sm;
+        border-radius: 4px;
+        border-left: $border-radius-md solid color $color-error;
+        align-items: center;
+        padding: $spacing-sm $spacing-md $spacing-sm $spacing-sm;
+        background-color: #fff;
+        gap: $spacing-md;
+
+        .left-content {
+          display: flex;
+          align-self: self-start;
+          gap: $spacing-sm;
+        }
+
+        .prefix-error-icon {
+          flex: 0 0 auto; // Avoid shrinkage of svg icons
+        }
+
+        .prefix-error-icon.close-button {
+          background-color: transparent;
+          border-style: none;
+          border-radius: $border-radius-sm;
+          cursor: pointer;
+          color: $color-grey-30;
+
+          &:hover {
+            color: $color-blue-50;
+          }
+        }
+      }
+    }
 
     .hero {
       @include text-title-3xs;
@@ -101,6 +150,13 @@
           margin-top: $spacing-xl;
         }
 
+        .profile-registered-domain-value {
+          color: $color-blue-50;
+          word-break: break-word;
+          margin-top: $spacing-md;
+          margin-bottom: $spacing-2xl;
+        }
+
         input {
           @include form-input;
           // Override form-input's margin:
@@ -111,6 +167,78 @@
           font-family: $font-stack-base;
 
           @include text-body-sm;
+
+          &.invalid-prefix:focus {
+            outline: 5px solid $color-red-10;
+            border: 2px solid $color-error;
+          }
+        }
+
+        input:focus {
+          outline: 5px solid $color-blue-100;
+          border: 2px solid $color-blue-50;
+
+          + .wrapper {
+            display: initial;
+          }
+        }
+
+        .wrapper {
+          position: relative;
+          display: none;
+
+          .errors {
+            display: flex;
+            text-align: left;
+            align-items: center;
+            margin: 0 0 $spacing-sm $spacing-sm;
+            gap: $spacing-md;
+
+            .error-icons {
+              min-width: $spacing-md;
+              flex: 0 0 auto;
+            }
+
+            .check-icon {
+              color: $color-green-80;
+              width: calc($spacing-md - $spacing-xs);
+              height: calc($spacing-md - $spacing-xs);
+            }
+
+            .close-icon {
+              color: $color-error;
+            }
+          }
+
+          .tooltip {
+            display: initial;
+
+            @include text-body-sm;
+            $triangleWidth: 10px;
+            position: absolute;
+            background-color: $color-white;
+            box-shadow: $box-shadow-sm;
+            border-radius: $border-radius-sm;
+            padding: $spacing-md;
+            width: 100%;
+            margin-top: $triangleWidth;
+            left: 0;
+            // Overlap .banner in <Banner>, which is relatively positioned:
+            z-index: 1;
+
+            &:after {
+              background-color: $color-white;
+
+              content: "\00a0";
+              display: block;
+              width: $triangleWidth;
+              height: $triangleWidth;
+              position: absolute;
+
+              top: calc(-1 * $triangleWidth / 2);
+              transform: rotate(135deg);
+            }
+          }
         }
       }
 
@@ -118,6 +246,21 @@
         font-family: $font-stack-firefox;
         display: block;
         padding-top: $spacing-xs;
+      }
+    }
+
+    .newly-created-mask {
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+      gap: $spacing-sm;
+      margin-top: $spacing-md;
+
+      p {
+        font-weight: 700;
+        color: $color-purple-60;
+
+        @include text-body-lg;
       }
     }
 
@@ -138,7 +281,7 @@
       input[type="checkbox"] {
         width: 20px;
         height: 20px;
-        border: 2px solid $color-grey-20;
+        border: 2px solid $color-grey-40;
         border-radius: $border-radius-sm;
         -webkit-appearance: none;
       }
@@ -172,7 +315,7 @@
         padding-top: $spacing-xl;
       }
 
-      .cancel-button {
+      .end-button {
         border-style: none;
         background-color: transparent;
         cursor: pointer;

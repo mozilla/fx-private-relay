@@ -38,8 +38,10 @@ import { getRuntimeConfig } from "../../../config";
 import { RuntimeData } from "../../../hooks/api/runtimeData";
 import { isPeriodicalPremiumAvailableInCountry } from "../../../functions/getPlan";
 import { useGaViewPing } from "../../../hooks/gaViewPing";
-import { AddressPickerModal } from "./AddressPickerModal";
+import { CustomAddressGenerationModal } from "./CustomAddressGenerationModal";
 import { useL10n } from "../../../hooks/l10n";
+import { isFlagActive } from "../../../functions/waffle";
+import { AddressPickerModal } from "./AddressPickerModal";
 
 export type Props = {
   aliases: AliasData[];
@@ -114,6 +116,7 @@ export const AliasGenerationButton = (props: Props) => {
         subdomain={props.profile.subdomain}
         findAliasDataFromPrefix={props.findAliasDataFromPrefix}
         setGeneratedAlias={props.setGeneratedAlias}
+        runtimeData={props.runtimeData}
       />
     );
   }
@@ -140,6 +143,7 @@ type AliasTypeMenuProps = {
   onUpdate: (alias: AliasData, updatedFields: Partial<AliasData>) => void;
   findAliasDataFromPrefix: (aliasPrefix: string) => AliasData | undefined;
   setGeneratedAlias: (alias: AliasData | undefined) => void;
+  runtimeData?: RuntimeData;
 };
 const AliasTypeMenu = (props: AliasTypeMenuProps) => {
   const l10n = useL10n();
@@ -172,6 +176,18 @@ const AliasTypeMenu = (props: AliasTypeMenuProps) => {
     );
   };
 
+  const onPickNonRedesign = (
+    address: string,
+    settings: { blockPromotionals: boolean },
+  ) => {
+    props.onCreate({
+      mask_type: "custom",
+      address: address,
+      blockPromotionals: settings.blockPromotionals,
+    });
+    modalState.close();
+  };
+
   const onSuccessClose = (
     aliasToUpdate: AliasData | undefined,
     blockPromotions: boolean,
@@ -190,15 +206,24 @@ const AliasTypeMenu = (props: AliasTypeMenuProps) => {
   };
 
   const dialog = modalState.isOpen ? (
-    <AddressPickerModal
-      isOpen={modalState.isOpen}
-      onClose={() => modalState.close()}
-      onUpdate={onSuccessClose}
-      onPick={onPick}
-      subdomain={props.subdomain}
-      aliasGeneratedState={aliasGeneratedState}
-      findAliasDataFromPrefix={props.findAliasDataFromPrefix}
-    />
+    isFlagActive(props.runtimeData, "custom_domain_management_redesign") ? (
+      <CustomAddressGenerationModal
+        isOpen={modalState.isOpen}
+        onClose={() => modalState.close()}
+        onUpdate={onSuccessClose}
+        onPick={onPick}
+        subdomain={props.subdomain}
+        aliasGeneratedState={aliasGeneratedState}
+        findAliasDataFromPrefix={props.findAliasDataFromPrefix}
+      />
+    ) : (
+      <AddressPickerModal
+        isOpen={modalState.isOpen}
+        onClose={() => modalState.close()}
+        onPick={onPickNonRedesign}
+        subdomain={props.subdomain}
+      />
+    )
   ) : null;
 
   useEffect(() => {
