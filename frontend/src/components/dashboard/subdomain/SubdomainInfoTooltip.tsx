@@ -206,11 +206,7 @@ const ExplainerTrigger = (props: ExplainerTriggerProps) => {
               ref={closeButtonRef}
               className={styles["close-button"]}
             >
-              <CloseIcon
-                alt={l10n.getString(
-                  "popover-custom-alias-explainer-close-button-label",
-                )}
-              />
+              <CloseIcon alt={l10n.getString("close-button-label-alt")} />
             </button>
           </Explainer>
         </OverlayContainer>

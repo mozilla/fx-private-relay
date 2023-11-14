@@ -1,0 +1,338 @@
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+@import "../../../styles/tokens.scss";
+
+.underlay {
+  position: fixed;
+  background-color: rgba($color-black, 0.4);
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .dialog-wrapper {
+    background: $color-white;
+    width: calc((#{$content-sm} + #{$content-md}) / 2); // 560px
+    max-width: 90%;
+    border-radius: $border-radius-md;
+    box-shadow: $box-shadow-sm;
+    padding: $spacing-md;
+    outline: none;
+    position: relative;
+
+    .invalid-address-wrapper {
+      position: relative;
+      width: 100%;
+      visibility: hidden;
+      opacity: 0;
+      transition: all 0.6s ease;
+
+      &.active {
+        visibility: visible;
+        opacity: 1;
+      }
+
+      .invalid-address-msg {
+        display: flex;
+        position: absolute;
+        box-shadow: $box-shadow-sm;
+        border-radius: $border-radius-sm;
+        border-left: $border-radius-md solid color $color-error;
+        align-items: center;
+        padding: $spacing-sm $spacing-md $spacing-sm $spacing-sm;
+        background-color: #fff;
+        gap: $spacing-md;
+
+        .left-content {
+          display: flex;
+          align-self: self-start;
+          gap: $spacing-sm;
+        }
+
+        .prefix-error-icon {
+          flex: 0 0 auto; // Avoid shrinkage of svg icons
+        }
+
+        .prefix-error-icon.close-button {
+          background-color: transparent;
+          border-style: none;
+          border-radius: $border-radius-sm;
+          cursor: pointer;
+          color: $color-grey-30;
+
+          &:hover {
+            color: $color-blue-50;
+          }
+        }
+      }
+    }
+
+    .hero {
+      @include text-title-3xs;
+      font-family: $font-stack-firefox;
+      font-weight: 700;
+      text-align: center;
+      border-radius: $border-radius-md;
+      background-color: $color-light-gray-10;
+      padding: $spacing-md $spacing-sm;
+
+      @media screen and #{$mq-sm} {
+        padding: $spacing-lg $spacing-md;
+      }
+    }
+
+    .tip {
+      display: flex;
+      gap: $spacing-sm;
+      word-break: break-word;
+      border-left: 2px solid $color-violet-30;
+      margin: 0 auto;
+      width: 85%;
+      padding-left: $spacing-sm;
+      font-family: $font-stack-base;
+      font-weight: 400;
+      color: $color-grey-50;
+
+      @include text-body-sm;
+
+      .tip-icon {
+        // There is limited space on the mask creation modal on mobile.
+        // Hiding this icon until larger screens increases the available space for copy.
+        display: none;
+        color: $color-pink-30;
+
+        @media screen and #{$mq-sm} {
+          display: block;
+        }
+
+        svg {
+          max-width: unset;
+        }
+      }
+    }
+
+    hr {
+      border: 1px solid $color-light-gray-20;
+      margin-top: $spacing-lg;
+
+      @media screen and #{$mq-sm} {
+        margin-top: $spacing-xl;
+      }
+    }
+
+    .form-wrapper {
+      text-align: center;
+
+      .form-heading {
+        color: $color-dark-gray-70;
+        padding: $spacing-md 0;
+
+        @media screen and #{$mq-sm} {
+          padding: $spacing-lg 0;
+        }
+      }
+
+      .prefix {
+        font-family: $font-stack-firefox;
+        color: $color-grey-50;
+        width: 70%;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+
+        label {
+          text-align: start;
+          font-weight: 600;
+          margin-top: $spacing-xl;
+        }
+
+        .profile-registered-domain-value {
+          color: $color-blue-50;
+          word-break: break-word;
+          margin-top: $spacing-md;
+          margin-bottom: $spacing-2xl;
+        }
+
+        input {
+          @include form-input;
+          // Override form-input's margin:
+          margin: $spacing-sm 0 0 0;
+          font-weight: 400;
+          padding: $spacing-sm;
+          color: $color-grey-40;
+          font-family: $font-stack-base;
+
+          @include text-body-sm;
+
+          &.invalid-prefix:focus {
+            outline: 5px solid $color-red-10;
+            border: 2px solid $color-error;
+          }
+        }
+
+        input:focus {
+          outline: 5px solid rgba($color-informational, 0.4);
+          border: 2px solid $color-blue-50;
+
+          + .wrapper {
+            display: initial;
+          }
+        }
+
+        .wrapper {
+          position: relative;
+          display: none;
+
+          .errors {
+            display: flex;
+            text-align: left;
+            align-items: center;
+            margin: 0 0 $spacing-sm $spacing-sm;
+            gap: $spacing-md;
+
+            .error-icons {
+              min-width: $spacing-md;
+              flex: 0 0 auto;
+            }
+
+            .check-icon {
+              color: $color-green-80;
+              width: calc($spacing-md - $spacing-xs);
+              height: calc($spacing-md - $spacing-xs);
+            }
+
+            .close-icon {
+              color: $color-error;
+            }
+          }
+
+          .tooltip {
+            display: initial;
+
+            @include text-body-sm;
+            $triangleWidth: 10px;
+            position: absolute;
+            background-color: $color-white;
+            box-shadow: $box-shadow-sm;
+            border-radius: $border-radius-sm;
+            padding: $spacing-md;
+            width: 100%;
+            margin-top: $triangleWidth;
+            left: 0;
+            // Overlap .banner in <Banner>, which is relatively positioned:
+            z-index: 1;
+
+            &:after {
+              background-color: $color-white;
+
+              content: "\00a0"; // Empty space to render the pseudo element for the tooltip triangle pointer
+              display: block;
+              width: $triangleWidth;
+              height: $triangleWidth;
+              position: absolute;
+
+              top: calc(
+                -1 * $triangleWidth / 2
+              ); // Moves the 'triangle' pointer above the tooltip
+              transform: rotate(135deg);
+            }
+          }
+        }
+      }
+
+      .suffix {
+        font-family: $font-stack-firefox;
+        display: block;
+        padding-top: $spacing-xs;
+      }
+    }
+
+    .newly-created-mask {
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+      gap: $spacing-sm;
+      margin-top: $spacing-md;
+
+      p {
+        font-weight: 700;
+        color: $color-purple-60;
+
+        @include text-body-lg;
+      }
+    }
+
+    .promotionals-blocking-control {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: $spacing-sm;
+      margin: $spacing-md $spacing-sm;
+      font-family: $font-stack-firefox;
+      color: $color-grey-50;
+      font-weight: 600;
+
+      @media screen and #{$mq-sm} {
+        margin: $spacing-xl $spacing-sm;
+      }
+
+      input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        border: 2px solid $color-grey-40;
+        border-radius: $border-radius-sm;
+        -webkit-appearance: none;
+      }
+
+      input[type="checkbox"]:checked {
+        background-color: $color-blue-50;
+        border-color: $color-blue-50;
+        appearance: checkbox;
+      }
+
+      .promotionals-blocking-description {
+        a {
+          display: block;
+          color: $color-blue-50;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+
+    .buttons {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: $spacing-lg;
+
+      @media screen and #{$mq-sm} {
+        padding-top: $spacing-xl;
+      }
+
+      .end-button {
+        border-style: none;
+        background-color: transparent;
+        cursor: pointer;
+        border-radius: $border-radius-sm;
+        color: $color-blue-50;
+        padding: $spacing-sm 0;
+
+        &:hover {
+          color: $color-link-hover;
+        }
+
+        &:focus {
+          color: $color-blue-50;
+        }
+      }
+    }
+  }
+}

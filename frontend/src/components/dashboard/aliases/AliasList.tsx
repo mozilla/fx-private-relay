@@ -43,6 +43,9 @@ export const AliasList = (props: Props) => {
   const [resetCheckBoxes, setCheckboxes] = useState(false);
   const [categoryFilters, setCategoryFilters] = useState<SelectedFilters>({});
   const [localLabels, storeLocalLabel] = useLocalLabels();
+  const [generatedAlias, setGeneratedAlias] = useState<AliasData | undefined>(
+    undefined,
+  );
   const { onboarding = false } = props;
   // When <AliasList> gets added to the page, if there's an anchor link in the
   // URL pointing to a mask, scroll to that mask:
@@ -107,6 +110,12 @@ export const AliasList = (props: Props) => {
     }),
   );
 
+  const findAliasDataFromPrefix = (
+    aliasPrefix: string,
+  ): AliasData | undefined => {
+    return aliases.find((alias) => aliasPrefix === alias.address);
+  };
+
   const aliasCards = aliases.map((alias) => {
     const onUpdate = (updatedFields: Partial<AliasData>) => {
       if (
@@ -152,6 +161,7 @@ export const AliasList = (props: Props) => {
             }
             runtimeData={props.runtimeData}
             isOnboarding={onboarding}
+            copyAfterMaskGeneration={generatedAlias?.id === alias.id}
           >
             {props.children}
           </MaskCard>
@@ -266,6 +276,9 @@ export const AliasList = (props: Props) => {
               profile={props.profile}
               runtimeData={props.runtimeData}
               onCreate={props.onCreate}
+              onUpdate={props.onUpdate}
+              findAliasDataFromPrefix={findAliasDataFromPrefix}
+              setGeneratedAlias={setGeneratedAlias}
             />
           </div>
         </div>

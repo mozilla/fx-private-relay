@@ -21,7 +21,14 @@ import {
   useOverlayTriggerState,
   useTreeState,
 } from "react-stately";
-import { HTMLAttributes, Key, ReactNode, useRef, useState } from "react";
+import {
+  HTMLAttributes,
+  Key,
+  ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import styles from "./AliasGenerationButton.module.scss";
 import { ArrowDownIcon, PlusIcon } from "../../Icons";
 import { ProfileData } from "../../../hooks/api/profile";
@@ -31,8 +38,10 @@ import { getRuntimeConfig } from "../../../config";
 import { RuntimeData } from "../../../hooks/api/runtimeData";
 import { isPeriodicalPremiumAvailableInCountry } from "../../../functions/getPlan";
 import { useGaViewPing } from "../../../hooks/gaViewPing";
-import { AddressPickerModal } from "./AddressPickerModal";
+import { CustomAddressGenerationModal } from "./CustomAddressGenerationModal";
 import { useL10n } from "../../../hooks/l10n";
+import { isFlagActive } from "../../../functions/waffle";
+import { AddressPickerModal } from "./AddressPickerModal";
 
 export type Props = {
   aliases: AliasData[];
@@ -42,7 +51,11 @@ export type Props = {
     options:
       | { mask_type: "random" }
       | { mask_type: "custom"; address: string; blockPromotionals: boolean },
+    setAliasGeneratedState?: (flag: boolean) => void,
   ) => void;
+  onUpdate: (alias: AliasData, updatedFields: Partial<AliasData>) => void;
+  findAliasDataFromPrefix: (aliasPrefix: string) => AliasData | undefined;
+  setGeneratedAlias: (alias: AliasData | undefined) => void;
 };
 
 /**
@@ -99,7 +112,11 @@ export const AliasGenerationButton = (props: Props) => {
     return (
       <AliasTypeMenu
         onCreate={props.onCreate}
+        onUpdate={props.onUpdate}
         subdomain={props.profile.subdomain}
+        findAliasDataFromPrefix={props.findAliasDataFromPrefix}
+        setGeneratedAlias={props.setGeneratedAlias}
+        runtimeData={props.runtimeData}
       />
     );
   }
@@ -121,11 +138,17 @@ type AliasTypeMenuProps = {
     options:
       | { mask_type: "random" }
       | { mask_type: "custom"; address: string; blockPromotionals: boolean },
+    setAliasGeneratedState?: (flag: boolean) => void,
   ) => void;
+  onUpdate: (alias: AliasData, updatedFields: Partial<AliasData>) => void;
+  findAliasDataFromPrefix: (aliasPrefix: string) => AliasData | undefined;
+  setGeneratedAlias: (alias: AliasData | undefined) => void;
+  runtimeData?: RuntimeData;
 };
 const AliasTypeMenu = (props: AliasTypeMenuProps) => {
   const l10n = useL10n();
   const modalState = useOverlayTriggerState({});
+  const [aliasGeneratedState, setAliasGeneratedState] = useState(false);
 
   const onAction = (key: Key) => {
     if (key === "random") {
@@ -137,7 +160,23 @@ const AliasTypeMenu = (props: AliasTypeMenuProps) => {
     }
   };
 
-  const onPick = (
+  const onPick = (address: string, setErrorState: (flag: boolean) => void) => {
+    props.onCreate(
+      {
+        mask_type: "custom",
+        address: address,
+        blockPromotionals: false,
+      },
+      (isCreated: boolean) => {
+        setAliasGeneratedState(isCreated);
+        if (!isCreated) {
+          setErrorState(true);
+        } // Shows the error banner within the modal
+      },
+    );
+  };
+
+  const onPickNonRedesign = (
     address: string,
     settings: { blockPromotionals: boolean },
   ) => {
@@ -149,14 +188,49 @@ const AliasTypeMenu = (props: AliasTypeMenuProps) => {
     modalState.close();
   };
 
+  const onSuccessClose = (
+    aliasToUpdate: AliasData | undefined,
+    blockPromotions: boolean,
+    copyToClipboard: boolean | undefined,
+  ) => {
+    if (aliasToUpdate && blockPromotions) {
+      props.onUpdate(aliasToUpdate, {
+        enabled: true,
+        block_list_emails: blockPromotions,
+      });
+    }
+    if (copyToClipboard) {
+      props.setGeneratedAlias(aliasToUpdate);
+    }
+    modalState.close();
+  };
+
   const dialog = modalState.isOpen ? (
-    <AddressPickerModal
-      isOpen={modalState.isOpen}
-      onClose={() => modalState.close()}
-      onPick={onPick}
-      subdomain={props.subdomain}
-    />
+    isFlagActive(props.runtimeData, "custom_domain_management_redesign") ? (
+      <CustomAddressGenerationModal
+        isOpen={modalState.isOpen}
+        onClose={() => modalState.close()}
+        onUpdate={onSuccessClose}
+        onPick={onPick}
+        subdomain={props.subdomain}
+        aliasGeneratedState={aliasGeneratedState}
+        findAliasDataFromPrefix={props.findAliasDataFromPrefix}
+      />
+    ) : (
+      <AddressPickerModal
+        isOpen={modalState.isOpen}
+        onClose={() => modalState.close()}
+        onPick={onPickNonRedesign}
+        subdomain={props.subdomain}
+      />
+    )
   ) : null;
+
+  useEffect(() => {
+    if (!modalState.isOpen) {
+      setAliasGeneratedState(false);
+    }
+  }, [modalState]);
 
   return (
     <>
