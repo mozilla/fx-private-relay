@@ -141,7 +141,7 @@ else:
         # When CSP rules fail in Chrome, it provides the sha256 hash that would
         # have matched.
         the_hash = base64.b64encode(sha256(content).digest()).decode()
-        hashes.append("'sha256-%s'" % the_hash)
+        hashes.append(f"'sha256-{the_hash}'")
 
         # The sourceMappingURL comment is slightly different when loaded dynamically
         # in next 14.0.0. Capture the hash for alternate comment.
@@ -149,14 +149,14 @@ else:
             space_content = content[:-2] + b" " + content[-2:]
             assert space_content.endswith(b"map */")
             space_hash = base64.b64encode(sha256(space_content).digest()).decode()
-            hashes.append("'sha256-%s'" % space_hash)
+            hashes.append(f"'sha256-{space_hash}%s'")
     hashes.sort()
     csp_style_values.extend(hashes)
 
     # Add the hash for an empty string (sha256-47DEQp...)
     # next 14.0.0 injects an empty style element and then adds the content
     empty_hash = base64.b64encode(sha256().digest()).decode()
-    csp_style_values.append("'sha256-%s'" % empty_hash)
+    csp_style_values.append(f"'sha256-{empty_hash}'")
 
 
 CSP_STYLE_SRC = tuple(csp_style_values)
