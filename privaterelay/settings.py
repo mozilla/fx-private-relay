@@ -143,8 +143,8 @@ else:
         the_hash = base64.b64encode(sha256(content).digest()).decode()
         hashes.append("'sha256-%s'" % the_hash)
 
-        # The sourceMappingURL is slightly different when loaded dynamically
-        # in next 14.0.0. Capture hash for alternate.
+        # The sourceMappingURL comment is slightly different when loaded dynamically
+        # in next 14.0.0. Capture the hash for alternate comment.
         if content.endswith(b"map*/"):
             space_content = content[:-2] + b" " + content[-2:]
             assert space_content.endswith(b"map */")
@@ -152,6 +152,12 @@ else:
             hashes.append("'sha256-%s'" % space_hash)
     hashes.sort()
     csp_style_values.extend(hashes)
+
+    # Add the hash for an empty string (sha256-47DEQp...)
+    # next 14.0.0 injects an empty style element and then adds the content
+    empty_hash = base64.b64encode(sha256().digest()).decode()
+    csp_style_values.append("'sha256-%s'" % empty_hash)
+
 
 CSP_STYLE_SRC = tuple(csp_style_values)
 
