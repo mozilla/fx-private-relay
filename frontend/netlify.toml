@@ -18,4 +18,4 @@
   # Default build command.
   command = "npm install; npm run build:mocked"
 
-  environment = { NODE_VERSION = "18.12.1", NPM_VERSION = "8.19.2" }
+  environment = { NODE_VERSION = "18.18.2", NPM_VERSION = "9.8.1" }
