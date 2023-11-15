@@ -142,12 +142,6 @@ else:
         the_hash = base64.b64encode(sha256(content).digest()).decode()
         csp_style_values.append("'sha256-%s'" % the_hash)
 
-        # If the file ends in a newline, add the version without it
-        if content[-1] == ord("\n"):
-            content2 = content[0:-1]
-            hash2 = base64.b64encode(sha256(content).digest()).decode()
-            csp_style_values.append("'sha256-%s'" % hash2)
-
 CSP_STYLE_SRC = tuple(csp_style_values)
 
 CSP_IMG_SRC = ["'self'"] + AVATAR_IMG_SRC
