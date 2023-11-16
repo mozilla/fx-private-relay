@@ -42,6 +42,8 @@ EmailHeaderIssue = (
     | EmailHeaderDefectIssue
 )
 
-EmailHeaderIssues = dict[Literal["incoming", "outgoing"], dict[str, EmailHeaderIssue]]
+EmailHeaderIssues = dict[
+    Literal["incoming", "outgoing"], list[tuple[str, EmailHeaderIssue]]
+]
 
 EmailForwardingIssues = dict[Literal["headers"], EmailHeaderIssues]

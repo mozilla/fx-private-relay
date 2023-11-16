@@ -906,21 +906,26 @@ def _replace_headers(
     # Look for headers to drop
     to_drop: list[str] = []
     replacements: set[str] = set(_k.lower() for _k in headers.keys())
-    issues: EmailHeaderIssues = defaultdict(dict)
+    issues: EmailHeaderIssues = defaultdict(list)
 
     # Detect non-compliant headers in incoming emails
     for header in email.keys():
         try:
             value = email[header]
         except Exception as e:
-            issues["incoming"][header] = {"exception_on_read": str(e)}
+            issues["incoming"].append((header, {"exception_on_read": repr(e)}))
             value = None
         if getattr(value, "defects", None):
-            issues["incoming"][header] = {
-                "defect_count": len(value.defects),
-                "parsed_value": str(value),
-                "unstructured_value": str(value.as_unstructured),
-            }
+            issues["incoming"].append(
+                (
+                    header,
+                    {
+                        "defect_count": len(value.defects),
+                        "parsed_value": str(value),
+                        "unstructured_value": str(value.as_unstructured),
+                    },
+                )
+            )
 
     # Collect headers that will not be forwarded
     for header in email.keys():
@@ -942,19 +947,26 @@ def _replace_headers(
         try:
             email[header] = value
         except Exception as e:
-            issues["outgoing"][header] = {"exception_on_write": str(e), "value": value}
+            issues["outgoing"].append(
+                (header, {"exception_on_write": repr(e), "value": value})
+            )
             continue
         try:
             parsed_value = email[header]
         except Exception as e:
-            issues["outgoing"][header] = {"exception_on_read": str(e)}
+            issues["outgoing"].append((header, {"exception_on_read": repr(e)}))
             continue
         if parsed_value.defects:
-            issues["outgoing"][header] = {
-                "defect_count": len(parsed_value.defects),
-                "parsed_value": str(parsed_value),
-                "unstructured_value": str(parsed_value.as_unstructured),
-            }
+            issues["outgoing"].append(
+                (
+                    header,
+                    {
+                        "defect_count": len(parsed_value.defects),
+                        "parsed_value": str(parsed_value),
+                        "unstructured_value": str(parsed_value.as_unstructured),
+                    },
+                )
+            )
 
     return dict(issues)
 

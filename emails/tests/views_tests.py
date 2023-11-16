@@ -33,7 +33,7 @@ from emails.models import (
     address_hash,
     get_domains_from_settings,
 )
-from emails.types import AWS_SNSMessageJSON
+from emails.types import AWS_SNSMessageJSON, OutgoingHeaders
 from emails.utils import (
     b64_lookup_key,
     decrypt_reply_metadata,
@@ -48,6 +48,7 @@ from emails.views import (
     _get_address,
     _get_keys_from_headers,
     _record_receipt_verdicts,
+    _replace_headers,
     _set_forwarded_first_reply,
     _sns_message,
     _sns_notification,
@@ -748,19 +749,22 @@ class SNSNotificationTest(TestCase):
         _, _, _, mail = self.get_details_from_mock_send_raw_email()
         assert_email_equals(mail, "emperor_norton", replace_mime_boundaries=True)
         expected_header_errors = {
-            "incoming": {
-                "From": {
-                    "defect_count": 4,
-                    "parsed_value": (
-                        '"Norton I.", Emperor of the United States'
-                        " <norton@sf.us.example.com>"
-                    ),
-                    "unstructured_value": (
-                        "Norton I., Emperor of the United States"
-                        " <norton@sf.us.example.com>"
-                    ),
-                }
-            }
+            "incoming": [
+                (
+                    "From",
+                    {
+                        "defect_count": 4,
+                        "parsed_value": (
+                            '"Norton I.", Emperor of the United States'
+                            " <norton@sf.us.example.com>"
+                        ),
+                        "unstructured_value": (
+                            "Norton I., Emperor of the United States"
+                            " <norton@sf.us.example.com>"
+                        ),
+                    },
+                )
+            ]
         }
         mock_logger.warning.assert_called_once_with(
             "_handle_received: forwarding issues",
@@ -808,17 +812,20 @@ class SNSNotificationTest(TestCase):
             email, "message_id_in_brackets", replace_mime_boundaries=True
         )
         expected_header_errors = {
-            "incoming": {
-                "Message-ID": {
-                    "defect_count": 1,
-                    "parsed_value": (
-                        "<[d7c5838b5ab944f89e3f0c1b85674aef====@example.com]>"
-                    ),
-                    "unstructured_value": (
-                        "<[d7c5838b5ab944f89e3f0c1b85674aef====@example.com]>"
-                    ),
-                }
-            }
+            "incoming": [
+                (
+                    "Message-ID",
+                    {
+                        "defect_count": 1,
+                        "parsed_value": (
+                            "<[d7c5838b5ab944f89e3f0c1b85674aef====@example.com]>"
+                        ),
+                        "unstructured_value": (
+                            "<[d7c5838b5ab944f89e3f0c1b85674aef====@example.com]>"
+                        ),
+                    },
+                )
+            ]
         }
         mock_logger.warning.assert_called_once_with(
             "_handle_received: forwarding issues",
@@ -1872,3 +1879,62 @@ def test_get_keys_from_headers_references_reply_dne():
     headers = [{"name": "References", "value": msg_ids}]
     with pytest.raises(Reply.DoesNotExist):
         _get_keys_from_headers(headers)
+
+
+def test_replace_headers_read_error_is_handled() -> None:
+    """
+    A header that errors on read is added to issues.
+
+    We can't create a test fixture with a header that raises an exception, because we
+    don't know what that header looks like, but we know they exist, because a small
+    minority of emails fail when reading the header. Once the exception-catching code is
+    in production, we'll know what a failing header looks like, but then we'll probably
+    handle it like we did with RelayMessageIDHeader, and we'll be back to not knowing
+    what headers raise exceptions.
+
+    So, instead, use the plain_text fixture, add a testing header, and then patch
+    EmailMessage so that reading that header (and not the other ones) raises an
+    exception.
+    """
+
+    email_text = EMAIL_INCOMING["plain_text"]
+    email = message_from_string(email_text, policy=relay_policy)
+    assert isinstance(email, EmailMessage)
+
+    # Verify that the next headers are different than the existing headers
+    new_headers: OutgoingHeaders = {
+        "Subject": "Error Handling Test",
+        "From": "from@example.com",
+        "To": "to@example.com",
+    }
+    for name, value in new_headers.items():
+        assert email[name] != value
+
+    # Add a header that will raise an exception when read.
+    # The header itself is OK, but we mock  Message.__getitem__ (called when you use
+    # value = email[name]) to raise an error when the test header is accessed.
+    email["X-Fail"] = "I am for testing read exceptions"
+
+    def getitem_raise_on_x_fail(self, name):
+        """
+        Message.__getitem__ that raises for X-Fail header
+
+        https://github.com/python/cpython/blob/babb787047e0f7807c8238d3b1a3128dac30bd5c/Lib/email/message.py#L409-L418
+        """
+        if name == "X-Fail":
+            raise RuntimeError("I failed.")
+        return self.get(name)
+
+    # Activate our testing mock and run _replace_headers
+    with patch.object(EmailMessage, "__getitem__", getitem_raise_on_x_fail):
+        issues = _replace_headers(email, new_headers)
+
+    # The mocked exception was handled and logged
+    assert issues == {
+        "incoming": [("X-Fail", {"exception_on_read": "RuntimeError('I failed.')"})]
+    }
+
+    # _replace_headers continued working with the remaining data, the headers are now
+    # set to the desired new values.
+    for name, value in new_headers.items():
+        assert email[name] == value
