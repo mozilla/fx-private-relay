@@ -135,26 +135,18 @@ else:
     _next_css_path = Path(STATIC_ROOT) / "_next" / "static" / "css"
     hashes = []
     for path in _next_css_path.glob("*.css"):
-        content = open(path, "rb").read()
-
         # Use sha256 hashes, to keep in sync with Chrome.
         # When CSP rules fail in Chrome, it provides the sha256 hash that would
-        # have matched.
+        # have matched, useful for debugging.
+        content = open(path, "rb").read()
         the_hash = base64.b64encode(sha256(content).digest()).decode()
         hashes.append(f"'sha256-{the_hash}'")
-
-        # The sourceMappingURL comment is slightly different when loaded dynamically
-        # in next 14.0.0. Capture the hash for alternate comment.
-        if content.endswith(b"map*/"):
-            space_content = content[:-2] + b" " + content[-2:]
-            assert space_content.endswith(b"map */")
-            space_hash = base64.b64encode(sha256(space_content).digest()).decode()
-            hashes.append(f"'sha256-{space_hash}%s'")
     hashes.sort()
     csp_style_values.extend(hashes)
 
     # Add the hash for an empty string (sha256-47DEQp...)
-    # next 14.0.0 injects an empty style element and then adds the content
+    # next,js injects an empty style element and then adds the content.
+    # This hash avoids a spurious CSP error.
     empty_hash = base64.b64encode(sha256().digest()).decode()
     csp_style_values.append(f"'sha256-{empty_hash}'")
 
