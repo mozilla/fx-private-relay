@@ -4,6 +4,16 @@
 @import "~@mozilla-protocol/core/protocol/css/includes/tokens/dist/index.scss";
 @import "~@mozilla-protocol/core/protocol/css/base/elements/reset";
 
+/*
+  next.js will rename the file if any of the content changes (after processing
+  and compression), which will invalidate the cache.  Django makes further
+  changes, such as fixing the sourcemap path. If an update to
+  django.contrib.staticfiles or RelayStaticFilesStorage changes the content,
+  increment the "cache version" comment below and in tokens.scss to force a
+  content change and cache invalidation.
+*/
+/*! gv=1 */
+
 a {
   color: inherit;
   text-decoration: none;
