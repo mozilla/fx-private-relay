@@ -1882,10 +1882,26 @@ def test_get_keys_from_headers_references_reply_dne():
 
 
 def test_replace_headers_read_error_is_handled() -> None:
-    """A header that errors on read is added to issues."""
+    """
+    A header that errors on read is added to issues.
+
+    We can't create a test fixture with a header that raises an exception, because we
+    don't know what that header looks like, but we know they exist, because a small
+    minority of emails fail when reading the header. Once the exception-catching code is
+    in production, we'll know what a failing header looks like, but then we'll probably
+    handle it like we did with RelayMessageIDHeader, and we'll be back to not knowing
+    what headers raise exceptions.
+
+    So, instead, use the plain_text fixture, add a testing header, and then patch
+    EmailMessage so that reading that header (and not the other ones) raises an
+    exception.
+    """
+
     email_text = EMAIL_INCOMING["plain_text"]
     email = message_from_string(email_text, policy=relay_policy)
     assert isinstance(email, EmailMessage)
+
+    # Verify that the next headers are different than the existing headers
     new_headers: OutgoingHeaders = {
         "Subject": "Error Handling Test",
         "From": "from@example.com",
@@ -1893,7 +1909,11 @@ def test_replace_headers_read_error_is_handled() -> None:
     }
     for name, value in new_headers.items():
         assert email[name] != value
-    email["X-Fail"] = "I am OK"  # Do not fail initial parsing
+
+    # Add a header that will raise an exception when read.
+    # The header itself is OK, but we mock  Message.__getitem__ (called when you use
+    # value = email[name]) to raise an error when the test header is accessed.
+    email["X-Fail"] = "I am for testing read exceptions"
 
     def getitem_raise_on_x_fail(self, name):
         """
@@ -1905,11 +1925,16 @@ def test_replace_headers_read_error_is_handled() -> None:
             raise RuntimeError("I failed.")
         return self.get(name)
 
+    # Activate our testing mock and run _replace_headers
     with patch.object(EmailMessage, "__getitem__", getitem_raise_on_x_fail):
         issues = _replace_headers(email, new_headers)
 
+    # The mocked exception was handled and logged
     assert issues == {
         "incoming": [("X-Fail", {"exception_on_read": "RuntimeError('I failed.')"})]
     }
+
+    # _replace_headers continued working with the remaining data, the headers are now
+    # set to the desired new values.
     for name, value in new_headers.items():
         assert email[name] == value
