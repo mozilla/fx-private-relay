@@ -604,7 +604,7 @@ def test_duplicate_email_logs_details_for_debugging(caplog: pytest.LogCaptureFix
     caplog.set_level(logging.ERROR)
     uid = "relay-user-fxa-uid"
     email = "user@email.com"
-    baker.make(EmailAddress, email=email)
+    baker.make(EmailAddress, email=email, verified=True)
     user_token = "user-123"
     client = _setup_client(user_token)
     now_time = int(datetime.now().timestamp())

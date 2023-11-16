@@ -114,11 +114,13 @@ class UpdateExtraDataAndEmailTest(TestCase):
         extra_data = json.loads('{"test": "test"}')
 
         user = baker.make(User, email="user@example.com")
-        baker.make(EmailAddress, user=user, email="user@example.com")
+        baker.make(EmailAddress, user=user, email="user@example.com", verified=True)
         baker.make(SocialAccount, user=user, provider="fxa", extra_data=extra_data)
 
         user2 = baker.make(User, email="user2@example.com")
-        ea2 = baker.make(EmailAddress, user=user2, email="user2@example.com")
+        ea2 = baker.make(
+            EmailAddress, user=user2, email="user2@example.com", verified=True
+        )
         sa2 = baker.make(
             SocialAccount, user=user2, provider="fxa", extra_data=extra_data
         )
