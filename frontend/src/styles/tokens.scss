@@ -1,5 +1,15 @@
 @import "~@mozilla-protocol/core/protocol/css/includes/tokens/dist/index.scss";
 
+/*
+  next.js will rename the file if any of the content changes (after processing
+  and compression), which will invalidate the cache.  Django makes further
+  changes, such as fixing the sourcemap path. If an update to
+  django.contrib.staticfiles or RelayStaticFilesStorage changes the content,
+  increment the "cache version" comment below and in globals.scss to force a
+  content change and cache invalidation.
+*/
+/*! v=1 */
+
 $firefoxGradient: linear-gradient(
   -90deg,
   #ff9100 0%,
