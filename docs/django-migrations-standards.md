@@ -33,7 +33,103 @@ The Django migration command `./manage.py makemigrations` utilizes [AddField ope
 
 <!-- TODO: MPP-3464 Add instructions to prevent or mitigate the error while add new field -->
 
+> [!Note]
+> Workaround explained below will not be needed after upgrading Django to 5.0 or above. Django 5.0 adds `db_default` on Django model field which will set the appropriate default on the database. Read more on [database-computed default values][]
+
+To prevent the error we can:
+
+1. Set the newly added Django model field with a default value, `null=True` and `blank=True` options.
+2. Create migration using Django's built-in command `./manage.py makemigrations` which sets the database schema for the corresponding field to accept `NULL` value.
+3. Once the newly added field and its migration are in a tagged version of code and deployed, remove the `null=True` and `blank=True` in the model field.
+   > [!NOTE]
+   > If the field does utilize `null` and `blank` options skip this step. Read documentation on [null][] and [blank][] option to learn more on when it is appropriate to use the field options.
+4. Create migration to remove the field options from the database schema
+5. Merge, tag and deploy the removed `null` and `blank` code and migration.
+
+Alternatively, use custom SQL queries to set default values in database schema for the old entries and any new entry such that we prevent integrity error on our entries while transitioning from version X to X+1:
+
+1. After adding the new model field run Django's built-in command `./manage.py makemigrations`
+2. Then run `./manage.py sqlmigrate app_label migration_name`. E.g. For `0058_profile_onboarding_free_state.py` migration in the `emails` app the command looks like `./manage.py sqlmigrate emails 0058`
+   > [!Note]
+   > Since local setup of Relay uses SQLite, the generated queries will be in SQLite. Dev, stage, and production uses PostgresSQL. If the `./manage.py sqlmigrate` is ran in environments other than local, it will return queries in PostgresSQL.
+3. Use a [SQL formatter][] to better structure the query.
+4. Add the SQL code snippets to the corresponding `add_db_default_forward_func` template:
+
+```python
+def add_db_default_forward_func(apps, schema_editor):
+    """
+    Add a database default of false for sent_welcome_email, for PostgreSQL and SQLite3
+    Note: set sent_welcome_email = true for existing users
+
+    Using `./manage.py sqlmigrate` for the SQL, and the technique from:
+    https://stackoverflow.com/a/45232678/10612
+    """
+    if schema_editor.connection.vendor.startswith("postgres"):
+        # completed in step 6
+    elif schema_editor.connection.vendor.startswith("sqlite"):
+        # TODO: copy paste the CREATE TABLE query
+        schema_editor.execute(
+            """
+            CREATE TABLE ...
+            """
+        )
+        # TODO: copy paste the INSERT INTO query including the first FROM clause
+        schema_editor.execute(
+            """
+            INSERT INTO ...
+            """
+        )
+        # TODO: copy paste the DROP TABLE query
+        schema_editor.execute('DROP TABLE ...')
+        # TODO: copy paste the ALTER TABLE query
+        schema_editor.execute(
+            'ALTER TABLE ...'
+        )
+        # TODO: copy paste every CREATE INDEX query to its own execute method
+        schema_editor.execute(
+            'CREATE INDEX ...'
+        )
+    else:
+        raise Exception(f'Unknown database vendor "{schema_editor.connection.vendor}"')
+```
+
+5. In the `CREATE TABLE` query, ensure that default value of the newly add column is set.
+6. Create another query for PostgreSQL and update the if-clause for PostgreSQL in the `add_db_default_forward_func` template:
+
+```python
+def add_db_default_forward_func(apps, schema_editor):
+    """
+    Add a database default of false for sent_welcome_email, for PostgreSQL and SQLite3
+    Note: set sent_welcome_email = true for existing users
+
+    Using `./manage.py sqlmigrate` for the SQL, and the technique from:
+    https://stackoverflow.com/a/45232678/10612
+    """
+    if schema_editor.connection.vendor.startswith("postgres"):
+        # TODO: copy paste the {TABLE_NAME} and {COLUMN_NAME} found in SQLite query
+        schema_editor.execute(
+            'ALTER TABLE "{TABLE_NAME}"'
+            ' ALTER COLUMN "{COLUMN_NAME}" SET DEFAULT {DEFAULT_VALUE};'
+        )
+        # TODO: copy paste the {TABLE_NAME} and {COLUMN_NAME} found in SQLite query
+        # and set the values of old entries with the new column by replacing the
+        # {OLD_ENTRY_DEFAULT_VALUE}
+        schema_editor.execute(
+            'UPDATE "{TALBE_NAME}"'
+            ' SET "{COLUMN_NAME}" = {OLD_ENTRY_DEFAULT_VALUE};'
+        )
+    elif schema_editor.connection.vendor.startswith("sqlite"):
+        # completed in step 4 and 5
+```
+
+> [!Note]
+> See `emails/migrations/0058_profile_onboarding_free_state.py` for an example of this workaround.
+
 [AddField operation]: https://docs.djangoproject.com/en/3.2/ref/migration-operations/#addfield
+[SQL formatter]: https://codebeautify.org/sqlformatter
+[blank]: https://docs.djangoproject.com/en/3.2/ref/models/fields/#blank
+[database-computed default values]: https://docs.djangoproject.com/en/dev/releases/5.0/#database-computed-default-values
+[null]: https://docs.djangoproject.com/en/3.2/ref/models/fields/#null
 
 ### Deleting Existing Model or Model Field
 
@@ -68,11 +164,18 @@ To prevent the error we need to:
 
 <!-- TODO: MPP-3464 Add terminology definitions -->
 
-Field
-Column
-Migration
-Model
-Entry
+Relay developers will see these terms as they work in this topic:
+
+- **[Field][]**: Required part of a model that correlates to the database column. Comes with various built-in [field types][]
+- **[Field Option][]**: Optional set of common arguments available to all field types. The field option is used for further validation that results to any save.
+  Column
+  Migration
+  Model
+  Entry
+
+[Field]: https://docs.djangoproject.com/en/3.2/topics/db/models/#fields
+[Field Option]: https://docs.djangoproject.com/en/3.2/topics/db/models/#field-options
+[field types]: https://docs.djangoproject.com/en/3.2/ref/models/fields/#model-field-types
 
 ## Links
 
