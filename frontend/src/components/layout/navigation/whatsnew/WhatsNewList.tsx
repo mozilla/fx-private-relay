@@ -85,7 +85,7 @@ const WhatsNewListMenu = (props: WhatsNewListMenuProps) => {
 
 type WhatsNewListMenuItemProps = {
   item: {
-    key: Key;
+    key: Parameters<typeof useMenuItem>[0]["key"];
     rendered: ReactNode;
   };
   state: TreeState<object>;
