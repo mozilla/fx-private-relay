@@ -429,6 +429,7 @@ def first_forwarded_email(request):
         profile.language,
         profile.has_premium,
         from_address,
+        0,
     )
     ses_client.send_email(
         Destination={
