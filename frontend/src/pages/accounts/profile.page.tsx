@@ -21,7 +21,6 @@ import { event as gaEvent } from "react-ga";
 import { useMenuTriggerState, useTooltipTriggerState } from "react-stately";
 import { toast } from "react-toastify";
 import styles from "./profile.module.scss";
-import BottomBannerIllustration from "../../../public/images/woman-couch-left.svg";
 import UpsellBannerUs from "./images/upsell-banner-us.svg";
 import UpsellBannerNonUs from "./images/upsell-banner-nonus.svg";
 import { CheckBadgeIcon, LockIcon, PencilIcon } from "../../components/Icons";
@@ -73,10 +72,6 @@ const Profile: NextPage = () => {
   const freeOnboardingCelebrationStep =
     // +1 because we want to show the celebration confetti after the last step
     getRuntimeConfig().maxOnboardingFreeAvailable + 1;
-  const bottomBannerSubscriptionLinkRef = useGaViewPing({
-    category: "Purchase Button",
-    label: "profile-bottom-promo",
-  });
   const setCustomDomainLinkRef = useGaViewPing({
     category: "Purchase Button",
     label: "profile-set-custom-domain",
