@@ -15,6 +15,7 @@ export type FlagNames =
   | "mailing_list_announcement"
   | "premium_promo_banners"
   | "mask_redesign"
+  | "holiday_promo_2023"
   | "mobile_app";
 
 type WaffleFlag = [FlagNames, boolean];

@@ -91,3 +91,10 @@ profile-free-onboarding--addon-item-headline-1 = They work anywhere you need an 
 profile-free-onboarding--addon-item-description-1 = Anywhere you need to enter an email, you can use a { -brand-name-relay } email mask. You can even generate new masks directly from your { -brand-name-firefox } password manager. 
 profile-free-onboarding--addon-item-headline-2 = The { -brand-name-relay } extension makes it easy
 profile-free-onboarding--addon-item-description-2 = Whenever you see an email address field, the { -brand-name-firefox-relay } browser extension will autofill any email mask you want to use. No need to remember each mask!
+
+# 2023 Holiday promo
+
+holiday-promo-banner-desc = This holiday season <promo>take 20% off { -brand-name-relay-premium }</promo>
+holiday-promo-banner-code-desc = Use code <coupon>{ $coupon_code }</coupon> at checkout
+holiday-promo-banner-cta-button = Get 1 year of { -brand-name-premium }
+holiday-promo-banner-promo-expiry = offer ends Dec 18, 2023
