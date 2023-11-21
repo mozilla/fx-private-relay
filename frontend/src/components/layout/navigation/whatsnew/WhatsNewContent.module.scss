@@ -12,7 +12,7 @@
   }
 
   .content {
-    padding: $spacing-lg;
+    padding: $spacing-lg 0;
 
     h2 {
       @include text-title-2xs;

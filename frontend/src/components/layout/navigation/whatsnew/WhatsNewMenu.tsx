@@ -39,6 +39,8 @@ import PremiumFinlandHero from "./images/premium-expansion-finland-hero.svg";
 import PremiumFinlandIcon from "./images/premium-expansion-finland-icon.svg";
 import PhoneMaskingHero from "./images/phone-masking-hero.svg";
 import PhoneMaskingIcon from "./images/phone-masking-icon.svg";
+import HolidayPromo2023Icon from "./images/holiday-promo-2023-news-icon.svg"; 
+import HolidayPromo2023Hero from "./images/holiday-promo-2023-news-hero.svg";   
 import BundleHero from "./images/bundle-promo-hero.svg";
 import BundleIcon from "./images/bundle-promo-icon.svg";
 import OfferCountdownIcon from "./images/offer-countdown-icon.svg";
@@ -60,9 +62,11 @@ import { RuntimeData } from "../../../../hooks/api/runtimeData";
 import { isFlagActive } from "../../../../functions/waffle";
 import {
   getBundlePrice,
+  getPeriodicalPremiumSubscribeLink,
   isBundleAvailableInCountry,
   isPeriodicalPremiumAvailableInCountry,
   isPhonesAvailableInCountry,
+  RuntimeDataWithPeriodicalPremiumAvailable,
 } from "../../../../functions/getPlan";
 import { CountdownTimer } from "../../../CountdownTimer";
 import Link from "next/link";
@@ -332,6 +336,49 @@ export const WhatsNewMenu = (props: Props) => {
     !props.profile.has_premium
   ) {
     entries.push(premiumInFinland);
+  }
+ 
+  const yearlyPlanLink = getPeriodicalPremiumSubscribeLink(
+    props.runtimeData as RuntimeDataWithPeriodicalPremiumAvailable,
+    "yearly",
+  );
+  const yearlyPlanRefWithCoupon = `${yearlyPlanLink}&coupon=HOLIDAY2023`;
+   
+  const holidayPromo2023: WhatsNewEntry = {
+    title: l10n.getString("whatsnew-holiday-promo-2023-news-heading"),
+    snippet: l10n.getString("whatsnew-holiday-promo-2023-news-snippet"),
+    content: (
+      <WhatsNewContent
+        description={l10n.getString(
+          "whatsnew-holiday-promo-2023-news-content-description",
+        )}
+        heading={l10n.getString(
+          "whatsnew-holiday-promo-2023-news-heading",
+        )}
+        image={HolidayPromo2023Hero}
+        cta={
+          <Link href={yearlyPlanRefWithCoupon} legacyBehavior>
+            <span className={styles.cta}>
+              {l10n.getString("whatsnew-holiday-promo-2023-cta")}
+            </span>
+          </Link>
+        }
+      />
+    ),
+    icon: HolidayPromo2023Icon,
+    dismissal: useLocalDismissal(
+      `whatsnew-holiday_promo_2023_${props.profile.id}`,
+    ),
+    announcementDate: {
+      year: 2023,
+      month: 11,
+      day: 29,
+    },
+  };
+
+  // Only show its announcement if tracker removal is live:
+  if (isFlagActive(props.runtimeData, "holiday_promo_2023")) {
+    entries.push(holidayPromo2023);
   }
 
   const premiumEuExpansion: WhatsNewEntry = {
