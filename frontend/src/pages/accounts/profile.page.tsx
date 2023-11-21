@@ -447,59 +447,12 @@ const Profile: NextPage = () => {
     </section>
   );
 
-  const bottomPremiumSection =
-    profile.has_premium ||
-    !isPeriodicalPremiumAvailableInCountry(runtimeData.data) ? null : (
-      <section className={styles["bottom-banner"]}>
-        <div className={styles["bottom-banner-wrapper"]}>
-          <div className={styles["bottom-banner-content"]}>
-            {isPhonesAvailableInCountry(runtimeData.data) ? (
-              <>
-                <Localized
-                  id="footer-banner-premium-promo-headine"
-                  elems={{ strong: <strong />, i: <i /> }}
-                >
-                  <h3 />
-                </Localized>
-                <p>{l10n.getString("footer-banner-premium-promo-body")}</p>
-              </>
-            ) : (
-              <>
-                <Localized
-                  id="banner-pack-upgrade-headline-2-html"
-                  elems={{ strong: <strong /> }}
-                >
-                  <h3 />
-                </Localized>
-                <p>{l10n.getString("banner-pack-upgrade-copy-2")}</p>
-              </>
-            )}
-
-            <LinkButton
-              href="/premium#pricing"
-              ref={bottomBannerSubscriptionLinkRef}
-              onClick={() => {
-                gaEvent({
-                  category: "Purchase Button",
-                  action: "Engage",
-                  label: "profile-bottom-promo",
-                });
-              }}
-            >
-              {l10n.getString("banner-pack-upgrade-cta")}
-            </LinkButton>
-          </div>
-          <Image src={BottomBannerIllustration} alt="" />
-        </div>
-      </section>
-    );
-
   const banners = (
     <section className={styles["banners-wrapper"]}>
       {!profile.has_premium &&
       isPeriodicalPremiumAvailableInCountry(runtimeData.data) &&
       isFlagActive(runtimeData.data, "premium_promo_banners") ? (
-        <PremiumPromoBanners />
+        <PremiumPromoBanners profile={profile} />
       ) : null}
       <ProfileBanners
         profile={profile}
@@ -625,7 +578,6 @@ const Profile: NextPage = () => {
           </section>
           {bottomBanners}
         </main>
-        <aside>{bottomPremiumSection}</aside>
         <Tips profile={profile} runtimeData={runtimeData.data} />
       </Layout>
     </>
