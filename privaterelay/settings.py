@@ -45,19 +45,6 @@ try:
 except ImportError:
     HAS_SILK = False
 
-try:
-    # TODO MPP-3390: Remove after this is deployed to production
-    # django-allauth 0.56 adds a new required middleware
-    # Our migrations tests run with the new requirements, which isn't quite like a
-    # deployment. This code helps add the middleware if it is available, so the
-    # migrations tests will pass.
-    from allauth.account.middleware import AccountMiddleware
-
-    assert AccountMiddleware  # Suppress "imported but unused" warning
-    HAS_DJANGO_ALLAUTH_ACCOUNT_MIDDLEWARE = True
-except ImportError:
-    HAS_DJANGO_ALLAUTH_ACCOUNT_MIDDLEWARE = False
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TMP_DIR = os.path.join(BASE_DIR, "tmp")
@@ -344,10 +331,7 @@ MIDDLEWARE += [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.locale.LocaleMiddleware",
-]
-if HAS_DJANGO_ALLAUTH_ACCOUNT_MIDDLEWARE:
-    MIDDLEWARE.append("allauth.account.middleware.AccountMiddleware")
-MIDDLEWARE += [
+    "allauth.account.middleware.AccountMiddleware",
     "django_ftl.middleware.activate_from_request_language_code",
     "django_referrer_policy.middleware.ReferrerPolicyMiddleware",
     "dockerflow.django.middleware.DockerflowMiddleware",
