@@ -48,6 +48,7 @@
       padding: $spacing-xs 0;
       cursor: pointer;
 
+      // Forces news icon to be the same size regardless of image size
       img {
         width: 50px;
         height: 50px;
