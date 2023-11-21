@@ -338,10 +338,13 @@ export const WhatsNewMenu = (props: Props) => {
     entries.push(premiumInFinland);
   }
 
-  const yearlyPlanLink = getPeriodicalPremiumSubscribeLink(
-    props.runtimeData as RuntimeDataWithPeriodicalPremiumAvailable,
-    "yearly",
-  );
+  // Check if yearlyPlanLink should be generated based on runtimeData and availability
+  const yearlyPlanLink =
+    props.runtimeData &&
+    isPeriodicalPremiumAvailableInCountry(props.runtimeData)
+      ? getPeriodicalPremiumSubscribeLink(props.runtimeData, "yearly")
+      : undefined;
+
   const yearlyPlanRefWithCoupon = `${yearlyPlanLink}&coupon=HOLIDAY2023`;
 
   const holidayPromo2023: WhatsNewEntry = {
@@ -374,8 +377,11 @@ export const WhatsNewMenu = (props: Props) => {
     },
   };
 
-  // Only show its announcement if tracker removal is live:
-  if (isFlagActive(props.runtimeData, "holiday_promo_2023")) {
+  // Check if the holiday promotion entry should be added to the entries array
+  if (
+    isFlagActive(props.runtimeData, "holiday_promo_2023") &&
+    isPeriodicalPremiumAvailableInCountry(props.runtimeData)
+  ) {
     entries.push(holidayPromo2023);
   }
 
