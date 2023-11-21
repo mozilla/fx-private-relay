@@ -66,7 +66,6 @@ import {
   isBundleAvailableInCountry,
   isPeriodicalPremiumAvailableInCountry,
   isPhonesAvailableInCountry,
-  RuntimeDataWithPeriodicalPremiumAvailable,
 } from "../../../../functions/getPlan";
 import { CountdownTimer } from "../../../CountdownTimer";
 import Link from "next/link";
