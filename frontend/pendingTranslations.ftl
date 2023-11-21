@@ -93,7 +93,7 @@ profile-free-onboarding--addon-item-headline-2 = The { -brand-name-relay } exten
 profile-free-onboarding--addon-item-description-2 = Whenever you see an email address field, the { -brand-name-firefox-relay } browser extension will autofill any email mask you want to use. No need to remember each mask!
 
 
-whatsnew-holiday-promo-2023-news-snippet = This holiday season, get 20% off the price of 1 year of Relay Premium. 
+whatsnew-holiday-promo-2023-news-snippet = This holiday season, get 20% off the price of 1 year of { -brand-name-relay-premium }. 
 whatsnew-holiday-promo-2023-news-heading = Get 20% off { -brand-name-relay-premium }
 whatsnew-holiday-promo-2023-news-content-description = This holiday season, get 20% off the price of 1 year of { -brand-name-relay-premium }. Just enter the promo code “HOLIDAY2023” at checkout. Offer ends Dec 18, 2023.
 whatsnew-holiday-promo-2023-cta = Get 1 year of { -brand-name-relay-premium }
