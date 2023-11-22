@@ -48,6 +48,12 @@
       padding: $spacing-xs 0;
       cursor: pointer;
 
+      // Forces news icon to be the same size regardless of image size
+      img {
+        max-width: 50px;
+        max-height: 50px;
+      }
+
       h3 {
         @include text-body-sm;
         font-weight: 500;

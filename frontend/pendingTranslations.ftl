@@ -94,6 +94,11 @@ profile-free-onboarding--addon-item-description-2 = Whenever you see an email ad
 
 ## 2023 Holiday promo
 
+whatsnew-holiday-promo-2023-news-snippet = This holiday season, get 20% off the price of 1 year of { -brand-name-relay-premium }. 
+whatsnew-holiday-promo-2023-news-heading = Get 20% off { -brand-name-relay-premium }
+whatsnew-holiday-promo-2023-news-content-description = This holiday season, get 20% off the price of 1 year of { -brand-name-relay-premium }. Just enter the promo code “HOLIDAY20” at checkout. Offer ends Dec 31, 2023.
+whatsnew-holiday-promo-2023-cta = Get 1 year of { -brand-name-relay-premium }
+
 holiday-promo-banner-protect-inbox = Protect your inbox for less 
 holiday-promo-banner-code-desc = Take 20% off { -brand-name-relay-premium }
 # Variables:
