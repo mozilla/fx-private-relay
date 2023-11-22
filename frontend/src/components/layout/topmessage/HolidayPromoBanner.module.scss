@@ -1,0 +1,104 @@
+@import "../../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+// Hardcoding #5015cd after talking with design, no token for this color exists yet in Nebula.
+$banner-gradient: linear-gradient(
+  90.13deg,
+  $color-purple-90 -2.39%,
+  #5015cd 50.81%,
+  $color-purple-50 104%
+);
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-md;
+  color: $color-white;
+  position: relative;
+  background-image: url("../images/holiday-promo-banner-pattern-mobile.svg"),
+    $banner-gradient;
+  background-repeat: no-repeat;
+  background-size: cover;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  @media screen and #{$mq-sm} {
+    flex-direction: row;
+    gap: $spacing-2xl;
+    background-image: url("../images/holiday-promo-banner-pattern-tablet.svg"),
+      $banner-gradient;
+  }
+  @media screen and #{$mq-md} {
+    gap: $layout-xl;
+    background-image: url("../images/holiday-promo-banner-pattern-laptop.svg"),
+      $banner-gradient;
+  }
+  @media screen and #{$mq-xl} {
+    background-image: url("../images/holiday-promo-banner-pattern-desktop.svg"),
+      $banner-gradient;
+  }
+
+  .left-promo-container {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: $spacing-md;
+
+    @media screen and #{$mq-sm} {
+      gap: 0;
+    }
+    @media screen and #{$mq-lg} {
+      flex-direction: row;
+      gap: $layout-xl;
+    }
+  }
+
+  .promo-container {
+    text-align: center;
+  }
+
+  .cta-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background-color: $color-white;
+    padding: $spacing-sm $spacing-md;
+    border-radius: $border-radius-sm;
+    color: $color-purple-90;
+    font-weight: 700;
+    margin-bottom: $spacing-xs;
+
+    &:hover {
+      cursor: pointer;
+      opacity: 0.9;
+    }
+  }
+
+  .promo-code-expiry {
+    color: rgba($color-white, 0.7);
+    font-weight: 700;
+    display: block;
+
+    @include text-body-xs;
+  }
+
+  .banner-pattern {
+    width: 100%;
+    position: absolute;
+  }
+
+  .promo-text {
+    @include text-body-lg;
+
+    font-family: $font-stack-base;
+  }
+
+  .promo-text-bolded {
+    @include text-body-xl;
+
+    font-weight: 700;
+    font-family: $font-stack-firefox;
+  }
+}
