@@ -30,6 +30,8 @@ import { RuntimeData } from "../../hooks/api/runtimeData";
 import { useRouter } from "next/router";
 import { isPhonesAvailableInCountry } from "../../functions/getPlan";
 import { useL10n } from "../../hooks/l10n";
+import { HolidayPromoBanner } from "./topmessage/HolidayPromoBanner";
+import { isFlagActive } from "../../functions/waffle";
 
 export type Props = {
   children: ReactNode;
@@ -138,6 +140,14 @@ export const Layout = (props: Props) => {
           runtimeData={props.runtimeData}
         />
         <header className={styles["header-outer"]}>
+          {isFlagActive(props.runtimeData, "holiday_promo_2023") &&
+          (router.pathname === "/" || router.pathname === "/premium") ? (
+            <HolidayPromoBanner
+              isLoading={profiles.isLoading}
+              profile={profiles.data?.[0]}
+              runtimeData={props.runtimeData}
+            />
+          ) : null}
           {props.theme === "plain" ? (
             PlainPageHeader
           ) : (
@@ -153,6 +163,7 @@ export const Layout = (props: Props) => {
                   </>
                 </Link>
               </div>
+
               <div className={styles["nav-wrapper"]}>
                 <Navigation
                   mobileMenuExpanded={mobileMenuExpanded}
