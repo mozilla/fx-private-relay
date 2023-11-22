@@ -7,20 +7,31 @@ import {
   getPeriodicalPremiumSubscribeLink,
   isPeriodicalPremiumAvailableInCountry,
 } from "../../../functions/getPlan";
+import { ProfileData } from "../../../hooks/api/profile";
+import { useEffect, useState } from "react";
+
 type Props = {
+  profile?: ProfileData;
   runtimeData?: RuntimeData;
 };
 
 export const HolidayPromoBanner = (props: Props) => {
   const l10n = useL10n();
+  const [loadingProfile, setLoadingProfile] = useState(true);
   const coupon = "HOLIDAY20";
   const couponExpiry = "Dec 31, 2023";
   const subscribeLink = isPeriodicalPremiumAvailableInCountry(props.runtimeData)
     ? getPeriodicalPremiumSubscribeLink(props.runtimeData, "yearly")
     : null;
-  if (!subscribeLink) {
+
+  useEffect(() => {
+    setLoadingProfile(false);
+  }, [props.profile]);
+
+  if (loadingProfile || !subscribeLink || props.profile) {
     return null;
   }
+
   const subscriberLinkWithCoupon = `${subscribeLink}&coupon=${coupon}`;
 
   return (

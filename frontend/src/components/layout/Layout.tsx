@@ -51,7 +51,6 @@ export const Layout = (props: Props) => {
   const hasPremium: boolean = profiles.data?.[0].has_premium ?? false;
   const usersData = useUsers().data?.[0];
   const [mobileMenuExpanded, setMobileMenuExpanded] = useState<boolean>(false);
-  const profile = profiles.data?.[0];
 
   useEffect(() => {
     makeToast(l10n, usersData);
@@ -142,9 +141,11 @@ export const Layout = (props: Props) => {
         />
         <header className={styles["header-outer"]}>
           {isFlagActive(props.runtimeData, "holiday_promo_2023") &&
-          (router.pathname === "/" || router.pathname === "/premium") &&
-          !profile ? (
-            <HolidayPromoBanner runtimeData={props.runtimeData} />
+          (router.pathname === "/" || router.pathname === "/premium") ? (
+            <HolidayPromoBanner
+              profile={profiles.data?.[0]}
+              runtimeData={props.runtimeData}
+            />
           ) : null}
           {props.theme === "plain" ? (
             PlainPageHeader
