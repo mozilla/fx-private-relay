@@ -92,13 +92,12 @@ profile-free-onboarding--addon-item-description-1 = Anywhere you need to enter a
 profile-free-onboarding--addon-item-headline-2 = The { -brand-name-relay } extension makes it easy
 profile-free-onboarding--addon-item-description-2 = Whenever you see an email address field, the { -brand-name-firefox-relay } browser extension will autofill any email mask you want to use. No need to remember each mask!
 
-# 2023 Holiday promo
-# Variables:
-# $couponCode (string) - the coupon code.
-# $couponExpiryDate (string) - the coupon expiry date, for example, Dec 31, 2023.
+## 2023 Holiday promo
 
 holiday-promo-banner-protect-inbox = Protect your inbox for less 
 holiday-promo-banner-code-desc = Take 20% off { -brand-name-relay-premium }
+# Variables:
+# 	$couponCode (string) - the coupon code.
 holiday-promo-banner-code-usage = Use code <coupon>{ $couponCode }</coupon> at checkout
 holiday-promo-banner-cta-button = Get 1 year of { -brand-name-premium }
-holiday-promo-banner-promo-expiry = offer ends { $couponExpiryDate }
+holiday-promo-banner-promo-expiry = offer ends Dec 31, 2023

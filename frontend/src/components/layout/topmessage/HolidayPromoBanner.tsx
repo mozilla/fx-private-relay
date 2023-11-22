@@ -8,27 +8,24 @@ import {
   isPeriodicalPremiumAvailableInCountry,
 } from "../../../functions/getPlan";
 import { ProfileData } from "../../../hooks/api/profile";
-import { useEffect, useState } from "react";
 
 type Props = {
+  isLoading: boolean;
   profile?: ProfileData;
   runtimeData?: RuntimeData;
 };
 
 export const HolidayPromoBanner = (props: Props) => {
   const l10n = useL10n();
-  const [loadingProfile, setLoadingProfile] = useState(true);
   const coupon = "HOLIDAY20";
-  const couponExpiry = "Dec 31, 2023";
   const subscribeLink = isPeriodicalPremiumAvailableInCountry(props.runtimeData)
     ? getPeriodicalPremiumSubscribeLink(props.runtimeData, "yearly")
     : null;
+  const todaysDate = new Date();
+  const expiryDate = new Date("December 31, 2023");
+  const isPastExpiry = todaysDate > expiryDate;
 
-  useEffect(() => {
-    setLoadingProfile(false);
-  }, [props.profile]);
-
-  if (loadingProfile || !subscribeLink || props.profile) {
+  if (props.isLoading || !subscribeLink || props.profile || isPastExpiry) {
     return null;
   }
 
@@ -61,11 +58,9 @@ export const HolidayPromoBanner = (props: Props) => {
         <Link href={subscriberLinkWithCoupon} className={styles["cta-button"]}>
           {l10n.getString("holiday-promo-banner-cta-button")}
         </Link>
-        <p className={styles["promo-code-expiry"]}>
-          {l10n.getString("holiday-promo-banner-promo-expiry", {
-            couponExpiryDate: couponExpiry,
-          })}
-        </p>
+        <small className={styles["promo-code-expiry"]}>
+          {l10n.getString("holiday-promo-banner-promo-expiry")}
+        </small>
       </div>
     </aside>
   );

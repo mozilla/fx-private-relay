@@ -1,10 +1,11 @@
 @import "../../../styles/tokens.scss";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 
+// Hardcoding #5015cd after talking with design, no token for this color exists yet in Nebula.
 $banner-gradient: linear-gradient(
   90.13deg,
   $color-purple-90 -2.39%,
-  $color-purple-100 50.81%,
+  #5015cd 50.81%,
   $color-purple-50 104%
 );
 
@@ -78,6 +79,7 @@ $banner-gradient: linear-gradient(
   .promo-code-expiry {
     color: rgba($color-white, 0.7);
     font-weight: 700;
+    display: block;
 
     @include text-body-xs;
   }

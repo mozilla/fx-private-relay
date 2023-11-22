@@ -143,6 +143,7 @@ export const Layout = (props: Props) => {
           {isFlagActive(props.runtimeData, "holiday_promo_2023") &&
           (router.pathname === "/" || router.pathname === "/premium") ? (
             <HolidayPromoBanner
+              isLoading={profiles.isLoading}
               profile={profiles.data?.[0]}
               runtimeData={props.runtimeData}
             />
