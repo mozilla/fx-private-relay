@@ -71,6 +71,7 @@ $banner-gradient: linear-gradient(
 
     &:hover {
       cursor: pointer;
+      opacity: 0.9;
     }
   }
 
@@ -97,9 +98,5 @@ $banner-gradient: linear-gradient(
 
     font-weight: 700;
     font-family: $font-stack-firefox;
-
-    &.promo-desc {
-      display: block;
-    }
   }
 }
