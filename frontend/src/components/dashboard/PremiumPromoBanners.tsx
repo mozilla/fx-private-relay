@@ -6,9 +6,11 @@ import styles from "./ProfileBanners.module.scss";
 import PhoneIllustration from "./images/phone-premium-promo.svg";
 import { Banner } from "../Banner";
 import { useL10n } from "../../hooks/l10n";
+import { ProfileData } from "../../hooks/api/profile";
 
 export type Props = {
   showFirstPremiumBanner?: boolean;
+  profile: ProfileData;
 };
 
 export const PremiumPromoBanners = (props: Props) => {
@@ -17,7 +19,12 @@ export const PremiumPromoBanners = (props: Props) => {
   // Only show the first banner while waiting for the A/B test architecture to be built out
   {
     props.showFirstPremiumBanner
-      ? banners.push(<StopSpamBanner key="stop-spam-premium-banner" />)
+      ? banners.push(
+          <StopSpamBanner
+            profileData={props.profile}
+            key="stop-spam-premium-banner"
+          />,
+        )
       : null;
   }
 
@@ -37,7 +44,11 @@ export const PremiumPromoBanners = (props: Props) => {
 
 const phoneImage = <Image src={PhoneIllustration} alt="" />;
 
-const StopSpamBanner = () => {
+type StopSpamBannerProps = {
+  profileData: ProfileData;
+};
+
+const StopSpamBanner = (props: StopSpamBannerProps) => {
   const l10n = useL10n();
 
   return (
@@ -63,6 +74,9 @@ const StopSpamBanner = () => {
             label: "premium-promo-stop-spam",
           });
         },
+      }}
+      dismissal={{
+        key: `stop-spam-banner-${props.profileData.id}`,
       }}
     >
       <p>{l10n.getString("banner-ab-premium-promo-stop-spam-body")}</p>

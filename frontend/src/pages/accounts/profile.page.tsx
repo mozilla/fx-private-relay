@@ -21,7 +21,6 @@ import { event as gaEvent } from "react-ga";
 import { useMenuTriggerState, useTooltipTriggerState } from "react-stately";
 import { toast } from "react-toastify";
 import styles from "./profile.module.scss";
-import BottomBannerIllustration from "../../../public/images/woman-couch-left.svg";
 import UpsellBannerUs from "./images/upsell-banner-us.svg";
 import UpsellBannerNonUs from "./images/upsell-banner-nonus.svg";
 import { CheckBadgeIcon, LockIcon, PencilIcon } from "../../components/Icons";
@@ -73,10 +72,6 @@ const Profile: NextPage = () => {
   const freeOnboardingCelebrationStep =
     // +1 because we want to show the celebration confetti after the last step
     getRuntimeConfig().maxOnboardingFreeAvailable + 1;
-  const bottomBannerSubscriptionLinkRef = useGaViewPing({
-    category: "Purchase Button",
-    label: "profile-bottom-promo",
-  });
   const setCustomDomainLinkRef = useGaViewPing({
     category: "Purchase Button",
     label: "profile-set-custom-domain",
@@ -447,59 +442,12 @@ const Profile: NextPage = () => {
     </section>
   );
 
-  const bottomPremiumSection =
-    profile.has_premium ||
-    !isPeriodicalPremiumAvailableInCountry(runtimeData.data) ? null : (
-      <section className={styles["bottom-banner"]}>
-        <div className={styles["bottom-banner-wrapper"]}>
-          <div className={styles["bottom-banner-content"]}>
-            {isPhonesAvailableInCountry(runtimeData.data) ? (
-              <>
-                <Localized
-                  id="footer-banner-premium-promo-headine"
-                  elems={{ strong: <strong />, i: <i /> }}
-                >
-                  <h3 />
-                </Localized>
-                <p>{l10n.getString("footer-banner-premium-promo-body")}</p>
-              </>
-            ) : (
-              <>
-                <Localized
-                  id="banner-pack-upgrade-headline-2-html"
-                  elems={{ strong: <strong /> }}
-                >
-                  <h3 />
-                </Localized>
-                <p>{l10n.getString("banner-pack-upgrade-copy-2")}</p>
-              </>
-            )}
-
-            <LinkButton
-              href="/premium#pricing"
-              ref={bottomBannerSubscriptionLinkRef}
-              onClick={() => {
-                gaEvent({
-                  category: "Purchase Button",
-                  action: "Engage",
-                  label: "profile-bottom-promo",
-                });
-              }}
-            >
-              {l10n.getString("banner-pack-upgrade-cta")}
-            </LinkButton>
-          </div>
-          <Image src={BottomBannerIllustration} alt="" />
-        </div>
-      </section>
-    );
-
   const banners = (
     <section className={styles["banners-wrapper"]}>
       {!profile.has_premium &&
       isPeriodicalPremiumAvailableInCountry(runtimeData.data) &&
       isFlagActive(runtimeData.data, "premium_promo_banners") ? (
-        <PremiumPromoBanners />
+        <PremiumPromoBanners profile={profile} />
       ) : null}
       <ProfileBanners
         profile={profile}
@@ -625,7 +573,6 @@ const Profile: NextPage = () => {
           </section>
           {bottomBanners}
         </main>
-        <aside>{bottomPremiumSection}</aside>
         <Tips profile={profile} runtimeData={runtimeData.data} />
       </Layout>
     </>

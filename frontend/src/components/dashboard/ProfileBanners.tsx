@@ -108,7 +108,12 @@ export const ProfileBanners = (props: Props) => {
     // This pushes a banner promoting the add-on - detecting the add-on
     // and determining whether to show it based on that is a bit slow,
     // so we'll just let the add-on hide it:
-    banners.push(<NoChromeExtensionBanner key="chrome-extension-banner" />);
+    banners.push(
+      <NoChromeExtensionBanner
+        profileData={props.profile}
+        key="chrome-extension-banner"
+      />,
+    );
   }
 
   if (
@@ -122,6 +127,7 @@ export const ProfileBanners = (props: Props) => {
         ? banners.push(
             <PremiumPromoBanners
               key="premium-banner"
+              profile={props.profile}
               showFirstPremiumBanner={true}
             />,
           )
@@ -228,7 +234,12 @@ const NoAddonBanner = () => {
   );
 };
 
-const NoChromeExtensionBanner = () => {
+type NoChromeExtensionBannerProps = {
+  profileData: ProfileData;
+};
+
+// make dismissble
+const NoChromeExtensionBanner = (props: NoChromeExtensionBannerProps) => {
   const l10n = useL10n();
 
   return (
@@ -258,6 +269,9 @@ const NoChromeExtensionBanner = () => {
         },
       }}
       hiddenWithAddon={true}
+      dismissal={{
+        key: `no-chrome-extension-banner-${props.profileData.id}`,
+      }}
     >
       <p>{l10n.getString("banner-download-install-chrome-extension-copy-2")}</p>
     </Banner>
