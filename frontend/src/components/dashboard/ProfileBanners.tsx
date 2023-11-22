@@ -101,7 +101,9 @@ export const ProfileBanners = (props: Props) => {
     // This pushes a banner promoting the add-on - detecting the add-on
     // and determining whether to show it based on that is a bit slow,
     // so we'll just let the add-on hide it:
-    banners.push(<NoAddonBanner key="addon-banner" />);
+    banners.push(
+      <NoAddonBanner profileData={props.profile} key="addon-banner" />,
+    );
   }
 
   if (supportsChromeExtension() && isLargeScreen) {
@@ -200,7 +202,11 @@ const NoFirefoxBanner = () => {
   );
 };
 
-const NoAddonBanner = () => {
+type NoAddonBannerProps = {
+  profileData: ProfileData;
+};
+
+const NoAddonBanner = (props: NoAddonBannerProps) => {
   const l10n = useL10n();
 
   return (
@@ -226,6 +232,9 @@ const NoAddonBanner = () => {
             label: "profile-banner-download-firefox-extension",
           });
         },
+      }}
+      dismissal={{
+        key: `firefox-extension-banner-${props.profileData.id}`,
       }}
       hiddenWithAddon={true}
     >
