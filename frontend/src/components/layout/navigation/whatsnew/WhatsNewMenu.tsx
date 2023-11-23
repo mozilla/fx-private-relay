@@ -379,6 +379,7 @@ export const WhatsNewMenu = (props: Props) => {
   // Check if the holiday promotion entry should be added to the entries array
   if (
     isFlagActive(props.runtimeData, "holiday_promo_2023") &&
+    !props.profile.has_premium &&
     isPeriodicalPremiumAvailableInCountry(props.runtimeData)
   ) {
     entries.push(holidayPromo2023);
