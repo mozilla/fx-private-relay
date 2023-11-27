@@ -8,6 +8,8 @@ import {
   isPeriodicalPremiumAvailableInCountry,
 } from "../../../functions/getPlan";
 import { ProfileData } from "../../../hooks/api/profile";
+import { event as gaEvent } from "react-ga";
+import { useGaViewPing } from "../../../hooks/gaViewPing";
 
 type Props = {
   isLoading: boolean;
@@ -24,12 +26,25 @@ export const HolidayPromoBanner = (props: Props) => {
   const todaysDate = new Date();
   const expiryDate = new Date("December 31, 2023");
   const isPastExpiry = todaysDate > expiryDate;
+  const gaHolidayBannerViewPing = useGaViewPing({
+    category: "Holiday Promotion Banner 2023",
+    label: "holiday-promo-banner-view",
+  });
+  const gaHolidayBannerBtnPing = () => {
+    gaEvent({
+      category: "Holiday Promotion Banner 2023",
+      action: "Engage",
+      label: "holiday-promo-banner-get-one-year-btn",
+    });
+  };
 
   if (props.isLoading || !subscribeLink || props.profile || isPastExpiry) {
     return null;
   }
 
-  const subscriberLinkWithCoupon = `${subscribeLink}&coupon=${coupon}`;
+  const utmParams =
+    "&utm_source=fx-relay&utm_medium=banner&utm_content=holiday-promo-banner-cta&utm_campaign=holiday-promo-2023";
+  const subscriberLinkWithCoupon = `${subscribeLink}&coupon=${coupon}${utmParams}`;
 
   return (
     <aside className={styles.wrapper}>
@@ -55,7 +70,12 @@ export const HolidayPromoBanner = (props: Props) => {
         </div>
       </div>
       <div className={styles["promo-container"]}>
-        <Link href={subscriberLinkWithCoupon} className={styles["cta-button"]}>
+        <Link
+          ref={gaHolidayBannerViewPing}
+          onClick={gaHolidayBannerBtnPing}
+          href={subscriberLinkWithCoupon}
+          className={styles["cta-button"]}
+        >
           {l10n.getString("holiday-promo-banner-cta-button")}
         </Link>
         <small className={styles["promo-code-expiry"]}>
