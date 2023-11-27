@@ -8,6 +8,7 @@ import {
   isPeriodicalPremiumAvailableInCountry,
 } from "../../../functions/getPlan";
 import { ProfileData } from "../../../hooks/api/profile";
+import { useGaViewPing } from "../../../hooks/gaViewPing";
 
 type Props = {
   isLoading: boolean;
@@ -24,6 +25,10 @@ export const HolidayPromoBanner = (props: Props) => {
   const todaysDate = new Date();
   const expiryDate = new Date("December 31, 2023");
   const isPastExpiry = todaysDate > expiryDate;
+  const gaHolidayBannerBtnPing = useGaViewPing({
+    category: "Holiday Promotion",
+    label: "holiday-promo-banner-get-one-year-btn",
+  });
 
   if (props.isLoading || !subscribeLink || props.profile || isPastExpiry) {
     return null;
@@ -55,7 +60,11 @@ export const HolidayPromoBanner = (props: Props) => {
         </div>
       </div>
       <div className={styles["promo-container"]}>
-        <Link href={subscriberLinkWithCoupon} className={styles["cta-button"]}>
+        <Link
+          ref={gaHolidayBannerBtnPing}
+          href={subscriberLinkWithCoupon}
+          className={styles["cta-button"]}
+        >
           {l10n.getString("holiday-promo-banner-cta-button")}
         </Link>
         <small className={styles["promo-code-expiry"]}>
