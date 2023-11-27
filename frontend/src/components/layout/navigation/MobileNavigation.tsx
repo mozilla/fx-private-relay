@@ -65,8 +65,8 @@ export const MobileNavigation = (props: Props) => {
     typeof mobileMenuExpanded !== "boolean"
       ? ""
       : mobileMenuExpanded
-      ? styles["is-active"]
-      : styles["not-active"];
+        ? styles["is-active"]
+        : styles["not-active"];
 
   return (
     <nav
