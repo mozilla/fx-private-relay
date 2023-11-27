@@ -344,7 +344,7 @@ export const WhatsNewMenu = (props: Props) => {
       ? getPeriodicalPremiumSubscribeLink(props.runtimeData, "yearly")
       : undefined;
 
-  const yearlyPlanRefWithCoupon = `${yearlyPlanLink}&coupon=HOLIDAY20&utm_source=fx-relay&utm_medium=announcement&utm_campaign=holiday-promo-2023`;
+  const yearlyPlanRefWithCoupon = `${yearlyPlanLink}&coupon=HOLIDAY20`;
 
   const holidayPromo2023: WhatsNewEntry = {
     title: l10n.getString("whatsnew-holiday-promo-2023-news-heading"),
@@ -357,7 +357,16 @@ export const WhatsNewMenu = (props: Props) => {
         heading={l10n.getString("whatsnew-holiday-promo-2023-news-heading")}
         image={HolidayPromo2023Hero}
         cta={
-          <Link href={yearlyPlanRefWithCoupon} legacyBehavior>
+          <Link
+            href={yearlyPlanRefWithCoupon}
+            onClick={() => {
+              gaEvent({
+                category: "Holiday Promo News CTA",
+                action: "Engage",
+                label: "holiday-promo-2023-news-cta",
+              });
+            }}
+          >
             <span className={styles.cta}>
               {l10n.getString("whatsnew-holiday-promo-2023-cta")}
             </span>
@@ -372,7 +381,7 @@ export const WhatsNewMenu = (props: Props) => {
     announcementDate: {
       year: 2023,
       month: 11,
-      day: 29,
+      day: 26,
     },
   };
 
