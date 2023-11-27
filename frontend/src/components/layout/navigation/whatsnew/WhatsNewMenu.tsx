@@ -344,7 +344,7 @@ export const WhatsNewMenu = (props: Props) => {
       ? getPeriodicalPremiumSubscribeLink(props.runtimeData, "yearly")
       : undefined;
 
-  const yearlyPlanRefWithCoupon = `${yearlyPlanLink}&coupon=HOLIDAY20`;
+  const yearlyPlanRefWithCoupon = `${yearlyPlanLink}&coupon=HOLIDAY20&utm_source=fx-relay&utm_medium=announcement&utm_campaign=holiday-promo-2023`;
 
   const holidayPromo2023: WhatsNewEntry = {
     title: l10n.getString("whatsnew-holiday-promo-2023-news-heading"),
