@@ -1,5 +1,4 @@
 import {
-  FocusEventHandler,
   FormEventHandler,
   ReactElement,
   ReactNode,
@@ -57,12 +56,6 @@ const ConfirmModal = (props: Props) => {
   const formRef = useRef<HTMLFormElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const onBlur: FocusEventHandler<HTMLInputElement> = (_event) => {
-    formRef.current?.dispatchEvent(
-      new Event("submit", { bubbles: true, cancelable: true }),
-    );
-  };
-
   const onSubmit: FormEventHandler = async (event) => {
     event.preventDefault();
 
@@ -108,14 +101,13 @@ const ConfirmModal = (props: Props) => {
           <input
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            onBlur={onBlur}
             aria-label={l10n.getString("profile-label-edit-2")}
             ref={inputRef}
             className={styles["label-input"]}
             placeholder={l10n.getString(
               "profile-free-onboarding--copy-mask-placeholder-relay-email-mask",
             )}
-            type="text"
+            type="email"
           />
         </form>
       </div>
