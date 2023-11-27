@@ -109,7 +109,7 @@ jobs:
           paths:
             - test-results/frontend-coverage/lcov-prefixed.info
             - test-results/frontend-coverage/coveralls.json
-  
+
   build_email_tracker_list_job:
     executor: python
     steps:
@@ -359,7 +359,11 @@ jobs:
           condition: << parameters.production_with_new_migrations >>
           steps:
             - run:
-                name: Switch to production tag with branch's migrations
+                name: Run tests, keep branch database
+                command: |
+                  pytest --create-db --reuse-db .
+            - run:
+                name: Switch to production tag
                 command: |
                   echo 'export PROD_TAG=$(curl --silent https://relay.firefox.com/__version__ | jq -r ".version")' >> $BASH_ENV
                   source $BASH_ENV
@@ -367,8 +371,9 @@ jobs:
                   git fetch --force origin tag ${PROD_TAG}
                   git checkout ${PROD_TAG}
                   git submodule update --init --recursive
-                  git checkout --theirs "${CIRCLE_SHA1}" -- '**/migrations/**'
                   git status
+            - python/install-packages:
+                pkg-manager: pip
       - unless:
           condition: << parameters.allow_fail >>
           steps:
@@ -436,7 +441,11 @@ jobs:
           condition: << parameters.production_with_new_migrations >>
           steps:
             - run:
-                name: Switch to production tag with branch's migrations
+                name: Run tests, keep branch database
+                command: |
+                  pytest --maxfail=3 --create-db --reuse-db .
+            - run:
+                name: Switch to production tag
                 command: |
                   echo 'export PROD_TAG=$(curl --silent https://relay.firefox.com/__version__ | jq -r ".version")' >> $BASH_ENV
                   source $BASH_ENV
@@ -444,11 +453,12 @@ jobs:
                   git fetch --force origin tag ${PROD_TAG}
                   git checkout ${PROD_TAG}
                   git submodule update --init --recursive
-                  git checkout --theirs "${CIRCLE_SHA1}" -- '**/migrations/**'
                   git status
+            - python/install-packages:
+                pkg-manager: pip
       - run:
           name: Run tests
-          command: pytest --junit-xml=test-report/<< parameters.test_file_name >> .
+          command: pytest --maxfail=3 --reuse-db --junit-xml=test-report/<< parameters.test_file_name >> .
           environment:
             DATABASE_URL: postgresql://postgres:6edef2d746f2274cab951a452d5fc13d@localhost/circle
       - store_test_results:
@@ -507,7 +517,7 @@ workflows:
 
       - python_job:
           name: sqlite migrations test
-          command: pytest --maxfail=3 --junit-xml=job-results/pytest-migrations.xml .
+          command: pytest --maxfail=3 --reuse-db --junit-xml=job-results/pytest-migrations.xml .
           has_results: true
           allow_fail: false
           production_with_new_migrations: true
