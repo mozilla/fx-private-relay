@@ -116,8 +116,8 @@ const Flags: NextPage = () => {
                   flag.everyone === null
                     ? styles["is-non-global"]
                     : flag.everyone
-                    ? styles["is-active"]
-                    : styles["is-inactive"]
+                      ? styles["is-active"]
+                      : styles["is-inactive"]
                 }
               >
                 <td>

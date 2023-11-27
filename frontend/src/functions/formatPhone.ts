@@ -33,8 +33,8 @@ export function formatPhone(
   return phone.length > 6
     ? `${countryCode}(${zip}) ${middle} - ${last}`
     : phone.length > 3
-    ? `${countryCode}(${zip}) ${middle}`
-    : phone.length > 0
-    ? `${countryCode}(${zip}`
-    : "";
+      ? `${countryCode}(${zip}) ${middle}`
+      : phone.length > 0
+        ? `${countryCode}(${zip}`
+        : "";
 }
