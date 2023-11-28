@@ -463,6 +463,9 @@ jobs:
                 environment:
                   DATABASE_URL: "postgresql://postgres:6edef2d746f2274cab951a452d5fc13d@localhost/circle"
             - run:
+                name: Install sqlite3
+                command: sudo apt-get update && sudo apt-get install -y sqlite3
+            - run:
                 name: Show branch migrations
                 command: python manage.py dbshell 'SELECT * FROM django_migrations ORDER BY id DESC LIMIT 5;'
                 environment:
