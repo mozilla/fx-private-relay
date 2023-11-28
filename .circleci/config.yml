@@ -360,8 +360,14 @@ jobs:
           steps:
             - run:
                 name: Run tests, keep branch database
-                command: |
-                  pytest --create-db --reuse-db .
+                command: pytest --create-db --reuse-db .
+                environment:
+                  TEST_DB_NAME="test.sqlite3"
+            - run:
+                name: Show latest migrations
+                command: python manage.py dbshell 'SELECT * FROM django_migrations ORDER BY id DESC LIMIT 5;'
+                environment:
+                  DATABASE_URL="sqlite:///test.sqlite3"
             - run:
                 name: Switch to production tag
                 command: |
@@ -387,6 +393,14 @@ jobs:
                   set +x
                   << parameters.command >> ||
                   echo "*** Command '<< parameters.command >>' failed, but it is allowed to fail. ***"
+      - when:
+          condition: << parameters.production_with_new_migrations >>
+          steps:
+            - run:
+                name: Show database migrations after tests
+                command: python manage.py dbshell 'SELECT * FROM django_migrations ORDER BY id DESC LIMIT 5;'
+                environment:
+                  DATABASE_URL="sqlite:///test.sqlite3"
       - when:
           condition: << parameters.has_results >>
           steps:
@@ -442,8 +456,14 @@ jobs:
           steps:
             - run:
                 name: Run tests, keep branch database
-                command: |
-                  pytest --maxfail=3 --create-db --reuse-db .
+                command: pytest --maxfail=3 --create-db --reuse-db .
+                environment:
+                  DATABASE_URL: postgresql://postgres:6edef2d746f2274cab951a452d5fc13d@localhost/circle
+            - run:
+                name: Show branch migrations
+                command: python manage.py dbshell 'SELECT * FROM django_migrations ORDER BY id DESC LIMIT 5;'
+                environment:
+                  DATABASE_URL: postgresql://postgres:6edef2d746f2274cab951a452d5fc13d@localhost/circle
             - run:
                 name: Switch to production tag
                 command: |
@@ -461,6 +481,14 @@ jobs:
           command: pytest --maxfail=3 --reuse-db --junit-xml=test-report/<< parameters.test_file_name >> .
           environment:
             DATABASE_URL: postgresql://postgres:6edef2d746f2274cab951a452d5fc13d@localhost/circle
+      - when:
+          condition: << parameters.production_with_new_migrations >>
+          steps:
+            - run:
+                name: Show latest migrations
+                command: python manage.py dbshell 'SELECT * FROM django_migrations ORDER BY id DESC LIMIT 5;'
+                environment:
+                  DATABASE_URL: postgresql://postgres:6edef2d746f2274cab951a452d5fc13d@localhost/circle
       - store_test_results:
           path: test-report
 
@@ -517,7 +545,7 @@ workflows:
 
       - python_job:
           name: sqlite migrations test
-          command: pytest --maxfail=3 --reuse-db --junit-xml=job-results/pytest-migrations.xml .
+          command: TEST_DB_NAME=test.sqlite3 pytest --maxfail=3 --reuse-db --junit-xml=job-results/pytest-migrations.xml .
           has_results: true
           allow_fail: false
           production_with_new_migrations: true
