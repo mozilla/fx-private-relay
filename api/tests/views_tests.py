@@ -63,7 +63,9 @@ def prem_api_client(premium_user: User) -> APIClient:
 
 @pytest.fixture
 def fxa_social_app(db) -> SocialApp:
-    app: SocialApp = baker.make(SocialApp, provider="fxa", sites=[Site.objects.first()])
+    app: SocialApp = baker.make(
+        SocialApp, provider="fxa", provider_id="", sites=[Site.objects.first()]
+    )
     return app
 
 

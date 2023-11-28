@@ -8,6 +8,7 @@ from unittest.mock import Mock, patch, call
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.sites.models import Site
 from django.core.cache import cache
 from django.core.exceptions import BadRequest, ValidationError
 from django.test import override_settings
@@ -86,7 +87,7 @@ def make_phone_test_user() -> User:
 
 
 def upgrade_test_user_to_phone(user):
-    baker.make(SocialApp, provider="fxa")
+    baker.make(SocialApp, provider="fxa", provider_id="", sites=[Site.objects.first()])
     random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_PHONE)
     account = baker.make(
         SocialAccount,

@@ -8,6 +8,7 @@ from uuid import uuid4
 from unittest.mock import Mock, patch
 
 from django.contrib.auth.models import User
+from django.contrib.sites.models import Site
 from django.test import Client, TestCase
 from django.utils import timezone
 
@@ -236,7 +237,9 @@ def setup_fxa_rp_events(
     profile.save()
 
     # Create FxA app, account, token, etc.
-    fxa_app: SocialApp = baker.make(SocialApp, provider="fxa")
+    fxa_app: SocialApp = baker.make(
+        SocialApp, provider="fxa", provider_id="", sites=[Site.objects.first()]
+    )
     fxa_profile_data = {
         "email": user.email,
         "locale": "en-US,en;q=0.5",
