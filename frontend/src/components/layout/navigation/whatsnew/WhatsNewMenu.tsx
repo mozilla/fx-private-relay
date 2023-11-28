@@ -73,6 +73,7 @@ import { GiftIcon } from "../../../Icons";
 import { useL10n } from "../../../../hooks/l10n";
 import { VisuallyHidden } from "../../../VisuallyHidden";
 import { useOverlayBugWorkaround } from "../../../../hooks/overlayBugWorkaround";
+import { useGaViewPing } from "../../../../hooks/gaViewPing";
 
 export type WhatsNewEntry = {
   title: string;
@@ -344,7 +345,11 @@ export const WhatsNewMenu = (props: Props) => {
       ? getPeriodicalPremiumSubscribeLink(props.runtimeData, "yearly")
       : undefined;
 
-  const yearlyPlanRefWithCoupon = `${yearlyPlanLink}&coupon=HOLIDAY20&utm_source=fx-relay&utm_medium=announcement&utm_campaign=holiday-promo-2023`;
+  const yearlyPlanRefWithCoupon = `${yearlyPlanLink}&coupon=HOLIDAY20&utm_source=relay.firefox.com&utm_medium=whatsnew-announcement&utm_campaign=relay-holiday-promo-2023`;
+  const getYearlyPlanBtnRef = useGaViewPing({
+    category: "Holiday Promo News CTA",
+    label: "holiday-promo-2023-news-cta",
+  });
 
   const holidayPromo2023: WhatsNewEntry = {
     title: l10n.getString("whatsnew-holiday-promo-2023-news-heading"),
@@ -359,6 +364,7 @@ export const WhatsNewMenu = (props: Props) => {
         cta={
           <Link
             href={yearlyPlanRefWithCoupon}
+            ref={getYearlyPlanBtnRef}
             onClick={() => {
               gaEvent({
                 category: "Holiday Promo News CTA",

@@ -43,7 +43,7 @@ export const HolidayPromoBanner = (props: Props) => {
   }
 
   const utmParams =
-    "&utm_source=fx-relay&utm_medium=banner&utm_content=holiday-promo-banner-cta&utm_campaign=holiday-promo-2023";
+    "&utm_source=fx-relay&utm_medium=banner&utm_content=holiday-promo-banner-cta&utm_campaign=relay-holiday-promo-2023";
   const subscriberLinkWithCoupon = `${subscribeLink}&coupon=${coupon}${utmParams}`;
 
   return (
