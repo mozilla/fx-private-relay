@@ -109,7 +109,7 @@ jobs:
           paths:
             - test-results/frontend-coverage/lcov-prefixed.info
             - test-results/frontend-coverage/coveralls.json
-  
+
   build_email_tracker_list_job:
     executor: python
     steps:
