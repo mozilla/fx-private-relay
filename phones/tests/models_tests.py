@@ -12,7 +12,7 @@ from django.core.cache import cache
 from django.core.exceptions import BadRequest, ValidationError
 from django.test import override_settings
 
-from allauth.socialaccount.models import SocialAccount, SocialToken
+from allauth.socialaccount.models import SocialAccount, SocialApp, SocialToken
 from model_bakery import baker
 from twilio.base.exceptions import TwilioRestException
 from emails.models import Profile
@@ -86,6 +86,7 @@ def make_phone_test_user() -> User:
 
 
 def upgrade_test_user_to_phone(user):
+    baker.make(SocialApp, provider="fxa")
     random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_PHONE)
     account = baker.make(
         SocialAccount,
