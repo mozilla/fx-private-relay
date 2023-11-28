@@ -469,7 +469,7 @@ jobs:
                 name: Show branch migrations
                 command: python manage.py dbshell '--command=SELECT * FROM django_migrations ORDER BY id DESC LIMIT 5;'
                 environment:
-                  DATABASE_URL: "postgresql://postgres:6edef2d746f2274cab951a452d5fc13d@localhost/circle"
+                  DATABASE_URL: "postgresql://postgres:6edef2d746f2274cab951a452d5fc13d@localhost/test_circle"
             - run:
                 name: Switch to production tag
                 command: |
@@ -494,7 +494,7 @@ jobs:
                 name: Show latest migrations
                 command: python manage.py dbshell '--command=SELECT * FROM django_migrations ORDER BY id DESC LIMIT 5;'
                 environment:
-                  DATABASE_URL: "postgresql://postgres:6edef2d746f2274cab951a452d5fc13d@localhost/circle"
+                  DATABASE_URL: "postgresql://postgres:6edef2d746f2274cab951a452d5fc13d@localhost/test_circle"
       - store_test_results:
           path: test-report
 
