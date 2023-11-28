@@ -364,6 +364,9 @@ jobs:
                 environment:
                   TEST_DB_NAME: "test.sqlite3"
             - run:
+                name: Install sqlite3
+                command: sudo apt-get update && sudo apt-get install -y sqlite3
+            - run:
                 name: Show latest migrations
                 command: python manage.py dbshell 'SELECT * FROM django_migrations ORDER BY id DESC LIMIT 5;'
                 environment:
@@ -462,9 +465,6 @@ jobs:
                 command: pytest --maxfail=3 --create-db --reuse-db .
                 environment:
                   DATABASE_URL: "postgresql://postgres:6edef2d746f2274cab951a452d5fc13d@localhost/circle"
-            - run:
-                name: Install sqlite3
-                command: sudo apt-get update && sudo apt-get install -y sqlite3
             - run:
                 name: Show branch migrations
                 command: python manage.py dbshell '--command="SELECT * FROM django_migrations ORDER BY id DESC LIMIT 5;"'
