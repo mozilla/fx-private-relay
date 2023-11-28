@@ -4,6 +4,8 @@
 
 ## How to run
 
+Note: Steps 1 and 2 can be skipped if you are not updating screenshots. By default, screenshots use darwin but linux is what is used in our CI/CD.
+
 ### 1. Install Docker
 
 ```
