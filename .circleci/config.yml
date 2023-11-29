@@ -80,11 +80,15 @@ executors:
     docker:
       - <<: *default_with_auth
         image: cimg/python:<<parameters.python-version>><<parameters.variant>>
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: secret-<<pipeline.id>>
+          POSTGRES_DB: circle
       - <<: *default_with_auth
         image: cimg/postgres:<<parameters.postgres-version>>
         environment:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: 6edef2d746f2274cab951a452d5fc13d
+          POSTGRES_PASSWORD: secret-<<pipeline.id>>
           POSTGRES_DB: circle
     parameters:
       <<: *python_parameters
@@ -549,7 +553,7 @@ jobs:
             - run:
                 name: Setup DATABASE_URL for postgres
                 command: |
-                  DATABASE_URL='postgresql://postgres:6edef2d746f2274cab951a452d5fc13d@localhost/circle'
+                  DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost/${POSTGRES_DB}"
                   echo "export DATABASE_URL='${DATABASE_URL}'" >> .python_job.bash
       - run:
           name: Setup shell environment
