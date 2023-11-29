@@ -404,8 +404,14 @@ jobs:
       - heroku/deploy-via-git
 
   python_job:
-    executor: python
+    executor:
+      name: <<parameters.executor>>
     parameters:
+      executor:
+        description: "Which executor to use?"
+        default: "python"
+        type: enum
+        enum: ["python", "python-with-postgres"]
       command:
         description: "What command should the job run?"
         default: "exit 1"
