@@ -104,6 +104,7 @@ const Profile: NextPage = () => {
     !runtimeData.data ||
     !profile ||
     !user ||
+    !router ||
     !aliasData.randomAliasData.data ||
     !aliasData.customAliasData.data
   ) {
@@ -233,7 +234,11 @@ const Profile: NextPage = () => {
   };
 
   // We pull UTM parameters from query
-  const { utm_campaign = "", utm_medium = "", utm_source = "" } = router.query;
+  const {
+    utm_campaign = "",
+    utm_medium = "",
+    utm_source = "",
+  } = router.query || {};
   const isFreeUserOnboardingActive = isFlagActive(
     runtimeData.data,
     "free_user_onboarding",
