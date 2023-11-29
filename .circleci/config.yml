@@ -378,7 +378,7 @@ jobs:
 
   python_job:
     executor:
-      name: <<parameters.executor>>
+      name: << parameters.executor >>
     parameters:
       executor:
         description: "Which executor to use?"
@@ -548,6 +548,26 @@ jobs:
 
                   THE_COMMAND="bash build_email_tracker_list.sh"
                   echo "export THE_COMMAND='${THE_COMMAND}'" >> .python_job.bash
+      - when:
+          condition:
+            equal: ["python-with-postgres", << parameters.executor >>]
+          steps:
+            - run:
+                name: Install dockerize
+                command: |
+                  wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz &&
+                  sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz &&
+                  rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+                environment:
+                  DOCKERIZE_VERSION: v0.6.1
+            - run:
+                name: Wait for the database
+                command: dockerize -wait tcp://localhost:5432 -timeout 1m
+            - run:
+                name: Setup DATABASE_URL for postgres
+                command: |
+                  DATABASE_URL='postgresql://postgres:6edef2d746f2274cab951a452d5fc13d@localhost/circle'
+                  echo "export DATABASE_URL='${DATABASE_URL}'" >> .python_job.bash
       - run:
           name: Setup shell environment
           command: |
@@ -606,60 +626,6 @@ jobs:
                   - email-trackers/level-one-trackers.json
                   - email-trackers/level-two-trackers.json
 
-  python_test_postgres:
-    executor: python-with-postgres
-    parameters:
-      production_with_new_migrations:
-        description: "Test if deployed code will work with new migrations."
-        type: boolean
-        default: false
-      test_results_filename:
-        description: "Name of the test report"
-        type: string
-        default: "report.xml"
-    steps:
-      - checkout_with_submodules
-      - python/install-packages:
-          pkg-manager: pip
-      - run:
-          name: Install dockerize
-          command: |
-            wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz &&
-            sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz &&
-            rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
-          environment:
-            DOCKERIZE_VERSION: v0.6.1
-      - run:
-          name: Wait for the database
-          command: dockerize -wait tcp://localhost:5432 -timeout 1m
-      - run:
-          name: Set test defaults
-          command: cp .env-dist .env
-      - run:
-          name: Create test-report directory
-          command: mkdir test-report
-      - when:
-          condition: << parameters.production_with_new_migrations >>
-          steps:
-            - run:
-                name: Switch to production tag with branch's migrations
-                command: |
-                  echo 'export PROD_TAG=$(curl --silent https://relay.firefox.com/__version__ | jq -r ".version")' >> $BASH_ENV
-                  source $BASH_ENV
-                  echo "# Production tag is ${PROD_TAG}"
-                  git fetch --force origin tag ${PROD_TAG}
-                  git checkout ${PROD_TAG}
-                  git submodule update --init --recursive
-                  git checkout --theirs "${CIRCLE_SHA1}" -- '**/migrations/**'
-                  git status
-      - run:
-          name: Run tests
-          command: pytest --junit-xml=test-report/<< parameters.test_results_filename >> .
-          environment:
-            DATABASE_URL: postgresql://postgres:6edef2d746f2274cab951a452d5fc13d@localhost/circle
-      - store_test_results:
-          path: test-report
-
 workflows:
   version: 2
   build-test-deploy:
@@ -709,7 +675,11 @@ workflows:
             tags:
               only: /.*/
 
-      - python_test_postgres:
+      - python_job:
+          name: pytest with postgres
+          command: pytest
+          executor: "python-with-postgres"
+          test_results_filename: "pytest-postgres.xml"
           filters:
             tags:
               only: /.*/
@@ -718,17 +688,19 @@ workflows:
           name: sqlite migrations test
           command: pytest
           test_results_filename: "sqlite3-migrations.xml"
-          allow_fail: false
           pytest_fail_fast: true
           production_with_new_migrations: true
           filters:
             tags:
               only: /.*/
 
-      - python_test_postgres:
+      - python_job:
           name: postgres migrations test
+          command: pytest
+          executor: "python-with-postgres"
+          test_results_filename: "postgres-migrations.xml"
+          pytest_fail_fast: true
           production_with_new_migrations: true
-          test_results_filename: psql_migrations.xml
           filters:
             tags:
               only: /.*/
