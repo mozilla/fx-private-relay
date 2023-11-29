@@ -74,7 +74,7 @@ executors:
         default: ""
         type: enum
         enum: ["", "-node", "-browsers"]
-  python-with-postgres:
+  python_with_postgres:
     # https://circleci.com/developer/images/image/cimg/python
     # https://circleci.com/developer/images/image/cimg/postgres
     docker:
@@ -371,7 +371,7 @@ jobs:
         description: "Which executor to use?"
         default: "python"
         type: enum
-        enum: ["python", "python-with-postgres"]
+        enum: ["python", "python_with_postgres"]
       command:
         description: "What command should the job run?"
         default: "pytest"
@@ -537,7 +537,7 @@ jobs:
                   echo "export THE_COMMAND='${THE_COMMAND}'" >> .python_job.bash
       - when:
           condition:
-            equal: ["python-with-postgres", << parameters.executor >>]
+            equal: ["python_with_postgres", << parameters.executor >>]
           steps:
             - run:
                 name: Install dockerize
@@ -656,7 +656,7 @@ workflows:
           <<: *default_filters
           name: pytest with postgres
           command: pytest
-          executor: "python-with-postgres"
+          executor: "python_with_postgres"
           test_results_filename: "pytest-postgres.xml"
 
       - python_job:
@@ -671,7 +671,7 @@ workflows:
           <<: *default_filters
           name: postgres migrations test
           command: pytest
-          executor: "python-with-postgres"
+          executor: "python_with_postgres"
           test_results_filename: "postgres-migrations.xml"
           pytest_fail_fast: true
           production_with_new_migrations: true
