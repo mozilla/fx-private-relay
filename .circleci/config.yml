@@ -26,6 +26,21 @@ executors:
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
+  python-with-postgres:
+    docker:
+      - image: cimg/python:3.10.13
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+      - image: cimg/postgres:14.7
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 6edef2d746f2274cab951a452d5fc13d
+          POSTGRES_DB: circle
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+
 jobs:
   build_frontend:
     docker:
@@ -389,19 +404,7 @@ jobs:
                 path: job-results
 
   python_test_postgres:
-    docker:
-      - image: cimg/python:3.10.13
-        auth:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
-      - image: cimg/postgres:14.7
-        environment:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: 6edef2d746f2274cab951a452d5fc13d
-          POSTGRES_DB: circle
-        auth:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
+    executor: python-with-postgres
     parameters:
       production_with_new_migrations:
         description: "Test if deployed code will work with new migrations."
