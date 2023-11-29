@@ -20,6 +20,12 @@ commands:
       - run: git submodule sync
       - run: git submodule update --init
 executors:
+  node:
+    docker:
+      - image: cimg/node:18.18
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
   python:
     docker:
       - image: cimg/python:3.10.13
@@ -43,11 +49,7 @@ executors:
 
 jobs:
   build_frontend:
-    docker:
-      - image: cimg/node:18.18
-        auth:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
+    executor: node
     steps:
       - checkout_with_submodules
       - node/install:
@@ -63,11 +65,7 @@ jobs:
             - ./frontend/out/
 
   test_frontend:
-    docker:
-      - image: cimg/node:18.18
-        auth:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
+    executor: node
     steps:
       - checkout
       - node/install:
