@@ -451,7 +451,7 @@ jobs:
             - run:
                 name: Setup mypy command
                 command: |
-                  if [[ "<<# parameters.mypy_strict >>1<</ parameters.mypy_strict >>" == "1" ]]
+                  if [ "<<# parameters.mypy_strict >>1<</ parameters.mypy_strict >>" == "1" ]
                   then
                     MYPY_STRICT=" --strict"
                   else
@@ -459,7 +459,7 @@ jobs:
                   fi
                   echo "export MYPY_STRICT='${MYPY_STRICT}'" >> .python_job.bash
 
-                  if [[ "<< parameters.test_results_filename >>" != "" ]]
+                  if [ "<< parameters.test_results_filename >>" != "" ]
                   then
                     MYPY_JUNIT_XML=' --junit-xml job-results/<< parameters.test_results_filename >>'
                   else
@@ -494,7 +494,7 @@ jobs:
                   echo "PHONES_ENABLED=${PHONES_ENABLED}" >> .env
                   echo "IQ_ENABLED=${IQ_ENABLED}" >> .env
 
-                  if [[ "<<# parameters.pytest_fail_fast >>1<</ parameters.pytest_fail_fast >>" == "1" ]]
+                  if [ "<<# parameters.pytest_fail_fast >>1<</ parameters.pytest_fail_fast >>" == "1" ]
                   then
                     PYTEST_FAIL_FAST=" --maxfail=3"
                   else
