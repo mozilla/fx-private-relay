@@ -29,8 +29,9 @@ executors:
   # https://circleci.com/docs/configuration-reference/#executors
   # https://circleci.com/docs/configuration-reference/#docker
   # https://circleci.com/docs/circleci-images/
+  # https://circleci.com/docs/introduction-to-yaml-configurations/#anchors-and-aliases
   docker:
-    docker:
+    docker: &default_with_auth
       # https://hub.docker.com/_/docker
       - image: docker:<<parameters.docker-version>><<parameters.variant>>
         auth:
@@ -51,10 +52,8 @@ executors:
   node:
     # https://circleci.com/developer/images/image/cimg/node
     docker:
-      - image: cimg/node:<<parameters.node-version>>
-        auth:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
+      - <<: *default_with_auth
+        image: cimg/node:<<parameters.node-version>>
     parameters:
       node-version:
         description: "version tag"
@@ -63,11 +62,9 @@ executors:
   python:
     # https://circleci.com/developer/images/image/cimg/python
     docker:
-      - image: cimg/python:<<parameters.python-version>><<parameters.variant>>
-        auth:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
-    parameters:
+      - <<: *default_with_auth
+        image: cimg/python:<<parameters.python-version>><<parameters.variant>>
+    parameters: &python_parameters
       python-version:
         description: "version tag"
         default: "3.10.13"
@@ -81,28 +78,16 @@ executors:
     # https://circleci.com/developer/images/image/cimg/python
     # https://circleci.com/developer/images/image/cimg/postgres
     docker:
-      - image: cimg/python:<<parameters.python-version>><<parameters.variant>>
-        auth:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
-      - image: cimg/postgres:<<parameters.postgres-version>>
+      - <<: *default_with_auth
+        image: cimg/python:<<parameters.python-version>><<parameters.variant>>
+      - <<: *default_with_auth
+        image: cimg/postgres:<<parameters.postgres-version>>
         environment:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: 6edef2d746f2274cab951a452d5fc13d
           POSTGRES_DB: circle
-        auth:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
     parameters:
-      python-version:
-        description: "version tag"
-        default: "3.10.13"
-        type: string
-      variant:
-        description: "python image variant"
-        default: ""
-        type: enum
-        enum: ["", "-node", "-browsers"]
+      <<: *python_parameters
       postgres-version:
         description: "version tag"
         default: "14.7"
@@ -110,10 +95,8 @@ executors:
   ruby:
     # https://circleci.com/developer/images/image/cimg/ruby
     docker:
-      - image: cimg/ruby:<<parameters.ruby-version>>
-        auth:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
+      - <<: *default_with_auth
+        image: cimg/ruby:<<parameters.ruby-version>>
     parameters:
       ruby-version:
         description: "version tag"
@@ -630,131 +613,103 @@ workflows:
   version: 2
   build-test-deploy:
     jobs:
-      - build_frontend:
+      - build_frontend: &default_filters
           filters:
             tags:
               only: /.*/
 
       - python_job:
+          <<: *default_filters
           name: build email tracker lists
           command: "build email tracker lists"
-          filters:
-            tags:
-              only: /.*/
 
       - build_test_backend:
+          <<: *default_filters
           requires:
             - "build email tracker lists"
             - build_frontend
-          filters:
-            tags:
-              only: /.*/
 
       - python_job:
+          <<: *default_filters
           name: black style check
           command: black
-          filters:
-            tags:
-              only: /.*/
 
       - python_job:
+          <<: *default_filters
           name: mypy type check
           command: mypy
           test_results_filename: "mypy.xml"
-          filters:
-            tags:
-              only: /.*/
 
       - python_job:
+          <<: *default_filters
           name: mypy strict type check
           command: mypy
           test_results_filename: "mypy-strict.xml"
           mypy_strict: true
           allow_fail: true
-          filters:
-            tags:
-              only: /.*/
 
       - python_job:
+          <<: *default_filters
           name: pytest with postgres
           command: pytest
           executor: "python-with-postgres"
           test_results_filename: "pytest-postgres.xml"
-          filters:
-            tags:
-              only: /.*/
 
       - python_job:
+          <<: *default_filters
           name: sqlite migrations test
           command: pytest
           test_results_filename: "sqlite3-migrations.xml"
           pytest_fail_fast: true
           production_with_new_migrations: true
-          filters:
-            tags:
-              only: /.*/
 
       - python_job:
+          <<: *default_filters
           name: postgres migrations test
           command: pytest
           executor: "python-with-postgres"
           test_results_filename: "postgres-migrations.xml"
           pytest_fail_fast: true
           production_with_new_migrations: true
-          filters:
-            tags:
-              only: /.*/
 
       - python_job:
+          <<: *default_filters
           name: python test phones disabled
           command: pytest
           pytest_phones_backend: no-phones
           test_results_filename: pytest-phones-disabled.xml
-          filters:
-            tags:
-              only: /.*/
 
       - python_job:
+          <<: *default_filters
           name: django 4.2 test
           command: pytest
           pytest_fail_fast: true
           test_results_filename: pytest-django-4-2.xml
           update_dependency: "Django<5"
           allow_fail: true
-          filters:
-            tags:
-              only: /.*/
 
       - python_job:
+          <<: *default_filters
           name: python test iq enabled
           command: pytest
           pytest_phones_backend: iq
           test_results_filename: pytest-iq-enabled.xml
-          filters:
-            tags:
-              only: /.*/
 
       - test_frontend:
+          <<: *default_filters
           requires:
             - build_frontend
-          filters:
-            tags:
-              only: /.*/
 
       - convert_frontend_coverage:
+          <<: *default_filters
           requires:
             - test_frontend
-          filters:
-            tags:
-              only: /.*/
 
       - upload_coverage:
+          <<: *default_filters
           requires:
             - convert_frontend_coverage
             - build_test_backend
-          filters:
-            tags:
-              only: /.*/
 
       - deploy:
           requires:
