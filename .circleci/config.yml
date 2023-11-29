@@ -194,33 +194,6 @@ jobs:
             - test-results/frontend-coverage/lcov-prefixed.info
             - test-results/frontend-coverage/coveralls.json
 
-  build_email_tracker_list_job:
-    executor: python
-    steps:
-      - checkout_with_submodules
-      - python/install-packages:
-          pkg-manager: pip
-      - run:
-          name: Set test defaults
-          command: cp .env-dist .env
-      - run:
-          name: Build level one email tracker list
-          command: ./manage.py get_latest_email_tracker_lists
-      - run:
-          name: Build level two email tracker list
-          command: ./manage.py get_latest_email_tracker_lists --tracker-level=2
-      - run:
-          name: Copy email tracker lists to persisted workspace
-          command: |
-            mkdir --parents /tmp/workspace/email-trackers
-            cp /home/circleci/project/emails/tracker_lists/level-one-trackers.json /tmp/workspace/email-trackers/
-            cp /home/circleci/project/emails/tracker_lists/level-two-trackers.json /tmp/workspace/email-trackers/
-      - persist_to_workspace:
-            root: /tmp/workspace
-            paths:
-              - email-trackers/level-one-trackers.json
-              - email-trackers/level-two-trackers.json
-
   build_test_backend:
     executor:
       name: docker
@@ -416,7 +389,7 @@ jobs:
         description: "What command should the job run?"
         default: "pytest"
         type: enum
-        enum: ["pytest", "black", "mypy"]
+        enum: ["pytest", "black", "mypy", "build email tracker lists"]
       test_results_filename:
         description: "What is the name of the jUnit XML test output? (Optional)"
         default: ""
@@ -463,8 +436,10 @@ jobs:
             cp .env-dist .env
             touch .python_job.bash
       - run:
-          name: Create empty staticfiles directory
-          command: mkdir -p staticfiles
+          name: Create empty staticfiles directories
+          command: |
+            mkdir -p staticfiles
+            mkdir -p frontend/out
       - when:
           condition: << parameters.production_with_new_migrations >>
           steps:
@@ -478,7 +453,7 @@ jobs:
             equal: ["black", << parameters.command >>]
           steps:
             - run:
-                name: Setup mypy command
+                name: Setup black command
                 command: |
                   THE_COMMAND="black --check ."
                   echo "export THE_COMMAND='${THE_COMMAND}'" >> .python_job.bash
@@ -550,6 +525,29 @@ jobs:
 
                   THE_COMMAND="pytest${PYTEST_FAIL_FAST}${PYTEST_JUNIT_XML} ."
                   echo "export THE_COMMAND='${THE_COMMAND}'" >> .python_job.bash
+      - when:
+          condition:
+            equal: ["build email tracker lists", << parameters.command >>]
+          steps:
+            - run:
+                name: Setup build email tracker list command
+                command: |
+                  echo "Creating build_email_tracker_list.sh with these commands:"
+                  echo
+
+                  cat \<<'EOF' | tee build_email_tracker_list.sh
+                  set -x
+                  ./manage.py migrate --skip-checks
+                  echo
+                  ./manage.py get_latest_email_tracker_lists
+                  ./manage.py get_latest_email_tracker_lists --tracker-level=2
+                  mkdir --parents /tmp/workspace/email-trackers
+                  cp /home/circleci/project/emails/tracker_lists/level-one-trackers.json /tmp/workspace/email-trackers/
+                  cp /home/circleci/project/emails/tracker_lists/level-two-trackers.json /tmp/workspace/email-trackers/
+                  EOF
+
+                  THE_COMMAND="bash build_email_tracker_list.sh"
+                  echo "export THE_COMMAND='${THE_COMMAND}'" >> .python_job.bash
       - run:
           name: Setup shell environment
           command: |
@@ -598,6 +596,15 @@ jobs:
           steps:
             - store_test_results:
                 path: job-results
+      - when:
+          condition:
+            equal: ["build email tracker lists", << parameters.command >>]
+          steps:
+            - persist_to_workspace:
+                root: /tmp/workspace
+                paths:
+                  - email-trackers/level-one-trackers.json
+                  - email-trackers/level-two-trackers.json
 
   python_test_postgres:
     executor: python-with-postgres
@@ -662,14 +669,16 @@ workflows:
             tags:
               only: /.*/
 
-      - build_email_tracker_list_job:
+      - python_job:
+          name: build email tracker lists
+          command: "build email tracker lists"
           filters:
             tags:
               only: /.*/
 
       - build_test_backend:
           requires:
-            - build_email_tracker_list_job
+            - "build email tracker lists"
             - build_frontend
           filters:
             tags:
