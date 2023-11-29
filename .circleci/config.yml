@@ -414,10 +414,28 @@ jobs:
         enum: ["python", "python-with-postgres"]
       command:
         description: "What command should the job run?"
-        default: "exit 1"
+        default: "pytest"
+        type: enum
+        enum: ["pytest", "black", "mypy"]
+      test_results_filename:
+        description: "What is the name of the jUnit XML test output? (Optional)"
+        default: ""
         type: string
-      has_results:
-        description: "Job will place JUnit XML in job-results subfolder"
+      pytest_fail_fast:
+        description: "pytest will stop after 3 failures"
+        type: boolean
+        default: false
+      pytest_phones_backend:
+        description: "Enable phones with Twilio or Inteliquent"
+        default: "twilio"
+        type: enum
+        enum: ["no-phones", "twilio", "iq"]
+      update_dependency:
+        description: "Update a dependency before running the command (Optional)"
+        default: ""
+        type: string
+      mypy_strict:
+        description: "mypy will use --strict"
         type: boolean
         default: false
       allow_fail:
@@ -432,15 +450,18 @@ jobs:
       - checkout_with_submodules
       - python/install-packages:
           pkg-manager: pip
-      - when:
-          condition: << parameters.has_results >>
+      - unless:
+          condition:
+            equal: ["", << parameters.test_results_filename >>]
           steps:
             - run:
                 name: Create job-results directory
                 command: mkdir job-results
       - run:
           name: Set test defaults
-          command: cp .env-dist .env
+          command: |
+            cp .env-dist .env
+            touch .python_job.bash
       - run:
           name: Create empty staticfiles directory
           command: mkdir -p staticfiles
@@ -448,10 +469,99 @@ jobs:
           condition: << parameters.production_with_new_migrations >>
           steps:
             - run:
+                name: Get production tag
+                command: |
+                  PROD_TAG=$(curl --silent https://relay.firefox.com/__version__ | jq -r ".version")
+                  echo "export PROD_TAG='${PROD_TAG}'" >> .python_job.bash
+      - when:
+          condition:
+            equal: ["black", << parameters.command >>]
+          steps:
+            - run:
+                name: Setup mypy command
+                command: |
+                  THE_COMMAND="black --check ."
+                  echo "export THE_COMMAND='${THE_COMMAND}'" >> .python_job.bash
+      - when:
+          condition:
+            equal: ["mypy", << parameters.command >>]
+          steps:
+            - run:
+                name: Setup mypy command
+                command: |
+                  if [[ "<< parameters.mypy_strict >>" == "0" ]]
+                  then
+                    MYPY_STRICT=" --strict"
+                  else
+                    MYPY_STRICT=""
+                  fi
+                  echo "export MYPY_STRICT='${MYPY_STRICT}'" >> .python_job.bash
+
+                  if [[ "<< parameters.test_results_filename >>" != "" ]]
+                  then
+                    MYPY_JUNIT_XML=' --junit-xml job-results/<< parameters.test_results_filename >>'
+                  else
+                    MYPY_JUNIT_XML=""
+                  fi
+                  echo "export MYPY_JUNIT_XML='${MYPY_JUNIT_XML}'" >> .python_job.bash
+
+                  THE_COMMAND="mypy --no-incremental${MYPY_STRICT}${MYPY_JUNIT_XML} ."
+                  echo "export THE_COMMAND='${THE_COMMAND}'" >> .python_job.bash
+      - when:
+          condition:
+            equal: ["pytest", << parameters.command >>]
+          steps:
+            - run:
+                name: Setup pytest command
+                command: |
+                  if [ "twilio" == "<< parameters.pytest_phones_backend >>" ]
+                  then
+                    PHONES_ENABLED=1
+                    IQ_ENABLED=0
+                  elif [ "iq" == "<< parameters.pytest_phones_backend >>" ]
+                  then
+                    PHONES_ENABLED=1
+                    IQ_ENABLED=1
+                  else
+                    PHONES_ENABLED=0
+                    IQ_ENABLED=0
+                  fi
+                  echo "export PHONES_ENABLED=${PHONES_ENABLED}" >> .python_job.bash
+                  echo "export IQ_ENABLED=${IQ_ENABLED}" >> .python_job.bash
+                  # Also into .env
+                  echo "PHONES_ENABLED=${PHONES_ENABLED}" >> .env
+                  echo "IQ_ENABLED=${IQ_ENABLED}" >> .env
+
+                  if [[ "<< parameters.pytest_fail_fast >>" == "1" ]]
+                  then
+                    PYTEST_FAIL_FAST=" --maxfail=3"
+                  else
+                    PYTEST_FAIL_FAST=""
+                  fi
+                  echo "export PYTEST_FAIL_FAST='${PYTEST_FAIL_FAST}'" >> .python_job.bash
+
+                  if [[ "<< parameters.test_results_filename >>" != "" ]]
+                  then
+                    PYTEST_JUNIT_XML=' --junit-xml=job-results/<< parameters.test_results_filename >>'
+                  else
+                    PYTEST_JUNIT_XML=""
+                  fi
+                  echo "export PYTEST_JUNIT_XML='${PYTEST_JUNIT_XML}'" >> .python_job.bash
+
+                  THE_COMMAND="pytest${PYTEST_FAIL_FAST}${PYTEST_JUNIT_XML} ."
+                  echo "export THE_COMMAND='${THE_COMMAND}'" >> .python_job.bash
+      - run:
+          name: Setup shell environment
+          command: |
+            echo "python_job parameters:"
+            cat .python_job.bash
+            cat .python_job.bash >> $BASH_ENV
+      - when:
+          condition: << parameters.production_with_new_migrations >>
+          steps:
+            - run:
                 name: Switch to production tag with branch's migrations
                 command: |
-                  echo 'export PROD_TAG=$(curl --silent https://relay.firefox.com/__version__ | jq -r ".version")' >> $BASH_ENV
-                  source $BASH_ENV
                   echo "# Production tag is ${PROD_TAG}"
                   git fetch --force origin tag ${PROD_TAG}
                   git checkout ${PROD_TAG}
@@ -459,20 +569,32 @@ jobs:
                   git checkout --theirs "${CIRCLE_SHA1}" -- '**/migrations/**'
                   git status
       - unless:
+          condition:
+            equal: [ "", << parameters.update_dependency >> ]
+          steps:
+            - run:
+                name: "Update dependency << parameters.update_dependency >>"
+                command: pip install --pre --upgrade "<< parameters.update_dependency >>"
+      - unless:
           condition: << parameters.allow_fail >>
           steps:
-            - run: << parameters.command >>
+            - run:
+                name: Run << parameters.command >>
+                command: |
+                  echo "${THE_COMMAND}"
+                  ${THE_COMMAND}
       - when:
           condition: << parameters.allow_fail >>
           steps:
             - run:
-                name: << parameters.command >> (failure allowed)
+                name: Run << parameters.command >> (failure allowed)
                 command: |
+                  echo "${THE_COMMAND}"
                   set +x
-                  << parameters.command >> ||
-                  echo "*** Command '<< parameters.command >>' failed, but it is allowed to fail. ***"
-      - when:
-          condition: << parameters.has_results >>
+                  ${THE_COMMAND} || echo "*** Command '${THE_COMMAND}' failed, but it is allowed to fail. ***"
+      - unless:
+          condition:
+            equal: ["", << parameters.test_results_filename >>]
           steps:
             - store_test_results:
                 path: job-results
@@ -484,7 +606,7 @@ jobs:
         description: "Test if deployed code will work with new migrations."
         type: boolean
         default: false
-      test_file_name:
+      test_results_filename:
         description: "Name of the test report"
         type: string
         default: "report.xml"
@@ -525,7 +647,7 @@ jobs:
                   git status
       - run:
           name: Run tests
-          command: pytest --junit-xml=test-report/<< parameters.test_file_name >> .
+          command: pytest --junit-xml=test-report/<< parameters.test_results_filename >> .
           environment:
             DATABASE_URL: postgresql://postgres:6edef2d746f2274cab951a452d5fc13d@localhost/circle
       - store_test_results:
@@ -555,23 +677,24 @@ workflows:
 
       - python_job:
           name: black style check
-          command: black --check .
+          command: black
           filters:
             tags:
               only: /.*/
 
       - python_job:
           name: mypy type check
-          command: mypy --no-incremental --junit-xml job-results/mypy.xml .
-          has_results: true
+          command: mypy
+          test_results_filename: "mypy.xml"
           filters:
             tags:
               only: /.*/
 
       - python_job:
           name: mypy strict type check
-          command: mypy --strict --no-incremental --junit-xml job-results/mypy.xml .
-          has_results: true
+          command: mypy
+          test_results_filename: "mypy-strict.xml"
+          mypy_strict: true
           allow_fail: true
           filters:
             tags:
@@ -584,9 +707,10 @@ workflows:
 
       - python_job:
           name: sqlite migrations test
-          command: pytest --maxfail=3 --junit-xml=job-results/pytest-migrations.xml .
-          has_results: true
+          command: pytest
+          test_results_filename: "sqlite3-migrations.xml"
           allow_fail: false
+          pytest_fail_fast: true
           production_with_new_migrations: true
           filters:
             tags:
@@ -595,27 +719,26 @@ workflows:
       - python_test_postgres:
           name: postgres migrations test
           production_with_new_migrations: true
-          test_file_name: psql_migrations.xml
+          test_results_filename: psql_migrations.xml
           filters:
             tags:
               only: /.*/
 
       - python_job:
           name: python test phones disabled
-          command: PHONES_ENABLED=0 IQ_ENABLED=0 pytest --junit-xml=job-results/pytest-phones-disabled.xml .
-          has_results: true
+          command: pytest
+          pytest_phones_backend: no-phones
+          test_results_filename: pytest-phones-disabled.xml
           filters:
             tags:
               only: /.*/
 
       - python_job:
           name: django 4.2 test
-          # YAML ">-" removes newlines, including the last, needed for
-          # multi-step command that can fail.
-          command: >-
-            pip install --pre --upgrade "Django<5";
-            pytest --maxfail=3 --junit-xml=job-results/pytest-django-4-2.xml .
-          has_results: true
+          command: pytest
+          pytest_fail_fast: true
+          test_results_filename: pytest-django-4-2.xml
+          update_dependency: "Django<5"
           allow_fail: true
           filters:
             tags:
@@ -623,8 +746,9 @@ workflows:
 
       - python_job:
           name: python test iq enabled
-          command: PHONES_ENABLED=1 IQ_ENABLED=1 pytest --junit-xml=job-results/pytest-iq-enabled.xml .
-          has_results: true
+          command: pytest
+          pytest_phones_backend: iq
+          test_results_filename: pytest-iq-enabled.xml
           filters:
             tags:
               only: /.*/
