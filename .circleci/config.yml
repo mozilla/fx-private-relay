@@ -20,25 +20,69 @@ commands:
       - run: git submodule sync
       - run: git submodule update --init
 executors:
+  # Using executors so most of the version information is here
+  # CircleCI Documentation:
+  # https://circleci.com/docs/reusing-config/#authoring-reusable-executors
+  # https://circleci.com/docs/configuration-reference/#executors
+  # https://circleci.com/docs/configuration-reference/#docker
+  # https://circleci.com/docs/circleci-images/
+  docker:
+    docker:
+      # https://hub.docker.com/_/docker
+      - image: docker:<<parameters.docker-version>><<parameters.variant>>
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+    parameters:
+      docker-version:
+        description: "version tag"
+        default: "stable"
+        type: string
+      variant:
+        description: "version tag"
+        default: ""
+        type: enum
+        # Partial list of variants, see https://hub.docker.com/_/docker
+        # Note: "-ce" is a retired variant "Community Edition" for the 18.02 series
+        enum: ["", "-git", "-ce"]
   node:
+    # https://circleci.com/developer/images/image/cimg/node
     docker:
-      - image: cimg/node:18.18
+      - image: cimg/node:<<parameters.node-version>>
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
+    parameters:
+      node-version:
+        description: "version tag"
+        default: "18.18"
+        type: string
   python:
+    # https://circleci.com/developer/images/image/cimg/python
     docker:
-      - image: cimg/python:3.10.13
+      - image: cimg/python:<<parameters.python-version>><<parameters.variant>>
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
+    parameters:
+      python-version:
+        description: "version tag"
+        default: "3.10.13"
+        type: string
+      variant:
+        description: "image variant"
+        default: ""
+        type: enum
+        enum: ["", "-node", "-browsers"]
   python-with-postgres:
+    # https://circleci.com/developer/images/image/cimg/python
+    # https://circleci.com/developer/images/image/cimg/postgres
     docker:
-      - image: cimg/python:3.10.13
+      - image: cimg/python:<<parameters.python-version>><<parameters.variant>>
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
-      - image: cimg/postgres:14.7
+      - image: cimg/postgres:<<parameters.postgres-version>>
         environment:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: 6edef2d746f2274cab951a452d5fc13d
@@ -46,7 +90,32 @@ executors:
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
-
+    parameters:
+      python-version:
+        description: "version tag"
+        default: "3.10.13"
+        type: string
+      variant:
+        description: "python image variant"
+        default: ""
+        type: enum
+        enum: ["", "-node", "-browsers"]
+      postgres-version:
+        description: "version tag"
+        default: "14.7"
+        type: string
+  ruby:
+    # https://circleci.com/developer/images/image/cimg/ruby
+    docker:
+      - image: cimg/ruby:<<parameters.ruby-version>>
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+    parameters:
+      ruby-version:
+        description: "version tag"
+        default: "2.7.2"
+        type: string
 jobs:
   build_frontend:
     executor: node
@@ -97,8 +166,7 @@ jobs:
             - test-results/frontend-coverage
 
   convert_frontend_coverage:
-    docker:
-      - image: cimg/ruby:2.7.2
+    executor: ruby
     steps:
       - attach_workspace:
           at: /tmp/workspace
@@ -151,11 +219,9 @@ jobs:
               - email-trackers/level-two-trackers.json
 
   build_test_backend:
-    docker:
-      - image: docker:stable-git
-        auth:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
+    executor:
+      name: docker
+      variant: "-git"
     working_directory: /dockerflow
     steps:
       - attach_workspace:
@@ -282,8 +348,9 @@ jobs:
             - docker.tar
 
   upload_coverage:
-    docker:
-      - image: cimg/python:3.10.13-node
+    executor:
+      name: python
+      variant: "-node"
     steps:
       - attach_workspace:
           at: /tmp/workspace
@@ -296,11 +363,11 @@ jobs:
             coveralls --merge=/tmp/workspace/test-results/frontend-coverage/coveralls.json
 
   deploy:
-    docker:
-      - image: docker:18.02.0-ce
-        auth:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
+    executor:
+      name: docker
+      # TODO: Try to update this. Published Feb 2018.
+      docker-version: "18.02.0"
+      variant: "-ce"
     steps:
       - setup_remote_docker:
           docker_layer_caching: True
