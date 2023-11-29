@@ -61,6 +61,7 @@ import { SubdomainInfoTooltip } from "../../components/dashboard/subdomain/Subdo
 import Link from "next/link";
 import { FreeOnboarding } from "../../components/dashboard/FreeOnboarding";
 import Confetti from "react-confetti";
+import { useRouter } from "next/router";
 
 const Profile: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -68,6 +69,7 @@ const Profile: NextPage = () => {
   const userData = useUsers();
   const aliasData = useAliases();
   const addonData = useAddonData();
+  const router = useRouter();
   const l10n = useL10n();
   const freeOnboardingCelebrationStep =
     // +1 because we want to show the celebration confetti after the last step
@@ -230,13 +232,28 @@ const Profile: NextPage = () => {
     }
   };
 
-  // free user onboarding experience
-  if (
-    isFlagActive(runtimeData.data, "free_user_onboarding") &&
+  // We pull UTM parameters from query
+  const { utm_campaign = "", utm_medium = "", utm_source = "" } = router.query;
+  const isFreeUserOnboardingActive = isFlagActive(
+    runtimeData.data,
+    "free_user_onboarding",
+  );
+
+  // We validate UTM parameters to ensure they match the expected values for the onboarding campaign
+  const isValidUtmParameters =
+    utm_campaign === "relay-onboarding" &&
+    utm_source === "relay-onboarding" &&
+    utm_medium === "email";
+
+  // Determine if the user is part of the target audience for onboarding
+  // This checks if the user does not have a premium account and has not completed all onboarding steps
+  const isTargetAudience =
     !profile.has_premium &&
     profile.onboarding_free_state <
-      getRuntimeConfig().maxOnboardingFreeAvailable
-  ) {
+      getRuntimeConfig().maxOnboardingFreeAvailable;
+
+  // Conditions: onboarding is active, UTM parameters are valid, and the user is part of the target audience
+  if (isFreeUserOnboardingActive && isValidUtmParameters && isTargetAudience) {
     const onNextStep = (step: number) => {
       profileData.update(profile.id, {
         onboarding_free_state: step,
