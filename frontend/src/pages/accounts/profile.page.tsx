@@ -524,15 +524,14 @@ const Profile: NextPage = () => {
       {/* confetti animation should be shown if user has sent first forwarded email, is a free user, and has not reached the max onboarding step */}
       {isFlagActive(runtimeData.data, "free_user_onboarding") &&
         !profile.has_premium &&
-        profile.forwarded_first_reply &&
-        profile.onboarding_state < freeOnboardingCelebrationStep && (
+        profile.onboarding_free_state < freeOnboardingCelebrationStep && (
           <Confetti
             tweenDuration={5000}
             gravity={0.2}
             recycle={false}
             onConfettiComplete={() => {
               profileData.update(profile.id, {
-                onboarding_state: freeOnboardingCelebrationStep,
+                onboarding_free_state: freeOnboardingCelebrationStep,
               });
             }}
           />

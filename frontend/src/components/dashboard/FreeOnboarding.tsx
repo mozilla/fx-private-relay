@@ -182,7 +182,6 @@ export const FreeOnboarding = (props: Props) => {
         {l10n.getString(
           "profile-free-onboarding--copy-mask-how-forwarding-works",
         )}
-        <Image src={Plus} alt="" />
       </Button>
     );
 
