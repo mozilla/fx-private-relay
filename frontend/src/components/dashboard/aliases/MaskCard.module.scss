@@ -81,6 +81,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
 
+        // Magic numbers: Stops long mask domains from overflowing, and enforces an ellipsis.
         @media screen and #{$mq-sm} {
           max-width: 350px; // Flex items wrap on smaller screens, hence there is more space
         }
@@ -90,9 +91,11 @@
         @media screen and (min-width: $content-lg) {
           max-width: 400px;
         }
-        // Stops long mask domain from cutting into the "Block promotions label"
+        // Note: Since the mask card is being used in a container (.main-wrapper) with a max-width of $content-xl,
+        // this will work. But if we use a mask card where the max-width of the parent container is < $content-xl,
+        // this formatting will break and could cause overflow (ex. MPP-3594). It could be worthwhile to do a re-design of the mask card CSS as whole.
         @media screen and (min-width: $content-xl) {
-          max-width: calc($content-md - 100px);
+          max-width: calc($content-md - 140px);
         }
       }
 
