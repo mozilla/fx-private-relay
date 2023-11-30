@@ -82,7 +82,7 @@ const ConfirmModal = (props: Props) => {
   return (
     <PickerDialog
       headline={l10n.getString(
-        "profile-free-onboarding--copy-mask-try-out-email-forwarding",
+        "profile-free-onboarding-copy-mask-try-out-email-forwarding",
       )}
       onClose={() => props.onClose()}
       image={ForwardEmail}
@@ -91,7 +91,7 @@ const ConfirmModal = (props: Props) => {
     >
       <div className={styles["paste-email-mask-container"]}>
         <p className={styles["modal-title"]}>
-          {l10n.getString("profile-free-onboarding--copy-mask-paste-the-email")}
+          {l10n.getString("profile-free-onboarding-copy-mask-paste-the-email")}
         </p>
         <form
           onSubmit={onSubmit}
@@ -105,7 +105,7 @@ const ConfirmModal = (props: Props) => {
             ref={inputRef}
             className={styles["label-input"]}
             placeholder={l10n.getString(
-              "profile-free-onboarding--copy-mask-placeholder-relay-email-mask",
+              "profile-free-onboarding-copy-mask-placeholder-relay-email-mask",
             )}
             type="email"
           />
@@ -116,11 +116,11 @@ const ConfirmModal = (props: Props) => {
         type="submit"
         onClick={onSubmit}
       >
-        {l10n.getString("profile-free-onboarding--copy-mask-send-email")}
+        {l10n.getString("profile-free-onboarding-copy-mask-send-email")}
       </Button>
 
       <button className={styles["nevermind-link"]} onClick={props.onClose}>
-        {l10n.getString("profile-free-onboarding--copy-mask-nevermind")}
+        {l10n.getString("profile-free-onboarding-copy-mask-nevermind")}
       </button>
     </PickerDialog>
   );
@@ -131,9 +131,7 @@ const SuccessModal = (props: Props) => {
 
   return (
     <PickerDialog
-      headline={l10n.getString(
-        "profile-free-onboarding--copy-mask-check-inbox",
-      )}
+      headline={l10n.getString("profile-free-onboarding-copy-mask-check-inbox")}
       onClose={() => props.onClose()}
       image={ForwardedEmail}
       isOpen={props.isOpen}
@@ -141,14 +139,14 @@ const SuccessModal = (props: Props) => {
     >
       <div className={styles["paste-email-mask-container"]}>
         <p className={styles["modal-title-success"]}>
-          {l10n.getString("profile-free-onboarding--copy-mask-email-this-mask")}
+          {l10n.getString("profile-free-onboarding-copy-mask-email-this-mask")}
         </p>
       </div>
       <Button
         className={styles["generate-new-mask"]}
         onClick={props.onComplete}
       >
-        {l10n.getString("profile-free-onboarding--copy-mask-continue")}
+        {l10n.getString("profile-free-onboarding-copy-mask-continue")}
       </Button>
     </PickerDialog>
   );
@@ -183,7 +181,7 @@ const PickerDialog = (props: PickerDialogProps & AriaOverlayProps) => {
         >
           <CloseIcon
             className={styles["close-icon"]}
-            alt={l10n.getString("profile-free-onboarding--close-modal")}
+            alt={l10n.getString("profile-free-onboarding-close-modal")}
             onClick={props.onClose}
           />
           <div className={styles.hero}>
