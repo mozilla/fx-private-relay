@@ -105,13 +105,13 @@ export const FreeOnboarding = (props: Props) => {
         className={styles["skip-link"]}
         onClick={skipMaskCreation}
       >
-        {l10n.getString("profile-free-onboarding--skip-step")}
+        {l10n.getString("profile-free-onboarding-skip-step")}
       </button>
     );
 
     button = (
       <Button className={styles["generate-new-mask"]} onClick={createNewMask}>
-        {l10n.getString("profile-free-onboarding--welcome-generate-new-mask")}
+        {l10n.getString("profile-free-onboarding-welcome-generate-new-mask")}
         <Image src={Plus} alt="" />
       </Button>
     );
@@ -167,7 +167,7 @@ export const FreeOnboarding = (props: Props) => {
         className={styles["next-link"]}
         onClick={nextStep}
       >
-        {l10n.getString("profile-free-onboarding--next-step")}
+        {l10n.getString("profile-free-onboarding-next-step")}
         <ChevronRightIcon className={styles.chevron} width={16} alt="" />
       </button>
     );
@@ -180,7 +180,7 @@ export const FreeOnboarding = (props: Props) => {
         }}
       >
         {l10n.getString(
-          "profile-free-onboarding--copy-mask-how-forwarding-works",
+          "profile-free-onboarding-copy-mask-how-forwarding-works",
         )}
       </Button>
     );
@@ -191,7 +191,7 @@ export const FreeOnboarding = (props: Props) => {
         className={styles["skip-link"]}
         onClick={skipMaskTesting}
       >
-        {l10n.getString("profile-free-onboarding--skip-step")}
+        {l10n.getString("profile-free-onboarding-skip-step")}
       </button>
     );
   }
@@ -229,7 +229,7 @@ export const FreeOnboarding = (props: Props) => {
         className={styles["next-link"]}
         onClick={finish}
       >
-        {l10n.getString("profile-free-onboarding--addon-finish")}
+        {l10n.getString("profile-free-onboarding-addon-finish")}
         <ChevronRightIcon className={styles.chevron} width={16} alt="" />
       </button>
     );
@@ -241,7 +241,7 @@ export const FreeOnboarding = (props: Props) => {
           target="_blank"
           className={`is-hidden-with-addon ${styles["get-addon-button"]}`}
         >
-          {l10n.getString("profile-free-onboarding--addon-get-extension")}
+          {l10n.getString("profile-free-onboarding-addon-get-extension")}
         </LinkButton>
         <div className={`${styles["addon-description"]} is-visible-with-addon`}>
           <div className={styles["action-complete"]}>
@@ -258,7 +258,7 @@ export const FreeOnboarding = (props: Props) => {
         className={styles["skip-link"]}
         onClick={skipAddonStep}
       >
-        {l10n.getString("profile-free-onboarding--skip-step")}
+        {l10n.getString("profile-free-onboarding-skip-step")}
       </button>
     );
   }
@@ -323,8 +323,8 @@ const StepOne = () => {
   return (
     <div className={`${styles.step} ${styles["step-welcome"]}`}>
       <div className={styles["welcome-header"]}>
-        <h1>{l10n.getString("profile-free-onboarding--welcome-headline")}</h1>
-        <p>{l10n.getString("profile-free-onboarding--welcome-description")}</p>
+        <h1>{l10n.getString("profile-free-onboarding-welcome-headline")}</h1>
+        <p>{l10n.getString("profile-free-onboarding-welcome-description")}</p>
       </div>
       <div className={styles["content-wrapper"]}>
         <Image src={WomanEmail} alt="" width={475} />
@@ -333,24 +333,24 @@ const StepOne = () => {
             <Image className={styles["hidden-mobile"]} src={CheckMark} alt="" />
             <p className={styles["headline"]}>
               {l10n.getString(
-                "profile-free-onboarding--welcome-item-headline-1",
+                "profile-free-onboarding-welcome-item-headline-1",
               )}
             </p>
             <p className={styles["description"]}>
               {l10n.getString(
-                "profile-free-onboarding--welcome-item-description-1",
+                "profile-free-onboarding-welcome-item-description-1",
               )}
             </p>
           </div>
           <div>
             <p className={styles["headline"]}>
               {l10n.getString(
-                "profile-free-onboarding--welcome-item-headline-2",
+                "profile-free-onboarding-welcome-item-headline-2",
               )}
             </p>
             <p className={styles["description"]}>
               {l10n.getString(
-                "profile-free-onboarding--welcome-item-description-2",
+                "profile-free-onboarding-welcome-item-description-2",
               )}
             </p>
           </div>
@@ -392,10 +392,8 @@ const StepTwo = (props: StepTwoProps) => {
         isSet={isSet}
       />
       <div className={styles["copy-mask-header"]}>
-        <h1>{l10n.getString("profile-free-onboarding--copy-mask-headline")}</h1>
-        <p>
-          {l10n.getString("profile-free-onboarding--copy-mask-description")}
-        </p>
+        <h1>{l10n.getString("profile-free-onboarding-copy-mask-headline")}</h1>
+        <p>{l10n.getString("profile-free-onboarding-copy-mask-description")}</p>
       </div>
       <div className={styles["content-wrapper-copy-mask"]}>
         <div className={styles["copy-mask-arrow-element"]}>
@@ -417,12 +415,12 @@ const StepTwo = (props: StepTwoProps) => {
               <div className={styles["content-text"]}>
                 <p className={styles["headline"]}>
                   {l10n.getString(
-                    "profile-free-onboarding--copy-mask-item-headline-1",
+                    "profile-free-onboarding-copy-mask-item-headline-1",
                   )}
                 </p>
                 <p className={styles["description"]}>
                   {l10n.getString(
-                    "profile-free-onboarding--copy-mask-item-description-1",
+                    "profile-free-onboarding-copy-mask-item-description-1",
                   )}
                 </p>
               </div>
@@ -433,12 +431,12 @@ const StepTwo = (props: StepTwoProps) => {
               <div className={styles["content-text"]}>
                 <p className={styles["headline"]}>
                   {l10n.getString(
-                    "profile-free-onboarding--copy-mask-item-headline-2",
+                    "profile-free-onboarding-copy-mask-item-headline-2",
                   )}
                 </p>
                 <p className={styles["description"]}>
                   {l10n.getString(
-                    "profile-free-onboarding--copy-mask-item-description-2",
+                    "profile-free-onboarding-copy-mask-item-description-2",
                   )}
                 </p>
               </div>
@@ -458,18 +456,18 @@ const StepThree = () => {
       className={`${styles.step} ${styles["step-copy-mask"]} ${styles["mask-use"]}`}
     >
       <div className={styles["copy-mask-header"]}>
-        <h1>{l10n.getString("profile-free-onboarding--addon-headline")}</h1>
-        <p>{l10n.getString("profile-free-onboarding--addon-subheadline")}</p>
+        <h1>{l10n.getString("profile-free-onboarding-addon-headline")}</h1>
+        <p>{l10n.getString("profile-free-onboarding-addon-subheadline")}</p>
       </div>
       <div className={styles["addon-content-wrapper"]}>
         <div className={styles["addon-content-items"]}>
           <div className={styles["addon-content-text"]}>
             <p className={styles.headline}>
-              {l10n.getString("profile-free-onboarding--addon-item-headline-1")}
+              {l10n.getString("profile-free-onboarding-addon-item-headline-1")}
             </p>
             <p className={styles.description}>
               {l10n.getString(
-                "profile-free-onboarding--addon-item-description-1",
+                "profile-free-onboarding-addon-item-description-1",
               )}
             </p>
             <Image className={styles["large-arrow"]} src={LargeArrow} alt="" />
@@ -481,11 +479,11 @@ const StepThree = () => {
           <Image src={Extension} alt="" />
           <div className={styles["addon-content-text"]}>
             <p className={styles.headline}>
-              {l10n.getString("profile-free-onboarding--addon-item-headline-2")}
+              {l10n.getString("profile-free-onboarding-addon-item-headline-2")}
             </p>
             <p className={styles.description}>
               {l10n.getString(
-                "profile-free-onboarding--addon-item-description-2",
+                "profile-free-onboarding-addon-item-description-2",
               )}
             </p>
             <Image className={styles["small-arrow"]} src={SmallArrow} alt="" />

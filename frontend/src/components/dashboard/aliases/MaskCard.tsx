@@ -239,7 +239,7 @@ export const MaskCard = (props: Props) => {
                   <div className={styles["onboarding-alias-text"]}>
                     <p>
                       {l10n.getString(
-                        "profile-free-onboarding--copy-mask-what-emails-to-block",
+                        "profile-free-onboarding-copy-mask-what-emails-to-block",
                       )}
                     </p>
                   </div>
