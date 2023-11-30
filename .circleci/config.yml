@@ -363,6 +363,15 @@ jobs:
       - heroku/install
       - heroku/deploy-via-git
 
+  # python_job is a generic job for Python and Django tests
+  # It avoids duplicating code and forgetting to duplicate fixes
+  # Section 1: Prepare environment
+  # Section 2: Setup bash function "the_command", others
+  # Section 3: Setup postgres, if selected
+  # Section 4: Setup migrations test, if selected
+  # Section 5: Update dependency, if selected
+  # Section 6: Run the command
+  # Section 7: Save results
   python_job:
     executor:
       name: << parameters.executor >>
@@ -407,6 +416,7 @@ jobs:
         type: boolean
         default: false
     steps:
+      # Section 1: Prepare environment
       - checkout_with_submodules
       - python/install-packages:
           pkg-manager: pip
@@ -419,9 +429,7 @@ jobs:
                 command: mkdir job-results
       - run:
           name: Set test defaults
-          command: |
-            cp .env-dist .env
-            touch .python_job.bash
+          command: cp .env-dist .env
       - run:
           name: Create empty staticfiles directories
           command: |
@@ -433,8 +441,10 @@ jobs:
             - run:
                 name: Get production tag
                 command: |
+                  set -x
                   PROD_TAG=$(curl --silent https://relay.firefox.com/__version__ | jq -r ".version")
-                  echo "export PROD_TAG='${PROD_TAG}'" >> .python_job.bash
+                  echo "export PROD_TAG=$(printf '%q' "${PROD_TAG}")" >> $BASH_ENV
+      # Section 2: Setup bash function "the_command", others
       - when:
           condition:
             equal: ["black", << parameters.command >>]
@@ -442,8 +452,12 @@ jobs:
             - run:
                 name: Setup black command
                 command: |
-                  THE_COMMAND="black --check ."
-                  echo "export THE_COMMAND='${THE_COMMAND}'" >> .python_job.bash
+                  cat \<<'EOF' | tee --append $BASH_ENV
+                  the_command() {
+                    set -x
+                    black --check .
+                  }
+                  EOF
       - when:
           condition:
             equal: ["mypy", << parameters.command >>]
@@ -451,24 +465,23 @@ jobs:
             - run:
                 name: Setup mypy command
                 command: |
-                  if [ "<<# parameters.mypy_strict >>1<</ parameters.mypy_strict >>" == "1" ]
-                  then
-                    MYPY_STRICT=" --strict"
-                  else
-                    MYPY_STRICT=""
-                  fi
-                  echo "export MYPY_STRICT='${MYPY_STRICT}'" >> .python_job.bash
-
-                  if [ "<< parameters.test_results_filename >>" != "" ]
-                  then
-                    MYPY_JUNIT_XML=' --junit-xml job-results/<< parameters.test_results_filename >>'
-                  else
-                    MYPY_JUNIT_XML=""
-                  fi
-                  echo "export MYPY_JUNIT_XML='${MYPY_JUNIT_XML}'" >> .python_job.bash
-
-                  THE_COMMAND="mypy --no-incremental${MYPY_STRICT}${MYPY_JUNIT_XML} ."
-                  echo "export THE_COMMAND='${THE_COMMAND}'" >> .python_job.bash
+                  cat \<<'EOF' | tee --append $BASH_ENV
+                  the_command() {
+                    # set -x  # Uncomment to debug
+                    MYPY_ARGS=("--no-incremental")
+                    if [ "<<# parameters.mypy_strict >>mypy_strict<</ parameters.mypy_strict >>" == "mypy_strict" ]
+                    then
+                      MYPY_ARGS+=("--strict")
+                    fi
+                    if [ "<< parameters.test_results_filename >>" != "" ]
+                    then
+                      MYPY_ARGS+=("--junit-xml" "job-results/<< parameters.test_results_filename >>")
+                    fi
+                    MYPY_ARGS+=(".")
+                    set -x
+                    mypy "${MYPY_ARGS[@]}"
+                  }
+                  EOF
       - when:
           condition:
             equal: ["pytest", << parameters.command >>]
@@ -476,6 +489,7 @@ jobs:
             - run:
                 name: Setup pytest command
                 command: |
+                  cat \<<'EOF' | tee --append $BASH_ENV
                   if [ "twilio" == "<< parameters.pytest_phones_backend >>" ]
                   then
                     PHONES_ENABLED=1
@@ -488,30 +502,38 @@ jobs:
                     PHONES_ENABLED=0
                     IQ_ENABLED=0
                   fi
-                  echo "export PHONES_ENABLED=${PHONES_ENABLED}" >> .python_job.bash
-                  echo "export IQ_ENABLED=${IQ_ENABLED}" >> .python_job.bash
-                  # Also into .env
-                  echo "PHONES_ENABLED=${PHONES_ENABLED}" >> .env
-                  echo "IQ_ENABLED=${IQ_ENABLED}" >> .env
 
-                  if [ "<<# parameters.pytest_fail_fast >>1<</ parameters.pytest_fail_fast >>" == "1" ]
+                  if [ "<<# parameters.pytest_fail_fast >>pytest_fail_fast<</ parameters.pytest_fail_fast >>" == "pytest_fail_fast" ]
                   then
-                    PYTEST_FAIL_FAST=" --maxfail=3"
+                    PYTEST_FAIL_FAST=1
                   else
-                    PYTEST_FAIL_FAST=""
+                    PYTEST_FAIL_FAST=0
                   fi
-                  echo "export PYTEST_FAIL_FAST='${PYTEST_FAIL_FAST}'" >> .python_job.bash
 
-                  if [[ "<< parameters.test_results_filename >>" != "" ]]
-                  then
-                    PYTEST_JUNIT_XML=' --junit-xml=job-results/<< parameters.test_results_filename >>'
-                  else
-                    PYTEST_JUNIT_XML=""
-                  fi
-                  echo "export PYTEST_JUNIT_XML='${PYTEST_JUNIT_XML}'" >> .python_job.bash
+                  the_command() {
+                    # set -x  # Uncomment to debug
 
-                  THE_COMMAND="pytest${PYTEST_FAIL_FAST}${PYTEST_JUNIT_XML} ."
-                  echo "export THE_COMMAND='${THE_COMMAND}'" >> .python_job.bash
+                    # Put the settings into .env
+                    echo "PHONES_ENABLED=${PHONES_ENABLED}" >> .env
+                    echo "IQ_ENABLED=${IQ_ENABLED}" >> .env
+
+                    local PYTEST_ARGS=()
+                    if [ $PYTEST_FAIL_FAST -eq 1 ]
+                    then
+                      PYTEST_ARGS+=("--maxfail=3")
+                    fi
+
+                    if [ "<< parameters.test_results_filename >>" != "" ] && [ "$1" != "--skip-results" ]
+                    then
+                      PYTEST_ARGS+=('--junit-xml=job-results/<< parameters.test_results_filename >>')
+                    fi
+
+                    PYTEST_ARGS+=(".")
+                    echo "PHONES_ENABLED=${PHONES_ENABLED}, IQ_ENABLED=${IQ_ENABLED}"
+                    set -x
+                    pytest ${PYTEST_ARGS[@]}
+                  }
+                  EOF
       - when:
           condition:
             equal: ["build email tracker lists", << parameters.command >>]
@@ -519,22 +541,19 @@ jobs:
             - run:
                 name: Setup build email tracker list command
                 command: |
-                  echo "Creating build_email_tracker_list.sh with these commands:"
-                  echo
-
-                  cat \<<'EOF' | tee build_email_tracker_list.sh
-                  set -x
-                  ./manage.py migrate --skip-checks
-                  echo
-                  ./manage.py get_latest_email_tracker_lists
-                  ./manage.py get_latest_email_tracker_lists --tracker-level=2
-                  mkdir --parents /tmp/workspace/email-trackers
-                  cp /home/circleci/project/emails/tracker_lists/level-one-trackers.json /tmp/workspace/email-trackers/
-                  cp /home/circleci/project/emails/tracker_lists/level-two-trackers.json /tmp/workspace/email-trackers/
+                  cat \<<'EOF' | tee --append $BASH_ENV
+                  the_command() {
+                    set -x
+                    ./manage.py get_latest_email_tracker_lists --skip-checks
+                    ./manage.py get_latest_email_tracker_lists --skip-checks --tracker-level=2
+                    mkdir --parents /tmp/workspace/email-trackers
+                    cp /home/circleci/project/emails/tracker_lists/level-one-trackers.json /tmp/workspace/email-trackers/
+                    cp /home/circleci/project/emails/tracker_lists/level-two-trackers.json /tmp/workspace/email-trackers/
+                  }
                   EOF
-
-                  THE_COMMAND="bash build_email_tracker_list.sh"
-                  echo "export THE_COMMAND='${THE_COMMAND}'" >> .python_job.bash
+      # Section 3: Setup postgres, if selected
+      # This is done later in the process to give the postgres image more time
+      # to boot up.
       - when:
           condition:
             equal: ["python_with_postgres", << parameters.executor >>]
@@ -553,14 +572,10 @@ jobs:
             - run:
                 name: Setup DATABASE_URL for postgres
                 command: |
+                  set -x
                   DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost/${POSTGRES_DB}"
-                  echo "export DATABASE_URL='${DATABASE_URL}'" >> .python_job.bash
-      - run:
-          name: Setup shell environment
-          command: |
-            echo "python_job parameters:"
-            cat .python_job.bash
-            cat .python_job.bash >> $BASH_ENV
+                  echo "export DATABASE_URL=$(printf '%q' "${DATABASE_URL}")" >> $BASH_ENV
+      # Section 4: Setup migrations test, if selected
       - when:
           condition: << parameters.production_with_new_migrations >>
           steps:
@@ -573,6 +588,7 @@ jobs:
                   git submodule update --init --recursive
                   git checkout --theirs "${CIRCLE_SHA1}" -- '**/migrations/**'
                   git status
+      # Section 5: Update dependency, if selected
       - unless:
           condition:
             equal: [ "", << parameters.update_dependency >> ]
@@ -580,23 +596,21 @@ jobs:
             - run:
                 name: "Update dependency << parameters.update_dependency >>"
                 command: pip install --pre --upgrade "<< parameters.update_dependency >>"
+      # Section 6: Run the command
       - unless:
           condition: << parameters.allow_fail >>
           steps:
             - run:
                 name: Run << parameters.command >>
-                command: |
-                  echo "${THE_COMMAND}"
-                  ${THE_COMMAND}
+                command: the_command
       - when:
           condition: << parameters.allow_fail >>
           steps:
             - run:
                 name: Run << parameters.command >> (failure allowed)
                 command: |
-                  echo "${THE_COMMAND}"
-                  set +x
-                  ${THE_COMMAND} || echo "*** Command '${THE_COMMAND}' failed, but it is allowed to fail. ***"
+                  the_command || echo "*** Command '<< parameters.command >>' failed, but it is allowed to fail. ***"
+      # Section 7: Save results
       - unless:
           condition:
             equal: ["", << parameters.test_results_filename >>]
