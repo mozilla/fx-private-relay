@@ -411,6 +411,11 @@ DATABASES = {
         default="sqlite:///%s" % os.path.join(BASE_DIR, "db.sqlite3")
     )
 }
+# Optionally set a test database name.
+# This is useful for forcing an on-disk database for SQLite.
+TEST_DB_NAME = config("TEST_DB_NAME", "")
+if TEST_DB_NAME:
+    DATABASES["default"]["TEST"] = {"NAME": TEST_DB_NAME}
 
 REDIS_URL = config("REDIS_URL", "", cast=str)
 if REDIS_URL:
