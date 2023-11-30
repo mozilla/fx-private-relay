@@ -69,9 +69,6 @@ const Profile: NextPage = () => {
   const aliasData = useAliases();
   const addonData = useAddonData();
   const l10n = useL10n();
-  const freeOnboardingCelebrationStep =
-    // +1 because we want to show the celebration confetti after the last step
-    getRuntimeConfig().maxOnboardingFreeAvailable + 1;
   const setCustomDomainLinkRef = useGaViewPing({
     category: "Purchase Button",
     label: "profile-set-custom-domain",
@@ -521,18 +518,18 @@ const Profile: NextPage = () => {
         totalForwardedEmails={profile.emails_forwarded}
         totalEmailTrackersRemoved={profile.level_one_trackers_blocked}
       />
-      {/* confetti animation should be shown if user has sent first forwarded email, is a free user, and has not reached the max onboarding step */}
+      {/* Show confetti animation when user completes last step. */}
       {isFlagActive(runtimeData.data, "free_user_onboarding") &&
         !profile.has_premium &&
-        profile.forwarded_first_reply &&
-        profile.onboarding_state < freeOnboardingCelebrationStep && (
+        profile.onboarding_free_state === 3 && (
           <Confetti
             tweenDuration={5000}
             gravity={0.2}
             recycle={false}
             onConfettiComplete={() => {
+              // Update onboarding step to 4 - prevents animation from displaying again.
               profileData.update(profile.id, {
-                onboarding_state: freeOnboardingCelebrationStep,
+                onboarding_free_state: 4,
               });
             }}
           />
