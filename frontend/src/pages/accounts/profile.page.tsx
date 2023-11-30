@@ -187,6 +187,8 @@ const Profile: NextPage = () => {
       setAliasGeneratedState
         ? setAliasGeneratedState(false)
         : toast(l10n.getString("error-mask-create-failed"), { type: "error" });
+
+      return Promise.reject("Mask generation failed");
     }
   };
 
@@ -281,11 +283,12 @@ const Profile: NextPage = () => {
             onNextStep={onNextStep}
             onPickSubdomain={setCustomSubdomain}
             aliases={allAliases}
-            generateNewMask={() => createAlias({ mask_type: "random" })}
+            generateNewMask={createAlias}
             hasReachedFreeMaskLimit={freeMaskLimitReached}
             user={user}
             runtimeData={runtimeData.data}
             onUpdate={updateAlias}
+            hasAtleastOneMask={allAliases.length >= 1}
           />
         </Layout>
       </>
