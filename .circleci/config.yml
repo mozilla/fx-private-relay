@@ -113,8 +113,6 @@ jobs:
     executor: node
     steps:
       - checkout_with_submodules
-      - node/install:
-          node-version: '18'
       - node/install-packages:
         override-ci-command: npm ci --workspace frontend
       - run:
@@ -129,8 +127,6 @@ jobs:
     executor: node
     steps:
       - checkout
-      - node/install:
-          node-version: '18'
       - node/install-packages:
         override-ci-command: npm ci --workspace frontend
       - run:
