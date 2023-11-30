@@ -228,7 +228,7 @@ export const AliasList = (props: Props) => {
   };
 
   return (
-    <section>
+    <section className={styles["alias-list-container"]}>
       {isFlagActive(props.runtimeData, "free_user_onboarding") &&
       onboarding ? null : (
         <div className={styles.controls}>
