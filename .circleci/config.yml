@@ -15,6 +15,7 @@ orbs:
   python: circleci/python@2.1.1
   # https://circleci.com/developer/orbs/orb/circleci/heroku
   heroku: circleci/heroku@1.2.6
+
 commands:
   checkout_with_submodules:
     description: Checkout Relay code and submodules
@@ -22,6 +23,7 @@ commands:
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
+
 executors:
   # Using executors so most of the version information is here
   # CircleCI Documentation:
@@ -31,10 +33,10 @@ executors:
   # https://circleci.com/docs/circleci-images/
   # https://circleci.com/docs/introduction-to-yaml-configurations/#anchors-and-aliases
   docker:
-    docker: &default_with_auth
+    docker:
       # https://hub.docker.com/_/docker
       - image: docker:<<parameters.docker-version>><<parameters.variant>>
-        auth:
+        auth: &default_auth
           username: $DOCKER_USER
           password: $DOCKER_PASS
     parameters:
@@ -52,8 +54,8 @@ executors:
   node:
     # https://circleci.com/developer/images/image/cimg/node
     docker:
-      - <<: *default_with_auth
-        image: cimg/node:<<parameters.node-version>>
+      - image: cimg/node:<<parameters.node-version>>
+        auth: *default_auth
     parameters:
       node-version:
         description: "version tag"
@@ -62,8 +64,8 @@ executors:
   python:
     # https://circleci.com/developer/images/image/cimg/python
     docker:
-      - <<: *default_with_auth
-        image: cimg/python:<<parameters.python-version>><<parameters.variant>>
+      - image: cimg/python:<<parameters.python-version>><<parameters.variant>>
+        auth: *default_auth
     parameters: &python_parameters
       python-version:
         description: "version tag"
@@ -78,14 +80,14 @@ executors:
     # https://circleci.com/developer/images/image/cimg/python
     # https://circleci.com/developer/images/image/cimg/postgres
     docker:
-      - <<: *default_with_auth
-        image: cimg/python:<<parameters.python-version>><<parameters.variant>>
+      - image: cimg/python:<<parameters.python-version>><<parameters.variant>>
+        auth: *default_auth
         environment:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: secret-<<pipeline.id>>
           POSTGRES_DB: circle
-      - <<: *default_with_auth
-        image: cimg/postgres:<<parameters.postgres-version>>
+      - image: cimg/postgres:<<parameters.postgres-version>>
+        auth: *default_auth
         environment:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: secret-<<pipeline.id>>
@@ -99,8 +101,8 @@ executors:
   ruby:
     # https://circleci.com/developer/images/image/cimg/ruby
     docker:
-      - <<: *default_with_auth
-        image: cimg/ruby:<<parameters.ruby-version>>
+      - image: cimg/ruby:<<parameters.ruby-version>>
+        auth: *default_auth
     parameters:
       ruby-version:
         description: "version tag"
@@ -631,103 +633,103 @@ workflows:
   version: 2
   build-test-deploy:
     jobs:
-      - build_frontend: &default_filters
-          filters:
+      - build_frontend:
+          filters: &default_filters
             tags:
               only: /.*/
 
       - python_job:
-          <<: *default_filters
           name: build email tracker lists
           command: "build email tracker lists"
+          filters: *default_filters
 
       - build_test_backend:
-          <<: *default_filters
           requires:
             - "build email tracker lists"
             - build_frontend
+          filters: *default_filters
 
       - python_job:
-          <<: *default_filters
           name: black style check
           command: black
+          filters: *default_filters
 
       - python_job:
-          <<: *default_filters
           name: mypy type check
           command: mypy
           test_results_filename: "mypy.xml"
+          filters: *default_filters
 
       - python_job:
-          <<: *default_filters
           name: mypy strict type check
           command: mypy
           test_results_filename: "mypy-strict.xml"
           mypy_strict: true
           allow_fail: true
+          filters: *default_filters
 
       - python_job:
-          <<: *default_filters
           name: pytest with postgres
           command: pytest
           executor: "python_with_postgres"
           test_results_filename: "pytest-postgres.xml"
+          filters: *default_filters
 
       - python_job:
-          <<: *default_filters
           name: sqlite migrations test
           command: pytest
           test_results_filename: "sqlite3-migrations.xml"
           pytest_fail_fast: true
           production_with_new_migrations: true
+          filters: *default_filters
 
       - python_job:
-          <<: *default_filters
           name: postgres migrations test
           command: pytest
           executor: "python_with_postgres"
           test_results_filename: "postgres-migrations.xml"
           pytest_fail_fast: true
           production_with_new_migrations: true
+          filters: *default_filters
 
       - python_job:
-          <<: *default_filters
           name: python test phones disabled
           command: pytest
           pytest_phones_backend: no-phones
           test_results_filename: pytest-phones-disabled.xml
+          filters: *default_filters
 
       - python_job:
-          <<: *default_filters
           name: django 4.2 test
           command: pytest
           pytest_fail_fast: true
           test_results_filename: pytest-django-4-2.xml
           update_dependency: "Django<5"
           allow_fail: true
+          filters: *default_filters
 
       - python_job:
-          <<: *default_filters
           name: python test iq enabled
           command: pytest
           pytest_phones_backend: iq
           test_results_filename: pytest-iq-enabled.xml
+          filters: *default_filters
 
       - test_frontend:
-          <<: *default_filters
           requires:
             - build_frontend
+          filters: *default_filters
 
       - convert_frontend_coverage:
-          <<: *default_filters
           requires:
             - test_frontend
+          filters: *default_filters
 
       - upload_coverage:
-          <<: *default_filters
           requires:
             - convert_frontend_coverage
             - build_test_backend
+          filters: *default_filters
 
       - deploy:
           requires:
