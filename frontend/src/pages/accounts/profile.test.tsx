@@ -427,6 +427,32 @@ describe("The dashboard", () => {
     expect(addonBanner.closest(".is-hidden-with-addon")).not.toBeNull();
   });
 
+  it("does not show a banner to upgrade to Premium if the user already has Premium", () => {
+    setMockProfileDataOnce({ has_premium: true });
+    setMockRuntimeDataOnce(getMockRuntimeDataWithPeriodicalPremium());
+
+    render(<Profile />);
+
+    const premiumBanner = screen.queryByRole("link", {
+      name: "l10n string: [banner-upgrade-cta], with vars: {}",
+    });
+
+    expect(premiumBanner).not.toBeInTheDocument();
+  });
+
+  it("does not show a banner to upgrade to Premium if Premium is not available in the user's country", () => {
+    setMockProfileDataOnce({ has_premium: false });
+    setMockRuntimeDataOnce(getMockRuntimeDataWithoutPremium());
+
+    render(<Profile />);
+
+    const premiumBanner = screen.queryByRole("link", {
+      name: "l10n string: [banner-upgrade-cta], with vars: {}",
+    });
+
+    expect(premiumBanner).not.toBeInTheDocument();
+  });
+
   it("shows an upsell banner if user hits mask limit and Premium is available in their country", () => {
     const mockedConfig = setupTestEnvironmentForUpsellBanner();
 
