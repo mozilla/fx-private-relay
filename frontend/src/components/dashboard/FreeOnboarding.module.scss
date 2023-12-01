@@ -62,19 +62,19 @@
   width: 100px;
   height: 100px;
   margin: 0 auto;
+  display: none;
+
+  @media screen and #{$mq-lg} {
+    display: block;
+  }
 
   img {
-    display: none;
     position: absolute;
     width: $layout-xl;
     height: 125px;
     /* both calculations below deal with alignment of custom art element - vertical arrow */
     bottom: -30px;
     right: -86px;
-
-    @media screen and #{$mq-lg} {
-      display: block;
-    }
   }
 }
 
