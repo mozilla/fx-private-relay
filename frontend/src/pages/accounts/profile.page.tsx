@@ -254,7 +254,7 @@ const Profile: NextPage = () => {
     getRuntimeConfig().maxOnboardingFreeAvailable;
   const isTargetAudience = !profile.has_premium && isOnboarding;
 
-  // Conditions: onboarding is active, UTM parameters are valid OR the user has less than or equal to 
+  // Conditions: onboarding is active, UTM parameters are valid OR the user has less than or equal to
   // 2 masks (if in onboarding process, up to 3), and the user is part of the target audience
   if (
     isFreeUserOnboardingActive &&
