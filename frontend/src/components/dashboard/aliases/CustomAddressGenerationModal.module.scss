@@ -166,8 +166,7 @@
           color: $color-grey-40;
           font-family: $font-stack-base;
 
-          @include text-body-sm;
-
+          @include text-body-md;
           &.invalid-prefix:focus {
             outline: 5px solid $color-red-10;
             border: 2px solid $color-error;
