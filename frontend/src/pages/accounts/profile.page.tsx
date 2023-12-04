@@ -249,15 +249,18 @@ const Profile: NextPage = () => {
 
   // Determine if the user is part of the target audience for onboarding
   // This checks if the user does not have a premium account and has not completed all onboarding steps
-  const isTargetAudience =
-    !profile.has_premium &&
+  const isOnboarding =
     profile.onboarding_free_state <
-      getRuntimeConfig().maxOnboardingFreeAvailable;
+    getRuntimeConfig().maxOnboardingFreeAvailable;
+  const isTargetAudience = !profile.has_premium && isOnboarding;
 
-  // Conditions: onboarding is active, UTM parameters are valid, and the user is part of the target audience
+  // Conditions: onboarding is active, UTM parameters are valid OR the user has less than or equal to 
+  // 2 masks (if in onboarding process, up to 3), and the user is part of the target audience
   if (
     isFreeUserOnboardingActive &&
-    (isValidUtmParameters || allAliases.length <= 2) &&
+    (isValidUtmParameters ||
+      allAliases.length <= 2 ||
+      (profile.onboarding_free_state > 0 && allAliases.length <= 3)) &&
     isTargetAudience
   ) {
     const onNextStep = (step: number) => {
