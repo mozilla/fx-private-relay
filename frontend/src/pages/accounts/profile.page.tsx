@@ -184,9 +184,14 @@ const Profile: NextPage = () => {
       }
       addonData.sendEvent("aliasListUpdate");
     } catch (error) {
+      // TODO: Refactor CustomAddressGenerationModal to remove the setAliasGeneratedState callback, and instead use a try catch block.
       setAliasGeneratedState
         ? setAliasGeneratedState(false)
         : toast(l10n.getString("error-mask-create-failed"), { type: "error" });
+
+      // This is so we can catch the error when calling createAlias asynchronously and apply
+      // more logic to handle when generating a mask fails.
+      return Promise.reject("Mask generation failed");
     }
   };
 
@@ -281,11 +286,12 @@ const Profile: NextPage = () => {
             onNextStep={onNextStep}
             onPickSubdomain={setCustomSubdomain}
             aliases={allAliases}
-            generateNewMask={() => createAlias({ mask_type: "random" })}
+            generateNewMask={createAlias}
             hasReachedFreeMaskLimit={freeMaskLimitReached}
             user={user}
             runtimeData={runtimeData.data}
             onUpdate={updateAlias}
+            hasAtleastOneMask={allAliases.length >= 1}
           />
         </Layout>
       </>
