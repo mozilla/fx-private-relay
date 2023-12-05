@@ -225,7 +225,8 @@ export const FreeOnboarding = (props: Props) => {
     };
 
     const finish = () => {
-      props.onNextStep(3);
+      // this will trigger confetti in the dashboard
+      props.onNextStep(4);
       gaEvent({
         category: "Free Onboarding",
         action: "Engage",
