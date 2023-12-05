@@ -586,6 +586,26 @@ describe("The dashboard", () => {
     expect(searchFilter[0]).toBeInTheDocument();
   });
 
+  it("does not display the domain search form for non-Premium users", () => {
+    setMockProfileDataOnce({ has_premium: false });
+    render(<Profile />);
+
+    const domainSearchField = screen.queryByLabelText(
+      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}",
+    );
+    expect(domainSearchField).not.toBeInTheDocument();
+  });
+
+  it("displays the domain search form for Premium users without a domain", () => {
+    setMockProfileDataOnce({ has_premium: true, subdomain: null });
+    render(<Profile />);
+
+    const domainSearchField = screen.getByLabelText(
+      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}",
+    );
+    expect(domainSearchField).toBeInTheDocument();
+  });
+
   it("shows the Premium onboarding when the user has Premium and hasn't completed the onboarding yet", () => {
     setMockProfileDataOnce({ has_premium: true, onboarding_state: 0 });
 
