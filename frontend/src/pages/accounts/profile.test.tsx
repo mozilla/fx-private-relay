@@ -683,7 +683,7 @@ describe("The dashboard", () => {
   // Investing more time into trying to fix this probably isn't worth it,
   // compared to how likely this behaviour is to break in the future and how
   // bad that would be:
-  it.skip("shows that searched-for subdomains will be lowercased in the second step of Premium onboarding", async () => {
+  it("shows that searched-for subdomains will be lowercased in the second step of Premium onboarding", async () => {
     setMockProfileDataOnce({
       has_premium: true,
       onboarding_state: 1,
