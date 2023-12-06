@@ -1,0 +1,141 @@
+@import "../../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+
+.deletion-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: transparent;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $border-radius-sm;
+  font-weight: 600;
+  border: 2px solid transparent;
+  // Keep some space for the focus outline
+  margin: 2px;
+  color: $color-red-60;
+  line-height: 1.25;
+
+  @include text-body-md;
+
+  &:hover {
+    background-color: $color-red-70;
+    color: $color-white;
+  }
+}
+
+.underlay {
+  position: fixed;
+  background-color: rgba($color-black, 0.4);
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .dialog-wrapper {
+    background: $color-white;
+    width: calc((#{$content-sm} + #{$content-md}) / 2); // 560px
+    max-width: 90%;
+    border-radius: $border-radius-md;
+    box-shadow: $box-shadow-sm;
+    padding: $spacing-md;
+    overflow-wrap: break-word;
+
+    hr {
+      border: 1px solid $color-grey-10;
+      margin-top: $spacing-2xl;
+    }
+
+    .hero {
+      @include text-title-3xs;
+      font-family: $font-stack-firefox;
+      font-weight: 700;
+      text-align: center;
+      border-radius: $border-radius-md;
+      background-color: $color-light-gray-10;
+      padding: $spacing-lg $spacing-md;
+    }
+
+    .alias-to-delete {
+      @include text-title-3xs;
+      font-weight: 700;
+      font-family: $font-stack-firefox;
+      display: block;
+      text-align: center;
+      padding: $spacing-lg $spacing-lg $spacing-sm;
+      color: $color-grey-50;
+      margin-bottom: $spacing-sm;
+    }
+
+    .permanence-warning {
+      @include text-body-sm;
+      font-weight: 600;
+      text-align: center;
+      padding: $spacing-sm $spacing-lg;
+      color: $color-grey-50;
+      margin: 0 auto $spacing-2xl auto;
+
+      @media screen and #{$mq-md} {
+        width: 75%;
+      }
+    }
+
+    .buttons {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: $spacing-xl;
+      .delete-btn {
+        width: calc($layout-xl + $layout-lg);
+      }
+      .cancel-button {
+        border-style: none;
+        background-color: transparent;
+        cursor: pointer;
+        border-radius: $border-radius-sm;
+        color: $color-blue-50;
+        padding: $spacing-sm $spacing-md;
+
+        &:hover {
+          color: $color-link-hover;
+        }
+
+        &:focus {
+          color: $color-blue-50;
+        }
+      }
+    }
+
+    .warning-wrapper {
+      position: relative;
+      display: flex;
+      border-left: $border-radius-xs solid color $color-error;
+      align-items: center;
+      padding-left: $spacing-sm;
+      background-color: #fff;
+      gap: $spacing-md;
+      width: 90%;
+      margin: 0 auto;
+
+      .left-content {
+        display: flex;
+        align-self: self-start;
+        gap: $spacing-sm;
+
+        p {
+          @include text-body-sm;
+          color: $color-grey-50;
+        }
+      }
+
+      .prefix-error-icon {
+        flex: 0 0 auto; // Avoid shrinkage of svg icons
+      }
+    }
+  }
+}

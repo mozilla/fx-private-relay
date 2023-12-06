@@ -44,6 +44,7 @@ import { renderDate } from "../../../functions/renderDate";
 import { AliasDeletionButton } from "./AliasDeletionButton";
 import { VisuallyHidden } from "./../../VisuallyHidden";
 import HorizontalArrow from "./../images/free-onboarding-horizontal-arrow.svg";
+import { AliasDeletionButtonPermanent } from "./AliasDeletionButtonPermanent";
 
 export type Props = {
   mask: AliasData;
@@ -383,10 +384,20 @@ export const MaskCard = (props: Props) => {
               </dl>
               {!props.isOnboarding && (
                 <div className={styles["deletion-button-wrapper"]}>
-                  <AliasDeletionButton
-                    onDelete={props.onDelete}
-                    alias={props.mask}
-                  />
+                  {isFlagActive(
+                    props.runtimeData,
+                    "custom_domain_management_redesign",
+                  ) ? (
+                    <AliasDeletionButtonPermanent
+                      onDelete={props.onDelete}
+                      alias={props.mask}
+                    />
+                  ) : (
+                    <AliasDeletionButton
+                      onDelete={props.onDelete}
+                      alias={props.mask}
+                    />
+                  )}
                 </div>
               )}
             </div>
