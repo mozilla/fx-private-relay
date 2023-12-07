@@ -183,9 +183,14 @@ const Profile: NextPage = () => {
       }
       addonData.sendEvent("aliasListUpdate");
     } catch (error) {
+      // TODO: Refactor CustomAddressGenerationModal to remove the setAliasGeneratedState callback, and instead use a try catch block.
       setAliasGeneratedState
         ? setAliasGeneratedState(false)
         : toast(l10n.getString("error-mask-create-failed"), { type: "error" });
+
+      // This is so we can catch the error when calling createAlias asynchronously and apply
+      // more logic to handle when generating a mask fails.
+      return Promise.reject("Mask generation failed");
     }
   };
 
@@ -248,13 +253,20 @@ const Profile: NextPage = () => {
 
   // Determine if the user is part of the target audience for onboarding
   // This checks if the user does not have a premium account and has not completed all onboarding steps
-  const isTargetAudience =
-    !profile.has_premium &&
+  const isOnboarding =
     profile.onboarding_free_state <
-      getRuntimeConfig().maxOnboardingFreeAvailable;
+    getRuntimeConfig().maxOnboardingFreeAvailable;
+  const isTargetAudience = !profile.has_premium && isOnboarding;
 
-  // Conditions: onboarding is active, UTM parameters are valid, and the user is part of the target audience
-  if (isFreeUserOnboardingActive && isValidUtmParameters && isTargetAudience) {
+  // Conditions: onboarding is active, UTM parameters are valid OR the user has less than or equal to
+  // 2 masks (if in onboarding process, up to 3), and the user is part of the target audience
+  if (
+    isFreeUserOnboardingActive &&
+    (isValidUtmParameters ||
+      allAliases.length <= 2 ||
+      (profile.onboarding_free_state > 0 && allAliases.length <= 3)) &&
+    isTargetAudience
+  ) {
     const onNextStep = (step: number) => {
       profileData.update(profile.id, {
         onboarding_free_state: step,
@@ -280,11 +292,12 @@ const Profile: NextPage = () => {
             onNextStep={onNextStep}
             onPickSubdomain={setCustomSubdomain}
             aliases={allAliases}
-            generateNewMask={() => createAlias({ mask_type: "random" })}
+            generateNewMask={createAlias}
             hasReachedFreeMaskLimit={freeMaskLimitReached}
             user={user}
             runtimeData={runtimeData.data}
             onUpdate={updateAlias}
+            hasAtleastOneMask={allAliases.length >= 1}
           />
         </Layout>
       </>
@@ -537,7 +550,7 @@ const Profile: NextPage = () => {
       {/* Show confetti animation when user completes last step. */}
       {isFlagActive(runtimeData.data, "free_user_onboarding") &&
         !profile.has_premium &&
-        profile.onboarding_free_state === 3 && (
+        profile.onboarding_free_state === 4 && (
           <Confetti
             tweenDuration={5000}
             gravity={0.2}
@@ -545,7 +558,7 @@ const Profile: NextPage = () => {
             onConfettiComplete={() => {
               // Update onboarding step to 4 - prevents animation from displaying again.
               profileData.update(profile.id, {
-                onboarding_free_state: 4,
+                onboarding_free_state: 5,
               });
             }}
           />

@@ -118,7 +118,7 @@ def test_patch_premium_user_subdomain_cannot_be_changed(
 
     new_subdomain = "helloworldd"
     response = prem_api_client.patch(
-        reverse(viewname="profiles-detail", args=[premium_user.id]),
+        reverse(viewname="profiles-detail", args=[premium_profile.id]),
         data={"subdomain": new_subdomain},
         format="json",
     )
@@ -143,7 +143,7 @@ def test_patch_profile_fields_are_read_only_by_default(premium_user, prem_api_cl
     expected_sent_welcome_email = premium_profile.sent_welcome_email
 
     response = prem_api_client.patch(
-        reverse(viewname="profiles-detail", args=[premium_user.id]),
+        reverse(viewname="profiles-detail", args=[premium_profile.id]),
         data={
             "num_address_deleted": 5,
             "sent_welcome_email": True,
@@ -172,7 +172,7 @@ def test_profile_non_read_only_fields_update_correctly(premium_user, prem_api_cl
     old_email_tracker_remove_value = premium_profile.remove_level_one_email_trackers
 
     response = prem_api_client.patch(
-        reverse(viewname="profiles-detail", args=[premium_user.id]),
+        reverse(viewname="profiles-detail", args=[premium_profile.id]),
         data={
             "onboarding_state": 1,
             "remove_level_one_email_trackers": True,
@@ -203,7 +203,7 @@ def test_profile_patch_with_model_and_serializer_fields(premium_user, prem_api_c
     premium_profile = premium_user.profile
 
     response = prem_api_client.patch(
-        reverse(viewname="profiles-detail", args=[premium_user.id]),
+        reverse(viewname="profiles-detail", args=[premium_profile.id]),
         data={"subdomain": "vanilla", "num_address_deleted": 5},
         format="json",
     )
@@ -223,7 +223,7 @@ def test_profile_patch_with_non_read_only_and_read_only_fields(
     old_onboarding_state = premium_profile.onboarding_state
 
     response = prem_api_client.patch(
-        reverse(viewname="profiles-detail", args=[premium_user.id]),
+        reverse(viewname="profiles-detail", args=[premium_profile.id]),
         data={"onboarding_state": 1, "subdomain": "vanilla"},
         format="json",
     )
@@ -239,7 +239,7 @@ def test_profile_patch_with_non_read_only_and_read_only_fields(
 def test_profile_patch_fields_that_dont_exist(premium_user, prem_api_client):
     """A request sent with only fields that don't exist give a 200 response (this is the default behavior django provides, we decided to leave it as is)"""
     response = prem_api_client.patch(
-        reverse(viewname="profiles-detail", args=[premium_user.id]),
+        reverse(viewname="profiles-detail", args=[premium_user.profile.id]),
         data={
             "nonsense": False,
             "blabla": "blabla",

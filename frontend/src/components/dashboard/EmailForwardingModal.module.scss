@@ -100,7 +100,8 @@
   font-weight: 100;
   padding: $spacing-sm $spacing-md;
 
-  @include text-body-sm;
+  // Inputs should be atleast 16px if we want to avoid iOS auto-zooming (MPP-3598)
+  @include text-body-md;
   color: $color-grey-40;
   width: 100%;
 }

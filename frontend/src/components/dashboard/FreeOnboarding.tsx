@@ -30,12 +30,13 @@ export type Props = {
   profile: ProfileData;
   onNextStep: (step: number) => void;
   onPickSubdomain: (subdomain: string) => void;
-  generateNewMask: () => void;
+  generateNewMask: (options: { mask_type: "random" }) => Promise<void>;
   hasReachedFreeMaskLimit: boolean;
   aliases: AliasData[];
   user: UserData;
   runtimeData?: RuntimeData;
   onUpdate: (alias: AliasData, updatedFields: Partial<AliasData>) => void;
+  hasAtleastOneMask: boolean;
 };
 
 /**
@@ -86,15 +87,27 @@ export const FreeOnboarding = (props: Props) => {
       });
     };
 
-    const createNewMask = () => {
-      props.generateNewMask();
-      props.onNextStep(1);
-      gaEvent({
-        category: "Free Onboarding",
-        action: "Engage",
-        label: "onboarding-step-1-create-random-mask",
-        value: 1,
-      });
+    const createNewMask = async () => {
+      let moveToNextStep = true;
+
+      try {
+        await props.generateNewMask({ mask_type: "random" });
+      } catch (e) {
+        // On error, we can only move to the next step if the user has atleast 1 mask.
+        if (!props.hasAtleastOneMask) {
+          moveToNextStep = false;
+        }
+      }
+
+      if (moveToNextStep) {
+        props.onNextStep(1);
+        gaEvent({
+          category: "Free Onboarding",
+          action: "Engage",
+          label: "onboarding-step-1-create-random-mask",
+          value: 1,
+        });
+      }
     };
 
     step = <StepOne />;
@@ -212,7 +225,8 @@ export const FreeOnboarding = (props: Props) => {
     };
 
     const finish = () => {
-      props.onNextStep(3);
+      // this will trigger confetti in the dashboard
+      props.onNextStep(4);
       gaEvent({
         category: "Free Onboarding",
         action: "Engage",
