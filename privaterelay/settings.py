@@ -362,7 +362,7 @@ TEMPLATES = [
 RELAY_FIREFOX_DOMAIN = config("RELAY_FIREFOX_DOMAIN", "relay.firefox.com", cast=str)
 MOZMAIL_DOMAIN = config("MOZMAIL_DOMAIN", "mozmail.com", cast=str)
 MAX_NUM_FREE_ALIASES: int = config("MAX_NUM_FREE_ALIASES", 5, cast=int)
-PERIODICAL_PREMIUM_PROD_ID = config("PERIODICAL_PREMIUM_PROD_ID", "", cast=str)
+PERIODICAL_PREMIUM_PROD_ID: str = config("PERIODICAL_PREMIUM_PROD_ID", "", cast=str)
 PREMIUM_PLAN_ID_US_MONTHLY: str = config(
     "PREMIUM_PLAN_ID_US_MONTHLY", "price_1LXUcnJNcmPzuWtRpbNOajYS", cast=str
 )
@@ -544,7 +544,7 @@ ACCOUNT_ADAPTER = "privaterelay.allauth.AccountAdapter"
 ACCOUNT_PRESERVE_USERNAME_CASING = False
 ACCOUNT_USERNAME_REQUIRED = False
 
-FXA_BASE_ORIGIN = config("FXA_BASE_ORIGIN", "https://accounts.firefox.com")
+FXA_BASE_ORIGIN: str = config("FXA_BASE_ORIGIN", "https://accounts.firefox.com")
 FXA_SETTINGS_URL = config("FXA_SETTINGS_URL", f"{FXA_BASE_ORIGIN}/settings")
 FXA_SUBSCRIPTIONS_URL = config(
     "FXA_SUBSCRIPTIONS_URL", f"{FXA_BASE_ORIGIN}/subscriptions"

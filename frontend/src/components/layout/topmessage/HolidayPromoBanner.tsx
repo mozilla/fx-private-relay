@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useL10n } from "../../../hooks/l10n";
 import { Localized } from "../../Localized";
 import styles from "./HolidayPromoBanner.module.scss";
@@ -19,6 +20,7 @@ type Props = {
 
 export const HolidayPromoBanner = (props: Props) => {
   const l10n = useL10n();
+  const router = useRouter();
   const coupon = "HOLIDAY20";
   const subscribeLink = isPeriodicalPremiumAvailableInCountry(props.runtimeData)
     ? getPeriodicalPremiumSubscribeLink(props.runtimeData, "yearly")
@@ -38,7 +40,12 @@ export const HolidayPromoBanner = (props: Props) => {
     });
   };
 
-  if (props.isLoading || !subscribeLink || props.profile || isPastExpiry) {
+  if (
+    props.isLoading ||
+    !subscribeLink ||
+    (props.profile && router.pathname !== "/premium") ||
+    isPastExpiry
+  ) {
     return null;
   }
 

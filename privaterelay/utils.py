@@ -1,7 +1,7 @@
 from decimal import Decimal
 from functools import wraps
 from string import ascii_uppercase
-from typing import Callable, TypedDict
+from typing import Callable, TypedDict, cast
 import logging
 import random
 
@@ -17,7 +17,13 @@ from waffle.utils import (
     get_setting as get_waffle_setting,
 )
 
-from .plans import PlanCountryLangMapping, CountryStr
+from .plans import (
+    LanguageStr,
+    PeriodStr,
+    PlanCountryLangMapping,
+    CountryStr,
+    get_premium_country_language_mapping,
+)
 
 info_logger = logging.getLogger("eventsinfo")
 
@@ -55,6 +61,23 @@ def get_countries_info_from_lang_and_mapping(
         "available_in_country": available_in_country,
         "plan_country_lang_mapping": mapping,
     }
+
+
+def get_subplat_upgrade_link_by_language(
+    accept_language: str, period: PeriodStr = "yearly"
+) -> str:
+    country_str = guess_country_from_accept_lang(accept_language)
+    country = cast(CountryStr, country_str)
+    language_str = accept_language.split("-")[0].lower()
+    language = cast(LanguageStr, language_str)
+    country_lang_mapping = get_premium_country_language_mapping()
+    country_details = country_lang_mapping.get(country, country_lang_mapping["US"])
+    if language in country_details:
+        plan = country_details[language][period]
+    else:
+        first_key = list(country_details.keys())[0]
+        plan = country_details[first_key][period]
+    return f"{settings.FXA_BASE_ORIGIN}/subscriptions/products/{settings.PERIODICAL_PREMIUM_PROD_ID}?plan={plan['id']}"
 
 
 def _get_cc_from_request(request: HttpRequest) -> str:

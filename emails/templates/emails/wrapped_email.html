@@ -4,6 +4,7 @@
 {% endcomment %}
 {% load ftl %}
 {% load email_extras %}
+{% load waffle_tags %}
 {% withftl bundle='privaterelay.ftl_bundles.main' language=language %}
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -146,6 +147,13 @@
 
         </td>
         <td class="header-block-right" style="vertical-align: bottom;" width="50%" align="right">
+          {% flag 'holiday_promo_2023' %}
+          {% if not has_premium %}
+          <span style="display: block; filter: grayscale(100%);">
+              🎁 <a class="container-link" href="{{ subplat_upgrade_link }}&coupon=HOLIDAY20&utm_source=wrapped_email&utm_medium=email&utm_content=holiday-promo-banner-cta&utm_campaign=relay-holiday-promo-2023" style="color: #FFFFFF;">{% ftlmsg 'holiday-promo-banner-code-desc' %}</a> 🎁
+          </span>
+          {% endif %}
+          {% endflag %}
           <p class="relay-trackers-removed" style="margin: 0 16px 0 0; vertical-align: bottom; display: inline-block; color: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
             {% comment %}
               Create this as a link if we have a report link to show
