@@ -16,14 +16,6 @@ orbs:
   # https://circleci.com/developer/orbs/orb/circleci/heroku
   heroku: circleci/heroku@1.2.6
 
-commands:
-  checkout_with_submodules:
-    description: Checkout Relay code and submodules
-    steps:
-      - checkout
-      - run: git submodule sync
-      - run: git submodule update --init
-
 executors:
   # Using executors so most of the version information is here
   # CircleCI Documentation:
@@ -108,6 +100,15 @@ executors:
         description: "version tag"
         default: "2.7.2"
         type: string
+
+commands:
+  checkout_with_submodules:
+    description: Checkout Relay code and submodules
+    steps:
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
+
 jobs:
   build_frontend:
     executor: node
