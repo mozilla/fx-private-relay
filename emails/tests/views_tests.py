@@ -1651,6 +1651,7 @@ def test_wrapped_email_test_from_profile(rf):
 @pytest.mark.parametrize("has_premium", ("Yes", "No"))
 @pytest.mark.parametrize("has_tracker_report_link", ("Yes", "No"))
 @pytest.mark.parametrize("num_level_one_email_trackers_removed", ("0", "1", "2"))
+@pytest.mark.django_db
 def test_wrapped_email_test(
     rf,
     caplog,
