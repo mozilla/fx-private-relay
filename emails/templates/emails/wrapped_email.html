@@ -150,7 +150,7 @@
           {% flag 'holiday_promo_2023' %}
           {% if not has_premium %}
           <span style="display: block; filter: grayscale(100%);">
-              🎁 <a class="container-link" href="{{ SITE_ORIGIN }}/premium/?utm_source=wrapped_email&utm_medium=email&utm_content=holiday-promo-banner-cta&utm_campaign=relay-holiday-promo-2023" style="color: #FFFFFF;">{% ftlmsg 'holiday-promo-banner-code-desc' %}</a> 🎁
+              🎁 <a class="container-link" href="{{ subplat_upgrade_link }}&coupon=HOLIDAY20&utm_source=wrapped_email&utm_medium=email&utm_content=holiday-promo-banner-cta&utm_campaign=relay-holiday-promo-2023" style="color: #FFFFFF;">{% ftlmsg 'holiday-promo-banner-code-desc' %}</a> 🎁
           </span>
           {% endif %}
           {% endflag %}

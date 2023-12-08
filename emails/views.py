@@ -34,6 +34,8 @@ from django.template.loader import render_to_string
 from django.utils.html import escape
 from django.views.decorators.csrf import csrf_exempt
 
+from privaterelay.utils import get_subplat_upgrade_link_by_language
+
 
 from .models import (
     CannotMakeAddressException,
@@ -165,10 +167,12 @@ def wrap_html_email(
     tracker_report_link: str | None = None,
 ) -> str:
     """Add Relay banners, surveys, etc. to an HTML email"""
+    subplat_upgrade_link = get_subplat_upgrade_link_by_language(language)
     email_context = {
         "original_html": original_html,
         "language": language,
         "has_premium": has_premium,
+        "subplat_upgrade_link": subplat_upgrade_link,
         "display_email": display_email,
         "tracker_report_link": tracker_report_link,
         "num_level_one_email_trackers_removed": num_level_one_email_trackers_removed,
