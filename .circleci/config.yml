@@ -68,7 +68,7 @@ executors:
         auth: *default_auth
     parameters: &python_parameters
       python-version:
-        description: "version tag"
+        description: "python version tag"
         default: "3.10.13"
         type: string
       variant:
@@ -76,6 +76,10 @@ executors:
         default: ""
         type: enum
         enum: ["", "-node", "-browsers"]
+      postgres-version:
+        description: "postgres version tag"
+        default: "14.7"
+        type: string
   python_with_postgres:
     # https://circleci.com/developer/images/image/cimg/python
     # https://circleci.com/developer/images/image/cimg/postgres
@@ -94,10 +98,6 @@ executors:
           POSTGRES_DB: circle
     parameters:
       <<: *python_parameters
-      postgres-version:
-        description: "version tag"
-        default: "14.7"
-        type: string
   ruby:
     # https://circleci.com/developer/images/image/cimg/ruby
     docker:
@@ -114,7 +114,7 @@ jobs:
     steps:
       - checkout_with_submodules
       - node/install-packages:
-        override-ci-command: npm ci --workspace frontend
+          override-ci-command: npm ci --workspace frontend
       - run:
           name: Build Code
           command: npm run build --workspace frontend
@@ -128,7 +128,7 @@ jobs:
     steps:
       - checkout
       - node/install-packages:
-        override-ci-command: npm ci --workspace frontend
+          override-ci-command: npm ci --workspace frontend
       - run:
           name: Check licences of frontend dependencies
           command: npm run licensecheck --workspace frontend
@@ -371,12 +371,16 @@ jobs:
   python_job:
     executor:
       name: << parameters.executor >>
+      python-version: << parameters.python-version >>
+      variant: << parameters.variant >>
+      postgres-version: << parameters.postgres-version >>
     parameters:
       executor:
         description: "Which executor to use?"
-        default: "python"
+        default: python
         type: enum
         enum: ["python", "python_with_postgres"]
+      <<: *python_parameters
       command:
         description: "What command should the job run?"
         default: "pytest"
@@ -577,10 +581,20 @@ workflows:
           filters: *default_filters
 
       - python_job:
-          name: pytest with postgres
+          name: pytest with current postgres
           command: pytest
           executor: "python_with_postgres"
           test_results_filename: "pytest-postgres.xml"
+          filters: *default_filters
+
+      - python_job:
+          name: pytest with postgres << matrix.postgres-version >>
+          command: pytest
+          test_results_filename: "pytest-postgres-<< matrix.postgres-version >>.xml"
+          executor: python_with_postgres
+          matrix:
+            parameters:
+              postgres-version: ["15.5", "16.1"]
           filters: *default_filters
 
       - python_job:
