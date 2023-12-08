@@ -608,11 +608,11 @@ workflows:
           filters: *default_filters
 
       - python_job:
-          name: django 4.2 test
+          name: django 5.0 test
           command: pytest
           pytest_fail_fast: true
-          test_results_filename: pytest-django-4-2.xml
-          update_dependency: "Django<5"
+          test_results_filename: pytest-django-5-0.xml
+          update_dependency: "Django>=5.0,<5.1"
           allow_fail: true
           filters: *default_filters
 
