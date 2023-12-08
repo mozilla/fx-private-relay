@@ -35,12 +35,12 @@ executors:
   docker:
     docker:
       # https://hub.docker.com/_/docker
-      - image: docker:<<parameters.docker-version>><<parameters.variant>>
+      - image: docker:<<parameters.docker_version>><<parameters.variant>>
         auth: &default_auth
           username: $DOCKER_USER
           password: $DOCKER_PASS
     parameters:
-      docker-version:
+      docker_version:
         description: "version tag"
         default: "stable"
         type: string
@@ -54,20 +54,20 @@ executors:
   node:
     # https://circleci.com/developer/images/image/cimg/node
     docker:
-      - image: cimg/node:<<parameters.node-version>>
+      - image: cimg/node:<<parameters.node_version>>
         auth: *default_auth
     parameters:
-      node-version:
+      node_version:
         description: "version tag"
         default: "18.18"
         type: string
   python:
     # https://circleci.com/developer/images/image/cimg/python
     docker:
-      - image: cimg/python:<<parameters.python-version>><<parameters.variant>>
+      - image: cimg/python:<<parameters.python_version>><<parameters.variant>>
         auth: *default_auth
     parameters: &python_parameters
-      python-version:
+      python_version:
         description: "python version tag"
         default: "3.10.13"
         type: string
@@ -76,7 +76,7 @@ executors:
         default: ""
         type: enum
         enum: ["", "-node", "-browsers"]
-      postgres-version:
+      postgres_version:
         description: "postgres version tag"
         default: "14.7"
         type: string
@@ -84,13 +84,13 @@ executors:
     # https://circleci.com/developer/images/image/cimg/python
     # https://circleci.com/developer/images/image/cimg/postgres
     docker:
-      - image: cimg/python:<<parameters.python-version>><<parameters.variant>>
+      - image: cimg/python:<<parameters.python_version>><<parameters.variant>>
         auth: *default_auth
         environment:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: secret-<<pipeline.id>>
           POSTGRES_DB: circle
-      - image: cimg/postgres:<<parameters.postgres-version>>
+      - image: cimg/postgres:<<parameters.postgres_version>>
         auth: *default_auth
         environment:
           POSTGRES_USER: postgres
@@ -101,10 +101,10 @@ executors:
   ruby:
     # https://circleci.com/developer/images/image/cimg/ruby
     docker:
-      - image: cimg/ruby:<<parameters.ruby-version>>
+      - image: cimg/ruby:<<parameters.ruby_version>>
         auth: *default_auth
     parameters:
-      ruby-version:
+      ruby_version:
         description: "version tag"
         default: "2.7.2"
         type: string
@@ -327,7 +327,7 @@ jobs:
     executor:
       name: docker
       # TODO: Try to update this. Published Feb 2018.
-      docker-version: "18.02.0"
+      docker_version: "18.02.0"
       variant: "-ce"
     steps:
       - setup_remote_docker:
@@ -371,9 +371,9 @@ jobs:
   python_job:
     executor:
       name: << parameters.executor >>
-      python-version: << parameters.python-version >>
+      python_version: << parameters.python_version >>
       variant: << parameters.variant >>
-      postgres-version: << parameters.postgres-version >>
+      postgres_version: << parameters.postgres_version >>
     parameters:
       executor:
         description: "Which executor to use?"
@@ -588,13 +588,13 @@ workflows:
           filters: *default_filters
 
       - python_job:
-          name: pytest with postgres << matrix.postgres-version >>
+          name: pytest with postgres << matrix.postgres_version >>
           command: pytest
-          test_results_filename: "pytest-postgres-<< matrix.postgres-version >>.xml"
+          test_results_filename: "pytest-postgres-<< matrix.postgres_version >>.xml"
           executor: python_with_postgres
           matrix:
             parameters:
-              postgres-version: ["15.5", "16.1"]
+              postgres_version: ["15.5", "16.1"]
           filters: *default_filters
 
       - python_job:
