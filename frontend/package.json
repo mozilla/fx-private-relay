@@ -38,7 +38,7 @@
     "swr": "^2.2.4"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "^14.0.3",
+    "@next/bundle-analyzer": "^14.0.4",
     "@next/eslint-plugin-next": "^14.0.4",
     "@testing-library/dom": "^9.3.3",
     "@testing-library/jest-dom": "^6.1.5",
