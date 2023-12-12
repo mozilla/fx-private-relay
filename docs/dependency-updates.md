@@ -96,19 +96,6 @@ bundling the website. To spot-check this update, open the Preview deployment to
 verify that the website was put together successfully, and that you can navigate
 between different pages (e.g. from the home to the FAQ) without issues.
 
-### `@next/bundle-analyzer`
-
-We use this package to investigate if any of our dependencies take up an
-inordinate amount of bytes in our payload. To verify that this still runs
-successfully, run
-
-    ANALYZE=true npm run build
-
-in the `frontend` directory locally, after installing the updated dependency. It
-should create an overview of the client bundle in
-`/frontend/.next/analyze/client.html`, which should look similar to the same
-output in the `main` branch.
-
 ### `swr` and `msw`
 
 [SWR](https://swr.vercel.app/) is responsible for making requests to the
