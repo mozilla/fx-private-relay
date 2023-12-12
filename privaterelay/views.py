@@ -279,7 +279,7 @@ def _verify_jwt_with_fxa_key(
 
 def _get_account_from_jwt(authentic_jwt: FxAEvent) -> SocialAccount:
     social_account_uid = authentic_jwt["sub"]
-    return SocialAccount.objects.get(uid=social_account_uid, provider="fxa")
+    return SocialAccount.objects.get(uid=social_account_uid)
 
 
 def _get_event_keys_from_jwt(authentic_jwt: FxAEvent) -> Iterable[str]:
