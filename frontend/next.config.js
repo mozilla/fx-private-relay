@@ -49,21 +49,6 @@ runtimeConfigs.apimock = {
   fxaLogoutUrl: "/mock/logout",
 };
 
-/** @type {(config: import('next').NextConfig) => import('next').NextConfig} */
-const withBundleAnalyzer = (nextConfig) => {
-  if (process.env.ANALYZE !== "true") {
-    return nextConfig;
-  }
-  // This file is only loaded at build time, so we don't care about tree shaking
-  // being made impossible by a `require` call:
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const getAnalyzerWrapper = require("@next/bundle-analyzer");
-  const withAnalyzer = getAnalyzerWrapper({
-    enabled: process.env.ANALYZE === "true",
-  });
-  return withAnalyzer(nextConfig);
-};
-
 let applicableConfig = "production";
 if (process.env.NEXT_PUBLIC_MOCK_API === "true") {
   applicableConfig = "apimock";
@@ -73,7 +58,7 @@ if (process.env.NODE_ENV === "development") {
 }
 
 /** @type {import('next').NextConfig} */
-module.exports = withBundleAnalyzer({
+module.exports = {
   reactStrictMode: true,
   // This custom value for `pageExtensions` ensures that
   // test files are not picked up as pages to render by Next.js.
@@ -129,4 +114,4 @@ module.exports = withBundleAnalyzer({
 
     return config;
   },
-});
+};
