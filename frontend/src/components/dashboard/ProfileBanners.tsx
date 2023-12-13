@@ -6,15 +6,10 @@ import styles from "./ProfileBanners.module.scss";
 import FirefoxLogo from "./images/fx-logo.svg";
 import BundleLogo from "./images/vpn-and-relay-logo.svg";
 import AddonIllustration from "./images/banner-addon.svg";
-import RelayLogo from "./images/placeholder-logo.svg";
 import {
   getBundlePrice,
-  getPeriodicalPremiumPrice,
   isBundleAvailableInCountry,
-  isPeriodicalPremiumAvailableInCountry,
-  isPhonesAvailableInCountry,
   RuntimeDataWithBundleAvailable,
-  RuntimeDataWithPeriodicalPremiumAvailable,
 } from "../../functions/getPlan";
 import {
   isUsingFirefox,
@@ -29,7 +24,6 @@ import { renderDate } from "../../functions/renderDate";
 import { SubdomainPicker } from "./SubdomainPicker";
 import { useMinViewportWidth } from "../../hooks/mediaQuery";
 import { AliasData } from "../../hooks/api/aliases";
-import { PremiumPromoBanners } from "./PremiumPromoBanners";
 import { useL10n } from "../../hooks/l10n";
 
 export type Props = {
@@ -116,31 +110,6 @@ export const ProfileBanners = (props: Props) => {
         key="chrome-extension-banner"
       />,
     );
-  }
-
-  if (
-    !props.profile.has_premium &&
-    isPeriodicalPremiumAvailableInCountry(props.runtimeData) &&
-    props.aliases.length > 0
-  ) {
-    // Only show updated Premium Banners to users in US/CAN
-    {
-      isPhonesAvailableInCountry(props.runtimeData)
-        ? banners.push(
-            <PremiumPromoBanners
-              key="premium-banner"
-              profile={props.profile}
-              showFirstPremiumBanner={true}
-            />,
-          )
-        : banners.push(
-            <LoyalistPremiumBanner
-              key="premium-banner"
-              runtimeData={props.runtimeData}
-            />,
-            // <NoPremiumBanner key="premium-banner" runtimeData={props.runtimeData} />
-          );
-    }
   }
 
   return <div className={styles["profile-banners"]}>{banners}</div>;
@@ -287,88 +256,9 @@ const NoChromeExtensionBanner = (props: NoChromeExtensionBannerProps) => {
   );
 };
 
-type NoPremiumBannerProps = {
-  runtimeData: RuntimeDataWithPeriodicalPremiumAvailable;
-};
-
 type BundleBannerProps = {
   runtimeData: RuntimeDataWithBundleAvailable;
   profileData: ProfileData;
-};
-
-// Unused but left in for when we no longer want to use <LoyalistPremiumBanner>
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const NoPremiumBanner = (props: NoPremiumBannerProps) => {
-  const l10n = useL10n();
-
-  return (
-    <Banner
-      key="premium-banner"
-      type="promo"
-      title={l10n.getString("banner-upgrade-headline")}
-      illustration={{
-        img: <Image src={RelayLogo} alt="" width={60} height={60} />,
-      }}
-      cta={{
-        target: "/premium#pricing",
-        content: l10n.getString("banner-upgrade-cta"),
-        gaViewPing: {
-          category: "Purchase Button",
-          label: "profile-banner-promo",
-        },
-        onClick: () => {
-          gaEvent({
-            category: "Purchase Button",
-            action: "Engage",
-            label: "profile-banner-promo",
-          });
-        },
-      }}
-    >
-      <p>{l10n.getString("banner-upgrade-copy-2")}</p>
-    </Banner>
-  );
-};
-
-const LoyalistPremiumBanner = (props: NoPremiumBannerProps) => {
-  const l10n = useL10n();
-
-  return (
-    <Banner
-      key="premium-banner"
-      type="promo"
-      title={l10n.getString("banner-upgrade-loyalist-headline-2")}
-      illustration={{
-        img: <Image src={FirefoxLogo} alt="" width={60} height={60} />,
-      }}
-      cta={{
-        size: "large",
-        target: "/premium#pricing",
-        content: l10n.getString("banner-upgrade-loyalist-cta"),
-        gaViewPing: {
-          category: "Purchase Button",
-          label: "profile-banner-loyalist-promo",
-        },
-        onClick: () => {
-          gaEvent({
-            category: "Purchase Button",
-            action: "Engage",
-            label: "profile-banner-loyalist-promo",
-          });
-        },
-      }}
-    >
-      <p>
-        {l10n.getString("banner-upgrade-loyalist-copy-2", {
-          monthly_price: getPeriodicalPremiumPrice(
-            props.runtimeData,
-            "yearly",
-            l10n,
-          ),
-        })}
-      </p>
-    </Banner>
-  );
 };
 
 const BundlePromoBanner = (props: BundleBannerProps) => {

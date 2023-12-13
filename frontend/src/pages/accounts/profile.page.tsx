@@ -53,7 +53,6 @@ import { CloseIcon } from "../../components/Icons";
 import { isFlagActive } from "../../functions/waffle";
 import { DashboardSwitcher } from "../../components/layout/navigation/DashboardSwitcher";
 import { usePurchaseTracker } from "../../hooks/purchaseTracker";
-import { PremiumPromoBanners } from "../../components/dashboard/PremiumPromoBanners";
 import { useL10n } from "../../hooks/l10n";
 import { Localized } from "../../components/Localized";
 import { clearCookie, getCookie, setCookie } from "../../functions/cookies";
@@ -476,11 +475,6 @@ const Profile: NextPage = () => {
 
   const banners = (
     <section className={styles["banners-wrapper"]}>
-      {!profile.has_premium &&
-      isPeriodicalPremiumAvailableInCountry(runtimeData.data) &&
-      isFlagActive(runtimeData.data, "premium_promo_banners") ? (
-        <PremiumPromoBanners profile={profile} />
-      ) : null}
       <ProfileBanners
         profile={profile}
         user={user}

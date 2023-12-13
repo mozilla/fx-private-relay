@@ -427,18 +427,6 @@ describe("The dashboard", () => {
     expect(addonBanner.closest(".is-hidden-with-addon")).not.toBeNull();
   });
 
-  it("shows a banner to upgrade to Premium if the user does not have Premium yet and Premium is available in their country", () => {
-    setMockProfileDataOnce({ has_premium: false });
-    setMockRuntimeDataOnce(getMockRuntimeDataWithPeriodicalPremium());
-    render(<Profile />);
-
-    const premiumBanner = screen.getByRole("link", {
-      name: "l10n string: [banner-upgrade-loyalist-cta], with vars: {}",
-    });
-
-    expect(premiumBanner).toBeInTheDocument();
-  });
-
   it("does not show a banner to upgrade to Premium if the user already has Premium", () => {
     setMockProfileDataOnce({ has_premium: true });
     setMockRuntimeDataOnce(getMockRuntimeDataWithPeriodicalPremium());
@@ -598,6 +586,26 @@ describe("The dashboard", () => {
     expect(searchFilter[0]).toBeInTheDocument();
   });
 
+  it("does not display the domain search form for non-Premium users", () => {
+    setMockProfileDataOnce({ has_premium: false });
+    render(<Profile />);
+
+    const domainSearchField = screen.queryByLabelText(
+      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}",
+    );
+    expect(domainSearchField).not.toBeInTheDocument();
+  });
+
+  it("displays the domain search form for Premium users without a domain", () => {
+    setMockProfileDataOnce({ has_premium: true, subdomain: null });
+    render(<Profile />);
+
+    const domainSearchField = screen.getByLabelText(
+      "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}",
+    );
+    expect(domainSearchField).toBeInTheDocument();
+  });
+
   it("shows the Premium onboarding when the user has Premium and hasn't completed the onboarding yet", () => {
     setMockProfileDataOnce({ has_premium: true, onboarding_state: 0 });
 
@@ -675,7 +683,7 @@ describe("The dashboard", () => {
   // Investing more time into trying to fix this probably isn't worth it,
   // compared to how likely this behaviour is to break in the future and how
   // bad that would be:
-  it.skip("shows that searched-for subdomains will be lowercased in the second step of Premium onboarding", async () => {
+  it("shows that searched-for subdomains will be lowercased in the second step of Premium onboarding", async () => {
     setMockProfileDataOnce({
       has_premium: true,
       onboarding_state: 1,
