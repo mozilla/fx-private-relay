@@ -106,3 +106,9 @@ holiday-promo-banner-code-desc = Take 20% off { -brand-name-relay-premium }
 holiday-promo-banner-code-usage = Use code <coupon>{ $couponCode }</coupon> at checkout
 holiday-promo-banner-cta-button = Get 1 year of { -brand-name-premium }
 holiday-promo-banner-promo-expiry = offer ends Dec 31, 2023
+
+## Updated mask deletion strings
+
+mask-deletion-header = Delete this email mask?
+mask-deletion-warning-no-recovery = Once you delete this mask, it cannot be recovered. You will no longer receive any emails sent to it.
+mask-deletion-warning-sign-ins = If you use this mask to sign in to any accounts, you should change those account emails before deleting this mask.
