@@ -61,6 +61,7 @@ import Link from "next/link";
 import { FreeOnboarding } from "../../components/dashboard/FreeOnboarding";
 import Confetti from "react-confetti";
 import { useRouter } from "next/router";
+import { CornerNotification } from "../../components/dashboard/CornerNotification";
 
 const Profile: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -599,6 +600,11 @@ const Profile: NextPage = () => {
           </section>
           {bottomBanners}
         </main>
+        <CornerNotification
+          profile={profile}
+          runtimeData={runtimeData.data}
+          aliases={allAliases}
+        />
         <Tips profile={profile} runtimeData={runtimeData.data} />
       </Layout>
     </>
