@@ -6,7 +6,12 @@
 : ${IQ_ENABLED:=0}
 : ${MYPY_STRICT:=0}
 : ${PHONES_ENABLED:=0}
+: ${PYTEST_MIGRATIONS_MODE:=0}
 : ${TEST_RESULTS_FILENAME:=}
+: ${DATABASE_URL:=sqlite:///db.sqlite3}
+: ${TEST_DB_NAME:=test.sqlite3}
+: ${TEST_DB_URL:=sqlite:///test.sqlite3}
+: ${DATABASE_ENGINE:=sqlite}
 
 # Run black to check Python format
 function run_black {
@@ -34,6 +39,7 @@ function run_pytest {
     local SKIP_RESULTS=$1
     local PYTEST_ARGS=()
     if [ $PYTEST_FAIL_FAST -ne 0 ]; then PYTEST_ARGS+=("--maxfail=3"); fi
+    if [ $PYTEST_MIGRATIONS_MODE -ne 0 ]; then PYTEST_ARGS+=("--reuse-db"); fi
     if [ -n "$TEST_RESULTS_FILENAME" ] && [ "$SKIP_RESULTS" != "--skip-results" ]
     then
         PYTEST_ARGS+=("--junit-xml=job-results/$TEST_RESULTS_FILENAME")
@@ -101,16 +107,26 @@ function get_prod_tag {
     echo "$(curl --silent https://relay.firefox.com/__version__ | jq -r '.version')"
 }
 
-# Check out production code with migrations from the current branch
-# $1 - The commit hash / name of the current branch
-function switch_to_production_with_migrations_from {
+# Show current migrations for sqlite3 or postgresql
+function show_migrations {
+  if [ "$DATABASE_ENGINE" == "sqlite" ]
+  then
+    set -x
+    sqlite3 ${TEST_DB_NAME} "SELECT * FROM django_migrations"
+  else
+    set -x
+    psql ${TEST_DB_URL} --command="SELECT * FROM django_migrations;"
+  fi
+}
+
+# Check out production code and install requirements
+function switch_to_production {
     local PROD_TAG=$(get_prod_tag)
-    local MIGRATIONS_COMMIT=${1:-main}
     echo "# Production tag is ${PROD_TAG}"
     set -x
     git fetch --force origin tag ${PROD_TAG}
     git checkout ${PROD_TAG}
     git submodule update --init --recursive
-    git checkout --theirs "${MIGRATIONS_COMMIT}" -- '**/migrations/**'
     git status
+    pip install -r requirements.txt
 }

@@ -466,14 +466,33 @@ jobs:
             fi
             echo "export PYTEST_FAIL_FAST=${PYTEST_FAIL_FAST}" >> "$TMP_ENV"
 
+            if [ "<<# parameters.production_with_new_migrations >>production_with_new_migrations<</ parameters.production_with_new_migrations >>" == "production_with_new_migrations" ]
+            then
+              PYTEST_MIGRATIONS_MODE=1
+            else
+              PYTEST_MIGRATIONS_MODE=0
+            fi
+            echo "export PYTEST_MIGRATIONS_MODE=${PYTEST_MIGRATIONS_MODE}" >> "$TMP_ENV"
+
             TEST_RESULTS_FILENAME="<< parameters.test_results_filename >>"
             echo "export TEST_RESULTS_FILENAME=$(printf '%q' "${TEST_RESULTS_FILENAME}")" >> "$TMP_ENV"
 
             if [ "python_with_postgres" == "<<parameters.executor>>" ]
             then
               DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost/${POSTGRES_DB}"
-              echo "export DATABASE_URL=$(printf '%q' "${DATABASE_URL}")" >> "$TMP_ENV"
+              TEST_DB_NAME="test_${POSTGRES_DB}"
+              TEST_DB_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost/${TEST_DB_NAME}"
+              DATABASE_ENGINE="postgres"
+            else
+              DATABASE_URL="sqlite:///db.sqlite3"
+              TEST_DB_NAME="test.sqlite3"
+              TEST_DB_URL="sqlite:///${TEST_DB_NAME}"
+              DATABASE_ENGINE="sqlite"
             fi
+            echo "export DATABASE_URL=$(printf '%q' "${DATABASE_URL}")" >> "$TMP_ENV"
+            echo "export TEST_DB_NAME=$(printf '%q' "${TEST_DB_NAME}")" >> "$TMP_ENV"
+            echo "export TEST_DB_URL=$(printf '%q' "${TEST_DB_URL}")" >> "$TMP_ENV"
+            echo "export DATABASE_ENGINE=$(printf '%q' "${DATABASE_ENGINE}")" >> "$TMP_ENV"
 
             cat "$TMP_ENV" | tee --append "$BASH_ENV"
             cat /home/circleci/project/.circleci/python_job.bash >> "$BASH_ENV"
@@ -506,13 +525,28 @@ jobs:
             - run:
                 name: Wait for the database
                 command: wait_for_the_database
+      - when:
+          condition:
+            and:
+              - << parameters.production_with_new_migrations >>
+              - equal: [ "python", << parameters.executor >> ]
+          steps:
+            - run:
+                name: Install sqlite3
+                command: sudo apt-get update && sudo apt-get install -y sqlite3
       # Setup migrations test, if selected
       - when:
           condition: << parameters.production_with_new_migrations >>
           steps:
             - run:
-                name: Switch to production tag with branch's migrations
-                command: switch_to_production_with_migrations_from "${CIRCLE_SHA1}"
+                name: Run tests, keep branch test database
+                command: run_pytest --skip-results
+            - run:
+                name: Show latest migrations on branch
+                command: show_migrations
+            - run:
+                name: Switch to production tag, production requirements
+                command: switch_to_production
       # Update dependency, if selected
       - unless:
           condition:
@@ -525,6 +559,12 @@ jobs:
       - run:
           name: Run << parameters.command >><<# parameters.allow_fail >> (failure allowed)<</ parameters.allow_fail >> 
           command: run_command << parameters.command >>
+      - when:
+          condition: << parameters.production_with_new_migrations >>
+          steps:
+            - run:
+                name: Show migrations after tests
+                command: show_migrations
       # Section 4: Save results
       - unless:
           condition:
