@@ -113,7 +113,6 @@ mask-deletion-header = Delete this email mask?
 mask-deletion-warning-no-recovery = Once you delete this mask, it cannot be recovered. You will no longer receive any emails sent to it.
 mask-deletion-warning-sign-ins = If you use this mask to sign in to any accounts, you should change those account emails before deleting this mask.
 
-
 ## 4-mask upsell banner 
 
 upsell-banner-4-masks-button-close-label = close

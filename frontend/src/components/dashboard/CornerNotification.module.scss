@@ -33,6 +33,7 @@
 
     .card-title {
       color: $color-blue-90;
+
       @include text-title-3xs;
       font-family: $font-stack-firefox;
       font-weight: 600;
@@ -41,8 +42,9 @@
 
     .card-description {
       color: $color-blue-90;
+
       @include text-body-md;
-      font-family: Inter;
+      font-family: $font-stack-firefox;
       font-weight: 400;
       word-wrap: break-word;
     }
@@ -62,7 +64,7 @@
     }
   }
 
-  // .expand-button and .card stay fixed in the bottom right-hand corner,
+  // .card stay fixed in the bottom right-hand corner,
   // until the user has scrolled down enough to move .wrapper in view (which is
   // located just above the footer), as which point they start scrolling up
   // again so as not to overlap the footer.
