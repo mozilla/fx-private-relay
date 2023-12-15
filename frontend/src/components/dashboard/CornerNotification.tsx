@@ -1,22 +1,17 @@
-import { useRef, ReactNode, useState, useCallback, RefObject } from "react";
-import Link from "next/link";
-import { useTabList, useTabPanel, useTab } from "react-aria";
-import { useTabListState, TabListState, Item } from "react-stately";
 import { useInView } from "react-intersection-observer";
 import { event as gaEvent } from "react-ga";
 import styles from "./CornerNotification.module.scss";
-import { ArrowDownIcon, CloseIcon } from "../Icons";
+import { CloseIcon } from "../Icons";
 import { ProfileData } from "../../hooks/api/profile";
-import { DismissalData, useLocalDismissal } from "../../hooks/localDismissal";
+import { useLocalDismissal } from "../../hooks/localDismissal";
 import Image from "next/image";
 import UpsellBannerNonUs from "../../pages/accounts/images/upsell-banner-nonus.svg";
 import UpsellBannerUs from "../../pages/accounts/images/upsell-banner-us.svg";
-import { getRuntimeConfig } from "../../config";
 import { useGaViewPing } from "../../hooks/gaViewPing";
 import { RuntimeData } from "../../hooks/api/runtimeData";
 import { isFlagActive } from "../../functions/waffle";
 import { useL10n } from "../../hooks/l10n";
-import { Button, LinkButton } from "../Button";
+import { LinkButton } from "../Button";
 import { isPhonesAvailableInCountry } from "../../functions/getPlan";
 import { AliasData } from "../../hooks/api/aliases";
 
@@ -49,11 +44,16 @@ export const CornerNotification = (props: Props) => {
   );
   const illustration = isPhonesAvailable ? UpsellBannerUs : UpsellBannerNonUs;
 
-  if (!profile.has_premium && !dismissal.isDismissed && aliases.length === 4) {
+  if (
+    isFlagActive(runtimeData, "four_mask_limit_upsell") &&
+    !profile.has_premium &&
+    !dismissal.isDismissed &&
+    aliases.length === 4
+  ) {
     return (
       <aside
         ref={wrapperRef}
-        aria-label={l10n.getString("tips-header-title")}
+        aria-label={title}
         className={`${styles.wrapper} ${
           wrapperIsInView ? styles["is-in-view"] : styles["is-out-of-view"]
         }`}
@@ -65,16 +65,12 @@ export const CornerNotification = (props: Props) => {
               onClick={() => dismissal.dismiss()}
             >
               <CloseIcon
-                alt={l10n.getString("tips-header-button-close-label")}
+                alt={l10n.getString("upsell-banner-4-masks-button-close-label")}
                 width={20}
                 height={20}
               />
             </button>
-            <Image
-              className={styles["still-alternative"]}
-              src={illustration}
-              alt=""
-            />
+            <Image src={illustration} alt="" />
           </div>
           <div className={styles["card-content"]}>
             <p className={styles["card-title"]}>{title}</p>

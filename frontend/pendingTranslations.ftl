@@ -116,6 +116,7 @@ mask-deletion-warning-sign-ins = If you use this mask to sign in to any accounts
 
 ## 4-mask upsell banner 
 
+upsell-banner-4-masks-button-close-label = close
 upsell-banner-4-masks-us-heading = Get maximum email and phone protection
 upsell-banner-4-masks-non-us-heading = Get maximum email protection
 upsell-banner-4-masks-us-description = { -brand-name-relay-premium } gives you a phone mask to protect your real number, plus unlimited email masks and the ability to block promotional emails.
