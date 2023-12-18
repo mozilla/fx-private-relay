@@ -35,13 +35,24 @@ function run_mypy {
 }
 
 # Run pytest to run test code
-# $1 - if "--skip-results", do not write jUnit-style results XML
+# Pass "--skip-results", to skip writing jUnit-style results XML
+# Pass "--create-db", to re-create a reusable database with migrations mode
 function run_pytest {
-    local SKIP_RESULTS=$1
+    local SKIP_RESULTS=0
+    local CREATE_DB=0
+    while [ "$#" -gt 0 ]; do
+      case "$1" in
+        --skip-results) SKIP_RESULTS=1; shift;;
+        --create-db) CREATE_DB=1; shift;;
+        *) echo "unknown option '$1'"; exit 1;;
+      esac
+    done
+
     local PYTEST_ARGS=()
     if [ $PYTEST_FAIL_FAST -ne 0 ]; then PYTEST_ARGS+=("--maxfail=3"); fi
     if [ $PYTEST_MIGRATIONS_MODE -ne 0 ]; then PYTEST_ARGS+=("--reuse-db"); fi
-    if [ -n "$TEST_RESULTS_FILENAME" ] && [ "$SKIP_RESULTS" != "--skip-results" ]
+    if [ $CREATE_DB -ne 0 ]; then PYTEST_ARGS+=("--create-db"); fi
+    if [ -n "$TEST_RESULTS_FILENAME" ] && [ $SKIP_RESULTS != 1 ]
     then
         PYTEST_ARGS+=("--junit-xml=job-results/$TEST_RESULTS_FILENAME")
     fi

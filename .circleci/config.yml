@@ -540,7 +540,7 @@ jobs:
           steps:
             - run:
                 name: Run tests, keep branch test database
-                command: run_pytest --skip-results
+                command: run_pytest --skip-results --create-db
             - run:
                 name: Show latest migrations on branch
                 command: show_migrations
