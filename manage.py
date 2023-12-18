@@ -3,9 +3,13 @@
 import os
 import sys
 
+from opentelemetry.instrumentation.django import DjangoInstrumentor
+
 
 def main():
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "privaterelay.settings")
+    instrumentor = DjangoInstrumentor()
+    instrumentor.instrument()
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

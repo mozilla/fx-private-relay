@@ -20,6 +20,8 @@ google-measurement-protocol==1.1.0
 gunicorn==21.2.0
 jwcrypto==1.5.0
 markus[datadog]==4.2.0
+opentelemetry-instrumentation-django==0.42b0
+opentelemetry-exporter-gcp-trace==1.6.0
 pem==23.1.0
 psycopg2==2.9.9
 PyJWT==2.8.0
