@@ -32,6 +32,16 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    ignore:
+      - dependency-name: "django-stubs"
+        versions:
+          # Breaks 1:1 fields
+          # error: "User" has no attribute "profile"  [attr-defined]
+          - "4.2.7"
+      - dependency-name: "djangorestframework-stubs"
+        versions:
+          # Requires django-stubs 4.2.7
+          - "3.14.5"
     groups:
       testing-libraries:
         patterns:
