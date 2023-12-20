@@ -245,6 +245,16 @@ class RelayAddressTest(TestCase):
         deleted_count = DeletedAddress.objects.filter(address_hash=address_hash).count()
         assert deleted_count == 1
 
+    def test_relay_address_create_repeats_deleted_address_invalid(self):
+        user = baker.make(User)
+        address = "random-address"
+        relay_address = RelayAddress.objects.create(user=user, address=address)
+        relay_address.delete()
+        repeat_deleted_relay_address = RelayAddress.objects.create(
+            user=user, address=address
+        )
+        assert not repeat_deleted_relay_address.address == address
+
     def test_valid_address_dupe_of_deleted_invalid(self):
         relay_address = RelayAddress.objects.create(user=baker.make(User))
         relay_address.delete()
