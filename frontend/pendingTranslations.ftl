@@ -112,3 +112,12 @@ holiday-promo-banner-promo-expiry = offer ends Dec 31, 2023
 mask-deletion-header = Delete this email mask?
 mask-deletion-warning-no-recovery = Once you delete this mask, it cannot be recovered. You will no longer receive any emails sent to it.
 mask-deletion-warning-sign-ins = If you use this mask to sign in to any accounts, you should change those account emails before deleting this mask.
+
+## 4-mask upsell banner 
+
+upsell-banner-4-masks-button-close-label = close
+upsell-banner-4-masks-us-heading = Get maximum email and phone protection
+upsell-banner-4-masks-non-us-heading = Get maximum email protection
+upsell-banner-4-masks-us-description = { -brand-name-relay-premium } gives you a phone mask to protect your real number, plus unlimited email masks and the ability to block promotional emails.
+upsell-banner-4-masks-non-us-description = { -brand-name-relay-premium } gives you unlimited email masks, spam blocking, a custom { -brand-name-relay } email domain, and the ability to reply to forwarded messages.
+upsell-banner-4-masks-us-cta = Upgrade to { -brand-name-relay-premium }

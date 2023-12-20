@@ -1,0 +1,84 @@
+@import "../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+.wrapper {
+  position: relative;
+  padding-bottom: calc($spacing-md * 2 + 2rem);
+  flex: 1 0 0;
+
+  .card {
+    position: fixed;
+    right: $spacing-md;
+    bottom: $spacing-md;
+    display: flex;
+    flex-direction: column;
+
+    .card-header {
+      background-color: $color-blue-90;
+      padding: $spacing-md;
+      border-top-right-radius: $border-radius-sm;
+      border-top-left-radius: $border-radius-sm;
+    }
+
+    .card-content {
+      padding: $spacing-lg;
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-sm;
+    }
+
+    .card-cta {
+      margin-top: $spacing-md;
+    }
+
+    .card-title {
+      color: $color-blue-90;
+
+      @include text-title-3xs;
+      font-family: $font-stack-firefox;
+      font-weight: 600;
+      word-wrap: break-word;
+    }
+
+    .card-description {
+      color: $color-blue-90;
+
+      @include text-body-md;
+      font-family: $font-stack-firefox;
+      font-weight: 400;
+      word-wrap: break-word;
+    }
+
+    .close-button {
+      background-color: transparent;
+      border-style: none;
+      border-radius: $border-radius-sm;
+      padding: 0;
+      cursor: pointer;
+      color: $color-white;
+      float: right;
+
+      &:hover {
+        color: $color-blue-50;
+      }
+    }
+  }
+
+  // .card stay fixed in the bottom right-hand corner,
+  // until the user has scrolled down enough to move .wrapper in view (which is
+  // located just above the footer), as which point they start scrolling up
+  // again so as not to overlap the footer.
+  &.is-in-view {
+    .card {
+      position: absolute;
+    }
+  }
+}
+
+.card {
+  border-radius: $border-radius-md;
+  box-shadow: $box-shadow-sm;
+  background-color: $color-white;
+  width: $content-sm;
+  max-width: calc(100% - $spacing-xl);
+}
