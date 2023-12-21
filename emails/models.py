@@ -659,7 +659,7 @@ class RelayAddress(models.Model):
         profile.save()
         return super(RelayAddress, self).delete(*args, **kwargs)
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> None:
         if self._state.adding:
             with transaction.atomic():
                 locked_profile = Profile.objects.select_for_update().get(user=self.user)
