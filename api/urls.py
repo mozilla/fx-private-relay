@@ -16,6 +16,7 @@ from .views import (
     UserViewSet,
     FlagViewSet,
     first_forwarded_email,
+    potential_otp_code_detected,
     report_webcompat_issue,
     runtime_data,
     terms_accepted_user,
@@ -88,6 +89,11 @@ urlpatterns = [
         "v1/first-forwarded-email/",
         first_forwarded_email,
         name="first_forwarded_email",
+    ),
+    path(
+        "v1/detected_email_otp_code/",
+        potential_otp_code_detected,
+        name="detected_otp_code",
     ),
 ]
 

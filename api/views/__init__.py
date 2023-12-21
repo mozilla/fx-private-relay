@@ -10,6 +10,7 @@ Profile stuff is strange - model is in emails, but probably should be in private
 
 import logging
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.cache import cache
 from django.template.loader import render_to_string
 from django.urls.exceptions import NoReverseMatch
 import requests
@@ -482,3 +483,24 @@ def relay_exception_handler(
         response.data["error_code"] = error_codes
 
     return response
+
+
+@decorators.permission_classes([permissions.IsAuthenticated])
+@decorators.api_view(["GET"])
+def potential_otp_code_detected(request):
+    otp_data = cache.get(f"{request.user.id}_otp_code")  # Expires after 120 seconds
+
+    if otp_data:
+        potential_code = otp_data["otp_code"]
+        mask = otp_data["mask"]
+        cache.delete(
+            f"{request.user.id}_otp_code"
+        )  # Deleting to avoid duplicate notifications when polling
+        return response.Response(
+            data={"potential_otp_code": potential_code, "mask": mask},
+            status=status.HTTP_200_OK,
+        )
+
+    return response.Response(
+        data={"detail": "No data was found"}, status=status.HTTP_404_NOT_FOUND
+    )

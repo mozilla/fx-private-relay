@@ -1,0 +1,274 @@
+MIME-Version: 1.0
+Subject: Confirm your account
+From: "accounts@firefox.testing.com [via Relay]" <ebsbdsan7@test.com>
+To: user@example.com
+Reply-To: replies@default.com
+Resent-From: accounts@firefox.testing.com
+Content-Type: multipart/alternative;
+ boundary="==[BOUNDARY0]=="
+
+--==[BOUNDARY0]==
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+
+This email was sent to your alias ebsbdsan7@test.com. To stop receiving email=
+s sent to this alias, update the forwarding settings in your dashboard.
+---Begin Email---
+This email was sent to your alias testing-otps@luffy.mozmail.com. To stop r=3D
+eceiving emails sent to this alias, update the forwarding settings in your =3D
+dashboard.
+---Begin Email---
+
+Did you know we changed our name from Firefox accounts to Mozilla accounts?=3D
+ <a data-l10n-name=3D3D"learnMore">Learn more</a>
+
+https://support.mozilla.org/kb/firefox-accounts-renamed-mozilla-accounts
+
+Open the internet with Mozilla
+
+Confirm your account and get the most out of Mozilla everywhere you sign in=3D
+ starting with:
+
+Firefox on Windows 10
+Monday, Dec 18, 2023
+9:34:39 PM (EST)
+
+Use this confirmation code:
+376637
+
+It expires in 5 minutes.
+
+This is an automated email. If you received it by mistake, you don=3DE2=3D80=
+=3D99=3D
+t need to do anything.
+
+For more info, visit Mozilla Support: https://support.mozilla.org/kb/im-hav=3D
+ing-problems-my-firefox-account?utm_medium=3D3Demail&utm_campaign=3D3Dfx-welc=
+om=3D
+e&utm_content=3D3Dfx-support.
+
+Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105
+
+Mozilla Accounts Privacy Notice
+https://www.mozilla.org/privacy/mozilla-accounts/?utm_medium=3D3Demail&utm_ca=
+=3D
+mpaign=3D3Dfx-welcome&utm_content=3D3Dfx-privacy
+
+Mozilla Accounts Terms of Service
+https://www.mozilla.org/about/legal/terms/services/
+
+--==[BOUNDARY0]==
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/T=
+R/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns=3D"http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dutf-8" =
+/>
+    <meta name=3D"viewport" content=3D"width=3Ddevice-width"/>
+    <style>
+    @font-face {
+      font-family: 'inter';
+      font-style: normal;
+      src: local('Inter Regular'), local('Inter-Regular'), url(https://relay.=
+firefox.com/fonts/Inter/Inter-Regular.4232a675a077.woff2?v=3D3.18) format('wo=
+ff');
+    }
+    @font-face {
+      font-family: 'inter medium';
+      font-style: bold;
+      src: local('Inter Medium'), local('Inter-Medium'), url(https://relay.fi=
+refox.com/fonts/Inter/Inter-Medium.woff2?v=3D3.18) format('woff');
+    }
+    * {
+      box-sizing: border-box;
+    }
+    #relay-email-header,
+    #relay-email-footer {
+      font-family: 'inter', Arial, sans-serif;
+      color: #FFFFFF;
+      font-size: 12px;
+      line-height: 140% !important;
+    }
+    a.container-link {
+      transition: all 0.2s ease;
+      text-underline-offset: 2px;
+      font-family: 'inter medium', Arial, sans-serif;
+    }
+    a.container-link:hover {
+      color: #20123ad5;
+      transition: all 0.2s ease;
+    }
+    a.container-link {
+      color: #FFFFFF;
+      font-size: 12px;
+    }
+    a.container-link:hover,
+    a.container-link:focus,
+    a.container-link:active {
+      transition: all 0.2s ease;
+    }
+    .email-trackers-removed-icon {
+      margin-right: 5px;
+      vertical-align: bottom;
+    }
+    /* this deals with long email addresses */
+    .forwarded-from-email {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 500px;
+    }
+    @media screen and (max-width: 1200px) {
+      .forwarded-from-email {
+        width: 300px;
+      }
+    }
+    @media screen and (max-width: 1024px) {
+        .relay-trackers-removed {
+          /* Avoid margin when header-block-right content overflows */
+          display: block !important;
+          margin-right: 0 !important;
+        }
+    }
+    @media screen and (max-width: 768px){
+      .footer-block {
+        display: block;
+        width: 100%;
+      }
+      .header-block-left,
+      .header-block-right {
+        display: block;
+        width: 100%;
+        text-align: left;
+      }
+      .header-block-right {
+        margin-top: 4px;
+      }
+      .relay-trackers-removed,
+      .relay-mask {
+        width: 100%;
+        display: block;
+      }
+      .forwarded-from-email {
+        width: 250px;
+      }
+      .footer-block {
+        display: block;
+        text-align: left !important;
+      }
+      .footer-block .container-link.dashboard {
+        margin-left: 5px !important;
+      }
+    }
+    @media screen and (max-width: 425px) {
+      .forwarded-from-email {
+        width: 200px;
+      }
+    }
+    </style>
+  </head>
+  <body id=3D"relay-email" style=3D"padding: 0; margin: 0;">
+    <!-- Header -->
+    <table id=3D"relay-email-header" width=3D"100%" bgcolor=3D"#3D3D3D" style=
+=3D"background: #3D3D3D; padding: 8px 16px; margin-top: 30px; margin-bottom: =
+30px; width: 96%; border-radius: 6px; max-width: 1200px;" align=3D"center">
+      <tr>
+        <td class=3D"relay-logo-img" style=3D"width: 30px; vertical-align: to=
+p;" >
+          <img width=3D"30" src=3D"http://127.0.0.1:8000/static/images/email-=
+images/relay-icon.png" style=3D"margin-right: 5px; display: inline-block; ver=
+tical-align: top;" alt=3D"relay icon"/>
+        </td>
+        <td class=3D"header-block-left" style=3D"vertical-align: bottom;" wid=
+th=3D"50%" align=3D"left" style=3D"padding-top: 5px;">
+          <p style=3D"margin-top: 0; margin-bottom: 0; vertical-align: middle=
+; display: inline-block;">
+            <span class=3D"forwarded-from-email" style=3D"display: block; col=
+or: #FFFFFF; font-family: 'inter', Arial, sans-serif; font-size: 12px;">
+            Forwarded from <a href=3D"http://127.0.0.1:8000/accounts/profile/=
+#ebsbdsan7%40test.com" class=3D"container-link" style=3D"margin-right: 30px;c=
+olor: #FFFFFF;font-size: 12px;">ebsbdsan7@test.com</a>
+            </span>
+            <span style=3D"margin-top: 0; color: #FFFFFF; font-family: 'inter=
+', Arial, sans-serif; font-size: 12px;">
+                by <a href=3D"http://127.0.0.1:8000/accounts/profile/" class=
+=3D"container-link" style=3D"margin-right: 30px;color: #FFFFFF;font-size: 12p=
+x;">Firefox Relay</a>
+            </span>
+          </p>
+        </td>
+        <td class=3D"header-block-right" style=3D"vertical-align: bottom;" wi=
+dth=3D"50%" align=3D"right">
+          <p class=3D"relay-trackers-removed" style=3D"margin: 0 16px 0 0; ve=
+rtical-align: bottom; display: inline-block; color: #FFFFFF; font-family: 'in=
+ter', Arial, sans-serif; font-size: 12px;">
+              <span dir=3D"auto">0</span> email trackers removed
+          </p>
+          <p class=3D"relay-mask" style=3D"margin: 0; display: inline-block;">
+              <a class=3D"container-link" href=3D"http://127.0.0.1:8000/premi=
+um" style=3D"color: #FFFFFF;">
+                Upgrade for more protection
+              </a>
+          </p>
+        </td>
+      </tr>
+    </table>
+    <!-- Email Body -->
+    <table id=3D"relay-email-body" width=3D"100%" style=3D"padding: 0; max-wi=
+dth:850px;" align=3D"center">
+      <tr>
+        <td width=3D"100%" style=3D"padding-left: 15px; padding-right: 15px;">
+          This email was sent to your alias <a href=3D"mailto:testing-otps@lu=
+ffy.mozmail.com">testing-otps@luffy.mozmail.com</a>. To stop r=3D<br>eceiving=
+ emails sent to this alias, update the forwarding settings in your =3D<br>das=
+hboard.<br>---Begin Email---<br><br>Did you know we changed our name from Fir=
+efox accounts to Mozilla accounts?=3D<br> &lt;a data-l10n-name=3D3D&quot;lear=
+nMore&quot;&gt;Learn more&lt;/a&gt;<br><br><a href=3D"https://support.mozilla=
+.org/kb/firefox-accounts-renamed-mozilla-accounts" rel=3D"nofollow">https://s=
+upport.mozilla.org/kb/firefox-accounts-renamed-mozilla-accounts</a><br><br>Op=
+en the internet with Mozilla<br><br>Confirm your account and get the most out=
+ of Mozilla everywhere you sign in=3D<br> starting with:<br><br>Firefox on Wi=
+ndows 10<br>Monday, Dec 18, 2023<br>9:34:39 PM (EST)<br><br>Use this confirma=
+tion code:<br>376637<br><br>It expires in 5 minutes.<br><br>This is an automa=
+ted email. If you received it by mistake, you don=3DE2=3D80=3D99=3D<br>t need=
+ to do anything.<br><br>For more info, visit Mozilla Support: <a href=3D"http=
+s://support.mozilla.org/kb/im-hav=3D" rel=3D"nofollow">https://support.mozill=
+a.org/kb/im-hav=3D</a><br>ing-problems-my-firefox-account?utm_medium=3D3Demai=
+l&amp;utm_campaign=3D3Dfx-welcom=3D<br>e&amp;utm_content=3D3Dfx-support.<br><=
+br>Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105<br><br>=
+Mozilla Accounts Privacy Notice<br><a href=3D"https://www.mozilla.org/privacy=
+/mozilla-accounts/?utm_medium=3D3Demail&amp;utm_ca=3D" rel=3D"nofollow">https=
+://www.mozilla.org/privacy/mozilla-accounts/?utm_medium=3D3Demail&amp;utm_ca=
+=3D</a><br>mpaign=3D3Dfx-welcome&amp;utm_content=3D3Dfx-privacy<br><br>Mozill=
+a Accounts Terms of Service<br><a href=3D"https://www.mozilla.org/about/legal=
+/terms/services/" rel=3D"nofollow">https://www.mozilla.org/about/legal/terms/=
+services/</a><br>
+        </td>
+      </tr>
+    </table>
+    <!-- Footer -->
+    <table id=3D"relay-email-footer" width=3D"100%" bgcolor=3D"#3D3D3D" style=
+=3D"background: #3D3D3D; padding: 8px 16px; margin-top: 30px; margin-bottom: =
+30px; width: 96%; border-radius: 6px; max-width: 1200px;" align=3D"center">
+      <tr>
+        <td class=3D"footer-block" width=3D"50%" align=3D"left">
+          <a class=3D"container-link" href=3D"http://127.0.0.1:8000">
+            <img width=3D"130" src=3D"http://127.0.0.1:8000/static/images/ema=
+il-images/relay-logo-emails-dark-bg.png" style=3D"margin: 0;" alt=3D"relay lo=
+go"/>
+          </a>
+        </td>
+        <td class=3D"footer-block" width=3D"50%" align=3D"right">
+          <a class=3D"container-link dashboard" href=3D"http://127.0.0.1:8000=
+/accounts/profile" style=3D"color: #FFFFFF;">Your dashboard</a>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+
+--==[BOUNDARY0]==--

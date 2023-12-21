@@ -1,3 +1,4 @@
+from bs4 import BeautifulSoup
 from collections import defaultdict
 from copy import deepcopy
 from datetime import datetime, timezone
@@ -27,6 +28,7 @@ from waffle import sample_is_active
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.cache import cache
 from django.db import transaction
 from django.db.models import prefetch_related_objects
 from django.http import HttpRequest, HttpResponse
@@ -679,6 +681,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         sample_trackers=sample_trackers,
         remove_level_one_trackers=remove_level_one_trackers,
     )
+
     if has_html:
         incr_if_enabled("email_with_html_content", 1)
     if has_text:
@@ -719,7 +722,194 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             "num_level_one_trackers_blocked",
         ]
     )
+
+    # TODO?: Place the following code at the beginning, so the notification of the OTP can come
+    # earlier then when the user receives the email. For now though, I will leave it here
+    # because we want to atleast send the email, incase this new feature causes an unhandled error.
+
+    # Only used within the add-on if the user has otp notifications toggled.
+    otp_code = _naive_check_and_get_otp_code(
+        incoming_email_bytes=incoming_email_bytes, headers=headers
+    )
+    if otp_code:
+        # We set a timeout here so that when users open the add-on after using their masks
+        # in a different context, they won't be notified of an old potential OTP,
+        # since it will have been cleared.
+        cache.set(
+            key=f"{user_profile.user.id}_otp_code",
+            value={"otp_code": otp_code, "mask": to_address},
+            timeout=120,
+        )
+
     return HttpResponse("Sent email to final recipient.", status=200)
+
+
+def _naive_check_and_get_otp_code(
+    incoming_email_bytes: bytes, headers: OutgoingHeaders
+) -> str:
+    # Some of these keywords could potentially too naive, instead we could choose to focus on word combinations instead to mitigate false positives
+    otp_keywords = set(
+        {
+            "authorization",
+            "authorize",
+            "security",
+            "secure",
+            "authenticate",
+            "authentication",
+            "verify",
+            "confirmation",
+            "verification",
+            "recover",
+            "recovery",
+            "otp",
+            "passcode",
+            "password",
+            "pin",
+        }
+    )
+    otp_multi_keywords = set(
+        {
+            "secure password",
+            "secure code",
+            "one time",
+            "one time code",
+            "one time passcode",
+            "confirmation code",
+            "authentication code",
+            "verification code",
+            "one time password",
+        }
+    )
+
+    email = message_from_bytes(incoming_email_bytes, policy=relay_policy)
+    assert isinstance(email, EmailMessage)
+    subject_text_cleaned = _clean_text_for_otp_analysis(headers["Subject"])
+    subject_as_set = set(subject_text_cleaned.split(" "))
+
+    subject_keywords = subject_as_set.intersection(otp_keywords)
+    _find_and_add_key_phrases(
+        subject_text_cleaned, otp_multi_keywords, subject_keywords
+    )
+
+    # TODO?: We could do the following in one pass within _convert_to_forwarded_email,
+    # instead of duplicating some the work being done there here. Would require some clean up, and potentially
+    # adding some more helper functions.
+
+    # If the set is not empty
+    if subject_keywords:
+        otp_code = _naive_detect_potential_otp(
+            subject_text_cleaned, subject_keywords.pop()
+        )
+        if otp_code:
+            return otp_code
+
+    body = email.get_body("plain")
+    if body:
+        assert isinstance(body, EmailMessage)
+        body_text = body.get_content()
+        # Cleaned text is lowered and only contains alphanumeric characters
+        body_text_cleaned = _clean_text_for_otp_analysis(body_text)
+        body_as_set = set(body_text_cleaned.split(" "))
+        body_keywords = body_as_set.intersection(otp_keywords)
+        _find_and_add_key_phrases(body_text_cleaned, otp_multi_keywords, body_keywords)
+
+        if body_keywords:
+            otp_code = _naive_detect_potential_otp(
+                body_text_cleaned, body_keywords.pop()
+            )
+            if otp_code:
+                return otp_code
+
+    html_body = email.get_body("html")
+    if html_body:
+        assert isinstance(html_body, EmailMessage)
+        html_content = html_body.get_content()
+        # Removing tags and newlines from html content, and seperates the words with a space.
+        html_as_text = BeautifulSoup(html_content, "html.parser").get_text(
+            " ", strip=True
+        )
+        html_text_cleaned = _clean_text_for_otp_analysis(html_as_text)
+        html_text_as_set = set(html_text_cleaned.split(" "))
+        html_text_keywords = html_text_as_set.intersection(otp_keywords)
+        _find_and_add_key_phrases(
+            html_text_cleaned, otp_multi_keywords, html_text_keywords
+        )
+        if html_text_keywords:
+            otp_code = _naive_detect_potential_otp(
+                html_text_cleaned, html_text_keywords.pop()
+            )
+            return otp_code
+
+    return ""
+
+
+def _find_and_add_key_phrases(
+    text: str, keywords_to_check: set, all_keywords: set
+) -> None:
+    """
+    Looks for words in 'keywords_to_check' that are in 'text'.
+    If found, we add it to all_keywords.
+
+    Args:
+        text (str): Text
+        keywords_to_check (set): Keywords being looked for within the text
+        all_keywords (set): If keywords are found, add it to the all_keywords set
+    """
+    for keyword in keywords_to_check:
+        if text.find(keyword) != -1:
+            all_keywords.add(keyword)
+
+
+def _clean_text_for_otp_analysis(text: str) -> str:
+    return re.sub(r"[^A-Za-z0-9 ]", "", text.lower().replace("\n", " "))
+
+
+def _naive_detect_potential_otp(text: str, keyword: str) -> str:
+    """
+    Looks for a 6 or 4 digit code that is closest to the a random keyword that was contained in the text.
+
+    Closest is defined as the absolute value of the index in 'text' of the last letter of the keyword subtracted by
+    the index in 'text' of the last digit of the 4 or 6 digit code we found.
+
+    Args:
+        text (str): Cleaned text with no whitespace or newline characters
+
+    Returns:
+        str: A string containing the OTP code, or an empty string if nothing was found
+    """
+    potential_otp = ""
+    minimum_distance = float("inf")
+    minimum_distance_otp = ""
+    keyword_end_index = text.find(keyword) + len(keyword) - 1
+
+    for i in range(0, len(text)):
+        if text[i].isdigit():
+            potential_otp += text[i]
+        else:
+            potential_otp = ""
+            continue
+
+        # We are checking whether the code is the correct length, and that it seperated by spaces on atleast one end
+        # i.e. " 9999 " or "9999 " or " 9999" is valid.
+        six_digits_valid = (
+            len(potential_otp) == 6
+            and (i == len(text) - 1 or text[i + 1] == " ")
+            and (i == 5 or (i > 5 and text[i - 6] == " "))
+        )
+        four_digits_valid = (
+            len(potential_otp) == 4
+            and (i == len(text) - 1 or text[i + 1] == " ")
+            and (i == 3 or (i > 3 and text[i - 4] == " "))
+        )
+
+        if six_digits_valid or four_digits_valid:
+            distance_to_keyword = abs(i - keyword_end_index)
+
+            if distance_to_keyword < minimum_distance:
+                minimum_distance_otp = potential_otp
+                minimum_distance = distance_to_keyword
+
+    return minimum_distance_otp
 
 
 def _get_verdict(receipt, verdict_type):

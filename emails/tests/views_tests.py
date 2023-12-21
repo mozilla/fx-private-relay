@@ -13,6 +13,7 @@ import re
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.cache import cache
 from django.http import HttpResponse
 from django.test import override_settings, Client, SimpleTestCase, TestCase
 
@@ -44,9 +45,11 @@ from emails.utils import (
 )
 from emails.views import (
     ReplyHeadersNotFound,
+    _clean_text_for_otp_analysis,
     _build_reply_requires_premium_email,
     _get_address,
     _get_keys_from_headers,
+    _naive_detect_potential_otp,
     _record_receipt_verdicts,
     _replace_headers,
     _set_forwarded_first_reply,
@@ -831,6 +834,46 @@ class SNSNotificationTest(TestCase):
             "_handle_received: forwarding issues",
             extra={"issues": {"headers": expected_header_errors}},
         )
+
+    @patch("emails.views.info_logger")
+    def test_otp_email_detection(self, mock_logger: Mock) -> None:
+        email_text = EMAIL_INCOMING["otp_mozilla"]
+        test_sns_notification = create_notification_from_email(email_text)
+        result = _sns_notification(test_sns_notification)
+        assert result.status_code == 200
+        self.mock_send_raw_email.assert_called_once()
+        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
+        assert sender == "replies@default.com"
+        assert recipient == "user@example.com"
+        assert headers == {
+            "Content-Type": headers["Content-Type"],
+            "From": '"accounts@firefox.testing.com [via Relay]" <ebsbdsan7@test.com>',
+            "MIME-Version": "1.0",
+            "Reply-To": "replies@default.com",
+            "Resent-From": "accounts@firefox.testing.com",
+            "Subject": "Confirm your account",
+            "To": "user@example.com",
+        }
+        assert_email_equals(email, "otp_mozilla", replace_mime_boundaries=True)
+        otp_data = cache.get(f"{self.user.id}_otp_code")
+        # Expecting that otp_data is non-empty
+        assert otp_data["otp_code"] == "376637"
+        assert otp_data["mask"] == "ebsbdsan7@test.com"
+
+    @patch("emails.views.info_logger")
+    def test_uber_otp_detected(self, mock_logger: Mock) -> None:
+        """
+        In this test, we are expecting to analyze the html content, as
+        no body is found in the incoming email. We expect that a code is found and returned.
+        """
+        email_text = EMAIL_INCOMING["uber_otp_only_html"]
+        test_sns_notification = create_notification_from_email(email_text)
+        result = _sns_notification(test_sns_notification)
+        assert result.status_code == 200
+        otp_data = cache.get(f"{self.user.id}_otp_code")
+        # Expecting that otp_data is non-empty
+        assert otp_data["otp_code"] == "1973"
+        assert otp_data["mask"] == "ebsbdsan7@test.com"
 
 
 class BounceHandlingTest(TestCase):
@@ -1939,3 +1982,66 @@ def test_replace_headers_read_error_is_handled() -> None:
     # set to the desired new values.
     for name, value in new_headers.items():
         assert email[name] == value
+
+
+def test_otp_detection_four_digits_at_end() -> None:
+    """
+    The one time passcode is at the end of the text and is four digits long.
+    """
+    # Emails we are analyzing are cleaned with lowerspace chars and no whitespace or new line chars
+    original_text = "Your OTP code is 4299"
+    keyword = "otp"
+    cleaned_text = _clean_text_for_otp_analysis(original_text)
+    otp = _naive_detect_potential_otp(cleaned_text, keyword)
+    assert otp == "4299"
+
+
+def test_otp_detection_six_digits_at_end() -> None:
+    """
+    The one time passcode is at the end of the text and is four digits long.
+    """
+    original_text = "Your OTP is 449933"
+    cleaned_text = _clean_text_for_otp_analysis(original_text)
+    keyword = "otp"
+    otp = _naive_detect_potential_otp(cleaned_text, keyword)
+    assert otp == "449933"
+
+
+def test_otp_multiple_codes_detected() -> None:
+    """
+    When there are multiple 4 or 6 digit strings in the email, we want to return the one that is closest to the keyword.
+    """
+    # Instead of detecting 2023, we want to detect 3232 because it is closest to our keyword "code"
+    original_text = "Date: December, 21, 2023. Your one time code is 3232"
+    cleaned_text = _clean_text_for_otp_analysis(original_text)
+    keyword = "code"
+    otp = _naive_detect_potential_otp(cleaned_text, keyword)
+    assert otp == "3232"
+
+
+def test_otp_amazon_detected() -> None:
+    original_text = "To verify your email address, please use the following One Time Password (OTP): 999999 Do not share this OTP with anyone. Amazon takes your account security very seriously. Amazon Customer Service will never ask you to disclose or verify your Amazon password, OTP, credit card, or banking account number. If you receive a suspicious email with a link to update your account information, do not click on the link—instead, report the email to Amazon for investigation. Thank you!"
+    cleaned_text = _clean_text_for_otp_analysis(original_text)
+    keyword = "otp"
+    otp = _naive_detect_potential_otp(cleaned_text, keyword)
+    assert otp == "999999"
+
+
+def test_otp_uber_detected() -> None:
+    original_text = "Welcome to Uber Verification code: 9999 Enter this code on the signup page to continue. Help Center Terms Privacy Email Preferences Uber Technologies 1515 3rd St., San Francisco, CA 94158 Uber.com"
+    cleaned_text = _clean_text_for_otp_analysis(original_text)
+    keyword = "verification"
+    otp = _naive_detect_potential_otp(cleaned_text, keyword)
+    assert otp == "9999"
+
+
+def test_otp_not_found() -> None:
+    """
+    If a keyword is detected, but the email does not contain an OTP code, we should not return any codes.
+    """
+    # We should not detect "2023" as a four digit code. The algorithm checks that codes are segregated from other text.
+    original_text = f"Get Relay Premium this holiday. One time only, use our promo code HOLIDAY2023 for 20% off."
+    cleaned_text = _clean_text_for_otp_analysis(original_text)
+    keyword = "one time"
+    otp = _naive_detect_potential_otp(cleaned_text, keyword)
+    assert otp == ""
