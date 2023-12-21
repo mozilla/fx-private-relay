@@ -22,6 +22,7 @@ from django.utils.translation.trans_real import (
 from rest_framework.authtoken.models import Token
 
 from api.exceptions import ErrorContextType, RelayAPIException
+from emails.apps import EmailsConfig
 from privaterelay.plans import get_premium_countries
 from privaterelay.utils import (
     AcceptLanguageError,
@@ -516,7 +517,8 @@ def has_bad_words(value):
     return False
 
 
-def is_blocklisted(value):
+def is_blocklisted(value: str) -> bool:
+    assert isinstance(emails_config, EmailsConfig)
     return any(blockedword == value for blockedword in emails_config.blocklist)
 
 

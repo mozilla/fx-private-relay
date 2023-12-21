@@ -21,6 +21,7 @@ from ..models import (
     CannotMakeSubdomainException,
     DeletedAddress,
     DomainAddress,
+    emails_config,
     get_domains_from_settings,
     get_domain_numerical,
     has_bad_words,
@@ -119,6 +120,10 @@ class MiscEmailModelsTest(TestCase):
 
     def test_is_blocklisted_without_blocked_words(self):
         assert not is_blocklisted("non-blocked-word")
+
+    @patch.object(emails_config, "blocklist", ["blocked-word"])
+    def test_is_blocklisted_with_mocked_blocked_words(self) -> None:
+        assert is_blocklisted("blocked-word")
 
     @override_settings(RELAY_FIREFOX_DOMAIN="firefox.com")
     def test_address_hash_without_subdomain_domain_firefox(self):
@@ -259,6 +264,14 @@ class RelayAddressTest(TestCase):
         relay_address = RelayAddress.objects.create(user=baker.make(User))
         relay_address.delete()
         assert not valid_address(relay_address.address, relay_address.domain_value)
+
+    @patch.object(emails_config, "blocklist", ["blocked-word"])
+    def test_address_contains_blocklist_invalid(self) -> None:
+        blocked_word = "blocked-word"
+        relay_address = RelayAddress.objects.create(
+            user=baker.make(User), address=blocked_word
+        )
+        assert not relay_address.address == blocked_word
 
     def test_free_user_cant_set_block_list_emails(self):
         relay_address = RelayAddress.objects.create(user=self.user)
