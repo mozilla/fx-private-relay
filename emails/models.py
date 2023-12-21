@@ -659,13 +659,13 @@ class RelayAddress(models.Model):
         profile.save()
         return super(RelayAddress, self).delete(*args, **kwargs)
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> None:
         if self._state.adding:
             with transaction.atomic():
                 locked_profile = Profile.objects.select_for_update().get(user=self.user)
                 check_user_can_make_another_address(locked_profile)
                 while True:
-                    if valid_address(self.address, self.domain):
+                    if valid_address(self.address, self.domain_value):
                         break
                     self.address = address_default()
                 locked_profile.update_abuse_metric(address_created=True)
@@ -703,7 +703,7 @@ def valid_address_pattern(address):
     return valid_address_pattern.match(address) is not None
 
 
-def valid_address(address, domain):
+def valid_address(address: str, domain: str) -> bool:
     address_pattern_valid = valid_address_pattern(address)
     address_contains_badword = has_bad_words(address)
     address_is_blocklisted = is_blocklisted(address)
