@@ -703,7 +703,7 @@ def valid_address_pattern(address):
     return valid_address_pattern.match(address) is not None
 
 
-def valid_address(address, domain):
+def valid_address(address: str, domain: str) -> bool:
     address_pattern_valid = valid_address_pattern(address)
     address_contains_badword = has_bad_words(address)
     address_is_blocklisted = is_blocklisted(address)
