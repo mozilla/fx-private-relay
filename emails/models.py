@@ -665,7 +665,7 @@ class RelayAddress(models.Model):
                 locked_profile = Profile.objects.select_for_update().get(user=self.user)
                 check_user_can_make_another_address(locked_profile)
                 while True:
-                    if valid_address(self.address, self.domain):
+                    if valid_address(self.address, self.domain_value):
                         break
                     self.address = address_default()
                 locked_profile.update_abuse_metric(address_created=True)
