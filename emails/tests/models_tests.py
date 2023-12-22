@@ -21,6 +21,7 @@ from ..models import (
     CannotMakeSubdomainException,
     DeletedAddress,
     DomainAddress,
+    DomainAddrUnavailableException,
     emails_config,
     get_domains_from_settings,
     get_domain_numerical,
@@ -264,6 +265,20 @@ class RelayAddressTest(TestCase):
         relay_address = RelayAddress.objects.create(user=baker.make(User))
         relay_address.delete()
         assert not valid_address(relay_address.address, relay_address.domain_value)
+
+    def test_dupe_domain_address_of_deleted_invalid(self):
+        user = make_premium_test_user()
+        user_profile = user.profile
+        user_profile.subdomain = "test"
+        user_profile.save()
+        address = "same-address"
+        domain_address = DomainAddress.make_domain_address(
+            user_profile, address=address
+        )
+        domain_address.delete()
+        assert not valid_address(
+            address, domain_address.domain_value, user_profile.subdomain
+        )
 
     @patch.object(emails_config, "blocklist", ["blocked-word"])
     def test_address_contains_blocklist_invalid(self) -> None:
@@ -1025,16 +1040,20 @@ class DomainAddressTest(TestCase):
             DomainAddress.make_domain_address(user_profile, "test-nosubdomain")
         assert exc_info.value.get_codes() == "need_subdomain"
 
-    @patch.multiple("string", ascii_lowercase="a", digits="")
-    def test_make_domain_address_makes_dupe_of_deleted(self):
-        test_hash = address_hash("aaaaaaaaa", self.subdomain)
-        DeletedAddress.objects.create(address_hash=test_hash)
-        domain_address = DomainAddress.make_domain_address(self.user_profile)
+    def test_make_domain_address_cannot_make_dupe_of_deleted(self):
+        address = "same-address"
+        domain_address = DomainAddress.make_domain_address(
+            self.user_profile, address=address
+        )
         domain_address_hash = address_hash(
             domain_address.address,
             domain_address.user_profile.subdomain,
             domain_address.domain_value,
         )
+        domain_address.delete()
+        with pytest.raises(DomainAddrUnavailableException) as exc_info:
+            DomainAddress.make_domain_address(self.user_profile, address=address)
+        assert exc_info.value.get_codes() == "address_unavailable"
         assert (
             DeletedAddress.objects.filter(address_hash=domain_address_hash).count() == 1
         )

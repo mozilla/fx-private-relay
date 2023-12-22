@@ -709,11 +709,11 @@ def valid_address_pattern(address):
     return valid_address_pattern.match(address) is not None
 
 
-def valid_address(address: str, domain: str) -> bool:
+def valid_address(address: str, domain: str, subdomain: str | None = None) -> bool:
     address_pattern_valid = valid_address_pattern(address)
     address_contains_badword = has_bad_words(address)
     address_already_deleted = DeletedAddress.objects.filter(
-        address_hash=address_hash(address, domain=domain)
+        address_hash=address_hash(address, domain=domain, subdomain=subdomain)
     ).count()
     if (
         address_already_deleted > 0
@@ -776,9 +776,10 @@ class DomainAddress(models.Model):
         user_profile = self.user.profile
         if self._state.adding:
             check_user_can_make_domain_address(user_profile)
-            pattern_valid = valid_address_pattern(self.address)
-            address_contains_badword = has_bad_words(self.address)
-            if not pattern_valid or address_contains_badword:
+            domain_address_valid = valid_address(
+                self.address, self.domain_value, user_profile.subdomain
+            )
+            if not domain_address_valid:
                 raise DomainAddrUnavailableException(unavailable_address=self.address)
             user_profile.update_abuse_metric(address_created=True)
         if not user_profile.has_premium:
