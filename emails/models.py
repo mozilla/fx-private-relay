@@ -667,7 +667,11 @@ class RelayAddress(models.Model):
                 locked_profile = Profile.objects.select_for_update().get(user=self.user)
                 check_user_can_make_another_address(locked_profile)
                 while True:
-                    if valid_address(self.address, self.domain_value):
+                    address_is_blocklisted = is_blocklisted(self.address)
+                    if (
+                        valid_address(self.address, self.domain_value)
+                        and not address_is_blocklisted
+                    ):
                         break
                     self.address = address_default()
                 locked_profile.update_abuse_metric(address_created=True)
@@ -708,14 +712,12 @@ def valid_address_pattern(address):
 def valid_address(address: str, domain: str) -> bool:
     address_pattern_valid = valid_address_pattern(address)
     address_contains_badword = has_bad_words(address)
-    address_is_blocklisted = is_blocklisted(address)
     address_already_deleted = DeletedAddress.objects.filter(
         address_hash=address_hash(address, domain=domain)
     ).count()
     if (
         address_already_deleted > 0
         or address_contains_badword
-        or address_is_blocklisted
         or not address_pattern_valid
     ):
         return False
