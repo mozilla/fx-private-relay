@@ -1,0 +1,29 @@
+<!--
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ -->
+<style>
+  body {
+    /*
+        The <AppDecorator> in preview.tsx should properly set the Inter font as
+        the default font using next/font, but some components are rendered outside
+        of the decorator by being appended to the <body> using a React Portal.
+        Specifically, React Aria does this for modal elements like the <AppPicker>
+        popover. Thus, this is a manual workaround to apply the Inter font there
+        too. On the actual website, outside of Storybook, this should not be a
+        problem, as the font is applied directly to the <body> using next/font in
+        the root layout (src/app/layout.tsx).
+       */
+    font-family: Inter;
+  }
+  /*
+      Make sure that stories set to render fullscreen (see
+      https://storybook.js.org/docs/react/configure/story-layout) also take up the
+      full height of the page. This is especially relevant for stories that
+      demonstrate full pages.
+     */
+  .sb-main-fullscreen #storybook-root {
+    height: 100%;
+  }
+</style>

@@ -51,7 +51,6 @@
     "@storybook/addon-interactions": "^7.6.5",
     "@storybook/addon-jest": "^7.6.5",
     "@storybook/addon-links": "^7.6.5",
-    "@storybook/addon-onboarding": "^1.0.10",
     "@storybook/blocks": "^7.6.5",
     "@storybook/manager-api": "^7.6.5",
     "@storybook/nextjs": "^7.6.5",

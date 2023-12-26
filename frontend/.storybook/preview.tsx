@@ -1,16 +1,24 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+
 import type { Preview } from "@storybook/react";
 import { withPerformance } from "storybook-addon-performance";
 import { withTests } from "@storybook/addon-jest";
 import results from "../.jest-test-results.json";
-import React, { Component, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { getL10n } from "../src/functions/getL10n";
 import { Inter } from "next/font/google";
-import { LocalizationProvider, ReactLocalization } from "@fluent/react";
+import {
+  LocalizationProvider,
+  Localized,
+  ReactLocalization,
+} from "@fluent/react";
 import { ReactAriaI18nProvider } from "../src/components/ReactAriaI18nProvider";
-import { OverlayProvider } from "@react-aria/overlays";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
-const withL10n = (storyFn) => {
+const withL10n = (storyFn, keys) => {
+  const { parameters } = keys;
   const [l10n, setL10n] = useState<ReactLocalization>(
     getL10n({ deterministicLocales: true }),
   );
@@ -26,17 +34,17 @@ const withL10n = (storyFn) => {
   }, []);
 
   useEffect(() => {
-    // We have to add these classes to the body, rather than simply wrapping the
-    // storyFn in a container, because some components (most notably, the ones
-    // that use useModalOverlay()) append elements to the end of the body using
-    // a React Portal, thus breaking out of a container element.
     document.body.classList.add(inter.className);
     document.body.classList.add(inter.variable);
   }, []);
 
+  // We pass in the translation string name as an argument to the story
+  // We use that string name here to get the translation from the Fluent bundle
   return (
     <LocalizationProvider l10n={l10n}>
-      <ReactAriaI18nProvider>{storyFn()}</ReactAriaI18nProvider>
+      <ReactAriaI18nProvider>
+        <Localized id={parameters.stringName}>{storyFn()}</Localized>
+      </ReactAriaI18nProvider>
     </LocalizationProvider>
   );
 };
