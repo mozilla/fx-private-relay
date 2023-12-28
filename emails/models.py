@@ -793,7 +793,9 @@ class DomainAddress(models.Model):
         return Profile.objects.get(user=self.user)
 
     @staticmethod
-    def make_domain_address(user_profile, address=None, made_via_email=False):
+    def make_domain_address(
+        user_profile: Profile, address: str | None = None, made_via_email: bool = False
+    ) -> "DomainAddress":
         check_user_can_make_domain_address(user_profile)
 
         address_contains_badword = False
@@ -804,6 +806,7 @@ class DomainAddress(models.Model):
             # DomainAlias will be a feature
             address = address_default()
             # Only check for bad words if randomly generated
+        assert isinstance(address, str)
 
         domain_address = DomainAddress.objects.create(
             user=user_profile.user,
