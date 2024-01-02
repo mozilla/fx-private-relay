@@ -122,6 +122,17 @@ def add_db_default_forward_func(apps, schema_editor):
         # completed in step 4 and 5
 ```
 
+7. Append the following `migrations.RunPython` call in `operations` attribute of the `Migration` object defined in the migration file:
+
+```python
+migrations.RunPython(
+    code=add_db_default_forward_func,
+    reverse_code=migrations.RunPython.noop,
+    elidable=True,
+),
+```
+8. When the the migration file is execuated, the appropriate SQL query defined in previous steps will run to populate old entries with specified value and enforce the default value for new entries for the newly added field.
+
 > [!Note]
 > See `emails/migrations/0058_profile_onboarding_free_state.py` for an example of this workaround.
 
