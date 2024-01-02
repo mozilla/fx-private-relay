@@ -334,6 +334,43 @@ class RelayAddressTest(TestCase):
         deleted_count = DeletedAddress.objects.filter(address_hash=address_hash).count()
         assert deleted_count == 1
 
+    def test_delete_increments_values_on_profile(self):
+        assert self.premium_user_profile.num_address_deleted == 0
+        assert self.premium_user_profile.num_email_forwarded_in_deleted_address == 0
+        assert self.premium_user_profile.num_email_blocked_in_deleted_address == 0
+        assert (
+            self.premium_user_profile.num_level_one_trackers_blocked_in_deleted_address
+            == 0
+        )
+        assert self.premium_user_profile.num_email_replied_in_deleted_address == 0
+        assert self.premium_user_profile.num_email_spam_in_deleted_address == 0
+        assert self.premium_user_profile.num_deleted_relay_addresses == 0
+        assert self.premium_user_profile.num_deleted_domain_addresses == 0
+
+        relay_address = baker.make(
+            RelayAddress,
+            user=self.premium_user,
+            num_forwarded=2,
+            num_blocked=3,
+            num_level_one_trackers_blocked=4,
+            num_replied=5,
+            num_spam=6,
+        )
+        relay_address.delete()
+
+        self.premium_user_profile.refresh_from_db()
+        assert self.premium_user_profile.num_address_deleted == 1
+        assert self.premium_user_profile.num_email_forwarded_in_deleted_address == 2
+        assert self.premium_user_profile.num_email_blocked_in_deleted_address == 3
+        assert (
+            self.premium_user_profile.num_level_one_trackers_blocked_in_deleted_address
+            == 4
+        )
+        assert self.premium_user_profile.num_email_replied_in_deleted_address == 5
+        assert self.premium_user_profile.num_email_spam_in_deleted_address == 6
+        assert self.premium_user_profile.num_deleted_relay_addresses == 1
+        assert self.premium_user_profile.num_deleted_domain_addresses == 0
+
     def test_relay_address_create_repeats_deleted_address_invalid(self):
         user = baker.make(User)
         address = "random-address"
@@ -1277,6 +1314,37 @@ class DomainAddressTest(TestCase):
         domain_address.save()
         domain_address.refresh_from_db()
         assert domain_address.block_list_emails is True
+
+    def test_delete_increments_values_on_profile(self):
+        assert self.user_profile.num_address_deleted == 0
+        assert self.user_profile.num_email_forwarded_in_deleted_address == 0
+        assert self.user_profile.num_email_blocked_in_deleted_address == 0
+        assert self.user_profile.num_level_one_trackers_blocked_in_deleted_address == 0
+        assert self.user_profile.num_email_replied_in_deleted_address == 0
+        assert self.user_profile.num_email_spam_in_deleted_address == 0
+        assert self.user_profile.num_deleted_relay_addresses == 0
+        assert self.user_profile.num_deleted_domain_addresses == 0
+
+        domain_address = DomainAddress.objects.create(
+            user=self.user,
+            address="lower-case",
+            num_forwarded=2,
+            num_blocked=3,
+            num_level_one_trackers_blocked=4,
+            num_replied=5,
+            num_spam=6,
+        )
+        domain_address.delete()
+
+        self.user_profile.refresh_from_db()
+        assert self.user_profile.num_address_deleted == 1
+        assert self.user_profile.num_email_forwarded_in_deleted_address == 2
+        assert self.user_profile.num_email_blocked_in_deleted_address == 3
+        assert self.user_profile.num_level_one_trackers_blocked_in_deleted_address == 4
+        assert self.user_profile.num_email_replied_in_deleted_address == 5
+        assert self.user_profile.num_email_spam_in_deleted_address == 6
+        assert self.user_profile.num_deleted_relay_addresses == 0
+        assert self.user_profile.num_deleted_domain_addresses == 1
 
     def test_formerly_premium_user_clears_block_list_emails(self):
         domain_address = DomainAddress.objects.create(

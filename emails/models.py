@@ -675,6 +675,7 @@ class RelayAddress(models.Model):
         ) + (self.num_level_one_trackers_blocked or 0)
         profile.num_email_replied_in_deleted_address += self.num_replied
         profile.num_email_spam_in_deleted_address += self.num_spam
+        profile.num_deleted_relay_addresses += 1
         profile.last_engagement = datetime.now(timezone.utc)
         profile.save()
         return super(RelayAddress, self).delete(*args, **kwargs)
@@ -901,6 +902,7 @@ class DomainAddress(models.Model):
         ) + (self.num_level_one_trackers_blocked or 0)
         profile.num_email_replied_in_deleted_address += self.num_replied
         profile.num_email_spam_in_deleted_address += self.num_spam
+        profile.num_deleted_domain_addresses += 1
         profile.last_engagement = datetime.now(timezone.utc)
         profile.save()
         return super(DomainAddress, self).delete(*args, **kwargs)
