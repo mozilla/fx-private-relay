@@ -22,6 +22,7 @@ from django.utils.translation.trans_real import (
 from rest_framework.authtoken.models import Token
 
 from api.exceptions import ErrorContextType, RelayAPIException
+from emails.apps import EmailsConfig
 from privaterelay.plans import get_premium_countries
 from privaterelay.utils import (
     AcceptLanguageError,
@@ -516,7 +517,8 @@ def has_bad_words(value):
     return False
 
 
-def is_blocklisted(value):
+def is_blocklisted(value: str) -> bool:
+    assert isinstance(emails_config, EmailsConfig)
     return any(blockedword == value for blockedword in emails_config.blocklist)
 
 
@@ -665,7 +667,9 @@ class RelayAddress(models.Model):
                 locked_profile = Profile.objects.select_for_update().get(user=self.user)
                 check_user_can_make_another_address(locked_profile)
                 while True:
-                    if valid_address(self.address, self.domain_value):
+                    address_is_allowed = not is_blocklisted(self.address)
+                    address_is_valid = valid_address(self.address, self.domain_value)
+                    if address_is_valid and address_is_allowed:
                         break
                     self.address = address_default()
                 locked_profile.update_abuse_metric(address_created=True)
@@ -703,17 +707,15 @@ def valid_address_pattern(address):
     return valid_address_pattern.match(address) is not None
 
 
-def valid_address(address: str, domain: str) -> bool:
+def valid_address(address: str, domain: str, subdomain: str | None = None) -> bool:
     address_pattern_valid = valid_address_pattern(address)
     address_contains_badword = has_bad_words(address)
-    address_is_blocklisted = is_blocklisted(address)
     address_already_deleted = DeletedAddress.objects.filter(
-        address_hash=address_hash(address, domain=domain)
+        address_hash=address_hash(address, domain=domain, subdomain=subdomain)
     ).count()
     if (
         address_already_deleted > 0
         or address_contains_badword
-        or address_is_blocklisted
         or not address_pattern_valid
     ):
         return False
@@ -772,9 +774,10 @@ class DomainAddress(models.Model):
         user_profile = self.user.profile
         if self._state.adding:
             check_user_can_make_domain_address(user_profile)
-            pattern_valid = valid_address_pattern(self.address)
-            address_contains_badword = has_bad_words(self.address)
-            if not pattern_valid or address_contains_badword:
+            domain_address_valid = valid_address(
+                self.address, self.domain_value, user_profile.subdomain
+            )
+            if not domain_address_valid:
                 raise DomainAddrUnavailableException(unavailable_address=self.address)
             user_profile.update_abuse_metric(address_created=True)
         if not user_profile.has_premium:
@@ -788,7 +791,9 @@ class DomainAddress(models.Model):
         return Profile.objects.get(user=self.user)
 
     @staticmethod
-    def make_domain_address(user_profile, address=None, made_via_email=False):
+    def make_domain_address(
+        user_profile: Profile, address: str | None = None, made_via_email: bool = False
+    ) -> "DomainAddress":
         check_user_can_make_domain_address(user_profile)
 
         address_contains_badword = False
@@ -799,6 +804,7 @@ class DomainAddress(models.Model):
             # DomainAlias will be a feature
             address = address_default()
             # Only check for bad words if randomly generated
+        assert isinstance(address, str)
 
         domain_address = DomainAddress.objects.create(
             user=user_profile.user,
