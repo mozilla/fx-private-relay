@@ -702,8 +702,22 @@ export const HideIcon = ({
   );
 };
 
-export const Logout = () => (
-  <svg xmlns="http://www.w3.org/2000/svg">
+export const Logout = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => (
+  <svg
+    role="img"
+    aria-label={alt}
+    aria-hidden={alt === ""}
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 20 18"
+    width={20}
+    height={18}
+    {...props}
+    className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
+  >
+    <title>{alt}</title>
     <path
       fill="#20123a"
       d="M9.21 11.71l4-4a1 1 0 00.22-.33 1 1 0 00.07-.25.94.94 0 000-.13.94.94 0 000-.13 1 1 0 00-.05-.25 1 1 0 00-.22-.33l-4-4a1.011 1.011 0 00-1.44 1.42L10.08 6H4.5a1 1 0 000 2h5.59l-2.3 2.29A1 1 0 009.2 11.7z"

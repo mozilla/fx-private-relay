@@ -23,6 +23,7 @@ const config: StorybookConfiguration = {
     getAbsolutePath("@storybook/addon-a11y"),
     getAbsolutePath("@storybook/addon-jest"),
     "storybook-addon-performance",
+    "storybook-addon-pseudo-states",
   ],
   preview: "./preview.tsx",
   framework: {

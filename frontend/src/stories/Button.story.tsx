@@ -1,6 +1,14 @@
 import type { Meta } from "@storybook/react";
 import { Button } from "../components/Button";
 
+/**
+ * The `Button` component, is used for actions within the app.
+ * 
+ * Standard consistent styles for primary buttons.
+
+ * Note: This component is wrapped in a forwardRef so that we can get access to the actual button * element in the DOM and send events when it is scrolled into view using `useGaViewPing` hook.
+ */
+
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta: Meta<typeof Button> = {
   title: "Button",
@@ -45,7 +53,6 @@ export const DefaultView = {
 export const Destructive = {
   args: {
     variant: "destructive",
-    children: "Remove mask",
   },
   parameters: {
     stringName: "mask-deletion-header",
