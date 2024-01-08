@@ -25,7 +25,7 @@
     "@stripe/stripe-js": "^2.2.2",
     "chokidar-cli": "^3.0.0",
     "cldr-localenames-modern": "^44.1.0",
-    "msw": "^2.0.11",
+    "msw": "^2.0.12",
     "react": "18.2.0",
     "react-aria": "^3.31.0",
     "react-confetti": "^6.1.0",
