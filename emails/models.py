@@ -659,7 +659,7 @@ class RelayAddress(models.Model):
         ) + (self.num_level_one_trackers_blocked or 0)
         profile.num_email_replied_in_deleted_address += self.num_replied
         profile.num_email_spam_in_deleted_address += self.num_spam
-        profile.last_engagement = datetime.now()
+        profile.last_engagement = datetime.now(timezone.utc)
         profile.save()
         return super(RelayAddress, self).delete(*args, **kwargs)
 
@@ -675,7 +675,7 @@ class RelayAddress(models.Model):
                         break
                     self.address = address_default()
                 locked_profile.update_abuse_metric(address_created=True)
-                locked_profile.last_engagement = datetime.now()
+                locked_profile.last_engagement = datetime.now(timezone.utc)
                 locked_profile.save()
         if not self.user.profile.server_storage:
             self.description = ""
@@ -683,6 +683,8 @@ class RelayAddress(models.Model):
             self.used_on = ""
         if not self.user.profile.has_premium:
             self.block_list_emails = False
+        self.user.profile.last_engagement = datetime.now(timezone.utc)
+        self.user.profile.save(update_fields=["last_engagement"])
         return super().save(*args, **kwargs)
 
     @property
@@ -788,7 +790,7 @@ class DomainAddress(models.Model):
             self.block_list_emails = False
         if not user_profile.server_storage:
             self.description = ""
-        user_profile.last_engagement = datetime.now()
+        user_profile.last_engagement = datetime.now(timezone.utc)
         user_profile.save()
         return super().save(*args, **kwargs)
 
@@ -846,7 +848,7 @@ class DomainAddress(models.Model):
         ) + (self.num_level_one_trackers_blocked or 0)
         profile.num_email_replied_in_deleted_address += self.num_replied
         profile.num_email_spam_in_deleted_address += self.num_spam
-        profile.last_engagement = datetime.now()
+        profile.last_engagement = datetime.now(timezone.utc)
         profile.save()
         return super(DomainAddress, self).delete(*args, **kwargs)
 
