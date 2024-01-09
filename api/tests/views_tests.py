@@ -7,6 +7,7 @@ import responses
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.sites.models import Site
 from django.core.cache import cache
 from django.test import (
     override_settings,
@@ -17,7 +18,7 @@ from django.utils import timezone
 from django.urls import reverse
 from rest_framework.test import APIClient
 
-from allauth.socialaccount.models import SocialAccount
+from allauth.socialaccount.models import SocialAccount, SocialApp
 
 from api.authentication import get_cache_key, INTROSPECT_TOKEN_URL
 from api.tests.authentication_tests import (
@@ -58,6 +59,12 @@ def prem_api_client(premium_user: User) -> APIClient:
     client = APIClient()
     client.force_authenticate(user=premium_user)
     return client
+
+
+@pytest.fixture
+def fxa_social_app(db) -> SocialApp:
+    app: SocialApp = baker.make(SocialApp, provider="fxa", sites=[Site.objects.first()])
+    return app
 
 
 @pytest.mark.parametrize("subpath", ("swagger", "swagger.", "swagger.txt"))
@@ -400,6 +407,7 @@ def test_patch_relayaddress_format_premium_user_can_clear_block_list_emails(
     assert ra.block_list_emails is False
 
 
+@pytest.mark.usefixtures("fxa_social_app")
 class TermsAcceptedUserViewTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
@@ -598,9 +606,11 @@ def _setup_client(token):
     return client
 
 
-@pytest.mark.django_db
 @responses.activate
-def test_duplicate_email_logs_details_for_debugging(caplog: pytest.LogCaptureFixture):
+@pytest.mark.usefixtures("fxa_social_app")
+def test_duplicate_email_logs_details_for_debugging(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
     caplog.set_level(logging.ERROR)
     uid = "relay-user-fxa-uid"
     email = "user@email.com"
