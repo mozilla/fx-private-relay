@@ -9,9 +9,98 @@
 #
 version: 2.1
 orbs:
+  # https://circleci.com/developer/orbs/orb/circleci/node
   node: circleci/node@5.1.0
+  # https://circleci.com/developer/orbs/orb/circleci/python
   python: circleci/python@2.1.1
+  # https://circleci.com/developer/orbs/orb/circleci/heroku
   heroku: circleci/heroku@1.2.6
+
+executors:
+  # Using executors so most of the version information is here
+  # CircleCI Documentation:
+  # https://circleci.com/docs/reusing-config/#authoring-reusable-executors
+  # https://circleci.com/docs/configuration-reference/#executors
+  # https://circleci.com/docs/configuration-reference/#docker
+  # https://circleci.com/docs/circleci-images/
+  # https://circleci.com/docs/introduction-to-yaml-configurations/#anchors-and-aliases
+  docker:
+    docker:
+      # https://hub.docker.com/_/docker
+      - image: docker:<<parameters.docker_version>><<parameters.variant>>
+        auth: &default_auth
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+    parameters:
+      docker_version:
+        description: "version tag"
+        default: "stable"
+        type: string
+      variant:
+        description: "version tag"
+        default: ""
+        type: enum
+        # Partial list of variants, see https://hub.docker.com/_/docker
+        # Note: "-ce" is a retired variant "Community Edition" for the 18.02 series
+        enum: ["", "-git", "-ce"]
+  node:
+    # https://circleci.com/developer/images/image/cimg/node
+    docker:
+      - image: cimg/node:<<parameters.node_version>>
+        auth: *default_auth
+    parameters:
+      node_version:
+        description: "version tag"
+        default: "18.18"
+        type: string
+  python:
+    # https://circleci.com/developer/images/image/cimg/python
+    docker:
+      - image: cimg/python:<<parameters.python_version>><<parameters.variant>>
+        auth: *default_auth
+    parameters: &python_parameters
+      python_version:
+        description: "python version tag"
+        default: "3.10.13"
+        type: string
+      variant:
+        description: "image variant"
+        default: ""
+        type: enum
+        enum: ["", "-node", "-browsers"]
+      postgres_version:
+        description: "postgres version tag"
+        default: "14.7"
+        type: string
+  python_with_postgres:
+    # https://circleci.com/developer/images/image/cimg/python
+    # https://circleci.com/developer/images/image/cimg/postgres
+    docker:
+      - image: cimg/python:<<parameters.python_version>><<parameters.variant>>
+        auth: *default_auth
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: secret-<<pipeline.id>>
+          POSTGRES_DB: circle
+      - image: cimg/postgres:<<parameters.postgres_version>>
+        auth: *default_auth
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: secret-<<pipeline.id>>
+          POSTGRES_DB: circle
+    parameters:
+      <<: *python_parameters
+  ruby:
+    # https://circleci.com/developer/images/image/cimg/ruby
+    docker:
+      - image: cimg/ruby:<<parameters.ruby_version>>
+        auth: *default_auth
+    parameters:
+      ruby_version:
+        description: "version tag"
+        default: "2.7.2"
+        type: string
+
 commands:
   checkout_with_submodules:
     description: Checkout Relay code and submodules
@@ -19,26 +108,14 @@ commands:
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
-executors:
-  python:
-    docker:
-      - image: cimg/python:3.10.13
-        auth:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
+
 jobs:
   build_frontend:
-    docker:
-      - image: cimg/node:18.18
-        auth:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
+    executor: node
     steps:
       - checkout_with_submodules
-      - node/install:
-          node-version: '18'
       - node/install-packages:
-        override-ci-command: npm ci --workspace frontend
+          override-ci-command: npm ci --workspace frontend
       - run:
           name: Build Code
           command: npm run build --workspace frontend
@@ -48,17 +125,11 @@ jobs:
             - ./frontend/out/
 
   test_frontend:
-    docker:
-      - image: cimg/node:18.18
-        auth:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
+    executor: node
     steps:
       - checkout
-      - node/install:
-          node-version: '18'
       - node/install-packages:
-        override-ci-command: npm ci --workspace frontend
+          override-ci-command: npm ci --workspace frontend
       - run:
           name: Check licences of frontend dependencies
           command: npm run licensecheck --workspace frontend
@@ -84,8 +155,7 @@ jobs:
             - test-results/frontend-coverage
 
   convert_frontend_coverage:
-    docker:
-      - image: cimg/ruby:2.7.2
+    executor: ruby
     steps:
       - attach_workspace:
           at: /tmp/workspace
@@ -109,40 +179,11 @@ jobs:
           paths:
             - test-results/frontend-coverage/lcov-prefixed.info
             - test-results/frontend-coverage/coveralls.json
-  
-  build_email_tracker_list_job:
-    executor: python
-    steps:
-      - checkout_with_submodules
-      - python/install-packages:
-          pkg-manager: pip
-      - run:
-          name: Set test defaults
-          command: cp .env-dist .env
-      - run:
-          name: Build level one email tracker list
-          command: ./manage.py get_latest_email_tracker_lists
-      - run:
-          name: Build level two email tracker list
-          command: ./manage.py get_latest_email_tracker_lists --tracker-level=2
-      - run:
-          name: Copy email tracker lists to persisted workspace
-          command: |
-            mkdir --parents /tmp/workspace/email-trackers
-            cp /home/circleci/project/emails/tracker_lists/level-one-trackers.json /tmp/workspace/email-trackers/
-            cp /home/circleci/project/emails/tracker_lists/level-two-trackers.json /tmp/workspace/email-trackers/
-      - persist_to_workspace:
-            root: /tmp/workspace
-            paths:
-              - email-trackers/level-one-trackers.json
-              - email-trackers/level-two-trackers.json
 
   build_test_backend:
-    docker:
-      - image: docker:stable-git
-        auth:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
+    executor:
+      name: docker
+      variant: "-git"
     working_directory: /dockerflow
     steps:
       - attach_workspace:
@@ -269,8 +310,9 @@ jobs:
             - docker.tar
 
   upload_coverage:
-    docker:
-      - image: cimg/python:3.10.13-node
+    executor:
+      name: python
+      variant: "-node"
     steps:
       - attach_workspace:
           at: /tmp/workspace
@@ -283,11 +325,11 @@ jobs:
             coveralls --merge=/tmp/workspace/test-results/frontend-coverage/coveralls.json
 
   deploy:
-    docker:
-      - image: docker:18.02.0-ce
-        auth:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
+    executor:
+      name: docker
+      # TODO: Try to update this. Published Feb 2018.
+      docker_version: "18.02.0"
+      variant: "-ce"
     steps:
       - setup_remote_docker:
           docker_layer_caching: True
@@ -320,15 +362,50 @@ jobs:
       - heroku/install
       - heroku/deploy-via-git
 
+  # python_job is a generic job for Python and Django tests
+  # It avoids duplicating code and forgetting to duplicate fixes
+  # It uses functions defined in python_job.bash
+  # Section 1: Prepare environment
+  # Section 2: Setup optional steps
+  # Section 3: Run the command
+  # Section 4: Save results
   python_job:
-    executor: python
+    executor:
+      name: << parameters.executor >>
+      python_version: << parameters.python_version >>
+      variant: << parameters.variant >>
+      postgres_version: << parameters.postgres_version >>
     parameters:
+      executor:
+        description: "Which executor to use?"
+        default: python
+        type: enum
+        enum: ["python", "python_with_postgres"]
+      <<: *python_parameters
       command:
         description: "What command should the job run?"
-        default: "exit 1"
+        default: "pytest"
+        type: enum
+        enum: ["pytest", "black", "mypy", "build_email_tracker_lists"]
+      test_results_filename:
+        description: "What is the name of the jUnit XML test output? (Optional)"
+        default: ""
         type: string
-      has_results:
-        description: "Job will place JUnit XML in job-results subfolder"
+      pytest_fail_fast:
+        description: "pytest will stop after 3 failures"
+        type: boolean
+        default: false
+      pytest_phones_backend:
+        description: "Enable phones with Twilio or Inteliquent"
+        default: "twilio"
+        type: enum
+        enum: ["no-phones", "twilio", "iq"]
+      update_dependency:
+        description: "Update a dependency before running the command (Optional)"
+        default: ""
+        type: string
+      mypy_strict:
+        description: "mypy will use --strict"
         type: boolean
         default: false
       allow_fail:
@@ -340,11 +417,98 @@ jobs:
         type: boolean
         default: false
     steps:
+      # Section 1: Prepare environment
       - checkout_with_submodules
       - python/install-packages:
           pkg-manager: pip
-      - when:
-          condition: << parameters.has_results >>
+      - run:
+          name: Setup Bash Environment
+          # This command uses the "mustache section" syntax, somewhat documented here:
+          # https://support.circleci.com/hc/en-us/articles/4417604103835-Using-Mustache-Conditionals-in-Config-File
+          # It looks like:
+          # echo "Let's be <<# parameters.very_careful >>VERY <</ parameters.very_careful >>careful"
+          # If "very_careful" is truthy, this becomes:
+          # echo "Let's be VERY careful"
+          # If "very_careful" is falsy, this becomes:
+          # echo "Let's be careful"
+          # TODO: Convert to when / unless syntax, which is better documented, but may be uglier...
+          command: |
+            # set -x  # Uncomment to debug
+            TMP_ENV=$(mktemp)
+
+            if [ "<<# parameters.allow_fail >>allow_fail<</ parameters.allow_fail >>" == "allow_fail" ]
+            then
+              ALLOW_FAILURE=1
+            else
+              ALLOW_FAILURE=0
+            fi
+            echo "export ALLOW_FAILURE=${ALLOW_FAILURE}" >> "$TMP_ENV"
+
+            if [ "twilio" == "<< parameters.pytest_phones_backend >>" ]
+            then
+              PHONES_ENABLED=1
+              IQ_ENABLED=0
+            elif [ "iq" == "<< parameters.pytest_phones_backend >>" ]
+            then
+              PHONES_ENABLED=1
+              IQ_ENABLED=1
+            else
+              PHONES_ENABLED=0
+              IQ_ENABLED=0
+            fi
+            echo "export PHONES_ENABLED=${PHONES_ENABLED}" >> "$TMP_ENV"
+            echo "export IQ_ENABLED=${IQ_ENABLED}" >> "$TMP_ENV"
+
+            if [ "<<# parameters.mypy_strict >>mypy_strict<</ parameters.mypy_strict >>" == "mypy_strict" ]
+            then
+              MYPY_STRICT=1
+            else
+              MYPY_STRICT=0
+            fi
+            echo "export MYPY_STRICT=${MYPY_STRICT}" >> "$TMP_ENV"
+
+            if [ "<<# parameters.pytest_fail_fast >>pytest_fail_fast<</ parameters.pytest_fail_fast >>" == "pytest_fail_fast" ]
+            then
+              PYTEST_FAIL_FAST=1
+            else
+              PYTEST_FAIL_FAST=0
+            fi
+            echo "export PYTEST_FAIL_FAST=${PYTEST_FAIL_FAST}" >> "$TMP_ENV"
+
+            if [ "<<# parameters.production_with_new_migrations >>production_with_new_migrations<</ parameters.production_with_new_migrations >>" == "production_with_new_migrations" ]
+            then
+              PYTEST_MIGRATIONS_MODE=1
+            else
+              PYTEST_MIGRATIONS_MODE=0
+            fi
+            echo "export PYTEST_MIGRATIONS_MODE=${PYTEST_MIGRATIONS_MODE}" >> "$TMP_ENV"
+
+            TEST_RESULTS_FILENAME="<< parameters.test_results_filename >>"
+            echo "export TEST_RESULTS_FILENAME=$(printf '%q' "${TEST_RESULTS_FILENAME}")" >> "$TMP_ENV"
+
+            if [ "python_with_postgres" == "<<parameters.executor>>" ]
+            then
+              DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost/${POSTGRES_DB}"
+              TEST_DB_NAME="test_${POSTGRES_DB}"
+              TEST_DB_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost/${TEST_DB_NAME}"
+              DATABASE_ENGINE="postgres"
+            else
+              DATABASE_URL="sqlite:///db.sqlite3"
+              TEST_DB_NAME="test.sqlite3"
+              TEST_DB_URL="sqlite:///${TEST_DB_NAME}"
+              DATABASE_ENGINE="sqlite"
+            fi
+            echo "export DATABASE_URL=$(printf '%q' "${DATABASE_URL}")" >> "$TMP_ENV"
+            echo "export TEST_DB_NAME=$(printf '%q' "${TEST_DB_NAME}")" >> "$TMP_ENV"
+            echo "export TEST_DB_URL=$(printf '%q' "${TEST_DB_URL}")" >> "$TMP_ENV"
+            echo "export DATABASE_ENGINE=$(printf '%q' "${DATABASE_ENGINE}")" >> "$TMP_ENV"
+
+            cat "$TMP_ENV" | tee --append "$BASH_ENV"
+            cat /home/circleci/project/.circleci/python_job.bash >> "$BASH_ENV"
+            rm "$TMP_ENV"
+      - unless:
+          condition:
+            equal: ["", << parameters.test_results_filename >>]
           steps:
             - run:
                 name: Create job-results directory
@@ -353,226 +517,191 @@ jobs:
           name: Set test defaults
           command: cp .env-dist .env
       - run:
-          name: Create empty staticfiles directory
-          command: mkdir -p staticfiles
+          name: Create empty staticfiles directories
+          command: |
+            mkdir -p staticfiles
+            mkdir -p frontend/out
+      # Section 2: Setup optional steps
+      # Setup postgres, if selected
+      # This is done later in the process to give the postgres image more time to boot up.
+      - when:
+          condition:
+            equal: ["python_with_postgres", << parameters.executor >>]
+          steps:
+            - run:
+                name: Install dockerize
+                command: install_dockerize v0.6.1
+            - run:
+                name: Wait for the database
+                command: wait_for_the_database
+      - when:
+          condition:
+            and:
+              - << parameters.production_with_new_migrations >>
+              - equal: [ "python", << parameters.executor >> ]
+          steps:
+            - run:
+                name: Install sqlite3
+                command: sudo apt-get update && sudo apt-get install -y sqlite3
+      # Setup migrations test, if selected
       - when:
           condition: << parameters.production_with_new_migrations >>
           steps:
             - run:
-                name: Switch to production tag with branch's migrations
-                command: |
-                  echo 'export PROD_TAG=$(curl --silent https://relay.firefox.com/__version__ | jq -r ".version")' >> $BASH_ENV
-                  source $BASH_ENV
-                  echo "# Production tag is ${PROD_TAG}"
-                  git fetch --force origin tag ${PROD_TAG}
-                  git checkout ${PROD_TAG}
-                  git submodule update --init --recursive
-                  git checkout --theirs "${CIRCLE_SHA1}" -- '**/migrations/**'
-                  git status
+                name: Run tests, keep branch test database
+                command: run_pytest --skip-results --create-db
+            - run:
+                name: Show latest migrations on branch
+                command: show_migrations
+            - run:
+                name: Switch to production tag, production requirements
+                command: switch_to_production
+      # Update dependency, if selected
       - unless:
-          condition: << parameters.allow_fail >>
-          steps:
-            - run: << parameters.command >>
-      - when:
-          condition: << parameters.allow_fail >>
+          condition:
+            equal: [ "", << parameters.update_dependency >> ]
           steps:
             - run:
-                name: << parameters.command >> (failure allowed)
-                command: |
-                  set +x
-                  << parameters.command >> ||
-                  echo "*** Command '<< parameters.command >>' failed, but it is allowed to fail. ***"
+                name: "Update dependency << parameters.update_dependency >>"
+                command: pip install --pre --upgrade "<< parameters.update_dependency >>"
+      # Section 3: Run the command
+      - run:
+          name: Run << parameters.command >><<# parameters.allow_fail >> (failure allowed)<</ parameters.allow_fail >> 
+          command: run_command << parameters.command >>
       - when:
-          condition: << parameters.has_results >>
+          condition: << parameters.production_with_new_migrations >>
+          steps:
+            - run:
+                name: Show migrations after tests
+                command: show_migrations
+      # Section 4: Save results
+      - unless:
+          condition:
+            equal: ["", << parameters.test_results_filename >>]
           steps:
             - store_test_results:
                 path: job-results
-
-  python_test_postgres:
-    docker:
-      - image: cimg/python:3.10.13
-        auth:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
-      - image: cimg/postgres:14.7
-        environment:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: 6edef2d746f2274cab951a452d5fc13d
-          POSTGRES_DB: circle
-        auth:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
-    parameters:
-      production_with_new_migrations:
-        description: "Test if deployed code will work with new migrations."
-        type: boolean
-        default: false
-      test_file_name:
-        description: "Name of the test report"
-        type: string
-        default: "report.xml"
-    steps:
-      - checkout_with_submodules
-      - python/install-packages:
-          pkg-manager: pip
-      - run:
-          name: Install dockerize
-          command: |
-            wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz &&
-            sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz &&
-            rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
-          environment:
-            DOCKERIZE_VERSION: v0.6.1
-      - run:
-          name: Wait for the database
-          command: dockerize -wait tcp://localhost:5432 -timeout 1m
-      - run:
-          name: Set test defaults
-          command: cp .env-dist .env
-      - run:
-          name: Create test-report directory
-          command: mkdir test-report
       - when:
-          condition: << parameters.production_with_new_migrations >>
+          condition:
+            equal: ["build_email_tracker_lists", << parameters.command >>]
           steps:
-            - run:
-                name: Switch to production tag with branch's migrations
-                command: |
-                  echo 'export PROD_TAG=$(curl --silent https://relay.firefox.com/__version__ | jq -r ".version")' >> $BASH_ENV
-                  source $BASH_ENV
-                  echo "# Production tag is ${PROD_TAG}"
-                  git fetch --force origin tag ${PROD_TAG}
-                  git checkout ${PROD_TAG}
-                  git submodule update --init --recursive
-                  git checkout --theirs "${CIRCLE_SHA1}" -- '**/migrations/**'
-                  git status
-      - run:
-          name: Run tests
-          command: pytest --junit-xml=test-report/<< parameters.test_file_name >> .
-          environment:
-            DATABASE_URL: postgresql://postgres:6edef2d746f2274cab951a452d5fc13d@localhost/circle
-      - store_test_results:
-          path: test-report
+            - persist_to_workspace:
+                root: /tmp/workspace
+                paths:
+                  - email-trackers/level-one-trackers.json
+                  - email-trackers/level-two-trackers.json
 
 workflows:
   version: 2
   build-test-deploy:
     jobs:
       - build_frontend:
-          filters:
+          filters: &default_filters
             tags:
               only: /.*/
 
-      - build_email_tracker_list_job:
-          filters:
-            tags:
-              only: /.*/
+      - python_job:
+          name: build email tracker lists
+          command: "build_email_tracker_lists"
+          filters: *default_filters
 
       - build_test_backend:
           requires:
-            - build_email_tracker_list_job
+            - "build email tracker lists"
             - build_frontend
-          filters:
-            tags:
-              only: /.*/
+          filters: *default_filters
 
       - python_job:
           name: black style check
-          command: black --check .
-          filters:
-            tags:
-              only: /.*/
+          command: black
+          filters: *default_filters
 
       - python_job:
           name: mypy type check
-          command: mypy --no-incremental --junit-xml job-results/mypy.xml .
-          has_results: true
-          filters:
-            tags:
-              only: /.*/
+          command: mypy
+          test_results_filename: "mypy.xml"
+          filters: *default_filters
 
       - python_job:
           name: mypy strict type check
-          command: mypy --strict --no-incremental --junit-xml job-results/mypy.xml .
-          has_results: true
+          command: mypy
+          test_results_filename: "mypy-strict.xml"
+          mypy_strict: true
           allow_fail: true
-          filters:
-            tags:
-              only: /.*/
+          filters: *default_filters
 
-      - python_test_postgres:
-          filters:
-            tags:
-              only: /.*/
+      - python_job:
+          name: pytest with current postgres
+          command: pytest
+          executor: "python_with_postgres"
+          test_results_filename: "pytest-postgres.xml"
+          filters: *default_filters
+
+      - python_job:
+          name: pytest with postgres << matrix.postgres_version >>
+          command: pytest
+          test_results_filename: "pytest-postgres-<< matrix.postgres_version >>.xml"
+          executor: python_with_postgres
+          matrix:
+            parameters:
+              postgres_version: ["15.5", "16.1"]
+          filters: *default_filters
 
       - python_job:
           name: sqlite migrations test
-          command: pytest --maxfail=3 --junit-xml=job-results/pytest-migrations.xml .
-          has_results: true
-          allow_fail: false
+          command: pytest
+          test_results_filename: "sqlite3-migrations.xml"
+          pytest_fail_fast: true
           production_with_new_migrations: true
-          filters:
-            tags:
-              only: /.*/
+          filters: *default_filters
 
-      - python_test_postgres:
+      - python_job:
           name: postgres migrations test
+          command: pytest
+          executor: "python_with_postgres"
+          test_results_filename: "postgres-migrations.xml"
+          pytest_fail_fast: true
           production_with_new_migrations: true
-          test_file_name: psql_migrations.xml
-          filters:
-            tags:
-              only: /.*/
+          filters: *default_filters
 
       - python_job:
           name: python test phones disabled
-          command: PHONES_ENABLED=0 IQ_ENABLED=0 pytest --junit-xml=job-results/pytest-phones-disabled.xml .
-          has_results: true
-          filters:
-            tags:
-              only: /.*/
+          command: pytest
+          pytest_phones_backend: no-phones
+          test_results_filename: pytest-phones-disabled.xml
+          filters: *default_filters
 
       - python_job:
-          name: django 4.2 test
-          # YAML ">-" removes newlines, including the last, needed for
-          # multi-step command that can fail.
-          command: >-
-            pip install --pre --upgrade "Django<5";
-            pytest --maxfail=3 --junit-xml=job-results/pytest-django-4-2.xml .
-          has_results: true
+          name: django 5.0 test
+          command: pytest
+          pytest_fail_fast: true
+          test_results_filename: pytest-django-5-0.xml
+          update_dependency: "Django>=5.0,<5.1"
           allow_fail: true
-          filters:
-            tags:
-              only: /.*/
+          filters: *default_filters
 
       - python_job:
           name: python test iq enabled
-          command: PHONES_ENABLED=1 IQ_ENABLED=1 pytest --junit-xml=job-results/pytest-iq-enabled.xml .
-          has_results: true
-          filters:
-            tags:
-              only: /.*/
+          command: pytest
+          pytest_phones_backend: iq
+          test_results_filename: pytest-iq-enabled.xml
+          filters: *default_filters
 
       - test_frontend:
           requires:
             - build_frontend
-          filters:
-            tags:
-              only: /.*/
+          filters: *default_filters
 
       - convert_frontend_coverage:
           requires:
             - test_frontend
-          filters:
-            tags:
-              only: /.*/
+          filters: *default_filters
 
       - upload_coverage:
           requires:
             - convert_frontend_coverage
             - build_test_backend
-          filters:
-            tags:
-              only: /.*/
+          filters: *default_filters
 
       - deploy:
           requires:

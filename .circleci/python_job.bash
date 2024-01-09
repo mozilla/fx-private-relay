@@ -1,0 +1,144 @@
+#!/usr/bin/env bash
+# Helper script for python_job in config.yml
+
+# Set defaults if unset or null
+: ${ALLOW_FAILURE:=0}
+: ${IQ_ENABLED:=0}
+: ${MYPY_STRICT:=0}
+: ${PHONES_ENABLED:=0}
+: ${PYTEST_FAIL_FAST:=0}
+: ${PYTEST_MIGRATIONS_MODE:=0}
+: ${TEST_RESULTS_FILENAME:=}
+: ${DATABASE_URL:=sqlite:///db.sqlite3}
+: ${TEST_DB_NAME:=test.sqlite3}
+: ${TEST_DB_URL:=sqlite:///test.sqlite3}
+: ${DATABASE_ENGINE:=sqlite}
+
+# Run black to check Python format
+function run_black {
+    set -x
+    black --check .
+}
+
+# Run mypy to check type hints
+function run_mypy {
+    local MYPY_ARGS=("--no-incremental")
+    if [ $MYPY_STRICT -ne 0 ]; then MYPY_ARGS+=("--strict"); fi
+    if [ -n "$TEST_RESULTS_FILENAME" ]
+    then
+        MYPY_ARGS+=("--junit-xml" "job-results/${TEST_RESULTS_FILENAME}")
+    fi
+    MYPY_ARGS+=(".")
+
+    set -x
+    mypy "${MYPY_ARGS[@]}"
+}
+
+# Run pytest to run test code
+# Pass "--skip-results", to skip writing jUnit-style results XML
+# Pass "--create-db", to re-create a reusable database with migrations mode
+function run_pytest {
+    local SKIP_RESULTS=0
+    local CREATE_DB=0
+    while [ "$#" -gt 0 ]; do
+      case "$1" in
+        --skip-results) SKIP_RESULTS=1; shift;;
+        --create-db) CREATE_DB=1; shift;;
+        *) echo "unknown option '$1'"; exit 1;;
+      esac
+    done
+
+    local PYTEST_ARGS=()
+    if [ $PYTEST_FAIL_FAST -ne 0 ]; then PYTEST_ARGS+=("--maxfail=3"); fi
+    if [ $PYTEST_MIGRATIONS_MODE -ne 0 ]; then PYTEST_ARGS+=("--reuse-db"); fi
+    if [ $CREATE_DB -ne 0 ]; then PYTEST_ARGS+=("--create-db"); fi
+    if [ -n "$TEST_RESULTS_FILENAME" ] && [ $SKIP_RESULTS != 1 ]
+    then
+        PYTEST_ARGS+=("--junit-xml=job-results/$TEST_RESULTS_FILENAME")
+    fi
+    PYTEST_ARGS+=(".")
+
+    echo "PHONES_ENABLED=${PHONES_ENABLED}, IQ_ENABLED=${IQ_ENABLED}"
+    set -x
+    pytest ${PYTEST_ARGS[@]}
+}
+
+# Run commands to build the email tracker lists
+function run_build_email_tracker_lists {
+    set -x
+    ./manage.py get_latest_email_tracker_lists --skip-checks
+    ./manage.py get_latest_email_tracker_lists --skip-checks --tracker-level=2
+    mkdir --parents /tmp/workspace/email-trackers
+    cp /home/circleci/project/emails/tracker_lists/level-one-trackers.json /tmp/workspace/email-trackers/
+    cp /home/circleci/project/emails/tracker_lists/level-two-trackers.json /tmp/workspace/email-trackers/
+}
+
+# Run a command by name
+# $1 - The command to run - black, mypy, pytest, or build_email_tracker_lists
+# Remaining arguments are passed to the run_COMMAND function
+function run_command {
+    local COMMAND=${1:-}
+    case $COMMAND in
+        black | mypy | pytest | build_email_tracker_lists)
+            :;;
+        "")
+            echo "No command passed - '$COMMAND'"
+            exit 1
+            ;;
+        *)
+            echo "Unknown command $COMMAND"
+            exit 1
+            ;;
+    esac
+
+    if [ $ALLOW_FAILURE -eq 0 ]
+    then
+        "run_$COMMAND" "${@:2}"
+    else
+        "run_$COMMAND" "${@:2}" || echo  "*** Command $COMMAND failed, but it is allowed to fail. ***"
+    fi
+}
+
+# Install the dockerize tool
+# $1 - The version to install, default v0.6.1
+function install_dockerize {
+    local DOCKERIZE_VERSION=${1:-v0.6.1}
+    set -x
+    wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz &&
+    sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz &&
+    rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+}
+
+# Wait for the PostgreSQL database to respond
+function wait_for_the_database {
+    dockerize -wait tcp://localhost:5432 -timeout 1m
+}
+
+# Get the Docker tag from the production version endpoint
+function get_prod_tag {
+    echo "$(curl --silent https://relay.firefox.com/__version__ | jq -r '.version')"
+}
+
+# Show current migrations for sqlite3 or postgresql
+function show_migrations {
+  if [ "$DATABASE_ENGINE" == "sqlite" ]
+  then
+    set -x
+    sqlite3 ${TEST_DB_NAME} "SELECT * FROM django_migrations"
+  else
+    set -x
+    psql ${TEST_DB_URL} --command="SELECT * FROM django_migrations;"
+  fi
+}
+
+# Check out production code and install requirements
+function switch_to_production {
+    local PROD_TAG=$(get_prod_tag)
+    echo "# Production tag is ${PROD_TAG}"
+    set -x
+    git fetch --force origin tag ${PROD_TAG}
+    git checkout ${PROD_TAG}
+    git submodule update --init --recursive
+    git status
+    pip install -r requirements.txt
+}
