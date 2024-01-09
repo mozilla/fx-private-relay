@@ -607,9 +607,10 @@ def _setup_client(token):
 
 
 @responses.activate
+@pytest.mark.usefixtures("fxa_social_app")
 def test_duplicate_email_logs_details_for_debugging(
-    caplog: pytest.LogCaptureFixture, fxa_social_app: SocialApp
-):
+    caplog: pytest.LogCaptureFixture,
+) -> None:
     caplog.set_level(logging.ERROR)
     uid = "relay-user-fxa-uid"
     email = "user@email.com"
