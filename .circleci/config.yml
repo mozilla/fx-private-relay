@@ -423,6 +423,15 @@ jobs:
           pkg-manager: pip
       - run:
           name: Setup Bash Environment
+          # This command uses the "mustache section" syntax, somewhat documented here:
+          # https://support.circleci.com/hc/en-us/articles/4417604103835-Using-Mustache-Conditionals-in-Config-File
+          # It looks like:
+          # echo "Let's be <<# parameters.very_careful >>VERY <</ parameters.very_careful >>careful"
+          # If "very_careful" is truthy, this becomes:
+          # echo "Let's be VERY careful"
+          # If "very_careful" is falsy, this becomes:
+          # echo "Let's be careful"
+          # TODO: Convert to when / unless syntax, which is better documented, but may be uglier...
           command: |
             # set -x  # Uncomment to debug
             TMP_ENV=$(mktemp)
