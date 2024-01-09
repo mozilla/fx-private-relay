@@ -235,6 +235,88 @@ class RelayAddressTest(TestCase):
         assert relay_address.get_domain_display() == "MOZMAIL_DOMAIN"
         assert relay_address.domain_value == "test.com"
 
+    def test_relayaddress_create_updates_profile_last_engagement(self):
+        relay_address = baker.make(RelayAddress, user=self.user, enabled=True)
+        profile = relay_address.user.profile
+        profile.refresh_from_db()
+        assert profile.last_engagement
+        pre_create_last_engagement = profile.last_engagement
+
+        baker.make(RelayAddress, user=self.user, enabled=True)
+
+        profile.refresh_from_db()
+        assert profile.last_engagement > pre_create_last_engagement
+
+    def test_relayaddress_save_does_not_update_profile_last_engagement(self):
+        relay_address = baker.make(RelayAddress, user=self.user, enabled=True)
+        profile = relay_address.user.profile
+        profile.refresh_from_db()
+        assert profile.last_engagement
+        pre_save_last_engagement = profile.last_engagement
+
+        relay_address.enabled = False
+        relay_address.save()
+
+        profile.refresh_from_db()
+        assert profile.last_engagement == pre_save_last_engagement
+
+    def test_relayaddress_delete_updates_profile_last_engagement(self):
+        relay_address = baker.make(RelayAddress, user=self.user)
+        profile = relay_address.user.profile
+        profile.refresh_from_db()
+        assert profile.last_engagement
+        pre_delete_last_engagement = profile.last_engagement
+
+        relay_address.delete()
+
+        profile.refresh_from_db()
+        assert profile.last_engagement > pre_delete_last_engagement
+
+    def test_domainaddress_create_updates_profile_last_engagement(self):
+        user = make_premium_test_user()
+        user_profile = user.profile
+        user_profile.subdomain = "test"
+        user_profile.save()
+        DomainAddress.make_domain_address(user_profile, address="create")
+        assert user_profile.last_engagement
+        pre_create_last_engagement = user_profile.last_engagement
+
+        DomainAddress.make_domain_address(user_profile, address="create2")
+
+        user_profile.refresh_from_db()
+        assert user_profile.last_engagement > pre_create_last_engagement
+
+    def test_domainaddress_save_does_not_update_profile_last_engagement(self):
+        user = make_premium_test_user()
+        user_profile = user.profile
+        user_profile.subdomain = "test"
+        user_profile.save()
+        domain_address = DomainAddress.make_domain_address(user_profile, address="save")
+        assert user_profile.last_engagement
+        pre_save_last_engagement = user_profile.last_engagement
+
+        domain_address.enabled = False
+        domain_address.save()
+
+        user_profile.refresh_from_db()
+        assert user_profile.last_engagement == pre_save_last_engagement
+
+    def test_domainaddress_delete_updates_profile_last_engagement(self):
+        user = make_premium_test_user()
+        user_profile = user.profile
+        user_profile.subdomain = "test"
+        user_profile.save()
+        domain_address = DomainAddress.make_domain_address(
+            user_profile, address="delete"
+        )
+        assert user_profile.last_engagement
+        pre_delete_last_engagement = user_profile.last_engagement
+
+        domain_address.delete()
+
+        user_profile.refresh_from_db()
+        assert user_profile.last_engagement > pre_delete_last_engagement
+
     def test_delete_adds_deleted_address_object(self):
         relay_address = baker.make(RelayAddress, user=self.user)
         address_hash = sha256(relay_address.full_address.encode("utf-8")).hexdigest()

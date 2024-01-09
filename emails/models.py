@@ -132,6 +132,7 @@ class Profile(models.Model):
     # Empty string means the profile was created through relying party flow
     created_by = models.CharField(blank=True, null=True, max_length=63)
     sent_welcome_email = models.BooleanField(default=False)
+    last_engagement = models.DateTimeField(blank=True, null=True, db_index=True)
 
     def __str__(self):
         return "%s Profile" % self.user
@@ -658,6 +659,7 @@ class RelayAddress(models.Model):
         ) + (self.num_level_one_trackers_blocked or 0)
         profile.num_email_replied_in_deleted_address += self.num_replied
         profile.num_email_spam_in_deleted_address += self.num_spam
+        profile.last_engagement = datetime.now(timezone.utc)
         profile.save()
         return super(RelayAddress, self).delete(*args, **kwargs)
 
@@ -673,6 +675,8 @@ class RelayAddress(models.Model):
                         break
                     self.address = address_default()
                 locked_profile.update_abuse_metric(address_created=True)
+                locked_profile.last_engagement = datetime.now(timezone.utc)
+                locked_profile.save()
         if not self.user.profile.server_storage:
             self.description = ""
             self.generated_for = ""
@@ -780,6 +784,8 @@ class DomainAddress(models.Model):
             if not domain_address_valid:
                 raise DomainAddrUnavailableException(unavailable_address=self.address)
             user_profile.update_abuse_metric(address_created=True)
+            user_profile.last_engagement = datetime.now(timezone.utc)
+            user_profile.save(update_fields=["last_engagement"])
         if not user_profile.has_premium:
             self.block_list_emails = False
         if not user_profile.server_storage:
@@ -840,6 +846,7 @@ class DomainAddress(models.Model):
         ) + (self.num_level_one_trackers_blocked or 0)
         profile.num_email_replied_in_deleted_address += self.num_replied
         profile.num_email_spam_in_deleted_address += self.num_spam
+        profile.last_engagement = datetime.now(timezone.utc)
         profile.save()
         return super(DomainAddress, self).delete(*args, **kwargs)
 

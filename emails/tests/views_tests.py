@@ -292,6 +292,8 @@ class SNSNotificationTest(TestCase):
     def setUp(self) -> None:
         self.user = baker.make(User, email="user@example.com")
         self.profile = self.user.profile
+        self.profile.last_engagement = datetime.now(timezone.utc)
+        self.profile.save()
         self.sa: SocialAccount = baker.make(
             SocialAccount, user=self.user, provider="fxa"
         )
@@ -301,6 +303,7 @@ class SNSNotificationTest(TestCase):
         self.premium_user = make_premium_test_user()
         self.premium_profile = Profile.objects.get(user=self.premium_user)
         self.premium_profile.subdomain = "subdomain"
+        self.premium_profile.last_engagement = datetime.now(timezone.utc)
         self.premium_profile.save()
 
         remove_s3_patcher = patch("emails.views.remove_message_from_s3")
@@ -350,6 +353,8 @@ class SNSNotificationTest(TestCase):
         raise Exception("Never found message body!")
 
     def test_single_recipient_sns_notification(self) -> None:
+        pre_sns_notification_last_engagement = self.ra.user.profile.last_engagement
+        assert pre_sns_notification_last_engagement is not None
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
 
         sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
@@ -371,6 +376,11 @@ class SNSNotificationTest(TestCase):
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at is not None
         assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
+        self.ra.user.profile.refresh_from_db()
+        assert self.ra.user.profile.last_engagement is not None
+        assert (
+            self.ra.user.profile.last_engagement > pre_sns_notification_last_engagement
+        )
 
     def test_single_french_recipient_sns_notification(self) -> None:
         """
@@ -543,7 +553,9 @@ class SNSNotificationTest(TestCase):
         user = baker.make(User, email="source@sender.com")
         user.profile.server_storage = True
         user.profile.date_subscribed = datetime.now(tz=timezone.utc)
+        user.profile.last_engagement = datetime.now(tz=timezone.utc)
         user.profile.save()
+        pre_reply_last_engagement = user.profile.last_engagement
         upgrade_test_user_to_premium(user)
 
         # Create a Reply record matching the s3_stored_replies headers
@@ -592,6 +604,8 @@ class SNSNotificationTest(TestCase):
         last_used_at = relay_address.last_used_at
         assert last_used_at
         assert (datetime.now(tz=timezone.utc) - last_used_at).seconds < 2.0
+        assert relay_address.user.profile.last_engagement is not None
+        assert relay_address.user.profile.last_engagement > pre_reply_last_engagement
         return email
 
     def test_reply_with_emoji_in_text(self) -> None:
@@ -1221,11 +1235,17 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
     def test_relay_address_disabled_email_in_s3_deleted(self) -> None:
         self.address.enabled = False
         self.address.save()
+        profile = self.address.user.profile
+        profile.last_engagement = datetime.now(timezone.utc)
+        profile.save()
+        pre_blocked_email_last_engagement = profile.last_engagement
 
         response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
         self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 200
         assert response.content == b"Address is temporarily disabled."
+        profile.refresh_from_db()
+        assert profile.last_engagement > pre_blocked_email_last_engagement
 
     @patch("emails.views._check_email_from_list")
     def test_blocked_list_email_in_s3_deleted(
@@ -1234,12 +1254,18 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         upgrade_test_user_to_premium(self.user)
         self.address.block_list_emails = True
         self.address.save()
+        profile = self.address.user.profile
+        profile.last_engagement = datetime.now(timezone.utc)
+        profile.save()
+        pre_blocked_email_last_engagement = profile.last_engagement
         mocked_email_is_from_list.return_value = True
 
         response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
         self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 200
         assert response.content == b"Address is not accepting list emails."
+        profile.refresh_from_db()
+        assert profile.last_engagement > pre_blocked_email_last_engagement
 
     @patch("emails.views.get_message_content_from_s3")
     def test_get_text_html_s3_client_error_email_in_s3_not_deleted(

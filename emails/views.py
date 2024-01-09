@@ -597,6 +597,8 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         address.num_blocked += 1
         address.save(update_fields=["num_blocked"])
         _record_receipt_verdicts(receipt, "disabled_alias")
+        user_profile.last_engagement = datetime.now(timezone.utc)
+        user_profile.save()
         # TODO: Add metrics
         return HttpResponse("Address is temporarily disabled.")
 
@@ -613,6 +615,8 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         incr_if_enabled("list_email_for_address_blocking_lists", 1)
         address.num_blocked += 1
         address.save(update_fields=["num_blocked"])
+        user_profile.last_engagement = datetime.now(timezone.utc)
+        user_profile.save()
         return HttpResponse("Address is not accepting list emails.")
 
     # Collect new headers
@@ -705,6 +709,8 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     user_profile.update_abuse_metric(
         email_forwarded=True, forwarded_email_size=len(incoming_email_bytes)
     )
+    user_profile.last_engagement = datetime.now(timezone.utc)
+    user_profile.save()
     address.num_forwarded += 1
     address.last_used_at = datetime.now(timezone.utc)
     if level_one_trackers_removed:
@@ -1225,6 +1231,8 @@ def _handle_reply(
     reply_record.increment_num_replied()
     profile = address.user.profile
     profile.update_abuse_metric(replied=True)
+    profile.last_engagement = datetime.now(timezone.utc)
+    profile.save()
     return HttpResponse("Sent email to final recipient.", status=200)
 
 
