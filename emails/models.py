@@ -683,8 +683,6 @@ class RelayAddress(models.Model):
             self.used_on = ""
         if not self.user.profile.has_premium:
             self.block_list_emails = False
-        self.user.profile.last_engagement = datetime.now(timezone.utc)
-        self.user.profile.save(update_fields=["last_engagement"])
         return super().save(*args, **kwargs)
 
     @property
@@ -786,12 +784,12 @@ class DomainAddress(models.Model):
             if not domain_address_valid:
                 raise DomainAddrUnavailableException(unavailable_address=self.address)
             user_profile.update_abuse_metric(address_created=True)
+            user_profile.last_engagement = datetime.now(timezone.utc)
+            user_profile.save(update_fields=["last_engagement"])
         if not user_profile.has_premium:
             self.block_list_emails = False
         if not user_profile.server_storage:
             self.description = ""
-        user_profile.last_engagement = datetime.now(timezone.utc)
-        user_profile.save()
         return super().save(*args, **kwargs)
 
     @property
