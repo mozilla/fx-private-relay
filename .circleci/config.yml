@@ -108,6 +108,34 @@ commands:
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
+  set_env_from_bool_parameter:
+    description: Set an environment variable from a CircleCI boolean parameter
+    parameters:
+      bool_parameter:
+        description: A boolean parameter value
+        type: boolean
+      env_variable:
+        description: An environment variable name
+        type: string
+      comment_if_true:
+        description: Text comment if bool_parameter is truthy
+        type: string
+      comment_if_false:
+        description: Text comment if bool_parameter is falsy
+        type: string
+    steps:
+      - when:
+          condition: << parameters.bool_parameter >>
+          steps:
+            - run:
+                name: Parameters - << parameters.comment_if_true >>
+                command: echo "export << parameters.env_variable >>=1" >> "$TMP_ENV"
+      - unless:
+          condition: << parameters.bool_parameter >>
+          steps:
+            - run:
+                name: Parameters - << parameters.comment_if_false >>
+                command: echo "export << parameters.env_variable >>=0" >> "$TMP_ENV"
 
 jobs:
   build_frontend:
@@ -422,87 +450,109 @@ jobs:
       - python/install-packages:
           pkg-manager: pip
       - run:
-          name: Setup Bash Environment
-          # This command uses the "mustache section" syntax, somewhat documented here:
-          # https://support.circleci.com/hc/en-us/articles/4417604103835-Using-Mustache-Conditionals-in-Config-File
-          # It looks like:
-          # echo "Let's be <<# parameters.very_careful >>VERY <</ parameters.very_careful >>careful"
-          # If "very_careful" is truthy, this becomes:
-          # echo "Let's be VERY careful"
-          # If "very_careful" is falsy, this becomes:
-          # echo "Let's be careful"
-          # TODO: Convert to when / unless syntax, which is better documented, but may be uglier...
+          name: Prepare to convert parameters to shell variables
           command: |
-            # set -x  # Uncomment to debug
             TMP_ENV=$(mktemp)
-
-            if [ "<<# parameters.allow_fail >>allow_fail<</ parameters.allow_fail >>" == "allow_fail" ]
-            then
-              ALLOW_FAILURE=1
-            else
-              ALLOW_FAILURE=0
-            fi
-            echo "export ALLOW_FAILURE=${ALLOW_FAILURE}" >> "$TMP_ENV"
-
-            if [ "twilio" == "<< parameters.pytest_phones_backend >>" ]
-            then
-              PHONES_ENABLED=1
-              IQ_ENABLED=0
-            elif [ "iq" == "<< parameters.pytest_phones_backend >>" ]
-            then
-              PHONES_ENABLED=1
-              IQ_ENABLED=1
-            else
-              PHONES_ENABLED=0
-              IQ_ENABLED=0
-            fi
-            echo "export PHONES_ENABLED=${PHONES_ENABLED}" >> "$TMP_ENV"
-            echo "export IQ_ENABLED=${IQ_ENABLED}" >> "$TMP_ENV"
-
-            if [ "<<# parameters.mypy_strict >>mypy_strict<</ parameters.mypy_strict >>" == "mypy_strict" ]
-            then
-              MYPY_STRICT=1
-            else
-              MYPY_STRICT=0
-            fi
-            echo "export MYPY_STRICT=${MYPY_STRICT}" >> "$TMP_ENV"
-
-            if [ "<<# parameters.pytest_fail_fast >>pytest_fail_fast<</ parameters.pytest_fail_fast >>" == "pytest_fail_fast" ]
-            then
-              PYTEST_FAIL_FAST=1
-            else
-              PYTEST_FAIL_FAST=0
-            fi
-            echo "export PYTEST_FAIL_FAST=${PYTEST_FAIL_FAST}" >> "$TMP_ENV"
-
-            if [ "<<# parameters.production_with_new_migrations >>production_with_new_migrations<</ parameters.production_with_new_migrations >>" == "production_with_new_migrations" ]
-            then
-              PYTEST_MIGRATIONS_MODE=1
-            else
-              PYTEST_MIGRATIONS_MODE=0
-            fi
-            echo "export PYTEST_MIGRATIONS_MODE=${PYTEST_MIGRATIONS_MODE}" >> "$TMP_ENV"
-
-            TEST_RESULTS_FILENAME="<< parameters.test_results_filename >>"
-            echo "export TEST_RESULTS_FILENAME=$(printf '%q' "${TEST_RESULTS_FILENAME}")" >> "$TMP_ENV"
-
-            if [ "python_with_postgres" == "<<parameters.executor>>" ]
-            then
-              DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost/${POSTGRES_DB}"
-              TEST_DB_NAME="test_${POSTGRES_DB}"
-              TEST_DB_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost/${TEST_DB_NAME}"
-              DATABASE_ENGINE="postgres"
-            else
-              DATABASE_URL="sqlite:///db.sqlite3"
-              TEST_DB_NAME="test.sqlite3"
-              TEST_DB_URL="sqlite:///${TEST_DB_NAME}"
-              DATABASE_ENGINE="sqlite"
-            fi
-            echo "export DATABASE_URL=$(printf '%q' "${DATABASE_URL}")" >> "$TMP_ENV"
-            echo "export TEST_DB_NAME=$(printf '%q' "${TEST_DB_NAME}")" >> "$TMP_ENV"
-            echo "export TEST_DB_URL=$(printf '%q' "${TEST_DB_URL}")" >> "$TMP_ENV"
-            echo "export DATABASE_ENGINE=$(printf '%q' "${DATABASE_ENGINE}")" >> "$TMP_ENV"
-
+            echo "export TMP_ENV=$(printf '%q' "${TMP_ENV}")" >> "$BASH_ENV"
+      # Boolean parameters
+      - set_env_from_bool_parameter:
+          bool_parameter: << parameters.allow_fail >>
+          env_variable: ALLOW_FAILURE
+          comment_if_true: Allow test to fail
+          comment_if_false: Fail job if test fails
+      - set_env_from_bool_parameter:
+          bool_parameter: << parameters.mypy_strict >>
+          env_variable: MYPY_STRICT
+          comment_if_true: Use strict mode for mypy
+          comment_if_false: Use Relay configuration for mypy
+      - set_env_from_bool_parameter:
+          bool_parameter: << parameters.pytest_fail_fast >>
+          env_variable: PYTEST_FAIL_FAST
+          comment_if_true: Stop pytest after 3 failures
+          comment_if_false: Run all tests, even if there are lots of failures
+      - set_env_from_bool_parameter:
+          bool_parameter: << parameters.production_with_new_migrations >>
+          env_variable: PYTEST_MIGRATIONS_MODE
+          comment_if_true: Test old code and requirements with new migrations, emulating a production deploy
+          comment_if_false: Test branch code, requirements, and migrations
+      # Phones backend
+      - when:
+          condition:
+            equal: ["twilio", << parameters.pytest_phones_backend >>]
+          steps:
+            - run:
+                name: Parameters - Use Twilio phone configuration
+                command: |
+                  echo "export PHONES_ENABLED=1" >> "$TMP_ENV"
+                  echo "export IQ_ENABLED=0" >> "$TMP_ENV"
+      - when:
+          condition:
+            equal: ["iq", << parameters.pytest_phones_backend >>]
+          steps:
+            - run:
+                name: Parameters - Use Inteliquent phone configuration
+                command: |
+                  echo "export PHONES_ENABLED=1" >> "$TMP_ENV"
+                  echo "export IQ_ENABLED=1" >> "$TMP_ENV"
+      - when:
+          condition:
+            equal: ["no-phones", << parameters.pytest_phones_backend >>]
+          steps:
+            - run:
+                name: Parameters - Disable phones
+                command: |
+                  echo "export PHONES_ENABLED=0" >> "$TMP_ENV"
+                  echo "export IQ_ENABLED=0" >> "$TMP_ENV"
+      # Test results file
+      - when:
+          condition: << parameters.test_results_filename >>
+          steps:
+            - run:
+                name: Parameters - Export test results as jUnit XML
+                command: |
+                  echo "export TEST_RESULTS_FILENAME=$(printf '%q' "${TEST_RESULTS_FILENAME}")" >> "$TMP_ENV"
+      - unless:
+          condition: << parameters.test_results_filename >>
+          steps:
+            - run:
+                name: Parameters - Do not export test results as jUnit XML
+                command: |
+                  echo "export TEST_RESULTS_FILENAME=''" >> "$TMP_ENV"
+      # Database engine
+      - when:
+          condition:
+            equal: ["python_with_postgres", "<<parameters.executor>>"]
+          steps:
+            - run:
+                name: Parameters - Use PostgreSQL as the database backend
+                command: |
+                  DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost/${POSTGRES_DB}"
+                  TEST_DB_NAME="test_${POSTGRES_DB}"
+                  TEST_DB_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost/${TEST_DB_NAME}"
+                  DATABASE_ENGINE="postgres"
+                  echo "export DATABASE_URL=$(printf '%q' "${DATABASE_URL}")" >> "$TMP_ENV"
+                  echo "export TEST_DB_NAME=$(printf '%q' "${TEST_DB_NAME}")" >> "$TMP_ENV"
+                  echo "export TEST_DB_URL=$(printf '%q' "${TEST_DB_URL}")" >> "$TMP_ENV"
+                  echo "export DATABASE_ENGINE=$(printf '%q' "${DATABASE_ENGINE}")" >> "$TMP_ENV"
+      - when:
+          condition:
+            equal: ["python", "<<parameters.executor>>"]
+          steps:
+            - run:
+                name: Parameters - Use SQLite as the database backend
+                command: |
+                  DATABASE_URL="sqlite:///db.sqlite3"
+                  TEST_DB_NAME="test.sqlite3"
+                  TEST_DB_URL="sqlite:///${TEST_DB_NAME}"
+                  DATABASE_ENGINE="sqlite"
+                  echo "export DATABASE_URL=$(printf '%q' "${DATABASE_URL}")" >> "$TMP_ENV"
+                  echo "export TEST_DB_NAME=$(printf '%q' "${TEST_DB_NAME}")" >> "$TMP_ENV"
+                  echo "export TEST_DB_URL=$(printf '%q' "${TEST_DB_URL}")" >> "$TMP_ENV"
+                  echo "export DATABASE_ENGINE=$(printf '%q' "${DATABASE_ENGINE}")" >> "$TMP_ENV"
+      # Finish environment setup
+      - run:
+          name: Converting parameters to shell variables, add helper functions
+          command: |
             cat "$TMP_ENV" | tee --append "$BASH_ENV"
             cat /home/circleci/project/.circleci/python_job.bash >> "$BASH_ENV"
             rm "$TMP_ENV"
