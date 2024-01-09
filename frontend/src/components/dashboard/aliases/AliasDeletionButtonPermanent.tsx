@@ -45,8 +45,10 @@ export const AliasDeletionButtonPermanent = (props: Props) => {
   const onConfirm: FormEventHandler = (event) => {
     event.preventDefault();
 
-    props.onDelete();
-    modalState.close();
+    if (modalState.isOpen) {
+      props.onDelete();
+      modalState.close();
+    }
   };
 
   const dialog = modalState.isOpen ? (
