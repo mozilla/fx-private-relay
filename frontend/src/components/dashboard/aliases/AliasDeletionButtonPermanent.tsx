@@ -28,13 +28,6 @@ export const AliasDeletionButtonPermanent = (props: Props) => {
   const l10n = useL10n();
 
   const openModalButtonRef = useRef<HTMLButtonElement>(null);
-  const openModalButtonProps = useButton(
-    {
-      onPress: () => modalState.open(),
-    },
-    openModalButtonRef,
-  ).buttonProps;
-
   const modalState = useOverlayTriggerState({});
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const cancelButton = useButton(
@@ -92,7 +85,9 @@ export const AliasDeletionButtonPermanent = (props: Props) => {
   return (
     <>
       <button
-        {...openModalButtonProps}
+        onClick={() => {
+          modalState.open();
+        }}
         className={styles["deletion-button"]}
         ref={openModalButtonRef}
       >
