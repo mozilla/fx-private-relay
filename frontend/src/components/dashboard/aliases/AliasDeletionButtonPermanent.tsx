@@ -9,7 +9,7 @@ import {
   AriaOverlayProps,
 } from "react-aria";
 import { useOverlayTriggerState } from "react-stately";
-import { FormEventHandler, ReactElement, ReactNode, useRef } from "react";
+import { ReactElement, ReactNode, useRef } from "react";
 import styles from "./AliasDeletionButtonPermanent.module.scss";
 import { Button } from "../../Button";
 import { AliasData, getFullAddress } from "../../../hooks/api/aliases";
@@ -59,6 +59,7 @@ export const AliasDeletionButtonPermanent = (props: Props) => {
         <hr />
         <div className={styles.confirm}>
           <div className={styles.buttons}>
+            {/* cancel button */}
             <button
               {...cancelButton.buttonProps}
               ref={cancelButtonRef}
@@ -66,6 +67,7 @@ export const AliasDeletionButtonPermanent = (props: Props) => {
             >
               {l10n.getString("profile-label-cancel")}
             </button>
+            {/* confirm deletion button */}
             <Button
               onClick={() => {
                 onConfirm();
@@ -84,6 +86,7 @@ export const AliasDeletionButtonPermanent = (props: Props) => {
 
   return (
     <>
+      {/* delete mask button - opens confirmation modal */}
       <button
         onClick={() => {
           modalState.open();
