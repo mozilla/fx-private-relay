@@ -129,13 +129,13 @@ commands:
           steps:
             - run:
                 name: Parameters - << parameters.comment_if_true >>
-                command: echo "export << parameters.env_variable >>=1" >> "$TMP_ENV"
+                command: echo "export << parameters.env_variable >>=1" | tee --append "$TMP_ENV"
       - unless:
           condition: << parameters.bool_parameter >>
           steps:
             - run:
                 name: Parameters - << parameters.comment_if_false >>
-                command: echo "export << parameters.env_variable >>=0" >> "$TMP_ENV"
+                command: echo "export << parameters.env_variable >>=0" | tee --append "$TMP_ENV"
 
 jobs:
   build_frontend:
@@ -483,8 +483,8 @@ jobs:
             - run:
                 name: Parameters - Use Twilio phone configuration
                 command: |
-                  echo "export PHONES_ENABLED=1" >> "$TMP_ENV"
-                  echo "export IQ_ENABLED=0" >> "$TMP_ENV"
+                  echo "export PHONES_ENABLED=1" | tee --append "$TMP_ENV"
+                  echo "export IQ_ENABLED=0" | tee --append "$TMP_ENV"
       - when:
           condition:
             equal: ["iq", << parameters.pytest_phones_backend >>]
@@ -492,8 +492,8 @@ jobs:
             - run:
                 name: Parameters - Use Inteliquent phone configuration
                 command: |
-                  echo "export PHONES_ENABLED=1" >> "$TMP_ENV"
-                  echo "export IQ_ENABLED=1" >> "$TMP_ENV"
+                  echo "export PHONES_ENABLED=1" | tee --append "$TMP_ENV"
+                  echo "export IQ_ENABLED=1" | tee --append "$TMP_ENV"
       - when:
           condition:
             equal: ["no-phones", << parameters.pytest_phones_backend >>]
@@ -501,8 +501,8 @@ jobs:
             - run:
                 name: Parameters - Disable phones
                 command: |
-                  echo "export PHONES_ENABLED=0" >> "$TMP_ENV"
-                  echo "export IQ_ENABLED=0" >> "$TMP_ENV"
+                  echo "export PHONES_ENABLED=0" | tee --append "$TMP_ENV"
+                  echo "export IQ_ENABLED=0" | tee --append "$TMP_ENV"
       # Test results file
       - when:
           condition: << parameters.test_results_filename >>
@@ -510,14 +510,14 @@ jobs:
             - run:
                 name: Parameters - Export test results as jUnit XML
                 command: |
-                  echo "export TEST_RESULTS_FILENAME=$(printf '%q' "${TEST_RESULTS_FILENAME}")" >> "$TMP_ENV"
+                  echo "export TEST_RESULTS_FILENAME=$(printf '%q' "${TEST_RESULTS_FILENAME}")" | tee --append "$TMP_ENV"
       - unless:
           condition: << parameters.test_results_filename >>
           steps:
             - run:
                 name: Parameters - Do not export test results as jUnit XML
                 command: |
-                  echo "export TEST_RESULTS_FILENAME=''" >> "$TMP_ENV"
+                  echo "export TEST_RESULTS_FILENAME=''" | tee --append "$TMP_ENV"
       # Database engine
       - when:
           condition:
@@ -530,10 +530,10 @@ jobs:
                   TEST_DB_NAME="test_${POSTGRES_DB}"
                   TEST_DB_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost/${TEST_DB_NAME}"
                   DATABASE_ENGINE="postgres"
-                  echo "export DATABASE_URL=$(printf '%q' "${DATABASE_URL}")" >> "$TMP_ENV"
-                  echo "export TEST_DB_NAME=$(printf '%q' "${TEST_DB_NAME}")" >> "$TMP_ENV"
-                  echo "export TEST_DB_URL=$(printf '%q' "${TEST_DB_URL}")" >> "$TMP_ENV"
-                  echo "export DATABASE_ENGINE=$(printf '%q' "${DATABASE_ENGINE}")" >> "$TMP_ENV"
+                  echo "export DATABASE_URL=$(printf '%q' "${DATABASE_URL}")" | tee --append "$TMP_ENV"
+                  echo "export TEST_DB_NAME=$(printf '%q' "${TEST_DB_NAME}")" | tee --append "$TMP_ENV"
+                  echo "export TEST_DB_URL=$(printf '%q' "${TEST_DB_URL}")" | tee --append "$TMP_ENV"
+                  echo "export DATABASE_ENGINE=$(printf '%q' "${DATABASE_ENGINE}")" | tee --append "$TMP_ENV"
       - when:
           condition:
             equal: ["python", "<<parameters.executor>>"]
@@ -545,10 +545,10 @@ jobs:
                   TEST_DB_NAME="test.sqlite3"
                   TEST_DB_URL="sqlite:///${TEST_DB_NAME}"
                   DATABASE_ENGINE="sqlite"
-                  echo "export DATABASE_URL=$(printf '%q' "${DATABASE_URL}")" >> "$TMP_ENV"
-                  echo "export TEST_DB_NAME=$(printf '%q' "${TEST_DB_NAME}")" >> "$TMP_ENV"
-                  echo "export TEST_DB_URL=$(printf '%q' "${TEST_DB_URL}")" >> "$TMP_ENV"
-                  echo "export DATABASE_ENGINE=$(printf '%q' "${DATABASE_ENGINE}")" >> "$TMP_ENV"
+                  echo "export DATABASE_URL=$(printf '%q' "${DATABASE_URL}")" | tee --append "$TMP_ENV"
+                  echo "export TEST_DB_NAME=$(printf '%q' "${TEST_DB_NAME}")" | tee --append "$TMP_ENV"
+                  echo "export TEST_DB_URL=$(printf '%q' "${TEST_DB_URL}")" | tee --append "$TMP_ENV"
+                  echo "export DATABASE_ENGINE=$(printf '%q' "${DATABASE_ENGINE}")" | tee --append "$TMP_ENV"
       # Finish environment setup
       - run:
           name: Converting parameters to shell variables, add helper functions
