@@ -9,7 +9,7 @@ import {
   AriaOverlayProps,
 } from "react-aria";
 import { useOverlayTriggerState } from "react-stately";
-import { ReactElement, ReactNode, useRef } from "react";
+import { FormEventHandler, ReactElement, ReactNode, useRef } from "react";
 import styles from "./AliasDeletionButtonPermanent.module.scss";
 import { Button } from "../../Button";
 import { AliasData, getFullAddress } from "../../../hooks/api/aliases";
@@ -28,12 +28,24 @@ export const AliasDeletionButtonPermanent = (props: Props) => {
   const l10n = useL10n();
 
   const openModalButtonRef = useRef<HTMLButtonElement>(null);
+  const openModalButtonProps = useButton(
+    {
+      onPress: () => modalState.open(),
+    },
+    openModalButtonRef,
+  ).buttonProps;
+
   const modalState = useOverlayTriggerState({});
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const cancelButton = useButton(
     { onPress: () => modalState.close() },
     cancelButtonRef,
   );
+
+  const onConfirm = () => {
+    props.onDelete();
+    modalState.close();
+  };
 
   const dialog = modalState.isOpen ? (
     <OverlayContainer>
@@ -52,7 +64,7 @@ export const AliasDeletionButtonPermanent = (props: Props) => {
         </p>
         <WarningBanner />
         <hr />
-        <form className={styles.confirm}>
+        <div className={styles.confirm}>
           <div className={styles.buttons}>
             <button
               {...cancelButton.buttonProps}
@@ -63,8 +75,7 @@ export const AliasDeletionButtonPermanent = (props: Props) => {
             </button>
             <Button
               onClick={() => {
-                props.onDelete();
-                modalState.close();
+                onConfirm();
               }}
               type="button"
               variant="destructive"
@@ -73,7 +84,7 @@ export const AliasDeletionButtonPermanent = (props: Props) => {
               {l10n.getString("profile-label-delete")}
             </Button>
           </div>
-        </form>
+        </div>
       </ConfirmationDialog>
     </OverlayContainer>
   ) : null;
@@ -81,9 +92,7 @@ export const AliasDeletionButtonPermanent = (props: Props) => {
   return (
     <>
       <button
-        onClick={() => {
-          modalState.open();
-        }}
+        {...openModalButtonProps}
         className={styles["deletion-button"]}
         ref={openModalButtonRef}
       >
