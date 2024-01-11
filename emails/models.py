@@ -714,9 +714,13 @@ def valid_address_pattern(address):
 def valid_address(address: str, domain: str, subdomain: str | None = None) -> bool:
     address_pattern_valid = valid_address_pattern(address)
     address_contains_badword = has_bad_words(address)
-    address_already_deleted = DeletedAddress.objects.filter(
-        address_hash=address_hash(address, domain=domain, subdomain=subdomain)
-    ).count()
+    address_already_deleted = 0
+    if not subdomain or flag_is_active_in_task(
+        "custom_domain_management_redesign", None
+    ):
+        address_already_deleted = DeletedAddress.objects.filter(
+            address_hash=address_hash(address, domain=domain, subdomain=subdomain)
+        ).count()
     if (
         address_already_deleted > 0
         or address_contains_badword
