@@ -769,7 +769,6 @@ class ProfileSaveTest(ProfileTestCase):
         self.profile.save()
         assert self.profile.subdomain == "mixedcase"
 
-    @pytest.mark.xfail(reason="subdomain not saved on update_or_create")
     def test_lowercases_subdomain_value_on_update_or_create(self) -> None:
         """
         The subdomain is lowercased when update_or_create is used.

@@ -1,7 +1,7 @@
 from collections import namedtuple
 from datetime import datetime, timedelta, timezone
 from hashlib import sha256
-from typing import Optional
+from typing import Optional, Iterable
 import logging
 import random
 import re
@@ -137,13 +137,26 @@ class Profile(models.Model):
     def __str__(self):
         return "%s Profile" % self.user
 
-    def save(self, *args, **kwargs):
+    def save(
+        self,
+        force_insert: bool = False,
+        force_update: bool = False,
+        using: str | None = None,
+        update_fields: Iterable[str] | None = None,
+    ) -> None:
         # always lower-case the subdomain before saving it
         # TODO: change subdomain field as a custom field inheriting from
         # CharField to validate constraints on the field update too
         if self.subdomain and not self.subdomain.islower():
             self.subdomain = self.subdomain.lower()
-        ret = super().save(*args, **kwargs)
+            if update_fields is not None:
+                update_fields = {"subdomain"}.union(update_fields)
+        super().save(
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields,
+        )
         # any time a profile is saved with server_storage False, delete the
         # appropriate server-stored Relay address data.
         if not self.server_storage:
@@ -160,7 +173,6 @@ class Profile(models.Model):
                     InboundContact.objects.filter(relay_number=relay_number).delete()
                 except RelayNumber.DoesNotExist:
                     pass
-        return ret
 
     @property
     def language(self):
