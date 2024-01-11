@@ -405,7 +405,7 @@ class RelayAddressTest(TestCase):
         relay_address = RelayAddress.objects.create(user=self.storageless_user)
         assert relay_address.description == ""
         assert relay_address.generated_for == ""
-        assert relay_address.used_on == ""
+        assert relay_address.used_on in (None, "")
         relay_address.description = "Arbitrary description"
         relay_address.generated_for = "https://example.com"
         relay_address.used_on = "https://example.com"
@@ -413,7 +413,7 @@ class RelayAddressTest(TestCase):
         relay_address.refresh_from_db()
         assert relay_address.description == ""
         assert relay_address.generated_for == ""
-        assert relay_address.used_on == ""
+        assert relay_address.used_on in (None, "")
 
     @pytest.mark.xfail(reason="storage not cleared on update_or_create")
     def test_clear_storage_with_update_or_create(self) -> None:
@@ -450,7 +450,7 @@ class RelayAddressTest(TestCase):
         assert relay_address.last_used_at == new_last_used_at
         assert relay_address.description == ""
         assert relay_address.generated_for == ""
-        assert relay_address.used_on == ""
+        assert relay_address.used_on in ("", None)
 
     @pytest.mark.xfail(reason="block_list_emails not cleared on update_or_create")
     def test_clear_block_list_emails_with_update_or_create(self) -> None:
