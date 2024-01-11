@@ -9,7 +9,7 @@ import {
   AriaOverlayProps,
 } from "react-aria";
 import { useOverlayTriggerState } from "react-stately";
-import { FormEventHandler, ReactElement, ReactNode, useRef } from "react";
+import { ReactElement, ReactNode, useRef } from "react";
 import styles from "./AliasDeletionButtonPermanent.module.scss";
 import { Button } from "../../Button";
 import { AliasData, getFullAddress } from "../../../hooks/api/aliases";
@@ -42,14 +42,16 @@ export const AliasDeletionButtonPermanent = (props: Props) => {
     cancelButtonRef,
   );
 
-  const onConfirm: FormEventHandler = (event) => {
-    event.preventDefault();
-
-    if (modalState.isOpen) {
-      props.onDelete();
-      modalState.close();
-    }
-  };
+  const confirmButtonRef = useRef<HTMLButtonElement>(null);
+  const confirmButton = useButton(
+    {
+      onPress: () => {
+        props.onDelete();
+        modalState.close();
+      },
+    },
+    confirmButtonRef,
+  );
 
   const dialog = modalState.isOpen ? (
     <OverlayContainer>
@@ -68,7 +70,7 @@ export const AliasDeletionButtonPermanent = (props: Props) => {
         </p>
         <WarningBanner />
         <hr />
-        <form onSubmit={onConfirm} className={styles.confirm}>
+        <div className={styles.confirm}>
           <div className={styles.buttons}>
             <button
               {...cancelButton.buttonProps}
@@ -81,11 +83,12 @@ export const AliasDeletionButtonPermanent = (props: Props) => {
               type="submit"
               variant="destructive"
               className={styles["delete-btn"]}
+              {...confirmButton.buttonProps}
             >
               {l10n.getString("profile-label-delete")}
             </Button>
           </div>
-        </form>
+        </div>
       </ConfirmationDialog>
     </OverlayContainer>
   ) : null;
