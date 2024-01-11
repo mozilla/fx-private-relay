@@ -415,7 +415,6 @@ class RelayAddressTest(TestCase):
         assert relay_address.generated_for == ""
         assert relay_address.used_on in (None, "")
 
-    @pytest.mark.xfail(reason="storage not cleared on update_or_create")
     def test_clear_storage_with_update_or_create(self) -> None:
         """
         The stored data is cleared for storageless users when update_or_create is used.
@@ -452,7 +451,6 @@ class RelayAddressTest(TestCase):
         assert relay_address.generated_for == ""
         assert relay_address.used_on in ("", None)
 
-    @pytest.mark.xfail(reason="block_list_emails not cleared on update_or_create")
     def test_clear_block_list_emails_with_update_or_create(self) -> None:
         """
         The block_list_emails flag is cleared for free users when update_or_create is

@@ -675,7 +675,13 @@ class RelayAddress(models.Model):
         profile.save()
         return super(RelayAddress, self).delete(*args, **kwargs)
 
-    def save(self, *args, **kwargs) -> None:
+    def save(
+        self,
+        force_insert: bool = False,
+        force_update: bool = False,
+        using: str | None = None,
+        update_fields: Iterable[str] | None = None,
+    ) -> None:
         if self._state.adding:
             with transaction.atomic():
                 locked_profile = Profile.objects.select_for_update().get(user=self.user)
@@ -689,13 +695,26 @@ class RelayAddress(models.Model):
                 locked_profile.update_abuse_metric(address_created=True)
                 locked_profile.last_engagement = datetime.now(timezone.utc)
                 locked_profile.save()
-        if not self.user.profile.server_storage:
+        if (not self.user.profile.server_storage) and any(
+            (self.description, self.generated_for, self.used_on)
+        ):
             self.description = ""
             self.generated_for = ""
             self.used_on = ""
-        if not self.user.profile.has_premium:
+            if update_fields is not None:
+                update_fields = {"description", "generated_for", "used_on"}.union(
+                    update_fields
+                )
+        if not self.user.profile.has_premium and self.block_list_emails:
             self.block_list_emails = False
-        return super().save(*args, **kwargs)
+            if update_fields is not None:
+                update_fields = {"block_list_emails"}.union(update_fields)
+        super().save(
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields,
+        )
 
     @property
     def domain_value(self):
