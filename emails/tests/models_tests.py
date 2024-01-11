@@ -1292,7 +1292,6 @@ class DomainAddressTest(TestCase):
         domain_address.refresh_from_db()
         assert domain_address.description == ""
 
-    @pytest.mark.xfail(reason="storage not cleared on update_or_create")
     def test_clear_storage_with_update_or_create(self) -> None:
         """
         The stored data is cleared for storageless users when update_or_create is used.
@@ -1328,7 +1327,6 @@ class DomainAddressTest(TestCase):
         assert domain_address.description == ""
         assert domain_address.used_on == "https://example.com"
 
-    @pytest.mark.xfail(reason="block_list_emails not cleared on update_or_create")
     def test_clear_block_list_emails_with_update_or_create(self) -> None:
         """
         The block_list_emails flag is cleared for free users when update_or_create is

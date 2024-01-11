@@ -805,7 +805,13 @@ class DomainAddress(models.Model):
     def __str__(self):
         return self.address
 
-    def save(self, *args, **kwargs) -> None:
+    def save(
+        self,
+        force_insert: bool = False,
+        force_update: bool = False,
+        using: str | None = None,
+        update_fields: Iterable[str] | None = None,
+    ) -> None:
         user_profile = self.user.profile
         if self._state.adding:
             check_user_can_make_domain_address(user_profile)
@@ -817,11 +823,20 @@ class DomainAddress(models.Model):
             user_profile.update_abuse_metric(address_created=True)
             user_profile.last_engagement = datetime.now(timezone.utc)
             user_profile.save(update_fields=["last_engagement"])
-        if not user_profile.has_premium:
+        if not user_profile.has_premium and self.block_list_emails:
             self.block_list_emails = False
-        if not user_profile.server_storage:
+            if update_fields:
+                update_fields = {"block_list_emails"}.union(update_fields)
+        if (not user_profile.server_storage) and self.description:
             self.description = ""
-        return super().save(*args, **kwargs)
+            if update_fields:
+                update_fields = {"description"}.union(update_fields)
+        super().save(
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields,
+        )
 
     @property
     def user_profile(self):
