@@ -189,7 +189,7 @@ RECRUITMENT_BANNER_TEXT = config("RECRUITMENT_BANNER_TEXT", None)
 RECRUITMENT_EMAIL_BANNER_TEXT = config("RECRUITMENT_EMAIL_BANNER_TEXT", None)
 RECRUITMENT_EMAIL_BANNER_LINK = config("RECRUITMENT_EMAIL_BANNER_LINK", None)
 
-PHONES_ENABLED = config("PHONES_ENABLED", False, cast=bool)
+PHONES_ENABLED: bool = config("PHONES_ENABLED", False, cast=bool)
 PHONES_NO_CLIENT_CALLS_IN_TEST = False  # Override in tests that do not test clients
 TWILIO_ACCOUNT_SID = config("TWILIO_ACCOUNT_SID", None)
 TWILIO_AUTH_TOKEN = config("TWILIO_AUTH_TOKEN", None)
@@ -471,7 +471,6 @@ TIME_ZONE = "UTC"
 
 USE_I18N = True
 
-USE_L10N = True
 
 USE_TZ = True
 
@@ -487,7 +486,14 @@ if DEBUG:
     # all files spewed out by `npm run watch` in /frontend/out,
     # and we're fine with the performance impact of that.
     WHITENOISE_ROOT = os.path.join(BASE_DIR, "frontend/out")
-STATICFILES_STORAGE = "privaterelay.storage.RelayStaticFilesStorage"
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "privaterelay.storage.RelayStaticFilesStorage",
+    },
+}
 
 # Relay does not support user-uploaded files
 MEDIA_ROOT = None

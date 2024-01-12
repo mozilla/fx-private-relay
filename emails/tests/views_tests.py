@@ -1511,8 +1511,10 @@ class SnsInboundViewSimpleTests(SimpleTestCase):
     def setUp(self):
         self.valid_message = EMAIL_SNS_BODIES["s3_stored"]
         self.client = Client(
-            HTTP_X_AMZ_SNS_TOPIC_ARN=self.valid_message["TopicArn"],
-            HTTP_X_AMZ_SNS_MESSAGE_TYPE=self.valid_message["Type"],
+            headers={
+                "x-amz-sns-topic-arn": self.valid_message["TopicArn"],
+                "x-amz-sns-message-type": self.valid_message["Type"],
+            }
         )
         self.url = "/emails/sns-inbound"
         patcher1 = patch(
@@ -1550,7 +1552,7 @@ class SnsInboundViewSimpleTests(SimpleTestCase):
             self.url,
             data=invalid_message,
             content_type="application/json",
-            HTTP_X_AMZ_SNS_TOPIC_ARN=None,
+            headers={"x-amz-sns-topic-arn": None},
         )
         assert ret.status_code == 400
         assert ret.content == b"Received SNS request without Topic ARN."
@@ -1562,7 +1564,7 @@ class SnsInboundViewSimpleTests(SimpleTestCase):
             self.url,
             data=invalid_message,
             content_type="application/json",
-            HTTP_X_AMZ_SNS_TOPIC_ARN="wrong_arn",
+            headers={"x-amz-sns-topic-arn": "wrong_arn"},
         )
         assert ret.status_code == 400
         assert ret.content == b"Received SNS message for wrong topic."
@@ -1574,7 +1576,7 @@ class SnsInboundViewSimpleTests(SimpleTestCase):
             self.url,
             data=invalid_message,
             content_type="application/json",
-            HTTP_X_AMZ_SNS_MESSAGE_TYPE=None,
+            headers={"x-amz-sns-message-type": None},
         )
         assert ret.status_code == 400
         assert ret.content == b"Received SNS request without Message Type."
@@ -1586,7 +1588,7 @@ class SnsInboundViewSimpleTests(SimpleTestCase):
             self.url,
             data=invalid_message,
             content_type="application/json",
-            HTTP_X_AMZ_SNS_MESSAGE_TYPE="UnsubscribeConfirmation",
+            headers={"x-amz-sns-message-type": "UnsubscribeConfirmation"},
         )
         assert ret.status_code == 400
         assert ret.content == b"Received SNS message for unsupported Type."

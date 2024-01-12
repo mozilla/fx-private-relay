@@ -1,7 +1,7 @@
 from collections import namedtuple
 from datetime import datetime, timedelta, timezone
 from hashlib import sha256
-from typing import Optional
+from typing import Optional, Iterable
 import logging
 import random
 import re
@@ -137,13 +137,26 @@ class Profile(models.Model):
     def __str__(self):
         return "%s Profile" % self.user
 
-    def save(self, *args, **kwargs):
+    def save(
+        self,
+        force_insert: bool = False,
+        force_update: bool = False,
+        using: str | None = None,
+        update_fields: Iterable[str] | None = None,
+    ) -> None:
         # always lower-case the subdomain before saving it
         # TODO: change subdomain field as a custom field inheriting from
         # CharField to validate constraints on the field update too
         if self.subdomain and not self.subdomain.islower():
             self.subdomain = self.subdomain.lower()
-        ret = super().save(*args, **kwargs)
+            if update_fields is not None:
+                update_fields = {"subdomain"}.union(update_fields)
+        super().save(
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields,
+        )
         # any time a profile is saved with server_storage False, delete the
         # appropriate server-stored Relay address data.
         if not self.server_storage:
@@ -160,7 +173,6 @@ class Profile(models.Model):
                     InboundContact.objects.filter(relay_number=relay_number).delete()
                 except RelayNumber.DoesNotExist:
                     pass
-        return ret
 
     @property
     def language(self):
@@ -663,7 +675,13 @@ class RelayAddress(models.Model):
         profile.save()
         return super(RelayAddress, self).delete(*args, **kwargs)
 
-    def save(self, *args, **kwargs) -> None:
+    def save(
+        self,
+        force_insert: bool = False,
+        force_update: bool = False,
+        using: str | None = None,
+        update_fields: Iterable[str] | None = None,
+    ) -> None:
         if self._state.adding:
             with transaction.atomic():
                 locked_profile = Profile.objects.select_for_update().get(user=self.user)
@@ -677,13 +695,26 @@ class RelayAddress(models.Model):
                 locked_profile.update_abuse_metric(address_created=True)
                 locked_profile.last_engagement = datetime.now(timezone.utc)
                 locked_profile.save()
-        if not self.user.profile.server_storage:
+        if (not self.user.profile.server_storage) and any(
+            (self.description, self.generated_for, self.used_on)
+        ):
             self.description = ""
             self.generated_for = ""
             self.used_on = ""
-        if not self.user.profile.has_premium:
+            if update_fields is not None:
+                update_fields = {"description", "generated_for", "used_on"}.union(
+                    update_fields
+                )
+        if not self.user.profile.has_premium and self.block_list_emails:
             self.block_list_emails = False
-        return super().save(*args, **kwargs)
+            if update_fields is not None:
+                update_fields = {"block_list_emails"}.union(update_fields)
+        super().save(
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields,
+        )
 
     @property
     def domain_value(self):
@@ -778,7 +809,13 @@ class DomainAddress(models.Model):
     def __str__(self):
         return self.address
 
-    def save(self, *args, **kwargs) -> None:
+    def save(
+        self,
+        force_insert: bool = False,
+        force_update: bool = False,
+        using: str | None = None,
+        update_fields: Iterable[str] | None = None,
+    ) -> None:
         user_profile = self.user.profile
         if self._state.adding:
             check_user_can_make_domain_address(user_profile)
@@ -790,11 +827,20 @@ class DomainAddress(models.Model):
             user_profile.update_abuse_metric(address_created=True)
             user_profile.last_engagement = datetime.now(timezone.utc)
             user_profile.save(update_fields=["last_engagement"])
-        if not user_profile.has_premium:
+        if not user_profile.has_premium and self.block_list_emails:
             self.block_list_emails = False
-        if not user_profile.server_storage:
+            if update_fields:
+                update_fields = {"block_list_emails"}.union(update_fields)
+        if (not user_profile.server_storage) and self.description:
             self.description = ""
-        return super().save(*args, **kwargs)
+            if update_fields:
+                update_fields = {"description"}.union(update_fields)
+        super().save(
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields,
+        )
 
     @property
     def user_profile(self):

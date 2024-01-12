@@ -392,7 +392,7 @@ class RelayAddressTest(TestCase):
         relay_address = RelayAddress.objects.create(user=self.storageless_user)
         assert relay_address.description == ""
         assert relay_address.generated_for == ""
-        assert relay_address.used_on == ""
+        assert relay_address.used_on in (None, "")
         relay_address.description = "Arbitrary description"
         relay_address.generated_for = "https://example.com"
         relay_address.used_on = "https://example.com"
@@ -400,7 +400,59 @@ class RelayAddressTest(TestCase):
         relay_address.refresh_from_db()
         assert relay_address.description == ""
         assert relay_address.generated_for == ""
-        assert relay_address.used_on == ""
+        assert relay_address.used_on in (None, "")
+
+    def test_clear_storage_with_update_fields(self) -> None:
+        """
+        With update_fields, the stored data is still cleared for storageless users.
+        """
+        relay_address = RelayAddress.objects.create(user=self.storageless_user)
+        assert relay_address.description == ""
+
+        # Use QuerySet.update to avoid model save method
+        RelayAddress.objects.filter(id=relay_address.id).update(
+            description="the description",
+            generated_for="https://example.com",
+            used_on="https://example.com",
+        )
+        relay_address.refresh_from_db()
+        assert relay_address.description == "the description"
+        assert relay_address.generated_for == "https://example.com"
+        assert relay_address.used_on == "https://example.com"
+
+        # Update a different field with update_fields to avoid full model save
+        new_last_used_at = datetime(2024, 1, 11, tzinfo=timezone.utc)
+        relay_address.last_used_at = new_last_used_at
+        relay_address.save(update_fields={"last_used_at"})
+
+        # Since .save() added to update_fields, the storage fields are cleared
+        relay_address.refresh_from_db()
+        assert relay_address.last_used_at == new_last_used_at
+        assert relay_address.description == ""
+        assert relay_address.generated_for == ""
+        assert relay_address.used_on in ("", None)
+
+    def test_clear_block_list_emails_with_update_fields(self) -> None:
+        """
+        With update_fields, the block_list_emails flag is still cleared for free users.
+        """
+        relay_address = RelayAddress.objects.create(user=self.user)
+        assert not relay_address.block_list_emails
+
+        # Use QuerySet.update to avoid model save method
+        RelayAddress.objects.filter(id=relay_address.id).update(block_list_emails=True)
+        relay_address.refresh_from_db()
+        assert relay_address.block_list_emails
+
+        # Update a different field with update_fields to avoid full model save
+        new_last_used_at = datetime(2024, 1, 12, tzinfo=timezone.utc)
+        relay_address.last_used_at = new_last_used_at
+        relay_address.save(update_fields={"last_used_at"})
+
+        # Since .save() added to update_fields, block_list_emails flag is cleared
+        relay_address.refresh_from_db()
+        assert relay_address.last_used_at == new_last_used_at
+        assert not relay_address.block_list_emails
 
 
 class ProfileTestCase(TestCase):
@@ -687,6 +739,26 @@ class ProfileSaveTest(ProfileTestCase):
         self.upgrade_to_premium()
         self.profile.subdomain = "mIxEdcAsE"
         self.profile.save()
+        assert self.profile.subdomain == "mixedcase"
+
+    def test_lowercases_subdomain_value_with_update_fields(self) -> None:
+        """With update_fields, the subdomain is still lowercased."""
+        self.upgrade_to_premium()
+        assert self.profile.subdomain is None
+
+        # Use QuerySet.update to avoid model .save()
+        Profile.objects.filter(id=self.profile.id).update(subdomain="mIxEdcAsE")
+        self.profile.refresh_from_db()
+        assert self.profile.subdomain == "mIxEdcAsE"
+
+        # Update a different field with update_fields to avoid a full model save
+        new_date_subscribed = datetime(2023, 3, 3, tzinfo=timezone.utc)
+        self.profile.date_subscribed = new_date_subscribed
+        self.profile.save(update_fields={"date_subscribed"})
+
+        # Since .save() added to update_fields, subdomain is now lowercase
+        self.profile.refresh_from_db()
+        assert self.profile.date_subscribed == new_date_subscribed
         assert self.profile.subdomain == "mixedcase"
 
     TEST_DESCRIPTION = "test description"
@@ -1215,3 +1287,56 @@ class DomainAddressTest(TestCase):
         domain_address.save()
         domain_address.refresh_from_db()
         assert domain_address.description == ""
+
+    def test_clear_storage_with_update_fields(self) -> None:
+        """With update_fields, the stored data is cleared for storageless users."""
+        domain_address = DomainAddress.objects.create(
+            user=self.storageless_user, address="no-storage"
+        )
+        assert domain_address.description == ""
+
+        # Use QuerySet.update to avoid model save method
+        DomainAddress.objects.filter(id=domain_address.id).update(
+            description="the description",
+            used_on="https://example.com",
+        )
+        domain_address.refresh_from_db()
+        assert domain_address.description == "the description"
+        assert domain_address.used_on == "https://example.com"
+
+        # Update a different field with update_fields to avoid full model save
+        new_last_used_at = datetime(2024, 1, 11, tzinfo=timezone.utc)
+        domain_address.last_used_at = new_last_used_at
+        domain_address.save(update_fields={"last_used_at"})
+
+        # Since .save() added to update_fields, the storage fields are cleared
+        domain_address.refresh_from_db()
+        assert domain_address.last_used_at == new_last_used_at
+        assert domain_address.description == ""
+        assert domain_address.used_on == "https://example.com"
+
+    def test_clear_block_list_emails_with_update_fields(self) -> None:
+        """
+        With update_fields, the block_list_emails flag is still cleared for free users.
+        """
+        domain_address = DomainAddress.objects.create(
+            user=self.user, address="block-list-emails", block_list_emails=True
+        )
+
+        # Remove premium from user
+        fxa_account = self.user.profile.fxa
+        fxa_account.extra_data["subscriptions"] = []
+        fxa_account.save()
+        assert not self.user.profile.has_premium
+        assert domain_address.block_list_emails
+
+        # Update a different field with update_fields to avoid full model save
+        new_last_used_at = datetime(2024, 1, 12, tzinfo=timezone.utc)
+        assert domain_address.last_used_at != new_last_used_at
+        domain_address.last_used_at = new_last_used_at
+        domain_address.save(update_fields={"last_used_at"})
+
+        # Since .save() added to update_fields, block_list_emails flag is cleared
+        domain_address.refresh_from_db()
+        assert domain_address.last_used_at == new_last_used_at
+        assert not domain_address.block_list_emails
