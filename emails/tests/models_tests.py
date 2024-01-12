@@ -415,12 +415,9 @@ class RelayAddressTest(TestCase):
         assert relay_address.generated_for == ""
         assert relay_address.used_on in (None, "")
 
-    def test_clear_storage_with_update_or_create(self) -> None:
+    def test_clear_storage_with_update_fields(self) -> None:
         """
-        The stored data is cleared for storageless users when update_or_create is used.
-
-        Django 4.2's QuerySet.update_or_create uses update_fields, so
-        our save method needs to add to update_fields.
+        With update_fields, the stored data is still cleared for storageless users.
         """
         relay_address = RelayAddress.objects.create(user=self.storageless_user)
         assert relay_address.description == ""
@@ -436,13 +433,10 @@ class RelayAddressTest(TestCase):
         assert relay_address.generated_for == "https://example.com"
         assert relay_address.used_on == "https://example.com"
 
-        # QuerySet.update_or_create will call model save with update_fields parameter
+        # Update a different field with update_fields to avoid full model save
         new_last_used_at = datetime(2024, 1, 11, tzinfo=timezone.utc)
-        obj, created = RelayAddress.objects.update_or_create(
-            id=relay_address.id, defaults={"last_used_at": new_last_used_at}
-        )
-        assert not created
-        assert obj.last_used_at == new_last_used_at
+        relay_address.last_used_at = new_last_used_at
+        relay_address.save(update_fields={"last_used_at"})
 
         # Since .save() added to update_fields, the storage fields are cleared
         relay_address.refresh_from_db()
@@ -451,13 +445,9 @@ class RelayAddressTest(TestCase):
         assert relay_address.generated_for == ""
         assert relay_address.used_on in ("", None)
 
-    def test_clear_block_list_emails_with_update_or_create(self) -> None:
+    def test_clear_block_list_emails_with_update_fields(self) -> None:
         """
-        The block_list_emails flag is cleared for free users when update_or_create is
-        used.
-
-        Django 4.2's QuerySet.update_or_create uses update_fields, so
-        our save method needs to add to update_fields.
+        With update_fields, the block_list_emails flag is still cleared for free users.
         """
         relay_address = RelayAddress.objects.create(user=self.user)
         assert not relay_address.block_list_emails
@@ -467,13 +457,10 @@ class RelayAddressTest(TestCase):
         relay_address.refresh_from_db()
         assert relay_address.block_list_emails
 
-        # QuerySet.update_or_create will call model save with update_fields parameter
+        # Update a different field with update_fields to avoid full model save
         new_last_used_at = datetime(2024, 1, 12, tzinfo=timezone.utc)
-        obj, created = RelayAddress.objects.update_or_create(
-            id=relay_address.id, defaults={"last_used_at": new_last_used_at}
-        )
-        assert not created
-        assert obj.last_used_at == new_last_used_at
+        relay_address.last_used_at = new_last_used_at
+        relay_address.save(update_fields={"last_used_at"})
 
         # Since .save() added to update_fields, block_list_emails flag is cleared
         relay_address.refresh_from_db()
@@ -767,13 +754,8 @@ class ProfileSaveTest(ProfileTestCase):
         self.profile.save()
         assert self.profile.subdomain == "mixedcase"
 
-    def test_lowercases_subdomain_value_on_update_or_create(self) -> None:
-        """
-        The subdomain is lowercased when update_or_create is used.
-
-        Django 4.2's QuerySet.update_or_create uses update_fields, so
-        our save method needs to add to update_fields.
-        """
+    def test_lowercases_subdomain_value_with_update_fields(self) -> None:
+        """With update_fields, the subdomain is still lowercased."""
         self.upgrade_to_premium()
         assert self.profile.subdomain is None
 
@@ -782,15 +764,10 @@ class ProfileSaveTest(ProfileTestCase):
         self.profile.refresh_from_db()
         assert self.profile.subdomain == "mIxEdcAsE"
 
-        # QuerySet.update_or_create will call model .save() with update_fields
+        # Update a different field with update_fields to avoid a full model save
         new_date_subscribed = datetime(2023, 3, 3, tzinfo=timezone.utc)
-        assert self.profile.date_subscribed != new_date_subscribed
-        obj, created = Profile.objects.update_or_create(
-            user=self.profile.user,
-            defaults={"date_subscribed": new_date_subscribed},
-        )
-        assert not created
-        assert obj.date_subscribed == new_date_subscribed
+        self.profile.date_subscribed = new_date_subscribed
+        self.profile.save(update_fields={"date_subscribed"})
 
         # Since .save() added to update_fields, subdomain is now lowercase
         self.profile.refresh_from_db()
@@ -1292,13 +1269,8 @@ class DomainAddressTest(TestCase):
         domain_address.refresh_from_db()
         assert domain_address.description == ""
 
-    def test_clear_storage_with_update_or_create(self) -> None:
-        """
-        The stored data is cleared for storageless users when update_or_create is used.
-
-        Django 4.2's QuerySet.update_or_create uses update_fields, so
-        our save method needs to add to update_fields.
-        """
+    def test_clear_storage_with_update_fields(self) -> None:
+        """With update_fields, the stored data is cleared for storageless users."""
         domain_address = DomainAddress.objects.create(
             user=self.storageless_user, address="no-storage"
         )
@@ -1313,13 +1285,10 @@ class DomainAddressTest(TestCase):
         assert domain_address.description == "the description"
         assert domain_address.used_on == "https://example.com"
 
-        # QuerySet.update_or_create will call model save with update_fields parameter
+        # Update a different field with update_fields to avoid full model save
         new_last_used_at = datetime(2024, 1, 11, tzinfo=timezone.utc)
-        obj, created = DomainAddress.objects.update_or_create(
-            id=domain_address.id, defaults={"last_used_at": new_last_used_at}
-        )
-        assert not created
-        assert obj.last_used_at == new_last_used_at
+        domain_address.last_used_at = new_last_used_at
+        domain_address.save(update_fields={"last_used_at"})
 
         # Since .save() added to update_fields, the storage fields are cleared
         domain_address.refresh_from_db()
@@ -1327,13 +1296,9 @@ class DomainAddressTest(TestCase):
         assert domain_address.description == ""
         assert domain_address.used_on == "https://example.com"
 
-    def test_clear_block_list_emails_with_update_or_create(self) -> None:
+    def test_clear_block_list_emails_with_update_fields(self) -> None:
         """
-        The block_list_emails flag is cleared for free users when update_or_create is
-        used.
-
-        Django 4.2's QuerySet.update_or_create uses update_fields, so
-        our save method needs to add to update_fields.
+        With update_fields, the block_list_emails flag is still cleared for free users.
         """
         domain_address = DomainAddress.objects.create(
             user=self.user, address="block-list-emails", block_list_emails=True
@@ -1346,13 +1311,11 @@ class DomainAddressTest(TestCase):
         assert not self.user.profile.has_premium
         assert domain_address.block_list_emails
 
-        # QuerySet.update_or_create will call model save with update_fields parameter
+        # Update a different field with update_fields to avoid full model save
         new_last_used_at = datetime(2024, 1, 12, tzinfo=timezone.utc)
-        obj, created = DomainAddress.objects.update_or_create(
-            id=domain_address.id, defaults={"last_used_at": new_last_used_at}
-        )
-        assert not created
-        assert obj.last_used_at == new_last_used_at
+        assert domain_address.last_used_at != new_last_used_at
+        domain_address.last_used_at = new_last_used_at
+        domain_address.save(update_fields={"last_used_at"})
 
         # Since .save() added to update_fields, block_list_emails flag is cleared
         domain_address.refresh_from_db()
