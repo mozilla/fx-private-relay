@@ -10,6 +10,7 @@ from django.contrib.auth.models import User
 from django.test import override_settings, TestCase
 
 from allauth.socialaccount.models import SocialAccount
+from waffle.testutils import override_flag
 import pytest
 
 from model_bakery import baker
@@ -347,20 +348,6 @@ class RelayAddressTest(TestCase):
         relay_address = RelayAddress.objects.create(user=baker.make(User))
         relay_address.delete()
         assert not valid_address(relay_address.address, relay_address.domain_value)
-
-    def test_dupe_domain_address_of_deleted_invalid(self):
-        user = make_premium_test_user()
-        user_profile = user.profile
-        user_profile.subdomain = "test"
-        user_profile.save()
-        address = "same-address"
-        domain_address = DomainAddress.make_domain_address(
-            user_profile, address=address
-        )
-        domain_address.delete()
-        assert not valid_address(
-            address, domain_address.domain_value, user_profile.subdomain
-        )
 
     @patch.object(emails_config, "blocklist", ["blocked-word"])
     def test_address_contains_blocklist_invalid(self) -> None:
@@ -1122,6 +1109,38 @@ class DomainAddressTest(TestCase):
             DomainAddress.make_domain_address(user_profile, "test-nosubdomain")
         assert exc_info.value.get_codes() == "need_subdomain"
 
+    @override_flag("custom_domain_management_redesign", active=False)
+    def test_make_domain_address_can_make_dupe_of_deleted(self):
+        address = "same-address"
+        domain_address = DomainAddress.make_domain_address(
+            self.user_profile, address=address
+        )
+        domain_address_hash = address_hash(
+            domain_address.address,
+            domain_address.user_profile.subdomain,
+            domain_address.domain_value,
+        )
+        domain_address.delete()
+        dupe_domain_address = DomainAddress.make_domain_address(
+            self.user_profile, address=address
+        )
+        assert (
+            DeletedAddress.objects.filter(address_hash=domain_address_hash).count() == 1
+        )
+        assert dupe_domain_address.full_address == domain_address.full_address
+
+    @override_flag("custom_domain_management_redesign", active=True)
+    def test_valid_address_dupe_domain_address_of_deleted_is_not_valid(self):
+        address = "same-address"
+        domain_address = DomainAddress.make_domain_address(
+            self.user_profile, address=address
+        )
+        domain_address.delete()
+        assert not valid_address(
+            address, domain_address.domain_value, self.user_profile.subdomain
+        )
+
+    @override_flag("custom_domain_management_redesign", active=True)
     def test_make_domain_address_cannot_make_dupe_of_deleted(self):
         address = "same-address"
         domain_address = DomainAddress.make_domain_address(
