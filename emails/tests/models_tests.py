@@ -176,21 +176,6 @@ class MiscEmailModelsTest(TestCase):
         assert not valid_address_pattern("foo bar")
         assert not valid_address_pattern("Foo")
 
-    @override_flag("custom_domain_management_redesign", active=True)
-    def test_valid_address_dupe_domain_address_of_deleted_is_not_valid(self):
-        user = make_premium_test_user()
-        user_profile = user.profile
-        user_profile.subdomain = "test"
-        user_profile.save()
-        address = "same-address"
-        domain_address = DomainAddress.make_domain_address(
-            user_profile, address=address
-        )
-        domain_address.delete()
-        assert not valid_address(
-            address, domain_address.domain_value, user_profile.subdomain
-        )
-
 
 class RelayAddressTest(TestCase):
     def setUp(self):
@@ -1143,6 +1128,17 @@ class DomainAddressTest(TestCase):
             DeletedAddress.objects.filter(address_hash=domain_address_hash).count() == 1
         )
         assert dupe_domain_address.full_address == domain_address.full_address
+
+    @override_flag("custom_domain_management_redesign", active=True)
+    def test_valid_address_dupe_domain_address_of_deleted_is_not_valid(self):
+        address = "same-address"
+        domain_address = DomainAddress.make_domain_address(
+            self.user_profile, address=address
+        )
+        domain_address.delete()
+        assert not valid_address(
+            address, domain_address.domain_value, self.user_profile.subdomain
+        )
 
     @override_flag("custom_domain_management_redesign", active=True)
     def test_make_domain_address_cannot_make_dupe_of_deleted(self):
