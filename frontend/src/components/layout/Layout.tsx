@@ -32,12 +32,14 @@ import { isPhonesAvailableInCountry } from "../../functions/getPlan";
 import { useL10n } from "../../hooks/l10n";
 import { HolidayPromoBanner } from "./topmessage/HolidayPromoBanner";
 import { isFlagActive } from "../../functions/waffle";
+import { OverlayTriggerState } from "react-stately";
 
 export type Props = {
   children: ReactNode;
   // Plain page used for pages without the typical header bag, e.g. tracker report page
   theme?: "free" | "premium" | "plain";
   runtimeData?: RuntimeData;
+  modalState?: OverlayTriggerState;
 };
 
 /**
@@ -130,10 +132,26 @@ export const Layout = (props: Props) => {
     </div>
   );
 
+  const [pointerEventsNone, setPointerEventsNone] = useState(false)
+
+  useEffect(() => {
+    let modalState = props.modalState;
+    
+    // We want to temporarily disable pointer events as soon as the modal closes.
+    if (!modalState?.isOpen) {
+      const id = setTimeout(() => {
+        setPointerEventsNone(false);
+      }, 0);
+
+      return;
+    }
+    setPointerEventsNone(true)
+  }, [props.modalState?.isOpen, pointerEventsNone])
+
   return (
     <>
       <PageMetadata />
-      <div className={styles.wrapper}>
+      <div className={`${pointerEventsNone && styles.patch3701} ${styles.wrapper}`}>
         {apiMockWarning}
         <TopMessage
           profile={profiles.data?.[0]}

@@ -7,9 +7,13 @@ import {
   useOverlay,
   usePreventScroll,
   AriaOverlayProps,
+  useModalOverlay,
+  useOverlayTrigger,
+  Overlay,
+  PressEvent,
 } from "react-aria";
-import { useOverlayTriggerState } from "react-stately";
-import { FormEventHandler, ReactElement, ReactNode, useRef } from "react";
+import { OverlayTriggerState, useOverlayTriggerState } from "react-stately";
+import { FormEventHandler, ReactElement, ReactNode, SyntheticEvent, useRef } from "react";
 import styles from "./AliasDeletionButtonPermanent.module.scss";
 import { Button } from "../../Button";
 import { AliasData, getFullAddress } from "../../../hooks/api/aliases";
@@ -19,6 +23,7 @@ import { ErrorTriangleIcon } from "../../Icons";
 export type Props = {
   alias: AliasData;
   onDelete: () => void;
+  modalState: OverlayTriggerState;
 };
 
 /**
@@ -35,10 +40,15 @@ export const AliasDeletionButtonPermanent = (props: Props) => {
     openModalButtonRef,
   ).buttonProps;
 
-  const modalState = useOverlayTriggerState({});
+  // const modalState = useOverlayTriggerState({});
+  const modalState = props.modalState;
+  const { triggerProps, overlayProps } = useOverlayTrigger({
+    type: 'dialog'
+  }, modalState);
+
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const cancelButton = useButton(
-    { onPress: () => modalState.close() },
+    { onPress: () => { modalState.close() } },
     cancelButtonRef,
   );
 
@@ -52,11 +62,14 @@ export const AliasDeletionButtonPermanent = (props: Props) => {
   };
 
   const dialog = modalState.isOpen ? (
-    <OverlayContainer>
+    // <OverlayContainer>
+    <Overlay>
+
       <ConfirmationDialog
         title={l10n.getString("mask-deletion-header")}
         onClose={() => modalState.close()}
         isOpen={modalState.isOpen}
+        modalState={modalState}
         isDismissable={true}
       >
         <samp className={styles["alias-to-delete"]}>
@@ -74,6 +87,7 @@ export const AliasDeletionButtonPermanent = (props: Props) => {
               {...cancelButton.buttonProps}
               ref={cancelButtonRef}
               className={styles["cancel-button"]}
+              onMouseDown={(e) => {e.stopPropagation(); console.log('clicked');}}
             >
               {l10n.getString("profile-label-cancel")}
             </button>
@@ -87,13 +101,15 @@ export const AliasDeletionButtonPermanent = (props: Props) => {
           </div>
         </form>
       </ConfirmationDialog>
-    </OverlayContainer>
+    {/* </OverlayContainer> */}
+    </Overlay>
   ) : null;
 
   return (
     <>
       <button
         {...openModalButtonProps}
+        {...triggerProps}
         className={styles["deletion-button"]}
         ref={openModalButtonRef}
       >
@@ -121,15 +137,17 @@ type ConfirmationDialogProps = {
   title: string | ReactElement;
   children: ReactNode;
   isOpen: boolean;
+  modalState: OverlayTriggerState;
   onClose?: () => void;
 };
 const ConfirmationDialog = (
   props: ConfirmationDialogProps & AriaOverlayProps,
 ) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const { overlayProps, underlayProps } = useOverlay(props, wrapperRef);
-  usePreventScroll();
-  const { modalProps } = useModal();
+  // const { overlayProps, underlayProps } = useOverlay(props, wrapperRef);
+  const { modalProps, underlayProps } = useModalOverlay(props,  props.modalState, wrapperRef);
+  // usePreventScroll();
+  // const { modalProps } = useModal();
   const { dialogProps, titleProps } = useDialog({}, wrapperRef);
 
   return (
@@ -137,7 +155,7 @@ const ConfirmationDialog = (
       <FocusScope contain restoreFocus autoFocus>
         <div
           className={styles["dialog-wrapper"]}
-          {...overlayProps}
+          // {...overlayProps}
           {...dialogProps}
           {...modalProps}
           ref={wrapperRef}

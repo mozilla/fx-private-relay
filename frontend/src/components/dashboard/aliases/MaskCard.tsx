@@ -10,6 +10,7 @@ import {
   useState,
 } from "react";
 import {
+  OverlayTriggerState,
   RadioGroupProps,
   RadioGroupState,
   useRadioGroupState,
@@ -45,6 +46,7 @@ import { AliasDeletionButton } from "./AliasDeletionButton";
 import { VisuallyHidden } from "./../../VisuallyHidden";
 import HorizontalArrow from "./../images/free-onboarding-horizontal-arrow.svg";
 import { AliasDeletionButtonPermanent } from "./AliasDeletionButtonPermanent";
+// import { AliasDeletionButton3701 } from "./AliasDeletionButton3701";
 
 export type Props = {
   mask: AliasData;
@@ -60,6 +62,7 @@ export type Props = {
   isOnboarding?: boolean;
   children?: ReactNode;
   copyAfterMaskGeneration: boolean;
+  modalState: OverlayTriggerState;
 };
 
 export const MaskCard = (props: Props) => {
@@ -388,7 +391,9 @@ export const MaskCard = (props: Props) => {
                     props.runtimeData,
                     "custom_domain_management_redesign",
                   ) ? (
+                    // <AliasDeletionButton3701 isDismissable={true} label="Open Dialog"/>
                     <AliasDeletionButtonPermanent
+                      modalState={props.modalState}
                       onDelete={props.onDelete}
                       alias={props.mask}
                     />
