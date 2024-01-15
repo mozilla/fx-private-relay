@@ -34,7 +34,7 @@
     "react-intersection-observer": "^9.5.3",
     "react-qr-code": "^2.0.12",
     "react-stately": "^3.29.1",
-    "react-toastify": "^9.1.3",
+    "react-toastify": "^10.0.0",
     "swr": "^2.2.4"
   },
   "devDependencies": {
