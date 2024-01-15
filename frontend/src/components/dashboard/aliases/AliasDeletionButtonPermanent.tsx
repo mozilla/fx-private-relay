@@ -1,15 +1,20 @@
 import {
   OverlayContainer,
-  FocusScope,
   useButton,
   useDialog,
-  useModal,
-  useOverlay,
-  usePreventScroll,
   AriaOverlayProps,
+  useModalOverlay,
+  useOverlayTrigger,
+  AriaModalOverlayProps,
+  Overlay,
+  AriaButtonOptions,
 } from "react-aria";
-import { useOverlayTriggerState } from "react-stately";
-import { ReactElement, ReactNode, useRef } from "react";
+import {
+  OverlayTriggerProps,
+  OverlayTriggerState,
+  useOverlayTriggerState,
+} from "react-stately";
+import { ReactElement, ReactNode, cloneElement, useRef } from "react";
 import styles from "./AliasDeletionButtonPermanent.module.scss";
 import { Button } from "../../Button";
 import { AliasData, getFullAddress } from "../../../hooks/api/aliases";
@@ -21,26 +26,26 @@ export type Props = {
   onDelete: () => void;
 };
 
+const CancelButton = (
+  props: AriaButtonOptions<"button"> & { children: ReactNode },
+) => {
+  const ref = useRef(null);
+  const { buttonProps } = useButton(props, ref);
+
+  return (
+    <button {...buttonProps} ref={ref} className={styles["cancel-button"]}>
+      {props.children}
+    </button>
+  );
+};
+
 /**
  * A button to delete a given alias, which will pop up a confirmation modal before deleting.
  */
 export const AliasDeletionButtonPermanent = (props: Props) => {
   const l10n = useL10n();
 
-  const openModalButtonRef = useRef<HTMLButtonElement>(null);
-  const openModalButtonProps = useButton(
-    {
-      onPress: () => modalState.open(),
-    },
-    openModalButtonRef,
-  ).buttonProps;
-
   const modalState = useOverlayTriggerState({});
-  const cancelButtonRef = useRef<HTMLButtonElement>(null);
-  const cancelButton = useButton(
-    { onPress: () => modalState.close() },
-    cancelButtonRef,
-  );
 
   const confirmButtonRef = useRef<HTMLButtonElement>(null);
   const confirmButton = useButton(
@@ -53,57 +58,43 @@ export const AliasDeletionButtonPermanent = (props: Props) => {
     confirmButtonRef,
   );
 
-  const dialog = modalState.isOpen ? (
-    <OverlayContainer>
-      <ConfirmationDialog
-        title={l10n.getString("mask-deletion-header")}
-        onClose={() => modalState.close()}
-        isOpen={modalState.isOpen}
-        isDismissable={true}
-      >
-        <samp className={styles["alias-to-delete"]}>
-          {getFullAddress(props.alias)}
-        </samp>
-
-        <p className={styles["permanence-warning"]}>
-          {l10n.getString("mask-deletion-warning-no-recovery")}
-        </p>
-        <WarningBanner />
-        <hr />
-        <div className={styles.confirm}>
-          <div className={styles.buttons}>
-            <button
-              {...cancelButton.buttonProps}
-              ref={cancelButtonRef}
-              className={styles["cancel-button"]}
-            >
-              {l10n.getString("profile-label-cancel")}
-            </button>
-            <Button
-              type="submit"
-              variant="destructive"
-              className={styles["delete-btn"]}
-              {...confirmButton.buttonProps}
-            >
-              {l10n.getString("profile-label-delete")}
-            </Button>
-          </div>
-        </div>
-      </ConfirmationDialog>
-    </OverlayContainer>
-  ) : null;
-
   return (
-    <>
-      <button
-        {...openModalButtonProps}
-        className={styles["deletion-button"]}
-        ref={openModalButtonRef}
-      >
-        {l10n.getString("profile-label-delete")}
-      </button>
-      {dialog}
-    </>
+    <ConfirmationModalTrigger>
+      {(closeModal: OverlayTriggerState["close"]) => {
+        return (
+          <ConfirmationDialog
+            title={l10n.getString("mask-deletion-header")}
+            onClose={() => modalState.close()}
+            isOpen={modalState.isOpen}
+          >
+            <samp className={styles["alias-to-delete"]}>
+              {getFullAddress(props.alias)}
+            </samp>
+
+            <p className={styles["permanence-warning"]}>
+              {l10n.getString("mask-deletion-warning-no-recovery")}
+            </p>
+            <WarningBanner />
+            <hr />
+            <div className={styles.confirm}>
+              <div className={styles.buttons}>
+                <CancelButton type="button" onPress={() => closeModal()}>
+                  {l10n.getString("profile-label-cancel")}
+                </CancelButton>
+                <Button
+                  type="submit"
+                  variant="destructive"
+                  className={styles["delete-btn"]}
+                  {...confirmButton.buttonProps}
+                >
+                  {l10n.getString("profile-label-delete")}
+                </Button>
+              </div>
+            </div>
+          </ConfirmationDialog>
+        );
+      }}
+    </ConfirmationModalTrigger>
   );
 };
 
@@ -120,37 +111,76 @@ const WarningBanner = () => {
   );
 };
 
+const ConfirmationModalTrigger = (
+  props: OverlayTriggerProps & {
+    children: (closeCallback: OverlayTriggerState["close"]) => ReactElement;
+  },
+) => {
+  const l10n = useL10n();
+  const state = useOverlayTriggerState(props);
+  const { triggerProps, overlayProps } = useOverlayTrigger(
+    { type: "dialog" },
+    state,
+  );
+  const triggerRef = useRef(null);
+  const triggerButton = useButton(triggerProps, triggerRef);
+
+  return (
+    <>
+      <button
+        {...triggerButton.buttonProps}
+        ref={triggerRef}
+        className={styles["deletion-button"]}
+      >
+        {l10n.getString("profile-label-delete")}
+      </button>
+      {state.isOpen && (
+        <ConfirmationModal state={state} isDismissable={true}>
+          {cloneElement(props.children(state.close), overlayProps)}
+        </ConfirmationModal>
+      )}
+    </>
+  );
+};
+
+const ConfirmationModal = ({
+  state,
+  children,
+  ...props
+}: AriaModalOverlayProps & {
+  state: OverlayTriggerState;
+  children: ReactNode;
+}) => {
+  const ref = useRef(null);
+  const { modalProps, underlayProps } = useModalOverlay(props, state, ref);
+
+  return (
+    <Overlay>
+      <div className={styles.underlay} {...underlayProps}>
+        <div {...modalProps} className={styles["dialog-wrapper"]} ref={ref}>
+          {children}
+        </div>
+      </div>
+    </Overlay>
+  );
+};
+
 type ConfirmationDialogProps = {
   title: string | ReactElement;
   children: ReactNode;
   isOpen: boolean;
   onClose?: () => void;
 };
-const ConfirmationDialog = (
-  props: ConfirmationDialogProps & AriaOverlayProps,
-) => {
+const ConfirmationDialog = (props: ConfirmationDialogProps) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const { overlayProps, underlayProps } = useOverlay(props, wrapperRef);
-  usePreventScroll();
-  const { modalProps } = useModal();
   const { dialogProps, titleProps } = useDialog({}, wrapperRef);
 
   return (
-    <div className={styles.underlay} {...underlayProps}>
-      <FocusScope contain restoreFocus autoFocus>
-        <div
-          className={styles["dialog-wrapper"]}
-          {...overlayProps}
-          {...dialogProps}
-          {...modalProps}
-          ref={wrapperRef}
-        >
-          <div className={styles.hero}>
-            <h3 {...titleProps}>{props.title}</h3>
-          </div>
-          {props.children}
-        </div>
-      </FocusScope>
+    <div {...dialogProps} ref={wrapperRef}>
+      <div className={styles.hero}>
+        <h3 {...titleProps}>{props.title}</h3>
+      </div>
+      {props.children}
     </div>
   );
 };
