@@ -1,0 +1,36 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# For more information on configuring this file:
+# https://mozilla.github.io/glean/book/reference/yaml/metrics.html
+
+---
+$schema: moz://mozilla.org/schemas/glean/metrics/2-0-0
+
+email:
+  generate_mask:
+    type: event
+    description: An email mask is generated.
+    expires: never
+    bugs:
+      - http://example.com
+    data_reviews:
+      - http://example.com
+    notification_emails:
+      - jwhitlock@mozilla.com
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      mozilla_accounts_id:
+        description: Mozilla accounts user ID.
+        type: string
+      is_random_mask:
+        description: The mask is a random mask, instead of a domain mask
+        type: boolean
+      created_by_api:
+        description: The mask was created via the API, rather than an incoming email
+        type: boolean
+      has_generated_for:
+        description: The "generated_for" field was set by the Add-on or integration
+        type: boolean
