@@ -18,7 +18,11 @@ import {
   useTooltipTrigger,
 } from "react-aria";
 import { event as gaEvent } from "react-ga";
-import { useMenuTriggerState, useTooltipTriggerState } from "react-stately";
+import {
+  useMenuTriggerState,
+  useOverlayTriggerState,
+  useTooltipTriggerState,
+} from "react-stately";
 import { toast } from "react-toastify";
 import styles from "./profile.module.scss";
 import UpsellBannerUs from "./images/upsell-banner-us.svg";
@@ -81,6 +85,7 @@ const Profile: NextPage = () => {
     clearCookie("profile-location-hash");
   }
   usePurchaseTracker(profileData.data?.[0]);
+  const deleteMaskModalState = useOverlayTriggerState({});
 
   if (!userData.isValidating && userData.error) {
     if (document.location.hash) {
@@ -564,7 +569,10 @@ const Profile: NextPage = () => {
             }}
           />
         )}
-      <Layout runtimeData={runtimeData.data}>
+      <Layout
+        deleteMaskModalState={deleteMaskModalState}
+        runtimeData={runtimeData.data}
+      >
         {/* If free user has reached their free mask limit and 
         premium is available in their country, show upsell banner */}
         {freeMaskLimitReached &&
@@ -590,6 +598,7 @@ const Profile: NextPage = () => {
               profile={profile}
               user={user}
               runtimeData={runtimeData.data}
+              deleteMaskModalState={deleteMaskModalState}
             />
             <p className={styles["size-information"]}>
               {l10n.getString("profile-supports-email-forwarding", {

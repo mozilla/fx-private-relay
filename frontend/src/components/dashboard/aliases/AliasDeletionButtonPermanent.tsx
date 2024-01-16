@@ -8,7 +8,7 @@ import {
   usePreventScroll,
   AriaOverlayProps,
 } from "react-aria";
-import { useOverlayTriggerState } from "react-stately";
+import { OverlayTriggerState } from "react-stately";
 import { ReactElement, ReactNode, useRef } from "react";
 import styles from "./AliasDeletionButtonPermanent.module.scss";
 import { Button } from "../../Button";
@@ -19,6 +19,7 @@ import { ErrorTriangleIcon } from "../../Icons";
 export type Props = {
   alias: AliasData;
   onDelete: () => void;
+  modalState?: OverlayTriggerState;
 };
 
 /**
@@ -34,8 +35,6 @@ export const AliasDeletionButtonPermanent = (props: Props) => {
     },
     openModalButtonRef,
   ).buttonProps;
-
-  const modalState = useOverlayTriggerState({});
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const cancelButton = useButton(
     { onPress: () => modalState.close() },
@@ -52,6 +51,11 @@ export const AliasDeletionButtonPermanent = (props: Props) => {
     },
     confirmButtonRef,
   );
+
+  if (!props.modalState) {
+    return;
+  }
+  const modalState = props.modalState;
 
   const dialog = modalState.isOpen ? (
     <OverlayContainer>
