@@ -77,7 +77,10 @@ def get_subplat_upgrade_link_by_language(
     else:
         first_key = list(country_details.keys())[0]
         plan = country_details[first_key][period]
-    return f"{settings.FXA_BASE_ORIGIN}/subscriptions/products/{settings.PERIODICAL_PREMIUM_PROD_ID}?plan={plan['id']}"
+    return (
+        f"{settings.FXA_BASE_ORIGIN}/subscriptions/products/"
+        f"{settings.PERIODICAL_PREMIUM_PROD_ID}?plan={plan['id']}"
+    )
 
 
 def _get_cc_from_request(request: HttpRequest) -> str:
