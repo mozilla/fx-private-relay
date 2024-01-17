@@ -162,6 +162,8 @@ class Profile(models.Model):
         if not self.server_storage:
             relay_addresses = RelayAddress.objects.filter(user=self.user)
             relay_addresses.update(description="", generated_for="", used_on="")
+            domain_addresses = DomainAddress.objects.filter(user=self.user)
+            domain_addresses.update(description="", used_on="")
         if settings.PHONES_ENABLED:
             # any time a profile is saved with store_phone_log False, delete the
             # appropriate server-stored InboundContact records
@@ -831,10 +833,11 @@ class DomainAddress(models.Model):
             self.block_list_emails = False
             if update_fields:
                 update_fields = {"block_list_emails"}.union(update_fields)
-        if (not user_profile.server_storage) and self.description:
+        if (not user_profile.server_storage) and (self.description or self.used_on):
             self.description = ""
+            self.used_on = ""
             if update_fields:
-                update_fields = {"description"}.union(update_fields)
+                update_fields = {"description", "used_on"}.union(update_fields)
         super().save(
             force_insert=force_insert,
             force_update=force_update,

@@ -773,6 +773,18 @@ class ProfileSaveTest(ProfileTestCase):
             used_on=self.TEST_USED_ON,
         )
 
+    def add_domain_address(self) -> DomainAddress:
+        self.upgrade_to_premium()
+        self.profile.subdomain = "somesubdomain"
+        self.profile.save()
+        return baker.make(
+            DomainAddress,
+            user=self.profile.user,
+            address="localpart",
+            description=self.TEST_DESCRIPTION,
+            used_on=self.TEST_USED_ON,
+        )
+
     def test_save_server_storage_true_doesnt_delete_data(self) -> None:
         relay_address = self.add_relay_address()
         self.profile.server_storage = True
@@ -785,13 +797,17 @@ class ProfileSaveTest(ProfileTestCase):
 
     def test_save_server_storage_false_deletes_data(self) -> None:
         relay_address = self.add_relay_address()
+        domain_address = self.add_domain_address()
         self.profile.server_storage = False
         self.profile.save()
 
         relay_address.refresh_from_db()
+        domain_address.refresh_from_db()
         assert relay_address.description == ""
         assert relay_address.generated_for == ""
         assert relay_address.used_on == ""
+        assert domain_address.description == ""
+        assert domain_address.used_on == ""
 
     def add_four_relay_addresses(self, user: User | None = None) -> list[RelayAddress]:
         if user is None:
@@ -1293,6 +1309,7 @@ class DomainAddressTest(TestCase):
         domain_address = DomainAddress.objects.create(
             user=self.storageless_user, address="no-storage"
         )
+        assert domain_address.used_on == None
         assert domain_address.description == ""
 
         # Use QuerySet.update to avoid model save method
@@ -1313,7 +1330,7 @@ class DomainAddressTest(TestCase):
         domain_address.refresh_from_db()
         assert domain_address.last_used_at == new_last_used_at
         assert domain_address.description == ""
-        assert domain_address.used_on == "https://example.com"
+        assert domain_address.used_on == ""
 
     def test_clear_block_list_emails_with_update_fields(self) -> None:
         """
