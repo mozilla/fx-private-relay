@@ -10,7 +10,6 @@ import {
   useState,
 } from "react";
 import {
-  OverlayTriggerState,
   RadioGroupProps,
   RadioGroupState,
   useRadioGroupState,
@@ -61,7 +60,7 @@ export type Props = {
   isOnboarding?: boolean;
   children?: ReactNode;
   copyAfterMaskGeneration: boolean;
-  deleteMaskModalState?: OverlayTriggerState;
+  setModalOpenedState?: (state: boolean) => void;
 };
 
 export const MaskCard = (props: Props) => {
@@ -391,7 +390,7 @@ export const MaskCard = (props: Props) => {
                     "custom_domain_management_redesign",
                   ) ? (
                     <AliasDeletionButtonPermanent
-                      modalState={props.deleteMaskModalState}
+                      setModalOpenedState={props.setModalOpenedState}
                       onDelete={props.onDelete}
                       alias={props.mask}
                     />

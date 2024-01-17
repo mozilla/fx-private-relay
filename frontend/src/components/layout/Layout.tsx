@@ -32,14 +32,13 @@ import { isPhonesAvailableInCountry } from "../../functions/getPlan";
 import { useL10n } from "../../hooks/l10n";
 import { HolidayPromoBanner } from "./topmessage/HolidayPromoBanner";
 import { isFlagActive } from "../../functions/waffle";
-import { OverlayTriggerState } from "react-stately";
 
 export type Props = {
   children: ReactNode;
   // Plain page used for pages without the typical header bag, e.g. tracker report page
   theme?: "free" | "premium" | "plain";
   runtimeData?: RuntimeData;
-  deleteMaskModalState?: OverlayTriggerState;
+  isModalOpen?: boolean;
 };
 
 /**
@@ -137,10 +136,11 @@ export const Layout = (props: Props) => {
   const [pointerEventsNone, setPointerEventsNone] = useState(false);
 
   useEffect(() => {
-    const modalState = props.deleteMaskModalState;
-
+    if (props.isModalOpen === undefined) {
+      return;
+    }
     // When the modal is closed, we schedule a callback with 0 ms to enable pointer events.
-    if (!modalState?.isOpen) {
+    if (!props.isModalOpen) {
       setTimeout(() => {
         setPointerEventsNone(false);
       }, 0);
@@ -149,11 +149,7 @@ export const Layout = (props: Props) => {
     }
     // When the modal is open, pointer events is disabled for the layout wrapper.
     setPointerEventsNone(true);
-  }, [
-    props.deleteMaskModalState?.isOpen,
-    props.deleteMaskModalState,
-    pointerEventsNone,
-  ]);
+  }, [props.isModalOpen]);
 
   return (
     <>
