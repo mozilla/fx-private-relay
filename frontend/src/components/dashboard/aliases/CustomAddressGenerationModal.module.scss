@@ -260,6 +260,8 @@
       p {
         font-weight: 700;
         color: $color-purple-60;
+        width: 100%;
+        text-align: center;
 
         @include text-body-lg;
       }
