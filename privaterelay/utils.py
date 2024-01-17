@@ -19,6 +19,10 @@ from waffle.utils import (
     get_setting as get_waffle_setting,
 )
 
+from .glean import (
+    EventsServerEventLogger,
+    create_events_server_event_logger,
+)
 from .plans import (
     LanguageStr,
     PeriodStr,
@@ -511,3 +515,13 @@ def get_version_info(base_dir: str | Path | None = None) -> VersionInfo:
         build=info.get("build", "not built"),
     )
     return version_info
+
+
+@cache
+def glean_logger() -> EventsServerEventLogger:
+    version_info = get_version_info()
+    return create_events_server_event_logger(
+        application_id="relay-backend",
+        app_display_version=version_info["version"],
+        channel=settings.RELAY_CHANNEL,
+    )

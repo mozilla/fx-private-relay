@@ -69,7 +69,7 @@ class EventsServerEventLogger:
             "document_namespace": self._application_id,
             "document_type": "events",
             "document_version": "1",
-            "document_id": uuid4(),
+            "document_id": str(uuid4()),
             "user_agent": user_agent,
             "ip_address": ip_address,
             "payload": event_payload_serialized,
