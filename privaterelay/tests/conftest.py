@@ -2,6 +2,7 @@
 
 from pathlib import Path
 from typing import Iterator
+import json
 
 import pytest
 
@@ -14,5 +15,12 @@ def version_json_path(tmp_path, settings) -> Iterator[Path]:
     get_version_info.cache_clear()
     settings.BASE_DIR = tmp_path
     path = settings.BASE_DIR / "version.json"
+    default_build_info = {
+        "commit": "the_commit_hash",
+        "version": "2024.01.17",
+        "source": "https://github.com/mozilla/fx-private-relay",
+        "build": "https://circleci.com/gh/mozilla/fx-private-relay/100",
+    }
+    path.write_text(json.dumps(default_build_info))
     yield path
     get_version_info.cache_clear()
