@@ -1116,6 +1116,7 @@ class ProfileUpdateAbuseMetricTest(ProfileTestCase):
         self.profile.update_abuse_metric(email_forwarded=True)
         self.abuse_metric.refresh_from_db()
 
+        assert self.profile.fxa
         self.mocked_abuse_info.assert_called_once_with(
             "Abuse flagged",
             extra={
@@ -1139,6 +1140,7 @@ class ProfileUpdateAbuseMetricTest(ProfileTestCase):
         self.profile.update_abuse_metric(forwarded_email_size=50)
         self.abuse_metric.refresh_from_db()
 
+        assert self.profile.fxa
         self.mocked_abuse_info.assert_called_once_with(
             "Abuse flagged",
             extra={
