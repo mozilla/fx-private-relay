@@ -1,4 +1,6 @@
 from datetime import datetime
+from typing import Any
+import json
 import logging
 from allauth.account.models import EmailAddress
 import pytest
@@ -61,6 +63,16 @@ def prem_api_client(premium_user: User) -> APIClient:
 def fxa_social_app(db) -> SocialApp:
     app: SocialApp = baker.make(SocialApp, provider="fxa", sites=[Site.objects.first()])
     return app
+
+
+def get_glean_event(caplog: pytest.LogCaptureFixture) -> dict[str, Any] | None:
+    """Return the event payload from a Glean server event log."""
+    event = None
+    for record in caplog.records:
+        if record.msg == "glean-server-event":
+            assert hasattr(record, "payload")
+            event = json.loads(record.payload)["events"][0]
+    return event
 
 
 @pytest.mark.parametrize("subpath", ("swagger", "swagger.", "swagger.txt"))
@@ -377,9 +389,49 @@ def test_post_relayaddress_success(free_api_client, free_user, caplog) -> None:
     ret_data = response.json()
     assert ret_data["enabled"]
 
+    event = get_glean_event(caplog)
+    assert event is not None
+    assert event == {
+        "category": "email",
+        "name": "generate_mask",
+        "extra": {
+            "mozilla_accounts_id": free_user.profile.fxa.uid,
+            "is_random_mask": True,
+            "created_by_api": True,
+            "has_generated_for": False,
+        },
+        "timestamp": event["timestamp"],
+    }
+
+
+def test_post_relayaddress_with_generated_for_success(
+    free_api_client, free_user, caplog
+) -> None:
+    """A mask generated on a website sets has_generated_for"""
+    response = free_api_client.post(
+        reverse("relayaddress-list"),
+        data={"generated_for": "example.com"},
+        format="json",
+    )
+    assert response.status_code == 201
+
+    event = get_glean_event(caplog)
+    assert event is not None
+    assert event == {
+        "category": "email",
+        "name": "generate_mask",
+        "extra": {
+            "mozilla_accounts_id": free_user.profile.fxa.uid,
+            "is_random_mask": True,
+            "created_by_api": True,
+            "has_generated_for": True,
+        },
+        "timestamp": event["timestamp"],
+    }
+
 
 def test_post_relayaddress_free_mask_email_limit_error(
-    settings, free_user, free_api_client
+    settings, free_user, free_api_client, caplog
 ) -> None:
     """A free user is unable to exceed the mask limit."""
     for _ in range(settings.MAX_NUM_FREE_ALIASES):
@@ -402,9 +454,10 @@ def test_post_relayaddress_free_mask_email_limit_error(
         "error_code": "free_tier_limit",
         "error_context": {"free_tier_limit": 5},
     }
+    assert get_glean_event(caplog) is None
 
 
-def test_post_relayaddress_flagged_error(free_user, free_api_client) -> None:
+def test_post_relayaddress_flagged_error(free_user, free_api_client, caplog) -> None:
     """A flagged user is unable to create a random mask."""
     free_profile = free_user.profile
     free_profile.last_account_flagged = timezone.now()
@@ -418,10 +471,11 @@ def test_post_relayaddress_flagged_error(free_user, free_api_client) -> None:
         "detail": "Your account is on pause.",
         "error_code": "account_is_paused",
     }
+    assert get_glean_event(caplog) is None
 
 
 def test_patch_relayaddress_free_user_cannot_set_block_list_emails(
-    free_user, free_api_client
+    free_user, free_api_client, caplog
 ) -> None:
     """A free user cannot set block_list_emails to True"""
     ra = baker.make(RelayAddress, user=free_user, enabled=True, block_list_emails=False)
@@ -435,10 +489,11 @@ def test_patch_relayaddress_free_user_cannot_set_block_list_emails(
     ra.refresh_from_db()
     assert ra.enabled is True
     assert ra.block_list_emails is False
+    assert get_glean_event(caplog) is None
 
 
 def test_patch_relayaddress_format_premium_user_can_clear_block_list_emails(
-    premium_user, prem_api_client
+    premium_user, prem_api_client, caplog
 ) -> None:
     """A formerly-premium user can set block_list_emails to False"""
     # Create a Relay Address with promotions blocked
@@ -462,6 +517,7 @@ def test_patch_relayaddress_format_premium_user_can_clear_block_list_emails(
     ra.refresh_from_db()
     assert ra.enabled is True
     assert ra.block_list_emails is False
+    assert get_glean_event(caplog) is None
 
 
 @pytest.mark.usefixtures("fxa_social_app")
