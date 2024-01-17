@@ -32,12 +32,14 @@ import { isPhonesAvailableInCountry } from "../../functions/getPlan";
 import { useL10n } from "../../hooks/l10n";
 import { HolidayPromoBanner } from "./topmessage/HolidayPromoBanner";
 import { isFlagActive } from "../../functions/waffle";
+import { OverlayTriggerState } from "react-stately";
 
 export type Props = {
   children: ReactNode;
   // Plain page used for pages without the typical header bag, e.g. tracker report page
   theme?: "free" | "premium" | "plain";
   runtimeData?: RuntimeData;
+  deleteMaskModalState?: OverlayTriggerState;
 };
 
 /**
@@ -130,10 +132,35 @@ export const Layout = (props: Props) => {
     </div>
   );
 
+  // PATCH for MPP-3701. Avoiding modal click-through when dismissing it by disabling pointer events when the modal is open,
+  // then temporarily keeping it disabled (close to 0 ms) with setTimeout when the modal is closed.
+  const [pointerEventsNone, setPointerEventsNone] = useState(false);
+
+  useEffect(() => {
+    const modalState = props.deleteMaskModalState;
+
+    // When the modal is closed, we schedule a callback with 0 ms to enable pointer events.
+    if (!modalState?.isOpen) {
+      setTimeout(() => {
+        setPointerEventsNone(false);
+      }, 0);
+
+      return;
+    }
+    // When the modal is open, pointer events is disabled for the layout wrapper.
+    setPointerEventsNone(true);
+  }, [
+    props.deleteMaskModalState?.isOpen,
+    props.deleteMaskModalState,
+    pointerEventsNone,
+  ]);
+
   return (
     <>
       <PageMetadata />
-      <div className={styles.wrapper}>
+      <div
+        className={`${pointerEventsNone && styles.patch3701} ${styles.wrapper}`}
+      >
         {apiMockWarning}
         <TopMessage
           profile={profiles.data?.[0]}
