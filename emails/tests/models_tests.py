@@ -47,7 +47,11 @@ def make_free_test_user(email: str = "") -> User:
     user_profile.server_storage = True
     user_profile.save()
     baker.make(
-        SocialAccount, user=user, provider="fxa", extra_data={"avatar": "avatar.png"}
+        SocialAccount,
+        user=user,
+        uid=str(uuid4()),
+        provider="fxa",
+        extra_data={"avatar": "avatar.png"},
     )
     return user
 
@@ -83,6 +87,7 @@ def upgrade_test_user_to_premium(user):
     baker.make(
         SocialAccount,
         user=user,
+        uid=str(uuid4()),
         provider="fxa",
         extra_data={"avatar": "avatar.png", "subscriptions": [random_sub]},
     )
