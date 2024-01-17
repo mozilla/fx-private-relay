@@ -26,6 +26,7 @@ class MeasureFeatureUsageSignalTest(TestCase):
         self.profile.remove_level_one_email_trackers = True
         self.profile.save()
 
+        assert self.profile.fxa
         expected_hashed_uid = sha256(self.profile.fxa.uid.encode("utf-8")).hexdigest()
         self.mocked_incr.assert_called_once_with("tracker_removal_enabled")
         self.mocked_events_info.assert_called_once_with(
@@ -45,6 +46,7 @@ class MeasureFeatureUsageSignalTest(TestCase):
         self.profile.remove_level_one_email_trackers = False
         self.profile.save()
 
+        assert self.profile.fxa
         expected_hashed_uid = sha256(self.profile.fxa.uid.encode("utf-8")).hexdigest()
         self.mocked_incr.assert_called_once_with("tracker_removal_disabled")
         self.mocked_events_info.assert_called_once_with(

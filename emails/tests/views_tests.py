@@ -462,7 +462,7 @@ class SNSNotificationTest(TestCase):
         self.ra.save()
 
         # Remove premium from the user
-        fxa_account = self.premium_user.profile.fxa
+        assert (fxa_account := self.premium_user.profile.fxa)
         fxa_account.extra_data["subscriptions"] = []
         fxa_account.save()
         assert not self.premium_user.profile.has_premium

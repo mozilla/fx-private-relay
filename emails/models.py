@@ -19,6 +19,7 @@ from django.utils.translation.trans_real import (
     get_supported_language_variant,
 )
 
+from allauth.socialaccount.models import SocialAccount
 from rest_framework.authtoken.models import Token
 
 from api.exceptions import ErrorContextType, RelayAPIException
@@ -281,10 +282,11 @@ class Profile(models.Model):
         return relay_addresses_count >= settings.MAX_NUM_FREE_ALIASES
 
     @property
-    def fxa(self):
+    def fxa(self) -> SocialAccount | None:
         # Note: we are NOT using .filter() here because it invalidates
         # any profile instances that were queried with prefetch_related, which
         # we use in at least the profile view to minimize queries
+        assert hasattr(self.user, "socialaccount_set")
         for sa in self.user.socialaccount_set.all():
             if sa.provider == "fxa":
                 return sa

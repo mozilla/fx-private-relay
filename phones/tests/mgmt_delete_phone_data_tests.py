@@ -76,6 +76,7 @@ def test_active_user(phone_user: User) -> None:
     assert RealPhone.objects.filter(user=phone_user).exists()
     relay_number = RelayNumber.objects.get(user=phone_user)
     assert InboundContact.objects.filter(relay_number=relay_number).count() == 2
+    assert phone_user.profile.fxa
 
     stdout = StringIO()
     call_command(THE_COMMAND, phone_user.profile.fxa.uid, "--force", stdout=stdout)
@@ -105,6 +106,7 @@ def test_no_contacts(phone_user: User) -> None:
     """A user's real phone and relay phone are deleted, even without contacts."""
     relay_number = RelayNumber.objects.get(user=phone_user)
     InboundContact.objects.filter(relay_number=relay_number).delete()
+    assert phone_user.profile.fxa
 
     stdout = StringIO()
     call_command(THE_COMMAND, phone_user.profile.fxa.uid, "--force", stdout=stdout)
@@ -133,6 +135,7 @@ Deleted user's phone data.
 def test_no_relay_phone(phone_user: User) -> None:
     """A user's real phone is deleted, even without a relay phone setup."""
     RelayNumber.objects.filter(user=phone_user).delete()
+    assert phone_user.profile.fxa
 
     stdout = StringIO()
     call_command(THE_COMMAND, phone_user.profile.fxa.uid, "--force", stdout=stdout)
@@ -160,6 +163,7 @@ def test_no_real_phone(phone_user: User) -> None:
     """Nothing is done if a user doesn't have a real phone setup."""
     RelayNumber.objects.filter(user=phone_user).delete()
     RealPhone.objects.filter(user=phone_user).delete()
+    assert phone_user.profile.fxa
 
     stdout = StringIO()
     call_command(THE_COMMAND, phone_user.profile.fxa.uid, "--force", stdout=stdout)
@@ -195,6 +199,7 @@ def test_user_not_found() -> None:
 
 def test_confirm_yes_active_user(phone_user: User) -> None:
     """When the user confirms yes, the data is deleted."""
+    assert phone_user.profile.fxa
     stdout = StringIO()
     with patch("builtins.input", return_value="Y"):
         call_command(THE_COMMAND, phone_user.profile.fxa.uid, stdout=stdout)
@@ -221,6 +226,7 @@ Deleted user's phone data.
 
 def test_confirm_no_active_user(phone_user: User) -> None:
     """When the user confirms no, the data is not deleted."""
+    assert phone_user.profile.fxa
     stdout = StringIO()
     with patch("builtins.input", return_value="n"):
         call_command(THE_COMMAND, phone_user.profile.fxa.uid, stdout=stdout)
@@ -248,6 +254,7 @@ User still has their phone data... FOR NOW!
 
 def test_confirm_retry_active_user(phone_user: User) -> None:
     """The user keeps trying until they answer Y or N."""
+    assert phone_user.profile.fxa
     stdout = StringIO()
     with patch("builtins.input", side_effect=("maybe", "ok no", "no", "n")):
         call_command(THE_COMMAND, phone_user.profile.fxa.uid, stdout=stdout)
@@ -278,6 +285,7 @@ User still has their phone data... FOR NOW!
 
 def test_confirmation_skipped_when_no_data(phone_user: User) -> None:
     """When the user does not have data, confirmation is skipped."""
+    assert phone_user.profile.fxa
     RelayNumber.objects.filter(user=phone_user).delete()
     RealPhone.objects.filter(user=phone_user).delete()
 
