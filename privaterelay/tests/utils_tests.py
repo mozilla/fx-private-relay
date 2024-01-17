@@ -1,5 +1,6 @@
 from typing import Iterator
 from unittest.mock import patch
+import json
 import logging
 
 from django.contrib.auth.models import AbstractBaseUser, Group, User
@@ -19,6 +20,7 @@ from ..utils import (
     AcceptLanguageError,
     flag_is_active_in_task,
     get_countries_info_from_request_and_mapping,
+    get_version_info,
     guess_country_from_accept_lang,
 )
 
@@ -579,3 +581,35 @@ def test_flag_is_active_for_task_override_existing_to_inactive(
     assert flag_is_active_in_task(TEST_FLAG_NAME, flag_user)
     with override_flag(TEST_FLAG_NAME, active=False):
         assert not flag_is_active_in_task(TEST_FLAG_NAME, flag_user)
+
+
+@pytest.mark.parametrize(
+    "content",
+    (None, "", "[]", '{"foo": "bar"}'),
+    ids=("missing", "empty", "list", "other object"),
+)
+def test_get_version_info_bad_contents(tmp_path, content: str | None) -> None:
+    path = tmp_path / "bad.json"
+    if content is not None:
+        path.write_text(content)
+    info = get_version_info(path)
+    assert info == {
+        "source": "https://github.com/mozilla/fx-private-relay",
+        "version": "unknown",
+        "commit": "unknown",
+        "build": "not built",
+    }
+
+
+def test_get_version_info(tmp_path, settings) -> None:
+    settings.BASE_DIR = tmp_path
+    path = settings.BASE_DIR / "version.json"
+    build_info = {
+        "commit": "the_commit_hash",
+        "version": "2024.01.17",
+        "source": "https://github.com/mozilla/fx-private-relay",
+        "build": "https://circleci.com/gh/mozilla/fx-private-relay/100",
+    }
+    path.write_text(json.dumps(build_info))
+    version_info = get_version_info()
+    assert version_info == build_info

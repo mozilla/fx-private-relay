@@ -1,7 +1,9 @@
 from decimal import Decimal
-from functools import wraps
+from functools import cache, wraps
+from pathlib import Path
 from string import ascii_uppercase
 from typing import Callable, TypedDict, cast
+import json
 import logging
 import random
 
@@ -476,3 +478,32 @@ def flag_is_active_in_task(flag_name: str, user: AbstractBaseUser | None) -> boo
             return True
 
     return False
+
+
+class VersionInfo(TypedDict):
+    source: str
+    version: str
+    commit: str
+    build: str
+
+
+@cache
+def get_version_info(version_json_path: Path | None = None) -> VersionInfo:
+    """Return version information written by build process."""
+    version_json_path = version_json_path or (Path(settings.BASE_DIR) / "version.json")
+    info = {}
+    if version_json_path.exists():
+        with version_json_path.open() as version_file:
+            try:
+                info = json.load(version_file)
+            except ValueError:
+                pass
+            if not hasattr(info, "get"):
+                info = {}
+    version_info = VersionInfo(
+        source=info.get("source", "https://github.com/mozilla/fx-private-relay"),
+        version=info.get("version", "unknown"),
+        commit=info.get("commit", "unknown"),
+        build=info.get("build", "not built"),
+    )
+    return version_info
