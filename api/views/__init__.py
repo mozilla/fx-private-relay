@@ -28,6 +28,7 @@ from rest_framework.exceptions import (
     ParseError,
 )
 from rest_framework.response import Response
+from rest_framework.serializers import BaseSerializer
 from rest_framework.views import exception_handler
 
 from allauth.account.adapter import get_adapter as get_account_adapter
@@ -54,7 +55,7 @@ from privaterelay.plans import (
     get_premium_country_language_mapping,
     get_phone_country_language_mapping,
 )
-from privaterelay.utils import get_countries_info_from_request_and_mapping
+from privaterelay.utils import get_countries_info_from_request_and_mapping, glean_logger
 
 from emails.models import (
     DomainAddress,
@@ -120,6 +121,25 @@ class RelayAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
 
     def get_queryset(self):
         return RelayAddress.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer: BaseSerializer[Any]) -> None:
+        serializer.save(user=self.request.user)
+        if not isinstance(serializer, RelayAddressSerializer) or not isinstance(
+            self.request.user, User
+        ):
+            return
+        if fxa := self.request.user.profile.fxa:
+            mozilla_accounts_id = fxa.uid
+        else:
+            mozilla_accounts_id = ""
+        glean_logger().record_email_generate_mask(
+            user_agent=self.request.headers.get("user-agent", ""),
+            ip_address=self.request.headers.get("ip-address", ""),
+            mozilla_accounts_id=mozilla_accounts_id,
+            has_generated_for=bool(serializer.data.get("generated_for", None)),
+            is_random_mask=True,
+            created_by_api=True,
+        )
 
 
 class DomainAddressFilter(filters.FilterSet):
