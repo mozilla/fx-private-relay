@@ -140,10 +140,13 @@ def test_patch_premium_user_subdomain_cannot_be_changed(
 
 def test_patch_profile_fields_are_read_only_by_default(premium_user, prem_api_client):
     """
-    A field in the Profile model should be read only by default, and return a 400 response code
-    (see StrictReadOnlyFieldsMixin in api/serializers/__init__.py), if it is not mentioned in the ProfileSerializer class fields.
+    A field in the Profile model should be read only by default, and return a 400
+    response code (see StrictReadOnlyFieldsMixin in api/serializers/__init__.py), if it
+    is not mentioned in the ProfileSerializer class fields.
 
-    Two fields were tested, num_address_deleted, and sent_welcome_email to see if the behavior matches what is described here: https://www.django-rest-framework.org/api-guide/serializers/#specifying-read-only-fields
+    Two fields were tested, num_address_deleted, and sent_welcome_email to see if the
+    behavior matches what is described here:
+    https://www.django-rest-framework.org/api-guide/serializers/#specifying-read-only-fields
     """
     premium_profile = premium_user.profile
     expected_num_address_deleted = premium_profile.num_address_deleted
@@ -172,7 +175,8 @@ def test_profile_non_read_only_fields_update_correctly(premium_user, prem_api_cl
     """
     A field that is not read only should update correctly on a patch request.
 
-    "Not read only" meaning that it was defined in the serializers fields, but not read_only_fields.
+    "Not read only" meaning that it was defined in the serializers fields, but not
+    read_only_fields.
     """
     premium_profile = premium_user.profile
     old_onboarding_state = premium_profile.onboarding_state
@@ -244,7 +248,10 @@ def test_profile_patch_with_non_read_only_and_read_only_fields(
 
 
 def test_profile_patch_fields_that_dont_exist(premium_user, prem_api_client):
-    """A request sent with only fields that don't exist give a 200 response (this is the default behavior django provides, we decided to leave it as is)"""
+    """
+    A request sent with only fields that don't exist give a 200 response (this is the
+    default behavior django provides, we decided to leave it as is)
+    """
     response = prem_api_client.patch(
         reverse(viewname="profiles-detail", args=[premium_user.profile.id]),
         data={
@@ -287,10 +294,13 @@ def test_post_domainaddress_bad_address_error(prem_api_client) -> None:
 
     assert response.status_code == 400
     ret_data = response.json()
-    # Add unicode characters to get around Fluent.js using unicode isolation.
-    # See https://github.com/projectfluent/fluent.js/wiki/Unicode-Isolation for more info
+    # Add unicode characters to get around Fluent.js using unicode isolation. See:
+    # https://github.com/projectfluent/fluent.js/wiki/Unicode-Isolation
     assert ret_data == {
-        "detail": "“\u2068myNewAlias\u2069” could not be created. Please try again with a different mask name.",
+        "detail": (
+            "“\u2068myNewAlias\u2069” could not be created."
+            " Please try again with a different mask name."
+        ),
         "error_code": "address_unavailable",
         "error_context": {"unavailable_address": "myNewAlias"},
     }
@@ -304,10 +314,13 @@ def test_post_domainaddress_free_user_error(free_api_client):
 
     assert response.status_code == 403
     ret_data = response.json()
-    # Add unicode characters to get around Fluent.js using unicode isolation.
-    # See https://github.com/projectfluent/fluent.js/wiki/Unicode-Isolation for more info
+    # Add unicode characters to get around Fluent.js using unicode isolation. See:
+    # https://github.com/projectfluent/fluent.js/wiki/Unicode-Isolation
     assert ret_data == {
-        "detail": "Your free account does not include custom subdomains for masks. To create custom masks, upgrade to \u2068Relay Premium\u2069.",
+        "detail": (
+            "Your free account does not include custom subdomains for masks."
+            " To create custom masks, upgrade to \u2068Relay Premium\u2069."
+        ),
         "error_code": "free_tier_no_subdomain_masks",
     }
 
@@ -334,13 +347,15 @@ def test_post_relayaddress_free_mask_email_limit_error(
 
     assert response.status_code == 403
     ret_data = response.json()
-    # Add unicode characters to get around Fluent.js using unicode isolation.
-    # See https://github.com/projectfluent/fluent.js/wiki/Unicode-Isolation for more info
+    # Add unicode characters to get around Fluent.js using unicode isolation. See:
+    # https://github.com/projectfluent/fluent.js/wiki/Unicode-Isolation
 
     assert ret_data == {
         "detail": (
             "You’ve used all"
-            f" \u2068{settings.MAX_NUM_FREE_ALIASES}\u2069 email masks included with your free account. You can reuse an existing mask, but using a unique mask for each account is the most secure option."
+            f" \u2068{settings.MAX_NUM_FREE_ALIASES}\u2069 email masks included with"
+            " your free account. You can reuse an existing mask, but using a unique"
+            " mask for each account is the most secure option."
         ),
         "error_code": "free_tier_limit",
         "error_context": {"free_tier_limit": 5},
