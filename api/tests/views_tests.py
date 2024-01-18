@@ -89,7 +89,7 @@ def test_runtime_data(client):
     assert response.status_code == 200
 
 
-def test_post_domainaddress_success(prem_api_client) -> None:
+def test_post_domainaddress_success(prem_api_client, premium_user, caplog) -> None:
     """A premium user can create a domain address."""
     response = prem_api_client.post(
         reverse("domainaddress-list"),
@@ -101,8 +101,24 @@ def test_post_domainaddress_success(prem_api_client) -> None:
     assert ret_data["enabled"]
     assert ret_data["full_address"].startswith("my-new-mask@premium.")
 
+    event = get_glean_event(caplog)
+    assert event is not None
+    assert event == {
+        "category": "email",
+        "name": "generate_mask",
+        "extra": {
+            "mozilla_accounts_id": premium_user.profile.fxa.uid,
+            "is_random_mask": False,
+            "created_by_api": True,
+            "has_generated_for": False,
+        },
+        "timestamp": event["timestamp"],
+    }
 
-def test_post_domainaddress_no_subdomain_error(premium_user, prem_api_client) -> None:
+
+def test_post_domainaddress_no_subdomain_error(
+    premium_user, prem_api_client, caplog
+) -> None:
     """A premium user needs to select a subdomain before creating a domain address."""
     premium_profile = premium_user.profile
     premium_profile.subdomain = ""
@@ -120,6 +136,8 @@ def test_post_domainaddress_no_subdomain_error(premium_user, prem_api_client) ->
         "detail": ("Please select a subdomain before creating a custom email address."),
         "error_code": "need_subdomain",
     }
+    event = get_glean_event(caplog)
+    assert event is None
 
 
 def test_patch_premium_user_subdomain_cannot_be_changed(
@@ -272,7 +290,9 @@ def test_profile_patch_fields_that_dont_exist(premium_user, prem_api_client):
     assert response.status_code == 200
 
 
-def test_post_domainaddress_user_flagged_error(premium_user, prem_api_client) -> None:
+def test_post_domainaddress_user_flagged_error(
+    premium_user, prem_api_client, caplog
+) -> None:
     """A flagged user cannot create a new domain address."""
     premium_profile = premium_user.profile
     premium_profile.last_account_flagged = timezone.now()
@@ -291,8 +311,11 @@ def test_post_domainaddress_user_flagged_error(premium_user, prem_api_client) ->
         "error_code": "account_is_paused",
     }
 
+    event = get_glean_event(caplog)
+    assert event is None
 
-def test_post_domainaddress_bad_address_error(prem_api_client) -> None:
+
+def test_post_domainaddress_bad_address_error(prem_api_client, caplog) -> None:
     """A domain address can be rejected due to the address format or content."""
     response = prem_api_client.post(
         reverse("domainaddress-list"),
@@ -313,8 +336,11 @@ def test_post_domainaddress_bad_address_error(prem_api_client) -> None:
         "error_context": {"unavailable_address": "myNewAlias"},
     }
 
+    event = get_glean_event(caplog)
+    assert event is None
 
-def test_post_domainaddress_free_user_error(free_api_client):
+
+def test_post_domainaddress_free_user_error(free_api_client, caplog):
     """A free user is not allowed to create a domain address."""
     response = free_api_client.post(
         reverse("domainaddress-list"), data={"address": "my-new-alias"}, format="json"
@@ -332,9 +358,12 @@ def test_post_domainaddress_free_user_error(free_api_client):
         "error_code": "free_tier_no_subdomain_masks",
     }
 
+    event = get_glean_event(caplog)
+    assert event is None
+
 
 @pytest.mark.django_db(transaction=True)
-def test_post_domainaddress_conflict_existing(prem_api_client, premium_user):
+def test_post_domainaddress_conflict_existing(prem_api_client, premium_user, caplog):
     """A user can not create a duplicate domain address."""
     DomainAddress.objects.create(user=premium_user, address="my-new-alias")
     response = prem_api_client.post(
@@ -347,10 +376,13 @@ def test_post_domainaddress_conflict_existing(prem_api_client, premium_user):
     # https://github.com/projectfluent/fluent.js/wiki/Unicode-Isolation
     assert ret_data == {"detail": "This domain address already exists."}
 
+    event = get_glean_event(caplog)
+    assert event is None
+
 
 @pytest.mark.django_db(transaction=True)
 @override_flag("custom_domain_management_redesign", active=True)
-def test_post_domainaddress_conflict_deleted(prem_api_client, premium_user):
+def test_post_domainaddress_conflict_deleted(prem_api_client, premium_user, caplog):
     """A user can not create a domain address that matches a deleted address."""
     existing = DomainAddress.objects.create(user=premium_user, address="my-new-alias")
     existing.delete()
@@ -370,6 +402,9 @@ def test_post_domainaddress_conflict_deleted(prem_api_client, premium_user):
         "error_code": "address_unavailable",
         "error_context": {"unavailable_address": "my-new-alias"},
     }
+
+    event = get_glean_event(caplog)
+    assert event is None
 
 
 def test_post_relayaddress_success(free_api_client, free_user, caplog) -> None:

@@ -187,6 +187,23 @@ class DomainAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
                 existing_address = domain_address.full_address
             raise DomainAddressConflictError(existing_id, existing_address)
 
+        if not isinstance(serializer, DomainAddressSerializer) or not isinstance(
+            self.request.user, User
+        ):
+            return
+        if fxa := self.request.user.profile.fxa:
+            mozilla_accounts_id = fxa.uid
+        else:
+            mozilla_accounts_id = ""
+        glean_logger().record_email_generate_mask(
+            user_agent=self.request.headers.get("user-agent", ""),
+            ip_address=self.request.headers.get("ip-address", ""),
+            mozilla_accounts_id=mozilla_accounts_id,
+            has_generated_for=bool(serializer.data.get("generated_for", None)),
+            is_random_mask=False,
+            created_by_api=True,
+        )
+
 
 class ProfileViewSet(viewsets.ModelViewSet):
     serializer_class = ProfileSerializer
