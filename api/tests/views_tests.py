@@ -16,6 +16,7 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 
 from allauth.socialaccount.models import SocialAccount, SocialApp
+from waffle.testutils import override_flag
 
 from api.authentication import get_cache_key, INTROSPECT_TOKEN_URL
 from api.tests.authentication_tests import (
@@ -23,7 +24,7 @@ from api.tests.authentication_tests import (
     _setup_fxa_response_no_json,
 )
 from api.views import FXA_PROFILE_URL
-from emails.models import Profile, RelayAddress
+from emails.models import Profile, RelayAddress, DomainAddress
 from emails.tests.models_tests import make_free_test_user, make_premium_test_user
 from privaterelay.tests.utils import log_extra
 
@@ -329,6 +330,45 @@ def test_post_domainaddress_free_user_error(free_api_client):
             " To create custom masks, upgrade to \u2068Relay Premium\u2069."
         ),
         "error_code": "free_tier_no_subdomain_masks",
+    }
+
+
+@pytest.mark.django_db(transaction=True)
+def test_post_domainaddress_conflict_existing(prem_api_client, premium_user):
+    """A user can not create a duplicate domain address."""
+    DomainAddress.objects.create(user=premium_user, address="my-new-alias")
+    response = prem_api_client.post(
+        reverse("domainaddress-list"), data={"address": "my-new-alias"}, format="json"
+    )
+
+    assert response.status_code == 409
+    ret_data = response.json()
+    # Add unicode characters to get around Fluent.js using unicode isolation. See:
+    # https://github.com/projectfluent/fluent.js/wiki/Unicode-Isolation
+    assert ret_data == {"detail": "This domain address already exists."}
+
+
+@pytest.mark.django_db(transaction=True)
+@override_flag("custom_domain_management_redesign", active=True)
+def test_post_domainaddress_conflict_deleted(prem_api_client, premium_user):
+    """A user can not create a domain address that matches a deleted address."""
+    existing = DomainAddress.objects.create(user=premium_user, address="my-new-alias")
+    existing.delete()
+    response = prem_api_client.post(
+        reverse("domainaddress-list"), data={"address": "my-new-alias"}, format="json"
+    )
+
+    assert response.status_code == 400
+    ret_data = response.json()
+    # Add unicode characters to get around Fluent.js using unicode isolation. See:
+    # https://github.com/projectfluent/fluent.js/wiki/Unicode-Isolation
+    assert ret_data == {
+        "detail": (
+            "“\u2068my-new-alias\u2069” could not be created."
+            " Please try again with a different mask name."
+        ),
+        "error_code": "address_unavailable",
+        "error_context": {"unavailable_address": "my-new-alias"},
     }
 
 

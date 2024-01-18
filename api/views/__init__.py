@@ -64,7 +64,7 @@ from emails.models import (
 )
 
 from ..authentication import get_fxa_uid_from_oauth_token
-from ..exceptions import ConflictError, RelayAPIException
+from ..exceptions import DomainAddressConflictError, RelayAPIException
 from ..permissions import IsOwner, CanManageFlags
 from ..serializers import (
     DomainAddressSerializer,
@@ -122,7 +122,7 @@ class RelayAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     def get_queryset(self):
         return RelayAddress.objects.filter(user=self.request.user)
 
-    def perform_create(self, serializer: BaseSerializer[Any]) -> None:
+    def perform_create(self, serializer: BaseSerializer[RelayAddress]) -> None:
         serializer.save(user=self.request.user)
         if not isinstance(serializer, RelayAddressSerializer) or not isinstance(
             self.request.user, User
@@ -173,16 +173,19 @@ class DomainAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     def get_queryset(self):
         return DomainAddress.objects.filter(user=self.request.user)
 
-    def perform_create(self, serializer):
+    def perform_create(self, serializer: BaseSerializer[DomainAddress]) -> None:
         try:
             serializer.save(user=self.request.user)
         except IntegrityError:
+            assert isinstance(self.request.user, User)
             domain_address = DomainAddress.objects.filter(
                 user=self.request.user, address=serializer.validated_data.get("address")
             ).first()
-            raise ConflictError(
-                {"id": domain_address.id, "full_address": domain_address.full_address}
-            )
+            existing_id = existing_address = None
+            if domain_address:
+                existing_id = domain_address.id
+                existing_address = domain_address.full_address
+            raise DomainAddressConflictError(existing_id, existing_address)
 
 
 class ProfileViewSet(viewsets.ModelViewSet):
