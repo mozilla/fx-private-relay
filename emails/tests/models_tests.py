@@ -24,7 +24,6 @@ from ..models import (
     DomainAddress,
     DomainAddrUnavailableException,
     emails_config,
-    get_domains_from_settings,
     get_domain_numerical,
     has_bad_words,
     hash_subdomain,
@@ -36,6 +35,7 @@ from ..models import (
     valid_address,
     valid_address_pattern,
 )
+from ..utils import get_domains_from_settings
 
 
 def make_free_test_user(email: str = "") -> User:

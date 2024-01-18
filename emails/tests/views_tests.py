@@ -31,7 +31,6 @@ from emails.models import (
     RelayAddress,
     Reply,
     address_hash,
-    get_domains_from_settings,
 )
 from emails.types import AWS_SNSMessageJSON, OutgoingHeaders
 from emails.utils import (
@@ -39,6 +38,7 @@ from emails.utils import (
     decrypt_reply_metadata,
     derive_reply_keys,
     encrypt_reply_metadata,
+    get_domains_from_settings,
     get_message_id_bytes,
     InvalidFromHeader,
 )

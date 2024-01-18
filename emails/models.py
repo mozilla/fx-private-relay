@@ -23,6 +23,10 @@ from rest_framework.authtoken.models import Token
 
 from api.exceptions import ErrorContextType, RelayAPIException
 from emails.apps import EmailsConfig
+from emails.utils import (
+    get_domains_from_settings,
+    incr_if_enabled,
+)
 from privaterelay.plans import get_premium_countries
 from privaterelay.utils import (
     AcceptLanguageError,
@@ -36,17 +40,6 @@ logger = logging.getLogger("events")
 abuse_logger = logging.getLogger("abusemetrics")
 
 BounceStatus = namedtuple("BounceStatus", "paused type")
-
-
-def get_domains_from_settings():
-    # HACK: detect if code is running in django tests
-    if "testserver" in settings.ALLOWED_HOSTS:
-        return {"RELAY_FIREFOX_DOMAIN": "default.com", "MOZMAIL_DOMAIN": "test.com"}
-    return {
-        "RELAY_FIREFOX_DOMAIN": settings.RELAY_FIREFOX_DOMAIN,
-        "MOZMAIL_DOMAIN": settings.MOZMAIL_DOMAIN,
-    }
-
 
 DOMAIN_CHOICES = [(1, "RELAY_FIREFOX_DOMAIN"), (2, "MOZMAIL_DOMAIN")]
 PREMIUM_DOMAINS = ["mozilla.com", "getpocket.com", "mozillafoundation.org"]
