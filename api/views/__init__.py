@@ -125,7 +125,7 @@ class RelayAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         assert isinstance(self.request.user, User)
         return RelayAddress.objects.filter(user=self.request.user)
 
-    def perform_create(self, serializer: BaseSerializer[Any]) -> None:
+    def perform_create(self, serializer: BaseSerializer[RelayAddress]) -> None:
         serializer.save(user=self.request.user)
         if not isinstance(serializer, RelayAddressSerializer) or not isinstance(
             self.request.user, User
