@@ -861,14 +861,11 @@ class DomainAddress(models.Model):
             # Only check for bad words if randomly generated
         assert isinstance(address, str)
 
+        # update first_emailed_at indicating alias generation impromptu.
+        first_emailed_at = datetime.now(timezone.utc) if made_via_email else None
         domain_address = DomainAddress.objects.create(
-            user=user_profile.user,
-            address=address,
+            user=user_profile.user, address=address, first_emailed_at=first_emailed_at
         )
-        if made_via_email:
-            # update first_emailed_at indicating alias generation impromptu.
-            domain_address.first_emailed_at = datetime.now(timezone.utc)
-            domain_address.save()
         return domain_address
 
     def delete(self, *args, **kwargs):
