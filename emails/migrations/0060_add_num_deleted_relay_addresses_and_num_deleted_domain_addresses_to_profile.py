@@ -69,7 +69,8 @@ def add_db_default_forward_func(apps, schema_editor):
                 "date_phone_subscription_start" datetime NULL, 
                 "created_by" varchar(63) NULL, 
                 "sent_welcome_email" bool NOT NULL, 
-                "onboarding_free_state" integer unsigned NOT NULL CHECK ("onboarding_free_state" >= 0)
+                "onboarding_free_state" integer unsigned NOT NULL CHECK ("onboarding_free_state" >= 0),
+                "last_engagement" datetime NULL
             );
             """
         )
@@ -93,7 +94,8 @@ def add_db_default_forward_func(apps, schema_editor):
                 "date_phone_subscription_reset", 
                 "date_phone_subscription_start", 
                 "created_by", "sent_welcome_email", 
-                "onboarding_free_state", "num_deleted_domain_addresses",
+                "onboarding_free_state", "last_engagement", 
+                "num_deleted_domain_addresses",
                 "num_deleted_relay_addresses"
             ) 
             SELECT 
@@ -126,6 +128,7 @@ def add_db_default_forward_func(apps, schema_editor):
                 "created_by", 
                 "sent_welcome_email", 
                 "onboarding_free_state", 
+                "last_engagement", 
                 0, 
                 0
             FROM 
@@ -148,13 +151,16 @@ def add_db_default_forward_func(apps, schema_editor):
         schema_editor.execute(
             'CREATE INDEX "emails_profile_last_account_flagged_f40cbf85" ON "emails_profile" ("last_account_flagged");'
         )
+        schema_editor.execute(
+            'CREATE INDEX "emails_profile_last_engagement_0c398b6a" ON "emails_profile" ("last_engagement");'
+        )
     else:
         raise Exception(f'Unknown database vendor "{schema_editor.connection.vendor}"')
 
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("emails", "0058_profile_onboarding_free_state"),
+        ("emails", "0059_profile_last_engagement"),
     ]
 
     operations = [
