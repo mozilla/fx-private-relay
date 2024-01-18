@@ -1,8 +1,10 @@
 """Helper functions for tests"""
 
+from __future__ import annotations
 from logging import LogRecord
 from typing import Any
 import json
+from unittest._log import _LoggingWatcher
 
 import pytest
 
@@ -41,7 +43,9 @@ def log_extra(log_record: LogRecord) -> dict[str, Any]:
     }
 
 
-def get_glean_event(caplog: pytest.LogCaptureFixture) -> dict[str, Any] | None:
+def get_glean_event(
+    caplog: pytest.LogCaptureFixture | _LoggingWatcher,
+) -> dict[str, Any] | None:
     """Return the event payload from a Glean server event log."""
     event = None
     for record in caplog.records:
