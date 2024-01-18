@@ -1,6 +1,4 @@
 from datetime import datetime
-from typing import Any
-import json
 import logging
 from allauth.account.models import EmailAddress
 import pytest
@@ -26,7 +24,7 @@ from api.tests.authentication_tests import (
 from api.views import FXA_PROFILE_URL
 from emails.models import Profile, RelayAddress, DomainAddress
 from emails.tests.models_tests import make_free_test_user, make_premium_test_user
-from privaterelay.tests.utils import log_extra
+from privaterelay.tests.utils import log_extra, get_glean_event
 
 
 @pytest.fixture
@@ -63,16 +61,6 @@ def prem_api_client(premium_user: User) -> APIClient:
 def fxa_social_app(db) -> SocialApp:
     app: SocialApp = baker.make(SocialApp, provider="fxa", sites=[Site.objects.first()])
     return app
-
-
-def get_glean_event(caplog: pytest.LogCaptureFixture) -> dict[str, Any] | None:
-    """Return the event payload from a Glean server event log."""
-    event = None
-    for record in caplog.records:
-        if record.msg == "glean-server-event":
-            assert hasattr(record, "payload")
-            event = json.loads(record.payload)["events"][0]
-    return event
 
 
 @pytest.mark.parametrize("subpath", ("swagger", "swagger.", "swagger.txt"))
