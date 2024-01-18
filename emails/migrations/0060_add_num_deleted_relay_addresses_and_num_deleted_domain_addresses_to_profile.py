@@ -13,12 +13,12 @@ def add_db_default_forward_func(apps, schema_editor):
     if schema_editor.connection.vendor.startswith("postgres"):
         schema_editor.execute(
             'ALTER TABLE "emails_profile"'
-            ' ALTER COLUMN "num_deleted_relay_addresses" SET DEFAULT 0'
+            ' ALTER COLUMN "num_deleted_relay_addresses" SET DEFAULT 0,'
             ' ALTER COLUMN "num_deleted_domain_addresses" SET DEFAULT 0;'
         )
         schema_editor.execute(
             'UPDATE "emails_profile"'
-            ' SET "num_deleted_relay_addresses" = 0'
+            ' SET "num_deleted_relay_addresses" = 0,'
             ' SET "num_deleted_domain_addresses" = 0;'
         )
     elif schema_editor.connection.vendor.startswith("sqlite"):
