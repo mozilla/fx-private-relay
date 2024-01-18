@@ -24,6 +24,8 @@ from model_bakery import baker
 import pytest
 
 from privaterelay.ftl_bundles import main
+from privaterelay.tests.utils import get_glean_event
+
 from emails.models import (
     DeletedAddress,
     DomainAddress,
@@ -496,7 +498,8 @@ class SNSNotificationTest(TestCase):
         assert self.ra.num_forwarded == 0
 
     def test_domain_recipient(self) -> None:
-        _sns_notification(EMAIL_SNS_BODIES["domain_recipient"])
+        with self.assertLogs("glean", "INFO") as caplog:
+            _sns_notification(EMAIL_SNS_BODIES["domain_recipient"])
 
         sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
         assert sender == "replies@default.com"
@@ -518,6 +521,21 @@ class SNSNotificationTest(TestCase):
         assert da.num_forwarded == 1
         assert da.last_used_at
         assert (datetime.now(tz=timezone.utc) - da.last_used_at).seconds < 2.0
+
+        event = get_glean_event(caplog)
+        assert event is not None
+        assert self.premium_user.profile.fxa
+        assert event == {
+            "category": "email",
+            "name": "generate_mask",
+            "extra": {
+                "mozilla_accounts_id": self.premium_user.profile.fxa.uid,
+                "is_random_mask": False,
+                "created_by_api": False,
+                "has_generated_for": False,
+            },
+            "timestamp": event["timestamp"],
+        }
 
     def test_successful_email_relay_message_removed_from_s3(self) -> None:
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
@@ -1415,33 +1433,41 @@ class GetAddressTest(TestCase):
             _get_address("deleted456@test.com")
         mm.assert_incr_once("fx.private.relay.email_for_deleted_address_multiple")
 
-    def test_existing_domain_address(self):
-        assert _get_address("domain@subdomain.test.com") == self.domain_address
+    def test_existing_domain_address(self) -> None:
+        with self.assertNoLogs("glean", "INFO"):
+            assert _get_address("domain@subdomain.test.com") == self.domain_address
 
-    def test_uppercase_local_part_of_existing_domain_address(self):
+    def test_uppercase_local_part_of_existing_domain_address(self) -> None:
         """Case-insensitive matching is used in the local part of a domain address."""
-        assert _get_address("Domain@subdomain.test.com") == self.domain_address
+        with self.assertNoLogs("glean", "INFO"):
+            assert _get_address("Domain@subdomain.test.com") == self.domain_address
 
-    def test_uppercase_subdomain_part_of_existing_domain_address(self):
+    def test_uppercase_subdomain_part_of_existing_domain_address(self) -> None:
         """Case-insensitive matching is used in the subdomain of a domain address."""
-        assert _get_address("domain@SubDomain.test.com") == self.domain_address
+        with self.assertNoLogs("glean", "INFO"):
+            assert _get_address("domain@SubDomain.test.com") == self.domain_address
 
-    def test_uppercase_domain_part_of_existing_domain_address(self):
+    def test_uppercase_domain_part_of_existing_domain_address(self) -> None:
         """Case-insensitive matching is used in the domain part of a domain address."""
-        assert _get_address("domain@subdomain.Test.Com") == self.domain_address
+        with self.assertNoLogs("glean", "INFO"):
+            assert _get_address("domain@subdomain.Test.Com") == self.domain_address
 
-    def test_subdomain_for_wrong_domain_raises(self):
-        with pytest.raises(ObjectDoesNotExist) as exc_info, MetricsMock() as mm:
+    def test_subdomain_for_wrong_domain_raises(self) -> None:
+        with pytest.raises(
+            ObjectDoesNotExist
+        ) as exc_info, MetricsMock() as mm, self.assertNoLogs("glean", "INFO"):
             _get_address("unknown@subdomain.example.com")
         assert str(exc_info.value) == "Address does not exist"
         mm.assert_incr_once("fx.private.relay.email_for_not_supported_domain")
 
-    def test_unknown_subdomain_raises(self):
-        with pytest.raises(Profile.DoesNotExist), MetricsMock() as mm:
+    def test_unknown_subdomain_raises(self) -> None:
+        with pytest.raises(
+            Profile.DoesNotExist
+        ), MetricsMock() as mm, self.assertNoLogs("glean", "INFO"):
             _get_address("domain@unknown.test.com")
         mm.assert_incr_once("fx.private.relay.email_for_dne_subdomain")
 
-    def test_unknown_domain_address_is_created(self):
+    def test_unknown_domain_address_is_created(self) -> None:
         """
         An unknown but valid domain address is created.
 
@@ -1450,12 +1476,26 @@ class GetAddressTest(TestCase):
         cannot be pre-created.
         """
         assert DomainAddress.objects.filter(user=self.user).count() == 1
-        address = _get_address("unknown@subdomain.test.com")
+        with self.assertLogs("glean", "INFO") as caplog:
+            address = _get_address("unknown@subdomain.test.com")
         assert address.user == self.user
         assert address.address == "unknown"
         assert DomainAddress.objects.filter(user=self.user).count() == 2
+        event = get_glean_event(caplog)
+        assert event is not None
+        assert event == {
+            "category": "email",
+            "name": "generate_mask",
+            "extra": {
+                "mozilla_accounts_id": self.user.profile.fxa.uid,
+                "is_random_mask": False,
+                "created_by_api": False,
+                "has_generated_for": False,
+            },
+            "timestamp": event["timestamp"],
+        }
 
-    def test_uppercase_local_part_of_unknown_domain_address(self):
+    def test_uppercase_local_part_of_unknown_domain_address(self) -> None:
         """
         Uppercase letters are allowed in the local part of a new domain address.
 
@@ -1465,10 +1505,24 @@ class GetAddressTest(TestCase):
         consistent with dashboard-created domain adddresses.
         """
         assert DomainAddress.objects.filter(user=self.user).count() == 1
-        address = _get_address("Unknown@subdomain.test.com")
+        with self.assertLogs("glean", "INFO") as caplog:
+            address = _get_address("Unknown@subdomain.test.com")
         assert address.user == self.user
         assert address.address == "unknown"
         assert DomainAddress.objects.filter(user=self.user).count() == 2
+        event = get_glean_event(caplog)
+        assert event is not None
+        assert event == {
+            "category": "email",
+            "name": "generate_mask",
+            "extra": {
+                "mozilla_accounts_id": self.user.profile.fxa.uid,
+                "is_random_mask": False,
+                "created_by_api": False,
+                "has_generated_for": False,
+            },
+            "timestamp": event["timestamp"],
+        }
 
 
 TEST_AWS_SNS_TOPIC = "arn:aws:sns:us-east-1:111222333:relay"
