@@ -821,10 +821,16 @@ class DomainAddress(models.Model):
                 self.address, self.domain_value, user_profile.subdomain
             )
             if not domain_address_valid:
+                if self.first_emailed_at:
+                    incr_if_enabled("domainaddress.create_via_email_fail")
                 raise DomainAddrUnavailableException(unavailable_address=self.address)
+
             user_profile.update_abuse_metric(address_created=True)
             user_profile.last_engagement = datetime.now(timezone.utc)
             user_profile.save(update_fields=["last_engagement"])
+            incr_if_enabled("domainaddress.create")
+            if self.first_emailed_at:
+                incr_if_enabled("domainaddress.create_via_email")
         if not user_profile.has_premium and self.block_list_emails:
             self.block_list_emails = False
             if update_fields:
