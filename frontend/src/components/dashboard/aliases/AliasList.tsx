@@ -16,7 +16,6 @@ import { Localized } from "../../Localized";
 import { VisuallyHidden } from "../../VisuallyHidden";
 import { MaskCard } from "./MaskCard";
 import { isFlagActive } from "../../../functions/waffle";
-import { OverlayTriggerState } from "react-stately";
 
 export type Props = {
   aliases: AliasData[];
@@ -32,7 +31,7 @@ export type Props = {
   onDelete: (alias: AliasData) => void;
   onboarding?: boolean;
   children?: React.ReactNode;
-  deleteMaskModalState?: OverlayTriggerState;
+  setModalOpenedState?: (state: boolean) => void;
 };
 
 /**
@@ -164,7 +163,7 @@ export const AliasList = (props: Props) => {
             runtimeData={props.runtimeData}
             isOnboarding={onboarding}
             copyAfterMaskGeneration={generatedAlias?.id === alias.id}
-            deleteMaskModalState={props.deleteMaskModalState}
+            setModalOpenedState={props.setModalOpenedState}
           >
             {props.children}
           </MaskCard>
