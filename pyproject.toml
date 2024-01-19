@@ -23,6 +23,7 @@ django_settings_module = "privaterelay.settings"
 ignore_missing_imports = true
 module = [
     "allauth.account.*",
+    "allauth.core.*",
     "allauth.socialaccount.*",
     "boto3",
     "botocore.config",
@@ -86,7 +87,6 @@ module = [
     "emails.utils",
     "phones.models",
     "phones.tests.models_tests",
-    "privaterelay.allauth",
     "privaterelay.tests.fxa_utils_tests",
     "privaterelay.tests.mgmt_sync_phone_related_dates_on_profile_tests",
     "privaterelay.tests.mgmt_update_phone_remaining_stats_tests",
