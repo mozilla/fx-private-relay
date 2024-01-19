@@ -7,6 +7,8 @@ from django.urls import resolve
 
 from allauth.account.adapter import DefaultAccountAdapter
 
+from .middleware import RelayStaticFilesMiddleware
+
 
 logger = logging.getLogger("events")
 
@@ -23,13 +25,30 @@ class AccountAdapter(DefaultAccountAdapter):
         return resolve_url(url)
 
     def is_safe_url(self, url: str | None) -> bool:
+        """Check if the redirect URL is a safe URL."""
+        # Is the domain valid?
         if not super().is_safe_url(url):
             return False
-        url = url or ""
-        path = urlparse(url).path
+
+        # Is this a known Django path?
+        path = urlparse(url or "").path
         try:
-            resolve(path)
+            resolve(path)  # Is this a known Django path?
             return True
         except Http404:
-            logger.error("No matching URL for '%s'", url)
-            return False
+            pass
+
+        # Is this a known frontend path?
+        try:
+            middleware = RelayStaticFilesMiddleware()
+        except Exception:
+            # Staticfiles are not available
+            pass
+        else:
+            found = middleware.find_file(path)
+            if found:
+                return True
+
+        # The path is invalid
+        logger.error("No matching URL for '%s'", url)
+        return False
