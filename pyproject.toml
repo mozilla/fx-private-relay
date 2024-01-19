@@ -9,7 +9,6 @@ strict = true
 # Disable these strict checks
 # Order is the recommended enabling order, from highest to lowest priority,
 # from mypy doc "Using mypy with an existing codebase"
-check_untyped_defs = false
 disallow_subclassing_any = false
 disallow_any_generics = false
 disallow_untyped_calls = false
@@ -61,4 +60,35 @@ module = [
 ignore_missing_imports = true
 module = [
     "silk",
+]
+
+[[tool.mypy.overrides]]
+# MPP-3698: Enumerate files where we still need this setting
+check_untyped_defs = false
+module = [
+    "api.authentication",
+    "api.serializers",
+    "api.tests.authentication_tests",
+    "api.tests.phones_views_tests",
+    "api.tests.views_tests",
+    "api.views",
+    "api.views.phones",
+    "emails.apps",
+    "emails.management.command_from_django_settings",
+    "emails.management.commands.check_health",
+    "emails.management.commands.process_emails_from_sqs",
+    "emails.models",
+    "emails.policy",
+    "emails.templatetags.email_extras",
+    "emails.tests.mgmt_process_emails_from_sqs_tests",
+    "emails.tests.models_tests",
+    "emails.tests.views_tests",
+    "emails.utils",
+    "phones.models",
+    "phones.tests.models_tests",
+    "privaterelay.allauth",
+    "privaterelay.tests.fxa_utils_tests",
+    "privaterelay.tests.mgmt_sync_phone_related_dates_on_profile_tests",
+    "privaterelay.tests.mgmt_update_phone_remaining_stats_tests",
+    "privaterelay.tests.views_tests",
 ]
