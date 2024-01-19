@@ -46,10 +46,10 @@ from .models import (
     Reply,
     address_hash,
     get_domain_numerical,
-    get_domains_from_settings,
 )
 from .policy import relay_policy
 from .types import (
+    AWS_MailJSON,
     AWS_SNSMessageJSON,
     OutgoingHeaders,
     EmailForwardingIssues,
@@ -57,12 +57,13 @@ from .types import (
 )
 from .utils import (
     _get_bucket_and_key_from_s3_json,
-    _store_reply_record,
     b64_lookup_key,
     count_all_trackers,
     decrypt_reply_metadata,
     derive_reply_keys,
+    encrypt_reply_metadata,
     generate_from_header,
+    get_domains_from_settings,
     get_message_content_from_s3,
     get_message_id_bytes,
     get_reply_to_address,
@@ -312,6 +313,30 @@ def wrapped_email_test(request: HttpRequest) -> HttpResponse:
         num_level_one_email_trackers_removed=num_level_one_email_trackers_removed,
     )
     return HttpResponse(wrapped_email)
+
+
+def _store_reply_record(
+    mail: AWS_MailJSON, message_id: str, address: RelayAddress | DomainAddress
+) -> AWS_MailJSON:
+    # After relaying email, store a Reply record for it
+    reply_metadata = {}
+    for header in mail["headers"]:
+        if header["name"].lower() in ["message-id", "from", "reply-to"]:
+            reply_metadata[header["name"].lower()] = header["value"]
+    message_id_bytes = get_message_id_bytes(message_id)
+    (lookup_key, encryption_key) = derive_reply_keys(message_id_bytes)
+    lookup = b64_lookup_key(lookup_key)
+    encrypted_metadata = encrypt_reply_metadata(encryption_key, reply_metadata)
+    reply_create_args: dict[str, Any] = {
+        "lookup": lookup,
+        "encrypted_metadata": encrypted_metadata,
+    }
+    if type(address) == DomainAddress:
+        reply_create_args["domain_address"] = address
+    elif type(address) == RelayAddress:
+        reply_create_args["relay_address"] = address
+    Reply.objects.create(**reply_create_args)
+    return mail
 
 
 @csrf_exempt

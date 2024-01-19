@@ -34,13 +34,6 @@ from privaterelay.plans import get_bundle_country_language_mapping
 from privaterelay.utils import get_countries_info_from_lang_and_mapping
 
 from .apps import EmailsConfig
-from .models import (
-    DomainAddress,
-    RelayAddress,
-    Reply,
-    get_domains_from_settings,
-)
-from .types import AWS_MailJSON
 
 
 logger = logging.getLogger("events")
@@ -58,6 +51,16 @@ TRACKER_FOLDER_PATH = EMAILS_FOLDER_PATH / "tracker_lists"
 
 def ses_message_props(data: str) -> ContentTypeDef:
     return {"Charset": "UTF-8", "Data": data}
+
+
+def get_domains_from_settings():
+    # HACK: detect if code is running in django tests
+    if "testserver" in settings.ALLOWED_HOSTS:
+        return {"RELAY_FIREFOX_DOMAIN": "default.com", "MOZMAIL_DOMAIN": "test.com"}
+    return {
+        "RELAY_FIREFOX_DOMAIN": settings.RELAY_FIREFOX_DOMAIN,
+        "MOZMAIL_DOMAIN": settings.MOZMAIL_DOMAIN,
+    }
 
 
 def get_trackers(level):
@@ -242,30 +245,6 @@ def ses_send_raw_email(
     except ClientError as e:
         logger.error("ses_client_error_raw_email", extra=e.response["Error"])
         raise
-
-
-def _store_reply_record(
-    mail: AWS_MailJSON, message_id: str, address: RelayAddress | DomainAddress
-) -> AWS_MailJSON:
-    # After relaying email, store a Reply record for it
-    reply_metadata = {}
-    for header in mail["headers"]:
-        if header["name"].lower() in ["message-id", "from", "reply-to"]:
-            reply_metadata[header["name"].lower()] = header["value"]
-    message_id_bytes = get_message_id_bytes(message_id)
-    (lookup_key, encryption_key) = derive_reply_keys(message_id_bytes)
-    lookup = b64_lookup_key(lookup_key)
-    encrypted_metadata = encrypt_reply_metadata(encryption_key, reply_metadata)
-    reply_create_args: dict[str, Any] = {
-        "lookup": lookup,
-        "encrypted_metadata": encrypted_metadata,
-    }
-    if type(address) == DomainAddress:
-        reply_create_args["domain_address"] = address
-    elif type(address) == RelayAddress:
-        reply_create_args["relay_address"] = address
-    Reply.objects.create(**reply_create_args)
-    return mail
 
 
 def urlize_and_linebreaks(text, autoescape=True):

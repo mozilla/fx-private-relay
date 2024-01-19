@@ -23,6 +23,10 @@ from rest_framework.authtoken.models import Token
 
 from api.exceptions import ErrorContextType, RelayAPIException
 from emails.apps import EmailsConfig
+from emails.utils import (
+    get_domains_from_settings,
+    incr_if_enabled,
+)
 from privaterelay.plans import get_premium_countries
 from privaterelay.utils import (
     AcceptLanguageError,
@@ -36,17 +40,6 @@ logger = logging.getLogger("events")
 abuse_logger = logging.getLogger("abusemetrics")
 
 BounceStatus = namedtuple("BounceStatus", "paused type")
-
-
-def get_domains_from_settings():
-    # HACK: detect if code is running in django tests
-    if "testserver" in settings.ALLOWED_HOSTS:
-        return {"RELAY_FIREFOX_DOMAIN": "default.com", "MOZMAIL_DOMAIN": "test.com"}
-    return {
-        "RELAY_FIREFOX_DOMAIN": settings.RELAY_FIREFOX_DOMAIN,
-        "MOZMAIL_DOMAIN": settings.MOZMAIL_DOMAIN,
-    }
-
 
 DOMAIN_CHOICES = [(1, "RELAY_FIREFOX_DOMAIN"), (2, "MOZMAIL_DOMAIN")]
 PREMIUM_DOMAINS = ["mozilla.com", "getpocket.com", "mozillafoundation.org"]
@@ -103,6 +96,8 @@ class Profile(models.Model):
     last_soft_bounce = models.DateTimeField(blank=True, null=True, db_index=True)
     last_hard_bounce = models.DateTimeField(blank=True, null=True, db_index=True)
     last_account_flagged = models.DateTimeField(blank=True, null=True, db_index=True)
+    num_deleted_relay_addresses = models.PositiveIntegerField(default=0)
+    num_deleted_domain_addresses = models.PositiveIntegerField(default=0)
     num_email_forwarded_in_deleted_address = models.PositiveIntegerField(default=0)
     num_email_blocked_in_deleted_address = models.PositiveIntegerField(default=0)
     num_level_one_trackers_blocked_in_deleted_address = models.PositiveIntegerField(
@@ -673,6 +668,7 @@ class RelayAddress(models.Model):
         ) + (self.num_level_one_trackers_blocked or 0)
         profile.num_email_replied_in_deleted_address += self.num_replied
         profile.num_email_spam_in_deleted_address += self.num_spam
+        profile.num_deleted_relay_addresses += 1
         profile.last_engagement = datetime.now(timezone.utc)
         profile.save()
         return super(RelayAddress, self).delete(*args, **kwargs)
@@ -825,10 +821,16 @@ class DomainAddress(models.Model):
                 self.address, self.domain_value, user_profile.subdomain
             )
             if not domain_address_valid:
+                if self.first_emailed_at:
+                    incr_if_enabled("domainaddress.create_via_email_fail")
                 raise DomainAddrUnavailableException(unavailable_address=self.address)
+
             user_profile.update_abuse_metric(address_created=True)
             user_profile.last_engagement = datetime.now(timezone.utc)
             user_profile.save(update_fields=["last_engagement"])
+            incr_if_enabled("domainaddress.create")
+            if self.first_emailed_at:
+                incr_if_enabled("domainaddress.create_via_email")
         if not user_profile.has_premium and self.block_list_emails:
             self.block_list_emails = False
             if update_fields:
@@ -865,14 +867,10 @@ class DomainAddress(models.Model):
             # Only check for bad words if randomly generated
         assert isinstance(address, str)
 
+        first_emailed_at = datetime.now(timezone.utc) if made_via_email else None
         domain_address = DomainAddress.objects.create(
-            user=user_profile.user,
-            address=address,
+            user=user_profile.user, address=address, first_emailed_at=first_emailed_at
         )
-        if made_via_email:
-            # update first_emailed_at indicating alias generation impromptu.
-            domain_address.first_emailed_at = datetime.now(timezone.utc)
-            domain_address.save()
         return domain_address
 
     def delete(self, *args, **kwargs):
@@ -899,6 +897,7 @@ class DomainAddress(models.Model):
         ) + (self.num_level_one_trackers_blocked or 0)
         profile.num_email_replied_in_deleted_address += self.num_replied
         profile.num_email_spam_in_deleted_address += self.num_spam
+        profile.num_deleted_domain_addresses += 1
         profile.last_engagement = datetime.now(timezone.utc)
         profile.save()
         return super(DomainAddress, self).delete(*args, **kwargs)
