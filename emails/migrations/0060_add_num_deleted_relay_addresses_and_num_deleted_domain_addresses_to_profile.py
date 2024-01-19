@@ -16,10 +16,6 @@ def add_db_default_forward_func(apps, schema_editor):
             ' ALTER COLUMN "num_deleted_relay_addresses" SET DEFAULT 0,'
             ' ALTER COLUMN "num_deleted_domain_addresses" SET DEFAULT 0;'
         )
-        schema_editor.execute(
-            'UPDATE "emails_profile"'
-            ' SET "num_deleted_relay_addresses" = 0, "num_deleted_domain_addresses" = 0;'
-        )
     elif schema_editor.connection.vendor.startswith("sqlite"):
         schema_editor.execute(
             """
