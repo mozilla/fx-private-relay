@@ -1,14 +1,13 @@
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 import logging
 
-
-from django.shortcuts import redirect, resolve_url
-from django.urls import reverse
-from django.urls.exceptions import NoReverseMatch
+from django.http import Http404
+from django.shortcuts import resolve_url
+from django.urls import resolve
 
 from allauth.account.adapter import DefaultAccountAdapter
 
-from . import urls
+from .middleware import RelayStaticFilesMiddleware
 
 
 logger = logging.getLogger("events")
@@ -25,10 +24,31 @@ class AccountAdapter(DefaultAccountAdapter):
         url += urlencode(utm_params)
         return resolve_url(url)
 
-    def is_safe_url(self, url):
+    def is_safe_url(self, url: str | None) -> bool:
+        """Check if the redirect URL is a safe URL."""
+        # Is the domain valid?
+        if not super().is_safe_url(url):
+            return False
+
+        # Is this a known Django path?
+        path = urlparse(url or "").path
         try:
-            reverse(url, urls)
+            resolve(path)  # Is this a known Django path?
             return True
-        except NoReverseMatch:
-            logger.error("NoReverseMatch for %s", url)
-        redirect("/")
+        except Http404:
+            pass
+
+        # Is this a known frontend path?
+        try:
+            middleware = RelayStaticFilesMiddleware()
+        except Exception:
+            # Staticfiles are not available
+            pass
+        else:
+            found = middleware.find_file(path)
+            if found:
+                return True
+
+        # The path is invalid
+        logger.error("No matching URL for '%s'", url)
+        return False
