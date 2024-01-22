@@ -7,6 +7,7 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db import IntegrityError
 from django.test import override_settings, TestCase
 
 from allauth.socialaccount.models import SocialAccount
@@ -1233,6 +1234,12 @@ class DomainAddressTest(TestCase):
         with pytest.raises(CannotMakeAddressException) as exc_info:
             DomainAddress.make_domain_address(user_profile, "test-nosubdomain")
         assert exc_info.value.get_codes() == "need_subdomain"
+
+    def test_make_domain_address_dupe_of_existing_raises(self):
+        address = "same-address"
+        DomainAddress.make_domain_address(self.user_profile, address=address)
+        with pytest.raises(IntegrityError):
+            DomainAddress.make_domain_address(self.user_profile, address=address)
 
     @override_flag("custom_domain_management_redesign", active=False)
     def test_make_domain_address_can_make_dupe_of_deleted(self):
