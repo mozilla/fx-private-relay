@@ -1377,7 +1377,7 @@ class DomainAddressTest(TestCase):
         domain_address = DomainAddress.objects.create(
             user=self.storageless_user, address="no-storage"
         )
-        assert domain_address.used_on == None
+        assert domain_address.used_on is None
         assert domain_address.description == ""
 
         # Use QuerySet.update to avoid model save method
