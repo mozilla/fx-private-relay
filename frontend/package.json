@@ -63,7 +63,7 @@
     "next": "^14.0.4",
     "prettier": "3.2.4",
     "react-test-renderer": "^18.2.0",
-    "sass": "^1.69.7",
+    "sass": "^1.70.0",
     "stylelint": "^16.2.0",
     "stylelint-config-recommended-scss": "^14.0.0",
     "stylelint-scss": "^6.1.0",
