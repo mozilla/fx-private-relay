@@ -37,10 +37,14 @@ def get_next_reset_date(profile: Profile) -> datetime:
     if profile.date_phone_subscription_reset is None:
         # there is a problem with the sync_phone_related_dates_on_profile
         # or a new foxfooder whose date_phone_subscription_reset did not get set in
+        if profile.fxa:
+            fxa_uid = profile.fxa.uid
+        else:
+            fxa_uid = "None"
         logger.error(
             "phone_user_profile_dates_not_set",
             extra={
-                "fxa_uid": profile.fxa.uid,
+                "fxa_uid": fxa_uid,
                 "date_subscribed_phone": profile.date_phone_subscription_end,
                 "date_phone_subscription_start": profile.date_phone_subscription_start,
                 "date_phone_subscription_reset": profile.date_phone_subscription_reset,
