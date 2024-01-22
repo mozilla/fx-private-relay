@@ -637,6 +637,25 @@ class DomainAddrUnavailableException(CannotMakeAddressException):
         return {"unavailable_address": self.unavailable_address}
 
 
+class DomainAddrDuplicateException(CannotMakeAddressException):
+    default_code = "duplicate_address"
+    default_detail_template = (
+        "“{duplicate_address}” already exists."
+        " Please try again with a different mask name."
+    )
+    status_code = 409
+
+    def __init__(self, duplicate_address: str, *args, **kwargs):
+        self.duplicate_address = duplicate_address
+        self.default_detail = self.default_detail_template.format(
+            duplicate_address=duplicate_address
+        )
+        super().__init__(*args, **kwargs)
+
+    def error_context(self) -> ErrorContextType:
+        return {"duplicate_address": self.duplicate_address}
+
+
 class RelayAddress(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     address = models.CharField(max_length=64, default=address_default, unique=True)
@@ -836,6 +855,11 @@ class DomainAddress(models.Model):
                 if self.first_emailed_at:
                     incr_if_enabled("domainaddress.create_via_email_fail")
                 raise DomainAddrUnavailableException(unavailable_address=self.address)
+
+            if DomainAddress.objects.filter(
+                user=self.user, address=self.address
+            ).exists():
+                raise DomainAddrDuplicateException(duplicate_address=self.address)
 
             user_profile.update_abuse_metric(address_created=True)
             user_profile.last_engagement = datetime.now(timezone.utc)

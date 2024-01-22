@@ -333,7 +333,14 @@ def test_post_domainaddress_conflict_existing(prem_api_client, premium_user):
     ret_data = response.json()
     # Add unicode characters to get around Fluent.js using unicode isolation. See:
     # https://github.com/projectfluent/fluent.js/wiki/Unicode-Isolation
-    assert ret_data == {"detail": "This domain address already exists."}
+    assert ret_data == {
+        "detail": (
+            "“\u2068my-new-alias\u2069” already exists."
+            " Please try again with a different mask name."
+        ),
+        "error_code": "duplicate_address",
+        "error_context": {"duplicate_address": "my-new-alias"},
+    }
 
 
 @pytest.mark.django_db(transaction=True)
