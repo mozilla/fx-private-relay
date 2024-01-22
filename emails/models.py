@@ -70,7 +70,8 @@ def valid_available_subdomain(subdomain, *args, **kwargs):
     return True
 
 
-# This historical function is referenced in migration 0029_profile_add_deleted_metric_and_changeserver_storage_default
+# This historical function is referenced in migration
+# 0029_profile_add_deleted_metric_and_changeserver_storage_default
 def default_server_storage():
     return True
 
@@ -87,7 +88,8 @@ class Profile(models.Model):
     num_address_deleted = models.PositiveIntegerField(default=0)
     date_subscribed = models.DateTimeField(blank=True, null=True)
     date_subscribed_phone = models.DateTimeField(blank=True, null=True)
-    # TODO: delete date_phone_subscription_checked in favor of date_phone_subscription_next_reset
+    # TODO MPP-2972: delete date_phone_subscription_checked in favor of
+    # date_phone_subscription_next_reset
     date_phone_subscription_checked = models.DateTimeField(blank=True, null=True)
     date_phone_subscription_start = models.DateTimeField(blank=True, null=True)
     date_phone_subscription_reset = models.DateTimeField(blank=True, null=True)
@@ -395,8 +397,9 @@ class Profile(models.Model):
         if self.subdomain is not None:
             raise CannotMakeSubdomainException("error-premium-cannot-change-subdomain")
         self.subdomain = subdomain
-        # The validator defined in the subdomain field does not get run in full_clean() when self.subdomain is "" or None
-        # So we need to run the validator again to catch these cases.
+        # The validator defined in the subdomain field does not get run in full_clean()
+        # when self.subdomain is "" or None, so we need to run the validator again to
+        # catch these cases.
         valid_available_subdomain(subdomain)
         self.full_clean()
         self.save()
@@ -411,7 +414,9 @@ class Profile(models.Model):
         email_forwarded=False,
         forwarded_email_size=0,
     ):
-        #  TODO: this should be wrapped in atomic to ensure race conditions are properly handled
+        # TODO MPP-3720: This should be wrapped in atomic or select_for_update to ensure
+        # race conditions are properly handled.
+
         # look for abuse metrics created on the same UTC date, regardless of time.
         midnight_utc_today = datetime.combine(
             datetime.now(timezone.utc).date(), datetime.min.time()
@@ -582,7 +587,8 @@ class RelayAddrFreeTierLimitException(CannotMakeAddressException):
     default_code = "free_tier_limit"
     default_detail_template = (
         "You’ve used all {free_tier_limit} email masks included with your free account."
-        "You can reuse an existing mask, but using a unique mask for each account is the most secure option."
+        " You can reuse an existing mask, but using a unique mask for each account is"
+        " the most secure option."
     )
     status_code = 403
 
@@ -599,7 +605,10 @@ class RelayAddrFreeTierLimitException(CannotMakeAddressException):
 
 class DomainAddrFreeTierException(CannotMakeAddressException):
     default_code = "free_tier_no_subdomain_masks"
-    default_detail = "Your free account does not include custom subdomains for masks. To create custom masks, upgrade to Relay Premium."
+    default_detail = (
+        "Your free account does not include custom subdomains for masks."
+        " To create custom masks, upgrade to Relay Premium."
+    )
     status_code = 403
 
 
@@ -611,7 +620,10 @@ class DomainAddrNeedSubdomainException(CannotMakeAddressException):
 
 class DomainAddrUnavailableException(CannotMakeAddressException):
     default_code = "address_unavailable"
-    default_detail_template = "“{unavailable_address}” could not be created. Please try again with a different mask name."
+    default_detail_template = (
+        "“{unavailable_address}” could not be created."
+        " Please try again with a different mask name."
+    )
     status_code = 400
 
     def __init__(self, unavailable_address: str, *args, **kwargs):
@@ -857,7 +869,6 @@ class DomainAddress(models.Model):
     ) -> "DomainAddress":
         check_user_can_make_domain_address(user_profile)
 
-        address_contains_badword = False
         if not address:
             # FIXME: if the alias is randomly generated and has bad words
             # we should retry like make_relay_address does
@@ -954,7 +965,7 @@ class AbuseMetrics(models.Model):
     num_replies_per_day = models.PositiveSmallIntegerField(default=0)
     # Values from 0 to 32767 are safe in all databases supported by Django.
     num_email_forwarded_per_day = models.PositiveSmallIntegerField(default=0)
-    # Values from 0 to 9223372036854775807 are safe in all databases supported by Django.
+    # Values from 0 to 9.2 exabytes are safe in all databases supported by Django.
     forwarded_email_size_per_day = models.PositiveBigIntegerField(default=0)
 
     class Meta:
