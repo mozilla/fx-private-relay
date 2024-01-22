@@ -10,17 +10,6 @@ class ConflictError(APIException):
     default_code = "conflict_error"
 
 
-class DomainAddressConflictError(ConflictError):
-    default_detail = "This domain address already exists."
-
-    def __init__(
-        self, existing_id: int | None = None, existing_address: str | None = None
-    ) -> None:
-        self.existing_id = existing_id
-        self.existing_address = existing_address
-        super().__init__()
-
-
 ErrorContextType = dict[str, Union[int, str]]
 
 

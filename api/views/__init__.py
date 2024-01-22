@@ -18,7 +18,6 @@ from typing import Any, Optional
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.db import IntegrityError
 
 import django_ftl
 from drf_spectacular.utils import OpenApiResponse, extend_schema
@@ -28,7 +27,6 @@ from rest_framework.exceptions import (
     ParseError,
 )
 from rest_framework.response import Response
-from rest_framework.serializers import BaseSerializer
 from rest_framework.views import exception_handler
 
 from allauth.account.adapter import get_adapter as get_account_adapter
@@ -64,7 +62,7 @@ from emails.models import (
 )
 
 from ..authentication import get_fxa_uid_from_oauth_token
-from ..exceptions import DomainAddressConflictError, RelayAPIException
+from ..exceptions import RelayAPIException
 from ..permissions import IsOwner, CanManageFlags
 from ..serializers import (
     DomainAddressSerializer,
@@ -153,20 +151,6 @@ class DomainAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
 
     def get_queryset(self):
         return DomainAddress.objects.filter(user=self.request.user)
-
-    def perform_create(self, serializer: BaseSerializer[DomainAddress]) -> None:
-        try:
-            serializer.save(user=self.request.user)
-        except IntegrityError:
-            assert isinstance(self.request.user, User)
-            domain_address = DomainAddress.objects.filter(
-                user=self.request.user, address=serializer.validated_data.get("address")
-            ).first()
-            existing_id = existing_address = None
-            if domain_address:
-                existing_id = domain_address.id
-                existing_address = domain_address.full_address
-            raise DomainAddressConflictError(existing_id, existing_address)
 
 
 class ProfileViewSet(viewsets.ModelViewSet):
