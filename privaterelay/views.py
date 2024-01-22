@@ -4,7 +4,6 @@ from hashlib import sha256
 from typing import Any, Iterable, Optional, TypedDict
 import json
 import logging
-import os
 
 from django.apps import apps
 from django.conf import settings
@@ -33,9 +32,10 @@ from emails.models import (
     valid_available_subdomain,
 )
 from emails.utils import incr_if_enabled
-from privaterelay.fxa_utils import _get_oauth2_session, NoSocialToken
 
 from .apps import PrivateRelayConfig
+from .fxa_utils import _get_oauth2_session, NoSocialToken
+from .utils import get_version_info
 
 
 FXA_PROFILE_CHANGE_EVENT = "https://schemas.accounts.firefox.com/event/profile-change"
@@ -97,27 +97,7 @@ def profile_subdomain(request):
 
 
 def version(request):
-    # If version.json is available (from Circle job), serve that
-    VERSION_JSON_PATH = os.path.join(settings.BASE_DIR, "version.json")
-    if os.path.isfile(VERSION_JSON_PATH):
-        with open(VERSION_JSON_PATH) as version_file:
-            return JsonResponse(json.load(version_file))
-
-    # Generate version.json contents
-    git_dir = os.path.join(settings.BASE_DIR, ".git")
-    with open(os.path.join(git_dir, "HEAD")) as head_file:
-        ref = head_file.readline().split(" ")[-1].strip()
-
-    with open(os.path.join(git_dir, ref)) as git_hash_file:
-        git_hash = git_hash_file.readline().strip()
-
-    version_data = {
-        "source": "https://github.com/groovecoder/private-relay",
-        "version": git_hash,
-        "commit": git_hash,
-        "build": "uri to CI build job",
-    }
-    return JsonResponse(version_data)
+    return JsonResponse(get_version_info())
 
 
 def heartbeat(request):

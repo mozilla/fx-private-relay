@@ -533,3 +533,15 @@ def test_fxa_rp_events_delete_user(
         da.address, da.user.profile.subdomain, da.domain_value
     )
     assert DeletedAddress.objects.filter(address_hash=da_address_hash).exists()
+
+
+def test_version_view(client, version_json_path) -> None:
+    version_info = {
+        "commit": "a_commit_hash",
+        "version": "2024.01.17.1",
+        "source": "https://github.com/mozilla/fx-private-relay",
+        "build": "https://circleci.com/gh/mozilla/fx-private-relay/200",
+    }
+    version_json_path.write_text(json.dumps(version_info))
+    response = client.get("/__version__")
+    assert response.json() == version_info
