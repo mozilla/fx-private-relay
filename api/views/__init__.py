@@ -13,7 +13,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.urls.exceptions import NoReverseMatch
 import requests
-from typing import Any, Optional
+from typing import Any
 
 from django.apps import apps
 from django.conf import settings
@@ -441,39 +441,17 @@ def first_forwarded_email(request):
     return response.Response(status=status.HTTP_201_CREATED)
 
 
-def relay_exception_handler(
-    exc: Exception, context: dict[str, Any]
-) -> Optional[Response]:
+def relay_exception_handler(exc: Exception, context: dict[str, Any]) -> Response | None:
     """
     Add error information to response data.
 
-    When the error is a RelayAPIException, these additional fields may be present and
-    the information will be translated if an Accept-Language header is added to the
-    request:
+    When the error is a RelayAPIException, fields may be changed or added:
 
-    error_code - A string identifying the error, for client-side translation
-    error_context - Additional data needed for client-side translation
+    detail - Translated to the best match from the request's Accept-Language header.
+    error_code - A string identifying the error, for client-side translation.
+    error_context - Additional data needed for client-side translation, if non-empty
     """
-
     response = exception_handler(exc, context)
-
     if response and isinstance(exc, RelayAPIException):
-        error_codes = exc.get_codes()
-        error_context = exc.error_context()
-        if isinstance(error_codes, str):
-            response.data["error_code"] = error_codes
-
-            # Build Fluent error ID
-            ftl_id_sub = "api-error-"
-            ftl_id_error = error_codes.replace("_", "-")
-            ftl_id = ftl_id_sub + ftl_id_error
-
-            # Replace default message with Fluent string
-            response.data["detail"] = ftl_bundle.format(ftl_id, error_context)
-
-        if error_context:
-            response.data["error_context"] = error_context
-
-        response.data["error_code"] = error_codes
-
+        response.data.update(exc.error_data())
     return response
