@@ -1,7 +1,7 @@
 from collections import namedtuple
 from datetime import datetime, timedelta, timezone
 from hashlib import sha256
-from typing import Optional, Iterable
+from typing import Iterable
 import logging
 import random
 import re
@@ -592,11 +592,8 @@ class RelayAddrFreeTierLimitException(CannotMakeAddressException):
     )
     status_code = 403
 
-    def __init__(self, free_tier_limit: Optional[int] = None, *args, **kwargs):
+    def __init__(self, free_tier_limit: int | None = None, *args, **kwargs):
         self.free_tier_limit = free_tier_limit or settings.MAX_NUM_FREE_ALIASES
-        self.default_detail = self.default_detail_template.format(
-            free_tier_limit=self.free_tier_limit
-        )
         super().__init__(*args, **kwargs)
 
     def error_context(self) -> ErrorContextType:
@@ -628,9 +625,6 @@ class DomainAddrUnavailableException(CannotMakeAddressException):
 
     def __init__(self, unavailable_address: str, *args, **kwargs):
         self.unavailable_address = unavailable_address
-        self.default_detail = self.default_detail_template.format(
-            unavailable_address=self.unavailable_address
-        )
         super().__init__(*args, **kwargs)
 
     def error_context(self) -> ErrorContextType:
@@ -647,9 +641,6 @@ class DomainAddrDuplicateException(CannotMakeAddressException):
 
     def __init__(self, duplicate_address: str, *args, **kwargs):
         self.duplicate_address = duplicate_address
-        self.default_detail = self.default_detail_template.format(
-            duplicate_address=duplicate_address
-        )
         super().__init__(*args, **kwargs)
 
     def error_context(self) -> ErrorContextType:
