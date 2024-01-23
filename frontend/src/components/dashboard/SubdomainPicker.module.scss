@@ -1,6 +1,7 @@
+@use "~@mozilla-protocol/core/protocol/css/includes/forms" as *;
+
 @import "../../styles/tokens.scss";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
 
 .card {
   border-radius: $border-radius-md;

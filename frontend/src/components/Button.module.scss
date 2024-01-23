@@ -1,6 +1,7 @@
+@use "~@mozilla-protocol/core/protocol/css/includes/forms" as *;
+
 @import "../styles/tokens.scss";
 @import "~@mozilla-protocol/core/protocol/css/includes/mixins/typography";
-@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
 
 .button {
   display: inline-flex;
