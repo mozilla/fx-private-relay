@@ -550,7 +550,7 @@ def test_version_view(client, version_json_path) -> None:
 @pytest.mark.django_db
 def test_heartbeat_view(client) -> None:
     response = client.get("/__heartbeat__")
-    assert response.status_code in (200, 500)
+    assert response.status_code == 200
     assert "status" in response.json()
 
 
