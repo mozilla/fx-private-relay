@@ -801,5 +801,8 @@ PROCESS_EMAIL_HEALTHCHECK_MAX_AGE = config(
 # Django 3.2 switches default to BigAutoField
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
+# python-dockerflow settings
+DOCKERFLOW_VERSION_CALLBACK = "privaterelay.utils.get_version_info"
+
 # Patching for django-types
 django_stubs_ext.monkeypatch()

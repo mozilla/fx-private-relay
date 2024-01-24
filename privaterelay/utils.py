@@ -488,9 +488,13 @@ class VersionInfo(TypedDict):
 
 
 @cache
-def get_version_info(version_json_path: Path | None = None) -> VersionInfo:
+def get_version_info(base_dir: str | Path | None = None) -> VersionInfo:
     """Return version information written by build process."""
-    version_json_path = version_json_path or (Path(settings.BASE_DIR) / "version.json")
+    if base_dir is None:
+        base_path = Path(settings.BASE_DIR)
+    else:
+        base_path = Path(base_dir)
+    version_json_path = base_path / "version.json"
     info = {}
     if version_json_path.exists():
         with version_json_path.open() as version_file:
