@@ -591,7 +591,7 @@ def test_flag_is_active_for_task_override_existing_to_inactive(
 def test_get_version_info_bad_contents(version_json_path, content: str | None) -> None:
     if content is not None:
         version_json_path.write_text(content)
-    info = get_version_info(version_json_path)
+    info = get_version_info()
     assert info == {
         "source": "https://github.com/mozilla/fx-private-relay",
         "version": "unknown",
