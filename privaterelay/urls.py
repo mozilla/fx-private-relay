@@ -23,10 +23,6 @@ from allauth.socialaccount.providers.fxa import views as fxa_views
 from . import views
 
 urlpatterns = [
-    # Dockerflow endpoint
-    path("__version__", views.version),
-    path("__heartbeat__", views.heartbeat),
-    path("__lbheartbeat__", views.lbheartbeat),
     # FXA endpoints
     path("fxa-rp-events", views.fxa_rp_events),
     path("metrics-event", views.metrics_event),
@@ -50,8 +46,6 @@ if settings.DEBUG:
         path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     ]
 if settings.USE_SILK:
-    import silk
-
     urlpatterns.append(path("silk/", include("silk.urls", namespace="silk")))
 
 if settings.ADMIN_ENABLED:

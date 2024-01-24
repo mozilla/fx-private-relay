@@ -7,7 +7,7 @@ import logging
 
 from django.apps import apps
 from django.conf import settings
-from django.db import IntegrityError, connections, transaction
+from django.db import IntegrityError, transaction
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -35,7 +35,6 @@ from emails.utils import incr_if_enabled
 
 from .apps import PrivateRelayConfig
 from .fxa_utils import _get_oauth2_session, NoSocialToken
-from .utils import get_version_info
 
 
 FXA_PROFILE_CHANGE_EVENT = "https://schemas.accounts.firefox.com/event/profile-change"
@@ -94,20 +93,6 @@ def profile_subdomain(request):
             )
     except CannotMakeSubdomainException as e:
         return JsonResponse({"message": e.message, "subdomain": subdomain}, status=400)
-
-
-def version(request):
-    return JsonResponse(get_version_info())
-
-
-def heartbeat(request):
-    db_conn = connections["default"]
-    assert db_conn.cursor()
-    return HttpResponse("200 OK", status=200)
-
-
-def lbheartbeat(request):
-    return HttpResponse("200 OK", status=200)
 
 
 @csrf_exempt
