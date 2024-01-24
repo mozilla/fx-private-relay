@@ -545,3 +545,16 @@ def test_version_view(client, version_json_path) -> None:
     version_json_path.write_text(json.dumps(version_info))
     response = client.get("/__version__")
     assert response.json() == version_info
+
+
+@pytest.mark.django_db
+def test_heartbeat_view(client) -> None:
+    response = client.get("/__heartbeat__")
+    assert response.status_code in (200, 500)
+    assert "status" in response.json()
+
+
+def test_lbheartbeat_view(client) -> None:
+    response = client.get("/__lbheartbeat__")
+    assert response.status_code == 200
+    assert response.content == b""
