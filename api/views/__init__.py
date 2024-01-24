@@ -13,12 +13,11 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.urls.exceptions import NoReverseMatch
 import requests
-from typing import Any, Optional
+from typing import Any
 
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.db import IntegrityError
 
 import django_ftl
 from drf_spectacular.utils import OpenApiResponse, extend_schema
@@ -63,7 +62,7 @@ from emails.models import (
 )
 
 from ..authentication import get_fxa_uid_from_oauth_token
-from ..exceptions import ConflictError, RelayAPIException
+from ..exceptions import RelayAPIException
 from ..permissions import IsOwner, CanManageFlags
 from ..serializers import (
     DomainAddressSerializer,
@@ -153,17 +152,6 @@ class DomainAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     def get_queryset(self):
         return DomainAddress.objects.filter(user=self.request.user)
 
-    def perform_create(self, serializer):
-        try:
-            serializer.save(user=self.request.user)
-        except IntegrityError:
-            domain_address = DomainAddress.objects.filter(
-                user=self.request.user, address=serializer.validated_data.get("address")
-            ).first()
-            raise ConflictError(
-                {"id": domain_address.id, "full_address": domain_address.full_address}
-            )
-
 
 class ProfileViewSet(viewsets.ModelViewSet):
     serializer_class = ProfileSerializer
@@ -190,10 +178,15 @@ class UserViewSet(viewsets.ModelViewSet):
             description="Accepted; returned when user already exists."
         ),
         400: OpenApiResponse(
-            description="Bad request; returned when request is missing Authorization: Bearer header or token value."
+            description=(
+                "Bad request; returned when request is missing Authorization: Bearer"
+                " header or token value."
+            )
         ),
         401: OpenApiResponse(
-            description="Unauthorized; returned when the FXA token is invalid or expired."
+            description=(
+                "Unauthorized; returned when the FXA token is invalid or expired."
+            )
         ),
     },
 )
@@ -207,7 +200,7 @@ def terms_accepted_user(request):
     See [API Auth doc][api-auth-doc] for details.
 
     [api-auth-doc]: https://github.com/mozilla/fx-private-relay/blob/main/docs/api_auth.md#firefox-oauth-token-authentication-and-accept-terms-of-service
-    """
+    """  # noqa: E501
     # Setting authentication_classes to empty due to
     # authentication still happening despite permissions being set to allowany
     # https://forum.djangoproject.com/t/solved-allowany-override-does-not-work-on-apiview/9754
@@ -223,8 +216,8 @@ def terms_accepted_user(request):
         fxa_uid = get_fxa_uid_from_oauth_token(token, use_cache=False)
     except AuthenticationFailed as e:
         # AuthenticationFailed exception returns 403 instead of 401 because we are not
-        # using the proper config that comes with the authentication_classes
-        # Read more: https://www.django-rest-framework.org/api-guide/authentication/#custom-authentication
+        # using the proper config that comes with the authentication_classes. See:
+        # https://www.django-rest-framework.org/api-guide/authentication/#custom-authentication
         return response.Response(
             data={"detail": e.detail.title()}, status=e.status_code
         )
@@ -251,25 +244,26 @@ def terms_accepted_user(request):
                 status=500,
             )
 
-        # this is not exactly the request object that FirefoxAccountsProvider expects, but
-        # it has all of the necssary attributes to initiatlize the Provider
+        # This is not exactly the request object that FirefoxAccountsProvider expects,
+        # but it has all of the necessary attributes to initialize the Provider
         provider = get_social_adapter().get_provider(request, "fxa")
         # This may not save the new user that was created
         # https://github.com/pennersr/django-allauth/blob/77368a84903d32283f07a260819893ec15df78fb/allauth/socialaccount/providers/base/provider.py#L44
         social_login = provider.sociallogin_from_response(
             request, fxa_profile_resp.json()
         )
-        # Complete social login is called by callback
-        # (see https://github.com/pennersr/django-allauth/blob/77368a84903d32283f07a260819893ec15df78fb/allauth/socialaccount/providers/oauth/views.py#L118)
-        # which is what we are mimicking to
-        # create new SocialAccount, User, and Profile for the new Relay user from Firefox
-        # Since this is a Resource Provider/Server flow and are NOT a Relying Party (RP) of FXA
-        # No social token information is stored (no Social Token object created).
+        # Complete social login is called by callback, see
+        # https://github.com/pennersr/django-allauth/blob/77368a84903d32283f07a260819893ec15df78fb/allauth/socialaccount/providers/oauth/views.py#L118
+        # for what we are mimicking to create new SocialAccount, User, and Profile for
+        # the new Relay user from Firefox Since this is a Resource Provider/Server flow
+        # and are NOT a Relying Party (RP) of FXA No social token information is stored
+        # (no Social Token object created).
         try:
             complete_social_login(request, social_login)
-            # complete_social_login writes ['account_verified_email', 'user_created', '_auth_user_id', '_auth_user_backend', '_auth_user_hash']
-            # on request.session which sets the cookie because complete_social_login does the "login"
-            # The user did not actually log in, logout to clear the session
+            # complete_social_login writes ['account_verified_email', 'user_created',
+            # '_auth_user_id', '_auth_user_backend', '_auth_user_hash'] on
+            # request.session which sets the cookie because complete_social_login does
+            # the "login" The user did not actually log in, logout to clear the session
             if request.user.is_authenticated:
                 get_account_adapter(request).logout(request)
         except NoReverseMatch as e:
@@ -447,38 +441,17 @@ def first_forwarded_email(request):
     return response.Response(status=status.HTTP_201_CREATED)
 
 
-def relay_exception_handler(
-    exc: Exception, context: dict[str, Any]
-) -> Optional[Response]:
+def relay_exception_handler(exc: Exception, context: dict[str, Any]) -> Response | None:
     """
     Add error information to response data.
 
-    When the error is a RelayAPIException, these additional fields may be present and
-    the information will be translated if an Accept-Language header is added to the request:
+    When the error is a RelayAPIException, fields may be changed or added:
 
-    error_code - A string identifying the error, for client-side translation
-    error_context - Additional data needed for client-side translation
+    detail - Translated to the best match from the request's Accept-Language header.
+    error_code - A string identifying the error, for client-side translation.
+    error_context - Additional data needed for client-side translation, if non-empty
     """
-
     response = exception_handler(exc, context)
-
     if response and isinstance(exc, RelayAPIException):
-        error_codes = exc.get_codes()
-        error_context = exc.error_context()
-        if isinstance(error_codes, str):
-            response.data["error_code"] = error_codes
-
-            # Build Fluent error ID
-            ftl_id_sub = "api-error-"
-            ftl_id_error = error_codes.replace("_", "-")
-            ftl_id = ftl_id_sub + ftl_id_error
-
-            # Replace default message with Fluent string
-            response.data["detail"] = ftl_bundle.format(ftl_id, error_context)
-
-        if error_context:
-            response.data["error_context"] = error_context
-
-        response.data["error_code"] = error_codes
-
+        response.data.update(exc.error_data())
     return response

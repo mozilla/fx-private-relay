@@ -22,6 +22,7 @@ from ..models import (
     CannotMakeSubdomainException,
     DeletedAddress,
     DomainAddress,
+    DomainAddrDuplicateException,
     DomainAddrUnavailableException,
     emails_config,
     get_domain_numerical,
@@ -1241,6 +1242,13 @@ class DomainAddressTest(TestCase):
             DomainAddress.make_domain_address(user_profile, "test-nosubdomain")
         assert exc_info.value.get_codes() == "need_subdomain"
 
+    def test_make_domain_address_dupe_of_existing_raises(self):
+        address = "same-address"
+        DomainAddress.make_domain_address(self.user_profile, address=address)
+        with pytest.raises(DomainAddrDuplicateException) as exc_info:
+            DomainAddress.make_domain_address(self.user_profile, address=address)
+        assert exc_info.value.get_codes() == "duplicate_address"
+
     @override_flag("custom_domain_management_redesign", active=False)
     def test_make_domain_address_can_make_dupe_of_deleted(self):
         address = "same-address"
@@ -1384,7 +1392,7 @@ class DomainAddressTest(TestCase):
         domain_address = DomainAddress.objects.create(
             user=self.storageless_user, address="no-storage"
         )
-        assert domain_address.used_on == None
+        assert domain_address.used_on is None
         assert domain_address.description == ""
 
         # Use QuerySet.update to avoid model save method
