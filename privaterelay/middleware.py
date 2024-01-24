@@ -1,7 +1,9 @@
 import time
+from collections.abc import Callable
 from datetime import UTC, datetime
 
 from django.conf import settings
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 
 import markus
@@ -51,24 +53,18 @@ class AddDetectedCountryToRequestAndResponseHeaders:
         return response
 
 
-def _get_metric_view_name(request):
-    if request.resolver_match:
-        view = request.resolver_match.func
-        return f"{view.__module__}.{view.__name__}"
-    return "<unknown_view>"
-
-
 class ResponseMetrics:
-    def __init__(self, get_response):
+    def __init__(self, get_response: Callable[[HttpRequest], HttpResponse]) -> None:
         self.get_response = get_response
 
-    def __call__(self, request):
+    def __call__(self, request: HttpRequest) -> HttpResponse:
+        if not settings.STATSD_ENABLED:
+            return self.get_response(request)
+
         start_time = time.time()
         response = self.get_response(request)
         delta = time.time() - start_time
-
-        view_name = _get_metric_view_name(request)
-
+        view_name = self._get_metric_view_name(request)
         metrics.timing(
             "response",
             value=delta * 1000.0,
@@ -78,8 +74,13 @@ class ResponseMetrics:
                 f"method:{request.method}",
             ],
         )
-
         return response
+
+    def _get_metric_view_name(self, request: HttpRequest) -> str:
+        if request.resolver_match:
+            view = request.resolver_match.func
+            return f"{view.__module__}.{view.__name__}"
+        return "<unknown_view>"
 
 
 class StoreFirstVisit:

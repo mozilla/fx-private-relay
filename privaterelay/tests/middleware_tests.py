@@ -1,19 +1,21 @@
 """Tests for Relay middlewares used in API and other server requests."""
 
 from django.test import Client
+
+import pytest
 from markus.testing import MetricsMock
 from pytest_django.fixtures import SettingsWrapper
-import pytest
 
 
 @pytest.fixture
 def response_metrics_settings(settings: SettingsWrapper) -> SettingsWrapper:
     # Use some middleware in the declared order
-    settings.MIDDLEWARE = [
+    use_middleware = {
         "privaterelay.middleware.ResponseMetrics",
         "privaterelay.middleware.RelayStaticFilesMiddleware",
         "dockerflow.django.middleware.DockerflowMiddleware",
-    ]
+    }
+    settings.MIDDLEWARE = [mw for mw in settings.MIDDLEWARE if mw in use_middleware]
     settings.STATSD_ENABLED = True
     return settings
 
@@ -79,3 +81,13 @@ def test_response_metrics_frontend_file(
         "fx.private.relay.response",
         tags=["status:200", "view:<unknown_view>", "method:GET"],
     )
+
+
+def test_response_metrics_disabled(
+    client: Client, response_metrics_settings: SettingsWrapper
+) -> None:
+    response_metrics_settings.STATSD_ENABLED = False
+    with MetricsMock() as mm:
+        response = client.get("/metrics-event")
+    assert response.status_code == 405
+    assert not mm.get_records()
