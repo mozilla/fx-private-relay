@@ -75,7 +75,6 @@ module = [
     "api.tests.views_tests",
     "api.views",
     "api.views.phones",
-    "emails.apps",
     "emails.management.command_from_django_settings",
     "emails.management.commands.check_health",
     "emails.management.commands.process_emails_from_sqs",
