@@ -13,7 +13,7 @@ import logging
 import re
 import shlex
 from textwrap import dedent
-from typing import Any, Literal, Optional
+from typing import Any, Literal
 from urllib.parse import urlencode
 
 from botocore.exceptions import ClientError
@@ -358,8 +358,8 @@ def sns_inbound(request):
 
 
 def validate_sns_arn_and_type(
-    topic_arn: str, message_type: str
-) -> Optional[dict[str, Any]]:
+    topic_arn: str | None, message_type: str | None
+) -> dict[str, Any] | None:
     """
     Validate Topic ARN and SNS Message Type.
 
@@ -380,9 +380,11 @@ def validate_sns_arn_and_type(
     if error:
         return {
             "error": error,
-            "received_topic_arn": shlex.quote(topic_arn),
+            "received_topic_arn": shlex.quote(topic_arn) if topic_arn else topic_arn,
             "supported_topic_arn": sorted(settings.AWS_SNS_TOPIC),
-            "received_sns_type": shlex.quote(message_type),
+            "received_sns_type": (
+                shlex.quote(message_type) if message_type else message_type
+            ),
             "supported_sns_types": SUPPORTED_SNS_TYPES,
         }
     return None

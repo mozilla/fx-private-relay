@@ -851,20 +851,22 @@ class BounceHandlingTest(TestCase):
     def setUp(self):
         self.user = baker.make(User, email="relayuser@test.com")
 
-    def test_sns_message_with_hard_bounce(self):
+    def test_sns_message_with_hard_bounce(self) -> None:
         pre_request_datetime = datetime.now(timezone.utc)
 
         _sns_notification(BOUNCE_SNS_BODIES["hard"])
 
         self.user.refresh_from_db()
+        assert self.user.profile.last_hard_bounce is not None
         assert self.user.profile.last_hard_bounce >= pre_request_datetime
 
-    def test_sns_message_with_soft_bounce(self):
+    def test_sns_message_with_soft_bounce(self) -> None:
         pre_request_datetime = datetime.now(timezone.utc)
 
         _sns_notification(BOUNCE_SNS_BODIES["soft"])
 
         self.user.refresh_from_db()
+        assert self.user.profile.last_soft_bounce is not None
         assert self.user.profile.last_soft_bounce >= pre_request_datetime
 
     def test_sns_message_with_spam_bounce_sets_auto_block_spam(self):
@@ -1477,30 +1479,33 @@ TEST_AWS_SNS_TOPIC2 = TEST_AWS_SNS_TOPIC + "-alt"
 
 @override_settings(AWS_SNS_TOPIC={TEST_AWS_SNS_TOPIC, TEST_AWS_SNS_TOPIC2})
 class ValidateSnsArnTypeTests(SimpleTestCase):
-    def test_valid_arn_and_type(self):
+    def test_valid_arn_and_type(self) -> None:
         ret = validate_sns_arn_and_type(TEST_AWS_SNS_TOPIC, "SubscriptionConfirmation")
         assert ret is None
 
-    def test_no_topic_arn(self):
+    def test_no_topic_arn(self) -> None:
         ret = validate_sns_arn_and_type(None, "Notification")
         assert ret == {
             "error": "Received SNS request without Topic ARN.",
-            "received_topic_arn": "''",
+            "received_topic_arn": None,
             "supported_topic_arn": [TEST_AWS_SNS_TOPIC, TEST_AWS_SNS_TOPIC2],
             "received_sns_type": "Notification",
             "supported_sns_types": ["SubscriptionConfirmation", "Notification"],
         }
 
-    def test_wrong_topic_arn(self):
+    def test_wrong_topic_arn(self) -> None:
         ret = validate_sns_arn_and_type(TEST_AWS_SNS_TOPIC + "-new", "Notification")
+        assert ret is not None
         assert ret["error"] == "Received SNS message for wrong topic."
 
-    def test_no_message_type(self):
+    def test_no_message_type(self) -> None:
         ret = validate_sns_arn_and_type(TEST_AWS_SNS_TOPIC2, None)
+        assert ret is not None
         assert ret["error"] == "Received SNS request without Message Type."
 
-    def test_unsupported_message_type(self):
+    def test_unsupported_message_type(self) -> None:
         ret = validate_sns_arn_and_type(TEST_AWS_SNS_TOPIC, "UnsubscribeConfirmation")
+        assert ret is not None
         assert ret["error"] == "Received SNS message for unsupported Type."
 
 

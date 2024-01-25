@@ -425,7 +425,7 @@ class RelayAddressTest(TestCase):
         assert relay_address.block_list_emails is True
 
         # Remove premium from user
-        fxa_account = self.premium_user.profile.fxa
+        assert (fxa_account := self.premium_user.profile.fxa) is not None
         fxa_account.extra_data["subscriptions"] = []
         fxa_account.save()
         assert not self.premium_user.profile.has_premium
@@ -1320,7 +1320,7 @@ class DomainAddressTest(TestCase):
             address_hash=domain_address_hash
         )
         assert deleted_address_qs.count() == 1
-        assert deleted_address_qs.first().address_hash == domain_address_hash
+        assert deleted_address_qs.get().address_hash == domain_address_hash
 
     def test_premium_user_can_set_block_list_emails(self):
         domain_address = DomainAddress.objects.create(
@@ -1371,7 +1371,7 @@ class DomainAddressTest(TestCase):
         assert domain_address.block_list_emails is True
 
         # Remove premium from user
-        fxa_account = self.user.profile.fxa
+        assert (fxa_account := self.user.profile.fxa) is not None
         fxa_account.extra_data["subscriptions"] = []
         fxa_account.save()
         assert not self.user.profile.has_premium
@@ -1426,7 +1426,7 @@ class DomainAddressTest(TestCase):
         )
 
         # Remove premium from user
-        fxa_account = self.user.profile.fxa
+        assert (fxa_account := self.user.profile.fxa) is not None
         fxa_account.extra_data["subscriptions"] = []
         fxa_account.save()
         assert not self.user.profile.has_premium

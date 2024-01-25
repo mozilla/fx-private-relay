@@ -71,8 +71,5 @@ module = [
     "api.tests.authentication_tests",
     "api.tests.phones_views_tests",
     "api.tests.views_tests",
-    "emails.tests.mgmt_process_emails_from_sqs_tests",
-    "emails.tests.models_tests",
-    "emails.tests.views_tests",
     "phones.tests.models_tests",
 ]
