@@ -71,5 +71,4 @@ module = [
     "api.tests.authentication_tests",
     "api.tests.phones_views_tests",
     "api.tests.views_tests",
-    "phones.tests.models_tests",
 ]
