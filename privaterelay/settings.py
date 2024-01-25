@@ -813,5 +813,8 @@ DOCKERFLOW_CHECKS = [
 if REDIS_URL:
     DOCKERFLOW_CHECKS.append("dockerflow.django.checks.check_redis_connected")
 
+# django-ftl settings
+AUTO_RELOAD_BUNDLES = False  # Requires pyinotify
+
 # Patching for django-types
 django_stubs_ext.monkeypatch()
