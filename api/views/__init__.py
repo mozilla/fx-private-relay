@@ -24,6 +24,7 @@ from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework.authentication import get_authorization_header
 from rest_framework.exceptions import (
     AuthenticationFailed,
+    ErrorDetail,
     ParseError,
 )
 from rest_framework.response import Response
@@ -85,6 +86,8 @@ FXA_PROFILE_URL = (
 
 class SaveToRequestUser:
     def perform_create(self, serializer):
+        assert hasattr(self, "request")
+        assert hasattr(self.request, "user")
         serializer.save(user=self.request.user)
 
 
@@ -118,6 +121,7 @@ class RelayAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     filterset_class = RelayAddressFilter
 
     def get_queryset(self):
+        assert isinstance(self.request.user, User)
         return RelayAddress.objects.filter(user=self.request.user)
 
 
@@ -150,6 +154,7 @@ class DomainAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     filterset_class = DomainAddressFilter
 
     def get_queryset(self):
+        assert isinstance(self.request.user, User)
         return DomainAddress.objects.filter(user=self.request.user)
 
 
@@ -159,6 +164,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "head", "put", "patch"]
 
     def get_queryset(self):
+        assert isinstance(self.request.user, User)
         return Profile.objects.filter(user=self.request.user)
 
 
@@ -168,6 +174,7 @@ class UserViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "head"]
 
     def get_queryset(self):
+        assert isinstance(self.request.user, User)
         return User.objects.filter(id=self.request.user.id)
 
 
@@ -218,9 +225,14 @@ def terms_accepted_user(request):
         # AuthenticationFailed exception returns 403 instead of 401 because we are not
         # using the proper config that comes with the authentication_classes. See:
         # https://www.django-rest-framework.org/api-guide/authentication/#custom-authentication
-        return response.Response(
-            data={"detail": e.detail.title()}, status=e.status_code
-        )
+        if isinstance(e.detail, ErrorDetail):
+            return response.Response(
+                data={"detail": e.detail.title()}, status=e.status_code
+            )
+        else:
+            return response.Response(
+                data={"detail": e.get_full_details()}, status=e.status_code
+            )
     status_code = 201
 
     try:
@@ -394,7 +406,7 @@ def first_forwarded_email(request):
     if not serializer.is_valid():
         return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    mask = serializer.data.get("mask")
+    mask = str(serializer.data.get("mask"))
     user = request.user
     try:
         address = _get_address(mask)
