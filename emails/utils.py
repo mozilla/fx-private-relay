@@ -1,3 +1,4 @@
+from __future__ import annotations
 import base64
 import contextlib
 from email.errors import InvalidHeaderDefect
@@ -5,7 +6,7 @@ from email.headerregistry import Address, AddressHeader
 from email.message import EmailMessage
 from email.utils import formataddr, parseaddr
 from functools import cache
-from typing import cast, Any, Callable, TypeVar
+from typing import cast, Any, Callable, TypeVar, TYPE_CHECKING
 import json
 import pathlib
 import re
@@ -33,8 +34,6 @@ from allauth.socialaccount.models import SocialAccount
 from privaterelay.plans import get_bundle_country_language_mapping
 from privaterelay.utils import get_countries_info_from_lang_and_mapping
 
-from .apps import EmailsConfig
-
 
 logger = logging.getLogger("events")
 info_logger = logging.getLogger("eventsinfo")
@@ -47,6 +46,18 @@ shavar_prod_lists_url = (
 )
 EMAILS_FOLDER_PATH = pathlib.Path(__file__).parent
 TRACKER_FOLDER_PATH = EMAILS_FOLDER_PATH / "tracker_lists"
+
+
+if TYPE_CHECKING:
+    from .apps import EmailsConfig
+
+
+def emails_config() -> EmailsConfig:
+    from .apps import EmailsConfig
+
+    emails_config = apps.get_app_config("emails")
+    assert isinstance(emails_config, EmailsConfig)
+    return emails_config
 
 
 def ses_message_props(data: str) -> ContentTypeDef:
@@ -143,8 +154,8 @@ def gauge_if_enabled(name, value, tags=None):
         metrics.gauge(name, value, tags)
 
 
-def get_email_domain_from_settings():
-    email_network_locality = urlparse(settings.SITE_ORIGIN).netloc
+def get_email_domain_from_settings() -> str:
+    email_network_locality = str(urlparse(settings.SITE_ORIGIN).netloc)
     # on dev server we need to add "mail" prefix
     # because we can’t publish MX records on Heroku
     if settings.RELAY_CHANNEL == "dev":
@@ -196,6 +207,7 @@ def _get_hero_img_src(lang_code):
     if major_lang in avail_l10n_image_codes:
         img_locale = major_lang
 
+    assert settings.SITE_ORIGIN
     return (
         settings.SITE_ORIGIN
         + f"/static/images/email-images/first-time-user/hero-image-{img_locale}.png"
@@ -226,9 +238,7 @@ def ses_send_raw_email(
     destination_address: str,
     message: EmailMessage,
 ) -> SendRawEmailResponseTypeDef:
-    emails_config = apps.get_app_config("emails")
-    assert isinstance(emails_config, EmailsConfig)
-    ses_client = emails_config.ses_client
+    ses_client = emails_config().ses_client
     assert ses_client
     assert settings.AWS_SES_CONFIGSET
 
@@ -393,7 +403,7 @@ def _get_bucket_and_key_from_s3_json(message_json):
 @time_if_enabled("s3_get_message_content")
 def get_message_content_from_s3(bucket, object_key):
     if bucket and object_key:
-        s3_client = apps.get_app_config("emails").s3_client
+        s3_client = emails_config().s3_client
         streamed_s3_object = s3_client.get_object(Bucket=bucket, Key=object_key).get(
             "Body"
         )
@@ -405,7 +415,7 @@ def remove_message_from_s3(bucket, object_key):
     if bucket is None or object_key is None:
         return False
     try:
-        s3_client = apps.get_app_config("emails").s3_client
+        s3_client = emails_config().s3_client
         response = s3_client.delete_object(Bucket=bucket, Key=object_key)
         return response.get("DeleteMarker")
     except ClientError as e:

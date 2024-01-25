@@ -2,13 +2,12 @@ from __future__ import annotations
 from collections import namedtuple
 from datetime import datetime, timedelta, timezone
 from hashlib import sha256
-from typing import Iterable, TYPE_CHECKING
+from typing import Iterable
 import logging
 import random
 import re
 import string
 import uuid
-from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import BadRequest
@@ -31,10 +30,7 @@ from privaterelay.utils import (
     guess_country_from_accept_lang,
 )
 
-from .utils import get_domains_from_settings, incr_if_enabled
-
-if TYPE_CHECKING:
-    from .apps import EmailsConfig
+from .utils import get_domains_from_settings, incr_if_enabled, emails_config
 
 
 logger = logging.getLogger("events")
@@ -44,14 +40,6 @@ BounceStatus = namedtuple("BounceStatus", "paused type")
 
 DOMAIN_CHOICES = [(1, "RELAY_FIREFOX_DOMAIN"), (2, "MOZMAIL_DOMAIN")]
 PREMIUM_DOMAINS = ["mozilla.com", "getpocket.com", "mozillafoundation.org"]
-
-
-def emails_config() -> EmailsConfig:
-    from .apps import EmailsConfig
-
-    emails_config = apps.get_app_config("emails")
-    assert isinstance(emails_config, EmailsConfig)
-    return emails_config
 
 
 def valid_available_subdomain(subdomain, *args, **kwargs):
