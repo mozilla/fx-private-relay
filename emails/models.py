@@ -1,7 +1,8 @@
+from __future__ import annotations
 from collections import namedtuple
 from datetime import datetime, timedelta, timezone
 from hashlib import sha256
-from typing import Iterable
+from typing import Iterable, TYPE_CHECKING
 import logging
 import random
 import re
@@ -23,17 +24,17 @@ from allauth.socialaccount.models import SocialAccount
 from rest_framework.authtoken.models import Token
 
 from api.exceptions import ErrorContextType, RelayAPIException
-from emails.apps import EmailsConfig
-from emails.utils import (
-    get_domains_from_settings,
-    incr_if_enabled,
-)
 from privaterelay.plans import get_premium_countries
 from privaterelay.utils import (
     AcceptLanguageError,
     flag_is_active_in_task,
     guess_country_from_accept_lang,
 )
+
+from .utils import get_domains_from_settings, incr_if_enabled
+
+if TYPE_CHECKING:
+    from .apps import EmailsConfig
 
 
 logger = logging.getLogger("events")
@@ -46,6 +47,8 @@ PREMIUM_DOMAINS = ["mozilla.com", "getpocket.com", "mozillafoundation.org"]
 
 
 def emails_config() -> EmailsConfig:
+    from .apps import EmailsConfig
+
     emails_config = apps.get_app_config("emails")
     assert isinstance(emails_config, EmailsConfig)
     return emails_config
