@@ -12,6 +12,7 @@ class PremiumValidatorsMixin:
     def validate_block_list_emails(self, value):
         if not value:
             return value
+        assert hasattr(self, "context")
         user = self.context["request"].user
         prefetch_related_objects([user], "socialaccount_set", "profile")
         if not user.profile.has_premium:
@@ -107,16 +108,25 @@ class DomainAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerialize
 
 class StrictReadOnlyFieldsMixin:
     """
-    Raises a validation error (400) if read only fields are in the body of PUT/PATCH requests.
+    Raises a validation error (400) if read only fields are in the body of PUT/PATCH
+    requests.
 
-    This class comes from https://github.com/encode/django-rest-framework/issues/1655#issuecomment-1197033853,
-    where different solutions to mitigating 200 response codes in read-only fields are discussed.
+    This class comes from
+    https://github.com/encode/django-rest-framework/issues/1655#issuecomment-1197033853,
+    where different solutions to mitigating 200 response codes in read-only fields are
+    discussed.
     """
 
     def validate(self, attrs):
-        attrs = super().validate(attrs)
-
-        if not hasattr(self, "initial_data"):
+        # Mixins and mypy make for weird code....
+        attrs = getattr(super(), "validate", lambda x: x)(attrs)
+        if not (
+            hasattr(self, "initial_data")
+            and hasattr(self, "fields")
+            and hasattr(self, "Meta")
+            and hasattr(self.Meta, "model")
+            and hasattr(self.Meta, "read_only_fields")
+        ):
             return attrs
 
         # Getting the declared read only fields and read only fields from Meta
@@ -124,8 +134,9 @@ class StrictReadOnlyFieldsMixin:
             field_name for field_name, field in self.fields.items() if field.read_only
         ).union(set(getattr(self.Meta, "read_only_fields", set())))
 
-        # Getting implicit read only fields that are in the Profile model, but were not defined in the serializer.
-        # By default, they won't update if put in the body of a request, but they still give a 200 response (which we don't want).
+        # Getting implicit read only fields that are in the Profile model, but were not
+        # defined in the serializer.  By default, they won't update if put in the body
+        # of a request, but they still give a 200 response (which we don't want).
         implicit_read_only_fields = set(
             field for field in vars(self.Meta.model) if field not in self.fields
         )
