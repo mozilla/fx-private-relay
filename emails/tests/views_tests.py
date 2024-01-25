@@ -541,11 +541,8 @@ class SNSNotificationTest(TestCase):
         assert self.ra.last_used_at is None
 
     @patch("emails.views.get_message_content_from_s3")
-    def test_reply(
-        self,
-        mock_get_content,
-        text: str = "this is a text reply",
-        expected_fixture_name: str = "s3_stored_replies",
+    def reply_test_implementation(
+        self, mock_get_content: Mock, text: str, expected_fixture_name: str
     ) -> str:
         """The headers of a reply refer to the Relay mask."""
 
@@ -608,9 +605,14 @@ class SNSNotificationTest(TestCase):
         assert relay_address.user.profile.last_engagement > pre_reply_last_engagement
         return email
 
+    def test_reply(self) -> None:
+        self.reply_test_implementation(
+            text="this is a text reply", expected_fixture_name="s3_stored_replies"
+        )
+
     def test_reply_with_emoji_in_text(self) -> None:
         """An email with emoji text content is sent with UTF-8 encoding."""
-        email = self.test_reply(
+        email = self.reply_test_implementation(
             text="👍 Thanks I got it!",
             expected_fixture_name="s3_stored_replies_with_emoji",
         )
