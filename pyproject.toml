@@ -85,7 +85,6 @@ module = [
     "emails.tests.models_tests",
     "emails.tests.views_tests",
     "emails.utils",
-    "phones.models",
     "phones.tests.models_tests",
     "privaterelay.tests.fxa_utils_tests",
     "privaterelay.tests.mgmt_sync_phone_related_dates_on_profile_tests",

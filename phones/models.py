@@ -1,6 +1,7 @@
+from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 from math import floor
-from typing import Iterator, Optional
+from typing import Iterator, Optional, TYPE_CHECKING
 import logging
 import phonenumbers
 import secrets
@@ -21,9 +22,13 @@ from twilio.base.exceptions import TwilioRestException
 from twilio.rest import Client
 
 from emails.utils import incr_if_enabled
-from phones.iq_utils import send_iq_sms
+
+from .iq_utils import send_iq_sms
 
 logger = logging.getLogger("eventsinfo")
+
+if TYPE_CHECKING:
+    from .apps import PhonesConfig
 
 
 MAX_MINUTES_TO_VERIFY_REAL_PHONE = 5
@@ -33,13 +38,17 @@ LAST_CONTACT_TYPE_CHOICES = [
 ]
 
 
-def twilio_client() -> Client:
+def phones_config() -> PhonesConfig:
     from .apps import PhonesConfig
 
     phones_config = apps.get_app_config("phones")
     assert isinstance(phones_config, PhonesConfig)
+    return phones_config
+
+
+def twilio_client() -> Client:
     assert not settings.PHONES_NO_CLIENT_CALLS_IN_TEST
-    return phones_config.twilio_client
+    return phones_config().twilio_client
 
 
 def verification_code_default():
@@ -278,13 +287,12 @@ class RelayNumber(models.Model):
 
         if use_twilio:
             # Before saving into DB provision the number in Twilio
-            phones_config = apps.get_app_config("phones")
             client = twilio_client()
 
             # Since this will charge the Twilio account, first see if this
             # is running with TEST creds to avoid charges.
             if settings.TWILIO_TEST_ACCOUNT_SID:
-                client = phones_config.twilio_test_client
+                client = phones_config().twilio_test_client
 
             twilio_incoming_number = client.incoming_phone_numbers.create(
                 phone_number=self.number,
@@ -392,6 +400,7 @@ def relaynumber_post_save(sender, instance, created, **kwargs):
 
 def send_welcome_message(user, relay_number):
     real_phone = RealPhone.objects.get(user=user)
+    assert settings.SITE_ORIGIN
     media_url = settings.SITE_ORIGIN + reverse(
         "vCard", kwargs={"lookup_key": relay_number.vcard_lookup_key}
     )
