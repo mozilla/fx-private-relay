@@ -68,7 +68,6 @@ module = [
 # MPP-3698: Enumerate files where we still need this setting
 check_untyped_defs = false
 module = [
-    "api.authentication",
     "api.serializers",
     "api.tests.authentication_tests",
     "api.tests.phones_views_tests",
