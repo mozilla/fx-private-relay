@@ -74,7 +74,6 @@ module = [
     "emails.management.command_from_django_settings",
     "emails.management.commands.check_health",
     "emails.management.commands.process_emails_from_sqs",
-    "emails.templatetags.email_extras",
     "emails.tests.mgmt_process_emails_from_sqs_tests",
     "emails.tests.models_tests",
     "emails.tests.views_tests",
