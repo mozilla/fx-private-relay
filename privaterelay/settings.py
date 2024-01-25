@@ -76,7 +76,7 @@ RELAY_CHANNEL: _RELAY_CHANNEL_NAME = cast(
 DEBUG = config("DEBUG", False, cast=bool)
 if DEBUG:
     INTERNAL_IPS = config("DJANGO_INTERNAL_IPS", default="", cast=Csv())
-IN_PYTEST = "pytest" in sys.modules
+IN_PYTEST: bool = "pytest" in sys.modules
 USE_SILK = DEBUG and HAS_SILK and not IN_PYTEST
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
@@ -370,8 +370,10 @@ TEMPLATES = [
     },
 ]
 
-RELAY_FIREFOX_DOMAIN = config("RELAY_FIREFOX_DOMAIN", "relay.firefox.com", cast=str)
-MOZMAIL_DOMAIN = config("MOZMAIL_DOMAIN", "mozmail.com", cast=str)
+RELAY_FIREFOX_DOMAIN: str = config(
+    "RELAY_FIREFOX_DOMAIN", "relay.firefox.com", cast=str
+)
+MOZMAIL_DOMAIN: str = config("MOZMAIL_DOMAIN", "mozmail.com", cast=str)
 MAX_NUM_FREE_ALIASES: int = config("MAX_NUM_FREE_ALIASES", 5, cast=int)
 PERIODICAL_PREMIUM_PROD_ID: str = config("PERIODICAL_PREMIUM_PROD_ID", "", cast=str)
 PREMIUM_PLAN_ID_US_MONTHLY: str = config(
@@ -392,11 +394,15 @@ BUNDLE_PLAN_ID_US: str = config(
     "BUNDLE_PLAN_ID_US", "price_1LwoSDJNcmPzuWtR6wPJZeoh", cast=str
 )
 
-SUBSCRIPTIONS_WITH_UNLIMITED = config(
+SUBSCRIPTIONS_WITH_UNLIMITED: list[str] = config(
     "SUBSCRIPTIONS_WITH_UNLIMITED", default="", cast=Csv()
 )
-SUBSCRIPTIONS_WITH_PHONE = config("SUBSCRIPTIONS_WITH_PHONE", default="", cast=Csv())
-SUBSCRIPTIONS_WITH_VPN = config("SUBSCRIPTIONS_WITH_VPN", default="", cast=Csv())
+SUBSCRIPTIONS_WITH_PHONE: list[str] = config(
+    "SUBSCRIPTIONS_WITH_PHONE", default="", cast=Csv()
+)
+SUBSCRIPTIONS_WITH_VPN: list[str] = config(
+    "SUBSCRIPTIONS_WITH_VPN", default="", cast=Csv()
+)
 
 MAX_ONBOARDING_AVAILABLE = config("MAX_ONBOARDING_AVAILABLE", 0, cast=int)
 MAX_ONBOARDING_FREE_AVAILABLE = config("MAX_ONBOARDING_FREE_AVAILABLE", 3, cast=int)
@@ -407,10 +413,12 @@ MAX_FORWARDED_PER_DAY = config("MAX_FORWARDED_PER_DAY", 1000, cast=int)
 MAX_FORWARDED_EMAIL_SIZE_PER_DAY = config(
     "MAX_FORWARDED_EMAIL_SIZE_PER_DAY", 1_000_000_000, cast=int
 )
-PREMIUM_FEATURE_PAUSED_DAYS = config("ACCOUNT_PREMIUM_FEATURE_PAUSED_DAYS", 1, cast=int)
+PREMIUM_FEATURE_PAUSED_DAYS: int = config(
+    "ACCOUNT_PREMIUM_FEATURE_PAUSED_DAYS", 1, cast=int
+)
 
-SOFT_BOUNCE_ALLOWED_DAYS = config("SOFT_BOUNCE_ALLOWED_DAYS", 1, cast=int)
-HARD_BOUNCE_ALLOWED_DAYS = config("HARD_BOUNCE_ALLOWED_DAYS", 30, cast=int)
+SOFT_BOUNCE_ALLOWED_DAYS: int = config("SOFT_BOUNCE_ALLOWED_DAYS", 1, cast=int)
+HARD_BOUNCE_ALLOWED_DAYS: int = config("HARD_BOUNCE_ALLOWED_DAYS", 30, cast=int)
 
 WSGI_APPLICATION = "privaterelay.wsgi.application"
 

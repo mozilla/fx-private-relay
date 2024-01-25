@@ -36,7 +36,6 @@ from privaterelay.utils import (
 )
 
 
-emails_config = apps.get_app_config("emails")
 logger = logging.getLogger("events")
 abuse_logger = logging.getLogger("abusemetrics")
 
@@ -44,6 +43,12 @@ BounceStatus = namedtuple("BounceStatus", "paused type")
 
 DOMAIN_CHOICES = [(1, "RELAY_FIREFOX_DOMAIN"), (2, "MOZMAIL_DOMAIN")]
 PREMIUM_DOMAINS = ["mozilla.com", "getpocket.com", "mozillafoundation.org"]
+
+
+def emails_config() -> EmailsConfig:
+    emails_config = apps.get_app_config("emails")
+    assert isinstance(emails_config, EmailsConfig)
+    return emails_config
 
 
 def valid_available_subdomain(subdomain, *args, **kwargs):
@@ -204,8 +209,10 @@ class Profile(models.Model):
         return False
 
     @property
-    def avatar(self):
-        return self.fxa.extra_data.get("avatar")
+    def avatar(self) -> str | None:
+        if fxa := self.fxa:
+            return str(fxa.extra_data.get("avatar"))
+        return None
 
     @property
     def relay_addresses(self):
@@ -259,10 +266,13 @@ class Profile(models.Model):
             return datetime.now(timezone.utc)
 
         if bounce_type == "soft":
+            assert self.last_soft_bounce
             return self.last_soft_bounce + timedelta(
                 days=settings.SOFT_BOUNCE_ALLOWED_DAYS
             )
 
+        assert bounce_type == "hard"
+        assert self.last_hard_bounce
         return self.last_hard_bounce + timedelta(days=settings.HARD_BOUNCE_ALLOWED_DAYS)
 
     @property
@@ -290,17 +300,21 @@ class Profile(models.Model):
         return None
 
     @property
-    def display_name(self):
+    def display_name(self) -> str | None:
         # if display name is not set on FxA the
         # displayName key will not exist on the extra_data
-        return self.fxa.extra_data.get("displayName")
+        if fxa := self.fxa:
+            name = fxa.extra_data.get("displayName")
+            return name if name is None else str(name)
+        return None
 
     @property
-    def custom_domain(self):
+    def custom_domain(self) -> str:
+        assert self.subdomain
         return f"@{self.subdomain}.{settings.MOZMAIL_DOMAIN}"
 
     @property
-    def has_premium(self):
+    def has_premium(self) -> bool:
         # FIXME: as we don't have all the tiers defined we are over-defining
         # this to mark the user as a premium user as well
         if not self.fxa:
@@ -315,7 +329,7 @@ class Profile(models.Model):
         return False
 
     @property
-    def has_phone(self):
+    def has_phone(self) -> bool:
         if not self.fxa:
             return False
         if settings.RELAY_CHANNEL != "prod" and not settings.IN_PYTEST:
@@ -415,7 +429,7 @@ class Profile(models.Model):
         replied=False,
         email_forwarded=False,
         forwarded_email_size=0,
-    ):
+    ) -> datetime | None:
         # TODO MPP-3720: This should be wrapped in atomic or select_for_update to ensure
         # race conditions are properly handled.
 
@@ -473,7 +487,7 @@ class Profile(models.Model):
             self.last_account_flagged = datetime.now(timezone.utc)
             self.save()
             data = {
-                "uid": self.fxa.uid,
+                "uid": self.fxa.uid if self.fxa else None,
                 "flagged": self.last_account_flagged.timestamp(),
                 "replies": abuse_metric.num_replies_per_day,
                 "addresses": abuse_metric.num_address_created_per_day,
@@ -524,8 +538,8 @@ def address_default():
     return "".join(random.choices(string.ascii_lowercase + string.digits, k=9))
 
 
-def has_bad_words(value):
-    for badword in emails_config.badwords:
+def has_bad_words(value) -> bool:
+    for badword in emails_config().badwords:
         badword = badword.strip()
         if len(badword) <= 4 and badword == value:
             return True
@@ -535,8 +549,7 @@ def has_bad_words(value):
 
 
 def is_blocklisted(value: str) -> bool:
-    assert isinstance(emails_config, EmailsConfig)
-    return any(blockedword == value for blockedword in emails_config.blocklist)
+    return any(blockedword == value for blockedword in emails_config().blocklist)
 
 
 def get_domain_numerical(domain_address):
@@ -968,6 +981,7 @@ class Reply(models.Model):
 
     def increment_num_replied(self):
         address = self.relay_address or self.domain_address
+        assert address
         address.num_replied += 1
         address.last_used_at = datetime.now(timezone.utc)
         address.save(update_fields=["num_replied", "last_used_at"])
