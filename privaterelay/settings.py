@@ -226,7 +226,7 @@ IQ_ENABLED = config("IQ_ENABLED", False, cast=bool)
 IQ_FOR_VERIFICATION = config("IQ_FOR_VERIFICATION", False, cast=bool)
 IQ_FOR_NEW_NUMBERS = config("IQ_FOR_NEW_NUMBERS", False, cast=bool)
 IQ_MAIN_NUMBER = config("IQ_MAIN_NUMBER", "")
-IQ_OUTBOUND_API_KEY: str | bool = config("IQ_OUTBOUND_API_KEY", "", cast=str)
+IQ_OUTBOUND_API_KEY: str = config("IQ_OUTBOUND_API_KEY", "")
 IQ_INBOUND_API_KEY = config("IQ_INBOUND_API_KEY", "")
 IQ_MESSAGE_API_ORIGIN = config(
     "IQ_MESSAGE_API_ORIGIN", "https://messagebroker.inteliquent.com"
@@ -370,29 +370,25 @@ TEMPLATES = [
     },
 ]
 
-RELAY_FIREFOX_DOMAIN: str = config(
-    "RELAY_FIREFOX_DOMAIN", "relay.firefox.com", cast=str
-)
-MOZMAIL_DOMAIN: str = config("MOZMAIL_DOMAIN", "mozmail.com", cast=str)
+RELAY_FIREFOX_DOMAIN: str = config("RELAY_FIREFOX_DOMAIN", "relay.firefox.com")
+MOZMAIL_DOMAIN: str = config("MOZMAIL_DOMAIN", "mozmail.com")
 MAX_NUM_FREE_ALIASES: int = config("MAX_NUM_FREE_ALIASES", 5, cast=int)
-PERIODICAL_PREMIUM_PROD_ID: str = config("PERIODICAL_PREMIUM_PROD_ID", "", cast=str)
+PERIODICAL_PREMIUM_PROD_ID: str = config("PERIODICAL_PREMIUM_PROD_ID", "")
 PREMIUM_PLAN_ID_US_MONTHLY: str = config(
-    "PREMIUM_PLAN_ID_US_MONTHLY", "price_1LXUcnJNcmPzuWtRpbNOajYS", cast=str
+    "PREMIUM_PLAN_ID_US_MONTHLY", "price_1LXUcnJNcmPzuWtRpbNOajYS"
 )
 PREMIUM_PLAN_ID_US_YEARLY: str = config(
-    "PREMIUM_PLAN_ID_US_YEARLY", "price_1LXUdlJNcmPzuWtRKTYg7mpZ", cast=str
+    "PREMIUM_PLAN_ID_US_YEARLY", "price_1LXUdlJNcmPzuWtRKTYg7mpZ"
 )
-PHONE_PROD_ID = config("PHONE_PROD_ID", "", cast=str)
+PHONE_PROD_ID = config("PHONE_PROD_ID", "")
 PHONE_PLAN_ID_US_MONTHLY: str = config(
-    "PHONE_PLAN_ID_US_MONTHLY", "price_1Li0w8JNcmPzuWtR2rGU80P3", cast=str
+    "PHONE_PLAN_ID_US_MONTHLY", "price_1Li0w8JNcmPzuWtR2rGU80P3"
 )
 PHONE_PLAN_ID_US_YEARLY: str = config(
-    "PHONE_PLAN_ID_US_YEARLY", "price_1Li15WJNcmPzuWtRIh0F4VwP", cast=str
+    "PHONE_PLAN_ID_US_YEARLY", "price_1Li15WJNcmPzuWtRIh0F4VwP"
 )
-BUNDLE_PROD_ID = config("BUNDLE_PROD_ID", "", cast=str)
-BUNDLE_PLAN_ID_US: str = config(
-    "BUNDLE_PLAN_ID_US", "price_1LwoSDJNcmPzuWtR6wPJZeoh", cast=str
-)
+BUNDLE_PROD_ID = config("BUNDLE_PROD_ID", "")
+BUNDLE_PLAN_ID_US: str = config("BUNDLE_PLAN_ID_US", "price_1LwoSDJNcmPzuWtR6wPJZeoh")
 
 SUBSCRIPTIONS_WITH_UNLIMITED: list[str] = config(
     "SUBSCRIPTIONS_WITH_UNLIMITED", default="", cast=Csv()
@@ -436,7 +432,7 @@ TEST_DB_NAME = config("TEST_DB_NAME", "")
 if TEST_DB_NAME:
     DATABASES["default"]["TEST"] = {"NAME": TEST_DB_NAME}
 
-REDIS_URL = config("REDIS_URL", "", cast=str)
+REDIS_URL = config("REDIS_URL", "")
 if REDIS_URL:
     CACHES = {
         "default": {
