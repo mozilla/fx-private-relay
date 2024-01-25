@@ -54,7 +54,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # defaulting to blank to be production-broken by default
-SECRET_KEY = config("SECRET_KEY", None, cast=str)
+SECRET_KEY = config("SECRET_KEY", None)
 SITE_ORIGIN: str | None = config("SITE_ORIGIN", None)
 
 _RELAY_CHANNEL_NAME = Literal["local", "dev", "stage", "prod"]
