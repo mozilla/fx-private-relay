@@ -20,6 +20,7 @@ https://github.com/python/cpython/blob/main/Lib/email/policy.py
 
 from email._header_value_parser import get_unstructured, InvalidMessageID
 from email.headerregistry import (
+    BaseHeader,
     MessageIDHeader as PythonMessageIDHeader,
     HeaderRegistry as PythonHeaderRegistry,
     UnstructuredHeader,
@@ -68,14 +69,15 @@ class RelayMessageIDHeader(PythonMessageIDHeader):
 class RelayHeaderRegistry(PythonHeaderRegistry):
     """Extend the HeaderRegistry to store the unstructured header."""
 
-    def __call__(self, name, value):
+    def __call__(self, name: str, value: str) -> BaseHeader:
         """Add the unstructured header as .as_unstructured."""
         header_instance = super().__call__(name, value)
         as_unstructured_cls = type(
             "_UnstructuredHeader", (UnstructuredHeader, self.base_class), {}
         )
         as_unstructured = as_unstructured_cls(name, value)
-        header_instance.as_unstructured = as_unstructured
+        # Avoid mypy attr-defined error for setting a dynamic attribute
+        setattr(header_instance, "as_unstructured", as_unstructured)
         return header_instance
 
 
