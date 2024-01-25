@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 from __future__ import annotations
 from pathlib import Path
-from typing import Any, Optional, TYPE_CHECKING
+from typing import Any, Literal, Optional, TYPE_CHECKING, cast, get_args
 import ipaddress
 import os
 import sys
@@ -57,14 +57,21 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 SECRET_KEY = config("SECRET_KEY", None, cast=str)
 SITE_ORIGIN: str | None = config("SITE_ORIGIN", None)
 
-ORIGIN_CHANNEL_MAP: dict[Optional[str], str] = {
+_RELAY_CHANNEL_NAME = Literal["local", "dev", "stage", "prod"]
+ORIGIN_CHANNEL_MAP: dict[str, _RELAY_CHANNEL_NAME] = {
     "http://127.0.0.1:8000": "local",
     "https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net": "dev",
     "https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net": "stage",
     "https://relay.firefox.com": "prod",
 }
-_DEFAULT_RELAY_CHANNEL = ORIGIN_CHANNEL_MAP.get(SITE_ORIGIN, "local")
-RELAY_CHANNEL = config("RELAY_CHANNEL", default=_DEFAULT_RELAY_CHANNEL)
+RELAY_CHANNEL: _RELAY_CHANNEL_NAME = cast(
+    _RELAY_CHANNEL_NAME,
+    config(
+        "RELAY_CHANNEL",
+        default=ORIGIN_CHANNEL_MAP.get(SITE_ORIGIN or "", "local"),
+        cast=Choices(get_args(_RELAY_CHANNEL_NAME), cast=str),
+    ),
+)
 
 DEBUG = config("DEBUG", False, cast=bool)
 if DEBUG:
