@@ -1,5 +1,6 @@
 import json
 import logging
+import shlex
 import sys
 import time
 
@@ -9,7 +10,8 @@ from botocore.exceptions import ClientError
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from emails.views import _sns_inbound_logic, validate_sns_arn_and_type, verify_from_sns
+from emails.sns import verify_from_sns
+from emails.views import _sns_inbound_logic, validate_sns_arn_and_type
 from emails.utils import incr_if_enabled
 
 
@@ -64,9 +66,11 @@ class Command(BaseCommand):
             for message in messages:
                 try:
                     _verify_and_run_sns_inbound_on_message(message)
-                except:
-                    exc_type, _, _ = sys.exc_info()
-                    logger.exception(f"dlq_processing_error_{exc_type}")
+                except Exception as e:
+                    logger.exception(
+                        f"dlq_processing_error_{type(e)}",
+                        extra={"exception": shlex.quote(str(e))},
+                    )
                 finally:
                     message.delete()
             messages = dl_queue.receive_messages(
