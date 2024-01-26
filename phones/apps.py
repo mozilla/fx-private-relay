@@ -4,7 +4,7 @@ from twilio.base.instance_resource import InstanceResource
 from twilio.request_validator import RequestValidator
 from twilio.rest import Client
 
-from django.apps import AppConfig
+from django.apps import apps, AppConfig
 from django.conf import settings
 from django.utils.functional import cached_property
 
@@ -44,3 +44,14 @@ class PhonesConfig(AppConfig):
         if not settings.TWILIO_AUTH_TOKEN:
             raise Exception("Must define TWILIO_AUTH_TOKEN")
         return RequestValidator(settings.TWILIO_AUTH_TOKEN)
+
+
+def phones_config() -> PhonesConfig:
+    phones_config = apps.get_app_config("phones")
+    assert isinstance(phones_config, PhonesConfig)
+    return phones_config
+
+
+def twilio_client() -> Client:
+    assert not settings.PHONES_NO_CLIENT_CALLS_IN_TEST
+    return phones_config().twilio_client

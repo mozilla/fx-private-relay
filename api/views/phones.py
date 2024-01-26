@@ -34,6 +34,7 @@ from api.views import SaveToRequestUser
 from emails.utils import incr_if_enabled
 from phones.iq_utils import send_iq_sms
 
+from phones.apps import phones_config, twilio_client
 from phones.models import (
     InboundContact,
     RealPhone,
@@ -47,8 +48,6 @@ from phones.models import (
     suggested_numbers,
     location_numbers,
     area_code_numbers,
-    twilio_client,
-    phones_config,
 )
 from privaterelay.ftl_bundles import main as ftl_bundle
 

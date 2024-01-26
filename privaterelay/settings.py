@@ -201,15 +201,15 @@ RECRUITMENT_EMAIL_BANNER_LINK = config("RECRUITMENT_EMAIL_BANNER_LINK", None)
 
 PHONES_ENABLED: bool = config("PHONES_ENABLED", False, cast=bool)
 PHONES_NO_CLIENT_CALLS_IN_TEST = False  # Override in tests that do not test clients
-TWILIO_ACCOUNT_SID = config("TWILIO_ACCOUNT_SID", None)
-TWILIO_AUTH_TOKEN = config("TWILIO_AUTH_TOKEN", None)
+TWILIO_ACCOUNT_SID: str | None = config("TWILIO_ACCOUNT_SID", None)
+TWILIO_AUTH_TOKEN: str | None = config("TWILIO_AUTH_TOKEN", None)
 TWILIO_MAIN_NUMBER: str | None = config("TWILIO_MAIN_NUMBER", None)
 TWILIO_SMS_APPLICATION_SID: str | None = config("TWILIO_SMS_APPLICATION_SID", None)
 TWILIO_MESSAGING_SERVICE_SID: list[str] = config(
     "TWILIO_MESSAGING_SERVICE_SID", "", cast=Csv()
 )
 TWILIO_TEST_ACCOUNT_SID: str | None = config("TWILIO_TEST_ACCOUNT_SID", None)
-TWILIO_TEST_AUTH_TOKEN = config("TWILIO_TEST_AUTH_TOKEN", None)
+TWILIO_TEST_AUTH_TOKEN: str | None = config("TWILIO_TEST_AUTH_TOKEN", None)
 TWILIO_ALLOWED_COUNTRY_CODES = set(
     code.upper() for code in config("TWILIO_ALLOWED_COUNTRY_CODES", "US,CA", cast=Csv())
 )

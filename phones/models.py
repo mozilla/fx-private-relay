@@ -1,13 +1,12 @@
 from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 from math import floor
-from typing import Iterator, Optional, TYPE_CHECKING
+from typing import Iterator, Optional
 import logging
 import phonenumbers
 import secrets
 import string
 
-from django.apps import apps
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.core.cache import cache
@@ -23,12 +22,10 @@ from twilio.rest import Client
 
 from emails.utils import incr_if_enabled
 
+from .apps import phones_config, twilio_client
 from .iq_utils import send_iq_sms
 
 logger = logging.getLogger("eventsinfo")
-
-if TYPE_CHECKING:
-    from .apps import PhonesConfig
 
 
 MAX_MINUTES_TO_VERIFY_REAL_PHONE = 5
@@ -36,19 +33,6 @@ LAST_CONTACT_TYPE_CHOICES = [
     ("call", "call"),
     ("text", "text"),
 ]
-
-
-def phones_config() -> PhonesConfig:
-    from .apps import PhonesConfig
-
-    phones_config = apps.get_app_config("phones")
-    assert isinstance(phones_config, PhonesConfig)
-    return phones_config
-
-
-def twilio_client() -> Client:
-    assert not settings.PHONES_NO_CLIENT_CALLS_IN_TEST
-    return phones_config().twilio_client
 
 
 def verification_code_default():
