@@ -17,3 +17,5 @@ state.json
 har/
 allure-results/
 allure-report/
+gcp_key.json
+version.json
