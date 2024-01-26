@@ -30,7 +30,8 @@ from privaterelay.utils import (
     guess_country_from_accept_lang,
 )
 
-from .utils import get_domains_from_settings, incr_if_enabled, emails_config
+from .apps import emails_config
+from .utils import get_domains_from_settings, incr_if_enabled
 
 
 logger = logging.getLogger("events")

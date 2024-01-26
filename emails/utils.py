@@ -6,7 +6,7 @@ from email.headerregistry import Address, AddressHeader
 from email.message import EmailMessage
 from email.utils import formataddr, parseaddr
 from functools import cache
-from typing import cast, Any, Callable, TypeVar, TYPE_CHECKING
+from typing import cast, Any, Callable, TypeVar
 import json
 import pathlib
 import re
@@ -24,7 +24,6 @@ import markus
 import logging
 from urllib.parse import quote_plus, urlparse
 
-from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.template.defaultfilters import linebreaksbr, urlize
@@ -34,6 +33,7 @@ from allauth.socialaccount.models import SocialAccount
 from privaterelay.plans import get_bundle_country_language_mapping
 from privaterelay.utils import get_countries_info_from_lang_and_mapping
 
+from .apps import s3_client, ses_client
 
 logger = logging.getLogger("events")
 info_logger = logging.getLogger("eventsinfo")
@@ -46,18 +46,6 @@ shavar_prod_lists_url = (
 )
 EMAILS_FOLDER_PATH = pathlib.Path(__file__).parent
 TRACKER_FOLDER_PATH = EMAILS_FOLDER_PATH / "tracker_lists"
-
-
-if TYPE_CHECKING:
-    from .apps import EmailsConfig
-
-
-def emails_config() -> EmailsConfig:
-    from .apps import EmailsConfig
-
-    emails_config = apps.get_app_config("emails")
-    assert isinstance(emails_config, EmailsConfig)
-    return emails_config
 
 
 def ses_message_props(data: str) -> ContentTypeDef:
@@ -238,13 +226,12 @@ def ses_send_raw_email(
     destination_address: str,
     message: EmailMessage,
 ) -> SendRawEmailResponseTypeDef:
-    ses_client = emails_config().ses_client
-    assert ses_client
+    assert (client := ses_client()) is not None
     assert settings.AWS_SES_CONFIGSET
 
     data = message.as_string()
     try:
-        ses_response = ses_client.send_raw_email(
+        ses_response = client.send_raw_email(
             Source=source_address,
             Destinations=[destination_address],
             RawMessage={"Data": data},
@@ -403,8 +390,8 @@ def _get_bucket_and_key_from_s3_json(message_json):
 @time_if_enabled("s3_get_message_content")
 def get_message_content_from_s3(bucket, object_key):
     if bucket and object_key:
-        s3_client = emails_config().s3_client
-        streamed_s3_object = s3_client.get_object(Bucket=bucket, Key=object_key).get(
+        assert (client := s3_client()) is not None
+        streamed_s3_object = client.get_object(Bucket=bucket, Key=object_key).get(
             "Body"
         )
         return streamed_s3_object.read()
@@ -415,8 +402,8 @@ def remove_message_from_s3(bucket, object_key):
     if bucket is None or object_key is None:
         return False
     try:
-        s3_client = emails_config().s3_client
-        response = s3_client.delete_object(Bucket=bucket, Key=object_key)
+        assert (client := s3_client()) is not None
+        response = client.delete_object(Bucket=bucket, Key=object_key)
         return response.get("DeleteMarker")
     except ClientError as e:
         if e.response["Error"].get("Code", "") == "NoSuchKey":
