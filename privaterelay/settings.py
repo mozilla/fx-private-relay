@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 from __future__ import annotations
 from pathlib import Path
-from typing import Any, Literal, Optional, TYPE_CHECKING, cast, get_args
+from typing import Any, Literal, TYPE_CHECKING, cast, get_args
 import ipaddress
 import os
 import sys
@@ -719,7 +719,7 @@ CIRCLE_SHA1 = config("CIRCLE_SHA1", "")
 CIRCLE_TAG = config("CIRCLE_TAG", "")
 CIRCLE_BRANCH = config("CIRCLE_BRANCH", "")
 
-sentry_release: Optional[str] = None
+sentry_release: str | None = None
 if SENTRY_RELEASE:
     sentry_release = SENTRY_RELEASE
 elif CIRCLE_TAG and CIRCLE_TAG != "unknown":
