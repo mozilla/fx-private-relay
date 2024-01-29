@@ -1,11 +1,13 @@
 """
 Tests for private_relay/management/commands/sync_phone_related_dates_on_profile.py
 """
+
 from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
 import pytest
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.management import call_command
 
 from allauth.socialaccount.models import SocialAccount
@@ -80,6 +82,21 @@ def test_phone_subscription_user_with_no_phone_subscription_data_does_not_get_up
     )
 
 
+def create_free_phones_flag_for_user(user: User):
+    """
+    Create the "free_phones" flag, and add the User to it.
+
+    This is necessary because we use (abuse?) the "free_phones" flag to allow test phone
+    accounts in stage and development, and the `override_flag` decorator doesn't work
+    because privaterelay.management.utils directly accesses the Flag table for
+    efficiency rather than use the django_waffle tools to check flag settings.
+    """
+    baker.make(Flag, name="free_phones")
+    free_phones_flag = Flag.objects.get(name="free_phones")
+    free_phones_flag.users.add(user)
+    free_phones_flag.save()
+
+
 @patch(f"{MOCK_BASE}.get_phone_subscription_dates")
 def test_free_phone_user_gets_only_date_phone_subscription_reset_field_updated(
     mocked_dates, patch_datetime_now, db
@@ -88,10 +105,8 @@ def test_free_phone_user_gets_only_date_phone_subscription_reset_field_updated(
     mocked_dates.return_value = (None, None, None)
     account: SocialAccount = baker.make(SocialAccount, provider="fxa")
     profile = Profile.objects.get(user=account.user)
-    baker.make(Flag, name="free_phones")
-    free_phones_flag = Flag.objects.get(name="free_phones")
-    free_phones_flag.users.add(profile.user)
-    free_phones_flag.save()
+    create_free_phones_flag_for_user(profile.user)
+
     num_profiles_updated = sync_phone_related_dates_on_profile("free")
 
     profile.refresh_from_db()
@@ -111,11 +126,8 @@ def test_free_phone_user_with_existing_date_phone_subscription_reset_field_does_
     account: SocialAccount = baker.make(SocialAccount, provider="fxa")
     profile = Profile.objects.get(user=account.user)
     profile.date_phone_subscription_reset = expected_now
-    baker.make(Flag, name="free_phones")
-    free_phones_flag = Flag.objects.get(name="free_phones")
-    free_phones_flag.users.add(profile.user)
     profile.save()
-    free_phones_flag.save()
+    create_free_phones_flag_for_user(profile.user)
 
     num_profiles_updated = sync_phone_related_dates_on_profile("free")
 
