@@ -28,6 +28,7 @@ Not applicable.
 
 # Checklist (Definition of Done)
 - [ ] Product Owner accepted the User Story (demo of functionality completed) or waived the privilege.
+- [ ] Customer Experience team has seen or waived a demo of functionality.
 - [ ] All acceptance criteria are met.
 - [ ] Jira ticket has been updated (if needed) to match changes made during the development process.
 - [ ] I've added or updated relevant docs in the docs/ directory
