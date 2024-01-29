@@ -43,7 +43,7 @@ pytest-django==4.7.0
 responses==0.24.1
 
 # linting
-black==23.12.1
+black==24.1.1
 
 # type hinting
 boto3-stubs==1.34.29
