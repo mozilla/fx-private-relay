@@ -1,4 +1,5 @@
 """Types for email functions"""
+
 from typing import Any, Literal, TypedDict
 
 # Headers for outgoing emails

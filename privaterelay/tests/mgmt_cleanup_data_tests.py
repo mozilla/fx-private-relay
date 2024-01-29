@@ -4,6 +4,7 @@ Tests for private_relay/management/commands/cleanup_data.py
 These tests run on an empty database, to check the command logic paths.
 Non-empty databases are tested in the cleaner tests.
 """
+
 from io import StringIO
 
 from django.core.management import call_command

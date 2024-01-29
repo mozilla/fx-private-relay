@@ -194,9 +194,11 @@ class Command(CommandFromDjangoSettings):
                 cycle_data["message_total"] = self.total_messages
                 cycle_data["cycle_s"] = round(cycle_timer.last, 3)
                 logger.log(
-                    logging.INFO
-                    if (message_batch or self.verbosity > 1)
-                    else logging.DEBUG,
+                    (
+                        logging.INFO
+                        if (message_batch or self.verbosity > 1)
+                        else logging.DEBUG
+                    ),
                     (
                         f"Cycle {self.cycles}: processed"
                         f" {self.pluralize(len(message_batch), 'message')}"

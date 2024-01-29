@@ -1,4 +1,5 @@
 """Tests for privaterelay/cleaners.py (shared functionality)"""
+
 import pytest
 
 from privaterelay.cleaners import DataIssueTask

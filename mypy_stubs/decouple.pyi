@@ -9,6 +9,7 @@ Changes:
 * Converted config from instance of callable AutoConfig to a function
 * Simplified interfaces of Csv and Choices to our usage
 """
+
 from collections.abc import Sequence
 from typing import Any, Callable, Generic, Optional, TypeVar, Union, overload
 

@@ -1,6 +1,7 @@
 """
 Tests for private_relay/management/commands/sync_phone_related_dates_on_profile.py
 """
+
 from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
 import pytest
