@@ -1,6 +1,7 @@
 """
 Tests for private_relay/management/commands/cleanup_data.py
 """
+
 from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
 import pytest

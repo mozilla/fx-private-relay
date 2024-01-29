@@ -1,6 +1,7 @@
 """
 Tests for private_relay/fxa_utils.py
 """
+
 from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
 import pytest
