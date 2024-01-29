@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 from __future__ import annotations
 from pathlib import Path
-from typing import Any, Optional, TYPE_CHECKING
+from typing import Any, Literal, TYPE_CHECKING, cast, get_args
 import ipaddress
 import os
 import sys
@@ -54,22 +54,29 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # defaulting to blank to be production-broken by default
-SECRET_KEY = config("SECRET_KEY", None, cast=str)
+SECRET_KEY = config("SECRET_KEY", None)
 SITE_ORIGIN: str | None = config("SITE_ORIGIN", None)
 
-ORIGIN_CHANNEL_MAP: dict[Optional[str], str] = {
+_RELAY_CHANNEL_NAME = Literal["local", "dev", "stage", "prod"]
+ORIGIN_CHANNEL_MAP: dict[str, _RELAY_CHANNEL_NAME] = {
     "http://127.0.0.1:8000": "local",
     "https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net": "dev",
     "https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net": "stage",
     "https://relay.firefox.com": "prod",
 }
-_DEFAULT_RELAY_CHANNEL = ORIGIN_CHANNEL_MAP.get(SITE_ORIGIN, "local")
-RELAY_CHANNEL = config("RELAY_CHANNEL", default=_DEFAULT_RELAY_CHANNEL)
+RELAY_CHANNEL: _RELAY_CHANNEL_NAME = cast(
+    _RELAY_CHANNEL_NAME,
+    config(
+        "RELAY_CHANNEL",
+        default=ORIGIN_CHANNEL_MAP.get(SITE_ORIGIN or "", "local"),
+        cast=Choices(get_args(_RELAY_CHANNEL_NAME), cast=str),
+    ),
+)
 
 DEBUG = config("DEBUG", False, cast=bool)
 if DEBUG:
     INTERNAL_IPS = config("DJANGO_INTERNAL_IPS", default="", cast=Csv())
-IN_PYTEST = "pytest" in sys.modules
+IN_PYTEST: bool = "pytest" in sys.modules
 USE_SILK = DEBUG and HAS_SILK and not IN_PYTEST
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
@@ -156,7 +163,7 @@ CSP_STYLE_SRC = tuple(csp_style_values)
 CSP_IMG_SRC = ["'self'"] + AVATAR_IMG_SRC
 REFERRER_POLICY = "strict-origin-when-cross-origin"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS: list[str] = []
 DJANGO_ALLOWED_HOSTS = config("DJANGO_ALLOWED_HOST", "", cast=Csv())
 if DJANGO_ALLOWED_HOSTS:
     ALLOWED_HOSTS += DJANGO_ALLOWED_HOSTS
@@ -194,19 +201,19 @@ RECRUITMENT_EMAIL_BANNER_LINK = config("RECRUITMENT_EMAIL_BANNER_LINK", None)
 
 PHONES_ENABLED: bool = config("PHONES_ENABLED", False, cast=bool)
 PHONES_NO_CLIENT_CALLS_IN_TEST = False  # Override in tests that do not test clients
-TWILIO_ACCOUNT_SID = config("TWILIO_ACCOUNT_SID", None)
-TWILIO_AUTH_TOKEN = config("TWILIO_AUTH_TOKEN", None)
-TWILIO_MAIN_NUMBER = config("TWILIO_MAIN_NUMBER", None)
-TWILIO_SMS_APPLICATION_SID = config("TWILIO_SMS_APPLICATION_SID", None)
+TWILIO_ACCOUNT_SID: str | None = config("TWILIO_ACCOUNT_SID", None)
+TWILIO_AUTH_TOKEN: str | None = config("TWILIO_AUTH_TOKEN", None)
+TWILIO_MAIN_NUMBER: str | None = config("TWILIO_MAIN_NUMBER", None)
+TWILIO_SMS_APPLICATION_SID: str | None = config("TWILIO_SMS_APPLICATION_SID", None)
 TWILIO_MESSAGING_SERVICE_SID: list[str] = config(
     "TWILIO_MESSAGING_SERVICE_SID", "", cast=Csv()
 )
-TWILIO_TEST_ACCOUNT_SID = config("TWILIO_TEST_ACCOUNT_SID", None)
-TWILIO_TEST_AUTH_TOKEN = config("TWILIO_TEST_AUTH_TOKEN", None)
+TWILIO_TEST_ACCOUNT_SID: str | None = config("TWILIO_TEST_ACCOUNT_SID", None)
+TWILIO_TEST_AUTH_TOKEN: str | None = config("TWILIO_TEST_AUTH_TOKEN", None)
 TWILIO_ALLOWED_COUNTRY_CODES = set(
     code.upper() for code in config("TWILIO_ALLOWED_COUNTRY_CODES", "US,CA", cast=Csv())
 )
-MAX_MINUTES_TO_VERIFY_REAL_PHONE = config(
+MAX_MINUTES_TO_VERIFY_REAL_PHONE: int = config(
     "MAX_MINUTES_TO_VERIFY_REAL_PHONE", 5, cast=int
 )
 MAX_TEXTS_PER_BILLING_CYCLE: int = config("MAX_TEXTS_PER_BILLING_CYCLE", 75, cast=int)
@@ -216,10 +223,10 @@ MAX_MINUTES_PER_BILLING_CYCLE: int = config(
 DAYS_PER_BILLING_CYCLE = config("DAYS_PER_BILLING_CYCLE", 30, cast=int)
 MAX_DAYS_IN_MONTH = 31
 IQ_ENABLED = config("IQ_ENABLED", False, cast=bool)
-IQ_FOR_VERIFICATION = config("IQ_FOR_VERIFICATION", False, cast=bool)
+IQ_FOR_VERIFICATION: bool = config("IQ_FOR_VERIFICATION", False, cast=bool)
 IQ_FOR_NEW_NUMBERS = config("IQ_FOR_NEW_NUMBERS", False, cast=bool)
-IQ_MAIN_NUMBER = config("IQ_MAIN_NUMBER", "")
-IQ_OUTBOUND_API_KEY: str | bool = config("IQ_OUTBOUND_API_KEY", "", cast=str)
+IQ_MAIN_NUMBER: str = config("IQ_MAIN_NUMBER", "")
+IQ_OUTBOUND_API_KEY: str = config("IQ_OUTBOUND_API_KEY", "")
 IQ_INBOUND_API_KEY = config("IQ_INBOUND_API_KEY", "")
 IQ_MESSAGE_API_ORIGIN = config(
     "IQ_MESSAGE_API_ORIGIN", "https://messagebroker.inteliquent.com"
@@ -229,7 +236,7 @@ IQ_PUBLISH_MESSAGE_URL: str = f"{IQ_MESSAGE_API_ORIGIN}{IQ_MESSAGE_PATH}"
 
 DJANGO_STATSD_ENABLED = config("DJANGO_STATSD_ENABLED", False, cast=bool)
 STATSD_DEBUG = config("STATSD_DEBUG", False, cast=bool)
-STATSD_ENABLED = DJANGO_STATSD_ENABLED or STATSD_DEBUG
+STATSD_ENABLED: bool = DJANGO_STATSD_ENABLED or STATSD_DEBUG
 STATSD_HOST = config("DJANGO_STATSD_HOST", "127.0.0.1")
 STATSD_PORT = config("DJANGO_STATSD_PORT", "8125")
 STATSD_PREFIX = config("DJANGO_STATSD_PREFIX", "fx.private.relay")
@@ -363,33 +370,35 @@ TEMPLATES = [
     },
 ]
 
-RELAY_FIREFOX_DOMAIN = config("RELAY_FIREFOX_DOMAIN", "relay.firefox.com", cast=str)
-MOZMAIL_DOMAIN = config("MOZMAIL_DOMAIN", "mozmail.com", cast=str)
+RELAY_FIREFOX_DOMAIN: str = config("RELAY_FIREFOX_DOMAIN", "relay.firefox.com")
+MOZMAIL_DOMAIN: str = config("MOZMAIL_DOMAIN", "mozmail.com")
 MAX_NUM_FREE_ALIASES: int = config("MAX_NUM_FREE_ALIASES", 5, cast=int)
-PERIODICAL_PREMIUM_PROD_ID: str = config("PERIODICAL_PREMIUM_PROD_ID", "", cast=str)
+PERIODICAL_PREMIUM_PROD_ID: str = config("PERIODICAL_PREMIUM_PROD_ID", "")
 PREMIUM_PLAN_ID_US_MONTHLY: str = config(
-    "PREMIUM_PLAN_ID_US_MONTHLY", "price_1LXUcnJNcmPzuWtRpbNOajYS", cast=str
+    "PREMIUM_PLAN_ID_US_MONTHLY", "price_1LXUcnJNcmPzuWtRpbNOajYS"
 )
 PREMIUM_PLAN_ID_US_YEARLY: str = config(
-    "PREMIUM_PLAN_ID_US_YEARLY", "price_1LXUdlJNcmPzuWtRKTYg7mpZ", cast=str
+    "PREMIUM_PLAN_ID_US_YEARLY", "price_1LXUdlJNcmPzuWtRKTYg7mpZ"
 )
-PHONE_PROD_ID = config("PHONE_PROD_ID", "", cast=str)
+PHONE_PROD_ID = config("PHONE_PROD_ID", "")
 PHONE_PLAN_ID_US_MONTHLY: str = config(
-    "PHONE_PLAN_ID_US_MONTHLY", "price_1Li0w8JNcmPzuWtR2rGU80P3", cast=str
+    "PHONE_PLAN_ID_US_MONTHLY", "price_1Li0w8JNcmPzuWtR2rGU80P3"
 )
 PHONE_PLAN_ID_US_YEARLY: str = config(
-    "PHONE_PLAN_ID_US_YEARLY", "price_1Li15WJNcmPzuWtRIh0F4VwP", cast=str
+    "PHONE_PLAN_ID_US_YEARLY", "price_1Li15WJNcmPzuWtRIh0F4VwP"
 )
-BUNDLE_PROD_ID = config("BUNDLE_PROD_ID", "", cast=str)
-BUNDLE_PLAN_ID_US: str = config(
-    "BUNDLE_PLAN_ID_US", "price_1LwoSDJNcmPzuWtR6wPJZeoh", cast=str
-)
+BUNDLE_PROD_ID = config("BUNDLE_PROD_ID", "")
+BUNDLE_PLAN_ID_US: str = config("BUNDLE_PLAN_ID_US", "price_1LwoSDJNcmPzuWtR6wPJZeoh")
 
-SUBSCRIPTIONS_WITH_UNLIMITED = config(
+SUBSCRIPTIONS_WITH_UNLIMITED: list[str] = config(
     "SUBSCRIPTIONS_WITH_UNLIMITED", default="", cast=Csv()
 )
-SUBSCRIPTIONS_WITH_PHONE = config("SUBSCRIPTIONS_WITH_PHONE", default="", cast=Csv())
-SUBSCRIPTIONS_WITH_VPN = config("SUBSCRIPTIONS_WITH_VPN", default="", cast=Csv())
+SUBSCRIPTIONS_WITH_PHONE: list[str] = config(
+    "SUBSCRIPTIONS_WITH_PHONE", default="", cast=Csv()
+)
+SUBSCRIPTIONS_WITH_VPN: list[str] = config(
+    "SUBSCRIPTIONS_WITH_VPN", default="", cast=Csv()
+)
 
 MAX_ONBOARDING_AVAILABLE = config("MAX_ONBOARDING_AVAILABLE", 0, cast=int)
 MAX_ONBOARDING_FREE_AVAILABLE = config("MAX_ONBOARDING_FREE_AVAILABLE", 3, cast=int)
@@ -400,10 +409,12 @@ MAX_FORWARDED_PER_DAY = config("MAX_FORWARDED_PER_DAY", 1000, cast=int)
 MAX_FORWARDED_EMAIL_SIZE_PER_DAY = config(
     "MAX_FORWARDED_EMAIL_SIZE_PER_DAY", 1_000_000_000, cast=int
 )
-PREMIUM_FEATURE_PAUSED_DAYS = config("ACCOUNT_PREMIUM_FEATURE_PAUSED_DAYS", 1, cast=int)
+PREMIUM_FEATURE_PAUSED_DAYS: int = config(
+    "ACCOUNT_PREMIUM_FEATURE_PAUSED_DAYS", 1, cast=int
+)
 
-SOFT_BOUNCE_ALLOWED_DAYS = config("SOFT_BOUNCE_ALLOWED_DAYS", 1, cast=int)
-HARD_BOUNCE_ALLOWED_DAYS = config("HARD_BOUNCE_ALLOWED_DAYS", 30, cast=int)
+SOFT_BOUNCE_ALLOWED_DAYS: int = config("SOFT_BOUNCE_ALLOWED_DAYS", 1, cast=int)
+HARD_BOUNCE_ALLOWED_DAYS: int = config("HARD_BOUNCE_ALLOWED_DAYS", 30, cast=int)
 
 WSGI_APPLICATION = "privaterelay.wsgi.application"
 
@@ -421,7 +432,7 @@ TEST_DB_NAME = config("TEST_DB_NAME", "")
 if TEST_DB_NAME:
     DATABASES["default"]["TEST"] = {"NAME": TEST_DB_NAME}
 
-REDIS_URL = config("REDIS_URL", "", cast=str)
+REDIS_URL = config("REDIS_URL", "")
 if REDIS_URL:
     CACHES = {
         "default": {
@@ -708,7 +719,7 @@ CIRCLE_SHA1 = config("CIRCLE_SHA1", "")
 CIRCLE_TAG = config("CIRCLE_TAG", "")
 CIRCLE_BRANCH = config("CIRCLE_BRANCH", "")
 
-sentry_release: Optional[str] = None
+sentry_release: str | None = None
 if SENTRY_RELEASE:
     sentry_release = SENTRY_RELEASE
 elif CIRCLE_TAG and CIRCLE_TAG != "unknown":
@@ -812,6 +823,9 @@ DOCKERFLOW_CHECKS = [
 ]
 if REDIS_URL:
     DOCKERFLOW_CHECKS.append("dockerflow.django.checks.check_redis_connected")
+
+# django-ftl settings
+AUTO_RELOAD_BUNDLES = False  # Requires pyinotify
 
 # Patching for django-types
 django_stubs_ext.monkeypatch()

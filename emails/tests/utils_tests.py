@@ -6,9 +6,9 @@ from unittest.mock import patch
 import json
 import pytest
 
-from emails.models import get_domains_from_settings
 from emails.utils import (
     generate_from_header,
+    get_domains_from_settings,
     get_email_domain_from_settings,
     parse_email_header,
     remove_trackers,

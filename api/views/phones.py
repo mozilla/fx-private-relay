@@ -4,14 +4,14 @@ import hashlib
 import logging
 import re
 import string
-from typing import Any, Literal, Optional
+from typing import Any, Literal
 
 from waffle import get_waffle_flag_model
 import django_ftl
 import phonenumbers
 
-from django.apps import apps
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms import model_to_dict
 
@@ -34,6 +34,7 @@ from api.views import SaveToRequestUser
 from emails.utils import incr_if_enabled
 from phones.iq_utils import send_iq_sms
 
+from phones.apps import phones_config, twilio_client
 from phones.models import (
     InboundContact,
     RealPhone,
@@ -47,7 +48,6 @@ from phones.models import (
     suggested_numbers,
     location_numbers,
     area_code_numbers,
-    twilio_client,
 )
 from privaterelay.ftl_bundles import main as ftl_bundle
 
@@ -69,14 +69,11 @@ info_logger = logging.getLogger("eventsinfo")
 
 
 def twilio_validator():
-    phones_config = apps.get_app_config("phones")
-    validator = phones_config.twilio_validator
-    return validator
+    return phones_config().twilio_validator
 
 
 def twiml_app():
-    phones_config = apps.get_app_config("phones")
-    return phones_config.twiml_app
+    return phones_config().twiml_app
 
 
 class RealPhoneRateThrottle(throttling.UserRateThrottle):
@@ -103,6 +100,7 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     throttle_classes = [RealPhoneRateThrottle]
 
     def get_queryset(self):
+        assert isinstance(self.request.user, User)
         return RealPhone.objects.filter(user=self.request.user)
 
     def create(self, request):
@@ -263,6 +261,7 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     serializer_class = RelayNumberSerializer
 
     def get_queryset(self):
+        assert isinstance(self.request.user, User)
         return RelayNumber.objects.filter(user=self.request.user)
 
     def create(self, request, *args, **kwargs):
@@ -924,13 +923,15 @@ class RelaySMSException(Exception):
     """
     Base class for exceptions when handling SMS messages.
 
-    Modeled after restframework.APIExcpetion, but without a status_code.
+    Modeled after restframework.APIException, but without a status_code.
+
+    TODO MPP-3722: Refactor to a common base class with api.exceptions.RelayAPIException
     """
 
     critical: bool
     default_code: str
-    default_detail: Optional[str] = None
-    default_detail_template: Optional[str] = None
+    default_detail: str | None = None
+    default_detail_template: str | None = None
 
     def __init__(self, critical=False, *args, **kwargs):
         self.critical = critical
@@ -944,6 +945,7 @@ class RelaySMSException(Exception):
         if self.default_detail:
             return self.default_detail
         else:
+            assert self.default_detail_template is not None
             return self.default_detail_template.format(**self.error_context())
 
     def get_codes(self):
@@ -1059,7 +1061,7 @@ def _prepare_sms_reply(
         raise MultipleNumberMatches(short_prefix=match.detected)
 
     # Determine the destination number
-    destination_number: Optional[str] = None
+    destination_number: str | None = None
     if match:
         # Use the sender matched by the prefix
         assert len(match.contacts) == 1
@@ -1110,9 +1112,7 @@ class MatchData(MatchByPrefix):
     contacts: list[InboundContact] = field(default_factory=list)
 
 
-def _match_senders_by_prefix(
-    relay_number: RelayNumber, text: str
-) -> Optional[MatchData]:
+def _match_senders_by_prefix(relay_number: RelayNumber, text: str) -> MatchData | None:
     """
     Match a prefix to previous InboundContact(s).
 
@@ -1166,7 +1166,7 @@ _SMS_SHORT_PREFIX_RE = re.compile(
 _SMS_SEPARATORS = set(":")  # Sync with SMS_SHORT_PREFIX_RE above
 
 
-def _match_by_prefix(text: str, candidate_numbers: set[str]) -> Optional[MatchByPrefix]:
+def _match_by_prefix(text: str, candidate_numbers: set[str]) -> MatchByPrefix | None:
     """
     Look for a prefix in a text message matching a set of candidate numbers.
 

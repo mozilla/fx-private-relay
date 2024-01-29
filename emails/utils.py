@@ -1,3 +1,4 @@
+from __future__ import annotations
 import base64
 import contextlib
 from email.errors import InvalidHeaderDefect
@@ -23,7 +24,6 @@ import markus
 import logging
 from urllib.parse import quote_plus, urlparse
 
-from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.template.defaultfilters import linebreaksbr, urlize
@@ -33,8 +33,7 @@ from allauth.socialaccount.models import SocialAccount
 from privaterelay.plans import get_bundle_country_language_mapping
 from privaterelay.utils import get_countries_info_from_lang_and_mapping
 
-from .apps import EmailsConfig
-
+from .apps import s3_client, ses_client
 
 logger = logging.getLogger("events")
 info_logger = logging.getLogger("eventsinfo")
@@ -143,8 +142,8 @@ def gauge_if_enabled(name, value, tags=None):
         metrics.gauge(name, value, tags)
 
 
-def get_email_domain_from_settings():
-    email_network_locality = urlparse(settings.SITE_ORIGIN).netloc
+def get_email_domain_from_settings() -> str:
+    email_network_locality = str(urlparse(settings.SITE_ORIGIN).netloc)
     # on dev server we need to add "mail" prefix
     # because we can’t publish MX records on Heroku
     if settings.RELAY_CHANNEL == "dev":
@@ -196,6 +195,7 @@ def _get_hero_img_src(lang_code):
     if major_lang in avail_l10n_image_codes:
         img_locale = major_lang
 
+    assert settings.SITE_ORIGIN
     return (
         settings.SITE_ORIGIN
         + f"/static/images/email-images/first-time-user/hero-image-{img_locale}.png"
@@ -226,15 +226,12 @@ def ses_send_raw_email(
     destination_address: str,
     message: EmailMessage,
 ) -> SendRawEmailResponseTypeDef:
-    emails_config = apps.get_app_config("emails")
-    assert isinstance(emails_config, EmailsConfig)
-    ses_client = emails_config.ses_client
-    assert ses_client
+    assert (client := ses_client()) is not None
     assert settings.AWS_SES_CONFIGSET
 
     data = message.as_string()
     try:
-        ses_response = ses_client.send_raw_email(
+        ses_response = client.send_raw_email(
             Source=source_address,
             Destinations=[destination_address],
             RawMessage={"Data": data},
@@ -393,8 +390,8 @@ def _get_bucket_and_key_from_s3_json(message_json):
 @time_if_enabled("s3_get_message_content")
 def get_message_content_from_s3(bucket, object_key):
     if bucket and object_key:
-        s3_client = apps.get_app_config("emails").s3_client
-        streamed_s3_object = s3_client.get_object(Bucket=bucket, Key=object_key).get(
+        assert (client := s3_client()) is not None
+        streamed_s3_object = client.get_object(Bucket=bucket, Key=object_key).get(
             "Body"
         )
         return streamed_s3_object.read()
@@ -405,8 +402,8 @@ def remove_message_from_s3(bucket, object_key):
     if bucket is None or object_key is None:
         return False
     try:
-        s3_client = apps.get_app_config("emails").s3_client
-        response = s3_client.delete_object(Bucket=bucket, Key=object_key)
+        assert (client := s3_client()) is not None
+        response = client.delete_object(Bucket=bucket, Key=object_key)
         return response.get("DeleteMarker")
     except ClientError as e:
         if e.response["Error"].get("Code", "") == "NoSuchKey":

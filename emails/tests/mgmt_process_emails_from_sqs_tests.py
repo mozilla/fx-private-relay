@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import Any, Generator
+from typing import Any, Generator, TYPE_CHECKING
 from unittest.mock import patch, Mock
 from uuid import uuid4
 import json
@@ -14,6 +14,9 @@ from django.core.management.base import CommandError
 
 from emails.tests.views_tests import EMAIL_SNS_BODIES
 from privaterelay.tests.utils import log_extra
+
+if TYPE_CHECKING:
+    from botocore.exceptions import _ClientErrorResponseTypeDef
 
 
 COMMAND_NAME = "process_emails_from_sqs"
@@ -149,9 +152,13 @@ def fake_sqs_message(body):
     return msg
 
 
-def make_client_error(message="Unknown", code="Unknown", operation_name="Unknown"):
+def make_client_error(
+    message: str = "Unknown", code: str = "Unknown", operation_name: str = "Unknown"
+) -> ClientError:
     """Create a minimal botocore.exceptions.ClientError"""
-    err_response = {"Error": {"Message": message, "Code": code}}
+    err_response: _ClientErrorResponseTypeDef = {
+        "Error": {"Message": message, "Code": code}
+    }
     return ClientError(err_response, operation_name)
 
 
