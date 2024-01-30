@@ -122,4 +122,5 @@ upsell-banner-4-masks-us-description = { -brand-name-relay-premium } gives you a
 upsell-banner-4-masks-non-us-description = { -brand-name-relay-premium } gives you unlimited email masks, spam blocking, a custom { -brand-name-relay } email domain, and the ability to reply to forwarded messages.
 upsell-banner-4-masks-us-cta = Upgrade to { -brand-name-relay-premium }
 
+-brand-name-mozilla-monitor = Mozilla Monitor
 moz-monitor = { -brand-name-mozilla-monitor }
