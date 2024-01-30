@@ -1,5 +1,6 @@
 """
-CommandFromDjangoSettings is a base class for commands that get parameters from Django settings.
+CommandFromDjangoSettings is a base class for commands that get parameters from Django
+settings.
 """
 
 from argparse import RawDescriptionHelpFormatter
@@ -27,6 +28,8 @@ SettingToLocal = namedtuple(
 class CommandFromDjangoSettings(BaseCommand):
     """A Command that gets settings from Django settings."""
 
+    settings_to_locals: list[SettingToLocal]
+
     def create_parser(self, prog_name, subcommand, **kwargs):
         """
         Customize the default parser.
@@ -36,13 +39,19 @@ class CommandFromDjangoSettings(BaseCommand):
         """
         assert self.settings_to_locals
         epilog_lines = [
-            "Parameters are read from Django settings and the related environment variable:",
+            (
+                "Parameters are read from Django settings and the related environment"
+                " variable:"
+            ),
             "",
         ]
         verbosity_override = None
 
         for setting_key, local_name, help_str, _ in self.settings_to_locals:
-            raw = f"settings.{setting_key}={getattr(settings, setting_key)!r} : {help_str}"
+            raw = (
+                f"settings.{setting_key}={getattr(settings, setting_key)!r}"
+                f" : {help_str}"
+            )
             epilog_lines.extend(
                 textwrap.wrap(
                     raw,

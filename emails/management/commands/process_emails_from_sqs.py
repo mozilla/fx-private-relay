@@ -99,6 +99,17 @@ class Command(CommandFromDjangoSettings):
         ),
     ]
 
+    # Added by CommandFromDjangoSettings.init_from_settings
+    batch_size: int
+    wait_seconds: int
+    visibility_seconds: int
+    healthcheck_path: str
+    delete_failed_messages: bool
+    max_seconds: float | None
+    aws_region: str
+    sqs_url: str
+    verbosity: int
+
     def handle(self, verbosity, *args, **kwargs):
         """Handle call from command line (called by BaseCommand)"""
         self.init_from_settings(verbosity)
@@ -194,9 +205,11 @@ class Command(CommandFromDjangoSettings):
                 cycle_data["message_total"] = self.total_messages
                 cycle_data["cycle_s"] = round(cycle_timer.last, 3)
                 logger.log(
-                    logging.INFO
-                    if (message_batch or self.verbosity > 1)
-                    else logging.DEBUG,
+                    (
+                        logging.INFO
+                        if (message_batch or self.verbosity > 1)
+                        else logging.DEBUG
+                    ),
                     (
                         f"Cycle {self.cycles}: processed"
                         f" {self.pluralize(len(message_batch), 'message')}"
@@ -404,13 +417,13 @@ class Command(CommandFromDjangoSettings):
                 try:
                     _sns_inbound_logic(topic_arn, message_type, verified_json_body)
                     logger.info(f"processed sqs message ID: {message.message_id}")
-                except ClientError as e:
+                except ClientError as e_retry:
                     incr_if_enabled("message_from_sqs_error", 1)
-                    logger.error("sqs_client_error", extra=e.response["Error"])
+                    logger.error("sqs_client_error", extra=e_retry.response["Error"])
                     results.update(
                         {
                             "success": False,
-                            "error": e.response["Error"],
+                            "error": e_retry.response["Error"],
                             "client_error_code": lower_error_code,
                         }
                     )

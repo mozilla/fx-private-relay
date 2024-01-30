@@ -18,7 +18,7 @@ class HasPremium(permissions.BasePermission):
         if request.method in READ_METHODS:
             return True
         profile = Profile.objects.get(request.user)
-        return profile.has_premium()
+        return profile.has_premium
 
 
 class HasPhoneService(permissions.BasePermission):

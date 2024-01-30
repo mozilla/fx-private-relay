@@ -466,23 +466,21 @@ def test_patch_relayaddress_format_premium_user_can_clear_block_list_emails(
 
 @pytest.mark.usefixtures("fxa_social_app")
 class TermsAcceptedUserViewTest(TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.factory = RequestFactory()
         self.path = "/api/v1/terms-accepted-user/"
         self.fxa_verify_path = INTROSPECT_TOKEN_URL
         self.uid = "relay-user-fxa-uid"
 
-    def _setup_client(self, token):
+    def _setup_client(self, token: str) -> None:
         self.client = APIClient()
         self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         cache.clear()
 
     @responses.activate
-    def test_201_new_user_created_and_202_user_exists(
-        self,
-    ):
+    def test_201_new_user_created_and_202_user_exists(self) -> None:
         email = "user@email.com"
         user_token = "user-123"
         self._setup_client(user_token)
@@ -513,6 +511,7 @@ class TermsAcceptedUserViewTest(TestCase):
         # get fxa response with 201 response for new user and profile created
         response = self.client.post(self.path)
         assert response.status_code == 201
+        assert hasattr(response, "data")
         assert response.data is None
         # ensure no session cookie was set
         assert len(response.cookies.keys()) == 1
@@ -527,6 +526,7 @@ class TermsAcceptedUserViewTest(TestCase):
         # now check that the 2nd call returns 202
         response = self.client.post(self.path)
         assert response.status_code == 202
+        assert hasattr(response, "data")
         assert response.data is None
         assert responses.assert_call_count(self.fxa_verify_path, 2) is True
         assert responses.assert_call_count(FXA_PROFILE_URL, 1) is True

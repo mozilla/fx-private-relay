@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from typing import Any
 import logging
 import shlex
 
@@ -28,13 +29,13 @@ def get_cache_key(token):
     return hash(token)
 
 
-def introspect_token(token):
+def introspect_token(token: str) -> dict[str, Any]:
     try:
         fxa_resp = requests.post(INTROSPECT_TOKEN_URL, json={"token": token})
-    except:
+    except Exception as exc:
         logger.error(
             "Could not introspect token with FXA.",
-            extra={"fxa_response": shlex.quote(fxa_resp.text)},
+            extra={"error_cls": type(exc), "error": shlex.quote(str(exc))},
         )
         raise AuthenticationFailed("Could not introspect token with FXA.")
 
@@ -50,7 +51,7 @@ def introspect_token(token):
     return fxa_resp_data
 
 
-def get_fxa_uid_from_oauth_token(token, use_cache=True):
+def get_fxa_uid_from_oauth_token(token: str, use_cache=True) -> str:
     # set a default cache_timeout, but this will be overriden to match
     # the 'exp' time in the JWT returned by FxA
     cache_timeout = 60
@@ -85,18 +86,18 @@ def get_fxa_uid_from_oauth_token(token, use_cache=True):
         raise APIException("Did not receive a 200 response from FXA.")
 
     if not fxa_resp_data["json"].get("active"):
-        raise AuthenticationFailed("FXA returned active: False for token.", code=401)
+        raise AuthenticationFailed("FXA returned active: False for token.")
 
     # FxA user is active, check for the associated Relay account
-    fxa_uid = fxa_resp_data.get("json", {}).get("sub")
-    if not fxa_uid:
+    if (raw_fxa_uid := fxa_resp_data.get("json", {}).get("sub")) is None:
         raise NotFound("FXA did not return an FXA UID.")
+    fxa_uid = str(raw_fxa_uid)
 
     # cache valid access_token and fxa_resp_data until access_token expiration
     # TODO: revisit this since the token can expire before its time
-    if type(fxa_resp_data.get("json").get("exp")) is int:
+    if type(fxa_resp_data.get("json", {}).get("exp")) is int:
         # Note: FXA iat and exp are timestamps in *milliseconds*
-        fxa_token_exp_time = int(fxa_resp_data.get("json").get("exp") / 1000)
+        fxa_token_exp_time = int(fxa_resp_data["json"]["exp"] / 1000)
         now_time = int(datetime.now(timezone.utc).timestamp())
         fxa_token_exp_cache_timeout = fxa_token_exp_time - now_time
         if fxa_token_exp_cache_timeout > cache_timeout:
@@ -111,8 +112,8 @@ def get_fxa_uid_from_oauth_token(token, use_cache=True):
 class FxaTokenAuthentication(BaseAuthentication):
     def authenticate_header(self, request):
         # Note: we need to implement this function to make DRF return a 401 status code
-        # when we raise AuthenticationFailed, rather than a 403.
-        # See https://www.django-rest-framework.org/api-guide/authentication/#custom-authentication
+        # when we raise AuthenticationFailed, rather than a 403. See:
+        # https://www.django-rest-framework.org/api-guide/authentication/#custom-authentication
         return "Bearer"
 
     def authenticate(self, request):
@@ -140,7 +141,8 @@ class FxaTokenAuthentication(BaseAuthentication):
             ).select_related("user")[0]
         except IndexError:
             raise PermissionDenied(
-                "Authenticated user does not have a Relay account. Have they accepted the terms?"
+                "Authenticated user does not have a Relay account."
+                " Have they accepted the terms?"
             )
         user = sa.user
 

@@ -87,7 +87,7 @@ def make_phone_test_user() -> User:
 
 def upgrade_test_user_to_phone(user):
     random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_PHONE)
-    account = baker.make(
+    account: SocialAccount = baker.make(
         SocialAccount,
         user=user,
         provider="fxa",

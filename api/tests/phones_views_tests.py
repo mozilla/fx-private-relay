@@ -178,14 +178,15 @@ def mocked_twilio_client():
     )
 
     with patch(
-        "phones.apps.PhonesConfig.twilio_client", spec_set=Client
+        "phones.apps.PhonesConfig.twilio_client", spec=Client
     ) as mock_twilio_client:
+        mock_twilio_client._pn_return = Mock()
 
         def mock_phone_lookup(number: str | None = None):
             """Return number details based on the number passed to phone_numbers()"""
             if number is None:
                 # Allow mocked_twilio_client.lookups.v1.phone_numbers().fetch to work
-                return mocked_twilio_client._pn_return  # type: ignore[attr-defined]
+                return mock_twilio_client._pn_return
             match = re_e164.match(number)
             assert match
             national_format = (
@@ -199,13 +200,12 @@ def mocked_twilio_client():
                 national_format=national_format,
             )
             mock_return = Mock(fetch=Mock(return_value=mock_details))
-            mocked_twilio_client._pn_return = mock_return  # type: ignore[attr-defined]
+            mock_twilio_client._pn_return = mock_return
             return mock_return
 
-        mocked_twilio_client._pn_return = Mock()
         mock_twilio_client.lookups.v1.phone_numbers.side_effect = mock_phone_lookup
         yield mock_twilio_client
-        mocked_twilio_client._pn_return = Mock()
+        mock_twilio_client._pn_return = Mock()
 
 
 @pytest.fixture(autouse=True)

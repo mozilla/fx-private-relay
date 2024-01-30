@@ -6,7 +6,7 @@ from botocore.config import Config
 from django.utils.functional import cached_property
 from mypy_boto3_ses.client import SESClient
 
-from django.apps import AppConfig
+from django.apps import apps, AppConfig
 from django.conf import settings
 
 
@@ -62,3 +62,17 @@ class EmailsConfig(AppConfig):
 
     def ready(self):
         import emails.signals  # noqa: F401 (imported but unused warning)
+
+
+def emails_config() -> EmailsConfig:
+    emails_config = apps.get_app_config("emails")
+    assert isinstance(emails_config, EmailsConfig)
+    return emails_config
+
+
+def ses_client() -> SESClient | None:
+    return emails_config().ses_client
+
+
+def s3_client():
+    return emails_config().s3_client

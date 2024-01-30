@@ -23,6 +23,7 @@ class BaseModel(models.Model):
 
     class Meta(TypedModelMeta):
         abstract = True
+
     def natural_key(self) -> tuple[str, ...]: ...
     @classmethod
     def _cache_key(cls, name: str) -> str: ...
@@ -66,6 +67,7 @@ class AbstractBaseFlag(BaseModel):
         abstract = True
         verbose_name = _("Flag")
         verbose_name_plural = _("Flags")
+
     def flush(self) -> None: ...
     def get_flush_keys(self, flush_keys: list[str] | None = None) -> list[str]: ...
     def is_active_for_user(self, user: AbstractBaseUser) -> Literal[True] | None: ...
@@ -81,6 +83,7 @@ class AbstractUserFlag(AbstractBaseFlag):
         abstract = True
         verbose_name = _("Flag")
         verbose_name_plural = _("Flags")
+
     def get_flush_keys(self, flush_keys: list[str] | None = None) -> list[str]: ...
     def is_active_for_user(self, user: AbstractBaseUser) -> Literal[True] | None: ...
 
@@ -104,6 +107,7 @@ class AbstractBaseSwitch(BaseModel):
         abstract = True
         verbose_name = _("Switch")
         verbose_name_plural = _("Switches")
+
     def is_active(self) -> bool: ...
 
 class AbstractBaseSample(BaseModel):
@@ -120,6 +124,7 @@ class AbstractBaseSample(BaseModel):
         abstract = True
         verbose_name = _("Sample")
         verbose_name_plural = _("Samples")
+
     def is_active(self) -> bool: ...
 
 class Switch(AbstractBaseSwitch):

@@ -3,6 +3,7 @@ Staticfiles storage implementation for Relay.
 
 This is used when running ./manage.py collectstatic, or rendering Django templates.
 """
+
 from typing import Any
 
 from whitenoise.storage import CompressedManifestStaticFilesStorage

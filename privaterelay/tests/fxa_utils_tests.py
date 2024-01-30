@@ -1,6 +1,7 @@
 """
 Tests for private_relay/fxa_utils.py
 """
+
 from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
 import pytest
@@ -8,17 +9,15 @@ import pytest
 from django.conf import settings
 
 from allauth.socialaccount.models import SocialAccount
-from model_bakery import baker
 from privaterelay.fxa_utils import get_phone_subscription_dates
-from waffle.models import Flag
-
-pytestmark = pytest.mark.skipif(
-    not settings.PHONES_ENABLED, reason="PHONES_ENABLED is False"
-)
+from waffle.testutils import override_flag
 
 if settings.PHONES_ENABLED:
     from phones.tests.models_tests import make_phone_test_user
 
+pytestmark = pytest.mark.skipif(
+    not settings.PHONES_ENABLED, reason="PHONES_ENABLED is False"
+)
 
 MOCK_BASE = "privaterelay.fxa_utils"
 
@@ -65,16 +64,13 @@ def test_get_phone_subscription_dates_subscription_not_in_data_no_free_phone(
     )
 
 
+@override_flag("free_phones", active=True)
 @patch(f"{MOCK_BASE}.get_subscription_data_from_fxa")
 @patch(f"{MOCK_BASE}.logger.error")
 def test_get_phone_subscription_dates_subscription_not_in_data_has_free_phone(
     mocked_logger, mocked_data_from_fxa, phone_user
 ):
     social_account = SocialAccount.objects.get(user=phone_user)
-    baker.make(Flag, name="free_phones")
-    free_phones_flag = Flag.objects.filter(name="free_phones").first()
-    free_phones_flag.users.add(phone_user)
-    free_phones_flag.save()
     mocked_data_from_fxa.return_value = {"message": "dummy text"}
     (
         date_subscribed_phone,
@@ -107,7 +103,8 @@ def test_get_phone_subscription_dates_subscription_not_phones(
         "product_id": "prod_notPhone",
         "product_name": "MDN Plus",
     }
-    # Sample subscription data from https://mozilla.sentry.io/issues/4062336484/events/b798a75eb05c4f67937309bf8148ab8e/?project=4503976951152641
+    # Sample subscription data from
+    # https://mozilla.sentry.io/issues/4062336484/events/b798a75eb05c4f67937309bf8148ab8e/?project=4503976951152641
     mocked_data_from_fxa.return_value = {"subscriptions": [sample_subscription_data]}
     (
         date_subscribed_phone,
@@ -174,7 +171,8 @@ def test_get_phone_subscription_dates_subscription_has_phone_subscription_data(
         "product_id": settings.PHONE_PROD_ID,
         "product_name": "Relay Email & Phone Protection",
     }
-    # Sample subscription data from https://mozilla.sentry.io/issues/4062336484/events/b798a75eb05c4f67937309bf8148ab8e/?project=4503976951152641
+    # Sample subscription data from
+    # https://mozilla.sentry.io/issues/4062336484/events/b798a75eb05c4f67937309bf8148ab8e/?project=4503976951152641
     mocked_data_from_fxa.return_value = {"subscriptions": [sample_subscription_data]}
     (
         date_subscribed_phone,

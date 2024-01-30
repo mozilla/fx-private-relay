@@ -1,28 +1,30 @@
 """
 Tests for private_relay/management/commands/sync_phone_related_dates_on_profile.py
 """
+
 from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
 import pytest
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.management import call_command
 
 from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
 from waffle.models import Flag
 
-pytestmark = pytest.mark.skipif(
-    not settings.PHONES_ENABLED, reason="PHONES_ENABLED is False"
-)
-
 from emails.models import Profile
+from privaterelay.management.commands.sync_phone_related_dates_on_profile import (
+    sync_phone_related_dates_on_profile,
+)
 
 if settings.PHONES_ENABLED:
     from phones.tests.models_tests import make_phone_test_user
 
-from privaterelay.management.commands.sync_phone_related_dates_on_profile import (
-    sync_phone_related_dates_on_profile,
+
+pytestmark = pytest.mark.skipif(
+    not settings.PHONES_ENABLED, reason="PHONES_ENABLED is False"
 )
 
 
@@ -61,7 +63,7 @@ def patch_datetime_now():
 @patch(f"{MOCK_BASE}.logger.error")
 def test_phone_subscription_user_with_no_phone_subscription_data_does_not_get_updated(
     mocked_logger, mocked_dates, patch_datetime_now, phone_user
-):
+) -> None:
     mocked_dates.return_value = (None, None, None)
     profile = Profile.objects.get(user=phone_user)
 
@@ -72,11 +74,27 @@ def test_phone_subscription_user_with_no_phone_subscription_data_does_not_get_up
     assert profile.date_subscribed_phone is None
     assert profile.date_phone_subscription_start is None
     assert profile.date_phone_subscription_end is None
+    assert profile.fxa
     assert num_profiles_updated == 0
     mocked_logger.assert_called_once_with(
         "no_subscription_data_in_fxa_for_user_with_phone_subscription",
         extra={"fxa_uid": profile.fxa.uid},
     )
+
+
+def create_free_phones_flag_for_user(user: User):
+    """
+    Create the "free_phones" flag, and add the User to it.
+
+    This is necessary because we use (abuse?) the "free_phones" flag to allow test phone
+    accounts in stage and development, and the `override_flag` decorator doesn't work
+    because privaterelay.management.utils directly accesses the Flag table for
+    efficiency rather than use the django_waffle tools to check flag settings.
+    """
+    baker.make(Flag, name="free_phones")
+    free_phones_flag = Flag.objects.get(name="free_phones")
+    free_phones_flag.users.add(user)
+    free_phones_flag.save()
 
 
 @patch(f"{MOCK_BASE}.get_phone_subscription_dates")
@@ -85,12 +103,9 @@ def test_free_phone_user_gets_only_date_phone_subscription_reset_field_updated(
 ):
     expected_now = patch_datetime_now
     mocked_dates.return_value = (None, None, None)
-    account = baker.make(SocialAccount, provider="fxa")
+    account: SocialAccount = baker.make(SocialAccount, provider="fxa")
     profile = Profile.objects.get(user=account.user)
-    baker.make(Flag, name="free_phones")
-    free_phones_flag = Flag.objects.filter(name="free_phones").first()
-    free_phones_flag.users.add(profile.user)
-    free_phones_flag.save()
+    create_free_phones_flag_for_user(profile.user)
 
     num_profiles_updated = sync_phone_related_dates_on_profile("free")
 
@@ -103,19 +118,16 @@ def test_free_phone_user_gets_only_date_phone_subscription_reset_field_updated(
 
 
 @patch(f"{MOCK_BASE}.get_phone_subscription_dates")
-def test_free_phone_user_with_existing_date_phone_subscription_reset_field_does_not_update(
+def test_free_phone_user_with_existing_date_phone_subscription_reset_field_does_not_update(  # noqa: E501
     mocked_dates, patch_datetime_now, db
 ):
     expected_now = patch_datetime_now
     mocked_dates.return_value = (None, None, None)
-    account = baker.make(SocialAccount, provider="fxa")
+    account: SocialAccount = baker.make(SocialAccount, provider="fxa")
     profile = Profile.objects.get(user=account.user)
     profile.date_phone_subscription_reset = expected_now
-    baker.make(Flag, name="free_phones")
-    free_phones_flag = Flag.objects.filter(name="free_phones").first()
-    free_phones_flag.users.add(profile.user)
     profile.save()
-    free_phones_flag.save()
+    create_free_phones_flag_for_user(profile.user)
 
     num_profiles_updated = sync_phone_related_dates_on_profile("free")
 
@@ -152,7 +164,7 @@ def test_monthly_phone_subscriber_profile_date_fields_all_updated(
 
 
 @patch(f"{MOCK_BASE}.get_phone_subscription_dates")
-def test_monthly_phone_subscriber_renewed_subscription_profile_date_phone_subscription_start_and_end_updated(
+def test_monthly_phone_subscriber_renewed_subscription_profile_date_phone_subscription_start_and_end_updated(  # noqa: E501
     mocked_dates, patch_datetime_now, phone_user
 ):
     profile = Profile.objects.get(user=phone_user)
@@ -210,7 +222,7 @@ def test_yearly_phone_subscriber_profile_date_fields_all_updated(
 
 
 @patch(f"{MOCK_BASE}.get_phone_subscription_dates")
-def test_yearly_phone_subscriber_with_subscription_date_older_than_31_days_profile_date_fields_all_updated(
+def test_yearly_phone_subscriber_with_subscription_date_older_than_31_days_profile_date_fields_all_updated(  # noqa: E501
     mocked_dates, patch_datetime_now, phone_user
 ):
     profile = Profile.objects.get(user=phone_user)

@@ -1,3 +1,4 @@
+from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 from math import floor
 from typing import Iterator, Optional
@@ -6,7 +7,6 @@ import phonenumbers
 import secrets
 import string
 
-from django.apps import apps
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.core.cache import cache
@@ -21,7 +21,9 @@ from twilio.base.exceptions import TwilioRestException
 from twilio.rest import Client
 
 from emails.utils import incr_if_enabled
-from phones.iq_utils import send_iq_sms
+
+from .apps import phones_config, twilio_client
+from .iq_utils import send_iq_sms
 
 logger = logging.getLogger("eventsinfo")
 
@@ -31,15 +33,6 @@ LAST_CONTACT_TYPE_CHOICES = [
     ("call", "call"),
     ("text", "text"),
 ]
-
-
-def twilio_client() -> Client:
-    from .apps import PhonesConfig
-
-    phones_config = apps.get_app_config("phones")
-    assert isinstance(phones_config, PhonesConfig)
-    assert not settings.PHONES_NO_CLIENT_CALLS_IN_TEST
-    return phones_config.twilio_client
 
 
 def verification_code_default():
@@ -278,13 +271,12 @@ class RelayNumber(models.Model):
 
         if use_twilio:
             # Before saving into DB provision the number in Twilio
-            phones_config = apps.get_app_config("phones")
             client = twilio_client()
 
             # Since this will charge the Twilio account, first see if this
             # is running with TEST creds to avoid charges.
             if settings.TWILIO_TEST_ACCOUNT_SID:
-                client = phones_config.twilio_test_client
+                client = phones_config().twilio_test_client
 
             twilio_incoming_number = client.incoming_phone_numbers.create(
                 phone_number=self.number,
@@ -392,6 +384,7 @@ def relaynumber_post_save(sender, instance, created, **kwargs):
 
 def send_welcome_message(user, relay_number):
     real_phone = RealPhone.objects.get(user=user)
+    assert settings.SITE_ORIGIN
     media_url = settings.SITE_ORIGIN + reverse(
         "vCard", kwargs={"lookup_key": relay_number.vcard_lookup_key}
     )

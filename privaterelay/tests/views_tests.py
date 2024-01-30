@@ -46,10 +46,10 @@ def test_no_social_token():
 
 
 class UpdateExtraDataAndEmailTest(TestCase):
-    def test_update_all_data(self):
+    def test_update_all_data(self) -> None:
         user = baker.make(User)
-        ea = baker.make(EmailAddress, user=user)
-        sa = baker.make(
+        ea: EmailAddress = baker.make(EmailAddress, user=user)
+        sa: SocialAccount = baker.make(
             SocialAccount,
             user=user,
             provider="fxa",
@@ -69,10 +69,10 @@ class UpdateExtraDataAndEmailTest(TestCase):
         assert ea.email == new_email
 
     @patch("privaterelay.views.incr_if_enabled")
-    def test_update_newly_premium(self, incr_mocked):
+    def test_update_newly_premium(self, incr_mocked: Mock) -> None:
         user = baker.make(User)
         baker.make(EmailAddress, user=user)
-        sa = baker.make(
+        sa: SocialAccount = baker.make(
             SocialAccount,
             user=user,
             provider="fxa",
@@ -90,10 +90,10 @@ class UpdateExtraDataAndEmailTest(TestCase):
         incr_mocked.assert_called_once()
 
     @patch("privaterelay.views.incr_if_enabled")
-    def test_update_newly_phone(self, incr_mocked):
+    def test_update_newly_phone(self, incr_mocked: Mock) -> None:
         user = baker.make(User)
         baker.make(EmailAddress, user=user)
-        sa = baker.make(
+        sa: SocialAccount = baker.make(
             SocialAccount,
             user=user,
             provider="fxa",
@@ -110,7 +110,7 @@ class UpdateExtraDataAndEmailTest(TestCase):
         assert sa.extra_data == new_extra_data
         incr_mocked.assert_called_once()
 
-    def test_update_all_data_conflict(self):
+    def test_update_all_data_conflict(self) -> None:
         extra_data = json.loads('{"test": "test"}')
 
         user = baker.make(User, email="user@example.com")
@@ -118,10 +118,10 @@ class UpdateExtraDataAndEmailTest(TestCase):
         baker.make(SocialAccount, user=user, provider="fxa", extra_data=extra_data)
 
         user2 = baker.make(User, email="user2@example.com")
-        ea2 = baker.make(
+        ea2: EmailAddress = baker.make(
             EmailAddress, user=user2, email="user2@example.com", verified=True
         )
-        sa2 = baker.make(
+        sa2: SocialAccount = baker.make(
             SocialAccount, user=user2, provider="fxa", extra_data=extra_data
         )
 
@@ -139,9 +139,9 @@ class UpdateExtraDataAndEmailTest(TestCase):
         assert sa2.extra_data == extra_data
         assert ea2.email == "user2@example.com"
 
-    def test_update_all_data_no_email_address(self):
+    def test_update_all_data_no_email_address(self) -> None:
         user = baker.make(User)
-        sa = baker.make(
+        sa: SocialAccount = baker.make(
             SocialAccount,
             user=user,
             provider="fxa",

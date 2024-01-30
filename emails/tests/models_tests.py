@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 from hashlib import sha256
 import random
 from unittest import skip
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 from uuid import uuid4
 
 from django.conf import settings
@@ -24,7 +24,6 @@ from ..models import (
     DomainAddress,
     DomainAddrDuplicateException,
     DomainAddrUnavailableException,
-    emails_config,
     get_domain_numerical,
     has_bad_words,
     hash_subdomain,
@@ -129,8 +128,8 @@ class MiscEmailModelsTest(TestCase):
     def test_is_blocklisted_without_blocked_words(self):
         assert not is_blocklisted("non-blocked-word")
 
-    @patch.object(emails_config, "blocklist", ["blocked-word"])
-    def test_is_blocklisted_with_mocked_blocked_words(self) -> None:
+    @patch("emails.models.emails_config", return_value=Mock(blocklist=["blocked-word"]))
+    def test_is_blocklisted_with_mocked_blocked_words(self, mock_config) -> None:
         assert is_blocklisted("blocked-word")
 
     @override_settings(RELAY_FIREFOX_DOMAIN="firefox.com")
@@ -392,8 +391,11 @@ class RelayAddressTest(TestCase):
         relay_address.delete()
         assert not valid_address(relay_address.address, relay_address.domain_value)
 
-    @patch.object(emails_config, "blocklist", ["blocked-word"])
-    def test_address_contains_blocklist_invalid(self) -> None:
+    @patch(
+        "emails.models.emails_config",
+        return_value=Mock(badwords=[], blocklist=["blocked-word"]),
+    )
+    def test_address_contains_blocklist_invalid(self, mock_config) -> None:
         blocked_word = "blocked-word"
         relay_address = RelayAddress.objects.create(
             user=baker.make(User), address=blocked_word
@@ -423,7 +425,7 @@ class RelayAddressTest(TestCase):
         assert relay_address.block_list_emails is True
 
         # Remove premium from user
-        fxa_account = self.premium_user.profile.fxa
+        assert (fxa_account := self.premium_user.profile.fxa) is not None
         fxa_account.extra_data["subscriptions"] = []
         fxa_account.save()
         assert not self.premium_user.profile.has_premium
@@ -1318,7 +1320,7 @@ class DomainAddressTest(TestCase):
             address_hash=domain_address_hash
         )
         assert deleted_address_qs.count() == 1
-        assert deleted_address_qs.first().address_hash == domain_address_hash
+        assert deleted_address_qs.get().address_hash == domain_address_hash
 
     def test_premium_user_can_set_block_list_emails(self):
         domain_address = DomainAddress.objects.create(
@@ -1369,7 +1371,7 @@ class DomainAddressTest(TestCase):
         assert domain_address.block_list_emails is True
 
         # Remove premium from user
-        fxa_account = self.user.profile.fxa
+        assert (fxa_account := self.user.profile.fxa) is not None
         fxa_account.extra_data["subscriptions"] = []
         fxa_account.save()
         assert not self.user.profile.has_premium
@@ -1424,7 +1426,7 @@ class DomainAddressTest(TestCase):
         )
 
         # Remove premium from user
-        fxa_account = self.user.profile.fxa
+        assert (fxa_account := self.user.profile.fxa) is not None
         fxa_account.extra_data["subscriptions"] = []
         fxa_account.save()
         assert not self.user.profile.has_premium
