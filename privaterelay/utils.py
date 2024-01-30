@@ -19,7 +19,7 @@ from waffle.utils import (
     get_setting as get_waffle_setting,
 )
 
-from .glean import (
+from .glean.server_events import (
     EventsServerEventLogger,
     create_events_server_event_logger,
 )
