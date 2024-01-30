@@ -48,7 +48,7 @@ const getProducts = (referringSiteUrl: string) => ({
     url: `https://monitor.firefox.com/?utm_source=${encodeURIComponent(
       referringSiteUrl,
     )}&utm_medium=referral&utm_campaign=bento&utm_content=desktop`,
-    gaLabel: "fx-monitor",
+    gaLabel: "moz-monitor",
   },
   pocket: {
     id: "pocket",
@@ -146,7 +146,7 @@ export const AppPicker = (props: Props) => {
           {l10n.getString("fx-vpn")}
         </a>
       </Item>
-      <Item key={products.monitor.id} textValue={l10n.getString("fx-monitor")}>
+      <Item key={products.monitor.id} textValue={l10n.getString("moz-monitor")}>
         <a
           ref={linkRefs.monitor}
           href={products.monitor.url}
@@ -155,7 +155,7 @@ export const AppPicker = (props: Props) => {
           rel="noopener noreferrer"
         >
           <Image src={MonitorLogo} alt="" width={16} height={16} />
-          {l10n.getString("fx-monitor")}
+          {l10n.getString("moz-monitor")}
         </a>
       </Item>
       <Item key={products.pocket.id} textValue={l10n.getString("fx-pocket")}>
