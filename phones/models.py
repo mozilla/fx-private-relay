@@ -182,8 +182,8 @@ class RealPhone(models.Model):
         return self
 
 
-@receiver(post_save, sender=RealPhone)
-def realphone_post_save(sender, instance, created, **kwargs):
+@receiver(post_save, sender=RealPhone, dispatch_uid="realphone_post_save")
+def realphone_post_save(sender, instance, created, **kwargs):    
     # don't do anything if running migrations
     if type(instance) == MigrationRecorder.Migration:
         return

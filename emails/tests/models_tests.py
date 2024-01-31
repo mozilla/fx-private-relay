@@ -7,6 +7,7 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db.models import signals
 from django.test import override_settings, TestCase
 
 from allauth.socialaccount.models import SocialAccount
@@ -36,6 +37,7 @@ from ..models import (
     valid_address_pattern,
 )
 from ..utils import get_domains_from_settings
+from phones.models import RealPhone, realphone_post_save
 
 
 def make_free_test_user(email: str = "") -> User:
@@ -81,6 +83,8 @@ def make_storageless_test_user():
 def unlimited_subscription() -> str:
     return random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
 
+def phone_subscription() -> str:
+    return random.choice(settings.SUBSCRIPTIONS_WITH_PHONE)
 
 def upgrade_test_user_to_premium(user):
     random_sub = unlimited_subscription()
@@ -524,6 +528,12 @@ class ProfileTestCase(TestCase):
         social_account.extra_data["subscriptions"].append(unlimited_subscription())
         social_account.save()
 
+    def upgrade_to_phone_premium(self) -> None:
+        """Add a phone subscription to the user."""
+        social_account = self.get_or_create_social_account()
+        social_account.extra_data["subscriptions"].append(phone_subscription())
+        social_account.save()
+
 
 class ProfileBounceTestCase(ProfileTestCase):
     """Base class for Profile tests that check for bounces."""
@@ -677,6 +687,35 @@ class ProfileHasPhoneTest(ProfileTestCase):
     def test_default_False(self) -> None:
         assert self.profile.has_phone is False
 
+    def test_phone_subscription_returns_True(self) -> None:
+        self.upgrade_to_phone_premium()
+        assert self.profile.has_phone is True
+
+
+class ProfileDatePhoneRegisteredTest(ProfileTestCase):
+    """Tests for Profile.date_phone_registered"""
+
+    def setUp(self):
+        signals.post_save.disconnect(sender=RealPhone, dispatch_uid="realphone_post_save")
+        return super().setUp()
+
+    def tearDown(self) -> None:
+        signals.post_save.connect(receiver=realphone_post_save, sender=RealPhone, dispatch_uid="realphone_post_save")
+        return super().tearDown()
+    
+    def test_default_None(self) -> None:
+        assert self.profile.date_phone_registered is None
+
+    def test_real_phone_no_relay_number_returns_verified_date(self) -> None:
+        self.upgrade_to_phone_premium()
+        datetime_now = datetime.now(timezone.utc)
+        number = "+12223334444"
+        RealPhone.objects.create(
+            user=self.profile.user,
+            number=number,
+            verified_date=datetime_now,
+        )
+        assert self.profile.date_phone_registered == datetime_now
 
 class ProfileTotalMasksTest(ProfileTestCase):
     """Tests for Profile.total_masks"""
