@@ -121,3 +121,6 @@ upsell-banner-4-masks-non-us-heading = Get maximum email protection
 upsell-banner-4-masks-us-description = { -brand-name-relay-premium } gives you a phone mask to protect your real number, plus unlimited email masks and the ability to block promotional emails.
 upsell-banner-4-masks-non-us-description = { -brand-name-relay-premium } gives you unlimited email masks, spam blocking, a custom { -brand-name-relay } email domain, and the ability to reply to forwarded messages.
 upsell-banner-4-masks-us-cta = Upgrade to { -brand-name-relay-premium }
+
+-brand-name-mozilla-monitor = Mozilla Monitor
+moz-monitor = { -brand-name-mozilla-monitor }
