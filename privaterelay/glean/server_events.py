@@ -70,8 +70,15 @@ class EventsServerEventLogger:
             "payload": event_payload_serialized,
         }
 
+        self.emit_record(now, ping)
+
+    def emit_record(self, now: datetime, ping: dict[str, Any]) -> None:
+        """Log the ping to STDOUT.
+        Applications might want to override this method to use their own logging.
+        If doing so, make sure to log the ping as JSON, and to include the
+        `Type: GLEAN_EVENT_MOZLOG_TYPE`."""
         ping_envelope = {
-            "Timestamp": timestamp,
+            "Timestamp": now.isoformat(),
             "Logger": "glean",
             "Type": GLEAN_EVENT_MOZLOG_TYPE,
             "Fields": ping,

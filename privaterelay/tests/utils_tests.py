@@ -617,7 +617,7 @@ def test_get_version_info() -> None:
 
 
 @pytest.mark.usefixtures("version_json_path")
-def test_glean_logger(capsys, caplog, settings) -> None:
+def test_glean_logger(caplog, settings) -> None:
     glean_logger.cache_clear()  # Ensure version is from version_json_path
     glean_logger().record_email_generate_mask(
         user_agent="",
@@ -628,26 +628,24 @@ def test_glean_logger(capsys, caplog, settings) -> None:
         has_generated_for=False,
     )
 
-    # One glean-server-event log
-    captured = capsys.readouterr()
-    assert "glean-server-event" in captured.out
-    log = json.loads(captured.out)
-    assert log["Logger"] == "glean"
-    log_time = datetime.fromisoformat(log["Timestamp"])
-    assert log["Type"] == "glean-server-event"
+    # One info-level glean-server-event log
+    assert len(caplog.records) == 1
+    record = caplog.records[0]
+    assert record.name == "glean-server-event"  # Type in mozlog
+    assert record.msg == "glean-server-event"
+    assert record.levelname == "INFO"
 
     # Check top-level extra data
-    record = log["Fields"]
-    assert record["document_namespace"] == "relay-backend"
-    assert record["document_type"] == "events"
-    assert record["document_version"] == "1"
-    assert UUID(record["document_id"]).version == 4
-    assert record["user_agent"] == ""
-    assert record["ip_address"] == ""
-    assert record["payload"].startswith("{")
+    assert record.document_namespace == "relay-backend"
+    assert record.document_type == "events"
+    assert record.document_version == "1"
+    assert UUID(record.document_id).version == 4
+    assert record.user_agent == ""
+    assert record.ip_address == ""
+    assert record.payload.startswith("{")
 
     # Get parts of the payload that vary
-    payload = json.loads(record["payload"])
+    payload = json.loads(record.payload)
     event_ts_ms = payload["events"][0]["timestamp"]
     event_time = datetime.fromtimestamp(event_ts_ms / 1000.0)
     assert 0 < (datetime.now() - event_time).total_seconds() < 0.5
@@ -655,7 +653,6 @@ def test_glean_logger(capsys, caplog, settings) -> None:
     start_time_iso = payload["ping_info"]["start_time"]
     start_time = datetime.fromisoformat(start_time_iso)
     assert 0 < (datetime.now(timezone.utc) - start_time).total_seconds() < 0.5
-    assert start_time == log_time
 
     telemetry_sdk_build = payload["client_info"]["telemetry_sdk_build"]
     assert telemetry_sdk_build.startswith("glean_parser v")

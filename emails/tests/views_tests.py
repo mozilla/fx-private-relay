@@ -11,6 +11,7 @@ import json
 import os
 import re
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
@@ -498,7 +499,7 @@ class SNSNotificationTest(TestCase):
         assert self.ra.num_forwarded == 0
 
     def test_domain_recipient(self) -> None:
-        with self.assertLogs("glean", "INFO") as caplog:
+        with self.assertLogs(settings.GLEAN_EVENT_MOZLOG_TYPE, "INFO") as caplog:
             _sns_notification(EMAIL_SNS_BODIES["domain_recipient"])
 
         sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
@@ -530,9 +531,9 @@ class SNSNotificationTest(TestCase):
             "name": "generate_mask",
             "extra": {
                 "mozilla_accounts_id": self.premium_user.profile.fxa.uid,
-                "is_random_mask": False,
-                "created_by_api": False,
-                "has_generated_for": False,
+                "is_random_mask": "False",
+                "created_by_api": "False",
+                "has_generated_for": "False",
             },
             "timestamp": event["timestamp"],
         }
@@ -1438,28 +1439,30 @@ class GetAddressTest(TestCase):
         mm.assert_incr_once("fx.private.relay.email_for_deleted_address_multiple")
 
     def test_existing_domain_address(self) -> None:
-        with self.assertNoLogs("glean", "INFO"):
+        with self.assertNoLogs(settings.GLEAN_EVENT_MOZLOG_TYPE, "INFO"):
             assert _get_address("domain@subdomain.test.com") == self.domain_address
 
     def test_uppercase_local_part_of_existing_domain_address(self) -> None:
         """Case-insensitive matching is used in the local part of a domain address."""
-        with self.assertNoLogs("glean", "INFO"):
+        with self.assertNoLogs(settings.GLEAN_EVENT_MOZLOG_TYPE, "INFO"):
             assert _get_address("Domain@subdomain.test.com") == self.domain_address
 
     def test_uppercase_subdomain_part_of_existing_domain_address(self) -> None:
         """Case-insensitive matching is used in the subdomain of a domain address."""
-        with self.assertNoLogs("glean", "INFO"):
+        with self.assertNoLogs(settings.GLEAN_EVENT_MOZLOG_TYPE, "INFO"):
             assert _get_address("domain@SubDomain.test.com") == self.domain_address
 
     def test_uppercase_domain_part_of_existing_domain_address(self) -> None:
         """Case-insensitive matching is used in the domain part of a domain address."""
-        with self.assertNoLogs("glean", "INFO"):
+        with self.assertNoLogs(settings.GLEAN_EVENT_MOZLOG_TYPE, "INFO"):
             assert _get_address("domain@subdomain.Test.Com") == self.domain_address
 
     def test_subdomain_for_wrong_domain_raises(self) -> None:
         with pytest.raises(
             ObjectDoesNotExist
-        ) as exc_info, MetricsMock() as mm, self.assertNoLogs("glean", "INFO"):
+        ) as exc_info, MetricsMock() as mm, self.assertNoLogs(
+            settings.GLEAN_EVENT_MOZLOG_TYPE, "INFO"
+        ):
             _get_address("unknown@subdomain.example.com")
         assert str(exc_info.value) == "Address does not exist"
         mm.assert_incr_once("fx.private.relay.email_for_not_supported_domain")
@@ -1467,7 +1470,9 @@ class GetAddressTest(TestCase):
     def test_unknown_subdomain_raises(self) -> None:
         with pytest.raises(
             Profile.DoesNotExist
-        ), MetricsMock() as mm, self.assertNoLogs("glean", "INFO"):
+        ), MetricsMock() as mm, self.assertNoLogs(
+            settings.GLEAN_EVENT_MOZLOG_TYPE, "INFO"
+        ):
             _get_address("domain@unknown.test.com")
         mm.assert_incr_once("fx.private.relay.email_for_dne_subdomain")
 
@@ -1480,7 +1485,7 @@ class GetAddressTest(TestCase):
         cannot be pre-created.
         """
         assert DomainAddress.objects.filter(user=self.user).count() == 1
-        with self.assertLogs("glean", "INFO") as caplog:
+        with self.assertLogs(settings.GLEAN_EVENT_MOZLOG_TYPE, "INFO") as caplog:
             address = _get_address("unknown@subdomain.test.com")
         assert address.user == self.user
         assert address.address == "unknown"
@@ -1492,9 +1497,9 @@ class GetAddressTest(TestCase):
             "name": "generate_mask",
             "extra": {
                 "mozilla_accounts_id": self.user.profile.fxa.uid,
-                "is_random_mask": False,
-                "created_by_api": False,
-                "has_generated_for": False,
+                "is_random_mask": "False",
+                "created_by_api": "False",
+                "has_generated_for": "False",
             },
             "timestamp": event["timestamp"],
         }
@@ -1509,7 +1514,7 @@ class GetAddressTest(TestCase):
         consistent with dashboard-created domain adddresses.
         """
         assert DomainAddress.objects.filter(user=self.user).count() == 1
-        with self.assertLogs("glean", "INFO") as caplog:
+        with self.assertLogs(settings.GLEAN_EVENT_MOZLOG_TYPE, "INFO") as caplog:
             address = _get_address("Unknown@subdomain.test.com")
         assert address.user == self.user
         assert address.address == "unknown"
@@ -1521,9 +1526,9 @@ class GetAddressTest(TestCase):
             "name": "generate_mask",
             "extra": {
                 "mozilla_accounts_id": self.user.profile.fxa.uid,
-                "is_random_mask": False,
-                "created_by_api": False,
-                "has_generated_for": False,
+                "is_random_mask": "False",
+                "created_by_api": "False",
+                "has_generated_for": "False",
             },
             "timestamp": event["timestamp"],
         }
