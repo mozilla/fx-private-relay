@@ -701,22 +701,9 @@ class ProfileHasPhoneTest(ProfileTestCase):
 
 
 @pytest.mark.skipif(not settings.PHONES_ENABLED, reason="PHONES_ENABLED is False")
+@override_settings(PHONES_NO_CLIENT_CALLS_IN_TEST=True)
 class ProfileDatePhoneRegisteredTest(ProfileTestCase):
     """Tests for Profile.date_phone_registered"""
-
-    def setUp(self):
-        signals.post_save.disconnect(
-            sender=RealPhone, dispatch_uid="realphone_post_save"
-        )
-        return super().setUp()
-
-    def tearDown(self) -> None:
-        signals.post_save.connect(
-            receiver=realphone_post_save,
-            sender=RealPhone,
-            dispatch_uid="realphone_post_save",
-        )
-        return super().tearDown()
 
     def test_default_None(self) -> None:
         assert self.profile.date_phone_registered is None
@@ -732,7 +719,6 @@ class ProfileDatePhoneRegisteredTest(ProfileTestCase):
         )
         assert self.profile.date_phone_registered == datetime_now
 
-    @override_settings(PHONES_NO_CLIENT_CALLS_IN_TEST=True)
     def test_real_phone_and_relay_number_w_created_at_returns_created_at_date(
         self,
     ) -> None:
@@ -748,7 +734,6 @@ class ProfileDatePhoneRegisteredTest(ProfileTestCase):
         relay_number = RelayNumber.objects.create(user=phone_user)
         assert self.profile.date_phone_registered == relay_number.created_at
 
-    @override_settings(PHONES_NO_CLIENT_CALLS_IN_TEST=True)
     def test_real_phone_and_relay_number_wo_created_at_returns_verified_date(
         self,
     ) -> None:
