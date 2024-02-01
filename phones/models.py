@@ -231,7 +231,7 @@ class RelayNumber(models.Model):
     calls_blocked = models.IntegerField(default=0)
     texts_forwarded = models.IntegerField(default=0)
     texts_blocked = models.IntegerField(default=0)
-    created_at = models.DateTimeField(null=True)
+    created_at = models.DateTimeField(null=True, auto_now_add=True)
 
     @property
     def remaining_minutes(self):
