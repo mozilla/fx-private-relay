@@ -114,9 +114,9 @@ class EventsServerEventLogger:
             "name": "generate_mask",
             "extra": {
                 "mozilla_accounts_id": str(mozilla_accounts_id),
-                "is_random_mask": str(is_random_mask),
-                "created_by_api": str(created_by_api),
-                "has_generated_for": str(has_generated_for),
+                "is_random_mask": str(is_random_mask).lower(),
+                "created_by_api": str(created_by_api).lower(),
+                "has_generated_for": str(has_generated_for).lower(),
             },
         }
         self._record(user_agent, ip_address, event)

@@ -531,9 +531,9 @@ class SNSNotificationTest(TestCase):
             "name": "generate_mask",
             "extra": {
                 "mozilla_accounts_id": self.premium_user.profile.fxa.uid,
-                "is_random_mask": "False",
-                "created_by_api": "False",
-                "has_generated_for": "False",
+                "is_random_mask": "false",
+                "created_by_api": "false",
+                "has_generated_for": "false",
             },
             "timestamp": event["timestamp"],
         }
@@ -1497,9 +1497,9 @@ class GetAddressTest(TestCase):
             "name": "generate_mask",
             "extra": {
                 "mozilla_accounts_id": self.user.profile.fxa.uid,
-                "is_random_mask": "False",
-                "created_by_api": "False",
-                "has_generated_for": "False",
+                "is_random_mask": "false",
+                "created_by_api": "false",
+                "has_generated_for": "false",
             },
             "timestamp": event["timestamp"],
         }
@@ -1526,9 +1526,9 @@ class GetAddressTest(TestCase):
             "name": "generate_mask",
             "extra": {
                 "mozilla_accounts_id": self.user.profile.fxa.uid,
-                "is_random_mask": "False",
-                "created_by_api": "False",
-                "has_generated_for": "False",
+                "is_random_mask": "false",
+                "created_by_api": "false",
+                "has_generated_for": "false",
             },
             "timestamp": event["timestamp"],
         }

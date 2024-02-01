@@ -666,9 +666,9 @@ def test_glean_logger(caplog, settings) -> None:
                 "name": "generate_mask",
                 "extra": {
                     "mozilla_accounts_id": mza_id,
-                    "is_random_mask": "True",
-                    "created_by_api": "True",
-                    "has_generated_for": "False",
+                    "is_random_mask": "true",
+                    "created_by_api": "true",
+                    "has_generated_for": "false",
                 },
                 "timestamp": event_ts_ms,
             }
