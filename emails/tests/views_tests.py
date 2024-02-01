@@ -1492,6 +1492,7 @@ class GetAddressTest(TestCase):
         assert DomainAddress.objects.filter(user=self.user).count() == 2
         event = get_glean_event(caplog)
         assert event is not None
+        assert self.user.profile.fxa
         assert event == {
             "category": "email",
             "name": "generate_mask",
@@ -1521,6 +1522,7 @@ class GetAddressTest(TestCase):
         assert DomainAddress.objects.filter(user=self.user).count() == 2
         event = get_glean_event(caplog)
         assert event is not None
+        assert self.user.profile.fxa
         assert event == {
             "category": "email",
             "name": "generate_mask",
