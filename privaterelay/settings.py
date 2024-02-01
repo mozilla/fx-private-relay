@@ -584,8 +584,6 @@ FXA_ACCOUNTS_ENDPOINT = config(
 )
 FXA_SUPPORT_URL = config("FXA_SUPPORT_URL", f"{FXA_BASE_ORIGIN}/support/")
 
-# Must match privaterelay.glean.server_events.GLEAN_EVENT_MOZLOG_TYPE
-GLEAN_LOGGER_NAME = "glean-server-event"
 LOGGING = {
     "version": 1,
     "formatters": {
