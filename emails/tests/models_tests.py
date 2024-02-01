@@ -37,7 +37,11 @@ from ..models import (
     valid_address_pattern,
 )
 from ..utils import get_domains_from_settings
-from phones.models import RealPhone, realphone_post_save
+from phones.models import (
+    RealPhone,
+    RelayNumber,
+    realphone_post_save,
+)
 
 
 def make_free_test_user(email: str = "") -> User:
@@ -709,13 +713,44 @@ class ProfileDatePhoneRegisteredTest(ProfileTestCase):
     def test_real_phone_no_relay_number_returns_verified_date(self) -> None:
         self.upgrade_to_phone_premium()
         datetime_now = datetime.now(timezone.utc)
-        number = "+12223334444"
         RealPhone.objects.create(
             user=self.profile.user,
-            number=number,
+            number="+12223334444",
+            verified=True,
             verified_date=datetime_now,
         )
         assert self.profile.date_phone_registered == datetime_now
+
+    @override_settings(PHONES_NO_CLIENT_CALLS_IN_TEST=True)
+    def test_real_phone_and_relay_number_w_created_at_returns_created_at_date(self) -> None:
+        self.upgrade_to_phone_premium()
+        datetime_now = datetime.now(timezone.utc)
+        phone_user = self.profile.user
+        RealPhone.objects.create(
+            user=phone_user,
+            number="+12223334444",
+            verified=True,
+            verified_date=datetime_now,
+        )
+        relay_number = RelayNumber.objects.create(user=phone_user)
+        assert self.profile.date_phone_registered == relay_number.created_at
+
+    @override_settings(PHONES_NO_CLIENT_CALLS_IN_TEST=True)
+    def test_real_phone_and_relay_number_wo_created_at_returns_verified_date(self) -> None:
+        self.upgrade_to_phone_premium()
+        datetime_now = datetime.now(timezone.utc)
+        phone_user = self.profile.user
+        real_phone = RealPhone.objects.create(
+            user=phone_user,
+            number="+12223334444",
+            verified=True,
+            verified_date=datetime_now,
+        )
+        relay_number = RelayNumber.objects.create(user=phone_user)
+        # since created_at is auto set, update to None
+        relay_number.created_at = None
+        relay_number.save()
+        assert self.profile.date_phone_registered == real_phone.verified_date
 
 class ProfileTotalMasksTest(ProfileTestCase):
     """Tests for Profile.total_masks"""

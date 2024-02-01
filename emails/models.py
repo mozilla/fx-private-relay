@@ -23,7 +23,7 @@ from allauth.socialaccount.models import SocialAccount
 from rest_framework.authtoken.models import Token
 
 from api.exceptions import ErrorContextType, RelayAPIException
-from phones.models import RealPhone
+from phones.models import RealPhone, RelayNumber
 from privaterelay.plans import get_premium_countries
 from privaterelay.utils import (
     AcceptLanguageError,
@@ -395,9 +395,12 @@ class Profile(models.Model):
     def date_phone_registered(self) -> datetime | None:
         try:
             real_phone = RealPhone.objects.get(user=self.user)
-            return real_phone.verified_date
+            relay_number = RelayNumber.objects.get(user=self.user)
         except RealPhone.DoesNotExist:
             return None
+        except RelayNumber.DoesNotExist:
+            return real_phone.verified_date
+        return relay_number.created_at or real_phone.verified_date
 
     def add_subdomain(self, subdomain):
         # Handles if the subdomain is "" or None
