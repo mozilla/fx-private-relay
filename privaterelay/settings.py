@@ -622,7 +622,6 @@ LOGGING = {
         "studymetrics": {"handlers": ["console_out"], "level": "INFO"},
         "markus": {"handlers": ["console_out"], "level": "DEBUG"},
         GLEAN_EVENT_MOZLOG_TYPE: {"handlers": ["console_out"], "level": "DEBUG"},
-        "glean": {"handlers": ["console_out"], "level": "DEBUG"},
     },
 }
 
