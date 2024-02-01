@@ -87,8 +87,10 @@ def make_storageless_test_user():
 def unlimited_subscription() -> str:
     return random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
 
+
 def phone_subscription() -> str:
     return random.choice(settings.SUBSCRIPTIONS_WITH_PHONE)
+
 
 def upgrade_test_user_to_premium(user):
     random_sub = unlimited_subscription()
@@ -700,13 +702,19 @@ class ProfileDatePhoneRegisteredTest(ProfileTestCase):
     """Tests for Profile.date_phone_registered"""
 
     def setUp(self):
-        signals.post_save.disconnect(sender=RealPhone, dispatch_uid="realphone_post_save")
+        signals.post_save.disconnect(
+            sender=RealPhone, dispatch_uid="realphone_post_save"
+        )
         return super().setUp()
 
     def tearDown(self) -> None:
-        signals.post_save.connect(receiver=realphone_post_save, sender=RealPhone, dispatch_uid="realphone_post_save")
+        signals.post_save.connect(
+            receiver=realphone_post_save,
+            sender=RealPhone,
+            dispatch_uid="realphone_post_save",
+        )
         return super().tearDown()
-    
+
     def test_default_None(self) -> None:
         assert self.profile.date_phone_registered is None
 
@@ -722,7 +730,9 @@ class ProfileDatePhoneRegisteredTest(ProfileTestCase):
         assert self.profile.date_phone_registered == datetime_now
 
     @override_settings(PHONES_NO_CLIENT_CALLS_IN_TEST=True)
-    def test_real_phone_and_relay_number_w_created_at_returns_created_at_date(self) -> None:
+    def test_real_phone_and_relay_number_w_created_at_returns_created_at_date(
+        self,
+    ) -> None:
         self.upgrade_to_phone_premium()
         datetime_now = datetime.now(timezone.utc)
         phone_user = self.profile.user
@@ -736,7 +746,9 @@ class ProfileDatePhoneRegisteredTest(ProfileTestCase):
         assert self.profile.date_phone_registered == relay_number.created_at
 
     @override_settings(PHONES_NO_CLIENT_CALLS_IN_TEST=True)
-    def test_real_phone_and_relay_number_wo_created_at_returns_verified_date(self) -> None:
+    def test_real_phone_and_relay_number_wo_created_at_returns_verified_date(
+        self,
+    ) -> None:
         self.upgrade_to_phone_premium()
         datetime_now = datetime.now(timezone.utc)
         phone_user = self.profile.user
@@ -751,6 +763,7 @@ class ProfileDatePhoneRegisteredTest(ProfileTestCase):
         relay_number.created_at = None
         relay_number.save()
         assert self.profile.date_phone_registered == real_phone.verified_date
+
 
 class ProfileTotalMasksTest(ProfileTestCase):
     """Tests for Profile.total_masks"""
