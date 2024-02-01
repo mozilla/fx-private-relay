@@ -33,7 +33,7 @@ class PrivateRelayConfig(AppConfig):
     name = "privaterelay"
 
     def ready(self) -> None:
-        if settings.GOOGLE_APPLICATION_CREDENTIALS is not None:
+        if settings.GOOGLE_APPLICATION_CREDENTIALS:
             # Set up Google Cloud Profiler
             service, version = get_profiler_startup_data()
             if service != None:
@@ -41,7 +41,7 @@ class PrivateRelayConfig(AppConfig):
 
                 # Make sure the expect gcp_key.json file exists
                 gcp_key_json_path = Path(settings.GOOGLE_APPLICATION_CREDENTIALS)
-                if gcp_key_json_path.exists():
+                if gcp_key_json_path.exists() and gcp_key_json_path.is_file():
                     with gcp_key_json_path.open() as gcp_key_file:
                         try:
                             # Make sure the expect gcp_key.json file is valid json
