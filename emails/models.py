@@ -33,6 +33,9 @@ from privaterelay.utils import (
 from .apps import emails_config
 from .utils import get_domains_from_settings, incr_if_enabled
 
+if settings.PHONES_ENABLED:
+    from phones.models import RealPhone, RelayNumber
+
 
 logger = logging.getLogger("events")
 abuse_logger = logging.getLogger("abusemetrics")
@@ -389,6 +392,20 @@ class Profile(models.Model):
     def joined_before_premium_release(self):
         date_created = self.user.date_joined
         return date_created < datetime.fromisoformat("2021-10-22 17:00:00+00:00")
+
+    @property
+    def date_phone_registered(self) -> datetime | None:
+        if not settings.PHONES_ENABLED:
+            return None
+
+        try:
+            real_phone = RealPhone.objects.get(user=self.user)
+            relay_number = RelayNumber.objects.get(user=self.user)
+        except RealPhone.DoesNotExist:
+            return None
+        except RelayNumber.DoesNotExist:
+            return real_phone.verified_date
+        return relay_number.created_at or real_phone.verified_date
 
     def add_subdomain(self, subdomain):
         # Handles if the subdomain is "" or None

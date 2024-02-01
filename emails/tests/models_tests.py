@@ -7,6 +7,7 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db.models import signals
 from django.test import override_settings, TestCase
 
 from allauth.socialaccount.models import SocialAccount
@@ -36,6 +37,13 @@ from ..models import (
     valid_address_pattern,
 )
 from ..utils import get_domains_from_settings
+
+if settings.PHONES_ENABLED:
+    from phones.models import (
+        RealPhone,
+        RelayNumber,
+        realphone_post_save,
+    )
 
 
 def make_free_test_user(email: str = "") -> User:
@@ -80,6 +88,10 @@ def make_storageless_test_user():
 
 def unlimited_subscription() -> str:
     return random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
+
+
+def phone_subscription() -> str:
+    return random.choice(settings.SUBSCRIPTIONS_WITH_PHONE)
 
 
 def upgrade_test_user_to_premium(user):
@@ -524,6 +536,12 @@ class ProfileTestCase(TestCase):
         social_account.extra_data["subscriptions"].append(unlimited_subscription())
         social_account.save()
 
+    def upgrade_to_phone_premium(self) -> None:
+        """Add a phone subscription to the user."""
+        social_account = self.get_or_create_social_account()
+        social_account.extra_data["subscriptions"].append(phone_subscription())
+        social_account.save()
+
 
 class ProfileBounceTestCase(ProfileTestCase):
     """Base class for Profile tests that check for bounces."""
@@ -676,6 +694,63 @@ class ProfileHasPhoneTest(ProfileTestCase):
 
     def test_default_False(self) -> None:
         assert self.profile.has_phone is False
+
+    def test_phone_subscription_returns_True(self) -> None:
+        self.upgrade_to_phone_premium()
+        assert self.profile.has_phone is True
+
+
+@pytest.mark.skipif(not settings.PHONES_ENABLED, reason="PHONES_ENABLED is False")
+@override_settings(PHONES_NO_CLIENT_CALLS_IN_TEST=True)
+class ProfileDatePhoneRegisteredTest(ProfileTestCase):
+    """Tests for Profile.date_phone_registered"""
+
+    def test_default_None(self) -> None:
+        assert self.profile.date_phone_registered is None
+
+    def test_real_phone_no_relay_number_returns_verified_date(self) -> None:
+        self.upgrade_to_phone_premium()
+        datetime_now = datetime.now(timezone.utc)
+        RealPhone.objects.create(
+            user=self.profile.user,
+            number="+12223334444",
+            verified=True,
+            verified_date=datetime_now,
+        )
+        assert self.profile.date_phone_registered == datetime_now
+
+    def test_real_phone_and_relay_number_w_created_at_returns_created_at_date(
+        self,
+    ) -> None:
+        self.upgrade_to_phone_premium()
+        datetime_now = datetime.now(timezone.utc)
+        phone_user = self.profile.user
+        RealPhone.objects.create(
+            user=phone_user,
+            number="+12223334444",
+            verified=True,
+            verified_date=datetime_now,
+        )
+        relay_number = RelayNumber.objects.create(user=phone_user)
+        assert self.profile.date_phone_registered == relay_number.created_at
+
+    def test_real_phone_and_relay_number_wo_created_at_returns_verified_date(
+        self,
+    ) -> None:
+        self.upgrade_to_phone_premium()
+        datetime_now = datetime.now(timezone.utc)
+        phone_user = self.profile.user
+        real_phone = RealPhone.objects.create(
+            user=phone_user,
+            number="+12223334444",
+            verified=True,
+            verified_date=datetime_now,
+        )
+        relay_number = RelayNumber.objects.create(user=phone_user)
+        # since created_at is auto set, update to None
+        relay_number.created_at = None
+        relay_number.save()
+        assert self.profile.date_phone_registered == real_phone.verified_date
 
 
 class ProfileTotalMasksTest(ProfileTestCase):
