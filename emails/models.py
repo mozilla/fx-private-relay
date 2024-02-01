@@ -23,7 +23,6 @@ from allauth.socialaccount.models import SocialAccount
 from rest_framework.authtoken.models import Token
 
 from api.exceptions import ErrorContextType, RelayAPIException
-from phones.models import RealPhone, RelayNumber
 from privaterelay.plans import get_premium_countries
 from privaterelay.utils import (
     AcceptLanguageError,
@@ -33,6 +32,9 @@ from privaterelay.utils import (
 
 from .apps import emails_config
 from .utils import get_domains_from_settings, incr_if_enabled
+
+if settings.PHONES_ENABLED:
+    from phones.models import RealPhone, RelayNumber
 
 
 logger = logging.getLogger("events")
@@ -393,6 +395,9 @@ class Profile(models.Model):
 
     @property
     def date_phone_registered(self) -> datetime | None:
+        if not settings.PHONES_ENABLED:
+            return None
+
         try:
             real_phone = RealPhone.objects.get(user=self.user)
             relay_number = RelayNumber.objects.get(user=self.user)

@@ -37,11 +37,13 @@ from ..models import (
     valid_address_pattern,
 )
 from ..utils import get_domains_from_settings
-from phones.models import (
-    RealPhone,
-    RelayNumber,
-    realphone_post_save,
-)
+
+if settings.PHONES_ENABLED:
+    from phones.models import (
+        RealPhone,
+        RelayNumber,
+        realphone_post_save,
+    )
 
 
 def make_free_test_user(email: str = "") -> User:
@@ -698,6 +700,7 @@ class ProfileHasPhoneTest(ProfileTestCase):
         assert self.profile.has_phone is True
 
 
+@pytest.mark.skipif(not settings.PHONES_ENABLED, reason="PHONES_ENABLED is False")
 class ProfileDatePhoneRegisteredTest(ProfileTestCase):
     """Tests for Profile.date_phone_registered"""
 
