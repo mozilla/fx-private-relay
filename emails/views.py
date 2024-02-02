@@ -1297,16 +1297,10 @@ def _get_domain_address(local_portion: str, domain_portion: str) -> DomainAddres
                 domain_address = DomainAddress.make_domain_address(
                     locked_profile, local_portion, True
                 )
-                if fxa := locked_profile.fxa:
-                    mozilla_accounts_id = fxa.uid
-                else:
-                    mozilla_accounts_id = ""
-                glean_logger().record_email_generate_mask(
-                    user_agent="",
-                    ip_address="",
-                    mozilla_accounts_id=mozilla_accounts_id,
-                    has_generated_for=False,
+                glean_logger().mask_created(
+                    user=locked_profile.user,
                     is_random_mask=False,
+                    has_website=False,
                     created_by_api=False,
                 )
             domain_address.last_used_at = datetime.now(timezone.utc)

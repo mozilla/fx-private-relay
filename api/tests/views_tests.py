@@ -91,14 +91,24 @@ def test_post_domainaddress_success(prem_api_client, premium_user, caplog) -> No
 
     event = get_glean_event(caplog)
     assert event is not None
+    date_joined_ts = int(premium_user.date_joined.timestamp())
+    date_subscribed_ts = int(premium_user.profile.date_subscribed.timestamp())
     assert event == {
-        "category": "email",
-        "name": "generate_mask",
+        "category": "mask",
+        "name": "created",
         "extra": {
-            "mozilla_accounts_id": premium_user.profile.fxa.uid,
+            "user_id": "",
+            "fxa_id": premium_user.profile.fxa.uid,
+            "platform": "",
+            "n_masks": "1",
+            "date_joined_relay": str(date_joined_ts),
+            "premium_status": "email_unknown",
+            "date_joined_premium": str(date_subscribed_ts),
+            "has_extension": "false",
+            "date_got_extension": "-1",
             "is_random_mask": "false",
             "created_by_api": "true",
-            "has_generated_for": "false",
+            "has_website": "false",
         },
         "timestamp": event["timestamp"],
     }
@@ -415,13 +425,21 @@ def test_post_relayaddress_success(free_api_client, free_user, caplog) -> None:
     event = get_glean_event(caplog)
     assert event is not None
     assert event == {
-        "category": "email",
-        "name": "generate_mask",
+        "category": "mask",
+        "name": "created",
         "extra": {
-            "mozilla_accounts_id": free_user.profile.fxa.uid,
+            "user_id": "",
+            "fxa_id": free_user.profile.fxa.uid,
+            "platform": "",
+            "n_masks": "1",
+            "date_joined_relay": str(int(free_user.date_joined.timestamp())),
+            "premium_status": "free",
+            "date_joined_premium": "-1",
+            "has_extension": "false",
+            "date_got_extension": "-1",
             "is_random_mask": "true",
             "created_by_api": "true",
-            "has_generated_for": "false",
+            "has_website": "false",
         },
         "timestamp": event["timestamp"],
     }
@@ -437,17 +455,26 @@ def test_post_relayaddress_with_generated_for_success(
         format="json",
     )
     assert response.status_code == 201
+    address = free_user.relayaddress_set.get()
 
     event = get_glean_event(caplog)
     assert event is not None
     assert event == {
-        "category": "email",
-        "name": "generate_mask",
+        "category": "mask",
+        "name": "created",
         "extra": {
-            "mozilla_accounts_id": free_user.profile.fxa.uid,
+            "user_id": "",
+            "fxa_id": free_user.profile.fxa.uid,
+            "platform": "",
+            "n_masks": "1",
+            "date_joined_relay": str(int(free_user.date_joined.timestamp())),
+            "premium_status": "free",
+            "date_joined_premium": "-1",
+            "has_extension": "true",
+            "date_got_extension": str(int(address.created_at.timestamp())),
             "is_random_mask": "true",
+            "has_website": "true",
             "created_by_api": "true",
-            "has_generated_for": "true",
         },
         "timestamp": event["timestamp"],
     }

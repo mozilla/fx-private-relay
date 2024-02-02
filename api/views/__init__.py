@@ -127,20 +127,12 @@ class RelayAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
 
     def perform_create(self, serializer: BaseSerializer[RelayAddress]) -> None:
         serializer.save(user=self.request.user)
-        if not isinstance(serializer, RelayAddressSerializer) or not isinstance(
-            self.request.user, User
-        ):
+        if not isinstance(serializer, RelayAddressSerializer):
             return
-        if fxa := self.request.user.profile.fxa:
-            mozilla_accounts_id = fxa.uid
-        else:
-            mozilla_accounts_id = ""
-        glean_logger().record_email_generate_mask(
-            user_agent=self.request.headers.get("user-agent", ""),
-            ip_address=self.request.headers.get("ip-address", ""),
-            mozilla_accounts_id=mozilla_accounts_id,
-            has_generated_for=bool(serializer.data.get("generated_for", None)),
+        glean_logger().mask_created(
+            request=self.request,
             is_random_mask=True,
+            has_website=bool(serializer.data.get("generated_for", None)),
             created_by_api=True,
         )
 
@@ -180,20 +172,12 @@ class DomainAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     def perform_create(self, serializer: BaseSerializer[DomainAddress]) -> None:
         serializer.save(user=self.request.user)
 
-        if not isinstance(serializer, DomainAddressSerializer) or not isinstance(
-            self.request.user, User
-        ):
+        if not isinstance(serializer, DomainAddressSerializer):
             return
-        if fxa := self.request.user.profile.fxa:
-            mozilla_accounts_id = fxa.uid
-        else:
-            mozilla_accounts_id = ""
-        glean_logger().record_email_generate_mask(
-            user_agent=self.request.headers.get("user-agent", ""),
-            ip_address=self.request.headers.get("ip-address", ""),
-            mozilla_accounts_id=mozilla_accounts_id,
-            has_generated_for=bool(serializer.data.get("generated_for", None)),
+        glean_logger().mask_created(
+            request=self.request,
             is_random_mask=False,
+            has_website=bool(serializer.data.get("generated_for", None)),
             created_by_api=True,
         )
 

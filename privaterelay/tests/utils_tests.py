@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from typing import Iterator
 from unittest.mock import patch
-from uuid import UUID, uuid4
+from uuid import UUID
 import json
 import logging
 
@@ -619,13 +619,10 @@ def test_get_version_info() -> None:
 @pytest.mark.usefixtures("version_json_path")
 def test_glean_logger(caplog, settings) -> None:
     glean_logger.cache_clear()  # Ensure version is from version_json_path
-    glean_logger().record_email_generate_mask(
-        user_agent="",
-        ip_address="",
-        mozilla_accounts_id=(mza_id := str(uuid4())),
+    glean_logger().mask_created(
         is_random_mask=True,
+        has_website=False,
         created_by_api=True,
-        has_generated_for=False,
     )
 
     # One info-level glean-server-event log
@@ -662,13 +659,21 @@ def test_glean_logger(caplog, settings) -> None:
         "metrics": {},
         "events": [
             {
-                "category": "email",
-                "name": "generate_mask",
+                "category": "mask",
+                "name": "created",
                 "extra": {
-                    "mozilla_accounts_id": mza_id,
+                    "user_id": "",
+                    "fxa_id": "",
+                    "platform": "",
+                    "n_masks": "0",
+                    "date_joined_relay": "-1",
+                    "premium_status": "",
+                    "date_joined_premium": "-1",
+                    "has_extension": "false",
+                    "date_got_extension": "-1",
                     "is_random_mask": "true",
+                    "has_website": "false",
                     "created_by_api": "true",
-                    "has_generated_for": "false",
                 },
                 "timestamp": event_ts_ms,
             }

@@ -5,13 +5,76 @@
 # For more information on configuring this file:
 # https://mozilla.github.io/glean/book/reference/yaml/metrics.html
 
+# Status: Draft
+# This work is tracked in https://mozilla-hub.atlassian.net/browse/MPP-3352
+#
+# This is the first Relay integration with Glean, and is focused on the
+# data needed to determine if a Relay user is engaged with the service,
+# creating masks and getting emails. There are more metrics planned in the
+# future, after we get over the technical hurdles of the first integration.
+#
+# Remaining critical path work in the code:
+# - Merge python_server backend for glean_parser
+#   https://github.com/mozilla/glean_parser/pull/653
+# - Release glean_parser with python_server backend
+# - Add Relay hooks for mask_deleted events
+# - Add Relay hooks for mask_label_updated events
+# - Add Relay hooks for email_forwarded events
+# - Add Relay hooks for email_blocked events
+# - Respect opt-out at Firefox Accounts level
+# - Request a data review, update bugs and data_reviews
+# - Make required changes from data review
+# - Delete this status section
 ---
 $schema: moz://mozilla.org/schemas/glean/metrics/2-0-0
 
-email:
-  generate_mask:
+mask:
+  deleted:
     type: event
-    description: An email mask is generated.
+    description: A Relay user deletes an email mask.
+    expires: never
+    bugs:
+      - http://example.com
+    data_reviews:
+      - http://example.com
+    notification_emails:
+      - jwhitlock@mozilla.com
+    data_sensitivity:
+      - interaction
+    extra_keys: &default_mask_extra_keys
+      user_id:
+        description: Firefox client ID
+        type: string
+      fxa_id:
+        description: Mozilla accounts user ID
+        type: string
+      platform:
+        description: Relay client platform
+        type: string
+      n_masks:
+        description: Number of masks
+        type: quantity
+      date_joined_relay:
+        description: Timestamp for joining Relay, seconds since epoch
+        type: quantity
+      premium_status:
+        description: Subscription type and term
+        type: string
+      date_joined_premium:
+        description: Timestamp for starting premium_status subscription, seconds since epoch, -1 if not subscribed
+        type: quantity
+      has_extension:
+        description: The user has the Relay Add-on
+        type: boolean
+      date_got_extension:
+        description: Timestamp for adding Relay Add-on, seconds since epoch, -1 if not used
+        type: quantity
+      is_random_mask:
+        description: The mask is a random mask, instead of a domain mask
+        type: boolean
+  created:
+    type: event
+    description: A Relay user creates an email mask.
     expires: never
     bugs:
       - http://example.com
@@ -22,15 +85,55 @@ email:
     data_sensitivity:
       - interaction
     extra_keys:
-      mozilla_accounts_id:
-        description: Mozilla accounts user ID.
-        type: string
-      is_random_mask:
-        description: The mask is a random mask, instead of a domain mask
-        type: boolean
+      <<: *default_mask_extra_keys
       created_by_api:
         description: The mask was created via the API, rather than an incoming email
         type: boolean
-      has_generated_for:
-        description: The "generated_for" field was set by the Add-on or integration
+      has_website:
+        description: The mask was created by the Add-on or integration on a website
         type: boolean
+  label_updated:
+    type: event
+    description: A Relay users updates an email mask's label.
+    expires: never
+    bugs:
+      - http://example.com
+    data_reviews:
+      - http://example.com
+    notification_emails:
+      - jwhitlock@mozilla.com
+    data_sensitivity:
+      - interaction
+    extra_keys: *default_mask_extra_keys
+
+email:
+  forwarded:
+    type: event
+    description: Relay receives and forwards an email for a Relay user.
+    expires: never
+    bugs:
+      - http://example.com
+    data_reviews:
+      - http://example.com
+    notification_emails:
+      - jwhitlock@mozilla.com
+    data_sensitivity:
+      - interaction
+    extra_keys: &default_email_extra_keys
+      <<: *default_mask_extra_keys
+      is_reply:
+        description: The email is a reply from the Relay user
+        type: boolean
+  blocked:
+    type: event
+    description: Relay receives but does not forward an email for a Relay user.
+    expires: never
+    bugs:
+      - http://example.com
+    data_reviews:
+      - http://example.com
+    notification_emails:
+      - jwhitlock@mozilla.com
+    data_sensitivity:
+      - interaction
+    extra_keys: *default_email_extra_keys

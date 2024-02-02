@@ -43,9 +43,8 @@ def make_free_test_user(email: str = "") -> User:
         user = baker.make(User, email=email)
     else:
         user = baker.make(User)
-    user_profile = Profile.objects.get(user=user)
-    user_profile.server_storage = True
-    user_profile.save()
+    user.profile.server_storage = True
+    user.profile.save()
     baker.make(
         SocialAccount,
         user=user,
@@ -57,12 +56,10 @@ def make_free_test_user(email: str = "") -> User:
 
 
 def make_premium_test_user() -> User:
-    # premium user
     premium_user = baker.make(User, email="premium@email.com")
-    premium_user_profile = Profile.objects.get(user=premium_user)
-    premium_user_profile.server_storage = True
-    premium_user_profile.date_subscribed = datetime.now(tz=timezone.utc)
-    premium_user_profile.save()
+    premium_user.profile.server_storage = True
+    premium_user.profile.date_subscribed = datetime.now(tz=timezone.utc)
+    premium_user.profile.save()
     upgrade_test_user_to_premium(premium_user)
     return premium_user
 

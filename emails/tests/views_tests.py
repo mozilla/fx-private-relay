@@ -526,14 +526,25 @@ class SNSNotificationTest(TestCase):
         event = get_glean_event(caplog)
         assert event is not None
         assert self.premium_user.profile.fxa
+        assert self.premium_user.profile.date_subscribed
+        date_joined_ts = int(self.premium_user.date_joined.timestamp())
+        date_premium_ts = int(self.premium_user.profile.date_subscribed.timestamp())
         assert event == {
-            "category": "email",
-            "name": "generate_mask",
+            "category": "mask",
+            "name": "created",
             "extra": {
-                "mozilla_accounts_id": self.premium_user.profile.fxa.uid,
+                "user_id": "",
+                "fxa_id": self.premium_user.profile.fxa.uid,
+                "platform": "",
+                "n_masks": "1",
+                "date_joined_relay": str(date_joined_ts),
+                "premium_status": "email_unknown",
+                "date_joined_premium": str(date_premium_ts),
+                "has_extension": "false",
+                "date_got_extension": "-1",
                 "is_random_mask": "false",
+                "has_website": "false",
                 "created_by_api": "false",
-                "has_generated_for": "false",
             },
             "timestamp": event["timestamp"],
         }
@@ -1493,14 +1504,25 @@ class GetAddressTest(TestCase):
         event = get_glean_event(caplog)
         assert event is not None
         assert self.user.profile.fxa
+        assert self.user.profile.date_subscribed
+        date_joined_ts = int(self.user.date_joined.timestamp())
+        date_premium_ts = int(self.user.profile.date_subscribed.timestamp())
         assert event == {
-            "category": "email",
-            "name": "generate_mask",
+            "category": "mask",
+            "name": "created",
             "extra": {
-                "mozilla_accounts_id": self.user.profile.fxa.uid,
+                "user_id": "",
+                "fxa_id": self.user.profile.fxa.uid,
+                "platform": "",
+                "n_masks": "3",
+                "date_joined_relay": str(date_joined_ts),
+                "premium_status": "email_unknown",
+                "date_joined_premium": str(date_premium_ts),
+                "has_extension": "false",
+                "date_got_extension": "-1",
                 "is_random_mask": "false",
+                "has_website": "false",
                 "created_by_api": "false",
-                "has_generated_for": "false",
             },
             "timestamp": event["timestamp"],
         }
@@ -1523,14 +1545,25 @@ class GetAddressTest(TestCase):
         event = get_glean_event(caplog)
         assert event is not None
         assert self.user.profile.fxa
+        assert self.user.profile.date_subscribed
+        date_joined_ts = int(self.user.date_joined.timestamp())
+        date_premium_ts = int(self.user.profile.date_subscribed.timestamp())
         assert event == {
-            "category": "email",
-            "name": "generate_mask",
+            "category": "mask",
+            "name": "created",
             "extra": {
-                "mozilla_accounts_id": self.user.profile.fxa.uid,
+                "user_id": "",
+                "fxa_id": self.user.profile.fxa.uid,
+                "platform": "",
+                "n_masks": "3",
+                "date_joined_relay": str(date_joined_ts),
+                "premium_status": "email_unknown",
+                "date_joined_premium": str(date_premium_ts),
+                "has_extension": "false",
+                "date_got_extension": "-1",
                 "is_random_mask": "false",
+                "has_website": "false",
                 "created_by_api": "false",
-                "has_generated_for": "false",
             },
             "timestamp": event["timestamp"],
         }
