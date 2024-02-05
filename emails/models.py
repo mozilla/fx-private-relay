@@ -520,6 +520,12 @@ class Profile(models.Model):
         # user was flagged and the premium feature pause period is not yet over
         return True
 
+    @property
+    def metrics_enabled(self) -> bool:
+        if self.fxa:
+            return bool(self.fxa.extra_data.get("metricsEnabled", True))
+        return True
+
 
 @receiver(models.signals.post_save, sender=Profile)
 def copy_auth_token(sender, instance=None, created=False, **kwargs):
