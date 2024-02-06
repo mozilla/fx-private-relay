@@ -94,10 +94,10 @@ def test_post_domainaddress_success(prem_api_client, premium_user, caplog) -> No
     date_joined_ts = int(premium_user.date_joined.timestamp())
     date_subscribed_ts = int(premium_user.profile.date_subscribed.timestamp())
     assert event == {
-        "category": "mask",
+        "category": "email_mask",
         "name": "created",
         "extra": {
-            "user_id": "",
+            "client_id": "",
             "fxa_id": premium_user.profile.fxa.uid,
             "platform": "",
             "n_masks": "1",
@@ -106,6 +106,7 @@ def test_post_domainaddress_success(prem_api_client, premium_user, caplog) -> No
             "date_joined_premium": str(date_subscribed_ts),
             "has_extension": "false",
             "date_got_extension": "-1",
+            "mask_id": f"d{ret_data['id']}",
             "is_random_mask": "false",
             "created_by_api": "true",
             "has_website": "false",
@@ -425,10 +426,10 @@ def test_post_relayaddress_success(free_api_client, free_user, caplog) -> None:
     event = get_glean_event(caplog)
     assert event is not None
     assert event == {
-        "category": "mask",
+        "category": "email_mask",
         "name": "created",
         "extra": {
-            "user_id": "",
+            "client_id": "",
             "fxa_id": free_user.profile.fxa.uid,
             "platform": "",
             "n_masks": "1",
@@ -437,6 +438,7 @@ def test_post_relayaddress_success(free_api_client, free_user, caplog) -> None:
             "date_joined_premium": "-1",
             "has_extension": "false",
             "date_got_extension": "-1",
+            "mask_id": f"r{ret_data['id']}",
             "is_random_mask": "true",
             "created_by_api": "true",
             "has_website": "false",
@@ -460,10 +462,10 @@ def test_post_relayaddress_with_generated_for_success(
     event = get_glean_event(caplog)
     assert event is not None
     assert event == {
-        "category": "mask",
+        "category": "email_mask",
         "name": "created",
         "extra": {
-            "user_id": "",
+            "client_id": "",
             "fxa_id": free_user.profile.fxa.uid,
             "platform": "",
             "n_masks": "1",
@@ -472,6 +474,7 @@ def test_post_relayaddress_with_generated_for_success(
             "date_joined_premium": "-1",
             "has_extension": "true",
             "date_got_extension": str(int(address.created_at.timestamp())),
+            "mask_id": f"r{address.id}",
             "is_random_mask": "true",
             "has_website": "true",
             "created_by_api": "true",

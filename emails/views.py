@@ -1297,10 +1297,8 @@ def _get_domain_address(local_portion: str, domain_portion: str) -> DomainAddres
                 domain_address = DomainAddress.make_domain_address(
                     locked_profile, local_portion, True
                 )
-                glean_logger().mask_created(
-                    user=locked_profile.user,
-                    is_random_mask=False,
-                    has_website=False,
+                glean_logger().log_email_mask_created(
+                    mask=domain_address,
                     created_by_api=False,
                 )
             domain_address.last_used_at = datetime.now(timezone.utc)

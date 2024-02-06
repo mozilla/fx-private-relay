@@ -126,13 +126,10 @@ class RelayAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         return RelayAddress.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer: BaseSerializer[RelayAddress]) -> None:
-        serializer.save(user=self.request.user)
-        if not isinstance(serializer, RelayAddressSerializer):
-            return
-        glean_logger().mask_created(
+        instance = serializer.save(user=self.request.user)
+        glean_logger().log_email_mask_created(
             request=self.request,
-            is_random_mask=True,
-            has_website=bool(serializer.data.get("generated_for", None)),
+            mask=instance,
             created_by_api=True,
         )
 
@@ -170,14 +167,10 @@ class DomainAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         return DomainAddress.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer: BaseSerializer[DomainAddress]) -> None:
-        serializer.save(user=self.request.user)
-
-        if not isinstance(serializer, DomainAddressSerializer):
-            return
-        glean_logger().mask_created(
+        instance = serializer.save(user=self.request.user)
+        glean_logger().log_email_mask_created(
             request=self.request,
-            is_random_mask=False,
-            has_website=bool(serializer.data.get("generated_for", None)),
+            mask=instance,
             created_by_api=True,
         )
 

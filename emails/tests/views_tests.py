@@ -530,10 +530,10 @@ class SNSNotificationTest(TestCase):
         date_joined_ts = int(self.premium_user.date_joined.timestamp())
         date_premium_ts = int(self.premium_user.profile.date_subscribed.timestamp())
         assert event == {
-            "category": "mask",
+            "category": "email_mask",
             "name": "created",
             "extra": {
-                "user_id": "",
+                "client_id": "",
                 "fxa_id": self.premium_user.profile.fxa.uid,
                 "platform": "",
                 "n_masks": "1",
@@ -542,6 +542,7 @@ class SNSNotificationTest(TestCase):
                 "date_joined_premium": str(date_premium_ts),
                 "has_extension": "false",
                 "date_got_extension": "-1",
+                "mask_id": f"d{da.id}",
                 "is_random_mask": "false",
                 "has_website": "false",
                 "created_by_api": "false",
@@ -1508,10 +1509,10 @@ class GetAddressTest(TestCase):
         date_joined_ts = int(self.user.date_joined.timestamp())
         date_premium_ts = int(self.user.profile.date_subscribed.timestamp())
         assert event == {
-            "category": "mask",
+            "category": "email_mask",
             "name": "created",
             "extra": {
-                "user_id": "",
+                "client_id": "",
                 "fxa_id": self.user.profile.fxa.uid,
                 "platform": "",
                 "n_masks": "3",
@@ -1520,6 +1521,7 @@ class GetAddressTest(TestCase):
                 "date_joined_premium": str(date_premium_ts),
                 "has_extension": "false",
                 "date_got_extension": "-1",
+                "mask_id": f"d{address.id}",
                 "is_random_mask": "false",
                 "has_website": "false",
                 "created_by_api": "false",
@@ -1549,10 +1551,10 @@ class GetAddressTest(TestCase):
         date_joined_ts = int(self.user.date_joined.timestamp())
         date_premium_ts = int(self.user.profile.date_subscribed.timestamp())
         assert event == {
-            "category": "mask",
+            "category": "email_mask",
             "name": "created",
             "extra": {
-                "user_id": "",
+                "client_id": "",
                 "fxa_id": self.user.profile.fxa.uid,
                 "platform": "",
                 "n_masks": "3",
@@ -1561,6 +1563,7 @@ class GetAddressTest(TestCase):
                 "date_joined_premium": str(date_premium_ts),
                 "has_extension": "false",
                 "date_got_extension": "-1",
+                "mask_id": f"d{address.id}",
                 "is_random_mask": "false",
                 "has_website": "false",
                 "created_by_api": "false",

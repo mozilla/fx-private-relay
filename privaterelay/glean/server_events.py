@@ -91,7 +91,7 @@ class EventsServerEventLogger:
         self,
         user_agent: str,
         ip_address: str,
-        user_id: str,
+        client_id: str,
         fxa_id: str,
         platform: str,
         n_masks: int,
@@ -100,8 +100,10 @@ class EventsServerEventLogger:
         date_joined_premium: int,
         has_extension: bool,
         date_got_extension: int,
+        mask_id: str,
         is_random_mask: bool,
         is_reply: bool,
+        reason: str,
     ) -> None:
         """
         Record and submit a email_blocked event:
@@ -111,7 +113,7 @@ class EventsServerEventLogger:
         :param str user_agent: The user agent.
         :param str ip_address: The IP address. Will be used to decode Geo information
             and scrubbed at ingestion.
-        :param str user_id: Firefox client ID
+        :param str client_id: Firefox client ID
         :param str fxa_id: Mozilla accounts user ID
         :param str platform: Relay client platform
         :param int n_masks: Number of masks
@@ -120,14 +122,16 @@ class EventsServerEventLogger:
         :param int date_joined_premium: Timestamp for starting premium_status subscription, seconds since epoch, -1 if not subscribed
         :param bool has_extension: The user has the Relay Add-on
         :param int date_got_extension: Timestamp for adding Relay Add-on, seconds since epoch, -1 if not used
+        :param str mask_id: Mask ID, 'R' or 'D' followed by a number
         :param bool is_random_mask: The mask is a random mask, instead of a domain mask
         :param bool is_reply: The email is a reply from the Relay user
+        :param str reason: Code describing why the email was blocked
         """
         event = {
             "category": "email",
             "name": "blocked",
             "extra": {
-                "user_id": str(user_id),
+                "client_id": str(client_id),
                 "fxa_id": str(fxa_id),
                 "platform": str(platform),
                 "n_masks": str(n_masks),
@@ -136,8 +140,10 @@ class EventsServerEventLogger:
                 "date_joined_premium": str(date_joined_premium),
                 "has_extension": str(has_extension).lower(),
                 "date_got_extension": str(date_got_extension),
+                "mask_id": str(mask_id),
                 "is_random_mask": str(is_random_mask).lower(),
                 "is_reply": str(is_reply).lower(),
+                "reason": str(reason),
             },
         }
         self._record(user_agent, ip_address, event)
@@ -146,7 +152,7 @@ class EventsServerEventLogger:
         self,
         user_agent: str,
         ip_address: str,
-        user_id: str,
+        client_id: str,
         fxa_id: str,
         platform: str,
         n_masks: int,
@@ -155,6 +161,7 @@ class EventsServerEventLogger:
         date_joined_premium: int,
         has_extension: bool,
         date_got_extension: int,
+        mask_id: str,
         is_random_mask: bool,
         is_reply: bool,
     ) -> None:
@@ -166,7 +173,7 @@ class EventsServerEventLogger:
         :param str user_agent: The user agent.
         :param str ip_address: The IP address. Will be used to decode Geo information
             and scrubbed at ingestion.
-        :param str user_id: Firefox client ID
+        :param str client_id: Firefox client ID
         :param str fxa_id: Mozilla accounts user ID
         :param str platform: Relay client platform
         :param int n_masks: Number of masks
@@ -175,6 +182,7 @@ class EventsServerEventLogger:
         :param int date_joined_premium: Timestamp for starting premium_status subscription, seconds since epoch, -1 if not subscribed
         :param bool has_extension: The user has the Relay Add-on
         :param int date_got_extension: Timestamp for adding Relay Add-on, seconds since epoch, -1 if not used
+        :param str mask_id: Mask ID, 'R' or 'D' followed by a number
         :param bool is_random_mask: The mask is a random mask, instead of a domain mask
         :param bool is_reply: The email is a reply from the Relay user
         """
@@ -182,7 +190,7 @@ class EventsServerEventLogger:
             "category": "email",
             "name": "forwarded",
             "extra": {
-                "user_id": str(user_id),
+                "client_id": str(client_id),
                 "fxa_id": str(fxa_id),
                 "platform": str(platform),
                 "n_masks": str(n_masks),
@@ -191,17 +199,18 @@ class EventsServerEventLogger:
                 "date_joined_premium": str(date_joined_premium),
                 "has_extension": str(has_extension).lower(),
                 "date_got_extension": str(date_got_extension),
+                "mask_id": str(mask_id),
                 "is_random_mask": str(is_random_mask).lower(),
                 "is_reply": str(is_reply).lower(),
             },
         }
         self._record(user_agent, ip_address, event)
 
-    def record_mask_created(
+    def record_email_mask_created(
         self,
         user_agent: str,
         ip_address: str,
-        user_id: str,
+        client_id: str,
         fxa_id: str,
         platform: str,
         n_masks: int,
@@ -210,19 +219,20 @@ class EventsServerEventLogger:
         date_joined_premium: int,
         has_extension: bool,
         date_got_extension: int,
+        mask_id: str,
         is_random_mask: bool,
         created_by_api: bool,
         has_website: bool,
     ) -> None:
         """
-        Record and submit a mask_created event:
+        Record and submit a email_mask_created event:
         A Relay user creates an email mask.
         Event is logged to STDOUT via `print`.
 
         :param str user_agent: The user agent.
         :param str ip_address: The IP address. Will be used to decode Geo information
             and scrubbed at ingestion.
-        :param str user_id: Firefox client ID
+        :param str client_id: Firefox client ID
         :param str fxa_id: Mozilla accounts user ID
         :param str platform: Relay client platform
         :param int n_masks: Number of masks
@@ -231,15 +241,16 @@ class EventsServerEventLogger:
         :param int date_joined_premium: Timestamp for starting premium_status subscription, seconds since epoch, -1 if not subscribed
         :param bool has_extension: The user has the Relay Add-on
         :param int date_got_extension: Timestamp for adding Relay Add-on, seconds since epoch, -1 if not used
+        :param str mask_id: Mask ID, 'R' or 'D' followed by a number
         :param bool is_random_mask: The mask is a random mask, instead of a domain mask
         :param bool created_by_api: The mask was created via the API, rather than an incoming email
         :param bool has_website: The mask was created by the Add-on or integration on a website
         """
         event = {
-            "category": "mask",
+            "category": "email_mask",
             "name": "created",
             "extra": {
-                "user_id": str(user_id),
+                "client_id": str(client_id),
                 "fxa_id": str(fxa_id),
                 "platform": str(platform),
                 "n_masks": str(n_masks),
@@ -248,6 +259,7 @@ class EventsServerEventLogger:
                 "date_joined_premium": str(date_joined_premium),
                 "has_extension": str(has_extension).lower(),
                 "date_got_extension": str(date_got_extension),
+                "mask_id": str(mask_id),
                 "is_random_mask": str(is_random_mask).lower(),
                 "created_by_api": str(created_by_api).lower(),
                 "has_website": str(has_website).lower(),
@@ -255,11 +267,11 @@ class EventsServerEventLogger:
         }
         self._record(user_agent, ip_address, event)
 
-    def record_mask_deleted(
+    def record_email_mask_deleted(
         self,
         user_agent: str,
         ip_address: str,
-        user_id: str,
+        client_id: str,
         fxa_id: str,
         platform: str,
         n_masks: int,
@@ -268,17 +280,18 @@ class EventsServerEventLogger:
         date_joined_premium: int,
         has_extension: bool,
         date_got_extension: int,
+        mask_id: str,
         is_random_mask: bool,
     ) -> None:
         """
-        Record and submit a mask_deleted event:
+        Record and submit a email_mask_deleted event:
         A Relay user deletes an email mask.
         Event is logged to STDOUT via `print`.
 
         :param str user_agent: The user agent.
         :param str ip_address: The IP address. Will be used to decode Geo information
             and scrubbed at ingestion.
-        :param str user_id: Firefox client ID
+        :param str client_id: Firefox client ID
         :param str fxa_id: Mozilla accounts user ID
         :param str platform: Relay client platform
         :param int n_masks: Number of masks
@@ -287,13 +300,14 @@ class EventsServerEventLogger:
         :param int date_joined_premium: Timestamp for starting premium_status subscription, seconds since epoch, -1 if not subscribed
         :param bool has_extension: The user has the Relay Add-on
         :param int date_got_extension: Timestamp for adding Relay Add-on, seconds since epoch, -1 if not used
+        :param str mask_id: Mask ID, 'R' or 'D' followed by a number
         :param bool is_random_mask: The mask is a random mask, instead of a domain mask
         """
         event = {
-            "category": "mask",
+            "category": "email_mask",
             "name": "deleted",
             "extra": {
-                "user_id": str(user_id),
+                "client_id": str(client_id),
                 "fxa_id": str(fxa_id),
                 "platform": str(platform),
                 "n_masks": str(n_masks),
@@ -302,16 +316,17 @@ class EventsServerEventLogger:
                 "date_joined_premium": str(date_joined_premium),
                 "has_extension": str(has_extension).lower(),
                 "date_got_extension": str(date_got_extension),
+                "mask_id": str(mask_id),
                 "is_random_mask": str(is_random_mask).lower(),
             },
         }
         self._record(user_agent, ip_address, event)
 
-    def record_mask_label_updated(
+    def record_email_mask_label_updated(
         self,
         user_agent: str,
         ip_address: str,
-        user_id: str,
+        client_id: str,
         fxa_id: str,
         platform: str,
         n_masks: int,
@@ -320,17 +335,18 @@ class EventsServerEventLogger:
         date_joined_premium: int,
         has_extension: bool,
         date_got_extension: int,
+        mask_id: str,
         is_random_mask: bool,
     ) -> None:
         """
-        Record and submit a mask_label_updated event:
+        Record and submit a email_mask_label_updated event:
         A Relay users updates an email mask's label.
         Event is logged to STDOUT via `print`.
 
         :param str user_agent: The user agent.
         :param str ip_address: The IP address. Will be used to decode Geo information
             and scrubbed at ingestion.
-        :param str user_id: Firefox client ID
+        :param str client_id: Firefox client ID
         :param str fxa_id: Mozilla accounts user ID
         :param str platform: Relay client platform
         :param int n_masks: Number of masks
@@ -339,13 +355,14 @@ class EventsServerEventLogger:
         :param int date_joined_premium: Timestamp for starting premium_status subscription, seconds since epoch, -1 if not subscribed
         :param bool has_extension: The user has the Relay Add-on
         :param int date_got_extension: Timestamp for adding Relay Add-on, seconds since epoch, -1 if not used
+        :param str mask_id: Mask ID, 'R' or 'D' followed by a number
         :param bool is_random_mask: The mask is a random mask, instead of a domain mask
         """
         event = {
-            "category": "mask",
+            "category": "email_mask",
             "name": "label_updated",
             "extra": {
-                "user_id": str(user_id),
+                "client_id": str(client_id),
                 "fxa_id": str(fxa_id),
                 "platform": str(platform),
                 "n_masks": str(n_masks),
@@ -354,6 +371,7 @@ class EventsServerEventLogger:
                 "date_joined_premium": str(date_joined_premium),
                 "has_extension": str(has_extension).lower(),
                 "date_got_extension": str(date_got_extension),
+                "mask_id": str(mask_id),
                 "is_random_mask": str(is_random_mask).lower(),
             },
         }

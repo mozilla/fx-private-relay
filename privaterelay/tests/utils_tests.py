@@ -1,8 +1,5 @@
-from datetime import datetime, timezone
 from typing import Iterator
 from unittest.mock import patch
-from uuid import UUID
-import json
 import logging
 
 from django.contrib.auth.models import AbstractBaseUser, Group, User
@@ -23,7 +20,6 @@ from ..utils import (
     flag_is_active_in_task,
     get_countries_info_from_request_and_mapping,
     get_version_info,
-    glean_logger,
     guess_country_from_accept_lang,
 )
 
@@ -613,84 +609,4 @@ def test_get_version_info() -> None:
         "version": "2024.01.17",
         "source": "https://github.com/mozilla/fx-private-relay",
         "build": "https://circleci.com/gh/mozilla/fx-private-relay/100",
-    }
-
-
-@pytest.mark.usefixtures("version_json_path")
-def test_glean_logger(caplog, settings) -> None:
-    glean_logger.cache_clear()  # Ensure version is from version_json_path
-    glean_logger().mask_created(
-        is_random_mask=True,
-        has_website=False,
-        created_by_api=True,
-    )
-
-    # One info-level glean-server-event log
-    assert len(caplog.records) == 1
-    record = caplog.records[0]
-    assert record.name == "glean-server-event"  # Type in mozlog
-    assert record.msg == "glean-server-event"
-    assert record.levelname == "INFO"
-
-    # Check top-level extra data
-    assert record.document_namespace == "relay-backend"
-    assert record.document_type == "events"
-    assert record.document_version == "1"
-    assert UUID(record.document_id).version == 4
-    assert record.user_agent == ""
-    assert record.ip_address == ""
-    assert record.payload.startswith("{")
-
-    # Get parts of the payload that vary
-    payload = json.loads(record.payload)
-    event_ts_ms = payload["events"][0]["timestamp"]
-    event_time = datetime.fromtimestamp(event_ts_ms / 1000.0)
-    assert 0 < (datetime.now() - event_time).total_seconds() < 0.5
-
-    start_time_iso = payload["ping_info"]["start_time"]
-    start_time = datetime.fromisoformat(start_time_iso)
-    assert 0 < (datetime.now(timezone.utc) - start_time).total_seconds() < 0.5
-
-    telemetry_sdk_build = payload["client_info"]["telemetry_sdk_build"]
-    assert telemetry_sdk_build.startswith("glean_parser v")
-
-    # Check payload structure, with known and varying values
-    assert payload == {
-        "metrics": {},
-        "events": [
-            {
-                "category": "mask",
-                "name": "created",
-                "extra": {
-                    "user_id": "",
-                    "fxa_id": "",
-                    "platform": "",
-                    "n_masks": "0",
-                    "date_joined_relay": "-1",
-                    "premium_status": "",
-                    "date_joined_premium": "-1",
-                    "has_extension": "false",
-                    "date_got_extension": "-1",
-                    "is_random_mask": "true",
-                    "has_website": "false",
-                    "created_by_api": "true",
-                },
-                "timestamp": event_ts_ms,
-            }
-        ],
-        "client_info": {
-            "app_build": "Unknown",
-            "app_channel": settings.RELAY_CHANNEL,
-            "app_display_version": "2024.01.17",
-            "architecture": "Unknown",
-            "first_run_date": "Unknown",
-            "os": "Unknown",
-            "os_version": "Unknown",
-            "telemetry_sdk_build": telemetry_sdk_build,
-        },
-        "ping_info": {
-            "seq": 0,
-            "start_time": start_time_iso,
-            "end_time": start_time_iso,
-        },
     }
