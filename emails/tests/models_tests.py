@@ -7,7 +7,6 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.db.models import signals
 from django.test import override_settings, TestCase
 
 from allauth.socialaccount.models import SocialAccount
@@ -39,11 +38,7 @@ from ..models import (
 from ..utils import get_domains_from_settings
 
 if settings.PHONES_ENABLED:
-    from phones.models import (
-        RealPhone,
-        RelayNumber,
-        realphone_post_save,
-    )
+    from phones.models import RealPhone, RelayNumber
 
 
 def make_free_test_user(email: str = "") -> User:
