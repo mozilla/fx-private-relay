@@ -3,10 +3,9 @@
 from __future__ import annotations
 from datetime import datetime
 from logging import getLogger
-from typing import Any, TypedDict, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.http import HttpRequest
 
 from ipware import get_client_ip
@@ -37,7 +36,6 @@ class RelayGleanLogger(EventsServerEventLogger):
         self,
         *,
         request: HttpRequest | None = None,
-        user: User | None = None,
         mask: RelayAddress | DomainAddress,
         created_by_api: bool,
     ) -> None:
@@ -50,59 +48,46 @@ class RelayGleanLogger(EventsServerEventLogger):
             user_agent = request.headers.get("user-agent", "")
             client_ip, is_routable = get_client_ip(request)
             ip_address = client_ip if (client_ip and is_routable) else ""
-            if user is None and isinstance(request.user, User):
-                user = request.user
 
-        if user is None:
-            user = mask.user
+        user = mask.user
+        fxa_id = user.profile.fxa.uid if user.profile.fxa else ""
+        n_masks = user.profile.total_masks
+        date_joined_relay = int(user.date_joined.timestamp())
 
-        if user is None:
-            fxa_id = ""
-            n_masks = 0
-            date_joined_relay = -1
-            premium_status = ""
+        date_subscribed = None
+        if user.profile.has_premium:
+            if user.profile.has_phone:
+                plan = "bundle" if user.profile.has_vpn else "phone"
+                date_subscribed = user.profile.date_subscribed_phone
+            else:
+                plan = "email"
+                date_subscribed = user.profile.date_subscribed
+        else:
+            plan = "free"
+        if date_subscribed:
+            date_joined_premium = int(date_subscribed.timestamp())
+        else:
             date_joined_premium = -1
+
+        term = "unknown"
+        if plan == "phone":
+            start_date = user.profile.date_phone_subscription_start
+            end_date = user.profile.date_phone_subscription_end
+            if start_date and end_date:
+                span = end_date - start_date
+                term = "1_year" if span.days > 32 else "1_month"
+        premium_status = plan if plan == "free" else f"{plan}_{term}"
+
+        try:
+            earliest_mask = user.relayaddress_set.exclude(
+                generated_for__exact=""
+            ).earliest("created_at")
+        except RelayAddress.DoesNotExist:
             has_extension = False
             date_got_extension = -1
         else:
-            fxa_id = user.profile.fxa.uid if user.profile.fxa else ""
-            n_masks = user.profile.total_masks
-            date_joined_relay = int(user.date_joined.timestamp())
-
-            date_subscribed = None
-            if user.profile.has_premium:
-                if user.profile.has_phone:
-                    plan = "bundle" if user.profile.has_vpn else "phone"
-                    date_subscribed = user.profile.date_subscribed_phone
-                else:
-                    plan = "email"
-                    date_subscribed = user.profile.date_subscribed
-            else:
-                plan = "free"
-            if date_subscribed:
-                date_joined_premium = int(date_subscribed.timestamp())
-            else:
-                date_joined_premium = -1
-
-            term = "unknown"
-            if plan == "phone":
-                start_date = user.profile.date_phone_subscription_start
-                end_date = user.profile.date_phone_subscription_end
-                if start_date and end_date:
-                    span = end_date - start_date
-                    term = "1_year" if span.days > 32 else "1_month"
-            premium_status = plan if plan == "free" else f"{plan}_{term}"
-
-            try:
-                earliest_mask = user.relayaddress_set.exclude(
-                    generated_for__exact=""
-                ).earliest("created_at")
-            except RelayAddress.DoesNotExist:
-                has_extension = False
-                date_got_extension = -1
-            else:
-                has_extension = True
-                date_got_extension = int(earliest_mask.created_at.timestamp())
+            has_extension = True
+            date_got_extension = int(earliest_mask.created_at.timestamp())
 
         if isinstance(mask, RelayAddress):
             is_random_mask = True
