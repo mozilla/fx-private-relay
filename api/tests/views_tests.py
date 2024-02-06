@@ -88,6 +88,7 @@ def test_post_domainaddress_success(prem_api_client, premium_user, caplog) -> No
     ret_data = response.json()
     assert ret_data["enabled"]
     assert ret_data["full_address"].startswith("my-new-mask@premium.")
+    address = premium_user.domainaddress_set.get()
 
     event = get_glean_event(caplog)
     assert event is not None
@@ -106,7 +107,7 @@ def test_post_domainaddress_success(prem_api_client, premium_user, caplog) -> No
             "date_joined_premium": str(date_subscribed_ts),
             "has_extension": "false",
             "date_got_extension": "-1",
-            "mask_id": f"d{ret_data['id']}",
+            "mask_id": address.metrics_id,
             "is_random_mask": "false",
             "created_by_api": "true",
             "has_website": "false",
@@ -422,6 +423,7 @@ def test_post_relayaddress_success(free_api_client, free_user, caplog) -> None:
     assert response.status_code == 201
     ret_data = response.json()
     assert ret_data["enabled"]
+    address = free_user.relayaddress_set.get()
 
     event = get_glean_event(caplog)
     assert event is not None
@@ -438,7 +440,7 @@ def test_post_relayaddress_success(free_api_client, free_user, caplog) -> None:
             "date_joined_premium": "-1",
             "has_extension": "false",
             "date_got_extension": "-1",
-            "mask_id": f"r{ret_data['id']}",
+            "mask_id": address.metrics_id,
             "is_random_mask": "true",
             "created_by_api": "true",
             "has_website": "false",
@@ -474,7 +476,7 @@ def test_post_relayaddress_with_generated_for_success(
             "date_joined_premium": "-1",
             "has_extension": "true",
             "date_got_extension": str(int(address.created_at.timestamp())),
-            "mask_id": f"r{address.id}",
+            "mask_id": address.metrics_id,
             "is_random_mask": "true",
             "has_website": "true",
             "created_by_api": "true",

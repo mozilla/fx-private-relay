@@ -496,6 +496,10 @@ class RelayAddressTest(TestCase):
         assert relay_address.last_used_at == new_last_used_at
         assert not relay_address.block_list_emails
 
+    def test_metrics_id(self):
+        relay_address = RelayAddress.objects.create(user=self.user)
+        assert relay_address.metrics_id == f"r{relay_address.id}"
+
 
 class ProfileTestCase(TestCase):
     """Base class for Profile tests."""
@@ -1439,3 +1443,7 @@ class DomainAddressTest(TestCase):
         domain_address.refresh_from_db()
         assert domain_address.last_used_at == new_last_used_at
         assert not domain_address.block_list_emails
+
+    def test_metrics_id(self):
+        address = DomainAddress.objects.create(user=self.user, address="metrics")
+        assert address.metrics_id == f"d{address.id}"

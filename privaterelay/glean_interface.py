@@ -92,11 +92,10 @@ class RelayGleanLogger(EventsServerEventLogger):
         if isinstance(mask, RelayAddress):
             is_random_mask = True
             has_website = bool(mask.generated_for)
-            mask_id = f"r{mask.pk}"
         else:
             is_random_mask = False
             has_website = False
-            mask_id = f"d{mask.pk}"
+        mask_id = mask.metrics_id
 
         self.record_email_mask_created(
             user_agent=user_agent,

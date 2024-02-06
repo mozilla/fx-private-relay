@@ -68,7 +68,7 @@ def test_log_email_mask_created(glean_logger, caplog, settings) -> None:
                     "date_joined_premium": "-1",
                     "has_extension": "false",
                     "date_got_extension": "-1",
-                    "mask_id": f"r{address.id}",
+                    "mask_id": address.metrics_id,
                     "is_random_mask": "true",
                     "has_website": "false",
                     "created_by_api": "true",
