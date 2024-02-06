@@ -57,26 +57,15 @@ class RelayGleanLogger(EventsServerEventLogger):
         date_subscribed = None
         if user.profile.has_premium:
             if user.profile.has_phone:
-                plan = "bundle" if user.profile.has_vpn else "phone"
                 date_subscribed = user.profile.date_subscribed_phone
             else:
-                plan = "email"
                 date_subscribed = user.profile.date_subscribed
-        else:
-            plan = "free"
         if date_subscribed:
             date_joined_premium = int(date_subscribed.timestamp())
         else:
             date_joined_premium = -1
 
-        term = "unknown"
-        if plan == "phone":
-            start_date = user.profile.date_phone_subscription_start
-            end_date = user.profile.date_phone_subscription_end
-            if start_date and end_date:
-                span = end_date - start_date
-                term = "1_year" if span.days > 32 else "1_month"
-        premium_status = plan if plan == "free" else f"{plan}_{term}"
+        premium_status = user.profile.metrics_premium_status
 
         try:
             earliest_mask = user.relayaddress_set.exclude(

@@ -2,7 +2,7 @@ from __future__ import annotations
 from collections import namedtuple
 from datetime import datetime, timedelta, timezone
 from hashlib import sha256
-from typing import Iterable
+from typing import Iterable, Literal
 import logging
 import random
 import re
@@ -502,6 +502,38 @@ class Profile(models.Model):
             return False
         # user was flagged and the premium feature pause period is not yet over
         return True
+
+    @property
+    def plan(self) -> Literal["free", "email", "phone", "bundle"]:
+        """The user's Relay plan as a string."""
+        if self.has_premium:
+            if self.has_phone:
+                return "bundle" if self.has_vpn else "phone"
+            else:
+                return "email"
+        else:
+            return "free"
+
+    @property
+    def plan_term(self) -> Literal[None, "unknown", "1_month", "1_year"]:
+        """The user's Relay plan term as a string."""
+        plan = self.plan
+        if plan == "free":
+            return None
+        if plan == "phone":
+            start_date = self.date_phone_subscription_start
+            end_date = self.date_phone_subscription_end
+            if start_date and end_date:
+                span = end_date - start_date
+                return "1_year" if span.days > 32 else "1_month"
+        return "unknown"
+
+    @property
+    def metrics_premium_status(self) -> str:
+        plan = self.plan
+        if plan == "free":
+            return "free"
+        return f"{plan}_{self.plan_term}"
 
 
 @receiver(models.signals.post_save, sender=Profile)

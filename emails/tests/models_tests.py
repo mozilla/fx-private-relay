@@ -514,15 +514,69 @@ class ProfileTestCase(TestCase):
         social_account, _ = SocialAccount.objects.get_or_create(
             user=self.profile.user,
             provider="fxa",
-            uid=str(uuid4()),
-            defaults={"extra_data": {"avatar": "image.png", "subscriptions": []}},
+            defaults={
+                "uid": str(uuid4()),
+                "extra_data": {"avatar": "image.png", "subscriptions": []},
+            },
         )
         return social_account
 
+    def premium_subscription(self) -> str:
+        assert settings.SUBSCRIPTIONS_WITH_UNLIMITED
+        premium_only_plans = list(
+            set(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
+            - set(settings.SUBSCRIPTIONS_WITH_PHONE)
+            - set(settings.SUBSCRIPTIONS_WITH_VPN)
+        )
+        assert premium_only_plans
+        return random.choice(premium_only_plans)
+
     def upgrade_to_premium(self) -> None:
-        """Add a unlimited subscription to the user."""
+        """Add an unlimited emails subscription to the user."""
         social_account = self.get_or_create_social_account()
-        social_account.extra_data["subscriptions"].append(unlimited_subscription())
+        social_account.extra_data["subscriptions"].append(self.premium_subscription())
+        social_account.save()
+
+    def phone_subscription(self) -> str:
+        assert settings.SUBSCRIPTIONS_WITH_PHONE
+        phones_only_plans = list(
+            set(settings.SUBSCRIPTIONS_WITH_PHONE)
+            - set(settings.SUBSCRIPTIONS_WITH_VPN)
+            - set(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
+        )
+        assert phones_only_plans
+        return random.choice(phones_only_plans)
+
+    def upgrade_to_phone(self) -> None:
+        """Add a phone plan to the user."""
+        social_account = self.get_or_create_social_account()
+        social_account.extra_data["subscriptions"].append(self.phone_subscription())
+        if not self.profile.has_premium:
+            social_account.extra_data["subscriptions"].append(
+                self.premium_subscription()
+            )
+        social_account.save()
+
+    def vpn_subscription(self) -> str:
+        assert settings.SUBSCRIPTIONS_WITH_VPN
+        vpn_only_plans = list(
+            set(settings.SUBSCRIPTIONS_WITH_VPN)
+            - set(settings.SUBSCRIPTIONS_WITH_PHONE)
+            - set(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
+        )
+        assert vpn_only_plans
+        return random.choice(vpn_only_plans)
+
+    def upgrade_to_vpn_bundle(self) -> None:
+        """Add a phone plan to the user."""
+        social_account = self.get_or_create_social_account()
+        social_account.extra_data["subscriptions"].append(self.vpn_subscription())
+        if not self.profile.has_premium:
+            social_account.extra_data["subscriptions"].append(
+                self.premium_subscription()
+            )
+        if not self.profile.has_phone:
+            social_account.extra_data["subscriptions"].append(self.phone_subscription())
         social_account.save()
 
 
@@ -667,8 +721,16 @@ class ProfileHasPremiumTest(ProfileTestCase):
     def test_default_False(self) -> None:
         assert self.profile.has_premium is False
 
-    def test_unlimited_subsription_returns_True(self) -> None:
+    def test_unlimited_subscription_returns_True(self) -> None:
         self.upgrade_to_premium()
+        assert self.profile.has_premium is True
+
+    def test_phone_returns_True(self) -> None:
+        self.upgrade_to_phone()
+        assert self.profile.has_premium is True
+
+    def test_vpn_bundle_returns_True(self) -> None:
+        self.upgrade_to_vpn_bundle()
         assert self.profile.has_premium is True
 
 
@@ -677,6 +739,18 @@ class ProfileHasPhoneTest(ProfileTestCase):
 
     def test_default_False(self) -> None:
         assert self.profile.has_phone is False
+
+    def test_unlimited_subscription_returns_False(self) -> None:
+        self.upgrade_to_premium()
+        assert self.profile.has_phone is False
+
+    def test_phone_returns_True(self) -> None:
+        self.upgrade_to_phone()
+        assert self.profile.has_phone is True
+
+    def test_vpn_bundle_returns_True(self) -> None:
+        self.upgrade_to_vpn_bundle()
+        assert self.profile.has_phone is True
 
 
 class ProfileTotalMasksTest(ProfileTestCase):
@@ -1163,6 +1237,101 @@ class ProfileUpdateAbuseMetricTest(ProfileTestCase):
         )
         assert self.abuse_metric.forwarded_email_size_per_day == 100
         assert self.profile.last_account_flagged == self.expected_now
+
+
+class ProfilePlanTest(ProfileTestCase):
+    def test_free_user(self) -> None:
+        assert self.profile.plan == "free"
+
+    def test_premium_user(self) -> None:
+        self.upgrade_to_premium()
+        assert self.profile.plan == "email"
+
+    def test_phone_user(self) -> None:
+        self.upgrade_to_phone()
+        assert self.profile.plan == "phone"
+
+    def test_vpn_bundle_user(self) -> None:
+        self.upgrade_to_vpn_bundle()
+        assert self.profile.plan == "bundle"
+
+
+class ProfilePlanTermTest(ProfileTestCase):
+    def test_free_user(self) -> None:
+        assert self.profile.plan_term is None
+
+    def test_premium_user(self) -> None:
+        self.upgrade_to_premium()
+        assert self.profile.plan_term == "unknown"
+
+    def test_phone_user(self) -> None:
+        self.upgrade_to_phone()
+        assert self.profile.plan_term == "unknown"
+
+    def test_phone_user_1_month(self) -> None:
+        self.upgrade_to_phone()
+        self.profile.date_phone_subscription_start = datetime(
+            2024, 1, 1, tzinfo=timezone.utc
+        )
+
+        self.profile.date_phone_subscription_end = datetime(
+            2024, 2, 1, tzinfo=timezone.utc
+        )
+        assert self.profile.plan_term == "1_month"
+
+    def test_phone_user_1_year(self) -> None:
+        self.upgrade_to_phone()
+        self.profile.date_phone_subscription_start = datetime(
+            2024, 1, 1, tzinfo=timezone.utc
+        )
+
+        self.profile.date_phone_subscription_end = datetime(
+            2025, 1, 1, tzinfo=timezone.utc
+        )
+        assert self.profile.plan_term == "1_year"
+
+    def test_vpn_bundle_user(self) -> None:
+        self.upgrade_to_vpn_bundle()
+        assert self.profile.plan_term == "unknown"
+
+
+class ProfileMetricsPremiumStatus(ProfileTestCase):
+    def test_free_user(self):
+        assert self.profile.metrics_premium_status == "free"
+
+    def test_premium_user(self) -> None:
+        self.upgrade_to_premium()
+        assert self.profile.metrics_premium_status == "email_unknown"
+
+    def test_phone_user(self) -> None:
+        self.upgrade_to_phone()
+        assert self.profile.metrics_premium_status == "phone_unknown"
+
+    def test_phone_user_1_month(self) -> None:
+        self.upgrade_to_phone()
+        self.profile.date_phone_subscription_start = datetime(
+            2024, 1, 1, tzinfo=timezone.utc
+        )
+
+        self.profile.date_phone_subscription_end = datetime(
+            2024, 2, 1, tzinfo=timezone.utc
+        )
+        assert self.profile.metrics_premium_status == "phone_1_month"
+
+    def test_phone_user_1_year(self) -> None:
+        self.upgrade_to_phone()
+        self.profile.date_phone_subscription_start = datetime(
+            2024, 1, 1, tzinfo=timezone.utc
+        )
+
+        self.profile.date_phone_subscription_end = datetime(
+            2025, 1, 1, tzinfo=timezone.utc
+        )
+        assert self.profile.metrics_premium_status == "phone_1_year"
+
+    def test_vpn_bundle_user(self) -> None:
+        self.upgrade_to_vpn_bundle()
+        assert self.profile.metrics_premium_status == "bundle_unknown"
 
 
 class DomainAddressTest(TestCase):
