@@ -182,7 +182,7 @@ class RealPhone(models.Model):
         return self
 
 
-@receiver(post_save, sender=RealPhone)
+@receiver(post_save, sender=RealPhone, dispatch_uid="realphone_post_save")
 def realphone_post_save(sender, instance, created, **kwargs):
     # don't do anything if running migrations
     if type(instance) == MigrationRecorder.Migration:
@@ -231,6 +231,7 @@ class RelayNumber(models.Model):
     calls_blocked = models.IntegerField(default=0)
     texts_forwarded = models.IntegerField(default=0)
     texts_blocked = models.IntegerField(default=0)
+    created_at = models.DateTimeField(null=True, auto_now_add=True)
 
     @property
     def remaining_minutes(self):

@@ -37,6 +37,9 @@ from ..models import (
 )
 from ..utils import get_domains_from_settings
 
+if settings.PHONES_ENABLED:
+    from phones.models import RealPhone, RelayNumber
+
 
 def make_free_test_user(email: str = "") -> User:
     if email:
@@ -80,6 +83,10 @@ def make_storageless_test_user():
 
 def unlimited_subscription() -> str:
     return random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
+
+
+def phone_subscription() -> str:
+    return random.choice(settings.SUBSCRIPTIONS_WITH_PHONE)
 
 
 def upgrade_test_user_to_premium(user):
@@ -241,7 +248,7 @@ class RelayAddressTest(TestCase):
         assert relay_address.get_domain_display() == "MOZMAIL_DOMAIN"
         assert relay_address.domain_value == "test.com"
 
-    def test_relayaddress_create_updates_profile_last_engagement(self):
+    def test_create_updates_profile_last_engagement(self) -> None:
         relay_address = baker.make(RelayAddress, user=self.user, enabled=True)
         profile = relay_address.user.profile
         profile.refresh_from_db()
@@ -253,7 +260,7 @@ class RelayAddressTest(TestCase):
         profile.refresh_from_db()
         assert profile.last_engagement > pre_create_last_engagement
 
-    def test_relayaddress_save_does_not_update_profile_last_engagement(self):
+    def test_save_does_not_update_profile_last_engagement(self) -> None:
         relay_address = baker.make(RelayAddress, user=self.user, enabled=True)
         profile = relay_address.user.profile
         profile.refresh_from_db()
@@ -266,7 +273,7 @@ class RelayAddressTest(TestCase):
         profile.refresh_from_db()
         assert profile.last_engagement == pre_save_last_engagement
 
-    def test_relayaddress_delete_updates_profile_last_engagement(self):
+    def test_delete_updates_profile_last_engagement(self) -> None:
         relay_address = baker.make(RelayAddress, user=self.user)
         profile = relay_address.user.profile
         profile.refresh_from_db()
@@ -277,51 +284,6 @@ class RelayAddressTest(TestCase):
 
         profile.refresh_from_db()
         assert profile.last_engagement > pre_delete_last_engagement
-
-    def test_domainaddress_create_updates_profile_last_engagement(self):
-        user = make_premium_test_user()
-        user_profile = user.profile
-        user_profile.subdomain = "test"
-        user_profile.save()
-        DomainAddress.make_domain_address(user_profile, address="create")
-        assert user_profile.last_engagement
-        pre_create_last_engagement = user_profile.last_engagement
-
-        DomainAddress.make_domain_address(user_profile, address="create2")
-
-        user_profile.refresh_from_db()
-        assert user_profile.last_engagement > pre_create_last_engagement
-
-    def test_domainaddress_save_does_not_update_profile_last_engagement(self):
-        user = make_premium_test_user()
-        user_profile = user.profile
-        user_profile.subdomain = "test"
-        user_profile.save()
-        domain_address = DomainAddress.make_domain_address(user_profile, address="save")
-        assert user_profile.last_engagement
-        pre_save_last_engagement = user_profile.last_engagement
-
-        domain_address.enabled = False
-        domain_address.save()
-
-        user_profile.refresh_from_db()
-        assert user_profile.last_engagement == pre_save_last_engagement
-
-    def test_domainaddress_delete_updates_profile_last_engagement(self):
-        user = make_premium_test_user()
-        user_profile = user.profile
-        user_profile.subdomain = "test"
-        user_profile.save()
-        domain_address = DomainAddress.make_domain_address(
-            user_profile, address="delete"
-        )
-        assert user_profile.last_engagement
-        pre_delete_last_engagement = user_profile.last_engagement
-
-        domain_address.delete()
-
-        user_profile.refresh_from_db()
-        assert user_profile.last_engagement > pre_delete_last_engagement
 
     def test_delete_adds_deleted_address_object(self):
         relay_address = baker.make(RelayAddress, user=self.user)
@@ -524,6 +486,12 @@ class ProfileTestCase(TestCase):
         social_account.extra_data["subscriptions"].append(unlimited_subscription())
         social_account.save()
 
+    def upgrade_to_phone_premium(self) -> None:
+        """Add a phone subscription to the user."""
+        social_account = self.get_or_create_social_account()
+        social_account.extra_data["subscriptions"].append(phone_subscription())
+        social_account.save()
+
 
 class ProfileBounceTestCase(ProfileTestCase):
     """Base class for Profile tests that check for bounces."""
@@ -676,6 +644,63 @@ class ProfileHasPhoneTest(ProfileTestCase):
 
     def test_default_False(self) -> None:
         assert self.profile.has_phone is False
+
+    def test_phone_subscription_returns_True(self) -> None:
+        self.upgrade_to_phone_premium()
+        assert self.profile.has_phone is True
+
+
+@pytest.mark.skipif(not settings.PHONES_ENABLED, reason="PHONES_ENABLED is False")
+@override_settings(PHONES_NO_CLIENT_CALLS_IN_TEST=True)
+class ProfileDatePhoneRegisteredTest(ProfileTestCase):
+    """Tests for Profile.date_phone_registered"""
+
+    def test_default_None(self) -> None:
+        assert self.profile.date_phone_registered is None
+
+    def test_real_phone_no_relay_number_returns_verified_date(self) -> None:
+        self.upgrade_to_phone_premium()
+        datetime_now = datetime.now(timezone.utc)
+        RealPhone.objects.create(
+            user=self.profile.user,
+            number="+12223334444",
+            verified=True,
+            verified_date=datetime_now,
+        )
+        assert self.profile.date_phone_registered == datetime_now
+
+    def test_real_phone_and_relay_number_w_created_at_returns_created_at_date(
+        self,
+    ) -> None:
+        self.upgrade_to_phone_premium()
+        datetime_now = datetime.now(timezone.utc)
+        phone_user = self.profile.user
+        RealPhone.objects.create(
+            user=phone_user,
+            number="+12223334444",
+            verified=True,
+            verified_date=datetime_now,
+        )
+        relay_number = RelayNumber.objects.create(user=phone_user)
+        assert self.profile.date_phone_registered == relay_number.created_at
+
+    def test_real_phone_and_relay_number_wo_created_at_returns_verified_date(
+        self,
+    ) -> None:
+        self.upgrade_to_phone_premium()
+        datetime_now = datetime.now(timezone.utc)
+        phone_user = self.profile.user
+        real_phone = RealPhone.objects.create(
+            user=phone_user,
+            number="+12223334444",
+            verified=True,
+            verified_date=datetime_now,
+        )
+        relay_number = RelayNumber.objects.create(user=phone_user)
+        # since created_at is auto set, update to None
+        relay_number.created_at = None
+        relay_number.save()
+        assert self.profile.date_phone_registered == real_phone.verified_date
 
 
 class ProfileTotalMasksTest(ProfileTestCase):
@@ -1442,3 +1467,38 @@ class DomainAddressTest(TestCase):
         domain_address.refresh_from_db()
         assert domain_address.last_used_at == new_last_used_at
         assert not domain_address.block_list_emails
+
+    def test_create_updates_profile_last_engagement(self) -> None:
+        DomainAddress.make_domain_address(self.user.profile, address="create")
+        assert self.user.profile.last_engagement
+        pre_create_last_engagement = self.user.profile.last_engagement
+
+        DomainAddress.make_domain_address(self.user.profile, address="create2")
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.last_engagement > pre_create_last_engagement
+
+    def test_save_does_not_update_profile_last_engagement(self) -> None:
+        domain_address = DomainAddress.make_domain_address(
+            self.user.profile, address="save"
+        )
+        assert self.user.profile.last_engagement
+        pre_save_last_engagement = self.user.profile.last_engagement
+
+        domain_address.enabled = False
+        domain_address.save()
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.last_engagement == pre_save_last_engagement
+
+    def test_delete_updates_profile_last_engagement(self) -> None:
+        domain_address = DomainAddress.make_domain_address(
+            self.user.profile, address="delete"
+        )
+        assert self.user.profile.last_engagement
+        pre_delete_last_engagement = self.user.profile.last_engagement
+
+        domain_address.delete()
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.last_engagement > pre_delete_last_engagement

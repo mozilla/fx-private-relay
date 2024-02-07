@@ -15,28 +15,6 @@ import { mockIds } from "../apiMocks/mockData";
 import { useIsLoggedIn } from "../hooks/session";
 import "@stripe/stripe-js";
 
-if (process.env.NEXT_PUBLIC_MOCK_API === "true") {
-  initialiseApiMocks();
-
-  if (
-    typeof URLSearchParams !== "undefined" &&
-    typeof document !== "undefined"
-  ) {
-    // When deploying the frontend with a mocked back-end,
-    // this query parameter will allow us to automatically "sign in" with one
-    // of the mock users. This is useful to be able to give testers a link
-    // in which to see a particular feature:
-    const searchParams = new URLSearchParams(document.location.search);
-    const mockId = searchParams.get("mockId");
-    const selectedMockId = mockIds.find((id) => id === mockId);
-    if (typeof selectedMockId === "string") {
-      // See `src/hooks/api/api.ts`; this localStorage entry is how we tell the
-      // API mock what mock data we want to load:
-      localStorage.setItem("authToken", selectedMockId);
-    }
-  }
-}
-
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
   const isLoggedIn = useIsLoggedIn();
@@ -91,6 +69,49 @@ function MyApp({ Component, pageProps }: AppProps) {
     }
     ReactGa.pageview(router.asPath);
   }, [router.asPath]);
+
+  const [waitingForMsw, setIsWaitingForMsw] = useState(
+    process.env.NEXT_PUBLIC_MOCK_API === "true",
+  );
+  useEffect(() => {
+    if (process.env.NEXT_PUBLIC_MOCK_API !== "true") {
+      return;
+    }
+    (async () => {
+      await initialiseApiMocks();
+
+      if (
+        typeof URLSearchParams !== "undefined" &&
+        typeof document !== "undefined"
+      ) {
+        // When deploying the frontend with a mocked back-end,
+        // this query parameter will allow us to automatically "sign in" with one
+        // of the mock users. This is useful to be able to give testers a link
+        // in which to see a particular feature:
+        const searchParams = new URLSearchParams(document.location.search);
+        const mockId = searchParams.get("mockId");
+        const selectedMockId = mockIds.find((id) => id === mockId);
+        if (typeof selectedMockId === "string") {
+          // See `src/hooks/api/api.ts`; this localStorage entry is how we tell the
+          // API mock what mock data we want to load:
+          localStorage.setItem("authToken", selectedMockId);
+        }
+      }
+
+      setIsWaitingForMsw(false);
+    })();
+  }, []);
+
+  if (waitingForMsw) {
+    // As soon as we start rendering the app, it will start sending requests.
+    // If we're running the demo site, we want to hold off on doing that until
+    // MSW is fully initialised. Usually, you'd run the initialisation before
+    // rendering in the first place, but since Next.js handles the start of the
+    // rendering (which it does to support server-side rendering), we're doing
+    // it here instead. For more info, see
+    // https://mswjs.io/docs/integrations/browser#conditionally-enable-mocking
+    return <></>;
+  }
 
   return (
     <LocalizationProvider l10n={l10n}>
