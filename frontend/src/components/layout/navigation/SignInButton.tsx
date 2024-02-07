@@ -1,7 +1,7 @@
-import { event as gaEvent } from "react-ga";
 import styles from "./SignInButton.module.scss";
 import { setCookie } from "../../../functions/cookies";
 import { getLoginUrl, useFxaFlowTracker } from "../../../hooks/fxaFlowTracker";
+import { useGaEvent } from "../../../hooks/gaEvent";
 import { useL10n } from "../../../hooks/l10n";
 
 export type Props = {
@@ -19,6 +19,7 @@ export const SignInButton = (props: Props): JSX.Element => {
     "relay-sign-in-header",
     signInFxaFlowTracker.flowData,
   );
+  const gaEvent = useGaEvent();
 
   return (
     <a

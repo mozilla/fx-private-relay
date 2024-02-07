@@ -1,9 +1,9 @@
-import { event as gaEvent } from "react-ga";
 import styles from "./PhoneSurvey.module.scss";
 import { CloseIcon } from "../../Icons";
 import { useLocalDismissal } from "../../../hooks/localDismissal";
 import { useGaViewPing } from "../../../hooks/gaViewPing";
 import { useRelayNumber } from "../../../hooks/api/relayNumber";
+import { useGaEvent } from "../../../hooks/gaEvent";
 import { useL10n } from "../../../hooks/l10n";
 
 /**
@@ -18,6 +18,7 @@ export const PhoneSurvey = () => {
     "Answer 4 questions about phone masking to help improve your experience.";
 
   const l10n = useL10n();
+  const gaEvent = useGaEvent();
   const dismissal = useLocalDismissal("phone-survey-2022-11");
   const linkRef = useGaViewPing({
     category: "Phone launch survey",

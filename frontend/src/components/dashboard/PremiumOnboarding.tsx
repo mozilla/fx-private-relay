@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { event as gaEvent } from "react-ga";
 import { useOverlayTriggerState } from "react-stately";
 import Image from "next/image";
 import styles from "./PremiumOnboarding.module.scss";
@@ -15,6 +14,7 @@ import { getRuntimeConfig } from "../../config";
 import { useMinViewportWidth } from "../../hooks/mediaQuery";
 import { supportsChromeExtension } from "../../functions/userAgent";
 import { CheckBadgeIcon, CheckIcon } from "../Icons";
+import { useGaEvent } from "../../hooks/gaEvent";
 import { useL10n } from "../../hooks/l10n";
 import { VisuallyHidden } from "../VisuallyHidden";
 import { Localized } from "../Localized";
@@ -57,6 +57,7 @@ export const PremiumOnboarding = (props: Props) => {
     label: "onboarding-step-3-continue",
     value: 3,
   });
+  const gaEvent = useGaEvent();
 
   let step = null;
   let button = null;

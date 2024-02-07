@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { event as gaEvent, EventArgs } from "react-ga";
 import { IntersectionOptions, useInView } from "react-intersection-observer";
 import { getRuntimeConfig } from "../config";
 import { useRuntimeData } from "./api/runtimeData";
+import { useGaEvent, EventArgs } from "./gaEvent";
 
 export type FxaFlowTrackerArgs = Omit<
   EventArgs,
@@ -23,6 +23,7 @@ export function useFxaFlowTracker(
   options?: IntersectionOptions,
 ) {
   const runtimeData = useRuntimeData();
+  const gaEvent = useGaEvent();
   const { ref } = useInView({
     threshold: 1,
     ...options,

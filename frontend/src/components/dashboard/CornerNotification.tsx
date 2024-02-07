@@ -1,5 +1,4 @@
 import { useInView } from "react-intersection-observer";
-import { event as gaEvent } from "react-ga";
 import styles from "./CornerNotification.module.scss";
 import { CloseIcon } from "../Icons";
 import { ProfileData } from "../../hooks/api/profile";
@@ -10,6 +9,7 @@ import UpsellBannerUs from "../../pages/accounts/images/upsell-banner-us.svg";
 import { useGaViewPing } from "../../hooks/gaViewPing";
 import { RuntimeData } from "../../hooks/api/runtimeData";
 import { isFlagActive } from "../../functions/waffle";
+import { useGaEvent } from "../../hooks/gaEvent";
 import { useL10n } from "../../hooks/l10n";
 import { LinkButton } from "../Button";
 import { isPhonesAvailableInCountry } from "../../functions/getPlan";
@@ -35,6 +35,7 @@ export const CornerNotification = (props: Props) => {
     category: "Purchase Button",
     label: "4-mask-limit-upsell",
   });
+  const gaEvent = useGaEvent();
 
   const title = l10n.getString(
     `upsell-banner-4-masks-${isPhonesAvailable ? "us" : "non-us"}-heading`,

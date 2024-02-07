@@ -1,6 +1,5 @@
 import { NextPage } from "next";
 import Image from "next/image";
-import { event as gaEvent } from "react-ga";
 import styles from "./premium.module.scss";
 import { Layout } from "../components/layout/Layout";
 import { useGaViewPing } from "../hooks/gaViewPing";
@@ -14,6 +13,7 @@ import {
 import { PlanMatrix } from "../components/landing/PlanMatrix";
 import { BundleBanner } from "../components/landing/BundleBanner";
 import { useFlaggedAnchorLinks } from "../hooks/flaggedAnchorLinks";
+import { useGaEvent } from "../hooks/gaEvent";
 import { useL10n } from "../hooks/l10n";
 import { Localized } from "../components/Localized";
 import { HighlightedFeatures } from "../components/landing/HighlightedFeatures";
@@ -26,6 +26,7 @@ const PremiumPromo: NextPage = () => {
     category: "Purchase Button",
     label: "premium-promo-cta",
   });
+  const gaEvent = useGaEvent();
 
   const cta = isPeriodicalPremiumAvailableInCountry(runtimeData.data) ? (
     <LinkButton

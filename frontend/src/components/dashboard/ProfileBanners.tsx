@@ -1,5 +1,4 @@
 import { ReactNode } from "react";
-import { event as gaEvent } from "react-ga";
 
 import Image from "next/image";
 import styles from "./ProfileBanners.module.scss";
@@ -24,6 +23,7 @@ import { renderDate } from "../../functions/renderDate";
 import { SubdomainPicker } from "./SubdomainPicker";
 import { useMinViewportWidth } from "../../hooks/mediaQuery";
 import { AliasData } from "../../hooks/api/aliases";
+import { useGaEvent } from "../../hooks/gaEvent";
 import { useL10n } from "../../hooks/l10n";
 
 export type Props = {
@@ -140,6 +140,7 @@ const BounceBanner = (props: BounceBannerProps) => {
 
 const NoFirefoxBanner = () => {
   const l10n = useL10n();
+  const gaEvent = useGaEvent();
 
   return (
     <Banner
@@ -177,6 +178,7 @@ type NoAddonBannerProps = {
 
 const NoAddonBanner = (props: NoAddonBannerProps) => {
   const l10n = useL10n();
+  const gaEvent = useGaEvent();
 
   return (
     <Banner
@@ -219,6 +221,7 @@ type NoChromeExtensionBannerProps = {
 // make dismissble
 const NoChromeExtensionBanner = (props: NoChromeExtensionBannerProps) => {
   const l10n = useL10n();
+  const gaEvent = useGaEvent();
 
   return (
     <Banner
@@ -263,6 +266,7 @@ type BundleBannerProps = {
 
 const BundlePromoBanner = (props: BundleBannerProps) => {
   const l10n = useL10n();
+  const gaEvent = useGaEvent();
 
   return (
     <Banner

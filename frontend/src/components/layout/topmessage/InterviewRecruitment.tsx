@@ -1,7 +1,7 @@
-import { event as gaEvent } from "react-ga";
 import styles from "./InterviewRecruitment.module.scss";
 import { CloseIcon } from "../../Icons";
 import { useLocalDismissal } from "../../../hooks/localDismissal";
+import { useGaEvent } from "../../../hooks/gaEvent";
 import { useGaViewPing } from "../../../hooks/gaViewPing";
 import { useL10n } from "../../../hooks/l10n";
 
@@ -21,6 +21,7 @@ export const InterviewRecruitment = () => {
     category: "Recruitment",
     label: recruitmentLabel,
   });
+  const gaEvent = useGaEvent();
 
   // Only show if the user hasn't closed the recruitment banner before:
   if (dismissal.isDismissed) {

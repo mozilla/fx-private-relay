@@ -1,10 +1,10 @@
-import { event as gaEvent } from "react-ga";
 import styles from "./NpsSurvey.module.scss";
 import { useFirstSeen } from "../../../hooks/firstSeen";
 import { useLocalDismissal } from "../../../hooks/localDismissal";
 import { useIsLoggedIn } from "../../../hooks/session";
 import { useProfiles } from "../../../hooks/api/profile";
 import { CloseIcon } from "../../Icons";
+import { useGaEvent } from "../../../hooks/gaEvent";
 import { useL10n } from "../../../hooks/l10n";
 
 /**
@@ -21,6 +21,7 @@ export const NpsSurvey = () => {
   const firstSeen = useFirstSeen();
   const isLoggedIn = useIsLoggedIn();
   const l10n = useL10n();
+  const gaEvent = useGaEvent();
 
   const hasBeenUserForThreeDays =
     isLoggedIn &&
