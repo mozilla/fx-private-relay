@@ -522,6 +522,15 @@ class Profile(models.Model):
 
     @property
     def metrics_enabled(self) -> bool:
+        """
+        Does the user allow us to record technical and interaction data?
+
+        This is based on the Mozilla accounts opt-out option, added around 2022. A user
+        can go to their Mozilla account profile settings, Data Collection and Use, and
+        deselect "Help improve Mozilla Account". This setting defaults to On, and is
+        sent as "metricsEnabled". Some older Relay accounts do not have
+        "metricsEnabled", and we default to On.
+        """
         if self.fxa:
             return bool(self.fxa.extra_data.get("metricsEnabled", True))
         return True
