@@ -13,11 +13,13 @@ import { ReactAriaI18nProvider } from "../components/ReactAriaI18nProvider";
 import { initialiseApiMocks } from "../apiMocks/initialise";
 import { mockIds } from "../apiMocks/mockData";
 import { useIsLoggedIn } from "../hooks/session";
+import { useMetrics } from "../hooks/metrics";
 import "@stripe/stripe-js";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
   const isLoggedIn = useIsLoggedIn();
+  const metricsEnabled = useMetrics();
   const addonDataElementRef = useRef<HTMLElement>(null);
 
   const addonData = useAddonElementWatcher(addonDataElementRef);
@@ -36,7 +38,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   }, []);
 
   useEffect(() => {
-    if (hasDoNotTrackEnabled()) {
+    if (hasDoNotTrackEnabled() || !metricsEnabled) {
       return;
     }
     ReactGa.initialize(getRuntimeConfig().googleAnalyticsId, {
@@ -61,14 +63,14 @@ function MyApp({ Component, pageProps }: AppProps) {
         });
       }
     });
-  }, []);
+  }, [metricsEnabled]);
 
   useEffect(() => {
-    if (hasDoNotTrackEnabled()) {
+    if (hasDoNotTrackEnabled() || !metricsEnabled) {
       return;
     }
     ReactGa.pageview(router.asPath);
-  }, [router.asPath]);
+  }, [router.asPath, metricsEnabled]);
 
   const [waitingForMsw, setIsWaitingForMsw] = useState(
     process.env.NEXT_PUBLIC_MOCK_API === "true",
