@@ -6,6 +6,7 @@ import { useLocalDismissal } from "../hooks/localDismissal";
 import { CloseIcon, WarningFilledIcon, InfoBulbIcon } from "./Icons";
 import { useGaViewPing } from "../hooks/gaViewPing";
 import { useL10n } from "../hooks/l10n";
+import { useMetrics } from "../hooks/metrics";
 
 export type BannerProps = {
   children: ReactNode;
@@ -135,6 +136,7 @@ type BannerCtaProps = {
 } & ({ target: string } | { onClick: () => void }); // At least one of `target` and `onClick` is required:
 export const BannerCta = (props: BannerCtaProps) => {
   const ctaRef = useGaViewPing(props.gaViewPing ?? null);
+  const metricsEnabled = useMetrics();
 
   // If no URL to link to is provided (via `target`), render a <button> rather than an <a>:
   if (typeof props.target !== "string") {
@@ -151,8 +153,8 @@ export const BannerCta = (props: BannerCtaProps) => {
     );
   }
 
-  // When given a relative URL to link to in `target`, render an <a> (via <Link>):
-  if (props.target.startsWith("/")) {
+  // When given a relative URL to link to in `target`, or metrics are disabled, render an <a> (via <Link>):
+  if (props.target.startsWith("/") || !metricsEnabled) {
     return (
       <div
         className={
@@ -166,7 +168,7 @@ export const BannerCta = (props: BannerCtaProps) => {
     );
   }
 
-  // When given a URL to link to in `target`, render an <a> (via <OutboundLink>):
+  // When given a URL to link to in `target`, and metrics are enabled, render an <a> (via <OutboundLink>):
   return (
     <div
       className={

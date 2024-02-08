@@ -10,10 +10,12 @@ import disabledSendersDataIllustration from "./images/sender-data-disabled-illus
 import emptySenderDataIllustration from "./images/sender-data-empty-illustration.svg";
 import { useInboundContact } from "../../../hooks/api/inboundContact";
 import { OutboundLink } from "react-ga";
+import Link from "next/link";
 import { formatPhone } from "../../../functions/formatPhone";
 import { parseDate } from "../../../functions/parseDate";
 import { getLocale } from "../../../functions/getLocale";
 import { useL10n } from "../../../hooks/l10n";
+import { useMetrics } from "../../../hooks/metrics";
 
 export type Props = {
   type: "primary" | "disabled" | "empty";
@@ -22,6 +24,7 @@ export type Props = {
 
 export const SendersPanelView = (props: Props) => {
   const l10n = useL10n();
+  const metricsEnabled = useMetrics();
   const inboundContactData = useInboundContact();
   const inboundArray = inboundContactData.data;
   const dateTimeFormatter = new Intl.DateTimeFormat(getLocale(l10n), {
@@ -42,6 +45,23 @@ export const SendersPanelView = (props: Props) => {
     </div>
   );
 
+  const updateSettingsWithMetrics = (
+    <OutboundLink
+      to="/accounts/settings/"
+      eventLabel="Update Settings"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {l10n.getString("phone-dashboard-sender-disabled-update-settings")}
+    </OutboundLink>
+  );
+
+  const updateSettingsWithoutMetrics = (
+    <Link href="/accounts/settings/" target="_blank" rel="noopener noreferrer">
+      {l10n.getString("phone-dashboard-sender-disabled-update-settings")}
+    </Link>
+  );
+
   const disabledCallerSMSSendersPanel = (
     <div className={styles["senders-panel"]}>
       <Image
@@ -59,14 +79,9 @@ export const SendersPanelView = (props: Props) => {
         {l10n.getString("phone-dashboard-sender-disabled-body")}
       </p>
       <div className={styles["update-settings-cta"]}>
-        <OutboundLink
-          to="/accounts/settings/"
-          eventLabel="Update Settings"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {l10n.getString("phone-dashboard-sender-disabled-update-settings")}
-        </OutboundLink>
+        {metricsEnabled
+          ? updateSettingsWithMetrics
+          : updateSettingsWithoutMetrics}
       </div>
     </div>
   );
