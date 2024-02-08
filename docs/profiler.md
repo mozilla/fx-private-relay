@@ -8,27 +8,39 @@ We use Google Cloud Profiler: https://cloud.google.com/profiler/docs/about-profi
 
 ### Setup
 
-Our google cloud profiler agent uses a service account with `roles/cloudprofiler.agent`
-role. So, you need a JSON key file for the account, and you need to set the
-`GOOGLE_APPLICATION_CREDENTIALS` environment variable to the fully qualified name of the
-JSON key file.
+These are the high-level steps to set up Google Cloud Profiler in Relay.
+
+1. Enable the Profiler API in the Google Cloud console for the project.
+2. Create a service account with `roles/cloudprofiler.agent` role.
+3. Download the JSON key file for the account
+4. Base64-encode the contents of the JSON key file
+5. Set `GOOGLE_CLOUD_PROFILER_CREDENTIALS_B64` environment variable to the Base64-encoded contents of
+   the JSON key file
 
 #### Local servers
 
-1. Get the JSON key file from another Relay ENGR
-2. Update your `.env` `GOOGLE_APPLICATION_CREDENTIALS` value to the fully-qualified name
-   of the JSON key file.
+1. Get the Base64-encoded JSON key from another Relay ENGR
+2. Update your `GOOGLE_CLOUD_PROFILER_CREDENTIALS_B64` environment variable value to the
+   Base64-encoded JSON key
+3. Add `"local"` to the `settings.RELAY_CHANNEL` checks in `privaterelay/apps.py`
 
 #### Dev server
 
-For the dev server, we use a `.profile` (and/or `bin/pre_compile`) script which copies
-the `GOOGLE_CREDENTIALS_B64` environment variable value into a `gcp_key.json` file at
-build time.
+The dev server should already have profiling set up. If it does not:
+
+1. Get the Base64-encoded JSON key from another Relay ENGR
+2. Use `heroku config:set` to set the `GOOGLE_CLOUD_PROFILER_CREDENTIALS_B64`
+   environment variable value to the Base64-encoded JSON key.
+3. Use `heroku config:set` to set the `GOOGLE_APPLICATION_CREDENTIALS`
+   environment variable value to `gcp_key.json`
 
 #### Stage & Prod
 
-TBD: Figure out if we should use Compute Engine, GKE, Flexible Environment, or Standard
-Environment instructions from https://cloud.google.com/profiler/docs/profiling-python#using-profiler
+The stage & prod servers should already have profiling set up. If they do not:
+
+1. Have SRE set the `GOOGLE_CLOUD_PROFILER_CREDENTIALS_B64` environment variable value
+   to the corresponding Base64-encoded JSON key with `roles/cloudprofiler.agent`
+   permission to the project.
 
 ### Viewing profiler data
 
