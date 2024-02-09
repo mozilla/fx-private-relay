@@ -1,7 +1,6 @@
-@use "~@mozilla-protocol/core/protocol/css/includes/forms" as *;
-
 @import "../../../styles/tokens.scss";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
 
 // Resolves mobile extra spacing issues for 2nd step of updated free onboarding (MPP-3597).
 .alias-list-container {
