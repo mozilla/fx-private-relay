@@ -786,7 +786,7 @@ class RelayAddress(models.Model):
     @property
     def metrics_id(self) -> str:
         assert self.id
-        return f"r{self.id}"
+        return f"R{self.id}"
 
 
 def check_user_can_make_another_address(profile: Profile) -> None:
@@ -987,7 +987,7 @@ class DomainAddress(models.Model):
     @property
     def metrics_id(self) -> str:
         assert self.id
-        return f"d{self.id}"
+        return f"D{self.id}"
 
 
 class Reply(models.Model):

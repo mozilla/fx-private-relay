@@ -498,7 +498,7 @@ class RelayAddressTest(TestCase):
 
     def test_metrics_id(self):
         relay_address = RelayAddress.objects.create(user=self.user)
-        assert relay_address.metrics_id == f"r{relay_address.id}"
+        assert relay_address.metrics_id == f"R{relay_address.id}"
 
 
 class ProfileTestCase(TestCase):
@@ -1615,4 +1615,4 @@ class DomainAddressTest(TestCase):
 
     def test_metrics_id(self):
         address = DomainAddress.objects.create(user=self.user, address="metrics")
-        assert address.metrics_id == f"d{address.id}"
+        assert address.metrics_id == f"D{address.id}"
