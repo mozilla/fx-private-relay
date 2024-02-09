@@ -1,12 +1,20 @@
 import { useIsLoggedIn } from "./session";
 import { useProfiles } from "./api/profile";
 
+export type MetricsState = "enabled" | "disabled" | "unknown";
+
 /**
- * Returns True if metrics should be enabled
+ * Should metrics be emitted?
+ * @returns MetricsState, 'unknown' if loading profile, 'enabled' or 'disabled' after loading
  */
-export function useMetrics() {
-  const profileData = useProfiles();
+export function useMetrics(): MetricsState {
   const isLoggedIn = useIsLoggedIn();
-  const metricsEnabled = !isLoggedIn || profileData?.data?.[0].metrics_enabled;
-  return metricsEnabled;
+  const profileData = useProfiles();
+  if (isLoggedIn === "unknown") {
+    return "unknown";
+  }
+  const metricsEnabled =
+    isLoggedIn === "logged-out" ||
+    profileData?.data?.[0].metrics_enabled === true;
+  return metricsEnabled ? "enabled" : "disabled";
 }

@@ -8,17 +8,21 @@ import ReactGa from "react-ga";
 import { getL10n } from "../functions/getL10n";
 import { hasDoNotTrackEnabled } from "../functions/userAgent";
 import { AddonDataContext, useAddonElementWatcher } from "../hooks/addon";
-import { getRuntimeConfig } from "../config";
 import { ReactAriaI18nProvider } from "../components/ReactAriaI18nProvider";
 import { initialiseApiMocks } from "../apiMocks/initialise";
 import { mockIds } from "../apiMocks/mockData";
 import { useIsLoggedIn } from "../hooks/session";
 import { useMetrics } from "../hooks/metrics";
+import {
+  useGoogleAnalytics,
+  initGoogleAnalytics,
+} from "../hooks/googleAnalytics";
 import "@stripe/stripe-js";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
   const isLoggedIn = useIsLoggedIn();
+  const googleAnalytics = useGoogleAnalytics();
   const metricsEnabled = useMetrics();
   const addonDataElementRef = useRef<HTMLElement>(null);
 
@@ -38,39 +42,19 @@ function MyApp({ Component, pageProps }: AppProps) {
   }, []);
 
   useEffect(() => {
-    if (hasDoNotTrackEnabled() || !metricsEnabled) {
-      return;
+    if (
+      !hasDoNotTrackEnabled() &&
+      metricsEnabled === "enabled" &&
+      !googleAnalytics
+    ) {
+      initGoogleAnalytics();
     }
-    ReactGa.initialize(getRuntimeConfig().googleAnalyticsId, {
-      titleCase: false,
-      debug: process.env.NEXT_PUBLIC_DEBUG === "true",
-    });
-    ReactGa.set({
-      anonymizeIp: true,
-      transport: "beacon",
-    });
-    const cookies = document.cookie.split("; ");
-    const gaEventCookies = cookies.filter((item) =>
-      item.trim().startsWith("server_ga_event:"),
-    );
-    gaEventCookies.forEach((item) => {
-      const serverEventLabel = item.split("=")[1];
-      if (serverEventLabel) {
-        ReactGa.event({
-          category: "server event",
-          action: "fired",
-          label: serverEventLabel,
-        });
-      }
-    });
-  }, [metricsEnabled]);
+  }, [metricsEnabled, googleAnalytics]);
 
   useEffect(() => {
-    if (hasDoNotTrackEnabled() || !metricsEnabled) {
-      return;
-    }
+    if (!googleAnalytics) return;
     ReactGa.pageview(router.asPath);
-  }, [router.asPath, metricsEnabled]);
+  }, [router.asPath, googleAnalytics]);
 
   const [waitingForMsw, setIsWaitingForMsw] = useState(
     process.env.NEXT_PUBLIC_MOCK_API === "true",
