@@ -1,6 +1,5 @@
-@use "~@mozilla-protocol/core/protocol/css/includes/forms" as *;
-
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
 @import "../../../styles/tokens.scss";
 
 .step,
