@@ -51,8 +51,14 @@ email_mask:
       platform:
         description: Relay client platform
         type: string
-      n_masks:
-        description: Number of masks
+      n_random_masks:
+        description: Number of random masks
+        type: quantity
+      n_domain_masks:
+        description: Number of premium subdomain masks
+        type: quantity
+      n_deleted_masks:
+        description: Number of deleted masks
         type: quantity
       date_joined_relay:
         description: Timestamp for joining Relay, seconds since epoch
