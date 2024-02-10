@@ -159,7 +159,7 @@
   .review {
     display: flex;
     flex-direction: column;
-    align-items: start;
+    align-items: flex-start;
     position: relative; // allows us to animate - scroll
     width: 100%; // allows us to animate - scroll
     padding: $spacing-sm;
