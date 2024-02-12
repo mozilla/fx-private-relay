@@ -6,7 +6,6 @@ import { LocalizationProvider, ReactLocalization } from "@fluent/react";
 import { OverlayProvider } from "@react-aria/overlays";
 import ReactGa from "react-ga";
 import { getL10n } from "../functions/getL10n";
-import { hasDoNotTrackEnabled } from "../functions/userAgent";
 import { AddonDataContext, useAddonElementWatcher } from "../hooks/addon";
 import { ReactAriaI18nProvider } from "../components/ReactAriaI18nProvider";
 import { initialiseApiMocks } from "../apiMocks/initialise";
@@ -42,11 +41,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   }, []);
 
   useEffect(() => {
-    if (
-      !hasDoNotTrackEnabled() &&
-      metricsEnabled === "enabled" &&
-      !googleAnalytics
-    ) {
+    if (metricsEnabled === "enabled" && !googleAnalytics) {
       initGoogleAnalytics();
     }
   }, [metricsEnabled, googleAnalytics]);
