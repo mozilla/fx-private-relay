@@ -53,10 +53,8 @@ class RelayGleanLogger(EventsServerEventLogger):
         fxa_id = user.profile.fxa.uid if user.profile.fxa else ""
         n_random_masks = user.relayaddress_set.count()
         n_domain_masks = user.domainaddress_set.count()
-        n_deleted_masks = (
-            user.profile.num_deleted_relay_addresses
-            + user.profile.num_deleted_domain_addresses
-        )
+        n_deleted_random_masks = user.profile.num_deleted_relay_addresses
+        n_deleted_domain_masks = user.profile.num_deleted_domain_addresses
         date_joined_relay = int(user.date_joined.timestamp())
 
         date_subscribed = None
@@ -99,7 +97,8 @@ class RelayGleanLogger(EventsServerEventLogger):
             platform="",
             n_random_masks=n_random_masks,
             n_domain_masks=n_domain_masks,
-            n_deleted_masks=n_deleted_masks,
+            n_deleted_random_masks=n_deleted_random_masks,
+            n_deleted_domain_masks=n_deleted_domain_masks,
             date_joined_relay=date_joined_relay,
             premium_status=premium_status,
             date_joined_premium=date_joined_premium,

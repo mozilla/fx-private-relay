@@ -54,8 +54,11 @@ email_mask:
       n_domain_masks:
         description: Number of premium subdomain masks
         type: quantity
-      n_deleted_masks:
-        description: Number of deleted masks
+      n_deleted_random_masks:
+        description: Number of deleted random masks
+        type: quantity
+      n_deleted_domain_masks:
+        description: Number of deleted domain masks
         type: quantity
       date_joined_relay:
         description: Timestamp for joining Relay, seconds since epoch

@@ -96,7 +96,8 @@ class EventsServerEventLogger:
         platform: str,
         n_random_masks: int,
         n_domain_masks: int,
-        n_deleted_masks: int,
+        n_deleted_random_masks: int,
+        n_deleted_domain_masks: int,
         date_joined_relay: int,
         premium_status: str,
         date_joined_premium: int,
@@ -120,7 +121,8 @@ class EventsServerEventLogger:
         :param str platform: Relay client platform
         :param int n_random_masks: Number of random masks
         :param int n_domain_masks: Number of premium subdomain masks
-        :param int n_deleted_masks: Number of deleted masks
+        :param int n_deleted_random_masks: Number of deleted random masks
+        :param int n_deleted_domain_masks: Number of deleted domain masks
         :param int date_joined_relay: Timestamp for joining Relay, seconds since epoch
         :param str premium_status: Subscription type and term
         :param int date_joined_premium: Timestamp for starting premium_status subscription, seconds since epoch, -1 if not subscribed
@@ -140,7 +142,8 @@ class EventsServerEventLogger:
                 "platform": str(platform),
                 "n_random_masks": str(n_random_masks),
                 "n_domain_masks": str(n_domain_masks),
-                "n_deleted_masks": str(n_deleted_masks),
+                "n_deleted_random_masks": str(n_deleted_random_masks),
+                "n_deleted_domain_masks": str(n_deleted_domain_masks),
                 "date_joined_relay": str(date_joined_relay),
                 "premium_status": str(premium_status),
                 "date_joined_premium": str(date_joined_premium),
@@ -163,7 +166,8 @@ class EventsServerEventLogger:
         platform: str,
         n_random_masks: int,
         n_domain_masks: int,
-        n_deleted_masks: int,
+        n_deleted_random_masks: int,
+        n_deleted_domain_masks: int,
         date_joined_relay: int,
         premium_status: str,
         date_joined_premium: int,
@@ -186,7 +190,8 @@ class EventsServerEventLogger:
         :param str platform: Relay client platform
         :param int n_random_masks: Number of random masks
         :param int n_domain_masks: Number of premium subdomain masks
-        :param int n_deleted_masks: Number of deleted masks
+        :param int n_deleted_random_masks: Number of deleted random masks
+        :param int n_deleted_domain_masks: Number of deleted domain masks
         :param int date_joined_relay: Timestamp for joining Relay, seconds since epoch
         :param str premium_status: Subscription type and term
         :param int date_joined_premium: Timestamp for starting premium_status subscription, seconds since epoch, -1 if not subscribed
@@ -205,7 +210,8 @@ class EventsServerEventLogger:
                 "platform": str(platform),
                 "n_random_masks": str(n_random_masks),
                 "n_domain_masks": str(n_domain_masks),
-                "n_deleted_masks": str(n_deleted_masks),
+                "n_deleted_random_masks": str(n_deleted_random_masks),
+                "n_deleted_domain_masks": str(n_deleted_domain_masks),
                 "date_joined_relay": str(date_joined_relay),
                 "premium_status": str(premium_status),
                 "date_joined_premium": str(date_joined_premium),
@@ -227,7 +233,8 @@ class EventsServerEventLogger:
         platform: str,
         n_random_masks: int,
         n_domain_masks: int,
-        n_deleted_masks: int,
+        n_deleted_random_masks: int,
+        n_deleted_domain_masks: int,
         date_joined_relay: int,
         premium_status: str,
         date_joined_premium: int,
@@ -251,7 +258,8 @@ class EventsServerEventLogger:
         :param str platform: Relay client platform
         :param int n_random_masks: Number of random masks
         :param int n_domain_masks: Number of premium subdomain masks
-        :param int n_deleted_masks: Number of deleted masks
+        :param int n_deleted_random_masks: Number of deleted random masks
+        :param int n_deleted_domain_masks: Number of deleted domain masks
         :param int date_joined_relay: Timestamp for joining Relay, seconds since epoch
         :param str premium_status: Subscription type and term
         :param int date_joined_premium: Timestamp for starting premium_status subscription, seconds since epoch, -1 if not subscribed
@@ -271,7 +279,8 @@ class EventsServerEventLogger:
                 "platform": str(platform),
                 "n_random_masks": str(n_random_masks),
                 "n_domain_masks": str(n_domain_masks),
-                "n_deleted_masks": str(n_deleted_masks),
+                "n_deleted_random_masks": str(n_deleted_random_masks),
+                "n_deleted_domain_masks": str(n_deleted_domain_masks),
                 "date_joined_relay": str(date_joined_relay),
                 "premium_status": str(premium_status),
                 "date_joined_premium": str(date_joined_premium),
@@ -294,7 +303,8 @@ class EventsServerEventLogger:
         platform: str,
         n_random_masks: int,
         n_domain_masks: int,
-        n_deleted_masks: int,
+        n_deleted_random_masks: int,
+        n_deleted_domain_masks: int,
         date_joined_relay: int,
         premium_status: str,
         date_joined_premium: int,
@@ -316,7 +326,8 @@ class EventsServerEventLogger:
         :param str platform: Relay client platform
         :param int n_random_masks: Number of random masks
         :param int n_domain_masks: Number of premium subdomain masks
-        :param int n_deleted_masks: Number of deleted masks
+        :param int n_deleted_random_masks: Number of deleted random masks
+        :param int n_deleted_domain_masks: Number of deleted domain masks
         :param int date_joined_relay: Timestamp for joining Relay, seconds since epoch
         :param str premium_status: Subscription type and term
         :param int date_joined_premium: Timestamp for starting premium_status subscription, seconds since epoch, -1 if not subscribed
@@ -334,7 +345,8 @@ class EventsServerEventLogger:
                 "platform": str(platform),
                 "n_random_masks": str(n_random_masks),
                 "n_domain_masks": str(n_domain_masks),
-                "n_deleted_masks": str(n_deleted_masks),
+                "n_deleted_random_masks": str(n_deleted_random_masks),
+                "n_deleted_domain_masks": str(n_deleted_domain_masks),
                 "date_joined_relay": str(date_joined_relay),
                 "premium_status": str(premium_status),
                 "date_joined_premium": str(date_joined_premium),
@@ -355,7 +367,8 @@ class EventsServerEventLogger:
         platform: str,
         n_random_masks: int,
         n_domain_masks: int,
-        n_deleted_masks: int,
+        n_deleted_random_masks: int,
+        n_deleted_domain_masks: int,
         date_joined_relay: int,
         premium_status: str,
         date_joined_premium: int,
@@ -377,7 +390,8 @@ class EventsServerEventLogger:
         :param str platform: Relay client platform
         :param int n_random_masks: Number of random masks
         :param int n_domain_masks: Number of premium subdomain masks
-        :param int n_deleted_masks: Number of deleted masks
+        :param int n_deleted_random_masks: Number of deleted random masks
+        :param int n_deleted_domain_masks: Number of deleted domain masks
         :param int date_joined_relay: Timestamp for joining Relay, seconds since epoch
         :param str premium_status: Subscription type and term
         :param int date_joined_premium: Timestamp for starting premium_status subscription, seconds since epoch, -1 if not subscribed
@@ -395,7 +409,8 @@ class EventsServerEventLogger:
                 "platform": str(platform),
                 "n_random_masks": str(n_random_masks),
                 "n_domain_masks": str(n_domain_masks),
-                "n_deleted_masks": str(n_deleted_masks),
+                "n_deleted_random_masks": str(n_deleted_random_masks),
+                "n_deleted_domain_masks": str(n_deleted_domain_masks),
                 "date_joined_relay": str(date_joined_relay),
                 "premium_status": str(premium_status),
                 "date_joined_premium": str(date_joined_premium),
