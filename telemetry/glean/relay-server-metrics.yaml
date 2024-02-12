@@ -14,9 +14,6 @@
 # future, after we get over the technical hurdles of the first integration.
 #
 # Remaining critical path work in the code:
-# - Merge python_server backend for glean_parser
-#   https://github.com/mozilla/glean_parser/pull/653
-# - Release glean_parser with python_server backend
 # - Add Relay hooks for mask_deleted events
 # - Add Relay hooks for mask_label_updated events
 # - Add Relay hooks for email_forwarded events
