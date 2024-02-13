@@ -1,6 +1,6 @@
-import { event as gaEvent } from "react-ga";
 import styles from "./SignUpButton.module.scss";
 import { setCookie } from "../../../functions/cookies";
+import { useGaEvent } from "../../../hooks/gaEvent";
 import { getLoginUrl, useFxaFlowTracker } from "../../../hooks/fxaFlowTracker";
 import { useL10n } from "../../../hooks/l10n";
 
@@ -18,6 +18,7 @@ export const SignUpButton = (props: Props): JSX.Element => {
     "relay-sign-up-header",
     signUpFxaFlowTracker.flowData,
   );
+  const gaEvent = useGaEvent();
 
   return (
     <a

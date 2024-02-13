@@ -11,7 +11,6 @@ import {
   AriaOverlayProps,
 } from "react-aria";
 import { AriaMenuItemProps } from "@react-aria/menu";
-import { event as gaEvent } from "react-ga";
 import {
   Item,
   MenuTriggerState,
@@ -39,6 +38,7 @@ import { RuntimeData } from "../../../hooks/api/runtimeData";
 import { isPeriodicalPremiumAvailableInCountry } from "../../../functions/getPlan";
 import { useGaViewPing } from "../../../hooks/gaViewPing";
 import { CustomAddressGenerationModal } from "./CustomAddressGenerationModal";
+import { useGaEvent } from "../../../hooks/gaEvent";
 import { useL10n } from "../../../hooks/l10n";
 import { isFlagActive } from "../../../functions/waffle";
 import { AddressPickerModal } from "./AddressPickerModal";
@@ -72,6 +72,7 @@ export const AliasGenerationButton = (props: Props) => {
     category: "Purchase Button",
     label: "profile-create-alias-upgrade-promo",
   });
+  const gaEvent = useGaEvent();
 
   const maxAliases = getRuntimeConfig().maxFreeAliases;
   if (!props.profile.has_premium && props.aliases.length >= maxAliases) {

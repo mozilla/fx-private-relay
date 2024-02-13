@@ -193,7 +193,7 @@ export const Layout = (props: Props) => {
                   theme={isDark ? "free" : "premium"}
                   handleToggle={handleToggle}
                   hasPremium={hasPremium}
-                  isLoggedIn={isLoggedIn}
+                  isLoggedIn={isLoggedIn === "logged-in"}
                   profile={profiles.data?.[0]}
                 />
               </div>
@@ -203,7 +203,7 @@ export const Layout = (props: Props) => {
             mobileMenuExpanded={mobileMenuExpanded}
             hasPremium={hasPremium}
             isPhonesAvailable={isPhonesAvailableInCountry(props.runtimeData)}
-            isLoggedIn={isLoggedIn}
+            isLoggedIn={isLoggedIn === "logged-in"}
             userEmail={usersData?.email}
             userAvatar={profiles.data?.[0].avatar}
           />

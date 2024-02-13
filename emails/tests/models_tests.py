@@ -1189,6 +1189,33 @@ class ProfileUpdateAbuseMetricTest(ProfileTestCase):
         assert self.profile.last_account_flagged == self.expected_now
 
 
+class ProfileMetricsEnabledTest(ProfileTestCase):
+
+    def test_no_fxa_means_metrics_enabled(self) -> None:
+        assert not self.profile.fxa
+        assert self.profile.metrics_enabled
+
+    def test_fxa_legacy_means_metrics_enabled(self) -> None:
+        self.get_or_create_social_account()
+        assert self.profile.fxa
+        assert "metricsEnabled" not in self.profile.fxa.extra_data
+        assert self.profile.metrics_enabled
+
+    def test_fxa_opt_in_means_metrics_enabled(self) -> None:
+        social_account = self.get_or_create_social_account()
+        social_account.extra_data["metricsEnabled"] = True
+        social_account.save()
+        assert self.profile.fxa
+        assert self.profile.metrics_enabled
+
+    def test_fxa_opt_out_means_metrics_disabled(self) -> None:
+        social_account = self.get_or_create_social_account()
+        social_account.extra_data["metricsEnabled"] = False
+        social_account.save()
+        assert self.profile.fxa
+        assert not self.profile.metrics_enabled
+
+
 class DomainAddressTest(TestCase):
     def setUp(self):
         self.subdomain = "test"

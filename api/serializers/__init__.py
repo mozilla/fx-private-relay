@@ -183,6 +183,7 @@ class ProfileSerializer(StrictReadOnlyFieldsMixin, serializers.ModelSerializer):
             "remove_level_one_email_trackers",
             "total_masks",
             "at_mask_limit",
+            "metrics_enabled",
         ]
         read_only_fields = [
             "id",
@@ -202,6 +203,7 @@ class ProfileSerializer(StrictReadOnlyFieldsMixin, serializers.ModelSerializer):
             "level_one_trackers_blocked",
             "total_masks",
             "at_mask_limit",
+            "metrics_enabled",
         ]
 
 

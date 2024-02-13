@@ -18,7 +18,6 @@ import {
   useOverlayTrigger,
 } from "react-aria";
 import { useOverlayTriggerState } from "react-stately";
-import { event as gaEvent } from "react-ga";
 import { StaticImageData } from "next/image";
 import styles from "./WhatsNewMenu.module.scss";
 import SizeLimitHero from "./images/size-limit-hero-10mb.svg";
@@ -70,6 +69,7 @@ import {
 import { CountdownTimer } from "../../../CountdownTimer";
 import Link from "next/link";
 import { GiftIcon } from "../../../Icons";
+import { useGaEvent } from "../../../../hooks/gaEvent";
 import { useL10n } from "../../../../hooks/l10n";
 import { VisuallyHidden } from "../../../VisuallyHidden";
 import { useOverlayBugWorkaround } from "../../../../hooks/overlayBugWorkaround";
@@ -121,6 +121,7 @@ const CtaLinkButton = (props: CtaProps) => {
 
 export const WhatsNewMenu = (props: Props) => {
   const l10n = useL10n();
+  const gaEvent = useGaEvent();
 
   const triggerState = useOverlayTriggerState({
     onOpenChange(isOpen) {

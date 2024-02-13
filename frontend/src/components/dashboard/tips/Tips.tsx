@@ -3,7 +3,6 @@ import Link from "next/link";
 import { useTabList, useTabPanel, useTab } from "react-aria";
 import { useTabListState, TabListState, Item } from "react-stately";
 import { useInView } from "react-intersection-observer";
-import { event as gaEvent } from "react-ga";
 import styles from "./Tips.module.scss";
 import MultiRepliesImage from "./images/multi-replies.svg";
 import { ArrowDownIcon, InfoIcon } from "../../Icons";
@@ -19,6 +18,7 @@ import { useRelayNumber } from "../../../hooks/api/relayNumber";
 import { RuntimeData } from "../../../hooks/api/runtimeData";
 import { isFlagActive } from "../../../functions/waffle";
 import { GenericTip } from "./GenericTip";
+import { useGaEvent } from "../../../hooks/gaEvent";
 import { useL10n } from "../../../hooks/l10n";
 
 export type Props = {
@@ -42,6 +42,7 @@ export const Tips = (props: Props) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [wrapperRef, wrapperIsInView] = useInView({ threshold: 1 });
   const relayNumberData = useRelayNumber({ disable: !props.profile.has_phone });
+  const gaEvent = useGaEvent();
 
   const tips: TipEntry[] = [];
 

@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { mockGetLocaleModule } from "../../../../../__mocks__/functions/getLocale";
 import { mockUseL10nModule } from "../../../../../__mocks__/hooks/l10n";
+import { mockUseGoogleAnalyticsModule } from "../../../../../__mocks__/hooks/googleAnalytics";
 import { mockReactGa } from "../../../../../__mocks__/modules/react-ga";
 
 import { WhatsNewDashboard } from "./WhatsNewDashboard";
@@ -10,6 +11,10 @@ import { WhatsNewEntry } from "./WhatsNewMenu";
 jest.mock("react-ga", () => mockReactGa);
 jest.mock("../../../../functions/getLocale.ts", () => mockGetLocaleModule);
 jest.mock("../../../../hooks/gaViewPing.ts");
+jest.mock(
+  "../../../../hooks/googleAnalytics.ts",
+  () => mockUseGoogleAnalyticsModule,
+);
 jest.mock("../../../../hooks/l10n.ts", () => mockUseL10nModule);
 
 function getMockEntry(
@@ -212,126 +217,152 @@ describe("The 'What's new' dashboard", () => {
       screen.getByText("l10n string: [whatsnew-empty-message], with vars: {}"),
     ).toBeInTheDocument();
   });
-
-  it("measures how often people switch tabs", async () => {
-    const allEntries: WhatsNewEntry[] = [
-      getMockEntry(1),
-      getMockEntry(2),
-      getMockEntry(3),
-    ];
-    const newEntries = [allEntries[0], allEntries[1]];
-
-    render(
-      <WhatsNewDashboard
-        new={newEntries}
-        archive={allEntries}
-        onClose={jest.fn()}
-      />,
-    );
-
-    const tabs = screen.getAllByRole("tab");
-    await userEvent.click(tabs[1]);
-    await userEvent.click(tabs[0]);
-
-    expect(mockReactGa.event).toHaveBeenCalledTimes(2);
-    expect(mockReactGa.event).toHaveBeenCalledWith({
-      category: "News",
-      action: "Switch to 'History' tab",
-      label: "news-dashboard",
-    });
-    expect(mockReactGa.event).toHaveBeenCalledWith({
-      category: "News",
-      action: "Switch to 'News' tab",
-      label: "news-dashboard",
-    });
-  });
-
-  it("measures how often entries are opened", async () => {
-    const allEntries: WhatsNewEntry[] = [
-      getMockEntry(1),
-      getMockEntry(2),
-      getMockEntry(3),
-    ];
-    const newEntries = [allEntries[0], allEntries[1]];
-
-    render(
-      <WhatsNewDashboard
-        new={newEntries}
-        archive={allEntries}
-        onClose={jest.fn()}
-      />,
-    );
-
-    const menuItems = screen.getAllByRole("menuitem");
-    await userEvent.click(menuItems[1]);
-
-    expect(mockReactGa.event).toHaveBeenCalledTimes(1);
-    expect(mockReactGa.event).toHaveBeenCalledWith({
-      category: "News",
-      action: "Open entry",
-      label: allEntries[1].title,
-    });
-  });
-
-  it("measures how often entries are closed", async () => {
-    const allEntries: WhatsNewEntry[] = [
-      getMockEntry(1),
-      getMockEntry(2),
-      getMockEntry(3),
-    ];
-    const newEntries = [allEntries[0], allEntries[1]];
-
-    render(
-      <WhatsNewDashboard
-        new={newEntries}
-        archive={allEntries}
-        onClose={jest.fn()}
-      />,
-    );
-
-    const menuItems = screen.getAllByRole("menuitem");
-    await userEvent.click(menuItems[1]);
-
-    const goBackButton = screen.getByRole("button", {
-      name: "l10n string: [whatsnew-footer-back-label], with vars: {}",
-    });
-    await userEvent.click(goBackButton);
-
-    expect(mockReactGa.event).toHaveBeenCalledTimes(2);
-    expect(mockReactGa.event).toHaveBeenCalledWith({
-      category: "News",
-      action: "Close entry",
-      label: allEntries[1].title,
-    });
-  });
-
-  it("measures how often all new entries are moved to the 'History' tab at once", async () => {
-    const allEntries: WhatsNewEntry[] = [
-      getMockEntry(1),
-      getMockEntry(2),
-      getMockEntry(3),
-    ];
-    const newEntries = [allEntries[0], allEntries[1]];
-
-    render(
-      <WhatsNewDashboard
-        new={newEntries}
-        archive={allEntries}
-        onClose={jest.fn()}
-      />,
-    );
-
-    const clearAllButton = screen.getByRole("button", {
-      name: "l10n string: [whatsnew-footer-clear-all-label], with vars: {}",
-    });
-    await userEvent.click(clearAllButton);
-
-    expect(mockReactGa.event).toHaveBeenCalledTimes(1);
-    expect(mockReactGa.event).toHaveBeenCalledWith({
-      category: "News",
-      action: "Clear all",
-      label: "news-dashboard",
-      value: newEntries.length,
-    });
-  });
 });
+
+describe.each([true, false])(
+  "The 'What's new' dashboard metrics, with googleAnalytics=%s",
+  (googleAnalyticsAvailable) => {
+    beforeEach(() => {
+      mockUseGoogleAnalyticsModule.useGoogleAnalytics.mockReturnValue(
+        googleAnalyticsAvailable,
+      );
+    });
+    it("measures how often people switch tabs", async () => {
+      const allEntries: WhatsNewEntry[] = [
+        getMockEntry(1),
+        getMockEntry(2),
+        getMockEntry(3),
+      ];
+      const newEntries = [allEntries[0], allEntries[1]];
+
+      render(
+        <WhatsNewDashboard
+          new={newEntries}
+          archive={allEntries}
+          onClose={jest.fn()}
+        />,
+      );
+
+      const tabs = screen.getAllByRole("tab");
+      await userEvent.click(tabs[1]);
+      await userEvent.click(tabs[0]);
+
+      if (googleAnalyticsAvailable) {
+        expect(mockReactGa.event).toHaveBeenCalledTimes(2);
+        expect(mockReactGa.event).toHaveBeenCalledWith({
+          category: "News",
+          action: "Switch to 'History' tab",
+          label: "news-dashboard",
+        });
+        expect(mockReactGa.event).toHaveBeenCalledWith({
+          category: "News",
+          action: "Switch to 'News' tab",
+          label: "news-dashboard",
+        });
+      } else {
+        expect(mockReactGa.event).not.toBeCalled();
+      }
+    });
+
+    it("measures how often entries are opened", async () => {
+      const allEntries: WhatsNewEntry[] = [
+        getMockEntry(1),
+        getMockEntry(2),
+        getMockEntry(3),
+      ];
+      const newEntries = [allEntries[0], allEntries[1]];
+
+      render(
+        <WhatsNewDashboard
+          new={newEntries}
+          archive={allEntries}
+          onClose={jest.fn()}
+        />,
+      );
+
+      const menuItems = screen.getAllByRole("menuitem");
+      await userEvent.click(menuItems[1]);
+
+      if (googleAnalyticsAvailable) {
+        expect(mockReactGa.event).toHaveBeenCalledTimes(1);
+        expect(mockReactGa.event).toHaveBeenCalledWith({
+          category: "News",
+          action: "Open entry",
+          label: allEntries[1].title,
+        });
+      } else {
+        expect(mockReactGa.event).not.toBeCalled();
+      }
+    });
+
+    it("measures how often entries are closed", async () => {
+      const allEntries: WhatsNewEntry[] = [
+        getMockEntry(1),
+        getMockEntry(2),
+        getMockEntry(3),
+      ];
+      const newEntries = [allEntries[0], allEntries[1]];
+
+      render(
+        <WhatsNewDashboard
+          new={newEntries}
+          archive={allEntries}
+          onClose={jest.fn()}
+        />,
+      );
+
+      const menuItems = screen.getAllByRole("menuitem");
+      await userEvent.click(menuItems[1]);
+
+      const goBackButton = screen.getByRole("button", {
+        name: "l10n string: [whatsnew-footer-back-label], with vars: {}",
+      });
+      await userEvent.click(goBackButton);
+
+      if (googleAnalyticsAvailable) {
+        expect(mockReactGa.event).toHaveBeenCalledTimes(2);
+        expect(mockReactGa.event).toHaveBeenCalledWith({
+          category: "News",
+          action: "Close entry",
+          label: allEntries[1].title,
+        });
+      } else {
+        expect(mockReactGa.event).not.toBeCalled();
+      }
+    });
+
+    it("measures how often all new entries are moved to the 'History' tab at once", async () => {
+      const allEntries: WhatsNewEntry[] = [
+        getMockEntry(1),
+        getMockEntry(2),
+        getMockEntry(3),
+      ];
+      const newEntries = [allEntries[0], allEntries[1]];
+
+      render(
+        <WhatsNewDashboard
+          new={newEntries}
+          archive={allEntries}
+          onClose={jest.fn()}
+        />,
+      );
+
+      const clearAllButton = screen.getByRole("button", {
+        name: "l10n string: [whatsnew-footer-clear-all-label], with vars: {}",
+      });
+      await userEvent.click(clearAllButton);
+
+      if (googleAnalyticsAvailable) {
+        expect(mockReactGa.event).toHaveBeenCalledTimes(1);
+        expect(mockReactGa.event).toHaveBeenCalledWith({
+          category: "News",
+          action: "Clear all",
+          label: "news-dashboard",
+          value: newEntries.length,
+        });
+      } else {
+        expect(mockReactGa.event).not.toBeCalled();
+      }
+    });
+  },
+);

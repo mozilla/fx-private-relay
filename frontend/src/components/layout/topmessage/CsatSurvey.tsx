@@ -1,4 +1,3 @@
-import { event as gaEvent } from "react-ga";
 import styles from "./CsatSurvey.module.scss";
 import { useFirstSeen } from "../../../hooks/firstSeen";
 import {
@@ -10,6 +9,7 @@ import { CloseIcon } from "../../Icons";
 import { parseDate } from "../../../functions/parseDate";
 import { useState } from "react";
 import { getLocale } from "../../../functions/getLocale";
+import { useGaEvent } from "../../../hooks/gaEvent";
 import { useL10n } from "../../../hooks/l10n";
 
 type SurveyLinks = {
@@ -68,6 +68,7 @@ export const CsatSurvey = (props: Props) => {
   const firstSeen = useFirstSeen();
   const l10n = useL10n();
   const [answer, setAnswer] = useState<keyof SurveyLinks>();
+  const gaEvent = useGaEvent();
 
   let reasonToShow:
     | null

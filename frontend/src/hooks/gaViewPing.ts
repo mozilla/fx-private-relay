@@ -1,5 +1,5 @@
-import { event as gaEvent, EventArgs } from "react-ga";
 import { IntersectionOptions, useInView } from "react-intersection-observer";
+import { useGaEvent, EventArgs } from "./gaEvent";
 
 export type GaViewPingArgs = Omit<EventArgs, "action" | "nonInteraction">;
 
@@ -14,6 +14,7 @@ export function useGaViewPing(
   args: GaViewPingArgs | null,
   options?: IntersectionOptions,
 ) {
+  const gaEvent = useGaEvent();
   const { ref } = useInView({
     threshold: 1,
     ...options,

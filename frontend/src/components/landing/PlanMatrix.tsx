@@ -1,7 +1,6 @@
 import { useTab, useTabList, useTabPanel } from "react-aria";
 import { ReactNode, useRef } from "react";
 import Link from "next/link";
-import { event as gaEvent } from "react-ga";
 import {
   Item,
   TabListProps,
@@ -23,6 +22,7 @@ import {
 import { RuntimeData } from "../../hooks/api/runtimeData";
 import { CheckIcon, MozillaVpnWordmark } from "../Icons";
 import { getRuntimeConfig } from "../../config";
+import { useGaEvent } from "../../hooks/gaEvent";
 import { useGaViewPing } from "../../hooks/gaViewPing";
 import { Plan, trackPlanPurchaseStart } from "../../functions/trackPurchase";
 import { setCookie } from "../../functions/cookies";
@@ -93,6 +93,7 @@ export const PlanMatrix = (props: Props) => {
     category: "Purchase Bundle button",
     label: "plan-matrix-bundle-cta-mobile",
   });
+  const gaEvent = useGaEvent();
 
   const countSignIn = (label: string) => {
     gaEvent({
@@ -342,6 +343,7 @@ export const PlanMatrix = (props: Props) => {
                     href={getBundleSubscribeLink(props.runtimeData)}
                     onClick={() =>
                       trackPlanPurchaseStart(
+                        gaEvent,
                         { plan: "bundle" },
                         { label: "plan-matrix-bundle-cta-desktop" },
                       )
@@ -567,6 +569,7 @@ export const PlanMatrix = (props: Props) => {
                   href={getBundleSubscribeLink(props.runtimeData)}
                   onClick={() =>
                     trackPlanPurchaseStart(
+                      gaEvent,
                       { plan: "bundle" },
                       { label: "plan-matrix-bundle-cta-mobile" },
                     )
@@ -748,6 +751,7 @@ type PricingToggleProps = {
 };
 const PricingToggle = (props: PricingToggleProps) => {
   const l10n = useL10n();
+  const gaEvent = useGaEvent();
   const yearlyButtonRef = useGaViewPing(props.yearlyBilled.gaViewPing);
   const monthlyButtonRef = useGaViewPing(props.monthlyBilled.gaViewPing);
 
@@ -766,7 +770,7 @@ const PricingToggle = (props: PricingToggleProps) => {
           ref={yearlyButtonRef}
           href={props.yearlyBilled.subscribeLink}
           onClick={() =>
-            trackPlanPurchaseStart(props.yearlyBilled.plan, {
+            trackPlanPurchaseStart(gaEvent, props.yearlyBilled.plan, {
               label: props.yearlyBilled.gaViewPing?.label,
             })
           }
@@ -793,7 +797,7 @@ const PricingToggle = (props: PricingToggleProps) => {
           ref={monthlyButtonRef}
           href={props.monthlyBilled.subscribeLink}
           onClick={() =>
-            trackPlanPurchaseStart(props.monthlyBilled.plan, {
+            trackPlanPurchaseStart(gaEvent, props.monthlyBilled.plan, {
               label: props.monthlyBilled.gaViewPing?.label,
             })
           }

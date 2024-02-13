@@ -1,14 +1,15 @@
 import { useEffect } from "react";
-import { event as gaEvent } from "react-ga";
 import { clearCookie, getCookie } from "../functions/cookies";
 import { getCookieId, getGaCategory, Plan } from "../functions/trackPurchase";
 import { ProfileData } from "./api/profile";
+import { useGaEvent } from "./gaEvent";
 
 /**
  * Include this in pages that Subscription platform sends the user back to
  * to count how many people purchased which plan.
  */
 export const usePurchaseTracker = (profileData?: ProfileData) => {
+  const gaEvent = useGaEvent();
   useEffect(() => {
     // This cookie is set in `trackPurchaseStart()`
     const hasClickedPurchaseCookie = getCookie("clicked-purchase") === "true";
@@ -48,5 +49,5 @@ export const usePurchaseTracker = (profileData?: ProfileData) => {
         clearCookie(getCookieId(plan));
       }
     });
-  }, [profileData]);
+  }, [profileData, gaEvent]);
 };
