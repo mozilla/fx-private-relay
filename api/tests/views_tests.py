@@ -417,6 +417,14 @@ def test_post_domainaddress_conflict_deleted(prem_api_client, premium_user, capl
     assert event is None
 
 
+def test_delete_domainaddress(prem_api_client: APIClient, premium_user: User) -> None:
+    existing = DomainAddress.objects.create(user=premium_user, address="my-doomed-mask")
+    url = reverse("domainaddress-detail", args=[existing.id])
+    response = prem_api_client.delete(url)
+    assert response.status_code == 204
+    assert not DomainAddress.objects.filter(id=existing.id).exists()
+
+
 def test_post_relayaddress_success(free_api_client, free_user, caplog) -> None:
     """A free user is able to create a random address."""
     response = free_api_client.post(
@@ -582,6 +590,14 @@ def test_patch_relayaddress_format_premium_user_can_clear_block_list_emails(
     assert ra.enabled is True
     assert ra.block_list_emails is False
     assert get_glean_event(caplog) is None
+
+
+def test_delete_randomaddress(free_api_client: APIClient, free_user: User) -> None:
+    existing = RelayAddress.objects.create(user=free_user)
+    url = reverse("relayaddress-detail", args=[existing.id])
+    response = free_api_client.delete(url)
+    assert response.status_code == 204
+    assert not RelayAddress.objects.filter(id=existing.id).exists()
 
 
 @pytest.mark.usefixtures("fxa_social_app")
