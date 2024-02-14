@@ -133,6 +133,14 @@ class RelayAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
             created_by_api=True,
         )
 
+    def perform_destroy(self, instance: RelayAddress) -> None:
+        mask_id = instance.metrics_id
+        user = instance.user
+        super().perform_destroy(instance)
+        glean_logger().log_email_mask_deleted(
+            request=self.request, user=user, mask_id=mask_id, is_random_mask=True
+        )
+
 
 class DomainAddressFilter(filters.FilterSet):
     used_on = filters.CharFilter(field_name="used_on", lookup_expr="icontains")
@@ -172,6 +180,14 @@ class DomainAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
             request=self.request,
             mask=instance,
             created_by_api=True,
+        )
+
+    def perform_destroy(self, instance: DomainAddress) -> None:
+        mask_id = instance.metrics_id
+        user = instance.user
+        super().perform_destroy(instance)
+        glean_logger().log_email_mask_deleted(
+            request=self.request, user=user, mask_id=mask_id, is_random_mask=False
         )
 
 

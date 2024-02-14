@@ -6,6 +6,7 @@ from logging import getLogger
 from typing import Any, TYPE_CHECKING
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.http import HttpRequest
 
 from ipware import get_client_ip
@@ -108,6 +109,74 @@ class RelayGleanLogger(EventsServerEventLogger):
             is_random_mask=is_random_mask,
             created_by_api=created_by_api,
             has_website=has_website,
+        )
+
+    def log_email_mask_deleted(
+        self,
+        *,
+        request: HttpRequest | None = None,
+        user: User,
+        mask_id: str,
+        is_random_mask: bool
+    ) -> None:
+        from emails.models import RelayAddress
+
+        if request is None:
+            user_agent = ""
+            ip_address = ""
+        else:
+            user_agent = request.headers.get("user-agent", "")
+            client_ip, is_routable = get_client_ip(request)
+            ip_address = client_ip if (client_ip and is_routable) else ""
+
+        fxa_id = user.profile.fxa.uid if user.profile.fxa else ""
+        n_random_masks = user.relayaddress_set.count()
+        n_domain_masks = user.domainaddress_set.count()
+        n_deleted_random_masks = user.profile.num_deleted_relay_addresses
+        n_deleted_domain_masks = user.profile.num_deleted_domain_addresses
+        date_joined_relay = int(user.date_joined.timestamp())
+
+        date_subscribed = None
+        if user.profile.has_premium:
+            if user.profile.has_phone:
+                date_subscribed = user.profile.date_subscribed_phone
+            else:
+                date_subscribed = user.profile.date_subscribed
+        if date_subscribed:
+            date_joined_premium = int(date_subscribed.timestamp())
+        else:
+            date_joined_premium = -1
+
+        premium_status = user.profile.metrics_premium_status
+
+        try:
+            earliest_mask = user.relayaddress_set.exclude(
+                generated_for__exact=""
+            ).earliest("created_at")
+        except RelayAddress.DoesNotExist:
+            has_extension = False
+            date_got_extension = -1
+        else:
+            has_extension = True
+            date_got_extension = int(earliest_mask.created_at.timestamp())
+
+        self.record_email_mask_deleted(
+            user_agent=user_agent,
+            ip_address=ip_address,
+            client_id="",
+            fxa_id=fxa_id,
+            platform="",
+            n_random_masks=n_random_masks,
+            n_domain_masks=n_domain_masks,
+            n_deleted_random_masks=n_deleted_random_masks,
+            n_deleted_domain_masks=n_deleted_domain_masks,
+            date_joined_relay=date_joined_relay,
+            premium_status=premium_status,
+            date_joined_premium=date_joined_premium,
+            has_extension=has_extension,
+            date_got_extension=date_got_extension,
+            mask_id=mask_id,
+            is_random_mask=is_random_mask,
         )
 
     def emit_record(self, now: datetime, ping: dict[str, Any]) -> None:

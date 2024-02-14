@@ -417,12 +417,42 @@ def test_post_domainaddress_conflict_deleted(prem_api_client, premium_user, capl
     assert event is None
 
 
-def test_delete_domainaddress(prem_api_client: APIClient, premium_user: User) -> None:
+def test_delete_domainaddress(
+    prem_api_client: APIClient, premium_user: User, caplog: pytest.LogCaptureFixture
+) -> None:
     existing = DomainAddress.objects.create(user=premium_user, address="my-doomed-mask")
+    existing_mask_id = existing.metrics_id
     url = reverse("domainaddress-detail", args=[existing.id])
     response = prem_api_client.delete(url)
     assert response.status_code == 204
     assert not DomainAddress.objects.filter(id=existing.id).exists()
+
+    event = get_glean_event(caplog)
+    assert premium_user.profile.fxa
+    assert premium_user.profile.date_subscribed
+    date_subscribed_ts = int(premium_user.profile.date_subscribed.timestamp())
+    assert event is not None
+    assert event == {
+        "category": "email_mask",
+        "name": "deleted",
+        "extra": {
+            "client_id": "",
+            "fxa_id": premium_user.profile.fxa.uid,
+            "platform": "",
+            "n_random_masks": "0",
+            "n_domain_masks": "0",
+            "n_deleted_random_masks": "0",
+            "n_deleted_domain_masks": "1",
+            "date_joined_relay": str(int(premium_user.date_joined.timestamp())),
+            "premium_status": "email_unknown",
+            "date_joined_premium": str(date_subscribed_ts),
+            "has_extension": "false",
+            "date_got_extension": "-1",
+            "mask_id": existing_mask_id,
+            "is_random_mask": "false",
+        },
+        "timestamp": event["timestamp"],
+    }
 
 
 def test_post_relayaddress_success(free_api_client, free_user, caplog) -> None:
@@ -592,12 +622,40 @@ def test_patch_relayaddress_format_premium_user_can_clear_block_list_emails(
     assert get_glean_event(caplog) is None
 
 
-def test_delete_randomaddress(free_api_client: APIClient, free_user: User) -> None:
+def test_delete_randomaddress(
+    free_api_client: APIClient, free_user: User, caplog: pytest.LogCaptureFixture
+) -> None:
     existing = RelayAddress.objects.create(user=free_user)
+    existing_mask_id = existing.metrics_id
     url = reverse("relayaddress-detail", args=[existing.id])
     response = free_api_client.delete(url)
     assert response.status_code == 204
     assert not RelayAddress.objects.filter(id=existing.id).exists()
+
+    event = get_glean_event(caplog)
+    assert free_user.profile.fxa
+    assert event is not None
+    assert event == {
+        "category": "email_mask",
+        "name": "deleted",
+        "extra": {
+            "client_id": "",
+            "fxa_id": free_user.profile.fxa.uid,
+            "platform": "",
+            "n_random_masks": "0",
+            "n_domain_masks": "0",
+            "n_deleted_random_masks": "1",
+            "n_deleted_domain_masks": "0",
+            "date_joined_relay": str(int(free_user.date_joined.timestamp())),
+            "premium_status": "free",
+            "date_joined_premium": "-1",
+            "has_extension": "false",
+            "date_got_extension": "-1",
+            "mask_id": existing_mask_id,
+            "is_random_mask": "true",
+        },
+        "timestamp": event["timestamp"],
+    }
 
 
 @pytest.mark.usefixtures("fxa_social_app")
