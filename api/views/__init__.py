@@ -126,10 +126,11 @@ class RelayAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         return RelayAddress.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer: BaseSerializer[RelayAddress]) -> None:
-        instance = serializer.save(user=self.request.user)
+        super().perform_create(serializer)
+        assert serializer.instance
         glean_logger().log_email_mask_created(
             request=self.request,
-            mask=instance,
+            mask=serializer.instance,
             created_by_api=True,
         )
 
@@ -140,6 +141,17 @@ class RelayAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         glean_logger().log_email_mask_deleted(
             request=self.request, user=user, mask_id=mask_id, is_random_mask=True
         )
+
+    def perform_update(self, serializer: BaseSerializer[RelayAddress]) -> None:
+        assert serializer.instance is not None
+        old_description = serializer.instance.description
+        super().perform_update(serializer)
+        new_description = serializer.instance.description
+        if old_description != new_description:
+            glean_logger().log_email_mask_label_updated(
+                request=self.request,
+                mask=serializer.instance
+            )
 
 
 class DomainAddressFilter(filters.FilterSet):
@@ -175,10 +187,11 @@ class DomainAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         return DomainAddress.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer: BaseSerializer[DomainAddress]) -> None:
-        instance = serializer.save(user=self.request.user)
+        super().perform_create(serializer)
+        assert serializer.instance is not None
         glean_logger().log_email_mask_created(
             request=self.request,
-            mask=instance,
+            mask=serializer.instance,
             created_by_api=True,
         )
 
@@ -189,6 +202,17 @@ class DomainAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         glean_logger().log_email_mask_deleted(
             request=self.request, user=user, mask_id=mask_id, is_random_mask=False
         )
+
+    def perform_update(self, serializer: BaseSerializer[DomainAddress]) -> None:
+        assert serializer.instance is not None
+        old_description = serializer.instance.description
+        super().perform_update(serializer)
+        new_description = serializer.instance.description
+        if old_description != new_description:
+            glean_logger().log_email_mask_label_updated(
+                request=self.request,
+                mask=serializer.instance
+            )
 
 
 class ProfileViewSet(viewsets.ModelViewSet):

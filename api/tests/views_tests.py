@@ -426,7 +426,7 @@ def test_post_domainaddress_conflict_deleted(prem_api_client, premium_user, capl
         ("used_on", "example.com"),
     ],
 )
-def test_patch_domainaddress(prem_api_client, premium_user, key, value) -> None:
+def test_patch_domainaddress(prem_api_client, premium_user, caplog, key, value) -> None:
     """PATCH can update a writable field for a domain address."""
     existing = DomainAddress.objects.create(user=premium_user, address="my-new-alias")
     assert getattr(existing, key) != value
@@ -439,9 +439,40 @@ def test_patch_domainaddress(prem_api_client, premium_user, key, value) -> None:
     existing.refresh_from_db()
     assert getattr(existing, key) == value
 
+    event = get_glean_event(caplog)
+    if key == "description":
+        assert event is not None
+        date_joined_ts = int(premium_user.date_joined.timestamp())
+        date_subscribed_ts = int(premium_user.profile.date_subscribed.timestamp())
+        assert event == {
+            "category": "email_mask",
+            "name": "label_updated",
+            "extra": {
+                "client_id": "",
+                "fxa_id": premium_user.profile.fxa.uid,
+                "platform": "",
+                "n_random_masks": "0",
+                "n_domain_masks": "1",
+                "n_deleted_random_masks": "0",
+                "n_deleted_domain_masks": "0",
+                "date_joined_relay": str(date_joined_ts),
+                "premium_status": "email_unknown",
+                "date_joined_premium": str(date_subscribed_ts),
+                "has_extension": "false",
+                "date_got_extension": "-1",
+                "mask_id": existing.metrics_id,
+                "is_random_mask": "false",
+            },
+            "timestamp": event["timestamp"],
+        }
+    else:
+        assert event is None
+
 
 @pytest.mark.parametrize("key", ("enabled", "description", "block_list_emails"))
-def test_patch_domainaddress_same_value(prem_api_client, premium_user, key) -> None:
+def test_patch_domainaddress_same_value(
+    prem_api_client, premium_user, caplog, key
+) -> None:
     """PATCH can write the same value to a writable field for a domain address."""
     existing = DomainAddress.objects.create(user=premium_user, address="my-new-alias")
     value = getattr(existing, key)
@@ -453,11 +484,12 @@ def test_patch_domainaddress_same_value(prem_api_client, premium_user, key) -> N
     assert ret_data[key] == value
     existing.refresh_from_db()
     assert getattr(existing, key) == value
+    assert get_glean_event(caplog) is None
 
 
 @pytest.mark.parametrize("value", ("", None))
 def test_patch_domainaddress_same_value_used_on(
-    prem_api_client, premium_user, value
+    prem_api_client, premium_user, caplog, value
 ) -> None:
     """
     PATCH can write an empty value to used_on on a domain address.
@@ -474,6 +506,7 @@ def test_patch_domainaddress_same_value_used_on(
     assert ret_data["used_on"] == value
     existing.refresh_from_db()
     assert existing.used_on == value
+    assert get_glean_event(caplog) is None
 
 
 @pytest.mark.parametrize(
@@ -494,7 +527,7 @@ def test_patch_domainaddress_same_value_used_on(
     ],
 )
 def test_patch_domainaddress_read_only(
-    prem_api_client, premium_user, key, value
+    prem_api_client, premium_user, caplog, key, value
 ) -> None:
     """PATCH succeeds but does not change read-only fields."""
     existing = DomainAddress.objects.create(user=premium_user, address="my-new-alias")
@@ -511,9 +544,12 @@ def test_patch_domainaddress_read_only(
     existing.refresh_from_db()
     assert getattr(existing, key) == old_value
     assert existing.last_modified_at > old_modified_at
+    assert get_glean_event(caplog) is None
 
 
-def test_patch_domainaddress_read_only_mask_type(prem_api_client, premium_user) -> None:
+def test_patch_domainaddress_read_only_mask_type(
+    prem_api_client, premium_user, caplog
+) -> None:
     """PATCH succeeds but does not change or return the mask_type."""
     existing = DomainAddress.objects.create(user=premium_user, address="my-new-alias")
     url = reverse("domainaddress-detail", args=[existing.id])
@@ -524,6 +560,7 @@ def test_patch_domainaddress_read_only_mask_type(prem_api_client, premium_user) 
     assert response.status_code == 200
     ret_data = response.json()
     assert "mask_type" not in ret_data
+    assert get_glean_event(caplog) is None
 
 
 def test_delete_domainaddress(
@@ -694,7 +731,7 @@ def test_post_relayaddress_flagged_error(free_user, free_api_client, caplog) -> 
         ("used_on", "example.com"),
     ],
 )
-def test_patch_relayaddress(free_api_client, free_user, key, value) -> None:
+def test_patch_relayaddress(free_api_client, free_user, caplog, key, value) -> None:
     """PATCH can update a writable field for a random address."""
     existing = RelayAddress.objects.create(user=free_user)
     assert getattr(existing, key) != value
@@ -706,6 +743,33 @@ def test_patch_relayaddress(free_api_client, free_user, key, value) -> None:
     assert ret_data[key] == value
     existing.refresh_from_db()
     assert getattr(existing, key) == value
+
+    event = get_glean_event(caplog)
+    if key == "description":
+        assert event is not None
+        assert event == {
+            "category": "email_mask",
+            "name": "label_updated",
+            "extra": {
+                "client_id": "",
+                "fxa_id": free_user.profile.fxa.uid,
+                "platform": "",
+                "n_random_masks": "1",
+                "n_domain_masks": "0",
+                "n_deleted_random_masks": "0",
+                "n_deleted_domain_masks": "0",
+                "date_joined_relay": str(int(free_user.date_joined.timestamp())),
+                "premium_status": "free",
+                "date_joined_premium": "-1",
+                "has_extension": "false",
+                "date_got_extension": "-1",
+                "mask_id": existing.metrics_id,
+                "is_random_mask": "true",
+            },
+            "timestamp": event["timestamp"],
+        }
+    else:
+        assert event is None
 
 
 @pytest.mark.parametrize(

@@ -143,15 +143,46 @@ class RelayGleanLogger(EventsServerEventLogger):
             has_website=has_website,
         )
 
+    def log_email_mask_label_updated(
+        self,
+        *,
+        request: HttpRequest,
+        mask: RelayAddress | DomainAddress,
+    ) -> None:
+        request_data = RequestData.from_request(request)
+        user_data = UserData.from_user(mask.user)
+
+        is_random_mask = isinstance(mask, RelayAddress)
+        mask_id = mask.metrics_id
+
+        self.record_email_mask_label_updated(
+            user_agent=_opt_str_to_glean(request_data.user_agent),
+            ip_address=_opt_str_to_glean(request_data.ip_address),
+            client_id="",
+            fxa_id=_opt_str_to_glean(user_data.fxa_id),
+            platform="",
+            n_random_masks=user_data.n_random_masks,
+            n_domain_masks=user_data.n_domain_masks,
+            n_deleted_random_masks=user_data.n_deleted_random_masks,
+            n_deleted_domain_masks=user_data.n_deleted_domain_masks,
+            date_joined_relay=_opt_dt_to_glean(user_data.date_joined_relay),
+            premium_status=user_data.premium_status,
+            date_joined_premium=_opt_dt_to_glean(user_data.date_joined_premium),
+            has_extension=user_data.has_extension,
+            date_got_extension=_opt_dt_to_glean(user_data.date_got_extension),
+            mask_id=mask_id,
+            is_random_mask=is_random_mask,
+        )
+
     def log_email_mask_deleted(
         self,
         *,
-        request: HttpRequest | None = None,
+        request: HttpRequest,
         user: User,
         mask_id: str,
         is_random_mask: bool,
     ) -> None:
-        request_data = RequestData.from_request(request) if request else RequestData()
+        request_data = RequestData.from_request(request)
         user_data = UserData.from_user(user)
 
         self.record_email_mask_deleted(
