@@ -1,8 +1,9 @@
+from __future__ import annotations
 from decimal import Decimal
 from functools import cache, wraps
 from pathlib import Path
 from string import ascii_uppercase
-from typing import Callable, TypedDict, cast
+from typing import Callable, TypedDict, cast, TYPE_CHECKING
 import json
 import logging
 import random
@@ -19,7 +20,6 @@ from waffle.utils import (
     get_setting as get_waffle_setting,
 )
 
-from .glean_interface import RelayGleanLogger
 from .plans import (
     LanguageStr,
     PeriodStr,
@@ -27,6 +27,9 @@ from .plans import (
     CountryStr,
     get_premium_country_language_mapping,
 )
+
+if TYPE_CHECKING:
+    from .glean_interface import RelayGleanLogger
 
 info_logger = logging.getLogger("eventsinfo")
 
@@ -516,6 +519,8 @@ def get_version_info(base_dir: str | Path | None = None) -> VersionInfo:
 
 @cache
 def glean_logger() -> RelayGleanLogger:
+    from .glean_interface import RelayGleanLogger
+
     version_info = get_version_info()
     return RelayGleanLogger(
         application_id="relay-backend",

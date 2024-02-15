@@ -3,7 +3,7 @@
 from __future__ import annotations
 from datetime import datetime
 from logging import getLogger
-from typing import Any, TYPE_CHECKING
+from typing import Any, NamedTuple
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -11,11 +11,82 @@ from django.http import HttpRequest
 
 from ipware import get_client_ip
 
+from emails.models import DomainAddress, RelayAddress
 from .glean.server_events import EventsServerEventLogger, GLEAN_EVENT_MOZLOG_TYPE
 from .types import RELAY_CHANNEL_NAME
 
-if TYPE_CHECKING:
-    from emails.models import RelayAddress, DomainAddress
+
+def _opt_dt_to_glean(value: datetime | None) -> int:
+    return -1 if value is None else int(value.timestamp())
+
+
+def _opt_str_to_glean(value: str | None) -> str:
+    return "" if value is None else value
+
+
+class RequestData(NamedTuple):
+    user_agent: str | None = None
+    ip_address: str | None = None
+
+    @classmethod
+    def from_request(cls, request: HttpRequest) -> RequestData:
+        user_agent = request.headers.get("user-agent", None)
+        client_ip, is_routable = get_client_ip(request)
+        ip_address = client_ip if (client_ip and is_routable) else None
+        return cls(user_agent=user_agent, ip_address=ip_address)
+
+
+class UserData(NamedTuple):
+    fxa_id: str | None
+    n_random_masks: int
+    n_domain_masks: int
+    n_deleted_random_masks: int
+    n_deleted_domain_masks: int
+    date_joined_relay: datetime | None
+    date_joined_premium: datetime | None
+    premium_status: str
+    has_extension: bool
+    date_got_extension: datetime | None
+
+    @classmethod
+    def from_user(cls, user: User) -> UserData:
+        fxa_id = user.profile.fxa.uid if user.profile.fxa else None
+        n_random_masks = user.relayaddress_set.count()
+        n_domain_masks = user.domainaddress_set.count()
+        n_deleted_random_masks = user.profile.num_deleted_relay_addresses
+        n_deleted_domain_masks = user.profile.num_deleted_domain_addresses
+        date_joined_relay = user.date_joined
+        if user.profile.has_premium:
+            if user.profile.has_phone:
+                date_joined_premium = user.profile.date_subscribed_phone
+            else:
+                date_joined_premium = user.profile.date_subscribed
+        else:
+            date_joined_premium = None
+        premium_status = user.profile.metrics_premium_status
+        try:
+            earliest_mask = user.relayaddress_set.exclude(
+                generated_for__exact=""
+            ).earliest("created_at")
+        except RelayAddress.DoesNotExist:
+            has_extension = False
+            date_got_extension = None
+        else:
+            has_extension = True
+            date_got_extension = earliest_mask.created_at
+
+        return cls(
+            fxa_id=fxa_id,
+            n_random_masks=n_random_masks,
+            n_domain_masks=n_domain_masks,
+            n_deleted_random_masks=n_deleted_random_masks,
+            n_deleted_domain_masks=n_deleted_domain_masks,
+            date_joined_relay=date_joined_relay,
+            date_joined_premium=date_joined_premium,
+            premium_status=premium_status,
+            has_extension=has_extension,
+            date_got_extension=date_got_extension,
+        )
 
 
 class RelayGleanLogger(EventsServerEventLogger):
@@ -40,47 +111,8 @@ class RelayGleanLogger(EventsServerEventLogger):
         mask: RelayAddress | DomainAddress,
         created_by_api: bool,
     ) -> None:
-        from emails.models import RelayAddress
-
-        if request is None:
-            user_agent = ""
-            ip_address = ""
-        else:
-            user_agent = request.headers.get("user-agent", "")
-            client_ip, is_routable = get_client_ip(request)
-            ip_address = client_ip if (client_ip and is_routable) else ""
-
-        user = mask.user
-        fxa_id = user.profile.fxa.uid if user.profile.fxa else ""
-        n_random_masks = user.relayaddress_set.count()
-        n_domain_masks = user.domainaddress_set.count()
-        n_deleted_random_masks = user.profile.num_deleted_relay_addresses
-        n_deleted_domain_masks = user.profile.num_deleted_domain_addresses
-        date_joined_relay = int(user.date_joined.timestamp())
-
-        date_subscribed = None
-        if user.profile.has_premium:
-            if user.profile.has_phone:
-                date_subscribed = user.profile.date_subscribed_phone
-            else:
-                date_subscribed = user.profile.date_subscribed
-        if date_subscribed:
-            date_joined_premium = int(date_subscribed.timestamp())
-        else:
-            date_joined_premium = -1
-
-        premium_status = user.profile.metrics_premium_status
-
-        try:
-            earliest_mask = user.relayaddress_set.exclude(
-                generated_for__exact=""
-            ).earliest("created_at")
-        except RelayAddress.DoesNotExist:
-            has_extension = False
-            date_got_extension = -1
-        else:
-            has_extension = True
-            date_got_extension = int(earliest_mask.created_at.timestamp())
+        request_data = RequestData.from_request(request) if request else RequestData()
+        user_data = UserData.from_user(mask.user)
 
         if isinstance(mask, RelayAddress):
             is_random_mask = True
@@ -91,20 +123,20 @@ class RelayGleanLogger(EventsServerEventLogger):
         mask_id = mask.metrics_id
 
         self.record_email_mask_created(
-            user_agent=user_agent,
-            ip_address=ip_address,
+            user_agent=_opt_str_to_glean(request_data.user_agent),
+            ip_address=_opt_str_to_glean(request_data.ip_address),
             client_id="",
-            fxa_id=fxa_id,
+            fxa_id=_opt_str_to_glean(user_data.fxa_id),
             platform="",
-            n_random_masks=n_random_masks,
-            n_domain_masks=n_domain_masks,
-            n_deleted_random_masks=n_deleted_random_masks,
-            n_deleted_domain_masks=n_deleted_domain_masks,
-            date_joined_relay=date_joined_relay,
-            premium_status=premium_status,
-            date_joined_premium=date_joined_premium,
-            has_extension=has_extension,
-            date_got_extension=date_got_extension,
+            n_random_masks=user_data.n_random_masks,
+            n_domain_masks=user_data.n_domain_masks,
+            n_deleted_random_masks=user_data.n_deleted_random_masks,
+            n_deleted_domain_masks=user_data.n_deleted_domain_masks,
+            date_joined_relay=_opt_dt_to_glean(user_data.date_joined_relay),
+            premium_status=user_data.premium_status,
+            date_joined_premium=_opt_dt_to_glean(user_data.date_joined_premium),
+            has_extension=user_data.has_extension,
+            date_got_extension=_opt_dt_to_glean(user_data.date_got_extension),
             mask_id=mask_id,
             is_random_mask=is_random_mask,
             created_by_api=created_by_api,
@@ -117,64 +149,26 @@ class RelayGleanLogger(EventsServerEventLogger):
         request: HttpRequest | None = None,
         user: User,
         mask_id: str,
-        is_random_mask: bool
+        is_random_mask: bool,
     ) -> None:
-        from emails.models import RelayAddress
-
-        if request is None:
-            user_agent = ""
-            ip_address = ""
-        else:
-            user_agent = request.headers.get("user-agent", "")
-            client_ip, is_routable = get_client_ip(request)
-            ip_address = client_ip if (client_ip and is_routable) else ""
-
-        fxa_id = user.profile.fxa.uid if user.profile.fxa else ""
-        n_random_masks = user.relayaddress_set.count()
-        n_domain_masks = user.domainaddress_set.count()
-        n_deleted_random_masks = user.profile.num_deleted_relay_addresses
-        n_deleted_domain_masks = user.profile.num_deleted_domain_addresses
-        date_joined_relay = int(user.date_joined.timestamp())
-
-        date_subscribed = None
-        if user.profile.has_premium:
-            if user.profile.has_phone:
-                date_subscribed = user.profile.date_subscribed_phone
-            else:
-                date_subscribed = user.profile.date_subscribed
-        if date_subscribed:
-            date_joined_premium = int(date_subscribed.timestamp())
-        else:
-            date_joined_premium = -1
-
-        premium_status = user.profile.metrics_premium_status
-
-        try:
-            earliest_mask = user.relayaddress_set.exclude(
-                generated_for__exact=""
-            ).earliest("created_at")
-        except RelayAddress.DoesNotExist:
-            has_extension = False
-            date_got_extension = -1
-        else:
-            has_extension = True
-            date_got_extension = int(earliest_mask.created_at.timestamp())
+        request_data = RequestData.from_request(request) if request else RequestData()
+        user_data = UserData.from_user(user)
 
         self.record_email_mask_deleted(
-            user_agent=user_agent,
-            ip_address=ip_address,
+            user_agent=_opt_str_to_glean(request_data.user_agent),
+            ip_address=_opt_str_to_glean(request_data.ip_address),
             client_id="",
-            fxa_id=fxa_id,
+            fxa_id=_opt_str_to_glean(user_data.fxa_id),
             platform="",
-            n_random_masks=n_random_masks,
-            n_domain_masks=n_domain_masks,
-            n_deleted_random_masks=n_deleted_random_masks,
-            n_deleted_domain_masks=n_deleted_domain_masks,
-            date_joined_relay=date_joined_relay,
-            premium_status=premium_status,
-            date_joined_premium=date_joined_premium,
-            has_extension=has_extension,
-            date_got_extension=date_got_extension,
+            n_random_masks=user_data.n_random_masks,
+            n_domain_masks=user_data.n_domain_masks,
+            n_deleted_random_masks=user_data.n_deleted_random_masks,
+            n_deleted_domain_masks=user_data.n_deleted_domain_masks,
+            date_joined_relay=_opt_dt_to_glean(user_data.date_joined_relay),
+            premium_status=user_data.premium_status,
+            date_joined_premium=_opt_dt_to_glean(user_data.date_joined_premium),
+            has_extension=user_data.has_extension,
+            date_got_extension=_opt_dt_to_glean(user_data.date_got_extension),
             mask_id=mask_id,
             is_random_mask=is_random_mask,
         )
