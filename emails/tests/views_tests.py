@@ -11,7 +11,6 @@ import json
 import os
 import re
 
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
@@ -26,6 +25,7 @@ import pytest
 
 from privaterelay.ftl_bundles import main
 from privaterelay.tests.utils import get_glean_event
+from privaterelay.glean.server_events import GLEAN_EVENT_MOZLOG_TYPE as GLEAN_LOG
 
 from emails.models import (
     DeletedAddress,
@@ -481,25 +481,56 @@ class SNSNotificationTest(TestCase):
 
     def test_spamVerdict_FAIL_default_still_relays(self) -> None:
         """For a default user, spam email will still relay."""
-        _sns_notification(EMAIL_SNS_BODIES["spamVerdict_FAIL"])
+        with self.assertNoLogs(GLEAN_LOG, level="INFO"):
+            _sns_notification(EMAIL_SNS_BODIES["spamVerdict_FAIL"])
 
         self.mock_send_raw_email.assert_called_once()
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
 
+    @override_settings(STATSD_ENABLED=True)
     def test_spamVerdict_FAIL_auto_block_doesnt_relay(self) -> None:
         """When a user has auto_block_spam=True, spam will not relay."""
         self.profile.auto_block_spam = True
         self.profile.save()
 
-        _sns_notification(EMAIL_SNS_BODIES["spamVerdict_FAIL"])
+        with self.assertLogs(GLEAN_LOG, level="INFO") as caplog, MetricsMock() as mm:
+            _sns_notification(EMAIL_SNS_BODIES["spamVerdict_FAIL"])
+        event = get_glean_event(caplog)
+        assert event is not None
+        assert self.profile.fxa
+        date_joined_ts = int(self.profile.user.date_joined.timestamp())
+        assert event == {
+            "category": "email",
+            "name": "blocked",
+            "extra": {
+                "client_id": "",
+                "fxa_id": self.profile.fxa.uid,
+                "platform": "",
+                "n_random_masks": "1",
+                "n_domain_masks": "0",
+                "n_deleted_random_masks": "0",
+                "n_deleted_domain_masks": "0",
+                "date_joined_relay": str(date_joined_ts),
+                "premium_status": "free",
+                "date_joined_premium": "-1",
+                "has_extension": "false",
+                "date_got_extension": "-1",
+                "mask_id": self.ra.metrics_id,
+                "is_random_mask": "true",
+                "is_reply": "false",
+                "reason": "auto_block_spam",
+            },
+            "timestamp": event["timestamp"],
+        }
+        mm.assert_incr_once("fx.private.relay.email_auto_suppressed_for_spam")
 
         self.mock_send_raw_email.assert_not_called()
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 0
 
     def test_domain_recipient(self) -> None:
-        with self.assertLogs(settings.GLEAN_EVENT_MOZLOG_TYPE, "INFO") as caplog:
+        with self.assertLogs(GLEAN_LOG, "INFO") as caplog:
             _sns_notification(EMAIL_SNS_BODIES["domain_recipient"])
 
         sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
@@ -1454,30 +1485,28 @@ class GetAddressTest(TestCase):
         mm.assert_incr_once("fx.private.relay.email_for_deleted_address_multiple")
 
     def test_existing_domain_address(self) -> None:
-        with self.assertNoLogs(settings.GLEAN_EVENT_MOZLOG_TYPE, "INFO"):
+        with self.assertNoLogs(GLEAN_LOG, "INFO"):
             assert _get_address("domain@subdomain.test.com") == self.domain_address
 
     def test_uppercase_local_part_of_existing_domain_address(self) -> None:
         """Case-insensitive matching is used in the local part of a domain address."""
-        with self.assertNoLogs(settings.GLEAN_EVENT_MOZLOG_TYPE, "INFO"):
+        with self.assertNoLogs(GLEAN_LOG, "INFO"):
             assert _get_address("Domain@subdomain.test.com") == self.domain_address
 
     def test_uppercase_subdomain_part_of_existing_domain_address(self) -> None:
         """Case-insensitive matching is used in the subdomain of a domain address."""
-        with self.assertNoLogs(settings.GLEAN_EVENT_MOZLOG_TYPE, "INFO"):
+        with self.assertNoLogs(GLEAN_LOG, "INFO"):
             assert _get_address("domain@SubDomain.test.com") == self.domain_address
 
     def test_uppercase_domain_part_of_existing_domain_address(self) -> None:
         """Case-insensitive matching is used in the domain part of a domain address."""
-        with self.assertNoLogs(settings.GLEAN_EVENT_MOZLOG_TYPE, "INFO"):
+        with self.assertNoLogs(GLEAN_LOG, "INFO"):
             assert _get_address("domain@subdomain.Test.Com") == self.domain_address
 
     def test_subdomain_for_wrong_domain_raises(self) -> None:
         with pytest.raises(
             ObjectDoesNotExist
-        ) as exc_info, MetricsMock() as mm, self.assertNoLogs(
-            settings.GLEAN_EVENT_MOZLOG_TYPE, "INFO"
-        ):
+        ) as exc_info, MetricsMock() as mm, self.assertNoLogs(GLEAN_LOG, "INFO"):
             _get_address("unknown@subdomain.example.com")
         assert str(exc_info.value) == "Address does not exist"
         mm.assert_incr_once("fx.private.relay.email_for_not_supported_domain")
@@ -1485,9 +1514,7 @@ class GetAddressTest(TestCase):
     def test_unknown_subdomain_raises(self) -> None:
         with pytest.raises(
             Profile.DoesNotExist
-        ), MetricsMock() as mm, self.assertNoLogs(
-            settings.GLEAN_EVENT_MOZLOG_TYPE, "INFO"
-        ):
+        ), MetricsMock() as mm, self.assertNoLogs(GLEAN_LOG, "INFO"):
             _get_address("domain@unknown.test.com")
         mm.assert_incr_once("fx.private.relay.email_for_dne_subdomain")
 
@@ -1500,7 +1527,7 @@ class GetAddressTest(TestCase):
         cannot be pre-created.
         """
         assert DomainAddress.objects.filter(user=self.user).count() == 1
-        with self.assertLogs(settings.GLEAN_EVENT_MOZLOG_TYPE, "INFO") as caplog:
+        with self.assertLogs(GLEAN_LOG, "INFO") as caplog:
             address = _get_address("unknown@subdomain.test.com")
         assert address.user == self.user
         assert address.address == "unknown"
@@ -1545,7 +1572,7 @@ class GetAddressTest(TestCase):
         consistent with dashboard-created domain adddresses.
         """
         assert DomainAddress.objects.filter(user=self.user).count() == 1
-        with self.assertLogs(settings.GLEAN_EVENT_MOZLOG_TYPE, "INFO") as caplog:
+        with self.assertLogs(GLEAN_LOG, "INFO") as caplog:
             address = _get_address("Unknown@subdomain.test.com")
         assert address.user == self.user
         assert address.address == "unknown"

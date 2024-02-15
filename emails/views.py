@@ -578,6 +578,9 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     # if this is spam and the user is set to auto-block spam, early return
     if user_profile.auto_block_spam and _get_verdict(receipt, "spam") == "FAIL":
         incr_if_enabled("email_auto_suppressed_for_spam", 1)
+        glean_logger().log_email_blocked(
+            mask=address, is_reply=False, reason="auto_block_spam"
+        )
         return HttpResponse("Address rejects spam.")
 
     if _get_verdict(receipt, "dmarc") == "FAIL":

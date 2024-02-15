@@ -3,7 +3,7 @@
 from __future__ import annotations
 from datetime import datetime
 from logging import getLogger
-from typing import Any, NamedTuple
+from typing import Any, Literal, NamedTuple
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -89,6 +89,39 @@ class UserData(NamedTuple):
         )
 
 
+class MaskData(NamedTuple):
+    mask_id: str
+    is_random_mask: bool
+    has_website: bool
+
+    @classmethod
+    def from_mask(cls, mask: RelayAddress | DomainAddress) -> MaskData:
+        mask_id = mask.metrics_id
+        if isinstance(mask, RelayAddress):
+            is_random_mask = True
+            has_website = bool(mask.generated_for)
+        else:
+            is_random_mask = False
+            has_website = False
+        return MaskData(
+            mask_id=mask_id, is_random_mask=is_random_mask, has_website=has_website
+        )
+
+
+EmailBlockedReason = Literal[
+    "auto_block_spam",  # Email identified as spam, user has the auto_block_spam flag
+    # "hard_bounce_pause",  # The user recently had a hard bounce
+    # "soft_bounce_pause",  # The user recently has a soft bounce
+    # "abuse_flag",  # The user exceeded an abuse limit, like mails forwarded
+    # "block_all",  # The mask is set to block all mail
+    # "block_promotional",  # The mask is set to block promotional / list mail
+    # "reply_requires_premium",  # The email is a reply from a free user
+    # "no_reply_header",  # The email is a reply without the required header
+    # "no_reply_record",  # The email is a reply without a database match
+    # "send_fail",  # AWS rejected the email
+]
+
+
 class RelayGleanLogger(EventsServerEventLogger):
     def __init__(
         self,
@@ -113,15 +146,7 @@ class RelayGleanLogger(EventsServerEventLogger):
     ) -> None:
         request_data = RequestData.from_request(request) if request else RequestData()
         user_data = UserData.from_user(mask.user)
-
-        if isinstance(mask, RelayAddress):
-            is_random_mask = True
-            has_website = bool(mask.generated_for)
-        else:
-            is_random_mask = False
-            has_website = False
-        mask_id = mask.metrics_id
-
+        mask_data = MaskData.from_mask(mask)
         self.record_email_mask_created(
             user_agent=_opt_str_to_glean(request_data.user_agent),
             ip_address=_opt_str_to_glean(request_data.ip_address),
@@ -137,10 +162,10 @@ class RelayGleanLogger(EventsServerEventLogger):
             date_joined_premium=_opt_dt_to_glean(user_data.date_joined_premium),
             has_extension=user_data.has_extension,
             date_got_extension=_opt_dt_to_glean(user_data.date_got_extension),
-            mask_id=mask_id,
-            is_random_mask=is_random_mask,
+            mask_id=mask_data.mask_id,
+            is_random_mask=mask_data.is_random_mask,
             created_by_api=created_by_api,
-            has_website=has_website,
+            has_website=mask_data.has_website,
         )
 
     def log_email_mask_label_updated(
@@ -151,10 +176,7 @@ class RelayGleanLogger(EventsServerEventLogger):
     ) -> None:
         request_data = RequestData.from_request(request)
         user_data = UserData.from_user(mask.user)
-
-        is_random_mask = isinstance(mask, RelayAddress)
-        mask_id = mask.metrics_id
-
+        mask_data = MaskData.from_mask(mask)
         self.record_email_mask_label_updated(
             user_agent=_opt_str_to_glean(request_data.user_agent),
             ip_address=_opt_str_to_glean(request_data.ip_address),
@@ -170,8 +192,8 @@ class RelayGleanLogger(EventsServerEventLogger):
             date_joined_premium=_opt_dt_to_glean(user_data.date_joined_premium),
             has_extension=user_data.has_extension,
             date_got_extension=_opt_dt_to_glean(user_data.date_got_extension),
-            mask_id=mask_id,
-            is_random_mask=is_random_mask,
+            mask_id=mask_data.mask_id,
+            is_random_mask=mask_data.is_random_mask,
         )
 
     def log_email_mask_deleted(
@@ -184,7 +206,6 @@ class RelayGleanLogger(EventsServerEventLogger):
     ) -> None:
         request_data = RequestData.from_request(request)
         user_data = UserData.from_user(user)
-
         self.record_email_mask_deleted(
             user_agent=_opt_str_to_glean(request_data.user_agent),
             ip_address=_opt_str_to_glean(request_data.ip_address),
@@ -202,6 +223,37 @@ class RelayGleanLogger(EventsServerEventLogger):
             date_got_extension=_opt_dt_to_glean(user_data.date_got_extension),
             mask_id=mask_id,
             is_random_mask=is_random_mask,
+        )
+
+    def log_email_blocked(
+        self,
+        *,
+        mask: RelayAddress | DomainAddress,
+        is_reply: bool,
+        reason: EmailBlockedReason,
+    ) -> None:
+        request_data = RequestData()
+        user_data = UserData.from_user(mask.user)
+        mask_data = MaskData.from_mask(mask)
+        self.record_email_blocked(
+            user_agent=_opt_str_to_glean(request_data.user_agent),
+            ip_address=_opt_str_to_glean(request_data.ip_address),
+            client_id="",
+            fxa_id=_opt_str_to_glean(user_data.fxa_id),
+            platform="",
+            n_random_masks=user_data.n_random_masks,
+            n_domain_masks=user_data.n_domain_masks,
+            n_deleted_random_masks=user_data.n_deleted_random_masks,
+            n_deleted_domain_masks=user_data.n_deleted_domain_masks,
+            date_joined_relay=_opt_dt_to_glean(user_data.date_joined_relay),
+            premium_status=user_data.premium_status,
+            date_joined_premium=_opt_dt_to_glean(user_data.date_joined_premium),
+            has_extension=user_data.has_extension,
+            date_got_extension=_opt_dt_to_glean(user_data.date_got_extension),
+            mask_id=mask_data.mask_id,
+            is_random_mask=mask_data.is_random_mask,
+            is_reply=is_reply,
+            reason=reason,
         )
 
     def emit_record(self, now: datetime, ping: dict[str, Any]) -> None:
