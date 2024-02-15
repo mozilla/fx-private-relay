@@ -14,8 +14,6 @@
 # future, after we get over the technical hurdles of the first integration.
 #
 # Remaining critical path work in the code:
-# - Add Relay hooks for mask_deleted events
-# - Add Relay hooks for mask_label_updated events
 # - Add Relay hooks for email_forwarded events
 # - Add Relay hooks for email_blocked events
 # - Respect opt-out at Firefox Accounts level
