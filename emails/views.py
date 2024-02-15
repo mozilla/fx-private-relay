@@ -588,7 +588,8 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         # TODO: determine action on dmarcPolicy "quarantine"
         if policy == "reject":
             glean_logger().log_email_blocked(
-                mask=address, is_reply=False, reason="dmarc_reject_failed")
+                mask=address, is_reply=False, reason="dmarc_reject_failed"
+            )
             incr_if_enabled(
                 "email_suppressed_for_dmarc_failure",
                 tags=["dmarcPolicy:reject", "dmarcVerdict:FAIL"],
@@ -600,6 +601,10 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     if bounce_paused:
         _record_receipt_verdicts(receipt, "user_bounce_paused")
         incr_if_enabled("email_suppressed_for_%s_bounce" % bounce_type, 1)
+        reason: Literal["soft_bounce_pause", "hard_bounce_pause"] = (
+            "soft_bounce_pause" if bounce_type == "soft" else "hard_bounce_pause"
+        )
+        glean_logger().log_email_blocked(mask=address, is_reply=False, reason=reason)
         return HttpResponse("Address is temporarily disabled.")
 
     # check if this is a reply from an external sender to a Relay user

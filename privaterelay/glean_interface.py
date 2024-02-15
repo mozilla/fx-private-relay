@@ -111,8 +111,8 @@ class MaskData(NamedTuple):
 EmailBlockedReason = Literal[
     "auto_block_spam",  # Email identified as spam, user has the auto_block_spam flag
     "dmarc_reject_failed",  # Email failed DMARC check with a reject policy
-    # "hard_bounce_pause",  # The user recently had a hard bounce
-    # "soft_bounce_pause",  # The user recently has a soft bounce
+    "hard_bounce_pause",  # The user recently had a hard bounce
+    "soft_bounce_pause",  # The user recently has a soft bounce
     # "abuse_flag",  # The user exceeded an abuse limit, like mails forwarded
     # "block_all",  # The mask is set to block all mail
     # "block_promotional",  # The mask is set to block promotional / list mail

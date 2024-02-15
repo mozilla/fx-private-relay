@@ -3,7 +3,7 @@ from copy import deepcopy
 from datetime import datetime, timedelta, timezone
 from email import message_from_string
 from email.message import EmailMessage
-from typing import cast
+from typing import Any, cast
 from unittest.mock import patch, Mock
 from uuid import uuid4
 import glob
@@ -1248,6 +1248,7 @@ class SNSNotificationInvalidMessageTest(TestCase):
         assert response.status_code == 400
 
 
+@override_settings(STATSD_ENABLED=True)
 class SNSNotificationValidUserEmailsInS3Test(TestCase):
     def setUp(self) -> None:
         self.bucket = "test-bucket"
@@ -1263,6 +1264,37 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         self.mock_remove_message_from_s3 = remove_s3_patcher.start()
         self.addCleanup(remove_s3_patcher.stop)
 
+    def get_expected_event(
+        self, timestamp: str, reason: str | None = None
+    ) -> dict[str, Any]:
+        assert self.profile.fxa is None
+        date_joined_ts = int(self.profile.user.date_joined.timestamp())
+        extra = {
+                "client_id": "",
+                "fxa_id": "",
+                "platform": "",
+                "n_random_masks": "1",
+                "n_domain_masks": "0",
+                "n_deleted_random_masks": "0",
+                "n_deleted_domain_masks": "0",
+                "date_joined_relay": str(date_joined_ts),
+                "premium_status": "free",
+                "date_joined_premium": "-1",
+                "has_extension": "false",
+                "date_got_extension": "-1",
+                "mask_id": self.address.metrics_id,
+                "is_random_mask": "true",
+                "is_reply": "false",
+        }
+        if reason:
+            extra["reason"] = reason
+        return {
+            "category": "email",
+            "name": "blocked" if reason else "forwarded",
+            "extra": extra,
+            "timestamp": timestamp,
+        }
+
     def test_auto_block_spam_true_email_in_s3_deleted(self) -> None:
         self.profile.auto_block_spam = True
         self.profile.save()
@@ -1272,19 +1304,43 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         notification_w_spamverdict_failed = EMAIL_SNS_BODIES["s3_stored"].copy()
         notification_w_spamverdict_failed["Message"] = message_spamverdict_failed
 
-        response = _sns_notification(notification_w_spamverdict_failed)
+        with self.assertLogs(GLEAN_LOG) as caplog, MetricsMock() as mm:
+            response = _sns_notification(notification_w_spamverdict_failed)
         self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 200
         assert response.content == b"Address rejects spam."
+        assert (event := get_glean_event(caplog)) is not None
+        expected = self.get_expected_event(event["timestamp"], "auto_block_spam")
+        assert event == expected
+        mm.assert_incr_once("fx.private.relay.email_auto_suppressed_for_spam")
 
-    def test_user_bounce_paused_email_in_s3_deleted(self) -> None:
+    def test_user_bounce_soft_paused_email_in_s3_deleted(self) -> None:
         self.profile.last_soft_bounce = datetime.now(timezone.utc)
         self.profile.save()
 
-        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
+        with self.assertLogs(GLEAN_LOG) as caplog, MetricsMock() as mm:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
         self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 200
         assert response.content == b"Address is temporarily disabled."
+        assert (event := get_glean_event(caplog)) is not None
+        expected = self.get_expected_event(event["timestamp"], "soft_bounce_pause")
+        assert event == expected
+        mm.assert_incr_once("fx.private.relay.email_suppressed_for_soft_bounce")
+
+    def test_user_bounce_hard_paused_email_in_s3_deleted(self) -> None:
+        self.profile.last_hard_bounce = datetime.now(timezone.utc)
+        self.profile.save()
+
+        with self.assertLogs(GLEAN_LOG) as caplog, MetricsMock() as mm:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
+        self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
+        assert response.status_code == 200
+        assert response.content == b"Address is temporarily disabled."
+        assert (event := get_glean_event(caplog)) is not None
+        expected = self.get_expected_event(event["timestamp"], "hard_bounce_pause")
+        assert event == expected
+        mm.assert_incr_once("fx.private.relay.email_suppressed_for_hard_bounce")
 
     @patch("emails.views._reply_allowed")
     @patch("emails.views._get_reply_record_from_lookup_key")
@@ -1400,7 +1456,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         )
         event = get_glean_event(caplog)
         assert event is not None
-        assert not self.profile.fxa
+        assert self.profile.fxa is None
         date_joined_ts = int(self.profile.user.date_joined.timestamp())
         assert event == {
             "category": "email",
