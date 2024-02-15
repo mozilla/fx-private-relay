@@ -1389,7 +1389,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         mocked_get_content.side_effect = FAIL_TEST_IF_CALLED
         mocked_ses_client.send_raw_email.side_effect = FAIL_TEST_IF_CALLED
 
-        with MetricsMock() as mm:
+        with self.assertLogs(GLEAN_LOG, "INFO") as caplog, MetricsMock() as mm:
             response = _sns_notification(EMAIL_SNS_BODIES["dmarc_failed"])
         self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 400
@@ -1398,6 +1398,33 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
             "fx.private.relay.email_suppressed_for_dmarc_failure",
             tags=["dmarcPolicy:reject", "dmarcVerdict:FAIL"],
         )
+        event = get_glean_event(caplog)
+        assert event is not None
+        assert not self.profile.fxa
+        date_joined_ts = int(self.profile.user.date_joined.timestamp())
+        assert event == {
+            "category": "email",
+            "name": "blocked",
+            "extra": {
+                "client_id": "",
+                "fxa_id": "",
+                "platform": "",
+                "n_random_masks": "1",
+                "n_domain_masks": "0",
+                "n_deleted_random_masks": "0",
+                "n_deleted_domain_masks": "0",
+                "date_joined_relay": str(date_joined_ts),
+                "premium_status": "free",
+                "date_joined_premium": "-1",
+                "has_extension": "false",
+                "date_got_extension": "-1",
+                "mask_id": self.address.metrics_id,
+                "is_random_mask": "true",
+                "is_reply": "false",
+                "reason": "dmarc_reject_failed",
+            },
+            "timestamp": event["timestamp"],
+        }
 
 
 class SnsMessageTest(TestCase):

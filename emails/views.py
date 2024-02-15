@@ -587,9 +587,10 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         policy = receipt.get("dmarcPolicy", "none")
         # TODO: determine action on dmarcPolicy "quarantine"
         if policy == "reject":
+            glean_logger().log_email_blocked(
+                mask=address, is_reply=False, reason="dmarc_reject_failed")
             incr_if_enabled(
                 "email_suppressed_for_dmarc_failure",
-                1,
                 tags=["dmarcPolicy:reject", "dmarcVerdict:FAIL"],
             )
             return HttpResponse("DMARC failure, policy is reject", status=400)
