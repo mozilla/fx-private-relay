@@ -1426,10 +1426,16 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
             {"Error": {"Code": "SomeErrorCode", "Message": "Details"}}, ""
         )
 
-        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
+        with self.assertLogs("events", "ERROR") as event_caplog:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
         self.mock_remove_message_from_s3.assert_not_called()
         assert response.status_code == 503
         assert response.content == b"Cannot fetch the message content from S3"
+        assert len(event_caplog.records) == 1
+        event_log = event_caplog.records[0]
+        assert event_log.message == "s3_client_error_get_email"
+        assert getattr(event_log, "Code") == "SomeErrorCode"
+        assert getattr(event_log, "Message") == "Details"
 
     @patch("emails.apps.EmailsConfig.ses_client", spec_set=["send_raw_email"])
     @patch("emails.views.get_message_content_from_s3")
@@ -1505,7 +1511,7 @@ class SnsMessageTest(TestCase):
                 EMAIL_SNS_BODIES["s3_stored"], "text"
             ),
         )
-        get_content_patcher.start()
+        self.mock_get_content = get_content_patcher.start()
         self.addCleanup(get_content_patcher.stop)
 
         ses_client_patcher = patch(
@@ -1514,6 +1520,22 @@ class SnsMessageTest(TestCase):
         )
         self.mock_ses_client = ses_client_patcher.start()
         self.addCleanup(ses_client_patcher.stop)
+
+    def test_get_message_content_from_s3_not_found(self):
+        self.mock_get_content.side_effect = ClientError(
+            operation_name="S3.something",
+            error_response={"Error": {"Code": "NoSuchKey", "Message": "the message"}},
+        )
+        with self.assertLogs("events", "ERROR") as events_caplog:
+            response = _sns_message(self.message_json)
+        self.mock_ses_client.send_raw_email.assert_not_called()
+        assert response.status_code == 404
+        assert response.content == b'Email not in S3'
+        assert len(events_caplog.records) == 1
+        events_log = events_caplog.records[0]
+        assert events_log.message == "s3_object_does_not_exist"
+        assert getattr(events_log, "Code") == "NoSuchKey"
+        assert getattr(events_log, "Message") == "the message"
 
     def test_ses_send_raw_email_has_client_error_early_exits(self):
         self.mock_ses_client.send_raw_email.side_effect = SEND_RAW_EMAIL_FAILED
