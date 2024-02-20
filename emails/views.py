@@ -756,6 +756,9 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         )
     except ClientError:
         # 503 service unavailable reponse to SNS so it can retry
+        glean_logger().log_email_blocked(
+            mask=address, is_reply=is_reply, reason="error_sending", can_retry=True
+        )
         return HttpResponse("SES client error on Raw Email", status=503)
 
     message_id = ses_response["MessageId"]

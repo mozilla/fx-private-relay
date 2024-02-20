@@ -1561,7 +1561,9 @@ class SnsMessageTest(TestCase):
 
     def test_ses_send_raw_email_has_client_error_early_exits(self):
         self.mock_ses_client.send_raw_email.side_effect = SEND_RAW_EMAIL_FAILED
-        with self.assertLogs("events", "ERROR") as events_caplog:
+        with self.assertLogs(GLEAN_LOG) as glean_caplog, self.assertLogs(
+            "events", "ERROR"
+        ) as events_caplog:
             response = _sns_message(self.message_json)
         self.mock_ses_client.send_raw_email.assert_called_once()
         assert response.status_code == 503
@@ -1571,6 +1573,12 @@ class SnsMessageTest(TestCase):
         assert events_log.message == "ses_client_error_raw_email"
         assert getattr(events_log, "Code") == "the code"
         assert getattr(events_log, "Message") == "the message"
+
+        assert (glean_event := get_glean_event(glean_caplog)) is not None
+        assert glean_event["category"] == "email"
+        assert glean_event["name"] == "blocked"
+        assert glean_event["extra"]["reason"] == "error_sending"
+        assert glean_event["extra"]["mask_id"] == self.ra.metrics_id
 
     def test_ses_send_raw_email_email_relayed_email_deleted_from_s3(self):
         self.mock_ses_client.send_raw_email.return_value = {"MessageId": str(uuid4())}
