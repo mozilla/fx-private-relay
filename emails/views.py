@@ -687,6 +687,9 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
                 "headers_from": header_from,
             },
         )
+        glean_logger().log_email_blocked(
+            mask=address, is_reply=False, reason="error_from_header"
+        )
         return HttpResponse("Cannot parse the From address", status=503)
 
     headers: OutgoingHeaders = {

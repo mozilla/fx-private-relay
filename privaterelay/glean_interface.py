@@ -119,7 +119,9 @@ EmailBlockedReason = Literal[
     "reply_requires_premium",  # The email is a reply from a free user
     # "no_reply_header",  # The email is a reply without the required header
     # "no_reply_record",  # The email is a reply without a database match
-    # "send_fail",  # AWS rejected the email
+    "error_from_header",  # Error generating the From: header, retriable
+    "error_storage",  # Error fetching the email contents from storage (S3)
+    "error_sending",  # Error sending the forwarded email (SES)
 ]
 
 

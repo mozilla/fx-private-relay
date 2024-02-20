@@ -686,9 +686,12 @@ class SNSNotificationTest(TestCase):
     @patch("emails.views.generate_from_header", side_effect=InvalidFromHeader())
     def test_invalid_from_header(self, mock_generate_from_header) -> None:
         """For MPP-3407, show logging for failed from address"""
-        with self.assertLogs("eventsinfo", "ERROR") as event_caplog:
+        with self.assertLogs(GLEAN_LOG) as glean_caplog, self.assertLogs(
+            "eventsinfo", "ERROR"
+        ) as event_caplog:
             response = _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
         assert response.status_code == 503
+
         assert len(event_caplog.records) == 1
         event_log = event_caplog.records[0]
         assert getattr(event_log, "from_address") == "fxastage@protonmail.com"
@@ -699,6 +702,12 @@ class SNSNotificationTest(TestCase):
         assert getattr(event_log, "headers_from") == [
             {"name": "From", "value": "fxastage <fxastage@protonmail.com>"}
         ]
+
+        assert (glean_event := get_glean_event(glean_caplog)) is not None
+        assert glean_event["category"] == "email"
+        assert glean_event["name"] == "blocked"
+        assert glean_event["extra"]["mask_id"] == self.ra.metrics_id
+        assert glean_event["extra"]["reason"] == "error_from_header"
 
         self.mock_send_raw_email.assert_not_called()
         self.mock_remove_message_from_s3.assert_not_called()
