@@ -1267,18 +1267,23 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
     def get_expected_event(
         self, timestamp: str, reason: str | None = None, is_reply: bool = False
     ) -> dict[str, Any]:
-        assert self.profile.fxa is None
+        if self.profile.fxa is None:
+            fxa_id = ""
+            premium_status = "free"
+        else:
+            fxa_id = self.profile.fxa.uid
+            premium_status = self.profile.metrics_premium_status
         date_joined_ts = int(self.profile.user.date_joined.timestamp())
         extra = {
             "client_id": "",
-            "fxa_id": "",
+            "fxa_id": fxa_id,
             "platform": "",
             "n_random_masks": "1",
             "n_domain_masks": "0",
             "n_deleted_random_masks": "0",
             "n_deleted_domain_masks": "0",
             "date_joined_relay": str(date_joined_ts),
-            "premium_status": "free",
+            "premium_status": premium_status,
             "date_joined_premium": "-1",
             "has_extension": "false",
             "date_got_extension": "-1",
@@ -1414,12 +1419,17 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         pre_blocked_email_last_engagement = profile.last_engagement
         mocked_email_is_from_list.return_value = True
 
-        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
+        with self.assertLogs(GLEAN_LOG) as caplog, MetricsMock() as mm:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
         self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 200
         assert response.content == b"Address is not accepting list emails."
         profile.refresh_from_db()
         assert profile.last_engagement > pre_blocked_email_last_engagement
+        assert (event := get_glean_event(caplog)) is not None
+        expected = self.get_expected_event(event["timestamp"], "block_promotional")
+        assert event == expected
+        mm.assert_incr_once("fx.private.relay.list_email_for_address_blocking_lists")
 
     @patch("emails.views.get_message_content_from_s3")
     def test_get_text_html_s3_client_error_email_in_s3_not_deleted(

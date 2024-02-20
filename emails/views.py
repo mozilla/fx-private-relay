@@ -661,6 +661,9 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         address.save(update_fields=["num_blocked"])
         user_profile.last_engagement = datetime.now(timezone.utc)
         user_profile.save()
+        glean_logger().log_email_blocked(
+            mask=address, is_reply=False, reason="block_promotional"
+        )
         return HttpResponse("Address is not accepting list emails.")
 
     # Collect new headers

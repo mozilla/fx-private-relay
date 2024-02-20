@@ -115,7 +115,7 @@ EmailBlockedReason = Literal[
     "soft_bounce_pause",  # The user recently has a soft bounce
     "abuse_flag",  # The user exceeded an abuse limit, like mails forwarded
     "block_all",  # The mask is set to block all mail
-    # "block_promotional",  # The mask is set to block promotional / list mail
+    "block_promotional",  # The mask is set to block promotional / list mail
     "reply_requires_premium",  # The email is a reply from a free user
     # "no_reply_header",  # The email is a reply without the required header
     # "no_reply_record",  # The email is a reply without a database match
