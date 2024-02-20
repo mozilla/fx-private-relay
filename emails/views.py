@@ -1235,7 +1235,9 @@ def _handle_reply(
     if not _reply_allowed(
         from_address, to_address, reply_record, message_id, decrypted_metadata
     ):
-        # TODO: should we return a 200 OK here?
+        glean_logger().log_email_blocked(
+            mask=address, is_reply=True, reason="reply_requires_premium"
+        )
         return HttpResponse("Relay replies require a premium account", status=403)
 
     outbound_from_address = address.full_address

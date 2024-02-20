@@ -943,6 +943,21 @@ class SNSNotificationReplyTest(SNSNotificationTestBase):
         assert 'Content-Type: text/plain; charset="utf-8"' in email
         assert "Content-Transfer-Encoding: base64" in email
 
+    @patch("emails.views._reply_allowed")
+    def test_reply_not_allowed(self, mocked_reply_allowed) -> None:
+        mocked_reply_allowed.return_value = False
+        with self.assertLogs(GLEAN_LOG) as caplog:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
+        assert response.status_code == 403
+        assert response.content == b'Relay replies require a premium account'
+
+        assert (event := get_glean_event(caplog)) is not None
+        assert event["category"] == "email"
+        assert event["name"] == "blocked"
+        assert event["extra"]["is_reply"] == "true"
+        assert event["extra"]["reason"] == "reply_requires_premium"
+        assert event["extra"]["can_retry"] == "false"
+
 
 class BounceHandlingTest(TestCase):
     def setUp(self):
