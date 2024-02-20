@@ -481,12 +481,18 @@ class SNSNotificationTest(TestCase):
 
     def test_spamVerdict_FAIL_default_still_relays(self) -> None:
         """For a default user, spam email will still relay."""
-        with self.assertNoLogs(GLEAN_LOG, level="INFO"):
+        with self.assertLogs(GLEAN_LOG) as caplog:
             _sns_notification(EMAIL_SNS_BODIES["spamVerdict_FAIL"])
 
         self.mock_send_raw_email.assert_called_once()
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
+
+        event = get_glean_event(caplog)
+        assert event is not None
+        assert event["category"] == "email"
+        assert event["name"] == "forwarded"
+        assert event["extra"]["mask_id"] == self.ra.metrics_id
 
     @override_settings(STATSD_ENABLED=True)
     def test_spamVerdict_FAIL_auto_block_doesnt_relay(self) -> None:
@@ -533,12 +539,13 @@ class SNSNotificationTest(TestCase):
         assert da.last_used_at
         assert (datetime.now(tz=timezone.utc) - da.last_used_at).seconds < 2.0
 
-        assert (event := get_glean_event(caplog)) is not None
+        mask_event = get_glean_event(caplog, "email_mask", "created")
+        assert mask_event is not None
         assert self.premium_user.profile.fxa
         assert self.premium_user.profile.date_subscribed
         date_joined_ts = int(self.premium_user.date_joined.timestamp())
         date_premium_ts = int(self.premium_user.profile.date_subscribed.timestamp())
-        assert event == {
+        assert mask_event == {
             "category": "email_mask",
             "name": "created",
             "extra": {
@@ -559,8 +566,16 @@ class SNSNotificationTest(TestCase):
                 "has_website": "false",
                 "created_by_api": "false",
             },
-            "timestamp": event["timestamp"],
+            "timestamp": mask_event["timestamp"],
         }
+
+        email_event = get_glean_event(caplog, "email", "forwarded")
+        assert email_event is not None
+        assert email_event["category"] == "email"
+        assert email_event["name"] == "forwarded"
+        assert email_event["extra"]["fxa_id"] == self.premium_user.profile.fxa.uid
+        assert email_event["extra"]["mask_id"] == da.metrics_id
+        assert email_event["extra"]["is_reply"] == "false"
 
     def test_successful_email_relay_message_removed_from_s3(self) -> None:
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
@@ -1475,10 +1490,15 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         )
         mocked_ses_client.send_raw_email.return_value = {"MessageId": "NICE"}
 
-        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
+        with self.assertLogs(GLEAN_LOG) as caplog:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
         self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 200
         assert response.content == b"Sent email to final recipient."
+
+        assert (event := get_glean_event(caplog)) is not None
+        expected = self.get_expected_event(event["timestamp"])
+        assert event == expected
 
     @override_settings(STATSD_ENABLED=True)
     @patch("emails.apps.EmailsConfig.ses_client", spec_set=["send_raw_email"])
@@ -1582,9 +1602,14 @@ class SnsMessageTest(TestCase):
 
     def test_ses_send_raw_email_email_relayed_email_deleted_from_s3(self):
         self.mock_ses_client.send_raw_email.return_value = {"MessageId": str(uuid4())}
-        response = _sns_message(self.message_json)
+        with self.assertLogs(GLEAN_LOG) as glean_caplog:
+            response = _sns_message(self.message_json)
         self.mock_ses_client.send_raw_email.assert_called_once()
         assert response.status_code == 200
+
+        assert (glean_event := get_glean_event(glean_caplog)) is not None
+        assert glean_event["category"] == "email"
+        assert glean_event["name"] == "forwarded"
 
 
 @override_settings(SITE_ORIGIN="https://test.com", STATSD_ENABLED=True)

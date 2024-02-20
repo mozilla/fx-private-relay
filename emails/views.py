@@ -783,6 +783,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             "num_level_one_trackers_blocked",
         ]
     )
+    glean_logger().log_email_forwarded(mask=address, is_reply=False)
     return HttpResponse("Sent email to final recipient.", status=200)
 
 

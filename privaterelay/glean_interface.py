@@ -262,6 +262,35 @@ class RelayGleanLogger(EventsServerEventLogger):
             can_retry=can_retry,
         )
 
+    def log_email_forwarded(
+        self,
+        *,
+        mask: RelayAddress | DomainAddress,
+        is_reply: bool = False,
+    ) -> None:
+        request_data = RequestData()
+        user_data = UserData.from_user(mask.user)
+        mask_data = MaskData.from_mask(mask)
+        self.record_email_forwarded(
+            user_agent=_opt_str_to_glean(request_data.user_agent),
+            ip_address=_opt_str_to_glean(request_data.ip_address),
+            client_id="",
+            fxa_id=_opt_str_to_glean(user_data.fxa_id),
+            platform="",
+            n_random_masks=user_data.n_random_masks,
+            n_domain_masks=user_data.n_domain_masks,
+            n_deleted_random_masks=user_data.n_deleted_random_masks,
+            n_deleted_domain_masks=user_data.n_deleted_domain_masks,
+            date_joined_relay=_opt_dt_to_glean(user_data.date_joined_relay),
+            premium_status=user_data.premium_status,
+            date_joined_premium=_opt_dt_to_glean(user_data.date_joined_premium),
+            has_extension=user_data.has_extension,
+            date_got_extension=_opt_dt_to_glean(user_data.date_got_extension),
+            mask_id=mask_data.mask_id,
+            is_random_mask=mask_data.is_random_mask,
+            is_reply=is_reply,
+        )
+
     def emit_record(self, now: datetime, ping: dict[str, Any]) -> None:
         """Emit record as a log instead of a print()"""
         self._logger.info(GLEAN_EVENT_MOZLOG_TYPE, extra=ping)
