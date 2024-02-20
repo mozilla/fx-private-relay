@@ -578,18 +578,14 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     # if this is spam and the user is set to auto-block spam, early return
     if user_profile.auto_block_spam and _get_verdict(receipt, "spam") == "FAIL":
         incr_if_enabled("email_auto_suppressed_for_spam", 1)
-        glean_logger().log_email_blocked(
-            mask=address, is_reply=False, reason="auto_block_spam"
-        )
+        glean_logger().log_email_blocked(mask=address, reason="auto_block_spam")
         return HttpResponse("Address rejects spam.")
 
     if _get_verdict(receipt, "dmarc") == "FAIL":
         policy = receipt.get("dmarcPolicy", "none")
         # TODO: determine action on dmarcPolicy "quarantine"
         if policy == "reject":
-            glean_logger().log_email_blocked(
-                mask=address, is_reply=False, reason="dmarc_reject_failed"
-            )
+            glean_logger().log_email_blocked(mask=address, reason="dmarc_reject_failed")
             incr_if_enabled(
                 "email_suppressed_for_dmarc_failure",
                 tags=["dmarcPolicy:reject", "dmarcVerdict:FAIL"],
@@ -604,10 +600,11 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         reason: Literal["soft_bounce_pause", "hard_bounce_pause"] = (
             "soft_bounce_pause" if bounce_type == "soft" else "hard_bounce_pause"
         )
-        glean_logger().log_email_blocked(mask=address, is_reply=False, reason=reason)
+        glean_logger().log_email_blocked(mask=address, reason=reason)
         return HttpResponse("Address is temporarily disabled.")
 
     # check if this is a reply from an external sender to a Relay user
+    is_reply = False
     try:
         (lookup_key, _) = _get_keys_from_headers(mail["headers"])
         reply_record = _get_reply_record_from_lookup_key(lookup_key)
@@ -615,7 +612,9 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         address = reply_record.address
         message_id = _get_message_id_from_headers(mail["headers"])
         # make sure the relay user is premium
-        if not _reply_allowed(from_address, to_address, reply_record, message_id):
+        if _reply_allowed(from_address, to_address, reply_record, message_id):
+            is_reply = True
+        else:
             glean_logger().log_email_blocked(
                 mask=user_address, is_reply=True, reason="reply_requires_premium"
             )
@@ -629,7 +628,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     # if account flagged for abuse, early return
     if user_profile.is_flagged:
         glean_logger().log_email_blocked(
-            mask=address, is_reply=False, reason="abuse_flag"
+            mask=address, is_reply=is_reply, reason="abuse_flag"
         )
         return HttpResponse("Address is temporarily disabled.")
 
@@ -642,7 +641,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         user_profile.last_engagement = datetime.now(timezone.utc)
         user_profile.save()
         glean_logger().log_email_blocked(
-            mask=address, is_reply=False, reason="block_all"
+            mask=address, is_reply=is_reply, reason="block_all"
         )
         return HttpResponse("Address is temporarily disabled.")
 
@@ -662,7 +661,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         user_profile.last_engagement = datetime.now(timezone.utc)
         user_profile.save()
         glean_logger().log_email_blocked(
-            mask=address, is_reply=False, reason="block_promotional"
+            mask=address, is_reply=is_reply, reason="block_promotional"
         )
         return HttpResponse("Address is not accepting list emails.")
 
@@ -688,7 +687,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             },
         )
         glean_logger().log_email_blocked(
-            mask=address, is_reply=False, reason="error_from_header"
+            mask=address, is_reply=is_reply, reason="error_from_header"
         )
         return HttpResponse("Cannot parse the From address", status=503)
 

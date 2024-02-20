@@ -232,8 +232,8 @@ class RelayGleanLogger(EventsServerEventLogger):
         self,
         *,
         mask: RelayAddress | DomainAddress,
-        is_reply: bool,
         reason: EmailBlockedReason,
+        is_reply: bool = False,
     ) -> None:
         request_data = RequestData()
         user_data = UserData.from_user(mask.user)
