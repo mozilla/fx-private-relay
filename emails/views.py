@@ -641,6 +641,9 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         _record_receipt_verdicts(receipt, "disabled_alias")
         user_profile.last_engagement = datetime.now(timezone.utc)
         user_profile.save()
+        glean_logger().log_email_blocked(
+            mask=address, is_reply=False, reason="block_all"
+        )
         return HttpResponse("Address is temporarily disabled.")
 
     _record_receipt_verdicts(receipt, "active_alias")

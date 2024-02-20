@@ -1389,12 +1389,17 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         profile.save()
         pre_blocked_email_last_engagement = profile.last_engagement
 
-        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
+        with self.assertLogs(GLEAN_LOG) as caplog, MetricsMock() as mm:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
         self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 200
         assert response.content == b"Address is temporarily disabled."
         profile.refresh_from_db()
         assert profile.last_engagement > pre_blocked_email_last_engagement
+        assert (event := get_glean_event(caplog)) is not None
+        expected = self.get_expected_event(event["timestamp"], "block_all")
+        assert event == expected
+        mm.assert_incr_once("fx.private.relay.email_for_disabled_address")
 
     @patch("emails.views._check_email_from_list")
     def test_blocked_list_email_in_s3_deleted(
