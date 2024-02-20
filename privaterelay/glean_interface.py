@@ -118,11 +118,9 @@ EmailBlockedReason = Literal[
     "block_promotional",  # The mask is set to block promotional / list mail
     "reply_requires_premium",  # The email is a reply from a free user
     "content_missing",  # Could not load the email from storage
-    # "no_reply_header",  # The email is a reply without the required header
-    # "no_reply_record",  # The email is a reply without a database match
-    "error_from_header",  # Error generating the From: header, retriable
-    "error_storage",  # Error fetching the email contents from storage (S3)
-    "error_sending",  # Error sending the forwarded email (SES)
+    "error_from_header",  # Error generating the From: header, retryable
+    "error_storage",  # Error fetching the email contents from storage (S3), retryable
+    "error_sending",  # Error sending the forwarded email (SES), retryable
 ]
 
 
