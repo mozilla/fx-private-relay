@@ -635,8 +635,15 @@ class SNSNotificationTest(TestCase):
         )
 
         # Successfully reply to a previous sender
-        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
+        with self.assertLogs(GLEAN_LOG) as caplog:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
         assert response.status_code == 200
+
+        assert (event := get_glean_event(caplog)) is not None
+        assert event["category"] == "email"
+        assert event["name"] == "forwarded"
+        assert event["extra"]["mask_id"] == relay_address.metrics_id
+        assert event["extra"]["is_reply"] == "true"
 
         self.mock_remove_message_from_s3.assert_called_once()
         mock_get_content.assert_called_once()

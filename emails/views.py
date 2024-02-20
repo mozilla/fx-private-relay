@@ -1281,6 +1281,7 @@ def _handle_reply(
     profile.update_abuse_metric(replied=True)
     profile.last_engagement = datetime.now(timezone.utc)
     profile.save()
+    glean_logger().log_email_forwarded(mask=address, is_reply=True)
     return HttpResponse("Sent email to final recipient.", status=200)
 
 
