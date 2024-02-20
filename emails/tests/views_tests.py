@@ -1561,9 +1561,16 @@ class SnsMessageTest(TestCase):
 
     def test_ses_send_raw_email_has_client_error_early_exits(self):
         self.mock_ses_client.send_raw_email.side_effect = SEND_RAW_EMAIL_FAILED
-        response = _sns_message(self.message_json)
+        with self.assertLogs("events", "ERROR") as events_caplog:
+            response = _sns_message(self.message_json)
         self.mock_ses_client.send_raw_email.assert_called_once()
         assert response.status_code == 503
+
+        assert len(events_caplog.records) == 1
+        events_log = events_caplog.records[0]
+        assert events_log.message == "ses_client_error_raw_email"
+        assert getattr(events_log, "Code") == "the code"
+        assert getattr(events_log, "Message") == "the message"
 
     def test_ses_send_raw_email_email_relayed_email_deleted_from_s3(self):
         self.mock_ses_client.send_raw_email.return_value = {"MessageId": str(uuid4())}
