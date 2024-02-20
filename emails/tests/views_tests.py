@@ -1473,10 +1473,17 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         )
         mocked_ses_client.send_raw_email.side_effect = SEND_RAW_EMAIL_FAILED
 
-        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
+        with self.assertLogs(GLEAN_LOG) as caplog:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
         self.mock_remove_message_from_s3.assert_not_called()
         assert response.status_code == 503
         assert response.content == b"SES client error on Raw Email"
+
+        assert (event := get_glean_event(caplog)) is not None
+        expected = self.get_expected_event(
+            event["timestamp"], reason="error_sending", can_retry=True
+        )
+        assert event == expected
 
     @patch("emails.apps.EmailsConfig.ses_client", spec_set=["send_raw_email"])
     @patch("emails.views.get_message_content_from_s3")
