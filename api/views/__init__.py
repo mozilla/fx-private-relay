@@ -149,8 +149,7 @@ class RelayAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         new_description = serializer.instance.description
         if old_description != new_description:
             glean_logger().log_email_mask_label_updated(
-                request=self.request,
-                mask=serializer.instance
+                request=self.request, mask=serializer.instance
             )
 
 
@@ -210,8 +209,7 @@ class DomainAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         new_description = serializer.instance.description
         if old_description != new_description:
             glean_logger().log_email_mask_label_updated(
-                request=self.request,
-                mask=serializer.instance
+                request=self.request, mask=serializer.instance
             )
 
 
