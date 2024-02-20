@@ -611,11 +611,14 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     try:
         (lookup_key, _) = _get_keys_from_headers(mail["headers"])
         reply_record = _get_reply_record_from_lookup_key(lookup_key)
+        user_address = address
         address = reply_record.address
         message_id = _get_message_id_from_headers(mail["headers"])
         # make sure the relay user is premium
         if not _reply_allowed(from_address, to_address, reply_record, message_id):
-            # TODO: Add metrics
+            glean_logger().log_email_blocked(
+                mask=user_address, is_reply=True, reason="reply_requires_premium"
+            )
             return HttpResponse("Relay replies require a premium account", status=403)
     except (ReplyHeadersNotFound, Reply.DoesNotExist):
         # if there's no In-Reply-To header, or the In-Reply-To value doesn't

@@ -1265,26 +1265,26 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         self.addCleanup(remove_s3_patcher.stop)
 
     def get_expected_event(
-        self, timestamp: str, reason: str | None = None
+        self, timestamp: str, reason: str | None = None, is_reply: bool = False
     ) -> dict[str, Any]:
         assert self.profile.fxa is None
         date_joined_ts = int(self.profile.user.date_joined.timestamp())
         extra = {
-                "client_id": "",
-                "fxa_id": "",
-                "platform": "",
-                "n_random_masks": "1",
-                "n_domain_masks": "0",
-                "n_deleted_random_masks": "0",
-                "n_deleted_domain_masks": "0",
-                "date_joined_relay": str(date_joined_ts),
-                "premium_status": "free",
-                "date_joined_premium": "-1",
-                "has_extension": "false",
-                "date_got_extension": "-1",
-                "mask_id": self.address.metrics_id,
-                "is_random_mask": "true",
-                "is_reply": "false",
+            "client_id": "",
+            "fxa_id": "",
+            "platform": "",
+            "n_random_masks": "1",
+            "n_domain_masks": "0",
+            "n_deleted_random_masks": "0",
+            "n_deleted_domain_masks": "0",
+            "date_joined_relay": str(date_joined_ts),
+            "premium_status": "free",
+            "date_joined_premium": "-1",
+            "has_extension": "false",
+            "date_got_extension": "-1",
+            "mask_id": self.address.metrics_id,
+            "is_random_mask": "true",
+            "is_reply": "true" if is_reply else "false",
         }
         if reason:
             extra["reason"] = reason
@@ -1352,10 +1352,16 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         # no longer has the premium subscription
         mocked_reply_allowed.return_value = False
 
-        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
+        with self.assertLogs(GLEAN_LOG) as caplog:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
         self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 403
         assert response.content == b"Relay replies require a premium account"
+        assert (event := get_glean_event(caplog)) is not None
+        expected = self.get_expected_event(
+            event["timestamp"], "reply_requires_premium", is_reply=True
+        )
+        assert event == expected
 
     def test_relay_address_disabled_email_in_s3_deleted(self) -> None:
         self.address.enabled = False
