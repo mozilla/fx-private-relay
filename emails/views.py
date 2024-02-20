@@ -604,7 +604,6 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         return HttpResponse("Address is temporarily disabled.")
 
     # check if this is a reply from an external sender to a Relay user
-    is_reply = False
     try:
         (lookup_key, _) = _get_keys_from_headers(mail["headers"])
         reply_record = _get_reply_record_from_lookup_key(lookup_key)
@@ -612,11 +611,9 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         address = reply_record.address
         message_id = _get_message_id_from_headers(mail["headers"])
         # make sure the relay user is premium
-        if _reply_allowed(from_address, to_address, reply_record, message_id):
-            is_reply = True
-        else:
+        if not _reply_allowed(from_address, to_address, reply_record, message_id):
             glean_logger().log_email_blocked(
-                mask=user_address, is_reply=True, reason="reply_requires_premium"
+                mask=user_address, reason="reply_requires_premium"
             )
             return HttpResponse("Relay replies require a premium account", status=403)
     except (ReplyHeadersNotFound, Reply.DoesNotExist):
@@ -627,9 +624,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
 
     # if account flagged for abuse, early return
     if user_profile.is_flagged:
-        glean_logger().log_email_blocked(
-            mask=address, is_reply=is_reply, reason="abuse_flag"
-        )
+        glean_logger().log_email_blocked(mask=address, reason="abuse_flag")
         return HttpResponse("Address is temporarily disabled.")
 
     # if address is set to block, early return
@@ -640,9 +635,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         _record_receipt_verdicts(receipt, "disabled_alias")
         user_profile.last_engagement = datetime.now(timezone.utc)
         user_profile.save()
-        glean_logger().log_email_blocked(
-            mask=address, is_reply=is_reply, reason="block_all"
-        )
+        glean_logger().log_email_blocked(mask=address, reason="block_all")
         return HttpResponse("Address is temporarily disabled.")
 
     _record_receipt_verdicts(receipt, "active_alias")
@@ -660,9 +653,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         address.save(update_fields=["num_blocked"])
         user_profile.last_engagement = datetime.now(timezone.utc)
         user_profile.save()
-        glean_logger().log_email_blocked(
-            mask=address, is_reply=is_reply, reason="block_promotional"
-        )
+        glean_logger().log_email_blocked(mask=address, reason="block_promotional")
         return HttpResponse("Address is not accepting list emails.")
 
     # Collect new headers
@@ -687,7 +678,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             },
         )
         glean_logger().log_email_blocked(
-            mask=address, is_reply=is_reply, reason="error_from_header", can_retry=True
+            mask=address, reason="error_from_header", can_retry=True
         )
         return HttpResponse("Cannot parse the From address", status=503)
 
@@ -705,13 +696,11 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     except ClientError as e:
         if e.response["Error"].get("Code", "") == "NoSuchKey":
             logger.error("s3_object_does_not_exist", extra=e.response["Error"])
-            glean_logger().log_email_blocked(
-                mask=address, is_reply=is_reply, reason="content_missing"
-            )
+            glean_logger().log_email_blocked(mask=address, reason="content_missing")
             return HttpResponse("Email not in S3", status=404)
         logger.error("s3_client_error_get_email", extra=e.response["Error"])
         glean_logger().log_email_blocked(
-            mask=address, is_reply=is_reply, reason="error_storage", can_retry=True
+            mask=address, reason="error_storage", can_retry=True
         )
         # we are returning a 503 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
@@ -757,7 +746,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     except ClientError:
         # 503 service unavailable reponse to SNS so it can retry
         glean_logger().log_email_blocked(
-            mask=address, is_reply=is_reply, reason="error_sending", can_retry=True
+            mask=address, reason="error_sending", can_retry=True
         )
         return HttpResponse("SES client error on Raw Email", status=503)
 

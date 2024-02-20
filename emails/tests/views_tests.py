@@ -1369,9 +1369,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         assert response.status_code == 403
         assert response.content == b"Relay replies require a premium account"
         assert (event := get_glean_event(caplog)) is not None
-        expected = self.get_expected_event(
-            event["timestamp"], "reply_requires_premium", is_reply=True
-        )
+        expected = self.get_expected_event(event["timestamp"], "reply_requires_premium")
         assert event == expected
 
     def test_flagged_user_email_in_s3_deleted(self) -> None:
