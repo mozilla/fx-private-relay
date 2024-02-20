@@ -1363,6 +1363,20 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         )
         assert event == expected
 
+    def test_flagged_user_email_in_s3_deleted(self) -> None:
+        profile = self.address.user.profile
+        profile.last_account_flagged = datetime.now(timezone.utc)
+        profile.last_engagement = datetime.now(timezone.utc)
+        profile.save()
+        pre_flagged_last_engagement = profile.last_engagement
+
+        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
+        self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
+        assert response.status_code == 200
+        assert response.content == b"Address is temporarily disabled."
+        profile.refresh_from_db()
+        assert profile.last_engagement == pre_flagged_last_engagement
+
     def test_relay_address_disabled_email_in_s3_deleted(self) -> None:
         self.address.enabled = False
         self.address.save()
