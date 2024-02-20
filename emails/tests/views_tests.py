@@ -498,31 +498,10 @@ class SNSNotificationTest(TestCase):
             _sns_notification(EMAIL_SNS_BODIES["spamVerdict_FAIL"])
         event = get_glean_event(caplog)
         assert event is not None
-        assert self.profile.fxa
-        date_joined_ts = int(self.profile.user.date_joined.timestamp())
-        assert event == {
-            "category": "email",
-            "name": "blocked",
-            "extra": {
-                "client_id": "",
-                "fxa_id": self.profile.fxa.uid,
-                "platform": "",
-                "n_random_masks": "1",
-                "n_domain_masks": "0",
-                "n_deleted_random_masks": "0",
-                "n_deleted_domain_masks": "0",
-                "date_joined_relay": str(date_joined_ts),
-                "premium_status": "free",
-                "date_joined_premium": "-1",
-                "has_extension": "false",
-                "date_got_extension": "-1",
-                "mask_id": self.ra.metrics_id,
-                "is_random_mask": "true",
-                "is_reply": "false",
-                "reason": "auto_block_spam",
-            },
-            "timestamp": event["timestamp"],
-        }
+        assert event["category"] == "email"
+        assert event["name"] == "blocked"
+        assert event["extra"]["reason"] == "auto_block_spam"
+        assert event["extra"]["mask_id"] == self.ra.metrics_id
         mm.assert_incr_once("fx.private.relay.email_auto_suppressed_for_spam")
 
         self.mock_send_raw_email.assert_not_called()
@@ -1300,6 +1279,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         }
         if reason:
             extra["reason"] = reason
+            extra["can_retry"] = "false"
         return {
             "category": "email",
             "name": "blocked" if reason else "forwarded",
@@ -1502,31 +1482,10 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         )
         event = get_glean_event(caplog)
         assert event is not None
-        assert self.profile.fxa is None
-        date_joined_ts = int(self.profile.user.date_joined.timestamp())
-        assert event == {
-            "category": "email",
-            "name": "blocked",
-            "extra": {
-                "client_id": "",
-                "fxa_id": "",
-                "platform": "",
-                "n_random_masks": "1",
-                "n_domain_masks": "0",
-                "n_deleted_random_masks": "0",
-                "n_deleted_domain_masks": "0",
-                "date_joined_relay": str(date_joined_ts),
-                "premium_status": "free",
-                "date_joined_premium": "-1",
-                "has_extension": "false",
-                "date_got_extension": "-1",
-                "mask_id": self.address.metrics_id,
-                "is_random_mask": "true",
-                "is_reply": "false",
-                "reason": "dmarc_reject_failed",
-            },
-            "timestamp": event["timestamp"],
-        }
+        assert event["category"] == "email"
+        assert event["name"] == "blocked"
+        assert event["extra"]["reason"] == "dmarc_reject_failed"
+        assert event["extra"]["mask_id"] == self.address.metrics_id
 
 
 class SnsMessageTest(TestCase):

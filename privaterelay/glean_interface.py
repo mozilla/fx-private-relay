@@ -234,6 +234,7 @@ class RelayGleanLogger(EventsServerEventLogger):
         mask: RelayAddress | DomainAddress,
         reason: EmailBlockedReason,
         is_reply: bool = False,
+        can_retry: bool = False,
     ) -> None:
         request_data = RequestData()
         user_data = UserData.from_user(mask.user)
@@ -257,6 +258,7 @@ class RelayGleanLogger(EventsServerEventLogger):
             is_random_mask=mask_data.is_random_mask,
             is_reply=is_reply,
             reason=reason,
+            can_retry=can_retry,
         )
 
     def emit_record(self, now: datetime, ping: dict[str, Any]) -> None:

@@ -107,6 +107,7 @@ class EventsServerEventLogger:
         is_random_mask: bool,
         is_reply: bool,
         reason: str,
+        can_retry: bool,
     ) -> None:
         """
         Record and submit a email_blocked event:
@@ -132,6 +133,7 @@ class EventsServerEventLogger:
         :param bool is_random_mask: The mask is a random mask, instead of a domain mask
         :param bool is_reply: The email is a reply from the Relay user
         :param str reason: Code describing why the email was blocked
+        :param bool can_retry: The email processes can retry the email, so it may fail multiple times
         """
         event = {
             "category": "email",
@@ -153,6 +155,7 @@ class EventsServerEventLogger:
                 "is_random_mask": str(is_random_mask).lower(),
                 "is_reply": str(is_reply).lower(),
                 "reason": str(reason),
+                "can_retry": str(can_retry).lower(),
             },
         }
         self._record(user_agent, ip_address, event)

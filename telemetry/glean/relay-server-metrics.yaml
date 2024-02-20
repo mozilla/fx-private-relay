@@ -148,3 +148,6 @@ email:
       reason:
         description: Code describing why the email was blocked
         type: string
+      can_retry:
+        description: The email processes can retry the email, so it may fail multiple times
+        type: boolean
