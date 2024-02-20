@@ -705,8 +705,14 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     except ClientError as e:
         if e.response["Error"].get("Code", "") == "NoSuchKey":
             logger.error("s3_object_does_not_exist", extra=e.response["Error"])
+            glean_logger().log_email_blocked(
+                mask=address, is_reply=is_reply, reason="content_missing"
+            )
             return HttpResponse("Email not in S3", status=404)
         logger.error("s3_client_error_get_email", extra=e.response["Error"])
+        glean_logger().log_email_blocked(
+            mask=address, is_reply=is_reply, reason="error_storage", can_retry=True
+        )
         # we are returning a 503 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 

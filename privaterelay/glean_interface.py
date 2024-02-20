@@ -117,6 +117,7 @@ EmailBlockedReason = Literal[
     "block_all",  # The mask is set to block all mail
     "block_promotional",  # The mask is set to block promotional / list mail
     "reply_requires_premium",  # The email is a reply from a free user
+    "content_missing",  # Could not load the email from storage
     # "no_reply_header",  # The email is a reply without the required header
     # "no_reply_record",  # The email is a reply without a database match
     "error_from_header",  # Error generating the From: header, retriable

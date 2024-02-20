@@ -1251,7 +1251,11 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         self.addCleanup(remove_s3_patcher.stop)
 
     def get_expected_event(
-        self, timestamp: str, reason: str | None = None, is_reply: bool = False
+        self,
+        timestamp: str,
+        reason: str | None = None,
+        is_reply: bool = False,
+        can_retry: bool = False,
     ) -> dict[str, Any]:
         if self.profile.fxa is None:
             fxa_id = ""
@@ -1279,7 +1283,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         }
         if reason:
             extra["reason"] = reason
-            extra["can_retry"] = "false"
+            extra["can_retry"] = "true" if can_retry else "false"
         return {
             "category": "email",
             "name": "blocked" if reason else "forwarded",
@@ -1426,16 +1430,25 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
             {"Error": {"Code": "SomeErrorCode", "Message": "Details"}}, ""
         )
 
-        with self.assertLogs("events", "ERROR") as event_caplog:
+        with self.assertLogs(GLEAN_LOG) as glean_caplog, self.assertLogs(
+            "events", "ERROR"
+        ) as event_caplog:
             response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
         self.mock_remove_message_from_s3.assert_not_called()
         assert response.status_code == 503
         assert response.content == b"Cannot fetch the message content from S3"
+
         assert len(event_caplog.records) == 1
         event_log = event_caplog.records[0]
         assert event_log.message == "s3_client_error_get_email"
         assert getattr(event_log, "Code") == "SomeErrorCode"
         assert getattr(event_log, "Message") == "Details"
+
+        assert (event := get_glean_event(glean_caplog)) is not None
+        expected = self.get_expected_event(
+            event["timestamp"], "error_storage", can_retry=True
+        )
+        assert event == expected
 
     @patch("emails.apps.EmailsConfig.ses_client", spec_set=["send_raw_email"])
     @patch("emails.views.get_message_content_from_s3")
@@ -1503,7 +1516,7 @@ class SnsMessageTest(TestCase):
         user = baker.make(User)
         baker.make(SocialAccount, user=user, provider="fxa")
         # test.com is the second domain listed and has the numerical value 2
-        baker.make(RelayAddress, user=user, address="sender", domain=2)
+        self.ra = baker.make(RelayAddress, user=user, address="sender", domain=2)
 
         get_content_patcher = patch(
             "emails.views.get_message_content_from_s3",
@@ -1526,11 +1539,20 @@ class SnsMessageTest(TestCase):
             operation_name="S3.something",
             error_response={"Error": {"Code": "NoSuchKey", "Message": "the message"}},
         )
-        with self.assertLogs("events", "ERROR") as events_caplog:
+        with self.assertLogs(GLEAN_LOG) as glean_caplog, self.assertLogs(
+            "events", "ERROR"
+        ) as events_caplog:
             response = _sns_message(self.message_json)
         self.mock_ses_client.send_raw_email.assert_not_called()
         assert response.status_code == 404
-        assert response.content == b'Email not in S3'
+        assert response.content == b"Email not in S3"
+
+        assert (glean_event := get_glean_event(glean_caplog)) is not None
+        assert glean_event["category"] == "email"
+        assert glean_event["name"] == "blocked"
+        assert glean_event["extra"]["reason"] == "content_missing"
+        assert glean_event["extra"]["mask_id"] == self.ra.metrics_id
+
         assert len(events_caplog.records) == 1
         events_log = events_caplog.records[0]
         assert events_log.message == "s3_object_does_not_exist"
