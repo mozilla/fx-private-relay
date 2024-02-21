@@ -1256,8 +1256,14 @@ def _handle_reply(
     except ClientError as e:
         if e.response["Error"].get("Code", "") == "NoSuchKey":
             logger.error("s3_object_does_not_exist", extra=e.response["Error"])
+            glean_logger().log_email_blocked(
+                mask=address, reason="content_missing", is_reply=True
+            )
             return HttpResponse("Email not in S3", status=404)
         logger.error("s3_client_error_get_email", extra=e.response["Error"])
+        glean_logger().log_email_blocked(
+            mask=address, reason="error_storage", is_reply=True, can_retry=True
+        )
         # we are returning a 500 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
@@ -1275,6 +1281,9 @@ def _handle_reply(
             message=email,
         )
     except ClientError:
+        glean_logger().log_email_blocked(
+            mask=address, reason="error_sending", is_reply=True
+        )
         return HttpResponse("SES client error", status=400)
 
     reply_record.increment_num_replied()

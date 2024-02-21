@@ -14,8 +14,7 @@
 # future, after we get over the technical hurdles of the first integration.
 #
 # Remaining critical path work in the code:
-# - Add Relay hooks for email_forwarded events
-# - Add Relay hooks for email_blocked events
+# - Add CI tests that privaterelay/glean/server_events.py was generated
 # - Respect opt-out at Firefox Accounts level
 # - Request a data review, update bugs and data_reviews
 # - Make required changes from data review

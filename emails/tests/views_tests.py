@@ -944,7 +944,7 @@ class SNSNotificationReplyTest(SNSNotificationTestBase):
         with self.assertLogs(GLEAN_LOG) as caplog:
             response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
         assert response.status_code == 403
-        assert response.content == b'Relay replies require a premium account'
+        assert response.content == b"Relay replies require a premium account"
 
         assert (event := get_glean_event(caplog)) is not None
         assert event["category"] == "email"
@@ -958,7 +958,9 @@ class SNSNotificationReplyTest(SNSNotificationTestBase):
             operation_name="S3.something",
             error_response={"Error": {"Code": "NoSuchKey", "Message": "the message"}},
         )
-        with self.assertLogs("events", "ERROR") as events_caplog:
+        with self.assertLogs(GLEAN_LOG) as glean_caplog, self.assertLogs(
+            "events", "ERROR"
+        ) as events_caplog:
             response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
         self.mock_send_raw_email.assert_not_called()
         assert response.status_code == 404
@@ -970,12 +972,21 @@ class SNSNotificationReplyTest(SNSNotificationTestBase):
         assert getattr(events_log, "Code") == "NoSuchKey"
         assert getattr(events_log, "Message") == "the message"
 
+        assert (glean_event := get_glean_event(glean_caplog)) is not None
+        assert glean_event["category"] == "email"
+        assert glean_event["name"] == "blocked"
+        assert glean_event["extra"]["is_reply"] == "true"
+        assert glean_event["extra"]["reason"] == "content_missing"
+        assert glean_event["extra"]["can_retry"] == "false"
+
     def test_get_message_content_from_s3_other_error(self):
         self.mock_get_content.side_effect = ClientError(
             operation_name="S3.something",
             error_response={"Error": {"Code": "IsNapping", "Message": "snooze"}},
         )
-        with self.assertLogs("events", "ERROR") as events_caplog:
+        with self.assertLogs(GLEAN_LOG) as glean_caplog, self.assertLogs(
+            "events", "ERROR"
+        ) as events_caplog:
             response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
         self.mock_send_raw_email.assert_not_called()
         assert response.status_code == 503
@@ -987,12 +998,21 @@ class SNSNotificationReplyTest(SNSNotificationTestBase):
         assert getattr(events_log, "Code") == "IsNapping"
         assert getattr(events_log, "Message") == "snooze"
 
+        assert (glean_event := get_glean_event(glean_caplog)) is not None
+        assert glean_event["category"] == "email"
+        assert glean_event["name"] == "blocked"
+        assert glean_event["extra"]["is_reply"] == "true"
+        assert glean_event["extra"]["reason"] == "error_storage"
+        assert glean_event["extra"]["can_retry"] == "true"
+
     def test_ses_client_error(self):
         self.mock_get_content.return_value = create_email_from_notification(
             EMAIL_SNS_BODIES["s3_stored_replies"], text="text content"
         )
         self.mock_send_raw_email.side_effect = SEND_RAW_EMAIL_FAILED
-        with self.assertLogs("events", "ERROR") as events_caplog:
+        with self.assertLogs(GLEAN_LOG) as glean_caplog, self.assertLogs(
+            "events", "ERROR"
+        ) as events_caplog:
             response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
         assert response.status_code == 400
         assert response.content == b"SES client error"
@@ -1002,6 +1022,13 @@ class SNSNotificationReplyTest(SNSNotificationTestBase):
         assert events_log.message == "ses_client_error_raw_email"
         assert getattr(events_log, "Code") == "the code"
         assert getattr(events_log, "Message") == "the message"
+
+        assert (glean_event := get_glean_event(glean_caplog)) is not None
+        assert glean_event["category"] == "email"
+        assert glean_event["name"] == "blocked"
+        assert glean_event["extra"]["is_reply"] == "true"
+        assert glean_event["extra"]["reason"] == "error_sending"
+        assert glean_event["extra"]["can_retry"] == "false"
 
 
 class BounceHandlingTest(TestCase):
