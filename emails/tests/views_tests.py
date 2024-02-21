@@ -877,14 +877,9 @@ class SNSNotificationReplyTest(SNSNotificationTestBase):
             relay_address=self.relay_address,
         )
 
-        get_message_content_patcher = patch(
-            "emails.views.get_message_content_from_s3",
-            return_value=create_email_from_notification(
-                EMAIL_SNS_BODIES["s3_stored_replies"], text="text"
-            ),
-        )
+        get_message_content_patcher = patch("emails.views.get_message_content_from_s3")
         self.mock_get_content = get_message_content_patcher.start()
-        self.addCleanup(self.mock_get_content)
+        self.addCleanup(get_message_content_patcher.stop)
 
     def success_test_implementation(self, text: str, expected_fixture_name: str) -> str:
         """The headers of a reply refer to the Relay mask."""
@@ -957,6 +952,56 @@ class SNSNotificationReplyTest(SNSNotificationTestBase):
         assert event["extra"]["is_reply"] == "true"
         assert event["extra"]["reason"] == "reply_requires_premium"
         assert event["extra"]["can_retry"] == "false"
+
+    def test_get_message_content_from_s3_not_found(self):
+        self.mock_get_content.side_effect = ClientError(
+            operation_name="S3.something",
+            error_response={"Error": {"Code": "NoSuchKey", "Message": "the message"}},
+        )
+        with self.assertLogs("events", "ERROR") as events_caplog:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
+        self.mock_send_raw_email.assert_not_called()
+        assert response.status_code == 404
+        assert response.content == b"Email not in S3"
+
+        assert len(events_caplog.records) == 1
+        events_log = events_caplog.records[0]
+        assert events_log.message == "s3_object_does_not_exist"
+        assert getattr(events_log, "Code") == "NoSuchKey"
+        assert getattr(events_log, "Message") == "the message"
+
+    def test_get_message_content_from_s3_other_error(self):
+        self.mock_get_content.side_effect = ClientError(
+            operation_name="S3.something",
+            error_response={"Error": {"Code": "IsNapping", "Message": "snooze"}},
+        )
+        with self.assertLogs("events", "ERROR") as events_caplog:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
+        self.mock_send_raw_email.assert_not_called()
+        assert response.status_code == 503
+        assert response.content == b"Cannot fetch the message content from S3"
+
+        assert len(events_caplog.records) == 1
+        events_log = events_caplog.records[0]
+        assert events_log.message == "s3_client_error_get_email"
+        assert getattr(events_log, "Code") == "IsNapping"
+        assert getattr(events_log, "Message") == "snooze"
+
+    def test_ses_client_error(self):
+        self.mock_get_content.return_value = create_email_from_notification(
+            EMAIL_SNS_BODIES["s3_stored_replies"], text="text content"
+        )
+        self.mock_send_raw_email.side_effect = SEND_RAW_EMAIL_FAILED
+        with self.assertLogs("events", "ERROR") as events_caplog:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
+        assert response.status_code == 400
+        assert response.content == b"SES client error"
+
+        assert len(events_caplog.records) == 1
+        events_log = events_caplog.records[0]
+        assert events_log.message == "ses_client_error_raw_email"
+        assert getattr(events_log, "Code") == "the code"
+        assert getattr(events_log, "Message") == "the message"
 
 
 class BounceHandlingTest(TestCase):
