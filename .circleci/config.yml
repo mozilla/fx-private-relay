@@ -386,7 +386,7 @@ jobs:
         description: "What command should the job run?"
         default: "pytest"
         type: enum
-        enum: ["pytest", "black", "mypy", "build_email_tracker_lists"]
+        enum: ["pytest", "black", "mypy", "build_email_tracker_lists", "build_glean", "check_glean"]
       test_results_filename:
         description: "What is the name of the jUnit XML test output? (Optional)"
         default: ""
@@ -703,6 +703,11 @@ workflows:
           command: pytest
           pytest_phones_backend: iq
           test_results_filename: pytest-iq-enabled.xml
+          filters: *default_filters
+
+      - python_job:
+          name: check generated glean_parser files
+          command: check_glean
           filters: *default_filters
 
       - test_frontend:

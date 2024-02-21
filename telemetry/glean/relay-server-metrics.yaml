@@ -5,6 +5,10 @@
 # For more information on configuring this file:
 # https://mozilla.github.io/glean/book/reference/yaml/metrics.html
 
+# This file is also used to generate privaterelay/glean/server_events.py
+# which is used to generate the Glean pings-as-logs.  See that file for the
+# re-generation command.
+
 # Status: Draft
 # This work is tracked in https://mozilla-hub.atlassian.net/browse/MPP-3352
 #
@@ -14,7 +18,6 @@
 # future, after we get over the technical hurdles of the first integration.
 #
 # Remaining critical path work in the code:
-# - Add CI tests that privaterelay/glean/server_events.py was generated
 # - Respect opt-out at Firefox Accounts level
 # - Request a data review, update bugs and data_reviews
 # - Make required changes from data review
