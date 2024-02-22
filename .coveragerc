@@ -8,6 +8,8 @@ omit =
     manage.py,
     env/*,
     node_modules/*,
+exclude_also =
+    if TYPE_CHECKING
 
 [run]
 relative_files = True
