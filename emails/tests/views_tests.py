@@ -492,12 +492,15 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
 
+    @override_settings(STATSD_ENABLED=True)
     def test_spamVerdict_FAIL_auto_block_doesnt_relay(self) -> None:
         """When a user has auto_block_spam=True, spam will not relay."""
         self.profile.auto_block_spam = True
         self.profile.save()
 
-        _sns_notification(EMAIL_SNS_BODIES["spamVerdict_FAIL"])
+        with MetricsMock() as mm:
+            _sns_notification(EMAIL_SNS_BODIES["spamVerdict_FAIL"])
+        mm.assert_incr_once("fx.private.relay.email_auto_suppressed_for_spam")
 
         self.mock_send_raw_email.assert_not_called()
         self.ra.refresh_from_db()
@@ -865,6 +868,67 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
         assert 'Content-Type: text/plain; charset="utf-8"' in email
         assert "Content-Transfer-Encoding: base64" in email
 
+    @patch("emails.views._reply_allowed")
+    def test_reply_not_allowed(self, mocked_reply_allowed: Mock) -> None:
+        mocked_reply_allowed.return_value = False
+        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
+        assert response.status_code == 403
+        assert response.content == b"Relay replies require a premium account"
+
+    def test_get_message_content_from_s3_not_found(self):
+        self.mock_get_content.side_effect = ClientError(
+            operation_name="S3.something",
+            error_response={"Error": {"Code": "NoSuchKey", "Message": "the message"}},
+        )
+        with self.assertLogs("events", "ERROR") as events_caplog:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
+        self.mock_send_raw_email.assert_not_called()
+        assert response.status_code == 404
+        assert response.content == b"Email not in S3"
+
+        assert len(events_caplog.records) == 1
+        events_log = events_caplog.records[0]
+        assert events_log.message == "s3_object_does_not_exist"
+        assert getattr(events_log, "Code") == "NoSuchKey"
+        assert getattr(events_log, "Message") == "the message"
+
+    def test_get_message_content_from_s3_other_error(self):
+        self.mock_get_content.side_effect = ClientError(
+            operation_name="S3.something",
+            error_response={"Error": {"Code": "IsNapping", "Message": "snooze"}},
+        )
+        with self.assertLogs("events", "ERROR") as events_caplog:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
+        self.mock_send_raw_email.assert_not_called()
+        assert response.status_code == 503
+        assert response.content == b"Cannot fetch the message content from S3"
+
+        assert len(events_caplog.records) == 1
+        events_log = events_caplog.records[0]
+        assert events_log.message == "s3_client_error_get_email"
+        assert getattr(events_log, "Code") == "IsNapping"
+        assert getattr(events_log, "Message") == "snooze"
+
+    def test_ses_client_error(self):
+        self.mock_get_content.return_value = create_email_from_notification(
+            EMAIL_SNS_BODIES["s3_stored_replies"], text="text content"
+        )
+        self.mock_send_raw_email.side_effect = SEND_RAW_EMAIL_FAILED
+        with self.assertLogs("events", "ERROR") as events_caplog:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
+        assert response.status_code == 400
+        assert response.content == b"SES client error"
+
+        assert len(events_caplog.records) == 2
+        events_log = events_caplog.records[0]
+        assert events_log.message == "ses_client_error_raw_email"
+        assert getattr(events_log, "Code") == "the code"
+        assert getattr(events_log, "Message") == "the message"
+        events_log2 = events_caplog.records[1]
+        assert events_log2.message == "ses_client_error"
+        assert getattr(events_log2, "Code") == "the code"
+        assert getattr(events_log2, "Message") == "the message"
+
 
 class BounceHandlingTest(TestCase):
     def setUp(self):
@@ -1200,6 +1264,7 @@ class SNSNotificationInvalidMessageTest(TestCase):
         assert response.status_code == 400
 
 
+@override_settings(STATSD_ENABLED=True)
 class SNSNotificationValidUserEmailsInS3Test(TestCase):
     def setUp(self) -> None:
         self.bucket = "test-bucket"
@@ -1224,19 +1289,34 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         notification_w_spamverdict_failed = EMAIL_SNS_BODIES["s3_stored"].copy()
         notification_w_spamverdict_failed["Message"] = message_spamverdict_failed
 
-        response = _sns_notification(notification_w_spamverdict_failed)
+        with MetricsMock() as mm:
+            response = _sns_notification(notification_w_spamverdict_failed)
         self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 200
         assert response.content == b"Address rejects spam."
+        mm.assert_incr_once("fx.private.relay.email_auto_suppressed_for_spam")
 
-    def test_user_bounce_paused_email_in_s3_deleted(self) -> None:
+    def test_user_bounce_soft_paused_email_in_s3_deleted(self) -> None:
         self.profile.last_soft_bounce = datetime.now(timezone.utc)
         self.profile.save()
 
-        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
+        with MetricsMock() as mm:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
         self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 200
         assert response.content == b"Address is temporarily disabled."
+        mm.assert_incr_once("fx.private.relay.email_suppressed_for_soft_bounce")
+
+    def test_user_bounce_hard_paused_email_in_s3_deleted(self) -> None:
+        self.profile.last_hard_bounce = datetime.now(timezone.utc)
+        self.profile.save()
+
+        with MetricsMock() as mm:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
+        self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
+        assert response.status_code == 200
+        assert response.content == b"Address is temporarily disabled."
+        mm.assert_incr_once("fx.private.relay.email_suppressed_for_hard_bounce")
 
     @patch("emails.views._reply_allowed")
     @patch("emails.views._get_reply_record_from_lookup_key")
@@ -1253,6 +1333,20 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         assert response.status_code == 403
         assert response.content == b"Relay replies require a premium account"
 
+    def test_flagged_user_email_in_s3_deleted(self) -> None:
+        profile = self.address.user.profile
+        profile.last_account_flagged = datetime.now(timezone.utc)
+        profile.last_engagement = datetime.now(timezone.utc)
+        profile.save()
+        pre_flagged_last_engagement = profile.last_engagement
+
+        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
+        self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
+        assert response.status_code == 200
+        assert response.content == b"Address is temporarily disabled."
+        profile.refresh_from_db()
+        assert profile.last_engagement == pre_flagged_last_engagement
+
     def test_relay_address_disabled_email_in_s3_deleted(self) -> None:
         self.address.enabled = False
         self.address.save()
@@ -1261,12 +1355,14 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         profile.save()
         pre_blocked_email_last_engagement = profile.last_engagement
 
-        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
+        with MetricsMock() as mm:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
         self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 200
         assert response.content == b"Address is temporarily disabled."
         profile.refresh_from_db()
         assert profile.last_engagement > pre_blocked_email_last_engagement
+        mm.assert_incr_once("fx.private.relay.email_for_disabled_address")
 
     @patch("emails.views._check_email_from_list")
     def test_blocked_list_email_in_s3_deleted(
@@ -1281,12 +1377,14 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         pre_blocked_email_last_engagement = profile.last_engagement
         mocked_email_is_from_list.return_value = True
 
-        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
+        with MetricsMock() as mm:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
         self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 200
         assert response.content == b"Address is not accepting list emails."
         profile.refresh_from_db()
         assert profile.last_engagement > pre_blocked_email_last_engagement
+        mm.assert_incr_once("fx.private.relay.list_email_for_address_blocking_lists")
 
     @patch("emails.views.get_message_content_from_s3")
     def test_get_text_html_s3_client_error_email_in_s3_not_deleted(
@@ -1296,10 +1394,17 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
             {"Error": {"Code": "SomeErrorCode", "Message": "Details"}}, ""
         )
 
-        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
+        with self.assertLogs("events", "ERROR") as event_caplog:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
         self.mock_remove_message_from_s3.assert_not_called()
         assert response.status_code == 503
         assert response.content == b"Cannot fetch the message content from S3"
+
+        assert len(event_caplog.records) == 1
+        event_log = event_caplog.records[0]
+        assert event_log.message == "s3_client_error_get_email"
+        assert getattr(event_log, "Code") == "SomeErrorCode"
+        assert getattr(event_log, "Message") == "Details"
 
     @patch("emails.apps.EmailsConfig.ses_client", spec_set=["send_raw_email"])
     @patch("emails.views.get_message_content_from_s3")
@@ -1361,7 +1466,7 @@ class SnsMessageTest(TestCase):
         user = baker.make(User)
         baker.make(SocialAccount, user=user, provider="fxa")
         # test.com is the second domain listed and has the numerical value 2
-        baker.make(RelayAddress, user=user, address="sender", domain=2)
+        self.ra = baker.make(RelayAddress, user=user, address="sender", domain=2)
 
         get_content_patcher = patch(
             "emails.views.get_message_content_from_s3",
@@ -1369,7 +1474,7 @@ class SnsMessageTest(TestCase):
                 EMAIL_SNS_BODIES["s3_stored"], "text"
             ),
         )
-        get_content_patcher.start()
+        self.mock_get_content = get_content_patcher.start()
         self.addCleanup(get_content_patcher.stop)
 
         ses_client_patcher = patch(
@@ -1379,11 +1484,35 @@ class SnsMessageTest(TestCase):
         self.mock_ses_client = ses_client_patcher.start()
         self.addCleanup(ses_client_patcher.stop)
 
+    def test_get_message_content_from_s3_not_found(self):
+        self.mock_get_content.side_effect = ClientError(
+            operation_name="S3.something",
+            error_response={"Error": {"Code": "NoSuchKey", "Message": "the message"}},
+        )
+        with self.assertLogs("events", "ERROR") as events_caplog:
+            response = _sns_message(self.message_json)
+        self.mock_ses_client.send_raw_email.assert_not_called()
+        assert response.status_code == 404
+        assert response.content == b"Email not in S3"
+
+        assert len(events_caplog.records) == 1
+        events_log = events_caplog.records[0]
+        assert events_log.message == "s3_object_does_not_exist"
+        assert getattr(events_log, "Code") == "NoSuchKey"
+        assert getattr(events_log, "Message") == "the message"
+
     def test_ses_send_raw_email_has_client_error_early_exits(self):
         self.mock_ses_client.send_raw_email.side_effect = SEND_RAW_EMAIL_FAILED
-        response = _sns_message(self.message_json)
+        with self.assertLogs("events", "ERROR") as events_caplog:
+            response = _sns_message(self.message_json)
         self.mock_ses_client.send_raw_email.assert_called_once()
         assert response.status_code == 503
+
+        assert len(events_caplog.records) == 1
+        events_log = events_caplog.records[0]
+        assert events_log.message == "ses_client_error_raw_email"
+        assert getattr(events_log, "Code") == "the code"
+        assert getattr(events_log, "Message") == "the message"
 
     def test_ses_send_raw_email_email_relayed_email_deleted_from_s3(self):
         self.mock_ses_client.send_raw_email.return_value = {"MessageId": str(uuid4())}
