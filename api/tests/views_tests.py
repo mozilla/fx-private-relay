@@ -367,7 +367,130 @@ def test_post_domainaddress_conflict_deleted(prem_api_client, premium_user):
     }
 
 
-def test_post_relayaddress_success(free_api_client, free_user, caplog) -> None:
+@pytest.mark.parametrize(
+    "key,value",
+    [
+        ("enabled", False),
+        ("description", "My New Alias"),
+        ("block_list_emails", True),
+        ("used_on", "example.com"),
+    ],
+)
+def test_patch_domainaddress(
+    prem_api_client: APIClient, premium_user: User, key: str, value: str
+) -> None:
+    """PATCH can update a writable field for a domain address."""
+    existing = DomainAddress.objects.create(user=premium_user, address="my-new-alias")
+    assert getattr(existing, key) != value
+    url = reverse("domainaddress-detail", args=[existing.id])
+    response = prem_api_client.patch(url, data={key: value})
+
+    assert response.status_code == 200
+    ret_data = response.json()
+    assert ret_data[key] == value
+    existing.refresh_from_db()
+    assert getattr(existing, key) == value
+
+
+@pytest.mark.parametrize("key", ("enabled", "description", "block_list_emails"))
+def test_patch_domainaddress_same_value(
+    prem_api_client: APIClient, premium_user: User, key: str
+) -> None:
+    """PATCH can write the same value to a writable field for a domain address."""
+    existing = DomainAddress.objects.create(user=premium_user, address="my-new-alias")
+    value = getattr(existing, key)
+    url = reverse("domainaddress-detail", args=[existing.id])
+    response = prem_api_client.patch(url, data={key: value})
+
+    assert response.status_code == 200
+    ret_data = response.json()
+    assert ret_data[key] == value
+    existing.refresh_from_db()
+    assert getattr(existing, key) == value
+
+
+@pytest.mark.parametrize("value", ("", None))
+def test_patch_domainaddress_same_value_used_on(
+    prem_api_client: APIClient, premium_user: User, value: str | None
+) -> None:
+    """
+    PATCH can write an empty value to used_on on a domain address.
+
+    The default form-encoding can not encode None, so we force JSON mode.
+    """
+    existing = DomainAddress.objects.create(user=premium_user, address="my-new-alias")
+    assert existing.used_on is None
+    url = reverse("domainaddress-detail", args=[existing.id])
+    response = prem_api_client.patch(url, data={"used_on": value}, format="json")
+
+    assert response.status_code == 200
+    ret_data = response.json()
+    assert ret_data["used_on"] == value
+    existing.refresh_from_db()
+    assert existing.used_on == value
+
+
+@pytest.mark.parametrize(
+    "key,value",
+    [
+        ("id", -1),
+        # TODO MPP-3753: Make address a write-once field
+        pytest.param("address", "a-different-alias", marks=pytest.mark.xfail),
+        ("domain", 1),
+        ("full_address", "a-different-alias@premium.test.com"),
+        ("created_at", "2024-02-15"),
+        ("last_used_at", "2024-02-15"),
+        ("num_forwarded", -1),
+        ("num_blocked", -1),
+        ("num_spam", -1),
+        ("num_level_one_trackers_blocked", -1),
+        ("num_replied", -1),
+    ],
+)
+def test_patch_domainaddress_read_only(
+    prem_api_client: APIClient, premium_user: User, key: str, value: str
+) -> None:
+    """PATCH succeeds but does not change read-only fields."""
+    existing = DomainAddress.objects.create(user=premium_user, address="my-new-alias")
+    old_value = getattr(existing, key)
+    old_modified_at = existing.last_modified_at
+    assert old_value != value
+    url = reverse("domainaddress-detail", args=[existing.id])
+    old_json = prem_api_client.get(url).json()
+    response = prem_api_client.patch(url, data={key: value})
+
+    assert response.status_code == 200
+    ret_data = response.json()
+    assert ret_data[key] == old_json[key]
+    existing.refresh_from_db()
+    assert getattr(existing, key) == old_value
+    assert existing.last_modified_at > old_modified_at
+
+
+def test_patch_domainaddress_read_only_mask_type(
+    prem_api_client: APIClient, premium_user: User
+) -> None:
+    """PATCH succeeds but does not change or return the mask_type."""
+    existing = DomainAddress.objects.create(user=premium_user, address="my-new-alias")
+    url = reverse("domainaddress-detail", args=[existing.id])
+    get_json = prem_api_client.get(url).json()
+    assert get_json["mask_type"] == "custom"
+    response = prem_api_client.patch(url, data={"mask_type": "random"})
+
+    assert response.status_code == 200
+    ret_data = response.json()
+    assert "mask_type" not in ret_data
+
+
+def test_delete_domainaddress(prem_api_client: APIClient, premium_user: User) -> None:
+    existing = DomainAddress.objects.create(user=premium_user, address="my-doomed-mask")
+    url = reverse("domainaddress-detail", args=[existing.id])
+    response = prem_api_client.delete(url)
+    assert response.status_code == 204
+    assert not DomainAddress.objects.filter(id=existing.id).exists()
+
+
+def test_post_relayaddress_success(free_api_client, free_user) -> None:
     """A free user is able to create a random address."""
     response = free_api_client.post(
         reverse("relayaddress-list"), data={}, format="json"
@@ -420,6 +543,122 @@ def test_post_relayaddress_flagged_error(free_user, free_api_client) -> None:
     }
 
 
+@pytest.mark.parametrize(
+    "key,value",
+    [
+        ("enabled", False),
+        ("description", "My New Alias"),
+        ("generated_for", "example.com"),
+        ("used_on", "example.com"),
+    ],
+)
+def test_patch_relayaddress(
+    free_api_client: APIClient, free_user: User, key: str, value: str | bool
+) -> None:
+    """PATCH can update a writable field for a random address."""
+    existing = RelayAddress.objects.create(user=free_user)
+    assert getattr(existing, key) != value
+    url = reverse("relayaddress-detail", args=[existing.id])
+    response = free_api_client.patch(url, data={key: value})
+
+    assert response.status_code == 200
+    ret_data = response.json()
+    assert ret_data[key] == value
+    existing.refresh_from_db()
+    assert getattr(existing, key) == value
+
+
+@pytest.mark.parametrize(
+    "key", ("enabled", "description", "generated_for", "block_list_emails")
+)
+def test_patch_relayaddress_same_value(
+    free_api_client: APIClient, free_user: User, key: str
+) -> None:
+    """PATCH can write the same value to a writable field for a random address."""
+    existing = RelayAddress.objects.create(user=free_user)
+    value = getattr(existing, key)
+    url = reverse("relayaddress-detail", args=[existing.id])
+    response = free_api_client.patch(url, data={key: value})
+
+    assert response.status_code == 200
+    ret_data = response.json()
+    assert ret_data[key] == value
+    existing.refresh_from_db()
+    assert getattr(existing, key) == value
+
+
+@pytest.mark.parametrize("value", ("", None))
+def test_patch_relayaddress_same_value_used_on(
+    free_api_client: APIClient, free_user: User, value: str | None
+) -> None:
+    """
+    PATCH can write an empty value to used_on on a random address.
+
+    The default form-encoding can not encode None, so we force JSON mode.
+    """
+    existing = RelayAddress.objects.create(user=free_user)
+    assert existing.used_on is None
+    url = reverse("relayaddress-detail", args=[existing.id])
+    response = free_api_client.patch(url, data={"used_on": value}, format="json")
+
+    assert response.status_code == 200
+    ret_data = response.json()
+    assert ret_data["used_on"] == value
+    existing.refresh_from_db()
+    assert existing.used_on == value
+
+
+@pytest.mark.parametrize(
+    "key,value",
+    [
+        ("id", -1),
+        ("address", "a-different-alias"),
+        ("domain", 1),
+        ("full_address", "a-different-alias@premium.test.com"),
+        ("created_at", "2024-02-15"),
+        ("last_used_at", "2024-02-15"),
+        ("num_forwarded", -1),
+        ("num_blocked", -1),
+        ("num_spam", -1),
+        ("num_level_one_trackers_blocked", -1),
+        ("num_replied", -1),
+    ],
+)
+def test_patch_relayaddress_read_only(
+    free_api_client: APIClient, free_user: User, key: str, value: str | int
+) -> None:
+    """PATCH succeeds but does not change read-only fields."""
+    existing = RelayAddress.objects.create(user=free_user)
+    old_value = getattr(existing, key)
+    old_modified_at = existing.last_modified_at
+    assert old_value != value
+    url = reverse("relayaddress-detail", args=[existing.id])
+    old_json = free_api_client.get(url).json()
+    response = free_api_client.patch(url, data={key: value})
+
+    assert response.status_code == 200
+    ret_data = response.json()
+    assert ret_data[key] == old_json[key]
+    existing.refresh_from_db()
+    assert getattr(existing, key) == old_value
+    assert existing.last_modified_at > old_modified_at
+
+
+def test_patch_relayaddress_read_only_mask_type(
+    free_api_client: APIClient, free_user: User
+) -> None:
+    """PATCH succeeds but does not change or return the mask_type."""
+    existing = RelayAddress.objects.create(user=free_user)
+    url = reverse("relayaddress-detail", args=[existing.id])
+    get_json = free_api_client.get(url).json()
+    assert get_json["mask_type"] == "random"
+    response = free_api_client.patch(url, data={"mask_type": "custom"})
+
+    assert response.status_code == 200
+    ret_data = response.json()
+    assert "mask_type" not in ret_data
+
+
 def test_patch_relayaddress_free_user_cannot_set_block_list_emails(
     free_user, free_api_client
 ) -> None:
@@ -462,6 +701,14 @@ def test_patch_relayaddress_format_premium_user_can_clear_block_list_emails(
     ra.refresh_from_db()
     assert ra.enabled is True
     assert ra.block_list_emails is False
+
+
+def test_delete_randomaddress(free_api_client: APIClient, free_user: User) -> None:
+    existing = RelayAddress.objects.create(user=free_user)
+    url = reverse("relayaddress-detail", args=[existing.id])
+    response = free_api_client.delete(url)
+    assert response.status_code == 204
+    assert not RelayAddress.objects.filter(id=existing.id).exists()
 
 
 @pytest.mark.usefixtures("fxa_social_app")
