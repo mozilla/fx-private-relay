@@ -46,9 +46,8 @@ def make_free_test_user(email: str = "") -> User:
         user = baker.make(User, email=email)
     else:
         user = baker.make(User)
-    user_profile = Profile.objects.get(user=user)
-    user_profile.server_storage = True
-    user_profile.save()
+    user.profile.server_storage = True
+    user.profile.save()
     baker.make(
         SocialAccount,
         user=user,
@@ -60,17 +59,15 @@ def make_free_test_user(email: str = "") -> User:
 
 
 def make_premium_test_user() -> User:
-    # premium user
     premium_user = baker.make(User, email="premium@email.com")
-    premium_user_profile = Profile.objects.get(user=premium_user)
-    premium_user_profile.server_storage = True
-    premium_user_profile.date_subscribed = datetime.now(tz=timezone.utc)
-    premium_user_profile.save()
+    premium_user.profile.server_storage = True
+    premium_user.profile.date_subscribed = datetime.now(tz=timezone.utc)
+    premium_user.profile.save()
     upgrade_test_user_to_premium(premium_user)
     return premium_user
 
 
-def make_storageless_test_user():
+def make_storageless_test_user() -> User:
     storageless_user = baker.make(User)
     storageless_user_profile = storageless_user.profile
     storageless_user_profile.server_storage = False
@@ -475,15 +472,69 @@ class ProfileTestCase(TestCase):
         social_account, _ = SocialAccount.objects.get_or_create(
             user=self.profile.user,
             provider="fxa",
-            uid=str(uuid4()),
-            defaults={"extra_data": {"avatar": "image.png", "subscriptions": []}},
+            defaults={
+                "uid": str(uuid4()),
+                "extra_data": {"avatar": "image.png", "subscriptions": []},
+            },
         )
         return social_account
 
+    def premium_subscription(self) -> str:
+        assert settings.SUBSCRIPTIONS_WITH_UNLIMITED
+        premium_only_plans = list(
+            set(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
+            - set(settings.SUBSCRIPTIONS_WITH_PHONE)
+            - set(settings.SUBSCRIPTIONS_WITH_VPN)
+        )
+        assert premium_only_plans
+        return random.choice(premium_only_plans)
+
     def upgrade_to_premium(self) -> None:
-        """Add a unlimited subscription to the user."""
+        """Add an unlimited emails subscription to the user."""
         social_account = self.get_or_create_social_account()
-        social_account.extra_data["subscriptions"].append(unlimited_subscription())
+        social_account.extra_data["subscriptions"].append(self.premium_subscription())
+        social_account.save()
+
+    def phone_subscription(self) -> str:
+        assert settings.SUBSCRIPTIONS_WITH_PHONE
+        phones_only_plans = list(
+            set(settings.SUBSCRIPTIONS_WITH_PHONE)
+            - set(settings.SUBSCRIPTIONS_WITH_VPN)
+            - set(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
+        )
+        assert phones_only_plans
+        return random.choice(phones_only_plans)
+
+    def upgrade_to_phone(self) -> None:
+        """Add a phone plan to the user."""
+        social_account = self.get_or_create_social_account()
+        social_account.extra_data["subscriptions"].append(self.phone_subscription())
+        if not self.profile.has_premium:
+            social_account.extra_data["subscriptions"].append(
+                self.premium_subscription()
+            )
+        social_account.save()
+
+    def vpn_subscription(self) -> str:
+        assert settings.SUBSCRIPTIONS_WITH_VPN
+        vpn_only_plans = list(
+            set(settings.SUBSCRIPTIONS_WITH_VPN)
+            - set(settings.SUBSCRIPTIONS_WITH_PHONE)
+            - set(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
+        )
+        assert vpn_only_plans
+        return random.choice(vpn_only_plans)
+
+    def upgrade_to_vpn_bundle(self) -> None:
+        """Add a phone plan to the user."""
+        social_account = self.get_or_create_social_account()
+        social_account.extra_data["subscriptions"].append(self.vpn_subscription())
+        if not self.profile.has_premium:
+            social_account.extra_data["subscriptions"].append(
+                self.premium_subscription()
+            )
+        if not self.profile.has_phone:
+            social_account.extra_data["subscriptions"].append(self.phone_subscription())
         social_account.save()
 
     def upgrade_to_phone_premium(self) -> None:
@@ -634,8 +685,16 @@ class ProfileHasPremiumTest(ProfileTestCase):
     def test_default_False(self) -> None:
         assert self.profile.has_premium is False
 
-    def test_unlimited_subsription_returns_True(self) -> None:
+    def test_premium_subscription_returns_True(self) -> None:
         self.upgrade_to_premium()
+        assert self.profile.has_premium is True
+
+    def test_phone_returns_True(self) -> None:
+        self.upgrade_to_phone()
+        assert self.profile.has_premium is True
+
+    def test_vpn_bundle_returns_True(self) -> None:
+        self.upgrade_to_vpn_bundle()
         assert self.profile.has_premium is True
 
 
@@ -645,8 +704,20 @@ class ProfileHasPhoneTest(ProfileTestCase):
     def test_default_False(self) -> None:
         assert self.profile.has_phone is False
 
+    def test_premium_subscription_returns_False(self) -> None:
+        self.upgrade_to_premium()
+        assert self.profile.has_phone is False
+
     def test_phone_subscription_returns_True(self) -> None:
         self.upgrade_to_phone_premium()
+        assert self.profile.has_phone is True
+
+    def test_phone_returns_True(self) -> None:
+        self.upgrade_to_phone()
+        assert self.profile.has_phone is True
+
+    def test_vpn_bundle_returns_True(self) -> None:
+        self.upgrade_to_vpn_bundle()
         assert self.profile.has_phone is True
 
 
