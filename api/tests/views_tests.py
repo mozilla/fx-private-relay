@@ -501,6 +501,18 @@ def test_post_relayaddress_success(free_api_client, free_user) -> None:
     assert ret_data["enabled"]
 
 
+def test_post_relayaddress_with_generated_for_success(
+    free_api_client: APIClient, free_user: User
+) -> None:
+    """A mask generated on a website sets has_generated_for"""
+    response = free_api_client.post(
+        reverse("relayaddress-list"),
+        data={"generated_for": "example.com"},
+        format="json",
+    )
+    assert response.status_code == 201
+
+
 def test_post_relayaddress_free_mask_email_limit_error(
     settings, free_user, free_api_client
 ) -> None:
