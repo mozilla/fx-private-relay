@@ -919,15 +919,11 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
         assert response.status_code == 400
         assert response.content == b"SES client error"
 
-        assert len(events_caplog.records) == 2
+        assert len(events_caplog.records) == 1
         events_log = events_caplog.records[0]
         assert events_log.message == "ses_client_error_raw_email"
         assert getattr(events_log, "Code") == "the code"
         assert getattr(events_log, "Message") == "the message"
-        events_log2 = events_caplog.records[1]
-        assert events_log2.message == "ses_client_error"
-        assert getattr(events_log2, "Code") == "the code"
-        assert getattr(events_log2, "Message") == "the message"
 
 
 class BounceHandlingTest(TestCase):

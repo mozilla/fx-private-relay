@@ -1251,8 +1251,7 @@ def _handle_reply(
             destination_address=to_address,
             message=email,
         )
-    except ClientError as e:
-        logger.error("ses_client_error", extra=e.response["Error"])
+    except ClientError:
         return HttpResponse("SES client error", status=400)
 
     reply_record.increment_num_replied()
