@@ -78,8 +78,15 @@ def make_storageless_test_user() -> User:
     return storageless_user
 
 
-def unlimited_subscription() -> str:
-    return random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
+def premium_subscription() -> str:
+    assert settings.SUBSCRIPTIONS_WITH_UNLIMITED
+    premium_only_plans = list(
+        set(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
+        - set(settings.SUBSCRIPTIONS_WITH_PHONE)
+        - set(settings.SUBSCRIPTIONS_WITH_VPN)
+    )
+    assert premium_only_plans
+    return random.choice(premium_only_plans)
 
 
 def phone_subscription() -> str:
@@ -87,7 +94,7 @@ def phone_subscription() -> str:
 
 
 def upgrade_test_user_to_premium(user):
-    random_sub = unlimited_subscription()
+    random_sub = premium_subscription()
     baker.make(
         SocialAccount,
         user=user,
@@ -1360,7 +1367,7 @@ class DomainAddressTest(TestCase):
             SocialAccount,
             user=user,
             provider="fxa",
-            extra_data={"subscriptions": [unlimited_subscription()]},
+            extra_data={"subscriptions": [premium_subscription()]},
         )
         user_profile = Profile.objects.get(user=user)
         with pytest.raises(CannotMakeAddressException) as exc_info:
