@@ -288,24 +288,10 @@ def _replace_mime_boundaries(email: str) -> str:
 
 
 @override_settings(RELAY_FROM_ADDRESS="reply@relay.example.com")
-class SNSNotificationTest(TestCase):
-    def setUp(self) -> None:
-        self.user = baker.make(User, email="user@example.com")
-        self.profile = self.user.profile
-        self.profile.last_engagement = datetime.now(timezone.utc)
-        self.profile.save()
-        self.sa: SocialAccount = baker.make(
-            SocialAccount, user=self.user, provider="fxa"
-        )
-        self.ra = baker.make(
-            RelayAddress, user=self.user, address="ebsbdsan7", domain=2
-        )
-        self.premium_user = make_premium_test_user()
-        self.premium_profile = Profile.objects.get(user=self.premium_user)
-        self.premium_profile.subdomain = "subdomain"
-        self.premium_profile.last_engagement = datetime.now(timezone.utc)
-        self.premium_profile.save()
+class SNSNotificationTestBase(TestCase):
+    """Base class for tests of _sns_notification"""
 
+    def setUp(self) -> None:
         remove_s3_patcher = patch("emails.views.remove_message_from_s3")
         self.mock_remove_message_from_s3 = remove_s3_patcher.start()
         self.addCleanup(remove_s3_patcher.stop)
@@ -351,6 +337,28 @@ class SNSNotificationTest(TestCase):
                 headers[key] = val
                 last_key = key
         raise Exception("Never found message body!")
+
+
+class SNSNotificationIncomingTest(SNSNotificationTestBase):
+    """Tests for _sns_notification for incoming emails to Relay users"""
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.user = baker.make(User, email="user@example.com")
+        self.profile = self.user.profile
+        self.profile.last_engagement = datetime.now(timezone.utc)
+        self.profile.save()
+        self.sa: SocialAccount = baker.make(
+            SocialAccount, user=self.user, provider="fxa"
+        )
+        self.ra = baker.make(
+            RelayAddress, user=self.user, address="ebsbdsan7", domain=2
+        )
+        self.premium_user = make_premium_test_user()
+        self.premium_profile = Profile.objects.get(user=self.premium_user)
+        self.premium_profile.subdomain = "subdomain"
+        self.premium_profile.last_engagement = datetime.now(timezone.utc)
+        self.premium_profile.save()
 
     def test_single_recipient_sns_notification(self) -> None:
         pre_sns_notification_last_engagement = self.ra.user.profile.last_engagement
@@ -539,85 +547,6 @@ class SNSNotificationTest(TestCase):
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 0
         assert self.ra.last_used_at is None
-
-    @patch("emails.views.get_message_content_from_s3")
-    def reply_test_implementation(
-        self, mock_get_content: Mock, text: str, expected_fixture_name: str
-    ) -> str:
-        """The headers of a reply refer to the Relay mask."""
-
-        # Create a premium user matching the s3_stored_replies sender
-        user = baker.make(User, email="source@sender.com")
-        user.profile.server_storage = True
-        user.profile.date_subscribed = datetime.now(tz=timezone.utc)
-        user.profile.last_engagement = datetime.now(tz=timezone.utc)
-        user.profile.save()
-        pre_reply_last_engagement = user.profile.last_engagement
-        upgrade_test_user_to_premium(user)
-
-        # Create a Reply record matching the s3_stored_replies headers
-        lookup_key, encryption_key = derive_reply_keys(
-            get_message_id_bytes("CA+J4FJFw0TXCr63y9dGcauvCGaZ7pXxspzOjEDhRpg5Zh4ziWg")
-        )
-        metadata = {
-            "message-id": str(uuid4()),
-            "from": "sender@external.example.com",
-        }
-        encrypted_metadata = encrypt_reply_metadata(encryption_key, metadata)
-        relay_address = baker.make(RelayAddress, user=user, address="a1b2c3d4")
-        Reply.objects.create(
-            lookup=b64_lookup_key(lookup_key),
-            encrypted_metadata=encrypted_metadata,
-            relay_address=relay_address,
-        )
-
-        # Mock loading a simple reply email message from S3
-        mock_get_content.return_value = create_email_from_notification(
-            EMAIL_SNS_BODIES["s3_stored_replies"], text=text
-        )
-
-        # Successfully reply to a previous sender
-        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
-        assert response.status_code == 200
-
-        self.mock_remove_message_from_s3.assert_called_once()
-        mock_get_content.assert_called_once()
-
-        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
-        assert sender == "a1b2c3d4@test.com"
-        assert recipient == "sender@external.example.com"
-        assert headers == {
-            "Content-Type": headers["Content-Type"],
-            "Subject": "Re: Test Mozilla User New Domain Address",
-            "MIME-Version": "1.0",
-            "From": sender,
-            "Reply-To": sender,
-            "To": recipient,
-        }
-        assert_email_equals(email, expected_fixture_name)
-
-        relay_address.refresh_from_db()
-        assert relay_address.num_replied == 1
-        last_used_at = relay_address.last_used_at
-        assert last_used_at
-        assert (datetime.now(tz=timezone.utc) - last_used_at).seconds < 2.0
-        assert relay_address.user.profile.last_engagement is not None
-        assert relay_address.user.profile.last_engagement > pre_reply_last_engagement
-        return email
-
-    def test_reply(self) -> None:
-        self.reply_test_implementation(
-            text="this is a text reply", expected_fixture_name="s3_stored_replies"
-        )
-
-    def test_reply_with_emoji_in_text(self) -> None:
-        """An email with emoji text content is sent with UTF-8 encoding."""
-        email = self.reply_test_implementation(
-            text="👍 Thanks I got it!",
-            expected_fixture_name="s3_stored_replies_with_emoji",
-        )
-        assert 'Content-Type: text/plain; charset="utf-8"' in email
-        assert "Content-Transfer-Encoding: base64" in email
 
     @patch("emails.views.generate_from_header", side_effect=InvalidFromHeader())
     @patch("emails.views.info_logger")
@@ -847,6 +776,94 @@ class SNSNotificationTest(TestCase):
             "_handle_received: forwarding issues",
             extra={"issues": {"headers": expected_header_errors}},
         )
+
+
+class SNSNotificationRepliesTest(SNSNotificationTestBase):
+    """Tests for _sns_notification for replies from Relay users"""
+
+    def setUp(self) -> None:
+        super().setUp()
+
+        # Create a premium user matching the s3_stored_replies sender
+        self.user = baker.make(User, email="source@sender.com")
+        self.user.profile.server_storage = True
+        self.user.profile.date_subscribed = datetime.now(tz=timezone.utc)
+        self.user.profile.last_engagement = datetime.now(tz=timezone.utc)
+        self.user.profile.save()
+        self.pre_reply_last_engagement = self.user.profile.last_engagement
+        upgrade_test_user_to_premium(self.user)
+
+        # Create a Reply record matching the s3_stored_replies headers
+        lookup_key, encryption_key = derive_reply_keys(
+            get_message_id_bytes("CA+J4FJFw0TXCr63y9dGcauvCGaZ7pXxspzOjEDhRpg5Zh4ziWg")
+        )
+        metadata = {
+            "message-id": str(uuid4()),
+            "from": "sender@external.example.com",
+        }
+        encrypted_metadata = encrypt_reply_metadata(encryption_key, metadata)
+        self.relay_address = baker.make(
+            RelayAddress, user=self.user, address="a1b2c3d4"
+        )
+        Reply.objects.create(
+            lookup=b64_lookup_key(lookup_key),
+            encrypted_metadata=encrypted_metadata,
+            relay_address=self.relay_address,
+        )
+
+        get_message_content_patcher = patch("emails.views.get_message_content_from_s3")
+        self.mock_get_content = get_message_content_patcher.start()
+        self.addCleanup(get_message_content_patcher.stop)
+
+    def success_test_implementation(self, text: str, expected_fixture_name: str) -> str:
+        """The headers of a reply refer to the Relay mask."""
+
+        self.mock_get_content.return_value = create_email_from_notification(
+            EMAIL_SNS_BODIES["s3_stored_replies"], text=text
+        )
+
+        # Successfully reply to a previous sender
+        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
+        assert response.status_code == 200
+
+        self.mock_remove_message_from_s3.assert_called_once()
+        self.mock_get_content.assert_called_once()
+
+        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
+        assert sender == "a1b2c3d4@test.com"
+        assert recipient == "sender@external.example.com"
+        assert headers == {
+            "Content-Type": headers["Content-Type"],
+            "Subject": "Re: Test Mozilla User New Domain Address",
+            "MIME-Version": "1.0",
+            "From": sender,
+            "Reply-To": sender,
+            "To": recipient,
+        }
+        assert_email_equals(email, expected_fixture_name)
+
+        self.relay_address.refresh_from_db()
+        assert self.relay_address.num_replied == 1
+        last_used_at = self.relay_address.last_used_at
+        assert last_used_at
+        assert (datetime.now(tz=timezone.utc) - last_used_at).seconds < 2.0
+        assert (last_en := self.relay_address.user.profile.last_engagement) is not None
+        assert last_en > self.pre_reply_last_engagement
+        return email
+
+    def test_reply(self) -> None:
+        self.success_test_implementation(
+            text="this is a text reply", expected_fixture_name="s3_stored_replies"
+        )
+
+    def test_reply_with_emoji_in_text(self) -> None:
+        """An email with emoji text content is sent with UTF-8 encoding."""
+        email = self.success_test_implementation(
+            text="👍 Thanks I got it!",
+            expected_fixture_name="s3_stored_replies_with_emoji",
+        )
+        assert 'Content-Type: text/plain; charset="utf-8"' in email
+        assert "Content-Transfer-Encoding: base64" in email
 
 
 class BounceHandlingTest(TestCase):
