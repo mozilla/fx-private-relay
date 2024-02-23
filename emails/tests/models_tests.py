@@ -486,20 +486,10 @@ class ProfileTestCase(TestCase):
         )
         return social_account
 
-    def premium_subscription(self) -> str:
-        assert settings.SUBSCRIPTIONS_WITH_UNLIMITED
-        premium_only_plans = list(
-            set(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
-            - set(settings.SUBSCRIPTIONS_WITH_PHONE)
-            - set(settings.SUBSCRIPTIONS_WITH_VPN)
-        )
-        assert premium_only_plans
-        return random.choice(premium_only_plans)
-
     def upgrade_to_premium(self) -> None:
         """Add an unlimited emails subscription to the user."""
         social_account = self.get_or_create_social_account()
-        social_account.extra_data["subscriptions"].append(self.premium_subscription())
+        social_account.extra_data["subscriptions"].append(premium_subscription())
         social_account.save()
 
     def phone_subscription(self) -> str:
@@ -517,9 +507,7 @@ class ProfileTestCase(TestCase):
         social_account = self.get_or_create_social_account()
         social_account.extra_data["subscriptions"].append(self.phone_subscription())
         if not self.profile.has_premium:
-            social_account.extra_data["subscriptions"].append(
-                self.premium_subscription()
-            )
+            social_account.extra_data["subscriptions"].append(premium_subscription())
         social_account.save()
 
     def vpn_subscription(self) -> str:
@@ -537,9 +525,7 @@ class ProfileTestCase(TestCase):
         social_account = self.get_or_create_social_account()
         social_account.extra_data["subscriptions"].append(self.vpn_subscription())
         if not self.profile.has_premium:
-            social_account.extra_data["subscriptions"].append(
-                self.premium_subscription()
-            )
+            social_account.extra_data["subscriptions"].append(premium_subscription())
         if not self.profile.has_phone:
             social_account.extra_data["subscriptions"].append(self.phone_subscription())
         social_account.save()
