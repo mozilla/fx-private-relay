@@ -9,7 +9,8 @@ omit =
     env/*,
     node_modules/*,
 exclude_also =
-    if TYPE_CHECKING
+    # Skip code that is only evaluated by static type checkers like pyright and mypy
+    if TYPE_CHECKING:
 
 [run]
 relative_files = True
