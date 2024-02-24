@@ -1,4 +1,4 @@
-import { event as gaEvent, EventArgs } from "react-ga";
+import { EventArgs } from "../hooks/gaEvent";
 import { setCookie } from "./cookies";
 
 type ArgsWithoutCategory = Omit<EventArgs, "category">;
@@ -11,7 +11,10 @@ export type PurchaseTrackingArgs = Partial<ArgsWithoutCategory> &
  *
  * @deprecated Used to track purchases when we just had a single Premium plan.
  */
-export const trackPurchaseStart = (args?: PurchaseTrackingArgs) => {
+export const trackPurchaseStart = (
+  gaEvent: (event: EventArgs) => void,
+  args?: PurchaseTrackingArgs,
+) => {
   gaEvent({
     ...args,
     category: "Purchase Button",
@@ -45,6 +48,7 @@ export const getCookieId = (plan: Plan): string => {
  * When the user initiates a plan-specific purchase flow, this allows us to see whether the purchase gets completed across our different websites.
  */
 export const trackPlanPurchaseStart = (
+  gaEvent: (event: EventArgs) => void,
   plan: Plan,
   args?: PurchaseTrackingArgs,
 ) => {

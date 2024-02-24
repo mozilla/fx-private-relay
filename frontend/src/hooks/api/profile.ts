@@ -23,6 +23,7 @@ export type ProfileData = {
   emails_replied: number;
   level_one_trackers_blocked: number;
   store_phone_log: boolean;
+  metrics_enabled: boolean;
 };
 
 export type ProfilesData = [ProfileData];

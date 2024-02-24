@@ -1,8 +1,7 @@
-import { event as gaEvent } from "react-ga";
-
 import styles from "./UpgradeButton.module.scss";
 import { useGaViewPing } from "../../../hooks/gaViewPing";
 import Link from "next/link";
+import { useGaEvent } from "../../../hooks/gaEvent";
 import { useL10n } from "../../../hooks/l10n";
 
 export const UpgradeButton = (): JSX.Element => {
@@ -11,6 +10,7 @@ export const UpgradeButton = (): JSX.Element => {
     category: "Purchase Button",
     label: "navbar-upgrade-button",
   });
+  const gaEvent = useGaEvent();
 
   return (
     <Link

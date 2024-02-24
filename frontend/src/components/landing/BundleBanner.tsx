@@ -16,6 +16,7 @@ import bundleFloatTwo from "./images/bundle-float-2.svg";
 import bundleFloatThree from "./images/bundle-float-3.svg";
 import { trackPlanPurchaseStart } from "../../functions/trackPurchase";
 import { useGaViewPing } from "../../hooks/gaViewPing";
+import { useGaEvent } from "../../hooks/gaEvent";
 import { useL10n } from "../../hooks/l10n";
 import { Localized } from "../Localized";
 
@@ -55,6 +56,7 @@ const FloatingFeatures = (props: FloatingFeaturesProps) => {
 
 export const BundleBanner = (props: Props) => {
   const l10n = useL10n();
+  const gaEvent = useGaEvent();
 
   const mainImage = (
     <img
@@ -135,6 +137,7 @@ export const BundleBanner = (props: Props) => {
                 href={getBundleSubscribeLink(props.runtimeData)}
                 onClick={() =>
                   trackPlanPurchaseStart(
+                    gaEvent,
                     { plan: "bundle" },
                     { label: "bundle-banner-upgrade-promo" },
                   )

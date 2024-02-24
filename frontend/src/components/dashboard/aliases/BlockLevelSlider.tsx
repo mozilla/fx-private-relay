@@ -21,7 +21,6 @@ import {
   useOverlayTriggerState,
   useSliderState,
 } from "react-stately";
-import { event as gaEvent } from "react-ga";
 import styles from "./BlockLevelSlider.module.scss";
 import UmbrellaClosed from "./images/umbrella-closed.svg";
 import UmbrellaClosedMobile from "./images/umbrella-closed-mobile.svg";
@@ -31,6 +30,7 @@ import UmbrellaOpen from "./images/umbrella-open.svg";
 import UmbrellaOpenMobile from "./images/umbrella-open-mobile.svg";
 import { AliasData } from "../../../hooks/api/aliases";
 import { CloseIcon, LockIcon } from "../../Icons";
+import { useGaEvent } from "../../../hooks/gaEvent";
 import { useL10n } from "../../../hooks/l10n";
 import { VisuallyHidden } from "../../VisuallyHidden";
 
@@ -50,6 +50,7 @@ const onlyThumbIndex = 0;
 export const BlockLevelSlider = (props: Props) => {
   const l10n = useL10n();
   const trackRef = useRef<HTMLDivElement>(null);
+  const gaEvent = useGaEvent();
   const numberFormatter = new SliderValueFormatter(l10n);
   const sliderSettings: Parameters<typeof useSliderState>[0] = {
     minValue: 0,

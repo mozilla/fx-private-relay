@@ -9,7 +9,7 @@ import {
   isPeriodicalPremiumAvailableInCountry,
 } from "../../../functions/getPlan";
 import { ProfileData } from "../../../hooks/api/profile";
-import { event as gaEvent } from "react-ga";
+import { useGaEvent } from "../../../hooks/gaEvent";
 import { useGaViewPing } from "../../../hooks/gaViewPing";
 
 type Props = {
@@ -20,6 +20,7 @@ type Props = {
 
 export const HolidayPromoBanner = (props: Props) => {
   const l10n = useL10n();
+  const gaEvent = useGaEvent();
   const router = useRouter();
   const coupon = "HOLIDAY20";
   const subscribeLink = isPeriodicalPremiumAvailableInCountry(props.runtimeData)

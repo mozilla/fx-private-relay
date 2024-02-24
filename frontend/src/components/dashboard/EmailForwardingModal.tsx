@@ -23,7 +23,7 @@ import { Button } from "../Button";
 import { StaticImport } from "next/dist/shared/lib/get-img-props";
 import { CloseIcon } from "../Icons";
 import { aliasEmailTest } from "../../hooks/api/aliases";
-import { event as gaEvent } from "react-ga";
+import { useGaEvent } from "../../hooks/gaEvent";
 
 export type Props = {
   isOpen: boolean;
@@ -55,6 +55,7 @@ const ConfirmModal = (props: Props) => {
   const [inputValue, setInputValue] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const gaEvent = useGaEvent();
 
   const onSubmit: FormEventHandler = async (event) => {
     event.preventDefault();

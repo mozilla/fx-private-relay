@@ -18,6 +18,7 @@ import {
 import { ReactNode, useRef } from "react";
 import { useTab, useTabList, useTabPanel } from "react-aria";
 import { useL10n } from "../../../hooks/l10n";
+import { useGaEvent } from "../../../hooks/gaEvent";
 
 export type Props = {
   runtimeData: RuntimeDataWithPhonesAvailable;
@@ -62,6 +63,7 @@ const PricingToggle = (props: PricingToggleProps) => {
     category: "Purchase monthly Premium+phones button",
     label: "phone-onboarding-purchase-monthly-cta",
   });
+  const gaEvent = useGaEvent();
 
   return (
     <PricingTabs>
@@ -83,6 +85,7 @@ const PricingToggle = (props: PricingToggleProps) => {
           href={getPhoneSubscribeLink(props.runtimeData, "yearly")}
           onClick={() =>
             trackPlanPurchaseStart(
+              gaEvent,
               { plan: "phones", billing_period: "yearly" },
               {
                 label: "phone-onboarding-purchase-yearly-cta",
@@ -110,6 +113,7 @@ const PricingToggle = (props: PricingToggleProps) => {
           href={getPhoneSubscribeLink(props.runtimeData, "monthly")}
           onClick={() =>
             trackPlanPurchaseStart(
+              gaEvent,
               { plan: "phones", billing_period: "monthly" },
               {
                 label: "phone-onboarding-purchase-monthly-cta",

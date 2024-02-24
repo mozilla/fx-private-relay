@@ -21,7 +21,6 @@ import {
 import { HTMLAttributes, Key, ReactNode, useRef, useState } from "react";
 import { AriaMenuItemProps } from "@react-aria/menu";
 import Link from "next/link";
-import { event as gaEvent } from "react-ga";
 import styles from "./UserMenu.module.scss";
 import {
   Cogwheel,
@@ -36,6 +35,7 @@ import { getRuntimeConfig } from "../../../config";
 import { getCsrfToken } from "../../../functions/cookies";
 import { useRuntimeData } from "../../../hooks/api/runtimeData";
 import { setCookie } from "../../../functions/cookies";
+import { useGaEvent } from "../../../hooks/gaEvent";
 import { useL10n } from "../../../hooks/l10n";
 
 export type Props = {
@@ -49,6 +49,7 @@ export const UserMenu = (props: Props) => {
   const profileData = useProfiles();
   const usersData = useUsers();
   const l10n = useL10n();
+  const gaEvent = useGaEvent();
 
   const itemKeys = {
     account: "account",

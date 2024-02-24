@@ -116,6 +116,7 @@ export const mockedProfiles: Record<(typeof mockIds)[number], ProfileData> = {
     emails_forwarded: 30,
     emails_replied: 0,
     level_one_trackers_blocked: 0,
+    metrics_enabled: true,
   },
   empty: {
     api_token: "empty",
@@ -138,6 +139,7 @@ export const mockedProfiles: Record<(typeof mockIds)[number], ProfileData> = {
     emails_forwarded: 0,
     emails_replied: 0,
     level_one_trackers_blocked: 0,
+    metrics_enabled: true,
   },
   onboarding: {
     api_token: "onboarding",
@@ -160,6 +162,7 @@ export const mockedProfiles: Record<(typeof mockIds)[number], ProfileData> = {
     emails_replied: 0,
     level_one_trackers_blocked: 0,
     store_phone_log: true,
+    metrics_enabled: true,
   },
   some: {
     api_token: "some",
@@ -182,6 +185,7 @@ export const mockedProfiles: Record<(typeof mockIds)[number], ProfileData> = {
     emails_replied: 40,
     level_one_trackers_blocked: 72,
     store_phone_log: true,
+    metrics_enabled: true,
   },
   full: {
     api_token: "full",
@@ -204,6 +208,7 @@ export const mockedProfiles: Record<(typeof mockIds)[number], ProfileData> = {
     emails_replied: 9631,
     level_one_trackers_blocked: 1409,
     store_phone_log: true,
+    metrics_enabled: true,
   },
 };
 export const mockedRelayaddresses: Record<

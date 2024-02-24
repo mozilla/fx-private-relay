@@ -15,8 +15,8 @@ import SmallArrow from "./images/free-onboarding-arrow.svg";
 import LargeArrow from "./images/free-onboarding-arrow-large.svg";
 import Image from "next/image";
 import { Button, LinkButton } from "../Button";
-import { event as gaEvent } from "react-ga";
 import { useGaViewPing } from "../../hooks/gaViewPing";
+import { useGaEvent } from "../../hooks/gaEvent";
 import { AliasData } from "../../hooks/api/aliases";
 import { UserData } from "../../hooks/api/user";
 import { RuntimeData } from "../../hooks/api/runtimeData";
@@ -45,6 +45,7 @@ export type Props = {
 export const FreeOnboarding = (props: Props) => {
   const l10n = useL10n();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const gaEvent = useGaEvent();
 
   let step = null;
   let button = null;

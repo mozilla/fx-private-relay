@@ -7,6 +7,8 @@ import { FaqAccordionItem } from "../components/landing/FaqAccordion";
 import { useEffect, useState } from "react";
 import { RoundedInfoTriangleIcon } from "../components/Icons";
 import { OutboundLink } from "react-ga";
+import Link from "next/link";
+import { useMetrics } from "../hooks/metrics";
 
 type TrackerWarningData = {
   sender: string;
@@ -18,6 +20,7 @@ const ContainsTracker: NextPage = () => {
   const runtimeData = useRuntimeData();
   const l10n = useL10n();
   const [trackerData, setTrackerData] = useState<TrackerWarningData | null>();
+  const metricsEnabled = useMetrics();
 
   useEffect(() => {
     function updateTrackerData() {
@@ -49,6 +52,27 @@ const ContainsTracker: NextPage = () => {
       },
     });
 
+  const TrackerLinkWithMetrics = trackerData && (
+    <OutboundLink
+      to={trackerData.original_link}
+      eventLabel={l10n.getString("contains-tracker-warning-view-link-cta")}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <span>{l10n.getString("contains-tracker-warning-view-link-cta")}</span>
+    </OutboundLink>
+  );
+
+  const TrackerLinkWithoutMetrics = trackerData && (
+    <Link
+      href={trackerData.original_link}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <span>{l10n.getString("contains-tracker-warning-view-link-cta")}</span>
+    </Link>
+  );
+
   const TrackerWarningBanner = trackerData && (
     <>
       <div className={styles["warning-banner-container"]}>
@@ -64,18 +88,7 @@ const ContainsTracker: NextPage = () => {
       </div>
       <div className={styles["warning-banner-button"]}>
         <div className={styles["cta-button"]}>
-          <OutboundLink
-            to={trackerData.original_link}
-            eventLabel={l10n.getString(
-              "contains-tracker-warning-view-link-cta",
-            )}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <span>
-              {l10n.getString("contains-tracker-warning-view-link-cta")}
-            </span>
-          </OutboundLink>
+          {metricsEnabled ? TrackerLinkWithMetrics : TrackerLinkWithoutMetrics}
         </div>
       </div>
     </>

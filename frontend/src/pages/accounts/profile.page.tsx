@@ -18,7 +18,6 @@ import {
   useTooltip,
   useTooltipTrigger,
 } from "react-aria";
-import { event as gaEvent } from "react-ga";
 import { useMenuTriggerState, useTooltipTriggerState } from "react-stately";
 import { toast } from "react-toastify";
 import styles from "./profile.module.scss";
@@ -33,6 +32,7 @@ import {
   getFullAddress,
   useAliases,
 } from "../../hooks/api/aliases";
+import { useGaEvent } from "../../hooks/gaEvent";
 import { useUsers } from "../../hooks/api/user";
 import { AliasList } from "../../components/dashboard/aliases/AliasList";
 import { ProfileBanners } from "../../components/dashboard/ProfileBanners";
@@ -76,6 +76,7 @@ const Profile: NextPage = () => {
     category: "Purchase Button",
     label: "profile-set-custom-domain",
   });
+  const gaEvent = useGaEvent();
   const hash = getCookie("profile-location-hash");
   if (hash) {
     document.location.hash = hash;
