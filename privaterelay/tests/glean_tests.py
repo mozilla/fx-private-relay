@@ -1,10 +1,11 @@
 from datetime import datetime, timezone
 from typing import Any, NamedTuple
 from logging import LogRecord
-from uuid import UUID
+from uuid import UUID, uuid4
 import json
 
 from django.test import RequestFactory
+from django.contrib.auth.models import User
 
 from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
@@ -35,6 +36,25 @@ from privaterelay.glean_interface import (
 def glean_logger(db, version_json_path) -> RelayGleanLogger:
     utils_glean_logger.cache_clear()  # Ensure version is from version_json_path
     return utils_glean_logger()
+
+
+@pytest.fixture
+def optout_user(db) -> User:
+    user = baker.make(User, email="optout@example.com")
+    SocialAccount.objects.get_or_create(
+        user=user,
+        provider="fxa",
+        defaults={
+            "uid": str(uuid4()),
+            "extra_data": {
+                "avatar": "image.png",
+                "subscriptions": [],
+                "metricsEnabled": False,
+            },
+        },
+    )
+    assert user.profile.metrics_enabled is False
+    return user
 
 
 def test_request_data_routable_ip_is_extracted(rf: RequestFactory) -> None:
@@ -75,6 +95,7 @@ def test_user_data_free_user() -> None:
 
     user_data = UserData.from_user(user)
 
+    assert user_data.metrics_enabled is True
     assert user_data.fxa_id == user.profile.fxa.uid
     assert user_data.n_random_masks == 0
     assert user_data.n_domain_masks == 0
@@ -140,6 +161,11 @@ def test_user_data_vpn_user() -> None:
 
     assert user_data.date_joined_premium == user.profile.date_subscribed_phone
     assert user_data.premium_status == "bundle_unknown"
+
+
+def test_user_data_optout_user(optout_user) -> None:
+    user_data = UserData.from_user(optout_user)
+    assert user_data.metrics_enabled is False
 
 
 @pytest.mark.django_db
@@ -291,6 +317,17 @@ def test_log_email_mask_created(
     assert payload == expected_payload
 
 
+def test_log_email_mask_created_with_opt_out(
+    glean_logger: RelayGleanLogger,
+    caplog: pytest.LogCaptureFixture,
+    optout_user: User,
+) -> None:
+    """A log is not emitted for mask creation when the user has opted-out of metrics."""
+    address = baker.make(RelayAddress, user=optout_user)
+    glean_logger.log_email_mask_created(mask=address, created_by_api=False)
+    assert len(caplog.records) == 0
+
+
 def test_log_email_mask_label_updated(
     glean_logger: RelayGleanLogger,
     caplog: pytest.LogCaptureFixture,
@@ -338,6 +375,26 @@ def test_log_email_mask_label_updated(
     assert payload == expected_payload
 
 
+def test_log_email_mask_label_updated_with_opt_out(
+    glean_logger: RelayGleanLogger,
+    caplog: pytest.LogCaptureFixture,
+    rf: RequestFactory,
+    optout_user: User,
+) -> None:
+    """A log is not emitted for mask updates when the user has opted-out of metrics."""
+    address = baker.make(RelayAddress, user=optout_user)
+    data = RelayAddressSerializer(address).data
+    data["label"] = "A brand new label"
+    request = rf.put(
+        f"/api/v1/relayaddresses/{address.id}/",
+        data=data,
+        content_type="application/json",
+    )
+
+    glean_logger.log_email_mask_label_updated(mask=address, request=request)
+    assert len(caplog.records) == 0
+
+
 def test_log_email_mask_deleted(
     glean_logger: RelayGleanLogger,
     caplog: pytest.LogCaptureFixture,
@@ -380,6 +437,25 @@ def test_log_email_mask_deleted(
     assert payload == expected_payload
 
 
+def test_log_email_mask_deleted_with_opt_out(
+    glean_logger: RelayGleanLogger,
+    caplog: pytest.LogCaptureFixture,
+    rf: RequestFactory,
+    optout_user: User,
+) -> None:
+    """A log is not emitted for mask deletion when the user has opted-out of metrics"""
+    address = baker.make(RelayAddress, user=optout_user)
+    mask_id = address.metrics_id
+    user = address.user
+    request = rf.delete(f"/api/v1/relayaddresses/{address.id}/")
+    address.delete()  # Real request will delete the mask before glean event
+
+    glean_logger.log_email_mask_deleted(
+        user=user, mask_id=mask_id, is_random_mask=True, request=request
+    )
+    assert len(caplog.records) == 0
+
+
 @pytest.mark.parametrize("is_reply", (True, False))
 def test_log_email_forwarded(
     glean_logger: RelayGleanLogger,
@@ -417,6 +493,15 @@ def test_log_email_forwarded(
         ping_time=parts.ping_time_iso,
     )
     assert payload == expected_payload
+
+
+def test_log_email_forwarded_with_opt_out(
+    glean_logger: RelayGleanLogger, caplog: pytest.LogCaptureFixture, optout_user: User
+) -> None:
+    """A log is not emitted for email forwarding when the user has opted-out"""
+    address = baker.make(RelayAddress, user=optout_user)
+    glean_logger.log_email_forwarded(mask=address, is_reply=False)
+    assert len(caplog.records) == 0
 
 
 @pytest.mark.parametrize(
@@ -465,3 +550,19 @@ def test_log_email_blocked(
         ping_time=parts.ping_time_iso,
     )
     assert payload == expected_payload
+
+
+def test_log_email_blocked_with_opt_out(
+    glean_logger: RelayGleanLogger,
+    caplog: pytest.LogCaptureFixture,
+    settings: SettingsWrapper,
+    optout_user: User,
+) -> None:
+    """A log is not emitted for a blocked email when the user has opted-out"""
+    address = baker.make(RelayAddress, user=optout_user)
+    glean_logger.log_email_blocked(
+        mask=address, is_reply=False, reason="soft_bounce_pause", can_retry=False
+    )
+
+    # Check the one glean-server-event log
+    assert len(caplog.records) == 0

@@ -60,19 +60,24 @@ class RequestData(NamedTuple):
 class UserData(NamedTuple):
     """Extract and store data from a Relay user."""
 
-    fxa_id: str | None
-    n_random_masks: int
-    n_domain_masks: int
-    n_deleted_random_masks: int
-    n_deleted_domain_masks: int
-    date_joined_relay: datetime | None
-    date_joined_premium: datetime | None
-    premium_status: str
-    has_extension: bool
-    date_got_extension: datetime | None
+    metrics_enabled: bool
+    fxa_id: str | None = None
+    n_random_masks: int = 0
+    n_domain_masks: int = 0
+    n_deleted_random_masks: int = 0
+    n_deleted_domain_masks: int = 0
+    date_joined_relay: datetime | None = None
+    date_joined_premium: datetime | None = None
+    premium_status: str = ""
+    has_extension: bool = False
+    date_got_extension: datetime | None = None
 
     @classmethod
     def from_user(cls, user: User) -> UserData:
+        metrics_enabled = user.profile.metrics_enabled
+        if not metrics_enabled:
+            return cls(metrics_enabled=False)
+
         fxa_id = user.profile.fxa.uid if user.profile.fxa else None
         n_random_masks = user.relayaddress_set.count()
         n_domain_masks = user.domainaddress_set.count()
@@ -99,6 +104,7 @@ class UserData(NamedTuple):
             date_got_extension = earliest_mask.created_at
 
         return cls(
+            metrics_enabled=True,
             fxa_id=fxa_id,
             n_random_masks=n_random_masks,
             n_domain_masks=n_domain_masks,
@@ -162,8 +168,10 @@ class RelayGleanLogger(EventsServerEventLogger):
         created_by_api: bool,
     ) -> None:
         """Log that a Relay email mask was created."""
-        request_data = RequestData.from_request(request) if request else RequestData()
         user_data = UserData.from_user(mask.user)
+        if not user_data.metrics_enabled:
+            return
+        request_data = RequestData.from_request(request) if request else RequestData()
         mask_data = EmailMaskData.from_mask(mask)
         self.record_email_mask_created(
             user_agent=_opt_str_to_glean(request_data.user_agent),
@@ -193,8 +201,10 @@ class RelayGleanLogger(EventsServerEventLogger):
         mask: RelayAddress | DomainAddress,
     ) -> None:
         """Log that a Relay email mask's label was changed."""
-        request_data = RequestData.from_request(request)
         user_data = UserData.from_user(mask.user)
+        if not user_data.metrics_enabled:
+            return
+        request_data = RequestData.from_request(request)
         mask_data = EmailMaskData.from_mask(mask)
         self.record_email_mask_label_updated(
             user_agent=_opt_str_to_glean(request_data.user_agent),
@@ -224,8 +234,10 @@ class RelayGleanLogger(EventsServerEventLogger):
         is_random_mask: bool,
     ) -> None:
         """Log that a Relay email mask was deleted."""
-        request_data = RequestData.from_request(request)
         user_data = UserData.from_user(user)
+        if not user_data.metrics_enabled:
+            return
+        request_data = RequestData.from_request(request)
         self.record_email_mask_deleted(
             user_agent=_opt_str_to_glean(request_data.user_agent),
             ip_address=_opt_str_to_glean(request_data.ip_address),
@@ -252,8 +264,10 @@ class RelayGleanLogger(EventsServerEventLogger):
         is_reply: bool = False,
     ) -> None:
         """Log that an email was forwarded."""
-        request_data = RequestData()
         user_data = UserData.from_user(mask.user)
+        if not user_data.metrics_enabled:
+            return
+        request_data = RequestData()
         mask_data = EmailMaskData.from_mask(mask)
         self.record_email_forwarded(
             user_agent=_opt_str_to_glean(request_data.user_agent),
@@ -284,8 +298,10 @@ class RelayGleanLogger(EventsServerEventLogger):
         can_retry: bool = False,
     ) -> None:
         """Log that an email was not forwarded."""
-        request_data = RequestData()
         user_data = UserData.from_user(mask.user)
+        if not user_data.metrics_enabled:
+            return
+        request_data = RequestData()
         mask_data = EmailMaskData.from_mask(mask)
         self.record_email_blocked(
             user_agent=_opt_str_to_glean(request_data.user_agent),

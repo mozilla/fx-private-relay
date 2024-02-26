@@ -18,7 +18,6 @@
 # future, after we get over the technical hurdles of the first integration.
 #
 # Remaining critical path work in the code:
-# - Respect opt-out at Firefox Accounts level
 # - Request a data review, update bugs and data_reviews
 # - Make required changes from data review
 # - Delete this status section
