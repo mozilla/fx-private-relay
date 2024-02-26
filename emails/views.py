@@ -34,7 +34,7 @@ from django.template.loader import render_to_string
 from django.utils.html import escape
 from django.views.decorators.csrf import csrf_exempt
 
-from privaterelay.utils import get_subplat_upgrade_link_by_language
+from privaterelay.utils import get_subplat_upgrade_link_by_language, glean_logger
 
 
 from .models import (
@@ -578,15 +578,16 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     # if this is spam and the user is set to auto-block spam, early return
     if user_profile.auto_block_spam and _get_verdict(receipt, "spam") == "FAIL":
         incr_if_enabled("email_auto_suppressed_for_spam", 1)
+        glean_logger().log_email_blocked(mask=address, reason="auto_block_spam")
         return HttpResponse("Address rejects spam.")
 
     if _get_verdict(receipt, "dmarc") == "FAIL":
         policy = receipt.get("dmarcPolicy", "none")
         # TODO: determine action on dmarcPolicy "quarantine"
         if policy == "reject":
+            glean_logger().log_email_blocked(mask=address, reason="dmarc_reject_failed")
             incr_if_enabled(
                 "email_suppressed_for_dmarc_failure",
-                1,
                 tags=["dmarcPolicy:reject", "dmarcVerdict:FAIL"],
             )
             return HttpResponse("DMARC failure, policy is reject", status=400)
@@ -596,17 +597,24 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     if bounce_paused:
         _record_receipt_verdicts(receipt, "user_bounce_paused")
         incr_if_enabled("email_suppressed_for_%s_bounce" % bounce_type, 1)
+        reason: Literal["soft_bounce_pause", "hard_bounce_pause"] = (
+            "soft_bounce_pause" if bounce_type == "soft" else "hard_bounce_pause"
+        )
+        glean_logger().log_email_blocked(mask=address, reason=reason)
         return HttpResponse("Address is temporarily disabled.")
 
     # check if this is a reply from an external sender to a Relay user
     try:
         (lookup_key, _) = _get_keys_from_headers(mail["headers"])
         reply_record = _get_reply_record_from_lookup_key(lookup_key)
+        user_address = address
         address = reply_record.address
         message_id = _get_message_id_from_headers(mail["headers"])
         # make sure the relay user is premium
         if not _reply_allowed(from_address, to_address, reply_record, message_id):
-            # TODO: Add metrics
+            glean_logger().log_email_blocked(
+                mask=user_address, reason="reply_requires_premium"
+            )
             return HttpResponse("Relay replies require a premium account", status=403)
     except (ReplyHeadersNotFound, Reply.DoesNotExist):
         # if there's no In-Reply-To header, or the In-Reply-To value doesn't
@@ -616,6 +624,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
 
     # if account flagged for abuse, early return
     if user_profile.is_flagged:
+        glean_logger().log_email_blocked(mask=address, reason="abuse_flag")
         return HttpResponse("Address is temporarily disabled.")
 
     # if address is set to block, early return
@@ -626,7 +635,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         _record_receipt_verdicts(receipt, "disabled_alias")
         user_profile.last_engagement = datetime.now(timezone.utc)
         user_profile.save()
-        # TODO: Add metrics
+        glean_logger().log_email_blocked(mask=address, reason="block_all")
         return HttpResponse("Address is temporarily disabled.")
 
     _record_receipt_verdicts(receipt, "active_alias")
@@ -644,6 +653,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         address.save(update_fields=["num_blocked"])
         user_profile.last_engagement = datetime.now(timezone.utc)
         user_profile.save()
+        glean_logger().log_email_blocked(mask=address, reason="block_promotional")
         return HttpResponse("Address is not accepting list emails.")
 
     # Collect new headers
@@ -667,6 +677,9 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
                 "headers_from": header_from,
             },
         )
+        glean_logger().log_email_blocked(
+            mask=address, reason="error_from_header", can_retry=True
+        )
         return HttpResponse("Cannot parse the From address", status=503)
 
     headers: OutgoingHeaders = {
@@ -683,8 +696,12 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     except ClientError as e:
         if e.response["Error"].get("Code", "") == "NoSuchKey":
             logger.error("s3_object_does_not_exist", extra=e.response["Error"])
+            glean_logger().log_email_blocked(mask=address, reason="content_missing")
             return HttpResponse("Email not in S3", status=404)
         logger.error("s3_client_error_get_email", extra=e.response["Error"])
+        glean_logger().log_email_blocked(
+            mask=address, reason="error_storage", can_retry=True
+        )
         # we are returning a 503 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
@@ -728,6 +745,9 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         )
     except ClientError:
         # 503 service unavailable reponse to SNS so it can retry
+        glean_logger().log_email_blocked(
+            mask=address, reason="error_sending", can_retry=True
+        )
         return HttpResponse("SES client error on Raw Email", status=503)
 
     message_id = ses_response["MessageId"]
@@ -752,6 +772,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             "num_level_one_trackers_blocked",
         ]
     )
+    glean_logger().log_email_forwarded(mask=address, is_reply=False)
     return HttpResponse("Sent email to final recipient.", status=200)
 
 
@@ -1214,7 +1235,9 @@ def _handle_reply(
     if not _reply_allowed(
         from_address, to_address, reply_record, message_id, decrypted_metadata
     ):
-        # TODO: should we return a 200 OK here?
+        glean_logger().log_email_blocked(
+            mask=address, is_reply=True, reason="reply_requires_premium"
+        )
         return HttpResponse("Relay replies require a premium account", status=403)
 
     outbound_from_address = address.full_address
@@ -1233,8 +1256,14 @@ def _handle_reply(
     except ClientError as e:
         if e.response["Error"].get("Code", "") == "NoSuchKey":
             logger.error("s3_object_does_not_exist", extra=e.response["Error"])
+            glean_logger().log_email_blocked(
+                mask=address, reason="content_missing", is_reply=True
+            )
             return HttpResponse("Email not in S3", status=404)
         logger.error("s3_client_error_get_email", extra=e.response["Error"])
+        glean_logger().log_email_blocked(
+            mask=address, reason="error_storage", is_reply=True, can_retry=True
+        )
         # we are returning a 500 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
@@ -1252,6 +1281,9 @@ def _handle_reply(
             message=email,
         )
     except ClientError:
+        glean_logger().log_email_blocked(
+            mask=address, reason="error_sending", is_reply=True
+        )
         return HttpResponse("SES client error", status=400)
 
     reply_record.increment_num_replied()
@@ -1259,6 +1291,7 @@ def _handle_reply(
     profile.update_abuse_metric(replied=True)
     profile.last_engagement = datetime.now(timezone.utc)
     profile.save()
+    glean_logger().log_email_forwarded(mask=address, is_reply=True)
     return HttpResponse("Sent email to final recipient.", status=200)
 
 
@@ -1295,6 +1328,10 @@ def _get_domain_address(local_portion: str, domain_portion: str) -> DomainAddres
                 # premium user as seen in exception thrown on make_domain_address
                 domain_address = DomainAddress.make_domain_address(
                     locked_profile, local_portion, True
+                )
+                glean_logger().log_email_mask_created(
+                    mask=domain_address,
+                    created_by_api=False,
                 )
             domain_address.last_used_at = datetime.now(timezone.utc)
             domain_address.save()
