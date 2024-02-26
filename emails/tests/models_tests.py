@@ -1270,6 +1270,101 @@ class ProfileMetricsEnabledTest(ProfileTestCase):
         assert not self.profile.metrics_enabled
 
 
+class ProfilePlanTest(ProfileTestCase):
+    def test_free_user(self) -> None:
+        assert self.profile.plan == "free"
+
+    def test_premium_user(self) -> None:
+        self.upgrade_to_premium()
+        assert self.profile.plan == "email"
+
+    def test_phone_user(self) -> None:
+        self.upgrade_to_phone()
+        assert self.profile.plan == "phone"
+
+    def test_vpn_bundle_user(self) -> None:
+        self.upgrade_to_vpn_bundle()
+        assert self.profile.plan == "bundle"
+
+
+class ProfilePlanTermTest(ProfileTestCase):
+    def test_free_user(self) -> None:
+        assert self.profile.plan_term is None
+
+    def test_premium_user(self) -> None:
+        self.upgrade_to_premium()
+        assert self.profile.plan_term == "unknown"
+
+    def test_phone_user(self) -> None:
+        self.upgrade_to_phone()
+        assert self.profile.plan_term == "unknown"
+
+    def test_phone_user_1_month(self) -> None:
+        self.upgrade_to_phone()
+        self.profile.date_phone_subscription_start = datetime(
+            2024, 1, 1, tzinfo=timezone.utc
+        )
+
+        self.profile.date_phone_subscription_end = datetime(
+            2024, 2, 1, tzinfo=timezone.utc
+        )
+        assert self.profile.plan_term == "1_month"
+
+    def test_phone_user_1_year(self) -> None:
+        self.upgrade_to_phone()
+        self.profile.date_phone_subscription_start = datetime(
+            2024, 1, 1, tzinfo=timezone.utc
+        )
+
+        self.profile.date_phone_subscription_end = datetime(
+            2025, 1, 1, tzinfo=timezone.utc
+        )
+        assert self.profile.plan_term == "1_year"
+
+    def test_vpn_bundle_user(self) -> None:
+        self.upgrade_to_vpn_bundle()
+        assert self.profile.plan_term == "unknown"
+
+
+class ProfileMetricsPremiumStatus(ProfileTestCase):
+    def test_free_user(self):
+        assert self.profile.metrics_premium_status == "free"
+
+    def test_premium_user(self) -> None:
+        self.upgrade_to_premium()
+        assert self.profile.metrics_premium_status == "email_unknown"
+
+    def test_phone_user(self) -> None:
+        self.upgrade_to_phone()
+        assert self.profile.metrics_premium_status == "phone_unknown"
+
+    def test_phone_user_1_month(self) -> None:
+        self.upgrade_to_phone()
+        self.profile.date_phone_subscription_start = datetime(
+            2024, 1, 1, tzinfo=timezone.utc
+        )
+
+        self.profile.date_phone_subscription_end = datetime(
+            2024, 2, 1, tzinfo=timezone.utc
+        )
+        assert self.profile.metrics_premium_status == "phone_1_month"
+
+    def test_phone_user_1_year(self) -> None:
+        self.upgrade_to_phone()
+        self.profile.date_phone_subscription_start = datetime(
+            2024, 1, 1, tzinfo=timezone.utc
+        )
+
+        self.profile.date_phone_subscription_end = datetime(
+            2025, 1, 1, tzinfo=timezone.utc
+        )
+        assert self.profile.metrics_premium_status == "phone_1_year"
+
+    def test_vpn_bundle_user(self) -> None:
+        self.upgrade_to_vpn_bundle()
+        assert self.profile.metrics_premium_status == "bundle_unknown"
+
+
 class DomainAddressTest(TestCase):
     def setUp(self):
         self.subdomain = "test"
