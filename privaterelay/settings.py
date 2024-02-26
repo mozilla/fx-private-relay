@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 from __future__ import annotations
 from pathlib import Path
-from typing import Any, Literal, TYPE_CHECKING, cast, get_args
+from typing import Any, TYPE_CHECKING, cast, get_args
 import ipaddress
 import os
 import sys
@@ -30,6 +30,8 @@ import base64
 from django.conf.global_settings import LANGUAGES as DEFAULT_LANGUAGES
 
 import dj_database_url
+
+from .types import RELAY_CHANNEL_NAME
 
 if TYPE_CHECKING:
     import wsgiref.headers
@@ -57,19 +59,18 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 SECRET_KEY = config("SECRET_KEY", None)
 SITE_ORIGIN: str | None = config("SITE_ORIGIN", None)
 
-_RELAY_CHANNEL_NAME = Literal["local", "dev", "stage", "prod"]
-ORIGIN_CHANNEL_MAP: dict[str, _RELAY_CHANNEL_NAME] = {
+ORIGIN_CHANNEL_MAP: dict[str, RELAY_CHANNEL_NAME] = {
     "http://127.0.0.1:8000": "local",
     "https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net": "dev",
     "https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net": "stage",
     "https://relay.firefox.com": "prod",
 }
-RELAY_CHANNEL: _RELAY_CHANNEL_NAME = cast(
-    _RELAY_CHANNEL_NAME,
+RELAY_CHANNEL: RELAY_CHANNEL_NAME = cast(
+    RELAY_CHANNEL_NAME,
     config(
         "RELAY_CHANNEL",
         default=ORIGIN_CHANNEL_MAP.get(SITE_ORIGIN or "", "local"),
-        cast=Choices(get_args(_RELAY_CHANNEL_NAME), cast=str),
+        cast=Choices(get_args(RELAY_CHANNEL_NAME), cast=str),
     ),
 )
 
