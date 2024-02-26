@@ -47,6 +47,12 @@ try:
 except ImportError:
     HAS_SILK = False
 
+try:
+    from privaterelay.glean.server_events import GLEAN_EVENT_MOZLOG_TYPE
+except ImportError:
+    # File may not be generated yet. Will be checked at initialization
+    GLEAN_EVENT_MOZLOG_TYPE = "glean-server-event"
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TMP_DIR = os.path.join(BASE_DIR, "tmp")
@@ -616,6 +622,7 @@ LOGGING = {
         "abusemetrics": {"handlers": ["console_out"], "level": "INFO"},
         "studymetrics": {"handlers": ["console_out"], "level": "INFO"},
         "markus": {"handlers": ["console_out"], "level": "DEBUG"},
+        GLEAN_EVENT_MOZLOG_TYPE: {"handlers": ["console_out"], "level": "DEBUG"},
     },
 }
 
