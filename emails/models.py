@@ -815,6 +815,11 @@ class RelayAddress(models.Model):
     def full_address(self):
         return "%s@%s" % (self.address, self.domain_value)
 
+    @property
+    def metrics_id(self) -> str:
+        assert self.id
+        return f"R{self.id}"
+
 
 def check_user_can_make_another_address(profile: Profile) -> None:
     if profile.is_flagged:
@@ -1010,6 +1015,11 @@ class DomainAddress(models.Model):
             self.user_profile.subdomain,
             self.domain_value,
         )
+
+    @property
+    def metrics_id(self) -> str:
+        assert self.id
+        return f"D{self.id}"
 
 
 class Reply(models.Model):
