@@ -79,6 +79,7 @@ def make_storageless_test_user() -> User:
 
 
 def premium_subscription() -> str:
+    """Return a Mozilla account subscription that provides unlimited emails"""
     assert settings.SUBSCRIPTIONS_WITH_UNLIMITED
     premium_only_plans = list(
         set(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
@@ -87,10 +88,6 @@ def premium_subscription() -> str:
     )
     assert premium_only_plans
     return random.choice(premium_only_plans)
-
-
-def phone_subscription() -> str:
-    return random.choice(settings.SUBSCRIPTIONS_WITH_PHONE)
 
 
 def upgrade_test_user_to_premium(user):
@@ -103,6 +100,30 @@ def upgrade_test_user_to_premium(user):
         extra_data={"avatar": "avatar.png", "subscriptions": [random_sub]},
     )
     return user
+
+
+def phone_subscription() -> str:
+    """Return a Mozilla account subscription that provides a phone mask"""
+    assert settings.SUBSCRIPTIONS_WITH_PHONE
+    phones_only_plans = list(
+        set(settings.SUBSCRIPTIONS_WITH_PHONE)
+        - set(settings.SUBSCRIPTIONS_WITH_VPN)
+        - set(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
+    )
+    assert phones_only_plans
+    return random.choice(phones_only_plans)
+
+
+def vpn_subscription() -> str:
+    """Return a Mozilla account subscription that provides the VPN"""
+    assert settings.SUBSCRIPTIONS_WITH_VPN
+    vpn_only_plans = list(
+        set(settings.SUBSCRIPTIONS_WITH_VPN)
+        - set(settings.SUBSCRIPTIONS_WITH_PHONE)
+        - set(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
+    )
+    assert vpn_only_plans
+    return random.choice(vpn_only_plans)
 
 
 class MiscEmailModelsTest(TestCase):
@@ -492,48 +513,22 @@ class ProfileTestCase(TestCase):
         social_account.extra_data["subscriptions"].append(premium_subscription())
         social_account.save()
 
-    def phone_subscription(self) -> str:
-        assert settings.SUBSCRIPTIONS_WITH_PHONE
-        phones_only_plans = list(
-            set(settings.SUBSCRIPTIONS_WITH_PHONE)
-            - set(settings.SUBSCRIPTIONS_WITH_VPN)
-            - set(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
-        )
-        assert phones_only_plans
-        return random.choice(phones_only_plans)
-
     def upgrade_to_phone(self) -> None:
         """Add a phone plan to the user."""
         social_account = self.get_or_create_social_account()
-        social_account.extra_data["subscriptions"].append(self.phone_subscription())
+        social_account.extra_data["subscriptions"].append(phone_subscription())
         if not self.profile.has_premium:
             social_account.extra_data["subscriptions"].append(premium_subscription())
         social_account.save()
-
-    def vpn_subscription(self) -> str:
-        assert settings.SUBSCRIPTIONS_WITH_VPN
-        vpn_only_plans = list(
-            set(settings.SUBSCRIPTIONS_WITH_VPN)
-            - set(settings.SUBSCRIPTIONS_WITH_PHONE)
-            - set(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
-        )
-        assert vpn_only_plans
-        return random.choice(vpn_only_plans)
 
     def upgrade_to_vpn_bundle(self) -> None:
         """Add a phone plan to the user."""
         social_account = self.get_or_create_social_account()
-        social_account.extra_data["subscriptions"].append(self.vpn_subscription())
+        social_account.extra_data["subscriptions"].append(vpn_subscription())
         if not self.profile.has_premium:
             social_account.extra_data["subscriptions"].append(premium_subscription())
         if not self.profile.has_phone:
-            social_account.extra_data["subscriptions"].append(self.phone_subscription())
-        social_account.save()
-
-    def upgrade_to_phone_premium(self) -> None:
-        """Add a phone subscription to the user."""
-        social_account = self.get_or_create_social_account()
-        social_account.extra_data["subscriptions"].append(phone_subscription())
+            social_account.extra_data["subscriptions"].append(phone_subscription())
         social_account.save()
 
 
@@ -701,10 +696,6 @@ class ProfileHasPhoneTest(ProfileTestCase):
         self.upgrade_to_premium()
         assert self.profile.has_phone is False
 
-    def test_phone_subscription_returns_True(self) -> None:
-        self.upgrade_to_phone_premium()
-        assert self.profile.has_phone is True
-
     def test_phone_returns_True(self) -> None:
         self.upgrade_to_phone()
         assert self.profile.has_phone is True
@@ -723,7 +714,7 @@ class ProfileDatePhoneRegisteredTest(ProfileTestCase):
         assert self.profile.date_phone_registered is None
 
     def test_real_phone_no_relay_number_returns_verified_date(self) -> None:
-        self.upgrade_to_phone_premium()
+        self.upgrade_to_phone()
         datetime_now = datetime.now(timezone.utc)
         RealPhone.objects.create(
             user=self.profile.user,
@@ -736,7 +727,7 @@ class ProfileDatePhoneRegisteredTest(ProfileTestCase):
     def test_real_phone_and_relay_number_w_created_at_returns_created_at_date(
         self,
     ) -> None:
-        self.upgrade_to_phone_premium()
+        self.upgrade_to_phone()
         datetime_now = datetime.now(timezone.utc)
         phone_user = self.profile.user
         RealPhone.objects.create(
@@ -751,7 +742,7 @@ class ProfileDatePhoneRegisteredTest(ProfileTestCase):
     def test_real_phone_and_relay_number_wo_created_at_returns_verified_date(
         self,
     ) -> None:
-        self.upgrade_to_phone_premium()
+        self.upgrade_to_phone()
         datetime_now = datetime.now(timezone.utc)
         phone_user = self.profile.user
         real_phone = RealPhone.objects.create(
@@ -1254,7 +1245,6 @@ class ProfileUpdateAbuseMetricTest(ProfileTestCase):
 
 
 class ProfileMetricsEnabledTest(ProfileTestCase):
-
     def test_no_fxa_means_metrics_enabled(self) -> None:
         assert not self.profile.fxa
         assert self.profile.metrics_enabled
