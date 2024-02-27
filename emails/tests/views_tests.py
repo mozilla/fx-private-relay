@@ -875,7 +875,7 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
         assert response.status_code == 403
         assert response.content == b"Relay replies require a premium account"
 
-    def test_get_message_content_from_s3_not_found(self):
+    def test_get_message_content_from_s3_not_found(self) -> None:
         self.mock_get_content.side_effect = ClientError(
             operation_name="S3.something",
             error_response={"Error": {"Code": "NoSuchKey", "Message": "the message"}},
@@ -892,7 +892,7 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
         assert getattr(events_log, "Code") == "NoSuchKey"
         assert getattr(events_log, "Message") == "the message"
 
-    def test_get_message_content_from_s3_other_error(self):
+    def test_get_message_content_from_s3_other_error(self) -> None:
         self.mock_get_content.side_effect = ClientError(
             operation_name="S3.something",
             error_response={"Error": {"Code": "IsNapping", "Message": "snooze"}},
@@ -909,7 +909,7 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
         assert getattr(events_log, "Code") == "IsNapping"
         assert getattr(events_log, "Message") == "snooze"
 
-    def test_ses_client_error(self):
+    def test_ses_client_error(self) -> None:
         self.mock_get_content.return_value = create_email_from_notification(
             EMAIL_SNS_BODIES["s3_stored_replies"], text="text content"
         )
@@ -1480,7 +1480,7 @@ class SnsMessageTest(TestCase):
         self.mock_ses_client = ses_client_patcher.start()
         self.addCleanup(ses_client_patcher.stop)
 
-    def test_get_message_content_from_s3_not_found(self):
+    def test_get_message_content_from_s3_not_found(self) -> None:
         self.mock_get_content.side_effect = ClientError(
             operation_name="S3.something",
             error_response={"Error": {"Code": "NoSuchKey", "Message": "the message"}},
@@ -1497,7 +1497,7 @@ class SnsMessageTest(TestCase):
         assert getattr(events_log, "Code") == "NoSuchKey"
         assert getattr(events_log, "Message") == "the message"
 
-    def test_ses_send_raw_email_has_client_error_early_exits(self):
+    def test_ses_send_raw_email_has_client_error_early_exits(self) -> None:
         self.mock_ses_client.send_raw_email.side_effect = SEND_RAW_EMAIL_FAILED
         with self.assertLogs("events", "ERROR") as events_caplog:
             response = _sns_message(self.message_json)
