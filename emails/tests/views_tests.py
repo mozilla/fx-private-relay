@@ -1,4 +1,3 @@
-from base64 import b64decode
 from copy import deepcopy
 from datetime import datetime, timedelta, timezone
 from email import message_from_string
@@ -307,36 +306,34 @@ class SNSNotificationTestBase(TestCase):
         send_raw_email_patcher.start()
         self.addCleanup(send_raw_email_patcher.stop)
 
-    def get_details_from_mock_send_raw_email(
+    def assert_email_equals(
         self,
-    ) -> tuple[str, str, dict[str, str], str]:
+        name: str,
+        sender: str | None = None,
+        recipient: str | None = None,
+        replace_mime_boundaries: bool = False,
+    ) -> None:
         """
-        Get sender, recipient, headers, and email from the message sent by mocked
-        ses_client.send_raw_email
+        Extract the email and check against the expected email.
+
+        name: the name of the test fixture to check against the email
+        sender: if set, assert that the sender email matches this string
+        recipient: if set, assert that the recipient email matches this string
+        replace_mime_boundaries: if true, replace randomized MIME boundaries with
+        sequential test versions
         """
         self.mock_send_raw_email.assert_called_once()
         source = self.mock_send_raw_email.call_args[1]["Source"]
         destinations = self.mock_send_raw_email.call_args[1]["Destinations"]
         assert len(destinations) == 1
         raw_message = self.mock_send_raw_email.call_args[1]["RawMessage"]["Data"]
-        headers: dict[str, str] = {}
-        last_key = None
-        for line in raw_message.splitlines():
-            if not line:
-                # Start of message body, done with headers
-                return source, destinations[0], headers, raw_message
-            if line[0] in (" ", "\t"):
-                # Continuation of last header
-                assert last_key
-                headers[last_key] += line
-            else:
-                # New headers
-                assert ": " in line
-                key, val = line.split(": ", 1)
-                assert key not in headers
-                headers[key] = val
-                last_key = key
-        raise Exception("Never found message body!")
+        if "" not in raw_message.splitlines():
+            raise Exception("Never found message body!")
+        if sender is not None:
+            assert source == sender
+        if recipient is not None:
+            assert destinations[0] == recipient
+        assert_email_equals(raw_message, name, replace_mime_boundaries)
 
 
 class SNSNotificationIncomingTest(SNSNotificationTestBase):
@@ -365,21 +362,11 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         assert pre_sns_notification_last_engagement is not None
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
 
-        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
-        assert sender == "replies@default.com"
-        assert recipient == "user@example.com"
-        content_type = headers.pop("Content-Type")
-        assert content_type.startswith('multipart/alternative; boundary="b1_1tMoOzirX')
-        assert headers == {
-            "Subject": "localized email header + footer",
-            "MIME-Version": "1.0",
-            "From": '"fxastage@protonmail.com [via Relay]" <ebsbdsan7@test.com>',
-            "To": "user@example.com",
-            "Reply-To": "replies@default.com",
-            "Resent-From": "fxastage@protonmail.com",
-        }
-        assert_email_equals(email, "single_recipient")
-
+        self.assert_email_equals(
+            "single_recipient",
+            sender="replies@default.com",
+            recipient="user@example.com",
+        )
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at is not None
@@ -403,23 +390,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
 
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
 
-        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
-        assert sender == "replies@default.com"
-        assert recipient == "user@example.com"
-        content_type = headers.pop("Content-Type")
-        assert content_type.startswith('multipart/alternative; boundary="b1_1tMo')
-        assert headers == {
-            "Subject": "localized email header + footer",
-            "MIME-Version": "1.0",
-            "From": '"fxastage@protonmail.com [via Relay]" <ebsbdsan7@test.com>',
-            "To": "user@example.com",
-            "Reply-To": "replies@default.com",
-            "Resent-From": "fxastage@protonmail.com",
-        }
-        assert_email_equals(email, "single_recipient_fr")
-        assert 'Content-Type: text/html; charset="utf-8"' in email
-        assert "Content-Transfer-Encoding: quoted-printable" in email
-
+        self.assert_email_equals("single_recipient_fr")
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at is not None
@@ -429,20 +400,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         """By default, list emails should still forward."""
         _sns_notification(EMAIL_SNS_BODIES["single_recipient_list"])
 
-        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
-        assert sender == "replies@default.com"
-        assert recipient == "user@example.com"
-        assert headers == {
-            "Content-Type": headers["Content-Type"],
-            "Subject": "localized email header + footer",
-            "MIME-Version": "1.0",
-            "From": '"fxastage@protonmail.com [via Relay]" <ebsbdsan7@test.com>',
-            "To": "user@example.com",
-            "Reply-To": "replies@default.com",
-            "Resent-From": "fxastage@protonmail.com",
-        }
-        assert_email_equals(email, "single_recipient_list")
-
+        self.assert_email_equals("single_recipient_list")
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at is not None
@@ -509,22 +467,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
     def test_domain_recipient(self) -> None:
         _sns_notification(EMAIL_SNS_BODIES["domain_recipient"])
 
-        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
-        assert sender == "replies@default.com"
-        assert recipient == "premium@email.com"
-        assert headers == {
-            "Content-Type": headers["Content-Type"],
-            "Subject": "localized email header + footer",
-            "MIME-Version": "1.0",
-            "From": (
-                '"fxastage@protonmail.com [via Relay]" <wildcard@subdomain.test.com>'
-            ),
-            "To": "premium@email.com",
-            "Reply-To": "replies@default.com",
-            "Resent-From": "fxastage@protonmail.com",
-        }
-        assert_email_equals(email, "domain_recipient")
-
+        self.assert_email_equals("domain_recipient", recipient="premium@email.com")
         da = DomainAddress.objects.get(user=self.premium_user, address="wildcard")
         assert da.num_forwarded == 1
         assert da.last_used_at
@@ -577,26 +520,10 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
 
     def test_inline_image(self) -> None:
         email_text = EMAIL_INCOMING["inline_image"]
-        content_id = "Content-ID: <0A0AD2F8-6672-45A8-8248-0AC6C7282970>"
         test_sns_notification = create_notification_from_email(email_text)
         _sns_notification(test_sns_notification)
 
-        self.mock_send_raw_email.assert_called_once()
-        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
-        assert sender == "replies@default.com"
-        assert recipient == "user@example.com"
-        assert headers == {
-            "Subject": "Test Email",
-            "From": '"friend@mail.example.com [via Relay]" <ebsbdsan7@test.com>',
-            "To": recipient,
-            "Reply-To": sender,
-            "Resent-From": "friend@mail.example.com",
-            "Mime-Version": "1.0 (MailClient 1.1.1)",
-            "Content-Type": headers["Content-Type"],
-        }
-        assert_email_equals(email, "inline_image")
-        assert content_id in email  # Issue 691
-
+        self.assert_email_equals("inline_image")
         self.mock_remove_message_from_s3.assert_called_once()
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
@@ -618,35 +545,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         test_sns_notification = create_notification_from_email(email_text)
         _sns_notification(test_sns_notification)
 
-        self.mock_send_raw_email.assert_called_once()
-        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
-        assert sender == "replies@default.com"
-        assert recipient == "user@example.com"
-
-        # Subject translates as "Invitation | Why and how to do business in Africa?"
-        # Because of Russian characters, it is UTF-8 text encoded in Base64
-        expected_subject_b64 = (
-            "0J/RgNC40LPQu9Cw0YjQtdC90LjQtSAgfCDQl9Cw0YfQtdC8INC4INC6",
-            "0LDQuiDQstC10YHRgtC4INCx0LjQt9C90LXRgSDQsiDQkNGE0YDQuNC60LU/",
-        )
-        subject = b64decode("".join(expected_subject_b64)).decode()
-        assert subject == "Приглашение  | Зачем и как вести бизнес в Африке?"
-        expected_subject_header = " ".join(
-            f"=?utf-8?b?{val}?=" for val in expected_subject_b64
-        )
-
-        assert headers["Content-Type"].startswith('multipart/mixed; boundary="')
-        assert headers == {
-            "Subject": expected_subject_header,
-            "From": '"hello@ac.spam.example.com [via Relay]" <ebsbdsan7@test.com>',
-            "To": recipient,
-            "Reply-To": sender,
-            "Resent-From": "hello@ac.spam.example.com",
-            "Content-Type": headers["Content-Type"],
-            "MIME-Version": "1.0",
-        }
-        assert_email_equals(email, "russian_spam")
-
+        self.assert_email_equals("russian_spam")
         self.mock_remove_message_from_s3.assert_called_once()
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
@@ -660,21 +559,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         test_sns_notification = create_notification_from_email(email_text)
         _sns_notification(test_sns_notification)
 
-        self.mock_send_raw_email.assert_called_once()
-        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
-        assert sender == "replies@default.com"
-        assert recipient == "user@example.com"
-        assert headers == {
-            "Subject": "Text-Only Email",
-            "From": '"root@server.example.com [via Relay]" <ebsbdsan7@test.com>',
-            "To": recipient,
-            "Reply-To": sender,
-            "Resent-From": "root@server.example.com",
-            "Content-Type": headers["Content-Type"],
-            "MIME-Version": "1.0",
-        }
-        assert_email_equals(email, "plain_text", replace_mime_boundaries=True)
-
+        self.assert_email_equals("plain_text", replace_mime_boundaries=True)
         self.mock_remove_message_from_s3.assert_called_once()
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
@@ -693,9 +578,8 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         email_text = EMAIL_INCOMING["emperor_norton"]
         test_sns_notification = create_notification_from_email(email_text)
         _sns_notification(test_sns_notification)
-        self.mock_send_raw_email.assert_called_once()
-        _, _, _, mail = self.get_details_from_mock_send_raw_email()
-        assert_email_equals(mail, "emperor_norton", replace_mime_boundaries=True)
+
+        self.assert_email_equals("emperor_norton", replace_mime_boundaries=True)
         expected_header_errors = {
             "incoming": [
                 (
@@ -741,24 +625,10 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
     def test_invalid_message_id_is_forwarded(self, mock_logger: Mock) -> None:
         email_text = EMAIL_INCOMING["message_id_in_brackets"]
         test_sns_notification = create_notification_from_email(email_text)
+
         result = _sns_notification(test_sns_notification)
         assert result.status_code == 200
-        self.mock_send_raw_email.assert_called_once()
-        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
-        assert sender == "replies@default.com"
-        assert recipient == "user@example.com"
-        assert headers == {
-            "Content-Type": headers["Content-Type"],
-            "From": '"user@clownshoes.example.com [via Relay]" <ebsbdsan7@test.com>',
-            "MIME-Version": "1.0",
-            "Reply-To": "replies@default.com",
-            "Resent-From": "user@clownshoes.example.com",
-            "Subject": "Message-ID in brackets",
-            "To": "user@example.com",
-        }
-        assert_email_equals(
-            email, "message_id_in_brackets", replace_mime_boundaries=True
-        )
+        self.assert_email_equals("message_id_in_brackets", replace_mime_boundaries=True)
         expected_header_errors = {
             "incoming": [
                 (
@@ -818,7 +688,9 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
         self.mock_get_content = get_message_content_patcher.start()
         self.addCleanup(get_message_content_patcher.stop)
 
-    def success_test_implementation(self, text: str, expected_fixture_name: str) -> str:
+    def successful_reply_test_implementation(
+        self, text: str, expected_fixture_name: str
+    ) -> None:
         """The headers of a reply refer to the Relay mask."""
 
         self.mock_get_content.return_value = create_email_from_notification(
@@ -831,20 +703,11 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
 
         self.mock_remove_message_from_s3.assert_called_once()
         self.mock_get_content.assert_called_once()
-
-        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
-        assert sender == "a1b2c3d4@test.com"
-        assert recipient == "sender@external.example.com"
-        assert headers == {
-            "Content-Type": headers["Content-Type"],
-            "Subject": "Re: Test Mozilla User New Domain Address",
-            "MIME-Version": "1.0",
-            "From": sender,
-            "Reply-To": sender,
-            "To": recipient,
-        }
-        assert_email_equals(email, expected_fixture_name)
-
+        self.assert_email_equals(
+            expected_fixture_name,
+            sender="a1b2c3d4@test.com",
+            recipient="sender@external.example.com",
+        )
         self.relay_address.refresh_from_db()
         assert self.relay_address.num_replied == 1
         last_used_at = self.relay_address.last_used_at
@@ -852,21 +715,18 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
         assert (datetime.now(tz=timezone.utc) - last_used_at).seconds < 2.0
         assert (last_en := self.relay_address.user.profile.last_engagement) is not None
         assert last_en > self.pre_reply_last_engagement
-        return email
 
     def test_reply(self) -> None:
-        self.success_test_implementation(
+        self.successful_reply_test_implementation(
             text="this is a text reply", expected_fixture_name="s3_stored_replies"
         )
 
     def test_reply_with_emoji_in_text(self) -> None:
         """An email with emoji text content is sent with UTF-8 encoding."""
-        email = self.success_test_implementation(
+        self.successful_reply_test_implementation(
             text="👍 Thanks I got it!",
             expected_fixture_name="s3_stored_replies_with_emoji",
         )
-        assert 'Content-Type: text/plain; charset="utf-8"' in email
-        assert "Content-Transfer-Encoding: base64" in email
 
     @patch("emails.views._reply_allowed")
     def test_reply_not_allowed(self, mocked_reply_allowed: Mock) -> None:
