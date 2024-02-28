@@ -1,6 +1,5 @@
 from typing import Iterator
 from unittest.mock import patch
-import json
 import logging
 
 from django.contrib.auth.models import AbstractBaseUser, Group, User
@@ -589,7 +588,9 @@ def test_flag_is_active_for_task_override_existing_to_inactive(
     ids=("missing", "empty", "list", "other object"),
 )
 def test_get_version_info_bad_contents(version_json_path, content: str | None) -> None:
-    if content is not None:
+    if content is None:
+        version_json_path.unlink()
+    else:
         version_json_path.write_text(content)
     info = get_version_info()
     assert info == {
@@ -600,13 +601,12 @@ def test_get_version_info_bad_contents(version_json_path, content: str | None) -
     }
 
 
-def test_get_version_info(version_json_path) -> None:
-    build_info = {
+@pytest.mark.usefixtures("version_json_path")
+def test_get_version_info() -> None:
+    version_info = get_version_info()
+    assert version_info == {
         "commit": "the_commit_hash",
         "version": "2024.01.17",
         "source": "https://github.com/mozilla/fx-private-relay",
         "build": "https://circleci.com/gh/mozilla/fx-private-relay/100",
     }
-    version_json_path.write_text(json.dumps(build_info))
-    version_info = get_version_info()
-    assert version_info == build_info

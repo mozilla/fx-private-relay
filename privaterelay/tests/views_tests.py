@@ -30,7 +30,7 @@ from emails.models import (
     RelayAddress,
     address_hash,
 )
-from emails.tests.models_tests import unlimited_subscription
+from emails.tests.models_tests import premium_subscription
 
 from ..apps import PrivateRelayConfig
 from ..fxa_utils import NoSocialToken
@@ -246,7 +246,7 @@ def setup_fxa_rp_events(
         "uid": str(uuid4()),
         "avatar": "https://profile.stage.mozaws.net/v1/avatar/t",
         "avatarDefault": False,
-        "subscriptions": [unlimited_subscription(), "test-phone"],
+        "subscriptions": [premium_subscription(), "test-phone"],
     }
     fxa_acct: SocialAccount = baker.make(
         SocialAccount,
