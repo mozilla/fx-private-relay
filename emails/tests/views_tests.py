@@ -222,8 +222,8 @@ def create_notification_from_email(email_text: str) -> AWS_SNSMessageJSON:
     return sns_notification
 
 
-def assert_email_equals(
-    output_email: str, name: str, replace_mime_boundaries: bool = False
+def assert_email_equals_fixture(
+    output_email: str, fixture_name: str, replace_mime_boundaries: bool = False
 ) -> None:
     """
     Assert the output equals the expected email, after optional replacements.
@@ -236,7 +236,7 @@ def assert_email_equals(
     allows using other diff tools, and makes it easy to capture new outputs when the
     email format changes.
     """
-    expected = EMAIL_EXPECTED[name]
+    expected = EMAIL_EXPECTED[fixture_name]
 
     # If requested, convert MIME boundaries in the the output_email
     if replace_mime_boundaries:
@@ -245,7 +245,7 @@ def assert_email_equals(
         test_output_email = output_email
 
     if test_output_email != expected:
-        path = os.path.join(real_abs_cwd, "fixtures", name + "_actual.email")
+        path = os.path.join(real_abs_cwd, "fixtures", fixture_name + "_actual.email")
         open(path, "w").write(test_output_email)
     assert test_output_email == expected
 
@@ -306,21 +306,21 @@ class SNSNotificationTestBase(TestCase):
         send_raw_email_patcher.start()
         self.addCleanup(send_raw_email_patcher.stop)
 
-    def assert_email_equals(
+    def check_sent_email_matches_fixture(
         self,
-        name: str,
-        sender: str | None = None,
-        recipient: str | None = None,
+        fixture_name: str,
         replace_mime_boundaries: bool = False,
+        expected_source: str | None = None,
+        expected_destination: str | None = None,
     ) -> None:
         """
         Extract the email and check against the expected email.
 
         name: the name of the test fixture to check against the email
-        sender: if set, assert that the sender email matches this string
-        recipient: if set, assert that the recipient email matches this string
         replace_mime_boundaries: if true, replace randomized MIME boundaries with
-        sequential test versions
+          sequential test versions
+        expected_source: if set, assert that SES source address matches this string
+        expected_destination: if set, assert that the one SES destination email matches
         """
         self.mock_send_raw_email.assert_called_once()
         source = self.mock_send_raw_email.call_args[1]["Source"]
@@ -329,11 +329,11 @@ class SNSNotificationTestBase(TestCase):
         raw_message = self.mock_send_raw_email.call_args[1]["RawMessage"]["Data"]
         if "" not in raw_message.splitlines():
             raise Exception("Never found message body!")
-        if sender is not None:
-            assert source == sender
-        if recipient is not None:
-            assert destinations[0] == recipient
-        assert_email_equals(raw_message, name, replace_mime_boundaries)
+        if expected_source is not None:
+            assert source == expected_source
+        if expected_destination is not None:
+            assert destinations[0] == expected_destination
+        assert_email_equals_fixture(raw_message, fixture_name, replace_mime_boundaries)
 
 
 class SNSNotificationIncomingTest(SNSNotificationTestBase):
@@ -362,10 +362,10 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         assert pre_sns_notification_last_engagement is not None
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
 
-        self.assert_email_equals(
+        self.check_sent_email_matches_fixture(
             "single_recipient",
-            sender="replies@default.com",
-            recipient="user@example.com",
+            expected_source="replies@default.com",
+            expected_destination="user@example.com",
         )
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
@@ -390,7 +390,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
 
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
 
-        self.assert_email_equals("single_recipient_fr")
+        self.check_sent_email_matches_fixture("single_recipient_fr")
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at is not None
@@ -400,7 +400,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         """By default, list emails should still forward."""
         _sns_notification(EMAIL_SNS_BODIES["single_recipient_list"])
 
-        self.assert_email_equals("single_recipient_list")
+        self.check_sent_email_matches_fixture("single_recipient_list")
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at is not None
@@ -467,7 +467,9 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
     def test_domain_recipient(self) -> None:
         _sns_notification(EMAIL_SNS_BODIES["domain_recipient"])
 
-        self.assert_email_equals("domain_recipient", recipient="premium@email.com")
+        self.check_sent_email_matches_fixture(
+            "domain_recipient", expected_destination="premium@email.com"
+        )
         da = DomainAddress.objects.get(user=self.premium_user, address="wildcard")
         assert da.num_forwarded == 1
         assert da.last_used_at
@@ -523,7 +525,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         test_sns_notification = create_notification_from_email(email_text)
         _sns_notification(test_sns_notification)
 
-        self.assert_email_equals("inline_image")
+        self.check_sent_email_matches_fixture("inline_image")
         self.mock_remove_message_from_s3.assert_called_once()
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
@@ -545,7 +547,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         test_sns_notification = create_notification_from_email(email_text)
         _sns_notification(test_sns_notification)
 
-        self.assert_email_equals("russian_spam")
+        self.check_sent_email_matches_fixture("russian_spam")
         self.mock_remove_message_from_s3.assert_called_once()
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
@@ -559,7 +561,9 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         test_sns_notification = create_notification_from_email(email_text)
         _sns_notification(test_sns_notification)
 
-        self.assert_email_equals("plain_text", replace_mime_boundaries=True)
+        self.check_sent_email_matches_fixture(
+            "plain_text", replace_mime_boundaries=True
+        )
         self.mock_remove_message_from_s3.assert_called_once()
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
@@ -579,7 +583,9 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         test_sns_notification = create_notification_from_email(email_text)
         _sns_notification(test_sns_notification)
 
-        self.assert_email_equals("emperor_norton", replace_mime_boundaries=True)
+        self.check_sent_email_matches_fixture(
+            "emperor_norton", replace_mime_boundaries=True
+        )
         expected_header_errors = {
             "incoming": [
                 (
@@ -628,7 +634,9 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
 
         result = _sns_notification(test_sns_notification)
         assert result.status_code == 200
-        self.assert_email_equals("message_id_in_brackets", replace_mime_boundaries=True)
+        self.check_sent_email_matches_fixture(
+            "message_id_in_brackets", replace_mime_boundaries=True
+        )
         expected_header_errors = {
             "incoming": [
                 (
@@ -703,10 +711,10 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
 
         self.mock_remove_message_from_s3.assert_called_once()
         self.mock_get_content.assert_called_once()
-        self.assert_email_equals(
+        self.check_sent_email_matches_fixture(
             expected_fixture_name,
-            sender="a1b2c3d4@test.com",
-            recipient="sender@external.example.com",
+            expected_source="a1b2c3d4@test.com",
+            expected_destination="sender@external.example.com",
         )
         self.relay_address.refresh_from_db()
         assert self.relay_address.num_replied == 1
@@ -1806,7 +1814,7 @@ def test_build_reply_requires_premium_email_first_time_includes_forward_text():
     assert "sent this reply" in text_content
     assert "sent this reply" in html_content
 
-    assert_email_equals(
+    assert_email_equals_fixture(
         msg.as_string(), "reply_requires_premium_first", replace_mime_boundaries=True
     )
 
@@ -1860,7 +1868,7 @@ def test_build_reply_requires_premium_email_after_forward():
     assert "Your reply was not sent" in text_content
     assert "Your reply was not sent" in html_content
 
-    assert_email_equals(
+    assert_email_equals_fixture(
         msg.as_string(), "reply_requires_premium_second", replace_mime_boundaries=True
     )
 
