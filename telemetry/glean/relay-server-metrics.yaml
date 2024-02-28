@@ -30,9 +30,10 @@ email_mask:
     description: A Relay user deletes an email mask.
     expires: never
     bugs:
-      - http://example.com
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
+      - https://mozilla-hub.atlassian.net/browse/MPP-3352
     data_reviews:
-      - http://example.com
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
     notification_emails:
       - jwhitlock@mozilla.com
     data_sensitivity:
@@ -85,9 +86,10 @@ email_mask:
     description: A Relay user creates an email mask.
     expires: never
     bugs:
-      - http://example.com
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
+      - https://mozilla-hub.atlassian.net/browse/MPP-3352
     data_reviews:
-      - http://example.com
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
     notification_emails:
       - jwhitlock@mozilla.com
     data_sensitivity:
@@ -105,9 +107,10 @@ email_mask:
     description: A Relay users updates an email mask's label.
     expires: never
     bugs:
-      - http://example.com
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
+      - https://mozilla-hub.atlassian.net/browse/MPP-3352
     data_reviews:
-      - http://example.com
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
     notification_emails:
       - jwhitlock@mozilla.com
     data_sensitivity:
@@ -120,9 +123,10 @@ email:
     description: Relay receives and forwards an email for a Relay user.
     expires: never
     bugs:
-      - http://example.com
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
+      - https://mozilla-hub.atlassian.net/browse/MPP-3352
     data_reviews:
-      - http://example.com
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
     notification_emails:
       - jwhitlock@mozilla.com
     data_sensitivity:
@@ -137,9 +141,10 @@ email:
     description: Relay receives but does not forward an email for a Relay user.
     expires: never
     bugs:
-      - http://example.com
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
+      - https://mozilla-hub.atlassian.net/browse/MPP-3352
     data_reviews:
-      - http://example.com
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
     notification_emails:
       - jwhitlock@mozilla.com
     data_sensitivity:
