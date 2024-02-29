@@ -24,7 +24,7 @@ export const NpsSurvey = () => {
   const gaEvent = useGaEvent();
 
   const hasBeenUserForThreeDays =
-    isLoggedIn &&
+    isLoggedIn === "logged-in" &&
     firstSeen instanceof Date &&
     Date.now() - firstSeen.getTime() > 3 * 24 * 60 * 60;
 

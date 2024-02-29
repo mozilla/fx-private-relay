@@ -75,7 +75,7 @@ export const Layout = (props: Props) => {
       ? l10n.getString("logo-alt")
       : l10n.getString("logo-premium-alt");
 
-  const homePath = isLoggedIn ? "/accounts/profile" : "/";
+  const homePath = isLoggedIn === "logged-in" ? "/accounts/profile" : "/";
 
   const handleToggle = () => {
     setMobileMenuExpanded(!mobileMenuExpanded);
