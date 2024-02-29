@@ -1735,6 +1735,10 @@ def test_wrapped_email_test(
         "<li><strong>num_level_one_email_trackers_removed</strong>:"
         f"{num_level_one_email_trackers_removed}"
     ) in no_space_html
+    if has_tracker_report_link == "Yes" and num_level_one_email_trackers_removed != "0":
+        assert "/tracker-report/#" in no_space_html
+    else:
+        assert "/tracker-report/#" not in no_space_html
 
 
 @pytest.mark.parametrize("forwarded", ("False", "True"))
