@@ -14,8 +14,7 @@
     "lint": "stylelint '**/*.scss' && prettier --check './src' && next lint",
     "licensecheck": "license-checker --excludePrivatePackages --production --onlyAllow 'MPL; MIT; BSD-3-Clause; BSD-2-Clause; 0BSD; Apache-2.0; ISC; Zlib; CC0; Unlicense; WTFPL; Unicode-DFS-2016;'",
     "test": "jest",
-    "postinstall": "msw init public/ --save",
-    "prepare": "if [ \"$ON_HEROKU\" != \"True\" ]; then cd .. && husky install frontend/.husky; fi"
+    "postinstall": "msw init public/ --save"
   },
   "dependencies": {
     "@fluent/bundle": "^0.18.0",
