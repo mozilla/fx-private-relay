@@ -158,13 +158,13 @@
             {% comment %}
               Create this as a link if we have a report link to show
             {% endcomment %}
-            {% ftlmsg 'relay-email-trackers-removed' number=num_level_one_email_trackers_removed as num_level_one_email_trackers_removed %}
+            {% ftlmsg 'relay-email-trackers-removed' number=num_level_one_email_trackers_removed as num_level_one_email_trackers_removed_text %}
             {% if num_level_one_email_trackers_removed > 0 and tracker_report_link %}
             <a class="container-link" href="{{ tracker_report_link  }}" style="color: #FFFFFF;">
-              {{ num_level_one_email_trackers_removed | convert_fsi_to_span }}
+              {{ num_level_one_email_trackers_removed_text | convert_fsi_to_span }}
             </a>
             {% else %}
-              {{ num_level_one_email_trackers_removed | convert_fsi_to_span }}
+              {{ num_level_one_email_trackers_removed_text | convert_fsi_to_span }}
             {% endif %}
           </p>
 
