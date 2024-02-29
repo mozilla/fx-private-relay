@@ -8,11 +8,7 @@ export type LoggedInState = "logged-out" | "logged-in" | "unknown";
  */
 export function useIsLoggedIn(): LoggedInState {
   const profileData = useProfiles();
-  const checking =
-    typeof profileData === "undefined" ||
-    (typeof profileData.data === "undefined" &&
-      typeof profileData.error === "undefined");
-  if (checking) {
+  if (profileData.isLoading) {
     return "unknown";
   }
   return typeof profileData !== "undefined" &&
