@@ -14,8 +14,7 @@
     "lint": "stylelint '**/*.scss' && prettier --check './src' && next lint",
     "licensecheck": "license-checker --excludePrivatePackages --production --onlyAllow 'MPL; MIT; BSD-3-Clause; BSD-2-Clause; 0BSD; Apache-2.0; ISC; Zlib; CC0; Unlicense; WTFPL; Unicode-DFS-2016;'",
     "test": "jest",
-    "postinstall": "msw init public/ --save",
-    "prepare": "if [ \"$ON_HEROKU\" != \"True\" ]; then cd .. && husky install frontend/.husky; fi"
+    "postinstall": "msw init public/ --save"
   },
   "dependencies": {
     "@fluent/bundle": "^0.18.0",
@@ -54,13 +53,13 @@
     "eslint-plugin-jest-dom": "^5.1.0",
     "eslint-plugin-testing-library": "^6.2.0",
     "fast-check": "^3.15.1",
-    "husky": "^9.0.6",
+    "husky": "^9.0.11",
     "jest": "^29.7.0",
     "jest-axe": "^8.0.0",
     "jest-environment-jsdom": "^29.7.0",
     "jest-junit": "^16.0.0",
     "license-checker": "^25.0.1",
-    "lint-staged": "^15.2.0",
+    "lint-staged": "^15.2.2",
     "next": "^14.1.0",
     "prettier": "3.2.5",
     "react-test-renderer": "^18.2.0",
