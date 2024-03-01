@@ -25,7 +25,7 @@
   ],
   "scripts": {
     "test:e2e": "playwright test --retries=2",
-    "test:local": "E2E_TEST_ENV=local playwright test --headed",
+    "test:local": "E2E_TEST_ENV=local playwright test",
     "test:dev": "E2E_TEST_ENV=dev playwright test --retries=2",
     "test:stage": "E2E_TEST_ENV=stage playwright test --retries=2",
     "test:prod": "E2E_TEST_ENV=prod playwright test --retries=2",
