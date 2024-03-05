@@ -208,6 +208,7 @@ def create_expected_glean_payload(
     category: str,
     name: str,
     extra_items: dict[str, str],
+    user: User,
     event_time: str,
     app_channel: RELAY_CHANNEL_NAME,
     telemetry_sdk_build: str,
@@ -217,7 +218,7 @@ def create_expected_glean_payload(
     return {
         "metrics": {},
         "events": [
-            create_expected_glean_event(category, name, extra_items, event_time)
+            create_expected_glean_event(category, name, user, extra_items, event_time)
         ],
         "client_info": {
             "app_build": "Unknown",
@@ -285,8 +286,8 @@ def test_log_email_mask_created(
     settings: SettingsWrapper,
 ) -> None:
     """Check that log_email_mask_created results in a Glean server-side log."""
-    address = baker.make(RelayAddress)
-    date_joined_ts = int(address.user.date_joined.timestamp())
+    user = make_free_test_user()
+    address = baker.make(RelayAddress, user=user)
 
     glean_logger.log_email_mask_created(mask=address, created_by_api=True)
 
@@ -302,13 +303,13 @@ def test_log_email_mask_created(
         category="email_mask",
         name="created",
         extra_items={
-            "date_joined_relay": str(date_joined_ts),
             "n_random_masks": "1",
             "mask_id": address.metrics_id,
             "is_random_mask": "true",
             "has_website": "false",
             "created_by_api": "true",
         },
+        user=user,
         event_time=parts.event_timestamp_ms,
         app_channel=settings.RELAY_CHANNEL,
         telemetry_sdk_build=parts.telemetry_sdk_build,
@@ -335,8 +336,8 @@ def test_log_email_mask_label_updated(
     rf: RequestFactory,
 ) -> None:
     """Check that log_email_mask_label_updated results in a Glean server-side log."""
-    address = baker.make(RelayAddress)
-    date_joined_ts = int(address.user.date_joined.timestamp())
+    user = make_free_test_user()
+    address = baker.make(RelayAddress, user=user)
     data = RelayAddressSerializer(address).data
     data["label"] = "A brand new label"
     user_agent = "glean_tester 1.0.1"
@@ -362,11 +363,11 @@ def test_log_email_mask_label_updated(
         category="email_mask",
         name="label_updated",
         extra_items={
-            "date_joined_relay": str(date_joined_ts),
             "n_random_masks": "1",
             "mask_id": address.metrics_id,
             "is_random_mask": "true",
         },
+        user=user,
         event_time=parts.event_timestamp_ms,
         app_channel=settings.RELAY_CHANNEL,
         telemetry_sdk_build=parts.telemetry_sdk_build,
@@ -402,10 +403,9 @@ def test_log_email_mask_deleted(
     rf: RequestFactory,
 ) -> None:
     """Check that log_email_mask_deleted results in a Glean server-side log."""
-    address = baker.make(RelayAddress)
+    user = make_free_test_user()
+    address = baker.make(RelayAddress, user=user)
     mask_id = address.metrics_id
-    user = address.user
-    date_joined_ts = int(address.user.date_joined.timestamp())
     request = rf.delete(f"/api/v1/relayaddresses/{address.id}/")
     address.delete()  # Real request will delete the mask before glean event
 
@@ -424,11 +424,11 @@ def test_log_email_mask_deleted(
         category="email_mask",
         name="deleted",
         extra_items={
-            "date_joined_relay": str(date_joined_ts),
             "n_random_masks": "0",
             "mask_id": mask_id,
             "is_random_mask": "true",
         },
+        user=user,
         event_time=parts.event_timestamp_ms,
         app_channel=settings.RELAY_CHANNEL,
         telemetry_sdk_build=parts.telemetry_sdk_build,
@@ -464,8 +464,8 @@ def test_log_email_forwarded(
     is_reply: bool,
 ) -> None:
     """Check that log_email_forwarded results in a Glean server-side log."""
-    address = baker.make(RelayAddress)
-    date_joined_ts = int(address.user.date_joined.timestamp())
+    user = make_premium_test_user()
+    address = baker.make(RelayAddress, user=user)
 
     glean_logger.log_email_forwarded(mask=address, is_reply=is_reply)
 
@@ -481,12 +481,12 @@ def test_log_email_forwarded(
         category="email",
         name="forwarded",
         extra_items={
-            "date_joined_relay": str(date_joined_ts),
             "n_random_masks": "1",
             "mask_id": address.metrics_id,
             "is_random_mask": "true",
             "is_reply": "true" if is_reply else "false",
         },
+        user=user,
         event_time=parts.event_timestamp_ms,
         app_channel=settings.RELAY_CHANNEL,
         telemetry_sdk_build=parts.telemetry_sdk_build,
@@ -517,8 +517,8 @@ def test_log_email_blocked(
     can_retry: bool,
 ) -> None:
     """Check that log_email_blocked results in a Glean server-side log."""
-    address = baker.make(RelayAddress)
-    date_joined_ts = int(address.user.date_joined.timestamp())
+    user = make_free_test_user()
+    address = baker.make(RelayAddress, user=user)
 
     glean_logger.log_email_blocked(
         mask=address, is_reply=is_reply, reason=reason, can_retry=can_retry
@@ -536,7 +536,6 @@ def test_log_email_blocked(
         category="email",
         name="blocked",
         extra_items={
-            "date_joined_relay": str(date_joined_ts),
             "n_random_masks": "1",
             "mask_id": address.metrics_id,
             "is_random_mask": "true",
@@ -544,6 +543,7 @@ def test_log_email_blocked(
             "reason": reason,
             "can_retry": "true" if can_retry else "false",
         },
+        user=user,
         event_time=parts.event_timestamp_ms,
         app_channel=settings.RELAY_CHANNEL,
         telemetry_sdk_build=parts.telemetry_sdk_build,

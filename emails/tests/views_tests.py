@@ -492,22 +492,15 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
 
         mask_event = get_glean_event(caplog, "email_mask", "created")
         assert mask_event is not None
-        assert self.premium_user.profile.fxa
-        assert self.premium_user.profile.date_subscribed
-        date_joined_ts = int(self.premium_user.date_joined.timestamp())
-        date_premium_ts = int(self.premium_user.profile.date_subscribed.timestamp())
         shared_extra_items = {
-            "fxa_id": self.premium_user.profile.fxa.uid,
             "n_domain_masks": "1",
-            "date_joined_relay": str(date_joined_ts),
-            "premium_status": "email_unknown",
-            "date_joined_premium": str(date_premium_ts),
             "mask_id": da.metrics_id,
             "is_random_mask": "false",
         }
         expected_mask_event = create_expected_glean_event(
             category="email_mask",
             name="created",
+            user=self.premium_user,
             extra_items=shared_extra_items
             | {"has_website": "false", "created_by_api": "false"},
             event_time=mask_event["timestamp"],
@@ -519,6 +512,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         expected_email_event = create_expected_glean_event(
             category="email",
             name="forwarded",
+            user=self.premium_user,
             extra_items=shared_extra_items | {"is_reply": "false"},
             event_time=email_event["timestamp"],
         )
@@ -1250,18 +1244,8 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         is_reply: bool = False,
         can_retry: bool = False,
     ) -> dict[str, Any]:
-        if self.profile.fxa is None:
-            fxa_id = ""
-            premium_status = "free"
-        else:
-            fxa_id = self.profile.fxa.uid
-            premium_status = self.profile.metrics_premium_status
-        date_joined_ts = int(self.profile.user.date_joined.timestamp())
         extra_items = {
-            "fxa_id": fxa_id,
             "n_random_masks": "1",
-            "date_joined_relay": str(date_joined_ts),
-            "premium_status": premium_status,
             "mask_id": self.address.metrics_id,
             "is_random_mask": "true",
             "is_reply": "true" if is_reply else "false",
@@ -1272,6 +1256,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         return create_expected_glean_event(
             category="email",
             name="blocked" if reason else "forwarded",
+            user=self.user,
             extra_items=extra_items,
             event_time=timestamp,
         )
@@ -1688,20 +1673,13 @@ class GetAddressTest(TestCase):
         assert DomainAddress.objects.filter(user=self.user).count() == 2
 
         assert (event := get_glean_event(caplog)) is not None
-        assert self.user.profile.fxa
-        assert self.user.profile.date_subscribed
-        date_joined_ts = int(self.user.date_joined.timestamp())
-        date_premium_ts = int(self.user.profile.date_subscribed.timestamp())
         expected_event = create_expected_glean_event(
             category="email_mask",
             name="created",
+            user=self.user,
             extra_items={
-                "fxa_id": self.user.profile.fxa.uid,
                 "n_random_masks": "1",
                 "n_domain_masks": "2",
-                "date_joined_relay": str(date_joined_ts),
-                "premium_status": "email_unknown",
-                "date_joined_premium": str(date_premium_ts),
                 "mask_id": address.metrics_id,
                 "is_random_mask": "false",
                 "has_website": "false",
@@ -1728,20 +1706,13 @@ class GetAddressTest(TestCase):
         assert DomainAddress.objects.filter(user=self.user).count() == 2
 
         assert (event := get_glean_event(caplog)) is not None
-        assert self.user.profile.fxa
-        assert self.user.profile.date_subscribed
-        date_joined_ts = int(self.user.date_joined.timestamp())
-        date_premium_ts = int(self.user.profile.date_subscribed.timestamp())
         expected_event = create_expected_glean_event(
             category="email_mask",
             name="created",
+            user=self.user,
             extra_items={
-                "fxa_id": self.user.profile.fxa.uid,
                 "n_random_masks": "1",
                 "n_domain_masks": "2",
-                "date_joined_relay": str(date_joined_ts),
-                "premium_status": "email_unknown",
-                "date_joined_premium": str(date_premium_ts),
                 "mask_id": address.metrics_id,
                 "is_random_mask": "false",
                 "has_website": "false",

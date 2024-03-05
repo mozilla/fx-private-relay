@@ -98,19 +98,12 @@ def test_post_domainaddress_success(
 
     assert (event := get_glean_event(caplog)) is not None
     address = premium_user.domainaddress_set.get()
-    date_joined_ts = int(premium_user.date_joined.timestamp())
-    assert premium_user.profile.date_subscribed
-    date_subscribed_ts = int(premium_user.profile.date_subscribed.timestamp())
-    assert premium_user.profile.fxa
     expected_event = create_expected_glean_event(
         category="email_mask",
         name="created",
+        user=premium_user,
         extra_items={
-            "fxa_id": premium_user.profile.fxa.uid,
             "n_domain_masks": "1",
-            "date_joined_relay": str(date_joined_ts),
-            "premium_status": "email_unknown",
-            "date_joined_premium": str(date_subscribed_ts),
             "mask_id": address.metrics_id,
             "is_random_mask": "false",
             "created_by_api": "true",
@@ -447,19 +440,12 @@ def test_patch_domainaddress(
     event = get_glean_event(caplog)
     if key == "description":
         assert event is not None
-        date_joined_ts = int(premium_user.date_joined.timestamp())
-        assert premium_user.profile.date_subscribed
-        date_subscribed_ts = int(premium_user.profile.date_subscribed.timestamp())
-        assert premium_user.profile.fxa
         expected_event = create_expected_glean_event(
             category="email_mask",
             name="label_updated",
+            user=premium_user,
             extra_items={
-                "fxa_id": premium_user.profile.fxa.uid,
                 "n_domain_masks": "1",
-                "date_joined_relay": str(date_joined_ts),
-                "premium_status": "email_unknown",
-                "date_joined_premium": str(date_subscribed_ts),
                 "mask_id": existing.metrics_id,
                 "is_random_mask": "false",
             },
@@ -585,18 +571,12 @@ def test_delete_domainaddress(
     assert not DomainAddress.objects.filter(id=existing.id).exists()
 
     assert (event := get_glean_event(caplog)) is not None
-    assert premium_user.profile.fxa
-    assert premium_user.profile.date_subscribed
-    date_subscribed_ts = int(premium_user.profile.date_subscribed.timestamp())
     expected_event = create_expected_glean_event(
         category="email_mask",
         name="deleted",
+        user=premium_user,
         extra_items={
-            "fxa_id": premium_user.profile.fxa.uid,
             "n_deleted_domain_masks": "1",
-            "date_joined_relay": str(int(premium_user.date_joined.timestamp())),
-            "premium_status": "email_unknown",
-            "date_joined_premium": str(date_subscribed_ts),
             "mask_id": existing_mask_id,
             "is_random_mask": "false",
         },
@@ -618,15 +598,13 @@ def test_post_relayaddress_success(
     assert ret_data["enabled"]
 
     assert (event := get_glean_event(caplog)) is not None
-    assert free_user.profile.fxa
     address = free_user.relayaddress_set.get()
     expected_event = create_expected_glean_event(
         category="email_mask",
         name="created",
+        user=free_user,
         extra_items={
-            "fxa_id": free_user.profile.fxa.uid,
             "n_random_masks": "1",
-            "date_joined_relay": str(int(free_user.date_joined.timestamp())),
             "mask_id": address.metrics_id,
             "is_random_mask": "true",
             "created_by_api": "true",
@@ -649,15 +627,13 @@ def test_post_relayaddress_with_generated_for_success(
     assert response.status_code == 201
 
     assert (event := get_glean_event(caplog)) is not None
-    assert free_user.profile.fxa
     address = free_user.relayaddress_set.get()
     expected_event = create_expected_glean_event(
         category="email_mask",
         name="created",
+        user=free_user,
         extra_items={
-            "fxa_id": free_user.profile.fxa.uid,
             "n_random_masks": "1",
-            "date_joined_relay": str(int(free_user.date_joined.timestamp())),
             "has_extension": "true",
             "date_got_extension": str(int(address.created_at.timestamp())),
             "mask_id": address.metrics_id,
@@ -750,14 +726,12 @@ def test_patch_relayaddress(
     event = get_glean_event(caplog)
     if key == "description":
         assert event is not None
-        assert free_user.profile.fxa
         expected_event = create_expected_glean_event(
             category="email_mask",
             name="label_updated",
+            user=free_user,
             extra_items={
-                "fxa_id": free_user.profile.fxa.uid,
                 "n_random_masks": "1",
-                "date_joined_relay": str(int(free_user.date_joined.timestamp())),
                 "mask_id": existing.metrics_id,
                 "is_random_mask": "true",
             },
@@ -925,14 +899,12 @@ def test_delete_randomaddress(
     assert not RelayAddress.objects.filter(id=existing.id).exists()
 
     assert (event := get_glean_event(caplog)) is not None
-    assert free_user.profile.fxa
     expected_event = create_expected_glean_event(
         category="email_mask",
         name="deleted",
+        user=free_user,
         extra_items={
-            "fxa_id": free_user.profile.fxa.uid,
             "n_deleted_random_masks": "1",
-            "date_joined_relay": str(int(free_user.date_joined.timestamp())),
             "mask_id": existing_mask_id,
             "is_random_mask": "true",
         },
