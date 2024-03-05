@@ -818,6 +818,8 @@ class RelayAddress(models.Model):
     @property
     def metrics_id(self) -> str:
         assert self.id
+        # Prefix with 'R' for RelayAddress, since there may be a DomainAddress with the
+        # same row ID
         return f"R{self.id}"
 
 
@@ -1019,6 +1021,8 @@ class DomainAddress(models.Model):
     @property
     def metrics_id(self) -> str:
         assert self.id
+        # Prefix with 'D' for DomainAddress, since there may be a RelayAddress with the
+        # same row ID
         return f"D{self.id}"
 
 
