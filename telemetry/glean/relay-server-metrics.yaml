@@ -76,7 +76,7 @@ email_mask:
         description: Timestamp for adding Relay Add-on, seconds since epoch, -1 if not used
         type: quantity
       mask_id:
-        description: Mask ID, 'R' or 'D' followed by a number
+        description: Mask ID, 'R' (random mask) or 'D' (domain mask) followed by a number.
         type: string
       is_random_mask:
         description: The mask is a random mask, instead of a domain mask
@@ -104,7 +104,7 @@ email_mask:
         type: boolean
   label_updated:
     type: event
-    description: A Relay users updates an email mask's label.
+    description: A Relay user updates an email mask's label.
     expires: never
     bugs:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
