@@ -264,13 +264,16 @@ def extract_parts_from_payload(payload: dict[str, Any]) -> PayloadVariedParts:
     """Check and return parts of the Glean payload that vary over test runs."""
     event_ts_ms = payload["events"][0]["timestamp"]
     event_time = datetime.fromtimestamp(event_ts_ms / 1000.0)
+    # The event_time is milliseconds from epoch. Check we converted it correctly.
     assert 0 < (datetime.now() - event_time).total_seconds() < 0.5
 
     start_time_iso = payload["ping_info"]["start_time"]
     start_time = datetime.fromisoformat(start_time_iso)
+    # The start_time is in ISO 8601 format with timezone data. Check the conversion.
     assert 0 < (datetime.now(timezone.utc) - start_time).total_seconds() < 0.5
 
     telemetry_sdk_build = payload["client_info"]["telemetry_sdk_build"]
+    # The version will change with glean_parser releases, so only check prefix
     assert telemetry_sdk_build.startswith("glean_parser v")
 
     return PayloadVariedParts(
