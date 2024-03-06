@@ -260,7 +260,8 @@ def assert_email_equals_fixture(
     else:
         test_output_email = output_email
 
-    if test_output_email != expected:
+    if test_output_email != expected:  # pragma: no cover
+        # Write the actual output as an aid for debugging or fixture updates
         path = os.path.join(real_abs_cwd, "fixtures", fixture_name + "_actual.email")
         open(path, "w").write(test_output_email)
     assert test_output_email == expected
@@ -371,8 +372,7 @@ class SNSNotificationTestBase(TestCase):
         destinations = self.mock_send_raw_email.call_args[1]["Destinations"]
         assert len(destinations) == 1
         raw_message = self.mock_send_raw_email.call_args[1]["RawMessage"]["Data"]
-        if "" not in raw_message.splitlines():
-            raise Exception("Never found message body!")
+        assert "\n\n" in raw_message, "Never found message body!"
         if expected_source is not None:
             assert source == expected_source
         if expected_destination is not None:
@@ -1935,7 +1935,7 @@ def test_wrapped_email_test(
     assert response.status_code == 200
 
     # Check that all Fluent IDs were in the English corpus
-    if language == "en":
+    if language == "en" and caplog.record_tuples:  # pragma: no cover
         for log_name, log_level, message in caplog.record_tuples:
             if log_name == "django_ftl.message_errors":
                 pytest.fail(message)
@@ -1980,9 +1980,10 @@ def test_reply_requires_premium_test(rf, forwarded, content_type, caplog):
         assert "Your reply was not sent" in html
 
     # Check that all Fluent IDs were in the English corpus
-    for log_name, log_level, message in caplog.record_tuples:
-        if log_name == "django_ftl.message_errors":
-            pytest.fail(message)
+    if caplog.record_tuples:  # pragma: no cover
+        for log_name, log_level, message in caplog.record_tuples:
+            if log_name == "django_ftl.message_errors":
+                pytest.fail(message)
 
 
 @pytest.mark.django_db
