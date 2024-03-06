@@ -61,6 +61,7 @@ from emails.views import (
     _set_forwarded_first_reply,
     _sns_message,
     _sns_notification,
+    log_email_dropped,
     reply_requires_premium_test,
     validate_sns_arn_and_type,
     wrapped_email_test,
@@ -2202,3 +2203,27 @@ def test_replace_headers_read_error_is_handled() -> None:
     # set to the desired new values.
     for name, value in new_headers.items():
         assert email[name] == value
+
+
+@pytest.mark.django_db
+def test_opt_out_user_has_minimal_email_dropped_log(caplog):
+    user = baker.make(User, email="opt-out@example.com")
+    address = user.relayaddress_set.create()
+    SocialAccount.objects.create(
+        user=user,
+        provider="fxa",
+        uid=str(uuid4()),
+        extra_data={
+            "avatar": "image.png",
+            "subscriptions": [],
+            "metricsEnabled": False,
+        },
+    )
+    log_email_dropped("abuse_flag", address)
+    assert len(caplog.records) == 1
+    assert log_extra(caplog.records[0]) == {
+        "reason": "abuse_flag",
+        "is_random_mask": True,
+        "is_reply": False,
+        "can_retry": False,
+    }

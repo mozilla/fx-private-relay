@@ -524,10 +524,11 @@ def log_email_dropped(
     records emails dropped due to the mask's blocking setting.
     """
     extra: dict[str, str | int | bool] = {"reason": reason}
-    if mask.user.profile.fxa is not None:
-        extra["fxa_id"] = mask.user.profile.fxa.uid
+    if mask.user.profile.metrics_enabled:
+        if mask.user.profile.fxa is not None:
+            extra["fxa_id"] = mask.user.profile.fxa.uid
+        extra["mask_id"] = mask.metrics_id
     extra |= {
-        "mask_id": mask.metrics_id,
         "is_random_mask": isinstance(mask, RelayAddress),
         "is_reply": is_reply,
         "can_retry": can_retry,
