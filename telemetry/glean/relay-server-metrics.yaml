@@ -8,19 +8,6 @@
 # This file is also used to generate privaterelay/glean/server_events.py
 # which is used to generate the Glean pings-as-logs.  See that file for the
 # re-generation command.
-
-# Status: Draft
-# This work is tracked in https://mozilla-hub.atlassian.net/browse/MPP-3352
-#
-# This is the first Relay integration with Glean, and is focused on the
-# data needed to determine if a Relay user is engaged with the service,
-# creating masks and getting emails. There are more metrics planned in the
-# future, after we get over the technical hurdles of the first integration.
-#
-# Remaining critical path work in the code:
-# - Request a data review, update bugs and data_reviews
-# - Make required changes from data review
-# - Delete this status section
 ---
 $schema: moz://mozilla.org/schemas/glean/metrics/2-0-0
 
