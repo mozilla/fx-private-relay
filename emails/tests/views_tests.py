@@ -2093,14 +2093,14 @@ def test_build_reply_requires_premium_email_after_forward():
     )
 
 
-def test_get_keys_from_headers_no_reply_headers():
+def test_get_keys_from_headers_no_reply_headers(settings):
     """If no reply headers, raise ReplyHeadersNotFound."""
     msg_id = "<msg-id-123@email.com>"
     headers = [{"name": "Message-Id", "value": msg_id}]
-    with pytest.raises(ReplyHeadersNotFound):
-        with MetricsMock() as mm:
-            _get_keys_from_headers(headers)
-        mm.assert_incr_once("fx.private.relay.email_complaint")
+    settings.STATSD_ENABLED = True
+    with MetricsMock() as mm, pytest.raises(ReplyHeadersNotFound):
+        _get_keys_from_headers(headers)
+    mm.assert_incr_once("fx.private.relay.mail_to_replies_without_reply_headers")
 
 
 def test_get_keys_from_headers_in_reply_to():
