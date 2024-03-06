@@ -2,7 +2,7 @@
 <img src="https://raw.githubusercontent.com/mozilla/fx-private-relay/11ad17e197e23a0453bfb74fa3670c87cfc35e36/frontend/src/components/landing/images/logo-firefox-relay.svg" width="250" />
 </p>
 
-# Private Relay
+# [Test] Private Relay
 
 <!-- Badges include: license, size of repository, overall coverage for project via coveralls.io on main branch, status of what is deployed via whatsdeployed.io and our circleci status for main branch. -->
 
