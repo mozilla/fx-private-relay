@@ -109,7 +109,6 @@ class EventsServerEventLogger:
         is_random_mask: bool,
         is_reply: bool,
         reason: str,
-        can_retry: bool,
     ) -> None:
         """
         Record and submit a email_blocked event:
@@ -131,11 +130,10 @@ class EventsServerEventLogger:
         :param int date_joined_premium: Timestamp for starting premium_status subscription, seconds since epoch, -1 if not subscribed
         :param bool has_extension: The user has the Relay Add-on
         :param int date_got_extension: Timestamp for adding Relay Add-on, seconds since epoch, -1 if not used
-        :param str mask_id: Mask ID, 'R' or 'D' followed by a number
+        :param str mask_id: Mask ID, 'R' (random mask) or 'D' (domain mask) followed by a number.
         :param bool is_random_mask: The mask is a random mask, instead of a domain mask
         :param bool is_reply: The email is a reply from the Relay user
         :param str reason: Code describing why the email was blocked
-        :param bool can_retry: The email processes can retry the email, so it may fail multiple times
         """
         event = {
             "category": "email",
@@ -157,7 +155,6 @@ class EventsServerEventLogger:
                 "is_random_mask": str(is_random_mask).lower(),
                 "is_reply": str(is_reply).lower(),
                 "reason": str(reason),
-                "can_retry": str(can_retry).lower(),
             },
         }
         self._record(user_agent, ip_address, event)
@@ -202,7 +199,7 @@ class EventsServerEventLogger:
         :param int date_joined_premium: Timestamp for starting premium_status subscription, seconds since epoch, -1 if not subscribed
         :param bool has_extension: The user has the Relay Add-on
         :param int date_got_extension: Timestamp for adding Relay Add-on, seconds since epoch, -1 if not used
-        :param str mask_id: Mask ID, 'R' or 'D' followed by a number
+        :param str mask_id: Mask ID, 'R' (random mask) or 'D' (domain mask) followed by a number.
         :param bool is_random_mask: The mask is a random mask, instead of a domain mask
         :param bool is_reply: The email is a reply from the Relay user
         """
@@ -270,7 +267,7 @@ class EventsServerEventLogger:
         :param int date_joined_premium: Timestamp for starting premium_status subscription, seconds since epoch, -1 if not subscribed
         :param bool has_extension: The user has the Relay Add-on
         :param int date_got_extension: Timestamp for adding Relay Add-on, seconds since epoch, -1 if not used
-        :param str mask_id: Mask ID, 'R' or 'D' followed by a number
+        :param str mask_id: Mask ID, 'R' (random mask) or 'D' (domain mask) followed by a number.
         :param bool is_random_mask: The mask is a random mask, instead of a domain mask
         :param bool created_by_api: The mask was created via the API, rather than an incoming email
         :param bool has_website: The mask was created by the Add-on or integration on a website
@@ -338,7 +335,7 @@ class EventsServerEventLogger:
         :param int date_joined_premium: Timestamp for starting premium_status subscription, seconds since epoch, -1 if not subscribed
         :param bool has_extension: The user has the Relay Add-on
         :param int date_got_extension: Timestamp for adding Relay Add-on, seconds since epoch, -1 if not used
-        :param str mask_id: Mask ID, 'R' or 'D' followed by a number
+        :param str mask_id: Mask ID, 'R' (random mask) or 'D' (domain mask) followed by a number.
         :param bool is_random_mask: The mask is a random mask, instead of a domain mask
         """
         event = {
@@ -384,7 +381,7 @@ class EventsServerEventLogger:
     ) -> None:
         """
         Record and submit a email_mask_label_updated event:
-        A Relay users updates an email mask's label.
+        A Relay user updates an email mask's label.
         Event is logged to STDOUT via `print`.
 
         :param str user_agent: The user agent.
@@ -402,7 +399,7 @@ class EventsServerEventLogger:
         :param int date_joined_premium: Timestamp for starting premium_status subscription, seconds since epoch, -1 if not subscribed
         :param bool has_extension: The user has the Relay Add-on
         :param int date_got_extension: Timestamp for adding Relay Add-on, seconds since epoch, -1 if not used
-        :param str mask_id: Mask ID, 'R' or 'D' followed by a number
+        :param str mask_id: Mask ID, 'R' (random mask) or 'D' (domain mask) followed by a number.
         :param bool is_random_mask: The mask is a random mask, instead of a domain mask
         """
         event = {

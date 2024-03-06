@@ -1253,7 +1253,6 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         timestamp: str,
         reason: str | None = None,
         is_reply: bool = False,
-        can_retry: bool = False,
     ) -> dict[str, Any]:
         extra_items = {
             "n_random_masks": "1",
@@ -1263,7 +1262,6 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         }
         if reason:
             extra_items["reason"] = reason
-            extra_items["can_retry"] = "true" if can_retry else "false"
         return create_expected_glean_event(
             category="email",
             name="blocked" if reason else "forwarded",

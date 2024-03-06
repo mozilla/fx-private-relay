@@ -505,8 +505,8 @@ def test_log_email_forwarded_with_opt_out(
 
 
 @pytest.mark.parametrize(
-    "is_reply,reason,can_retry",
-    [(False, "block_all", False), (True, "error_sending", True)],
+    "is_reply,reason",
+    [(True, "block_all"), (False, "block_promotional")],
 )
 def test_log_email_blocked(
     glean_logger: RelayGleanLogger,
@@ -514,15 +514,12 @@ def test_log_email_blocked(
     settings: SettingsWrapper,
     is_reply: bool,
     reason: EmailBlockedReason,
-    can_retry: bool,
 ) -> None:
     """Check that log_email_blocked results in a Glean server-side log."""
     user = make_free_test_user()
     address = baker.make(RelayAddress, user=user)
 
-    glean_logger.log_email_blocked(
-        mask=address, is_reply=is_reply, reason=reason, can_retry=can_retry
-    )
+    glean_logger.log_email_blocked(mask=address, is_reply=is_reply, reason=reason)
 
     # Check the one glean-server-event log
     assert len(caplog.records) == 1
@@ -541,7 +538,6 @@ def test_log_email_blocked(
             "is_random_mask": "true",
             "is_reply": "true" if is_reply else "false",
             "reason": reason,
-            "can_retry": "true" if can_retry else "false",
         },
         user=user,
         event_time=parts.event_timestamp_ms,
@@ -560,9 +556,7 @@ def test_log_email_blocked_with_opt_out(
 ) -> None:
     """A log is not emitted for a blocked email when the user has opted-out"""
     address = baker.make(RelayAddress, user=optout_user)
-    glean_logger.log_email_blocked(
-        mask=address, is_reply=False, reason="block_all", can_retry=False
-    )
+    glean_logger.log_email_blocked(mask=address, is_reply=False, reason="block_all")
 
     # Check the one glean-server-event log
     assert len(caplog.records) == 0
