@@ -80,6 +80,11 @@ single_rec_file = os.path.join(
 )
 
 
+# Names of logs
+INFO_LOG = "eventsinfo"
+ERROR_LOG = "events"
+
+
 def load_fixtures(file_suffix: str) -> dict[str, AWS_SNSMessageJSON | str]:
     """Load all fixtures with a particular suffix."""
     path = os.path.join(real_abs_cwd, "fixtures", "*" + file_suffix)
@@ -294,9 +299,6 @@ def _replace_mime_boundaries(email: str) -> str:
 
     generic_email = "\n".join(generic_email_lines) + "\n"
     return generic_email
-
-
-INFO_LOG = "eventsinfo"
 
 
 def assert_log_email_dropped(
@@ -844,7 +846,7 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
             error_response={"Error": {"Code": "NoSuchKey", "Message": "the message"}},
         )
         with self.assertLogs(INFO_LOG) as info_caplog, self.assertLogs(
-            "events", "ERROR"
+            ERROR_LOG, "ERROR"
         ) as events_caplog:
             response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
         self.mock_send_raw_email.assert_not_called()
@@ -864,7 +866,7 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
             error_response={"Error": {"Code": "IsNapping", "Message": "snooze"}},
         )
         with self.assertLogs(INFO_LOG) as info_caplog, self.assertLogs(
-            "events", "ERROR"
+            ERROR_LOG, "ERROR"
         ) as error_caplog:
             response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
         self.mock_send_raw_email.assert_not_called()
@@ -884,7 +886,7 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
         )
         self.mock_send_raw_email.side_effect = SEND_RAW_EMAIL_FAILED
         with self.assertLogs(INFO_LOG) as info_caplog, self.assertLogs(
-            "events", "ERROR"
+            ERROR_LOG, "ERROR"
         ) as error_caplog:
             response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
         assert response.status_code == 400
@@ -1408,7 +1410,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         )
 
         with self.assertLogs(INFO_LOG) as info_caplog, self.assertLogs(
-            "events", "ERROR"
+            ERROR_LOG, "ERROR"
         ) as error_caplog:
             response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
         self.mock_remove_message_from_s3.assert_not_called()
@@ -1513,7 +1515,7 @@ class SnsMessageTest(TestCase):
             error_response={"Error": {"Code": "NoSuchKey", "Message": "the message"}},
         )
         with self.assertLogs(INFO_LOG) as info_caplog, self.assertLogs(
-            "events", "ERROR"
+            ERROR_LOG, "ERROR"
         ) as error_caplog:
             response = _sns_message(self.message_json)
         self.mock_ses_client.send_raw_email.assert_not_called()
@@ -1529,7 +1531,7 @@ class SnsMessageTest(TestCase):
     def test_ses_send_raw_email_has_client_error_early_exits(self) -> None:
         self.mock_ses_client.send_raw_email.side_effect = SEND_RAW_EMAIL_FAILED
         with self.assertLogs(INFO_LOG) as info_caplog, self.assertLogs(
-            "events", "ERROR"
+            ERROR_LOG, "ERROR"
         ) as error_caplog:
             response = _sns_message(self.message_json)
         self.mock_ses_client.send_raw_email.assert_called_once()
