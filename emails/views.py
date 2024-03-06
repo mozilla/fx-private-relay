@@ -331,9 +331,10 @@ def _store_reply_record(
         "lookup": lookup,
         "encrypted_metadata": encrypted_metadata,
     }
-    if type(address) == DomainAddress:
+    if isinstance(address, DomainAddress):
         reply_create_args["domain_address"] = address
-    elif type(address) == RelayAddress:
+    else:
+        assert isinstance(address, RelayAddress)
         reply_create_args["relay_address"] = address
     Reply.objects.create(**reply_create_args)
     return mail
@@ -492,6 +493,48 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     return _handle_received(message_json)
 
 
+# Enumerate the reasons that an email was not forwarded.
+# This excludes emails dropped due to mask forwarding settings,
+# such as "block all" and "block promotional". Those are logged
+# as Glean email_blocked events.
+EmailDroppedReason = Literal[
+    "auto_block_spam",  # Email identified as spam, user has the auto_block_spam flag
+    "dmarc_reject_failed",  # Email failed DMARC check with a reject policy
+    "hard_bounce_pause",  # The user recently had a hard bounce
+    "soft_bounce_pause",  # The user recently has a soft bounce
+    "abuse_flag",  # The user exceeded an abuse limit, like mails forwarded
+    "reply_requires_premium",  # The email is a reply from a free user
+    "content_missing",  # Could not load the email from storage
+    "error_from_header",  # Error generating the From: header, retryable
+    "error_storage",  # Error fetching the email contents from storage (S3), retryable
+    "error_sending",  # Error sending the forwarded email (SES), retryable
+]
+
+
+def log_email_dropped(
+    reason: EmailDroppedReason,
+    mask: RelayAddress | DomainAddress,
+    is_reply: bool = False,
+    can_retry: bool = False,
+) -> None:
+    """
+    Log that an email was dropped for a reason other than a mask blocking setting.
+
+    This mirrors the interface of glean_logger().log_email_blocked(), which
+    records emails dropped due to the mask's blocking setting.
+    """
+    extra: dict[str, str | int | bool] = {"reason": reason}
+    if mask.user.profile.fxa is not None:
+        extra["fxa_id"] = mask.user.profile.fxa.uid
+    extra |= {
+        "mask_id": mask.metrics_id,
+        "is_random_mask": isinstance(mask, RelayAddress),
+        "is_reply": is_reply,
+        "can_retry": can_retry,
+    }
+    info_logger.info("email_dropped", extra=extra)
+
+
 def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     """
     Handle an AWS SES received notification.
@@ -578,14 +621,14 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     # if this is spam and the user is set to auto-block spam, early return
     if user_profile.auto_block_spam and _get_verdict(receipt, "spam") == "FAIL":
         incr_if_enabled("email_auto_suppressed_for_spam", 1)
-        glean_logger().log_email_blocked(mask=address, reason="auto_block_spam")
+        log_email_dropped(reason="auto_block_spam", mask=address)
         return HttpResponse("Address rejects spam.")
 
     if _get_verdict(receipt, "dmarc") == "FAIL":
         policy = receipt.get("dmarcPolicy", "none")
         # TODO: determine action on dmarcPolicy "quarantine"
         if policy == "reject":
-            glean_logger().log_email_blocked(mask=address, reason="dmarc_reject_failed")
+            log_email_dropped(reason="dmarc_reject_failed", mask=address)
             incr_if_enabled(
                 "email_suppressed_for_dmarc_failure",
                 tags=["dmarcPolicy:reject", "dmarcVerdict:FAIL"],
@@ -600,7 +643,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         reason: Literal["soft_bounce_pause", "hard_bounce_pause"] = (
             "soft_bounce_pause" if bounce_type == "soft" else "hard_bounce_pause"
         )
-        glean_logger().log_email_blocked(mask=address, reason=reason)
+        log_email_dropped(reason=reason, mask=address)
         return HttpResponse("Address is temporarily disabled.")
 
     # check if this is a reply from an external sender to a Relay user
@@ -612,9 +655,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         message_id = _get_message_id_from_headers(mail["headers"])
         # make sure the relay user is premium
         if not _reply_allowed(from_address, to_address, reply_record, message_id):
-            glean_logger().log_email_blocked(
-                mask=user_address, reason="reply_requires_premium"
-            )
+            log_email_dropped(reason="reply_requires_premium", mask=user_address)
             return HttpResponse("Relay replies require a premium account", status=403)
     except (ReplyHeadersNotFound, Reply.DoesNotExist):
         # if there's no In-Reply-To header, or the In-Reply-To value doesn't
@@ -624,7 +665,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
 
     # if account flagged for abuse, early return
     if user_profile.is_flagged:
-        glean_logger().log_email_blocked(mask=address, reason="abuse_flag")
+        log_email_dropped(reason="abuse_flag", mask=address)
         return HttpResponse("Address is temporarily disabled.")
 
     # if address is set to block, early return
@@ -677,9 +718,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
                 "headers_from": header_from,
             },
         )
-        glean_logger().log_email_blocked(
-            mask=address, reason="error_from_header", can_retry=True
-        )
+        log_email_dropped(reason="error_from_header", mask=address, can_retry=True)
         return HttpResponse("Cannot parse the From address", status=503)
 
     headers: OutgoingHeaders = {
@@ -696,12 +735,10 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     except ClientError as e:
         if e.response["Error"].get("Code", "") == "NoSuchKey":
             logger.error("s3_object_does_not_exist", extra=e.response["Error"])
-            glean_logger().log_email_blocked(mask=address, reason="content_missing")
+            log_email_dropped(reason="content_missing", mask=address)
             return HttpResponse("Email not in S3", status=404)
         logger.error("s3_client_error_get_email", extra=e.response["Error"])
-        glean_logger().log_email_blocked(
-            mask=address, reason="error_storage", can_retry=True
-        )
+        log_email_dropped(reason="error_storage", mask=address, can_retry=True)
         # we are returning a 503 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
@@ -745,9 +782,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         )
     except ClientError:
         # 503 service unavailable reponse to SNS so it can retry
-        glean_logger().log_email_blocked(
-            mask=address, reason="error_sending", can_retry=True
-        )
+        log_email_dropped(reason="error_sending", mask=address, can_retry=True)
         return HttpResponse("SES client error on Raw Email", status=503)
 
     message_id = ses_response["MessageId"]
@@ -1235,9 +1270,7 @@ def _handle_reply(
     if not _reply_allowed(
         from_address, to_address, reply_record, message_id, decrypted_metadata
     ):
-        glean_logger().log_email_blocked(
-            mask=address, is_reply=True, reason="reply_requires_premium"
-        )
+        log_email_dropped(reason="reply_requires_premium", mask=address, is_reply=True)
         return HttpResponse("Relay replies require a premium account", status=403)
 
     outbound_from_address = address.full_address
@@ -1256,13 +1289,11 @@ def _handle_reply(
     except ClientError as e:
         if e.response["Error"].get("Code", "") == "NoSuchKey":
             logger.error("s3_object_does_not_exist", extra=e.response["Error"])
-            glean_logger().log_email_blocked(
-                mask=address, reason="content_missing", is_reply=True
-            )
+            log_email_dropped(reason="content_missing", mask=address, is_reply=True)
             return HttpResponse("Email not in S3", status=404)
         logger.error("s3_client_error_get_email", extra=e.response["Error"])
-        glean_logger().log_email_blocked(
-            mask=address, reason="error_storage", is_reply=True, can_retry=True
+        log_email_dropped(
+            reason="error_storage", mask=address, is_reply=True, can_retry=True
         )
         # we are returning a 500 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
@@ -1281,9 +1312,7 @@ def _handle_reply(
             message=email,
         )
     except ClientError:
-        glean_logger().log_email_blocked(
-            mask=address, reason="error_sending", is_reply=True
-        )
+        log_email_dropped(reason="error_sending", mask=address, is_reply=True)
         return HttpResponse("SES client error", status=400)
 
     reply_record.increment_num_replied()

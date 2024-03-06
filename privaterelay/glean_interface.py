@@ -16,20 +16,10 @@ from .glean.server_events import EventsServerEventLogger, GLEAN_EVENT_MOZLOG_TYP
 from .types import RELAY_CHANNEL_NAME
 
 
-# Enumerate the reasons an email associated with a Relay user is not forwarded
+# Enumerate the mask setting that caused an email to not be forwarded.
 EmailBlockedReason = Literal[
-    "auto_block_spam",  # Email identified as spam, user has the auto_block_spam flag
-    "dmarc_reject_failed",  # Email failed DMARC check with a reject policy
-    "hard_bounce_pause",  # The user recently had a hard bounce
-    "soft_bounce_pause",  # The user recently has a soft bounce
-    "abuse_flag",  # The user exceeded an abuse limit, like mails forwarded
     "block_all",  # The mask is set to block all mail
     "block_promotional",  # The mask is set to block promotional / list mail
-    "reply_requires_premium",  # The email is a reply from a free user
-    "content_missing",  # Could not load the email from storage
-    "error_from_header",  # Error generating the From: header, retryable
-    "error_storage",  # Error fetching the email contents from storage (S3), retryable
-    "error_sending",  # Error sending the forwarded email (SES), retryable
 ]
 
 

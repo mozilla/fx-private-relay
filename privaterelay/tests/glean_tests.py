@@ -561,7 +561,7 @@ def test_log_email_blocked_with_opt_out(
     """A log is not emitted for a blocked email when the user has opted-out"""
     address = baker.make(RelayAddress, user=optout_user)
     glean_logger.log_email_blocked(
-        mask=address, is_reply=False, reason="soft_bounce_pause", can_retry=False
+        mask=address, is_reply=False, reason="block_all", can_retry=False
     )
 
     # Check the one glean-server-event log
