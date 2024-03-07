@@ -69,6 +69,8 @@
       padding: $spacing-lg $spacing-lg $spacing-sm;
       color: $color-grey-50;
       margin-bottom: $spacing-sm;
+      user-select: auto;
+      -webkit-user-select: auto; // Fixes overflow breaking in iOS devices (MPP-3686)
     }
 
     .permanence-warning {
