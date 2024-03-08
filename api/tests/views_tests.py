@@ -14,6 +14,7 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 
 from allauth.socialaccount.models import SocialAccount, SocialApp
+from pytest_django.fixtures import SettingsWrapper
 from waffle.testutils import override_flag
 
 from api.authentication import get_cache_key, INTROSPECT_TOKEN_URL
@@ -24,7 +25,11 @@ from api.tests.authentication_tests import (
 from api.views import FXA_PROFILE_URL
 from emails.models import Profile, RelayAddress, DomainAddress
 from emails.tests.models_tests import make_free_test_user, make_premium_test_user
-from privaterelay.tests.utils import log_extra
+from privaterelay.tests.utils import (
+    create_expected_glean_event,
+    log_extra,
+    get_glean_event,
+)
 
 
 @pytest.fixture
@@ -77,7 +82,9 @@ def test_runtime_data(client):
     assert response.status_code == 200
 
 
-def test_post_domainaddress_success(prem_api_client) -> None:
+def test_post_domainaddress_success(
+    prem_api_client: APIClient, premium_user: User, caplog: pytest.LogCaptureFixture
+) -> None:
     """A premium user can create a domain address."""
     response = prem_api_client.post(
         reverse("domainaddress-list"),
@@ -89,8 +96,27 @@ def test_post_domainaddress_success(prem_api_client) -> None:
     assert ret_data["enabled"]
     assert ret_data["full_address"].startswith("my-new-mask@premium.")
 
+    assert (event := get_glean_event(caplog)) is not None
+    address = premium_user.domainaddress_set.get()
+    expected_event = create_expected_glean_event(
+        category="email_mask",
+        name="created",
+        user=premium_user,
+        extra_items={
+            "n_domain_masks": "1",
+            "mask_id": address.metrics_id,
+            "is_random_mask": "false",
+            "created_by_api": "true",
+            "has_website": "false",
+        },
+        event_time=event["timestamp"],
+    )
+    assert event == expected_event
 
-def test_post_domainaddress_no_subdomain_error(premium_user, prem_api_client) -> None:
+
+def test_post_domainaddress_no_subdomain_error(
+    premium_user: User, prem_api_client: APIClient, caplog: pytest.LogCaptureFixture
+) -> None:
     """A premium user needs to select a subdomain before creating a domain address."""
     premium_profile = premium_user.profile
     premium_profile.subdomain = ""
@@ -108,6 +134,7 @@ def test_post_domainaddress_no_subdomain_error(premium_user, prem_api_client) ->
         "detail": ("Please select a subdomain before creating a custom email address."),
         "error_code": "need_subdomain",
     }
+    assert get_glean_event(caplog) is None
 
 
 def test_patch_premium_user_subdomain_cannot_be_changed(
@@ -260,7 +287,9 @@ def test_profile_patch_fields_that_dont_exist(premium_user, prem_api_client):
     assert response.status_code == 200
 
 
-def test_post_domainaddress_user_flagged_error(premium_user, prem_api_client) -> None:
+def test_post_domainaddress_user_flagged_error(
+    premium_user: User, prem_api_client: APIClient, caplog: pytest.LogCaptureFixture
+) -> None:
     """A flagged user cannot create a new domain address."""
     premium_profile = premium_user.profile
     premium_profile.last_account_flagged = timezone.now()
@@ -278,9 +307,12 @@ def test_post_domainaddress_user_flagged_error(premium_user, prem_api_client) ->
         "detail": "Your account is on pause.",
         "error_code": "account_is_paused",
     }
+    assert get_glean_event(caplog) is None
 
 
-def test_post_domainaddress_bad_address_error(prem_api_client) -> None:
+def test_post_domainaddress_bad_address_error(
+    prem_api_client: APIClient, caplog: pytest.LogCaptureFixture
+) -> None:
     """A domain address can be rejected due to the address format or content."""
     response = prem_api_client.post(
         reverse("domainaddress-list"),
@@ -300,9 +332,12 @@ def test_post_domainaddress_bad_address_error(prem_api_client) -> None:
         "error_code": "address_unavailable",
         "error_context": {"unavailable_address": "myNewAlias"},
     }
+    assert get_glean_event(caplog) is None
 
 
-def test_post_domainaddress_free_user_error(free_api_client):
+def test_post_domainaddress_free_user_error(
+    free_api_client: APIClient, caplog: pytest.LogCaptureFixture
+) -> None:
     """A free user is not allowed to create a domain address."""
     response = free_api_client.post(
         reverse("domainaddress-list"), data={"address": "my-new-alias"}, format="json"
@@ -319,10 +354,13 @@ def test_post_domainaddress_free_user_error(free_api_client):
         ),
         "error_code": "free_tier_no_subdomain_masks",
     }
+    assert get_glean_event(caplog) is None
 
 
 @pytest.mark.django_db(transaction=True)
-def test_post_domainaddress_conflict_existing(prem_api_client, premium_user):
+def test_post_domainaddress_conflict_existing(
+    prem_api_client: APIClient, premium_user: User, caplog: pytest.LogCaptureFixture
+) -> None:
     """A user can not create a duplicate domain address."""
     DomainAddress.objects.create(user=premium_user, address="my-new-alias")
     response = prem_api_client.post(
@@ -341,11 +379,14 @@ def test_post_domainaddress_conflict_existing(prem_api_client, premium_user):
         "error_code": "duplicate_address",
         "error_context": {"duplicate_address": "my-new-alias"},
     }
+    assert get_glean_event(caplog) is None
 
 
 @pytest.mark.django_db(transaction=True)
 @override_flag("custom_domain_management_redesign", active=True)
-def test_post_domainaddress_conflict_deleted(prem_api_client, premium_user):
+def test_post_domainaddress_conflict_deleted(
+    prem_api_client: APIClient, premium_user: User, caplog: pytest.LogCaptureFixture
+) -> None:
     """A user can not create a domain address that matches a deleted address."""
     existing = DomainAddress.objects.create(user=premium_user, address="my-new-alias")
     existing.delete()
@@ -365,6 +406,7 @@ def test_post_domainaddress_conflict_deleted(prem_api_client, premium_user):
         "error_code": "address_unavailable",
         "error_context": {"unavailable_address": "my-new-alias"},
     }
+    assert get_glean_event(caplog) is None
 
 
 @pytest.mark.parametrize(
@@ -377,7 +419,11 @@ def test_post_domainaddress_conflict_deleted(prem_api_client, premium_user):
     ],
 )
 def test_patch_domainaddress(
-    prem_api_client: APIClient, premium_user: User, key: str, value: str
+    prem_api_client: APIClient,
+    premium_user: User,
+    caplog: pytest.LogCaptureFixture,
+    key: str,
+    value: str | bool,
 ) -> None:
     """PATCH can update a writable field for a domain address."""
     existing = DomainAddress.objects.create(user=premium_user, address="my-new-alias")
@@ -391,10 +437,31 @@ def test_patch_domainaddress(
     existing.refresh_from_db()
     assert getattr(existing, key) == value
 
+    event = get_glean_event(caplog)
+    if key == "description":
+        assert event is not None
+        expected_event = create_expected_glean_event(
+            category="email_mask",
+            name="label_updated",
+            user=premium_user,
+            extra_items={
+                "n_domain_masks": "1",
+                "mask_id": existing.metrics_id,
+                "is_random_mask": "false",
+            },
+            event_time=event["timestamp"],
+        )
+        assert event == expected_event
+    else:
+        assert event is None
+
 
 @pytest.mark.parametrize("key", ("enabled", "description", "block_list_emails"))
 def test_patch_domainaddress_same_value(
-    prem_api_client: APIClient, premium_user: User, key: str
+    prem_api_client: APIClient,
+    premium_user: User,
+    caplog: pytest.LogCaptureFixture,
+    key: str,
 ) -> None:
     """PATCH can write the same value to a writable field for a domain address."""
     existing = DomainAddress.objects.create(user=premium_user, address="my-new-alias")
@@ -407,11 +474,15 @@ def test_patch_domainaddress_same_value(
     assert ret_data[key] == value
     existing.refresh_from_db()
     assert getattr(existing, key) == value
+    assert get_glean_event(caplog) is None
 
 
 @pytest.mark.parametrize("value", ("", None))
 def test_patch_domainaddress_same_value_used_on(
-    prem_api_client: APIClient, premium_user: User, value: str | None
+    prem_api_client: APIClient,
+    premium_user: User,
+    caplog: pytest.LogCaptureFixture,
+    value: str | None,
 ) -> None:
     """
     PATCH can write an empty value to used_on on a domain address.
@@ -428,6 +499,7 @@ def test_patch_domainaddress_same_value_used_on(
     assert ret_data["used_on"] == value
     existing.refresh_from_db()
     assert existing.used_on == value
+    assert get_glean_event(caplog) is None
 
 
 @pytest.mark.parametrize(
@@ -448,7 +520,11 @@ def test_patch_domainaddress_same_value_used_on(
     ],
 )
 def test_patch_domainaddress_read_only(
-    prem_api_client: APIClient, premium_user: User, key: str, value: str
+    prem_api_client: APIClient,
+    premium_user: User,
+    caplog: pytest.LogCaptureFixture,
+    key: str,
+    value: int | str,
 ) -> None:
     """PATCH succeeds but does not change read-only fields."""
     existing = DomainAddress.objects.create(user=premium_user, address="my-new-alias")
@@ -465,10 +541,11 @@ def test_patch_domainaddress_read_only(
     existing.refresh_from_db()
     assert getattr(existing, key) == old_value
     assert existing.last_modified_at > old_modified_at
+    assert get_glean_event(caplog) is None
 
 
 def test_patch_domainaddress_read_only_mask_type(
-    prem_api_client: APIClient, premium_user: User
+    prem_api_client: APIClient, premium_user: User, caplog: pytest.LogCaptureFixture
 ) -> None:
     """PATCH succeeds but does not change or return the mask_type."""
     existing = DomainAddress.objects.create(user=premium_user, address="my-new-alias")
@@ -480,17 +557,37 @@ def test_patch_domainaddress_read_only_mask_type(
     assert response.status_code == 200
     ret_data = response.json()
     assert "mask_type" not in ret_data
+    assert get_glean_event(caplog) is None
 
 
-def test_delete_domainaddress(prem_api_client: APIClient, premium_user: User) -> None:
+def test_delete_domainaddress(
+    prem_api_client: APIClient, premium_user: User, caplog: pytest.LogCaptureFixture
+) -> None:
     existing = DomainAddress.objects.create(user=premium_user, address="my-doomed-mask")
+    existing_mask_id = existing.metrics_id
     url = reverse("domainaddress-detail", args=[existing.id])
     response = prem_api_client.delete(url)
     assert response.status_code == 204
     assert not DomainAddress.objects.filter(id=existing.id).exists()
 
+    assert (event := get_glean_event(caplog)) is not None
+    expected_event = create_expected_glean_event(
+        category="email_mask",
+        name="deleted",
+        user=premium_user,
+        extra_items={
+            "n_deleted_domain_masks": "1",
+            "mask_id": existing_mask_id,
+            "is_random_mask": "false",
+        },
+        event_time=event["timestamp"],
+    )
+    assert event == expected_event
 
-def test_post_relayaddress_success(free_api_client, free_user) -> None:
+
+def test_post_relayaddress_success(
+    free_api_client: APIClient, free_user: User, caplog: pytest.LogCaptureFixture
+) -> None:
     """A free user is able to create a random address."""
     response = free_api_client.post(
         reverse("relayaddress-list"), data={}, format="json"
@@ -500,9 +597,26 @@ def test_post_relayaddress_success(free_api_client, free_user) -> None:
     ret_data = response.json()
     assert ret_data["enabled"]
 
+    assert (event := get_glean_event(caplog)) is not None
+    address = free_user.relayaddress_set.get()
+    expected_event = create_expected_glean_event(
+        category="email_mask",
+        name="created",
+        user=free_user,
+        extra_items={
+            "n_random_masks": "1",
+            "mask_id": address.metrics_id,
+            "is_random_mask": "true",
+            "created_by_api": "true",
+            "has_website": "false",
+        },
+        event_time=event["timestamp"],
+    )
+    assert event == expected_event
+
 
 def test_post_relayaddress_with_generated_for_success(
-    free_api_client: APIClient, free_user: User
+    free_api_client: APIClient, free_user: User, caplog: pytest.LogCaptureFixture
 ) -> None:
     """A mask generated on a website sets has_generated_for"""
     response = free_api_client.post(
@@ -512,9 +626,31 @@ def test_post_relayaddress_with_generated_for_success(
     )
     assert response.status_code == 201
 
+    assert (event := get_glean_event(caplog)) is not None
+    address = free_user.relayaddress_set.get()
+    expected_event = create_expected_glean_event(
+        category="email_mask",
+        name="created",
+        user=free_user,
+        extra_items={
+            "n_random_masks": "1",
+            "has_extension": "true",
+            "date_got_extension": str(int(address.created_at.timestamp())),
+            "mask_id": address.metrics_id,
+            "is_random_mask": "true",
+            "created_by_api": "true",
+            "has_website": "true",
+        },
+        event_time=event["timestamp"],
+    )
+    assert event == expected_event
+
 
 def test_post_relayaddress_free_mask_email_limit_error(
-    settings, free_user, free_api_client
+    settings: SettingsWrapper,
+    free_user: User,
+    free_api_client: APIClient,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """A free user is unable to exceed the mask limit."""
     for _ in range(settings.MAX_NUM_FREE_ALIASES):
@@ -537,9 +673,12 @@ def test_post_relayaddress_free_mask_email_limit_error(
         "error_code": "free_tier_limit",
         "error_context": {"free_tier_limit": 5},
     }
+    assert get_glean_event(caplog) is None
 
 
-def test_post_relayaddress_flagged_error(free_user, free_api_client) -> None:
+def test_post_relayaddress_flagged_error(
+    free_user: User, free_api_client: APIClient, caplog: pytest.LogCaptureFixture
+) -> None:
     """A flagged user is unable to create a random mask."""
     free_profile = free_user.profile
     free_profile.last_account_flagged = timezone.now()
@@ -553,6 +692,7 @@ def test_post_relayaddress_flagged_error(free_user, free_api_client) -> None:
         "detail": "Your account is on pause.",
         "error_code": "account_is_paused",
     }
+    assert get_glean_event(caplog) is None
 
 
 @pytest.mark.parametrize(
@@ -565,7 +705,11 @@ def test_post_relayaddress_flagged_error(free_user, free_api_client) -> None:
     ],
 )
 def test_patch_relayaddress(
-    free_api_client: APIClient, free_user: User, key: str, value: str | bool
+    free_api_client: APIClient,
+    free_user: User,
+    caplog: pytest.LogCaptureFixture,
+    key: str,
+    value: str | bool,
 ) -> None:
     """PATCH can update a writable field for a random address."""
     existing = RelayAddress.objects.create(user=free_user)
@@ -579,12 +723,33 @@ def test_patch_relayaddress(
     existing.refresh_from_db()
     assert getattr(existing, key) == value
 
+    event = get_glean_event(caplog)
+    if key == "description":
+        assert event is not None
+        expected_event = create_expected_glean_event(
+            category="email_mask",
+            name="label_updated",
+            user=free_user,
+            extra_items={
+                "n_random_masks": "1",
+                "mask_id": existing.metrics_id,
+                "is_random_mask": "true",
+            },
+            event_time=event["timestamp"],
+        )
+        assert event == expected_event
+    else:
+        assert event is None
+
 
 @pytest.mark.parametrize(
     "key", ("enabled", "description", "generated_for", "block_list_emails")
 )
 def test_patch_relayaddress_same_value(
-    free_api_client: APIClient, free_user: User, key: str
+    free_api_client: APIClient,
+    free_user: User,
+    caplog: pytest.LogCaptureFixture,
+    key: str,
 ) -> None:
     """PATCH can write the same value to a writable field for a random address."""
     existing = RelayAddress.objects.create(user=free_user)
@@ -597,11 +762,15 @@ def test_patch_relayaddress_same_value(
     assert ret_data[key] == value
     existing.refresh_from_db()
     assert getattr(existing, key) == value
+    assert get_glean_event(caplog) is None
 
 
 @pytest.mark.parametrize("value", ("", None))
 def test_patch_relayaddress_same_value_used_on(
-    free_api_client: APIClient, free_user: User, value: str | None
+    free_api_client: APIClient,
+    free_user: User,
+    caplog: pytest.LogCaptureFixture,
+    value: str | None,
 ) -> None:
     """
     PATCH can write an empty value to used_on on a random address.
@@ -618,6 +787,7 @@ def test_patch_relayaddress_same_value_used_on(
     assert ret_data["used_on"] == value
     existing.refresh_from_db()
     assert existing.used_on == value
+    assert get_glean_event(caplog) is None
 
 
 @pytest.mark.parametrize(
@@ -672,7 +842,7 @@ def test_patch_relayaddress_read_only_mask_type(
 
 
 def test_patch_relayaddress_free_user_cannot_set_block_list_emails(
-    free_user, free_api_client
+    free_user: User, free_api_client: APIClient, caplog: pytest.LogCaptureFixture
 ) -> None:
     """A free user cannot set block_list_emails to True"""
     ra = baker.make(RelayAddress, user=free_user, enabled=True, block_list_emails=False)
@@ -686,10 +856,11 @@ def test_patch_relayaddress_free_user_cannot_set_block_list_emails(
     ra.refresh_from_db()
     assert ra.enabled is True
     assert ra.block_list_emails is False
+    assert get_glean_event(caplog) is None
 
 
 def test_patch_relayaddress_format_premium_user_can_clear_block_list_emails(
-    premium_user, prem_api_client
+    premium_user: User, prem_api_client: APIClient, caplog: pytest.LogCaptureFixture
 ) -> None:
     """A formerly-premium user can set block_list_emails to False"""
     # Create a Relay Address with promotions blocked
@@ -699,6 +870,7 @@ def test_patch_relayaddress_format_premium_user_can_clear_block_list_emails(
 
     # Unsubscribe the premium user
     fxa_account = premium_user.profile.fxa
+    assert fxa_account
     fxa_account.extra_data["subscriptions"] = []
     fxa_account.save()
     assert not premium_user.profile.has_premium
@@ -713,14 +885,32 @@ def test_patch_relayaddress_format_premium_user_can_clear_block_list_emails(
     ra.refresh_from_db()
     assert ra.enabled is True
     assert ra.block_list_emails is False
+    assert get_glean_event(caplog) is None
 
 
-def test_delete_randomaddress(free_api_client: APIClient, free_user: User) -> None:
+def test_delete_randomaddress(
+    free_api_client: APIClient, free_user: User, caplog: pytest.LogCaptureFixture
+) -> None:
     existing = RelayAddress.objects.create(user=free_user)
+    existing_mask_id = existing.metrics_id
     url = reverse("relayaddress-detail", args=[existing.id])
     response = free_api_client.delete(url)
     assert response.status_code == 204
     assert not RelayAddress.objects.filter(id=existing.id).exists()
+
+    assert (event := get_glean_event(caplog)) is not None
+    expected_event = create_expected_glean_event(
+        category="email_mask",
+        name="deleted",
+        user=free_user,
+        extra_items={
+            "n_deleted_random_masks": "1",
+            "mask_id": existing_mask_id,
+            "is_random_mask": "true",
+        },
+        event_time=event["timestamp"],
+    )
+    assert event == expected_event
 
 
 @pytest.mark.usefixtures("fxa_social_app")

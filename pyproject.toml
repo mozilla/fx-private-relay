@@ -35,6 +35,7 @@ module = [
     "django_ftl.bundles",
     "google_measurement_protocol",
     "googlecloudprofiler",
+    "ipware",
     "jwcrypto",
     "jwcrypto.jwe",
     "jwcrypto.jwk",

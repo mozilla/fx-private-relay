@@ -13,7 +13,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.urls.exceptions import NoReverseMatch
 import requests
-from typing import Any
+from typing import Any, Generic, TypeVar
 
 from django.apps import apps
 from django.conf import settings
@@ -28,6 +28,7 @@ from rest_framework.exceptions import (
     ParseError,
 )
 from rest_framework.response import Response
+from rest_framework.serializers import BaseSerializer
 from rest_framework.views import exception_handler
 
 from allauth.account.adapter import get_adapter as get_account_adapter
@@ -54,7 +55,7 @@ from privaterelay.plans import (
     get_premium_country_language_mapping,
     get_phone_country_language_mapping,
 )
-from privaterelay.utils import get_countries_info_from_request_and_mapping
+from privaterelay.utils import get_countries_info_from_request_and_mapping, glean_logger
 
 from emails.models import (
     DomainAddress,
@@ -115,7 +116,43 @@ class RelayAddressFilter(filters.FilterSet):
         ]
 
 
-class RelayAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
+_Address = TypeVar("_Address", RelayAddress, DomainAddress)
+
+
+class AddressViewSet(Generic[_Address], SaveToRequestUser, viewsets.ModelViewSet):
+    def perform_create(self, serializer: BaseSerializer[_Address]) -> None:
+        super().perform_create(serializer)
+        assert serializer.instance
+        glean_logger().log_email_mask_created(
+            request=self.request,
+            mask=serializer.instance,
+            created_by_api=True,
+        )
+
+    def perform_update(self, serializer: BaseSerializer[_Address]) -> None:
+        assert serializer.instance is not None
+        old_description = serializer.instance.description
+        super().perform_update(serializer)
+        new_description = serializer.instance.description
+        if old_description != new_description:
+            glean_logger().log_email_mask_label_updated(
+                request=self.request, mask=serializer.instance
+            )
+
+    def perform_destroy(self, instance: _Address) -> None:
+        mask_id = instance.metrics_id
+        user = instance.user
+        is_random_mask = isinstance(instance, RelayAddress)
+        super().perform_destroy(instance)
+        glean_logger().log_email_mask_deleted(
+            request=self.request,
+            user=user,
+            mask_id=mask_id,
+            is_random_mask=is_random_mask,
+        )
+
+
+class RelayAddressViewSet(AddressViewSet[RelayAddress]):
     serializer_class = RelayAddressSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwner]
     filterset_class = RelayAddressFilter
@@ -148,7 +185,7 @@ class DomainAddressFilter(filters.FilterSet):
         ]
 
 
-class DomainAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
+class DomainAddressViewSet(AddressViewSet[DomainAddress]):
     serializer_class = DomainAddressSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwner]
     filterset_class = DomainAddressFilter
