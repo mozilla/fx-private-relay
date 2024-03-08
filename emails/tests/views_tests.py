@@ -1275,7 +1275,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
             event_time=timestamp,
         )
 
-    def assert_my_log_email_dropped(
+    def assert_log_incoming_email_dropped(
         self,
         caplog: _LoggingWatcher,
         reason: EmailDroppedReason,
@@ -1297,7 +1297,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 200
         assert response.content == b"Address rejects spam."
-        self.assert_my_log_email_dropped(caplog, "auto_block_spam")
+        self.assert_log_incoming_email_dropped(caplog, "auto_block_spam")
         mm.assert_incr_once("fx.private.relay.email_auto_suppressed_for_spam")
 
     def test_user_bounce_soft_paused_email_in_s3_deleted(self) -> None:
@@ -1309,7 +1309,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 200
         assert response.content == b"Address is temporarily disabled."
-        self.assert_my_log_email_dropped(caplog, "soft_bounce_pause")
+        self.assert_log_incoming_email_dropped(caplog, "soft_bounce_pause")
         mm.assert_incr_once("fx.private.relay.email_suppressed_for_soft_bounce")
 
     def test_user_bounce_hard_paused_email_in_s3_deleted(self) -> None:
@@ -1321,7 +1321,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 200
         assert response.content == b"Address is temporarily disabled."
-        self.assert_my_log_email_dropped(caplog, "hard_bounce_pause")
+        self.assert_log_incoming_email_dropped(caplog, "hard_bounce_pause")
         mm.assert_incr_once("fx.private.relay.email_suppressed_for_hard_bounce")
 
     @patch("emails.views._reply_allowed")
@@ -1339,7 +1339,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 403
         assert response.content == b"Relay replies require a premium account"
-        self.assert_my_log_email_dropped(caplog, "reply_requires_premium")
+        self.assert_log_incoming_email_dropped(caplog, "reply_requires_premium")
 
     def test_flagged_user_email_in_s3_deleted(self) -> None:
         profile = self.address.user.profile
@@ -1355,7 +1355,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         assert response.content == b"Address is temporarily disabled."
         profile.refresh_from_db()
         assert profile.last_engagement == pre_flagged_last_engagement
-        self.assert_my_log_email_dropped(caplog, "abuse_flag")
+        self.assert_log_incoming_email_dropped(caplog, "abuse_flag")
 
     def test_relay_address_disabled_email_in_s3_deleted(self) -> None:
         self.address.enabled = False
@@ -1420,7 +1420,9 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         assert response.status_code == 503
         assert response.content == b"Cannot fetch the message content from S3"
 
-        self.assert_my_log_email_dropped(info_caplog, "error_storage", can_retry=True)
+        self.assert_log_incoming_email_dropped(
+            info_caplog, "error_storage", can_retry=True
+        )
         assert len(error_caplog.records) == 1
         error_log = error_caplog.records[0]
         assert error_log.message == "s3_client_error_get_email"
@@ -1441,7 +1443,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         self.mock_remove_message_from_s3.assert_not_called()
         assert response.status_code == 503
         assert response.content == b"SES client error on Raw Email"
-        self.assert_my_log_email_dropped(caplog, "error_sending", can_retry=True)
+        self.assert_log_incoming_email_dropped(caplog, "error_sending", can_retry=True)
 
     @patch("emails.apps.EmailsConfig.ses_client", spec_set=["send_raw_email"])
     @patch("emails.views.get_message_content_from_s3")
