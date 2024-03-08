@@ -810,7 +810,7 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
         assert (last_en := self.relay_address.user.profile.last_engagement) is not None
         assert last_en > self.pre_reply_last_engagement
 
-    def assert_my_log_email_dropped(
+    def assert_log_reply_email_dropped(
         self,
         caplog: _LoggingWatcher,
         reason: EmailDroppedReason,
@@ -839,7 +839,7 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
             response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
         assert response.status_code == 403
         assert response.content == b"Relay replies require a premium account"
-        self.assert_my_log_email_dropped(caplog, "reply_requires_premium")
+        self.assert_log_reply_email_dropped(caplog, "reply_requires_premium")
 
     def test_get_message_content_from_s3_not_found(self) -> None:
         self.mock_get_content.side_effect = ClientError(
@@ -859,7 +859,7 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
         assert events_log.message == "s3_object_does_not_exist"
         assert getattr(events_log, "Code") == "NoSuchKey"
         assert getattr(events_log, "Message") == "the message"
-        self.assert_my_log_email_dropped(info_caplog, "content_missing")
+        self.assert_log_reply_email_dropped(info_caplog, "content_missing")
 
     def test_get_message_content_from_s3_other_error(self) -> None:
         self.mock_get_content.side_effect = ClientError(
@@ -874,7 +874,9 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
         assert response.status_code == 503
         assert response.content == b"Cannot fetch the message content from S3"
 
-        self.assert_my_log_email_dropped(info_caplog, "error_storage", can_retry=True)
+        self.assert_log_reply_email_dropped(
+            info_caplog, "error_storage", can_retry=True
+        )
         assert len(error_caplog.records) == 1
         error_log = error_caplog.records[0]
         assert error_log.message == "s3_client_error_get_email"
@@ -893,7 +895,7 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
         assert response.status_code == 400
         assert response.content == b"SES client error"
 
-        self.assert_my_log_email_dropped(info_caplog, "error_sending")
+        self.assert_log_reply_email_dropped(info_caplog, "error_sending")
         assert len(error_caplog.records) == 1
         error_log = error_caplog.records[0]
         assert error_log.message == "ses_client_error_raw_email"
