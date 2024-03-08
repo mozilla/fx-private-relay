@@ -24,25 +24,29 @@ executors:
   # https://circleci.com/docs/configuration-reference/#docker
   # https://circleci.com/docs/circleci-images/
   # https://circleci.com/docs/introduction-to-yaml-configurations/#anchors-and-aliases
-  docker:
+  base:
     docker:
-      # https://hub.docker.com/_/docker
-      - image: docker:<<parameters.docker_version>><<parameters.variant>>
+      # https://circleci.com/developer/images/image/cimg/base
+      - image: cimg/base:<<parameters.cimg_version>><<parameters.ubuntu_version>>
         auth: &default_auth
           username: $DOCKER_USER
           password: $DOCKER_PASS
     parameters:
-      docker_version:
-        description: "version tag"
-        default: "stable"
-        type: string
-      variant:
-        description: "version tag"
+      cimg_version:
+        description: "CircleCI version tag"
+        default: "current"
+        type: enum
+        # current - Latest production ready base image, updated monthly
+        # edge - Lastest HEAD base image
+        # <YYYY.MM> - The monthly snapshot, used for the most deterministic builds.
+        enum: ["current", "edge", "2024.02", "2024.01"]
+      ubuntu_version:
+        description: "optional Ubuntu version"
         default: ""
         type: enum
-        # Partial list of variants, see https://hub.docker.com/_/docker
-        # Note: "-ce" is a retired variant "Community Edition" for the 18.02 series
-        enum: ["", "-git", "-ce"]
+        # For current supported Ubuntu versions, see:
+        # https://circleci.com/developer/images/image/cimg/base
+        enum: ["", "-20.04", "-22.04"]
   node:
     # https://circleci.com/developer/images/image/cimg/node
     docker:
@@ -182,34 +186,25 @@ jobs:
 
   build_test_backend:
     executor:
-      name: docker
-      variant: "-git"
-    working_directory: /dockerflow
+      name: base
+    working_directory: "/home/circleci/backend-project"
     steps:
       - attach_workspace:
           at: /tmp/workspace
       - checkout_with_submodules
       - setup_remote_docker:
-          # Use a version of Docker that works with Node, see
-          # https://support.circleci.com/hc/en-us/articles/360050934711-Docker-build-fails-with-EPERM-operation-not-permitted-copyfile-when-using-node-14-9-0-or-later-
-          # (apparently version 17.09.0-ce is lower than 1.9.1, but 19.03.13 is not?)
-          # and
-          # https://github.com/nodejs/docker-node#supported-docker-versions
-          # and
-          # https://circleci.com/docs/2.0/building-docker-images/#docker-version
-          version: 20.10.11
           docker_layer_caching: True
       - restore_cache:
           key: v1-frontend-build-{{ .Branch }}-{{ .Revision }}
       - run:
           name: Copy build artefacts from build_frontend into this folder
-          command: mv /home/circleci/project/frontend/out /dockerflow/frontend/
+          command: mv /home/circleci/project/frontend/out ${CIRCLE_WORKING_DIRECTORY}/frontend/
 
       - run:
           name: Copy email tracker lists into this folder
           command: |
-            cp /tmp/workspace/email-trackers/level-one-trackers.json /dockerflow/emails/tracker_lists/
-            cp /tmp/workspace/email-trackers/level-two-trackers.json /dockerflow/emails/tracker_lists/
+            cp /tmp/workspace/email-trackers/level-one-trackers.json ${CIRCLE_WORKING_DIRECTORY}/emails/tracker_lists/
+            cp /tmp/workspace/email-trackers/level-two-trackers.json ${CIRCLE_WORKING_DIRECTORY}/emails/tracker_lists/
 
       - run:
           name: Create a version.json
@@ -326,10 +321,7 @@ jobs:
 
   deploy:
     executor:
-      name: docker
-      # TODO: Try to update this. Published Feb 2018.
-      docker_version: "18.02.0"
-      variant: "-ce"
+      name: base
     steps:
       - setup_remote_docker:
           docker_layer_caching: True

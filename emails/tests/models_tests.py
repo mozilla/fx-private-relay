@@ -46,9 +46,8 @@ def make_free_test_user(email: str = "") -> User:
         user = baker.make(User, email=email)
     else:
         user = baker.make(User)
-    user_profile = Profile.objects.get(user=user)
-    user_profile.server_storage = True
-    user_profile.save()
+    user.profile.server_storage = True
+    user.profile.save()
     baker.make(
         SocialAccount,
         user=user,
@@ -60,17 +59,15 @@ def make_free_test_user(email: str = "") -> User:
 
 
 def make_premium_test_user() -> User:
-    # premium user
     premium_user = baker.make(User, email="premium@email.com")
-    premium_user_profile = Profile.objects.get(user=premium_user)
-    premium_user_profile.server_storage = True
-    premium_user_profile.date_subscribed = datetime.now(tz=timezone.utc)
-    premium_user_profile.save()
+    premium_user.profile.server_storage = True
+    premium_user.profile.date_subscribed = datetime.now(tz=timezone.utc)
+    premium_user.profile.save()
     upgrade_test_user_to_premium(premium_user)
     return premium_user
 
 
-def make_storageless_test_user():
+def make_storageless_test_user() -> User:
     storageless_user = baker.make(User)
     storageless_user_profile = storageless_user.profile
     storageless_user_profile.server_storage = False
@@ -81,16 +78,20 @@ def make_storageless_test_user():
     return storageless_user
 
 
-def unlimited_subscription() -> str:
-    return random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
-
-
-def phone_subscription() -> str:
-    return random.choice(settings.SUBSCRIPTIONS_WITH_PHONE)
+def premium_subscription() -> str:
+    """Return a Mozilla account subscription that provides unlimited emails"""
+    assert settings.SUBSCRIPTIONS_WITH_UNLIMITED
+    premium_only_plans = list(
+        set(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
+        - set(settings.SUBSCRIPTIONS_WITH_PHONE)
+        - set(settings.SUBSCRIPTIONS_WITH_VPN)
+    )
+    assert premium_only_plans
+    return random.choice(premium_only_plans)
 
 
 def upgrade_test_user_to_premium(user):
-    random_sub = unlimited_subscription()
+    random_sub = premium_subscription()
     baker.make(
         SocialAccount,
         user=user,
@@ -99,6 +100,30 @@ def upgrade_test_user_to_premium(user):
         extra_data={"avatar": "avatar.png", "subscriptions": [random_sub]},
     )
     return user
+
+
+def phone_subscription() -> str:
+    """Return a Mozilla account subscription that provides a phone mask"""
+    assert settings.SUBSCRIPTIONS_WITH_PHONE
+    phones_only_plans = list(
+        set(settings.SUBSCRIPTIONS_WITH_PHONE)
+        - set(settings.SUBSCRIPTIONS_WITH_VPN)
+        - set(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
+    )
+    assert phones_only_plans
+    return random.choice(phones_only_plans)
+
+
+def vpn_subscription() -> str:
+    """Return a Mozilla account subscription that provides the VPN"""
+    assert settings.SUBSCRIPTIONS_WITH_VPN
+    vpn_only_plans = list(
+        set(settings.SUBSCRIPTIONS_WITH_VPN)
+        - set(settings.SUBSCRIPTIONS_WITH_PHONE)
+        - set(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
+    )
+    assert vpn_only_plans
+    return random.choice(vpn_only_plans)
 
 
 class MiscEmailModelsTest(TestCase):
@@ -475,21 +500,35 @@ class ProfileTestCase(TestCase):
         social_account, _ = SocialAccount.objects.get_or_create(
             user=self.profile.user,
             provider="fxa",
-            uid=str(uuid4()),
-            defaults={"extra_data": {"avatar": "image.png", "subscriptions": []}},
+            defaults={
+                "uid": str(uuid4()),
+                "extra_data": {"avatar": "image.png", "subscriptions": []},
+            },
         )
         return social_account
 
     def upgrade_to_premium(self) -> None:
-        """Add a unlimited subscription to the user."""
+        """Add an unlimited emails subscription to the user."""
         social_account = self.get_or_create_social_account()
-        social_account.extra_data["subscriptions"].append(unlimited_subscription())
+        social_account.extra_data["subscriptions"].append(premium_subscription())
         social_account.save()
 
-    def upgrade_to_phone_premium(self) -> None:
-        """Add a phone subscription to the user."""
+    def upgrade_to_phone(self) -> None:
+        """Add a phone plan to the user."""
         social_account = self.get_or_create_social_account()
         social_account.extra_data["subscriptions"].append(phone_subscription())
+        if not self.profile.has_premium:
+            social_account.extra_data["subscriptions"].append(premium_subscription())
+        social_account.save()
+
+    def upgrade_to_vpn_bundle(self) -> None:
+        """Add a phone plan to the user."""
+        social_account = self.get_or_create_social_account()
+        social_account.extra_data["subscriptions"].append(vpn_subscription())
+        if not self.profile.has_premium:
+            social_account.extra_data["subscriptions"].append(premium_subscription())
+        if not self.profile.has_phone:
+            social_account.extra_data["subscriptions"].append(phone_subscription())
         social_account.save()
 
 
@@ -634,8 +673,16 @@ class ProfileHasPremiumTest(ProfileTestCase):
     def test_default_False(self) -> None:
         assert self.profile.has_premium is False
 
-    def test_unlimited_subsription_returns_True(self) -> None:
+    def test_premium_subscription_returns_True(self) -> None:
         self.upgrade_to_premium()
+        assert self.profile.has_premium is True
+
+    def test_phone_returns_True(self) -> None:
+        self.upgrade_to_phone()
+        assert self.profile.has_premium is True
+
+    def test_vpn_bundle_returns_True(self) -> None:
+        self.upgrade_to_vpn_bundle()
         assert self.profile.has_premium is True
 
 
@@ -645,8 +692,16 @@ class ProfileHasPhoneTest(ProfileTestCase):
     def test_default_False(self) -> None:
         assert self.profile.has_phone is False
 
-    def test_phone_subscription_returns_True(self) -> None:
-        self.upgrade_to_phone_premium()
+    def test_premium_subscription_returns_False(self) -> None:
+        self.upgrade_to_premium()
+        assert self.profile.has_phone is False
+
+    def test_phone_returns_True(self) -> None:
+        self.upgrade_to_phone()
+        assert self.profile.has_phone is True
+
+    def test_vpn_bundle_returns_True(self) -> None:
+        self.upgrade_to_vpn_bundle()
         assert self.profile.has_phone is True
 
 
@@ -659,7 +714,7 @@ class ProfileDatePhoneRegisteredTest(ProfileTestCase):
         assert self.profile.date_phone_registered is None
 
     def test_real_phone_no_relay_number_returns_verified_date(self) -> None:
-        self.upgrade_to_phone_premium()
+        self.upgrade_to_phone()
         datetime_now = datetime.now(timezone.utc)
         RealPhone.objects.create(
             user=self.profile.user,
@@ -672,7 +727,7 @@ class ProfileDatePhoneRegisteredTest(ProfileTestCase):
     def test_real_phone_and_relay_number_w_created_at_returns_created_at_date(
         self,
     ) -> None:
-        self.upgrade_to_phone_premium()
+        self.upgrade_to_phone()
         datetime_now = datetime.now(timezone.utc)
         phone_user = self.profile.user
         RealPhone.objects.create(
@@ -687,7 +742,7 @@ class ProfileDatePhoneRegisteredTest(ProfileTestCase):
     def test_real_phone_and_relay_number_wo_created_at_returns_verified_date(
         self,
     ) -> None:
-        self.upgrade_to_phone_premium()
+        self.upgrade_to_phone()
         datetime_now = datetime.now(timezone.utc)
         phone_user = self.profile.user
         real_phone = RealPhone.objects.create(
@@ -1190,7 +1245,6 @@ class ProfileUpdateAbuseMetricTest(ProfileTestCase):
 
 
 class ProfileMetricsEnabledTest(ProfileTestCase):
-
     def test_no_fxa_means_metrics_enabled(self) -> None:
         assert not self.profile.fxa
         assert self.profile.metrics_enabled
@@ -1289,7 +1343,7 @@ class DomainAddressTest(TestCase):
             SocialAccount,
             user=user,
             provider="fxa",
-            extra_data={"subscriptions": [unlimited_subscription()]},
+            extra_data={"subscriptions": [premium_subscription()]},
         )
         user_profile = Profile.objects.get(user=user)
         with pytest.raises(CannotMakeAddressException) as exc_info:

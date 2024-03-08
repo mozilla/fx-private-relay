@@ -15,7 +15,7 @@ export function useFirstSeen(): Date | null {
   const isLoggedIn = useIsLoggedIn();
   const profileData = useProfiles();
 
-  if (!isLoggedIn || !profileData.data?.[0].id) {
+  if (!(isLoggedIn === "logged-in") || !profileData.data?.[0].id) {
     return null;
   }
 

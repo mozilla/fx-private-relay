@@ -1,15 +1,17 @@
 import { APIRequestContext, Page, request } from '@playwright/test';
 
-export const ENV_DOMAINS = {
+export const ENV_EMAIL_DOMAINS = {
   stage: '@mozmail.fxprivaterelay.nonprod.cloudops.mozgcp.net',
   prod: '@mozmail.com',
-  dev: '@mozmail.dev.fxprivaterelay.nonprod.cloudops.mozgcp.net'
+  dev: '@mozmail.dev.fxprivaterelay.nonprod.cloudops.mozgcp.net',
+  local: '@mozmail.com'
 }
 
 export const ENV_URLS = {
   stage: 'https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net',
   prod: 'https://relay.firefox.com',
-  dev: 'https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net'
+  dev: 'https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net',
+  local: process.env.SITE_ORIGIN
 }
 
 export const getVerificationCode = async (testEmail: string, page: Page, attempts = 10) => {

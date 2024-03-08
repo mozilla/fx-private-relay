@@ -1,4 +1,3 @@
-from base64 import b64decode
 from copy import deepcopy
 from datetime import datetime, timedelta, timezone
 from email import message_from_string
@@ -223,8 +222,8 @@ def create_notification_from_email(email_text: str) -> AWS_SNSMessageJSON:
     return sns_notification
 
 
-def assert_email_equals(
-    output_email: str, name: str, replace_mime_boundaries: bool = False
+def assert_email_equals_fixture(
+    output_email: str, fixture_name: str, replace_mime_boundaries: bool = False
 ) -> None:
     """
     Assert the output equals the expected email, after optional replacements.
@@ -237,7 +236,7 @@ def assert_email_equals(
     allows using other diff tools, and makes it easy to capture new outputs when the
     email format changes.
     """
-    expected = EMAIL_EXPECTED[name]
+    expected = EMAIL_EXPECTED[fixture_name]
 
     # If requested, convert MIME boundaries in the the output_email
     if replace_mime_boundaries:
@@ -246,7 +245,7 @@ def assert_email_equals(
         test_output_email = output_email
 
     if test_output_email != expected:
-        path = os.path.join(real_abs_cwd, "fixtures", name + "_actual.email")
+        path = os.path.join(real_abs_cwd, "fixtures", fixture_name + "_actual.email")
         open(path, "w").write(test_output_email)
     assert test_output_email == expected
 
@@ -288,8 +287,60 @@ def _replace_mime_boundaries(email: str) -> str:
 
 
 @override_settings(RELAY_FROM_ADDRESS="reply@relay.example.com")
-class SNSNotificationTest(TestCase):
+class SNSNotificationTestBase(TestCase):
+    """Base class for tests of _sns_notification"""
+
     def setUp(self) -> None:
+        remove_s3_patcher = patch("emails.views.remove_message_from_s3")
+        self.mock_remove_message_from_s3 = remove_s3_patcher.start()
+        self.addCleanup(remove_s3_patcher.stop)
+
+        self.mock_send_raw_email = Mock(
+            spec_set=[], return_value={"MessageId": str(uuid4())}
+        )
+        send_raw_email_patcher = patch(
+            "emails.apps.EmailsConfig.ses_client",
+            spec_set=["send_raw_email"],
+            send_raw_email=self.mock_send_raw_email,
+        )
+        send_raw_email_patcher.start()
+        self.addCleanup(send_raw_email_patcher.stop)
+
+    def check_sent_email_matches_fixture(
+        self,
+        fixture_name: str,
+        replace_mime_boundaries: bool = False,
+        expected_source: str | None = None,
+        expected_destination: str | None = None,
+    ) -> None:
+        """
+        Extract the email and check against the expected email.
+
+        name: the name of the test fixture to check against the email
+        replace_mime_boundaries: if true, replace randomized MIME boundaries with
+          sequential test versions
+        expected_source: if set, assert that SES source address matches this string
+        expected_destination: if set, assert that the one SES destination email matches
+        """
+        self.mock_send_raw_email.assert_called_once()
+        source = self.mock_send_raw_email.call_args[1]["Source"]
+        destinations = self.mock_send_raw_email.call_args[1]["Destinations"]
+        assert len(destinations) == 1
+        raw_message = self.mock_send_raw_email.call_args[1]["RawMessage"]["Data"]
+        if "" not in raw_message.splitlines():
+            raise Exception("Never found message body!")
+        if expected_source is not None:
+            assert source == expected_source
+        if expected_destination is not None:
+            assert destinations[0] == expected_destination
+        assert_email_equals_fixture(raw_message, fixture_name, replace_mime_boundaries)
+
+
+class SNSNotificationIncomingTest(SNSNotificationTestBase):
+    """Tests for _sns_notification for incoming emails to Relay users"""
+
+    def setUp(self) -> None:
+        super().setUp()
         self.user = baker.make(User, email="user@example.com")
         self.profile = self.user.profile
         self.profile.last_engagement = datetime.now(timezone.utc)
@@ -306,72 +357,16 @@ class SNSNotificationTest(TestCase):
         self.premium_profile.last_engagement = datetime.now(timezone.utc)
         self.premium_profile.save()
 
-        remove_s3_patcher = patch("emails.views.remove_message_from_s3")
-        self.mock_remove_message_from_s3 = remove_s3_patcher.start()
-        self.addCleanup(remove_s3_patcher.stop)
-
-        self.mock_send_raw_email = Mock(
-            spec_set=[], return_value={"MessageId": str(uuid4())}
-        )
-        send_raw_email_patcher = patch(
-            "emails.apps.EmailsConfig.ses_client",
-            spec_set=["send_raw_email"],
-            send_raw_email=self.mock_send_raw_email,
-        )
-        send_raw_email_patcher.start()
-        self.addCleanup(send_raw_email_patcher.stop)
-
-    def get_details_from_mock_send_raw_email(
-        self,
-    ) -> tuple[str, str, dict[str, str], str]:
-        """
-        Get sender, recipient, headers, and email from the message sent by mocked
-        ses_client.send_raw_email
-        """
-        self.mock_send_raw_email.assert_called_once()
-        source = self.mock_send_raw_email.call_args[1]["Source"]
-        destinations = self.mock_send_raw_email.call_args[1]["Destinations"]
-        assert len(destinations) == 1
-        raw_message = self.mock_send_raw_email.call_args[1]["RawMessage"]["Data"]
-        headers: dict[str, str] = {}
-        last_key = None
-        for line in raw_message.splitlines():
-            if not line:
-                # Start of message body, done with headers
-                return source, destinations[0], headers, raw_message
-            if line[0] in (" ", "\t"):
-                # Continuation of last header
-                assert last_key
-                headers[last_key] += line
-            else:
-                # New headers
-                assert ": " in line
-                key, val = line.split(": ", 1)
-                assert key not in headers
-                headers[key] = val
-                last_key = key
-        raise Exception("Never found message body!")
-
     def test_single_recipient_sns_notification(self) -> None:
         pre_sns_notification_last_engagement = self.ra.user.profile.last_engagement
         assert pre_sns_notification_last_engagement is not None
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
 
-        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
-        assert sender == "replies@default.com"
-        assert recipient == "user@example.com"
-        content_type = headers.pop("Content-Type")
-        assert content_type.startswith('multipart/alternative; boundary="b1_1tMoOzirX')
-        assert headers == {
-            "Subject": "localized email header + footer",
-            "MIME-Version": "1.0",
-            "From": '"fxastage@protonmail.com [via Relay]" <ebsbdsan7@test.com>',
-            "To": "user@example.com",
-            "Reply-To": "replies@default.com",
-            "Resent-From": "fxastage@protonmail.com",
-        }
-        assert_email_equals(email, "single_recipient")
-
+        self.check_sent_email_matches_fixture(
+            "single_recipient",
+            expected_source="replies@default.com",
+            expected_destination="user@example.com",
+        )
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at is not None
@@ -395,23 +390,7 @@ class SNSNotificationTest(TestCase):
 
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
 
-        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
-        assert sender == "replies@default.com"
-        assert recipient == "user@example.com"
-        content_type = headers.pop("Content-Type")
-        assert content_type.startswith('multipart/alternative; boundary="b1_1tMo')
-        assert headers == {
-            "Subject": "localized email header + footer",
-            "MIME-Version": "1.0",
-            "From": '"fxastage@protonmail.com [via Relay]" <ebsbdsan7@test.com>',
-            "To": "user@example.com",
-            "Reply-To": "replies@default.com",
-            "Resent-From": "fxastage@protonmail.com",
-        }
-        assert_email_equals(email, "single_recipient_fr")
-        assert 'Content-Type: text/html; charset="utf-8"' in email
-        assert "Content-Transfer-Encoding: quoted-printable" in email
-
+        self.check_sent_email_matches_fixture("single_recipient_fr")
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at is not None
@@ -421,20 +400,7 @@ class SNSNotificationTest(TestCase):
         """By default, list emails should still forward."""
         _sns_notification(EMAIL_SNS_BODIES["single_recipient_list"])
 
-        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
-        assert sender == "replies@default.com"
-        assert recipient == "user@example.com"
-        assert headers == {
-            "Content-Type": headers["Content-Type"],
-            "Subject": "localized email header + footer",
-            "MIME-Version": "1.0",
-            "From": '"fxastage@protonmail.com [via Relay]" <ebsbdsan7@test.com>',
-            "To": "user@example.com",
-            "Reply-To": "replies@default.com",
-            "Resent-From": "fxastage@protonmail.com",
-        }
-        assert_email_equals(email, "single_recipient_list")
-
+        self.check_sent_email_matches_fixture("single_recipient_list")
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at is not None
@@ -484,12 +450,15 @@ class SNSNotificationTest(TestCase):
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
 
+    @override_settings(STATSD_ENABLED=True)
     def test_spamVerdict_FAIL_auto_block_doesnt_relay(self) -> None:
         """When a user has auto_block_spam=True, spam will not relay."""
         self.profile.auto_block_spam = True
         self.profile.save()
 
-        _sns_notification(EMAIL_SNS_BODIES["spamVerdict_FAIL"])
+        with MetricsMock() as mm:
+            _sns_notification(EMAIL_SNS_BODIES["spamVerdict_FAIL"])
+        mm.assert_incr_once("fx.private.relay.email_auto_suppressed_for_spam")
 
         self.mock_send_raw_email.assert_not_called()
         self.ra.refresh_from_db()
@@ -498,22 +467,9 @@ class SNSNotificationTest(TestCase):
     def test_domain_recipient(self) -> None:
         _sns_notification(EMAIL_SNS_BODIES["domain_recipient"])
 
-        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
-        assert sender == "replies@default.com"
-        assert recipient == "premium@email.com"
-        assert headers == {
-            "Content-Type": headers["Content-Type"],
-            "Subject": "localized email header + footer",
-            "MIME-Version": "1.0",
-            "From": (
-                '"fxastage@protonmail.com [via Relay]" <wildcard@subdomain.test.com>'
-            ),
-            "To": "premium@email.com",
-            "Reply-To": "replies@default.com",
-            "Resent-From": "fxastage@protonmail.com",
-        }
-        assert_email_equals(email, "domain_recipient")
-
+        self.check_sent_email_matches_fixture(
+            "domain_recipient", expected_destination="premium@email.com"
+        )
         da = DomainAddress.objects.get(user=self.premium_user, address="wildcard")
         assert da.num_forwarded == 1
         assert da.last_used_at
@@ -540,102 +496,23 @@ class SNSNotificationTest(TestCase):
         assert self.ra.num_forwarded == 0
         assert self.ra.last_used_at is None
 
-    @patch("emails.views.get_message_content_from_s3")
-    def reply_test_implementation(
-        self, mock_get_content: Mock, text: str, expected_fixture_name: str
-    ) -> str:
-        """The headers of a reply refer to the Relay mask."""
-
-        # Create a premium user matching the s3_stored_replies sender
-        user = baker.make(User, email="source@sender.com")
-        user.profile.server_storage = True
-        user.profile.date_subscribed = datetime.now(tz=timezone.utc)
-        user.profile.last_engagement = datetime.now(tz=timezone.utc)
-        user.profile.save()
-        pre_reply_last_engagement = user.profile.last_engagement
-        upgrade_test_user_to_premium(user)
-
-        # Create a Reply record matching the s3_stored_replies headers
-        lookup_key, encryption_key = derive_reply_keys(
-            get_message_id_bytes("CA+J4FJFw0TXCr63y9dGcauvCGaZ7pXxspzOjEDhRpg5Zh4ziWg")
-        )
-        metadata = {
-            "message-id": str(uuid4()),
-            "from": "sender@external.example.com",
-        }
-        encrypted_metadata = encrypt_reply_metadata(encryption_key, metadata)
-        relay_address = baker.make(RelayAddress, user=user, address="a1b2c3d4")
-        Reply.objects.create(
-            lookup=b64_lookup_key(lookup_key),
-            encrypted_metadata=encrypted_metadata,
-            relay_address=relay_address,
-        )
-
-        # Mock loading a simple reply email message from S3
-        mock_get_content.return_value = create_email_from_notification(
-            EMAIL_SNS_BODIES["s3_stored_replies"], text=text
-        )
-
-        # Successfully reply to a previous sender
-        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
-        assert response.status_code == 200
-
-        self.mock_remove_message_from_s3.assert_called_once()
-        mock_get_content.assert_called_once()
-
-        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
-        assert sender == "a1b2c3d4@test.com"
-        assert recipient == "sender@external.example.com"
-        assert headers == {
-            "Content-Type": headers["Content-Type"],
-            "Subject": "Re: Test Mozilla User New Domain Address",
-            "MIME-Version": "1.0",
-            "From": sender,
-            "Reply-To": sender,
-            "To": recipient,
-        }
-        assert_email_equals(email, expected_fixture_name)
-
-        relay_address.refresh_from_db()
-        assert relay_address.num_replied == 1
-        last_used_at = relay_address.last_used_at
-        assert last_used_at
-        assert (datetime.now(tz=timezone.utc) - last_used_at).seconds < 2.0
-        assert relay_address.user.profile.last_engagement is not None
-        assert relay_address.user.profile.last_engagement > pre_reply_last_engagement
-        return email
-
-    def test_reply(self) -> None:
-        self.reply_test_implementation(
-            text="this is a text reply", expected_fixture_name="s3_stored_replies"
-        )
-
-    def test_reply_with_emoji_in_text(self) -> None:
-        """An email with emoji text content is sent with UTF-8 encoding."""
-        email = self.reply_test_implementation(
-            text="👍 Thanks I got it!",
-            expected_fixture_name="s3_stored_replies_with_emoji",
-        )
-        assert 'Content-Type: text/plain; charset="utf-8"' in email
-        assert "Content-Transfer-Encoding: base64" in email
-
     @patch("emails.views.generate_from_header", side_effect=InvalidFromHeader())
-    @patch("emails.views.info_logger")
-    def test_invalid_from_header(self, mock_logger, mock_generate_from_header) -> None:
+    def test_invalid_from_header(self, mock_generate_from_header: Mock) -> None:
         """For MPP-3407, show logging for failed from address"""
-        response = _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
+        with self.assertLogs("eventsinfo", "ERROR") as event_caplog:
+            response = _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
         assert response.status_code == 503
-        mock_logger.error.assert_called_once_with(
-            "generate_from_header",
-            extra={
-                "from_address": "fxastage@protonmail.com",
-                "source": "fxastage@protonmail.com",
-                "common_headers_from": ["fxastage <fxastage@protonmail.com>"],
-                "headers_from": [
-                    {"name": "From", "value": "fxastage <fxastage@protonmail.com>"}
-                ],
-            },
-        )
+
+        assert len(event_caplog.records) == 1
+        event_log = event_caplog.records[0]
+        assert getattr(event_log, "from_address") == "fxastage@protonmail.com"
+        assert getattr(event_log, "source") == "fxastage@protonmail.com"
+        assert getattr(event_log, "common_headers_from") == [
+            "fxastage <fxastage@protonmail.com>"
+        ]
+        assert getattr(event_log, "headers_from") == [
+            {"name": "From", "value": "fxastage <fxastage@protonmail.com>"}
+        ]
 
         self.mock_send_raw_email.assert_not_called()
         self.mock_remove_message_from_s3.assert_not_called()
@@ -645,26 +522,10 @@ class SNSNotificationTest(TestCase):
 
     def test_inline_image(self) -> None:
         email_text = EMAIL_INCOMING["inline_image"]
-        content_id = "Content-ID: <0A0AD2F8-6672-45A8-8248-0AC6C7282970>"
         test_sns_notification = create_notification_from_email(email_text)
         _sns_notification(test_sns_notification)
 
-        self.mock_send_raw_email.assert_called_once()
-        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
-        assert sender == "replies@default.com"
-        assert recipient == "user@example.com"
-        assert headers == {
-            "Subject": "Test Email",
-            "From": '"friend@mail.example.com [via Relay]" <ebsbdsan7@test.com>',
-            "To": recipient,
-            "Reply-To": sender,
-            "Resent-From": "friend@mail.example.com",
-            "Mime-Version": "1.0 (MailClient 1.1.1)",
-            "Content-Type": headers["Content-Type"],
-        }
-        assert_email_equals(email, "inline_image")
-        assert content_id in email  # Issue 691
-
+        self.check_sent_email_matches_fixture("inline_image")
         self.mock_remove_message_from_s3.assert_called_once()
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
@@ -686,35 +547,7 @@ class SNSNotificationTest(TestCase):
         test_sns_notification = create_notification_from_email(email_text)
         _sns_notification(test_sns_notification)
 
-        self.mock_send_raw_email.assert_called_once()
-        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
-        assert sender == "replies@default.com"
-        assert recipient == "user@example.com"
-
-        # Subject translates as "Invitation | Why and how to do business in Africa?"
-        # Because of Russian characters, it is UTF-8 text encoded in Base64
-        expected_subject_b64 = (
-            "0J/RgNC40LPQu9Cw0YjQtdC90LjQtSAgfCDQl9Cw0YfQtdC8INC4INC6",
-            "0LDQuiDQstC10YHRgtC4INCx0LjQt9C90LXRgSDQsiDQkNGE0YDQuNC60LU/",
-        )
-        subject = b64decode("".join(expected_subject_b64)).decode()
-        assert subject == "Приглашение  | Зачем и как вести бизнес в Африке?"
-        expected_subject_header = " ".join(
-            f"=?utf-8?b?{val}?=" for val in expected_subject_b64
-        )
-
-        assert headers["Content-Type"].startswith('multipart/mixed; boundary="')
-        assert headers == {
-            "Subject": expected_subject_header,
-            "From": '"hello@ac.spam.example.com [via Relay]" <ebsbdsan7@test.com>',
-            "To": recipient,
-            "Reply-To": sender,
-            "Resent-From": "hello@ac.spam.example.com",
-            "Content-Type": headers["Content-Type"],
-            "MIME-Version": "1.0",
-        }
-        assert_email_equals(email, "russian_spam")
-
+        self.check_sent_email_matches_fixture("russian_spam")
         self.mock_remove_message_from_s3.assert_called_once()
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
@@ -728,21 +561,9 @@ class SNSNotificationTest(TestCase):
         test_sns_notification = create_notification_from_email(email_text)
         _sns_notification(test_sns_notification)
 
-        self.mock_send_raw_email.assert_called_once()
-        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
-        assert sender == "replies@default.com"
-        assert recipient == "user@example.com"
-        assert headers == {
-            "Subject": "Text-Only Email",
-            "From": '"root@server.example.com [via Relay]" <ebsbdsan7@test.com>',
-            "To": recipient,
-            "Reply-To": sender,
-            "Resent-From": "root@server.example.com",
-            "Content-Type": headers["Content-Type"],
-            "MIME-Version": "1.0",
-        }
-        assert_email_equals(email, "plain_text", replace_mime_boundaries=True)
-
+        self.check_sent_email_matches_fixture(
+            "plain_text", replace_mime_boundaries=True
+        )
         self.mock_remove_message_from_s3.assert_called_once()
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
@@ -761,9 +582,10 @@ class SNSNotificationTest(TestCase):
         email_text = EMAIL_INCOMING["emperor_norton"]
         test_sns_notification = create_notification_from_email(email_text)
         _sns_notification(test_sns_notification)
-        self.mock_send_raw_email.assert_called_once()
-        _, _, _, mail = self.get_details_from_mock_send_raw_email()
-        assert_email_equals(mail, "emperor_norton", replace_mime_boundaries=True)
+
+        self.check_sent_email_matches_fixture(
+            "emperor_norton", replace_mime_boundaries=True
+        )
         expected_header_errors = {
             "incoming": [
                 (
@@ -809,23 +631,11 @@ class SNSNotificationTest(TestCase):
     def test_invalid_message_id_is_forwarded(self, mock_logger: Mock) -> None:
         email_text = EMAIL_INCOMING["message_id_in_brackets"]
         test_sns_notification = create_notification_from_email(email_text)
+
         result = _sns_notification(test_sns_notification)
         assert result.status_code == 200
-        self.mock_send_raw_email.assert_called_once()
-        sender, recipient, headers, email = self.get_details_from_mock_send_raw_email()
-        assert sender == "replies@default.com"
-        assert recipient == "user@example.com"
-        assert headers == {
-            "Content-Type": headers["Content-Type"],
-            "From": '"user@clownshoes.example.com [via Relay]" <ebsbdsan7@test.com>',
-            "MIME-Version": "1.0",
-            "Reply-To": "replies@default.com",
-            "Resent-From": "user@clownshoes.example.com",
-            "Subject": "Message-ID in brackets",
-            "To": "user@example.com",
-        }
-        assert_email_equals(
-            email, "message_id_in_brackets", replace_mime_boundaries=True
+        self.check_sent_email_matches_fixture(
+            "message_id_in_brackets", replace_mime_boundaries=True
         )
         expected_header_errors = {
             "incoming": [
@@ -847,6 +657,141 @@ class SNSNotificationTest(TestCase):
             "_handle_received: forwarding issues",
             extra={"issues": {"headers": expected_header_errors}},
         )
+
+
+class SNSNotificationRepliesTest(SNSNotificationTestBase):
+    """Tests for _sns_notification for replies from Relay users"""
+
+    def setUp(self) -> None:
+        super().setUp()
+
+        # Create a premium user matching the s3_stored_replies sender
+        self.user = baker.make(User, email="source@sender.com")
+        self.user.profile.server_storage = True
+        self.user.profile.date_subscribed = datetime.now(tz=timezone.utc)
+        self.user.profile.last_engagement = datetime.now(tz=timezone.utc)
+        self.user.profile.save()
+        self.pre_reply_last_engagement = self.user.profile.last_engagement
+        upgrade_test_user_to_premium(self.user)
+
+        # Create a Reply record matching the s3_stored_replies headers
+        lookup_key, encryption_key = derive_reply_keys(
+            get_message_id_bytes("CA+J4FJFw0TXCr63y9dGcauvCGaZ7pXxspzOjEDhRpg5Zh4ziWg")
+        )
+        metadata = {
+            "message-id": str(uuid4()),
+            "from": "sender@external.example.com",
+        }
+        encrypted_metadata = encrypt_reply_metadata(encryption_key, metadata)
+        self.relay_address = baker.make(
+            RelayAddress, user=self.user, address="a1b2c3d4"
+        )
+        Reply.objects.create(
+            lookup=b64_lookup_key(lookup_key),
+            encrypted_metadata=encrypted_metadata,
+            relay_address=self.relay_address,
+        )
+
+        get_message_content_patcher = patch("emails.views.get_message_content_from_s3")
+        self.mock_get_content = get_message_content_patcher.start()
+        self.addCleanup(get_message_content_patcher.stop)
+
+    def successful_reply_test_implementation(
+        self, text: str, expected_fixture_name: str
+    ) -> None:
+        """The headers of a reply refer to the Relay mask."""
+
+        self.mock_get_content.return_value = create_email_from_notification(
+            EMAIL_SNS_BODIES["s3_stored_replies"], text=text
+        )
+
+        # Successfully reply to a previous sender
+        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
+        assert response.status_code == 200
+
+        self.mock_remove_message_from_s3.assert_called_once()
+        self.mock_get_content.assert_called_once()
+        self.check_sent_email_matches_fixture(
+            expected_fixture_name,
+            expected_source="a1b2c3d4@test.com",
+            expected_destination="sender@external.example.com",
+        )
+        self.relay_address.refresh_from_db()
+        assert self.relay_address.num_replied == 1
+        last_used_at = self.relay_address.last_used_at
+        assert last_used_at
+        assert (datetime.now(tz=timezone.utc) - last_used_at).seconds < 2.0
+        assert (last_en := self.relay_address.user.profile.last_engagement) is not None
+        assert last_en > self.pre_reply_last_engagement
+
+    def test_reply(self) -> None:
+        self.successful_reply_test_implementation(
+            text="this is a text reply", expected_fixture_name="s3_stored_replies"
+        )
+
+    def test_reply_with_emoji_in_text(self) -> None:
+        """An email with emoji text content is sent with UTF-8 encoding."""
+        self.successful_reply_test_implementation(
+            text="👍 Thanks I got it!",
+            expected_fixture_name="s3_stored_replies_with_emoji",
+        )
+
+    @patch("emails.views._reply_allowed")
+    def test_reply_not_allowed(self, mocked_reply_allowed: Mock) -> None:
+        mocked_reply_allowed.return_value = False
+        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
+        assert response.status_code == 403
+        assert response.content == b"Relay replies require a premium account"
+
+    def test_get_message_content_from_s3_not_found(self) -> None:
+        self.mock_get_content.side_effect = ClientError(
+            operation_name="S3.something",
+            error_response={"Error": {"Code": "NoSuchKey", "Message": "the message"}},
+        )
+        with self.assertLogs("events", "ERROR") as events_caplog:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
+        self.mock_send_raw_email.assert_not_called()
+        assert response.status_code == 404
+        assert response.content == b"Email not in S3"
+
+        assert len(events_caplog.records) == 1
+        events_log = events_caplog.records[0]
+        assert events_log.message == "s3_object_does_not_exist"
+        assert getattr(events_log, "Code") == "NoSuchKey"
+        assert getattr(events_log, "Message") == "the message"
+
+    def test_get_message_content_from_s3_other_error(self) -> None:
+        self.mock_get_content.side_effect = ClientError(
+            operation_name="S3.something",
+            error_response={"Error": {"Code": "IsNapping", "Message": "snooze"}},
+        )
+        with self.assertLogs("events", "ERROR") as events_caplog:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
+        self.mock_send_raw_email.assert_not_called()
+        assert response.status_code == 503
+        assert response.content == b"Cannot fetch the message content from S3"
+
+        assert len(events_caplog.records) == 1
+        events_log = events_caplog.records[0]
+        assert events_log.message == "s3_client_error_get_email"
+        assert getattr(events_log, "Code") == "IsNapping"
+        assert getattr(events_log, "Message") == "snooze"
+
+    def test_ses_client_error(self) -> None:
+        self.mock_get_content.return_value = create_email_from_notification(
+            EMAIL_SNS_BODIES["s3_stored_replies"], text="text content"
+        )
+        self.mock_send_raw_email.side_effect = SEND_RAW_EMAIL_FAILED
+        with self.assertLogs("events", "ERROR") as events_caplog:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
+        assert response.status_code == 400
+        assert response.content == b"SES client error"
+
+        assert len(events_caplog.records) == 1
+        events_log = events_caplog.records[0]
+        assert events_log.message == "ses_client_error_raw_email"
+        assert getattr(events_log, "Code") == "the code"
+        assert getattr(events_log, "Message") == "the message"
 
 
 class BounceHandlingTest(TestCase):
@@ -1183,6 +1128,7 @@ class SNSNotificationInvalidMessageTest(TestCase):
         assert response.status_code == 400
 
 
+@override_settings(STATSD_ENABLED=True)
 class SNSNotificationValidUserEmailsInS3Test(TestCase):
     def setUp(self) -> None:
         self.bucket = "test-bucket"
@@ -1207,19 +1153,34 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         notification_w_spamverdict_failed = EMAIL_SNS_BODIES["s3_stored"].copy()
         notification_w_spamverdict_failed["Message"] = message_spamverdict_failed
 
-        response = _sns_notification(notification_w_spamverdict_failed)
+        with MetricsMock() as mm:
+            response = _sns_notification(notification_w_spamverdict_failed)
         self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 200
         assert response.content == b"Address rejects spam."
+        mm.assert_incr_once("fx.private.relay.email_auto_suppressed_for_spam")
 
-    def test_user_bounce_paused_email_in_s3_deleted(self) -> None:
+    def test_user_bounce_soft_paused_email_in_s3_deleted(self) -> None:
         self.profile.last_soft_bounce = datetime.now(timezone.utc)
         self.profile.save()
 
-        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
+        with MetricsMock() as mm:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
         self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 200
         assert response.content == b"Address is temporarily disabled."
+        mm.assert_incr_once("fx.private.relay.email_suppressed_for_soft_bounce")
+
+    def test_user_bounce_hard_paused_email_in_s3_deleted(self) -> None:
+        self.profile.last_hard_bounce = datetime.now(timezone.utc)
+        self.profile.save()
+
+        with MetricsMock() as mm:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
+        self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
+        assert response.status_code == 200
+        assert response.content == b"Address is temporarily disabled."
+        mm.assert_incr_once("fx.private.relay.email_suppressed_for_hard_bounce")
 
     @patch("emails.views._reply_allowed")
     @patch("emails.views._get_reply_record_from_lookup_key")
@@ -1236,6 +1197,20 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         assert response.status_code == 403
         assert response.content == b"Relay replies require a premium account"
 
+    def test_flagged_user_email_in_s3_deleted(self) -> None:
+        profile = self.address.user.profile
+        profile.last_account_flagged = datetime.now(timezone.utc)
+        profile.last_engagement = datetime.now(timezone.utc)
+        profile.save()
+        pre_flagged_last_engagement = profile.last_engagement
+
+        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
+        self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
+        assert response.status_code == 200
+        assert response.content == b"Address is temporarily disabled."
+        profile.refresh_from_db()
+        assert profile.last_engagement == pre_flagged_last_engagement
+
     def test_relay_address_disabled_email_in_s3_deleted(self) -> None:
         self.address.enabled = False
         self.address.save()
@@ -1244,12 +1219,14 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         profile.save()
         pre_blocked_email_last_engagement = profile.last_engagement
 
-        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
+        with MetricsMock() as mm:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
         self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 200
         assert response.content == b"Address is temporarily disabled."
         profile.refresh_from_db()
         assert profile.last_engagement > pre_blocked_email_last_engagement
+        mm.assert_incr_once("fx.private.relay.email_for_disabled_address")
 
     @patch("emails.views._check_email_from_list")
     def test_blocked_list_email_in_s3_deleted(
@@ -1264,12 +1241,14 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         pre_blocked_email_last_engagement = profile.last_engagement
         mocked_email_is_from_list.return_value = True
 
-        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
+        with MetricsMock() as mm:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
         self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 200
         assert response.content == b"Address is not accepting list emails."
         profile.refresh_from_db()
         assert profile.last_engagement > pre_blocked_email_last_engagement
+        mm.assert_incr_once("fx.private.relay.list_email_for_address_blocking_lists")
 
     @patch("emails.views.get_message_content_from_s3")
     def test_get_text_html_s3_client_error_email_in_s3_not_deleted(
@@ -1279,10 +1258,17 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
             {"Error": {"Code": "SomeErrorCode", "Message": "Details"}}, ""
         )
 
-        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
+        with self.assertLogs("events", "ERROR") as event_caplog:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
         self.mock_remove_message_from_s3.assert_not_called()
         assert response.status_code == 503
         assert response.content == b"Cannot fetch the message content from S3"
+
+        assert len(event_caplog.records) == 1
+        event_log = event_caplog.records[0]
+        assert event_log.message == "s3_client_error_get_email"
+        assert getattr(event_log, "Code") == "SomeErrorCode"
+        assert getattr(event_log, "Message") == "Details"
 
     @patch("emails.apps.EmailsConfig.ses_client", spec_set=["send_raw_email"])
     @patch("emails.views.get_message_content_from_s3")
@@ -1344,7 +1330,7 @@ class SnsMessageTest(TestCase):
         user = baker.make(User)
         baker.make(SocialAccount, user=user, provider="fxa")
         # test.com is the second domain listed and has the numerical value 2
-        baker.make(RelayAddress, user=user, address="sender", domain=2)
+        self.ra = baker.make(RelayAddress, user=user, address="sender", domain=2)
 
         get_content_patcher = patch(
             "emails.views.get_message_content_from_s3",
@@ -1352,7 +1338,7 @@ class SnsMessageTest(TestCase):
                 EMAIL_SNS_BODIES["s3_stored"], "text"
             ),
         )
-        get_content_patcher.start()
+        self.mock_get_content = get_content_patcher.start()
         self.addCleanup(get_content_patcher.stop)
 
         ses_client_patcher = patch(
@@ -1362,11 +1348,35 @@ class SnsMessageTest(TestCase):
         self.mock_ses_client = ses_client_patcher.start()
         self.addCleanup(ses_client_patcher.stop)
 
-    def test_ses_send_raw_email_has_client_error_early_exits(self):
+    def test_get_message_content_from_s3_not_found(self) -> None:
+        self.mock_get_content.side_effect = ClientError(
+            operation_name="S3.something",
+            error_response={"Error": {"Code": "NoSuchKey", "Message": "the message"}},
+        )
+        with self.assertLogs("events", "ERROR") as events_caplog:
+            response = _sns_message(self.message_json)
+        self.mock_ses_client.send_raw_email.assert_not_called()
+        assert response.status_code == 404
+        assert response.content == b"Email not in S3"
+
+        assert len(events_caplog.records) == 1
+        events_log = events_caplog.records[0]
+        assert events_log.message == "s3_object_does_not_exist"
+        assert getattr(events_log, "Code") == "NoSuchKey"
+        assert getattr(events_log, "Message") == "the message"
+
+    def test_ses_send_raw_email_has_client_error_early_exits(self) -> None:
         self.mock_ses_client.send_raw_email.side_effect = SEND_RAW_EMAIL_FAILED
-        response = _sns_message(self.message_json)
+        with self.assertLogs("events", "ERROR") as events_caplog:
+            response = _sns_message(self.message_json)
         self.mock_ses_client.send_raw_email.assert_called_once()
         assert response.status_code == 503
+
+        assert len(events_caplog.records) == 1
+        events_log = events_caplog.records[0]
+        assert events_log.message == "ses_client_error_raw_email"
+        assert getattr(events_log, "Code") == "the code"
+        assert getattr(events_log, "Message") == "the message"
 
     def test_ses_send_raw_email_email_relayed_email_deleted_from_s3(self):
         self.mock_ses_client.send_raw_email.return_value = {"MessageId": str(uuid4())}
@@ -1725,6 +1735,10 @@ def test_wrapped_email_test(
         "<li><strong>num_level_one_email_trackers_removed</strong>:"
         f"{num_level_one_email_trackers_removed}"
     ) in no_space_html
+    if has_tracker_report_link == "Yes" and num_level_one_email_trackers_removed != "0":
+        assert "/tracker-report/#" in no_space_html
+    else:
+        assert "/tracker-report/#" not in no_space_html
 
 
 @pytest.mark.parametrize("forwarded", ("False", "True"))
@@ -1804,7 +1818,7 @@ def test_build_reply_requires_premium_email_first_time_includes_forward_text():
     assert "sent this reply" in text_content
     assert "sent this reply" in html_content
 
-    assert_email_equals(
+    assert_email_equals_fixture(
         msg.as_string(), "reply_requires_premium_first", replace_mime_boundaries=True
     )
 
@@ -1858,7 +1872,7 @@ def test_build_reply_requires_premium_email_after_forward():
     assert "Your reply was not sent" in text_content
     assert "Your reply was not sent" in html_content
 
-    assert_email_equals(
+    assert_email_equals_fixture(
         msg.as_string(), "reply_requires_premium_second", replace_mime_boundaries=True
     )
 

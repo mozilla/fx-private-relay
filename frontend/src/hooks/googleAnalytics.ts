@@ -3,10 +3,8 @@ import { useState } from "react";
 import { singletonHook } from "react-singleton-hook";
 import { getRuntimeConfig } from "../config";
 
-const gaIsInitialized = false;
-let globalEnableGoogleAnalytics = (_: boolean): void | never => {
-  throw new Error("you must useGoogleAnalytics before initializing.");
-};
+let gaIsInitialized = false;
+let globalEnableGoogleAnalytics: null | ((_: boolean) => void) = null;
 
 export const useGoogleAnalytics = singletonHook(gaIsInitialized, () => {
   const [isInitialized, setIsInitialized] = useState(gaIsInitialized);
@@ -37,5 +35,11 @@ export function initGoogleAnalytics() {
       });
     }
   });
-  globalEnableGoogleAnalytics(true);
+  if (globalEnableGoogleAnalytics === null) {
+    // useGoogleAnalytics is not complete. Set initial value.
+    gaIsInitialized = true;
+  } else {
+    // Notify listeners that Google Analytics is available.
+    globalEnableGoogleAnalytics(true);
+  }
 }

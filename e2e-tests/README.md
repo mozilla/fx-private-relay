@@ -44,4 +44,8 @@ E2E_TEST_ACCOUNT_PASSWORD=<arbitrary password>
 npm run test:e2e
 ```
 
+By default, `npm run test:e2e` will run the tests on https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net/. 
+
+You can also run tests locally, on our dev server (https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/), and in production (https://relay.firefox.com/). You can find the commands [here](https://github.com/mozilla/fx-private-relay/blob/main/package.json#L26-L31). To view the tests live in the browser, you can add `--headed` to the end of the command. See https://playwright.dev/docs/test-cli for more flags.
+
 [![Relay e2e Tests](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml/badge.svg)](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml)

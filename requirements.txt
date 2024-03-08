@@ -1,11 +1,11 @@
-boto3==1.34.46
+boto3==1.34.54
 codetiming==1.4.0
-cryptography==42.0.4
+cryptography==42.0.5
 Django==4.2.10
 dj-database-url==2.1.0
 django-allauth==0.61.1
 django-cors-headers==4.3.1
-django-csp==3.7
+django-csp==3.8
 django-debug-toolbar==4.3.0
 django-filter==23.5
 django-redis==5.4.0
@@ -13,9 +13,9 @@ django-ftl==0.14
 django-referrer-policy==1.0
 djangorestframework==3.14.0
 django-waffle==4.1.0
-dockerflow==2024.1.0
+dockerflow==2024.2.0
 drf-spectacular==0.27.1
-drf-spectacular-sidecar==2024.2.1
+drf-spectacular-sidecar==2024.3.1
 google-measurement-protocol==1.1.0
 google-cloud-profiler==4.1.0
 gunicorn==21.2.0
@@ -27,16 +27,16 @@ PyJWT==2.8.0
 python-decouple==3.8
 pyOpenSSL==24.0.0
 requests==2.31.0
-sentry-sdk==1.40.4
+sentry-sdk==1.40.6
 whitenoise==6.6.0
 
 # phones app
-phonenumbers==8.13.30
+phonenumbers==8.13.31
 twilio==8.13.0
 vobject==0.9.6.1
 
 # tests
-coverage==7.4.1
+coverage==7.4.3
 model-bakery==1.17.0
 pytest-cov==4.1.0
 pytest-django==4.8.0
@@ -46,11 +46,11 @@ responses==0.25.0
 black==24.2.0
 
 # type hinting
-boto3-stubs==1.34.44
-botocore-stubs==1.34.44
+boto3-stubs==1.34.54
+botocore-stubs==1.34.54
 django-stubs==4.2.6
 djangorestframework-stubs==3.14.4
 mypy-boto3-ses==1.34.0
 mypy==1.8.0
-types-pyOpenSSL==24.0.0.20240130
+types-pyOpenSSL==24.0.0.20240228
 types-requests==2.31.0.20240218
