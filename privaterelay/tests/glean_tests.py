@@ -57,19 +57,22 @@ def optout_user(db) -> User:
     return user
 
 
+def test_request_data_extract_user_agent(rf: RequestFactory) -> None:
+    agent = "Mozilla/5.0 Firefox/125.0"
+    request = rf.get("/api/v1/runtime_data/", headers={"user-agent": agent})
+    assert RequestData.from_request(request).user_agent == agent
+
+
 def test_request_data_routable_ip_is_extracted(rf: RequestFactory) -> None:
     """A routable IP address is extracted from the headers"""
     request = rf.get(
         "/api/v1/runtime_data/",
         headers={
-            "user-agent": "Mozilla/5.0 Firefox/125.0",
             "remote-addr": "10.1.2.3",  # private network
             "x-forwarded-for": "130.211.19.131, 44.236.72.93",  # Relay, Bedrock IPs
         },
     )
-    request_data = RequestData.from_request(request)
-    assert request_data.user_agent == "Mozilla/5.0 Firefox/125.0"
-    assert request_data.ip_address == "130.211.19.131"
+    assert RequestData.from_request(request).ip_address == "130.211.19.131"
 
 
 def test_request_data_non_routable_ip_is_discarded(rf: RequestFactory) -> None:
@@ -77,14 +80,11 @@ def test_request_data_non_routable_ip_is_discarded(rf: RequestFactory) -> None:
     request = rf.get(
         "/api/v1/runtime_data/",
         headers={
-            "user-agent": "Mozilla/5.0 Firefox/124.0",
             "remote_addr": "10.2.3.178",  # private network
             "x_forwarded_for": "203.0.113.42",  # TEST-NET-3 documentation IP
         },
     )
-    request_data = RequestData.from_request(request)
-    assert request_data.user_agent == "Mozilla/5.0 Firefox/124.0"
-    assert request_data.ip_address is None
+    assert RequestData.from_request(request).ip_address is None
 
 
 @pytest.mark.django_db
