@@ -1990,6 +1990,36 @@ def test_reply_requires_premium_test(rf, forwarded, content_type, caplog):
                 pytest.fail(message)
 
 
+def get_text_and_html_content(msg: EmailMessage) -> tuple[str, str]:
+    """
+    Return the plain text and HTML content of an email message.
+
+    This replaces the legacy function msg.get_payload(). Another
+    option is get_body(), which will return the first match.
+    """
+    text_content: str | None = None
+    html_content: str | None = None
+    for part in msg.walk():
+        content_type = part.get_content_type()
+        if content_type == "text/plain":
+            if text_content is None:
+                text_content = part.get_content()
+            else:
+                raise Exception("Second plain text section found.")
+        elif content_type == "text/html":
+            if html_content is None:
+                html_content = part.get_content()
+            else:
+                raise Exception("Second HTML section found.")
+        elif content_type.startswith("multipart/"):
+            pass
+        else:
+            raise ValueError(f"Unexpected content type {content_type}")
+    assert text_content is not None, "Plain text not found"
+    assert html_content is not None, "HTML not found"
+    return text_content, html_content
+
+
 @pytest.mark.django_db
 def test_build_reply_requires_premium_email_first_time_includes_forward_text():
     # First create a valid reply record from an external sender to a free Relay user
@@ -2032,9 +2062,7 @@ def test_build_reply_requires_premium_email_first_time_includes_forward_text():
     assert msg["From"] == expected_From
     assert msg["To"] == relay_address.full_address
 
-    text_part, html_part = msg.get_payload()
-    text_content = text_part.get_payload()
-    html_content = html_part.get_payload()
+    text_content, html_content = get_text_and_html_content(msg)
     assert "sent this reply" in text_content
     assert "sent this reply" in html_content
 
@@ -2086,9 +2114,7 @@ def test_build_reply_requires_premium_email_after_forward():
     assert msg["From"] == expected_From
     assert msg["To"] == relay_address.full_address
 
-    text_part, html_part = msg.get_payload()
-    text_content = text_part.get_payload()
-    html_content = html_part.get_payload()
+    text_content, html_content = get_text_and_html_content(msg)
     assert "Your reply was not sent" in text_content
     assert "Your reply was not sent" in html_content
 
