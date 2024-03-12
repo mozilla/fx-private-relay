@@ -49,7 +49,6 @@
     @media screen and #{$mq-md} {
       width: 100%;
     }
-
     @media screen and #{$mq-md} {
       gap: $spacing-sm;
     }
@@ -142,7 +141,6 @@
       position: relative;
       margin-left: auto;
     }
-
     @media (any-pointer: coarse) {
       width: $layout-md;
     }

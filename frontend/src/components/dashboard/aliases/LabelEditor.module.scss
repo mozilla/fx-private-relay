@@ -47,6 +47,7 @@
   // leading it to overlap this confirmation message.
   // Thus, this z-index makes this message overlap that.
   z-index: 2;
+  pointer-events: none; // Stop the label from blocking the copy button
 
   &.is-shown {
     opacity: 1;
