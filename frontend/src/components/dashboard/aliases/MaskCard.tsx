@@ -122,53 +122,49 @@ export const MaskCard = (props: Props) => {
   return (
     <>
       <div className={classNames}>
-        <div className={styles.bar}>
-          <div className={styles.summary}>
-            {props.showLabelEditor && (
-              <div className={styles["label-editor-wrapper"]}>
-                <LabelEditor
-                  label={props.mask.description}
-                  placeholder={props.placeholder}
-                  onSubmit={(newLabel) =>
-                    props.onUpdate({ description: newLabel })
-                  }
-                />
-              </div>
-            )}
-            <div className={styles["copy-button-wrapper"]}>
-              <button
-                className={styles["copy-button"]}
-                title={l10n.getString("profile-label-click-to-copy")}
-                aria-label={l10n.getString("profile-label-click-to-copy-alt", {
-                  address: props.mask.full_address,
-                })}
-                onClick={copyAddressToClipboard}
-              >
-                <samp className={styles.address}>
-                  {props.mask.full_address}
-                </samp>
-                <span className={styles["copy-icon"]}>
-                  <CopyIcon alt="" />
-                </span>
-              </button>
-              <span
-                aria-hidden={!justCopied}
-                className={styles["copied-confirmation"]}
-              >
-                {l10n.getString("profile-label-copied")}
+        <div className={styles.summary}>
+          {props.showLabelEditor && (
+            <div className={styles["label-editor-wrapper"]}>
+              <LabelEditor
+                label={props.mask.description}
+                placeholder={props.placeholder}
+                onSubmit={(newLabel) =>
+                  props.onUpdate({ description: newLabel })
+                }
+              />
+            </div>
+          )}
+          <div className={styles["copy-button-wrapper"]}>
+            <button
+              className={styles["copy-button"]}
+              title={l10n.getString("profile-label-click-to-copy")}
+              aria-label={l10n.getString("profile-label-click-to-copy-alt", {
+                address: props.mask.full_address,
+              })}
+              onClick={copyAddressToClipboard}
+            >
+              <samp className={styles.address}>{props.mask.full_address}</samp>
+              <span className={styles["copy-icon"]}>
+                <CopyIcon alt="" />
               </span>
-            </div>
-            <div className={styles["block-level-label"]}>
-              {props.mask.enabled === false
-                ? l10n.getString("profile-promo-email-blocking-label-none-2")
-                : props.mask.block_list_emails === true
-                  ? l10n.getString(
-                      "profile-promo-email-blocking-label-promotionals-2",
-                    )
-                  : l10n.getString(
-                      "profile-promo-email-blocking-label-forwarding-2",
-                    )}
-            </div>
+            </button>
+            <span
+              aria-hidden={!justCopied}
+              className={styles["copied-confirmation"]}
+            >
+              {l10n.getString("profile-label-copied")}
+            </span>
+          </div>
+          <div className={styles["block-level-label"]}>
+            {props.mask.enabled === false
+              ? l10n.getString("profile-promo-email-blocking-label-none-2")
+              : props.mask.block_list_emails === true
+                ? l10n.getString(
+                    "profile-promo-email-blocking-label-promotionals-2",
+                  )
+                : l10n.getString(
+                    "profile-promo-email-blocking-label-forwarding-2",
+                  )}
           </div>
           <button
             {...expandButtonProps}
@@ -188,6 +184,7 @@ export const MaskCard = (props: Props) => {
             />
           </button>
         </div>
+
         <div
           id={detailsElementId}
           className={styles["details-wrapper"]}

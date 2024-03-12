@@ -16,129 +16,110 @@
   }
 }
 
-.bar {
+.summary {
   display: flex;
   align-items: center;
-  gap: $spacing-sm;
+  position: relative;
   padding: $spacing-sm;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
 
-  .summary {
-    flex: 1 1 auto;
-    // Override flex children's default `min-width: auto` to allow the summary
-    // to shrink instead of pushing out the collapse button:
-    min-width: 0;
+  @media screen and #{$mq-md} {
+    gap: $spacing-sm;
+    flex-wrap: nowrap;
+  }
+
+  .label-editor-wrapper {
+    overflow: visible;
+
+    @media screen and #{$mq-md} {
+      // Same as .summary's gap:
+      padding-inline-end: $spacing-sm;
+      border-right: 1px solid $color-grey-10;
+    }
+  }
+
+  .copy-button-wrapper {
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
     position: relative;
+    overflow: hidden;
+    width: 90%;
+
+    @media screen and #{$mq-md} {
+      width: 100%;
+    }
 
     @media screen and #{$mq-md} {
       gap: $spacing-sm;
-      flex-wrap: nowrap;
+    }
+    @media screen and (max-width: $screen-xs) {
+      overflow: hidden;
+    }
+  }
+
+  .copy-button {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    background-color: transparent;
+    color: $color-blue-50;
+    border-style: none;
+    font-family: $font-stack-firefox;
+    font-weight: 500;
+    border-radius: $border-radius-sm;
+    cursor: pointer;
+    overflow: inherit;
+
+    &:hover {
+      color: $color-green-70;
     }
 
-    .label-editor-wrapper {
-      @media screen and #{$mq-md} {
-        // Same as .summary's gap:
-        padding-inline-end: $spacing-sm;
-        border-right: 1px solid $color-grey-10;
-      }
+    samp {
+      font-family: inherit;
+      align-self: start;
+      white-space: nowrap;
+      overflow: inherit;
+      text-overflow: ellipsis;
     }
 
-    .copy-button-wrapper {
-      display: flex;
-      align-items: center;
+    .copy-icon {
+      width: 15px; // Fixed size for the copy icon
+      flex: 1 0 auto; // Avoid copied icon shrinking
+    }
+  }
 
-      @media screen and #{$mq-md} {
-        gap: $spacing-sm;
-      }
-      @media screen and (max-width: $screen-xs) {
-        overflow: hidden;
-      }
+  .copied-confirmation {
+    background-color: $color-green-50;
+    padding: $spacing-xs $spacing-sm;
+    border-radius: $border-radius-md;
+    font-weight: 600;
+    opacity: 1;
+    pointer-events: none;
+
+    @media screen and (max-width: $screen-md) {
+      @include text-body-sm;
+    }
+    @media screen and (max-width: $content-sm) {
+      position: absolute;
+      right: 0;
     }
 
-    .copy-button {
-      display: flex;
-      align-items: center;
-      gap: $spacing-xs;
-      background-color: transparent;
-      color: $color-blue-50;
-      border-style: none;
-      font-family: $font-stack-firefox;
-      font-weight: 500;
-      border-radius: $border-radius-sm;
-      cursor: pointer;
-
-      &:hover {
-        color: $color-green-70;
-      }
-
-      samp {
-        font-family: inherit;
-        max-width: 250px; // Setting a fixed width to truncate string
-        align-self: start;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-
-        // Magic numbers: Stops long mask domains from overflowing, and enforces an ellipsis.
-        @media screen and #{$mq-sm} {
-          max-width: 350px; // Flex items wrap on smaller screens, hence there is more space
-        }
-        @media screen and #{$mq-md} {
-          max-width: 320px;
-        }
-        @media screen and (min-width: $content-lg) {
-          max-width: 400px;
-        }
-        // Note: Since the mask card is being used in a container (.main-wrapper) with a max-width of $content-xl,
-        // this will work. But if we use a mask card where the max-width of the parent container is < $content-xl,
-        // this formatting will break and could cause overflow (ex. MPP-3594). It could be worthwhile to do a re-design of the mask card CSS as whole.
-        @media screen and (min-width: $content-xl) {
-          max-width: calc($content-md - 140px);
-        }
-      }
-
-      .copy-icon {
-        width: 15px; // Fixed size for the copy icon
-      }
+    &[aria-hidden="true"] {
+      opacity: 0;
+      // Only fade out when disappearing:
+      transition: opacity 2s;
     }
+  }
 
-    .copied-confirmation {
-      background-color: $color-green-50;
-      padding: $spacing-xs $spacing-sm;
-      border-radius: $border-radius-md;
-      font-weight: 600;
-      opacity: 1;
-      pointer-events: none;
-      z-index: 2; // Places copied label above promotions label
+  .block-level-label {
+    text-align: end;
+    color: $color-grey-50;
+    display: none;
+    flex-shrink: 0;
 
-      @media screen and (max-width: $screen-md) {
-        @include text-body-sm;
-      }
-      @media screen and (max-width: $content-sm) {
-        position: absolute;
-        right: 0;
-      }
-
-      &[aria-hidden="true"] {
-        opacity: 0;
-        // Only fade out when disappearing:
-        transition: opacity 2s;
-      }
-    }
-
-    .block-level-label {
-      flex: 1 0 auto;
-      text-align: end;
-      color: $color-grey-50;
-      display: none;
-
-      @media screen and #{$mq-lg} {
-        display: initial;
-        position: absolute;
-        right: 0;
-      }
+    @media screen and #{$mq-lg} {
+      display: initial;
     }
   }
 
@@ -153,7 +134,14 @@
     color: $color-grey-40;
     border-radius: $border-radius-sm;
     width: $layout-sm;
-    z-index: 3; // Ensures that the button gets placed above the copied label (needed for long custom domains at viewport width ~ 780px)
+    position: absolute;
+    right: 0;
+    margin: 0 $spacing-sm;
+
+    @media screen and #{$mq-md} {
+      position: relative;
+      margin-left: auto;
+    }
 
     @media (any-pointer: coarse) {
       width: $layout-md;
