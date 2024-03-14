@@ -68,6 +68,27 @@ class UpdateExtraDataAndEmailTest(TestCase):
         assert sa.extra_data == new_extra_data
         assert ea.email == new_email
 
+    def test_update_locale_saves_to_profile(self) -> None:
+        user = baker.make(User)
+        sa: SocialAccount = baker.make(
+            SocialAccount,
+            user=user,
+            provider="fxa",
+            extra_data=json.loads('{"locale": "en-US,en;q=0.5"}'),
+        )
+        profile = user.profile
+        new_email = "newemail@example.com"
+        new_locale = "fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5"
+        new_extra_data = json.loads('{"locale": "%s"}' % new_locale)
+
+        response = _update_all_data(sa, new_extra_data, new_email)
+
+        assert response.status_code == 202
+        sa.refresh_from_db()
+        assert sa.extra_data == new_extra_data
+        profile.refresh_from_db()
+        assert profile.locale == new_locale
+
     @patch("privaterelay.views.incr_if_enabled")
     def test_update_newly_premium(self, incr_mocked: Mock) -> None:
         user = baker.make(User)
