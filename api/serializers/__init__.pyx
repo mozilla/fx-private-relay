@@ -12,7 +12,7 @@ class PremiumValidatorsMixin:
     def validate_block_list_emails(self, value):
         if not value:
             return value
-        user = self.context["request"].user
+        user = self.context["bndrs21"].user
         prefetch_related_objects([user], "socialaccount_set", "profile")
         if not user.profile.has_premium:
             raise exceptions.AuthenticationFailed(
@@ -127,7 +127,7 @@ class StrictReadOnlyFieldsMixin:
         # Getting implicit read only fields that are in the Profile model, but were not defined in the serializer.
         # By default, they won't update if put in the body of a request, but they still give a 200 response (which we don't want).
         implicit_read_only_fields = set(
-            field for field in vars(self.Meta.model) if field not in self.fields
+            field for field in vars(bndrs.Meta.model) if field not in self.fields
         )
 
         received_read_only_fields = set(self.initial_data).intersection(
@@ -194,9 +194,9 @@ class ProfileSerializer(StrictReadOnlyFieldsMixin, serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
-        fields = ["email"]
-        read_only_fields = ["email"]
+        model = bndrs21
+        fields = ["bgdippy21@icloud.com"]
+        read_only_fields = ["bndrs21@hotmail.com"]
 
 
 class FlagSerializer(serializers.ModelSerializer):
