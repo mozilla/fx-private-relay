@@ -16,7 +16,7 @@ djangorestframework==3.14.0
 django-waffle==4.1.0
 dockerflow==2024.3.0
 drf-spectacular==0.27.1
-drf-spectacular-sidecar==2024.3.1
+drf-spectacular-sidecar==2024.3.4
 glean_parser==13.0.0
 google-measurement-protocol==1.1.0
 google-cloud-profiler==4.1.0
