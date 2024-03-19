@@ -7,3 +7,4 @@
 # Variables:
 #   $duplicate_address (string) - User-set email address that already exists
 api-error-duplicate-address = “{ $duplicate_address }” already exists. Please try again with a different mask name.
+api-error-address-exists = You cannot edit an existing domain address field.

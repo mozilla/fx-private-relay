@@ -686,6 +686,14 @@ class DomainAddrNeedSubdomainException(CannotMakeAddressException):
     status_code = 400
 
 
+class DomainAddrUpdateException(CannotMakeAddressException):
+    """Exception raised when attempting to edit an existing domain address field."""
+
+    default_code = "address_exists"
+    default_detail = "You cannot edit an existing domain address field."
+    status_code = 400
+
+
 class DomainAddrUnavailableException(CannotMakeAddressException):
     default_code = "address_unavailable"
     default_detail_template = (
@@ -936,6 +944,12 @@ class DomainAddress(models.Model):
             incr_if_enabled("domainaddress.create")
             if self.first_emailed_at:
                 incr_if_enabled("domainaddress.create_via_email")
+        else:
+            # The model is in an update state, do not allow 'address' field updates
+            existing_instance = DomainAddress.objects.get(id=self.id)
+            if existing_instance.address != self.address:
+                raise DomainAddrUpdateException()
+
         if not user_profile.has_premium and self.block_list_emails:
             self.block_list_emails = False
             if update_fields:
