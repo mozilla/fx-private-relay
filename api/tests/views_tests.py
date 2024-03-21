@@ -560,6 +560,49 @@ def test_patch_domainaddress_read_only_mask_type(
     assert get_glean_event(caplog) is None
 
 
+def test_patch_domainaddress_address_fails(
+    prem_api_client: APIClient, premium_user: User, caplog: pytest.LogCaptureFixture
+) -> None:
+    """PATCH should not succeed when attempting to update the address field."""
+    existing = DomainAddress.objects.create(user=premium_user, address="my-new-alias")
+    url = reverse("domainaddress-detail", args=[existing.id])
+    get_json = prem_api_client.get(url).json()
+    assert get_json["address"] == "my-new-alias"
+    response = prem_api_client.patch(url, data={"address": "my-new-edited-alias"})
+    ret_data = response.json()
+
+    assert response.status_code == 400
+    assert ret_data["detail"] == "You cannot edit an existing domain address field."
+    assert ret_data["error_code"] == "address_not_editable"
+    assert get_glean_event(caplog) is None
+
+
+def test_patch_domainaddress_addr_with_id_fails(
+    prem_api_client: APIClient, premium_user: User, caplog: pytest.LogCaptureFixture
+) -> None:
+    """
+    PATCH should not succeed when updating the address field and an 'id' field should have no effect on
+    the request because it is a read-only field
+    """
+
+    existing_alias = DomainAddress.objects.create(
+        user=premium_user, address="my-new-alias"
+    )
+
+    url = reverse("domainaddress-detail", args=[existing_alias.id])
+    get_json = prem_api_client.get(url).json()
+    assert get_json["address"] == "my-new-alias"
+    response = prem_api_client.patch(
+        url, data={"id": 100, "address": "my-new-edited-alias"}
+    )
+    ret_data = response.json()
+
+    assert response.status_code == 400
+    assert ret_data["detail"] == "You cannot edit an existing domain address field."
+    assert ret_data["error_code"] == "address_not_editable"
+    assert get_glean_event(caplog) is None
+
+
 def test_delete_domainaddress(
     prem_api_client: APIClient, premium_user: User, caplog: pytest.LogCaptureFixture
 ) -> None:
