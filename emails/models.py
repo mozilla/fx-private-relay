@@ -2,7 +2,7 @@ from __future__ import annotations
 from collections import namedtuple
 from datetime import datetime, timedelta, timezone
 from hashlib import sha256
-from typing import Iterable
+from typing import Iterable, Literal
 import logging
 import random
 import re
@@ -535,6 +535,38 @@ class Profile(models.Model):
             return bool(self.fxa.extra_data.get("metricsEnabled", True))
         return True
 
+    @property
+    def plan(self) -> Literal["free", "email", "phone", "bundle"]:
+        """The user's Relay plan as a string."""
+        if self.has_premium:
+            if self.has_phone:
+                return "bundle" if self.has_vpn else "phone"
+            else:
+                return "email"
+        else:
+            return "free"
+
+    @property
+    def plan_term(self) -> Literal[None, "unknown", "1_month", "1_year"]:
+        """The user's Relay plan term as a string."""
+        plan = self.plan
+        if plan == "free":
+            return None
+        if plan == "phone":
+            start_date = self.date_phone_subscription_start
+            end_date = self.date_phone_subscription_end
+            if start_date and end_date:
+                span = end_date - start_date
+                return "1_year" if span.days > 32 else "1_month"
+        return "unknown"
+
+    @property
+    def metrics_premium_status(self) -> str:
+        plan = self.plan
+        if plan == "free":
+            return "free"
+        return f"{plan}_{self.plan_term}"
+
 
 @receiver(models.signals.post_save, sender=Profile)
 def copy_auth_token(sender, instance=None, created=False, **kwargs):
@@ -783,6 +815,13 @@ class RelayAddress(models.Model):
     def full_address(self):
         return "%s@%s" % (self.address, self.domain_value)
 
+    @property
+    def metrics_id(self) -> str:
+        assert self.id
+        # Prefix with 'R' for RelayAddress, since there may be a DomainAddress with the
+        # same row ID
+        return f"R{self.id}"
+
 
 def check_user_can_make_another_address(profile: Profile) -> None:
     if profile.is_flagged:
@@ -978,6 +1017,13 @@ class DomainAddress(models.Model):
             self.user_profile.subdomain,
             self.domain_value,
         )
+
+    @property
+    def metrics_id(self) -> str:
+        assert self.id
+        # Prefix with 'D' for DomainAddress, since there may be a RelayAddress with the
+        # same row ID
+        return f"D{self.id}"
 
 
 class Reply(models.Model):

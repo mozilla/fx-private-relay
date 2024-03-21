@@ -486,6 +486,10 @@ class RelayAddressTest(TestCase):
         assert relay_address.last_used_at == new_last_used_at
         assert not relay_address.block_list_emails
 
+    def test_metrics_id(self):
+        relay_address = RelayAddress.objects.create(user=self.user)
+        assert relay_address.metrics_id == f"R{relay_address.id}"
+
 
 class ProfileTestCase(TestCase):
     """Base class for Profile tests."""
@@ -1270,6 +1274,101 @@ class ProfileMetricsEnabledTest(ProfileTestCase):
         assert not self.profile.metrics_enabled
 
 
+class ProfilePlanTest(ProfileTestCase):
+    def test_free_user(self) -> None:
+        assert self.profile.plan == "free"
+
+    def test_premium_user(self) -> None:
+        self.upgrade_to_premium()
+        assert self.profile.plan == "email"
+
+    def test_phone_user(self) -> None:
+        self.upgrade_to_phone()
+        assert self.profile.plan == "phone"
+
+    def test_vpn_bundle_user(self) -> None:
+        self.upgrade_to_vpn_bundle()
+        assert self.profile.plan == "bundle"
+
+
+class ProfilePlanTermTest(ProfileTestCase):
+    def test_free_user(self) -> None:
+        assert self.profile.plan_term is None
+
+    def test_premium_user(self) -> None:
+        self.upgrade_to_premium()
+        assert self.profile.plan_term == "unknown"
+
+    def test_phone_user(self) -> None:
+        self.upgrade_to_phone()
+        assert self.profile.plan_term == "unknown"
+
+    def test_phone_user_1_month(self) -> None:
+        self.upgrade_to_phone()
+        self.profile.date_phone_subscription_start = datetime(
+            2024, 1, 1, tzinfo=timezone.utc
+        )
+
+        self.profile.date_phone_subscription_end = datetime(
+            2024, 2, 1, tzinfo=timezone.utc
+        )
+        assert self.profile.plan_term == "1_month"
+
+    def test_phone_user_1_year(self) -> None:
+        self.upgrade_to_phone()
+        self.profile.date_phone_subscription_start = datetime(
+            2024, 1, 1, tzinfo=timezone.utc
+        )
+
+        self.profile.date_phone_subscription_end = datetime(
+            2025, 1, 1, tzinfo=timezone.utc
+        )
+        assert self.profile.plan_term == "1_year"
+
+    def test_vpn_bundle_user(self) -> None:
+        self.upgrade_to_vpn_bundle()
+        assert self.profile.plan_term == "unknown"
+
+
+class ProfileMetricsPremiumStatus(ProfileTestCase):
+    def test_free_user(self):
+        assert self.profile.metrics_premium_status == "free"
+
+    def test_premium_user(self) -> None:
+        self.upgrade_to_premium()
+        assert self.profile.metrics_premium_status == "email_unknown"
+
+    def test_phone_user(self) -> None:
+        self.upgrade_to_phone()
+        assert self.profile.metrics_premium_status == "phone_unknown"
+
+    def test_phone_user_1_month(self) -> None:
+        self.upgrade_to_phone()
+        self.profile.date_phone_subscription_start = datetime(
+            2024, 1, 1, tzinfo=timezone.utc
+        )
+
+        self.profile.date_phone_subscription_end = datetime(
+            2024, 2, 1, tzinfo=timezone.utc
+        )
+        assert self.profile.metrics_premium_status == "phone_1_month"
+
+    def test_phone_user_1_year(self) -> None:
+        self.upgrade_to_phone()
+        self.profile.date_phone_subscription_start = datetime(
+            2024, 1, 1, tzinfo=timezone.utc
+        )
+
+        self.profile.date_phone_subscription_end = datetime(
+            2025, 1, 1, tzinfo=timezone.utc
+        )
+        assert self.profile.metrics_premium_status == "phone_1_year"
+
+    def test_vpn_bundle_user(self) -> None:
+        self.upgrade_to_vpn_bundle()
+        assert self.profile.metrics_premium_status == "bundle_unknown"
+
+
 class DomainAddressTest(TestCase):
     def setUp(self):
         self.subdomain = "test"
@@ -1583,3 +1682,7 @@ class DomainAddressTest(TestCase):
 
         self.user.profile.refresh_from_db()
         assert self.user.profile.last_engagement > pre_delete_last_engagement
+
+    def test_metrics_id(self):
+        address = DomainAddress.objects.create(user=self.user, address="metrics")
+        assert address.metrics_id == f"D{address.id}"
