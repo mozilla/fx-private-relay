@@ -573,7 +573,7 @@ def test_patch_domainaddress_address_fails(
 
     assert response.status_code == 400
     assert ret_data["detail"] == "You cannot edit an existing domain address field."
-    assert ret_data["error_code"] == "address_exists"
+    assert ret_data["error_code"] == "address_not_editable"
     assert get_glean_event(caplog) is None
 
 
@@ -599,7 +599,7 @@ def test_patch_domainaddress_addr_with_id_fails(
 
     assert response.status_code == 400
     assert ret_data["detail"] == "You cannot edit an existing domain address field."
-    assert ret_data["error_code"] == "address_exists"
+    assert ret_data["error_code"] == "address_not_editable"
     assert get_glean_event(caplog) is None
 
 

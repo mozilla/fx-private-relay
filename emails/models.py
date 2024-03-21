@@ -689,7 +689,7 @@ class DomainAddrNeedSubdomainException(CannotMakeAddressException):
 class DomainAddrUpdateException(CannotMakeAddressException):
     """Exception raised when attempting to edit an existing domain address field."""
 
-    default_code = "address_exists"
+    default_code = "address_not_editable"
     default_detail = "You cannot edit an existing domain address field."
     status_code = 400
 
