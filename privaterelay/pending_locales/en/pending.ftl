@@ -3,8 +3,3 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 # This is the Django equivalent of frontend/pendingTranslations.ftl
-
-# Variables:
-#   $duplicate_address (string) - User-set email address that already exists
-api-error-duplicate-address = “{ $duplicate_address }” already exists. Please try again with a different mask name.
-api-error-address-not-editable = You cannot edit an existing domain address field.

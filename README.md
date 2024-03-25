@@ -178,6 +178,8 @@ If you're not yet ready to submit some strings for translation, you can
 tentatively add them to `frontend/pendingTranslations.ftl`. Strings in that file
 will show up until strings with the same ID are added to the l10n repository.
 
+Similarly, there is a `pending_locales/pending.ftl` where temporary backend locales strings can be stored. Once the strings from the pull request in [the l10n repo](https://github.com/mozilla-l10n/fx-private-relay-l10n) has been merged into the Relay repo, these respective strings need to be removed from `pending_locales/pending.ftl` to avoid failing CircleCI tests.
+
 #### Commit translations for release
 
 To commit updates to the app's translations (e.g., before a release), we need
