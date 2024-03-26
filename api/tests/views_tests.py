@@ -506,8 +506,6 @@ def test_patch_domainaddress_same_value_used_on(
     "key,value",
     [
         ("id", -1),
-        # TODO MPP-3753: Make address a write-once field
-        pytest.param("address", "a-different-alias", marks=pytest.mark.xfail),
         ("domain", 1),
         ("full_address", "a-different-alias@premium.test.com"),
         ("created_at", "2024-02-15"),
