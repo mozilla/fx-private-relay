@@ -579,8 +579,8 @@ def test_patch_domainaddress_addr_with_id_fails(
     prem_api_client: APIClient, premium_user: User, caplog: pytest.LogCaptureFixture
 ) -> None:
     """
-    PATCH should not succeed when updating the address field and an 'id' field should have no effect on
-    the request because it is a read-only field
+    PATCH should not succeed when updating the address field and an 'id' field should
+    have no effect on the request because it is a read-only field
     """
 
     existing_alias = DomainAddress.objects.create(
