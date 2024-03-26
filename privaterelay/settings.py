@@ -607,22 +607,41 @@ LOGGING = {
         },
     },
     "loggers": {
+        "root": {
+            "handlers": ["console_err"],
+            "level": "WARNING",
+        },
         "request.summary": {
             "handlers": ["console_out"],
             "level": "DEBUG",
+            "propagate": False,
         },
         "events": {
             "handlers": ["console_err"],
             "level": "ERROR",
+            "propagate": False,
         },
         "eventsinfo": {
             "handlers": ["console_out"],
             "level": "INFO",
+            "propagate": False,
         },
-        "abusemetrics": {"handlers": ["console_out"], "level": "INFO"},
-        "studymetrics": {"handlers": ["console_out"], "level": "INFO"},
-        "markus": {"handlers": ["console_out"], "level": "DEBUG"},
-        GLEAN_EVENT_MOZLOG_TYPE: {"handlers": ["console_out"], "level": "DEBUG"},
+        "abusemetrics": {
+            "handlers": ["console_out"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "studymetrics": {
+            "handlers": ["console_out"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "markus": {"handlers": ["console_out"], "level": "DEBUG", "propagate": False},
+        GLEAN_EVENT_MOZLOG_TYPE: {
+            "handlers": ["console_out"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
     },
 }
 
