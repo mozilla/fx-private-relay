@@ -38,7 +38,7 @@
     "swr": "^2.2.5"
   },
   "devDependencies": {
-    "@next/eslint-plugin-next": "^14.1.0",
+    "@next/eslint-plugin-next": "^14.1.4",
     "@testing-library/dom": "^9.3.4",
     "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/react": "^14.2.2",
