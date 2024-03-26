@@ -12,7 +12,7 @@ django-ipware==6.0.4
 django-redis==5.4.0
 django-ftl==0.14
 django-referrer-policy==1.0
-djangorestframework==3.15.0
+djangorestframework==3.15.1
 django-waffle==4.1.0
 dockerflow==2024.3.0
 drf-spectacular==0.27.1
