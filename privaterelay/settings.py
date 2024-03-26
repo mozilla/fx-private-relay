@@ -614,33 +614,39 @@ LOGGING = {
         "request.summary": {
             "handlers": ["console_out"],
             "level": "DEBUG",
-            "propagate": False,
+            # pytest's caplog fixture requires propagate=True
+            # outside of pytest, use propagate=False to avoid double logs
+            "propagate": IN_PYTEST,
         },
         "events": {
             "handlers": ["console_err"],
             "level": "ERROR",
-            "propagate": False,
+            "propagate": IN_PYTEST,
         },
         "eventsinfo": {
             "handlers": ["console_out"],
             "level": "INFO",
-            "propagate": False,
+            "propagate": IN_PYTEST,
         },
         "abusemetrics": {
             "handlers": ["console_out"],
             "level": "INFO",
-            "propagate": False,
+            "propagate": IN_PYTEST,
         },
         "studymetrics": {
             "handlers": ["console_out"],
             "level": "INFO",
-            "propagate": False,
+            "propagate": IN_PYTEST,
         },
-        "markus": {"handlers": ["console_out"], "level": "DEBUG", "propagate": False},
+        "markus": {
+            "handlers": ["console_out"],
+            "level": "DEBUG",
+            "propagate": IN_PYTEST,
+        },
         GLEAN_EVENT_MOZLOG_TYPE: {
             "handlers": ["console_out"],
             "level": "DEBUG",
-            "propagate": False,
+            "propagate": IN_PYTEST,
         },
     },
 }
