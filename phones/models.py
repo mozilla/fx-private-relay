@@ -85,7 +85,7 @@ def get_valid_realphone_verification_record(user, number, verification_code):
     ).first()
 
 
-def get_last_text_sender(relay_number: "RelayNumber") -> Optional["InboundContact"]:
+def get_last_text_sender(relay_number: RelayNumber) -> InboundContact | None:
     """
     Get the last text sender.
 

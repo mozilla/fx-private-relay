@@ -973,7 +973,7 @@ class DomainAddress(models.Model):
     @staticmethod
     def make_domain_address(
         user_profile: Profile, address: str | None = None, made_via_email: bool = False
-    ) -> "DomainAddress":
+    ) -> DomainAddress:
         check_user_can_make_domain_address(user_profile)
 
         if not address:
