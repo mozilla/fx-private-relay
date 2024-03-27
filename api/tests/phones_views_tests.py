@@ -1512,14 +1512,12 @@ def test_inbound_sms_reply_no_prefix_last_sender(
     assert relay_number.texts_forwarded == multi_reply.old_texts_forwarded + 1
 
 
-_match_by_prefix_candidates = set(
-    (
-        "+13015550000",
-        "+13025550001",
-        "+13035550001",  # Same last 4 digits as above
-        "+13045551301",  # Last 4 match first 4 of oldest
-    )
-)
+_match_by_prefix_candidates = {
+    "+13015550000",
+    "+13025550001",
+    "+13035550001",  # Same last 4 digits as above
+    "+13045551301",  # Last 4 match first 4 of oldest
+}
 
 
 MatchByPrefixParams = tuple[

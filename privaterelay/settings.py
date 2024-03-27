@@ -218,9 +218,9 @@ TWILIO_MESSAGING_SERVICE_SID: list[str] = config(
 )
 TWILIO_TEST_ACCOUNT_SID: str | None = config("TWILIO_TEST_ACCOUNT_SID", None)
 TWILIO_TEST_AUTH_TOKEN: str | None = config("TWILIO_TEST_AUTH_TOKEN", None)
-TWILIO_ALLOWED_COUNTRY_CODES = set(
+TWILIO_ALLOWED_COUNTRY_CODES = {
     code.upper() for code in config("TWILIO_ALLOWED_COUNTRY_CODES", "US,CA", cast=Csv())
-)
+}
 MAX_MINUTES_TO_VERIFY_REAL_PHONE: int = config(
     "MAX_MINUTES_TO_VERIFY_REAL_PHONE", 5, cast=int
 )

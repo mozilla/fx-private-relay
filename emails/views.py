@@ -1007,7 +1007,7 @@ def _replace_headers(
     """
     # Look for headers to drop
     to_drop: list[str] = []
-    replacements: set[str] = set(_k.lower() for _k in headers.keys())
+    replacements: set[str] = {_k.lower() for _k in headers.keys()}
     issues: EmailHeaderIssues = defaultdict(list)
 
     # Detect non-compliant headers in incoming emails
