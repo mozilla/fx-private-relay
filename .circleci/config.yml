@@ -65,7 +65,7 @@ executors:
     parameters: &python_parameters
       python_version:
         description: "python version tag"
-        default: "3.10.13"
+        default: "3.11.8"
         type: string
       variant:
         description: "image variant"
@@ -669,15 +669,6 @@ workflows:
           pytest_fail_fast: true
           test_results_filename: pytest-django-5-0.xml
           update_dependency: "Django>=5.0,<5.1"
-          allow_fail: true
-          filters: *default_filters
-
-      - python_job:
-          name: python 3.11 test
-          python_version: "3.11"
-          command: pytest
-          pytest_fail_fast: true
-          test_results_filename: pytest-python-3-11.xml
           allow_fail: true
           filters: *default_filters
 

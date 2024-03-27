@@ -46,7 +46,7 @@ Please refer to our [coding standards](docs/coding-standards.md) for code styles
 
 ### Requirements
 
-- python 3.10 (we recommend [virtualenv](https://docs.python-guide.org/dev/virtualenvs/))
+- python 3.11 (we recommend [venv](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/))
 - PostgreSQL - even if you are using sqlite for development, requirements.txt installs
   psycopg2 which [requires libpq](https://www.psycopg.org/docs/install.html#build-prerequisites) and Python header files.
   The following should work:
