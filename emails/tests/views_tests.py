@@ -95,7 +95,7 @@ def load_fixtures(file_suffix: str) -> dict[str, AWS_SNSMessageJSON | str]:
         file_name = os.path.basename(fixture_file)
         key = file_name[: -len(file_suffix)]
         assert key not in fixtures
-        with open(fixture_file, "r") as f:
+        with open(fixture_file) as f:
             if ext == ".json":
                 fixtures[key] = json.load(f)
             else:

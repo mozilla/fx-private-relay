@@ -375,7 +375,7 @@ def test_writes_healthcheck_file(test_settings):
     """Running the command writes to the healthcheck file."""
     call_command("process_emails_from_sqs")
     healthcheck_path = test_settings.PROCESS_EMAIL_HEALTHCHECK_PATH
-    with open(healthcheck_path, "r", encoding="utf-8") as healthcheck_file:
+    with open(healthcheck_path, encoding="utf-8") as healthcheck_file:
         content = json.load(healthcheck_file)
     assert content == {
         "timestamp": content["timestamp"],
