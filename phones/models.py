@@ -1,7 +1,8 @@
 from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 from math import floor
-from typing import Iterator, Optional
+from typing import Optional
+from collections.abc import Iterator
 import logging
 import phonenumbers
 import secrets

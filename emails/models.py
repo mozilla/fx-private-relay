@@ -2,7 +2,8 @@ from __future__ import annotations
 from collections import namedtuple
 from datetime import datetime, timedelta, timezone
 from hashlib import sha256
-from typing import Iterable, Literal
+from typing import Literal
+from collections.abc import Iterable
 import logging
 import random
 import re

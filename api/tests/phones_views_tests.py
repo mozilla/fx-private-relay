@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Iterator, Literal
+from typing import Literal
+from collections.abc import Iterator
 from unittest.mock import Mock, patch, call
 import re
 

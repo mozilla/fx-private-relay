@@ -6,7 +6,8 @@ from email.headerregistry import Address, AddressHeader
 from email.message import EmailMessage
 from email.utils import formataddr, parseaddr
 from functools import cache
-from typing import cast, Any, Callable, TypeVar
+from typing import cast, Any, TypeVar
+from collections.abc import Callable
 import json
 import pathlib
 import re

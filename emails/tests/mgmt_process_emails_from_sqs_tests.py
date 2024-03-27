@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
-from typing import Any, Generator, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
+from collections.abc import Generator
 from unittest.mock import patch, Mock
 from uuid import uuid4
 import json
