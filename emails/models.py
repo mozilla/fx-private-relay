@@ -821,7 +821,7 @@ class RelayAddress(models.Model):
 
     @property
     def full_address(self):
-        return "%s@%s" % (self.address, self.domain_value)
+        return f"{self.address}@{self.domain_value}"
 
     @property
     def metrics_id(self) -> str:
@@ -1026,7 +1026,7 @@ class DomainAddress(models.Model):
 
     @property
     def full_address(self):
-        return "%s@%s.%s" % (
+        return "{}@{}.{}".format(
             self.address,
             self.user_profile.subdomain,
             self.domain_value,

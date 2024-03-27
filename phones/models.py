@@ -452,7 +452,7 @@ def suggested_numbers(user):
     same_prefix_options.extend(convert_twilio_numbers_to_dict(twilio_nums))
 
     # look for numbers with same area code, 2-number prefix and suffix
-    contains = "%s***%s" % (real_num[:7], real_num[10:]) if real_num else ""
+    contains = "{}***{}".format(real_num[:7], real_num[10:]) if real_num else ""
     twilio_nums = avail_nums.local.list(contains=contains, limit=10)
     same_prefix_options.extend(convert_twilio_numbers_to_dict(twilio_nums))
 
