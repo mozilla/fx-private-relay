@@ -41,7 +41,7 @@ class EmailsConfig(AppConfig):
             logger.exception("exception during S3 connect")
 
     def __init__(self, app_name, app_module):
-        super(EmailsConfig, self).__init__(app_name, app_module)
+        super().__init__(app_name, app_module)
 
         # badwords file from:
         # https://www.cs.cmu.edu/~biglou/resources/bad-words.txt

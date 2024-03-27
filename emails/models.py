@@ -772,7 +772,7 @@ class RelayAddress(models.Model):
         profile.num_deleted_relay_addresses += 1
         profile.last_engagement = datetime.now(timezone.utc)
         profile.save()
-        return super(RelayAddress, self).delete(*args, **kwargs)
+        return super().delete(*args, **kwargs)
 
     def save(
         self,
@@ -1018,7 +1018,7 @@ class DomainAddress(models.Model):
         profile.num_deleted_domain_addresses += 1
         profile.last_engagement = datetime.now(timezone.utc)
         profile.save()
-        return super(DomainAddress, self).delete(*args, **kwargs)
+        return super().delete(*args, **kwargs)
 
     @property
     def domain_value(self):
