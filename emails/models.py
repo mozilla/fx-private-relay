@@ -584,10 +584,10 @@ def address_hash(address, subdomain=None, domain=None):
     if not domain:
         domain = get_domains_from_settings()["MOZMAIL_DOMAIN"]
     if subdomain:
-        return sha256(f"{address}@{subdomain}.{domain}".encode("utf-8")).hexdigest()
+        return sha256(f"{address}@{subdomain}.{domain}".encode()).hexdigest()
     if domain == settings.RELAY_FIREFOX_DOMAIN:
-        return sha256(f"{address}".encode("utf-8")).hexdigest()
-    return sha256(f"{address}@{domain}".encode("utf-8")).hexdigest()
+        return sha256(f"{address}".encode()).hexdigest()
+    return sha256(f"{address}@{domain}".encode()).hexdigest()
 
 
 def address_default():
@@ -622,7 +622,7 @@ def get_domain_numerical(domain_address):
 
 
 def hash_subdomain(subdomain, domain=settings.MOZMAIL_DOMAIN):
-    return sha256(f"{subdomain}.{domain}".encode("utf-8")).hexdigest()
+    return sha256(f"{subdomain}.{domain}".encode()).hexdigest()
 
 
 class RegisteredSubdomain(models.Model):
