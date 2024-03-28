@@ -131,6 +131,7 @@ class Profile(models.Model):
     created_by = models.CharField(blank=True, null=True, max_length=63)
     sent_welcome_email = models.BooleanField(default=False)
     last_engagement = models.DateTimeField(blank=True, null=True, db_index=True)
+    locale = models.CharField(blank=True, null=True, max_length=255)
 
     def __str__(self):
         return "%s Profile" % self.user
@@ -176,10 +177,13 @@ class Profile(models.Model):
 
     @property
     def language(self):
-        if self.fxa and self.fxa.extra_data.get("locale"):
-            for accept_lang, _ in parse_accept_lang_header(
-                self.fxa.extra_data.get("locale")
-            ):
+        lang_header = None
+        if self.locale:
+            lang_header = self.locale
+        elif self.fxa and self.fxa.extra_data.get("locale"):
+            lang_header = self.fxa.extra_data.get("locale")
+        if lang_header:
+            for accept_lang, _ in parse_accept_lang_header(lang_header):
                 try:
                     return get_supported_language_variant(accept_lang)
                 except LookupError:
@@ -193,9 +197,14 @@ class Profile(models.Model):
     # example when sending an email, this method can be useful.
     @property
     def fxa_locale_in_premium_country(self) -> bool:
-        if self.fxa and self.fxa.extra_data.get("locale"):
+        lang_header = None
+        if self.locale:
+            lang_header = self.locale
+        elif self.fxa and self.fxa.extra_data.get("locale"):
+            lang_header = self.fxa.extra_data.get("locale")
+        if lang_header:
             try:
-                country = guess_country_from_accept_lang(self.fxa.extra_data["locale"])
+                country = guess_country_from_accept_lang(lang_header)
             except AcceptLanguageError:
                 return False
             premium_countries = get_premium_countries()

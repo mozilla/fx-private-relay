@@ -300,7 +300,12 @@ def _update_all_data(
         with transaction.atomic():
             social_account.extra_data = extra_data
             social_account.save()
-            profile = social_account.user.profile
+
+            # Update profile language
+            profile.locale = extra_data.get("locale", None)
+            profile.save()
+
+            # Update subscription fields
             now_has_premium = profile.has_premium
             newly_premium = not had_premium and now_has_premium
             no_longer_premium = had_premium and not now_has_premium
@@ -320,6 +325,8 @@ def _update_all_data(
                 profile.save()
             if no_longer_phone:
                 incr_if_enabled("user_has_dropped_phone", 1)
+
+            # Update email address
             social_account.user.email = new_email
             social_account.user.save()
             email_address_record = social_account.user.emailaddress_set.first()
