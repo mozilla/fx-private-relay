@@ -16,8 +16,8 @@ class DataIssueTask:
     check_description: str  # A sentence describing what this cleaner is checking.
     can_clean: bool  # True if the issue can be automatically cleaned
 
-    _counts: Optional[Counts]
-    _cleanup_data: Optional[CleanupData]
+    _counts: Counts | None
+    _cleanup_data: CleanupData | None
     _cleaned: bool
 
     def __init__(self):

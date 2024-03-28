@@ -1,7 +1,8 @@
 from datetime import datetime, timezone
 from functools import lru_cache
 from hashlib import sha256
-from typing import Any, Iterable, Optional, TypedDict
+from typing import Any, Optional, TypedDict
+from collections.abc import Iterable
 import json
 import logging
 
@@ -199,7 +200,7 @@ def _authenticate_fxa_jwt(req_jwt: str) -> FxAEvent:
 
 def _verify_jwt_with_fxa_key(
     req_jwt: str, verifying_keys: list[dict[str, Any]]
-) -> Optional[FxAEvent]:
+) -> FxAEvent | None:
     if not verifying_keys:
         raise Exception("FXA verifying keys are not available.")
     social_app = SocialApp.objects.get(provider="fxa")
@@ -253,8 +254,8 @@ def _get_event_keys_from_jwt(authentic_jwt: FxAEvent) -> Iterable[str]:
 
 def update_fxa(
     social_account: SocialAccount,
-    authentic_jwt: Optional[FxAEvent] = None,
-    event_key: Optional[str] = None,
+    authentic_jwt: FxAEvent | None = None,
+    event_key: str | None = None,
 ) -> HttpResponse:
     try:
         client = _get_oauth2_session(social_account)

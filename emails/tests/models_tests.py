@@ -167,29 +167,27 @@ class MiscEmailModelsTest(TestCase):
     @override_settings(RELAY_FIREFOX_DOMAIN="firefox.com")
     def test_address_hash_without_subdomain_domain_firefox(self):
         address = "aaaaaaaaa"
-        expected_hash = sha256(f"{address}".encode("utf-8")).hexdigest()
+        expected_hash = sha256(f"{address}".encode()).hexdigest()
         assert address_hash(address, domain="firefox.com") == expected_hash
 
     @override_settings(RELAY_FIREFOX_DOMAIN="firefox.com")
     def test_address_hash_without_subdomain_domain_not_firefoxz(self):
         non_default = "test.com"
         address = "aaaaaaaaa"
-        expected_hash = sha256(f"{address}@{non_default}".encode("utf-8")).hexdigest()
+        expected_hash = sha256(f"{address}@{non_default}".encode()).hexdigest()
         assert address_hash(address, domain=non_default) == expected_hash
 
     def test_address_hash_with_subdomain(self):
         address = "aaaaaaaaa"
         subdomain = "test"
         domain = get_domains_from_settings().get("MOZMAIL_DOMAIN")
-        expected_hash = sha256(
-            f"{address}@{subdomain}.{domain}".encode("utf-8")
-        ).hexdigest()
+        expected_hash = sha256(f"{address}@{subdomain}.{domain}".encode()).hexdigest()
         assert address_hash(address, subdomain, domain) == expected_hash
 
     def test_address_hash_with_additional_domain(self):
         address = "aaaaaaaaa"
         test_domain = "test.com"
-        expected_hash = sha256(f"{address}@{test_domain}".encode("utf-8")).hexdigest()
+        expected_hash = sha256(f"{address}@{test_domain}".encode()).hexdigest()
         assert address_hash(address, domain=test_domain) == expected_hash
 
     def test_get_domain_numerical(self):
@@ -320,7 +318,7 @@ class RelayAddressTest(TestCase):
     def test_delete_mozmail_deleted_address_object(self):
         relay_address = baker.make(RelayAddress, domain=2, user=self.user)
         address_hash = sha256(
-            f"{relay_address.address}@{relay_address.domain_value}".encode("utf-8")
+            f"{relay_address.address}@{relay_address.domain_value}".encode()
         ).hexdigest()
         relay_address.delete()
         deleted_count = DeletedAddress.objects.filter(address_hash=address_hash).count()

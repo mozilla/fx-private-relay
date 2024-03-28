@@ -143,7 +143,7 @@ class Command(BaseCommand):
         verbosity: int,
         tasks: dict[str, DataIssueTask],
         issue_timers: dict[str, float],
-        clean_timers: Optional[dict[str, float]],
+        clean_timers: dict[str, float] | None,
     ) -> tuple[dict, dict]:
         """Gather full data and log data from tasks and timers."""
 

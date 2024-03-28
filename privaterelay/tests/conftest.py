@@ -1,7 +1,7 @@
 """Shared fixtures for privaterelay tests"""
 
 from pathlib import Path
-from typing import Iterator
+from collections.abc import Iterator
 import json
 
 from pytest_django.fixtures import SettingsWrapper

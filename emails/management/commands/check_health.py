@@ -57,7 +57,7 @@ class Command(CommandFromDjangoSettings):
     def handle(self, verbosity, *args, **kwargs):
         """Handle call from command line (called by BaseCommand)"""
         self.init_from_settings(verbosity)
-        with open(self.healthcheck_path, mode="r", encoding="utf8") as healthcheck_file:
+        with open(self.healthcheck_path, encoding="utf8") as healthcheck_file:
             context = self.check_healthcheck(healthcheck_file, self.max_age)
         if context["success"]:
             if self.verbosity > 1:

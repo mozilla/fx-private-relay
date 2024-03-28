@@ -6,7 +6,8 @@ from email.headerregistry import Address, AddressHeader
 from email.message import EmailMessage
 from email.utils import formataddr, parseaddr
 from functools import cache
-from typing import cast, Any, Callable, TypeVar
+from typing import cast, Any, TypeVar
+from collections.abc import Callable
 import json
 import pathlib
 import re
@@ -72,7 +73,7 @@ def get_trackers(level):
     trackers = []
     file_name = f"{tracker_list_name}.json"
     try:
-        with open(TRACKER_FOLDER_PATH / file_name, "r") as f:
+        with open(TRACKER_FOLDER_PATH / file_name) as f:
             trackers = json.load(f)
     except FileNotFoundError:
         trackers = download_trackers(shavar_prod_lists_url, category)
