@@ -83,9 +83,11 @@ class UserData(NamedTuple):
             date_joined_premium = None
         premium_status = user.profile.metrics_premium_status
         try:
-            earliest_mask = user.relayaddress_set.exclude(
-                generated_for__exact=""
-            ).earliest("created_at")
+            earliest_mask = (
+                user.relayaddress_set.exclude(generated_for__exact="")
+                .only("id", "created_at")
+                .earliest("created_at")
+            )
         except RelayAddress.DoesNotExist:
             has_extension = False
             date_got_extension = None
