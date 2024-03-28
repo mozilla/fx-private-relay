@@ -440,6 +440,12 @@ TEST_DB_NAME = config("TEST_DB_NAME", "")
 if TEST_DB_NAME:
     DATABASES["default"]["TEST"] = {"NAME": TEST_DB_NAME}
 
+SILENCED_SYSTEM_CHECKS = [
+    # (models.W040) SQLite does not support indexes with non-key columns.
+    # RelayAddress index idx_ra_created_by_addon uses this for PostgreSQL.
+    "models.W040",
+]
+
 REDIS_URL = config("REDIS_URL", "")
 if REDIS_URL:
     CACHES = {
