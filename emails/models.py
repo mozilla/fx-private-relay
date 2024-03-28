@@ -746,6 +746,17 @@ class RelayAddress(models.Model):
     block_list_emails = models.BooleanField(default=False)
     used_on = models.TextField(default=None, blank=True, null=True)
 
+    class Meta:
+        indexes = [
+            # Find when a user first used the add-on
+            models.Index(
+                name="idx_ra_created_by_addon",
+                fields=["user"],
+                condition=~models.Q(generated_for__exact=""),
+                include=["created_at"],
+            ),
+        ]
+
     def __str__(self):
         return self.address
 
