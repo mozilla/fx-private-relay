@@ -43,6 +43,13 @@ updates:
           # Requires django-stubs 4.2.7
           - "3.14.5"
     groups:
+      boto:
+        patterns:
+          - "boto3"
+          - "boto3-stubs"
+          - "botocore"
+          - "botocore-stubs"
+          - "mypy-boto3-ses"
       testing-libraries:
         patterns:
           - "coverage"
@@ -52,11 +59,8 @@ updates:
           - "responses"
       typing-stubs:
         patterns:
-          - "boto3-stubs"
-          - "botocore-stubs"
           - "django-stubs"
           - "djangorestframework-stubs"
-          - "mypy-boto3-ses"
           - "types-pyOpenSSL"
           - "types-requests"
   - package-ecosystem: "github-actions"
