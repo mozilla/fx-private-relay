@@ -41,6 +41,6 @@ module.exports = {
     ],
     "scss/at-rule-no-unknown": true,
     "scss/at-import-partial-extension": null,
-    "scss/at-import-partial-extension-whitelist": "scss"
+    "scss/at-import-partial-extension-allowed-list": "scss"
   }
 };
