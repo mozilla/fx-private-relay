@@ -14,12 +14,12 @@ export class AuthPage {
     constructor(page: Page){
         this.page = page;
         this.emailInputField = page.locator('input[name="email"]');
-        this.passwordInputField = process.env["E2E_TEST_ENV"] === "prod" ? page.locator('#password') : page.getByTestId('new-password-input-field');
-        this.passwordConfirmInputField = process.env["E2E_TEST_ENV"] === "prod" ? page.locator('#vpassword') : page.getByTestId('verify-password-input-field');
-        this.ageInputField = process.env["E2E_TEST_ENV"] === "prod" ? page.locator('#age') : page.getByTestId('age-input-field');
+        this.passwordInputField = page.locator('#password');
+        this.passwordConfirmInputField = page.locator('#vpassword');
+        this.ageInputField = page.locator('#age');
         this.continueButton = page.locator('#submit-btn');
         this.createAccountButton = page.getByRole('button', { name: 'Create account' });
-        this.verifyCodeInputField = process.env["E2E_TEST_ENV"] === "prod" ? page.locator('div.card input') : page.getByTestId('confirm-signup-code-input-field');
+        this.verifyCodeInputField = page.locator('div.card input');
         this.confirmCodeButton = page.getByRole('button', { name: 'Confirm' });
     }
 
