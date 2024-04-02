@@ -3,7 +3,8 @@ from decimal import Decimal
 from functools import cache, wraps
 from pathlib import Path
 from string import ascii_uppercase
-from typing import Callable, TypedDict, cast, TYPE_CHECKING
+from typing import TypedDict, cast, TYPE_CHECKING
+from collections.abc import Callable
 import json
 import logging
 import random

@@ -41,7 +41,7 @@ class EmailsConfig(AppConfig):
             logger.exception("exception during S3 connect")
 
     def __init__(self, app_name, app_module):
-        super(EmailsConfig, self).__init__(app_name, app_module)
+        super().__init__(app_name, app_module)
 
         # badwords file from:
         # https://www.cs.cmu.edu/~biglou/resources/bad-words.txt
@@ -53,7 +53,7 @@ class EmailsConfig(AppConfig):
     def _load_terms(self, filename):
         terms = []
         terms_file_path = os.path.join(settings.BASE_DIR, "emails", filename)
-        with open(terms_file_path, "r") as terms_file:
+        with open(terms_file_path) as terms_file:
             for word in terms_file:
                 if len(word.strip()) > 0 and word.strip()[0] == "#":
                     continue

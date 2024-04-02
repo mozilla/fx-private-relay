@@ -3,7 +3,8 @@ import logging
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Any, Iterator, Literal
+from typing import Any, Literal
+from collections.abc import Iterator
 from uuid import uuid4
 from unittest.mock import Mock, patch
 

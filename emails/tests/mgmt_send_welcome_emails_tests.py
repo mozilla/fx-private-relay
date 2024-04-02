@@ -1,5 +1,4 @@
 import pytest
-from typing import Tuple
 from unittest.mock import MagicMock, patch
 
 from botocore.exceptions import ClientError
@@ -144,7 +143,7 @@ def _assert_caplog_for_1_email_to_user(
     assert "Exiting" in rec4.getMessage()
 
 
-def _get_send_email_args(mock_ses_client: MagicMock) -> Tuple:
+def _get_send_email_args(mock_ses_client: MagicMock) -> tuple:
     call_args = mock_ses_client.send_email.call_args[1]
     to_addresses = call_args["Destination"]["ToAddresses"]
     source = call_args["Source"]

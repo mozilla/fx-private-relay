@@ -1,7 +1,8 @@
 from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 from math import floor
-from typing import Iterator, Optional
+from typing import Optional
+from collections.abc import Iterator
 import logging
 import phonenumbers
 import secrets
@@ -85,7 +86,7 @@ def get_valid_realphone_verification_record(user, number, verification_code):
     ).first()
 
 
-def get_last_text_sender(relay_number: "RelayNumber") -> Optional["InboundContact"]:
+def get_last_text_sender(relay_number: RelayNumber) -> InboundContact | None:
     """
     Get the last text sender.
 
@@ -452,7 +453,7 @@ def suggested_numbers(user):
     same_prefix_options.extend(convert_twilio_numbers_to_dict(twilio_nums))
 
     # look for numbers with same area code, 2-number prefix and suffix
-    contains = "%s***%s" % (real_num[:7], real_num[10:]) if real_num else ""
+    contains = f"{real_num[:7]}***{real_num[10:]}" if real_num else ""
     twilio_nums = avail_nums.local.list(contains=contains, limit=10)
     same_prefix_options.extend(convert_twilio_numbers_to_dict(twilio_nums))
 

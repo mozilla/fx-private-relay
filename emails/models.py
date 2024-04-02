@@ -2,7 +2,8 @@ from __future__ import annotations
 from collections import namedtuple
 from datetime import datetime, timedelta, timezone
 from hashlib import sha256
-from typing import Iterable, Literal
+from typing import Literal
+from collections.abc import Iterable
 import logging
 import random
 import re
@@ -584,10 +585,10 @@ def address_hash(address, subdomain=None, domain=None):
     if not domain:
         domain = get_domains_from_settings()["MOZMAIL_DOMAIN"]
     if subdomain:
-        return sha256(f"{address}@{subdomain}.{domain}".encode("utf-8")).hexdigest()
+        return sha256(f"{address}@{subdomain}.{domain}".encode()).hexdigest()
     if domain == settings.RELAY_FIREFOX_DOMAIN:
-        return sha256(f"{address}".encode("utf-8")).hexdigest()
-    return sha256(f"{address}@{domain}".encode("utf-8")).hexdigest()
+        return sha256(f"{address}".encode()).hexdigest()
+    return sha256(f"{address}@{domain}".encode()).hexdigest()
 
 
 def address_default():
@@ -622,7 +623,7 @@ def get_domain_numerical(domain_address):
 
 
 def hash_subdomain(subdomain, domain=settings.MOZMAIL_DOMAIN):
-    return sha256(f"{subdomain}.{domain}".encode("utf-8")).hexdigest()
+    return sha256(f"{subdomain}.{domain}".encode()).hexdigest()
 
 
 class RegisteredSubdomain(models.Model):
@@ -783,7 +784,7 @@ class RelayAddress(models.Model):
         profile.num_deleted_relay_addresses += 1
         profile.last_engagement = datetime.now(timezone.utc)
         profile.save()
-        return super(RelayAddress, self).delete(*args, **kwargs)
+        return super().delete(*args, **kwargs)
 
     def save(
         self,
@@ -832,7 +833,7 @@ class RelayAddress(models.Model):
 
     @property
     def full_address(self):
-        return "%s@%s" % (self.address, self.domain_value)
+        return f"{self.address}@{self.domain_value}"
 
     @property
     def metrics_id(self) -> str:
@@ -984,7 +985,7 @@ class DomainAddress(models.Model):
     @staticmethod
     def make_domain_address(
         user_profile: Profile, address: str | None = None, made_via_email: bool = False
-    ) -> "DomainAddress":
+    ) -> DomainAddress:
         check_user_can_make_domain_address(user_profile)
 
         if not address:
@@ -1029,7 +1030,7 @@ class DomainAddress(models.Model):
         profile.num_deleted_domain_addresses += 1
         profile.last_engagement = datetime.now(timezone.utc)
         profile.save()
-        return super(DomainAddress, self).delete(*args, **kwargs)
+        return super().delete(*args, **kwargs)
 
     @property
     def domain_value(self):
@@ -1037,7 +1038,7 @@ class DomainAddress(models.Model):
 
     @property
     def full_address(self):
-        return "%s@%s.%s" % (
+        return "{}@{}.{}".format(
             self.address,
             self.user_profile.subdomain,
             self.domain_value,
