@@ -1,6 +1,6 @@
 # Use Code Linters to Enforce Layout and Discover Issues
 
-- Status: Informational
+- Status: Proposed
 - Deciders: Luke Crouch
 - Date: 2024-04-04
 
