@@ -15,34 +15,32 @@ addressed by different linting tools include:
 
 - **Enforce Layout**: A tool can check and even reformat code to fit a project
   style. This helps make code and code changes easier to read and comprehend.
-  It also allows new contributors to match the existing project style.
+  It helps new contributors to match the existing project style.
 - **Check Types**: Dynamic languages are flexible about variable types.
   Valid code with incorrect types can result in bugs and runtime errors. A
   linter can check type hints for consistent usage. Code editors can use type
   hints for documentation and assisted code writing.
-- **Identify Mistakes**: A tool can detect some common mistakes. Examples are
+- **Identify Mistakes**: A tool can detect common mistakes. Examples are
   identifying unused variables, and using loose equality in JavaScript.
 - **Standardize Constructs**: There are many ways to express the same logic in
   code. A linter can suggest or rewrite code to a standard form. One example is
   the order and placement of imports. Another is omitting optional defaults to
   a function call.
-- **Spelling and Grammar Checking**: A tool can check for misspelling and grammar
-  mistakes. The tools have different priorities from similar tools for word
-  processors. The text can appear in prose and code comments. The text includes
-  technical and project-specific terms.
+- **Spelling and Grammar Checking**: These tools have different priorities from
+  similar tools for word processors. They expect technical and project-specific
+  terms. They look for text in prose and code comments.
 
 Most developers appreciate that linters make multi-developer projects easier.
-Tool check and enforce project standards. Code reviewers focus on the logic of
-changes, rather than the form of the code. A linter may identify an unexpected
-issue. A developer can read the linter documentation to learn more about the
-issue. This is one way a developer can improve their understanding of the
+Tools automatically check and enforce project standards. Code reviewers focus
+on the logic of changes, rather than the form of the code. A linter can teach
+developers about unexpected issues and improve their understanding of the
 project's languages.
 
 Also, developers dislike changes to their working process. The benefits may be
-unclear. They may disagree that the cost is worth the benefits. It becomes
-harder to add a tool as the lines of code and the number of team members grow.
-The best time to incorporate linters is at the start of the project. Relay did
-not, so adding these tools has been a slower, more deliberate process.
+unclear. They may disagree that the benefits are worth the extra effort. These
+objections are easiest to overcome at the start of a project. As a project
+becomes bigger, it becomes harder to satisfy a new tool. Adding a new tool to
+a mature project is a slow, deliberate process.
 
 ## Linters Used By Relay
 
@@ -126,6 +124,18 @@ support this non-standard configuration.
 [web-vitals]: https://web.dev/articles/vitals
 [frontend/.eslintrc.js]: https://github.com/mozilla/fx-private-relay/blob/main/frontend/.eslintrc.js
 
+### mypy
+
+[mypy][] is a static type checker for Python. Relay added mypy support in April 2022. Relay started with a recommended configuration for an
+[existing codebase][mypy-existing].
+
+`mypy` uses [pyproject.toml][] for configuration. Relay ignores issues with
+third party libraries that do not ship type hints. We disable strict rules
+that need code changes to pass. We ratchet up `mypy` strictness over time.
+
+[mypy]: https://mypy.readthedocs.io/en/stable/
+[mypy-existing]: https://mypy.readthedocs.io/en/stable/existing_code.html
+
 ### black
 
 [black][] is a formatting tool to enforce layout of Python code. It rewrites
@@ -137,24 +147,11 @@ configuration. In the future, Relay can tune the supported Python versions.
 [black]: https://black.readthedocs.io/en/stable/index.html
 [pyproject.toml]: https://github.com/mozilla/fx-private-relay/blob/main/pyproject.toml
 
-### mypy
-
-[mypy][] is a static type checker for Python. Relay added mypy support in April 2022. Relay started with an configuration for an
-[existing codebase][mypy-existing].
-
-`mypy` uses [pyproject.toml][] for configuration. Relay ignores issues with
-third party libraries that do not ship type hints. Relay disables strict rules
-that need code changes to pass. Relay ratchets up mypy strictness as technical
-debt projects.
-
-[mypy]: https://mypy.readthedocs.io/en/stable/
-[mypy-existing]: https://mypy.readthedocs.io/en/stable/existing_code.html
-
 ## Adding A New Linter
 
 Adding a new linter is not free. Each developer needs to add it to their workflow.
-Continuous Integration needs to run the linter on each pull request. Developers
-must address linting issues before merging.
+Continuous Integration (CI) needs to run the linter on each pull request.
+Developers must address linting issues before merging.
 
 The decision to add a linter has two parts. First, is a linter needed? Second,
 which linter?
@@ -167,8 +164,9 @@ When deciding _if a linter is needed_, some criteria are:
   users. A few seconds per pull request is worth avoiding a production bug.
 - **What is the impact of issues detected by the linter?** The highest impact
   is avoiding a user-facing bug. The next level of impact is improving the
-  speed and effectiveness of code reviews. When tools handle the mechanical
-  review, reviewers spend their time on the logic of the code changes.
+  speed and effectiveness of code reviews. Tools can handle the mechanical
+  review. Reviewers are free to spend their time and attention on the logic of
+  the code changes.
 
 Here is the linter chart again, focusing on areas without linters:
 
@@ -192,7 +190,7 @@ do not have a direct impact on our users. Authors and reviewers can use tools
 like [ShellCheck][] when needed.
 
 Relay does not suffer from spelling and grammar errors. Many reviewers check
-user-facing strings, as they proceed from design to translation. Errors in
+new user-facing strings, as they proceed from design to translation. Errors in
 code comments and function names do not cause bugs. A developer understands a
 good code comment with a spelling error. A developer should delete a misleading
 comment with perfect English. Authors and reviewers can use tools like
@@ -201,43 +199,43 @@ comment with perfect English. Authors and reviewers can use tools like
 As highlighted, there is a gap in Python linters. There is no official linter
 to identify mistakes and standardize constructs. Python is used in production
 for the web and API server, as well as background tasks. Errors in this code
-will impact users, and non-standard code can slow down code reviews. This gap
-meets the criteria for adding a new linter to CircleCI and development.
+will impact users, and non-standard code can slow down code reviews. Relay
+should add a new tool to address this gap.
 
 [markdownlint demo]: https://dlaa.me/markdownlint/
 [ShellCheck]: https://www.shellcheck.net/
 [PyEnchant]: https://pyenchant.github.io/pyenchant/#
 [Hemingway]: https://hemingwayapp.com/
 
-## Decision Drivers for Choosing Between Similar Linters
+## Decision Drivers: Which Linter?
 
 A required linter must have these attributes:
 
 - **Checks on pull request**: The continuous integration process needs to run
   the tool. If the tool identifies an issue, the build should fail. This
   prevents merging failing code.
-- **Runs in the development environment**: Fast tools should run as a pre-commit step.
-  A developer can run the tool on their machine. When the tool accepts the code, it should also pass in CI.
-- **Marks false positives**: There should be few times where the
-  tool identifies a problem but the code is OK. When there is a false
-  positive, it should be possible to ignore it and get a passing check.
+- **Runs in the development environment**: Fast tools should run as a pre-commit
+  step. A developer can run the tool on their machine. When the tool accepts the
+  code, it should also pass in CI.
+- **Marks false positives**: It should be rare to identify good code as causing
+  a problem. When there is a false positive, it should be possible to ignore it
+  and get a passing check.
 
 When choosing between similar tools, these attributes can help guide the
 decision:
 
 - **Good defaults**: A tool with good defaults needs less configuration.
-  Developers can use tips and tricks from other projects using the tool.
-- **Fixes issues when appropriate**: Developers love a "fix it" button.
-  A code formatter is better than a tool that identifies formatting problems. A
+  The tool works the same across projects.
+- **Fixes issues when appropriate**: Developers love a "fix it" button. A
   tool that can fix problems correctly is better than a tool that only
-  identifies them. A developer should fix issues that need human judgement.
-- **Editor integration**: A developer's primary tool is the code editor. A
+  identifies them. A developer should fix issues that need human judgment.
+- **Editor integration**: A developer's primary tool is the code editor. An
   integrated tool helps fix issues as part of the writing process. A
   non-integrated tool turns code linting into an extra chore.
-- **Speed**: A fast tool gets used. A slow tool gets skipped. A tool than runs
+- **Speed**: A fast tool gets used. A slow tool gets skipped. A tool that runs
   on each file save should take less than a second. A pre-commit hook should
   run in less than five seconds. Developers should feel they save time running
-  a tool, rather than waiting for CI.
+  a tool, rather than waiting to see if it fails in CI.
 
 There are many tools that address identifying mistakes and standardizing
 constructs in Python. Some linters that would fill this role:
@@ -257,7 +255,7 @@ constructs in Python. Some linters that would fill this role:
   has a plugin system that can extend the ruleset. It identifies 277 issues
   in our code in 600 milliseconds.
 - [isort][]: This tool has been in development since 2017. It reformats
-  imports to enforce a order and style. It detects 99 issues in our code in
+  imports to enforce an order and style. It detects 99 issues in our code in
   750 milliseconds. It can be used as a `flake8` plugin.
 - [bandit][]: This tool scans code for security issues. It finds 1997 low
   severity and 8 medium severity issues in our code in 1.5 seconds. It can be
@@ -277,12 +275,12 @@ Three approaches that stand out:
   as missing documentation and understanding pytest fixtures. Significant
   configuration will cut these false positives. It is slow enough to
   cause pain if used for local development.
-- `flake8` with several plugins (`isort`, `bandit`, others). This is a
+- `flake8` with several plugins (`isort`, `bandit`, others). This provides a
   good mix of speed and coverage. [PyCQA][] maintains the tools and plugins,
   and they work well together.
-- `ruff` with additional checks enabled. This tool can perform many of the
-  checks that the other tools check. It runs 10x - 100x faster than the
-  other tools. It also is compatible with `black` formatting by default.
+- `ruff` with additional checks enabled. This tool can enforce many of the
+  rules of the other tools in a single package. It runs 10x - 100x faster than
+  the other tools. It is compatible with `black` formatting by default.
   The largest negative is that [Astral][] is VC-backed. The tool may add
   monetization in the future.
 
