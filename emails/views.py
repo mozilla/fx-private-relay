@@ -1439,9 +1439,6 @@ def _handle_bounce(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     * bounce_diagnostic: 'diagnosticCode' from bounced recipient data, or None
     * bounce_extra: Extra data from bounce_recipient data, if any
     * domain: User's real email address domain, if an address was given
-
-    Emits a legacy log "bounced recipient domain: {domain}", with data from
-    bounced recipient data, without the email address.
     """
     bounce = message_json.get("bounce", {})
     bounce_type = bounce.get("bounceType", "none")
@@ -1517,19 +1514,6 @@ def _handle_bounce(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             tags=[generate_tag(key, val) for key, val in tags.items()],
         )
         info_logger.info("bounce_notification", extra=data)
-
-        # Legacy log, can be removed Q4 2023
-        recipient_domain = data.get("domain")
-        if recipient_domain:
-            legacy_extra = {
-                "action": data.get("bounce_action"),
-                "status": data.get("bounce_status"),
-                "diagnosticCode": data.get("bounce_diagnostic"),
-            }
-            legacy_extra.update(data.get("bounce_extra", {}))
-            info_logger.info(
-                f"bounced recipient domain: {recipient_domain}", extra=legacy_extra
-            )
 
     if any(data["user_match"] == "missing" for data in bounce_data):
         return HttpResponse("Address does not exist", status=404)
