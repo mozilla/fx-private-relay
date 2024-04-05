@@ -903,6 +903,7 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
         assert getattr(error_log, "Message") == "the message"
 
 
+@override_settings(STATSD_ENABLED=True)
 class BounceHandlingTest(TestCase):
     def setUp(self):
         self.user = baker.make(User, email="relayuser@test.com")
@@ -910,25 +911,100 @@ class BounceHandlingTest(TestCase):
     def test_sns_message_with_hard_bounce(self) -> None:
         pre_request_datetime = datetime.now(timezone.utc)
 
-        _sns_notification(BOUNCE_SNS_BODIES["hard"])
+        with self.assertLogs(INFO_LOG) as logs, MetricsMock() as mm:
+            _sns_notification(BOUNCE_SNS_BODIES["hard"])
 
         self.user.refresh_from_db()
         assert self.user.profile.last_hard_bounce is not None
         assert self.user.profile.last_hard_bounce >= pre_request_datetime
 
+        assert len(logs.records) == 1
+        log_data = log_extra(logs.records[0])
+        assert (diagnostic := log_data["bounce_diagnostic"])
+        assert log_data == {
+            "bounce_action": "failed",
+            "bounce_diagnostic": diagnostic,
+            "bounce_status": "5.1.1",
+            "bounce_subtype": "OnAccountSuppressionList",
+            "bounce_type": "Permanent",
+            "domain": "test.com",
+            "relay_action": "hard_bounce",
+            "user_match": "found",
+        }
+
+        mm.assert_incr_once(
+            "fx.private.relay.email_bounce",
+            tags=[
+                "bounce_type:permanent",
+                "bounce_subtype:onaccountsuppressionlist",
+                "user_match:found",
+                "relay_action:hard_bounce",
+            ],
+        )
+
     def test_sns_message_with_soft_bounce(self) -> None:
         pre_request_datetime = datetime.now(timezone.utc)
 
-        _sns_notification(BOUNCE_SNS_BODIES["soft"])
+        with self.assertLogs(INFO_LOG) as logs, MetricsMock() as mm:
+            _sns_notification(BOUNCE_SNS_BODIES["soft"])
 
         self.user.refresh_from_db()
         assert self.user.profile.last_soft_bounce is not None
         assert self.user.profile.last_soft_bounce >= pre_request_datetime
 
+        assert len(logs.records) == 1
+        log_data = log_extra(logs.records[0])
+        assert (diagnostic := log_data["bounce_diagnostic"])
+        assert log_data == {
+            "bounce_action": "failed",
+            "bounce_diagnostic": diagnostic,
+            "bounce_status": "5.1.1",
+            "bounce_subtype": "SRETeamEatenByDinosaurs",
+            "bounce_type": "Transient",
+            "domain": "test.com",
+            "relay_action": "soft_bounce",
+            "user_match": "found",
+        }
+
+        mm.assert_incr_once(
+            "fx.private.relay.email_bounce",
+            tags=[
+                "bounce_type:transient",
+                "bounce_subtype:sreteameatenbydinosaurs",
+                "user_match:found",
+                "relay_action:soft_bounce",
+            ],
+        )
+
     def test_sns_message_with_spam_bounce_sets_auto_block_spam(self):
-        _sns_notification(BOUNCE_SNS_BODIES["spam"])
+        with self.assertLogs(INFO_LOG) as logs, MetricsMock() as mm:
+            _sns_notification(BOUNCE_SNS_BODIES["spam"])
         self.user.refresh_from_db()
         assert self.user.profile.auto_block_spam
+
+        assert len(logs.records) == 1
+        log_data = log_extra(logs.records[0])
+        assert (diagnostic := log_data["bounce_diagnostic"])
+        assert log_data == {
+            "bounce_action": "failed",
+            "bounce_diagnostic": diagnostic,
+            "bounce_status": "5.1.1",
+            "bounce_subtype": "StopRelayingSpamForThisUser",
+            "bounce_type": "Transient",
+            "domain": "test.com",
+            "relay_action": "auto_block_spam",
+            "user_match": "found",
+        }
+
+        mm.assert_incr_once(
+            "fx.private.relay.email_bounce",
+            tags=[
+                "bounce_type:transient",
+                "bounce_subtype:stoprelayingspamforthisuser",
+                "user_match:found",
+                "relay_action:auto_block_spam",
+            ],
+        )
 
 
 class ComplaintHandlingTest(TestCase):
