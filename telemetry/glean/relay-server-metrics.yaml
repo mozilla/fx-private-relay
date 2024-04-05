@@ -6,7 +6,7 @@
 # https://mozilla.github.io/glean/book/reference/yaml/metrics.html
 
 # This file is also used to generate privaterelay/glean/server_events.py
-# which is used to generate the Glean pings-as-logs.  See that file for the
+# which is used to generate the Glean pings-as-logs. See that file for the
 # re-generation command.
 ---
 $schema: moz://mozilla.org/schemas/glean/metrics/2-0-0
@@ -26,9 +26,6 @@ email_mask:
     data_sensitivity:
       - interaction
     extra_keys: &default_mask_extra_keys
-      client_id:
-        description: Firefox client ID
-        type: string
       fxa_id:
         description: Mozilla accounts user ID
         type: string

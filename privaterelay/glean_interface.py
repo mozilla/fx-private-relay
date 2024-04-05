@@ -168,7 +168,6 @@ class RelayGleanLogger(EventsServerEventLogger):
         self.record_email_mask_created(
             user_agent=_opt_str_to_glean(request_data.user_agent),
             ip_address=_opt_str_to_glean(request_data.ip_address),
-            client_id="",
             fxa_id=_opt_str_to_glean(user_data.fxa_id),
             platform="",
             n_random_masks=user_data.n_random_masks,
@@ -201,7 +200,6 @@ class RelayGleanLogger(EventsServerEventLogger):
         self.record_email_mask_label_updated(
             user_agent=_opt_str_to_glean(request_data.user_agent),
             ip_address=_opt_str_to_glean(request_data.ip_address),
-            client_id="",
             fxa_id=_opt_str_to_glean(user_data.fxa_id),
             platform="",
             n_random_masks=user_data.n_random_masks,
@@ -233,7 +231,6 @@ class RelayGleanLogger(EventsServerEventLogger):
         self.record_email_mask_deleted(
             user_agent=_opt_str_to_glean(request_data.user_agent),
             ip_address=_opt_str_to_glean(request_data.ip_address),
-            client_id="",
             fxa_id=_opt_str_to_glean(user_data.fxa_id),
             platform="",
             n_random_masks=user_data.n_random_masks,
@@ -264,7 +261,6 @@ class RelayGleanLogger(EventsServerEventLogger):
         self.record_email_forwarded(
             user_agent=_opt_str_to_glean(request_data.user_agent),
             ip_address=_opt_str_to_glean(request_data.ip_address),
-            client_id="",
             fxa_id=_opt_str_to_glean(user_data.fxa_id),
             platform="",
             n_random_masks=user_data.n_random_masks,
@@ -297,7 +293,6 @@ class RelayGleanLogger(EventsServerEventLogger):
         self.record_email_blocked(
             user_agent=_opt_str_to_glean(request_data.user_agent),
             ip_address=_opt_str_to_glean(request_data.ip_address),
-            client_id="",
             fxa_id=_opt_str_to_glean(user_data.fxa_id),
             platform="",
             n_random_masks=user_data.n_random_masks,

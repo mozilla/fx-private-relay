@@ -93,7 +93,6 @@ class EventsServerEventLogger:
         self,
         user_agent: str,
         ip_address: str,
-        client_id: str,
         fxa_id: str,
         platform: str,
         n_random_masks: int,
@@ -118,7 +117,6 @@ class EventsServerEventLogger:
         :param str user_agent: The user agent.
         :param str ip_address: The IP address. Will be used to decode Geo information
             and scrubbed at ingestion.
-        :param str client_id: Firefox client ID
         :param str fxa_id: Mozilla accounts user ID
         :param str platform: Relay client platform
         :param int n_random_masks: Number of random masks
@@ -139,7 +137,6 @@ class EventsServerEventLogger:
             "category": "email",
             "name": "blocked",
             "extra": {
-                "client_id": str(client_id),
                 "fxa_id": str(fxa_id),
                 "platform": str(platform),
                 "n_random_masks": str(n_random_masks),
@@ -163,7 +160,6 @@ class EventsServerEventLogger:
         self,
         user_agent: str,
         ip_address: str,
-        client_id: str,
         fxa_id: str,
         platform: str,
         n_random_masks: int,
@@ -187,7 +183,6 @@ class EventsServerEventLogger:
         :param str user_agent: The user agent.
         :param str ip_address: The IP address. Will be used to decode Geo information
             and scrubbed at ingestion.
-        :param str client_id: Firefox client ID
         :param str fxa_id: Mozilla accounts user ID
         :param str platform: Relay client platform
         :param int n_random_masks: Number of random masks
@@ -207,7 +202,6 @@ class EventsServerEventLogger:
             "category": "email",
             "name": "forwarded",
             "extra": {
-                "client_id": str(client_id),
                 "fxa_id": str(fxa_id),
                 "platform": str(platform),
                 "n_random_masks": str(n_random_masks),
@@ -230,7 +224,6 @@ class EventsServerEventLogger:
         self,
         user_agent: str,
         ip_address: str,
-        client_id: str,
         fxa_id: str,
         platform: str,
         n_random_masks: int,
@@ -255,7 +248,6 @@ class EventsServerEventLogger:
         :param str user_agent: The user agent.
         :param str ip_address: The IP address. Will be used to decode Geo information
             and scrubbed at ingestion.
-        :param str client_id: Firefox client ID
         :param str fxa_id: Mozilla accounts user ID
         :param str platform: Relay client platform
         :param int n_random_masks: Number of random masks
@@ -276,7 +268,6 @@ class EventsServerEventLogger:
             "category": "email_mask",
             "name": "created",
             "extra": {
-                "client_id": str(client_id),
                 "fxa_id": str(fxa_id),
                 "platform": str(platform),
                 "n_random_masks": str(n_random_masks),
@@ -300,7 +291,6 @@ class EventsServerEventLogger:
         self,
         user_agent: str,
         ip_address: str,
-        client_id: str,
         fxa_id: str,
         platform: str,
         n_random_masks: int,
@@ -323,7 +313,6 @@ class EventsServerEventLogger:
         :param str user_agent: The user agent.
         :param str ip_address: The IP address. Will be used to decode Geo information
             and scrubbed at ingestion.
-        :param str client_id: Firefox client ID
         :param str fxa_id: Mozilla accounts user ID
         :param str platform: Relay client platform
         :param int n_random_masks: Number of random masks
@@ -342,7 +331,6 @@ class EventsServerEventLogger:
             "category": "email_mask",
             "name": "deleted",
             "extra": {
-                "client_id": str(client_id),
                 "fxa_id": str(fxa_id),
                 "platform": str(platform),
                 "n_random_masks": str(n_random_masks),
@@ -364,7 +352,6 @@ class EventsServerEventLogger:
         self,
         user_agent: str,
         ip_address: str,
-        client_id: str,
         fxa_id: str,
         platform: str,
         n_random_masks: int,
@@ -387,7 +374,6 @@ class EventsServerEventLogger:
         :param str user_agent: The user agent.
         :param str ip_address: The IP address. Will be used to decode Geo information
             and scrubbed at ingestion.
-        :param str client_id: Firefox client ID
         :param str fxa_id: Mozilla accounts user ID
         :param str platform: Relay client platform
         :param int n_random_masks: Number of random masks
@@ -406,7 +392,6 @@ class EventsServerEventLogger:
             "category": "email_mask",
             "name": "label_updated",
             "extra": {
-                "client_id": str(client_id),
                 "fxa_id": str(fxa_id),
                 "platform": str(platform),
                 "n_random_masks": str(n_random_masks),
