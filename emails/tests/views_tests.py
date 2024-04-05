@@ -1013,17 +1013,13 @@ class BounceHandlingTest(TestCase):
         )
 
 
+@override_settings(STATSD_ENABLED=True)
 class ComplaintHandlingTest(TestCase):
     """Test Complaint notifications and events."""
 
     def setUp(self):
         self.user = baker.make(User, email="relayuser@test.com")
 
-    @pytest.fixture(autouse=True)
-    def use_caplog(self, caplog):
-        self.caplog = caplog
-
-    @override_settings(STATSD_ENABLED=True)
     def test_notification_type_complaint(self):
         """
         A notificationType of complaint increments a counter, logs details, and
@@ -1048,7 +1044,7 @@ class ComplaintHandlingTest(TestCase):
             },
         }
         json_body = {"Message": json.dumps(complaint)}
-        with MetricsMock() as mm:
+        with self.assertLogs(INFO_LOG) as logs, MetricsMock() as mm:
             response = _sns_notification(json_body)
         assert response.status_code == 200
 
@@ -1064,20 +1060,18 @@ class ComplaintHandlingTest(TestCase):
                 "relay_action:auto_block_spam",
             ],
         )
-        assert len(self.caplog.records) == 2
-        record1, record2 = self.caplog.records
-        assert record1.msg == "complaint_notification"
-        assert record1.complaint_subtype is None
-        assert record1.complaint_user_agent == "ExampleCorp Feedback Loop (V0.01)"
-        assert record1.complaint_feedback == "abuse"
-        assert record1.user_match == "found"
-        assert record1.relay_action == "auto_block_spam"
-        assert record1.domain == "test.com"
-
-        assert record2.msg == "complaint_received"
-        assert record2.recipient_domains == ["test.com"]
-        assert record2.subtype is None
-        assert record2.feedback == "abuse"
+        assert len(logs.records) == 1
+        record = logs.records[0]
+        assert record.msg == "complaint_notification"
+        log_data = log_extra(record)
+        assert log_data == {
+            "complaint_feedback": "abuse",
+            "complaint_subtype": None,
+            "complaint_user_agent": "ExampleCorp Feedback Loop (V0.01)",
+            "domain": "test.com",
+            "relay_action": "auto_block_spam",
+            "user_match": "found",
+        }
 
 
 class SNSNotificationRemoveEmailsInS3Test(TestCase):
