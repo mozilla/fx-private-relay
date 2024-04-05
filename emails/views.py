@@ -1439,6 +1439,7 @@ def _handle_bounce(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     * bounce_diagnostic: 'diagnosticCode' from bounced recipient data, or None
     * bounce_extra: Extra data from bounce_recipient data, if any
     * domain: User's real email address domain, if an address was given
+    * fxa_id - The Mozilla account ID of the user
     """
     bounce = message_json.get("bounce", {})
     bounce_type = bounce.get("bounceType", "none")
@@ -1473,6 +1474,8 @@ def _handle_bounce(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             user = User.objects.get(email=recipient_address)
             profile = user.profile
             data["user_match"] = "found"
+            if fxa := profile.fxa:
+                data["fxa_id"] = fxa.uid
         except User.DoesNotExist:
             # TODO: handle bounce for a user who no longer exists
             # add to SES account-wide suppression list?

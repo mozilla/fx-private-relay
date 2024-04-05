@@ -907,6 +907,9 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
 class BounceHandlingTest(TestCase):
     def setUp(self):
         self.user = baker.make(User, email="relayuser@test.com")
+        self.sa: SocialAccount = baker.make(
+            SocialAccount, user=self.user, provider="fxa", uid=str(uuid4())
+        )
 
     def test_sns_message_with_hard_bounce(self) -> None:
         pre_request_datetime = datetime.now(timezone.utc)
@@ -930,6 +933,7 @@ class BounceHandlingTest(TestCase):
             "domain": "test.com",
             "relay_action": "hard_bounce",
             "user_match": "found",
+            "fxa_id": self.sa.uid,
         }
 
         mm.assert_incr_once(
@@ -964,6 +968,7 @@ class BounceHandlingTest(TestCase):
             "domain": "test.com",
             "relay_action": "soft_bounce",
             "user_match": "found",
+            "fxa_id": self.sa.uid,
         }
 
         mm.assert_incr_once(
@@ -994,6 +999,7 @@ class BounceHandlingTest(TestCase):
             "domain": "test.com",
             "relay_action": "auto_block_spam",
             "user_match": "found",
+            "fxa_id": self.sa.uid,
         }
 
         mm.assert_incr_once(
