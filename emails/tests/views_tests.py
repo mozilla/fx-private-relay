@@ -1019,6 +1019,9 @@ class ComplaintHandlingTest(TestCase):
 
     def setUp(self):
         self.user = baker.make(User, email="relayuser@test.com")
+        self.sa: SocialAccount = baker.make(
+            SocialAccount, user=self.user, provider="fxa", uid=str(uuid4())
+        )
 
     def test_notification_type_complaint(self):
         """
@@ -1071,6 +1074,7 @@ class ComplaintHandlingTest(TestCase):
             "domain": "test.com",
             "relay_action": "auto_block_spam",
             "user_match": "found",
+            "fxa_id": self.sa.uid,
         }
 
 

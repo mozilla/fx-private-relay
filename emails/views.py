@@ -1544,6 +1544,7 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     * complaint_user_agent - identifies the client used to file the complaint
     * complaint_extra - Extra data from complainedRecipients data, if any
     * domain - User's domain, if an address was given
+    * fxa_id - The Mozilla account ID of the user
     """
     complaint = deepcopy(message_json.get("complaint", {}))
     complained_recipients = complaint.pop("complainedRecipients", [])
@@ -1576,6 +1577,8 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             user = User.objects.get(email=recipient_address)
             profile = user.profile
             data["user_match"] = "found"
+            if fxa := profile.fxa:
+                data["fxa_id"] = fxa.uid
         except User.DoesNotExist:
             data["user_match"] = "missing"
             continue
