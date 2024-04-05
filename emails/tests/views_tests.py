@@ -1012,6 +1012,17 @@ class BounceHandlingTest(TestCase):
             ],
         )
 
+    def test_sns_message_with_hard_bounce_and_optout(self) -> None:
+        self.sa.extra_data["metricsEnabled"] = False
+        self.sa.save()
+
+        with self.assertLogs(INFO_LOG) as logs:
+            _sns_notification(BOUNCE_SNS_BODIES["hard"])
+
+        log_data = log_extra(logs.records[0])
+        assert log_data["user_match"] == "found"
+        assert "fxa_id" not in log_data
+
 
 @override_settings(STATSD_ENABLED=True)
 class ComplaintHandlingTest(TestCase):
@@ -1022,17 +1033,6 @@ class ComplaintHandlingTest(TestCase):
         self.sa: SocialAccount = baker.make(
             SocialAccount, user=self.user, provider="fxa", uid=str(uuid4())
         )
-
-    def test_notification_type_complaint(self):
-        """
-        A notificationType of complaint increments a counter, logs details, and
-        returns 200.
-
-        Example derived from:
-        https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
-        """
-        assert self.user.profile.auto_block_spam is False
-
         complaint = {
             "notificationType": "Complaint",
             "complaint": {
@@ -1046,9 +1046,20 @@ class ComplaintHandlingTest(TestCase):
                 ),
             },
         }
-        json_body = {"Message": json.dumps(complaint)}
+        self.complaint_body = {"Message": json.dumps(complaint)}
+
+    def test_notification_type_complaint(self):
+        """
+        A notificationType of complaint increments a counter, logs details, and
+        returns 200.
+
+        Example derived from:
+        https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
+        """
+        assert self.user.profile.auto_block_spam is False
+
         with self.assertLogs(INFO_LOG) as logs, MetricsMock() as mm:
-            response = _sns_notification(json_body)
+            response = _sns_notification(self.complaint_body)
         assert response.status_code == 200
 
         self.user.profile.refresh_from_db()
@@ -1076,6 +1087,17 @@ class ComplaintHandlingTest(TestCase):
             "user_match": "found",
             "fxa_id": self.sa.uid,
         }
+
+    def test_complaint_log_with_optout(self) -> None:
+        self.sa.extra_data["metricsEnabled"] = False
+        self.sa.save()
+
+        with self.assertLogs(INFO_LOG) as logs:
+            _sns_notification(self.complaint_body)
+
+        log_data = log_extra(logs.records[0])
+        assert log_data["user_match"] == "found"
+        assert "fxa_id" not in log_data
 
 
 class SNSNotificationRemoveEmailsInS3Test(TestCase):
