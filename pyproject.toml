@@ -1,3 +1,6 @@
+[project]
+requires-python = ">= 3.11"
+
 [tool.mypy]
 plugins = ["mypy_django_plugin.main"]
 mypy_path = "$MYPY_CONFIG_FILE_DIR/mypy_stubs"
