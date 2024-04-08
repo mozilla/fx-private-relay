@@ -63,6 +63,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # defaulting to blank to be production-broken by default
 SECRET_KEY = config("SECRET_KEY", None)
+SECRET_KEY_FALLBACKS = config("SECRET_KEY_FALLBACKS", "", cast=Csv())
 SITE_ORIGIN: str | None = config("SITE_ORIGIN", None)
 
 ORIGIN_CHANNEL_MAP: dict[str, RELAY_CHANNEL_NAME] = {
@@ -95,9 +96,14 @@ SECURE_REDIRECT_EXEMPT = [
     r"^__heartbeat__",
     r"^__lbheartbeat__",
 ]
+SECURE_HSTS_INCLUDE_SUBDOMAINS = config(
+    "DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS", False, cast=bool
+)
+SECURE_HSTS_PRELOAD = config("DJANGO_SECURE_HSTS_PRELOAD", False, cast=bool)
 SECURE_HSTS_SECONDS = config("DJANGO_SECURE_HSTS_SECONDS", None)
 SECURE_BROWSER_XSS_FILTER = config("DJANGO_SECURE_BROWSER_XSS_FILTER", True)
 SESSION_COOKIE_SECURE = config("DJANGO_SESSION_COOKIE_SECURE", False, cast=bool)
+CSRF_COOKIE_SECURE = config("DJANGO_CSRF_COOKIE_SECURE", False, cast=bool)
 BASKET_ORIGIN = config("BASKET_ORIGIN", "https://basket.mozilla.org")
 # maps fxa profile hosts to respective avatar hosts for CSP
 AVATAR_IMG_SRC_MAP = {
@@ -863,6 +869,7 @@ DOCKERFLOW_CHECKS = [
 ]
 if REDIS_URL:
     DOCKERFLOW_CHECKS.append("dockerflow.django.checks.check_redis_connected")
+SILENCED_SYSTEM_CHECKS = config("SILENCED_SYSTEM_CHECKS", "", cast=Csv())
 
 # django-ftl settings
 AUTO_RELOAD_BUNDLES = False  # Requires pyinotify
