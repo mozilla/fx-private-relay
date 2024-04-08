@@ -65,7 +65,7 @@ executors:
     parameters: &python_parameters
       python_version:
         description: "python version tag"
-        default: "3.11.8"
+        default: "3.12"
         type: string
       variant:
         description: "image variant"
