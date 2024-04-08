@@ -298,9 +298,12 @@ def setup_fxa_rp_events(
             json.dumps(profile_response.data),
         )
 
-    with responses.RequestsMock() as mock_responses, patch(
-        "privaterelay.views.fxa_verifying_keys", return_value=[fxa_verifying_key]
-    ) as mock_fxa_verifying_keys:
+    with (
+        responses.RequestsMock() as mock_responses,
+        patch(
+            "privaterelay.views.fxa_verifying_keys", return_value=[fxa_verifying_key]
+        ) as mock_fxa_verifying_keys,
+    ):
         mock_responses.add_callback(
             responses.GET,
             f"{settings.SOCIALACCOUNT_PROVIDERS['fxa']['PROFILE_ENDPOINT']}/profile",
