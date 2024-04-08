@@ -67,3 +67,14 @@ module = [
 github_project="fx-private-relay"
 github_user="mozilla"
 main_branch="main"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "privaterelay.settings"
+python_files = "tests.py test_*.py *_tests.py"
+norecursedirs = ".git .local extension frontend node_modules"
+testpaths = [
+    "api",
+    "emails",
+    "phones",
+    "privaterelay",
+]
