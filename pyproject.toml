@@ -1,10 +1,13 @@
 [project]
 requires-python = ">= 3.11"
 
+[tool.django-stubs]
+django_settings_module = "privaterelay.settings"
+
 [tool.mypy]
-plugins = ["mypy_django_plugin.main"]
-mypy_path = "$MYPY_CONFIG_FILE_DIR/mypy_stubs"
 exclude = "env"
+mypy_path = "$MYPY_CONFIG_FILE_DIR/mypy_stubs"
+plugins = ["mypy_django_plugin.main"]
 python_version = "3.11"
 show_error_codes = true
 strict = true
@@ -17,9 +20,6 @@ disallow_any_generics = false
 disallow_untyped_calls = false
 disallow_incomplete_defs = false
 disallow_untyped_defs = false
-
-[tool.django-stubs]
-django_settings_module = "privaterelay.settings"
 
 [[tool.mypy.overrides]]
 ignore_missing_imports = true
@@ -49,10 +49,10 @@ module = [
     "oauthlib.oauth2.rfc6749.errors",
     "requests_oauthlib",
     "silk",
-    "twilio.base.instance_resource",
     "twilio.base.exceptions",
-    "twilio.rest",
+    "twilio.base.instance_resource",
     "twilio.request_validator",
+    "twilio.rest",
     "vobject",
     "waffle",
     "waffle.models",
