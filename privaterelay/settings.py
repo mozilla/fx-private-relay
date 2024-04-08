@@ -731,6 +731,7 @@ if RELAY_CHANNEL == "local":
     # In local dev, next runs on localhost and makes requests to /accounts/
     CORS_ALLOWED_ORIGINS += [
         "http://localhost:3000",
+        "http://0.0.0.0:3000",
         "http://127.0.0.1:8000",
     ]
     CORS_URLS_REGEX = r"^/(api|accounts)/"
@@ -751,10 +752,6 @@ if RELAY_CHANNEL == "local":
     # origin and thus has access to the same cookies.
     CORS_ALLOW_CREDENTIALS = True
     SESSION_COOKIE_SAMESITE = None
-    CORS_ALLOWED_ORIGINS += [
-        "http://localhost:3000",
-        "http://0.0.0.0:3000",
-    ]
     CSRF_TRUSTED_ORIGINS += [
         "http://localhost:3000",
         "http://0.0.0.0:3000",
