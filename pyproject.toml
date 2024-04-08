@@ -60,3 +60,10 @@ module = [
     "whitenoise.middleware",
     "whitenoise.storage",
 ]
+
+[tool.paul-mclendahand]
+# Creates a PR that combines several dependabot PRs
+# https://github.com/willkg/paul-mclendahand
+github_project="fx-private-relay"
+github_user="mozilla"
+main_branch="main"
