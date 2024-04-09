@@ -871,6 +871,7 @@ DOCKERFLOW_CHECKS = [
 ]
 if REDIS_URL:
     DOCKERFLOW_CHECKS.append("dockerflow.django.checks.check_redis_connected")
+DOCKERFLOW_REQUEST_ID_HEADER_NAME = config("DOCKERFLOW_REQUEST_ID_HEADER_NAME", None)
 SILENCED_SYSTEM_CHECKS = config("SILENCED_SYSTEM_CHECKS", "", cast=Csv())
 
 # django-ftl settings
