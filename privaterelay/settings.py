@@ -660,6 +660,11 @@ LOGGING = {
             "level": "DEBUG",
             "propagate": IN_PYTEST,
         },
+        "dockerflow": {
+            "handlers": ["console_err"],
+            "level": "WARNING",
+            "propagate": IN_PYTEST,
+        },
     },
 }
 
