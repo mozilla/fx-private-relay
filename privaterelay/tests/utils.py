@@ -31,6 +31,7 @@ def log_extra(log_record: LogRecord) -> dict[str, Any]:
         "process",
         "processName",
         "relativeCreated",
+        "rid",
         "stack_info",
         "thread",
         "threadName",

@@ -599,6 +599,11 @@ FXA_SUPPORT_URL = config("FXA_SUPPORT_URL", f"{FXA_BASE_ORIGIN}/support/")
 
 LOGGING = {
     "version": 1,
+    "filters": {
+        "request_id": {
+            "()": "dockerflow.logging.RequestIdLogFilter",
+        },
+    },
     "formatters": {
         "json": {
             "()": "dockerflow.logging.JsonLogFormatter",
@@ -611,11 +616,13 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "stream": sys.stdout,
             "formatter": "json",
+            "filters": ["request_id"],
         },
         "console_err": {
             "level": "DEBUG",
             "class": "logging.StreamHandler",
             "formatter": "json",
+            "filters": ["request_id"],
         },
     },
     "loggers": {
