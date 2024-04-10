@@ -1,8 +1,8 @@
 # Use Code Linters to Enforce Layout and Discover Issues
 
-- Status: Proposed
-- Deciders: Luke Crouch
-- Date: 2024-04-04
+- Status: Accepted
+- Deciders: Luke Crouch, Se Yeon Kim, John Whitlock
+- Date: 2024-04-10
 
 Technical Story: [MPP-79][]
 
