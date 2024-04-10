@@ -13,6 +13,7 @@ import phonenumbers
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models.query import QuerySet
 from django.forms import model_to_dict
 
 from drf_spectacular.utils import extend_schema, OpenApiParameter
@@ -99,9 +100,10 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     # TODO: this doesn't seem to e working?
     throttle_classes = [RealPhoneRateThrottle]
 
-    def get_queryset(self):
-        assert isinstance(self.request.user, User)
-        return RealPhone.objects.filter(user=self.request.user)
+    def get_queryset(self) -> QuerySet[RealPhone]:
+        if isinstance(self.request.user, User):
+            return RealPhone.objects.filter(user=self.request.user)
+        return RealPhone.objects.none()
 
     def create(self, request):
         """
@@ -260,9 +262,10 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, HasPhoneService]
     serializer_class = RelayNumberSerializer
 
-    def get_queryset(self):
-        assert isinstance(self.request.user, User)
-        return RelayNumber.objects.filter(user=self.request.user)
+    def get_queryset(self) -> QuerySet[RelayNumber]:
+        if isinstance(self.request.user, User):
+            return RelayNumber.objects.filter(user=self.request.user)
+        return RelayNumber.objects.none()
 
     def create(self, request, *args, **kwargs):
         """
@@ -361,9 +364,11 @@ class InboundContactViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, HasPhoneService]
     serializer_class = InboundContactSerializer
 
-    def get_queryset(self):
-        request_user_relay_num = get_object_or_404(RelayNumber, user=self.request.user)
-        return InboundContact.objects.filter(relay_number=request_user_relay_num)
+    def get_queryset(self) -> QuerySet[InboundContact]:
+        if isinstance(self.request.user, User):
+            relay_number = get_object_or_404(RelayNumber, user=self.request.user)
+            return InboundContact.objects.filter(relay_number=relay_number)
+        return InboundContact.objects.none()
 
 
 def _validate_number(request, number_field="number"):
