@@ -2,7 +2,7 @@ from __future__ import annotations
 from collections import namedtuple
 from datetime import datetime, timedelta, timezone
 from hashlib import sha256
-from typing import Literal
+from typing import Literal, cast
 from collections.abc import Iterable
 import logging
 import random
@@ -825,8 +825,11 @@ class RelayAddress(models.Model):
         )
 
     @property
-    def domain_value(self):
-        return get_domains_from_settings().get(self.get_domain_display())
+    def domain_value(self) -> str:
+        domain = cast(
+            Literal["RELAY_FIREFOX_DOMAIN", "MOZMAIL_DOMAIN"], self.get_domain_display()
+        )
+        return get_domains_from_settings()[domain]
 
     @property
     def full_address(self) -> str:
@@ -1030,8 +1033,11 @@ class DomainAddress(models.Model):
         return super().delete(*args, **kwargs)
 
     @property
-    def domain_value(self):
-        return get_domains_from_settings().get(self.get_domain_display())
+    def domain_value(self) -> str:
+        domain = cast(
+            Literal["RELAY_FIREFOX_DOMAIN", "MOZMAIL_DOMAIN"], self.get_domain_display()
+        )
+        return get_domains_from_settings()[domain]
 
     @property
     def full_address(self) -> str:
