@@ -143,11 +143,11 @@ if settings.PHONES_ENABLED:
         ),
         path("v1/sms_status/", sms_status, name="sms_status"),
         path(
-            "v1/vCard/<lookup_key>",
+            "v1/vCard/<str:lookup_key>",
             vCard,
             name="vCard_deprecate_after_updating_clients",
         ),
-        path("v1/vCard/<lookup_key>/", vCard, name="vCard"),
+        path("v1/vCard/<str:lookup_key>/", vCard, name="vCard"),
         path(
             "v1/realphone/resend_welcome_sms",
             resend_welcome_sms,
