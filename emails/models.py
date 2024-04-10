@@ -14,6 +14,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import BadRequest
 from django.core.validators import MinLengthValidator
 from django.db import models, transaction
+from django.db.models.query import QuerySet
 from django.dispatch import receiver
 from django.utils.translation.trans_real import (
     parse_accept_lang_header,
@@ -211,11 +212,11 @@ class Profile(models.Model):
         return None
 
     @property
-    def relay_addresses(self):
+    def relay_addresses(self) -> QuerySet[RelayAddress]:
         return RelayAddress.objects.filter(user=self.user)
 
     @property
-    def domain_addresses(self):
+    def domain_addresses(self) -> QuerySet[DomainAddress]:
         return DomainAddress.objects.filter(user=self.user)
 
     @property
@@ -231,7 +232,7 @@ class Profile(models.Model):
         ra_count: int = self.relay_addresses.count()
         return ra_count >= settings.MAX_NUM_FREE_ALIASES
 
-    def check_bounce_pause(self):
+    def check_bounce_pause(self) -> BounceStatus:
         if self.last_hard_bounce:
             last_hard_bounce_allowed = datetime.now(timezone.utc) - timedelta(
                 days=settings.HARD_BOUNCE_ALLOWED_DAYS
@@ -251,11 +252,11 @@ class Profile(models.Model):
         return BounceStatus(False, "")
 
     @property
-    def bounce_status(self):
+    def bounce_status(self) -> BounceStatus:
         return self.check_bounce_pause()
 
     @property
-    def next_email_try(self):
+    def next_email_try(self) -> datetime:
         bounce_pause, bounce_type = self.check_bounce_pause()
 
         if not bounce_pause:
@@ -340,7 +341,7 @@ class Profile(models.Model):
         return False
 
     @property
-    def has_vpn(self):
+    def has_vpn(self) -> bool:
         if not self.fxa:
             return False
         user_subscriptions = self.fxa.extra_data.get("subscriptions", [])
@@ -350,7 +351,7 @@ class Profile(models.Model):
         return False
 
     @property
-    def emails_forwarded(self):
+    def emails_forwarded(self) -> int:
         return (
             sum(ra.num_forwarded for ra in self.relay_addresses)
             + sum(da.num_forwarded for da in self.domain_addresses)
@@ -358,7 +359,7 @@ class Profile(models.Model):
         )
 
     @property
-    def emails_blocked(self):
+    def emails_blocked(self) -> int:
         return (
             sum(ra.num_blocked for ra in self.relay_addresses)
             + sum(da.num_blocked for da in self.domain_addresses)
@@ -366,21 +367,17 @@ class Profile(models.Model):
         )
 
     @property
-    def emails_replied(self):
-        # Once Django is on version 4.0 and above, we can set the default=0
-        # and return a int instead of None
-        # https://docs.djangoproject.com/en/4.0/ref/models/querysets/#default
-        totals = [self.relay_addresses.aggregate(models.Sum("num_replied"))]
-        totals.append(self.domain_addresses.aggregate(models.Sum("num_replied")))
-        total_num_replied = 0
-        for num in totals:
-            total_num_replied += (
-                num.get("num_replied__sum") if num.get("num_replied__sum") else 0
-            )
-        return total_num_replied + self.num_email_replied_in_deleted_address
+    def emails_replied(self) -> int:
+        ra_sum = self.relay_addresses.aggregate(models.Sum("num_replied", default=0))
+        da_sum = self.domain_addresses.aggregate(models.Sum("num_replied", default=0))
+        return (
+            int(ra_sum["num_replied__sum"])
+            + int(da_sum["num_replied__sum"])
+            + self.num_email_replied_in_deleted_address
+        )
 
     @property
-    def level_one_trackers_blocked(self):
+    def level_one_trackers_blocked(self) -> int:
         return (
             sum(ra.num_level_one_trackers_blocked or 0 for ra in self.relay_addresses)
             + sum(
@@ -832,7 +829,7 @@ class RelayAddress(models.Model):
         return get_domains_from_settings().get(self.get_domain_display())
 
     @property
-    def full_address(self):
+    def full_address(self) -> str:
         return f"{self.address}@{self.domain_value}"
 
     @property
@@ -1037,7 +1034,7 @@ class DomainAddress(models.Model):
         return get_domains_from_settings().get(self.get_domain_display())
 
     @property
-    def full_address(self):
+    def full_address(self) -> str:
         return "{}@{}.{}".format(
             self.address,
             self.user_profile.subdomain,
