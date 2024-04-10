@@ -846,9 +846,10 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
             operation_name="S3.something",
             error_response={"Error": {"Code": "NoSuchKey", "Message": "the message"}},
         )
-        with self.assertLogs(INFO_LOG) as info_caplog, self.assertLogs(
-            ERROR_LOG, "ERROR"
-        ) as events_caplog:
+        with (
+            self.assertLogs(INFO_LOG) as info_caplog,
+            self.assertLogs(ERROR_LOG, "ERROR") as events_caplog,
+        ):
             response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
         self.mock_send_raw_email.assert_not_called()
         assert response.status_code == 404
@@ -866,9 +867,10 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
             operation_name="S3.something",
             error_response={"Error": {"Code": "IsNapping", "Message": "snooze"}},
         )
-        with self.assertLogs(INFO_LOG) as info_caplog, self.assertLogs(
-            ERROR_LOG, "ERROR"
-        ) as error_caplog:
+        with (
+            self.assertLogs(INFO_LOG) as info_caplog,
+            self.assertLogs(ERROR_LOG, "ERROR") as error_caplog,
+        ):
             response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
         self.mock_send_raw_email.assert_not_called()
         assert response.status_code == 503
@@ -888,9 +890,10 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
             EMAIL_SNS_BODIES["s3_stored_replies"], text="text content"
         )
         self.mock_send_raw_email.side_effect = SEND_RAW_EMAIL_FAILED
-        with self.assertLogs(INFO_LOG) as info_caplog, self.assertLogs(
-            ERROR_LOG, "ERROR"
-        ) as error_caplog:
+        with (
+            self.assertLogs(INFO_LOG) as info_caplog,
+            self.assertLogs(ERROR_LOG, "ERROR") as error_caplog,
+        ):
             response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
         assert response.status_code == 400
         assert response.content == b"SES client error"
@@ -1412,9 +1415,10 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
             {"Error": {"Code": "SomeErrorCode", "Message": "Details"}}, ""
         )
 
-        with self.assertLogs(INFO_LOG) as info_caplog, self.assertLogs(
-            ERROR_LOG, "ERROR"
-        ) as error_caplog:
+        with (
+            self.assertLogs(INFO_LOG) as info_caplog,
+            self.assertLogs(ERROR_LOG, "ERROR") as error_caplog,
+        ):
             response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
         self.mock_remove_message_from_s3.assert_not_called()
         assert response.status_code == 503
@@ -1519,9 +1523,10 @@ class SnsMessageTest(TestCase):
             operation_name="S3.something",
             error_response={"Error": {"Code": "NoSuchKey", "Message": "the message"}},
         )
-        with self.assertLogs(INFO_LOG) as info_caplog, self.assertLogs(
-            ERROR_LOG, "ERROR"
-        ) as error_caplog:
+        with (
+            self.assertLogs(INFO_LOG) as info_caplog,
+            self.assertLogs(ERROR_LOG, "ERROR") as error_caplog,
+        ):
             response = _sns_message(self.message_json)
         self.mock_ses_client.send_raw_email.assert_not_called()
         assert response.status_code == 404
@@ -1535,9 +1540,10 @@ class SnsMessageTest(TestCase):
 
     def test_ses_send_raw_email_has_client_error_early_exits(self) -> None:
         self.mock_ses_client.send_raw_email.side_effect = SEND_RAW_EMAIL_FAILED
-        with self.assertLogs(INFO_LOG) as info_caplog, self.assertLogs(
-            ERROR_LOG, "ERROR"
-        ) as error_caplog:
+        with (
+            self.assertLogs(INFO_LOG) as info_caplog,
+            self.assertLogs(ERROR_LOG, "ERROR") as error_caplog,
+        ):
             response = _sns_message(self.message_json)
         self.mock_ses_client.send_raw_email.assert_called_once()
         assert response.status_code == 503
@@ -1624,17 +1630,21 @@ class GetAddressTest(TestCase):
             assert _get_address("domain@subdomain.Test.Com") == self.domain_address
 
     def test_subdomain_for_wrong_domain_raises(self) -> None:
-        with pytest.raises(
-            ObjectDoesNotExist
-        ) as exc_info, MetricsMock() as mm, self.assertNoLogs(GLEAN_LOG, "INFO"):
+        with (
+            pytest.raises(ObjectDoesNotExist) as exc_info,
+            MetricsMock() as mm,
+            self.assertNoLogs(GLEAN_LOG, "INFO"),
+        ):
             _get_address("unknown@subdomain.example.com")
         assert str(exc_info.value) == "Address does not exist"
         mm.assert_incr_once("fx.private.relay.email_for_not_supported_domain")
 
     def test_unknown_subdomain_raises(self) -> None:
-        with pytest.raises(
-            Profile.DoesNotExist
-        ), MetricsMock() as mm, self.assertNoLogs(GLEAN_LOG, "INFO"):
+        with (
+            pytest.raises(Profile.DoesNotExist),
+            MetricsMock() as mm,
+            self.assertNoLogs(GLEAN_LOG, "INFO"),
+        ):
             _get_address("domain@unknown.test.com")
         mm.assert_incr_once("fx.private.relay.email_for_dne_subdomain")
 
