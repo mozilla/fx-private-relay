@@ -63,6 +63,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # defaulting to blank to be production-broken by default
 SECRET_KEY = config("SECRET_KEY", None)
+SECRET_KEY_FALLBACKS = config("SECRET_KEY_FALLBACKS", "", cast=Csv())
 SITE_ORIGIN: str | None = config("SITE_ORIGIN", None)
 
 ORIGIN_CHANNEL_MAP: dict[str, RELAY_CHANNEL_NAME] = {
@@ -95,9 +96,14 @@ SECURE_REDIRECT_EXEMPT = [
     r"^__heartbeat__",
     r"^__lbheartbeat__",
 ]
+SECURE_HSTS_INCLUDE_SUBDOMAINS = config(
+    "DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS", False, cast=bool
+)
+SECURE_HSTS_PRELOAD = config("DJANGO_SECURE_HSTS_PRELOAD", False, cast=bool)
 SECURE_HSTS_SECONDS = config("DJANGO_SECURE_HSTS_SECONDS", None)
 SECURE_BROWSER_XSS_FILTER = config("DJANGO_SECURE_BROWSER_XSS_FILTER", True)
 SESSION_COOKIE_SECURE = config("DJANGO_SESSION_COOKIE_SECURE", False, cast=bool)
+CSRF_COOKIE_SECURE = config("DJANGO_CSRF_COOKIE_SECURE", False, cast=bool)
 BASKET_ORIGIN = config("BASKET_ORIGIN", "https://basket.mozilla.org")
 # maps fxa profile hosts to respective avatar hosts for CSP
 AVATAR_IMG_SRC_MAP = {
@@ -593,6 +599,11 @@ FXA_SUPPORT_URL = config("FXA_SUPPORT_URL", f"{FXA_BASE_ORIGIN}/support/")
 
 LOGGING = {
     "version": 1,
+    "filters": {
+        "request_id": {
+            "()": "dockerflow.logging.RequestIdLogFilter",
+        },
+    },
     "formatters": {
         "json": {
             "()": "dockerflow.logging.JsonLogFormatter",
@@ -605,11 +616,13 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "stream": sys.stdout,
             "formatter": "json",
+            "filters": ["request_id"],
         },
         "console_err": {
             "level": "DEBUG",
             "class": "logging.StreamHandler",
             "formatter": "json",
+            "filters": ["request_id"],
         },
     },
     "loggers": {
@@ -652,6 +665,11 @@ LOGGING = {
         GLEAN_EVENT_MOZLOG_TYPE: {
             "handlers": ["console_out"],
             "level": "DEBUG",
+            "propagate": IN_PYTEST,
+        },
+        "dockerflow": {
+            "handlers": ["console_err"],
+            "level": "WARNING",
             "propagate": IN_PYTEST,
         },
     },
@@ -725,6 +743,7 @@ if RELAY_CHANNEL == "local":
     # In local dev, next runs on localhost and makes requests to /accounts/
     CORS_ALLOWED_ORIGINS += [
         "http://localhost:3000",
+        "http://0.0.0.0:3000",
         "http://127.0.0.1:8000",
     ]
     CORS_URLS_REGEX = r"^/(api|accounts)/"
@@ -745,10 +764,6 @@ if RELAY_CHANNEL == "local":
     # origin and thus has access to the same cookies.
     CORS_ALLOW_CREDENTIALS = True
     SESSION_COOKIE_SAMESITE = None
-    CORS_ALLOWED_ORIGINS += [
-        "http://localhost:3000",
-        "http://0.0.0.0:3000",
-    ]
     CSRF_TRUSTED_ORIGINS += [
         "http://localhost:3000",
         "http://0.0.0.0:3000",
@@ -863,6 +878,8 @@ DOCKERFLOW_CHECKS = [
 ]
 if REDIS_URL:
     DOCKERFLOW_CHECKS.append("dockerflow.django.checks.check_redis_connected")
+DOCKERFLOW_REQUEST_ID_HEADER_NAME = config("DOCKERFLOW_REQUEST_ID_HEADER_NAME", None)
+SILENCED_SYSTEM_CHECKS = config("SILENCED_SYSTEM_CHECKS", "", cast=Csv())
 
 # django-ftl settings
 AUTO_RELOAD_BUNDLES = False  # Requires pyinotify
