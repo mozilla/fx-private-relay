@@ -906,55 +906,136 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
         assert getattr(error_log, "Message") == "the message"
 
 
+@override_settings(STATSD_ENABLED=True)
 class BounceHandlingTest(TestCase):
     def setUp(self):
         self.user = baker.make(User, email="relayuser@test.com")
+        self.sa: SocialAccount = baker.make(
+            SocialAccount, user=self.user, provider="fxa", uid=str(uuid4())
+        )
 
     def test_sns_message_with_hard_bounce(self) -> None:
         pre_request_datetime = datetime.now(timezone.utc)
 
-        _sns_notification(BOUNCE_SNS_BODIES["hard"])
+        with self.assertLogs(INFO_LOG) as logs, MetricsMock() as mm:
+            _sns_notification(BOUNCE_SNS_BODIES["hard"])
 
         self.user.refresh_from_db()
         assert self.user.profile.last_hard_bounce is not None
         assert self.user.profile.last_hard_bounce >= pre_request_datetime
 
+        assert len(logs.records) == 1
+        log_data = log_extra(logs.records[0])
+        assert (diagnostic := log_data["bounce_diagnostic"])
+        assert log_data == {
+            "bounce_action": "failed",
+            "bounce_diagnostic": diagnostic,
+            "bounce_status": "5.1.1",
+            "bounce_subtype": "OnAccountSuppressionList",
+            "bounce_type": "Permanent",
+            "domain": "test.com",
+            "relay_action": "hard_bounce",
+            "user_match": "found",
+            "fxa_id": self.sa.uid,
+        }
+
+        mm.assert_incr_once(
+            "fx.private.relay.email_bounce",
+            tags=[
+                "bounce_type:permanent",
+                "bounce_subtype:onaccountsuppressionlist",
+                "user_match:found",
+                "relay_action:hard_bounce",
+            ],
+        )
+
     def test_sns_message_with_soft_bounce(self) -> None:
         pre_request_datetime = datetime.now(timezone.utc)
 
-        _sns_notification(BOUNCE_SNS_BODIES["soft"])
+        with self.assertLogs(INFO_LOG) as logs, MetricsMock() as mm:
+            _sns_notification(BOUNCE_SNS_BODIES["soft"])
 
         self.user.refresh_from_db()
         assert self.user.profile.last_soft_bounce is not None
         assert self.user.profile.last_soft_bounce >= pre_request_datetime
 
+        assert len(logs.records) == 1
+        log_data = log_extra(logs.records[0])
+        assert (diagnostic := log_data["bounce_diagnostic"])
+        assert log_data == {
+            "bounce_action": "failed",
+            "bounce_diagnostic": diagnostic,
+            "bounce_status": "5.1.1",
+            "bounce_subtype": "SRETeamEatenByDinosaurs",
+            "bounce_type": "Transient",
+            "domain": "test.com",
+            "relay_action": "soft_bounce",
+            "user_match": "found",
+            "fxa_id": self.sa.uid,
+        }
+
+        mm.assert_incr_once(
+            "fx.private.relay.email_bounce",
+            tags=[
+                "bounce_type:transient",
+                "bounce_subtype:sreteameatenbydinosaurs",
+                "user_match:found",
+                "relay_action:soft_bounce",
+            ],
+        )
+
     def test_sns_message_with_spam_bounce_sets_auto_block_spam(self):
-        _sns_notification(BOUNCE_SNS_BODIES["spam"])
+        with self.assertLogs(INFO_LOG) as logs, MetricsMock() as mm:
+            _sns_notification(BOUNCE_SNS_BODIES["spam"])
         self.user.refresh_from_db()
         assert self.user.profile.auto_block_spam
 
+        assert len(logs.records) == 1
+        log_data = log_extra(logs.records[0])
+        assert (diagnostic := log_data["bounce_diagnostic"])
+        assert log_data == {
+            "bounce_action": "failed",
+            "bounce_diagnostic": diagnostic,
+            "bounce_status": "5.1.1",
+            "bounce_subtype": "StopRelayingSpamForThisUser",
+            "bounce_type": "Transient",
+            "domain": "test.com",
+            "relay_action": "auto_block_spam",
+            "user_match": "found",
+            "fxa_id": self.sa.uid,
+        }
 
+        mm.assert_incr_once(
+            "fx.private.relay.email_bounce",
+            tags=[
+                "bounce_type:transient",
+                "bounce_subtype:stoprelayingspamforthisuser",
+                "user_match:found",
+                "relay_action:auto_block_spam",
+            ],
+        )
+
+    def test_sns_message_with_hard_bounce_and_optout(self) -> None:
+        self.sa.extra_data["metricsEnabled"] = False
+        self.sa.save()
+
+        with self.assertLogs(INFO_LOG) as logs:
+            _sns_notification(BOUNCE_SNS_BODIES["hard"])
+
+        log_data = log_extra(logs.records[0])
+        assert log_data["user_match"] == "found"
+        assert not log_data["fxa_id"]
+
+
+@override_settings(STATSD_ENABLED=True)
 class ComplaintHandlingTest(TestCase):
     """Test Complaint notifications and events."""
 
     def setUp(self):
         self.user = baker.make(User, email="relayuser@test.com")
-
-    @pytest.fixture(autouse=True)
-    def use_caplog(self, caplog):
-        self.caplog = caplog
-
-    @override_settings(STATSD_ENABLED=True)
-    def test_notification_type_complaint(self):
-        """
-        A notificationType of complaint increments a counter, logs details, and
-        returns 200.
-
-        Example derived from:
-        https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
-        """
-        assert self.user.profile.auto_block_spam is False
-
+        self.sa: SocialAccount = baker.make(
+            SocialAccount, user=self.user, provider="fxa", uid=str(uuid4())
+        )
         complaint = {
             "notificationType": "Complaint",
             "complaint": {
@@ -968,9 +1049,20 @@ class ComplaintHandlingTest(TestCase):
                 ),
             },
         }
-        json_body = {"Message": json.dumps(complaint)}
-        with MetricsMock() as mm:
-            response = _sns_notification(json_body)
+        self.complaint_body = {"Message": json.dumps(complaint)}
+
+    def test_notification_type_complaint(self):
+        """
+        A notificationType of complaint increments a counter, logs details, and
+        returns 200.
+
+        Example derived from:
+        https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
+        """
+        assert self.user.profile.auto_block_spam is False
+
+        with self.assertLogs(INFO_LOG) as logs, MetricsMock() as mm:
+            response = _sns_notification(self.complaint_body)
         assert response.status_code == 200
 
         self.user.profile.refresh_from_db()
@@ -985,20 +1077,30 @@ class ComplaintHandlingTest(TestCase):
                 "relay_action:auto_block_spam",
             ],
         )
-        assert len(self.caplog.records) == 2
-        record1, record2 = self.caplog.records
-        assert record1.msg == "complaint_notification"
-        assert record1.complaint_subtype is None
-        assert record1.complaint_user_agent == "ExampleCorp Feedback Loop (V0.01)"
-        assert record1.complaint_feedback == "abuse"
-        assert record1.user_match == "found"
-        assert record1.relay_action == "auto_block_spam"
-        assert record1.domain == "test.com"
+        assert len(logs.records) == 1
+        record = logs.records[0]
+        assert record.msg == "complaint_notification"
+        log_data = log_extra(record)
+        assert log_data == {
+            "complaint_feedback": "abuse",
+            "complaint_subtype": None,
+            "complaint_user_agent": "ExampleCorp Feedback Loop (V0.01)",
+            "domain": "test.com",
+            "relay_action": "auto_block_spam",
+            "user_match": "found",
+            "fxa_id": self.sa.uid,
+        }
 
-        assert record2.msg == "complaint_received"
-        assert record2.recipient_domains == ["test.com"]
-        assert record2.subtype is None
-        assert record2.feedback == "abuse"
+    def test_complaint_log_with_optout(self) -> None:
+        self.sa.extra_data["metricsEnabled"] = False
+        self.sa.save()
+
+        with self.assertLogs(INFO_LOG) as logs:
+            _sns_notification(self.complaint_body)
+
+        log_data = log_extra(logs.records[0])
+        assert log_data["user_match"] == "found"
+        assert not log_data["fxa_id"]
 
 
 class SNSNotificationRemoveEmailsInS3Test(TestCase):

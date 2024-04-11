@@ -1439,9 +1439,7 @@ def _handle_bounce(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     * bounce_diagnostic: 'diagnosticCode' from bounced recipient data, or None
     * bounce_extra: Extra data from bounce_recipient data, if any
     * domain: User's real email address domain, if an address was given
-
-    Emits a legacy log "bounced recipient domain: {domain}", with data from
-    bounced recipient data, without the email address.
+    * fxa_id - The Mozilla account (previously known as Firefox Account) ID of the user
     """
     bounce = message_json.get("bounce", {})
     bounce_type = bounce.get("bounceType", "none")
@@ -1476,6 +1474,10 @@ def _handle_bounce(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             user = User.objects.get(email=recipient_address)
             profile = user.profile
             data["user_match"] = "found"
+            if (fxa := profile.fxa) and profile.metrics_enabled:
+                data["fxa_id"] = fxa.uid
+            else:
+                data["fxa_id"] = ""
         except User.DoesNotExist:
             # TODO: handle bounce for a user who no longer exists
             # add to SES account-wide suppression list?
@@ -1518,19 +1520,6 @@ def _handle_bounce(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         )
         info_logger.info("bounce_notification", extra=data)
 
-        # Legacy log, can be removed Q4 2023
-        recipient_domain = data.get("domain")
-        if recipient_domain:
-            legacy_extra = {
-                "action": data.get("bounce_action"),
-                "status": data.get("bounce_status"),
-                "diagnosticCode": data.get("bounce_diagnostic"),
-            }
-            legacy_extra.update(data.get("bounce_extra", {}))
-            info_logger.info(
-                f"bounced recipient domain: {recipient_domain}", extra=legacy_extra
-            )
-
     if any(data["user_match"] == "missing" for data in bounce_data):
         return HttpResponse("Address does not exist", status=404)
     return HttpResponse("OK", status=200)
@@ -1557,11 +1546,7 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     * complaint_user_agent - identifies the client used to file the complaint
     * complaint_extra - Extra data from complainedRecipients data, if any
     * domain - User's domain, if an address was given
-
-    Emits a legacy log "complaint_received", with data:
-    * recipient_domains: list of extracted user domains
-    * subtype: 'onaccounsuppressionlist', or 'none'
-    * feedback: feedback from ISP or 'none'
+    * fxa_id - The Mozilla account (previously known as Firefox Account) ID of the user
     """
     complaint = deepcopy(message_json.get("complaint", {}))
     complained_recipients = complaint.pop("complainedRecipients", [])
@@ -1594,6 +1579,10 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             user = User.objects.get(email=recipient_address)
             profile = user.profile
             data["user_match"] = "found"
+            if (fxa := profile.fxa) and profile.metrics_enabled:
+                data["fxa_id"] = fxa.uid
+            else:
+                data["fxa_id"] = ""
         except User.DoesNotExist:
             data["user_match"] = "missing"
             continue
@@ -1619,17 +1608,6 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             tags=[generate_tag(key, val) for key, val in tags.items()],
         )
         info_logger.info("complaint_notification", extra=data)
-
-    # Legacy log, can be removed Q4 2023
-    domains = [data["domain"] for data in complaint_data if "domain" in data]
-    info_logger.info(
-        "complaint_received",
-        extra={
-            "recipient_domains": sorted(domains),
-            "subtype": subtype,
-            "feedback": feedback,
-        },
-    )
 
     if any(data["user_match"] == "missing" for data in complaint_data):
         return HttpResponse("Address does not exist", status=404)
