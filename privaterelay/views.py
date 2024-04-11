@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from functools import lru_cache
 from hashlib import sha256
-from typing import Any, Optional, TypedDict
+from typing import Any, TypedDict
 from collections.abc import Iterable
 import json
 import logging

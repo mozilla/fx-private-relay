@@ -1,7 +1,7 @@
 from __future__ import annotations
 from argparse import RawDescriptionHelpFormatter
 from shutil import get_terminal_size
-from typing import Any, Optional, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 import textwrap
 import logging
