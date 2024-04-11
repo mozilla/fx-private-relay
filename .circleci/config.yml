@@ -378,7 +378,7 @@ jobs:
         description: "What command should the job run?"
         default: "pytest"
         type: enum
-        enum: ["pytest", "black", "mypy", "build_email_tracker_lists", "build_glean", "check_glean"]
+        enum: ["pytest", "black", "mypy", "build_email_tracker_lists", "build_glean", "check_glean", "ruff"]
       test_results_filename:
         description: "What is the name of the jUnit XML test output? (Optional)"
         default: ""
@@ -494,6 +494,7 @@ jobs:
             echo "export TEST_DB_NAME=$(printf '%q' "${TEST_DB_NAME}")" >> "$TMP_ENV"
             echo "export TEST_DB_URL=$(printf '%q' "${TEST_DB_URL}")" >> "$TMP_ENV"
             echo "export DATABASE_ENGINE=$(printf '%q' "${DATABASE_ENGINE}")" >> "$TMP_ENV"
+            echo "export TEST_RESULTS_DIR=job-results" >> "$TMP_ENV"
 
             cat "$TMP_ENV" | tee --append "$BASH_ENV"
             cat /home/circleci/project/.circleci/python_job.bash >> "$BASH_ENV"
@@ -504,7 +505,7 @@ jobs:
           steps:
             - run:
                 name: Create job-results directory
-                command: mkdir job-results
+                command: mkdir -p "$TEST_RESULTS_DIR"
       - run:
           name: Set test defaults
           command: cp .env-dist .env
@@ -606,6 +607,13 @@ workflows:
       - python_job:
           name: black style check
           command: black
+          filters: *default_filters
+
+      - python_job:
+          name: ruff linting check
+          command: ruff
+          test_results_filename: "ruff.xml"
+          allow_fail: true
           filters: *default_filters
 
       - python_job:

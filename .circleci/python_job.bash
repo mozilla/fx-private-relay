@@ -8,6 +8,7 @@
 : ${PHONES_ENABLED:=0}
 : ${PYTEST_FAIL_FAST:=0}
 : ${PYTEST_MIGRATIONS_MODE:=0}
+: ${TEST_RESULTS_DIR:=tmp}
 : ${TEST_RESULTS_FILENAME:=}
 : ${DATABASE_URL:=sqlite:///db.sqlite3}
 : ${TEST_DB_NAME:=test.sqlite3}
@@ -28,7 +29,7 @@ function run_mypy {
     if [ $MYPY_STRICT -ne 0 ]; then MYPY_ARGS+=("--strict"); fi
     if [ -n "$TEST_RESULTS_FILENAME" ]
     then
-        MYPY_ARGS+=("--junit-xml" "job-results/${TEST_RESULTS_FILENAME}")
+        MYPY_ARGS+=("--junit-xml" "${TEST_RESULTS_DIR}/${TEST_RESULTS_FILENAME}")
     fi
     MYPY_ARGS+=(".")
 
@@ -56,7 +57,7 @@ function run_pytest {
     if [ $CREATE_DB -ne 0 ]; then PYTEST_ARGS+=("--create-db"); fi
     if [ -n "$TEST_RESULTS_FILENAME" ] && [ $SKIP_RESULTS != 1 ]
     then
-        PYTEST_ARGS+=("--junit-xml=job-results/$TEST_RESULTS_FILENAME")
+        PYTEST_ARGS+=("--junit-xml=${TEST_RESULTS_DIR}/$TEST_RESULTS_FILENAME")
     fi
     PYTEST_ARGS+=(".")
 
@@ -169,6 +170,20 @@ function run_check_glean {
     fi
 }
 
+# Run ruff to lint python code
+function run_ruff {
+    if [ -n "$TEST_RESULTS_FILENAME" ]
+    then
+        # Run with output to a test results file instead of stdout
+        set -x
+        ruff check --exit-zero --output-format junit --output-file "${TEST_RESULTS_DIR}/${TEST_RESULTS_FILENAME}" .
+        { set +x; } 2>/dev/null
+    fi
+
+    set -x
+    ruff check .
+}
+
 
 # Run a command by name
 # $1 - The command to run - black, mypy, pytest, or build_email_tracker_lists
@@ -176,7 +191,7 @@ function run_check_glean {
 function run_command {
     local COMMAND=${1:-}
     case $COMMAND in
-        black | mypy | pytest | build_email_tracker_lists | build_glean | check_glean)
+        black | mypy | pytest | build_email_tracker_lists | build_glean | check_glean | ruff)
             :;;
         "")
             echo "No command passed - '$COMMAND'"
