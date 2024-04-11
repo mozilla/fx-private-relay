@@ -1476,6 +1476,8 @@ def _handle_bounce(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             data["user_match"] = "found"
             if (fxa := profile.fxa) and profile.metrics_enabled:
                 data["fxa_id"] = fxa.uid
+            else:
+                data["fxa_id"] = ""
         except User.DoesNotExist:
             # TODO: handle bounce for a user who no longer exists
             # add to SES account-wide suppression list?
@@ -1579,6 +1581,8 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             data["user_match"] = "found"
             if (fxa := profile.fxa) and profile.metrics_enabled:
                 data["fxa_id"] = fxa.uid
+            else:
+                data["fxa_id"] = ""
         except User.DoesNotExist:
             data["user_match"] = "missing"
             continue

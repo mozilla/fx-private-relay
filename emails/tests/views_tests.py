@@ -1021,7 +1021,7 @@ class BounceHandlingTest(TestCase):
 
         log_data = log_extra(logs.records[0])
         assert log_data["user_match"] == "found"
-        assert "fxa_id" not in log_data
+        assert not log_data["fxa_id"]
 
 
 @override_settings(STATSD_ENABLED=True)
@@ -1097,7 +1097,7 @@ class ComplaintHandlingTest(TestCase):
 
         log_data = log_extra(logs.records[0])
         assert log_data["user_match"] == "found"
-        assert "fxa_id" not in log_data
+        assert not log_data["fxa_id"]
 
 
 class SNSNotificationRemoveEmailsInS3Test(TestCase):
