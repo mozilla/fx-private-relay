@@ -48,7 +48,7 @@ class PrivateRelayConfig(AppConfig):
         ):
             # Set up Google Cloud Profiler
             service, version = get_profiler_startup_data()
-            if service != None:
+            if service is not None:
                 gcp_key_json_path = Path(settings.GOOGLE_APPLICATION_CREDENTIALS)
                 if not gcp_key_json_path.exists():
                     write_gcp_key_json_file(gcp_key_json_path)

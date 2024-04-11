@@ -81,6 +81,9 @@ testpaths = [
 
 [tool.ruff.lint]
 extend-safe-fixes = [
+    # E711 Comparison to `None` should be `cond is / is not None`
+    # Changes '== None' to 'is None'
+    "E711",
     # E712 Avoid equality comparisons to True / False
     # Changes '== True' to 'is True'
     "E712",
