@@ -22,7 +22,7 @@ def add_db_default_forward_func(apps, schema_editor):
             ' ("id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,'
             ' "number" varchar(15) NOT NULL,'
             ' "location" varchar(255) NOT NULL,'
-            ' "user_id" integer NOT NULL REFERENCES "auth_user" ("id") DEFERRABLE INITIALLY DEFERRED,'
+            ' "user_id" integer NOT NULL REFERENCES "auth_user" ("id") DEFERRABLE INITIALLY DEFERRED,'  # noqa: E501
             ' "vcard_lookup_key" varchar(6) NOT NULL UNIQUE,'
             ' "enabled" bool NOT NULL,'
             ' "calls_blocked" integer NOT NULL,'
@@ -44,7 +44,7 @@ def add_db_default_forward_func(apps, schema_editor):
             ' SELECT "id", "number", "location", "user_id", "vcard_lookup_key",'
             ' "enabled", "calls_blocked", "calls_forwarded", "remaining_texts",'
             ' "texts_blocked", "texts_forwarded", "remaining_seconds",'
-            ' "remaining_minutes", "country_code", \'twilio\' FROM "phones_relaynumber";'
+            ' "remaining_minutes", "country_code", \'twilio\' FROM "phones_relaynumber";'  # noqa: E501
         )
         schema_editor.execute('DROP TABLE "phones_relaynumber";')
         schema_editor.execute(

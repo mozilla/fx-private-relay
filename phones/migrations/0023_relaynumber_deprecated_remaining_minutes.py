@@ -29,7 +29,7 @@ def add_db_default_forward_func(apps, schema_editor):
             ' "remaining_texts" integer NOT NULL DEFAULT 75,'
             ' "texts_blocked" integer NOT NULL DEFAULT 0,'
             ' "texts_forwarded" integer NOT NULL DEFAULT 0,'
-            ' "user_id" integer NOT NULL REFERENCES "auth_user" ("id") DEFERRABLE INITIALLY DEFERRED,'
+            ' "user_id" integer NOT NULL REFERENCES "auth_user" ("id") DEFERRABLE INITIALLY DEFERRED,'  # noqa: E501
             ' "vcard_lookup_key" varchar(6) NOT NULL UNIQUE);'
         )
         schema_editor.execute(

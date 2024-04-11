@@ -31,7 +31,9 @@ def get_profiler_startup_data() -> tuple[str | None, str | None]:
 
 
 def write_gcp_key_json_file(gcp_key_json_path: Path) -> None:
-    # create the gcp key json file from contents of GOOGLE_CLOUD_PROFILER_CREDENTIALS_B64
+    """
+    Create the gcp key json file from contents of GOOGLE_CLOUD_PROFILER_CREDENTIALS_B64
+    """
     google_app_creds = base64.b64decode(settings.GOOGLE_CLOUD_PROFILER_CREDENTIALS_B64)
     if not google_app_creds == b"":
         with open(gcp_key_json_path, "w+") as gcp_key_file:
