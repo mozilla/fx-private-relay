@@ -33,5 +33,5 @@ def test_record_user_signed_up_telemetry():
     middleware.process_request(sign_up_request)
     record_user_signed_up(sign_up_request, user)
 
-    assert sign_up_request.session["user_created"] == True
-    assert sign_up_request.session.modified == True
+    assert sign_up_request.session["user_created"] is True
+    assert sign_up_request.session.modified is True

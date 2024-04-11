@@ -16,7 +16,7 @@ class PremiumValidatorsTest(APITestCase):
     def test_non_premium_cant_set_block_list_emails(self):
         free_user = make_free_test_user()
         free_alias = baker.make(RelayAddress, user=free_user)
-        assert free_alias.block_list_emails == False
+        assert free_alias.block_list_emails is False
 
         url = reverse("relayaddress-detail", args=[free_alias.id])
         data = {"block_list_emails": True}
@@ -25,12 +25,12 @@ class PremiumValidatorsTest(APITestCase):
         response = self.client.patch(url, data, format="json")
 
         assert response.status_code == 401
-        assert free_alias.block_list_emails == False
+        assert free_alias.block_list_emails is False
 
     def test_non_premium_can_clear_block_list_emails(self):
         free_user = make_free_test_user()
         free_alias = baker.make(RelayAddress, user=free_user)
-        assert free_alias.block_list_emails == False
+        assert free_alias.block_list_emails is False
 
         url = reverse("relayaddress-detail", args=[free_alias.id])
         data = {"block_list_emails": False}
@@ -40,12 +40,12 @@ class PremiumValidatorsTest(APITestCase):
 
         assert response.status_code == 200
         free_alias.refresh_from_db()
-        assert free_alias.block_list_emails == False
+        assert free_alias.block_list_emails is False
 
     def test_premium_can_set_block_list_emails(self):
         premium_user = make_premium_test_user()
         premium_alias = baker.make(RelayAddress, user=premium_user)
-        assert premium_alias.block_list_emails == False
+        assert premium_alias.block_list_emails is False
 
         url = reverse("relayaddress-detail", args=[premium_alias.id])
         data = {"block_list_emails": True}
@@ -55,7 +55,7 @@ class PremiumValidatorsTest(APITestCase):
 
         assert response.status_code == 200
         premium_alias.refresh_from_db()
-        assert premium_alias.block_list_emails == True
+        assert premium_alias.block_list_emails is True
 
 
 @pytest.fixture

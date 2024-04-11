@@ -105,7 +105,7 @@ def test_invalid_email_address_skips_invalid(
     call_command(COMMAND_NAME)
 
     invalid_email_user.profile.refresh_from_db()
-    assert invalid_email_user.profile.sent_welcome_email == False
+    assert invalid_email_user.profile.sent_welcome_email is False
 
     rec1, rec2, rec3, rec4, rec5 = caplog.records
     assert "Starting" in rec1.getMessage()
