@@ -1,4 +1,3 @@
-import pytest
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
@@ -7,6 +6,7 @@ from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.test.client import RequestFactory
 
+import pytest
 from model_bakery import baker
 
 from privaterelay.signals import record_user_signed_up

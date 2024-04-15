@@ -85,6 +85,7 @@ function run_build_glean {
     set -x
     glean_parser translate --format python_server --output ${OUTPUT_FOLDER} ${INPUT_YAML}
     black ${OUTPUT_FOLDER}
+    ruff check --fix --ignore E501 ${OUTPUT_FOLDER}
     { set +x; } 2>/dev/null
     case "$OSTYPE" in
         darwin* | bsd*)

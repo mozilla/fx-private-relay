@@ -83,6 +83,7 @@ testpaths = [
 select = [
     "E",  # pycodestyle errors
     "F",  # pyflakes
+    "I",  # isort
     "W",  # pycodestyle warnings
 ]
 extend-safe-fixes = [
@@ -93,6 +94,12 @@ extend-safe-fixes = [
     # Changes '== True' to 'is True'
     "E712",
 ]
+
+[tool.ruff.lint.isort]
+section-order = ["future", "standard-library", "django", "third-party", "first-party", "local-folder"]
+
+[tool.ruff.lint.isort.sections]
+"django"= ["django"]
 
 [tool.ruff.lint.per-file-ignores]
 # Ignore line length in generated file

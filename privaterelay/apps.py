@@ -1,14 +1,14 @@
 import base64
 import json
+import os
 from pathlib import Path
 from typing import Any
-import requests
-import os
 
 from django.apps import AppConfig
 from django.conf import settings
 from django.utils.functional import cached_property
 
+import requests
 
 ROOT_DIR = os.path.abspath(os.curdir)
 

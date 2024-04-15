@@ -1,17 +1,17 @@
-from datetime import datetime, timezone
-from typing import Any, TYPE_CHECKING
-from collections.abc import Generator
-from unittest.mock import patch, Mock
-from uuid import uuid4
 import json
-
-from botocore.exceptions import ClientError
-from markus.testing import MetricsMock
-import pytest
-import OpenSSL
+from collections.abc import Generator
+from datetime import datetime, timezone
+from typing import TYPE_CHECKING, Any
+from unittest.mock import Mock, patch
+from uuid import uuid4
 
 from django.core.management import call_command
 from django.core.management.base import CommandError
+
+import OpenSSL
+import pytest
+from botocore.exceptions import ClientError
+from markus.testing import MetricsMock
 
 from emails.tests.views_tests import EMAIL_SNS_BODIES
 from privaterelay.tests.utils import log_extra

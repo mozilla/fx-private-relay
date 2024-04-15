@@ -1,20 +1,20 @@
 from __future__ import annotations
+
+import logging
+import textwrap
 from argparse import RawDescriptionHelpFormatter
 from shutil import get_terminal_size
-from typing import Any, TYPE_CHECKING
-
-import textwrap
-import logging
+from typing import TYPE_CHECKING, Any
 
 from django.core.management.base import BaseCommand, DjangoHelpFormatter
 
 from codetiming import Timer
 
-from emails.cleaners import ServerStorageCleaner, MissingProfileCleaner
-
+from emails.cleaners import MissingProfileCleaner, ServerStorageCleaner
 
 if TYPE_CHECKING:  # pragma: no cover
     from argparse import ArgumentParser
+
     from privaterelay.cleaners import DataIssueTask
 
 

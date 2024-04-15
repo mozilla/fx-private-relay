@@ -1,5 +1,5 @@
-from urllib.parse import urlencode, urlparse
 import logging
+from urllib.parse import urlencode, urlparse
 
 from django.http import Http404
 from django.shortcuts import resolve_url
@@ -8,7 +8,6 @@ from django.urls import resolve
 from allauth.account.adapter import DefaultAccountAdapter
 
 from .middleware import RelayStaticFilesMiddleware
-
 
 logger = logging.getLogger("events")
 

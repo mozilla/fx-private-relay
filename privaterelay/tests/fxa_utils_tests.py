@@ -4,13 +4,14 @@ Tests for private_relay/fxa_utils.py
 
 from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
-import pytest
 
 from django.conf import settings
 
+import pytest
 from allauth.socialaccount.models import SocialAccount
-from privaterelay.fxa_utils import get_phone_subscription_dates
 from waffle.testutils import override_flag
+
+from privaterelay.fxa_utils import get_phone_subscription_dates
 
 if settings.PHONES_ENABLED:
     from phones.tests.models_tests import make_phone_test_user

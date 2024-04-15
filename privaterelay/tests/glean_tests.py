@@ -1,16 +1,16 @@
-from datetime import datetime, timezone
-from typing import Any, NamedTuple
-from logging import LogRecord
-from uuid import UUID, uuid4
 import json
+from datetime import datetime, timezone
+from logging import LogRecord
+from typing import Any, NamedTuple
+from uuid import UUID, uuid4
 
-from django.test import RequestFactory
 from django.contrib.auth.models import User
+from django.test import RequestFactory
 
+import pytest
 from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
 from pytest_django.fixtures import SettingsWrapper
-import pytest
 
 from api.serializers import RelayAddressSerializer
 from emails.models import RelayAddress
@@ -20,9 +20,6 @@ from emails.tests.models_tests import (
     phone_subscription,
     vpn_subscription,
 )
-from privaterelay.types import RELAY_CHANNEL_NAME
-from privaterelay.utils import glean_logger as utils_glean_logger
-from privaterelay.tests.utils import create_expected_glean_event
 from privaterelay.glean_interface import (
     EmailBlockedReason,
     EmailMaskData,
@@ -30,6 +27,9 @@ from privaterelay.glean_interface import (
     RequestData,
     UserData,
 )
+from privaterelay.tests.utils import create_expected_glean_event
+from privaterelay.types import RELAY_CHANNEL_NAME
+from privaterelay.utils import glean_logger as utils_glean_logger
 
 
 @pytest.fixture

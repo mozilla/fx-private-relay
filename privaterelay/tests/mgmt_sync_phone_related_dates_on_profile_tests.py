@@ -4,12 +4,12 @@ Tests for private_relay/management/commands/sync_phone_related_dates_on_profile.
 
 from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
-import pytest
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.management import call_command
 
+import pytest
 from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
 from waffle.models import Flag

@@ -1,10 +1,10 @@
+import json
+import logging
+from collections.abc import Iterable
 from datetime import datetime, timezone
 from functools import lru_cache
 from hashlib import sha256
 from typing import Any, TypedDict
-from collections.abc import Iterable
-import json
-import logging
 
 from django.apps import apps
 from django.conf import settings
@@ -14,18 +14,17 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from rest_framework.decorators import api_view, schema
 
+import jwt
+import sentry_sdk
 from allauth.socialaccount.models import SocialAccount, SocialApp
 from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 from google_measurement_protocol import event, report
 from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error
-import jwt
-import sentry_sdk
+from rest_framework.decorators import api_view, schema
 
 # from silk.profiling.profiler import silk_profile
-
 from emails.models import (
     CannotMakeSubdomainException,
     DomainAddress,
@@ -35,8 +34,7 @@ from emails.models import (
 from emails.utils import incr_if_enabled
 
 from .apps import PrivateRelayConfig
-from .fxa_utils import _get_oauth2_session, NoSocialToken
-
+from .fxa_utils import NoSocialToken, _get_oauth2_session
 
 FXA_PROFILE_CHANGE_EVENT = "https://schemas.accounts.firefox.com/event/profile-change"
 FXA_SUBSCRIPTION_CHANGE_EVENT = (

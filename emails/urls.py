@@ -3,7 +3,6 @@ from django.urls import path
 
 from . import views
 
-
 urlpatterns = [
     path("sns-inbound", views.sns_inbound),
 ]

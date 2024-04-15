@@ -1,13 +1,12 @@
-from datetime import datetime, timezone
-from typing import Any
 import logging
 import shlex
-
-import requests
+from datetime import datetime, timezone
+from typing import Any
 
 from django.conf import settings
 from django.core.cache import cache
 
+import requests
 from allauth.socialaccount.models import SocialAccount
 from rest_framework.authentication import BaseAuthentication, get_authorization_header
 from rest_framework.exceptions import (
@@ -17,7 +16,6 @@ from rest_framework.exceptions import (
     ParseError,
     PermissionDenied,
 )
-
 
 logger = logging.getLogger("events")
 INTROSPECT_TOKEN_URL = (

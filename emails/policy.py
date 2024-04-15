@@ -18,18 +18,13 @@ https://github.com/python/cpython/blob/main/Lib/email/headerregistry.py
 https://github.com/python/cpython/blob/main/Lib/email/policy.py
 """
 
-from email._header_value_parser import get_unstructured, InvalidMessageID
-from email.headerregistry import (
-    BaseHeader,
-    MessageIDHeader as PythonMessageIDHeader,
-    HeaderRegistry as PythonHeaderRegistry,
-    UnstructuredHeader,
-)
-from email.policy import EmailPolicy
-
 from email import errors
-
-from typing import cast, TYPE_CHECKING
+from email._header_value_parser import InvalidMessageID, get_unstructured
+from email.headerregistry import BaseHeader, UnstructuredHeader
+from email.headerregistry import HeaderRegistry as PythonHeaderRegistry
+from email.headerregistry import MessageIDHeader as PythonMessageIDHeader
+from email.policy import EmailPolicy
+from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
     # _HeaderParser is a protocol from mypy's typeshed

@@ -1,10 +1,8 @@
+import random
 from datetime import datetime, timedelta, timezone
 from types import SimpleNamespace
-import pytest
-import random
-import responses
+from unittest.mock import Mock, call, patch
 from uuid import uuid4
-from unittest.mock import Mock, patch, call
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -12,9 +10,12 @@ from django.core.cache import cache
 from django.core.exceptions import BadRequest, ValidationError
 from django.test import override_settings
 
+import pytest
+import responses
 from allauth.socialaccount.models import SocialAccount, SocialToken
 from model_bakery import baker
 from twilio.base.exceptions import TwilioRestException
+
 from emails.models import Profile
 
 if settings.PHONES_ENABLED:
@@ -24,11 +25,11 @@ if settings.PHONES_ENABLED:
         RelayNumber,
         area_code_numbers,
         get_expired_unverified_realphone_records,
-        get_valid_realphone_verification_record,
         get_last_text_sender,
+        get_valid_realphone_verification_record,
+        iq_fmt,
         location_numbers,
         suggested_numbers,
-        iq_fmt,
     )
 
 

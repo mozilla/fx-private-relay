@@ -9,10 +9,11 @@ bash .circleci/python_job.bash run build_glean
 """
 
 from __future__ import annotations
+
+import json
 from datetime import datetime, timezone
 from typing import Any
 from uuid import uuid4
-import json
 
 GLEAN_EVENT_MOZLOG_TYPE = "glean-server-event"
 

@@ -1,28 +1,26 @@
+import re
+from collections.abc import Iterator
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Literal
-from collections.abc import Iterator
-from unittest.mock import Mock, patch, call
-import re
-
-from twilio.request_validator import RequestValidator
-from twilio.rest import Client
+from unittest.mock import Mock, call, patch
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test.utils import override_settings
 
+import pytest
 from model_bakery import baker
 from rest_framework.test import APIClient
 from twilio.base.exceptions import TwilioRestException
+from twilio.request_validator import RequestValidator
+from twilio.rest import Client
 from waffle.testutils import override_flag
-import pytest
 
 from emails.models import Profile
 
-
 if settings.PHONES_ENABLED:
-    from api.views.phones import _match_by_prefix, MatchByPrefix
+    from api.views.phones import MatchByPrefix, _match_by_prefix
     from phones.models import InboundContact, RealPhone, RelayNumber
     from phones.tests.models_tests import make_phone_test_user
 

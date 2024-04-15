@@ -1,10 +1,10 @@
-from datetime import datetime, timezone, timedelta
 import json
 import logging
+from datetime import datetime, timedelta, timezone
+
+from django.core.management import CommandError, call_command
 
 import pytest
-
-from django.core.management import call_command, CommandError
 
 
 @pytest.fixture(autouse=True)

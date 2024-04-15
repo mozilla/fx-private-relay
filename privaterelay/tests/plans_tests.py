@@ -1,7 +1,7 @@
 """Tests for privaterelay/plans.py"""
 
-from pytest_django.fixtures import SettingsWrapper
 import pytest
+from pytest_django.fixtures import SettingsWrapper
 
 from privaterelay.plans import (
     CountryStr,

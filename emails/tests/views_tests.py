@@ -1,36 +1,28 @@
+import glob
+import json
+import logging
+import os
+import re
 from copy import deepcopy
 from datetime import datetime, timedelta, timezone
 from email import message_from_string
 from email.message import EmailMessage
 from typing import Any, cast
 from unittest._log import _LoggingWatcher
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 from uuid import uuid4
-import glob
-import json
-import logging
-import os
-import re
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
-from django.test import override_settings, Client, SimpleTestCase, TestCase
+from django.test import Client, SimpleTestCase, TestCase, override_settings
 
+import pytest
 from allauth.socialaccount.models import SocialAccount
 from botocore.exceptions import ClientError
 from markus.main import MetricsRecord
 from markus.testing import MetricsMock
 from model_bakery import baker
-import pytest
-
-from privaterelay.ftl_bundles import main
-from privaterelay.tests.utils import (
-    create_expected_glean_event,
-    get_glean_event,
-    log_extra,
-)
-from privaterelay.glean.server_events import GLEAN_EVENT_MOZLOG_TYPE as GLEAN_LOG
 
 from emails.models import (
     DeletedAddress,
@@ -40,15 +32,16 @@ from emails.models import (
     Reply,
     address_hash,
 )
+from emails.policy import relay_policy
 from emails.types import AWS_SNSMessageJSON, OutgoingHeaders
 from emails.utils import (
+    InvalidFromHeader,
     b64_lookup_key,
     decrypt_reply_metadata,
     derive_reply_keys,
     encrypt_reply_metadata,
     get_domains_from_settings,
     get_message_id_bytes,
-    InvalidFromHeader,
 )
 from emails.views import (
     EmailDroppedReason,
@@ -66,7 +59,13 @@ from emails.views import (
     validate_sns_arn_and_type,
     wrapped_email_test,
 )
-from emails.policy import relay_policy
+from privaterelay.ftl_bundles import main
+from privaterelay.glean.server_events import GLEAN_EVENT_MOZLOG_TYPE as GLEAN_LOG
+from privaterelay.tests.utils import (
+    create_expected_glean_event,
+    get_glean_event,
+    log_extra,
+)
 
 from .models_tests import (
     make_free_test_user,

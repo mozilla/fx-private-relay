@@ -4,16 +4,15 @@ import shlex
 import sys
 import time
 
-import boto3
-from botocore.exceptions import ClientError
-
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from emails.sns import verify_from_sns
-from emails.views import _sns_inbound_logic, validate_sns_arn_and_type
-from emails.utils import incr_if_enabled
+import boto3
+from botocore.exceptions import ClientError
 
+from emails.sns import verify_from_sns
+from emails.utils import incr_if_enabled
+from emails.views import _sns_inbound_logic, validate_sns_arn_and_type
 
 logger = logging.getLogger("events")
 info_logger = logging.getLogger("eventsinfo")

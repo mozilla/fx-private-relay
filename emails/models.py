@@ -1,14 +1,16 @@
 from __future__ import annotations
-from collections import namedtuple
-from datetime import datetime, timedelta, timezone
-from hashlib import sha256
-from typing import Literal, cast
-from collections.abc import Iterable
+
 import logging
 import random
 import re
 import string
 import uuid
+from collections import namedtuple
+from collections.abc import Iterable
+from datetime import datetime, timedelta, timezone
+from hashlib import sha256
+from typing import Literal, cast
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import BadRequest
@@ -17,8 +19,8 @@ from django.db import models, transaction
 from django.db.models.query import QuerySet
 from django.dispatch import receiver
 from django.utils.translation.trans_real import (
-    parse_accept_lang_header,
     get_supported_language_variant,
+    parse_accept_lang_header,
 )
 
 from allauth.socialaccount.models import SocialAccount

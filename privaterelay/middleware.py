@@ -1,13 +1,11 @@
-from datetime import datetime, timezone
 import time
-
-import markus
+from datetime import datetime, timezone
 
 from django.conf import settings
 from django.shortcuts import redirect
 
+import markus
 from whitenoise.middleware import WhiteNoiseMiddleware
-
 
 metrics = markus.get_metrics("fx-private-relay")
 
