@@ -14,7 +14,7 @@ import json
 import logging
 import shlex
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from urllib.parse import urlsplit
 
 from django.core.management.base import CommandError
@@ -441,7 +441,7 @@ class Command(CommandFromDjangoSettings):
     def write_healthcheck(self):
         """Update the healthcheck file with operations data, if path is set."""
         data = {
-            "timestamp": datetime.now(tz=timezone.utc).isoformat(),
+            "timestamp": datetime.now(tz=UTC).isoformat(),
             "cycles": self.cycles,
             "total_messages": self.total_messages,
             "failed_messages": self.failed_messages,

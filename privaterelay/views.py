@@ -1,8 +1,8 @@
 import json
 import logging
 from collections.abc import Iterable
-from datetime import datetime, timezone
-from functools import lru_cache
+from datetime import UTC, datetime
+from functools import cache
 from hashlib import sha256
 from typing import Any, TypedDict
 
@@ -47,7 +47,7 @@ logger = logging.getLogger("events")
 info_logger = logging.getLogger("eventsinfo")
 
 
-@lru_cache(maxsize=None)
+@cache
 def _get_fxa(request):
     return request.user.socialaccount_set.filter(provider="fxa").first()
 
@@ -225,7 +225,7 @@ def _verify_jwt_with_fxa_key(
                 iat = claims.get("iat")
                 iat_age = None
                 if iat:
-                    iat_age = round(datetime.now(tz=timezone.utc).timestamp() - iat, 3)
+                    iat_age = round(datetime.now(tz=UTC).timestamp() - iat, 3)
                 info_logger.warning(
                     "fxa_rp_event.future_iat", extra={"iat": iat, "iat_age_s": iat_age}
                 )
@@ -305,7 +305,7 @@ def _update_all_data(
             no_longer_premium = had_premium and not now_has_premium
             if newly_premium:
                 incr_if_enabled("user_purchased_premium", 1)
-                profile.date_subscribed = datetime.now(timezone.utc)
+                profile.date_subscribed = datetime.now(UTC)
                 profile.save()
             if no_longer_premium:
                 incr_if_enabled("user_has_downgraded", 1)
@@ -314,8 +314,8 @@ def _update_all_data(
             no_longer_phone = had_phone and not now_has_phone
             if newly_phone:
                 incr_if_enabled("user_purchased_phone", 1)
-                profile.date_subscribed_phone = datetime.now(timezone.utc)
-                profile.date_phone_subscription_reset = datetime.now(timezone.utc)
+                profile.date_subscribed_phone = datetime.now(UTC)
+                profile.date_phone_subscription_reset = datetime.now(UTC)
                 profile.save()
             if no_longer_phone:
                 incr_if_enabled("user_has_dropped_phone", 1)

@@ -1,5 +1,5 @@
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from django.conf import settings
 from django.shortcuts import redirect
@@ -90,7 +90,7 @@ class StoreFirstVisit:
         response = self.get_response(request)
         first_visit = request.COOKIES.get("first_visit")
         if first_visit is None and not request.user.is_anonymous:
-            response.set_cookie("first_visit", datetime.now(timezone.utc))
+            response.set_cookie("first_visit", datetime.now(UTC))
         return response
 
 

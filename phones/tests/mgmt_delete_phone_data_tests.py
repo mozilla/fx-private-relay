@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from io import StringIO
 from unittest.mock import patch
 
@@ -31,7 +31,7 @@ def test_settings(settings: SettingsWrapper) -> SettingsWrapper:
 def phone_user(db: None, test_settings: SettingsWrapper) -> User:
     """Return a Relay user with phone setup and phone usage."""
     # Create the user
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     phone_user = make_phone_test_user()
     phone_user.profile.date_subscribed = now - timedelta(days=15)
     phone_user.profile.save()

@@ -1,6 +1,6 @@
 """Schema Extensions for drf-spectacular"""
 
-from typing import Callable
+from collections.abc import Callable
 
 from drf_spectacular.extensions import OpenApiAuthenticationExtension
 from drf_spectacular.openapi import AutoSchema

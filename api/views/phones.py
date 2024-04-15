@@ -3,7 +3,7 @@ import logging
 import re
 import string
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, Literal
 
 from django.conf import settings
@@ -1285,7 +1285,7 @@ def _check_and_update_contact(inbound_contact, contact_type, relay_number):
         relay_number.save()
         raise exceptions.ValidationError(f"Number is not accepting {contact_type}.")
 
-    inbound_contact.last_inbound_date = datetime.now(timezone.utc)
+    inbound_contact.last_inbound_date = datetime.now(UTC)
     singular_contact_type = contact_type[:-1]  # strip trailing "s"
     inbound_contact.last_inbound_type = singular_contact_type
     attr = f"num_{contact_type}"

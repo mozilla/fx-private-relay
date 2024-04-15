@@ -1,5 +1,5 @@
 import random
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from unittest.mock import Mock, call, patch
 from uuid import uuid4
@@ -78,9 +78,7 @@ def mock_twilio_client(twilio_number_sid: str):
 def make_phone_test_user() -> User:
     phone_user = baker.make(User, email="phone_user@example.com")
     phone_user_profile = Profile.objects.get(user=phone_user)
-    phone_user_profile.date_subscribed = datetime.now(tz=timezone.utc) - timedelta(
-        days=15
-    )
+    phone_user_profile.date_subscribed = datetime.now(tz=UTC) - timedelta(days=15)
     phone_user_profile.save()
     upgrade_test_user_to_phone(phone_user)
     return phone_user
@@ -98,7 +96,7 @@ def upgrade_test_user_to_phone(user):
     baker.make(
         SocialToken,
         account=account,
-        expires_at=datetime.now(timezone.utc) + timedelta(1),
+        expires_at=datetime.now(UTC) + timedelta(1),
     )
     return user
 
@@ -121,7 +119,7 @@ def test_get_valid_realphone_verification_record_returns_object(phone_user):
     real_phone = RealPhone.objects.create(
         user=phone_user,
         number=number,
-        verification_sent_date=datetime.now(timezone.utc),
+        verification_sent_date=datetime.now(UTC),
     )
     record = get_valid_realphone_verification_record(
         phone_user, number, real_phone.verification_code
@@ -136,7 +134,7 @@ def test_get_valid_realphone_verification_record_returns_none(phone_user):
         user=phone_user,
         number=number,
         verification_sent_date=(
-            datetime.now(timezone.utc)
+            datetime.now(UTC)
             - timedelta(0, 60 * settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE + 1)
         ),
     )
@@ -203,7 +201,7 @@ def test_create_realphone_deletes_expired_unverified_records(
         number=number,
         verified=False,
         verification_sent_date=(
-            datetime.now(timezone.utc)
+            datetime.now(UTC)
             - timedelta(0, 60 * settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE + 1)
         ),
     )
@@ -320,7 +318,7 @@ def real_phone_us(phone_user, mock_twilio_client):
         user=phone_user,
         number="+12223334444",
         verified=True,
-        verification_sent_date=datetime.now(timezone.utc),
+        verification_sent_date=datetime.now(UTC),
     )
     mock_twilio_client.messages.create.assert_called_once()
     mock_twilio_client.messages.create.reset_mock()
@@ -564,7 +562,7 @@ def real_phone_ca(phone_user, mock_twilio_client):
         user=phone_user,
         number="+14035551234",
         verified=True,
-        verification_sent_date=datetime.now(timezone.utc),
+        verification_sent_date=datetime.now(UTC),
         country_code="CA",
     )
     mock_twilio_client.messages.create.assert_called_once()
@@ -772,31 +770,31 @@ def test_get_last_text_sender_lots_of_inbound_returns_one():
         InboundContact,
         relay_number=relay_number,
         last_inbound_type="call",
-        last_inbound_date=datetime.now(timezone.utc) - timedelta(days=4),
+        last_inbound_date=datetime.now(UTC) - timedelta(days=4),
     )
     baker.make(
         InboundContact,
         relay_number=relay_number,
         last_inbound_type="text",
-        last_inbound_date=datetime.now(timezone.utc) - timedelta(days=3),
+        last_inbound_date=datetime.now(UTC) - timedelta(days=3),
     )
     baker.make(
         InboundContact,
         relay_number=relay_number,
         last_inbound_type="call",
-        last_inbound_date=datetime.now(timezone.utc) - timedelta(days=2),
+        last_inbound_date=datetime.now(UTC) - timedelta(days=2),
     )
     baker.make(
         InboundContact,
         relay_number=relay_number,
         last_inbound_type="text",
-        last_inbound_date=datetime.now(timezone.utc) - timedelta(days=1),
+        last_inbound_date=datetime.now(UTC) - timedelta(days=1),
     )
     inbound_contact = baker.make(
         InboundContact,
         relay_number=relay_number,
         last_inbound_type="text",
-        last_inbound_date=datetime.now(timezone.utc),
+        last_inbound_date=datetime.now(UTC),
     )
 
     assert get_last_text_sender(relay_number) == inbound_contact

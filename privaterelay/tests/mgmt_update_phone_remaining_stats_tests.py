@@ -2,7 +2,7 @@
 Tests for private_relay/management/commands/cleanup_data.py
 """
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from unittest.mock import patch
 
 from django.conf import settings
@@ -51,7 +51,7 @@ def patch_datetime_now():
     https://docs.python.org/3/library/unittest.mock-examples.html#partial-mocking
     """
     with patch(f"{MOCK_BASE}.datetime") as mocked_datetime:
-        expected_now = datetime.now(timezone.utc)
+        expected_now = datetime.now(UTC)
         mocked_datetime.combine.return_value = datetime.combine(
             expected_now.date(), datetime.min.time()
         )
@@ -233,7 +233,7 @@ def test_phone_subscriber_with_phones_reset_31_day_ago_phone_limits_updated(
 def test_phone_subscriber_with_subscription_end_date_sooner_than_31_days_since_reset_phone_limits_updated(  # noqa: E501
     phone_user,
 ):
-    datetime_now = datetime.now(timezone.utc)
+    datetime_now = datetime.now(UTC)
     datetime_first_of_march = datetime_now.replace(month=3, day=1)
     profile = Profile.objects.get(user=phone_user)
     profile.date_subscribed_phone = datetime_now.replace(month=1, day=1)
@@ -273,7 +273,7 @@ def test_phone_subscriber_with_subscription_end_date_sooner_than_31_days_since_r
 def test_phone_subscriber_with_subscription_end_date_after_reset_phone_limits_updated(
     phone_user,
 ):
-    datetime_now = datetime.now(timezone.utc)
+    datetime_now = datetime.now(UTC)
     datetime_fourth_of_march = datetime_now.replace(month=3, day=4)
     profile = Profile.objects.get(user=phone_user)
     profile.date_subscribed_phone = datetime_now.replace(month=1, day=2)

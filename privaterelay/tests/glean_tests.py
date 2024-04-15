@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from logging import LogRecord
 from typing import Any, NamedTuple
 from uuid import UUID, uuid4
@@ -268,7 +268,7 @@ def extract_parts_from_payload(payload: dict[str, Any]) -> PayloadVariedParts:
     start_time_iso = payload["ping_info"]["start_time"]
     start_time = datetime.fromisoformat(start_time_iso)
     # The start_time is in ISO 8601 format with timezone data. Check the conversion.
-    assert 0 < (datetime.now(timezone.utc) - start_time).total_seconds() < 0.5
+    assert 0 < (datetime.now(UTC) - start_time).total_seconds() < 0.5
 
     telemetry_sdk_build = payload["client_info"]["telemetry_sdk_build"]
     # The version will change with glean_parser releases, so only check prefix

@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandParser
@@ -25,7 +25,7 @@ def sync_phone_related_dates_on_profile(group: str) -> int:
         return 0
 
     num_updated_accounts = 0
-    datetime_now = datetime.now(timezone.utc)
+    datetime_now = datetime.now(UTC)
     for social_account in social_accounts_with_phones:
         date_subscribed_phone, start_date, end_date = get_phone_subscription_dates(
             social_account

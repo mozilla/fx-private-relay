@@ -2,7 +2,7 @@
 Tests for private_relay/management/commands/sync_phone_related_dates_on_profile.py
 """
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from unittest.mock import patch
 
 from django.conf import settings
@@ -50,7 +50,7 @@ def patch_datetime_now():
     https://docs.python.org/3/library/unittest.mock-examples.html#partial-mocking
     """
     with patch(f"{MOCK_BASE}.datetime") as mocked_datetime:
-        expected_now = datetime.now(timezone.utc)
+        expected_now = datetime.now(UTC)
         mocked_datetime.combine.return_value = datetime.combine(
             expected_now.date(), datetime.min.time()
         )
@@ -144,7 +144,7 @@ def test_monthly_phone_subscriber_profile_date_fields_all_updated(
     mocked_dates, patch_datetime_now, phone_user
 ):
     profile = Profile.objects.get(user=phone_user)
-    date_subscribed_phone = datetime.now(timezone.utc) - timedelta(3)
+    date_subscribed_phone = datetime.now(UTC) - timedelta(3)
     profile.date_subscribed_phone = date_subscribed_phone
     profile.save()
     mocked_dates.return_value = (
@@ -168,7 +168,7 @@ def test_monthly_phone_subscriber_renewed_subscription_profile_date_phone_subscr
     mocked_dates, patch_datetime_now, phone_user
 ):
     profile = Profile.objects.get(user=phone_user)
-    first_day_of_current_month = datetime.now(timezone.utc).replace(day=1)
+    first_day_of_current_month = datetime.now(UTC).replace(day=1)
     # get first of the last month
     first_day_of_last_month = (first_day_of_current_month - timedelta(1)).replace(day=1)
     # get first of the next month
@@ -204,7 +204,7 @@ def test_yearly_phone_subscriber_profile_date_fields_all_updated(
     mocked_dates, patch_datetime_now, phone_user
 ):
     profile = Profile.objects.get(user=phone_user)
-    date_subscribed_phone = datetime.now(timezone.utc) - timedelta(3)
+    date_subscribed_phone = datetime.now(UTC) - timedelta(3)
     mocked_dates.return_value = (
         date_subscribed_phone,
         date_subscribed_phone,
@@ -226,7 +226,7 @@ def test_yearly_phone_subscriber_with_subscription_date_older_than_31_days_profi
     mocked_dates, patch_datetime_now, phone_user
 ):
     profile = Profile.objects.get(user=phone_user)
-    date_subscribed_phone = datetime.now(timezone.utc) - timedelta(90)
+    date_subscribed_phone = datetime.now(UTC) - timedelta(90)
     profile.date_subscribed_phone = date_subscribed_phone
     profile.save()
     mocked_dates.return_value = (
@@ -254,7 +254,7 @@ def test_command_with_one_update(
     capsys,
 ):
     profile = Profile.objects.get(user=phone_user)
-    date_subscribed_phone = datetime.now(timezone.utc)
+    date_subscribed_phone = datetime.now(UTC)
     profile.date_subscribed_phone = date_subscribed_phone
     profile.save()
     mocked_dates.return_value = (

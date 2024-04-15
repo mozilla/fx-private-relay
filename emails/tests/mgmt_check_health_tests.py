@@ -1,6 +1,6 @@
 import json
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from django.core.management import CommandError, call_command
 
@@ -25,7 +25,7 @@ def write_healthcheck(path, age=0):
 
     Returns the path to the healthcheck file
     """
-    timestamp = (datetime.now(tz=timezone.utc) - timedelta(seconds=age)).isoformat()
+    timestamp = (datetime.now(tz=UTC) - timedelta(seconds=age)).isoformat()
     data = {"timestamp": timestamp, "testing": True}
     with path.open("w", encoding="utf8") as f:
         json.dump(data, f)

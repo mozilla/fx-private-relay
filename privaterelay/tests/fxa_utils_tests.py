@@ -2,7 +2,7 @@
 Tests for private_relay/fxa_utils.py
 """
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from unittest.mock import patch
 
 from django.conf import settings
@@ -156,7 +156,7 @@ def test_get_phone_subscription_dates_subscription_has_invalid_phone_susbscripti
 def test_get_phone_subscription_dates_subscription_has_phone_subscription_data(
     mocked_logger, mocked_data_from_fxa, phone_user
 ):
-    first_day_this_month = datetime.now(timezone.utc).replace(day=1)
+    first_day_this_month = datetime.now(UTC).replace(day=1)
     first_day_next_month = (first_day_this_month + timedelta(31)).replace(day=1)
     social_account = SocialAccount.objects.get(user=phone_user)
     sample_subscription_data = {

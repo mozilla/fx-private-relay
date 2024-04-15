@@ -13,7 +13,7 @@ https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-read
 
 import json
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from django.core.management.base import CommandError
 
@@ -95,7 +95,7 @@ class Command(CommandFromDjangoSettings):
         context["data"] = data
         raw_timestamp = data["timestamp"]
         timestamp = datetime.fromisoformat(raw_timestamp)
-        age = (datetime.now(tz=timezone.utc) - timestamp).total_seconds()
+        age = (datetime.now(tz=UTC) - timestamp).total_seconds()
 
         context["age_s"] = round(age, 3)
         if age > max_age:

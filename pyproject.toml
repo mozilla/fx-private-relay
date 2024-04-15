@@ -84,6 +84,7 @@ select = [
     "E",  # pycodestyle errors
     "F",  # pyflakes
     "I",  # isort
+    "UP", # pyupgrade
     "W",  # pycodestyle warnings
 ]
 extend-safe-fixes = [

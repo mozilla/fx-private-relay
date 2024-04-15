@@ -7,7 +7,7 @@ import string
 import uuid
 from collections import namedtuple
 from collections.abc import Iterable
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from hashlib import sha256
 from typing import Literal, cast
 
@@ -236,7 +236,7 @@ class Profile(models.Model):
 
     def check_bounce_pause(self) -> BounceStatus:
         if self.last_hard_bounce:
-            last_hard_bounce_allowed = datetime.now(timezone.utc) - timedelta(
+            last_hard_bounce_allowed = datetime.now(UTC) - timedelta(
                 days=settings.HARD_BOUNCE_ALLOWED_DAYS
             )
             if self.last_hard_bounce > last_hard_bounce_allowed:
@@ -244,7 +244,7 @@ class Profile(models.Model):
             self.last_hard_bounce = None
             self.save()
         if self.last_soft_bounce:
-            last_soft_bounce_allowed = datetime.now(timezone.utc) - timedelta(
+            last_soft_bounce_allowed = datetime.now(UTC) - timedelta(
                 days=settings.SOFT_BOUNCE_ALLOWED_DAYS
             )
             if self.last_soft_bounce > last_soft_bounce_allowed:
@@ -262,7 +262,7 @@ class Profile(models.Model):
         bounce_pause, bounce_type = self.check_bounce_pause()
 
         if not bounce_pause:
-            return datetime.now(timezone.utc)
+            return datetime.now(UTC)
 
         if bounce_type == "soft":
             assert self.last_soft_bounce
@@ -444,8 +444,8 @@ class Profile(models.Model):
 
         # look for abuse metrics created on the same UTC date, regardless of time.
         midnight_utc_today = datetime.combine(
-            datetime.now(timezone.utc).date(), datetime.min.time()
-        ).astimezone(timezone.utc)
+            datetime.now(UTC).date(), datetime.min.time()
+        ).astimezone(UTC)
         midnight_utc_tomorow = midnight_utc_today + timedelta(days=1)
         abuse_metric = self.user.abusemetrics_set.filter(
             first_recorded__gte=midnight_utc_today,
@@ -464,7 +464,7 @@ class Profile(models.Model):
             abuse_metric.num_email_forwarded_per_day += 1
         if forwarded_email_size > 0:
             abuse_metric.forwarded_email_size_per_day += forwarded_email_size
-        abuse_metric.last_recorded = datetime.now(timezone.utc)
+        abuse_metric.last_recorded = datetime.now(UTC)
         abuse_metric.save()
 
         # check user should be flagged for abuse
@@ -493,7 +493,7 @@ class Profile(models.Model):
             or hit_max_forwarded
             or hit_max_forwarded_email_size
         ):
-            self.last_account_flagged = datetime.now(timezone.utc)
+            self.last_account_flagged = datetime.now(UTC)
             self.save()
             data = {
                 "uid": self.fxa.uid if self.fxa else None,
@@ -514,7 +514,7 @@ class Profile(models.Model):
         account_premium_feature_resumed = self.last_account_flagged + timedelta(
             days=settings.PREMIUM_FEATURE_PAUSED_DAYS
         )
-        if datetime.now(timezone.utc) > account_premium_feature_resumed:
+        if datetime.now(UTC) > account_premium_feature_resumed:
             # premium feature has been resumed
             return False
         # user was flagged and the premium feature pause period is not yet over
@@ -771,7 +771,7 @@ class RelayAddress(models.Model):
         )
         deleted_address.save()
         profile = Profile.objects.get(user=self.user)
-        profile.address_last_deleted = datetime.now(timezone.utc)
+        profile.address_last_deleted = datetime.now(UTC)
         profile.num_address_deleted += 1
         profile.num_email_forwarded_in_deleted_address += self.num_forwarded
         profile.num_email_blocked_in_deleted_address += self.num_blocked
@@ -781,7 +781,7 @@ class RelayAddress(models.Model):
         profile.num_email_replied_in_deleted_address += self.num_replied
         profile.num_email_spam_in_deleted_address += self.num_spam
         profile.num_deleted_relay_addresses += 1
-        profile.last_engagement = datetime.now(timezone.utc)
+        profile.last_engagement = datetime.now(UTC)
         profile.save()
         return super().delete(*args, **kwargs)
 
@@ -803,7 +803,7 @@ class RelayAddress(models.Model):
                         break
                     self.address = address_default()
                 locked_profile.update_abuse_metric(address_created=True)
-                locked_profile.last_engagement = datetime.now(timezone.utc)
+                locked_profile.last_engagement = datetime.now(UTC)
                 locked_profile.save()
         if (not self.user.profile.server_storage) and any(
             (self.description, self.generated_for, self.used_on)
@@ -953,7 +953,7 @@ class DomainAddress(models.Model):
                 raise DomainAddrDuplicateException(duplicate_address=self.address)
 
             user_profile.update_abuse_metric(address_created=True)
-            user_profile.last_engagement = datetime.now(timezone.utc)
+            user_profile.last_engagement = datetime.now(UTC)
             user_profile.save(update_fields=["last_engagement"])
             incr_if_enabled("domainaddress.create")
             if self.first_emailed_at:
@@ -999,7 +999,7 @@ class DomainAddress(models.Model):
             # Only check for bad words if randomly generated
         assert isinstance(address, str)
 
-        first_emailed_at = datetime.now(timezone.utc) if made_via_email else None
+        first_emailed_at = datetime.now(UTC) if made_via_email else None
         domain_address = DomainAddress.objects.create(
             user=user_profile.user, address=address, first_emailed_at=first_emailed_at
         )
@@ -1020,7 +1020,7 @@ class DomainAddress(models.Model):
         # self.user_profile is a property and should not be used to
         # update values on the user's profile
         profile = Profile.objects.get(user=self.user)
-        profile.address_last_deleted = datetime.now(timezone.utc)
+        profile.address_last_deleted = datetime.now(UTC)
         profile.num_address_deleted += 1
         profile.num_email_forwarded_in_deleted_address += self.num_forwarded
         profile.num_email_blocked_in_deleted_address += self.num_blocked
@@ -1030,7 +1030,7 @@ class DomainAddress(models.Model):
         profile.num_email_replied_in_deleted_address += self.num_replied
         profile.num_email_spam_in_deleted_address += self.num_spam
         profile.num_deleted_domain_addresses += 1
-        profile.last_engagement = datetime.now(timezone.utc)
+        profile.last_engagement = datetime.now(UTC)
         profile.save()
         return super().delete(*args, **kwargs)
 
@@ -1043,11 +1043,7 @@ class DomainAddress(models.Model):
 
     @property
     def full_address(self) -> str:
-        return "{}@{}.{}".format(
-            self.address,
-            self.user_profile.subdomain,
-            self.domain_value,
-        )
+        return f"{self.address}@{self.user_profile.subdomain}.{self.domain_value}"
 
     @property
     def metrics_id(self) -> str:
@@ -1084,7 +1080,7 @@ class Reply(models.Model):
         address = self.relay_address or self.domain_address
         assert address
         address.num_replied += 1
-        address.last_used_at = datetime.now(timezone.utc)
+        address.last_used_at = datetime.now(UTC)
         address.save(update_fields=["num_replied", "last_used_at"])
         return address.num_replied
 

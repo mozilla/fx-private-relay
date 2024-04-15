@@ -1,6 +1,6 @@
 import json
 from collections.abc import Generator
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 from unittest.mock import Mock, patch
 from uuid import uuid4
@@ -389,7 +389,7 @@ def test_writes_healthcheck_file(test_settings):
         "queue_count_not_visible": 3,
     }
     ts = datetime.fromisoformat(content["timestamp"])
-    duration = (datetime.now(tz=timezone.utc) - ts).total_seconds()
+    duration = (datetime.now(tz=UTC) - ts).total_seconds()
     assert 0.0 < duration < 0.5
 
 

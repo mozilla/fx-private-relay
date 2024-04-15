@@ -5,7 +5,7 @@ import re
 import shlex
 from collections import defaultdict
 from copy import deepcopy
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from email import message_from_bytes
 from email.iterators import _structure
 from email.message import EmailMessage
@@ -676,7 +676,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         address.num_blocked += 1
         address.save(update_fields=["num_blocked"])
         _record_receipt_verdicts(receipt, "disabled_alias")
-        user_profile.last_engagement = datetime.now(timezone.utc)
+        user_profile.last_engagement = datetime.now(UTC)
         user_profile.save()
         glean_logger().log_email_blocked(mask=address, reason="block_all")
         return HttpResponse("Address is temporarily disabled.")
@@ -694,7 +694,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         incr_if_enabled("list_email_for_address_blocking_lists", 1)
         address.num_blocked += 1
         address.save(update_fields=["num_blocked"])
-        user_profile.last_engagement = datetime.now(timezone.utc)
+        user_profile.last_engagement = datetime.now(UTC)
         user_profile.save()
         glean_logger().log_email_blocked(mask=address, reason="block_promotional")
         return HttpResponse("Address is not accepting list emails.")
@@ -793,10 +793,10 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     user_profile.update_abuse_metric(
         email_forwarded=True, forwarded_email_size=len(incoming_email_bytes)
     )
-    user_profile.last_engagement = datetime.now(timezone.utc)
+    user_profile.last_engagement = datetime.now(UTC)
     user_profile.save()
     address.num_forwarded += 1
-    address.last_used_at = datetime.now(timezone.utc)
+    address.last_used_at = datetime.now(UTC)
     if level_one_trackers_removed:
         address.num_level_one_trackers_blocked = (
             address.num_level_one_trackers_blocked or 0
@@ -1085,7 +1085,7 @@ def _convert_html_content(
     now: datetime | None = None,
 ) -> tuple[str, int]:
     # frontend expects a timestamp in milliseconds
-    now = now or datetime.now(timezone.utc)
+    now = now or datetime.now(UTC)
     datetime_now_ms = int(now.timestamp() * 1000)
 
     # scramble alias so that clients don't recognize it
@@ -1320,7 +1320,7 @@ def _handle_reply(
     reply_record.increment_num_replied()
     profile = address.user.profile
     profile.update_abuse_metric(replied=True)
-    profile.last_engagement = datetime.now(timezone.utc)
+    profile.last_engagement = datetime.now(UTC)
     profile.save()
     glean_logger().log_email_forwarded(mask=address, is_reply=True)
     return HttpResponse("Sent email to final recipient.", status=200)
@@ -1364,7 +1364,7 @@ def _get_domain_address(local_portion: str, domain_portion: str) -> DomainAddres
                     mask=domain_address,
                     created_by_api=False,
                 )
-            domain_address.last_used_at = datetime.now(timezone.utc)
+            domain_address.last_used_at = datetime.now(UTC)
             domain_address.save()
             return domain_address
     except Profile.DoesNotExist as e:
@@ -1447,7 +1447,7 @@ def _handle_bounce(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     bounce_subtype = bounce.get("bounceSubType", "none")
     bounced_recipients = bounce.get("bouncedRecipients", [])
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     bounce_data = []
     for recipient in bounced_recipients:
         recipient_address = recipient.pop("emailAddress", None)

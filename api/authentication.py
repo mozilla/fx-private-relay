@@ -1,6 +1,6 @@
 import logging
 import shlex
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from django.conf import settings
@@ -96,7 +96,7 @@ def get_fxa_uid_from_oauth_token(token: str, use_cache=True) -> str:
     if isinstance(fxa_resp_data.get("json", {}).get("exp"), int):
         # Note: FXA iat and exp are timestamps in *milliseconds*
         fxa_token_exp_time = int(fxa_resp_data["json"]["exp"] / 1000)
-        now_time = int(datetime.now(timezone.utc).timestamp())
+        now_time = int(datetime.now(UTC).timestamp())
         fxa_token_exp_cache_timeout = fxa_token_exp_time - now_time
         if fxa_token_exp_cache_timeout > cache_timeout:
             # cache until access_token expires (matched Relay user)
