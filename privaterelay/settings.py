@@ -90,7 +90,7 @@ USE_SILK = DEBUG and HAS_SILK and not IN_PYTEST
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_HOST = config("DJANGO_SECURE_SSL_HOST", None)
-SECURE_SSL_REDIRECT = config("DJANGO_SECURE_SSL_REDIRECT", False)
+SECURE_SSL_REDIRECT = config("DJANGO_SECURE_SSL_REDIRECT", False, cast=bool)
 SECURE_REDIRECT_EXEMPT = [
     r"^__version__",
     r"^__heartbeat__",
