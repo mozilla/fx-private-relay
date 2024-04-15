@@ -591,7 +591,11 @@ def address_hash(address, subdomain=None, domain=None):
 
 
 def address_default():
-    return "".join(random.choices(string.ascii_lowercase + string.digits, k=9))
+    return "".join(
+        random.choices(  # noqa: S311 (standard pseudo-random generator used)
+            string.ascii_lowercase + string.digits, k=9
+        )
+    )
 
 
 def has_bad_words(value) -> bool:

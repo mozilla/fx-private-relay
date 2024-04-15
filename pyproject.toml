@@ -80,7 +80,13 @@ testpaths = [
 ]
 
 [tool.ruff.lint]
+ignore = [
+    # TODO MPP-3802: Enable more bandit security checks
+    "S101",  # https://docs.astral.sh/ruff/rules/assert/
+    "S113",  # https://docs.astral.sh/ruff/rules/request-without-timeout/
+]
 select = [
+    "S",  # flake8-bandit
     "E",  # pycodestyle errors
     "F",  # pyflakes
     "I",  # isort
@@ -105,3 +111,8 @@ section-order = ["future", "standard-library", "django", "third-party", "first-p
 [tool.ruff.lint.per-file-ignores]
 # Ignore line length in generated file
 "privaterelay/glean/server_events.py" = ["E501"]
+# S101: Allow assert in tests, since it is correct usage for pytest
+# S105: Allow hardcoded passwords in tests
+# S311: Allow pseudo-random generators in tests
+"**/tests/*_tests.py" = ["S101", "S105", "S311"]
+"**/tests/utils.py" = ["S101", "S311"]

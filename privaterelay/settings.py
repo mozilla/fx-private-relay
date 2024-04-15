@@ -485,7 +485,7 @@ elif RELAY_CHANNEL == "local":
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 # only needed when admin UI is enabled
 if ADMIN_ENABLED:
-    _DJANGO_PWD_VALIDATION = "django.contrib.auth.password_validation"
+    _DJANGO_PWD_VALIDATION = "django.contrib.auth.password_validation"  # noqa: E501, S105 (long line, possible password)
     AUTH_PASSWORD_VALIDATORS = [
         {"NAME": _DJANGO_PWD_VALIDATION + ".UserAttributeSimilarityValidator"},
         {"NAME": _DJANGO_PWD_VALIDATION + ".MinimumLengthValidator"},

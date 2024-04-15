@@ -477,7 +477,7 @@ def flag_is_active_in_task(flag_name: str, user: AbstractBaseUser | None) -> boo
         # Removed - check for cookie setting for flag
         # Removed - check for read-only mode
 
-        if Decimal(str(random.uniform(0, 100))) <= flag.percent:
+        if Decimal(str(random.uniform(0, 100))) <= flag.percent:  # noqa: S311
             # Removed - setting the flag for future checks
             return True
 

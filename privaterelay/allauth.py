@@ -40,7 +40,7 @@ class AccountAdapter(DefaultAccountAdapter):
         # Is this a known frontend path?
         try:
             middleware = RelayStaticFilesMiddleware()
-        except Exception:
+        except Exception:  # noqa: S110 (exception pass without log)
             # Staticfiles are not available
             pass
         else:
