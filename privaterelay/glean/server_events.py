@@ -104,7 +104,6 @@ class EventsServerEventLogger:
         date_joined_premium: int,
         has_extension: bool,
         date_got_extension: int,
-        mask_id: str,
         is_random_mask: bool,
         is_reply: bool,
         reason: str,
@@ -128,7 +127,6 @@ class EventsServerEventLogger:
         :param int date_joined_premium: Timestamp for starting premium_status subscription, seconds since epoch, -1 if not subscribed
         :param bool has_extension: The user has the Relay Add-on
         :param int date_got_extension: Timestamp for adding Relay Add-on, seconds since epoch, -1 if not used
-        :param str mask_id: Mask ID, 'R' (random mask) or 'D' (domain mask) followed by a number.
         :param bool is_random_mask: The mask is a random mask, instead of a domain mask
         :param bool is_reply: The email is a reply from the Relay user
         :param str reason: Code describing why the email was blocked
@@ -148,7 +146,6 @@ class EventsServerEventLogger:
                 "date_joined_premium": str(date_joined_premium),
                 "has_extension": str(has_extension).lower(),
                 "date_got_extension": str(date_got_extension),
-                "mask_id": str(mask_id),
                 "is_random_mask": str(is_random_mask).lower(),
                 "is_reply": str(is_reply).lower(),
                 "reason": str(reason),
@@ -171,7 +168,6 @@ class EventsServerEventLogger:
         date_joined_premium: int,
         has_extension: bool,
         date_got_extension: int,
-        mask_id: str,
         is_random_mask: bool,
         is_reply: bool,
     ) -> None:
@@ -194,7 +190,6 @@ class EventsServerEventLogger:
         :param int date_joined_premium: Timestamp for starting premium_status subscription, seconds since epoch, -1 if not subscribed
         :param bool has_extension: The user has the Relay Add-on
         :param int date_got_extension: Timestamp for adding Relay Add-on, seconds since epoch, -1 if not used
-        :param str mask_id: Mask ID, 'R' (random mask) or 'D' (domain mask) followed by a number.
         :param bool is_random_mask: The mask is a random mask, instead of a domain mask
         :param bool is_reply: The email is a reply from the Relay user
         """
@@ -213,7 +208,6 @@ class EventsServerEventLogger:
                 "date_joined_premium": str(date_joined_premium),
                 "has_extension": str(has_extension).lower(),
                 "date_got_extension": str(date_got_extension),
-                "mask_id": str(mask_id),
                 "is_random_mask": str(is_random_mask).lower(),
                 "is_reply": str(is_reply).lower(),
             },
@@ -235,7 +229,6 @@ class EventsServerEventLogger:
         date_joined_premium: int,
         has_extension: bool,
         date_got_extension: int,
-        mask_id: str,
         is_random_mask: bool,
         created_by_api: bool,
         has_website: bool,
@@ -259,7 +252,6 @@ class EventsServerEventLogger:
         :param int date_joined_premium: Timestamp for starting premium_status subscription, seconds since epoch, -1 if not subscribed
         :param bool has_extension: The user has the Relay Add-on
         :param int date_got_extension: Timestamp for adding Relay Add-on, seconds since epoch, -1 if not used
-        :param str mask_id: Mask ID, 'R' (random mask) or 'D' (domain mask) followed by a number.
         :param bool is_random_mask: The mask is a random mask, instead of a domain mask
         :param bool created_by_api: The mask was created via the API, rather than an incoming email
         :param bool has_website: The mask was created by the Add-on or integration on a website
@@ -279,7 +271,6 @@ class EventsServerEventLogger:
                 "date_joined_premium": str(date_joined_premium),
                 "has_extension": str(has_extension).lower(),
                 "date_got_extension": str(date_got_extension),
-                "mask_id": str(mask_id),
                 "is_random_mask": str(is_random_mask).lower(),
                 "created_by_api": str(created_by_api).lower(),
                 "has_website": str(has_website).lower(),
@@ -302,7 +293,6 @@ class EventsServerEventLogger:
         date_joined_premium: int,
         has_extension: bool,
         date_got_extension: int,
-        mask_id: str,
         is_random_mask: bool,
     ) -> None:
         """
@@ -324,7 +314,6 @@ class EventsServerEventLogger:
         :param int date_joined_premium: Timestamp for starting premium_status subscription, seconds since epoch, -1 if not subscribed
         :param bool has_extension: The user has the Relay Add-on
         :param int date_got_extension: Timestamp for adding Relay Add-on, seconds since epoch, -1 if not used
-        :param str mask_id: Mask ID, 'R' (random mask) or 'D' (domain mask) followed by a number.
         :param bool is_random_mask: The mask is a random mask, instead of a domain mask
         """
         event = {
@@ -342,7 +331,6 @@ class EventsServerEventLogger:
                 "date_joined_premium": str(date_joined_premium),
                 "has_extension": str(has_extension).lower(),
                 "date_got_extension": str(date_got_extension),
-                "mask_id": str(mask_id),
                 "is_random_mask": str(is_random_mask).lower(),
             },
         }
@@ -363,7 +351,6 @@ class EventsServerEventLogger:
         date_joined_premium: int,
         has_extension: bool,
         date_got_extension: int,
-        mask_id: str,
         is_random_mask: bool,
     ) -> None:
         """
@@ -385,7 +372,6 @@ class EventsServerEventLogger:
         :param int date_joined_premium: Timestamp for starting premium_status subscription, seconds since epoch, -1 if not subscribed
         :param bool has_extension: The user has the Relay Add-on
         :param int date_got_extension: Timestamp for adding Relay Add-on, seconds since epoch, -1 if not used
-        :param str mask_id: Mask ID, 'R' (random mask) or 'D' (domain mask) followed by a number.
         :param bool is_random_mask: The mask is a random mask, instead of a domain mask
         """
         event = {
@@ -403,7 +389,6 @@ class EventsServerEventLogger:
                 "date_joined_premium": str(date_joined_premium),
                 "has_extension": str(has_extension).lower(),
                 "date_got_extension": str(date_got_extension),
-                "mask_id": str(mask_id),
                 "is_random_mask": str(is_random_mask).lower(),
             },
         }

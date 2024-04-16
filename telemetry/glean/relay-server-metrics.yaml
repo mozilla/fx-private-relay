@@ -59,9 +59,6 @@ email_mask:
       date_got_extension:
         description: Timestamp for adding Relay Add-on, seconds since epoch, -1 if not used
         type: quantity
-      mask_id:
-        description: Mask ID, 'R' (random mask) or 'D' (domain mask) followed by a number.
-        type: string
       is_random_mask:
         description: The mask is a random mask, instead of a domain mask
         type: boolean

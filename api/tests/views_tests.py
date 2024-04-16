@@ -97,14 +97,12 @@ def test_post_domainaddress_success(
     assert ret_data["full_address"].startswith("my-new-mask@premium.")
 
     assert (event := get_glean_event(caplog)) is not None
-    address = premium_user.domainaddress_set.get()
     expected_event = create_expected_glean_event(
         category="email_mask",
         name="created",
         user=premium_user,
         extra_items={
             "n_domain_masks": "1",
-            "mask_id": address.metrics_id,
             "is_random_mask": "false",
             "created_by_api": "true",
             "has_website": "false",
@@ -446,7 +444,6 @@ def test_patch_domainaddress(
             user=premium_user,
             extra_items={
                 "n_domain_masks": "1",
-                "mask_id": existing.metrics_id,
                 "is_random_mask": "false",
             },
             event_time=event["timestamp"],
@@ -605,7 +602,6 @@ def test_delete_domainaddress(
     prem_api_client: APIClient, premium_user: User, caplog: pytest.LogCaptureFixture
 ) -> None:
     existing = DomainAddress.objects.create(user=premium_user, address="my-doomed-mask")
-    existing_mask_id = existing.metrics_id
     url = reverse("domainaddress-detail", args=[existing.id])
     response = prem_api_client.delete(url)
     assert response.status_code == 204
@@ -618,7 +614,6 @@ def test_delete_domainaddress(
         user=premium_user,
         extra_items={
             "n_deleted_domain_masks": "1",
-            "mask_id": existing_mask_id,
             "is_random_mask": "false",
         },
         event_time=event["timestamp"],
@@ -639,14 +634,12 @@ def test_post_relayaddress_success(
     assert ret_data["enabled"]
 
     assert (event := get_glean_event(caplog)) is not None
-    address = free_user.relayaddress_set.get()
     expected_event = create_expected_glean_event(
         category="email_mask",
         name="created",
         user=free_user,
         extra_items={
             "n_random_masks": "1",
-            "mask_id": address.metrics_id,
             "is_random_mask": "true",
             "created_by_api": "true",
             "has_website": "false",
@@ -677,7 +670,6 @@ def test_post_relayaddress_with_generated_for_success(
             "n_random_masks": "1",
             "has_extension": "true",
             "date_got_extension": str(int(address.created_at.timestamp())),
-            "mask_id": address.metrics_id,
             "is_random_mask": "true",
             "created_by_api": "true",
             "has_website": "true",
@@ -773,7 +765,6 @@ def test_patch_relayaddress(
             user=free_user,
             extra_items={
                 "n_random_masks": "1",
-                "mask_id": existing.metrics_id,
                 "is_random_mask": "true",
             },
             event_time=event["timestamp"],
@@ -933,7 +924,6 @@ def test_delete_randomaddress(
     free_api_client: APIClient, free_user: User, caplog: pytest.LogCaptureFixture
 ) -> None:
     existing = RelayAddress.objects.create(user=free_user)
-    existing_mask_id = existing.metrics_id
     url = reverse("relayaddress-detail", args=[existing.id])
     response = free_api_client.delete(url)
     assert response.status_code == 204
@@ -946,7 +936,6 @@ def test_delete_randomaddress(
         user=free_user,
         extra_items={
             "n_deleted_random_masks": "1",
-            "mask_id": existing_mask_id,
             "is_random_mask": "true",
         },
         event_time=event["timestamp"],

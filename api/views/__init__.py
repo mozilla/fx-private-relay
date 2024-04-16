@@ -140,14 +140,12 @@ class AddressViewSet(Generic[_Address], SaveToRequestUser, viewsets.ModelViewSet
             )
 
     def perform_destroy(self, instance: _Address) -> None:
-        mask_id = instance.metrics_id
         user = instance.user
         is_random_mask = isinstance(instance, RelayAddress)
         super().perform_destroy(instance)
         glean_logger().log_email_mask_deleted(
             request=self.request,
             user=user,
-            mask_id=mask_id,
             is_random_mask=is_random_mask,
         )
 
