@@ -203,6 +203,7 @@ CSP_STYLE_SRC = (
     + _API_DOCS_CSP_STYLE_SRC
     + _CSP_STYLE_HASHES
 )
+CSP_REPORT_URI = config("CSP_REPORT_URI", "")
 
 REFERRER_POLICY = "strict-origin-when-cross-origin"
 
