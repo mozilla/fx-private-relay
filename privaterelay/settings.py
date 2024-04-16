@@ -110,22 +110,28 @@ CSRF_COOKIE_SECURE = config("DJANGO_CSRF_COOKIE_SECURE", False, cast=bool)
 #
 
 BASKET_ORIGIN = config("BASKET_ORIGIN", "https://basket.mozilla.org")
-# maps fxa profile hosts to respective avatar hosts for CSP
-_AVATAR_IMG_SRC_MAP = {
-    "https://profile.stage.mozaws.net/v1": [
-        "mozillausercontent.com",
-        "https://profile.stage.mozaws.net",
-    ],
-    "https://profile.accounts.firefox.com/v1": [
+
+# maps FxA / Mozilla account profile hosts to respective hosts for CSP
+FXA_BASE_ORIGIN: str = config("FXA_BASE_ORIGIN", "https://accounts.firefox.com")
+if FXA_BASE_ORIGIN == "https://accounts.firefox.com":
+    _AVATAR_IMG_SRC = [
         "firefoxusercontent.com",
         "https://profile.accounts.firefox.com",
-    ],
-}
-_AVATAR_IMG_SRC = _AVATAR_IMG_SRC_MAP[
-    config("FXA_PROFILE_ENDPOINT", "https://profile.accounts.firefox.com/v1")
-]
-API_DOCS_ENABLED = config("API_DOCS_ENABLED", False, cast=bool) or DEBUG
+    ]
+    _ACCOUNT_CONNECT_SRC = [FXA_BASE_ORIGIN]
+else:
+    assert FXA_BASE_ORIGIN == "https://accounts.stage.mozaws.net"
+    _AVATAR_IMG_SRC = [
+        "mozillausercontent.com",
+        "https://profile.stage.mozaws.net",
+    ]
+    _ACCOUNT_CONNECT_SRC = [
+        FXA_BASE_ORIGIN,
+        # fxaFlowTracker.ts will try this if runtimeData is slow
+        "https://accounts.firefox.com",
+    ]
 
+API_DOCS_ENABLED = config("API_DOCS_ENABLED", False, cast=bool) or DEBUG
 _CSP_SCRIPT_INLINE = API_DOCS_ENABLED or USE_SILK
 
 # When running locally, styles might get refreshed while the server is running, so their
@@ -174,11 +180,10 @@ CSP_DEFAULT_SRC = ["'self'"]
 CSP_CONNECT_SRC = [
     "'self'",
     "https://www.google-analytics.com/",
-    "https://accounts.firefox.com",
     "https://location.services.mozilla.com",
     "https://api.stripe.com",
     BASKET_ORIGIN,
-]
+] + _ACCOUNT_CONNECT_SRC
 CSP_FONT_SRC = ["'self'"] + _API_DOCS_CSP_FONT_SRC + ["https://relay.firefox.com/"]
 CSP_IMG_SRC = ["'self'"] + _AVATAR_IMG_SRC + _API_DOCS_CSP_IMG_SRC
 CSP_SCRIPT_SRC = (
@@ -598,7 +603,6 @@ ACCOUNT_ADAPTER = "privaterelay.allauth.AccountAdapter"
 ACCOUNT_PRESERVE_USERNAME_CASING = False
 ACCOUNT_USERNAME_REQUIRED = False
 
-FXA_BASE_ORIGIN: str = config("FXA_BASE_ORIGIN", "https://accounts.firefox.com")
 FXA_SETTINGS_URL = config("FXA_SETTINGS_URL", f"{FXA_BASE_ORIGIN}/settings")
 FXA_SUBSCRIPTIONS_URL = config(
     "FXA_SUBSCRIPTIONS_URL", f"{FXA_BASE_ORIGIN}/subscriptions"
