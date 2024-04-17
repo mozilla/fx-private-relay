@@ -6,7 +6,7 @@ from email.headerregistry import Address, AddressHeader
 from email.message import EmailMessage
 from email.utils import formataddr, parseaddr
 from functools import cache
-from typing import cast, Any, TypeVar
+from typing import cast, Any, TypeVar, Literal
 from collections.abc import Callable
 import json
 import pathlib
@@ -53,7 +53,9 @@ def ses_message_props(data: str) -> ContentTypeDef:
     return {"Charset": "UTF-8", "Data": data}
 
 
-def get_domains_from_settings():
+def get_domains_from_settings() -> (
+    dict[Literal["RELAY_FIREFOX_DOMAIN", "MOZMAIL_DOMAIN"], str]
+):
     # HACK: detect if code is running in django tests
     if "testserver" in settings.ALLOWED_HOSTS:
         return {"RELAY_FIREFOX_DOMAIN": "default.com", "MOZMAIL_DOMAIN": "test.com"}

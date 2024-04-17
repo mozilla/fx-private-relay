@@ -18,6 +18,7 @@ from typing import Any, Generic, TypeVar
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db.models.query import QuerySet
 
 import django_ftl
 from drf_spectacular.utils import OpenApiResponse, extend_schema
@@ -157,9 +158,10 @@ class RelayAddressViewSet(AddressViewSet[RelayAddress]):
     permission_classes = [permissions.IsAuthenticated, IsOwner]
     filterset_class = RelayAddressFilter
 
-    def get_queryset(self):
-        assert isinstance(self.request.user, User)
-        return RelayAddress.objects.filter(user=self.request.user)
+    def get_queryset(self) -> QuerySet[RelayAddress]:
+        if isinstance(self.request.user, User):
+            return RelayAddress.objects.filter(user=self.request.user)
+        return RelayAddress.objects.none()
 
 
 class DomainAddressFilter(filters.FilterSet):
@@ -190,9 +192,10 @@ class DomainAddressViewSet(AddressViewSet[DomainAddress]):
     permission_classes = [permissions.IsAuthenticated, IsOwner]
     filterset_class = DomainAddressFilter
 
-    def get_queryset(self):
-        assert isinstance(self.request.user, User)
-        return DomainAddress.objects.filter(user=self.request.user)
+    def get_queryset(self) -> QuerySet[DomainAddress]:
+        if isinstance(self.request.user, User):
+            return DomainAddress.objects.filter(user=self.request.user)
+        return DomainAddress.objects.none()
 
 
 class ProfileViewSet(viewsets.ModelViewSet):
@@ -200,9 +203,10 @@ class ProfileViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, IsOwner]
     http_method_names = ["get", "post", "head", "put", "patch"]
 
-    def get_queryset(self):
-        assert isinstance(self.request.user, User)
-        return Profile.objects.filter(user=self.request.user)
+    def get_queryset(self) -> QuerySet[Profile]:
+        if isinstance(self.request.user, User):
+            return Profile.objects.filter(user=self.request.user)
+        return Profile.objects.none()
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -210,9 +214,10 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, IsOwner]
     http_method_names = ["get", "head"]
 
-    def get_queryset(self):
-        assert isinstance(self.request.user, User)
-        return User.objects.filter(id=self.request.user.id)
+    def get_queryset(self) -> QuerySet[User]:
+        if isinstance(self.request.user, User):
+            return User.objects.filter(id=self.request.user.id)
+        return User.objects.none()
 
 
 @extend_schema(

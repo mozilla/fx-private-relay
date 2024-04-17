@@ -1,7 +1,6 @@
 from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 from math import floor
-from typing import Optional
 from collections.abc import Iterator
 import logging
 import phonenumbers
@@ -235,16 +234,16 @@ class RelayNumber(models.Model):
     created_at = models.DateTimeField(null=True, auto_now_add=True)
 
     @property
-    def remaining_minutes(self):
+    def remaining_minutes(self) -> int:
         # return a 0 or positive int for remaining minutes
         return floor(max(self.remaining_seconds, 0) / 60)
 
     @property
-    def calls_and_texts_forwarded(self):
+    def calls_and_texts_forwarded(self) -> int:
         return self.calls_forwarded + self.texts_forwarded
 
     @property
-    def calls_and_texts_blocked(self):
+    def calls_and_texts_blocked(self) -> int:
         return self.calls_blocked + self.texts_blocked
 
     @property
