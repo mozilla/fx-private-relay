@@ -20,7 +20,7 @@ drf-spectacular-sidecar==2024.4.1
 glean_parser==13.0.1
 google-measurement-protocol==1.1.0
 google-cloud-profiler==4.1.0
-gunicorn==21.2.0
+gunicorn==22.0.0
 jwcrypto==1.5.6
 markus[datadog]==4.2.0
 pem==23.1.0
