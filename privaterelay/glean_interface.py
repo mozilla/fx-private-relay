@@ -113,22 +113,18 @@ class UserData(NamedTuple):
 class EmailMaskData(NamedTuple):
     """Extract and store data from a Relay email mask."""
 
-    mask_id: str
     is_random_mask: bool
     has_website: bool
 
     @classmethod
     def from_mask(cls, mask: RelayAddress | DomainAddress) -> EmailMaskData:
-        mask_id = mask.metrics_id
         if isinstance(mask, RelayAddress):
             is_random_mask = True
             has_website = bool(mask.generated_for)
         else:
             is_random_mask = False
             has_website = False
-        return EmailMaskData(
-            mask_id=mask_id, is_random_mask=is_random_mask, has_website=has_website
-        )
+        return EmailMaskData(is_random_mask=is_random_mask, has_website=has_website)
 
 
 class RelayGleanLogger(EventsServerEventLogger):
@@ -168,7 +164,6 @@ class RelayGleanLogger(EventsServerEventLogger):
         self.record_email_mask_created(
             user_agent=_opt_str_to_glean(request_data.user_agent),
             ip_address=_opt_str_to_glean(request_data.ip_address),
-            client_id="",
             fxa_id=_opt_str_to_glean(user_data.fxa_id),
             platform="",
             n_random_masks=user_data.n_random_masks,
@@ -180,7 +175,6 @@ class RelayGleanLogger(EventsServerEventLogger):
             date_joined_premium=_opt_dt_to_glean(user_data.date_joined_premium),
             has_extension=user_data.has_extension,
             date_got_extension=_opt_dt_to_glean(user_data.date_got_extension),
-            mask_id=mask_data.mask_id,
             is_random_mask=mask_data.is_random_mask,
             created_by_api=created_by_api,
             has_website=mask_data.has_website,
@@ -201,7 +195,6 @@ class RelayGleanLogger(EventsServerEventLogger):
         self.record_email_mask_label_updated(
             user_agent=_opt_str_to_glean(request_data.user_agent),
             ip_address=_opt_str_to_glean(request_data.ip_address),
-            client_id="",
             fxa_id=_opt_str_to_glean(user_data.fxa_id),
             platform="",
             n_random_masks=user_data.n_random_masks,
@@ -213,7 +206,6 @@ class RelayGleanLogger(EventsServerEventLogger):
             date_joined_premium=_opt_dt_to_glean(user_data.date_joined_premium),
             has_extension=user_data.has_extension,
             date_got_extension=_opt_dt_to_glean(user_data.date_got_extension),
-            mask_id=mask_data.mask_id,
             is_random_mask=mask_data.is_random_mask,
         )
 
@@ -222,7 +214,6 @@ class RelayGleanLogger(EventsServerEventLogger):
         *,
         request: HttpRequest,
         user: User,
-        mask_id: str,
         is_random_mask: bool,
     ) -> None:
         """Log that a Relay email mask was deleted."""
@@ -233,7 +224,6 @@ class RelayGleanLogger(EventsServerEventLogger):
         self.record_email_mask_deleted(
             user_agent=_opt_str_to_glean(request_data.user_agent),
             ip_address=_opt_str_to_glean(request_data.ip_address),
-            client_id="",
             fxa_id=_opt_str_to_glean(user_data.fxa_id),
             platform="",
             n_random_masks=user_data.n_random_masks,
@@ -245,7 +235,6 @@ class RelayGleanLogger(EventsServerEventLogger):
             date_joined_premium=_opt_dt_to_glean(user_data.date_joined_premium),
             has_extension=user_data.has_extension,
             date_got_extension=_opt_dt_to_glean(user_data.date_got_extension),
-            mask_id=mask_id,
             is_random_mask=is_random_mask,
         )
 
@@ -264,7 +253,6 @@ class RelayGleanLogger(EventsServerEventLogger):
         self.record_email_forwarded(
             user_agent=_opt_str_to_glean(request_data.user_agent),
             ip_address=_opt_str_to_glean(request_data.ip_address),
-            client_id="",
             fxa_id=_opt_str_to_glean(user_data.fxa_id),
             platform="",
             n_random_masks=user_data.n_random_masks,
@@ -276,7 +264,6 @@ class RelayGleanLogger(EventsServerEventLogger):
             date_joined_premium=_opt_dt_to_glean(user_data.date_joined_premium),
             has_extension=user_data.has_extension,
             date_got_extension=_opt_dt_to_glean(user_data.date_got_extension),
-            mask_id=mask_data.mask_id,
             is_random_mask=mask_data.is_random_mask,
             is_reply=is_reply,
         )
@@ -297,7 +284,6 @@ class RelayGleanLogger(EventsServerEventLogger):
         self.record_email_blocked(
             user_agent=_opt_str_to_glean(request_data.user_agent),
             ip_address=_opt_str_to_glean(request_data.ip_address),
-            client_id="",
             fxa_id=_opt_str_to_glean(user_data.fxa_id),
             platform="",
             n_random_masks=user_data.n_random_masks,
@@ -309,7 +295,6 @@ class RelayGleanLogger(EventsServerEventLogger):
             date_joined_premium=_opt_dt_to_glean(user_data.date_joined_premium),
             has_extension=user_data.has_extension,
             date_got_extension=_opt_dt_to_glean(user_data.date_got_extension),
-            mask_id=mask_data.mask_id,
             is_random_mask=mask_data.is_random_mask,
             is_reply=is_reply,
             reason=reason,

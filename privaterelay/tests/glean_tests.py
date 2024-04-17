@@ -175,7 +175,6 @@ def test_email_mask_relay_address() -> None:
 
     mask_data = EmailMaskData.from_mask(mask)
 
-    assert mask_data.mask_id == mask.metrics_id
     assert mask_data.is_random_mask is True
     assert mask_data.has_website is False
 
@@ -199,7 +198,6 @@ def test_email_mask_domain_address() -> None:
 
     mask_data = EmailMaskData.from_mask(mask)
 
-    assert mask_data.mask_id == mask.metrics_id
     assert mask_data.is_random_mask is False
     assert mask_data.has_website is False
 
@@ -307,7 +305,6 @@ def test_log_email_mask_created(
         name="created",
         extra_items={
             "n_random_masks": "1",
-            "mask_id": address.metrics_id,
             "is_random_mask": "true",
             "has_website": "false",
             "created_by_api": "true",
@@ -367,7 +364,6 @@ def test_log_email_mask_label_updated(
         name="label_updated",
         extra_items={
             "n_random_masks": "1",
-            "mask_id": address.metrics_id,
             "is_random_mask": "true",
         },
         user=user,
@@ -408,13 +404,10 @@ def test_log_email_mask_deleted(
     """Check that log_email_mask_deleted results in a Glean server-side log."""
     user = make_free_test_user()
     address = baker.make(RelayAddress, user=user)
-    mask_id = address.metrics_id
     request = rf.delete(f"/api/v1/relayaddresses/{address.id}/")
     address.delete()  # Real request will delete the mask before glean event
 
-    glean_logger.log_email_mask_deleted(
-        user=user, mask_id=mask_id, is_random_mask=True, request=request
-    )
+    glean_logger.log_email_mask_deleted(user=user, is_random_mask=True, request=request)
     # Check the one glean-server-event log
     assert len(caplog.records) == 1
     record = caplog.records[0]
@@ -428,7 +421,6 @@ def test_log_email_mask_deleted(
         name="deleted",
         extra_items={
             "n_random_masks": "0",
-            "mask_id": mask_id,
             "is_random_mask": "true",
         },
         user=user,
@@ -448,14 +440,11 @@ def test_log_email_mask_deleted_with_opt_out(
 ) -> None:
     """A log is not emitted for mask deletion when the user has opted-out of metrics"""
     address = baker.make(RelayAddress, user=optout_user)
-    mask_id = address.metrics_id
     user = address.user
     request = rf.delete(f"/api/v1/relayaddresses/{address.id}/")
     address.delete()  # Real request will delete the mask before glean event
 
-    glean_logger.log_email_mask_deleted(
-        user=user, mask_id=mask_id, is_random_mask=True, request=request
-    )
+    glean_logger.log_email_mask_deleted(user=user, is_random_mask=True, request=request)
     assert len(caplog.records) == 0
 
 
@@ -485,7 +474,6 @@ def test_log_email_forwarded(
         name="forwarded",
         extra_items={
             "n_random_masks": "1",
-            "mask_id": address.metrics_id,
             "is_random_mask": "true",
             "is_reply": "true" if is_reply else "false",
         },
@@ -537,7 +525,6 @@ def test_log_email_blocked(
         name="blocked",
         extra_items={
             "n_random_masks": "1",
-            "mask_id": address.metrics_id,
             "is_random_mask": "true",
             "is_reply": "true" if is_reply else "false",
             "reason": reason,

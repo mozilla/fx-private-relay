@@ -74,7 +74,6 @@ def create_expected_glean_event(
 
     extra = (
         {
-            "client_id": "",
             "fxa_id": "",
             "platform": "",
             "n_random_masks": "0",

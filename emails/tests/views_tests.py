@@ -498,7 +498,6 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         assert (event := get_glean_event(caplog)) is not None
         assert event["category"] == "email"
         assert event["name"] == "forwarded"
-        assert event["extra"]["mask_id"] == self.ra.metrics_id
 
     @override_settings(STATSD_ENABLED=True)
     def test_spamVerdict_FAIL_auto_block_doesnt_relay(self) -> None:
@@ -532,7 +531,6 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         assert mask_event is not None
         shared_extra_items = {
             "n_domain_masks": "1",
-            "mask_id": da.metrics_id,
             "is_random_mask": "false",
         }
         expected_mask_event = create_expected_glean_event(
@@ -792,7 +790,6 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
         assert (event := get_glean_event(caplog)) is not None
         assert event["category"] == "email"
         assert event["name"] == "forwarded"
-        assert event["extra"]["mask_id"] == self.relay_address.metrics_id
         assert event["extra"]["is_reply"] == "true"
 
         self.mock_remove_message_from_s3.assert_called_once()
@@ -1366,7 +1363,6 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
     ) -> dict[str, Any]:
         extra_items = {
             "n_random_masks": "1",
-            "mask_id": self.address.metrics_id,
             "is_random_mask": "true",
             "is_reply": "true" if is_reply else "false",
         }
@@ -1773,7 +1769,6 @@ class GetAddressTest(TestCase):
             extra_items={
                 "n_random_masks": "1",
                 "n_domain_masks": "2",
-                "mask_id": address.metrics_id,
                 "is_random_mask": "false",
                 "has_website": "false",
                 "created_by_api": "false",
@@ -1806,7 +1801,6 @@ class GetAddressTest(TestCase):
             extra_items={
                 "n_random_masks": "1",
                 "n_domain_masks": "2",
-                "mask_id": address.metrics_id,
                 "is_random_mask": "false",
                 "has_website": "false",
                 "created_by_api": "false",
