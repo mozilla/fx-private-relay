@@ -32,11 +32,24 @@ npx playwright install
 
 ### 5. Run Tests
 
+If you are running only free specs, this following will suffice.
+
 ```
 create/update a .env file with the following:
 
 E2E_TEST_ACCOUNT_PASSWORD=<arbitrary password>
 ```
+
+If you are running premium tests as well, you will need the following.
+
+```
+create/update a .env file with the following:
+
+E2E_TEST_ACCOUNT_PREMIUM = <your_premium_account_email>
+E2E_TEST_ACCOUNT_PASSWORD=<your_premium_account_password>
+```
+
+Any free account created during the initial setup of tests will also use `E2E_TEST_ACCOUNT_PASSWORD`. If you do not want to use a personal premium account, reach out to Luke for `relay-team` premium account details.
 
 ### 6. Run Tests
 
@@ -44,8 +57,24 @@ E2E_TEST_ACCOUNT_PASSWORD=<arbitrary password>
 npm run test:e2e
 ```
 
-By default, `npm run test:e2e` will run the tests on https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net/. 
+By default, `npm run test:e2e` will run the tests on https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net/.
 
-You can also run tests locally, on our dev server (https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/), and in production (https://relay.firefox.com/). You can find the commands [here](https://github.com/mozilla/fx-private-relay/blob/main/package.json#L26-L31). To view the tests live in the browser, you can add `--headed` to the end of the command. See https://playwright.dev/docs/test-cli for more flags.
+You can also run tests locally, on our dev server (https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/), and in production (https://relay.firefox.com/). You can find the commands [here](https://github.com/mozilla/fx-private-relay/blob/main/package.json#L26-L31), or you can run `E2E_TEST_ENV=<env (prod, dev, stage)> npx playwright test`. To view the tests live in the browser, you can add `--headed` to the end of the command. See https://playwright.dev/docs/test-cli for more flags.
 
-[![Relay e2e Tests](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml/badge.svg)](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml)
+Our github actions workflows can be found here, [![Relay e2e Tests](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml/badge.svg)](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml). You can run the tests against different branches.
+
+### 7. Screenshots
+
+When you run tests for the first time locally, you will run into an error for the tests that rely on screenshots, stating that a snapshot does not exist. Here is an example.
+
+```
+Error: A snapshot doesn't exist at example.spec.ts-snapshots/example-test-1-chromium-darwin.png, writing actual.
+```
+
+This is because playwright needs to create an image initially. On the following runs, it will compare that a screenshot of the respective element matches the one added initially. Do not push your local images into the repo, the only ones that are needed for CI end in `linux`.
+
+### 8. Linting
+
+To lint the files, run the following in the root directory (it is recommended to run this after any changes to the test suite):
+
+`npx prettier --write e2e-tests/*`

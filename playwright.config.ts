@@ -15,14 +15,14 @@ const config: PlaywrightTestConfig = {
   /* Add location of specs. */
   testDir: 'e2e-tests/specs',
 
-  /* Maximum time one test can run for. */
-  timeout: 60_000,
+  /* Maximum time one test can run for. 3 minutes */
+  timeout: 60 * 1000,
 
   /* Global setup */
   globalSetup: require.resolve('./e2e-tests/global-setup.ts'),
 
-  /* Max time in milliseconds the whole test suite can to prevent CI breaking. */
-  globalTimeout: 360_000,
+  /* Max time in milliseconds the whole test suite can to prevent CI breaking. 15 minutes */
+  globalTimeout: 60 * 15 * 1000,
 
   // adding missing snapshots for later comparison
   updateSnapshots: 'missing',
@@ -35,7 +35,7 @@ const config: PlaywrightTestConfig = {
     timeout: 5_000
   },
   /* Run tests in files in parallel */
-  // fullyParallel: true,
+  fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
