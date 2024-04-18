@@ -68,7 +68,7 @@ To test updates to `@playwright/test` and `dotenv`, add the following to the
 `.env` file:
 
 ```
-E2E_TEST_ACCOUNT_PASSWORD=<a_long_randon_string_like_a_uuid>
+E2E_TEST_ACCOUNT_PASSWORD=<a_long_random_string_like_a_uuid>
 E2E_TEST_ENV=stage
 ```
 
