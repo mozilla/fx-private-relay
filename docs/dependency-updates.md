@@ -60,18 +60,34 @@ see code coverage for the frontend.
 
 ### `@playwright/test` and `dotenv`
 
-Our Playwright tests are currently only triggered in CI once a day from the
-`main` branch. Thus, there's unfortunately no easy way to verify that it still
-runs successfully until after merging. To do so, after merging the PR, open the
-"Actions" tab in GitHub, then find the "[Relay e2e
-Tests](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml)"
-workflow on the left-hand side, and then use the "Run workflow" trigger button
-in the top row of the table. Alternatively, you can also try run the end-to-end
-tests locally by following the instructions in
-[../e2e-tests/README.md](../e2e-tests/README.md#how-to-run).
+Our Playwright tests run as a GitHub action [Relay e2e Tests][] once a day from
+the `main` branch. See [../e2e-tests/README.md](../e2e-tests/README.md#how-to-run)
+for instructions on running the tests locally.
 
-`dotenv` is used to load environment variables for Playwright from `.env` files,
-so can be verified in the same way.
+To test updates to `@playwright/test` and `dotenv`, add the following to the
+`.env` file:
+
+```
+E2E_TEST_ACCOUNT_PASSWORD=<a_long_random_string_like_a_uuid>
+E2E_TEST_ENV=stage
+```
+
+Check out the update branch and run:
+
+```
+npm install
+npx playwright install
+npx playwright test
+```
+
+This will confirm that `dotenv` picked up the settings from `.env`, and that
+the new playwright runs against stage.
+
+Once the PR is merged, you can wait for the daily test run, or manually run the
+test by going to the [Relay e2e Tests][] GitHub Action page, select "Run
+workflow", and pick the `main` branch and the `stage` environment.
+
+[Relay e2e Tests]: https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml
 
 ### `react-aria` and `react-stately`
 
