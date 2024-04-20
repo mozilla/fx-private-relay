@@ -33,5 +33,9 @@
     "heroku-postbuild": "cd frontend; NODE_ENV=\"development\" npm ci; npm run build",
     "prepare": "husky"
   },
-  "homepage": "https://github.com/mozilla/fx-private-relay#readme"
+  "homepage": "https://github.com/mozilla/fx-private-relay#readme",
+  "dependencies": {
+    "ai": "^3.0.24",
+    "tsu": "^2.9.1"
+  }
 }
