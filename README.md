@@ -365,4 +365,4 @@ Production environments should also set some additional environment variables:
 DATABASE_URL=postgresql://<username>:<password>@<host>:<port>/<database>
 DJANGO_SECURE_HSTS_SECONDS=15768000
 DJANGO_SECURE_SSL_REDIRECT=True
-```
+```.
