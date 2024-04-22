@@ -562,3 +562,27 @@ def test_lbheartbeat_view(client) -> None:
     response = client.get("/__lbheartbeat__")
     assert response.status_code == 200
     assert response.content == b""
+
+
+def test_metrics_event_GET(client) -> None:
+    response = client.get("/metrics-event")
+    assert response.status_code == 405
+
+
+def test_metrics_event_POST_non_json(client) -> None:
+    response = client.post("/metrics-event")
+    assert response.status_code == 415
+
+
+def test_metrics_event_POST_json_no_ga_uuid(client) -> None:
+    response = client.post(
+        "/metrics-event", {"category": "addon"}, content_type="application/json"
+    )
+    assert response.status_code == 404
+
+
+def test_metrics_event_POST_json_ga_uuid_ok(client) -> None:
+    response = client.post(
+        "/metrics-event", {"ga_uuid": "anything-is-ok"}, content_type="application/json"
+    )
+    assert response.status_code == 200
