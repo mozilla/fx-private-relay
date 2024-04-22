@@ -165,6 +165,15 @@ def fxa_verifying_keys(reload: bool = False) -> list[dict[str, Any]]:
     return private_relay_config.fxa_verifying_keys
 
 
+def fxa_social_app(reload: bool = False) -> SocialApp:
+    """Get FxA SocialApp from app config or DB."""
+    private_relay_config = apps.get_app_config("privaterelay")
+    assert isinstance(private_relay_config, PrivateRelayConfig)
+    if reload:
+        private_relay_config.ready()
+    return private_relay_config.fxa_social_app
+
+
 class FxAEvent(TypedDict):
     """
     FxA Security Event Token (SET) payload, sent to relying parties.
@@ -201,7 +210,10 @@ def _verify_jwt_with_fxa_key(
 ) -> FxAEvent | None:
     if not verifying_keys:
         raise Exception("FXA verifying keys are not available.")
-    social_app = SocialApp.objects.get(provider="fxa")
+    social_app = fxa_social_app()
+    if not social_app:
+        raise Exception("FXA SocialApp is not available.")
+    assert isinstance(social_app, SocialApp)
     for verifying_key in verifying_keys:
         if verifying_key["alg"] == "RS256":
             public_key = jwt.algorithms.RSAAlgorithm.from_jwk(json.dumps(verifying_key))

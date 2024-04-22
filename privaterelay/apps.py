@@ -81,6 +81,7 @@ class PrivateRelayConfig(AppConfig):
 
         try:
             del self.fxa_verifying_keys  # Clear cache
+            del self.fxa_social_app  # Clear cache
         except AttributeError:
             pass
 
@@ -93,3 +94,9 @@ class PrivateRelayConfig(AppConfig):
             keys: list[dict[str, Any]] = resp.json()["keys"]
             return keys
         return []
+
+    @cached_property
+    def fxa_social_app(self) -> Any:
+        from allauth.socialaccount.models import SocialApp
+
+        return SocialApp.objects.get(provider="fxa")
