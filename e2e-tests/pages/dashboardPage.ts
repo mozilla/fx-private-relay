@@ -366,7 +366,9 @@ export class DashboardPage {
   }
 
   async signUpForPageWithTrackers(mask: string) {
-    await this.page.goto("https://pages.developmentthatpays.com/cheatsheets/scrum-kanban");
+    await this.page.goto(
+      "https://pages.developmentthatpays.com/cheatsheets/scrum-kanban",
+    );
     await this.page.getByPlaceholder("First Name").fill("relay-testing");
     await this.page.getByPlaceholder("Email Address").fill(mask);
     await this.page

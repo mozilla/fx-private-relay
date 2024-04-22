@@ -1,5 +1,8 @@
 import { Page, Locator } from "@playwright/test";
-import { getVerificationCode } from "../e2eTestUtils/helpers";
+import {
+  forceNonReactLink,
+  getVerificationCode,
+} from "../e2eTestUtils/helpers";
 
 export class MozillaMonitorPage {
   readonly page: Page;
@@ -27,7 +30,10 @@ export class MozillaMonitorPage {
     await this.monitorSignUpInput.fill(randomMask as string);
     await this.monitorSignUpButton.click();
     await this.page.waitForURL("**/oauth/signup**");
-
+    await this.page
+      .getByText("Set your password")
+      .waitFor({ state: "attached", timeout: 3000 });
+    await forceNonReactLink(this.page);
     await this.page
       .locator("#password")
       .fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string);
@@ -37,7 +43,6 @@ export class MozillaMonitorPage {
     await this.page.locator("#age").fill("31");
     await this.page.locator("#submit-btn").click();
     await this.page.waitForURL("**/confirm_signup_code**");
-
     // verification email from fxa to generatedMaskEmail should be forwarded to E2E_TEST_ACCOUNT_FREE
     await getVerificationCode(
       process.env.E2E_TEST_ACCOUNT_FREE as string,

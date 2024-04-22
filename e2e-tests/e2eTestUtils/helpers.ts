@@ -139,11 +139,11 @@ export const forceNonReactLink = async (page: Page) => {
    * This causes the page to look different, and our selectors for the auth page to become flaky because id's are missing.
    */
   const url = new URL(page.url());
-  if (url.searchParams.get('showReactApp') === 'true') { 
-    url.searchParams.set('showReactApp', 'false');
+  if (url.searchParams.get("showReactApp") === "true") {
+    url.searchParams.set("showReactApp", "false");
     await page.goto(url.toString());
   }
-}
+};
 
 export const checkAuthState = async (page: Page) => {
   try {

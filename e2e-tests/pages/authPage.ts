@@ -11,6 +11,7 @@ export class AuthPage {
   readonly createAccountButton: Locator;
   readonly verifyCodeInputField: Locator;
   readonly confirmCodeButton: Locator;
+  readonly newPasswordInputFieldSignIn: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -24,6 +25,9 @@ export class AuthPage {
     });
     this.verifyCodeInputField = page.locator("div.card input");
     this.confirmCodeButton = page.getByRole("button", { name: "Confirm" });
+    this.newPasswordInputFieldSignIn = page.locator(
+      "input[data-testid='input-field'][name='password'][type='password']",
+    );
   }
 
   async continue() {
@@ -31,6 +35,10 @@ export class AuthPage {
   }
 
   async enterVerificationCode(code: string) {
+    await this.page
+      .getByText("Enter confirmation code")
+      .waitFor({ state: "attached", timeout: 3000 });
+    await forceNonReactLink(this.page);
     await this.verifyCodeInputField.fill(code);
     await this.confirmCodeButton.click();
   }
@@ -46,18 +54,31 @@ export class AuthPage {
     await this.passwordInputField.fill(
       process.env.E2E_TEST_ACCOUNT_PASSWORD as string,
     );
+
     await this.continue();
   }
 
   async login(email: string) {
-    await forceNonReactLink(this.page);
+    await this.page
+      .getByText("Enter your email")
+      .waitFor({ state: "attached", timeout: 3000 });
     await this.enterEmail(email);
+    await this.page
+      .getByText("Enter your password")
+      .waitFor({ state: "attached", timeout: 3000 });
     await this.enterPassword();
   }
 
   async signUp(email: string) {
+    await this.page
+      .getByText("Enter your email")
+      .waitFor({ state: "attached", timeout: 3000 });
     await forceNonReactLink(this.page);
     await this.enterEmail(email);
+    await this.page
+      .getByText("Set your password")
+      .waitFor({ state: "attached", timeout: 3000 });
+    await forceNonReactLink(this.page);
     await this.passwordInputField.fill(
       process.env.E2E_TEST_ACCOUNT_PASSWORD as string,
     );
