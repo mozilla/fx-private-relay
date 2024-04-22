@@ -1,4 +1,6 @@
-from datetime import datetime, timedelta, timezone
+import logging
+from datetime import UTC, datetime, timedelta
+
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandParser
 
@@ -7,7 +9,6 @@ from privaterelay.management.utils import (
     get_free_phone_social_accounts,
     get_phone_subscriber_social_accounts,
 )
-import logging
 
 logger = logging.getLogger("events")
 
@@ -24,7 +25,7 @@ def sync_phone_related_dates_on_profile(group: str) -> int:
         return 0
 
     num_updated_accounts = 0
-    datetime_now = datetime.now(timezone.utc)
+    datetime_now = datetime.now(UTC)
     for social_account in social_accounts_with_phones:
         date_subscribed_phone, start_date, end_date = get_phone_subscription_dates(
             social_account
@@ -52,7 +53,8 @@ def sync_phone_related_dates_on_profile(group: str) -> int:
         profile.date_phone_subscription_start = start_date
         profile.date_phone_subscription_end = end_date
         if profile.date_phone_subscription_reset is None:
-            # initialize the reset date for phone subscription users to the start of the subscription
+            # initialize the reset date for phone subscription users to the start of the
+            # subscription
             profile.date_phone_subscription_reset = start_date
         thirtyone_days_ago = datetime_now - timedelta(settings.MAX_DAYS_IN_MONTH)
         while profile.date_phone_subscription_reset < thirtyone_days_ago:
@@ -65,14 +67,21 @@ def sync_phone_related_dates_on_profile(group: str) -> int:
 
 
 class Command(BaseCommand):
-    help = "Sync date_subscribed_phone, date_phone_limits_reset, date_phone_subscription_end fields on Profile by syncing with Mozilla Accounts data"
+    help = (
+        "Sync date_subscribed_phone, date_phone_limits_reset,"
+        " date_phone_subscription_end fields on Profile by syncing with"
+        " Mozilla Accounts data"
+    )
 
     def add_arguments(self, parser: CommandParser) -> None:
         parser.add_argument(
             "--group",
             default="subscription",
             choices=["subscription", "free", "both"],
-            help="Choose phone subscription users, free phone users, or both. Defaults to subscription users.",
+            help=(
+                "Choose phone subscription users, free phone users, or both."
+                " Defaults to subscription users."
+            ),
         )
 
     def handle(self, *args, **options):

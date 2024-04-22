@@ -1,19 +1,17 @@
-import pytest
 from unittest.mock import MagicMock, patch
-
-from botocore.exceptions import ClientError
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.management import call_command
 
-from allauth.socialaccount.models import SocialAccount
 import django_ftl
+import pytest
+from allauth.socialaccount.models import SocialAccount
+from botocore.exceptions import ClientError
 
 from emails.models import Profile
 from emails.tests.models_tests import make_free_test_user
 from privaterelay.ftl_bundles import main as ftl_bundle
-
 
 COMMAND_NAME = "send_welcome_emails"
 
@@ -105,7 +103,7 @@ def test_invalid_email_address_skips_invalid(
     call_command(COMMAND_NAME)
 
     invalid_email_user.profile.refresh_from_db()
-    assert invalid_email_user.profile.sent_welcome_email == False
+    assert invalid_email_user.profile.sent_welcome_email is False
 
     rec1, rec2, rec3, rec4, rec5 = caplog.records
     assert "Starting" in rec1.getMessage()

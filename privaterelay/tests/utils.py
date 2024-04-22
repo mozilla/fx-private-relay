@@ -1,8 +1,8 @@
 """Helper functions for tests"""
 
+import json
 from logging import LogRecord
 from typing import Any
-import json
 from unittest._log import _LoggingWatcher
 
 from django.contrib.auth.models import User

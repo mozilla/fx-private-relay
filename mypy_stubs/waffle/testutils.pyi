@@ -2,8 +2,9 @@
 # https://github.com/django-waffle/django-waffle/blob/v3.0.0/waffle/testutils.py
 # Can be removed once type hints ship in the release after v3.0.0
 
-from django.test.utils import TestContextDecorator
 from typing import Generic, TypeVar
+
+from django.test.utils import TestContextDecorator
 
 _T = TypeVar("_T")
 _FlagActive = bool | None

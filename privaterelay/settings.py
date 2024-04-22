@@ -11,25 +11,24 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 from __future__ import annotations
-from pathlib import Path
-from typing import Any, TYPE_CHECKING, cast, get_args
+
+import base64
 import ipaddress
 import os
 import sys
-
-
-from decouple import config, Choices, Csv
-import django_stubs_ext
-import markus
-import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
-from sentry_sdk.integrations.logging import ignore_logger
 from hashlib import sha256
-import base64
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, cast, get_args
 
 from django.conf.global_settings import LANGUAGES as DEFAULT_LANGUAGES
 
 import dj_database_url
+import django_stubs_ext
+import markus
+import sentry_sdk
+from decouple import Choices, Csv, config
+from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.logging import ignore_logger
 
 from .types import RELAY_CHANNEL_NAME
 
@@ -486,7 +485,7 @@ elif RELAY_CHANNEL == "local":
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 # only needed when admin UI is enabled
 if ADMIN_ENABLED:
-    _DJANGO_PWD_VALIDATION = "django.contrib.auth.password_validation"
+    _DJANGO_PWD_VALIDATION = "django.contrib.auth.password_validation"  # noqa: E501, S105 (long line, possible password)
     AUTH_PASSWORD_VALIDATORS = [
         {"NAME": _DJANGO_PWD_VALIDATION + ".UserAttributeSimilarityValidator"},
         {"NAME": _DJANGO_PWD_VALIDATION + ".MinimumLengthValidator"},

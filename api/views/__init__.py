@@ -9,36 +9,24 @@ Profile stuff is strange - model is in emails, but probably should be in private
 """
 
 import logging
-from django.core.exceptions import ObjectDoesNotExist
-from django.template.loader import render_to_string
-from django.urls.exceptions import NoReverseMatch
-import requests
 from typing import Any, Generic, TypeVar
 
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.query import QuerySet
+from django.template.loader import render_to_string
+from django.urls.exceptions import NoReverseMatch
 
 import django_ftl
-from drf_spectacular.utils import OpenApiResponse, extend_schema
-from rest_framework.authentication import get_authorization_header
-from rest_framework.exceptions import (
-    AuthenticationFailed,
-    ErrorDetail,
-    ParseError,
-)
-from rest_framework.response import Response
-from rest_framework.serializers import BaseSerializer
-from rest_framework.views import exception_handler
-
+import requests
 from allauth.account.adapter import get_adapter as get_account_adapter
 from allauth.socialaccount.adapter import get_adapter as get_social_adapter
-from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.helpers import complete_social_login
+from allauth.socialaccount.models import SocialAccount
 from django_filters import rest_framework as filters
-from waffle import flag_is_active, get_waffle_flag_model
-from waffle.models import Switch, Sample
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import (
     decorators,
     permissions,
@@ -47,37 +35,38 @@ from rest_framework import (
     throttling,
     viewsets,
 )
-from emails.apps import EmailsConfig
-from emails.utils import generate_from_header, incr_if_enabled, ses_message_props
-from emails.views import wrap_html_email, _get_address
+from rest_framework.authentication import get_authorization_header
+from rest_framework.exceptions import AuthenticationFailed, ErrorDetail, ParseError
+from rest_framework.response import Response
+from rest_framework.serializers import BaseSerializer
+from rest_framework.views import exception_handler
+from waffle import flag_is_active, get_waffle_flag_model
+from waffle.models import Sample, Switch
 
+from emails.apps import EmailsConfig
+from emails.models import DomainAddress, Profile, RelayAddress
+from emails.utils import generate_from_header, incr_if_enabled, ses_message_props
+from emails.views import _get_address, wrap_html_email
+from privaterelay.ftl_bundles import main as ftl_bundle
 from privaterelay.plans import (
     get_bundle_country_language_mapping,
-    get_premium_country_language_mapping,
     get_phone_country_language_mapping,
+    get_premium_country_language_mapping,
 )
 from privaterelay.utils import get_countries_info_from_request_and_mapping, glean_logger
 
-from emails.models import (
-    DomainAddress,
-    Profile,
-    RelayAddress,
-)
-
 from ..authentication import get_fxa_uid_from_oauth_token
 from ..exceptions import RelayAPIException
-from ..permissions import IsOwner, CanManageFlags
+from ..permissions import CanManageFlags, IsOwner
 from ..serializers import (
     DomainAddressSerializer,
     FirstForwardedEmailSerializer,
+    FlagSerializer,
     ProfileSerializer,
     RelayAddressSerializer,
     UserSerializer,
-    FlagSerializer,
     WebcompatIssueSerializer,
 )
-
-from privaterelay.ftl_bundles import main as ftl_bundle
 
 logger = logging.getLogger("events")
 info_logger = logging.getLogger("eventsinfo")

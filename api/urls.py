@@ -9,12 +9,13 @@ from drf_spectacular.views import (
 from rest_framework import routers
 
 from privaterelay.utils import enable_if_setting
+
 from .views import (
     DomainAddressViewSet,
-    RelayAddressViewSet,
-    ProfileViewSet,
-    UserViewSet,
     FlagViewSet,
+    ProfileViewSet,
+    RelayAddressViewSet,
+    UserViewSet,
     first_forwarded_email,
     report_webcompat_issue,
     runtime_data,
@@ -93,18 +94,18 @@ urlpatterns = [
 
 if settings.PHONES_ENABLED:
     from .views.phones import (
-        outbound_call,
-        list_messages,
-        outbound_sms,
+        InboundContactViewSet,
         RealPhoneViewSet,
         RelayNumberViewSet,
-        InboundContactViewSet,
         inbound_call,
         inbound_sms,
-        vCard,
-        sms_status,
-        voice_status,
+        list_messages,
+        outbound_call,
+        outbound_sms,
         resend_welcome_sms,
+        sms_status,
+        vCard,
+        voice_status,
     )
 
 if settings.PHONES_ENABLED:

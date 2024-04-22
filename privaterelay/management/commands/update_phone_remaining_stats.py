@@ -1,10 +1,9 @@
-from datetime import datetime, timedelta, timezone
+import logging
+from datetime import UTC, datetime, timedelta
 
 from django.conf import settings
-from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
-
-import logging
+from django.core.management.base import BaseCommand
 
 from emails.models import Profile
 from privaterelay.management.utils import (
@@ -51,7 +50,7 @@ def get_next_reset_date(profile: Profile) -> datetime:
                 "date_phone_subscription_end": profile.date_phone_subscription_end,
             },
         )
-        return datetime.now(timezone.utc) - timedelta(minutes=15)
+        return datetime.now(UTC) - timedelta(minutes=15)
 
     calculated_next_reset_date = profile.date_phone_subscription_reset + timedelta(
         settings.MAX_DAYS_IN_MONTH
@@ -73,7 +72,7 @@ def update_phone_remaining_stats() -> tuple[int, int]:
         return 0, 0
 
     updated_profiles = []
-    datetime_now = datetime.now(timezone.utc)
+    datetime_now = datetime.now(UTC)
     for social_account in social_accounts_with_phones:
         profile = social_account.user.profile
         next_reset_date = get_next_reset_date(profile)
@@ -93,5 +92,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
         print(
-            f"Out of {num_profiles_w_phones} profiles, {num_profiles_updated} limits were reset"
+            f"Out of {num_profiles_w_phones} profiles,"
+            f" {num_profiles_updated} limits were reset"
         )

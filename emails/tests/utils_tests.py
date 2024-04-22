@@ -1,19 +1,22 @@
+import json
 from base64 import b64encode
 from typing import Literal
-from urllib.parse import quote_plus
-from django.test import TestCase, override_settings
 from unittest.mock import patch
-import json
+from urllib.parse import quote_plus
+
+from django.test import TestCase, override_settings
+
 import pytest
 
 from emails.utils import (
+    InvalidFromHeader,
     generate_from_header,
     get_domains_from_settings,
     get_email_domain_from_settings,
     parse_email_header,
     remove_trackers,
-    InvalidFromHeader,
 )
+
 from .models_tests import make_free_test_user, make_premium_test_user  # noqa: F401
 
 

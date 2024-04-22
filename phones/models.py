@@ -1,22 +1,23 @@
 from __future__ import annotations
-from datetime import datetime, timedelta, timezone
-from math import floor
-from collections.abc import Iterator
+
 import logging
-import phonenumbers
 import secrets
 import string
+from collections.abc import Iterator
+from datetime import UTC, datetime, timedelta
+from math import floor
 
-from django.contrib.auth.models import User
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.exceptions import BadRequest, ValidationError
-from django.db.migrations.recorder import MigrationRecorder
 from django.db import models
+from django.db.migrations.recorder import MigrationRecorder
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 from django.urls import reverse
 
+import phonenumbers
 from twilio.base.exceptions import TwilioRestException
 from twilio.rest import Client
 
@@ -40,7 +41,7 @@ def verification_code_default():
 
 
 def verification_sent_date_default():
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def get_expired_unverified_realphone_records(number):
@@ -48,7 +49,7 @@ def get_expired_unverified_realphone_records(number):
         number=number,
         verified=False,
         verification_sent_date__lt=(
-            datetime.now(timezone.utc)
+            datetime.now(UTC)
             - timedelta(0, 60 * settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE)
         ),
     )
@@ -59,7 +60,7 @@ def get_pending_unverified_realphone_records(number):
         number=number,
         verified=False,
         verification_sent_date__gt=(
-            datetime.now(timezone.utc)
+            datetime.now(UTC)
             - timedelta(0, 60 * settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE)
         ),
     )
@@ -79,7 +80,7 @@ def get_valid_realphone_verification_record(user, number, verification_code):
         number=number,
         verification_code=verification_code,
         verification_sent_date__gt=(
-            datetime.now(timezone.utc)
+            datetime.now(UTC)
             - timedelta(0, 60 * settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE)
         ),
     ).first()
@@ -177,7 +178,7 @@ class RealPhone(models.Model):
     def mark_verified(self):
         incr_if_enabled("phones_RealPhone.mark_verified")
         self.verified = True
-        self.verified_date = datetime.now(timezone.utc)
+        self.verified_date = datetime.now(UTC)
         self.save(force_update=True)
         return self
 
@@ -392,7 +393,8 @@ def send_welcome_message(user, relay_number):
     client = twilio_client()
     client.messages.create(
         body=(
-            "Welcome to Relay phone masking! 🎉 Please add your number to your contacts."
+            "Welcome to Relay phone masking!"
+            " 🎉 Please add your number to your contacts."
             " This will help you identify your Relay messages and calls."
         ),
         from_=settings.TWILIO_MAIN_NUMBER,
@@ -402,7 +404,7 @@ def send_welcome_message(user, relay_number):
 
 
 def last_inbound_date_default():
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class InboundContact(models.Model):

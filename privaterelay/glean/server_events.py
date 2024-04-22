@@ -9,10 +9,11 @@ bash .circleci/python_job.bash run build_glean
 """
 
 from __future__ import annotations
-from datetime import datetime, timezone
+
+import json
+from datetime import UTC, datetime
 from typing import Any
 from uuid import uuid4
-import json
 
 GLEAN_EVENT_MOZLOG_TYPE = "glean-server-event"
 
@@ -33,7 +34,7 @@ class EventsServerEventLogger:
         self._channel = channel
 
     def _record(self, user_agent: str, ip_address: str, event: dict[str, Any]) -> None:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         timestamp = now.isoformat()
         event["timestamp"] = int(1000.0 * now.timestamp())  # Milliseconds since epoch
         event_payload = {

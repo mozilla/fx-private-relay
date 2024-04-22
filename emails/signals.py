@@ -1,14 +1,12 @@
-from hashlib import sha256
 import logging
+from hashlib import sha256
 
 from django.contrib.auth.models import User
-
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
 from emails.models import Profile
 from emails.utils import incr_if_enabled, set_user_group
-
 
 info_logger = logging.getLogger("eventsinfo")
 

@@ -1,13 +1,12 @@
 import logging
 
-from twilio.base.instance_resource import InstanceResource
-from twilio.request_validator import RequestValidator
-from twilio.rest import Client
-
-from django.apps import apps, AppConfig
+from django.apps import AppConfig, apps
 from django.conf import settings
 from django.utils.functional import cached_property
 
+from twilio.base.instance_resource import InstanceResource
+from twilio.request_validator import RequestValidator
+from twilio.rest import Client
 
 logger = logging.getLogger("events")
 

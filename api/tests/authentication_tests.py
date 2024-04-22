@@ -1,27 +1,21 @@
 from datetime import datetime
 
-from model_bakery import baker
-import responses
-
 from django.core.cache import cache
 from django.test import RequestFactory, TestCase
 
+import responses
 from allauth.socialaccount.models import SocialAccount
-from rest_framework.exceptions import (
-    APIException,
-    AuthenticationFailed,
-    NotFound,
-)
+from model_bakery import baker
+from rest_framework.exceptions import APIException, AuthenticationFailed, NotFound
 from rest_framework.test import APIClient
 
 from ..authentication import (
+    INTROSPECT_TOKEN_URL,
     FxaTokenAuthentication,
     get_cache_key,
     get_fxa_uid_from_oauth_token,
     introspect_token,
-    INTROSPECT_TOKEN_URL,
 )
-
 
 MOCK_BASE = "api.authentication"
 

@@ -1,18 +1,18 @@
+import logging
 from collections.abc import Iterator
 from unittest.mock import patch
-import logging
 
 from django.contrib.auth.models import AbstractBaseUser, Group, User
 from django.core.cache.backends.base import BaseCache
 from django.test import RequestFactory
 
+import pytest
 from _pytest.fixtures import SubRequest
 from _pytest.logging import LogCaptureFixture
 from pytest_django.fixtures import SettingsWrapper
 from waffle.models import Flag
 from waffle.testutils import override_flag
 from waffle.utils import get_cache as get_waffle_cache
-import pytest
 
 from ..plans import get_premium_country_language_mapping
 from ..utils import (

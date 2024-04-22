@@ -1,9 +1,9 @@
 """Tests for emails.policy"""
 
-from email import message_from_string, errors
-from typing_extensions import TypedDict
+from email import errors, message_from_string
 
 import pytest
+from typing_extensions import TypedDict
 
 from emails.policy import relay_policy
 

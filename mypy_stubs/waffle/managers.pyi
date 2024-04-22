@@ -3,7 +3,9 @@
 # Can be removed once type hints ship in the release after v3.0.0
 
 from typing import TypeVar
+
 from django.db import models
+
 from waffle.models import BaseModel
 
 _BASE_T = TypeVar("_BASE_T", bound=BaseModel)

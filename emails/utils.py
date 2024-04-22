@@ -1,35 +1,35 @@
 from __future__ import annotations
+
 import base64
 import contextlib
+import json
+import logging
+import pathlib
+import re
+from collections.abc import Callable
 from email.errors import InvalidHeaderDefect
 from email.headerregistry import Address, AddressHeader
 from email.message import EmailMessage
 from email.utils import formataddr, parseaddr
 from functools import cache
-from typing import cast, Any, TypeVar, Literal
-from collections.abc import Callable
-import json
-import pathlib
-import re
-from django.template.loader import render_to_string
-from django.utils.text import Truncator
-import requests
-
-from botocore.exceptions import ClientError
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.hkdf import HKDFExpand
-from mypy_boto3_ses.type_defs import ContentTypeDef, SendRawEmailResponseTypeDef
-import jwcrypto.jwe
-import jwcrypto.jwk
-import markus
-import logging
+from typing import Any, Literal, TypeVar, cast
 from urllib.parse import quote_plus, urlparse
 
 from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.template.defaultfilters import linebreaksbr, urlize
+from django.template.loader import render_to_string
+from django.utils.text import Truncator
 
+import jwcrypto.jwe
+import jwcrypto.jwk
+import markus
+import requests
 from allauth.socialaccount.models import SocialAccount
+from botocore.exceptions import ClientError
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.hkdf import HKDFExpand
+from mypy_boto3_ses.type_defs import ContentTypeDef, SendRawEmailResponseTypeDef
 
 from privaterelay.plans import get_bundle_country_language_mapping
 from privaterelay.utils import get_countries_info_from_lang_and_mapping

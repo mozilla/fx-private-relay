@@ -10,8 +10,8 @@ Changes:
 * Simplified interfaces of Csv and Choices to our usage
 """
 
-from collections.abc import Sequence
-from typing import Any, Callable, Generic, Optional, TypeVar, Union, overload
+from collections.abc import Callable, Sequence
+from typing import Any, Generic, TypeVar, overload
 
 # Unreleased as of 3.6 - accepts a bool
 # def strtobool(value: Union[str, bool]) -> bool: ...
@@ -25,7 +25,7 @@ def config(option: str) -> str: ...
 @overload
 def config(option: str, default: str) -> str: ...
 @overload
-def config(option: str, default: _DefaultType) -> Union[str, _DefaultType]: ...
+def config(option: str, default: _DefaultType) -> str | _DefaultType: ...
 @overload
 def config(
     option: str, default: _DefaultType, cast: Callable[[_DefaultType], _CastReturnType]

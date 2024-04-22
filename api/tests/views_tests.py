@@ -1,34 +1,34 @@
-from datetime import datetime
 import logging
-from allauth.account.models import EmailAddress
-import pytest
-from model_bakery import baker
-import responses
+from datetime import datetime
 
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.cache import cache
 from django.test import RequestFactory, TestCase
-from django.utils import timezone
 from django.urls import reverse
-from rest_framework.test import APIClient
+from django.utils import timezone
 
+import pytest
+import responses
+from allauth.account.models import EmailAddress
 from allauth.socialaccount.models import SocialAccount, SocialApp
+from model_bakery import baker
 from pytest_django.fixtures import SettingsWrapper
+from rest_framework.test import APIClient
 from waffle.testutils import override_flag
 
-from api.authentication import get_cache_key, INTROSPECT_TOKEN_URL
+from api.authentication import INTROSPECT_TOKEN_URL, get_cache_key
 from api.tests.authentication_tests import (
     _setup_fxa_response,
     _setup_fxa_response_no_json,
 )
 from api.views import FXA_PROFILE_URL
-from emails.models import Profile, RelayAddress, DomainAddress
+from emails.models import DomainAddress, Profile, RelayAddress
 from emails.tests.models_tests import make_free_test_user, make_premium_test_user
 from privaterelay.tests.utils import (
     create_expected_glean_event,
-    log_extra,
     get_glean_event,
+    log_extra,
 )
 
 

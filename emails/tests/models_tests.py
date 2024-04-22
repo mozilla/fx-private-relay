@@ -1,39 +1,38 @@
-from datetime import datetime, timedelta, timezone
-from hashlib import sha256
 import random
+from datetime import UTC, datetime, timedelta
+from hashlib import sha256
 from unittest import skip
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.test import override_settings, TestCase
+from django.test import TestCase, override_settings
 
-from allauth.socialaccount.models import SocialAccount
-from waffle.testutils import override_flag
 import pytest
-
+from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
+from waffle.testutils import override_flag
 
 from ..models import (
     AbuseMetrics,
-    address_hash,
     CannotMakeAddressException,
     CannotMakeSubdomainException,
     DeletedAddress,
-    DomainAddress,
     DomainAddrDuplicateException,
+    DomainAddress,
     DomainAddrUnavailableException,
+    Profile,
+    RegisteredSubdomain,
+    RelayAddress,
+    address_hash,
     get_domain_numerical,
     has_bad_words,
     hash_subdomain,
     is_blocklisted,
-    Profile,
-    RegisteredSubdomain,
-    RelayAddress,
-    valid_available_subdomain,
     valid_address,
     valid_address_pattern,
+    valid_available_subdomain,
 )
 from ..utils import get_domains_from_settings
 
@@ -61,7 +60,7 @@ def make_free_test_user(email: str = "") -> User:
 def make_premium_test_user() -> User:
     premium_user = baker.make(User, email="premium@email.com")
     premium_user.profile.server_storage = True
-    premium_user.profile.date_subscribed = datetime.now(tz=timezone.utc)
+    premium_user.profile.date_subscribed = datetime.now(tz=UTC)
     premium_user.profile.save()
     upgrade_test_user_to_premium(premium_user)
     return premium_user
@@ -72,7 +71,7 @@ def make_storageless_test_user() -> User:
     storageless_user_profile = storageless_user.profile
     storageless_user_profile.server_storage = False
     storageless_user_profile.subdomain = "mydomain"
-    storageless_user_profile.date_subscribed = datetime.now(tz=timezone.utc)
+    storageless_user_profile.date_subscribed = datetime.now(tz=UTC)
     storageless_user_profile.save()
     upgrade_test_user_to_premium(storageless_user)
     return storageless_user
@@ -451,7 +450,7 @@ class RelayAddressTest(TestCase):
         assert relay_address.used_on == "https://example.com"
 
         # Update a different field with update_fields to avoid full model save
-        new_last_used_at = datetime(2024, 1, 11, tzinfo=timezone.utc)
+        new_last_used_at = datetime(2024, 1, 11, tzinfo=UTC)
         relay_address.last_used_at = new_last_used_at
         relay_address.save(update_fields={"last_used_at"})
 
@@ -475,7 +474,7 @@ class RelayAddressTest(TestCase):
         assert relay_address.block_list_emails
 
         # Update a different field with update_fields to avoid full model save
-        new_last_used_at = datetime(2024, 1, 12, tzinfo=timezone.utc)
+        new_last_used_at = datetime(2024, 1, 12, tzinfo=UTC)
         relay_address.last_used_at = new_last_used_at
         relay_address.save(update_fields={"last_used_at"})
 
@@ -544,7 +543,7 @@ class ProfileBounceTestCase(ProfileTestCase):
         This happens when the user's email server reports a hard bounce, such as
         saying the email does not exist.
         """
-        self.profile.last_hard_bounce = datetime.now(timezone.utc) - timedelta(
+        self.profile.last_hard_bounce = datetime.now(UTC) - timedelta(
             days=settings.HARD_BOUNCE_ALLOWED_DAYS - 1
         )
         self.profile.save()
@@ -557,7 +556,7 @@ class ProfileBounceTestCase(ProfileTestCase):
         This happens when the user's email server reports a soft bounce, such as
         saying the user's mailbox is full.
         """
-        self.profile.last_soft_bounce = datetime.now(timezone.utc) - timedelta(
+        self.profile.last_soft_bounce = datetime.now(UTC) - timedelta(
             days=settings.SOFT_BOUNCE_ALLOWED_DAYS - 1
         )
         self.profile.save()
@@ -593,7 +592,7 @@ class ProfileCheckBouncePause(ProfileBounceTestCase):
         assert bounce_type == "hard"
 
     def test_hard_bounce_over_resets_timer(self) -> None:
-        self.profile.last_hard_bounce = datetime.now(timezone.utc) - timedelta(
+        self.profile.last_hard_bounce = datetime.now(UTC) - timedelta(
             days=settings.HARD_BOUNCE_ALLOWED_DAYS + 1
         )
         self.profile.save()
@@ -606,7 +605,7 @@ class ProfileCheckBouncePause(ProfileBounceTestCase):
         assert self.profile.last_hard_bounce is None
 
     def test_soft_bounce_over_resets_timer(self) -> None:
-        self.profile.last_soft_bounce = datetime.now(timezone.utc) - timedelta(
+        self.profile.last_soft_bounce = datetime.now(UTC) - timedelta(
             days=settings.SOFT_BOUNCE_ALLOWED_DAYS + 1
         )
         self.profile.save()
@@ -623,7 +622,7 @@ class ProfileNextEmailTryDateTest(ProfileBounceTestCase):
     """Tests for Profile.next_email_try"""
 
     def test_no_bounces_returns_today(self) -> None:
-        assert self.profile.next_email_try.date() == datetime.now(timezone.utc).date()
+        assert self.profile.next_email_try.date() == datetime.now(UTC).date()
 
     def test_hard_bounce_returns_proper_datemath(self) -> None:
         last_hard_bounce = self.set_hard_bounce()
@@ -717,7 +716,7 @@ class ProfileDatePhoneRegisteredTest(ProfileTestCase):
 
     def test_real_phone_no_relay_number_returns_verified_date(self) -> None:
         self.upgrade_to_phone()
-        datetime_now = datetime.now(timezone.utc)
+        datetime_now = datetime.now(UTC)
         RealPhone.objects.create(
             user=self.profile.user,
             number="+12223334444",
@@ -730,7 +729,7 @@ class ProfileDatePhoneRegisteredTest(ProfileTestCase):
         self,
     ) -> None:
         self.upgrade_to_phone()
-        datetime_now = datetime.now(timezone.utc)
+        datetime_now = datetime.now(UTC)
         phone_user = self.profile.user
         RealPhone.objects.create(
             user=phone_user,
@@ -745,7 +744,7 @@ class ProfileDatePhoneRegisteredTest(ProfileTestCase):
         self,
     ) -> None:
         self.upgrade_to_phone()
-        datetime_now = datetime.now(timezone.utc)
+        datetime_now = datetime.now(UTC)
         phone_user = self.profile.user
         real_phone = RealPhone.objects.create(
             user=phone_user,
@@ -879,7 +878,7 @@ class ProfileSaveTest(ProfileTestCase):
         assert self.profile.subdomain == "mIxEdcAsE"
 
         # Update a different field with update_fields to avoid a full model save
-        new_date_subscribed = datetime(2023, 3, 3, tzinfo=timezone.utc)
+        new_date_subscribed = datetime(2023, 3, 3, tzinfo=UTC)
         self.profile.date_subscribed = new_date_subscribed
         self.profile.save(update_fields={"date_subscribed"})
 
@@ -1190,9 +1189,9 @@ class ProfileUpdateAbuseMetricTest(ProfileTestCase):
         mocked_datetime = patcher.start()
         self.addCleanup(patcher.stop)
 
-        self.expected_now = datetime.now(timezone.utc)
+        self.expected_now = datetime.now(UTC)
         mocked_datetime.combine.return_value = datetime.combine(
-            datetime.now(timezone.utc).date(), datetime.min.time()
+            datetime.now(UTC).date(), datetime.min.time()
         )
         mocked_datetime.now.return_value = self.expected_now
         mocked_datetime.side_effect = lambda *args, **kw: datetime(*args, **kw)
@@ -1303,24 +1302,16 @@ class ProfilePlanTermTest(ProfileTestCase):
 
     def test_phone_user_1_month(self) -> None:
         self.upgrade_to_phone()
-        self.profile.date_phone_subscription_start = datetime(
-            2024, 1, 1, tzinfo=timezone.utc
-        )
+        self.profile.date_phone_subscription_start = datetime(2024, 1, 1, tzinfo=UTC)
 
-        self.profile.date_phone_subscription_end = datetime(
-            2024, 2, 1, tzinfo=timezone.utc
-        )
+        self.profile.date_phone_subscription_end = datetime(2024, 2, 1, tzinfo=UTC)
         assert self.profile.plan_term == "1_month"
 
     def test_phone_user_1_year(self) -> None:
         self.upgrade_to_phone()
-        self.profile.date_phone_subscription_start = datetime(
-            2024, 1, 1, tzinfo=timezone.utc
-        )
+        self.profile.date_phone_subscription_start = datetime(2024, 1, 1, tzinfo=UTC)
 
-        self.profile.date_phone_subscription_end = datetime(
-            2025, 1, 1, tzinfo=timezone.utc
-        )
+        self.profile.date_phone_subscription_end = datetime(2025, 1, 1, tzinfo=UTC)
         assert self.profile.plan_term == "1_year"
 
     def test_vpn_bundle_user(self) -> None:
@@ -1342,24 +1333,16 @@ class ProfileMetricsPremiumStatus(ProfileTestCase):
 
     def test_phone_user_1_month(self) -> None:
         self.upgrade_to_phone()
-        self.profile.date_phone_subscription_start = datetime(
-            2024, 1, 1, tzinfo=timezone.utc
-        )
+        self.profile.date_phone_subscription_start = datetime(2024, 1, 1, tzinfo=UTC)
 
-        self.profile.date_phone_subscription_end = datetime(
-            2024, 2, 1, tzinfo=timezone.utc
-        )
+        self.profile.date_phone_subscription_end = datetime(2024, 2, 1, tzinfo=UTC)
         assert self.profile.metrics_premium_status == "phone_1_month"
 
     def test_phone_user_1_year(self) -> None:
         self.upgrade_to_phone()
-        self.profile.date_phone_subscription_start = datetime(
-            2024, 1, 1, tzinfo=timezone.utc
-        )
+        self.profile.date_phone_subscription_start = datetime(2024, 1, 1, tzinfo=UTC)
 
-        self.profile.date_phone_subscription_end = datetime(
-            2025, 1, 1, tzinfo=timezone.utc
-        )
+        self.profile.date_phone_subscription_end = datetime(2025, 1, 1, tzinfo=UTC)
         assert self.profile.metrics_premium_status == "phone_1_year"
 
     def test_vpn_bundle_user(self) -> None:
@@ -1610,7 +1593,7 @@ class DomainAddressTest(TestCase):
         assert domain_address.used_on == "https://example.com"
 
         # Update a different field with update_fields to avoid full model save
-        new_last_used_at = datetime(2024, 1, 11, tzinfo=timezone.utc)
+        new_last_used_at = datetime(2024, 1, 11, tzinfo=UTC)
         domain_address.last_used_at = new_last_used_at
         domain_address.save(update_fields={"last_used_at"})
 
@@ -1636,7 +1619,7 @@ class DomainAddressTest(TestCase):
         assert domain_address.block_list_emails
 
         # Update a different field with update_fields to avoid full model save
-        new_last_used_at = datetime(2024, 1, 12, tzinfo=timezone.utc)
+        new_last_used_at = datetime(2024, 1, 12, tzinfo=UTC)
         assert domain_address.last_used_at != new_last_used_at
         domain_address.last_used_at = new_last_used_at
         domain_address.save(update_fields={"last_used_at"})

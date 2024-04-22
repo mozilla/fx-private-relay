@@ -3,6 +3,7 @@
 # Can be removed once type hints ship in the release after v3.0.0
 
 from typing import Any
+
 from django.core.cache.backends.base import BaseCache
 
 def get_setting(name: str, default: Any | None = None) -> Any: ...

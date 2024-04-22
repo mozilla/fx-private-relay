@@ -1,7 +1,7 @@
 from django import template
 from django.template.defaultfilters import stringfilter
 from django.utils.html import conditional_escape
-from django.utils.safestring import mark_safe, SafeString
+from django.utils.safestring import SafeString, mark_safe
 
 register = template.Library()
 
@@ -50,4 +50,4 @@ def convert_fsi_to_span(text: str | SafeString, autoescape=True) -> str | SafeSt
         )
     else:
         result = f'{pre_fsi}<span dir="auto">{middle}</span>{post_pdi}'
-    return mark_safe(result)
+    return mark_safe(result)  # noqa: S308 (use of mark_safe)

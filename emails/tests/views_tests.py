@@ -1,36 +1,28 @@
-from copy import deepcopy
-from datetime import datetime, timedelta, timezone
-from email import message_from_string
-from email.message import EmailMessage
-from typing import Any, cast
-from unittest._log import _LoggingWatcher
-from unittest.mock import patch, Mock
-from uuid import uuid4
 import glob
 import json
 import logging
 import os
 import re
+from copy import deepcopy
+from datetime import UTC, datetime, timedelta
+from email import message_from_string
+from email.message import EmailMessage
+from typing import Any, cast
+from unittest._log import _LoggingWatcher
+from unittest.mock import Mock, patch
+from uuid import uuid4
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
-from django.test import override_settings, Client, SimpleTestCase, TestCase
+from django.test import Client, SimpleTestCase, TestCase, override_settings
 
+import pytest
 from allauth.socialaccount.models import SocialAccount
 from botocore.exceptions import ClientError
 from markus.main import MetricsRecord
 from markus.testing import MetricsMock
 from model_bakery import baker
-import pytest
-
-from privaterelay.ftl_bundles import main
-from privaterelay.tests.utils import (
-    create_expected_glean_event,
-    get_glean_event,
-    log_extra,
-)
-from privaterelay.glean.server_events import GLEAN_EVENT_MOZLOG_TYPE as GLEAN_LOG
 
 from emails.models import (
     DeletedAddress,
@@ -40,15 +32,16 @@ from emails.models import (
     Reply,
     address_hash,
 )
+from emails.policy import relay_policy
 from emails.types import AWS_SNSMessageJSON, OutgoingHeaders
 from emails.utils import (
+    InvalidFromHeader,
     b64_lookup_key,
     decrypt_reply_metadata,
     derive_reply_keys,
     encrypt_reply_metadata,
     get_domains_from_settings,
     get_message_id_bytes,
-    InvalidFromHeader,
 )
 from emails.views import (
     EmailDroppedReason,
@@ -66,7 +59,13 @@ from emails.views import (
     validate_sns_arn_and_type,
     wrapped_email_test,
 )
-from emails.policy import relay_policy
+from privaterelay.ftl_bundles import main
+from privaterelay.glean.server_events import GLEAN_EVENT_MOZLOG_TYPE as GLEAN_LOG
+from privaterelay.tests.utils import (
+    create_expected_glean_event,
+    get_glean_event,
+    log_extra,
+)
 
 from .models_tests import (
     make_free_test_user,
@@ -387,7 +386,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         super().setUp()
         self.user = baker.make(User, email="user@example.com")
         self.profile = self.user.profile
-        self.profile.last_engagement = datetime.now(timezone.utc)
+        self.profile.last_engagement = datetime.now(UTC)
         self.profile.save()
         self.sa: SocialAccount = baker.make(
             SocialAccount, user=self.user, provider="fxa"
@@ -398,7 +397,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         self.premium_user = make_premium_test_user()
         self.premium_profile = Profile.objects.get(user=self.premium_user)
         self.premium_profile.subdomain = "subdomain"
-        self.premium_profile.last_engagement = datetime.now(timezone.utc)
+        self.premium_profile.last_engagement = datetime.now(UTC)
         self.premium_profile.save()
 
     def test_single_recipient_sns_notification(self) -> None:
@@ -414,7 +413,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at is not None
-        assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
+        assert (datetime.now(tz=UTC) - self.ra.last_used_at).seconds < 2.0
         self.ra.user.profile.refresh_from_db()
         assert self.ra.user.profile.last_engagement is not None
         assert (
@@ -438,7 +437,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at is not None
-        assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
+        assert (datetime.now(tz=UTC) - self.ra.last_used_at).seconds < 2.0
 
     def test_list_email_sns_notification(self) -> None:
         """By default, list emails should still forward."""
@@ -448,7 +447,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at is not None
-        assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
+        assert (datetime.now(tz=UTC) - self.ra.last_used_at).seconds < 2.0
 
     def test_block_list_email_sns_notification(self) -> None:
         """When an alias is blocking list emails, list emails should not forward."""
@@ -525,7 +524,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         da = DomainAddress.objects.get(user=self.premium_user, address="wildcard")
         assert da.num_forwarded == 1
         assert da.last_used_at
-        assert (datetime.now(tz=timezone.utc) - da.last_used_at).seconds < 2.0
+        assert (datetime.now(tz=UTC) - da.last_used_at).seconds < 2.0
 
         mask_event = get_glean_event(caplog, "email_mask", "created")
         assert mask_event is not None
@@ -562,7 +561,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at is not None
-        assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
+        assert (datetime.now(tz=UTC) - self.ra.last_used_at).seconds < 2.0
 
     def test_unsuccessful_email_relay_message_not_removed_from_s3(self) -> None:
         self.mock_send_raw_email.side_effect = SEND_RAW_EMAIL_FAILED
@@ -607,7 +606,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at
-        assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
+        assert (datetime.now(tz=UTC) - self.ra.last_used_at).seconds < 2.0
 
     def test_russian_spam(self) -> None:
         """
@@ -629,7 +628,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at
-        assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
+        assert (datetime.now(tz=UTC) - self.ra.last_used_at).seconds < 2.0
 
     @patch("emails.views.info_logger")
     def test_plain_text(self, mock_logger: Mock) -> None:
@@ -645,7 +644,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at
-        assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
+        assert (datetime.now(tz=UTC) - self.ra.last_used_at).seconds < 2.0
         mock_logger.warning.assert_not_called()
 
     @patch("emails.views.info_logger")
@@ -745,8 +744,8 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
         # Create a premium user matching the s3_stored_replies sender
         self.user = baker.make(User, email="source@sender.com")
         self.user.profile.server_storage = True
-        self.user.profile.date_subscribed = datetime.now(tz=timezone.utc)
-        self.user.profile.last_engagement = datetime.now(tz=timezone.utc)
+        self.user.profile.date_subscribed = datetime.now(tz=UTC)
+        self.user.profile.last_engagement = datetime.now(tz=UTC)
         self.user.profile.save()
         self.pre_reply_last_engagement = self.user.profile.last_engagement
         upgrade_test_user_to_premium(self.user)
@@ -803,7 +802,7 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
         assert self.relay_address.num_replied == 1
         last_used_at = self.relay_address.last_used_at
         assert last_used_at
-        assert (datetime.now(tz=timezone.utc) - last_used_at).seconds < 2.0
+        assert (datetime.now(tz=UTC) - last_used_at).seconds < 2.0
         assert (last_en := self.relay_address.user.profile.last_engagement) is not None
         assert last_en > self.pre_reply_last_engagement
 
@@ -912,7 +911,7 @@ class BounceHandlingTest(TestCase):
         )
 
     def test_sns_message_with_hard_bounce(self) -> None:
-        pre_request_datetime = datetime.now(timezone.utc)
+        pre_request_datetime = datetime.now(UTC)
 
         with self.assertLogs(INFO_LOG) as logs, MetricsMock() as mm:
             _sns_notification(BOUNCE_SNS_BODIES["hard"])
@@ -947,7 +946,7 @@ class BounceHandlingTest(TestCase):
         )
 
     def test_sns_message_with_soft_bounce(self) -> None:
-        pre_request_datetime = datetime.now(timezone.utc)
+        pre_request_datetime = datetime.now(UTC)
 
         with self.assertLogs(INFO_LOG) as logs, MetricsMock() as mm:
             _sns_notification(BOUNCE_SNS_BODIES["soft"])
@@ -1402,7 +1401,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         mm.assert_incr_once("fx.private.relay.email_auto_suppressed_for_spam")
 
     def test_user_bounce_soft_paused_email_in_s3_deleted(self) -> None:
-        self.profile.last_soft_bounce = datetime.now(timezone.utc)
+        self.profile.last_soft_bounce = datetime.now(UTC)
         self.profile.save()
 
         with self.assertLogs(INFO_LOG) as caplog, MetricsMock() as mm:
@@ -1414,7 +1413,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         mm.assert_incr_once("fx.private.relay.email_suppressed_for_soft_bounce")
 
     def test_user_bounce_hard_paused_email_in_s3_deleted(self) -> None:
-        self.profile.last_hard_bounce = datetime.now(timezone.utc)
+        self.profile.last_hard_bounce = datetime.now(UTC)
         self.profile.save()
 
         with self.assertLogs(INFO_LOG) as caplog, MetricsMock() as mm:
@@ -1444,8 +1443,8 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
 
     def test_flagged_user_email_in_s3_deleted(self) -> None:
         profile = self.address.user.profile
-        profile.last_account_flagged = datetime.now(timezone.utc)
-        profile.last_engagement = datetime.now(timezone.utc)
+        profile.last_account_flagged = datetime.now(UTC)
+        profile.last_engagement = datetime.now(UTC)
         profile.save()
         pre_flagged_last_engagement = profile.last_engagement
 
@@ -1462,7 +1461,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         self.address.enabled = False
         self.address.save()
         profile = self.address.user.profile
-        profile.last_engagement = datetime.now(timezone.utc)
+        profile.last_engagement = datetime.now(UTC)
         profile.save()
         pre_blocked_email_last_engagement = profile.last_engagement
 
@@ -1487,7 +1486,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         self.address.block_list_emails = True
         self.address.save()
         profile = self.address.user.profile
-        profile.last_engagement = datetime.now(timezone.utc)
+        profile.last_engagement = datetime.now(UTC)
         profile.save()
         pre_blocked_email_last_engagement = profile.last_engagement
         mocked_email_is_from_list.return_value = True

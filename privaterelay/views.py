@@ -1,10 +1,10 @@
-from datetime import datetime, timezone
-from functools import lru_cache
-from hashlib import sha256
-from typing import Any, Optional, TypedDict
-from collections.abc import Iterable
 import json
 import logging
+from collections.abc import Iterable
+from datetime import UTC, datetime
+from functools import cache
+from hashlib import sha256
+from typing import Any, TypedDict
 
 from django.apps import apps
 from django.conf import settings
@@ -14,18 +14,17 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from rest_framework.decorators import api_view, schema
 
+import jwt
+import sentry_sdk
 from allauth.socialaccount.models import SocialAccount, SocialApp
 from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 from google_measurement_protocol import event, report
 from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error
-import jwt
-import sentry_sdk
+from rest_framework.decorators import api_view, schema
 
 # from silk.profiling.profiler import silk_profile
-
 from emails.models import (
     CannotMakeSubdomainException,
     DomainAddress,
@@ -35,8 +34,7 @@ from emails.models import (
 from emails.utils import incr_if_enabled
 
 from .apps import PrivateRelayConfig
-from .fxa_utils import _get_oauth2_session, NoSocialToken
-
+from .fxa_utils import NoSocialToken, _get_oauth2_session
 
 FXA_PROFILE_CHANGE_EVENT = "https://schemas.accounts.firefox.com/event/profile-change"
 FXA_SUBSCRIPTION_CHANGE_EVENT = (
@@ -49,7 +47,7 @@ logger = logging.getLogger("events")
 info_logger = logging.getLogger("eventsinfo")
 
 
-@lru_cache(maxsize=None)
+@cache
 def _get_fxa(request):
     return request.user.socialaccount_set.filter(provider="fxa").first()
 
@@ -227,7 +225,7 @@ def _verify_jwt_with_fxa_key(
                 iat = claims.get("iat")
                 iat_age = None
                 if iat:
-                    iat_age = round(datetime.now(tz=timezone.utc).timestamp() - iat, 3)
+                    iat_age = round(datetime.now(tz=UTC).timestamp() - iat, 3)
                 info_logger.warning(
                     "fxa_rp_event.future_iat", extra={"iat": iat, "iat_age_s": iat_age}
                 )
@@ -307,7 +305,7 @@ def _update_all_data(
             no_longer_premium = had_premium and not now_has_premium
             if newly_premium:
                 incr_if_enabled("user_purchased_premium", 1)
-                profile.date_subscribed = datetime.now(timezone.utc)
+                profile.date_subscribed = datetime.now(UTC)
                 profile.save()
             if no_longer_premium:
                 incr_if_enabled("user_has_downgraded", 1)
@@ -316,8 +314,8 @@ def _update_all_data(
             no_longer_phone = had_phone and not now_has_phone
             if newly_phone:
                 incr_if_enabled("user_purchased_phone", 1)
-                profile.date_subscribed_phone = datetime.now(timezone.utc)
-                profile.date_phone_subscription_reset = datetime.now(timezone.utc)
+                profile.date_subscribed_phone = datetime.now(UTC)
+                profile.date_phone_subscription_reset = datetime.now(UTC)
                 profile.save()
             if no_longer_phone:
                 incr_if_enabled("user_has_dropped_phone", 1)

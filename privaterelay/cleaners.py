@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 Counts = dict[str, dict[str, int]]
 CleanupData = dict[str, Any]

@@ -1,15 +1,13 @@
 import logging
 
-from mypy_boto3_ses.type_defs import ContentTypeDef
-
-from botocore.exceptions import ClientError
-
 from django.apps import apps
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from allauth.socialaccount.models import SocialAccount
 import django_ftl
+from allauth.socialaccount.models import SocialAccount
+from botocore.exceptions import ClientError
+from mypy_boto3_ses.type_defs import ContentTypeDef
 
 from emails.apps import EmailsConfig
 from emails.models import Profile
