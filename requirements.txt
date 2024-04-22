@@ -9,7 +9,7 @@ django-csp==3.8
 django-debug-toolbar==4.3.0
 django-filter==24.2
 django-ipware==6.0.5
-python-ipware==2.0.3  # 2.0.4, 2.0.5 break tests
+python-ipware==3.0.0  # 2.0.4, 2.0.5 break tests
 django-redis==5.4.0
 django-ftl==0.14
 django-referrer-policy==1.0
