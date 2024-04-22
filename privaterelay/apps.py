@@ -1,14 +1,14 @@
 import base64
 import json
+import os
 from pathlib import Path
 from typing import Any
-import requests
-import os
 
 from django.apps import AppConfig
 from django.conf import settings
 from django.utils.functional import cached_property
 
+import requests
 
 ROOT_DIR = os.path.abspath(os.curdir)
 
@@ -31,7 +31,9 @@ def get_profiler_startup_data() -> tuple[str | None, str | None]:
 
 
 def write_gcp_key_json_file(gcp_key_json_path: Path) -> None:
-    # create the gcp key json file from contents of GOOGLE_CLOUD_PROFILER_CREDENTIALS_B64
+    """
+    Create the gcp key json file from contents of GOOGLE_CLOUD_PROFILER_CREDENTIALS_B64
+    """
     google_app_creds = base64.b64decode(settings.GOOGLE_CLOUD_PROFILER_CREDENTIALS_B64)
     if not google_app_creds == b"":
         with open(gcp_key_json_path, "w+") as gcp_key_file:
@@ -48,7 +50,7 @@ class PrivateRelayConfig(AppConfig):
         ):
             # Set up Google Cloud Profiler
             service, version = get_profiler_startup_data()
-            if service != None:
+            if service is not None:
                 gcp_key_json_path = Path(settings.GOOGLE_APPLICATION_CREDENTIALS)
                 if not gcp_key_json_path.exists():
                     write_gcp_key_json_file(gcp_key_json_path)

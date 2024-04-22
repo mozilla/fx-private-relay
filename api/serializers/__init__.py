@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.db.models import prefetch_related_objects
 
-from rest_framework import serializers, exceptions
+from rest_framework import exceptions, serializers
 from waffle import get_waffle_flag_model
 
 from emails.models import DomainAddress, Profile, RelayAddress
@@ -130,16 +130,16 @@ class StrictReadOnlyFieldsMixin:
             return attrs
 
         # Getting the declared read only fields and read only fields from Meta
-        read_only_fields = set(
+        read_only_fields = {
             field_name for field_name, field in self.fields.items() if field.read_only
-        ).union(set(getattr(self.Meta, "read_only_fields", set())))
+        }.union(set(getattr(self.Meta, "read_only_fields", set())))
 
         # Getting implicit read only fields that are in the Profile model, but were not
         # defined in the serializer.  By default, they won't update if put in the body
         # of a request, but they still give a 200 response (which we don't want).
-        implicit_read_only_fields = set(
+        implicit_read_only_fields = {
             field for field in vars(self.Meta.model) if field not in self.fields
-        )
+        }
 
         received_read_only_fields = set(self.initial_data).intersection(
             read_only_fields.union(implicit_read_only_fields)

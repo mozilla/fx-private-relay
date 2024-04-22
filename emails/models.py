@@ -1,22 +1,26 @@
 from __future__ import annotations
-from collections import namedtuple
-from datetime import datetime, timedelta, timezone
-from hashlib import sha256
-from typing import Iterable, Literal
+
 import logging
 import random
 import re
 import string
 import uuid
+from collections import namedtuple
+from collections.abc import Iterable
+from datetime import UTC, datetime, timedelta
+from hashlib import sha256
+from typing import Literal, cast
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import BadRequest
 from django.core.validators import MinLengthValidator
 from django.db import models, transaction
+from django.db.models.query import QuerySet
 from django.dispatch import receiver
 from django.utils.translation.trans_real import (
-    parse_accept_lang_header,
     get_supported_language_variant,
+    parse_accept_lang_header,
 )
 
 from allauth.socialaccount.models import SocialAccount
@@ -210,11 +214,11 @@ class Profile(models.Model):
         return None
 
     @property
-    def relay_addresses(self):
+    def relay_addresses(self) -> QuerySet[RelayAddress]:
         return RelayAddress.objects.filter(user=self.user)
 
     @property
-    def domain_addresses(self):
+    def domain_addresses(self) -> QuerySet[DomainAddress]:
         return DomainAddress.objects.filter(user=self.user)
 
     @property
@@ -230,9 +234,9 @@ class Profile(models.Model):
         ra_count: int = self.relay_addresses.count()
         return ra_count >= settings.MAX_NUM_FREE_ALIASES
 
-    def check_bounce_pause(self):
+    def check_bounce_pause(self) -> BounceStatus:
         if self.last_hard_bounce:
-            last_hard_bounce_allowed = datetime.now(timezone.utc) - timedelta(
+            last_hard_bounce_allowed = datetime.now(UTC) - timedelta(
                 days=settings.HARD_BOUNCE_ALLOWED_DAYS
             )
             if self.last_hard_bounce > last_hard_bounce_allowed:
@@ -240,7 +244,7 @@ class Profile(models.Model):
             self.last_hard_bounce = None
             self.save()
         if self.last_soft_bounce:
-            last_soft_bounce_allowed = datetime.now(timezone.utc) - timedelta(
+            last_soft_bounce_allowed = datetime.now(UTC) - timedelta(
                 days=settings.SOFT_BOUNCE_ALLOWED_DAYS
             )
             if self.last_soft_bounce > last_soft_bounce_allowed:
@@ -250,15 +254,15 @@ class Profile(models.Model):
         return BounceStatus(False, "")
 
     @property
-    def bounce_status(self):
+    def bounce_status(self) -> BounceStatus:
         return self.check_bounce_pause()
 
     @property
-    def next_email_try(self):
+    def next_email_try(self) -> datetime:
         bounce_pause, bounce_type = self.check_bounce_pause()
 
         if not bounce_pause:
-            return datetime.now(timezone.utc)
+            return datetime.now(UTC)
 
         if bounce_type == "soft":
             assert self.last_soft_bounce
@@ -339,7 +343,7 @@ class Profile(models.Model):
         return False
 
     @property
-    def has_vpn(self):
+    def has_vpn(self) -> bool:
         if not self.fxa:
             return False
         user_subscriptions = self.fxa.extra_data.get("subscriptions", [])
@@ -349,7 +353,7 @@ class Profile(models.Model):
         return False
 
     @property
-    def emails_forwarded(self):
+    def emails_forwarded(self) -> int:
         return (
             sum(ra.num_forwarded for ra in self.relay_addresses)
             + sum(da.num_forwarded for da in self.domain_addresses)
@@ -357,7 +361,7 @@ class Profile(models.Model):
         )
 
     @property
-    def emails_blocked(self):
+    def emails_blocked(self) -> int:
         return (
             sum(ra.num_blocked for ra in self.relay_addresses)
             + sum(da.num_blocked for da in self.domain_addresses)
@@ -365,21 +369,17 @@ class Profile(models.Model):
         )
 
     @property
-    def emails_replied(self):
-        # Once Django is on version 4.0 and above, we can set the default=0
-        # and return a int instead of None
-        # https://docs.djangoproject.com/en/4.0/ref/models/querysets/#default
-        totals = [self.relay_addresses.aggregate(models.Sum("num_replied"))]
-        totals.append(self.domain_addresses.aggregate(models.Sum("num_replied")))
-        total_num_replied = 0
-        for num in totals:
-            total_num_replied += (
-                num.get("num_replied__sum") if num.get("num_replied__sum") else 0
-            )
-        return total_num_replied + self.num_email_replied_in_deleted_address
+    def emails_replied(self) -> int:
+        ra_sum = self.relay_addresses.aggregate(models.Sum("num_replied", default=0))
+        da_sum = self.domain_addresses.aggregate(models.Sum("num_replied", default=0))
+        return (
+            int(ra_sum["num_replied__sum"])
+            + int(da_sum["num_replied__sum"])
+            + self.num_email_replied_in_deleted_address
+        )
 
     @property
-    def level_one_trackers_blocked(self):
+    def level_one_trackers_blocked(self) -> int:
         return (
             sum(ra.num_level_one_trackers_blocked or 0 for ra in self.relay_addresses)
             + sum(
@@ -444,8 +444,8 @@ class Profile(models.Model):
 
         # look for abuse metrics created on the same UTC date, regardless of time.
         midnight_utc_today = datetime.combine(
-            datetime.now(timezone.utc).date(), datetime.min.time()
-        ).astimezone(timezone.utc)
+            datetime.now(UTC).date(), datetime.min.time()
+        ).astimezone(UTC)
         midnight_utc_tomorow = midnight_utc_today + timedelta(days=1)
         abuse_metric = self.user.abusemetrics_set.filter(
             first_recorded__gte=midnight_utc_today,
@@ -464,7 +464,7 @@ class Profile(models.Model):
             abuse_metric.num_email_forwarded_per_day += 1
         if forwarded_email_size > 0:
             abuse_metric.forwarded_email_size_per_day += forwarded_email_size
-        abuse_metric.last_recorded = datetime.now(timezone.utc)
+        abuse_metric.last_recorded = datetime.now(UTC)
         abuse_metric.save()
 
         # check user should be flagged for abuse
@@ -493,7 +493,7 @@ class Profile(models.Model):
             or hit_max_forwarded
             or hit_max_forwarded_email_size
         ):
-            self.last_account_flagged = datetime.now(timezone.utc)
+            self.last_account_flagged = datetime.now(UTC)
             self.save()
             data = {
                 "uid": self.fxa.uid if self.fxa else None,
@@ -514,7 +514,7 @@ class Profile(models.Model):
         account_premium_feature_resumed = self.last_account_flagged + timedelta(
             days=settings.PREMIUM_FEATURE_PAUSED_DAYS
         )
-        if datetime.now(timezone.utc) > account_premium_feature_resumed:
+        if datetime.now(UTC) > account_premium_feature_resumed:
             # premium feature has been resumed
             return False
         # user was flagged and the premium feature pause period is not yet over
@@ -584,14 +584,18 @@ def address_hash(address, subdomain=None, domain=None):
     if not domain:
         domain = get_domains_from_settings()["MOZMAIL_DOMAIN"]
     if subdomain:
-        return sha256(f"{address}@{subdomain}.{domain}".encode("utf-8")).hexdigest()
+        return sha256(f"{address}@{subdomain}.{domain}".encode()).hexdigest()
     if domain == settings.RELAY_FIREFOX_DOMAIN:
-        return sha256(f"{address}".encode("utf-8")).hexdigest()
-    return sha256(f"{address}@{domain}".encode("utf-8")).hexdigest()
+        return sha256(f"{address}".encode()).hexdigest()
+    return sha256(f"{address}@{domain}".encode()).hexdigest()
 
 
 def address_default():
-    return "".join(random.choices(string.ascii_lowercase + string.digits, k=9))
+    return "".join(
+        random.choices(  # noqa: S311 (standard pseudo-random generator used)
+            string.ascii_lowercase + string.digits, k=9
+        )
+    )
 
 
 def has_bad_words(value) -> bool:
@@ -622,7 +626,7 @@ def get_domain_numerical(domain_address):
 
 
 def hash_subdomain(subdomain, domain=settings.MOZMAIL_DOMAIN):
-    return sha256(f"{subdomain}.{domain}".encode("utf-8")).hexdigest()
+    return sha256(f"{subdomain}.{domain}".encode()).hexdigest()
 
 
 class RegisteredSubdomain(models.Model):
@@ -771,7 +775,7 @@ class RelayAddress(models.Model):
         )
         deleted_address.save()
         profile = Profile.objects.get(user=self.user)
-        profile.address_last_deleted = datetime.now(timezone.utc)
+        profile.address_last_deleted = datetime.now(UTC)
         profile.num_address_deleted += 1
         profile.num_email_forwarded_in_deleted_address += self.num_forwarded
         profile.num_email_blocked_in_deleted_address += self.num_blocked
@@ -781,9 +785,9 @@ class RelayAddress(models.Model):
         profile.num_email_replied_in_deleted_address += self.num_replied
         profile.num_email_spam_in_deleted_address += self.num_spam
         profile.num_deleted_relay_addresses += 1
-        profile.last_engagement = datetime.now(timezone.utc)
+        profile.last_engagement = datetime.now(UTC)
         profile.save()
-        return super(RelayAddress, self).delete(*args, **kwargs)
+        return super().delete(*args, **kwargs)
 
     def save(
         self,
@@ -803,7 +807,7 @@ class RelayAddress(models.Model):
                         break
                     self.address = address_default()
                 locked_profile.update_abuse_metric(address_created=True)
-                locked_profile.last_engagement = datetime.now(timezone.utc)
+                locked_profile.last_engagement = datetime.now(UTC)
                 locked_profile.save()
         if (not self.user.profile.server_storage) and any(
             (self.description, self.generated_for, self.used_on)
@@ -827,12 +831,15 @@ class RelayAddress(models.Model):
         )
 
     @property
-    def domain_value(self):
-        return get_domains_from_settings().get(self.get_domain_display())
+    def domain_value(self) -> str:
+        domain = cast(
+            Literal["RELAY_FIREFOX_DOMAIN", "MOZMAIL_DOMAIN"], self.get_domain_display()
+        )
+        return get_domains_from_settings()[domain]
 
     @property
-    def full_address(self):
-        return "%s@%s" % (self.address, self.domain_value)
+    def full_address(self) -> str:
+        return f"{self.address}@{self.domain_value}"
 
     @property
     def metrics_id(self) -> str:
@@ -950,7 +957,7 @@ class DomainAddress(models.Model):
                 raise DomainAddrDuplicateException(duplicate_address=self.address)
 
             user_profile.update_abuse_metric(address_created=True)
-            user_profile.last_engagement = datetime.now(timezone.utc)
+            user_profile.last_engagement = datetime.now(UTC)
             user_profile.save(update_fields=["last_engagement"])
             incr_if_enabled("domainaddress.create")
             if self.first_emailed_at:
@@ -984,7 +991,7 @@ class DomainAddress(models.Model):
     @staticmethod
     def make_domain_address(
         user_profile: Profile, address: str | None = None, made_via_email: bool = False
-    ) -> "DomainAddress":
+    ) -> DomainAddress:
         check_user_can_make_domain_address(user_profile)
 
         if not address:
@@ -996,7 +1003,7 @@ class DomainAddress(models.Model):
             # Only check for bad words if randomly generated
         assert isinstance(address, str)
 
-        first_emailed_at = datetime.now(timezone.utc) if made_via_email else None
+        first_emailed_at = datetime.now(UTC) if made_via_email else None
         domain_address = DomainAddress.objects.create(
             user=user_profile.user, address=address, first_emailed_at=first_emailed_at
         )
@@ -1017,7 +1024,7 @@ class DomainAddress(models.Model):
         # self.user_profile is a property and should not be used to
         # update values on the user's profile
         profile = Profile.objects.get(user=self.user)
-        profile.address_last_deleted = datetime.now(timezone.utc)
+        profile.address_last_deleted = datetime.now(UTC)
         profile.num_address_deleted += 1
         profile.num_email_forwarded_in_deleted_address += self.num_forwarded
         profile.num_email_blocked_in_deleted_address += self.num_blocked
@@ -1027,21 +1034,20 @@ class DomainAddress(models.Model):
         profile.num_email_replied_in_deleted_address += self.num_replied
         profile.num_email_spam_in_deleted_address += self.num_spam
         profile.num_deleted_domain_addresses += 1
-        profile.last_engagement = datetime.now(timezone.utc)
+        profile.last_engagement = datetime.now(UTC)
         profile.save()
-        return super(DomainAddress, self).delete(*args, **kwargs)
+        return super().delete(*args, **kwargs)
 
     @property
-    def domain_value(self):
-        return get_domains_from_settings().get(self.get_domain_display())
-
-    @property
-    def full_address(self):
-        return "%s@%s.%s" % (
-            self.address,
-            self.user_profile.subdomain,
-            self.domain_value,
+    def domain_value(self) -> str:
+        domain = cast(
+            Literal["RELAY_FIREFOX_DOMAIN", "MOZMAIL_DOMAIN"], self.get_domain_display()
         )
+        return get_domains_from_settings()[domain]
+
+    @property
+    def full_address(self) -> str:
+        return f"{self.address}@{self.user_profile.subdomain}.{self.domain_value}"
 
     @property
     def metrics_id(self) -> str:
@@ -1078,7 +1084,7 @@ class Reply(models.Model):
         address = self.relay_address or self.domain_address
         assert address
         address.num_replied += 1
-        address.last_used_at = datetime.now(timezone.utc)
+        address.last_used_at = datetime.now(UTC)
         address.save(update_fields=["num_replied", "last_used_at"])
         return address.num_replied
 

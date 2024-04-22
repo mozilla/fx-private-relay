@@ -78,3 +78,9 @@ This is because playwright needs to create an image initially. On the following 
 To lint the files, run the following in the root directory (it is recommended to run this after any changes to the test suite):
 
 `npx prettier --write e2e-tests/*`
+
+### 9. Health check
+
+Our ![health check](https://github.com/mozilla/fx-private-relay/actions/workflows/relay_e2e_health.yml) runs a subset of the entire e2e test suite. This subset of tests focuses on critical tests for free and premium users for the overall health of the relay application. To add a test into the healthcheck CI, add `@health_check` into the title of your test or test group. See the following as an example,
+
+`test.describe("Subscription flows @health_check", ...)`

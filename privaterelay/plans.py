@@ -62,7 +62,7 @@ on first use to create the PlanCountryLangMapping, and served from cache on late
 
 from copy import deepcopy
 from functools import lru_cache
-from typing import get_args, Literal, TypedDict
+from typing import Literal, TypedDict, get_args
 
 from django.conf import settings
 
@@ -140,16 +140,15 @@ relay_countries = set(get_args(CountryStr))
 # Periodic subscription categories
 PeriodStr = Literal["monthly", "yearly"]
 
+
 # A Stripe Price, along with key details for Relay website
 # https://stripe.com/docs/api/prices/object
-StripePriceDef = TypedDict(
-    "StripePriceDef",
-    {
-        "id": str,  # Must start with "price_"
-        "price": float,
-        "currency": CurrencyStr,
-    },
-)
+class StripePriceDef(TypedDict):
+    id: str  # Must start with "price_"
+    price: float
+    currency: CurrencyStr
+
+
 PricesForPeriodDict = dict[PeriodStr, StripePriceDef]
 LanguageOrAny = LanguageStr | Literal["*"]
 PricePeriodsForLanguageDict = dict[LanguageOrAny, PricesForPeriodDict]
@@ -196,52 +195,46 @@ _RegionalLanguageStr = Literal[
 # Stripe plans are associated with a country or country-language pair
 _CountryOrRegion = CountryStr | _RegionalLanguageStr
 
+
 # Types for _STRIPE_PLAN_DATA
-_StripeMonthlyPriceDetails = TypedDict(
-    "_StripeMonthlyPriceDetails", {"monthly": float, "monthly_when_yearly": float}
-)
-_StripeMonthlyCountryDetails = TypedDict(
-    "_StripeMonthlyCountryDetails",
-    {
-        "currency": CurrencyStr,
-        "monthly_id": str,
-        "yearly_id": str,
-    },
-)
-_StripeMonthlyPlanDetails = TypedDict(
-    "_StripeMonthlyPlanDetails",
-    {
-        "periods": Literal["monthly_and_yearly"],
-        "prices": dict[CurrencyStr, _StripeMonthlyPriceDetails],
-        "countries_and_regions": dict[_CountryOrRegion, _StripeMonthlyCountryDetails],
-    },
-)
-_StripeYearlyPriceDetails = TypedDict(
-    "_StripeYearlyPriceDetails", {"monthly_when_yearly": float}
-)
-_StripeYearlyCountryDetails = TypedDict(
-    "_StripeYearlyCountryDetails",
-    {
-        "currency": CurrencyStr,
-        "yearly_id": str,
-    },
-)
-_StripeYearlyPlanDetails = TypedDict(
-    "_StripeYearlyPlanDetails",
-    {
-        "periods": Literal["yearly"],
-        "prices": dict[CurrencyStr, _StripeYearlyPriceDetails],
-        "countries_and_regions": dict[_CountryOrRegion, _StripeYearlyCountryDetails],
-    },
-)
-_StripePlanData = TypedDict(
-    "_StripePlanData",
-    {
-        "premium": _StripeMonthlyPlanDetails,
-        "phones": _StripeMonthlyPlanDetails,
-        "bundle": _StripeYearlyPlanDetails,
-    },
-)
+class _StripeMonthlyPriceDetails(TypedDict):
+    monthly: float
+    monthly_when_yearly: float
+
+
+class _StripeMonthlyCountryDetails(TypedDict):
+    currency: CurrencyStr
+    monthly_id: str
+    yearly_id: str
+
+
+class _StripeMonthlyPlanDetails(TypedDict):
+    periods: Literal["monthly_and_yearly"]
+    prices: dict[CurrencyStr, _StripeMonthlyPriceDetails]
+    countries_and_regions: dict[_CountryOrRegion, _StripeMonthlyCountryDetails]
+
+
+class _StripeYearlyPriceDetails(TypedDict):
+    monthly_when_yearly: float
+
+
+class _StripeYearlyCountryDetails(TypedDict):
+    currency: CurrencyStr
+    yearly_id: str
+
+
+class _StripeYearlyPlanDetails(TypedDict):
+    periods: Literal["yearly"]
+    prices: dict[CurrencyStr, _StripeYearlyPriceDetails]
+    countries_and_regions: dict[_CountryOrRegion, _StripeYearlyCountryDetails]
+
+
+class _StripePlanData(TypedDict):
+    premium: _StripeMonthlyPlanDetails
+    phones: _StripeMonthlyPlanDetails
+    bundle: _StripeYearlyPlanDetails
+
+
 _StripePlanDetails = _StripeMonthlyPlanDetails | _StripeYearlyPlanDetails
 
 # Selected Stripe data
@@ -441,15 +434,14 @@ _STRIPE_PLAN_DATA: _StripePlanData = {
 
 # Private types for _RELAY_PLANS
 _RelayPlanCategory = Literal["premium", "phones", "bundle"]
-_RelayPlansByType = TypedDict(
-    "_RelayPlansByType",
-    {
-        "by_country_and_lang": dict[CountryStr, dict[LanguageStr, _CountryOrRegion]],
-        "by_country_override": dict[CountryStr, CountryStr],
-        "by_country": list[CountryStr],
-    },
-    total=False,
-)
+
+
+class _RelayPlansByType(TypedDict, total=False):
+    by_country_and_lang: dict[CountryStr, dict[LanguageStr, _CountryOrRegion]]
+    by_country_override: dict[CountryStr, CountryStr]
+    by_country: list[CountryStr]
+
+
 _RelayPlans = dict[_RelayPlanCategory, _RelayPlansByType]
 
 

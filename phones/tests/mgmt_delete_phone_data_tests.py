@@ -1,18 +1,18 @@
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 from io import StringIO
 from unittest.mock import patch
 
-from django.contrib.auth.models import User
-from django.core.management import call_command, CommandError
 from django.conf import settings
+from django.contrib.auth.models import User
+from django.core.management import CommandError, call_command
 
+import pytest
 from model_bakery import baker
 from pytest_django.fixtures import SettingsWrapper
-import pytest
 
 if settings.PHONES_ENABLED:
-    from .models_tests import make_phone_test_user
     from ..models import InboundContact, RealPhone, RelayNumber
+    from .models_tests import make_phone_test_user
 
 pytestmark = pytest.mark.skipif(
     not settings.PHONES_ENABLED, reason="PHONES_ENABLED is False"
@@ -31,7 +31,7 @@ def test_settings(settings: SettingsWrapper) -> SettingsWrapper:
 def phone_user(db: None, test_settings: SettingsWrapper) -> User:
     """Return a Relay user with phone setup and phone usage."""
     # Create the user
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     phone_user = make_phone_test_user()
     phone_user.profile.date_subscribed = now - timedelta(days=15)
     phone_user.profile.save()

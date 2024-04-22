@@ -1,16 +1,17 @@
-from datetime import datetime, timezone
-from typing import Any, Generator, TYPE_CHECKING
-from unittest.mock import patch, Mock
-from uuid import uuid4
 import json
-
-from botocore.exceptions import ClientError
-from markus.testing import MetricsMock
-import pytest
-import OpenSSL
+from collections.abc import Generator
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any
+from unittest.mock import Mock, patch
+from uuid import uuid4
 
 from django.core.management import call_command
 from django.core.management.base import CommandError
+
+import OpenSSL
+import pytest
+from botocore.exceptions import ClientError
+from markus.testing import MetricsMock
 
 from emails.tests.views_tests import EMAIL_SNS_BODIES
 from privaterelay.tests.utils import log_extra
@@ -375,7 +376,7 @@ def test_writes_healthcheck_file(test_settings):
     """Running the command writes to the healthcheck file."""
     call_command("process_emails_from_sqs")
     healthcheck_path = test_settings.PROCESS_EMAIL_HEALTHCHECK_PATH
-    with open(healthcheck_path, "r", encoding="utf-8") as healthcheck_file:
+    with open(healthcheck_path, encoding="utf-8") as healthcheck_file:
         content = json.load(healthcheck_file)
     assert content == {
         "timestamp": content["timestamp"],
@@ -388,7 +389,7 @@ def test_writes_healthcheck_file(test_settings):
         "queue_count_not_visible": 3,
     }
     ts = datetime.fromisoformat(content["timestamp"])
-    duration = (datetime.now(tz=timezone.utc) - ts).total_seconds()
+    duration = (datetime.now(tz=UTC) - ts).total_seconds()
     assert 0.0 < duration < 0.5
 
 

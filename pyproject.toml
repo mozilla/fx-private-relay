@@ -1,7 +1,13 @@
+[project]
+requires-python = ">= 3.11"
+
+[tool.django-stubs]
+django_settings_module = "privaterelay.settings"
+
 [tool.mypy]
-plugins = ["mypy_django_plugin.main"]
-mypy_path = "$MYPY_CONFIG_FILE_DIR/mypy_stubs"
 exclude = "env"
+mypy_path = "$MYPY_CONFIG_FILE_DIR/mypy_stubs"
+plugins = ["mypy_django_plugin.main"]
 python_version = "3.11"
 show_error_codes = true
 strict = true
@@ -14,9 +20,6 @@ disallow_any_generics = false
 disallow_untyped_calls = false
 disallow_incomplete_defs = false
 disallow_untyped_defs = false
-
-[tool.django-stubs]
-django_settings_module = "privaterelay.settings"
 
 [[tool.mypy.overrides]]
 ignore_missing_imports = true
@@ -46,10 +49,10 @@ module = [
     "oauthlib.oauth2.rfc6749.errors",
     "requests_oauthlib",
     "silk",
-    "twilio.base.instance_resource",
     "twilio.base.exceptions",
-    "twilio.rest",
+    "twilio.base.instance_resource",
     "twilio.request_validator",
+    "twilio.rest",
     "vobject",
     "waffle",
     "waffle.models",
@@ -57,3 +60,59 @@ module = [
     "whitenoise.middleware",
     "whitenoise.storage",
 ]
+
+[tool.paul-mclendahand]
+# Creates a PR that combines several dependabot PRs
+# https://github.com/willkg/paul-mclendahand
+github_project="fx-private-relay"
+github_user="mozilla"
+main_branch="main"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "privaterelay.settings"
+python_files = "tests.py test_*.py *_tests.py"
+norecursedirs = ".git .local extension frontend node_modules"
+testpaths = [
+    "api",
+    "emails",
+    "phones",
+    "privaterelay",
+]
+
+[tool.ruff.lint]
+ignore = [
+    # TODO MPP-3802: Enable more bandit security checks
+    "S101",  # https://docs.astral.sh/ruff/rules/assert/
+    "S113",  # https://docs.astral.sh/ruff/rules/request-without-timeout/
+]
+select = [
+    "S",  # flake8-bandit
+    "E",  # pycodestyle errors
+    "F",  # pyflakes
+    "I",  # isort
+    "UP", # pyupgrade
+    "W",  # pycodestyle warnings
+]
+extend-safe-fixes = [
+    # E711 Comparison to `None` should be `cond is / is not None`
+    # Changes '== None' to 'is None'
+    "E711",
+    # E712 Avoid equality comparisons to True / False
+    # Changes '== True' to 'is True'
+    "E712",
+]
+
+[tool.ruff.lint.isort]
+section-order = ["future", "standard-library", "django", "third-party", "first-party", "local-folder"]
+
+[tool.ruff.lint.isort.sections]
+"django"= ["django"]
+
+[tool.ruff.lint.per-file-ignores]
+# Ignore line length in generated file
+"privaterelay/glean/server_events.py" = ["E501"]
+# S101: Allow assert in tests, since it is correct usage for pytest
+# S105: Allow hardcoded passwords in tests
+# S311: Allow pseudo-random generators in tests
+"**/tests/*_tests.py" = ["S101", "S105", "S311"]
+"**/tests/utils.py" = ["S101", "S311"]

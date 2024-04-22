@@ -1,4 +1,3 @@
-import json
 import pathlib
 
 from django.core.management.base import BaseCommand

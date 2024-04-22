@@ -1,36 +1,28 @@
-from copy import deepcopy
-from datetime import datetime, timedelta, timezone
-from email import message_from_string
-from email.message import EmailMessage
-from typing import Any, cast
-from unittest._log import _LoggingWatcher
-from unittest.mock import patch, Mock
-from uuid import uuid4
 import glob
 import json
 import logging
 import os
 import re
+from copy import deepcopy
+from datetime import UTC, datetime, timedelta
+from email import message_from_string
+from email.message import EmailMessage
+from typing import Any, cast
+from unittest._log import _LoggingWatcher
+from unittest.mock import Mock, patch
+from uuid import uuid4
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
-from django.test import override_settings, Client, SimpleTestCase, TestCase
+from django.test import Client, SimpleTestCase, TestCase, override_settings
 
+import pytest
 from allauth.socialaccount.models import SocialAccount
 from botocore.exceptions import ClientError
 from markus.main import MetricsRecord
 from markus.testing import MetricsMock
 from model_bakery import baker
-import pytest
-
-from privaterelay.ftl_bundles import main
-from privaterelay.tests.utils import (
-    create_expected_glean_event,
-    get_glean_event,
-    log_extra,
-)
-from privaterelay.glean.server_events import GLEAN_EVENT_MOZLOG_TYPE as GLEAN_LOG
 
 from emails.models import (
     DeletedAddress,
@@ -40,15 +32,16 @@ from emails.models import (
     Reply,
     address_hash,
 )
+from emails.policy import relay_policy
 from emails.types import AWS_SNSMessageJSON, OutgoingHeaders
 from emails.utils import (
+    InvalidFromHeader,
     b64_lookup_key,
     decrypt_reply_metadata,
     derive_reply_keys,
     encrypt_reply_metadata,
     get_domains_from_settings,
     get_message_id_bytes,
-    InvalidFromHeader,
 )
 from emails.views import (
     EmailDroppedReason,
@@ -66,7 +59,13 @@ from emails.views import (
     validate_sns_arn_and_type,
     wrapped_email_test,
 )
-from emails.policy import relay_policy
+from privaterelay.ftl_bundles import main
+from privaterelay.glean.server_events import GLEAN_EVENT_MOZLOG_TYPE as GLEAN_LOG
+from privaterelay.tests.utils import (
+    create_expected_glean_event,
+    get_glean_event,
+    log_extra,
+)
 
 from .models_tests import (
     make_free_test_user,
@@ -95,7 +94,7 @@ def load_fixtures(file_suffix: str) -> dict[str, AWS_SNSMessageJSON | str]:
         file_name = os.path.basename(fixture_file)
         key = file_name[: -len(file_suffix)]
         assert key not in fixtures
-        with open(fixture_file, "r") as f:
+        with open(fixture_file) as f:
             if ext == ".json":
                 fixtures[key] = json.load(f)
             else:
@@ -387,7 +386,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         super().setUp()
         self.user = baker.make(User, email="user@example.com")
         self.profile = self.user.profile
-        self.profile.last_engagement = datetime.now(timezone.utc)
+        self.profile.last_engagement = datetime.now(UTC)
         self.profile.save()
         self.sa: SocialAccount = baker.make(
             SocialAccount, user=self.user, provider="fxa"
@@ -398,7 +397,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         self.premium_user = make_premium_test_user()
         self.premium_profile = Profile.objects.get(user=self.premium_user)
         self.premium_profile.subdomain = "subdomain"
-        self.premium_profile.last_engagement = datetime.now(timezone.utc)
+        self.premium_profile.last_engagement = datetime.now(UTC)
         self.premium_profile.save()
 
     def test_single_recipient_sns_notification(self) -> None:
@@ -414,7 +413,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at is not None
-        assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
+        assert (datetime.now(tz=UTC) - self.ra.last_used_at).seconds < 2.0
         self.ra.user.profile.refresh_from_db()
         assert self.ra.user.profile.last_engagement is not None
         assert (
@@ -438,7 +437,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at is not None
-        assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
+        assert (datetime.now(tz=UTC) - self.ra.last_used_at).seconds < 2.0
 
     def test_list_email_sns_notification(self) -> None:
         """By default, list emails should still forward."""
@@ -448,7 +447,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at is not None
-        assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
+        assert (datetime.now(tz=UTC) - self.ra.last_used_at).seconds < 2.0
 
     def test_block_list_email_sns_notification(self) -> None:
         """When an alias is blocking list emails, list emails should not forward."""
@@ -498,7 +497,6 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         assert (event := get_glean_event(caplog)) is not None
         assert event["category"] == "email"
         assert event["name"] == "forwarded"
-        assert event["extra"]["mask_id"] == self.ra.metrics_id
 
     @override_settings(STATSD_ENABLED=True)
     def test_spamVerdict_FAIL_auto_block_doesnt_relay(self) -> None:
@@ -526,13 +524,12 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         da = DomainAddress.objects.get(user=self.premium_user, address="wildcard")
         assert da.num_forwarded == 1
         assert da.last_used_at
-        assert (datetime.now(tz=timezone.utc) - da.last_used_at).seconds < 2.0
+        assert (datetime.now(tz=UTC) - da.last_used_at).seconds < 2.0
 
         mask_event = get_glean_event(caplog, "email_mask", "created")
         assert mask_event is not None
         shared_extra_items = {
             "n_domain_masks": "1",
-            "mask_id": da.metrics_id,
             "is_random_mask": "false",
         }
         expected_mask_event = create_expected_glean_event(
@@ -564,7 +561,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at is not None
-        assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
+        assert (datetime.now(tz=UTC) - self.ra.last_used_at).seconds < 2.0
 
     def test_unsuccessful_email_relay_message_not_removed_from_s3(self) -> None:
         self.mock_send_raw_email.side_effect = SEND_RAW_EMAIL_FAILED
@@ -609,7 +606,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at
-        assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
+        assert (datetime.now(tz=UTC) - self.ra.last_used_at).seconds < 2.0
 
     def test_russian_spam(self) -> None:
         """
@@ -631,7 +628,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at
-        assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
+        assert (datetime.now(tz=UTC) - self.ra.last_used_at).seconds < 2.0
 
     @patch("emails.views.info_logger")
     def test_plain_text(self, mock_logger: Mock) -> None:
@@ -647,7 +644,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at
-        assert (datetime.now(tz=timezone.utc) - self.ra.last_used_at).seconds < 2.0
+        assert (datetime.now(tz=UTC) - self.ra.last_used_at).seconds < 2.0
         mock_logger.warning.assert_not_called()
 
     @patch("emails.views.info_logger")
@@ -747,8 +744,8 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
         # Create a premium user matching the s3_stored_replies sender
         self.user = baker.make(User, email="source@sender.com")
         self.user.profile.server_storage = True
-        self.user.profile.date_subscribed = datetime.now(tz=timezone.utc)
-        self.user.profile.last_engagement = datetime.now(tz=timezone.utc)
+        self.user.profile.date_subscribed = datetime.now(tz=UTC)
+        self.user.profile.last_engagement = datetime.now(tz=UTC)
         self.user.profile.save()
         self.pre_reply_last_engagement = self.user.profile.last_engagement
         upgrade_test_user_to_premium(self.user)
@@ -792,7 +789,6 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
         assert (event := get_glean_event(caplog)) is not None
         assert event["category"] == "email"
         assert event["name"] == "forwarded"
-        assert event["extra"]["mask_id"] == self.relay_address.metrics_id
         assert event["extra"]["is_reply"] == "true"
 
         self.mock_remove_message_from_s3.assert_called_once()
@@ -806,7 +802,7 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
         assert self.relay_address.num_replied == 1
         last_used_at = self.relay_address.last_used_at
         assert last_used_at
-        assert (datetime.now(tz=timezone.utc) - last_used_at).seconds < 2.0
+        assert (datetime.now(tz=UTC) - last_used_at).seconds < 2.0
         assert (last_en := self.relay_address.user.profile.last_engagement) is not None
         assert last_en > self.pre_reply_last_engagement
 
@@ -846,9 +842,10 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
             operation_name="S3.something",
             error_response={"Error": {"Code": "NoSuchKey", "Message": "the message"}},
         )
-        with self.assertLogs(INFO_LOG) as info_caplog, self.assertLogs(
-            ERROR_LOG, "ERROR"
-        ) as events_caplog:
+        with (
+            self.assertLogs(INFO_LOG) as info_caplog,
+            self.assertLogs(ERROR_LOG, "ERROR") as events_caplog,
+        ):
             response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
         self.mock_send_raw_email.assert_not_called()
         assert response.status_code == 404
@@ -866,9 +863,10 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
             operation_name="S3.something",
             error_response={"Error": {"Code": "IsNapping", "Message": "snooze"}},
         )
-        with self.assertLogs(INFO_LOG) as info_caplog, self.assertLogs(
-            ERROR_LOG, "ERROR"
-        ) as error_caplog:
+        with (
+            self.assertLogs(INFO_LOG) as info_caplog,
+            self.assertLogs(ERROR_LOG, "ERROR") as error_caplog,
+        ):
             response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
         self.mock_send_raw_email.assert_not_called()
         assert response.status_code == 503
@@ -888,9 +886,10 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
             EMAIL_SNS_BODIES["s3_stored_replies"], text="text content"
         )
         self.mock_send_raw_email.side_effect = SEND_RAW_EMAIL_FAILED
-        with self.assertLogs(INFO_LOG) as info_caplog, self.assertLogs(
-            ERROR_LOG, "ERROR"
-        ) as error_caplog:
+        with (
+            self.assertLogs(INFO_LOG) as info_caplog,
+            self.assertLogs(ERROR_LOG, "ERROR") as error_caplog,
+        ):
             response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
         assert response.status_code == 400
         assert response.content == b"SES client error"
@@ -903,55 +902,136 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
         assert getattr(error_log, "Message") == "the message"
 
 
+@override_settings(STATSD_ENABLED=True)
 class BounceHandlingTest(TestCase):
     def setUp(self):
         self.user = baker.make(User, email="relayuser@test.com")
+        self.sa: SocialAccount = baker.make(
+            SocialAccount, user=self.user, provider="fxa", uid=str(uuid4())
+        )
 
     def test_sns_message_with_hard_bounce(self) -> None:
-        pre_request_datetime = datetime.now(timezone.utc)
+        pre_request_datetime = datetime.now(UTC)
 
-        _sns_notification(BOUNCE_SNS_BODIES["hard"])
+        with self.assertLogs(INFO_LOG) as logs, MetricsMock() as mm:
+            _sns_notification(BOUNCE_SNS_BODIES["hard"])
 
         self.user.refresh_from_db()
         assert self.user.profile.last_hard_bounce is not None
         assert self.user.profile.last_hard_bounce >= pre_request_datetime
 
-    def test_sns_message_with_soft_bounce(self) -> None:
-        pre_request_datetime = datetime.now(timezone.utc)
+        assert len(logs.records) == 1
+        log_data = log_extra(logs.records[0])
+        assert (diagnostic := log_data["bounce_diagnostic"])
+        assert log_data == {
+            "bounce_action": "failed",
+            "bounce_diagnostic": diagnostic,
+            "bounce_status": "5.1.1",
+            "bounce_subtype": "OnAccountSuppressionList",
+            "bounce_type": "Permanent",
+            "domain": "test.com",
+            "relay_action": "hard_bounce",
+            "user_match": "found",
+            "fxa_id": self.sa.uid,
+        }
 
-        _sns_notification(BOUNCE_SNS_BODIES["soft"])
+        mm.assert_incr_once(
+            "fx.private.relay.email_bounce",
+            tags=[
+                "bounce_type:permanent",
+                "bounce_subtype:onaccountsuppressionlist",
+                "user_match:found",
+                "relay_action:hard_bounce",
+            ],
+        )
+
+    def test_sns_message_with_soft_bounce(self) -> None:
+        pre_request_datetime = datetime.now(UTC)
+
+        with self.assertLogs(INFO_LOG) as logs, MetricsMock() as mm:
+            _sns_notification(BOUNCE_SNS_BODIES["soft"])
 
         self.user.refresh_from_db()
         assert self.user.profile.last_soft_bounce is not None
         assert self.user.profile.last_soft_bounce >= pre_request_datetime
 
+        assert len(logs.records) == 1
+        log_data = log_extra(logs.records[0])
+        assert (diagnostic := log_data["bounce_diagnostic"])
+        assert log_data == {
+            "bounce_action": "failed",
+            "bounce_diagnostic": diagnostic,
+            "bounce_status": "5.1.1",
+            "bounce_subtype": "SRETeamEatenByDinosaurs",
+            "bounce_type": "Transient",
+            "domain": "test.com",
+            "relay_action": "soft_bounce",
+            "user_match": "found",
+            "fxa_id": self.sa.uid,
+        }
+
+        mm.assert_incr_once(
+            "fx.private.relay.email_bounce",
+            tags=[
+                "bounce_type:transient",
+                "bounce_subtype:sreteameatenbydinosaurs",
+                "user_match:found",
+                "relay_action:soft_bounce",
+            ],
+        )
+
     def test_sns_message_with_spam_bounce_sets_auto_block_spam(self):
-        _sns_notification(BOUNCE_SNS_BODIES["spam"])
+        with self.assertLogs(INFO_LOG) as logs, MetricsMock() as mm:
+            _sns_notification(BOUNCE_SNS_BODIES["spam"])
         self.user.refresh_from_db()
         assert self.user.profile.auto_block_spam
 
+        assert len(logs.records) == 1
+        log_data = log_extra(logs.records[0])
+        assert (diagnostic := log_data["bounce_diagnostic"])
+        assert log_data == {
+            "bounce_action": "failed",
+            "bounce_diagnostic": diagnostic,
+            "bounce_status": "5.1.1",
+            "bounce_subtype": "StopRelayingSpamForThisUser",
+            "bounce_type": "Transient",
+            "domain": "test.com",
+            "relay_action": "auto_block_spam",
+            "user_match": "found",
+            "fxa_id": self.sa.uid,
+        }
 
+        mm.assert_incr_once(
+            "fx.private.relay.email_bounce",
+            tags=[
+                "bounce_type:transient",
+                "bounce_subtype:stoprelayingspamforthisuser",
+                "user_match:found",
+                "relay_action:auto_block_spam",
+            ],
+        )
+
+    def test_sns_message_with_hard_bounce_and_optout(self) -> None:
+        self.sa.extra_data["metricsEnabled"] = False
+        self.sa.save()
+
+        with self.assertLogs(INFO_LOG) as logs:
+            _sns_notification(BOUNCE_SNS_BODIES["hard"])
+
+        log_data = log_extra(logs.records[0])
+        assert log_data["user_match"] == "found"
+        assert not log_data["fxa_id"]
+
+
+@override_settings(STATSD_ENABLED=True)
 class ComplaintHandlingTest(TestCase):
     """Test Complaint notifications and events."""
 
     def setUp(self):
         self.user = baker.make(User, email="relayuser@test.com")
-
-    @pytest.fixture(autouse=True)
-    def use_caplog(self, caplog):
-        self.caplog = caplog
-
-    @override_settings(STATSD_ENABLED=True)
-    def test_notification_type_complaint(self):
-        """
-        A notificationType of complaint increments a counter, logs details, and
-        returns 200.
-
-        Example derived from:
-        https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
-        """
-        assert self.user.profile.auto_block_spam is False
-
+        self.sa: SocialAccount = baker.make(
+            SocialAccount, user=self.user, provider="fxa", uid=str(uuid4())
+        )
         complaint = {
             "notificationType": "Complaint",
             "complaint": {
@@ -965,9 +1045,20 @@ class ComplaintHandlingTest(TestCase):
                 ),
             },
         }
-        json_body = {"Message": json.dumps(complaint)}
-        with MetricsMock() as mm:
-            response = _sns_notification(json_body)
+        self.complaint_body = {"Message": json.dumps(complaint)}
+
+    def test_notification_type_complaint(self):
+        """
+        A notificationType of complaint increments a counter, logs details, and
+        returns 200.
+
+        Example derived from:
+        https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
+        """
+        assert self.user.profile.auto_block_spam is False
+
+        with self.assertLogs(INFO_LOG) as logs, MetricsMock() as mm:
+            response = _sns_notification(self.complaint_body)
         assert response.status_code == 200
 
         self.user.profile.refresh_from_db()
@@ -982,20 +1073,30 @@ class ComplaintHandlingTest(TestCase):
                 "relay_action:auto_block_spam",
             ],
         )
-        assert len(self.caplog.records) == 2
-        record1, record2 = self.caplog.records
-        assert record1.msg == "complaint_notification"
-        assert record1.complaint_subtype is None
-        assert record1.complaint_user_agent == "ExampleCorp Feedback Loop (V0.01)"
-        assert record1.complaint_feedback == "abuse"
-        assert record1.user_match == "found"
-        assert record1.relay_action == "auto_block_spam"
-        assert record1.domain == "test.com"
+        assert len(logs.records) == 1
+        record = logs.records[0]
+        assert record.msg == "complaint_notification"
+        log_data = log_extra(record)
+        assert log_data == {
+            "complaint_feedback": "abuse",
+            "complaint_subtype": None,
+            "complaint_user_agent": "ExampleCorp Feedback Loop (V0.01)",
+            "domain": "test.com",
+            "relay_action": "auto_block_spam",
+            "user_match": "found",
+            "fxa_id": self.sa.uid,
+        }
 
-        assert record2.msg == "complaint_received"
-        assert record2.recipient_domains == ["test.com"]
-        assert record2.subtype is None
-        assert record2.feedback == "abuse"
+    def test_complaint_log_with_optout(self) -> None:
+        self.sa.extra_data["metricsEnabled"] = False
+        self.sa.save()
+
+        with self.assertLogs(INFO_LOG) as logs:
+            _sns_notification(self.complaint_body)
+
+        log_data = log_extra(logs.records[0])
+        assert log_data["user_match"] == "found"
+        assert not log_data["fxa_id"]
 
 
 class SNSNotificationRemoveEmailsInS3Test(TestCase):
@@ -1261,7 +1362,6 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
     ) -> dict[str, Any]:
         extra_items = {
             "n_random_masks": "1",
-            "mask_id": self.address.metrics_id,
             "is_random_mask": "true",
             "is_reply": "true" if is_reply else "false",
         }
@@ -1301,7 +1401,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         mm.assert_incr_once("fx.private.relay.email_auto_suppressed_for_spam")
 
     def test_user_bounce_soft_paused_email_in_s3_deleted(self) -> None:
-        self.profile.last_soft_bounce = datetime.now(timezone.utc)
+        self.profile.last_soft_bounce = datetime.now(UTC)
         self.profile.save()
 
         with self.assertLogs(INFO_LOG) as caplog, MetricsMock() as mm:
@@ -1313,7 +1413,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         mm.assert_incr_once("fx.private.relay.email_suppressed_for_soft_bounce")
 
     def test_user_bounce_hard_paused_email_in_s3_deleted(self) -> None:
-        self.profile.last_hard_bounce = datetime.now(timezone.utc)
+        self.profile.last_hard_bounce = datetime.now(UTC)
         self.profile.save()
 
         with self.assertLogs(INFO_LOG) as caplog, MetricsMock() as mm:
@@ -1343,8 +1443,8 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
 
     def test_flagged_user_email_in_s3_deleted(self) -> None:
         profile = self.address.user.profile
-        profile.last_account_flagged = datetime.now(timezone.utc)
-        profile.last_engagement = datetime.now(timezone.utc)
+        profile.last_account_flagged = datetime.now(UTC)
+        profile.last_engagement = datetime.now(UTC)
         profile.save()
         pre_flagged_last_engagement = profile.last_engagement
 
@@ -1361,7 +1461,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         self.address.enabled = False
         self.address.save()
         profile = self.address.user.profile
-        profile.last_engagement = datetime.now(timezone.utc)
+        profile.last_engagement = datetime.now(UTC)
         profile.save()
         pre_blocked_email_last_engagement = profile.last_engagement
 
@@ -1386,7 +1486,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         self.address.block_list_emails = True
         self.address.save()
         profile = self.address.user.profile
-        profile.last_engagement = datetime.now(timezone.utc)
+        profile.last_engagement = datetime.now(UTC)
         profile.save()
         pre_blocked_email_last_engagement = profile.last_engagement
         mocked_email_is_from_list.return_value = True
@@ -1412,9 +1512,10 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
             {"Error": {"Code": "SomeErrorCode", "Message": "Details"}}, ""
         )
 
-        with self.assertLogs(INFO_LOG) as info_caplog, self.assertLogs(
-            ERROR_LOG, "ERROR"
-        ) as error_caplog:
+        with (
+            self.assertLogs(INFO_LOG) as info_caplog,
+            self.assertLogs(ERROR_LOG, "ERROR") as error_caplog,
+        ):
             response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
         self.mock_remove_message_from_s3.assert_not_called()
         assert response.status_code == 503
@@ -1519,9 +1620,10 @@ class SnsMessageTest(TestCase):
             operation_name="S3.something",
             error_response={"Error": {"Code": "NoSuchKey", "Message": "the message"}},
         )
-        with self.assertLogs(INFO_LOG) as info_caplog, self.assertLogs(
-            ERROR_LOG, "ERROR"
-        ) as error_caplog:
+        with (
+            self.assertLogs(INFO_LOG) as info_caplog,
+            self.assertLogs(ERROR_LOG, "ERROR") as error_caplog,
+        ):
             response = _sns_message(self.message_json)
         self.mock_ses_client.send_raw_email.assert_not_called()
         assert response.status_code == 404
@@ -1535,9 +1637,10 @@ class SnsMessageTest(TestCase):
 
     def test_ses_send_raw_email_has_client_error_early_exits(self) -> None:
         self.mock_ses_client.send_raw_email.side_effect = SEND_RAW_EMAIL_FAILED
-        with self.assertLogs(INFO_LOG) as info_caplog, self.assertLogs(
-            ERROR_LOG, "ERROR"
-        ) as error_caplog:
+        with (
+            self.assertLogs(INFO_LOG) as info_caplog,
+            self.assertLogs(ERROR_LOG, "ERROR") as error_caplog,
+        ):
             response = _sns_message(self.message_json)
         self.mock_ses_client.send_raw_email.assert_called_once()
         assert response.status_code == 503
@@ -1624,17 +1727,21 @@ class GetAddressTest(TestCase):
             assert _get_address("domain@subdomain.Test.Com") == self.domain_address
 
     def test_subdomain_for_wrong_domain_raises(self) -> None:
-        with pytest.raises(
-            ObjectDoesNotExist
-        ) as exc_info, MetricsMock() as mm, self.assertNoLogs(GLEAN_LOG, "INFO"):
+        with (
+            pytest.raises(ObjectDoesNotExist) as exc_info,
+            MetricsMock() as mm,
+            self.assertNoLogs(GLEAN_LOG, "INFO"),
+        ):
             _get_address("unknown@subdomain.example.com")
         assert str(exc_info.value) == "Address does not exist"
         mm.assert_incr_once("fx.private.relay.email_for_not_supported_domain")
 
     def test_unknown_subdomain_raises(self) -> None:
-        with pytest.raises(
-            Profile.DoesNotExist
-        ), MetricsMock() as mm, self.assertNoLogs(GLEAN_LOG, "INFO"):
+        with (
+            pytest.raises(Profile.DoesNotExist),
+            MetricsMock() as mm,
+            self.assertNoLogs(GLEAN_LOG, "INFO"),
+        ):
             _get_address("domain@unknown.test.com")
         mm.assert_incr_once("fx.private.relay.email_for_dne_subdomain")
 
@@ -1661,7 +1768,6 @@ class GetAddressTest(TestCase):
             extra_items={
                 "n_random_masks": "1",
                 "n_domain_masks": "2",
-                "mask_id": address.metrics_id,
                 "is_random_mask": "false",
                 "has_website": "false",
                 "created_by_api": "false",
@@ -1694,7 +1800,6 @@ class GetAddressTest(TestCase):
             extra_items={
                 "n_random_masks": "1",
                 "n_domain_masks": "2",
-                "mask_id": address.metrics_id,
                 "is_random_mask": "false",
                 "has_website": "false",
                 "created_by_api": "false",

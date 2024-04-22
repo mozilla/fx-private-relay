@@ -1,12 +1,14 @@
 from __future__ import annotations
+
+import json
+import logging
+import random
+from collections.abc import Callable
 from decimal import Decimal
 from functools import cache, wraps
 from pathlib import Path
 from string import ascii_uppercase
-from typing import Callable, TypedDict, cast, TYPE_CHECKING
-import json
-import logging
-import random
+from typing import TYPE_CHECKING, TypedDict, cast
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser
@@ -15,16 +17,14 @@ from django.utils.translation.trans_real import parse_accept_lang_header
 
 from waffle import get_waffle_flag_model
 from waffle.models import logger as waffle_logger
-from waffle.utils import (
-    get_cache as get_waffle_cache,
-    get_setting as get_waffle_setting,
-)
+from waffle.utils import get_cache as get_waffle_cache
+from waffle.utils import get_setting as get_waffle_setting
 
 from .plans import (
+    CountryStr,
     LanguageStr,
     PeriodStr,
     PlanCountryLangMapping,
-    CountryStr,
     get_premium_country_language_mapping,
 )
 
@@ -477,7 +477,7 @@ def flag_is_active_in_task(flag_name: str, user: AbstractBaseUser | None) -> boo
         # Removed - check for cookie setting for flag
         # Removed - check for read-only mode
 
-        if Decimal(str(random.uniform(0, 100))) <= flag.percent:
+        if Decimal(str(random.uniform(0, 100))) <= flag.percent:  # noqa: S311
             # Removed - setting the flag for future checks
             return True
 

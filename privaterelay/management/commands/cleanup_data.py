@@ -1,20 +1,20 @@
 from __future__ import annotations
+
+import logging
+import textwrap
 from argparse import RawDescriptionHelpFormatter
 from shutil import get_terminal_size
-from typing import Any, Optional, TYPE_CHECKING
-
-import textwrap
-import logging
+from typing import TYPE_CHECKING, Any
 
 from django.core.management.base import BaseCommand, DjangoHelpFormatter
 
 from codetiming import Timer
 
-from emails.cleaners import ServerStorageCleaner, MissingProfileCleaner
-
+from emails.cleaners import MissingProfileCleaner, ServerStorageCleaner
 
 if TYPE_CHECKING:  # pragma: no cover
     from argparse import ArgumentParser
+
     from privaterelay.cleaners import DataIssueTask
 
 
@@ -143,7 +143,7 @@ class Command(BaseCommand):
         verbosity: int,
         tasks: dict[str, DataIssueTask],
         issue_timers: dict[str, float],
-        clean_timers: Optional[dict[str, float]],
+        clean_timers: dict[str, float] | None,
     ) -> tuple[dict, dict]:
         """Gather full data and log data from tasks and timers."""
 

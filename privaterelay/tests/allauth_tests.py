@@ -1,7 +1,7 @@
-from typing import Iterator
-from unittest.mock import patch, Mock
-import pytest
+from collections.abc import Iterator
+from unittest.mock import Mock, patch
 
+import pytest
 from allauth.core.context import request_context
 
 from ..allauth import AccountAdapter

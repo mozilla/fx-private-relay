@@ -3,16 +3,15 @@
 
 import base64
 import logging
-import pem
 from urllib.request import urlopen
-
-from OpenSSL import crypto
 
 from django.conf import settings
 from django.core.cache import caches
 from django.core.exceptions import SuspiciousOperation
 from django.utils.encoding import smart_bytes
 
+import pem
+from OpenSSL import crypto
 
 logger = logging.getLogger("events")
 
@@ -98,7 +97,7 @@ def _grab_keyfile(cert_url):
 
     pemfile = key_cache.get(cert_url)
     if not pemfile:
-        response = urlopen(cert_url)
+        response = urlopen(cert_url)  # noqa: S310 (check for custom scheme)
         pemfile = response.read()
         # Extract the first certificate in the file and confirm it's a valid
         # PEM certificate

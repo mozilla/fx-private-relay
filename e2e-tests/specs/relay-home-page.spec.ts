@@ -28,7 +28,7 @@ test.describe("Firefox Relay - Landing Page - Visual Regression @health_check", 
   });
 });
 
-test.describe("Check header buttons and their redirects,  C1812638 @health_check", () => {
+test.describe("Check header buttons and their redirects, C1812638 @health_check", () => {
   test.beforeEach(async ({ landingPage }) => {
     await landingPage.open();
   });

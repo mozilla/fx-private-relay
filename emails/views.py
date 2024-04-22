@@ -1,28 +1,20 @@
+import html
+import json
+import logging
+import re
+import shlex
 from collections import defaultdict
 from copy import deepcopy
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from email import message_from_bytes
 from email.iterators import _structure
 from email.message import EmailMessage
 from email.utils import parseaddr
-import html
 from io import StringIO
-import json
 from json import JSONDecodeError
-import logging
-import re
-import shlex
 from textwrap import dedent
 from typing import Any, Literal
 from urllib.parse import urlencode
-
-from botocore.exceptions import ClientError
-from codetiming import Timer
-from decouple import strtobool
-from django.shortcuts import render
-from sentry_sdk import capture_message
-from markus.utils import generate_tag
-from waffle import sample_is_active
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -30,12 +22,24 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import prefetch_related_objects
 from django.http import HttpRequest, HttpResponse
+from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.utils.html import escape
 from django.views.decorators.csrf import csrf_exempt
 
-from privaterelay.utils import get_subplat_upgrade_link_by_language, glean_logger
+from botocore.exceptions import ClientError
+from codetiming import Timer
+from decouple import strtobool
+from markus.utils import generate_tag
+from sentry_sdk import capture_message
+from waffle import sample_is_active
 
+from privaterelay.ftl_bundles import main as ftl_bundle
+from privaterelay.utils import (
+    flag_is_active_in_task,
+    get_subplat_upgrade_link_by_language,
+    glean_logger,
+)
 
 from .models import (
     CannotMakeAddressException,
@@ -48,14 +52,16 @@ from .models import (
     get_domain_numerical,
 )
 from .policy import relay_policy
+from .sns import SUPPORTED_SNS_TYPES, verify_from_sns
 from .types import (
     AWS_MailJSON,
     AWS_SNSMessageJSON,
-    OutgoingHeaders,
     EmailForwardingIssues,
     EmailHeaderIssues,
+    OutgoingHeaders,
 )
 from .utils import (
+    InvalidFromHeader,
     _get_bucket_and_key_from_s3_json,
     b64_lookup_key,
     count_all_trackers,
@@ -69,17 +75,12 @@ from .utils import (
     get_reply_to_address,
     histogram_if_enabled,
     incr_if_enabled,
+    parse_email_header,
     remove_message_from_s3,
     remove_trackers,
     ses_send_raw_email,
     urlize_and_linebreaks,
-    InvalidFromHeader,
-    parse_email_header,
 )
-from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
-
-from privaterelay.ftl_bundles import main as ftl_bundle
-from privaterelay.utils import flag_is_active_in_task
 
 logger = logging.getLogger("events")
 info_logger = logging.getLogger("eventsinfo")
@@ -675,7 +676,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         address.num_blocked += 1
         address.save(update_fields=["num_blocked"])
         _record_receipt_verdicts(receipt, "disabled_alias")
-        user_profile.last_engagement = datetime.now(timezone.utc)
+        user_profile.last_engagement = datetime.now(UTC)
         user_profile.save()
         glean_logger().log_email_blocked(mask=address, reason="block_all")
         return HttpResponse("Address is temporarily disabled.")
@@ -693,7 +694,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         incr_if_enabled("list_email_for_address_blocking_lists", 1)
         address.num_blocked += 1
         address.save(update_fields=["num_blocked"])
-        user_profile.last_engagement = datetime.now(timezone.utc)
+        user_profile.last_engagement = datetime.now(UTC)
         user_profile.save()
         glean_logger().log_email_blocked(mask=address, reason="block_promotional")
         return HttpResponse("Address is not accepting list emails.")
@@ -792,10 +793,10 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     user_profile.update_abuse_metric(
         email_forwarded=True, forwarded_email_size=len(incoming_email_bytes)
     )
-    user_profile.last_engagement = datetime.now(timezone.utc)
+    user_profile.last_engagement = datetime.now(UTC)
     user_profile.save()
     address.num_forwarded += 1
-    address.last_used_at = datetime.now(timezone.utc)
+    address.last_used_at = datetime.now(UTC)
     if level_one_trackers_removed:
         address.num_level_one_trackers_blocked = (
             address.num_level_one_trackers_blocked or 0
@@ -1007,7 +1008,7 @@ def _replace_headers(
     """
     # Look for headers to drop
     to_drop: list[str] = []
-    replacements: set[str] = set(_k.lower() for _k in headers.keys())
+    replacements: set[str] = {_k.lower() for _k in headers.keys()}
     issues: EmailHeaderIssues = defaultdict(list)
 
     # Detect non-compliant headers in incoming emails
@@ -1084,7 +1085,7 @@ def _convert_html_content(
     now: datetime | None = None,
 ) -> tuple[str, int]:
     # frontend expects a timestamp in milliseconds
-    now = now or datetime.now(timezone.utc)
+    now = now or datetime.now(UTC)
     datetime_now_ms = int(now.timestamp() * 1000)
 
     # scramble alias so that clients don't recognize it
@@ -1319,7 +1320,7 @@ def _handle_reply(
     reply_record.increment_num_replied()
     profile = address.user.profile
     profile.update_abuse_metric(replied=True)
-    profile.last_engagement = datetime.now(timezone.utc)
+    profile.last_engagement = datetime.now(UTC)
     profile.save()
     glean_logger().log_email_forwarded(mask=address, is_reply=True)
     return HttpResponse("Sent email to final recipient.", status=200)
@@ -1363,7 +1364,7 @@ def _get_domain_address(local_portion: str, domain_portion: str) -> DomainAddres
                     mask=domain_address,
                     created_by_api=False,
                 )
-            domain_address.last_used_at = datetime.now(timezone.utc)
+            domain_address.last_used_at = datetime.now(UTC)
             domain_address.save()
             return domain_address
     except Profile.DoesNotExist as e:
@@ -1439,16 +1440,14 @@ def _handle_bounce(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     * bounce_diagnostic: 'diagnosticCode' from bounced recipient data, or None
     * bounce_extra: Extra data from bounce_recipient data, if any
     * domain: User's real email address domain, if an address was given
-
-    Emits a legacy log "bounced recipient domain: {domain}", with data from
-    bounced recipient data, without the email address.
+    * fxa_id - The Mozilla account (previously known as Firefox Account) ID of the user
     """
     bounce = message_json.get("bounce", {})
     bounce_type = bounce.get("bounceType", "none")
     bounce_subtype = bounce.get("bounceSubType", "none")
     bounced_recipients = bounce.get("bouncedRecipients", [])
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     bounce_data = []
     for recipient in bounced_recipients:
         recipient_address = recipient.pop("emailAddress", None)
@@ -1476,6 +1475,10 @@ def _handle_bounce(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             user = User.objects.get(email=recipient_address)
             profile = user.profile
             data["user_match"] = "found"
+            if (fxa := profile.fxa) and profile.metrics_enabled:
+                data["fxa_id"] = fxa.uid
+            else:
+                data["fxa_id"] = ""
         except User.DoesNotExist:
             # TODO: handle bounce for a user who no longer exists
             # add to SES account-wide suppression list?
@@ -1518,19 +1521,6 @@ def _handle_bounce(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         )
         info_logger.info("bounce_notification", extra=data)
 
-        # Legacy log, can be removed Q4 2023
-        recipient_domain = data.get("domain")
-        if recipient_domain:
-            legacy_extra = {
-                "action": data.get("bounce_action"),
-                "status": data.get("bounce_status"),
-                "diagnosticCode": data.get("bounce_diagnostic"),
-            }
-            legacy_extra.update(data.get("bounce_extra", {}))
-            info_logger.info(
-                f"bounced recipient domain: {recipient_domain}", extra=legacy_extra
-            )
-
     if any(data["user_match"] == "missing" for data in bounce_data):
         return HttpResponse("Address does not exist", status=404)
     return HttpResponse("OK", status=200)
@@ -1557,11 +1547,7 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     * complaint_user_agent - identifies the client used to file the complaint
     * complaint_extra - Extra data from complainedRecipients data, if any
     * domain - User's domain, if an address was given
-
-    Emits a legacy log "complaint_received", with data:
-    * recipient_domains: list of extracted user domains
-    * subtype: 'onaccounsuppressionlist', or 'none'
-    * feedback: feedback from ISP or 'none'
+    * fxa_id - The Mozilla account (previously known as Firefox Account) ID of the user
     """
     complaint = deepcopy(message_json.get("complaint", {}))
     complained_recipients = complaint.pop("complainedRecipients", [])
@@ -1594,6 +1580,10 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             user = User.objects.get(email=recipient_address)
             profile = user.profile
             data["user_match"] = "found"
+            if (fxa := profile.fxa) and profile.metrics_enabled:
+                data["fxa_id"] = fxa.uid
+            else:
+                data["fxa_id"] = ""
         except User.DoesNotExist:
             data["user_match"] = "missing"
             continue
@@ -1619,17 +1609,6 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             tags=[generate_tag(key, val) for key, val in tags.items()],
         )
         info_logger.info("complaint_notification", extra=data)
-
-    # Legacy log, can be removed Q4 2023
-    domains = [data["domain"] for data in complaint_data if "domain" in data]
-    info_logger.info(
-        "complaint_received",
-        extra={
-            "recipient_domains": sorted(domains),
-            "subtype": subtype,
-            "feedback": feedback,
-        },
-    )
 
     if any(data["user_match"] == "missing" for data in complaint_data):
         return HttpResponse("Address does not exist", status=404)

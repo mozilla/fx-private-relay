@@ -11,9 +11,9 @@ https://docs.python.org/3/library/datetime.html#datetime.datetime.isoformat
 https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
 """
 
-from datetime import datetime, timezone
 import json
 import logging
+from datetime import UTC, datetime
 
 from django.core.management.base import CommandError
 
@@ -57,7 +57,7 @@ class Command(CommandFromDjangoSettings):
     def handle(self, verbosity, *args, **kwargs):
         """Handle call from command line (called by BaseCommand)"""
         self.init_from_settings(verbosity)
-        with open(self.healthcheck_path, mode="r", encoding="utf8") as healthcheck_file:
+        with open(self.healthcheck_path, encoding="utf8") as healthcheck_file:
             context = self.check_healthcheck(healthcheck_file, self.max_age)
         if context["success"]:
             if self.verbosity > 1:
@@ -95,7 +95,7 @@ class Command(CommandFromDjangoSettings):
         context["data"] = data
         raw_timestamp = data["timestamp"]
         timestamp = datetime.fromisoformat(raw_timestamp)
-        age = (datetime.now(tz=timezone.utc) - timestamp).total_seconds()
+        age = (datetime.now(tz=UTC) - timestamp).total_seconds()
 
         context["age_s"] = round(age, 3)
         if age > max_age:

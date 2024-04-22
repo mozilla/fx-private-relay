@@ -9,29 +9,29 @@ https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-s
 https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sqs.html#SQS.Queue.receive_messages
 """
 
-from datetime import datetime, timezone
-from urllib.parse import urlsplit
 import gc
 import json
 import logging
 import shlex
 import time
-
-import boto3
-from botocore.exceptions import ClientError
-from codetiming import Timer
-from markus.utils import generate_tag
-import OpenSSL
+from datetime import UTC, datetime
+from urllib.parse import urlsplit
 
 from django.core.management.base import CommandError
 
-from emails.sns import verify_from_sns
-from emails.views import _sns_inbound_logic, validate_sns_arn_and_type
-from emails.utils import incr_if_enabled, gauge_if_enabled
+import boto3
+import OpenSSL
+from botocore.exceptions import ClientError
+from codetiming import Timer
+from markus.utils import generate_tag
+
 from emails.management.command_from_django_settings import (
     CommandFromDjangoSettings,
     SettingToLocal,
 )
+from emails.sns import verify_from_sns
+from emails.utils import gauge_if_enabled, incr_if_enabled
+from emails.views import _sns_inbound_logic, validate_sns_arn_and_type
 
 logger = logging.getLogger("eventsinfo.process_emails_from_sqs")
 
@@ -441,7 +441,7 @@ class Command(CommandFromDjangoSettings):
     def write_healthcheck(self):
         """Update the healthcheck file with operations data, if path is set."""
         data = {
-            "timestamp": datetime.now(tz=timezone.utc).isoformat(),
+            "timestamp": datetime.now(tz=UTC).isoformat(),
             "cycles": self.cycles,
             "total_messages": self.total_messages,
             "failed_messages": self.failed_messages,

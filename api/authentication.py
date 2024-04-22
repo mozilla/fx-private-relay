@@ -1,13 +1,12 @@
-from datetime import datetime, timezone
-from typing import Any
 import logging
 import shlex
-
-import requests
+from datetime import UTC, datetime
+from typing import Any
 
 from django.conf import settings
 from django.core.cache import cache
 
+import requests
 from allauth.socialaccount.models import SocialAccount
 from rest_framework.authentication import BaseAuthentication, get_authorization_header
 from rest_framework.exceptions import (
@@ -17,7 +16,6 @@ from rest_framework.exceptions import (
     ParseError,
     PermissionDenied,
 )
-
 
 logger = logging.getLogger("events")
 INTROSPECT_TOKEN_URL = (
@@ -95,10 +93,10 @@ def get_fxa_uid_from_oauth_token(token: str, use_cache=True) -> str:
 
     # cache valid access_token and fxa_resp_data until access_token expiration
     # TODO: revisit this since the token can expire before its time
-    if type(fxa_resp_data.get("json", {}).get("exp")) is int:
+    if isinstance(fxa_resp_data.get("json", {}).get("exp"), int):
         # Note: FXA iat and exp are timestamps in *milliseconds*
         fxa_token_exp_time = int(fxa_resp_data["json"]["exp"] / 1000)
-        now_time = int(datetime.now(timezone.utc).timestamp())
+        now_time = int(datetime.now(UTC).timestamp())
         fxa_token_exp_cache_timeout = fxa_token_exp_time - now_time
         if fxa_token_exp_cache_timeout > cache_timeout:
             # cache until access_token expires (matched Relay user)

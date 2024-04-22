@@ -8,7 +8,6 @@ from django.apps.registry import Apps
 from django.db import migrations
 from django.db.backends.base.schema import BaseDatabaseSchemaEditor
 
-
 INDEX_NAME = "account_emailaddress_email_upper"
 
 

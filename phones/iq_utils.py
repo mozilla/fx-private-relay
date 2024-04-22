@@ -1,9 +1,8 @@
 import json
 
-import requests
-
 from django.conf import settings
 
+import requests
 from rest_framework import exceptions
 
 

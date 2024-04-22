@@ -1,17 +1,16 @@
-from datetime import datetime, timedelta, timezone
+import logging
+from datetime import UTC, datetime, timedelta
 from typing import Any, cast
 
 from django.conf import settings
 
+import sentry_sdk
 from allauth.socialaccount.models import SocialAccount, SocialToken
 from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
 from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error, TokenExpiredError
 from requests_oauthlib import OAuth2Session
-import logging
-import sentry_sdk
 
 from .utils import flag_is_active_in_task
-
 
 logger = logging.getLogger("events")
 
@@ -35,7 +34,7 @@ def update_social_token(
 ) -> None:
     existing_social_token.token = new_oauth2_token["access_token"]
     existing_social_token.token_secret = new_oauth2_token["refresh_token"]
-    existing_social_token.expires_at = datetime.now(timezone.utc) + timedelta(
+    existing_social_token.expires_at = datetime.now(UTC) + timedelta(
         seconds=int(new_oauth2_token["expires_in"])
     )
     existing_social_token.save()
@@ -60,7 +59,7 @@ def _get_oauth2_session(social_account: SocialAccount) -> OAuth2Session:
         "client_secret": client_secret,
     }
 
-    expires_in = (social_token.expires_at - datetime.now(timezone.utc)).total_seconds()
+    expires_in = (social_token.expires_at - datetime.now(UTC)).total_seconds()
     token = {
         "access_token": social_token.token,
         "refresh_token": social_token.token_secret,
@@ -172,10 +171,8 @@ def get_phone_subscription_dates(social_account):
             return None, None, None
 
         date_subscribed_phone = datetime.fromtimestamp(
-            subscription_created_timestamp, tz=timezone.utc
+            subscription_created_timestamp, tz=UTC
         )
-        start_date = datetime.fromtimestamp(
-            subscription_start_timestamp, tz=timezone.utc
-        )
-        end_date = datetime.fromtimestamp(subscription_end_timestamp, tz=timezone.utc)
+        start_date = datetime.fromtimestamp(subscription_start_timestamp, tz=UTC)
+        end_date = datetime.fromtimestamp(subscription_end_timestamp, tz=UTC)
     return date_subscribed_phone, start_date, end_date

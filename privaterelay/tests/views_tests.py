@@ -1,27 +1,28 @@
 import json
 import logging
+from collections.abc import Iterator
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Any, Iterator, Literal
-from uuid import uuid4
+from typing import Any, Literal
 from unittest.mock import Mock, patch
+from uuid import uuid4
 
 from django.contrib.auth.models import User
 from django.test import Client, TestCase
 from django.utils import timezone
 
-from allauth.socialaccount.models import SocialAccount, SocialApp, SocialToken
+import jwt
+import pytest
+import responses
 from allauth.account.models import EmailAddress
+from allauth.socialaccount.models import SocialAccount, SocialApp, SocialToken
 from cryptography.hazmat.primitives.asymmetric.rsa import (
     RSAPrivateKey,
     generate_private_key,
 )
 from markus.testing import MetricsMock
 from model_bakery import baker
-import jwt
-import pytest
-import responses
 
 from emails.models import (
     DeletedAddress,
@@ -297,9 +298,12 @@ def setup_fxa_rp_events(
             json.dumps(profile_response.data),
         )
 
-    with responses.RequestsMock() as mock_responses, patch(
-        "privaterelay.views.fxa_verifying_keys", return_value=[fxa_verifying_key]
-    ) as mock_fxa_verifying_keys:
+    with (
+        responses.RequestsMock() as mock_responses,
+        patch(
+            "privaterelay.views.fxa_verifying_keys", return_value=[fxa_verifying_key]
+        ) as mock_fxa_verifying_keys,
+    ):
         mock_responses.add_callback(
             responses.GET,
             f"{settings.SOCIALACCOUNT_PROVIDERS['fxa']['PROFILE_ENDPOINT']}/profile",
