@@ -1,11 +1,11 @@
 import json
 import logging
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any, Literal
-from unittest.mock import Mock, patch
+from unittest.mock import ANY, Mock, patch
 from uuid import uuid4
 
 from django.contrib.auth.models import User
@@ -35,7 +35,7 @@ from emails.tests.models_tests import premium_subscription
 
 from ..apps import PrivateRelayConfig
 from ..fxa_utils import NoSocialToken
-from ..views import _update_all_data, fxa_verifying_keys
+from ..views import _update_all_data, fxa_verifying_keys, send_ga_ping
 
 
 def test_no_social_token():
@@ -562,3 +562,77 @@ def test_lbheartbeat_view(client) -> None:
     response = client.get("/__lbheartbeat__")
     assert response.status_code == 200
     assert response.content == b""
+
+
+@pytest.fixture
+def mock_metrics_thread_and_report() -> (
+    Iterator[dict[Literal["thread", "report"], Mock]]
+):
+    """
+    Setup mocks for metrics event.
+
+    Replace google_measurement_protocol.report with a Mock
+    Replace Thread with a mock version that calls immediately.
+    """
+
+    with (
+        patch("privaterelay.views.threading.Thread", spec=True) as mock_thread_cls,
+        patch("privaterelay.views.report") as mock_report,
+    ):
+
+        mock_thread = Mock(spec_set=["start"])
+
+        def create_thread(
+            target: Callable[[str, str, Any], None],
+            args: tuple[str, str, Any],
+            daemon: bool,
+        ) -> Mock:
+            assert target == send_ga_ping
+            assert daemon
+
+            def call_send_ga_ping() -> None:
+                target(*args)
+
+            mock_thread.start.side_effect = call_send_ga_ping
+            return mock_thread
+
+        mock_thread_cls.side_effect = create_thread
+        yield {"thread": mock_thread, "report": mock_report}
+
+
+def test_metrics_event_GET(client, mock_metrics_thread_and_report) -> None:
+    response = client.get("/metrics-event")
+    assert response.status_code == 405
+    mock_metrics_thread_and_report["thread"].start.assert_not_called()
+    mock_metrics_thread_and_report["report"].assert_not_called()
+
+
+def test_metrics_event_POST_non_json(client, mock_metrics_thread_and_report) -> None:
+    response = client.post("/metrics-event")
+    assert response.status_code == 415
+    mock_metrics_thread_and_report["thread"].start.assert_not_called()
+    mock_metrics_thread_and_report["report"].assert_not_called()
+
+
+def test_metrics_event_POST_json_no_ga_uuid(
+    client, mock_metrics_thread_and_report
+) -> None:
+    response = client.post(
+        "/metrics-event", {"category": "addon"}, content_type="application/json"
+    )
+    assert response.status_code == 404
+    mock_metrics_thread_and_report["thread"].start.assert_not_called()
+    mock_metrics_thread_and_report["report"].assert_not_called()
+
+
+def test_metrics_event_POST_json_ga_uuid_ok(
+    client, mock_metrics_thread_and_report, settings
+) -> None:
+    response = client.post(
+        "/metrics-event", {"ga_uuid": "anything-is-ok"}, content_type="application/json"
+    )
+    assert response.status_code == 200
+    mock_metrics_thread_and_report["thread"].start.assert_called_once_with()
+    mock_metrics_thread_and_report["report"].assert_called_once_with(
+        settings.GOOGLE_ANALYTICS_ID, "anything-is-ok", ANY
+    )

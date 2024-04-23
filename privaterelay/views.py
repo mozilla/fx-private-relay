@@ -1,5 +1,6 @@
 import json
 import logging
+import threading
 from collections.abc import Iterable
 from datetime import UTC, datetime
 from functools import cache
@@ -94,9 +95,16 @@ def profile_subdomain(request):
         return JsonResponse({"message": e.message, "subdomain": subdomain}, status=400)
 
 
+def send_ga_ping(ga_id: str, ga_uuid: str, data: Any) -> None:
+    try:
+        report(ga_id, ga_uuid, data)
+    except Exception as e:
+        logger.error("metrics_event", extra={"error": e})
+
+
 @csrf_exempt
 @require_http_methods(["POST"])
-def metrics_event(request):
+def metrics_event(request: HttpRequest) -> JsonResponse:
     try:
         request_data = json.loads(request.body)
     except json.JSONDecodeError:
@@ -115,11 +123,12 @@ def metrics_event(request):
         dimension5=request_data.get("dimension5", None),
         dimension7=request_data.get("dimension7", "website"),
     )
-    try:
-        report(settings.GOOGLE_ANALYTICS_ID, request_data.get("ga_uuid"), event_data)
-    except Exception as e:
-        logger.error("metrics_event", extra={"error": e})
-        return JsonResponse({"msg": "Unable to report metrics event."}, status=500)
+    t = threading.Thread(
+        target=send_ga_ping,
+        args=[settings.GOOGLE_ANALYTICS_ID, request_data.get("ga_uuid"), event_data],
+        daemon=True,
+    )
+    t.start()
     return JsonResponse({"msg": "OK"}, status=200)
 
 
