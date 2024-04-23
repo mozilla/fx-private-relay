@@ -2,7 +2,7 @@ import base64
 import json
 import os
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from django.apps import AppConfig
 from django.conf import settings
@@ -11,6 +11,10 @@ from django.utils.functional import cached_property
 import requests
 
 ROOT_DIR = os.path.abspath(os.curdir)
+
+
+if TYPE_CHECKING:
+    from allauth.socialaccount.models import SocialApp
 
 
 def get_profiler_startup_data() -> tuple[str | None, str | None]:
@@ -81,6 +85,7 @@ class PrivateRelayConfig(AppConfig):
 
         try:
             del self.fxa_verifying_keys  # Clear cache
+            del self.fxa_social_app  # Clear cache
         except AttributeError:
             pass
 
@@ -93,3 +98,9 @@ class PrivateRelayConfig(AppConfig):
             keys: list[dict[str, Any]] = resp.json()["keys"]
             return keys
         return []
+
+    @cached_property
+    def fxa_social_app(self) -> "SocialApp":
+        from allauth.socialaccount.models import SocialApp
+
+        return SocialApp.objects.get(provider="fxa")

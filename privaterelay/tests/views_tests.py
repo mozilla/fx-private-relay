@@ -237,7 +237,7 @@ def setup_fxa_rp_events(
     profile.save()
 
     # Create FxA app, account, token, etc.
-    fxa_app: SocialApp = baker.make(SocialApp, provider="fxa")
+    fxa_app: SocialApp = baker.make(SocialApp, provider="fxa", client_id="test-fxa")
     fxa_profile_data = {
         "email": user.email,
         "locale": "en-US,en;q=0.5",
