@@ -95,7 +95,7 @@ def profile_subdomain(request):
         return JsonResponse({"message": e.message, "subdomain": subdomain}, status=400)
 
 
-def send_ga_ping(ga_id, ga_uuid, data):
+def send_ga_ping(ga_id: str, ga_uuid: str, data: Any) -> None:
     try:
         report(ga_id, ga_uuid, data)
     except Exception as e:
@@ -104,7 +104,7 @@ def send_ga_ping(ga_id, ga_uuid, data):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-def metrics_event(request):
+def metrics_event(request: HttpRequest) -> JsonResponse:
     try:
         request_data = json.loads(request.body)
     except json.JSONDecodeError:
