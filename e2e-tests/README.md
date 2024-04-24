@@ -73,14 +73,10 @@ Error: A snapshot doesn't exist at example.spec.ts-snapshots/example-test-1-chro
 
 This is because playwright needs to create an image initially. On the following runs, it will compare that a screenshot of the respective element matches the one added initially. Do not push your local images into the repo, the only ones that are needed for CI end in `linux`.
 
-### 8. Linting
+### 8. Health check
 
-To lint the files, run the following in the root directory (it is recommended to run this after any changes to the test suite):
-
-`npx prettier --write e2e-tests/*`
-
-### 9. Health check
-
-Our ![health check](https://github.com/mozilla/fx-private-relay/actions/workflows/relay_e2e_health.yml) runs a subset of the entire e2e test suite. This subset of tests focuses on critical tests for free and premium users for the overall health of the relay application. To add a test into the healthcheck CI, add `@health_check` into the title of your test or test group. See the following as an example,
+Our ![health check](https://github.com/mozilla/fx-private-relay/actions/workflows/relay_e2e_health.yml) runs a subset of the entire e2e test suite everyday. This subset of tests focuses on critical tests for free and premium users for the overall health of the relay application. To add a test into the healthcheck CI, add `@health_check` into the title of your test or test group. See the following as an example,
 
 `test.describe("Subscription flows @health_check", ...)`
+
+To run the health check manually, go to ![Relay e2e tests](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml), click run workflow, and check off "enable health check" before clicking "run workflow".
