@@ -45,7 +45,7 @@ If you are running premium tests as well, you will need the following.
 ```
 create/update a .env file with the following:
 
-E2E_TEST_ACCOUNT_PREMIUM = <your_premium_account_email>
+E2E_TEST_ACCOUNT_PREMIUM=<your_premium_account_email>
 E2E_TEST_ACCOUNT_PASSWORD=<your_premium_account_password>
 ```
 

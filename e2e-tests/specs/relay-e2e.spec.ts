@@ -87,6 +87,7 @@ test.describe("Subscription flows @health_check", () => {
       expectedVPNBundleDetails = "Firefox Relay & Mozilla VPN (Stage)";
     } else {
       expectedPhonesEmailsPlanDetails = "Relay Email & Phone Protection (dev)";
+
       expectedVPNBundleDetails = "Firefox Relay & Mozilla VPN (dev)";
     }
 
@@ -157,7 +158,7 @@ test.describe("Subscription flows @health_check", () => {
       process.env.E2E_TEST_ENV === "dev",
       "Dev environment will redirect to the yearly subscription plan.",
     );
-    
+
     await landingPage.selectMonthlyPhonesEmailsBundle();
     // verify redirect to subscription page
     expect(await subscriptionPage.subscriptionTitle.textContent()).toContain(

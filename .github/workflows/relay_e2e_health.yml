@@ -1,55 +1,14 @@
-name: Relay e2e health check
+name: Relay e2e tests, health check
 on:
   schedule:
-    - cron: '0 8 * * *'
-  
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Environment to run the e2e against'
-        required: true
-        default: 'stage'
-        type: choice
-        options:
-          - stage
-          - prod
-          - dev
-
+    - cron: "0 9 * * *"
 jobs:
-  relay_health_check:
-    name: 'Relay e2e health check'
-    timeout-minutes: 60
+  relaye2e_health_check:
+    name: Relay e2e tests with Health Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4.0.2
+      - name: Run Playwright tests with Health Check
+        uses: ./.github/workflows/playwright.yml
         with:
-          node-version-file: 'frontend/package.json'
-          cache: 'npm'
-
-      - name: Install Node dependencies
-        run: npm install
-
-      - name: Install Playwright Browsers
-        run: |
-          npm install -D @playwright/test --with-deps
-          npx playwright install
-
-      - name: Run Playwright tests
-        run: |
-          commandenv="${{ inputs.environment != null && inputs.environment || 'stage' }}"
-          E2E_TEST_ENV=$commandenv npx playwright test --grep "@health_check"
-        env:
-          E2E_TEST_ENV: ${{ inputs.environment != null && inputs.environment || 'stage' }}
-          E2E_TEST_ACCOUNT_FREE: ${{ secrets.E2E_TEST_ACCOUNT_FREE }}
-          E2E_TEST_ACCOUNT_PASSWORD: ${{ secrets.E2E_TEST_ACCOUNT_PASSWORD }}
-          E2E_TEST_ACCOUNT_PREMIUM: ${{ secrets.E2E_TEST_ACCOUNT_PREMIUM }}
-          E2E_TEST_BASE_URL: ${{ secrets.E2E_TEST_BASE_URL }}
-
-      - name: Upload html report as artifact to troubleshoot failures.
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 5
+          environment: stage
+          health_check: true
