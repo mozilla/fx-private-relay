@@ -1,51 +1,56 @@
-name: Relay e2e Tests
+name: Relay e2e tests
 on:
   schedule:
-    - cron: '0 8 * * *'
-
+    - cron: 0 8 * * *
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Environment to run the e2e against'
+        description: Environment to run the e2e against
         required: true
-        default: 'stage'
+        default: stage
         type: choice
         options:
           - stage
           - prod
           - dev
-
+      health_check:
+        description: Enable health check
+        required: false
+        default: false
+        type: boolean
 jobs:
   relaye2e:
-    name: 'Relay Application e2e Tests'
+    name: ${{ inputs.health_check && 'Relay e2e health check' || 'Relay e2e all tests' }} 
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4.0.2
         with:
-          node-version-file: 'frontend/package.json'
-          cache: 'npm'
-
+          node-version-file: frontend/package.json
+          cache: npm
       - name: Install Node dependencies
         run: npm install
-
       - name: Install Playwright Browsers
         run: |
           npm install -D @playwright/test --with-deps
           npx playwright install
-
       - name: Run Playwright tests
-        run: |
-          commandenv=":${{ inputs.environment != null && inputs.environment || 'stage' }}"
-          npm run test$commandenv
+        run: >
+          commandenv="${{ inputs.environment != null && inputs.environment || 'stage'
+          }}"
+
+          if ${{ inputs.health_check }}; then
+            E2E_TEST_ENV=$commandenv npx playwright test --grep "@health_check"
+          else
+            npm run test:$commandenv
+          fi
         env:
           E2E_TEST_ENV: ${{ inputs.environment != null && inputs.environment || 'stage' }}
           E2E_TEST_ACCOUNT_FREE: ${{ secrets.E2E_TEST_ACCOUNT_FREE }}
           E2E_TEST_ACCOUNT_PASSWORD: ${{ secrets.E2E_TEST_ACCOUNT_PASSWORD }}
           E2E_TEST_ACCOUNT_PREMIUM: ${{ secrets.E2E_TEST_ACCOUNT_PREMIUM }}
           E2E_TEST_BASE_URL: ${{ secrets.E2E_TEST_BASE_URL }}
-
       - name: Upload html report as artifact to troubleshoot failures.
         uses: actions/upload-artifact@v4
         if: always()
