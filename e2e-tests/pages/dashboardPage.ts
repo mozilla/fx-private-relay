@@ -266,7 +266,9 @@ export class DashboardPage {
 
     try {
       numberOfMasks = await this.page.locator(this.maskCardString).count();
-    } catch (err) {}
+    } catch (err) {
+      numberOfMasks = 0;
+    }
 
     // check number of masks available
     if (numberOfMasks === 0) {
@@ -361,8 +363,13 @@ export class DashboardPage {
     if (!(await trackersBox.isChecked())) {
       await trackersBox.check();
     }
-    await this.page.waitForTimeout(1000);
     await this.page.getByRole("button", { name: "Save" }).click();
+    await this.page
+      .getByText("Your settings have been updated")
+      .waitFor({ state: "attached", timeout: 3000 });
+    await this.page
+      .locator("//button[starts-with(@class, 'Toastify__close-button')]")
+      .click();
   }
 
   async signUpForPageWithTrackers(mask: string) {
@@ -379,7 +386,9 @@ export class DashboardPage {
     if (captchaShown) {
       throw new Error("Unable to continue test, captcha was shown");
     }
-    await this.page.waitForURL("**/scrum-vs-kanban/");
+    await this.page
+      .getByText("New to Agile? You NEED To See This!")
+      .waitFor({ state: "attached", timeout: 3000 });
     await this.open();
   }
 

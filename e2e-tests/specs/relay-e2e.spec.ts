@@ -70,8 +70,26 @@ test.describe("Subscription flows @health_check", () => {
   /**
    * Verifies that all plans correctly redirect to its corresponding subscriptions page.
    */
+  let expectedEmailsPlansDetails;
+  let expectedPhonesEmailsPlanDetails;
+  let expectedVPNBundleDetails;
 
   test.beforeEach(async ({ landingPage }) => {
+    if (process.env["E2E_TEST_ENV"] === "prod") {
+      expectedEmailsPlansDetails = "Relay Premium";
+      expectedPhonesEmailsPlanDetails =
+        "Relay Premium: Phone Number & Email Address Masking";
+      expectedVPNBundleDetails = "Mozilla VPN & Firefox Relay";
+    } else if (process.env["E2E_TEST_ENV"] === "stage") {
+      expectedEmailsPlansDetails = "Relay Premium (stage)";
+      expectedPhonesEmailsPlanDetails =
+        "Relay Email & Phone Protection (stage)";
+      expectedVPNBundleDetails = "Firefox Relay & Mozilla VPN (Stage)";
+    } else {
+      expectedPhonesEmailsPlanDetails = "Relay Email & Phone Protection (dev)";
+      expectedVPNBundleDetails = "Firefox Relay & Mozilla VPN (dev)";
+    }
+
     await landingPage.open();
   });
 
@@ -79,18 +97,18 @@ test.describe("Subscription flows @health_check", () => {
     landingPage,
     subscriptionPage,
   }) => {
-    await landingPage.selectYearlyEmailsPlan();
-    const expectedPlanDetails =
-      process.env["E2E_TEST_ENV"] === "prod"
-        ? "Relay Premium"
-        : "Relay Premium (stage)";
+    test.skip(
+      process.env.E2E_TEST_ENV === "dev",
+      "Invalid flow in the dev environment.",
+    );
 
+    await landingPage.selectYearlyEmailsPlan();
     // verify redirect to subscription page
     expect(await subscriptionPage.subscriptionTitle.textContent()).toContain(
       "Set up your subscription",
     );
     expect(await subscriptionPage.planDetails.textContent()).toEqual(
-      expectedPlanDetails,
+      expectedEmailsPlansDetails,
     );
     expect(await subscriptionPage.planType.textContent()).toContain("yearly");
   });
@@ -99,18 +117,18 @@ test.describe("Subscription flows @health_check", () => {
     landingPage,
     subscriptionPage,
   }) => {
-    await landingPage.selectMonthlyEmailsPlan();
-    const expectedPlanDetails =
-      process.env["E2E_TEST_ENV"] === "prod"
-        ? "Relay Premium"
-        : "Relay Premium (stage)";
+    test.skip(
+      process.env.E2E_TEST_ENV === "dev",
+      "Invalid flow in the dev environment.",
+    );
 
+    await landingPage.selectMonthlyEmailsPlan();
     // verify redirect to subscription page
     expect(await subscriptionPage.subscriptionTitle.textContent()).toContain(
       "Set up your subscription",
     );
     expect(await subscriptionPage.planDetails.textContent()).toEqual(
-      expectedPlanDetails,
+      expectedEmailsPlansDetails,
     );
     expect(await subscriptionPage.planType.textContent()).toContain("monthly");
   });
@@ -120,17 +138,13 @@ test.describe("Subscription flows @health_check", () => {
     subscriptionPage,
   }) => {
     await landingPage.selectYearlyPhonesEmailsBundle();
-    const expectedPlanDetails =
-      process.env["E2E_TEST_ENV"] === "prod"
-        ? "Relay Premium: Phone Number & Email Address Masking"
-        : "Relay Email & Phone Protection (stage)";
 
     // verify redirect to subscription page
     expect(await subscriptionPage.subscriptionTitle.textContent()).toContain(
       "Set up your subscription",
     );
     expect(await subscriptionPage.planDetails.textContent()).toEqual(
-      expectedPlanDetails,
+      expectedPhonesEmailsPlanDetails,
     );
     expect(await subscriptionPage.planType.textContent()).toContain("yearly");
   });
@@ -139,18 +153,18 @@ test.describe("Subscription flows @health_check", () => {
     landingPage,
     subscriptionPage,
   }) => {
+    test.skip(
+      process.env.E2E_TEST_ENV === "dev",
+      "Dev environment will redirect to the yearly subscription plan.",
+    );
+    
     await landingPage.selectMonthlyPhonesEmailsBundle();
-    const expectedPlanDetails =
-      process.env["E2E_TEST_ENV"] === "prod"
-        ? "Relay Premium: Phone Number & Email Address Masking"
-        : "Relay Email & Phone Protection (stage)";
-
     // verify redirect to subscription page
     expect(await subscriptionPage.subscriptionTitle.textContent()).toContain(
       "Set up your subscription",
     );
     expect(await subscriptionPage.planDetails.textContent()).toEqual(
-      expectedPlanDetails,
+      expectedPhonesEmailsPlanDetails,
     );
     expect(await subscriptionPage.planType.textContent()).toContain("monthly");
   });
@@ -160,17 +174,13 @@ test.describe("Subscription flows @health_check", () => {
     subscriptionPage,
   }) => {
     await landingPage.selectVpnBundlePlan();
-    const expectedPlanDetails =
-      process.env["E2E_TEST_ENV"] === "prod"
-        ? "Mozilla VPN & Firefox Relay"
-        : "Firefox Relay & Mozilla VPN (Stage)";
 
     // verify redirect to subscription page
     expect(await subscriptionPage.subscriptionTitle.textContent()).toContain(
       "Set up your subscription",
     );
     expect(await subscriptionPage.planDetails.textContent()).toEqual(
-      expectedPlanDetails,
+      expectedVPNBundleDetails,
     );
     expect(await subscriptionPage.planType.textContent()).toContain("yearly");
   });
