@@ -2,6 +2,25 @@ name: Relay e2e tests
 on:
   schedule:
     - cron: 0 8 * * *
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        default: stage
+        type: string
+      health_check:
+        required: false
+        default: false
+        type: boolean
+    secrets:
+      E2E_TEST_ACCOUNT_FREE: 
+        required: true
+      E2E_TEST_ACCOUNT_PASSWORD:
+        required: true
+      E2E_TEST_ACCOUNT_PREMIUM:
+        required: true
+      E2E_TEST_BASE_URL:
+        required: true 
   workflow_dispatch:
     inputs:
       environment:
@@ -40,7 +59,7 @@ jobs:
           commandenv="${{ inputs.environment != null && inputs.environment || 'stage'
           }}"
 
-          if ${{ inputs.health_check }}; then
+          if ${{ contains(inputs.health_check, 'true') }}; then
             E2E_TEST_ENV=$commandenv npx playwright test --grep "@health_check"
           else
             npm run test:$commandenv

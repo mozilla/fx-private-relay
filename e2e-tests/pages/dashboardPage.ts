@@ -44,6 +44,7 @@ export class DashboardPage {
   readonly generateNewMaskPremiumButton: Locator;
   readonly premiumRandomMask: Locator;
   readonly closeCornerUpsell: Locator;
+  readonly closeCornerTips: Locator;
   readonly blockPromotions: Locator;
   readonly blockAll: Locator;
   readonly blockLevelAllLabel: Locator;
@@ -111,6 +112,9 @@ export class DashboardPage {
     this.premiumDomainMask = page.locator('//li[@data-key="custom"]');
     this.closeCornerUpsell = page.locator(
       '//button[starts-with(@class, "CornerNotification_close-button")]',
+    );
+    this.closeCornerTips = page.locator(
+      '//button[starts-with(@class, "Tips_close-button")]',
     );
     this.bottomUgradeBanner = page.locator(
       '//div[starts-with(@class, "profile_bottom-banner-wrapper")]',
@@ -270,13 +274,17 @@ export class DashboardPage {
       numberOfMasks = 0;
     }
 
+    if (await this.closeCornerUpsell.isVisible()) {
+      await this.closeCornerUpsell.click();
+    }
+
+    if (await this.closeCornerTips.isVisible()) {
+      await this.closeCornerTips.click();
+    }
+
     // check number of masks available
     if (numberOfMasks === 0) {
       return;
-    }
-
-    if (await this.closeCornerUpsell.isVisible()) {
-      await this.closeCornerUpsell.click();
     }
 
     // if clear all, check if there's an expanded mask card
