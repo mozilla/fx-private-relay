@@ -3,12 +3,10 @@ on:
   schedule:
     - cron: 0 9 * * *
 jobs:
-  relaye2e_health_check:
-    name: Relay e2e tests, health check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Run Playwright health check tests
-        uses: ./.github/workflows/playwright.yml
-        with:
-          environment: stage
-          health_check: true
+  relay_health: 
+    uses: ./.github/workflows/playwright.yml
+    with:
+      environment: stage
+      health_check: true
+    secrets: inherit
+    
