@@ -251,6 +251,9 @@ export class DashboardPage {
 
     // randomize between 1.5-2.5 secs between each generate to deal with issue of multiple quick clicks
     await this.page.waitForTimeout(Math.random() * 2500 + 1500);
+    if (await this.closeCornerUpsell.isVisible()) {
+      await this.closeCornerUpsell.click();
+    }
     await this.generateMask(numberOfMasks - 1, isPremium);
   }
 
