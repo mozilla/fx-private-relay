@@ -12,18 +12,33 @@ export class AuthPage {
   readonly verifyCodeInputField: Locator;
   readonly confirmCodeButton: Locator;
   readonly newPasswordInputFieldSignIn: Locator;
+  readonly passwordSignupInputField: Locator;
+  readonly passwordSignupConfirmInputField: Locator;
 
   constructor(page: Page) {
     this.page = page;
     this.emailInputField = page.locator('input[name="email"]');
     this.passwordInputField = page.locator("#password");
-    this.passwordConfirmInputField = page.locator("#vpassword");
-    this.ageInputField = page.locator("#age");
+    this.passwordSignupInputField =
+      process.env["E2E_TEST_ENV"] === "prod"
+        ? page.locator("#password")
+        : page.getByTestId("new-password-input-field");
+    this.passwordSignupConfirmInputField =
+      process.env["E2E_TEST_ENV"] === "prod"
+        ? page.locator("#vpassword")
+        : page.getByTestId("verify-password-input-field");
+    this.ageInputField =
+      process.env["E2E_TEST_ENV"] === "prod"
+        ? page.locator("#age")
+        : page.getByTestId("age-input-field");
     this.continueButton = page.locator("#submit-btn");
     this.createAccountButton = page.getByRole("button", {
       name: "Create account",
     });
-    this.verifyCodeInputField = page.locator("div.card input");
+    this.verifyCodeInputField =
+      process.env["E2E_TEST_ENV"] === "prod"
+        ? page.locator("div.card input")
+        : page.getByTestId("confirm-signup-code-input-field");
     this.confirmCodeButton = page.getByRole("button", { name: "Confirm" });
     this.newPasswordInputFieldSignIn = page.locator(
       "input[data-testid='input-field'][name='password'][type='password']",
@@ -79,10 +94,10 @@ export class AuthPage {
       .getByText("Set your password")
       .waitFor({ state: "attached", timeout: 3000 });
     await forceNonReactLink(this.page);
-    await this.passwordInputField.fill(
+    await this.passwordSignupInputField.fill(
       process.env.E2E_TEST_ACCOUNT_PASSWORD as string,
     );
-    await this.passwordConfirmInputField.fill(
+    await this.passwordSignupConfirmInputField.fill(
       process.env.E2E_TEST_ACCOUNT_PASSWORD as string,
     );
     await this.ageInputField.type("31");

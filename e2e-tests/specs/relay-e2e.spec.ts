@@ -5,7 +5,7 @@ test.describe.configure({ mode: "parallel" });
 test.describe("FxA auth, random mask generation, and email forwarding @health_check", () => {
   test.skip(
     process.env.E2E_TEST_ENV === "prod",
-    "This test only works on stage/dev environments",
+    "This test only works on stage/dev environments because you cannot use masks to sign up for monitor, see 'Email forwarding and trackers removal' for a similar test",
   );
   // use stored authenticated state
   test.use({ storageState: "state.json" });
