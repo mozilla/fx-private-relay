@@ -46,7 +46,7 @@ pytest-django==4.8.0
 responses==0.25.0
 
 # linting
-black==24.4.0
+black==24.4.2
 ruff==0.3.6
 
 # type hinting
