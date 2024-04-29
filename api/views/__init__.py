@@ -1,15 +1,11 @@
-"""Shared API views mixins and exception handler"""
+"""Shared API views code"""
 
-from logging import getLogger
 from typing import Any
 
 from rest_framework.response import Response
 from rest_framework.views import exception_handler
 
 from ..exceptions import RelayAPIException
-
-logger = getLogger("events")
-info_logger = getLogger("eventsinfo")
 
 
 class SaveToRequestUser:
