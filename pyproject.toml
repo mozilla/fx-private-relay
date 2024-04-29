@@ -3,14 +3,12 @@ requires-python = ">= 3.11"
 
 [tool.coverage.report]
 omit = [
-    "*apps.py",
-    "*migrations/*",
-    "*settings*",
-    "*tests/*",
+    "*/migrations/*.py",
     "*wsgi.py",
     "env/*",
     "manage.py",
     "node_modules/*",
+    "privaterelay/locales/*",
 ]
 exclude_also = [
     # Skip code that is only evaluated by static type checkers like pyright and mypy
