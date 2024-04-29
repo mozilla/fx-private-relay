@@ -10,18 +10,18 @@ from rest_framework import routers
 
 from privaterelay.utils import enable_if_setting
 
-from .views import (
+from .views.emails import (
+    DomainAddressViewSet,
+    RelayAddressViewSet,
+    first_forwarded_email,
+)
+from .views.privaterelay import (
     FlagViewSet,
     ProfileViewSet,
     UserViewSet,
     report_webcompat_issue,
     runtime_data,
     terms_accepted_user,
-)
-from .views.emails import (
-    DomainAddressViewSet,
-    RelayAddressViewSet,
-    first_forwarded_email,
 )
 
 

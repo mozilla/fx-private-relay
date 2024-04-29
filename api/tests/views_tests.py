@@ -22,7 +22,7 @@ from api.tests.authentication_tests import (
     _setup_fxa_response,
     _setup_fxa_response_no_json,
 )
-from api.views import FXA_PROFILE_URL
+from api.views.privaterelay import FXA_PROFILE_URL
 from emails.models import DomainAddress, Profile, RelayAddress
 from emails.tests.models_tests import make_free_test_user, make_premium_test_user
 from privaterelay.tests.utils import (
