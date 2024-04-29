@@ -34,7 +34,7 @@ from privaterelay.ftl_bundles import main as ftl_bundle
 from privaterelay.utils import glean_logger
 
 from ..permissions import IsOwner
-from ..serializers import (
+from ..serializers.emails import (
     DomainAddressSerializer,
     FirstForwardedEmailSerializer,
     RelayAddressSerializer,

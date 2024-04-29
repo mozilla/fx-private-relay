@@ -37,7 +37,7 @@ from privaterelay.utils import get_countries_info_from_request_and_mapping
 
 from ..authentication import get_fxa_uid_from_oauth_token
 from ..permissions import CanManageFlags, IsOwner
-from ..serializers import (
+from ..serializers.privaterelay import (
     FlagSerializer,
     ProfileSerializer,
     UserSerializer,
