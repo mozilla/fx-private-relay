@@ -1,5 +1,7 @@
 """Tests for api/views/email_views.py"""
 
+from unittest.mock import patch
+
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
@@ -7,6 +9,7 @@ from django.utils import timezone
 import pytest
 from model_bakery import baker
 from pytest_django.fixtures import SettingsWrapper
+from rest_framework.exceptions import MethodNotAllowed, NotAuthenticated
 from rest_framework.test import APIClient
 from waffle.testutils import override_flag
 
@@ -726,3 +729,59 @@ def test_delete_randomaddress(
         event_time=event["timestamp"],
     )
     assert event == expected_event
+
+
+def test_first_forwarded_email_unauth(client) -> None:
+    response = client.post("/api/v1/first-forwarded-email/")
+    assert response.status_code == 401
+    assert response.json() == {"detail": str(NotAuthenticated())}
+
+
+def test_first_forwarded_email_bad_method(free_api_client: APIClient) -> None:
+    response = free_api_client.get("/api/v1/first-forwarded-email/")
+    assert response.status_code == 405
+    assert response.json() == {"detail": str(MethodNotAllowed("GET"))}
+
+
+def test_first_forwarded_email_no_flag(free_api_client: APIClient) -> None:
+    with override_flag("free_user_onboarding", False):
+        response = free_api_client.post("/api/v1/first-forwarded-email/")
+    assert response.status_code == 403
+    assert response.json() == {"detail": "Requires free_user_onboarding waffle flag."}
+
+
+def test_first_forwarded_email_bad_request(free_api_client: APIClient) -> None:
+    with override_flag("free_user_onboarding", True):
+        response = free_api_client.post(
+            "/api/v1/first-forwarded-email/", {"bad": "data"}
+        )
+    assert response.status_code == 400
+    assert response.json() == {"mask": ["This field is required."]}
+
+
+def test_first_forwarded_email_unknown_mask(free_api_client: APIClient) -> None:
+    with override_flag("free_user_onboarding", True):
+        response = free_api_client.post(
+            "/api/v1/first-forwarded-email/", {"mask": "not_found@example.com"}
+        )
+    assert response.status_code == 404
+    assert response.content == b'"not_found@example.com does not exist for user."'
+
+
+def test_first_forwarded_email_success(
+    free_api_client: APIClient, free_user: User
+) -> None:
+    address = free_user.relayaddress_set.create()
+    with (
+        override_flag("free_user_onboarding", True),
+        patch(
+            "emails.apps.EmailsConfig.ses_client",
+            spec_set=["send_email"],
+        ) as mock_ses_client,
+    ):
+        response = free_api_client.post(
+            "/api/v1/first-forwarded-email/", {"mask": address.full_address}
+        )
+    assert response.status_code == 201
+    assert response.content == b""
+    mock_ses_client.send_email.assert_called_once()
