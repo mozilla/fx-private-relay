@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 
 import django_ftl
 from django_filters import rest_framework as filters
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -152,7 +152,16 @@ class FirstForwardedEmailRateThrottle(UserRateThrottle):
 
 
 @permission_classes([IsAuthenticated])
-@extend_schema(methods=["POST"], request=FirstForwardedEmailSerializer)
+@extend_schema(
+    request=FirstForwardedEmailSerializer,
+    responses={
+        201: OpenApiResponse(description="Email sent to user."),
+        400: OpenApiResponse(description="Invalid mask."),
+        401: OpenApiResponse(description="Authentication required."),
+        403: OpenApiResponse(description="Flag 'free_user_onboarding' is required."),
+        404: OpenApiResponse(description="Unable to find the mask."),
+    },
+)
 @api_view(["POST"])
 @throttle_classes([FirstForwardedEmailRateThrottle])
 def first_forwarded_email(request):
