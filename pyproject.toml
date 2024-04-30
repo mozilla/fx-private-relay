@@ -1,6 +1,24 @@
 [project]
 requires-python = ">= 3.11"
 
+[tool.coverage.report]
+omit = [
+    "*/migrations/*.py",
+    "*wsgi.py",
+    "env/*",
+    "manage.py",
+    "node_modules/*",
+    "privaterelay/locales/*",
+]
+exclude_also = [
+    # Skip code that is only evaluated by static type checkers like pyright and mypy
+    "if TYPE_CHECKING:",
+]
+
+[tool.coverage.run]
+relative_files = true
+source = ["."]
+
 [tool.django-stubs]
 django_settings_module = "privaterelay.settings"
 
