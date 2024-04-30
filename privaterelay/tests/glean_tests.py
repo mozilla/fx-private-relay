@@ -12,7 +12,7 @@ from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
 from pytest_django.fixtures import SettingsWrapper
 
-from api.serializers import RelayAddressSerializer
+from api.serializers.emails import RelayAddressSerializer
 from emails.models import RelayAddress
 from emails.tests.models_tests import (
     make_free_test_user,
