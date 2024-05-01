@@ -14,7 +14,12 @@ from django.forms import model_to_dict
 
 import django_ftl
 import phonenumbers
-from drf_spectacular.utils import OpenApiParameter, extend_schema
+from drf_spectacular.utils import (
+    OpenApiExample,
+    OpenApiParameter,
+    OpenApiResponse,
+    extend_schema,
+)
 from rest_framework import (
     decorators,
     exceptions,
@@ -424,6 +429,25 @@ def _get_number_details(e164_number):
         return None
 
 
+@extend_schema(
+    responses={
+        "200": OpenApiResponse(
+            bytes,
+            description="A Virtual Contact File (VCF) for the user's Relay number.",
+            examples=[
+                OpenApiExample(
+                    name="partial VCF",
+                    media_type="text/x-vcard",
+                    value=(
+                        "BEGIN:VCARD\nVERSION:3.0\nFN:Firefox Relay\n"
+                        "TEL:+14045555555\nEND:VCARD\n"
+                    ),
+                )
+            ],
+        ),
+        "404": OpenApiResponse(description="No or unknown lookup key"),
+    }
+)
 @decorators.api_view()
 @decorators.permission_classes([permissions.AllowAny])
 @decorators.renderer_classes([vCardRenderer])
