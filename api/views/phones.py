@@ -17,6 +17,7 @@ import phonenumbers
 from drf_spectacular.utils import (
     OpenApiExample,
     OpenApiParameter,
+    OpenApiRequest,
     OpenApiResponse,
     extend_schema,
 )
@@ -58,6 +59,7 @@ from ..permissions import HasPhoneService
 from ..renderers import TemplateTwiMLRenderer, vCardRenderer
 from ..serializers.phones import (
     InboundContactSerializer,
+    InboundSmsSerializer,
     RealPhoneSerializer,
     RelayNumberSerializer,
 )
@@ -517,10 +519,56 @@ def _get_user_error_message(real_phone: RealPhone, sms_exception) -> Any:
     return user_message
 
 
+@extend_schema(
+    parameters=[
+        OpenApiParameter(name="X-Twilio-Signature", required=True, location="header"),
+    ],
+    request=OpenApiRequest(
+        InboundSmsSerializer,
+        examples=[
+            OpenApiExample(
+                "request",
+                {"to": "+13035556789", "from": "+14045556789", "text": "Hello!"},
+            )
+        ],
+    ),
+    responses={
+        "200": OpenApiResponse(
+            {"type": "string", "xml": {"name": "Response"}},
+            description="The number is disabled.",
+            examples=[OpenApiExample("disabled", None)],
+        ),
+        "201": OpenApiResponse(
+            {"type": "string", "xml": {"name": "Response"}},
+            description="Forward the message to the user.",
+            examples=[OpenApiExample("success", None)],
+        ),
+        "400": OpenApiResponse(
+            {"type": "object", "xml": {"name": "Error"}},
+            description="Unable to complete request.",
+            examples=[
+                OpenApiExample(
+                    "invalid signature",
+                    {
+                        "status_code": 400,
+                        "code": "invalid",
+                        "title": "Invalid Request: Invalid Signature",
+                    },
+                )
+            ],
+        ),
+    },
+)
 @decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.AllowAny])
 @decorators.renderer_classes([TemplateTwiMLRenderer])
 def inbound_sms(request):
+    """
+    Handle an inbound SMS message sent by Twilio.
+
+    The return value is TwilML Response XML that reports the error or an empty success
+    message.
+    """
     incr_if_enabled("phones_inbound_sms")
     _validate_twilio_request(request)
 

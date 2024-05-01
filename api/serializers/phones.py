@@ -92,3 +92,16 @@ class InboundContactSerializer(serializers.ModelSerializer):
             "num_texts_blocked",
             "last_text_date",
         ]
+
+
+class InboundSmsSerializer(serializers.Serializer):
+    text = serializers.CharField()
+    from_ = serializers.CharField()
+    to = serializers.CharField()
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+        # Change to reserved keyword "from"
+        assert "from_" in self.fields
+        self.fields["from"] = self.fields.pop("from_")
