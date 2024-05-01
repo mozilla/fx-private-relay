@@ -105,3 +105,8 @@ class InboundSmsSerializer(serializers.Serializer):
         # Change to reserved keyword "from"
         assert "from_" in self.fields
         self.fields["from"] = self.fields.pop("from_")
+
+
+class InboundCallSerializer(serializers.Serializer):
+    Caller = serializers.CharField()
+    Called = serializers.CharField()

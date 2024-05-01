@@ -58,6 +58,7 @@ from ..exceptions import ConflictError, ErrorContextType
 from ..permissions import HasPhoneService
 from ..renderers import TemplateTwiMLRenderer, vCardRenderer
 from ..serializers.phones import (
+    InboundCallSerializer,
     InboundContactSerializer,
     InboundSmsSerializer,
     RealPhoneSerializer,
@@ -726,10 +727,92 @@ def inbound_sms_iq(request: Request) -> response.Response:
     return response.Response(status=200)
 
 
+@extend_schema(
+    parameters=[
+        OpenApiParameter(name="X-Twilio-Signature", required=True, location="header"),
+    ],
+    request=OpenApiRequest(
+        InboundCallSerializer,
+        examples=[
+            OpenApiExample(
+                "request",
+                {"Caller": "+13035556789", "Called": "+14045556789"},
+            )
+        ],
+    ),
+    responses={
+        "200": OpenApiResponse(
+            {
+                "type": "object",
+                "xml": {"name": "Response"},
+                "properties": {"say": {"type": "string"}},
+            },
+            description="The number is disabled.",
+            examples=[
+                OpenApiExample(
+                    "disabled", {"say": "Sorry, that number is not available."}
+                )
+            ],
+        ),
+        "201": OpenApiResponse(
+            {
+                "type": "object",
+                "xml": {"name": "Response"},
+                "properties": {
+                    "Dial": {
+                        "type": "object",
+                        "properties": {
+                            "callerId": {
+                                "type": "string",
+                                "xml": {"attribute": "true"},
+                            },
+                            "Number": {"type": "string"},
+                        },
+                    }
+                },
+            },
+            description="Connect the caller to the Relay user.",
+            examples=[
+                OpenApiExample(
+                    "success",
+                    {"Dial": {"callerId": "+13035556789", "Number": "+15025558642"}},
+                )
+            ],
+        ),
+        "400": OpenApiResponse(
+            {"type": "object", "xml": {"name": "Error"}},
+            description="Unable to complete request.",
+            examples=[
+                OpenApiExample(
+                    "invalid signature",
+                    {
+                        "status_code": 400,
+                        "code": "invalid",
+                        "title": "Invalid Request: Invalid Signature",
+                    },
+                ),
+                OpenApiExample(
+                    "out of call time for month",
+                    {
+                        "status_code": 400,
+                        "code": "invalid",
+                        "title": "Number Is Out Of Seconds.",
+                    },
+                ),
+            ],
+        ),
+    },
+)
 @decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.AllowAny])
 @decorators.renderer_classes([TemplateTwiMLRenderer])
 def inbound_call(request):
+    """
+    Handle an inbound call request sent by Twilio.
+
+    The return value is TwilML Response XML that reports the error or instructs
+    Twilio to connect the callers.
+    """
     incr_if_enabled("phones_inbound_call")
     _validate_twilio_request(request)
     inbound_from = request.data.get("Caller", None)
