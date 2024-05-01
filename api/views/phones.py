@@ -475,6 +475,18 @@ def vCard(request: Request, lookup_key: str) -> response.Response:
     return resp
 
 
+@extend_schema(
+    request=OpenApiRequest(),
+    responses={
+        "200": OpenApiResponse(
+            {"type": "object"},
+            description="Welcome message sent.",
+            examples=[OpenApiExample("success", {"msg": "sent"})],
+        ),
+        "401": OpenApiResponse(description="Not allowed"),
+        "404": OpenApiResponse(description="User does not have a Relay number."),
+    },
+)
 @decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.IsAuthenticated, HasPhoneService])
 def resend_welcome_sms(request):
