@@ -63,6 +63,7 @@ from ..serializers.phones import (
     InboundSmsSerializer,
     RealPhoneSerializer,
     RelayNumberSerializer,
+    TwilioMessagesSerializer,
 )
 
 logger = logging.getLogger("events")
@@ -994,18 +995,35 @@ def outbound_sms(request):
     parameters=[
         OpenApiParameter(
             name="with",
-            type=str,
-            required=False,
             description="filter to messages with the given E.164 number",
         ),
         OpenApiParameter(
             name="direction",
-            type=str,
-            required=False,
+            enum=["inbound", "outbound"],
             description="filter to inbound or outbound messages",
         ),
     ],
-    methods=["GET"],
+    responses={
+        "200": OpenApiResponse(
+            TwilioMessagesSerializer(many=True),
+            description="A list of the user's SMS messages.",
+            examples=[
+                OpenApiExample(
+                    "success",
+                    {
+                        "to": "+13035556789",
+                        "date_sent": datetime.now(UTC).isoformat(),
+                        "body": "Hello!",
+                        "from": "+14045556789",
+                    },
+                )
+            ],
+        ),
+        "400": OpenApiResponse(description="Unable to complete request."),
+        "403": OpenApiResponse(
+            description="Caller does not have 'outbound_phone' waffle flag."
+        ),
+    },
 )
 @decorators.api_view(["GET"])
 def list_messages(request):

@@ -101,12 +101,22 @@ class InboundSmsSerializer(serializers.Serializer):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-
         # Change to reserved keyword "from"
-        assert "from_" in self.fields
         self.fields["from"] = self.fields.pop("from_")
 
 
 class InboundCallSerializer(serializers.Serializer):
     Caller = serializers.CharField()
     Called = serializers.CharField()
+
+
+class TwilioMessagesSerializer(serializers.Serializer):
+    from_ = serializers.CharField()
+    to = serializers.CharField()
+    date_sent = serializers.CharField()
+    body = serializers.CharField()
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        # Change to reserved keyword "from"
+        self.fields["from"] = self.fields.pop("from_")
