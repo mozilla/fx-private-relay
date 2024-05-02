@@ -1,4 +1,5 @@
 from logging import getLogger
+from typing import Any, Literal
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -143,7 +144,76 @@ def report_webcompat_issue(request):
     return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 
-@extend_schema(tags=["privaterelay"])
+def _get_example_plan(plan: Literal["premium", "phones", "bundle"]) -> dict[str, Any]:
+    prices = {
+        "premium": {"monthly": 1.99, "yearly": 0.99},
+        "phones": {"monthly": 4.99, "yearly": 4.99},
+        "bundle": {"monthly": 6.99, "yearly": 6.99},
+    }
+    monthly_price = {
+        "id": f"price_{plan.title()}Monthlyxxxx",
+        "currency": "usd",
+        "price": prices[plan]["monthly"],
+    }
+    yearly_price = {
+        "id": f"price_{plan.title()}Yearlyxxxx",
+        "currency": "usd",
+        "price": prices[plan]["yearly"],
+    }
+    return {
+        "country_code": "US",
+        "countries": ["CA", "US"],
+        "available_in_country": True,
+        "plan_country_lang_mapping": {
+            "CA": {
+                "*": {
+                    "monthly": monthly_price,
+                    "yearly": yearly_price,
+                }
+            },
+            "US": {
+                "*": {
+                    "monthly": monthly_price,
+                    "yearly": yearly_price,
+                }
+            },
+        },
+    }
+
+
+@extend_schema(
+    tags=["privaterelay"],
+    responses={
+        "200": OpenApiResponse(
+            {"type": "object"},
+            description="Site parameters",
+            examples=[
+                OpenApiExample(
+                    "relay.firefox.com (partial)",
+                    {
+                        "FXA_ORIGIN": "https://accounts.firefox.com",
+                        "PERIODICAL_PREMIUM_PRODUCT_ID": "prod_XXXXXXXXXXXXXX",
+                        "GOOGLE_ANALYTICS_ID": "UA-########-##",
+                        "BUNDLE_PRODUCT_ID": "prod_XXXXXXXXXXXXXX",
+                        "PHONE_PRODUCT_ID": "prod_XXXXXXXXXXXXXX",
+                        "PERIODICAL_PREMIUM_PLANS": _get_example_plan("premium"),
+                        "PHONE_PLANS": _get_example_plan("phones"),
+                        "BUNDLE_PLANS": _get_example_plan("bundle"),
+                        "BASKET_ORIGIN": "https://basket.mozilla.org",
+                        "WAFFLE_FLAGS": [
+                            ["foxfood", False],
+                            ["phones", True],
+                            ["bundle", True],
+                        ],
+                        "WAFFLE_SWITCHES": [],
+                        "WAFFLE_SAMPLES": [],
+                        "MAX_MINUTES_TO_VERIFY_REAL_PHONE": 5,
+                    },
+                )
+            ],
+        )
+    },
+)
 @api_view()
 @permission_classes([AllowAny])
 def runtime_data(request):
