@@ -67,6 +67,7 @@ from ..serializers.phones import (
     RelayNumberSerializer,
     TwilioMessagesSerializer,
     TwilioSmsStatusSerializer,
+    TwilioVoiceStatusSerializer,
 )
 
 logger = logging.getLogger("events")
@@ -851,9 +852,40 @@ def inbound_call(request):
     )
 
 
+@extend_schema(
+    request=OpenApiRequest(
+        TwilioVoiceStatusSerializer,
+        examples=[
+            OpenApiExample(
+                "Call is complete",
+                {
+                    "CallSid": "CA" + "x" * 32,
+                    "Called": "+14045556789",
+                    "CallStatus": "completed",
+                    "CallDuration": 127,
+                },
+            )
+        ],
+    ),
+    parameters=[
+        OpenApiParameter(name="X-Twilio-Signature", required=True, location="header"),
+    ],
+    responses={
+        "200": OpenApiResponse(description="Call status was processed."),
+        "400": OpenApiResponse(
+            description="Required parameters are incorrect or missing."
+        ),
+    },
+)
 @decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.AllowAny])
 def voice_status(request):
+    """
+    Twilio callback for voice call status.
+
+    When the call is complete, the user's remaining monthly time is updated, and
+    the call is deleted from Twilio logs.
+    """
     incr_if_enabled("phones_voice_status")
     _validate_twilio_request(request)
     call_sid = request.data.get("CallSid", None)

@@ -127,6 +127,13 @@ class TwilioSmsStatusSerializer(serializers.Serializer):
     MessageSid = serializers.CharField()
 
 
+class TwilioVoiceStatusSerializer(serializers.Serializer):
+    CallSid = serializers.CharField()
+    Called = serializers.CharField()
+    CallStatus = serializers.CharField()
+    CallDuration = serializers.IntegerField(required=False)
+
+
 class OutboundSmsSerializer(serializers.Serializer):
     body = serializers.CharField()
     destination = serializers.CharField()
