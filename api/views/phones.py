@@ -61,6 +61,7 @@ from ..serializers.phones import (
     InboundCallSerializer,
     InboundContactSerializer,
     InboundSmsSerializer,
+    OutboundSmsSerializer,
     RealPhoneSerializer,
     RelayNumberSerializer,
     TwilioMessagesSerializer,
@@ -943,12 +944,23 @@ def outbound_call(request):
 
 @decorators.permission_classes([permissions.IsAuthenticated, HasPhoneService])
 @extend_schema(
-    parameters=[
-        OpenApiParameter(name="body", required=True, type=str),
-        OpenApiParameter(name="destination", required=True, type=str),
-    ],
-    methods=["POST"],
-    responses={200: None},
+    request=OpenApiRequest(
+        OutboundSmsSerializer,
+        examples=[
+            OpenApiExample("request", {"body": "Hello!", "destination": "+13045554567"})
+        ],
+    ),
+    responses={
+        200: OpenApiResponse(description="Message sent."),
+        400: OpenApiResponse(
+            description="Input error, or user does not have a Relay phone."
+        ),
+        401: OpenApiResponse(description="Authentication required."),
+        403: OpenApiResponse(
+            description="User does not have 'outbound_phone' waffle flag."
+        ),
+        405: OpenApiResponse(description="Method not allowed"),
+    },
 )
 @decorators.api_view(["POST"])
 def outbound_sms(request):

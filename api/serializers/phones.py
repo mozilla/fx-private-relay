@@ -120,3 +120,8 @@ class TwilioMessagesSerializer(serializers.Serializer):
         super().__init__(*args, **kwargs)
         # Change to reserved keyword "from"
         self.fields["from"] = self.fields.pop("from_")
+
+
+class OutboundSmsSerializer(serializers.Serializer):
+    body = serializers.CharField()
+    destination = serializers.CharField()
