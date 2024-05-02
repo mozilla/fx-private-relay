@@ -63,7 +63,10 @@ class FlagFilter(FilterSet):
         ]
 
 
+@extend_schema(tags=["privaterelay"])
 class FlagViewSet(ModelViewSet):
+    """Feature flags."""
+
     serializer_class = FlagSerializer
     permission_classes = [IsAuthenticated, CanManageFlags]
     filterset_class = FlagFilter
@@ -74,7 +77,10 @@ class FlagViewSet(ModelViewSet):
         return flags
 
 
+@extend_schema(tags=["privaterelay"])
 class ProfileViewSet(ModelViewSet):
+    """Relay user extended profile data."""
+
     serializer_class = ProfileSerializer
     permission_classes = [IsAuthenticated, IsOwner]
     http_method_names = ["get", "post", "head", "put", "patch"]
@@ -85,7 +91,10 @@ class ProfileViewSet(ModelViewSet):
         return Profile.objects.none()
 
 
+@extend_schema(tags=["privaterelay"])
 class UserViewSet(ModelViewSet):
+    """Relay user data stored in Django user model."""
+
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated, IsOwner]
     http_method_names = ["get", "head"]
@@ -97,9 +106,11 @@ class UserViewSet(ModelViewSet):
 
 
 @permission_classes([IsAuthenticated])
-@extend_schema(methods=["POST"], request=WebcompatIssueSerializer)
+@extend_schema(tags=["privaterelay"], request=WebcompatIssueSerializer)
 @api_view(["POST"])
 def report_webcompat_issue(request):
+    """Report a Relay issue from an extension or integration."""
+
     serializer = WebcompatIssueSerializer(data=request.data)
     if serializer.is_valid():
         info_logger.info("webcompat_issue", extra=serializer.data)
@@ -111,9 +122,11 @@ def report_webcompat_issue(request):
     return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(tags=["privaterelay"])
 @api_view()
 @permission_classes([AllowAny])
 def runtime_data(request):
+    """Get data needed to present the Relay dashboard to a vistor or user."""
     flags = get_waffle_flag_model().get_all()
     flag_values = [(f.name, f.is_active(request)) for f in flags]
     switches = Switch.get_all()
@@ -148,6 +161,7 @@ def runtime_data(request):
 
 
 @extend_schema(
+    tags=["privaterelay"],
     responses={
         201: OpenApiResponse(description="Created; returned when user is created."),
         202: OpenApiResponse(
