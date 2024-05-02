@@ -94,7 +94,12 @@ class InboundContactSerializer(serializers.ModelSerializer):
         ]
 
 
-class InboundSmsSerializer(serializers.Serializer):
+class TwilioInboundCallSerializer(serializers.Serializer):
+    Caller = serializers.CharField()
+    Called = serializers.CharField()
+
+
+class TwilioInboundSmsSerializer(serializers.Serializer):
     text = serializers.CharField()
     from_ = serializers.CharField()
     to = serializers.CharField()
@@ -103,11 +108,6 @@ class InboundSmsSerializer(serializers.Serializer):
         super().__init__(*args, **kwargs)
         # Change to reserved keyword "from"
         self.fields["from"] = self.fields.pop("from_")
-
-
-class InboundCallSerializer(serializers.Serializer):
-    Caller = serializers.CharField()
-    Called = serializers.CharField()
 
 
 class TwilioMessagesSerializer(serializers.Serializer):

@@ -58,13 +58,13 @@ from ..exceptions import ConflictError, ErrorContextType
 from ..permissions import HasPhoneService
 from ..renderers import TemplateTwiMLRenderer, vCardRenderer
 from ..serializers.phones import (
-    InboundCallSerializer,
     InboundContactSerializer,
-    InboundSmsSerializer,
     OutboundCallSerializer,
     OutboundSmsSerializer,
     RealPhoneSerializer,
     RelayNumberSerializer,
+    TwilioInboundCallSerializer,
+    TwilioInboundSmsSerializer,
     TwilioMessagesSerializer,
     TwilioSmsStatusSerializer,
     TwilioVoiceStatusSerializer,
@@ -542,7 +542,7 @@ def _get_user_error_message(real_phone: RealPhone, sms_exception) -> Any:
         OpenApiParameter(name="X-Twilio-Signature", required=True, location="header"),
     ],
     request=OpenApiRequest(
-        InboundSmsSerializer,
+        TwilioInboundSmsSerializer,
         examples=[
             OpenApiExample(
                 "request",
@@ -737,7 +737,7 @@ def inbound_sms_iq(request: Request) -> response.Response:
         OpenApiParameter(name="X-Twilio-Signature", required=True, location="header"),
     ],
     request=OpenApiRequest(
-        InboundCallSerializer,
+        TwilioInboundCallSerializer,
         examples=[
             OpenApiExample(
                 "request",
