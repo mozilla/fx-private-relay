@@ -66,6 +66,7 @@ from ..serializers.phones import (
     RealPhoneSerializer,
     RelayNumberSerializer,
     TwilioMessagesSerializer,
+    TwilioSmsStatusSerializer,
 )
 
 logger = logging.getLogger("events")
@@ -884,9 +885,34 @@ def voice_status(request):
     return response.Response(status=200)
 
 
+@extend_schema(
+    request=OpenApiRequest(
+        TwilioSmsStatusSerializer,
+        examples=[
+            OpenApiExample(
+                "SMS is delivered",
+                {"SmsStatus": "delivered", "MessageSid": "SM" + "x" * 32},
+            )
+        ],
+    ),
+    parameters=[
+        OpenApiParameter(name="X-Twilio-Signature", required=True, location="header"),
+    ],
+    responses={
+        "200": OpenApiResponse(description="SMS status was processed."),
+        "400": OpenApiResponse(
+            description="Required parameters are incorrect or missing."
+        ),
+    },
+)
 @decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.AllowAny])
 def sms_status(request):
+    """
+    Twilio callback for SMS status.
+
+    When the message is delivered, this calls Twilio to delete the message from logs.
+    """
     _validate_twilio_request(request)
     sms_status = request.data.get("SmsStatus", None)
     message_sid = request.data.get("MessageSid", None)

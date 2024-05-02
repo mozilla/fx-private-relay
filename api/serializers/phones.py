@@ -122,6 +122,11 @@ class TwilioMessagesSerializer(serializers.Serializer):
         self.fields["from"] = self.fields.pop("from_")
 
 
+class TwilioSmsStatusSerializer(serializers.Serializer):
+    SmsStatus = serializers.CharField()
+    MessageSid = serializers.CharField()
+
+
 class OutboundSmsSerializer(serializers.Serializer):
     body = serializers.CharField()
     destination = serializers.CharField()
