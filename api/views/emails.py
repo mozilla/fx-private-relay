@@ -102,7 +102,10 @@ class AddressViewSet(Generic[_Address], SaveToRequestUser, ModelViewSet):
         )
 
 
+@extend_schema(tags=["emails"])
 class RelayAddressViewSet(AddressViewSet[RelayAddress]):
+    """An email address with a random name provided by Relay."""
+
     serializer_class = RelayAddressSerializer
     permission_classes = [IsAuthenticated, IsOwner]
     filterset_class = RelayAddressFilter
@@ -136,7 +139,10 @@ class DomainAddressFilter(filters.FilterSet):
         ]
 
 
+@extend_schema(tags=["emails"])
 class DomainAddressViewSet(AddressViewSet[DomainAddress]):
+    """An email address with subdomain chosen by a Relay user."""
+
     serializer_class = DomainAddressSerializer
     permission_classes = [IsAuthenticated, IsOwner]
     filterset_class = DomainAddressFilter
@@ -153,6 +159,7 @@ class FirstForwardedEmailRateThrottle(UserRateThrottle):
 
 @permission_classes([IsAuthenticated])
 @extend_schema(
+    tags=["emails"],
     request=FirstForwardedEmailSerializer,
     responses={
         201: OpenApiResponse(description="Email sent to user."),
