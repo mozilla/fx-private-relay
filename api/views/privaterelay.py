@@ -11,7 +11,7 @@ from allauth.socialaccount.adapter import get_adapter as get_social_adapter
 from allauth.socialaccount.helpers import complete_social_login
 from allauth.socialaccount.models import SocialAccount
 from django_filters.rest_framework import FilterSet
-from drf_spectacular.utils import OpenApiResponse, extend_schema
+from drf_spectacular.utils import OpenApiExample, OpenApiResponse, extend_schema
 from rest_framework.authentication import get_authorization_header
 from rest_framework.decorators import (
     api_view,
@@ -106,7 +106,28 @@ class UserViewSet(ModelViewSet):
 
 
 @permission_classes([IsAuthenticated])
-@extend_schema(tags=["privaterelay"], request=WebcompatIssueSerializer)
+@extend_schema(
+    tags=["privaterelay"],
+    request=WebcompatIssueSerializer,
+    examples=[
+        OpenApiExample(
+            "mask not accepted",
+            {
+                "issue_on_domain": "https://accounts.firefox.com",
+                "user_agent": "Firefox",
+                "email_mask_not_accepted": True,
+                "add_on_visual_issue": False,
+                "email_not_received": False,
+                "other_issue": "",
+            },
+        )
+    ],
+    responses={
+        "201": OpenApiResponse(description="Report was submitted"),
+        "400": OpenApiResponse(description="Report was rejected due to errors."),
+        "401": OpenApiResponse(description="Authentication required."),
+    },
+)
 @api_view(["POST"])
 def report_webcompat_issue(request):
     """Report a Relay issue from an extension or integration."""
