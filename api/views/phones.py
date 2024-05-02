@@ -67,6 +67,7 @@ from ..serializers.phones import (
     TwilioInboundCallSerializer,
     TwilioInboundSmsSerializer,
     TwilioMessagesSerializer,
+    TwilioNumberSuggestion,
     TwilioSmsStatusSerializer,
     TwilioVoiceStatusSerializer,
 )
@@ -333,6 +334,44 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         numbers = suggested_numbers(request.user)
         return response.Response(numbers)
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "location",
+                required=False,
+                location="query",
+                examples=[OpenApiExample("Miami FL USA", "Miami")],
+            ),
+            OpenApiParameter(
+                "area_code",
+                required=False,
+                location="query",
+                examples=[OpenApiExample("Tulsa OK USA", "918")],
+            ),
+        ],
+        responses={
+            "200": OpenApiResponse(
+                TwilioNumberSuggestion(many=True),
+                description="List of available numbers",
+                examples=[
+                    OpenApiExample(
+                        "Tulsa, OK",
+                        {
+                            "friendly_name": "(918) 555-6789",
+                            "iso_country": "US",
+                            "locality": "Tulsa",
+                            "phone_number": "+19185556789",
+                            "postal_code": "74120",
+                            "region": "OK",
+                        },
+                    )
+                ],
+            ),
+            "404": OpenApiResponse(
+                description="Neither location or area_code was speciifed"
+            ),
+        },
+    )
     @decorators.action(detail=False)
     def search(self, request):
         """

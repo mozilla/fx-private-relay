@@ -122,6 +122,15 @@ class TwilioMessagesSerializer(serializers.Serializer):
         self.fields["from"] = self.fields.pop("from_")
 
 
+class TwilioNumberSuggestion(serializers.Serializer):
+    friendly_name = serializers.CharField()
+    iso_country = serializers.CharField()
+    locality = serializers.CharField()
+    phone_number = serializers.CharField()
+    postal_code = serializers.CharField()
+    region = serializers.CharField()
+
+
 class TwilioSmsStatusSerializer(serializers.Serializer):
     SmsStatus = serializers.CharField()
     MessageSid = serializers.CharField()
