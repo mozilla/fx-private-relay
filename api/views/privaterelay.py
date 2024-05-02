@@ -12,7 +12,13 @@ from allauth.socialaccount.adapter import get_adapter as get_social_adapter
 from allauth.socialaccount.helpers import complete_social_login
 from allauth.socialaccount.models import SocialAccount
 from django_filters.rest_framework import FilterSet
-from drf_spectacular.utils import OpenApiExample, OpenApiResponse, extend_schema
+from drf_spectacular.utils import (
+    OpenApiExample,
+    OpenApiParameter,
+    OpenApiRequest,
+    OpenApiResponse,
+    extend_schema,
+)
 from rest_framework.authentication import get_authorization_header
 from rest_framework.decorators import (
     api_view,
@@ -253,6 +259,16 @@ def runtime_data(request):
 
 @extend_schema(
     tags=["privaterelay"],
+    parameters=[
+        OpenApiParameter(
+            name="Authorization",
+            required=True,
+            location="header",
+            examples=[OpenApiExample("bearer", "Bearer XXXX-ZZZZ")],
+            description="FXA Bearer Token. Can not be set in browsable API.",
+        )
+    ],
+    request=OpenApiRequest(),
     responses={
         201: OpenApiResponse(description="Created; returned when user is created."),
         202: OpenApiResponse(
@@ -269,6 +285,8 @@ def runtime_data(request):
                 "Unauthorized; returned when the FXA token is invalid or expired."
             )
         ),
+        404: OpenApiResponse(description="FXA did not return a user."),
+        500: OpenApiResponse(description="No response from FXA server."),
     },
 )
 @api_view(["POST"])
@@ -285,6 +303,7 @@ def terms_accepted_user(request):
     # Setting authentication_classes to empty due to
     # authentication still happening despite permissions being set to allowany
     # https://forum.djangoproject.com/t/solved-allowany-override-does-not-work-on-apiview/9754
+    # TODO: Implement an FXA token authentication class
     authorization = get_authorization_header(request).decode()
     if not authorization or not authorization.startswith("Bearer "):
         raise ParseError("Missing Bearer header.")
