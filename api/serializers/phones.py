@@ -134,6 +134,17 @@ class TwilioVoiceStatusSerializer(serializers.Serializer):
     CallDuration = serializers.IntegerField(required=False)
 
 
+class IqInboundSmsSerializer(serializers.Serializer):
+    text = serializers.CharField()
+    from_ = serializers.CharField()
+    to = serializers.CharField()
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        # Change to reserved keyword "from"
+        self.fields["from"] = self.fields.pop("from_")
+
+
 class OutboundSmsSerializer(serializers.Serializer):
     body = serializers.CharField()
     destination = serializers.CharField()

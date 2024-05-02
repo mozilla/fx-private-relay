@@ -59,6 +59,7 @@ from ..permissions import HasPhoneService
 from ..renderers import TemplateTwiMLRenderer, vCardRenderer
 from ..serializers.phones import (
     InboundContactSerializer,
+    IqInboundSmsSerializer,
     OutboundCallSerializer,
     OutboundSmsSerializer,
     RealPhoneSerializer,
@@ -673,10 +674,35 @@ def inbound_sms(request):
     )
 
 
-@extend_schema(tags=["phones: Inteliquent"])
+@extend_schema(
+    tags=["phones: Inteliquent"],
+    request=OpenApiRequest(
+        IqInboundSmsSerializer,
+        examples=[
+            OpenApiExample(
+                "request",
+                {"to": "+13035556789", "from": "+14045556789", "text": "Hello!"},
+            )
+        ],
+    ),
+    parameters=[
+        OpenApiParameter(name="VerificationToken", required=True, location="header"),
+        OpenApiParameter(name="MessageId", required=True, location="header"),
+    ],
+    responses={
+        "200": OpenApiResponse(
+            description=(
+                "The message was forwarded, or the user is out of text messages."
+            )
+        ),
+        "401": OpenApiResponse(description="Invalid signature"),
+        "400": OpenApiResponse(description="Invalid request"),
+    },
+)
 @decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.AllowAny])
 def inbound_sms_iq(request: Request) -> response.Response:
+    """Handle an inbound SMS message sent by Inteliquent."""
     incr_if_enabled("phones_inbound_sms_iq")
     _validate_iq_request(request)
 
