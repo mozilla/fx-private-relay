@@ -86,6 +86,7 @@ class RealPhoneRateThrottle(throttling.UserRateThrottle):
     rate = settings.PHONE_RATE_LIMIT
 
 
+@extend_schema(tags=["phones"])
 class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     """
     Get real phone number records for the authenticated user.
@@ -262,6 +263,7 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         return super().destroy(request, *args, **kwargs)
 
 
+@extend_schema(tags=["phones"])
 class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch"]
     permission_classes = [permissions.IsAuthenticated, HasPhoneService]
@@ -364,6 +366,7 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         return response.Response({}, 404)
 
 
+@extend_schema(tags=["phones"])
 class InboundContactViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "patch"]
     permission_classes = [permissions.IsAuthenticated, HasPhoneService]
@@ -438,6 +441,7 @@ def _get_number_details(e164_number):
 
 
 @extend_schema(
+    tags=["phones"],
     responses={
         "200": OpenApiResponse(
             bytes,
@@ -454,7 +458,7 @@ def _get_number_details(e164_number):
             ],
         ),
         "404": OpenApiResponse(description="No or unknown lookup key"),
-    }
+    },
 )
 @decorators.api_view()
 @decorators.permission_classes([permissions.AllowAny])
@@ -482,6 +486,7 @@ def vCard(request: Request, lookup_key: str) -> response.Response:
 
 
 @extend_schema(
+    tags=["phones"],
     request=OpenApiRequest(),
     responses={
         "200": OpenApiResponse(
@@ -538,6 +543,7 @@ def _get_user_error_message(real_phone: RealPhone, sms_exception) -> Any:
 
 
 @extend_schema(
+    tags=["phones: Twilio"],
     parameters=[
         OpenApiParameter(name="X-Twilio-Signature", required=True, location="header"),
     ],
@@ -667,6 +673,7 @@ def inbound_sms(request):
     )
 
 
+@extend_schema(tags=["phones: Inteliquent"])
 @decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.AllowAny])
 def inbound_sms_iq(request: Request) -> response.Response:
@@ -733,6 +740,7 @@ def inbound_sms_iq(request: Request) -> response.Response:
 
 
 @extend_schema(
+    tags=["phones: Twilio"],
     parameters=[
         OpenApiParameter(name="X-Twilio-Signature", required=True, location="header"),
     ],
@@ -853,6 +861,7 @@ def inbound_call(request):
 
 
 @extend_schema(
+    tags=["phones: Twilio"],
     request=OpenApiRequest(
         TwilioVoiceStatusSerializer,
         examples=[
@@ -918,6 +927,7 @@ def voice_status(request):
 
 
 @extend_schema(
+    tags=["phones: Twilio"],
     request=OpenApiRequest(
         TwilioSmsStatusSerializer,
         examples=[
@@ -962,6 +972,7 @@ def sms_status(request):
 
 @decorators.permission_classes([permissions.IsAuthenticated, HasPhoneService])
 @extend_schema(
+    tags=["phones: Outbound"],
     request=OpenApiRequest(
         OutboundCallSerializer,
         examples=[OpenApiExample("request", {"to": "+13035556789"})],
@@ -1015,6 +1026,7 @@ def outbound_call(request):
 
 @decorators.permission_classes([permissions.IsAuthenticated, HasPhoneService])
 @extend_schema(
+    tags=["phones: Outbound"],
     request=OpenApiRequest(
         OutboundSmsSerializer,
         examples=[
@@ -1075,6 +1087,7 @@ def outbound_sms(request):
 
 @decorators.permission_classes([permissions.IsAuthenticated, HasPhoneService])
 @extend_schema(
+    tags=["phones: Outbound"],
     parameters=[
         OpenApiParameter(
             name="with",
