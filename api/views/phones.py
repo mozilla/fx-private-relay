@@ -1012,7 +1012,6 @@ def sms_status(request):
         403: OpenApiResponse(
             description="User does not have 'outbound_phone' waffle flag."
         ),
-        405: OpenApiResponse(description="Method not allowed"),
     },
 )
 @decorators.api_view(["POST"])
@@ -1068,7 +1067,6 @@ def outbound_call(request):
         403: OpenApiResponse(
             description="User does not have 'outbound_phone' waffle flag."
         ),
-        405: OpenApiResponse(description="Method not allowed"),
     },
 )
 @decorators.api_view(["POST"])
