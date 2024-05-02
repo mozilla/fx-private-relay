@@ -125,3 +125,7 @@ class TwilioMessagesSerializer(serializers.Serializer):
 class OutboundSmsSerializer(serializers.Serializer):
     body = serializers.CharField()
     destination = serializers.CharField()
+
+
+class OutboundCallSerializer(serializers.Serializer):
+    to = serializers.CharField()

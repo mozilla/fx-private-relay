@@ -61,6 +61,7 @@ from ..serializers.phones import (
     InboundCallSerializer,
     InboundContactSerializer,
     InboundSmsSerializer,
+    OutboundCallSerializer,
     OutboundSmsSerializer,
     RealPhoneSerializer,
     RelayNumberSerializer,
@@ -903,9 +904,21 @@ def sms_status(request):
 
 @decorators.permission_classes([permissions.IsAuthenticated, HasPhoneService])
 @extend_schema(
-    parameters=[OpenApiParameter(name="to", required=True, type=str)],
-    methods=["POST"],
-    responses={200: None},
+    request=OpenApiRequest(
+        OutboundCallSerializer,
+        examples=[OpenApiExample("request", {"to": "+13035556789"})],
+    ),
+    responses={
+        200: OpenApiResponse(description="Call initiated."),
+        400: OpenApiResponse(
+            description="Input error, or user does not have a Relay phone."
+        ),
+        401: OpenApiResponse(description="Authentication required."),
+        403: OpenApiResponse(
+            description="User does not have 'outbound_phone' waffle flag."
+        ),
+        405: OpenApiResponse(description="Method not allowed"),
+    },
 )
 @decorators.api_view(["POST"])
 def outbound_call(request):
