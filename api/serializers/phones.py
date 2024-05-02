@@ -131,6 +131,14 @@ class TwilioNumberSuggestion(serializers.Serializer):
     region = serializers.CharField()
 
 
+class TwilioNumberSuggestionGroups(serializers.Serializer):
+    real_num = serializers.CharField()
+    same_prefix_options = TwilioNumberSuggestion(many=True)
+    other_areas_options = TwilioNumberSuggestion(many=True)
+    same_area_options = TwilioNumberSuggestion(many=True)
+    random_options = TwilioNumberSuggestion(many=True)
+
+
 class TwilioSmsStatusSerializer(serializers.Serializer):
     SmsStatus = serializers.CharField()
     MessageSid = serializers.CharField()

@@ -68,6 +68,7 @@ from ..serializers.phones import (
     TwilioInboundSmsSerializer,
     TwilioMessagesSerializer,
     TwilioNumberSuggestion,
+    TwilioNumberSuggestionGroups,
     TwilioSmsStatusSerializer,
     TwilioVoiceStatusSerializer,
 )
@@ -317,6 +318,41 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         incr_if_enabled("phones_RelayNumberViewSet.partial_update")
         return super().partial_update(request, *args, **kwargs)
 
+    @extend_schema(
+        responses={
+            "200": OpenApiResponse(
+                TwilioNumberSuggestionGroups(),
+                description="Suggested numbers based on the user's real number",
+                examples=[
+                    OpenApiExample(
+                        "suggestions",
+                        {
+                            "real_num": "4045556789",
+                            "same_prefix_options": [],
+                            "other_areas_options": [],
+                            "same_area_options": [],
+                            "random_options": [
+                                {
+                                    "friendly_name": "(256) 555-3456",
+                                    "iso_country": "US",
+                                    "locality": "Gadsden",
+                                    "phone_number": "+12565553456",
+                                    "postal_code": "35903",
+                                    "region": "AL",
+                                }
+                            ],
+                        },
+                    )
+                ],
+            ),
+            "400": OpenApiResponse(
+                description=(
+                    "User has not verified their real number,"
+                    " or already has a Relay number."
+                )
+            ),
+        },
+    )
     @decorators.action(detail=False)
     def suggestions(self, request):
         """
