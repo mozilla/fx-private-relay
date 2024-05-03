@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import TypedDict
 
 from django.core.cache import cache
 from django.test import RequestFactory, TestCase
@@ -25,7 +26,23 @@ MOCK_BASE = "api.authentication"
 # nullable.
 
 
-def _setup_fxa_response(status_code: int, json: dict | str):
+class CachedFxaResponse(TypedDict):
+    status_code: int
+    json: dict[str, str | int]
+
+
+class CachedFxaResponseStr(TypedDict):
+    status_code: int
+    json: str
+
+
+class CachedFxaResponseNoJson(TypedDict):
+    status_code: int
+
+
+def _setup_fxa_response(
+    status_code: int, json: dict[str, str | int | bool]
+) -> CachedFxaResponse:
     responses.add(
         responses.POST,
         INTROSPECT_TOKEN_URL,
@@ -35,7 +52,17 @@ def _setup_fxa_response(status_code: int, json: dict | str):
     return {"status_code": status_code, "json": json}
 
 
-def _setup_fxa_response_no_json(status_code: int):
+def _setup_fxa_response_str(status_code: int, json: str) -> CachedFxaResponseStr:
+    responses.add(
+        responses.POST,
+        INTROSPECT_TOKEN_URL,
+        status=status_code,
+        json=json,
+    )
+    return {"status_code": status_code, "json": json}
+
+
+def _setup_fxa_response_no_json(status_code: int) -> CachedFxaResponseNoJson:
     responses.add(responses.POST, INTROSPECT_TOKEN_URL, status=status_code)
     return {"status_code": status_code}
 
@@ -69,7 +96,11 @@ class AuthenticationMiscellaneous(TestCase):
         now_time = int(datetime.now().timestamp())
         # Note: FXA iat and exp are timestamps in *milliseconds*
         exp_time = (now_time + 60 * 60) * 1000
-        json_data = {"active": True, "sub": self.uid, "exp": exp_time}
+        json_data: dict[str, str | int | bool] = {
+            "active": True,
+            "sub": self.uid,
+            "exp": exp_time,
+        }
         status_code = 200
         expected_fxa_resp_data = {"status_code": status_code, "json": json_data}
         _setup_fxa_response(status_code, json_data)
@@ -275,7 +306,7 @@ class FxaTokenAuthenticationTest(TestCase):
 
     @responses.activate
     def test_non_200_non_json_resp_from_fxa_raises_error_and_caches(self) -> None:
-        fxa_response = _setup_fxa_response(503, "Bad Gateway")
+        fxa_response = _setup_fxa_response_str(503, "Bad Gateway")
         not_found_token = "fxa-gw-error"
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION=f"Bearer {not_found_token}")
