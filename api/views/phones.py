@@ -978,9 +978,9 @@ class NoPreviousSender(RelaySMSException):
 class ShortPrefixException(RelaySMSException):
     """Base exception for short prefix exceptions"""
 
-    def __init__(self, short_prefix: str, *args, **kwargs):
+    def __init__(self, short_prefix: str):
         self.short_prefix = short_prefix
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
     def error_context(self) -> ErrorContextType:
         return {"short_prefix": self.short_prefix}
@@ -989,9 +989,9 @@ class ShortPrefixException(RelaySMSException):
 class FullNumberException(RelaySMSException):
     """Base exception for full number exceptions"""
 
-    def __init__(self, full_number: str, *args, **kwargs):
+    def __init__(self, full_number: str):
         self.full_number = full_number
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
     def error_context(self) -> ErrorContextType:
         return {"full_number": self.full_number}

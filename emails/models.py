@@ -667,9 +667,9 @@ class RelayAddrFreeTierLimitException(CannotMakeAddressException):
     )
     status_code = 403
 
-    def __init__(self, free_tier_limit: int | None = None, *args, **kwargs):
+    def __init__(self, free_tier_limit: int | None = None):
         self.free_tier_limit = free_tier_limit or settings.MAX_NUM_FREE_ALIASES
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
     def error_context(self) -> ErrorContextType:
         return {"free_tier_limit": self.free_tier_limit}
@@ -706,9 +706,9 @@ class DomainAddrUnavailableException(CannotMakeAddressException):
     )
     status_code = 400
 
-    def __init__(self, unavailable_address: str, *args, **kwargs):
+    def __init__(self, unavailable_address: str):
         self.unavailable_address = unavailable_address
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
     def error_context(self) -> ErrorContextType:
         return {"unavailable_address": self.unavailable_address}
@@ -722,9 +722,9 @@ class DomainAddrDuplicateException(CannotMakeAddressException):
     )
     status_code = 409
 
-    def __init__(self, duplicate_address: str, *args, **kwargs):
+    def __init__(self, duplicate_address: str):
         self.duplicate_address = duplicate_address
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
     def error_context(self) -> ErrorContextType:
         return {"duplicate_address": self.duplicate_address}
