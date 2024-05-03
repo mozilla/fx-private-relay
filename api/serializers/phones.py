@@ -92,3 +92,80 @@ class InboundContactSerializer(serializers.ModelSerializer):
             "num_texts_blocked",
             "last_text_date",
         ]
+
+
+class TwilioInboundCallSerializer(serializers.Serializer):
+    Caller = serializers.CharField()
+    Called = serializers.CharField()
+
+
+class TwilioInboundSmsSerializer(serializers.Serializer):
+    text = serializers.CharField()
+    from_ = serializers.CharField()
+    to = serializers.CharField()
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        # Change to reserved keyword "from"
+        self.fields["from"] = self.fields.pop("from_")
+
+
+class TwilioMessagesSerializer(serializers.Serializer):
+    from_ = serializers.CharField()
+    to = serializers.CharField()
+    date_sent = serializers.CharField()
+    body = serializers.CharField()
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        # Change to reserved keyword "from"
+        self.fields["from"] = self.fields.pop("from_")
+
+
+class TwilioNumberSuggestion(serializers.Serializer):
+    friendly_name = serializers.CharField()
+    iso_country = serializers.CharField()
+    locality = serializers.CharField()
+    phone_number = serializers.CharField()
+    postal_code = serializers.CharField()
+    region = serializers.CharField()
+
+
+class TwilioNumberSuggestionGroups(serializers.Serializer):
+    real_num = serializers.CharField()
+    same_prefix_options = TwilioNumberSuggestion(many=True)
+    other_areas_options = TwilioNumberSuggestion(many=True)
+    same_area_options = TwilioNumberSuggestion(many=True)
+    random_options = TwilioNumberSuggestion(many=True)
+
+
+class TwilioSmsStatusSerializer(serializers.Serializer):
+    SmsStatus = serializers.CharField()
+    MessageSid = serializers.CharField()
+
+
+class TwilioVoiceStatusSerializer(serializers.Serializer):
+    CallSid = serializers.CharField()
+    Called = serializers.CharField()
+    CallStatus = serializers.CharField()
+    CallDuration = serializers.IntegerField(required=False)
+
+
+class IqInboundSmsSerializer(serializers.Serializer):
+    text = serializers.CharField()
+    from_ = serializers.CharField()
+    to = serializers.CharField()
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        # Change to reserved keyword "from"
+        self.fields["from"] = self.fields.pop("from_")
+
+
+class OutboundSmsSerializer(serializers.Serializer):
+    body = serializers.CharField()
+    destination = serializers.CharField()
+
+
+class OutboundCallSerializer(serializers.Serializer):
+    to = serializers.CharField()
