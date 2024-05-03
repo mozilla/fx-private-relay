@@ -1,9 +1,16 @@
-from typing import Any, TypedDict
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, TypedDict
 
 from rest_framework import status
 from rest_framework.exceptions import APIException
 
 from privaterelay.ftl_bundles import main as ftl_bundle
+
+if TYPE_CHECKING:
+    # Provided by djangorestframework-stubs
+    # https://github.com/typeddjango/djangorestframework-stubs/blob/master/rest_framework-stubs/exceptions.pyi
+    from rest_framework.exceptions import _APIExceptionInput
 
 
 class ConflictError(APIException):
@@ -47,7 +54,9 @@ class RelayAPIException(APIException):
     default_detail: str
     status_code: int
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(
+        self, detail: _APIExceptionInput = None, code: str | None = None
+    ) -> None:
         """Check that derived classes have set the required data."""
         assert isinstance(self.default_code, str)
         assert isinstance(self.status_code, int)
@@ -56,7 +65,7 @@ class RelayAPIException(APIException):
             assert context
             self.default_detail = self.default_detail_template.format(**context)
         assert isinstance(self.default_detail, str)
-        super().__init__(*args, **kwargs)
+        super().__init__(detail, code)
 
     def error_context(self) -> ErrorContextType:
         """Return context variables for client-side translation."""
