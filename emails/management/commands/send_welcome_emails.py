@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 from django.apps import apps
 from django.conf import settings
@@ -20,7 +21,7 @@ logger = logging.getLogger("eventsinfo.send_welcome_emails")
 class Command(BaseCommand):
     help = "Send the welcome email to all users who haven't received it yet."
 
-    def handle(self, verbosity, *args, **kwargs):
+    def handle(self, *args: Any, **kwargs: Any) -> None:
         logger.info("Starting send_welcome_emails")
         profiles_without_welcome_email = Profile.objects.filter(
             sent_welcome_email=False
@@ -36,7 +37,7 @@ def _ses_message_props(data: str) -> ContentTypeDef:
     return {"Charset": "UTF-8", "Data": data}
 
 
-def send_welcome_email(profile: Profile, **kwargs):
+def send_welcome_email(profile: Profile) -> None:
     user = profile.user
     app_config = apps.get_app_config("emails")
     assert isinstance(app_config, EmailsConfig)
