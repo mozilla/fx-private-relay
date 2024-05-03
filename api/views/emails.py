@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 
 import django_ftl
 from django_filters import rest_framework as filters
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -102,7 +102,10 @@ class AddressViewSet(Generic[_Address], SaveToRequestUser, ModelViewSet):
         )
 
 
+@extend_schema(tags=["emails"])
 class RelayAddressViewSet(AddressViewSet[RelayAddress]):
+    """An email address with a random name provided by Relay."""
+
     serializer_class = RelayAddressSerializer
     permission_classes = [IsAuthenticated, IsOwner]
     filterset_class = RelayAddressFilter
@@ -136,7 +139,10 @@ class DomainAddressFilter(filters.FilterSet):
         ]
 
 
+@extend_schema(tags=["emails"])
 class DomainAddressViewSet(AddressViewSet[DomainAddress]):
+    """An email address with subdomain chosen by a Relay user."""
+
     serializer_class = DomainAddressSerializer
     permission_classes = [IsAuthenticated, IsOwner]
     filterset_class = DomainAddressFilter
@@ -152,7 +158,17 @@ class FirstForwardedEmailRateThrottle(UserRateThrottle):
 
 
 @permission_classes([IsAuthenticated])
-@extend_schema(methods=["POST"], request=FirstForwardedEmailSerializer)
+@extend_schema(
+    tags=["emails"],
+    request=FirstForwardedEmailSerializer,
+    responses={
+        201: OpenApiResponse(description="Email sent to user."),
+        400: OpenApiResponse(description="Invalid mask."),
+        401: OpenApiResponse(description="Authentication required."),
+        403: OpenApiResponse(description="Flag 'free_user_onboarding' is required."),
+        404: OpenApiResponse(description="Unable to find the mask."),
+    },
+)
 @api_view(["POST"])
 @throttle_classes([FirstForwardedEmailRateThrottle])
 def first_forwarded_email(request):
