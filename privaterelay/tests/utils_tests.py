@@ -10,7 +10,7 @@ import pytest
 from _pytest.fixtures import SubRequest
 from _pytest.logging import LogCaptureFixture
 from pytest_django.fixtures import SettingsWrapper
-from waffle.models import Flag
+from waffle.models import AbstractUserFlag, Flag
 from waffle.testutils import override_flag
 from waffle.utils import get_cache as get_waffle_cache
 
@@ -510,6 +510,7 @@ def test_flag_is_active_for_task_user_flag(flag_user: User | None) -> None:
     assert not flag_is_active_in_task(TEST_FLAG_NAME, flag_user)
     if flag_user is None:
         return  # Nothing further to test without a user
+    assert isinstance(flag, AbstractUserFlag)
     flag.users.add(flag_user)
     assert flag_is_active_in_task(TEST_FLAG_NAME, flag_user)
 
@@ -520,6 +521,7 @@ def test_flag_is_active_for_task_group_flag(flag_user: User | None) -> None:
     if flag_user is None:
         return  # Nothing further to test without a user
     group = Group.objects.create(name=TEST_FLAG_NAME)
+    assert isinstance(flag, AbstractUserFlag)
     flag.groups.add(group)
     assert not flag_is_active_in_task(TEST_FLAG_NAME, flag_user)
     group.user_set.add(flag_user)
@@ -532,6 +534,7 @@ def test_flag_is_active_for_task_everyone_overrides_user(
     if flag_user is None:
         return  # Nothing further to test without a user
     flag = Flag.objects.create(name=TEST_FLAG_NAME, everyone=False)
+    assert isinstance(flag, AbstractUserFlag)
     flag.users.add(flag_user)
     assert not flag_is_active_in_task(TEST_FLAG_NAME, flag_user)
 
