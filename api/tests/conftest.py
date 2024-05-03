@@ -12,7 +12,7 @@ from emails.tests.models_tests import make_free_test_user, make_premium_test_use
 
 
 @pytest.fixture
-def free_user(db) -> User:
+def free_user(db: None) -> User:
     return make_free_test_user()
 
 
@@ -25,7 +25,7 @@ def free_api_client(free_user: User) -> APIClient:
 
 
 @pytest.fixture
-def premium_user(db) -> User:
+def premium_user(db: None) -> User:
     premium_user = make_premium_test_user()
     premium_profile = premium_user.profile
     premium_profile.subdomain = "premium"
@@ -42,6 +42,6 @@ def prem_api_client(premium_user: User) -> APIClient:
 
 
 @pytest.fixture
-def fxa_social_app(db) -> SocialApp:
+def fxa_social_app(db: None) -> SocialApp:
     app: SocialApp = baker.make(SocialApp, provider="fxa", sites=[Site.objects.first()])
     return app

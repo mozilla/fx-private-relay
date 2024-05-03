@@ -1,6 +1,8 @@
 from collections.abc import Iterator
 from unittest.mock import Mock, patch
 
+from django.test.client import RequestFactory
+
 import pytest
 from allauth.core.context import request_context
 
@@ -8,7 +10,7 @@ from ..allauth import AccountAdapter
 
 
 @pytest.fixture
-def adapter(rf) -> Iterator[AccountAdapter]:
+def adapter(rf: RequestFactory) -> Iterator[AccountAdapter]:
     request = rf.get("/accounts/fxa/login/callback/?code=oauth_code")
     with request_context(request):
         yield AccountAdapter()
@@ -39,8 +41,8 @@ def test_account_adapter_is_safe_url_empty_does_not_log(
 
 @pytest.mark.parametrize("found", (True, False))
 def test_account_adapter_is_safe_url_try_frontend_path(
-    adapter: AccountAdapter, caplog: pytest.LogCaptureFixture, found
-):
+    adapter: AccountAdapter, caplog: pytest.LogCaptureFixture, found: bool
+) -> None:
     mock_instance = Mock()
     mock_instance.find_file = Mock(return_value=found)
     path = "/frontend/path/"
@@ -59,7 +61,7 @@ def test_account_adapter_is_safe_url_try_frontend_path(
 
 def test_account_adapter_is_safe_url_frontend_not_built(
     adapter: AccountAdapter, caplog: pytest.LogCaptureFixture
-):
+) -> None:
     with patch(
         "privaterelay.allauth.RelayStaticFilesMiddleware",
         side_effect=NotADirectoryError(),

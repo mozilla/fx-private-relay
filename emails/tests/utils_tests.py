@@ -1,6 +1,6 @@
 import json
 from base64 import b64encode
-from typing import Literal
+from typing import Literal, TypedDict
 from unittest.mock import patch
 from urllib.parse import quote_plus
 
@@ -144,12 +144,17 @@ GENERATE_FROM_HEADER_RAISES_CASES = {
     GENERATE_FROM_HEADER_RAISES_CASES.values(),
     ids=GENERATE_FROM_HEADER_RAISES_CASES.keys(),
 )
-def test_generate_from_header_raises(address) -> None:
+def test_generate_from_header_raises(address: str) -> None:
     with pytest.raises(InvalidFromHeader):
         generate_from_header(address, "failures@relay.example.com")
 
 
-PARSE_EMAIL_HEADER_CASES = {
+class ParseEmailHeaderCase(TypedDict):
+    header_value: str
+    expected_out: list[tuple[str, str]]
+
+
+PARSE_EMAIL_HEADER_CASES: dict[str, ParseEmailHeaderCase] = {
     "email_only": {
         "header_value": "email_only@simple.example.com",
         "expected_out": [("", "email_only@simple.example.com")],
@@ -207,7 +212,7 @@ PARSE_EMAIL_HEADER_CASES = {
     PARSE_EMAIL_HEADER_CASES.values(),
     ids=PARSE_EMAIL_HEADER_CASES.keys(),
 )
-def test_parse_email_header(params) -> None:
+def test_parse_email_header(params: ParseEmailHeaderCase) -> None:
     out = parse_email_header(params["header_value"])
     assert out == params["expected_out"]
 

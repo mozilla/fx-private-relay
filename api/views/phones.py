@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import hashlib
 import logging
 import re
@@ -481,7 +483,9 @@ def message_body(from_num, body):
     return f"[Relay 📲 {from_num}] {body}"
 
 
-def _get_user_error_message(real_phone: RealPhone, sms_exception) -> Any:
+def _get_user_error_message(
+    real_phone: RealPhone, sms_exception: RelaySMSException
+) -> Any:
     # Send a translated message to the user
     ftl_code = sms_exception.get_codes().replace("_", "-")
     ftl_id = f"sms-error-{ftl_code}"

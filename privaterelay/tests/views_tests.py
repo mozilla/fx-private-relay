@@ -4,6 +4,7 @@ from collections.abc import Callable, Iterator
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Any, Literal
 from unittest.mock import ANY, Mock, patch
 from uuid import uuid4
@@ -23,6 +24,8 @@ from cryptography.hazmat.primitives.asymmetric.rsa import (
 )
 from markus.testing import MetricsMock
 from model_bakery import baker
+from pytest_django.fixtures import SettingsWrapper
+from requests import PreparedRequest
 
 from emails.models import (
     DeletedAddress,
@@ -218,7 +221,7 @@ class FxaRpEventsSetupData:
 
 @pytest.fixture
 def setup_fxa_rp_events(
-    db, settings, mock_fxa_signing_key
+    db: None, settings: SettingsWrapper, mock_fxa_signing_key: Mock
 ) -> Iterator[FxaRpEventsSetupData]:
     """Setup data for testing /fxa_rp_events."""
 
@@ -290,7 +293,7 @@ def setup_fxa_rp_events(
         data=deepcopy(fxa_profile_data),
     )
 
-    def request_callback(request) -> tuple[int, dict[str, str], str]:
+    def request_callback(request: PreparedRequest) -> tuple[int, dict[str, str], str]:
         """Mock an FxA profile response, using data the test may have changed."""
         return (
             profile_response.status_code,
@@ -355,7 +358,9 @@ def get_fxa_event_jwt(
 
 
 def test_fxa_rp_events_password_change(
-    client: Client, setup_fxa_rp_events: FxaRpEventsSetupData, caplog
+    client: Client,
+    setup_fxa_rp_events: FxaRpEventsSetupData,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """A password-change event is discarded."""
     setup_fxa_rp_events.mock_responses.reset()  # No profile fetch for password-change
@@ -379,7 +384,9 @@ def test_fxa_rp_events_password_change(
 
 
 def test_fxa_rp_events_password_change_slight_future_iat(
-    client: Client, setup_fxa_rp_events: FxaRpEventsSetupData, caplog
+    client: Client,
+    setup_fxa_rp_events: FxaRpEventsSetupData,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """A password-change event created in the near future is discarded."""
     setup_fxa_rp_events.mock_responses.reset()  # No profile fetch for password-change
@@ -404,7 +411,9 @@ def test_fxa_rp_events_password_change_slight_future_iat(
 
 
 def test_fxa_rp_events_password_change_far_future_iat(
-    client: Client, setup_fxa_rp_events: FxaRpEventsSetupData, caplog
+    client: Client,
+    setup_fxa_rp_events: FxaRpEventsSetupData,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """
     A password-change event created in the far future fails verification.
@@ -430,11 +439,14 @@ def test_fxa_rp_events_password_change_far_future_iat(
         ("eventsinfo", logging.WARNING, "fxa_rp_event.future_iat"),
         ("request.summary", logging.ERROR, "The token is not yet valid (iat)"),
     ]
-    assert -10.0 <= caplog.records[0].iat_age_s < -8.0
+    assert isinstance(iat_age_s := getattr(caplog.records[0], "iat_age_s"), float)
+    assert -10.0 <= iat_age_s < -8.0
 
 
 def test_fxa_rp_events_profile_change(
-    client: Client, setup_fxa_rp_events: FxaRpEventsSetupData, caplog
+    client: Client,
+    setup_fxa_rp_events: FxaRpEventsSetupData,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """The profile is re-fetched for a profile-change event."""
     setup_fxa_rp_events.profile_response.data["email"] = "new-email@example.com"
@@ -468,7 +480,9 @@ def test_fxa_rp_events_profile_change(
 
 
 def test_fxa_rp_events_subscription_change(
-    client: Client, setup_fxa_rp_events: FxaRpEventsSetupData, caplog
+    client: Client,
+    setup_fxa_rp_events: FxaRpEventsSetupData,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """A subscription-state-change for an unrelated sub does not change the profile."""
     event_jwt = get_fxa_event_jwt(
@@ -495,7 +509,9 @@ def test_fxa_rp_events_subscription_change(
 
 
 def test_fxa_rp_events_delete_user(
-    client: Client, setup_fxa_rp_events: FxaRpEventsSetupData, caplog
+    client: Client,
+    setup_fxa_rp_events: FxaRpEventsSetupData,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """A delete-user event deletes the user."""
     setup_fxa_rp_events.mock_responses.reset()  # No profile fetch for delete-user
@@ -539,7 +555,7 @@ def test_fxa_rp_events_delete_user(
     assert DeletedAddress.objects.filter(address_hash=da_address_hash).exists()
 
 
-def test_version_view(client, version_json_path) -> None:
+def test_version_view(client: Client, version_json_path: Path) -> None:
     version_info = {
         "commit": "a_commit_hash",
         "version": "2024.01.17.1",
@@ -552,22 +568,23 @@ def test_version_view(client, version_json_path) -> None:
 
 
 @pytest.mark.django_db
-def test_heartbeat_view(client) -> None:
+def test_heartbeat_view(client: Client) -> None:
     response = client.get("/__heartbeat__")
     assert response.status_code == 200
     assert "status" in response.json()
 
 
-def test_lbheartbeat_view(client) -> None:
+def test_lbheartbeat_view(client: Client) -> None:
     response = client.get("/__lbheartbeat__")
     assert response.status_code == 200
     assert response.content == b""
 
 
+_ThreadAndReportMocks = dict[Literal["thread", "report"], Mock]
+
+
 @pytest.fixture
-def mock_metrics_thread_and_report() -> (
-    Iterator[dict[Literal["thread", "report"], Mock]]
-):
+def mock_metrics_thread_and_report() -> Iterator[_ThreadAndReportMocks]:
     """
     Setup mocks for metrics event.
 
@@ -600,14 +617,18 @@ def mock_metrics_thread_and_report() -> (
         yield {"thread": mock_thread, "report": mock_report}
 
 
-def test_metrics_event_GET(client, mock_metrics_thread_and_report) -> None:
+def test_metrics_event_GET(
+    client: Client, mock_metrics_thread_and_report: _ThreadAndReportMocks
+) -> None:
     response = client.get("/metrics-event")
     assert response.status_code == 405
     mock_metrics_thread_and_report["thread"].start.assert_not_called()
     mock_metrics_thread_and_report["report"].assert_not_called()
 
 
-def test_metrics_event_POST_non_json(client, mock_metrics_thread_and_report) -> None:
+def test_metrics_event_POST_non_json(
+    client: Client, mock_metrics_thread_and_report: _ThreadAndReportMocks
+) -> None:
     response = client.post("/metrics-event")
     assert response.status_code == 415
     mock_metrics_thread_and_report["thread"].start.assert_not_called()
@@ -615,7 +636,7 @@ def test_metrics_event_POST_non_json(client, mock_metrics_thread_and_report) -> 
 
 
 def test_metrics_event_POST_json_no_ga_uuid(
-    client, mock_metrics_thread_and_report
+    client: Client, mock_metrics_thread_and_report: _ThreadAndReportMocks
 ) -> None:
     response = client.post(
         "/metrics-event", {"category": "addon"}, content_type="application/json"
@@ -626,7 +647,9 @@ def test_metrics_event_POST_json_no_ga_uuid(
 
 
 def test_metrics_event_POST_json_ga_uuid_ok(
-    client, mock_metrics_thread_and_report, settings
+    client: Client,
+    mock_metrics_thread_and_report: _ThreadAndReportMocks,
+    settings: SettingsWrapper,
 ) -> None:
     response = client.post(
         "/metrics-event", {"ga_uuid": "anything-is-ok"}, content_type="application/json"

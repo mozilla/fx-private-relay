@@ -160,7 +160,7 @@ class MiscEmailModelsTest(TestCase):
         assert not is_blocklisted("non-blocked-word")
 
     @patch("emails.models.emails_config", return_value=Mock(blocklist=["blocked-word"]))
-    def test_is_blocklisted_with_mocked_blocked_words(self, mock_config) -> None:
+    def test_is_blocklisted_with_mocked_blocked_words(self, mock_config: Mock) -> None:
         assert is_blocklisted("blocked-word")
 
     @override_settings(RELAY_FIREFOX_DOMAIN="firefox.com")
@@ -379,7 +379,7 @@ class RelayAddressTest(TestCase):
         "emails.models.emails_config",
         return_value=Mock(badwords=[], blocklist=["blocked-word"]),
     )
-    def test_address_contains_blocklist_invalid(self, mock_config) -> None:
+    def test_address_contains_blocklist_invalid(self, mock_config: Mock) -> None:
         blocked_word = "blocked-word"
         relay_address = RelayAddress.objects.create(
             user=baker.make(User), address=blocked_word
@@ -1489,7 +1489,7 @@ class DomainAddressTest(TestCase):
 
     @patch("emails.models.address_default")
     def test_make_domain_address_doesnt_randomly_generate_bad_word(
-        self, address_default_mocked
+        self, address_default_mocked: Mock
     ) -> None:
         address_default_mocked.return_value = "angry0123"
         with pytest.raises(CannotMakeAddressException) as exc_info:

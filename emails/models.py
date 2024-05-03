@@ -434,10 +434,10 @@ class Profile(models.Model):
 
     def update_abuse_metric(
         self,
-        address_created=False,
-        replied=False,
-        email_forwarded=False,
-        forwarded_email_size=0,
+        address_created: bool = False,
+        replied: bool = False,
+        email_forwarded: bool = False,
+        forwarded_email_size: int = 0,
     ) -> datetime | None:
         # TODO MPP-3720: This should be wrapped in atomic or select_for_update to ensure
         # race conditions are properly handled.
@@ -598,7 +598,7 @@ def address_default():
     )
 
 
-def has_bad_words(value) -> bool:
+def has_bad_words(value: str) -> bool:
     for badword in emails_config().badwords:
         badword = badword.strip()
         if len(badword) <= 4 and badword == value:

@@ -2,8 +2,9 @@
 Tests for private_relay/management/commands/sync_phone_related_dates_on_profile.py
 """
 
+from collections.abc import Iterator
 from datetime import UTC, datetime, timedelta
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -33,17 +34,17 @@ SYNC_COMMAND = "sync_phone_related_dates_on_profile"
 
 
 @pytest.fixture()
-def phone_user(db):
+def phone_user(db: None) -> Iterator[User]:
     yield make_phone_test_user()
 
 
-def test_no_accounts_with_phones(db):
+def test_no_accounts_with_phones(db: None) -> None:
     num_profiles_updated = sync_phone_related_dates_on_profile("both")
     assert num_profiles_updated == 0
 
 
 @pytest.fixture
-def patch_datetime_now():
+def patch_datetime_now() -> Iterator[datetime]:
     """
     Selectively patch datatime.now() for emails models
 
@@ -62,7 +63,10 @@ def patch_datetime_now():
 @patch(f"{MOCK_BASE}.get_phone_subscription_dates")
 @patch(f"{MOCK_BASE}.logger.error")
 def test_phone_subscription_user_with_no_phone_subscription_data_does_not_get_updated(
-    mocked_logger, mocked_dates, patch_datetime_now, phone_user
+    mocked_logger: Mock,
+    mocked_dates: Mock,
+    patch_datetime_now: datetime,
+    phone_user: User,
 ) -> None:
     mocked_dates.return_value = (None, None, None)
     profile = Profile.objects.get(user=phone_user)
@@ -82,7 +86,7 @@ def test_phone_subscription_user_with_no_phone_subscription_data_does_not_get_up
     )
 
 
-def create_free_phones_flag_for_user(user: User):
+def create_free_phones_flag_for_user(user: User) -> None:
     """
     Create the "free_phones" flag, and add the User to it.
 

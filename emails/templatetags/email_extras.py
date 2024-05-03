@@ -25,7 +25,9 @@ def bold_violet_link(href, link_text):
 
 @register.filter(needs_autoescape=True)
 @stringfilter
-def convert_fsi_to_span(text: str | SafeString, autoescape=True) -> str | SafeString:
+def convert_fsi_to_span(
+    text: str | SafeString, autoescape: bool = True
+) -> str | SafeString:
     """
     Replace Fluent's unicode isolating characters with HTML markup.
 

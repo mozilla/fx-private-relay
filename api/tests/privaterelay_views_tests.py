@@ -3,8 +3,10 @@
 import logging
 from datetime import datetime
 
+from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.test import RequestFactory, TestCase
+from django.test.client import Client
 from django.urls import reverse
 
 import pytest
@@ -27,14 +29,14 @@ from privaterelay.tests.utils import (
 
 
 @pytest.mark.django_db
-def test_runtime_data(client):
+def test_runtime_data(client: Client) -> None:
     path = "/api/v1/runtime_data/"
     response = client.get(path)
     assert response.status_code == 200
 
 
 def test_patch_premium_user_subdomain_cannot_be_changed(
-    premium_user, prem_api_client
+    premium_user: User, prem_api_client: Client
 ) -> None:
     """A premium user should not be able to edit their subdomain."""
     premium_profile = premium_user.profile
@@ -57,7 +59,9 @@ def test_patch_premium_user_subdomain_cannot_be_changed(
     assert response.status_code == 400
 
 
-def test_patch_profile_fields_are_read_only_by_default(premium_user, prem_api_client):
+def test_patch_profile_fields_are_read_only_by_default(
+    premium_user: User, prem_api_client: Client
+) -> None:
     """
     A field in the Profile model should be read only by default, and return a 400
     response code (see StrictReadOnlyFieldsMixin in api/serializers/__init__.py), if it
@@ -90,7 +94,9 @@ def test_patch_profile_fields_are_read_only_by_default(premium_user, prem_api_cl
     assert response.status_code == 400
 
 
-def test_profile_non_read_only_fields_update_correctly(premium_user, prem_api_client):
+def test_profile_non_read_only_fields_update_correctly(
+    premium_user: User, prem_api_client: Client
+) -> None:
     """
     A field that is not read only should update correctly on a patch request.
 
@@ -129,7 +135,9 @@ def test_profile_non_read_only_fields_update_correctly(premium_user, prem_api_cl
     assert response.status_code == 200
 
 
-def test_profile_patch_with_model_and_serializer_fields(premium_user, prem_api_client):
+def test_profile_patch_with_model_and_serializer_fields(
+    premium_user: User, prem_api_client: Client
+) -> None:
     premium_profile = premium_user.profile
 
     response = prem_api_client.patch(
@@ -166,7 +174,9 @@ def test_profile_patch_with_non_read_only_and_read_only_fields(
     assert response.status_code == 400
 
 
-def test_profile_patch_fields_that_dont_exist(premium_user, prem_api_client):
+def test_profile_patch_fields_that_dont_exist(
+    premium_user: User, prem_api_client: Client
+) -> None:
     """
     A request sent with only fields that don't exist give a 200 response (this is the
     default behavior django provides, we decided to leave it as is)
@@ -251,7 +261,7 @@ class TermsAcceptedUserViewTest(TestCase):
         assert responses.assert_call_count(FXA_PROFILE_URL, 1) is True
 
     @responses.activate
-    def test_failed_profile_fetch_for_new_user_returns_500(self):
+    def test_failed_profile_fetch_for_new_user_returns_500(self) -> None:
         user_token = "user-123"
         self._setup_client(user_token)
         now_time = int(datetime.now().timestamp())
@@ -266,14 +276,14 @@ class TermsAcceptedUserViewTest(TestCase):
             "Did not receive a 200 response for account profile."
         )
 
-    def test_no_authorization_header_returns_400(self):
+    def test_no_authorization_header_returns_400(self) -> None:
         client = APIClient()
         response = client.post(self.path)
 
         assert response.status_code == 400
         assert response.json()["detail"] == "Missing Bearer header."
 
-    def test_no_token_returns_400(self):
+    def test_no_token_returns_400(self) -> None:
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION="Bearer ")
         response = client.post(self.path)
@@ -284,7 +294,7 @@ class TermsAcceptedUserViewTest(TestCase):
     @responses.activate
     def test_invalid_bearer_token_error_from_fxa_returns_500_and_cache_returns_500(
         self,
-    ):
+    ) -> None:
         _setup_fxa_response(401, {"error": "401"})
         not_found_token = "not-found-123"
         self._setup_client(not_found_token)
@@ -299,7 +309,7 @@ class TermsAcceptedUserViewTest(TestCase):
     @responses.activate
     def test_jsondecodeerror_returns_401_and_cache_returns_500(
         self,
-    ):
+    ) -> None:
         _setup_fxa_response_no_json(200)
         invalid_token = "invalid-123"
         cache_key = get_cache_key(invalid_token)
@@ -318,7 +328,7 @@ class TermsAcceptedUserViewTest(TestCase):
     @responses.activate
     def test_non_200_response_from_fxa_returns_500_and_cache_returns_500(
         self,
-    ):
+    ) -> None:
         now_time = int(datetime.now().timestamp())
         # Note: FXA iat and exp are timestamps in *milliseconds*
         exp_time = (now_time + 60 * 60) * 1000
@@ -338,7 +348,7 @@ class TermsAcceptedUserViewTest(TestCase):
     @responses.activate
     def test_inactive_fxa_oauth_token_returns_401_and_cache_returns_401(
         self,
-    ):
+    ) -> None:
         now_time = int(datetime.now().timestamp())
         # Note: FXA iat and exp are timestamps in *milliseconds*
         old_exp_time = (now_time - 60 * 60) * 1000
@@ -358,7 +368,9 @@ class TermsAcceptedUserViewTest(TestCase):
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
 
     @responses.activate
-    def test_fxa_responds_with_no_fxa_uid_returns_404_and_cache_returns_404(self):
+    def test_fxa_responds_with_no_fxa_uid_returns_404_and_cache_returns_404(
+        self,
+    ) -> None:
         user_token = "user-123"
         now_time = int(datetime.now().timestamp())
         # Note: FXA iat and exp are timestamps in *milliseconds*
@@ -376,7 +388,7 @@ class TermsAcceptedUserViewTest(TestCase):
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
 
 
-def _setup_client(token):
+def _setup_client(token: str) -> APIClient:
     client = APIClient()
     client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
     return client
