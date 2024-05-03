@@ -6,6 +6,8 @@ Non-empty databases are tested in the cleaner tests.
 """
 
 from io import StringIO
+from logging import LogRecord
+from typing import Any
 
 from django.core.management import call_command
 
@@ -19,15 +21,41 @@ CLEANERS = {"server-storage", "missing-profile"}
 KNOWN_CLEANER = "server-storage"
 
 
+class CleanupLog:
+    message: str
+    cleaned: bool
+    timers: dict[str, float]
+    tasks: dict[str, Any]
+
+
+def get_log_data(record: LogRecord) -> CleanupLog:
+    """Get extra data attached to logs"""
+
+    extra = {
+        "message": str,
+        "cleaned": bool,
+        "timers": dict,
+        "tasks": dict,
+    }
+    log_data = CleanupLog()
+    for name, val_type in extra.items():
+        if name == "tasks" and not hasattr(record, "tasks"):
+            continue
+        assert isinstance(value := getattr(record, name), val_type)
+        setattr(log_data, name, value)
+
+    return log_data
+
+
 @pytest.mark.django_db
-def test_dry_run(caplog) -> None:
+def test_dry_run(caplog: pytest.LogCaptureFixture) -> None:
     """In dry run mode, issues are counted but not cleaned."""
     out = StringIO()
     call_command(COMMAND_NAME, stdout=out)
     output = out.getvalue()
     assert "# Summary\n" in output
     assert "# Details\n" not in output
-    log = caplog.records[0]
+    log = get_log_data(caplog.records[0])
     assert log.message == "cleanup_data complete, found 0 issues (dry run)."
     assert not log.cleaned
     assert log.timers.keys() == {"query_s"}
@@ -37,21 +65,21 @@ def test_dry_run(caplog) -> None:
 
 
 @pytest.mark.django_db
-def test_clean(caplog) -> None:
+def test_clean(caplog: pytest.LogCaptureFixture) -> None:
     """An empty database can be cleaned."""
     out = StringIO()
     call_command(COMMAND_NAME, "--clean", stdout=out)
     output = out.getvalue()
     assert "# Summary\n" in output
     assert "# Details\n" not in output
-    log = caplog.records[0]
+    log = get_log_data(caplog.records[0])
     assert log.message == "cleanup_data complete, cleaned 0 of 0 issues."
     assert log.cleaned
     assert log.timers.keys() == {"query_s", "clean_s"}
 
 
 @pytest.mark.django_db
-def test_verbosity_2_dry_run(caplog) -> None:
+def test_verbosity_2_dry_run(caplog: pytest.LogCaptureFixture) -> None:
     """More data is recorded at verbosity=2 when detecting issues."""
     out = StringIO()
     call_command(COMMAND_NAME, "--verbosity=2", stdout=out)
@@ -60,7 +88,7 @@ def test_verbosity_2_dry_run(caplog) -> None:
     assert "# Details\n" in output
     assert "\nDetected 0 issues" in output
     assert "\nCleaned 0 issues" not in output
-    log = caplog.records[0]
+    log = get_log_data(caplog.records[0])
     assert not log.cleaned
     assert log.timers.keys() == {"query_s"}
     assert log.tasks.keys() == CLEANERS
@@ -85,28 +113,28 @@ def test_verbosity_2_cleaned() -> None:
 
 
 @pytest.mark.django_db
-def test_verbosity_0(caplog) -> None:
+def test_verbosity_0(caplog: pytest.LogCaptureFixture) -> None:
     """Less data is recorded at verbosity=0."""
     out = StringIO()
     call_command(COMMAND_NAME, "--clean", "--verbosity=0", stdout=out)
     output = out.getvalue()
     assert "# Summary\n" in output
     assert "# Details\n" not in output
-    log = caplog.records[0]
+    log = get_log_data(caplog.records[0])
     assert log.cleaned
     assert log.timers.keys() == {"query_s", "clean_s"}
     assert not hasattr(log, "tasks")
 
 
 @pytest.mark.django_db
-def test_selected_cleaner(caplog) -> None:
+def test_selected_cleaner(caplog: pytest.LogCaptureFixture) -> None:
     """A single cleaner can run."""
     out = StringIO()
     call_command(COMMAND_NAME, f"--{KNOWN_CLEANER}", "--clean", stdout=out)
     output = out.getvalue()
     assert "# Summary\n" in output
     assert "# Details\n" not in output
-    log = caplog.records[0]
+    log = get_log_data(caplog.records[0])
     assert log.cleaned
     assert log.timers.keys() == {"query_s", "clean_s"}
     assert log.tasks.keys() == {KNOWN_CLEANER}
