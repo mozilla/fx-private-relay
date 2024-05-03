@@ -1,9 +1,9 @@
 from django.conf import settings
-from django.urls import path
+from django.urls import URLPattern, URLResolver, path
 
 from . import views
 
-urlpatterns = [
+urlpatterns: list[URLPattern | URLResolver] = [
     path("sns-inbound", views.sns_inbound),
 ]
 
