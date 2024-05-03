@@ -1,4 +1,5 @@
 from logging import getLogger
+from typing import Any, Literal
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -11,7 +12,13 @@ from allauth.socialaccount.adapter import get_adapter as get_social_adapter
 from allauth.socialaccount.helpers import complete_social_login
 from allauth.socialaccount.models import SocialAccount
 from django_filters.rest_framework import FilterSet
-from drf_spectacular.utils import OpenApiResponse, extend_schema
+from drf_spectacular.utils import (
+    OpenApiExample,
+    OpenApiParameter,
+    OpenApiRequest,
+    OpenApiResponse,
+    extend_schema,
+)
 from rest_framework.authentication import get_authorization_header
 from rest_framework.decorators import (
     api_view,
@@ -63,7 +70,10 @@ class FlagFilter(FilterSet):
         ]
 
 
+@extend_schema(tags=["privaterelay"])
 class FlagViewSet(ModelViewSet):
+    """Feature flags."""
+
     serializer_class = FlagSerializer
     permission_classes = [IsAuthenticated, CanManageFlags]
     filterset_class = FlagFilter
@@ -74,7 +84,10 @@ class FlagViewSet(ModelViewSet):
         return flags
 
 
+@extend_schema(tags=["privaterelay"])
 class ProfileViewSet(ModelViewSet):
+    """Relay user extended profile data."""
+
     serializer_class = ProfileSerializer
     permission_classes = [IsAuthenticated, IsOwner]
     http_method_names = ["get", "post", "head", "put", "patch"]
@@ -85,7 +98,10 @@ class ProfileViewSet(ModelViewSet):
         return Profile.objects.none()
 
 
+@extend_schema(tags=["privaterelay"])
 class UserViewSet(ModelViewSet):
+    """Relay user data stored in Django user model."""
+
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated, IsOwner]
     http_method_names = ["get", "head"]
@@ -97,9 +113,32 @@ class UserViewSet(ModelViewSet):
 
 
 @permission_classes([IsAuthenticated])
-@extend_schema(methods=["POST"], request=WebcompatIssueSerializer)
+@extend_schema(
+    tags=["privaterelay"],
+    request=WebcompatIssueSerializer,
+    examples=[
+        OpenApiExample(
+            "mask not accepted",
+            {
+                "issue_on_domain": "https://accounts.firefox.com",
+                "user_agent": "Firefox",
+                "email_mask_not_accepted": True,
+                "add_on_visual_issue": False,
+                "email_not_received": False,
+                "other_issue": "",
+            },
+        )
+    ],
+    responses={
+        "201": OpenApiResponse(description="Report was submitted"),
+        "400": OpenApiResponse(description="Report was rejected due to errors."),
+        "401": OpenApiResponse(description="Authentication required."),
+    },
+)
 @api_view(["POST"])
 def report_webcompat_issue(request):
+    """Report a Relay issue from an extension or integration."""
+
     serializer = WebcompatIssueSerializer(data=request.data)
     if serializer.is_valid():
         info_logger.info("webcompat_issue", extra=serializer.data)
@@ -111,9 +150,80 @@ def report_webcompat_issue(request):
     return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 
+def _get_example_plan(plan: Literal["premium", "phones", "bundle"]) -> dict[str, Any]:
+    prices = {
+        "premium": {"monthly": 1.99, "yearly": 0.99},
+        "phones": {"monthly": 4.99, "yearly": 4.99},
+        "bundle": {"monthly": 6.99, "yearly": 6.99},
+    }
+    monthly_price = {
+        "id": f"price_{plan.title()}Monthlyxxxx",
+        "currency": "usd",
+        "price": prices[plan]["monthly"],
+    }
+    yearly_price = {
+        "id": f"price_{plan.title()}Yearlyxxxx",
+        "currency": "usd",
+        "price": prices[plan]["yearly"],
+    }
+    return {
+        "country_code": "US",
+        "countries": ["CA", "US"],
+        "available_in_country": True,
+        "plan_country_lang_mapping": {
+            "CA": {
+                "*": {
+                    "monthly": monthly_price,
+                    "yearly": yearly_price,
+                }
+            },
+            "US": {
+                "*": {
+                    "monthly": monthly_price,
+                    "yearly": yearly_price,
+                }
+            },
+        },
+    }
+
+
+@extend_schema(
+    tags=["privaterelay"],
+    responses={
+        "200": OpenApiResponse(
+            {"type": "object"},
+            description="Site parameters",
+            examples=[
+                OpenApiExample(
+                    "relay.firefox.com (partial)",
+                    {
+                        "FXA_ORIGIN": "https://accounts.firefox.com",
+                        "PERIODICAL_PREMIUM_PRODUCT_ID": "prod_XXXXXXXXXXXXXX",
+                        "GOOGLE_ANALYTICS_ID": "UA-########-##",
+                        "BUNDLE_PRODUCT_ID": "prod_XXXXXXXXXXXXXX",
+                        "PHONE_PRODUCT_ID": "prod_XXXXXXXXXXXXXX",
+                        "PERIODICAL_PREMIUM_PLANS": _get_example_plan("premium"),
+                        "PHONE_PLANS": _get_example_plan("phones"),
+                        "BUNDLE_PLANS": _get_example_plan("bundle"),
+                        "BASKET_ORIGIN": "https://basket.mozilla.org",
+                        "WAFFLE_FLAGS": [
+                            ["foxfood", False],
+                            ["phones", True],
+                            ["bundle", True],
+                        ],
+                        "WAFFLE_SWITCHES": [],
+                        "WAFFLE_SAMPLES": [],
+                        "MAX_MINUTES_TO_VERIFY_REAL_PHONE": 5,
+                    },
+                )
+            ],
+        )
+    },
+)
 @api_view()
 @permission_classes([AllowAny])
 def runtime_data(request):
+    """Get data needed to present the Relay dashboard to a vistor or user."""
     flags = get_waffle_flag_model().get_all()
     flag_values = [(f.name, f.is_active(request)) for f in flags]
     switches = Switch.get_all()
@@ -148,6 +258,17 @@ def runtime_data(request):
 
 
 @extend_schema(
+    tags=["privaterelay"],
+    parameters=[
+        OpenApiParameter(
+            name="Authorization",
+            required=True,
+            location="header",
+            examples=[OpenApiExample("bearer", "Bearer XXXX-ZZZZ")],
+            description="FXA Bearer Token. Can not be set in browsable API.",
+        )
+    ],
+    request=OpenApiRequest(),
     responses={
         201: OpenApiResponse(description="Created; returned when user is created."),
         202: OpenApiResponse(
@@ -164,6 +285,8 @@ def runtime_data(request):
                 "Unauthorized; returned when the FXA token is invalid or expired."
             )
         ),
+        404: OpenApiResponse(description="FXA did not return a user."),
+        500: OpenApiResponse(description="No response from FXA server."),
     },
 )
 @api_view(["POST"])
@@ -180,6 +303,7 @@ def terms_accepted_user(request):
     # Setting authentication_classes to empty due to
     # authentication still happening despite permissions being set to allowany
     # https://forum.djangoproject.com/t/solved-allowany-override-does-not-work-on-apiview/9754
+    # TODO: Implement an FXA token authentication class
     authorization = get_authorization_header(request).decode()
     if not authorization or not authorization.startswith("Bearer "):
         raise ParseError("Missing Bearer header.")
