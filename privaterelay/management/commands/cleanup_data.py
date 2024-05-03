@@ -72,12 +72,8 @@ class Command(BaseCommand):
                 help=f"Only run {slug} {'cleaner' if task.can_clean else 'detector'}",
             )
 
-    def handle(self, *args, **kwargs) -> str:
+    def handle(self, clean: bool, verbosity: int, *args: Any, **kwargs: Any) -> str:
         """Run the cleanup_data command."""
-
-        # Parse command line options
-        to_clean = kwargs["clean"]
-        verbosity = kwargs["verbosity"]
 
         # Determine if we're running some tasks or the full set
         run_some: list[str] = []
@@ -92,7 +88,7 @@ class Command(BaseCommand):
 
         # Find data issues and clean them if requested
         issue_count, issue_timers = self.find_issues(tasks)
-        if to_clean:
+        if clean:
             clean_count, clean_timers = self.clean_issues(tasks)
             log_message = (
                 f"cleanup_data complete, cleaned {clean_count} of"
@@ -107,7 +103,7 @@ class Command(BaseCommand):
 
         # Log results and create a report, based on requested verbosity
         full_data, log_data = self.prepare_data(
-            to_clean, verbosity, tasks, issue_timers, clean_timers=clean_timers
+            clean, verbosity, tasks, issue_timers, clean_timers=clean_timers
         )
         logger.info(log_message, extra=log_data)
         report = self.get_report(log_message, full_data)
@@ -139,7 +135,7 @@ class Command(BaseCommand):
 
     def prepare_data(
         self,
-        to_clean: bool,
+        cleaned: bool,
         verbosity: int,
         tasks: dict[str, DataIssueTask],
         issue_timers: dict[str, float],
@@ -174,13 +170,13 @@ class Command(BaseCommand):
 
         full_data = {
             "verbosity": verbosity,
-            "cleaned": to_clean,
+            "cleaned": cleaned,
             "timers": timers,
             "tasks": full_details,
         }
 
         log_data = {
-            "cleaned": to_clean,
+            "cleaned": cleaned,
             "timers": timers,
         }
         if log_details:
