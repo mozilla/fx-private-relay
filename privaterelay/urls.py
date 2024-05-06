@@ -16,14 +16,14 @@ Including another URLconf
 
 from django.conf import settings
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import URLPattern, URLResolver, include, path
 
 from allauth.account import views as allauth_views
 from allauth.socialaccount.providers.fxa import views as fxa_views
 
 from . import views
 
-urlpatterns = [
+urlpatterns: list[URLPattern | URLResolver] = [
     # FXA endpoints
     path("fxa-rp-events", views.fxa_rp_events),
     path("metrics-event", views.metrics_event),

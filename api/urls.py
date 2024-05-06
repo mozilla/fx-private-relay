@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.urls import include, path, register_converter
+from django.urls import URLPattern, URLResolver, include, path, register_converter
 
 from drf_spectacular.views import (
     SpectacularAPIView,
@@ -46,7 +46,7 @@ api_router.register(r"users", UserViewSet, "user")
 api_router.register(r"flags", FlagViewSet, "flag")
 
 
-urlpatterns = [
+urlpatterns: list[URLPattern | URLResolver] = [
     path(
         "v1/runtime_data",
         runtime_data,

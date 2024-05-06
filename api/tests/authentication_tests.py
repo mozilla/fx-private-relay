@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import NotRequired, TypedDict
 
 from django.core.cache import cache
 from django.test import RequestFactory, TestCase
@@ -25,19 +26,30 @@ MOCK_BASE = "api.authentication"
 # nullable.
 
 
-def _setup_fxa_response(status_code: int, json: dict | str):
+class FxaResponse(TypedDict, total=False):
+    active: bool
+    sub: str
+    exp: int
+    error: str
+
+
+class CachedFxaResponse(TypedDict):
+    status_code: int
+    json: NotRequired[FxaResponse | str]
+
+
+def _setup_fxa_response(
+    status_code: int, json: FxaResponse | str | None = None
+) -> CachedFxaResponse:
     responses.add(
         responses.POST,
         INTROSPECT_TOKEN_URL,
         status=status_code,
         json=json,
     )
+    if json is None:
+        return {"status_code": status_code}
     return {"status_code": status_code, "json": json}
-
-
-def _setup_fxa_response_no_json(status_code: int):
-    responses.add(responses.POST, INTROSPECT_TOKEN_URL, status=status_code)
-    return {"status_code": status_code}
 
 
 class AuthenticationMiscellaneous(TestCase):
@@ -53,7 +65,7 @@ class AuthenticationMiscellaneous(TestCase):
 
     @responses.activate
     def test_introspect_token_catches_JSONDecodeError_raises_AuthenticationFailed(self):
-        _setup_fxa_response_no_json(200)
+        _setup_fxa_response(200)
         invalid_token = "invalid-123"
 
         try:
@@ -69,7 +81,11 @@ class AuthenticationMiscellaneous(TestCase):
         now_time = int(datetime.now().timestamp())
         # Note: FXA iat and exp are timestamps in *milliseconds*
         exp_time = (now_time + 60 * 60) * 1000
-        json_data = {"active": True, "sub": self.uid, "exp": exp_time}
+        json_data: FxaResponse = {
+            "active": True,
+            "sub": self.uid,
+            "exp": exp_time,
+        }
         status_code = 200
         expected_fxa_resp_data = {"status_code": status_code, "json": json_data}
         _setup_fxa_response(status_code, json_data)
@@ -110,7 +126,7 @@ class AuthenticationMiscellaneous(TestCase):
     def test_get_fxa_uid_from_oauth_token_status_code_None_uses_cached_response_returns_error_response(  # noqa: E501
         self,
     ) -> None:
-        _setup_fxa_response_no_json(200)
+        _setup_fxa_response(200)
         invalid_token = "invalid-123"
         cache_key = get_cache_key(invalid_token)
 

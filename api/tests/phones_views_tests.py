@@ -181,10 +181,11 @@ def mocked_twilio_client():
     ) as mock_twilio_client:
         mock_twilio_client._pn_return = Mock()
 
-        def mock_phone_lookup(number: str | None = None):
+        def mock_phone_lookup(number: str | None = None) -> Mock:
             """Return number details based on the number passed to phone_numbers()"""
             if number is None:
                 # Allow mocked_twilio_client.lookups.v1.phone_numbers().fetch to work
+                assert isinstance(mock_twilio_client._pn_return, Mock)
                 return mock_twilio_client._pn_return
             match = re_e164.match(number)
             assert match
@@ -1213,7 +1214,9 @@ def test_inbound_sms_reply_pre_transition(
     assert relay_number.texts_forwarded == 1
 
 
-def test_inbound_sms_reply_no_multi_replies(phone_user, mocked_twilio_client) -> None:
+def test_inbound_sms_reply_no_multi_replies(
+    phone_user: User, mocked_twilio_client: Mock
+) -> None:
     """A user without multi_replies flag cannot use prefixes."""
     real_phone = _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=True)
@@ -1777,7 +1780,7 @@ _match_by_prefix_no_match_tests: dict[str, str] = {
     _match_by_prefix_no_match_tests.values(),
     ids=list(_match_by_prefix_no_match_tests.keys()),
 )
-def test_match_by_prefix_no_match(text: str):
+def test_match_by_prefix_no_match(text: str) -> None:
     match = _match_by_prefix(text, _match_by_prefix_candidates)
     assert match is None
 

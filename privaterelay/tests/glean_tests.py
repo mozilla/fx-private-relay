@@ -1,6 +1,7 @@
 import json
 from datetime import UTC, datetime
 from logging import LogRecord
+from pathlib import Path
 from typing import Any, NamedTuple
 from uuid import UUID, uuid4
 
@@ -33,13 +34,13 @@ from privaterelay.utils import glean_logger as utils_glean_logger
 
 
 @pytest.fixture
-def glean_logger(db, version_json_path) -> RelayGleanLogger:
+def glean_logger(db: None, version_json_path: Path) -> RelayGleanLogger:
     utils_glean_logger.cache_clear()  # Ensure version is from version_json_path
     return utils_glean_logger()
 
 
 @pytest.fixture
-def optout_user(db) -> User:
+def optout_user(db: None) -> User:
     user = baker.make(User, email="optout@example.com")
     SocialAccount.objects.get_or_create(
         user=user,
@@ -163,7 +164,7 @@ def test_user_data_vpn_user() -> None:
     assert user_data.premium_status == "bundle_unknown"
 
 
-def test_user_data_optout_user(optout_user) -> None:
+def test_user_data_optout_user(optout_user: User) -> None:
     user_data = UserData.from_user(optout_user)
     assert user_data.metrics_enabled is False
 

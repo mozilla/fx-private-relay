@@ -1,4 +1,5 @@
 import random
+from collections.abc import Iterator
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from unittest.mock import Mock, call, patch
@@ -51,7 +52,7 @@ def twilio_number_sid():
 
 
 @pytest.fixture(autouse=True)
-def mock_twilio_client(twilio_number_sid: str):
+def mock_twilio_client(twilio_number_sid: str) -> Iterator[Mock]:
     """Mock PhonesConfig with a mock twilio client"""
     with patch(
         "phones.apps.PhonesConfig.twilio_client",

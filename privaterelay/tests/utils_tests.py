@@ -1,5 +1,6 @@
 import logging
 from collections.abc import Iterator
+from pathlib import Path
 from unittest.mock import patch
 
 from django.contrib.auth.models import AbstractBaseUser, Group, User
@@ -10,7 +11,7 @@ import pytest
 from _pytest.fixtures import SubRequest
 from _pytest.logging import LogCaptureFixture
 from pytest_django.fixtures import SettingsWrapper
-from waffle.models import Flag
+from waffle.models import AbstractUserFlag, Flag
 from waffle.testutils import override_flag
 from waffle.utils import get_cache as get_waffle_cache
 
@@ -230,7 +231,9 @@ from ..utils import (
         ("ar-a-aaa-b-bbb-a-ccc", "EG"),  # two extensions with same 1 char prefix 'a'
     ),
 )
-def test_guess_country_from_accept_lang(accept_lang, expected_country_code) -> None:
+def test_guess_country_from_accept_lang(
+    accept_lang: str, expected_country_code: str
+) -> None:
     assert guess_country_from_accept_lang(accept_lang) == expected_country_code
 
 
@@ -255,7 +258,7 @@ def test_guess_country_from_accept_lang(accept_lang, expected_country_code) -> N
         "-",
     ),
 )
-def test_guess_country_from_accept_lang_invalid_fails(accept_lang) -> None:
+def test_guess_country_from_accept_lang_invalid_fails(accept_lang: str) -> None:
     """AcceptLanguageError is raised when an Accept-Language string is invalid."""
     with pytest.raises(AcceptLanguageError) as exc_info:
         guess_country_from_accept_lang(accept_lang)
@@ -264,7 +267,7 @@ def test_guess_country_from_accept_lang_invalid_fails(accept_lang) -> None:
 
 
 @pytest.mark.parametrize("accept_lang", ("i-enochian", "i-klingon"))
-def test_guess_country_from_accept_lang_irregular_fails(accept_lang) -> None:
+def test_guess_country_from_accept_lang_irregular_fails(accept_lang: str) -> None:
     """AcceptLanguageError is raised when an i-X irregular language is first."""
     with pytest.raises(AcceptLanguageError) as exc_info:
         guess_country_from_accept_lang(accept_lang)
@@ -289,7 +292,7 @@ def test_guess_country_from_accept_lang_qxx_private_use_fails() -> None:
 
 
 @pytest.mark.parametrize("accept_lang", ("*;q=1.00", "*"))
-def test_guess_country_from_accept_lang_wildcard_fails(accept_lang) -> None:
+def test_guess_country_from_accept_lang_wildcard_fails(accept_lang: str) -> None:
     """AcceptLanguageError is raised when wildcard language is first."""
     with pytest.raises(AcceptLanguageError) as exc_info:
         guess_country_from_accept_lang(accept_lang)
@@ -298,7 +301,9 @@ def test_guess_country_from_accept_lang_wildcard_fails(accept_lang) -> None:
 
 
 @pytest.mark.parametrize("accept_lang", ("a-DE", "b-DE"))
-def test_guess_country_from_accept_lang_short_primary_lang_fails(accept_lang) -> None:
+def test_guess_country_from_accept_lang_short_primary_lang_fails(
+    accept_lang: str,
+) -> None:
     """AcceptLanguageError is raised when a one-character primary language is first."""
     with pytest.raises(AcceptLanguageError) as exc_info:
         guess_country_from_accept_lang(accept_lang)
@@ -510,6 +515,7 @@ def test_flag_is_active_for_task_user_flag(flag_user: User | None) -> None:
     assert not flag_is_active_in_task(TEST_FLAG_NAME, flag_user)
     if flag_user is None:
         return  # Nothing further to test without a user
+    assert isinstance(flag, AbstractUserFlag)
     flag.users.add(flag_user)
     assert flag_is_active_in_task(TEST_FLAG_NAME, flag_user)
 
@@ -520,6 +526,7 @@ def test_flag_is_active_for_task_group_flag(flag_user: User | None) -> None:
     if flag_user is None:
         return  # Nothing further to test without a user
     group = Group.objects.create(name=TEST_FLAG_NAME)
+    assert isinstance(flag, AbstractUserFlag)
     flag.groups.add(group)
     assert not flag_is_active_in_task(TEST_FLAG_NAME, flag_user)
     group.user_set.add(flag_user)
@@ -532,6 +539,7 @@ def test_flag_is_active_for_task_everyone_overrides_user(
     if flag_user is None:
         return  # Nothing further to test without a user
     flag = Flag.objects.create(name=TEST_FLAG_NAME, everyone=False)
+    assert isinstance(flag, AbstractUserFlag)
     flag.users.add(flag_user)
     assert not flag_is_active_in_task(TEST_FLAG_NAME, flag_user)
 
@@ -587,7 +595,9 @@ def test_flag_is_active_for_task_override_existing_to_inactive(
     (None, "", "[]", '{"foo": "bar"}'),
     ids=("missing", "empty", "list", "other object"),
 )
-def test_get_version_info_bad_contents(version_json_path, content: str | None) -> None:
+def test_get_version_info_bad_contents(
+    version_json_path: Path, content: str | None
+) -> None:
     if content is None:
         version_json_path.unlink()
     else:

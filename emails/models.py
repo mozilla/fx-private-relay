@@ -434,10 +434,10 @@ class Profile(models.Model):
 
     def update_abuse_metric(
         self,
-        address_created=False,
-        replied=False,
-        email_forwarded=False,
-        forwarded_email_size=0,
+        address_created: bool = False,
+        replied: bool = False,
+        email_forwarded: bool = False,
+        forwarded_email_size: int = 0,
     ) -> datetime | None:
         # TODO MPP-3720: This should be wrapped in atomic or select_for_update to ensure
         # race conditions are properly handled.
@@ -598,7 +598,7 @@ def address_default():
     )
 
 
-def has_bad_words(value) -> bool:
+def has_bad_words(value: str) -> bool:
     for badword in emails_config().badwords:
         badword = badword.strip()
         if len(badword) <= 4 and badword == value:
@@ -667,9 +667,9 @@ class RelayAddrFreeTierLimitException(CannotMakeAddressException):
     )
     status_code = 403
 
-    def __init__(self, free_tier_limit: int | None = None, *args, **kwargs):
+    def __init__(self, free_tier_limit: int | None = None):
         self.free_tier_limit = free_tier_limit or settings.MAX_NUM_FREE_ALIASES
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
     def error_context(self) -> ErrorContextType:
         return {"free_tier_limit": self.free_tier_limit}
@@ -706,9 +706,9 @@ class DomainAddrUnavailableException(CannotMakeAddressException):
     )
     status_code = 400
 
-    def __init__(self, unavailable_address: str, *args, **kwargs):
+    def __init__(self, unavailable_address: str):
         self.unavailable_address = unavailable_address
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
     def error_context(self) -> ErrorContextType:
         return {"unavailable_address": self.unavailable_address}
@@ -722,9 +722,9 @@ class DomainAddrDuplicateException(CannotMakeAddressException):
     )
     status_code = 409
 
-    def __init__(self, duplicate_address: str, *args, **kwargs):
+    def __init__(self, duplicate_address: str):
         self.duplicate_address = duplicate_address
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
     def error_context(self) -> ErrorContextType:
         return {"duplicate_address": self.duplicate_address}

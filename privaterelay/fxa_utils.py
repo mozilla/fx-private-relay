@@ -18,9 +18,9 @@ logger = logging.getLogger("events")
 class NoSocialToken(Exception):
     """The SocialAccount has no SocialToken"""
 
-    def __init__(self, uid: str, *args, **kwargs):
+    def __init__(self, uid: str):
         self.uid = uid
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
     def __str__(self) -> str:
         return f'NoSocialToken: The SocialAccount "{self.uid}" has no token.'

@@ -8,7 +8,7 @@ from decimal import Decimal
 from functools import cache, wraps
 from pathlib import Path
 from string import ascii_uppercase
-from typing import TYPE_CHECKING, TypedDict, cast
+from typing import TYPE_CHECKING, ParamSpec, TypedDict, TypeVar, cast
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser
@@ -355,10 +355,16 @@ def guess_country_from_accept_lang(accept_lang: str) -> str:
         raise AcceptLanguageError("Unknown langauge", accept_lang)
 
 
+# Generics for defining function decorators
+# https://mypy.readthedocs.io/en/stable/generics.html#declaring-decorators
+_Params = ParamSpec("_Params")
+_RetVal = TypeVar("_RetVal")
+
+
 def enable_or_404(
     check_function: Callable[[], bool],
     message: str = "This conditional view is disabled.",
-):
+) -> Callable[[Callable[_Params, _RetVal]], Callable[_Params, _RetVal]]:
     """
     Returns decorator that enables a view if a check function passes,
     otherwise returns a 404.
@@ -369,15 +375,15 @@ def enable_or_404(
            import random
            return random.randint(1, 100) == 1
 
-        @enable_if(coin_flip)
+        @enable_if(percent_1)
         def lucky_view(request):
             #  1 in 100 chance of getting here
             # 99 in 100 chance of 404
     """
 
-    def decorator(func):
+    def decorator(func: Callable[_Params, _RetVal]) -> Callable[_Params, _RetVal]:
         @wraps(func)
-        def inner(*args, **kwargs):
+        def inner(*args: _Params.args, **kwargs: _Params.kwargs) -> _RetVal:
             if check_function():
                 return func(*args, **kwargs)
             else:
@@ -391,7 +397,7 @@ def enable_or_404(
 def enable_if_setting(
     setting_name: str,
     message_fmt: str = "This view is disabled because {setting_name} is False",
-):
+) -> Callable[[Callable[_Params, _RetVal]], Callable[_Params, _RetVal]]:
     """
     Returns decorator that enables a view if a setting is truthy, otherwise
     returns a 404.

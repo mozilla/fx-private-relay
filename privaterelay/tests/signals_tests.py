@@ -1,4 +1,5 @@
-from unittest.mock import patch
+from collections.abc import Iterator
+from unittest.mock import Mock, patch
 
 from django.contrib.auth.models import User
 from django.contrib.sessions.middleware import SessionMiddleware
@@ -13,20 +14,20 @@ from privaterelay.signals import record_user_signed_up
 
 
 @pytest.fixture()
-def mock_ses_client():
+def mock_ses_client() -> Iterator[Mock]:
     with patch("emails.apps.EmailsConfig.ses_client") as mock_ses_client:
         yield mock_ses_client
 
 
 @pytest.mark.django_db
-def test_record_user_signed_up_telemetry():
+def test_record_user_signed_up_telemetry() -> None:
     user = baker.make(User)
     rf = RequestFactory()
     sign_up_request = rf.get(
         "/accounts/fxa/login/callback/?code=test&state=test&action=signin"
     )
 
-    def get_response(_: HttpRequest):
+    def get_response(_: HttpRequest) -> HttpResponse:
         return HttpResponse("200 OK")
 
     middleware = SessionMiddleware(get_response)

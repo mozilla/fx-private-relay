@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import hashlib
 import logging
 import re
@@ -606,7 +608,9 @@ def message_body(from_num, body):
     return f"[Relay 📲 {from_num}] {body}"
 
 
-def _get_user_error_message(real_phone: RealPhone, sms_exception) -> Any:
+def _get_user_error_message(
+    real_phone: RealPhone, sms_exception: RelaySMSException
+) -> Any:
     # Send a translated message to the user
     ftl_code = sms_exception.get_codes().replace("_", "-")
     ftl_id = f"sms-error-{ftl_code}"
@@ -1358,9 +1362,9 @@ class NoPreviousSender(RelaySMSException):
 class ShortPrefixException(RelaySMSException):
     """Base exception for short prefix exceptions"""
 
-    def __init__(self, short_prefix: str, *args, **kwargs):
+    def __init__(self, short_prefix: str):
         self.short_prefix = short_prefix
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
     def error_context(self) -> ErrorContextType:
         return {"short_prefix": self.short_prefix}
@@ -1369,9 +1373,9 @@ class ShortPrefixException(RelaySMSException):
 class FullNumberException(RelaySMSException):
     """Base exception for full number exceptions"""
 
-    def __init__(self, full_number: str, *args, **kwargs):
+    def __init__(self, full_number: str):
         self.full_number = full_number
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
     def error_context(self) -> ErrorContextType:
         return {"full_number": self.full_number}
