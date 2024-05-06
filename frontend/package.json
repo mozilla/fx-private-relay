@@ -33,7 +33,7 @@
     "react-intersection-observer": "^9.10.0",
     "react-qr-code": "^2.0.12",
     "react-singleton-hook": "^4.0.1",
-    "react-stately": "^3.30.1",
+    "react-stately": "^3.31.0",
     "react-toastify": "^10.0.5",
     "swr": "^2.2.5"
   },
