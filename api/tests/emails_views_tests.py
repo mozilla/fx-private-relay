@@ -3,6 +3,7 @@
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
+from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 
@@ -731,7 +732,7 @@ def test_delete_randomaddress(
     assert event == expected_event
 
 
-def test_first_forwarded_email_unauth(client) -> None:
+def test_first_forwarded_email_unauth(client: Client) -> None:
     response = client.post("/api/v1/first-forwarded-email/")
     assert response.status_code == 401
     assert response.json() == {"detail": str(NotAuthenticated())}
