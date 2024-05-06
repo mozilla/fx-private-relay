@@ -377,6 +377,7 @@ MIDDLEWARE += [
     "waffle.middleware.WaffleMiddleware",
     "privaterelay.middleware.AddDetectedCountryToRequestAndResponseHeaders",
     "privaterelay.middleware.StoreFirstVisit",
+    "google.cloud.sqlcommenter.django.middleware.SqlCommenter",
 ]
 
 ROOT_URLCONF = "privaterelay.urls"
