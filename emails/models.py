@@ -138,7 +138,7 @@ class Profile(models.Model):
     last_engagement = models.DateTimeField(blank=True, null=True, db_index=True)
 
     def __str__(self):
-        return "%s Profile" % self.user
+        return f"{self.user} Profile"
 
     def save(
         self,

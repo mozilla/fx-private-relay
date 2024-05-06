@@ -117,6 +117,8 @@ extend-safe-fixes = [
     # E712 Avoid equality comparisons to True / False
     # Changes '== True' to 'is True'
     "E712",
+    # UP031 Use format specifiers instead of percent format
+    "UP031",
 ]
 
 [tool.ruff.lint.isort]

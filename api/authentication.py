@@ -18,8 +18,8 @@ from rest_framework.exceptions import (
 )
 
 logger = logging.getLogger("events")
-INTROSPECT_TOKEN_URL = (
-    "%s/introspect" % settings.SOCIALACCOUNT_PROVIDERS["fxa"]["OAUTH_ENDPOINT"]
+INTROSPECT_TOKEN_URL = "{}/introspect".format(
+    settings.SOCIALACCOUNT_PROVIDERS["fxa"]["OAUTH_ENDPOINT"]
 )
 
 

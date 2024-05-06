@@ -255,7 +255,7 @@ def get_reply_to_address(premium: bool = True) -> str:
     """Return the address that relays replies."""
     if premium:
         _, reply_to_address = parseaddr(
-            "replies@%s" % get_domains_from_settings().get("RELAY_FIREFOX_DOMAIN")
+            "replies@{}".format(get_domains_from_settings().get("RELAY_FIREFOX_DOMAIN"))
         )
     else:
         _, reply_to_address = parseaddr(settings.RELAY_FROM_ADDRESS)

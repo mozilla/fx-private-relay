@@ -443,8 +443,10 @@ def _sns_notification(json_body):
             },
         )
         return HttpResponse(
-            "Received SNS notification for unsupported Type: %s"
-            % html.escape(shlex.quote(notification_type)),
+            (
+                "Received SNS notification for unsupported Type: "
+                f"{html.escape(shlex.quote(notification_type))}"
+            ),
             status=400,
         )
     response = _sns_message(message_json)
@@ -641,7 +643,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     bounce_paused, bounce_type = user_profile.check_bounce_pause()
     if bounce_paused:
         _record_receipt_verdicts(receipt, "user_bounce_paused")
-        incr_if_enabled("email_suppressed_for_%s_bounce" % bounce_type, 1)
+        incr_if_enabled(f"email_suppressed_for_{bounce_type}_bounce", 1)
         reason: Literal["soft_bounce_pause", "hard_bounce_pause"] = (
             "soft_bounce_pause" if bounce_type == "soft" else "hard_bounce_pause"
         )
@@ -814,7 +816,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
 
 
 def _get_verdict(receipt, verdict_type):
-    return receipt["%sVerdict" % verdict_type]["status"]
+    return receipt[f"{verdict_type}Verdict"]["status"]
 
 
 def _check_email_from_list(headers):
