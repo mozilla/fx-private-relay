@@ -17,10 +17,7 @@ from model_bakery import baker
 from rest_framework.test import APIClient
 
 from api.authentication import INTROSPECT_TOKEN_URL, get_cache_key
-from api.tests.authentication_tests import (
-    _setup_fxa_response,
-    _setup_fxa_response_no_json,
-)
+from api.tests.authentication_tests import _setup_fxa_response
 from api.views.privaterelay import FXA_PROFILE_URL
 from emails.models import Profile
 from privaterelay.tests.utils import (
@@ -310,7 +307,7 @@ class TermsAcceptedUserViewTest(TestCase):
     def test_jsondecodeerror_returns_401_and_cache_returns_500(
         self,
     ) -> None:
-        _setup_fxa_response_no_json(200)
+        _setup_fxa_response(200)
         invalid_token = "invalid-123"
         cache_key = get_cache_key(invalid_token)
         self._setup_client(invalid_token)

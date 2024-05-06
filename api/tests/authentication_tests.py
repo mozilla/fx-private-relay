@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import TypedDict
+from typing import NotRequired, TypedDict
 
 from django.core.cache import cache
 from django.test import RequestFactory, TestCase
@@ -26,22 +26,20 @@ MOCK_BASE = "api.authentication"
 # nullable.
 
 
+class FxaResponse(TypedDict, total=False):
+    active: bool
+    sub: str
+    exp: int
+    error: str
+
+
 class CachedFxaResponse(TypedDict):
     status_code: int
-    json: dict[str, str | int]
-
-
-class CachedFxaResponseStr(TypedDict):
-    status_code: int
-    json: str
-
-
-class CachedFxaResponseNoJson(TypedDict):
-    status_code: int
+    json: NotRequired[FxaResponse | str]
 
 
 def _setup_fxa_response(
-    status_code: int, json: dict[str, str | int | bool]
+    status_code: int, json: FxaResponse | str | None = None
 ) -> CachedFxaResponse:
     responses.add(
         responses.POST,
@@ -49,22 +47,9 @@ def _setup_fxa_response(
         status=status_code,
         json=json,
     )
+    if json is None:
+        return {"status_code": status_code}
     return {"status_code": status_code, "json": json}
-
-
-def _setup_fxa_response_str(status_code: int, json: str) -> CachedFxaResponseStr:
-    responses.add(
-        responses.POST,
-        INTROSPECT_TOKEN_URL,
-        status=status_code,
-        json=json,
-    )
-    return {"status_code": status_code, "json": json}
-
-
-def _setup_fxa_response_no_json(status_code: int) -> CachedFxaResponseNoJson:
-    responses.add(responses.POST, INTROSPECT_TOKEN_URL, status=status_code)
-    return {"status_code": status_code}
 
 
 class AuthenticationMiscellaneous(TestCase):
@@ -80,7 +65,7 @@ class AuthenticationMiscellaneous(TestCase):
 
     @responses.activate
     def test_introspect_token_catches_JSONDecodeError_raises_AuthenticationFailed(self):
-        _setup_fxa_response_no_json(200)
+        _setup_fxa_response(200)
         invalid_token = "invalid-123"
 
         try:
@@ -96,7 +81,7 @@ class AuthenticationMiscellaneous(TestCase):
         now_time = int(datetime.now().timestamp())
         # Note: FXA iat and exp are timestamps in *milliseconds*
         exp_time = (now_time + 60 * 60) * 1000
-        json_data: dict[str, str | int | bool] = {
+        json_data: FxaResponse = {
             "active": True,
             "sub": self.uid,
             "exp": exp_time,
@@ -141,7 +126,7 @@ class AuthenticationMiscellaneous(TestCase):
     def test_get_fxa_uid_from_oauth_token_status_code_None_uses_cached_response_returns_error_response(  # noqa: E501
         self,
     ) -> None:
-        _setup_fxa_response_no_json(200)
+        _setup_fxa_response(200)
         invalid_token = "invalid-123"
         cache_key = get_cache_key(invalid_token)
 
@@ -306,7 +291,7 @@ class FxaTokenAuthenticationTest(TestCase):
 
     @responses.activate
     def test_non_200_non_json_resp_from_fxa_raises_error_and_caches(self) -> None:
-        fxa_response = _setup_fxa_response_str(503, "Bad Gateway")
+        fxa_response = _setup_fxa_response(503, "Bad Gateway")
         not_found_token = "fxa-gw-error"
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION=f"Bearer {not_found_token}")
