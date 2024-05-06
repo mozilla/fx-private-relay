@@ -1372,7 +1372,7 @@ class DomainAddressTest(TestCase):
         # not been fixed yet
         for i in range(5):
             domain_address = DomainAddress.make_domain_address(
-                self.user_profile, "test-different-%s" % i
+                self.user_profile, f"test-different-{i}"
             )
             assert domain_address.first_emailed_at is None
         domain_addresses = DomainAddress.objects.filter(user=self.user).values_list(

@@ -449,7 +449,7 @@ def suggested_numbers(user):
     # TODO: can we make multiple pattern searches in a single Twilio API request
     same_prefix_options = []
     # look for numbers with same area code and 3-number prefix
-    contains = "%s****" % real_num[:8] if real_num else ""
+    contains = f"{real_num[:8]}****" if real_num else ""
     twilio_nums = avail_nums.local.list(contains=contains, limit=10)
     same_prefix_options.extend(convert_twilio_numbers_to_dict(twilio_nums))
 
@@ -459,17 +459,17 @@ def suggested_numbers(user):
     same_prefix_options.extend(convert_twilio_numbers_to_dict(twilio_nums))
 
     # look for numbers with same area code and 1-number prefix
-    contains = "%s******" % real_num[:6] if real_num else ""
+    contains = f"{real_num[:6]}******" if real_num else ""
     twilio_nums = avail_nums.local.list(contains=contains, limit=10)
     same_prefix_options.extend(convert_twilio_numbers_to_dict(twilio_nums))
 
     # look for same number in other area codes
-    contains = "+1***%s" % real_num[5:] if real_num else ""
+    contains = f"+1***{real_num[5:]}" if real_num else ""
     twilio_nums = avail_nums.local.list(contains=contains, limit=10)
     other_areas_options = convert_twilio_numbers_to_dict(twilio_nums)
 
     # look for any numbers in the area code
-    contains = "%s*******" % real_num[:5] if real_num else ""
+    contains = f"{real_num[:5]}*******" if real_num else ""
     twilio_nums = avail_nums.local.list(contains=contains, limit=10)
     same_area_options = convert_twilio_numbers_to_dict(twilio_nums)
 

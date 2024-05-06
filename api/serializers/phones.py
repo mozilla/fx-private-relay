@@ -1,3 +1,5 @@
+from typing import Any
+
 from rest_framework import serializers
 
 from phones.models import InboundContact, RealPhone, RelayNumber
@@ -104,7 +106,7 @@ class TwilioInboundSmsSerializer(serializers.Serializer):
     from_ = serializers.CharField()
     to = serializers.CharField()
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         # Change to reserved keyword "from"
         self.fields["from"] = self.fields.pop("from_")
@@ -116,7 +118,7 @@ class TwilioMessagesSerializer(serializers.Serializer):
     date_sent = serializers.CharField()
     body = serializers.CharField()
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         # Change to reserved keyword "from"
         self.fields["from"] = self.fields.pop("from_")
@@ -156,7 +158,7 @@ class IqInboundSmsSerializer(serializers.Serializer):
     from_ = serializers.CharField()
     to = serializers.CharField()
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         # Change to reserved keyword "from"
         self.fields["from"] = self.fields.pop("from_")

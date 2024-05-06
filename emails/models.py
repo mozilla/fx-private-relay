@@ -16,6 +16,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import BadRequest
 from django.core.validators import MinLengthValidator
 from django.db import models, transaction
+from django.db.models.base import ModelBase
 from django.db.models.query import QuerySet
 from django.dispatch import receiver
 from django.utils.translation.trans_real import (
@@ -137,11 +138,11 @@ class Profile(models.Model):
     last_engagement = models.DateTimeField(blank=True, null=True, db_index=True)
 
     def __str__(self):
-        return "%s Profile" % self.user
+        return f"{self.user} Profile"
 
     def save(
         self,
-        force_insert: bool = False,
+        force_insert: bool | tuple[ModelBase, ...] = False,
         force_update: bool = False,
         using: str | None = None,
         update_fields: Iterable[str] | None = None,
@@ -791,7 +792,7 @@ class RelayAddress(models.Model):
 
     def save(
         self,
-        force_insert: bool = False,
+        force_insert: bool | tuple[ModelBase, ...] = False,
         force_update: bool = False,
         using: str | None = None,
         update_fields: Iterable[str] | None = None,
@@ -935,7 +936,7 @@ class DomainAddress(models.Model):
 
     def save(
         self,
-        force_insert: bool = False,
+        force_insert: bool | tuple[ModelBase, ...] = False,
         force_update: bool = False,
         using: str | None = None,
         update_fields: Iterable[str] | None = None,
