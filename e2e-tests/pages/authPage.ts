@@ -19,26 +19,20 @@ export class AuthPage {
     this.page = page;
     this.emailInputField = page.locator('input[name="email"]');
     this.passwordInputField = page.locator("#password");
-    this.passwordSignupInputField =
-      process.env["E2E_TEST_ENV"] === "prod"
-        ? page.locator("#password")
-        : page.getByTestId("new-password-input-field");
-    this.passwordSignupConfirmInputField =
-      process.env["E2E_TEST_ENV"] === "prod"
-        ? page.locator("#vpassword")
-        : page.getByTestId("verify-password-input-field");
-    this.ageInputField =
-      process.env["E2E_TEST_ENV"] === "prod"
-        ? page.locator("#age")
-        : page.getByTestId("age-input-field");
+    this.passwordSignupInputField = page.getByTestId(
+      "new-password-input-field",
+    );
+    this.passwordSignupConfirmInputField = page.getByTestId(
+      "verify-password-input-field",
+    );
+    this.ageInputField = page.getByTestId("age-input-field");
     this.continueButton = page.locator("#submit-btn");
     this.createAccountButton = page.getByRole("button", {
       name: "Create account",
     });
-    this.verifyCodeInputField =
-      process.env["E2E_TEST_ENV"] === "prod"
-        ? page.locator("div.card input")
-        : page.getByTestId("confirm-signup-code-input-field");
+    this.verifyCodeInputField = page.getByTestId(
+      "confirm-signup-code-input-field",
+    );
     this.confirmCodeButton = page.getByRole("button", { name: "Confirm" });
     this.newPasswordInputFieldSignIn = page.locator(
       "input[data-testid='input-field'][name='password'][type='password']",
@@ -84,16 +78,16 @@ export class AuthPage {
     await this.enterPassword();
   }
 
-  async signUp(email: string) {
-    await this.page
-      .getByText("Enter your email")
-      .waitFor({ state: "attached", timeout: 3000 });
-    await forceNonReactLink(this.page);
-    await this.enterEmail(email);
+  async signUp(email: string, emailEntered: boolean = false) {
+    if (!emailEntered) {
+      await this.page
+        .getByText("Enter your email")
+        .waitFor({ state: "attached", timeout: 3000 });
+      await this.enterEmail(email);
+    }
     await this.page
       .getByText("Set your password")
       .waitFor({ state: "attached", timeout: 3000 });
-    await forceNonReactLink(this.page);
     await this.passwordSignupInputField.fill(
       process.env.E2E_TEST_ACCOUNT_PASSWORD as string,
     );
