@@ -284,43 +284,29 @@ def test_no_body_deleted(mock_sqs_client, caplog, test_settings):
     msg.delete.assert_called_once_with()
 
 
-def test_ses_temp_failure_retry(
+def test_ses_temp_failure(
     test_settings,
     mock_sns_inbound_logic,
     mock_sqs_client,
     caplog,
 ):
-    """The command retries a message with a temporary SES failure."""
-    test_settings.PROCESS_EMAIL_MAX_SECONDS = 4
+    """
+    The command no longer retries a message with a temporary SES failure.
+
+    The retry logic was removed in May 2024 when no throttling or pause errors were
+    registered in the previous 6 months.
+    """
+    test_settings.PROCESS_EMAIL_MAX_SECONDS = 2
     temp_error = make_client_error(
         "Maximum sending rate exceeded.", "ThrottlingException"
     )
-    mock_sns_inbound_logic.side_effect = (temp_error, None)
-    msg = fake_sqs_message(json.dumps(TEST_SNS_MESSAGE))
-    mock_sqs_client.return_value = fake_queue([msg], [])
-    call_command(COMMAND_NAME)
-    summary = summary_from_exit_log(caplog)
-    assert summary["total_messages"] == 1
-    assert summary["pause_count"] == 1
-    msg.delete.assert_called_once_with()
-
-
-def test_ses_temp_failure_twice(
-    test_settings, mock_sns_inbound_logic, mock_sqs_client, caplog
-):
-    """A temporary error followed by a second error is not retried."""
-    test_settings.PROCESS_EMAIL_MAX_SECONDS = 4
-    temp_error = make_client_error(
-        "Email sending has been disabled.", "AccountSendingPausedException"
-    )
-    mock_sns_inbound_logic.side_effect = (temp_error, temp_error)
+    mock_sns_inbound_logic.side_effect = temp_error
     msg = fake_sqs_message(json.dumps(TEST_SNS_MESSAGE))
     mock_sqs_client.return_value = fake_queue([msg], [])
     call_command(COMMAND_NAME)
     summary = summary_from_exit_log(caplog)
     assert summary["total_messages"] == 1
     assert summary["failed_messages"] == 1
-    assert summary["pause_count"] == 1
     msg.delete.assert_not_called()
 
 
