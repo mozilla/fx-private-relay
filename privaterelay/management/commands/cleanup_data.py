@@ -57,7 +57,8 @@ class Command(BaseCommand):
         epilog = "\n".join(epilog_lines)
 
         parser = super().create_parser(prog_name, subcommand, epilog=epilog, **kwargs)
-        assert parser.formatter_class == DjangoHelpFormatter
+        if not parser.formatter_class == DjangoHelpFormatter:
+            raise TypeError("parser.formatter_class must be type DjangoHelpFormatter")
         parser.formatter_class = RawDescriptionDjangoHelpFormatter
         return parser
 

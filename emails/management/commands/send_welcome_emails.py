@@ -40,10 +40,13 @@ def _ses_message_props(data: str) -> ContentTypeDef:
 def send_welcome_email(profile: Profile) -> None:
     user = profile.user
     app_config = apps.get_app_config("emails")
-    assert isinstance(app_config, EmailsConfig)
+    if not isinstance(app_config, EmailsConfig):
+        raise TypeError("app_config must be type EmailsConfig")
     ses_client = app_config.ses_client
-    assert ses_client
-    assert settings.RELAY_FROM_ADDRESS
+    if not ses_client:
+        raise ValueError("ses_client must be truthy value")
+    if not settings.RELAY_FROM_ADDRESS:
+        raise ValueError("settings.RELAY_FROM_ADDRESS must be truthy value.")
     with django_ftl.override(profile.language):
         translated_subject = ftl_bundle.format("first-time-user-email-welcome")
     try:

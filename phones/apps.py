@@ -27,7 +27,8 @@ class PhonesConfig(AppConfig):
         instance = self.twilio_client.applications(
             settings.TWILIO_SMS_APPLICATION_SID
         ).fetch()
-        assert isinstance(instance, InstanceResource)
+        if not isinstance(instance, InstanceResource):
+            raise TypeError("instance must be type InstanceResource")
         return instance
 
     @cached_property
@@ -47,10 +48,15 @@ class PhonesConfig(AppConfig):
 
 def phones_config() -> PhonesConfig:
     phones_config = apps.get_app_config("phones")
-    assert isinstance(phones_config, PhonesConfig)
+    if not isinstance(phones_config, PhonesConfig):
+        raise TypeError("phones_config must be type PhonesConfig")
     return phones_config
 
 
 def twilio_client() -> Client:
-    assert not settings.PHONES_NO_CLIENT_CALLS_IN_TEST
+    if settings.PHONES_NO_CLIENT_CALLS_IN_TEST:
+        raise ValueError(
+            "settings.PHONES_NO_CLIENT_CALLS_IN_TEST must be False when "
+            "calling twilio_client()"
+        )
     return phones_config().twilio_client

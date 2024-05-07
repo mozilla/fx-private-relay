@@ -202,13 +202,15 @@ def wrapped_email_test(request: HttpRequest) -> HttpResponse:
     if "language" in request.GET:
         language = request.GET["language"]
     else:
-        assert user_profile is not None
+        if user_profile is None:
+            raise ValueError("user_profile must not be None")
         language = user_profile.language
 
     if "has_premium" in request.GET:
         has_premium = strtobool(request.GET["has_premium"])
     else:
-        assert user_profile is not None
+        if user_profile is None:
+            raise ValueError("user_profile must not be None")
         has_premium = user_profile.has_premium
 
     if "num_level_one_email_trackers_removed" in request.GET:
@@ -335,7 +337,8 @@ def _store_reply_record(
     if isinstance(address, DomainAddress):
         reply_create_args["domain_address"] = address
     else:
-        assert isinstance(address, RelayAddress)
+        if not isinstance(address, RelayAddress):
+            raise TypeError("address must be type RelayAddress")
         reply_create_args["relay_address"] = address
     Reply.objects.create(**reply_create_args)
     return mail
@@ -492,7 +495,10 @@ def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         return _handle_bounce(message_json)
     if notification_type == "Complaint" or event_type == "Complaint":
         return _handle_complaint(message_json)
-    assert notification_type == "Received" and event_type is None
+    if notification_type != "Received":
+        raise ValueError('notification_type must be "Received"')
+    if event_type is not None:
+        raise ValueError("event_type must be None")
     return _handle_received(message_json)
 
 
@@ -928,7 +934,8 @@ def _convert_to_forwarded_email(
     # python/typeshed issue 2418
     # The Python 3.2 default was Message, 3.6 uses policy.message_factory, and
     # policy.default.message_factory is EmailMessage
-    assert isinstance(email, EmailMessage)
+    if not isinstance(email, EmailMessage):
+        raise TypeError("email must be type EmailMessage")
 
     # Replace headers in the original email
     header_issues = _replace_headers(email, headers)
@@ -939,7 +946,8 @@ def _convert_to_forwarded_email(
     has_text = False
     if text_body:
         has_text = True
-        assert isinstance(text_body, EmailMessage)
+        if not isinstance(text_body, EmailMessage):
+            raise TypeError("text_body must be type EmailMessage")
         text_content = text_body.get_content()
         new_text_content = _convert_text_content(text_content, to_address)
         text_body.set_content(new_text_content)
@@ -950,7 +958,8 @@ def _convert_to_forwarded_email(
     has_html = False
     if html_body:
         has_html = True
-        assert isinstance(html_body, EmailMessage)
+        if not isinstance(html_body, EmailMessage):
+            raise TypeError("html_body must be type EmailMessage")
         html_content = html_body.get_content()
         new_content, level_one_trackers_removed = _convert_html_content(
             html_content,
@@ -974,7 +983,8 @@ def _convert_to_forwarded_email(
             sample_trackers,
             remove_level_one_trackers,
         )
-        assert isinstance(text_body, EmailMessage)
+        if not isinstance(text_body, EmailMessage):
+            raise TypeError("text_body must be type EmailMessage")
         try:
             text_body.add_alternative(new_content, subtype="html")
         except TypeError as e:
@@ -1303,7 +1313,8 @@ def _handle_reply(
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
     email = message_from_bytes(email_bytes, policy=relay_policy)
-    assert isinstance(email, EmailMessage)
+    if not isinstance(email, EmailMessage):
+        raise TypeError("email must be type EmailMessage")
 
     # Convert to a reply email
     # TODO: Issue #1747 - Remove wrapper / prefix in replies

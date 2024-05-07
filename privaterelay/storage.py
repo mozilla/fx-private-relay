@@ -37,7 +37,8 @@ class RelayStaticFilesStorage(CompressedManifestStaticFilesStorage):
             return name
         else:
             new_name = super().hashed_name(name, content, filename)
-            assert isinstance(new_name, str)
+            if not isinstance(new_name, str):
+                raise TypeError("new_name must be type str")
             return new_name
 
     def url_converter(

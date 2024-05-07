@@ -266,13 +266,16 @@ class Profile(models.Model):
             return datetime.now(UTC)
 
         if bounce_type == "soft":
-            assert self.last_soft_bounce
+            if not self.last_soft_bounce:
+                raise ValueError("self.last_soft_bounce must be truthy value.")
             return self.last_soft_bounce + timedelta(
                 days=settings.SOFT_BOUNCE_ALLOWED_DAYS
             )
 
-        assert bounce_type == "hard"
-        assert self.last_hard_bounce
+        if bounce_type != "hard":
+            raise ValueError("bounce_type must be either 'soft' or 'hard'")
+        if not self.last_hard_bounce:
+            raise ValueError("self.last_hard_bounce must be truthy value.")
         return self.last_hard_bounce + timedelta(days=settings.HARD_BOUNCE_ALLOWED_DAYS)
 
     @property
@@ -293,7 +296,8 @@ class Profile(models.Model):
         # Note: we are NOT using .filter() here because it invalidates
         # any profile instances that were queried with prefetch_related, which
         # we use in at least the profile view to minimize queries
-        assert hasattr(self.user, "socialaccount_set")
+        if not hasattr(self.user, "socialaccount_set"):
+            raise AttributeError("self.user must have socialaccount_set attribute")
         for sa in self.user.socialaccount_set.all():
             if sa.provider == "fxa":
                 return sa
@@ -310,7 +314,8 @@ class Profile(models.Model):
 
     @property
     def custom_domain(self) -> str:
-        assert self.subdomain
+        if not self.subdomain:
+            raise ValueError("self.subdomain must be truthy value.")
         return f"@{self.subdomain}.{settings.MOZMAIL_DOMAIN}"
 
     @property
@@ -844,7 +849,8 @@ class RelayAddress(models.Model):
 
     @property
     def metrics_id(self) -> str:
-        assert self.id
+        if not self.id:
+            raise ValueError("self.id must be truthy value.")
         # Prefix with 'R' for RelayAddress, since there may be a DomainAddress with the
         # same row ID
         return f"R{self.id}"
@@ -1002,7 +1008,8 @@ class DomainAddress(models.Model):
             # DomainAlias will be a feature
             address = address_default()
             # Only check for bad words if randomly generated
-        assert isinstance(address, str)
+        if not isinstance(address, str):
+            raise TypeError("address must be type str")
 
         first_emailed_at = datetime.now(UTC) if made_via_email else None
         domain_address = DomainAddress.objects.create(
@@ -1052,7 +1059,8 @@ class DomainAddress(models.Model):
 
     @property
     def metrics_id(self) -> str:
-        assert self.id
+        if not self.id:
+            raise ValueError("self.id must be truthy value.")
         # Prefix with 'D' for DomainAddress, since there may be a RelayAddress with the
         # same row ID
         return f"D{self.id}"
@@ -1083,7 +1091,8 @@ class Reply(models.Model):
 
     def increment_num_replied(self):
         address = self.relay_address or self.domain_address
-        assert address
+        if not address:
+            raise ValueError("address must be truthy value")
         address.num_replied += 1
         address.last_used_at = datetime.now(UTC)
         address.save(update_fields=["num_replied", "last_used_at"])

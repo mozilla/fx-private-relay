@@ -198,7 +198,8 @@ def _get_hero_img_src(lang_code):
     if major_lang in avail_l10n_image_codes:
         img_locale = major_lang
 
-    assert settings.SITE_ORIGIN
+    if not settings.SITE_ORIGIN:
+        raise ValueError("settings.SITE_ORIGIN must have a value")
     return (
         settings.SITE_ORIGIN
         + f"/static/images/email-images/first-time-user/hero-image-{img_locale}.png"
@@ -229,8 +230,11 @@ def ses_send_raw_email(
     destination_address: str,
     message: EmailMessage,
 ) -> SendRawEmailResponseTypeDef:
-    assert (client := ses_client()) is not None
-    assert settings.AWS_SES_CONFIGSET
+    client = ses_client()
+    if client is None:
+        raise ValueError("client must have a value")
+    if not settings.AWS_SES_CONFIGSET:
+        raise ValueError("settings.AWS_SES_CONFIGSET must have a value")
 
     data = message.as_string()
     try:
@@ -393,7 +397,9 @@ def _get_bucket_and_key_from_s3_json(message_json):
 @time_if_enabled("s3_get_message_content")
 def get_message_content_from_s3(bucket, object_key):
     if bucket and object_key:
-        assert (client := s3_client()) is not None
+        client = s3_client()
+        if client is None:
+            raise ValueError("client must not be None")
         streamed_s3_object = client.get_object(Bucket=bucket, Key=object_key).get(
             "Body"
         )
@@ -405,7 +411,9 @@ def remove_message_from_s3(bucket, object_key):
     if bucket is None or object_key is None:
         return False
     try:
-        assert (client := s3_client()) is not None
+        client = s3_client()
+        if client is None:
+            raise ValueError("client must not be None")
         response = client.delete_object(Bucket=bucket, Key=object_key)
         return response.get("DeleteMarker")
     except ClientError as e:

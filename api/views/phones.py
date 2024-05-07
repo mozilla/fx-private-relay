@@ -1316,9 +1316,15 @@ class RelaySMSException(Exception):
 
     def __init__(self, critical=False, *args, **kwargs):
         self.critical = critical
-        assert (
+        if not (
             self.default_detail is not None and self.default_detail_template is None
-        ) or (self.default_detail is None and self.default_detail_template is not None)
+        ) and not (
+            self.default_detail is None and self.default_detail_template is not None
+        ):
+            raise ValueError(
+                "One and only one of default_detail or "
+                "default_detail_template must be None."
+            )
         super().__init__(*args, **kwargs)
 
     @property
@@ -1326,7 +1332,8 @@ class RelaySMSException(Exception):
         if self.default_detail:
             return self.default_detail
         else:
-            assert self.default_detail_template is not None
+            if self.default_detail_template is None:
+                raise ValueError("self.default_detail_template must not be None.")
             return self.default_detail_template.format(**self.error_context())
 
     def get_codes(self):
@@ -1438,14 +1445,16 @@ def _prepare_sms_reply(
     if match and not match.contacts and match.match_type == "full":
         raise FullNumberMatchesNoSenders(full_number=match.detected)
     if match and len(match.contacts) > 1:
-        assert match.match_type == "short"
+        if not match.match_type == "short":
+            raise ValueError("match.match_type must be 'short'.")
         raise MultipleNumberMatches(short_prefix=match.detected)
 
     # Determine the destination number
     destination_number: str | None = None
     if match:
         # Use the sender matched by the prefix
-        assert len(match.contacts) == 1
+        if not len(match.contacts) == 1:
+            raise ValueError("len(match.contacts) must be 1.")
         destination_number = match.contacts[0].inbound_number
     else:
         # No prefix, default to last sender if any

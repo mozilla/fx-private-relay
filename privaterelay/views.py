@@ -168,7 +168,8 @@ def _parse_jwt_from_request(request: HttpRequest) -> str:
 def fxa_verifying_keys(reload: bool = False) -> list[dict[str, Any]]:
     """Get list of FxA verifying (public) keys."""
     private_relay_config = apps.get_app_config("privaterelay")
-    assert isinstance(private_relay_config, PrivateRelayConfig)
+    if not isinstance(private_relay_config, PrivateRelayConfig):
+        raise TypeError("private_relay_config must be PrivateRelayConfig")
     if reload:
         private_relay_config.ready()
     return private_relay_config.fxa_verifying_keys
@@ -177,7 +178,8 @@ def fxa_verifying_keys(reload: bool = False) -> list[dict[str, Any]]:
 def fxa_social_app(reload: bool = False) -> SocialApp:
     """Get FxA SocialApp from app config or DB."""
     private_relay_config = apps.get_app_config("privaterelay")
-    assert isinstance(private_relay_config, PrivateRelayConfig)
+    if not isinstance(private_relay_config, PrivateRelayConfig):
+        raise TypeError("private_relay_config must be PrivateRelayConfig")
     if reload:
         private_relay_config.ready()
     return private_relay_config.fxa_social_app
@@ -222,11 +224,13 @@ def _verify_jwt_with_fxa_key(
     social_app = fxa_social_app()
     if not social_app:
         raise Exception("FXA SocialApp is not available.")
-    assert isinstance(social_app, SocialApp)
+    if not isinstance(social_app, SocialApp):
+        raise TypeError("social_app must be SocialApp")
     for verifying_key in verifying_keys:
         if verifying_key["alg"] == "RS256":
             public_key = jwt.algorithms.RSAAlgorithm.from_jwk(json.dumps(verifying_key))
-            assert isinstance(public_key, RSAPublicKey)
+            if not isinstance(public_key, RSAPublicKey):
+                raise TypeError("public_key must be RSAPublicKey")
             try:
                 security_event = jwt.decode(
                     req_jwt,

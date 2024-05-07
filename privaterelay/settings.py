@@ -40,7 +40,7 @@ try:
     # https://github.com/jazzband/django-silk
     import silk
 
-    assert silk  # Suppress "imported but unused" warning
+    assert silk  # Suppress "imported but unused" warning # noqa S101
 
     HAS_SILK = True
 except ImportError:
@@ -119,7 +119,10 @@ if FXA_BASE_ORIGIN == "https://accounts.firefox.com":
     ]
     _ACCOUNT_CONNECT_SRC = [FXA_BASE_ORIGIN]
 else:
-    assert FXA_BASE_ORIGIN == "https://accounts.stage.mozaws.net"
+    if not FXA_BASE_ORIGIN == "https://accounts.stage.mozaws.net":
+        raise ValueError(
+            "FXA_BASE_ORIGIN must be either https://accounts.firefox.com or https://accounts.stage.mozaws.net"
+        )
     _AVATAR_IMG_SRC = [
         "mozillausercontent.com",
         "https://profile.stage.mozaws.net",

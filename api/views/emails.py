@@ -74,7 +74,8 @@ _Address = TypeVar("_Address", RelayAddress, DomainAddress)
 class AddressViewSet(Generic[_Address], SaveToRequestUser, ModelViewSet):
     def perform_create(self, serializer: BaseSerializer[_Address]) -> None:
         super().perform_create(serializer)
-        assert serializer.instance
+        if not serializer.instance:
+            raise ValueError("serializer.instance must be truthy value.")
         glean_logger().log_email_mask_created(
             request=self.request,
             mask=serializer.instance,
@@ -82,7 +83,8 @@ class AddressViewSet(Generic[_Address], SaveToRequestUser, ModelViewSet):
         )
 
     def perform_update(self, serializer: BaseSerializer[_Address]) -> None:
-        assert serializer.instance is not None
+        if not serializer.instance:
+            raise ValueError("serializer.instance must be truthy value.")
         old_description = serializer.instance.description
         super().perform_update(serializer)
         new_description = serializer.instance.description
@@ -200,10 +202,13 @@ def first_forwarded_email(request):
         return Response(f"{mask} does not exist for user.", status=HTTP_404_NOT_FOUND)
     profile = user.profile
     app_config = apps.get_app_config("emails")
-    assert isinstance(app_config, EmailsConfig)
+    if not isinstance(app_config, EmailsConfig):
+        raise TypeError("app_config must be type EmailsConfig")
     ses_client = app_config.ses_client
-    assert ses_client
-    assert settings.RELAY_FROM_ADDRESS
+    if not ses_client:
+        raise ValueError("ses_client must be truthy value.")
+    if not settings.RELAY_FROM_ADDRESS:
+        raise ValueError("settings.RELAY_FROM_ADDRESS must have a value.")
     with django_ftl.override(profile.language):
         translated_subject = ftl_bundle.format("forwarded-email-hero-header")
     first_forwarded_email_html = render_to_string(

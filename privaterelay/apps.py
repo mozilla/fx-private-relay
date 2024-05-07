@@ -81,7 +81,9 @@ class PrivateRelayConfig(AppConfig):
 
         import privaterelay.signals
 
-        assert privaterelay.signals  # Suppress "imported but unused" warnings
+        assert (  # noqa S101
+            privaterelay.signals
+        )  # Suppress "imported but unused" warnings
 
         try:
             del self.fxa_verifying_keys  # Clear cache

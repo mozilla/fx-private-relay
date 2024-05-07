@@ -328,7 +328,11 @@ class CachedList:
 def register_with_messaging_service(client: Client, number_sid: str) -> None:
     """Register a Twilio US phone number with a Messaging Service."""
 
-    assert settings.TWILIO_MESSAGING_SERVICE_SID
+    if not settings.TWILIO_MESSAGING_SERVICE_SID:
+        raise ValueError(
+            "settings.TWILIO_MESSAGING_SERVICE_SID must contain a value when calling "
+            "register_with_messaging_service"
+        )
 
     closed_sids = CachedList("twilio_messaging_service_closed")
 
@@ -386,7 +390,11 @@ def relaynumber_post_save(sender, instance, created, **kwargs):
 
 def send_welcome_message(user, relay_number):
     real_phone = RealPhone.objects.get(user=user)
-    assert settings.SITE_ORIGIN
+    if not settings.SITE_ORIGIN:
+        raise ValueError(
+            "settings.SITE_ORIGIN must contain a value when calling "
+            "send_welcome_message"
+        )
     media_url = settings.SITE_ORIGIN + reverse(
         "vCard", kwargs={"lookup_key": relay_number.vcard_lookup_key}
     )
