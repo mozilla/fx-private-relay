@@ -721,6 +721,7 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "1.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "PREPROCESSING_HOOKS": ["api.schema.preprocess_ignore_deprecated_paths"],
+    "SORT_OPERATIONS": "api.schema.sort_by_tag",
 }
 
 if IN_PYTEST or RELAY_CHANNEL in ["local", "dev"]:
