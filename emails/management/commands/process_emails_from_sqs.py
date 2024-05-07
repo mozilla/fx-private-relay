@@ -402,42 +402,15 @@ class Command(CommandFromDjangoSettings):
             _sns_inbound_logic(topic_arn, message_type, verified_json_body)
         except ClientError as e:
             incr_if_enabled("message_from_sqs_error", 1)
-            temp_errors = ["throttling", "pause"]
             lower_error_code = e.response["Error"]["Code"].lower()
-            if any(temp_error in lower_error_code for temp_error in temp_errors):
-                incr_if_enabled("message_from_sqs_temp_error", 1)
-                logger.error(
-                    '"temporary" error, sleeping for 1s', extra=e.response["Error"]
-                )
-                self.write_healthcheck()
-                with Timer(logger=None) as sleep_timer:
-                    time.sleep(1)
-                results["pause_count"] = 1
-                results["pause_s"] = round(sleep_timer.last, 3)
-                results["pause_error"] = e.response["Error"]
-
-                try:
-                    _sns_inbound_logic(topic_arn, message_type, verified_json_body)
-                    logger.info(f"processed sqs message ID: {message.message_id}")
-                except ClientError as e_retry:
-                    incr_if_enabled("message_from_sqs_error", 1)
-                    logger.error("sqs_client_error", extra=e_retry.response["Error"])
-                    results.update(
-                        {
-                            "success": False,
-                            "error": e_retry.response["Error"],
-                            "client_error_code": lower_error_code,
-                        }
-                    )
-            else:
-                logger.error("sqs_client_error", extra=e.response["Error"])
-                results.update(
-                    {
-                        "success": False,
-                        "error": e.response["Error"],
-                        "client_error_code": lower_error_code,
-                    }
-                )
+            logger.error("sqs_client_error", extra=e.response["Error"])
+            results.update(
+                {
+                    "success": False,
+                    "error": e.response["Error"],
+                    "client_error_code": lower_error_code,
+                }
+            )
         return results
 
     def write_healthcheck(self):
