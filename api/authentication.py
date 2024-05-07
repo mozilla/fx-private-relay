@@ -29,7 +29,7 @@ def get_cache_key(token):
 
 def introspect_token(token: str) -> dict[str, Any]:
     try:
-        fxa_resp = requests.post(INTROSPECT_TOKEN_URL, json={"token": token})
+        fxa_resp = requests.post(INTROSPECT_TOKEN_URL, json={"token": token}, timeout=1)
     except Exception as exc:
         logger.error(
             "Could not introspect token with FXA.",

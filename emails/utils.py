@@ -85,7 +85,7 @@ def get_trackers(level):
 
 def download_trackers(repo_url, category="Email"):
     # email tracker lists from shavar-prod-list as per agreed use under license:
-    resp = requests.get(repo_url)
+    resp = requests.get(repo_url, timeout=10)
     json_resp = resp.json()
     formatted_trackers = json_resp["categories"][category]
     trackers = []
