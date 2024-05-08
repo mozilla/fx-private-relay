@@ -1,5 +1,5 @@
 import json
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -8,6 +8,7 @@ from uuid import uuid4
 
 from django.core.management import call_command
 from django.core.management.base import CommandError
+from django.http import HttpResponse
 
 import OpenSSL
 import pytest
@@ -29,7 +30,7 @@ TEST_SNS_MESSAGE = EMAIL_SNS_BODIES["s3_stored"]
 
 
 @pytest.fixture(autouse=True)
-def mocked_clocks() -> Iterator[None]:
+def mocked_clocks() -> Iterator[Callable[[float], float]]:
     """
     Mock time functions, so tests run faster than real time.
 
@@ -64,7 +65,7 @@ def mocked_clocks() -> Iterator[None]:
         patch(f"{MOCK_BASE}.Timer", MockTimer),
     ):
         mock_monotonic.side_effect = mock_sleep.side_effect = inc_clock
-        yield
+        yield inc_clock
 
 
 @pytest.fixture(autouse=True)
@@ -98,6 +99,7 @@ def test_settings(settings: SettingsWrapper, tmp_path: Path) -> SettingsWrapper:
     settings.PROCESS_EMAIL_VERBOSITY = 2
     settings.PROCESS_EMAIL_VISIBILITY_SECONDS = 120
     settings.PROCESS_EMAIL_WAIT_SECONDS = 5
+    settings.PROCESS_EMAIL_MAX_SECONDS_PER_MESSAGE = 3
     return settings
 
 
@@ -117,6 +119,64 @@ def mock_sqs_client() -> Iterator[Mock]:
     with patch(f"{MOCK_BASE}.boto3.resource") as mock_resource:
         mock_resource.side_effect = validate_call
         yield mock_queue.Queue
+
+
+@pytest.fixture(autouse=True)
+def mock_process_pool_future(mocked_clocks: Callable[[float], float]) -> Iterator[Mock]:
+    """
+    Replace multiprocessing.Pool with a mock, return mocked future.
+
+    The mocked pool.apply_async returns a mocked future that does not start a
+    new subproccess. By default, running ".wait()" runs the (mocked) _sns_inbound_logic.
+    The timeout is appended to future._timeouts, and future.ready() will return True.
+
+    If mock_future.stalled returns False, then future.wait() will return without
+    running _sns_inbound_logic. This can emulate a slow-running process (use a
+    side_effect to return False then True) or a hung process (always return False).
+    """
+
+    with patch(MOCK_BASE + ".Pool", spec=True) as mock_pool_cls:
+        mock_pool = Mock(spec_set=["__enter__", "__exit__", "apply_async", "terminate"])
+        mock_pool.__enter__ = Mock(return_value=mock_pool)
+        mock_pool.__exit__ = Mock(side_effect=mock_pool.terminate())
+
+        mock_future = Mock()
+        mock_future._timeouts = []
+        mock_future._is_stalled.return_value = False
+        mock_future._ready = False
+
+        def mock_apply_async(
+            func: Callable[[str, str, Any], HttpResponse],
+            args: tuple[str, str, Any],
+            kwargs: dict[str, Any] | None = None,
+            callback: Callable[[Any], None] | None = None,
+            error_callback: Callable[[BaseException], None] | None = None,
+        ) -> Mock:
+
+            def call_wait(timeout: float) -> None:
+                mocked_clocks(timeout)
+                mock_future._timeouts.append(timeout)
+                if not mock_future._is_stalled():
+                    mock_future._ready = True
+                    try:
+                        ret = func(*args)
+                    except BaseException as e:
+                        if error_callback:
+                            error_callback(e)
+                    else:
+                        if callback:
+                            callback(ret)
+
+            def call_ready() -> bool:
+                return bool(mock_future._ready)
+
+            mock_future.wait.side_effect = call_wait
+            mock_future.ready.side_effect = call_ready
+            return mock_future
+
+        mock_pool_cls.return_value = mock_pool
+        mock_pool.apply_async.side_effect = mock_apply_async
+        yield mock_future
 
 
 def fake_queue(*message_lists: list[Mock] | BaseException) -> Mock:
@@ -185,6 +245,7 @@ def test_no_messages(caplog: LogCaptureFixture, test_settings: SettingsWrapper) 
         "delete_failed_messages": False,
         "healthcheck_path": test_settings.PROCESS_EMAIL_HEALTHCHECK_PATH,
         "max_seconds": 3,
+        "max_seconds_per_message": 3,
         "sqs_url": "https://sqs.us-east-1.amazonaws.example.com/111222333/queue-name",
         "verbosity": 2,
         "visibility_seconds": 120,
@@ -249,6 +310,7 @@ def test_one_message(
         "message_process_time_s",
         "sqs_message_id",
         "success",
+        "subprocess_setup_time_s",
     }
     assert msg_extra["success"]
 
@@ -356,12 +418,62 @@ def test_ses_python_error(
     assert summary["total_messages"] == 1
     assert summary["failed_messages"] == 1
     msg.delete.assert_not_called()
-    _, rec2, _, _ = caplog.records
+    rec2 = caplog.records[1]
     assert rec2.msg == "Message processed"
     rec2_extra = log_extra(rec2)
     assert rec2_extra["success"] is False
     assert rec2_extra["error_type"] == "ValueError"
     assert rec2_extra["error"] == "bad stuff"
+
+
+def test_ses_slow(
+    mock_sns_inbound_logic: Mock,
+    mock_sqs_client: Mock,
+    mock_process_pool_future: Mock,
+    test_settings: SettingsWrapper,
+    caplog: LogCaptureFixture,
+) -> None:
+    test_settings.PROCESS_EMAIL_MAX_SECONDS_PER_MESSAGE = 120
+    msg = fake_sqs_message(json.dumps(TEST_SNS_MESSAGE))
+    mock_sqs_client.return_value = fake_queue([msg], [], [])
+    mock_process_pool_future._is_stalled.side_effect = [False, False, True]
+    call_command(COMMAND_NAME)
+    summary = summary_from_exit_log(caplog)
+    assert summary["total_messages"] == 1
+    msg.delete.assert_called()
+    rec2 = caplog.records[1]
+    assert rec2.msg == "Message processed"
+    rec2_extra = log_extra(rec2)
+    assert rec2_extra["success"] is True
+    assert rec2_extra["message_process_time_s"] < 120.0
+    assert rec2_extra["subprocess_setup_time_s"] == 1.0
+    assert mock_process_pool_future._timeouts == [1.0]
+
+
+def test_ses_timeout(
+    mock_sns_inbound_logic: Mock,
+    mock_sqs_client: Mock,
+    mock_process_pool_future: Mock,
+    test_settings: SettingsWrapper,
+    caplog: LogCaptureFixture,
+) -> None:
+    test_settings.PROCESS_EMAIL_MAX_SECONDS_PER_MESSAGE = 120
+    msg = fake_sqs_message(json.dumps(TEST_SNS_MESSAGE))
+    mock_sqs_client.return_value = fake_queue([msg], [], [])
+    mock_process_pool_future._is_stalled.return_value = True
+    call_command(COMMAND_NAME)
+    summary = summary_from_exit_log(caplog)
+    assert summary["total_messages"] == 1
+    assert summary["failed_messages"] == 1
+    msg.delete.assert_not_called()
+    rec2 = caplog.records[1]
+    assert rec2.msg == "Message processed"
+    rec2_extra = log_extra(rec2)
+    assert rec2_extra["success"] is False
+    assert rec2_extra["error"] == "Timed out after 120.0 seconds."
+    assert rec2_extra["message_process_time_s"] >= 120.0
+    assert rec2_extra["subprocess_setup_time_s"] == 1.0
+    assert mock_process_pool_future._timeouts == [1.0] * 60
 
 
 def test_verify_from_sns_raises_openssl_error(
