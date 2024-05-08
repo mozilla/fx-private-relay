@@ -27,6 +27,7 @@ from codetiming import Timer
 from markus.utils import generate_tag
 from mypy_boto3_sqs.service_resource import Message as SQSMessage
 from mypy_boto3_sqs.service_resource import Queue as SQSQueue
+from sentry_sdk import capture_exception
 
 from emails.management.command_from_django_settings import (
     CommandFromDjangoSettings,
@@ -405,6 +406,12 @@ class Command(CommandFromDjangoSettings):
             results["success"] = False
             results["error"] = e.response["Error"]
             results["client_error_code"] = lower_error_code
+        except Exception as e:
+            incr_if_enabled("email_processing_failure", 1)
+            capture_exception(e)
+            results["success"] = False
+            results["error"] = str(e)
+            results["error_type"] = type(e).__name__
         return results
 
     def write_healthcheck(self) -> None:

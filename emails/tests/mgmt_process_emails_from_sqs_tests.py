@@ -340,6 +340,30 @@ def test_ses_generic_failure(
     msg.delete.assert_not_called()
 
 
+def test_ses_python_error(
+    mock_sns_inbound_logic: Mock,
+    mock_sqs_client: Mock,
+    test_settings: SettingsWrapper,
+    caplog: LogCaptureFixture,
+) -> None:
+    """The command catches processing failures."""
+    test_settings.PROCESS_EMAIL_MAX_SECONDS = 2
+    mock_sns_inbound_logic.side_effect = ValueError("bad stuff")
+    msg = fake_sqs_message(json.dumps(TEST_SNS_MESSAGE))
+    mock_sqs_client.return_value = fake_queue([msg], [])
+    call_command(COMMAND_NAME)
+    summary = summary_from_exit_log(caplog)
+    assert summary["total_messages"] == 1
+    assert summary["failed_messages"] == 1
+    msg.delete.assert_not_called()
+    _, rec2, _, _ = caplog.records
+    assert rec2.msg == "Message processed"
+    rec2_extra = log_extra(rec2)
+    assert rec2_extra["success"] is False
+    assert rec2_extra["error_type"] == "ValueError"
+    assert rec2_extra["error"] == "bad stuff"
+
+
 def test_verify_from_sns_raises_openssl_error(
     mock_verify_from_sns: Mock, mock_sqs_client: Mock, caplog: LogCaptureFixture
 ) -> None:
