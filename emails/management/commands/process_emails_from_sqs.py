@@ -200,7 +200,8 @@ class Command(CommandFromDjangoSettings):
 
                 # Request and process a chunk of messages
                 with Timer(logger=None) as cycle_timer:
-                    message_batch, cycle_data = self.poll_queue_for_messages()
+                    message_batch, queue_data = self.poll_queue_for_messages()
+                    cycle_data.update(queue_data)
                     cycle_data.update(self.process_message_batch(message_batch))
 
                 # Collect data and log progress
