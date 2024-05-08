@@ -197,6 +197,11 @@ def test_no_messages(caplog: LogCaptureFixture, test_settings: SettingsWrapper) 
         "message_count": 0,
         "message_total": 0,
         "sqs_poll_s": 0,
+        "cycle_num": 0,
+        "queue_count": 1,
+        "queue_count_delayed": 2,
+        "queue_count_not_visible": 3,
+        "queue_load_s": 0.0,
     }
 
     assert rec3.getMessage() == "Cycle 1: processed 0 messages"
