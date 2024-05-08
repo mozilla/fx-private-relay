@@ -15,10 +15,13 @@ import logging
 import shlex
 import time
 from datetime import UTC, datetime
+from multiprocessing import Pool
 from typing import Any
 from urllib.parse import urlsplit
 
+from django import setup
 from django.core.management.base import CommandError
+from django.http import HttpResponse
 
 import boto3
 import OpenSSL
@@ -84,6 +87,12 @@ class Command(CommandFromDjangoSettings):
             lambda max_seconds: max_seconds is None or max_seconds > 0.0,
         ),
         SettingToLocal(
+            "PROCESS_EMAIL_MAX_SECONDS_PER_MESSAGE",
+            "max_seconds_per_message",
+            "Maximum time to process a message before cancelling.",
+            lambda max_seconds: max_seconds > 0.0,
+        ),
+        SettingToLocal(
             "AWS_REGION",
             "aws_region",
             "AWS region of the SQS queue",
@@ -110,6 +119,7 @@ class Command(CommandFromDjangoSettings):
     healthcheck_path: str
     delete_failed_messages: bool
     max_seconds: float | None
+    max_seconds_per_message: float
     aws_region: str
     sqs_url: str
     verbosity: int
@@ -127,6 +137,7 @@ class Command(CommandFromDjangoSettings):
                 "healthcheck_path": self.healthcheck_path,
                 "delete_failed_messages": self.delete_failed_messages,
                 "max_seconds": self.max_seconds,
+                "max_seconds_per_message": self.max_seconds_per_message,
                 "aws_region": self.aws_region,
                 "sqs_url": self.sqs_url,
                 "verbosity": self.verbosity,
@@ -397,21 +408,55 @@ class Command(CommandFromDjangoSettings):
             results.update(error_details)
             return results
 
-        try:
-            _sns_inbound_logic(topic_arn, message_type, verified_json_body)
-        except ClientError as e:
-            incr_if_enabled("message_from_sqs_error", 1)
-            lower_error_code = e.response["Error"]["Code"].lower()
-            logger.error("sqs_client_error", extra=e.response["Error"])
+        def success_callback(result: HttpResponse) -> None:
+            """Handle return from successful call to _sns_inbound_logic"""
+            # TODO: extract data from _sns_inbound_logic return
+            pass
+
+        def error_callback(exc_info: BaseException) -> None:
+            """Handle exception raised by _sns_inbound_logic"""
+            capture_exception(exc_info)
             results["success"] = False
-            results["error"] = e.response["Error"]
-            results["client_error_code"] = lower_error_code
-        except Exception as e:
-            incr_if_enabled("email_processing_failure", 1)
-            capture_exception(e)
-            results["success"] = False
-            results["error"] = str(e)
-            results["error_type"] = type(e).__name__
+            if isinstance(exc_info, ClientError):
+                incr_if_enabled("message_from_sqs_error")
+                err = exc_info.response["Error"]
+                logger.error("sqs_client_error", extra=err)
+                results["error"] = err
+                results["client_error_code"] = err["Code"].lower()
+            else:
+                incr_if_enabled("email_processing_failure")
+                results["error"] = str(exc_info)
+                results["error_type"] = type(exc_info).__name__
+
+        # Run in a multiprocessing Pool
+        # This will start a subprocess, which needs to run django.setup
+        # The benefit is that the subprocess can be terminated
+        # The penalty is that is is slower to start
+        pool_start_time = time.monotonic()
+        with Pool(1, initializer=setup) as pool:
+            future = pool.apply_async(
+                _sns_inbound_logic,
+                [topic_arn, message_type, verified_json_body],
+                callback=success_callback,
+                error_callback=error_callback,
+            )
+            setup_time = time.monotonic() - pool_start_time
+            results["subprocess_setup_time_s"] = round(setup_time, 3)
+
+            message_start_time = time.monotonic()
+            message_duration = 0.0
+            while message_duration < self.max_seconds_per_message:
+                self.write_healthcheck()
+                future.wait(1.0)
+                message_duration = time.monotonic() - message_start_time
+                if future.ready():
+                    break
+
+            results["message_process_time_s"] = round(message_duration, 3)
+            if not future.ready():
+                error = f"Timed out after {self.max_seconds_per_message:0.1f} seconds."
+                results["success"] = False
+                results["error"] = error
         return results
 
     def write_healthcheck(self) -> None:
