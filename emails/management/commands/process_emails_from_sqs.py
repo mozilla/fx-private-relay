@@ -15,6 +15,7 @@ import logging
 import shlex
 import time
 from datetime import UTC, datetime
+from typing import Any
 from urllib.parse import urlsplit
 
 from django.core.management.base import CommandError
@@ -24,6 +25,8 @@ import OpenSSL
 from botocore.exceptions import ClientError
 from codetiming import Timer
 from markus.utils import generate_tag
+from mypy_boto3_sqs.service_resource import Message as SQSMessage
+from mypy_boto3_sqs.service_resource import Queue as SQSQueue
 
 from emails.management.command_from_django_settings import (
     CommandFromDjangoSettings,
@@ -110,7 +113,7 @@ class Command(CommandFromDjangoSettings):
     sqs_url: str
     verbosity: int
 
-    def handle(self, verbosity, *args, **kwargs):
+    def handle(self, verbosity: int, *args: Any, **kwargs: Any) -> None:
         """Handle call from command line (called by BaseCommand)"""
         self.init_from_settings(verbosity)
         self.init_locals()
@@ -137,20 +140,20 @@ class Command(CommandFromDjangoSettings):
         process_data = self.process_queue()
         logger.info("Exiting process_emails_from_sqs", extra=process_data)
 
-    def init_locals(self):
+    def init_locals(self) -> None:
         """Initialize command attributes that don't come from settings."""
         self.queue_name = urlsplit(self.sqs_url).path.split("/")[-1]
         self.halt_requested = False
-        self.start_time = None
-        self.cycles = None
-        self.total_messages = None
-        self.failed_messages = None
-        self.pause_count = None
-        self.queue_count = None
-        self.queue_count_delayed = None
-        self.queue_count_not_visible = None
+        self.start_time: float = 0.0
+        self.cycles: int = 0
+        self.total_messages: int = 0
+        self.failed_messages: int = 0
+        self.pause_count: int = 0
+        self.queue_count: int = 0
+        self.queue_count_delayed: int = 0
+        self.queue_count_not_visible: int = 0
 
-    def create_client(self):
+    def create_client(self) -> SQSQueue:
         """Create the SQS client."""
         if not self.aws_region:
             raise ValueError("self.aws_region must be truthy value.")
@@ -159,7 +162,7 @@ class Command(CommandFromDjangoSettings):
         sqs_client = boto3.resource("sqs", region_name=self.aws_region)
         return sqs_client.Queue(self.sqs_url)
 
-    def process_queue(self):
+    def process_queue(self) -> dict[str, Any]:
         """
         Process the SQS email queue until an exit condition is reached.
 
@@ -181,7 +184,7 @@ class Command(CommandFromDjangoSettings):
 
         while not self.halt_requested:
             try:
-                cycle_data = {
+                cycle_data: dict[str, Any] = {
                     "cycle_num": self.cycles,
                     "cycle_s": 0.0,
                 }
@@ -202,8 +205,8 @@ class Command(CommandFromDjangoSettings):
 
                 # Collect data and log progress
                 self.total_messages += len(message_batch)
-                self.failed_messages += cycle_data.get("failed_count", 0)
-                self.pause_count += cycle_data.get("pause_count", 0)
+                self.failed_messages += int(cycle_data.get("failed_count", 0))
+                self.pause_count += int(cycle_data.get("pause_count", 0))
                 cycle_data["message_total"] = self.total_messages
                 cycle_data["cycle_s"] = round(cycle_timer.last, 3)
                 logger.log(
@@ -238,7 +241,7 @@ class Command(CommandFromDjangoSettings):
             process_data["pause_count"] = self.pause_count
         return process_data
 
-    def refresh_and_emit_queue_count_metrics(self):
+    def refresh_and_emit_queue_count_metrics(self) -> dict[str, float | int]:
         """
         Query SQS queue attributes, store backlog metrics, and emit them as gauge stats
 
@@ -255,13 +258,13 @@ class Command(CommandFromDjangoSettings):
             self.queue.load()
 
         # Save approximate queue counts
-        self.queue_count = self.queue.attributes["ApproximateNumberOfMessages"]
-        self.queue_count_delayed = self.queue.attributes[
-            "ApproximateNumberOfMessagesDelayed"
-        ]
-        self.queue_count_not_visible = self.queue.attributes[
-            "ApproximateNumberOfMessagesNotVisible"
-        ]
+        self.queue_count = int(self.queue.attributes["ApproximateNumberOfMessages"])
+        self.queue_count_delayed = int(
+            self.queue.attributes["ApproximateNumberOfMessagesDelayed"]
+        )
+        self.queue_count_not_visible = int(
+            self.queue.attributes["ApproximateNumberOfMessagesNotVisible"]
+        )
 
         # Emit gauges for approximate queue counts
         queue_tag = generate_tag("queue", self.queue_name)
@@ -282,7 +285,9 @@ class Command(CommandFromDjangoSettings):
             "queue_count_not_visible": self.queue_count_not_visible,
         }
 
-    def poll_queue_for_messages(self):
+    def poll_queue_for_messages(
+        self,
+    ) -> tuple[list[SQSMessage], dict[str, float | int]]:
         """Request a batch of messages, using the long-poll method.
 
         Return is a tuple:
@@ -305,7 +310,7 @@ class Command(CommandFromDjangoSettings):
             },
         )
 
-    def process_message_batch(self, message_batch):
+    def process_message_batch(self, message_batch: list[SQSMessage]) -> dict[str, Any]:
         """
         Process a batch of messages.
 
@@ -349,7 +354,7 @@ class Command(CommandFromDjangoSettings):
             batch_data["failed_count"] = failed_count
         return batch_data
 
-    def process_message(self, message):
+    def process_message(self, message: SQSMessage) -> dict[str, Any]:
         """
         Process an SQS message, which may include sending an email.
 
@@ -413,26 +418,26 @@ class Command(CommandFromDjangoSettings):
             )
         return results
 
-    def write_healthcheck(self):
+    def write_healthcheck(self) -> None:
         """Update the healthcheck file with operations data, if path is set."""
-        data = {
+        data: dict[str, str | int] = {
             "timestamp": datetime.now(tz=UTC).isoformat(),
             "cycles": self.cycles,
             "total_messages": self.total_messages,
             "failed_messages": self.failed_messages,
             "pause_count": self.pause_count,
-            "queue_count": self.queue.attributes["ApproximateNumberOfMessages"],
-            "queue_count_delayed": self.queue.attributes[
-                "ApproximateNumberOfMessagesDelayed"
-            ],
-            "queue_count_not_visible": self.queue.attributes[
-                "ApproximateNumberOfMessagesNotVisible"
-            ],
+            "queue_count": int(self.queue.attributes["ApproximateNumberOfMessages"]),
+            "queue_count_delayed": int(
+                self.queue.attributes["ApproximateNumberOfMessagesDelayed"]
+            ),
+            "queue_count_not_visible": int(
+                self.queue.attributes["ApproximateNumberOfMessagesNotVisible"]
+            ),
         }
         with open(self.healthcheck_path, "w", encoding="utf-8") as healthcheck_file:
             json.dump(data, healthcheck_file)
 
-    def pluralize(self, value, singular, plural=None):
+    def pluralize(self, value: int, singular: str, plural: str | None = None) -> str:
         """Returns 's' suffix to make plural, like 's' in tasks"""
         if value == 1:
             return f"{value} {singular}"
