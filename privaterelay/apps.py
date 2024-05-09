@@ -79,9 +79,7 @@ class PrivateRelayConfig(AppConfig):
                         f" with key file: {gcp_key_json_path}"
                     )
 
-        import privaterelay.signals
-
-        assert privaterelay.signals  # Suppress "imported but unused" warnings
+        import privaterelay.signals  # noqa: F401 (imported but unused warning)
 
         try:
             del self.fxa_verifying_keys  # Clear cache
@@ -92,7 +90,8 @@ class PrivateRelayConfig(AppConfig):
     @cached_property
     def fxa_verifying_keys(self) -> list[dict[str, Any]]:
         resp = requests.get(
-            "{}/jwks".format(settings.SOCIALACCOUNT_PROVIDERS["fxa"]["OAUTH_ENDPOINT"])
+            "{}/jwks".format(settings.SOCIALACCOUNT_PROVIDERS["fxa"]["OAUTH_ENDPOINT"]),
+            timeout=10,
         )
         if resp.status_code == 200:
             keys: list[dict[str, Any]] = resp.json()["keys"]

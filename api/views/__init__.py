@@ -12,8 +12,10 @@ class SaveToRequestUser:
     """ModelViewSet mixin for creating object for the authenticated user."""
 
     def perform_create(self, serializer):
-        assert hasattr(self, "request")
-        assert hasattr(self.request, "user")
+        if not hasattr(self, "request"):
+            raise AttributeError("self must have request attribute.")
+        if not hasattr(self.request, "user"):
+            raise AttributeError("self.request must have user attribute.")
         serializer.save(user=self.request.user)
 
 

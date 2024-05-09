@@ -65,7 +65,8 @@ class EmailsConfig(AppConfig):
 
 def emails_config() -> EmailsConfig:
     emails_config = apps.get_app_config("emails")
-    assert isinstance(emails_config, EmailsConfig)
+    if not isinstance(emails_config, EmailsConfig):
+        raise TypeError("emails_config must be type EmailsConfig")
     return emails_config
 
 

@@ -137,7 +137,10 @@ class RelayGleanLogger(EventsServerEventLogger):
         app_display_version: str,
         channel: RELAY_CHANNEL_NAME,
     ):
-        assert settings.GLEAN_EVENT_MOZLOG_TYPE == GLEAN_EVENT_MOZLOG_TYPE
+        if not settings.GLEAN_EVENT_MOZLOG_TYPE == GLEAN_EVENT_MOZLOG_TYPE:
+            raise ValueError(
+                "settings.GLEAN_EVENT_MOZLOG_TYPE must equal GLEAN_EVENT_MOZLOG_TYPE"
+            )
         self._logger = getLogger(GLEAN_EVENT_MOZLOG_TYPE)
         super().__init__(
             application_id=application_id,

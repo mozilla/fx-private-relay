@@ -58,13 +58,17 @@ class RelayAPIException(APIException):
         self, detail: _APIExceptionInput = None, code: str | None = None
     ) -> None:
         """Check that derived classes have set the required data."""
-        assert isinstance(self.default_code, str)
-        assert isinstance(self.status_code, int)
+        if not isinstance(self.default_code, str):
+            raise TypeError("default_code must be type str")
+        if not isinstance(self.status_code, int):
+            raise TypeError("self.status_code must be type int")
         if hasattr(self, "default_detail_template"):
             context = self.error_context()
-            assert context
+            if not context:
+                raise ValueError("error_context is required")
             self.default_detail = self.default_detail_template.format(**context)
-        assert isinstance(self.default_detail, str)
+        if not isinstance(self.default_detail, str):
+            raise TypeError("self.default_detail must be type str")
         super().__init__(detail, code)
 
     def error_context(self) -> ErrorContextType:
@@ -76,7 +80,8 @@ class RelayAPIException(APIException):
 
         # For RelayAPIException classes, this is the default_code and is a string
         error_code = self.get_codes()
-        assert isinstance(error_code, str)
+        if not isinstance(error_code, str):
+            raise TypeError("error_code must be type str")
 
         # Build the Fluent error ID
         ftl_id_sub = "api-error-"

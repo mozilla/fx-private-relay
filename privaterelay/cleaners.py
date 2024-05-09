@@ -29,15 +29,22 @@ class DataIssueTask:
     def counts(self) -> Counts:
         """Get relevant counts for data issues and prepare to clean if possible."""
         if self._counts is None:
-            assert self._cleanup_data is None
+            if self._cleanup_data is not None:
+                raise ValueError(
+                    "self.cleanup_data should be None when self._counts is None"
+                )
             self._counts, self._cleanup_data = self._get_counts_and_data()
         return self._counts
 
     @property
     def cleanup_data(self) -> CleanupData:
         """Get data needed to clean data issues."""
-        assert self.counts  # Populate self._cleanup_data if not populated
-        assert self._cleanup_data
+        if not self.counts:
+            raise ValueError("self.counts must have a value when calling cleanup_data.")
+        if not self._cleanup_data:
+            raise ValueError(
+                "self._cleanup_data must have a value when calling cleanup_data."
+            )
         return self._cleanup_data
 
     def issues(self) -> int:
@@ -72,7 +79,8 @@ class DataIssueTask:
     @staticmethod
     def _as_percent(part: int, whole: int) -> str:
         """Return value followed by percent of whole, like '5 ( 30.0%)'"""
-        assert whole > 0
+        if not whole > 0:
+            raise ValueError("whole must be greater than 0 when calling _as_percent")
         len_whole = len(str(whole))
         return f"{part:{len_whole}d} ({part / whole:6.1%})"
 

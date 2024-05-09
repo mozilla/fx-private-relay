@@ -152,8 +152,10 @@ class Command(CommandFromDjangoSettings):
 
     def create_client(self):
         """Create the SQS client."""
-        assert self.aws_region
-        assert self.sqs_url
+        if not self.aws_region:
+            raise ValueError("self.aws_region must be truthy value.")
+        if not self.sqs_url:
+            raise ValueError("self.sqs_url must be truthy value.")
         sqs_client = boto3.resource("sqs", region_name=self.aws_region)
         return sqs_client.Queue(self.sqs_url)
 

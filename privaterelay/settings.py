@@ -38,9 +38,7 @@ if TYPE_CHECKING:
 try:
     # Silk is a live profiling and inspection tool for the Django framework
     # https://github.com/jazzband/django-silk
-    import silk
-
-    assert silk  # Suppress "imported but unused" warning
+    import silk  # noqa: F401
 
     HAS_SILK = True
 except ImportError:
@@ -119,7 +117,10 @@ if FXA_BASE_ORIGIN == "https://accounts.firefox.com":
     ]
     _ACCOUNT_CONNECT_SRC = [FXA_BASE_ORIGIN]
 else:
-    assert FXA_BASE_ORIGIN == "https://accounts.stage.mozaws.net"
+    if not FXA_BASE_ORIGIN == "https://accounts.stage.mozaws.net":
+        raise ValueError(
+            "FXA_BASE_ORIGIN must be either https://accounts.firefox.com or https://accounts.stage.mozaws.net"
+        )
     _AVATAR_IMG_SRC = [
         "mozillausercontent.com",
         "https://profile.stage.mozaws.net",
@@ -595,6 +596,7 @@ ACCOUNT_ADAPTER = "privaterelay.allauth.AccountAdapter"
 ACCOUNT_PRESERVE_USERNAME_CASING = False
 ACCOUNT_USERNAME_REQUIRED = False
 
+FXA_REQUESTS_TIMEOUT_SECONDS = config("FXA_REQUESTS_TIMEOUT_SECONDS", 1, cast=int)
 FXA_SETTINGS_URL = config("FXA_SETTINGS_URL", f"{FXA_BASE_ORIGIN}/settings")
 FXA_SUBSCRIPTIONS_URL = config(
     "FXA_SUBSCRIPTIONS_URL", f"{FXA_BASE_ORIGIN}/subscriptions"

@@ -12,7 +12,8 @@ class PremiumValidatorsMixin:
     def validate_block_list_emails(self, value):
         if not value:
             return value
-        assert hasattr(self, "context")
+        if not hasattr(self, "context"):
+            raise AttributeError("self must have attribute context")
         user = self.context["request"].user
         prefetch_related_objects([user], "socialaccount_set", "profile")
         if not user.profile.has_premium:

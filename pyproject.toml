@@ -97,11 +97,6 @@ testpaths = [
 ]
 
 [tool.ruff.lint]
-ignore = [
-    # TODO MPP-3802: Enable more bandit security checks
-    "S101",  # https://docs.astral.sh/ruff/rules/assert/
-    "S113",  # https://docs.astral.sh/ruff/rules/request-without-timeout/
-]
 select = [
     "S",  # flake8-bandit
     "E",  # pycodestyle errors

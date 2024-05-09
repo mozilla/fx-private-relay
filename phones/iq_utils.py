@@ -18,6 +18,7 @@ def send_iq_sms(to_num: str, from_num: str, text: str) -> None:
         settings.IQ_PUBLISH_MESSAGE_URL,
         headers={"Authorization": f"Bearer {settings.IQ_OUTBOUND_API_KEY}"},
         json=json_body,
+        timeout=5,
     )
     if resp.status_code < 200 or resp.status_code > 299:
         raise exceptions.ValidationError(json.loads(resp.content.decode()))

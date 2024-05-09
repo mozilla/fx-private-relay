@@ -17,7 +17,10 @@ class AccountAdapter(DefaultAccountAdapter):
         """
         Redirect to dashboard, preserving utm params from FXA.
         """
-        assert request.user.is_authenticated
+        if not request.user.is_authenticated:
+            raise ValueError(
+                "request.user must be authenticated when calling get_login_redirect_url"
+            )
         url = "/accounts/profile/?"
         utm_params = {k: v for k, v in request.GET.items() if k.startswith("utm")}
         url += urlencode(utm_params)
