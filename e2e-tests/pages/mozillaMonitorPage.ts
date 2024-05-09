@@ -32,5 +32,8 @@ export class MozillaMonitorPage {
     await this.page.waitForURL("**/oauth/signup**");
     const authPage = new AuthPage(this.page);
     await authPage.signUp(randomMask, true);
+    await this.page
+      .getByText("Enter confirmation code")
+      .waitFor({ state: "attached", timeout: 3000 });
   }
 }
