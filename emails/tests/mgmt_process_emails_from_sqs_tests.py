@@ -147,9 +147,9 @@ def fake_sqs_message(body):
     msg.queue_url = (
         "https://sqs.us-east-1.amazonaws.example.com/123456789012/queue-name"
     )
-    msg.receipt_handle = uuid4()
+    msg.receipt_handle = str(uuid4())
     msg.body = body
-    msg.message_id = uuid4()
+    msg.message_id = str(uuid4())
     return msg
 
 
