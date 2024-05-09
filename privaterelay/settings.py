@@ -38,9 +38,7 @@ if TYPE_CHECKING:
 try:
     # Silk is a live profiling and inspection tool for the Django framework
     # https://github.com/jazzband/django-silk
-    import silk
-
-    assert silk  # Suppress "imported but unused" warning # noqa S101
+    import silk  # noqa: F401
 
     HAS_SILK = True
 except ImportError:
@@ -598,6 +596,7 @@ ACCOUNT_ADAPTER = "privaterelay.allauth.AccountAdapter"
 ACCOUNT_PRESERVE_USERNAME_CASING = False
 ACCOUNT_USERNAME_REQUIRED = False
 
+FXA_REQUESTS_TIMEOUT_SECONDS = config("FXA_REQUESTS_TIMEOUT_SECONDS", 1, cast=int)
 FXA_SETTINGS_URL = config("FXA_SETTINGS_URL", f"{FXA_BASE_ORIGIN}/settings")
 FXA_SUBSCRIPTIONS_URL = config(
     "FXA_SUBSCRIPTIONS_URL", f"{FXA_BASE_ORIGIN}/subscriptions"

@@ -330,7 +330,9 @@ def terms_accepted_user(request):
     except SocialAccount.DoesNotExist:
         # User does not exist, create a new Relay user
         fxa_profile_resp = requests.get(
-            FXA_PROFILE_URL, headers={"Authorization": f"Bearer {token}"}, timeout=1
+            FXA_PROFILE_URL,
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=settings.FXA_REQUESTS_TIMEOUT_SECONDS,
         )
         if not (fxa_profile_resp.ok and fxa_profile_resp.content):
             logger.error(

@@ -79,11 +79,7 @@ class PrivateRelayConfig(AppConfig):
                         f" with key file: {gcp_key_json_path}"
                     )
 
-        import privaterelay.signals
-
-        assert (  # noqa S101
-            privaterelay.signals
-        )  # Suppress "imported but unused" warnings
+        import privaterelay.signals  # noqa: F401 (imported but unused warning)
 
         try:
             del self.fxa_verifying_keys  # Clear cache
