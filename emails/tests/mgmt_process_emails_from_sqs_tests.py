@@ -1,6 +1,7 @@
 import json
-from collections.abc import Generator
+from collections.abc import Iterator
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 from unittest.mock import Mock, patch
 from uuid import uuid4
@@ -12,6 +13,8 @@ import OpenSSL
 import pytest
 from botocore.exceptions import ClientError
 from markus.testing import MetricsMock
+from pytest import LogCaptureFixture
+from pytest_django.fixtures import SettingsWrapper
 
 from emails.tests.views_tests import EMAIL_SNS_BODIES
 from privaterelay.tests.utils import log_extra
@@ -26,7 +29,7 @@ TEST_SNS_MESSAGE = EMAIL_SNS_BODIES["s3_stored"]
 
 
 @pytest.fixture(autouse=True)
-def mocked_clocks() -> Generator:
+def mocked_clocks() -> Iterator[None]:
     """
     Mock time functions, so tests run faster than real time.
 
@@ -65,7 +68,7 @@ def mocked_clocks() -> Generator:
 
 
 @pytest.fixture(autouse=True)
-def mock_verify_from_sns():
+def mock_verify_from_sns() -> Iterator[Mock]:
     """Mock verify_from_sns(json_body) to return JSON"""
     with patch(f"{MOCK_BASE}.verify_from_sns") as mock_verify_from_sns:
         mock_verify_from_sns.side_effect = lambda msg_json: msg_json
@@ -73,14 +76,14 @@ def mock_verify_from_sns():
 
 
 @pytest.fixture(autouse=True)
-def mock_sns_inbound_logic():
+def mock_sns_inbound_logic() -> Iterator[Mock]:
     """Mock _sns_inbound_logic(topic_arn, message_type, json_body) to do nothing"""
     with patch(f"{MOCK_BASE}._sns_inbound_logic") as mock_sns_inbound_logic:
         yield mock_sns_inbound_logic
 
 
 @pytest.fixture(autouse=True)
-def test_settings(settings, tmp_path):
+def test_settings(settings: SettingsWrapper, tmp_path: Path) -> SettingsWrapper:
     """Override settings for tests."""
     settings.AWS_SNS_TOPIC = {TEST_SNS_MESSAGE["TopicArn"]}
     settings.AWS_REGION = "us-east-1"
@@ -99,13 +102,13 @@ def test_settings(settings, tmp_path):
 
 
 @pytest.fixture(autouse=True)
-def mock_sqs_client():
+def mock_sqs_client() -> Iterator[Mock]:
     """Mock a queue created by boto3.resource('sqs').Queue()"""
 
     mock_queue = Mock(spec_set=["Queue"])
     mock_queue.Queue.return_value = fake_queue()
 
-    def validate_call(resource_type, region_name):
+    def validate_call(resource_type: str, region_name: str) -> Mock:
         nonlocal mock_queue
         assert resource_type == "sqs"
         mock_queue.Queue._mock_region = region_name
@@ -116,7 +119,7 @@ def mock_sqs_client():
         yield mock_queue.Queue
 
 
-def fake_queue(*message_lists):
+def fake_queue(*message_lists: list[Mock] | BaseException) -> Mock:
     """
     Return a mock version of boto3's SQS Queue
 
@@ -136,7 +139,7 @@ def fake_queue(*message_lists):
     return queue
 
 
-def fake_sqs_message(body):
+def fake_sqs_message(body: str) -> Mock:
     """
     Create a fake SQS message
 
@@ -163,14 +166,14 @@ def make_client_error(
     return ClientError(err_response, operation_name)
 
 
-def summary_from_exit_log(caplog_fixture):
+def summary_from_exit_log(caplog_fixture: LogCaptureFixture) -> dict[str, Any]:
     """Get the extra data from the final log message"""
     last_log = caplog_fixture.records[-1]
     assert last_log.message == f"Exiting {COMMAND_NAME}"
     return log_extra(last_log)
 
 
-def test_no_messages(caplog, test_settings):
+def test_no_messages(caplog: LogCaptureFixture, test_settings: SettingsWrapper) -> None:
     """The command can exit after the max time and processing no messages."""
     call_command(COMMAND_NAME)
 
@@ -207,7 +210,7 @@ def test_no_messages(caplog, test_settings):
     }
 
 
-def test_metrics(test_settings, caplog):
+def test_metrics(test_settings: SettingsWrapper, caplog: LogCaptureFixture) -> None:
     """The command emits metrics on the SQS queue backlog."""
     test_settings.STATSD_ENABLED = True
     test_settings.PROCESS_EMAIL_MAX_SECONDS = 2
@@ -224,8 +227,11 @@ def test_metrics(test_settings, caplog):
 
 
 def test_one_message(
-    mock_verify_from_sns, mock_sns_inbound_logic, mock_sqs_client, caplog
-):
+    mock_verify_from_sns: Mock,
+    mock_sns_inbound_logic: Mock,
+    mock_sqs_client: Mock,
+    caplog: LogCaptureFixture,
+) -> None:
     """The command will process an available message."""
     msg = fake_sqs_message(json.dumps(TEST_SNS_MESSAGE))
     mock_sqs_client.return_value = fake_queue([msg], [])
@@ -251,17 +257,19 @@ def test_one_message(
     )
 
 
-def test_keyboard_interrupt(mock_sqs_client, caplog, test_settings):
+def test_keyboard_interrupt(
+    mock_sqs_client: Mock, caplog: LogCaptureFixture, test_settings: SettingsWrapper
+) -> None:
     """The command halts on Ctrl-C."""
     test_settings.PROCESS_EMAIL_MAX_SECONDS = None
-    mock_sqs_client.return_value = fake_queue([], KeyboardInterrupt)
+    mock_sqs_client.return_value = fake_queue([], KeyboardInterrupt())
     call_command(COMMAND_NAME)
     summary = summary_from_exit_log(caplog)
     assert summary["cycles"] == 1
     assert summary["exit_on"] == "interrupt"
 
 
-def test_no_body(mock_sqs_client, caplog):
+def test_no_body(mock_sqs_client: Mock, caplog: LogCaptureFixture) -> None:
     """The command skips a message without a JSON body."""
     msg = fake_sqs_message("I am a string, not JSON")
     mock_sqs_client.return_value = fake_queue([msg], [])
@@ -272,7 +280,9 @@ def test_no_body(mock_sqs_client, caplog):
     msg.delete.assert_not_called()
 
 
-def test_no_body_deleted(mock_sqs_client, caplog, test_settings):
+def test_no_body_deleted(
+    mock_sqs_client: Mock, caplog: LogCaptureFixture, test_settings: SettingsWrapper
+) -> None:
     """The command deletes a message without a JSON body."""
     test_settings.PROCESS_EMAIL_DELETE_FAILED_MESSAGES = True
     msg = fake_sqs_message("I am a string, not JSON")
@@ -285,11 +295,11 @@ def test_no_body_deleted(mock_sqs_client, caplog, test_settings):
 
 
 def test_ses_temp_failure(
-    test_settings,
-    mock_sns_inbound_logic,
-    mock_sqs_client,
-    caplog,
-):
+    test_settings: SettingsWrapper,
+    mock_sns_inbound_logic: Mock,
+    mock_sqs_client: Mock,
+    caplog: LogCaptureFixture,
+) -> None:
     """
     The command no longer retries a message with a temporary SES failure.
 
@@ -310,7 +320,9 @@ def test_ses_temp_failure(
     msg.delete.assert_not_called()
 
 
-def test_ses_generic_failure(mock_sns_inbound_logic, mock_sqs_client, caplog):
+def test_ses_generic_failure(
+    mock_sns_inbound_logic: Mock, mock_sqs_client: Mock, caplog: LogCaptureFixture
+) -> None:
     """The command does not retry generic SES failures."""
     internal_error = make_client_error(code="InternalError")
     mock_sns_inbound_logic.side_effect = (internal_error, None)
@@ -324,8 +336,8 @@ def test_ses_generic_failure(mock_sns_inbound_logic, mock_sqs_client, caplog):
 
 
 def test_verify_from_sns_raises_openssl_error(
-    mock_verify_from_sns, mock_sqs_client, caplog
-):
+    mock_verify_from_sns: Mock, mock_sqs_client: Mock, caplog: LogCaptureFixture
+) -> None:
     """If verify_from_sns raises an exception, the message is deleted."""
     mock_verify_from_sns.side_effect = OpenSSL.crypto.Error("failed")
     msg = fake_sqs_message(json.dumps(TEST_SNS_MESSAGE))
@@ -336,7 +348,9 @@ def test_verify_from_sns_raises_openssl_error(
     assert summary["failed_messages"] == 1
 
 
-def test_verify_from_sns_raises_keyerror(mock_verify_from_sns, mock_sqs_client, caplog):
+def test_verify_from_sns_raises_keyerror(
+    mock_verify_from_sns: Mock, mock_sqs_client: Mock, caplog: LogCaptureFixture
+) -> None:
     """If verify_from_sns raises an exception, the message is deleted."""
     mock_verify_from_sns.side_effect = KeyError("SigningCertURL")
     msg = fake_sqs_message('{"json": "yes", "from_sns": "na"}')
@@ -347,7 +361,9 @@ def test_verify_from_sns_raises_keyerror(mock_verify_from_sns, mock_sqs_client, 
     assert summary["failed_messages"] == 1
 
 
-def test_verify_sns_header_fails(test_settings, mock_sqs_client, caplog):
+def test_verify_sns_header_fails(
+    test_settings: SettingsWrapper, mock_sqs_client: Mock, caplog: LogCaptureFixture
+) -> None:
     """Invalid SNS headers fail."""
     test_settings.AWS_SNS_TOPIC = {"arn:aws:sns:us-east-1:111122223333:not-relay"}
     msg = fake_sqs_message(json.dumps(TEST_SNS_MESSAGE))
@@ -358,7 +374,7 @@ def test_verify_sns_header_fails(test_settings, mock_sqs_client, caplog):
     assert summary["failed_messages"] == 1
 
 
-def test_writes_healthcheck_file(test_settings):
+def test_writes_healthcheck_file(test_settings: SettingsWrapper) -> None:
     """Running the command writes to the healthcheck file."""
     call_command("process_emails_from_sqs")
     healthcheck_path = test_settings.PROCESS_EMAIL_HEALTHCHECK_PATH
@@ -379,7 +395,9 @@ def test_writes_healthcheck_file(test_settings):
     assert 0.0 < duration < 0.5
 
 
-def test_command_sqs_client_error(mock_sqs_client, test_settings):
+def test_command_sqs_client_error(
+    mock_sqs_client: Mock, test_settings: SettingsWrapper
+) -> None:
     """The command fails early on a client error."""
     mock_sqs_client.side_effect = make_client_error(code="InternalError")
     with pytest.raises(CommandError) as err:

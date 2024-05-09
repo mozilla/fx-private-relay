@@ -7,9 +7,15 @@ import textwrap
 from argparse import RawDescriptionHelpFormatter
 from collections import namedtuple
 from shutil import get_terminal_size
+from typing import Any
 
 from django.conf import settings
-from django.core.management.base import BaseCommand, CommandError, DjangoHelpFormatter
+from django.core.management.base import (
+    BaseCommand,
+    CommandError,
+    CommandParser,
+    DjangoHelpFormatter,
+)
 
 
 class RawDescriptionDjangoHelpFormatter(
@@ -30,7 +36,9 @@ class CommandFromDjangoSettings(BaseCommand):
 
     settings_to_locals: list[SettingToLocal]
 
-    def create_parser(self, prog_name, subcommand, **kwargs):
+    def create_parser(
+        self, prog_name: str, subcommand: str, **kwargs: Any
+    ) -> CommandParser:
         """
         Customize the default parser.
 
@@ -74,7 +82,7 @@ class CommandFromDjangoSettings(BaseCommand):
         parser.set_defaults(verbosity=verbosity_override)
         return parser
 
-    def init_from_settings(self, verbosity):
+    def init_from_settings(self, verbosity: int) -> None:
         """Initialize local variables from settings"""
         if not self.settings_to_locals:
             raise ValueError("self.settings_to_locals must be truthy value.")
