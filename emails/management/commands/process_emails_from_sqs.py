@@ -447,6 +447,7 @@ class Command(CommandFromDjangoSettings):
 
         def error_callback(exc_info: BaseException) -> None:
             """Handle exception raised by _sns_inbound_logic"""
+            capture_exception(exc_info)
             results["success"] = False
             if isinstance(exc_info, ClientError):
                 incr_if_enabled("message_from_sqs_error")
@@ -456,7 +457,6 @@ class Command(CommandFromDjangoSettings):
                 results["client_error_code"] = err["Code"].lower()
             else:
                 incr_if_enabled("email_processing_failure")
-                capture_exception(exc_info)
                 results["error"] = str(exc_info)
                 results["error_type"] = type(exc_info).__name__
                 if self.log_failed_messages:
