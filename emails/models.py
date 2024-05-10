@@ -28,6 +28,7 @@ from allauth.socialaccount.models import SocialAccount
 from rest_framework.authtoken.models import Token
 
 from api.exceptions import ErrorContextType, RelayAPIException
+from privaterelay.models import Subscription, update_or_create_subscription
 from privaterelay.plans import get_premium_countries
 from privaterelay.utils import (
     AcceptLanguageError,
@@ -324,12 +325,12 @@ class Profile(models.Model):
         # this to mark the user as a premium user as well
         if not self.fxa:
             return False
+
+        if self.subscription:
+            return True
+
         for premium_domain in PREMIUM_DOMAINS:
             if self.user.email.endswith(f"@{premium_domain}"):
-                return True
-        user_subscriptions = self.fxa.extra_data.get("subscriptions", [])
-        for sub in settings.SUBSCRIPTIONS_WITH_UNLIMITED:
-            if sub in user_subscriptions:
                 return True
         return False
 
@@ -572,6 +573,14 @@ class Profile(models.Model):
         if plan == "free":
             return "free"
         return f"{plan}_{self.plan_term}"
+
+    @property
+    def subscription(self) -> str | None:
+        try:
+            subscription = Subscription.objects.get(user=self.user)
+        except Subscription.DoesNotExist:
+            subscription = update_or_create_subscription(self.fxa)
+        return subscription.names
 
 
 @receiver(models.signals.post_save, sender=Profile)

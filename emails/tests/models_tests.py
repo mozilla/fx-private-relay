@@ -668,6 +668,35 @@ class ProfileLastBounceDateTest(ProfileBounceTestCase):
         assert self.profile.last_bounce_date == self.profile.last_hard_bounce
 
 
+class ProfileSubscriptionTest(ProfileTestCase):
+    """Test Profile.subscription"""
+
+    @patch("privaterelay.signals.update_or_create_subscription")
+    def test_subscription_object_dne_creates_subscription(
+        self, mocked_update: Mock
+    ) -> None:
+        self.get_or_create_social_account()
+        assert self.profile.subscription == ""
+        assert self.profile.has_premium is False
+        mocked_update.assert_called_once_with(self.profile.fxa)
+
+    def test_no_subscriptions_returns_empty_string(self) -> None:
+        self.get_or_create_social_account()
+        assert self.profile.subscription == ""
+        assert self.profile.has_premium is False
+
+    @patch("privaterelay.signals.update_or_create_subscription")
+    def test_premium_user_no_subscription_object_dne_creates_subscription(
+        self, mocked_update: Mock
+    ) -> None:
+        self.upgrade_to_premium()
+        assert self.profile.fxa is not None
+        user_subscriptions = self.profile.fxa.extra_data.get("subscriptions", [])
+        expected_subscriptions = ",".join(user_subscriptions)
+        assert self.profile.subscription == f"{expected_subscriptions},"
+        assert self.profile.has_premium is True
+
+
 class ProfileHasPremiumTest(ProfileTestCase):
     """Tests for Profile.has_premium"""
 
