@@ -12,12 +12,13 @@ https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sqs.h
 import gc
 import json
 import logging
-import shlex
 import time
+from base64 import b64encode
 from datetime import UTC, datetime
 from multiprocessing import Pool
 from typing import Any
 from urllib.parse import urlsplit
+from zlib import compress
 
 from django import setup
 from django.core.management.base import CommandError
@@ -81,6 +82,24 @@ class Command(CommandFromDjangoSettings):
             lambda delete_failed_messages: delete_failed_messages in (True, False),
         ),
         SettingToLocal(
+            "PROCESS_EMAIL_LOG_FAILED_MESSAGES",
+            "log_failed_messages",
+            (
+                "If a message fails to process, log the SNS notification."
+                " The value will be compressed with zlib then stored as base64."
+            ),
+            lambda log_failed_messages: log_failed_messages in (True, False),
+        ),
+        SettingToLocal(
+            "PROCESS_EMAIL_LOG_FAILED_MESSAGES_SIZE",
+            "log_failed_messages_size",
+            (
+                "When logging a failed message, truncate the original value"
+                " to this many bytes."
+            ),
+            lambda log_failed_messages_size: log_failed_messages_size > 0,
+        ),
+        SettingToLocal(
             "PROCESS_EMAIL_MAX_SECONDS",
             "max_seconds",
             "Maximum time to process before exiting, or None to run forever.",
@@ -120,6 +139,8 @@ class Command(CommandFromDjangoSettings):
     delete_failed_messages: bool
     max_seconds: float | None
     max_seconds_per_message: float
+    log_failed_messages: bool
+    log_failed_messages_size: int
     aws_region: str
     sqs_url: str
     verbosity: int
@@ -367,6 +388,12 @@ class Command(CommandFromDjangoSettings):
             batch_data["failed_count"] = failed_count
         return batch_data
 
+    def compress_b64(self, raw_body: str) -> str:
+        """Compresses then base64 encode a string."""
+        return b64encode(
+            compress(raw_body.encode()[: self.log_failed_messages_size], level=9)
+        ).decode()
+
     def process_message(self, message: SQSMessage) -> dict[str, Any]:
         """
         Process an SQS message, which may include sending an email.
@@ -388,13 +415,10 @@ class Command(CommandFromDjangoSettings):
         try:
             json_body = json.loads(raw_body)
         except ValueError as e:
-            results.update(
-                {
-                    "success": False,
-                    "error": f"Failed to load message.body: {e}",
-                    "message_body_quoted": shlex.quote(raw_body),
-                }
-            )
+            results["success"] = False
+            results["error"] = f"Failed to load message.body: {e}"
+            if self.log_failed_messages:
+                results["message_body_zb64"] = self.compress_b64(raw_body)
             return results
         try:
             verified_json_body = verify_from_sns(json_body)
@@ -435,6 +459,8 @@ class Command(CommandFromDjangoSettings):
                 capture_exception(exc_info)
                 results["error"] = str(exc_info)
                 results["error_type"] = type(exc_info).__name__
+                if self.log_failed_messages:
+                    results["message_body_zb64"] = self.compress_b64(raw_body)
 
         # Run in a multiprocessing Pool
         # This will start a subprocess, which needs to run django.setup

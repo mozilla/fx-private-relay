@@ -1,10 +1,12 @@
 import json
+from base64 import b64encode
 from collections.abc import Callable, Iterator
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 from unittest.mock import Mock, patch
 from uuid import uuid4
+from zlib import compress
 
 from django.core.management import call_command
 from django.core.management.base import CommandError
@@ -100,6 +102,8 @@ def test_settings(settings: SettingsWrapper, tmp_path: Path) -> SettingsWrapper:
     settings.PROCESS_EMAIL_VISIBILITY_SECONDS = 120
     settings.PROCESS_EMAIL_WAIT_SECONDS = 5
     settings.PROCESS_EMAIL_MAX_SECONDS_PER_MESSAGE = 3
+    settings.PROCESS_EMAIL_LOG_FAILED_MESSAGES = False
+    settings.PROCESS_EMAIL_LOG_FAILED_MESSAGES_SIZE = 20 * 1024
     return settings
 
 
@@ -336,29 +340,45 @@ def test_keyboard_interrupt(
     assert summary["exit_on"] == "interrupt"
 
 
-def test_no_body(mock_sqs_client: Mock, caplog: LogCaptureFixture) -> None:
-    """The command skips a message without a JSON body."""
-    msg = fake_sqs_message("I am a string, not JSON")
-    mock_sqs_client.return_value = fake_queue([msg], [])
-    call_command(COMMAND_NAME)
-    summary = summary_from_exit_log(caplog)
-    assert summary["failed_messages"] == 1
-    assert summary["cycles"] == 2
-    msg.delete.assert_not_called()
-
-
-def test_no_body_deleted(
-    mock_sqs_client: Mock, caplog: LogCaptureFixture, test_settings: SettingsWrapper
+@pytest.mark.parametrize("delete", ("delete", "nodelete"))
+@pytest.mark.parametrize("log", ("log", "nolog"))
+def test_no_body(
+    mock_sqs_client: Mock,
+    caplog: LogCaptureFixture,
+    test_settings: SettingsWrapper,
+    delete: Literal["delete", "nodelete"],
+    log: Literal["log", "nolog"],
 ) -> None:
     """The command deletes a message without a JSON body."""
-    test_settings.PROCESS_EMAIL_DELETE_FAILED_MESSAGES = True
+    test_settings.PROCESS_EMAIL_DELETE_FAILED_MESSAGES = delete == "delete"
+    test_settings.PROCESS_EMAIL_LOG_FAILED_MESSAGES = log == "log"
     msg = fake_sqs_message("I am a string, not JSON")
     mock_sqs_client.return_value = fake_queue([msg], [])
     call_command(COMMAND_NAME)
     summary = summary_from_exit_log(caplog)
     assert summary["failed_messages"] == 1
     assert summary["cycles"] == 2
-    msg.delete.assert_called_once_with()
+
+    if delete == "delete":
+        msg.delete.assert_called_once_with()
+    else:
+        msg.delete.assert_not_called()
+
+    rec2 = caplog.records[1]
+    assert rec2.msg == "Message processed"
+    rec2_data = log_extra(rec2)
+
+    expected = {
+        "error": (
+            "Failed to load message.body: " "Expecting value: line 1 column 1 (char 0)"
+        ),
+        "message_process_time_s": 0.0,
+        "sqs_message_id": msg.message_id,
+        "success": False,
+    }
+    if log == "log":
+        expected["message_body_zb64"] = "eNrzVEjMVUhUKC4pysxL11HIyy9R8Ar29wMAWAkHZw=="
+    assert rec2_data == expected
 
 
 def test_ses_temp_failure(
@@ -402,28 +422,47 @@ def test_ses_generic_failure(
     msg.delete.assert_not_called()
 
 
+@pytest.mark.parametrize("delete", ("delete", "nodelete"))
+@pytest.mark.parametrize("log", ("log", "nolog"))
 def test_ses_python_error(
     mock_sns_inbound_logic: Mock,
     mock_sqs_client: Mock,
     test_settings: SettingsWrapper,
     caplog: LogCaptureFixture,
+    delete: Literal["delete", "nodelete"],
+    log: Literal["log", "nolog"],
 ) -> None:
     """The command catches processing failures."""
-    test_settings.PROCESS_EMAIL_MAX_SECONDS = 2
+    test_settings.PROCESS_EMAIL_DELETE_FAILED_MESSAGES = delete == "delete"
+    test_settings.PROCESS_EMAIL_LOG_FAILED_MESSAGES = log == "log"
     mock_sns_inbound_logic.side_effect = ValueError("bad stuff")
-    msg = fake_sqs_message(json.dumps(TEST_SNS_MESSAGE))
+    body = json.dumps(TEST_SNS_MESSAGE)
+    msg = fake_sqs_message(body)
     mock_sqs_client.return_value = fake_queue([msg], [])
     call_command(COMMAND_NAME)
     summary = summary_from_exit_log(caplog)
     assert summary["total_messages"] == 1
     assert summary["failed_messages"] == 1
-    msg.delete.assert_not_called()
+    if delete == "delete":
+        msg.delete.assert_called_once_with()
+    else:
+        msg.delete.assert_not_called()
     rec2 = caplog.records[1]
     assert rec2.msg == "Message processed"
     rec2_extra = log_extra(rec2)
-    assert rec2_extra["success"] is False
-    assert rec2_extra["error_type"] == "ValueError"
-    assert rec2_extra["error"] == "bad stuff"
+    expected = {
+        "success": False,
+        "sqs_message_id": msg.message_id,
+        "error": "bad stuff",
+        "error_type": "ValueError",
+        "message_process_time_s": 5.0,
+        "subprocess_setup_time_s": 1.0,
+    }
+    if log == "log":
+        expected["message_body_zb64"] = b64encode(
+            compress(body.encode(), level=9)
+        ).decode()
+    assert rec2_extra == expected
 
 
 def test_ses_slow(
