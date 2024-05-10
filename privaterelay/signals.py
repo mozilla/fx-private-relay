@@ -1,8 +1,13 @@
+from typing import Any
+
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from allauth.account.signals import user_logged_in, user_signed_up
+from allauth.socialaccount.models import SocialAccount
 
 from emails.utils import incr_if_enabled
+from privaterelay.models import update_or_create_subscription
 
 
 @receiver(user_signed_up)
@@ -25,3 +30,10 @@ def record_user_logged_in(request, user, **kwargs):
         event = "user_signed_up"
     if response:
         response.set_cookie(f"server_ga_event:{event}", event, max_age=5)
+
+
+@receiver(post_save, sender=SocialAccount)
+def update_user_subscription(
+    sender: SocialAccount, instance: SocialAccount, created: bool, **kwargs: Any
+) -> None:
+    update_or_create_subscription(instance)
