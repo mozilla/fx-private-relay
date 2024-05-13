@@ -15,15 +15,22 @@ import logging
 import shlex
 import time
 from datetime import UTC, datetime
+from multiprocessing import Pool
+from typing import Any
 from urllib.parse import urlsplit
 
+from django import setup
 from django.core.management.base import CommandError
+from django.http import HttpResponse
 
 import boto3
 import OpenSSL
 from botocore.exceptions import ClientError
 from codetiming import Timer
 from markus.utils import generate_tag
+from mypy_boto3_sqs.service_resource import Message as SQSMessage
+from mypy_boto3_sqs.service_resource import Queue as SQSQueue
+from sentry_sdk import capture_exception
 
 from emails.management.command_from_django_settings import (
     CommandFromDjangoSettings,
@@ -80,6 +87,12 @@ class Command(CommandFromDjangoSettings):
             lambda max_seconds: max_seconds is None or max_seconds > 0.0,
         ),
         SettingToLocal(
+            "PROCESS_EMAIL_MAX_SECONDS_PER_MESSAGE",
+            "max_seconds_per_message",
+            "Maximum time to process a message before cancelling.",
+            lambda max_seconds: max_seconds > 0.0,
+        ),
+        SettingToLocal(
             "AWS_REGION",
             "aws_region",
             "AWS region of the SQS queue",
@@ -106,11 +119,12 @@ class Command(CommandFromDjangoSettings):
     healthcheck_path: str
     delete_failed_messages: bool
     max_seconds: float | None
+    max_seconds_per_message: float
     aws_region: str
     sqs_url: str
     verbosity: int
 
-    def handle(self, verbosity, *args, **kwargs):
+    def handle(self, verbosity: int, *args: Any, **kwargs: Any) -> None:
         """Handle call from command line (called by BaseCommand)"""
         self.init_from_settings(verbosity)
         self.init_locals()
@@ -123,6 +137,7 @@ class Command(CommandFromDjangoSettings):
                 "healthcheck_path": self.healthcheck_path,
                 "delete_failed_messages": self.delete_failed_messages,
                 "max_seconds": self.max_seconds,
+                "max_seconds_per_message": self.max_seconds_per_message,
                 "aws_region": self.aws_region,
                 "sqs_url": self.sqs_url,
                 "verbosity": self.verbosity,
@@ -137,20 +152,20 @@ class Command(CommandFromDjangoSettings):
         process_data = self.process_queue()
         logger.info("Exiting process_emails_from_sqs", extra=process_data)
 
-    def init_locals(self):
+    def init_locals(self) -> None:
         """Initialize command attributes that don't come from settings."""
         self.queue_name = urlsplit(self.sqs_url).path.split("/")[-1]
         self.halt_requested = False
-        self.start_time = None
-        self.cycles = None
-        self.total_messages = None
-        self.failed_messages = None
-        self.pause_count = None
-        self.queue_count = None
-        self.queue_count_delayed = None
-        self.queue_count_not_visible = None
+        self.start_time: float = 0.0
+        self.cycles: int = 0
+        self.total_messages: int = 0
+        self.failed_messages: int = 0
+        self.pause_count: int = 0
+        self.queue_count: int = 0
+        self.queue_count_delayed: int = 0
+        self.queue_count_not_visible: int = 0
 
-    def create_client(self):
+    def create_client(self) -> SQSQueue:
         """Create the SQS client."""
         if not self.aws_region:
             raise ValueError("self.aws_region must be truthy value.")
@@ -159,7 +174,7 @@ class Command(CommandFromDjangoSettings):
         sqs_client = boto3.resource("sqs", region_name=self.aws_region)
         return sqs_client.Queue(self.sqs_url)
 
-    def process_queue(self):
+    def process_queue(self) -> dict[str, Any]:
         """
         Process the SQS email queue until an exit condition is reached.
 
@@ -181,7 +196,7 @@ class Command(CommandFromDjangoSettings):
 
         while not self.halt_requested:
             try:
-                cycle_data = {
+                cycle_data: dict[str, Any] = {
                     "cycle_num": self.cycles,
                     "cycle_s": 0.0,
                 }
@@ -197,13 +212,14 @@ class Command(CommandFromDjangoSettings):
 
                 # Request and process a chunk of messages
                 with Timer(logger=None) as cycle_timer:
-                    message_batch, cycle_data = self.poll_queue_for_messages()
+                    message_batch, queue_data = self.poll_queue_for_messages()
+                    cycle_data.update(queue_data)
                     cycle_data.update(self.process_message_batch(message_batch))
 
                 # Collect data and log progress
                 self.total_messages += len(message_batch)
-                self.failed_messages += cycle_data.get("failed_count", 0)
-                self.pause_count += cycle_data.get("pause_count", 0)
+                self.failed_messages += int(cycle_data.get("failed_count", 0))
+                self.pause_count += int(cycle_data.get("pause_count", 0))
                 cycle_data["message_total"] = self.total_messages
                 cycle_data["cycle_s"] = round(cycle_timer.last, 3)
                 logger.log(
@@ -238,7 +254,7 @@ class Command(CommandFromDjangoSettings):
             process_data["pause_count"] = self.pause_count
         return process_data
 
-    def refresh_and_emit_queue_count_metrics(self):
+    def refresh_and_emit_queue_count_metrics(self) -> dict[str, float | int]:
         """
         Query SQS queue attributes, store backlog metrics, and emit them as gauge stats
 
@@ -255,13 +271,13 @@ class Command(CommandFromDjangoSettings):
             self.queue.load()
 
         # Save approximate queue counts
-        self.queue_count = self.queue.attributes["ApproximateNumberOfMessages"]
-        self.queue_count_delayed = self.queue.attributes[
-            "ApproximateNumberOfMessagesDelayed"
-        ]
-        self.queue_count_not_visible = self.queue.attributes[
-            "ApproximateNumberOfMessagesNotVisible"
-        ]
+        self.queue_count = int(self.queue.attributes["ApproximateNumberOfMessages"])
+        self.queue_count_delayed = int(
+            self.queue.attributes["ApproximateNumberOfMessagesDelayed"]
+        )
+        self.queue_count_not_visible = int(
+            self.queue.attributes["ApproximateNumberOfMessagesNotVisible"]
+        )
 
         # Emit gauges for approximate queue counts
         queue_tag = generate_tag("queue", self.queue_name)
@@ -282,7 +298,9 @@ class Command(CommandFromDjangoSettings):
             "queue_count_not_visible": self.queue_count_not_visible,
         }
 
-    def poll_queue_for_messages(self):
+    def poll_queue_for_messages(
+        self,
+    ) -> tuple[list[SQSMessage], dict[str, float | int]]:
         """Request a batch of messages, using the long-poll method.
 
         Return is a tuple:
@@ -305,7 +323,7 @@ class Command(CommandFromDjangoSettings):
             },
         )
 
-    def process_message_batch(self, message_batch):
+    def process_message_batch(self, message_batch: list[SQSMessage]) -> dict[str, Any]:
         """
         Process a batch of messages.
 
@@ -349,7 +367,7 @@ class Command(CommandFromDjangoSettings):
             batch_data["failed_count"] = failed_count
         return batch_data
 
-    def process_message(self, message):
+    def process_message(self, message: SQSMessage) -> dict[str, Any]:
         """
         Process an SQS message, which may include sending an email.
 
@@ -370,24 +388,16 @@ class Command(CommandFromDjangoSettings):
         try:
             json_body = json.loads(raw_body)
         except ValueError as e:
-            results.update(
-                {
-                    "success": False,
-                    "error": f"Failed to load message.body: {e}",
-                    "message_body_quoted": shlex.quote(raw_body),
-                }
-            )
+            results["success"] = False
+            results["error"] = f"Failed to load message.body: {e}"
+            results["message_body_quoted"] = shlex.quote(raw_body)
             return results
         try:
             verified_json_body = verify_from_sns(json_body)
         except (KeyError, OpenSSL.crypto.Error) as e:
             logger.error("Failed SNS verification", extra={"error": str(e)})
-            results.update(
-                {
-                    "success": False,
-                    "error": f"Failed SNS verification: {e}",
-                }
-            )
+            results["success"] = False
+            results["error"] = f"Failed SNS verification: {e}"
             return results
 
         topic_arn = verified_json_body["TopicArn"]
@@ -398,68 +408,77 @@ class Command(CommandFromDjangoSettings):
             results.update(error_details)
             return results
 
-        try:
-            _sns_inbound_logic(topic_arn, message_type, verified_json_body)
-        except ClientError as e:
-            incr_if_enabled("message_from_sqs_error", 1)
-            temp_errors = ["throttling", "pause"]
-            lower_error_code = e.response["Error"]["Code"].lower()
-            if any(temp_error in lower_error_code for temp_error in temp_errors):
-                incr_if_enabled("message_from_sqs_temp_error", 1)
-                logger.error(
-                    '"temporary" error, sleeping for 1s', extra=e.response["Error"]
-                )
-                self.write_healthcheck()
-                with Timer(logger=None) as sleep_timer:
-                    time.sleep(1)
-                results["pause_count"] = 1
-                results["pause_s"] = round(sleep_timer.last, 3)
-                results["pause_error"] = e.response["Error"]
+        def success_callback(result: HttpResponse) -> None:
+            """Handle return from successful call to _sns_inbound_logic"""
+            # TODO: extract data from _sns_inbound_logic return
+            pass
 
-                try:
-                    _sns_inbound_logic(topic_arn, message_type, verified_json_body)
-                    logger.info(f"processed sqs message ID: {message.message_id}")
-                except ClientError as e_retry:
-                    incr_if_enabled("message_from_sqs_error", 1)
-                    logger.error("sqs_client_error", extra=e_retry.response["Error"])
-                    results.update(
-                        {
-                            "success": False,
-                            "error": e_retry.response["Error"],
-                            "client_error_code": lower_error_code,
-                        }
-                    )
+        def error_callback(exc_info: BaseException) -> None:
+            """Handle exception raised by _sns_inbound_logic"""
+            capture_exception(exc_info)
+            results["success"] = False
+            if isinstance(exc_info, ClientError):
+                incr_if_enabled("message_from_sqs_error")
+                err = exc_info.response["Error"]
+                logger.error("sqs_client_error", extra=err)
+                results["error"] = err
+                results["client_error_code"] = err["Code"].lower()
             else:
-                logger.error("sqs_client_error", extra=e.response["Error"])
-                results.update(
-                    {
-                        "success": False,
-                        "error": e.response["Error"],
-                        "client_error_code": lower_error_code,
-                    }
-                )
+                incr_if_enabled("email_processing_failure")
+                results["error"] = str(exc_info)
+                results["error_type"] = type(exc_info).__name__
+
+        # Run in a multiprocessing Pool
+        # This will start a subprocess, which needs to run django.setup
+        # The benefit is that the subprocess can be terminated
+        # The penalty is that is is slower to start
+        pool_start_time = time.monotonic()
+        with Pool(1, initializer=setup) as pool:
+            future = pool.apply_async(
+                _sns_inbound_logic,
+                [topic_arn, message_type, verified_json_body],
+                callback=success_callback,
+                error_callback=error_callback,
+            )
+            setup_time = time.monotonic() - pool_start_time
+            results["subprocess_setup_time_s"] = round(setup_time, 3)
+
+            message_start_time = time.monotonic()
+            message_duration = 0.0
+            while message_duration < self.max_seconds_per_message:
+                self.write_healthcheck()
+                future.wait(1.0)
+                message_duration = time.monotonic() - message_start_time
+                if future.ready():
+                    break
+
+            results["message_process_time_s"] = round(message_duration, 3)
+            if not future.ready():
+                error = f"Timed out after {self.max_seconds_per_message:0.1f} seconds."
+                results["success"] = False
+                results["error"] = error
         return results
 
-    def write_healthcheck(self):
+    def write_healthcheck(self) -> None:
         """Update the healthcheck file with operations data, if path is set."""
-        data = {
+        data: dict[str, str | int] = {
             "timestamp": datetime.now(tz=UTC).isoformat(),
             "cycles": self.cycles,
             "total_messages": self.total_messages,
             "failed_messages": self.failed_messages,
             "pause_count": self.pause_count,
-            "queue_count": self.queue.attributes["ApproximateNumberOfMessages"],
-            "queue_count_delayed": self.queue.attributes[
-                "ApproximateNumberOfMessagesDelayed"
-            ],
-            "queue_count_not_visible": self.queue.attributes[
-                "ApproximateNumberOfMessagesNotVisible"
-            ],
+            "queue_count": int(self.queue.attributes["ApproximateNumberOfMessages"]),
+            "queue_count_delayed": int(
+                self.queue.attributes["ApproximateNumberOfMessagesDelayed"]
+            ),
+            "queue_count_not_visible": int(
+                self.queue.attributes["ApproximateNumberOfMessagesNotVisible"]
+            ),
         }
         with open(self.healthcheck_path, "w", encoding="utf-8") as healthcheck_file:
             json.dump(data, healthcheck_file)
 
-    def pluralize(self, value, singular, plural=None):
+    def pluralize(self, value: int, singular: str, plural: str | None = None) -> str:
         """Returns 's' suffix to make plural, like 's' in tasks"""
         if value == 1:
             return f"{value} {singular}"

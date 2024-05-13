@@ -50,6 +50,9 @@ updates:
           - "botocore"
           - "botocore-stubs"
           - "mypy-boto3-ses"
+          - "mypy-boto3-sns"
+          - "mypy-boto3-sqs"
+          - "mypy-boto3-s3"
       testing-libraries:
         patterns:
           - "coverage"
