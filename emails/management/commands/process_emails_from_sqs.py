@@ -376,24 +376,16 @@ class Command(CommandFromDjangoSettings):
         try:
             json_body = json.loads(raw_body)
         except ValueError as e:
-            results.update(
-                {
-                    "success": False,
-                    "error": f"Failed to load message.body: {e}",
-                    "message_body_quoted": shlex.quote(raw_body),
-                }
-            )
+            results["success"] = False
+            results["error"] = f"Failed to load message.body: {e}"
+            results["message_body_quoted"] = shlex.quote(raw_body)
             return results
         try:
             verified_json_body = verify_from_sns(json_body)
         except (KeyError, OpenSSL.crypto.Error) as e:
             logger.error("Failed SNS verification", extra={"error": str(e)})
-            results.update(
-                {
-                    "success": False,
-                    "error": f"Failed SNS verification: {e}",
-                }
-            )
+            results["success"] = False
+            results["error"] = f"Failed SNS verification: {e}"
             return results
 
         topic_arn = verified_json_body["TopicArn"]
@@ -410,13 +402,9 @@ class Command(CommandFromDjangoSettings):
             incr_if_enabled("message_from_sqs_error", 1)
             lower_error_code = e.response["Error"]["Code"].lower()
             logger.error("sqs_client_error", extra=e.response["Error"])
-            results.update(
-                {
-                    "success": False,
-                    "error": e.response["Error"],
-                    "client_error_code": lower_error_code,
-                }
-            )
+            results["success"] = False
+            results["error"] = e.response["Error"]
+            results["client_error_code"] = lower_error_code
         return results
 
     def write_healthcheck(self) -> None:
