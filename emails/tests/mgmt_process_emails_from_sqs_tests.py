@@ -436,7 +436,7 @@ def test_ses_slow(
     test_settings.PROCESS_EMAIL_MAX_SECONDS_PER_MESSAGE = 120
     msg = fake_sqs_message(json.dumps(TEST_SNS_MESSAGE))
     mock_sqs_client.return_value = fake_queue([msg], [], [])
-    mock_process_pool_future._is_stalled.side_effect = [False, False, True]
+    mock_process_pool_future._is_stalled.side_effect = [True, True, False]
     call_command(COMMAND_NAME)
     summary = summary_from_exit_log(caplog)
     assert summary["total_messages"] == 1
@@ -447,7 +447,8 @@ def test_ses_slow(
     assert rec2_extra["success"] is True
     assert rec2_extra["message_process_time_s"] < 120.0
     assert rec2_extra["subprocess_setup_time_s"] == 1.0
-    assert mock_process_pool_future._timeouts == [1.0]
+    # future.wait(1.0) was called 3 times, was ready after the 3rd call.
+    assert mock_process_pool_future._timeouts == [1.0] * 3
 
 
 def test_ses_timeout(
