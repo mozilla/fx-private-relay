@@ -30,7 +30,7 @@ TEST_SNS_MESSAGE = EMAIL_SNS_BODIES["s3_stored"]
 
 
 @pytest.fixture(autouse=True)
-def mocked_clocks() -> Iterator[Callable[[float], float]]:
+def mocked_clocks() -> Iterator[None]:
     """
     Mock time functions, so tests run faster than real time.
 
@@ -65,7 +65,7 @@ def mocked_clocks() -> Iterator[Callable[[float], float]]:
         patch(f"{MOCK_BASE}.Timer", MockTimer),
     ):
         mock_monotonic.side_effect = mock_sleep.side_effect = inc_clock
-        yield inc_clock
+        yield
 
 
 @pytest.fixture(autouse=True)
@@ -122,7 +122,7 @@ def mock_sqs_client() -> Iterator[Mock]:
 
 
 @pytest.fixture(autouse=True)
-def mock_process_pool_future(mocked_clocks: Callable[[float], float]) -> Iterator[Mock]:
+def mock_process_pool_future() -> Iterator[Mock]:
     """
     Replace multiprocessing.Pool with a mock, return mocked future.
 
@@ -154,7 +154,6 @@ def mock_process_pool_future(mocked_clocks: Callable[[float], float]) -> Iterato
         ) -> Mock:
 
             def call_wait(timeout: float) -> None:
-                mocked_clocks(timeout)
                 mock_future._timeouts.append(timeout)
                 if not mock_future._is_stalled():
                     mock_future._ready = True
@@ -436,7 +435,7 @@ def test_ses_slow(
     test_settings.PROCESS_EMAIL_MAX_SECONDS_PER_MESSAGE = 120
     msg = fake_sqs_message(json.dumps(TEST_SNS_MESSAGE))
     mock_sqs_client.return_value = fake_queue([msg], [], [])
-    mock_process_pool_future._is_stalled.side_effect = [False, False, True]
+    mock_process_pool_future._is_stalled.side_effect = [True, True, False]
     call_command(COMMAND_NAME)
     summary = summary_from_exit_log(caplog)
     assert summary["total_messages"] == 1
@@ -447,7 +446,8 @@ def test_ses_slow(
     assert rec2_extra["success"] is True
     assert rec2_extra["message_process_time_s"] < 120.0
     assert rec2_extra["subprocess_setup_time_s"] == 1.0
-    assert mock_process_pool_future._timeouts == [1.0]
+    # future.wait(1.0) was called 3 times, was ready after the 3rd call.
+    assert mock_process_pool_future._timeouts == [1.0] * 3
 
 
 def test_ses_timeout(
@@ -473,7 +473,7 @@ def test_ses_timeout(
     assert rec2_extra["error"] == "Timed out after 120.0 seconds."
     assert rec2_extra["message_process_time_s"] >= 120.0
     assert rec2_extra["subprocess_setup_time_s"] == 1.0
-    assert mock_process_pool_future._timeouts == [1.0] * 60
+    assert mock_process_pool_future._timeouts == [1.0] * 120
 
 
 def test_verify_from_sns_raises_openssl_error(
