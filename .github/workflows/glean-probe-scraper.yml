@@ -1,0 +1,16 @@
+---
+name: Glean probe-scraper
+# See:
+# https://mozilla.github.io/glean/book/user/adding-glean-to-your-project/enable-data-ingestion.html#validate-and-publish-metrics
+on:
+  # Since probe-scraper is sometimes unreliable, only call when we need to
+  push:
+    branches: ["main"]
+    paths: ["telemetry/glean/relay-server-metrics.yaml"]
+  pull_request:
+    branches: ["main"]
+    paths: ["telemetry/glean/relay-server-metrics.yaml"]
+jobs:
+  glean-probe-scraper:
+    uses: mozilla/probe-scraper/.github/workflows/glean.yaml@main
+
