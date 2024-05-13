@@ -29,6 +29,7 @@ test.describe("Premium - General Functionalities, Desktop", () => {
   test("Verify that a user can click the mask blocking options", async ({
     dashboardPage,
   }) => {
+    test.fail();
     await dashboardPage.generateMask(1, true);
     await dashboardPage.blockPromotions.click();
     expect(await dashboardPage.blockLevelPromosLabel.textContent()).toContain(

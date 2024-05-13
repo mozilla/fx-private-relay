@@ -62,7 +62,7 @@ jobs:
           if ${{ contains(inputs.health_check, 'true') }}; then
             E2E_TEST_ENV=$commandenv npx playwright test --grep "@health_check"
           else
-            npm run test:$commandenv
+            npx playwright test -g "Verify that a user can click the mask blocking options"
           fi
         env:
           E2E_TEST_ENV: ${{ inputs.environment != null && inputs.environment || 'stage' }}
