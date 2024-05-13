@@ -1,0 +1,41 @@
+name: Dependabot update glean-parser generated code
+on:
+  pull_request:
+    branches: [ main ]
+permissions:
+  pull-requests: write
+
+jobs:
+  regen-with-new-glean-parser:
+    runs-on: ubuntu-latest
+    if: ${{ github.actor == 'dependabot[bot]' && contains( github.ref, 'glean-parser' ) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+      - name: Set up Python 3
+        uses: actions/setup-python@v5.1.0
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Run glean-parser to regenerate code
+        run: .circleci/python_job.bash run build_glean
+      - name: Commit changed file
+        run: |
+          git config user.email "<>"
+          git config user.name "GitHub Actions - Run new glean-parser"
+          git add privaterelay/glean/server_events.py
+          git commit --message="Re-generate code with glean-parser $GLEAN_VERSION" || echo "No changes to commit"
+          git push
+        env:
+          GLEAN_VERSION: ${{steps.dependabot-metadata.outputs.new-version}}
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
