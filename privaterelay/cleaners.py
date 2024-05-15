@@ -20,7 +20,7 @@ class DataIssueTask:
     _cleanup_data: CleanupData | None
     _cleaned: bool
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._counts = None
         self._cleanup_data = None
         self._cleaned = False
