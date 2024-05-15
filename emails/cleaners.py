@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any, Generic, TypeVar
 
 from django.contrib.auth.models import User
-from django.db.models import Count, F, Model, Q
+from django.db.models import F, Model, Q
 from django.db.models.query import QuerySet
 
 from privaterelay.cleaners import CleanerTask, CleanupData, Counts
@@ -237,6 +237,18 @@ class MissingProfileCleaner(CleanerTask):
     title = "Ensures users have a profile"
     check_description = "All users should have one profile."
 
+    items: dict[str, AnyDataItem] = {"users": DataItem(model=User)}
+    items.update(
+        {
+            "has_profile": SubDataItem(
+                parent=items["users"], filter_by={"profile__isnull": False}
+            ),
+            "no_profile": SubDataItem(
+                parent=items["users"], filter_by={"profile__isnull": True}
+            ),
+        }
+    )
+
     def _get_counts_and_data(self) -> tuple[Counts, CleanupData]:
         """
         Find users without profiles.
@@ -246,29 +258,28 @@ class MissingProfileCleaner(CleanerTask):
         * cleanup_data: empty dict
         """
 
-        # Construct user -> profile counts
-        users_with_profile_counts = User.objects.annotate(num_profiles=Count("profile"))
-        ok_users = users_with_profile_counts.filter(num_profiles__gte=1)
-        no_profile_users = users_with_profile_counts.filter(num_profiles=0)
-
-        # Get counts once
-        ok_user_count = ok_users.count()
-        no_profile_user_count = no_profile_users.count()
+        counts: dict[str, int] = {}
+        cleanup_data: CleanupData = {}
+        for name, item in self.items.items():
+            qs = item.get_queryset()
+            count = qs.count()
+            counts[name] = count
+            if name == "no_profile":
+                cleanup_data["users"] = qs
 
         # Return counts and (empty) cleanup data
-        counts: Counts = {
+        out_counts: Counts = {
             "summary": {
-                "ok": ok_user_count,
-                "needs_cleaning": no_profile_user_count,
+                "ok": counts["has_profile"],
+                "needs_cleaning": counts["no_profile"],
             },
             "users": {
-                "all": User.objects.count(),
-                "no_profile": no_profile_user_count,
-                "has_profile": ok_user_count,
+                "all": counts["users"],
+                "no_profile": counts["no_profile"],
+                "has_profile": counts["has_profile"],
             },
         }
-        cleanup_data: CleanupData = {"users": no_profile_users}
-        return counts, cleanup_data
+        return out_counts, cleanup_data
 
     def _clean(self) -> int:
         """Assign users to groups and create profiles."""
