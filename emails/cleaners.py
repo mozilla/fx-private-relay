@@ -2,13 +2,77 @@
 
 from __future__ import annotations
 
+from typing import Any, Generic, TypeVar
+
 from django.contrib.auth.models import User
-from django.db.models import Count, Q
+from django.db.models import Count, F, Model, Q
+from django.db.models.query import QuerySet
 
 from privaterelay.cleaners import CleanerTask, CleanupData, Counts
 
 from .models import DomainAddress, Profile, RelayAddress
 from .signals import create_user_profile
+
+M = TypeVar("M", bound=Model)
+
+
+class AnyDataItem(Generic[M]):
+
+    def __init__(
+        self,
+        model: type[M] | None = None,
+        parent: AnyDataItem[M] | None = None,
+        filter_by: dict[str, Any] | F | Q | None = None,
+        exclude: dict[str, Any] | F | Q | None = None,
+    ) -> None:
+
+        if model is None and parent is None:
+            raise ValueError("Set model or parent")
+        if model is not None and parent is not None:
+            raise ValueError("Set one of model or parent, but not both.")
+        self.model = model
+        self.parent = parent
+        self.filter_by = filter_by
+        self.exclude = exclude
+
+    def get_queryset(self) -> QuerySet[M]:
+        if self.model:
+            query = self.model._default_manager.all()
+        elif self.parent:
+            query = self.parent.get_queryset()
+        else:
+            raise ValueError("Neither model or parent is set.")
+        if isinstance(self.filter_by, dict):
+            query = query.filter(**self.filter_by)
+        if isinstance(self.filter_by, (F | Q)):
+            query = query.filter(self.filter_by)
+        if isinstance(self.exclude, dict):
+            query = query.exclude(**self.exclude)
+        if isinstance(self.exclude, (F | Q)):
+            query = query.exclude(self.exclude)
+        return query
+
+
+class DataItem(AnyDataItem[M]):
+
+    def __init__(
+        self,
+        model: type[M],
+        filter_by: dict[str, Any] | F | Q | None = None,
+        exclude: dict[str, Any] | F | Q | None = None,
+    ) -> None:
+        super().__init__(model=model, filter_by=filter_by, exclude=exclude)
+
+
+class SubDataItem(AnyDataItem[M]):
+
+    def __init__(
+        self,
+        parent: AnyDataItem[M],
+        filter_by: dict[str, Any] | F | Q | None = None,
+        exclude: dict[str, Any] | F | Q | None = None,
+    ) -> None:
+        super().__init__(parent=parent, filter_by=filter_by, exclude=exclude)
 
 
 class ServerStorageCleaner(CleanerTask):
@@ -17,6 +81,47 @@ class ServerStorageCleaner(CleanerTask):
     check_description = (
         "When Profile.server_storage is False, the addresses (both regular and domain)"
         " should have empty data (the fields description, generated_for and used_on)."
+    )
+
+    _blank_used_on = Q(used_on="") | Q(used_on__isnull=True)
+    _blank_relay_data = _blank_used_on & Q(description="") & Q(generated_for="")
+    _blank_domain_data = _blank_used_on & Q(description="")
+
+    items: dict[str, AnyDataItem] = {
+        "profiles": DataItem(Profile),
+        "relay_addresses": DataItem(RelayAddress),
+        "domain_addresses": DataItem(DomainAddress),
+    }
+    items.update(
+        {
+            "profiles_without_server_storage": SubDataItem(
+                items["profiles"], filter_by={"server_storage": False}
+            ),
+            "no_store_relay_addresses": SubDataItem(
+                items["relay_addresses"],
+                filter_by={"user__profile__server_storage": False},
+            ),
+            "no_store_domain_addresses": SubDataItem(
+                items["domain_addresses"],
+                filter_by={"user__profile__server_storage": False},
+            ),
+        }
+    )
+    items.update(
+        {
+            "empty_relay_addresses": SubDataItem(
+                items["no_store_relay_addresses"], filter_by=_blank_relay_data
+            ),
+            "empty_domain_addresses": SubDataItem(
+                items["no_store_domain_addresses"], filter_by=_blank_domain_data
+            ),
+            "non_empty_relay_addresses": SubDataItem(
+                items["no_store_relay_addresses"], exclude=_blank_relay_data
+            ),
+            "non_empty_domain_addresses": SubDataItem(
+                items["no_store_domain_addresses"], exclude=_blank_domain_data
+            ),
+        }
     )
 
     def _get_counts_and_data(self) -> tuple[Counts, CleanupData]:
@@ -29,57 +134,43 @@ class ServerStorageCleaner(CleanerTask):
         * cleanup_data: two-element dict of RelayAddresses and DomainAddress
           queries to clear
         """
-        profiles_without_server_storage = Profile.objects.filter(server_storage=False)
-        no_store_relay_addresses = RelayAddress.objects.filter(
-            user__profile__server_storage=False
-        )
-        no_store_domain_addresses = DomainAddress.objects.filter(
-            user__profile__server_storage=False
-        )
-        blank_used_on = Q(used_on="") | Q(used_on__isnull=True)
-        blank_relay_data = blank_used_on & Q(description="") & Q(generated_for="")
-        blank_domain_data = blank_used_on & Q(description="")
 
-        empty_relay_addresses = no_store_relay_addresses.filter(blank_relay_data)
-        empty_domain_addresses = no_store_domain_addresses.filter(blank_domain_data)
-        non_empty_relay_addresses = no_store_relay_addresses.exclude(blank_relay_data)
-        non_empty_domain_addresses = no_store_domain_addresses.exclude(
-            blank_domain_data
-        )
+        counts: dict[str, int] = {}
+        cleanup_data: CleanupData = {}
+        for name, item in self.items.items():
+            qs = item.get_queryset()
+            count = qs.count()
+            counts[name] = count
+            if name == "non_empty_domain_addresses":
+                cleanup_data["domain_addresses"] = qs
+            if name == "non_empty_relay_addresses":
+                cleanup_data["relay_addresses"] = qs
 
-        empty_relay_addresses_count = empty_relay_addresses.count()
-        empty_domain_addresses_count = empty_domain_addresses.count()
-        non_empty_relay_addresses_count = non_empty_relay_addresses.count()
-        non_empty_domain_addresses_count = non_empty_domain_addresses.count()
-
-        counts: Counts = {
+        out_counts: Counts = {
             "summary": {
-                "ok": empty_relay_addresses_count + empty_domain_addresses_count,
-                "needs_cleaning": non_empty_relay_addresses_count
-                + non_empty_domain_addresses_count,
+                "ok": counts["empty_relay_addresses"]
+                + counts["empty_domain_addresses"],
+                "needs_cleaning": counts["non_empty_relay_addresses"]
+                + counts["non_empty_domain_addresses"],
             },
             "profiles": {
-                "all": Profile.objects.count(),
-                "no_server_storage": profiles_without_server_storage.count(),
+                "all": counts["profiles"],
+                "no_server_storage": counts["profiles_without_server_storage"],
             },
             "relay_addresses": {
-                "all": RelayAddress.objects.count(),
-                "no_server_storage": no_store_relay_addresses.count(),
-                "no_server_storage_or_data": empty_relay_addresses_count,
-                "no_server_storage_but_data": non_empty_relay_addresses_count,
+                "all": counts["relay_addresses"],
+                "no_server_storage": counts["no_store_relay_addresses"],
+                "no_server_storage_or_data": counts["empty_relay_addresses"],
+                "no_server_storage_but_data": counts["non_empty_relay_addresses"],
             },
             "domain_addresses": {
-                "all": DomainAddress.objects.count(),
-                "no_server_storage": no_store_domain_addresses.count(),
-                "no_server_storage_or_data": empty_domain_addresses_count,
-                "no_server_storage_but_data": non_empty_domain_addresses_count,
+                "all": counts["domain_addresses"],
+                "no_server_storage": counts["no_store_domain_addresses"],
+                "no_server_storage_or_data": counts["empty_domain_addresses"],
+                "no_server_storage_but_data": counts["non_empty_domain_addresses"],
             },
         }
-        cleanup_data: CleanupData = {
-            "relay_addresses": non_empty_relay_addresses,
-            "domain_addresses": non_empty_domain_addresses,
-        }
-        return counts, cleanup_data
+        return out_counts, cleanup_data
 
     def _clean(self) -> int:
         """Clean addresses with unwanted server-stored data."""
