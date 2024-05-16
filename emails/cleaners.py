@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Generic, Literal, TypeVar
+import string
+from typing import Any, Generic, Literal, TypeVar
 
 from django.contrib.auth.models import User
 from django.db.models import F, Model, Q
@@ -14,7 +15,15 @@ from .models import DomainAddress, Profile, RelayAddress
 from .signals import create_user_profile
 
 M = TypeVar("M", bound=Model)
-SUMMARY_GROUP_T = Literal["ok", "needs_cleaning"]
+CLEAN_GROUP_T = Literal["ok", "needs_cleaning"]
+
+# Define subdivision names
+# {model_plural}.[!]{sub_name1}.[!]{sub_name2}
+_SUBNAME_SEP = "."
+_NEGATE_PREFIX = "!"
+_SUBNAME_CHARS = string.ascii_lowercase + "_"
+_SUBNAME_CHAR_SET = set(_SUBNAME_CHARS)
+_NAME_CHAR_SET = set(_SUBNAME_CHARS + _SUBNAME_SEP + _NEGATE_PREFIX)
 
 
 class DataItem(Generic[M]):
@@ -26,28 +35,22 @@ class DataItem(Generic[M]):
         filter_by: str | F | Q | None = None,
         filter_by_value: bool = True,
         exclude: bool = False,
-        count_name: str | None = None,
-        summary_group: SUMMARY_GROUP_T | None = None,
-        clean_name: str | None = None,
+        stat_name: str | None = None,
+        clean_group_and_name: tuple[CLEAN_GROUP_T, str] | None = None,
     ) -> None:
 
         if model is None and parent is None:
             raise ValueError("Set model or parent.")
         if model is not None and parent is not None:
             raise ValueError("Set model or parent, but not both.")
-        if summary_group is not None and clean_name is None:
-            raise ValueError("Set clean_name when setting summary_group.")
-        if summary_group is None and clean_name is not None:
-            raise ValueError("Set summary_group when setting clean_name.")
 
         self.model = model
         self.parent = parent
         self.filter_by = filter_by
         self.filter_by_value = filter_by_value
         self.exclude = exclude
-        self.count_name = count_name
-        self.summary_group = summary_group
-        self.clean_name = clean_name
+        self.stat_name = stat_name
+        self.clean_group_and_name = clean_group_and_name
 
     def get_queryset(self) -> QuerySet[M]:
         if self.model:
@@ -73,74 +76,127 @@ class DataItem(Generic[M]):
     def count(self) -> int:
         return self.get_queryset().count()
 
-    @property
-    def summary_group_and_name(self) -> tuple[SUMMARY_GROUP_T, str] | None:
-        if self.summary_group and self.clean_name:
-            return (self.summary_group, self.clean_name)
-        return None
-
 
 class DataModelSpec(Generic[M]):
 
-    def __init__(self, name: str, model: type[M]) -> None:
-        self.name = name
+    def __init__(
+        self,
+        model: type[M],
+        subdivisions: list[DataBisectSpec],
+        omit_stats: list[str] | None = None,
+        stat_name_overrides: dict[str, str] | None = None,
+        ok_stat: str | None = None,
+        needs_cleaning_stat: str | None = None,
+    ) -> None:
         self.model = model
+        self.subdivisions = subdivisions
+        self.stat_name_overrides = stat_name_overrides or {}
+        self.omit_stats = omit_stats or []
+        self.stat_name_overrides = stat_name_overrides or {}
+        self.ok_stat = ok_stat
+        self.needs_cleaning_stat = needs_cleaning_stat
+
+    @property
+    def name(self) -> str:
+        return str(self.model._meta.verbose_name_plural).replace(" ", "_")
+
+    def stat_name(self, subname: str) -> str | None:
+        """Return None (to omit), a friendlier name, or the original name."""
+        if any(subname.startswith(omit) for omit in self.omit_stats):
+            return None
+        return self.stat_name_overrides.get(subname, subname)
+
+    def clean_group_and_name(self, subname: str) -> tuple[CLEAN_GROUP_T, str] | None:
+        """Identify when the subname is for a key cleaning stat."""
+        if subname == self.ok_stat:
+            return ("ok", self.name)
+        elif subname == self.needs_cleaning_stat:
+            return ("needs_cleaning", self.name)
+        else:
+            return None
 
 
 class DataBisectSpec:
 
     def __init__(
         self,
-        parent_name: str,
-        bisect_name: str,
+        subname: str,
         bisect_by: str | Q | F,
         filter_by_value: bool = True,
-        count_names: tuple[str | None, str | None] = (None, None),
-        summary_groups: tuple[SUMMARY_GROUP_T | None, SUMMARY_GROUP_T | None] = (
-            None,
-            None,
-        ),
-        clean_name: str | None = None,
     ) -> None:
-        self.parent_name = parent_name
-        self.name = bisect_name
+        if subname.startswith(_SUBNAME_SEP):
+            raise ValueError(
+                f"The subname {subname} should not start with a '{_SUBNAME_SEP}'"
+            )
+        if bad_chars := [c for c in subname if c not in _NAME_CHAR_SET]:
+            raise ValueError(
+                f"subname {subname} has disallowed characters `{sorted(bad_chars)}`"
+            )
+        if not bisect_by:
+            raise ValueError("Set the bisect_by filter")
+        parts = subname.split(".")
+        for part in parts:
+            if _NEGATE_PREFIX in part[1:]:
+                raise ValueError(
+                    f"In subname {subname}, character {_NEGATE_PREFIX} is in the"
+                    f" middle of a subpath in {part}, is only allowed at the start."
+                )
+        if parts[-1][0] == _NEGATE_PREFIX:
+            raise ValueError(
+                f"In subname {subname}, the prefix {_NEGATE_PREFIX} is not allowed"
+                " in the last part."
+            )
+
+        self.subname = subname
         self.bisect_by = bisect_by
         self.filter_by_value = filter_by_value
-        self.count_names = count_names
-        self.summary_groups = summary_groups
-        self.clean_name = clean_name
 
 
 class SuperCleanerTask(CleanerTask):
     """WIP: use a specification to make a more generic CleanerTask."""
 
-    data_specification: list[DataModelSpec | DataBisectSpec]
+    data_specification: list[DataModelSpec[Any]]
 
-    def data_items(self) -> dict[str, DataItem]:
+    def data_items(self) -> dict[str, DataItem[Any]]:
         """Turn the data_specification into a dictionary of names to DataItems."""
-        data_items: dict[str, DataItem] = {}
-        for entry in self.data_specification:
-            if isinstance(entry, DataModelSpec):
-                data_items[entry.name] = DataItem(
-                    model=entry.model, count_name=entry.name
-                )
-            elif isinstance(entry, DataBisectSpec):
-                data_items[f"{entry.parent_name}.{entry.name}"] = DataItem(
-                    parent=data_items[entry.parent_name],
+        data_items: dict[str, DataItem[Any]] = {}
+        for model_spec in self.data_specification:
+            model_stat_name = model_spec.name
+            data_items[model_spec.name] = DataItem(
+                model=model_spec.model, stat_name=model_stat_name
+            )
+            for entry in model_spec.subdivisions:
+                if _SUBNAME_SEP in entry.subname:
+                    subparent_name, part_name = entry.subname.rsplit(_SUBNAME_SEP, 1)
+                    parent = data_items[
+                        f"{model_stat_name}{_SUBNAME_SEP}{subparent_name}"
+                    ]
+                    neg_subname = (
+                        f"{subparent_name}{_SUBNAME_SEP}{_NEGATE_PREFIX}{part_name}"
+                    )
+                else:
+                    subparent_name = ""
+                    part_name = entry.subname
+                    parent = data_items[model_stat_name]
+                    neg_subname = f"{_NEGATE_PREFIX}{part_name}"
+
+                pos_subname = entry.subname
+                pos_fullname = f"{model_stat_name}{_SUBNAME_SEP}{pos_subname}"
+                data_items[pos_fullname] = DataItem(
+                    parent=parent,
                     filter_by=entry.bisect_by,
                     filter_by_value=entry.filter_by_value,
-                    count_name=entry.count_names[0],
-                    summary_group=entry.summary_groups[0],
-                    clean_name=entry.clean_name,
+                    stat_name=model_spec.stat_name(pos_subname),
+                    clean_group_and_name=model_spec.clean_group_and_name(pos_subname),
                 )
-                data_items[f"{entry.parent_name}.!{entry.name}"] = DataItem(
-                    parent=data_items[entry.parent_name],
+                neg_fullname = f"{model_stat_name}{_SUBNAME_SEP}{neg_subname}"
+                data_items[neg_fullname] = DataItem(
+                    parent=parent,
                     filter_by=entry.bisect_by,
                     filter_by_value=entry.filter_by_value,
                     exclude=True,
-                    count_name=entry.count_names[1],
-                    summary_group=entry.summary_groups[1],
-                    clean_name=entry.clean_name,
+                    stat_name=model_spec.stat_name(neg_subname),
+                    clean_group_and_name=model_spec.clean_group_and_name(neg_subname),
                 )
         return data_items
 
@@ -149,20 +205,20 @@ class SuperCleanerTask(CleanerTask):
         cleanup_data: CleanupData = {}
 
         for name, data_item in self.data_items().items():
-            if not (data_item.count_name or data_item.summary_group):
+            if not (data_item.stat_name or data_item.clean_group_and_name):
                 continue
             count = data_item.count()
 
             if data_item.model:
                 counts[name] = {"all": count}
-            elif data_item.count_name:
+            elif data_item.stat_name:
                 model_name = name.split(".")[0]
-                counts[model_name][data_item.count_name] = count
+                counts[model_name][data_item.stat_name] = count
 
-            if data_item.summary_group_and_name:
-                summary_group, clean_name = data_item.summary_group_and_name
-                counts["summary"][summary_group] += count
-                if summary_group == "needs_cleaning":
+            if data_item.clean_group_and_name:
+                clean_group, clean_name = data_item.clean_group_and_name
+                counts["summary"][clean_group] += count
+                if clean_group == "needs_cleaning":
                     cleanup_data[clean_name] = data_item.get_queryset()
 
         return counts, cleanup_data
@@ -180,42 +236,41 @@ class ServerStorageCleaner(SuperCleanerTask):
     _blank_relay_data = _blank_used_on & Q(description="") & Q(generated_for="")
     _blank_domain_data = _blank_used_on & Q(description="")
     data_specification = [
-        DataModelSpec("profiles", Profile),
-        DataBisectSpec(
-            "profiles",
-            "server_storage",
-            "user__profile__server_storage",
-            count_names=("", "no_server_storage"),
+        DataModelSpec(
+            Profile,
+            [DataBisectSpec("server_storage", "user__profile__server_storage")],
+            stat_name_overrides={"!server_storage": "no_server_storage"},
+            omit_stats=["server_storage"],
         ),
-        DataModelSpec("relay_addresses", RelayAddress),
-        DataBisectSpec(
-            "relay_addresses",
-            "server_storage",
-            "user__profile__server_storage",
-            count_names=("", "no_server_storage"),
+        DataModelSpec(
+            RelayAddress,
+            [
+                DataBisectSpec("server_storage", "user__profile__server_storage"),
+                DataBisectSpec("!server_storage.empty", _blank_relay_data),
+            ],
+            stat_name_overrides={
+                "!server_storage": "no_server_storage",
+                "!server_storage.empty": "no_server_storage_or_data",
+                "!server_storage.!empty": "no_server_storage_but_data",
+            },
+            omit_stats=["server_storage"],
+            ok_stat="!server_storage.empty",
+            needs_cleaning_stat="!server_storage.!empty",
         ),
-        DataBisectSpec(
-            "relay_addresses.!server_storage",
-            "empty",
-            _blank_relay_data,
-            count_names=("no_server_storage_or_data", "no_server_storage_but_data"),
-            summary_groups=("ok", "needs_cleaning"),
-            clean_name="relay_addresses",
-        ),
-        DataModelSpec("domain_addresses", DomainAddress),
-        DataBisectSpec(
-            "domain_addresses",
-            "server_storage",
-            "user__profile__server_storage",
-            count_names=("", "no_server_storage"),
-        ),
-        DataBisectSpec(
-            "domain_addresses.!server_storage",
-            "empty",
-            _blank_domain_data,
-            count_names=("no_server_storage_or_data", "no_server_storage_but_data"),
-            summary_groups=("ok", "needs_cleaning"),
-            clean_name="domain_addresses",
+        DataModelSpec(
+            DomainAddress,
+            [
+                DataBisectSpec("server_storage", "user__profile__server_storage"),
+                DataBisectSpec("!server_storage.empty", _blank_domain_data),
+            ],
+            stat_name_overrides={
+                "!server_storage": "no_server_storage",
+                "!server_storage.empty": "no_server_storage_or_data",
+                "!server_storage.!empty": "no_server_storage_but_data",
+            },
+            omit_stats=["server_storage"],
+            ok_stat="!server_storage.empty",
+            needs_cleaning_stat="!server_storage.!empty",
         ),
     ]
 
@@ -285,15 +340,12 @@ class MissingProfileCleaner(SuperCleanerTask):
     check_description = "All users should have one profile."
 
     data_specification = [
-        DataModelSpec("users", User),
-        DataBisectSpec(
-            "users",
-            "has_profile",
-            "profile__isnull",
-            filter_by_value=False,
-            count_names=("has_profile", "no_profile"),
-            summary_groups=("ok", "needs_cleaning"),
-            clean_name="users",
+        DataModelSpec(
+            User,
+            [DataBisectSpec("has_profile", "profile__isnull", filter_by_value=False)],
+            stat_name_overrides={"!has_profile": "no_profile"},
+            ok_stat="has_profile",
+            needs_cleaning_stat="!has_profile",
         ),
     ]
 
