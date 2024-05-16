@@ -352,6 +352,27 @@ class FxaTokenAuthenticationTest(TestCase):
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
 
     @responses.activate
+    def test_200_resp_from_fxa_inactive_Relay_user_raises_APIException(self) -> None:
+        sa: SocialAccount = baker.make(SocialAccount, uid=self.uid, provider="fxa")
+        sa.user.is_active = False
+        sa.user.save()
+        now_time = int(datetime.now().timestamp())
+        # Note: FXA iat and exp are timestamps in *milliseconds*
+        exp_time = (now_time + 60 * 60) * 1000
+        _setup_fxa_response(200, {"active": True, "sub": self.uid, "exp": exp_time})
+        inactive_user_token = "inactive-user-123"
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION=f"Bearer {inactive_user_token}")
+
+        response = client.get("/api/v1/relayaddresses/")
+        assert response.status_code == 403
+        expected_detail = (
+            "Authenticated user does not have an active Relay account."
+            " Have they been deactivated?"
+        )
+        assert response.json()["detail"] == expected_detail
+
+    @responses.activate
     def test_200_resp_from_fxa_for_user_returns_user_and_caches(self) -> None:
         sa: SocialAccount = baker.make(SocialAccount, uid=self.uid, provider="fxa")
         user_token = "user-123"

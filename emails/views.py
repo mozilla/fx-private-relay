@@ -512,6 +512,7 @@ EmailDroppedReason = Literal[
     "hard_bounce_pause",  # The user recently had a hard bounce
     "soft_bounce_pause",  # The user recently has a soft bounce
     "abuse_flag",  # The user exceeded an abuse limit, like mails forwarded
+    "inactive",  # The user account is deactivated
     "reply_requires_premium",  # The email is a reply from a free user
     "content_missing",  # Could not load the email from storage
     "error_from_header",  # Error generating the From: header, retryable
@@ -677,6 +678,10 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     if user_profile.is_flagged:
         log_email_dropped(reason="abuse_flag", mask=address)
         return HttpResponse("Address is temporarily disabled.")
+
+    if not user_profile.user.is_active:
+        log_email_dropped(reason="inactive", mask=address)
+        return HttpResponse("Account is deactivated.")
 
     # if address is set to block, early return
     if not address.enabled:

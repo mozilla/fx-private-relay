@@ -148,6 +148,12 @@ class FxaTokenAuthentication(BaseAuthentication):
             )
         user = sa.user
 
+        if not user.is_active:
+            raise PermissionDenied(
+                "Authenticated user does not have an active Relay account."
+                " Have they been deactivated?"
+            )
+
         if user:
             return (user, token)
         else:
