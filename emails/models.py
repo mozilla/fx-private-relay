@@ -766,6 +766,7 @@ class RelayAddress(models.Model):
                 include=["created_at"],
             ),
         ]
+        verbose_name_plural = "relay addresses"
 
     def __str__(self):
         return self.address
@@ -936,6 +937,7 @@ class DomainAddress(models.Model):
 
     class Meta:
         unique_together = ["user", "address"]
+        verbose_name_plural = "domain addresses"
 
     def __str__(self):
         return self.address
