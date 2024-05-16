@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import string
+from collections import defaultdict
 from typing import Any, Generic, Literal, TypeVar
 
 from django.contrib.auth.models import User
@@ -36,7 +37,8 @@ class DataItem(Generic[M]):
         filter_by_value: bool = True,
         exclude: bool = False,
         stat_name: str | None = None,
-        clean_group_and_name: tuple[CLEAN_GROUP_T, str] | None = None,
+        clean_group_and_name: tuple[CLEAN_GROUP_T, str, str] | None = None,
+        report_name: str | None = None,
     ) -> None:
 
         if model is None and parent is None:
@@ -51,6 +53,7 @@ class DataItem(Generic[M]):
         self.exclude = exclude
         self.stat_name = stat_name
         self.clean_group_and_name = clean_group_and_name
+        self.report_name = report_name
 
     def get_queryset(self) -> QuerySet[M]:
         if self.model:
@@ -77,6 +80,15 @@ class DataItem(Generic[M]):
         return self.get_queryset().count()
 
 
+class CleanedItem(DataItem[M]):
+    def __init__(self, model: type[M], report_name: str) -> None:
+        super().__init__(
+            model=model,
+            stat_name="cleaned",
+            report_name=report_name,
+        )
+
+
 class DataModelSpec(Generic[M]):
     """Define queries on a table that can identify issues."""
 
@@ -86,16 +98,20 @@ class DataModelSpec(Generic[M]):
         subdivisions: list[DataBisectSpec],
         omit_stats: list[str] | None = None,
         stat_name_overrides: dict[str, str] | None = None,
+        report_name_overrides: dict[str, str] | None = None,
         ok_stat: str | None = None,
         needs_cleaning_stat: str | None = None,
+        clean_name: str = "Cleaned",
     ) -> None:
         self.model = model
         self.subdivisions = subdivisions
         self.stat_name_overrides = stat_name_overrides or {}
         self.omit_stats = omit_stats or []
         self.stat_name_overrides = stat_name_overrides or {}
+        self.report_name_overrides = report_name_overrides or {}
         self.ok_stat = ok_stat
         self.needs_cleaning_stat = needs_cleaning_stat
+        self.clean_name = clean_name
 
     @property
     def name(self) -> str:
@@ -107,19 +123,32 @@ class DataModelSpec(Generic[M]):
             return None
         return self.stat_name_overrides.get(subname, subname)
 
-    def clean_group_and_name(self, subname: str) -> tuple[CLEAN_GROUP_T, str] | None:
+    def report_name(self, subname: str) -> str | None:
+        if (stat_name := self.stat_name(subname)) is None:
+            return None
+        return self.report_name_overrides.get(
+            stat_name, stat_name.replace("_", " ").title()
+        )
+
+    def clean_group_and_name(
+        self, subname: str
+    ) -> tuple[CLEAN_GROUP_T, str, str] | None:
         """Identify when the subname is for a key cleaning stat."""
         if subname == self.ok_stat:
-            return ("ok", self.name)
+            return ("ok", self.name, "")
         elif subname == self.needs_cleaning_stat:
-            return ("needs_cleaning", self.name)
+            return ("needs_cleaning", self.name, self.clean_name)
         else:
             return None
 
     def to_data_items(self) -> dict[str, DataItem[M]]:
         """Checks the spec while converting to dictionary of DataItems."""
         data_items: dict[str, DataItem[M]] = {
-            "": DataItem(model=self.model, stat_name=self.name)
+            "": DataItem(
+                model=self.model,
+                stat_name=self.name,
+                report_name=str(self.model._meta.verbose_name_plural).title(),
+            )
         }
         for entry in self.subdivisions:
             for name, item in entry.to_data_items(self, data_items).items():
@@ -205,6 +234,7 @@ class DataBisectSpec:
             exclude=bisect == "negative",
             stat_name=model_spec.stat_name(key_name),
             clean_group_and_name=model_spec.clean_group_and_name(key_name),
+            report_name=model_spec.report_name(key_name),
         )
 
 
@@ -246,12 +276,87 @@ class SuperCleanerTask(CleanerTask):
                 counts[model_name][data_item.stat_name] = count
 
             if data_item.clean_group_and_name:
-                clean_group, clean_name = data_item.clean_group_and_name
+                clean_group, clean_name, _ = data_item.clean_group_and_name
                 counts["summary"][clean_group] += count
                 if clean_group == "needs_cleaning":
                     cleanup_data[clean_name] = data_item.get_queryset()
 
         return counts, cleanup_data
+
+    def markdown_report(self) -> str:
+        """Report on data found and optionally cleaned."""
+
+        lines: list[str] = []
+        for section, counts in self.counts.items():
+            try:
+                section_data_item = self.data_items[section]
+            except KeyError:
+                pass
+            else:
+                if section_data_item.report_name:
+                    lines.extend(
+                        self._markdown_lines_for_model(section_data_item, counts)
+                    )
+        return "\n".join(lines)
+
+    def _markdown_lines_for_model(
+        self, section_data_item: DataItem[Any], counts: dict[str, int]
+    ) -> list[str]:
+        """Get the report lines for a model."""
+        total = counts["all"]
+        lines = [f"{section_data_item.report_name}:", f"  All: {total}"]
+
+        if total == 0:
+            return lines
+        if section_data_item.stat_name is None:
+            raise Exception("DataItem {section_data_item.name} has .stat_name None")
+        if section_data_item.model is None:
+            raise Exception("DataItem {section_data_item.name} has .model None")
+
+        section_counts: dict[tuple[str, ...], int] = {
+            (section_data_item.stat_name,): total
+        }
+        section_subitems: dict[tuple[str, ...], list[tuple[DataItem[Any], int]]] = (
+            defaultdict(list)
+        )
+
+        prefix = section_data_item.stat_name + _SUBNAME_SEP
+        cleaned = counts.get("cleaned")
+
+        # Collect items and counts where the direct parent item has a non-zero count
+        for name, item in self.data_items.items():
+            if not (name.startswith(prefix) and item.stat_name and item.report_name):
+                continue
+            parts = tuple(name.split(_SUBNAME_SEP))
+            parent_key = parts[:-1]
+            parent_total = section_counts[parent_key]
+            count = counts[item.stat_name]
+            if parent_total != 0:
+                section_counts[parts] = count
+                section_subitems[parent_key].append((item, count))
+                if (
+                    cleaned
+                    and item.clean_group_and_name is not None
+                    and item.clean_group_and_name[0] == "needs_cleaning"
+                ):
+                    report_name = item.clean_group_and_name[2]
+                    section_counts[parts + (report_name,)] = cleaned
+                    section_subitems[parts].append(
+                        (CleanedItem(section_data_item.model, report_name), cleaned)
+                    )
+
+        # Add and indent subsections
+        for key, subitems in section_subitems.items():
+            indent = "  " * len(key)
+            max_len = max(len(subitem.report_name or "") for subitem, count in subitems)
+            parent_total = section_counts[key]
+            for subitem, count in subitems:
+                lines.append(
+                    f"  {indent}{subitem.report_name:<{max_len}}:"
+                    f" {self._as_percent(count, parent_total)}"
+                )
+
+        return lines
 
 
 class ServerStorageCleaner(SuperCleanerTask):
@@ -270,6 +375,7 @@ class ServerStorageCleaner(SuperCleanerTask):
             Profile,
             [DataBisectSpec("server_storage", "user__profile__server_storage")],
             stat_name_overrides={"!server_storage": "no_server_storage"},
+            report_name_overrides={"no_server_storage": "Without Server Storage"},
             omit_stats=["server_storage"],
         ),
         DataModelSpec(
@@ -282,6 +388,11 @@ class ServerStorageCleaner(SuperCleanerTask):
                 "!server_storage": "no_server_storage",
                 "!server_storage.empty": "no_server_storage_or_data",
                 "!server_storage.!empty": "no_server_storage_but_data",
+            },
+            report_name_overrides={
+                "no_server_storage": "Without Server Storage",
+                "no_server_storage_or_data": "No Data",
+                "no_server_storage_but_data": "Has Data",
             },
             omit_stats=["server_storage"],
             ok_stat="!server_storage.empty",
@@ -297,6 +408,11 @@ class ServerStorageCleaner(SuperCleanerTask):
                 "!server_storage": "no_server_storage",
                 "!server_storage.empty": "no_server_storage_or_data",
                 "!server_storage.!empty": "no_server_storage_but_data",
+            },
+            report_name_overrides={
+                "no_server_storage": "Without Server Storage",
+                "no_server_storage_or_data": "No Data",
+                "no_server_storage_but_data": "Has Data",
             },
             omit_stats=["server_storage"],
             ok_stat="!server_storage.empty",
@@ -318,51 +434,6 @@ class ServerStorageCleaner(SuperCleanerTask):
             counts["relay_addresses"]["cleaned"] + counts["domain_addresses"]["cleaned"]
         )
 
-    def markdown_report(self) -> str:
-        """Report on server-stored data found and optionally cleaned."""
-
-        def model_lines(name: str, counts: dict[str, int]) -> list[str]:
-            """Get the report lines for a model (Profile, Relay Addr., Domain Addrs.)"""
-            total = counts["all"]
-            lines = [f"{name}:", f"  All: {total}"]
-            if total == 0:
-                return lines
-
-            no_server_storage = counts["no_server_storage"]
-            lines.append(
-                "    Without Server Storage: "
-                f"{self._as_percent(no_server_storage, total)}"
-            )
-            if no_server_storage == 0:
-                return lines
-
-            no_data = counts.get("no_server_storage_or_data")
-            has_data = counts.get("no_server_storage_but_data")
-            if no_data is None or has_data is None:
-                return lines
-            lines.extend(
-                [
-                    "      No Data : "
-                    f"{self._as_percent(no_data, no_server_storage)}",
-                    "      Has Data: "
-                    f"{self._as_percent(has_data, no_server_storage)}",
-                ]
-            )
-
-            cleaned = counts.get("cleaned")
-            if cleaned is None or has_data == 0:
-                return lines
-            lines.append(f"        Cleaned: {self._as_percent(cleaned, has_data)}")
-            return lines
-
-        lines: list[str] = (
-            model_lines("Profiles", self.counts["profiles"])
-            + model_lines("Relay Addresses", self.counts["relay_addresses"])
-            + model_lines("Domain Addresses", self.counts["domain_addresses"])
-        )
-
-        return "\n".join(lines)
-
 
 class MissingProfileCleaner(SuperCleanerTask):
     slug = "missing-profile"
@@ -376,6 +447,7 @@ class MissingProfileCleaner(SuperCleanerTask):
             stat_name_overrides={"!has_profile": "no_profile"},
             ok_stat="has_profile",
             needs_cleaning_stat="!has_profile",
+            clean_name="Now has Profile",
         ),
     ]
 
@@ -387,31 +459,3 @@ class MissingProfileCleaner(SuperCleanerTask):
             create_user_profile(sender=User, instance=user, created=True)
             counts["users"]["cleaned"] += 1
         return counts["users"]["cleaned"]
-
-    def markdown_report(self) -> str:
-        """Report on user with / without profiles."""
-
-        # Report on users
-        user_counts = self.counts["users"]
-        all_users = user_counts["all"]
-        has_profile = user_counts["has_profile"]
-        no_profile = user_counts["no_profile"]
-        cleaned = user_counts.get("cleaned")
-        lines = [
-            "Users:",
-            f"  All: {all_users}",
-        ]
-        if all_users > 0:
-            # Breakdown users by profile count
-            lines.extend(
-                [
-                    f"    Has Profile: {self._as_percent(has_profile, all_users)}",
-                    f"    No Profile : {self._as_percent(no_profile, all_users)}",
-                ]
-            )
-        if no_profile and cleaned is not None:
-            lines.append(
-                f"      Now has Profile: {self._as_percent(cleaned, no_profile)}"
-            )
-
-        return "\n".join(lines)
