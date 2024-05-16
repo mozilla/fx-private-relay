@@ -213,7 +213,11 @@ class SuperCleanerTask(CleanerTask):
 
     data_specification: list[DataModelSpec[Any]]
 
-    def data_items(self) -> dict[str, DataItem[Any]]:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.data_items = self._get_data_items()
+        super().__init__(*args, **kwargs)
+
+    def _get_data_items(self) -> dict[str, DataItem[Any]]:
         """Turn the data_specification into a dictionary of names to DataItems."""
         data_items: dict[str, DataItem[Any]] = {}
         for model_spec in self.data_specification:
@@ -230,7 +234,7 @@ class SuperCleanerTask(CleanerTask):
         counts: Counts = {"summary": {"ok": 0, "needs_cleaning": 0}}
         cleanup_data: CleanupData = {}
 
-        for name, data_item in self.data_items().items():
+        for name, data_item in self.data_items.items():
             if not (data_item.stat_name or data_item.clean_group_and_name):
                 continue
             count = data_item.count()
