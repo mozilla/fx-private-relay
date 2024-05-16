@@ -78,6 +78,7 @@ class DataItem(Generic[M]):
 
 
 class DataModelSpec(Generic[M]):
+    """Define queries on a table that can identify issues."""
 
     def __init__(
         self,
@@ -115,8 +116,24 @@ class DataModelSpec(Generic[M]):
         else:
             return None
 
+    def to_data_items(self) -> dict[str, DataItem[M]]:
+        """Checks the spec while converting to dictionary of DataItems."""
+        data_items: dict[str, DataItem[M]] = {
+            "": DataItem(model=self.model, stat_name=self.name)
+        }
+        for entry in self.subdivisions:
+            for name, item in entry.to_data_items(self, data_items).items():
+                if name in data_items:
+                    raise Exception("Duplicate name '{name}' returned by {entry}.")
+                data_items[name] = item
+        return {
+            (f"{self.name}{_SUBNAME_SEP}{name}" if name else self.name): item
+            for name, item in data_items.items()
+        }
+
 
 class DataBisectSpec:
+    """Bisect a parent query by a true / false query."""
 
     def __init__(
         self,
@@ -151,6 +168,45 @@ class DataBisectSpec:
         self.bisect_by = bisect_by
         self.filter_by_value = filter_by_value
 
+    def to_data_items(
+        self, model_spec: DataModelSpec[M], existing_items: dict[str, DataItem[M]]
+    ) -> dict[str, DataItem[M]]:
+        """Return two data items bisecting the parent data."""
+        if _SUBNAME_SEP in self.subname:
+            subparent_name, part_name = self.subname.rsplit(_SUBNAME_SEP, 1)
+            neg_subname = f"{subparent_name}{_SUBNAME_SEP}{_NEGATE_PREFIX}{part_name}"
+        else:
+            subparent_name = ""
+            part_name = self.subname
+            neg_subname = f"{_NEGATE_PREFIX}{part_name}"
+
+        parent = existing_items[subparent_name]
+        return {
+            self.subname: self._to_bisected_data_item(
+                self.subname, model_spec, parent, "positive"
+            ),
+            neg_subname: self._to_bisected_data_item(
+                neg_subname, model_spec, parent, "negative"
+            ),
+        }
+
+    def _to_bisected_data_item(
+        self,
+        key_name: str,
+        model_spec: DataModelSpec[M],
+        parent: DataItem[M],
+        bisect: Literal["positive", "negative"],
+    ) -> DataItem[M]:
+        """Create one of the bisected data items."""
+        return DataItem(
+            parent=parent,
+            filter_by=self.bisect_by,
+            filter_by_value=self.filter_by_value,
+            exclude=bisect == "negative",
+            stat_name=model_spec.stat_name(key_name),
+            clean_group_and_name=model_spec.clean_group_and_name(key_name),
+        )
+
 
 class SuperCleanerTask(CleanerTask):
     """WIP: use a specification to make a more generic CleanerTask."""
@@ -161,43 +217,13 @@ class SuperCleanerTask(CleanerTask):
         """Turn the data_specification into a dictionary of names to DataItems."""
         data_items: dict[str, DataItem[Any]] = {}
         for model_spec in self.data_specification:
-            model_stat_name = model_spec.name
-            data_items[model_spec.name] = DataItem(
-                model=model_spec.model, stat_name=model_stat_name
-            )
-            for entry in model_spec.subdivisions:
-                if _SUBNAME_SEP in entry.subname:
-                    subparent_name, part_name = entry.subname.rsplit(_SUBNAME_SEP, 1)
-                    parent = data_items[
-                        f"{model_stat_name}{_SUBNAME_SEP}{subparent_name}"
-                    ]
-                    neg_subname = (
-                        f"{subparent_name}{_SUBNAME_SEP}{_NEGATE_PREFIX}{part_name}"
+            for name, item in model_spec.to_data_items().items():
+                if name in data_items:
+                    raise Exception(
+                        f"For model '{model_spec.name}', the statistic {name}"
+                        " is already registered."
                     )
-                else:
-                    subparent_name = ""
-                    part_name = entry.subname
-                    parent = data_items[model_stat_name]
-                    neg_subname = f"{_NEGATE_PREFIX}{part_name}"
-
-                pos_subname = entry.subname
-                pos_fullname = f"{model_stat_name}{_SUBNAME_SEP}{pos_subname}"
-                data_items[pos_fullname] = DataItem(
-                    parent=parent,
-                    filter_by=entry.bisect_by,
-                    filter_by_value=entry.filter_by_value,
-                    stat_name=model_spec.stat_name(pos_subname),
-                    clean_group_and_name=model_spec.clean_group_and_name(pos_subname),
-                )
-                neg_fullname = f"{model_stat_name}{_SUBNAME_SEP}{neg_subname}"
-                data_items[neg_fullname] = DataItem(
-                    parent=parent,
-                    filter_by=entry.bisect_by,
-                    filter_by_value=entry.filter_by_value,
-                    exclude=True,
-                    stat_name=model_spec.stat_name(neg_subname),
-                    clean_group_and_name=model_spec.clean_group_and_name(neg_subname),
-                )
+                data_items[name] = item
         return data_items
 
     def _get_counts_and_data(self) -> tuple[Counts, CleanupData]:
