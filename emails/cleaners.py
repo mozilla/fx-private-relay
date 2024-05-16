@@ -37,8 +37,9 @@ class DataItem(Generic[M]):
         filter_by_value: bool = True,
         exclude: bool = False,
         stat_name: str | None = None,
-        clean_group_and_name: tuple[CLEAN_GROUP_T, str, str] | None = None,
+        clean_group: CLEAN_GROUP_T | None = None,
         report_name: str | None = None,
+        cleaned_report_name: str | None = None,
     ) -> None:
 
         if model is None and parent is None:
@@ -52,8 +53,9 @@ class DataItem(Generic[M]):
         self.filter_by_value = filter_by_value
         self.exclude = exclude
         self.stat_name = stat_name
-        self.clean_group_and_name = clean_group_and_name
+        self.clean_group = clean_group
         self.report_name = report_name
+        self.cleaned_report_name = cleaned_report_name
 
     def get_queryset(self) -> QuerySet[M]:
         if self.model:
@@ -101,7 +103,7 @@ class DataModelSpec(Generic[M]):
         report_name_overrides: dict[str, str] | None = None,
         ok_stat: str | None = None,
         needs_cleaning_stat: str | None = None,
-        clean_name: str = "Cleaned",
+        cleaned_report_name: str = "Cleaned",
     ) -> None:
         self.model = model
         self.subdivisions = subdivisions
@@ -111,7 +113,7 @@ class DataModelSpec(Generic[M]):
         self.report_name_overrides = report_name_overrides or {}
         self.ok_stat = ok_stat
         self.needs_cleaning_stat = needs_cleaning_stat
-        self.clean_name = clean_name
+        self.cleaned_report_name = cleaned_report_name
 
     @property
     def name(self) -> str:
@@ -130,24 +132,23 @@ class DataModelSpec(Generic[M]):
             stat_name, stat_name.replace("_", " ").title()
         )
 
-    def clean_group_and_name(
-        self, subname: str
-    ) -> tuple[CLEAN_GROUP_T, str, str] | None:
+    def clean_group(self, subname: str) -> CLEAN_GROUP_T | None:
         """Identify when the subname is for a key cleaning stat."""
         if subname == self.ok_stat:
-            return ("ok", self.name, "")
+            return "ok"
         elif subname == self.needs_cleaning_stat:
-            return ("needs_cleaning", self.name, self.clean_name)
+            return "needs_cleaning"
         else:
             return None
 
     def to_data_items(self) -> dict[str, DataItem[M]]:
-        """Checks the spec while converting to dictionary of DataItems."""
+        """Converts the spec to a dictionary of DataItems."""
         data_items: dict[str, DataItem[M]] = {
             "": DataItem(
                 model=self.model,
                 stat_name=self.name,
                 report_name=str(self.model._meta.verbose_name_plural).title(),
+                cleaned_report_name=self.cleaned_report_name,
             )
         }
         for entry in self.subdivisions:
@@ -233,7 +234,7 @@ class DataBisectSpec:
             filter_by_value=self.filter_by_value,
             exclude=bisect == "negative",
             stat_name=model_spec.stat_name(key_name),
-            clean_group_and_name=model_spec.clean_group_and_name(key_name),
+            clean_group=model_spec.clean_group(key_name),
             report_name=model_spec.report_name(key_name),
         )
 
@@ -265,7 +266,7 @@ class SuperCleanerTask(CleanerTask):
         cleanup_data: CleanupData = {}
 
         for name, data_item in self.data_items.items():
-            if not (data_item.stat_name or data_item.clean_group_and_name):
+            if not (data_item.stat_name or data_item.clean_group):
                 continue
             count = data_item.count()
 
@@ -275,11 +276,10 @@ class SuperCleanerTask(CleanerTask):
                 model_name = name.split(".")[0]
                 counts[model_name][data_item.stat_name] = count
 
-            if data_item.clean_group_and_name:
-                clean_group, clean_name, _ = data_item.clean_group_and_name
-                counts["summary"][clean_group] += count
-                if clean_group == "needs_cleaning":
-                    cleanup_data[clean_name] = data_item.get_queryset()
+            if data_item.clean_group:
+                counts["summary"][data_item.clean_group] += count
+                if data_item.clean_group == "needs_cleaning":
+                    cleanup_data[model_name] = name
 
         return counts, cleanup_data
 
@@ -295,12 +295,17 @@ class SuperCleanerTask(CleanerTask):
             else:
                 if section_data_item.report_name:
                     lines.extend(
-                        self._markdown_lines_for_model(section_data_item, counts)
+                        self._markdown_lines_for_model(
+                            section, section_data_item, counts
+                        )
                     )
         return "\n".join(lines)
 
     def _markdown_lines_for_model(
-        self, section_data_item: DataItem[Any], counts: dict[str, int]
+        self,
+        section_name: str,
+        section_data_item: DataItem[Any],
+        counts: dict[str, int],
     ) -> list[str]:
         """Get the report lines for a model."""
         total = counts["all"]
@@ -309,9 +314,9 @@ class SuperCleanerTask(CleanerTask):
         if total == 0:
             return lines
         if section_data_item.stat_name is None:
-            raise Exception("DataItem {section_data_item.name} has .stat_name None")
+            raise Exception(f"DataItem {section_name} has .stat_name None")
         if section_data_item.model is None:
-            raise Exception("DataItem {section_data_item.name} has .model None")
+            raise Exception(f"DataItem {section_name} has .model None")
 
         section_counts: dict[tuple[str, ...], int] = {
             (section_data_item.stat_name,): total
@@ -334,12 +339,13 @@ class SuperCleanerTask(CleanerTask):
             if parent_total != 0:
                 section_counts[parts] = count
                 section_subitems[parent_key].append((item, count))
-                if (
-                    cleaned
-                    and item.clean_group_and_name is not None
-                    and item.clean_group_and_name[0] == "needs_cleaning"
-                ):
-                    report_name = item.clean_group_and_name[2]
+                if cleaned and item.clean_group == "needs_cleaning":
+                    report_name = section_data_item.cleaned_report_name
+                    if report_name is None:
+                        raise Exception(
+                            f"DataItem {section_name} has"
+                            f" .cleaned_report_name {report_name}"
+                        )
                     section_counts[parts + (report_name,)] = cleaned
                     section_subitems[parts].append(
                         (CleanedItem(section_data_item.model, report_name), cleaned)
@@ -357,6 +363,19 @@ class SuperCleanerTask(CleanerTask):
                 )
 
         return lines
+
+    def _clean(self) -> int:
+        """Call the specified cleaners."""
+        counts = self.counts
+        cleanup_data = self.cleanup_data
+        total_cleaned = 0
+        for model_name, stat_name in cleanup_data.items():
+            clean_item = self.data_items[stat_name]
+            cleaner = getattr(self, f"clean_{model_name}")
+            count = cleaner(clean_item)
+            counts[model_name]["cleaned"] = count
+            total_cleaned += count
+        return total_cleaned
 
 
 class ServerStorageCleaner(SuperCleanerTask):
@@ -420,19 +439,11 @@ class ServerStorageCleaner(SuperCleanerTask):
         ),
     ]
 
-    def _clean(self) -> int:
-        """Clean addresses with unwanted server-stored data."""
-        counts = self.counts
-        cleanup_data = self.cleanup_data
-        counts["relay_addresses"]["cleaned"] = cleanup_data["relay_addresses"].update(
-            description="", generated_for="", used_on=""
-        )
-        counts["domain_addresses"]["cleaned"] = cleanup_data["domain_addresses"].update(
-            description="", used_on=""
-        )
-        return (
-            counts["relay_addresses"]["cleaned"] + counts["domain_addresses"]["cleaned"]
-        )
+    def clean_relay_addresses(self, item: DataItem[RelayAddress]) -> int:
+        return item.get_queryset().update(description="", generated_for="", used_on="")
+
+    def clean_domain_addresses(self, item: DataItem[DomainAddress]) -> int:
+        return item.get_queryset().update(description="", used_on="")
 
 
 class MissingProfileCleaner(SuperCleanerTask):
@@ -447,15 +458,13 @@ class MissingProfileCleaner(SuperCleanerTask):
             stat_name_overrides={"!has_profile": "no_profile"},
             ok_stat="has_profile",
             needs_cleaning_stat="!has_profile",
-            clean_name="Now has Profile",
+            cleaned_report_name="Now has Profile",
         ),
     ]
 
-    def _clean(self) -> int:
-        """Assign users to groups and create profiles."""
-        counts = self.counts
-        counts["users"]["cleaned"] = 0
-        for user in self.cleanup_data["users"]:
+    def clean_users(self, item: DataItem[User]) -> int:
+        count = 0
+        for user in item.get_queryset():
             create_user_profile(sender=User, instance=user, created=True)
-            counts["users"]["cleaned"] += 1
-        return counts["users"]["cleaned"]
+            count += 1
+        return count
