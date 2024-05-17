@@ -1,4 +1,4 @@
-"""Tasks that detect data issues and (if possible) clean them."""
+"""Tasks that detect and fix data issues in the emails app."""
 
 from __future__ import annotations
 
@@ -28,6 +28,7 @@ class ServerStorageCleaner(CleanerTask):
     _blank_relay_data = _blank_used_on & Q(description="") & Q(generated_for="")
     _blank_domain_data = _blank_used_on & Q(description="")
     data_specification = [
+        # Report on how many users have turned off server storage
         DataModelSpec(
             Profile,
             [DataBisectSpec("server_storage", "user__profile__server_storage")],
@@ -35,6 +36,7 @@ class ServerStorageCleaner(CleanerTask):
             report_name_overrides={"no_server_storage": "Without Server Storage"},
             omit_stats=["server_storage"],
         ),
+        # Detect users with no server storage but RelayAddress records with data
         DataModelSpec(
             RelayAddress,
             [
@@ -55,6 +57,7 @@ class ServerStorageCleaner(CleanerTask):
             ok_stat="!server_storage.empty",
             needs_cleaning_stat="!server_storage.!empty",
         ),
+        # Detect users with no server storage but DomainAddress records with data
         DataModelSpec(
             DomainAddress,
             [
@@ -92,7 +95,7 @@ class MissingProfileCleaner(CleanerTask):
     data_specification = [
         DataModelSpec(
             User,
-            [DataBisectSpec("has_profile", "profile__isnull", filter_by_value=False)],
+            [DataBisectSpec("has_profile", Q(profile__isnull=False))],
             stat_name_overrides={"!has_profile": "no_profile"},
             ok_stat="has_profile",
             needs_cleaning_stat="!has_profile",

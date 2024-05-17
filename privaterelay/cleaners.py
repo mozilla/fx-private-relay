@@ -6,7 +6,7 @@ import string
 from collections import defaultdict
 from typing import Any, Generic, Literal, TypeVar
 
-from django.db.models import F, Model, Q
+from django.db.models import Model, Q
 from django.db.models.query import QuerySet
 
 Counts = dict[str, dict[str, int]]
@@ -15,60 +15,125 @@ CleanupData = dict[str, Any]
 M = TypeVar("M", bound=Model)
 CLEAN_GROUP_T = Literal["ok", "needs_cleaning"]
 
-# Define subdivision names
+# Define allowed characters for item keys
 # {model_plural}.[!]{sub_name1}.[!]{sub_name2}
-_SUBNAME_SEP = "."
+_KEY_SEP = "."
 _NEGATE_PREFIX = "!"
-_SUBNAME_CHARS = string.ascii_lowercase + "_"
-_SUBNAME_CHAR_SET = set(_SUBNAME_CHARS)
-_NAME_CHAR_SET = set(_SUBNAME_CHARS + _SUBNAME_SEP + _NEGATE_PREFIX)
+_STAT_NAME_CHAR_SET = set(string.ascii_lowercase + string.digits + "_")
+_ITEM_KEY_CHAR_SET = _STAT_NAME_CHAR_SET | set((_KEY_SEP, _NEGATE_PREFIX))
 
 
 class DataItem(Generic[M]):
+    """
+    A DataItem is a query against a Model, plus settings for reports.
+
+    A top-level model DataItem represents all the items in a table. A query that selects
+    some rows is a DataItem with a parent. The specific rows of interest can be
+    represented by multiple levels of DataItems, giving context to the specific rows.
+    """
 
     def __init__(
         self,
         model: type[M] | None = None,
         parent: DataItem[M] | None = None,
-        filter_by: str | F | Q | None = None,
-        filter_by_value: bool = True,
+        filter_by: str | Q | None = None,
         exclude: bool = False,
         stat_name: str | None = None,
-        clean_group: CLEAN_GROUP_T | None = None,
         report_name: str | None = None,
-        cleaned_report_name: str | None = None,
+        clean_group: CLEAN_GROUP_T | None = None,
     ) -> None:
+        """
+        Initialize a DataItem, checking for init-time issues.
 
-        if model is None and parent is None:
-            raise ValueError("Set model or parent.")
-        if model is not None and parent is not None:
-            raise ValueError("Set model or parent, but not both.")
+        These are created by the DataModelSpec.to_data_items() calls, but can be created
+        manually for tests.
 
-        self.model = model
-        self.parent = parent
+        To create a model DataItem, set the `model`. A `filter_by` is not allowed.
+        To create a subquery DataItem, set the `parent` to a model DataItem or another
+        DataItem. A `filter_by` is required.
+
+        The `filter_by` parameter sets the filter (`filter` is a Python keyword). It can
+        be a string, which represents a boolean filter. It can be a Django Q object,
+        such as `Q(num_deleted_relay_addresses__gt=5)`. The default is to include rows
+        matching the query. If `exclude` is set to `True`, then the query is for rows
+        that do not match the filter.
+
+        The `stat_name` parameter sets the name of the query when it appears as a `dict`
+        or JSON key. The default is `None`, which omits the DataItem from reports.
+
+        The `report_name` parameter sets the name of the query when it appears in a
+        report for humans. It can be omitted when `stat_name` is None.
+
+        The `clean_group` parameter identifies the DataItem as a query of interest,
+        usually in the context of a CleanerTask. An 'ok' value means the query
+        represents rows without a problem, and a 'needs_cleaning' value means the rows
+        need fixing.
+        """
+
+        # Query settings
+        if model is not None and parent is None:
+            self._model_or_parent: type[M] | DataItem[M] = model
+            if filter_by is not None:
+                raise ValueError("When model is set, filter_by should not be set")
+        elif parent is not None and model is None:
+            self._model_or_parent = parent
+            if filter_by is None or filter_by == "":
+                raise ValueError("When parent is set, filter_by should be set")
+        elif model is None and parent is None:
+            raise ValueError("Set model or parent")
+        else:
+            raise ValueError("Set model or parent, but not both")
         self.filter_by = filter_by
-        self.filter_by_value = filter_by_value
         self.exclude = exclude
+
+        # Report settings
+        if stat_name and (
+            bad_chars := [c for c in stat_name if c not in _STAT_NAME_CHAR_SET]
+        ):
+            raise ValueError(
+                f"stat_name '{stat_name}' has disallowed characters"
+                f" '{''.join(sorted(bad_chars))}'"
+            )
+        if stat_name == "":
+            raise ValueError("stat_name is an empty string, should be None")
+        if stat_name is None and clean_group is not None:
+            raise ValueError(f"clean_group is '{clean_group}', but stat_name is None")
+        if stat_name is None and report_name is not None:
+            raise ValueError(f"report_name is '{report_name}', but stat_name is None")
+        if report_name == "":
+            raise ValueError("report_name is an empty string, should be None")
         self.stat_name = stat_name
         self.clean_group = clean_group
         self.report_name = report_name
-        self.cleaned_report_name = cleaned_report_name
+
+    @property
+    def model(self) -> type[M] | None:
+        """If this is a model DataItem, return the Model, else None."""
+        if isinstance(self._model_or_parent, DataItem):
+            return None
+        return self._model_or_parent
+
+    @property
+    def parent(self) -> DataItem[M] | None:
+        """If this is a subquery DataItem, return the parent DataItem, else None."""
+        if isinstance(self._model_or_parent, DataItem):
+            return self._model_or_parent
+        return None
 
     def get_queryset(self) -> QuerySet[M]:
-        if self.model:
-            query = self.model._default_manager.all()
-        elif self.parent:
-            query = self.parent.get_queryset()
+        """Return the Django query for this DataItem."""
+        if isinstance(self._model_or_parent, DataItem):
+            query = self._model_or_parent.get_queryset()
         else:
-            raise ValueError("Neither model or parent is set.")
+            query = self._model_or_parent._default_manager.all()
 
         if isinstance(self.filter_by, str):
-            filter_by = {self.filter_by: self.filter_by_value}
+            filter_by = {self.filter_by: True}
             if self.exclude:
                 query = query.exclude(**filter_by)
             else:
                 query = query.filter(**filter_by)
-        elif isinstance(self.filter_by, (F | Q)):
+        elif isinstance(self.filter_by, Q):
             if self.exclude:
                 query = query.exclude(self.filter_by)
             else:
@@ -76,16 +141,8 @@ class DataItem(Generic[M]):
         return query
 
     def count(self) -> int:
+        """Return the number of rows matched for this DataItem."""
         return self.get_queryset().count()
-
-
-class CleanedItem(DataItem[M]):
-    def __init__(self, model: type[M], report_name: str) -> None:
-        super().__init__(
-            model=model,
-            stat_name="cleaned",
-            report_name=report_name,
-        )
 
 
 class DataModelSpec(Generic[M]):
@@ -145,7 +202,6 @@ class DataModelSpec(Generic[M]):
                 model=self.model,
                 stat_name=self.name,
                 report_name=str(self.model._meta.verbose_name_plural).title(),
-                cleaned_report_name=self.cleaned_report_name,
             )
         }
         for entry in self.subdivisions:
@@ -154,7 +210,7 @@ class DataModelSpec(Generic[M]):
                     raise Exception("Duplicate name '{name}' returned by {entry}.")
                 data_items[name] = item
         return {
-            (f"{self.name}{_SUBNAME_SEP}{name}" if name else self.name): item
+            (f"{self.name}{_KEY_SEP}{name}" if name else self.name): item
             for name, item in data_items.items()
         }
 
@@ -164,34 +220,32 @@ class DataBisectSpec:
 
     def __init__(
         self,
-        subname: str,
-        bisect_by: str | Q | F,
+        key: str,
+        bisect_by: str | Q,
         filter_by_value: bool = True,
     ) -> None:
-        if subname.startswith(_SUBNAME_SEP):
+        if key.startswith(_KEY_SEP):
+            raise ValueError(f"The key {key} should not start with a '{_KEY_SEP}'")
+        if bad_chars := [c for c in key if c not in _ITEM_KEY_CHAR_SET]:
             raise ValueError(
-                f"The subname {subname} should not start with a '{_SUBNAME_SEP}'"
-            )
-        if bad_chars := [c for c in subname if c not in _NAME_CHAR_SET]:
-            raise ValueError(
-                f"subname {subname} has disallowed characters `{sorted(bad_chars)}`"
+                f"key {key} has disallowed characters `{sorted(bad_chars)}`"
             )
         if not bisect_by:
             raise ValueError("Set the bisect_by filter")
-        parts = subname.split(".")
+        parts = key.split(".")
         for part in parts:
             if _NEGATE_PREFIX in part[1:]:
                 raise ValueError(
-                    f"In subname {subname}, character {_NEGATE_PREFIX} is in the"
+                    f"In key {key}, character {_NEGATE_PREFIX} is in the"
                     f" middle of a subpath in {part}, is only allowed at the start."
                 )
         if parts[-1][0] == _NEGATE_PREFIX:
             raise ValueError(
-                f"In subname {subname}, the prefix {_NEGATE_PREFIX} is not allowed"
+                f"In key {key}, the prefix {_NEGATE_PREFIX} is not allowed"
                 " in the last part."
             )
 
-        self.subname = subname
+        self.key = key
         self.bisect_by = bisect_by
         self.filter_by_value = filter_by_value
 
@@ -199,27 +253,27 @@ class DataBisectSpec:
         self, model_spec: DataModelSpec[M], existing_items: dict[str, DataItem[M]]
     ) -> dict[str, DataItem[M]]:
         """Return two data items bisecting the parent data."""
-        if _SUBNAME_SEP in self.subname:
-            subparent_name, part_name = self.subname.rsplit(_SUBNAME_SEP, 1)
-            neg_subname = f"{subparent_name}{_SUBNAME_SEP}{_NEGATE_PREFIX}{part_name}"
+        if _KEY_SEP in self.key:
+            subparent_name, part_name = self.key.rsplit(_KEY_SEP, 1)
+            neg_key = f"{subparent_name}{_KEY_SEP}{_NEGATE_PREFIX}{part_name}"
         else:
             subparent_name = ""
-            part_name = self.subname
-            neg_subname = f"{_NEGATE_PREFIX}{part_name}"
+            part_name = self.key
+            neg_key = f"{_NEGATE_PREFIX}{part_name}"
 
         parent = existing_items[subparent_name]
         return {
-            self.subname: self._to_bisected_data_item(
-                self.subname, model_spec, parent, "positive"
+            self.key: self._to_bisected_data_item(
+                self.key, model_spec, parent, "positive"
             ),
-            neg_subname: self._to_bisected_data_item(
-                neg_subname, model_spec, parent, "negative"
+            neg_key: self._to_bisected_data_item(
+                neg_key, model_spec, parent, "negative"
             ),
         }
 
     def _to_bisected_data_item(
         self,
-        key_name: str,
+        key: str,
         model_spec: DataModelSpec[M],
         parent: DataItem[M],
         bisect: Literal["positive", "negative"],
@@ -228,11 +282,19 @@ class DataBisectSpec:
         return DataItem(
             parent=parent,
             filter_by=self.bisect_by,
-            filter_by_value=self.filter_by_value,
             exclude=bisect == "negative",
-            stat_name=model_spec.stat_name(key_name),
-            clean_group=model_spec.clean_group(key_name),
-            report_name=model_spec.report_name(key_name),
+            stat_name=model_spec.stat_name(key),
+            clean_group=model_spec.clean_group(key),
+            report_name=model_spec.report_name(key),
+        )
+
+
+class CleanedItem(DataItem[M]):
+    def __init__(self, model: type[M], report_name: str) -> None:
+        super().__init__(
+            model=model,
+            stat_name="cleaned",
+            report_name=report_name,
         )
 
 
@@ -248,24 +310,52 @@ class DataIssueTask:
     _counts: Counts | None
     _cleanup_data: CleanupData | None
     _cleaned: bool
+    _cleaned_report_name: dict[str, str]
 
     def __init__(self) -> None:
         self._counts = None
         self._cleanup_data = None
         self._cleaned = False
+        self._cleaned_report_name = {}
         self.data_items = self._get_data_items()
 
     def _get_data_items(self) -> dict[str, DataItem[Any]]:
         """Turn the data_specification into a dictionary of names to DataItems."""
         data_items: dict[str, DataItem[Any]] = {}
         for model_spec in self.data_specification:
-            for name, item in model_spec.to_data_items().items():
-                if name in data_items:
+            model_items = self._get_data_items_for_model_spec(model_spec)
+            overlap_keys = set(data_items.keys()) & set(model_items.keys())
+            if overlap_keys:
+                raise Exception(
+                    f"For model '{model_spec.name}', these stat_name keys already"
+                    f" exist: {sorted(overlap_keys)}"
+                )
+            data_items.update(model_items)
+        return data_items
+
+    def _get_data_items_for_model_spec(
+        self, model_spec: DataModelSpec[M]
+    ) -> dict[str, DataItem[M]]:
+        # TODO: more spec checking
+        data_items: dict[str, DataItem[M]] = {}
+        has_needs_cleaning = False
+        self._cleaned_report_name[model_spec.name] = model_spec.cleaned_report_name
+        for name, item in model_spec.to_data_items().items():
+            except_prefix = f"For model '{model_spec.name}', the data item {name}"
+            if item.clean_group == "needs_cleaning":
+                if has_needs_cleaning:
                     raise Exception(
-                        f"For model '{model_spec.name}', the data item {name}"
-                        " is already registered."
+                        f"{except_prefix} is 2nd item with clean_group='needs_cleaning'"
                     )
-                data_items[name] = item
+                if not model_spec.cleaned_report_name:
+                    raise Exception(
+                        f"{except_prefix} has clean_group='needs_cleaning', but the"
+                        " model_spec has not set cleaned_report_name"
+                    )
+                has_needs_cleaning = True
+            if name in data_items:
+                raise Exception(f"{except_prefix} is already registered.")
+            data_items[name] = item
         return data_items
 
     @property
@@ -329,68 +419,65 @@ class DataIssueTask:
         """Return Markdown-formatted report of issues found and (maybe) fixed."""
 
         lines: list[str] = []
-        for section, counts in self.counts.items():
-            try:
-                section_data_item = self.data_items[section]
-            except KeyError:
-                pass
-            else:
-                if section_data_item.report_name:
-                    lines.extend(
-                        self._markdown_lines_for_model(
-                            section, section_data_item, counts
-                        )
+        for model_stat_name, model_counts in self.counts.items():
+            if model_stat_name != "summary":
+                model_data_item = self.data_items[model_stat_name]
+                lines.extend(
+                    self._markdown_lines_for_model(
+                        model_stat_name, model_data_item, model_counts
                     )
+                )
         return "\n".join(lines)
 
     def _markdown_lines_for_model(
         self,
-        section_name: str,
-        section_data_item: DataItem[Any],
-        counts: dict[str, int],
+        model_stat_name: str,
+        model_data_item: DataItem[Any],
+        model_counts: dict[str, int],
     ) -> list[str]:
         """Get the report lines for a model."""
-        total = counts["all"]
-        lines = [f"{section_data_item.report_name}:", f"  All: {total}"]
+        if not model_data_item.report_name:
+            return []
+
+        total = model_counts["all"]
+        lines = [f"{model_data_item.report_name}:", f"  All: {total}"]
 
         if total == 0:
             return lines
-        if section_data_item.stat_name is None:
-            raise Exception(f"DataItem {section_name} has .stat_name None")
-        if section_data_item.model is None:
-            raise Exception(f"DataItem {section_name} has .model None")
+        if model_data_item.stat_name is None:
+            raise Exception(f"DataItem {model_stat_name} has .stat_name None")
+        if model_data_item.model is None:
+            raise Exception(f"DataItem {model_stat_name} has .model None")
 
         section_counts: dict[tuple[str, ...], int] = {
-            (section_data_item.stat_name,): total
+            (model_data_item.stat_name,): total
         }
         section_subitems: dict[tuple[str, ...], list[tuple[DataItem[Any], int]]] = (
             defaultdict(list)
         )
 
-        prefix = section_data_item.stat_name + _SUBNAME_SEP
-        cleaned = counts.get("cleaned")
+        prefix = model_data_item.stat_name + _KEY_SEP
+        cleaned = model_counts.get("cleaned")
 
         # Collect items and counts where the direct parent item has a non-zero count
         for name, item in self.data_items.items():
             if not (name.startswith(prefix) and item.stat_name and item.report_name):
                 continue
-            parts = tuple(name.split(_SUBNAME_SEP))
+            parts = tuple(name.split(_KEY_SEP))
             parent_key = parts[:-1]
             parent_total = section_counts[parent_key]
-            count = counts[item.stat_name]
+            count = model_counts[item.stat_name]
             if parent_total != 0:
                 section_counts[parts] = count
                 section_subitems[parent_key].append((item, count))
                 if cleaned and item.clean_group == "needs_cleaning":
-                    report_name = section_data_item.cleaned_report_name
-                    if report_name is None:
-                        raise Exception(
-                            f"DataItem {section_name} has"
-                            f" .cleaned_report_name {report_name}"
-                        )
-                    section_counts[parts + (report_name,)] = cleaned
+                    cleaned_report_name = self._cleaned_report_name[model_stat_name]
+                    section_counts[parts + (cleaned_report_name,)] = cleaned
                     section_subitems[parts].append(
-                        (CleanedItem(section_data_item.model, report_name), cleaned)
+                        (
+                            CleanedItem(model_data_item.model, cleaned_report_name),
+                            cleaned,
+                        )
                     )
 
         # Add and indent subsections
