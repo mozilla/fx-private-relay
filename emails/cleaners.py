@@ -25,59 +25,41 @@ class ServerStorageCleaner(CleanerTask):
     )
 
     _blank_used_on = Q(used_on="") | Q(used_on__isnull=True)
-    _blank_relay_data = _blank_used_on & Q(description="") & Q(generated_for="")
-    _blank_domain_data = _blank_used_on & Q(description="")
     data_specification = [
         # Report on how many users have turned off server storage
         DataModelSpec(
             Profile,
             [DataBisectSpec("server_storage", "user__profile__server_storage")],
-            stat_name_overrides={"!server_storage": "no_server_storage"},
-            report_name_overrides={"no_server_storage": "Without Server Storage"},
-            omit_stats=["server_storage"],
-        ),
-        # Detect users with no server storage but RelayAddress records with data
+            omit_key_prefixes=["server_storage"],
+            metric_name_overrides={"!server_storage": "no_server_storage"},
+            report_name_overrides={"!server_storage": "Without Server Storage"},
+        )
+    ] + [
+        # Detect users with no server storage but address records with data
         DataModelSpec(
-            RelayAddress,
+            AddressModel,
             [
                 DataBisectSpec("server_storage", "user__profile__server_storage"),
-                DataBisectSpec("!server_storage.empty", _blank_relay_data),
+                DataBisectSpec("!server_storage.empty", blank_data),
             ],
-            stat_name_overrides={
+            omit_key_prefixes=["server_storage"],
+            metric_name_overrides={
                 "!server_storage": "no_server_storage",
                 "!server_storage.empty": "no_server_storage_or_data",
                 "!server_storage.!empty": "no_server_storage_but_data",
             },
             report_name_overrides={
-                "no_server_storage": "Without Server Storage",
-                "no_server_storage_or_data": "No Data",
-                "no_server_storage_but_data": "Has Data",
+                "!server_storage": "Without Server Storage",
+                "!server_storage.empty": "No Data",
+                "!server_storage.!empty": "Has Data",
             },
-            omit_stats=["server_storage"],
-            ok_stat="!server_storage.empty",
-            needs_cleaning_stat="!server_storage.!empty",
-        ),
-        # Detect users with no server storage but DomainAddress records with data
-        DataModelSpec(
-            DomainAddress,
-            [
-                DataBisectSpec("server_storage", "user__profile__server_storage"),
-                DataBisectSpec("!server_storage.empty", _blank_domain_data),
-            ],
-            stat_name_overrides={
-                "!server_storage": "no_server_storage",
-                "!server_storage.empty": "no_server_storage_or_data",
-                "!server_storage.!empty": "no_server_storage_but_data",
-            },
-            report_name_overrides={
-                "no_server_storage": "Without Server Storage",
-                "no_server_storage_or_data": "No Data",
-                "no_server_storage_but_data": "Has Data",
-            },
-            omit_stats=["server_storage"],
-            ok_stat="!server_storage.empty",
-            needs_cleaning_stat="!server_storage.!empty",
-        ),
+            ok_key="!server_storage.empty",
+            needs_cleaning_key="!server_storage.!empty",
+        )
+        for AddressModel, blank_data in [
+            (RelayAddress, _blank_used_on & Q(description="") & Q(generated_for="")),
+            (DomainAddress, _blank_used_on & Q(description="")),
+        ]
     ]
 
     def clean_relay_addresses(self, item: DataItem[RelayAddress]) -> int:
@@ -96,9 +78,10 @@ class MissingProfileCleaner(CleanerTask):
         DataModelSpec(
             User,
             [DataBisectSpec("has_profile", Q(profile__isnull=False))],
-            stat_name_overrides={"!has_profile": "no_profile"},
-            ok_stat="has_profile",
-            needs_cleaning_stat="!has_profile",
+            metric_name_overrides={"!has_profile": "no_profile"},
+            report_name_overrides={"!has_profile": "No Profile"},
+            ok_key="has_profile",
+            needs_cleaning_key="!has_profile",
             cleaned_report_name="Now has Profile",
         ),
     ]
