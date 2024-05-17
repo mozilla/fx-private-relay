@@ -21,7 +21,7 @@
     "@fluent/langneg": "^0.7.0",
     "@fluent/react": "^0.15.2",
     "@mozilla-protocol/core": "^17.0.1",
-    "@stripe/stripe-js": "^3.3.0",
+    "@stripe/stripe-js": "^3.4.0",
     "chokidar-cli": "^3.0.0",
     "cldr-localenames-modern": "^45.0.0",
     "msw": "^2.2.14",
