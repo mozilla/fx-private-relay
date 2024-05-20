@@ -77,6 +77,22 @@ def mock_verify_from_sns() -> Iterator[Mock]:
 
 
 @pytest.fixture(autouse=True)
+def mock_django_db_connection() -> Iterator[Mock]:
+    """Mock django.db.connection, used to manually recycle the database connection."""
+
+    mock_db = Mock(spec_set=["is_usable", "close", "queries_log"])
+    mock_db.is_usable.return_value = True
+
+    mock_cursor = Mock()
+    mock_cursor.__enter__ = Mock(return_value=mock_cursor)
+    mock_cursor.__exit__ = Mock(return_value=False)
+    mock_cursor.db = mock_db
+
+    with patch(f"{MOCK_BASE}.connection.cursor", return_value=mock_cursor):
+        yield mock_db
+
+
+@pytest.fixture(autouse=True)
 def mock_sns_inbound_logic() -> Iterator[Mock]:
     """Mock _sns_inbound_logic(topic_arn, message_type, json_body) to do nothing"""
     with patch(f"{MOCK_BASE}._sns_inbound_logic") as mock_sns_inbound_logic:
@@ -295,6 +311,7 @@ def test_one_message(
     mock_verify_from_sns: Mock,
     mock_sns_inbound_logic: Mock,
     mock_sqs_client: Mock,
+    mock_django_db_connection: Mock,
     caplog: LogCaptureFixture,
 ) -> None:
     """The command will process an available message."""
@@ -321,6 +338,9 @@ def test_one_message(
         "Notification",
         TEST_SNS_MESSAGE,
     )
+    mock_django_db_connection.queries_log.clear.assert_called_once()
+    mock_django_db_connection.is_usable.assert_called_once()
+    mock_django_db_connection.close.assert_not_called()
 
 
 def test_keyboard_interrupt(
@@ -474,6 +494,26 @@ def test_ses_timeout(
     assert rec2_extra["message_process_time_s"] >= 120.0
     assert rec2_extra["subprocess_setup_time_s"] == 1.0
     assert mock_process_pool_future._timeouts == [1.0] * 120
+
+
+def test_db_is_unusable_is_closed(
+    mock_sqs_client: Mock, mock_django_db_connection: Mock, caplog: LogCaptureFixture
+) -> None:
+    """If the database connection is unusable, it is closed so it will be refreshed."""
+    mock_django_db_connection.is_usable.return_value = False
+    msg = fake_sqs_message(json.dumps(TEST_SNS_MESSAGE))
+    mock_sqs_client.return_value = fake_queue([msg], [])
+    call_command(COMMAND_NAME)
+    summary = summary_from_exit_log(caplog)
+    assert summary["total_messages"] == 1
+    msg.delete.assert_called()
+    rec2 = caplog.records[1]
+    assert rec2.msg == "Message processed"
+    rec2_extra = log_extra(rec2)
+    assert rec2_extra["success"] is True
+    mock_django_db_connection.queries_log.clear.assert_called_once()
+    mock_django_db_connection.is_usable.assert_called_once()
+    mock_django_db_connection.close.assert_called_once()
 
 
 def test_verify_from_sns_raises_openssl_error(
