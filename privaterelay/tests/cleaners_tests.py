@@ -10,7 +10,16 @@ import pytest
 from model_bakery import baker
 
 from emails.models import Profile
-from privaterelay.cleaners import DataBisectSpec, DataItem, DataModelSpec
+from privaterelay.cleaners import (
+    CleanedItem,
+    CleanerTask,
+    DataBisectSpec,
+    DataIssueTask,
+    DataItem,
+    DataModelItem,
+    DataModelSpec,
+    ReportEntry,
+)
 
 
 @pytest.fixture
@@ -35,64 +44,95 @@ def four_users(db: None) -> dict[str, User]:
     }
 
 
-def test_data_item_init_with_model() -> None:
-    model_item = DataItem(model=Profile)
-    assert model_item.model == Profile
-    assert model_item.parent is None
+def test_report_entry_init_none() -> None:
+    entry = ReportEntry()
+    assert entry.metric_name is None
+    assert entry.report_name is None
+    assert entry.count() == 0
 
 
-def test_data_item_init_with_parent() -> None:
-    model_item = DataItem(model=Profile)
-    item = DataItem(parent=model_item, filter_by="subdomain__isnull")
-    item.model is None
-    assert item.parent is model_item
+def test_report_entry_init_both() -> None:
+    entry = ReportEntry("metric", "Report")
+    assert entry.metric_name == "metric"
+    assert entry.report_name == "Report"
+    assert entry.count() == 0
 
 
-_DATA_ITEM_INIT_RAISES_TEST_CASES = {
-    "no_model_or_parent": ({}, r"^Set model or parent$"),
-    "model_and_parent": (
-        {"model": Profile, "parent": DataItem(model=Profile)},
-        r"^Set model or parent, but not both$",
-    ),
-    "model_and_filter": (
-        {"model": Profile, "filter_by": "sent_welcome_email"},
-        r"^When model is set, filter_by should not be set$",
-    ),
-    "parent_and_filter_none": (
-        {"parent": DataItem(model=Profile)},
-        r"^When parent is set, filter_by should be set$",
-    ),
-    "parent_and_filter_empty": (
-        {"parent": DataItem(model=Profile), "filter_by": ""},
-        r"^When parent is set, filter_by should be set$",
-    ),
+_REPORT_ENTRY_INIT_RAISES_TEST_CASES = {
     "metric_name_one_bad_char": (
-        {"model": Profile, "metric_name": "profile~.foo"},
+        {"metric_name": "profile~.foo"},
         r"^metric_name 'profile~\.foo' has disallowed character '~'$",
     ),
     "metric_name_two_bad_chars": (
-        {"model": Profile, "metric_name": "pro~file^.foo"},
+        {"metric_name": "pro~file^.foo"},
         r"^metric_name 'pro~file\^\.foo' has disallowed characters '\^~'$",
     ),
     "metric_name_empty": (
-        {"model": Profile, "metric_name": ""},
+        {"metric_name": ""},
         r"^metric_name is an empty string, should be None$",
     ),
-    "clean_group_but_no_metric_name": (
-        {"model": Profile, "clean_group": "ok"},
-        r"^clean_group is 'ok', but metric_name is None$",
-    ),
-    "clean_group_invalid": (
-        {"model": Profile, "metric_name": "profiles", "clean_group": "invalid"},
-        r"^clean_group has invalid value 'invalid'$",
-    ),
     "report_name_but_no_metric_name": (
-        {"model": Profile, "report_name": "profile"},
+        {"report_name": "profile"},
         r"^report_name is 'profile', but metric_name is None$",
     ),
     "report_name_empty": (
-        {"model": Profile, "metric_name": "profiles", "report_name": ""},
+        {"metric_name": "profiles", "report_name": ""},
         r"^report_name is an empty string, should be None$",
+    ),
+}
+
+
+@pytest.mark.parametrize(
+    "args,expected",
+    _REPORT_ENTRY_INIT_RAISES_TEST_CASES.values(),
+    ids=_REPORT_ENTRY_INIT_RAISES_TEST_CASES.keys(),
+)
+def test_report_entry_init_raises(args: dict[str, str], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        ReportEntry(**args)
+
+
+def test_cleaned_item_init_count() -> None:
+    cleaned = CleanedItem(5)
+    assert cleaned.metric_name == "cleaned"
+    assert cleaned.report_name == "Cleaned"
+    assert cleaned.count() == 5
+
+
+def test_cleaned_item_init_all() -> None:
+    cleaned = CleanedItem(6, "metric", "Report")
+    assert cleaned.metric_name == "metric"
+    assert cleaned.report_name == "Report"
+    assert cleaned.count() == 6
+
+
+def test_cleaned_item_init_negative_count_raises() -> None:
+    with pytest.raises(ValueError, match="^count can not be negative$"):
+        CleanedItem(-1)
+
+
+def test_data_model_item_eqality():
+    assert DataModelItem(User) == DataModelItem(User)
+    assert DataModelItem(User) != DataModelItem(Profile)
+    assert DataModelItem(User) != User()
+
+
+def test_data_model_item_repr():
+    assert repr(DataModelItem(User)) == "DataModelItem(User)"
+
+
+_DATA_ITEM_INIT_RAISES_TEST_CASES = {
+    "filter_by_empty": (
+        {"filter_by": ""},
+        r"^filter_by is an empty string, should be set$",
+    ),
+    "clean_group_but_no_metric_name": (
+        {"filter_by": "a_column", "clean_group": "ok"},
+        r"^clean_group is 'ok', but metric_name is None$",
+    ),
+    "clean_group_invalid": (
+        {"filter_by": "a_column", "metric_name": "profiles", "clean_group": "invalid"},
+        r"^clean_group has invalid value 'invalid'$",
     ),
 }
 
@@ -104,12 +144,12 @@ _DATA_ITEM_INIT_RAISES_TEST_CASES = {
 )
 def test_data_item_init_bad_args_raises(args: dict[str, Any], expected: str) -> None:
     with pytest.raises(ValueError, match=expected):
-        DataItem(**args)
+        DataItem(parent=DataModelItem(Profile), **args)
 
 
 def test_data_item_queryset_and_count_and_repr(four_users: dict[str, User]) -> None:
 
-    user_item = DataItem(model=User, metric_name="user")
+    user_item = DataModelItem(User)
     dt_2024_plus = Q(date_joined__gte=datetime(2024, 1, 1, tzinfo=UTC))
     joined_2024_or_later = DataItem(
         parent=user_item, filter_by=dt_2024_plus, metric_name="2024_or_later"
@@ -149,38 +189,19 @@ def test_data_item_queryset_and_count_and_repr(four_users: dict[str, User]) -> N
 
 
 _DATA_ITEM_REPR_TEST_CASES = {
-    "model": ({"model": User}, "model=User"),
-    "parent": (
-        {"parent": User, "filter_by": "is_active"},
-        "parent=DataItem(model=User), filter_by='is_active'",
-    ),
-    "exclude": (
-        {"parent": User, "filter_by": "is_active", "exclude": True},
-        "parent=DataItem(model=User), filter_by='is_active', exclude=True",
-    ),
+    "minimum": ({}, "DataModelItem(User), 'is_active'"),
+    "exclude": ({"exclude": True}, "DataModelItem(User), 'is_active', exclude=True"),
     "metric_name": (
-        {"model": User, "metric_name": "users"},
-        "model=User, metric_name='users'",
+        {"metric_name": "users"},
+        "DataModelItem(User), 'is_active', metric_name='users'",
     ),
     "report_name": (
-        {"model": User, "metric_name": "users", "report_name": "Users"},
-        "model=User, metric_name='users', report_name='Users'",
+        {"metric_name": "users", "report_name": "Users"},
+        "DataModelItem(User), 'is_active', metric_name='users', report_name='Users'",
     ),
     "clean_group": (
-        {"model": User, "metric_name": "users", "clean_group": "ok"},
-        "model=User, metric_name='users', clean_group='ok'",
-    ),
-    "defaults": (
-        {
-            "model": User,  # Well, mostly defaults...
-            "parent": None,
-            "filter_by": None,
-            "exclude": False,
-            "metric_name": None,
-            "report_name": None,
-            "clean_group": None,
-        },
-        "model=User",
+        {"metric_name": "users", "clean_group": "ok"},
+        "DataModelItem(User), 'is_active', metric_name='users', clean_group='ok'",
     ),
 }
 
@@ -192,9 +213,8 @@ _DATA_ITEM_REPR_TEST_CASES = {
 )
 def test_data_item_repr(args: dict[str, Any], expected: str) -> None:
     init_args: dict[str, Any] = {
-        "model": None,
-        "parent": None,
-        "filter_by": None,
+        "parent": DataModelItem(User),
+        "filter_by": "is_active",
         "exclude": False,
         "metric_name": None,
         "report_name": None,
@@ -203,7 +223,7 @@ def test_data_item_repr(args: dict[str, Any], expected: str) -> None:
     for name, value in args.items():
         assert name in init_args
         if name == "parent" and value:
-            set_value: Any = DataItem(model=value)
+            set_value: Any = DataModelItem(value)
         else:
             set_value = value
         init_args[name] = set_value
@@ -212,27 +232,146 @@ def test_data_item_repr(args: dict[str, Any], expected: str) -> None:
     assert repr(item) == f"DataItem({expected})"
 
 
+_DATA_MODEL_SPEC_INIT_RAISES_TEST_CASES = {
+    "model_none": ({"model": None}, r"^model None is not a Django model."),
+    "model_exception": (
+        {"model": Exception("foo")},
+        r"^model Exception\('foo'\) is not a Django model.",
+    ),
+    "omit_key_prefixes_includes_metric_name_overrides_key": (
+        {
+            "model": User,
+            "subdivisions": [DataBisectSpec("metric", "is_metric")],
+            "omit_key_prefixes": ["metric"],
+            "metric_name_overrides": {"metric": "override_name"},
+        },
+        r"^The metric_name_overrides key 'metric'"
+        r" should not be in omit_key_prefixes \['metric'\]$",
+    ),
+    "omit_key_prefixes_includes_report_name_overrides_key": (
+        {
+            "model": User,
+            "subdivisions": [DataBisectSpec("key", "is_key")],
+            "omit_key_prefixes": ["key"],
+            "report_name_overrides": {"key": "Is Overridden"},
+        },
+        r"^The report_name_overrides key 'key'"
+        r" should not be in omit_key_prefixes \['key'\]$",
+    ),
+    "omit_key_prefixes_includes_ok_key": (
+        {
+            "model": User,
+            "subdivisions": [DataBisectSpec("ok", "is_active")],
+            "omit_key_prefixes": ["ok"],
+            "ok_key": "ok",
+        },
+        r"^The ok_key 'ok' should not be in omit_key_prefixes \['ok'\]$",
+    ),
+    "omit_key_prefixes_includes_needs_cleaning_key": (
+        {
+            "model": User,
+            "subdivisions": [DataBisectSpec("needs_cleaning", "is_active")],
+            "omit_key_prefixes": ["needs_cleaning"],
+            "needs_cleaning_key": "needs_cleaning",
+        },
+        r"^The needs_cleaning_key 'needs_cleaning'"
+        r" should not be in omit_key_prefixes \['needs_cleaning'\]$",
+    ),
+    "omit_key_prefixes_includes_blank_string": (
+        {
+            "model": User,
+            "omit_key_prefixes": [""],
+        },
+        r"^omit_key_prefixes should not include the empty string$",
+    ),
+    "subdivisions_duplicate_key": (
+        {
+            "model": User,
+            "subdivisions": [
+                DataBisectSpec("active", "is_active"),
+                DataBisectSpec("active", Q(is_active=True)),
+            ],
+        },
+        r"^Duplicate key 'active' in subdivisions",
+    ),
+    "omit_key_prefixes_missing": (
+        {"model": User, "omit_key_prefixes": ["missing"]},
+        r"^omit_key_prefixes key 'missing' not found in subdivision keys \[\]$",
+    ),
+    "metric_name_overrides_missing": (
+        {"model": User, "metric_name_overrides": {"missing": "is_missing"}},
+        r"^metric_name_overrides key 'missing' not found in subdivision keys \[\]$",
+    ),
+    "report_name_overrides_missing": (
+        {"model": User, "report_name_overrides": {"missing": "is_missing"}},
+        r"^report_name_overrides key 'missing' not found in subdivision keys \[\]$",
+    ),
+    "ok_key_missing": (
+        {
+            "model": User,
+            "subdivisions": [DataBisectSpec("active", "is_active")],
+            "ok_key": "missing",
+        },
+        r"^ok_key 'missing' not found in subdivision keys \['!active', 'active'\]$",
+    ),
+    "needs_cleaning_key_missing": (
+        {"model": User, "needs_cleaning_key": "missing"},
+        r"^needs_cleaning_key 'missing' not found in subdivision keys \[\]$",
+    ),
+}
+
+
+@pytest.mark.parametrize(
+    "args,expected",
+    _DATA_MODEL_SPEC_INIT_RAISES_TEST_CASES.values(),
+    ids=_DATA_MODEL_SPEC_INIT_RAISES_TEST_CASES.keys(),
+)
+def test_data_model_spec_init_raises(args: dict[str, Any], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        DataModelSpec(**args)
+
+
 _DATA_MODEL_SPEC_REPR_TEST_CASES = {
     "subdivisions": (
         {"subdivisions": [DataBisectSpec("key", "filter")]},
         "model=User, subdivisions=[DataBisectSpec(key='key', bisect_by='filter')]",
     ),
     "omit_key_prefixes": (
-        {"omit_key_prefixes": ["omit"]},
-        "model=User, omit_key_prefixes=['omit']",
+        {
+            "subdivisions": [DataBisectSpec("omit", "is_active")],
+            "omit_key_prefixes": ["omit"],
+        },
+        "model=User, subdivisions=[DataBisectSpec(key='omit', bisect_by='is_active')],"
+        " omit_key_prefixes=['omit']",
     ),
     "metric_name_overrides": (
-        {"metric_name_overrides": {"foo": "bar"}},
-        "model=User, metric_name_overrides={'foo': 'bar'}",
+        {
+            "subdivisions": [DataBisectSpec("foo", "is_active")],
+            "metric_name_overrides": {"foo": "bar"},
+        },
+        "model=User, subdivisions=[DataBisectSpec(key='foo', bisect_by='is_active')],"
+        " metric_name_overrides={'foo': 'bar'}",
     ),
     "report_name_overrides": (
-        {"report_name_overrides": {"foo": "bar"}},
-        "model=User, report_name_overrides={'foo': 'bar'}",
+        {
+            "subdivisions": [DataBisectSpec("foo", "is_active")],
+            "report_name_overrides": {"foo": "bar"},
+        },
+        "model=User, subdivisions=[DataBisectSpec(key='foo', bisect_by='is_active')],"
+        " report_name_overrides={'foo': 'bar'}",
     ),
-    "ok_key": ({"ok_key": "foo"}, "model=User, ok_key='foo'"),
+    "ok_key": (
+        {"subdivisions": [DataBisectSpec("foo", "is_active")], "ok_key": "foo"},
+        "model=User, subdivisions=[DataBisectSpec(key='foo', bisect_by='is_active')],"
+        " ok_key='foo'",
+    ),
     "needs_cleaning_key": (
-        {"needs_cleaning_key": "foo"},
-        "model=User, needs_cleaning_key='foo'",
+        {
+            "subdivisions": [DataBisectSpec("foo", "is_active")],
+            "needs_cleaning_key": "foo",
+        },
+        "model=User, subdivisions=[DataBisectSpec(key='foo', bisect_by='is_active')],"
+        " needs_cleaning_key='foo'",
     ),
     "cleaned_report_name": (
         {"cleaned_report_name": "Done"},
@@ -282,76 +421,87 @@ def test_data_model_spec_model_key() -> None:
 
 
 def test_data_model_spec_omit_key() -> None:
-    model_spec = DataModelSpec(User, omit_key_prefixes=["!is_active"])
+    model_spec = DataModelSpec(
+        User,
+        [
+            DataBisectSpec("is_active", "is_active"),
+            DataBisectSpec("is_active.is_staff", "is_staff"),
+        ],
+        omit_key_prefixes=["!is_active"],
+    )
     assert not model_spec.omit_key("is_active")
     assert model_spec.omit_key("!is_active")  # Exact match
-    assert not model_spec.omit_key("!is_active_for_today")  # Not a subkey
-    assert model_spec.omit_key("!is_active.for_today")  # Is a subkey
+    assert not model_spec.omit_key("!is_active_is_staff")  # Not a subkey
+    assert model_spec.omit_key("!is_active.is_staff")  # Is a subkey
 
 
 def test_data_model_spec_metric_name() -> None:
     model_spec = DataModelSpec(
         User,
+        [
+            DataBisectSpec("is_active", "is_active"),
+            DataBisectSpec("is_active.is_staff", "is_staff"),
+        ],
         omit_key_prefixes=["!is_active"],
-        metric_name_overrides={
-            "is_active": "is_good",
-            "!is_active": "is_bad",
-        },
+        metric_name_overrides={"is_active": "is_good"},
     )
     assert model_spec.metric_name("is_active") == "is_good"
-    assert model_spec.metric_name("!is_active") is None  # omit wins
+    assert model_spec.metric_name("!is_active") is None
     assert model_spec.metric_name("something_else") == "something_else"
-    assert model_spec.metric_name("is_active.today") == "is_active.today"
+    assert model_spec.metric_name("is_active.is_staff") == "is_active.is_staff"
 
 
 def test_data_model_spec_report_name() -> None:
     model_spec = DataModelSpec(
         User,
+        [
+            DataBisectSpec("is_active", "is_active"),
+            DataBisectSpec("is_active.staff", "is_staff"),
+        ],
         omit_key_prefixes=["!is_active"],
-        report_name_overrides={
-            "is_active": "Good",
-            "!is_active": "Bad",
-        },
+        report_name_overrides={"is_active": "Good"},
     )
     assert model_spec.report_name("is_active") == "Good"
-    assert model_spec.report_name("!is_active") is None  # omit wins
+    assert model_spec.report_name("!is_active") is None
     assert model_spec.report_name("something_else") == "Something Else"
-    assert model_spec.report_name("is_active.today") == "Today"
-    assert model_spec.report_name("is_active.!today") == "Not Today"
+    assert model_spec.report_name("is_active.staff") == "Staff"
+    assert model_spec.report_name("is_active.!staff") == "Not Staff"
 
 
 def test_data_model_spec_clean_group() -> None:
     model_spec = DataModelSpec(
         User,
+        [
+            DataBisectSpec("is_active", "is_active"),
+            DataBisectSpec("is_active.staff", "staff"),
+        ],
         ok_key="is_active",
         needs_cleaning_key="!is_active",
     )
     assert model_spec.clean_group("is_active") == "ok"
     assert model_spec.clean_group("!is_active") == "needs_cleaning"
     assert model_spec.clean_group("something_else") is None
-    assert model_spec.clean_group("is_active.today") is None
+    assert model_spec.clean_group("is_active.staff") is None
 
 
-def test_data_model_to_data_items_no_subdivisions() -> None:
+def test_data_model_spec_to_data_items_no_subdivisions() -> None:
     model_spec = DataModelSpec(User)
-    assert model_spec.to_data_items() == {
-        "users": DataItem(model=User, metric_name="users", report_name="Users")
-    }
+    assert model_spec.to_data_items() == {"users": DataModelItem(User)}
 
 
-def test_data_model_to_data_items_with_bisect() -> None:
+def test_data_model_spec_to_data_items_with_bisect() -> None:
     model_spec = DataModelSpec(User, [DataBisectSpec("active", "is_active")])
-    model_item = DataItem(model=User, metric_name="users", report_name="Users")
+    model_item = DataModelItem(User)
     assert model_spec.to_data_items() == {
         "users": model_item,
         "users.active": DataItem(
-            parent=model_item,
+            parent=DataModelItem(User),
             filter_by="is_active",
             metric_name="active",
             report_name="Active",
         ),
         "users.!active": DataItem(
-            parent=model_item,
+            parent=DataModelItem(User),
             filter_by="is_active",
             exclude=True,
             metric_name="!active",
@@ -360,7 +510,7 @@ def test_data_model_to_data_items_with_bisect() -> None:
     }
 
 
-def test_data_model_to_data_items_with_bisect_two_levels() -> None:
+def test_data_model_spec_to_data_items_with_bisect_two_levels() -> None:
     """A DataBisectSpec key can have a separator, and the last key part is used."""
     model_spec = DataModelSpec(
         User,
@@ -371,15 +521,15 @@ def test_data_model_to_data_items_with_bisect_two_levels() -> None:
     )
     items = model_spec.to_data_items()
     assert items == {
-        "users": DataItem(model=User, metric_name="users", report_name="Users"),
+        "users": DataModelItem(User),
         "users.superuser": DataItem(
-            parent=items["users"],
+            parent=DataModelItem(User),
             filter_by="is_superuser",
             metric_name="superuser",
             report_name="Superuser",
         ),
         "users.!superuser": DataItem(
-            parent=items["users"],
+            parent=DataModelItem(User),
             filter_by="is_superuser",
             exclude=True,
             metric_name="!superuser",
@@ -401,18 +551,6 @@ def test_data_model_to_data_items_with_bisect_two_levels() -> None:
             report_name="Not Staff",
         ),
     }
-
-
-def test_data_model_to_data_items_with_duplicates_fails() -> None:
-    model_spec = DataModelSpec(
-        User,
-        [
-            DataBisectSpec("active", "is_active"),
-            DataBisectSpec("active", Q(is_active=True)),
-        ],
-    )
-    with pytest.raises(Exception, match="^Duplicate key 'active' returned by DataItem"):
-        model_spec.to_data_items()
 
 
 _DATA_BISECT_INIT_RAISES_TEST_CASES = {
@@ -475,3 +613,146 @@ _DATA_BISECT_SPEC_REPR_TEST_CASES = {
 def test_data_bisect_spec_repr(args: dict[str, Any], expected: str) -> None:
     spec = DataBisectSpec(**args)
     assert repr(spec) == f"DataBisectSpec({expected})"
+
+
+def test_data_bisect_get_keys() -> None:
+    spec = DataBisectSpec("active", "is_active")
+    assert sorted(spec.get_keys()) == ["!active", "active"]
+
+
+def test_data_issue_task_init_double_model_raises() -> None:
+    class OverlapTask(DataIssueTask):
+        data_specification = [DataModelSpec(User), DataModelSpec(User)]
+
+    with pytest.raises(ValueError, match=r"\nThe key 'users' already exists$"):
+        OverlapTask()
+
+
+def test_data_issue_task_init_no_cleaner_function_is_ok() -> None:
+    class NoCleanerFunctionTask(DataIssueTask):
+        data_specification = [
+            DataModelSpec(
+                User,
+                [DataBisectSpec("active", "is_active")],
+                needs_cleaning_key="!active",
+            )
+        ]
+
+    NoCleanerFunctionTask()
+
+
+class DeactivateOddUsersTask(CleanerTask):
+    """A data task that deactivates users with an odd number in their email."""
+
+    data_specification = [
+        DataModelSpec(
+            User,
+            [
+                DataBisectSpec("is_odd", Q(email__regex=r"user[135679]@example.com")),
+                DataBisectSpec("is_odd.active", "is_active"),
+            ],
+            omit_key_prefixes=["!is_odd"],
+            metric_name_overrides={"is_odd.active": "odd_but_active"},
+            report_name_overrides={"is_odd.!active": "Inactive"},
+            ok_key="is_odd.!active",
+            needs_cleaning_key="is_odd.active",
+            cleaned_report_name="Deactivated",
+        )
+    ]
+
+    def clean_users(self, users: DataItem[User]) -> int:
+        return users.get_queryset().update(is_active=False)
+
+
+def test_cleaner_task_counts_for_deactivate_odd(four_users: dict[str, User]) -> None:
+    assert DeactivateOddUsersTask().counts == {
+        "summary": {"needs_cleaning": 2, "ok": 0},
+        "users": {"all": 4, "is_odd": 2, "is_odd.!active": 0, "odd_but_active": 2},
+    }
+
+
+def test_cleaner_task_cleanup_data_for_deactivate_odd(
+    four_users: dict[str, User]
+) -> None:
+    assert DeactivateOddUsersTask().cleanup_data == {"users": "users.is_odd.active"}
+
+
+def test_cleaner_task_issues_for_deactivate_odd(four_users: dict[str, User]) -> None:
+    assert DeactivateOddUsersTask().issues() == 2
+
+
+def test_cleaner_task_markdown_report_preclean_for_deactivate_odd(
+    four_users: dict[str, User]
+) -> None:
+    markdown = DeactivateOddUsersTask().markdown_report()
+    expected = """\
+Users:
+  All: 4
+    Is Odd: 2 ( 50.0%)
+      Inactive: 0 (  0.0%)
+      Active  : 2 (100.0%)"""
+    assert markdown == expected
+
+
+def test_cleaner_task_clean_for_deactivate_odd(four_users: dict[str, User]) -> None:
+    task = DeactivateOddUsersTask()
+    assert task.clean() == 2
+    users = User.objects.order_by("email").all()
+    assert len(users) == 4
+    for c, user in enumerate(users):
+        assert user.email == f"user{c+1}@example.com"
+        if (c + 1) % 2 == 0:
+            assert not user.is_active
+
+
+def test_cleaner_task_counts_postclean_for_deactivate_odd(
+    four_users: dict[str, User]
+) -> None:
+    task = DeactivateOddUsersTask()
+    task.clean()
+    assert task.counts == {
+        "summary": {"needs_cleaning": 2, "ok": 0, "cleaned": 2},
+        "users": {
+            "all": 4,
+            "cleaned": 2,
+            "is_odd": 2,
+            "is_odd.!active": 0,
+            "odd_but_active": 2,
+        },
+    }
+
+
+def test_cleaner_task_markdown_report_postclean_for_deactivate_odd(
+    four_users: dict[str, User]
+) -> None:
+    task = DeactivateOddUsersTask()
+    task.clean()
+    markdown = task.markdown_report()
+    expected = """\
+Users:
+  All: 4
+    Is Odd: 2 ( 50.0%)
+      Inactive: 0 (  0.0%)
+      Active  : 2 (100.0%)
+        Deactivated: 2 (100.0%)"""
+    assert markdown == expected
+
+
+def test_cleaner_task_no_cleaner_function_raises() -> None:
+    class NoCleanerFunctionTask(CleanerTask):
+        data_specification = [
+            DataModelSpec(
+                User,
+                [DataBisectSpec("active", "is_active")],
+                needs_cleaning_key="!active",
+            )
+        ]
+
+    with pytest.raises(
+        ValueError,
+        match=(
+            r"\nThis item has clean_group='needs_cleaning', but the cleaning function"
+            r" clean_users is not defined."
+        ),
+    ):
+        NoCleanerFunctionTask()

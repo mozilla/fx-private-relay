@@ -24,71 +24,24 @@ _ITEM_KEY_CHAR_SET = set(
 )
 
 
-class DataItem(Generic[M]):
-    """
-    A DataItem is a query against a Model, plus settings for reports.
+def _metric_name_for_model(model: type[M]) -> str:
+    return str(model._meta.verbose_name_plural).replace(" ", "_")
 
-    A top-level model DataItem represents all the items in a table. A query that selects
-    some rows is a DataItem with a parent. The specific rows of interest can be
-    represented by multiple levels of DataItems, giving context to the specific rows.
-    """
 
-    def __init__(
-        self,
-        model: type[M] | None = None,
-        parent: DataItem[M] | None = None,
-        filter_by: str | Q | None = None,
-        exclude: bool = False,
-        metric_name: str | None = None,
-        report_name: str | None = None,
-        clean_group: CLEAN_GROUP_T | None = None,
-    ) -> None:
+class ReportEntry:
+    """An entry in a data task report."""
+
+    def __init__(self, metric_name: str | None = None, report_name: str | None = None):
         """
-        Initialize a DataItem, checking for init-time issues.
+        Initialize a BaseReportItem.
 
-        These are created by the DataModelSpec.to_data_items() calls, but can be created
-        manually for tests.
-
-        To create a model DataItem, set the `model`. A `filter_by` is not allowed.
-        To create a subquery DataItem, set the `parent` to a model DataItem or another
-        DataItem. A `filter_by` is required.
-
-        The `filter_by` parameter sets the filter (`filter` is a Python keyword). It can
-        be a string, which represents a boolean filter. It can be a Django Q object,
-        such as `Q(num_deleted_relay_addresses__gt=5)`. The default is to include rows
-        matching the query. If `exclude` is set to `True`, then the query is for rows
-        that do not match the filter.
-
-        The `metric_name` parameter sets the name of the query when it appears as a
-        `dict` or JSON key. The default is `None`, which omits the DataItem from
+        The `metric_name` parameter sets the name of the entry when it appears as a
+        `dict` or JSON key. The default is `None`, which omits the entry from
         reports.
 
-        The `report_name` parameter sets the name of the query when it appears in a
+        The `report_name` parameter sets the name of the entry when it appears in a
         report for humans. It can be omitted when `metric_name` is None.
-
-        The `clean_group` parameter identifies the DataItem as a query of interest,
-        usually in the context of a CleanerTask. An 'ok' value means the query
-        represents rows without a problem, and a 'needs_cleaning' value means the rows
-        need fixing.
         """
-
-        # Query settings
-        if model is not None and parent is None:
-            self._model_or_parent: type[M] | DataItem[M] = model
-            if filter_by is not None:
-                raise ValueError("When model is set, filter_by should not be set")
-        elif parent is not None and model is None:
-            self._model_or_parent = parent
-            if filter_by is None or filter_by == "":
-                raise ValueError("When parent is set, filter_by should be set")
-        elif model is None and parent is None:
-            raise ValueError("Set model or parent")
-        else:
-            raise ValueError("Set model or parent, but not both")
-        self.filter_by = filter_by
-        self.exclude = exclude
-
-        # Report settings
         if metric_name and (
             bad_chars := [c for c in metric_name if c not in _ITEM_KEY_CHAR_SET]
         ):
@@ -98,23 +51,76 @@ class DataItem(Generic[M]):
             )
         if metric_name == "":
             raise ValueError("metric_name is an empty string, should be None")
-        if metric_name is None and clean_group is not None:
-            raise ValueError(f"clean_group is '{clean_group}', but metric_name is None")
         if metric_name is None and report_name is not None:
             raise ValueError(f"report_name is '{report_name}', but metric_name is None")
         if report_name == "":
             raise ValueError("report_name is an empty string, should be None")
-        if clean_group is not None and clean_group not in get_args(CLEAN_GROUP_T):
-            raise ValueError(f"clean_group has invalid value '{clean_group}'")
+
         self.metric_name = metric_name
-        self.clean_group = clean_group
         self.report_name = report_name
 
     def __repr__(self) -> str:
-        if isinstance(self._model_or_parent, DataItem):
-            args = [f"parent={self._model_or_parent!r}"]
-        else:
-            args = [f"model={self._model_or_parent.__name__}"]
+        args = []
+        if self.metric_name:
+            args.append(f"metric_name={self.metric_name!r}")
+        if self.report_name:
+            args.append(f"report_name={self.report_name!r}")
+        return f'{type(self).__name__}({", ".join(args)})'
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, ReportEntry):
+            return (
+                self.metric_name == other.metric_name
+                and self.report_name == other.report_name
+            )
+        return NotImplemented
+
+    def count(self) -> int:
+        return 0
+
+
+class CleanedItem(ReportEntry):
+    """Represents the results of cleaning a Model."""
+
+    def __init__(
+        self, count: int, metric_name: str = "cleaned", report_name: str = "Cleaned"
+    ) -> None:
+        if count < 0:
+            raise ValueError("count can not be negative")
+        self._count = count
+        super().__init__(metric_name=metric_name, report_name=report_name)
+
+    def __repr__(self) -> str:
+        args = [f"report_name={self.report_name!r}"]
+        return f'{type(self).__name__}({", ".join(args)})'
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, CleanedItem):
+            return self.report_name == other.report_name
+        return NotImplemented
+
+    def count(self) -> int:
+        return self._count
+
+
+class BaseDataItem(ReportEntry, Generic[M]):
+    """An entry in a data task report backed by a database query."""
+
+    def __init__(
+        self,
+        model_or_parent: type[M] | BaseDataItem[M],
+        filter_by: str | Q | None = None,
+        exclude: bool = False,
+        metric_name: str | None = None,
+        report_name: str | None = None,
+    ) -> None:
+        self._model_or_parent = model_or_parent
+        self.filter_by = filter_by
+        self.exclude = exclude
+        super().__init__(metric_name=metric_name, report_name=report_name)
+
+    def __repr__(self) -> str:
+        args = [f"model_or_parent={self._model_or_parent!r}"]
         if self.filter_by:
             args.append(f"filter_by={self.filter_by!r}")
         if self.exclude:
@@ -123,39 +129,22 @@ class DataItem(Generic[M]):
             args.append(f"metric_name={self.metric_name!r}")
         if self.report_name:
             args.append(f"report_name={self.report_name!r}")
-        if self.clean_group:
-            args.append(f"clean_group={self.clean_group!r}")
         return f'{type(self).__name__}({", ".join(args)})'
 
     def __eq__(self, other: Any) -> bool:
-        if isinstance(other, DataItem):
+        if isinstance(other, BaseDataItem):
             return (
                 self._model_or_parent == other._model_or_parent
                 and self.filter_by == other.filter_by
                 and self.exclude == other.exclude
                 and self.metric_name == other.metric_name
                 and self.report_name == other.report_name
-                and self.clean_group == other.clean_group
             )
         return NotImplemented
 
-    @property
-    def model(self) -> type[M] | None:
-        """If this is a model DataItem, return the Model, else None."""
-        if isinstance(self._model_or_parent, DataItem):
-            return None
-        return self._model_or_parent
-
-    @property
-    def parent(self) -> DataItem[M] | None:
-        """If this is a subquery DataItem, return the parent DataItem, else None."""
-        if isinstance(self._model_or_parent, DataItem):
-            return self._model_or_parent
-        return None
-
     def get_queryset(self) -> QuerySet[M]:
-        """Return the Django query for this DataItem."""
-        if isinstance(self._model_or_parent, DataItem):
+        """Return the Django query for this BaseDataItem."""
+        if isinstance(self._model_or_parent, BaseDataItem):
             query = self._model_or_parent.get_queryset()
         else:
             query = self._model_or_parent._default_manager.all()
@@ -174,8 +163,131 @@ class DataItem(Generic[M]):
         return query
 
     def count(self) -> int:
-        """Return the number of rows matched for this DataItem."""
+        """Return the number of rows matched for this BaseDataItem."""
         return self.get_queryset().count()
+
+
+class DataModelItem(BaseDataItem[M]):
+    """A BaseDataItem representing the top-level Model"""
+
+    _model_or_parent: type[M]
+    metric_name: str
+    report_name: str
+    filter_by: None
+
+    def __init__(self, model: type[M]) -> None:
+        """Initialize a DataModelItem."""
+        super().__init__(
+            model_or_parent=model,
+            metric_name=_metric_name_for_model(model),
+            report_name=str(model._meta.verbose_name_plural).title(),
+        )
+
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}({self._model_or_parent.__name__})"
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, DataModelItem):
+            return self._model_or_parent == other._model_or_parent
+        return NotImplemented
+
+    @property
+    def model(self) -> type[M]:
+        return self._model_or_parent
+
+
+class DataItem(BaseDataItem[M]):
+    """
+    A DataItem is a subquery of a DataModelItem or DataItem.
+
+    A top-level model DataItem represents all the items in a table. A query that selects
+    some rows is a DataItem with a parent. The specific rows of interest can be
+    represented by multiple levels of DataItems, giving context to the specific rows.
+    """
+
+    _model_or_parent: BaseDataItem[M]
+
+    def __init__(
+        self,
+        parent: BaseDataItem[M],
+        filter_by: str | Q,
+        exclude: bool = False,
+        metric_name: str | None = None,
+        report_name: str | None = None,
+        clean_group: CLEAN_GROUP_T | None = None,
+    ) -> None:
+        """
+        Initialize a DataItem, checking for init-time issues.
+
+        The `filter_by` parameter sets the filter (`filter` is a Python keyword). It can
+        be a string, which represents a boolean filter. It can be a Django Q object,
+        such as `Q(num_deleted_relay_addresses__gt=5)`.
+
+        The default is to include rows matching the query. If `exclude` is set to
+        `True`, then the query is for rows that do not match the filter.
+
+        The `clean_group` parameter identifies the DataItem as a query of interest,
+        usually in the context of a CleanerTask. An 'ok' value means the query
+        represents rows without a problem, and a 'needs_cleaning' value means the rows
+        need fixing.
+        """
+
+        if filter_by == "":
+            raise ValueError("filter_by is an empty string, should be set")
+        if metric_name is None and clean_group is not None:
+            raise ValueError(f"clean_group is '{clean_group}', but metric_name is None")
+        if clean_group is not None and clean_group not in get_args(CLEAN_GROUP_T):
+            raise ValueError(f"clean_group has invalid value '{clean_group}'")
+        self.clean_group = clean_group
+
+        super().__init__(
+            model_or_parent=parent,
+            filter_by=filter_by,
+            exclude=exclude,
+            metric_name=metric_name,
+            report_name=report_name,
+        )
+
+    def _repr_get_args(self, short: bool = False) -> list[str]:
+        if short and isinstance(self._model_or_parent, DataItem):
+            return ["...", "metric_name={self._model_or_parent.metric_name!r}"]
+        if isinstance(self._model_or_parent, DataItem):
+            args = [
+                f"{type(self._model_or_parent).__name__}"
+                f'({", ".join(self._model_or_parent._repr_get_args(short=True))})'
+            ]
+        else:
+            args = [repr(self._model_or_parent)]
+        args.append(repr(self.filter_by))
+        if self.exclude:
+            args.append(f"exclude={self.exclude!r}")
+        if self.metric_name:
+            args.append(f"metric_name={self.metric_name!r}")
+        if self.report_name:
+            args.append(f"report_name={self.report_name!r}")
+        if self.clean_group:
+            args.append(f"clean_group={self.clean_group!r}")
+        return args
+
+    def __repr__(self) -> str:
+        return f'{type(self).__name__}({", ".join(self._repr_get_args())})'
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, DataItem):
+            return (
+                self._model_or_parent == other._model_or_parent
+                and self.filter_by == other.filter_by
+                and self.exclude == other.exclude
+                and self.metric_name == other.metric_name
+                and self.report_name == other.report_name
+                and self.clean_group == other.clean_group
+            )
+        return NotImplemented
+
+    @property
+    def parent(self) -> BaseDataItem[M]:
+        """If this is a subquery DataItem, return the parent DataItem, else None."""
+        return self._model_or_parent
 
 
 class DataModelSpec(Generic[M]):
@@ -231,6 +343,74 @@ class DataModelSpec(Generic[M]):
         cleaned_report_name - The report name for the cleaned DataItem, added after
             running cleaning. This defaults to "Cleaned".
         """
+        if not isinstance(model, type) or not issubclass(model, Model):
+            raise ValueError(f"model {model!r} is not a Django model.")
+
+        subkeys: set[str] = set()
+        for sub in subdivisions or []:
+            for key in sub.get_keys():
+                if key in subkeys:
+                    raise ValueError("Duplicate key 'active' in subdivisions")
+                subkeys.add(key)
+
+        if omit_key_prefixes:
+            if "" in omit_key_prefixes:
+                raise ValueError(
+                    "omit_key_prefixes should not include the empty string"
+                )
+            for key in omit_key_prefixes:
+                if key not in subkeys:
+                    raise ValueError(
+                        f"omit_key_prefixes key '{key}' not found in subdivision"
+                        f" keys {sorted(subkeys)}"
+                    )
+            for key in (metric_name_overrides or {}).keys():
+                if key in omit_key_prefixes:
+                    raise ValueError(
+                        f"The metric_name_overrides key '{key}'"
+                        f" should not be in omit_key_prefixes {omit_key_prefixes}"
+                    )
+            for key in (report_name_overrides or {}).keys():
+                if key in omit_key_prefixes:
+                    raise ValueError(
+                        f"The report_name_overrides key '{key}'"
+                        f" should not be in omit_key_prefixes {omit_key_prefixes}"
+                    )
+            if ok_key and ok_key in omit_key_prefixes:
+                raise ValueError(
+                    f"The ok_key '{ok_key}'"
+                    f" should not be in omit_key_prefixes {omit_key_prefixes}"
+                )
+            if needs_cleaning_key and needs_cleaning_key in omit_key_prefixes:
+                raise ValueError(
+                    f"The needs_cleaning_key '{needs_cleaning_key}'"
+                    f" should not be in omit_key_prefixes {omit_key_prefixes}"
+                )
+
+        if metric_name_overrides:
+            for key in metric_name_overrides.keys():
+                if key not in subkeys:
+                    raise ValueError(
+                        f"metric_name_overrides key '{key}' not found in subdivision"
+                        f" keys {sorted(subkeys)}"
+                    )
+        if report_name_overrides:
+            for key in report_name_overrides.keys():
+                if key not in subkeys:
+                    raise ValueError(
+                        f"report_name_overrides key '{key}' not found in subdivision"
+                        f" keys {sorted(subkeys)}"
+                    )
+        if ok_key and ok_key not in subkeys:
+            raise ValueError(
+                f"ok_key '{ok_key}' not found in subdivision keys {sorted(subkeys)}"
+            )
+        if needs_cleaning_key and needs_cleaning_key not in subkeys:
+            raise ValueError(
+                f"needs_cleaning_key '{needs_cleaning_key}' not found in subdivision"
+                f" keys {sorted(subkeys)}"
+            )
+
         self.model = model
         self.subdivisions = subdivisions or []
         self.omit_key_prefixes = omit_key_prefixes or []
@@ -260,8 +440,7 @@ class DataModelSpec(Generic[M]):
 
     @property
     def model_key(self) -> str:
-        """Return the key for this DataModelSpec, used in DataIssueTask."""
-        return str(self.model._meta.verbose_name_plural).replace(" ", "_")
+        return _metric_name_for_model(self.model)
 
     def omit_key(self, key: str) -> bool:
         return any(
@@ -291,22 +470,17 @@ class DataModelSpec(Generic[M]):
         else:
             return None
 
-    def to_data_items(self) -> dict[str, DataItem[M]]:
+    def to_data_items(self) -> dict[str, BaseDataItem[M]]:
         """Converts the spec to a dictionary of DataItems."""
-        data_items: dict[str, DataItem[M]] = {
-            "": DataItem(
-                model=self.model,
-                metric_name=self.model_key,
-                report_name=str(self.model._meta.verbose_name_plural).title(),
-            )
-        }
+        model_item = DataModelItem(self.model)
+        data_items: dict[str, BaseDataItem[M]] = {"": model_item}
         for subdivision in self.subdivisions:
-            for key, item in subdivision.to_data_items(self, data_items).items():
-                if key in data_items:
-                    raise Exception(f"Duplicate key '{key}' returned by {item}")
-                data_items[key] = item
+            data_items.update(subdivision.to_data_items(self, data_items).items())
+
+        # For the return dict, prefix with model's metric name
+        model_key = model_item.metric_name
         return {
-            (f"{self.model_key}{_KEY_SEP}{key}" if key else self.model_key): item
+            (f"{model_key}{_KEY_SEP}{key}" if key else model_key): item
             for key, item in data_items.items()
         }
 
@@ -348,10 +522,7 @@ class DataBisectSpec:
         args = [f"key={self.key!r}", f"bisect_by={self.bisect_by!r}"]
         return f'{type(self).__name__}({", ".join(args)})'
 
-    def to_data_items(
-        self, model_spec: DataModelSpec[M], existing_items: dict[str, DataItem[M]]
-    ) -> dict[str, DataItem[M]]:
-        """Return two data items bisecting the parent data."""
+    def get_keys(self) -> list[str]:
         if _KEY_SEP in self.key:
             subparent_name, part_name = self.key.rsplit(_KEY_SEP, 1)
             neg_key = f"{subparent_name}{_KEY_SEP}{_NEGATE_PREFIX}{part_name}"
@@ -359,10 +530,20 @@ class DataBisectSpec:
             subparent_name = ""
             part_name = self.key
             neg_key = f"{_NEGATE_PREFIX}{part_name}"
+        return [self.key, neg_key]
 
+    def to_data_items(
+        self, model_spec: DataModelSpec[M], existing_items: dict[str, BaseDataItem[M]]
+    ) -> dict[str, DataItem[M]]:
+        """Return two data items bisecting the parent data."""
+        if _KEY_SEP in self.key:
+            subparent_name, _ = self.key.rsplit(_KEY_SEP, 1)
+        else:
+            subparent_name = ""
         parent = existing_items[subparent_name]
+        pos_key, neg_key = self.get_keys()
         return {
-            self.key: self._to_bisected_data_item(
+            pos_key: self._to_bisected_data_item(
                 self.key, model_spec, parent, "positive"
             ),
             neg_key: self._to_bisected_data_item(
@@ -374,7 +555,7 @@ class DataBisectSpec:
         self,
         key: str,
         model_spec: DataModelSpec[M],
-        parent: DataItem[M],
+        parent: BaseDataItem[M],
         bisect: Literal["positive", "negative"],
     ) -> DataItem[M]:
         """Create one of the bisected data items."""
@@ -388,22 +569,13 @@ class DataBisectSpec:
         )
 
 
-class CleanedItem(DataItem[M]):
-    def __init__(self, model: type[M], report_name: str) -> None:
-        super().__init__(
-            model=model,
-            metric_name="cleaned",
-            report_name=report_name,
-        )
-
-
 class DataIssueTask:
     """Base class for data issue / cleaner tasks."""
 
     slug: str  # Short name, appropriate for command-line option
     title: str  # Short title for reports
     check_description: str  # A sentence describing what this cleaner is checking.
-    can_clean: bool  # True if the issue can be automatically cleaned
+    can_clean: bool = False  # True if the issue can be automatically cleaned
     data_specification: list[DataModelSpec[Any]] = []  # The specification for this task
 
     _counts: Counts | None
@@ -418,42 +590,34 @@ class DataIssueTask:
         self._cleaned_report_name = {}
         self.data_items = self._get_data_items()
 
-    def _get_data_items(self) -> dict[str, DataItem[Any]]:
+    def _get_data_items(self) -> dict[str, BaseDataItem[Any]]:
         """Turn the data_specification into a dictionary of names to DataItems."""
-        data_items: dict[str, DataItem[Any]] = {}
+        data_items: dict[str, BaseDataItem[Any]] = {}
         for model_spec in self.data_specification:
-            model_items = self._get_data_items_for_model_spec(model_spec)
-            overlap_keys = set(data_items.keys()) & set(model_items.keys())
-            if overlap_keys:
-                raise Exception(
-                    f"For model '{model_spec.model_key}', these metric_name keys"
-                    f" already exist: {sorted(overlap_keys)}"
+            if model_spec.model_key in data_items:
+                raise ValueError(
+                    f"{model_spec!r}\nThe key '{model_spec.model_key}' already exists"
                 )
-            data_items.update(model_items)
+            data_items.update(self._get_data_items_for_model_spec(model_spec))
         return data_items
 
     def _get_data_items_for_model_spec(
         self, model_spec: DataModelSpec[M]
-    ) -> dict[str, DataItem[M]]:
-        # TODO: more spec checking
-        data_items: dict[str, DataItem[M]] = {}
-        has_needs_cleaning = False
+    ) -> dict[str, BaseDataItem[M]]:
+        data_items: dict[str, BaseDataItem[M]] = {}
         self._cleaned_report_name[model_spec.model_key] = model_spec.cleaned_report_name
         for name, item in model_spec.to_data_items().items():
-            except_prefix = f"For model '{model_spec.model_key}', the data item {name}"
-            if item.clean_group == "needs_cleaning":
-                if has_needs_cleaning:
-                    raise Exception(
-                        f"{except_prefix} is 2nd item with clean_group='needs_cleaning'"
-                    )
-                if not model_spec.cleaned_report_name:
-                    raise Exception(
-                        f"{except_prefix} has clean_group='needs_cleaning', but the"
-                        " model_spec has not set cleaned_report_name"
-                    )
-                has_needs_cleaning = True
-            if name in data_items:
-                raise Exception(f"{except_prefix} is already registered.")
+            if (
+                self.can_clean
+                and isinstance(item, DataItem)
+                and item.clean_group == "needs_cleaning"
+                and not hasattr(self, f"clean_{model_spec.model_key}")
+            ):
+                raise ValueError(
+                    f"{model_spec!r}\n{item}\n"
+                    "This item has clean_group='needs_cleaning', but the"
+                    f" cleaning function clean_{model_spec.model_key} is not defined."
+                )
             data_items[name] = item
         return data_items
 
@@ -461,10 +625,6 @@ class DataIssueTask:
     def counts(self) -> Counts:
         """Get relevant counts for data issues and prepare to clean if possible."""
         if self._counts is None:
-            if self._cleanup_data is not None:
-                raise ValueError(
-                    "self.cleanup_data should be None when self._counts is None"
-                )
             self._counts, self._cleanup_data = self._get_counts_and_data()
         return self._counts
 
@@ -473,17 +633,17 @@ class DataIssueTask:
         cleanup_data: CleanupData = {}
 
         for name, data_item in self.data_items.items():
-            if not (data_item.metric_name or data_item.clean_group):
+            if not data_item.metric_name:
                 continue
             count = data_item.count()
 
-            if data_item.model:
+            if isinstance(data_item, DataModelItem):
                 counts[name] = {"all": count}
-            elif data_item.metric_name:
+            else:
                 model_name = name.split(".")[0]
                 counts[model_name][data_item.metric_name] = count
 
-            if data_item.clean_group:
+            if isinstance(data_item, DataItem) and data_item.clean_group:
                 counts["summary"][data_item.clean_group] += count
                 if data_item.clean_group == "needs_cleaning":
                     cleanup_data[model_name] = name
@@ -494,25 +654,12 @@ class DataIssueTask:
     def cleanup_data(self) -> CleanupData:
         """Get data needed to clean data issues."""
         if not self.counts:
-            raise ValueError("self.counts must have a value when calling cleanup_data.")
-        if not self._cleanup_data:
-            raise ValueError(
-                "self._cleanup_data must have a value when calling cleanup_data."
-            )
-        return self._cleanup_data
+            return {}
+        return self._cleanup_data or {}
 
     def issues(self) -> int:
         """Return the number of detected data issues."""
         return self.counts["summary"]["needs_cleaning"]
-
-    def _clean(self) -> int:
-        """
-        Clean the detected items.
-
-        Returns the number of cleaned items. Implementors can add detailed
-        counts to self._counts as needed.
-        """
-        raise NotImplementedError("_clean() not implemented")
 
     def markdown_report(self) -> str:
         """Return Markdown-formatted report of issues found and (maybe) fixed."""
@@ -521,6 +668,9 @@ class DataIssueTask:
         for model_metric_name, model_counts in self.counts.items():
             if model_metric_name != "summary":
                 model_data_item = self.data_items[model_metric_name]
+                if not isinstance(model_data_item, DataModelItem):
+                    # pragma: no cover
+                    raise Exception("Expected DataModelItem")
                 lines.extend(
                     self._markdown_lines_for_model(
                         model_metric_name, model_data_item, model_counts
@@ -531,27 +681,21 @@ class DataIssueTask:
     def _markdown_lines_for_model(
         self,
         model_metric_name: str,
-        model_data_item: DataItem[Any],
+        model_data_item: DataModelItem[Any],
         model_counts: dict[str, int],
     ) -> list[str]:
         """Get the report lines for a model."""
-        if not model_data_item.report_name:
-            return []
-
         total = model_counts["all"]
         lines = [f"{model_data_item.report_name}:", f"  All: {total}"]
 
         if total == 0:
             return lines
-        if model_data_item.metric_name is None:
-            raise Exception(f"DataItem {model_metric_name} has .metric_name None")
-        if model_data_item.model is None:
-            raise Exception(f"DataItem {model_metric_name} has .model None")
 
-        section_counts: dict[tuple[str, ...], int] = {
+        _SECTION_KEY = tuple[str, ...]
+        section_counts: dict[_SECTION_KEY, int] = {
             (model_data_item.metric_name,): total
         }
-        section_subitems: dict[tuple[str, ...], list[tuple[DataItem[Any], int]]] = (
+        section_subitems: dict[_SECTION_KEY, list[tuple[ReportEntry, int]]] = (
             defaultdict(list)
         )
 
@@ -569,14 +713,18 @@ class DataIssueTask:
             if parent_total != 0:
                 section_counts[parts] = count
                 section_subitems[parent_key].append((item, count))
-                if cleaned and item.clean_group == "needs_cleaning":
+                if (
+                    cleaned
+                    and isinstance(item, DataItem)
+                    and item.clean_group == "needs_cleaning"
+                ):
+                    model = model_data_item.model
+                    if model is None:  # pragma: no cover
+                        raise Exception("Expected model_data_item.model to be a model.")
                     cleaned_report_name = self._cleaned_report_name[model_metric_name]
                     section_counts[parts + (cleaned_report_name,)] = cleaned
                     section_subitems[parts].append(
-                        (
-                            CleanedItem(model_data_item.model, cleaned_report_name),
-                            cleaned,
-                        )
+                        (CleanedItem(cleaned, report_name=cleaned_report_name), cleaned)
                     )
 
         # Add and indent subsections
@@ -584,7 +732,21 @@ class DataIssueTask:
             indent = "  " * len(key)
             max_len = max(len(subitem.report_name or "") for subitem, count in subitems)
             parent_total = section_counts[key]
+            clean_pair = None
             for subitem, count in subitems:
+                if (
+                    isinstance(subitem, DataItem)
+                    and subitem.clean_group == "needs_cleaning"
+                ):
+                    # Print last, so cleaned subitem will be after
+                    clean_pair = (subitem, count)
+                else:
+                    lines.append(
+                        f"  {indent}{subitem.report_name:<{max_len}}:"
+                        f" {self._as_percent(count, parent_total)}"
+                    )
+            if clean_pair:
+                subitem, count = clean_pair
                 lines.append(
                     f"  {indent}{subitem.report_name:<{max_len}}:"
                     f" {self._as_percent(count, parent_total)}"
@@ -626,13 +788,3 @@ class CleanerTask(DataIssueTask):
             counts[model_name]["cleaned"] = count
             total_cleaned += count
         return total_cleaned
-
-
-class DetectorTask(DataIssueTask):
-    """Base class for tasks that cannot clean up detected issues."""
-
-    can_clean = False
-
-    def _clean(self) -> int:
-        """DetectorTask can't clean any detected issues."""
-        return 0
