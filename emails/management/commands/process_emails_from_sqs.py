@@ -16,11 +16,12 @@ import shlex
 import time
 from datetime import UTC, datetime
 from multiprocessing import Pool
-from typing import Any
+from typing import Any, cast
 from urllib.parse import urlsplit
 
 from django import setup
 from django.core.management.base import CommandError
+from django.db import connection
 from django.http import HttpResponse
 
 import boto3
@@ -435,7 +436,7 @@ class Command(CommandFromDjangoSettings):
         pool_start_time = time.monotonic()
         with Pool(1, initializer=setup) as pool:
             future = pool.apply_async(
-                _sns_inbound_logic,
+                run_sns_inbound_logic,
                 [topic_arn, message_type, verified_json_body],
                 callback=success_callback,
                 error_callback=error_callback,
@@ -484,3 +485,15 @@ class Command(CommandFromDjangoSettings):
             return f"{value} {singular}"
         else:
             return f"{value} {plural or (singular + 's')}"
+
+
+def run_sns_inbound_logic(
+    topic_arn: str, message_type: str, json_body: str
+) -> HttpResponse:
+    # Reset any exiting connection, verify it is usable
+    with connection.cursor() as cursor:
+        cursor.db.queries_log.clear()
+        if not cursor.db.is_usable():
+            cursor.db.close()
+
+    return cast(HttpResponse, _sns_inbound_logic(topic_arn, message_type, json_body))
