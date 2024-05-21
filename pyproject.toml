@@ -13,6 +13,8 @@ omit = [
 exclude_also = [
     # Skip code that is only evaluated by static type checkers like pyright and mypy
     "if TYPE_CHECKING:",
+    # Skip abstract methods
+    "raise NotImplementedError",
 ]
 
 [tool.coverage.run]

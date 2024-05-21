@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import string
+from abc import ABCMeta, abstractmethod
 from collections import defaultdict
 from typing import Any, Generic, Literal, TypeVar, get_args
 
@@ -25,11 +26,17 @@ _ITEM_KEY_CHAR_SET = set(
 
 
 def _metric_name_for_model(model: type[M]) -> str:
+    """The model's metric key, used in metrics and as a dictionary key."""
     return str(model._meta.verbose_name_plural).replace(" ", "_")
 
 
-class ReportEntry:
-    """An entry in a data task report."""
+class ReportEntry(metaclass=ABCMeta):
+    """
+    An entry in a data task report.
+
+    This is the base model in the reporting item hierarchy. Code should use the derived
+    classes CleanedItem, DataModelItem, and DataItem.
+    """
 
     def __init__(self, metric_name: str | None = None, report_name: str | None = None):
         """
@@ -59,24 +66,9 @@ class ReportEntry:
         self.metric_name = metric_name
         self.report_name = report_name
 
-    def __repr__(self) -> str:
-        args = []
-        if self.metric_name:
-            args.append(f"metric_name={self.metric_name!r}")
-        if self.report_name:
-            args.append(f"report_name={self.report_name!r}")
-        return f'{type(self).__name__}({", ".join(args)})'
-
-    def __eq__(self, other: Any) -> bool:
-        if isinstance(other, ReportEntry):
-            return (
-                self.metric_name == other.metric_name
-                and self.report_name == other.report_name
-            )
-        return NotImplemented
-
+    @abstractmethod
     def count(self) -> int:
-        return 0
+        raise NotImplementedError
 
 
 class CleanedItem(ReportEntry):
@@ -91,12 +83,21 @@ class CleanedItem(ReportEntry):
         super().__init__(metric_name=metric_name, report_name=report_name)
 
     def __repr__(self) -> str:
-        args = [f"report_name={self.report_name!r}"]
+        args = [str(self._count)]
+        if self.metric_name != "cleaned":
+            args.append(f"metric_name={self.metric_name!r}")
+        if self.report_name != "Cleaned":
+            args.append(f"report_name={self.report_name!r}")
         return f'{type(self).__name__}({", ".join(args)})'
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, CleanedItem):
-            return self.report_name == other.report_name
+            return (
+                self.__class__ == other.__class__
+                and self._count == other._count
+                and self.metric_name == other.metric_name
+                and self.report_name == other.report_name
+            )
         return NotImplemented
 
     def count(self) -> int:
@@ -118,18 +119,6 @@ class BaseDataItem(ReportEntry, Generic[M]):
         self.filter_by = filter_by
         self.exclude = exclude
         super().__init__(metric_name=metric_name, report_name=report_name)
-
-    def __repr__(self) -> str:
-        args = [f"model_or_parent={self._model_or_parent!r}"]
-        if self.filter_by:
-            args.append(f"filter_by={self.filter_by!r}")
-        if self.exclude:
-            args.append(f"exclude={self.exclude!r}")
-        if self.metric_name:
-            args.append(f"metric_name={self.metric_name!r}")
-        if self.report_name:
-            args.append(f"report_name={self.report_name!r}")
-        return f'{type(self).__name__}({", ".join(args)})'
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, BaseDataItem):
@@ -186,15 +175,6 @@ class DataModelItem(BaseDataItem[M]):
     def __repr__(self) -> str:
         return f"{type(self).__name__}({self._model_or_parent.__name__})"
 
-    def __eq__(self, other: Any) -> bool:
-        if isinstance(other, DataModelItem):
-            return self._model_or_parent == other._model_or_parent
-        return NotImplemented
-
-    @property
-    def model(self) -> type[M]:
-        return self._model_or_parent
-
 
 class DataItem(BaseDataItem[M]):
     """
@@ -248,13 +228,11 @@ class DataItem(BaseDataItem[M]):
             report_name=report_name,
         )
 
-    def _repr_get_args(self, short: bool = False) -> list[str]:
-        if short and isinstance(self._model_or_parent, DataItem):
-            return ["...", "metric_name={self._model_or_parent.metric_name!r}"]
+    def __repr__(self) -> str:
         if isinstance(self._model_or_parent, DataItem):
             args = [
-                f"{type(self._model_or_parent).__name__}"
-                f'({", ".join(self._model_or_parent._repr_get_args(short=True))})'
+                f"<{type(self._model_or_parent).__name__}"
+                f"(metric_name={self._model_or_parent.metric_name!r}, ...)>"
             ]
         else:
             args = [repr(self._model_or_parent)]
@@ -267,27 +245,7 @@ class DataItem(BaseDataItem[M]):
             args.append(f"report_name={self.report_name!r}")
         if self.clean_group:
             args.append(f"clean_group={self.clean_group!r}")
-        return args
-
-    def __repr__(self) -> str:
-        return f'{type(self).__name__}({", ".join(self._repr_get_args())})'
-
-    def __eq__(self, other: Any) -> bool:
-        if isinstance(other, DataItem):
-            return (
-                self._model_or_parent == other._model_or_parent
-                and self.filter_by == other.filter_by
-                and self.exclude == other.exclude
-                and self.metric_name == other.metric_name
-                and self.report_name == other.report_name
-                and self.clean_group == other.clean_group
-            )
-        return NotImplemented
-
-    @property
-    def parent(self) -> BaseDataItem[M]:
-        """If this is a subquery DataItem, return the parent DataItem, else None."""
-        return self._model_or_parent
+        return f'{type(self).__name__}({", ".join(args)})'
 
 
 class DataModelSpec(Generic[M]):
@@ -629,6 +587,9 @@ class DataIssueTask:
         return self._counts
 
     def _get_counts_and_data(self) -> tuple[Counts, CleanupData]:
+        if not self.data_items:
+            return {}, {}
+
         counts: Counts = {"summary": {"ok": 0, "needs_cleaning": 0}}
         cleanup_data: CleanupData = {}
 
@@ -647,7 +608,6 @@ class DataIssueTask:
                 counts["summary"][data_item.clean_group] += count
                 if data_item.clean_group == "needs_cleaning":
                     cleanup_data[model_name] = name
-
         return counts, cleanup_data
 
     @property
@@ -668,8 +628,7 @@ class DataIssueTask:
         for model_metric_name, model_counts in self.counts.items():
             if model_metric_name != "summary":
                 model_data_item = self.data_items[model_metric_name]
-                if not isinstance(model_data_item, DataModelItem):
-                    # pragma: no cover
+                if not isinstance(model_data_item, DataModelItem):  # pragma: no cover
                     raise Exception("Expected DataModelItem")
                 lines.extend(
                     self._markdown_lines_for_model(
@@ -718,9 +677,6 @@ class DataIssueTask:
                     and isinstance(item, DataItem)
                     and item.clean_group == "needs_cleaning"
                 ):
-                    model = model_data_item.model
-                    if model is None:  # pragma: no cover
-                        raise Exception("Expected model_data_item.model to be a model.")
                     cleaned_report_name = self._cleaned_report_name[model_metric_name]
                     section_counts[parts + (cleaned_report_name,)] = cleaned
                     section_subitems[parts].append(
@@ -757,8 +713,12 @@ class DataIssueTask:
     @staticmethod
     def _as_percent(part: int, whole: int) -> str:
         """Return value followed by percent of whole, like '5 ( 30.0%)'"""
-        if not whole > 0:
-            raise ValueError("whole must be greater than 0 when calling _as_percent")
+        if whole <= 0:
+            raise ValueError(f"whole ({whole}) can not be less than 0")
+        if part < 0:
+            raise ValueError(f"part ({part}) can not be negative")
+        if part > whole:
+            raise ValueError(f"part ({part}) can not be greater than whole ({whole})")
         len_whole = len(str(whole))
         return f"{part:{len_whole}d} ({part / whole:6.1%})"
 

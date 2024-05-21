@@ -18,7 +18,6 @@ from privaterelay.cleaners import (
     DataItem,
     DataModelItem,
     DataModelSpec,
-    ReportEntry,
 )
 
 
@@ -44,21 +43,8 @@ def four_users(db: None) -> dict[str, User]:
     }
 
 
-def test_report_entry_init_none() -> None:
-    entry = ReportEntry()
-    assert entry.metric_name is None
-    assert entry.report_name is None
-    assert entry.count() == 0
-
-
-def test_report_entry_init_both() -> None:
-    entry = ReportEntry("metric", "Report")
-    assert entry.metric_name == "metric"
-    assert entry.report_name == "Report"
-    assert entry.count() == 0
-
-
-_REPORT_ENTRY_INIT_RAISES_TEST_CASES = {
+_CLEANED_ITEM_INIT_RAISES_TEST_CASES = {
+    "count_negative": ({"count": -1}, r"^count can not be negative$"),
     "metric_name_one_bad_char": (
         {"metric_name": "profile~.foo"},
         r"^metric_name 'profile~\.foo' has disallowed character '~'$",
@@ -71,12 +57,8 @@ _REPORT_ENTRY_INIT_RAISES_TEST_CASES = {
         {"metric_name": ""},
         r"^metric_name is an empty string, should be None$",
     ),
-    "report_name_but_no_metric_name": (
-        {"report_name": "profile"},
-        r"^report_name is 'profile', but metric_name is None$",
-    ),
     "report_name_empty": (
-        {"metric_name": "profiles", "report_name": ""},
+        {"report_name": ""},
         r"^report_name is an empty string, should be None$",
     ),
 }
@@ -84,19 +66,25 @@ _REPORT_ENTRY_INIT_RAISES_TEST_CASES = {
 
 @pytest.mark.parametrize(
     "args,expected",
-    _REPORT_ENTRY_INIT_RAISES_TEST_CASES.values(),
-    ids=_REPORT_ENTRY_INIT_RAISES_TEST_CASES.keys(),
+    _CLEANED_ITEM_INIT_RAISES_TEST_CASES.values(),
+    ids=_CLEANED_ITEM_INIT_RAISES_TEST_CASES.keys(),
 )
-def test_report_entry_init_raises(args: dict[str, str], expected: str) -> None:
+def test_cleaned_item_init_raises(args: dict[str, str | int], expected: str) -> None:
+    init_args = {key: str(val) for key, val in args.items()}
+    count = int(init_args.pop("count", 0))
     with pytest.raises(ValueError, match=expected):
-        ReportEntry(**args)
+        CleanedItem(count=count, **init_args)
 
 
-def test_cleaned_item_init_count() -> None:
+def test_cleaned_item_init_count_only() -> None:
     cleaned = CleanedItem(5)
     assert cleaned.metric_name == "cleaned"
     assert cleaned.report_name == "Cleaned"
     assert cleaned.count() == 5
+    assert repr(cleaned) == "CleanedItem(5)"
+    assert cleaned == CleanedItem(5)
+    assert cleaned != CleanedItem(5, report_name="Fixed")
+    assert cleaned != Exception()
 
 
 def test_cleaned_item_init_all() -> None:
@@ -104,20 +92,18 @@ def test_cleaned_item_init_all() -> None:
     assert cleaned.metric_name == "metric"
     assert cleaned.report_name == "Report"
     assert cleaned.count() == 6
+    assert repr(cleaned) == "CleanedItem(6, metric_name='metric', report_name='Report')"
+    assert cleaned == CleanedItem(6, "metric", "Report")
+    assert cleaned != CleanedItem(6)
 
 
-def test_cleaned_item_init_negative_count_raises() -> None:
-    with pytest.raises(ValueError, match="^count can not be negative$"):
-        CleanedItem(-1)
-
-
-def test_data_model_item_eqality():
+def test_data_model_item_equality() -> None:
     assert DataModelItem(User) == DataModelItem(User)
     assert DataModelItem(User) != DataModelItem(Profile)
     assert DataModelItem(User) != User()
 
 
-def test_data_model_item_repr():
+def test_data_model_item_repr() -> None:
     assert repr(DataModelItem(User)) == "DataModelItem(User)"
 
 
@@ -125,6 +111,10 @@ _DATA_ITEM_INIT_RAISES_TEST_CASES = {
     "filter_by_empty": (
         {"filter_by": ""},
         r"^filter_by is an empty string, should be set$",
+    ),
+    "report_name_but_no_metric_name": (
+        {"filter_by": "a_column", "report_name": "Report"},
+        r"^report_name is 'Report', but metric_name is None$",
     ),
     "clean_group_but_no_metric_name": (
         {"filter_by": "a_column", "clean_group": "ok"},
@@ -203,6 +193,16 @@ _DATA_ITEM_REPR_TEST_CASES = {
         {"metric_name": "users", "clean_group": "ok"},
         "DataModelItem(User), 'is_active', metric_name='users', clean_group='ok'",
     ),
+    "parent_is_data_item": (
+        {
+            "parent": DataItem(
+                DataModelItem(User), filter_by="is_active", metric_name="active"
+            ),
+            "filter_by": "is_staff",
+            "metric_name": "active.staff",
+        },
+        "<DataItem(metric_name='active', ...)>, 'is_staff', metric_name='active.staff'",
+    ),
 }
 
 
@@ -222,10 +222,7 @@ def test_data_item_repr(args: dict[str, Any], expected: str) -> None:
     }
     for name, value in args.items():
         assert name in init_args
-        if name == "parent" and value:
-            set_value: Any = DataModelItem(value)
-        else:
-            set_value = value
+        set_value = value
         init_args[name] = set_value
 
     item: DataItem[User] = DataItem(**init_args)
@@ -664,6 +661,41 @@ class DeactivateOddUsersTask(CleanerTask):
         return users.get_queryset().update(is_active=False)
 
 
+# fmt: off
+@pytest.mark.parametrize(
+    "part,whole,expected",
+    (
+        (    0,     2,     "0 (  0.0%)"),
+        (    1,     2,     "1 ( 50.0%)"),
+        (    2,     2,     "2 (100.0%)"),
+        (    1,    20,    " 1 (  5.0%)"),
+        (   19,    20,    "19 ( 95.0%)"),
+        (    1,   200,   "  1 (  0.5%)"),
+        (  199,   200,   "199 ( 99.5%)"),
+        (    1,  2000,  "   1 (  0.1%)"),
+        ( 1999,  2000,  "1999 (100.0%)"),
+        (    1, 20000, "    1 (  0.0%)"),
+        (19999, 20000, "19999 (100.0%)"),
+    ),
+)
+# fmt: on
+def test_data_issue_task_as_percent(part: int, whole: int, expected: str) -> None:
+    assert DataIssueTask._as_percent(part, whole) == expected
+
+
+@pytest.mark.parametrize(
+    "part,whole,error",
+    (
+        (1, 0, r"^whole \(0\) can not be less than 0$"),
+        (2, 1, r"^part \(2\) can not be greater than whole \(1\)$"),
+        (-1, 2, r"^part \(-1\) can not be negative$"),
+    ),
+)
+def test_data_issue_task_as_percent_raises(part: int, whole: int, error: str) -> None:
+    with pytest.raises(ValueError, match=error):
+        DataIssueTask._as_percent(part, whole)
+
+
 def test_cleaner_task_counts_for_deactivate_odd(four_users: dict[str, User]) -> None:
     assert DeactivateOddUsersTask().counts == {
         "summary": {"needs_cleaning": 2, "ok": 0},
@@ -756,3 +788,13 @@ def test_cleaner_task_no_cleaner_function_raises() -> None:
         ),
     ):
         NoCleanerFunctionTask()
+
+
+def test_cleaner_task_no_data_specification() -> None:
+    class NoDataSpecTask(CleanerTask):
+        data_specification = []
+
+    task = NoDataSpecTask()
+    assert task.counts == {}
+    assert task.cleanup_data == {}
+    assert task.markdown_report() == ""
