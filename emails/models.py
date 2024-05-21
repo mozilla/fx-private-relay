@@ -320,6 +320,9 @@ class Profile(models.Model):
 
     @property
     def has_premium(self) -> bool:
+        if not self.user.is_active:
+            return False
+
         # FIXME: as we don't have all the tiers defined we are over-defining
         # this to mark the user as a premium user as well
         if not self.fxa:
