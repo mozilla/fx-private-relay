@@ -1433,7 +1433,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 200
         assert response.content == b"Account is deactivated."
-        self.assert_log_incoming_email_dropped(caplog, "inactive")
+        self.assert_log_incoming_email_dropped(caplog, "user_deactivated")
 
     @patch("emails.views._reply_allowed")
     @patch("emails.views._get_reply_record_from_lookup_key")
