@@ -1,4 +1,4 @@
-"""Tests for privaterelay/cleaners.py (shared functionality)"""
+"""Tests for privaterelay/data_issue_task.py"""
 
 from datetime import UTC, datetime
 from typing import Any
@@ -10,7 +10,7 @@ import pytest
 from model_bakery import baker
 
 from emails.models import Profile
-from privaterelay.cleaners import (
+from privaterelay.data_issue_task import (
     CleanedItem,
     CleanerTask,
     DataBisectSpec,

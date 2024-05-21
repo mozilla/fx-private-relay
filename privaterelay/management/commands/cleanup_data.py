@@ -15,7 +15,7 @@ from emails.cleaners import MissingProfileCleaner, ServerStorageCleaner
 if TYPE_CHECKING:  # pragma: no cover
     from argparse import ArgumentParser
 
-    from privaterelay.cleaners import DataIssueTask
+    from privaterelay.data_issue_task import DataIssueTask
 
 
 logger = logging.getLogger("eventsinfo.cleanup_data")
@@ -129,8 +129,9 @@ class Command(BaseCommand):
         total = 0
         timers: dict[str, float] = {}
         for slug, task in tasks.items():
-            with Timer(logger=None) as clean_timer:
-                total += task.clean()
+            if hasattr(task, "clean"):
+                with Timer(logger=None) as clean_timer:
+                    total += task.clean()
             timers[slug] = round(clean_timer.last, 3)
         return total, timers
 
