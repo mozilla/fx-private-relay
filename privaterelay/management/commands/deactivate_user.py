@@ -28,6 +28,9 @@ class Command(BaseCommand):
             try:
                 profile = Profile.objects.get(api_token=api_key)
                 user = profile.user
+                user.is_active = False
+                user.save()
+                msg = f"SUCCESS: deactivated user with api_token: {api_key}"
             except Profile.DoesNotExist:
                 msg = "ERROR: Could not find user with that API key."
                 self.stderr.write(msg)
@@ -36,6 +39,9 @@ class Command(BaseCommand):
         if email:
             try:
                 user = User.objects.get(email=email)
+                user.is_active = False
+                user.save()
+                msg = f"SUCCESS: deactivated user with email: {email}"
             except User.DoesNotExist:
                 msg = "ERROR: Could not find user with that email address."
                 self.stderr.write(msg)
@@ -44,13 +50,11 @@ class Command(BaseCommand):
         if uid:
             try:
                 user = SocialAccount.objects.get(uid=uid).user
+                user.is_active = False
+                user.save()
+                msg = f"SUCCESS: deactivated user with FXA UID: {uid}"
             except SocialAccount.DoesNotExist:
                 msg = "ERROR: Could not find user with that FXA UID."
                 self.stderr.write(msg)
                 return msg
-
-        user.is_active = False
-        user.save()
-        msg = "SUCCESS: deactivated user."
-        self.stdout.write(msg)
         return msg
