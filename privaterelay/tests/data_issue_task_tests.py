@@ -18,6 +18,7 @@ from privaterelay.data_issue_task import (
     DataItem,
     DataModelItem,
     DataModelSpec,
+    ReportEntry,
 )
 
 
@@ -713,6 +714,40 @@ def test_cleaner_task_issues_for_deactivate_odd(four_users: dict[str, User]) -> 
     assert DeactivateOddUsersTask().issues() == 2
 
 
+def test_cleaner_task_get_report_entries_preclean_for_deactivate_odd(
+    four_users: dict[str, User]
+) -> None:
+    task = DeactivateOddUsersTask()
+    reports = task.get_report_entries()
+    assert list(reports.keys()) == [
+        "users",
+        "users.is_odd",
+        "users.is_odd.!active",
+        "users.is_odd.active",
+    ]
+    assert reports == {
+        "users": ReportEntry(task.data_items["users"], 4, 1, ["users.is_odd"]),
+        "users.is_odd": ReportEntry(
+            task.data_items["users.is_odd"],
+            2,
+            2,
+            ["users.is_odd.!active", "users.is_odd.active"],
+        ),
+        "users.is_odd.!active": ReportEntry(
+            task.data_items["users.is_odd.!active"],
+            0,
+            3,
+            [],
+        ),
+        "users.is_odd.active": ReportEntry(
+            task.data_items["users.is_odd.active"],
+            2,
+            3,
+            [],
+        ),
+    }
+
+
 def test_cleaner_task_markdown_report_preclean_for_deactivate_odd(
     four_users: dict[str, User]
 ) -> None:
@@ -751,6 +786,42 @@ def test_cleaner_task_counts_postclean_for_deactivate_odd(
             "is_odd.!active": 0,
             "odd_but_active": 2,
         },
+    }
+
+
+def test_cleaner_task_get_report_entries_postclean_for_deactivate_odd(
+    four_users: dict[str, User]
+) -> None:
+    task = DeactivateOddUsersTask()
+    task.clean()
+    reports = task.get_report_entries()
+    assert list(reports.keys()) == [
+        "users",
+        "users.is_odd",
+        "users.is_odd.!active",
+        "users.is_odd.active",
+        "users.is_odd.active.cleaned",
+    ]
+    assert reports == {
+        "users": ReportEntry(task.data_items["users"], 4, 1, ["users.is_odd"]),
+        "users.is_odd": ReportEntry(
+            task.data_items["users.is_odd"],
+            2,
+            2,
+            ["users.is_odd.!active", "users.is_odd.active"],
+        ),
+        "users.is_odd.!active": ReportEntry(
+            task.data_items["users.is_odd.!active"], 0, 3, []
+        ),
+        "users.is_odd.active": ReportEntry(
+            task.data_items["users.is_odd.active"],
+            2,
+            3,
+            ["users.is_odd.active.cleaned"],
+        ),
+        "users.is_odd.active.cleaned": ReportEntry(
+            CleanedItem(2, report_name="Deactivated"), 2, 4, []
+        ),
     }
 
 
