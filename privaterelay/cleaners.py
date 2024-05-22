@@ -5,7 +5,7 @@ from django.db.models import Q
 
 from allauth.socialaccount.models import SocialAccount
 
-from .data_issue_task import CleanerTask, DataBisectSpec, DataItem, DataModelSpec
+from .cleaner_task import CleanerTask, DataBisectSpec, DataItem, DataModelSpec
 
 
 class MissingEmailCleaner(CleanerTask):

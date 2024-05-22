@@ -9,8 +9,8 @@ import pytest
 from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
 
+from privaterelay.cleaner_task import DataItem
 from privaterelay.cleaners import MissingEmailCleaner
-from privaterelay.data_issue_task import DataItem
 
 
 def setup_missing_email_cleaner_test_data(

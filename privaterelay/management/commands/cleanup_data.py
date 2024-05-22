@@ -16,7 +16,7 @@ from privaterelay.cleaners import MissingEmailCleaner
 if TYPE_CHECKING:  # pragma: no cover
     from argparse import ArgumentParser
 
-    from privaterelay.data_issue_task import DataIssueTask
+    from privaterelay.cleaner_task import DataIssueTask
 
 
 logger = logging.getLogger("eventsinfo.cleanup_data")
