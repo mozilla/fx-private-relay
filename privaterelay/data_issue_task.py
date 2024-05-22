@@ -692,8 +692,8 @@ class DataIssueTask:
             report_items[key] = data_item
             if _KEY_SEP in key:
                 # Handle DataItem
-                if not isinstance(data_item, DataItem):
-                    raise ValueError(
+                if not isinstance(data_item, DataItem):  # pragma: no cover
+                    raise Exception(
                         f"For key '{key}', expected a DataItem, got {data_item!r}"
                     )
                 model_key, _ = key.split(_KEY_SEP, 1)
@@ -702,7 +702,7 @@ class DataIssueTask:
                     clean_group_keys[data_item.clean_group].add(key)
             else:
                 # Handle DataModelItem
-                if not isinstance(data_item, DataModelItem):
+                if not isinstance(data_item, DataModelItem):  # pragma: no cover
                     raise Exception(
                         f"For key '{key}', expected a DataModelItem, got {data_item!r}"
                     )

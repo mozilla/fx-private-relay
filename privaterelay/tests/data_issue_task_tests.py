@@ -622,6 +622,20 @@ def test_data_bisect_get_keys() -> None:
     assert sorted(spec.get_keys()) == ["!active", "active"]
 
 
+def test_data_entry_repr() -> None:
+    entry = ReportEntry(DataModelItem(User), 0, 0, [])
+    assert repr(entry) == "ReportEntry(DataModelItem(User), 0, 0, [])"
+
+
+def test_data_entry_eq() -> None:
+    item = DataModelItem(User)
+    assert ReportEntry(item, 0, 0, []) == ReportEntry(item, 0, 0, [])
+    assert ReportEntry(item, 0, 0, []) != ReportEntry(item, 1, 0, [])
+    assert ReportEntry(item, 0, 0, []) != ReportEntry(item, 0, 1, [])
+    assert ReportEntry(item, 0, 0, []) != ReportEntry(item, 0, 0, ["foo"])
+    assert ReportEntry(item, 0, 0, []) != item
+
+
 def test_data_issue_task_init_double_model_raises() -> None:
     class OverlapTask(DataIssueTask):
         data_specification = [DataModelSpec(User), DataModelSpec(User)]
