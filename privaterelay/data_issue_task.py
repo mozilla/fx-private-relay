@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import string
 from abc import ABCMeta, abstractmethod
-from collections import defaultdict
 from typing import Any, Generic, Literal, TypeVar, get_args
 
 from django.db.models import Model, Q
@@ -790,90 +789,34 @@ class DataIssueTask:
         """Return Markdown-formatted report of issues found and (maybe) fixed."""
 
         lines: list[str] = []
-        for model_metric_name, model_counts in self.counts.items():
-            if model_metric_name != "summary":
-                model_data_item = self.data_items[model_metric_name]
-                if not isinstance(model_data_item, DataModelItem):  # pragma: no cover
-                    raise Exception("Expected DataModelItem")
-                lines.extend(
-                    self._markdown_lines_for_model(
-                        model_metric_name, model_data_item, model_counts
-                    )
+        report_entries = self.get_report_entries()
+
+        # Get the maximum length of children for each entry with children
+        max_len_children: dict[str, int] = {}
+        for key, entry in report_entries.items():
+            if entry.child_keys:
+                children = [report_entries[subkey] for subkey in entry.child_keys]
+                max_len_children[key] = max(
+                    len(child.item.report_name or "") for child in children
+                )
+
+        # Output the markdown lines
+        for key, entry in report_entries.items():
+            if isinstance(entry.item, DataModelItem):
+                lines.append(f"{entry.item.report_name}:")
+                lines.append(f"  All: {entry.count}")
+            else:
+                parent_key, _ = key.rsplit(_KEY_SEP, 1)
+                parent_entry = report_entries[parent_key]
+                if parent_entry.count <= 0:
+                    continue
+                indent = "  " * entry.depth
+                max_len = max_len_children[parent_key]
+                lines.append(
+                    f"{indent}{entry.item.report_name:<{max_len}}:"
+                    f" {self._as_percent(entry.count, parent_entry.count)}"
                 )
         return "\n".join(lines)
-
-    def _markdown_lines_for_model(
-        self,
-        model_metric_name: str,
-        model_data_item: DataModelItem[Any],
-        model_counts: dict[str, int],
-    ) -> list[str]:
-        """Get the report lines for a model."""
-        total = model_counts["all"]
-        lines = [f"{model_data_item.report_name}:", f"  All: {total}"]
-
-        if total == 0:
-            return lines
-
-        _SECTION_KEY = tuple[str, ...]
-        section_counts: dict[_SECTION_KEY, int] = {
-            (model_data_item.metric_name,): total
-        }
-        section_subitems: dict[_SECTION_KEY, list[tuple[ReportItem, int]]] = (
-            defaultdict(list)
-        )
-
-        prefix = model_data_item.metric_name + _KEY_SEP
-        cleaned = model_counts.get("cleaned")
-
-        # Collect items and counts where the direct parent item has a non-zero count
-        for name, item in self.data_items.items():
-            if not (name.startswith(prefix) and item.metric_name and item.report_name):
-                continue
-            parts = tuple(name.split(_KEY_SEP))
-            parent_key = parts[:-1]
-            parent_total = section_counts[parent_key]
-            count = model_counts[item.metric_name]
-            if parent_total != 0:
-                section_counts[parts] = count
-                section_subitems[parent_key].append((item, count))
-                if (
-                    cleaned
-                    and isinstance(item, DataItem)
-                    and item.clean_group == "needs_cleaning"
-                ):
-                    cleaned_report_name = self._cleaned_report_name[model_metric_name]
-                    section_counts[parts + (cleaned_report_name,)] = cleaned
-                    section_subitems[parts].append(
-                        (CleanedItem(cleaned, report_name=cleaned_report_name), cleaned)
-                    )
-
-        # Add and indent subsections
-        for key, subitems in section_subitems.items():
-            indent = "  " * len(key)
-            max_len = max(len(subitem.report_name or "") for subitem, count in subitems)
-            parent_total = section_counts[key]
-            clean_pair = None
-            for subitem, count in subitems:
-                if (
-                    isinstance(subitem, DataItem)
-                    and subitem.clean_group == "needs_cleaning"
-                ):
-                    # Print last, so cleaned subitem will be after
-                    clean_pair = (subitem, count)
-                else:
-                    lines.append(
-                        f"  {indent}{subitem.report_name:<{max_len}}:"
-                        f" {self._as_percent(count, parent_total)}"
-                    )
-            if clean_pair:
-                subitem, count = clean_pair
-                lines.append(
-                    f"  {indent}{subitem.report_name:<{max_len}}:"
-                    f" {self._as_percent(count, parent_total)}"
-                )
-
-        return lines
 
     @staticmethod
     def _as_percent(part: int, whole: int) -> str:
