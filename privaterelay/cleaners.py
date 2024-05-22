@@ -1,4 +1,4 @@
-"""Tasks that detect and fix data issues in privaterelay app or 3rd part apps."""
+"""Tasks that detect and fix data issues in privaterelay app or 3rd party apps."""
 
 from django.contrib.auth.models import User
 from django.db.models import Q, QuerySet
