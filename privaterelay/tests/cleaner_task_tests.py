@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from django.contrib.auth.models import User
-from django.db.models import Q
+from django.db.models import Q, QuerySet
 
 import pytest
 from model_bakery import baker
@@ -676,8 +676,8 @@ class DeactivateOddUsersTask(CleanerTask):
         )
     ]
 
-    def clean_users(self, users: DataItem[User]) -> int:
-        return users.get_queryset().update(is_active=False)
+    def clean_users(self, queryset: QuerySet[User]) -> int:
+        return queryset.update(is_active=False)
 
 
 # fmt: off

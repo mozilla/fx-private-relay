@@ -3,12 +3,11 @@
 from __future__ import annotations
 
 from django.contrib.auth.models import User
-from django.db.models import Q
+from django.db.models import Q, QuerySet
 
 from privaterelay.cleaner_task import (
     CleanerTask,
     DataBisectSpec,
-    DataItem,
     DataModelSpec,
 )
 
@@ -62,11 +61,11 @@ class ServerStorageCleaner(CleanerTask):
         ]
     ]
 
-    def clean_relay_addresses(self, item: DataItem[RelayAddress]) -> int:
-        return item.get_queryset().update(description="", generated_for="", used_on="")
+    def clean_relay_addresses(self, queryset: QuerySet[RelayAddress]) -> int:
+        return queryset.update(description="", generated_for="", used_on="")
 
-    def clean_domain_addresses(self, item: DataItem[DomainAddress]) -> int:
-        return item.get_queryset().update(description="", used_on="")
+    def clean_domain_addresses(self, queryset: QuerySet[DomainAddress]) -> int:
+        return queryset.update(description="", used_on="")
 
 
 class MissingProfileCleaner(CleanerTask):
@@ -86,9 +85,9 @@ class MissingProfileCleaner(CleanerTask):
         ),
     ]
 
-    def clean_users(self, item: DataItem[User]) -> int:
+    def clean_users(self, queryset: QuerySet[User]) -> int:
         count = 0
-        for user in item.get_queryset():
+        for user in queryset:
             create_user_profile(sender=User, instance=user, created=True)
             count += 1
         return count

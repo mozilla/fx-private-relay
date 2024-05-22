@@ -82,4 +82,4 @@ def test_missing_email_cleaner_data_clean_users_handles_missing_fxa_data() -> No
     item = cleaner.data_items["users.!email"]
     assert isinstance(item, DataItem)
     assert item.count() == 4
-    assert cleaner.clean_users(item) == 1
+    assert cleaner.clean_users(item.get_queryset()) == 1

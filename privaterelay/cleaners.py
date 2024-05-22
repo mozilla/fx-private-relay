@@ -1,11 +1,11 @@
 """Tasks that detect and fix data issues in privaterelay app or 3rd part apps."""
 
 from django.contrib.auth.models import User
-from django.db.models import Q
+from django.db.models import Q, QuerySet
 
 from allauth.socialaccount.models import SocialAccount
 
-from .cleaner_task import CleanerTask, DataBisectSpec, DataItem, DataModelSpec
+from .cleaner_task import CleanerTask, DataBisectSpec, DataModelSpec
 
 
 class MissingEmailCleaner(CleanerTask):
@@ -31,9 +31,9 @@ class MissingEmailCleaner(CleanerTask):
         )
     ]
 
-    def clean_users(self, item: DataItem[User]) -> int:
+    def clean_users(self, queryset: QuerySet[User]) -> int:
         fixed = 0
-        for user in item.get_queryset():
+        for user in queryset:
             try:
                 fxa_account = SocialAccount.objects.get(provider="fxa", user=user)
             except SocialAccount.DoesNotExist:

@@ -854,7 +854,7 @@ class CleanerTask(DataIssueTask):
         for model_name, metric_name in cleanup_data.items():
             clean_item = self.data_items[metric_name]
             cleaner = getattr(self, f"clean_{model_name}")
-            count = cleaner(clean_item)
+            count = cleaner(clean_item.get_queryset())
             counts[model_name][_CLEANED_METRIC_NAME] = count
             total_cleaned += count
         return total_cleaned
