@@ -24,6 +24,10 @@ _ITEM_KEY_CHAR_SET = set(
 )
 
 
+# Used by CleanedItem
+_CLEANED_METRIC_NAME = "cleaned"
+
+
 def _metric_name_for_model(model: type[M]) -> str:
     """The model's metric key, used in metrics and as a dictionary key."""
     return str(model._meta.verbose_name_plural).replace(" ", "_")
@@ -73,18 +77,14 @@ class ReportItem(metaclass=ABCMeta):
 class CleanedItem(ReportItem):
     """Represents the results of cleaning a Model."""
 
-    def __init__(
-        self, count: int, metric_name: str = "cleaned", report_name: str = "Cleaned"
-    ) -> None:
+    def __init__(self, count: int, report_name: str = "Cleaned") -> None:
         if count < 0:
             raise ValueError("count can not be negative")
         self._count = count
-        super().__init__(metric_name=metric_name, report_name=report_name)
+        super().__init__(metric_name=_CLEANED_METRIC_NAME, report_name=report_name)
 
     def __repr__(self) -> str:
         args = [str(self._count)]
-        if self.metric_name != "cleaned":
-            args.append(f"metric_name={self.metric_name!r}")
         if self.report_name != "Cleaned":
             args.append(f"report_name={self.report_name!r}")
         return f'{type(self).__name__}({", ".join(args)})'
@@ -114,7 +114,9 @@ class BaseDataItem(ReportItem, Generic[M]):
         metric_name: str | None = None,
         report_name: str | None = None,
     ) -> None:
-        # TODO: forbid "cleaned" as metric_name
+        if metric_name == _CLEANED_METRIC_NAME:
+            raise ValueError(f"metric_name '{metric_name}' is reserved for CleanedItem")
+
         self._model_or_parent = model_or_parent
         self.filter_by = filter_by
         self.exclude = exclude
@@ -711,7 +713,7 @@ class DataIssueTask:
         for key in clean_group_keys["needs_cleaning"]:
             model_key, _ = key.split(_KEY_SEP, 1)
             try:
-                clean_count = self.counts[model_key]["cleaned"]
+                clean_count = self.counts[model_key][_CLEANED_METRIC_NAME]
             except KeyError:
                 continue
             clean_item = CleanedItem(
@@ -840,9 +842,9 @@ class CleanerTask(DataIssueTask):
         """Clean the detected items, and update counts["summary"]"""
         summary = self.counts["summary"]
         if not self._cleaned:
-            summary["cleaned"] = self._clean()
+            summary[_CLEANED_METRIC_NAME] = self._clean()
             self._cleaned = True
-        return summary["cleaned"]
+        return summary[_CLEANED_METRIC_NAME]
 
     def _clean(self) -> int:
         """Call the specified cleaners."""
@@ -853,6 +855,6 @@ class CleanerTask(DataIssueTask):
             clean_item = self.data_items[metric_name]
             cleaner = getattr(self, f"clean_{model_name}")
             count = cleaner(clean_item)
-            counts[model_name]["cleaned"] = count
+            counts[model_name][_CLEANED_METRIC_NAME] = count
             total_cleaned += count
         return total_cleaned

@@ -46,18 +46,6 @@ def four_users(db: None) -> dict[str, User]:
 
 _CLEANED_ITEM_INIT_RAISES_TEST_CASES = {
     "count_negative": ({"count": -1}, r"^count can not be negative$"),
-    "metric_name_one_bad_char": (
-        {"metric_name": "profile~.foo"},
-        r"^metric_name 'profile~\.foo' has disallowed character '~'$",
-    ),
-    "metric_name_two_bad_chars": (
-        {"metric_name": "pro~file^.foo"},
-        r"^metric_name 'pro~file\^\.foo' has disallowed characters '\^~'$",
-    ),
-    "metric_name_empty": (
-        {"metric_name": ""},
-        r"^metric_name is an empty string, should be None$",
-    ),
     "report_name_empty": (
         {"report_name": ""},
         r"^report_name is an empty string, should be None$",
@@ -89,12 +77,12 @@ def test_cleaned_item_init_count_only() -> None:
 
 
 def test_cleaned_item_init_all() -> None:
-    cleaned = CleanedItem(6, "metric", "Report")
-    assert cleaned.metric_name == "metric"
+    cleaned = CleanedItem(6, "Report")
+    assert cleaned.metric_name == "cleaned"
     assert cleaned.report_name == "Report"
     assert cleaned.count() == 6
-    assert repr(cleaned) == "CleanedItem(6, metric_name='metric', report_name='Report')"
-    assert cleaned == CleanedItem(6, "metric", "Report")
+    assert repr(cleaned) == "CleanedItem(6, report_name='Report')"
+    assert cleaned == CleanedItem(6, "Report")
     assert cleaned != CleanedItem(6)
 
 
@@ -124,6 +112,22 @@ _DATA_ITEM_INIT_RAISES_TEST_CASES = {
     "clean_group_invalid": (
         {"filter_by": "a_column", "metric_name": "profiles", "clean_group": "invalid"},
         r"^clean_group has invalid value 'invalid'$",
+    ),
+    "metric_name_cleaned": (
+        {"filter_by": "a_column", "metric_name": "cleaned"},
+        r"^metric_name 'cleaned' is reserved for CleanedItem",
+    ),
+    "metric_name_one_bad_char": (
+        {"filter_by": "a_column", "metric_name": "profile~.foo"},
+        r"^metric_name 'profile~\.foo' has disallowed character '~'$",
+    ),
+    "metric_name_two_bad_chars": (
+        {"filter_by": "a_column", "metric_name": "pro~file^.foo"},
+        r"^metric_name 'pro~file\^\.foo' has disallowed characters '\^~'$",
+    ),
+    "metric_name_empty": (
+        {"filter_by": "a_column", "metric_name": ""},
+        r"^metric_name is an empty string, should be None$",
     ),
 }
 
