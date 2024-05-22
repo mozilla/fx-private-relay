@@ -17,7 +17,7 @@ from emails.tests.cleaners_tests import setup_profile_mismatch_test_data
 
 COMMAND_NAME = "cleanup_data"
 MOCK_BASE = f"private_relay.management.commands.{COMMAND_NAME}"
-CLEANERS = {"server-storage", "missing-profile"}
+CLEANERS = {"server-storage", "missing-profile", "missing-email"}
 KNOWN_CLEANER = "server-storage"
 
 

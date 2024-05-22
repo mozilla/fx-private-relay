@@ -11,6 +11,7 @@ from django.core.management.base import BaseCommand, DjangoHelpFormatter
 from codetiming import Timer
 
 from emails.cleaners import MissingProfileCleaner, ServerStorageCleaner
+from privaterelay.cleaners import MissingEmailCleaner
 
 if TYPE_CHECKING:  # pragma: no cover
     from argparse import ArgumentParser
@@ -32,6 +33,7 @@ class Command(BaseCommand):
     task_list: list[type[DataIssueTask]] = [
         ServerStorageCleaner,
         MissingProfileCleaner,
+        MissingEmailCleaner,
     ]
     tasks: dict[str, DataIssueTask]
 
