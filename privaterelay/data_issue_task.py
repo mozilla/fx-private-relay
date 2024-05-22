@@ -30,9 +30,9 @@ def _metric_name_for_model(model: type[M]) -> str:
     return str(model._meta.verbose_name_plural).replace(" ", "_")
 
 
-class ReportEntry(metaclass=ABCMeta):
+class ReportItem(metaclass=ABCMeta):
     """
-    An entry in a data task report.
+    An item in a data task report.
 
     This is the base model in the reporting item hierarchy. Code should use the derived
     classes CleanedItem, DataModelItem, and DataItem.
@@ -40,7 +40,7 @@ class ReportEntry(metaclass=ABCMeta):
 
     def __init__(self, metric_name: str | None = None, report_name: str | None = None):
         """
-        Initialize a BaseReportItem.
+        Initialize a ReportItem.
 
         The `metric_name` parameter sets the name of the entry when it appears as a
         `dict` or JSON key. The default is `None`, which omits the entry from
@@ -71,7 +71,7 @@ class ReportEntry(metaclass=ABCMeta):
         raise NotImplementedError
 
 
-class CleanedItem(ReportEntry):
+class CleanedItem(ReportItem):
     """Represents the results of cleaning a Model."""
 
     def __init__(
@@ -104,7 +104,7 @@ class CleanedItem(ReportEntry):
         return self._count
 
 
-class BaseDataItem(ReportEntry, Generic[M]):
+class BaseDataItem(ReportItem, Generic[M]):
     """An entry in a data task report backed by a database query."""
 
     def __init__(
@@ -654,7 +654,7 @@ class DataIssueTask:
         section_counts: dict[_SECTION_KEY, int] = {
             (model_data_item.metric_name,): total
         }
-        section_subitems: dict[_SECTION_KEY, list[tuple[ReportEntry, int]]] = (
+        section_subitems: dict[_SECTION_KEY, list[tuple[ReportItem, int]]] = (
             defaultdict(list)
         )
 
