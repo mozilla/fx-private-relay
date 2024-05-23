@@ -33,6 +33,7 @@ def log_extra(log_record: LogRecord) -> dict[str, Any]:
         "relativeCreated",
         "rid",
         "stack_info",
+        "taskName",
         "thread",
         "threadName",
     }
