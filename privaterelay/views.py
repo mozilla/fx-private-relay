@@ -139,9 +139,17 @@ def fxa_rp_events(request: HttpRequest) -> HttpResponse:
     event_keys = _get_event_keys_from_jwt(authentic_jwt)
     try:
         social_account = _get_account_from_jwt(authentic_jwt)
-    except SocialAccount.DoesNotExist as e:
-        # capture an exception in sentry, but don't error, or FXA will retry
-        sentry_sdk.capture_exception(e)
+    except SocialAccount.DoesNotExist:
+        if settings.DEBUG:
+            info_logger.info(
+                "fxa_profile_update",
+                extra={
+                    "success": False,
+                    "reason": "SocialAccount does not exist.",
+                    "jwt": authentic_jwt,
+                },
+            )
+        # Don't error, or FXA will retry
         return HttpResponse("202 Accepted", status=202)
 
     for event_key in event_keys:
