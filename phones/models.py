@@ -27,6 +27,7 @@ from .apps import phones_config, twilio_client
 from .iq_utils import send_iq_sms
 
 logger = logging.getLogger("eventsinfo")
+events_logger = logging.getLogger("events")
 
 
 MAX_MINUTES_TO_VERIFY_REAL_PHONE = 5
@@ -296,7 +297,7 @@ class RelayNumber(models.Model):
             if settings.TWILIO_MESSAGING_SERVICE_SID:
                 register_with_messaging_service(client, twilio_incoming_number.sid)
             else:
-                logger.warning(
+                events_logger.warning(
                     "Skipping Twilio Messaging Service registration, since"
                     " TWILIO_MESSAGING_SERVICE_SID is empty.",
                     extra={"number_sid": twilio_incoming_number.sid},
@@ -354,16 +355,16 @@ def register_with_messaging_service(client: Client, number_sid: str) -> None:
             if err.status == 409 and err.code == 21710:
                 # Log "Phone Number is already in the Messaging Service"
                 # https://www.twilio.com/docs/api/errors/21710
-                logger.warning("twilio_messaging_service", extra=log_extra)
+                events_logger.warning("twilio_messaging_service", extra=log_extra)
                 return
             elif err.status == 412 and err.code == 21714:
                 # Log "Number Pool size limit reached", continue to next service
                 # https://www.twilio.com/docs/api/errors/21714
                 closed_sids.append(service_sid)
-                logger.warning("twilio_messaging_service", extra=log_extra)
+                events_logger.warning("twilio_messaging_service", extra=log_extra)
             else:
                 # Log and re-raise other Twilio errors
-                logger.error("twilio_messaging_service", extra=log_extra)
+                events_logger.error("twilio_messaging_service", extra=log_extra)
                 raise
         else:
             return  # Successfully registered with service
