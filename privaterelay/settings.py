@@ -650,7 +650,7 @@ LOGGING = {
         },
         "events": {
             "handlers": ["console_err"],
-            "level": "ERROR",
+            "level": "WARNING",
             "propagate": IN_PYTEST,
         },
         "eventsinfo": {
