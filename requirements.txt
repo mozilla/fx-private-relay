@@ -30,7 +30,7 @@ psycopg[c]==3.1.19
 PyJWT==2.8.0
 python-decouple==3.8
 pyOpenSSL==24.1.0
-requests==2.32.0
+requests==2.32.2
 sentry-sdk==2.3.1
 whitenoise==6.6.0
 
