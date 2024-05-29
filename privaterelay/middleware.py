@@ -1,3 +1,4 @@
+import re
 import time
 from collections.abc import Callable
 from datetime import UTC, datetime
@@ -54,6 +55,9 @@ class AddDetectedCountryToRequestAndResponseHeaders:
 
 
 class ResponseMetrics:
+
+    re_dockerflow = re.compile(r"/__(version|heartbeat|lbheartbeat)__/?$")
+
     def __init__(self, get_response: Callable[[HttpRequest], HttpResponse]) -> None:
         self.get_response = get_response
 
@@ -80,6 +84,8 @@ class ResponseMetrics:
         if request.resolver_match:
             view = request.resolver_match.func
             return f"{view.__module__}.{view.__name__}"
+        if match := self.re_dockerflow.match(request.path_info):
+            return f"dockerflow.django.views.{match[1]}"
         return "<unknown_view>"
 
 

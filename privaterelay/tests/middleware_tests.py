@@ -23,6 +23,7 @@ def response_metrics_settings(settings: SettingsWrapper) -> SettingsWrapper:
 def test_response_metrics_django_view(
     client: Client, response_metrics_settings: SettingsWrapper
 ) -> None:
+    """Django views emit the expected metrics."""
     with MetricsMock() as mm:
         response = client.get("/metrics-event")
     assert response.status_code == 405
@@ -32,15 +33,23 @@ def test_response_metrics_django_view(
     )
 
 
+@pytest.mark.django_db
+@pytest.mark.parametrize("viewname", ["version", "heartbeat", "lbheartbeat"])
 def test_response_metrics_dockerflow_view(
-    client: Client, response_metrics_settings: SettingsWrapper
+    client: Client, response_metrics_settings: SettingsWrapper, viewname: str
 ) -> None:
+    """Dockerflow views are handled by the DockerflowMiddleware."""
     with MetricsMock() as mm:
-        response = client.get("/__lbheartbeat__")
-    assert response.status_code == 200
+        response = client.get(f"/__{viewname}__")
+    expected_status_code = 500 if viewname == "heartbeat" else 200
+    assert response.status_code == expected_status_code
     mm.assert_timing_once(
         "fx.private.relay.response",
-        tags=["status:200", "view:<unknown_view>", "method:GET"],
+        tags=[
+            f"status:{expected_status_code}",
+            f"view:dockerflow.django.views.{viewname}",
+            "method:GET",
+        ],
     )
 
 
@@ -57,10 +66,10 @@ def test_response_metrics_api_view(
     )
 
 
-@pytest.mark.django_db
-def test_response_metrics_frontend_view(
+def test_response_metrics_frontend_path(
     client: Client, response_metrics_settings: SettingsWrapper
 ) -> None:
+    """Frontend views do not return through the ResponseMetrics middleware."""
     with MetricsMock() as mm:
         response = client.get("/faq/")
     assert response.status_code == 200
@@ -86,6 +95,7 @@ def test_response_metrics_frontend_file(
 def test_response_metrics_disabled(
     client: Client, response_metrics_settings: SettingsWrapper
 ) -> None:
+    """ResponseMetrics does not emit metrics when metrics are disabled."""
     response_metrics_settings.STATSD_ENABLED = False
     with MetricsMock() as mm:
         response = client.get("/metrics-event")
