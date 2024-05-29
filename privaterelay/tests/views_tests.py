@@ -3,7 +3,7 @@ import logging
 from collections.abc import Callable, Iterator
 from copy import deepcopy
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any, Literal
 from unittest.mock import ANY, Mock, patch
@@ -350,7 +350,7 @@ def get_fxa_event_jwt(
         "iss": "https://accounts.firefox.com/",
         "sub": fxa_id,
         "aud": client_id,
-        "iat": int(datetime.utcnow().timestamp()) + iat_skew,
+        "iat": int(datetime.now(UTC).timestamp()) + iat_skew,
         "jti": str(uuid4()),
         "events": {event_key: event_data},
     }
@@ -369,7 +369,7 @@ def test_fxa_rp_events_password_change(
         fxa_id=setup_fxa_rp_events.fxa_acct.uid,
         client_id=setup_fxa_rp_events.app.client_id,
         signing_key=setup_fxa_rp_events.key,
-        event_data={"changeTime": int(datetime.utcnow().timestamp()) - 100},
+        event_data={"changeTime": int(datetime.now(UTC).timestamp()) - 100},
     )
     auth_header = f"Bearer {event_jwt}"
 
@@ -395,7 +395,7 @@ def test_fxa_rp_events_password_change_slight_future_iat(
         fxa_id=setup_fxa_rp_events.fxa_acct.uid,
         client_id=setup_fxa_rp_events.app.client_id,
         signing_key=setup_fxa_rp_events.key,
-        event_data={"changeTime": int(datetime.utcnow().timestamp()) - 100},
+        event_data={"changeTime": int(datetime.now(UTC).timestamp()) - 100},
         iat_skew=3,
     )
     auth_header = f"Bearer {event_jwt}"
@@ -426,7 +426,7 @@ def test_fxa_rp_events_password_change_far_future_iat(
         fxa_id=setup_fxa_rp_events.fxa_acct.uid,
         client_id=setup_fxa_rp_events.app.client_id,
         signing_key=setup_fxa_rp_events.key,
-        event_data={"changeTime": int(datetime.utcnow().timestamp()) - 100},
+        event_data={"changeTime": int(datetime.now(UTC).timestamp()) - 100},
         iat_skew=10,
     )
     auth_header = f"Bearer {event_jwt}"
@@ -493,7 +493,7 @@ def test_fxa_rp_events_subscription_change(
         event_data={
             "capabilities": ["new_capability"],
             "isActive": True,
-            "changeTime": int(datetime.utcnow().timestamp()) - 100,
+            "changeTime": int(datetime.now(UTC).timestamp()) - 100,
         },
     )
     auth_header = f"Bearer {event_jwt}"

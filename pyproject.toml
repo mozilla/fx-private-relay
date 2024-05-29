@@ -53,6 +53,7 @@ module = [
     "django_filters.*",
     "django_ftl",
     "django_ftl.bundles",
+    "google.*",
     "google_measurement_protocol",
     "googlecloudprofiler",
     "ipware",
