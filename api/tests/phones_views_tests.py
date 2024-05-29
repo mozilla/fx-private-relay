@@ -847,6 +847,28 @@ def test_inbound_sms_valid_twilio_signature_unknown_number(
     assert "Could Not Find Relay Number." in response.data[0].title()
 
 
+def test_inbound_sms_valid_twilio_signature_good_data_deactivated_user(
+    phone_user, mocked_twilio_client
+):
+    phone_user.is_active = False
+    phone_user.save()
+    _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user)
+    pre_inbound_remaining_texts = relay_number.remaining_texts
+    mocked_twilio_client.reset_mock()
+
+    client = APIClient()
+    path = "/api/v1/inbound_sms"
+    data = {"From": "+15556660000", "To": relay_number.number, "Body": "test body"}
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 200
+    mocked_twilio_client.messages.create.assert_not_called()
+    relay_number.refresh_from_db()
+    assert relay_number.texts_forwarded == 0
+    assert relay_number.remaining_texts == pre_inbound_remaining_texts
+
+
 def test_inbound_sms_valid_twilio_signature_good_data(phone_user, mocked_twilio_client):
     real_phone = _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user)
@@ -1852,6 +1874,33 @@ def test_inbound_call_valid_twilio_signature_unknown_number(
 
     assert response.status_code == 400
     assert "Could Not Find Relay Number." in response.data[0].title()
+
+
+def test_inbound_call_valid_twilio_signature_good_data_deactivated_user(
+    phone_user, mocked_twilio_client
+):
+    _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user, enabled=True)
+    phone_user.is_active = False
+    phone_user.save()
+    pre_call_calls_forwarded = relay_number.calls_forwarded
+    caller_number = "+15556660000"
+    mocked_twilio_client.reset_mock()
+
+    client = APIClient()
+    path = "/api/v1/inbound_call"
+    data = {"Caller": caller_number, "Called": relay_number.number}
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 200
+    decoded_content = response.content.decode()
+    assert "<Response/>" in decoded_content
+    relay_number.refresh_from_db()
+    assert relay_number.calls_forwarded == pre_call_calls_forwarded
+    with pytest.raises(InboundContact.DoesNotExist):
+        InboundContact.objects.get(
+            relay_number=relay_number, inbound_number=caller_number
+        )
 
 
 def test_inbound_call_valid_twilio_signature_good_data(

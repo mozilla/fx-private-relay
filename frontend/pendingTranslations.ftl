@@ -124,3 +124,5 @@ upsell-banner-4-masks-us-cta = Upgrade to { -brand-name-relay-premium }
 
 -brand-name-mozilla-monitor = Mozilla Monitor
 moz-monitor = { -brand-name-mozilla-monitor }
+
+api-error-account-is-inactive = Your account is not active.

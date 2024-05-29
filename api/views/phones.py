@@ -693,6 +693,12 @@ def inbound_sms(request):
         raise exceptions.ValidationError("Request missing From, To, Or Body.")
 
     relay_number, real_phone = _get_phone_objects(inbound_to)
+    if not real_phone.user.is_active:
+        return response.Response(
+            status=200,
+            template_name="twiml_empty_response.xml",
+        )
+
     _check_remaining(relay_number, "texts")
 
     if inbound_from == real_phone.number:
@@ -939,6 +945,11 @@ def inbound_call(request):
         raise exceptions.ValidationError("Call data missing Caller or Called.")
 
     relay_number, real_phone = _get_phone_objects(inbound_to)
+    if not real_phone.user.is_active:
+        return response.Response(
+            status=200,
+            template_name="twiml_empty_response.xml",
+        )
 
     number_disabled = _check_disabled(relay_number, "calls")
     if number_disabled:

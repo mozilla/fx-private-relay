@@ -2,7 +2,7 @@ import logging
 from urllib.parse import urlencode, urlparse
 
 from django.http import Http404
-from django.shortcuts import resolve_url
+from django.shortcuts import redirect, resolve_url
 from django.urls import resolve
 
 from allauth.account.adapter import DefaultAccountAdapter
@@ -54,3 +54,6 @@ class AccountAdapter(DefaultAccountAdapter):
         # The path is invalid
         logger.error("No matching URL for '%s'", url)
         return False
+
+    def respond_user_inactive(self, request, user):
+        return redirect("/accounts/account_inactive/")

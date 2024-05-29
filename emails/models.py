@@ -320,6 +320,9 @@ class Profile(models.Model):
 
     @property
     def has_premium(self) -> bool:
+        if not self.user.is_active:
+            return False
+
         # FIXME: as we don't have all the tiers defined we are over-defining
         # this to mark the user as a premium user as well
         if not self.fxa:
@@ -664,6 +667,12 @@ class AccountIsPausedException(CannotMakeAddressException):
     status_code = 403
 
 
+class AccountIsInactiveException(CannotMakeAddressException):
+    default_code = "account_is_inactive"
+    default_detail = "Your account is not active."
+    status_code = 403
+
+
 class RelayAddrFreeTierLimitException(CannotMakeAddressException):
     default_code = "free_tier_limit"
     default_detail_template = (
@@ -857,6 +866,9 @@ class RelayAddress(models.Model):
 
 
 def check_user_can_make_another_address(profile: Profile) -> None:
+    if not profile.user.is_active:
+        raise AccountIsInactiveException()
+
     if profile.is_flagged:
         raise AccountIsPausedException()
     # MPP-3021: return early for premium users to avoid at_max_free_aliases DB query
@@ -909,6 +921,9 @@ def check_user_can_make_domain_address(user_profile: Profile) -> None:
 
     if not user_profile.subdomain:
         raise DomainAddrNeedSubdomainException()
+
+    if not user_profile.user.is_active:
+        raise AccountIsInactiveException()
 
     if user_profile.is_flagged:
         raise AccountIsPausedException()

@@ -517,6 +517,24 @@ def test_post_relayaddress_flagged_error(
     assert get_glean_event(caplog) is None
 
 
+def test_post_relayaddress_inactive_user_error(
+    free_user: User, free_api_client: APIClient, caplog: pytest.LogCaptureFixture
+) -> None:
+    """An inactive user is unable to create a random mask."""
+    free_user.is_active = False
+    free_user.save()
+
+    response = free_api_client.post(reverse("relayaddress-list"), {}, format="json")
+
+    assert response.status_code == 403
+    ret_data = response.json()
+    assert ret_data == {
+        "detail": "Your account is not active.",
+        "error_code": "account_is_inactive",
+    }
+    assert get_glean_event(caplog) is None
+
+
 @pytest.mark.parametrize(
     "key,value",
     [
