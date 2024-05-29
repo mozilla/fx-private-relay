@@ -83,6 +83,9 @@ class ResponseMetrics:
     def _get_metric_view_name(self, request: HttpRequest) -> str:
         if request.resolver_match:
             view = request.resolver_match.func
+            if hasattr(view, "view_class"):
+                # Wrapped with rest_framework.decorators.api_view
+                return f"{view.__module__}.{view.view_class.__name__}"
             return f"{view.__module__}.{view.__name__}"
         if match := self.re_dockerflow.match(request.path_info):
             return f"dockerflow.django.views.{match[1]}"

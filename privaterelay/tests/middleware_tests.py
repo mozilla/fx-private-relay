@@ -54,6 +54,19 @@ def test_response_metrics_dockerflow_view(
 
 
 @pytest.mark.django_db
+def test_response_metrics_api_viewset(
+    client: Client, response_metrics_settings: SettingsWrapper
+) -> None:
+    with MetricsMock() as mm:
+        response = client.get("/api/v1/users/")
+    assert response.status_code == 401
+    mm.assert_timing_once(
+        "fx.private.relay.response",
+        tags=["status:401", "view:api.views.privaterelay.UserViewSet", "method:GET"],
+    )
+
+
+@pytest.mark.django_db
 def test_response_metrics_api_view(
     client: Client, response_metrics_settings: SettingsWrapper
 ) -> None:
@@ -62,7 +75,7 @@ def test_response_metrics_api_view(
     assert response.status_code == 200
     mm.assert_timing_once(
         "fx.private.relay.response",
-        tags=["status:200", "view:api.views.privaterelay.view", "method:GET"],
+        tags=["status:200", "view:api.views.privaterelay.runtime_data", "method:GET"],
     )
 
 
