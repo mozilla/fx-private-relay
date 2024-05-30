@@ -9,6 +9,7 @@ from pytest_django.fixtures import SettingsWrapper
 
 @pytest.fixture
 def response_metrics_settings(settings: SettingsWrapper) -> SettingsWrapper:
+    """Setup settings for ResponseMetrics tests."""
     # Use some middleware in the declared order
     use_middleware = {
         "privaterelay.middleware.ResponseMetrics",
@@ -23,7 +24,7 @@ def response_metrics_settings(settings: SettingsWrapper) -> SettingsWrapper:
 def test_response_metrics_django_view(
     client: Client, response_metrics_settings: SettingsWrapper
 ) -> None:
-    """Django views emit the expected metrics."""
+    """Django views emit the expected metric."""
     with MetricsMock() as mm:
         response = client.get("/metrics-event")
     assert response.status_code == 405
@@ -37,7 +38,7 @@ def test_response_metrics_django_view(
 def test_response_metrics_dockerflow_heartbeat(
     client: Client, response_metrics_settings: SettingsWrapper
 ) -> None:
-    """Dockerflow views are handled by the DockerflowMiddleware."""
+    """The Dockerflow __heartbeat__ endpoint emits the expected metric."""
     with MetricsMock() as mm:
         response = client.get("/__heartbeat__")
     # __heartbeat__ runs some security and connection tests
@@ -58,7 +59,7 @@ def test_response_metrics_dockerflow_heartbeat(
 def test_response_metrics_other_dockerflow_view(
     client: Client, response_metrics_settings: SettingsWrapper, viewname: str
 ) -> None:
-    """Dockerflow views are handled by the DockerflowMiddleware."""
+    """The other Dockerflow views emit the expected metrics."""
     with MetricsMock() as mm:
         response = client.get(f"/__{viewname}__")
     assert response.status_code == 200
@@ -76,6 +77,7 @@ def test_response_metrics_other_dockerflow_view(
 def test_response_metrics_api_viewset(
     client: Client, response_metrics_settings: SettingsWrapper
 ) -> None:
+    """API viewsets emit the expected metrics."""
     with MetricsMock() as mm:
         response = client.get("/api/v1/users/")
     assert response.status_code == 401
@@ -89,6 +91,7 @@ def test_response_metrics_api_viewset(
 def test_response_metrics_api_view(
     client: Client, response_metrics_settings: SettingsWrapper
 ) -> None:
+    """API functions wrapped in @api_view emit the expected metrics."""
     with MetricsMock() as mm:
         response = client.get("/api/v1/runtime_data")
     assert response.status_code == 200
@@ -101,7 +104,7 @@ def test_response_metrics_api_view(
 def test_response_metrics_frontend_path(
     client: Client, response_metrics_settings: SettingsWrapper
 ) -> None:
-    """Frontend views do not return through the ResponseMetrics middleware."""
+    """Frontend views emit the expected metrics."""
     with MetricsMock() as mm:
         response = client.get("/faq/")
     assert response.status_code == 200
@@ -115,6 +118,7 @@ def test_response_metrics_frontend_path(
 def test_response_metrics_frontend_file(
     client: Client, response_metrics_settings: SettingsWrapper
 ) -> None:
+    """Frontend files emit the expected metrics."""
     with MetricsMock() as mm:
         response = client.get("/favicon.svg")
     assert response.status_code == 200
