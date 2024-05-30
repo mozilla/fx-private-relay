@@ -88,7 +88,7 @@ def test_response_metrics_frontend_path(
     assert response.status_code == 200
     mm.assert_timing_once(
         "fx.private.relay.response",
-        tags=["status:200", "view:<unknown_view>", "method:GET"],
+        tags=["status:200", "view:<static_file>", "method:GET"],
     )
 
 
@@ -101,7 +101,7 @@ def test_response_metrics_frontend_file(
     assert response.status_code == 200
     mm.assert_timing_once(
         "fx.private.relay.response",
-        tags=["status:200", "view:<unknown_view>", "method:GET"],
+        tags=["status:200", "view:<static_file>", "method:GET"],
     )
 
 

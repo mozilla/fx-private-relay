@@ -60,6 +60,7 @@ class ResponseMetrics:
 
     def __init__(self, get_response: Callable[[HttpRequest], HttpResponse]) -> None:
         self.get_response = get_response
+        self.middleware = RelayStaticFilesMiddleware()
 
     def __call__(self, request: HttpRequest) -> HttpResponse:
         if not settings.STATSD_ENABLED:
@@ -89,6 +90,8 @@ class ResponseMetrics:
             return f"{view.__module__}.{view.__name__}"
         if match := self.re_dockerflow.match(request.path_info):
             return f"dockerflow.django.views.{match[1]}"
+        if self.middleware.is_staticfile(request.path_info):
+            return "<static_file>"
         return "<unknown_view>"
 
 
@@ -130,3 +133,16 @@ class RelayStaticFilesMiddleware(WhiteNoiseMiddleware):
             return True
         else:
             return super().immutable_file_test(path, url)
+
+    def is_staticfile(self, path_info: str) -> bool:
+        """
+        Returns True if this file is served by the middleware.
+
+        This uses the logic from whitenoise.middleware.WhiteNoiseMiddleware.__call__:
+        https://github.com/evansd/whitenoise/blob/220a98894495d407424e80d85d49227a5cf97e1b/src/whitenoise/middleware.py#L117-L124
+        """
+        if self.autorefresh:
+            static_file = self.find_file(path_info)
+        else:
+            static_file = self.files.get(path_info)
+        return static_file is not None
