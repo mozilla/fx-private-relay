@@ -34,19 +34,38 @@ def test_response_metrics_django_view(
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize("viewname", ["version", "heartbeat", "lbheartbeat"])
-def test_response_metrics_dockerflow_view(
+def test_response_metrics_dockerflow_heartbeat(
+    client: Client, response_metrics_settings: SettingsWrapper
+) -> None:
+    """Dockerflow views are handled by the DockerflowMiddleware."""
+    with MetricsMock() as mm:
+        response = client.get("/__heartbeat__")
+    # __heartbeat__ runs some security and connection tests
+    # In some environments, a critical error results in a 500
+    # In others, a warning or better results in a 200
+    assert response.status_code in [200, 500]
+    mm.assert_timing_once(
+        "fx.private.relay.response",
+        tags=[
+            f"status:{response.status_code}",
+            "view:dockerflow.django.views.heartbeat",
+            "method:GET",
+        ],
+    )
+
+
+@pytest.mark.parametrize("viewname", ["version", "lbheartbeat"])
+def test_response_metrics_other_dockerflow_view(
     client: Client, response_metrics_settings: SettingsWrapper, viewname: str
 ) -> None:
     """Dockerflow views are handled by the DockerflowMiddleware."""
     with MetricsMock() as mm:
         response = client.get(f"/__{viewname}__")
-    expected_status_code = 500 if viewname == "heartbeat" else 200
-    assert response.status_code == expected_status_code
+    assert response.status_code == 200
     mm.assert_timing_once(
         "fx.private.relay.response",
         tags=[
-            f"status:{expected_status_code}",
+            "status:200",
             f"view:dockerflow.django.views.{viewname}",
             "method:GET",
         ],
