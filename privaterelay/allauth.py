@@ -47,7 +47,11 @@ class AccountAdapter(DefaultAccountAdapter):
             # Staticfiles are not available
             pass
         else:
-            found = middleware.find_file(path)
+            found = middleware.find_file(path) or middleware.find_file_at_path(
+                "staticfiles/" + path, path
+            )
+
+            # Is this a frontend URL?
             if found:
                 return True
 
