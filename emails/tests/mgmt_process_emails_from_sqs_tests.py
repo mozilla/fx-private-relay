@@ -18,7 +18,7 @@ from pytest import LogCaptureFixture
 from pytest_django.fixtures import SettingsWrapper
 
 from emails.tests.views_tests import EMAIL_SNS_BODIES
-from privaterelay.tests.utils import log_extra
+from privaterelay.tests.utils import log_extra, omit_markus_logs
 
 if TYPE_CHECKING:
     from botocore.exceptions import _ClientErrorResponseTypeDef
@@ -252,7 +252,7 @@ def test_no_messages(caplog: LogCaptureFixture, test_settings: SettingsWrapper) 
     """The command can exit after the max time and processing no messages."""
     call_command(COMMAND_NAME)
 
-    rec1, rec2, rec3, rec4 = caplog.records
+    rec1, rec2, rec3, rec4 = omit_markus_logs(caplog)
     assert rec1.getMessage() == "Starting process_emails_from_sqs"
     assert log_extra(rec1) == {
         "aws_region": "us-east-1",
@@ -319,7 +319,7 @@ def test_one_message(
     mock_sqs_client.return_value = fake_queue([msg], [])
     call_command(COMMAND_NAME)
 
-    msg_log = caplog.records[1]
+    msg_log = omit_markus_logs(caplog)[1]
     assert msg_log.getMessage() == "Message processed"
     msg_extra = log_extra(msg_log)
     assert set(msg_extra.keys()) == {
@@ -437,7 +437,7 @@ def test_ses_python_error(
     assert summary["total_messages"] == 1
     assert summary["failed_messages"] == 1
     msg.delete.assert_not_called()
-    rec2 = caplog.records[1]
+    rec2 = omit_markus_logs(caplog)[1]
     assert rec2.msg == "Message processed"
     rec2_extra = log_extra(rec2)
     assert rec2_extra["success"] is False
@@ -460,7 +460,7 @@ def test_ses_slow(
     summary = summary_from_exit_log(caplog)
     assert summary["total_messages"] == 1
     msg.delete.assert_called()
-    rec2 = caplog.records[1]
+    rec2 = omit_markus_logs(caplog)[1]
     assert rec2.msg == "Message processed"
     rec2_extra = log_extra(rec2)
     assert rec2_extra["success"] is True
@@ -486,7 +486,7 @@ def test_ses_timeout(
     assert summary["total_messages"] == 1
     assert summary["failed_messages"] == 1
     msg.delete.assert_not_called()
-    rec2 = caplog.records[1]
+    rec2 = omit_markus_logs(caplog)[1]
     assert rec2.msg == "Message processed"
     rec2_extra = log_extra(rec2)
     assert rec2_extra["success"] is False
@@ -507,7 +507,7 @@ def test_db_is_unusable_is_closed(
     summary = summary_from_exit_log(caplog)
     assert summary["total_messages"] == 1
     msg.delete.assert_called()
-    rec2 = caplog.records[1]
+    rec2 = omit_markus_logs(caplog)[1]
     assert rec2.msg == "Message processed"
     rec2_extra = log_extra(rec2)
     assert rec2_extra["success"] is True
