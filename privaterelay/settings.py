@@ -349,16 +349,7 @@ if PHONES_ENABLED:
     ]
 
 
-# statsd middleware has to be first to catch errors in everything else
-def _get_initial_middleware() -> list[str]:
-    if STATSD_ENABLED:
-        return [
-            "privaterelay.middleware.ResponseMetrics",
-        ]
-    return []
-
-
-MIDDLEWARE = _get_initial_middleware()
+MIDDLEWARE = ["privaterelay.middleware.ResponseMetrics"]
 
 if USE_SILK:
     MIDDLEWARE.append("silk.middleware.SilkyMiddleware")

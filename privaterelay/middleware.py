@@ -1,7 +1,10 @@
+import re
 import time
+from collections.abc import Callable
 from datetime import UTC, datetime
 
 from django.conf import settings
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 
 import markus
@@ -51,24 +54,22 @@ class AddDetectedCountryToRequestAndResponseHeaders:
         return response
 
 
-def _get_metric_view_name(request):
-    if request.resolver_match:
-        view = request.resolver_match.func
-        return f"{view.__module__}.{view.__name__}"
-    return "<unknown_view>"
-
-
 class ResponseMetrics:
-    def __init__(self, get_response):
-        self.get_response = get_response
 
-    def __call__(self, request):
+    re_dockerflow = re.compile(r"/__(version|heartbeat|lbheartbeat)__/?$")
+
+    def __init__(self, get_response: Callable[[HttpRequest], HttpResponse]) -> None:
+        self.get_response = get_response
+        self.middleware = RelayStaticFilesMiddleware()
+
+    def __call__(self, request: HttpRequest) -> HttpResponse:
+        if not settings.STATSD_ENABLED:
+            return self.get_response(request)
+
         start_time = time.time()
         response = self.get_response(request)
         delta = time.time() - start_time
-
-        view_name = _get_metric_view_name(request)
-
+        view_name = self._get_metric_view_name(request)
         metrics.timing(
             "response",
             value=delta * 1000.0,
@@ -78,8 +79,20 @@ class ResponseMetrics:
                 f"method:{request.method}",
             ],
         )
-
         return response
+
+    def _get_metric_view_name(self, request: HttpRequest) -> str:
+        if request.resolver_match:
+            view = request.resolver_match.func
+            if hasattr(view, "view_class"):
+                # Wrapped with rest_framework.decorators.api_view
+                return f"{view.__module__}.{view.view_class.__name__}"
+            return f"{view.__module__}.{view.__name__}"
+        if match := self.re_dockerflow.match(request.path_info):
+            return f"dockerflow.django.views.{match[1]}"
+        if self.middleware.is_staticfile(request.path_info):
+            return "<static_file>"
+        return "<unknown_view>"
 
 
 class StoreFirstVisit:
@@ -120,3 +133,16 @@ class RelayStaticFilesMiddleware(WhiteNoiseMiddleware):
             return True
         else:
             return super().immutable_file_test(path, url)
+
+    def is_staticfile(self, path_info: str) -> bool:
+        """
+        Returns True if this file is served by the middleware.
+
+        This uses the logic from whitenoise.middleware.WhiteNoiseMiddleware.__call__:
+        https://github.com/evansd/whitenoise/blob/220a98894495d407424e80d85d49227a5cf97e1b/src/whitenoise/middleware.py#L117-L124
+        """
+        if self.autorefresh:
+            static_file = self.find_file(path_info)
+        else:
+            static_file = self.files.get(path_info)
+        return static_file is not None

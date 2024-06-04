@@ -376,7 +376,10 @@ def test_fxa_rp_events_password_change(
     with MetricsMock() as mm:
         response = client.get("/fxa-rp-events", HTTP_AUTHORIZATION=auth_header)
 
-    assert mm.get_records() == []
+    mm.assert_timing_once(
+        "fx.private.relay.response",
+        tags=["status:200", "view:privaterelay.views.fxa_rp_events", "method:GET"],
+    )
     assert caplog.record_tuples == [
         ("request.summary", logging.INFO, ""),
     ]
@@ -403,7 +406,10 @@ def test_fxa_rp_events_password_change_slight_future_iat(
     with MetricsMock() as mm:
         response = client.get("/fxa-rp-events", HTTP_AUTHORIZATION=auth_header)
 
-    assert mm.get_records() == []
+    mm.assert_timing_once(
+        "fx.private.relay.response",
+        tags=["status:200", "view:privaterelay.views.fxa_rp_events", "method:GET"],
+    )
     assert caplog.record_tuples == [
         ("request.summary", logging.INFO, ""),
     ]
@@ -434,7 +440,10 @@ def test_fxa_rp_events_password_change_far_future_iat(
     with MetricsMock() as mm, pytest.raises(jwt.ImmatureSignatureError):
         client.get("/fxa-rp-events", HTTP_AUTHORIZATION=auth_header)
 
-    assert mm.get_records() == []
+    mm.assert_timing_once(
+        "fx.private.relay.response",
+        tags=["status:500", "view:privaterelay.views.fxa_rp_events", "method:GET"],
+    )
     assert caplog.record_tuples == [
         ("eventsinfo", logging.WARNING, "fxa_rp_event.future_iat"),
         ("request.summary", logging.ERROR, "The token is not yet valid (iat)"),
@@ -462,7 +471,10 @@ def test_fxa_rp_events_profile_change(
     with MetricsMock() as mm:
         response = client.get("/fxa-rp-events", HTTP_AUTHORIZATION=auth_header)
 
-    assert mm.get_records() == []
+    mm.assert_timing_once(
+        "fx.private.relay.response",
+        tags=["status:200", "view:privaterelay.views.fxa_rp_events", "method:GET"],
+    )
     assert caplog.record_tuples == [
         ("eventsinfo", logging.INFO, "fxa_rp_event"),
         ("request.summary", logging.INFO, ""),
@@ -500,7 +512,10 @@ def test_fxa_rp_events_subscription_change(
 
     with MetricsMock() as mm:
         response = client.get("/fxa-rp-events", HTTP_AUTHORIZATION=auth_header)
-    assert mm.get_records() == []
+    mm.assert_timing_once(
+        "fx.private.relay.response",
+        tags=["status:200", "view:privaterelay.views.fxa_rp_events", "method:GET"],
+    )
     assert caplog.record_tuples == [
         ("eventsinfo", logging.INFO, "fxa_rp_event"),
         ("request.summary", logging.INFO, ""),
@@ -538,7 +553,10 @@ def test_fxa_rp_events_delete_user(
 
     with MetricsMock() as mm:
         response = client.get("/fxa-rp-events", HTTP_AUTHORIZATION=auth_header)
-    assert mm.get_records() == []
+    mm.assert_timing_once(
+        "fx.private.relay.response",
+        tags=["status:200", "view:privaterelay.views.fxa_rp_events", "method:GET"],
+    )
     assert caplog.record_tuples == [
         ("eventsinfo", logging.INFO, "fxa_rp_event"),
         ("request.summary", logging.INFO, ""),
