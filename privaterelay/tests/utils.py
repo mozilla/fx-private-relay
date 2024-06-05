@@ -10,6 +10,15 @@ from django.contrib.auth.models import User
 import pytest
 
 
+def omit_markus_logs(caplog: pytest.LogCaptureFixture) -> list[LogRecord]:
+    """
+    Return log records that are not markus debug logs.
+
+    Markus debug logs are enabled at Django setup with STATSD_DEBUG=True
+    """
+    return [rec for rec in caplog.records if rec.name != "markus"]
+
+
 def log_extra(log_record: LogRecord) -> dict[str, Any]:
     """Reconstruct the "extra" argument to the log call"""
     omit_log_record_keys = {

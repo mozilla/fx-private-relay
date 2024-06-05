@@ -18,6 +18,7 @@ from model_bakery import baker
 from twilio.base.exceptions import TwilioRestException
 
 from emails.models import Profile
+from privaterelay.tests.utils import omit_markus_logs
 
 if settings.PHONES_ENABLED:
     from ..models import (
@@ -391,8 +392,11 @@ def test_create_relaynumber_already_registered_with_service(
         phone_number_sid=twilio_number_sid
     )
     mock_twilio_client.messages.create.assert_called_once()
-    assert caplog.messages == ["twilio_messaging_service"]
-    assert caplog.records[0].code == 21710
+    records = omit_markus_logs(caplog)
+    assert len(records) == 1
+    record = records[0]
+    assert record.msg == "twilio_messaging_service"
+    assert getattr(record, "code") == 21710
 
 
 def test_create_relaynumber_fail_if_all_services_are_full(
@@ -423,8 +427,11 @@ def test_create_relaynumber_fail_if_all_services_are_full(
         phone_number_sid=twilio_number_sid
     )
     mock_twilio_client.messages.create.assert_not_called()
-    assert caplog.messages == ["twilio_messaging_service"]
-    assert caplog.records[0].code == 21714
+    records = omit_markus_logs(caplog)
+    assert len(records) == 1
+    record = records[0]
+    assert record.msg == "twilio_messaging_service"
+    assert getattr(record, "code") == 21714
 
 
 def test_create_relaynumber_no_service(
@@ -438,10 +445,13 @@ def test_create_relaynumber_no_service(
     mock_services = mock_twilio_client.messaging.v1.services
     mock_services.return_value.phone_numbers.create.assert_not_called()
     mock_twilio_client.messages.create.assert_called_once()
-    assert caplog.messages == [
+    records = omit_markus_logs(caplog)
+    assert len(records) == 1
+    record = records[0]
+    assert record.msg == (
         "Skipping Twilio Messaging Service registration, since"
         " TWILIO_MESSAGING_SERVICE_SID is empty."
-    ]
+    )
 
 
 def test_create_relaynumber_fallback_to_second_service(
@@ -486,8 +496,11 @@ def test_create_relaynumber_fallback_to_second_service(
     mock_twilio_client.messages.create.assert_called_once()
 
     assert django_cache.get("twilio_messaging_service_closed") == twilio_service1_sid
-    assert caplog.messages == ["twilio_messaging_service"]
-    assert caplog.records[0].code == 21714
+    records = omit_markus_logs(caplog)
+    assert len(records) == 1
+    record = records[0]
+    assert record.msg == "twilio_messaging_service"
+    assert getattr(record, "code") == 21714
 
 
 def test_create_relaynumber_skip_known_full_service(
@@ -514,7 +527,7 @@ def test_create_relaynumber_skip_known_full_service(
     )
     mock_twilio_client.messages.create.assert_called_once()
     assert django_cache.get("twilio_messaging_service_closed") == twilio_service1_sid
-    assert caplog.messages == []
+    assert len(omit_markus_logs(caplog)) == 0
 
 
 def test_create_relaynumber_other_messaging_error_raised(
