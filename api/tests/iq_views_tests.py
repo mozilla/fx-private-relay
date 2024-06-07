@@ -25,7 +25,7 @@ INBOUND_SMS_PATH = "/api/v1/inbound_sms_iq/"
 
 @pytest.fixture()
 def phone_user(db):
-    yield make_phone_test_user()
+    return make_phone_test_user()
 
 
 @pytest.fixture(autouse=True)
