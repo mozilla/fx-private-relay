@@ -1,13 +1,6 @@
 from django.contrib import admin
 
-from .models import (
-    DeletedAddress,
-    DomainAddress,
-    Profile,
-    RegisteredSubdomain,
-    RelayAddress,
-    Reply,
-)
+from .models import DeletedAddress, DomainAddress, RelayAddress, Reply
 
 
 @admin.register(Reply)
@@ -17,7 +10,5 @@ class ReplyAdmin(admin.ModelAdmin):
 
 
 admin.site.register(DeletedAddress)
-admin.site.register(Profile)
 admin.site.register(RelayAddress)
 admin.site.register(DomainAddress)
-admin.site.register(RegisteredSubdomain)

@@ -1,20 +1,8 @@
 """Exceptions raised by emails app"""
 
 from django.conf import settings
-from django.core.exceptions import BadRequest
 
 from api.exceptions import ErrorContextType, RelayAPIException
-
-
-class CannotMakeSubdomainException(BadRequest):
-    """Exception raised by Profile due to error on subdomain creation.
-
-    Attributes:
-        message -- optional explanation of the error
-    """
-
-    def __init__(self, message: str | None = None) -> None:
-        self.message = message
 
 
 class CannotMakeAddressException(RelayAPIException):
