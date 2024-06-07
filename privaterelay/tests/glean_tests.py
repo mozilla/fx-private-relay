@@ -15,12 +15,6 @@ from pytest_django.fixtures import SettingsWrapper
 
 from api.serializers.emails import RelayAddressSerializer
 from emails.models import RelayAddress
-from emails.tests.models_tests import (
-    make_free_test_user,
-    make_premium_test_user,
-    phone_subscription,
-    vpn_subscription,
-)
 from privaterelay.glean_interface import (
     EmailBlockedReason,
     EmailMaskData,
@@ -28,7 +22,13 @@ from privaterelay.glean_interface import (
     RequestData,
     UserData,
 )
-from privaterelay.tests.utils import create_expected_glean_event
+from privaterelay.tests.utils import (
+    create_expected_glean_event,
+    make_free_test_user,
+    make_premium_test_user,
+    phone_subscription,
+    vpn_subscription,
+)
 from privaterelay.types import RELAY_CHANNEL_NAME
 from privaterelay.utils import glean_logger as utils_glean_logger
 

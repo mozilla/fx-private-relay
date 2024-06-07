@@ -8,7 +8,7 @@ from allauth.socialaccount.models import SocialApp
 from model_bakery import baker
 from rest_framework.test import APIClient
 
-from emails.tests.models_tests import make_free_test_user, make_premium_test_user
+from privaterelay.tests.utils import make_free_test_user, make_premium_test_user
 
 
 @pytest.fixture

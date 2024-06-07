@@ -8,7 +8,7 @@ from waffle.models import Flag
 
 from api.serializers.privaterelay import FlagSerializer
 from emails.models import RelayAddress
-from emails.tests.models_tests import make_free_test_user, make_premium_test_user
+from privaterelay.tests.utils import make_free_test_user, make_premium_test_user
 
 
 class PremiumValidatorsTest(APITestCase):

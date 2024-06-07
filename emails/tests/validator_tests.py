@@ -7,6 +7,8 @@ from django.test import TestCase
 
 from waffle.testutils import override_flag
 
+from privaterelay.tests.utils import make_free_test_user, make_premium_test_user
+
 from ..exceptions import CannotMakeSubdomainException
 from ..models import (
     DomainAddress,
@@ -22,7 +24,6 @@ from ..validators import (
     valid_address_pattern,
     valid_available_subdomain,
 )
-from .models_tests import make_free_test_user, make_premium_test_user
 
 
 class HasBadWordsTest(TestCase):
