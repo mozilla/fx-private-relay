@@ -13,7 +13,6 @@ from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
 from waffle.models import Flag
 
-from emails.models import Profile
 from privaterelay.management.commands.update_phone_remaining_stats import (
     update_phone_remaining_stats,
 )
@@ -63,11 +62,10 @@ def patch_datetime_now():
 @pytest.fixture
 def mock_free_phones_profile(db):
     account: SocialAccount = baker.make(SocialAccount, provider="fxa")
-    profile = Profile.objects.get(user=account.user)
     baker.make(Flag, name="free_phones")
     free_phones_flag = Flag.objects.get(name="free_phones")
-    free_phones_flag.users.add(profile.user)
-    return profile
+    free_phones_flag.users.add(account.user)
+    return account.user.profile
 
 
 def _make_used_relay_number(user):
@@ -141,15 +139,14 @@ def test_phone_subscriber_subscribed_3_day_ago_wo_date_phone_subscription_reset_
     # any users phone users whose date_phone_subscription_reset was not set
     # will get their limits reset and reset date set today
     expected_now = patch_datetime_now
-    profile = Profile.objects.get(user=phone_user)
-    profile.date_subscribed_phone = expected_now - timedelta(3)
-    profile.save()
+    phone_user.profile.date_subscribed_phone = expected_now - timedelta(3)
+    phone_user.profile.save()
     relay_number = _make_used_relay_number(phone_user)
 
     num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
 
-    profile.refresh_from_db()
-    assert profile.date_phone_subscription_reset == expected_now
+    phone_user.refresh_from_db()
+    assert phone_user.profile.date_phone_subscription_reset == expected_now
     assert num_profiles_w_phones == 1
     assert num_profiles_updated == 1
     relay_number.refresh_from_db()
@@ -161,16 +158,15 @@ def test_phone_subscriber_w_phones_reset_1_day_ago_does_not_update_stats(
     patch_datetime_now, phone_user
 ):
     expected_now = patch_datetime_now
-    profile = Profile.objects.get(user=phone_user)
     reset_datetime = expected_now - timedelta(1)
-    profile.date_phone_subscription_reset = reset_datetime
-    profile.save()
+    phone_user.profile.date_phone_subscription_reset = reset_datetime
+    phone_user.profile.save()
     relay_number = _make_used_relay_number(phone_user)
 
     num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
 
-    profile.refresh_from_db()
-    assert profile.date_phone_subscription_reset == reset_datetime
+    phone_user.refresh_from_db()
+    assert phone_user.profile.date_phone_subscription_reset == reset_datetime
     assert num_profiles_w_phones == 1
     assert num_profiles_updated == 0
     relay_number.refresh_from_db()
@@ -182,13 +178,11 @@ def test_phone_subscriber_wo_date_phone_subscription_reset_and_no_relay_number_r
     patch_datetime_now, phone_user
 ):
     expected_now = patch_datetime_now
-    profile = Profile.objects.get(user=phone_user)
-    profile.save()
 
     num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
 
-    profile.refresh_from_db()
-    assert profile.date_phone_subscription_reset == expected_now
+    phone_user.refresh_from_db()
+    assert phone_user.profile.date_phone_subscription_reset == expected_now
     assert num_profiles_w_phones == 1
     assert num_profiles_updated == 1
 
@@ -197,14 +191,13 @@ def test_phone_subscriber_w_date_phone_subscription_reset_31_days_ago_and_no_rel
     patch_datetime_now, phone_user
 ):
     expected_now = patch_datetime_now
-    profile = Profile.objects.get(user=phone_user)
-    profile.date_phone_subscription_reset = expected_now - timedelta(31)
-    profile.save()
+    phone_user.profile.date_phone_subscription_reset = expected_now - timedelta(31)
+    phone_user.profile.save()
 
     num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
 
-    profile.refresh_from_db()
-    assert profile.date_phone_subscription_reset == expected_now
+    phone_user.profile.refresh_from_db()
+    assert phone_user.profile.date_phone_subscription_reset == expected_now
     assert num_profiles_w_phones == 1
     assert num_profiles_updated == 1
 
@@ -213,15 +206,14 @@ def test_phone_subscriber_with_phones_reset_31_day_ago_phone_limits_updated(
     patch_datetime_now, phone_user
 ):
     expected_now = patch_datetime_now
-    profile = Profile.objects.get(user=phone_user)
-    profile.date_phone_subscription_reset = expected_now - timedelta(31)
-    profile.save()
+    phone_user.profile.date_phone_subscription_reset = expected_now - timedelta(31)
+    phone_user.profile.save()
     relay_number = _make_used_relay_number(phone_user)
 
     num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
 
-    profile.refresh_from_db()
-    assert profile.date_phone_subscription_reset == expected_now
+    phone_user.refresh_from_db()
+    assert phone_user.profile.date_phone_subscription_reset == expected_now
     assert num_profiles_w_phones == 1
     assert num_profiles_updated == 1
     relay_number.refresh_from_db()
@@ -235,19 +227,18 @@ def test_phone_subscriber_with_subscription_end_date_sooner_than_31_days_since_r
 ):
     datetime_now = datetime.now(UTC)
     datetime_first_of_march = datetime_now.replace(month=3, day=1)
-    profile = Profile.objects.get(user=phone_user)
-    profile.date_subscribed_phone = datetime_now.replace(month=1, day=1)
+    phone_user.profile.date_subscribed_phone = datetime_now.replace(month=1, day=1)
     new_subscription_start_and_previous_reset_date = datetime_now.replace(
         month=2, day=1
     )
-    profile.date_phone_subscription_start = (
+    phone_user.profile.date_phone_subscription_start = (
         new_subscription_start_and_previous_reset_date
     )
-    profile.date_phone_subscription_end = datetime_first_of_march
-    profile.date_phone_subscription_reset = (
+    phone_user.profile.date_phone_subscription_end = datetime_first_of_march
+    phone_user.profile.date_phone_subscription_reset = (
         new_subscription_start_and_previous_reset_date
     )
-    profile.save()
+    phone_user.profile.save()
     relay_number = _make_used_relay_number(phone_user)
 
     # today needs to be pinned to Mar 1-3 to check that the subscription end date was
@@ -260,8 +251,8 @@ def test_phone_subscriber_with_subscription_end_date_sooner_than_31_days_since_r
         mocked_datetime.side_effect = lambda *args, **kw: datetime(*args, **kw)
         num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
 
-    profile.refresh_from_db()
-    assert profile.date_phone_subscription_reset == datetime_first_of_march
+    phone_user.refresh_from_db()
+    assert phone_user.profile.date_phone_subscription_reset == datetime_first_of_march
     assert num_profiles_w_phones == 1
     assert num_profiles_updated == 1
     relay_number.refresh_from_db()
@@ -275,19 +266,18 @@ def test_phone_subscriber_with_subscription_end_date_after_reset_phone_limits_up
 ):
     datetime_now = datetime.now(UTC)
     datetime_fourth_of_march = datetime_now.replace(month=3, day=4)
-    profile = Profile.objects.get(user=phone_user)
-    profile.date_subscribed_phone = datetime_now.replace(month=1, day=2)
+    phone_user.profile.date_subscribed_phone = datetime_now.replace(month=1, day=2)
     new_subscription_start_and_previous_reset_date = datetime_now.replace(
         month=2, day=1
     )
-    profile.date_phone_subscription_start = (
+    phone_user.profile.date_phone_subscription_start = (
         new_subscription_start_and_previous_reset_date
     )
-    profile.date_phone_subscription_end = datetime_fourth_of_march
-    profile.date_phone_subscription_reset = (
+    phone_user.profile.date_phone_subscription_end = datetime_fourth_of_march
+    phone_user.profile.date_phone_subscription_reset = (
         new_subscription_start_and_previous_reset_date
     )
-    profile.save()
+    phone_user.profile.save()
     relay_number = _make_used_relay_number(phone_user)
 
     # today must be after march 3rd, to use the calculated reset date
@@ -300,8 +290,8 @@ def test_phone_subscriber_with_subscription_end_date_after_reset_phone_limits_up
         mocked_datetime.side_effect = lambda *args, **kw: datetime(*args, **kw)
         num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
 
-    profile.refresh_from_db()
-    assert profile.date_phone_subscription_reset == datetime_fourth_of_march
+    phone_user.refresh_from_db()
+    assert phone_user.profile.date_phone_subscription_reset == datetime_fourth_of_march
     assert num_profiles_w_phones == 1
     assert num_profiles_updated == 1
     relay_number.refresh_from_db()
@@ -315,9 +305,8 @@ def test_update_user_with_command(
     phone_user,
 ):
     expected_now = patch_datetime_now
-    profile = Profile.objects.get(user=phone_user)
-    profile.date_phone_subscription_reset = expected_now - timedelta(31)
-    profile.save()
+    phone_user.profile.date_phone_subscription_reset = expected_now - timedelta(31)
+    phone_user.profile.save()
     _make_used_relay_number(phone_user)
 
     call_command(UPDATE_COMMAND)
@@ -326,8 +315,8 @@ def test_update_user_with_command(
     out = out.split(" ")
     num_profiles_w_phones, num_profiles_updated = int(out[2]), int(out[4])
 
-    profile.refresh_from_db()
-    assert profile.date_phone_subscription_reset == expected_now
+    phone_user.refresh_from_db()
+    assert phone_user.profile.date_phone_subscription_reset == expected_now
     assert num_profiles_w_phones == 1
     assert num_profiles_updated == 1
 

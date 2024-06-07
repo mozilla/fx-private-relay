@@ -17,7 +17,6 @@ from allauth.socialaccount.models import SocialAccount, SocialToken
 from model_bakery import baker
 from twilio.base.exceptions import TwilioRestException
 
-from emails.models import Profile
 from privaterelay.tests.utils import omit_markus_logs
 
 if settings.PHONES_ENABLED:
@@ -79,9 +78,8 @@ def mock_twilio_client(twilio_number_sid: str) -> Iterator[Mock]:
 
 def make_phone_test_user() -> User:
     phone_user = baker.make(User, email="phone_user@example.com")
-    phone_user_profile = Profile.objects.get(user=phone_user)
-    phone_user_profile.date_subscribed = datetime.now(tz=UTC) - timedelta(days=15)
-    phone_user_profile.save()
+    phone_user.profile.date_subscribed = datetime.now(tz=UTC) - timedelta(days=15)
+    phone_user.profile.save()
     upgrade_test_user_to_phone(phone_user)
     return phone_user
 
@@ -719,26 +717,24 @@ def test_area_code_numbers(mock_twilio_client):
 
 def test_save_store_phone_log_no_relay_number_does_nothing():
     user = make_phone_test_user()
-    profile = Profile.objects.get(user=user)
-    profile.store_phone_log = True
-    profile.save()
+    user.profile.store_phone_log = True
+    user.profile.save()
 
-    profile.refresh_from_db()
-    assert profile.store_phone_log
+    user.profile.refresh_from_db()
+    assert user.profile.store_phone_log
 
-    profile.store_phone_log = False
-    profile.save()
-    assert not profile.store_phone_log
+    user.profile.store_phone_log = False
+    user.profile.save()
+    assert not user.profile.store_phone_log
 
 
 def test_save_store_phone_log_true_doesnt_delete_data():
     user = make_phone_test_user()
-    profile = Profile.objects.get(user=user)
     baker.make(RealPhone, user=user, verified=True)
     relay_number = baker.make(RelayNumber, user=user)
     inbound_contact = baker.make(InboundContact, relay_number=relay_number)
-    profile.store_phone_log = True
-    profile.save()
+    user.profile.store_phone_log = True
+    user.profile.save()
 
     inbound_contact.refresh_from_db()
     assert inbound_contact
@@ -746,12 +742,11 @@ def test_save_store_phone_log_true_doesnt_delete_data():
 
 def test_save_store_phone_log_false_deletes_data():
     user = make_phone_test_user()
-    profile = Profile.objects.get(user=user)
     baker.make(RealPhone, user=user, verified=True)
     relay_number = baker.make(RelayNumber, user=user)
     inbound_contact = baker.make(InboundContact, relay_number=relay_number)
-    profile.store_phone_log = False
-    profile.save()
+    user.profile.store_phone_log = False
+    user.profile.save()
 
     with pytest.raises(InboundContact.DoesNotExist):
         inbound_contact.refresh_from_db()

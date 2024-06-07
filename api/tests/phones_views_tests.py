@@ -17,8 +17,6 @@ from twilio.request_validator import RequestValidator
 from twilio.rest import Client
 from waffle.testutils import override_flag
 
-from emails.models import Profile
-
 if settings.PHONES_ENABLED:
     from api.views.phones import MatchByPrefix, _match_by_prefix
     from phones.models import InboundContact, RealPhone, RelayNumber
@@ -957,9 +955,8 @@ def test_inbound_sms_reply_with_no_remaining_texts(phone_user, mocked_twilio_cli
 def test_inbound_sms_valid_twilio_signature_no_phone_log(
     phone_user, mocked_twilio_client
 ):
-    profile = Profile.objects.get(user=phone_user)
-    profile.store_phone_log = False
-    profile.save()
+    phone_user.profile.store_phone_log = False
+    phone_user.profile.save()
     _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=True)
     inbound_number = "+15556660000"
@@ -981,9 +978,8 @@ def test_inbound_sms_valid_twilio_signature_no_phone_log(
 def test_inbound_sms_valid_twilio_signature_blocked_contact(
     phone_user, mocked_twilio_client
 ):
-    profile = Profile.objects.get(user=phone_user)
-    profile.store_phone_log = True
-    profile.save()
+    phone_user.profile.store_phone_log = True
+    phone_user.profile.save()
     _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=True)
     inbound_number = "+15556660000"
@@ -1033,9 +1029,8 @@ def test_inbound_sms_reply_not_storing_phone_log(phone_user, mocked_twilio_clien
     real_phone = _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=True)
     mocked_twilio_client.reset_mock()
-    profile = Profile.objects.get(user=phone_user)
-    profile.store_phone_log = False
-    profile.save()
+    phone_user.profile.store_phone_log = False
+    phone_user.profile.save()
 
     client = APIClient()
     path = "/api/v1/inbound_sms"

@@ -655,7 +655,8 @@ class RelayAddress(models.Model):
             num_spam=self.num_spam,
         )
         deleted_address.save()
-        profile = Profile.objects.get(user=self.user)
+        profile = self.user.profile
+        profile.refresh_from_db()
         profile.address_last_deleted = datetime.now(UTC)
         profile.num_address_deleted += 1
         profile.num_email_forwarded_in_deleted_address += self.num_forwarded
@@ -859,9 +860,7 @@ class DomainAddress(models.Model):
             num_spam=self.num_spam,
         )
         deleted_address.save()
-        # self.user_profile is a property and should not be used to
-        # update values on the user's profile
-        profile = Profile.objects.get(user=self.user)
+        profile = self.user.profile
         profile.address_last_deleted = datetime.now(UTC)
         profile.num_address_deleted += 1
         profile.num_email_forwarded_in_deleted_address += self.num_forwarded
@@ -885,7 +884,7 @@ class DomainAddress(models.Model):
 
     @property
     def full_address(self) -> str:
-        return f"{self.address}@{self.user_profile.subdomain}.{self.domain_value}"
+        return f"{self.address}@{self.user.profile.subdomain}.{self.domain_value}"
 
     @property
     def metrics_id(self) -> str:
