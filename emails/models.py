@@ -14,7 +14,7 @@ from django.core.validators import MinLengthValidator
 from django.db import models, transaction
 from django.db.models.base import ModelBase
 
-from privaterelay.models import Profile, RegisteredSubdomain, hash_subdomain
+from privaterelay.models import Profile
 
 from .exceptions import (
     DomainAddrDuplicateException,
@@ -28,8 +28,6 @@ from .validators import (
     is_blocklisted,
     valid_address,
 )
-
-__all__ = ["Profile", "RegisteredSubdomain", "hash_subdomain"]
 
 logger = logging.getLogger("events")
 

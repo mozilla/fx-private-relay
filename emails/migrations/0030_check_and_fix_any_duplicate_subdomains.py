@@ -2,7 +2,7 @@
 
 from django.db import migrations
 
-from emails.models import hash_subdomain
+from privaterelay.models import hash_subdomain
 
 
 def delete_all_later_duplicate_subdomains(apps, schema_editor):
