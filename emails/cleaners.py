@@ -5,14 +5,10 @@ from __future__ import annotations
 from django.contrib.auth.models import User
 from django.db.models import Q, QuerySet
 
-from privaterelay.cleaner_task import (
-    CleanerTask,
-    DataBisectSpec,
-    DataModelSpec,
-)
+from privaterelay.cleaner_task import CleanerTask, DataBisectSpec, DataModelSpec
+from privaterelay.signals import create_user_profile
 
 from .models import DomainAddress, Profile, RelayAddress
-from .signals import create_user_profile
 
 
 class ServerStorageCleaner(CleanerTask):
