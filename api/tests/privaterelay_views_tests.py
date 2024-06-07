@@ -19,7 +19,7 @@ from rest_framework.test import APIClient
 from api.authentication import INTROSPECT_TOKEN_URL, get_cache_key
 from api.tests.authentication_tests import _setup_fxa_response
 from api.views.privaterelay import FXA_PROFILE_URL
-from emails.models import Profile
+from privaterelay.models import Profile
 from privaterelay.tests.utils import (
     log_extra,
 )

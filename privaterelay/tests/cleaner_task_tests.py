@@ -9,7 +9,6 @@ from django.db.models import Q, QuerySet
 import pytest
 from model_bakery import baker
 
-from emails.models import Profile
 from privaterelay.cleaner_task import (
     CleanedItem,
     CleanerTask,
@@ -20,6 +19,7 @@ from privaterelay.cleaner_task import (
     DataModelSpec,
     ReportEntry,
 )
+from privaterelay.models import Profile
 
 
 @pytest.fixture

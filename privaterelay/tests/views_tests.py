@@ -30,7 +30,6 @@ from requests import PreparedRequest
 from emails.models import (
     DeletedAddress,
     DomainAddress,
-    Profile,
     RelayAddress,
     address_hash,
 )
@@ -38,6 +37,7 @@ from privaterelay.tests.utils import premium_subscription
 
 from ..apps import PrivateRelayConfig
 from ..fxa_utils import NoSocialToken
+from ..models import Profile
 from ..views import _update_all_data, fxa_verifying_keys, send_ga_ping
 
 

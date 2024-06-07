@@ -2,7 +2,7 @@
 
 from django.db import migrations
 
-from emails.models import hash_subdomain
+from privaterelay.models import hash_subdomain
 
 
 def copy_already_registered_subdomains_from_profile(apps, schema_editor):

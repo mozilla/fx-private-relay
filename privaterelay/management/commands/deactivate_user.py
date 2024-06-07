@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand
 
 from allauth.socialaccount.models import SocialAccount
 
-from emails.models import Profile
+from privaterelay.models import Profile
 
 
 class Command(BaseCommand):
