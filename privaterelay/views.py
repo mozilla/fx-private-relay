@@ -26,12 +26,8 @@ from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error
 from rest_framework.decorators import api_view, schema
 
 # from silk.profiling.profiler import silk_profile
-from emails.models import (
-    CannotMakeSubdomainException,
-    DomainAddress,
-    RelayAddress,
-    valid_available_subdomain,
-)
+from emails.exceptions import CannotMakeSubdomainException
+from emails.models import DomainAddress, RelayAddress, valid_available_subdomain
 from emails.utils import incr_if_enabled
 
 from .apps import PrivateRelayConfig

@@ -41,8 +41,8 @@ from privaterelay.utils import (
     glean_logger,
 )
 
+from .exceptions import CannotMakeAddressException
 from .models import (
-    CannotMakeAddressException,
     DeletedAddress,
     DomainAddress,
     Profile,

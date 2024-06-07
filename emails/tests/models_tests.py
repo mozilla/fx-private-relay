@@ -14,14 +14,16 @@ from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
 from waffle.testutils import override_flag
 
-from ..models import (
-    AbuseMetrics,
+from ..exceptions import (
     CannotMakeAddressException,
     CannotMakeSubdomainException,
-    DeletedAddress,
     DomainAddrDuplicateException,
-    DomainAddress,
     DomainAddrUnavailableException,
+)
+from ..models import (
+    AbuseMetrics,
+    DeletedAddress,
+    DomainAddress,
     Profile,
     RegisteredSubdomain,
     RelayAddress,
