@@ -144,7 +144,7 @@ def test_post_domainaddress_free_user_error(
     assert get_glean_event(caplog) is None
 
 
-@pytest.mark.django_db(transaction=True)
+@pytest.mark.django_db
 def test_post_domainaddress_conflict_existing(
     prem_api_client: APIClient, premium_user: User, caplog: pytest.LogCaptureFixture
 ) -> None:
@@ -169,7 +169,7 @@ def test_post_domainaddress_conflict_existing(
     assert get_glean_event(caplog) is None
 
 
-@pytest.mark.django_db(transaction=True)
+@pytest.mark.django_db
 @override_flag("custom_domain_management_redesign", active=True)
 def test_post_domainaddress_conflict_deleted(
     prem_api_client: APIClient, premium_user: User, caplog: pytest.LogCaptureFixture
