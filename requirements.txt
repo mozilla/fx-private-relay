@@ -1,6 +1,6 @@
 boto3==1.34.122
 codetiming==1.4.0
-cryptography==42.0.7
+cryptography==42.0.8
 Django==4.2.13
 dj-database-url==2.2.0
 django-allauth[socialaccount]==0.63.3
