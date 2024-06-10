@@ -41,10 +41,10 @@ vobject==0.9.7
 
 # tests
 coverage==7.5.3
-model-bakery==1.18.0
+model-bakery==1.18.1
 pytest-cov==5.0.0
 pytest-django==4.8.0
-responses==0.25.0
+responses==0.25.2
 
 # linting
 black==24.4.2
