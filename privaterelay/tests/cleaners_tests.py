@@ -13,10 +13,7 @@ from privaterelay.cleaner_task import DataItem
 from privaterelay.cleaners import MissingEmailCleaner
 
 
-def setup_missing_email_cleaner_test_data(
-    add_user_without_storage: bool = False,
-    add_server_data_for_user_without_storage: bool = False,
-) -> None:
+def setup_missing_email_cleaner_test_data() -> None:
     """Setup users and addresses for testing."""
 
     def yn(has_item: bool) -> str:
