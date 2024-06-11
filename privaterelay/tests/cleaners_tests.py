@@ -6,7 +6,7 @@ from uuid import uuid4
 from django.contrib.auth.models import User
 
 import pytest
-from allauth.socialaccount.models import SocialAccount
+from allauth.socialaccount.models import SocialAccount, SocialApp
 from model_bakery import baker
 
 from privaterelay.cleaner_task import DataItem
@@ -22,6 +22,7 @@ def setup_missing_email_cleaner_test_data(
     def yn(has_item: bool) -> str:
         return "yes" if has_item else "no"
 
+    social_app: SocialApp | None = None
     for has_email, has_fxa, has_fxa_email in product((True, False), repeat=3):
         key = f"{yn(has_email)}_email_{yn(has_fxa)}_fxa_{yn(has_fxa_email)}_fxa_email"
         if has_email:
@@ -32,7 +33,19 @@ def setup_missing_email_cleaner_test_data(
             extra = {"uid": str(uuid4())}
             if has_fxa_email:
                 extra["email"] = f"{key}.FXA@example.com"
-            baker.make(SocialAccount, provider="fxa", user=user, extra_data=extra)
+            if social_app is None:
+                social_app = baker.make(
+                    SocialApp,
+                    name="example.com",
+                    provider="fxa",
+                    client_id="client_id",
+                )
+            baker.make(
+                SocialAccount,
+                provider=social_app.provider_id or social_app.provider,
+                user=user,
+                extra_data=extra,
+            )
 
 
 @pytest.mark.django_db
