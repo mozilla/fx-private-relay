@@ -4,7 +4,7 @@ import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
 import { LocalizationProvider, ReactLocalization } from "@fluent/react";
 import { OverlayProvider } from "@react-aria/overlays";
-import ReactGa from "react-ga";
+import ReactGA from "react-ga4";
 import { getL10n } from "../functions/getL10n";
 import { AddonDataContext, useAddonElementWatcher } from "../hooks/addon";
 import { ReactAriaI18nProvider } from "../components/ReactAriaI18nProvider";
@@ -48,7 +48,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
     if (!googleAnalytics) return;
-    ReactGa.pageview(router.asPath);
+    ReactGA.send({ hitType: "pageview", page: router.asPath });
   }, [router.asPath, googleAnalytics]);
 
   const [waitingForMsw, setIsWaitingForMsw] = useState(

@@ -55,5 +55,11 @@ module.exports = {
       files: ["**/__tests__/**/*.[jt]s?(x)", "**/?(*.)+(spec|test).[jt]s?(x)"],
       extends: ["plugin:testing-library/react"],
     },
+    {
+      files: ["src/hooks/gaEvent.ts"],
+      rules: {
+        "@typescript-eslint/no-explicit-any": "warn",
+      },
+    },
   ],
 };
