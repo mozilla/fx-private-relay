@@ -164,6 +164,7 @@ Here is a summary of the event categories and actions:
 | Holiday Promo News CTA                 | View                    | holiday-promo-2023-news-cta                           | [Navigation Bar, News Menu][]                |
 | Holiday Promotion Banner 2023          | Engage                  | holiday-promo-banner-get-one-year-btn                 | [Landing Page, Holiday Sale Banner][]        |
 | Holiday Promotion Banner 2023          | View                    | holiday-promo-banner-view                             | [Landing Page, Holiday Sale Banner][]        |
+| NPS Survey                             | submitted               | detractor, passive, promoter                          | [Legacy, NPS Survey][]                       |
 | News                                   | Clear all               | news-dashboard                                        | [Navigation Bar, News Menu][]                |
 | News                                   | Close                   | header-nav                                            | [Navigation Bar, News Menu][]                |
 | News                                   | Close entry             | _The Entry Title_                                     | [Navigation Bar, News Menu][]                |
@@ -172,7 +173,6 @@ Here is a summary of the event categories and actions:
 | News                                   | Switch to 'History' tab | History                                               | [Navigation Bar, News Menu][]                |
 | News                                   | Switch to 'News' tab    | News                                                  | [Navigation Bar, News Menu][]                |
 | News                                   | View                    | _The Entry Title_                                     | [Navigation Bar, News Menu][]                |
-| NPS Survey                             | submitted               | detractor, passive, promoter                          | [Legacy, NPS Survey][]                       |
 | Phone launch survey                    | Engage                  | Answer 4 questions about... _(truncated)_             | [Phone Survey][]                             |
 | Phone launch survey                    | View                    | Answer 4 questions about... _(truncated)_             | [Phone Survey][]                             |
 | Premium Onboarding                     | Engage                  | onboarding-step-1-continue                            | [Premium Onboarding][]                       |
@@ -188,12 +188,12 @@ Here is a summary of the event categories and actions:
 | Premium Onboarding                     | View                    | onboarding-step-3-skip                                | [Premium Onboarding][]                       |
 | Purchase Bundle button                 | Completed purchase      | user_purchased_premium                                | [Landing Page, Plan Matrix][]                |
 | Purchase Bundle button                 | Engage                  | bundle-banner-upgrade-promo                           | [Landing Page, Premium Bundle Banner][]      |
-| Purchase Bundle button                 | View                    | bundle-banner-upgrade-promo                           | [Landing Page, Premium Bundle Banner][]      |
 | Purchase Bundle button                 | Engage                  | plan-matrix-bundle-cta-desktop                        | [Landing Page, Plan Matrix][]                |
-| Purchase Bundle button                 | View                    | plan-matrix-bundle-cta-desktop                        | [Landing Page, Plan Matrix][]                |
 | Purchase Bundle button                 | Engage                  | plan-matrix-bundle-cta-mobile                         | [Landing Page, Plan Matrix][]                |
-| Purchase Bundle button                 | View                    | plan-matrix-bundle-cta-mobile                         | [Landing Page, Plan Matrix][]                |
 | Purchase Bundle button                 | Engage                  | profile-banner-bundle-promo                           | [Email Masks, Bundle Banner][]               |
+| Purchase Bundle button                 | View                    | bundle-banner-upgrade-promo                           | [Landing Page, Premium Bundle Banner][]      |
+| Purchase Bundle button                 | View                    | plan-matrix-bundle-cta-desktop                        | [Landing Page, Plan Matrix][]                |
+| Purchase Bundle button                 | View                    | plan-matrix-bundle-cta-mobile                         | [Landing Page, Plan Matrix][]                |
 | Purchase Bundle button                 | View                    | profile-banner-bundle-promo                           | [Email Masks, Bundle Banner][]               |
 | Purchase Button                        | Engage                  | 4-mask-limit-upsell                                   | [Email Masks, Upgrade Corner Notification][] |
 | Purchase Button                        | Engage                  | home-hero-cta                                         | [Premium Page, Call to Action][]             |
@@ -255,13 +255,12 @@ Here is a summary of the event categories and actions:
 | server event                           | fired                   | user_signed_up                                        | [Server Events][]                            |
 
 [Customer Satisfaction Survey]: #ctx-surveys-csat "Details for the Customer Satisfaction (CSAT) Survey"
+[Email Masks, Bundle Banner]: #ctx-emails-banner-bundle "Details for the 'Maximize your email and phone protection' banner."
 [Email Masks, Extension Banner]: #ctx-emails-banner-extension "Details for the banner to install the Relay extension"
 [Email Masks, Get Domain Link]: #ctx-emails-link-get-domain "Details for the link 'Get your own domain with Premium'"
 [Email Masks, Get Firefox Banner]: #ctx-emails-banner-firefox "Details for the banner to download the Relay extension"
 [Email Masks, Mask Details]: #ctx-emails-detail "Details for the Email Masks dashboard, opening the details for a mask."
 [Email Masks, Maximize Banner]: #ctx-emails-banner-maximize "Details for the banner 'Introducting: Relay + VPN subscription plan'."
-[Email Masks, Bundle Banner]: #ctx-emails-banner-bundle "Details for the 'Maximize your email and phone protection' banner."
-[Tips]: #ctx-tips "Details for the Tips box in a masks dashboard."
 [Email Masks, Unlimited Button]: #ctx-emails-button-unlimited "Details for the 'Get unlimited email masks' button."
 [Email Masks, Upgrade Corner Notification]: #ctx-emails-corner-upgrade "Details for the lower-right corner notification to upgrade to premium"
 [Free Onboarding]: #ctx-onboarding-free "Details for the free onboarding sequence"
@@ -287,6 +286,7 @@ Here is a summary of the event categories and actions:
 [Premium Page, Plan Matrix]: #ctx-premium-matrix "Details for the Plan Matrix on the Premium Upsell page"
 [Premium Page]: #ctx-premium "Details for elements on the Premium Upsell Page"
 [Server Events]: #ctx-server "Details for website events that originate on the API server"
+[Tips]: #ctx-tips "Details for the Tips box in a masks dashboard."
 [Universal Measurement Protocol]: https://developers.google.com/analytics/devguides/collection/protocol/v1 "Measurement Protocol Overview for Universal Analytics"
 
 ### <a name="ctx-landing">Landing Page</a>
