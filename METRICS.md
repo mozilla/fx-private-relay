@@ -933,7 +933,7 @@ The Google Analytics events:
   - `eventAction`: `Engage`
   - `eventLabel`: `upgrade-premium-header-mask-limit`
 
-#### <a name="ctx-emails-link-get-domain"</a>Get Domain Link</a>
+#### <a name="ctx-emails-link-get-domain">Get Domain Link</a>
 
 A user on the free plan will be prompted to get their own email domain by upgrading to a
 premium plan. This link appears under their real email address.
