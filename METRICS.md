@@ -6,11 +6,11 @@ comment: This file is linked from the Relay Privacy Notice
 linked_from: https://www.mozilla.org/en-US/privacy/subscription-services/
 -->
 
+# Firefox Relay Interaction Data
+
 Firefox Relay records information about Relay users and how they use the service. This
 document describes the recorded information and what we do with the information we
 collect.
-
-# Analysis
 
 We collect information to **provide the service** and to **answer questions about
 service usage**.
@@ -266,7 +266,7 @@ Here is a summary of the event categories and actions:
 [Email Masks, Upgrade Corner Notification]: #ctx-emails-corner-upgrade "Details for the lower-right corner notification to upgrade to premium"
 [Free Onboarding]: #ctx-onboarding-free "Details for the free onboarding sequence"
 [Interview Recruitment Survey]: #ctx-survey-recruitment "Details for the interview recruitment survey"
-[Landing Page, Get Started Button]: #cta-landing-button-cta "Details for the 'Get started' button on the landing page"
+[Landing Page, Get Started Button]: #ctx-landing-button-cta "Details for the 'Get started' button on the landing page"
 [Landing Page, Holiday Sale Banner]: #ctx-landing-banner-holiday "Details for the 2023 Holiday Sale Banner"
 [Landing Page, Plan Matrix]: #ctx-landing-matrix "Details for the Plan Matrix on the Landing Page."
 [Landing Page, Premium Bundle Banner]: #ctx-landing-banner-bundle "Details on the Relay Premium and Mozilla VPN bundle. She loves her phone!"
@@ -280,13 +280,13 @@ Here is a summary of the event categories and actions:
 [Navigation Bar, Upgrade Button]: #ctx-navbar-upgrade "Details for the Upgrade button in the Navigation Bar"
 [Navigation Bar, User Menu]: #ctx-navbar-user "Details for the User menu button in the Navigation Bar"
 [Navigation Bar]: #ctx-navbar "Details for the Navigation Bar"
-[Phone Masks]: #ctx-phones "Details for the Phone Masks Dashboard"
 [Phone Masks, Introduction]: #ctx-phones-button-upgrade "Details for the Phone Masks Dashboard when introducing the plan."
 [Phone Survey]: #ctx-surveys-phone "Details for the Phone Survey"
 [Premium Onboarding]: #ctx-onboarding-premium "Details for the Relay Premium onboarding process"
 [Premium Page, Call to Action]: #ctx-premium-cta "Details for the call-to-action section on the Premium Upsell page"
 [Premium Page, Plan Matrix]: #ctx-premium-matrix "Details for the Plan Matrix on the Premium Upsell page"
 [Premium Page]: #ctx-premium "Details for elements on the Premium Upsell Page"
+[Server Events]: #ctx-server "Details for website events that originate on the API server"
 [Universal Measurement Protocol]: https://developers.google.com/analytics/devguides/collection/protocol/v1 "Measurement Protocol Overview for Universal Analytics"
 
 ### <a name="ctx-landing">Landing Page</a>
@@ -1081,7 +1081,7 @@ The Google Analytics events:
   - `eventAction`: `Engage`
   - `eventLabel`: `4-mask-limit-upsell`
 
-### <a name="ctx-phones">Phone Masks Dashboard</a>
+### Phone Masks Dashboard
 
 For users in an eligible region without the phone mask plan, the [Phone Masks
 dashboard][] promotes the features and benefits. For users with a new phone
@@ -1239,7 +1239,7 @@ The Google Analytics events:
   - `metric11`: `1` (for Very Dissatisfied) to `5` (for Very Satisfied)
   - `metric12`: `-1` (Dissatisfied), `0` (Neutral), or `1` (Satisfied)
 
-#### <a name="ctx-survey-interview">Interview Recruitment Survey</a>
+#### <a name="ctx-survey-recruitment">Interview Recruitment Survey</a>
 
 The interview recruitment survey for a research study is shown on the Emails dashboard,
 when we are actively recruiting for user research. The information collected in this
@@ -1312,7 +1312,8 @@ site. They are documented here for completeness.
 When there was a single paid subscription plan, purchase tracking assumed a single plan.
 This was first tracked in the API backend, but later moved to the Relay Website. In
 September 2022, Relay added phone mask plans, and we expanded subscription tracking to
-include the plan. See [Plan Matrix][] for purchase tracking after September 2022.
+include the plan. See [Plan Matrix](#ctx-landing-matrix) for purchase tracking after
+September 2022.
 
 The Google Analytics events:
 
@@ -1351,7 +1352,7 @@ Events are reported using [Google Analytics Measurement Protocol](https://develo
 
 We collect data for the following extension events:
 
-### Panel events:
+### Panel events
 
 - When the panel is opened
 
@@ -1365,7 +1366,7 @@ We collect data for the following extension events:
 
 - When panel navigation arrow icons are clicked
 
-### In-page events:
+### In-page events
 
 - When the Relay icon is injected into an email input
 
@@ -1379,15 +1380,15 @@ We collect data for the following extension events:
 
 - When the Relay icon is clicked by a user who has already reached the maximum number of allowed aliases
 
-### Post-install page events:
+### Post-install page events
 
 - When the user clicks an outbound link or button
 
-### Context Menu events:
+### Context Menu events
 
 - When an alias is generated via the context menu
 
-### Modal events:
+### Modal events
 
 - When the modal opens
 
