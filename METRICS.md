@@ -1395,11 +1395,4 @@ We collect data for the following extension events:
 
 - When "Manage All Aliases" is clicked
 
-<!-- Render mermaid diagrams in Marked -->
-<script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
-<script>
-    mermaid.initialize({ startOnLoad: true });
-    Marked.hooks.register('update', function() { mermaid.run(); });
-</script>
-
 <!-- vim: set textwidth=88 ft=markdown syntax=markdown -->
