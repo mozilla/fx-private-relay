@@ -32,6 +32,7 @@ import { isPhonesAvailableInCountry } from "../../functions/getPlan";
 import { useL10n } from "../../hooks/l10n";
 import { HolidayPromoBanner } from "./topmessage/HolidayPromoBanner";
 import { isFlagActive } from "../../functions/waffle";
+import { GoogleAnalyticsWorkaround } from "../GoogleAnalyticsWorkaround";
 
 export type Props = {
   children: ReactNode;
@@ -285,6 +286,15 @@ export const Layout = (props: Props) => {
           </footer>
         </div>
       </div>
+      {props.runtimeData !== undefined ? (
+        <GoogleAnalyticsWorkaround
+          gaId={props.runtimeData.GA4_MEASUREMENT_ID}
+          debugMode={
+            process.env.NEXT_PUBLIC_GA4_DEBUG_MODE === "true" &&
+            process.env.NODE_ENV !== "test"
+          }
+        />
+      ) : null}
     </>
   );
 };

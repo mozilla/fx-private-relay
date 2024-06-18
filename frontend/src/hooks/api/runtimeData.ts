@@ -35,6 +35,7 @@ export type ProductData<P extends Partial<PlanData> = PlanData> = {
 export type RuntimeData = {
   FXA_ORIGIN: string;
   GOOGLE_ANALYTICS_ID: `UA-${number}-${number}`;
+  GA4_MEASUREMENT_ID: `G-${string}`;
   PERIODICAL_PREMIUM_PRODUCT_ID: `prod_${string}`;
   PHONE_PRODUCT_ID: `prod_${string}`;
   BUNDLE_PRODUCT_ID: `prod_${string}`;

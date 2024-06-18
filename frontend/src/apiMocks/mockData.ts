@@ -13,6 +13,7 @@ export const mockedRuntimeData: RuntimeData = {
   FXA_ORIGIN: "https://fxa-mock.com",
   BASKET_ORIGIN: "https://basket-mock.com",
   GOOGLE_ANALYTICS_ID: "UA-123456789-0",
+  GA4_MEASUREMENT_ID: "G-YXT33S87LT",
   PERIODICAL_PREMIUM_PRODUCT_ID: "prod_123456789",
   PHONE_PRODUCT_ID: "prod_123456789",
   BUNDLE_PRODUCT_ID: "prod_123456789",
