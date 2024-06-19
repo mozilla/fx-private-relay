@@ -13,8 +13,14 @@ from privaterelay.cleaner_task import DataItem
 from privaterelay.cleaners import MissingEmailCleaner
 
 
-def setup_missing_email_cleaner_test_data() -> None:
-    """Setup users and addresses for testing."""
+def setup_missing_email_cleaner_test_data(provider_id: str = "") -> None:
+    """
+    Setup users and addresses for testing.
+
+    provider_id: Set a provider ID for the SocialApp. When set, it is used as the
+    provider string for the SocialAccount. When it is a blank string, the default
+    id, 'fxa', is used.
+    """
 
     def yn(has_item: bool) -> str:
         return "yes" if has_item else "no"
@@ -35,6 +41,7 @@ def setup_missing_email_cleaner_test_data() -> None:
                     SocialApp,
                     name="example.com",
                     provider="fxa",
+                    provider_id=provider_id,
                     client_id="client_id",
                 )
             baker.make(
@@ -62,10 +69,11 @@ Users:
     assert report == expected
 
 
+@pytest.mark.parametrize("provider_id", ("", "fxa", "test.example.com"))
 @pytest.mark.django_db
-def test_missing_email_cleaner_data_to_clear() -> None:
+def test_missing_email_cleaner_data_to_clear(provider_id: str) -> None:
     """MissingEmailCleaner detects that some users do not have email."""
-    setup_missing_email_cleaner_test_data()
+    setup_missing_email_cleaner_test_data(provider_id)
     cleaner = MissingEmailCleaner()
     assert cleaner.issues() == 2
     assert cleaner.counts == {
@@ -84,10 +92,13 @@ Users:
     assert report == expected
 
 
+@pytest.mark.parametrize("provider_id", ("", "fxa", "test.example.com"))
 @pytest.mark.django_db
-def test_missing_email_cleaner_data_clean_users_handles_missing_fxa_data() -> None:
+def test_missing_email_cleaner_data_clean_users_handles_missing_fxa_data(
+    provider_id: str,
+) -> None:
     """The cleaner function works with FxA data, or no 'email' in the extra_data"""
-    setup_missing_email_cleaner_test_data()
+    setup_missing_email_cleaner_test_data(provider_id)
     cleaner = MissingEmailCleaner()
     item = cleaner.data_items["users.!email"]
     assert isinstance(item, DataItem)
