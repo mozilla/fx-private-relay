@@ -1,101 +1,74 @@
-"""Framework for tasks that identify data issues and (if possible) clean them up"""
+"""Tasks that detect and fix data issues in privaterelay app or 3rd party apps."""
 
-from __future__ import annotations
+from django.contrib.auth.models import User
+from django.db.models import Q, QuerySet, Value
+from django.db.models.functions import Coalesce, NullIf
 
-from typing import Any
+from allauth.socialaccount.models import SocialAccount, SocialApp
 
-Counts = dict[str, dict[str, int]]
-CleanupData = dict[str, Any]
+from .cleaner_task import CleanerTask, DataBisectSpec, DataModelSpec
 
 
-class DataIssueTask:
-    """Base class for data issue / cleaner tasks."""
+class MissingEmailCleaner(CleanerTask):
+    slug = "missing-email"
+    title = "Ensure all users have an email"
+    check_description = (
+        "When User.email is empty, we are unable to forward email to the Relay user."
+        " We can get the email from the FxA profile if available."
+    )
 
-    slug: str  # Short name, appropriate for command-line option
-    title: str  # Short title for reports
-    check_description: str  # A sentence describing what this cleaner is checking.
-    can_clean: bool  # True if the issue can be automatically cleaned
+    # The Firefox Accounts default provider identifier is `fxa`. Firefox Accounts was
+    # the name for Mozilla Accounts before 2023. This query returns the value, as a
+    # one-element list, of the `SocialApp.provider_id` if set, and `fxa` if not.
+    #
+    # The `provider` field for a SocialAccount is a CharField, not a ForeignKey.  The
+    # default `provider` value is the `id` of the SocialAccount provider. This `id` is
+    # used in the django-allauth URLs. The `provider` value can be overridden by setting
+    # the `SocialApp.provider_id`. This supports generic providers like OpenID Connect
+    # and SAML. When it is set on a non-generic provider, it changes the value of the
+    # SocialAccount's `provider`, but not the URLs. When django-allauth needs the
+    # SocialApp for a given SocialAccount, it uses an adapter to look it up at runtime.
+    #
+    # See:
+    # - The Firefox Account Provider docs
+    # https://docs.allauth.org/en/latest/socialaccount/providers/fxa.html
+    # - The OpenID Connect docs
+    # https://docs.allauth.org/en/latest/socialaccount/providers/openid_connect.html
+    # - The DefaultSocialAccountAdapter docs
+    # https://docs.allauth.org/en/latest/socialaccount/adapter.html#allauth.socialaccount.adapter.DefaultSocialAccountAdapter.get_provider
 
-    _counts: Counts | None
-    _cleanup_data: CleanupData | None
-    _cleaned: bool
+    _fxa_provider_id = SocialApp.objects.filter(provider="fxa").values_list(
+        Coalesce(NullIf("provider_id", Value("")), "provider"), flat=True
+    )
 
-    def __init__(self):
-        self._counts = None
-        self._cleanup_data = None
-        self._cleaned = False
+    data_specification = [
+        # Report on how many users do not have an email
+        DataModelSpec(
+            model=User,
+            subdivisions=[
+                DataBisectSpec("email", ~Q(email__exact="")),
+                DataBisectSpec(
+                    "!email.fxa", Q(socialaccount__provider__in=_fxa_provider_id)
+                ),
+            ],
+            omit_key_prefixes=["!email.!fxa"],
+            report_name_overrides={"!email": "No Email", "!email.fxa": "Has FxA"},
+            ok_key="email",
+            needs_cleaning_key="!email.fxa",
+        )
+    ]
 
-    @property
-    def counts(self) -> Counts:
-        """Get relevant counts for data issues and prepare to clean if possible."""
-        if self._counts is None:
-            if self._cleanup_data is not None:
-                raise ValueError(
-                    "self.cleanup_data should be None when self._counts is None"
+    def clean_users(self, queryset: QuerySet[User]) -> int:
+        fixed = 0
+        for user in queryset:
+            try:
+                fxa_account = SocialAccount.objects.get(
+                    provider__in=self._fxa_provider_id, user=user
                 )
-            self._counts, self._cleanup_data = self._get_counts_and_data()
-        return self._counts
-
-    @property
-    def cleanup_data(self) -> CleanupData:
-        """Get data needed to clean data issues."""
-        if not self.counts:
-            raise ValueError("self.counts must have a value when calling cleanup_data.")
-        if not self._cleanup_data:
-            raise ValueError(
-                "self._cleanup_data must have a value when calling cleanup_data."
-            )
-        return self._cleanup_data
-
-    def issues(self) -> int:
-        """Return the number of detected data issues."""
-        return self.counts["summary"]["needs_cleaning"]
-
-    def _get_counts_and_data(self) -> tuple[Counts, CleanupData]:
-        """Return a dictionary of counts and cleanup data."""
-        raise NotImplementedError("_get_counts_and_data() not implemented")
-
-    def _clean(self) -> int:
-        """
-        Clean the detected items.
-
-        Returns the number of cleaned items. Implementors can add detailed
-        counts to self._counts as needed.
-        """
-        raise NotImplementedError("_clean() not implemented")
-
-    def clean(self) -> int:
-        """Clean the detected items, and update counts["summary"]"""
-        summary = self.counts["summary"]
-        if not self._cleaned:
-            summary["cleaned"] = self._clean()
-            self._cleaned = True
-        return summary["cleaned"]
-
-    def markdown_report(self) -> str:
-        """Return Markdown-formatted report of issues found and (maybe) fixed."""
-        raise NotImplementedError("markdown_report() not implemented")
-
-    @staticmethod
-    def _as_percent(part: int, whole: int) -> str:
-        """Return value followed by percent of whole, like '5 ( 30.0%)'"""
-        if not whole > 0:
-            raise ValueError("whole must be greater than 0 when calling _as_percent")
-        len_whole = len(str(whole))
-        return f"{part:{len_whole}d} ({part / whole:6.1%})"
-
-
-class CleanerTask(DataIssueTask):
-    """Base class for tasks that can clean up detected issues."""
-
-    can_clean = True
-
-
-class DetectorTask(DataIssueTask):
-    """Base class for tasks that cannot clean up detected issues."""
-
-    can_clean = False
-
-    def _clean(self) -> int:
-        """DetectorTask can't clean any detected issues."""
-        return 0
+            except SocialAccount.DoesNotExist:
+                continue
+            if fxa_email := fxa_account.extra_data.get("email"):
+                user.email = fxa_email
+                user.save(update_fields=["email"])
+                fixed += 1
+        return fixed
