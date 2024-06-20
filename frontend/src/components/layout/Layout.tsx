@@ -286,7 +286,7 @@ export const Layout = (props: Props) => {
           </footer>
         </div>
       </div>
-      {props.runtimeData !== undefined ? (
+      {props.runtimeData !== undefined && navigator.doNotTrack !== "1" ? (
         <GoogleAnalyticsWorkaround
           gaId={props.runtimeData.GA4_MEASUREMENT_ID}
           debugMode={
