@@ -186,7 +186,6 @@ else:
 
 CONTENT_SECURITY_POLICY: CONTENT_SECURITY_POLICY_T = {
     "DIRECTIVES": {
-        "report-uri": config("CSP_REPORT_URI", ""),
         "default-src": [SELF],
         "connect-src": [
             SELF,
@@ -219,6 +218,8 @@ if _CSP_STYLE_INLINE:
     CONTENT_SECURITY_POLICY["DIRECTIVES"]["script-src"].append(UNSAFE_INLINE)
 if _API_DOCS_CSP_WORKER_SRC:
     CONTENT_SECURITY_POLICY["DIRECTIVES"]["worker-src"] = _API_DOCS_CSP_WORKER_SRC
+if _CSP_REPORT_URI := config("CSP_REPORT_URI", ""):
+    CONTENT_SECURITY_POLICY["DIRECTIVES"]["report-uri"] = _CSP_REPORT_URI
 
 REFERRER_POLICY = "strict-origin-when-cross-origin"
 
