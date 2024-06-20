@@ -33,7 +33,6 @@ from privaterelay.utils import (
     guess_country_from_accept_lang,
 )
 
-from .apps import emails_config
 from .exceptions import (
     AccountIsInactiveException,
     AccountIsPausedException,
@@ -46,6 +45,7 @@ from .exceptions import (
     RelayAddrFreeTierLimitException,
 )
 from .utils import get_domains_from_settings, incr_if_enabled
+from .validators import has_bad_words, is_blocklisted, valid_available_subdomain
 
 if settings.PHONES_ENABLED:
     from phones.models import RealPhone, RelayNumber
@@ -58,31 +58,6 @@ BounceStatus = namedtuple("BounceStatus", "paused type")
 
 DOMAIN_CHOICES = [(1, "RELAY_FIREFOX_DOMAIN"), (2, "MOZMAIL_DOMAIN")]
 PREMIUM_DOMAINS = ["mozilla.com", "getpocket.com", "mozillafoundation.org"]
-
-
-def valid_available_subdomain(subdomain, *args, **kwargs):
-    if not subdomain:
-        raise CannotMakeSubdomainException("error-subdomain-cannot-be-empty-or-null")
-    # valid subdomains:
-    #   can't start or end with a hyphen
-    #   must be 1-63 alphanumeric characters and/or hyphens
-    subdomain = subdomain.lower()
-    valid_subdomain_pattern = re.compile("^(?!-)[a-z0-9-]{1,63}(?<!-)$")
-    valid = valid_subdomain_pattern.match(subdomain) is not None
-    #   can't have "bad" words in them
-    bad_word = has_bad_words(subdomain)
-    #   can't have "blocked" words in them
-    blocked_word = is_blocklisted(subdomain)
-    #   can't be taken by someone else
-    taken = (
-        RegisteredSubdomain.objects.filter(
-            subdomain_hash=hash_subdomain(subdomain)
-        ).count()
-        > 0
-    )
-    if not valid or bad_word or blocked_word or taken:
-        raise CannotMakeSubdomainException("error-subdomain-not-available")
-    return True
 
 
 # This historical function is referenced in migration
@@ -614,20 +589,6 @@ def address_default():
             string.ascii_lowercase + string.digits, k=9
         )
     )
-
-
-def has_bad_words(value: str) -> bool:
-    for badword in emails_config().badwords:
-        badword = badword.strip()
-        if len(badword) <= 4 and badword == value:
-            return True
-        if len(badword) > 4 and badword in value:
-            return True
-    return False
-
-
-def is_blocklisted(value: str) -> bool:
-    return any(blockedword == value for blockedword in emails_config().blocklist)
 
 
 def get_domain_numerical(domain_address):
