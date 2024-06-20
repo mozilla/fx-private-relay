@@ -66,7 +66,7 @@ const setYourPassword = async (page: Page) => {
 const enterConfirmationCode = async (page: Page) => {
   const maybeVerificationCodeInput = "div.card input";
   await page.waitForSelector(maybeVerificationCodeInput, { timeout: 2000 });
-  const confirmButton = page.locator("#submit-btn");
+  const confirmButton = page.locator('[type="submit"]').first();
   const verificationCode = await getVerificationCode(
     process.env.E2E_TEST_ACCOUNT_FREE as string,
     page,
@@ -90,7 +90,7 @@ const signIn = async (page: Page) => {
 const enterYourEmail = async (page: Page) => {
   const maybeEmailInput = 'input[name="email"]';
   await page.waitForSelector(maybeEmailInput, { timeout: 2000 });
-  const signInButton = page.locator("#submit-btn");
+  const signInButton = page.locator('[type="submit"]').first();
   await page
     .locator(maybeEmailInput)
     .fill(process.env.E2E_TEST_ACCOUNT_FREE as string);
@@ -101,11 +101,12 @@ const enterYourEmail = async (page: Page) => {
 
 const enterYourPassword = async (page: Page) => {
   await page
-    .locator("#password")
+    .locator('[type="password"]')
+    .nth(0)
     .fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string);
 
   // using force here due to fxa issue with playwright
-  await page.locator("#submit-btn").click();
+  await page.locator('[type="submit"]').first().click();
   await page.waitForTimeout(500);
   await checkAuthState(page);
 };
