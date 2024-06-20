@@ -1217,14 +1217,11 @@ class DomainAddressTest(TestCase):
         self.subdomain = "test"
         self.user = make_premium_test_user()
         self.storageless_user = make_storageless_test_user()
-        self.user_profile = self.user.profile
-        self.user_profile.subdomain = self.subdomain
-        self.user_profile.save()
+        self.user.profile.subdomain = self.subdomain
+        self.user.profile.save()
 
     def test_make_domain_address_assigns_to_user(self):
-        domain_address = DomainAddress.make_domain_address(
-            self.user_profile, "test-assigns"
-        )
+        domain_address = DomainAddress.make_domain_address(self.user, "test-assigns")
         assert domain_address.user == self.user
 
     @skip(reason="test not reliable, look at FIXME comment")
@@ -1234,7 +1231,7 @@ class DomainAddressTest(TestCase):
         # not been fixed yet
         for i in range(5):
             domain_address = DomainAddress.make_domain_address(
-                self.user_profile, f"test-different-{i}"
+                self.user, f"test-different-{i}"
             )
             assert domain_address.first_emailed_at is None
         domain_addresses = DomainAddress.objects.filter(user=self.user).values_list(
@@ -1244,39 +1241,33 @@ class DomainAddressTest(TestCase):
         assert len(set(domain_addresses)) == 5
 
     def test_make_domain_address_makes_requested_address(self):
-        domain_address = DomainAddress.make_domain_address(self.user_profile, "foobar")
+        domain_address = DomainAddress.make_domain_address(self.user, "foobar")
         assert domain_address.address == "foobar"
         assert domain_address.first_emailed_at is None
 
     @override_settings(MAX_ADDRESS_CREATION_PER_DAY=10)
     def test_make_domain_address_has_limit(self) -> None:
         for i in range(10):
-            DomainAddress.make_domain_address(self.user_profile, "foobar" + str(i))
+            DomainAddress.make_domain_address(self.user, "foobar" + str(i))
         with pytest.raises(CannotMakeAddressException) as exc_info:
-            DomainAddress.make_domain_address(self.user_profile, "one-too-many")
+            DomainAddress.make_domain_address(self.user, "one-too-many")
         assert exc_info.value.get_codes() == "account_is_paused"
-        domain_address_count = DomainAddress.objects.filter(
-            user=self.user_profile.user
-        ).count()
+        domain_address_count = DomainAddress.objects.filter(user=self.user).count()
         assert domain_address_count == 10
 
     def test_make_domain_address_makes_requested_address_via_email(self):
-        domain_address = DomainAddress.make_domain_address(
-            self.user_profile, "foobar", True
-        )
+        domain_address = DomainAddress.make_domain_address(self.user, "foobar", True)
         assert domain_address.address == "foobar"
         assert domain_address.first_emailed_at is not None
 
     def test_make_domain_address_non_premium_user(self) -> None:
-        non_premium_user_profile = baker.make(User).profile
+        non_premium_user = baker.make(User)
         with pytest.raises(CannotMakeAddressException) as exc_info:
-            DomainAddress.make_domain_address(
-                non_premium_user_profile, "test-non-premium"
-            )
+            DomainAddress.make_domain_address(non_premium_user, "test-non-premium")
         assert exc_info.value.get_codes() == "free_tier_no_subdomain_masks"
 
     def test_make_domain_address_can_make_blocklisted_address(self):
-        domain_address = DomainAddress.make_domain_address(self.user_profile, "testing")
+        domain_address = DomainAddress.make_domain_address(self.user, "testing")
         assert domain_address.address == "testing"
 
     def test_make_domain_address_valid_premium_user_with_no_subdomain(self) -> None:
@@ -1287,24 +1278,21 @@ class DomainAddressTest(TestCase):
             provider="fxa",
             extra_data={"subscriptions": [premium_subscription()]},
         )
-        user_profile = Profile.objects.get(user=user)
         with pytest.raises(CannotMakeAddressException) as exc_info:
-            DomainAddress.make_domain_address(user_profile, "test-nosubdomain")
+            DomainAddress.make_domain_address(user, "test-nosubdomain")
         assert exc_info.value.get_codes() == "need_subdomain"
 
     def test_make_domain_address_dupe_of_existing_raises(self):
         address = "same-address"
-        DomainAddress.make_domain_address(self.user_profile, address=address)
+        DomainAddress.make_domain_address(self.user, address=address)
         with pytest.raises(DomainAddrDuplicateException) as exc_info:
-            DomainAddress.make_domain_address(self.user_profile, address=address)
+            DomainAddress.make_domain_address(self.user, address=address)
         assert exc_info.value.get_codes() == "duplicate_address"
 
     @override_flag("custom_domain_management_redesign", active=False)
     def test_make_domain_address_can_make_dupe_of_deleted(self):
         address = "same-address"
-        domain_address = DomainAddress.make_domain_address(
-            self.user_profile, address=address
-        )
+        domain_address = DomainAddress.make_domain_address(self.user, address=address)
         domain_address_hash = address_hash(
             domain_address.address,
             domain_address.user_profile.subdomain,
@@ -1312,7 +1300,7 @@ class DomainAddressTest(TestCase):
         )
         domain_address.delete()
         dupe_domain_address = DomainAddress.make_domain_address(
-            self.user_profile, address=address
+            self.user, address=address
         )
         assert (
             DeletedAddress.objects.filter(address_hash=domain_address_hash).count() == 1
@@ -1322,9 +1310,7 @@ class DomainAddressTest(TestCase):
     @override_flag("custom_domain_management_redesign", active=True)
     def test_make_domain_address_cannot_make_dupe_of_deleted(self):
         address = "same-address"
-        domain_address = DomainAddress.make_domain_address(
-            self.user_profile, address=address
-        )
+        domain_address = DomainAddress.make_domain_address(self.user, address=address)
         domain_address_hash = address_hash(
             domain_address.address,
             domain_address.user_profile.subdomain,
@@ -1332,7 +1318,7 @@ class DomainAddressTest(TestCase):
         )
         domain_address.delete()
         with pytest.raises(DomainAddrUnavailableException) as exc_info:
-            DomainAddress.make_domain_address(self.user_profile, address=address)
+            DomainAddress.make_domain_address(self.user, address=address)
         assert exc_info.value.get_codes() == "address_unavailable"
         assert (
             DeletedAddress.objects.filter(address_hash=domain_address_hash).count() == 1
@@ -1344,7 +1330,7 @@ class DomainAddressTest(TestCase):
     ) -> None:
         address_default_mocked.return_value = "angry0123"
         with pytest.raises(CannotMakeAddressException) as exc_info:
-            DomainAddress.make_domain_address(self.user_profile)
+            DomainAddress.make_domain_address(self.user)
         assert exc_info.value.get_codes() == "address_unavailable"
 
     def test_delete_adds_deleted_address_object(self):
@@ -1370,14 +1356,15 @@ class DomainAddressTest(TestCase):
         assert domain_address.block_list_emails is True
 
     def test_delete_increments_values_on_profile(self):
-        assert self.user_profile.num_address_deleted == 0
-        assert self.user_profile.num_email_forwarded_in_deleted_address == 0
-        assert self.user_profile.num_email_blocked_in_deleted_address == 0
-        assert self.user_profile.num_level_one_trackers_blocked_in_deleted_address == 0
-        assert self.user_profile.num_email_replied_in_deleted_address == 0
-        assert self.user_profile.num_email_spam_in_deleted_address == 0
-        assert self.user_profile.num_deleted_relay_addresses == 0
-        assert self.user_profile.num_deleted_domain_addresses == 0
+        profile = self.user.profile
+        assert profile.num_address_deleted == 0
+        assert profile.num_email_forwarded_in_deleted_address == 0
+        assert profile.num_email_blocked_in_deleted_address == 0
+        assert profile.num_level_one_trackers_blocked_in_deleted_address == 0
+        assert profile.num_email_replied_in_deleted_address == 0
+        assert profile.num_email_spam_in_deleted_address == 0
+        assert profile.num_deleted_relay_addresses == 0
+        assert profile.num_deleted_domain_addresses == 0
 
         domain_address = DomainAddress.objects.create(
             user=self.user,
@@ -1390,15 +1377,15 @@ class DomainAddressTest(TestCase):
         )
         domain_address.delete()
 
-        self.user_profile.refresh_from_db()
-        assert self.user_profile.num_address_deleted == 1
-        assert self.user_profile.num_email_forwarded_in_deleted_address == 2
-        assert self.user_profile.num_email_blocked_in_deleted_address == 3
-        assert self.user_profile.num_level_one_trackers_blocked_in_deleted_address == 4
-        assert self.user_profile.num_email_replied_in_deleted_address == 5
-        assert self.user_profile.num_email_spam_in_deleted_address == 6
-        assert self.user_profile.num_deleted_relay_addresses == 0
-        assert self.user_profile.num_deleted_domain_addresses == 1
+        profile.refresh_from_db()
+        assert profile.num_address_deleted == 1
+        assert profile.num_email_forwarded_in_deleted_address == 2
+        assert profile.num_email_blocked_in_deleted_address == 3
+        assert profile.num_level_one_trackers_blocked_in_deleted_address == 4
+        assert profile.num_email_replied_in_deleted_address == 5
+        assert profile.num_email_spam_in_deleted_address == 6
+        assert profile.num_deleted_relay_addresses == 0
+        assert profile.num_deleted_domain_addresses == 1
 
     def test_formerly_premium_user_clears_block_list_emails(self):
         domain_address = DomainAddress.objects.create(
@@ -1481,19 +1468,17 @@ class DomainAddressTest(TestCase):
         assert not domain_address.block_list_emails
 
     def test_create_updates_profile_last_engagement(self) -> None:
-        DomainAddress.make_domain_address(self.user.profile, address="create")
+        DomainAddress.make_domain_address(self.user, address="create")
         assert self.user.profile.last_engagement
         pre_create_last_engagement = self.user.profile.last_engagement
 
-        DomainAddress.make_domain_address(self.user.profile, address="create2")
+        DomainAddress.make_domain_address(self.user, address="create2")
 
         self.user.profile.refresh_from_db()
         assert self.user.profile.last_engagement > pre_create_last_engagement
 
     def test_save_does_not_update_profile_last_engagement(self) -> None:
-        domain_address = DomainAddress.make_domain_address(
-            self.user.profile, address="save"
-        )
+        domain_address = DomainAddress.make_domain_address(self.user, address="save")
         assert self.user.profile.last_engagement
         pre_save_last_engagement = self.user.profile.last_engagement
 
@@ -1504,9 +1489,7 @@ class DomainAddressTest(TestCase):
         assert self.user.profile.last_engagement == pre_save_last_engagement
 
     def test_delete_updates_profile_last_engagement(self) -> None:
-        domain_address = DomainAddress.make_domain_address(
-            self.user.profile, address="delete"
-        )
+        domain_address = DomainAddress.make_domain_address(self.user, address="delete")
         assert self.user.profile.last_engagement
         pre_delete_last_engagement = self.user.profile.last_engagement
 

@@ -174,9 +174,7 @@ class ValidAddressTest(TestCase):
         user.profile.subdomain = "mysubdomain"
         user.profile.save()
         address = "same-address"
-        domain_address = DomainAddress.make_domain_address(
-            user.profile, address=address
-        )
+        domain_address = DomainAddress.make_domain_address(user, address=address)
         domain_address.delete()
         assert not valid_address(
             address, domain_address.domain_value, user.profile.subdomain

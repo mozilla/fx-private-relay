@@ -675,7 +675,7 @@ class RelayAddress(models.Model):
         if self._state.adding:
             with transaction.atomic():
                 locked_profile = Profile.objects.select_for_update().get(user=self.user)
-                check_user_can_make_another_address(locked_profile)
+                check_user_can_make_another_address(locked_profile.user)
                 while True:
                     address_is_allowed = not is_blocklisted(self.address)
                     address_is_valid = valid_address(self.address, self.domain_value)
@@ -726,16 +726,17 @@ class RelayAddress(models.Model):
         return f"R{self.id}"
 
 
-def check_user_can_make_another_address(profile: Profile) -> None:
-    if not profile.user.is_active:
+def check_user_can_make_another_address(user: User) -> None:
+    """Raise an exception if the user can not make a RelayAddress."""
+    if not user.is_active:
         raise AccountIsInactiveException()
 
-    if profile.is_flagged:
+    if user.profile.is_flagged:
         raise AccountIsPausedException()
     # MPP-3021: return early for premium users to avoid at_max_free_aliases DB query
-    if profile.has_premium:
+    if user.profile.has_premium:
         return
-    if profile.at_max_free_aliases:
+    if user.profile.at_max_free_aliases:
         raise RelayAddrFreeTierLimitException()
 
 
@@ -750,17 +751,18 @@ class DeletedAddress(models.Model):
         return self.address_hash
 
 
-def check_user_can_make_domain_address(user_profile: Profile) -> None:
-    if not user_profile.has_premium:
+def check_user_can_make_domain_address(user: User) -> None:
+    """Raise an exception if the user can not make a DomainAddress."""
+    if not user.profile.has_premium:
         raise DomainAddrFreeTierException()
 
-    if not user_profile.subdomain:
+    if not user.profile.subdomain:
         raise DomainAddrNeedSubdomainException()
 
-    if not user_profile.user.is_active:
+    if not user.is_active:
         raise AccountIsInactiveException()
 
-    if user_profile.is_flagged:
+    if user.profile.is_flagged:
         raise AccountIsPausedException()
 
 
@@ -798,11 +800,10 @@ class DomainAddress(models.Model):
         using: str | None = None,
         update_fields: Iterable[str] | None = None,
     ) -> None:
-        user_profile = self.user.profile
         if self._state.adding:
-            check_user_can_make_domain_address(user_profile)
+            check_user_can_make_domain_address(self.user)
             domain_address_valid = valid_address(
-                self.address, self.domain_value, user_profile.subdomain
+                self.address, self.domain_value, self.user.profile.subdomain
             )
             if not domain_address_valid:
                 if self.first_emailed_at:
@@ -814,9 +815,9 @@ class DomainAddress(models.Model):
             ).exists():
                 raise DomainAddrDuplicateException(duplicate_address=self.address)
 
-            user_profile.update_abuse_metric(address_created=True)
-            user_profile.last_engagement = datetime.now(UTC)
-            user_profile.save(update_fields=["last_engagement"])
+            self.user.profile.update_abuse_metric(address_created=True)
+            self.user.profile.last_engagement = datetime.now(UTC)
+            self.user.profile.save(update_fields=["last_engagement"])
             incr_if_enabled("domainaddress.create")
             if self.first_emailed_at:
                 incr_if_enabled("domainaddress.create_via_email")
@@ -826,11 +827,13 @@ class DomainAddress(models.Model):
             if existing_instance.address != self.address:
                 raise DomainAddrUpdateException()
 
-        if not user_profile.has_premium and self.block_list_emails:
+        if not self.user.profile.has_premium and self.block_list_emails:
             self.block_list_emails = False
             if update_fields:
                 update_fields = {"block_list_emails"}.union(update_fields)
-        if (not user_profile.server_storage) and (self.description or self.used_on):
+        if (not self.user.profile.server_storage) and (
+            self.description or self.used_on
+        ):
             self.description = ""
             self.used_on = ""
             if update_fields:
@@ -848,9 +851,9 @@ class DomainAddress(models.Model):
 
     @staticmethod
     def make_domain_address(
-        user_profile: Profile, address: str | None = None, made_via_email: bool = False
+        user: User, address: str | None = None, made_via_email: bool = False
     ) -> DomainAddress:
-        check_user_can_make_domain_address(user_profile)
+        check_user_can_make_domain_address(user)
 
         if not address:
             # FIXME: if the alias is randomly generated and has bad words
@@ -864,7 +867,7 @@ class DomainAddress(models.Model):
 
         first_emailed_at = datetime.now(UTC) if made_via_email else None
         domain_address = DomainAddress.objects.create(
-            user=user_profile.user, address=address, first_emailed_at=first_emailed_at
+            user=user, address=address, first_emailed_at=first_emailed_at
         )
         return domain_address
 
