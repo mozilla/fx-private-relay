@@ -26,6 +26,7 @@ import dj_database_url
 import django_stubs_ext
 import markus
 import sentry_sdk
+from csp.constants import NONE, SELF, UNSAFE_INLINE
 from decouple import Choices, Csv, config
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import ignore_logger
@@ -186,26 +187,26 @@ else:
 CONTENT_SECURITY_POLICY: CONTENT_SECURITY_POLICY_T = {
     "DIRECTIVES": {
         "report-uri": config("CSP_REPORT_URI", ""),
-        "default-src": ["'self'"],
+        "default-src": [SELF],
         "connect-src": [
-            "'self'",
+            SELF,
             "https://www.google-analytics.com/",
             "https://www.googletagmanager.com/",
             "https://location.services.mozilla.com",
             "https://api.stripe.com",
             BASKET_ORIGIN,
         ],
-        "font-src": ["'self'", "https://relay.firefox.com/"],
+        "font-src": [SELF, "https://relay.firefox.com/"],
         "frame-src": ["https://js.stripe.com", "https://hooks.stripe.com"],
-        "img-src": ["'self'"],
-        "object-src": ["'none'"],
+        "img-src": [SELF],
+        "object-src": [NONE],
         "script-src": [
-            "'self'",
+            SELF,
             "https://www.google-analytics.com/",
             "https://www.googletagmanager.com/",
             "https://js.stripe.com/",
         ],
-        "style-src": ["'self'"],
+        "style-src": [SELF],
     }
 }
 CONTENT_SECURITY_POLICY["DIRECTIVES"]["connect-src"].extend(_ACCOUNT_CONNECT_SRC)
@@ -215,7 +216,7 @@ CONTENT_SECURITY_POLICY["DIRECTIVES"]["img-src"].extend(_API_DOCS_CSP_IMG_SRC)
 CONTENT_SECURITY_POLICY["DIRECTIVES"]["style-src"].extend(_API_DOCS_CSP_STYLE_SRC)
 CONTENT_SECURITY_POLICY["DIRECTIVES"]["style-src"].extend(_CSP_STYLE_HASHES)
 if _CSP_STYLE_INLINE:
-    CONTENT_SECURITY_POLICY["DIRECTIVES"]["script-src"].append("'unsafe-inline'")
+    CONTENT_SECURITY_POLICY["DIRECTIVES"]["script-src"].append(UNSAFE_INLINE)
 if _API_DOCS_CSP_WORKER_SRC:
     CONTENT_SECURITY_POLICY["DIRECTIVES"]["worker-src"] = _API_DOCS_CSP_WORKER_SRC
 
