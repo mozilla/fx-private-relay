@@ -17,14 +17,12 @@ from django.core.validators import MinLengthValidator
 from django.db import models, transaction
 from django.db.models.base import ModelBase
 from django.db.models.query import QuerySet
-from django.dispatch import receiver
 from django.utils.translation.trans_real import (
     get_supported_language_variant,
     parse_accept_lang_header,
 )
 
 from allauth.socialaccount.models import SocialAccount
-from rest_framework.authtoken.models import Token
 
 from privaterelay.plans import get_premium_countries
 from privaterelay.utils import (
@@ -559,18 +557,6 @@ class Profile(models.Model):
         if plan == "free":
             return "free"
         return f"{plan}_{self.plan_term}"
-
-
-@receiver(models.signals.post_save, sender=Profile)
-def copy_auth_token(sender, instance=None, created=False, **kwargs):
-    if created:
-        # baker triggers created during tests
-        # so first check the user doesn't already have a Token
-        try:
-            Token.objects.get(user=instance.user)
-            return
-        except Token.DoesNotExist:
-            Token.objects.create(user=instance.user, key=instance.api_token)
 
 
 def address_hash(address, subdomain=None, domain=None):
