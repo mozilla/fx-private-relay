@@ -395,10 +395,9 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
             RelayAddress, user=self.user, address="ebsbdsan7", domain=2
         )
         self.premium_user = make_premium_test_user()
-        self.premium_profile = Profile.objects.get(user=self.premium_user)
-        self.premium_profile.subdomain = "subdomain"
-        self.premium_profile.last_engagement = datetime.now(UTC)
-        self.premium_profile.save()
+        self.premium_user.profile.subdomain = "subdomain"
+        self.premium_user.profile.last_engagement = datetime.now(UTC)
+        self.premium_user.profile.save()
 
     def test_single_recipient_sns_notification(self) -> None:
         pre_sns_notification_last_engagement = self.ra.user.profile.last_engagement
