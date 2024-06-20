@@ -46,8 +46,8 @@ CSP_DIRECTIVES_T = TypedDict(
         "webrtc": list[str],
         "worker-src": list[str],
         # Directives Defined in Other Documents
-        "upgrade-insecure-requests": list[str],
-        "block-all-mixed-content": list[str],  # Deprecated.
+        "upgrade-insecure-requests": bool,
+        "block-all-mixed-content": bool,  # Deprecated.
     },
     total=False,
 )
