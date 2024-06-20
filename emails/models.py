@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import logging
 import random
-import re
 import string
 import uuid
 from collections import namedtuple
@@ -43,7 +42,11 @@ from .exceptions import (
     RelayAddrFreeTierLimitException,
 )
 from .utils import get_domains_from_settings, incr_if_enabled
-from .validators import has_bad_words, is_blocklisted, valid_available_subdomain
+from .validators import (
+    is_blocklisted,
+    valid_address,
+    valid_available_subdomain,
+)
 
 if settings.PHONES_ENABLED:
     from phones.models import RealPhone, RelayNumber
@@ -734,32 +737,6 @@ def check_user_can_make_another_address(profile: Profile) -> None:
         return
     if profile.at_max_free_aliases:
         raise RelayAddrFreeTierLimitException()
-
-
-def valid_address_pattern(address):
-    #   can't start or end with a hyphen
-    #   must be 1-63 lowercase alphanumeric characters and/or hyphens
-    valid_address_pattern = re.compile("^(?![-.])[a-z0-9-.]{1,63}(?<![-.])$")
-    return valid_address_pattern.match(address) is not None
-
-
-def valid_address(address: str, domain: str, subdomain: str | None = None) -> bool:
-    address_pattern_valid = valid_address_pattern(address)
-    address_contains_badword = has_bad_words(address)
-    address_already_deleted = 0
-    if not subdomain or flag_is_active_in_task(
-        "custom_domain_management_redesign", None
-    ):
-        address_already_deleted = DeletedAddress.objects.filter(
-            address_hash=address_hash(address, domain=domain, subdomain=subdomain)
-        ).count()
-    if (
-        address_already_deleted > 0
-        or address_contains_badword
-        or not address_pattern_valid
-    ):
-        return False
-    return True
 
 
 class DeletedAddress(models.Model):

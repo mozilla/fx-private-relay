@@ -3,8 +3,15 @@
 import re
 from typing import Any
 
+from privaterelay.utils import flag_is_active_in_task
+
 from .apps import emails_config
 from .exceptions import CannotMakeSubdomainException
+
+# A valid local / username part of an email address:
+#   can't start or end with a hyphen
+#   must be 1-63 lowercase alphanumeric characters and/or hyphens
+_re_valid_address = re.compile("^(?![-.])[a-z0-9-.]{1,63}(?<![-.])$")
 
 # A valid subdomain:
 #   can't start or end with a hyphen
@@ -36,6 +43,33 @@ def blocklist() -> list[str]:
 def is_blocklisted(value: str) -> bool:
     """Return True if the value is a blocked word."""
     return any(blockedword == value for blockedword in blocklist())
+
+
+def valid_address(address: str, domain: str, subdomain: str | None = None) -> bool:
+    """Return if the given address parts make a valid Relay email."""
+    from .models import DeletedAddress, address_hash
+
+    address_pattern_valid = valid_address_pattern(address)
+    address_contains_badword = has_bad_words(address)
+    address_already_deleted = 0
+    if not subdomain or flag_is_active_in_task(
+        "custom_domain_management_redesign", None
+    ):
+        address_already_deleted = DeletedAddress.objects.filter(
+            address_hash=address_hash(address, domain=domain, subdomain=subdomain)
+        ).count()
+    if (
+        address_already_deleted > 0
+        or address_contains_badword
+        or not address_pattern_valid
+    ):
+        return False
+    return True
+
+
+def valid_address_pattern(address: str) -> bool:
+    """Return if the local/user part of an address is valid."""
+    return _re_valid_address.match(address) is not None
 
 
 def valid_available_subdomain(subdomain: Any) -> None:
