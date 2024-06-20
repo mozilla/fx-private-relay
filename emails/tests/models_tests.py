@@ -1295,7 +1295,7 @@ class DomainAddressTest(TestCase):
         domain_address = DomainAddress.make_domain_address(self.user, address=address)
         domain_address_hash = address_hash(
             domain_address.address,
-            domain_address.user_profile.subdomain,
+            domain_address.user.profile.subdomain,
             domain_address.domain_value,
         )
         domain_address.delete()
@@ -1313,7 +1313,7 @@ class DomainAddressTest(TestCase):
         domain_address = DomainAddress.make_domain_address(self.user, address=address)
         domain_address_hash = address_hash(
             domain_address.address,
-            domain_address.user_profile.subdomain,
+            domain_address.user.profile.subdomain,
             domain_address.domain_value,
         )
         domain_address.delete()

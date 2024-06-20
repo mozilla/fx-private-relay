@@ -822,10 +822,6 @@ class DomainAddress(models.Model):
             update_fields=update_fields,
         )
 
-    @property
-    def user_profile(self):
-        return Profile.objects.get(user=self.user)
-
     @staticmethod
     def make_domain_address(
         user: User, address: str | None = None, made_via_email: bool = False
@@ -852,7 +848,7 @@ class DomainAddress(models.Model):
         # TODO: create hard bounce receipt rule in AWS for the address
         deleted_address = DeletedAddress.objects.create(
             address_hash=address_hash(
-                self.address, self.user_profile.subdomain, self.domain_value
+                self.address, self.user.profile.subdomain, self.domain_value
             ),
             num_forwarded=self.num_forwarded,
             num_blocked=self.num_blocked,
