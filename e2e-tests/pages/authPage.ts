@@ -18,7 +18,7 @@ export class AuthPage {
   constructor(page: Page) {
     this.page = page;
     this.emailInputField = page.locator('input[name="email"]');
-    this.passwordInputField = page.locator("#password");
+    this.passwordInputField = page.locator('[type="password"]').nth(0);
     this.passwordSignupInputField = page.getByTestId(
       "new-password-input-field",
     );
@@ -26,7 +26,7 @@ export class AuthPage {
       "verify-password-input-field",
     );
     this.ageInputField = page.getByTestId("age-input-field");
-    this.continueButton = page.locator("#submit-btn");
+    this.continueButton = page.locator('[type="submit"]').first();
     this.createAccountButton = page.getByRole("button", {
       name: "Create account",
     });
