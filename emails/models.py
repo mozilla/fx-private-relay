@@ -58,16 +58,59 @@ DOMAIN_CHOICES = [(1, "RELAY_FIREFOX_DOMAIN"), (2, "MOZMAIL_DOMAIN")]
 PREMIUM_DOMAINS = ["mozilla.com", "getpocket.com", "mozillafoundation.org"]
 
 
-# This historical function is referenced in migration
-# 0029_profile_add_deleted_metric_and_changeserver_storage_default
-def default_server_storage():
+def default_server_storage() -> bool:
+    """
+    This historical function is referenced in migration
+    0029_profile_add_deleted_metric_and_changeserver_storage_default
+    """
     return True
 
 
-def default_domain_numerical():
+def default_domain_numerical() -> int:
+    """Return the default value for RelayAddress.domain"""
     domains = get_domains_from_settings()
     domain = domains["MOZMAIL_DOMAIN"]
     return get_domain_numerical(domain)
+
+
+def get_domain_numerical(domain_address: str) -> int:
+    """Turn a domain name into a numerical domain"""
+    # get domain name from the address
+    domains = get_domains_from_settings()
+    domains_keys = list(domains.keys())
+    domains_values = list(domains.values())
+    domain_name = domains_keys[domains_values.index(domain_address)]
+    # get domain numerical value from domain name
+    choices = dict(DOMAIN_CHOICES)
+    choices_keys = list(choices.keys())
+    choices_values = list(choices.values())
+    return choices_keys[choices_values.index(domain_name)]
+
+
+def address_hash(
+    address: str, subdomain: str | None = None, domain: str | None = None
+) -> str:
+    """Create a hash of a Relay address, to prevent re-use."""
+    if not domain:
+        domain = get_domains_from_settings()["MOZMAIL_DOMAIN"]
+    if subdomain:
+        return sha256(f"{address}@{subdomain}.{domain}".encode()).hexdigest()
+    if domain == settings.RELAY_FIREFOX_DOMAIN:
+        return sha256(f"{address}".encode()).hexdigest()
+    return sha256(f"{address}@{domain}".encode()).hexdigest()
+
+
+def address_default() -> str:
+    """Return a random value for RelayAddress.address"""
+    return "".join(
+        random.choices(  # noqa: S311 (standard pseudo-random generator used)
+            string.ascii_lowercase + string.digits, k=9
+        )
+    )
+
+
+def hash_subdomain(subdomain: str, domain: str = settings.MOZMAIL_DOMAIN) -> str:
+    return sha256(f"{subdomain}.{domain}".encode()).hexdigest()
 
 
 class Profile(models.Model):
@@ -557,41 +600,6 @@ class Profile(models.Model):
         if plan == "free":
             return "free"
         return f"{plan}_{self.plan_term}"
-
-
-def address_hash(address, subdomain=None, domain=None):
-    if not domain:
-        domain = get_domains_from_settings()["MOZMAIL_DOMAIN"]
-    if subdomain:
-        return sha256(f"{address}@{subdomain}.{domain}".encode()).hexdigest()
-    if domain == settings.RELAY_FIREFOX_DOMAIN:
-        return sha256(f"{address}".encode()).hexdigest()
-    return sha256(f"{address}@{domain}".encode()).hexdigest()
-
-
-def address_default():
-    return "".join(
-        random.choices(  # noqa: S311 (standard pseudo-random generator used)
-            string.ascii_lowercase + string.digits, k=9
-        )
-    )
-
-
-def get_domain_numerical(domain_address):
-    # get domain name from the address
-    domains = get_domains_from_settings()
-    domains_keys = list(domains.keys())
-    domains_values = list(domains.values())
-    domain_name = domains_keys[domains_values.index(domain_address)]
-    # get domain numerical value from domain name
-    choices = dict(DOMAIN_CHOICES)
-    choices_keys = list(choices.keys())
-    choices_values = list(choices.values())
-    return choices_keys[choices_values.index(domain_name)]
-
-
-def hash_subdomain(subdomain, domain=settings.MOZMAIL_DOMAIN):
-    return sha256(f"{subdomain}.{domain}".encode()).hexdigest()
 
 
 class RegisteredSubdomain(models.Model):
