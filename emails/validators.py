@@ -3,10 +3,19 @@
 import re
 from typing import Any
 
+from django.contrib.auth.models import User
+
 from privaterelay.utils import flag_is_active_in_task
 
 from .apps import emails_config
-from .exceptions import CannotMakeSubdomainException
+from .exceptions import (
+    AccountIsInactiveException,
+    AccountIsPausedException,
+    CannotMakeSubdomainException,
+    DomainAddrFreeTierException,
+    DomainAddrNeedSubdomainException,
+    RelayAddrFreeTierLimitException,
+)
 
 # A valid local / username part of an email address:
 #   can't start or end with a hyphen
@@ -43,6 +52,35 @@ def blocklist() -> list[str]:
 def is_blocklisted(value: str) -> bool:
     """Return True if the value is a blocked word."""
     return any(blockedword == value for blockedword in blocklist())
+
+
+def check_user_can_make_another_address(user: User) -> None:
+    """Raise an exception if the user can not make a RelayAddress."""
+    if not user.is_active:
+        raise AccountIsInactiveException()
+
+    if user.profile.is_flagged:
+        raise AccountIsPausedException()
+    # MPP-3021: return early for premium users to avoid at_max_free_aliases DB query
+    if user.profile.has_premium:
+        return
+    if user.profile.at_max_free_aliases:
+        raise RelayAddrFreeTierLimitException()
+
+
+def check_user_can_make_domain_address(user: User) -> None:
+    """Raise an exception if the user can not make a DomainAddress."""
+    if not user.profile.has_premium:
+        raise DomainAddrFreeTierException()
+
+    if not user.profile.subdomain:
+        raise DomainAddrNeedSubdomainException()
+
+    if not user.is_active:
+        raise AccountIsInactiveException()
+
+    if user.profile.is_flagged:
+        raise AccountIsPausedException()
 
 
 def valid_address(address: str, domain: str, subdomain: str | None = None) -> bool:

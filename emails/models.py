@@ -31,18 +31,15 @@ from privaterelay.utils import (
 )
 
 from .exceptions import (
-    AccountIsInactiveException,
-    AccountIsPausedException,
     CannotMakeSubdomainException,
     DomainAddrDuplicateException,
-    DomainAddrFreeTierException,
-    DomainAddrNeedSubdomainException,
     DomainAddrUnavailableException,
     DomainAddrUpdateException,
-    RelayAddrFreeTierLimitException,
 )
 from .utils import get_domains_from_settings, incr_if_enabled
 from .validators import (
+    check_user_can_make_another_address,
+    check_user_can_make_domain_address,
     is_blocklisted,
     valid_address,
     valid_available_subdomain,
@@ -726,20 +723,6 @@ class RelayAddress(models.Model):
         return f"R{self.id}"
 
 
-def check_user_can_make_another_address(user: User) -> None:
-    """Raise an exception if the user can not make a RelayAddress."""
-    if not user.is_active:
-        raise AccountIsInactiveException()
-
-    if user.profile.is_flagged:
-        raise AccountIsPausedException()
-    # MPP-3021: return early for premium users to avoid at_max_free_aliases DB query
-    if user.profile.has_premium:
-        return
-    if user.profile.at_max_free_aliases:
-        raise RelayAddrFreeTierLimitException()
-
-
 class DeletedAddress(models.Model):
     address_hash = models.CharField(max_length=64, db_index=True)
     num_forwarded = models.PositiveIntegerField(default=0)
@@ -749,21 +732,6 @@ class DeletedAddress(models.Model):
 
     def __str__(self):
         return self.address_hash
-
-
-def check_user_can_make_domain_address(user: User) -> None:
-    """Raise an exception if the user can not make a DomainAddress."""
-    if not user.profile.has_premium:
-        raise DomainAddrFreeTierException()
-
-    if not user.profile.subdomain:
-        raise DomainAddrNeedSubdomainException()
-
-    if not user.is_active:
-        raise AccountIsInactiveException()
-
-    if user.profile.is_flagged:
-        raise AccountIsPausedException()
 
 
 class DomainAddress(models.Model):
