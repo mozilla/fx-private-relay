@@ -187,6 +187,7 @@ CSP_DEFAULT_SRC = ["'self'"]
 CSP_CONNECT_SRC = [
     "'self'",
     "https://www.google-analytics.com/",
+    "https://www.googletagmanager.com/",
     "https://location.services.mozilla.com",
     "https://api.stripe.com",
     BASKET_ORIGIN,
@@ -198,6 +199,7 @@ CSP_SCRIPT_SRC = (
     + (["'unsafe-inline'"] if _CSP_SCRIPT_INLINE else [])
     + [
         "https://www.google-analytics.com/",
+        "https://www.googletagmanager.com/",
         "https://js.stripe.com/",
     ]
 )
