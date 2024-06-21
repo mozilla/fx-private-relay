@@ -49,7 +49,8 @@ class EmailsConfig(AppConfig):
         self.badwords = self._load_terms("badwords.text")
         self.blocklist = self._load_terms("blocklist.text")
 
-    def _load_terms(self, filename):
+    def _load_terms(self, filename: str) -> list[str]:
+        """Load a list of terms from a file."""
         terms = []
         terms_file_path = os.path.join(settings.BASE_DIR, "emails", filename)
         with open(terms_file_path) as terms_file:

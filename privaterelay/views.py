@@ -26,13 +26,10 @@ from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error
 from rest_framework.decorators import api_view, schema
 
 # from silk.profiling.profiler import silk_profile
-from emails.models import (
-    CannotMakeSubdomainException,
-    DomainAddress,
-    RelayAddress,
-    valid_available_subdomain,
-)
+from emails.exceptions import CannotMakeSubdomainException
+from emails.models import DomainAddress, RelayAddress
 from emails.utils import incr_if_enabled
+from emails.validators import valid_available_subdomain
 
 from .apps import PrivateRelayConfig
 from .fxa_utils import NoSocialToken, _get_oauth2_session
@@ -82,8 +79,8 @@ def profile_subdomain(request):
     try:
         if request.method == "GET":
             subdomain = request.GET.get("subdomain", None)
-            available = valid_available_subdomain(subdomain)
-            return JsonResponse({"available": available})
+            valid_available_subdomain(subdomain)
+            return JsonResponse({"available": True})
         else:
             subdomain = request.POST.get("subdomain", None)
             profile.add_subdomain(subdomain)

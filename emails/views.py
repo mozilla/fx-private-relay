@@ -41,8 +41,8 @@ from privaterelay.utils import (
     glean_logger,
 )
 
+from .exceptions import CannotMakeAddressException
 from .models import (
-    CannotMakeAddressException,
     DeletedAddress,
     DomainAddress,
     Profile,
@@ -1379,7 +1379,7 @@ def _get_domain_address(local_portion: str, domain_portion: str) -> DomainAddres
                 # was unable to receive an email due to user no longer being a
                 # premium user as seen in exception thrown on make_domain_address
                 domain_address = DomainAddress.make_domain_address(
-                    locked_profile, local_portion, True
+                    locked_profile.user, local_portion, True
                 )
                 glean_logger().log_email_mask_created(
                     mask=domain_address,

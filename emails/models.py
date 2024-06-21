@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import logging
 import random
-import re
 import string
 import uuid
 from collections import namedtuple
@@ -13,21 +12,17 @@ from typing import Literal, cast
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.exceptions import BadRequest
 from django.core.validators import MinLengthValidator
 from django.db import models, transaction
 from django.db.models.base import ModelBase
 from django.db.models.query import QuerySet
-from django.dispatch import receiver
 from django.utils.translation.trans_real import (
     get_supported_language_variant,
     parse_accept_lang_header,
 )
 
 from allauth.socialaccount.models import SocialAccount
-from rest_framework.authtoken.models import Token
 
-from api.exceptions import ErrorContextType, RelayAPIException
 from privaterelay.plans import get_premium_countries
 from privaterelay.utils import (
     AcceptLanguageError,
@@ -35,8 +30,20 @@ from privaterelay.utils import (
     guess_country_from_accept_lang,
 )
 
-from .apps import emails_config
+from .exceptions import (
+    CannotMakeSubdomainException,
+    DomainAddrDuplicateException,
+    DomainAddrUnavailableException,
+    DomainAddrUpdateException,
+)
 from .utils import get_domains_from_settings, incr_if_enabled
+from .validators import (
+    check_user_can_make_another_address,
+    check_user_can_make_domain_address,
+    is_blocklisted,
+    valid_address,
+    valid_available_subdomain,
+)
 
 if settings.PHONES_ENABLED:
     from phones.models import RealPhone, RelayNumber
@@ -51,41 +58,59 @@ DOMAIN_CHOICES = [(1, "RELAY_FIREFOX_DOMAIN"), (2, "MOZMAIL_DOMAIN")]
 PREMIUM_DOMAINS = ["mozilla.com", "getpocket.com", "mozillafoundation.org"]
 
 
-def valid_available_subdomain(subdomain, *args, **kwargs):
-    if not subdomain:
-        raise CannotMakeSubdomainException("error-subdomain-cannot-be-empty-or-null")
-    # valid subdomains:
-    #   can't start or end with a hyphen
-    #   must be 1-63 alphanumeric characters and/or hyphens
-    subdomain = subdomain.lower()
-    valid_subdomain_pattern = re.compile("^(?!-)[a-z0-9-]{1,63}(?<!-)$")
-    valid = valid_subdomain_pattern.match(subdomain) is not None
-    #   can't have "bad" words in them
-    bad_word = has_bad_words(subdomain)
-    #   can't have "blocked" words in them
-    blocked_word = is_blocklisted(subdomain)
-    #   can't be taken by someone else
-    taken = (
-        RegisteredSubdomain.objects.filter(
-            subdomain_hash=hash_subdomain(subdomain)
-        ).count()
-        > 0
-    )
-    if not valid or bad_word or blocked_word or taken:
-        raise CannotMakeSubdomainException("error-subdomain-not-available")
+def default_server_storage() -> bool:
+    """
+    This historical function is referenced in migration
+    0029_profile_add_deleted_metric_and_changeserver_storage_default
+    """
     return True
 
 
-# This historical function is referenced in migration
-# 0029_profile_add_deleted_metric_and_changeserver_storage_default
-def default_server_storage():
-    return True
-
-
-def default_domain_numerical():
+def default_domain_numerical() -> int:
+    """Return the default value for RelayAddress.domain"""
     domains = get_domains_from_settings()
     domain = domains["MOZMAIL_DOMAIN"]
     return get_domain_numerical(domain)
+
+
+def get_domain_numerical(domain_address: str) -> int:
+    """Turn a domain name into a numerical domain"""
+    # get domain name from the address
+    domains = get_domains_from_settings()
+    domains_keys = list(domains.keys())
+    domains_values = list(domains.values())
+    domain_name = domains_keys[domains_values.index(domain_address)]
+    # get domain numerical value from domain name
+    choices = dict(DOMAIN_CHOICES)
+    choices_keys = list(choices.keys())
+    choices_values = list(choices.values())
+    return choices_keys[choices_values.index(domain_name)]
+
+
+def address_hash(
+    address: str, subdomain: str | None = None, domain: str | None = None
+) -> str:
+    """Create a hash of a Relay address, to prevent re-use."""
+    if not domain:
+        domain = get_domains_from_settings()["MOZMAIL_DOMAIN"]
+    if subdomain:
+        return sha256(f"{address}@{subdomain}.{domain}".encode()).hexdigest()
+    if domain == settings.RELAY_FIREFOX_DOMAIN:
+        return sha256(f"{address}".encode()).hexdigest()
+    return sha256(f"{address}@{domain}".encode()).hexdigest()
+
+
+def address_default() -> str:
+    """Return a random value for RelayAddress.address"""
+    return "".join(
+        random.choices(  # noqa: S311 (standard pseudo-random generator used)
+            string.ascii_lowercase + string.digits, k=9
+        )
+    )
+
+
+def hash_subdomain(subdomain: str, domain: str = settings.MOZMAIL_DOMAIN) -> str:
+    return sha256(f"{subdomain}.{domain}".encode()).hexdigest()
 
 
 class Profile(models.Model):
@@ -577,172 +602,12 @@ class Profile(models.Model):
         return f"{plan}_{self.plan_term}"
 
 
-@receiver(models.signals.post_save, sender=Profile)
-def copy_auth_token(sender, instance=None, created=False, **kwargs):
-    if created:
-        # baker triggers created during tests
-        # so first check the user doesn't already have a Token
-        try:
-            Token.objects.get(user=instance.user)
-            return
-        except Token.DoesNotExist:
-            Token.objects.create(user=instance.user, key=instance.api_token)
-
-
-def address_hash(address, subdomain=None, domain=None):
-    if not domain:
-        domain = get_domains_from_settings()["MOZMAIL_DOMAIN"]
-    if subdomain:
-        return sha256(f"{address}@{subdomain}.{domain}".encode()).hexdigest()
-    if domain == settings.RELAY_FIREFOX_DOMAIN:
-        return sha256(f"{address}".encode()).hexdigest()
-    return sha256(f"{address}@{domain}".encode()).hexdigest()
-
-
-def address_default():
-    return "".join(
-        random.choices(  # noqa: S311 (standard pseudo-random generator used)
-            string.ascii_lowercase + string.digits, k=9
-        )
-    )
-
-
-def has_bad_words(value: str) -> bool:
-    for badword in emails_config().badwords:
-        badword = badword.strip()
-        if len(badword) <= 4 and badword == value:
-            return True
-        if len(badword) > 4 and badword in value:
-            return True
-    return False
-
-
-def is_blocklisted(value: str) -> bool:
-    return any(blockedword == value for blockedword in emails_config().blocklist)
-
-
-def get_domain_numerical(domain_address):
-    # get domain name from the address
-    domains = get_domains_from_settings()
-    domains_keys = list(domains.keys())
-    domains_values = list(domains.values())
-    domain_name = domains_keys[domains_values.index(domain_address)]
-    # get domain numerical value from domain name
-    choices = dict(DOMAIN_CHOICES)
-    choices_keys = list(choices.keys())
-    choices_values = list(choices.values())
-    return choices_keys[choices_values.index(domain_name)]
-
-
-def hash_subdomain(subdomain, domain=settings.MOZMAIL_DOMAIN):
-    return sha256(f"{subdomain}.{domain}".encode()).hexdigest()
-
-
 class RegisteredSubdomain(models.Model):
     subdomain_hash = models.CharField(max_length=64, db_index=True, unique=True)
     registered_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.subdomain_hash
-
-
-class CannotMakeSubdomainException(BadRequest):
-    """Exception raised by Profile due to error on subdomain creation.
-
-    Attributes:
-        message -- optional explanation of the error
-    """
-
-    def __init__(self, message=None):
-        self.message = message
-
-
-class CannotMakeAddressException(RelayAPIException):
-    """Base exception for RelayAddress or DomainAddress creation failure."""
-
-
-class AccountIsPausedException(CannotMakeAddressException):
-    default_code = "account_is_paused"
-    default_detail = "Your account is on pause."
-    status_code = 403
-
-
-class AccountIsInactiveException(CannotMakeAddressException):
-    default_code = "account_is_inactive"
-    default_detail = "Your account is not active."
-    status_code = 403
-
-
-class RelayAddrFreeTierLimitException(CannotMakeAddressException):
-    default_code = "free_tier_limit"
-    default_detail_template = (
-        "You’ve used all {free_tier_limit} email masks included with your free account."
-        " You can reuse an existing mask, but using a unique mask for each account is"
-        " the most secure option."
-    )
-    status_code = 403
-
-    def __init__(self, free_tier_limit: int | None = None):
-        self.free_tier_limit = free_tier_limit or settings.MAX_NUM_FREE_ALIASES
-        super().__init__()
-
-    def error_context(self) -> ErrorContextType:
-        return {"free_tier_limit": self.free_tier_limit}
-
-
-class DomainAddrFreeTierException(CannotMakeAddressException):
-    default_code = "free_tier_no_subdomain_masks"
-    default_detail = (
-        "Your free account does not include custom subdomains for masks."
-        " To create custom masks, upgrade to Relay Premium."
-    )
-    status_code = 403
-
-
-class DomainAddrNeedSubdomainException(CannotMakeAddressException):
-    default_code = "need_subdomain"
-    default_detail = "Please select a subdomain before creating a custom email address."
-    status_code = 400
-
-
-class DomainAddrUpdateException(CannotMakeAddressException):
-    """Exception raised when attempting to edit an existing domain address field."""
-
-    default_code = "address_not_editable"
-    default_detail = "You cannot edit an existing domain address field."
-    status_code = 400
-
-
-class DomainAddrUnavailableException(CannotMakeAddressException):
-    default_code = "address_unavailable"
-    default_detail_template = (
-        "“{unavailable_address}” could not be created."
-        " Please try again with a different mask name."
-    )
-    status_code = 400
-
-    def __init__(self, unavailable_address: str):
-        self.unavailable_address = unavailable_address
-        super().__init__()
-
-    def error_context(self) -> ErrorContextType:
-        return {"unavailable_address": self.unavailable_address}
-
-
-class DomainAddrDuplicateException(CannotMakeAddressException):
-    default_code = "duplicate_address"
-    default_detail_template = (
-        "“{duplicate_address}” already exists."
-        " Please try again with a different mask name."
-    )
-    status_code = 409
-
-    def __init__(self, duplicate_address: str):
-        self.duplicate_address = duplicate_address
-        super().__init__()
-
-    def error_context(self) -> ErrorContextType:
-        return {"duplicate_address": self.duplicate_address}
 
 
 class RelayAddress(models.Model):
@@ -815,7 +680,7 @@ class RelayAddress(models.Model):
         if self._state.adding:
             with transaction.atomic():
                 locked_profile = Profile.objects.select_for_update().get(user=self.user)
-                check_user_can_make_another_address(locked_profile)
+                check_user_can_make_another_address(locked_profile.user)
                 while True:
                     address_is_allowed = not is_blocklisted(self.address)
                     address_is_valid = valid_address(self.address, self.domain_value)
@@ -866,45 +731,6 @@ class RelayAddress(models.Model):
         return f"R{self.id}"
 
 
-def check_user_can_make_another_address(profile: Profile) -> None:
-    if not profile.user.is_active:
-        raise AccountIsInactiveException()
-
-    if profile.is_flagged:
-        raise AccountIsPausedException()
-    # MPP-3021: return early for premium users to avoid at_max_free_aliases DB query
-    if profile.has_premium:
-        return
-    if profile.at_max_free_aliases:
-        raise RelayAddrFreeTierLimitException()
-
-
-def valid_address_pattern(address):
-    #   can't start or end with a hyphen
-    #   must be 1-63 lowercase alphanumeric characters and/or hyphens
-    valid_address_pattern = re.compile("^(?![-.])[a-z0-9-.]{1,63}(?<![-.])$")
-    return valid_address_pattern.match(address) is not None
-
-
-def valid_address(address: str, domain: str, subdomain: str | None = None) -> bool:
-    address_pattern_valid = valid_address_pattern(address)
-    address_contains_badword = has_bad_words(address)
-    address_already_deleted = 0
-    if not subdomain or flag_is_active_in_task(
-        "custom_domain_management_redesign", None
-    ):
-        address_already_deleted = DeletedAddress.objects.filter(
-            address_hash=address_hash(address, domain=domain, subdomain=subdomain)
-        ).count()
-    if (
-        address_already_deleted > 0
-        or address_contains_badword
-        or not address_pattern_valid
-    ):
-        return False
-    return True
-
-
 class DeletedAddress(models.Model):
     address_hash = models.CharField(max_length=64, db_index=True)
     num_forwarded = models.PositiveIntegerField(default=0)
@@ -914,20 +740,6 @@ class DeletedAddress(models.Model):
 
     def __str__(self):
         return self.address_hash
-
-
-def check_user_can_make_domain_address(user_profile: Profile) -> None:
-    if not user_profile.has_premium:
-        raise DomainAddrFreeTierException()
-
-    if not user_profile.subdomain:
-        raise DomainAddrNeedSubdomainException()
-
-    if not user_profile.user.is_active:
-        raise AccountIsInactiveException()
-
-    if user_profile.is_flagged:
-        raise AccountIsPausedException()
 
 
 class DomainAddress(models.Model):
@@ -964,11 +776,10 @@ class DomainAddress(models.Model):
         using: str | None = None,
         update_fields: Iterable[str] | None = None,
     ) -> None:
-        user_profile = self.user.profile
         if self._state.adding:
-            check_user_can_make_domain_address(user_profile)
+            check_user_can_make_domain_address(self.user)
             domain_address_valid = valid_address(
-                self.address, self.domain_value, user_profile.subdomain
+                self.address, self.domain_value, self.user.profile.subdomain
             )
             if not domain_address_valid:
                 if self.first_emailed_at:
@@ -980,9 +791,9 @@ class DomainAddress(models.Model):
             ).exists():
                 raise DomainAddrDuplicateException(duplicate_address=self.address)
 
-            user_profile.update_abuse_metric(address_created=True)
-            user_profile.last_engagement = datetime.now(UTC)
-            user_profile.save(update_fields=["last_engagement"])
+            self.user.profile.update_abuse_metric(address_created=True)
+            self.user.profile.last_engagement = datetime.now(UTC)
+            self.user.profile.save(update_fields=["last_engagement"])
             incr_if_enabled("domainaddress.create")
             if self.first_emailed_at:
                 incr_if_enabled("domainaddress.create_via_email")
@@ -992,11 +803,13 @@ class DomainAddress(models.Model):
             if existing_instance.address != self.address:
                 raise DomainAddrUpdateException()
 
-        if not user_profile.has_premium and self.block_list_emails:
+        if not self.user.profile.has_premium and self.block_list_emails:
             self.block_list_emails = False
             if update_fields:
                 update_fields = {"block_list_emails"}.union(update_fields)
-        if (not user_profile.server_storage) and (self.description or self.used_on):
+        if (not self.user.profile.server_storage) and (
+            self.description or self.used_on
+        ):
             self.description = ""
             self.used_on = ""
             if update_fields:
@@ -1014,9 +827,9 @@ class DomainAddress(models.Model):
 
     @staticmethod
     def make_domain_address(
-        user_profile: Profile, address: str | None = None, made_via_email: bool = False
+        user: User, address: str | None = None, made_via_email: bool = False
     ) -> DomainAddress:
-        check_user_can_make_domain_address(user_profile)
+        check_user_can_make_domain_address(user)
 
         if not address:
             # FIXME: if the alias is randomly generated and has bad words
@@ -1030,7 +843,7 @@ class DomainAddress(models.Model):
 
         first_emailed_at = datetime.now(UTC) if made_via_email else None
         domain_address = DomainAddress.objects.create(
-            user=user_profile.user, address=address, first_emailed_at=first_emailed_at
+            user=user, address=address, first_emailed_at=first_emailed_at
         )
         return domain_address
 
