@@ -5,7 +5,7 @@ from django.conf import settings
 import pytest
 import responses
 from allauth.socialaccount.models import SocialAccount
-from rest_framework.test import RequestsClient
+from rest_framework.test import APIClient
 from twilio.rest import Client
 
 if settings.PHONES_ENABLED:
@@ -20,13 +20,12 @@ pytestmark = pytest.mark.skipif(
 )
 pytestmark = pytest.mark.skipif(not settings.IQ_ENABLED, reason="IQ_ENABLED is False")
 
-API_ROOT = "http://127.0.0.1:8000"
-INBOUND_SMS_PATH = f"{API_ROOT}/api/v1/inbound_sms_iq/"
+INBOUND_SMS_PATH = "/api/v1/inbound_sms_iq/"
 
 
 @pytest.fixture()
 def phone_user(db):
-    yield make_phone_test_user()
+    return make_phone_test_user()
 
 
 @pytest.fixture(autouse=True)
@@ -55,64 +54,63 @@ def _make_real_phone_with_mock_iq(phone_user, **kwargs):
     return real_phone
 
 
-@pytest.mark.django_db(transaction=True)
+@pytest.mark.django_db
 def test_iq_endpoint_missing_verificationtoken_header():
-    client = RequestsClient()
+    client = APIClient()
     response = client.post(INBOUND_SMS_PATH)
     assert response.status_code == 401
     response_body = response.json()
     assert "missing Verificationtoken header" in response_body["detail"]
 
 
-@pytest.mark.django_db(transaction=True)
+@pytest.mark.django_db
 def test_iq_endpoint_missing_messageid_header():
-    client = RequestsClient()
-    client.headers.update({"Verificationtoken": "valid"})
-    response = client.post(INBOUND_SMS_PATH)
+    client = APIClient()
+    response = client.post(INBOUND_SMS_PATH, headers={"Verificationtoken": "valid"})
 
     assert response.status_code == 401
     response_body = response.json()
     assert "missing MessageId header" in response_body["detail"]
 
 
-@pytest.mark.django_db(transaction=True)
+@pytest.mark.django_db
 def test_iq_endpoint_invalid_hash():
     message_id = "9a09df23-01f3-4e0f-adbc-2a783878a574"
-    client = RequestsClient()
-    client.headers.update({"Verificationtoken": "invalid value"})
-    client.headers.update({"MessageId": message_id})
-    response = client.post(INBOUND_SMS_PATH)
+    client = APIClient()
+    response = client.post(
+        INBOUND_SMS_PATH,
+        headers={"Verificationtoken": "invalid value", "MessageId": message_id},
+    )
 
     assert response.status_code == 401
     response_body = response.json()
     assert "verficiationToken != computed sha256" in response_body["detail"]
 
 
-@pytest.mark.django_db(transaction=True)
+@pytest.mark.django_db
 def test_iq_endpoint_valid_hash_no_auth_failed_status():
     message_id = "9a09df23-01f3-4e0f-adbc-2a783878a574"
     token = compute_iq_mac(message_id)
-    client = RequestsClient()
-    client.headers.update({"Verificationtoken": token})
-    client.headers.update({"MessageId": message_id})
-    response = client.post(INBOUND_SMS_PATH)
+    client = APIClient()
+    response = client.post(
+        INBOUND_SMS_PATH,
+        headers={"Verificationtoken": token, "MessageId": message_id},
+    )
 
     assert response.status_code == 400
 
 
-def _prepare_valid_iq_request_client() -> RequestsClient:
+def _prepare_valid_iq_request_client() -> APIClient:
     message_id = "9a09df23-01f3-4e0f-adbc-2a783878a574"
     token = compute_iq_mac(message_id)
-    client = RequestsClient()
-    client.headers.update({"Verificationtoken": token})
-    client.headers.update({"MessageId": message_id})
-    return client
+    return APIClient(
+        headers={"Verificationtoken": token, "MessageId": message_id},
+    )
 
 
-@pytest.mark.django_db(transaction=True)
+@pytest.mark.django_db
 def test_iq_endpoint_missing_required_params():
     client = _prepare_valid_iq_request_client()
-
     resp = client.post(INBOUND_SMS_PATH, {})
 
     assert resp.status_code == 400
@@ -122,7 +120,7 @@ def test_iq_endpoint_missing_required_params():
     assert "Request missing from, to, or text" in resp_body[0]
 
 
-@pytest.mark.django_db(transaction=True)
+@pytest.mark.django_db
 def test_iq_endpoint_unknown_number():
     unknown_number = "234567890"
     client = _prepare_valid_iq_request_client()
@@ -134,14 +132,13 @@ def test_iq_endpoint_unknown_number():
         "text": "test body",
     }
 
-    resp = client.post(INBOUND_SMS_PATH, json=data)
+    resp = client.post(INBOUND_SMS_PATH, data, "json")
 
     assert resp.status_code == 400
     resp_body = resp.json()
     assert "Could not find relay number." in resp_body[0]
 
 
-@pytest.mark.django_db(transaction=True)
 def test_iq_endpoint_disabled_number(phone_user):
     # TODO: should we return empty 200 to iQ when number is disabled?
     _make_real_phone_with_mock_iq(phone_user, verified=True)
@@ -158,11 +155,10 @@ def test_iq_endpoint_disabled_number(phone_user):
         "text": "test body",
     }
 
-    resp = client.post(INBOUND_SMS_PATH, json=data)
+    resp = client.post(INBOUND_SMS_PATH, data, "json")
     assert resp.status_code == 200
 
 
-@pytest.mark.django_db(transaction=True)
 @responses.activate
 def test_iq_endpoint_success(phone_user):
     _make_real_phone_with_mock_iq(phone_user, verified=True)
@@ -180,7 +176,7 @@ def test_iq_endpoint_success(phone_user):
 
     # add response for forwarded text
     rsp = responses.add(responses.POST, settings.IQ_PUBLISH_MESSAGE_URL, status=200)
-    resp = client.post(INBOUND_SMS_PATH, json=data)
+    resp = client.post(INBOUND_SMS_PATH, data, "json")
 
     assert resp.status_code == 200
     relay_number.refresh_from_db()
@@ -189,7 +185,6 @@ def test_iq_endpoint_success(phone_user):
     assert rsp.call_count == 1
 
 
-@pytest.mark.django_db(transaction=True)
 @responses.activate
 def test_reply_with_no_remaining_texts(phone_user):
     real_phone = _make_real_phone_with_mock_iq(phone_user, verified=True)
@@ -209,7 +204,7 @@ def test_reply_with_no_remaining_texts(phone_user):
         ],
         "text": "test reply",
     }
-    resp = client.post(INBOUND_SMS_PATH, json=data)
+    resp = client.post(INBOUND_SMS_PATH, data, "json")
 
     assert resp.status_code == 400
     decoded_content = resp.content.decode()
@@ -219,7 +214,6 @@ def test_reply_with_no_remaining_texts(phone_user):
     assert relay_number.remaining_texts == 0
 
 
-@pytest.mark.django_db(transaction=True)
 @responses.activate
 def test_reply_with_no_phone_capability(phone_user):
     real_phone = _make_real_phone_with_mock_iq(phone_user, verified=True)
@@ -240,7 +234,7 @@ def test_reply_with_no_phone_capability(phone_user):
         ],
         "text": "test reply",
     }
-    resp = client.post(INBOUND_SMS_PATH, json=data)
+    resp = client.post(INBOUND_SMS_PATH, data, "json")
 
     assert resp.status_code == 400
     decoded_content = resp.content.decode()
@@ -248,7 +242,6 @@ def test_reply_with_no_phone_capability(phone_user):
     assert rsp.call_count == 0
 
 
-@pytest.mark.django_db(transaction=True)
 @responses.activate
 def test_reply_without_previous_sender_error(phone_user):
     real_phone = _make_real_phone_with_mock_iq(phone_user, verified=True)
@@ -281,7 +274,7 @@ def test_reply_without_previous_sender_error(phone_user):
         ],
         "text": "test reply",
     }
-    resp = client.post(INBOUND_SMS_PATH, json=data)
+    resp = client.post(INBOUND_SMS_PATH, data, "json")
 
     assert resp.status_code == 400
     decoded_content = resp.content.decode()
@@ -289,7 +282,6 @@ def test_reply_without_previous_sender_error(phone_user):
     assert rsp.call_count == 1
 
 
-@pytest.mark.django_db(transaction=True)
 @responses.activate
 def test_reply_with_previous_sender_works(phone_user):
     real_phone = _make_real_phone_with_mock_iq(phone_user, verified=True)
@@ -325,7 +317,7 @@ def test_reply_with_previous_sender_works(phone_user):
         ],
         "text": "test reply",
     }
-    resp = client.post(INBOUND_SMS_PATH, json=data)
+    resp = client.post(INBOUND_SMS_PATH, data, "json")
 
     assert resp.status_code == 200
     assert rsp.call_count == 1
