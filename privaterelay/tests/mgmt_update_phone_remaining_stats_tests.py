@@ -14,7 +14,6 @@ from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
 from waffle.models import Flag
 
-from emails.models import Profile
 from privaterelay.management.commands.update_phone_remaining_stats import (
     update_phone_remaining_stats,
 )
@@ -62,13 +61,13 @@ def patch_datetime_now():
 
 
 @pytest.fixture
-def mock_free_phones_profile(db: None) -> Profile:
+def mock_free_phones_user(db: None) -> User:
     user = baker.make(User)
     baker.make(SocialAccount, user=user, provider="fxa")
     baker.make(Flag, name="free_phones")
     free_phones_flag = Flag.objects.get(name="free_phones")
     free_phones_flag.users.add(user)
-    return user.profile
+    return user
 
 
 def _make_used_relay_number(user):
@@ -80,13 +79,13 @@ def _make_used_relay_number(user):
 
 
 def test_free_phone_user_with_no_date_phone_subscription_reset_gets_phone_limits_updated(  # noqa: E501
-    patch_datetime_now, mock_free_phones_profile
-):
-    profile = mock_free_phones_profile
-    relay_number = _make_used_relay_number(profile.user)
+    patch_datetime_now: datetime, mock_free_phones_user: User
+) -> None:
+    relay_number = _make_used_relay_number(mock_free_phones_user)
     expected_now = patch_datetime_now
     num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
 
+    profile = mock_free_phones_user.profile
     profile.refresh_from_db()
     assert profile.date_phone_subscription_reset == expected_now
     assert num_profiles_w_phones == 1
@@ -97,11 +96,11 @@ def test_free_phone_user_with_no_date_phone_subscription_reset_gets_phone_limits
 
 
 def test_free_phone_user_with_no_date_phone_subscription_end_does_not_get_reset_date_updated(  # noqa: E501
-    patch_datetime_now, mock_free_phones_profile
-):
-    profile = mock_free_phones_profile
-    relay_number = _make_used_relay_number(profile.user)
+    patch_datetime_now: datetime, mock_free_phones_user: User
+) -> None:
+    relay_number = _make_used_relay_number(mock_free_phones_user)
     expected_now = patch_datetime_now
+    profile = mock_free_phones_user.profile
     profile.date_phone_subscription_reset = expected_now - timedelta(15)
     profile.save()
 
@@ -117,11 +116,11 @@ def test_free_phone_user_with_no_date_phone_subscription_end_does_not_get_reset_
 
 
 def test_free_phone_user_with_no_date_phone_subscription_end_phone_limits_updated(  # noqa: E501
-    patch_datetime_now, mock_free_phones_profile
-):
-    profile = mock_free_phones_profile
-    relay_number = _make_used_relay_number(profile.user)
+    patch_datetime_now: datetime, mock_free_phones_user: User
+) -> None:
+    relay_number = _make_used_relay_number(mock_free_phones_user)
     expected_now = patch_datetime_now
+    profile = mock_free_phones_user.profile
     profile.date_phone_subscription_reset = expected_now - timedelta(45)
     profile.save()
 
