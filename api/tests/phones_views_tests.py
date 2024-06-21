@@ -953,8 +953,8 @@ def test_inbound_sms_reply_with_no_remaining_texts(phone_user, mocked_twilio_cli
 
 
 def test_inbound_sms_valid_twilio_signature_no_phone_log(
-    phone_user, mocked_twilio_client
-):
+    phone_user: User, mocked_twilio_client: Mock
+) -> None:
     phone_user.profile.store_phone_log = False
     phone_user.profile.save()
     _make_real_phone(phone_user, verified=True)
@@ -976,8 +976,8 @@ def test_inbound_sms_valid_twilio_signature_no_phone_log(
 
 
 def test_inbound_sms_valid_twilio_signature_blocked_contact(
-    phone_user, mocked_twilio_client
-):
+    phone_user: User, mocked_twilio_client: Mock
+) -> None:
     phone_user.profile.store_phone_log = True
     phone_user.profile.save()
     _make_real_phone(phone_user, verified=True)
@@ -1025,7 +1025,9 @@ def test_inbound_sms_valid_twilio_signature_blocked_contact(
     assert inbound_contact.last_inbound_date == pre_block_contact_date
 
 
-def test_inbound_sms_reply_not_storing_phone_log(phone_user, mocked_twilio_client):
+def test_inbound_sms_reply_not_storing_phone_log(
+    phone_user: User, mocked_twilio_client: Mock
+) -> None:
     real_phone = _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=True)
     mocked_twilio_client.reset_mock()

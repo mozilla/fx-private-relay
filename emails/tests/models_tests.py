@@ -1290,7 +1290,7 @@ class DomainAddressTest(TestCase):
         assert exc_info.value.get_codes() == "duplicate_address"
 
     @override_flag("custom_domain_management_redesign", active=False)
-    def test_make_domain_address_can_make_dupe_of_deleted(self):
+    def test_make_domain_address_can_make_dupe_of_deleted(self) -> None:
         address = "same-address"
         domain_address = DomainAddress.make_domain_address(self.user, address=address)
         domain_address_hash = address_hash(
@@ -1308,7 +1308,7 @@ class DomainAddressTest(TestCase):
         assert dupe_domain_address.full_address == domain_address.full_address
 
     @override_flag("custom_domain_management_redesign", active=True)
-    def test_make_domain_address_cannot_make_dupe_of_deleted(self):
+    def test_make_domain_address_cannot_make_dupe_of_deleted(self) -> None:
         address = "same-address"
         domain_address = DomainAddress.make_domain_address(self.user, address=address)
         domain_address_hash = address_hash(

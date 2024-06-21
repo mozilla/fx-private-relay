@@ -715,7 +715,7 @@ def test_area_code_numbers(mock_twilio_client):
     assert mock_list.call_args_list == [call(area_code="918", limit=10)]
 
 
-def test_save_store_phone_log_no_relay_number_does_nothing():
+def test_save_store_phone_log_no_relay_number_does_nothing() -> None:
     user = make_phone_test_user()
     user.profile.store_phone_log = True
     user.profile.save()
@@ -728,7 +728,7 @@ def test_save_store_phone_log_no_relay_number_does_nothing():
     assert not user.profile.store_phone_log
 
 
-def test_save_store_phone_log_true_doesnt_delete_data():
+def test_save_store_phone_log_true_doesnt_delete_data() -> None:
     user = make_phone_test_user()
     baker.make(RealPhone, user=user, verified=True)
     relay_number = baker.make(RelayNumber, user=user)
@@ -740,7 +740,7 @@ def test_save_store_phone_log_true_doesnt_delete_data():
     assert inbound_contact
 
 
-def test_save_store_phone_log_false_deletes_data():
+def test_save_store_phone_log_false_deletes_data() -> None:
     user = make_phone_test_user()
     baker.make(RealPhone, user=user, verified=True)
     relay_number = baker.make(RelayNumber, user=user)

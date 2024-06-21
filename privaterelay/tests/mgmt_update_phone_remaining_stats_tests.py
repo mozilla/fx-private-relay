@@ -6,6 +6,7 @@ from datetime import UTC, datetime, timedelta
 from unittest.mock import patch
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.management import call_command
 
 import pytest
@@ -13,6 +14,7 @@ from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
 from waffle.models import Flag
 
+from emails.models import Profile
 from privaterelay.management.commands.update_phone_remaining_stats import (
     update_phone_remaining_stats,
 )
@@ -60,12 +62,13 @@ def patch_datetime_now():
 
 
 @pytest.fixture
-def mock_free_phones_profile(db):
-    account: SocialAccount = baker.make(SocialAccount, provider="fxa")
+def mock_free_phones_profile(db: None) -> Profile:
+    user = baker.make(User)
+    baker.make(SocialAccount, user=user, provider="fxa")
     baker.make(Flag, name="free_phones")
     free_phones_flag = Flag.objects.get(name="free_phones")
-    free_phones_flag.users.add(account.user)
-    return account.user.profile
+    free_phones_flag.users.add(user)
+    return user.profile
 
 
 def _make_used_relay_number(user):
@@ -134,8 +137,8 @@ def test_free_phone_user_with_no_date_phone_subscription_end_phone_limits_update
 
 
 def test_phone_subscriber_subscribed_3_day_ago_wo_date_phone_subscription_reset_does_phone_limits_updated(  # noqa: E501
-    patch_datetime_now, phone_user
-):
+    patch_datetime_now: datetime, phone_user: User
+) -> None:
     # any users phone users whose date_phone_subscription_reset was not set
     # will get their limits reset and reset date set today
     expected_now = patch_datetime_now
@@ -155,8 +158,8 @@ def test_phone_subscriber_subscribed_3_day_ago_wo_date_phone_subscription_reset_
 
 
 def test_phone_subscriber_w_phones_reset_1_day_ago_does_not_update_stats(
-    patch_datetime_now, phone_user
-):
+    patch_datetime_now: datetime, phone_user: User
+) -> None:
     expected_now = patch_datetime_now
     reset_datetime = expected_now - timedelta(1)
     phone_user.profile.date_phone_subscription_reset = reset_datetime
@@ -175,8 +178,8 @@ def test_phone_subscriber_w_phones_reset_1_day_ago_does_not_update_stats(
 
 
 def test_phone_subscriber_wo_date_phone_subscription_reset_and_no_relay_number_reset_date_updated(  # noqa: E501
-    patch_datetime_now, phone_user
-):
+    patch_datetime_now: datetime, phone_user: User
+) -> None:
     expected_now = patch_datetime_now
 
     num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
@@ -188,8 +191,8 @@ def test_phone_subscriber_wo_date_phone_subscription_reset_and_no_relay_number_r
 
 
 def test_phone_subscriber_w_date_phone_subscription_reset_31_days_ago_and_no_relay_number_reset_date_updated(  # noqa: E501
-    patch_datetime_now, phone_user
-):
+    patch_datetime_now: datetime, phone_user: User
+) -> None:
     expected_now = patch_datetime_now
     phone_user.profile.date_phone_subscription_reset = expected_now - timedelta(31)
     phone_user.profile.save()
@@ -203,8 +206,8 @@ def test_phone_subscriber_w_date_phone_subscription_reset_31_days_ago_and_no_rel
 
 
 def test_phone_subscriber_with_phones_reset_31_day_ago_phone_limits_updated(
-    patch_datetime_now, phone_user
-):
+    patch_datetime_now: datetime, phone_user: User
+) -> None:
     expected_now = patch_datetime_now
     phone_user.profile.date_phone_subscription_reset = expected_now - timedelta(31)
     phone_user.profile.save()
@@ -223,8 +226,8 @@ def test_phone_subscriber_with_phones_reset_31_day_ago_phone_limits_updated(
 
 
 def test_phone_subscriber_with_subscription_end_date_sooner_than_31_days_since_reset_phone_limits_updated(  # noqa: E501
-    phone_user,
-):
+    phone_user: User,
+) -> None:
     datetime_now = datetime.now(UTC)
     datetime_first_of_march = datetime_now.replace(month=3, day=1)
     phone_user.profile.date_subscribed_phone = datetime_now.replace(month=1, day=1)
@@ -262,8 +265,8 @@ def test_phone_subscriber_with_subscription_end_date_sooner_than_31_days_since_r
 
 
 def test_phone_subscriber_with_subscription_end_date_after_reset_phone_limits_updated(
-    phone_user,
-):
+    phone_user: User,
+) -> None:
     datetime_now = datetime.now(UTC)
     datetime_fourth_of_march = datetime_now.replace(month=3, day=4)
     phone_user.profile.date_subscribed_phone = datetime_now.replace(month=1, day=2)
@@ -300,19 +303,19 @@ def test_phone_subscriber_with_subscription_end_date_after_reset_phone_limits_up
 
 @pytest.mark.django_db
 def test_update_user_with_command(
-    capsys,
-    patch_datetime_now,
-    phone_user,
-):
+    capsys: pytest.CaptureFixture[str],
+    patch_datetime_now: datetime,
+    phone_user: User,
+) -> None:
     expected_now = patch_datetime_now
     phone_user.profile.date_phone_subscription_reset = expected_now - timedelta(31)
     phone_user.profile.save()
     _make_used_relay_number(phone_user)
 
     call_command(UPDATE_COMMAND)
-    out, err = capsys.readouterr()
+    rawout, err = capsys.readouterr()
 
-    out = out.split(" ")
+    out = rawout.split(" ")
     num_profiles_w_phones, num_profiles_updated = int(out[2]), int(out[4])
 
     phone_user.refresh_from_db()

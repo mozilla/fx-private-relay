@@ -8,7 +8,7 @@ from collections import namedtuple
 from collections.abc import Iterable
 from datetime import UTC, datetime, timedelta
 from hashlib import sha256
-from typing import Literal, cast
+from typing import Any, Literal, cast
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -645,7 +645,7 @@ class RelayAddress(models.Model):
     def __str__(self):
         return self.address
 
-    def delete(self, *args, **kwargs):
+    def delete(self, *args: Any, **kwargs: Any) -> tuple[int, dict[str, int]]:
         # TODO: create hard bounce receipt rule in AWS for the address
         deleted_address = DeletedAddress.objects.create(
             address_hash=address_hash(self.address, domain=self.domain_value),

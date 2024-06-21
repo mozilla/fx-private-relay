@@ -102,8 +102,8 @@ def create_free_phones_flag_for_user(user: User) -> None:
 
 @patch(f"{MOCK_BASE}.get_phone_subscription_dates")
 def test_free_phone_user_gets_only_date_phone_subscription_reset_field_updated(
-    mocked_dates, patch_datetime_now, db
-):
+    mocked_dates: Mock, patch_datetime_now: Mock, db: None
+) -> None:
     expected_now = patch_datetime_now
     mocked_dates.return_value = (None, None, None)
     account: SocialAccount = baker.make(SocialAccount, provider="fxa")
@@ -122,8 +122,8 @@ def test_free_phone_user_gets_only_date_phone_subscription_reset_field_updated(
 
 @patch(f"{MOCK_BASE}.get_phone_subscription_dates")
 def test_free_phone_user_with_existing_date_phone_subscription_reset_field_does_not_update(  # noqa: E501
-    mocked_dates, patch_datetime_now, db
-):
+    mocked_dates: Mock, patch_datetime_now: datetime, db: None
+) -> None:
     expected_now = patch_datetime_now
     mocked_dates.return_value = (None, None, None)
     account: SocialAccount = baker.make(SocialAccount, provider="fxa")
@@ -144,8 +144,8 @@ def test_free_phone_user_with_existing_date_phone_subscription_reset_field_does_
 
 @patch(f"{MOCK_BASE}.get_phone_subscription_dates")
 def test_monthly_phone_subscriber_profile_date_fields_all_updated(
-    mocked_dates, patch_datetime_now, phone_user
-):
+    mocked_dates: Mock, patch_datetime_now: datetime, phone_user: User
+) -> None:
     date_subscribed_phone = datetime.now(UTC) - timedelta(3)
     phone_user.profile.date_subscribed_phone = date_subscribed_phone
     phone_user.profile.save()
@@ -168,8 +168,8 @@ def test_monthly_phone_subscriber_profile_date_fields_all_updated(
 
 @patch(f"{MOCK_BASE}.get_phone_subscription_dates")
 def test_monthly_phone_subscriber_renewed_subscription_profile_date_phone_subscription_start_and_end_updated(  # noqa: E501
-    mocked_dates, patch_datetime_now, phone_user
-):
+    mocked_dates: Mock, patch_datetime_now: datetime, phone_user: User
+) -> None:
     profile = phone_user.profile
     first_day_of_current_month = datetime.now(UTC).replace(day=1)
     # get first of the last month
@@ -204,8 +204,8 @@ def test_monthly_phone_subscriber_renewed_subscription_profile_date_phone_subscr
 
 @patch(f"{MOCK_BASE}.get_phone_subscription_dates")
 def test_yearly_phone_subscriber_profile_date_fields_all_updated(
-    mocked_dates, patch_datetime_now, phone_user
-):
+    mocked_dates: Mock, patch_datetime_now: datetime, phone_user: User
+) -> None:
     date_subscribed_phone = datetime.now(UTC) - timedelta(3)
     mocked_dates.return_value = (
         date_subscribed_phone,
@@ -226,8 +226,8 @@ def test_yearly_phone_subscriber_profile_date_fields_all_updated(
 
 @patch(f"{MOCK_BASE}.get_phone_subscription_dates")
 def test_yearly_phone_subscriber_with_subscription_date_older_than_31_days_profile_date_fields_all_updated(  # noqa: E501
-    mocked_dates, patch_datetime_now, phone_user
-):
+    mocked_dates: Mock, patch_datetime_now: datetime, phone_user: User
+) -> None:
     date_subscribed_phone = datetime.now(UTC) - timedelta(90)
     phone_user.profile.date_subscribed_phone = date_subscribed_phone
     phone_user.profile.save()
@@ -251,11 +251,11 @@ def test_yearly_phone_subscriber_with_subscription_date_older_than_31_days_profi
 @pytest.mark.django_db
 @patch(f"{MOCK_BASE}.get_phone_subscription_dates")
 def test_command_with_one_update(
-    mocked_dates,
-    patch_datetime_now,
-    phone_user,
-    capsys,
-):
+    mocked_dates: Mock,
+    patch_datetime_now: datetime,
+    phone_user: User,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
     date_subscribed_phone = datetime.now(UTC)
     phone_user.profile.date_subscribed_phone = date_subscribed_phone
     phone_user.profile.save()
