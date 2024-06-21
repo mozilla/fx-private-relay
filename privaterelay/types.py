@@ -6,48 +6,58 @@ RELAY_CHANNEL_NAME = Literal["local", "dev", "stage", "prod"]
 
 # django-csp 4.0: types for CONTENT_SECURITY_POLICY in settings.py
 
-# See https://github.com/mozilla/django-csp/blob/main/csp/utils.py
+# Note: this will need adjustments to uplift to django-csp
+# For example, the django-csp docs say 'sequence' rather than 'list',
+# and appear more flexible about sending strings or lists.
+_SERIALIZED_SOURCE_LIST = list[str]
 CSP_DIRECTIVES_T = TypedDict(
     "CSP_DIRECTIVES_T",
     {
-        # Fetch Directives
-        "child-src": list[str],
-        "connect-src": list[str],
-        "default-src": list[str],
-        "script-src": list[str],
-        "script-src-attr": list[str],
-        "script-src-elem": list[str],
-        "object-src": list[str],
-        "style-src": list[str],
-        "style-src-attr": list[str],
-        "style-src-elem": list[str],
-        "font-src": list[str],
-        "frame-src": list[str],
-        "img-src": list[str],
-        "manifest-src": list[str],
-        "media-src": list[str],
-        "prefetch-src": list[str],  # Deprecated.
-        # Document Directives
-        "base-uri": list[str],
-        "plugin-types": list[str],  # Deprecated.
-        "sandbox": list[str],
-        # Navigation Directives
-        "form-action": list[str],
-        "frame-ancestors": list[str],
-        "navigate-to": list[str],
-        # Reporting Directives
-        "report-uri": str,
-        "report-to": list[str],
-        "require-sri-for": list[str],
-        # Trusted Types Directives
-        "require-trusted-types-for": list[str],
-        "trusted-types": list[str],
-        # Other Directives
-        "webrtc": list[str],
-        "worker-src": list[str],
-        # Directives Defined in Other Documents
-        "upgrade-insecure-requests": bool,
+        # CSP Level 3 Working Draft, Directives (section 6)
+        # https://www.w3.org/TR/CSP/#csp-directives
+        # 6.1 Fetch Directives
+        "child-src": _SERIALIZED_SOURCE_LIST,
+        "connect-src": _SERIALIZED_SOURCE_LIST,
+        "default-src": _SERIALIZED_SOURCE_LIST,
+        "font-src": _SERIALIZED_SOURCE_LIST,
+        "frame-src": _SERIALIZED_SOURCE_LIST,
+        "img-src": _SERIALIZED_SOURCE_LIST,
+        "manifest-src": _SERIALIZED_SOURCE_LIST,
+        "media-src": _SERIALIZED_SOURCE_LIST,
+        "object-src": _SERIALIZED_SOURCE_LIST,
+        "script-src": _SERIALIZED_SOURCE_LIST,
+        "script-src-elem": _SERIALIZED_SOURCE_LIST,
+        "script-src-attr": _SERIALIZED_SOURCE_LIST,
+        "style-src": _SERIALIZED_SOURCE_LIST,
+        "style-src-elem": _SERIALIZED_SOURCE_LIST,
+        "style-src-attr": _SERIALIZED_SOURCE_LIST,
+        # 6.2 Other Directives
+        "webrtc": Literal["'allow'", "'block'"],
+        "worker-src": _SERIALIZED_SOURCE_LIST,
+        # 6.3 Document Directives
+        "base-uri": _SERIALIZED_SOURCE_LIST,
+        "sandbox": str | list[str],  # sequence of tokens in CSP 3
+        # 6.4 Navigation Directives
+        "form-action": _SERIALIZED_SOURCE_LIST,
+        "frame-ancestors": _SERIALIZED_SOURCE_LIST,
+        "navigate-to": _SERIALIZED_SOURCE_LIST,
+        # 6.5 Reporting Directives
+        "report-uri": str | list[str],  # sequence of uri-references in CSP 3
+        "report-to": str,
+        # "require-sri-for": _SERIALIZED_SOURCE_LIST,
+        # 6.6 Directives Defined in Other Documents
         "block-all-mixed-content": bool,  # Deprecated.
+        "upgrade-insecure-requests": bool,
+        # CSP2 items removed in CSP3
+        # https://www.w3.org/TR/CSP2/#directives
+        "plugin-types": _SERIALIZED_SOURCE_LIST,
+        # Deprecated, from MDN
+        "prefetch-src": _SERIALIZED_SOURCE_LIST,
+        "referrer": str,
+        # Experimental items, from MDN
+        "fenced-frame-src": _SERIALIZED_SOURCE_LIST,
+        "require-trusted-types-for": str,
+        "trusted-types": str,
     },
     total=False,
 )
