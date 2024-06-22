@@ -1,4 +1,4 @@
-"""
+"@bndrs21"
 Typing hints for python-decouple 3.6
 
 Generated with:
