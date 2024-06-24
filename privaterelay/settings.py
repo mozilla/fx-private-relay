@@ -26,11 +26,12 @@ import dj_database_url
 import django_stubs_ext
 import markus
 import sentry_sdk
+from csp.constants import NONE, SELF, UNSAFE_INLINE
 from decouple import Choices, Csv, config
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import ignore_logger
 
-from .types import RELAY_CHANNEL_NAME
+from .types import CONTENT_SECURITY_POLICY_T, RELAY_CHANNEL_NAME
 
 if TYPE_CHECKING:
     import wsgiref.headers
@@ -183,36 +184,42 @@ else:
     empty_hash = base64.b64encode(sha256().digest()).decode()
     _CSP_STYLE_HASHES.append(f"'sha256-{empty_hash}'")
 
-CSP_DEFAULT_SRC = ["'self'"]
-CSP_CONNECT_SRC = [
-    "'self'",
-    "https://www.google-analytics.com/",
-    "https://www.googletagmanager.com/",
-    "https://location.services.mozilla.com",
-    "https://api.stripe.com",
-    BASKET_ORIGIN,
-] + _ACCOUNT_CONNECT_SRC
-CSP_FONT_SRC = ["'self'"] + _API_DOCS_CSP_FONT_SRC + ["https://relay.firefox.com/"]
-CSP_IMG_SRC = ["'self'"] + _AVATAR_IMG_SRC + _API_DOCS_CSP_IMG_SRC
-CSP_SCRIPT_SRC = (
-    ["'self'"]
-    + (["'unsafe-inline'"] if _CSP_SCRIPT_INLINE else [])
-    + [
-        "https://www.google-analytics.com/",
-        "https://www.googletagmanager.com/",
-        "https://js.stripe.com/",
-    ]
-)
-CSP_WORKER_SRC = _API_DOCS_CSP_WORKER_SRC or None
-CSP_OBJECT_SRC = ["'none'"]
-CSP_FRAME_SRC = ["https://js.stripe.com", "https://hooks.stripe.com"]
-CSP_STYLE_SRC = (
-    ["'self'"]
-    + (["'unsafe-inline'"] if _CSP_STYLE_INLINE else [])
-    + _API_DOCS_CSP_STYLE_SRC
-    + _CSP_STYLE_HASHES
-)
-CSP_REPORT_URI = config("CSP_REPORT_URI", "")
+CONTENT_SECURITY_POLICY: CONTENT_SECURITY_POLICY_T = {
+    "DIRECTIVES": {
+        "default-src": [SELF],
+        "connect-src": [
+            SELF,
+            "https://www.google-analytics.com/",
+            "https://www.googletagmanager.com/",
+            "https://location.services.mozilla.com",
+            "https://api.stripe.com",
+            BASKET_ORIGIN,
+        ],
+        "font-src": [SELF, "https://relay.firefox.com/"],
+        "frame-src": ["https://js.stripe.com", "https://hooks.stripe.com"],
+        "img-src": [SELF],
+        "object-src": [NONE],
+        "script-src": [
+            SELF,
+            "https://www.google-analytics.com/",
+            "https://www.googletagmanager.com/",
+            "https://js.stripe.com/",
+        ],
+        "style-src": [SELF],
+    }
+}
+CONTENT_SECURITY_POLICY["DIRECTIVES"]["connect-src"].extend(_ACCOUNT_CONNECT_SRC)
+CONTENT_SECURITY_POLICY["DIRECTIVES"]["font-src"].extend(_API_DOCS_CSP_FONT_SRC)
+CONTENT_SECURITY_POLICY["DIRECTIVES"]["img-src"].extend(_AVATAR_IMG_SRC)
+CONTENT_SECURITY_POLICY["DIRECTIVES"]["img-src"].extend(_API_DOCS_CSP_IMG_SRC)
+CONTENT_SECURITY_POLICY["DIRECTIVES"]["style-src"].extend(_API_DOCS_CSP_STYLE_SRC)
+CONTENT_SECURITY_POLICY["DIRECTIVES"]["style-src"].extend(_CSP_STYLE_HASHES)
+if _CSP_STYLE_INLINE:
+    CONTENT_SECURITY_POLICY["DIRECTIVES"]["script-src"].append(UNSAFE_INLINE)
+if _API_DOCS_CSP_WORKER_SRC:
+    CONTENT_SECURITY_POLICY["DIRECTIVES"]["worker-src"] = _API_DOCS_CSP_WORKER_SRC
+if _CSP_REPORT_URI := config("CSP_REPORT_URI", ""):
+    CONTENT_SECURITY_POLICY["DIRECTIVES"]["report-uri"] = _CSP_REPORT_URI
 
 REFERRER_POLICY = "strict-origin-when-cross-origin"
 
@@ -317,6 +324,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "corsheaders",
+    "csp",
     "waffle",
     "privaterelay.apps.PrivateRelayConfig",
     "api.apps.ApiConfig",
