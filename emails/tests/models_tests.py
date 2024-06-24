@@ -14,6 +14,15 @@ from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
 from waffle.testutils import override_flag
 
+from privaterelay.tests.utils import (
+    make_free_test_user,
+    make_premium_test_user,
+    make_storageless_test_user,
+    phone_subscription,
+    premium_subscription,
+    vpn_subscription,
+)
+
 from ..exceptions import (
     CannotMakeAddressException,
     CannotMakeSubdomainException,
@@ -33,91 +42,6 @@ from ..utils import get_domains_from_settings
 
 if settings.PHONES_ENABLED:
     from phones.models import RealPhone, RelayNumber
-
-
-def make_free_test_user(email: str = "") -> User:
-    if email:
-        user = baker.make(User, email=email)
-    else:
-        user = baker.make(User)
-    user.profile.server_storage = True
-    user.profile.save()
-    baker.make(
-        SocialAccount,
-        user=user,
-        uid=str(uuid4()),
-        provider="fxa",
-        extra_data={"avatar": "avatar.png"},
-    )
-    return user
-
-
-def make_premium_test_user() -> User:
-    premium_user = baker.make(User, email="premium@email.com")
-    premium_user.profile.server_storage = True
-    premium_user.profile.date_subscribed = datetime.now(tz=UTC)
-    premium_user.profile.save()
-    upgrade_test_user_to_premium(premium_user)
-    return premium_user
-
-
-def make_storageless_test_user() -> User:
-    storageless_user = baker.make(User)
-    storageless_user_profile = storageless_user.profile
-    storageless_user_profile.server_storage = False
-    storageless_user_profile.subdomain = "mydomain"
-    storageless_user_profile.date_subscribed = datetime.now(tz=UTC)
-    storageless_user_profile.save()
-    upgrade_test_user_to_premium(storageless_user)
-    return storageless_user
-
-
-def premium_subscription() -> str:
-    """Return a Mozilla account subscription that provides unlimited emails"""
-    assert settings.SUBSCRIPTIONS_WITH_UNLIMITED
-    premium_only_plans = list(
-        set(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
-        - set(settings.SUBSCRIPTIONS_WITH_PHONE)
-        - set(settings.SUBSCRIPTIONS_WITH_VPN)
-    )
-    assert premium_only_plans
-    return random.choice(premium_only_plans)
-
-
-def upgrade_test_user_to_premium(user):
-    random_sub = premium_subscription()
-    baker.make(
-        SocialAccount,
-        user=user,
-        uid=str(uuid4()),
-        provider="fxa",
-        extra_data={"avatar": "avatar.png", "subscriptions": [random_sub]},
-    )
-    return user
-
-
-def phone_subscription() -> str:
-    """Return a Mozilla account subscription that provides a phone mask"""
-    assert settings.SUBSCRIPTIONS_WITH_PHONE
-    phones_only_plans = list(
-        set(settings.SUBSCRIPTIONS_WITH_PHONE)
-        - set(settings.SUBSCRIPTIONS_WITH_VPN)
-        - set(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
-    )
-    assert phones_only_plans
-    return random.choice(phones_only_plans)
-
-
-def vpn_subscription() -> str:
-    """Return a Mozilla account subscription that provides the VPN"""
-    assert settings.SUBSCRIPTIONS_WITH_VPN
-    vpn_only_plans = list(
-        set(settings.SUBSCRIPTIONS_WITH_VPN)
-        - set(settings.SUBSCRIPTIONS_WITH_PHONE)
-        - set(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
-    )
-    assert vpn_only_plans
-    return random.choice(vpn_only_plans)
 
 
 class AddressHashTest(TestCase):

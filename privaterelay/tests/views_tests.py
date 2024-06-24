@@ -34,7 +34,7 @@ from emails.models import (
     RelayAddress,
     address_hash,
 )
-from emails.tests.models_tests import premium_subscription
+from privaterelay.tests.utils import premium_subscription
 
 from ..apps import PrivateRelayConfig
 from ..fxa_utils import NoSocialToken

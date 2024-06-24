@@ -65,9 +65,6 @@ from privaterelay.tests.utils import (
     create_expected_glean_event,
     get_glean_event,
     log_extra,
-)
-
-from .models_tests import (
     make_free_test_user,
     make_premium_test_user,
     upgrade_test_user_to_premium,

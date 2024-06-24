@@ -3,8 +3,9 @@ from unittest.mock import patch
 
 from django.test import TestCase
 
+from privaterelay.tests.utils import make_free_test_user
+
 from ..models import Profile
-from .models_tests import make_free_test_user
 
 
 class MeasureFeatureUsageSignalTest(TestCase):

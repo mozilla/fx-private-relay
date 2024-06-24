@@ -17,8 +17,6 @@ from emails.utils import (
     remove_trackers,
 )
 
-from .models_tests import make_free_test_user, make_premium_test_user  # noqa: F401
-
 
 class GetEmailDomainFromSettingsTest(TestCase):
     @override_settings(RELAY_CHANNEL="dev", SITE_ORIGIN="https://test.com")

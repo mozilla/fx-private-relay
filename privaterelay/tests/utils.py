@@ -1,13 +1,107 @@
 """Helper functions for tests"""
 
 import json
+import random
+from datetime import UTC, datetime
 from logging import LogRecord
 from typing import Any
 from unittest._log import _LoggingWatcher
+from uuid import uuid4
 
+from django.conf import settings
 from django.contrib.auth.models import User
 
 import pytest
+from allauth.socialaccount.models import SocialAccount
+from model_bakery import baker
+
+
+def make_free_test_user(email: str = "") -> User:
+    """Make a user who has signed up for the free Relay plan."""
+    if email:
+        user = baker.make(User, email=email)
+    else:
+        user = baker.make(User)
+    user.profile.server_storage = True
+    user.profile.save()
+    baker.make(
+        SocialAccount,
+        user=user,
+        uid=str(uuid4()),
+        provider="fxa",
+        extra_data={"avatar": "avatar.png"},
+    )
+    return user
+
+
+def make_premium_test_user() -> User:
+    """Make a user who has the premium Relay plan, but hasn't picked a subdomain."""
+    premium_user = baker.make(User, email="premium@email.com")
+    premium_user.profile.server_storage = True
+    premium_user.profile.date_subscribed = datetime.now(tz=UTC)
+    premium_user.profile.save()
+    upgrade_test_user_to_premium(premium_user)
+    return premium_user
+
+
+def upgrade_test_user_to_premium(user: User) -> None:
+    """Create an FxA SocialAccount with an unlimited email masks plan."""
+    if SocialAccount.objects.filter(user=user).exists():
+        raise Exception("upgrade_test_user_to_premium does not (yet) handle this.")
+    baker.make(
+        SocialAccount,
+        user=user,
+        uid=str(uuid4()),
+        provider="fxa",
+        extra_data={"avatar": "avatar.png", "subscriptions": [premium_subscription()]},
+    )
+
+
+def make_storageless_test_user() -> User:
+    storageless_user = baker.make(User)
+    storageless_user_profile = storageless_user.profile
+    storageless_user_profile.server_storage = False
+    storageless_user_profile.subdomain = "mydomain"
+    storageless_user_profile.date_subscribed = datetime.now(tz=UTC)
+    storageless_user_profile.save()
+    upgrade_test_user_to_premium(storageless_user)
+    return storageless_user
+
+
+def premium_subscription() -> str:
+    """Return a Mozilla account subscription that provides unlimited emails"""
+    assert settings.SUBSCRIPTIONS_WITH_UNLIMITED
+    premium_only_plans = list(
+        set(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
+        - set(settings.SUBSCRIPTIONS_WITH_PHONE)
+        - set(settings.SUBSCRIPTIONS_WITH_VPN)
+    )
+    assert premium_only_plans
+    return random.choice(premium_only_plans)
+
+
+def phone_subscription() -> str:
+    """Return a Mozilla account subscription that provides a phone mask"""
+    assert settings.SUBSCRIPTIONS_WITH_PHONE
+    phones_only_plans = list(
+        set(settings.SUBSCRIPTIONS_WITH_PHONE)
+        - set(settings.SUBSCRIPTIONS_WITH_VPN)
+        - set(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
+    )
+    assert phones_only_plans
+    return random.choice(phones_only_plans)
+
+
+def vpn_subscription() -> str:
+    """Return a Mozilla account subscription that provides the VPN"""
+    assert settings.SUBSCRIPTIONS_WITH_VPN
+    vpn_only_plans = list(
+        set(settings.SUBSCRIPTIONS_WITH_VPN)
+        - set(settings.SUBSCRIPTIONS_WITH_PHONE)
+        - set(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
+    )
+    assert vpn_only_plans
+    return random.choice(vpn_only_plans)
 
 
 def omit_markus_logs(caplog: pytest.LogCaptureFixture) -> list[LogRecord]:
