@@ -187,6 +187,7 @@ CSP_DEFAULT_SRC = ["'self'"]
 CSP_CONNECT_SRC = [
     "'self'",
     "https://www.google-analytics.com/",
+    "https://www.googletagmanager.com/",
     "https://location.services.mozilla.com",
     "https://api.stripe.com",
     BASKET_ORIGIN,
@@ -198,6 +199,7 @@ CSP_SCRIPT_SRC = (
     + (["'unsafe-inline'"] if _CSP_SCRIPT_INLINE else [])
     + [
         "https://www.google-analytics.com/",
+        "https://www.googletagmanager.com/",
         "https://js.stripe.com/",
     ]
 )
@@ -241,6 +243,7 @@ AWS_SQS_QUEUE_URL = config("AWS_SQS_QUEUE_URL", None)
 
 RELAY_FROM_ADDRESS: str | None = config("RELAY_FROM_ADDRESS", None)
 GOOGLE_ANALYTICS_ID = config("GOOGLE_ANALYTICS_ID", None)
+GA4_MEASUREMENT_ID = config("GA4_MEASUREMENT_ID", None)
 GOOGLE_APPLICATION_CREDENTIALS: str = config("GOOGLE_APPLICATION_CREDENTIALS", "")
 GOOGLE_CLOUD_PROFILER_CREDENTIALS_B64: str = config(
     "GOOGLE_CLOUD_PROFILER_CREDENTIALS_B64", ""

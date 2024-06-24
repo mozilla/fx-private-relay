@@ -14,33 +14,34 @@ This is the Analytics plan for Firefox Relay. It documents our use of Google Ana
 
 **Demographic:**
 
->From which country does the majority of our traffic originate?
+> From which country does the majority of our traffic originate?
 
->Which browsers are most commonly used to access the Firefox Relay website?
+> Which browsers are most commonly used to access the Firefox Relay website?
 
->Which devices are most commonly used to access the Firefox Relay website?
+> Which devices are most commonly used to access the Firefox Relay website?
 
->Which browser is running the Firefox Relay the add-on?  
+> Which browser is running the Firefox Relay the add-on?
 
 **User Behavior:**
 
->Do users delete aliases?
+> Do users delete aliases?
 
->Do users create aliases?
+> Do users create aliases?
 
->How do users create aliases? From the Relay website dashboard? The context menu? The input icon?
+> How do users create aliases? From the Relay website dashboard? The context menu? The input icon?
 
->Do users open the extension panel?
+> Do users open the extension panel?
 
->Do users change the forwarding settings for their aliases?
+> Do users change the forwarding settings for their aliases?
 
->Do users who have not installed the Relay add-on, choose to install the add-on?
+> Do users who have not installed the Relay add-on, choose to install the add-on?
 
->When do users decide to upgrade to Premium?
+> When do users decide to upgrade to Premium?
 
 &nbsp;
 
 ## Extension Event Collection
+
 Events are reported using [Google Analytics Measurement Protocol](https://developers.google.com/analytics/devguides/collection/protocol/v1).
 
 We collect data for the following extension events:
@@ -58,7 +59,6 @@ We collect data for the following extension events:
 - When the settings icon is clicked
 
 - When panel navigation arrow icons are clicked
-
 
 ### In-page events:
 
@@ -78,11 +78,9 @@ We collect data for the following extension events:
 
 - When the user clicks an outbound link or button
 
-
 ### Context Menu events:
 
 - When an alias is generated via the context menu
-
 
 ### Modal events:
 
@@ -92,13 +90,11 @@ We collect data for the following extension events:
 
 - When "Manage All Aliases" is clicked
 
-
-
 &nbsp;
 
 ## Website Event Collection
 
-Events are reported using [Google Analytics](https://developers.google.com/analytics/devguides/collection/analyticsjs).
+Events are reported using [Google Analytics](https://developers.google.com/analytics/devguides/collection/ga4).
 
 We collect data for the following events:
 
@@ -116,120 +112,125 @@ We collect data for the following events:
 
 - When a user changes the forwarding settings for an alias
 
-
 ### Sign Up Buttons & Links
 
-**`Sign In Button`** -&nbsp;  **`Add to Firefox Button`**  -&nbsp; **`Join the Waitlist Button`**
+**`Sign In Button`** -&nbsp; **`Add to Firefox Button`** -&nbsp; **`Join the Waitlist Button`**
 
 - When a button appears on the page
-  * `hitType` : event
-  * `eventCategory` : Button ID
-  * `eventAction` : View
-  * `eventLabel` : Page location ID.
+
+  - `hitType` : event
+  - `eventCategory` : Button ID
+  - `eventAction` : View
+  - `eventLabel` : Page location ID.
 
 - When a user clicks a link or button.
-  * `hitType` : event
-  * `eventCategory` : Button or Link ID
-  * `eventAction` : Engage
-  * `eventLabel` : Page location ID.
-
+  - `hitType` : event
+  - `eventCategory` : Button or Link ID
+  - `eventAction` : Engage
+  - `eventLabel` : Page location ID.
 
 ### Firefox Apps menu (referred to internally as the Bento menu)
 
 - When a user opens the Firefox Apps menu
-  * `hitType` : event
-  * `eventCategory` : bento
-  * `eventAction` : bento-opened
-  * `eventLabel` : fx-monitor
+
+  - `hitType` : event
+  - `eventCategory` : bento
+  - `eventAction` : bento-opened
+  - `eventLabel` : fx-monitor
 
 - When a user closes the Firefox Apps menu
-  * `hitType` : event
-  * `eventCategory` : bento
-  * `eventAction` : bento-closed
-  * `eventLabel` : fx-monitor
+
+  - `hitType` : event
+  - `eventCategory` : bento
+  - `eventAction` : bento-closed
+  - `eventLabel` : fx-monitor
 
 - When a user clicks on one of the Firefox Apps menu links
-  * `hitType` : event
-  * `eventCategory` : bento
-  * `eventAction` : bento-app-link-click
-  * `eventLabel` : link identifier
+  - `hitType` : event
+  - `eventCategory` : bento
+  - `eventAction` : bento-app-link-click
+  - `eventLabel` : link identifier
 
 ### Interview recruitment
 
 (This is only shown occasionally, when we're trying to recruit people to join in user research.)
 
 - When the recruitment link appears on the page
-  * `hitType` : event
-  * `eventCategory` : Recruitment
-  * `eventAction` : View
-  * `eventLabel` : Recruitment text
+
+  - `hitType` : event
+  - `eventCategory` : Recruitment
+  - `eventAction` : View
+  - `eventLabel` : Recruitment text
 
 - When the recruitment link is clicked
-  * `hitType` : event
-  * `eventCategory` : Recruitment
-  * `eventAction` : Engage
-  * `eventLabel` : Recruitment text
+  - `hitType` : event
+  - `eventCategory` : Recruitment
+  - `eventAction` : Engage
+  - `eventLabel` : Recruitment text
 
 ### Net Promoter Score (NPS)/Customer Satisfaction (CSAT) surveys
 
 - When a CSAT survey answer is selected
-  * `hitType` : event
-  * `eventCategory` : CSAT Survey
-  * `eventAction` : submitted
-  * `eventLabel` : The given answer
-  * `value` : A numeric value representing the given answer
-  * `dimension3` : Whether the given answer respresents satisfaction, neutral feeling, or dissastisfaction.
-  * `dimension4` : The given answer
-  * `metric10` : Always "1" (to count the number of answers)
-  * `metric11` : A numeric value representing `dimenstion4`
-  * `metric12` : A numeric value representing `dimenstion3`
+
+  - `hitType` : event
+  - `eventCategory` : CSAT Survey
+  - `eventAction` : submitted
+  - `eventLabel` : The given answer
+  - `value` : A numeric value representing the given answer
+  - `dimension3` : Whether the given answer respresents satisfaction, neutral feeling, or dissastisfaction.
+  - `dimension4` : The given answer
+  - `metric10` : Always "1" (to count the number of answers)
+  - `metric11` : A numeric value representing `dimenstion4`
+  - `metric12` : A numeric value representing `dimenstion3`
 
 - When an NPS survey answer is selected
-  * `hitType` : event
-  * `eventCategory` : NPS Survey
-  * `eventAction` : submitted
-  * `eventLabel` : A label for the category of the given answer
-  * `value` : A numeric value representing the given answer
-  * `dimension1` : A label for the category of the given answer
-  * `metric10` : Always "1" (to count the number of answers)
-  * `metric11` : The given answer
-  * `metric12` : A numeric value representing the category of the given answer
+  - `hitType` : event
+  - `eventCategory` : NPS Survey
+  - `eventAction` : submitted
+  - `eventLabel` : A label for the category of the given answer
+  - `value` : A numeric value representing the given answer
+  - `dimension1` : A label for the category of the given answer
+  - `metric10` : Always "1" (to count the number of answers)
+  - `metric11` : The given answer
+  - `metric12` : A numeric value representing the category of the given answer
 
 ### Banners
 
 - When a user clicks the link in one of the banners
-  * `hitType` : event
-  * `eventCategory` : Outbound
-  * `eventAction` : Click
-  * `eventLabel` : link content
+  - `hitType` : event
+  - `eventCategory` : Outbound
+  - `eventAction` : Click
+  - `eventLabel` : link content
 
 ### Links to upgrade to Premium
 
 - When the link appears on the page
-  * `hitType` : event
-  * `eventCategory` : Purchase Button
-  * `eventAction` : View
-  * `eventLabel` : link identifier
+
+  - `hitType` : event
+  - `eventCategory` : Purchase Button
+  - `eventAction` : View
+  - `eventLabel` : link identifier
 
 - When a user clicks the link
-  * `hitType` : event
-  * `eventCategory` : Purchase Button
-  * `eventAction` : Engage
-  * `eventLabel` : link identifier
+  - `hitType` : event
+  - `eventCategory` : Purchase Button
+  - `eventAction` : Engage
+  - `eventLabel` : link identifier
 
 ### The onboarding flow for new Premium subscribers
 
 - When a button/link to continue to the next step scrolls into view
-  * `hitType` : event
-  * `eventCategory` : Premium Onboarding
-  * `eventAction` : View
-  * `eventLabel` : link identifier
+
+  - `hitType` : event
+  - `eventCategory` : Premium Onboarding
+  - `eventAction` : View
+  - `eventLabel` : link identifier
 
 - When a user clicks a button/link to continue to the next step
-  * `hitType` : event
-  * `eventCategory` : Premium Onboarding
-  * `eventAction` : Engage
-  * `eventLabel` : link identifier
+  - `hitType` : event
+  - `eventCategory` : Premium Onboarding
+  - `eventAction` : Engage
+  - `eventLabel` : link identifier
 
 ## Opt Out of Google Analytics Tracking
 
@@ -237,4 +238,4 @@ We collect data for the following events:
 
 Before initializing Google Analytics, we check the user's browser settings for a **DNT** signal. If the **DNT** header is enabled, Analytics is never initialized and is not used to collect data for that session.
 
->[How do I turn on the Do Not Track feature?](https://support.mozilla.org/en-US/kb/how-do-i-turn-do-not-track-feature)
+> [How do I turn on the Do Not Track feature?](https://support.mozilla.org/en-US/kb/how-do-i-turn-do-not-track-feature)
