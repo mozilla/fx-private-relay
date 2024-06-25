@@ -617,30 +617,30 @@ events for other news items, as well as some additional events.
 The news menu, with no current news items:
 
 [<img src="./docs/img/news-empty.png"
-width=293
-alt="News menu expanded but empty."
-\>](./docs/img/news-empty.png)
+      width=293
+      alt="News menu expanded but empty."
+/>](./docs/img/news-empty.png)
 
 The news menu, History tab:
 
 [<img src="./docs/img/news-history.png"
-width=297
-alt="News menu, History tab, with news items."
-\>](./docs/img/news-history.png)
+      width=297
+      alt="News menu, History tab, with news items."
+/>](./docs/img/news-history.png)
 
 The news menu, with a news entry expanded:
 
 [<img src="docs/img/news-entry.png"
-width=293
-alt="News menu, with the expanded news entry 'Get help protecting your privacy'."
-\>](./docs/img/news-entry.png)
+     width=293
+     alt="News menu, with the expanded news entry 'Get help protecting your privacy'."
+/>](./docs/img/news-entry.png)
 
 The news menu, with the holiday promotion news item expanded:
 
 [<img src="./docs/img/news-holiday.png"
-width=300
-alt="News menu, with the Holiday promotion expanded."
-\>](./docs/img/news-holiday.png)
+      width=300
+      alt="News menu, with the Holiday promotion expanded."
+/>](./docs/img/news-holiday.png)
 
 Google Analytics events:
 
@@ -1137,9 +1137,9 @@ Clicking the downward arrowhead on the right side of an email mask opens the det
 that mask.
 
 [<img src="docs/img/emails-dashboard-details-free.png"
-width=626
-alt="The details of a Relay email mask"
-\>](docs/img/emails-dashboard-details-free.png)
+      width=626
+      alt="The details of a Relay email mask"
+/>](docs/img/emails-dashboard-details-free.png)
 
 The Google Analytics events:
 
@@ -1157,9 +1157,9 @@ When a user on the free plan has 4 email masks, a notification appears in the lo
 right corner that prompts the user to upgrade to the premium plan.
 
 [<img src="./docs/img/emails-corner-upgrade.png"
-width=287
-alt="The upgrade notification that appears in the lower right corner of the email masks dashboard, prompting the user to 'Upgrade to Relay Premium'"
-\>](./docs/img/emails-corner-upgrade.png)
+      width=287
+      alt="The upgrade notification that appears in the lower right corner of the email masks dashboard, prompting the user to 'Upgrade to Relay Premium'"
+/>](./docs/img/emails-corner-upgrade.png)
 
 The Google Analytics events:
 
@@ -1190,9 +1190,9 @@ monthly price when paid yearly, and the user can switch to the per-month price. 
 can start the subscription process by clicking the 'Upgrade Now' button.
 
 [<img src="./docs/img/phones-button-upgrade.png"
-width=267
-alt="The 'Upgrade to get phone number masking' box on the phone introduction page, including the 'Upgrade Now' button."
-\>](./docs/img/phones-button-upgrade.png)
+      width=267
+      alt="The 'Upgrade to get phone number masking' box on the phone introduction page, including the 'Upgrade Now' button."
+/>](./docs/img/phones-button-upgrade.png)
 
 The Google Analytics events:
 
