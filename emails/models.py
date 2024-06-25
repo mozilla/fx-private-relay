@@ -656,7 +656,6 @@ class RelayAddress(models.Model):
         )
         deleted_address.save()
         profile = self.user.profile
-        profile.refresh_from_db()
         profile.address_last_deleted = datetime.now(UTC)
         profile.num_address_deleted += 1
         profile.num_email_forwarded_in_deleted_address += self.num_forwarded
