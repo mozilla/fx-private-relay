@@ -23,7 +23,7 @@ For example, to **provide the service** we store information such as:
   subscription level. This is needed to forward emails from their Relay mask to their
   true email address, and to enable premium features.
 
-One part of the providing the service is to **catch bugs**. When something unexpected
+One part of providing the service is to **catch bugs**. When something unexpected
 happens, we capture the data needed to understand what happened. We avoid capturing
 data that identifies the user. When necessary to fix the bug, we will include a
 user identifier, like a database row number, that is only significant to the Relay team.
@@ -85,7 +85,7 @@ Relay uses several methods to collect and store information:
 
 ## Opt Out of Metrics Collection and Data Storage
 
-The are a few ways to opt out of metrics and data storage.
+There are a few ways to opt out of metrics and data storage.
 
 A Relay user can **turn off data collection** on their [Mozilla account settings][].
 Under "Data Collection and Use", turn off "Help improve Mozilla accounts". When this
@@ -120,7 +120,7 @@ Relay extension to track usage. Relay user identifiers are not included in Googl
 Analytics traffic.
 
 Website visitors can disable Google Analytics by turning on the DNT header in
-their browser. Relay user can disable Google Analytics by turning off data collection in
+their browser. A Relay user can disable Google Analytics by turning off data collection in
 their Mozilla account. See [Opt Out of Metrics Collection and Data Storage][] for more
 information. Google Analytics can also be disabled by many popular privacy and security
 extensions.
@@ -963,12 +963,12 @@ The Google Analytics events:
   - `eventAction`: `View`
   - `eventLabel`: `onboarding-step-3-skip`
   - `eventValue`: 3
-- The user clicks the "Skip, I’ll download the extension later" ling on the third step of
+- The user clicks the "Skip, I’ll download the extension later" link on the third step of
   premium onboarding.
   - `eventCategory`: `Premium Onboarding`
   - `eventAction`: `Engage`
   - `eventLabel`: `onboarding-step-3-skip`
-- The user see the "Go to Dashboard" button after installing the extension on the third step of
+- The user sees the "Go to Dashboard" button after installing the extension on the third step of
   premium onboarding.
   - `eventCategory`: `Premium Onboarding`
   - `eventAction`: `View`
@@ -1064,7 +1064,7 @@ A user on a non-Firefox browser will be prompted to download Firefox:
       alt="Banner on the Email Masks dashboard prompting to download Firefox"
 />](./docs/img/emails-banner-firefox.png)
 
-- The user clicks "Get Firefox" in "Relay even better in Firefox" banner
+- The user clicks "Get Firefox" in the "Relay is even better in Firefox" banner
   - `eventCategory`: `Download Firefox`
   - `eventAction`: `Engage`
   - `eventLabel`: `profile-banner-download-firefox`
