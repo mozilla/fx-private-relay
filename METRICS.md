@@ -314,7 +314,7 @@ The first button in the landing page content is labeled "Get Started". This butt
 the user to the [Plan Matrix](#ctx-landing-matrix) further down the page.
 
 [<img src="./docs/img/landing-button-cta.png"
-      width=214 height=172
+      width=214
       alt="Some text content and 'Get started' button on the landing page." />
 ](./docs/img/landing-button-cta.png)
 
@@ -334,7 +334,7 @@ appears if the bundle is available for the visitor's region.
 The banner:
 
 [<img src="./docs/img/landing-banner-bundle-desktop.png"
-      width=756 height=351
+      width=756
       alt="Banner for Relay Premium and Mozilla VPN bundle, desktop version"
 />](./docs/img/landing-banner-bundle-desktop.png)
 
@@ -359,7 +359,7 @@ banner no longer appears after December 31, 2023. It was paired with a
 The banner:
 
 [<img src="./docs/img/landing-banner-holiday-mobile.png"
-      width=533 height=79
+      width=533
       alt="Banner for holiday sale on Relay Premium, mobile version"
 />](./docs/img/landing-banner-holiday-mobile.png)
 
@@ -384,14 +384,14 @@ region, then the plan is not shown.
 The Plan Matrix at desktop widths, for US visitors:
 
 [<img src="./docs/img/landing-matrix-desktop.png"
-      width=868 height=496
+      width=868
       alt="The Plan Matrix at desktop width, showing the plans organized as a feature matrix, with the monthly price when paying yearly."
 />](./docs/img/landing-matrix-desktop.png)
 
 At mobile widths, the information is split to cards, such as the premium card:
 
 [<img src="./docs/img/landing-matrix-premium-mobile.png"
-      width=260 height=311
+      width=260
       alt="The Premium plan card at mobile width, with the monthly price when paying yearly."
 />](./docs/img/landing-matrix-premium-mobile.png)
 
@@ -544,14 +544,14 @@ At **desktop screen widths**, it looks like this:
 On the landing page, for anonymous visitors:
 
 [<img src="./docs/img/navbar-landing-desktop.png"
-      width=538 height=50
+      width=538
       alt="The navigation bar on the landing page, desktop width screen"
 />](./docs/img/navbar-landing-desktop.png)
 
 On the email masks dashboard, for free users:
 
 [<img src="./docs/img/navbar-dashboard-free-desktop.png"
-      width=583 height=50
+      width=583
       alt="The navigation bar on the email mask dashboard, for a free user, desktop width screen"
 />](./docs/img/navbar-dashboard-free-desktop.png)
 
@@ -560,14 +560,14 @@ At **mobile screen widths**, it looks like this:
 On the landing page, for anonymous visitors:
 
 [<img src="./docs/img/navbar-landing-mobile.png"
-      width=505 height=49
+      width=505
       alt="The navigation bar on the landing page, mobile width screen"
 />](./docs/img/navbar-landing-mobile.png)
 
 On the email masks dashboard, for free users:
 
 [<img src="./docs/img/navbar-dashboard-free-mobile.png"
-      width=479 height=49
+      width=479
       alt="The navigation bar on the email mask dashboard, for a free user, mobile width screen"
 />](./docs/img/navbar-dashboard-free-mobile.png)
 
@@ -617,28 +617,28 @@ events for other news items, as well as some additional events.
 The news menu, with no current news items:
 
 [<img src="./docs/img/news-empty.png"
-width=293 height=288
+width=293
 alt="News menu expanded but empty."
 \>](./docs/img/news-empty.png)
 
 The news menu, History tab:
 
 [<img src="./docs/img/news-history.png"
-width=297 height=338
+width=297
 alt="News menu, History tab, with news items."
 \>](./docs/img/news-history.png)
 
 The news menu, with a news entry expanded:
 
 [<img src="docs/img/news-entry.png"
-width=293 height=410
+width=293
 alt="News menu, with the expanded news entry 'Get help protecting your privacy'."
 \>](./docs/img/news-entry.png)
 
 The news menu, with the holiday promotion news item expanded:
 
 [<img src="./docs/img/news-holiday.png"
-width=300 height=394
+width=300
 alt="News menu, with the Holiday promotion expanded."
 \>](./docs/img/news-holiday.png)
 
@@ -712,7 +712,7 @@ The button that looks like a grid of squares opens a menu of other Mozilla produ
 Internally, we call this a "Bento Box", to refer to the Japanese [bento][] meal box.
 
 [<img src="./docs/img/navbar-dashboard-free-desktop-bento-open.png"
-      width=214 height=376
+      width=214
       alt="The open bento menu with the navigation bar on the email mask dashboard, for a free user, desktop width screen"
 />](./docs/img/navbar-dashboard-free-desktop-bento-open.png)
 
@@ -751,7 +751,7 @@ screens, the button is a [hamburger menu button][] (similar to ☰) and includes
 other Relay pages. In both cases, this menu has the "Sign Out" link for users.
 
 [<img src="./docs/img/navbar-user-menu-desktop.png"
-      width=214 height=256
+      width=214
       alt="An open user menu on a desktop-sized screen."
 />](./docs/img/navbar-user-menu-desktop.png)
 
@@ -779,31 +779,31 @@ bottom of the screen.
 On step 1, we explain email masks and prompt the user to generate their first mask:
 
 [<img src="./docs/img/onboarding-free-step1.png"
-      width=543 height=454
+      width=543
       alt="Step 1 of free onboarding. The user it prompted to Generate new mask."
 />](./docs/img/onboarding-free-step1.png)
 
 On step 2, we show the new mask and show how forwarding works:
 
 [<img src="./docs/img/onboarding-free-step2a.png"
-      width=567 height=455
+      width=567
       alt="Step 2, part A of free onboarding. The user sees the new mask and is prompted to See how forwarding works."
 />](./docs/img/onboarding-free-step2a.png)
 
 [<img src="./docs/img/onboarding-free-step2b.png"
-      width=567 height=459
+      width=567
       alt="Step 2, part B of free onboarding. The user is prompted to paste the mask."
 />](./docs/img/onboarding-free-step2b.png)
 
 [<img src="./docs/img/onboarding-free-step2c.png"
-      width=574 height=457
+      width=574
       alt="Step 2, part C of free onboarding. The user is prompted to check their inbox."
 />](./docs/img/onboarding-free-step2c.png)
 
 On step 3, we introduce the Relay extension and prompt the user to install it:
 
 [<img src="./docs/img/onboarding-free-step3.png"
-      width=563 height=305
+      width=563
       alt="Step 3. The user is prompted to install the Relay extension."
 />](./docs/img/onboarding-free-step3.png)
 
@@ -881,42 +881,42 @@ indicator at the bottom of the screen.
 On step 1, we list the benefits of Relay Premium:
 
 [<img src="./docs/img/onboarding-premium-step1.png"
-      width=636 height=395
+      width=636
       alt="Step 1 of premium onboarding. A list of benefits is shown. The user is prompted to 'Set up Relay Premium'."
 />](./docs/img/onboarding-premium-step1.png)
 
 On step 2, we prompt the user to setup a custom subdomain:
 
 [<img src="./docs/img/onboarding-premium-step2a.png"
-      width=609 height=354
+      width=609
       alt="Step 2, part A of premium onboarding. The user is prompted to enter a custom subdomain."
 />](./docs/img/onboarding-premium-step2a.png)
 
 If the subdomain is available, the user can register it.
 
 [<img src="./docs/img/onboarding-premium-step2b.png"
-      width=386 height=278
+      width=386
       alt="Step 2, part B of premium onboarding. The user is prompted to confirm the custom subdomain."
 />](./docs/img/onboarding-premium-step2b.png)
 
 We then confirm the user has reserved their custom subdomain.
 
 [<img src="./docs/img/onboarding-premium-step2c.png"
-      width=487 height=348
+      width=487
       alt="Step 2, part C of premium onboarding. The user is prompted to Continue."
 />](./docs/img/onboarding-premium-step2c.png)
 
 On step 3, we introduce the Relay extension and prompt the user to install it:
 
 [<img src="./docs/img/onboarding-premium-step3a.png"
-      width=590 height=365
+      width=590
       alt="Step 3, without extension. The user is prompted to install the Relay extension."
 />](./docs/img/onboarding-premium-step3a.png)
 
 When the extension is installed, the user can exit onboarding and go to the dashboard.
 
 [<img src="./docs/img/onboarding-premium-step3b.png"
-      width=590 height=342
+      width=590
       alt="Step 3, with extension. The user is prompted to Go to Dashboard."
 />](./docs/img/onboarding-premium-step3b.png)
 
@@ -990,7 +990,7 @@ email masks dashboard. The title is "Maximize your email and phone protection". 
 button is labeled "Upgrade to Premium" and takes the user to the [Premium Page, Plan Matrix][].
 
 [<img src="./docs/img/emails-banner-maximize.png"
-      width=408 height=189
+      width=408
       alt="Part of the 'Maximize your email and phone protection' banner, shown to a free user at the mask limit. The button is labelled 'Upgrade to Premium'."
 />](./docs/img/emails-banner-maximize.png)
 
@@ -1012,7 +1012,7 @@ A user on the free plan will be prompted to get their own email domain by upgrad
 premium plan. This link appears under their real email address.
 
 [<img src="./docs/img/emails-link-get-domain.png"
-      width=249 height=57
+      width=249
       alt="A user on a free plan is prompted to get their own email domain"
 />](./docs/img/emails-link-get-domain.png)
 
@@ -1034,7 +1034,7 @@ A user in an eligible region without VPN will be prompted to sign up for the Rel
 VPN bundle. The link goes to the [Plan Matrix on the Premium Page](#ctx-premium-matrix).
 
 [<img src="./docs/img/emails-banner-bundle.png"
-     width=456 height=142
+     width=456
      alt="Banner on the Email Masks dashboard introducing the user to the Relay + VPN Bundle, with an 'Upgrade now' button."
 />](./docs/img/emails-banner-bundle.png)
 
@@ -1057,7 +1057,7 @@ The Google Analytics events:
 A user on a non-Firefox browser will be prompted to download Firefox:
 
 [<img src="./docs/img/emails-banner-firefox.png"
-      width=376 height=142
+      width=376
       alt="Banner on the Email Masks dashboard prompting to download Firefox"
 />](./docs/img/emails-banner-firefox.png)
 
@@ -1072,7 +1072,7 @@ A Firefox user that does not have the [Firefox Relay Extension][] will be prompt
 install it:
 
 [<img src="./docs/img/emails-banner-firefox-extension.png"
-      width=530 height=134
+      width=530
       alt="Banner on the Email Masks dashboard prompting to install the Firefox extension."
 />](./docs/img/emails-banner-firefox-extension.png)
 
@@ -1080,7 +1080,7 @@ A Chrome user that does not have the [Chrome Relay Extension][] will be prompted
 install it:
 
 [<img src="./docs/img/emails-banner-chrome-extension.png"
-      width=513 height=154
+      width=513
       alt="Banner on the Email Masks dashboard prompting to install the Chrome extension."
 />](./docs/img/emails-banner-chrome-extension.png)
 
@@ -1108,14 +1108,14 @@ label changes to "Get unlimited email masks", and takes the user to the
 The button when a user can create a new mask:
 
 [<img src="./docs/img/emails-button-new-mask.png"
-      width=140 height=29
+      width=140
       alt="The button '+ Generate new mask' when the user can create a new mask"
 />](./docs/img/emails-button-new-mask.png)
 
 The button when a free user has 5 email masks:
 
 [<img src="./docs/img/emails-button-unlimited-masks.png"
-      width=160 height=29
+      width=160
       alt="The button 'Get unlimited email masks' when the user is at the free mask limit"
 />](./docs/img/emails-button-unlimited-masks.png)
 
@@ -1137,7 +1137,7 @@ Clicking the downward arrowhead on the right side of an email mask opens the det
 that mask.
 
 [<img src="docs/img/emails-dashboard-details-free.png"
-width=626 height=252
+width=626
 alt="The details of a Relay email mask"
 \>](docs/img/emails-dashboard-details-free.png)
 
@@ -1157,7 +1157,7 @@ When a user on the free plan has 4 email masks, a notification appears in the lo
 right corner that prompts the user to upgrade to the premium plan.
 
 [<img src="./docs/img/emails-corner-upgrade.png"
-width=287 height=338
+width=287
 alt="The upgrade notification that appears in the lower right corner of the email masks dashboard, prompting the user to 'Upgrade to Relay Premium'"
 \>](./docs/img/emails-corner-upgrade.png)
 
@@ -1190,7 +1190,7 @@ monthly price when paid yearly, and the user can switch to the per-month price. 
 can start the subscription process by clicking the 'Upgrade Now' button.
 
 [<img src="./docs/img/phones-button-upgrade.png"
-width=267 height=151
+width=267
 alt="The 'Upgrade to get phone number masking' box on the phone introduction page, including the 'Upgrade Now' button."
 \>](./docs/img/phones-button-upgrade.png)
 
@@ -1232,21 +1232,21 @@ phone mask.
 The Help & Tips box with a teaser for a new tip:
 
 [<img src="./docs/img/tip-custom-subdomain-teaser.png"
-      width=304 height=95
+      width=304
       alt="The custom subdomain tip, with teaser text."
 />](./docs/img/tip-custom-subdomain-teaser.png)
 
 The Help & Tips box showing the tip:
 
 [<img src="./docs/img/tip-custom-subdomain-open.png"
-      width=298 height=355
+      width=298
       alt="The custom subdomain tip, with text and a video."
 />](./docs/img/tip-custom-subdomain-open.png)
 
 The Help & Tips box with all relevant tips viewed:
 
 [<img src="./docs/img/tip-closed.png"
-      width=109 height=48
+      width=109
       alt="The Help &amp; Tips box, after viewing all tips."
 />](./docs/img/tip-closed.png)
 
@@ -1290,7 +1290,7 @@ The top "call to action" button, labelled 'Upgrade Now', takes the user to the p
 matrix:
 
 [<img src="./docs/img/premium-cta.png"
-      width=333 height=205
+      width=333
       alt="The top section of the premium page, with the 'Upgrade Now' button"
 />](./docs/img/premium-cta.png)
 
@@ -1327,7 +1327,7 @@ information collected in this survey is not covered by this document, but is pro
 in accordance with [Mozilla's Privacy Policy][].
 
 [<img src="./docs/img/survey-csat.png"
-      width=647 height=69
+      width=647
       alt='The CSAT survey, asking "How satisfied are you with your Firefox Relay experience?"'
 />](./docs/img/survey-csat.png)
 
@@ -1357,7 +1357,7 @@ survey is not covered by this document, but is processed in accordance with
 [Mozilla's Privacy Policy][].
 
 [<img src="./docs/img/survey-recruitment.png"
-      width=380 height=50
+      width=380
       alt="The intereview recruitment survey, with the text &quot;Want to help improve Firefox Relay? We'd love to hear what you think. Research participants receive a $50 gift card.&quot;"
 />](./docs/img/survey-recruitment.png)
 
@@ -1381,7 +1381,7 @@ this survey is not covered by this document, but is processed in accordance with
 [Mozilla's Privacy Policy][].
 
 [<img src="./docs/img/survey-phone.png"
-      width=524 height=35
+      width=524
       alt="Phone survey asking 'Answer 4 questions about phone masking to help improve your experience.'"
 />](./docs/img/survey-phone.png)
 
