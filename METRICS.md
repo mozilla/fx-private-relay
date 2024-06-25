@@ -378,7 +378,7 @@ Google Analytics events:
 #### <a name="ctx-landing-matrix">Plan Matrix</a>
 
 The Plan Matrix shows the differences between the different plans for Firefox Relay, and
-prompts the user to sign up for the service. If a plan is not available in the visitor's
+prompts the visitor to sign up for the service. If a plan is not available in the visitor's
 region, then the plan is not shown.
 
 The Plan Matrix at desktop widths, for US visitors:
@@ -790,11 +790,14 @@ On step 2, we show the new mask and show how forwarding works:
       alt="Step 2, part A of free onboarding. The user sees the new mask and is prompted to See how forwarding works."
 />](./docs/img/onboarding-free-step2a.png)
 
+We ask the user to paste their first email mask address and send a test email:
+
 [<img src="./docs/img/onboarding-free-step2b.png"
       width=567
       alt="Step 2, part B of free onboarding. The user is prompted to paste the mask."
 />](./docs/img/onboarding-free-step2b.png)
 
+We send an email and ask the user to check their inbox:
 [<img src="./docs/img/onboarding-free-step2c.png"
       width=574
       alt="Step 2, part C of free onboarding. The user is prompted to check their inbox."
