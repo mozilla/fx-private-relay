@@ -17,11 +17,16 @@ service usage**.
 
 For example, to **provide the service** we store information such as:
 
-- The Relay user's Mozilla account, including their account email and their
-  subscriptions. This is needed to forward emails from their Relay mask to their
-  true email address, and to enable premium features.
 - The Relay email masks and phone masks created by the Relay user. This is needed
   to associate a mask with the Relay user.
+- The Relay user's Mozilla account, including their account email and their
+  subscription level. This is needed to forward emails from their Relay mask to their
+  true email address, and to enable premium features.
+
+One part of the providing the service is to **catch bugs**. When something unexpected
+happens, we capture the data needed to understand what happened. We avoid capturing
+data that identifies the user. When necessary to fix the bug, we will include a
+user identifier, like a database row number, that is only significant to the Relay team.
 
 Other information is used to **answer questions about Relay usage**:
 
@@ -35,12 +40,15 @@ Other information is used to **answer questions about Relay usage**:
   - Do users create aliases?
   - How do users create aliases? From the Relay website dashboard? The context menu? The
     input icon?
-  - Do users open the extension panel?
   - Do users change the forwarding settings for their aliases?
-  - Do users who have not installed the Relay add-on, choose to install the add-on?
+  - Do users choose to install the Relay Extension?
+  - Do users interact with the Relay extension panel?
   - When do users decide to upgrade to Premium?
-  - What is the usage distribution for creating aliases?
-  - What is the usage distribution for forwarding emails?
+  - How many email masks are created? What is the distribution of daily
+    mask creation across users? Are there outliers who create many masks?
+  - How many emails are forwarded? What is the distribution of daily email
+    forwarding by count and email size? Are there outliers who forward many
+    emails or very large emails?
 
 # Metrics Collection and Data Storage
 
@@ -63,13 +71,13 @@ Relay uses several methods to collect and store information:
 - **Google Analytics** (third-party) - In the Relay website and extension, to measure
   usage.
 - **Stripe** (third-party) - In the Relay website, to detect fraud.
-- **Cookies** - In the Relay website and the API, cookies are used to measure usage and
-  provide the service.
-- **The Relay Database** - In the API and mask processing, to provide the service and
-  measure usage. This includes flags to turn features on and off.
+- **Cookies** - In the Relay website and the API, to measure usage and provide
+  the service.
+- **The Relay Database** - In the API and mask processing, to provide the service,
+  to enable features for some users, and to measure usage.
 - **Statd-style statistics** - In the API and mask processing, to measure usage.
-- **Server Logs** - In the API and mask processing, to provide the service and measure
-  usage.
+- **Server Logs** - In the API and mask processing, to provide the service,
+  capture bugs, and measure usage.
 - **Sentry** - In the API and mask processing, to capture bugs.
 - **Glean metrics** - In the API and mask processing, to measure usage.
 
@@ -86,7 +94,7 @@ setting is off:
 - Google Analytics is not loaded on the Relay website
 - Glean metrics are disabled on the Relay website, the Relay extension, and mask
   processing.
-- The user's identifiers are omitted from server logs.
+- The user's identifiers are omitted from server logs and enhanced bug captures.
 
 A website visitor can **turn on the DNT header** (see
 [How do I turn on the Do Not Track feature?][]). When a DNT header is enabled,
@@ -128,10 +136,14 @@ of switching to [GA4][].
 
 ## Website Event Collection
 
-The website uses the [Universal Measurement Protocol][]. A Google Analytics metric is
-called a "hit". The two main hit types are a page view (`view`) and an event (`event`).
-Google Analytics takes care of the page view hits, while the Relay website sends events.
-Each event has a category and action, and may have a label, a value, and other data.
+The website uses the GA4 [Measurement Protocol][], but is still using the
+data structure of the [Universal Measurement Protocol][]. This will change as we adapt to
+[changes in GA4 data model][].
+
+A Google Analytics metric is called a "hit". The two main hit types are a page
+view (`view`) and an event (`event`). Google Analytics takes care of the page
+view hits, while the Relay website sends events. Each event has a category and
+action, and may have a label, a value, and other data.
 
 A common pair of events is an action "View" that is sent when a link or button is
 visible to the user, and an action "Engage" that is sent when that link or button is
@@ -287,7 +299,9 @@ Here is a summary of the event categories and actions:
 [Premium Page]: #ctx-premium "Details for elements on the Premium Upsell Page"
 [Server Events]: #ctx-server "Details for website events that originate on the API server"
 [Tips]: #ctx-tips "Details for the Tips box in a masks dashboard."
+[Measurement Protocol]: https://developers.google.com/analytics/devguides/collection/protocol/ga4 "Measurement Protocol (Google Analytics 4)"
 [Universal Measurement Protocol]: https://developers.google.com/analytics/devguides/collection/protocol/v1 "Measurement Protocol Overview for Universal Analytics"
+[changes in GA4 data model]: https://support.google.com/analytics/answer/9964640?sjid=13967373028407637443-NC
 
 ### <a name="ctx-landing">Landing Page</a>
 
@@ -299,8 +313,10 @@ service and lists the different subscription levels.
 The first button in the landing page content is labeled "Get Started". This button takes
 the user to the [Plan Matrix](#ctx-landing-matrix) further down the page.
 
-<img src="./docs/img/landing-button-cta.png"
-  alt="Some text content and 'Get started' button on the landing page." />
+[<img src="./docs/img/landing-button-cta.png"
+      width=214 height=172
+      alt="Some text content and 'Get started' button on the landing page." />
+](./docs/img/landing-button-cta.png)
 
 The Google Analytics event:
 
@@ -317,8 +333,10 @@ appears if the bundle is available for the visitor's region.
 
 The banner:
 
-<img src="./docs/img/landing-banner-bundle-desktop.png"
-   alt="Banner for Relay Premium and Mozilla VPN bundle, desktop version" />
+[<img src="./docs/img/landing-banner-bundle-desktop.png"
+      width=756 height=351
+      alt="Banner for Relay Premium and Mozilla VPN bundle, desktop version"
+/>](./docs/img/landing-banner-bundle-desktop.png)
 
 The Google Analytics events:
 
@@ -340,8 +358,10 @@ banner no longer appears after December 31, 2023. It was paired with a
 
 The banner:
 
-<img src="./docs/img/landing-banner-holiday-mobile.png"
-   alt="Banner for holiday sale on Relay Premium, mobile version" />
+[<img src="./docs/img/landing-banner-holiday-mobile.png"
+      width=533 height=79
+      alt="Banner for holiday sale on Relay Premium, mobile version"
+/>](./docs/img/landing-banner-holiday-mobile.png)
 
 Google Analytics events:
 
@@ -363,15 +383,17 @@ region, then the plan is not shown.
 
 The Plan Matrix at desktop widths, for US visitors:
 
-<img src="./docs/img/landing-matrix-desktop.png"
-  alt="The Plan Matrix at desktop width, showing the plans organized as a feature matrix, with the monthly price when paying yearly."
-/>
+[<img src="./docs/img/landing-matrix-desktop.png"
+      width=868 height=496
+      alt="The Plan Matrix at desktop width, showing the plans organized as a feature matrix, with the monthly price when paying yearly."
+/>](./docs/img/landing-matrix-desktop.png)
 
 At mobile widths, the information is split to cards, such as the premium card:
 
-<img src="./docs/img/landing-matrix-premium-mobile.png"
-  alt="The Premium plan card at mobile width, with the monthly price when paying yearly."
-/>
+[<img src="./docs/img/landing-matrix-premium-mobile.png"
+      width=260 height=311
+      alt="The Premium plan card at mobile width, with the monthly price when paying yearly."
+/>](./docs/img/landing-matrix-premium-mobile.png)
 
 The Google Analytics events:
 
@@ -521,25 +543,33 @@ At **desktop screen widths**, it looks like this:
 
 On the landing page, for anonymous visitors:
 
-<img src="./docs/img/navbar-landing-desktop.png"
-     alt="The navigation bar on the landing page, desktop width screen" />
+[<img src="./docs/img/navbar-landing-desktop.png"
+      width=538 height=50
+      alt="The navigation bar on the landing page, desktop width screen"
+/>](./docs/img/navbar-landing-desktop.png)
 
 On the email masks dashboard, for free users:
 
-<img src="./docs/img/navbar-dashboard-free-desktop.png"
-     alt="The navigation bar on the email mask dashboard, for a free user, desktop width screen" />
+[<img src="./docs/img/navbar-dashboard-free-desktop.png"
+      width=583 height=50
+      alt="The navigation bar on the email mask dashboard, for a free user, desktop width screen"
+/>](./docs/img/navbar-dashboard-free-desktop.png)
 
 At **mobile screen widths**, it looks like this:
 
 On the landing page, for anonymous visitors:
 
-<img src="./docs/img/navbar-landing-mobile.png"
-     alt="The navigation bar on the landing page, mobile width screen" />
+[<img src="./docs/img/navbar-landing-mobile.png"
+      width=505 height=49
+      alt="The navigation bar on the landing page, mobile width screen"
+/>](./docs/img/navbar-landing-mobile.png)
 
 On the email masks dashboard, for free users:
 
-<img src="./docs/img/navbar-dashboard-free-mobile.png"
-     alt="The navigation bar on the email mask dashboard, for a free user, mobile width screen" />
+[<img src="./docs/img/navbar-dashboard-free-mobile.png"
+      width=479 height=49
+      alt="The navigation bar on the email mask dashboard, for a free user, mobile width screen"
+/>](./docs/img/navbar-dashboard-free-mobile.png)
 
 #### <a name="ctx-navbar-sign-up">Sign Up button</a>
 
@@ -586,21 +616,31 @@ events for other news items, as well as some additional events.
 
 The news menu, with no current news items:
 
-<img src="docs/img/news-empty.png" alt="News menu expanded but empty." \>
+[<img src="./docs/img/news-empty.png"
+width=293 height=288
+alt="News menu expanded but empty."
+\>](./docs/img/news-empty.png)
 
 The news menu, History tab:
 
-<img src="docs/img/news-history.png" alt="News menu, History tab, with news items." \>
+[<img src="./docs/img/news-history.png"
+width=297 height=338
+alt="News menu, History tab, with news items."
+\>](./docs/img/news-history.png)
 
 The news menu, with a news entry expanded:
 
-<img src="docs/img/news-entry.png"
-alt="News menu, with the expanded news entry 'Get help protecting your privacy'." \>
+[<img src="docs/img/news-entry.png"
+width=293 height=410
+alt="News menu, with the expanded news entry 'Get help protecting your privacy'."
+\>](./docs/img/news-entry.png)
 
 The news menu, with the holiday promotion news item expanded:
 
-<img src="docs/img/news-holiday.png"
-alt="News menu, with the Holiday promotion expanded." \>
+[<img src="./docs/img/news-holiday.png"
+width=300 height=394
+alt="News menu, with the Holiday promotion expanded."
+\>](./docs/img/news-holiday.png)
 
 Google Analytics events:
 
@@ -671,8 +711,10 @@ The Google Analytics events:
 The button that looks like a grid of squares opens a menu of other Mozilla products.
 Internally, we call this a "Bento Box", to refer to the Japanese [bento][] meal box.
 
-<img src="./docs/img/navbar-dashboard-free-desktop-bento-open.png"
-     alt="The open bento menu with the navigation bar on the email mask dashboard, for a free user, desktop width screen" />
+[<img src="./docs/img/navbar-dashboard-free-desktop-bento-open.png"
+      width=214 height=376
+      alt="The open bento menu with the navigation bar on the email mask dashboard, for a free user, desktop width screen"
+/>](./docs/img/navbar-dashboard-free-desktop-bento-open.png)
 
 The Google Analytics events:
 
@@ -708,8 +750,10 @@ defaults to a circular image of the first letter of their email address. In mobi
 screens, the button is a [hamburger menu button][] (similar to ☰) and includes links to
 other Relay pages. In both cases, this menu has the "Sign Out" link for users.
 
-<img src="./docs/img/navbar-user-menu-desktop.png"
-  alt="An open user menu on a desktop-sized screen." />
+[<img src="./docs/img/navbar-user-menu-desktop.png"
+      width=214 height=256
+      alt="An open user menu on a desktop-sized screen."
+/>](./docs/img/navbar-user-menu-desktop.png)
 
 The Google Analytics event:
 
@@ -734,24 +778,34 @@ bottom of the screen.
 
 On step 1, we explain email masks and prompt the user to generate their first mask:
 
-<img src="./docs/img/onboarding-free-step1.png"
-  alt="Step 1 of free onboarding. The user it prompted to Generate new mask." />
+[<img src="./docs/img/onboarding-free-step1.png"
+      width=543 height=454
+      alt="Step 1 of free onboarding. The user it prompted to Generate new mask."
+/>](./docs/img/onboarding-free-step1.png)
 
 On step 2, we show the new mask and show how forwarding works:
 
-<img src="./docs/img/onboarding-free-step2a.png"
-  alt="Step 2, part A of free onboarding. The user sees the new mask and is prompted to See how forwarding works." />
+[<img src="./docs/img/onboarding-free-step2a.png"
+      width=567 height=455
+      alt="Step 2, part A of free onboarding. The user sees the new mask and is prompted to See how forwarding works."
+/>](./docs/img/onboarding-free-step2a.png)
 
-<img src="./docs/img/onboarding-free-step2b.png"
-  alt="Step 2, part B of free onboarding. The user is prompted to paste the mask." />
+[<img src="./docs/img/onboarding-free-step2b.png"
+      width=567 height=459
+      alt="Step 2, part B of free onboarding. The user is prompted to paste the mask."
+/>](./docs/img/onboarding-free-step2b.png)
 
-<img src="./docs/img/onboarding-free-step2c.png"
-  alt="Step 2, part C of free onboarding. The user is prompted to check their inbox." />
+[<img src="./docs/img/onboarding-free-step2c.png"
+      width=574 height=457
+      alt="Step 2, part C of free onboarding. The user is prompted to check their inbox."
+/>](./docs/img/onboarding-free-step2c.png)
 
 On step 3, we introduce the Relay extension and prompt the user to install it:
 
-<img src="./docs/img/onboarding-free-step3.png"
-  alt="Step 3. The user is prompted to install the Relay extension." />
+[<img src="./docs/img/onboarding-free-step3.png"
+      width=563 height=305
+      alt="Step 3. The user is prompted to install the Relay extension."
+/>](./docs/img/onboarding-free-step3.png)
 
 The Google Analytics events:
 
@@ -826,27 +880,45 @@ indicator at the bottom of the screen.
 
 On step 1, we list the benefits of Relay Premium:
 
-<img src="./docs/img/onboarding-premium-step1.png"
-  alt="Step 1 of premium onboarding. A list of benefits is shown. The user is prompted to 'Set up Relay Premium'." />
+[<img src="./docs/img/onboarding-premium-step1.png"
+      width=636 height=395
+      alt="Step 1 of premium onboarding. A list of benefits is shown. The user is prompted to 'Set up Relay Premium'."
+/>](./docs/img/onboarding-premium-step1.png)
 
 On step 2, we prompt the user to setup a custom subdomain:
 
-<img src="./docs/img/onboarding-premium-step2a.png"
-  alt="Step 2, part A of premium onboarding. The user is prompted to enter a custom subdomain." />
+[<img src="./docs/img/onboarding-premium-step2a.png"
+      width=609 height=354
+      alt="Step 2, part A of premium onboarding. The user is prompted to enter a custom subdomain."
+/>](./docs/img/onboarding-premium-step2a.png)
 
-<img src="./docs/img/onboarding-premium-step2b.png"
-  alt="Step 2, part B of premium onboarding. The user is prompted to confirm the custom subdomain." />
+If the subdomain is available, the user can register it.
 
-<img src="./docs/img/onboarding-premium-step2c.png"
-  alt="Step 2, part C of premium onboarding. The user is prompted to Continue." />
+[<img src="./docs/img/onboarding-premium-step2b.png"
+      width=386 height=278
+      alt="Step 2, part B of premium onboarding. The user is prompted to confirm the custom subdomain."
+/>](./docs/img/onboarding-premium-step2b.png)
+
+We then confirm the user has reserved their custom subdomain.
+
+[<img src="./docs/img/onboarding-premium-step2c.png"
+      width=487 height=348
+      alt="Step 2, part C of premium onboarding. The user is prompted to Continue."
+/>](./docs/img/onboarding-premium-step2c.png)
 
 On step 3, we introduce the Relay extension and prompt the user to install it:
 
-<img src="./docs/img/onboarding-premium-step3a.png"
-  alt="Step 3, without extension. The user is prompted to install the Relay extension." />
+[<img src="./docs/img/onboarding-premium-step3a.png"
+      width=590 height=365
+      alt="Step 3, without extension. The user is prompted to install the Relay extension."
+/>](./docs/img/onboarding-premium-step3a.png)
 
-<img src="./docs/img/onboarding-premium-step3b.png"
-  alt="Step 3, with extension. The user is prompted to Go to Dashboard." />
+When the extension is installed, the user can exit onboarding and go to the dashboard.
+
+[<img src="./docs/img/onboarding-premium-step3b.png"
+      width=590 height=342
+      alt="Step 3, with extension. The user is prompted to Go to Dashboard."
+/>](./docs/img/onboarding-premium-step3b.png)
 
 The Google Analytics events:
 
@@ -917,9 +989,10 @@ A user on the free plan at their mask limit will see a large banner at the top o
 email masks dashboard. The title is "Maximize your email and phone protection". The
 button is labeled "Upgrade to Premium" and takes the user to the [Premium Page, Plan Matrix][].
 
-<img src="./docs/img/emails-banner-maximize.png"
-    alt="Part of the 'Maximize your email and phone protection' banner, shown to a free user at the mask limit. The button is labelled 'Upgrade to Premium'."
-/>
+[<img src="./docs/img/emails-banner-maximize.png"
+      width=408 height=189
+      alt="Part of the 'Maximize your email and phone protection' banner, shown to a free user at the mask limit. The button is labelled 'Upgrade to Premium'."
+/>](./docs/img/emails-banner-maximize.png)
 
 The Google Analytics events:
 
@@ -938,8 +1011,10 @@ The Google Analytics events:
 A user on the free plan will be prompted to get their own email domain by upgrading to a
 premium plan. This link appears under their real email address.
 
-<img src="./docs/img/emails-link-get-domain.png"
-  alt="A user on a free plan is prompted to get their own email domain" />
+[<img src="./docs/img/emails-link-get-domain.png"
+      width=249 height=57
+      alt="A user on a free plan is prompted to get their own email domain"
+/>](./docs/img/emails-link-get-domain.png)
 
 The Google Analytics events:
 
@@ -958,9 +1033,10 @@ The Google Analytics events:
 A user in an eligible region without VPN will be prompted to sign up for the Relay and
 VPN bundle. The link goes to the [Plan Matrix on the Premium Page](#ctx-premium-matrix).
 
-<img src="./docs/img/emails-banner-bundle.png"
-    alt="Banner on the Email Masks dashboard introducing the user to the Relay + VPN Bundle, with an 'Upgrade now' button."
-/>
+[<img src="./docs/img/emails-banner-bundle.png"
+     width=456 height=142
+     alt="Banner on the Email Masks dashboard introducing the user to the Relay + VPN Bundle, with an 'Upgrade now' button."
+/>](./docs/img/emails-banner-bundle.png)
 
 The Google Analytics events:
 
@@ -980,8 +1056,10 @@ The Google Analytics events:
 
 A user on a non-Firefox browser will be prompted to download Firefox:
 
-<img src="./docs/img/emails-banner-firefox.png"
-    alt="Banner on the Email Masks dashboard prompting to download Firefox" />
+[<img src="./docs/img/emails-banner-firefox.png"
+      width=376 height=142
+      alt="Banner on the Email Masks dashboard prompting to download Firefox"
+/>](./docs/img/emails-banner-firefox.png)
 
 - The user clicks "Get Firefox" in "Relay even better in Firefox" banner
   - `eventCategory`: `Download Firefox`
@@ -993,14 +1071,18 @@ A user on a non-Firefox browser will be prompted to download Firefox:
 A Firefox user that does not have the [Firefox Relay Extension][] will be prompted to
 install it:
 
-<img src="./docs/img/emails-banner-firefox-extension.png"
-    alt="Banner on the Email Masks dashboard prompting to install the Firefox extension." />
+[<img src="./docs/img/emails-banner-firefox-extension.png"
+      width=530 height=134
+      alt="Banner on the Email Masks dashboard prompting to install the Firefox extension."
+/>](./docs/img/emails-banner-firefox-extension.png)
 
 A Chrome user that does not have the [Chrome Relay Extension][] will be prompted to
 install it:
 
-<img src="./docs/img/emails-banner-chrome-extension.png"
-    alt="Banner on the Email Masks dashboard prompting to install the Chrome extension." />
+[<img src="./docs/img/emails-banner-chrome-extension.png"
+      width=513 height=154
+      alt="Banner on the Email Masks dashboard prompting to install the Chrome extension."
+/>](./docs/img/emails-banner-chrome-extension.png)
 
 Google Analytics events:
 
@@ -1019,15 +1101,23 @@ Google Analytics events:
 #### <a name="ctx-emails-button-unlimited">Unlimited Button</a>
 
 When a user is allowed to create a new email mask, the button is labelled "+ Generate
-new mask", and creates a new mask. When a free user has 5 email masks, the button
+new mask", and creates a new mask:. When a free user has 5 email masks, the button
 label changes to "Get unlimited email masks", and takes the user to the
 [Premium Page][].
 
-<img src="./docs/img/emails-button-new-mask.png"
-  alt="The button '+ Generate new mask' when the user can create a new mask" />
+The button when a user can create a new mask:
 
-<img src="./docs/img/emails-button-unlimited-masks.png"
-  alt="The button 'Get unlimited email masks' when the user is at the free mask limit" />
+[<img src="./docs/img/emails-button-new-mask.png"
+      width=140 height=29
+      alt="The button '+ Generate new mask' when the user can create a new mask"
+/>](./docs/img/emails-button-new-mask.png)
+
+The button when a free user has 5 email masks:
+
+[<img src="./docs/img/emails-button-unlimited-masks.png"
+      width=160 height=29
+      alt="The button 'Get unlimited email masks' when the user is at the free mask limit"
+/>](./docs/img/emails-button-unlimited-masks.png)
 
 The Google Analytics events:
 
@@ -1043,11 +1133,13 @@ The Google Analytics events:
 
 #### <a name="ctx-emails-detail">Email Mask Details</a>
 
-Clicking the downward chevron on the right side of an email mask opens the details for
+Clicking the downward arrowhead on the right side of an email mask opens the details for
 that mask.
 
-<img src="docs/img/emails-dashboard-details-free.png"
-     alt="The details of a Relay email mask">
+[<img src="docs/img/emails-dashboard-details-free.png"
+width=626 height=252
+alt="The details of a Relay email mask"
+\>](docs/img/emails-dashboard-details-free.png)
 
 The Google Analytics events:
 
@@ -1064,9 +1156,10 @@ The Google Analytics events:
 When a user on the free plan has 4 email masks, a notification appears in the lower
 right corner that prompts the user to upgrade to the premium plan.
 
-<img src="./docs/img/emails-corner-upgrade.png"
-  alt="The upgrade notification that appears in the lower right corner of the email masks dashboard, prompting the user to 'Upgrade to Relay Premium'"
-/>
+[<img src="./docs/img/emails-corner-upgrade.png"
+width=287 height=338
+alt="The upgrade notification that appears in the lower right corner of the email masks dashboard, prompting the user to 'Upgrade to Relay Premium'"
+\>](./docs/img/emails-corner-upgrade.png)
 
 The Google Analytics events:
 
@@ -1096,9 +1189,10 @@ introduction to phone masking, including the plan pricing details. The default s
 monthly price when paid yearly, and the user can switch to the per-month price. The user
 can start the subscription process by clicking the 'Upgrade Now' button.
 
-<img src="./docs/img/phones-button-upgrade.png"
-    alt="The 'Upgrade to get phone number masking' box on the phone introduction page, including the 'Upgrade Now' button."
-/>
+[<img src="./docs/img/phones-button-upgrade.png"
+width=267 height=151
+alt="The 'Upgrade to get phone number masking' box on the phone introduction page, including the 'Upgrade Now' button."
+\>](./docs/img/phones-button-upgrade.png)
 
 The Google Analytics events:
 
@@ -1135,14 +1229,26 @@ There is a tip for using the custom subdomain to create email masks outside of t
 website. There is a second tip for using shorter codes to reply to messages sent to your
 phone mask.
 
-<img src="./docs/img/tip-custom-subdomain-teaser.png"
-  alt="The custom subdomain tip, with teaser text." />
+The Help & Tips box with a teaser for a new tip:
 
-<img src="./docs/img/tip-custom-subdomain-open.png"
-  alt="The custom subdomain tip, with text and a video." />
+[<img src="./docs/img/tip-custom-subdomain-teaser.png"
+      width=304 height=95
+      alt="The custom subdomain tip, with teaser text."
+/>](./docs/img/tip-custom-subdomain-teaser.png)
 
-<img src="./docs/img/tip-closed.png"
-  alt="The Help &amp; Tips box, after viewing all tips." />
+The Help & Tips box showing the tip:
+
+[<img src="./docs/img/tip-custom-subdomain-open.png"
+      width=298 height=355
+      alt="The custom subdomain tip, with text and a video."
+/>](./docs/img/tip-custom-subdomain-open.png)
+
+The Help & Tips box with all relevant tips viewed:
+
+[<img src="./docs/img/tip-closed.png"
+      width=109 height=48
+      alt="The Help &amp; Tips box, after viewing all tips."
+/>](./docs/img/tip-closed.png)
 
 The Google Analytics events:
 
@@ -1183,8 +1289,10 @@ and benefits of the paid plans.
 The top "call to action" button, labelled 'Upgrade Now', takes the user to the plan
 matrix:
 
-<img src="./docs/img/premium-cta.png"
-    alt="The top section of the premium page, with the 'Upgrade Now' button" />
+[<img src="./docs/img/premium-cta.png"
+      width=333 height=205
+      alt="The top section of the premium page, with the 'Upgrade Now' button"
+/>](./docs/img/premium-cta.png)
 
 The Google Analytics events:
 
@@ -1218,8 +1326,10 @@ level, they are asked to take a two-minute survey on a third-party website. The
 information collected in this survey is not covered by this document, but is processed
 in accordance with [Mozilla's Privacy Policy][].
 
-<img src="./docs/img/survey-csat.png"
-     alt='The CSAT survey, asking "How satisfied are you with your Firefox Relay experience?"' />
+[<img src="./docs/img/survey-csat.png"
+      width=647 height=69
+      alt='The CSAT survey, asking "How satisfied are you with your Firefox Relay experience?"'
+/>](./docs/img/survey-csat.png)
 
 [Customer Satisfaction]: https://en.wikipedia.org/wiki/Customer_satisfaction
 [Mozilla's Privacy Policy]: https://www.mozilla.org/en-US/privacy/
@@ -1246,8 +1356,10 @@ when we are actively recruiting for user research. The information collected in 
 survey is not covered by this document, but is processed in accordance with
 [Mozilla's Privacy Policy][].
 
-<img src="./docs/img/survey-recruitment.png"
-     alt="The intereview recruitment survey, with the text &quot;Want to help improve Firefox Relay? We'd love to hear what you think. Research participants receive a $50 gift card.&quot;" />
+[<img src="./docs/img/survey-recruitment.png"
+      width=380 height=50
+      alt="The intereview recruitment survey, with the text &quot;Want to help improve Firefox Relay? We'd love to hear what you think. Research participants receive a $50 gift card.&quot;"
+/>](./docs/img/survey-recruitment.png)
 
 The Google Analytics events:
 
@@ -1268,8 +1380,10 @@ enabled around the launch of the Phone service in 2022. The information collecte
 this survey is not covered by this document, but is processed in accordance with
 [Mozilla's Privacy Policy][].
 
-<img src="./docs/img/survey-phone.png"
-   alt="Phone survey asking 'Answer 4 questions about phone masking to help improve your experience.'" />
+[<img src="./docs/img/survey-phone.png"
+      width=524 height=35
+      alt="Phone survey asking 'Answer 4 questions about phone masking to help improve your experience.'"
+/>](./docs/img/survey-phone.png)
 
 The Google Analytics events:
 
