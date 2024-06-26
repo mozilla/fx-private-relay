@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useOverlayTriggerState } from "react-stately";
-import Image from "next/image";
 import styles from "./PremiumOnboarding.module.scss";
 import ManLaptopEmail from "./images/man-laptop-email-alt.svg";
 import WomanOnCouch from "./images/woman-couch.svg";
 import WomanEmail from "./images/woman-email.svg";
 import { Button, LinkButton } from "../Button";
+import Image from "../Image";
 import { useGaViewPing } from "../../hooks/gaViewPing";
 import { ProfileData } from "../../hooks/api/profile";
 import { SubdomainSearchForm } from "./subdomain/SearchForm";

@@ -5,7 +5,6 @@ import {
   useState,
 } from "react";
 import { useOverlayTriggerState } from "react-stately";
-import Image from "next/image";
 import styles from "./RelayNumberPicker.module.scss";
 import EnteryVerifyCodeSuccess from "./images/verify-code-success.svg";
 import { Button } from "../../Button";
@@ -17,6 +16,7 @@ import {
 } from "../../../hooks/api/relayNumber";
 import { formatPhone } from "../../../functions/formatPhone";
 import { RefreshIcon } from "../../Icons";
+import Image from "../../Image";
 import { RelayNumberConfirmationModal } from "./RelayNumberConfirmationModal";
 import { useL10n } from "../../../hooks/l10n";
 

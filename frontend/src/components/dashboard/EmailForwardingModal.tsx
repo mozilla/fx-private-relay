@@ -16,12 +16,12 @@ import {
 } from "react-aria";
 import styles from "./EmailForwardingModal.module.scss";
 import { useL10n } from "../../hooks/l10n";
-import Image from "next/image";
 import ForwardEmail from "./images/free-onboarding-forwarding-email.svg";
 import ForwardedEmail from "./images/free-onboarding-forwarding-congratulations.svg";
 import { Button } from "../Button";
 import { StaticImport } from "next/dist/shared/lib/get-img-props";
 import { CloseIcon } from "../Icons";
+import Image from "../Image";
 import { aliasEmailTest } from "../../hooks/api/aliases";
 import { useGaEvent } from "../../hooks/gaEvent";
 

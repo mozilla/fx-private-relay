@@ -1,4 +1,4 @@
-import Image, { StaticImageData } from "next/image";
+import { StaticImageData } from "next/image";
 import styles from "./DemoPhone.module.scss";
 import BgImage from "./images/hero-image-bg.svg";
 import PremiumScreenshot from "./images/hero-image-premium.svg";
@@ -8,6 +8,7 @@ import NoPremiumScreenshot from "./images/hero-image-nopremium.svg";
 import FgImage from "./images/hero-image-fg.svg";
 import FgImageDe from "./images/hero-image-fg-de.svg";
 import FgImageFr from "./images/hero-image-fg-fr.svg";
+import Image from "../Image";
 import { getLocale } from "../../functions/getLocale";
 import { useL10n } from "../../hooks/l10n";
 

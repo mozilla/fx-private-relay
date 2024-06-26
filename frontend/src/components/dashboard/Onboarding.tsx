@@ -1,9 +1,9 @@
-import Image from "next/image";
 import styles from "./Onboarding.module.scss";
 import IconImage from "./images/onboarding-step-2.svg";
 import RightClickImage from "./images/onboarding-step-3.svg";
 import { AliasData } from "../../hooks/api/aliases";
 import { Button } from "../Button";
+import Image from "../Image";
 import { useL10n } from "../../hooks/l10n";
 
 export type Props = {

@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { Key, ReactNode, useRef } from "react";
 import { useMenu, useMenuItem } from "react-aria";
 import { Item, TreeProps, TreeState, useTreeState } from "react-stately";
@@ -6,6 +5,7 @@ import { useGaViewPing } from "../../../../hooks/gaViewPing";
 import { useL10n } from "../../../../hooks/l10n";
 import EmptyStateHero from "./images/empty-hero.png";
 import styles from "./WhatsNewList.module.scss";
+import Image from "../../../Image";
 import { WhatsNewEntry } from "./WhatsNewMenu";
 
 export type Props = {

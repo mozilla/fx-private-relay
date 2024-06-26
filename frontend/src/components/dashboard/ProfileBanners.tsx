@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
 
-import Image from "next/image";
 import styles from "./ProfileBanners.module.scss";
 import FirefoxLogo from "./images/fx-logo.svg";
 import BundleLogo from "./images/vpn-and-relay-logo.svg";
@@ -19,6 +18,7 @@ import { ProfileData } from "../../hooks/api/profile";
 import { UserData } from "../../hooks/api/user";
 import { RuntimeData } from "../../../src/hooks/api/runtimeData";
 import { Banner } from "../Banner";
+import Image from "../Image";
 import { renderDate } from "../../functions/renderDate";
 import { SubdomainPicker } from "./SubdomainPicker";
 import { useMinViewportWidth } from "../../hooks/mediaQuery";

@@ -1,5 +1,5 @@
 import { FluentVariable } from "@fluent/bundle";
-import Image, { StaticImageData } from "next/image";
+import { StaticImageData } from "next/image";
 import {
   getBundlePrice,
   getBundleSubscribeLink,
@@ -9,6 +9,7 @@ import { RuntimeData } from "../../hooks/api/runtimeData";
 import { MaskIcon, PhoneIcon, VpnIcon } from "../Icons";
 import styles from "./BundleBanner.module.scss";
 import { LinkButton } from "../Button";
+import Image from "../Image";
 import womanInBanner400w from "./images/bundle-banner-woman-400w.png";
 import womanInBanner768w from "./images/bundle-banner-woman-768w.png";
 import bundleFloatOne from "./images/bundle-float-1.svg";

@@ -1,5 +1,6 @@
-import Image, { StaticImageData } from "next/image";
+import { StaticImageData } from "next/image";
 import { ReactNode } from "react";
+import Image from "../../Image";
 import { getLocale } from "../../../functions/getLocale";
 import { useL10n } from "../../../hooks/l10n";
 import styles from "./GenericTip.module.scss";

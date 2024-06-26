@@ -1,6 +1,5 @@
 import { TouchEventHandler, useRef, useState } from "react";
 import { useButton } from "react-aria";
-import Image from "next/image";
 import FxBrowserLogo from "./images/fx-logo.svg";
 import {
   ChevronLeftIcon,
@@ -8,6 +7,7 @@ import {
   QuotationIcon,
   StarIcon,
 } from "../Icons";
+import Image from "../Image";
 import styles from "./Reviews.module.scss";
 import { getLocale } from "../../functions/getLocale";
 import { useL10n } from "../../hooks/l10n";

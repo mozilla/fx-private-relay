@@ -1,7 +1,6 @@
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import Image from "next/image";
 import styles from "./index.module.scss";
 import Testimonials from "../../public/images/hero-brands.svg";
 import HowItWorks1 from "../../public/images/how-it-works-1.svg";
@@ -21,6 +20,7 @@ import { BundleBanner } from "../components/landing/BundleBanner";
 import { useFlaggedAnchorLinks } from "../hooks/flaggedAnchorLinks";
 import { useL10n } from "../hooks/l10n";
 import { HighlightedFeatures } from "../components/landing/HighlightedFeatures";
+import Image from "../components/Image";
 
 const Home: NextPage = () => {
   const l10n = useL10n();

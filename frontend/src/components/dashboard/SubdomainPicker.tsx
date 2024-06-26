@@ -1,12 +1,12 @@
 import { useOverlayTriggerState } from "react-stately";
 import { useState } from "react";
-import Image from "next/image";
 import styles from "./SubdomainPicker.module.scss";
 import Illustration from "./images/man-laptop-email.svg";
 import { ProfileData } from "../../hooks/api/profile";
 import { SubdomainSearchForm } from "./subdomain/SearchForm";
 import { SubdomainConfirmationModal } from "./subdomain/ConfirmationModal";
 import { getRuntimeConfig } from "../../config";
+import Image from "../Image";
 import { useL10n } from "../../hooks/l10n";
 import Link from "next/link";
 import { useFlaggedAnchorLinks } from "../../hooks/flaggedAnchorLinks";

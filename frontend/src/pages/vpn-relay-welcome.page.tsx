@@ -1,5 +1,5 @@
 import { NextPage } from "next";
-import Image from "next/image";
+import Image from "../components/Image";
 import { Layout } from "../components/layout/Layout";
 import Logo from "../components/layout/images/relay-logo.svg";
 import LogoType from "../components/layout/images/fx-private-relay-premium-logotype-dark.svg";
