@@ -575,6 +575,11 @@ On the email masks dashboard, for free users:
 
 The "Sign Up" button is shown on desktop-width screens for anonymous visitors.
 
+[<img src="./docs/img/navbar-landing-desktop.png"
+      width=538
+      alt="The navigation bar on the landing page, desktop width screen"
+/>](./docs/img/navbar-landing-desktop.png)
+
 The Google Analytics events:
 
 - The visitor sees the "Sign Up" button in the navigation bar.
@@ -590,6 +595,11 @@ The Google Analytics events:
 #### <a name="ctx-navbar-sign-in">Sign In button</a>
 
 The "Sign In" button, with a border, is shown for anonymous visitors on all screen sizes.
+
+[<img src="./docs/img/navbar-landing-mobile.png"
+      width=505
+      alt="The navigation bar on the landing page, mobile width screen"
+/>](./docs/img/navbar-landing-mobile.png)
 
 The Google Analytics events:
 
@@ -693,6 +703,11 @@ Google Analytics events:
 
 The "Upgrade" button appears for users on the free plan. It is styled like a link in
 mobile widths. It takes users to the [Premium Page][].
+
+[<img src="./docs/img/navbar-dashboard-free-desktop.png"
+      width=583
+      alt="The navigation bar on the email mask dashboard, for a free user, desktop width screen"
+/>](./docs/img/navbar-dashboard-free-desktop.png)
 
 The Google Analytics events:
 
