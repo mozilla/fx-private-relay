@@ -423,6 +423,7 @@ def test_log_email_mask_deleted(
         extra_items={
             "n_random_masks": "0",
             "is_random_mask": "true",
+            "n_deleted_random_masks": "1",
         },
         user=user,
         event_time=parts.event_timestamp_ms,

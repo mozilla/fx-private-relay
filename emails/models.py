@@ -8,7 +8,7 @@ from collections import namedtuple
 from collections.abc import Iterable
 from datetime import UTC, datetime, timedelta
 from hashlib import sha256
-from typing import Literal, cast
+from typing import Any, Literal, cast
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -645,7 +645,7 @@ class RelayAddress(models.Model):
     def __str__(self):
         return self.address
 
-    def delete(self, *args, **kwargs):
+    def delete(self, *args: Any, **kwargs: Any) -> tuple[int, dict[str, int]]:
         # TODO: create hard bounce receipt rule in AWS for the address
         deleted_address = DeletedAddress.objects.create(
             address_hash=address_hash(self.address, domain=self.domain_value),
@@ -655,7 +655,7 @@ class RelayAddress(models.Model):
             num_spam=self.num_spam,
         )
         deleted_address.save()
-        profile = Profile.objects.get(user=self.user)
+        profile = self.user.profile
         profile.address_last_deleted = datetime.now(UTC)
         profile.num_address_deleted += 1
         profile.num_email_forwarded_in_deleted_address += self.num_forwarded
@@ -821,10 +821,6 @@ class DomainAddress(models.Model):
             update_fields=update_fields,
         )
 
-    @property
-    def user_profile(self):
-        return Profile.objects.get(user=self.user)
-
     @staticmethod
     def make_domain_address(
         user: User, address: str | None = None, made_via_email: bool = False
@@ -851,7 +847,7 @@ class DomainAddress(models.Model):
         # TODO: create hard bounce receipt rule in AWS for the address
         deleted_address = DeletedAddress.objects.create(
             address_hash=address_hash(
-                self.address, self.user_profile.subdomain, self.domain_value
+                self.address, self.user.profile.subdomain, self.domain_value
             ),
             num_forwarded=self.num_forwarded,
             num_blocked=self.num_blocked,
@@ -859,9 +855,7 @@ class DomainAddress(models.Model):
             num_spam=self.num_spam,
         )
         deleted_address.save()
-        # self.user_profile is a property and should not be used to
-        # update values on the user's profile
-        profile = Profile.objects.get(user=self.user)
+        profile = self.user.profile
         profile.address_last_deleted = datetime.now(UTC)
         profile.num_address_deleted += 1
         profile.num_email_forwarded_in_deleted_address += self.num_forwarded
@@ -885,7 +879,7 @@ class DomainAddress(models.Model):
 
     @property
     def full_address(self) -> str:
-        return f"{self.address}@{self.user_profile.subdomain}.{self.domain_value}"
+        return f"{self.address}@{self.user.profile.subdomain}.{self.domain_value}"
 
     @property
     def metrics_id(self) -> str:

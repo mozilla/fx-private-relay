@@ -1,7 +1,9 @@
-from rest_framework import permissions
-from waffle import flag_is_active
+from django.contrib.auth.models import AnonymousUser
 
-from emails.models import Profile
+from rest_framework import permissions
+from rest_framework.request import Request
+from rest_framework.views import APIView
+from waffle import flag_is_active
 
 READ_METHODS = ["GET", "HEAD"]
 
@@ -12,19 +14,21 @@ class IsOwner(permissions.BasePermission):
 
 
 class HasPremium(permissions.BasePermission):
-    def has_permission(self, request, view):
+    def has_permission(self, request: Request, view: APIView) -> bool:
+        if isinstance(request.user, AnonymousUser):
+            return False
         if request.method in READ_METHODS:
             return True
-        profile = Profile.objects.get(request.user)
-        return profile.has_premium
+        return request.user.profile.has_premium
 
 
 class HasPhoneService(permissions.BasePermission):
-    def has_permission(self, request, view):
+    def has_permission(self, request: Request, view: APIView) -> bool:
+        if isinstance(request.user, AnonymousUser):
+            return False
         if request.method in READ_METHODS:
             return True
-        profile = Profile.objects.get(user=request.user)
-        return profile.has_phone
+        return request.user.profile.has_phone
 
 
 class CanManageFlags(permissions.BasePermission):
