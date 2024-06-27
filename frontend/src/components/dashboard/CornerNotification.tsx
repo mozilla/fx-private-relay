@@ -1,9 +1,9 @@
 import { useInView } from "react-intersection-observer";
 import styles from "./CornerNotification.module.scss";
 import { CloseIcon } from "../Icons";
+import Image from "../Image";
 import { ProfileData } from "../../hooks/api/profile";
 import { useLocalDismissal } from "../../hooks/localDismissal";
-import Image from "next/image";
 import UpsellBannerNonUs from "../../pages/accounts/images/upsell-banner-nonus.svg";
 import UpsellBannerUs from "../../pages/accounts/images/upsell-banner-us.svg";
 import { useGaViewPing } from "../../hooks/gaViewPing";

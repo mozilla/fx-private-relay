@@ -1,7 +1,7 @@
-import Image from "next/image";
 import styles from "./PurchasePhonesPlan.module.scss";
 import WomanPhone from "./images/woman-phone.svg";
 import { LinkButton } from "../../Button";
+import Image from "../../Image";
 import { useGaViewPing } from "../../../hooks/gaViewPing";
 import {
   getPhonesPrice,

@@ -1,4 +1,3 @@
-import Image from "next/image";
 import styles from "./PhoneDashboard.module.scss";
 import {
   ChevronLeftIcon,
@@ -6,6 +5,7 @@ import {
   ForwardedTextIcon,
   WarningFilledIcon,
 } from "../../../components/Icons";
+import Image from "../../Image";
 import disabledSendersDataIllustration from "./images/sender-data-disabled-illustration.svg";
 import emptySenderDataIllustration from "./images/sender-data-empty-illustration.svg";
 import { useInboundContact } from "../../../hooks/api/inboundContact";

@@ -1,6 +1,6 @@
 import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
-import Image from "next/image";
+import Image from "../components/Image";
 import FirefoxLogo from "./dashboard/images/fx-logo.svg";
 
 jest.mock("../hooks/l10n.ts", () => mockUseL10nModule);

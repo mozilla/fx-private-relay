@@ -24,7 +24,6 @@ import {
   useToggleButton,
 } from "react-aria";
 import Link from "next/link";
-import Image from "next/image";
 import styles from "./MaskCard.module.scss";
 import CalendarIcon from "./images/calendar.svg";
 import EmailIcon from "./images/email.svg";
@@ -38,6 +37,7 @@ import { RuntimeData } from "../../../hooks/api/runtimeData";
 import { useL10n } from "../../../hooks/l10n";
 import { LabelEditor } from "./LabelEditor";
 import { ArrowDownIcon, CopyIcon, LockIcon } from "../../Icons";
+import Image from "../../Image";
 import { getLocale } from "../../../functions/getLocale";
 import { isFlagActive } from "../../../functions/waffle";
 import { renderDate } from "../../../functions/renderDate";

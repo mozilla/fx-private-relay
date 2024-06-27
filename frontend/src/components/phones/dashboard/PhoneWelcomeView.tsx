@@ -1,4 +1,3 @@
-import Image from "next/image";
 import styles from "./PhoneWelcomeView.module.scss";
 import SavingRelayContactImg from "./images/save-relay-as-a-contact.svg";
 import SavingRelayContactDemoImg from "./images/save-relay-contact-demo.svg";
@@ -7,6 +6,7 @@ import ReplyingMessagesDemoImg from "./images/reply-to-messages-demo.svg";
 import BlockingMessagesImg from "./images/block-a-sender.svg";
 import { ReactNode } from "react";
 import { Button } from "../../Button";
+import Image from "../../Image";
 import { DismissalData } from "../../../hooks/localDismissal";
 import { toast } from "react-toastify";
 import { ProfileData } from "../../../hooks/api/profile";

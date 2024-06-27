@@ -1,5 +1,4 @@
 import type { NextPage } from "next";
-import Image from "next/image";
 import {
   forwardRef,
   HTMLAttributes,
@@ -51,6 +50,7 @@ import { getLocale } from "../../functions/getLocale";
 import { AddonData } from "../../components/dashboard/AddonData";
 import { useAddonData } from "../../hooks/addon";
 import { CloseIcon } from "../../components/Icons";
+import Image from "../../components/Image";
 import { isFlagActive } from "../../functions/waffle";
 import { DashboardSwitcher } from "../../components/layout/navigation/DashboardSwitcher";
 import { usePurchaseTracker } from "../../hooks/purchaseTracker";

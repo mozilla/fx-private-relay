@@ -1,5 +1,6 @@
-import Image, { StaticImageData } from "next/image";
+import { StaticImageData } from "next/image";
 import styles from "./WhatsNewContent.module.scss";
+import Image from "../../../Image";
 
 export type Props = {
   heading: string;

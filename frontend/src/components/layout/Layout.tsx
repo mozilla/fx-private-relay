@@ -6,7 +6,6 @@ import {
   useState,
 } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { ToastContainer, Slide } from "react-toastify";
 import "react-toastify/scss/main.scss";
 import styles from "./Layout.module.scss";
@@ -17,6 +16,7 @@ import logoTypePremiumDark from "./images/fx-private-relay-premium-logotype-dark
 import logo from "./images/relay-logo.svg";
 import vpnRelayLogo from "./images/vpn-relay-logo.svg";
 import mozillaLogo from "./images/moz-logo-bw-rgb.svg";
+import Image from "../Image";
 import { useProfiles } from "../../hooks/api/profile";
 import { Navigation } from "./navigation/Navigation";
 import { useIsLoggedIn } from "../../hooks/session";

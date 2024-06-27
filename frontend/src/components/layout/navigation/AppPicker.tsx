@@ -28,7 +28,6 @@ import {
   RefObject,
 } from "react";
 import { AriaMenuItemProps } from "@react-aria/menu";
-import Image from "next/image";
 import styles from "./AppPicker.module.scss";
 import FirefoxLogo from "../images/fx.png";
 import MonitorLogo from "../images/monitor.png";
@@ -39,6 +38,7 @@ import FxMobileLogo from "../images/fx-mobile.png";
 import { Props as LayoutProps } from "../Layout";
 import { getRuntimeConfig } from "../../../config";
 import { BentoIcon } from "../../Icons";
+import Image from "../../Image";
 import { useGaEvent } from "../../../hooks/gaEvent";
 import { useL10n } from "../../../hooks/l10n";
 

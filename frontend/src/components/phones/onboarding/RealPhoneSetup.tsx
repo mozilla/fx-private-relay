@@ -1,10 +1,10 @@
 import { ChangeEventHandler, FormEventHandler, useState } from "react";
-import Image from "next/image";
 import styles from "./RealPhoneSetup.module.scss";
 import PhoneVerify from "./images/phone-verify.svg";
 import EnterVerifyCode from "./images/enter-verify-code.svg";
 import EnterVerifyCodeError from "./images/verify-code-error.svg";
 import { Button } from "../../Button";
+import Image from "../../Image";
 import {
   hasPendingVerification,
   RequestPhoneRemovalFn,

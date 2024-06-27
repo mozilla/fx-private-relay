@@ -5,9 +5,10 @@ import ReplyToEmailsAnonymouslyImage from "./images/highlighted-features/feature
 import BlockPromotionalEmailsImage from "./images/highlighted-features/features-block-promotional-emails.svg";
 import RemoveEmailTrackersImage from "./images/highlighted-features/features-remove-email-trackers.svg";
 
-import Image, { StaticImageData } from "next/image";
+import { StaticImageData } from "next/image";
 import styles from "./HighlightedFeatures.module.scss";
 import { LinkButton } from "../Button";
+import Image from "../Image";
 
 type HighlightedItemProps = {
   image: StaticImageData;
