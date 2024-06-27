@@ -23,6 +23,7 @@ from privaterelay.tests.utils import (
     vpn_subscription,
 )
 
+from ..apps import BadWords
 from ..exceptions import (
     CannotMakeAddressException,
     CannotMakeSubdomainException,
@@ -237,8 +238,8 @@ class RelayAddressTest(TestCase):
         )
         assert not repeat_deleted_relay_address.address == address
 
-    @patch("emails.validators.badwords", return_value=[])
-    @patch("emails.validators.blocklist", return_value=["blocked-word"])
+    @patch("emails.validators.badwords", return_value=BadWords(short=set(), long=[]))
+    @patch("emails.validators.blocklist", return_value=set(["blocked-word"]))
     def test_address_contains_blocklist_invalid(
         self, mock_blocklist: Mock, mock_badwords: Mock
     ) -> None:

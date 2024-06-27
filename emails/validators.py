@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 
 from privaterelay.utils import flag_is_active_in_task
 
-from .apps import emails_config
+from .apps import BadWords, emails_config
 from .exceptions import (
     AccountIsInactiveException,
     AccountIsPausedException,
@@ -28,30 +28,26 @@ _re_valid_address = re.compile("^(?![-.])[a-z0-9-.]{1,63}(?<![-.])$")
 _re_valid_subdomain = re.compile("^(?!-)[a-z0-9-]{1,63}(?<!-)$")
 
 
-def badwords() -> list[str]:
+def badwords() -> BadWords:
     """Allow mocking of badwords in tests."""
     return emails_config().badwords
 
 
 def has_bad_words(value: str) -> bool:
     """Return True if the value is a short bad word or contains a long bad word."""
-    for badword in badwords():
-        badword = badword.strip()
-        if len(badword) <= 4 and badword == value:
-            return True
-        if len(badword) > 4 and badword in value:
-            return True
-    return False
+    if len(value) <= 4:
+        return value in badwords().short
+    return any(badword in value for badword in badwords().long)
 
 
-def blocklist() -> list[str]:
+def blocklist() -> set[str]:
     """Allow mocking of blocklist in tests."""
     return emails_config().blocklist
 
 
 def is_blocklisted(value: str) -> bool:
     """Return True if the value is a blocked word."""
-    return any(blockedword == value for blockedword in blocklist())
+    return value in blocklist()
 
 
 def check_user_can_make_another_address(user: User) -> None:

@@ -62,7 +62,7 @@ class IsBlocklistedTest(TestCase):
     def test_is_blocklisted_without_blocked_words(self) -> None:
         assert not is_blocklisted("non-blocked-word")
 
-    @patch("emails.validators.blocklist", return_value=["blocked-word"])
+    @patch("emails.validators.blocklist", return_value=set(["blocked-word"]))
     def test_is_blocklisted_with_mocked_blocked_words(self, mock_config: Mock) -> None:
         assert is_blocklisted("blocked-word")
 
