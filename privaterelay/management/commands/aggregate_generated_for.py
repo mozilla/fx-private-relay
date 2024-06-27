@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+from collections.abc import Iterable
 from csv import DictReader, DictWriter
 from pathlib import Path
 from typing import Any
@@ -20,60 +21,59 @@ def normalize(url: str) -> str:
     return url
 
 
-def aggregate_by_generated_for(file_path: str) -> Path:
+def aggregate_by_generated_for(
+    file_path: str, data: Iterable[dict[str, Any]]
+) -> dict[str, dict[str, int]]:
     aggregate_usage: dict[str, dict[str, int]] = {}
-    with open(file_path, newline="") as csvfile:
-        datareader = DictReader(csvfile, delimiter=",", quotechar="|")
-        columns = [
-            "count",  # Number of masks with the generated_for
-            "total_usage",  # Sum of emails forwarded, emails blocked,
-            # trackers blocked in emails, emails replied, and spam blocked
-            "total_forwarded",  # Total emails forwarded to masks
-            "total_blocked",  # Total emails blocked for masks
-            "total_level_one_trackers_blocked",  # Total number of trackers
-            # blocked in emails forwarded to masks
-            "total_replied",  # Total number of emails replied to masks
-            "total_spam",  # Total number of spam
-        ]
+    columns = [
+        "count",  # Number of masks with the generated_for
+        "total_usage",  # Sum of emails forwarded, emails blocked,
+        # trackers blocked in emails, emails replied, and spam blocked
+        "total_forwarded",  # Total emails forwarded to masks
+        "total_blocked",  # Total emails blocked for masks
+        "total_level_one_trackers_blocked",  # Total number of trackers
+        # blocked in emails forwarded to masks
+        "total_replied",  # Total number of emails replied to masks
+        "total_spam",  # Total number of spam
+    ]
 
-        for row in datareader:
-            aggregate_data: dict[str, int] = {
-                "count": 0,
-                "row_count": 0,
-                "total_usage": 0,
-                "total_forwarded": 0,
-                "total_blocked": 0,
-                "total_level_one_trackers_blocked": 0,
-                "total_replied": 0,
-                "total_spam": 0,
-            }
-            url = row["generated_for"]
+    for row in data:
+        aggregate_data: dict[str, int] = {
+            "count": 0,
+            "row_count": 0,
+            "total_usage": 0,
+            "total_forwarded": 0,
+            "total_blocked": 0,
+            "total_level_one_trackers_blocked": 0,
+            "total_replied": 0,
+            "total_spam": 0,
+        }
+        url = row["generated_for"]
 
-            # TODO: clean the domain for multiple domains in generated_for
-            # separated by space, strip www, and others like stripping path
-            if url:
-                normalized_url = normalize(url)
-                domain = urlparse(normalized_url).netloc
-            else:
-                domain = url
+        # TODO: good candidate for a unit-tested function
+        # clean the domain for multiple domains in generated_for
+        # separated by space, strip www, and others like stripping path
+        if url:
+            normalized_url = normalize(url)
+            domain = urlparse(normalized_url).netloc
+        else:
+            domain = url
 
-            if domain in aggregate_usage:
-                aggregate_data = aggregate_usage[domain]
+        if domain in aggregate_usage:
+            aggregate_data = aggregate_usage[domain]
 
-            aggregate_data["row_count"] = aggregate_data["row_count"] + 1
-            for col in columns:
-                d = 0
-                try:
-                    d = int(row[col])
+        aggregate_data["row_count"] = aggregate_data["row_count"] + 1
+        for col in columns:
+            d = int(row[col])
+            aggregate_data[col] += d
+        aggregate_usage[domain] = aggregate_data
+    return aggregate_usage
 
-                except ValueError as e:
-                    print(e)
-                    print(f"{col}: {row[col]}")
-                aggregate_data[col] += d
-            aggregate_usage[domain] = aggregate_data
 
-    tmp_dir = Path(file_path).parent
-    aggregate_file_path = tmp_dir.joinpath("aggregate.csv")
+def generate_csv_file(
+    file_path: str, aggregate_usage: dict[str, dict[str, Any]]
+) -> Path:
+    aggregate_file_path = Path(file_path).parent.joinpath("aggregate.csv")
     with open(aggregate_file_path, "w", newline="") as csvfile:
         field_names = [
             "domain",
@@ -105,8 +105,10 @@ def aggregate_by_generated_for(file_path: str) -> Path:
 
 class Command(BaseCommand):
     help = (
-        "Normalizes URLs in domain column and aggregates the values. "
-        "Creates or updates aggregate.csv."
+        "Takes CSV file with generated_for values and "
+        "normalizes URLs in domain column and aggregates the values. "
+        "Creates or updates aggregate.csv for quarterly mask acceptance testing. "
+        "See instructions on how to get generated_for CSV file on MPP-3825."
     )
 
     def add_arguments(self, parser: ArgumentParser) -> None:
@@ -125,5 +127,8 @@ class Command(BaseCommand):
                 "Aggregate generated_for failed: File path must be entered"
             )
 
-        aggregate_file_path = aggregate_by_generated_for(file_path)
+        with open(file_path, newline="") as csvfile:
+            datareader = DictReader(csvfile, delimiter=",", quotechar="|")
+            aggregate_usage = aggregate_by_generated_for(file_path, datareader)
+            aggregate_file_path = generate_csv_file(file_path, aggregate_usage)
         return f"Completed updates to {aggregate_file_path}"
