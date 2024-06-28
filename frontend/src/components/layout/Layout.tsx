@@ -32,6 +32,7 @@ import { isPhonesAvailableInCountry } from "../../functions/getPlan";
 import { useL10n } from "../../hooks/l10n";
 import { HolidayPromoBanner } from "./topmessage/HolidayPromoBanner";
 import { isFlagActive } from "../../functions/waffle";
+import { useMetrics } from "../../hooks/metrics";
 import { GoogleAnalyticsWorkaround } from "../GoogleAnalyticsWorkaround";
 
 export type Props = {
@@ -53,6 +54,7 @@ export const Layout = (props: Props) => {
   const hasPremium: boolean = profiles.data?.[0].has_premium ?? false;
   const usersData = useUsers().data?.[0];
   const [mobileMenuExpanded, setMobileMenuExpanded] = useState<boolean>(false);
+  const metricsEnabled = useMetrics();
 
   useEffect(() => {
     makeToast(l10n, usersData);
@@ -286,7 +288,9 @@ export const Layout = (props: Props) => {
           </footer>
         </div>
       </div>
-      {props.runtimeData !== undefined && navigator.doNotTrack !== "1" ? (
+      {props.runtimeData !== undefined &&
+      navigator.doNotTrack !== "1" &&
+      metricsEnabled === "enabled" ? (
         <GoogleAnalyticsWorkaround
           gaId={props.runtimeData.GA4_MEASUREMENT_ID}
           debugMode={
