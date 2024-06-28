@@ -140,7 +140,7 @@ else:
     ]
 
 API_DOCS_ENABLED = config("API_DOCS_ENABLED", False, cast=bool) or DEBUG
-_CSP_SCRIPT_INLINE = API_DOCS_ENABLED or USE_SILK
+_CSP_SCRIPT_INLINE = USE_SILK
 
 # When running locally, styles might get refreshed while the server is running, so their
 # hashes would get oudated. Hence, we just allow all of them.
@@ -214,6 +214,8 @@ CONTENT_SECURITY_POLICY["DIRECTIVES"]["img-src"].extend(_AVATAR_IMG_SRC)
 CONTENT_SECURITY_POLICY["DIRECTIVES"]["img-src"].extend(_API_DOCS_CSP_IMG_SRC)
 CONTENT_SECURITY_POLICY["DIRECTIVES"]["style-src"].extend(_API_DOCS_CSP_STYLE_SRC)
 CONTENT_SECURITY_POLICY["DIRECTIVES"]["style-src"].extend(_CSP_STYLE_HASHES)
+if _CSP_SCRIPT_INLINE:
+    CONTENT_SECURITY_POLICY["DIRECTIVES"]["script-src"].append(UNSAFE_INLINE)
 if _CSP_STYLE_INLINE:
     CONTENT_SECURITY_POLICY["DIRECTIVES"]["style-src"].append(UNSAFE_INLINE)
 if _API_DOCS_CSP_WORKER_SRC:
