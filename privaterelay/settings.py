@@ -201,12 +201,13 @@ CONTENT_SECURITY_POLICY: CONTENT_SECURITY_POLICY_T = {
         "object-src": [NONE],
         "script-src": [
             SELF,
+            UNSAFE_INLINE,  # TODO: remove this temporary fix for GA4
             "https://www.google-analytics.com/",
             "https://www.googletagmanager.com/",
             "https://js.stripe.com/",
         ],
         "style-src": [SELF],
-        "worker-src": [SELF],
+        "worker-src": [SELF, "blob:"],  # TODO: remove blob: temporary fix for GA4
     }
 }
 CONTENT_SECURITY_POLICY["DIRECTIVES"]["connect-src"].extend(_ACCOUNT_CONNECT_SRC)
