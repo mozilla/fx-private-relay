@@ -4,7 +4,7 @@ from django.urls import URLPattern, URLResolver, include, path, register_convert
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularRedocView,
-    SpectacularSwaggerView,
+    SpectacularSwaggerSplitView,
 )
 from rest_framework import routers
 
@@ -76,7 +76,7 @@ urlpatterns: list[URLPattern | URLResolver] = [
     path(
         "v1/docs/",
         enable_if_setting("API_DOCS_ENABLED")(
-            SpectacularSwaggerView.as_view(url_name="schema")
+            SpectacularSwaggerSplitView.as_view(url_name="schema")
         ),
         name="schema-swagger-ui",
     ),
