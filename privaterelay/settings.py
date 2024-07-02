@@ -201,11 +201,13 @@ CONTENT_SECURITY_POLICY: CONTENT_SECURITY_POLICY_T = {
         "object-src": [NONE],
         "script-src": [
             SELF,
+            UNSAFE_INLINE,  # TODO: remove this temporary fix for GA4
             "https://www.google-analytics.com/",
             "https://www.googletagmanager.com/",
             "https://js.stripe.com/",
         ],
         "style-src": [SELF],
+        "worker-src": [SELF, "blob:"],  # TODO: remove blob: temporary fix for GA4
     }
 }
 CONTENT_SECURITY_POLICY["DIRECTIVES"]["connect-src"].extend(_ACCOUNT_CONNECT_SRC)
@@ -214,10 +216,12 @@ CONTENT_SECURITY_POLICY["DIRECTIVES"]["img-src"].extend(_AVATAR_IMG_SRC)
 CONTENT_SECURITY_POLICY["DIRECTIVES"]["img-src"].extend(_API_DOCS_CSP_IMG_SRC)
 CONTENT_SECURITY_POLICY["DIRECTIVES"]["style-src"].extend(_API_DOCS_CSP_STYLE_SRC)
 CONTENT_SECURITY_POLICY["DIRECTIVES"]["style-src"].extend(_CSP_STYLE_HASHES)
+if _CSP_SCRIPT_INLINE:
+    CONTENT_SECURITY_POLICY["DIRECTIVES"]["script-src"].append(UNSAFE_INLINE)
 if _CSP_STYLE_INLINE:
     CONTENT_SECURITY_POLICY["DIRECTIVES"]["style-src"].append(UNSAFE_INLINE)
 if _API_DOCS_CSP_WORKER_SRC:
-    CONTENT_SECURITY_POLICY["DIRECTIVES"]["worker-src"] = _API_DOCS_CSP_WORKER_SRC
+    CONTENT_SECURITY_POLICY["DIRECTIVES"]["worker-src"].extend(_API_DOCS_CSP_WORKER_SRC)
 if _CSP_REPORT_URI := config("CSP_REPORT_URI", ""):
     CONTENT_SECURITY_POLICY["DIRECTIVES"]["report-uri"] = _CSP_REPORT_URI
 
