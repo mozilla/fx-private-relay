@@ -329,7 +329,7 @@ _STRIPE_PLAN_DATA: _StripePlanData = {
             },
             "HU": {  # Hungary
                 "currency": "EUR",
-                "monthly_id": "price_1NOOJAJNcmPzuWtRV7Kmwmdm",
+                "monthly_id": "price_1PYB6XJNcmPzuWtR5Ff9cW3D",
                 "yearly_id": "price_1NOOKvJNcmPzuWtR2DEWIRE4",
             },
             "IE": {  # Ireland
