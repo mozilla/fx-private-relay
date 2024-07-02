@@ -26,7 +26,7 @@ import dj_database_url
 import django_stubs_ext
 import markus
 import sentry_sdk
-from csp.constants import NONE, SELF, UNSAFE_INLINE
+from csp.constants import NONCE, NONE, SELF, STRICT_DYNAMIC, UNSAFE_INLINE
 from decouple import Choices, Csv, config
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import ignore_logger
@@ -201,6 +201,8 @@ CONTENT_SECURITY_POLICY: CONTENT_SECURITY_POLICY_T = {
         "object-src": [NONE],
         "script-src": [
             SELF,
+            NONCE,
+            STRICT_DYNAMIC,
             "https://www.google-analytics.com/",
             "https://www.googletagmanager.com/",
             "https://js.stripe.com/",

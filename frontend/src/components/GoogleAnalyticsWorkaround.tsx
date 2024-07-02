@@ -28,6 +28,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import { GAParams } from "@next/third-parties/dist/types/google";
 import Script, { ScriptProps } from "next/script";
 import { useEffect } from "react";
+import { useRuntimeData } from "../hooks/api/runtimeData";
 
 // We don't send Analytics events in tests:
 /* c8 ignore start */
@@ -47,7 +48,7 @@ export const GoogleAnalyticsWorkaround = (
   if (currDataLayerName === undefined) {
     currDataLayerName = dataLayerName;
   }
-
+  const runtimeData = useRuntimeData();
   useEffect(() => {
     if (typeof performance.mark !== "function") {
       return;
@@ -76,12 +77,12 @@ export const GoogleAnalyticsWorkaround = (
 
           gtag('config', '${gaId}', { 'debug_mode': ${debugMode} });`,
         }}
-        nonce={nonce}
+        nonce={runtimeData?.data?.CSP_NONCE}
       />
       <Script
         id="_next-ga"
         src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
-        nonce={nonce}
+        nonce={runtimeData?.data?.CSP_NONCE}
       />
     </>
   );

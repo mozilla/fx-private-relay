@@ -45,6 +45,7 @@ export type RuntimeData = {
   BASKET_ORIGIN: string;
   WAFFLE_FLAGS: WaffleFlag[];
   MAX_MINUTES_TO_VERIFY_REAL_PHONE: number;
+  CSP_NONCE: string;
 };
 
 /**

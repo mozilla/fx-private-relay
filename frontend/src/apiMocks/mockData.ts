@@ -85,6 +85,7 @@ export const mockedRuntimeData: RuntimeData = {
     ["custom_domain_management_redesign", true],
   ],
   MAX_MINUTES_TO_VERIFY_REAL_PHONE: 5,
+  CSP_NONCE: "f649905e-6b98-4348-9454-b0d4b342d1d8",
 };
 
 export const mockedUsers: Record<(typeof mockIds)[number], UserData> = {

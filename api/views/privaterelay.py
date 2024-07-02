@@ -215,6 +215,7 @@ def _get_example_plan(plan: Literal["premium", "phones", "bundle"]) -> dict[str,
                         "WAFFLE_SWITCHES": [],
                         "WAFFLE_SAMPLES": [],
                         "MAX_MINUTES_TO_VERIFY_REAL_PHONE": 5,
+                        "CSP_NONCE": "o0a/LQIZIAAgkEKr7KPYhw==",
                     },
                 )
             ],
@@ -255,6 +256,7 @@ def runtime_data(request):
             "MAX_MINUTES_TO_VERIFY_REAL_PHONE": (
                 settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE
             ),
+            "CSP_NONCE": str(request.csp_nonce),
         }
     )
 
