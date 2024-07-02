@@ -11,9 +11,9 @@ from botocore.exceptions import ClientError
 from mypy_boto3_ses.type_defs import ContentTypeDef
 
 from emails.apps import EmailsConfig
-from emails.models import Profile
 from emails.utils import get_welcome_email, ses_message_props
 from privaterelay.ftl_bundles import main as ftl_bundle
+from privaterelay.models import Profile
 
 logger = logging.getLogger("eventsinfo.send_welcome_emails")
 

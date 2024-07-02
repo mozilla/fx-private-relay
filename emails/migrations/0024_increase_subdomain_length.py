@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 
-import emails.validators
+from privaterelay.validators import valid_available_subdomain
 
 
 class Migration(migrations.Migration):
@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 max_length=63,
                 null=True,
                 unique=True,
-                validators=[emails.validators.valid_available_subdomain],
+                validators=[valid_available_subdomain],
             ),
         ),
     ]

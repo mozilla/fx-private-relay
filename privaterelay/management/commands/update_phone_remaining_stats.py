@@ -5,11 +5,11 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 
-from emails.models import Profile
 from privaterelay.management.utils import (
     get_free_phone_social_accounts,
     get_phone_subscriber_social_accounts,
 )
+from privaterelay.models import Profile
 
 if settings.PHONES_ENABLED:
     from phones.models import RelayNumber

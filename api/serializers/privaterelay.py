@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from waffle import get_waffle_flag_model
 
-from emails.models import Profile
+from privaterelay.models import Profile
 
 from . import StrictReadOnlyFieldsMixin
 
