@@ -42,7 +42,7 @@ _PREMIUM_PRICE_DATA = {
     "FI": ("EUR", "_1LYBn9JNcmPzuWtRI3nvHgMi", "_1LYBq1JNcmPzuWtRmyEa08Wv"),
     "FR": ("EUR", "_1LYBuLJNcmPzuWtRn58XQcky", "_1LYBwcJNcmPzuWtRpgoWcb03"),
     "HR": ("EUR", "_1NOSznJNcmPzuWtRH7CEeAwA", "_1NOT0WJNcmPzuWtRpeNDEjvC"),
-    "HU": ("EUR", "_1NOOJAJNcmPzuWtRV7Kmwmdm", "_1NOOKvJNcmPzuWtR2DEWIRE4"),
+    "HU": ("EUR", "_1PYB6XJNcmPzuWtR5Ff9cW3D", "_1NOOKvJNcmPzuWtR2DEWIRE4"),
     "IT": ("EUR", "_1LYCMrJNcmPzuWtRTP9vD8wY", "_1LYCN2JNcmPzuWtRtWz7yMno"),
     "LT": ("EUR", "_1NHACcJNcmPzuWtR5ZJeVtJA", "_1NHADOJNcmPzuWtR2PSMBMLr"),
     "LV": ("EUR", "_1NHAASJNcmPzuWtRpcliwx0R", "_1NHA9lJNcmPzuWtRLf7DV6GA"),
