@@ -1,3 +1,5 @@
+import binascii
+import os
 import re
 import time
 from collections.abc import Callable
@@ -8,9 +10,59 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 
 import markus
+from csp.middleware import CSPMiddleware
 from whitenoise.middleware import WhiteNoiseMiddleware
 
 metrics = markus.get_metrics("fx-private-relay")
+
+
+# To find all the URL paths that serve HTML which need the CSP nonce:
+# python manage.py collectstatic
+# find staticfiles -type f -name 'index.html'
+CSP_NONCE_COOKIE_PATHS = [
+    "/",
+    "/contains-tracker-warning",
+    "/flags",
+    "/faq",
+    "/vpn-relay/waitlist",
+    "/accounts/settings",
+    "/accounts/profile",
+    "/accounts/account_inactive",
+    "/vpn-relay-welcome",
+    "/phone/waitlist",
+    "/phone",
+    "/404",
+    "/tracker-report",
+    "/premium/waitlist",
+    "/premium",
+]
+
+
+class EagerNonceCSPMiddleware(CSPMiddleware):
+    # We need a nonce to use Google Tag Manager with a safe CSP:
+    # https://developers.google.com/tag-platform/security/guides/csp
+    # django-csp only includes the nonce value in the CSP header if the csp_nonce
+    # attribute is accessed:
+    # https://django-csp.readthedocs.io/en/latest/nonce.html
+    # That works for urls served by Django views that access the attribute but it
+    # doesn't work for urls that are served by views which don't access the attribute.
+    # (e.g., Whitenoise)
+    # So, to ensure django-csp includes the nonce value in the CSP header of every
+    # response, we override the default CSPMiddleware with this middleware. If the
+    # request is for one of the HTML urls, this middleware sets the request.csp_nonce
+    # attribute and adds a cookie for the React app to get the nonce value for scripts.
+    def process_request(self, request):
+        if request.path in CSP_NONCE_COOKIE_PATHS:
+            request_nonce = binascii.hexlify(os.urandom(16)).decode("ascii")
+            request._csp_nonce = request_nonce
+
+    def process_response(self, request, response):
+        response = super().process_response(request, response)
+        if request.path in CSP_NONCE_COOKIE_PATHS:
+            response.set_cookie(
+                "csp_nonce", request._csp_nonce, secure=True, samesite="Strict"
+            )
+        return response
 
 
 class RedirectRootIfLoggedIn:

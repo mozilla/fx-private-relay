@@ -51,6 +51,7 @@ module = [
     "botocore.exceptions",
     "codetiming",
     "csp.constants",
+    "csp.middleware",
     "debug_toolbar",
     "dj_database_url",
     "django_filters.*",

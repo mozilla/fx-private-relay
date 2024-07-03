@@ -26,7 +26,7 @@ import dj_database_url
 import django_stubs_ext
 import markus
 import sentry_sdk
-from csp.constants import NONE, SELF, UNSAFE_INLINE
+from csp.constants import NONCE, NONE, SELF, UNSAFE_INLINE
 from decouple import Choices, Csv, config
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import ignore_logger
@@ -141,6 +141,7 @@ else:
 
 API_DOCS_ENABLED = config("API_DOCS_ENABLED", False, cast=bool) or DEBUG
 _CSP_SCRIPT_INLINE = API_DOCS_ENABLED or USE_SILK
+_CSP_SCRIPT_INLINE = False
 
 # When running locally, styles might get refreshed while the server is running, so their
 # hashes would get oudated. Hence, we just allow all of them.
@@ -189,21 +190,26 @@ CONTENT_SECURITY_POLICY: CONTENT_SECURITY_POLICY_T = {
         "default-src": [SELF],
         "connect-src": [
             SELF,
-            "https://www.google-analytics.com/",
-            "https://www.googletagmanager.com/",
+            "https://*.google-analytics.com",
+            "https://*.analytics.google.com",
+            "https://*.googletagmanager.com",
             "https://location.services.mozilla.com",
             "https://api.stripe.com",
             BASKET_ORIGIN,
         ],
         "font-src": [SELF, "https://relay.firefox.com/"],
         "frame-src": ["https://js.stripe.com", "https://hooks.stripe.com"],
-        "img-src": [SELF],
+        "img-src": [
+            SELF,
+            "https://*.google-analytics.com",
+            "https://*.googletagmanager.com",
+        ],
         "object-src": [NONE],
         "script-src": [
             SELF,
-            UNSAFE_INLINE,  # TODO: remove this temporary fix for GA4
+            NONCE,
             "https://www.google-analytics.com/",
-            "https://www.googletagmanager.com/",
+            "https://*.googletagmanager.com",
             "https://js.stripe.com/",
         ],
         "style-src": [SELF],
@@ -373,7 +379,7 @@ if DEBUG:
 
 MIDDLEWARE += [
     "django.middleware.security.SecurityMiddleware",
-    "csp.middleware.CSPMiddleware",
+    "privaterelay.middleware.EagerNonceCSPMiddleware",
     "privaterelay.middleware.RedirectRootIfLoggedIn",
     "privaterelay.middleware.RelayStaticFilesMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",

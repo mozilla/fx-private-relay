@@ -34,6 +34,7 @@ import { HolidayPromoBanner } from "./topmessage/HolidayPromoBanner";
 import { isFlagActive } from "../../functions/waffle";
 import { useMetrics } from "../../hooks/metrics";
 import { GoogleAnalyticsWorkaround } from "../GoogleAnalyticsWorkaround";
+import { getCookie } from "../../functions/cookies";
 
 export type Props = {
   children: ReactNode;
@@ -293,6 +294,7 @@ export const Layout = (props: Props) => {
       metricsEnabled === "enabled" ? (
         <GoogleAnalyticsWorkaround
           gaId={props.runtimeData.GA4_MEASUREMENT_ID}
+          nonce={getCookie("csp_nonce")}
           debugMode={
             process.env.NEXT_PUBLIC_GA4_DEBUG_MODE === "true" &&
             process.env.NODE_ENV !== "test"
