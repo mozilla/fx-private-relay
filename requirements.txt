@@ -1,4 +1,4 @@
-boto3==1.34.136
+boto3==1.34.140
 codetiming==1.4.0
 cryptography==42.0.8
 Django==4.2.13
@@ -51,11 +51,11 @@ black==24.4.2
 ruff==0.5.0
 
 # type hinting
-boto3-stubs==1.34.136
-botocore-stubs==1.34.136
+boto3-stubs==1.34.140
+botocore-stubs==1.34.140
 django-stubs==5.0.2
 djangorestframework-stubs==3.15.0
-mypy-boto3-s3==1.34.120
+mypy-boto3-s3==1.34.138
 mypy-boto3-ses==1.34.0
 mypy-boto3-sns==1.34.121
 mypy-boto3-sqs==1.34.121
