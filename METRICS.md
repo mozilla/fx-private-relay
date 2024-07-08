@@ -1,6 +1,6 @@
 <!--
 title: Firefox Relay Interaction Data
-last_updated: June 2024
+last_updated: July 2024
 audience: end-users, developers
 comment: This file is linked from the Relay Privacy Notice
 linked_from: https://www.mozilla.org/en-US/privacy/subscription-services/
@@ -36,7 +36,7 @@ Other information is used to **answer questions about Relay usage**:
   - From which country does the majority of our traffic originate?
   - Which browsers are most commonly used to access the Firefox Relay website?
   - Which devices are most commonly used to access the Firefox Relay website?
-  - Which browser is running the Firefox Relay the add-on?
+  - Which browser is being used with the Relay extension?
 - User Behavior:
   - Do users delete aliases?
   - Do users create aliases?
@@ -98,10 +98,15 @@ setting is off:
   processing.
 - The user's identifiers are omitted from server logs and enhanced bug captures.
 
-A website visitor can **turn on the DNT header** (see
+A website visitor or extension user can **turn on the DNT header** (see
 [How do I turn on the Do Not Track feature?][]). When a DNT header is enabled,
 Google Analytics is not loaded on the Relay website, and collects no data for that
-session.
+session. When the DNT header is enabled, the extension does not send events to
+Google Analytics.
+
+An extension user can **turn off data collection** in the Settings menu. When
+"Allow Mozilla to collect interaction data" is deselected, the extension does
+not send events to Google Analytics.
 
 A Relay user can **disable account names for email masks** on their [Relay settings][].
 This will clear labels and associated websites for email masks in the Relay database.
@@ -121,11 +126,12 @@ and events. Relay uses it on the Relay website to track traffic and events, and 
 Relay extension to track usage. Relay user identifiers are not included in Google
 Analytics traffic.
 
-Website visitors can disable Google Analytics by turning on the DNT header in
-their browser. A Relay user can disable Google Analytics by turning off data collection in
-their Mozilla account. See [Opt Out of Metrics Collection and Data Storage][] for more
-information. Google Analytics can also be disabled by many popular privacy and security
-extensions.
+Website visitors and extension users can disable Google Analytics by turning on
+the DNT header in their browser. A Relay user can disable
+Google Analytics by turning off data collection in their Mozilla account. See
+[Opt Out of Metrics Collection and Data Storage][] for more information. A Relay
+extension user can turn off data collection in the extension settings. Google
+Analytics can also be disabled by many popular privacy and security extensions.
 
 Relay uses Universal Analytics, the third version of Google Analytics. Google has
 [replaced Universal Analytics with Google Analytics 4][] (GA4). Relay is in the process
@@ -140,7 +146,11 @@ of switching to [GA4][].
 
 The website uses the GA4 [Measurement Protocol][], but is still using the
 data structure of the [Universal Measurement Protocol][]. This will change as we adapt to
-[changes in GA4 data model][].
+[changes in the GA4 data model][].
+
+[Measurement Protocol]: https://developers.google.com/analytics/devguides/collection/protocol/ga4 "Measurement Protocol (Google Analytics 4)"
+[Universal Measurement Protocol]: https://developers.google.com/analytics/devguides/collection/protocol/v1 "Measurement Protocol Overview for Universal Analytics"
+[changes in the GA4 data model]: https://support.google.com/analytics/answer/9964640?sjid=13967373028407637443-NC
 
 A Google Analytics metric is called a "hit". The two main hit types are a page
 view (`view`) and an event (`event`). Google Analytics takes care of the page
@@ -152,12 +162,12 @@ visible to the user, and an action "Engage" that is sent when that link or butto
 clicked. This allows measuring the percentage of users that click a link, and the
 effectiveness of different text and presentations.
 
-Here is a summary of the event categories and actions:
+Here is an index of the event categories and actions:
 
 | Category                               | Action                  | Label                                                 | Context                                      |
 | -------------------------------------- | ----------------------- | ----------------------------------------------------- | -------------------------------------------- |
 | Bundle banner                          | View                    | bundle-banner-upgrade-promo                           | [Landing Page, Premium Bundle Banner][]      |
-| CSAT Survey                            | submitted               | Very Dissatisfied, Dissatisfied, _2 others_           | [Customer Satisfaction Survey][]             |
+| CSAT Survey                            | submitted               | Very Dissatisfied, Dissatisfied, _3 others_           | [Customer Satisfaction Survey][]             |
 | Dashboard Alias Settings               | Toggle Forwarding       | User enabled forwarding, _2 others_                   | [Email Masks, Mask Details][]                |
 | Download Firefox                       | Engage                  | profile-banner-download-chrome-extension              | [Email Masks, Extension Banner][]            |
 | Download Firefox                       | Engage                  | profile-banner-download-firefox                       | [Email Masks, Get Firefox Banner][]          |
@@ -301,9 +311,6 @@ Here is a summary of the event categories and actions:
 [Premium Page]: #ctx-web-premium "Details for elements on the Premium Upsell Page"
 [Server Events]: #ctx-web-server "Details for website events that originate on the API server"
 [Tips]: #ctx-web-tips "Details for the Tips box in a masks dashboard."
-[Measurement Protocol]: https://developers.google.com/analytics/devguides/collection/protocol/ga4 "Measurement Protocol (Google Analytics 4)"
-[Universal Measurement Protocol]: https://developers.google.com/analytics/devguides/collection/protocol/v1 "Measurement Protocol Overview for Universal Analytics"
-[changes in GA4 data model]: https://support.google.com/analytics/answer/9964640?sjid=13967373028407637443-NC
 
 ### <a name="ctx-web-landing">Landing Page</a>
 
@@ -695,7 +702,7 @@ Google Analytics events:
   - `eventAction`: `View`
   - `eventLabel`: `holiday-promo-2023-news-cta`
   - `nonInteraction`: true
-- The user clicks "Get 1 year of Relay Premium" link in the Holiday promotion news item
+- The user clicks the link "Get 1 year of Relay Premium" in the Holiday promotion news item
   entry.
   - `eventCategory`: `Holiday Promo News CTA`
   - `eventAction`: `Engage`
@@ -959,13 +966,13 @@ The Google Analytics events:
   - `eventLabel`: `onboarding-step-2-skip`
   - `eventValue`: 2
   - `nonInteraction`: true
-- The user clicks the "Skip, I'll set this up later" link on the second step of premium
-  onboarding.
+- The user clicks the "Skip, I'll set this up later" link on the second step of
+  premium onboarding.
   - `eventCategory`: `Premium Onboarding`
   - `eventAction`: `Engage`
   - `eventLabel`: `onboarding-step-2-skip`
-- The user sees the "Continue" button after selecting a custom domain on the second step of
-  premium onboarding.
+- The user sees the "Continue" button after selecting a custom domain on the
+  second step of premium onboarding.
   - `eventCategory`: `Premium Onboarding`
   - `eventAction`: `View`
   - `eventLabel`: `onboarding-step-2-continue`
@@ -974,26 +981,26 @@ The Google Analytics events:
   - `eventCategory`: `Premium Onboarding`
   - `eventAction`: `Engage`
   - `eventLabel`: `onboarding-step-2-continue`
-- The user sees the "Skip, I’ll download the extension later" link on the third step of
-  premium onboarding.
+- The user sees the "Skip, I’ll download the extension later" link on the third
+  step of premium onboarding.
   - `eventCategory`: `Premium Onboarding`
   - `eventAction`: `View`
   - `eventLabel`: `onboarding-step-3-skip`
   - `eventValue`: 3
-- The user clicks the "Skip, I’ll download the extension later" link on the third step of
-  premium onboarding.
+- The user clicks the "Skip, I’ll download the extension later" link on the
+  third step of premium onboarding.
   - `eventCategory`: `Premium Onboarding`
   - `eventAction`: `Engage`
   - `eventLabel`: `onboarding-step-3-skip`
-- The user sees the "Go to Dashboard" button after installing the extension on the third step of
-  premium onboarding.
+- The user sees the "Go to Dashboard" button after installing the extension on
+  the third step of premium onboarding.
   - `eventCategory`: `Premium Onboarding`
   - `eventAction`: `View`
   - `eventLabel`: `onboarding-step-3-continue`
   - `eventValue`: 3
   - `nonInteraction`: true
-- The user clicks the "Go to Dashboard" button after installing the extension on third step of
-  premium onboarding.
+- The user clicks the "Go to Dashboard" button after installing the extension
+  on the third step of premium onboarding.
   - `eventCategory`: `Premium Onboarding`
   - `eventAction`: `Engage`
   - `eventLabel`: `onboarding-step-3-continue`
@@ -1060,8 +1067,8 @@ VPN bundle. The link goes to the [Plan Matrix on the Premium Page](#ctx-web-prem
 
 The Google Analytics events:
 
-- The user sees the " button in the "Introducing: Relay + VPN subscription plan" banner
-  on the email masks page.
+- The user sees the "Upgrade Now" button in the "Introducing: Relay + VPN
+  subscription plan" banner on the email masks page.
   - `eventCategory`: `Purchase Bundle button`
   - `eventAction`: `View`
   - `eventLabel`: `profile-banner-bundle-promo`
@@ -1120,7 +1127,7 @@ Google Analytics events:
 
 #### <a name="ctx-web-emails-button-unlimited">Unlimited Button</a>
 
-When a user is allowed to create a new email mask, the button is labelled "+ Generate
+When a user is allowed to create a new email mask, the button is labeled "+ Generate
 new mask", and creates a new mask:. When a free user has 5 email masks, the button
 label changes to "Get unlimited email masks", and takes the user to the
 [Premium Page][].
@@ -1240,7 +1247,7 @@ The Google Analytics events:
 ### <a name="ctx-web-tips">Help &amp; Tips Box</a>
 
 The "Help &amp; Tips" box appears in the lower right corner of the Email Masks Dashboard
-and the Phone Masks Dashboard when the conditions for the tip is met. It is first
+and the Phone Masks Dashboard when the conditions for the tip are met. It is first
 displayed with some teaser text. When it is opened, a video plays along with further
 instructions. When the tip is minimized (the downward arrowhead '⌄'), the box remains
 without teaser text.
@@ -1306,7 +1313,7 @@ and benefits of the paid plans.
 
 #### <a name="ctx-web-premium-cta">Call To Action</a>
 
-The top "call to action" button, labelled 'Upgrade Now', takes the user to the plan
+The top "call to action" button, labeled 'Upgrade Now', takes the user to the plan
 matrix:
 
 [<img src="./docs/img/website-premium-cta.png"
@@ -1482,50 +1489,549 @@ The Google Analytics events:
 
 ## Extension Event Collection
 
-Events are reported using [Google Analytics Measurement Protocol](https://developers.google.com/analytics/devguides/collection/protocol/v1).
+The Relay Extension makes it easier to use Relay email masks on websites. It is
+available as a [Firefox Extension][] and a [Chrome Extension][].
 
-We collect data for the following extension events:
+<!-- References in this paragraph are defined in section "Google Analytics" -->
 
-### Panel events
+The Relay Extension uses a background listener to send interaction events to
+the Relay API server. The API server forwards the events to Google Analytics.
+Events are reported using the [Universal Measurement Protocol][].
+Google [replaced Universal Analytics with Google Analytics 4][] (GA4) on July 1, 2024,
+and these events are no longer recorded. Relay is in the process of switching
+to [GA4][].
 
-- When the panel is opened
+The Relay Extension generates a [random UUID][] for the Google Analytics
+identifier that is [stored locally in the browser][]. This ID is different from
+the GA identifier on the Relay webpage. A different ID will be generated for
+each browser and machine.
 
-- A ping describing which panel was viewed (unauthenticated user panel, authenticated user panel, or the "High Five!" panel)
+[Chrome Extension]: https://chromewebstore.google.com/detail/firefox-relay/lknpoadjjkjcmjhbjpcljdednccbldeb "The Firefox Relay extension on the Chrome Web Store"
+[Firefox Extension]: https://addons.mozilla.org/en-US/firefox/addon/private-relay/ "The Firefox Relay extension on Firefox Browser Add-Ons"
+[stored locally in the browser]: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/storage/local
+[random UUID]: https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random)
 
-- When outbound links and buttons in the panel are clicked (Join the Waitlist, Leave Feedback, Manage All Aliases)
+Here is an index of the event categories and actions:
 
-- When extension settings are changed via the settings panel
+| Category                | Action              | Label                                            | Context                 |
+| ----------------------- | ------------------- | ------------------------------------------------ | ----------------------- |
+| Extension: CSAT Survey  | click               | dismissed-CSAT                                   | [Panel, Survey][]       |
+| Extension: CSAT Survey  | click               | panel-survey-external-link                       | [Panel, Survey][]       |
+| Extension: CSAT Survey  | submitted           | very dissatisfied, dissatisfied, _3 others_      | [Panel, Survey][]       |
+| Extension: Context Menu | click               | context-menu-generate-alias                      | [Context Menu][]        |
+| Extension: Context Menu | click               | context-menu-get-unlimited-aliases               | [Context Menu][]        |
+| Extension: Context Menu | click               | context-menu-insert-phone-mask                   | [Context Menu][]        |
+| Extension: Context Menu | click               | context-menu-relay-manage-aliases                | [Context Menu][]        |
+| Extension: Context Menu | click               | context-menu-use-existing-aliases                | [Context Menu][]        |
+| Extension: Context Menu | click               | context-menu-use-existing-aliases-from-this-site | [Context Menu][]        |
+| Extension: First Run    | click               | first-run-sign-in                                | [First Run][]           |
+| Extension: In-page      | click               | input-menu-get-premium-btn                       | [In Page Menu][]        |
+| Extension: In-page      | click               | input-menu-join-waitlist-btn                     | [In Page Menu][]        |
+| Extension: In-page      | click               | input-menu-manage-all-aliases-btn                | [In Page Menu][]        |
+| Extension: In-page      | click               | input-menu-reuse-alias                           | [In Page Menu][]        |
+| Extension: In-page      | click               | input-menu-reuse-previous-alias                  | [In Page Menu][]        |
+| Extension: In-page      | click               | input-menu-sign-up-btn                           | [In Page Menu][]        |
+| Extension: In-page      | input-icon-clicked  | input-icon                                       | [In Page Menu][]        |
+| Extension: In-page      | input-icon-injected | input-icon                                       | [In Page][]             |
+| Extension: In-page      | viewed-menu         | authenticated-user-input-menu                    | [In Page Menu][]        |
+| Extension: In-page      | viewed-menu         | input-menu-max-aliases-message                   | [In Page Menu][]        |
+| Extension: In-page      | viewed-menu         | unauthenticated-user-input-menu                  | [In Page Menu][]        |
+| Extension: Panel        | click               | closed-report-issue                              | [Panel, Report Issue][] |
+| Extension: Panel        | click               | hide-input-icons                                 | [Panel, Settings][]     |
+| Extension: Panel        | click               | opened-CSAT                                      | [Panel, Survey][]       |
+| Extension: Panel        | click               | opened-news                                      | [Panel, News][]         |
+| Extension: Panel        | click               | opened-news-item                                 | [Panel, News][]         |
+| Extension: Panel        | click               | opened-report-issue                              | [Panel, Report Issue][] |
+| Extension: Panel        | click               | opened-settings                                  | [Panel, Settings][]     |
+| Extension: Panel        | click               | opened-stats                                     | [Panel, Stats][]        |
+| Extension: Panel        | click               | panel-continue-btn                               | [Panel, Sign In][]      |
+| Extension: Panel        | click               | panel-leave-feedback-link                        | [Panel][]               |
+| Extension: Panel        | click               | panel-manage-btn                                 | [Panel][]               |
+| Extension: Panel        | click               | panel-news-eu-country-expansion-cta, _etc._      | [Panel, News][]         |
+| Extension: Panel        | click               | panel-privacy-link                               | [Panel][]               |
+| Extension: Panel        | click               | panel-terms-of-service                           | [Panel][]               |
+| Extension: Panel        | click               | panel-upgrade-mask-limit-cta                     | [Panel][]               |
+| Extension: Panel        | click               | popup-generate-random-mask                       | [Panel, Masks][]        |
+| Extension: Panel        | click               | show-input-icons                                 | [Panel, Settings][]     |
 
-- When the settings icon is clicked
+[Context Menu]: #ctx-ext-context-menu
+[First Run]: #ctx-ext-first-run
+[In Page Menu]: #ctx-ext-in-page-menu
+[In Page]: #ctx-ext-in-page
+[Panel, Masks]: #ctx-ext-panel-masks
+[Panel, News]: #ctx-ext-panel-news
+[Panel, Report Issue]: #ctx-ext-panel-report-issue
+[Panel, Settings]: #ctx-ext-panel-settings
+[Panel, Sign In]: #ctx-ext-panel-sign-in
+[Panel, Stats]: #ctx-ext-panel-stats
+[Panel, Survey]: #ctx-ext-panel-survey
+[Panel]: #ctx-ext-panel
 
-- When panel navigation arrow icons are clicked
+### <a name="ctx-ext-first-run">The First Run Page</a>
 
-### In-page events
+When a user first installs the Relay extension, the First Run page is shown:
 
-- When the Relay icon is injected into an email input
+[<img src="./docs/img/extension-first-run.png"
+      width=1045
+      alt="The first-run page when installing the extension."/>
+](./docs/img/extension-first-run.png)
 
-- When the Relay icon is clicked
+The Google Analytics events:
 
-- When "Generate new alias" is clicked
+- The user clicks the "Sign Up / In" on the first-run page
+  - `eventCategory`: `Extension: First Run`
+  - `eventAction`: `click`
+  - `eventLabel`: `first-run-sign-in`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
 
-- When "Manage All Aliases" is clicked
+### <a name="ctx-ext-panel">The Extension Panel</a>
 
-- When the Relay icon is clicked by an unauthenticated user
+The extension panel appears when clicking the Relay icon in the browser toolbar.
+In this image, the Relay icon is the second-to-last icon, and the only icon in color:
 
-- When the Relay icon is clicked by a user who has already reached the maximum number of allowed aliases
+[<img src="./docs/img/extension-icon.png"
+      alt="The Relay extension in the toolbar." />
+](./docs/img/extension-icon.png)
 
-### Post-install page events
+#### <a name="ctx-ext-panel-sign-in">Sign In Page</a>
 
-- When the user clicks an outbound link or button
+When a user opens the extension panel and is not signed in, they are prompted
+to sign in.
 
-### Context Menu events
+[<img src="./docs/img/extension-panel-signin.png"
+      width=250
+      alt="The Relay extension Sign in page." />
+](./docs/img/extension-panel-signin.png)
 
-- When an alias is generated via the context menu
+The Google Analytics events:
 
-### Modal events
+- The user clicks the "Sign in" button on the extension panel
+  - `eventCategory`: `Extension: Panel`
+  - `eventAction`: `click`
+  - `eventLabel`: `panel-continue-btn`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
 
-- When the modal opens
+#### <a name="ctx-ext-panel-masks">Masks Page</a>
 
-- When the modal is closed
+After signing in, the default page is the email masks page.
 
-- When "Manage All Aliases" is clicked
+[<img src="./docs/img/extension-panel-masks.png"
+      width=250
+      alt="The Relay extension masks page, with one mask. The banner says '4/5 masks available.', and the button says 'Generate new mask'" />
+](./docs/img/extension-panel-masks.png)
+
+When a free user reaches their 5-mask limit, the page shows a warning and
+changes the button to "Get unlimited masks".
+
+[<img src="./docs/img/extension-panel-masks-limit.png"
+      width=250
+      alt="The Relay extension masks page, at the five mask limit. The banner says 'You've used all 5 of your free masks.', and the button says 'Get unlimited masks'" />
+](./docs/img/extension-panel-masks-limit.png)
+
+A premium user will see an additional button "Generate custom mask". There are
+no related events.
+
+The Google Analytics events:
+
+- The user clicks the "Generate new mask" button
+  - `eventCategory`: `Extension: Panel`
+  - `eventAction`: `click`
+  - `eventLabel`: `popup-generate-random-mask`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+- The user clicks the "Get unlimited masks" button
+  - `eventCategory`: `Extension: Panel`
+  - `eventAction`: `click`
+  - `eventLabel`: `panel-upgrade-mask-limit-cta`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+
+#### <a name="ctx-ext-panel-survey">Survey Page</a>
+
+When running a survey, select users are prompted to take the survey.
+
+[<img src="./docs/img/extension-panel-survey-prompt.png"
+      width=246
+      alt="The Relay extension masks page, with a prompt 'Help us improve Relay'" />
+](./docs/img/extension-panel-survey-prompt.png)
+
+The survey asks "How satisfied are you with your Firefox Relay experience?"
+
+[<img src="./docs/img/extension-panel-survey-start.png"
+      width=246
+      alt="The survey asks 'How satisfied are you with your Firefox Relay experience?', with buttons for 'Very dissatisfied', 'Very satisfied', etc." />
+](./docs/img/extension-panel-survey-start.png)
+
+When completed, the user can opt-in to a longer survey.
+
+[<img src="./docs/img/extension-panel-survey-done.png"
+      width=246
+      alt="The survey thanks the user, and offers a two-minute survey" />
+](./docs/img/extension-panel-survey-done.png)
+
+The Google Analytics events:
+
+- The user clicks "Help us improve Relay" to start the survey
+  - `eventCategory`: `Extension: Panel`
+  - `eventAction`: `click`
+  - `eventLabel`: `opened-CSAT`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+- The user clicks a button to indicate how satisfied they are.
+  - `eventCategory`: `Extension: CSAT Survey`
+  - `eventAction`: `submitted`
+  - `eventLabel`: _one of_:
+    - `very dissatisfied`
+    - `dissatisfied`
+    - `neutral`
+    - `satisfied`
+    - `very satisfied`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+- The user clicks the "Dismiss" link
+  - `eventCategory`: `Extension: CSAT Survey`
+  - `eventAction`: `click`
+  - `eventLabel`: `dismissed-CSAT`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+- The user clicks the "Take the survey" link for the two-minute survey
+  - `eventCategory`: `Extension: CSAT Survey`
+  - `eventAction`: `click`
+  - `eventLabel`: `panel-survey-external-link`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+
+#### <a name="ctx-ext-panel-launch-relay">Launch Relay Icon</a>
+
+Clicking the "Launch Relay" icon goes to the [Email masks dashboard][]. The
+icon is a box with an arrow pointing to the upper right.
+
+[<img src="./docs/img/extension-panel-launch-relay.png"
+      width=241
+      alt="The Relay extension icons, with the 'Launch Relay' icon in the middle" />
+](./docs/img/extension-panel-launch-relay.png)
+
+The Google Analytics event:
+
+- The user clicks on the "Launch Relay" icon
+  - `eventCategory`: `Extension: Panel`
+  - `eventAction`: `click`
+  - `eventLabel`: `panel-manage-btn`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+
+#### <a name="ctx-ext-panel-settings">Settings Page</a>
+
+Clicking the gear icon opens the Settings page.
+
+[<img src="./docs/img/extension-panel-settings.png"
+      width=244
+      alt="The Relay extension settings page" />
+](./docs/img/extension-panel-settings.png)
+
+The Google Analytics events:
+
+- The user clicks on the gear icon to view the Settings page, or clicks the
+  back button on the [Report Issue page][].
+  - `eventCategory`: `Extension: Panel`
+  - `eventAction`: `click`
+  - `eventLabel`: `opened-settings`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+- The user clicks the toggle off for "Show Relay icon in email fields on websites"
+  - `eventCategory`: `Extension: Panel`
+  - `eventAction`: `click`
+  - `eventLabel`: `hide-input-icons`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+- The user clicks the toggle on for "Show Relay icon in email fields on websites"
+  - `eventCategory`: `Extension: Panel`
+  - `eventAction`: `click`
+  - `eventLabel`: `show-input-icons`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+- The user clicks the "Leave Feedback" link to visit the [Firefox extension page][] or
+  the [Chrome extension page][]
+  - `eventCategory`: `Extension: Panel`
+  - `eventAction`: `click`
+  - `eventLabel`: `panel-leave-feedback-link`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+- The user clicks the "Privacy" link to visit the [Firefox Relay privacy page][]
+  - `eventCategory`: `Extension: Panel`
+  - `eventAction`: `click`
+  - `eventLabel`: `panel-privacy-link`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+- The user clicks the "Terms of Service" link to visit the [Mozilla Subscription Services Terms of Service][]
+  - `eventCategory`: `Extension: Panel`
+  - `eventAction`: `click`
+  - `eventLabel`: `panel-terms-of-service`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+
+[Report Issue page]: #ctx-ext-panel-report-issue
+[Firefox extension page]: https://addons.mozilla.org/en-US/firefox/addon/private-relay/
+[Chrome extension page]: https://chromewebstore.google.com/detail/firefox-relay/lknpoadjjkjcmjhbjpcljdednccbldeb
+[Firefox Relay privacy page]: https://www.mozilla.org/en-US/privacy/subscription-services/#relay
+[Mozilla Subscription Services Terms of Service]: https://www.mozilla.org/en-US/about/legal/terms/subscription-services/
+
+#### <a name="ctx-ext-panel-report-issue">Report Issue Page</a>
+
+The last link on the [Settings page][] opens the Report Issue page.
+
+[<img src="./docs/img/extension-panel-report-issue.png"
+      width=244
+      alt="The Relay extension 'Report Issue' page, with a blank website box" />
+](./docs/img/extension-panel-report-issue.png)
+
+After the report is submitted, the user sees a confirmation page.
+
+The Google Analytics events:
+
+- The user clicks the link to open the Report Issue page
+  - `eventCategory`: `Extension: Panel`
+  - `eventAction`: `click`
+  - `eventLabel`: `opened-report-issue`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+- The user clicks the back arrow or the "Continue" link to close the Report Issue page
+  - `eventCategory`: `Extension: Panel`
+  - `eventAction`: `click`
+  - `eventLabel`: `closed-report-issue`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+
+[Settings page]: #ctx-ext-panel-settings
+
+#### <a name="ctx-ext-panel-stats">Stats Page</a>
+
+Clicking the bar graph icon opens the Stats page.
+
+[<img src="./docs/img/extension-panel-stats.png"
+      width=244
+      alt="The Relay extension 'Report Issue' page, with a blank website box" />
+](./docs/img/extension-panel-stats.png)
+
+The Google Analytics event:
+
+- The user clicks on the stats icon
+  - `eventCategory`: `Extension: Panel`
+  - `eventAction`: `click`
+  - `eventLabel`: `opened-stats`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+
+#### <a name="ctx-ext-panel-news">News Page</a>
+
+Clicking the present icon opens the What's new in Relay (news) page:
+
+[<img src="./docs/img/extension-panel-news.png"
+      width=244
+      alt="The Relay extension 'What's new in Relay' page, with two stories" />
+](./docs/img/extension-news.png)
+
+Clicking a news summary opens the full news item:
+
+[<img src="./docs/img/extension-panel-news-item.png"
+      width=244
+      alt="The Relay extension 'What's new in Relay' page, with two stories" />
+](./docs/img/extension-news-item.png)
+
+The Google Analytics events:
+
+- The user clicks on the present icon, or clicks the back arrow from a news item
+  - `eventCategory`: `Extension: Panel`
+  - `eventAction`: `click`
+  - `eventLabel`: `opened-stats`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+- The user clicks on a news item
+  - `eventCategory`: `Extension: Panel`
+  - `eventAction`: `click`
+  - `eventLabel`: _One of_:
+    - `panel-news-eu-country-expansion-cta`
+    - `panel-news-phone-masking-cta`
+    - `panel-news-bundle-cta`
+    - `panel-news-holiday-promo-2023-cta`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+
+### <a name="ctx-ext-in-page">In-page events</a>
+
+The Relay extension scans the loaded webpage. When it finds an email input, it
+adds the Relay icon.
+
+[<img src="./docs/img/extension-in-page.png"
+      width=306
+      alt="A registration form with email and password, with the Relay icon at the right side of the email input." />
+](./docs/img/extension-in-page.png)
+
+The Google Analytics event:
+
+- The extension adds the icon to an input field
+  - `eventCategory`: `Extension: In-page`
+  - `eventAction`: `input-icon-injected`
+  - `eventLabel`: `input-icon`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+
+#### <a name="ctx-ext-in-page-menu">The In-Page Menu</a>
+
+When a user clicks the Relay icon in an email input, the in-page Relay menu
+opens. If the user is not logged in, they are prompted to go to the webpage.
+
+[<img src="./docs/img/extension-in-page-menu-signup.png"
+      width=306
+      alt="The Relay in-page menu for a user than needs to sign in or create their account. The button says 'Go to Firefox Relay'" />
+](./docs/img/extension-in-page-menu-signup.png)
+
+If the user is signed in, they see their masks. A button at the top right takes them to the [Email masks dashboard][].
+
+[<img src="./docs/img/extension-in-page-menu.png"
+      width=306
+      alt="The Relay in-page menu for a user. It shows there a 4 remaining masks, a button 'Generate new mask', offers one mask to select, and a link 'Get unlimited masks'" />
+](./docs/img/extension-in-page-menu.png)
+
+If a free user is at their mask limit, and in a permitted region, they are prompted to upgrade:
+
+[<img src="./docs/img/extension-in-page-menu-at-limit.png"
+      width=306
+      alt="The Relay in-page menu for a free user at mask limits. It shows 'You have no more free email masks', a button 'Get unlimited masks', a mask previously used in this website, and other masks." />
+](./docs/img/extension-in-page-menu-at-limit.png)
+
+The Google Analytics events:
+
+- The user clicks the Relay icon to open the in-page menu
+  - `eventCategory`: `Extension: In-page`
+  - `eventAction`: `input-icon-clicked`
+  - `eventLabel`: `input-icon`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+- The logged-out user views the in-page menu
+  - `eventCategory`: `Extension: In-page`
+  - `eventAction`: `unauthenticated-user-input-menu`
+  - `eventLabel`: `authenticated-user-input-menu`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+- The logged-out user clicks the 'Go to Firefox Relay' button in the in-page
+  menu, to go to the [Relay website][].
+  - `eventCategory`: `Extension: In-page`
+  - `eventAction`: `click`
+  - `eventLabel`: `input-menu-sign-up-btn`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+- The logged-in user views the in-page menu
+  - `eventCategory`: `Extension: In-page`
+  - `eventAction`: `viewed-menu`
+  - `eventLabel`: `authenticated-user-input-menu`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+- The user at the free plan limit sees the "You have no more free masks" version of the in-page menu
+  - `eventCategory`: `Extension: In-page`
+  - `eventAction`: `viewed-menu`
+  - `eventLabel`: `input-menu-max-aliases-message`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+- The user clicks the upper-right icon to go to the [Email masks dashboard][].
+  - `eventCategory`: `Extension: In-page`
+  - `eventAction`: `click`
+  - `eventLabel`: `input-menu-manage-all-aliases-btn`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+- The user clicks the "Get unlimited masks" link (has more masks) or button (at mask limit)
+  - `eventCategory`: `Extension: In-page`
+  - `eventAction`: `click`
+  - `eventLabel`: `input-menu-get-premium-btn`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+- The user in a non-eligible region clicks "Join Premium waiting list" link or button
+  - `eventCategory`: `Extension: In-page`
+  - `eventAction`: `click`
+  - `eventLabel`: `input-menu-join-waitlist-btn`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+- The user selects an email mask previously used on the website
+  - `eventCategory`: `Extension: In-page`
+  - `eventAction`: `click`
+  - `eventLabel`: `input-menu-reuse-alias`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+- The user selects the "Generate new mask" button
+  - `eventCategory`: `Extension: In-page`
+  - `eventAction`: `click`
+  - `eventLabel`: `input-menu-reuse-previous-alias`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+
+[Email masks dashboard]: https://relay.firefox.com/accounts/profile/
+[Relay website]: https://relay.firefox.com/
+
+### <a name="ctx-ext-context-menu">The Context Menu</a>
+
+A user can open the context menu by right-clicking on the browser window. The
+Relay extension adds items to the context menu.
+
+The context menu for an input field:
+
+[<img src="./docs/img/extension-context-input.png"
+      width=345
+      alt="The Relay context menu in an input field. The mask options are under a 'Firefox Relay' menu, and allow generating and using masks." />
+](./docs/img/extension-context-input.png)
+
+A user on the phone plan will also see an entry "Use phone number mask".
+
+The context menu for other parts of a webpage:
+
+[<img src="./docs/img/extension-context-other.png"
+      width=345
+      alt="The Relay context menu on a webpage. The mask options are under a 'Firefox Relay' menu, and go to the Relay website." />
+](./docs/img/extension-context-other.png)
+
+The context menu for the Relay extension in the toolbar:
+
+[<img src="./docs/img/extension-context-toolbar.png"
+      width=158
+      alt="The Relay context menu for the extension icon in the toolbar for a free user. 'Manage all mask' and 'Get unlimited masks' are at the top, followed by the standard context menu for extensions." />
+](./docs/img/extension-context-toolbar.png)
+
+The Google Analytics events:
+
+- The user selects "Manage all masks" from the context menu
+  - `eventCategory`: `Extension: Context Menu`
+  - `eventAction`: `click`
+  - `eventLabel`: `context-menu-relay-manage-aliases`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+- The free user selects "Get unlimited masks" from the context menu
+  - `eventCategory`: `Extension: Context Menu`
+  - `eventAction`: `click`
+  - `eventLabel`: `context-menu-get-unlimited-aliases`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+- The user selects "Generate new mask" from the context menu
+  - `eventCategory`: `Extension: Context Menu`
+  - `eventAction`: `click`
+  - `eventLabel`: `context-menu-generate-alias`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+- The user selects a mask associated with this site
+  - `eventCategory`: `Extension: Context Menu`
+  - `eventAction`: `click`
+  - `eventLabel`: `context-menu-use-existing-aliases-from-this-site`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+- The user selects a mask not associated with this site
+  - `eventCategory`: `Extension: Context Menu`
+  - `eventAction`: `click`
+  - `eventLabel`: `context-menu-use-existing-aliases`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`
+- The user with the phone plan selects "Use phone number mask" from the context menu
+  - `eventCategory`: `Extension: Context Menu`
+  - `eventAction`: `click`
+  - `eventLabel`: `context-menu-insert-phone-mask`
+  - `dimension5`: `Firefox` or `Chrome`
+  - `dimension7`: `add-on`

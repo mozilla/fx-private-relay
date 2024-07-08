@@ -4,6 +4,8 @@ These are images for documentation purposes.
 
 - The PNG images prefixed with `website-` are for the website (aka dashboard),
   and were taken in June 2024
+- The PNG images prefixed with `extension-` are for the extension (aka add-on), and
+  were taken in July 2024.
 
 Some tips for new screenshots:
 
@@ -17,10 +19,15 @@ Some tips for new screenshots:
   can be set to block or can be deleted.
 - Take screenshots on a local development environment to capture UI elements like
   surveys that are targeted at a subset of users and require database changes.
+- Use [extension debugging techniques][] to help take screenshots of the extension.
+  Delete the Extension Storage to see sign up menus. Disable popup auto-hide to make
+  it easier to capture screenshots and to use the debugger. Use the debugger to change
+  data to get UI elements targeted at a subset of users.
 
 The screenshot size is minimized with [pngquant][], a lossy PNG compressor. To
 generate the minimized versions, run [compress_images.bash][]. This runs on all PNG
 files in the folder. You may want to revert changes to re-compress a compressed PNG.
 
 [compress_images.bash]: ./compress_images.bash
+[extension debugging techniques]: https://extensionworkshop.com/documentation/develop/debugging/
 [pngquant]: https://pngquant.org/
