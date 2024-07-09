@@ -5,6 +5,8 @@ audience: end-users, developers
 comment: This file is linked from the Relay Privacy Notice
 linked_from: https://www.mozilla.org/en-US/privacy/subscription-services/
 -->
+<!-- markdownlint-disable MD033 --><!-- Disable no-inline-html warning -->
+<!-- vim: set textwidth=88 ft=markdown syntax=markdown -->
 
 # Firefox Relay Interaction Data
 
@@ -266,57 +268,57 @@ Here is a summary of the event categories and actions:
 | server event                           | fired                   | user_purchased_premium                                | [Legacy, Purchased Premium][]                |
 | server event                           | fired                   | user_signed_up                                        | [Server Events][]                            |
 
-[Customer Satisfaction Survey]: #ctx-surveys-csat "Details for the Customer Satisfaction (CSAT) Survey"
-[Email Masks, Bundle Banner]: #ctx-emails-banner-bundle "Details for the 'Maximize your email and phone protection' banner."
-[Email Masks, Extension Banner]: #ctx-emails-banner-extension "Details for the banner to install the Relay extension"
-[Email Masks, Get Domain Link]: #ctx-emails-link-get-domain "Details for the link 'Get your own domain with Premium'"
-[Email Masks, Get Firefox Banner]: #ctx-emails-banner-firefox "Details for the banner to download the Relay extension"
-[Email Masks, Mask Details]: #ctx-emails-detail "Details for the Email Masks dashboard, opening the details for a mask."
-[Email Masks, Maximize Banner]: #ctx-emails-banner-maximize "Details for the banner 'Introducting: Relay + VPN subscription plan'."
-[Email Masks, Unlimited Button]: #ctx-emails-button-unlimited "Details for the 'Get unlimited email masks' button."
-[Email Masks, Upgrade Corner Notification]: #ctx-emails-corner-upgrade "Details for the lower-right corner notification to upgrade to premium"
-[Free Onboarding]: #ctx-onboarding-free "Details for the free onboarding sequence"
-[Interview Recruitment Survey]: #ctx-survey-recruitment "Details for the interview recruitment survey"
-[Landing Page, Get Started Button]: #ctx-landing-button-cta "Details for the 'Get started' button on the landing page"
-[Landing Page, Holiday Sale Banner]: #ctx-landing-banner-holiday "Details for the 2023 Holiday Sale Banner"
-[Landing Page, Plan Matrix]: #ctx-landing-matrix "Details for the Plan Matrix on the Landing Page."
-[Landing Page, Premium Bundle Banner]: #ctx-landing-banner-bundle "Details on the Relay Premium and Mozilla VPN bundle. She loves her phone!"
-[Landing Page]: #ctx-landing "Details for the landing page for anonymous visitors"
-[Legacy, NPS Survey]: #ctx-legacy-survey-nps "Details for the Net Promoter Score survey"
-[Legacy, Purchased Premium]: #ctx-legacy-purchase-premium "Details on the Purchase Premium events."
-[Navigation Bar, Firefox Apps]: #ctx-navbar-bento "Details for the Firefox Apps Menu in the Navigation Bar"
-[Navigation Bar, News Menu]: #ctx-navbar-news "Details for the News menu in the Navigation Bar"
-[Navigation Bar, Sign In]: #ctx-navbar-sign-up "Details for the Sign In button in the Navigation Bar, all screen sizes"
-[Navigation Bar, Sign Up]: #ctx-navbar-sign-up "Details for the Sign Up button in the Navigation Bar, desktop-width screens"
-[Navigation Bar, Upgrade Button]: #ctx-navbar-upgrade "Details for the Upgrade button in the Navigation Bar"
-[Navigation Bar, User Menu]: #ctx-navbar-user "Details for the User menu button in the Navigation Bar"
-[Navigation Bar]: #ctx-navbar "Details for the Navigation Bar"
-[Phone Masks, Introduction]: #ctx-phones-button-upgrade "Details for the Phone Masks Dashboard when introducing the plan."
-[Phone Survey]: #ctx-surveys-phone "Details for the Phone Survey"
-[Premium Onboarding]: #ctx-onboarding-premium "Details for the Relay Premium onboarding process"
-[Premium Page, Call to Action]: #ctx-premium-cta "Details for the call-to-action section on the Premium Upsell page"
-[Premium Page, Plan Matrix]: #ctx-premium-matrix "Details for the Plan Matrix on the Premium Upsell page"
-[Premium Page]: #ctx-premium "Details for elements on the Premium Upsell Page"
-[Server Events]: #ctx-server "Details for website events that originate on the API server"
-[Tips]: #ctx-tips "Details for the Tips box in a masks dashboard."
+[Customer Satisfaction Survey]: #ctx-web-surveys-csat "Details for the Customer Satisfaction (CSAT) Survey"
+[Email Masks, Bundle Banner]: #ctx-web-emails-banner-bundle "Details for the 'Maximize your email and phone protection' banner."
+[Email Masks, Extension Banner]: #ctx-web-emails-banner-extension "Details for the banner to install the Relay extension"
+[Email Masks, Get Domain Link]: #ctx-web-emails-link-get-domain "Details for the link 'Get your own domain with Premium'"
+[Email Masks, Get Firefox Banner]: #ctx-web-emails-banner-firefox "Details for the banner to download the Relay extension"
+[Email Masks, Mask Details]: #ctx-web-emails-detail "Details for the Email Masks dashboard, opening the details for a mask."
+[Email Masks, Maximize Banner]: #ctx-web-emails-banner-maximize "Details for the banner 'Introducting: Relay + VPN subscription plan'."
+[Email Masks, Unlimited Button]: #ctx-web-emails-button-unlimited "Details for the 'Get unlimited email masks' button."
+[Email Masks, Upgrade Corner Notification]: #ctx-web-emails-corner-upgrade "Details for the lower-right corner notification to upgrade to premium"
+[Free Onboarding]: #ctx-web-onboarding-free "Details for the free onboarding sequence"
+[Interview Recruitment Survey]: #ctx-web-survey-recruitment "Details for the interview recruitment survey"
+[Landing Page, Get Started Button]: #ctx-web-landing-button-cta "Details for the 'Get started' button on the landing page"
+[Landing Page, Holiday Sale Banner]: #ctx-web-landing-banner-holiday "Details for the 2023 Holiday Sale Banner"
+[Landing Page, Plan Matrix]: #ctx-web-landing-matrix "Details for the Plan Matrix on the Landing Page."
+[Landing Page, Premium Bundle Banner]: #ctx-web-landing-banner-bundle "Details on the Relay Premium and Mozilla VPN bundle. She loves her phone!"
+[Landing Page]: #ctx-web-landing "Details for the landing page for anonymous visitors"
+[Legacy, NPS Survey]: #ctx-web-legacy-survey-nps "Details for the Net Promoter Score survey"
+[Legacy, Purchased Premium]: #ctx-web-legacy-purchase-premium "Details on the Purchase Premium events."
+[Navigation Bar, Firefox Apps]: #ctx-web-navbar-bento "Details for the Firefox Apps Menu in the Navigation Bar"
+[Navigation Bar, News Menu]: #ctx-web-navbar-news "Details for the News menu in the Navigation Bar"
+[Navigation Bar, Sign In]: #ctx-web-navbar-sign-up "Details for the Sign In button in the Navigation Bar, all screen sizes"
+[Navigation Bar, Sign Up]: #ctx-web-navbar-sign-up "Details for the Sign Up button in the Navigation Bar, desktop-width screens"
+[Navigation Bar, Upgrade Button]: #ctx-web-navbar-upgrade "Details for the Upgrade button in the Navigation Bar"
+[Navigation Bar, User Menu]: #ctx-web-navbar-user "Details for the User menu button in the Navigation Bar"
+[Navigation Bar]: #ctx-web-navbar "Details for the Navigation Bar"
+[Phone Masks, Introduction]: #ctx-web-phones-button-upgrade "Details for the Phone Masks Dashboard when introducing the plan."
+[Phone Survey]: #ctx-web-surveys-phone "Details for the Phone Survey"
+[Premium Onboarding]: #ctx-web-onboarding-premium "Details for the Relay Premium onboarding process"
+[Premium Page, Call to Action]: #ctx-web-premium-cta "Details for the call-to-action section on the Premium Upsell page"
+[Premium Page, Plan Matrix]: #ctx-web-premium-matrix "Details for the Plan Matrix on the Premium Upsell page"
+[Premium Page]: #ctx-web-premium "Details for elements on the Premium Upsell Page"
+[Server Events]: #ctx-web-server "Details for website events that originate on the API server"
+[Tips]: #ctx-web-tips "Details for the Tips box in a masks dashboard."
 [Measurement Protocol]: https://developers.google.com/analytics/devguides/collection/protocol/ga4 "Measurement Protocol (Google Analytics 4)"
 [Universal Measurement Protocol]: https://developers.google.com/analytics/devguides/collection/protocol/v1 "Measurement Protocol Overview for Universal Analytics"
 [changes in GA4 data model]: https://support.google.com/analytics/answer/9964640?sjid=13967373028407637443-NC
 
-### <a name="ctx-landing">Landing Page</a>
+### <a name="ctx-web-landing">Landing Page</a>
 
 The landing page is shown to visitors who are not logged into Relay. It explains the
 service and lists the different subscription levels.
 
-#### <a name="ctx-landing-button-cta">Get started Button</a>
+#### <a name="ctx-web-landing-button-cta">Get started Button</a>
 
 The first button in the landing page content is labeled "Get Started". This button takes
-the user to the [Plan Matrix](#ctx-landing-matrix) further down the page.
+the user to the [Plan Matrix](#ctx-web-landing-matrix) further down the page.
 
-[<img src="./docs/img/landing-button-cta.png"
+[<img src="./docs/img/website-landing-button-cta.png"
       width=214
       alt="Some text content and 'Get started' button on the landing page." />
-](./docs/img/landing-button-cta.png)
+](./docs/img/website-landing-button-cta.png)
 
 The Google Analytics event:
 
@@ -326,17 +328,17 @@ The Google Analytics event:
   - `eventLabel`: `home-hero-cta`
   - `nonInteraction`: true
 
-#### <a name="ctx-landing-banner-bundle">Premium Bundle Banner</a>
+#### <a name="ctx-web-landing-banner-bundle">Premium Bundle Banner</a>
 
 A banner on the landing page promotes the Relay Premium and Mozilla VPN bundle. It
 appears if the bundle is available for the visitor's region.
 
 The banner:
 
-[<img src="./docs/img/landing-banner-bundle-desktop.png"
+[<img src="./docs/img/website-landing-banner-bundle-desktop.png"
       width=756
       alt="Banner for Relay Premium and Mozilla VPN bundle, desktop version"
-/>](./docs/img/landing-banner-bundle-desktop.png)
+/>](./docs/img/website-landing-banner-bundle-desktop.png)
 
 The Google Analytics events:
 
@@ -350,18 +352,18 @@ The Google Analytics events:
   - `eventLabel`: `bundle-banner-upgrade-promo`:w
   - `nonInteraction`: true
 
-#### <a name="ctx-landing-banner-holiday">Holiday Sale Banner</a>
+#### <a name="ctx-web-landing-banner-holiday">Holiday Sale Banner</a>
 
 At the end of 2023, Relay had a sale on yearly subscriptions, promoted by a banner. This
 banner no longer appears after December 31, 2023. It was paired with a
-[News item](#ctx-navbar-news) for logged-in users.
+[News item](#ctx-web-navbar-news) for logged-in users.
 
 The banner:
 
-[<img src="./docs/img/landing-banner-holiday-mobile.png"
+[<img src="./docs/img/website-landing-banner-holiday-mobile.png"
       width=533
       alt="Banner for holiday sale on Relay Premium, mobile version"
-/>](./docs/img/landing-banner-holiday-mobile.png)
+/>](./docs/img/website-landing-banner-holiday-mobile.png)
 
 Google Analytics events:
 
@@ -375,7 +377,7 @@ Google Analytics events:
   - `eventAction`: `Engage`
   - `eventLabel`: `holiday-promo-banner-get-one-year-btn`
 
-#### <a name="ctx-landing-matrix">Plan Matrix</a>
+#### <a name="ctx-web-landing-matrix">Plan Matrix</a>
 
 The Plan Matrix shows the differences between the different plans for Firefox Relay, and
 prompts the visitor to sign up for the service. If a plan is not available in the visitor's
@@ -383,17 +385,17 @@ region, then the plan is not shown.
 
 The Plan Matrix at desktop widths, for US visitors:
 
-[<img src="./docs/img/landing-matrix-desktop.png"
+[<img src="./docs/img/website-landing-matrix-desktop.png"
       width=868
       alt="The Plan Matrix at desktop width, showing the plans organized as a feature matrix, with the monthly price when paying yearly."
-/>](./docs/img/landing-matrix-desktop.png)
+/>](./docs/img/website-landing-matrix-desktop.png)
 
 At mobile widths, the information is split to cards, such as the premium card:
 
-[<img src="./docs/img/landing-matrix-premium-mobile.png"
+[<img src="./docs/img/website-landing-matrix-premium-mobile.png"
       width=260
       alt="The Premium plan card at mobile width, with the monthly price when paying yearly."
-/>](./docs/img/landing-matrix-premium-mobile.png)
+/>](./docs/img/website-landing-matrix-premium-mobile.png)
 
 The Google Analytics events:
 
@@ -535,7 +537,7 @@ The Google Analytics events:
   - `eventAction`: `Completed purchase`
   - `eventLabel`: `user_purchased_premium`
 
-### <a name="ctx-navbar">Navigation Bar</a>
+### <a name="ctx-web-navbar">Navigation Bar</a>
 
 The navigation bar is at the top of all pages, and changes based on the screen size and context.
 
@@ -543,42 +545,42 @@ At **desktop screen widths**, it looks like this:
 
 On the landing page, for anonymous visitors:
 
-[<img src="./docs/img/navbar-landing-desktop.png"
+[<img src="./docs/img/website-navbar-landing-desktop.png"
       width=538
       alt="The navigation bar on the landing page, desktop width screen"
-/>](./docs/img/navbar-landing-desktop.png)
+/>](./docs/img/website-navbar-landing-desktop.png)
 
 On the email masks dashboard, for free users:
 
-[<img src="./docs/img/navbar-dashboard-free-desktop.png"
+[<img src="./docs/img/website-navbar-dashboard-free-desktop.png"
       width=583
       alt="The navigation bar on the email mask dashboard, for a free user, desktop width screen"
-/>](./docs/img/navbar-dashboard-free-desktop.png)
+/>](./docs/img/website-navbar-dashboard-free-desktop.png)
 
 At **mobile screen widths**, it looks like this:
 
 On the landing page, for anonymous visitors:
 
-[<img src="./docs/img/navbar-landing-mobile.png"
+[<img src="./docs/img/website-navbar-landing-mobile.png"
       width=505
       alt="The navigation bar on the landing page, mobile width screen"
-/>](./docs/img/navbar-landing-mobile.png)
+/>](./docs/img/website-navbar-landing-mobile.png)
 
 On the email masks dashboard, for free users:
 
-[<img src="./docs/img/navbar-dashboard-free-mobile.png"
+[<img src="./docs/img/website-navbar-dashboard-free-mobile.png"
       width=479
       alt="The navigation bar on the email mask dashboard, for a free user, mobile width screen"
-/>](./docs/img/navbar-dashboard-free-mobile.png)
+/>](./docs/img/website-navbar-dashboard-free-mobile.png)
 
-#### <a name="ctx-navbar-sign-up">Sign Up button</a>
+#### <a name="ctx-web-navbar-sign-up">Sign Up button</a>
 
 The "Sign Up" button is shown on desktop-width screens for anonymous visitors.
 
-[<img src="./docs/img/navbar-landing-desktop.png"
+[<img src="./docs/img/website-navbar-landing-desktop.png"
       width=538
       alt="The navigation bar on the landing page, desktop width screen"
-/>](./docs/img/navbar-landing-desktop.png)
+/>](./docs/img/website-navbar-landing-desktop.png)
 
 The Google Analytics events:
 
@@ -592,14 +594,14 @@ The Google Analytics events:
   - `eventAction`: `Engage`
   - `eventLabel`: `nav-profile-sign-up`
 
-#### <a name="ctx-navbar-sign-in">Sign In button</a>
+#### <a name="ctx-web-navbar-sign-in">Sign In button</a>
 
 The "Sign In" button, with a border, is shown for anonymous visitors on all screen sizes.
 
-[<img src="./docs/img/navbar-landing-mobile.png"
+[<img src="./docs/img/website-navbar-landing-mobile.png"
       width=505
       alt="The navigation bar on the landing page, mobile width screen"
-/>](./docs/img/navbar-landing-mobile.png)
+/>](./docs/img/website-navbar-landing-mobile.png)
 
 The Google Analytics events:
 
@@ -613,44 +615,44 @@ The Google Analytics events:
   - `eventAction`: `Engage`
   - `eventLabel`: `nav-profile-sign-in`
 
-#### <a name="ctx-navbar-news">News Menu</a>
+#### <a name="ctx-web-navbar-news">News Menu</a>
 
 The News menu appears for logged-in users. The news items highlight new features,
 subscriptions, and promotions. It appears as a drop-down menu that covers the rest of
 the content.
 
 At the end of 2023, Relay offered a discount for yearly Relay subscriptions. This was
-paired with a [Holiday Sale Banner](#ctx-landing-banner-holiday) on the landing page.
+paired with a [Holiday Sale Banner](#ctx-web-landing-banner-holiday) on the landing page.
 This no longer appears after December 31, 2023. This news item emits the Google Analytics
 events for other news items, as well as some additional events.
 
 The news menu, with no current news items:
 
-[<img src="./docs/img/news-empty.png"
+[<img src="./docs/img/website-news-empty.png"
       width=293
       alt="News menu expanded but empty."
-/>](./docs/img/news-empty.png)
+/>](./docs/img/website-news-empty.png)
 
 The news menu, History tab:
 
-[<img src="./docs/img/news-history.png"
+[<img src="./docs/img/website-news-history.png"
       width=297
       alt="News menu, History tab, with news items."
-/>](./docs/img/news-history.png)
+/>](./docs/img/website-news-history.png)
 
 The news menu, with a news entry expanded:
 
-[<img src="docs/img/news-entry.png"
+[<img src="./docs/img/website-news-entry.png"
      width=293
      alt="News menu, with the expanded news entry 'Get help protecting your privacy'."
-/>](./docs/img/news-entry.png)
+/>](./docs/img/website-news-entry.png)
 
 The news menu, with the holiday promotion news item expanded:
 
-[<img src="./docs/img/news-holiday.png"
+[<img src="./docs/img/website-news-holiday.png"
       width=300
       alt="News menu, with the Holiday promotion expanded."
-/>](./docs/img/news-holiday.png)
+/>](./docs/img/website-news-holiday.png)
 
 Google Analytics events:
 
@@ -699,15 +701,15 @@ Google Analytics events:
   - `eventAction`: `Engage`
   - `eventLabel`: `holiday-promo-2023-news-cta`
 
-#### <a name="ctx-navbar-upgrade">Upgrade Button</a>
+#### <a name="ctx-web-navbar-upgrade">Upgrade Button</a>
 
 The "Upgrade" button appears for users on the free plan. It is styled like a link in
 mobile widths. It takes users to the [Premium Page][].
 
-[<img src="./docs/img/navbar-dashboard-free-desktop.png"
+[<img src="./docs/img/website-navbar-dashboard-free-desktop.png"
       width=583
       alt="The navigation bar on the email mask dashboard, for a free user, desktop width screen"
-/>](./docs/img/navbar-dashboard-free-desktop.png)
+/>](./docs/img/website-navbar-dashboard-free-desktop.png)
 
 The Google Analytics events:
 
@@ -721,15 +723,15 @@ The Google Analytics events:
   - `eventAction`: `Engage`
   - `eventLabel`: `navbar-upgrade-button`
 
-#### <a name="ctx-navbar-bento">Firefox Apps Menu</a>
+#### <a name="ctx-web-navbar-bento">Firefox Apps Menu</a>
 
 The button that looks like a grid of squares opens a menu of other Mozilla products.
 Internally, we call this a "Bento Box", to refer to the Japanese [bento][] meal box.
 
-[<img src="./docs/img/navbar-dashboard-free-desktop-bento-open.png"
+[<img src="./docs/img/website-navbar-dashboard-free-desktop-bento-open.png"
       width=214
       alt="The open bento menu with the navigation bar on the email mask dashboard, for a free user, desktop width screen"
-/>](./docs/img/navbar-dashboard-free-desktop-bento-open.png)
+/>](./docs/img/website-navbar-dashboard-free-desktop-bento-open.png)
 
 The Google Analytics events:
 
@@ -757,7 +759,7 @@ The Google Analytics events:
 
 [bento]: https://en.wikipedia.org/wiki/Bento
 
-#### <a name="ctx-navbar-user">User Menu</a>
+#### <a name="ctx-web-navbar-user">User Menu</a>
 
 When the user is logged in, the left-most navigation bar button contains the user menu.
 On desktop-sized screens, the button is the user's Mozilla account profile picture. This
@@ -765,10 +767,10 @@ defaults to a circular image of the first letter of their email address. In mobi
 screens, the button is a [hamburger menu button][] (similar to ☰) and includes links to
 other Relay pages. In both cases, this menu has the "Sign Out" link for users.
 
-[<img src="./docs/img/navbar-user-menu-desktop.png"
+[<img src="./docs/img/website-navbar-user-menu-desktop.png"
       width=214
       alt="An open user menu on a desktop-sized screen."
-/>](./docs/img/navbar-user-menu-desktop.png)
+/>](./docs/img/website-navbar-user-menu-desktop.png)
 
 The Google Analytics event:
 
@@ -785,7 +787,7 @@ Onboarding is the process for introducing a user to Relay and getting their acco
 setup. The user should have a sense of where they are in the process, how much remains,
 and be able to skip the process.
 
-#### <a name="ctx-onboarding-free">Free Onboarding</a>
+#### <a name="ctx-web-onboarding-free">Free Onboarding</a>
 
 When a user signs up for the free Relay account, they go through the Free Onboarding
 process. They see where they are in the process through a progress indicator at the
@@ -793,37 +795,37 @@ bottom of the screen.
 
 On step 1, we explain email masks and prompt the user to generate their first mask:
 
-[<img src="./docs/img/onboarding-free-step1.png"
+[<img src="./docs/img/website-onboarding-free-step1.png"
       width=543
       alt="Step 1 of free onboarding. The user it prompted to Generate new mask."
-/>](./docs/img/onboarding-free-step1.png)
+/>](./docs/img/website-onboarding-free-step1.png)
 
 On step 2, we show the new mask and show how forwarding works:
 
-[<img src="./docs/img/onboarding-free-step2a.png"
-      width=567
+[<img src="./docs/img/website-onboarding-free-step2a.png"
+      width=515
       alt="Step 2, part A of free onboarding. The user sees the new mask and is prompted to See how forwarding works."
-/>](./docs/img/onboarding-free-step2a.png)
+/>](./docs/img/website-onboarding-free-step2a.png)
 
 We ask the user to paste their first email mask address and send a test email:
 
-[<img src="./docs/img/onboarding-free-step2b.png"
+[<img src="./docs/img/website-onboarding-free-step2b.png"
       width=567
       alt="Step 2, part B of free onboarding. The user is prompted to paste the mask."
-/>](./docs/img/onboarding-free-step2b.png)
+/>](./docs/img/website-onboarding-free-step2b.png)
 
 We send an email and ask the user to check their inbox:
-[<img src="./docs/img/onboarding-free-step2c.png"
+[<img src="./docs/img/website-onboarding-free-step2c.png"
       width=574
       alt="Step 2, part C of free onboarding. The user is prompted to check their inbox."
-/>](./docs/img/onboarding-free-step2c.png)
+/>](./docs/img/website-onboarding-free-step2c.png)
 
 On step 3, we introduce the Relay extension and prompt the user to install it:
 
-[<img src="./docs/img/onboarding-free-step3.png"
+[<img src="./docs/img/website-onboarding-free-step3.png"
       width=563
       alt="Step 3. The user is prompted to install the Relay extension."
-/>](./docs/img/onboarding-free-step3.png)
+/>](./docs/img/website-onboarding-free-step3.png)
 
 The Google Analytics events:
 
@@ -890,7 +892,7 @@ The Google Analytics events:
   - `eventLabel`: `onboarding-step-3-complete`
   - `eventValue`: 1
 
-#### <a name="ctx-onboarding-premium">Premium Onboarding</a>
+#### <a name="ctx-web-onboarding-premium">Premium Onboarding</a>
 
 When a user signs up for or upgrades to the Relay Premium service, they go through the
 Premium Onboarding process. They see where they are in the process through a progress
@@ -898,45 +900,45 @@ indicator at the bottom of the screen.
 
 On step 1, we list the benefits of Relay Premium:
 
-[<img src="./docs/img/onboarding-premium-step1.png"
+[<img src="./docs/img/website-onboarding-premium-step1.png"
       width=636
       alt="Step 1 of premium onboarding. A list of benefits is shown. The user is prompted to 'Set up Relay Premium'."
-/>](./docs/img/onboarding-premium-step1.png)
+/>](./docs/img/website-onboarding-premium-step1.png)
 
 On step 2, we prompt the user to setup a custom subdomain:
 
-[<img src="./docs/img/onboarding-premium-step2a.png"
+[<img src="./docs/img/website-onboarding-premium-step2a.png"
       width=609
       alt="Step 2, part A of premium onboarding. The user is prompted to enter a custom subdomain."
-/>](./docs/img/onboarding-premium-step2a.png)
+/>](./docs/img/website-onboarding-premium-step2a.png)
 
 If the subdomain is available, the user can register it.
 
-[<img src="./docs/img/onboarding-premium-step2b.png"
+[<img src="./docs/img/website-onboarding-premium-step2b.png"
       width=386
       alt="Step 2, part B of premium onboarding. The user is prompted to confirm the custom subdomain."
-/>](./docs/img/onboarding-premium-step2b.png)
+/>](./docs/img/website-onboarding-premium-step2b.png)
 
 We then confirm the user has reserved their custom subdomain.
 
-[<img src="./docs/img/onboarding-premium-step2c.png"
+[<img src="./docs/img/website-onboarding-premium-step2c.png"
       width=487
       alt="Step 2, part C of premium onboarding. The user is prompted to Continue."
-/>](./docs/img/onboarding-premium-step2c.png)
+/>](./docs/img/website-onboarding-premium-step2c.png)
 
 On step 3, we introduce the Relay extension and prompt the user to install it:
 
-[<img src="./docs/img/onboarding-premium-step3a.png"
+[<img src="./docs/img/website-onboarding-premium-step3a.png"
       width=590
       alt="Step 3, without extension. The user is prompted to install the Relay extension."
-/>](./docs/img/onboarding-premium-step3a.png)
+/>](./docs/img/website-onboarding-premium-step3a.png)
 
 When the extension is installed, the user can exit onboarding and go to the dashboard.
 
-[<img src="./docs/img/onboarding-premium-step3b.png"
+[<img src="./docs/img/website-onboarding-premium-step3b.png"
       width=590
       alt="Step 3, with extension. The user is prompted to Go to Dashboard."
-/>](./docs/img/onboarding-premium-step3b.png)
+/>](./docs/img/website-onboarding-premium-step3b.png)
 
 The Google Analytics events:
 
@@ -1001,16 +1003,16 @@ The Google Analytics events:
 The Email Masks Dashboard is the default page for logged-in users. It is internally
 called the profile page.
 
-#### <a name="ctx-emails-banner-maximize">Maximize your email and phone protection banner</a>
+#### <a name="ctx-web-emails-banner-maximize">Maximize your email and phone protection banner</a>
 
 A user on the free plan at their mask limit will see a large banner at the top of the
 email masks dashboard. The title is "Maximize your email and phone protection". The
 button is labeled "Upgrade to Premium" and takes the user to the [Premium Page, Plan Matrix][].
 
-[<img src="./docs/img/emails-banner-maximize.png"
+[<img src="./docs/img/website-emails-banner-maximize.png"
       width=408
       alt="Part of the 'Maximize your email and phone protection' banner, shown to a free user at the mask limit. The button is labelled 'Upgrade to Premium'."
-/>](./docs/img/emails-banner-maximize.png)
+/>](./docs/img/website-emails-banner-maximize.png)
 
 The Google Analytics events:
 
@@ -1024,15 +1026,15 @@ The Google Analytics events:
   - `eventAction`: `Engage`
   - `eventLabel`: `upgrade-premium-header-mask-limit`
 
-#### <a name="ctx-emails-link-get-domain">Get Domain Link</a>
+#### <a name="ctx-web-emails-link-get-domain">Get Domain Link</a>
 
 A user on the free plan will be prompted to get their own email domain by upgrading to a
 premium plan. This link appears under their real email address.
 
-[<img src="./docs/img/emails-link-get-domain.png"
+[<img src="./docs/img/website-emails-link-get-domain.png"
       width=249
       alt="A user on a free plan is prompted to get their own email domain"
-/>](./docs/img/emails-link-get-domain.png)
+/>](./docs/img/website-emails-link-get-domain.png)
 
 The Google Analytics events:
 
@@ -1046,15 +1048,15 @@ The Google Analytics events:
   - `eventAction`: `Engage`
   - `eventLabel`: `profile-set-custom-domain`
 
-#### <a name="ctx-emails-banner-bundle">Relay + VPN Banner</a>
+#### <a name="ctx-web-emails-banner-bundle">Relay + VPN Banner</a>
 
 A user in an eligible region without VPN will be prompted to sign up for the Relay and
-VPN bundle. The link goes to the [Plan Matrix on the Premium Page](#ctx-premium-matrix).
+VPN bundle. The link goes to the [Plan Matrix on the Premium Page](#ctx-web-premium-matrix).
 
-[<img src="./docs/img/emails-banner-bundle.png"
+[<img src="./docs/img/website-emails-banner-bundle.png"
      width=456
      alt="Banner on the Email Masks dashboard introducing the user to the Relay + VPN Bundle, with an 'Upgrade now' button."
-/>](./docs/img/emails-banner-bundle.png)
+/>](./docs/img/website-emails-banner-bundle.png)
 
 The Google Analytics events:
 
@@ -1070,37 +1072,37 @@ The Google Analytics events:
   - `eventAction`: `Engage`
   - `eventLabel`: `profile-banner-bundle-promo`
 
-#### <a name="ctx-emails-banner-firefox">Get Firefox Banner</a>
+#### <a name="ctx-web-emails-banner-firefox">Get Firefox Banner</a>
 
 A user on a non-Firefox browser will be prompted to download Firefox:
 
-[<img src="./docs/img/emails-banner-firefox.png"
+[<img src="./docs/img/website-emails-banner-firefox.png"
       width=376
       alt="Banner on the Email Masks dashboard prompting to download Firefox"
-/>](./docs/img/emails-banner-firefox.png)
+/>](./docs/img/website-emails-banner-firefox.png)
 
 - The user clicks "Get Firefox" in the "Relay is even better in Firefox" banner
   - `eventCategory`: `Download Firefox`
   - `eventAction`: `Engage`
   - `eventLabel`: `profile-banner-download-firefox`
 
-#### <a name="ctx-emails-banner-extension">Download Extension Banners</a>
+#### <a name="ctx-web-emails-banner-extension">Download Extension Banners</a>
 
 A Firefox user that does not have the [Firefox Relay Extension][] will be prompted to
 install it:
 
-[<img src="./docs/img/emails-banner-firefox-extension.png"
+[<img src="./docs/img/website-emails-banner-firefox-extension.png"
       width=530
       alt="Banner on the Email Masks dashboard prompting to install the Firefox extension."
-/>](./docs/img/emails-banner-firefox-extension.png)
+/>](./docs/img/website-emails-banner-firefox-extension.png)
 
 A Chrome user that does not have the [Chrome Relay Extension][] will be prompted to
 install it:
 
-[<img src="./docs/img/emails-banner-chrome-extension.png"
+[<img src="./docs/img/website-emails-banner-chrome-extension.png"
       width=513
       alt="Banner on the Email Masks dashboard prompting to install the Chrome extension."
-/>](./docs/img/emails-banner-chrome-extension.png)
+/>](./docs/img/website-emails-banner-chrome-extension.png)
 
 Google Analytics events:
 
@@ -1116,7 +1118,7 @@ Google Analytics events:
 [Chrome Relay Extension]: https://chromewebstore.google.com/detail/firefox-relay/lknpoadjjkjcmjhbjpcljdednccbldeb "The Firefox Relay extension on the Chrome Web Store"
 [Firefox Relay Extension]: https://addons.mozilla.org/en-US/firefox/addon/private-relay/ "The Firefox Relay extension on Firefox Browser Add-Ons"
 
-#### <a name="ctx-emails-button-unlimited">Unlimited Button</a>
+#### <a name="ctx-web-emails-button-unlimited">Unlimited Button</a>
 
 When a user is allowed to create a new email mask, the button is labelled "+ Generate
 new mask", and creates a new mask:. When a free user has 5 email masks, the button
@@ -1125,17 +1127,17 @@ label changes to "Get unlimited email masks", and takes the user to the
 
 The button when a user can create a new mask:
 
-[<img src="./docs/img/emails-button-new-mask.png"
+[<img src="./docs/img/website-emails-button-new-mask.png"
       width=140
       alt="The button '+ Generate new mask' when the user can create a new mask"
-/>](./docs/img/emails-button-new-mask.png)
+/>](./docs/img/website-emails-button-new-mask.png)
 
 The button when a free user has 5 email masks:
 
-[<img src="./docs/img/emails-button-unlimited-masks.png"
+[<img src="./docs/img/website-emails-button-unlimited-masks.png"
       width=160
       alt="The button 'Get unlimited email masks' when the user is at the free mask limit"
-/>](./docs/img/emails-button-unlimited-masks.png)
+/>](./docs/img/website-emails-button-unlimited-masks.png)
 
 The Google Analytics events:
 
@@ -1149,15 +1151,15 @@ The Google Analytics events:
   - `eventAction`: `Engage`
   - `eventLabel`: `profile-create-alias-upgrade-promo`
 
-#### <a name="ctx-emails-detail">Email Mask Details</a>
+#### <a name="ctx-web-emails-detail">Email Mask Details</a>
 
 Clicking the downward arrowhead on the right side of an email mask opens the details for
 that mask.
 
-[<img src="docs/img/emails-dashboard-details-free.png"
+[<img src="./docs/img/website-emails-dashboard-details-free.png"
       width=626
       alt="The details of a Relay email mask"
-/>](docs/img/emails-dashboard-details-free.png)
+/>](./docs/img/emails-dashboard-details-free.png)
 
 The Google Analytics events:
 
@@ -1169,15 +1171,15 @@ The Google Analytics events:
     - `User enabled promotional emails blocking` (Promotions, disabled for free users)
     - `User enabled forwarding` (All)
 
-#### <a name="ctx-emails-corner-upgrade">Upgrade Corner Notification</a>
+#### <a name="ctx-web-emails-corner-upgrade">Upgrade Corner Notification</a>
 
 When a user on the free plan has 4 email masks, a notification appears in the lower
 right corner that prompts the user to upgrade to the premium plan.
 
-[<img src="./docs/img/emails-corner-upgrade.png"
+[<img src="./docs/img/website-emails-corner-upgrade.png"
       width=287
       alt="The upgrade notification that appears in the lower right corner of the email masks dashboard, prompting the user to 'Upgrade to Relay Premium'"
-/>](./docs/img/emails-corner-upgrade.png)
+/>](./docs/img/website-emails-corner-upgrade.png)
 
 The Google Analytics events:
 
@@ -1200,17 +1202,17 @@ subscription, it provides Phone Onboarding, then management of the phone mask.
 
 [Phone Masks dashboard]: https://relay.firefox.com/phone/
 
-#### <a name="ctx-phones-button-upgrade">Introducing phone number masking</a>
+#### <a name="ctx-web-phones-button-upgrade">Introducing phone number masking</a>
 
 When a user in an eligible region does not have the phone mask plan, the page shows an
 introduction to phone masking, including the plan pricing details. The default shows the
 monthly price when paid yearly, and the user can switch to the per-month price. The user
 can start the subscription process by clicking the 'Upgrade Now' button.
 
-[<img src="./docs/img/phones-button-upgrade.png"
+[<img src="./docs/img/website-phones-button-upgrade.png"
       width=267
       alt="The 'Upgrade to get phone number masking' box on the phone introduction page, including the 'Upgrade Now' button."
-/>](./docs/img/phones-button-upgrade.png)
+/>](./docs/img/website-phones-button-upgrade.png)
 
 The Google Analytics events:
 
@@ -1235,7 +1237,7 @@ The Google Analytics events:
   - `eventAction`: `Engage`
   - `eventLabel`: `phone-onboarding-purchase-yearly-cta`
 
-### <a name="ctx-tips">Help &amp; Tips Box</a>
+### <a name="ctx-web-tips">Help &amp; Tips Box</a>
 
 The "Help &amp; Tips" box appears in the lower right corner of the Email Masks Dashboard
 and the Phone Masks Dashboard when the conditions for the tip is met. It is first
@@ -1249,24 +1251,24 @@ phone mask.
 
 The Help & Tips box with a teaser for a new tip:
 
-[<img src="./docs/img/tip-custom-subdomain-teaser.png"
+[<img src="./docs/img/website-tip-custom-subdomain-teaser.png"
       width=304
       alt="The custom subdomain tip, with teaser text."
-/>](./docs/img/tip-custom-subdomain-teaser.png)
+/>](./docs/img/website-tip-custom-subdomain-teaser.png)
 
 The Help & Tips box showing the tip:
 
-[<img src="./docs/img/tip-custom-subdomain-open.png"
+[<img src="./docs/img/website-tip-custom-subdomain-open.png"
       width=298
       alt="The custom subdomain tip, with text and a video."
-/>](./docs/img/tip-custom-subdomain-open.png)
+/>](./docs/img/website-tip-custom-subdomain-open.png)
 
 The Help & Tips box with all relevant tips viewed:
 
-[<img src="./docs/img/tip-closed.png"
+[<img src="./docs/img/website-tip-closed.png"
       width=109
       alt="The Help &amp; Tips box, after viewing all tips."
-/>](./docs/img/tip-closed.png)
+/>](./docs/img/website-tip-closed.png)
 
 The Google Analytics events:
 
@@ -1294,7 +1296,7 @@ The Google Analytics events:
     - `multi-replies` _(phone masks tip)_
     - `custom-subdomain` _(email masks tip)_
 
-### <a name="ctx-premium">Premium Page</a>
+### <a name="ctx-web-premium">Premium Page</a>
 
 The [Firefox Relay Premium Page][] is similar to the [Landing Page][]. The audience is
 users on the free plan, such as those at the 5 mask limit. Users can view the features
@@ -1302,15 +1304,15 @@ and benefits of the paid plans.
 
 [Firefox Relay Premium Page]: https://relay.firefox.com/premium/
 
-#### <a name="ctx-premium-cta">Call To Action</a>
+#### <a name="ctx-web-premium-cta">Call To Action</a>
 
 The top "call to action" button, labelled 'Upgrade Now', takes the user to the plan
 matrix:
 
-[<img src="./docs/img/premium-cta.png"
+[<img src="./docs/img/website-premium-cta.png"
       width=333
       alt="The top section of the premium page, with the 'Upgrade Now' button"
-/>](./docs/img/premium-cta.png)
+/>](./docs/img/website-premium-cta.png)
 
 The Google Analytics events:
 
@@ -1324,10 +1326,10 @@ The Google Analytics events:
   - `eventAction`: `Engage`
   - `eventLabel`: `home-hero-cta`
 
-### <a name="ctx-premium-matrix">Plan Matrix</a>
+### <a name="ctx-web-premium-matrix">Plan Matrix</a>
 
 The Plan Matrix on the Premium Page is the same as the
-[Plan Matrix on the Landing Page](#ctx-landing-matrix). It has the same Google Analytics
+[Plan Matrix on the Landing Page](#ctx-web-landing-matrix). It has the same Google Analytics
 events.
 
 ### Surveys
@@ -1335,7 +1337,7 @@ events.
 Occasionally we run surveys on the Relay website. These surveys often appear above the
 [Navigation Bar][]. We use Google Analytics events to track some aspects of the surveys.
 
-#### <a name="ctx-surveys-csat">Customer Satisfaction (CSAT) Survey</a>
+#### <a name="ctx-web-surveys-csat">Customer Satisfaction (CSAT) Survey</a>
 
 The [Customer Satisfaction][] survey is shown for free users after they have used the
 site for 7, 30, and 90 days, and for subscribers after they have been subscribed for 7,
@@ -1344,10 +1346,10 @@ level, they are asked to take a two-minute survey on a third-party website. The
 information collected in this survey is not covered by this document, but is processed
 in accordance with [Mozilla's Privacy Policy][].
 
-[<img src="./docs/img/survey-csat.png"
+[<img src="./docs/img/website-survey-csat.png"
       width=647
       alt='The CSAT survey, asking "How satisfied are you with your Firefox Relay experience?"'
-/>](./docs/img/survey-csat.png)
+/>](./docs/img/website-survey-csat.png)
 
 [Customer Satisfaction]: https://en.wikipedia.org/wiki/Customer_satisfaction
 [Mozilla's Privacy Policy]: https://www.mozilla.org/en-US/privacy/
@@ -1367,17 +1369,17 @@ The Google Analytics events:
   - `metric11`: `1` (for Very Dissatisfied) to `5` (for Very Satisfied)
   - `metric12`: `-1` (Dissatisfied), `0` (Neutral), or `1` (Satisfied)
 
-#### <a name="ctx-survey-recruitment">Interview Recruitment Survey</a>
+#### <a name="ctx-web-survey-recruitment">Interview Recruitment Survey</a>
 
 The interview recruitment survey for a research study is shown on the Emails dashboard,
 when we are actively recruiting for user research. The information collected in this
 survey is not covered by this document, but is processed in accordance with
 [Mozilla's Privacy Policy][].
 
-[<img src="./docs/img/survey-recruitment.png"
+[<img src="./docs/img/website-survey-recruitment.png"
       width=380
       alt="The intereview recruitment survey, with the text &quot;Want to help improve Firefox Relay? We'd love to hear what you think. Research participants receive a $50 gift card.&quot;"
-/>](./docs/img/survey-recruitment.png)
+/>](./docs/img/website-survey-recruitment.png)
 
 The Google Analytics events:
 
@@ -1391,17 +1393,17 @@ The Google Analytics events:
   - `eventAction`: `Engage`
   - `eventLabel`: `Want to help improve Firefox Relay? We'd love to hear what you think. Research participants receive a $50 gift card.`
 
-#### <a name="ctx-surveys-phone">Phone Masking Survey</a>
+#### <a name="ctx-web-surveys-phone">Phone Masking Survey</a>
 
 Users with the phone service can be prompted to review the service. This survey was
 enabled around the launch of the Phone service in 2022. The information collected in
 this survey is not covered by this document, but is processed in accordance with
 [Mozilla's Privacy Policy][].
 
-[<img src="./docs/img/survey-phone.png"
+[<img src="./docs/img/website-survey-phone.png"
       width=524
       alt="Phone survey asking 'Answer 4 questions about phone masking to help improve your experience.'"
-/>](./docs/img/survey-phone.png)
+/>](./docs/img/website-survey-phone.png)
 
 The Google Analytics events:
 
@@ -1415,7 +1417,7 @@ The Google Analytics events:
   - `eventAction`: `Engage`
   - `eventLabel`: `Answer 4 questions about phone masking to help improve your experience.`
 
-### <a name="ctx-server">Server Events</a>
+### <a name="ctx-web-server">Server Events</a>
 
 A Relay user requires a Mozilla account to use the service. This can be an existing
 account or a new account created for using Relay. The Relay API server handles the
@@ -1439,12 +1441,12 @@ The Google Analytics events:
 There are components in the Relay Website code base that are not currently used on the
 site. They are documented here for completeness.
 
-#### <a name="ctx-legacy-purchase-premium">Purchased Premium</a>
+#### <a name="ctx-web-legacy-purchase-premium">Purchased Premium</a>
 
 When there was a single paid subscription plan, purchase tracking assumed a single plan.
 This was first tracked in the API backend, but later moved to the Relay Website. In
 September 2022, Relay added phone mask plans, and we expanded subscription tracking to
-include the plan. See [Plan Matrix](#ctx-landing-matrix) for purchase tracking after
+include the plan. See [Plan Matrix](#ctx-web-landing-matrix) for purchase tracking after
 September 2022.
 
 The Google Analytics events:
@@ -1454,10 +1456,10 @@ The Google Analytics events:
   - `eventAction`: `fired`
   - `eventLabel`: `user_purchased_premium`
 
-#### <a name="ctx-legacy-survey-nps">Net Promoter Score Survey</a>
+#### <a name="ctx-web-legacy-survey-nps">Net Promoter Score Survey</a>
 
 Starting February 2021, Relay ran a [Net Promoter Score][] survey at the top of the site.
-This was replaced in June 2022 by the [Customer Satisfaction Survey](#ctx-surveys-csat)
+This was replaced in June 2022 by the [Customer Satisfaction Survey](#ctx-web-surveys-csat)
 
 [Net Promoter Score]: https://en.wikipedia.org/wiki/Net_promoter_score
 
@@ -1527,5 +1529,3 @@ We collect data for the following extension events:
 - When the modal is closed
 
 - When "Manage All Aliases" is clicked
-
-<!-- vim: set textwidth=88 ft=markdown syntax=markdown -->
