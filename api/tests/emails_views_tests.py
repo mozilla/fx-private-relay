@@ -450,15 +450,14 @@ def test_post_relayaddress_with_generated_for_success(
     assert response.status_code == 201
 
     assert (event := get_glean_event(caplog)) is not None
-    address = free_user.relayaddress_set.get()
     expected_event = create_expected_glean_event(
         category="email_mask",
         name="created",
         user=free_user,
         extra_items={
             "n_random_masks": "1",
-            "has_extension": "true",
-            "date_got_extension": str(int(address.created_at.timestamp())),
+            "has_extension": "false",
+            "date_got_extension": "-2",
             "is_random_mask": "true",
             "created_by_api": "true",
             "has_website": "true",
