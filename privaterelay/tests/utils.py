@@ -188,7 +188,7 @@ def create_expected_glean_event(
             "premium_status": "free",
             "date_joined_premium": "-1",
             "has_extension": "false",
-            "date_got_extension": "-1",
+            "date_got_extension": "-2",
         }
         | user_extra_items
         | extra_items

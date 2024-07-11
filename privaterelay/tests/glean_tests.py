@@ -106,20 +106,20 @@ def test_user_data_free_user() -> None:
     assert user_data.date_joined_premium is None
     assert user_data.premium_status == "free"
     assert user_data.has_extension is False
-    assert user_data.date_got_extension is None
+    assert user_data.date_got_extension == datetime.min
 
 
 @pytest.mark.django_db
 def test_user_data_addon_user() -> None:
     """Data is extracted for a free user of the add-on."""
     user = make_free_test_user()
-    ra = user.relayaddress_set.create(generated_for="example.com")
+    user.relayaddress_set.create(generated_for="example.com")
 
     user_data = UserData.from_user(user)
 
     assert user_data.n_random_masks == 1
-    assert user_data.has_extension is True
-    assert user_data.date_got_extension == ra.created_at
+    assert user_data.has_extension is False
+    assert user_data.date_got_extension == datetime.min
 
 
 @pytest.mark.django_db
