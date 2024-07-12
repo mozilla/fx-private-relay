@@ -730,6 +730,25 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
             extra={"issues": {"headers": expected_header_errors}},
         )
 
+    @patch("emails.views.info_logger")
+    def test_header_with_encoded_trailing_newline_is_forwarded(
+        self, mock_logger: Mock
+    ) -> None:
+        """
+        A header with a trailing encoded newline is stripped.
+        """
+        email_text = EMAIL_INCOMING["encoded_trailing_newline"]
+        test_sns_notification = create_notification_from_email(email_text)
+        _sns_notification(test_sns_notification)
+
+        self.check_sent_email_matches_fixture("encoded_trailing_newline")
+        self.mock_remove_message_from_s3.assert_called_once()
+        self.ra.refresh_from_db()
+        assert self.ra.num_forwarded == 1
+        assert self.ra.last_used_at
+        assert (datetime.now(tz=UTC) - self.ra.last_used_at).seconds < 2.0
+        mock_logger.warning.assert_not_called()
+
 
 class SNSNotificationRepliesTest(SNSNotificationTestBase):
     """Tests for _sns_notification for replies from Relay users"""

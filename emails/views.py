@@ -1065,7 +1065,7 @@ def _replace_headers(
     for header, value in headers.items():
         del email[header]
         try:
-            email[header] = value
+            email[header] = value.rstrip("\r\n")
         except Exception as e:
             issues["outgoing"].append(
                 (header, {"exception_on_write": repr(e), "value": value})
