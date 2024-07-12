@@ -26,7 +26,11 @@ EmailBlockedReason = Literal[
 
 def _opt_dt_to_glean(value: datetime | None) -> int:
     """Convert an optional datetime to an integer timestamp."""
-    return -1 if value is None else int(value.timestamp())
+    if value == datetime.min:
+        return -2  # datetime was not checked
+    if value is None:
+        return -1  # datetime does not exist
+    return int(value.timestamp())
 
 
 def _opt_str_to_glean(value: str | None) -> str:
@@ -83,19 +87,10 @@ class UserData(NamedTuple):
         else:
             date_joined_premium = None
         premium_status = user.profile.metrics_premium_status
-        try:
-            earliest_mask = (
-                user.relayaddress_set.exclude(generated_for__exact="")
-                .only("id", "created_at")
-                .earliest("created_at")
-            )
-        except RelayAddress.DoesNotExist:
-            has_extension = False
-            date_got_extension = None
-        else:
-            has_extension = True
-            date_got_extension = earliest_mask.created_at
-
+        # Until more accurate date_got_extension is calculated (MPP-3765)
+        # do not check for when the user got extension
+        has_extension = False
+        date_got_extension = datetime.min
         return cls(
             metrics_enabled=True,
             fxa_id=fxa_id,
