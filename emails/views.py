@@ -1042,7 +1042,18 @@ def _replace_headers(
                     {
                         "defect_count": len(value.defects),
                         "parsed_value": str(value),
-                        "unstructured_value": str(value.as_unstructured),
+                        "raw_value": str(value.as_raw),
+                    },
+                )
+            )
+        elif getattr(getattr(value, "_parse_tree", None), "all_defects", []):
+            issues["incoming"].append(
+                (
+                    header,
+                    {
+                        "defect_count": len(value._parse_tree.all_defects),
+                        "parsed_value": str(value),
+                        "raw_value": str(value.as_raw),
                     },
                 )
             )
@@ -1083,7 +1094,7 @@ def _replace_headers(
                     {
                         "defect_count": len(parsed_value.defects),
                         "parsed_value": str(parsed_value),
-                        "unstructured_value": str(parsed_value.as_unstructured),
+                        "raw_value": str(parsed_value.as_raw),
                     },
                 )
             )

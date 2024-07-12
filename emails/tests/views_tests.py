@@ -668,7 +668,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
                             '"Norton I.", Emperor of the United States'
                             " <norton@sf.us.example.com>"
                         ),
-                        "unstructured_value": (
+                        "raw_value": (
                             "Norton I., Emperor of the United States"
                             " <norton@sf.us.example.com>"
                         ),
@@ -718,7 +718,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
                         "parsed_value": (
                             "<[d7c5838b5ab944f89e3f0c1b85674aef====@example.com]>"
                         ),
-                        "unstructured_value": (
+                        "raw_value": (
                             "<[d7c5838b5ab944f89e3f0c1b85674aef====@example.com]>"
                         ),
                     },
@@ -747,7 +747,22 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at
         assert (datetime.now(tz=UTC) - self.ra.last_used_at).seconds < 2.0
-        mock_logger.warning.assert_not_called()
+        expected_header_errors = {
+            "incoming": [
+                (
+                    "Subject",
+                    {
+                        "defect_count": 1,
+                        "parsed_value": "An encoded newline\n",
+                        "raw_value": "An =?UTF-8?Q?encoded_newline=0A?=",
+                    },
+                )
+            ]
+        }
+        mock_logger.warning.assert_called_once_with(
+            "_handle_received: forwarding issues",
+            extra={"issues": {"headers": expected_header_errors}},
+        )
 
 
 class SNSNotificationRepliesTest(SNSNotificationTestBase):

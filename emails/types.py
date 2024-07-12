@@ -34,7 +34,7 @@ class EmailHeaderExceptionOnWriteIssue(TypedDict):
 class EmailHeaderDefectIssue(TypedDict):
     defect_count: int
     parsed_value: str
-    unstructured_value: str
+    raw_value: str
 
 
 EmailHeaderIssue = (

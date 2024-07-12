@@ -73,6 +73,7 @@ class RelayHeaderRegistry(PythonHeaderRegistry):
         as_unstructured = as_unstructured_cls(name, value)
         # Avoid mypy attr-defined error for setting a dynamic attribute
         setattr(header_instance, "as_unstructured", as_unstructured)
+        setattr(header_instance, "as_raw", value)
         return header_instance
 
 
