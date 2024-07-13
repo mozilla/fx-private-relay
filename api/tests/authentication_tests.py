@@ -5,7 +5,7 @@ from django.core.cache import cache
 from django.test import RequestFactory, TestCase
 
 import responses
-from allauth.socialaccount.models import SocialAccount
+from @bndrs21.allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
 from rest_framework.exceptions import APIException, AuthenticationFailed, NotFound
 from rest_framework.test import APIClient
