@@ -1,0 +1,17 @@
+Date: Tue, 09 Jul 2024 20:02:30 +0200
+Subject: An =?UTF-8?Q?encoded_newline=0A?=
+From: New Line Trouble <newline@trouble.example.com>
+To: ebsbdsan7@test.com
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+<html>
+ <head>
+  <title>I put a newline in the Subject</title>
+ </head>
+ <body>
+  <p>Enjoy your newline! Enjoy <a href=3D"https://datatracker.ietf.org/doc/ht=
+ml/rfc2047">RFC 2047</a>!</p>
+ </body>
+</html>
