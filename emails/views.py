@@ -3,7 +3,6 @@ import json
 import logging
 import re
 import shlex
-from collections import defaultdict
 from copy import deepcopy
 from datetime import UTC, datetime
 from email import message_from_bytes
@@ -1026,36 +1025,36 @@ def _replace_headers(
     # Look for headers to drop
     to_drop: list[str] = []
     replacements: set[str] = {_k.lower() for _k in headers.keys()}
-    issues: EmailHeaderIssues = defaultdict(list)
+    issues: EmailHeaderIssues = []
 
     # Detect non-compliant headers in incoming emails
     for header in email.keys():
         try:
             value = email[header]
         except Exception as e:
-            issues["incoming"].append((header, {"exception_on_read": repr(e)}))
+            issues.append(
+                {"header": header, "direction": "in", "exception_on_read": repr(e)}
+            )
             value = None
         if getattr(value, "defects", None):
-            issues["incoming"].append(
-                (
-                    header,
-                    {
-                        "defect_count": len(value.defects),
-                        "parsed_value": str(value),
-                        "raw_value": str(value.as_raw),
-                    },
-                )
+            issues.append(
+                {
+                    "header": header,
+                    "direction": "in",
+                    "defect_count": len(value.defects),
+                    "parsed_value": str(value),
+                    "raw_value": str(value.as_raw),
+                }
             )
         elif getattr(getattr(value, "_parse_tree", None), "all_defects", []):
-            issues["incoming"].append(
-                (
-                    header,
-                    {
-                        "defect_count": len(value._parse_tree.all_defects),
-                        "parsed_value": str(value),
-                        "raw_value": str(value.as_raw),
-                    },
-                )
+            issues.append(
+                {
+                    "header": header,
+                    "direction": "in",
+                    "defect_count": len(value._parse_tree.all_defects),
+                    "parsed_value": str(value),
+                    "raw_value": str(value.as_raw),
+                }
             )
 
     # Collect headers that will not be forwarded
@@ -1078,28 +1077,39 @@ def _replace_headers(
         try:
             email[header] = value.rstrip("\r\n")
         except Exception as e:
-            issues["outgoing"].append(
-                (header, {"exception_on_write": repr(e), "value": value})
+            issues.append(
+                {
+                    "header": header,
+                    "direction": "out",
+                    "exception_on_write": repr(e),
+                    "value": value,
+                }
             )
             continue
         try:
             parsed_value = email[header]
         except Exception as e:
-            issues["outgoing"].append((header, {"exception_on_read": repr(e)}))
+            issues.append(
+                {
+                    "header": header,
+                    "direction": "out",
+                    "exception_on_write": repr(e),
+                    "value": value,
+                }
+            )
             continue
         if parsed_value.defects:
-            issues["outgoing"].append(
-                (
-                    header,
-                    {
-                        "defect_count": len(parsed_value.defects),
-                        "parsed_value": str(parsed_value),
-                        "raw_value": str(parsed_value.as_raw),
-                    },
-                )
+            issues.append(
+                {
+                    "header": header,
+                    "direction": "out",
+                    "defect_count": len(parsed_value.defects),
+                    "parsed_value": str(parsed_value),
+                    "raw_value": str(parsed_value.as_raw),
+                },
             )
 
-    return dict(issues)
+    return issues
 
 
 def _convert_html_content(

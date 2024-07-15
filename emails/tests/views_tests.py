@@ -658,24 +658,23 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         self.check_sent_email_matches_fixture(
             "emperor_norton", replace_mime_boundaries=True
         )
-        expected_header_errors = {
-            "incoming": [
-                (
-                    "From",
-                    {
-                        "defect_count": 4,
-                        "parsed_value": (
-                            '"Norton I.", Emperor of the United States'
-                            " <norton@sf.us.example.com>"
-                        ),
-                        "raw_value": (
-                            "Norton I., Emperor of the United States"
-                            " <norton@sf.us.example.com>"
-                        ),
-                    },
-                )
-            ]
-        }
+
+        expected_header_errors = [
+            {
+                "header": "From",
+                "direction": "in",
+                "defect_count": 4,
+                "parsed_value": (
+                    '"Norton I.",'
+                    " Emperor of the United States <norton@sf.us.example.com>"
+                ),
+                "raw_value": (
+                    "Norton I.,"
+                    " Emperor of the United States <norton@sf.us.example.com>"
+                ),
+            }
+        ]
+
         mock_logger.warning.assert_called_once_with(
             "_handle_received: forwarding issues",
             extra={"issues": {"headers": expected_header_errors}},
@@ -709,22 +708,15 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         self.check_sent_email_matches_fixture(
             "message_id_in_brackets", replace_mime_boundaries=True
         )
-        expected_header_errors = {
-            "incoming": [
-                (
-                    "Message-ID",
-                    {
-                        "defect_count": 1,
-                        "parsed_value": (
-                            "<[d7c5838b5ab944f89e3f0c1b85674aef====@example.com]>"
-                        ),
-                        "raw_value": (
-                            "<[d7c5838b5ab944f89e3f0c1b85674aef====@example.com]>"
-                        ),
-                    },
-                )
-            ]
-        }
+        expected_header_errors = [
+            {
+                "header": "Message-ID",
+                "direction": "in",
+                "defect_count": 1,
+                "parsed_value": "<[d7c5838b5ab944f89e3f0c1b85674aef====@example.com]>",
+                "raw_value": "<[d7c5838b5ab944f89e3f0c1b85674aef====@example.com]>",
+            }
+        ]
         mock_logger.warning.assert_called_once_with(
             "_handle_received: forwarding issues",
             extra={"issues": {"headers": expected_header_errors}},
@@ -747,18 +739,15 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at
         assert (datetime.now(tz=UTC) - self.ra.last_used_at).seconds < 2.0
-        expected_header_errors = {
-            "incoming": [
-                (
-                    "Subject",
-                    {
-                        "defect_count": 1,
-                        "parsed_value": "An encoded newline\n",
-                        "raw_value": "An =?UTF-8?Q?encoded_newline=0A?=",
-                    },
-                )
-            ]
-        }
+        expected_header_errors = [
+            {
+                "header": "Subject",
+                "direction": "in",
+                "defect_count": 1,
+                "parsed_value": "An encoded newline\n",
+                "raw_value": "An =?UTF-8?Q?encoded_newline=0A?=",
+            }
+        ]
         mock_logger.warning.assert_called_once_with(
             "_handle_received: forwarding issues",
             extra={"issues": {"headers": expected_header_errors}},
@@ -2372,9 +2361,13 @@ def test_replace_headers_read_error_is_handled() -> None:
         issues = _replace_headers(email, new_headers)
 
     # The mocked exception was handled and logged
-    assert issues == {
-        "incoming": [("X-Fail", {"exception_on_read": "RuntimeError('I failed.')"})]
-    }
+    assert issues == [
+        {
+            "header": "X-Fail",
+            "direction": "in",
+            "exception_on_read": "RuntimeError('I failed.')",
+        }
+    ]
 
     # _replace_headers continued working with the remaining data, the headers are now
     # set to the desired new values.

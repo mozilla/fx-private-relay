@@ -23,15 +23,21 @@ AWS_MailJSON = dict[str, Any]
 
 
 class EmailHeaderExceptionOnReadIssue(TypedDict):
+    header: str
+    direction: Literal["in"]
     exception_on_read: str
 
 
 class EmailHeaderExceptionOnWriteIssue(TypedDict):
+    header: str
+    direction: Literal["out"]
     exception_on_write: str
     value: str
 
 
 class EmailHeaderDefectIssue(TypedDict):
+    header: str
+    direction: Literal["in", "out"]
     defect_count: int
     parsed_value: str
     raw_value: str
@@ -43,8 +49,6 @@ EmailHeaderIssue = (
     | EmailHeaderDefectIssue
 )
 
-EmailHeaderIssues = dict[
-    Literal["incoming", "outgoing"], list[tuple[str, EmailHeaderIssue]]
-]
+EmailHeaderIssues = list[EmailHeaderIssue]
 
 EmailForwardingIssues = dict[Literal["headers"], EmailHeaderIssues]
