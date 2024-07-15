@@ -137,11 +137,21 @@ class Command(BaseCommand):
         total = 0
         timers: dict[str, float] = {}
         for slug, task in tasks.items():
-            if hasattr(task, "clean"):
-                with Timer(logger=None) as clean_timer:
-                    total += task.clean()
-            timers[slug] = round(clean_timer.last, 3)
+            task_cleaned, clean_time = self.clean_issues_in_task(task)
+            if task_cleaned is not None and clean_time is not None:
+                total += task_cleaned
+                timers[slug] = clean_time
         return total, timers
+
+    def clean_issues_in_task(
+        self, task: DataIssueTask
+    ) -> tuple[int, float] | tuple[None, None]:
+        """Run the task cleaner, returning issues cleaned and execution time."""
+        if not hasattr(task, "clean"):
+            return (None, None)
+        with Timer(logger=None) as clean_timer:
+            cleaned = task.clean()
+        return cleaned, round(clean_timer.last, 3)
 
     def prepare_data(
         self,
