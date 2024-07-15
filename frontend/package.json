@@ -49,7 +49,7 @@
     "@typescript-eslint/parser": "^7.15.0",
     "babel-jest": "^29.7.0",
     "eslint": "^8.57.0",
-    "eslint-config-next": "^14.2.4",
+    "eslint-config-next": "^14.2.5",
     "eslint-plugin-jest-dom": "^5.4.0",
     "eslint-plugin-testing-library": "^6.2.2",
     "fast-check": "^3.19.0",
