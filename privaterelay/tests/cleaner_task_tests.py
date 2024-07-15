@@ -695,6 +695,7 @@ class DeactivateOddUsersTask(CleanerTask):
         ( 1999,  2000,  "1999 (100.0%)"),
         (    1, 20000, "    1 (  0.0%)"),
         (19999, 20000, "19999 (100.0%)"),
+        (20000, 20000, "20000 (100.0%)"),
     ),
 )
 # fmt: on
@@ -702,11 +703,20 @@ def test_data_issue_task_as_percent(part: int, whole: int, expected: str) -> Non
     assert DataIssueTask._as_percent(part, whole) == expected
 
 
+def test_data_issue_task_as_percent_part_greater_than_whole() -> None:
+    """
+    Allow the part to be greater than the whole.
+
+    This can happen if the task is not run inside a transaction, so that user
+    actions can change the state of the database.
+    """
+    assert DataIssueTask._as_percent(201, 200) == "201 (100.5%)"
+
+
 @pytest.mark.parametrize(
     "part,whole,error",
     (
         (1, 0, r"^whole \(0\) can not be less than 0$"),
-        (2, 1, r"^part \(2\) can not be greater than whole \(1\)$"),
         (-1, 2, r"^part \(-1\) can not be negative$"),
     ),
 )
