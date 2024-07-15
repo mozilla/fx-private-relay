@@ -7,6 +7,7 @@ from shutil import get_terminal_size
 from typing import TYPE_CHECKING, Any
 
 from django.core.management.base import BaseCommand, DjangoHelpFormatter
+from django.db import transaction
 
 from codetiming import Timer
 
@@ -95,15 +96,16 @@ class Command(BaseCommand):
         issue_timers: dict[str, float] = {}
         clean_timers: dict[str, float] = {}
         for slug, task in tasks.items():
-            task_issues, task_time = self.find_issues_in_task(task)
-            issue_count += task_issues
-            issue_timers[slug] = task_time
+            with transaction.atomic():
+                task_issues, task_time = self.find_issues_in_task(task)
+                issue_count += task_issues
+                issue_timers[slug] = task_time
 
-            if clean:
-                task_cleaned, clean_time = self.clean_issues_in_task(task)
-                if task_cleaned is not None and clean_time is not None:
-                    clean_count += task_cleaned
-                    clean_timers[slug] = clean_time
+                if clean:
+                    task_cleaned, clean_time = self.clean_issues_in_task(task)
+                    if task_cleaned is not None and clean_time is not None:
+                        clean_count += task_cleaned
+                        clean_timers[slug] = clean_time
 
         # Log results and create a report, based on requested verbosity
         if clean:
