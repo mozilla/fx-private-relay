@@ -119,10 +119,16 @@ class Command(BaseCommand):
         total = 0
         timers: dict[str, float] = {}
         for slug, task in tasks.items():
-            with Timer(logger=None) as issue_timer:
-                total += task.issues()
-            timers[slug] = round(issue_timer.last, 3)
+            task_issues, task_time = self.find_issues_in_task(task)
+            total += task_issues
+            timers[slug] = task_time
         return total, timers
+
+    def find_issues_in_task(self, task: DataIssueTask) -> tuple[int, float]:
+        """Run a task, returning the number of issues and execution time."""
+        with Timer(logger=None) as issue_timer:
+            total = task.issues()
+        return total, round(issue_timer.last, 3)
 
     def clean_issues(
         self, tasks: dict[str, DataIssueTask]
