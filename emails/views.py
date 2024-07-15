@@ -783,7 +783,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     if has_text:
         incr_if_enabled("email_with_text_content", 1)
     if issues:
-        info_logger.warning(
+        info_logger.info(
             "_handle_received: forwarding issues", extra={"issues": issues}
         )
 

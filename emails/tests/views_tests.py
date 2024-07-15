@@ -641,7 +641,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at
         assert (datetime.now(tz=UTC) - self.ra.last_used_at).seconds < 2.0
-        mock_logger.warning.assert_not_called()
+        mock_logger.info.assert_not_called()
 
     @patch("emails.views.info_logger")
     def test_from_with_unquoted_commas_is_parsed(self, mock_logger: Mock) -> None:
@@ -675,7 +675,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
             }
         ]
 
-        mock_logger.warning.assert_called_once_with(
+        mock_logger.info.assert_called_once_with(
             "_handle_received: forwarding issues",
             extra={"issues": {"headers": expected_header_errors}},
         )
@@ -696,7 +696,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
                 ],
             },
         )
-        mock_logger.warning.assert_not_called()
+        mock_logger.info.assert_not_called()
 
     @patch("emails.views.info_logger")
     def test_invalid_message_id_is_forwarded(self, mock_logger: Mock) -> None:
@@ -717,7 +717,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
                 "raw_value": "<[d7c5838b5ab944f89e3f0c1b85674aef====@example.com]>",
             }
         ]
-        mock_logger.warning.assert_called_once_with(
+        mock_logger.info.assert_called_once_with(
             "_handle_received: forwarding issues",
             extra={"issues": {"headers": expected_header_errors}},
         )
@@ -748,7 +748,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
                 "raw_value": "An =?UTF-8?Q?encoded_newline=0A?=",
             }
         ]
-        mock_logger.warning.assert_called_once_with(
+        mock_logger.info.assert_called_once_with(
             "_handle_received: forwarding issues",
             extra={"issues": {"headers": expected_header_errors}},
         )
