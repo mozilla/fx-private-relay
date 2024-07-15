@@ -64,7 +64,7 @@
     "prettier": "3.3.2",
     "react-test-renderer": "^18.3.1",
     "sass": "^1.77.8",
-    "stylelint": "^16.6.1",
+    "stylelint": "^16.7.0",
     "stylelint-config-recommended-scss": "^14.0.0",
     "stylelint-scss": "^6.3.2",
     "typescript": "^5.5.3"
