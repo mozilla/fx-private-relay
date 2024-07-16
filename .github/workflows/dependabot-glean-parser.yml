@@ -25,10 +25,16 @@ jobs:
           echo "github.ref_name=${{ github.ref_name }}"
   has-glean-parser:
     runs-on: ubuntu-latest
-    if: ${{ contains( github.ref, 'glean-parser' ) }}
+    if: ${{ contains( github.head_ref, 'glean-parser' ) }}
     steps:
       - name: Success
-        run: echo "${{ github.ref }} contains 'glean-parser'"
+        run: echo "${{ github.head_ref }} contains 'glean-parser'"
+  starts-with-glean-parser:
+    runs-on: ubuntu-latest
+    if: ${{ startsWith( github.head_ref, 'dependabot/pip/glean-parser' ) }}
+    steps:
+      - name: Success
+        run: echo "${{ github.head_ref }} contains 'glean-parser'"
   is-dependabot-name:
     runs-on: ubuntu-latest
     if: ${{ github.actor == 'dependabot[bot]' }}
@@ -56,7 +62,7 @@ jobs:
 
   regen-with-new-glean-parser:
     runs-on: ubuntu-latest
-    if: ${{ github.actor == 'dependabot[bot]' && contains( github.ref, 'glean-parser' ) }}
+    if: ${{ github.actor == 'dependabot[bot]' && startsWith( github.head_ref, 'dependabot/pip/glean-parser' ) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
