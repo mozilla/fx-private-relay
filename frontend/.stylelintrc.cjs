@@ -13,25 +13,7 @@ module.exports = {
     "src/hooks/mediaQuery.module.scss",
   ],
   "rules": {
-    "at-rule-empty-line-before": [
-      "always",
-      {
-        "except": ["after-same-name", "first-nested"],
-        "ignore": ["after-comment"]
-      }
-    ],
-    "at-rule-no-unknown": null,
-    "declaration-block-no-shorthand-property-overrides": true,
-    "declaration-no-important" : true,
-    "font-weight-notation": "numeric",
-    "function-url-quotes": "always",
     "no-descending-specificity": null,
-    "selector-class-pattern": [
-      "^([a-z][a-z0-9]*)(-[a-z0-9]+)*$",
-      {
-        "message": "Expected class selector to be kebab-case",
-      },
-    ],
     "selector-pseudo-class-no-unknown": [
       true,
       {
@@ -39,6 +21,5 @@ module.exports = {
         "ignorePseudoClasses": ["global"] 
       }
     ],
-    "scss/at-rule-no-unknown": true,
   }
 };
