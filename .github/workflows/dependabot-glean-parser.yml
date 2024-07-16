@@ -82,7 +82,7 @@ jobs:
         run: |
           exit_code=0
           git diff-index --quiet HEAD || exit_code=$?
-          if (( exit_code == 0 )); then echo "no changes"; fi
+          if (( exit_code == 0 )); then echo "no changes, exit_code=$exit_code"; else echo "change, exit_code=$exit_code"; fi
           git config user.email "<>"
           git config user.name "GitHub Actions - Run new glean-parser"
           git diff
