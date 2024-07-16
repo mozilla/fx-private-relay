@@ -81,13 +81,16 @@ jobs:
       - name: Commit changed file
         run: |
           set -x
-          exit_code=0
-          git diff-index HEAD
-          git diff-index --quiet --exit-code --ignore-submodules HEAD || exit_code=$?
-          if (( exit_code == 0 )); then echo "no changes, exit_code=$exit_code"; else echo "changes, exit_code=$exit_code"; fi
           git config user.email "<>"
           git config user.name "GitHub Actions - Run new glean-parser"
           git diff
           git add privaterelay/glean/server_events.py
-          git commit --message="Re-generate code with glean-parser $GLEAN_VERSION" || echo "No changes to commit"
+          has_changes=1
+          git commit --message="Re-generate code with glean-parser $GLEAN_VERSION" || has_changes=0
+          if (( has_changes == 0 ))
+          then
+            echo "no changes, has_changes=$has_changes"
+          else
+            echo "has changes, has_changes=$has_changes"
+          fi
           git push origin HEAD:pull/${{ github.ref_name }}
