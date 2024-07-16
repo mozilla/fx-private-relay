@@ -1,6 +1,6 @@
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "../styles/tokens.scss";
-@import "../../src/components/Button.module.scss";
+@import "../styles/tokens";
+@import "../../src/components/Button.module";
 
 .content-container {
   display: flex;
