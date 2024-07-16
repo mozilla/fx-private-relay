@@ -6,63 +6,9 @@ permissions:
   pull-requests: write
 
 jobs:
-  debug-variables:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Print some variables
-        run: |
-          echo "GITHUB_ACTOR=$GITHUB_ACTOR"
-          echo "GITHUB_ACTOR_ID=$GITHUB_ACTOR_ID"
-          echo "GITHUB_BASE_REF=$GITHUB_BASE_REF"
-          echo "GITHUB_HEAD_REF=$GITHUB_HEAD_REF"
-          echo "GITHUB_REF=$GITHUB_REF"
-          echo "GITHUB_REF_NAME=$GITHUB_REF_NAME"
-          echo "github.actor=${{github.actor}}"
-          echo "github.actor_id=${{github.actor_id}}"
-          echo "github.base_ref=${{ github.base_ref }}"
-          echo "github.head_ref=${{ github.head_ref }}"
-          echo "github.ref=${{ github.ref }}"
-          echo "github.ref_name=${{ github.ref_name }}"
-  has-glean-parser:
-    runs-on: ubuntu-latest
-    if: ${{ contains( github.head_ref, 'glean-parser' ) }}
-    steps:
-      - name: Success
-        run: echo "${{ github.head_ref }} contains 'glean-parser'"
-  starts-with-glean-parser:
-    runs-on: ubuntu-latest
-    if: ${{ startsWith( github.head_ref, 'dependabot/pip/glean-parser' ) }}
-    steps:
-      - name: Success
-        run: echo "${{ github.head_ref }} contains 'glean-parser'"
-  is-dependabot-name:
-    runs-on: ubuntu-latest
-    if: ${{ github.actor == 'dependabot[bot]' }}
-    steps:
-      - name: success
-        run: echo "${{ github.actor }} is 'dependabot[bot]'"
-  is-dependabot-id:
-    runs-on: ubuntu-latest
-    if: ${{ github.actor_id == 49699333 }}
-    steps:
-      - name: success
-        run: echo "${{ github.actor_d }} is 4969933 (dependabot[bot])"
-  is-jwhitlock-name:
-    runs-on: ubuntu-latest
-    if: ${{ github.actor == 'jwhitlock' }}
-    steps:
-      - name: success
-        run: echo "${{ github.actor }} is 'jwhitlock'"
-  is-jwhitlock-id:
-    runs-on: ubuntu-latest
-    if: ${{ github.actor_id == 286017 }}
-    steps:
-      - name: success
-        run: echo "${{ github.actor_d }} is 286017 (jwhitlock)"
-
   regen-with-new-glean-parser:
     runs-on: ubuntu-latest
-    if: ${{ true || github.actor == 'dependabot[bot]' && startsWith( github.head_ref, 'dependabot/pip/glean-parser' ) }}
+    if: ${{ github.actor == 'dependabot[bot]' && startsWith( github.head_ref, 'dependabot/pip/glean-parser' ) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -80,7 +26,6 @@ jobs:
         run: .circleci/python_job.bash run build_glean
       - name: Commit changed file
         run: |
-          set -x
           git config user.email "<>"
           git config user.name "GitHub Actions - Run new glean-parser"
           git diff
