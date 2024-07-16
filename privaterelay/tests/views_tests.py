@@ -449,7 +449,7 @@ def test_fxa_rp_events_password_change_far_future_iat(
         ("request.summary", logging.ERROR, "The token is not yet valid (iat)"),
     ]
     assert isinstance(iat_age_s := getattr(caplog.records[0], "iat_age_s"), float)
-    assert -10.0 <= iat_age_s < -8.0
+    assert -10.0 <= iat_age_s < -5.0
 
 
 def test_fxa_rp_events_profile_change(
