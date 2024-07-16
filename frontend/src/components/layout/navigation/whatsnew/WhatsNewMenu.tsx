@@ -42,12 +42,11 @@ import HolidayPromo2023Icon from "./images/holiday-promo-2023-news-icon.svg";
 import HolidayPromo2023Hero from "./images/holiday-promo-2023-news-hero.svg";
 import BundleHero from "./images/bundle-promo-hero.svg";
 import BundleIcon from "./images/bundle-promo-icon.svg";
-import OfferCountdownIcon from "./images/offer-countdown-icon.svg";
 import FirefoxIntegrationHero from "./images/firefox-integration-hero.svg";
 import FirefoxIntegrationIcon from "./images/firefox-integration-icon.svg";
 import MailingListHero from "./images/mailing-list-hero.svg";
 import MailingListIcon from "./images/mailing-list-icon.svg";
-import { WhatsNewComponentContent, WhatsNewContent } from "./WhatsNewContent";
+import { WhatsNewContent } from "./WhatsNewContent";
 import {
   DismissalData,
   useLocalDismissal,
@@ -66,7 +65,6 @@ import {
   isPeriodicalPremiumAvailableInCountry,
   isPhonesAvailableInCountry,
 } from "../../../../functions/getPlan";
-import { CountdownTimer } from "../../../CountdownTimer";
 import Link from "next/link";
 import { GiftIcon } from "../../../Icons";
 import { useGaEvent } from "../../../../hooks/gaEvent";
@@ -486,53 +484,6 @@ export const WhatsNewMenu = (props: Props) => {
   // Only show its announcement if tracker removal is live:
   if (isFlagActive(props.runtimeData, "tracker_removal")) {
     entries.push(trackerRemoval);
-  }
-
-  const endDateFormatter = new Intl.DateTimeFormat(getLocale(l10n), {
-    dateStyle: "long",
-  });
-  // Introductory pricing ended 2022-09-27T09:00:00.000-07:00:
-  const introPricingOfferEndDate = new Date(1664294400000);
-
-  const introPricingCountdown: WhatsNewEntry = {
-    title: l10n.getString("whatsnew-feature-offer-countdown-heading"),
-    snippet: l10n.getString("whatsnew-feature-offer-countdown-snippet", {
-      end_date: endDateFormatter.format(introPricingOfferEndDate),
-    }),
-    content: (
-      <WhatsNewComponentContent
-        description={l10n.getString(
-          "whatsnew-feature-offer-countdown-description",
-          { end_date: endDateFormatter.format(introPricingOfferEndDate) },
-        )}
-        heading={l10n.getString("whatsnew-feature-offer-countdown-heading")}
-        hero={
-          <div className={styles["countdown-timer"]}>
-            <CountdownTimer remainingTimeInMs={0} />
-          </div>
-        }
-      />
-    ),
-    icon: OfferCountdownIcon,
-    dismissal: useLocalDismissal(
-      `whatsnew-feature_offer-countdown_${props.profile.id}`,
-    ),
-    announcementDate: {
-      year: 2022,
-      month: 9,
-      day: 13,
-    },
-  };
-  // Make sure to move the end-of-intro-pricing news entry is in the History
-  // tab now that the countdown has finished:
-  introPricingCountdown.dismissal.isDismissed = true;
-  if (
-    // If the user does not have Premium yet,
-    !props.profile.has_premium &&
-    // …but is able to purchase Premium
-    isPeriodicalPremiumAvailableInCountry(props.runtimeData)
-  ) {
-    entries.push(introPricingCountdown);
   }
 
   const phoneAnnouncement: WhatsNewEntry = {

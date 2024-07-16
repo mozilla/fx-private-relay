@@ -49,7 +49,7 @@ and both have their dependencies checked by Dependabot.
 
 What follows is a list of dependencies and how to check for potential breakage when they release new versions:
 
-### `*lint*`, `@types/*`, `typescript`, `*jest*`, `@testing-library/*`, `react-test-renderer`, `fast-check`, `prettier`
+### `*lint*`, `@types/*`, `typescript`, `*jest*`, `@testing-library/*`, `react-test-renderer`, `prettier`
 
 For linters, type definitions, and non-Playwright testing-related packages, a
 successful CI run generally provides enough confidence that the upgrade is fine.
