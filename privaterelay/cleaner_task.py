@@ -827,8 +827,6 @@ class DataIssueTask:
             raise ValueError(f"whole ({whole}) can not be less than 0")
         if part < 0:
             raise ValueError(f"part ({part}) can not be negative")
-        if part > whole:
-            raise ValueError(f"part ({part}) can not be greater than whole ({whole})")
         len_whole = len(str(whole))
         return f"{part:{len_whole}d} ({part / whole:6.1%})"
 
