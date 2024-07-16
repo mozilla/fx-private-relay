@@ -80,7 +80,9 @@ jobs:
         run: .circleci/python_job.bash run build_glean
       - name: Commit changed file
         run: |
+          set -x
           exit_code=0
+          git diff-index HEAD
           git diff-index --quiet --exit-code --ignore-submodules HEAD || exit_code=$?
           if (( exit_code == 0 )); then echo "no changes, exit_code=$exit_code"; else echo "changes, exit_code=$exit_code"; fi
           git config user.email "<>"
