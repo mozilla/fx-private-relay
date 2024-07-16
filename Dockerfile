@@ -38,4 +38,4 @@ RUN PHONES_ENABLED=True \
 
 ENTRYPOINT ["/app/.local/bin/gunicorn"]
 
-CMD ["--config", "gunicorn.conf", "privaterelay.wsgi:application"]
+CMD ["--config", "gunicorn.conf.py", "privaterelay.wsgi:application"]
