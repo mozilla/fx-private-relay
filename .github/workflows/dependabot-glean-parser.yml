@@ -80,8 +80,9 @@ jobs:
         run: .circleci/python_job.bash run build_glean
       - name: Commit changed file
         run: |
-          git diff-index --quiet HEAD
-          if $? -eq 0; then echo "no changes"; fi
+          exit_code=0
+          git diff-index --quiet HEAD || exit_code=$?
+          if (( exit_code == 0 )); then echo "no changes"; fi
           git config user.email "<>"
           git config user.name "GitHub Actions - Run new glean-parser"
           git diff
