@@ -89,8 +89,7 @@ jobs:
           git commit --message="Re-generate code with glean-parser $GLEAN_VERSION" || has_changes=0
           if (( has_changes == 0 ))
           then
-            echo "no changes, has_changes=$has_changes"
-          else
-            echo "has changes, has_changes=$has_changes"
+            echo "no changes to push"
+            exit 0
           fi
           git push origin HEAD:pull/${{ github.ref_name }}
