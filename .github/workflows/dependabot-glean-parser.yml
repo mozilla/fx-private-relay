@@ -3,17 +3,21 @@ on:
   pull_request:
     branches: [ main ]
 permissions:
-  pull-requests: write
+  contents: write
 
 jobs:
   regen-with-new-glean-parser:
     runs-on: ubuntu-latest
-    if: ${{ github.actor == 'dependabot[bot]' && contains( github.ref, 'glean-parser' ) }}
+    if: ${{ (github.actor == 'jwhitlock' || github.actor == 'dependabot[bot]') && startsWith( github.head_ref, 'dependabot/pip/glean-parser' ) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           submodules: 'recursive'
+      - name: Checkout pull request
+        run: gh pr checkout --recurse-submodules ${{ github.event.pull_request.number }}
+        env:
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Set up Python 3
         uses: actions/setup-python@v5.1.1
         with:
@@ -23,7 +27,7 @@ jobs:
         run: |
           pip install -r requirements.txt
       - name: Dependabot metadata
-        id: metadata
+        id: dependabot-metadata
         uses: dependabot/fetch-metadata@v2
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
@@ -34,8 +38,14 @@ jobs:
           git config user.email "<>"
           git config user.name "GitHub Actions - Run new glean-parser"
           git add privaterelay/glean/server_events.py
-          git commit --message="Re-generate code with glean-parser $GLEAN_VERSION" || echo "No changes to commit"
+          has_changes=1
+          git commit --message="Re-generate code with glean-parser $GLEAN_VERSION" || has_changes=0
+          if (( has_changes == 0 ))
+          then
+            echo "no changes to push"
+            exit 0
+          fi
           git push
         env:
           GLEAN_VERSION: ${{steps.dependabot-metadata.outputs.new-version}}
-          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
