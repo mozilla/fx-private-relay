@@ -80,9 +80,11 @@ jobs:
         run: .circleci/python_job.bash run build_glean
       - name: Commit changed file
         run: |
+          git diff-index --quiet HEAD
+          if $? -eq 0; then echo "no changes"; fi
           git config user.email "<>"
           git config user.name "GitHub Actions - Run new glean-parser"
           git diff
           git add privaterelay/glean/server_events.py
           git commit --message="Re-generate code with glean-parser $GLEAN_VERSION" || echo "No changes to commit"
-          git push
+          git push origin HEAD:pull/${{ github.ref_name }}
