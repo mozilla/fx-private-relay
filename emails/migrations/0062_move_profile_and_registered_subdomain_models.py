@@ -2,7 +2,7 @@
 # Move Profile and RegisteredSubdomain to privaterelay app
 # Other half is
 # privaterelay/migrations/0010_move_profile_and_registered_subdomain_models.py
-# See https://davit.hashnode.dev/django-move-model
+# See https://davit.hashnode.dev/django-move-model, solution #2
 
 from django.db import migrations
 

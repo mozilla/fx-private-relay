@@ -94,6 +94,9 @@ class Profile(models.Model):
     last_engagement = models.DateTimeField(blank=True, null=True, db_index=True)
 
     class Meta:
+        # Moved from emails to privaterelay, but old table name retained. See:
+        # privaterelay/migrations/0010_move_profile_and_registered_subdomain_models.py
+        # emails/migrations/0062_move_profile_and_registered_subdomain_models.py
         db_table = "emails_profile"
 
     def __str__(self):
@@ -565,6 +568,9 @@ class RegisteredSubdomain(models.Model):
         return self.subdomain_hash
 
     class Meta:
+        # Moved from emails to privaterelay, but old table name retained. See:
+        # privaterelay/migrations/0010_move_profile_and_registered_subdomain_models.py
+        # emails/migrations/0062_move_profile_and_registered_subdomain_models.py
         db_table = "emails_registeredsubdomain"
 
     @classmethod
