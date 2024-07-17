@@ -29,8 +29,6 @@ from emails.models import DomainAddress, RelayAddress
 from emails.utils import incr_if_enabled
 
 from .apps import PrivateRelayConfig
-
-# from silk.profiling.profiler import silk_profile
 from .exceptions import CannotMakeSubdomainException
 from .fxa_utils import NoSocialToken, _get_oauth2_session
 from .validators import valid_available_subdomain
