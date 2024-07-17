@@ -15,7 +15,7 @@ from .models import Profile
 info_logger = logging.getLogger("eventsinfo")
 
 
-@receiver(user_signed_up)
+@receiver(user_signed_up, dispatch_uid="privaterelay_record_user_signed_up")
 def record_user_signed_up(request, user, **kwargs):
     incr_if_enabled("user_signed_up", 1)
     # the user_signed_up signal doesn't have access to the response object
@@ -24,7 +24,7 @@ def record_user_signed_up(request, user, **kwargs):
     request.session.modified = True
 
 
-@receiver(user_logged_in)
+@receiver(user_logged_in, dispatch_uid="privaterelay_record_user_logged_in")
 def record_user_logged_in(request, user, **kwargs):
     incr_if_enabled("user_logged_in", 1)
     response = kwargs.get("response")
@@ -37,14 +37,14 @@ def record_user_logged_in(request, user, **kwargs):
         response.set_cookie(f"server_ga_event:{event}", event, max_age=5)
 
 
-@receiver(post_save, sender=User)
+@receiver(post_save, sender=User, dispatch_uid="privaterelay_create_user_profile")
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         set_user_group(instance)
         Profile.objects.create(user=instance)
 
 
-@receiver(pre_save, sender=Profile)
+@receiver(pre_save, sender=Profile, dispatch_uid="measure_feature_usage")
 def measure_feature_usage(sender, instance, **kwargs):
     if instance._state.adding:
         # if newly created Profile ignore the signal
@@ -71,7 +71,7 @@ def measure_feature_usage(sender, instance, **kwargs):
         )
 
 
-@receiver(post_save, sender=Profile)
+@receiver(post_save, sender=Profile, dispatch_uid="privaterelay_copy_auth_token")
 def copy_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
         # baker triggers created during tests
