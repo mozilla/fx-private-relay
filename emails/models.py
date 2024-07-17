@@ -14,8 +14,6 @@ from django.core.validators import MinLengthValidator
 from django.db import models, transaction
 from django.db.models.base import ModelBase
 
-from privaterelay.models import Profile
-
 from .exceptions import (
     DomainAddrDuplicateException,
     DomainAddrUnavailableException,
@@ -154,6 +152,8 @@ class RelayAddress(models.Model):
         using: str | None = None,
         update_fields: Iterable[str] | None = None,
     ) -> None:
+        from privaterelay.models import Profile
+
         if self._state.adding:
             with transaction.atomic():
                 locked_profile = Profile.objects.select_for_update().get(user=self.user)
