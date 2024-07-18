@@ -929,5 +929,8 @@ SILENCED_SYSTEM_CHECKS = sorted(
 # django-ftl settings
 AUTO_RELOAD_BUNDLES = False  # Requires pyinotify
 
+# accounts that should not have abuse metrics
+ALLOWED_ACCOUNTS = ["relay-team+e2e@mozilla.com"]
+
 # Patching for django-types
 django_stubs_ext.monkeypatch()

@@ -473,72 +473,81 @@ class Profile(models.Model):
         email_forwarded: bool = False,
         forwarded_email_size: int = 0,
     ) -> datetime | None:
-        # TODO MPP-3720: This should be wrapped in atomic or select_for_update to ensure
-        # race conditions are properly handled.
+        if self.user.email in settings.ALLOWED_ACCOUNTS:
+            return None
 
-        # look for abuse metrics created on the same UTC date, regardless of time.
-        midnight_utc_today = datetime.combine(
-            datetime.now(UTC).date(), datetime.min.time()
-        ).astimezone(UTC)
-        midnight_utc_tomorow = midnight_utc_today + timedelta(days=1)
-        abuse_metric = self.user.abusemetrics_set.filter(
-            first_recorded__gte=midnight_utc_today,
-            first_recorded__lt=midnight_utc_tomorow,
-        ).first()
-        if not abuse_metric:
-            abuse_metric = AbuseMetrics.objects.create(user=self.user)
-            AbuseMetrics.objects.filter(first_recorded__lt=midnight_utc_today).delete()
+        with transaction.atomic():
+            # look for abuse metrics created on the same UTC date, regardless of time.
+            midnight_utc_today = datetime.combine(
+                datetime.now(UTC).date(), datetime.min.time()
+            ).astimezone(UTC)
+            midnight_utc_tomorow = midnight_utc_today + timedelta(days=1)
+            abuse_metric = (
+                self.user.abusemetrics_set.select_for_update()
+                .filter(
+                    first_recorded__gte=midnight_utc_today,
+                    first_recorded__lt=midnight_utc_tomorow,
+                )
+                .first()
+            )
+            if not abuse_metric:
+                abuse_metric = AbuseMetrics.objects.create(user=self.user)
+                AbuseMetrics.objects.filter(
+                    first_recorded__lt=midnight_utc_today
+                ).delete()
 
-        # increment the abuse metric
-        if address_created:
-            abuse_metric.num_address_created_per_day += 1
-        if replied:
-            abuse_metric.num_replies_per_day += 1
-        if email_forwarded:
-            abuse_metric.num_email_forwarded_per_day += 1
-        if forwarded_email_size > 0:
-            abuse_metric.forwarded_email_size_per_day += forwarded_email_size
-        abuse_metric.last_recorded = datetime.now(UTC)
-        abuse_metric.save()
+            # increment the abuse metric
+            if address_created:
+                abuse_metric.num_address_created_per_day += 1
+            if replied:
+                abuse_metric.num_replies_per_day += 1
+            if email_forwarded:
+                abuse_metric.num_email_forwarded_per_day += 1
+            if forwarded_email_size > 0:
+                abuse_metric.forwarded_email_size_per_day += forwarded_email_size
+            abuse_metric.last_recorded = datetime.now(UTC)
+            abuse_metric.save()
 
-        # check user should be flagged for abuse
-        hit_max_create = False
-        hit_max_replies = False
-        hit_max_forwarded = False
-        hit_max_forwarded_email_size = False
+            # check user should be flagged for abuse
+            hit_max_create = False
+            hit_max_replies = False
+            hit_max_forwarded = False
+            hit_max_forwarded_email_size = False
 
-        hit_max_create = (
-            abuse_metric.num_address_created_per_day
-            >= settings.MAX_ADDRESS_CREATION_PER_DAY
-        )
-        hit_max_replies = (
-            abuse_metric.num_replies_per_day >= settings.MAX_REPLIES_PER_DAY
-        )
-        hit_max_forwarded = (
-            abuse_metric.num_email_forwarded_per_day >= settings.MAX_FORWARDED_PER_DAY
-        )
-        hit_max_forwarded_email_size = (
-            abuse_metric.forwarded_email_size_per_day
-            >= settings.MAX_FORWARDED_EMAIL_SIZE_PER_DAY
-        )
-        if (
-            hit_max_create
-            or hit_max_replies
-            or hit_max_forwarded
-            or hit_max_forwarded_email_size
-        ):
-            self.last_account_flagged = datetime.now(UTC)
-            self.save()
-            data = {
-                "uid": self.fxa.uid if self.fxa else None,
-                "flagged": self.last_account_flagged.timestamp(),
-                "replies": abuse_metric.num_replies_per_day,
-                "addresses": abuse_metric.num_address_created_per_day,
-                "forwarded": abuse_metric.num_email_forwarded_per_day,
-                "forwarded_size_in_bytes": abuse_metric.forwarded_email_size_per_day,
-            }
-            # log for further secops review
-            abuse_logger.info("Abuse flagged", extra=data)
+            hit_max_create = (
+                abuse_metric.num_address_created_per_day
+                >= settings.MAX_ADDRESS_CREATION_PER_DAY
+            )
+            hit_max_replies = (
+                abuse_metric.num_replies_per_day >= settings.MAX_REPLIES_PER_DAY
+            )
+            hit_max_forwarded = (
+                abuse_metric.num_email_forwarded_per_day
+                >= settings.MAX_FORWARDED_PER_DAY
+            )
+            hit_max_forwarded_email_size = (
+                abuse_metric.forwarded_email_size_per_day
+                >= settings.MAX_FORWARDED_EMAIL_SIZE_PER_DAY
+            )
+            if (
+                hit_max_create
+                or hit_max_replies
+                or hit_max_forwarded
+                or hit_max_forwarded_email_size
+            ):
+                self.last_account_flagged = datetime.now(UTC)
+                self.save()
+                data = {
+                    "uid": self.fxa.uid if self.fxa else None,
+                    "flagged": self.last_account_flagged.timestamp(),
+                    "replies": abuse_metric.num_replies_per_day,
+                    "addresses": abuse_metric.num_address_created_per_day,
+                    "forwarded": abuse_metric.num_email_forwarded_per_day,
+                    "forwarded_size_in_bytes": abuse_metric.forwarded_email_size_per_day,
+                }
+                # log for further secops review
+                abuse_logger.info("Abuse flagged", extra=data)
+
         return self.last_account_flagged
 
     @property
