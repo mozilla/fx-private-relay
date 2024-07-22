@@ -82,15 +82,18 @@ def test_non_compliant_header_parsing(params: NonComplaintHeaderCase) -> None:
     email_in_text = EMAIL_INCOMING[email_id]
     email = message_from_string(email_in_text, policy=relay_policy)
     for header_name, value in email.items():
+        defects = getattr(value, "defects")
         if header_name in non_compliant_headers:
             details = non_compliant_headers[header_name]
-            assert len(value.defects) == details["defect_count"]
-            for defect_num, defect in enumerate(value.defects):
+            assert len(defects) == details["defect_count"]
+            for defect_num, defect in enumerate(defects):
                 assert isinstance(defect, tuple(details["defect_types"]))
             assert str(value) == details["parsed_value"]
-            assert str(value.as_unstructured) == details["unstructured_value"]
+            assert (
+                str(getattr(value, "as_unstructured")) == details["unstructured_value"]
+            )
         else:
-            assert len(value.defects) == 0
+            assert len(defects) == 0
 
 
 @pytest.mark.parametrize("email_id", ["plain_text", "russian_spam", "inline_image"])
@@ -98,4 +101,4 @@ def test_compliant_header_parsing(email_id: str) -> None:
     email_in_text = EMAIL_INCOMING[email_id]
     email = message_from_string(email_in_text, policy=relay_policy)
     for header_name, value in email.items():
-        assert len(value.defects) == 0
+        assert len(getattr(value, "defects")) == 0

@@ -168,45 +168,51 @@ def create_notification_from_email(email_text: str) -> AWS_SNSMessageJSON:
     email = message_from_string(email_text, policy=relay_policy)
     topic_arn = "arn:aws:sns:us-east-1:168781634622:ses-inbound-grelay"
     if email["Message-ID"]:
-        message_id = email["Message-ID"].as_unstructured
+        message_id = getattr(email["Message-ID"], "as_unstructured")
     else:
         message_id = None
     # This function cannot handle malformed To: addresses
-    assert not email["To"].defects
+    assert not getattr(email["To"], "defects")
 
     sns_message = {
         "notificationType": "Received",
         "mail": {
-            "timestamp": email["Date"].datetime.isoformat(),
+            "timestamp": getattr(email["Date"], "datetime").isoformat(),
             # To handle invalid From address, find 'first' address with what looks like
             # an email portion and use that email, or fallback to invalid@example.com
             "source": next(
                 (
                     addr.addr_spec
-                    for addr in email["From"].addresses
+                    for addr in getattr(email["From"], "addresses")
                     if "@" in addr.addr_spec
                 ),
                 "invalid@example.com",
             ),
             "messageId": message_id,
-            "destination": [addr.addr_spec for addr in email["To"].addresses],
+            "destination": [
+                addr.addr_spec for addr in getattr(email["To"], "addresses")
+            ],
             "headersTruncated": False,
             "headers": [
-                {"name": _h, "value": str(_v.as_unstructured)}
+                {"name": _h, "value": str(getattr(_v, "as_unstructured"))}
                 for _h, _v in email.items()
             ],
             "commonHeaders": {
-                "from": [email["From"].as_unstructured],
+                "from": [getattr(email["From"], "as_unstructured")],
                 "date": email["Date"],
-                "to": [str(addr) for addr in email["To"].addresses],
+                "to": [str(addr) for addr in getattr(email["To"], "addresses")],
                 "messageId": message_id,
-                "subject": email["Subject"].as_unstructured,
+                "subject": getattr(email["Subject"], "as_unstructured"),
             },
         },
         "receipt": {
-            "timestamp": (email["Date"].datetime + timedelta(seconds=1)).isoformat(),
+            "timestamp": (
+                getattr(email["Date"], "datetime") + timedelta(seconds=1)
+            ).isoformat(),
             "processingTimeMillis": 1001,
-            "recipients": [addr.addr_spec for addr in email["To"].addresses],
+            "recipients": [
+                addr.addr_spec for addr in getattr(email["To"], "addresses")
+            ],
             "spamVerdict": {"status": "PASS"},
             "virusVerdict": {"status": "PASS"},
             "spfVerdict": {"status": "PASS"},
@@ -221,9 +227,11 @@ def create_notification_from_email(email_text: str) -> AWS_SNSMessageJSON:
         "Type": "Notification",
         "MessageId": str(uuid4()),
         "TopicArn": topic_arn,
-        "Subject": str(email["Subject"].as_unstructured),
+        "Subject": str(getattr(email["Subject"], "as_unstructured")),
         "Message": json.dumps(sns_message),
-        "Timestamp": (email["Date"].datetime + timedelta(seconds=2)).isoformat(),
+        "Timestamp": (
+            getattr(email["Date"], "datetime") + timedelta(seconds=2)
+        ).isoformat(),
         "SignatureVersion": "1",
         "Signature": "invalid-signature",
         "SigningCertURL": f"{base_url}/SimpleNotificationService-abcd1234.pem",
