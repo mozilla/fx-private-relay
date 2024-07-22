@@ -187,7 +187,7 @@ class RealPhone(models.Model):
 @receiver(post_save, sender=RealPhone, dispatch_uid="realphone_post_save")
 def realphone_post_save(sender, instance, created, **kwargs):
     # don't do anything if running migrations
-    if type(instance) == MigrationRecorder.Migration:
+    if isinstance(instance, MigrationRecorder.Migration):
         return
 
     if created:
@@ -375,7 +375,7 @@ def register_with_messaging_service(client: Client, number_sid: str) -> None:
 @receiver(post_save, sender=RelayNumber)
 def relaynumber_post_save(sender, instance, created, **kwargs):
     # don't do anything if running migrations
-    if type(instance) == MigrationRecorder.Migration:
+    if isinstance(instance, MigrationRecorder.Migration):
         return
 
     # TODO: if IQ_FOR_NEW_NUMBERS, send welcome message via IQ
