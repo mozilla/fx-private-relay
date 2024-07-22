@@ -613,7 +613,6 @@ workflows:
           name: ruff linting check
           command: ruff
           test_results_filename: "ruff.xml"
-          allow_fail: true
           filters: *default_filters
 
       - python_job:
