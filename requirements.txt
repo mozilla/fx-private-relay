@@ -29,7 +29,7 @@ pem==23.1.0
 psycopg[c]==3.2.1
 PyJWT==2.8.0
 python-decouple==3.8
-pyOpenSSL==24.1.0
+pyOpenSSL==24.2.1
 requests==2.32.3
 sentry-sdk==2.9.0
 whitenoise==6.7.0
