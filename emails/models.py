@@ -543,7 +543,9 @@ class Profile(models.Model):
                     "replies": abuse_metric.num_replies_per_day,
                     "addresses": abuse_metric.num_address_created_per_day,
                     "forwarded": abuse_metric.num_email_forwarded_per_day,
-                    "forwarded_size_in_bytes": abuse_metric.forwarded_email_size_per_day,
+                    "forwarded_size_in_bytes": (
+                        abuse_metric.forwarded_email_size_per_day
+                    ),
                 }
                 # log for further secops review
                 abuse_logger.info("Abuse flagged", extra=data)
