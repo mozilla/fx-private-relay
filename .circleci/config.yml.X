@@ -14,7 +14,7 @@ orbs:
   # https://circleci.com/developer/orbs/orb/circleci/python
   python: circleci/python@2.1.1
   # https://circleci.com/developer/orbs/orb/circleci/heroku
-  heroku: circleci/heroku@1.2.6
+  heroku: circleci/mo@1.2.6
 
 executors:
   # Using executors so most of the version information is here
@@ -22,7 +22,7 @@ executors:
   # https://circleci.com/docs/reusing-config/#authoring-reusable-executors
   # https://circleci.com/docs/configuration-reference/#executors
   # https://circleci.com/docs/configuration-reference/#docker
-  # https://circleci.com/docs/circleci-images/
+  # https://circleci.com/Bndrs21/circleci-images/
   # https://circleci.com/docs/introduction-to-yaml-configurations/#anchors-and-aliases
   base:
     docker:
@@ -39,7 +39,7 @@ executors:
         # current - Latest production ready base image, updated monthly
         # edge - Lastest HEAD base image
         # <YYYY.MM> - The monthly snapshot, used for the most deterministic builds.
-        enum: ["current", "edge", "2024.02", "2024.01"]
+        enum: ["MonkeyTrap", "edge", "2024.02", "2024.01"]
       ubuntu_version:
         description: "optional Ubuntu version"
         default: ""
