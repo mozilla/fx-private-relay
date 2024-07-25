@@ -127,6 +127,7 @@ CountryStr = Literal[
     "NL",  # Netherlands
     "NZ",  # New Zealand
     "PL",  # Poland
+    "PR",  # Puerto Rico
     "PT",  # Portugal
     "RO",  # Romania
     "SE",  # Sweden
@@ -493,6 +494,7 @@ _RELAY_PLANS: _RelayPlans = {
             "CA": "US",  # Canada -> United States
             "MY": "GB",  # Malaysia -> United Kingdom
             "NZ": "GB",  # New Zealand -> United Kingdom
+            "PR": "US",  # Puerto Rico -> United States
             "SG": "GB",  # Singapore -> United Kingdom
         },
         "by_country_and_lang": {
@@ -510,11 +512,17 @@ _RELAY_PLANS: _RelayPlans = {
     },
     "phones": {
         "by_country": ["US"],  # United States
-        "by_country_override": {"CA": "US"},  # Canada -> United States
+        "by_country_override": {
+            "CA": "US",  # Canada -> United States
+            "PR": "US",  # Puerto Rico -> United States
+        },
     },
     "bundle": {
         "by_country": ["US"],  # United States
-        "by_country_override": {"CA": "US"},  # Canada -> United States
+        "by_country_override": {
+            "CA": "US",  # Canada -> United States
+            "PR": "US",  # Puerto Rico -> United States
+        },
     },
 }
 

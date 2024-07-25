@@ -35,6 +35,7 @@ LAST_CONTACT_TYPE_CHOICES = [
     ("call", "call"),
     ("text", "text"),
 ]
+DEFAULT_REGION = "US"
 
 
 def verification_code_default():
@@ -137,7 +138,7 @@ class RealPhone(models.Model):
     )
     verified = models.BooleanField(default=False)
     verified_date = models.DateTimeField(blank=True, null=True)
-    country_code = models.CharField(max_length=2, default="US")
+    country_code = models.CharField(max_length=2, default=DEFAULT_REGION)
 
     class Meta:
         constraints = [
@@ -220,7 +221,7 @@ class RelayNumber(models.Model):
     number = models.CharField(max_length=15, db_index=True, unique=True)
     vendor = models.CharField(max_length=15, default="twilio")
     location = models.CharField(max_length=255)
-    country_code = models.CharField(max_length=2, default="US")
+    country_code = models.CharField(max_length=2, default=DEFAULT_REGION)
     vcard_lookup_key = models.CharField(
         max_length=6, default=vcard_lookup_key_default, unique=True
     )
@@ -291,9 +292,9 @@ class RelayNumber(models.Model):
         # as realphone
         self.country_code = realphone.country_code.upper()
 
-        # Add US numbers to the Relay messaging service, so it goes into our
-        # US A2P 10DLC campaign
-        if use_twilio and self.country_code == "US":
+        # Add numbers to the Relay messaging service, so it goes into our
+        # US A2P 10DLC campaigns
+        if use_twilio and self.country_code in settings.TWILIO_NEEDS_10DLC_CAMPAIGN:
             if settings.TWILIO_MESSAGING_SERVICE_SID:
                 register_with_messaging_service(client, twilio_incoming_number.sid)
             else:
@@ -495,14 +496,14 @@ def suggested_numbers(user):
     }
 
 
-def location_numbers(location, country_code="US"):
+def location_numbers(location, country_code=DEFAULT_REGION):
     client = twilio_client()
     avail_nums = client.available_phone_numbers(country_code)
     twilio_nums = avail_nums.local.list(in_locality=location, limit=10)
     return convert_twilio_numbers_to_dict(twilio_nums)
 
 
-def area_code_numbers(area_code, country_code="US"):
+def area_code_numbers(area_code, country_code=DEFAULT_REGION):
     client = twilio_client()
     avail_nums = client.available_phone_numbers(country_code)
     twilio_nums = avail_nums.local.list(area_code=area_code, limit=10)

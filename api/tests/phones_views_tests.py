@@ -286,8 +286,8 @@ def test_realphone_post_valid_e164_number_in_unsupported_country(
     response = client.post(path, data, format="json", HTTP_X_CLIENT_REGION="nl")
     assert response.status_code == 400
     expected = [
-        "Relay Phone is currently only available for these country codes: ['CA', 'US']."
-        " Your phone number country code is: 'NL'."
+        "Relay Phone is currently only available for these country codes:"
+        " ['CA', 'PR', 'US']. Your phone number country code is: 'NL'."
     ]
     assert response.json() == expected
 
