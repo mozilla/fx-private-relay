@@ -293,7 +293,7 @@ class RelayNumber(models.Model):
         self.country_code = realphone.country_code.upper()
 
         # Add numbers to the Relay messaging service, so it goes into our
-        # US A2P 10DLC campaigns
+        # A2P 10DLC campaigns
         if use_twilio and self.country_code in settings.TWILIO_NEEDS_10DLC_CAMPAIGN:
             if settings.TWILIO_MESSAGING_SERVICE_SID:
                 register_with_messaging_service(client, twilio_incoming_number.sid)
