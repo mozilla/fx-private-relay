@@ -282,7 +282,11 @@ TWILIO_MESSAGING_SERVICE_SID: list[str] = config(
 TWILIO_TEST_ACCOUNT_SID: str | None = config("TWILIO_TEST_ACCOUNT_SID", None)
 TWILIO_TEST_AUTH_TOKEN: str | None = config("TWILIO_TEST_AUTH_TOKEN", None)
 TWILIO_ALLOWED_COUNTRY_CODES = {
-    code.upper() for code in config("TWILIO_ALLOWED_COUNTRY_CODES", "US,CA", cast=Csv())
+    code.upper()
+    for code in config("TWILIO_ALLOWED_COUNTRY_CODES", "US,CA,PR", cast=Csv())
+}
+TWILIO_NEEDS_10DLC_CAMPAIGN = {
+    code.upper() for code in config("TWILIO_NEEDS_10DLC_CAMPAIGN", "US,PR", cast=Csv())
 }
 MAX_MINUTES_TO_VERIFY_REAL_PHONE: int = config(
     "MAX_MINUTES_TO_VERIFY_REAL_PHONE", 5, cast=int

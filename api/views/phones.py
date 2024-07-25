@@ -41,6 +41,7 @@ from emails.utils import incr_if_enabled
 from phones.apps import phones_config, twilio_client
 from phones.iq_utils import send_iq_sms
 from phones.models import (
+    DEFAULT_REGION,
     InboundContact,
     RealPhone,
     RelayNumber,
@@ -430,7 +431,7 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         if real_phone:
             country_code = real_phone.country_code
         else:
-            country_code = "US"
+            country_code = DEFAULT_REGION
         location = request.query_params.get("location")
         if location is not None:
             numbers = location_numbers(location, country_code)
@@ -798,12 +799,13 @@ def inbound_sms_iq(request: Request) -> response.Response:
         raise exceptions.ValidationError("Request missing from, to, or text.")
 
     from_num = phonenumbers.format_number(
-        phonenumbers.parse(inbound_from, "US"),
+        phonenumbers.parse(inbound_from, DEFAULT_REGION),
         phonenumbers.PhoneNumberFormat.E164,
     )
     single_num = inbound_to[0]
     relay_num = phonenumbers.format_number(
-        phonenumbers.parse(single_num, "US"), phonenumbers.PhoneNumberFormat.E164
+        phonenumbers.parse(single_num, DEFAULT_REGION),
+        phonenumbers.PhoneNumberFormat.E164,
     )
 
     relay_number, real_phone = _get_phone_objects(relay_num)
@@ -1539,7 +1541,7 @@ def _match_senders_by_prefix(relay_number: RelayNumber, text: str) -> MatchData 
         contacts_by_number: dict[str, InboundContact] = {}
         for contact in contacts:
             # TODO: don't default to US when we support other regions
-            pn = phonenumbers.parse(contact.inbound_number, "US")
+            pn = phonenumbers.parse(contact.inbound_number, DEFAULT_REGION)
             e164 = phonenumbers.format_number(pn, phonenumbers.PhoneNumberFormat.E164)
             if e164 not in contacts_by_number:
                 contacts_by_number[e164] = contact
