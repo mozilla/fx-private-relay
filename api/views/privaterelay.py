@@ -33,8 +33,8 @@ from rest_framework.viewsets import ModelViewSet
 from waffle import get_waffle_flag_model
 from waffle.models import Sample, Switch
 
-from emails.models import Profile
 from emails.utils import incr_if_enabled
+from privaterelay.models import Profile
 from privaterelay.plans import (
     get_bundle_country_language_mapping,
     get_phone_country_language_mapping,

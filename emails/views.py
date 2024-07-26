@@ -34,6 +34,7 @@ from sentry_sdk import capture_message
 from waffle import sample_is_active
 
 from privaterelay.ftl_bundles import main as ftl_bundle
+from privaterelay.models import Profile
 from privaterelay.utils import (
     flag_is_active_in_task,
     get_subplat_upgrade_link_by_language,
@@ -44,7 +45,6 @@ from .exceptions import CannotMakeAddressException
 from .models import (
     DeletedAddress,
     DomainAddress,
-    Profile,
     RelayAddress,
     Reply,
     address_hash,

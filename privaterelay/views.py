@@ -25,14 +25,13 @@ from google_measurement_protocol import event, report
 from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error
 from rest_framework.decorators import api_view, schema
 
-# from silk.profiling.profiler import silk_profile
-from emails.exceptions import CannotMakeSubdomainException
 from emails.models import DomainAddress, RelayAddress
 from emails.utils import incr_if_enabled
-from emails.validators import valid_available_subdomain
 
 from .apps import PrivateRelayConfig
+from .exceptions import CannotMakeSubdomainException
 from .fxa_utils import NoSocialToken, _get_oauth2_session
+from .validators import valid_available_subdomain
 
 FXA_PROFILE_CHANGE_EVENT = "https://schemas.accounts.firefox.com/event/profile-change"
 FXA_SUBSCRIPTION_CHANGE_EVENT = (
