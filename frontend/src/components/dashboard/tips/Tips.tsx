@@ -249,7 +249,7 @@ const TipsCarousel = (props: Parameters<typeof useTabListState>[0]) => {
   return (
     <div>
       <TipPanel
-        key={tabListState.selectedItem.key}
+        key={tabListState.selectedItem?.key}
         tabListState={tabListState}
       />
       <div
@@ -324,7 +324,7 @@ const TipPanel = ({
   const panelRef = useRef<HTMLDivElement>();
   const inViewRef = useGaViewPing({
     category: "Tips",
-    label: tabListState.selectedItem.key.toString(),
+    label: tabListState.selectedItem?.key.toString(),
   });
   // Used to set both `panelRef` and `useGaViewPing`'s callback ref on the
   // same element. See
@@ -349,7 +349,7 @@ const TipPanel = ({
 
   return (
     <div {...tabPanelProps} ref={setRefs} className={styles.tip}>
-      {tabListState.selectedItem.props.children}
+      {tabListState.selectedItem?.props.children}
     </div>
   );
 };
