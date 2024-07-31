@@ -3,8 +3,10 @@
 Starting in H2'24, Relay ENGR team expanded the "Release Engineer" role into a "Base
 load Engineer" role who handles consistent expected work like releases and dependency
 updates, and who fields un-planned incoming work requests like bug reports and customer
-support requests. (The term "base load" comes from electrical grids, where it describes
-the minimum level of demand over a span of time. https://w.wiki/Anad)
+support requests. (The term "[base load][]" comes from electrical grids, where it describes
+the minimum level of demand over a span of time.)
+
+[base load]: https://en.wikipedia.org/wiki/Base_load
 
 ## Rotation
 
