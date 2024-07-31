@@ -91,6 +91,8 @@ def copy_auth_token(
     if created and instance is not None:
         # baker triggers created during tests
         # so first check the user doesn't already have a Token
+        if not hasattr(Token, "objects"):
+            raise AttributeError("Token must have objects attribute.")
         try:
             Token.objects.get(user=instance.user)
             return
