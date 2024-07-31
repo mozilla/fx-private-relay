@@ -62,7 +62,11 @@ const WhatsNewListMenu = (props: WhatsNewListMenuProps) => {
 
   const menuRef = useRef<HTMLUListElement>(null);
   const { menuProps } = useMenu(
-    { selectionMode: "single", ...props },
+    {
+      selectionMode: "single",
+      onAction: (key) => props.onSelect(key),
+      ...props,
+    },
     menuState,
     menuRef,
   );
@@ -71,12 +75,7 @@ const WhatsNewListMenu = (props: WhatsNewListMenuProps) => {
     <ul {...menuProps} ref={menuRef} className={styles.list}>
       {Array.from(menuState.collection).map((item) => {
         return (
-          <WhatsNewListMenuItem
-            key={item.key}
-            item={item}
-            state={menuState}
-            onSelect={() => props.onSelect(item.key)}
-          />
+          <WhatsNewListMenuItem key={item.key} item={item} state={menuState} />
         );
       })}
     </ul>
@@ -89,7 +88,6 @@ type WhatsNewListMenuItemProps = {
     rendered: ReactNode;
   };
   state: TreeState<object>;
-  onSelect: () => void;
 };
 const WhatsNewListMenuItem = (props: WhatsNewListMenuItemProps) => {
   const menuItemRef = useRef<HTMLLIElement>(null);
@@ -97,7 +95,6 @@ const WhatsNewListMenuItem = (props: WhatsNewListMenuItemProps) => {
   const { menuItemProps } = useMenuItem(
     {
       key: props.item.key,
-      onAction: () => props.onSelect(),
     },
     props.state,
     menuItemRef,
