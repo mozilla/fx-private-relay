@@ -3,8 +3,8 @@
 Starting in H2'24, Relay ENGR team expanded the "Release Engineer" role into a "Base
 load Engineer" role who handles consistent expected work like releases and dependency
 updates, and who fields un-planned incoming work requests like bug reports and customer
-support requests. (The term "[base load][]" comes from electrical grids, where it describes
-the minimum level of demand over a span of time.)
+support requests. (The term "[base load][]" comes from electrical grids, where it
+describes the minimum level of demand over a span of time.)
 
 [base load]: https://en.wikipedia.org/wiki/Base_load
 
@@ -24,6 +24,10 @@ Your primary role is to perform the checks and make sure the necessary work gets
 You don't have to perform every task yourself. When you check any of the channels below,
 you may delegate the resulting task to the most appropriate party.
 
+If any items found during the checks below are [incident-level severity][], you are
+likely to take the role of engineering lead for the incident unless you delegate to
+another more appropriate party.
+
 1. Check [Security Dependabot Alerts][security-dependabot-alerts] for any critical
    security updates to make
 2. Check #relay-alerts for any critical operational issues to fix
@@ -33,6 +37,8 @@ you may delegate the resulting task to the most appropriate party.
 6. Check [dependabot pull requests][dependabot-prs].
    - See the [Dependency Updates doc][dependency-updates-doc].
 7. Co-ordinate, re-tag for [stage fixes][stage-fixes] as needed
+
+[incident-level severity]: https://mozilla-hub.atlassian.net/wiki/spaces/MIR/pages/20512894/Incident+Severity+Levels
 
 ## Mondays
 
