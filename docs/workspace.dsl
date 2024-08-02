@@ -66,6 +66,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                 metrics = container "Metrics Aggregator" {
                     description "Collects metrics from other containers"
                     tags "Optional Application"
+                    technology telegraf
                 }
 
                 // Managed Services
@@ -186,8 +187,8 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                 tags "Other Software System"
             }
 
-            metrics_system = softwareSystem "Metrics Platform" {
-                description "The Mozilla real-time metrics and reporting platform"
+            metrics_system = softwareSystem "Operational Metrics Platform" {
+                description "The Mozilla operational metrics and reporting platform"
                 tags "Other Software System"
             }
 
@@ -289,9 +290,11 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
         dlq_processor -> email_sender "Forwards email (rarely)" "SES API" "component_detail"
         dlq_processor -> email_dlq_queue "Polls" "SQS API" "component_detail"
 
-        phone_contact -> phone_service "Texts, Calls" "PSTN"
-        phone_contact -> iq_phone_service "Texts, Calls" "PSTN"
+        phone_contact -> phone_service "Sends texts, starts calls" "PSTN"
+        phone_service -> phone_contact "Sends reply texts" "PSTN"
+        phone_contact -> iq_phone_service "Sends texts, starts calls" "PSTN"
         iq_phone_service -> user "Forwards Texts, Calls" "PSTN" "Optional Relationship"
+        iq_phone_service -> phone_contact "Sends reply texts" "PSTN"
         phone_service -> user "Forwards Texts, Calls" "PSTN"
         metrics -> metrics_system "Sends metrics" "Telegraf"
         metrics -> db "Queries" "SQL"
@@ -728,8 +731,8 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
             default
             include *
         }
-        container relay "RelayContainers" {
-            title "[Container] Relay"
+        container relay "RelayContainersAllDetails" {
+            title "[Container] Relay (All Details)"
             include *
         }
 

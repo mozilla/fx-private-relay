@@ -20,13 +20,26 @@ Key:
 
 ## Containers Diagram
 
-This shows the relationships between the containers (independently deployed parts) of
-Relay and the other software systems.
+This shows all the relationships between the containers (independently deployed
+parts) of Relay and the other software systems.
 
-[![Relay Containers](./img/structurizr-1-RelayContainers.svg)](./img/structurizr-1-RelayContainers.svg)
+_TODO_ Summary diagram. Combine all clients into one unit, all scheduled tasks,
+all email processing, backend services. etc.
+
+_TODO_ Zoom into clients
+
+_TODO_ Zoom into scheduled tasks
+
+_TODO_ Zoom into email processing
+
+### Container, All Details
+
+Here are all the Relay containers in a single diagram.
+
+[![Relay Containers (All Details)](./img/structurizr-1-RelayContainersAllDetails.svg)](./img/structurizr-1-RelayContainersAllDetails.svg)
 
 Key:
-![Relay Containers Key](./img/structurizr-1-RelayContainers-key.svg)
+![Relay Containers (All Details) Key](./img/structurizr-1-RelayContainersAllDetails-key.svg)
 
 # Dynamic Diagrams
 
