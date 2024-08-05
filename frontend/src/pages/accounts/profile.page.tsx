@@ -186,12 +186,13 @@ const Profile: NextPage = () => {
         setAliasGeneratedState(true);
       }
       addonData.sendEvent("aliasListUpdate");
-    } catch (error) {
+    } catch {
       // TODO: Refactor CustomAddressGenerationModal to remove the setAliasGeneratedState callback, and instead use a try catch block.
-      setAliasGeneratedState
-        ? setAliasGeneratedState(false)
-        : toast(l10n.getString("error-mask-create-failed"), { type: "error" });
-
+      if (setAliasGeneratedState) {
+        setAliasGeneratedState(false);
+      } else {
+        toast(l10n.getString("error-mask-create-failed"), { type: "error" });
+      }
       // This is so we can catch the error when calling createAlias asynchronously and apply
       // more logic to handle when generating a mask fails.
       return Promise.reject("Mask generation failed");
