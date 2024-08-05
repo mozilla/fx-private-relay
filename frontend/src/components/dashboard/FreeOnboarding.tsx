@@ -93,7 +93,7 @@ export const FreeOnboarding = (props: Props) => {
 
       try {
         await props.generateNewMask({ mask_type: "random" });
-      } catch (e) {
+      } catch (_e) {
         // On error, we can only move to the next step if the user has atleast 1 mask.
         if (!props.hasAtleastOneMask) {
           moveToNextStep = false;

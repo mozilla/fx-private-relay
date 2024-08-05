@@ -14,7 +14,11 @@ module.exports = {
     // Unused vars that start with an understore are allowed to be unused:
     "@typescript-eslint/no-unused-vars": [
       "warn",
-      { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+      {
+        argsIgnorePattern: "^_",
+        varsIgnorePattern: "^_",
+        caughtErrorsIgnorePattern: "^_",
+      },
     ],
     // Weirdly this rule does not get set by ESLint's recommended ruleset,
     // but we try to avoid implicitly casting values (see e.g. reviews of

@@ -186,7 +186,7 @@ const Profile: NextPage = () => {
         setAliasGeneratedState(true);
       }
       addonData.sendEvent("aliasListUpdate");
-    } catch {
+    } catch (_error) {
       // TODO: Refactor CustomAddressGenerationModal to remove the setAliasGeneratedState callback, and instead use a try catch block.
       if (setAliasGeneratedState) {
         setAliasGeneratedState(false);
@@ -210,7 +210,7 @@ const Profile: NextPage = () => {
           "Immediately caught to land in the same code path as failed requests.",
         );
       }
-    } catch (error) {
+    } catch (_error) {
       toast(
         l10n.getString("error-mask-update-failed", {
           alias: getFullAddress(alias),
@@ -229,7 +229,7 @@ const Profile: NextPage = () => {
         );
       }
       addonData.sendEvent("aliasListUpdate");
-    } catch (error: unknown) {
+    } catch (_error: unknown) {
       toast(
         l10n.getString("error-mask-delete-failed", {
           alias: getFullAddress(alias),
