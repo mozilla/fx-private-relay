@@ -90,7 +90,7 @@ export const WaitlistPage = (props: Props) => {
           type: "error",
         });
       }
-    } catch (error) {
+    } catch (_error) {
       toast(l10n.getString("waitlist-subscribe-error-connection"), {
         type: "error",
       });

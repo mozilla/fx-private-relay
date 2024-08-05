@@ -246,7 +246,7 @@ function parseHash(hash: string): ReportData | null {
       received_at: data.received_at,
       trackers: data.trackers,
     };
-  } catch (e) {
+  } catch (_e) {
     return null;
   }
 }

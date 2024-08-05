@@ -153,9 +153,11 @@ const CustomMaskCreator = (props: CustomMaskCreatorProps) => {
     event.preventDefault();
 
     const isValid = isAddressValid(address);
-    isValid
-      ? onPick(address.toLowerCase(), errorExplainerState.setOpen)
-      : errorExplainerState.setOpen(!isValid);
+    if (isValid) {
+      onPick(address.toLowerCase(), errorExplainerState.setOpen);
+    } else {
+      errorExplainerState.setOpen(!isValid);
+    }
   };
   const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
     setAddress(event.target.value);

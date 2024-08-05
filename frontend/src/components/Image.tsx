@@ -8,11 +8,11 @@
 // with
 // import Image from next/image;
 
-import NextImage, { getImageProps } from "next/image";
+import _NextImage, { getImageProps } from "next/image";
 import { ComponentProps } from "react";
 import styles from "./Image.module.scss";
 
-export default function Image(props: ComponentProps<typeof NextImage>) {
+export default function Image(props: ComponentProps<typeof _NextImage>) {
   const altText = props.alt;
   const { props: nextProps } = getImageProps({ ...props });
   const { style, className: origClassName, ...delegated } = nextProps;

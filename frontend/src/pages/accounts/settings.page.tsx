@@ -134,7 +134,7 @@ const Settings: NextPage = () => {
         // notify the add-on about it:
         addonData.sendEvent("serverStorageChange");
       }
-    } catch (e) {
+    } catch (_e) {
       toast(l10n.getString("error-settings-update"), { type: "error" });
     }
   };

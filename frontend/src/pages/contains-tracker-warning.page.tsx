@@ -177,7 +177,7 @@ function parseHash(hash: string): TrackerWarningData | null {
       received_at: data.received_at,
       original_link: data.original_link,
     };
-  } catch (e) {
+  } catch (_e) {
     return null;
   }
 }
