@@ -7,7 +7,7 @@ django-allauth[socialaccount]==0.63.6
 django-cors-headers==4.4.0
 django-csp==4.0b1
 django-debug-toolbar==4.4.6
-django-filter==24.2
+django-filter==24.3
 django-ipware==7.0.1
 python-ipware==2.0.3  # 2.0.4, 2.0.5 break tests
 django-redis==5.4.0
