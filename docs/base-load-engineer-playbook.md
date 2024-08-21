@@ -56,7 +56,7 @@ another more appropriate party.
 2. SRE processes ticket to release the tag to production
 3. Update [Github Release][github-releases] to current release
 4. Monitor [Sentry Releases][sentry-releases] for new production issues
-5. (On your 1st Tuesday) Before releasing to Stage, locally [run e2e tests][run-e2e-tests] against the latest main.
+5. (On your 1st Tuesday) Before releasing to Stage, [run e2e tests][run-e2e-tests] against the dev environment via GitHub Actions.
    - Ensure that the e2e tests are passing.
    - If e2e Playwright tests are flaky--fails to pass for reasons outside of legitimate Relay bug--consider making the tests more reliable by using the [locators][playwright-locators], [auto-retrying assertions][playwright-auto-retrying-assertions], or [fixtures][playwright-fixtures].
 6. (On your 1st Tuesday) [Release to stage][Release-to-stage] (tag, Github release notes)
@@ -76,7 +76,7 @@ Daily routine
 [stage-version]: https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net/__version__
 [prod-version]: https://relay.firefox.com/__version__
 [github-releases]: https://github.com/mozilla/fx-private-relay/releases
-[run-e2e-tests]: https://github.com/mozilla/fx-private-relay/tree/main/e2e-tests#how-to-run
+[run-e2e-tests]: https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml
 [playwright-locators]: https://playwright.dev/docs/locators
 [playwright-auto-retrying-assertions]: https://playwright.dev/docs/test-assertions#auto-retrying-assertions
 [playwright-fixtures]: https://playwright.dev/docs/test-fixtures
