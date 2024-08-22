@@ -56,12 +56,15 @@ another more appropriate party.
 2. SRE processes ticket to release the tag to production
 3. Update [Github Release][github-releases] to current release
 4. Monitor [Sentry Releases][sentry-releases] for new production issues
-5. (On your 1st Tuesday) [Release to stage][Release-to-stage] (tag, Github release notes)
+5. (On your 1st Tuesday) Before releasing to Stage, [run e2e tests][run-e2e-tests] against the dev environment via GitHub Actions.
+   - Ensure that the e2e tests are passing.
+   - If e2e Playwright tests are flaky--fails to pass for reasons outside of legitimate Relay bug--consider making the tests more reliable by using the [locators][playwright-locators], [auto-retrying assertions][playwright-auto-retrying-assertions], or [fixtures][playwright-fixtures]. For more suggestions on making Playwright tests more reliable or efficient, see [documentation on FxA test improvements][fxa-test-improvements].
+6. (On your 1st Tuesday) [Release to stage][Release-to-stage] (tag, Github release notes)
    - Ping all the engineers who have changes in the release to:
      - Move cards to “Ready to Test” if necessary
      - Include instructions for QA to test
    - Confirm any hotfixes are also in the new tag
-6. (On your 2nd Tuesday) Hand-off base load duties to next engineer in rotation
+7. (On your 2nd Tuesday) Hand-off base load duties to next engineer in rotation
 
 ## Wednesdays - Fridays
 
@@ -73,6 +76,11 @@ Daily routine
 [stage-version]: https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net/__version__
 [prod-version]: https://relay.firefox.com/__version__
 [github-releases]: https://github.com/mozilla/fx-private-relay/releases
+[run-e2e-tests]: https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml
+[playwright-locators]: https://playwright.dev/docs/locators
+[playwright-auto-retrying-assertions]: https://playwright.dev/docs/test-assertions#auto-retrying-assertions
+[playwright-fixtures]: https://playwright.dev/docs/test-fixtures
+[fxa-test-improvements]: https://docs.google.com/presentation/d/1dSASq9xcaA8DuQM_1_Ab6q5_ScBpvqI9NPHvovkA-wU/edit#slide=id.g276e3207c4d_1_427
 [release-to-stage]: https://github.com/mozilla/fx-private-relay/blob/main/docs/release_process.md#release-to-stage
 [sentry-releases]: https://mozilla.sentry.io/releases/
 [stage-fixes]: https://github.com/mozilla/fx-private-relay/blob/main/docs/release_process.md#stage-fixes
