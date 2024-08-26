@@ -206,7 +206,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
             description "Handles billing and payment processing"
             tags "Other Software System"
         }
-        user -> accounts "Registers, manages subcription" "HTTPS"
+        user -> accounts "Registers, manages subscription" "HTTPS"
 
         // Relay container relationships
         user -> web "Uses"
@@ -441,7 +441,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                         instances 6
                         stage_task_emails = containerInstance email_processor
                     }
-                    deploymentNode "replys" {
+                    deploymentNode "replys [sic]" {
                         technology "Kubernetes Cron Job"
                         stage_task_clean_replies = containerInstance task_clean_replies
                     }
@@ -610,7 +610,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                         instances 6
                         prod_task_emails = containerInstance email_processor
                     }
-                    deploymentNode "replys" {
+                    deploymentNode "replys [sic]" {
                         technology "Kubernetes Cron Job"
                         prod_task_clean_replies = containerInstance task_clean_replies
                     }
