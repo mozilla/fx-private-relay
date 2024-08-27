@@ -808,6 +808,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
 
         // Brand 2024 data visualization colors
         !const COLOR_BLACK #000000
+        !const COLOR_DARK_GREY #505050
         !const COLOR_WHITE #FFFFFF
         !const COLOR_ZILLA_GREEN_PLUS #00FF8C
         !const COLOR_ZILLA_GREEN #00D230
@@ -891,6 +892,10 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
             element "Deployment Node" {
                 # Without this, shows up as "Element" in key
                 shape RoundedBox
+            }
+            relationship "Relationship" {
+                dashed false
+                color ${COLOR_DARK_GREY}
             }
             relationship "Optional Relationship" {
                 style Dotted
