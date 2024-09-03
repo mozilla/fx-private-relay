@@ -48,7 +48,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                 // "Other Managed Services" for top-level C2 diagrams
                 c2_other_managed_services = container "Other Managed Services" {
                     description "Other services used to deploy Relay"
-                    technology "Redis, Postgres"
+                    technology "GCP services"
                     tags "Container Collection"
                 }
 
@@ -103,7 +103,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                 // "Email Services" for C2 top-level diagram
                 c2_email_service = container "Email Services" {
                     description "Sends and receives emails"
-                    technology "AWS and GCP tasks"
+                    technology "AWS services"
                     tags "Container Collection"
                 }
 
@@ -163,7 +163,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                 // "Periodic Tasks" for C2 top-level diagram
                 c2_periodic_tasks = container "Periodic Tasks" {
                     description "Scheduled tasks (k8s cronjobs) to provide Relay service"
-                    technology "Python - Django Command"
+                    technology "Python - Django Commands"
                     tags "Container Collection"
                 }
 
@@ -354,6 +354,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
         c2_other_managed_services -> metrics_system "Sends counter, gauge, and timing metrics" "Telegraf"
         c2_other_managed_services -> db "Queries and replicates data" "SQL"
         web_app -> c2_other_managed_services "Uses"
+        email_processor -> c2_other_managed_services "Uses"
 
         // Periodic Tasks
         c2_periodic_tasks -> db "Updates" "Django ORM"
