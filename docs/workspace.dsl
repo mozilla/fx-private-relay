@@ -359,12 +359,14 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
         // Periodic Tasks
         c2_periodic_tasks -> db "Updates" "Django ORM"
         c2_periodic_tasks -> sentry "Sends exceptions" "HTTPS API"
-        c2_periodic_tasks -> c2_other_managed_services "Uses"
         c2_periodic_tasks -> accounts "Reads subscription data" "Subscription API"
         c2_periodic_tasks -> email_sender "Sends welcome email" "SES API"
         c2_periodic_tasks -> c2_email_service "Cleans undeliverable email" "AWS APIs"
         c2_periodic_tasks -> email_dlq_queue "Cleans undeliverable email" "AWS APIs"
         c2_periodic_tasks -> email_object_store "Deletes undeliverable email" "AWS APIs"
+        c2_periodic_tasks -> c2_other_managed_services "Uses"
+        c2_periodic_tasks -> metrics "Sends metrics"
+        c2_periodic_tasks -> logs "Emits logs"
 
         dev_deploy = deploymentEnvironment "dev.fxprivaterelay.nonprod.cloudops.mozgcp.net" {
             deploymentNode "Dev User Interfaces" {
@@ -837,6 +839,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
         container relay "RelayContainersEmailServices" {
             title "[Container] Relay (Email Services)"
             include element.tag==in_email_service
+            exclude c2_email_service
             include ->email_sender->
             include ->email_receiver->
             include user
@@ -846,10 +849,27 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
             exclude sentry
             exclude phone_service
             exclude c2_user_interfaces
-            exclude c2_email_service
             exclude element.tag==omit_in_c2_high_level
             exclude element.tag==in_user_interfaces
             exclude element.tag==in_other_managed_services
+            exclude element.tag==in_periodic_tasks
+        }
+
+        container relay "RelayContainersManagedServices" {
+            title "[Container] Relay (Managed Services)"
+            include element.tag==in_other_managed_services
+            exclude c2_other_managed_services
+            include web_app
+            include email_processor
+            include db
+            include c2_periodic_tasks
+            include data_system
+            include metrics_system
+            include sentry
+            exclude c2_user_interfaces
+            exclude element.tag==omit_in_c2_high_level
+            exclude element.tag==in_email_service
+            exclude element.tag==in_user_interfaces
             exclude element.tag==in_periodic_tasks
         }
 
