@@ -146,7 +146,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                     tags "Managed Service",in_email_service
                     technology "Amazon SES"
                     -> email_topic "Notifies of complaints and bounces" "SNS"
-                    -> email_key "Encrypts" "KMS"
+                    -> email_key "Encrypts complaints and bounces" "KMS"
                     # Forward relationships defined below
                     # -> user "Forwards email" "SMTP via user's real email"
                     # -> email_contact "Sends replies" "SMTP via user's email mask"
@@ -363,6 +363,8 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
         c2_periodic_tasks -> accounts "Reads subscription data" "Subscription API"
         c2_periodic_tasks -> email_sender "Sends welcome email" "SES API"
         c2_periodic_tasks -> c2_email_service "Cleans undeliverable email" "AWS APIs"
+        c2_periodic_tasks -> email_dlq_queue "Cleans undeliverable email" "AWS APIs"
+        c2_periodic_tasks -> email_object_store "Deletes undeliverable email" "AWS APIs"
 
         dev_deploy = deploymentEnvironment "dev.fxprivaterelay.nonprod.cloudops.mozgcp.net" {
             deploymentNode "Dev User Interfaces" {
@@ -816,6 +818,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
 
         container relay "RelayContainersUserInterfaces" {
             title "[Container] Relay (User Interfaces)"
+            include element.tag==in_user_interfaces
             include ->web_app->
             include stripe
             include user
@@ -827,6 +830,25 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
             exclude c2_other_managed_services
             exclude element.tag==omit_in_c2_high_level
             exclude element.tag==in_email_service
+            exclude element.tag==in_other_managed_services
+            exclude element.tag==in_periodic_tasks
+        }
+
+        container relay "RelayContainersEmailServices" {
+            title "[Container] Relay (Email Services)"
+            include element.tag==in_email_service
+            include ->email_sender->
+            include ->email_receiver->
+            include user
+            include email_contact
+            include db
+            include c2_periodic_tasks
+            exclude sentry
+            exclude phone_service
+            exclude c2_user_interfaces
+            exclude c2_email_service
+            exclude element.tag==omit_in_c2_high_level
+            exclude element.tag==in_user_interfaces
             exclude element.tag==in_other_managed_services
             exclude element.tag==in_periodic_tasks
         }
