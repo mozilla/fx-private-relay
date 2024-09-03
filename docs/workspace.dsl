@@ -814,6 +814,23 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
             exclude element.tag==in_periodic_tasks
         }
 
+        container relay "RelayContainersUserInterfaces" {
+            title "[Container] Relay (User Interfaces)"
+            include ->web_app->
+            include stripe
+            include user
+            include email_contact
+            include phone_contact
+            include email_processor
+            exclude sentry
+            exclude c2_user_interfaces
+            exclude c2_other_managed_services
+            exclude element.tag==omit_in_c2_high_level
+            exclude element.tag==in_email_service
+            exclude element.tag==in_other_managed_services
+            exclude element.tag==in_periodic_tasks
+        }
+
         container relay "RelayContainersAllDetails" {
             title "[Container] Relay (All Details)"
             include *
