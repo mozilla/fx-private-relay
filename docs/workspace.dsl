@@ -8,196 +8,6 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
     }
 
     model {
-        user = person "Relay User" "A user of ${SERVICE_NAME}." {
-            tags "Relay User"
-        }
-        email_contact = person "Email Contact" {
-            description "A person or business emailing with a Relay User."
-            tags "External Contact"
-        }
-        phone_contact = person "Phone Contact" {
-            description "A person or business calling or texting with a Relay User."
-            tags "External Contact"
-        }
-        group Mozilla {
-            relay = softwareSystem "${SERVICE_NAME}" {
-                description "Manages email and phone masks. Forwards messages between masks and external services."
-                tags "Relay Software System"
-
-                group "User Interfaces" {
-                    web = container "Single-Page App" {
-                        description "Provides marketing pages, user dashboards, onboarding flows"
-                        tags "Browser Interface"
-                        technology "JavaScript - Next.js"
-                    }
-                    add_on = container "Relay Extension" {
-                        description "Suggests email masks on webpages"
-                        tags "Browser Interface"
-                        technology "Extension for Firefox and Chrome"
-                    }
-                    other_client = container "Bitwarden, Other API users" {
-                        description "Integrates with Relay API"
-                        tags "Browser Interface"
-                        technology "3rd Party Tools"
-                    }
-                    firefox = container "Firefox" {
-                        description "Suggests email mails on webpages"
-                        tags "Browser Interface"
-                        technology "Desktop application for Windows, MacOS, and Linux"
-                    }
-                }
-
-                // Shared Components
-                // Tons of incoming connection, need to be middle of container diagram
-                db = container "Database" {
-                    description "Stores Relay User profiles, masks, abuse metrics, etc."
-                    tags "Database"
-                    technology "PostgreSQL"
-                }
-                replica_db = container "Replica DB" {
-                    description "Read-only replica database"
-                    tags "Optional Database"
-                    technology "PostgreSQL"
-                }
-                logs = container "Log Aggregator" {
-                    description "Collects logs from other containers"
-                    tags "Managed Service"
-                }
-                metrics = container "Metrics Aggregator" {
-                    description "Collects metrics from other containers"
-                    tags "Optional Application"
-                    technology telegraf
-                }
-
-                // Managed Services
-                // At edges of container diagram, since they talk to external services
-                // Many incoming connections
-                email_receiver = container "Email Receiver" {
-                    description "Routes incoming emails, complaints, and bounces"
-                    tags "Managed Service"
-                    technology "Amazon SES"
-                }
-                email_sender = container "Email Sender" {
-                    description "Sends emails from the Relay domain"
-                    tags "Managed Service"
-                    technology "Amazon SES"
-                }
-                profiler = container Profiler {
-                    description "Collects CPU and timing profiles"
-                    tags "Managed Service"
-                    technology "Google Cloud Profiler"
-                }
-                phone_service = container "Phone Service" {
-                    description "Provides phone numbers, sends and receives SMS messages and voice calls"
-                    tags "Managed Service"
-                    technology "Twilio"
-                }
-                iq_phone_service = container "iQ Phone Service" {
-                    description "Provides phone numbers, sends and receives SMS messages and voice calls"
-                    tags "Optional Managed Service",omit_in_gcp
-                    technology "Inteliquent"
-                }
-
-                // Main backend applications
-                web_app = container "Web Application" {
-                    description "Delivers the Single-Page App; provides API, hooks, and callbacks"
-                    tags "Application"
-                    technology "Python - Django Application"
-                }
-                email_processor = container "Email Processor" {
-                    description "Processes and forwards incoming emails; Processes complaint and bounce reports"
-                    tags "Application"
-                    technology "Python - Django Command"
-                }
-
-                // Periodic Tasks
-                task_cleanup = container "Cleanup Task" {
-                    description "Fixes data consistency issues"
-                    tags "Task", "Periodic Task"
-                    technology "Python - Django Command"
-                }
-                task_clean_replies = container "Clean Replies Task" {
-                    description "Deletes expired reply data"
-                    tags "Task", "Periodic Task"
-                    technology "Python - Django Command"
-                }
-                task_sync_phones = container "Sync Phone Dates Task" {
-                    description "Syncs Mozilla Accounts subscription data for phone users"
-                    tags "Task", "Periodic Task"
-                    technology "Python - Django Command"
-                }
-                task_update_phones = container "Update Phone Limits Task" {
-                    description "Resets remaining texts and voice minutes at start of month"
-                    tags "Task", "Periodic Task"
-                    technology "Python - Django Command"
-                }
-                task_welcome = container "Send Welcome Emails Task" {
-                    description "Sends a welcome email to recent subscribers"
-                    tags "Task", "Periodic Task"
-                    technology "Python - Django Command"
-                }
-                dlq_processor = container "Dead-Letter Processor" {
-                    description "Deletes emails with processing errors"
-                    tags "Task", "Periodic Task"
-                    technology "Python - Django Command"
-                }
-
-                // Used by web application
-                cache = container "Cache" {
-                    description "Stores runtime data"
-                    tags "Database"
-                    technology "Redis"
-                }
-
-                // Email parts
-                email_object_store = container "Incoming Email Storage" {
-                    description "Stores incoming mail"
-                    technology "AWS S3"
-                    tags "Database"
-                }
-                email_queue = container "Email Notification Queue" {
-                    description "Holds notifications for emails, complaints, and bounces"
-                    technology "AWS SQS"
-                    tags "Database"
-                }
-                email_dlq_queue = container "Email Dead-Letter Queue" {
-                    description "Holds notifications for emails that fail to process"
-                    technology "AWS SQS"
-                    tags "Database"
-                }
-                email_key = container "Email Encryption" {
-                    description "Encrypts emails, notifications at rest"
-                    technology "AWS KMS"
-                    tags "Managed Service"
-                }
-                email_topic = container "Email Pub/Sub" {
-                    description "Published notifications to subscribers"
-                    technology "AWS SNS"
-                    tags "Managed Service"
-                }
-            }
-
-            accounts = softwareSystem "Accounts and Subscriptions" {
-                description "${ACCOUNTS_NAME} and the Subscription Platform."
-                tags "Other Software System"
-            }
-
-            data_system = softwareSystem "Data Platform" {
-                description "The Mozilla Telemetry Platform"
-                tags "Other Software System"
-            }
-
-            metrics_system = softwareSystem "Operational Metrics Platform" {
-                description "The Mozilla operational metrics and reporting platform"
-                tags "Other Software System"
-            }
-
-            sentry = softwareSystem "Sentry" {
-                description "Collects and organizes tracebacks and errors"
-                tags "Other Software System"
-            }
-        }
-
         ga = softwareSystem "Google Analytics" {
             description "Collects and reports interaction events"
             tags "Other Software System"
@@ -206,100 +16,352 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
             description "Handles billing and payment processing"
             tags "Other Software System"
         }
-        user -> accounts "Registers, manages subscription" "HTTPS"
+        group Mozilla {
+            accounts = softwareSystem "Accounts and Subscriptions" {
+                description "${ACCOUNTS_NAME} and the Subscription Platform."
+                tags "Other Software System"
+                -> stripe "Uses" "HTTPS, Stripe API"
+            }
+            data_system = softwareSystem "Data Platform" {
+                description "The Mozilla Telemetry Platform"
+                tags "Other Software System"
+            }
+            metrics_system = softwareSystem "Operational Metrics Platform" {
+                description "The Mozilla operational metrics and reporting platform"
+                tags "Other Software System"
+            }
+            sentry = softwareSystem "Sentry" {
+                description "Collects and organizes tracebacks and errors"
+                tags "Other Software System"
+            }
 
-        // Relay container relationships
-        user -> web "Uses"
-        user -> add_on "Uses"
-        user -> other_client "Uses"
-        user -> firefox "Uses"
-        web -> web_app "Uses API, requests static assets" "HTTPS" "omit_in_gcp"
-        web -> accounts "Requests flow tracking, sends users for login and subscriptions" "HTTPS, OAuth 2, APIs"
-        web -> ga "Sends page views, interactions" "HTTPS"
-        web -> stripe "Requests purchase tracking" "HTTPS"
-        accounts -> stripe "Uses" "HTTPS, Stripe API"
-        add_on -> web_app "Uses API, sends UI events" "HTTPS" "omit_in_gcp"
-        add_on -> web "Scrapes data" "Extension API"
-        other_client -> web_app "Uses API" "HTTPS" "omit_in_gcp"
-        firefox -> web_app "Uses API" "HTTPS" "omit_in_gcp"
-        web_app -> db "Updates" "Django ORM"
-        web_app -> cache "Uses" "Django Cache API"
-        web_app -> email_sender "Sends email" "SES API"
-        web_app -> accounts "Delegates user registration, payments" "HTTPS, OAuth 2, API"
-        web_app -> ga "Forwards extension's UI events" "Measurement Protocol"
-        web_app -> sentry "Sends exceptions" "HTTPS API"
-        web_app -> metrics "Sends metrics" "HTTP"
-        web_app -> logs "Emits logs" "stdout / stderr"
-        web_app -> phone_service "Reserves phone number, routes SMS and calls" "Stripe API, HTTPS callbacks"
-        web_app -> iq_phone_service "Reserves phone number, routes SMS" "Inteliquent API, HTTPS callbacks" "Optional Relationship"
-        web_app -> profiler "Sends Profiles" "Profile API"
-        task_sync_phones -> accounts "Reads subscription data" "Subscription API" "component_detail"
-        task_welcome -> email_sender "Sends welcome email" "SES API" "component_detail"
-        db -> replica_db
+            relay = softwareSystem "${SERVICE_NAME}" {
+                description "Manages email and phone masks. Forwards messages between masks and external services."
+                tags "Relay Software System"
 
-        // Common task relations (db, logs, etc) are unlabelled to reduce clutter
-        task_cleanup -> db
-        task_cleanup -> logs
-        task_cleanup -> metrics
-        task_cleanup -> sentry
-        task_clean_replies -> db
-        task_clean_replies -> logs
-        task_clean_replies -> metrics
-        task_clean_replies -> sentry
-        task_sync_phones -> db
-        task_sync_phones -> logs
-        task_sync_phones -> metrics
-        task_sync_phones -> sentry
-        task_update_phones -> db
-        task_update_phones -> logs
-        task_update_phones -> metrics
-        task_update_phones -> sentry
-        task_welcome -> db
-        task_welcome -> logs
-        task_welcome -> metrics
-        task_welcome -> sentry
-        dlq_processor -> db
-        dlq_processor -> logs
-        dlq_processor -> metrics
-        dlq_processor -> sentry
+                db = container "Database" {
+                    description "Stores Relay User profiles, masks, abuse metrics, etc."
+                    tags "Database"
+                    technology "PostgreSQL"
+                }
 
-        email_contact -> email_receiver "Sends email" "SMTP via user's email mask"
-        email_receiver -> email_object_store "Stores incoming emails" "S3"
-        email_receiver -> email_key "Encrypts" "KMS"
-        email_receiver -> email_topic "Notifies of new emails" "SNS"
-        email_object_store -> email_key "Decrypts" "KMS"
-        email_sender -> email_topic "Notifies of complaints and bounces" "SNS"
-        email_topic -> email_key "Decrypts" "KMS"
-        email_topic -> email_queue "Adds emails, complaints, bounces" "SQS"
+                // "Other Managed Services" for top-level C2 diagrams
+                c2_other_managed_services = container "Other Managed Services" {
+                    description "Other services used to deploy Relay"
+                    technology "Redis, Postgres"
+                    tags "Container Collection"
+                }
+
+                // The Other Managed Services
+                replica_db = container "Replica DB" {
+                    description "Read-only replica database"
+                    tags "Optional Database",in_other_managed_services
+                    technology "PostgreSQL"
+                    -> db "Replicates data" "Optional Relationship"
+                }
+                logs = container "Log Aggregator" {
+                    description "Collects logs from other containers"
+                    tags "Managed Service",in_other_managed_services
+                    -> data_system "Sends Glean events" "JSON over GCP SNS"
+                }
+                metrics = container "Metrics Aggregator" {
+                    description "Collects metrics from other containers"
+                    tags "Optional Application",in_other_managed_services
+                    technology telegraf
+                    -> metrics_system "Sends metrics" "Telegraf"
+                    -> db "Queries" "SQL"
+                }
+                profiler = container Profiler {
+                    description "Collects CPU and timing profiles"
+                    tags "Managed Service",in_other_managed_services
+                    technology "Google Cloud Profiler"
+                }
+                cache = container "Cache" {
+                    description "Stores runtime data"
+                    tags "Database",in_other_managed_services
+                    technology "Redis"
+                }
+
+                phone_service = container "Phone Service" {
+                    description "Provides phone numbers, sends and receives SMS messages and voice calls"
+                    tags "Managed Service"
+                    technology "Twilio"
+                    # Forward relationships defined below
+                    # -> user "Forwards Texts, Calls" "PSTN via user's real phone"
+                    # -> phone_contact "Sends reply texts" "PSTN via user's phone mask"
+                }
+                iq_phone_service = container "iQ Phone Service" {
+                    description "Provides phone numbers, sends and receives SMS messages and voice calls"
+                    tags "Optional Managed Service",omit_in_gcp,omit_in_c2_high_level
+                    technology "Inteliquent"
+                    # Forward relationships defined below
+                    # -> user "Forwards Texts, Calls" "PSTN via user's real phone" "Optional Relationship"
+                    # -> phone_contact "Sends reply texts" "PSTN via user's phone mask"
+                }
+
+
+                // "Email Services" for C2 top-level diagram
+                c2_email_service = container "Email Services" {
+                    description "Sends and receives emails"
+                    technology "AWS and GCP tasks"
+                    tags "Container Collection"
+                }
+
+                // Email Service components
+                email_key = container "Email Encryption" {
+                    description "Encrypts emails, notifications at rest"
+                    technology "AWS KMS"
+                    tags "Managed Service",in_email_service
+                }
+                email_object_store = container "Incoming Email Storage" {
+                    description "Stores incoming mail"
+                    technology "AWS S3"
+                    tags "Database",in_email_service
+                    -> email_key "Decrypts" "KMS"
+                }
+                email_dlq_queue = container "Email Dead-Letter Queue" {
+                    description "Holds notifications for emails that fail to process"
+                    technology "AWS SQS"
+                    tags "Database",in_email_service
+                    -> email_key "Decrypts" "KMS"
+                }
+                email_queue = container "Email Notification Queue" {
+                    description "Holds notifications for emails, complaints, and bounces"
+                    technology "AWS SQS"
+                    tags "Database",in_email_service
+                    -> email_key "Decrypts" "KMS"
+                    -> email_dlq_queue "Moves failed emails notifications" "SQS"
+                }
+                email_topic = container "Email Pub/Sub" {
+                    description "Published notifications to subscribers"
+                    technology "AWS SNS"
+                    tags "Managed Service",in_email_service
+                    -> email_key "Decrypts" "KMS"
+                    -> email_queue "Adds emails, complaints, bounces" "SQS"
+                    # Forward relationships defined below
+                    # -> web_app "Sends emails, complaints, bounces" "SQS" "Optional Relationship,omit_in_gcp"
+                }
+                email_sender = container "Email Sender" {
+                    description "Sends emails from the Relay domain"
+                    tags "Managed Service",in_email_service
+                    technology "Amazon SES"
+                    -> email_topic "Notifies of complaints and bounces" "SNS"
+                    -> email_key "Encrypts" "KMS"
+                    # Forward relationships defined below
+                    # -> user "Forwards email" "SMTP via user's real email"
+                    # -> email_contact "Sends replies" "SMTP via user's email mask"
+                }
+                email_receiver = container "Email Receiver" {
+                    description "Routes incoming emails, complaints, and bounces"
+                    tags "Managed Service",in_email_service
+                    technology "Amazon SES"
+                    -> email_object_store "Stores incoming emails" "S3"
+                    -> email_key "Encrypts" "KMS"
+                    -> email_topic "Notifies of new emails" "SNS"
+                }
+
+                // "Periodic Tasks" for C2 top-level diagram
+                c2_periodic_tasks = container "Periodic Tasks" {
+                    description "Scheduled tasks (k8s cronjobs) to provide Relay service"
+                    technology "Python - Django Command"
+                    tags "Container Collection"
+                }
+
+                // Periodic Tasks
+                task_cleanup = container "Cleanup Task" {
+                    description "Fixes data consistency issues"
+                    tags "Task", "Periodic Task", in_periodic_tasks
+                    technology "Python - Django Command"
+                    -> db
+                    -> logs
+                    -> metrics
+                    -> sentry
+                }
+                task_clean_replies = container "Clean Replies Task" {
+                    description "Deletes expired reply data"
+                    tags "Task", "Periodic Task", in_periodic_tasks
+                    technology "Python - Django Command"
+                    -> db
+                    -> logs
+                    -> metrics
+                    -> sentry
+                }
+                task_sync_phones = container "Sync Phone Dates Task" {
+                    description "Syncs Mozilla Accounts subscription data for phone users"
+                    tags "Task", "Periodic Task", in_periodic_tasks
+                    technology "Python - Django Command"
+                    -> accounts "Reads subscription data" "Subscription API"
+                    -> db
+                    -> logs
+                    -> metrics
+                    -> sentry
+
+                }
+                task_update_phones = container "Update Phone Limits Task" {
+                    description "Resets remaining texts and voice minutes at start of month"
+                    tags "Task", "Periodic Task", in_periodic_tasks
+                    technology "Python - Django Command"
+                    -> db
+                    -> logs
+                    -> metrics
+                    -> sentry
+                }
+                task_welcome = container "Send Welcome Emails Task" {
+                    description "Sends a welcome email to recent subscribers"
+                    tags "Task", "Periodic Task", in_periodic_tasks
+                    technology "Python - Django Command"
+                    -> email_sender "Sends welcome email" "SES API"
+                    -> db
+                    -> logs
+                    -> metrics
+                    -> sentry
+                }
+                dlq_processor = container "Dead-Letter Processor" {
+                    description "Deletes emails with processing errors"
+                    tags "Task", "Periodic Task", in_periodic_tasks
+                    technology "Python - Django Command"
+                    -> email_object_store "Reads, deletes emails" "S3 API"
+                    -> email_sender "Forwards email (rarely)" "SES API"
+                    -> email_dlq_queue "Polls" "SQS API"
+                    -> db
+                    -> logs
+                    -> metrics
+                    -> sentry
+                }
+
+                // Main backend applications
+                web_app = container "Web Application" {
+                    description "Delivers the Single-Page App; provides API, hooks, and callbacks"
+                    tags "Application"
+                    technology "Python - Django Application"
+                    -> db "Updates" "Django ORM"
+                    -> cache "Uses" "Django Cache API"
+                    -> accounts "Delegates user registration, payments" "HTTPS, OAuth 2, API"
+                    -> ga "Forwards extension's UI events" "Measurement Protocol"
+                    -> email_sender "Sends email" "SES API"
+                    -> sentry "Sends exceptions" "HTTPS API"
+                    -> metrics "Sends metrics" "HTTP"
+                    -> logs "Emits logs" "stdout / stderr"
+                    -> phone_service "Reserves phone number, routes SMS and calls" "Stripe API, HTTPS callbacks"
+                    -> iq_phone_service "Reserves phone number, routes SMS" "Inteliquent API, HTTPS callbacks" "Optional Relationship"
+                    -> profiler "Sends Profiles" "Profile API"
+                }
+                email_processor = container "Email Processor" {
+                    description "Processes and forwards incoming emails; Processes complaint and bounce reports"
+                    tags "Application"
+                    technology "Python - Django Command"
+                    -> db "Updates" "Django ORM"
+                    -> email_sender "Forwards email" "SES API"
+                    -> email_queue "Polls" "SQS API"
+                    -> email_object_store "Reads, deletes emails" "S3 API"
+                    -> sentry "Sends exceptions" "HTTPS API"
+                    -> metrics "Sends metrics" "HTTP"
+                    -> logs "Emits logs" "stdout / stderr"
+                    -> profiler "Sends profiles" "Profile API"
+                }
+
+                // "User Interfaces: for C2 top-level diagram
+                c2_user_interfaces = container "User Interfaces" {
+                    description "Website and browser interfaces for users"
+                    technology "Web, Extensions, Firefox"
+                    tags "Container Collection"
+                }
+
+                // User Interface components
+                group "User Interfaces" {
+                    web = container "Single-Page App" {
+                        description "Provides marketing pages, user dashboards, onboarding flows"
+                        tags "Browser Interface",in_user_interfaces
+                        technology "JavaScript - Next.js"
+                        -> accounts "Requests flow tracking, sends users for login and subscriptions" "HTTPS, OAuth 2, APIs"
+                        -> ga "Sends page views, interactions" "HTTPS"
+                        -> stripe "Requests purchase tracking" "HTTPS"
+                        -> web_app "Uses API, requests static assets" "HTTPS" "omit_in_gcp"
+                    }
+                    add_on = container "Relay Extension" {
+                        description "Suggests email masks on webpages"
+                        tags "Browser Interface",in_user_interfaces
+                        technology "Extension for Firefox and Chrome"
+                        -> web_app "Uses API, sends UI events" "HTTPS" "omit_in_gcp"
+                        -> web "Scrapes data" "Extension API"
+                    }
+                    other_client = container "Bitwarden, Other API users" {
+                        description "Integrates with Relay API"
+                        tags "Browser Interface",in_user_interfaces
+                        technology "3rd Party Tools"
+                        -> web_app "Uses API" "HTTPS" "omit_in_gcp"
+                    }
+                    firefox = container "Firefox" {
+                        description "Suggests email mails on webpages"
+                        tags "Browser Interface",in_user_interfaces
+                        technology "Desktop application for Windows, MacOS, and Linux"
+                        -> web_app "Uses API" "HTTPS" "omit_in_gcp"
+                    }
+                }
+            }
+        }
+
+        user = person "Relay User" "A user of ${SERVICE_NAME}." {
+            tags "Relay User"
+            -> accounts "Registers, manages subscription" "HTTPS"
+            -> web "Uses"
+            -> add_on "Uses"
+            -> other_client "Uses"
+            -> firefox "Uses"
+            -> email_receiver "Send reply email" "SMTP via replies email address"
+        }
+        email_contact = person "Email Contact" {
+            description "A person or business emailing with a Relay User."
+            tags "External Contact"
+            -> email_receiver "Sends email" "SMTP via user's email mask"
+        }
+        phone_contact = person "Phone Contact" {
+            description "A person or business calling or texting with a Relay User."
+            tags "External Contact"
+            -> phone_service "Sends texts, starts calls" "PSTN via user's phone mask"
+            -> iq_phone_service "Sends texts, starts calls" "PSTN via user's phone mask"
+        }
+
+        // Other relationships (defined earlier to defined later)
         email_topic -> web_app "Sends emails, complaints, bounces" "SQS" "Optional Relationship,omit_in_gcp"
         email_sender -> user "Forwards email" "SMTP via user's real email"
-        user -> email_receiver "Send reply email" "SMTP via replies email address"
         email_sender -> email_contact "Sends replies" "SMTP via user's email mask"
-        email_sender -> email_key "Encrypts" "KMS"
-        email_processor -> db "Updates" "Django ORM"
-        email_processor -> email_sender "Forwards email" "SES API"
-        email_processor -> email_queue "Polls" "SQS API"
-        email_processor -> email_object_store "Reads, deletes emails" "S3 API"
-        email_processor -> sentry "Sends exceptions" "HTTPS API"
-        email_processor -> metrics "Sends metrics" "HTTP"
-        email_processor -> logs "Emits logs" "stdout / stderr"
-        email_processor -> profiler "Sends profiles" "Profile API"
-        email_queue -> email_key "Decrypts" "KMS"
-        email_queue -> email_dlq_queue "Moves failed emails notifications" "SQS"
-        email_dlq_queue -> email_key "Decrypts" "KMS"
-        dlq_processor -> email_object_store "Reads, deletes emails" "S3 API" "component_detail"
-        dlq_processor -> email_sender "Forwards email (rarely)" "SES API" "component_detail"
-        dlq_processor -> email_dlq_queue "Polls" "SQS API" "component_detail"
-
-        phone_contact -> phone_service "Sends texts, starts calls" "PSTN via user's phone mask"
         phone_service -> phone_contact "Sends reply texts" "PSTN via user's phone mask"
-        phone_contact -> iq_phone_service "Sends texts, starts calls" "PSTN via user's phone mask"
+        phone_service -> user "Forwards Texts, Calls" "PSTN via user's real phone"
         iq_phone_service -> user "Forwards Texts, Calls" "PSTN via user's real phone" "Optional Relationship"
         iq_phone_service -> phone_contact "Sends reply texts" "PSTN via user's phone mask"
-        phone_service -> user "Forwards Texts, Calls" "PSTN via user's real phone"
-        metrics -> metrics_system "Sends metrics" "Telegraf"
-        metrics -> db "Queries" "SQL"
-        logs -> data_system "Sends Glean events" "JSON over GCP SNS"
+
+        //
+        // Alternate relations for C2 high-level graph
+        //
+
+        // User Interfaces
+        user -> c2_user_interfaces "Uses"
+        c2_user_interfaces -> web_app "Uses API, requests static assets" "HTTPS" "omit_in_gcp"
+        c2_user_interfaces -> stripe "Requests purchase tracking" "HTTPS"
+        c2_user_interfaces -> ga "Sends page views, interactions" "HTTPS"
+
+        // Email Service
+        c2_email_service -> user "Forwards email"
+        user -> c2_email_service "Sends reply email"
+        web_app -> c2_email_service "Sends email"
+        email_processor -> c2_email_service "Processes emails"
+        email_contact -> c2_email_service "Sends email"
+        c2_email_service -> email_contact "Sends replies"
+
+        // Other Managed Services
+        c2_other_managed_services -> data_system "Sends Glean events" "JSON over GCP SNS"
+        c2_other_managed_services -> metrics_system "Sends counter, gauge, and timing metrics" "Telegraf"
+        c2_other_managed_services -> db "Queries and replicates data" "SQL"
+        web_app -> c2_other_managed_services "Uses"
+
+        // Periodic Tasks
+        c2_periodic_tasks -> db "Updates" "Django ORM"
+        c2_periodic_tasks -> sentry "Sends exceptions" "HTTPS API"
+        c2_periodic_tasks -> c2_other_managed_services "Uses"
+        c2_periodic_tasks -> accounts "Reads subscription data" "Subscription API"
+        c2_periodic_tasks -> email_sender "Sends welcome email" "SES API"
+        c2_periodic_tasks -> c2_email_service "Cleans undeliverable email" "AWS APIs"
 
         dev_deploy = deploymentEnvironment "dev.fxprivaterelay.nonprod.cloudops.mozgcp.net" {
             deploymentNode "Dev User Interfaces" {
@@ -732,9 +794,29 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
             default
             include *
         }
+
+        container relay "RelayContainersHighLevel" {
+            title "[Container] Relay (High Level)"
+            include ->web_app->
+            include ->email_processor->
+            include ->db->
+            include stripe
+            include user
+            include data_system
+            include metrics_system
+            include email_contact
+            include phone_contact
+            exclude element.tag==omit_in_c2_high_level
+            exclude element.tag==in_email_service
+            exclude element.tag==in_user_interfaces
+            exclude element.tag==in_other_managed_services
+            exclude element.tag==in_periodic_tasks
+        }
+
         container relay "RelayContainersAllDetails" {
             title "[Container] Relay (All Details)"
             include *
+            exclude "element.tag==Container Collection"
         }
 
         dynamic relay forward_process "ForwardEmailProcess" {
@@ -892,6 +974,11 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
             element "Deployment Node" {
                 # Without this, shows up as "Element" in key
                 shape RoundedBox
+            }
+            element "Container Collection" {
+                shape hexagon
+                background ${COLOR_ZILLA_GREEN}
+                color ${COLOR_BLACK}
             }
             relationship "Relationship" {
                 dashed false
