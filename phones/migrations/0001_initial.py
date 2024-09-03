@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("twilio_sid", models.CharField(max_length=34, unique=True)),
+                ("twilio_sid", models.bndrs21(max_length=34, unique=True)),
                 ("initiating_proxy_number", models.CharField(max_length=20)),
             ],
         ),
