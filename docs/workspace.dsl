@@ -216,7 +216,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                     -> metrics
                     -> sentry
                 }
-                dlq_processor = container "Dead-Letter Processor" {
+                task_dlq = container "Dead-Letter Processor" {
                     description "Deletes emails with processing errors"
                     tags "Task", "Periodic Task", in_periodic_tasks
                     technology "Python - Django Command"
@@ -349,7 +349,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
         email_contact -> c2_email_services "Sends email"
         c2_email_services -> email_contact "Sends replies"
         task_welcome -> c2_email_services "Sends welcome email" "SES API"
-        dlq_processor -> c2_email_services "Clears unprocessable email"
+        task_dlq -> c2_email_services "Clears unprocessable email"
 
         // Other Managed Services
         c2_other_managed_services -> data_system "Sends Glean events" "JSON over GCP SNS"
@@ -362,7 +362,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
         task_sync_phones -> c2_other_managed_services
         task_update_phones -> c2_other_managed_services
         task_welcome -> c2_other_managed_services
-        dlq_processor -> c2_other_managed_services
+        task_dlq -> c2_other_managed_services
 
         // Periodic Tasks
         c2_periodic_tasks -> db "Updates" "Django ORM"
@@ -424,7 +424,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                         heroku_task_sync_phones = containerInstance task_sync_phones
                         heroku_task_update_phones = containerInstance task_update_phones
                         heroku_task_welcome = containerInstance task_welcome
-                        heroku_task_dql = containerInstance dlq_processor
+                        heroku_task_dql = containerInstance task_dlq
                     }
 
                     deploymentNode "Papertrail" {
@@ -522,7 +522,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                     }
                     deploymentNode "sqs-dlq" {
                         technology "Kubernetes Cron Job"
-                        stage_task_dlq = containerInstance dlq_processor
+                        stage_task_dlq = containerInstance task_dlq
                     }
                     deploymentNode "syncphones" {
                         technology "Kubernetes Cron Job"
@@ -691,7 +691,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                     }
                     deploymentNode "sqs-dlq" {
                         technology "Kubernetes Cron Job"
-                        prod_task_dlq = containerInstance dlq_processor
+                        prod_task_dlq = containerInstance task_dlq
                     }
                     deploymentNode "syncphones" {
                         technology "Kubernetes Cron Job"
