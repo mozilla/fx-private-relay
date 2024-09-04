@@ -101,7 +101,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
 
 
                 // "Email Services" for C2 top-level diagram
-                c2_email_service = container "Email Services" {
+                c2_email_services = container "Email Services" {
                     description "Sends and receives emails"
                     technology "AWS services"
                     tags "Container Collection"
@@ -111,31 +111,31 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                 email_key = container "Email Encryption" {
                     description "Encrypts emails, notifications at rest"
                     technology "AWS KMS"
-                    tags "Managed Service",in_email_service
+                    tags "Managed Service",in_email_services
                 }
                 email_object_store = container "Incoming Email Storage" {
                     description "Stores incoming mail"
                     technology "AWS S3"
-                    tags "Database",in_email_service
+                    tags "Database",in_email_services
                     -> email_key "Decrypts" "KMS"
                 }
                 email_dlq_queue = container "Email Dead-Letter Queue" {
                     description "Holds notifications for emails that fail to process"
                     technology "AWS SQS"
-                    tags "Database",in_email_service
+                    tags "Database",in_email_services
                     -> email_key "Decrypts" "KMS"
                 }
                 email_queue = container "Email Notification Queue" {
                     description "Holds notifications for emails, complaints, and bounces"
                     technology "AWS SQS"
-                    tags "Database",in_email_service
+                    tags "Database",in_email_services
                     -> email_key "Decrypts" "KMS"
                     -> email_dlq_queue "Moves failed emails notifications" "SQS"
                 }
                 email_topic = container "Email Pub/Sub" {
                     description "Published notifications to subscribers"
                     technology "AWS SNS"
-                    tags "Managed Service",in_email_service
+                    tags "Managed Service",in_email_services
                     -> email_key "Decrypts" "KMS"
                     -> email_queue "Adds emails, complaints, bounces" "SQS"
                     # Forward relationships defined below
@@ -143,7 +143,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                 }
                 email_sender = container "Email Sender" {
                     description "Sends emails from the Relay domain"
-                    tags "Managed Service",in_email_service
+                    tags "Managed Service",in_email_services
                     technology "Amazon SES"
                     -> email_topic "Notifies of complaints and bounces" "SNS"
                     -> email_key "Encrypts complaints and bounces" "KMS"
@@ -153,7 +153,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                 }
                 email_receiver = container "Email Receiver" {
                     description "Routes incoming emails, complaints, and bounces"
-                    tags "Managed Service",in_email_service
+                    tags "Managed Service",in_email_services
                     technology "Amazon SES"
                     -> email_object_store "Stores incoming emails" "S3"
                     -> email_key "Encrypts" "KMS"
@@ -342,14 +342,14 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
         c2_user_interfaces -> ga "Sends page views, interactions" "HTTPS"
 
         // Email Service
-        c2_email_service -> user "Forwards email"
-        user -> c2_email_service "Sends reply email"
-        web_app -> c2_email_service "Sends email"
-        email_processor -> c2_email_service "Processes emails"
-        email_contact -> c2_email_service "Sends email"
-        c2_email_service -> email_contact "Sends replies"
-        task_welcome -> c2_email_service "Sends welcome email" "SES API"
-        dlq_processor -> c2_email_service "Clears unprocessable email"
+        c2_email_services -> user "Forwards email"
+        user -> c2_email_services "Sends reply email"
+        web_app -> c2_email_services "Sends email"
+        email_processor -> c2_email_services "Processes emails"
+        email_contact -> c2_email_services "Sends email"
+        c2_email_services -> email_contact "Sends replies"
+        task_welcome -> c2_email_services "Sends welcome email" "SES API"
+        dlq_processor -> c2_email_services "Clears unprocessable email"
 
         // Other Managed Services
         c2_other_managed_services -> data_system "Sends Glean events" "JSON over GCP SNS"
@@ -369,7 +369,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
         c2_periodic_tasks -> sentry "Sends exceptions" "HTTPS API"
         c2_periodic_tasks -> accounts "Reads subscription data" "Subscription API"
         c2_periodic_tasks -> email_sender "Sends welcome email" "SES API"
-        c2_periodic_tasks -> c2_email_service "Cleans undeliverable email" "AWS APIs"
+        c2_periodic_tasks -> c2_email_services "Cleans undeliverable email" "AWS APIs"
         c2_periodic_tasks -> email_dlq_queue "Cleans undeliverable email" "AWS APIs"
         c2_periodic_tasks -> email_object_store "Deletes undeliverable email" "AWS APIs"
         c2_periodic_tasks -> c2_other_managed_services "Uses"
@@ -820,7 +820,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
             include email_contact
             include phone_contact
             exclude element.tag==omit_in_c2_high_level
-            exclude element.tag==in_email_service
+            exclude element.tag==in_email_services
             exclude element.tag==in_user_interfaces
             exclude element.tag==in_other_managed_services
             exclude element.tag==in_periodic_tasks
@@ -839,7 +839,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
             exclude c2_user_interfaces
             exclude c2_other_managed_services
             exclude element.tag==omit_in_c2_high_level
-            exclude element.tag==in_email_service
+            exclude element.tag==in_email_services
             exclude element.tag==in_other_managed_services
             exclude element.tag==in_periodic_tasks
         }
@@ -855,18 +855,18 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
             include sentry
             include data_system
             include metrics_system
-            include c2_email_service
+            include c2_email_services
             include c2_other_managed_services
             exclude c2_user_interfaces
             exclude element.tag==omit_in_c2_high_level
-            exclude element.tag==in_email_service
+            exclude element.tag==in_email_services
             exclude element.tag==in_user_interfaces
         }
 
         container relay "RelayContainersEmailServices" {
             title "[Container] Relay (Email Services)"
-            include element.tag==in_email_service
-            exclude c2_email_service
+            include element.tag==in_email_services
+            exclude c2_email_services
             include ->email_sender->
             include ->email_receiver->
             include user
@@ -894,7 +894,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
             include sentry
             exclude c2_user_interfaces
             exclude element.tag==omit_in_c2_high_level
-            exclude element.tag==in_email_service
+            exclude element.tag==in_email_services
             exclude element.tag==in_user_interfaces
             exclude element.tag==in_periodic_tasks
         }
