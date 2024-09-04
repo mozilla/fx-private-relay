@@ -8,7 +8,7 @@ permissions:
 jobs:
   regen-with-new-glean-parser:
     runs-on: ubuntu-latest
-    if: ${{ (github.actor == 'jwhitlock' || github.actor == 'dependabot[bot]') && startsWith( github.head_ref, 'dependabot/pip/glean-parser' ) }}
+    if: ${{ (github.event.pull_request.user.login == 'jwhitlock' || github.event.pull_request.user.login == 'dependabot[bot]') && startsWith( github.head_ref, 'dependabot/pip/glean-parser' ) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
