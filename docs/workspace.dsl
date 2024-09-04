@@ -187,7 +187,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                     -> sentry
                 }
                 task_sync_phones = container "Sync Phone Dates Task" {
-                    description "Syncs Mozilla Accounts subscription data for phone users"
+        description "Syncs Mozilla Accounts subscription data for phone users"
                     tags "Task", "Periodic Task", in_periodic_tasks
                     technology "Python - Django Command"
                     -> accounts "Reads subscription data" "Subscription API"
@@ -348,6 +348,8 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
         email_processor -> c2_email_service "Processes emails"
         email_contact -> c2_email_service "Sends email"
         c2_email_service -> email_contact "Sends replies"
+        task_welcome -> c2_email_service "Sends welcome email" "SES API"
+        dlq_processor -> c2_email_service "Clears unprocessable email"
 
         // Other Managed Services
         c2_other_managed_services -> data_system "Sends Glean events" "JSON over GCP SNS"
@@ -355,6 +357,12 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
         c2_other_managed_services -> db "Queries and replicates data" "SQL"
         web_app -> c2_other_managed_services "Uses"
         email_processor -> c2_other_managed_services "Uses"
+        task_cleanup -> c2_other_managed_services
+        task_clean_replies -> c2_other_managed_services
+        task_sync_phones -> c2_other_managed_services
+        task_update_phones -> c2_other_managed_services
+        task_welcome -> c2_other_managed_services
+        dlq_processor -> c2_other_managed_services
 
         // Periodic Tasks
         c2_periodic_tasks -> db "Updates" "Django ORM"
@@ -836,6 +844,25 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
             exclude element.tag==in_periodic_tasks
         }
 
+        container relay "RelayContainersPeriodicTasks" {
+            title "[Container] Relay (Periodic Tasks)"
+            include element.tag==in_periodic_tasks
+            exclude c2_periodic_tasks
+            include web_app
+            include email_processor
+            include db
+            include accounts
+            include sentry
+            include data_system
+            include metrics_system
+            include c2_email_service
+            include c2_other_managed_services
+            exclude c2_user_interfaces
+            exclude element.tag==omit_in_c2_high_level
+            exclude element.tag==in_email_service
+            exclude element.tag==in_user_interfaces
+        }
+
         container relay "RelayContainersEmailServices" {
             title "[Container] Relay (Email Services)"
             include element.tag==in_email_service
@@ -845,14 +872,13 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
             include user
             include email_contact
             include db
-            include c2_periodic_tasks
             exclude sentry
             exclude phone_service
+            exclude c2_periodic_tasks
             exclude c2_user_interfaces
             exclude element.tag==omit_in_c2_high_level
             exclude element.tag==in_user_interfaces
             exclude element.tag==in_other_managed_services
-            exclude element.tag==in_periodic_tasks
         }
 
         container relay "RelayContainersManagedServices" {
