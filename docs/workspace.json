@@ -5,7 +5,8 @@
   "description" : "Mozilla's service providing email and phone masks.",
   "documentation" : { },
   "id" : 1,
-  "lastModifiedDate" : "2024-09-04T16:55:00Z",
+  "lastModifiedAgent" : "structurizr-javascript",
+  "lastModifiedDate" : "2024-09-04T16:57:05Z",
   "model" : {
     "deploymentNodes" : [ {
       "containerInstances" : [ {
@@ -5495,6 +5496,7 @@
       "branding" : { },
       "defaultView" : "RelaySystemContext",
       "lastSavedView" : "RelayProductionDeployment",
+      "metadataSymbols" : "SquareBrackets",
       "properties" : {
         "structurizr.sort" : "created"
       },
@@ -7858,7 +7860,15 @@
       }, {
         "id" : "201"
       }, {
-        "id" : "202"
+        "id" : "202",
+        "position" : 25,
+        "vertices" : [ {
+          "x" : 4375,
+          "y" : 1300
+        }, {
+          "x" : 3990,
+          "y" : 1520
+        } ]
       }, {
         "id" : "203"
       }, {
@@ -8656,7 +8666,15 @@
         "id" : "313",
         "position" : 35
       }, {
-        "id" : "314"
+        "id" : "314",
+        "position" : 15,
+        "vertices" : [ {
+          "x" : 6130,
+          "y" : 2185
+        }, {
+          "x" : 5695,
+          "y" : 2620
+        } ]
       }, {
         "id" : "323",
         "vertices" : [ {
@@ -9655,7 +9673,15 @@
         "id" : "481",
         "position" : 35
       }, {
-        "id" : "482"
+        "id" : "482",
+        "position" : 20,
+        "vertices" : [ {
+          "x" : 6080,
+          "y" : 2155
+        }, {
+          "x" : 5550,
+          "y" : 2610
+        } ]
       }, {
         "id" : "483"
       }, {
