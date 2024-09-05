@@ -11,7 +11,7 @@ Context and Containers.
 ## System Context Diagram
 
 This shows the relationships between the Relay software system, other software systems,
-and users.
+and users:
 
 [![Relay System Context](./img/structurizr-1-RelaySystemContext.svg)](./img/structurizr-1-RelaySystemContext.svg)
 
@@ -21,20 +21,111 @@ Key:
 ## Containers Diagram
 
 This shows all the relationships between the containers (independently deployed
-parts) of Relay and the other software systems.
+parts) of Relay and the other software systems. Some containers have been grouped into
+container collections, which are explored in more detail below.
 
-_TODO_ Summary diagram. Combine all clients into one unit, all scheduled tasks,
-all email processing, backend services. etc.
+- **Web Application** - A monolithic Python / Django application that provides an API
+  and various other features.
+- **Email Processor** - A backend Django application that handles emails, bounces,
+  and complaints from the Email Services.
+- **Database** - A PostgreSQL database, used by other components
+- **[User Interfaces](#container-diagram-focus-on-user-interfaces)** (_Collection_) - The various ways Relay users manage masks
+- **[Periodic Tasks](#container-diagram-focus-on-periodic-tasks)** (_Collection_) - Other backend Django applications that help provide the service
+- **[Email Services](#container-diagram-focus-on-email-processing)** (_Collection_) - The AWS systems that provide email sending and
+  receiving.
+- **[Other Managed Services](#container-diagram-focus-on-other-managed-services)** (_Collection_) - Other GCP services used to provide the
+  Relay application and talk to Mozilla backend systems
 
-_TODO_ Zoom into clients
+[![Relay Containers (High Level)](./img/structurizr-1-RelayContainersHighLevel.svg)](./img/structurizr-1-RelayContainersHighLevel.svg)
 
-_TODO_ Zoom into scheduled tasks
+Key:
+![Relay Containers (High Level) Key](./img/structurizr-1-RelayContainersHighLevel-key.svg)
 
-_TODO_ Zoom into email processing
+### Container Diagram: Focus on User Interfaces
+
+Relay users have a variety of interfaces for viewing and updating their Relay account:
+
+- The single-page app (<http://relay.firefox.com> for production), which acts as a
+  landing page to sell the services and as a dashboard to manage masks.
+- The Firefox extension, which will detect and fill-in email masks
+- Firefox, which integrates Relay into the form filling functionality
+- Bitwarden and (unknown) API users, who also use the API to manage masks
+
+All of these interfaces talk to the API endpoints in the Web Application. Relay users
+also interact with the email and phone services, when they receive and reply to email,
+SMS messages, and voice calls.
+
+[![Relay Containers (User Interfaces)](./img/structurizr-1-RelayContainersUserInterfaces.svg)](./img/structurizr-1-RelayContainersUserInterfaces.svg)
+
+Key:
+![Relay Containers (User Interfaces) Key](./img/structurizr-1-RelayContainersUserInterfaces-key.svg)
+
+### Container Diagram: Focus on Periodic Tasks
+
+The Relay service includes some background tasks that keep the service running without
+slowing down API requests. These are scheduled (with cronjob) to run periodically:
+
+- **Sync Phone Dates Task** - Checks phone subscription data, detects cancellations or
+  term changes
+- **Cleanup Task** - Performs a variety of data validation and cleanup jobs
+- **Update Phone Limits Task** - Resets text and voice minutes at renewal date
+- **Send welcome emails Task** - Send welcome emails to new Relay users
+- **Clean Replies Task** - Deletes expired data needed to reply to a forwarded email
+- **Dead-Letter Processor** - Deletes emails that are unable to be forwarded due to
+  encoding or other processing errors
+
+[![Relay Containers (Periodic Tasks)](./img/structurizr-1-RelayContainersPeriodicTasks.svg)](./img/structurizr-1-RelayContainersPeriodicTasks.svg)
+
+Key:
+![Relay Containers (Periodic Tasks) Key](./img/structurizr-1-RelayContainersPeriodicTasks-key.svg)
+
+### Container Diagram: Focus on Email Processing
+
+Relay uses several AWS services to implement email forwarding:
+
+- **Email Sender** - Sends emails, and collects bounces and complaints
+- **Email Receiver** - Receives emails for the Relay domains
+- **Email Encryption** - Stores keys for encryption-at-rest, decrypts data for
+  authorized callers
+- **Incoming Email Storage** - Stores the bodies of received emails
+- **Email Pub/Sub** - Forwards notification of new emails, bounces, and complaints
+- **Email Notification Queue** - Stores notifications of new emails, bounces, and
+  complaints. Hides notification that were recently read, to avoid double-processing.
+  Moves notifications to the dead-letter queue after they are read three times.
+- **Email Dead-Letter Queue** - Stores notifications of new emails that could not
+  be processed after 3 attempts.
+
+[![Relay Containers (Email Services)](./img/structurizr-1-RelayContainersEmailServices.svg)](./img/structurizr-1-RelayContainersEmailServices.svg)
+
+Key:
+![Relay Containers (Email Services) Key](./img/structurizr-1-RelayContainersEmailServices-key.svg)
+
+### Container Diagram: Focus on Other Managed Services
+
+Relay uses several GCP-hosted services besides the PostgreSQL database:
+
+- **Profiler** - Accepts timing profiles of execution runs. Used to determine what
+  sections of code are slow.
+- **Cache** - Stores runtime data for the web application
+- **Replica DB** - A read-only replica, being tested in some deployments as a way to
+  reduce load on the primary database.
+- **Metrics Aggregator** - Collects statsd-style counter, gauge, and timer metrics from
+  Relay applications and tasks, as well a query the database for some aggregated user
+  statistics.
+- **Log Aggregator** - Collects and combines logs from Relay applications, tasks, and
+  other GCP services.
+
+[![Relay Containers (Managed Services)](./img/structurizr-1-RelayContainersManagedServices.svg)](./img/structurizr-1-RelayContainersManagedServices.svg)
+
+Key:
+![Relay Containers (Managed Services) Key](./img/structurizr-1-RelayContainersManagedServices-key.svg)
 
 ### Container, All Details
 
-Here are all the Relay containers in a single diagram.
+Here are all the Relay containers in a single diagram, with no container collections. It adds a few optional
+containers:
+
+- **iQ Phone Service** - An alternative phone provider tested in some deployments
 
 [![Relay Containers (All Details)](./img/structurizr-1-RelayContainersAllDetails.svg)](./img/structurizr-1-RelayContainersAllDetails.svg)
 
@@ -156,6 +247,7 @@ To update the diagrams:
 - Make changes to `workspace.dsl`. Refresh the page or use the "home" button to reload
   the model.
 - Adjust the layout in the webapp
+- (Optional) Fine-tune the layout in `workshop.json`
 - Export the SVG images and move to the `img`, replacing existing images
 - Check in `workshop.dsl`, `workshop.json`, and any changed images
 
