@@ -36,10 +36,11 @@ class RelayAPIException(APIException):
     Base class for exceptions that may be returned through the API.
 
     Derived classes should set `default_code` to a unique string identifying the
-    exception. There should be a matching Fluent string with an `api-error-`
-    prefix. For example, the Fluent string "api-error-free-tier-limit" matches
-    the exception class with the default_code "free-tier-limit". These Fluent
-    strings are in misc.ftl.
+    exception. The `ftl_id` should be a matching Fluent string with an `api-error-`
+    prefix. For example, the `ftl_id` "api-error-free-tier-limit" matches
+    the exception class with the `default_code` "free-tier-limit". These Fluent
+    strings are in misc.ftl. While the `ftl_id` _could_ be constructed from the
+    `default_code`, it is included as a cross-referencing aid.
 
     Derived classes can set `default_detail` to a human-readable string, or they
     can set `default_detail_template` to dynamically create the string from extra
@@ -53,6 +54,7 @@ class RelayAPIException(APIException):
     default_code: str
     default_detail: str
     status_code: int
+    ftl_id: str
 
     def __init__(
         self, detail: _APIExceptionInput = None, code: str | None = None
@@ -69,7 +71,19 @@ class RelayAPIException(APIException):
             self.default_detail = self.default_detail_template.format(**context)
         if not isinstance(self.default_detail, str):
             raise TypeError("self.default_detail must be type str")
+        if not isinstance(self.ftl_id, str):
+            raise TypeError("self.ftl_id must be type str")
         super().__init__(detail, code)
+
+        # Validated the Fluent error ID ftl_id
+        error_code = self.get_codes()
+        if not isinstance(error_code, str):
+            raise TypeError("error_code must be type str")
+        ftl_id_sub = "api-error-"
+        ftl_id_error = error_code.replace("_", "-")
+        expected_ftl_id = ftl_id_sub + ftl_id_error
+        if expected_ftl_id != self.ftl_id:
+            raise ValueError(f'ftl_id is "{self.ftl_id}", expected "{expected_ftl_id}"')
 
     def error_context(self) -> ErrorContextType:
         """Return context variables for client-side translation."""
@@ -78,21 +92,11 @@ class RelayAPIException(APIException):
     def error_data(self) -> ErrorData:
         """Return extra data for API error responses."""
 
-        # For RelayAPIException classes, this is the default_code and is a string
-        error_code = self.get_codes()
-        if not isinstance(error_code, str):
-            raise TypeError("error_code must be type str")
-
-        # Build the Fluent error ID
-        ftl_id_sub = "api-error-"
-        ftl_id_error = error_code.replace("_", "-")
-        ftl_id = ftl_id_sub + ftl_id_error
-
         # Replace the default message with the translated Fluent string
         error_context = self.error_context()
-        translated_detail = ftl_bundle.format(ftl_id, error_context)
+        translated_detail = ftl_bundle.format(self.ftl_id, error_context)
 
-        error_data = ErrorData(detail=translated_detail, error_code=error_code)
+        error_data = ErrorData(detail=translated_detail, error_code=self.get_codes())
         if error_context:
             error_data["error_context"] = error_context
         return error_data
