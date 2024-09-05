@@ -1022,6 +1022,8 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                 shape RoundedBox
                 background ${COLOR_ZILLA_GREEN}
                 color ${COLOR_BLACK}
+                stroke ${COLOR_ZILLA_GREEN_MINUS}
+                strokeWidth 10
             }
             element "Optional Application" {
                 shape RoundedBox
