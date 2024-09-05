@@ -29,12 +29,12 @@ container collections, which are explored in more detail below.
 - **Email Processor** - A backend Django application that handles emails, bounces,
   and complaints from the Email Services.
 - **Database** - A PostgreSQL database, used by other components
-- **User Interfaces** (_Collection_) - The various ways Relay users manage masks
-- **Email Services** (_Collection_) - The AWS systems that provide email sending and
+- **[User Interfaces](#container-diagram-focus-on-user-interfaces)** (_Collection_) - The various ways Relay users manage masks
+- **[Periodic Tasks](#container-diagram-focus-on-periodic-tasks)** (_Collection_) - Other backend Django applications that help provide the service
+- **[Email Services](#container-diagram-focus-on-email-processing)** (_Collection_) - The AWS systems that provide email sending and
   receiving.
-- **Other Managed Services** (_Collection_) - Other GCP services used to provide the
+- **[Other Managed Services](#container-diagram-focus-on-other-managed-services)** (_Collection_) - Other GCP services used to provide the
   Relay application and talk to Mozilla backend systems
-- **Periodic Tasks** (_Collection_) - Other backend Django applications that help provide the service
 
 [![Relay Containers (High Level)](./img/structurizr-1-RelayContainersHighLevel.svg)](./img/structurizr-1-RelayContainersHighLevel.svg)
 
