@@ -726,18 +726,12 @@ def inbound_sms(request):
     _check_remaining(relay_number, "texts")
 
     if inbound_from == real_phone.number:
+        prepared = False
         try:
             relay_number, destination_number, body = _prepare_sms_reply(
                 relay_number, inbound_body
             )
-            client = twilio_client()
-            incr_if_enabled("phones_send_sms_reply")
-            client.messages.create(
-                from_=relay_number.number, body=body, to=destination_number
-            )
-            relay_number.remaining_texts -= 1
-            relay_number.texts_forwarded += 1
-            relay_number.save()
+            prepared = True
         except RelaySMSException as sms_exception:
             _log_sms_exception("twilio", real_phone, sms_exception)
             user_error_message = _get_user_error_message(real_phone, sms_exception)
@@ -746,6 +740,25 @@ def inbound_sms(request):
             )
             if sms_exception.status_code >= 400:
                 raise
+
+        if prepared:
+            client = twilio_client()
+            incr_if_enabled("phones_send_sms_reply")
+            success = False
+            try:
+                client.messages.create(
+                    from_=relay_number.number, body=body, to=destination_number
+                )
+                success = True
+            except TwilioRestException as e:
+                logger.error(
+                    "Twilio failed to send reply",
+                    {"code": e.code, "http_status_code": e.status, "msg": e.msg},
+                )
+            if success:
+                relay_number.remaining_texts -= 1
+                relay_number.texts_forwarded += 1
+                relay_number.save()
 
         return response.Response(
             status=200,
@@ -766,15 +779,40 @@ def inbound_sms(request):
     app = twiml_app()
     incr_if_enabled("phones_outbound_sms")
     body = message_body(inbound_from, inbound_body)
-    client.messages.create(
-        from_=relay_number.number,
-        body=body,
-        status_callback=app.sms_status_callback,
-        to=real_phone.number,
-    )
-    relay_number.remaining_texts -= 1
-    relay_number.texts_forwarded += 1
-    relay_number.save()
+    result = "SUCCESS"
+    try:
+        client.messages.create(
+            from_=relay_number.number,
+            body=body,
+            status_callback=app.sms_status_callback,
+            to=real_phone.number,
+        )
+    except TwilioRestException as e:
+        if e.code == 21610:
+            # User has opted out with "STOP"
+            # TODO: Mark RealPhone as unsubscribed?
+            context = {"code": e.code, "http_status_code": e.status, "msg": e.msg}
+            profile = real_phone.user.profile
+            if (fxa := profile.fxa) and profile.metrics_enabled:
+                context["fxa_id"] = fxa.uid
+            else:
+                context["fxa_id"] = ""
+            info_logger.info("User has blocked their Relay number", context)
+            result = "BLOCKED"
+        else:
+            result = "FAILED"
+            logger.error(
+                "Twilio failed to forward message",
+                {"code": e.code, "http_status_code": e.status, "msg": e.msg},
+            )
+    if result == "SUCCESS":
+        relay_number.remaining_texts -= 1
+        relay_number.texts_forwarded += 1
+        relay_number.save()
+    elif result == "BLOCKED":
+        relay_number.texts_blocked += 1
+        relay_number.save()
+
     return response.Response(
         status=201,
         template_name="twiml_empty_response.xml",
