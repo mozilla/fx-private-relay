@@ -1,5 +1,6 @@
 import vobject
 from rest_framework import renderers
+from rest_framework.exceptions import ErrorDetail
 
 
 class vCardRenderer(renderers.BaseRenderer):
@@ -43,9 +44,23 @@ class TemplateTwiMLRenderer(renderers.TemplateHTMLRenderer):
     def render(self, data, accepted_media_type=None, renderer_context=None):
         renderer_context = renderer_context or {}
         response = renderer_context["response"]
+        render_data = data
         if response.exception:
-            error = data[0]
-            data = {"code": error.code, "title": error.title()}
-            renderer_context["error"] = data
+            if (
+                isinstance(data, list)
+                and len(data) == 1
+                and isinstance(data[0], ErrorDetail)
+            ):
+                # From Django REST Framework exception
+                error = data[0]
+                render_data = {"code": error.code, "title": error.title()}
+                renderer_context["error"] = render_data
+            elif isinstance(data, dict) and "detail" in data and "error_code" in data:
+                # From RelaySMSException
+                render_data = {
+                    "code": data["error_code"],
+                    "title": data["detail"],
+                }
+                renderer_context["error"] = render_data
 
-        return super().render(data, accepted_media_type, renderer_context)
+        return super().render(render_data, accepted_media_type, renderer_context)

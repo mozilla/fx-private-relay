@@ -1041,7 +1041,7 @@ def test_inbound_sms_reply_not_storing_phone_log(
 
     assert response.status_code == 400
     decoded_content = response.content.decode()
-    assert "To Reply, You Must Allow " in decoded_content
+    assert "The reply feature requires " in decoded_content
     mocked_twilio_client.messages.create.assert_called_once()
     call_kwargs = mocked_twilio_client.messages.create.call_args.kwargs
     assert call_kwargs["to"] == real_phone.number
@@ -1062,7 +1062,7 @@ def test_inbound_sms_reply_no_previous_sender(phone_user, mocked_twilio_client):
 
     assert response.status_code == 400
     decoded_content = response.content.decode()
-    assert "You Can Only Reply To Phone Numbers" in decoded_content
+    assert "You can only reply to phone numbers " in decoded_content
     mocked_twilio_client.messages.create.assert_called_once()
     call_kwargs = mocked_twilio_client.messages.create.call_args.kwargs
     assert call_kwargs["to"] == real_phone.number

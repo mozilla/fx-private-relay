@@ -55,6 +55,7 @@ class RelayAPIException(APIException):
     default_detail: str
     status_code: int
     ftl_id: str
+    ftl_id_prefix = "api-error-"
 
     def __init__(
         self, detail: _APIExceptionInput = None, code: str | None = None
@@ -79,9 +80,8 @@ class RelayAPIException(APIException):
         error_code = self.get_codes()
         if not isinstance(error_code, str):
             raise TypeError("error_code must be type str")
-        ftl_id_sub = "api-error-"
         ftl_id_error = error_code.replace("_", "-")
-        expected_ftl_id = ftl_id_sub + ftl_id_error
+        expected_ftl_id = self.ftl_id_prefix + ftl_id_error
         if expected_ftl_id != self.ftl_id:
             raise ValueError(f'ftl_id is "{self.ftl_id}", expected "{expected_ftl_id}"')
 
