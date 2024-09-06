@@ -84,7 +84,7 @@ def test_iq_endpoint_invalid_hash():
 
     assert response.status_code == 401
     response_body = response.json()
-    assert "verficiationToken != computed sha256" in response_body["detail"]
+    assert "verificationToken != computed sha256" in response_body["detail"]
 
 
 @pytest.mark.django_db

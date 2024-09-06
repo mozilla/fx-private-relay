@@ -407,7 +407,7 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
                 ],
             ),
             "404": OpenApiResponse(
-                description="Neither location or area_code was speciifed"
+                description="Neither location or area_code was specified"
             ),
         },
     )
@@ -1741,7 +1741,7 @@ def _validate_iq_request(request: Request) -> None:
     token = request._request.headers["verificationToken"]
 
     if mac != token:
-        raise exceptions.AuthenticationFailed("verficiationToken != computed sha256")
+        raise exceptions.AuthenticationFailed("verificationToken != computed sha256")
 
 
 def convert_twilio_messages_to_dict(twilio_messages):

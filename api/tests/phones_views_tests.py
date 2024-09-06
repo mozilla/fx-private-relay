@@ -1077,7 +1077,7 @@ def test_inbound_sms_reply(phone_user: User, mocked_twilio_client: Client) -> No
     real_phone = _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=True)
 
-    # Setup: Recieve a text from a contact
+    # Setup: Receive a text from a contact
     client = APIClient()
     path = "/api/v1/inbound_sms"
     contact_number = "+15556660000"
@@ -1109,7 +1109,7 @@ def test_inbound_sms_reply_to_first_caller(
     real_phone = _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=True)
 
-    # Setup: Recieve a text from a contact
+    # Setup: Receive a text from a contact
     client = APIClient()
     sms_path = "/api/v1/inbound_sms"
     contact_number = "+15556660000"
@@ -1119,7 +1119,7 @@ def test_inbound_sms_reply_to_first_caller(
     relay_number.refresh_from_db()
     assert relay_number.texts_forwarded == 1
 
-    # Setup: Recieve a call from the same contact
+    # Setup: Receive a call from the same contact
     voice_path = "/api/v1/inbound_call"
     data = {"Caller": contact_number, "Called": relay_number.number}
     response = client.post(voice_path, data, HTTP_X_TWILIO_SIGNATURE="valid")
@@ -1149,7 +1149,7 @@ def test_inbound_sms_reply_to_caller(
     real_phone = _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=True)
 
-    # Setup: Recieve a text from first contact
+    # Setup: Receive a text from first contact
     client = APIClient()
     sms_path = "/api/v1/inbound_sms"
     contact1_number = "+13015550000"
@@ -1163,7 +1163,7 @@ def test_inbound_sms_reply_to_caller(
     relay_number.refresh_from_db()
     assert relay_number.texts_forwarded == 1
 
-    # Setup: Recieve a text from second contact
+    # Setup: Receive a text from second contact
     contact2_number = "+13025550001"
     data = {
         "From": contact2_number,
@@ -1175,7 +1175,7 @@ def test_inbound_sms_reply_to_caller(
     relay_number.refresh_from_db()
     assert relay_number.texts_forwarded == 2
 
-    # Setup: Recieve a call from second contact
+    # Setup: Receive a call from second contact
     voice_path = "/api/v1/inbound_call"
     data = {"Caller": contact2_number, "Called": relay_number.number}
     response = client.post(voice_path, data, HTTP_X_TWILIO_SIGNATURE="valid")
