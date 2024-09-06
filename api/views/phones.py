@@ -619,15 +619,30 @@ def message_body(from_num, body):
     return f"[Relay 📲 {from_num}] {body}"
 
 
+def _log_sms_exception(
+    phone_provider: Literal["twilio", "iq"],
+    real_phone: RealPhone,
+    sms_exception: RelaySMSException,
+) -> None:
+    """Log SMS exceptions for incoming requests from the provider."""
+    profile = real_phone.user.profile
+    context = sms_exception.error_context()
+    context["phone_provider"] = phone_provider
+    if (fxa := profile.fxa) and profile.metrics_enabled:
+        context["fxa_id"] = fxa.uid
+    else:
+        context["fxa_id"] = ""
+    info_logger.info(sms_exception.default_code, context)
+
+
 def _get_user_error_message(
     real_phone: RealPhone, sms_exception: RelaySMSException
 ) -> Any:
-    # Send a translated message to the user
-    ftl_id = sms_exception.ftl_id
-    with django_ftl.override("en"):
-        logger.exception(ftl_bundle.format(ftl_id, sms_exception.error_context()))
+    """Generate a translated message for the user."""
     with django_ftl.override(real_phone.user.profile.language):
-        user_message = ftl_bundle.format(ftl_id, sms_exception.error_context())
+        user_message = ftl_bundle.format(
+            sms_exception.ftl_id, sms_exception.error_context()
+        )
     return user_message
 
 
@@ -724,6 +739,7 @@ def inbound_sms(request):
             relay_number.texts_forwarded += 1
             relay_number.save()
         except RelaySMSException as sms_exception:
+            _log_sms_exception("twilio", real_phone, sms_exception)
             user_error_message = _get_user_error_message(real_phone, sms_exception)
             twilio_client().messages.create(
                 from_=relay_number.number, body=user_error_message, to=real_phone.number
@@ -827,6 +843,7 @@ def inbound_sms_iq(request: Request) -> response.Response:
             relay_number.save()
             incr_if_enabled("phones_send_sms_reply_iq")
         except RelaySMSException as sms_exception:
+            _log_sms_exception("iq", real_phone, sms_exception)
             user_error_message = _get_user_error_message(real_phone, sms_exception)
             send_iq_sms(real_phone.number, relay_number.number, user_error_message)
             if sms_exception.status_code >= 400:
