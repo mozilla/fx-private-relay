@@ -1431,7 +1431,11 @@ def _match_senders_by_prefix(relay_number: RelayNumber, text: str) -> MatchData 
         contacts_by_number: dict[str, InboundContact] = {}
         for contact in contacts:
             # TODO: don't default to US when we support other regions
-            pn = phonenumbers.parse(contact.inbound_number, DEFAULT_REGION)
+            try:
+                pn = phonenumbers.parse(contact.inbound_number, DEFAULT_REGION)
+            except phonenumbers.phonenumberutil.NumberParseException:
+                # Invalid number like '1', skip it
+                continue
             e164 = phonenumbers.format_number(pn, phonenumbers.PhoneNumberFormat.E164)
             if e164 not in contacts_by_number:
                 contacts_by_number[e164] = contact

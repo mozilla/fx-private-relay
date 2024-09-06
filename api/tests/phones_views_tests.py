@@ -1440,6 +1440,35 @@ def test_inbound_sms_reply_full_prefix_never_text(
     assert relay_number.texts_forwarded == multi_reply.old_texts_forwarded + 1
 
 
+def test_inbound_sms_reply_invalid_contact_does_not_break_prefix(
+    multi_reply: MultiReplyFixture,
+) -> None:
+    """A previous contact with an invalid phone number is ignored."""
+    relay_number = multi_reply.relay_number
+    InboundContact.objects.create(
+        relay_number=relay_number,
+        inbound_number="+0000",
+    )
+    data = {
+        "From": multi_reply.real_phone.number,
+        "To": relay_number.number,
+        "Body": "0000: test reply",
+    }
+    response = APIClient().post(
+        "/api/v1/inbound_sms", data, HTTP_X_TWILIO_SIGNATURE="valid"
+    )
+
+    assert response.status_code == 200
+    msg_create_api = multi_reply.mocked_twilio_client.messages.create
+    msg_create_api.assert_called_once()
+    call_kwargs = msg_create_api.call_args.kwargs
+    assert call_kwargs["to"] == "+13015550000"
+    assert call_kwargs["from_"] == relay_number.number
+    assert call_kwargs["body"] == "test reply"
+    relay_number.refresh_from_db()
+    assert relay_number.texts_forwarded == multi_reply.old_texts_forwarded + 1
+
+
 _sms_reply_error_test_cases = {
     "short prefix with multiple matching contacts": (
         "0001 test reply to ambiguous number",
