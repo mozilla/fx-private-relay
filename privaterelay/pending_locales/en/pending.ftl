@@ -3,4 +3,3 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 # This is the Django equivalent of frontend/pendingTranslations.ftl
-api-error-account-is-inactive = Your account is not active.
