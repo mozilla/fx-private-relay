@@ -1,5 +1,5 @@
 import { Locator, Page, expect } from "@playwright/test";
-import { checkAuthState, getVerificationCode } from "../e2eTestUtils/helpers";
+import { checkAuthState } from "../e2eTestUtils/helpers";
 
 export class DashboardPage {
   readonly page: Page;
