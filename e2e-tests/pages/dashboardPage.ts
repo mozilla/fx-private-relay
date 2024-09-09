@@ -57,6 +57,7 @@ export class DashboardPage {
   readonly maskCardBottomMeta: Locator;
   readonly maskCardTrackersCount: Locator;
   readonly chooseSubdomain: Locator;
+  readonly bannerEmailError: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -130,6 +131,9 @@ export class DashboardPage {
       '//section[starts-with(@class, "profile_no-premium-header")]',
     );
     this.chooseSubdomain = page.locator("id=mpp-choose-subdomain");
+    this.bannerEmailError = page.getByText(
+      "The mask could not be created. Please try again.",
+    );
 
     // mask card elements
     this.maskCard = page.getByRole("button", { name: "Generate new mask" });
@@ -245,14 +249,28 @@ export class DashboardPage {
       ? this.generateNewMaskPremiumButton
       : this.generateNewMaskButton;
 
-    // generate a new mask and confirm
+    const maskCards = this.page.locator(this.maskCardString);
+    const preMaskCardsCount = await maskCards.count();
+
+    // generate a new mask
     await generateMaskBtn.click();
 
     const randomMaskShown = await this.premiumRandomMask.isVisible();
     if (randomMaskShown) {
       await this.premiumRandomMask.click();
     }
-    await this.page.waitForSelector(this.maskCardString, { timeout: 3000 });
+
+    // Wait for the mask card count to increase, or the error banner
+    expect(
+      this.bannerEmailError.or(maskCards.nth(preMaskCardsCount)),
+    ).toBeVisible({ timeout: 3000 });
+    expect(
+      this.bannerEmailError,
+      "No mask error banner. If fails, maybe rate-limited?",
+    ).not.toBeVisible();
+    expect(await maskCards, "Mask cards should go up by one").toHaveCount(
+      preMaskCardsCount + 1,
+    );
 
     // randomize between 1.5-2.5 secs between each generate to deal with issue of multiple quick clicks
     await this.page.waitForTimeout(Math.random() * 2500 + 1500);
