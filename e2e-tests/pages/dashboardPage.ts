@@ -56,6 +56,7 @@ export class DashboardPage {
   readonly customMaskDoneButton: Locator;
   readonly maskCardBottomMeta: Locator;
   readonly maskCardTrackersCount: Locator;
+  readonly chooseSubdomain: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -128,6 +129,7 @@ export class DashboardPage {
     this.dashBoardWithoutMasksEmail = page.locator(
       '//section[starts-with(@class, "profile_no-premium-header")]',
     );
+    this.chooseSubdomain = page.locator("id=mpp-choose-subdomain");
 
     // mask card elements
     this.maskCard = page.getByRole("button", { name: "Generate new mask" });
@@ -218,6 +220,9 @@ export class DashboardPage {
     if (numberOfMasks === 0) {
       return;
     }
+    // Check that the subdomain has been set for the premium user
+    expect(await this.chooseSubdomain.count()).toBe(0);
+
     await this.generateNewMaskPremiumButton.click();
     await this.premiumDomainMask.click();
 
