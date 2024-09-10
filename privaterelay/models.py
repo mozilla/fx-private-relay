@@ -559,6 +559,13 @@ class Profile(models.Model):
             return "free"
         return f"{plan}_{self.plan_term}"
 
+    @property
+    def metrics_fxa_id(self) -> str:
+        """Return Mozilla Accounts ID if user has metrics enabled, else empty string"""
+        if (fxa := self.fxa) and self.metrics_enabled and isinstance(fxa.uid, str):
+            return fxa.uid
+        return ""
+
 
 class RegisteredSubdomain(models.Model):
     subdomain_hash = models.CharField(max_length=64, db_index=True, unique=True)

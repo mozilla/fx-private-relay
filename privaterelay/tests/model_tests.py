@@ -810,3 +810,21 @@ class ProfileMetricsPremiumStatus(ProfileTestCase):
     def test_vpn_bundle_user(self) -> None:
         self.upgrade_to_vpn_bundle()
         assert self.profile.metrics_premium_status == "bundle_unknown"
+
+
+class ProfileMetricsFxaID(ProfileTestCase):
+    def test_metrics_fxa_id_no_social_account(self) -> None:
+        assert not SocialAccount.objects.filter(user=self.profile.user).exists()
+        assert self.profile.metrics_fxa_id == ""
+
+    def test_metrics_fxa_id_metrics_enabled(self) -> None:
+        social_account = self.get_or_create_social_account()
+        assert self.profile.metrics_enabled
+        assert self.profile.metrics_fxa_id == social_account.uid
+
+    def test_metrics_fxa_id_metrics_disabled(self) -> None:
+        social_account = self.get_or_create_social_account()
+        social_account.extra_data["metricsEnabled"] = False
+        social_account.save()
+        assert not self.profile.metrics_enabled
+        assert self.profile.metrics_fxa_id == ""
