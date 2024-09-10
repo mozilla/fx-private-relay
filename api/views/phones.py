@@ -625,13 +625,9 @@ def _log_sms_exception(
     sms_exception: RelaySMSException,
 ) -> None:
     """Log SMS exceptions for incoming requests from the provider."""
-    profile = real_phone.user.profile
     context = sms_exception.error_context()
     context["phone_provider"] = phone_provider
-    if (fxa := profile.fxa) and profile.metrics_enabled:
-        context["fxa_id"] = fxa.uid
-    else:
-        context["fxa_id"] = ""
+    context["fxa_id"] = real_phone.user.profile.metrics_fxa_id
     info_logger.info(sms_exception.default_code, context)
 
 
@@ -792,11 +788,7 @@ def inbound_sms(request):
             # User has opted out with "STOP"
             # TODO: Mark RealPhone as unsubscribed?
             context = {"code": e.code, "http_status_code": e.status, "msg": e.msg}
-            profile = real_phone.user.profile
-            if (fxa := profile.fxa) and profile.metrics_enabled:
-                context["fxa_id"] = fxa.uid
-            else:
-                context["fxa_id"] = ""
+            context["fxa_id"] = real_phone.user.profile.metrics_fxa_id
             info_logger.info("User has blocked their Relay number", context)
             result = "BLOCKED"
         else:
@@ -1089,7 +1081,7 @@ def voice_status(request):
         info_logger.info(
             "phone_limit_exceeded",
             extra={
-                "fxa_uid": relay_number.user.profile.fxa.uid,
+                "fxa_uid": relay_number.user.profile.metrics_fxa_id,
                 "call_duration_in_seconds": int(call_duration),
                 "relay_number_enabled": relay_number.enabled,
                 "remaining_seconds": relay_number.remaining_seconds,
