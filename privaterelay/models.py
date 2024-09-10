@@ -426,12 +426,12 @@ class Profile(models.Model):
             midnight_utc_today = datetime.combine(
                 datetime.now(UTC).date(), datetime.min.time()
             ).astimezone(UTC)
-            midnight_utc_tomorow = midnight_utc_today + timedelta(days=1)
+            midnight_utc_tomorrow = midnight_utc_today + timedelta(days=1)
             abuse_metric = (
                 self.user.abusemetrics_set.select_for_update()
                 .filter(
                     first_recorded__gte=midnight_utc_today,
-                    first_recorded__lt=midnight_utc_tomorow,
+                    first_recorded__lt=midnight_utc_tomorrow,
                 )
                 .first()
             )
@@ -558,6 +558,13 @@ class Profile(models.Model):
         if plan == "free":
             return "free"
         return f"{plan}_{self.plan_term}"
+
+    @property
+    def metrics_fxa_id(self) -> str:
+        """Return Mozilla Accounts ID if user has metrics enabled, else empty string"""
+        if (fxa := self.fxa) and self.metrics_enabled and isinstance(fxa.uid, str):
+            return fxa.uid
+        return ""
 
 
 class RegisteredSubdomain(models.Model):

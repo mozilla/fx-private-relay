@@ -39,6 +39,16 @@ from waffle import flag_is_active, get_waffle_flag_model
 from api.views import SaveToRequestUser
 from emails.utils import incr_if_enabled
 from phones.apps import phones_config, twilio_client
+from phones.exceptions import (
+    FullNumberMatchesNoSenders,
+    MultipleNumberMatches,
+    NoBodyAfterFullNumber,
+    NoBodyAfterShortPrefix,
+    NoPhoneLog,
+    NoPreviousSender,
+    RelaySMSException,
+    ShortPrefixMatchesNoSenders,
+)
 from phones.iq_utils import send_iq_sms
 from phones.models import (
     DEFAULT_REGION,
@@ -57,7 +67,7 @@ from phones.models import (
 )
 from privaterelay.ftl_bundles import main as ftl_bundle
 
-from ..exceptions import ConflictError, ErrorContextType
+from ..exceptions import ConflictError
 from ..permissions import HasPhoneService
 from ..renderers import TemplateTwiMLRenderer, vCardRenderer
 from ..serializers.phones import (
@@ -407,7 +417,7 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
                 ],
             ),
             "404": OpenApiResponse(
-                description="Neither location or area_code was speciifed"
+                description="Neither location or area_code was specified"
             ),
         },
     )
@@ -609,17 +619,26 @@ def message_body(from_num, body):
     return f"[Relay 📲 {from_num}] {body}"
 
 
+def _log_sms_exception(
+    phone_provider: Literal["twilio", "iq"],
+    real_phone: RealPhone,
+    sms_exception: RelaySMSException,
+) -> None:
+    """Log SMS exceptions for incoming requests from the provider."""
+    context = sms_exception.error_context()
+    context["phone_provider"] = phone_provider
+    context["fxa_id"] = real_phone.user.profile.metrics_fxa_id
+    info_logger.info(sms_exception.default_code, context)
+
+
 def _get_user_error_message(
     real_phone: RealPhone, sms_exception: RelaySMSException
 ) -> Any:
-    # Send a translated message to the user
-    ftl_code = sms_exception.get_codes().replace("_", "-")
-    ftl_id = f"sms-error-{ftl_code}"
-    # log the error in English
-    with django_ftl.override("en"):
-        logger.exception(ftl_bundle.format(ftl_id, sms_exception.error_context()))
+    """Generate a translated message for the user."""
     with django_ftl.override(real_phone.user.profile.language):
-        user_message = ftl_bundle.format(ftl_id, sms_exception.error_context())
+        user_message = ftl_bundle.format(
+            sms_exception.ftl_id, sms_exception.error_context()
+        )
     return user_message
 
 
@@ -703,29 +722,40 @@ def inbound_sms(request):
     _check_remaining(relay_number, "texts")
 
     if inbound_from == real_phone.number:
+        prepared = False
         try:
             relay_number, destination_number, body = _prepare_sms_reply(
                 relay_number, inbound_body
             )
-            client = twilio_client()
-            incr_if_enabled("phones_send_sms_reply")
-            client.messages.create(
-                from_=relay_number.number, body=body, to=destination_number
-            )
-            relay_number.remaining_texts -= 1
-            relay_number.texts_forwarded += 1
-            relay_number.save()
+            prepared = True
         except RelaySMSException as sms_exception:
+            _log_sms_exception("twilio", real_phone, sms_exception)
             user_error_message = _get_user_error_message(real_phone, sms_exception)
             twilio_client().messages.create(
                 from_=relay_number.number, body=user_error_message, to=real_phone.number
             )
+            if sms_exception.status_code >= 400:
+                raise
 
-            # Return 400 on critical exceptions
-            if sms_exception.critical:
-                raise exceptions.ValidationError(
-                    sms_exception.detail
-                ) from sms_exception
+        if prepared:
+            client = twilio_client()
+            incr_if_enabled("phones_send_sms_reply")
+            success = False
+            try:
+                client.messages.create(
+                    from_=relay_number.number, body=body, to=destination_number
+                )
+                success = True
+            except TwilioRestException as e:
+                logger.error(
+                    "Twilio failed to send reply",
+                    {"code": e.code, "http_status_code": e.status, "msg": e.msg},
+                )
+            if success:
+                relay_number.remaining_texts -= 1
+                relay_number.texts_forwarded += 1
+                relay_number.save()
+
         return response.Response(
             status=200,
             template_name="twiml_empty_response.xml",
@@ -745,15 +775,36 @@ def inbound_sms(request):
     app = twiml_app()
     incr_if_enabled("phones_outbound_sms")
     body = message_body(inbound_from, inbound_body)
-    client.messages.create(
-        from_=relay_number.number,
-        body=body,
-        status_callback=app.sms_status_callback,
-        to=real_phone.number,
-    )
-    relay_number.remaining_texts -= 1
-    relay_number.texts_forwarded += 1
-    relay_number.save()
+    result = "SUCCESS"
+    try:
+        client.messages.create(
+            from_=relay_number.number,
+            body=body,
+            status_callback=app.sms_status_callback,
+            to=real_phone.number,
+        )
+    except TwilioRestException as e:
+        if e.code == 21610:
+            # User has opted out with "STOP"
+            # TODO: Mark RealPhone as unsubscribed?
+            context = {"code": e.code, "http_status_code": e.status, "msg": e.msg}
+            context["fxa_id"] = real_phone.user.profile.metrics_fxa_id
+            info_logger.info("User has blocked their Relay number", context)
+            result = "BLOCKED"
+        else:
+            result = "FAILED"
+            logger.error(
+                "Twilio failed to forward message",
+                {"code": e.code, "http_status_code": e.status, "msg": e.msg},
+            )
+    if result == "SUCCESS":
+        relay_number.remaining_texts -= 1
+        relay_number.texts_forwarded += 1
+        relay_number.save()
+    elif result == "BLOCKED":
+        relay_number.texts_blocked += 1
+        relay_number.save()
+
     return response.Response(
         status=201,
         template_name="twiml_empty_response.xml",
@@ -822,14 +873,12 @@ def inbound_sms_iq(request: Request) -> response.Response:
             relay_number.save()
             incr_if_enabled("phones_send_sms_reply_iq")
         except RelaySMSException as sms_exception:
+            _log_sms_exception("iq", real_phone, sms_exception)
             user_error_message = _get_user_error_message(real_phone, sms_exception)
             send_iq_sms(real_phone.number, relay_number.number, user_error_message)
+            if sms_exception.status_code >= 400:
+                raise
 
-            # Return 400 on critical exceptions
-            if sms_exception.critical:
-                raise exceptions.ValidationError(
-                    sms_exception.detail
-                ) from sms_exception
         return response.Response(
             status=200,
             template_name="twiml_empty_response.xml",
@@ -1032,7 +1081,7 @@ def voice_status(request):
         info_logger.info(
             "phone_limit_exceeded",
             extra={
-                "fxa_uid": relay_number.user.profile.fxa.uid,
+                "fxa_uid": relay_number.user.profile.metrics_fxa_id,
                 "call_duration_in_seconds": int(call_duration),
                 "relay_number_enabled": relay_number.enabled,
                 "remaining_seconds": relay_number.remaining_seconds,
@@ -1313,142 +1362,13 @@ def _get_phone_objects(inbound_to):
     return relay_number, real_phone
 
 
-class RelaySMSException(Exception):
-    """
-    Base class for exceptions when handling SMS messages.
-
-    Modeled after restframework.APIException, but without a status_code.
-
-    TODO MPP-3722: Refactor to a common base class with api.exceptions.RelayAPIException
-    """
-
-    critical: bool
-    default_code: str
-    default_detail: str | None = None
-    default_detail_template: str | None = None
-
-    def __init__(self, critical=False, *args, **kwargs):
-        self.critical = critical
-        if not (
-            self.default_detail is not None and self.default_detail_template is None
-        ) and not (
-            self.default_detail is None and self.default_detail_template is not None
-        ):
-            raise ValueError(
-                "One and only one of default_detail or "
-                "default_detail_template must be None."
-            )
-        super().__init__(*args, **kwargs)
-
-    @property
-    def detail(self):
-        if self.default_detail:
-            return self.default_detail
-        else:
-            if self.default_detail_template is None:
-                raise ValueError("self.default_detail_template must not be None.")
-            return self.default_detail_template.format(**self.error_context())
-
-    def get_codes(self):
-        return self.default_code
-
-    def error_context(self) -> ErrorContextType:
-        """Return context variables for client-side translation."""
-        return {}
-
-
-class NoPhoneLog(RelaySMSException):
-    default_code = "no_phone_log"
-    default_detail_template = (
-        "To reply, you must allow Firefox Relay to keep a log of your callers"
-        " and text senders. You can update this under “Caller and texts log” here:"
-        "{account_settings_url}."
-    )
-
-    def error_context(self) -> ErrorContextType:
-        return {
-            "account_settings_url": f"{settings.SITE_ORIGIN or ''}/accounts/settings/"
-        }
-
-
-class NoPreviousSender(RelaySMSException):
-    default_code = "no_previous_sender"
-    default_detail = (
-        "Message failed to send. You can only reply to phone numbers that have sent"
-        " you a text message."
-    )
-
-
-class ShortPrefixException(RelaySMSException):
-    """Base exception for short prefix exceptions"""
-
-    def __init__(self, short_prefix: str):
-        self.short_prefix = short_prefix
-        super().__init__()
-
-    def error_context(self) -> ErrorContextType:
-        return {"short_prefix": self.short_prefix}
-
-
-class FullNumberException(RelaySMSException):
-    """Base exception for full number exceptions"""
-
-    def __init__(self, full_number: str):
-        self.full_number = full_number
-        super().__init__()
-
-    def error_context(self) -> ErrorContextType:
-        return {"full_number": self.full_number}
-
-
-class ShortPrefixMatchesNoSenders(ShortPrefixException):
-    default_code = "short_prefix_matches_no_senders"
-    default_detail_template = (
-        "Message failed to send. There is no phone number in this thread ending"
-        " in {short_prefix}. Please check the number and try again."
-    )
-
-
-class FullNumberMatchesNoSenders(FullNumberException):
-    default_code = "full_number_matches_no_senders"
-    default_detail_template = (
-        "Message failed to send. There is no previous sender with the phone"
-        " number {full_number}. Please check the number and try again."
-    )
-
-
-class MultipleNumberMatches(ShortPrefixException):
-    default_code = "multiple_number_matches"
-    default_detail_template = (
-        "Message failed to send. There is more than one phone number in this"
-        " thread ending in {short_prefix}. To retry, start your message with"
-        " the complete number."
-    )
-
-
-class NoBodyAfterShortPrefix(ShortPrefixException):
-    default_code = "no_body_after_short_prefix"
-    default_detail_template = (
-        "Message failed to send. Please include a message after the sender identifier"
-        " {short_prefix}."
-    )
-
-
-class NoBodyAfterFullNumber(FullNumberException):
-    default_code = "no_body_after_full_number"
-    default_detail_template = (
-        "Message failed to send. Please include a message after the phone number"
-        " {full_number}."
-    )
-
-
 def _prepare_sms_reply(
     relay_number: RelayNumber, inbound_body: str
 ) -> tuple[RelayNumber, str, str]:
     incr_if_enabled("phones_handle_sms_reply")
     if not relay_number.storing_phone_log:
         # We do not store user's contacts in our database
-        raise NoPhoneLog(critical=True)
+        raise NoPhoneLog()
 
     match = _match_senders_by_prefix(relay_number, inbound_body)
 
@@ -1476,7 +1396,7 @@ def _prepare_sms_reply(
 
     # Fail if no last sender
     if destination_number is None:
-        raise NoPreviousSender(critical=True)
+        raise NoPreviousSender()
 
     # Determine the message body
     if match:
@@ -1541,7 +1461,11 @@ def _match_senders_by_prefix(relay_number: RelayNumber, text: str) -> MatchData 
         contacts_by_number: dict[str, InboundContact] = {}
         for contact in contacts:
             # TODO: don't default to US when we support other regions
-            pn = phonenumbers.parse(contact.inbound_number, DEFAULT_REGION)
+            try:
+                pn = phonenumbers.parse(contact.inbound_number, DEFAULT_REGION)
+            except phonenumbers.phonenumberutil.NumberParseException:
+                # Invalid number like '1', skip it
+                continue
             e164 = phonenumbers.format_number(pn, phonenumbers.PhoneNumberFormat.E164)
             if e164 not in contacts_by_number:
                 contacts_by_number[e164] = contact
@@ -1741,7 +1665,7 @@ def _validate_iq_request(request: Request) -> None:
     token = request._request.headers["verificationToken"]
 
     if mac != token:
-        raise exceptions.AuthenticationFailed("verficiationToken != computed sha256")
+        raise exceptions.AuthenticationFailed("verificationToken != computed sha256")
 
 
 def convert_twilio_messages_to_dict(twilio_messages):

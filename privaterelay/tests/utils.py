@@ -168,7 +168,7 @@ def create_expected_glean_event(
 
     # Get values from the user object
     if user.profile.fxa:
-        user_extra_items["fxa_id"] = user.profile.fxa.uid
+        user_extra_items["fxa_id"] = user.profile.metrics_fxa_id
         user_extra_items["premium_status"] = user.profile.metrics_premium_status
     user_extra_items["date_joined_relay"] = str(int(user.date_joined.timestamp()))
     if user.profile.date_subscribed:

@@ -12,12 +12,14 @@ class CannotMakeAddressException(RelayAPIException):
 class AccountIsPausedException(CannotMakeAddressException):
     default_code = "account_is_paused"
     default_detail = "Your account is on pause."
+    ftl_id = "api-error-account-is-paused"
     status_code = 403
 
 
 class AccountIsInactiveException(CannotMakeAddressException):
     default_code = "account_is_inactive"
     default_detail = "Your account is not active."
+    ftl_id = "api-error-account-is-inactive"
     status_code = 403
 
 
@@ -28,6 +30,7 @@ class RelayAddrFreeTierLimitException(CannotMakeAddressException):
         " You can reuse an existing mask, but using a unique mask for each account is"
         " the most secure option."
     )
+    ftl_id = "api-error-free-tier-limit"
     status_code = 403
 
     def __init__(self, free_tier_limit: int | None = None):
@@ -44,12 +47,14 @@ class DomainAddrFreeTierException(CannotMakeAddressException):
         "Your free account does not include custom subdomains for masks."
         " To create custom masks, upgrade to Relay Premium."
     )
+    ftl_id = "api-error-free-tier-no-subdomain-masks"
     status_code = 403
 
 
 class DomainAddrNeedSubdomainException(CannotMakeAddressException):
     default_code = "need_subdomain"
     default_detail = "Please select a subdomain before creating a custom email address."
+    ftl_id = "api-error-need-subdomain"
     status_code = 400
 
 
@@ -58,6 +63,7 @@ class DomainAddrUpdateException(CannotMakeAddressException):
 
     default_code = "address_not_editable"
     default_detail = "You cannot edit an existing domain address field."
+    ftl_id = "api-error-address-not-editable"
     status_code = 400
 
 
@@ -67,6 +73,7 @@ class DomainAddrUnavailableException(CannotMakeAddressException):
         "“{unavailable_address}” could not be created."
         " Please try again with a different mask name."
     )
+    ftl_id = "api-error-address-unavailable"
     status_code = 400
 
     def __init__(self, unavailable_address: str):
@@ -83,6 +90,7 @@ class DomainAddrDuplicateException(CannotMakeAddressException):
         "“{duplicate_address}” already exists."
         " Please try again with a different mask name."
     )
+    ftl_id = "api-error-duplicate-address"
     status_code = 409
 
     def __init__(self, duplicate_address: str):

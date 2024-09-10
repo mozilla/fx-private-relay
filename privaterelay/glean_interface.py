@@ -73,7 +73,7 @@ class UserData(NamedTuple):
         if not metrics_enabled:
             return cls(metrics_enabled=False)
 
-        fxa_id = user.profile.fxa.uid if user.profile.fxa else None
+        fxa_id = user.profile.metrics_fxa_id or None
         n_random_masks = user.relayaddress_set.count()
         n_domain_masks = user.domainaddress_set.count()
         n_deleted_random_masks = user.profile.num_deleted_relay_addresses
