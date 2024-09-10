@@ -1,11 +1,10 @@
 module.exports = {
   extends: [
     "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
     "plugin:jest-dom/recommended",
-    "next",
+    "next/core-web-vitals",
+    "next/typescript",
   ],
-  parser: "@typescript-eslint/parser",
   plugins: ["@typescript-eslint", "testing-library", "jest-dom"],
   rules: {
     // We export the Next.js app to static HTML,
