@@ -15,7 +15,7 @@ test.describe("Premium Relay - Purchase Premium Flow, Desktop", () => {
     page,
   }) => {
     await dashboardPage.upgrade();
-    expect(page.url()).toContain("/premium/");
+    expect(page).toHaveURL("/premium/#pricing");
   });
 });
 
@@ -31,6 +31,6 @@ test.describe("Premium Relay - Purchase Premium Flow, Desktop - Visual Regressio
     page,
   }) => {
     await dashboardPage.upgradeNow();
-    expect(page.url()).toContain("premium");
+    expect(page).toHaveURL("/premium/#pricing");
   });
 });
