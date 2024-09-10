@@ -49,7 +49,7 @@ E2E_TEST_ACCOUNT_PREMIUM=<your_premium_account_email>
 E2E_TEST_ACCOUNT_PASSWORD=<your_premium_account_password>
 ```
 
-Any free account created during the initial setup of tests will also use `E2E_TEST_ACCOUNT_PASSWORD`. If you do not want to use a personal premium account, reach out to Luke for `relay-team` premium account details.
+The premium account needs to have a chosen subdomain for the premium tests to pass. Any free account created during the initial setup of tests will also use `E2E_TEST_ACCOUNT_PASSWORD`. If you do not want to use a personal premium account, reach out to Luke for `relay-team` premium account details.
 
 ### 6. Run Tests
 
