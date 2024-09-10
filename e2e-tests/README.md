@@ -59,7 +59,21 @@ npm run test:e2e
 
 By default, `npm run test:e2e` will run the tests on https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net/.
 
-You can also run tests locally, on our dev server (https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/), and in production (https://relay.firefox.com/). You can find the commands [here](https://github.com/mozilla/fx-private-relay/blob/main/package.json#L26-L31), or you can run `E2E_TEST_ENV=<env (prod, dev, stage)> npx playwright test`. To view the tests live in the browser, you can add `--headed` to the end of the command. See https://playwright.dev/docs/test-cli for more flags.
+You can also run tests locally, on our dev server (https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/), and in production (https://relay.firefox.com/). You can find the commands [here](https://github.com/mozilla/fx-private-relay/blob/main/package.json#L26-L31), or you can run `E2E_TEST_ENV=<env (prod, dev, stage)> npx playwright test`.
+
+To view the tests live in the browser, you can add `--headed` to the end of the command:
+
+```
+npx playwright test --headed
+```
+
+To interactively develop tests, you can use `--ui --debug`:
+
+```
+npx playwright test --ui --debug
+```
+
+See <https://playwright.dev/docs/test-cli> for more flags.
 
 Our github actions workflows can be found here, [![Relay e2e Tests](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml/badge.svg)](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml). You can run the tests against different branches.
 
@@ -80,3 +94,26 @@ Our ![health check](https://github.com/mozilla/fx-private-relay/actions/workflow
 `test.describe("Subscription flows @health_check", ...)`
 
 To run the health check manually, go to ![Relay e2e tests](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml), click run workflow, and check off "enable health check" before clicking "run workflow".
+
+### 9. Diagnosing Test Failures
+
+If the end-to-end automated test suite fails, a good first step is to manually run the test in stage with similar steps. This will help determine if the playwright tests need updates or if it has detected a regression.
+
+The end-to-end tests rely on several external services:
+
+- Relay deployments
+- [Mozilla Accounts](https://accounts.firefox.com/)
+- [Mozilla Monitor](https://monitor.mozilla.org/)
+- [Development That Pays](https://pages.developmentthatpays.com)
+- [Restmail.net](https://restmail.net/)
+
+If tests fail when checking these services, manually check that they are running.
+
+Relay includes abuse monitoring. For example, there is a limit to how many masks can be created in a time period. When developing tests, it is possible to hit these abuse limits.
+
+If a test is flaky, consider making the tests more reliable by using the [locators][playwright-locators], [auto-retrying assertions][playwright-auto-retrying-assertions], or [fixtures][playwright-fixtures]. For more suggestions on making Playwright tests more reliable or efficient, see [documentation on FxA test improvements][fxa-test-improvements].
+
+[playwright-locators]: https://playwright.dev/docs/locators
+[playwright-auto-retrying-assertions]: https://playwright.dev/docs/test-assertions#auto-retrying-assertions
+[playwright-fixtures]: https://playwright.dev/docs/test-fixtures
+[fxa-test-improvements]: https://docs.google.com/presentation/d/1dSASq9xcaA8DuQM_1_Ab6q5_ScBpvqI9NPHvovkA-wU/edit#slide=id.g276e3207c4d_1_427
