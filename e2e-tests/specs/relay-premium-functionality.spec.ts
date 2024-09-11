@@ -12,6 +12,7 @@ test.describe("Premium - General Functionalities, Desktop", () => {
   test("Verify that a premium user can make more than 5 masks @health_check", async ({
     dashboardPage,
   }) => {
+    expect(await dashboardPage.emailMasksUsedAmount.textContent()).toBe("0");
     await dashboardPage.generateMask(6, true);
 
     await expect
@@ -40,7 +41,7 @@ test.describe("Premium - General Functionalities, Desktop", () => {
     );
   });
 
-  test("Verify that a premium  user can generate a custom mask @health_check", async ({
+  test("Verify that a premium user can generate a custom mask @health_check", async ({
     dashboardPage,
   }) => {
     // When there are zero masks, a random mask must be generated first
