@@ -70,9 +70,6 @@
     "node": "18.18.2",
     "npm": "9.8.1"
   },
-  "overrides": {
-    "react@<18": "18.2.0"
-  },
   "msw": {
     "workerDirectory": "public"
   }
