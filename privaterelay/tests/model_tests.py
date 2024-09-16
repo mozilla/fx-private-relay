@@ -263,6 +263,20 @@ class ProfileDatePhoneRegisteredTest(ProfileTestCase):
         )
         assert self.profile.date_phone_registered == datetime_now
 
+    def test_two_real_phones_returns_verified_date(self) -> None:
+        self.upgrade_to_phone()
+        datetime_now = datetime.now(UTC)
+        RealPhone.objects.create(
+            user=self.profile.user, number="+12223335555", verified=False
+        )
+        RealPhone.objects.create(
+            user=self.profile.user,
+            number="+12223334444",
+            verified=True,
+            verified_date=datetime_now,
+        )
+        assert self.profile.date_phone_registered == datetime_now
+
     def test_real_phone_and_relay_number_w_created_at_returns_created_at_date(
         self,
     ) -> None:

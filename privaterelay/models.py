@@ -378,7 +378,7 @@ class Profile(models.Model):
         from phones.models import RealPhone, RelayNumber
 
         try:
-            real_phone = RealPhone.objects.get(user=self.user)
+            real_phone = RealPhone.objects.get(user=self.user, verified=True)
             relay_number = RelayNumber.objects.get(user=self.user)
         except RealPhone.DoesNotExist:
             return None
