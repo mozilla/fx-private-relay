@@ -117,6 +117,9 @@ class ExpiredRealPhoneManager(models.Manager["RealPhone"]):
             )
         )
 
+    def delete_for_number(self, number: str) -> tuple[int, dict[str, int]]:
+        return self.filter(number=number).delete()
+
 
 class RecentRealPhoneManager(models.Manager["RealPhone"]):
     """Return RealPhone records where the sent verification is still valid."""
@@ -188,7 +191,7 @@ class RealPhone(models.Model):
         # note: it doesn't matter which user is trying to create a new
         # RealPhone record - any expired unverified record for the number
         # should be deleted
-        RealPhone.expired_objects.filter(number=self.number).delete()
+        RealPhone.expired_objects.delete_for_number(self.number)
 
         # We are not ready to support multiple real phone numbers per user,
         # so raise an exception if this save() would create a second
