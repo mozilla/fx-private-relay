@@ -26,7 +26,6 @@ if settings.PHONES_ENABLED:
         RelayNumber,
         area_code_numbers,
         get_last_text_sender,
-        get_valid_realphone_verification_record,
         iq_fmt,
         location_numbers,
         suggested_numbers,
@@ -113,21 +112,18 @@ def django_cache():
     cache.clear()
 
 
-def test_get_valid_realphone_verification_record_returns_object(phone_user):
+def test_realphone_pending_objects_includes_new(phone_user):
     number = "+12223334444"
     real_phone = RealPhone.objects.create(
         user=phone_user,
         number=number,
         verification_sent_date=datetime.now(UTC),
     )
-    record = get_valid_realphone_verification_record(
-        phone_user, number, real_phone.verification_code
-    )
-    assert record.user == phone_user
-    assert record.number == number
+    assert RealPhone.pending_objects.filter(id=real_phone.id).exists()
+    assert RealPhone.recent_objects.filter(id=real_phone.id).exists()
 
 
-def test_get_valid_realphone_verification_record_returns_none(phone_user):
+def test_realphone_pending_objects_excludes_old(phone_user):
     number = "+12223334444"
     real_phone = RealPhone.objects.create(
         user=phone_user,
@@ -137,10 +133,8 @@ def test_get_valid_realphone_verification_record_returns_none(phone_user):
             - timedelta(0, 60 * settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE + 1)
         ),
     )
-    record = get_valid_realphone_verification_record(
-        phone_user, number, real_phone.verification_code
-    )
-    assert record is None
+    assert not RealPhone.pending_objects.filter(id=real_phone.id).exists()
+    assert not RealPhone.recent_objects.filter(id=real_phone.id).exists()
 
 
 def test_create_realphone_creates_twilio_message(phone_user, mock_twilio_client):

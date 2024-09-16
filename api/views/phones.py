@@ -57,8 +57,6 @@ from phones.models import (
     RelayNumber,
     area_code_numbers,
     get_last_text_sender,
-    get_pending_unverified_realphone_records,
-    get_valid_realphone_verification_record,
     location_numbers,
     send_welcome_message,
     suggested_numbers,
@@ -161,10 +159,13 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         # number and verification code and mark it verified.
         verification_code = serializer.validated_data.get("verification_code")
         if verification_code:
-            valid_record = get_valid_realphone_verification_record(
-                request.user, serializer.validated_data["number"], verification_code
-            )
-            if not valid_record:
+            try:
+                valid_record = RealPhone.recent_objects.get(
+                    user=request.user,
+                    number=serializer.validated_data["number"],
+                    verification_code=verification_code,
+                )
+            except RealPhone.DoesNotExist:
                 incr_if_enabled("phones_RealPhoneViewSet.create.invalid_verification")
                 raise exceptions.ValidationError(
                     "Could not find that verification_code for user and number."
@@ -188,18 +189,16 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
 
         # to prevent sending verification codes to verified numbers,
         # check if the number is already a verified number.
-        is_verified = RealPhone.verified_objects.filter(
+        if RealPhone.verified_objects.filter(
             number=serializer.validated_data["number"]
-        ).exists()
-        if is_verified:
+        ).exists():
             raise ConflictError("A verified record already exists for this number.")
 
         # to prevent abusive sending of verification messages,
         # check if there is an un-expired verification code for the user
-        pending_unverified_records = get_pending_unverified_realphone_records(
-            serializer.validated_data["number"]
-        )
-        if pending_unverified_records:
+        if RealPhone.pending_objects.filter(
+            number=serializer.validated_data["number"]
+        ).exists():
             raise ConflictError(
                 "An unverified record already exists for this number.",
             )

@@ -46,29 +46,6 @@ def verification_sent_date_default():
     return datetime.now(UTC)
 
 
-def get_pending_unverified_realphone_records(number):
-    return RealPhone.objects.filter(
-        number=number,
-        verified=False,
-        verification_sent_date__gt=(
-            datetime.now(UTC)
-            - timedelta(0, 60 * settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE)
-        ),
-    )
-
-
-def get_valid_realphone_verification_record(user, number, verification_code):
-    return RealPhone.objects.filter(
-        user=user,
-        number=number,
-        verification_code=verification_code,
-        verification_sent_date__gt=(
-            datetime.now(UTC)
-            - timedelta(0, 60 * settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE)
-        ),
-    ).first()
-
-
 def get_last_text_sender(relay_number: RelayNumber) -> InboundContact | None:
     """
     Get the last text sender.
@@ -109,23 +86,45 @@ def iq_fmt(e164_number: str) -> str:
 
 
 class VerifiedRealPhoneManager(models.Manager):
+    """Return verified RealPhone records."""
+
     def get_queryset(self):
         return super().get_queryset().filter(verified=True)
 
 
 class ExpiredRealPhoneManager(models.Manager):
+    """Return RealPhone records where the sent verification is no longer valid."""
+
     def get_queryset(self):
         return (
             super()
             .get_queryset()
             .filter(
                 verified=False,
-                verification_sent_date__lt=(
-                    datetime.now(UTC)
-                    - timedelta(0, 60 * settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE)
-                ),
+                verification_sent_date__lt=RealPhone.verification_expiration(),
             )
         )
+
+
+class RecentRealPhoneManager(models.Manager):
+    """Return RealPhone records where the sent verification is still valid."""
+
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .filter(
+                verified=False,
+                verification_sent_date__gte=RealPhone.verification_expiration(),
+            )
+        )
+
+
+class PendingRealPhoneManager(RecentRealPhoneManager):
+    """Return unverified RealPhone records where verification is still valid."""
+
+    def get_queryset(self):
+        return super().get_queryset().filter(verified=False)
 
 
 class RealPhone(models.Model):
@@ -144,6 +143,8 @@ class RealPhone(models.Model):
     objects = models.Manager()
     verified_objects = VerifiedRealPhoneManager()
     expired_objects = ExpiredRealPhoneManager()
+    recent_objects = RecentRealPhoneManager()
+    pending_objects = PendingRealPhoneManager()
 
     class Meta:
         constraints = [
@@ -153,6 +154,12 @@ class RealPhone(models.Model):
                 name="unique_verified_number",
             )
         ]
+
+    @classmethod
+    def verification_expiration(self) -> datetime:
+        return datetime.now(UTC) - timedelta(
+            0, 60 * settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE
+        )
 
     def save(self, *args, **kwargs):
         # delete any expired unverified RealPhone records for this number
