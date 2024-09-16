@@ -162,9 +162,9 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
             try:
                 valid_record = (
                     RealPhone.recent_objects.get_for_user_number_and_verification_code(
-                        user=request.user,
-                        number=serializer.validated_data["number"],
-                        verification_code=verification_code,
+                        request.user,
+                        serializer.validated_data["number"],
+                        verification_code,
                     )
                 )
             except RealPhone.DoesNotExist:
