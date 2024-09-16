@@ -119,8 +119,11 @@ def test_realphone_pending_objects_includes_new(phone_user):
         number=number,
         verification_sent_date=datetime.now(UTC),
     )
-    assert RealPhone.pending_objects.filter(id=real_phone.id).exists()
-    assert RealPhone.recent_objects.filter(id=real_phone.id).exists()
+    assert RealPhone.pending_objects.exists_for_number(number)
+    recent_phone = RealPhone.recent_objects.get_for_user_number_and_verification_code(
+        phone_user, number, real_phone.verification_code
+    )
+    assert recent_phone.id == real_phone.id
 
 
 def test_realphone_pending_objects_excludes_old(phone_user):
@@ -133,8 +136,11 @@ def test_realphone_pending_objects_excludes_old(phone_user):
             - timedelta(0, 60 * settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE + 1)
         ),
     )
-    assert not RealPhone.pending_objects.filter(id=real_phone.id).exists()
-    assert not RealPhone.recent_objects.filter(id=real_phone.id).exists()
+    assert not RealPhone.pending_objects.exists_for_number(number)
+    with pytest.raises(RealPhone.DoesNotExist):
+        RealPhone.recent_objects.get_for_user_number_and_verification_code(
+            phone_user, number, real_phone.verification_code
+        )
 
 
 def test_create_realphone_creates_twilio_message(phone_user, mock_twilio_client):

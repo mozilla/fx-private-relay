@@ -85,17 +85,29 @@ def iq_fmt(e164_number: str) -> str:
     return "1" + str(phonenumbers.parse(e164_number, "E164").national_number)
 
 
-class VerifiedRealPhoneManager(models.Manager):
+class VerifiedRealPhoneManager(models.Manager["RealPhone"]):
     """Return verified RealPhone records."""
 
-    def get_queryset(self):
+    def get_queryset(self) -> models.query.QuerySet[RealPhone]:
         return super().get_queryset().filter(verified=True)
 
+    def get_for_user(self, user: User) -> RealPhone:
+        """Get the one verified RealPhone for the user, or raise DoesNotExist."""
+        return self.get(user=user)
 
-class ExpiredRealPhoneManager(models.Manager):
+    def exists_for_number(self, number: str) -> bool:
+        """Return True if a verified RealPhone exists for this number."""
+        return self.filter(number=number).exists()
+
+    def country_code_for_user(self, user: User) -> str:
+        """Return the RealPhone country code for this user."""
+        return self.values_list("country_code", flat=True).get(user=user)
+
+
+class ExpiredRealPhoneManager(models.Manager["RealPhone"]):
     """Return RealPhone records where the sent verification is no longer valid."""
 
-    def get_queryset(self):
+    def get_queryset(self) -> models.query.QuerySet[RealPhone]:
         return (
             super()
             .get_queryset()
@@ -106,10 +118,10 @@ class ExpiredRealPhoneManager(models.Manager):
         )
 
 
-class RecentRealPhoneManager(models.Manager):
+class RecentRealPhoneManager(models.Manager["RealPhone"]):
     """Return RealPhone records where the sent verification is still valid."""
 
-    def get_queryset(self):
+    def get_queryset(self) -> models.query.QuerySet[RealPhone]:
         return (
             super()
             .get_queryset()
@@ -119,12 +131,22 @@ class RecentRealPhoneManager(models.Manager):
             )
         )
 
+    def get_for_user_number_and_verification_code(
+        self, user: User, number: str, verification_code: str
+    ) -> RealPhone:
+        """Get the RealPhone with this user, number, and recently sent code, or raise"""
+        return self.get(user=user, number=number, verification_code=verification_code)
+
 
 class PendingRealPhoneManager(RecentRealPhoneManager):
     """Return unverified RealPhone records where verification is still valid."""
 
-    def get_queryset(self):
+    def get_queryset(self) -> models.query.QuerySet[RealPhone]:
         return super().get_queryset().filter(verified=False)
+
+    def exists_for_number(self, number: str) -> bool:
+        """Return True if a verified RealPhone exists for this number."""
+        return self.filter(number=number).exists()
 
 
 class RealPhone(models.Model):
@@ -171,16 +193,15 @@ class RealPhone(models.Model):
         # We are not ready to support multiple real phone numbers per user,
         # so raise an exception if this save() would create a second
         # RealPhone record for the user
-        user_verified_number_records = RealPhone.verified_objects.filter(user=self.user)
-        for verified_number in user_verified_number_records:
-            if (
+        try:
+            verified_number = RealPhone.verified_objects.get_for_user(self.user)
+            if not (
                 verified_number.number == self.number
                 and verified_number.verification_code == self.verification_code
             ):
-                # User is verifying the same number twice
-                return super().save(*args, **kwargs)
-            else:
                 raise BadRequest("User already has a verified number.")
+        except RealPhone.DoesNotExist:
+            pass
 
         # call super save to save into the DB
         # See also: realphone_post_save receiver below
@@ -451,7 +472,7 @@ class InboundContact(models.Model):
 
 def suggested_numbers(user):
     try:
-        real_phone = RealPhone.verified_objects.get(user=user)
+        real_phone = RealPhone.verified_objects.get_for_user(user)
     except RealPhone.DoesNotExist:
         raise BadRequest(
             "available_numbers: This user hasn't verified a RealPhone yet."

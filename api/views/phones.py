@@ -160,10 +160,12 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         verification_code = serializer.validated_data.get("verification_code")
         if verification_code:
             try:
-                valid_record = RealPhone.recent_objects.get(
-                    user=request.user,
-                    number=serializer.validated_data["number"],
-                    verification_code=verification_code,
+                valid_record = (
+                    RealPhone.recent_objects.get_for_user_number_and_verification_code(
+                        user=request.user,
+                        number=serializer.validated_data["number"],
+                        verification_code=verification_code,
+                    )
                 )
             except RealPhone.DoesNotExist:
                 incr_if_enabled("phones_RealPhoneViewSet.create.invalid_verification")
@@ -189,16 +191,16 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
 
         # to prevent sending verification codes to verified numbers,
         # check if the number is already a verified number.
-        if RealPhone.verified_objects.filter(
-            number=serializer.validated_data["number"]
-        ).exists():
+        if RealPhone.verified_objects.exists_for_number(
+            serializer.validated_data["number"]
+        ):
             raise ConflictError("A verified record already exists for this number.")
 
         # to prevent abusive sending of verification messages,
-        # check if there is an un-expired verification code for the user
-        if RealPhone.pending_objects.filter(
-            number=serializer.validated_data["number"]
-        ).exists():
+        # check if there is an un-expired verification code for number
+        if RealPhone.pending_objects.exists_for_number(
+            serializer.validated_data["number"]
+        ):
             raise ConflictError(
                 "An unverified record already exists for this number.",
             )
@@ -437,9 +439,9 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         """  # noqa: E501  # ignore long line for URL
         incr_if_enabled("phones_RelayNumberViewSet.search")
         try:
-            country_code = RealPhone.verified_objects.values_list(
-                "country_code", flat=True
-            ).get(user=request.user)
+            country_code = RealPhone.verified_objects.country_code_for_user(
+                request.user
+            )
         except RealPhone.DoesNotExist:
             country_code = DEFAULT_REGION
         location = request.query_params.get("location")
@@ -1355,7 +1357,7 @@ def _get_phone_objects(inbound_to):
     # Get RelayNumber and RealPhone
     try:
         relay_number = RelayNumber.objects.get(number=inbound_to)
-        real_phone = RealPhone.verified_objects.get(user=relay_number.user)
+        real_phone = RealPhone.verified_objects.get_for_user(relay_number.user)
     except ObjectDoesNotExist:
         raise exceptions.ValidationError("Could not find relay number.")
 
