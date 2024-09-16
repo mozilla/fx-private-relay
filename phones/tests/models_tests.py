@@ -655,7 +655,7 @@ def test_relaynumber_remaining_minutes_returns_properly_formats_remaining_second
     relay_number_obj.save()
     assert relay_number_obj.remaining_minutes == 8
 
-    # If more call time is spent than alotted (negative remaining_seconds),
+    # If more call time is spent than allotted (negative remaining_seconds),
     # the remaining_minutes property should return zero
     relay_number_obj.remaining_seconds = -522
     relay_number_obj.save()
