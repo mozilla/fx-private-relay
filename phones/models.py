@@ -46,17 +46,6 @@ def verification_sent_date_default():
     return datetime.now(UTC)
 
 
-def get_expired_unverified_realphone_records(number):
-    return RealPhone.objects.filter(
-        number=number,
-        verified=False,
-        verification_sent_date__lt=(
-            datetime.now(UTC)
-            - timedelta(0, 60 * settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE)
-        ),
-    )
-
-
 def get_pending_unverified_realphone_records(number):
     return RealPhone.objects.filter(
         number=number,
@@ -124,6 +113,21 @@ class VerifiedRealPhoneManager(models.Manager):
         return super().get_queryset().filter(verified=True)
 
 
+class ExpiredRealPhoneManager(models.Manager):
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .filter(
+                verified=False,
+                verification_sent_date__lt=(
+                    datetime.now(UTC)
+                    - timedelta(0, 60 * settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE)
+                ),
+            )
+        )
+
+
 class RealPhone(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     number = models.CharField(max_length=15)
@@ -139,6 +143,7 @@ class RealPhone(models.Model):
 
     objects = models.Manager()
     verified_objects = VerifiedRealPhoneManager()
+    expired_objects = ExpiredRealPhoneManager()
 
     class Meta:
         constraints = [
@@ -154,10 +159,7 @@ class RealPhone(models.Model):
         # note: it doesn't matter which user is trying to create a new
         # RealPhone record - any expired unverified record for the number
         # should be deleted
-        expired_verification_records = get_expired_unverified_realphone_records(
-            self.number
-        )
-        expired_verification_records.delete()
+        RealPhone.expired_objects.filter(number=self.number).delete()
 
         # We are not ready to support multiple real phone numbers per user,
         # so raise an exception if this save() would create a second

@@ -25,7 +25,6 @@ if settings.PHONES_ENABLED:
         RealPhone,
         RelayNumber,
         area_code_numbers,
-        get_expired_unverified_realphone_records,
         get_last_text_sender,
         get_valid_realphone_verification_record,
         iq_fmt,
@@ -205,13 +204,13 @@ def test_create_realphone_deletes_expired_unverified_records(
             - timedelta(0, 60 * settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE + 1)
         ),
     )
-    expired_verification_records = get_expired_unverified_realphone_records(number)
+    expired_verification_records = RealPhone.expired_objects.filter(number=number)
     assert len(expired_verification_records) >= 1
     mock_twilio_client.messages.create.assert_called_once()
 
     # now try to create the new record
     RealPhone.objects.create(user=baker.make(User), number=number)
-    expired_verification_records = get_expired_unverified_realphone_records(number)
+    expired_verification_records = RealPhone.expired_objects.filter(number=number)
     assert len(expired_verification_records) == 0
     mock_twilio_client.messages.create.assert_called()
 
