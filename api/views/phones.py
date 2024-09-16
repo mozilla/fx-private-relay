@@ -1168,7 +1168,7 @@ def outbound_call(request):
             {"detail": "Requires outbound_phone waffle flag."}, status=403
         )
     try:
-        real_phone = RealPhone.objects.get(user=request.user, verified=True)
+        real_phone = RealPhone.verified_objects.get_for_user(user=request.user)
     except RealPhone.DoesNotExist:
         return response.Response(
             {"detail": "Requires a verified real phone and phone mask."}, status=400
