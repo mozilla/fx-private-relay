@@ -351,6 +351,39 @@ def test_create_relaynumber_creates_twilio_incoming_number_and_sends_welcome(
     assert relay_number_obj.vcard_lookup_key in call_kwargs["media_url"][0]
 
 
+def test_create_relaynumber_with_two_real_numbers(
+    phone_user, mock_twilio_client, settings, twilio_number_sid
+):
+    """A user with a second unverified RealPhone is OK."""
+    RealPhone.objects.create(user=phone_user, number="+12223334444", verified=False)
+    phone2 = RealPhone.objects.create(
+        user=phone_user, number="+12223335555", verified=False
+    )
+    phone2.mark_verified()
+    mock_twilio_client.reset_mock()
+
+    relay_number = "+19998887777"
+    relay_number_obj = RelayNumber.objects.create(user=phone_user, number=relay_number)
+
+    mock_twilio_client.incoming_phone_numbers.create.assert_called_once_with(
+        phone_number=relay_number,
+        sms_application_sid=settings.TWILIO_SMS_APPLICATION_SID,
+        voice_application_sid=settings.TWILIO_SMS_APPLICATION_SID,
+    )
+    mock_services = mock_twilio_client.messaging.v1.services
+    mock_services.assert_called_once_with(settings.TWILIO_MESSAGING_SERVICE_SID[0])
+    mock_services.return_value.phone_numbers.create.assert_called_once_with(
+        phone_number_sid=twilio_number_sid
+    )
+
+    mock_messages_create = mock_twilio_client.messages.create
+    mock_messages_create.assert_called_once()
+    call_kwargs = mock_messages_create.call_args.kwargs
+    assert "Welcome" in call_kwargs["body"]
+    assert call_kwargs["to"] == phone2.number
+    assert relay_number_obj.vcard_lookup_key in call_kwargs["media_url"][0]
+
+
 def test_create_relaynumber_already_registered_with_service(
     phone_user, real_phone_us, mock_twilio_client, caplog, settings, twilio_number_sid
 ):

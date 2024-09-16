@@ -391,7 +391,7 @@ def relaynumber_post_save(sender, instance, created, **kwargs):
 
 
 def send_welcome_message(user, relay_number):
-    real_phone = RealPhone.objects.get(user=user)
+    real_phone = RealPhone.objects.get(user=user, verified=True)
     if not settings.SITE_ORIGIN:
         raise ValueError(
             "settings.SITE_ORIGIN must contain a value when calling "
