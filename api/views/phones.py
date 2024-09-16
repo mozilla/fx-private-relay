@@ -59,8 +59,6 @@ from phones.models import (
     get_last_text_sender,
     get_pending_unverified_realphone_records,
     get_valid_realphone_verification_record,
-    get_verified_realphone_record,
-    get_verified_realphone_records,
     location_numbers,
     send_welcome_message,
     suggested_numbers,
@@ -190,7 +188,9 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
 
         # to prevent sending verification codes to verified numbers,
         # check if the number is already a verified number.
-        is_verified = get_verified_realphone_record(serializer.validated_data["number"])
+        is_verified = RealPhone.verified_objects.filter(
+            number=serializer.validated_data["number"]
+        ).exists()
         if is_verified:
             raise ConflictError("A verified record already exists for this number.")
 
@@ -437,10 +437,11 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         [apn]: https://www.twilio.com/docs/phone-numbers/api/availablephonenumberlocal-resource#read-multiple-availablephonenumberlocal-resources
         """  # noqa: E501  # ignore long line for URL
         incr_if_enabled("phones_RelayNumberViewSet.search")
-        real_phone = get_verified_realphone_records(request.user).first()
-        if real_phone:
-            country_code = real_phone.country_code
-        else:
+        try:
+            country_code = RealPhone.verified_objects.values_list(
+                "country_code", flat=True
+            ).get(user=request.user)
+        except RealPhone.DoesNotExist:
             country_code = DEFAULT_REGION
         location = request.query_params.get("location")
         if location is not None:
@@ -1355,7 +1356,7 @@ def _get_phone_objects(inbound_to):
     # Get RelayNumber and RealPhone
     try:
         relay_number = RelayNumber.objects.get(number=inbound_to)
-        real_phone = RealPhone.objects.get(user=relay_number.user, verified=True)
+        real_phone = RealPhone.verified_objects.get(user=relay_number.user)
     except ObjectDoesNotExist:
         raise exceptions.ValidationError("Could not find relay number.")
 

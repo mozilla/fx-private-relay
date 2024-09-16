@@ -68,14 +68,6 @@ def get_pending_unverified_realphone_records(number):
     )
 
 
-def get_verified_realphone_records(user):
-    return RealPhone.objects.filter(user=user, verified=True)
-
-
-def get_verified_realphone_record(number):
-    return RealPhone.objects.filter(number=number, verified=True).first()
-
-
 def get_valid_realphone_verification_record(user, number, verification_code):
     return RealPhone.objects.filter(
         user=user,
@@ -127,6 +119,11 @@ def iq_fmt(e164_number: str) -> str:
     return "1" + str(phonenumbers.parse(e164_number, "E164").national_number)
 
 
+class VerifiedRealPhoneManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(verified=True)
+
+
 class RealPhone(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     number = models.CharField(max_length=15)
@@ -139,6 +136,9 @@ class RealPhone(models.Model):
     verified = models.BooleanField(default=False)
     verified_date = models.DateTimeField(blank=True, null=True)
     country_code = models.CharField(max_length=2, default=DEFAULT_REGION)
+
+    objects = models.Manager()
+    verified_objects = VerifiedRealPhoneManager()
 
     class Meta:
         constraints = [
@@ -162,7 +162,7 @@ class RealPhone(models.Model):
         # We are not ready to support multiple real phone numbers per user,
         # so raise an exception if this save() would create a second
         # RealPhone record for the user
-        user_verified_number_records = get_verified_realphone_records(self.user)
+        user_verified_number_records = RealPhone.verified_objects.filter(user=self.user)
         for verified_number in user_verified_number_records:
             if (
                 verified_number.number == self.number
@@ -254,8 +254,9 @@ class RelayNumber(models.Model):
         return bool(self.user.profile.store_phone_log)
 
     def save(self, *args, **kwargs):
-        realphone = get_verified_realphone_records(self.user).first()
-        if not realphone:
+        try:
+            realphone = RealPhone.verified_objects.get(user=self.user)
+        except RealPhone.DoesNotExist:
             raise ValidationError("User does not have a verified real phone.")
 
         # if this number exists for this user, this is an update call
@@ -391,7 +392,7 @@ def relaynumber_post_save(sender, instance, created, **kwargs):
 
 
 def send_welcome_message(user, relay_number):
-    real_phone = RealPhone.objects.get(user=user, verified=True)
+    real_phone = RealPhone.verified_objects.get(user=user)
     if not settings.SITE_ORIGIN:
         raise ValueError(
             "settings.SITE_ORIGIN must contain a value when calling "
@@ -440,8 +441,9 @@ class InboundContact(models.Model):
 
 
 def suggested_numbers(user):
-    real_phone = get_verified_realphone_records(user).first()
-    if real_phone is None:
+    try:
+        real_phone = RealPhone.verified_objects.get(user=user)
+    except RealPhone.DoesNotExist:
         raise BadRequest(
             "available_numbers: This user hasn't verified a RealPhone yet."
         )
