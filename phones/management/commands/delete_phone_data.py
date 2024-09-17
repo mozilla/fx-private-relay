@@ -60,7 +60,7 @@ class _PhoneData:
     """Helper class to hold phone data for a user."""
 
     fxa: SocialAccount
-    real_phone: RealPhone | None = None
+    real_phones: list[RealPhone] | None = None
     relay_phone: RelayNumber | None = None
     inbound_contact_count: int = 0
 
@@ -69,9 +69,8 @@ class _PhoneData:
         """Initialize from an FxA ID."""
         fxa = SocialAccount.objects.get(provider="fxa", uid=fxa_id)
 
-        try:
-            real_phone = RealPhone.objects.get(user=fxa.user)
-        except RealPhone.DoesNotExist:
+        real_phones = RealPhone.objects.filter(user=fxa.user)
+        if not real_phones.exists():
             return cls(fxa=fxa)
 
         try:
@@ -80,11 +79,11 @@ class _PhoneData:
                 relay_number=relay_phone
             ).count()
         except RelayNumber.DoesNotExist:
-            return cls(fxa=fxa, real_phone=real_phone)
+            return cls(fxa=fxa, real_phones=list(real_phones))
 
         return cls(
             fxa=fxa,
-            real_phone=real_phone,
+            real_phones=list(real_phones),
             relay_phone=relay_phone,
             inbound_contact_count=inbound_contact_count,
         )
@@ -92,13 +91,13 @@ class _PhoneData:
     @property
     def has_data(self) -> bool:
         """Return True if the user has phone data to reset."""
-        return self.real_phone is not None
+        return self.real_phones is not None and len(self.real_phones) > 0
 
     @property
-    def real_number(self) -> str | None:
+    def real_numbers(self) -> list[str] | None:
         """Get user's real phone number, if it exists."""
-        if self.real_phone:
-            return self.real_phone.number
+        if self.real_phones:
+            return [real_phone.number for real_phone in self.real_phones]
         return None
 
     @property
@@ -114,8 +113,13 @@ class _PhoneData:
             f"* FxA ID: {self.fxa.uid}\n"
             f"* User ID: {self.fxa.user_id}\n"
             f"* Email: {self.fxa.user.email}\n"
-            f"* Real Phone: {self.real_number or '<NO REAL PHONE>'}\n"
-            f"* Relay Phone: {self.relay_number or '<NO RELAY PHONE>'}\n"
+            f"* Real Phone: "
+            + (
+                "\n* Real Phone: ".join(number for number in self.real_numbers)
+                if self.real_numbers
+                else "<NO REAL PHONE>"
+            )
+            + f"\n* Relay Phone: {self.relay_number or '<NO RELAY PHONE>'}\n"
             f"* Inbound Contacts: {self.inbound_contact_count}\n"
         )
 
@@ -125,5 +129,5 @@ class _PhoneData:
             if self.inbound_contact_count:
                 InboundContact.objects.filter(relay_number=self.relay_phone).delete()
             self.relay_phone.delete()
-        if self.real_phone:
-            self.real_phone.delete()
+        for real_phone in self.real_phones or []:
+            real_phone.delete()

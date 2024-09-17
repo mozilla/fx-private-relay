@@ -57,10 +57,6 @@ from phones.models import (
     RelayNumber,
     area_code_numbers,
     get_last_text_sender,
-    get_pending_unverified_realphone_records,
-    get_valid_realphone_verification_record,
-    get_verified_realphone_record,
-    get_verified_realphone_records,
     location_numbers,
     send_welcome_message,
     suggested_numbers,
@@ -163,10 +159,15 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         # number and verification code and mark it verified.
         verification_code = serializer.validated_data.get("verification_code")
         if verification_code:
-            valid_record = get_valid_realphone_verification_record(
-                request.user, serializer.validated_data["number"], verification_code
-            )
-            if not valid_record:
+            try:
+                valid_record = (
+                    RealPhone.recent_objects.get_for_user_number_and_verification_code(
+                        request.user,
+                        serializer.validated_data["number"],
+                        verification_code,
+                    )
+                )
+            except RealPhone.DoesNotExist:
                 incr_if_enabled("phones_RealPhoneViewSet.create.invalid_verification")
                 raise exceptions.ValidationError(
                     "Could not find that verification_code for user and number."
@@ -190,16 +191,16 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
 
         # to prevent sending verification codes to verified numbers,
         # check if the number is already a verified number.
-        is_verified = get_verified_realphone_record(serializer.validated_data["number"])
-        if is_verified:
+        if RealPhone.verified_objects.exists_for_number(
+            serializer.validated_data["number"]
+        ):
             raise ConflictError("A verified record already exists for this number.")
 
         # to prevent abusive sending of verification messages,
-        # check if there is an un-expired verification code for the user
-        pending_unverified_records = get_pending_unverified_realphone_records(
+        # check if there is an un-expired verification code for number
+        if RealPhone.pending_objects.exists_for_number(
             serializer.validated_data["number"]
-        )
-        if pending_unverified_records:
+        ):
             raise ConflictError(
                 "An unverified record already exists for this number.",
             )
@@ -437,10 +438,11 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         [apn]: https://www.twilio.com/docs/phone-numbers/api/availablephonenumberlocal-resource#read-multiple-availablephonenumberlocal-resources
         """  # noqa: E501  # ignore long line for URL
         incr_if_enabled("phones_RelayNumberViewSet.search")
-        real_phone = get_verified_realphone_records(request.user).first()
-        if real_phone:
-            country_code = real_phone.country_code
-        else:
+        try:
+            country_code = RealPhone.verified_objects.country_code_for_user(
+                request.user
+            )
+        except RealPhone.DoesNotExist:
             country_code = DEFAULT_REGION
         location = request.query_params.get("location")
         if location is not None:
@@ -1166,7 +1168,7 @@ def outbound_call(request):
             {"detail": "Requires outbound_phone waffle flag."}, status=403
         )
     try:
-        real_phone = RealPhone.objects.get(user=request.user, verified=True)
+        real_phone = RealPhone.verified_objects.get_for_user(user=request.user)
     except RealPhone.DoesNotExist:
         return response.Response(
             {"detail": "Requires a verified real phone and phone mask."}, status=400
@@ -1355,7 +1357,7 @@ def _get_phone_objects(inbound_to):
     # Get RelayNumber and RealPhone
     try:
         relay_number = RelayNumber.objects.get(number=inbound_to)
-        real_phone = RealPhone.objects.get(user=relay_number.user, verified=True)
+        real_phone = RealPhone.verified_objects.get_for_user(relay_number.user)
     except ObjectDoesNotExist:
         raise exceptions.ValidationError("Could not find relay number.")
 

@@ -159,6 +159,55 @@ Deleted user's phone data.
     assert not RealPhone.objects.filter(user=phone_user).exists()
 
 
+@pytest.mark.django_db
+def test_two_real_phones() -> None:
+    # Add user
+    now = datetime.now(tz=UTC)
+    phone_user = make_phone_test_user()
+    phone_user.profile.date_subscribed = now - timedelta(days=15)
+    phone_user.profile.save()
+
+    # Add unconfirmed real phone
+    baker.make(
+        RealPhone,
+        user=phone_user,
+        number="+12005550122",
+        verified=False,
+    )
+
+    # Add confirmed real phone
+    baker.make(
+        RealPhone,
+        user=phone_user,
+        number="+12005550123",
+        verification_sent_date=now - timedelta(days=14),
+        verified=True,
+    )
+
+    stdout = StringIO()
+    assert (fxa := phone_user.profile.fxa)
+    call_command(THE_COMMAND, fxa.uid, "--force", stdout=stdout)
+
+    expected_stdout = f"""\
+Found a matching user:
+
+* FxA ID: {phone_user.profile.fxa.uid}
+* User ID: {phone_user.id}
+* Email: phone_user@example.com
+* Real Phone: +12005550122
+* Real Phone: +12005550123
+* Relay Phone: <NO RELAY PHONE>
+* Inbound Contacts: 0
+
+Deleted user's phone data.
+"""
+    assert stdout.getvalue() == expected_stdout
+
+    phone_user.refresh_from_db()
+    assert phone_user.profile.has_phone
+    assert not RealPhone.objects.filter(user=phone_user).exists()
+
+
 def test_no_real_phone(phone_user: User) -> None:
     """Nothing is done if a user doesn't have a real phone setup."""
     RelayNumber.objects.filter(user=phone_user).delete()

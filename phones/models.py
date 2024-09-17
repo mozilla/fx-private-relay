@@ -46,48 +46,6 @@ def verification_sent_date_default():
     return datetime.now(UTC)
 
 
-def get_expired_unverified_realphone_records(number):
-    return RealPhone.objects.filter(
-        number=number,
-        verified=False,
-        verification_sent_date__lt=(
-            datetime.now(UTC)
-            - timedelta(0, 60 * settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE)
-        ),
-    )
-
-
-def get_pending_unverified_realphone_records(number):
-    return RealPhone.objects.filter(
-        number=number,
-        verified=False,
-        verification_sent_date__gt=(
-            datetime.now(UTC)
-            - timedelta(0, 60 * settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE)
-        ),
-    )
-
-
-def get_verified_realphone_records(user):
-    return RealPhone.objects.filter(user=user, verified=True)
-
-
-def get_verified_realphone_record(number):
-    return RealPhone.objects.filter(number=number, verified=True).first()
-
-
-def get_valid_realphone_verification_record(user, number, verification_code):
-    return RealPhone.objects.filter(
-        user=user,
-        number=number,
-        verification_code=verification_code,
-        verification_sent_date__gt=(
-            datetime.now(UTC)
-            - timedelta(0, 60 * settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE)
-        ),
-    ).first()
-
-
 def get_last_text_sender(relay_number: RelayNumber) -> InboundContact | None:
     """
     Get the last text sender.
@@ -127,6 +85,73 @@ def iq_fmt(e164_number: str) -> str:
     return "1" + str(phonenumbers.parse(e164_number, "E164").national_number)
 
 
+class VerifiedRealPhoneManager(models.Manager["RealPhone"]):
+    """Return verified RealPhone records."""
+
+    def get_queryset(self) -> models.query.QuerySet[RealPhone]:
+        return super().get_queryset().filter(verified=True)
+
+    def get_for_user(self, user: User) -> RealPhone:
+        """Get the one verified RealPhone for the user, or raise DoesNotExist."""
+        return self.get(user=user)
+
+    def exists_for_number(self, number: str) -> bool:
+        """Return True if a verified RealPhone exists for this number."""
+        return self.filter(number=number).exists()
+
+    def country_code_for_user(self, user: User) -> str:
+        """Return the RealPhone country code for this user."""
+        return self.values_list("country_code", flat=True).get(user=user)
+
+
+class ExpiredRealPhoneManager(models.Manager["RealPhone"]):
+    """Return RealPhone records where the sent verification is no longer valid."""
+
+    def get_queryset(self) -> models.query.QuerySet[RealPhone]:
+        return (
+            super()
+            .get_queryset()
+            .filter(
+                verified=False,
+                verification_sent_date__lt=RealPhone.verification_expiration(),
+            )
+        )
+
+    def delete_for_number(self, number: str) -> tuple[int, dict[str, int]]:
+        return self.filter(number=number).delete()
+
+
+class RecentRealPhoneManager(models.Manager["RealPhone"]):
+    """Return RealPhone records where the sent verification is still valid."""
+
+    def get_queryset(self) -> models.query.QuerySet[RealPhone]:
+        return (
+            super()
+            .get_queryset()
+            .filter(
+                verified=False,
+                verification_sent_date__gte=RealPhone.verification_expiration(),
+            )
+        )
+
+    def get_for_user_number_and_verification_code(
+        self, user: User, number: str, verification_code: str
+    ) -> RealPhone:
+        """Get the RealPhone with this user, number, and recently sent code, or raise"""
+        return self.get(user=user, number=number, verification_code=verification_code)
+
+
+class PendingRealPhoneManager(RecentRealPhoneManager):
+    """Return unverified RealPhone records where verification is still valid."""
+
+    def get_queryset(self) -> models.query.QuerySet[RealPhone]:
+        return super().get_queryset().filter(verified=False)
+
+    def exists_for_number(self, number: str) -> bool:
+        """Return True if a verified RealPhone exists for this number."""
+        return self.filter(number=number).exists()
+
+
 class RealPhone(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     number = models.CharField(max_length=15)
@@ -140,6 +165,12 @@ class RealPhone(models.Model):
     verified_date = models.DateTimeField(blank=True, null=True)
     country_code = models.CharField(max_length=2, default=DEFAULT_REGION)
 
+    objects = models.Manager()
+    verified_objects = VerifiedRealPhoneManager()
+    expired_objects = ExpiredRealPhoneManager()
+    recent_objects = RecentRealPhoneManager()
+    pending_objects = PendingRealPhoneManager()
+
     class Meta:
         constraints = [
             models.UniqueConstraint(
@@ -149,29 +180,31 @@ class RealPhone(models.Model):
             )
         ]
 
+    @classmethod
+    def verification_expiration(self) -> datetime:
+        return datetime.now(UTC) - timedelta(
+            0, 60 * settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE
+        )
+
     def save(self, *args, **kwargs):
         # delete any expired unverified RealPhone records for this number
         # note: it doesn't matter which user is trying to create a new
         # RealPhone record - any expired unverified record for the number
         # should be deleted
-        expired_verification_records = get_expired_unverified_realphone_records(
-            self.number
-        )
-        expired_verification_records.delete()
+        RealPhone.expired_objects.delete_for_number(self.number)
 
         # We are not ready to support multiple real phone numbers per user,
         # so raise an exception if this save() would create a second
         # RealPhone record for the user
-        user_verified_number_records = get_verified_realphone_records(self.user)
-        for verified_number in user_verified_number_records:
-            if (
+        try:
+            verified_number = RealPhone.verified_objects.get_for_user(self.user)
+            if not (
                 verified_number.number == self.number
                 and verified_number.verification_code == self.verification_code
             ):
-                # User is verifying the same number twice
-                return super().save(*args, **kwargs)
-            else:
                 raise BadRequest("User already has a verified number.")
+        except RealPhone.DoesNotExist:
+            pass
 
         # call super save to save into the DB
         # See also: realphone_post_save receiver below
@@ -254,8 +287,9 @@ class RelayNumber(models.Model):
         return bool(self.user.profile.store_phone_log)
 
     def save(self, *args, **kwargs):
-        realphone = get_verified_realphone_records(self.user).first()
-        if not realphone:
+        try:
+            realphone = RealPhone.verified_objects.get(user=self.user)
+        except RealPhone.DoesNotExist:
             raise ValidationError("User does not have a verified real phone.")
 
         # if this number exists for this user, this is an update call
@@ -391,7 +425,7 @@ def relaynumber_post_save(sender, instance, created, **kwargs):
 
 
 def send_welcome_message(user, relay_number):
-    real_phone = RealPhone.objects.get(user=user)
+    real_phone = RealPhone.verified_objects.get(user=user)
     if not settings.SITE_ORIGIN:
         raise ValueError(
             "settings.SITE_ORIGIN must contain a value when calling "
@@ -440,8 +474,9 @@ class InboundContact(models.Model):
 
 
 def suggested_numbers(user):
-    real_phone = get_verified_realphone_records(user).first()
-    if real_phone is None:
+    try:
+        real_phone = RealPhone.verified_objects.get_for_user(user)
+    except RealPhone.DoesNotExist:
         raise BadRequest(
             "available_numbers: This user hasn't verified a RealPhone yet."
         )

@@ -25,9 +25,7 @@ if settings.PHONES_ENABLED:
         RealPhone,
         RelayNumber,
         area_code_numbers,
-        get_expired_unverified_realphone_records,
         get_last_text_sender,
-        get_valid_realphone_verification_record,
         iq_fmt,
         location_numbers,
         suggested_numbers,
@@ -114,21 +112,21 @@ def django_cache():
     cache.clear()
 
 
-def test_get_valid_realphone_verification_record_returns_object(phone_user):
+def test_realphone_pending_objects_includes_new(phone_user):
     number = "+12223334444"
     real_phone = RealPhone.objects.create(
         user=phone_user,
         number=number,
         verification_sent_date=datetime.now(UTC),
     )
-    record = get_valid_realphone_verification_record(
+    assert RealPhone.pending_objects.exists_for_number(number)
+    recent_phone = RealPhone.recent_objects.get_for_user_number_and_verification_code(
         phone_user, number, real_phone.verification_code
     )
-    assert record.user == phone_user
-    assert record.number == number
+    assert recent_phone.id == real_phone.id
 
 
-def test_get_valid_realphone_verification_record_returns_none(phone_user):
+def test_realphone_pending_objects_excludes_old(phone_user):
     number = "+12223334444"
     real_phone = RealPhone.objects.create(
         user=phone_user,
@@ -138,10 +136,11 @@ def test_get_valid_realphone_verification_record_returns_none(phone_user):
             - timedelta(0, 60 * settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE + 1)
         ),
     )
-    record = get_valid_realphone_verification_record(
-        phone_user, number, real_phone.verification_code
-    )
-    assert record is None
+    assert not RealPhone.pending_objects.exists_for_number(number)
+    with pytest.raises(RealPhone.DoesNotExist):
+        RealPhone.recent_objects.get_for_user_number_and_verification_code(
+            phone_user, number, real_phone.verification_code
+        )
 
 
 def test_create_realphone_creates_twilio_message(phone_user, mock_twilio_client):
@@ -205,13 +204,13 @@ def test_create_realphone_deletes_expired_unverified_records(
             - timedelta(0, 60 * settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE + 1)
         ),
     )
-    expired_verification_records = get_expired_unverified_realphone_records(number)
+    expired_verification_records = RealPhone.expired_objects.filter(number=number)
     assert len(expired_verification_records) >= 1
     mock_twilio_client.messages.create.assert_called_once()
 
     # now try to create the new record
     RealPhone.objects.create(user=baker.make(User), number=number)
-    expired_verification_records = get_expired_unverified_realphone_records(number)
+    expired_verification_records = RealPhone.expired_objects.filter(number=number)
     assert len(expired_verification_records) == 0
     mock_twilio_client.messages.create.assert_called()
 
@@ -348,6 +347,39 @@ def test_create_relaynumber_creates_twilio_incoming_number_and_sends_welcome(
     call_kwargs = mock_messages_create.call_args.kwargs
     assert "Welcome" in call_kwargs["body"]
     assert call_kwargs["to"] == real_phone_us.number
+    assert relay_number_obj.vcard_lookup_key in call_kwargs["media_url"][0]
+
+
+def test_create_relaynumber_with_two_real_numbers(
+    phone_user, mock_twilio_client, settings, twilio_number_sid
+):
+    """A user with a second unverified RealPhone is OK."""
+    RealPhone.objects.create(user=phone_user, number="+12223334444", verified=False)
+    phone2 = RealPhone.objects.create(
+        user=phone_user, number="+12223335555", verified=False
+    )
+    phone2.mark_verified()
+    mock_twilio_client.reset_mock()
+
+    relay_number = "+19998887777"
+    relay_number_obj = RelayNumber.objects.create(user=phone_user, number=relay_number)
+
+    mock_twilio_client.incoming_phone_numbers.create.assert_called_once_with(
+        phone_number=relay_number,
+        sms_application_sid=settings.TWILIO_SMS_APPLICATION_SID,
+        voice_application_sid=settings.TWILIO_SMS_APPLICATION_SID,
+    )
+    mock_services = mock_twilio_client.messaging.v1.services
+    mock_services.assert_called_once_with(settings.TWILIO_MESSAGING_SERVICE_SID[0])
+    mock_services.return_value.phone_numbers.create.assert_called_once_with(
+        phone_number_sid=twilio_number_sid
+    )
+
+    mock_messages_create = mock_twilio_client.messages.create
+    mock_messages_create.assert_called_once()
+    call_kwargs = mock_messages_create.call_args.kwargs
+    assert "Welcome" in call_kwargs["body"]
+    assert call_kwargs["to"] == phone2.number
     assert relay_number_obj.vcard_lookup_key in call_kwargs["media_url"][0]
 
 
@@ -623,7 +655,7 @@ def test_relaynumber_remaining_minutes_returns_properly_formats_remaining_second
     relay_number_obj.save()
     assert relay_number_obj.remaining_minutes == 8
 
-    # If more call time is spent than alotted (negative remaining_seconds),
+    # If more call time is spent than allotted (negative remaining_seconds),
     # the remaining_minutes property should return zero
     relay_number_obj.remaining_seconds = -522
     relay_number_obj.save()
