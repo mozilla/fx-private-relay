@@ -1052,7 +1052,12 @@ class BounceHandlingTest(TestCase):
 
 @override_settings(STATSD_ENABLED=True)
 class ComplaintHandlingTest(TestCase):
-    """Test Complaint notifications and events."""
+    """
+    Test Complaint notifications and events.
+
+    Example derived from:
+    https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
+    """
 
     def setUp(self):
         self.user = baker.make(User, email="relayuser@test.com")
@@ -1076,11 +1081,11 @@ class ComplaintHandlingTest(TestCase):
 
     def test_notification_type_complaint(self):
         """
-        A notificationType of complaint increments a counter, logs details, and
-        returns 200.
-
-        Example derived from:
-        https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
+        A notificationType of complaint:
+            1. increments a counter
+            2. logs details,
+            3. sets the user profile's auto_block_spam = True, and
+            4. returns 200.
         """
         assert self.user.profile.auto_block_spam is False
 
@@ -1124,6 +1129,36 @@ class ComplaintHandlingTest(TestCase):
         log_data = log_extra(logs.records[0])
         assert log_data["user_match"] == "found"
         assert not log_data["fxa_id"]
+
+    def test_complaint_disables_mask(self):
+        """
+        A notificationType of complaint:
+            1. sets enabled=False on the mask, and
+            2. returns 200.
+        """
+        self.ra = baker.make(
+            RelayAddress, user=self.user, address="ebsbdsan7", domain=2
+        )
+
+        # The top-level JSON object for complaints includes a "mail" field
+        # which contains information about the original mail to which the notification
+        # pertains. So, add a "mail" field with content from our russian_spam fixture
+        russian_spam_notification = create_notification_from_email(
+            EMAIL_INCOMING["russian_spam"]
+        )
+        spam_mail_content = json.loads(
+            russian_spam_notification.get("Message", "")
+        ).get("mail", {})
+        complaint_body_message = json.loads(self.complaint_body["Message"])
+        complaint_body_message["mail"] = spam_mail_content
+        complaint_body_with_spam_mail = {"Message": json.dumps(complaint_body_message)}
+        assert self.ra.enabled is True
+
+        response = _sns_notification(complaint_body_with_spam_mail)
+        assert response.status_code == 200
+
+        self.ra.refresh_from_db()
+        assert self.ra.enabled is False
 
 
 class SNSNotificationRemoveEmailsInS3Test(TestCase):

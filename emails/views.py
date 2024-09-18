@@ -1368,7 +1368,9 @@ def _handle_reply(
     return HttpResponse("Sent email to final recipient.", status=200)
 
 
-def _get_domain_address(local_portion: str, domain_portion: str) -> DomainAddress:
+def _get_domain_address(
+    local_portion: str, domain_portion: str, create: bool = True
+) -> DomainAddress:
     """
     Find or create the DomainAddress for the parts of an email address.
 
@@ -1396,6 +1398,8 @@ def _get_domain_address(local_portion: str, domain_portion: str) -> DomainAddres
                 user=locked_profile.user, address=local_portion, domain=domain_numerical
             ).first()
             if domain_address is None:
+                if not create:
+                    raise ObjectDoesNotExist("Address does not exist")
                 # TODO: Consider flows when a user generating alias on a fly
                 # was unable to receive an email due to user no longer being a
                 # premium user as seen in exception thrown on make_domain_address
@@ -1414,12 +1418,12 @@ def _get_domain_address(local_portion: str, domain_portion: str) -> DomainAddres
         raise e
 
 
-def _get_address(address: str) -> RelayAddress | DomainAddress:
+def _get_address(address: str, create: bool = True) -> RelayAddress | DomainAddress:
     """
     Find or create the RelayAddress or DomainAddress for an email address.
 
-    If an unknown email address is for a valid subdomain, a new DomainAddress
-    will be created.
+    If an unknown email address is for a valid subdomain, and create is True,
+    a new DomainAddress will be created.
 
     On failure, raises exception based on Django's ObjectDoesNotExist:
     * RelayAddress.DoesNotExist - looks like RelayAddress, deleted or does not exist
@@ -1445,6 +1449,8 @@ def _get_address(address: str) -> RelayAddress | DomainAddress:
         )
         return relay_address
     except RelayAddress.DoesNotExist as e:
+        if not create:
+            raise e
         try:
             DeletedAddress.objects.get(
                 address_hash=address_hash(local_address, domain=domain)
@@ -1572,6 +1578,11 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     """
     Handle an AWS SES complaint notification.
 
+    Sets the user's auto_block_spam flag to True.
+
+    Disables the mask thru which the spam mail was forwarded, and sends an email to the
+    user to notify them the mask is disabled and can be re-enabled on their dashboard.
+
     For more information, see:
     https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
 
@@ -1580,7 +1591,7 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     * 200 response if all match or none are given
 
     Emits a counter metric "email_complaint" with these tags:
-    * complaint_subtype: 'onaccounsuppressionlist', or 'none' if omitted
+    * complaint_subtype: 'onaccountsuppressionlist', or 'none' if omitted
     * complaint_feedback - feedback enumeration from ISP or 'none'
     * user_match: 'found', 'missing', error states 'no_address' and 'no_recipients'
     * relay_action: 'no_action', 'auto_block_spam'
@@ -1633,6 +1644,22 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         data["relay_action"] = "auto_block_spam"
         profile.auto_block_spam = True
         profile.save()
+
+    for destination_address in message_json.get("mail", {}).get("destination", []):
+        try:
+            address = _get_address(destination_address, False)
+            address.enabled = False
+            address.save()
+            # TODO: email the user that we disabled the mask
+        except (
+            ObjectDoesNotExist,
+            RelayAddress.DoesNotExist,
+            DomainAddress.DoesNotExist,
+        ):
+            logger.error(
+                "Received a complaint from a destination address that does not match "
+                "a Relay address.",
+            )
 
     if not complaint_data:
         # Data when there are no identified recipients
