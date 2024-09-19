@@ -139,6 +139,32 @@ def reply_requires_premium_test(request):
     return render(request, "emails/reply_requires_premium.html", email_context)
 
 
+def disabled_mask_for_spam_test(request):
+    """
+    Demonstrate rendering of the "Disabled mask for spam" email.
+
+    Settings like language can be given in the querystring, otherwise settings
+    come from a random free profile.
+    """
+    mask = "abc123456@mozmail.com"
+    email_context = {
+        "mask": mask,
+        "SITE_ORIGIN": settings.SITE_ORIGIN,
+    }
+    for param in request.GET:
+        email_context[param] = request.GET.get(param)
+
+    for param in request.GET:
+        if param == "content-type" and request.GET[param] == "text/plain":
+            return render(
+                request,
+                "emails/disabled_mask_for_spam.txt",
+                email_context,
+                "text/plain; charset=utf-8",
+            )
+    return render(request, "emails/disabled_mask_for_spam.html", email_context)
+
+
 def first_forwarded_email_test(request: HttpRequest) -> HttpResponse:
     # TO DO: Update with correct context when trigger is created
     first_forwarded_email_html = render_to_string(
@@ -1574,6 +1600,46 @@ def _handle_bounce(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     return HttpResponse("OK", status=200)
 
 
+def _build_disabled_mask_for_spam_email(
+    mask: RelayAddress | DomainAddress, original_spam_email: dict
+) -> EmailMessage:
+    ctx = {
+        "mask": mask.full_address,
+        "spam_email": original_spam_email,
+        "SITE_ORIGIN": settings.SITE_ORIGIN,
+    }
+    html_body = render_to_string("emails/disabled_mask_for_spam.html", ctx)
+    text_body = render_to_string("emails/disabled_mask_for_spam.txt", ctx)
+
+    # Create the message
+    msg = EmailMessage()
+    msg["Subject"] = ftl_bundle.format("relay-disabled-your-mask")
+    msg["From"] = settings.RELAY_FROM_ADDRESS
+    msg["To"] = mask.user.email
+    msg.set_content(text_body)
+    msg.add_alternative(html_body, subtype="html")
+    return msg
+
+
+def _send_disabled_mask_for_spam_email(
+    mask: RelayAddress | DomainAddress, original_spam_email: dict
+) -> None:
+    msg = _build_disabled_mask_for_spam_email(mask, original_spam_email)
+    if not settings.RELAY_FROM_ADDRESS:
+        raise ValueError(
+            "Must set settings.RELAY_FROM_ADDRESS to send disabled_mask_for_spam email."
+        )
+    try:
+        ses_send_raw_email(
+            source_address=settings.RELAY_FROM_ADDRESS,
+            destination_address=mask.user.email,
+            message=msg,
+        )
+    except ClientError as e:
+        logger.error("reply_not_allowed_ses_client_error", extra=e.response["Error"])
+    incr_if_enabled("free_user_reply_attempt", 1)
+
+
 def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     """
     Handle an AWS SES complaint notification.
@@ -1650,7 +1716,7 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             address = _get_address(destination_address, False)
             address.enabled = False
             address.save()
-            # TODO: email the user that we disabled the mask
+            _send_disabled_mask_for_spam_email(address, message_json.get("mail", {}))
         except (
             ObjectDoesNotExist,
             RelayAddress.DoesNotExist,

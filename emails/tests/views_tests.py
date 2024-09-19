@@ -12,6 +12,7 @@ from unittest._log import _LoggingWatcher
 from unittest.mock import Mock, patch
 from uuid import uuid4
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
@@ -45,6 +46,7 @@ from emails.utils import (
 from emails.views import (
     EmailDroppedReason,
     ReplyHeadersNotFound,
+    _build_disabled_mask_for_spam_email,
     _build_reply_requires_premium_email,
     _get_address,
     _get_keys_from_headers,
@@ -1051,6 +1053,7 @@ class BounceHandlingTest(TestCase):
 
 
 @override_settings(STATSD_ENABLED=True)
+@override_settings(RELAY_FROM_ADDRESS="reply@relay.example.com")
 class ComplaintHandlingTest(TestCase):
     """
     Test Complaint notifications and events.
@@ -1078,6 +1081,12 @@ class ComplaintHandlingTest(TestCase):
             },
         }
         self.complaint_body = {"Message": json.dumps(complaint)}
+        ses_client_patcher = patch(
+            "emails.apps.EmailsConfig.ses_client",
+            spec_set=["send_raw_email"],
+        )
+        self.mock_ses_client = ses_client_patcher.start()
+        self.addCleanup(ses_client_patcher.stop)
 
     def test_notification_type_complaint(self):
         """
@@ -1158,7 +1167,45 @@ class ComplaintHandlingTest(TestCase):
         assert response.status_code == 200
 
         self.ra.refresh_from_db()
+        source = self.mock_ses_client.send_raw_email.call_args.kwargs["Source"]
+        destinations = self.mock_ses_client.send_raw_email.call_args.kwargs["Destinations"]
+        raw_message = self.mock_ses_client.send_raw_email.call_args.kwargs["RawMessage"]
+        data_without_newlines = raw_message["Data"].replace("\n", "")
+
         assert self.ra.enabled is False
+        self.mock_ses_client.send_raw_email.assert_called_once()
+        assert source == settings.RELAY_FROM_ADDRESS
+        assert destinations == [self.ra.user.email]
+        assert "To prevent further spam" in data_without_newlines
+        assert self.ra.full_address in data_without_newlines
+
+        # re-enable the mask for other tests
+        self.ra.enabled = True
+        self.ra.save()
+        self.ra.refresh_from_db()
+
+    def test_build_disabled_mask_for_spam_email(self):
+        free_user = make_free_test_user()
+        test_mask_address = "w41fwbt4q"
+        relay_address = baker.make(
+            RelayAddress, user=free_user, address=test_mask_address, domain=2
+        )
+
+        original_spam_email: dict = {"mask": relay_address.full_address}
+
+        msg = _build_disabled_mask_for_spam_email(relay_address, original_spam_email)
+
+        assert msg["Subject"] == main.format("relay-disabled-your-mask")
+        assert msg["From"] == settings.RELAY_FROM_ADDRESS
+        assert msg["To"] == free_user.email
+
+        text_content, html_content = get_text_and_html_content(msg)
+        assert test_mask_address in text_content
+        assert test_mask_address in html_content
+
+        assert_email_equals_fixture(
+            msg.as_string(), "disabled_mask_for_spam", replace_mime_boundaries=True
+        )
 
 
 class SNSNotificationRemoveEmailsInS3Test(TestCase):

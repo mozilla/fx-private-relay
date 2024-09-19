@@ -1,0 +1,11 @@
+{% load ftl %}
+{% load email_extras %}
+{% withftl bundle='privaterelay.ftl_bundles.main' language=language %}
+{% ftlmsg 'relay-disabled-your-mask' %}
+
+{% ftlmsg 'relay-received-spam-complaint' mask=mask %} {% ftlmsg 'relay-disabled-your-mask-detail' mask=mask %}
+{% with mask|striptags|urlencode as mask_url %}
+{% ftlmsg 're-enable-your-mask' %}
+{{ SITE_ORIGIN }}/accounts/profile/#{{ mask_url }}
+{% endwith %}
+{% endwithftl %}
