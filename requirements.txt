@@ -5,7 +5,7 @@ Django==4.2.16
 dj-database-url==2.2.0
 django-allauth[socialaccount]==65.0.0
 django-cors-headers==4.4.0
-django-csp==4.0b1
+django-csp==4.0b2
 django-debug-toolbar==4.4.6
 django-filter==24.3
 django-ipware==7.0.1

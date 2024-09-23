@@ -2,6 +2,8 @@
 
 from typing import Literal, TypedDict
 
+from csp.constants import Nonce
+
 RELAY_CHANNEL_NAME = Literal["local", "dev", "stage", "prod"]
 
 # django-csp 4.0: types for CONTENT_SECURITY_POLICY in settings.py
@@ -9,7 +11,7 @@ RELAY_CHANNEL_NAME = Literal["local", "dev", "stage", "prod"]
 # Note: this will need adjustments to uplift to django-csp
 # For example, the django-csp docs say 'sequence' rather than 'list',
 # and appear more flexible about sending strings or lists.
-_SERIALIZED_SOURCE_LIST = list[str]
+_SERIALIZED_SOURCE_LIST = list[str | Nonce]
 CSP_DIRECTIVES_T = TypedDict(
     "CSP_DIRECTIVES_T",
     {
