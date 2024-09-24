@@ -24,6 +24,7 @@ from botocore.exceptions import ClientError
 from markus.main import MetricsRecord
 from markus.testing import MetricsMock
 from model_bakery import baker
+from waffle.testutils import override_flag
 
 from emails.models import (
     DeletedAddress,
@@ -1139,6 +1140,7 @@ class ComplaintHandlingTest(TestCase):
         assert log_data["user_match"] == "found"
         assert not log_data["fxa_id"]
 
+    @override_flag("disable_mask_on_complaint", active=True)
     def test_complaint_disables_mask(self):
         """
         A notificationType of complaint:
@@ -1168,7 +1170,9 @@ class ComplaintHandlingTest(TestCase):
 
         self.ra.refresh_from_db()
         source = self.mock_ses_client.send_raw_email.call_args.kwargs["Source"]
-        destinations = self.mock_ses_client.send_raw_email.call_args.kwargs["Destinations"]
+        destinations = self.mock_ses_client.send_raw_email.call_args.kwargs[
+            "Destinations"
+        ]
         raw_message = self.mock_ses_client.send_raw_email.call_args.kwargs["RawMessage"]
         data_without_newlines = raw_message["Data"].replace("\n", "")
 

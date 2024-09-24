@@ -31,7 +31,7 @@ from codetiming import Timer
 from decouple import strtobool
 from markus.utils import generate_tag
 from sentry_sdk import capture_message
-from waffle import sample_is_active
+from waffle import get_waffle_flag_model, sample_is_active
 
 from privaterelay.ftl_bundles import main as ftl_bundle
 from privaterelay.models import Profile
@@ -1640,6 +1640,24 @@ def _send_disabled_mask_for_spam_email(
     incr_if_enabled("free_user_reply_attempt", 1)
 
 
+def _disable_masks_for_complaint(message_json: dict) -> None:
+    for destination_address in message_json.get("mail", {}).get("destination", []):
+        try:
+            address = _get_address(destination_address, False)
+            address.enabled = False
+            address.save()
+            _send_disabled_mask_for_spam_email(address, message_json.get("mail", {}))
+        except (
+            ObjectDoesNotExist,
+            RelayAddress.DoesNotExist,
+            DomainAddress.DoesNotExist,
+        ):
+            logger.error(
+                "Received a complaint from a destination address that does not match "
+                "a Relay address.",
+            )
+
+
 def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     """
     Handle an AWS SES complaint notification.
@@ -1711,21 +1729,16 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         profile.auto_block_spam = True
         profile.save()
 
-    for destination_address in message_json.get("mail", {}).get("destination", []):
-        try:
-            address = _get_address(destination_address, False)
-            address.enabled = False
-            address.save()
-            _send_disabled_mask_for_spam_email(address, message_json.get("mail", {}))
-        except (
-            ObjectDoesNotExist,
-            RelayAddress.DoesNotExist,
-            DomainAddress.DoesNotExist,
-        ):
-            logger.error(
-                "Received a complaint from a destination address that does not match "
-                "a Relay address.",
+    disable_mask_on_complaint_flag, _ = get_waffle_flag_model().objects.get_or_create(
+        name="disable_mask_on_complaint",
+        defaults={
+            "note": (
+                "MPP-3119: When a Relay user marks an email as spam, disable the mask."
             )
+        },
+    )
+    if disable_mask_on_complaint_flag.is_active_for_user(user):
+        _disable_masks_for_complaint(message_json)
 
     if not complaint_data:
         # Data when there are no identified recipients
