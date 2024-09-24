@@ -1641,12 +1641,23 @@ def _send_disabled_mask_for_spam_email(
 
 
 def _disable_masks_for_complaint(message_json: dict) -> None:
+    _, _ = get_waffle_flag_model().objects.get_or_create(
+        name="disable_mask_on_complaint",
+        defaults={
+            "note": (
+                "MPP-3119: When a Relay user marks an email as spam, disable the mask."
+            )
+        },
+    )
     for destination_address in message_json.get("mail", {}).get("destination", []):
         try:
             address = _get_address(destination_address, False)
-            address.enabled = False
-            address.save()
-            _send_disabled_mask_for_spam_email(address, message_json.get("mail", {}))
+            if flag_is_active_in_task("disable_mask_on_complaint", address.user):
+                address.enabled = False
+                address.save()
+                _send_disabled_mask_for_spam_email(
+                    address, message_json.get("mail", {})
+                )
         except (
             ObjectDoesNotExist,
             RelayAddress.DoesNotExist,
@@ -1729,16 +1740,7 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         profile.auto_block_spam = True
         profile.save()
 
-    disable_mask_on_complaint_flag, _ = get_waffle_flag_model().objects.get_or_create(
-        name="disable_mask_on_complaint",
-        defaults={
-            "note": (
-                "MPP-3119: When a Relay user marks an email as spam, disable the mask."
-            )
-        },
-    )
-    if disable_mask_on_complaint_flag.is_active_for_user(user):
-        _disable_masks_for_complaint(message_json)
+    _disable_masks_for_complaint(message_json)
 
     if not complaint_data:
         # Data when there are no identified recipients
