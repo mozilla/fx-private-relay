@@ -343,7 +343,6 @@ const AliasTypeMenuPopup = (props: AliasTypeMenuPopupProps) => {
               // TODO: Fix the typing (likely: report to react-aria that the type does not include an isDisabled prop)
               item={item as unknown as AliasTypeMenuItemProps["item"]}
               state={popupState}
-              onAction={props.onAction}
               onClose={props.onClose}
             />
           ))}
@@ -362,7 +361,6 @@ type AliasTypeMenuItemProps = {
     rendered?: ReactNode;
   };
   state: TreeState<unknown>;
-  onAction: AriaMenuItemProps["onAction"];
   onClose: AriaMenuItemProps["onClose"];
 };
 
@@ -372,7 +370,6 @@ const AliasTypeMenuItem = (props: AliasTypeMenuItemProps) => {
     {
       key: props.item.key,
       isDisabled: props.item.isDisabled,
-      onAction: props.onAction,
       onClose: props.onClose,
     },
     props.state,
