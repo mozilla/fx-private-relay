@@ -1192,7 +1192,7 @@ class ComplaintHandlingTest(TestCase):
         self.ra.refresh_from_db()
 
     def test_build_disabled_mask_for_spam_email(self):
-        free_user = make_free_test_user()
+        free_user = make_free_test_user("testreal@email.com")
         test_mask_address = "w41fwbt4q"
         relay_address = baker.make(
             RelayAddress, user=free_user, address=test_mask_address, domain=2

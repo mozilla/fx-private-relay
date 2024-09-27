@@ -1,7 +1,7 @@
 Subject: =?utf-8?q?=E2=81=A8Firefox_Relay=E2=81=A9?= has disabled one of your
  email masks.
 From: reply@relay.example.com
-To:
+To: testreal@email.com
 MIME-Version: 1.0
 Content-Type: multipart/alternative;
  boundary="==[BOUNDARY0]=="
