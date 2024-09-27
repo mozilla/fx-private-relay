@@ -1160,6 +1160,9 @@ class ComplaintHandlingTest(TestCase):
         spam_mail_content = json.loads(
             russian_spam_notification.get("Message", "")
         ).get("mail", {})
+        spam_mail_content["source"] = (
+            f"hello@ac.spam.example.com [via Relay] <{self.ra.full_address}>"
+        )
         complaint_body_message = json.loads(self.complaint_body["Message"])
         complaint_body_message["mail"] = spam_mail_content
         complaint_body_with_spam_mail = {"Message": json.dumps(complaint_body_message)}

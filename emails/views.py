@@ -1640,19 +1640,42 @@ def _send_disabled_mask_for_spam_email(
     incr_if_enabled("free_user_reply_attempt", 1)
 
 
-def _disable_masks_for_complaint(message_json: dict) -> None:
+def _disable_masks_for_complaint(message_json: dict, user: User) -> None:
+    """
+    See https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#mail-object
+
+    message_json.mail.source contains the envelope MAIL FROM address from which the
+    original message was sent.
+
+    Relay sends emails From: "original-From" <relay-mask@mozmail.com>.
+
+    So, we can find the mask that sent the spam email by parsing the source value.
+    """
+    flag_name = "disable_mask_on_complaint"
     _, _ = get_waffle_flag_model().objects.get_or_create(
-        name="disable_mask_on_complaint",
+        name=flag_name,
         defaults={
             "note": (
                 "MPP-3119: When a Relay user marks an email as spam, disable the mask."
             )
         },
     )
-    for destination_address in message_json.get("mail", {}).get("destination", []):
+    source = message_json.get("mail", {}).get("source", "")
+    # parseaddr is confused by 2 email addresses in the value, so use this
+    # regular expression to extract the mask address by searching for any relay domains
+    email_domains = get_domains_from_settings().values()
+    domain_pattern = "|".join(re.escape(domain) for domain in email_domains)
+    email_regex = rf"[\w\.-]+@(?:{domain_pattern})"
+    matches = re.findall(email_regex, source)
+    if not matches:
+        return
+    for mask_address in matches:
         try:
-            address = _get_address(destination_address, False)
-            if flag_is_active_in_task("disable_mask_on_complaint", address.user):
+            address = _get_address(mask_address, False)
+            # ensure the mask belongs to the user for whom Relay received a complaint
+            if address.user != user:
+                continue
+            if flag_is_active_in_task(flag_name, address.user):
                 address.enabled = False
                 address.save()
                 _send_disabled_mask_for_spam_email(
@@ -1740,7 +1763,7 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         profile.auto_block_spam = True
         profile.save()
 
-    _disable_masks_for_complaint(message_json)
+        _disable_masks_for_complaint(message_json, user)
 
     if not complaint_data:
         # Data when there are no identified recipients
