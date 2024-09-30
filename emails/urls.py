@@ -13,4 +13,5 @@ if settings.DEBUG:
         path("first_time_user_test", views.first_time_user_test),
         path("reply_requires_premium_test", views.reply_requires_premium_test),
         path("first_forwarded_email", views.first_forwarded_email_test),
+        path("disabled_mask_for_spam_test", views.disabled_mask_for_spam_test),
     ]

@@ -1,8 +1,7 @@
-Subject: Replies are not included with your free account
-From: replies@default.com
-To: w41fwbt4q@test.com
-In-Reply-To: <relay-user-msg-id-456@usersemail.com>
-References: <relay-user-msg-id-456@usersemail.com>
+Subject: =?utf-8?q?=E2=81=A8Firefox_Relay=E2=81=A9?= has disabled one of your
+ email masks.
+From: reply@relay.example.com
+To: testreal@email.com
 MIME-Version: 1.0
 Content-Type: multipart/alternative;
  boundary="==[BOUNDARY0]=="
@@ -14,24 +13,23 @@ Content-Transfer-Encoding: quoted-printable
 
 
 
-Upgrade for more protection
+=E2=81=A8Firefox Relay=E2=81=A9 has disabled one of your email masks.
 
-Replies are not included with your free account
+=E2=81=A8Firefox Relay=E2=81=A9 received a spam complaint for an email sent t=
+o =E2=81=A8w41fwbt4q@test.com=E2=81=A9. This usually happens if you or your e=
+mail provider mark an email as spam. To prevent further spam, =E2=81=A8Firefo=
+x Relay=E2=81=A9 has disabled your =E2=81=A8w41fwbt4q@test.com=E2=81=A9 mask.
 
+Visit your =E2=81=A8Firefox Relay=E2=81=A9 dashboard to re-enable this mask.
+http://127.0.0.1:8000/accounts/profile/#w41fwbt4q%40test.com
 
-We=E2=80=99ve sent this reply to =E2=81=A8external_sender@test.com=E2=81=A9. =
-But moving forward, your replies will not be sent.
-
-Replying to forwarded emails from your masked email is only available with =
-=E2=81=A8Firefox Relay Premium=E2=81=A9.
-http://127.0.0.1:8000/premium/?utm_campaign=3Demail_replies&amp;utm_source=3D=
-email&amp;utm_medium=3Demail
 
 
 --==[BOUNDARY0]==
 Content-Type: text/html; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
+
 
 
 
@@ -225,35 +223,38 @@ ail" style=3D"color: white;">Upgrade for more protection</a>=20
         </tr>
     </table> =20
 
+
     <table role=3D"presentation" border=3D"0" cellpadding=3D"0" cellspacing=
 =3D"10px" style=3D"padding: 60px 30px 120px 30px;" align=3D"center">
         <tr>
             <td style=3D"max-width:850px; padding-top: 0px; padding-bottom: 0=
 px; text-align: center;">
+               =20
                 <h2 style=3D"font-family: inter medium, Arial, system-ui, san=
 s-serif;">=20
                     <img width=3D"18" src=3D"http://127.0.0.1:8000/static/ima=
 ges/email-images/warning.png" style=3D"margin: 0 5px;" alt=3D"warning icon"/>
-                   =20
-                        Replies are not included with your free account
-                   =20
+                    =E2=81=A8Firefox Relay=E2=81=A9 has disabled one of your =
+email masks.
                 </h2>
                 <p style=3D"line-height: 200%; margin-bottom: 30px; padding: =
 20px 60px 20px 60px">
-                   =20
-                        We=E2=80=99ve sent this reply to =E2=81=A8external_se=
-nder@test.com=E2=81=A9. But moving forward, your replies will not be sent.
-                   =20
-                    Replying to forwarded emails from your masked email is on=
-ly available with =E2=81=A8Firefox Relay Premium=E2=81=A9.
+                Firefox Relay received a spam complaint for an email sent to =
+<strong>w41fwbt4q@test.com</strong>. This usually happens if you or your emai=
+l provider mark an email as spam. To prevent further spam, Firefox Relay has =
+disabled your <strong>w41fwbt4q@test.com</strong> mask.
                 </p>=20
-                <a href=3D"http://127.0.0.1:8000/premium/?utm_campaign=3Demai=
-l_replies&amp;utm_source=3Demail&amp;utm_medium=3Demail" style=3D"margin: 10p=
-x 0;">Upgrade now to send replies</a>
+                <a href=3D"http://127.0.0.1:8000/accounts/profile/#w41fwbt4q%=
+40test.com">
+                    Visit your =E2=81=A8Firefox Relay=E2=81=A9 dashboard to r=
+e-enable this mask.
+                </a>
+               =20
             </td>=20
         </tr>
     </table>
 
+   =20
 
     <!-- temporary footer -->
     <table id=3D"relay-email-footer" width=3D"100%" bgcolor=3D"#3D3D3D" style=
@@ -281,6 +282,7 @@ dium=3Demail" style=3D"color: white;">Manage your masks</a>=20
     </table> =20
   </body>
 </html>
+
 
 
 

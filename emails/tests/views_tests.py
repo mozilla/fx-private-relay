@@ -12,6 +12,7 @@ from unittest._log import _LoggingWatcher
 from unittest.mock import Mock, patch
 from uuid import uuid4
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
@@ -23,6 +24,7 @@ from botocore.exceptions import ClientError
 from markus.main import MetricsRecord
 from markus.testing import MetricsMock
 from model_bakery import baker
+from waffle.testutils import override_flag
 
 from emails.models import (
     DeletedAddress,
@@ -45,6 +47,7 @@ from emails.utils import (
 from emails.views import (
     EmailDroppedReason,
     ReplyHeadersNotFound,
+    _build_disabled_mask_for_spam_email,
     _build_reply_requires_premium_email,
     _get_address,
     _get_keys_from_headers,
@@ -1051,8 +1054,14 @@ class BounceHandlingTest(TestCase):
 
 
 @override_settings(STATSD_ENABLED=True)
+@override_settings(RELAY_FROM_ADDRESS="reply@relay.example.com")
 class ComplaintHandlingTest(TestCase):
-    """Test Complaint notifications and events."""
+    """
+    Test Complaint notifications and events.
+
+    Example derived from:
+    https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
+    """
 
     def setUp(self):
         self.user = baker.make(User, email="relayuser@test.com")
@@ -1073,14 +1082,20 @@ class ComplaintHandlingTest(TestCase):
             },
         }
         self.complaint_body = {"Message": json.dumps(complaint)}
+        ses_client_patcher = patch(
+            "emails.apps.EmailsConfig.ses_client",
+            spec_set=["send_raw_email"],
+        )
+        self.mock_ses_client = ses_client_patcher.start()
+        self.addCleanup(ses_client_patcher.stop)
 
     def test_notification_type_complaint(self):
         """
-        A notificationType of complaint increments a counter, logs details, and
-        returns 200.
-
-        Example derived from:
-        https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
+        A notificationType of complaint:
+            1. increments a counter
+            2. logs details,
+            3. sets the user profile's auto_block_spam = True, and
+            4. returns 200.
         """
         assert self.user.profile.auto_block_spam is False
 
@@ -1124,6 +1139,80 @@ class ComplaintHandlingTest(TestCase):
         log_data = log_extra(logs.records[0])
         assert log_data["user_match"] == "found"
         assert not log_data["fxa_id"]
+
+    @override_flag("disable_mask_on_complaint", active=True)
+    def test_complaint_disables_mask(self):
+        """
+        A notificationType of complaint:
+            1. sets enabled=False on the mask, and
+            2. returns 200.
+        """
+        self.ra = baker.make(
+            RelayAddress, user=self.user, address="ebsbdsan7", domain=2
+        )
+
+        # The top-level JSON object for complaints includes a "mail" field
+        # which contains information about the original mail to which the notification
+        # pertains. So, add a "mail" field with content from our russian_spam fixture
+        russian_spam_notification = create_notification_from_email(
+            EMAIL_INCOMING["russian_spam"]
+        )
+        spam_mail_content = json.loads(
+            russian_spam_notification.get("Message", "")
+        ).get("mail", {})
+        spam_mail_content["source"] = (
+            f"hello@ac.spam.example.com [via Relay] <{self.ra.full_address}>"
+        )
+        complaint_body_message = json.loads(self.complaint_body["Message"])
+        complaint_body_message["mail"] = spam_mail_content
+        complaint_body_with_spam_mail = {"Message": json.dumps(complaint_body_message)}
+        assert self.ra.enabled is True
+
+        response = _sns_notification(complaint_body_with_spam_mail)
+        assert response.status_code == 200
+
+        self.ra.refresh_from_db()
+        source = self.mock_ses_client.send_raw_email.call_args.kwargs["Source"]
+        destinations = self.mock_ses_client.send_raw_email.call_args.kwargs[
+            "Destinations"
+        ]
+        raw_message = self.mock_ses_client.send_raw_email.call_args.kwargs["RawMessage"]
+        data_without_newlines = raw_message["Data"].replace("\n", "")
+
+        assert self.ra.enabled is False
+        self.mock_ses_client.send_raw_email.assert_called_once()
+        assert source == settings.RELAY_FROM_ADDRESS
+        assert destinations == [self.ra.user.email]
+        assert "To prevent further spam" in data_without_newlines
+        assert self.ra.full_address in data_without_newlines
+
+        # re-enable the mask for other tests
+        self.ra.enabled = True
+        self.ra.save()
+        self.ra.refresh_from_db()
+
+    def test_build_disabled_mask_for_spam_email(self):
+        free_user = make_free_test_user("testreal@email.com")
+        test_mask_address = "w41fwbt4q"
+        relay_address = baker.make(
+            RelayAddress, user=free_user, address=test_mask_address, domain=2
+        )
+
+        original_spam_email: dict = {"mask": relay_address.full_address}
+
+        msg = _build_disabled_mask_for_spam_email(relay_address, original_spam_email)
+
+        assert msg["Subject"] == main.format("relay-disabled-your-mask")
+        assert msg["From"] == settings.RELAY_FROM_ADDRESS
+        assert msg["To"] == free_user.email
+
+        text_content, html_content = get_text_and_html_content(msg)
+        assert test_mask_address in text_content
+        assert test_mask_address in html_content
+
+        assert_email_equals_fixture(
+            msg.as_string(), "disabled_mask_for_spam", replace_mime_boundaries=True
+        )
 
 
 class SNSNotificationRemoveEmailsInS3Test(TestCase):

@@ -5,29 +5,28 @@
 {% load ftl %}
 {% load email_extras %}
 {% withftl bundle='privaterelay.ftl_bundles.main' language=language %}
+
 {% include "emails/direct_email_header.html" %}
+
     <table role="presentation" border="0" cellpadding="0" cellspacing="10px" style="padding: 60px 30px 120px 30px;" align="center">
         <tr>
             <td style="max-width:850px; padding-top: 0px; padding-bottom: 0px; text-align: center;">
+                {% with mask|striptags|urlencode as mask_url %}
                 <h2 style="font-family: inter medium, Arial, system-ui, sans-serif;"> 
                     <img width="18" src="{{ SITE_ORIGIN }}/static/images/email-images/warning.png" style="margin: 0 5px;" alt="warning icon"/>
-                    {% if forwarded == True %}
-                        {% ftlmsg 'replies-not-included-in-free-account-header' %}
-                    {% else %}
-                        {% ftlmsg 'reply-not-sent-header' %}
-                    {% endif %}
+                    {% ftlmsg 'relay-disabled-your-mask' %}
                 </h2>
                 <p style="line-height: 200%; margin-bottom: 30px; padding: 20px 60px 20px 60px">
-                    {% if forwarded == True %}
-                        {% ftlmsg 'first-reply-forwarded' sender=sender %}
-                    {% else %}
-                        {% ftlmsg 'other-reply-not-forwarded-2' sender=sender %}
-                    {% endif %}
-                    {% ftlmsg 'replies-only-available-with-premium' %}
+                {% ftlmsg 'relay-received-spam-complaint-html' mask=mask %} {% ftlmsg 'relay-disabled-your-mask-detail-html' mask=mask %}
                 </p> 
-                <a href="{{ SITE_ORIGIN|add:"/premium/?utm_campaign=email_replies&utm_source=email&utm_medium=email" }}" style="margin: 10px 0;">{% ftlmsg 'upgrade-to-reply-to-future-emails' %}</a>
+                <a href="{{ SITE_ORIGIN }}/accounts/profile/#{{ mask_url }}">
+                    {% ftlmsg 're-enable-your-mask' %}
+                </a>
+                {% endwith %}
             </td> 
         </tr>
     </table>
-{% include "emails/direct_email_footer.html" %}
+
+    {% include "emails/direct_email_footer.html" %}
+
 {% endwithftl %}

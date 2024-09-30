@@ -31,7 +31,7 @@ from codetiming import Timer
 from decouple import strtobool
 from markus.utils import generate_tag
 from sentry_sdk import capture_message
-from waffle import sample_is_active
+from waffle import get_waffle_flag_model, sample_is_active
 
 from privaterelay.ftl_bundles import main as ftl_bundle
 from privaterelay.models import Profile
@@ -137,6 +137,32 @@ def reply_requires_premium_test(request):
                 "text/plain; charset=utf-8",
             )
     return render(request, "emails/reply_requires_premium.html", email_context)
+
+
+def disabled_mask_for_spam_test(request):
+    """
+    Demonstrate rendering of the "Disabled mask for spam" email.
+
+    Settings like language can be given in the querystring, otherwise settings
+    come from a random free profile.
+    """
+    mask = "abc123456@mozmail.com"
+    email_context = {
+        "mask": mask,
+        "SITE_ORIGIN": settings.SITE_ORIGIN,
+    }
+    for param in request.GET:
+        email_context[param] = request.GET.get(param)
+
+    for param in request.GET:
+        if param == "content-type" and request.GET[param] == "text/plain":
+            return render(
+                request,
+                "emails/disabled_mask_for_spam.txt",
+                email_context,
+                "text/plain; charset=utf-8",
+            )
+    return render(request, "emails/disabled_mask_for_spam.html", email_context)
 
 
 def first_forwarded_email_test(request: HttpRequest) -> HttpResponse:
@@ -1368,7 +1394,9 @@ def _handle_reply(
     return HttpResponse("Sent email to final recipient.", status=200)
 
 
-def _get_domain_address(local_portion: str, domain_portion: str) -> DomainAddress:
+def _get_domain_address(
+    local_portion: str, domain_portion: str, create: bool = True
+) -> DomainAddress:
     """
     Find or create the DomainAddress for the parts of an email address.
 
@@ -1396,6 +1424,8 @@ def _get_domain_address(local_portion: str, domain_portion: str) -> DomainAddres
                 user=locked_profile.user, address=local_portion, domain=domain_numerical
             ).first()
             if domain_address is None:
+                if not create:
+                    raise ObjectDoesNotExist("Address does not exist")
                 # TODO: Consider flows when a user generating alias on a fly
                 # was unable to receive an email due to user no longer being a
                 # premium user as seen in exception thrown on make_domain_address
@@ -1414,12 +1444,12 @@ def _get_domain_address(local_portion: str, domain_portion: str) -> DomainAddres
         raise e
 
 
-def _get_address(address: str) -> RelayAddress | DomainAddress:
+def _get_address(address: str, create: bool = True) -> RelayAddress | DomainAddress:
     """
     Find or create the RelayAddress or DomainAddress for an email address.
 
-    If an unknown email address is for a valid subdomain, a new DomainAddress
-    will be created.
+    If an unknown email address is for a valid subdomain, and create is True,
+    a new DomainAddress will be created.
 
     On failure, raises exception based on Django's ObjectDoesNotExist:
     * RelayAddress.DoesNotExist - looks like RelayAddress, deleted or does not exist
@@ -1445,6 +1475,8 @@ def _get_address(address: str) -> RelayAddress | DomainAddress:
         )
         return relay_address
     except RelayAddress.DoesNotExist as e:
+        if not create:
+            raise e
         try:
             DeletedAddress.objects.get(
                 address_hash=address_hash(local_address, domain=domain)
@@ -1568,9 +1600,107 @@ def _handle_bounce(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     return HttpResponse("OK", status=200)
 
 
+def _build_disabled_mask_for_spam_email(
+    mask: RelayAddress | DomainAddress, original_spam_email: dict
+) -> EmailMessage:
+    ctx = {
+        "mask": mask.full_address,
+        "spam_email": original_spam_email,
+        "SITE_ORIGIN": settings.SITE_ORIGIN,
+    }
+    html_body = render_to_string("emails/disabled_mask_for_spam.html", ctx)
+    text_body = render_to_string("emails/disabled_mask_for_spam.txt", ctx)
+
+    # Create the message
+    msg = EmailMessage()
+    msg["Subject"] = ftl_bundle.format("relay-disabled-your-mask")
+    msg["From"] = settings.RELAY_FROM_ADDRESS
+    msg["To"] = mask.user.email
+    msg.set_content(text_body)
+    msg.add_alternative(html_body, subtype="html")
+    return msg
+
+
+def _send_disabled_mask_for_spam_email(
+    mask: RelayAddress | DomainAddress, original_spam_email: dict
+) -> None:
+    msg = _build_disabled_mask_for_spam_email(mask, original_spam_email)
+    if not settings.RELAY_FROM_ADDRESS:
+        raise ValueError(
+            "Must set settings.RELAY_FROM_ADDRESS to send disabled_mask_for_spam email."
+        )
+    try:
+        ses_send_raw_email(
+            source_address=settings.RELAY_FROM_ADDRESS,
+            destination_address=mask.user.email,
+            message=msg,
+        )
+    except ClientError as e:
+        logger.error("reply_not_allowed_ses_client_error", extra=e.response["Error"])
+    incr_if_enabled("free_user_reply_attempt", 1)
+
+
+def _disable_masks_for_complaint(message_json: dict, user: User) -> None:
+    """
+    See https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#mail-object
+
+    message_json.mail.source contains the envelope MAIL FROM address from which the
+    original message was sent.
+
+    Relay sends emails From: "original-From" <relay-mask@mozmail.com>.
+
+    So, we can find the mask that sent the spam email by parsing the source value.
+    """
+    flag_name = "disable_mask_on_complaint"
+    _, _ = get_waffle_flag_model().objects.get_or_create(
+        name=flag_name,
+        defaults={
+            "note": (
+                "MPP-3119: When a Relay user marks an email as spam, disable the mask."
+            )
+        },
+    )
+    source = message_json.get("mail", {}).get("source", "")
+    # parseaddr is confused by 2 email addresses in the value, so use this
+    # regular expression to extract the mask address by searching for any relay domains
+    email_domains = get_domains_from_settings().values()
+    domain_pattern = "|".join(re.escape(domain) for domain in email_domains)
+    email_regex = rf"[\w\.-]+@(?:{domain_pattern})"
+    matches = re.findall(email_regex, source)
+    if not matches:
+        return
+    for mask_address in matches:
+        try:
+            address = _get_address(mask_address, False)
+            # ensure the mask belongs to the user for whom Relay received a complaint,
+            # and that they haven't already disabled the mask themselves.
+            if address.user != user or address.enabled is False:
+                continue
+            if flag_is_active_in_task(flag_name, address.user):
+                address.enabled = False
+                address.save()
+                _send_disabled_mask_for_spam_email(
+                    address, message_json.get("mail", {})
+                )
+        except (
+            ObjectDoesNotExist,
+            RelayAddress.DoesNotExist,
+            DomainAddress.DoesNotExist,
+        ):
+            logger.error(
+                "Received a complaint from a destination address that does not match "
+                "a Relay address.",
+            )
+
+
 def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     """
     Handle an AWS SES complaint notification.
+
+    Sets the user's auto_block_spam flag to True.
+
+    Disables the mask thru which the spam mail was forwarded, and sends an email to the
+    user to notify them the mask is disabled and can be re-enabled on their dashboard.
 
     For more information, see:
     https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
@@ -1580,7 +1710,7 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     * 200 response if all match or none are given
 
     Emits a counter metric "email_complaint" with these tags:
-    * complaint_subtype: 'onaccounsuppressionlist', or 'none' if omitted
+    * complaint_subtype: 'onaccountsuppressionlist', or 'none' if omitted
     * complaint_feedback - feedback enumeration from ISP or 'none'
     * user_match: 'found', 'missing', error states 'no_address' and 'no_recipients'
     * relay_action: 'no_action', 'auto_block_spam'
@@ -1633,6 +1763,8 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         data["relay_action"] = "auto_block_spam"
         profile.auto_block_spam = True
         profile.save()
+
+        _disable_masks_for_complaint(message_json, user)
 
     if not complaint_data:
         # Data when there are no identified recipients
