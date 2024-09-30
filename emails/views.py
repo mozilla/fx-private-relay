@@ -1672,8 +1672,9 @@ def _disable_masks_for_complaint(message_json: dict, user: User) -> None:
     for mask_address in matches:
         try:
             address = _get_address(mask_address, False)
-            # ensure the mask belongs to the user for whom Relay received a complaint
-            if address.user != user:
+            # ensure the mask belongs to the user for whom Relay received a complaint,
+            # and that they haven't already disabled the mask themselves.
+            if address.user != user or address.enabled is False:
                 continue
             if flag_is_active_in_task(flag_name, address.user):
                 address.enabled = False
