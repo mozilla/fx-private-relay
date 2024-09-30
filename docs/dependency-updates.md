@@ -228,7 +228,7 @@ This is the interface library for Amazon Web Services (AWS). This library is
 generated from the API definition files, and has multiple patch updates most
 weeks. A successful CI test run means the upgrade is OK.
 
-See the upgrade notes for a taste of the changes AWS developers are making to
+See the changelog notes for a taste of the changes AWS developers are making to
 the services we use. We use clients for the following services in code:
 
 - S3 - Simple Storage Service
@@ -242,6 +242,13 @@ We use these additional AWS services in the Relay system:
 - KMS - Key Management Service
 - Route53 - Domain Name Service
 - SNS - Simple Notification Service
+
+It's a good idea to search the changelog for any changes to these services between the
+current library version that Relay uses and the version in the dependency update PR.
+
+Because the boto3 library and release notes are so large, you may have trouble reading
+them in the GitHub website UI. If so, you can view the raw changelog here:
+https://raw.githubusercontent.com/boto/boto3/develop/CHANGELOG.rst
 
 ### django
 
