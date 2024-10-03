@@ -260,10 +260,16 @@ export class DashboardPage {
       await this.premiumRandomMask.click();
     }
 
-    // Wait for the mask card count to increase, or the error banner
-    expect(
-      this.bannerEmailError.or(maskCards.nth(preMaskCardsCount)),
-    ).toBeVisible({ timeout: 3000 });
+    if (preMaskCardsCount === 0) {
+      // Wait for the first mask card
+      expect(maskCards).toBeVisible({ timeout: 3000 });
+    } else {
+      // Wait for the mask card count to increase, or the error banner
+      expect(
+        this.bannerEmailError.or(maskCards.nth(preMaskCardsCount)),
+      ).toBeVisible({ timeout: 3000 });
+    }
+
     expect(
       this.bannerEmailError,
       "No mask error banner. If fails, maybe rate-limited?",
