@@ -11,10 +11,21 @@ class RelaySaferExceptionReporterFilter(SafeExceptionReporterFilter):
     """
 
     # Hide any variable value that starts with these prefixes
-    UNSAFE_PREFIXES = ["AWS_", "IQ_", "TWILIO_"]
+    UNSAFE_PREFIXES = ["AWS_", "IQ_", "TWILIO_", "REDIS_"]
 
     # Hide any variable value named in this list
-    UNSAFE_NAMES = ["ALLOWED_ACCOUNTS", "ALLOWED_HOSTS", "DJANGO_ALLOWED_HOSTS"]
+    UNSAFE_NAMES = [
+        # Settings
+        "ALLOWED_ACCOUNTS",
+        "ALLOWED_HOSTS",
+        "DJANGO_ALLOWED_HOSTS",
+        # Environment Variables / META
+        "CSRF_COOKIE",
+        "DATABASE_URL",
+        "DJANGO_ALLOWED_HOST",
+        "GOOGLE_CLOUD_PROFILER_CREDENTIALS_B64",
+        "SENTRY_DSN",
+    ]
 
     hidden_settings = re.compile(
         "API|TOKEN|KEY|SECRET|PASS|SIGNATURE|HTTP_COOKIE|"

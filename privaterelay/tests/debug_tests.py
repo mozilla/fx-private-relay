@@ -1,4 +1,6 @@
 from django.conf import settings
+from django.http import HttpRequest
+from django.test import RequestFactory
 from django.views.debug import get_default_exception_reporter_filter
 
 import pytest
@@ -72,3 +74,53 @@ def test_unsafe_settings(name: str) -> None:
     assert name in safe_settings
     assert safe_settings[name] != getattr(settings, name)
     assert safe_settings[name] == RelaySaferExceptionReporterFilter.cleansed_substitute
+
+
+@pytest.fixture
+def meta_request(rf: RequestFactory) -> HttpRequest:
+    request = rf.get(
+        path="/meta-test",
+        CSRF_COOKIE="cross-site-request-forgery-cookie",
+        DATABASE_URL="postgres://user:pass@db.example.com:5432/relay_db",
+        DJANGO_ALLOWED_HOST="relay.example.com",
+        GOOGLE_CLOUD_PROFILER_CREDENTIALS_B64="eyJwYXNzd29yZCI6ICJzZWNyZXQifQo=",
+        REDIS_TEMPORARY_URL="redis://user:pass@redis.example.com:10001",
+        REDIS_TLS_URL="rediss://user:pass@redis.example.com:10001",
+        REDIS_URL="redis://user:pass@redis.example.com:10001",
+        SENTRY_DSN="https://code@ingest.sentry.example.com/long_number",
+    )
+    return request
+
+
+@pytest.mark.parametrize(
+    "name",
+    (
+        "REMOTE_ADDR",
+        "SCRIPT_NAME",
+        "wsgi.version",
+    ),
+)
+def test_safe_meta(name: str, meta_request: HttpRequest) -> None:
+    safe_meta = RelaySaferExceptionReporterFilter().get_safe_request_meta(meta_request)
+    assert name in safe_meta
+    assert safe_meta[name] == meta_request.META[name]
+
+
+@pytest.mark.parametrize(
+    "name",
+    (
+        "CSRF_COOKIE",
+        "DATABASE_URL",
+        "DJANGO_ALLOWED_HOST",
+        "GOOGLE_CLOUD_PROFILER_CREDENTIALS_B64",
+        "REDIS_TEMPORARY_URL",
+        "REDIS_TLS_URL",
+        "REDIS_URL",
+        "SENTRY_DSN",
+    ),
+)
+def test_unsafe_meta(name: str, meta_request: HttpRequest) -> None:
+    safe_meta = RelaySaferExceptionReporterFilter().get_safe_request_meta(meta_request)
+    assert name in safe_meta
+    assert safe_meta[name] != meta_request.META[name]
+    assert safe_meta[name] == RelaySaferExceptionReporterFilter.cleansed_substitute
