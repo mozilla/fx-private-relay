@@ -19,10 +19,14 @@ class RelaySaferExceptionReporterFilter(SafeExceptionReporterFilter):
         "ALLOWED_ACCOUNTS",
         "ALLOWED_HOSTS",
         "DJANGO_ALLOWED_HOSTS",
+        "INTERNAL_IPS",
         # Environment Variables / META
         "CSRF_COOKIE",
         "DATABASE_URL",
         "DJANGO_ALLOWED_HOST",
+        "DJANGO_ALLOWED_SUBNET",
+        "DJANGO_INTERNAL_IPS",
+        "GOOGLE_APPLICATION_CREDENTIALS",
         "GOOGLE_CLOUD_PROFILER_CREDENTIALS_B64",
         "SENTRY_DSN",
     ]
