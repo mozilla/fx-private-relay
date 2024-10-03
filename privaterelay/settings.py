@@ -91,6 +91,9 @@ if DEBUG:
     INTERNAL_IPS = config("DJANGO_INTERNAL_IPS", default="", cast=Csv())
 IN_PYTEST: bool = "pytest" in sys.modules
 USE_SILK = DEBUG and HAS_SILK and not IN_PYTEST
+DEFAULT_EXCEPTION_REPORTER_FILTER = (
+    "privaterelay.debug.RelaySaferExceptionReporterFilter"
+)
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
