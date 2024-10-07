@@ -47,7 +47,7 @@
     "@types/react": "^18.3.10",
     "babel-jest": "^29.7.0",
     "eslint": "^8.57.1",
-    "eslint-config-next": "^14.2.13",
+    "eslint-config-next": "^14.2.14",
     "eslint-plugin-jest-dom": "^5.4.0",
     "eslint-plugin-testing-library": "^6.3.0",
     "husky": "^9.1.6",
