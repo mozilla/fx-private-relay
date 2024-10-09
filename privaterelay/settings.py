@@ -479,13 +479,12 @@ HARD_BOUNCE_ALLOWED_DAYS: int = config("HARD_BOUNCE_ALLOWED_DAYS", 30, cast=int)
 WSGI_APPLICATION = "privaterelay.wsgi.application"
 
 # Database
-# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
+# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    "default": dj_database_url.config(
-        default="sqlite:///{}".format(os.path.join(BASE_DIR, "db.sqlite3"))
-    )
-}
+DATABASE_URL = config(
+    "DATABASE_URL", default="sqlite:///{}".format(os.path.join(BASE_DIR, "db.sqlite3"))
+)
+DATABASES = {"default": dj_database_url.parse(DATABASE_URL)}
 # Optionally set a test database name.
 # This is useful for forcing an on-disk database for SQLite.
 TEST_DB_NAME = config("TEST_DB_NAME", "")
