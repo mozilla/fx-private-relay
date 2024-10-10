@@ -176,11 +176,14 @@ def create_notification_from_email(email_text: str) -> AWS_SNSMessageJSON:
         message_id = None
     # This function cannot handle malformed To: addresses
     assert not getattr(email["To"], "defects")
+    email_date = (
+        getattr(email["Date"], "datetime") if "Date" in email else datetime.now()
+    )
 
     sns_message = {
         "notificationType": "Received",
         "mail": {
-            "timestamp": getattr(email["Date"], "datetime").isoformat(),
+            "timestamp": email_date.isoformat(),
             # To handle invalid From address, find 'first' address with what looks like
             # an email portion and use that email, or fallback to invalid@example.com
             "source": next(
@@ -209,9 +212,7 @@ def create_notification_from_email(email_text: str) -> AWS_SNSMessageJSON:
             },
         },
         "receipt": {
-            "timestamp": (
-                getattr(email["Date"], "datetime") + timedelta(seconds=1)
-            ).isoformat(),
+            "timestamp": (email_date + timedelta(seconds=1)).isoformat(),
             "processingTimeMillis": 1001,
             "recipients": [
                 addr.addr_spec for addr in getattr(email["To"], "addresses")
@@ -232,9 +233,7 @@ def create_notification_from_email(email_text: str) -> AWS_SNSMessageJSON:
         "TopicArn": topic_arn,
         "Subject": str(getattr(email["Subject"], "as_unstructured")),
         "Message": json.dumps(sns_message),
-        "Timestamp": (
-            getattr(email["Date"], "datetime") + timedelta(seconds=2)
-        ).isoformat(),
+        "Timestamp": (email_date + timedelta(seconds=2)).isoformat(),
         "SignatureVersion": "1",
         "Signature": "invalid-signature",
         "SigningCertURL": f"{base_url}/SimpleNotificationService-abcd1234.pem",
@@ -1072,16 +1071,10 @@ class ComplaintHandlingTest(TestCase):
             RelayAddress, user=self.user, address="ebsbdsan7", domain=2
         )
 
-        # TODO: Change to EMAIL_EXPECTED
         russian_spam_notification = create_notification_from_email(
-            EMAIL_INCOMING["russian_spam"]
+            EMAIL_EXPECTED["russian_spam"]
         )
-        spam_mail_content = json.loads(
-            russian_spam_notification.get("Message", "")
-        ).get("mail", {})
-        spam_mail_content["source"] = (
-            f"hello@ac.spam.example.com [via Relay] <{self.ra.full_address}>"
-        )
+        spam_mail_content = json.loads(russian_spam_notification["Message"])["mail"]
 
         complaint = {
             "notificationType": "Complaint",
