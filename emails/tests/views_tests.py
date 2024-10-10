@@ -1071,6 +1071,18 @@ class ComplaintHandlingTest(TestCase):
         self.ra = baker.make(
             RelayAddress, user=self.user, address="ebsbdsan7", domain=2
         )
+
+        # TODO: Change to EMAIL_EXPECTED
+        russian_spam_notification = create_notification_from_email(
+            EMAIL_INCOMING["russian_spam"]
+        )
+        spam_mail_content = json.loads(
+            russian_spam_notification.get("Message", "")
+        ).get("mail", {})
+        spam_mail_content["source"] = (
+            f"hello@ac.spam.example.com [via Relay] <{self.ra.full_address}>"
+        )
+
         complaint = {
             "notificationType": "Complaint",
             "complaint": {
@@ -1083,6 +1095,7 @@ class ComplaintHandlingTest(TestCase):
                     "000001378603177f-18c07c78-fa81-4a58-9dd1-fedc3cb8f49a-000000"
                 ),
             },
+            "mail": spam_mail_content,
         }
         self.complaint_body = {"Message": json.dumps(complaint)}
         ses_client_patcher = patch(
@@ -1150,25 +1163,10 @@ class ComplaintHandlingTest(TestCase):
             1. sets enabled=False on the mask, and
             2. returns 200.
         """
-        # The top-level JSON object for complaints includes a "mail" field
-        # which contains information about the original mail to which the notification
-        # pertains. So, add a "mail" field with content from our russian_spam fixture
-        russian_spam_notification = create_notification_from_email(
-            EMAIL_INCOMING["russian_spam"]
-        )
-        spam_mail_content = json.loads(
-            russian_spam_notification.get("Message", "")
-        ).get("mail", {})
-        spam_mail_content["source"] = (
-            f"hello@ac.spam.example.com [via Relay] <{self.ra.full_address}>"
-        )
-        complaint_body_message = json.loads(self.complaint_body["Message"])
-        complaint_body_message["mail"] = spam_mail_content
-        complaint_body_with_spam_mail = {"Message": json.dumps(complaint_body_message)}
         assert self.ra.enabled is True
 
         with self.assertLogs(INFO_LOG) as logs, MetricsMock() as mm:
-            response = _sns_notification(complaint_body_with_spam_mail)
+            response = _sns_notification(self.complaint_body)
         assert response.status_code == 200
 
         self.ra.refresh_from_db()
