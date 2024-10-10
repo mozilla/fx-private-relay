@@ -1068,6 +1068,9 @@ class ComplaintHandlingTest(TestCase):
         self.sa: SocialAccount = baker.make(
             SocialAccount, user=self.user, provider="fxa", uid=str(uuid4())
         )
+        self.ra = baker.make(
+            RelayAddress, user=self.user, address="ebsbdsan7", domain=2
+        )
         complaint = {
             "notificationType": "Complaint",
             "complaint": {
@@ -1147,10 +1150,6 @@ class ComplaintHandlingTest(TestCase):
             1. sets enabled=False on the mask, and
             2. returns 200.
         """
-        self.ra = baker.make(
-            RelayAddress, user=self.user, address="ebsbdsan7", domain=2
-        )
-
         # The top-level JSON object for complaints includes a "mail" field
         # which contains information about the original mail to which the notification
         # pertains. So, add a "mail" field with content from our russian_spam fixture
@@ -1209,11 +1208,6 @@ class ComplaintHandlingTest(TestCase):
             "user_match": "found",
             "fxa_id": self.sa.uid,
         }
-
-        # re-enable the mask for other tests
-        self.ra.enabled = True
-        self.ra.save()
-        self.ra.refresh_from_db()
 
     def test_build_disabled_mask_for_spam_email(self):
         free_user = make_free_test_user("testreal@email.com")
