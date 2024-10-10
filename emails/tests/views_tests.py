@@ -1877,7 +1877,7 @@ class GetAddressTest(TestCase):
         An unknown but valid domain address is created.
 
         This supports creating domain addresses on third-party sites, when
-        emailing a checkout reciept, or other situations when the email
+        emailing a checkout receipt, or other situations when the email
         cannot be pre-created.
         """
         assert DomainAddress.objects.filter(user=self.user).count() == 1
@@ -1910,7 +1910,7 @@ class GetAddressTest(TestCase):
         This creates a new domain address with lower-cased letters. It supports
         creating domain addresses by third-parties that would not be allowed
         on the relay dashboard due to the upper-case characters, but are still
-        consistent with dashboard-created domain adddresses.
+        consistent with dashboard-created domain addresses.
         """
         assert DomainAddress.objects.filter(user=self.user).count() == 1
         with self.assertLogs(GLEAN_LOG, "INFO") as caplog:
