@@ -1115,6 +1115,8 @@ class ComplaintHandlingTest(TestCase):
         self.user.profile.refresh_from_db()
         assert self.user.profile.auto_block_spam is True
 
+        self.ra.refresh_from_db()
+        assert self.ra.enabled
         self.mock_ses_client.send_raw_email.assert_not_called()
 
         mm.assert_incr_once(
@@ -1147,6 +1149,11 @@ class ComplaintHandlingTest(TestCase):
         with self.assertLogs(INFO_LOG) as logs:
             _sns_notification(self.complaint_body)
 
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam is True
+
+        self.ra.refresh_from_db()
+        assert self.ra.enabled
         self.mock_ses_client.send_raw_email.assert_not_called()
 
         log_data = log_extra(logs.records[0])
@@ -1165,6 +1172,9 @@ class ComplaintHandlingTest(TestCase):
         with self.assertLogs(INFO_LOG) as logs, MetricsMock() as mm:
             response = _sns_notification(self.complaint_body)
         assert response.status_code == 200
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam is True
 
         self.ra.refresh_from_db()
         assert self.ra.enabled is False
