@@ -1170,19 +1170,15 @@ class ComplaintHandlingTest(TestCase):
         assert response.status_code == 200
 
         self.ra.refresh_from_db()
-        source = self.mock_ses_client.send_raw_email.call_args.kwargs["Source"]
-        destinations = self.mock_ses_client.send_raw_email.call_args.kwargs[
-            "Destinations"
-        ]
-        raw_message = self.mock_ses_client.send_raw_email.call_args.kwargs["RawMessage"]
-        data_without_newlines = raw_message["Data"].replace("\n", "")
-
         assert self.ra.enabled is False
+
         self.mock_ses_client.send_raw_email.assert_called_once()
-        assert source == settings.RELAY_FROM_ADDRESS
-        assert destinations == [self.ra.user.email]
-        assert "To prevent further spam" in data_without_newlines
-        assert self.ra.full_address in data_without_newlines
+        call = self.mock_ses_client.send_raw_email.call_args
+        assert call.kwargs["Source"] == settings.RELAY_FROM_ADDRESS
+        assert call.kwargs["Destinations"] == [self.user.email]
+        msg_without_newlines = call.kwargs["RawMessage"]["Data"].replace("\n", "")
+        assert "To prevent further spam" in msg_without_newlines
+        assert self.ra.full_address in msg_without_newlines
 
         mm.assert_incr_once(
             "fx.private.relay.email_complaint",
