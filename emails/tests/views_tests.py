@@ -1122,6 +1122,8 @@ class ComplaintHandlingTest(TestCase):
         self.user.profile.refresh_from_db()
         assert self.user.profile.auto_block_spam is True
 
+        self.mock_ses_client.send_raw_email.assert_not_called()
+
         mm.assert_incr_once(
             "fx.private.relay.email_complaint",
             tags=[
@@ -1151,6 +1153,8 @@ class ComplaintHandlingTest(TestCase):
 
         with self.assertLogs(INFO_LOG) as logs:
             _sns_notification(self.complaint_body)
+
+        self.mock_ses_client.send_raw_email.assert_not_called()
 
         log_data = log_extra(logs.records[0])
         assert log_data["user_match"] == "found"
