@@ -1168,7 +1168,8 @@ class ComplaintHandlingTest(TestCase):
         complaint_body_with_spam_mail = {"Message": json.dumps(complaint_body_message)}
         assert self.ra.enabled is True
 
-        response = _sns_notification(complaint_body_with_spam_mail)
+        with self.assertLogs(INFO_LOG) as logs, MetricsMock() as mm:
+            response = _sns_notification(complaint_body_with_spam_mail)
         assert response.status_code == 200
 
         self.ra.refresh_from_db()
@@ -1185,6 +1186,29 @@ class ComplaintHandlingTest(TestCase):
         assert destinations == [self.ra.user.email]
         assert "To prevent further spam" in data_without_newlines
         assert self.ra.full_address in data_without_newlines
+
+        mm.assert_incr_once(
+            "fx.private.relay.email_complaint",
+            tags=[
+                "complaint_subtype:none",
+                "complaint_feedback:abuse",
+                "user_match:found",
+                "relay_action:auto_block_spam",
+            ],
+        )
+        assert len(logs.records) == 1
+        record = logs.records[0]
+        assert record.msg == "complaint_notification"
+        log_data = log_extra(record)
+        assert log_data == {
+            "complaint_feedback": "abuse",
+            "complaint_subtype": None,
+            "complaint_user_agent": "ExampleCorp Feedback Loop (V0.01)",
+            "domain": "test.com",
+            "relay_action": "auto_block_spam",
+            "user_match": "found",
+            "fxa_id": self.sa.uid,
+        }
 
         # re-enable the mask for other tests
         self.ra.enabled = True
