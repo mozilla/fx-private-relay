@@ -500,7 +500,7 @@ def _get_relay_recipient_from_message_json(message_json):
     # Go thru all To, Cc, and Bcc fields and
     # return the one that has a Relay domain
 
-    # First check commmon headers for to or cc match
+    # First check common headers for to or cc match
     headers_to_check = "to", "cc"
     common_headers = message_json["mail"]["commonHeaders"]
     for header in headers_to_check:
@@ -831,7 +831,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             message=forwarded_email,
         )
     except ClientError:
-        # 503 service unavailable reponse to SNS so it can retry
+        # 503 service unavailable response to SNS so it can retry
         log_email_dropped(reason="error_sending", mask=address, can_retry=True)
         return HttpResponse("SES client error on Raw Email", status=503)
 
