@@ -14,7 +14,7 @@ from email.utils import parseaddr
 from io import StringIO
 from json import JSONDecodeError
 from textwrap import dedent
-from typing import Any, Literal
+from typing import Any, Literal, NamedTuple
 from urllib.parse import urlencode
 
 from django.conf import settings
@@ -776,30 +776,9 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         # we are returning a 503 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
-    # Developer mode overrides
-    dev_action = None
-    if flag_is_active_in_task("developer_mode", address.user):
-        if "DEV:" in address.description:
-            dev_action = "log"
-        if "DEV:simulate_complaint" in address.description:
-            dev_action = "simulate_complaint"
-            destination_address = f"complaint+{address.address}@simulator.amazonses.com"
-    if dev_action:
-        notification_gza85 = base64.a85encode(
-            zlib.compress(json.dumps(message_json).encode()), wrapcol=1024, pad=True
-        ).decode("ascii")
-        total_parts = notification_gza85.count("\n") + 1
-        for partnum, part in enumerate(notification_gza85.splitlines()):
-            info_logger.info(
-                "_handle_received: developer_mode",
-                extra={
-                    "mask_id": address.metrics_id,
-                    "dev_action": dev_action,
-                    "part": partnum,
-                    "parts": total_parts,
-                    "notification_gza85": part,
-                },
-            )
+    dev_action = _developer_action("received", address, message_json)
+    if dev_action and dev_action.new_destination_address:
+        destination_address = dev_action.new_destination_address
 
     # Convert to new email
     headers: OutgoingHeaders = {
@@ -875,6 +854,51 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     )
     glean_logger().log_email_forwarded(mask=address, is_reply=False)
     return HttpResponse("Sent email to final recipient.", status=200)
+
+
+class DeveloperAction(NamedTuple):
+    action: Literal["log", "simulate_complaint"] = "log"
+    new_destination_address: str | None = None
+
+
+def _developer_action(
+    handler: Literal["received", "complaint", "bounce"],
+    mask: RelayAddress | DomainAddress,
+    notification: dict[str, Any],
+) -> DeveloperAction | None:
+    """Check if developer mode actions should be taken for this mask."""
+    if not (
+        flag_is_active_in_task("developer_mode", mask.user)
+        and "DEV:" in mask.description
+    ):
+        return None
+
+    # Determine which action to take
+    if "DEV:simulate_complaint" in mask.description:
+        action = DeveloperAction(
+            action="simulate_complaint",
+            new_destination_address=f"complaint+{mask.address}@simulator.amazonses.com",
+        )
+    else:
+        action = DeveloperAction(action="log")
+
+    # Log developer action, incoming notification
+    notification_gza85 = base64.a85encode(
+        zlib.compress(json.dumps(notification).encode()), wrapcol=1024, pad=True
+    ).decode("ascii")
+    total_parts = notification_gza85.count("\n") + 1
+    for partnum, part in enumerate(notification_gza85.splitlines()):
+        info_logger.info(
+            f"_handle_{handler}: developer_mode",
+            extra={
+                "mask_id": mask.metrics_id,
+                "dev_action": action.action,
+                "part": partnum,
+                "parts": total_parts,
+                "notification_gza85": part,
+            },
+        )
+    return action
 
 
 def _get_verdict(receipt, verdict_type):
