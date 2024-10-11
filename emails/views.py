@@ -867,60 +867,6 @@ class DeveloperModeAction(NamedTuple):
     new_destination_address: str | None = None
 
 
-def _get_developer_mode_action(
-    mask: RelayAddress | DomainAddress,
-) -> DeveloperModeAction | None:
-    """Get the developer mode actions for this mask, if enabled."""
-    if not (
-        flag_is_active_in_task("developer_mode", mask.user)
-        and "DEV:" in mask.description
-    ):
-        return None
-
-    # Determine which action to take
-    if "DEV:simulate_complaint" in mask.description:
-        action = DeveloperModeAction(
-            mask_id=mask.metrics_id,
-            action="simulate_complaint",
-            new_destination_address=f"complaint+{mask.address}@simulator.amazonses.com",
-        )
-    else:
-        action = DeveloperModeAction(mask_id=mask.metrics_id, action="log")
-    return action
-
-
-def _log_dev_notification(
-    log_message: str, dev_action: DeveloperModeAction, notification: dict[str, Any]
-) -> None:
-    """
-    Log notification JSON
-
-    This will log information beyond our privacy policy, so it should only be used on
-    Relay staff accounts with prior permission.
-
-    The notification JSON will be compressed, Ascii85-encoded with padding, and broken
-    into 1024-bytes chunks. This will ensure it fits into GCP's log entry, which has a
-    64KB limit per label value.
-    """
-
-    # Log developer action, incoming notification
-    notification_gza85 = base64.a85encode(
-        zlib.compress(json.dumps(notification).encode()), wrapcol=1024, pad=True
-    ).decode("ascii")
-    total_parts = notification_gza85.count("\n") + 1
-    for partnum, part in enumerate(notification_gza85.splitlines()):
-        info_logger.info(
-            log_message,
-            extra={
-                "mask_id": dev_action.mask_id,
-                "dev_action": dev_action.action,
-                "part": partnum,
-                "parts": total_parts,
-                "notification_gza85": part,
-            },
-        )
-
-
 def _get_verdict(receipt, verdict_type):
     return receipt[f"{verdict_type}Verdict"]["status"]
 
@@ -1007,6 +953,58 @@ def _get_email_bytes(
         histogram_if_enabled("relayed_email.size", len(message_content))
     load_time_s = round(load_timer.last, 3)
     return (message_content, transport, load_time_s)
+
+
+def _get_developer_mode_action(
+    mask: RelayAddress | DomainAddress,
+) -> DeveloperModeAction | None:
+    """Get the developer mode actions for this mask, if enabled."""
+    if not (
+        flag_is_active_in_task("developer_mode", mask.user)
+        and "DEV:" in mask.description
+    ):
+        return None
+
+    if "DEV:simulate_complaint" in mask.description:
+        action = DeveloperModeAction(
+            mask_id=mask.metrics_id,
+            action="simulate_complaint",
+            new_destination_address=f"complaint+{mask.address}@simulator.amazonses.com",
+        )
+    else:
+        action = DeveloperModeAction(mask_id=mask.metrics_id, action="log")
+    return action
+
+
+def _log_dev_notification(
+    log_message: str, dev_action: DeveloperModeAction, notification: dict[str, Any]
+) -> None:
+    """
+    Log notification JSON
+
+    This will log information beyond our privacy policy, so it should only be used on
+    Relay staff accounts with prior permission.
+
+    The notification JSON will be compressed, Ascii85-encoded with padding, and broken
+    into 1024-bytes chunks. This will ensure it fits into GCP's log entry, which has a
+    64KB limit per label value.
+    """
+
+    notification_gza85 = base64.a85encode(
+        zlib.compress(json.dumps(notification).encode()), wrapcol=1024, pad=True
+    ).decode("ascii")
+    total_parts = notification_gza85.count("\n") + 1
+    for partnum, part in enumerate(notification_gza85.splitlines()):
+        info_logger.info(
+            log_message,
+            extra={
+                "mask_id": dev_action.mask_id,
+                "dev_action": dev_action.action,
+                "part": partnum,
+                "parts": total_parts,
+                "notification_gza85": part,
+            },
+        )
 
 
 def _convert_to_forwarded_email(
