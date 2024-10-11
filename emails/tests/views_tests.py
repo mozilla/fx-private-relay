@@ -1278,6 +1278,37 @@ class ComplaintHandlingTest(TestCase):
             "fxa_id": self.sa.uid,
         }
 
+    @override_flag("developer_mode", active=True)
+    def test_complaint_mpp_3932(self):
+        """MPP-3932: Log notification for all complaints for developer_mode users."""
+        with self.assertLogs(INFO_LOG) as logs:
+            response = _sns_notification(self.complaint_body)
+        assert response.status_code == 200
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam is True
+        self.mock_ses_client.send_raw_email.assert_not_called()
+
+        assert len(logs.records) == 2
+        record_mpp_3932 = logs.records[0]
+        assert record_mpp_3932.msg == "_handle_complaint: MPP-3932"
+        assert getattr(record_mpp_3932, "mask_id") == "unknown"
+        assert getattr(record_mpp_3932, "dev_action") == "log"
+        assert getattr(record_mpp_3932, "parts") == 1
+        assert getattr(record_mpp_3932, "part") == 0
+        log_complaint = json.loads(
+            zlib.decompress(
+                base64.a85decode(
+                    getattr(record_mpp_3932, "notification_gza85").encode("ascii")
+                )
+            ).decode()
+        )
+        expected_log_complaint = json.loads(self.complaint_body["Message"])
+        assert log_complaint == expected_log_complaint
+
+        record = logs.records[1]
+        assert record.msg == "complaint_notification"
+
     def test_build_disabled_mask_for_spam_email(self):
         free_user = make_free_test_user("testreal@email.com")
         test_mask_address = "w41fwbt4q"

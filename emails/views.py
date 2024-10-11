@@ -1838,6 +1838,11 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         # Data when there are no identified recipients
         complaint_data = [{"user_match": "no_recipients", "relay_action": "no_action"}]
 
+    if flag_is_active_in_task("developer_mode", user):
+        # MPP-3932: We need more information to match complaints to masks
+        dev_action = DeveloperModeAction(mask_id="unknown", action="log")
+        _log_dev_notification("_handle_complaint: MPP-3932", dev_action, message_json)
+
     for data in complaint_data:
         tags = {
             "complaint_subtype": subtype or "none",
