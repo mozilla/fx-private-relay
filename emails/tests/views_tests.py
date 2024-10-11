@@ -8,6 +8,7 @@ from datetime import UTC, datetime, timedelta
 from email import message_from_string
 from email.message import EmailMessage
 from typing import Any, cast
+from unittest import expectedFailure
 from unittest._log import _LoggingWatcher
 from unittest.mock import Mock, patch
 from uuid import uuid4
@@ -761,6 +762,47 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         mock_logger.info.assert_called_once_with(
             "_handle_received: forwarding issues",
             extra={"issues": {"headers": expected_header_errors}},
+        )
+
+    @override_flag("developer_mode", active=True)
+    @patch("emails.views.info_logger")
+    def test_developer_mode_no_label(self, mock_logger: Mock) -> None:
+        """Developer mode does nothing special without mask label"""
+        _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
+        self.check_sent_email_matches_fixture(
+            "single_recipient",
+            expected_source="replies@default.com",
+            expected_destination="user@example.com",
+        )
+        self.ra.refresh_from_db()
+        assert self.ra.num_forwarded == 1
+        assert self.ra.last_used_at is not None
+        mock_logger.info.assert_not_called()
+
+    @override_flag("developer_mode", active=True)
+    @expectedFailure
+    @patch("emails.views.info_logger")
+    def test_developer_mode_simulate_complaint(self, mock_logger: Mock) -> None:
+        """Developer mode with 'DEV:simulate_complaint' label sends to simulator"""
+        self.ra.description = "test123 DEV:simulate_complaint"
+        self.ra.save()
+
+        _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
+        self.check_sent_email_matches_fixture(
+            "single_recipient",
+            expected_source="replies@default.com",
+            expected_destination="complaint@simulator.amazonses.com",
+        )
+        self.ra.refresh_from_db()
+        assert self.ra.num_forwarded == 1
+        assert self.ra.last_used_at is not None
+        mock_logger.info.assert_called_once_with(
+            "_handle_received: developer mode",
+            extra={
+                "mask_id": self.ra.metrics_id,
+                "dev_action": "simulate_complaint",
+                "notification_gzb64": "TODO",
+            },
         )
 
 
