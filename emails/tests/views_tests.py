@@ -1,14 +1,15 @@
+import base64
 import glob
 import json
 import logging
 import os
 import re
+import zlib
 from copy import deepcopy
 from datetime import UTC, datetime, timedelta
 from email import message_from_string
 from email.message import EmailMessage
 from typing import Any, cast
-from unittest import expectedFailure
 from unittest._log import _LoggingWatcher
 from unittest.mock import Mock, patch
 from uuid import uuid4
@@ -246,7 +247,10 @@ def create_notification_from_email(email_text: str) -> AWS_SNSMessageJSON:
 
 
 def assert_email_equals_fixture(
-    output_email: str, fixture_name: str, replace_mime_boundaries: bool = False
+    output_email: str,
+    fixture_name: str,
+    replace_mime_boundaries: bool = False,
+    fixture_replace: tuple[str, str] | None = None,
 ) -> None:
     """
     Assert the output equals the expected email, after optional replacements.
@@ -266,6 +270,12 @@ def assert_email_equals_fixture(
         test_output_email = _replace_mime_boundaries(output_email)
     else:
         test_output_email = output_email
+
+    # If requested, replace a string
+    if fixture_replace:
+        orig_str, new_str = fixture_replace
+        expected = expected.replace(orig_str, new_str)
+        fixture_name += "_MODIFIED"
 
     if test_output_email != expected:  # pragma: no cover
         # Write the actual output as an aid for debugging or fixture updates
@@ -361,6 +371,7 @@ class SNSNotificationTestBase(TestCase):
     def check_sent_email_matches_fixture(
         self,
         fixture_name: str,
+        fixture_replace: tuple[str, str] | None = None,
         replace_mime_boundaries: bool = False,
         expected_source: str | None = None,
         expected_destination: str | None = None,
@@ -384,7 +395,9 @@ class SNSNotificationTestBase(TestCase):
             assert source == expected_source
         if expected_destination is not None:
             assert destinations[0] == expected_destination
-        assert_email_equals_fixture(raw_message, fixture_name, replace_mime_boundaries)
+        assert_email_equals_fixture(
+            raw_message, fixture_name, replace_mime_boundaries, fixture_replace
+        )
 
 
 class SNSNotificationIncomingTest(SNSNotificationTestBase):
@@ -780,7 +793,6 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         mock_logger.info.assert_not_called()
 
     @override_flag("developer_mode", active=True)
-    @expectedFailure
     @patch("emails.views.info_logger")
     def test_developer_mode_simulate_complaint(self, mock_logger: Mock) -> None:
         """Developer mode with 'DEV:simulate_complaint' label sends to simulator"""
@@ -791,19 +803,33 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         self.check_sent_email_matches_fixture(
             "single_recipient",
             expected_source="replies@default.com",
-            expected_destination="complaint@simulator.amazonses.com",
+            expected_destination="complaint+ebsbdsan7@simulator.amazonses.com",
+            fixture_replace=(
+                "To: user@example.com",
+                "To: complaint+ebsbdsan7@simulator.amazonses.com",
+            ),
         )
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at is not None
-        mock_logger.info.assert_called_once_with(
-            "_handle_received: developer mode",
-            extra={
-                "mask_id": self.ra.metrics_id,
-                "dev_action": "simulate_complaint",
-                "notification_gzb64": "TODO",
-            },
+        parts = ["", "", "", ""]
+        for callnum, call in enumerate(mock_logger.info.mock_calls):
+            assert call.args == ("_handle_received: developer_mode",)
+            extra = call.kwargs["extra"]
+            assert extra["mask_id"] == self.ra.metrics_id
+            assert extra["dev_action"] == "simulate_complaint"
+            assert extra["part"] == callnum
+            assert extra["parts"] == 4
+            parts[extra["part"]] = extra["notification_gza85"]
+        log_notification = json.loads(
+            zlib.decompress(
+                base64.a85decode(("\n".join(parts)).encode("ascii"))
+            ).decode()
         )
+        expected_log_notification = json.loads(
+            EMAIL_SNS_BODIES["single_recipient"]["Message"]
+        )
+        assert log_notification == expected_log_notification
 
 
 class SNSNotificationRepliesTest(SNSNotificationTestBase):

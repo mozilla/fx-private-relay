@@ -1,8 +1,10 @@
+import base64
 import html
 import json
 import logging
 import re
 import shlex
+import zlib
 from copy import deepcopy
 from datetime import UTC, datetime
 from email import message_from_bytes
@@ -761,14 +763,6 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         log_email_dropped(reason="error_from_header", mask=address, can_retry=True)
         return HttpResponse("Cannot parse the From address", status=503)
 
-    headers: OutgoingHeaders = {
-        "Subject": subject,
-        "From": from_header,
-        "To": destination_address,
-        "Reply-To": reply_address,
-        "Resent-From": from_address,
-    }
-
     # Get incoming email
     try:
         (incoming_email_bytes, transport, load_time_s) = _get_email_bytes(message_json)
@@ -782,7 +776,39 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         # we are returning a 503 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
+    # Developer mode overrides
+    dev_action = None
+    if flag_is_active_in_task("developer_mode", address.user):
+        if "DEV:" in address.description:
+            dev_action = "log"
+        if "DEV:simulate_complaint" in address.description:
+            dev_action = "simulate_complaint"
+            destination_address = f"complaint+{address.address}@simulator.amazonses.com"
+    if dev_action:
+        notification_gza85 = base64.a85encode(
+            zlib.compress(json.dumps(message_json).encode()), wrapcol=1024, pad=True
+        ).decode("ascii")
+        total_parts = notification_gza85.count("\n") + 1
+        for partnum, part in enumerate(notification_gza85.splitlines()):
+            info_logger.info(
+                "_handle_received: developer_mode",
+                extra={
+                    "mask_id": address.metrics_id,
+                    "dev_action": dev_action,
+                    "part": partnum,
+                    "parts": total_parts,
+                    "notification_gza85": part,
+                },
+            )
+
     # Convert to new email
+    headers: OutgoingHeaders = {
+        "Subject": subject,
+        "From": from_header,
+        "To": destination_address,
+        "Reply-To": reply_address,
+        "Resent-From": from_address,
+    }
     sample_trackers = bool(sample_is_active("tracker_sample"))
     tracker_removal_flag = flag_is_active_in_task("tracker_removal", address.user)
     remove_level_one_trackers = bool(
