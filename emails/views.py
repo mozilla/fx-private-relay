@@ -959,9 +959,17 @@ def _get_developer_mode_action(
     mask: RelayAddress | DomainAddress,
 ) -> DeveloperModeAction | None:
     """Get the developer mode actions for this mask, if enabled."""
+
+    flag_name = "developer_mode"
+    _, _ = get_waffle_flag_model().objects.get_or_create(
+        name=flag_name,
+        defaults={
+            "note": "MPP-3932: Enable logging and overrides for Relay developers."
+        },
+    )
+
     if not (
-        flag_is_active_in_task("developer_mode", mask.user)
-        and "DEV:" in mask.description
+        flag_is_active_in_task(flag_name, mask.user) and "DEV:" in mask.description
     ):
         return None
 
