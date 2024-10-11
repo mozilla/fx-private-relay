@@ -179,7 +179,9 @@ def create_notification_from_email(email_text: str) -> AWS_SNSMessageJSON:
     # This function cannot handle malformed To: addresses
     assert not getattr(email["To"], "defects")
     email_date = (
-        getattr(email["Date"], "datetime") if "Date" in email else datetime.now()
+        getattr(email["Date"], "datetime")
+        if "Date" in email
+        else (datetime.now() - timedelta(minutes=5))
     )
 
     sns_message = {
