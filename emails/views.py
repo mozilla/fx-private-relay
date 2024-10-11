@@ -776,9 +776,14 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         # we are returning a 503 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
-    dev_action = _developer_action("received", address, message_json)
-    if dev_action and dev_action.new_destination_address:
-        destination_address = dev_action.new_destination_address
+    # Handle developer overrides, logging
+    dev_action = _get_developer_mode_action(address)
+    if dev_action:
+        if dev_action.new_destination_address:
+            destination_address = dev_action.new_destination_address
+        _log_dev_notification(
+            "_handle_received: developer_mode", dev_action, message_json
+        )
 
     # Convert to new email
     headers: OutgoingHeaders = {
@@ -856,17 +861,16 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     return HttpResponse("Sent email to final recipient.", status=200)
 
 
-class DeveloperAction(NamedTuple):
+class DeveloperModeAction(NamedTuple):
+    mask_id: str
     action: Literal["log", "simulate_complaint"] = "log"
     new_destination_address: str | None = None
 
 
-def _developer_action(
-    handler: Literal["received", "complaint", "bounce"],
+def _get_developer_mode_action(
     mask: RelayAddress | DomainAddress,
-    notification: dict[str, Any],
-) -> DeveloperAction | None:
-    """Check if developer mode actions should be taken for this mask."""
+) -> DeveloperModeAction | None:
+    """Get the developer mode actions for this mask, if enabled."""
     if not (
         flag_is_active_in_task("developer_mode", mask.user)
         and "DEV:" in mask.description
@@ -875,12 +879,29 @@ def _developer_action(
 
     # Determine which action to take
     if "DEV:simulate_complaint" in mask.description:
-        action = DeveloperAction(
+        action = DeveloperModeAction(
+            mask_id=mask.metrics_id,
             action="simulate_complaint",
             new_destination_address=f"complaint+{mask.address}@simulator.amazonses.com",
         )
     else:
-        action = DeveloperAction(action="log")
+        action = DeveloperModeAction(mask_id=mask.metrics_id, action="log")
+    return action
+
+
+def _log_dev_notification(
+    log_message: str, dev_action: DeveloperModeAction, notification: dict[str, Any]
+) -> None:
+    """
+    Log notification JSON
+
+    This will log information beyond our privacy policy, so it should only be used on
+    Relay staff accounts with prior permission.
+
+    The notification JSON will be compressed, Ascii85-encoded with padding, and broken
+    into 1024-bytes chunks. This will ensure it fits into GCP's log entry, which has a
+    64KB limit per label value.
+    """
 
     # Log developer action, incoming notification
     notification_gza85 = base64.a85encode(
@@ -889,16 +910,15 @@ def _developer_action(
     total_parts = notification_gza85.count("\n") + 1
     for partnum, part in enumerate(notification_gza85.splitlines()):
         info_logger.info(
-            f"_handle_{handler}: developer_mode",
+            log_message,
             extra={
-                "mask_id": mask.metrics_id,
-                "dev_action": action.action,
+                "mask_id": dev_action.mask_id,
+                "dev_action": dev_action.action,
                 "part": partnum,
                 "parts": total_parts,
                 "notification_gza85": part,
             },
         )
-    return action
 
 
 def _get_verdict(receipt, verdict_type):
