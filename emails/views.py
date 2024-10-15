@@ -12,7 +12,7 @@ from email.utils import parseaddr
 from io import StringIO
 from json import JSONDecodeError
 from textwrap import dedent
-from typing import Any, Literal
+from typing import Any, Literal, NamedTuple
 from urllib.parse import urlencode
 
 from django.conf import settings
@@ -66,6 +66,7 @@ from .utils import (
     count_all_trackers,
     decrypt_reply_metadata,
     derive_reply_keys,
+    encode_dict_gza85,
     encrypt_reply_metadata,
     generate_from_header,
     get_domains_from_settings,
@@ -498,7 +499,7 @@ def _get_relay_recipient_from_message_json(message_json):
     # Go thru all To, Cc, and Bcc fields and
     # return the one that has a Relay domain
 
-    # First check commmon headers for to or cc match
+    # First check common headers for to or cc match
     headers_to_check = "to", "cc"
     common_headers = message_json["mail"]["commonHeaders"]
     for header in headers_to_check:
@@ -761,14 +762,6 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         log_email_dropped(reason="error_from_header", mask=address, can_retry=True)
         return HttpResponse("Cannot parse the From address", status=503)
 
-    headers: OutgoingHeaders = {
-        "Subject": subject,
-        "From": from_header,
-        "To": destination_address,
-        "Reply-To": reply_address,
-        "Resent-From": from_address,
-    }
-
     # Get incoming email
     try:
         (incoming_email_bytes, transport, load_time_s) = _get_email_bytes(message_json)
@@ -782,7 +775,23 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         # we are returning a 503 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
+    # Handle developer overrides, logging
+    dev_action = _get_developer_mode_action(address)
+    if dev_action:
+        if dev_action.new_destination_address:
+            destination_address = dev_action.new_destination_address
+        _log_dev_notification(
+            "_handle_received: developer_mode", dev_action, message_json
+        )
+
     # Convert to new email
+    headers: OutgoingHeaders = {
+        "Subject": subject,
+        "From": from_header,
+        "To": destination_address,
+        "Reply-To": reply_address,
+        "Resent-From": from_address,
+    }
     sample_trackers = bool(sample_is_active("tracker_sample"))
     tracker_removal_flag = flag_is_active_in_task("tracker_removal", address.user)
     remove_level_one_trackers = bool(
@@ -821,7 +830,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             message=forwarded_email,
         )
     except ClientError:
-        # 503 service unavailable reponse to SNS so it can retry
+        # 503 service unavailable response to SNS so it can retry
         log_email_dropped(reason="error_sending", mask=address, can_retry=True)
         return HttpResponse("SES client error on Raw Email", status=503)
 
@@ -849,6 +858,12 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     )
     glean_logger().log_email_forwarded(mask=address, is_reply=False)
     return HttpResponse("Sent email to final recipient.", status=200)
+
+
+class DeveloperModeAction(NamedTuple):
+    mask_id: str
+    action: Literal["log", "simulate_complaint"] = "log"
+    new_destination_address: str | None = None
 
 
 def _get_verdict(receipt, verdict_type):
@@ -937,6 +952,64 @@ def _get_email_bytes(
         histogram_if_enabled("relayed_email.size", len(message_content))
     load_time_s = round(load_timer.last, 3)
     return (message_content, transport, load_time_s)
+
+
+def _get_developer_mode_action(
+    mask: RelayAddress | DomainAddress,
+) -> DeveloperModeAction | None:
+    """Get the developer mode actions for this mask, if enabled."""
+
+    flag_name = "developer_mode"
+    _, _ = get_waffle_flag_model().objects.get_or_create(
+        name=flag_name,
+        defaults={
+            "note": "MPP-3932: Enable logging and overrides for Relay developers."
+        },
+    )
+
+    if not (
+        flag_is_active_in_task(flag_name, mask.user) and "DEV:" in mask.description
+    ):
+        return None
+
+    if "DEV:simulate_complaint" in mask.description:
+        action = DeveloperModeAction(
+            mask_id=mask.metrics_id,
+            action="simulate_complaint",
+            new_destination_address=f"complaint+{mask.address}@simulator.amazonses.com",
+        )
+    else:
+        action = DeveloperModeAction(mask_id=mask.metrics_id, action="log")
+    return action
+
+
+def _log_dev_notification(
+    log_message: str, dev_action: DeveloperModeAction, notification: dict[str, Any]
+) -> None:
+    """
+    Log notification JSON
+
+    This will log information beyond our privacy policy, so it should only be used on
+    Relay staff accounts with prior permission.
+
+    The notification JSON will be compressed, Ascii85-encoded with padding, and broken
+    into 1024-bytes chunks. This will ensure it fits into GCP's log entry, which has a
+    64KB limit per label value.
+    """
+
+    notification_gza85 = encode_dict_gza85(notification)
+    total_parts = notification_gza85.count("\n") + 1
+    for partnum, part in enumerate(notification_gza85.splitlines()):
+        info_logger.info(
+            log_message,
+            extra={
+                "mask_id": dev_action.mask_id,
+                "dev_action": dev_action.action,
+                "part": partnum,
+                "parts": total_parts,
+                "notification_gza85": part,
+            },
+        )
 
 
 def _convert_to_forwarded_email(
@@ -1769,6 +1842,11 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     if not complaint_data:
         # Data when there are no identified recipients
         complaint_data = [{"user_match": "no_recipients", "relay_action": "no_action"}]
+
+    if flag_is_active_in_task("developer_mode", user):
+        # MPP-3932: We need more information to match complaints to masks
+        dev_action = DeveloperModeAction(mask_id="unknown", action="log")
+        _log_dev_notification("_handle_complaint: MPP-3932", dev_action, message_json)
 
     for data in complaint_data:
         tags = {

@@ -1,4 +1,7 @@
+import base64
 import json
+import random
+import zlib
 from base64 import b64encode
 from typing import Literal, TypedDict
 from unittest.mock import patch
@@ -10,6 +13,8 @@ import pytest
 
 from emails.utils import (
     InvalidFromHeader,
+    decode_dict_gza85,
+    encode_dict_gza85,
     generate_from_header,
     get_domains_from_settings,
     get_email_domain_from_settings,
@@ -391,3 +396,58 @@ class RemoveTrackers(TestCase):
         assert changed_content == content
         assert general_removed == 0
         assert general_count == 0
+
+
+def test_encode_dict_gza85() -> None:
+    data = {"key": "value"}
+    encoded = encode_dict_gza85(data)
+    assert encoded == "Gatg8b\"f'<Z;OLK9?\\hZ<N63&/$B+B"
+    decoded = decode_dict_gza85(encoded)
+    assert decoded == data
+
+
+def test_encode_dict_gza85_large_value() -> None:
+    data = {
+        "key": "value",
+        "random_strings": [
+            base64.encodebytes(random.randbytes(32)).decode() for _ in range(100)
+        ],
+    }
+    encoded = encode_dict_gza85(data)
+    assert len(encoded) > 1024
+    assert "\n" in encoded
+    decoded = decode_dict_gza85(encoded)
+    assert decoded == data
+
+
+DECODE_DICT_GZA85_ERROR_CASES = {
+    "invalid_zlib": ("ascii85_garbage", zlib.error, "incorrect header check"),
+    "invalid_a85": ("v_is_invalid_ASCII85", ValueError, "Non-Ascii85 digit found: v"),
+    "not_json": (
+        base64.a85encode(zlib.compress(b"[This] is {not} JSON"), pad=True).decode(),
+        ValueError,
+        "Expecting value: line 1 column 2",
+    ),
+    "not_json_dict": (
+        base64.a85encode(zlib.compress(b'["A", "list"]'), pad=True).decode(),
+        ValueError,
+        "Encoded data is not a dict",
+    ),
+    "non_string_key": (
+        base64.a85encode(zlib.compress(b'{1: "One"}'), pad=True).decode(),
+        ValueError,
+        "Expecting property name enclosed in double quotes",
+    ),
+}
+
+
+@pytest.mark.parametrize(
+    "invalid_encoded, expected_error, expected_regex",
+    DECODE_DICT_GZA85_ERROR_CASES.values(),
+    ids=DECODE_DICT_GZA85_ERROR_CASES.keys(),
+)
+def test_decode_dict_gza85_invalid_encoded_raises(
+    invalid_encoded, expected_error, expected_regex
+):
+    with pytest.raises(expected_error, match=expected_regex):
+        decode_dict_gza85(invalid_encoded)
