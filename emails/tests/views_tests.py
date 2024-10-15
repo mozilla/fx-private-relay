@@ -1141,7 +1141,7 @@ class ComplaintHandlingTest(TestCase):
         )
         spam_mail_content = json.loads(russian_spam_notification["Message"])["mail"]
 
-        complaint = {
+        self.complaint_msg = {
             "notificationType": "Complaint",
             "complaint": {
                 "userAgent": "ExampleCorp Feedback Loop (V0.01)",
@@ -1155,7 +1155,7 @@ class ComplaintHandlingTest(TestCase):
             },
             "mail": spam_mail_content,
         }
-        self.complaint_body = {"Message": json.dumps(complaint)}
+        self.complaint_body = {"Message": json.dumps(self.complaint_msg)}
         ses_client_patcher = patch(
             "emails.apps.EmailsConfig.ses_client",
             spec_set=["send_raw_email"],
@@ -1278,8 +1278,15 @@ class ComplaintHandlingTest(TestCase):
     @override_flag("developer_mode", active=True)
     def test_complaint_mpp_3932(self):
         """MPP-3932: Log notification for all complaints for developer_mode users."""
+
+        simulator_complaint_message = deepcopy(self.complaint_msg)
+        simulator_complaint_message["complaint"]["complainedRecipients"] = [
+            {"emailAddress": f"complaint+{self.ra.address}@simulator.amazonses.com"}
+        ]
+        complaint_body = {"Message": json.dumps(simulator_complaint_message)}
+
         with self.assertLogs(INFO_LOG) as logs:
-            response = _sns_notification(self.complaint_body)
+            response = _sns_notification(complaint_body)
         assert response.status_code == 200
 
         self.user.profile.refresh_from_db()
@@ -1295,8 +1302,7 @@ class ComplaintHandlingTest(TestCase):
         assert getattr(record_mpp_3932, "part") == 0
         notification_gza85 = getattr(record_mpp_3932, "notification_gza85")
         log_complaint = decode_dict_gza85(notification_gza85)
-        expected_log_complaint = json.loads(self.complaint_body["Message"])
-        assert log_complaint == expected_log_complaint
+        assert log_complaint == simulator_complaint_message
 
         record = logs.records[1]
         assert record.msg == "complaint_notification"
