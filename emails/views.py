@@ -1473,8 +1473,8 @@ def _get_domain_address(
     """
     Find or create the DomainAddress for the parts of an email address.
 
-    If the domain_portion is for a valid subdomain, a new DomainAddress
-    will be created and returned.
+    If the domain_portion is for a valid subdomain, and create=True, a new DomainAddress
+    will be created and returned. If create=False, DomainAddress.DoesNotExist is raised.
 
     If the domain_portion is for an unknown domain, ObjectDoesNotExist is raised.
 
@@ -1483,7 +1483,8 @@ def _get_domain_address(
 
     [address_subdomain, address_domain] = domain_portion.split(".", 1)
     if address_domain != get_domains_from_settings()["MOZMAIL_DOMAIN"]:
-        incr_if_enabled("email_for_not_supported_domain", 1)
+        if create:
+            incr_if_enabled("email_for_not_supported_domain", 1)
         raise ObjectDoesNotExist("Address does not exist")
     try:
         with transaction.atomic():
@@ -1498,7 +1499,7 @@ def _get_domain_address(
             ).first()
             if domain_address is None:
                 if not create:
-                    raise ObjectDoesNotExist("Address does not exist")
+                    raise DomainAddress.DoesNotExist()
                 # TODO: Consider flows when a user generating alias on a fly
                 # was unable to receive an email due to user no longer being a
                 # premium user as seen in exception thrown on make_domain_address
@@ -1513,7 +1514,8 @@ def _get_domain_address(
             domain_address.save()
             return domain_address
     except Profile.DoesNotExist as e:
-        incr_if_enabled("email_for_dne_subdomain", 1)
+        if create:
+            incr_if_enabled("email_for_dne_subdomain", 1)
         raise e
 
 
@@ -1527,6 +1529,7 @@ def _get_address(address: str, create: bool = True) -> RelayAddress | DomainAddr
     On failure, raises exception based on Django's ObjectDoesNotExist:
     * RelayAddress.DoesNotExist - looks like RelayAddress, deleted or does not exist
     * Profile.DoesNotExist - looks like DomainAddress, no subdomain match
+    * DomainAddress.DoesNotExist - looks like unknown DomainAddress, create is False
     * ObjectDoesNotExist - Unknown domain
     """
 
@@ -1538,7 +1541,7 @@ def _get_address(address: str, create: bool = True) -> RelayAddress | DomainAddr
     # it may be for a user's subdomain
     email_domains = get_domains_from_settings().values()
     if domain not in email_domains:
-        return _get_domain_address(local_address, domain)
+        return _get_domain_address(local_address, domain, create)
 
     # the domain is the site's 'top' relay domain, so look up the RelayAddress
     try:
@@ -1562,6 +1565,14 @@ def _get_address(address: str, create: bool = True) -> RelayAddress | DomainAddr
             # not sure why this happens on stage but let's handle it
             incr_if_enabled("email_for_deleted_address_multiple", 1)
         raise e
+
+
+def _get_address_if_exists(address: str) -> RelayAddress | DomainAddress | None:
+    """Get the matching RelayAddress or DomainAddress, or None if it doesn't exist."""
+    try:
+        return _get_address(address, create=False)
+    except (RelayAddress.DoesNotExist, Profile.DoesNotExist, ObjectDoesNotExist):
+        return None
 
 
 def _handle_bounce(message_json: AWS_SNSMessageJSON) -> HttpResponse:
@@ -1743,8 +1754,13 @@ def _disable_masks_for_complaint(message_json: dict, user: User) -> None:
     if not matches:
         return
     for mask_address in matches:
-        try:
-            address = _get_address(mask_address, False)
+        address = _get_address_if_exists(mask_address)
+        if not address:
+            logger.error(
+                "Received a complaint from a destination address that does not match "
+                "a Relay address.",
+            )
+        else:
             # ensure the mask belongs to the user for whom Relay received a complaint,
             # and that they haven't already disabled the mask themselves.
             if address.user != user or address.enabled is False:
@@ -1755,15 +1771,6 @@ def _disable_masks_for_complaint(message_json: dict, user: User) -> None:
                 _send_disabled_mask_for_spam_email(
                     address, message_json.get("mail", {})
                 )
-        except (
-            ObjectDoesNotExist,
-            RelayAddress.DoesNotExist,
-            DomainAddress.DoesNotExist,
-        ):
-            logger.error(
-                "Received a complaint from a destination address that does not match "
-                "a Relay address.",
-            )
 
 
 def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
@@ -1828,10 +1835,7 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             )
             if from_addresses and len(from_addresses) == 1:
                 from_address = parseaddr(from_addresses[0])[1]
-                try:
-                    mask = _get_address(from_address, False)
-                except (RelayAddress.DoesNotExist, DomainAddress.DoesNotExist):
-                    mask = None
+                mask = _get_address_if_exists(from_address)
                 if mask:
                     recipient_address = mask.user.email
 

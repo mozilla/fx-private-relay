@@ -52,6 +52,7 @@ from emails.views import (
     _build_disabled_mask_for_spam_email,
     _build_reply_requires_premium_email,
     _get_address,
+    _get_address_if_exists,
     _get_keys_from_headers,
     _record_receipt_verdicts,
     _replace_headers,
@@ -2027,6 +2028,13 @@ class GetAddressTest(TestCase):
         )
         assert event == expected_event
 
+    def test_unknown_domain_address_is_not_created(self) -> None:
+        """An unknown but valid domain address raises with create=False"""
+        assert DomainAddress.objects.filter(user=self.user).count() == 1
+        with pytest.raises(DomainAddress.DoesNotExist):
+            _get_address("unknown@subdomain.test.com", create=False)
+        assert DomainAddress.objects.filter(user=self.user).count() == 1
+
     def test_uppercase_local_part_of_unknown_domain_address(self) -> None:
         """
         Uppercase letters are allowed in the local part of a new domain address.
@@ -2058,6 +2066,76 @@ class GetAddressTest(TestCase):
             event_time=event["timestamp"],
         )
         assert event == expected_event
+
+    def test_uppercase_local_part_of_unknown_domain_address_not_created(self) -> None:
+        """
+        Uppercase letters are allowed, but still do not create the domain address.
+        """
+        assert DomainAddress.objects.filter(user=self.user).count() == 1
+        with pytest.raises(DomainAddress.DoesNotExist):
+            _get_address("Unknown@subdomain.test.com", create=False)
+        assert DomainAddress.objects.filter(user=self.user).count() == 1
+
+
+@override_settings(SITE_ORIGIN="https://test.com", STATSD_ENABLED=True)
+class GetAddressIfExistsTest(TestCase):
+    def setUp(self):
+        self.user = make_premium_test_user()
+        self.user.profile.subdomain = "subdomain"
+        self.user.profile.save()
+        self.relay_address = baker.make(
+            RelayAddress, user=self.user, address="relay123"
+        )
+        self.deleted_relay_address = baker.make(
+            DeletedAddress, address_hash=address_hash("deleted456", domain="test.com")
+        )
+        self.domain_address = baker.make(
+            DomainAddress, user=self.user, address="domain"
+        )
+
+    def test_existing_relay_address(self):
+        assert _get_address_if_exists("relay123@test.com") == self.relay_address
+
+    def test_unknown_relay_address(self):
+        with MetricsMock() as mm:
+            assert _get_address_if_exists("unknown@test.com") is None
+        mm.assert_not_incr("fx.private.relay.email_for_unknown_address")
+
+    def test_deleted_relay_address(self):
+        with MetricsMock() as mm:
+            assert _get_address_if_exists("deleted456@test.com") is None
+        mm.assert_not_incr("fx.private.relay.email_for_deleted_address")
+
+    def test_multiple_deleted_relay_addresses_same_as_one(self):
+        """Multiple DeletedAddress records can have the same hash."""
+        baker.make(DeletedAddress, address_hash=self.deleted_relay_address.address_hash)
+        with MetricsMock() as mm:
+            assert _get_address_if_exists("deleted456@test.com") is None
+        mm.assert_not_incr("fx.private.relay.email_for_deleted_address_multiple")
+
+    def test_existing_domain_address(self) -> None:
+        with self.assertNoLogs(GLEAN_LOG, "INFO"):
+            assert (
+                _get_address_if_exists("domain@subdomain.test.com")
+                == self.domain_address
+            )
+
+    def test_subdomain_for_wrong_domain(self) -> None:
+        with MetricsMock() as mm, self.assertNoLogs(GLEAN_LOG, "INFO"):
+            assert _get_address_if_exists("unknown@subdomain.example.com") is None
+        mm.assert_not_incr("fx.private.relay.email_for_not_supported_domain")
+
+    def test_unknown_subdomain(self) -> None:
+        with MetricsMock() as mm, self.assertNoLogs(GLEAN_LOG, "INFO"):
+            assert _get_address_if_exists("domain@unknown.test.com") is None
+        mm.assert_not_incr("fx.private.relay.email_for_dne_subdomain")
+
+    def test_unknown_domain_address(self) -> None:
+        """An unknown but valid domain address raises with create=False"""
+        assert _get_address_if_exists("unknown@subdomain.test.com") is None
+
+    def test_uppercase_local_part_of_unknown_domain_address(self) -> None:
+        assert _get_address_if_exists("Unknown@subdomain.test.com") is None
 
 
 TEST_AWS_SNS_TOPIC = "arn:aws:sns:us-east-1:111222333:relay"
