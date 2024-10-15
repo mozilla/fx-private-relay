@@ -1,6 +1,5 @@
 import json
 import logging
-import threading
 from collections.abc import Iterable
 from datetime import UTC, datetime
 from functools import cache
@@ -21,7 +20,7 @@ import sentry_sdk
 from allauth.socialaccount.models import SocialAccount, SocialApp
 from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
-from google_measurement_protocol import event, report
+from markus.utils import generate_tag
 from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error
 from rest_framework.decorators import api_view, schema
 
@@ -91,40 +90,38 @@ def profile_subdomain(request):
         return JsonResponse({"message": e.message, "subdomain": subdomain}, status=400)
 
 
-def send_ga_ping(ga_id: str, ga_uuid: str, data: Any) -> None:
-    try:
-        report(ga_id, ga_uuid, data)
-    except Exception as e:
-        logger.error("metrics_event", extra={"error": e})
-
-
 @csrf_exempt
 @require_http_methods(["POST"])
 def metrics_event(request: HttpRequest) -> JsonResponse:
+    """
+    Handle metrics events from the Relay extension.
+
+    This used to forward data to Google Analytics, but was not updated for GA4.
+
+    Now it logs the information and updates statsd counters.
+    """
     try:
         request_data = json.loads(request.body)
     except json.JSONDecodeError:
         return JsonResponse({"msg": "Could not decode JSON"}, status=415)
     if "ga_uuid" not in request_data:
         return JsonResponse({"msg": "No GA uuid found"}, status=404)
-    # "dimension5" is a Google Analytics-specific variable to track a custom dimension,
-    # used to determine which browser vendor the add-on is using: Firefox or Chrome
-    # "dimension7" is a Google Analytics-specific variable to track a custom dimension,
-    # used to determine where the ping is coming from: website (default), add-on or app
-    event_data = event(
-        request_data.get("category", None),
-        request_data.get("action", None),
-        request_data.get("label", None),
-        request_data.get("value", None),
-        dimension5=request_data.get("dimension5", None),
-        dimension7=request_data.get("dimension7", "website"),
-    )
-    t = threading.Thread(
-        target=send_ga_ping,
-        args=[settings.GOOGLE_ANALYTICS_ID, request_data.get("ga_uuid"), event_data],
-        daemon=True,
-    )
-    t.start()
+    event_data = {
+        "ga_uuid_hash": sha256(request_data["ga_uuid"].encode()).hexdigest()[:16],
+        "category": request_data.get("category", None),
+        "action": request_data.get("action", None),
+        "label": request_data.get("label", None),
+        "value": request_data.get("value", None),
+        "browser": request_data.get("browser", None),  # dimension5 in GA
+        "source": request_data.get("dimension7", "website"),
+    }
+    info_logger.info("metrics_event", extra=event_data)
+    tags = [
+        generate_tag(key, val)
+        for key, val in event_data.items()
+        if val is not None and key != "ga_uuid_hash"
+    ]
+    incr_if_enabled("metrics_event", tags=tags)
     return JsonResponse({"msg": "OK"}, status=200)
 
 

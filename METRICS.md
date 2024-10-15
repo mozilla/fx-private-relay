@@ -1492,19 +1492,21 @@ The Google Analytics events:
 The Relay Extension makes it easier to use Relay email masks on websites. It is
 available as a [Firefox Extension][] and a [Chrome Extension][].
 
+The Relay Extension uses a background listener to send interaction events to
+the Relay API server. These events are then recorded as statsd-style statistics
+and in server logs.
+
+The Relay Extension generates a [random UUID][] for the extension identifier
+that is [stored locally in the browser][]. A different ID will be generated for
+each browser and machine. A truncated hash of this identifier is included in the
+system logs to estimate the count of unique extension installations.
+
 <!-- References in this paragraph are defined in section "Google Analytics" -->
 
-The Relay Extension uses a background listener to send interaction events to
-the Relay API server. The API server forwards the events to Google Analytics.
-Events are reported using the [Universal Measurement Protocol][].
+Before October 2024, the API server forwarded the events
+to Google Analytics, using the [Universal Measurement Protocol][].
 Google [replaced Universal Analytics with Google Analytics 4][] (GA4) on July 1, 2024,
-and these events are no longer recorded. Relay is in the process of switching
-to [GA4][].
-
-The Relay Extension generates a [random UUID][] for the Google Analytics
-identifier that is [stored locally in the browser][]. This ID is different from
-the GA identifier on the Relay webpage. A different ID will be generated for
-each browser and machine.
+and these events stopped being recorded.
 
 [Chrome Extension]: https://chromewebstore.google.com/detail/firefox-relay/lknpoadjjkjcmjhbjpcljdednccbldeb "The Firefox Relay extension on the Chrome Web Store"
 [Firefox Extension]: https://addons.mozilla.org/en-US/firefox/addon/private-relay/ "The Firefox Relay extension on Firefox Browser Add-Ons"
