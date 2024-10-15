@@ -331,7 +331,7 @@ def b64_lookup_key(lookup_key: bytes) -> str:
 
 
 def derive_reply_keys(message_id: bytes) -> tuple[bytes, bytes]:
-    """Derive the lookup key and encrytion key from an aliased message id."""
+    """Derive the lookup key and encryption key from an aliased message id."""
     algorithm = hashes.SHA256()
     hkdf = HKDFExpand(algorithm=algorithm, length=16, info=b"replay replies lookup key")
     lookup_key = hkdf.derive(message_id)
