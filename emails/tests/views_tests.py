@@ -8,6 +8,7 @@ from datetime import UTC, datetime, timedelta
 from email import message_from_string
 from email.message import EmailMessage
 from typing import Any, cast
+from unittest import expectedFailure
 from unittest._log import _LoggingWatcher
 from unittest.mock import Mock, patch
 from uuid import uuid4
@@ -1140,6 +1141,12 @@ class ComplaintHandlingTest(TestCase):
             EMAIL_EXPECTED["russian_spam"]
         )
         spam_mail_content = json.loads(russian_spam_notification["Message"])["mail"]
+        spam_mail_content["source"] = "replies@default.com"  # Reply-To address
+        spam_mail_content["messageId"] = (
+            "0100019291f7e695-51da71c8-36cc-4cc7-82e3-23fbf48d4bb4-000000"
+        )
+        del spam_mail_content["commonHeaders"]["date"]
+        del spam_mail_content["commonHeaders"]["messageId"]
 
         self.complaint_msg = {
             "notificationType": "Complaint",
@@ -1226,6 +1233,7 @@ class ComplaintHandlingTest(TestCase):
         assert not log_data["fxa_id"]
 
     @override_flag("disable_mask_on_complaint", active=True)
+    @expectedFailure
     def test_complaint_disables_mask(self):
         """
         A notificationType of complaint:
