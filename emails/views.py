@@ -1821,6 +1821,20 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         recipient_domain = recipient_address.split("@")[1]
         data["domain"] = recipient_domain
 
+        # Handle complaint simulator
+        if recipient_domain == "simulator.amazonses.com":
+            from_addresses = (
+                message_json.get("mail", {}).get("commonHeaders", {}).get("from", [])
+            )
+            if from_addresses and len(from_addresses) == 1:
+                from_address = parseaddr(from_addresses[0])[1]
+                try:
+                    mask = _get_address(from_address, False)
+                except (RelayAddress.DoesNotExist, DomainAddress.DoesNotExist):
+                    mask = None
+                if mask:
+                    recipient_address = mask.user.email
+
         try:
             user = User.objects.get(email=recipient_address)
             profile = user.profile
