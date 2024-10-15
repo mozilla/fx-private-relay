@@ -106,8 +106,6 @@ def metrics_event(request: HttpRequest) -> JsonResponse:
         return JsonResponse({"msg": "Could not decode JSON"}, status=415)
     if "ga_uuid" not in request_data:
         return JsonResponse({"msg": "No GA uuid found"}, status=404)
-
-        # "real_address": sha256(new_emddail.encode("utf-8")).hexdigest(),
     event_data = {
         "ga_uuid_hash": sha256(request_data["ga_uuid"].encode()).hexdigest()[:16],
         "category": request_data.get("category", None),
