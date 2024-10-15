@@ -1,10 +1,8 @@
-import base64
 import html
 import json
 import logging
 import re
 import shlex
-import zlib
 from copy import deepcopy
 from datetime import UTC, datetime
 from email import message_from_bytes
@@ -68,6 +66,7 @@ from .utils import (
     count_all_trackers,
     decrypt_reply_metadata,
     derive_reply_keys,
+    encode_dict_gza85,
     encrypt_reply_metadata,
     generate_from_header,
     get_domains_from_settings,
@@ -998,9 +997,7 @@ def _log_dev_notification(
     64KB limit per label value.
     """
 
-    notification_gza85 = base64.a85encode(
-        zlib.compress(json.dumps(notification).encode()), wrapcol=1024, pad=True
-    ).decode("ascii")
+    notification_gza85 = encode_dict_gza85(notification)
     total_parts = notification_gza85.count("\n") + 1
     for partnum, part in enumerate(notification_gza85.splitlines()):
         info_logger.info(

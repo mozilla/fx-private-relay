@@ -6,6 +6,7 @@ import json
 import logging
 import pathlib
 import re
+import zlib
 from collections.abc import Callable
 from email.errors import InvalidHeaderDefect
 from email.headerregistry import Address, AddressHeader
@@ -511,3 +512,28 @@ def remove_trackers(html_content, from_address, datetime_now, level="general"):
         extra=logger_details,
     )
     return changed_content, tracker_details
+
+
+def encode_dict_gza85(data: dict[str, Any]) -> str:
+    """
+    Encode a dict to the compressed Ascii85 format
+
+    The dict will be JSON-encoded will be compressed, Ascii85-encoded with padding, and
+    split by newlines into 1024-bytes chunks. This can be used to ensure it fits into
+    a GCP log entry, which has a 64KB limit per label value.
+    """
+    return base64.a85encode(
+        zlib.compress(json.dumps(data).encode()), wrapcol=1024, pad=True
+    ).decode("ascii")
+
+
+def decode_dict_gza85(encoded_data: str) -> dict[str, Any]:
+    """Decode a dict encoded with _encode_dict_gza85."""
+    data = json.loads(
+        zlib.decompress(base64.a85decode(encoded_data.encode("ascii"))).decode()
+    )
+    if not isinstance(data, dict):
+        raise ValueError("Encoded data is not a dict")
+    if any(not isinstance(key, str) for key in data):
+        raise ValueError("Encoded data has non-str key")
+    return data

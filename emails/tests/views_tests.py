@@ -1,10 +1,8 @@
-import base64
 import glob
 import json
 import logging
 import os
 import re
-import zlib
 from copy import deepcopy
 from datetime import UTC, datetime, timedelta
 from email import message_from_string
@@ -40,6 +38,7 @@ from emails.types import AWS_SNSMessageJSON, OutgoingHeaders
 from emails.utils import (
     InvalidFromHeader,
     b64_lookup_key,
+    decode_dict_gza85,
     decrypt_reply_metadata,
     derive_reply_keys,
     encrypt_reply_metadata,
@@ -823,11 +822,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
             assert extra["part"] == callnum
             assert extra["parts"] == 4
             parts[extra["part"]] = extra["notification_gza85"]
-        log_notification = json.loads(
-            zlib.decompress(
-                base64.a85decode(("\n".join(parts)).encode("ascii"))
-            ).decode()
-        )
+        log_notification = decode_dict_gza85("\n".join(parts))
         expected_log_notification = json.loads(
             EMAIL_SNS_BODIES["single_recipient"]["Message"]
         )
@@ -1298,13 +1293,8 @@ class ComplaintHandlingTest(TestCase):
         assert getattr(record_mpp_3932, "dev_action") == "log"
         assert getattr(record_mpp_3932, "parts") == 1
         assert getattr(record_mpp_3932, "part") == 0
-        log_complaint = json.loads(
-            zlib.decompress(
-                base64.a85decode(
-                    getattr(record_mpp_3932, "notification_gza85").encode("ascii")
-                )
-            ).decode()
-        )
+        notification_gza85 = getattr(record_mpp_3932, "notification_gza85")
+        log_complaint = decode_dict_gza85(notification_gza85)
         expected_log_complaint = json.loads(self.complaint_body["Message"])
         assert log_complaint == expected_log_complaint
 
