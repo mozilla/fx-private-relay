@@ -1831,6 +1831,10 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
                 data["fxa_id"] = ""
         except User.DoesNotExist:
             data["user_match"] = "missing"
+            dev_action = DeveloperModeAction(mask_id="unknown", action="log")
+            _log_dev_notification(
+                "_handle_complaint: unknown user", dev_action, message_json
+            )
             continue
 
         data["relay_action"] = "auto_block_spam"
