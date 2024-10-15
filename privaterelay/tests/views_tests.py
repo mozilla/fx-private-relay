@@ -1,16 +1,16 @@
 import json
 import logging
-from collections.abc import Callable, Iterator
+from collections.abc import Iterator
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any, Literal
-from unittest.mock import ANY, Mock, patch
+from unittest.mock import Mock, patch
 from uuid import uuid4
 
 from django.contrib.auth.models import User
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.utils import timezone
 
 import jwt
@@ -38,7 +38,7 @@ from privaterelay.tests.utils import premium_subscription
 from ..apps import PrivateRelayConfig
 from ..fxa_utils import NoSocialToken
 from ..models import Profile
-from ..views import _update_all_data, fxa_verifying_keys, send_ga_ping
+from ..views import _update_all_data, fxa_verifying_keys
 
 
 def test_no_social_token():
@@ -598,82 +598,59 @@ def test_lbheartbeat_view(client: Client) -> None:
     assert response.content == b""
 
 
-_ThreadAndReportMocks = dict[Literal["thread", "report"], Mock]
-
-
-@pytest.fixture
-def mock_metrics_thread_and_report() -> Iterator[_ThreadAndReportMocks]:
-    """
-    Setup mocks for metrics event.
-
-    Replace google_measurement_protocol.report with a Mock
-    Replace Thread with a mock version that calls immediately.
-    """
-
-    with (
-        patch("privaterelay.views.threading.Thread", spec=True) as mock_thread_cls,
-        patch("privaterelay.views.report") as mock_report,
-    ):
-
-        mock_thread = Mock(spec_set=["start"])
-
-        def create_thread(
-            target: Callable[[str, str, Any], None],
-            args: tuple[str, str, Any],
-            daemon: bool,
-        ) -> Mock:
-            assert target == send_ga_ping
-            assert daemon
-
-            def call_send_ga_ping() -> None:
-                target(*args)
-
-            mock_thread.start.side_effect = call_send_ga_ping
-            return mock_thread
-
-        mock_thread_cls.side_effect = create_thread
-        yield {"thread": mock_thread, "report": mock_report}
-
-
-def test_metrics_event_GET(
-    client: Client, mock_metrics_thread_and_report: _ThreadAndReportMocks
-) -> None:
-    response = client.get("/metrics-event")
+@override_settings(STATSD_ENABLED=True)
+def test_metrics_event_GET(client: Client, caplog: pytest.LogCaptureFixture) -> None:
+    with MetricsMock() as mm:
+        response = client.get("/metrics-event")
     assert response.status_code == 405
-    mock_metrics_thread_and_report["thread"].start.assert_not_called()
-    mock_metrics_thread_and_report["report"].assert_not_called()
+    assert caplog.record_tuples == [("request.summary", logging.INFO, "")]
+    mm.assert_not_incr("fx.private.relay.metrics_event")
 
 
+@override_settings(STATSD_ENABLED=True)
 def test_metrics_event_POST_non_json(
-    client: Client, mock_metrics_thread_and_report: _ThreadAndReportMocks
+    client: Client, caplog: pytest.LogCaptureFixture
 ) -> None:
-    response = client.post("/metrics-event")
+    with MetricsMock() as mm:
+        response = client.post("/metrics-event")
     assert response.status_code == 415
-    mock_metrics_thread_and_report["thread"].start.assert_not_called()
-    mock_metrics_thread_and_report["report"].assert_not_called()
+    assert caplog.record_tuples == [("request.summary", logging.INFO, "")]
+    mm.assert_not_incr("fx.private.relay.metrics_event")
 
 
+@override_settings(STATSD_ENABLED=True)
 def test_metrics_event_POST_json_no_ga_uuid(
-    client: Client, mock_metrics_thread_and_report: _ThreadAndReportMocks
+    client: Client, caplog: pytest.LogCaptureFixture
 ) -> None:
-    response = client.post(
-        "/metrics-event", {"category": "addon"}, content_type="application/json"
-    )
+    with MetricsMock() as mm:
+        response = client.post(
+            "/metrics-event", {"category": "addon"}, content_type="application/json"
+        )
     assert response.status_code == 404
-    mock_metrics_thread_and_report["thread"].start.assert_not_called()
-    mock_metrics_thread_and_report["report"].assert_not_called()
+    assert caplog.record_tuples == [("request.summary", logging.INFO, "")]
+    mm.assert_not_incr("fx.private.relay.metrics_event")
 
 
+@override_settings(STATSD_ENABLED=True)
 def test_metrics_event_POST_json_ga_uuid_ok(
     client: Client,
-    mock_metrics_thread_and_report: _ThreadAndReportMocks,
+    caplog: pytest.LogCaptureFixture,
     settings: SettingsWrapper,
 ) -> None:
-    response = client.post(
-        "/metrics-event", {"ga_uuid": "anything-is-ok"}, content_type="application/json"
-    )
+    with MetricsMock() as mm:
+        response = client.post(
+            "/metrics-event",
+            {"ga_uuid": "anything-is-ok"},
+            content_type="application/json",
+        )
     assert response.status_code == 200
-    mock_metrics_thread_and_report["thread"].start.assert_called_once_with()
-    mock_metrics_thread_and_report["report"].assert_called_once_with(
-        settings.GOOGLE_ANALYTICS_ID, "anything-is-ok", ANY
-    )
+
+    assert caplog.record_tuples == [
+        ("eventsinfo", logging.INFO, "metrics_event"),
+        ("request.summary", logging.INFO, ""),
+    ]
+    record = caplog.records[0]
+    assert getattr(record, "ga_uuid_hash") == "1aa8606ede8415d8"
+    assert getattr(record, "source") == "website"
+
+    mm.assert_incr_once("fx.private.relay.metrics_event", 1, tags=["source:website"])
