@@ -1711,14 +1711,10 @@ def _send_disabled_mask_for_spam_email(mask: RelayAddress | DomainAddress) -> No
     incr_if_enabled("send_disabled_mask_email", 1)
 
 
-class UserComplaintData(TypedDict):
-    domain: str
-    extra: dict[str, Any] | None
-
-
 class Complainer(TypedDict):
     user: User
-    complaint: UserComplaintData | None
+    domain: str
+    extra: dict[str, Any] | None
     masks: list[RelayAddress | DomainAddress]
 
 
@@ -1768,9 +1764,6 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
                 email_address = mask.user.email
                 domain = mask.user.email.split("@")[1]
 
-        user_complaint_data = UserComplaintData(
-            domain=domain, extra=extra_data if extra_data else None
-        )
         try:
             user = User.objects.get(email=email_address)
         except User.DoesNotExist:
@@ -1781,7 +1774,8 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             raise Exception("User defined twice!")
         users[user.id] = {
             "user": user,
-            "complaint": user_complaint_data,
+            "domain": domain,
+            "extra": extra_data or None,
             "masks": [],
         }
 
@@ -1795,7 +1789,8 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             else:
                 users[mask.user.id] = {
                     "user": mask.user,
-                    "complaint": None,
+                    "domain": mask.user.email.split("@")[1],
+                    "extra": None,
                     "masks": [mask],
                 }
         else:
@@ -1810,11 +1805,10 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             "mask_match": "not_searched",
             "relay_action": "no_action",
             "fxa_id": user.profile.metrics_fxa_id,
+            "domain": user_data["domain"],
         }
-        if user_data["complaint"]:
-            metrics["domain"] = user_data["complaint"]["domain"]
-            if user_data["complaint"]["extra"]:
-                metrics["complaint_extra"] = json.dumps(user_data["complaint"]["extra"])
+        if user_data["extra"]:
+            metrics["complaint_extra"] = json.dumps(user_data["extra"])
 
         mask_found_id = "unknown"
         if not user.profile.auto_block_spam:
