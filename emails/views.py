@@ -515,6 +515,7 @@ def _get_relay_recipient_from_message_json(message_json):
 
 def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     incr_if_enabled("sns_inbound_Notification_Received", 1)
+    init_waffle_flags()
     notification_type = message_json.get("notificationType")
     event_type = message_json.get("eventType")
     if notification_type == "Bounce" or event_type == "Bounce":
@@ -959,16 +960,9 @@ def _get_developer_mode_action(
 ) -> DeveloperModeAction | None:
     """Get the developer mode actions for this mask, if enabled."""
 
-    flag_name = "developer_mode"
-    _, _ = get_waffle_flag_model().objects.get_or_create(
-        name=flag_name,
-        defaults={
-            "note": "MPP-3932: Enable logging and overrides for Relay developers."
-        },
-    )
-
     if not (
-        flag_is_active_in_task(flag_name, mask.user) and "DEV:" in mask.description
+        flag_is_active_in_task("developer_mode", mask.user)
+        and "DEV:" in mask.description
     ):
         return None
 
@@ -1787,20 +1781,6 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         logger.error("_handle_complaint: Unexpected message", extra=log_extra)
         from_addresses = []
 
-    # Init flags
-    disable_flag = "disable_mask_on_complaint"
-    disable_note = (
-        "MPP-3119: When a Relay user marks an email as spam, disable the mask."
-    )
-    get_waffle_flag_model().objects.get_or_create(
-        name=disable_flag, defaults={"note": (disable_note)}
-    )
-    developer_flag = "developer_mode"
-    developer_note = "MPP-3932: Enable logging and overrides for Relay developers."
-    get_waffle_flag_model().objects.get_or_create(
-        name=developer_flag, defaults={"note": (developer_note)}
-    )
-
     # Collect complaining recipients and their users
     data = ComplaintData(
         users={}, duplicate_users=[], unknown_complainers=[], unknown_senders=[]
@@ -1876,7 +1856,7 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             metrics["relay_action"] = "auto_block_spam"
             user.profile.auto_block_spam = True
             user.profile.save()
-        elif flag_is_active_in_task(disable_flag, user):
+        elif flag_is_active_in_task("disable_mask_on_complaint", user):
             metrics["mask_match"] = "not_found"
             for mask in user_data["masks"]:
                 metrics["mask_match"] = "found"
@@ -1889,7 +1869,7 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
                     continue
         user_metrics.append(metrics)
 
-        if flag_is_active_in_task(developer_flag, user):
+        if flag_is_active_in_task("developer_mode", user):
             dev_action = DeveloperModeAction(mask_id=mask_found_id, action="log")
             _log_dev_notification(
                 "_handle_complaint: developer mode", dev_action, message_json
@@ -1927,3 +1907,28 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     if data["unknown_complainers"]:
         return HttpResponse("Address does not exist", status=404)
     return HttpResponse("OK", status=200)
+
+
+_WAFFLE_FLAGS_INITIALIZED = False
+
+
+def init_waffle_flags() -> None:
+    """Initialize waffle flags for email tasks"""
+    global _WAFFLE_FLAGS_INITIALIZED
+    if _WAFFLE_FLAGS_INITIALIZED:
+        return
+
+    flags: list[tuple[str, str]] = [
+        (
+            "disable_mask_on_complaint",
+            "MPP-3119: When a Relay user marks an email as spam, disable the mask.",
+        ),
+        (
+            "developer_mode",
+            "MPP-3932: Enable logging and overrides for Relay developers.",
+        ),
+    ]
+    waffle_flag_table = get_waffle_flag_model().objects
+    for name, note in flags:
+        waffle_flag_table.get_or_create(name=name, defaults={"note": note})
+    _WAFFLE_FLAGS_INITIALIZED = True
