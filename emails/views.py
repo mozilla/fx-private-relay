@@ -12,7 +12,7 @@ from email.utils import parseaddr
 from io import StringIO
 from json import JSONDecodeError
 from textwrap import dedent
-from typing import Any, Literal, NamedTuple
+from typing import Any, Literal, NamedTuple, NotRequired, TypedDict
 from urllib.parse import urlencode
 
 from django.conf import settings
@@ -1718,51 +1718,22 @@ def _send_disabled_mask_for_spam_email(mask: RelayAddress | DomainAddress) -> No
     incr_if_enabled("send_disabled_mask_email", 1)
 
 
-def _disable_masks_for_complaint(message_json: dict, user: User) -> None:
-    """
-    See https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#mail-object
+class UserComplaintData(TypedDict):
+    domain: str
+    extra: NotRequired[dict[Any, Any]]
 
-    message_json.mail.source contains the envelope MAIL FROM address from which the
-    original message was sent.
 
-    Relay sends emails From: "original-From" <relay-mask@mozmail.com>.
+class ComplaintUser(TypedDict):
+    user: User
+    complaint: UserComplaintData | None
+    masks: list[RelayAddress | DomainAddress]
 
-    So, we can find the mask that sent the spam email by parsing the source value.
-    """
-    flag_name = "disable_mask_on_complaint"
-    _, _ = get_waffle_flag_model().objects.get_or_create(
-        name=flag_name,
-        defaults={
-            "note": (
-                "MPP-3119: When a Relay user marks an email as spam, disable the mask."
-            )
-        },
-    )
-    source = message_json.get("mail", {}).get("source", "")
-    # parseaddr is confused by 2 email addresses in the value, so use this
-    # regular expression to extract the mask address by searching for any relay domains
-    email_domains = get_domains_from_settings().values()
-    domain_pattern = "|".join(re.escape(domain) for domain in email_domains)
-    email_regex = rf"[\w\.-]+@(?:{domain_pattern})"
-    matches = re.findall(email_regex, source)
-    if not matches:
-        return
-    for mask_address in matches:
-        address = _get_address_if_exists(mask_address)
-        if not address:
-            logger.error(
-                "Received a complaint from a destination address that does not match "
-                "a Relay address.",
-            )
-        else:
-            # ensure the mask belongs to the user for whom Relay received a complaint,
-            # and that they haven't already disabled the mask themselves.
-            if address.user != user or address.enabled is False:
-                continue
-            if flag_is_active_in_task(flag_name, address.user):
-                address.enabled = False
-                address.save()
-                _send_disabled_mask_for_spam_email(address)
+
+class ComplaintData(TypedDict):
+    users: dict[int, ComplaintUser]
+    duplicate_users: list[tuple[int, UserComplaintData]]
+    unknown_complainers: list[UserComplaintData]
+    unknown_senders: list[str]
 
 
 def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
@@ -1795,89 +1766,164 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     """
     complaint = deepcopy(message_json.get("complaint", {}))
     complained_recipients = complaint.pop("complainedRecipients", [])
+    try:
+        from_addresses = message_json["mail"]["commonHeaders"]["from"]
+    except (KeyError, TypeError):
+        # Diagnose the issue without logging user data
+        log_extra: dict[str, str] = {}
+        has_mail = "mail" in message_json
+        has_commonheaders = False
+        if has_mail:
+            has_commonheaders = "commonHeaders" in message_json["mail"]
+        else:
+            log_extra["missing_key"] = "mail"
+            log_extra["keys"] = ",".join(message_json.keys())
+        if has_commonheaders:
+            log_extra["missing_key"] = "from"
+            log_extra["keys"] = ",".join(message_json["mail"]["commonHeaders"].keys())
+        else:
+            log_extra["missing_key"] = "commonHeaders"
+            log_extra["keys"] = ",".join(message_json["mail"])
+        logger.error("_handle_complaint: Unexpected message", extra=log_extra)
+        from_addresses = []
+
+    # Init flags
+    disable_flag = "disable_mask_on_complaint"
+    disable_note = (
+        "MPP-3119: When a Relay user marks an email as spam, disable the mask."
+    )
+    get_waffle_flag_model().objects.get_or_create(
+        name=disable_flag, defaults={"note": (disable_note)}
+    )
+    developer_flag = "developer_mode"
+    developer_note = "MPP-3932: Enable logging and overrides for Relay developers."
+    get_waffle_flag_model().objects.get_or_create(
+        name=developer_flag, defaults={"note": (developer_note)}
+    )
+
+    # Collect complaining recipients and their users
+    data = ComplaintData(
+        users={}, duplicate_users=[], unknown_complainers=[], unknown_senders=[]
+    )
+    for recipient in complained_recipients:
+        if (full_recipient_address := recipient.pop("emailAddress", None)) is None:
+            continue
+        recipient_address = parseaddr(full_recipient_address)[1]
+        local, domain = recipient_address.split("@", 1)
+
+        # For developer mode complaint simulation, swap with developer's email
+        if domain == "simulator.amazonses.com" and local.startswith("complaint+"):
+            mask_part = local.removeprefix("complaint+")
+            mask_domain = get_domains_from_settings()["MOZMAIL_DOMAIN"]
+            mask_address = f"{mask_part}@{mask_domain}"
+            mask = _get_address_if_exists(mask_address)
+            if mask:
+                recipient_address = mask.user.email
+                domain = mask.user.email.split("@")[1]
+
+        complaint_data = UserComplaintData(
+            domain=domain,
+            extra=recipient.copy() if recipient else None,
+        )
+        try:
+            user = User.objects.get(email=recipient_address)
+        except User.DoesNotExist:
+            data["unknown_complainers"].append(complaint_data)
+            continue
+
+        if user.id in data["users"]:
+            data["duplicate_users"].append((user.id, complaint_data))
+        else:
+            data["users"][user.id] = {
+                "user": user,
+                "complaint": complaint_data,
+                "masks": [],
+            }
+
+    # Collect From: addresses and their users
+    for full_from_address in from_addresses:
+        from_address = parseaddr(full_from_address)[1]
+        mask = _get_address_if_exists(from_address)
+        if mask:
+            if mask.user.id in data["users"]:
+                data["users"][user.id]["masks"].append(mask)
+            else:
+                data["users"][mask.user.id] = {
+                    "user": mask.user,
+                    "complaint": None,
+                    "masks": [mask],
+                }
+        else:
+            data["unknown_senders"].append(from_address)
+
+    # Handle known Relay users
+    user_metrics: list[dict[str, str]] = []
+    for user_data in data["users"].values():
+        user = user_data["user"]
+        metrics = {
+            "user_match": "found",
+            "mask_match": "not_searched",
+            "relay_action": "no_action",
+            "fxa_id": user.profile.metrics_fxa_id,
+        }
+        if user_data["complaint"]:
+            metrics["domain"] = user_data["complaint"]["domain"]
+            if user_data["complaint"]["extra"]:
+                metrics["complaint_extra"] = json.dumps(user_data["complaint"]["extra"])
+
+        mask_found_id = "unknown"
+        if not user.profile.auto_block_spam:
+            metrics["relay_action"] = "auto_block_spam"
+            user.profile.auto_block_spam = True
+            user.profile.save()
+        elif flag_is_active_in_task(disable_flag, user):
+            metrics["mask_match"] = "not_found"
+            for mask in user_data["masks"]:
+                metrics["mask_match"] = "found"
+                mask_found_id = mask.metrics_id
+                if mask.enabled:
+                    metrics["relay_action"] = "disable_mask"
+                    mask.enabled = False
+                    mask.save()
+                    _send_disabled_mask_for_spam_email(mask)
+                    continue
+        user_metrics.append(metrics)
+
+        if flag_is_active_in_task(developer_flag, user):
+            dev_action = DeveloperModeAction(mask_id=mask_found_id, action="log")
+            _log_dev_notification(
+                "_handle_complaint: developer mode", dev_action, message_json
+            )
+
+    # Log complaint and action taken
+    if not user_metrics:
+        user_metrics.append(
+            {"user_match": "no_recipients", "relay_action": "no_action"}
+        )
     subtype = complaint.pop("complaintSubType", None)
     user_agent = complaint.pop("userAgent", None)
     feedback = complaint.pop("complaintFeedbackType", None)
-
-    complaint_data = []
-    for recipient in complained_recipients:
-        recipient_address = recipient.pop("emailAddress", None)
-        data = {
-            "complaint_subtype": subtype,
-            "complaint_user_agent": user_agent,
-            "complaint_feedback": feedback,
-            "user_match": "no_address",
-            "relay_action": "no_action",
-        }
-        if recipient:
-            data["complaint_extra"] = recipient.copy()
-        complaint_data.append(data)
-
-        if recipient_address is None:
-            continue
-
-        recipient_address = parseaddr(recipient_address)[1]
-        recipient_domain = recipient_address.split("@")[1]
-        data["domain"] = recipient_domain
-
-        # Handle complaint simulator
-        if recipient_domain == "simulator.amazonses.com":
-            from_addresses = (
-                message_json.get("mail", {}).get("commonHeaders", {}).get("from", [])
-            )
-            if from_addresses and len(from_addresses) == 1:
-                from_address = parseaddr(from_addresses[0])[1]
-                mask = _get_address_if_exists(from_address)
-                if mask:
-                    recipient_address = mask.user.email
-
-        try:
-            user = User.objects.get(email=recipient_address)
-            profile = user.profile
-            data["user_match"] = "found"
-            if (fxa := profile.fxa) and profile.metrics_enabled:
-                data["fxa_id"] = fxa.uid
-            else:
-                data["fxa_id"] = ""
-        except User.DoesNotExist:
-            data["user_match"] = "missing"
-            dev_action = DeveloperModeAction(mask_id="unknown", action="log")
-            _log_dev_notification(
-                "_handle_complaint: unknown user", dev_action, message_json
-            )
-            continue
-
-        data["relay_action"] = "auto_block_spam"
-        profile.auto_block_spam = True
-        profile.save()
-
-        _disable_masks_for_complaint(message_json, user)
-
-        if flag_is_active_in_task("developer_mode", user):
-            # MPP-3932: We need more information to match complaints to masks
-            dev_action = DeveloperModeAction(mask_id="unknown", action="log")
-            _log_dev_notification(
-                "_handle_complaint: MPP-3932", dev_action, message_json
-            )
-
-    if not complaint_data:
-        # Data when there are no identified recipients
-        complaint_data = [{"user_match": "no_recipients", "relay_action": "no_action"}]
-
-    for data in complaint_data:
+    for metrics in user_metrics:
         tags = {
             "complaint_subtype": subtype or "none",
             "complaint_feedback": feedback or "none",
-            "user_match": data["user_match"],
-            "relay_action": data["relay_action"],
+            "user_match": metrics["user_match"],
+            "relay_action": metrics["relay_action"],
         }
         incr_if_enabled(
             "email_complaint",
             1,
             tags=[generate_tag(key, val) for key, val in tags.items()],
         )
-        info_logger.info("complaint_notification", extra=data)
 
-    if any(data["user_match"] == "missing" for data in complaint_data):
+        log_extra = {
+            "complaint_subtype": subtype,
+            "complaint_user_agent": user_agent,
+            "complaint_feedback": feedback,
+        }
+        log_extra.update(metrics)
+        info_logger.info("complaint_notification", extra=log_extra)
+
+    if data["unknown_complainers"]:
         return HttpResponse("Address does not exist", status=404)
     return HttpResponse("OK", status=200)
