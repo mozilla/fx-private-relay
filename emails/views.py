@@ -3,7 +3,6 @@ import json
 import logging
 import re
 import shlex
-from copy import deepcopy
 from datetime import UTC, datetime
 from email import message_from_bytes
 from email.iterators import _structure
@@ -12,7 +11,7 @@ from email.utils import parseaddr
 from io import StringIO
 from json import JSONDecodeError
 from textwrap import dedent
-from typing import Any, Literal, NamedTuple, NotRequired, TypedDict
+from typing import Any, Literal, NamedTuple, TypedDict, TypeVar
 from urllib.parse import urlencode
 
 from django.conf import settings
@@ -1714,7 +1713,7 @@ def _send_disabled_mask_for_spam_email(mask: RelayAddress | DomainAddress) -> No
 
 class UserComplaintData(TypedDict):
     domain: str
-    extra: NotRequired[dict[Any, Any]]
+    extra: dict[str, Any] | None
 
 
 class ComplaintUser(TypedDict):
@@ -1758,38 +1757,14 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     * domain - User's domain, if an address was given
     * fxa_id - The Mozilla account (previously known as Firefox Account) ID of the user
     """
-    complaint = deepcopy(message_json.get("complaint", {}))
-    complained_recipients = complaint.pop("complainedRecipients", [])
-    try:
-        from_addresses = message_json["mail"]["commonHeaders"]["from"]
-    except (KeyError, TypeError):
-        # Diagnose the issue without logging user data
-        log_extra: dict[str, str] = {}
-        has_mail = "mail" in message_json
-        has_commonheaders = False
-        if has_mail:
-            has_commonheaders = "commonHeaders" in message_json["mail"]
-        else:
-            log_extra["missing_key"] = "mail"
-            log_extra["keys"] = ",".join(message_json.keys())
-        if has_commonheaders:
-            log_extra["missing_key"] = "from"
-            log_extra["keys"] = ",".join(message_json["mail"]["commonHeaders"].keys())
-        else:
-            log_extra["missing_key"] = "commonHeaders"
-            log_extra["keys"] = ",".join(message_json["mail"])
-        logger.error("_handle_complaint: Unexpected message", extra=log_extra)
-        from_addresses = []
+    complaint_data = _get_complaint_data(message_json)
 
     # Collect complaining recipients and their users
     data = ComplaintData(
         users={}, duplicate_users=[], unknown_complainers=[], unknown_senders=[]
     )
-    for recipient in complained_recipients:
-        if (full_recipient_address := recipient.pop("emailAddress", None)) is None:
-            continue
-        recipient_address = parseaddr(full_recipient_address)[1]
-        local, domain = recipient_address.split("@", 1)
+    for email_address, extra_data in complaint_data.complained_recipients:
+        local, domain = email_address.split("@", 1)
 
         # For developer mode complaint simulation, swap with developer's email
         if domain == "simulator.amazonses.com" and local.startswith("complaint+"):
@@ -1798,32 +1773,30 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             mask_address = f"{mask_part}@{mask_domain}"
             mask = _get_address_if_exists(mask_address)
             if mask:
-                recipient_address = mask.user.email
+                email_address = mask.user.email
                 domain = mask.user.email.split("@")[1]
 
-        complaint_data = UserComplaintData(
-            domain=domain,
-            extra=recipient.copy() if recipient else None,
+        user_complaint_data = UserComplaintData(
+            domain=domain, extra=extra_data if extra_data else None
         )
         try:
-            user = User.objects.get(email=recipient_address)
+            user = User.objects.get(email=email_address)
         except User.DoesNotExist:
-            data["unknown_complainers"].append(complaint_data)
+            data["unknown_complainers"].append(user_complaint_data)
             continue
 
         if user.id in data["users"]:
-            data["duplicate_users"].append((user.id, complaint_data))
+            data["duplicate_users"].append((user.id, user_complaint_data))
         else:
             data["users"][user.id] = {
                 "user": user,
-                "complaint": complaint_data,
+                "complaint": user_complaint_data,
                 "masks": [],
             }
 
     # Collect From: addresses and their users
-    for full_from_address in from_addresses:
-        from_address = parseaddr(full_from_address)[1]
-        mask = _get_address_if_exists(from_address)
+    for email_address in complaint_data.from_addresses:
+        mask = _get_address_if_exists(email_address)
         if mask:
             if mask.user.id in data["users"]:
                 data["users"][user.id]["masks"].append(mask)
@@ -1834,7 +1807,7 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
                     "masks": [mask],
                 }
         else:
-            data["unknown_senders"].append(from_address)
+            data["unknown_senders"].append(email_address)
 
     # Handle known Relay users
     user_metrics: list[dict[str, str]] = []
@@ -1880,13 +1853,10 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         user_metrics.append(
             {"user_match": "no_recipients", "relay_action": "no_action"}
         )
-    subtype = complaint.pop("complaintSubType", None)
-    user_agent = complaint.pop("userAgent", None)
-    feedback = complaint.pop("complaintFeedbackType", None)
     for metrics in user_metrics:
         tags = {
-            "complaint_subtype": subtype or "none",
-            "complaint_feedback": feedback or "none",
+            "complaint_subtype": complaint_data.subtype or "none",
+            "complaint_feedback": complaint_data.feedback_type or "none",
             "user_match": metrics["user_match"],
             "relay_action": metrics["relay_action"],
         }
@@ -1897,9 +1867,9 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         )
 
         log_extra = {
-            "complaint_subtype": subtype,
-            "complaint_user_agent": user_agent,
-            "complaint_feedback": feedback,
+            "complaint_subtype": complaint_data.subtype or None,
+            "complaint_user_agent": complaint_data.user_agent or None,
+            "complaint_feedback": complaint_data.feedback_type or None,
         }
         log_extra.update(metrics)
         info_logger.info("complaint_notification", extra=log_extra)
@@ -1907,6 +1877,54 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     if data["unknown_complainers"]:
         return HttpResponse("Address does not exist", status=404)
     return HttpResponse("OK", status=200)
+
+
+class RawComplaintData(NamedTuple):
+    complained_recipients: list[tuple[str, dict[str, Any]]]
+    from_addresses: list[str]
+    subtype: str
+    user_agent: str
+    feedback_type: str
+
+
+def _get_complaint_data(message_json: AWS_SNSMessageJSON) -> RawComplaintData:
+    """Extract complaint data from a complaint notification"""
+    complaint = message_json["complaint"]
+
+    T = TypeVar("T")
+
+    def get_or_log(key: str, source: dict[str, T], data_type: type[T]) -> T:
+        """Get a value from a dictionary, or log if not found"""
+        if key in source:
+            return source[key]
+        logger.error(
+            "_get_complaint_data: Unexpected message",
+            extra={"missing_key": key, "keys": ",".join(source.keys())},
+        )
+        return data_type()
+
+    raw_complained_recipients = get_or_log("complainedRecipients", complaint, list)
+    complained_recipients = []
+    for entry in raw_complained_recipients:
+        if raw_email_address := get_or_log("emailAddress", entry, str):
+            email_address = parseaddr(raw_email_address)[1]
+            extra = {
+                key: value for key, value in entry.items() if key != "emailAddress"
+            }
+            complained_recipients.append((email_address, extra))
+
+    mail = get_or_log("mail", message_json, dict)
+    commonHeaders = get_or_log("commonHeaders", mail, dict)
+    raw_from_addresses = get_or_log("from", commonHeaders, list)
+    from_addresses = [parseaddr(addr)[1] for addr in raw_from_addresses]
+
+    subtype = get_or_log("complaintSubType", complaint, str)
+    user_agent = get_or_log("userAgent", complaint, str)
+    feedback_type = get_or_log("complaintFeedbackType", complaint, str)
+
+    return RawComplaintData(
+        complained_recipients, from_addresses, subtype, user_agent, feedback_type
+    )
 
 
 _WAFFLE_FLAGS_INITIALIZED = False
