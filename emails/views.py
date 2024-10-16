@@ -1685,13 +1685,9 @@ def _handle_bounce(message_json: AWS_SNSMessageJSON) -> HttpResponse:
 
 
 def _build_disabled_mask_for_spam_email(
-    mask: RelayAddress | DomainAddress, original_spam_email: dict
+    mask: RelayAddress | DomainAddress,
 ) -> EmailMessage:
-    ctx = {
-        "mask": mask.full_address,
-        "spam_email": original_spam_email,
-        "SITE_ORIGIN": settings.SITE_ORIGIN,
-    }
+    ctx = {"mask": mask.full_address, "SITE_ORIGIN": settings.SITE_ORIGIN}
     html_body = render_to_string("emails/disabled_mask_for_spam.html", ctx)
     text_body = render_to_string("emails/disabled_mask_for_spam.txt", ctx)
 
@@ -1705,10 +1701,8 @@ def _build_disabled_mask_for_spam_email(
     return msg
 
 
-def _send_disabled_mask_for_spam_email(
-    mask: RelayAddress | DomainAddress, original_spam_email: dict
-) -> None:
-    msg = _build_disabled_mask_for_spam_email(mask, original_spam_email)
+def _send_disabled_mask_for_spam_email(mask: RelayAddress | DomainAddress) -> None:
+    msg = _build_disabled_mask_for_spam_email(mask)
     if not settings.RELAY_FROM_ADDRESS:
         raise ValueError(
             "Must set settings.RELAY_FROM_ADDRESS to send disabled_mask_for_spam email."
@@ -1768,9 +1762,7 @@ def _disable_masks_for_complaint(message_json: dict, user: User) -> None:
             if flag_is_active_in_task(flag_name, address.user):
                 address.enabled = False
                 address.save()
-                _send_disabled_mask_for_spam_email(
-                    address, message_json.get("mail", {})
-                )
+                _send_disabled_mask_for_spam_email(address)
 
 
 def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
