@@ -1893,32 +1893,45 @@ def _get_complaint_data(message_json: AWS_SNSMessageJSON) -> RawComplaintData:
 
     T = TypeVar("T")
 
-    def get_or_log(key: str, source: dict[str, T], data_type: type[T]) -> T:
+    def get_or_log(
+        key: str, source: dict[str, T], data_type: type[T]
+    ) -> tuple[T, bool]:
         """Get a value from a dictionary, or log if not found"""
         if key in source:
-            return source[key]
+            return source[key], True
         logger.error(
             "_get_complaint_data: Unexpected message",
             extra={"missing_key": key, "found_keys": ",".join(sorted(source.keys()))},
         )
-        return data_type()
+        return data_type(), False
 
-    raw_complained_recipients = get_or_log("complainedRecipients", complaint, list)
+    raw_recipients, has_cr = get_or_log("complainedRecipients", complaint, list)
     complained_recipients = []
-    for entry in raw_complained_recipients:
-        if raw_email_address := get_or_log("emailAddress", entry, str):
+    no_entries = True
+    for entry in raw_recipients:
+        no_entries = False
+        raw_email_address, has_email = get_or_log("emailAddress", entry, str)
+        if has_email:
             email_address = parseaddr(raw_email_address)[1]
             extra = {
                 key: value for key, value in entry.items() if key != "emailAddress"
             }
             complained_recipients.append((email_address, extra))
+    if has_cr and no_entries:
+        logger.error("_get_complaint_data: Empty complainedRecipients")
 
-    mail = get_or_log("mail", message_json, dict)
-    commonHeaders = get_or_log("commonHeaders", mail, dict)
-    raw_from_addresses = get_or_log("from", commonHeaders, list)
+    mail, has_mail = get_or_log("mail", message_json, dict)
+    if has_mail:
+        commonHeaders, has_ch = get_or_log("commonHeaders", mail, dict)
+    else:
+        commonHeaders, has_ch = {}, False
+    if has_ch:
+        raw_from_addresses, _ = get_or_log("from", commonHeaders, list)
+    else:
+        raw_from_addresses = []
     from_addresses = [parseaddr(addr)[1] for addr in raw_from_addresses]
 
-    feedback_type = get_or_log("complaintFeedbackType", complaint, str)
+    feedback_type, _ = get_or_log("complaintFeedbackType", complaint, str)
 
     # Only present when destination is on account suppression list
     subtype = complaint.get("complaintSubType", "")
