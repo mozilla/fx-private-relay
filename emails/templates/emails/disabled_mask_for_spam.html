@@ -8,23 +8,62 @@
 
 {% include "emails/direct_email_header.html" %}
 
-    <table role="presentation" border="0" cellpadding="0" cellspacing="10px" style="padding: 60px 30px 120px 30px;" align="center">
+  <style>
+    .button {
+      box-sizing: border-box;
+      padding: 15px 25px;
+      display: inline-block;
+      font-family: 'metropolis medium', system-ui, sans-serif;
+      text-decoration: none;
+      -webkit-text-size-adjust: none;
+      text-align: center;
+      color: #FFFFFF;
+      background-color: #0060df;
+      border-radius: 4px;
+      -webkit-border-radius: 4px;
+      -moz-border-radius: 4px;
+      width: auto;
+      max-width: 100%;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      word-wrap: break-word;
+      font-size: 16px;
+    }
+  </style>
+    <table role="presentation" border="0" cellpadding="0" cellspacing="10px" style="padding: 30px;" align="center">
+    {% with mask|striptags|urlencode as mask_for_url %}
+        {% with "/accounts/profile/#"|add:mask_for_url as mask_url%}
         <tr>
             <td style="max-width:850px; padding-top: 0px; padding-bottom: 0px; text-align: center;">
-                {% with mask|striptags|urlencode as mask_url %}
-                <h2 style="font-family: inter medium, Arial, system-ui, sans-serif;"> 
+                <h2 style="font-family: inter medium, Arial, system-ui, sans-serif;">
                     <img width="18" src="{{ SITE_ORIGIN }}/static/images/email-images/warning.png" style="margin: 0 5px;" alt="warning icon"/>
-                    {% ftlmsg 'relay-disabled-your-mask' %}
+                    {% ftlmsg 'reactivate-your-mask' %}
                 </h2>
-                <p style="line-height: 200%; margin-bottom: 30px; padding: 20px 60px 20px 60px">
-                {% ftlmsg 'relay-received-spam-complaint-html' mask=mask %} {% ftlmsg 'relay-disabled-your-mask-detail-html' mask=mask %}
-                </p> 
-                <a href="{{ SITE_ORIGIN }}/accounts/profile/#{{ mask_url }}">
-                    {% ftlmsg 're-enable-your-mask' %}
-                </a>
-                {% endwith %}
-            </td> 
+            </td>
         </tr>
+        <tr>
+            <td style="max-width:850px; padding-top: 0px; padding-bottom: 0px;">
+                <p style="line-height: 1.5; margin-bottom: 1.5em">
+                {% ftlmsg 'relay-received-spam-complaint-and-deactivated-mask-html' mask=mask %} {% ftlmsg 'relay-disabled-your-mask-detail-html' mask=mask %}
+                </p>
+                <p style="line-height: 1.5; margin-bottom: 1.5em">
+                    {% ftlmsg 'reactivate-mask-detail-html' mask_url=mask_url %}
+                </p>
+                <p style="line-height: 1.5; margin-bottom: 1.5em">
+                    {% ftlmsg 'learn-about-blocking-html' learn_more_url='https://support.mozilla.org/kb/disable-email-forwarding-stop-receiving-emails-sent-through-masks' %}
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td style="max-width:850px; padding-top: 20px; padding-bottom: 20px; text-align: center;">
+              <a href="{{ mask_url }}"
+                  target="_blank" class="button" style="color: #FFFFFF;" rel="noreferrer">
+                  {% ftlmsg 'reactivate-your-mask' %}
+                </a>
+            </td>
+        </tr>
+        {% endwith %}
+    {% endwith %}
     </table>
 
     {% include "emails/direct_email_footer.html" %}

@@ -1,5 +1,5 @@
-Subject: =?utf-8?q?=E2=81=A8Firefox_Relay=E2=81=A9?= has disabled one of your
- email masks.
+Subject: =?utf-8?q?=E2=81=A8Firefox_Relay=E2=81=A9?= has deactivated one of
+ your email masks.
 From: reply@relay.example.com
 To: testreal@email.com
 MIME-Version: 1.0
@@ -13,16 +13,20 @@ Content-Transfer-Encoding: quoted-printable
 
 
 
-=E2=81=A8Firefox Relay=E2=81=A9 has disabled one of your email masks.
+=E2=81=A8Firefox Relay=E2=81=A9 has deactivated one of your email masks.
 
-=E2=81=A8Firefox Relay=E2=81=A9 received a spam complaint for an email sent t=
-o =E2=81=A8w41fwbt4q@test.com=E2=81=A9. This usually happens if you or your e=
-mail provider mark an email as spam. To prevent further spam, =E2=81=A8Firefo=
-x Relay=E2=81=A9 has disabled your =E2=81=A8w41fwbt4q@test.com=E2=81=A9 mask.
+An email from your mask address, =E2=81=A8w41fwbt4q@test.com=E2=81=A9, was ma=
+rked as spam. When this happens, =E2=81=A8Firefox Relay=E2=81=A9 deactivates =
+the mask and stops forwarding emails.
 
-Visit your =E2=81=A8Firefox Relay=E2=81=A9 dashboard to re-enable this mask.
+To reactivate your mask, remove email blocking on your =E2=81=A8Firefox Relay=
+=E2=81=A9 dashboard.
 http://127.0.0.1:8000/accounts/profile/#w41fwbt4q%40test.com
 
+
+Learn about blocking and email forwarding at =E2=81=A8https://support.mozilla=
+.org/kb/disable-email-forwarding-stop-receiving-emails-sent-through-masks=E2=
+=81=A9
 
 
 --==[BOUNDARY0]==
@@ -224,34 +228,74 @@ ail" style=3D"color: white;">Upgrade for more protection</a>=20
     </table> =20
 
 
+  <style>
+    .button {
+      box-sizing: border-box;
+      padding: 15px 25px;
+      display: inline-block;
+      font-family: 'metropolis medium', system-ui, sans-serif;
+      text-decoration: none;
+      -webkit-text-size-adjust: none;
+      text-align: center;
+      color: #FFFFFF;
+      background-color: #0060df;
+      border-radius: 4px;
+      -webkit-border-radius: 4px;
+      -moz-border-radius: 4px;
+      width: auto;
+      max-width: 100%;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      word-wrap: break-word;
+      font-size: 16px;
+    }
+  </style>
     <table role=3D"presentation" border=3D"0" cellpadding=3D"0" cellspacing=
-=3D"10px" style=3D"padding: 60px 30px 120px 30px;" align=3D"center">
+=3D"10px" style=3D"padding: 30px;" align=3D"center">
+   =20
+       =20
         <tr>
             <td style=3D"max-width:850px; padding-top: 0px; padding-bottom: 0=
 px; text-align: center;">
-               =20
                 <h2 style=3D"font-family: inter medium, Arial, system-ui, san=
-s-serif;">=20
+s-serif;">
                     <img width=3D"18" src=3D"http://127.0.0.1:8000/static/ima=
 ges/email-images/warning.png" style=3D"margin: 0 5px;" alt=3D"warning icon"/>
-                    =E2=81=A8Firefox Relay=E2=81=A9 has disabled one of your =
-email masks.
+                    Reactivate your email mask
                 </h2>
-                <p style=3D"line-height: 200%; margin-bottom: 30px; padding: =
-20px 60px 20px 60px">
-                Firefox Relay received a spam complaint for an email sent to =
-<strong>w41fwbt4q@test.com</strong>. This usually happens if you or your emai=
-l provider mark an email as spam. To prevent further spam, Firefox Relay has =
-disabled your <strong>w41fwbt4q@test.com</strong> mask.
-                </p>=20
-                <a href=3D"http://127.0.0.1:8000/accounts/profile/#w41fwbt4q%=
-40test.com">
-                    Visit your =E2=81=A8Firefox Relay=E2=81=A9 dashboard to r=
-e-enable this mask.
-                </a>
-               =20
-            </td>=20
+            </td>
         </tr>
+        <tr>
+            <td style=3D"max-width:850px; padding-top: 0px; padding-bottom: 0=
+px;">
+                <p style=3D"line-height: 1.5; margin-bottom: 1.5em">
+                An email from your mask address, w41fwbt4q@test.com, was mark=
+ed as spam. When this happens, Firefox Relay deactivates the mask and stops f=
+orwarding emails. ???
+                </p>
+                <p style=3D"line-height: 1.5; margin-bottom: 1.5em">
+                    To reactivate your mask, <a href=3D"/accounts/profile/#w4=
+1fwbt4q%40test.com">remove email blocking</a> on your Firefox Relay dashboard.
+                </p>
+                <p style=3D"line-height: 1.5; margin-bottom: 1.5em">
+                    <a href=3D"https://support.mozilla.org/kb/disable-email-f=
+orwarding-stop-receiving-emails-sent-through-masks">Learn about blocking and =
+email forwarding</a>
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td style=3D"max-width:850px; padding-top: 20px; padding-bottom: =
+20px; text-align: center;">
+              <a href=3D"/accounts/profile/#w41fwbt4q%40test.com"
+                  target=3D"_blank" class=3D"button" style=3D"color: #FFFFFF;=
+" rel=3D"noreferrer">
+                  Reactivate your email mask
+                </a>
+            </td>
+        </tr>
+       =20
+   =20
     </table>
 
    =20

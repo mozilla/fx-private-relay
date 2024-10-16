@@ -1,11 +1,13 @@
 {% load ftl %}
 {% load email_extras %}
 {% withftl bundle='privaterelay.ftl_bundles.main' language=language %}
-{% ftlmsg 'relay-disabled-your-mask' %}
+{% ftlmsg 'relay-deactivated-your-mask' %}
 
-{% ftlmsg 'relay-received-spam-complaint' mask=mask %} {% ftlmsg 'relay-disabled-your-mask-detail' mask=mask %}
+{% ftlmsg 'relay-received-spam-complaint-and-deactivated-mask' mask=mask %}
 {% with mask|striptags|urlencode as mask_url %}
-{% ftlmsg 're-enable-your-mask' %}
+{% ftlmsg 'reactivate-mask-detail' %}
 {{ SITE_ORIGIN }}/accounts/profile/#{{ mask_url }}
 {% endwith %}
+
+{% ftlmsg 'learn-about-blocking' learn_more_url='https://support.mozilla.org/kb/disable-email-forwarding-stop-receiving-emails-sent-through-masks' %}
 {% endwithftl %}
