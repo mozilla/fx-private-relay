@@ -1714,8 +1714,8 @@ def _send_disabled_mask_for_spam_email(mask: RelayAddress | DomainAddress) -> No
             message=msg,
         )
     except ClientError as e:
-        logger.error("reply_not_allowed_ses_client_error", extra=e.response["Error"])
-    incr_if_enabled("free_user_reply_attempt", 1)
+        logger.error("send_disabled_mask_ses_client_error", extra=e.response["Error"])
+    incr_if_enabled("send_disabled_mask_email", 1)
 
 
 def _disable_masks_for_complaint(message_json: dict, user: User) -> None:
