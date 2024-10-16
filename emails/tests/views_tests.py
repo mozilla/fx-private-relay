@@ -9,7 +9,7 @@ from email import message_from_string
 from email.message import EmailMessage
 from typing import Any, cast
 from unittest._log import _LoggingWatcher
-from unittest.mock import Mock, patch
+from unittest.mock import ANY, Mock, patch
 from uuid import uuid4
 
 from django.conf import settings
@@ -802,13 +802,15 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         self.ra.save()
 
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
+        expected_email = "complaint+ebsbdsan7@simulator.amazonses.com"
+
         self.check_sent_email_matches_fixture(
             "single_recipient",
             expected_source="replies@default.com",
-            expected_destination="complaint+ebsbdsan7@simulator.amazonses.com",
+            expected_destination=expected_email,
             fixture_replace=(
-                "To: user@example.com",
-                "To: complaint+ebsbdsan7@simulator.amazonses.com",
+                f"To: {self.user.email}",
+                f"To: {expected_email}",
             ),
         )
         self.ra.refresh_from_db()
@@ -828,6 +830,40 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
             EMAIL_SNS_BODIES["single_recipient"]["Message"]
         )
         assert log_notification == expected_log_notification
+
+    @override_flag("developer_mode", active=True)
+    @patch("emails.views.info_logger")
+    def test_developer_mode_simulate_complaint_domain_address(
+        self, mock_logger: Mock
+    ) -> None:
+        """Domain addresses can have 'DEV:simulate_complaint' label"""
+        domain_address = DomainAddress.objects.create(
+            address="wildcard",
+            user=self.premium_user,
+            description="DEV:simulate_complaint",
+        )
+        _sns_notification(EMAIL_SNS_BODIES["domain_recipient"])
+        expected_email = (
+            f"complaint+wildcard.{self.premium_user.profile.subdomain}"
+            "@simulator.amazonses.com"
+        )
+
+        self.check_sent_email_matches_fixture(
+            "domain_recipient",
+            expected_source="replies@default.com",
+            expected_destination=expected_email,
+            fixture_replace=(
+                f"To: {self.premium_user.email}",
+                f"To: {expected_email}",
+            ),
+        )
+        domain_address.refresh_from_db()
+        assert domain_address.num_forwarded == 1
+        assert domain_address.last_used_at is not None
+
+        mock_logger.info.assert_called_with(
+            "_handle_received: developer_mode", extra=ANY
+        )
 
 
 class SNSNotificationRepliesTest(SNSNotificationTestBase):
@@ -1352,6 +1388,43 @@ class ComplaintHandlingTest(TestCase):
 
         (err_log,) = error_logs.records
         assert err_log.msg == "_gather_complainers: unknown complainedRecipient"
+
+    @override_flag("developer_mode", active=True)
+    def test_complaint_developer_mode_domain_address(self):
+        """If the simulator email can not be turned into a mask, it is not changed."""
+        premium_user = make_premium_test_user()
+        assert premium_user.email
+        premium_user.profile.subdomain = "subdomain"
+        premium_user.profile.save()
+
+        domain_address = DomainAddress.objects.create(
+            address="complainer",
+            user=premium_user,
+            description="DEV:simulate_complaint",
+        )
+
+        complaint_msg = deepcopy(self.complaint_msg)
+        complaint_msg["complaint"]["complainedRecipients"] = [
+            {"emailAddress": "complaint+complainer.subdomain@simulator.amazonses.com"}
+        ]
+        complaint_msg["mail"]["commonHeaders"]["from"] = [domain_address.full_address]
+        complaint_body = {"Message": json.dumps(complaint_msg)}
+
+        with self.assertLogs(INFO_LOG) as logs:
+            response = _sns_notification(complaint_body)
+        assert response.status_code == 200
+
+        premium_user.profile.refresh_from_db()
+        assert premium_user.profile.auto_block_spam is True
+        self.mock_ses_client.send_raw_email.assert_not_called()
+
+        (rec1, rec2) = logs.records
+        # Developer mode still active due to mask match
+        assert rec1.msg == "_handle_complaint: developer mode"
+        assert getattr(rec1, "mask_id") == domain_address.metrics_id
+        assert getattr(rec1, "dev_action") == "log"
+
+        assert rec2.msg == "complaint_notification"
 
     def test_complaint_no_complained_recipients_error_logged(self):
         """Without complained recipients, an error is logged, but matches on From"""
