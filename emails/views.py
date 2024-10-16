@@ -1899,7 +1899,7 @@ def _get_complaint_data(message_json: AWS_SNSMessageJSON) -> RawComplaintData:
             return source[key]
         logger.error(
             "_get_complaint_data: Unexpected message",
-            extra={"missing_key": key, "keys": ",".join(source.keys())},
+            extra={"missing_key": key, "found_keys": ",".join(sorted(source.keys()))},
         )
         return data_type()
 
@@ -1918,9 +1918,12 @@ def _get_complaint_data(message_json: AWS_SNSMessageJSON) -> RawComplaintData:
     raw_from_addresses = get_or_log("from", commonHeaders, list)
     from_addresses = [parseaddr(addr)[1] for addr in raw_from_addresses]
 
-    subtype = get_or_log("complaintSubType", complaint, str)
-    user_agent = get_or_log("userAgent", complaint, str)
     feedback_type = get_or_log("complaintFeedbackType", complaint, str)
+
+    # Only present when destination is on account suppression list
+    subtype = complaint.get("complaintSubType", "")
+    # Only present for feedback reports
+    user_agent = complaint.get("userAgent", "")
 
     return RawComplaintData(
         complained_recipients, from_addresses, subtype, user_agent, feedback_type

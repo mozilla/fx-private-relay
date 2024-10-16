@@ -1316,6 +1316,35 @@ class ComplaintHandlingTest(TestCase):
         record = logs.records[1]
         assert record.msg == "complaint_notification"
 
+    def test_complaint_no_complained_recipients_error_logged(self):
+        """Without complained recipients, an error is logged, but matches on From"""
+        complaint_msg = deepcopy(self.complaint_msg)
+        del complaint_msg["complaint"]["complainedRecipients"]
+        complaint_body = {"Message": json.dumps(complaint_msg)}
+
+        with (
+            self.assertLogs(INFO_LOG) as info_logs,
+            self.assertLogs(ERROR_LOG) as error_logs,
+        ):
+            response = _sns_notification(complaint_body)
+        assert response.status_code == 200
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam is True
+        self.mock_ses_client.send_raw_email.assert_not_called()
+
+        (info_log,) = info_logs.records
+        assert info_log.msg == "complaint_notification"
+        assert getattr(info_log, "user_match") == "found"
+        assert getattr(info_log, "relay_action") == "auto_block_spam"
+
+        (err_log,) = error_logs.records
+        assert err_log.msg == "_get_complaint_data: Unexpected message"
+        assert getattr(err_log, "missing_key") == "complainedRecipients"
+        assert getattr(err_log, "found_keys") == (
+            "arrivalDate,complaintFeedbackType,feedbackId,timestamp,userAgent"
+        )
+
     def test_build_disabled_mask_for_spam_email(self):
         free_user = make_free_test_user("testreal@email.com")
         test_mask_address = "w41fwbt4q"
