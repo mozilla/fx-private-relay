@@ -1198,6 +1198,7 @@ class ComplaintHandlingTest(TestCase):
                 "complaint_feedback:abuse",
                 "user_match:found",
                 "relay_action:auto_block_spam",
+                "found_in:all",
             ],
         )
         assert len(logs.records) == 1
@@ -1213,6 +1214,7 @@ class ComplaintHandlingTest(TestCase):
             "user_match": "found",
             "mask_match": "not_searched",
             "fxa_id": self.sa.uid,
+            "found_in": "all",
         }
 
     def test_complaint_log_with_optout(self) -> None:
@@ -1266,6 +1268,7 @@ class ComplaintHandlingTest(TestCase):
                 "complaint_feedback:abuse",
                 "user_match:found",
                 "relay_action:disable_mask",
+                "found_in:all",
             ],
         )
 
@@ -1282,6 +1285,7 @@ class ComplaintHandlingTest(TestCase):
             "user_match": "found",
             "mask_match": "found",
             "fxa_id": self.sa.uid,
+            "found_in": "all",
         }
 
     @override_flag("developer_mode", active=True)
@@ -1337,6 +1341,7 @@ class ComplaintHandlingTest(TestCase):
         assert info_log.msg == "complaint_notification"
         assert getattr(info_log, "user_match") == "found"
         assert getattr(info_log, "relay_action") == "auto_block_spam"
+        assert getattr(info_log, "found_in") == "from_header"
 
         (err_log,) = error_logs.records
         assert err_log.msg == "_get_complaint_data: Unexpected message"
@@ -1406,13 +1411,22 @@ class ComplaintHandlingTest(TestCase):
         del complaint_msg["mail"]["commonHeaders"]
         complaint_body = {"Message": json.dumps(complaint_msg)}
 
-        with self.assertLogs(ERROR_LOG) as error_logs:
+        with (
+            self.assertLogs(INFO_LOG) as info_logs,
+            self.assertLogs(ERROR_LOG) as error_logs,
+        ):
             response = _sns_notification(complaint_body)
         assert response.status_code == 200
 
         self.user.profile.refresh_from_db()
         assert self.user.profile.auto_block_spam is True
         self.mock_ses_client.send_raw_email.assert_not_called()
+
+        (info_log,) = info_logs.records
+        assert info_log.msg == "complaint_notification"
+        assert getattr(info_log, "user_match") == "found"
+        assert getattr(info_log, "relay_action") == "auto_block_spam"
+        assert getattr(info_log, "found_in") == "complained_recipients"
 
         (err_log,) = error_logs.records
         assert err_log.msg == "_get_complaint_data: Unexpected message"
@@ -1439,6 +1453,34 @@ class ComplaintHandlingTest(TestCase):
         assert err_log.msg == "_get_complaint_data: Unexpected message"
         assert getattr(err_log, "missing_key") == "from"
         assert getattr(err_log, "found_keys") == "subject,to"
+
+    def test_complaint_unknown_complained_recipient_404(self):
+        """If the recipient is unknown but sender is mask, return 404"""
+        complaint_msg = deepcopy(self.complaint_msg)
+        complaint_msg["complaint"]["complainedRecipients"] = [
+            {"emailAddress": "unknown@somewhere.example.com"}
+        ]
+        complaint_body = {"Message": json.dumps(complaint_msg)}
+
+        with (
+            self.assertLogs(INFO_LOG) as info_logs,
+            self.assertLogs(ERROR_LOG) as error_logs,
+        ):
+            response = _sns_notification(complaint_body)
+        assert response.status_code == 404
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam is True
+        self.mock_ses_client.send_raw_email.assert_not_called()
+
+        (info_log,) = info_logs.records
+        assert info_log.msg == "complaint_notification"
+        assert getattr(info_log, "user_match") == "found"
+        assert getattr(info_log, "found_in") == "from_header"
+        assert getattr(info_log, "relay_action") == "auto_block_spam"
+
+        (err_log,) = error_logs.records
+        assert err_log.msg == "_gather_complainers: unknown complainedRecipient"
 
     def test_build_disabled_mask_for_spam_email(self):
         free_user = make_free_test_user("testreal@email.com")
