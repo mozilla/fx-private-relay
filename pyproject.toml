@@ -58,7 +58,6 @@ module = [
     "django_ftl",
     "django_ftl.bundles",
     "google.*",
-    "google_measurement_protocol",
     "googlecloudprofiler",
     "ipware",
     "jwcrypto",
@@ -86,20 +85,15 @@ module = [
 [tool.paul-mclendahand]
 # Creates a PR that combines several dependabot PRs
 # https://github.com/willkg/paul-mclendahand
-github_project="fx-private-relay"
-github_user="mozilla"
-main_branch="main"
+github_project = "fx-private-relay"
+github_user = "mozilla"
+main_branch = "main"
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "privaterelay.settings"
 python_files = "tests.py test_*.py *_tests.py"
 norecursedirs = ".git .local extension frontend node_modules"
-testpaths = [
-    "api",
-    "emails",
-    "phones",
-    "privaterelay",
-]
+testpaths = ["api", "emails", "phones", "privaterelay"]
 
 [tool.ruff.lint]
 select = [
@@ -122,10 +116,17 @@ extend-safe-fixes = [
 ]
 
 [tool.ruff.lint.isort]
-section-order = ["future", "standard-library", "django", "third-party", "first-party", "local-folder"]
+section-order = [
+    "future",
+    "standard-library",
+    "django",
+    "third-party",
+    "first-party",
+    "local-folder",
+]
 
 [tool.ruff.lint.isort.sections]
-"django"= ["django"]
+"django" = ["django"]
 
 [tool.ruff.lint.per-file-ignores]
 # Ignore line length in generated file
