@@ -966,10 +966,14 @@ def _get_developer_mode_action(
         return None
 
     if "DEV:simulate_complaint" in mask.description:
+        if isinstance(mask, RelayAddress):
+            subaddress = mask.address
+        else:
+            subaddress = f"{mask.address}.{mask.user.profile.subdomain}"
         action = DeveloperModeAction(
             mask_id=mask.metrics_id,
             action="simulate_complaint",
-            new_destination_address=f"complaint+{mask.address}@simulator.amazonses.com",
+            new_destination_address=f"complaint+{subaddress}@simulator.amazonses.com",
         )
     else:
         action = DeveloperModeAction(mask_id=mask.metrics_id, action="log")
@@ -1888,7 +1892,11 @@ def _gather_complainers(
         if domain == "simulator.amazonses.com" and local.startswith("complaint+"):
             mask_part = local.removeprefix("complaint+")
             mask_domain = get_domains_from_settings()["MOZMAIL_DOMAIN"]
-            mask_address = f"{mask_part}@{mask_domain}"
+            if "." in mask_part:
+                local, subdomain = mask_part.split(".", 1)
+                mask_address = f"{local}@{subdomain}.{mask_domain}"
+            else:
+                mask_address = f"{mask_part}@{mask_domain}"
             mask = _get_address_if_exists(mask_address)
             if mask:
                 email_address = mask.user.email
