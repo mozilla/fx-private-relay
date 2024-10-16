@@ -1743,7 +1743,7 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     complaint_data = _get_complaint_data(message_json)
     users, unknown_count = _gather_complainers(complaint_data)
 
-    # Handle known Relay users
+    # Mitigate future spam for Relay users
     user_metrics: list[dict[str, str]] = []
     for user_data in users:
         user = user_data["user"]
@@ -1753,6 +1753,7 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             "relay_action": "no_action",
             "fxa_id": user.profile.metrics_fxa_id,
             "domain": user_data["domain"],
+            "found_in": user_data["found_in"],
         }
         if user_data["extra"]:
             metrics["complaint_extra"] = json.dumps(user_data["extra"])
@@ -1792,6 +1793,7 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             "complaint_feedback": complaint_data.feedback_type or "none",
             "user_match": metrics["user_match"],
             "relay_action": metrics["relay_action"],
+            "found_in": metrics["found_in"],
         }
         incr_if_enabled(
             "email_complaint",
@@ -1878,6 +1880,7 @@ def _get_complaint_data(message_json: AWS_SNSMessageJSON) -> RawComplaintData:
 
 class Complainer(TypedDict):
     user: User
+    found_in: Literal["complained_recipients", "from_header", "all"]
     domain: str
     extra: dict[str, Any] | None
     masks: list[RelayAddress | DomainAddress]
@@ -1906,6 +1909,7 @@ def _gather_complainers(
         try:
             user = User.objects.get(email=email_address)
         except User.DoesNotExist:
+            logger.error("_gather_complainers: unknown complainedRecipient")
             unknown_complainer_count += 1
             continue
 
@@ -1914,6 +1918,7 @@ def _gather_complainers(
         else:
             users[user.id] = {
                 "user": user,
+                "found_in": "complained_recipients",
                 "domain": domain,
                 "extra": extra_data or None,
                 "masks": [],
@@ -1926,9 +1931,14 @@ def _gather_complainers(
         if mask:
             if mask.user.id in users:
                 users[user.id]["masks"].append(mask)
+                if users[user.id]["found_in"] == "complained_recipients":
+                    users[user.id]["found_in"] = "all"
+                else:
+                    logger.error("_gather_complainers: no complainer, multi-mask")
             else:
                 users[mask.user.id] = {
                     "user": mask.user,
+                    "found_in": "from_header",
                     "domain": mask.user.email.split("@")[1],
                     "extra": None,
                     "masks": [mask],
