@@ -1754,8 +1754,7 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
 
     # Collect complaining recipients and their users
     users: dict[int, Complainer] = {}
-    unknown_complainers: list[UserComplaintData] = []
-
+    unknown_complainer_count = 0
     for email_address, extra_data in complaint_data.complained_recipients:
         local, domain = email_address.split("@", 1)
 
@@ -1775,7 +1774,7 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         try:
             user = User.objects.get(email=email_address)
         except User.DoesNotExist:
-            unknown_complainers.append(user_complaint_data)
+            unknown_complainer_count += 1
             continue
 
         if user.id in users:
@@ -1867,7 +1866,7 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         log_extra.update(metrics)
         info_logger.info("complaint_notification", extra=log_extra)
 
-    if unknown_complainers:
+    if unknown_complainer_count:
         return HttpResponse("Address does not exist", status=404)
     return HttpResponse("OK", status=200)
 
