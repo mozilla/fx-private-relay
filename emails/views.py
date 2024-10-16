@@ -1711,17 +1711,11 @@ def _send_disabled_mask_for_spam_email(mask: RelayAddress | DomainAddress) -> No
     incr_if_enabled("send_disabled_mask_email", 1)
 
 
-class Complainer(TypedDict):
-    user: User
-    domain: str
-    extra: dict[str, Any] | None
-    masks: list[RelayAddress | DomainAddress]
-
-
 def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     """
     Handle an AWS SES complaint notification.
 
+    TODO: update this docstring
     Sets the user's auto_block_spam flag to True.
 
     Disables the mask thru which the spam mail was forwarded, and sends an email to the
@@ -1747,58 +1741,11 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     * fxa_id - The Mozilla account (previously known as Firefox Account) ID of the user
     """
     complaint_data = _get_complaint_data(message_json)
-
-    # Collect complaining recipients and their users
-    users: dict[int, Complainer] = {}
-    unknown_complainer_count = 0
-    for email_address, extra_data in complaint_data.complained_recipients:
-        local, domain = email_address.split("@", 1)
-
-        # For developer mode complaint simulation, swap with developer's email
-        if domain == "simulator.amazonses.com" and local.startswith("complaint+"):
-            mask_part = local.removeprefix("complaint+")
-            mask_domain = get_domains_from_settings()["MOZMAIL_DOMAIN"]
-            mask_address = f"{mask_part}@{mask_domain}"
-            mask = _get_address_if_exists(mask_address)
-            if mask:
-                email_address = mask.user.email
-                domain = mask.user.email.split("@")[1]
-
-        try:
-            user = User.objects.get(email=email_address)
-        except User.DoesNotExist:
-            unknown_complainer_count += 1
-            continue
-
-        if user.id in users:
-            raise Exception("User defined twice!")
-        users[user.id] = {
-            "user": user,
-            "domain": domain,
-            "extra": extra_data or None,
-            "masks": [],
-        }
-
-    # Collect From: addresses and their users
-    unknown_senders: list[str] = []
-    for email_address in complaint_data.from_addresses:
-        mask = _get_address_if_exists(email_address)
-        if mask:
-            if mask.user.id in users:
-                users[user.id]["masks"].append(mask)
-            else:
-                users[mask.user.id] = {
-                    "user": mask.user,
-                    "domain": mask.user.email.split("@")[1],
-                    "extra": None,
-                    "masks": [mask],
-                }
-        else:
-            unknown_senders.append(email_address)
+    users, unknown_count = _gather_complainers(complaint_data)
 
     # Handle known Relay users
     user_metrics: list[dict[str, str]] = []
-    for user_data in users.values():
+    for user_data in users:
         user = user_data["user"]
         metrics = {
             "user_match": "found",
@@ -1860,7 +1807,7 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         log_extra.update(metrics)
         info_logger.info("complaint_notification", extra=log_extra)
 
-    if unknown_complainer_count:
+    if unknown_count:
         return HttpResponse("Address does not exist", status=404)
     return HttpResponse("OK", status=200)
 
@@ -1927,6 +1874,70 @@ def _get_complaint_data(message_json: AWS_SNSMessageJSON) -> RawComplaintData:
     return RawComplaintData(
         complained_recipients, from_addresses, subtype, user_agent, feedback_type
     )
+
+
+class Complainer(TypedDict):
+    user: User
+    domain: str
+    extra: dict[str, Any] | None
+    masks: list[RelayAddress | DomainAddress]
+
+
+def _gather_complainers(
+    complaint_data: RawComplaintData,
+) -> tuple[list[Complainer], int]:
+    """Fetch Relay Users and masks from the complaint data"""
+
+    users: dict[int, Complainer] = {}
+    unknown_complainer_count = 0
+    for email_address, extra_data in complaint_data.complained_recipients:
+        local, domain = email_address.split("@", 1)
+
+        # For developer mode complaint simulation, swap with developer's email
+        if domain == "simulator.amazonses.com" and local.startswith("complaint+"):
+            mask_part = local.removeprefix("complaint+")
+            mask_domain = get_domains_from_settings()["MOZMAIL_DOMAIN"]
+            mask_address = f"{mask_part}@{mask_domain}"
+            mask = _get_address_if_exists(mask_address)
+            if mask:
+                email_address = mask.user.email
+                domain = mask.user.email.split("@")[1]
+
+        try:
+            user = User.objects.get(email=email_address)
+        except User.DoesNotExist:
+            unknown_complainer_count += 1
+            continue
+
+        if user.id in users:
+            logger.error("_gather_complainers: user appears twice, discarded")
+        else:
+            users[user.id] = {
+                "user": user,
+                "domain": domain,
+                "extra": extra_data or None,
+                "masks": [],
+            }
+
+    # Collect From: addresses and their users
+    unknown_sender_count = 0
+    for email_address in complaint_data.from_addresses:
+        mask = _get_address_if_exists(email_address)
+        if mask:
+            if mask.user.id in users:
+                users[user.id]["masks"].append(mask)
+            else:
+                users[mask.user.id] = {
+                    "user": mask.user,
+                    "domain": mask.user.email.split("@")[1],
+                    "extra": None,
+                    "masks": [mask],
+                }
+        else:
+            logger.error("_gather_complainers: unknown mask, maybe deleted?")
+            unknown_sender_count += 1
+
+    return (list(users.values()), unknown_complainer_count + unknown_sender_count)
 
 
 _WAFFLE_FLAGS_INITIALIZED = False
