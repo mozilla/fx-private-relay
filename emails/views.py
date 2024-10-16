@@ -1715,13 +1715,18 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     """
     Handle an AWS SES complaint notification.
 
-    TODO: update this docstring
-    Sets the user's auto_block_spam flag to True.
+    This looks for Relay users in the complainedRecipients (real email address)
+    and the From: header (mask address). We expect both to match the same Relay user,
+    and return a 200. If one or the other do not match, a 404 is returned, and errors
+    may be logged.
 
-    Disables the mask thru which the spam mail was forwarded, and sends an email to the
-    user to notify them the mask is disabled and can be re-enabled on their dashboard.
+    The first time a user complains, this sets the user's auto_block_spam flag to True.
 
-    For more information, see:
+    The second time a user complains, this disables the mask thru which the spam mail
+    was forwarded, and sends an email to the user to notify them the mask is disabled
+    and can be re-enabled on their dashboard.
+
+    For more information on the complaint notification, see:
     https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
 
     Returns:
@@ -1730,15 +1735,18 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
 
     Emits a counter metric "email_complaint" with these tags:
     * complaint_subtype: 'onaccountsuppressionlist', or 'none' if omitted
-    * complaint_feedback - feedback enumeration from ISP or 'none'
-    * user_match: 'found', 'missing', error states 'no_address' and 'no_recipients'
-    * relay_action: 'no_action', 'auto_block_spam'
+    * complaint_feedback - feedback enumeration from ISP (usually 'abuse') or 'none'
+    * user_match: 'found' or 'no_recipients'
+    * relay_action: 'no_action', 'auto_block_spam', or 'disable_mask'
 
     Emits an info log "complaint_notification", same data as metric, plus:
     * complaint_user_agent - identifies the client used to file the complaint
     * complaint_extra - Extra data from complainedRecipients data, if any
     * domain - User's domain, if an address was given
+    * found_in - "complained_recipients" (real email), "from_header" (email mask),
+      or "all" (matching records found in both)
     * fxa_id - The Mozilla account (previously known as Firefox Account) ID of the user
+    * mask_match - "found" if "From" header contains an email mask, or "not_found"
     """
     complaint_data = _get_complaint_data(message_json)
     complainers, unknown_count = _gather_complainers(complaint_data)
@@ -1771,7 +1779,6 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
                 "complaint_feedback": complaint_data.feedback_type or "none",
                 "user_match": action.user_match,
                 "relay_action": action.relay_action,
-                "found_in": action.found_in,
             }.items()
         ]
         incr_if_enabled("email_complaint", tags=tags)
