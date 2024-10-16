@@ -1345,6 +1345,101 @@ class ComplaintHandlingTest(TestCase):
             "arrivalDate,complaintFeedbackType,feedbackId,timestamp,userAgent"
         )
 
+    def test_complaint_empty_complained_recipients_error_logged(self):
+        """With empty complained recipients, an error is logged, but matches on From"""
+        complaint_msg = deepcopy(self.complaint_msg)
+        complaint_msg["complaint"]["complainedRecipients"] = []
+        complaint_body = {"Message": json.dumps(complaint_msg)}
+
+        with self.assertLogs(ERROR_LOG) as error_logs:
+            response = _sns_notification(complaint_body)
+        assert response.status_code == 200
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam is True
+        self.mock_ses_client.send_raw_email.assert_not_called()
+
+        (err_log,) = error_logs.records
+        assert err_log.msg == "_get_complaint_data: Empty complainedRecipients"
+
+    def test_complaint_wrong_complained_recipients_error_logged(self):
+        """With an unexpected object in complained recipients, an error is logged"""
+        complaint_msg = deepcopy(self.complaint_msg)
+        complaint_msg["complaint"]["complainedRecipients"] = [{"foo": "bar"}]
+        complaint_body = {"Message": json.dumps(complaint_msg)}
+
+        with self.assertLogs(ERROR_LOG) as error_logs:
+            response = _sns_notification(complaint_body)
+        assert response.status_code == 200
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam is True
+        self.mock_ses_client.send_raw_email.assert_not_called()
+
+        (err_log,) = error_logs.records
+        assert err_log.msg == "_get_complaint_data: Unexpected message"
+        assert getattr(err_log, "missing_key") == "emailAddress"
+        assert getattr(err_log, "found_keys") == "foo"
+
+    def test_complaint_no_mail_error_logged(self):
+        """If the mail object is missing, an error is logged"""
+        complaint_msg = deepcopy(self.complaint_msg)
+        del complaint_msg["mail"]
+        complaint_body = {"Message": json.dumps(complaint_msg)}
+
+        with self.assertLogs(ERROR_LOG) as error_logs:
+            response = _sns_notification(complaint_body)
+        assert response.status_code == 200
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam is True
+        self.mock_ses_client.send_raw_email.assert_not_called()
+
+        (err_log,) = error_logs.records
+        assert err_log.msg == "_get_complaint_data: Unexpected message"
+        assert getattr(err_log, "missing_key") == "mail"
+        assert getattr(err_log, "found_keys") == "complaint,notificationType"
+
+    def test_complaint_no_common_headers_error_logged(self):
+        """If the mail object is missing, an error is logged"""
+        complaint_msg = deepcopy(self.complaint_msg)
+        del complaint_msg["mail"]["commonHeaders"]
+        complaint_body = {"Message": json.dumps(complaint_msg)}
+
+        with self.assertLogs(ERROR_LOG) as error_logs:
+            response = _sns_notification(complaint_body)
+        assert response.status_code == 200
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam is True
+        self.mock_ses_client.send_raw_email.assert_not_called()
+
+        (err_log,) = error_logs.records
+        assert err_log.msg == "_get_complaint_data: Unexpected message"
+        assert getattr(err_log, "missing_key") == "commonHeaders"
+        assert getattr(err_log, "found_keys") == (
+            "destination,headers,headersTruncated,messageId,source,timestamp"
+        )
+
+    def test_complaint_no_from_header_error_logged(self):
+        """If the mail object is missing, an error is logged"""
+        complaint_msg = deepcopy(self.complaint_msg)
+        del complaint_msg["mail"]["commonHeaders"]["from"]
+        complaint_body = {"Message": json.dumps(complaint_msg)}
+
+        with self.assertLogs(ERROR_LOG) as error_logs:
+            response = _sns_notification(complaint_body)
+        assert response.status_code == 200
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam is True
+        self.mock_ses_client.send_raw_email.assert_not_called()
+
+        (err_log,) = error_logs.records
+        assert err_log.msg == "_get_complaint_data: Unexpected message"
+        assert getattr(err_log, "missing_key") == "from"
+        assert getattr(err_log, "found_keys") == "subject,to"
+
     def test_build_disabled_mask_for_spam_email(self):
         free_user = make_free_test_user("testreal@email.com")
         test_mask_address = "w41fwbt4q"
