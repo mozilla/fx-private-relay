@@ -1716,17 +1716,10 @@ class UserComplaintData(TypedDict):
     extra: dict[str, Any] | None
 
 
-class ComplaintUser(TypedDict):
+class Complainer(TypedDict):
     user: User
     complaint: UserComplaintData | None
     masks: list[RelayAddress | DomainAddress]
-
-
-class ComplaintData(TypedDict):
-    users: dict[int, ComplaintUser]
-    duplicate_users: list[tuple[int, UserComplaintData]]
-    unknown_complainers: list[UserComplaintData]
-    unknown_senders: list[str]
 
 
 def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
@@ -1760,9 +1753,9 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     complaint_data = _get_complaint_data(message_json)
 
     # Collect complaining recipients and their users
-    data = ComplaintData(
-        users={}, duplicate_users=[], unknown_complainers=[], unknown_senders=[]
-    )
+    users: dict[int, Complainer] = {}
+    unknown_complainers: list[UserComplaintData] = []
+
     for email_address, extra_data in complaint_data.complained_recipients:
         local, domain = email_address.split("@", 1)
 
@@ -1782,36 +1775,36 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         try:
             user = User.objects.get(email=email_address)
         except User.DoesNotExist:
-            data["unknown_complainers"].append(user_complaint_data)
+            unknown_complainers.append(user_complaint_data)
             continue
 
-        if user.id in data["users"]:
-            data["duplicate_users"].append((user.id, user_complaint_data))
-        else:
-            data["users"][user.id] = {
-                "user": user,
-                "complaint": user_complaint_data,
-                "masks": [],
-            }
+        if user.id in users:
+            raise Exception("User defined twice!")
+        users[user.id] = {
+            "user": user,
+            "complaint": user_complaint_data,
+            "masks": [],
+        }
 
     # Collect From: addresses and their users
+    unknown_senders: list[str] = []
     for email_address in complaint_data.from_addresses:
         mask = _get_address_if_exists(email_address)
         if mask:
-            if mask.user.id in data["users"]:
-                data["users"][user.id]["masks"].append(mask)
+            if mask.user.id in users:
+                users[user.id]["masks"].append(mask)
             else:
-                data["users"][mask.user.id] = {
+                users[mask.user.id] = {
                     "user": mask.user,
                     "complaint": None,
                     "masks": [mask],
                 }
         else:
-            data["unknown_senders"].append(email_address)
+            unknown_senders.append(email_address)
 
     # Handle known Relay users
     user_metrics: list[dict[str, str]] = []
-    for user_data in data["users"].values():
+    for user_data in users.values():
         user = user_data["user"]
         metrics = {
             "user_match": "found",
@@ -1874,7 +1867,7 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         log_extra.update(metrics)
         info_logger.info("complaint_notification", extra=log_extra)
 
-    if data["unknown_complainers"]:
+    if unknown_complainers:
         return HttpResponse("Address does not exist", status=404)
     return HttpResponse("OK", status=200)
 
