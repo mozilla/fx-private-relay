@@ -1198,7 +1198,6 @@ class ComplaintHandlingTest(TestCase):
                 "complaint_feedback:abuse",
                 "user_match:found",
                 "relay_action:auto_block_spam",
-                "found_in:all",
             ],
         )
         assert len(logs.records) == 1
@@ -1268,7 +1267,6 @@ class ComplaintHandlingTest(TestCase):
                 "complaint_feedback:abuse",
                 "user_match:found",
                 "relay_action:disable_mask",
-                "found_in:all",
             ],
         )
 
