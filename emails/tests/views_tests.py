@@ -1285,8 +1285,8 @@ class ComplaintHandlingTest(TestCase):
         }
 
     @override_flag("developer_mode", active=True)
-    def test_complaint_mpp_3932(self):
-        """MPP-3932: Log notification for all complaints for developer_mode users."""
+    def test_complaint_developer_mode(self):
+        """Log complaint notification for developer_mode users."""
 
         simulator_complaint_message = deepcopy(self.complaint_msg)
         simulator_complaint_message["complaint"]["complainedRecipients"] = [
