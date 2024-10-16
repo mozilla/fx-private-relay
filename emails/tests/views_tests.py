@@ -1482,6 +1482,108 @@ class ComplaintHandlingTest(TestCase):
         (err_log,) = error_logs.records
         assert err_log.msg == "_gather_complainers: unknown complainedRecipient"
 
+    def test_complaint_unknown_complained_recipient_two_masks_404(self):
+        """
+        If the recipient is unknown but two senders are masks, return 404
+
+        Also log the weirdness of two senders that match the user.
+        """
+        second_mask = RelayAddress.objects.create(user=self.user)
+
+        complaint_msg = deepcopy(self.complaint_msg)
+        complaint_msg["complaint"]["complainedRecipients"] = [
+            {"emailAddress": "unknown@somewhere.example.com"}
+        ]
+        complaint_msg["mail"]["commonHeaders"]["from"].append(second_mask.full_address)
+        complaint_body = {"Message": json.dumps(complaint_msg)}
+
+        with (
+            self.assertLogs(INFO_LOG) as info_logs,
+            self.assertLogs(ERROR_LOG) as error_logs,
+        ):
+            response = _sns_notification(complaint_body)
+        assert response.status_code == 404
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam is True
+        self.mock_ses_client.send_raw_email.assert_not_called()
+
+        (info_log,) = info_logs.records
+        assert info_log.msg == "complaint_notification"
+        assert getattr(info_log, "user_match") == "found"
+        assert getattr(info_log, "found_in") == "from_header"
+        assert getattr(info_log, "relay_action") == "auto_block_spam"
+
+        (err_log1, err_log2) = error_logs.records
+        assert err_log1.msg == "_gather_complainers: unknown complainedRecipient"
+        assert err_log2.msg == "_gather_complainers: no complainer, multi-mask"
+
+    def test_complaint_unknown_from_header_404(self):
+        """If the recipient is known but sender is unknown, return 404"""
+        complaint_msg = deepcopy(self.complaint_msg)
+        complaint_msg["mail"]["commonHeaders"]["from"] = [
+            "unknown@somewhere.example.com"
+        ]
+        complaint_body = {"Message": json.dumps(complaint_msg)}
+
+        with (
+            self.assertLogs(INFO_LOG) as info_logs,
+            self.assertLogs(ERROR_LOG) as error_logs,
+        ):
+            response = _sns_notification(complaint_body)
+        assert response.status_code == 404
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam is True
+        self.mock_ses_client.send_raw_email.assert_not_called()
+
+        (info_log,) = info_logs.records
+        assert info_log.msg == "complaint_notification"
+        assert getattr(info_log, "user_match") == "found"
+        assert getattr(info_log, "found_in") == "complained_recipients"
+        assert getattr(info_log, "relay_action") == "auto_block_spam"
+
+        (err_log,) = error_logs.records
+        assert err_log.msg == "_gather_complainers: unknown mask, maybe deleted?"
+
+    def test_complaint_complained_recipient_twice_log_error(self):
+        """If a complainer appears twice, log the weirdness."""
+        complaint_msg = deepcopy(self.complaint_msg)
+        complaint_msg["complaint"]["complainedRecipients"].append(
+            complaint_msg["complaint"]["complainedRecipients"][0]
+        )
+        complaint_body = {"Message": json.dumps(complaint_msg)}
+
+        with self.assertLogs(ERROR_LOG) as error_logs:
+            response = _sns_notification(complaint_body)
+        assert response.status_code == 200
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam is True
+        self.mock_ses_client.send_raw_email.assert_not_called()
+
+        (err_log,) = error_logs.records
+        assert err_log.msg == "_gather_complainers: complainer appears twice, discarded"
+
+    def test_complaint_from_header_twice_log_error(self):
+        """If an email appears in a from header twice, log the weirdness."""
+        complaint_msg = deepcopy(self.complaint_msg)
+        complaint_msg["mail"]["commonHeaders"]["from"].append(
+            complaint_msg["mail"]["commonHeaders"]["from"][0]
+        )
+        complaint_body = {"Message": json.dumps(complaint_msg)}
+
+        with self.assertLogs(ERROR_LOG) as error_logs:
+            response = _sns_notification(complaint_body)
+        assert response.status_code == 200
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam is True
+        self.mock_ses_client.send_raw_email.assert_not_called()
+
+        (err_log,) = error_logs.records
+        assert err_log.msg == "_gather_complainers: mask appears twice"
+
     def test_build_disabled_mask_for_spam_email(self):
         free_user = make_free_test_user("testreal@email.com")
         test_mask_address = "w41fwbt4q"
