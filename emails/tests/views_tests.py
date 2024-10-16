@@ -1323,9 +1323,7 @@ class ComplaintHandlingTest(TestCase):
             RelayAddress, user=free_user, address=test_mask_address, domain=2
         )
 
-        original_spam_email: dict = {"mask": relay_address.full_address}
-
-        msg = _build_disabled_mask_for_spam_email(relay_address, original_spam_email)
+        msg = _build_disabled_mask_for_spam_email(relay_address)
 
         assert msg["Subject"] == main.format("relay-deactivated-your-mask")
         assert msg["From"] == settings.RELAY_FROM_ADDRESS
