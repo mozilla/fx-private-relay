@@ -1914,38 +1914,47 @@ def _gather_complainers(
             continue
 
         if user.id in users:
-            logger.error("_gather_complainers: user appears twice, discarded")
-        else:
-            users[user.id] = {
-                "user": user,
-                "found_in": "complained_recipients",
-                "domain": domain,
-                "extra": extra_data or None,
-                "masks": [],
-            }
+            logger.error("_gather_complainers: complainer appears twice, discarded")
+            continue
+
+        users[user.id] = {
+            "user": user,
+            "found_in": "complained_recipients",
+            "domain": domain,
+            "extra": extra_data or None,
+            "masks": [],
+        }
 
     # Collect From: addresses and their users
     unknown_sender_count = 0
     for email_address in complaint_data.from_addresses:
         mask = _get_address_if_exists(email_address)
-        if mask:
-            if mask.user.id in users:
-                users[user.id]["masks"].append(mask)
-                if users[user.id]["found_in"] == "complained_recipients":
-                    users[user.id]["found_in"] = "all"
-                else:
-                    logger.error("_gather_complainers: no complainer, multi-mask")
-            else:
-                users[mask.user.id] = {
-                    "user": mask.user,
-                    "found_in": "from_header",
-                    "domain": mask.user.email.split("@")[1],
-                    "extra": None,
-                    "masks": [mask],
-                }
-        else:
+        if not mask:
             logger.error("_gather_complainers: unknown mask, maybe deleted?")
             unknown_sender_count += 1
+            continue
+
+        if mask.user.id not in users:
+            # Add mask-only entry to users
+            users[mask.user.id] = {
+                "user": mask.user,
+                "found_in": "from_header",
+                "domain": mask.user.email.split("@")[1],
+                "extra": None,
+                "masks": [mask],
+            }
+            continue
+
+        user_data = users[mask.user.id]
+        if mask in user_data["masks"]:
+            logger.error("_gather_complainers: mask appears twice")
+            continue
+
+        user_data["masks"].append(mask)
+        if user_data["found_in"] in ("all", "complained_recipients"):
+            user_data["found_in"] = "all"
+        else:
+            logger.error("_gather_complainers: no complainer, multi-mask")
 
     return (list(users.values()), unknown_complainer_count + unknown_sender_count)
 
