@@ -1212,7 +1212,7 @@ class ComplaintHandlingTest(TestCase):
             "domain": "test.com",
             "relay_action": "auto_block_spam",
             "user_match": "found",
-            "mask_match": "not_searched",
+            "mask_match": "found",
             "fxa_id": self.sa.uid,
             "found_in": "all",
         }
@@ -1309,7 +1309,7 @@ class ComplaintHandlingTest(TestCase):
         assert len(logs.records) == 2
         record_mpp_3932 = logs.records[0]
         assert record_mpp_3932.msg == "_handle_complaint: developer mode"
-        assert getattr(record_mpp_3932, "mask_id") == "unknown"
+        assert getattr(record_mpp_3932, "mask_id") == self.ra.metrics_id
         assert getattr(record_mpp_3932, "dev_action") == "log"
         assert getattr(record_mpp_3932, "parts") == 1
         assert getattr(record_mpp_3932, "part") == 0

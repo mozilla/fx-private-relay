@@ -1741,72 +1741,53 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     * fxa_id - The Mozilla account (previously known as Firefox Account) ID of the user
     """
     complaint_data = _get_complaint_data(message_json)
-    users, unknown_count = _gather_complainers(complaint_data)
+    complainers, unknown_count = _gather_complainers(complaint_data)
 
-    # Mitigate future spam for Relay users
-    user_metrics: list[dict[str, str]] = []
-    for user_data in users:
-        user = user_data["user"]
-        metrics = {
-            "user_match": "found",
-            "mask_match": "not_searched",
-            "relay_action": "no_action",
-            "fxa_id": user.profile.metrics_fxa_id,
-            "domain": user_data["domain"],
-            "found_in": user_data["found_in"],
-        }
-        if user_data["extra"]:
-            metrics["complaint_extra"] = json.dumps(user_data["extra"])
+    # Reduce future complaints from complaining Relay users
+    actions: list[ComplaintAction] = []
+    for complainer in complainers:
+        action = _reduce_future_complaints(complainer)
+        actions.append(action)
 
-        mask_found_id = "unknown"
-        if not user.profile.auto_block_spam:
-            metrics["relay_action"] = "auto_block_spam"
-            user.profile.auto_block_spam = True
-            user.profile.save()
-        elif flag_is_active_in_task("disable_mask_on_complaint", user):
-            metrics["mask_match"] = "not_found"
-            for mask in user_data["masks"]:
-                metrics["mask_match"] = "found"
-                mask_found_id = mask.metrics_id
-                if mask.enabled:
-                    metrics["relay_action"] = "disable_mask"
-                    mask.enabled = False
-                    mask.save()
-                    _send_disabled_mask_for_spam_email(mask)
-                    continue
-        user_metrics.append(metrics)
-
-        if flag_is_active_in_task("developer_mode", user):
-            dev_action = DeveloperModeAction(mask_id=mask_found_id, action="log")
+        if (
+            flag_is_active_in_task("developer_mode", complainer["user"])
+            and action.mask_id
+        ):
             _log_dev_notification(
-                "_handle_complaint: developer mode", dev_action, message_json
+                "_handle_complaint: developer mode",
+                DeveloperModeAction(mask_id=action.mask_id, action="log"),
+                message_json,
             )
 
-    # Log complaint and action taken
-    if not user_metrics:
-        user_metrics.append(
-            {"user_match": "no_recipients", "relay_action": "no_action"}
-        )
-    for metrics in user_metrics:
-        tags = {
-            "complaint_subtype": complaint_data.subtype or "none",
-            "complaint_feedback": complaint_data.feedback_type or "none",
-            "user_match": metrics["user_match"],
-            "relay_action": metrics["relay_action"],
-            "found_in": metrics["found_in"],
-        }
-        incr_if_enabled(
-            "email_complaint",
-            1,
-            tags=[generate_tag(key, val) for key, val in tags.items()],
-        )
+    # Log complaint and actions taken
+    if not actions:
+        # Log the complaint but that no action was taken
+        actions.append(ComplaintAction(user_match="no_recipients"))
+    for action in actions:
+        tags = [
+            generate_tag(key, val)
+            for key, val in {
+                "complaint_subtype": complaint_data.subtype or "none",
+                "complaint_feedback": complaint_data.feedback_type or "none",
+                "user_match": action.user_match,
+                "relay_action": action.relay_action,
+                "found_in": action.found_in,
+            }.items()
+        ]
+        incr_if_enabled("email_complaint", tags=tags)
 
         log_extra = {
             "complaint_subtype": complaint_data.subtype or None,
             "complaint_user_agent": complaint_data.user_agent or None,
             "complaint_feedback": complaint_data.feedback_type or None,
         }
-        log_extra.update(metrics)
+        log_extra.update(
+            {
+                key: value
+                for key, value in action._asdict().items()
+                if (value is not None and key != "mask_id")
+            }
+        )
         info_logger.info("complaint_notification", extra=log_extra)
 
     if unknown_count:
@@ -1957,6 +1938,57 @@ def _gather_complainers(
             logger.error("_gather_complainers: no complainer, multi-mask")
 
     return (list(users.values()), unknown_complainer_count + unknown_sender_count)
+
+
+class ComplaintAction(NamedTuple):
+    user_match: Literal["found", "no_recipients"]
+    relay_action: Literal["no_action", "auto_block_spam", "disable_mask"] = "no_action"
+    mask_match: Literal["found", "not_found"] = "not_found"
+    mask_id: str | None = None
+    found_in: Literal["complained_recipients", "from_header", "all"] | None = None
+    fxa_id: str | None = None
+    domain: str | None = None
+    complaint_extra: str | None = None
+
+
+def _reduce_future_complaints(complainer: Complainer) -> ComplaintAction:
+    """Take action to reduce future complaints from complaining user."""
+
+    user = complainer["user"]
+    mask_match: Literal["found", "not_found"] = "not_found"
+    relay_action: Literal["no_action", "auto_block_spam", "disable_mask"] = "no_action"
+    mask_id = None
+
+    if not user.profile.auto_block_spam:
+        relay_action = "auto_block_spam"
+        user.profile.auto_block_spam = True
+        user.profile.save()
+
+    for mask in complainer["masks"]:
+        mask_match = "found"
+        mask_id = mask.metrics_id
+        if (
+            flag_is_active_in_task("disable_mask_on_complaint", user)
+            and mask.enabled
+            and relay_action != "auto_block_spam"
+        ):
+            relay_action = "disable_mask"
+            mask.enabled = False
+            mask.save()
+            _send_disabled_mask_for_spam_email(mask)
+
+    return ComplaintAction(
+        user_match="found",
+        relay_action=relay_action,
+        mask_match=mask_match,
+        mask_id=mask_id,
+        fxa_id=user.profile.metrics_fxa_id,
+        domain=complainer["domain"],
+        found_in=complainer["found_in"],
+        complaint_extra=(
+            json.dumps(complainer["extra"]) if complainer["extra"] else None
+        ),
+    )
 
 
 _WAFFLE_FLAGS_INITIALIZED = False
