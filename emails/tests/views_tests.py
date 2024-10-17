@@ -1341,7 +1341,7 @@ class ComplaintHandlingTest(TestCase):
         self.mock_ses_client.send_raw_email.assert_not_called()
 
         (rec1, rec2) = logs.records
-        assert rec1.msg == "_handle_complaint: developer mode"
+        assert rec1.msg == "_handle_complaint: developer_mode"
         assert getattr(rec1, "mask_id") == self.ra.metrics_id
         assert getattr(rec1, "dev_action") == "log"
         assert getattr(rec1, "parts") == 1
@@ -1375,7 +1375,7 @@ class ComplaintHandlingTest(TestCase):
 
         (rec1, rec2) = logs.records
         # Developer mode still active due to mask match
-        assert rec1.msg == "_handle_complaint: developer mode"
+        assert rec1.msg == "_handle_complaint: developer_mode"
         assert getattr(rec1, "mask_id") == self.ra.metrics_id
         assert getattr(rec1, "dev_action") == "log"
         assert getattr(rec1, "parts") == 1
@@ -1419,8 +1419,7 @@ class ComplaintHandlingTest(TestCase):
         self.mock_ses_client.send_raw_email.assert_not_called()
 
         (rec1, rec2) = logs.records
-        # Developer mode still active due to mask match
-        assert rec1.msg == "_handle_complaint: developer mode"
+        assert rec1.msg == "_handle_complaint: developer_mode"
         assert getattr(rec1, "mask_id") == domain_address.metrics_id
         assert getattr(rec1, "dev_action") == "log"
 

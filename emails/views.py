@@ -1766,7 +1766,7 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             and action.mask_id
         ):
             _log_dev_notification(
-                "_handle_complaint: developer mode",
+                "_handle_complaint: developer_mode",
                 DeveloperModeAction(mask_id=action.mask_id, action="log"),
                 message_json,
             )
