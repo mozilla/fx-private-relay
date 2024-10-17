@@ -32,7 +32,7 @@
   </style>
     <table role="presentation" border="0" cellpadding="0" cellspacing="10px" style="padding: 30px;" align="center">
     {% with mask|striptags|urlencode as mask_for_url %}
-        {% with "/accounts/profile/#"|add:mask_for_url as mask_url%}
+        {% with SITE_ORIGIN|add:"/accounts/profile/#"|add:mask_for_url as mask_url%}
         <tr>
             <td style="max-width:850px; padding-top: 0px; padding-bottom: 0px; text-align: center;">
                 <h2 style="font-family: inter medium, Arial, system-ui, sans-serif;">
