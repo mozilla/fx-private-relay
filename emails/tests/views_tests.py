@@ -9,7 +9,7 @@ from email import message_from_string
 from email.message import EmailMessage
 from typing import Any, cast
 from unittest._log import _LoggingWatcher
-from unittest.mock import Mock, patch
+from unittest.mock import ANY, Mock, patch
 from uuid import uuid4
 
 from django.conf import settings
@@ -51,6 +51,7 @@ from emails.views import (
     _build_disabled_mask_for_spam_email,
     _build_reply_requires_premium_email,
     _get_address,
+    _get_address_if_exists,
     _get_keys_from_headers,
     _record_receipt_verdicts,
     _replace_headers,
@@ -801,13 +802,15 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         self.ra.save()
 
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
+        expected_email = "complaint+ebsbdsan7@simulator.amazonses.com"
+
         self.check_sent_email_matches_fixture(
             "single_recipient",
             expected_source="replies@default.com",
-            expected_destination="complaint+ebsbdsan7@simulator.amazonses.com",
+            expected_destination=expected_email,
             fixture_replace=(
-                "To: user@example.com",
-                "To: complaint+ebsbdsan7@simulator.amazonses.com",
+                f"To: {self.user.email}",
+                f"To: {expected_email}",
             ),
         )
         self.ra.refresh_from_db()
@@ -827,6 +830,40 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
             EMAIL_SNS_BODIES["single_recipient"]["Message"]
         )
         assert log_notification == expected_log_notification
+
+    @override_flag("developer_mode", active=True)
+    @patch("emails.views.info_logger")
+    def test_developer_mode_simulate_complaint_domain_address(
+        self, mock_logger: Mock
+    ) -> None:
+        """Domain addresses can have 'DEV:simulate_complaint' label"""
+        domain_address = DomainAddress.objects.create(
+            address="wildcard",
+            user=self.premium_user,
+            description="DEV:simulate_complaint",
+        )
+        _sns_notification(EMAIL_SNS_BODIES["domain_recipient"])
+        expected_email = (
+            f"complaint+wildcard.{self.premium_user.profile.subdomain}"
+            "@simulator.amazonses.com"
+        )
+
+        self.check_sent_email_matches_fixture(
+            "domain_recipient",
+            expected_source="replies@default.com",
+            expected_destination=expected_email,
+            fixture_replace=(
+                f"To: {self.premium_user.email}",
+                f"To: {expected_email}",
+            ),
+        )
+        domain_address.refresh_from_db()
+        assert domain_address.num_forwarded == 1
+        assert domain_address.last_used_at is not None
+
+        mock_logger.info.assert_called_with(
+            "_handle_received: developer_mode", extra=ANY
+        )
 
 
 class SNSNotificationRepliesTest(SNSNotificationTestBase):
@@ -1140,8 +1177,14 @@ class ComplaintHandlingTest(TestCase):
             EMAIL_EXPECTED["russian_spam"]
         )
         spam_mail_content = json.loads(russian_spam_notification["Message"])["mail"]
+        spam_mail_content["source"] = "replies@default.com"  # Reply-To address
+        spam_mail_content["messageId"] = (
+            "0100019291f7e695-51da71c8-36cc-4cc7-82e3-23fbf48d4bb4-000000"
+        )
+        del spam_mail_content["commonHeaders"]["date"]
+        del spam_mail_content["commonHeaders"]["messageId"]
 
-        complaint = {
+        self.complaint_msg = {
             "notificationType": "Complaint",
             "complaint": {
                 "userAgent": "ExampleCorp Feedback Loop (V0.01)",
@@ -1155,7 +1198,7 @@ class ComplaintHandlingTest(TestCase):
             },
             "mail": spam_mail_content,
         }
-        self.complaint_body = {"Message": json.dumps(complaint)}
+        self.complaint_body = {"Message": json.dumps(self.complaint_msg)}
         ses_client_patcher = patch(
             "emails.apps.EmailsConfig.ses_client",
             spec_set=["send_raw_email"],
@@ -1204,7 +1247,9 @@ class ComplaintHandlingTest(TestCase):
             "domain": "test.com",
             "relay_action": "auto_block_spam",
             "user_match": "found",
+            "mask_match": "found",
             "fxa_id": self.sa.uid,
+            "found_in": "all",
         }
 
     def test_complaint_log_with_optout(self) -> None:
@@ -1226,12 +1271,10 @@ class ComplaintHandlingTest(TestCase):
         assert not log_data["fxa_id"]
 
     @override_flag("disable_mask_on_complaint", active=True)
-    def test_complaint_disables_mask(self):
-        """
-        A notificationType of complaint:
-            1. sets enabled=False on the mask, and
-            2. returns 200.
-        """
+    def test_complaint_with_auto_block_spam_disables_mask(self):
+        """If a user already has auto_block_spam, disable the mask."""
+        self.user.profile.auto_block_spam = True
+        self.user.profile.save()
         assert self.ra.enabled is True
 
         with self.assertLogs(INFO_LOG) as logs, MetricsMock() as mm:
@@ -1252,15 +1295,17 @@ class ComplaintHandlingTest(TestCase):
         assert "deactivated one of your email masks" in msg_without_newlines
         assert self.ra.full_address in msg_without_newlines
 
+        mm.assert_incr_once("fx.private.relay.send_disabled_mask_email")
         mm.assert_incr_once(
             "fx.private.relay.email_complaint",
             tags=[
                 "complaint_subtype:none",
                 "complaint_feedback:abuse",
                 "user_match:found",
-                "relay_action:auto_block_spam",
+                "relay_action:disable_mask",
             ],
         )
+
         assert len(logs.records) == 1
         record = logs.records[0]
         assert record.msg == "complaint_notification"
@@ -1270,36 +1315,406 @@ class ComplaintHandlingTest(TestCase):
             "complaint_subtype": None,
             "complaint_user_agent": "ExampleCorp Feedback Loop (V0.01)",
             "domain": "test.com",
-            "relay_action": "auto_block_spam",
+            "relay_action": "disable_mask",
             "user_match": "found",
+            "mask_match": "found",
             "fxa_id": self.sa.uid,
+            "found_in": "all",
         }
 
     @override_flag("developer_mode", active=True)
-    def test_complaint_mpp_3932(self):
-        """MPP-3932: Log notification for all complaints for developer_mode users."""
+    def test_complaint_developer_mode(self):
+        """Log complaint notification for developer_mode users."""
+
+        simulator_complaint_message = deepcopy(self.complaint_msg)
+        simulator_complaint_message["complaint"]["complainedRecipients"] = [
+            {"emailAddress": f"complaint+{self.ra.address}@simulator.amazonses.com"}
+        ]
+        complaint_body = {"Message": json.dumps(simulator_complaint_message)}
+
         with self.assertLogs(INFO_LOG) as logs:
-            response = _sns_notification(self.complaint_body)
+            response = _sns_notification(complaint_body)
         assert response.status_code == 200
 
         self.user.profile.refresh_from_db()
         assert self.user.profile.auto_block_spam is True
         self.mock_ses_client.send_raw_email.assert_not_called()
 
-        assert len(logs.records) == 2
-        record_mpp_3932 = logs.records[0]
-        assert record_mpp_3932.msg == "_handle_complaint: MPP-3932"
-        assert getattr(record_mpp_3932, "mask_id") == "unknown"
-        assert getattr(record_mpp_3932, "dev_action") == "log"
-        assert getattr(record_mpp_3932, "parts") == 1
-        assert getattr(record_mpp_3932, "part") == 0
-        notification_gza85 = getattr(record_mpp_3932, "notification_gza85")
+        (rec1, rec2) = logs.records
+        assert rec1.msg == "_handle_complaint: developer_mode"
+        assert getattr(rec1, "mask_id") == self.ra.metrics_id
+        assert getattr(rec1, "dev_action") == "log"
+        assert getattr(rec1, "parts") == 1
+        assert getattr(rec1, "part") == 0
+        notification_gza85 = getattr(rec1, "notification_gza85")
         log_complaint = decode_dict_gza85(notification_gza85)
-        expected_log_complaint = json.loads(self.complaint_body["Message"])
-        assert log_complaint == expected_log_complaint
+        assert log_complaint == simulator_complaint_message
 
-        record = logs.records[1]
-        assert record.msg == "complaint_notification"
+        assert rec2.msg == "complaint_notification"
+
+    @override_flag("developer_mode", active=True)
+    def test_complaint_developer_mode_missing_mask(self):
+        """If the simulator email can not be turned into a mask, it is not changed."""
+
+        simulator_complaint_message = deepcopy(self.complaint_msg)
+        simulator_complaint_message["complaint"]["complainedRecipients"] = [
+            {"emailAddress": "complaint+missing@simulator.amazonses.com"}
+        ]
+        complaint_body = {"Message": json.dumps(simulator_complaint_message)}
+
+        with (
+            self.assertLogs(INFO_LOG) as logs,
+            self.assertLogs(ERROR_LOG) as error_logs,
+        ):
+            response = _sns_notification(complaint_body)
+        assert response.status_code == 404
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam is True
+        self.mock_ses_client.send_raw_email.assert_not_called()
+
+        (rec1, rec2) = logs.records
+        # Developer mode still active due to mask match
+        assert rec1.msg == "_handle_complaint: developer_mode"
+        assert getattr(rec1, "mask_id") == self.ra.metrics_id
+        assert getattr(rec1, "dev_action") == "log"
+        assert getattr(rec1, "parts") == 1
+        assert getattr(rec1, "part") == 0
+        notification_gza85 = getattr(rec1, "notification_gza85")
+        log_complaint = decode_dict_gza85(notification_gza85)
+        assert log_complaint == simulator_complaint_message
+
+        assert rec2.msg == "complaint_notification"
+
+        (err_log,) = error_logs.records
+        assert err_log.msg == "_gather_complainers: unknown complainedRecipient"
+
+    @override_flag("developer_mode", active=True)
+    def test_complaint_developer_mode_domain_address(self):
+        """If the simulator email can not be turned into a mask, it is not changed."""
+        premium_user = make_premium_test_user()
+        assert premium_user.email
+        premium_user.profile.subdomain = "subdomain"
+        premium_user.profile.save()
+
+        domain_address = DomainAddress.objects.create(
+            address="complainer",
+            user=premium_user,
+            description="DEV:simulate_complaint",
+        )
+
+        complaint_msg = deepcopy(self.complaint_msg)
+        complaint_msg["complaint"]["complainedRecipients"] = [
+            {"emailAddress": "complaint+complainer.subdomain@simulator.amazonses.com"}
+        ]
+        complaint_msg["mail"]["commonHeaders"]["from"] = [domain_address.full_address]
+        complaint_body = {"Message": json.dumps(complaint_msg)}
+
+        with self.assertLogs(INFO_LOG) as logs:
+            response = _sns_notification(complaint_body)
+        assert response.status_code == 200
+
+        premium_user.profile.refresh_from_db()
+        assert premium_user.profile.auto_block_spam is True
+        self.mock_ses_client.send_raw_email.assert_not_called()
+
+        (rec1, rec2) = logs.records
+        assert rec1.msg == "_handle_complaint: developer_mode"
+        assert getattr(rec1, "mask_id") == domain_address.metrics_id
+        assert getattr(rec1, "dev_action") == "log"
+
+        assert rec2.msg == "complaint_notification"
+
+    def test_complaint_no_complained_recipients_error_logged(self):
+        """Without complained recipients, an error is logged, but matches on From"""
+        complaint_msg = deepcopy(self.complaint_msg)
+        del complaint_msg["complaint"]["complainedRecipients"]
+        complaint_body = {"Message": json.dumps(complaint_msg)}
+
+        with (
+            self.assertLogs(INFO_LOG) as info_logs,
+            self.assertLogs(ERROR_LOG) as error_logs,
+        ):
+            response = _sns_notification(complaint_body)
+        assert response.status_code == 200
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam is True
+        self.mock_ses_client.send_raw_email.assert_not_called()
+
+        (info_log,) = info_logs.records
+        assert info_log.msg == "complaint_notification"
+        assert getattr(info_log, "user_match") == "found"
+        assert getattr(info_log, "relay_action") == "auto_block_spam"
+        assert getattr(info_log, "found_in") == "from_header"
+
+        (err_log,) = error_logs.records
+        assert err_log.msg == "_get_complaint_data: Unexpected message"
+        assert getattr(err_log, "missing_key") == "complainedRecipients"
+        assert getattr(err_log, "found_keys") == (
+            "arrivalDate,complaintFeedbackType,feedbackId,timestamp,userAgent"
+        )
+
+    def test_complaint_empty_complained_recipients_error_logged(self):
+        """With empty complained recipients, an error is logged, but matches on From"""
+        complaint_msg = deepcopy(self.complaint_msg)
+        complaint_msg["complaint"]["complainedRecipients"] = []
+        complaint_body = {"Message": json.dumps(complaint_msg)}
+
+        with self.assertLogs(ERROR_LOG) as error_logs:
+            response = _sns_notification(complaint_body)
+        assert response.status_code == 200
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam is True
+        self.mock_ses_client.send_raw_email.assert_not_called()
+
+        (err_log,) = error_logs.records
+        assert err_log.msg == "_get_complaint_data: Empty complainedRecipients"
+
+    def test_complaint_wrong_complained_recipients_error_logged(self):
+        """With an unexpected object in complained recipients, an error is logged"""
+        complaint_msg = deepcopy(self.complaint_msg)
+        complaint_msg["complaint"]["complainedRecipients"] = [{"foo": "bar"}]
+        complaint_body = {"Message": json.dumps(complaint_msg)}
+
+        with self.assertLogs(ERROR_LOG) as error_logs:
+            response = _sns_notification(complaint_body)
+        assert response.status_code == 200
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam is True
+        self.mock_ses_client.send_raw_email.assert_not_called()
+
+        (err_log,) = error_logs.records
+        assert err_log.msg == "_get_complaint_data: Unexpected message"
+        assert getattr(err_log, "missing_key") == "emailAddress"
+        assert getattr(err_log, "found_keys") == "foo"
+
+    def test_complaint_no_mail_error_logged(self):
+        """If the mail object is missing, an error is logged"""
+        complaint_msg = deepcopy(self.complaint_msg)
+        del complaint_msg["mail"]
+        complaint_body = {"Message": json.dumps(complaint_msg)}
+
+        with self.assertLogs(ERROR_LOG) as error_logs:
+            response = _sns_notification(complaint_body)
+        assert response.status_code == 200
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam is True
+        self.mock_ses_client.send_raw_email.assert_not_called()
+
+        (err_log,) = error_logs.records
+        assert err_log.msg == "_get_complaint_data: Unexpected message"
+        assert getattr(err_log, "missing_key") == "mail"
+        assert getattr(err_log, "found_keys") == "complaint,notificationType"
+
+    def test_complaint_no_common_headers_error_logged(self):
+        """If the mail object is missing, an error is logged"""
+        complaint_msg = deepcopy(self.complaint_msg)
+        del complaint_msg["mail"]["commonHeaders"]
+        complaint_body = {"Message": json.dumps(complaint_msg)}
+
+        with (
+            self.assertLogs(INFO_LOG) as info_logs,
+            self.assertLogs(ERROR_LOG) as error_logs,
+        ):
+            response = _sns_notification(complaint_body)
+        assert response.status_code == 200
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam is True
+        self.mock_ses_client.send_raw_email.assert_not_called()
+
+        (info_log,) = info_logs.records
+        assert info_log.msg == "complaint_notification"
+        assert getattr(info_log, "user_match") == "found"
+        assert getattr(info_log, "relay_action") == "auto_block_spam"
+        assert getattr(info_log, "found_in") == "complained_recipients"
+
+        (err_log,) = error_logs.records
+        assert err_log.msg == "_get_complaint_data: Unexpected message"
+        assert getattr(err_log, "missing_key") == "commonHeaders"
+        assert getattr(err_log, "found_keys") == (
+            "destination,headers,headersTruncated,messageId,source,timestamp"
+        )
+
+    def test_complaint_no_from_header_error_logged(self):
+        """If the mail object is missing, an error is logged"""
+        complaint_msg = deepcopy(self.complaint_msg)
+        del complaint_msg["mail"]["commonHeaders"]["from"]
+        complaint_body = {"Message": json.dumps(complaint_msg)}
+
+        with self.assertLogs(ERROR_LOG) as error_logs:
+            response = _sns_notification(complaint_body)
+        assert response.status_code == 200
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam is True
+        self.mock_ses_client.send_raw_email.assert_not_called()
+
+        (err_log,) = error_logs.records
+        assert err_log.msg == "_get_complaint_data: Unexpected message"
+        assert getattr(err_log, "missing_key") == "from"
+        assert getattr(err_log, "found_keys") == "subject,to"
+
+    def test_complaint_unknown_complained_recipient_404(self):
+        """If the recipient is unknown but sender is mask, return 404"""
+        complaint_msg = deepcopy(self.complaint_msg)
+        complaint_msg["complaint"]["complainedRecipients"] = [
+            {"emailAddress": "unknown@somewhere.example.com"}
+        ]
+        complaint_body = {"Message": json.dumps(complaint_msg)}
+
+        with (
+            self.assertLogs(INFO_LOG) as info_logs,
+            self.assertLogs(ERROR_LOG) as error_logs,
+        ):
+            response = _sns_notification(complaint_body)
+        assert response.status_code == 404
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam is True
+        self.mock_ses_client.send_raw_email.assert_not_called()
+
+        (info_log,) = info_logs.records
+        assert info_log.msg == "complaint_notification"
+        assert getattr(info_log, "user_match") == "found"
+        assert getattr(info_log, "found_in") == "from_header"
+        assert getattr(info_log, "relay_action") == "auto_block_spam"
+
+        (err_log,) = error_logs.records
+        assert err_log.msg == "_gather_complainers: unknown complainedRecipient"
+
+    def test_complaint_unknown_complained_recipient_two_masks_404(self):
+        """
+        If the recipient is unknown but two senders are masks, return 404
+
+        Also log the weirdness of two senders that match the user.
+        """
+        second_mask = RelayAddress.objects.create(user=self.user)
+
+        complaint_msg = deepcopy(self.complaint_msg)
+        complaint_msg["complaint"]["complainedRecipients"] = [
+            {"emailAddress": "unknown@somewhere.example.com"}
+        ]
+        complaint_msg["mail"]["commonHeaders"]["from"].append(second_mask.full_address)
+        complaint_body = {"Message": json.dumps(complaint_msg)}
+
+        with (
+            self.assertLogs(INFO_LOG) as info_logs,
+            self.assertLogs(ERROR_LOG) as error_logs,
+        ):
+            response = _sns_notification(complaint_body)
+        assert response.status_code == 404
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam is True
+        self.mock_ses_client.send_raw_email.assert_not_called()
+
+        (info_log,) = info_logs.records
+        assert info_log.msg == "complaint_notification"
+        assert getattr(info_log, "user_match") == "found"
+        assert getattr(info_log, "found_in") == "from_header"
+        assert getattr(info_log, "relay_action") == "auto_block_spam"
+
+        (err_log1, err_log2) = error_logs.records
+        assert err_log1.msg == "_gather_complainers: unknown complainedRecipient"
+        assert err_log2.msg == "_gather_complainers: no complainer, multi-mask"
+
+    def test_complaint_unknown_from_header_404(self):
+        """If the recipient is known but sender is unknown, return 404"""
+        complaint_msg = deepcopy(self.complaint_msg)
+        complaint_msg["mail"]["commonHeaders"]["from"] = [
+            "unknown@somewhere.example.com"
+        ]
+        complaint_body = {"Message": json.dumps(complaint_msg)}
+
+        with (
+            self.assertLogs(INFO_LOG) as info_logs,
+            self.assertLogs(ERROR_LOG) as error_logs,
+        ):
+            response = _sns_notification(complaint_body)
+        assert response.status_code == 404
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam is True
+        self.mock_ses_client.send_raw_email.assert_not_called()
+
+        (info_log,) = info_logs.records
+        assert info_log.msg == "complaint_notification"
+        assert getattr(info_log, "user_match") == "found"
+        assert getattr(info_log, "found_in") == "complained_recipients"
+        assert getattr(info_log, "relay_action") == "auto_block_spam"
+
+        (err_log,) = error_logs.records
+        assert err_log.msg == "_gather_complainers: unknown mask, maybe deleted?"
+
+    def test_complaint_complained_recipient_twice_log_error(self):
+        """If a complainer appears twice, log the weirdness."""
+        complaint_msg = deepcopy(self.complaint_msg)
+        complaint_msg["complaint"]["complainedRecipients"].append(
+            complaint_msg["complaint"]["complainedRecipients"][0]
+        )
+        complaint_body = {"Message": json.dumps(complaint_msg)}
+
+        with self.assertLogs(ERROR_LOG) as error_logs:
+            response = _sns_notification(complaint_body)
+        assert response.status_code == 200
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam is True
+        self.mock_ses_client.send_raw_email.assert_not_called()
+
+        (err_log,) = error_logs.records
+        assert err_log.msg == "_gather_complainers: complainer appears twice, discarded"
+
+    def test_complaint_from_header_twice_log(self):
+        """If an email appears in a from header twice, log the weirdness."""
+        complaint_msg = deepcopy(self.complaint_msg)
+        complaint_msg["mail"]["commonHeaders"]["from"].append(
+            complaint_msg["mail"]["commonHeaders"]["from"][0]
+        )
+        complaint_body = {"Message": json.dumps(complaint_msg)}
+
+        with self.assertLogs(ERROR_LOG) as error_logs:
+            response = _sns_notification(complaint_body)
+        assert response.status_code == 200
+
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam is True
+        self.mock_ses_client.send_raw_email.assert_not_called()
+
+        (err_log,) = error_logs.records
+        assert err_log.msg == "_gather_complainers: mask appears twice"
+
+    def test_complaint_from_stranger_is_404(self):
+        """If no Relay users match, log the complaint."""
+        complaint_msg = deepcopy(self.complaint_msg)
+        complaint_msg["complaint"]["complainedRecipients"] = [
+            {"emailAddress": "receiver@stranger.example.com"}
+        ]
+        complaint_msg["mail"]["commonHeaders"]["from"] = ["sender@stranger.example.com"]
+        complaint_body = {"Message": json.dumps(complaint_msg)}
+
+        with (
+            self.assertLogs(INFO_LOG) as info_logs,
+            self.assertLogs(ERROR_LOG) as error_logs,
+        ):
+            response = _sns_notification(complaint_body)
+        assert response.status_code == 404
+
+        self.mock_ses_client.send_raw_email.assert_not_called()
+
+        (info_log,) = info_logs.records
+        assert info_log.msg == "complaint_notification"
+        assert getattr(info_log, "user_match") == "no_recipients"
+        assert getattr(info_log, "relay_action") == "no_action"
+
+        (err_log1, err_log2) = error_logs.records
+        assert err_log1.msg == "_gather_complainers: unknown complainedRecipient"
+        assert err_log2.msg == "_gather_complainers: unknown mask, maybe deleted?"
 
     def test_build_disabled_mask_for_spam_email(self):
         free_user = make_free_test_user("testreal@email.com")
@@ -1308,9 +1723,7 @@ class ComplaintHandlingTest(TestCase):
             RelayAddress, user=free_user, address=test_mask_address, domain=2
         )
 
-        original_spam_email: dict = {"mask": relay_address.full_address}
-
-        msg = _build_disabled_mask_for_spam_email(relay_address, original_spam_email)
+        msg = _build_disabled_mask_for_spam_email(relay_address)
 
         assert msg["Subject"] == main.format("relay-deactivated-your-mask")
         assert msg["From"] == settings.RELAY_FROM_ADDRESS
@@ -2013,6 +2426,13 @@ class GetAddressTest(TestCase):
         )
         assert event == expected_event
 
+    def test_unknown_domain_address_is_not_created(self) -> None:
+        """An unknown but valid domain address raises with create=False"""
+        assert DomainAddress.objects.filter(user=self.user).count() == 1
+        with pytest.raises(DomainAddress.DoesNotExist):
+            _get_address("unknown@subdomain.test.com", create=False)
+        assert DomainAddress.objects.filter(user=self.user).count() == 1
+
     def test_uppercase_local_part_of_unknown_domain_address(self) -> None:
         """
         Uppercase letters are allowed in the local part of a new domain address.
@@ -2044,6 +2464,76 @@ class GetAddressTest(TestCase):
             event_time=event["timestamp"],
         )
         assert event == expected_event
+
+    def test_uppercase_local_part_of_unknown_domain_address_not_created(self) -> None:
+        """
+        Uppercase letters are allowed, but still do not create the domain address.
+        """
+        assert DomainAddress.objects.filter(user=self.user).count() == 1
+        with pytest.raises(DomainAddress.DoesNotExist):
+            _get_address("Unknown@subdomain.test.com", create=False)
+        assert DomainAddress.objects.filter(user=self.user).count() == 1
+
+
+@override_settings(SITE_ORIGIN="https://test.com", STATSD_ENABLED=True)
+class GetAddressIfExistsTest(TestCase):
+    def setUp(self):
+        self.user = make_premium_test_user()
+        self.user.profile.subdomain = "subdomain"
+        self.user.profile.save()
+        self.relay_address = baker.make(
+            RelayAddress, user=self.user, address="relay123"
+        )
+        self.deleted_relay_address = baker.make(
+            DeletedAddress, address_hash=address_hash("deleted456", domain="test.com")
+        )
+        self.domain_address = baker.make(
+            DomainAddress, user=self.user, address="domain"
+        )
+
+    def test_existing_relay_address(self):
+        assert _get_address_if_exists("relay123@test.com") == self.relay_address
+
+    def test_unknown_relay_address(self):
+        with MetricsMock() as mm:
+            assert _get_address_if_exists("unknown@test.com") is None
+        mm.assert_not_incr("fx.private.relay.email_for_unknown_address")
+
+    def test_deleted_relay_address(self):
+        with MetricsMock() as mm:
+            assert _get_address_if_exists("deleted456@test.com") is None
+        mm.assert_not_incr("fx.private.relay.email_for_deleted_address")
+
+    def test_multiple_deleted_relay_addresses_same_as_one(self):
+        """Multiple DeletedAddress records can have the same hash."""
+        baker.make(DeletedAddress, address_hash=self.deleted_relay_address.address_hash)
+        with MetricsMock() as mm:
+            assert _get_address_if_exists("deleted456@test.com") is None
+        mm.assert_not_incr("fx.private.relay.email_for_deleted_address_multiple")
+
+    def test_existing_domain_address(self) -> None:
+        with self.assertNoLogs(GLEAN_LOG, "INFO"):
+            assert (
+                _get_address_if_exists("domain@subdomain.test.com")
+                == self.domain_address
+            )
+
+    def test_subdomain_for_wrong_domain(self) -> None:
+        with MetricsMock() as mm, self.assertNoLogs(GLEAN_LOG, "INFO"):
+            assert _get_address_if_exists("unknown@subdomain.example.com") is None
+        mm.assert_not_incr("fx.private.relay.email_for_not_supported_domain")
+
+    def test_unknown_subdomain(self) -> None:
+        with MetricsMock() as mm, self.assertNoLogs(GLEAN_LOG, "INFO"):
+            assert _get_address_if_exists("domain@unknown.test.com") is None
+        mm.assert_not_incr("fx.private.relay.email_for_dne_subdomain")
+
+    def test_unknown_domain_address(self) -> None:
+        """An unknown but valid domain address raises with create=False"""
+        assert _get_address_if_exists("unknown@subdomain.test.com") is None
+
+    def test_uppercase_local_part_of_unknown_domain_address(self) -> None:
+        assert _get_address_if_exists("Unknown@subdomain.test.com") is None
 
 
 TEST_AWS_SNS_TOPIC = "arn:aws:sns:us-east-1:111222333:relay"
