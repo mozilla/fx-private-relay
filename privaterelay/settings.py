@@ -492,14 +492,20 @@ if TEST_DB_NAME:
     DATABASES["default"]["TEST"] = {"NAME": TEST_DB_NAME}
 
 REDIS_URL = config("REDIS_URL", "")
+REDIS_SELF_SIGNED_CERT = config("REDIS_SELF_SIGNED_CERT", False, bool)
 if REDIS_URL:
+    _redis_options: dict[str, Any] = {
+        "CLIENT_CLASS": "django_redis.client.DefaultClient"
+    }
+    # Heroku mini uses self-signed certificates
+    if REDIS_SELF_SIGNED_CERT:
+        _redis_options["CONNECTION_POOL_KWARGS"] = {"ssl_cert_reqs": None}
+
     CACHES = {
         "default": {
             "BACKEND": "django_redis.cache.RedisCache",
             "LOCATION": REDIS_URL,
-            "OPTIONS": {
-                "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            },
+            "OPTIONS": _redis_options,
         }
     }
     SESSION_ENGINE = "django.contrib.sessions.backends.cache"
