@@ -13,6 +13,7 @@ from json import JSONDecodeError
 from textwrap import dedent
 from typing import Any, Literal, NamedTuple, TypedDict, TypeVar
 from urllib.parse import urlencode
+from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -992,12 +993,14 @@ def _log_dev_notification(
 
     notification_gza85 = encode_dict_gza85(notification)
     total_parts = notification_gza85.count("\n") + 1
+    log_group_id = uuid4()
     for partnum, part in enumerate(notification_gza85.splitlines()):
         info_logger.info(
             log_message,
             extra={
                 "mask_id": dev_action.mask_id,
                 "dev_action": dev_action.action,
+                "log_group_id": log_group_id,
                 "part": partnum,
                 "parts": total_parts,
                 "notification_gza85": part,

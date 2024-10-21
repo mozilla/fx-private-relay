@@ -816,6 +816,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at is not None
+        log_group_id: str | None = None
         parts = ["", "", "", ""]
         for callnum, call in enumerate(mock_logger.info.mock_calls):
             assert call.args == ("_handle_received: developer_mode",)
@@ -824,6 +825,11 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
             assert extra["dev_action"] == "simulate_complaint"
             assert extra["part"] == callnum
             assert extra["parts"] == 4
+            if log_group_id is None:
+                log_group_id = extra["log_group_id"]
+                assert log_group_id
+            else:
+                assert extra["log_group_id"] == log_group_id
             parts[extra["part"]] = extra["notification_gza85"]
         log_notification = decode_dict_gza85("\n".join(parts))
         expected_log_notification = json.loads(

@@ -49,6 +49,9 @@ these items:
 - `part`: The segment number of this log, starting at 0
 - `parts`: The total number of logs needed to split the data into 1024-byte
   segments.
+- `log_group_id`: An identifier that is the same for all logs of the same
+  notification. This can be used to find all the parts of a split
+  notification.
 
 Extended logging is also enabled for Complaint Notifications, with the
 log message `_handle_complaint: developer_mode`. See
@@ -138,6 +141,7 @@ This would then be logged in the [MozLog format][] like:
     "msg": "_handle_received: developer_mode",
     "mask_id": "R101",
     "dev_action": "log",
+    "log_group_id": "32285dff-288b-4b37-a247-5c1a45456136",
     "part": 0,
     "parts": 1,
     "notification_gza85": "Gatg8b0)H[9Zp+)/BQ,^$`P[J<O,M!$;+#fbq)L^;5sd\"`aB1T"
@@ -158,10 +162,12 @@ characters like `"` and `'`, requiring escaping in JSON and in Python strings.
 The function `emails.utils.decode_dict_gza85` can be used to decode an encoded
 string back to a Python dictionary.
 
-If the encoded string is more than 1024 bytes, it is split into 1024-byte segments
-and emitted over several log messages. This ensures it does not exceed any log
-backend limits. The log field `"part"` can be used to order the log messages,
-and `"parts"` to collect all the segments. The segments can be concatenated or
+If the encoded string is more than 1024 bytes, it is split into 1024-byte
+segments and emitted over several log messages. This ensures it does not exceed
+any log backend limits. The log field `"log_group_id"` will be unique for the
+encoded string, and can be used to find all the parts. The log field `"part"`
+can be used to order the log messages. The log field `"parts"` can be used to
+confirm that all the segments are found. The segments can be concatenated or
 joined by whitespace, such as newlines, before sending it to
 `decode_dict_gza85`.
 
