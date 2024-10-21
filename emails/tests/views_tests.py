@@ -56,6 +56,7 @@ from emails.views import (
     _get_address_if_exists,
     _get_complaint_data,
     _get_keys_from_headers,
+    _get_mask_by_metrics_id,
     _record_receipt_verdicts,
     _replace_headers,
     _set_forwarded_first_reply,
@@ -1903,6 +1904,40 @@ class GatherComplainersTest(TestCase):
         assert unknown_count == 0
         (err_log,) = error_logs.records
         assert err_log.msg == "_gather_complainers: mask appears twice"
+
+
+class GetMaskByMetricsIdTest(TestCase):
+    """Tests for _get_mask_by_metrics_id"""
+
+    def test_get_relay_address(self) -> None:
+        relay_address = baker.make(RelayAddress)
+        assert relay_address.metrics_id.startswith("R")
+        assert _get_mask_by_metrics_id(relay_address.metrics_id) == relay_address
+
+    def test_get_domain_address(self) -> None:
+        premium_user = make_premium_test_user()
+        premium_user.profile.subdomain = "subdomain"
+        premium_user.profile.save()
+        domain_address = baker.make(DomainAddress, user=premium_user, address="baker")
+        assert domain_address.metrics_id.startswith("D")
+        assert _get_mask_by_metrics_id(domain_address.metrics_id) == domain_address
+
+    def test_empty_mask_id(self) -> None:
+        assert _get_mask_by_metrics_id("") is None
+
+    def test_not_mask_id_by_prefix(self) -> None:
+        assert _get_mask_by_metrics_id("ABC") is None
+
+    def test_not_mask_id_by_id(self) -> None:
+        assert _get_mask_by_metrics_id("Dude") is None
+
+    def test_relay_address_not_found(self) -> None:
+        assert not RelayAddress.objects.filter(id=1999).exists()
+        assert _get_mask_by_metrics_id("R1999") is None
+
+    def test_domain_address_not_found(self) -> None:
+        assert not DomainAddress.objects.filter(id=1999).exists()
+        assert _get_mask_by_metrics_id("D1999") is None
 
 
 class SNSNotificationRemoveEmailsInS3Test(TestCase):
