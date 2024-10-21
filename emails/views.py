@@ -1814,7 +1814,16 @@ class RawComplaintData(NamedTuple):
 
 
 def _get_complaint_data(message_json: AWS_SNSMessageJSON) -> RawComplaintData:
-    """Extract complaint data from a complaint notification"""
+    """
+    Extract complaint data from an AWS SES Complaint Notification.
+
+    This extracts only the data used by _handle_complaint(). It also works on
+    complaint events, which have a similar structure and the same data needed
+    by _handle_complaint.
+
+    For more information on the complaint notification, see:
+    https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
+    """
     complaint = message_json["complaint"]
 
     T = TypeVar("T")
@@ -1880,7 +1889,16 @@ class Complainer(TypedDict):
 def _gather_complainers(
     complaint_data: RawComplaintData,
 ) -> tuple[list[Complainer], int]:
-    """Fetch Relay Users and masks from the complaint data"""
+    """
+    Fetch Relay Users and masks from the complaint data.
+
+    This matches data from an AWS SES Complaint Notification (as extracted by
+    _get_complaint_data()) to the Relay database, and returns the Users,
+    RelayAddresses, and DomainAddresses, as well as status and extra data.
+
+    If the complaint came from the AWS SES complaint simulator, detect
+    developer_mode and move forward with the developer's User data.
+    """
 
     users: dict[int, Complainer] = {}
     unknown_complainer_count = 0
@@ -1903,7 +1921,7 @@ def _gather_complainers(
             continue
 
         if user.id in users:
-            logger.error("_gather_complainers: complainer appears twice, discarded")
+            logger.error("_gather_complainers: complainer appears twice")
             continue
 
         users[user.id] = {
