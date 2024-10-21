@@ -1826,7 +1826,7 @@ def _get_complaint_data(message_json: AWS_SNSMessageJSON) -> RawComplaintData:
         if key in source:
             return source[key], True
         logger.error(
-            "_get_complaint_data: Unexpected message",
+            "_get_complaint_data: Unexpected message format",
             extra={"missing_key": key, "found_keys": ",".join(sorted(source.keys()))},
         )
         return data_type(), False

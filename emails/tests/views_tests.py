@@ -1721,7 +1721,7 @@ class GetComplaintDataTest(TestCase):
         assert complaint_data.complained_recipients == []
 
         (err_log,) = error_logs.records
-        assert err_log.msg == "_get_complaint_data: Unexpected message"
+        assert err_log.msg == "_get_complaint_data: Unexpected message format"
         assert getattr(err_log, "missing_key") == "complainedRecipients"
         assert getattr(err_log, "found_keys") == "complaintFeedbackType"
 
@@ -1755,7 +1755,7 @@ class GetComplaintDataTest(TestCase):
         assert complaint_data.complained_recipients == []
 
         (err_log,) = error_logs.records
-        assert err_log.msg == "_get_complaint_data: Unexpected message"
+        assert err_log.msg == "_get_complaint_data: Unexpected message format"
         assert getattr(err_log, "missing_key") == "emailAddress"
         assert getattr(err_log, "found_keys") == "foo"
 
@@ -1772,7 +1772,7 @@ class GetComplaintDataTest(TestCase):
         assert complaint_data.from_addresses == []
 
         (err_log,) = error_logs.records
-        assert err_log.msg == "_get_complaint_data: Unexpected message"
+        assert err_log.msg == "_get_complaint_data: Unexpected message format"
         assert getattr(err_log, "missing_key") == "mail"
         assert getattr(err_log, "found_keys") == "complaint"
 
@@ -1790,7 +1790,7 @@ class GetComplaintDataTest(TestCase):
         assert complaint_data.from_addresses == []
 
         (err_log,) = error_logs.records
-        assert err_log.msg == "_get_complaint_data: Unexpected message"
+        assert err_log.msg == "_get_complaint_data: Unexpected message format"
         assert getattr(err_log, "missing_key") == "commonHeaders"
         assert getattr(err_log, "found_keys") == ""
 
@@ -1808,7 +1808,7 @@ class GetComplaintDataTest(TestCase):
         assert complaint_data.from_addresses == []
 
         (err_log,) = error_logs.records
-        assert err_log.msg == "_get_complaint_data: Unexpected message"
+        assert err_log.msg == "_get_complaint_data: Unexpected message format"
         assert getattr(err_log, "missing_key") == "from"
         assert getattr(err_log, "found_keys") == ""
 
@@ -1825,7 +1825,7 @@ class GetComplaintDataTest(TestCase):
         assert complaint_data.feedback_type == ""
 
         (err_log,) = error_logs.records
-        assert err_log.msg == "_get_complaint_data: Unexpected message"
+        assert err_log.msg == "_get_complaint_data: Unexpected message format"
         assert getattr(err_log, "missing_key") == "complaintFeedbackType"
         assert getattr(err_log, "found_keys") == "complainedRecipients"
 
