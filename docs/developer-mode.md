@@ -2,7 +2,7 @@
 
 Developer mode helps Relay staff in two situations. It allows staff to opt-in
 to extended data collection for their own account. It allows staff to test
-scenarios that would otherwise damage the service.
+scenarios that are hard to setup or would damage the service.
 
 ## Enabling developer mode
 
@@ -68,8 +68,10 @@ loop. AWS SES marks this against Relay's sender reputation, and places a
 When a user has developer mode active for their Relay account, and the email
 mask description contains the text `DEV:simulate_complaint` (no spaces), then
 emails to the mask are no longer forwarded to the user's real email, but
-instead to the [mailbox simulator][] complaint email address. This raises a
-complaint without impacting the sending account reputation.
+instead to the [mailbox simulator][] complaint email address. The address has
+the format `complaint+R123@@simulator.amazonses.com`. The embedded mask
+identifier (`R123` in this example) allows linking the simulated complant
+back to the developer.
 
 When handling the complaint notification, Relay performs the standard complaint
 handling. It sets `auto_block_spam` on the first complaint, to block incoming

@@ -802,7 +802,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         self.ra.save()
 
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
-        expected_email = "complaint+ebsbdsan7@simulator.amazonses.com"
+        expected_email = f"complaint+{self.ra.metrics_id}@simulator.amazonses.com"
 
         self.check_sent_email_matches_fixture(
             "single_recipient",
@@ -844,8 +844,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
         )
         _sns_notification(EMAIL_SNS_BODIES["domain_recipient"])
         expected_email = (
-            f"complaint+wildcard.{self.premium_user.profile.subdomain}"
-            "@simulator.amazonses.com"
+            f"complaint+{domain_address.metrics_id}@simulator.amazonses.com"
         )
 
         self.check_sent_email_matches_fixture(
@@ -1328,7 +1327,7 @@ class ComplaintHandlingTest(TestCase):
 
         simulator_complaint_message = deepcopy(self.complaint_msg)
         simulator_complaint_message["complaint"]["complainedRecipients"] = [
-            {"emailAddress": f"complaint+{self.ra.address}@simulator.amazonses.com"}
+            {"emailAddress": f"complaint+{self.ra.metrics_id}@simulator.amazonses.com"}
         ]
         complaint_body = {"Message": json.dumps(simulator_complaint_message)}
 
@@ -1356,9 +1355,11 @@ class ComplaintHandlingTest(TestCase):
     def test_complaint_developer_mode_missing_mask(self):
         """If the simulator email can not be turned into a mask, it is not changed."""
 
+        assert not RelayAddress.objects.filter(id=1999).exists()
+
         simulator_complaint_message = deepcopy(self.complaint_msg)
         simulator_complaint_message["complaint"]["complainedRecipients"] = [
-            {"emailAddress": "complaint+missing@simulator.amazonses.com"}
+            {"emailAddress": "complaint+R1999@simulator.amazonses.com"}
         ]
         complaint_body = {"Message": json.dumps(simulator_complaint_message)}
 
@@ -1402,10 +1403,13 @@ class ComplaintHandlingTest(TestCase):
             user=premium_user,
             description="DEV:simulate_complaint",
         )
+        complaint_addr = (
+            f"complaint+{domain_address.metrics_id}@simulator.amazonses.com"
+        )
 
         complaint_msg = deepcopy(self.complaint_msg)
         complaint_msg["complaint"]["complainedRecipients"] = [
-            {"emailAddress": "complaint+complainer.subdomain@simulator.amazonses.com"}
+            {"emailAddress": complaint_addr}
         ]
         complaint_msg["mail"]["commonHeaders"]["from"] = [domain_address.full_address]
         complaint_body = {"Message": json.dumps(complaint_msg)}

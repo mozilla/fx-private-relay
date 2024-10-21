@@ -966,14 +966,10 @@ def _get_developer_mode_action(
         return None
 
     if "DEV:simulate_complaint" in mask.description:
-        if isinstance(mask, RelayAddress):
-            subaddress = mask.address
-        else:
-            subaddress = f"{mask.address}.{mask.user.profile.subdomain}"
         action = DeveloperModeAction(
             mask_id=mask.metrics_id,
             action="simulate_complaint",
-            new_destination_address=f"complaint+{subaddress}@simulator.amazonses.com",
+            new_destination_address=f"complaint+{mask.metrics_id}@simulator.amazonses.com",
         )
     else:
         action = DeveloperModeAction(mask_id=mask.metrics_id, action="log")
@@ -1890,14 +1886,8 @@ def _gather_complainers(
 
         # For developer mode complaint simulation, swap with developer's email
         if domain == "simulator.amazonses.com" and local.startswith("complaint+"):
-            mask_part = local.removeprefix("complaint+")
-            mask_domain = get_domains_from_settings()["MOZMAIL_DOMAIN"]
-            if "." in mask_part:
-                local, subdomain = mask_part.split(".", 1)
-                mask_address = f"{local}@{subdomain}.{mask_domain}"
-            else:
-                mask_address = f"{mask_part}@{mask_domain}"
-            mask = _get_address_if_exists(mask_address)
+            mask_metrics_id = local.removeprefix("complaint+")
+            mask = _get_mask_by_metrics_id(mask_metrics_id)
             if mask:
                 email_address = mask.user.email
                 domain = mask.user.email.split("@")[1]
@@ -1953,6 +1943,28 @@ def _gather_complainers(
             logger.error("_gather_complainers: no complainer, multi-mask")
 
     return (list(users.values()), unknown_complainer_count + unknown_sender_count)
+
+
+def _get_mask_by_metrics_id(metrics_id: str) -> RelayAddress | DomainAddress | None:
+    """Look up a mask by metrics ID, or None if not found."""
+    if not metrics_id or metrics_id[0] not in ("R", "D"):
+        return None
+    mask_type_id = metrics_id[0]
+    mask_raw_id = metrics_id[1:]
+    try:
+        mask_id = int(mask_raw_id)
+    except ValueError:
+        return None  # ID is not an int, do not try to match to Relay mask
+
+    if mask_type_id == "R":
+        try:
+            return RelayAddress.objects.get(id=mask_id)
+        except RelayAddress.DoesNotExist:
+            return None
+    try:
+        return DomainAddress.objects.get(id=mask_id)
+    except DomainAddress.DoesNotExist:
+        return None
 
 
 class ComplaintAction(NamedTuple):
