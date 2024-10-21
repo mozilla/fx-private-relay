@@ -58,6 +58,6 @@ mypy-boto3-s3==1.35.45
 mypy-boto3-ses==1.35.3
 mypy-boto3-sns==1.35.0
 mypy-boto3-sqs==1.35.0
-mypy==1.11.2
+mypy==1.12.1
 types-pyOpenSSL==24.1.0.20240722
 types-requests==2.32.0.20241016
