@@ -1905,7 +1905,11 @@ def _gather_complainers(
     for email_address, extra_data in complaint_data.complained_recipients:
         local, domain = email_address.split("@", 1)
 
-        # For developer mode complaint simulation, swap with developer's email
+        # If the complainer is the AWS SES complaint simulation, assume that
+        # it was send by a user with the developer_mode flag. Look for
+        # a mask that matches the embedded mask metrics_id, and use
+        # the related user's email instead of the AWS simulator address.
+        # See docs/developer_mode.md
         if domain == "simulator.amazonses.com" and local.startswith("complaint+"):
             mask_metrics_id = local.removeprefix("complaint+")
             mask = _get_mask_by_metrics_id(mask_metrics_id)
