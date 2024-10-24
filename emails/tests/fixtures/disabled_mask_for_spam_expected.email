@@ -269,13 +269,14 @@ ges/email-images/warning.png" style=3D"margin: 0 5px;" alt=3D"warning icon"/>
             <td style=3D"max-width:850px; padding-top: 0px; padding-bottom: 0=
 px;">
                 <p style=3D"line-height: 1.5; margin-bottom: 1.5em">
-                An email from your mask address, w41fwbt4q@test.com, was mark=
-ed as spam. When this happens, Firefox Relay deactivates the mask and stops f=
-orwarding emails. ???
+                    An email from your mask address, w41fwbt4q@test.com, was =
+marked as spam. When this happens, Firefox Relay deactivates the mask and sto=
+ps forwarding emails.
                 </p>
                 <p style=3D"line-height: 1.5; margin-bottom: 1.5em">
-                    To reactivate your mask, <a href=3D"/accounts/profile/#w4=
-1fwbt4q%40test.com">remove email blocking</a> on your Firefox Relay dashboard.
+                    To reactivate your mask, <a href=3D"http://127.0.0.1:8000=
+/accounts/profile/#w41fwbt4q%40test.com">remove email blocking</a> on your Fi=
+refox Relay dashboard.
                 </p>
                 <p style=3D"line-height: 1.5; margin-bottom: 1.5em">
                     <a href=3D"https://support.mozilla.org/kb/disable-email-f=
@@ -287,7 +288,8 @@ email forwarding</a>
         <tr>
             <td style=3D"max-width:850px; padding-top: 20px; padding-bottom: =
 20px; text-align: center;">
-              <a href=3D"/accounts/profile/#w41fwbt4q%40test.com"
+              <a href=3D"http://127.0.0.1:8000/accounts/profile/#w41fwbt4q%40=
+test.com"
                   target=3D"_blank" class=3D"button" style=3D"color: #FFFFFF;=
 " rel=3D"noreferrer">
                   Reactivate your email mask

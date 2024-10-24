@@ -3,7 +3,6 @@ import json
 import logging
 import re
 import shlex
-from copy import deepcopy
 from datetime import UTC, datetime
 from email import message_from_bytes
 from email.iterators import _structure
@@ -12,8 +11,9 @@ from email.utils import parseaddr
 from io import StringIO
 from json import JSONDecodeError
 from textwrap import dedent
-from typing import Any, Literal, NamedTuple
+from typing import Any, Literal, NamedTuple, TypedDict, TypeVar
 from urllib.parse import urlencode
+from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -515,6 +515,7 @@ def _get_relay_recipient_from_message_json(message_json):
 
 def _sns_message(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     incr_if_enabled("sns_inbound_Notification_Received", 1)
+    init_waffle_flags()
     notification_type = message_json.get("notificationType")
     event_type = message_json.get("eventType")
     if notification_type == "Bounce" or event_type == "Bounce":
@@ -959,16 +960,9 @@ def _get_developer_mode_action(
 ) -> DeveloperModeAction | None:
     """Get the developer mode actions for this mask, if enabled."""
 
-    flag_name = "developer_mode"
-    _, _ = get_waffle_flag_model().objects.get_or_create(
-        name=flag_name,
-        defaults={
-            "note": "MPP-3932: Enable logging and overrides for Relay developers."
-        },
-    )
-
     if not (
-        flag_is_active_in_task(flag_name, mask.user) and "DEV:" in mask.description
+        flag_is_active_in_task("developer_mode", mask.user)
+        and "DEV:" in mask.description
     ):
         return None
 
@@ -976,7 +970,7 @@ def _get_developer_mode_action(
         action = DeveloperModeAction(
             mask_id=mask.metrics_id,
             action="simulate_complaint",
-            new_destination_address=f"complaint+{mask.address}@simulator.amazonses.com",
+            new_destination_address=f"complaint+{mask.metrics_id}@simulator.amazonses.com",
         )
     else:
         action = DeveloperModeAction(mask_id=mask.metrics_id, action="log")
@@ -999,12 +993,14 @@ def _log_dev_notification(
 
     notification_gza85 = encode_dict_gza85(notification)
     total_parts = notification_gza85.count("\n") + 1
+    log_group_id = uuid4()
     for partnum, part in enumerate(notification_gza85.splitlines()):
         info_logger.info(
             log_message,
             extra={
                 "mask_id": dev_action.mask_id,
                 "dev_action": dev_action.action,
+                "log_group_id": log_group_id,
                 "part": partnum,
                 "parts": total_parts,
                 "notification_gza85": part,
@@ -1473,8 +1469,8 @@ def _get_domain_address(
     """
     Find or create the DomainAddress for the parts of an email address.
 
-    If the domain_portion is for a valid subdomain, a new DomainAddress
-    will be created and returned.
+    If the domain_portion is for a valid subdomain, and create=True, a new DomainAddress
+    will be created and returned. If create=False, DomainAddress.DoesNotExist is raised.
 
     If the domain_portion is for an unknown domain, ObjectDoesNotExist is raised.
 
@@ -1483,7 +1479,8 @@ def _get_domain_address(
 
     [address_subdomain, address_domain] = domain_portion.split(".", 1)
     if address_domain != get_domains_from_settings()["MOZMAIL_DOMAIN"]:
-        incr_if_enabled("email_for_not_supported_domain", 1)
+        if create:
+            incr_if_enabled("email_for_not_supported_domain", 1)
         raise ObjectDoesNotExist("Address does not exist")
     try:
         with transaction.atomic():
@@ -1498,7 +1495,7 @@ def _get_domain_address(
             ).first()
             if domain_address is None:
                 if not create:
-                    raise ObjectDoesNotExist("Address does not exist")
+                    raise DomainAddress.DoesNotExist()
                 # TODO: Consider flows when a user generating alias on a fly
                 # was unable to receive an email due to user no longer being a
                 # premium user as seen in exception thrown on make_domain_address
@@ -1513,7 +1510,8 @@ def _get_domain_address(
             domain_address.save()
             return domain_address
     except Profile.DoesNotExist as e:
-        incr_if_enabled("email_for_dne_subdomain", 1)
+        if create:
+            incr_if_enabled("email_for_dne_subdomain", 1)
         raise e
 
 
@@ -1527,6 +1525,7 @@ def _get_address(address: str, create: bool = True) -> RelayAddress | DomainAddr
     On failure, raises exception based on Django's ObjectDoesNotExist:
     * RelayAddress.DoesNotExist - looks like RelayAddress, deleted or does not exist
     * Profile.DoesNotExist - looks like DomainAddress, no subdomain match
+    * DomainAddress.DoesNotExist - looks like unknown DomainAddress, create is False
     * ObjectDoesNotExist - Unknown domain
     """
 
@@ -1538,7 +1537,7 @@ def _get_address(address: str, create: bool = True) -> RelayAddress | DomainAddr
     # it may be for a user's subdomain
     email_domains = get_domains_from_settings().values()
     if domain not in email_domains:
-        return _get_domain_address(local_address, domain)
+        return _get_domain_address(local_address, domain, create)
 
     # the domain is the site's 'top' relay domain, so look up the RelayAddress
     try:
@@ -1562,6 +1561,14 @@ def _get_address(address: str, create: bool = True) -> RelayAddress | DomainAddr
             # not sure why this happens on stage but let's handle it
             incr_if_enabled("email_for_deleted_address_multiple", 1)
         raise e
+
+
+def _get_address_if_exists(address: str) -> RelayAddress | DomainAddress | None:
+    """Get the matching RelayAddress or DomainAddress, or None if it doesn't exist."""
+    try:
+        return _get_address(address, create=False)
+    except (RelayAddress.DoesNotExist, Profile.DoesNotExist, ObjectDoesNotExist):
+        return None
 
 
 def _handle_bounce(message_json: AWS_SNSMessageJSON) -> HttpResponse:
@@ -1674,13 +1681,9 @@ def _handle_bounce(message_json: AWS_SNSMessageJSON) -> HttpResponse:
 
 
 def _build_disabled_mask_for_spam_email(
-    mask: RelayAddress | DomainAddress, original_spam_email: dict
+    mask: RelayAddress | DomainAddress,
 ) -> EmailMessage:
-    ctx = {
-        "mask": mask.full_address,
-        "spam_email": original_spam_email,
-        "SITE_ORIGIN": settings.SITE_ORIGIN,
-    }
+    ctx = {"mask": mask.full_address, "SITE_ORIGIN": settings.SITE_ORIGIN}
     html_body = render_to_string("emails/disabled_mask_for_spam.html", ctx)
     text_body = render_to_string("emails/disabled_mask_for_spam.txt", ctx)
 
@@ -1694,10 +1697,8 @@ def _build_disabled_mask_for_spam_email(
     return msg
 
 
-def _send_disabled_mask_for_spam_email(
-    mask: RelayAddress | DomainAddress, original_spam_email: dict
-) -> None:
-    msg = _build_disabled_mask_for_spam_email(mask, original_spam_email)
+def _send_disabled_mask_for_spam_email(mask: RelayAddress | DomainAddress) -> None:
+    msg = _build_disabled_mask_for_spam_email(mask)
     if not settings.RELAY_FROM_ADDRESS:
         raise ValueError(
             "Must set settings.RELAY_FROM_ADDRESS to send disabled_mask_for_spam email."
@@ -1709,73 +1710,26 @@ def _send_disabled_mask_for_spam_email(
             message=msg,
         )
     except ClientError as e:
-        logger.error("reply_not_allowed_ses_client_error", extra=e.response["Error"])
-    incr_if_enabled("free_user_reply_attempt", 1)
-
-
-def _disable_masks_for_complaint(message_json: dict, user: User) -> None:
-    """
-    See https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#mail-object
-
-    message_json.mail.source contains the envelope MAIL FROM address from which the
-    original message was sent.
-
-    Relay sends emails From: "original-From" <relay-mask@mozmail.com>.
-
-    So, we can find the mask that sent the spam email by parsing the source value.
-    """
-    flag_name = "disable_mask_on_complaint"
-    _, _ = get_waffle_flag_model().objects.get_or_create(
-        name=flag_name,
-        defaults={
-            "note": (
-                "MPP-3119: When a Relay user marks an email as spam, disable the mask."
-            )
-        },
-    )
-    source = message_json.get("mail", {}).get("source", "")
-    # parseaddr is confused by 2 email addresses in the value, so use this
-    # regular expression to extract the mask address by searching for any relay domains
-    email_domains = get_domains_from_settings().values()
-    domain_pattern = "|".join(re.escape(domain) for domain in email_domains)
-    email_regex = rf"[\w\.-]+@(?:{domain_pattern})"
-    matches = re.findall(email_regex, source)
-    if not matches:
-        return
-    for mask_address in matches:
-        try:
-            address = _get_address(mask_address, False)
-            # ensure the mask belongs to the user for whom Relay received a complaint,
-            # and that they haven't already disabled the mask themselves.
-            if address.user != user or address.enabled is False:
-                continue
-            if flag_is_active_in_task(flag_name, address.user):
-                address.enabled = False
-                address.save()
-                _send_disabled_mask_for_spam_email(
-                    address, message_json.get("mail", {})
-                )
-        except (
-            ObjectDoesNotExist,
-            RelayAddress.DoesNotExist,
-            DomainAddress.DoesNotExist,
-        ):
-            logger.error(
-                "Received a complaint from a destination address that does not match "
-                "a Relay address.",
-            )
+        logger.error("send_disabled_mask_ses_client_error", extra=e.response["Error"])
+    incr_if_enabled("send_disabled_mask_email", 1)
 
 
 def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     """
     Handle an AWS SES complaint notification.
 
-    Sets the user's auto_block_spam flag to True.
+    This looks for Relay users in the complainedRecipients (real email address)
+    and the From: header (mask address). We expect both to match the same Relay user,
+    and return a 200. If one or the other do not match, a 404 is returned, and errors
+    may be logged.
 
-    Disables the mask thru which the spam mail was forwarded, and sends an email to the
-    user to notify them the mask is disabled and can be re-enabled on their dashboard.
+    The first time a user complains, this sets the user's auto_block_spam flag to True.
 
-    For more information, see:
+    The second time a user complains, this disables the mask thru which the spam mail
+    was forwarded, and sends an email to the user to notify them the mask is disabled
+    and can be re-enabled on their dashboard.
+
+    For more information on the complaint notification, see:
     https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
 
     Returns:
@@ -1784,84 +1738,331 @@ def _handle_complaint(message_json: AWS_SNSMessageJSON) -> HttpResponse:
 
     Emits a counter metric "email_complaint" with these tags:
     * complaint_subtype: 'onaccountsuppressionlist', or 'none' if omitted
-    * complaint_feedback - feedback enumeration from ISP or 'none'
-    * user_match: 'found', 'missing', error states 'no_address' and 'no_recipients'
-    * relay_action: 'no_action', 'auto_block_spam'
+    * complaint_feedback - feedback enumeration from ISP (usually 'abuse') or 'none'
+    * user_match: 'found' or 'no_recipients'
+    * relay_action: 'no_action', 'auto_block_spam', or 'disable_mask'
 
     Emits an info log "complaint_notification", same data as metric, plus:
     * complaint_user_agent - identifies the client used to file the complaint
     * complaint_extra - Extra data from complainedRecipients data, if any
     * domain - User's domain, if an address was given
+    * found_in - "complained_recipients" (real email), "from_header" (email mask),
+      or "all" (matching records found in both)
     * fxa_id - The Mozilla account (previously known as Firefox Account) ID of the user
+    * mask_match - "found" if "From" header contains an email mask, or "not_found"
     """
-    complaint = deepcopy(message_json.get("complaint", {}))
-    complained_recipients = complaint.pop("complainedRecipients", [])
-    subtype = complaint.pop("complaintSubType", None)
-    user_agent = complaint.pop("userAgent", None)
-    feedback = complaint.pop("complaintFeedbackType", None)
+    complaint_data = _get_complaint_data(message_json)
+    complainers, unknown_count = _gather_complainers(complaint_data)
 
-    complaint_data = []
-    for recipient in complained_recipients:
-        recipient_address = recipient.pop("emailAddress", None)
-        data = {
-            "complaint_subtype": subtype,
-            "complaint_user_agent": user_agent,
-            "complaint_feedback": feedback,
-            "user_match": "no_address",
-            "relay_action": "no_action",
+    # Reduce future complaints from complaining Relay users
+    actions: list[ComplaintAction] = []
+    for complainer in complainers:
+        action = _reduce_future_complaints(complainer)
+        actions.append(action)
+
+        if (
+            flag_is_active_in_task("developer_mode", complainer["user"])
+            and action.mask_id
+        ):
+            _log_dev_notification(
+                "_handle_complaint: developer_mode",
+                DeveloperModeAction(mask_id=action.mask_id, action="log"),
+                message_json,
+            )
+
+    # Log complaint and actions taken
+    if not actions:
+        # Log the complaint but that no action was taken
+        actions.append(ComplaintAction(user_match="no_recipients"))
+    for action in actions:
+        tags = [
+            generate_tag(key, val)
+            for key, val in {
+                "complaint_subtype": complaint_data.subtype or "none",
+                "complaint_feedback": complaint_data.feedback_type or "none",
+                "user_match": action.user_match,
+                "relay_action": action.relay_action,
+            }.items()
+        ]
+        incr_if_enabled("email_complaint", tags=tags)
+
+        log_extra = {
+            "complaint_subtype": complaint_data.subtype or None,
+            "complaint_user_agent": complaint_data.user_agent or None,
+            "complaint_feedback": complaint_data.feedback_type or None,
         }
-        if recipient:
-            data["complaint_extra"] = recipient.copy()
-        complaint_data.append(data)
-
-        if recipient_address is None:
-            continue
-
-        recipient_address = parseaddr(recipient_address)[1]
-        recipient_domain = recipient_address.split("@")[1]
-        data["domain"] = recipient_domain
-
-        try:
-            user = User.objects.get(email=recipient_address)
-            profile = user.profile
-            data["user_match"] = "found"
-            if (fxa := profile.fxa) and profile.metrics_enabled:
-                data["fxa_id"] = fxa.uid
-            else:
-                data["fxa_id"] = ""
-        except User.DoesNotExist:
-            data["user_match"] = "missing"
-            continue
-
-        data["relay_action"] = "auto_block_spam"
-        profile.auto_block_spam = True
-        profile.save()
-
-        _disable_masks_for_complaint(message_json, user)
-
-    if not complaint_data:
-        # Data when there are no identified recipients
-        complaint_data = [{"user_match": "no_recipients", "relay_action": "no_action"}]
-
-    if flag_is_active_in_task("developer_mode", user):
-        # MPP-3932: We need more information to match complaints to masks
-        dev_action = DeveloperModeAction(mask_id="unknown", action="log")
-        _log_dev_notification("_handle_complaint: MPP-3932", dev_action, message_json)
-
-    for data in complaint_data:
-        tags = {
-            "complaint_subtype": subtype or "none",
-            "complaint_feedback": feedback or "none",
-            "user_match": data["user_match"],
-            "relay_action": data["relay_action"],
-        }
-        incr_if_enabled(
-            "email_complaint",
-            1,
-            tags=[generate_tag(key, val) for key, val in tags.items()],
+        log_extra.update(
+            {
+                key: value
+                for key, value in action._asdict().items()
+                if (value is not None and key != "mask_id")
+            }
         )
-        info_logger.info("complaint_notification", extra=data)
+        info_logger.info("complaint_notification", extra=log_extra)
 
-    if any(data["user_match"] == "missing" for data in complaint_data):
+    if unknown_count:
         return HttpResponse("Address does not exist", status=404)
     return HttpResponse("OK", status=200)
+
+
+class RawComplaintData(NamedTuple):
+    complained_recipients: list[tuple[str, dict[str, Any]]]
+    from_addresses: list[str]
+    subtype: str
+    user_agent: str
+    feedback_type: str
+
+
+def _get_complaint_data(message_json: AWS_SNSMessageJSON) -> RawComplaintData:
+    """
+    Extract complaint data from an AWS SES Complaint Notification.
+
+    This extracts only the data used by _handle_complaint(). It also works on
+    complaint events, which have a similar structure and the same data needed
+    by _handle_complaint.
+
+    For more information on the complaint notification, see:
+    https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
+    """
+    complaint = message_json["complaint"]
+
+    T = TypeVar("T")
+
+    def get_or_log(
+        key: str, source: dict[str, T], data_type: type[T]
+    ) -> tuple[T, bool]:
+        """Get a value from a dictionary, or log if not found"""
+        if key in source:
+            return source[key], True
+        logger.error(
+            "_get_complaint_data: Unexpected message format",
+            extra={"missing_key": key, "found_keys": ",".join(sorted(source.keys()))},
+        )
+        return data_type(), False
+
+    raw_recipients, has_cr = get_or_log("complainedRecipients", complaint, list)
+    complained_recipients = []
+    no_entries = True
+    for entry in raw_recipients:
+        no_entries = False
+        raw_email_address, has_email = get_or_log("emailAddress", entry, str)
+        if has_email:
+            email_address = parseaddr(raw_email_address)[1]
+            extra = {
+                key: value for key, value in entry.items() if key != "emailAddress"
+            }
+            complained_recipients.append((email_address, extra))
+    if has_cr and no_entries:
+        logger.error("_get_complaint_data: Empty complainedRecipients")
+
+    mail, has_mail = get_or_log("mail", message_json, dict)
+    if has_mail:
+        commonHeaders, has_ch = get_or_log("commonHeaders", mail, dict)
+    else:
+        commonHeaders, has_ch = {}, False
+    if has_ch:
+        raw_from_addresses, _ = get_or_log("from", commonHeaders, list)
+    else:
+        raw_from_addresses = []
+    from_addresses = [parseaddr(addr)[1] for addr in raw_from_addresses]
+
+    feedback_type, _ = get_or_log("complaintFeedbackType", complaint, str)
+
+    # Only present when destination is on account suppression list
+    subtype = complaint.get("complaintSubType", "")
+    # Only present for feedback reports
+    user_agent = complaint.get("userAgent", "")
+
+    return RawComplaintData(
+        complained_recipients, from_addresses, subtype, user_agent, feedback_type
+    )
+
+
+class Complainer(TypedDict):
+    user: User
+    found_in: Literal["complained_recipients", "from_header", "all"]
+    domain: str
+    extra: dict[str, Any] | None
+    masks: list[RelayAddress | DomainAddress]
+
+
+def _gather_complainers(
+    complaint_data: RawComplaintData,
+) -> tuple[list[Complainer], int]:
+    """
+    Fetch Relay Users and masks from the complaint data.
+
+    This matches data from an AWS SES Complaint Notification (as extracted by
+    _get_complaint_data()) to the Relay database, and returns the Users,
+    RelayAddresses, and DomainAddresses, as well as status and extra data.
+
+    If the complaint came from the AWS SES complaint simulator, detect
+    developer_mode and move forward with the developer's User data.
+    """
+
+    users: dict[int, Complainer] = {}
+    unknown_complainer_count = 0
+    for email_address, extra_data in complaint_data.complained_recipients:
+        local, domain = email_address.split("@", 1)
+
+        # If the complainer is the AWS SES complaint simulation, assume that
+        # it was send by a user with the developer_mode flag. Look for
+        # a mask that matches the embedded mask metrics_id, and use
+        # the related user's email instead of the AWS simulator address.
+        # See docs/developer_mode.md
+        if domain == "simulator.amazonses.com" and local.startswith("complaint+"):
+            mask_metrics_id = local.removeprefix("complaint+")
+            mask = _get_mask_by_metrics_id(mask_metrics_id)
+            if mask:
+                email_address = mask.user.email
+                domain = mask.user.email.split("@")[1]
+
+        try:
+            user = User.objects.get(email=email_address)
+        except User.DoesNotExist:
+            logger.error("_gather_complainers: unknown complainedRecipient")
+            unknown_complainer_count += 1
+            continue
+
+        if user.id in users:
+            logger.error("_gather_complainers: complainer appears twice")
+            continue
+
+        users[user.id] = {
+            "user": user,
+            "found_in": "complained_recipients",
+            "domain": domain,
+            "extra": extra_data or None,
+            "masks": [],
+        }
+
+    # Collect From: addresses and their users
+    unknown_sender_count = 0
+    for email_address in complaint_data.from_addresses:
+        mask = _get_address_if_exists(email_address)
+        if not mask:
+            logger.error("_gather_complainers: unknown mask, maybe deleted?")
+            unknown_sender_count += 1
+            continue
+
+        if mask.user.id not in users:
+            # Add mask-only entry to users
+            users[mask.user.id] = {
+                "user": mask.user,
+                "found_in": "from_header",
+                "domain": mask.user.email.split("@")[1],
+                "extra": None,
+                "masks": [mask],
+            }
+            continue
+
+        user_data = users[mask.user.id]
+        if mask in user_data["masks"]:
+            logger.error("_gather_complainers: mask appears twice")
+            continue
+
+        user_data["masks"].append(mask)
+        if user_data["found_in"] in ("all", "complained_recipients"):
+            user_data["found_in"] = "all"
+        else:
+            logger.error("_gather_complainers: no complainer, multi-mask")
+
+    return (list(users.values()), unknown_complainer_count + unknown_sender_count)
+
+
+def _get_mask_by_metrics_id(metrics_id: str) -> RelayAddress | DomainAddress | None:
+    """Look up a mask by metrics ID, or None if not found."""
+    if not metrics_id or metrics_id[0] not in ("R", "D"):
+        return None
+    mask_type_id = metrics_id[0]
+    mask_raw_id = metrics_id[1:]
+    try:
+        mask_id = int(mask_raw_id)
+    except ValueError:
+        return None  # ID is not an int, do not try to match to Relay mask
+
+    if mask_type_id == "R":
+        try:
+            return RelayAddress.objects.get(id=mask_id)
+        except RelayAddress.DoesNotExist:
+            return None
+    try:
+        return DomainAddress.objects.get(id=mask_id)
+    except DomainAddress.DoesNotExist:
+        return None
+
+
+class ComplaintAction(NamedTuple):
+    user_match: Literal["found", "no_recipients"]
+    relay_action: Literal["no_action", "auto_block_spam", "disable_mask"] = "no_action"
+    mask_match: Literal["found", "not_found"] = "not_found"
+    mask_id: str | None = None
+    found_in: Literal["complained_recipients", "from_header", "all"] | None = None
+    fxa_id: str | None = None
+    domain: str | None = None
+    complaint_extra: str | None = None
+
+
+def _reduce_future_complaints(complainer: Complainer) -> ComplaintAction:
+    """Take action to reduce future complaints from complaining user."""
+
+    user = complainer["user"]
+    mask_match: Literal["found", "not_found"] = "not_found"
+    relay_action: Literal["no_action", "auto_block_spam", "disable_mask"] = "no_action"
+    mask_id = None
+
+    if not user.profile.auto_block_spam:
+        relay_action = "auto_block_spam"
+        user.profile.auto_block_spam = True
+        user.profile.save()
+
+    for mask in complainer["masks"]:
+        mask_match = "found"
+        mask_id = mask.metrics_id
+        if (
+            flag_is_active_in_task("disable_mask_on_complaint", user)
+            and mask.enabled
+            and relay_action != "auto_block_spam"
+        ):
+            relay_action = "disable_mask"
+            mask.enabled = False
+            mask.save()
+            _send_disabled_mask_for_spam_email(mask)
+
+    return ComplaintAction(
+        user_match="found",
+        relay_action=relay_action,
+        mask_match=mask_match,
+        mask_id=mask_id,
+        fxa_id=user.profile.metrics_fxa_id,
+        domain=complainer["domain"],
+        found_in=complainer["found_in"],
+        complaint_extra=(
+            json.dumps(complainer["extra"]) if complainer["extra"] else None
+        ),
+    )
+
+
+_WAFFLE_FLAGS_INITIALIZED = False
+
+
+def init_waffle_flags() -> None:
+    """Initialize waffle flags for email tasks"""
+    global _WAFFLE_FLAGS_INITIALIZED
+    if _WAFFLE_FLAGS_INITIALIZED:
+        return
+
+    flags: list[tuple[str, str]] = [
+        (
+            "disable_mask_on_complaint",
+            "MPP-3119: When a Relay user marks an email as spam, disable the mask.",
+        ),
+        (
+            "developer_mode",
+            "MPP-3932: Enable logging and overrides for Relay developers.",
+        ),
+    ]
+    waffle_flag_table = get_waffle_flag_model().objects
+    for name, note in flags:
+        waffle_flag_table.get_or_create(name=name, defaults={"note": note})
+    _WAFFLE_FLAGS_INITIALIZED = True
