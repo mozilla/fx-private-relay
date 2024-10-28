@@ -52,7 +52,7 @@ ruff==0.7.0
 # type hinting
 boto3-stubs==1.35.45
 botocore-stubs==1.35.45
-django-stubs==5.1.0
+django-stubs==5.1.1
 djangorestframework-stubs==3.15.1
 mypy-boto3-s3==1.35.45
 mypy-boto3-ses==1.35.3
