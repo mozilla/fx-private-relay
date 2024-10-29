@@ -17,6 +17,11 @@ updates:
           - "babel-jest"
           - "jest"
           - "jest-environment-jsdom"
+      nextjs:
+        patterns:
+          - "eslint-config-next"
+          - "next"
+          - "@next/*"
       react:
         patterns:
           - "react"
