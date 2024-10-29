@@ -16,7 +16,6 @@ engineers who rotate thru the role:
 
 1. [@jwhitlock](https://github.com/jwhitlock)
 2. [@groovecoder](https://github.com/groovecoder)
-3. [@say-yawn](https://github.com/say-yawn)
 
 ## Daily routine
 
