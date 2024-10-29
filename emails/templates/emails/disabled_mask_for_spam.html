@@ -6,7 +6,7 @@
 {% load email_extras %}
 {% withftl bundle='privaterelay.ftl_bundles.main' language=language %}
 
-{% include "emails/direct_email_header.html" %}
+{% include "emails/direct_email_header.html" with pretext_ftlmsg_id="relay-deactivated-mask-email-pretext" %}
 
   <style>
     .button {
@@ -37,20 +37,20 @@
             <td style="max-width:850px; padding-top: 0px; padding-bottom: 0px; text-align: center;">
                 <h2 style="font-family: inter medium, Arial, system-ui, sans-serif;">
                     <img width="18" src="{{ SITE_ORIGIN }}/static/images/email-images/warning.png" style="margin: 0 5px;" alt="warning icon"/>
-                    {% ftlmsg 'reactivate-your-mask' %}
+                    {% ftlmsg 'relay-deactivated-mask-email-subject' %}
                 </h2>
             </td>
         </tr>
         <tr>
             <td style="max-width:850px; padding-top: 0px; padding-bottom: 0px;">
                 <p style="line-height: 1.5; margin-bottom: 1.5em">
-                    {% ftlmsg 'relay-received-spam-complaint-and-deactivated-mask-html' mask=mask %}
+                    {% ftlmsg 'relay-received-spam-complaint-and-deactivated-mask' mask=mask %}
                 </p>
                 <p style="line-height: 1.5; margin-bottom: 1.5em">
-                    {% ftlmsg 'reactivate-mask-detail-html' mask_url=mask_url %}
+                    {% ftlmsg 'relay-remove-email-blocking-html' mask_url=mask_url %}
                 </p>
                 <p style="line-height: 1.5; margin-bottom: 1.5em">
-                    {% ftlmsg 'learn-about-blocking-html' learn_more_url='https://support.mozilla.org/kb/disable-email-forwarding-stop-receiving-emails-sent-through-masks' %}
+                    {% ftlmsg 'detailed-instructions-about-blocking-html' learn_more_url='https://support.mozilla.org/kb/disable-email-forwarding-stop-receiving-emails-sent-through-masks' %}
                 </p>
             </td>
         </tr>
@@ -58,7 +58,7 @@
             <td style="max-width:850px; padding-top: 20px; padding-bottom: 20px; text-align: center;">
               <a href="{{ mask_url }}"
                   target="_blank" class="button" style="color: #FFFFFF;" rel="noreferrer">
-                  {% ftlmsg 'reactivate-your-mask' %}
+                  {% ftlmsg 'remove-email-blocking' %}
                 </a>
             </td>
         </tr>

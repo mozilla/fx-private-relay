@@ -1305,7 +1305,7 @@ class ComplaintHandlingTest(TestCase):
         assert call.kwargs["Source"] == settings.RELAY_FROM_ADDRESS
         assert call.kwargs["Destinations"] == [self.user.email]
         msg_without_newlines = call.kwargs["RawMessage"]["Data"].replace("\n", "")
-        assert "deactivated one of your email masks" in msg_without_newlines
+        assert "This mask has been deactivated" in msg_without_newlines
         assert self.ra.full_address in msg_without_newlines
 
         mm.assert_incr_once("fx.private.relay.send_disabled_mask_email")
@@ -1401,7 +1401,7 @@ class ComplaintHandlingTest(TestCase):
 
         msg = _build_disabled_mask_for_spam_email(relay_address)
 
-        assert msg["Subject"] == main.format("relay-deactivated-your-mask")
+        assert msg["Subject"] == main.format("relay-deactivated-mask-email-subject")
         assert msg["From"] == settings.RELAY_FROM_ADDRESS
         assert msg["To"] == free_user.email
 
