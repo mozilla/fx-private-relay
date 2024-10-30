@@ -1,5 +1,4 @@
-Subject: =?utf-8?q?=E2=81=A8Firefox_Relay=E2=81=A9?= has deactivated one of
- your email masks.
+Subject: This mask has been deactivated
 From: reply@relay.example.com
 To: testreal@email.com
 MIME-Version: 1.0
@@ -13,20 +12,23 @@ Content-Transfer-Encoding: quoted-printable
 
 
 
-=E2=81=A8Firefox Relay=E2=81=A9 has deactivated one of your email masks.
+This mask has been deactivated
 
 An email from your mask address, =E2=81=A8w41fwbt4q@test.com=E2=81=A9, was ma=
 rked as spam. When this happens, =E2=81=A8Firefox Relay=E2=81=A9 deactivates =
-the mask and stops forwarding emails.
+the mask and blocks emails from forwarding to protect your inbox from future =
+spam.
 
-To reactivate your mask, remove email blocking on your =E2=81=A8Firefox Relay=
-=E2=81=A9 dashboard.
+To remove email blocking:
+1. Go to your =E2=81=A8Relay=E2=81=A9 dashboard and find this email mask
+2. Remove email blocking by updating blocking from all to none
+
 http://127.0.0.1:8000/accounts/profile/#w41fwbt4q%40test.com
 
 
-Learn about blocking and email forwarding at =E2=81=A8https://support.mozilla=
-.org/kb/disable-email-forwarding-stop-receiving-emails-sent-through-masks=E2=
-=81=A9
+Detailed instructions to remove email blocking: =E2=81=A8https://support.mozi=
+lla.org/kb/disable-email-forwarding-stop-receiving-emails-sent-through-masks=
+=E2=81=A9
 
 
 --==[BOUNDARY0]==
@@ -208,6 +210,12 @@ lay.firefox.com/fonts/Inter/Inter-Medium.027d14e7d35b.woff2?v=3D3.18) format(=
         }
     </style>
 
+    <div style=3D"display:none !important; color: #ffffff; font-size: 0px; li=
+ne-height: 0; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden; =
+mso-hide: all;">
+        Remove email blocking to use your email mask
+    </div>
+
     <!-- temporary header -->
     <table id=3D"relay-email-header" width=3D"100%" bgcolor=3D"#3D3D3D" style=
 =3D"background: #3D3D3D; padding: 12px; margin-bottom: 30px; margin-top: 30px=
@@ -261,7 +269,7 @@ px; text-align: center;">
 s-serif;">
                     <img width=3D"18" src=3D"http://127.0.0.1:8000/static/ima=
 ges/email-images/warning.png" style=3D"margin: 0 5px;" alt=3D"warning icon"/>
-                    Reactivate your email mask
+                    This mask has been deactivated
                 </h2>
             </td>
         </tr>
@@ -269,19 +277,23 @@ ges/email-images/warning.png" style=3D"margin: 0 5px;" alt=3D"warning icon"/>
             <td style=3D"max-width:850px; padding-top: 0px; padding-bottom: 0=
 px;">
                 <p style=3D"line-height: 1.5; margin-bottom: 1.5em">
-                    An email from your mask address, w41fwbt4q@test.com, was =
-marked as spam. When this happens, Firefox Relay deactivates the mask and sto=
-ps forwarding emails.
+                    An email from your mask address, =E2=81=A8w41fwbt4q@test.=
+com=E2=81=A9, was marked as spam. When this happens, =E2=81=A8Firefox Relay=
+=E2=81=A9 deactivates the mask and blocks emails from forwarding to protect y=
+our inbox from future spam.
                 </p>
                 <p style=3D"line-height: 1.5; margin-bottom: 1.5em">
-                    To reactivate your mask, <a href=3D"http://127.0.0.1:8000=
-/accounts/profile/#w41fwbt4q%40test.com">remove email blocking</a> on your Fi=
-refox Relay dashboard.
+                    To remove email blocking:
+<ol>
+<li><a href=3D"http://127.0.0.1:8000/accounts/profile/#w41fwbt4q%40test.com">=
+Go to your Relay dashboard</a> and find this email mask</li>
+<li>Remove email blocking by updating blocking from all to none</li>
+</ol>
                 </p>
                 <p style=3D"line-height: 1.5; margin-bottom: 1.5em">
                     <a href=3D"https://support.mozilla.org/kb/disable-email-f=
-orwarding-stop-receiving-emails-sent-through-masks">Learn about blocking and =
-email forwarding</a>
+orwarding-stop-receiving-emails-sent-through-masks">Detailed instructions to =
+remove email blocking</a>
                 </p>
             </td>
         </tr>
@@ -292,7 +304,7 @@ email forwarding</a>
 test.com"
                   target=3D"_blank" class=3D"button" style=3D"color: #FFFFFF;=
 " rel=3D"noreferrer">
-                  Reactivate your email mask
+                  Remove email blocking
                 </a>
             </td>
         </tr>

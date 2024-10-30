@@ -1689,7 +1689,7 @@ def _build_disabled_mask_for_spam_email(
 
     # Create the message
     msg = EmailMessage()
-    msg["Subject"] = ftl_bundle.format("relay-deactivated-your-mask")
+    msg["Subject"] = ftl_bundle.format("relay-deactivated-mask-email-subject")
     msg["From"] = settings.RELAY_FROM_ADDRESS
     msg["To"] = mask.user.email
     msg.set_content(text_body)

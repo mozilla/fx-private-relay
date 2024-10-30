@@ -7,30 +7,32 @@
 ## Email sent to users when Relay deactivates their mask after the user marks a forwarded
 ## email as spam.
 
-relay-deactivated-your-mask = { -brand-name-firefox-relay } has deactivated one of your email masks.
+relay-deactivated-mask-email-subject = This mask has been deactivated
 
-reactivate-your-mask = Reactivate your email mask
-
-# Variables
-#   $mask (string) - the Relay email mask that sent a spam complaint
-relay-received-spam-complaint-and-deactivated-mask-html = An email from your mask address, { $mask }, was marked as spam. When this happens, { -brand-name-firefox-relay } deactivates the mask and stops forwarding emails.
+relay-deactivated-mask-email-pretext = Remove email blocking to use your email mask
 
 # Variables
 #   $mask (string) - the Relay email mask that sent a spam complaint
-relay-received-spam-complaint-and-deactivated-mask = An email from your mask address, { $mask }, was marked as spam. When this happens, { -brand-name-firefox-relay } deactivates the mask and stops forwarding emails.
+relay-received-spam-complaint-and-deactivated-mask = An email from your mask address, { $mask }, was marked as spam. When this happens, { -brand-name-firefox-relay } deactivates the mask and blocks emails from forwarding to protect your inbox from future spam.
 
-# Variables
-#   $mask_url (string) - url takes user to Relay dashboard with mask selected
-reactivate-mask-detail-html = To reactivate your mask, <a href="{ $mask_url }">remove email blocking</a> on your { -brand-name-firefox-relay } dashboard.
+relay-remove-email-blocking-html =
+    To remove email blocking:
+    <ol>
+    <li><a href="{ $mask_url }">Go to your { -brand-name-relay } dashboard</a> and find this email mask</li>
+    <li>Remove email blocking by updating blocking from all to none</li>
+    </ol>
 
-reactivate-mask-detail = To reactivate your mask, remove email blocking on your { -brand-name-firefox-relay } dashboard.
+relay-remove-email-blocking =
+    To remove email blocking:
+    1. Go to your { -brand-name-relay } dashboard and find this email mask
+    2. Remove email blocking by updating blocking from all to none
 
 # Variables
 #   $learn_more_url (string) - support.mozilla.org page with more information
-learn-about-blocking-html = <a href="{ $learn_more_url }">Learn about blocking and email forwarding</a>
+detailed-instructions-about-blocking-html = <a href="{ $learn_more_url }">Detailed instructions to remove email blocking</a>
 
 # Variables
 #   $learn_more_url (string) - support.mozilla.org page with more information
-learn-about-blocking = Learn about blocking and email forwarding at { $learn_more_url }
+detailed-instructions-about-blocking = Detailed instructions to remove email blocking: { $learn_more_url }
 
-re-enable-your-mask = Visit your { -brand-name-firefox-relay } dashboard to re-enable this mask.
+remove-email-blocking = Remove email blocking

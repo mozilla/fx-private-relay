@@ -159,7 +159,11 @@
             }
         }
     </style>
-
+{% if pretext_ftlmsg_id %}
+    <div style="display:none !important; color: #ffffff; font-size: 0px; line-height: 0; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden; mso-hide: all;">
+        {% ftlmsg pretext_ftlmsg_id %}
+    </div>
+{% endif %}
     <!-- temporary header -->
     <table id="relay-email-header" width="100%" bgcolor="#3D3D3D" style="background: #3D3D3D; padding: 12px; margin-bottom: 30px; margin-top: 30px; width: 96%; border-radius: 6px; max-width: 1200px;" align="center">
         <tr>
