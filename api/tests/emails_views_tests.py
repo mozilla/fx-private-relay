@@ -787,8 +787,11 @@ def test_first_forwarded_email_unknown_mask(free_api_client: APIClient) -> None:
 
 
 def test_first_forwarded_email_success(
-    free_api_client: APIClient, free_user: User
+    free_api_client: APIClient,
+    free_user: User,
+    settings: SettingsWrapper,
 ) -> None:
+    settings.RELAY_FROM_ADDRESS = "reply@relay.example.com"
     address = free_user.relayaddress_set.create()
     with (
         override_flag("free_user_onboarding", True),
