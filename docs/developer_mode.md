@@ -173,6 +173,6 @@ joined by whitespace, such as newlines, before sending it to
 
 [Ascii85]: https://en.wikipedia.org/wiki/Ascii85
 [MozLog format]: https://wiki.mozilla.org/Firefox/Services/Logging#MozLog_application_logging_standard
-[base64.a85encode]: https://docs.python.org/3.11/library/base64.html#base64.a85encode
+[base64.a85encode]: https://docs.python.org/3/library/base64.html#base64.a85encode
 [zlib.compress]: https://docs.python.org/3/library/zlib.html
 [zlib]: https://docs.python.org/3/library/zlib.html
