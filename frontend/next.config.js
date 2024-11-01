@@ -114,4 +114,19 @@ module.exports = {
 
     return config;
   },
+  sassOptions: {
+    // TODO MPP-3946: Fix deprecation warnings in sass 1.80.x
+    // https://github.com/mozilla/protocol/releases/tag/v18.0.0
+    silenceDeprecations: [
+      // Issues we can fix in our code
+      "import", // https://sass-lang.com/documentation/breaking-changes/import/
+      "mixed-decls", // https://sass-lang.com/d/mixed-decls
+      "slash-div", // https://sass-lang.com/d/slash-div
+
+      // Upstream issues
+      "legacy-js-api", // vercel/next.js issue #71638
+    ],
+    // TODO MPP-3946: Update to mozilla-protocol 18.0.0
+    quietDeps: true,
+  },
 };
