@@ -95,7 +95,7 @@ table.desktop {
       //   border-collapse: separate;
       //   border-spacing: $spacing-md 0;
       // then we wouldn't have been able to apply a bottom border at all.
-      border-inline: $spacing-md / 2 solid $color-light-gray-10;
+      border-inline: $spacing-md * 0.5 solid $color-light-gray-10;
 
       &:last-child {
         border-right-style: none;
