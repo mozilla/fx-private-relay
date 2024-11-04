@@ -1,5 +1,6 @@
 @import "../../../styles/tokens";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "../../../styles/typography";
 
 .wrapper {
   align-items: center;
@@ -14,9 +15,10 @@
   color: white;
   overflow: hidden;
 
-  @include text-title-2xs;
-  padding: 0;
-  border-style: none;
+  @include text-title-2xs {
+    padding: 0;
+    border-style: none;
+  }
 }
 
 .popup {

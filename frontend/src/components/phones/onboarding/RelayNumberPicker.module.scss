@@ -1,6 +1,7 @@
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 @import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
 @import "../../../styles/tokens";
+@import "../../../styles/typography";
 
 .step,
 .controls {
@@ -34,9 +35,10 @@
   }
 
   h2 {
-    @include text-title-xs;
-    font-family: $font-stack-firefox;
-    text-align: center;
+    @include text-title-xs {
+      font-family: $font-stack-firefox;
+      text-align: center;
+    }
   }
 
   .lead {
@@ -100,10 +102,11 @@
     }
 
     span {
-      @include text-title-2xs;
-      padding-top: $spacing-sm;
-      display: block;
-      font-weight: 700;
+      @include text-title-2xs {
+        padding-top: $spacing-sm;
+        display: block;
+        font-weight: 700;
+      }
     }
   }
 

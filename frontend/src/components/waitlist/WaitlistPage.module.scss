@@ -1,6 +1,7 @@
 @import "~@mozilla-protocol/core/protocol/css/includes/tokens/dist/index";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 @import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+@import "../../styles/typography";
 
 .wrapper {
   display: flex;
@@ -78,10 +79,11 @@
   }
 
   .heading {
-    @include text-title-sm;
-    font-family: $font-stack-firefox;
-    align-self: center;
-    text-align: center;
+    @include text-title-sm {
+      font-family: $font-stack-firefox;
+      align-self: center;
+      text-align: center;
+    }
   }
 
   .lead {

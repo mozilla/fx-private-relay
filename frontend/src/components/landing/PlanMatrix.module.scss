@@ -1,5 +1,6 @@
 @import "../../styles/tokens";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "../../styles/typography";
 
 .wrapper {
   width: 100%;
@@ -9,17 +10,18 @@
   gap: $spacing-md;
 
   .bundle-offer-heading {
-    @include text-title-xs;
-    background-image: linear-gradient(
-      to right,
-      $color-violet-30,
-      $color-violet-80 20%,
-      $color-violet-30 80%
-    );
-    background-clip: text;
-    color: transparent;
-    text-align: center;
-    font-weight: 700;
+    @include text-title-xs {
+      background-image: linear-gradient(
+        to right,
+        $color-violet-30,
+        $color-violet-80 20%,
+        $color-violet-30 80%
+      );
+      background-clip: text;
+      color: transparent;
+      text-align: center;
+      font-weight: 700;
+    }
   }
   .bundle-offer-content {
     max-width: $content-md;
@@ -256,9 +258,10 @@ table.desktop {
       padding: $spacing-md;
 
       h3 {
-        @include text-title-2xs;
-        font-weight: 600;
-        text-align: center;
+        @include text-title-2xs {
+          font-weight: 600;
+          text-align: center;
+        }
       }
 
       &.recommended h3 {

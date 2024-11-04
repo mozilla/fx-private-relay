@@ -1,6 +1,7 @@
 @import "../../styles/tokens";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 @import "~@mozilla-protocol/core/protocol/css/includes/mixins/typography";
+@import "../../styles/typography";
 
 .header {
   background-color: $color-light-gray-05;
@@ -157,13 +158,14 @@
         }
 
         .value {
-          @include text-title-xs;
-          font-family: $font-stack-firefox;
-          font-weight: 700;
-          padding: $spacing-xs 0;
-          flex: 1 0 auto;
-          display: flex;
-          flex-direction: column;
+          @include text-title-xs {
+            font-family: $font-stack-firefox;
+            font-weight: 700;
+            padding: $spacing-xs 0;
+            flex: 1 0 auto;
+            display: flex;
+            flex-direction: column;
+          }
 
           .learn-more-wrapper {
             @include text-body-sm;
@@ -259,8 +261,9 @@
   }
 
   .upsell-banner-header {
-    @include text-title-md;
-    font-weight: 700;
+    @include text-title-md {
+      font-weight: 700;
+    }
   }
 
   .upsell-banner-description {
@@ -368,8 +371,9 @@
 
     h3 {
       @include font-mozilla;
-      @include text-title-xs;
-      font-weight: 500;
+      @include text-title-xs {
+        font-weight: 500;
+      }
 
       strong {
         font-weight: 700;

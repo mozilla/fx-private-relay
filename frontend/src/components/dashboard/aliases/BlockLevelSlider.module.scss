@@ -9,16 +9,16 @@ $trackLineHeight: 4px;
   // A CSS variable to enable different values depending on the screen size:
   --thumbDiameter: 32px;
 
-  @media screen and #{$mq-md} {
-    --thumbDiameter: 24px;
-  }
-
   display: flex;
   flex-direction: column;
   align-items: center;
   touch-action: none;
   padding: 0 $spacing-md;
   width: 100%;
+
+  @media screen and #{$mq-md} {
+    --thumbDiameter: 24px;
+  }
 
   @media screen and #{$mq-md} {
     flex-direction: row;

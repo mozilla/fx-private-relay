@@ -1,5 +1,6 @@
 @import "../../styles/tokens";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "../../styles/typography";
 
 .reviews {
   display: flex;
@@ -52,9 +53,10 @@
   }
 
   .logo-text {
-    @include text-title-xs;
-    font-weight: 600;
-    text-transform: uppercase;
+    @include text-title-xs {
+      font-weight: 600;
+      text-transform: uppercase;
+    }
   }
 }
 
@@ -75,9 +77,10 @@
 
   .rating {
     .title {
-      @include text-title-2xl;
-      font-family: $font-stack-firefox;
-      font-weight: 600;
+      @include text-title-2xl {
+        font-family: $font-stack-firefox;
+        font-weight: 600;
+      }
     }
 
     .text {

@@ -1,5 +1,6 @@
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 @import "../../../styles/tokens";
+@import "../../../styles/typography";
 
 .main-wrapper {
   display: flex;
@@ -19,9 +20,10 @@
     text-align: center;
 
     h1 {
-      @include text-title-xs;
-      @include font-firefox;
-      font-weight: 600;
+      @include text-title-xs {
+        @include font-firefox;
+        font-weight: 600;
+      }
     }
   }
 

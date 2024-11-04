@@ -1,5 +1,6 @@
 @import "../../styles/tokens";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "../../styles/typography";
 
 .underlay {
   position: fixed;
@@ -64,13 +65,14 @@
 }
 
 .headline {
-  @include text-title-xs;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: $spacing-sm 0;
-  gap: $spacing-sm;
-  font-weight: 100;
+  @include text-title-xs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-sm 0;
+    gap: $spacing-sm;
+    font-weight: 100;
+  }
 }
 
 .modal-title {

@@ -1,5 +1,6 @@
 @import "../../styles/tokens";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "../../styles/typography";
 
 .wrapper {
   padding: $spacing-lg;
@@ -7,9 +8,10 @@
   border: 1px solid $color-light-gray-40;
 
   h2 {
-    @include text-title-2xs;
-    @include font-firefox;
-    padding: $spacing-sm 0;
+    @include text-title-2xs {
+      @include font-firefox;
+      padding: $spacing-sm 0;
+    }
   }
 
   .steps {
