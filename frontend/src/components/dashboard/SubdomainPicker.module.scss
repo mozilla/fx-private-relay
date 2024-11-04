@@ -1,6 +1,7 @@
 @import "../../styles/tokens";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 @import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+@import "../../styles/typography";
 
 .card {
   border-radius: $border-radius-md;
@@ -62,8 +63,9 @@
     }
 
     h2 {
-      @include text-title-2xs;
-      padding: $spacing-sm 0;
+      @include text-title-2xs {
+        padding: $spacing-sm 0;
+      }
     }
 
     .lead {

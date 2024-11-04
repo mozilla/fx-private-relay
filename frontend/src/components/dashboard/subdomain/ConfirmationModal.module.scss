@@ -1,5 +1,6 @@
 @import "../../../styles/tokens";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "../../../styles/typography";
 
 .underlay {
   position: fixed;
@@ -51,11 +52,12 @@
         font-weight: 400;
 
         .subdomain {
-          @include text-title-xs;
-          display: block;
-          font-weight: 700;
-          margin-bottom: $spacing-sm;
-          padding: $spacing-sm 0;
+          @include text-title-xs {
+            display: block;
+            font-weight: 700;
+            margin-bottom: $spacing-sm;
+            padding: $spacing-sm 0;
+          }
 
           &::before {
             content: "@";

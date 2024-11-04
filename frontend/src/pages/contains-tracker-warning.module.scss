@@ -1,5 +1,6 @@
 @import "../styles/tokens";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "../styles/typography";
 
 .contains-tracker-container {
   margin: $layout-sm;
@@ -105,11 +106,12 @@
       }
 
       .headline {
-        @include text-title-xs;
-        font-family: $font-stack-firefox;
-        font-weight: 700;
-        padding: $spacing-md 0;
-        color: $color-violet-90;
+        @include text-title-xs {
+          font-family: $font-stack-firefox;
+          font-weight: 700;
+          padding: $spacing-md 0;
+          color: $color-violet-90;
+        }
 
         @media screen and #{$mq-md} {
           @include text-title-2xs;

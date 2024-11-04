@@ -1,6 +1,7 @@
 @import "../../styles/tokens";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 @import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+@import "../../styles/typography";
 
 .onboarding {
   display: flex;
@@ -176,14 +177,15 @@
 
     .domain-example {
       @include font-firefox;
-      @include text-title-2xs;
-      color: $color-light-gray-90;
-      display: inline-block;
-      padding: $spacing-md 0;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      overflow-x: hidden;
-      max-width: $content-xs;
+      @include text-title-2xs {
+        color: $color-light-gray-90;
+        display: inline-block;
+        padding: $spacing-md 0;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow-x: hidden;
+        max-width: $content-xs;
+      }
 
       @media screen and #{$mq-md} {
         max-width: 100%;
@@ -273,10 +275,11 @@
     gap: $spacing-xs;
 
     h1 {
-      @include text-title-sm;
-      font-weight: 700;
-      font-family: $font-stack-firefox;
-      color: $color-purple-50;
+      @include text-title-sm {
+        font-weight: 700;
+        font-family: $font-stack-firefox;
+        color: $color-purple-50;
+      }
     }
 
     p {

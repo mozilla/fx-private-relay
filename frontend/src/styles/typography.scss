@@ -1,0 +1,240 @@
+/*
+Re-declare mozilla-protocol typography:
+ * text-title-* mixins to take a content block
+ * replace type-scale to return a numberremove
+
+TODO MPP-3946: Replace with mozilla-protocol v18.0.x overrides
+
+The v17.0.1 typography mixins are at:
+https://github.com/mozilla/protocol/blob/v17.0.1/assets/sass/protocol/includes/mixins/_typography.scss
+
+A typical mixin text-title-xs looks like:
+
+@mixin text-title-xs {
+    @include font-size(type-scale('title-2xs-size'));
+    line-height: type-scale('title-2xs-line-height');
+
+    @media #{$mq-md} {
+        @include font-size(type-scale('title-xs-size'));
+        line-height: type-scale('title-xs-line-height');
+    }
+}
+
+Here's a typical usage, such as in
+components/dashboard/EmailForwardingModal.module.scss:
+
+.headline {
+  @include text-title-xs;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-sm 0;
+  gap: $spacing-sm;
+  font-weight: 100;
+}
+
+This compiles to the CSS:
+
+.EmailForwardingModal_headline__VgCSC {
+  font-size: 24px;
+  font-size: 1.5rem;
+  line-height: 1.08;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 0;
+  gap: 8px;
+  font-weight: 100
+}
+@media(min-width:768px)
+{
+  .EmailForwardingModal_headline__VgCSC {
+    font-size: 28px;
+    font-size: 1.75rem;
+    line-height: 1.07
+  }
+}
+
+However, it also triggers the Sass deprecation warning about mixed declarations:
+https://sass-lang.com/documentation/breaking-changes/mixed-decls/
+
+There are three ways to eliminate the warning. The first two result in the same CSS that is different from the original.
+
+The first is to move the `@import` down in the original ruleset:
+
+.headline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-sm 0;
+  gap: $spacing-sm;
+  font-weight: 100;
+  @include text-title-xs;
+}
+
+The second is opt-in to the new CSS ordering behaviour with the `&` operator:
+
+.headline {
+  @{@include text-title-xs;}
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-sm 0;
+  gap: $spacing-sm;
+  font-weight: 100;
+}
+
+Both result in this slightly different CSS:
+
+.EmailForwardingModal_headline__VgCSC {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 0;
+  gap: 8px;
+  font-weight: 100
+  font-size: 24px;
+  font-size: 1.5rem;
+  line-height: 1.08;
+}
+@media(min-width:768px)
+{
+  .EmailForwardingModal_headline__VgCSC {
+    font-size: 28px;
+    font-size: 1.75rem;
+    line-height: 1.07
+  }
+}
+
+The change is that the font-size and line-height elements have moved
+from the top to the bottom of the ruleset. This can change the style
+due to browser difference and later properties overriding previous
+properties. See this Stack Overflow question for some of the subtleties:
+
+https://stackoverflow.com/questions/13080220/how-important-is-css-property-order
+
+This file implements a third method, overriding the mozilla-protocol mixins to
+accept a content;. Documentation at:
+https://sass-lang.com/documentation/at-rules/mixin/#content-blocks
+
+@mixin text-title-xs {
+    @include font-size(type-scale('title-2xs-size'));
+    line-height: type-scale('title-2xs-line-height');
+    @content;
+
+    @media #{$mq-md} {
+        @include font-size(type-scale('title-xs-size'));
+        line-height: type-scale('title-xs-line-height');
+    }
+}
+
+The .headline declaration changes to:
+
+.headline {
+  @include text-title-xs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-sm 0;
+    gap: $spacing-sm;
+    font-weight: 100;
+  }
+}
+
+This results in identical output CSS but without the warning.
+
+These mixins an also be used to inject the protocol properties in the middle of
+the ruleset, such as .menu-item in:
+components/layout/navigation/MobileNavigation.module.scss
+
+.menu-item {
+  display: flex;
+
+  @include text-display-xxs {
+    font-family: $font-stack-firefox;
+    border-bottom: 2px solid $color-light-gray-20;
+  }
+
+  &.sign-up-menu-item {
+    padding: $spacing-md;
+  }
+  // ...
+}
+
+An experienced CSS author may prefer this form, to only include the properties
+that they are using to override the base text-* mixin.
+*/
+
+@forward "~@mozilla-protocol/core/protocol/css/includes/mixins/typography" show
+  $font-stack-mozilla;
+
+@mixin text-title-2xl {
+  @include font-size(type-scale("title-xl-size"));
+  line-height: type-scale("title-xl-line-height");
+  @content;
+
+  @media #{$mq-md} {
+    @include font-size(type-scale("title-2xl-size"));
+    line-height: type-scale("title-2xl-line-height");
+  }
+}
+
+// @mixin text-title-xl is not used by Relay
+// @mixin text-title-lg is not used by Relay
+
+@mixin text-title-md {
+  @include font-size(type-scale("title-sm-size"));
+  line-height: type-scale("title-sm-line-height");
+  @content;
+
+  @media #{$mq-md} {
+    @include font-size(type-scale("title-md-size"));
+    line-height: type-scale("title-md-line-height");
+  }
+}
+
+@mixin text-title-sm {
+  @include font-size(type-scale("title-xs-size"));
+  line-height: type-scale("title-xs-line-height");
+  @content;
+
+  @media #{$mq-md} {
+    @include font-size(type-scale("title-sm-size"));
+    line-height: type-scale("title-sm-line-height");
+  }
+}
+
+@mixin text-title-xs {
+  @include font-size(type-scale("title-2xs-size"));
+  line-height: type-scale("title-2xs-line-height");
+  @content;
+
+  @media #{$mq-md} {
+    @include font-size(type-scale("title-xs-size"));
+    line-height: type-scale("title-xs-line-height");
+  }
+}
+
+@mixin text-title-2xs {
+  @include font-size(type-scale("title-3xs-size"));
+  line-height: type-scale("title-3xs-line-height");
+  @content;
+
+  @media #{$mq-md} {
+    @include font-size(type-scale("title-2xs-size"));
+    line-height: type-scale("title-2xs-line-height");
+  }
+}
+
+// @mixin text-display-xxl is not used by Relay
+// @mixin text-display-xl is not used by Relay
+// @mixin text-display-lg is not used by Relay
+// @mixin text-display-md is not used by Relay
+// @mixin text-display-sm is not used by Relay
+// @mixin text-display-xs is not used by Relay
+
+@mixin text-display-xxs {
+  @include text-title-2xs {
+    @content;
+  }
+}

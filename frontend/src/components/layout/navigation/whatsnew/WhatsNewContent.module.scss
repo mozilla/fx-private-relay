@@ -1,5 +1,6 @@
 @import "../../../../styles/tokens";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "../../../../styles/typography";
 
 .wrapper {
   display: flex;
@@ -15,9 +16,10 @@
     padding: $spacing-lg 0;
 
     h2 {
-      @include text-title-2xs;
-      font-family: $font-stack-firefox;
-      padding-bottom: $spacing-sm;
+      @include text-title-2xs {
+        font-family: $font-stack-firefox;
+        padding-bottom: $spacing-sm;
+      }
     }
 
     .cta {

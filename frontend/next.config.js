@@ -120,7 +120,6 @@ module.exports = {
     silenceDeprecations: [
       // Issues we can fix in our code
       "import", // https://sass-lang.com/documentation/breaking-changes/import/
-      "mixed-decls", // https://sass-lang.com/d/mixed-decls
 
       // Upstream issues
       "legacy-js-api", // vercel/next.js issue #71638

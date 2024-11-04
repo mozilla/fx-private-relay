@@ -1,5 +1,6 @@
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 @import "../../../styles/tokens";
+@import "../../../styles/typography";
 
 .wrapper {
   display: flex;
@@ -13,9 +14,10 @@
   overflow-x: hidden;
 
   h2 {
-    @include text-title-xs;
-    font-family: $font-stack-firefox;
-    text-align: center;
+    @include text-title-xs {
+      font-family: $font-stack-firefox;
+      text-align: center;
+    }
   }
 
   .lead {
@@ -117,10 +119,11 @@
         gap: $spacing-md;
 
         .price {
-          @include text-title-2xs;
-          padding-top: $spacing-sm;
-          display: block;
-          font-weight: 700;
+          @include text-title-2xs {
+            padding-top: $spacing-sm;
+            display: block;
+            font-weight: 700;
+          }
 
           > span {
             @include text-body-sm;

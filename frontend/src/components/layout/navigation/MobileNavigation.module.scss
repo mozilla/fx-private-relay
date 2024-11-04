@@ -1,5 +1,6 @@
 @import "../../../styles/tokens";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "../../../styles/typography";
 
 .mobile-menu {
   width: 100%;
@@ -81,9 +82,10 @@
 .menu-item {
   display: flex;
 
-  @include text-display-xxs;
-  font-family: $font-stack-firefox;
-  border-bottom: 2px solid $color-light-gray-20;
+  @include text-display-xxs {
+    font-family: $font-stack-firefox;
+    border-bottom: 2px solid $color-light-gray-20;
+  }
 
   &.sign-up-menu-item {
     padding: $spacing-md;
