@@ -364,25 +364,33 @@ jobs:
   python_job:
     executor:
       name: << parameters.executor >>
+      postgres_version: << parameters.postgres_version >>
       python_version: << parameters.python_version >>
       variant: << parameters.variant >>
-      postgres_version: << parameters.postgres_version >>
     parameters:
-      executor:
-        description: "Which executor to use?"
-        default: python
-        type: enum
-        enum: ["python", "python_with_postgres"]
       <<: *python_parameters
+      allow_fail:
+        description: "Allow the command to fail without failing job."
+        type: boolean
+        default: false
       command:
         description: "What command should the job run?"
         default: "pytest"
         type: enum
         enum: ["pytest", "black", "mypy", "build_email_tracker_lists", "build_glean", "check_glean", "ruff"]
-      test_results_filename:
-        description: "What is the name of the jUnit XML test output? (Optional)"
-        default: ""
-        type: string
+      executor:
+        description: "Which executor to use?"
+        default: python
+        type: enum
+        enum: ["python", "python_with_postgres"]
+      mypy_strict:
+        description: "mypy will use --strict"
+        type: boolean
+        default: false
+      production_with_new_migrations:
+        description: "Test if deployed code will work with new migrations."
+        type: boolean
+        default: false
       pytest_fail_fast:
         description: "pytest will stop after 3 failures"
         type: boolean
@@ -392,22 +400,14 @@ jobs:
         default: "twilio"
         type: enum
         enum: ["no-phones", "twilio", "iq"]
+      test_results_filename:
+        description: "What is the name of the jUnit XML test output? (Optional)"
+        default: ""
+        type: string
       update_dependency:
         description: "Update a dependency before running the command (Optional)"
         default: ""
         type: string
-      mypy_strict:
-        description: "mypy will use --strict"
-        type: boolean
-        default: false
-      allow_fail:
-        description: "Allow the command to fail without failing job."
-        type: boolean
-        default: false
-      production_with_new_migrations:
-        description: "Test if deployed code will work with new migrations."
-        type: boolean
-        default: false
     steps:
       # Section 1: Prepare environment
       - checkout_with_submodules
@@ -624,9 +624,9 @@ workflows:
       - python_job:
           name: mypy strict type check
           command: mypy
-          test_results_filename: "mypy-strict.xml"
-          mypy_strict: true
           allow_fail: true
+          mypy_strict: true
+          test_results_filename: "mypy-strict.xml"
           filters: *default_filters
 
       - python_job:
@@ -639,28 +639,28 @@ workflows:
       - python_job:
           name: pytest with postgres << matrix.postgres_version >>
           command: pytest
-          test_results_filename: "pytest-postgres-<< matrix.postgres_version >>.xml"
-          executor: python_with_postgres
           matrix:
             parameters:
               postgres_version: ["15.5", "16.1"]
+          executor: python_with_postgres
+          test_results_filename: "pytest-postgres-<< matrix.postgres_version >>.xml"
           filters: *default_filters
 
       - python_job:
           name: sqlite migrations test
           command: pytest
-          test_results_filename: "sqlite3-migrations.xml"
-          pytest_fail_fast: true
           production_with_new_migrations: true
+          pytest_fail_fast: true
+          test_results_filename: "sqlite3-migrations.xml"
           filters: *default_filters
 
       - python_job:
           name: postgres migrations test
           command: pytest
           executor: "python_with_postgres"
-          test_results_filename: "postgres-migrations.xml"
-          pytest_fail_fast: true
           production_with_new_migrations: true
+          pytest_fail_fast: true
+          test_results_filename: "postgres-migrations.xml"
           filters: *default_filters
 
       - python_job:
@@ -673,19 +673,26 @@ workflows:
       - python_job:
           name: django 5.0 test
           command: pytest
+          allow_fail: true
           pytest_fail_fast: true
           test_results_filename: pytest-django-5-0.xml
           update_dependency: "Django>=5.0,<5.1"
-          allow_fail: true
           filters: *default_filters
 
       - python_job:
           name: python 3.12 test
-          python_version: "3.12"
+          python_version: "3.12.7"
+          command: pytest
+          test_results_filename: pytest-python-3-12.xml
+          filters: *default_filters
+
+      - python_job:
+          name: python 3.13 test
+          python_version: "3.13"
+          allow_fail: true
           command: pytest
           pytest_fail_fast: true
-          test_results_filename: pytest-python-3-12.xml
-          allow_fail: true
+          test_results_filename: pytest-python-3-13.xml
           filters: *default_filters
 
       - python_job:

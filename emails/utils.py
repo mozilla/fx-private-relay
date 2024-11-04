@@ -8,7 +8,7 @@ import pathlib
 import re
 import zlib
 from collections.abc import Callable
-from email.errors import InvalidHeaderDefect
+from email.errors import HeaderParseError, InvalidHeaderDefect
 from email.headerregistry import Address, AddressHeader
 from email.message import EmailMessage
 from email.utils import formataddr, parseaddr
@@ -301,7 +301,7 @@ def generate_from_header(original_from_address: str, relay_mask: str) -> str:
     display_name, original_address = parseaddr(oneline_from_address)
     try:
         parsed_address = Address(addr_spec=original_address)
-    except (InvalidHeaderDefect, IndexError) as e:
+    except (InvalidHeaderDefect, IndexError, HeaderParseError) as e:
         # TODO: MPP-3407, MPP-3417 - Determine how to handle these
         raise InvalidFromHeader from e
 
