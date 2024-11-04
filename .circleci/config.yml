@@ -364,25 +364,33 @@ jobs:
   python_job:
     executor:
       name: << parameters.executor >>
+      postgres_version: << parameters.postgres_version >>
       python_version: << parameters.python_version >>
       variant: << parameters.variant >>
-      postgres_version: << parameters.postgres_version >>
     parameters:
-      executor:
-        description: "Which executor to use?"
-        default: python
-        type: enum
-        enum: ["python", "python_with_postgres"]
       <<: *python_parameters
+      allow_fail:
+        description: "Allow the command to fail without failing job."
+        type: boolean
+        default: false
       command:
         description: "What command should the job run?"
         default: "pytest"
         type: enum
         enum: ["pytest", "black", "mypy", "build_email_tracker_lists", "build_glean", "check_glean", "ruff"]
-      test_results_filename:
-        description: "What is the name of the jUnit XML test output? (Optional)"
-        default: ""
-        type: string
+      executor:
+        description: "Which executor to use?"
+        default: python
+        type: enum
+        enum: ["python", "python_with_postgres"]
+      mypy_strict:
+        description: "mypy will use --strict"
+        type: boolean
+        default: false
+      production_with_new_migrations:
+        description: "Test if deployed code will work with new migrations."
+        type: boolean
+        default: false
       pytest_fail_fast:
         description: "pytest will stop after 3 failures"
         type: boolean
@@ -392,22 +400,14 @@ jobs:
         default: "twilio"
         type: enum
         enum: ["no-phones", "twilio", "iq"]
+      test_results_filename:
+        description: "What is the name of the jUnit XML test output? (Optional)"
+        default: ""
+        type: string
       update_dependency:
         description: "Update a dependency before running the command (Optional)"
         default: ""
         type: string
-      mypy_strict:
-        description: "mypy will use --strict"
-        type: boolean
-        default: false
-      allow_fail:
-        description: "Allow the command to fail without failing job."
-        type: boolean
-        default: false
-      production_with_new_migrations:
-        description: "Test if deployed code will work with new migrations."
-        type: boolean
-        default: false
     steps:
       # Section 1: Prepare environment
       - checkout_with_submodules
