@@ -1,11 +1,11 @@
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
-@use "../styles/tokens";
+@use "../styles/color";
 
 .banner {
   border-radius: $border-radius-md;
   padding: $spacing-md;
-  background-color: tokens.$color-white;
+  background-color: color.$white;
   position: relative;
   box-shadow: $box-shadow-sm;
 
@@ -13,7 +13,7 @@
     // This is the gradient border width (which is implemented as a background image):
     padding: 2px;
     box-shadow: none;
-    background-image: tokens.$firefoxGradient;
+    background-image: color.$firefoxGradient;
   }
 
   &.warning {
@@ -44,15 +44,15 @@
     padding: 0;
 
     &:hover {
-      background-color: tokens.$color-blue-50;
-      color: tokens.$color-white;
+      background-color: color.$blue-50;
+      color: color.$white;
     }
   }
 }
 
 .highlight-wrapper {
   display: flex;
-  background-color: tokens.$color-white;
+  background-color: color.$white;
   flex-wrap: wrap;
 
   .banner.promo & {
@@ -75,7 +75,7 @@
           padding-left: $spacing-md;
           border-left-width: 4px;
           border-left-style: solid;
-          border-color: tokens.$color-yellow-50;
+          border-color: color.$yellow-50;
         }
       }
     }
@@ -90,7 +90,7 @@
 
   .info-icon {
     align-self: center;
-    color: tokens.$color-violet-30;
+    color: color.$violet-30;
   }
 }
 
@@ -154,11 +154,11 @@
     margin-right: $spacing-sm;
 
     .warning & {
-      color: tokens.$color-yellow-50;
+      color: color.$yellow-50;
     }
 
     .info & {
-      color: tokens.$color-violet-30;
+      color: color.$violet-30;
       margin-right: $spacing-xs;
     }
   }
@@ -170,7 +170,7 @@
     display: inline-block;
     padding-top: $spacing-md;
     font-weight: 700;
-    color: tokens.$color-blue-50;
+    color: color.$blue-50;
     cursor: pointer;
     background: none;
     border: none;
@@ -182,7 +182,7 @@
     }
 
     &:hover {
-      color: tokens.$color-blue-40;
+      color: color.$blue-40;
     }
 
     &:focus {
@@ -207,13 +207,13 @@
     display: block;
     padding: $spacing-sm $spacing-md;
     font-weight: 700;
-    border: 2px solid tokens.$color-blue-50;
-    color: tokens.$color-blue-50;
+    border: 2px solid color.$blue-50;
+    color: color.$blue-50;
     border-radius: $border-radius-sm;
 
     &:hover {
-      background-color: tokens.$color-blue-60;
-      color: tokens.$color-white;
+      background-color: color.$blue-60;
+      color: color.$white;
     }
 
     &:focus {

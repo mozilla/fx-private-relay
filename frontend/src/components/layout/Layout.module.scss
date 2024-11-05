@@ -1,4 +1,4 @@
-@use "../../styles/tokens";
+@use "../../styles/color";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 
 .patch3701 {
@@ -13,15 +13,15 @@
   // See https://fkhadra.github.io/react-toastify/how-to-style#override-css-variables
   --toastify-toast-width: 95%;
   --toastify-color-light: #{$color-white};
-  --toastify-color-dark: #{tokens.$color-grey-50};
+  --toastify-color-dark: #{color.$grey-50};
   --toastify-color-info: #{$color-blue-50};
   --toastify-color-success: #{$color-green-50};
   --toastify-color-warning: #{$color-yellow-50};
   --toastify-color-error: #{$color-red-60};
 
   --toastify-text-color-info: #{$color-white};
-  --toastify-text-color-success: #{tokens.$color-grey-50};
-  --toastify-text-color-warning: #{tokens.$color-grey-50};
+  --toastify-text-color-success: #{color.$grey-50};
+  --toastify-text-color-warning: #{color.$grey-50};
   --toastify-text-color-error: #{$color-white};
 
   --toastify-toast-min-height: $layout-md;
@@ -67,7 +67,7 @@ $toastify-toast-close-button: var(--toast-close-button);
     &[class*="toast--success"],
     &[class*="toast--warning"] {
       [id*="close-toast-button-icon"] {
-        color: #{tokens.$color-grey-50};
+        color: #{color.$grey-50};
       }
     }
 
@@ -252,7 +252,7 @@ $toastify-toast-close-button: var(--toast-close-button);
 
   &.is-light {
     background-color: $color-white;
-    color: tokens.$color-grey-40;
+    color: color.$grey-40;
   }
 
   &.is-grey {

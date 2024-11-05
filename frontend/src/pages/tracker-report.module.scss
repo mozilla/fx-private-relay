@@ -1,4 +1,4 @@
-@use "../styles/tokens";
+@use "../styles/color";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "../styles/text";
 
@@ -30,7 +30,7 @@
 .loading {
   padding: $spacing-xl;
   height: 100%;
-  background-color: tokens.$color-grey-05;
+  background-color: color.$grey-05;
   animation-name: fadein;
   animation-duration: 400ms;
 }
@@ -38,11 +38,11 @@
 .load-error {
   padding: $spacing-xl;
   height: 100%;
-  background-color: tokens.$color-grey-05;
+  background-color: color.$grey-05;
 }
 
 .report-wrapper {
-  background-color: tokens.$color-grey-05;
+  background-color: color.$grey-05;
   flex: 1 0 auto;
   display: flex;
   justify-content: center;
@@ -74,7 +74,7 @@
     @include text.title-2xs {
       font-family: $font-stack-firefox;
       padding: $spacing-md 0;
-      border-bottom: 1px solid tokens.$color-grey-20;
+      border-bottom: 1px solid color.$grey-20;
     }
   }
 
@@ -91,12 +91,12 @@
     }
 
     dt {
-      color: tokens.$color-grey-40;
+      color: color.$grey-40;
     }
 
     dd {
       font-weight: 600;
-      color: tokens.$color-grey-50;
+      color: color.$grey-50;
     }
 
     .from {
@@ -157,12 +157,12 @@
         column-gap: $spacing-md;
         row-gap: $spacing-xs;
         padding: $spacing-md 0;
-        color: tokens.$color-grey-50;
-        border-top: 1px solid tokens.$color-grey-10;
+        color: color.$grey-50;
+        border-top: 1px solid color.$grey-10;
 
         .icon {
           grid-area: icon;
-          color: tokens.$color-grey-20;
+          color: color.$grey-20;
         }
 
         .tracker-domain {
@@ -194,7 +194,7 @@
     display: flex;
     align-items: center;
     gap: $spacing-md;
-    background-color: tokens.$color-grey-10;
+    background-color: color.$grey-10;
     padding: $spacing-lg;
     border-radius: $border-radius-md;
 
@@ -219,7 +219,7 @@
     }
 
     hr {
-      background-color: tokens.$color-grey-10;
+      background-color: color.$grey-10;
       height: 2px;
       border-style: none;
     }

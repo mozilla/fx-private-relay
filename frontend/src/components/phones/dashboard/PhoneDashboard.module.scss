@@ -1,5 +1,5 @@
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
-@use "../../../styles/tokens";
+@use "../../../styles/color";
 
 .main-phone-wrapper {
   height: 100%;
@@ -27,7 +27,7 @@
     stroke-width: 1px;
 
     &:hover {
-      color: tokens.$color-blue-50;
+      color: color.$blue-50;
     }
   }
 
@@ -50,11 +50,11 @@
     cursor: pointer;
 
     &:hover {
-      color: tokens.$color-blue-50;
+      color: color.$blue-50;
 
       .nav-icon {
-        color: tokens.$color-blue-50;
-        stroke: tokens.$color-blue-50;
+        color: color.$blue-50;
+        stroke: color.$blue-50;
       }
     }
 
@@ -140,15 +140,15 @@
       display: inline-block;
       padding: $spacing-md 0;
       font-weight: 700;
-      color: tokens.$color-blue-50;
+      color: color.$blue-50;
 
       &:hover {
-        color: tokens.$color-blue-80;
+        color: color.$blue-80;
       }
     }
 
     .warning-icon {
-      color: tokens.$color-yellow-50;
+      color: color.$yellow-50;
       min-width: 20px;
     }
   }
@@ -249,21 +249,21 @@
     }
 
     .block-btn {
-      color: tokens.$color-blue-50;
+      color: color.$blue-50;
       border: 0;
       padding: 0;
       background: transparent;
       cursor: pointer;
 
       &:hover {
-        color: tokens.$color-blue-80;
+        color: color.$blue-80;
       }
     }
   }
 
   .dashboard-card {
     box-shadow: $box-shadow-sm;
-    background-color: tokens.$color-white;
+    background-color: color.$white;
     border-radius: $border-radius-md;
     display: flex;
     flex-direction: column;
@@ -380,7 +380,7 @@
         border: 0;
         background-color: transparent;
         text-align: center;
-        color: tokens.$color-grey-20;
+        color: color.$grey-20;
         cursor: pointer;
 
         svg {
@@ -388,7 +388,7 @@
         }
 
         &:hover {
-          color: tokens.$color-grey-30;
+          color: color.$grey-30;
         }
       }
 
@@ -399,8 +399,8 @@
         justify-content: center;
         pointer-events: none;
         transition: opacity 2s;
-        background-color: tokens.$color-violet-30;
-        color: tokens.$color-white;
+        background-color: color.$violet-30;
+        color: color.$white;
         border-radius: $border-radius-md;
         right: 0;
 
@@ -435,10 +435,10 @@
         .forwarding-toggle {
           width: $content-sm;
           max-width: 100%;
-          background-color: tokens.$color-grey-05;
+          background-color: color.$grey-05;
           border-radius: $toggle-border-radius;
-          border: 6px solid tokens.$color-white;
-          outline: $border-radius-xs solid tokens.$color-grey-10;
+          border: 6px solid color.$white;
+          outline: $border-radius-xs solid color.$grey-10;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -450,7 +450,7 @@
           &::before {
             content: "";
             position: absolute;
-            background-color: tokens.$color-violet-70;
+            background-color: color.$violet-70;
             border-radius: $toggle-border-radius;
             width: 50%;
             height: 100%;
@@ -484,24 +484,24 @@
 
           &[aria-pressed="true"] .forward-state,
           &[aria-pressed="false"] .block-state {
-            color: tokens.$color-white;
+            color: color.$white;
           }
 
           &[aria-pressed="false"] .forward-state,
           &[aria-pressed="true"] .block-state {
-            color: tokens.$color-grey-30;
+            color: color.$grey-30;
           }
 
           &:hover {
             cursor: pointer;
-            background-color: tokens.$color-violet-05;
+            background-color: color.$violet-05;
             &[aria-pressed="true"] .block-state,
             &[aria-pressed="false"] .forward-state {
-              color: tokens.$color-blue-50;
+              color: color.$blue-50;
             }
           }
           &:focus-visible {
-            outline-color: tokens.$color-blue-50;
+            outline-color: color.$blue-50;
           }
         }
       }

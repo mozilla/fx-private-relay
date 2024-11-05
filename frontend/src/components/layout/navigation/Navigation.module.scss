@@ -1,4 +1,4 @@
-@use "../../../styles/tokens";
+@use "../../../styles/color";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 
 .site-nav {
@@ -33,7 +33,7 @@
     height: 4px;
     display: block;
     content: "";
-    background: tokens.$firefoxGradient;
+    background: color.$firefoxGradient;
     position: absolute;
     bottom: 0;
   }

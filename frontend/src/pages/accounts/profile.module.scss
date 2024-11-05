@@ -1,4 +1,4 @@
-@use "../../styles/tokens";
+@use "../../styles/color";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "../../styles/text";
 
@@ -181,12 +181,12 @@
               cursor: pointer;
 
               &:hover {
-                background-color: tokens.$color-grey-10;
+                background-color: color.$grey-10;
               }
             }
 
             &.is-open .open-button {
-              background-color: tokens.$color-grey-10;
+              background-color: color.$grey-10;
             }
 
             .close-button {

@@ -1,4 +1,4 @@
-@use "../../../styles/tokens";
+@use "../../../styles/color";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
 
@@ -47,7 +47,7 @@
       border-style: none;
       background-color: transparent;
       cursor: pointer;
-      color: tokens.$color-grey-40;
+      color: color.$grey-40;
 
       &:hover {
         color: $color-link-hover;

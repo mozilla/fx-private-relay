@@ -1,4 +1,4 @@
-@use "../../../styles/tokens";
+@use "../../../styles/color";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 
 .filter-button {
@@ -13,14 +13,14 @@
   color: $color-dark-gray-50;
 
   &:hover {
-    background-color: tokens.$color-white;
-    color: tokens.$color-blue-50;
+    background-color: color.$white;
+    color: color.$blue-50;
   }
 }
 
 .filter-menu {
   box-shadow: $box-shadow-sm;
-  background-color: tokens.$color-white;
+  background-color: color.$white;
   border-radius: $border-radius-md;
   font-family: $font-stack-firefox;
   overflow-y: auto;

@@ -1,5 +1,5 @@
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
-@use "../styles/tokens";
+@use "../styles/color";
 
 // TODO MPP-3946: Remove this legacy versioning comment
 // When this used @import, this versioning comment was duplicated because
@@ -29,7 +29,7 @@
 
 .headline {
   font-family: $font-stack-base;
-  color: tokens.$color-grey-40;
+  color: color.$grey-40;
   font-weight: 400;
 
   @include text-title-3xs;
@@ -37,7 +37,7 @@
 
 .subheadline {
   font-family: $font-stack-firefox;
-  color: tokens.$color-grey-60;
+  color: color.$grey-60;
   font-weight: 700;
 
   @include text-title-md;
@@ -59,7 +59,7 @@
 
   @media #{$mq-lg} {
     flex-direction: row;
-    background-color: tokens.$color-white;
+    background-color: color.$white;
     padding: 0 $spacing-2xl;
     border-radius: $border-radius-md;
     box-shadow: $box-shadow-sm;

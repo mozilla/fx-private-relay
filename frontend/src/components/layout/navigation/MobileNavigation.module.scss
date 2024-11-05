@@ -1,4 +1,4 @@
-@use "../../../styles/tokens";
+@use "../../../styles/color";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "../../../styles/text";
 
@@ -100,7 +100,7 @@
     flex-direction: row;
     gap: $spacing-md;
     font-weight: 500;
-    color: tokens.$color-grey-40;
+    color: color.$grey-40;
     cursor: pointer;
 
     @media screen and (max-height: 700px) {
@@ -170,7 +170,7 @@
     flex-direction: row;
     display: flex;
     align-items: center;
-    color: tokens.$color-grey-40;
+    color: color.$grey-40;
 
     @include text-body-sm;
     gap: $spacing-sm;

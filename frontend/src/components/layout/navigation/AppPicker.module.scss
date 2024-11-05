@@ -1,4 +1,4 @@
-@use "../../../styles/tokens";
+@use "../../../styles/color";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 
 .wrapper {
@@ -21,7 +21,7 @@
     color: $color-white;
 
     &.premium {
-      color: tokens.$color-grey-40;
+      color: color.$grey-40;
     }
     &:hover {
       color: $color-purple-20;

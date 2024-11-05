@@ -1,4 +1,4 @@
-@use "../../styles/tokens";
+@use "../../styles/color";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "../../styles/text";
 
@@ -75,7 +75,7 @@ table.desktop {
   thead tr,
   tbody tr,
   tfoot tr:not(:last-child) {
-    border-bottom: $row-spacing solid tokens.$color-grey-10;
+    border-bottom: $row-spacing solid color.$grey-10;
   }
 
   tr {
@@ -108,7 +108,7 @@ table.desktop {
   thead {
     tr {
       th:first-child {
-        color: tokens.$color-grey-40;
+        color: color.$grey-40;
       }
 
       &:first-child th {
@@ -368,7 +368,7 @@ table.desktop {
 
 .pricing-toggle {
   display: flex;
-  background-color: tokens.$color-grey-10;
+  background-color: color.$grey-10;
   padding: $spacing-xs;
   border-radius: $border-radius-lg;
 
@@ -377,7 +377,7 @@ table.desktop {
     width: 50%;
     padding: $spacing-xs $spacing-sm;
     text-align: center;
-    color: tokens.$color-grey-40;
+    color: color.$grey-40;
     font-weight: 500;
     cursor: pointer;
 

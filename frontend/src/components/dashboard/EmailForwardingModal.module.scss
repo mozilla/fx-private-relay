@@ -1,4 +1,4 @@
-@use "../../styles/tokens";
+@use "../../styles/color";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "../../styles/text";
 
@@ -79,7 +79,7 @@
   font-weight: 600;
 
   @include text-body-md;
-  color: tokens.$color-grey-50;
+  color: color.$grey-50;
 }
 
 .nevermind-link {
@@ -97,14 +97,14 @@
 
 .label-input {
   font-family: $font-stack-firefox;
-  border: 1px solid tokens.$color-grey-30;
+  border: 1px solid color.$grey-30;
   border-radius: $border-radius-sm;
   font-weight: 100;
   padding: $spacing-sm $spacing-md;
 
   // Inputs should be atleast 16px if we want to avoid iOS auto-zooming (MPP-3598)
   @include text-body-md;
-  color: tokens.$color-grey-40;
+  color: color.$grey-40;
   width: 100%;
 }
 

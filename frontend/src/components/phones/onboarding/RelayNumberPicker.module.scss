@@ -1,6 +1,6 @@
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
-@use "../../../styles/tokens";
+@use "../../../styles/color";
 @use "../../../styles/text";
 
 .step,
@@ -89,7 +89,7 @@
     justify-items: center;
     text-align: center;
     gap: $spacing-md;
-    background-color: tokens.$color-white;
+    background-color: color.$white;
     padding: $spacing-lg $spacing-2xl;
     border-radius: $border-radius-md;
     box-shadow: $box-shadow-sm;
@@ -140,7 +140,7 @@
         display: block;
       }
       h2 {
-        color: tokens.$color-error;
+        color: color.$error;
       }
     }
 
@@ -149,13 +149,13 @@
         display: block;
       }
       h2 {
-        color: tokens.$color-success;
+        color: color.$success;
       }
     }
   }
 
   form {
-    background-color: tokens.$color-white;
+    background-color: color.$white;
     box-shadow: $box-shadow-sm;
     padding: $spacing-lg;
     border-radius: $border-radius-md;
@@ -190,14 +190,14 @@
       padding: $spacing-sm;
       box-shadow: none;
       border: 0;
-      background-color: tokens.$color-grey-10;
+      background-color: color.$grey-10;
       letter-spacing: 1rem;
       text-align: center;
       width: 100%;
 
       &.is-error {
-        border: 2px solid tokens.$color-error;
-        outline: 4px solid tokens.$color-error-focus;
+        border: 2px solid color.$error;
+        outline: 4px solid color.$error-focus;
       }
 
       @media screen and #{$mq-md} {
@@ -209,7 +209,7 @@
 }
 
 .step-input-verificiation-code-success {
-  background-color: tokens.$color-white;
+  background-color: color.$white;
   box-shadow: $box-shadow-sm;
   border-radius: $border-radius-md;
   padding: $spacing-lg $spacing-2xl;
@@ -235,7 +235,7 @@
 }
 
 .step-select-phone-number-mask {
-  background-color: tokens.$color-white;
+  background-color: color.$white;
   box-shadow: $box-shadow-sm;
   border-radius: $border-radius-md;
   padding: $spacing-xl $spacing-lg;

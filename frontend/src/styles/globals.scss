@@ -9,7 +9,7 @@
   and compression), which will invalidate the cache.  Django makes further
   changes, such as fixing the sourcemap path. If an update to
   django.contrib.staticfiles or RelayStaticFilesStorage changes the content,
-  increment the "cache version" comment below and in tokens.scss to force a
+  increment the "cache version" comment below and in color.scss to force a
   content change and cache invalidation.
 */
 /*! gv=1 */

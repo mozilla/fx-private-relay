@@ -1,5 +1,5 @@
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
-@use "../../styles/tokens";
+@use "../../styles/color";
 
 .settings-page {
   display: flex;
@@ -37,7 +37,7 @@
       svg.menu-icon {
         // The size of text-body-lg, i.e. the same size as the containing <a>'s font:
         width: remify(type-scale("body-lg-size"));
-        color: tokens.$color-violet-40;
+        color: color.$violet-40;
       }
     }
   }
@@ -63,7 +63,7 @@ $field-gap: $spacing-lg;
   display: flex;
   flex-direction: column;
   gap: $field-gap;
-  color: tokens.$color-grey-50;
+  color: color.$grey-50;
 }
 
 .field {
@@ -129,7 +129,7 @@ $field-gap: $spacing-lg;
     border-radius: $border-radius-sm;
 
     svg {
-      color: tokens.$color-yellow-50;
+      color: color.$yellow-50;
       flex: 1 0 auto;
     }
   }
@@ -149,9 +149,9 @@ $field-gap: $spacing-lg;
 
 .copy-api-key-display {
   padding: $spacing-sm $spacing-md;
-  background-color: tokens.$color-grey-05;
+  background-color: color.$grey-05;
   border: 0;
-  outline: 1px solid tokens.$color-grey-20;
+  outline: 1px solid color.$grey-20;
   border-radius: $border-radius-md;
   white-space: nowrap;
   overflow: hidden;
@@ -192,7 +192,7 @@ $field-gap: $spacing-lg;
     border: 0;
     background-color: transparent;
     text-align: center;
-    color: tokens.$color-grey-20;
+    color: color.$grey-20;
     cursor: pointer;
 
     svg {
@@ -200,7 +200,7 @@ $field-gap: $spacing-lg;
     }
 
     &:hover {
-      color: tokens.$color-grey-30;
+      color: color.$grey-30;
     }
   }
 
@@ -208,8 +208,8 @@ $field-gap: $spacing-lg;
     opacity: 0;
     pointer-events: none;
     transition: opacity 2s;
-    background-color: tokens.$color-violet-30;
-    color: tokens.$color-white;
+    background-color: color.$violet-30;
+    color: color.$white;
     border-radius: $border-radius-md;
     padding: 0 $spacing-xs;
     // On small screens, there's not enough room for the "Copied!"

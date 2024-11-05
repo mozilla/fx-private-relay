@@ -1,5 +1,5 @@
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
-@use "../styles/tokens";
+@use "../styles/color";
 @use "../styles/text";
 
 .hero {
@@ -108,8 +108,8 @@
     }
 
     .pill {
-      background-color: tokens.$color-violet-30;
-      color: tokens.$color-white;
+      background-color: color.$violet-30;
+      color: color.$white;
       border-radius: $border-radius-sm;
       padding: $spacing-xs $spacing-sm;
       font-family: $font-stack-firefox;
@@ -143,7 +143,7 @@
 }
 
 .use-cases-wrapper {
-  background-color: tokens.$color-white;
+  background-color: color.$white;
 }
 
 .use-cases {

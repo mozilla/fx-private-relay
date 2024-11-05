@@ -1,5 +1,5 @@
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
-@use "../../../styles/tokens";
+@use "../../../styles/color";
 @use "../../../styles/text";
 
 .wrapper {
@@ -58,7 +58,7 @@
       padding: 0;
 
       ::marker {
-        color: tokens.$color-violet-60;
+        color: color.$violet-60;
       }
     }
   }
@@ -72,7 +72,7 @@
     justify-items: center;
     text-align: center;
     gap: $spacing-md;
-    background-color: tokens.$color-white;
+    background-color: color.$white;
     padding: $spacing-lg $spacing-2xl;
     border-radius: $border-radius-md;
     box-shadow: $box-shadow-sm;
@@ -92,7 +92,7 @@
 
       .pricing-toggle {
         display: flex;
-        background-color: tokens.$color-grey-10;
+        background-color: color.$grey-10;
         padding: $spacing-xs;
         border-radius: $border-radius-lg;
 
@@ -101,14 +101,14 @@
           width: 50%;
           padding: $spacing-xs $spacing-sm;
           text-align: center;
-          color: tokens.$color-grey-40;
+          color: color.$grey-40;
           font-weight: 500;
           cursor: pointer;
 
           &.is-selected {
-            background-color: tokens.$color-white;
+            background-color: color.$white;
             border-radius: $border-radius-lg;
-            color: tokens.$color-blue-50;
+            color: color.$blue-50;
           }
         }
       }

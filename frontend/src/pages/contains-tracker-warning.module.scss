@@ -1,4 +1,4 @@
-@use "../styles/tokens";
+@use "../styles/color";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "../styles/text";
 
@@ -28,7 +28,7 @@
         font-family: $font-stack-firefox;
         color: $color-black;
         border: none;
-        background-color: tokens.$color-grey-10;
+        background-color: color.$grey-10;
         white-space: nowrap;
         align-self: center;
         margin: 0 0 0 auto;
@@ -52,14 +52,14 @@
       font-size: 18px;
       font-weight: 600;
       font-family: $font-stack-firefox;
-      color: tokens.$color-grey-50;
+      color: color.$grey-50;
     }
 
     p {
       font-size: 16px;
       font-weight: 400;
       font-family: $font-stack-base;
-      color: tokens.$color-grey-40;
+      color: color.$grey-40;
     }
   }
 

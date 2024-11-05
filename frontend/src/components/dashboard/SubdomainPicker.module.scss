@@ -1,4 +1,4 @@
-@use "../../styles/tokens";
+@use "../../styles/color";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
 @use "../../styles/text";
@@ -71,7 +71,7 @@
     .lead {
       @include text-body-sm;
       padding: $spacing-md 0;
-      color: tokens.$color-grey-50;
+      color: color.$grey-50;
       display: flex;
       flex-direction: column;
       gap: $spacing-md;

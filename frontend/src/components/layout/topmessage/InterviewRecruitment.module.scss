@@ -1,4 +1,4 @@
-@use "../../../styles/tokens";
+@use "../../../styles/color";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 
 $dismissButtonWidth: 30px;
@@ -10,8 +10,8 @@ $dismissButtonWidth: 30px;
   justify-content: space-around;
   gap: $spacing-sm;
   padding: $spacing-md ($spacing-sm + $dismissButtonWidth + $spacing-md);
-  background-color: tokens.$color-purple-90;
-  color: tokens.$color-white;
+  background-color: color.$purple-90;
+  color: color.$white;
   position: relative;
   // Overlap the collapsed mobile menu (#mobile-menu.not-active),
   // which itself has a z-index of 1 to overlap the content.
@@ -22,7 +22,7 @@ $dismissButtonWidth: 30px;
     right: $spacing-md;
     background-color: transparent;
     border-style: none;
-    color: tokens.$color-white;
+    color: color.$white;
     width: $dismissButtonWidth;
     height: $dismissButtonWidth;
     display: flex;
@@ -33,7 +33,7 @@ $dismissButtonWidth: 30px;
     padding: 0;
 
     &:hover {
-      background-color: tokens.$color-blue-50;
+      background-color: color.$blue-50;
     }
   }
 

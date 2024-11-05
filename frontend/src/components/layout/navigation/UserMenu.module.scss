@@ -1,4 +1,4 @@
-@use "../../../styles/tokens";
+@use "../../../styles/color";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "../../../styles/text";
 
@@ -59,7 +59,7 @@
           $popupBackgroundColor calc(100% - $gradientWidth),
           rgba(0, 0, 0, 0)
         ),
-        tokens.$firefoxGradient;
+        color.$firefoxGradient;
       margin-bottom: $spacing-md;
       padding: $spacing-lg;
       // To avoid overlapping .popup's rounded corners,
