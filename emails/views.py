@@ -993,7 +993,7 @@ def _log_dev_notification(
 
     notification_gza85 = encode_dict_gza85(notification)
     total_parts = notification_gza85.count("\n") + 1
-    log_group_id = uuid4()
+    log_group_id = str(uuid4())
     for partnum, part in enumerate(notification_gza85.splitlines()):
         info_logger.info(
             log_message,

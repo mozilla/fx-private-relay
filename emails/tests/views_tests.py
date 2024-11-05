@@ -832,6 +832,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
             if log_group_id is None:
                 log_group_id = extra["log_group_id"]
                 assert log_group_id
+                assert isinstance(log_group_id, str)
             else:
                 assert extra["log_group_id"] == log_group_id
             parts[extra["part"]] = extra["notification_gza85"]
