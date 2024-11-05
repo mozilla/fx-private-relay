@@ -1,5 +1,5 @@
 @use "../../../styles/tokens";
-@use "../../../../../node_modules/@mozilla-protocol/core/protocol/css/includes/tokens/dist";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 
 $dismissButtonWidth: 30px;
 
@@ -8,9 +8,8 @@ $dismissButtonWidth: 30px;
   flex-direction: column;
   align-items: center;
   justify-content: space-around;
-  gap: dist.$spacing-sm;
-  padding: dist.$spacing-md
-    (dist.$spacing-sm + $dismissButtonWidth + dist.$spacing-md);
+  gap: $spacing-sm;
+  padding: $spacing-md ($spacing-sm + $dismissButtonWidth + $spacing-md);
   background-color: tokens.$color-purple-90;
   color: tokens.$color-white;
   position: relative;
@@ -20,7 +19,7 @@ $dismissButtonWidth: 30px;
 
   .dismiss-button {
     position: absolute;
-    right: dist.$spacing-md;
+    right: $spacing-md;
     background-color: transparent;
     border-style: none;
     color: tokens.$color-white;
@@ -29,7 +28,7 @@ $dismissButtonWidth: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: dist.$border-radius-sm;
+    border-radius: $border-radius-sm;
     cursor: pointer;
     padding: 0;
 

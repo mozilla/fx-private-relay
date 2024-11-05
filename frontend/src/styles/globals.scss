@@ -1,7 +1,7 @@
 @use "fonts/inter-ui";
 @use "fonts/metropolis";
 @use "fonts/zilla-slab";
-@use "~@mozilla-protocol/core/protocol/css/includes/tokens/dist/index" as dist;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "~@mozilla-protocol/core/protocol/css/base/elements/reset";
 
 /*
@@ -37,7 +37,7 @@ html,
 body,
 #__next,
 #overlayProvider {
-  font-family: dist.$font-stack-base;
+  font-family: $font-stack-base;
   height: 100%;
 }
 
@@ -48,7 +48,7 @@ body,
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: dist.$layout-xl;
+  scroll-padding-top: $layout-xl;
 
   @media (prefers-reduced-motion) {
     & {

@@ -1,10 +1,10 @@
 @use "../../styles/tokens";
-@use "../../../../node_modules/@mozilla-protocol/core/protocol/css/includes/tokens/dist";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 
 .profile-banners {
   display: flex;
   flex-direction: column;
-  gap: dist.$spacing-xl;
+  gap: $spacing-xl;
 }
 
 .bundle-logo {

@@ -1,5 +1,5 @@
 @use "../../../styles/tokens";
-@use "../../../../../node_modules/@mozilla-protocol/core/protocol/css/includes/tokens/dist";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 
 .button-wrapper {
   position: relative;
@@ -7,36 +7,36 @@
 
 .popup {
   position: absolute;
-  margin-top: dist.$spacing-sm;
+  margin-top: $spacing-sm;
   // Move to the left by the amount of horizontal padding in .menu-item-wrapper:
-  margin-left: -1 * dist.$spacing-md;
+  margin-left: -1 * $spacing-md;
   // Align the popup to the edge of the screen at narrow widths
   inset-inline-end: 0;
   background-color: tokens.$color-white;
-  border-radius: dist.$border-radius-md;
-  box-shadow: dist.$box-shadow-md;
+  border-radius: $border-radius-md;
+  box-shadow: $box-shadow-md;
   list-style-type: none;
-  min-width: dist.$content-xs;
+  min-width: $content-xs;
   // Overlap the stats with position: relative in the alias cards:
   z-index: 4;
 
-  @media screen and #{dist.$mq-xl} {
+  @media screen and #{$mq-xl} {
     inset-inline-end: auto;
   }
 
   .menu-item-wrapper {
-    font-family: dist.$font-stack-firefox;
+    font-family: $font-stack-firefox;
     color: tokens.$color-blue-50;
-    padding: dist.$spacing-md dist.$spacing-lg;
+    padding: $spacing-md $spacing-lg;
 
     &:first-child {
-      border-top-left-radius: dist.$border-radius-md;
-      border-top-right-radius: dist.$border-radius-md;
+      border-top-left-radius: $border-radius-md;
+      border-top-right-radius: $border-radius-md;
     }
 
     &:last-child {
-      border-bottom-left-radius: dist.$border-radius-md;
-      border-bottom-right-radius: dist.$border-radius-md;
+      border-bottom-left-radius: $border-radius-md;
+      border-bottom-right-radius: $border-radius-md;
     }
 
     &:hover {

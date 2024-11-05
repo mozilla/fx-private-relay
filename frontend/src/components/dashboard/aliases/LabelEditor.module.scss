@@ -1,36 +1,36 @@
 @use "../../../styles/tokens";
-@use "../../../../../node_modules/@mozilla-protocol/core/protocol/css/includes/tokens/dist";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 
 .label-form {
   position: relative;
 }
 
 .label-input {
-  font-family: dist.$font-stack-firefox;
+  font-family: $font-stack-firefox;
   background-color: transparent;
   background-repeat: no-repeat;
-  background-position: calc(100% - dist.$spacing-xs);
+  background-position: calc(100% - $spacing-xs);
   border-color: transparent;
-  border-radius: dist.$border-radius-sm;
-  padding: dist.$spacing-xs dist.$spacing-sm;
+  border-radius: $border-radius-sm;
+  padding: $spacing-xs $spacing-sm;
   // The pencil icon is 16px wide
-  padding-inline-end: calc(dist.$spacing-sm + 16px);
+  padding-inline-end: calc($spacing-sm + 16px);
 
   @media screen and (pointer: coarse) {
     // On touch screens, the pencil is always visible and left-aligned, to be
     // flush with the placeholder, because the user can't discover that it's
     // editable through hovering:
     background-image: url("/icons/edit.svg");
-    background-position: dist.$spacing-xs;
-    padding-inline-end: dist.$spacing-sm;
+    background-position: $spacing-xs;
+    padding-inline-end: $spacing-sm;
     // The pencil icon is 16px wide
-    padding-inline-start: calc(dist.$spacing-sm + 16px);
+    padding-inline-start: calc($spacing-sm + 16px);
   }
 
   &:hover,
   &:focus {
     background-image: url("/icons/edit.svg");
-    background-color: dist.$color-light-gray-20;
+    background-color: $color-light-gray-20;
   }
 }
 
@@ -41,9 +41,9 @@
   opacity: 0;
   background-color: tokens.$color-green-60;
   color: tokens.$color-white;
-  border-radius: dist.$border-radius-sm;
+  border-radius: $border-radius-sm;
   transition: opacity 200ms;
-  padding: dist.$spacing-xs;
+  padding: $spacing-xs;
   // The .copy-button-wrapper is positioned as `relative` as well,
   // leading it to overlap this confirmation message.
   // Thus, this z-index makes this message overlap that.

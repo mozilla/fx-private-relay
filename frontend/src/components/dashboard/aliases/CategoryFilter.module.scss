@@ -1,16 +1,16 @@
 @use "../../../styles/tokens";
-@use "../../../../../node_modules/@mozilla-protocol/core/protocol/css/includes/tokens/dist";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 
 .filter-button {
   background-color: transparent;
   border-radius: 100%;
   border-style: none;
-  padding: dist.$spacing-sm;
+  padding: $spacing-sm;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: dist.$color-dark-gray-50;
+  color: $color-dark-gray-50;
 
   &:hover {
     background-color: tokens.$color-white;
@@ -19,10 +19,10 @@
 }
 
 .filter-menu {
-  box-shadow: dist.$box-shadow-sm;
+  box-shadow: $box-shadow-sm;
   background-color: tokens.$color-white;
-  border-radius: dist.$border-radius-md;
-  font-family: dist.$font-stack-firefox;
+  border-radius: $border-radius-md;
+  font-family: $font-stack-firefox;
   overflow-y: auto;
   .filter-form {
     display: flex;
@@ -30,21 +30,21 @@
 
     label,
     .buttons {
-      padding: dist.$spacing-md;
+      padding: $spacing-md;
     }
 
     label {
-      border-bottom: 1px solid dist.$color-light-gray-20;
+      border-bottom: 1px solid $color-light-gray-20;
 
       input {
-        margin-right: dist.$spacing-sm;
+        margin-right: $spacing-sm;
       }
     }
 
     .buttons {
       display: flex;
       flex-direction: column-reverse;
-      gap: dist.$spacing-sm;
+      gap: $spacing-sm;
     }
   }
 }

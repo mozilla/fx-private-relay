@@ -1,11 +1,10 @@
-@use "~@mozilla-protocol/core/protocol/css/includes/tokens/dist/index.scss" as
-  dist;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 
 // See https://nextjs.org/docs/basic-features/built-in-css-support#sass-variables
 :export {
-  mq_xs: dist.$mq-xs;
-  mq_sm: dist.$mq-sm;
-  mq_md: dist.$mq-md;
-  mq_lg: dist.$mq-lg;
-  mq_xl: dist.$mq-xl;
+  mq_xs: $mq-xs;
+  mq_sm: $mq-sm;
+  mq_md: $mq-md;
+  mq_lg: $mq-lg;
+  mq_xl: $mq-xl;
 }

@@ -1,7 +1,5 @@
 @use "../../styles/tokens";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
-@use "~@mozilla-protocol/core/protocol/css/includes/mixins/typography" as
-  mixins-typography;
 @use "../../styles/typography";
 
 .header {

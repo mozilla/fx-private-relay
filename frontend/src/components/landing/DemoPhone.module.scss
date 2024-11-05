@@ -1,18 +1,18 @@
 @use "../../styles/tokens";
-@use "../../../../node_modules/@mozilla-protocol/core/protocol/css/includes/tokens/dist";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 
 .container {
   position: relative;
-  border-radius: dist.$border-radius-lg;
+  border-radius: $border-radius-lg;
   text-align: center;
   // This leaves some space below the phone on mobile, and is based on the rough
   // size of the phone image on small screens:
   height: 650px;
 
-  @media screen and #{dist.$mq-lg} {
+  @media screen and #{$mq-lg} {
     width: 400px;
   }
-  @media screen and #{dist.$mq-xl} {
+  @media screen and #{$mq-xl} {
     width: 550px;
   }
 
@@ -32,7 +32,7 @@
     &.foreground {
       display: none;
 
-      @media screen and #{dist.$mq-md} {
+      @media screen and #{$mq-md} {
         display: inline-block;
       }
     }
