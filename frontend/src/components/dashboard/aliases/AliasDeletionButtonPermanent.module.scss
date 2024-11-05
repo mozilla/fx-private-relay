@@ -1,5 +1,5 @@
 @use "../../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
 
 .deletion-button {
@@ -8,26 +8,26 @@
   justify-content: center;
   cursor: pointer;
   background-color: transparent;
-  padding: mp.$spacing-sm mp.$spacing-md;
-  border-radius: mp.$border-radius-sm;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $border-radius-sm;
   font-weight: 600;
   border: 2px solid transparent;
   // Keep some space for the focus outline
   margin: 2px;
-  color: mp.$color-red-60;
+  color: $color-red-60;
   line-height: 1.25;
 
-  @include mp.text-body-md;
+  @include text-body-md;
 
   &:hover {
-    background-color: mp.$color-red-70;
-    color: mp.$color-white;
+    background-color: $color-red-70;
+    color: $color-white;
   }
 }
 
 .underlay {
   position: fixed;
-  background-color: rgba(mp.$color-black, 0.4);
+  background-color: rgba($color-black, 0.4);
   top: 0;
   bottom: 0;
   left: 0;
@@ -37,51 +37,51 @@
   justify-content: center;
 
   .dialog-wrapper {
-    background: mp.$color-white;
-    width: calc((#{mp.$content-sm} + #{mp.$content-md}) / 2); // 560px
+    background: $color-white;
+    width: calc((#{$content-sm} + #{$content-md}) / 2); // 560px
     max-width: 90%;
-    border-radius: mp.$border-radius-md;
-    box-shadow: mp.$box-shadow-sm;
-    padding: mp.$spacing-md;
+    border-radius: $border-radius-md;
+    box-shadow: $box-shadow-sm;
+    padding: $spacing-md;
     overflow-wrap: break-word;
 
     hr {
       border: 1px solid tokens.$color-grey-10;
-      margin-top: mp.$spacing-2xl;
+      margin-top: $spacing-2xl;
     }
 
     .hero {
-      @include mp.text-title-3xs;
-      font-family: mp.$font-stack-firefox;
+      @include text-title-3xs;
+      font-family: $font-stack-firefox;
       font-weight: 700;
       text-align: center;
-      border-radius: mp.$border-radius-md;
-      background-color: mp.$color-light-gray-10;
-      padding: mp.$spacing-lg mp.$spacing-md;
+      border-radius: $border-radius-md;
+      background-color: $color-light-gray-10;
+      padding: $spacing-lg $spacing-md;
     }
 
     .alias-to-delete {
-      @include mp.text-title-3xs;
+      @include text-title-3xs;
       font-weight: 700;
-      font-family: mp.$font-stack-firefox;
+      font-family: $font-stack-firefox;
       display: block;
       text-align: center;
-      padding: mp.$spacing-lg mp.$spacing-lg mp.$spacing-sm;
+      padding: $spacing-lg $spacing-lg $spacing-sm;
       color: tokens.$color-grey-50;
-      margin-bottom: mp.$spacing-sm;
+      margin-bottom: $spacing-sm;
       user-select: auto;
       -webkit-user-select: auto; // Fixes overflow breaking in iOS devices (MPP-3686)
     }
 
     .permanence-warning {
-      @include mp.text-body-sm;
+      @include text-body-sm;
       font-weight: 600;
       text-align: center;
-      padding: mp.$spacing-sm mp.$spacing-lg;
+      padding: $spacing-sm $spacing-lg;
       color: tokens.$color-grey-50;
-      margin: 0 auto mp.$spacing-2xl auto;
+      margin: 0 auto $spacing-2xl auto;
 
-      @media screen and #{mp.$mq-md} {
+      @media screen and #{$mq-md} {
         width: 75%;
       }
     }
@@ -91,24 +91,24 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-top: mp.$spacing-xl;
+      padding-top: $spacing-xl;
       .delete-btn {
-        width: calc(mp.$layout-xl + mp.$layout-lg);
+        width: calc($layout-xl + $layout-lg);
       }
       .cancel-button {
         border-style: none;
         background-color: transparent;
         cursor: pointer;
-        border-radius: mp.$border-radius-sm;
-        color: mp.$color-blue-50;
-        padding: mp.$spacing-sm mp.$spacing-md;
+        border-radius: $border-radius-sm;
+        color: $color-blue-50;
+        padding: $spacing-sm $spacing-md;
 
         &:hover {
-          color: mp.$color-link-hover;
+          color: $color-link-hover;
         }
 
         &:focus {
-          color: mp.$color-blue-50;
+          color: $color-blue-50;
         }
       }
     }
@@ -116,21 +116,21 @@
     .warning-wrapper {
       position: relative;
       display: flex;
-      border-left: mp.$border-radius-xs solid color tokens.$color-error;
+      border-left: $border-radius-xs solid color tokens.$color-error;
       align-items: center;
-      padding-left: mp.$spacing-sm;
+      padding-left: $spacing-sm;
       background-color: #fff;
-      gap: mp.$spacing-md;
+      gap: $spacing-md;
       width: 90%;
       margin: 0 auto;
 
       .left-content {
         display: flex;
         align-self: self-start;
-        gap: mp.$spacing-sm;
+        gap: $spacing-sm;
 
         p {
-          @include mp.text-body-sm;
+          @include text-body-sm;
           color: tokens.$color-grey-50;
         }
       }

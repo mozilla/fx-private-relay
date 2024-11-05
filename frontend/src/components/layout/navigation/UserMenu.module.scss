@@ -1,5 +1,5 @@
 @use "../../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "../../../styles/typography";
 
 .wrapper {
@@ -24,19 +24,19 @@
 .popup {
   position: absolute;
   right: 0;
-  margin-top: mp.$spacing-md;
+  margin-top: $spacing-md;
   padding: 0;
-  padding-bottom: mp.$spacing-lg;
-  min-width: mp.$content-xs;
+  padding-bottom: $spacing-lg;
+  min-width: $content-xs;
   list-style-type: none;
-  box-shadow: mp.$box-shadow-md;
-  border-radius: mp.$border-radius-md;
+  box-shadow: $box-shadow-md;
+  border-radius: $border-radius-md;
   // The .account-menu-item has its own background color
   // (to overlap the $firefoxGradient everywhere but at the bottom),
   // so we need to push it down a bit to avoid that from covering
   // .popup's rounded corners:
-  padding-top: mp.$border-radius-md;
-  $popupBackgroundColor: mp.$color-light-gray-10;
+  padding-top: $border-radius-md;
+  $popupBackgroundColor: $color-light-gray-10;
   background-color: $popupBackgroundColor;
 
   &::before {
@@ -45,7 +45,7 @@
     width: 12px;
     position: absolute;
     top: -6px;
-    right: mp.$spacing-md;
+    right: $spacing-md;
     transform: rotate(45deg);
     background-color: $popupBackgroundColor;
   }
@@ -60,24 +60,24 @@
           rgba(0, 0, 0, 0)
         ),
         tokens.$firefoxGradient;
-      margin-bottom: mp.$spacing-md;
-      padding: mp.$spacing-lg;
+      margin-bottom: $spacing-md;
+      padding: $spacing-lg;
       // To avoid overlapping .popup's rounded corners,
       // it has its own padding-top of $border-radius-md. Subtract that from
       // the .account-menu-item's padding-top:
-      padding-top: mp.$spacing-lg - mp.$border-radius-md;
+      padding-top: $spacing-lg - $border-radius-md;
 
       .user-email {
         font-weight: 700;
         display: block;
-        color: mp.$color-violet-90;
+        color: $color-violet-90;
       }
 
       .settings-link {
-        color: mp.$color-dark-gray-50;
+        color: $color-dark-gray-50;
         display: flex;
         align-items: center;
-        gap: mp.$spacing-xs;
+        gap: $spacing-xs;
       }
 
       &:hover {
@@ -93,28 +93,28 @@
     .menu-button {
       display: flex;
       align-items: center;
-      gap: mp.$spacing-md;
-      padding: mp.$spacing-md mp.$spacing-lg;
-      color: mp.$color-violet-90;
+      gap: $spacing-md;
+      padding: $spacing-md $spacing-lg;
+      color: $color-violet-90;
       border-style: none;
       background-color: transparent;
       width: 100%;
       cursor: pointer;
 
       svg {
-        color: mp.$color-purple-40;
+        color: $color-purple-40;
       }
 
       &:hover {
         text-decoration: underline;
-        background-color: mp.$color-light-gray-20;
-        color: mp.$color-violet-90;
+        background-color: $color-light-gray-20;
+        color: $color-violet-90;
       }
     }
 
     .settings-link {
       svg {
-        color: mp.$color-purple-40;
+        color: $color-purple-40;
       }
     }
 

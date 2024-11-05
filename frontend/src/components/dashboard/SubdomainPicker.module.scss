@@ -1,23 +1,23 @@
 @use "../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
 @use "../../styles/typography" as styles-typography;
 
 .card {
-  border-radius: mp.$border-radius-md;
-  padding: mp.$spacing-lg;
-  box-shadow: mp.$box-shadow-sm;
-  background-color: mp.$color-white;
+  border-radius: $border-radius-md;
+  padding: $spacing-lg;
+  box-shadow: $box-shadow-sm;
+  background-color: $color-white;
   display: flex;
   flex-direction: column;
   align-items: center;
   border: 4px solid transparent;
 
   &:target {
-    border-color: mp.$color-blue-50;
+    border-color: $color-blue-50;
   }
 
-  @media screen  and #{mp.$mq-md} {
+  @media screen  and #{$mq-md} {
     flex-direction: row;
 
     .description,
@@ -27,54 +27,54 @@
   }
 
   a {
-    @include mp.text-body-sm;
-    color: mp.$color-blue-50;
+    @include text-body-sm;
+    color: $color-blue-50;
 
     &:hover,
     &:focus {
-      color: mp.$color-blue-60;
+      color: $color-blue-60;
     }
   }
 
   .description {
     max-width: 100%;
-    min-width: mp.$content-xs;
-    border-color: mp.$color-light-gray-30;
+    min-width: $content-xs;
+    border-color: $color-light-gray-30;
     border-width: 1px;
     border-bottom-style: solid;
-    margin-bottom: mp.$spacing-md;
-    padding-bottom: mp.$spacing-md;
+    margin-bottom: $spacing-md;
+    padding-bottom: $spacing-md;
 
-    @media screen and #{mp.$mq-md} {
+    @media screen and #{$mq-md} {
       border-bottom-style: none;
       margin-bottom: 0;
       padding-bottom: 0;
       border-right-style: solid;
-      margin-right: mp.$spacing-lg;
-      padding-right: mp.$spacing-lg;
+      margin-right: $spacing-lg;
+      padding-right: $spacing-lg;
       align-self: start;
     }
 
     .action-step {
-      @include mp.text-body-sm;
-      color: mp.$color-violet-50;
+      @include text-body-sm;
+      color: $color-violet-50;
       margin-top: 0;
-      margin-bottom: mp.$spacing-md;
+      margin-bottom: $spacing-md;
     }
 
     h2 {
       @include styles-typography.text-title-2xs {
-        padding: mp.$spacing-sm 0;
+        padding: $spacing-sm 0;
       }
     }
 
     .lead {
-      @include mp.text-body-sm;
-      padding: mp.$spacing-md 0;
+      @include text-body-sm;
+      padding: $spacing-md 0;
       color: tokens.$color-grey-50;
       display: flex;
       flex-direction: column;
-      gap: mp.$spacing-md;
+      gap: $spacing-md;
     }
   }
 
@@ -88,30 +88,30 @@
     .input-wrapper {
       width: 100%;
 
-      @media screen and #{mp.$mq-md} {
-        max-width: mp.$content-sm;
+      @media screen and #{$mq-md} {
+        max-width: $content-sm;
       }
     }
 
     .example {
-      @include mp.font-firefox;
-      @include mp.text-title-3xs;
-      color: mp.$color-light-gray-90;
+      @include font-firefox;
+      @include text-title-3xs;
+      color: $color-light-gray-90;
       display: block;
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow-x: hidden;
       text-align: center;
-      margin: mp.$spacing-md 0;
+      margin: $spacing-md 0;
       width: 100%;
 
       .subdomain-part {
-        color: mp.$color-violet-50;
+        color: $color-violet-50;
         font-weight: 700;
       }
     }
 
-    @media screen and #{mp.$mq-md} {
+    @media screen and #{$mq-md} {
       width: 50%;
     }
 
@@ -120,7 +120,7 @@
       flex-direction: column;
       width: 100%;
 
-      @media screen and #{mp.$mq-md} {
+      @media screen and #{$mq-md} {
         flex-direction: row;
         justify-content: space-between;
       }
@@ -129,12 +129,12 @@
         @include mp_forms.form-input;
         flex-grow: 2;
         margin: 0;
-        margin-bottom: mp.$spacing-md;
+        margin-bottom: $spacing-md;
         width: 100%;
 
-        @media screen and #{ mp.$mq-md } {
+        @media screen and #{ $mq-md } {
           margin: 0;
-          margin-right: mp.$spacing-md;
+          margin-right: $spacing-md;
         }
       }
 
@@ -144,7 +144,7 @@
     }
 
     .illustration {
-      margin-top: mp.$spacing-lg;
+      margin-top: $spacing-lg;
     }
   }
 }

@@ -1,5 +1,5 @@
 @use "../../../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
 
 button.trigger {
@@ -9,18 +9,18 @@ button.trigger {
   background-color: transparent;
   border-style: none;
   color: inherit;
-  border-radius: mp.$border-radius-lg;
+  border-radius: $border-radius-lg;
   cursor: pointer;
-  padding: mp.$spacing-xs mp.$spacing-md;
-  font-family: mp.$font-stack-firefox;
+  padding: $spacing-xs $spacing-md;
+  font-family: $font-stack-firefox;
   position: relative;
 
   &.is-open {
-    background-color: mp.$color-light-gray-20;
-    color: mp.$color-dark-gray-20;
+    background-color: $color-light-gray-20;
+    color: $color-dark-gray-20;
 
     &:hover {
-      color: mp.$color-blue-50;
+      color: $color-blue-50;
     }
   }
 
@@ -30,16 +30,16 @@ button.trigger {
 
   .pill {
     border-radius: 100%;
-    padding: mp.$spacing-sm;
+    padding: $spacing-sm;
     font-size: 14px;
     width: 20px;
     height: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: mp.$color-yellow-40;
+    background-color: $color-yellow-40;
     font-weight: 700;
-    color: mp.$color-white;
+    color: $color-white;
     font-style: normal;
     // On small screens, let the "new news entries" counter slightly overlap
     // the news icon. These position coordinates are not an exact science.
@@ -48,8 +48,8 @@ button.trigger {
     right: 0;
   }
 
-  @media screen and #{mp.$mq-md} {
-    gap: mp.$spacing-sm;
+  @media screen and #{$mq-md} {
+    gap: $spacing-sm;
     position: initial;
 
     .trigger-icon {
@@ -65,9 +65,9 @@ button.trigger {
 }
 
 .popover-wrapper {
-  box-shadow: mp.$box-shadow-sm;
-  border-radius: mp.$border-radius-sm;
-  width: min(mp.$content-sm, calc(100vw - 2 * mp.$spacing-md));
+  box-shadow: $box-shadow-sm;
+  border-radius: $border-radius-sm;
+  width: min($content-sm, calc(100vw - 2 * $spacing-md));
 
   button {
     padding: 0;
@@ -79,27 +79,27 @@ button.trigger {
     width: 12px;
     position: absolute;
     top: -6px;
-    right: mp.$spacing-lg;
+    right: $spacing-lg;
     transform: rotate(45deg);
-    background-color: mp.$color-white;
+    background-color: $color-white;
   }
 }
 
 .cta {
-  @include mp.text-body-lg;
-  color: mp.$color-blue-50;
+  @include text-body-lg;
+  color: $color-blue-50;
   font-weight: 500;
   text-decoration: underline;
-  margin-top: mp.$spacing-sm;
+  margin-top: $spacing-sm;
   cursor: pointer;
 
   &:hover {
-    color: mp.$color-blue-80;
+    color: $color-blue-80;
   }
 }
 
 .countdown-timer {
   display: flex;
   justify-content: center;
-  padding: mp.$spacing-2xl 0;
+  padding: $spacing-2xl 0;
 }

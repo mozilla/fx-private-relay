@@ -1,5 +1,5 @@
 @use "../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "../styles/typography";
 
 .wrapper {
@@ -28,7 +28,7 @@
 }
 
 .loading {
-  padding: mp.$spacing-xl;
+  padding: $spacing-xl;
   height: 100%;
   background-color: tokens.$color-grey-05;
   animation-name: fadein;
@@ -36,7 +36,7 @@
 }
 
 .load-error {
-  padding: mp.$spacing-xl;
+  padding: $spacing-xl;
   height: 100%;
   background-color: tokens.$color-grey-05;
 }
@@ -49,18 +49,18 @@
 
   .report {
     width: 100%;
-    max-width: mp.$content-xl;
-    padding: mp.$spacing-xl;
+    max-width: $content-xl;
+    padding: $spacing-xl;
     display: flex;
     flex-direction: column;
-    gap: mp.$spacing-md;
+    gap: $spacing-md;
   }
 
   .logo {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: mp.$spacing-xs;
+    gap: $spacing-xs;
 
     .logomark {
       max-height: 35px;
@@ -72,8 +72,8 @@
 
   h1 {
     @include typography.text-title-2xs {
-      font-family: mp.$font-stack-firefox;
-      padding: mp.$spacing-md 0;
+      font-family: $font-stack-firefox;
+      padding: $spacing-md 0;
       border-bottom: 1px solid tokens.$color-grey-20;
     }
   }
@@ -81,13 +81,13 @@
   .meta {
     display: flex;
     flex-direction: column;
-    gap: mp.$spacing-md;
-    padding: mp.$spacing-lg;
+    gap: $spacing-md;
+    padding: $spacing-lg;
 
-    @media screen and #{mp.$mq-md} {
+    @media screen and #{$mq-md} {
       flex-direction: row;
-      gap: mp.$spacing-2xl;
-      padding: mp.$spacing-lg mp.$spacing-2xl;
+      gap: $spacing-2xl;
+      padding: $spacing-lg $spacing-2xl;
     }
 
     dt {
@@ -105,32 +105,32 @@
       dd {
         text-overflow: ellipsis;
         overflow: hidden;
-        max-width: mp.$content-sm;
+        max-width: $content-sm;
       }
     }
   }
 
   .trackers {
-    background-color: mp.$color-white;
-    border-radius: mp.$border-radius-md;
+    background-color: $color-white;
+    border-radius: $border-radius-md;
     display: flex;
     flex-direction: column;
-    box-shadow: mp.$box-shadow-sm;
+    box-shadow: $box-shadow-sm;
     // We typically avoid margins because they affect the positioning of other elements,
     // but since box-shadow is visible below the element, the bottom margin lets
     // us pretend like it's part of the element:
-    margin-bottom: mp.$spacing-md;
-    padding: mp.$spacing-lg;
-    gap: mp.$spacing-md;
+    margin-bottom: $spacing-md;
+    padding: $spacing-lg;
+    gap: $spacing-md;
 
-    @media screen and #{mp.$mq-md} {
-      padding: mp.$spacing-lg mp.$spacing-2xl;
-      gap: mp.$spacing-xl;
+    @media screen and #{$mq-md} {
+      padding: $spacing-lg $spacing-2xl;
+      gap: $spacing-xl;
     }
 
     h2 {
       @include typography.text-title-xs {
-        font-family: mp.$font-stack-firefox;
+        font-family: $font-stack-firefox;
         font-weight: 500;
       }
     }
@@ -154,9 +154,9 @@
           "null count";
         grid-template-columns: auto 1fr auto;
         align-items: center;
-        column-gap: mp.$spacing-md;
-        row-gap: mp.$spacing-xs;
-        padding: mp.$spacing-md 0;
+        column-gap: $spacing-md;
+        row-gap: $spacing-xs;
+        padding: $spacing-md 0;
         color: tokens.$color-grey-50;
         border-top: 1px solid tokens.$color-grey-10;
 
@@ -179,7 +179,7 @@
           width: 100%;
         }
 
-        @media screen and #{mp.$mq-sm} {
+        @media screen and #{$mq-sm} {
           grid-template-areas: "icon tracker-domain count";
 
           .count {
@@ -193,17 +193,17 @@
   .confidentiality-notice {
     display: flex;
     align-items: center;
-    gap: mp.$spacing-md;
+    gap: $spacing-md;
     background-color: tokens.$color-grey-10;
-    padding: mp.$spacing-lg;
-    border-radius: mp.$border-radius-md;
+    padding: $spacing-lg;
+    border-radius: $border-radius-md;
 
-    @media screen and #{mp.$mq-md} {
-      padding: mp.$spacing-lg mp.$spacing-2xl;
+    @media screen and #{$mq-md} {
+      padding: $spacing-lg $spacing-2xl;
     }
 
     svg {
-      color: mp.$color-purple-70;
+      color: $color-purple-70;
       flex: 1 0 auto;
     }
   }
@@ -211,11 +211,11 @@
   .explainer {
     display: flex;
     flex-direction: column;
-    gap: mp.$spacing-md;
-    padding: mp.$spacing-lg;
+    gap: $spacing-md;
+    padding: $spacing-lg;
 
-    @media screen and #{mp.$mq-md} {
-      padding: mp.$spacing-lg mp.$spacing-2xl;
+    @media screen and #{$mq-md} {
+      padding: $spacing-lg $spacing-2xl;
     }
 
     hr {
@@ -227,13 +227,13 @@
     .breakage-warning {
       display: flex;
       align-items: center;
-      gap: mp.$spacing-md;
-      border-radius: mp.$border-radius-sm;
-      border: 2px solid mp.$color-yellow-50;
-      padding: mp.$spacing-lg;
+      gap: $spacing-md;
+      border-radius: $border-radius-sm;
+      border: 2px solid $color-yellow-50;
+      padding: $spacing-lg;
 
       svg {
-        color: mp.$color-yellow-50;
+        color: $color-yellow-50;
         flex: 1 0 auto;
       }
     }
@@ -241,34 +241,34 @@
 }
 
 .faq-wrapper {
-  background-color: mp.$color-white;
+  background-color: $color-white;
 }
 
 .faq {
-  width: mp.$content-max;
+  width: $content-max;
   max-width: 100%;
   margin: 0 auto;
-  padding: mp.$spacing-lg;
+  padding: $spacing-lg;
   display: flex;
   flex-direction: column;
 
   .lead {
     flex: 1 0 0;
 
-    @media screen and #{mp.$mq-md} {
-      padding: 0 mp.$spacing-2xl;
+    @media screen and #{$mq-md} {
+      padding: 0 $spacing-2xl;
     }
 
     .headline {
       @include typography.text-title-sm {
-        font-family: mp.$font-stack-firefox;
+        font-family: $font-stack-firefox;
         font-weight: 500;
-        padding: mp.$spacing-md 0;
+        padding: $spacing-md 0;
       }
     }
 
     .read-more {
-      color: mp.$color-blue-50;
+      color: $color-blue-50;
       font-weight: 500;
       text-decoration: underline;
 
@@ -280,15 +280,15 @@
 
   .entries {
     flex: 1 0 0;
-    padding-top: mp.$spacing-lg;
+    padding-top: $spacing-lg;
 
-    @media screen and #{mp.$mq-md} {
-      padding: 0 mp.$spacing-2xl;
+    @media screen and #{$mq-md} {
+      padding: 0 $spacing-2xl;
     }
   }
 
-  @media screen and #{mp.$mq-md} {
+  @media screen and #{$mq-md} {
     flex-direction: row;
-    gap: mp.$spacing-md;
+    gap: $spacing-md;
   }
 }

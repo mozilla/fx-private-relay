@@ -1,40 +1,40 @@
 @use "../../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 
 // Hardcoding #5015cd after talking with design, no token for this color exists yet in Nebula.
 $banner-gradient: linear-gradient(
   90.13deg,
-  mp.$color-purple-90 -2.39%,
+  $color-purple-90 -2.39%,
   #5015cd 50.81%,
-  mp.$color-purple-50 104%
+  $color-purple-50 104%
 );
 
 .wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: mp.$spacing-md;
-  color: mp.$color-white;
+  padding: $spacing-md;
+  color: $color-white;
   position: relative;
   background-image: url("../images/holiday-promo-banner-pattern-mobile.svg"),
     $banner-gradient;
   background-repeat: no-repeat;
   background-size: cover;
   flex-direction: column;
-  gap: mp.$spacing-md;
+  gap: $spacing-md;
 
-  @media screen and #{mp.$mq-sm} {
+  @media screen and #{$mq-sm} {
     flex-direction: row;
-    gap: mp.$spacing-2xl;
+    gap: $spacing-2xl;
     background-image: url("../images/holiday-promo-banner-pattern-tablet.svg"),
       $banner-gradient;
   }
-  @media screen and #{mp.$mq-md} {
-    gap: mp.$layout-xl;
+  @media screen and #{$mq-md} {
+    gap: $layout-xl;
     background-image: url("../images/holiday-promo-banner-pattern-laptop.svg"),
       $banner-gradient;
   }
-  @media screen and #{mp.$mq-xl} {
+  @media screen and #{$mq-xl} {
     background-image: url("../images/holiday-promo-banner-pattern-desktop.svg"),
       $banner-gradient;
   }
@@ -43,14 +43,14 @@ $banner-gradient: linear-gradient(
     display: flex;
     align-items: center;
     flex-direction: column;
-    gap: mp.$spacing-md;
+    gap: $spacing-md;
 
-    @media screen and #{mp.$mq-sm} {
+    @media screen and #{$mq-sm} {
       gap: 0;
     }
-    @media screen and #{mp.$mq-lg} {
+    @media screen and #{$mq-lg} {
       flex-direction: row;
-      gap: mp.$layout-xl;
+      gap: $layout-xl;
     }
   }
 
@@ -63,12 +63,12 @@ $banner-gradient: linear-gradient(
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    background-color: mp.$color-white;
-    padding: mp.$spacing-sm mp.$spacing-md;
-    border-radius: mp.$border-radius-sm;
-    color: mp.$color-purple-90;
+    background-color: $color-white;
+    padding: $spacing-sm $spacing-md;
+    border-radius: $border-radius-sm;
+    color: $color-purple-90;
     font-weight: 700;
-    margin-bottom: mp.$spacing-xs;
+    margin-bottom: $spacing-xs;
 
     &:hover {
       cursor: pointer;
@@ -77,11 +77,11 @@ $banner-gradient: linear-gradient(
   }
 
   .promo-code-expiry {
-    color: rgba(mp.$color-white, 0.7);
+    color: rgba($color-white, 0.7);
     font-weight: 700;
     display: block;
 
-    @include mp.text-body-xs;
+    @include text-body-xs;
   }
 
   .banner-pattern {
@@ -90,15 +90,15 @@ $banner-gradient: linear-gradient(
   }
 
   .promo-text {
-    @include mp.text-body-lg;
+    @include text-body-lg;
 
-    font-family: mp.$font-stack-base;
+    font-family: $font-stack-base;
   }
 
   .promo-text-bolded {
-    @include mp.text-body-xl;
+    @include text-body-xl;
 
     font-weight: 700;
-    font-family: mp.$font-stack-firefox;
+    font-family: $font-stack-firefox;
   }
 }

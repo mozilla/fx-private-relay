@@ -1,5 +1,5 @@
 @use "../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
 @use "../../styles/typography" as styles-typography;
 
@@ -12,9 +12,9 @@
 .step,
 .controls {
   width: 100%;
-  max-width: mp.$content-lg;
+  max-width: $content-lg;
   margin: 0 auto;
-  padding: mp.$spacing-lg;
+  padding: $spacing-lg;
 }
 
 .step {
@@ -24,21 +24,21 @@
   justify-content: space-evenly;
 
   .title-container {
-    margin: mp.$spacing-xl 0 mp.$spacing-lg 0;
+    margin: $spacing-xl 0 $spacing-lg 0;
   }
 
   .feature-item-list {
     list-style-type: none;
 
     li {
-      margin: mp.$spacing-sm 0;
+      margin: $spacing-sm 0;
       display: flex;
       flex-direction: row;
       align-items: center;
-      gap: mp.$spacing-sm;
+      gap: $spacing-sm;
 
       .check-icon {
-        fill: mp.$color-blue-50;
+        fill: $color-blue-50;
         min-width: 20px; // Width of the check icons
       }
     }
@@ -46,111 +46,111 @@
 
   h2 {
     @include styles-typography.text-title-sm {
-      font-family: mp.$font-stack-firefox;
-      color: mp.$color-purple-50;
+      font-family: $font-stack-firefox;
+      color: $color-purple-50;
       text-align: center;
     }
   }
 
   .lead {
-    @include mp.text-title-3xs;
-    font-family: mp.$font-stack-firefox;
+    @include text-title-3xs;
+    font-family: $font-stack-firefox;
     text-align: center;
-    padding-top: mp.$spacing-md;
+    padding-top: $spacing-md;
   }
 
   .description {
-    @include mp.text-body-sm;
+    @include text-body-sm;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: mp.$spacing-2xl;
-    padding-top: mp.$spacing-lg;
-    max-width: mp.$content-lg;
+    gap: $spacing-2xl;
+    padding-top: $spacing-lg;
+    max-width: $content-lg;
     align-self: center;
 
     .description-bolded-headline {
-      @include mp.text-body-md;
+      @include text-body-md;
       font-weight: 600;
       display: block;
     }
 
-    @media screen and #{mp.$mq-md} {
+    @media screen and #{$mq-md} {
       flex-direction: row;
     }
 
     .content {
       max-width: 100%;
-      min-width: mp.$content-xs;
+      min-width: $content-xs;
     }
 
     .description-caption {
-      @include mp.text-body-sm;
-      color: mp.$color-purple-30;
+      @include text-body-sm;
+      color: $color-purple-30;
       font-weight: 500;
     }
   }
 
   .action-complete {
-    @include mp.text-body-sm;
-    font-family: mp.$font-stack-firefox;
+    @include text-body-sm;
+    font-family: $font-stack-firefox;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: mp.$spacing-md;
-    border-radius: mp.$border-radius-md;
-    background-color: mp.$color-white;
+    padding: $spacing-md;
+    border-radius: $border-radius-md;
+    background-color: $color-white;
 
     .label {
       display: inline-flex;
       align-items: center;
-      gap: mp.$spacing-xs;
-      padding-bottom: mp.$spacing-xs;
+      gap: $spacing-xs;
+      padding-bottom: $spacing-xs;
 
       svg {
-        color: mp.$color-blue-50;
+        color: $color-blue-50;
       }
     }
 
     samp {
-      @include mp.text-body-lg;
-      font-family: mp.$font-stack-firefox;
+      @include text-body-lg;
+      font-family: $font-stack-firefox;
       font-weight: 700;
-      color: mp.$color-purple-50;
+      color: $color-purple-50;
     }
 
     .domain {
-      @include mp.text-body-xs;
-      color: mp.$color-light-gray-90;
+      @include text-body-xs;
+      color: $color-light-gray-90;
     }
   }
 
   &.step-custom-domain {
-    max-width: mp.$content-xl;
+    max-width: $content-xl;
 
     .subdomain-picker-heading {
-      padding: mp.$spacing-md 0;
+      padding: $spacing-md 0;
     }
 
     .domain-example {
-      @include mp.font-firefox;
+      @include font-firefox;
       @include styles-typography.text-title-2xs {
-        color: mp.$color-light-gray-90;
+        color: $color-light-gray-90;
         display: inline-block;
-        padding: mp.$spacing-md 0;
+        padding: $spacing-md 0;
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow-x: hidden;
-        max-width: mp.$content-xs;
+        max-width: $content-xs;
       }
 
-      @media screen and #{mp.$mq-md} {
+      @media screen and #{$mq-md} {
         max-width: 100%;
       }
 
       .customizable-part {
-        color: mp.$color-violet-50;
+        color: $color-violet-50;
         font-weight: 700;
       }
     }
@@ -160,7 +160,7 @@
       flex-direction: column;
       margin: 0 auto;
 
-      @media screen and #{mp.$mq-md} {
+      @media screen and #{$mq-md} {
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
@@ -171,12 +171,12 @@
         @include mp_forms.form-input;
         flex-grow: 2;
         margin: 0;
-        margin-bottom: mp.$spacing-md;
+        margin-bottom: $spacing-md;
         width: 100%;
 
-        @media screen and #{ mp.$mq-md } {
+        @media screen and #{ $mq-md } {
           margin: 0;
-          margin-right: mp.$spacing-md;
+          margin-right: $spacing-md;
         }
       }
 
@@ -191,14 +191,14 @@
       // Hide the description of the add-on on small screens,
       // because it isn't available on mobile.
       display: none;
-      padding: mp.$spacing-md 0;
+      padding: $spacing-md 0;
 
-      @media screen and #{mp.$mq-md} {
+      @media screen and #{$mq-md} {
         display: block;
       }
     }
 
-    @media screen and #{mp.$mq-md} {
+    @media screen and #{$mq-md} {
       // Don't show the description of replies on small screens,
       // to focus on the add-on availability:
       .reply-description {
@@ -210,16 +210,16 @@
     }
 
     h3 {
-      @include mp.text-body-md;
+      @include text-body-md;
     }
 
     .get-addon-button {
-      margin-top: mp.$spacing-md;
+      margin-top: $spacing-md;
       // The extension isn't available on mobile,
       // so hide it on small screens:
       display: none;
 
-      @media screen and #{mp.$mq-md} {
+      @media screen and #{$mq-md} {
         display: inline-block;
       }
     }
@@ -229,24 +229,24 @@
 .controls {
   display: flex;
   flex-direction: column;
-  gap: mp.$spacing-xl;
+  gap: $spacing-xl;
   align-items: center;
   width: 100%;
 
   .skip-link {
     background-color: transparent;
     border-style: none;
-    color: mp.$color-blue-50;
-    border-radius: mp.$border-radius-sm;
+    color: $color-blue-50;
+    border-radius: $border-radius-sm;
 
     &:hover {
-      color: mp.$color-blue-70;
+      color: $color-blue-70;
       text-decoration: underline;
       cursor: pointer;
     }
   }
 
-  @media screen and (max-width: #{mp.$screen-md}) {
+  @media screen and (max-width: #{$screen-md}) {
     .get-addon-button {
       display: none;
     }
@@ -259,37 +259,37 @@
 
   progress {
     width: 100%;
-    max-width: mp.$content-md;
+    max-width: $content-md;
   }
 
   .styled-progress-bar {
     display: flex;
     width: 100%;
-    max-width: mp.$content-md;
-    gap: mp.$spacing-sm;
+    max-width: $content-md;
+    gap: $spacing-sm;
     list-style-type: none;
 
     li {
       width: 100%;
-      color: mp.$color-light-gray-90;
+      color: $color-light-gray-90;
       text-align: center;
       transition: color 0.2s ease-out;
 
       span {
         display: block;
         height: 5px;
-        background-color: mp.$color-light-gray-20;
-        margin-bottom: mp.$spacing-xs;
+        background-color: $color-light-gray-20;
+        margin-bottom: $spacing-xs;
         transition:
           box-shadow 1s ease-out,
           color 0.2s ease-out;
       }
 
       &.is-completed {
-        color: mp.$color-violet-30;
+        color: $color-violet-30;
 
         span {
-          box-shadow: inset 300px 0 0 0 mp.$color-violet-30;
+          box-shadow: inset 300px 0 0 0 $color-violet-30;
         }
       }
     }

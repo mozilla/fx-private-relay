@@ -1,13 +1,13 @@
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
 @use "../styles/tokens";
 
 .banner {
-  border-radius: mp.$border-radius-md;
-  padding: mp.$spacing-md;
+  border-radius: $border-radius-md;
+  padding: $spacing-md;
   background-color: tokens.$color-white;
   position: relative;
-  box-shadow: mp.$box-shadow-sm;
+  box-shadow: $box-shadow-sm;
 
   &.promo {
     // This is the gradient border width (which is implemented as a background image):
@@ -17,21 +17,21 @@
   }
 
   &.warning {
-    padding: mp.$spacing-sm;
+    padding: $spacing-sm;
   }
 
   &.info {
-    @include mp.text-body-sm;
+    @include text-body-sm;
 
-    @media screen and #{mp.$mq-sm} {
-      padding: 0 mp.$spacing-sm;
+    @media screen and #{$mq-sm} {
+      padding: 0 $spacing-sm;
     }
   }
 
   .dismiss-button {
     position: absolute;
-    top: mp.$spacing-sm;
-    right: mp.$spacing-sm;
+    top: $spacing-sm;
+    right: $spacing-sm;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -39,7 +39,7 @@
     height: 30px;
     background-color: transparent;
     border-style: none;
-    border-radius: mp.$border-radius-sm;
+    border-radius: $border-radius-sm;
     cursor: pointer;
     padding: 0;
 
@@ -58,21 +58,21 @@
   .banner.promo & {
     // .banner's border-radius - .banner's padding.
     // This is what makes .banner.promo appear as a 2px-wide border:
-    border-radius: calc(mp.$border-radius-md - 2px);
+    border-radius: calc($border-radius-md - 2px);
   }
 
   .title-and-large-cta-wrapper {
     display: flex;
     flex-wrap: wrap;
-    flex: 1 1 mp.$content-xs;
-    padding: mp.$spacing-xs mp.$spacing-md mp.$spacing-md mp.$spacing-md;
+    flex: 1 1 $content-xs;
+    padding: $spacing-xs $spacing-md $spacing-md $spacing-md;
 
     .title-text {
       flex: 1 1 auto;
 
       .banner.warning & {
-        @media screen and #{mp.$mq-sm} {
-          padding-left: mp.$spacing-md;
+        @media screen and #{$mq-sm} {
+          padding-left: $spacing-md;
           border-left-width: 4px;
           border-left-style: solid;
           border-color: tokens.$color-yellow-50;
@@ -80,10 +80,10 @@
       }
     }
 
-    @media screen and #{mp.$mq-sm} {
-      padding: mp.$spacing-md;
+    @media screen and #{$mq-sm} {
+      padding: $spacing-md;
     }
-    @media screen and #{mp.$mq-lg} {
+    @media screen and #{$mq-lg} {
       flex-wrap: nowrap;
     }
   }
@@ -97,10 +97,10 @@
 .illustration {
   display: flex;
   align-items: center;
-  padding: mp.$spacing-md mp.$spacing-md 0 mp.$spacing-md;
+  padding: $spacing-md $spacing-md 0 $spacing-md;
 
-  @media screen and #{mp.$mq-md} {
-    padding: 0 mp.$spacing-md 0 mp.$spacing-xl;
+  @media screen and #{$mq-md} {
+    padding: 0 $spacing-md 0 $spacing-xl;
   }
 
   img {
@@ -110,19 +110,19 @@
 
 // For Banners in PremiumPromoBanners.tsx
 .flex-end {
-  border-bottom: 1px solid mp.$color-light-gray-20;
+  border-bottom: 1px solid $color-light-gray-20;
   align-items: center;
-  margin: 0 mp.$spacing-md;
-  padding-top: mp.$spacing-sm;
+  margin: 0 $spacing-md;
+  padding-top: $spacing-sm;
   width: 100%;
 
-  @media screen and #{mp.$mq-sm} {
+  @media screen and #{$mq-sm} {
     border-bottom: none;
     padding: none;
     width: auto;
     margin: 0;
   }
-  @media screen and #{mp.$mq-lg} {
+  @media screen and #{$mq-lg} {
     align-items: flex-end;
   }
 
@@ -130,28 +130,28 @@
     width: 90px;
     margin: 0 auto;
 
-    @media screen and #{mp.$mq-sm} {
+    @media screen and #{$mq-sm} {
       margin: 0;
     }
   }
 }
 
 .title {
-  @include mp.text-title-3xs;
-  font-family: mp.$font-stack-firefox;
+  @include text-title-3xs;
+  font-family: $font-stack-firefox;
   display: flex;
   align-items: center;
-  padding: mp.$spacing-sm 0 mp.$spacing-md 0;
+  padding: $spacing-sm 0 $spacing-md 0;
 
   .banner.info & {
-    @include mp.text-body-sm;
-    font-family: mp.$font-stack-base;
+    @include text-body-sm;
+    font-family: $font-stack-base;
     font-weight: 600;
   }
 
   .icon {
     flex: 0 0 auto;
-    margin-right: mp.$spacing-sm;
+    margin-right: $spacing-sm;
 
     .warning & {
       color: tokens.$color-yellow-50;
@@ -159,7 +159,7 @@
 
     .info & {
       color: tokens.$color-violet-30;
-      margin-right: mp.$spacing-xs;
+      margin-right: $spacing-xs;
     }
   }
 }
@@ -168,7 +168,7 @@
   a,
   button {
     display: inline-block;
-    padding-top: mp.$spacing-md;
+    padding-top: $spacing-md;
     font-weight: 700;
     color: tokens.$color-blue-50;
     cursor: pointer;
@@ -178,7 +178,7 @@
     .banner.info & {
       font-weight: 500;
       text-decoration: underline;
-      padding: mp.$spacing-sm 0 0 0;
+      padding: $spacing-sm 0 0 0;
     }
 
     &:hover {
@@ -193,23 +193,23 @@
 }
 
 .cta-large-button {
-  padding-top: mp.$spacing-md;
+  padding-top: $spacing-md;
   flex: 0 0 auto;
   align-self: center;
 
-  @media screen and #{mp.$mq-md} {
+  @media screen and #{$mq-md} {
     align-self: center;
     margin: 0 0 0 auto;
-    padding: mp.$spacing-md;
+    padding: $spacing-md;
   }
 
   a {
     display: block;
-    padding: mp.$spacing-sm mp.$spacing-md;
+    padding: $spacing-sm $spacing-md;
     font-weight: 700;
     border: 2px solid tokens.$color-blue-50;
     color: tokens.$color-blue-50;
-    border-radius: mp.$border-radius-sm;
+    border-radius: $border-radius-sm;
 
     &:hover {
       background-color: tokens.$color-blue-60;

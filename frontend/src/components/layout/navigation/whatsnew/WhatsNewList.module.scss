@@ -1,17 +1,17 @@
 @use "../../../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 
 .empty-message {
   display: flex;
   flex-direction: column;
-  padding-top: mp.$spacing-lg;
-  padding-bottom: mp.$spacing-2xl;
-  gap: mp.$spacing-lg;
+  padding-top: $spacing-lg;
+  padding-bottom: $spacing-2xl;
+  gap: $spacing-lg;
   align-items: center;
   text-align: center;
 
   p {
-    @include mp.text-body-md;
+    @include text-body-md;
     max-width: 75%;
   }
 }
@@ -20,13 +20,13 @@
   display: flex;
   flex-direction: column;
   list-style-type: none;
-  padding: 0 mp.$spacing-md;
-  max-height: min(mp.$content-md, 50vh);
+  padding: 0 $spacing-md;
+  max-height: min($content-md, 50vh);
   overflow-y: auto;
 
   li {
-    padding: mp.$spacing-sm 0;
-    border-bottom: 1px solid mp.$color-light-gray-30;
+    padding: $spacing-sm 0;
+    border-bottom: 1px solid $color-light-gray-30;
 
     &:last-child {
       border-bottom-style: none;
@@ -43,9 +43,9 @@
     .item {
       display: flex;
       align-items: center;
-      gap: mp.$spacing-md;
-      border-radius: mp.$border-radius-sm;
-      padding: mp.$spacing-xs 0;
+      gap: $spacing-md;
+      border-radius: $border-radius-sm;
+      padding: $spacing-xs 0;
       cursor: pointer;
 
       // Forces news icon to be the same size regardless of image size
@@ -55,21 +55,21 @@
       }
 
       h3 {
-        @include mp.text-body-sm;
+        @include text-body-sm;
         font-weight: 500;
       }
 
       p {
-        @include mp.text-body-sm;
+        @include text-body-sm;
       }
 
       &:hover {
-        background-color: mp.$color-violet-05;
+        background-color: $color-violet-05;
         // An item is $hoverOverflow wider than its container when hovered,
         // i.e. the background colour is wider than the separator.
-        $hoverOverflow: mp.$spacing-sm;
+        $hoverOverflow: $spacing-sm;
         margin: 0 (-1 * $hoverOverflow);
-        padding: mp.$spacing-xs $hoverOverflow;
+        padding: $spacing-xs $hoverOverflow;
       }
     }
   }

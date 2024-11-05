@@ -1,6 +1,6 @@
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 
 .error {
-  background-color: mp.$color-red-60;
-  color: mp.$color-white;
+  background-color: $color-red-60;
+  color: $color-white;
 }

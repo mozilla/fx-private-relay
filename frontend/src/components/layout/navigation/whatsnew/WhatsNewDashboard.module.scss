@@ -1,18 +1,18 @@
 @use "../../../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 
 .wrapper {
-  background-color: mp.$color-white;
-  border-radius: mp.$border-radius-sm;
+  background-color: $color-white;
+  border-radius: $border-radius-sm;
 
   .controls {
     $closeButtonWidth: 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: mp.$spacing-sm;
-    padding-left: mp.$spacing-sm + $closeButtonWidth;
-    border-bottom: 1px solid mp.$color-light-gray-30;
+    padding: $spacing-sm;
+    padding-left: $spacing-sm + $closeButtonWidth;
+    border-bottom: 1px solid $color-light-gray-30;
 
     .switch-wrapper {
       flex: 1 1 0;
@@ -20,17 +20,17 @@
       justify-content: center;
 
       .switch {
-        @include mp.text-body-sm;
+        @include text-body-sm;
         display: inline-flex;
-        gap: mp.$spacing-xs;
-        border-radius: mp.$border-radius-lg;
-        background-color: mp.$color-light-gray-30;
-        padding: mp.$spacing-xs;
+        gap: $spacing-xs;
+        border-radius: $border-radius-lg;
+        background-color: $color-light-gray-30;
+        padding: $spacing-xs;
 
         .switch-tab {
-          border-radius: mp.$border-radius-lg;
-          color: mp.$color-dark-gray-50;
-          padding: 0 mp.$spacing-md;
+          border-radius: $border-radius-lg;
+          color: $color-dark-gray-50;
+          padding: 0 $spacing-md;
           border: 2px solid transparent;
           font-weight: 500;
 
@@ -38,17 +38,17 @@
             cursor: pointer;
 
             &:hover {
-              color: mp.$color-blue-50;
+              color: $color-blue-50;
             }
           }
           &.is-selected {
-            background-color: mp.$color-white;
-            color: mp.$color-purple-70;
-            box-shadow: mp.$box-shadow-sm;
+            background-color: $color-white;
+            color: $color-purple-70;
+            box-shadow: $box-shadow-sm;
 
             &:focus {
-              border-color: mp.$color-blue-50;
-              color: mp.$color-blue-50;
+              border-color: $color-blue-50;
+              color: $color-blue-50;
               outline: none;
             }
           }
@@ -66,30 +66,30 @@
   }
 
   .content {
-    padding-bottom: mp.$spacing-sm;
+    padding-bottom: $spacing-sm;
   }
 
   .footer-controls {
-    padding: mp.$spacing-xs mp.$spacing-md;
+    padding: $spacing-xs $spacing-md;
 
     .controls-wrapper {
       display: flex;
       align-items: center;
-      border-top: 1px solid mp.$color-light-gray-20;
-      padding: mp.$spacing-sm 0;
+      border-top: 1px solid $color-light-gray-20;
+      padding: $spacing-sm 0;
 
       .start {
         flex: 1 0 0;
       }
 
       button {
-        @include mp.text-body-sm;
+        @include text-body-sm;
         font-weight: 500;
         background-color: transparent;
         border-style: none;
-        border-radius: mp.$border-radius-sm;
-        color: mp.$color-blue-50;
-        padding: mp.$spacing-sm;
+        border-radius: $border-radius-sm;
+        color: $color-blue-50;
+        padding: $spacing-sm;
         cursor: pointer;
 
         &:hover {

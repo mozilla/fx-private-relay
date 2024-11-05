@@ -1,5 +1,5 @@
 @use "~@mozilla-protocol/core/protocol/css/includes/tokens/dist/index" as dist;
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
 @use "../../styles/typography" as styles-typography;
 
@@ -8,38 +8,38 @@
   justify-content: space-around;
   align-items: center;
   height: 100%;
-  padding: mp.$spacing-sm mp.$spacing-lg;
+  padding: $spacing-sm $spacing-lg;
 
   .form {
-    width: mp.$content-lg;
+    width: $content-lg;
     max-width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: mp.$spacing-2xl;
-    padding: mp.$spacing-md 0;
+    gap: $spacing-2xl;
+    padding: $spacing-md 0;
 
     .controls {
       display: flex;
       flex-direction: column;
-      gap: mp.$spacing-sm;
-      width: mp.$content-md;
+      gap: $spacing-sm;
+      width: $content-md;
       max-width: 100%;
 
       .control {
         display: flex;
         flex-direction: column;
-        gap: mp.$spacing-xs;
+        gap: $spacing-xs;
         width: 100%;
 
         label {
           @include mp_forms.field-label;
-          @include mp.text-body-md;
+          @include text-body-md;
           padding: 0;
         }
 
         i {
-          @include mp.text-body-sm;
+          @include text-body-sm;
         }
 
         input {
@@ -59,19 +59,19 @@
     }
 
     .privacy {
-      @include mp.text-body-sm;
+      @include text-body-sm;
       align-self: center;
       text-align: center;
       display: flex;
       flex-direction: column;
-      gap: mp.$spacing-md;
+      gap: $spacing-md;
 
       a {
-        color: mp.$color-blue-50;
+        color: $color-blue-50;
         text-decoration: underline;
 
         &:hover {
-          color: mp.$color-blue-60;
+          color: $color-blue-60;
           text-decoration: none;
         }
       }
@@ -80,14 +80,14 @@
 
   .heading {
     @include styles-typography.text-title-sm {
-      font-family: mp.$font-stack-firefox;
+      font-family: $font-stack-firefox;
       align-self: center;
       text-align: center;
     }
   }
 
   .lead {
-    @include mp.text-body-lg;
+    @include text-body-lg;
     align-self: center;
     text-align: center;
   }

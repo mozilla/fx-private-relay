@@ -1,50 +1,50 @@
 @use "../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 
 .wrapper {
   position: relative;
-  padding-bottom: calc(mp.$spacing-md * 2 + 2rem);
+  padding-bottom: calc($spacing-md * 2 + 2rem);
   flex: 1 0 0;
 
   .card {
     position: fixed;
-    right: mp.$spacing-md;
-    bottom: mp.$spacing-md;
+    right: $spacing-md;
+    bottom: $spacing-md;
     display: flex;
     flex-direction: column;
 
     .card-header {
-      background-color: mp.$color-blue-90;
-      padding: mp.$spacing-md;
-      border-top-right-radius: mp.$border-radius-sm;
-      border-top-left-radius: mp.$border-radius-sm;
+      background-color: $color-blue-90;
+      padding: $spacing-md;
+      border-top-right-radius: $border-radius-sm;
+      border-top-left-radius: $border-radius-sm;
     }
 
     .card-content {
-      padding: mp.$spacing-lg;
+      padding: $spacing-lg;
       display: flex;
       flex-direction: column;
-      gap: mp.$spacing-sm;
+      gap: $spacing-sm;
     }
 
     .card-cta {
-      margin-top: mp.$spacing-md;
+      margin-top: $spacing-md;
     }
 
     .card-title {
-      color: mp.$color-blue-90;
+      color: $color-blue-90;
 
-      @include mp.text-title-3xs;
-      font-family: mp.$font-stack-firefox;
+      @include text-title-3xs;
+      font-family: $font-stack-firefox;
       font-weight: 600;
       word-wrap: break-word;
     }
 
     .card-description {
-      color: mp.$color-blue-90;
+      color: $color-blue-90;
 
-      @include mp.text-body-md;
-      font-family: mp.$font-stack-firefox;
+      @include text-body-md;
+      font-family: $font-stack-firefox;
       font-weight: 400;
       word-wrap: break-word;
     }
@@ -52,14 +52,14 @@
     .close-button {
       background-color: transparent;
       border-style: none;
-      border-radius: mp.$border-radius-sm;
+      border-radius: $border-radius-sm;
       padding: 0;
       cursor: pointer;
-      color: mp.$color-white;
+      color: $color-white;
       float: right;
 
       &:hover {
-        color: mp.$color-blue-50;
+        color: $color-blue-50;
       }
     }
   }
@@ -76,9 +76,9 @@
 }
 
 .card {
-  border-radius: mp.$border-radius-md;
-  box-shadow: mp.$box-shadow-sm;
-  background-color: mp.$color-white;
-  width: mp.$content-sm;
-  max-width: calc(100% - mp.$spacing-xl);
+  border-radius: $border-radius-md;
+  box-shadow: $box-shadow-sm;
+  background-color: $color-white;
+  width: $content-sm;
+  max-width: calc(100% - $spacing-xl);
 }

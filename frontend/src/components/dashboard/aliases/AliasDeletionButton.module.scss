@@ -1,5 +1,5 @@
 @use "../../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
 
 .deletion-button {
@@ -8,26 +8,26 @@
   justify-content: center;
   cursor: pointer;
   background-color: transparent;
-  padding: mp.$spacing-sm mp.$spacing-md;
-  border-radius: mp.$border-radius-sm;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $border-radius-sm;
   font-weight: 600;
   border: 2px solid transparent;
   // Keep some space for the focus outline
   margin: 2px;
-  color: mp.$color-red-60;
+  color: $color-red-60;
   line-height: 1.25;
 
-  @include mp.text-body-md;
+  @include text-body-md;
 
   &:hover {
-    background-color: mp.$color-red-70;
-    color: mp.$color-white;
+    background-color: $color-red-70;
+    color: $color-white;
   }
 }
 
 .underlay {
   position: fixed;
-  background-color: rgba(mp.$color-black, 0.4);
+  background-color: rgba($color-black, 0.4);
   top: 0;
   bottom: 0;
   left: 0;
@@ -37,43 +37,43 @@
   justify-content: center;
 
   .dialog-wrapper {
-    background: mp.$color-white;
-    width: calc((#{mp.$content-sm} + #{mp.$content-md}) / 2); // 560px
+    background: $color-white;
+    width: calc((#{$content-sm} + #{$content-md}) / 2); // 560px
     max-width: 90%;
-    border-radius: mp.$border-radius-md;
-    box-shadow: mp.$box-shadow-sm;
-    padding: mp.$spacing-md;
+    border-radius: $border-radius-md;
+    box-shadow: $box-shadow-sm;
+    padding: $spacing-md;
     overflow-wrap: break-word;
 
     .hero {
-      @include mp.text-title-3xs;
-      font-family: mp.$font-stack-firefox;
+      @include text-title-3xs;
+      font-family: $font-stack-firefox;
       font-weight: 700;
       text-align: center;
-      border-radius: mp.$border-radius-md;
-      background-color: mp.$color-light-gray-10;
-      padding: mp.$spacing-lg mp.$spacing-md;
+      border-radius: $border-radius-md;
+      background-color: $color-light-gray-10;
+      padding: $spacing-lg $spacing-md;
     }
 
     .alias-to-delete {
-      font-family: mp.$font-stack-firefox;
+      font-family: $font-stack-firefox;
       display: block;
       text-align: center;
-      padding: mp.$spacing-lg mp.$spacing-lg mp.$spacing-sm;
+      padding: $spacing-lg $spacing-lg $spacing-sm;
     }
 
     .permanence-warning {
-      @include mp.text-body-sm;
+      @include text-body-sm;
       text-align: center;
-      padding: mp.$spacing-sm mp.$spacing-lg;
-      color: mp.$color-dark-gray-70;
+      padding: $spacing-sm $spacing-lg;
+      color: $color-dark-gray-70;
     }
 
     .usage-warning {
-      @include mp.text-body-sm;
+      @include text-body-sm;
       text-align: center;
-      padding: mp.$spacing-sm mp.$spacing-lg mp.$spacing-lg;
-      color: mp.$color-red-50;
+      padding: $spacing-sm $spacing-lg $spacing-lg;
+      color: $color-red-50;
     }
 
     .confirm {
@@ -82,14 +82,14 @@
       align-items: center;
 
       label {
-        background-color: mp.$color-light-gray-10;
-        border-radius: mp.$border-radius-md;
-        margin-bottom: mp.$spacing-md;
-        padding: mp.$spacing-md;
+        background-color: $color-light-gray-10;
+        border-radius: $border-radius-md;
+        margin-bottom: $spacing-md;
+        padding: $spacing-md;
         cursor: pointer;
 
         input {
-          margin-right: mp.$spacing-sm;
+          margin-right: $spacing-sm;
         }
       }
 
@@ -98,22 +98,22 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding-top: mp.$spacing-xl;
+        padding-top: $spacing-xl;
 
         .cancel-button {
           border-style: none;
           background-color: transparent;
           cursor: pointer;
-          border-radius: mp.$border-radius-sm;
-          color: mp.$color-blue-50;
-          padding: mp.$spacing-sm mp.$spacing-md;
+          border-radius: $border-radius-sm;
+          color: $color-blue-50;
+          padding: $spacing-sm $spacing-md;
 
           &:hover {
-            color: mp.$color-link-hover;
+            color: $color-link-hover;
           }
 
           &:focus {
-            color: mp.$color-blue-50;
+            color: $color-blue-50;
           }
         }
       }

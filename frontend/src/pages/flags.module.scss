@@ -1,12 +1,12 @@
 @use "../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 
 .wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: mp.$spacing-2xl;
-  padding: mp.$spacing-2xl;
+  gap: $spacing-2xl;
+  padding: $spacing-2xl;
   height: 100%;
 
   .flag-list {
@@ -17,14 +17,14 @@
     tbody {
       display: flex;
       flex-direction: column;
-      gap: mp.$spacing-sm;
+      gap: $spacing-sm;
     }
     tr {
       display: flex;
-      gap: mp.$spacing-xs;
+      gap: $spacing-xs;
 
       &.is-active td:first-of-type {
-        color: mp.$color-green-80;
+        color: $color-green-80;
       }
 
       &.is-non-global {
@@ -54,13 +54,13 @@
   .flag-form {
     display: flex;
     flex-direction: column;
-    gap: mp.$spacing-lg;
-    width: mp.$content-sm;
+    gap: $spacing-lg;
+    width: $content-sm;
 
     p {
-      border: 1px solid mp.$color-yellow-20;
-      background-color: mp.$color-yellow-05;
-      padding: mp.$spacing-md;
+      border: 1px solid $color-yellow-20;
+      background-color: $color-yellow-05;
+      padding: $spacing-md;
     }
 
     output {
@@ -70,16 +70,16 @@
     .field {
       display: flex;
       flex-direction: column;
-      gap: mp.$spacing-sm;
+      gap: $spacing-sm;
 
       label {
-        @include mp.text-body-md;
+        @include text-body-md;
       }
 
       input {
-        @include mp.text-body-md;
+        @include text-body-md;
         font-family: monospace;
-        padding: mp.$spacing-xs mp.$spacing-sm;
+        padding: $spacing-xs $spacing-sm;
       }
     }
   }

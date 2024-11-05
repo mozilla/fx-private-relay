@@ -1,5 +1,5 @@
 @use "~@mozilla-protocol/core/protocol/css/includes/tokens/dist/index" as dist;
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 
 $stopLabelHeight: 2rem;
 $iconHeight: 50px;
@@ -13,32 +13,32 @@ $trackLineHeight: 4px;
   flex-direction: column;
   align-items: center;
   touch-action: none;
-  padding: 0 mp.$spacing-md;
+  padding: 0 $spacing-md;
   width: 100%;
 
-  @media screen and #{mp.$mq-md} {
+  @media screen and #{$mq-md} {
     --thumbDiameter: 24px;
   }
 
-  @media screen and #{mp.$mq-md} {
+  @media screen and #{$mq-md} {
     flex-direction: row;
-    gap: mp.$spacing-xl;
-    padding: 0 mp.$spacing-lg;
+    gap: $spacing-xl;
+    padding: 0 $spacing-lg;
   }
-  @media screen and #{mp.$mq-lg} {
-    gap: mp.$layout-2xl;
+  @media screen and #{$mq-lg} {
+    gap: $layout-2xl;
   }
 
   .control {
     width: 100%;
-    max-width: mp.$content-xs;
+    max-width: $content-xs;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-left: mp.$spacing-md;
+    padding-left: $spacing-md;
 
     .slider-label {
-      padding-bottom: mp.$spacing-md;
+      padding-bottom: $spacing-md;
       display: inline-block;
     }
 
@@ -70,7 +70,7 @@ $trackLineHeight: 4px;
 
         .track-line {
           position: absolute;
-          background-color: mp.$color-light-gray-20;
+          background-color: $color-light-gray-20;
           height: $trackLineHeight;
           top: calc(var(--trackLineOffset) - #{$iconHeight});
           width: 100%;
@@ -79,10 +79,10 @@ $trackLineHeight: 4px;
         &:focus-within {
           .track-line,
           .track-stop {
-            background-color: mp.$color-violet-05;
+            background-color: $color-violet-05;
           }
           .track-stop p {
-            color: mp.$color-violet-90;
+            color: $color-violet-90;
           }
         }
 
@@ -100,15 +100,15 @@ $trackLineHeight: 4px;
             width: var(--thumbDiameter);
             height: var(--thumbDiameter);
             border-radius: 50%;
-            background-color: mp.$color-violet-20;
-            border: 4px solid mp.$color-violet-50;
-            box-shadow: mp.$box-shadow-sm;
+            background-color: $color-violet-20;
+            border: 4px solid $color-violet-50;
+            box-shadow: $box-shadow-sm;
 
             &.is-focused {
               // The alpha value makes sure the lock icon is still visible for
               // free users when the thumb is placed on the "Promotionals" level:
-              background-color: rgba(mp.$color-purple-30, 0.5);
-              border-color: mp.$color-purple-60;
+              background-color: rgba($color-purple-30, 0.5);
+              border-color: $color-purple-60;
             }
             &.is-dragging {
               // This class can be used if we want to style the thumb
@@ -122,22 +122,22 @@ $trackLineHeight: 4px;
         width: var(--thumbDiameter);
         height: var(--thumbDiameter);
         border-radius: 50%;
-        background-color: mp.$color-light-gray-20;
+        background-color: $color-light-gray-20;
         position: absolute;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: mp.$spacing-sm;
+        padding: $spacing-sm;
 
         &:hover {
-          background-color: mp.$color-purple-10;
+          background-color: $color-purple-10;
 
           img {
             filter: grayscale(0%);
           }
 
           p {
-            color: mp.$color-purple-30;
+            color: $color-purple-30;
           }
         }
 
@@ -147,7 +147,7 @@ $trackLineHeight: 4px;
           // the slider thumb), we set a negative top margin of its own height,
           // and the height of the thumb:
           margin-top: calc(-1 * #{$iconHeight} - var(--thumbDiameter));
-          padding-bottom: mp.$spacing-sm;
+          padding-bottom: $spacing-sm;
           // The image should not take up space within the track stop,
           // so that the lock icon from .track-stop-promotional can be properly
           // centered:
@@ -155,15 +155,15 @@ $trackLineHeight: 4px;
         }
 
         p {
-          @include mp.text-body-sm;
-          color: mp.$color-dark-gray-05;
+          @include text-body-sm;
+          color: $color-dark-gray-05;
           font-weight: 700;
           position: absolute;
           // To position the track sop label below the track stops (which are as
           // high as the slider thumb), we place it at a distance of the thumb
           // from the top, and some spacing so that it's not glued to the track
           // stop:
-          top: calc(var(--thumbDiameter) + #{mp.$spacing-xs});
+          top: calc(var(--thumbDiameter) + #{$spacing-xs});
           height: $stopLabelHeight;
           word-break: keep-all;
         }
@@ -173,7 +173,7 @@ $trackLineHeight: 4px;
             filter: grayscale(0%);
           }
           p {
-            color: mp.$color-black;
+            color: $color-black;
           }
         }
 
@@ -198,7 +198,7 @@ $trackLineHeight: 4px;
         }
       }
 
-      @media screen and #{mp.$mq-md} {
+      @media screen and #{$mq-md} {
         padding-top: 0;
 
         .track-stop {
@@ -215,14 +215,14 @@ $trackLineHeight: 4px;
   .value-description {
     $arrowEdgeLength: 8px;
     margin-top: $arrowEdgeLength;
-    background-color: mp.$color-light-gray-10;
-    padding: mp.$spacing-md mp.$spacing-xl;
-    border-radius: mp.$border-radius-md;
+    background-color: $color-light-gray-10;
+    padding: $spacing-md $spacing-xl;
+    border-radius: $border-radius-md;
     position: relative;
     width: 100%;
 
     &::after {
-      background-color: mp.$color-light-gray-10;
+      background-color: $color-light-gray-10;
       height: 2 * $arrowEdgeLength;
       width: 2 * $arrowEdgeLength;
       transform: rotate(45deg);
@@ -233,15 +233,15 @@ $trackLineHeight: 4px;
     }
 
     .value-description-content {
-      width: mp.$content-xs;
+      width: $content-xs;
       max-width: 100%;
       display: flex;
       flex-direction: column;
-      gap: mp.$spacing-xs;
+      gap: $spacing-xs;
 
       a {
         display: inline-block;
-        color: mp.$color-blue-50;
+        color: $color-blue-50;
         font-weight: 500;
 
         &:hover {
@@ -252,11 +252,11 @@ $trackLineHeight: 4px;
       .locked-message {
         display: flex;
         align-items: center;
-        gap: mp.$spacing-xs;
+        gap: $spacing-xs;
         font-weight: 600;
 
         .lock-icon {
-          color: mp.$color-light-gray-70;
+          color: $color-light-gray-70;
         }
       }
     }
@@ -265,11 +265,11 @@ $trackLineHeight: 4px;
       display: none;
     }
 
-    @media screen and #{mp.$mq-md} {
+    @media screen and #{$mq-md} {
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      gap: mp.$spacing-md;
+      gap: $spacing-md;
       background-color: transparent;
       // The content changes depending on the selected blocking mode,
       // so if the height would be based on the content, switching blocking modes
@@ -299,7 +299,7 @@ $trackLineHeight: 4px;
       position: absolute;
       // On small screens, `.track-stop` has a top padding of `$spacing-sm`
       // before the track stop begins:
-      top: mp.$spacing-sm;
+      top: $spacing-sm;
       left: 33%;
       width: 33%;
       // This is like the regular .track's bottom padding, but with
@@ -312,41 +312,41 @@ $trackLineHeight: 4px;
       border-style: none;
       cursor: pointer;
 
-      @media screen and #{mp.$mq-md} {
+      @media screen and #{$mq-md} {
         top: 0;
       }
 
       .track-stop-promotional {
-        color: mp.$color-light-gray-70;
+        color: $color-light-gray-70;
         border-style: none;
 
         &:hover {
           // The standard background colour, because this can't be selected
           // by a free user:
-          background-color: mp.$color-light-gray-20;
+          background-color: $color-light-gray-20;
         }
 
         p {
-          color: mp.$color-light-gray-70;
+          color: $color-light-gray-70;
           text-align: center;
 
           .premium-only-marker {
-            @include mp.text-body-xs;
-            color: mp.$color-purple-50;
+            @include text-body-xs;
+            color: $color-purple-50;
           }
         }
 
         &.is-selected {
           p,
           .lock-icon {
-            color: mp.$color-purple-50;
+            color: $color-purple-50;
           }
         }
       }
 
       &:hover {
         p {
-          color: mp.$color-purple-30;
+          color: $color-purple-30;
         }
       }
 
@@ -354,7 +354,7 @@ $trackLineHeight: 4px;
         outline: none;
 
         .track-stop {
-          outline: 2px solid mp.$color-blue-50;
+          outline: 2px solid $color-blue-50;
         }
       }
     }
@@ -372,29 +372,29 @@ $trackLineHeight: 4px;
   justify-content: center;
 
   .upgrade-tooltip {
-    background-color: mp.$color-white;
-    box-shadow: mp.$box-shadow-sm;
+    background-color: $color-white;
+    box-shadow: $box-shadow-sm;
     display: flex;
-    padding: mp.$spacing-xl;
-    gap: mp.$spacing-lg;
-    width: mp.$content-md;
-    max-width: calc(100% - mp.$spacing-xl);
-    border-radius: mp.$border-radius-sm;
+    padding: $spacing-xl;
+    gap: $spacing-lg;
+    width: $content-md;
+    max-width: calc(100% - $spacing-xl);
+    border-radius: $border-radius-sm;
 
     .close-button {
       position: absolute;
-      top: mp.$spacing-sm;
-      right: mp.$spacing-sm;
+      top: $spacing-sm;
+      right: $spacing-sm;
       padding: 0;
       background-color: transparent;
       border-style: none;
-      border-radius: mp.$border-radius-sm;
+      border-radius: $border-radius-sm;
     }
 
     .promotionals-blocking-icon {
       display: none;
 
-      @media screen and #{mp.$mq-md} {
+      @media screen and #{$mq-md} {
         display: inline-block;
       }
     }
@@ -403,24 +403,24 @@ $trackLineHeight: 4px;
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      gap: mp.$spacing-xs;
+      gap: $spacing-xs;
 
       b {
         display: flex;
         align-items: center;
-        gap: mp.$spacing-sm;
+        gap: $spacing-sm;
 
         svg {
-          color: mp.$color-light-gray-70;
+          color: $color-light-gray-70;
         }
       }
 
       a {
-        color: mp.$color-blue-50;
+        color: $color-blue-50;
         // Add some padding to the focus outline, without affecting the CTA's
         // position:
-        margin: -1 * mp.$spacing-xs;
-        padding: mp.$spacing-xs;
+        margin: -1 * $spacing-xs;
+        padding: $spacing-xs;
 
         &:hover {
           text-decoration: underline;

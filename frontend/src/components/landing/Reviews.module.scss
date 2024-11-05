@@ -1,20 +1,20 @@
 @use "../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "../../styles/typography" as styles-typography;
 
 .reviews {
   display: flex;
   flex-direction: column;
-  max-width: mp.$content-max;
+  max-width: $content-max;
   width: 100%;
   margin: 0 auto;
   align-items: center;
-  padding: mp.$spacing-md mp.$spacing-lg 0 mp.$spacing-lg;
+  padding: $spacing-md $spacing-lg 0 $spacing-lg;
   justify-content: center;
-  gap: mp.$layout-sm;
+  gap: $layout-sm;
 
-  @media screen and #{mp.$mq-xl} {
-    gap: mp.$layout-md;
+  @media screen and #{$mq-xl} {
+    gap: $layout-md;
     flex-direction: row;
     align-items: flex-start;
   }
@@ -23,32 +23,32 @@
 .left-container {
   display: flex;
   flex-direction: row;
-  gap: mp.$spacing-md;
+  gap: $spacing-md;
 }
 
 .right-container {
   display: flex;
   flex-direction: column;
-  gap: mp.$spacing-2xl;
+  gap: $spacing-2xl;
 }
 .logo-container {
   display: flex;
-  font-family: mp.$font-stack-base;
-  color: mp.$color-white;
-  width: mp.$layout-2xl;
+  font-family: $font-stack-base;
+  color: $color-white;
+  width: $layout-2xl;
   flex-direction: column;
   align-items: center;
-  border-radius: mp.$border-radius-lg;
-  padding: mp.$spacing-md 0;
-  background-color: mp.$color-violet-50;
+  border-radius: $border-radius-lg;
+  padding: $spacing-md 0;
+  background-color: $color-violet-50;
 
   .logo {
-    width: mp.$layout-xl;
-    padding: mp.$spacing-sm;
+    width: $layout-xl;
+    padding: $spacing-sm;
   }
 
   .logo-title {
-    @include mp.text-body-md;
+    @include text-body-md;
     font-weight: 400;
   }
 
@@ -66,27 +66,27 @@
   justify-content: center;
   align-items: center;
   text-align: center;
-  padding: 0 mp.$spacing-md;
-  gap: mp.$spacing-xs;
-  background-color: mp.$color-white;
-  border-radius: mp.$border-radius-lg;
+  padding: 0 $spacing-md;
+  gap: $spacing-xs;
+  background-color: $color-white;
+  border-radius: $border-radius-lg;
 
-  @media screen and #{mp.$mq-lg} {
+  @media screen and #{$mq-lg} {
     align-items: center;
   }
 
   .rating {
     .title {
       @include styles-typography.text-title-2xl {
-        font-family: mp.$font-stack-firefox;
+        font-family: $font-stack-firefox;
         font-weight: 600;
       }
     }
 
     .text {
-      @include mp.text-body-sm;
+      @include text-body-sm;
       color: tokens.$color-grey-40;
-      font-family: mp.$font-stack-base;
+      font-family: $font-stack-base;
       font-weight: 500;
     }
   }
@@ -95,15 +95,15 @@
 .stars {
   display: flex;
   flex-direction: row;
-  padding-left: mp.$spacing-xs;
+  padding-left: $spacing-xs;
 }
 
 .star {
-  color: mp.$color-yellow-50;
+  color: $color-yellow-50;
 }
 
 .empty-star {
-  color: mp.$color-white;
+  color: $color-white;
   stroke: tokens.$color-grey-20;
   stroke-width: 2px;
 }
@@ -114,7 +114,7 @@
   padding: 0;
   color: tokens.$color-grey-30;
   background: transparent;
-  width: mp.$layout-sm;
+  width: $layout-sm;
   align-self: center;
   cursor: pointer;
 }
@@ -123,35 +123,35 @@
   position: absolute;
   display: none;
 
-  @media screen and #{mp.$mq-md} {
+  @media screen and #{$mq-md} {
     display: flex;
     left: 30px; // Following design specs
     top: -10px; // Following design specs
   }
 
   svg {
-    color: mp.$color-purple-60;
-    height: mp.$layout-sm;
+    color: $color-purple-60;
+    height: $layout-sm;
   }
 }
 
 .reviews-container {
   display: flex;
   flex-direction: row;
-  gap: mp.$spacing-lg;
-  background-color: mp.$color-white;
-  padding: mp.$spacing-md;
-  border-radius: mp.$border-radius-lg;
+  gap: $spacing-lg;
+  background-color: $color-white;
+  padding: $spacing-md;
+  border-radius: $border-radius-lg;
   align-items: flex-start;
 
   // magic number: set to avoid shifting - no character limit on reviews yet.
-  min-height: calc(mp.$layout-2xl * 2);
+  min-height: calc($layout-2xl * 2);
   position: relative;
 
-  @media screen and #{mp.$mq-lg} {
+  @media screen and #{$mq-lg} {
     // magic number: set to avoid shifting - no character limit on reviews yet.
     min-height: 200px;
-    padding: mp.$spacing-lg mp.$spacing-md;
+    padding: $spacing-lg $spacing-md;
   }
 
   .review-item {
@@ -165,24 +165,24 @@
     align-items: flex-start;
     position: relative; // allows us to animate - scroll
     width: 100%; // allows us to animate - scroll
-    padding: mp.$spacing-sm;
+    padding: $spacing-sm;
 
     // queries set to these static widths to prevent shifting
-    @media screen and #{mp.$mq-sm} {
-      width: mp.$content-xs;
+    @media screen and #{$mq-sm} {
+      width: $content-xs;
     }
-    @media screen and #{mp.$mq-md} {
-      width: mp.$content-sm;
+    @media screen and #{$mq-md} {
+      width: $content-sm;
     }
-    @media screen and #{mp.$mq-xl} {
-      width: mp.$content-md;
+    @media screen and #{$mq-xl} {
+      width: $content-md;
     }
 
     .text {
       width: 100%;
 
       ul {
-        padding-left: mp.$spacing-md;
+        padding-left: $spacing-md;
       }
     }
   }
@@ -192,29 +192,29 @@
     flex-direction: column;
     align-items: flex-start;
     font-weight: 400;
-    gap: mp.$spacing-md;
-    padding: 0 0 mp.$spacing-md 0;
-    font-family: mp.$font-stack-base;
+    gap: $spacing-md;
+    padding: 0 0 $spacing-md 0;
+    font-family: $font-stack-base;
 
-    @media screen and #{mp.$mq-xl} {
+    @media screen and #{$mq-xl} {
       flex-direction: row;
       align-items: flex-end;
     }
 
     .name {
-      @include mp.text-title-3xs;
-      font-family: mp.$font-stack-firefox;
+      @include text-title-3xs;
+      font-family: $font-stack-firefox;
       font-weight: 600;
     }
 
     .source {
-      @include mp.text-body-sm;
+      @include text-body-sm;
       color: tokens.$color-grey-30;
     }
 
     .star {
-      color: mp.$color-yellow-40;
-      margin: 0 mp.$spacing-xs 0 (mp.$spacing-sm * -1);
+      color: $color-yellow-40;
+      margin: 0 $spacing-xs 0 ($spacing-sm * -1);
     }
   }
 }
@@ -279,11 +279,11 @@
 .mobile-controls {
   display: flex;
   justify-content: space-between;
-  gap: mp.$spacing-sm;
+  gap: $spacing-sm;
 
   button {
     width: 50%;
-    padding: mp.$spacing-md 0;
+    padding: $spacing-md 0;
 
     &:hover {
       background-color: tokens.$color-grey-10;
@@ -298,7 +298,7 @@
 .hidden-mobile {
   display: none;
 
-  @media screen and #{mp.$mq-md} {
+  @media screen and #{$mq-md} {
     display: inline-block;
   }
 }
@@ -307,7 +307,7 @@
 .show-mobile {
   display: flex;
 
-  @media screen and #{mp.$mq-md} {
+  @media screen and #{$mq-md} {
     display: none;
   }
 }

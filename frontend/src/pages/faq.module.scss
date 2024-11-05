@@ -1,12 +1,12 @@
 @use "../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "../styles/typography" as styles-typography;
 
 .faq-page {
-  background-color: mp.$color-blue-90;
-  color: mp.$color-white;
+  background-color: $color-blue-90;
+  color: $color-white;
   height: 100%;
-  padding: 0 mp.$spacing-lg mp.$spacing-2xl;
+  padding: 0 $spacing-lg $spacing-2xl;
 
   a {
     text-decoration: underline;
@@ -17,30 +17,30 @@
   }
 
   p {
-    padding: mp.$spacing-sm 0;
+    padding: $spacing-sm 0;
   }
 }
 
 .faqs-wrapper {
-  max-width: mp.$content-xl;
+  max-width: $content-xl;
   margin: 0 auto;
-  padding-top: mp.$spacing-2xl;
+  padding-top: $spacing-2xl;
 }
 
 .headline {
   @include styles-typography.text-title-sm {
-    @include mp.font-firefox;
-    padding-bottom: mp.$spacing-xl;
+    @include font-firefox;
+    padding-bottom: $spacing-xl;
   }
 }
 
 .faqs {
-  column-width: mp.$content-sm;
-  column-gap: mp.$spacing-2xl;
+  column-width: $content-sm;
+  column-gap: $spacing-2xl;
 }
 
 .faq {
-  margin-bottom: mp.$spacing-2xl;
+  margin-bottom: $spacing-2xl;
   break-inside: avoid;
 
   &:target {
@@ -51,20 +51,20 @@
 
   .question {
     @include styles-typography.text-title-2xs {
-      @include mp.font-firefox;
-      padding-bottom: mp.$spacing-sm;
+      @include font-firefox;
+      padding-bottom: $spacing-sm;
     }
   }
 
   .answer {
-    @include mp.text-body-md;
+    @include text-body-md;
 
-    color: mp.$color-light-gray-10;
+    color: $color-light-gray-10;
     margin-top: 0;
 
     li {
       list-style-type: initial;
-      margin-left: mp.$spacing-md;
+      margin-left: $spacing-md;
     }
   }
 }

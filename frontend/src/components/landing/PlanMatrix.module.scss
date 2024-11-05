@@ -1,5 +1,5 @@
 @use "../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "../../styles/typography" as styles-typography;
 
 .wrapper {
@@ -7,15 +7,15 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: mp.$spacing-md;
+  gap: $spacing-md;
 
   .bundle-offer-heading {
     @include styles-typography.text-title-xs {
       background-image: linear-gradient(
         to right,
-        mp.$color-violet-30,
-        mp.$color-violet-80 20%,
-        mp.$color-violet-30 80%
+        $color-violet-30,
+        $color-violet-80 20%,
+        $color-violet-30 80%
       );
       background-clip: text;
       color: transparent;
@@ -24,7 +24,7 @@
     }
   }
   .bundle-offer-content {
-    max-width: mp.$content-md;
+    max-width: $content-md;
     text-align: center;
   }
 
@@ -35,7 +35,7 @@
     display: initial;
   }
 
-  @media screen and #{mp.$mq-xl} {
+  @media screen and #{$mq-xl} {
     .desktop {
       display: table;
       table-layout: fixed;
@@ -46,18 +46,18 @@
   }
 
   .table-wrapper {
-    padding: mp.$layout-md 0;
+    padding: $layout-md 0;
   }
 
   .discount-notice-wrapper {
-    @include mp.text-body-sm;
+    @include text-body-sm;
     line-height: 100%;
     text-align: center;
 
     .discount-notice-container {
       display: flex;
       flex-direction: column;
-      gap: mp.$spacing-sm;
+      gap: $spacing-sm;
 
       .discount-notice-bolded {
         font-weight: 800;
@@ -80,24 +80,24 @@ table.desktop {
 
   tr {
     th:first-child {
-      width: mp.$content-sm;
+      width: $content-sm;
       font-weight: 400;
       text-align: start;
     }
 
     th:not(:first-child),
     td:not(:first-child) {
-      min-width: mp.$layout-2xl;
+      min-width: $layout-2xl;
       text-align: center;
-      background-color: mp.$color-white;
-      padding: mp.$spacing-md;
+      background-color: $color-white;
+      padding: $spacing-md;
       // Fake spacing between the columns. The disadvantage of this method is
       // that the horizontal bottom border on rows is interrupted, but if we
       // used the appropriate
       //   border-collapse: separate;
       //   border-spacing: $spacing-md 0;
       // then we wouldn't have been able to apply a bottom border at all.
-      border-inline: mp.$spacing-md * 0.5 solid mp.$color-light-gray-10;
+      border-inline: $spacing-md * 0.5 solid $color-light-gray-10;
 
       &:last-child {
         border-right-style: none;
@@ -112,12 +112,12 @@ table.desktop {
       }
 
       &:first-child th {
-        border-top-left-radius: mp.$spacing-sm;
-        border-top-right-radius: mp.$spacing-sm;
+        border-top-left-radius: $spacing-sm;
+        border-top-right-radius: $spacing-sm;
       }
 
       th:not(:first-child) {
-        color: mp.$color-violet-70;
+        color: $color-violet-70;
         font-weight: 600;
 
         &.recommended {
@@ -138,9 +138,9 @@ table.desktop {
             // We make it slightly taller than the <tr> so that it overlaps the
             // `thead tr`'s bottom border (with a width of $row-spacing).
             height: calc(100% + $row-spacing);
-            background-color: mp.$color-violet-80;
-            color: mp.$color-white;
-            border-radius: mp.$spacing-sm;
+            background-color: $color-violet-80;
+            color: $color-white;
+            border-radius: $spacing-sm;
             margin-bottom: -1 * $row-spacing;
           }
         }
@@ -158,11 +158,11 @@ table.desktop {
       }
 
       td {
-        color: mp.$color-dark-gray-50;
+        color: $color-dark-gray-50;
 
         svg {
           display: inline;
-          color: mp.$color-blue-60;
+          color: $color-blue-60;
         }
       }
     }
@@ -170,8 +170,8 @@ table.desktop {
 
   tfoot {
     tr:last-child td {
-      border-bottom-left-radius: mp.$spacing-sm;
-      border-bottom-right-radius: mp.$spacing-sm;
+      border-bottom-left-radius: $spacing-sm;
+      border-bottom-right-radius: $spacing-sm;
     }
 
     tr {
@@ -190,7 +190,7 @@ table.desktop {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      gap: mp.$spacing-md;
+      gap: $spacing-md;
       width: 100%;
       height: 100%;
       text-align: center;
@@ -206,25 +206,25 @@ table.desktop {
       .pricing-overview {
         display: flex;
         flex-direction: column;
-        gap: mp.$spacing-md;
+        gap: $spacing-md;
 
         .price {
-          @include mp.text-body-lg;
-          color: mp.$color-blue-50;
+          @include text-body-lg;
+          color: $color-blue-50;
           font-weight: 600;
         }
 
         .pick-button {
-          border: 2px solid mp.$color-blue-50;
-          border-radius: mp.$border-radius-sm;
-          padding: mp.$spacing-sm;
+          border: 2px solid $color-blue-50;
+          border-radius: $border-radius-sm;
+          padding: $spacing-sm;
           text-align: center;
-          color: mp.$color-blue-50;
+          color: $color-blue-50;
           font-weight: 700;
 
           &:hover {
-            background-color: mp.$color-blue-50;
-            color: mp.$color-white;
+            background-color: $color-blue-50;
+            color: $color-white;
             cursor: pointer;
           }
         }
@@ -243,19 +243,19 @@ table.desktop {
   .plans {
     display: flex;
     flex-wrap: wrap;
-    gap: mp.$spacing-lg;
+    gap: $spacing-lg;
     list-style-type: none;
 
     .plan {
-      flex: 1 0 mp.$content-xs;
+      flex: 1 0 $content-xs;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: mp.$spacing-lg;
+      gap: $spacing-lg;
       max-width: 100%;
-      background-color: mp.$color-white;
-      border-radius: mp.$border-radius-md;
-      padding: mp.$spacing-md;
+      background-color: $color-white;
+      border-radius: $border-radius-md;
+      padding: $spacing-md;
 
       h3 {
         @include styles-typography.text-title-2xs {
@@ -269,13 +269,13 @@ table.desktop {
         // Since we want the h3 to spand the full width of the plan, and to be
         // flush with the top of the .plan, we enlarge it by that amount on the
         // sides and at the top:
-        width: calc(100% + 2 * mp.$spacing-md);
-        margin-top: -1 * mp.$spacing-md;
-        margin-inline: -1 * mp.$spacing-md;
-        padding: mp.$spacing-md;
-        background-color: mp.$color-violet-80;
-        color: mp.$color-white;
-        border-radius: mp.$spacing-sm;
+        width: calc(100% + 2 * $spacing-md);
+        margin-top: -1 * $spacing-md;
+        margin-inline: -1 * $spacing-md;
+        padding: $spacing-md;
+        background-color: $color-violet-80;
+        color: $color-white;
+        border-radius: $spacing-sm;
         font-weight: 900;
       }
 
@@ -283,13 +283,13 @@ table.desktop {
         flex: 1 0 auto;
         display: flex;
         flex-direction: column;
-        gap: mp.$spacing-sm;
+        gap: $spacing-sm;
         width: 100%;
         list-style-type: none;
 
         li {
           display: flex;
-          gap: mp.$spacing-xs;
+          gap: $spacing-xs;
 
           .description {
             flex: 1 0 auto;
@@ -300,13 +300,13 @@ table.desktop {
             }
           }
           .availability {
-            flex: 0 1 mp.$layout-2xs;
+            flex: 0 1 $layout-2xs;
             display: flex;
             align-items: center;
             justify-content: center;
 
             svg {
-              color: mp.$color-blue-60;
+              color: $color-blue-60;
             }
           }
         }
@@ -315,29 +315,29 @@ table.desktop {
       .pricing {
         display: flex;
         flex-direction: column;
-        gap: mp.$spacing-md;
+        gap: $spacing-md;
         width: 100%;
 
         .pricing-overview {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: mp.$spacing-md;
+          gap: $spacing-md;
           width: 100%;
           $billingMonthlyNoteHeight: 18px;
-          padding-bottom: $billingMonthlyNoteHeight + mp.$spacing-md;
+          padding-bottom: $billingMonthlyNoteHeight + $spacing-md;
 
           small {
-            @include mp.text-body-sm;
+            @include text-body-sm;
             display: block;
             height: $billingMonthlyNoteHeight;
             line-height: $billingMonthlyNoteHeight;
-            margin-bottom: -1 * ($billingMonthlyNoteHeight + mp.$spacing-md);
+            margin-bottom: -1 * ($billingMonthlyNoteHeight + $spacing-md);
           }
 
           .price {
-            @include mp.text-body-xl;
-            color: mp.$color-blue-50;
+            @include text-body-xl;
+            color: $color-blue-50;
             font-weight: 600;
           }
 
@@ -346,17 +346,17 @@ table.desktop {
           }
 
           .pick-button {
-            border: 2px solid mp.$color-blue-50;
-            border-radius: mp.$border-radius-sm;
+            border: 2px solid $color-blue-50;
+            border-radius: $border-radius-sm;
             width: 100%;
-            padding: mp.$spacing-sm;
+            padding: $spacing-sm;
             text-align: center;
-            color: mp.$color-blue-50;
+            color: $color-blue-50;
             font-weight: 700;
 
             &:hover {
-              background-color: mp.$color-blue-50;
-              color: mp.$color-white;
+              background-color: $color-blue-50;
+              color: $color-white;
               cursor: pointer;
             }
           }
@@ -369,22 +369,22 @@ table.desktop {
 .pricing-toggle {
   display: flex;
   background-color: tokens.$color-grey-10;
-  padding: mp.$spacing-xs;
-  border-radius: mp.$border-radius-lg;
+  padding: $spacing-xs;
+  border-radius: $border-radius-lg;
 
   > div {
-    @include mp.text-body-sm;
+    @include text-body-sm;
     width: 50%;
-    padding: mp.$spacing-xs mp.$spacing-sm;
+    padding: $spacing-xs $spacing-sm;
     text-align: center;
     color: tokens.$color-grey-40;
     font-weight: 500;
     cursor: pointer;
 
     &.is-selected {
-      background-color: mp.$color-white;
-      border-radius: mp.$border-radius-lg;
-      color: mp.$color-blue-50;
+      background-color: $color-white;
+      border-radius: $border-radius-lg;
+      color: $color-blue-50;
     }
   }
 }

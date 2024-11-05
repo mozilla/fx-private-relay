@@ -1,20 +1,20 @@
 @use "../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "~@mozilla-protocol/core/protocol/css/includes/mixins/typography" as
   mixins-typography;
 @use "../../styles/typography";
 
 .header {
-  background-color: mp.$color-light-gray-05;
+  background-color: $color-light-gray-05;
   width: 100%;
-  padding: mp.$spacing-md 0;
+  padding: $spacing-md 0;
 
   .header-wrapper {
     display: flex;
     flex-direction: column;
-    gap: mp.$spacing-md;
+    gap: $spacing-md;
 
-    @media screen and #{mp.$mq-lg} {
+    @media screen and #{$mq-lg} {
       flex-direction: row;
       align-items: center;
     }
@@ -23,14 +23,14 @@
       flex: 1 0 auto;
       display: flex;
       flex-direction: column;
-      gap: mp.$spacing-sm;
+      gap: $spacing-sm;
 
       .greeting {
-        @include mp.text-body-xl;
+        @include text-body-xl;
         font-weight: 700;
 
         .lead {
-          @include mp.text-body-md;
+          @include text-body-md;
           font-weight: 400;
           display: block;
         }
@@ -40,20 +40,20 @@
         display: flex;
         flex-wrap: wrap;
         align-items: center;
-        gap: mp.$spacing-xs;
-        color: mp.$color-blue-50;
+        gap: $spacing-xs;
+        color: $color-blue-50;
 
         .info-icon {
           align-items: center;
           background-color: transparent;
           border-style: none;
-          color: mp.$color-light-gray-70;
+          color: $color-light-gray-70;
           cursor: pointer;
           display: flex;
         }
 
         .pencil-icon {
-          margin-right: mp.$spacing-xs;
+          margin-right: $spacing-xs;
         }
       }
 
@@ -65,11 +65,11 @@
     .account-stats {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: mp.$spacing-md;
+      gap: $spacing-md;
       text-align: center;
       justify-content: space-evenly;
 
-      @media screen and #{mp.$mq-md} {
+      @media screen and #{$mq-md} {
         display: flex;
       }
 
@@ -79,25 +79,25 @@
         $arrowWidth: 6px;
 
         .tooltip {
-          @include mp.text-body-sm;
+          @include text-body-sm;
           position: absolute;
-          width: mp.$content-xs;
-          color: mp.$color-white;
-          max-width: calc(100% - 2 * mp.$spacing-xs);
-          top: calc(100% + $arrowWidth + mp.$spacing-xs);
+          width: $content-xs;
+          color: $color-white;
+          max-width: calc(100% - 2 * $spacing-xs);
+          top: calc(100% + $arrowWidth + $spacing-xs);
           font-weight: 400;
-          right: mp.$spacing-xs;
-          background-color: mp.$color-purple-80;
-          box-shadow: mp.$box-shadow-sm;
+          right: $spacing-xs;
+          background-color: $color-purple-80;
+          box-shadow: $box-shadow-sm;
           display: flex;
           flex-direction: column;
-          gap: mp.$spacing-sm;
-          padding: mp.$spacing-md mp.$spacing-md;
-          border-radius: mp.$border-radius-sm;
+          gap: $spacing-sm;
+          padding: $spacing-md $spacing-md;
+          border-radius: $border-radius-sm;
           // Prevent other .stat-wrapper elements from overlapping this tooltip:
           z-index: 2;
 
-          @media screen and #{mp.$mq-lg} {
+          @media screen and #{$mq-lg} {
             // The wrapper doesn't span the full width on large screens,
             // so limiting the tooltip to its wrapper's size makes it too thin:
             max-width: unset;
@@ -109,11 +109,11 @@
             width: 2 * $arrowWidth;
             position: absolute;
             top: -1 * $arrowWidth;
-            right: mp.$spacing-md;
+            right: $spacing-md;
             transform: rotate(45deg);
-            background-color: mp.$color-purple-80;
-            border-top: 1px solid mp.$color-purple-80;
-            border-left: 1px solid mp.$color-purple-80;
+            background-color: $color-purple-80;
+            border-top: 1px solid $color-purple-80;
+            border-left: 1px solid $color-purple-80;
           }
         }
 
@@ -128,13 +128,13 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: mp.$spacing-xs;
-        padding: mp.$spacing-md;
-        background-color: mp.$color-white;
-        border: 1px solid mp.$color-light-gray-20;
-        border-radius: mp.$border-radius-md;
+        gap: $spacing-xs;
+        padding: $spacing-md;
+        background-color: $color-white;
+        border: 1px solid $color-light-gray-20;
+        border-radius: $border-radius-md;
 
-        @media screen and #{mp.$mq-lg} {
+        @media screen and #{$mq-lg} {
           // On small screens, stats have a border and all that, but since
           // Protocol doesn't have max-width media queries, we need to unset
           // all those for larger screens:
@@ -150,35 +150,35 @@
         }
 
         .label {
-          @include mp.text-body-sm;
-          color: mp.$color-dark-gray-10;
+          @include text-body-sm;
+          color: $color-dark-gray-10;
         }
 
         .maxed {
-          color: mp.$color-purple-50;
+          color: $color-purple-50;
         }
 
         .value {
           @include typography.text-title-xs {
-            font-family: mp.$font-stack-firefox;
+            font-family: $font-stack-firefox;
             font-weight: 700;
-            padding: mp.$spacing-xs 0;
+            padding: $spacing-xs 0;
             flex: 1 0 auto;
             display: flex;
             flex-direction: column;
           }
 
           .learn-more-wrapper {
-            @include mp.text-body-sm;
+            @include text-body-sm;
             font-weight: 400;
 
             .open-button {
               background-color: transparent;
               border-style: none;
-              border-radius: mp.$border-radius-lg;
-              color: mp.$color-blue-50;
-              padding-inline: mp.$spacing-md;
-              font-family: mp.$font-stack-base;
+              border-radius: $border-radius-lg;
+              color: $color-blue-50;
+              padding-inline: $spacing-md;
+              font-family: $font-stack-base;
               font-weight: 500;
               cursor: pointer;
 
@@ -195,32 +195,32 @@
               align-self: end;
               background-color: transparent;
               border-style: none;
-              border-radius: mp.$border-radius-sm;
+              border-radius: $border-radius-sm;
               float: right;
               padding: 0;
               cursor: pointer;
 
               &:hover {
-                color: mp.$color-blue-50;
+                color: $color-blue-50;
               }
             }
 
             .learn-more-tooltip {
-              padding: mp.$spacing-md;
-              background-color: mp.$color-white;
-              width: mp.$content-sm;
+              padding: $spacing-md;
+              background-color: $color-white;
+              width: $content-sm;
               // On small screens, the tooltip should span the full width,
               // minus the padding around `.stat` elements (i.e. the value of
               // `gap` for `.account-stats`):
-              max-width: calc(100vw - mp.$spacing-md * 2);
-              box-shadow: mp.$box-shadow-sm;
-              border-radius: mp.$border-radius-sm;
+              max-width: calc(100vw - $spacing-md * 2);
+              box-shadow: $box-shadow-sm;
+              border-radius: $border-radius-sm;
               text-align: start;
 
               p + p {
                 // Not using `gap` on the parent becase we don't want space
                 // between the close button and the first paragraph:
-                margin-top: mp.$spacing-md;
+                margin-top: $spacing-md;
               }
             }
           }
@@ -238,7 +238,7 @@
           right: 0;
         }
 
-        @media screen and #{mp.$mq-md} {
+        @media screen and #{$mq-md} {
           // On medium-sized screens, the `.stat` items are in a row,
           // so only the first element should have the tooltip aligned to its
           // left-hand side:
@@ -253,12 +253,12 @@
 }
 
 .upsell-banner {
-  background-color: mp.$color-blue-90;
+  background-color: $color-blue-90;
 
   .upsell-banner-description,
   .upsell-banner-header {
-    @include mp.font-firefox;
-    color: mp.$color-white;
+    @include font-firefox;
+    color: $color-white;
   }
 
   .upsell-banner-header {
@@ -268,7 +268,7 @@
   }
 
   .upsell-banner-description {
-    @include mp.text-body-lg;
+    @include text-body-lg;
   }
 
   .upsell-banner-wrapper {
@@ -276,25 +276,25 @@
     align-items: center;
     justify-content: center;
     flex-direction: column-reverse;
-    padding: mp.$spacing-xl 0;
-    gap: mp.$spacing-2xl;
+    padding: $spacing-xl 0;
+    gap: $spacing-2xl;
 
-    @media screen and #{mp.$mq-lg} {
+    @media screen and #{$mq-lg} {
       flex-direction: row;
-      gap: mp.$spacing-xs;
+      gap: $spacing-xs;
     }
   }
 
   .upsell-banner-image {
-    max-width: mp.$content-md;
+    max-width: $content-md;
     width: 100%;
   }
 
   .upsell-banner-content {
-    max-width: mp.$content-md;
+    max-width: $content-md;
     display: flex;
-    gap: mp.$spacing-lg;
-    padding: 0 mp.$spacing-xl;
+    gap: $spacing-lg;
+    padding: 0 $spacing-xl;
     flex-direction: column;
     align-items: flex-start;
   }
@@ -304,14 +304,14 @@
   display: flex;
   flex-direction: column;
   align-items: baseline;
-  gap: mp.$spacing-md;
-  padding-bottom: mp.$spacing-xl;
+  gap: $spacing-md;
+  padding-bottom: $spacing-xl;
   // Ensure that the <Tips> card can always overlap elements in the profile,
   // even if they have z-indexes to overlap each other:
   isolation: isolate;
 
-  @media screen and (min-width: mp.$screen-md) {
-    background-color: mp.$color-light-gray-10;
+  @media screen and (min-width: $screen-md) {
+    background-color: $color-light-gray-10;
   }
 }
 
@@ -320,58 +320,58 @@
 .bottom-banner-wrapper,
 .no-premium-header,
 .header-wrapper {
-  max-width: mp.$content-xl;
+  max-width: $content-xl;
   width: 100%;
   margin: 0 auto;
-  padding: 0 mp.$spacing-md;
+  padding: 0 $spacing-md;
 }
 
 .banners-wrapper {
-  gap: mp.$spacing-lg;
+  gap: $spacing-lg;
   display: flex;
   flex-direction: column;
 }
 
 .no-premium-header {
-  padding-top: mp.$spacing-xl;
+  padding-top: $spacing-xl;
 }
 
 .main-wrapper {
   display: flex;
   flex-direction: column;
-  gap: mp.$spacing-xl;
+  gap: $spacing-xl;
 }
 
 .size-information {
-  padding: 0 0 mp.$spacing-lg;
+  padding: 0 0 $spacing-lg;
 }
 
 .bottom-banner {
-  background-color: mp.$color-white;
+  background-color: $color-white;
   width: 100%;
 
   .bottom-banner-wrapper {
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
-    gap: mp.$spacing-xl;
-    padding: mp.$spacing-xl;
+    gap: $spacing-xl;
+    padding: $spacing-xl;
 
-    @media screen and #{mp.$mq-md} {
+    @media screen and #{$mq-md} {
       flex-direction: row;
     }
   }
 
   .bottom-banner-content {
-    max-width: mp.$screen-sm;
+    max-width: $screen-sm;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     justify-content: space-evenly;
-    gap: mp.$spacing-md;
+    gap: $spacing-md;
 
     h3 {
-      @include mp.font-mozilla;
+      @include font-mozilla;
       @include typography.text-title-xs {
         font-weight: 500;
       }
@@ -382,8 +382,8 @@
     }
 
     p {
-      @include mp.text-body-md;
-      color: mp.$color-light-gray-90;
+      @include text-body-md;
+      color: $color-light-gray-90;
     }
   }
 }

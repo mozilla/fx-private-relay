@@ -1,4 +1,4 @@
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
 @use "../styles/tokens";
 
@@ -6,44 +6,44 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: mp.$spacing-xs;
+  gap: $spacing-xs;
   cursor: pointer;
-  background-color: mp.$color-blue-50;
-  padding: mp.$spacing-sm mp.$spacing-md;
-  border-radius: mp.$border-radius-sm;
+  background-color: $color-blue-50;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $border-radius-sm;
   border: 2px solid transparent;
-  color: mp.$color-white;
+  color: $color-white;
   font-weight: 700;
   line-height: 1.25;
 
-  @include mp.text-body-md;
+  @include text-body-md;
 
   &:hover:not(:disabled) {
-    background-color: mp.$color-blue-60;
+    background-color: $color-blue-60;
     opacity: 1;
   }
 
   &:focus {
     border-color: mp_forms.$button-border-color-focus;
     box-shadow: mp_forms.$field-focus-ring;
-    color: mp.$color-white;
+    color: $color-white;
     outline: none;
   }
 
   &:disabled {
     cursor: not-allowed;
-    background-color: mp.$color-light-gray-80;
+    background-color: $color-light-gray-80;
   }
 
   &.is-destructive {
-    background-color: mp.$color-red-60;
+    background-color: $color-red-60;
 
     &:disabled {
-      background-color: mp.$color-red-10;
+      background-color: $color-red-10;
     }
 
     &:hover:not(:disabled) {
-      background-color: mp.$color-red-70;
+      background-color: $color-red-70;
       opacity: 1;
     }
   }
@@ -51,19 +51,19 @@
   &.is-secondary {
     background-color: transparent;
     border: none;
-    color: mp.$color-blue-50;
+    color: $color-blue-50;
 
     &:disabled {
       opacity: 0.4;
     }
 
     &:active {
-      color: mp.$color-blue-70;
+      color: $color-blue-70;
     }
 
     &:hover:not(:disabled) {
       background-color: transparent;
-      color: mp.$color-blue-60;
+      color: $color-blue-60;
     }
   }
 }

@@ -1,5 +1,5 @@
 @use "../../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
 
 // Resolves mobile extra spacing issues for 2nd step of updated free onboarding (MPP-3597).
@@ -10,12 +10,12 @@
 .controls {
   display: grid;
   grid-template-columns: auto 1fr auto;
-  row-gap: mp.$spacing-md;
+  row-gap: $spacing-md;
   grid-template-areas:
     "stringFilterToggle categoryFilter newAliasButton"
     "stringFilter stringFilter stringFilter";
   align-items: center;
-  padding: mp.$spacing-md 0;
+  padding: $spacing-md 0;
   // The focus indicators of contained elements can overflow:
   overflow: visible;
 
@@ -35,7 +35,7 @@
     grid-area: newAliasButton;
   }
 
-  @media screen and #{mp.$mq-md} {
+  @media screen and #{$mq-md} {
     grid-template-areas: "stringFilter categoryFilter newAliasButton";
 
     .string-filter-toggle {
@@ -45,7 +45,7 @@
 }
 
 .alias-card-wrapper {
-  padding-top: mp.$spacing-lg;
+  padding-top: $spacing-lg;
   list-style-type: none;
 
   &:first-child {
@@ -55,10 +55,10 @@
 
 .string-filter-toggle {
   background-color: transparent;
-  color: mp.$color-dark-gray-50;
+  color: $color-dark-gray-50;
   border-radius: 100%;
   border-style: none;
-  padding: mp.$spacing-sm;
+  padding: $spacing-sm;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -66,8 +66,8 @@
 
   &.active,
   &:hover {
-    background-color: mp.$color-white;
-    color: mp.$color-blue-50;
+    background-color: $color-white;
+    color: $color-blue-50;
   }
 
   img {
@@ -87,7 +87,7 @@
     display: block;
   }
 
-  @media screen and #{mp.$mq-md} {
+  @media screen and #{$mq-md} {
     display: block;
   }
 
@@ -96,14 +96,14 @@
     margin: 0;
     background-image: url("/icons/search-blue.svg");
     background-repeat: no-repeat;
-    background-position: left mp.$spacing-sm top 50%;
+    background-position: left $spacing-sm top 50%;
     // The search icon is 20px wide, surrounded by padding:
-    padding-left: calc(mp.$spacing-sm + 20px + mp.$spacing-sm);
+    padding-left: calc($spacing-sm + 20px + $spacing-sm);
     // Leave some space on the right for `.match-count`
-    padding-right: calc(mp.$spacing-sm + 30px);
+    padding-right: calc($spacing-sm + 30px);
     width: 100%;
 
-    @media screen and #{mp.$mq-md} {
+    @media screen and #{$mq-md} {
       width: auto;
     }
   }
@@ -113,7 +113,7 @@
     transition: opacity 200ms;
     position: absolute;
     transform: translateX(-100%);
-    padding: mp.$spacing-sm;
+    padding: $spacing-sm;
   }
   // Show the counter when the search field is focused
   // or has a value:
@@ -121,7 +121,7 @@
   input:focus + .match-count {
     opacity: 1;
     // Make sure input in the input field isn't shown in the background
-    background-color: mp.$color-white;
+    background-color: $color-white;
     // Then give it the same borders as the input it's covering...
     @include mp_forms.form-input;
     // ...except where it intersects with the input:
@@ -132,27 +132,27 @@
 }
 
 .category-filter {
-  padding-left: mp.$spacing-xs;
+  padding-left: $spacing-xs;
 
-  @media screen and #{mp.$mq-md} {
-    padding-left: mp.$spacing-md;
+  @media screen and #{$mq-md} {
+    padding-left: $spacing-md;
   }
 }
 
 .empty-state-message {
-  background-color: mp.$color-white;
-  border-radius: mp.$border-radius-md;
-  padding: mp.$spacing-lg;
+  background-color: $color-white;
+  border-radius: $border-radius-md;
+  padding: $spacing-lg;
 
   .clear-filters-button {
     background-color: transparent;
     border-style: none;
-    color: mp.$color-blue-50;
+    color: $color-blue-50;
     text-decoration: underline;
     cursor: pointer;
 
     &:hover {
-      color: mp.$color-blue-40;
+      color: $color-blue-40;
     }
   }
 }

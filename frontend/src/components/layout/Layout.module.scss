@@ -1,5 +1,5 @@
 @use "../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 
 .patch3701 {
   pointer-events: none;
@@ -12,17 +12,17 @@
 
   // See https://fkhadra.github.io/react-toastify/how-to-style#override-css-variables
   --toastify-toast-width: 95%;
-  --toastify-color-light: #{mp.$color-white};
+  --toastify-color-light: #{$color-white};
   --toastify-color-dark: #{tokens.$color-grey-50};
-  --toastify-color-info: #{mp.$color-blue-50};
-  --toastify-color-success: #{mp.$color-green-50};
-  --toastify-color-warning: #{mp.$color-yellow-50};
-  --toastify-color-error: #{mp.$color-red-60};
+  --toastify-color-info: #{$color-blue-50};
+  --toastify-color-success: #{$color-green-50};
+  --toastify-color-warning: #{$color-yellow-50};
+  --toastify-color-error: #{$color-red-60};
 
-  --toastify-text-color-info: #{mp.$color-white};
+  --toastify-text-color-info: #{$color-white};
   --toastify-text-color-success: #{tokens.$color-grey-50};
   --toastify-text-color-warning: #{tokens.$color-grey-50};
-  --toastify-text-color-error: #{mp.$color-white};
+  --toastify-text-color-error: #{$color-white};
 
   --toastify-toast-min-height: $layout-md;
   --toastify-toast-max-height: $layout-md;
@@ -33,35 +33,35 @@ $toastify-toast-close-button: var(--toast-close-button);
 
 // Targets the toast container and sets max-width to prevent it from obstructing nav items on larger screens.
 .toast-container {
-  max-width: mp.$content-xl;
+  max-width: $content-xl;
 }
 
 .toast {
-  @include mp.text-body-sm;
+  @include text-body-sm;
   text-align: center;
   font-weight: 400;
-  min-height: mp.$layout-md;
-  border-radius: mp.$border-radius-sm;
-  font-family: mp.$font-stack-base;
+  min-height: $layout-md;
+  border-radius: $border-radius-sm;
+  font-family: $font-stack-base;
   padding: 0;
-  max-width: mp.$content-xl;
+  max-width: $content-xl;
   margin: 0 auto;
 
-  @media screen and (max-width: mp.$screen-sm) {
-    width: calc(100% - mp.$spacing-xl);
-    margin-top: mp.$spacing-md;
+  @media screen and (max-width: $screen-sm) {
+    width: calc(100% - $spacing-xl);
+    margin-top: $spacing-md;
   }
 
   &:global {
     &[class*="toast--error"],
     &[class*="toast--info"] {
       [id*="close-toast-button-icon"] {
-        color: #{mp.$color-white};
+        color: #{$color-white};
       }
     }
 
     & > [class*="toast-body"] {
-      padding: mp.$spacing-md;
+      padding: $spacing-md;
     }
 
     &[class*="toast--success"],
@@ -72,66 +72,66 @@ $toastify-toast-close-button: var(--toast-close-button);
     }
 
     &[class*="toast--error"] {
-      --toast-close-button: #{mp.$color-red-60};
+      --toast-close-button: #{$color-red-60};
 
       &:hover {
-        --toastify-color-error: #{mp.$color-red-70};
+        --toastify-color-error: #{$color-red-70};
       }
 
       &:active,
       &:focus {
-        --toastify-color-error: #{mp.$color-red-80};
-        --toast-close-button: #{mp.$color-red-80};
+        --toastify-color-error: #{$color-red-80};
+        --toast-close-button: #{$color-red-80};
       }
     }
 
     &[class*="toast--info"] {
-      --toast-close-button: #{mp.$color-blue-50};
+      --toast-close-button: #{$color-blue-50};
 
       &:hover {
-        --toast-close-button: #{mp.$color-blue-60};
+        --toast-close-button: #{$color-blue-60};
       }
 
       &:active,
       &:focus {
-        --toastify-color-info: #{mp.$color-blue-70};
-        --toast-close-button: #{mp.$color-blue-70};
+        --toastify-color-info: #{$color-blue-70};
+        --toast-close-button: #{$color-blue-70};
       }
     }
 
     &[class*="toast--success"] {
-      --toast-close-button: #{mp.$color-green-50};
+      --toast-close-button: #{$color-green-50};
 
       &:hover {
-        --toast-close-button: #{mp.$color-green-60};
+        --toast-close-button: #{$color-green-60};
       }
 
       &:active,
       &:focus {
-        --toastify-color-success: #{mp.$color-green-70};
-        --toast-close-button: #{mp.$color-green-70};
+        --toastify-color-success: #{$color-green-70};
+        --toast-close-button: #{$color-green-70};
       }
     }
 
     &[class*="toast--warning"] {
-      --toast-close-button: #{mp.$color-yellow-50};
+      --toast-close-button: #{$color-yellow-50};
 
       &:hover {
-        --toast-close-button: #{mp.$color-yellow-60};
+        --toast-close-button: #{$color-yellow-60};
       }
 
       &:active,
       &:focus {
-        --toastify-color-warning: #{mp.$color-yellow-70};
-        --toast-close-button: #{mp.$color-yellow-70};
+        --toastify-color-warning: #{$color-yellow-70};
+        --toast-close-button: #{$color-yellow-70};
       }
     }
   }
 }
 
 .close-toast-button-container {
-  padding: mp.$spacing-md;
-  border-radius: 0 mp.$border-radius-sm mp.$border-radius-sm 0;
+  padding: $spacing-md;
+  border-radius: 0 $border-radius-sm $border-radius-sm 0;
   background-color: $toastify-toast-close-button;
   display: flex;
   flex-direction: column;
@@ -174,7 +174,7 @@ $toastify-toast-close-button: var(--toast-close-button);
     box-shadow: none;
   }
 
-  @media screen and #{mp.$mq-md} {
+  @media screen and #{$mq-md} {
     grid-template-areas: "logoWrapper navWrapper appPickerWrapper userMenuWrapper";
   }
 
@@ -182,23 +182,23 @@ $toastify-toast-close-button: var(--toast-close-button);
     grid-area: logoWrapper;
     display: flex;
     align-items: center;
-    max-width: calc(100% - mp.$spacing-md);
+    max-width: calc(100% - $spacing-md);
 
     &.plain-page {
-      padding-top: mp.$layout-sm;
+      padding-top: $layout-sm;
       justify-content: center;
     }
 
     .logo {
       display: inline-flex;
       align-items: center;
-      gap: mp.$spacing-sm;
-      padding: mp.$spacing-md;
+      gap: $spacing-sm;
+      padding: $spacing-md;
 
       // aligns the logo with the main content @ 1152px,
       // snaps logo in to place essentially
-      @media screen and (min-width: mp.$content-xl) {
-        padding: mp.$spacing-md mp.$spacing-xl;
+      @media screen and (min-width: $content-xl) {
+        padding: $spacing-md $spacing-xl;
       }
 
       .logotype {
@@ -210,7 +210,7 @@ $toastify-toast-close-button: var(--toast-close-button);
   .nav-wrapper {
     display: flex;
 
-    @media screen and #{mp.$mq-md} {
+    @media screen and #{$mq-md} {
       grid-area: navWrapper;
     }
   }
@@ -219,9 +219,9 @@ $toastify-toast-close-button: var(--toast-close-button);
     grid-area: appPickerWrapper;
     display: none;
     align-items: center;
-    padding: 0 mp.$spacing-sm;
+    padding: 0 $spacing-sm;
 
-    @media screen and #{mp.$mq-md} {
+    @media screen and #{$mq-md} {
       display: flex;
     }
   }
@@ -230,38 +230,38 @@ $toastify-toast-close-button: var(--toast-close-button);
     grid-area: userMenuWrapper;
     display: flex;
     align-items: center;
-    padding: 0 mp.$spacing-md;
+    padding: 0 $spacing-md;
   }
 
   a:hover,
   button:hover {
-    color: mp.$color-blue-50;
+    color: $color-blue-50;
   }
 
   &.is-dark {
-    background-color: mp.$color-blue-90;
-    border-bottom: 1px solid rgba(mp.$color-dark-gray-90, 0.5);
-    box-shadow: 0 0 3px 0 rgba(mp.$color-dark-gray-90, 0.5);
-    color: mp.$color-white;
+    background-color: $color-blue-90;
+    border-bottom: 1px solid rgba($color-dark-gray-90, 0.5);
+    box-shadow: 0 0 3px 0 rgba($color-dark-gray-90, 0.5);
+    color: $color-white;
 
     a:hover,
     button:hover {
-      color: mp.$color-light-gray-30;
+      color: $color-light-gray-30;
     }
   }
 
   &.is-light {
-    background-color: mp.$color-white;
+    background-color: $color-white;
     color: tokens.$color-grey-40;
   }
 
   &.is-grey {
-    background-color: mp.$color-light-gray-10;
+    background-color: $color-light-gray-10;
   }
 
-  @media screen and #{mp.$mq-md} {
+  @media screen and #{$mq-md} {
     .logo {
-      padding: mp.$spacing-md mp.$spacing-xl;
+      padding: $spacing-md $spacing-xl;
     }
   }
 }
@@ -279,16 +279,16 @@ $toastify-toast-close-button: var(--toast-close-button);
   // Create a new stacking context for the content, so we can use z-indexes in
   // the content without preventing the header/mobile menu from overlapping it.
   isolation: isolate;
-  background-color: mp.$color-light-gray-10;
+  background-color: $color-light-gray-10;
 }
 
 .gray-bg {
-  background-color: mp.$color-light-gray-10;
+  background-color: $color-light-gray-10;
 }
 
 .footer {
   background-color: black;
-  color: mp.$color-white;
+  color: $color-white;
 
   .links {
     font-weight: 700;
@@ -296,37 +296,37 @@ $toastify-toast-close-button: var(--toast-close-button);
     align-items: flex-start;
     flex-direction: column;
 
-    @media screen and #{mp.$mq-md} {
+    @media screen and #{$mq-md} {
       flex-direction: row;
       align-items: center;
     }
 
     .mozilla-logo {
-      padding: mp.$spacing-xl;
+      padding: $spacing-xl;
     }
 
     .meta {
       display: flex;
       flex-direction: column;
-      padding: mp.$spacing-lg;
+      padding: $spacing-lg;
       list-style-type: none;
-      gap: mp.$spacing-md;
+      gap: $spacing-md;
 
-      @media screen and #{mp.$mq-md} {
+      @media screen and #{$mq-md} {
         flex-direction: row;
         align-items: center;
         margin-left: auto;
       }
 
       a {
-        padding: mp.$spacing-md;
+        padding: $spacing-md;
 
         img {
           display: inline-block;
         }
 
         &:hover {
-          color: mp.$color-light-gray-40;
+          color: $color-light-gray-40;
 
           img {
             opacity: 0.8;
@@ -338,14 +338,14 @@ $toastify-toast-close-button: var(--toast-close-button);
 
   .stock-photo-disclaimer {
     display: block;
-    padding: mp.$spacing-md;
+    padding: $spacing-md;
     text-align: center;
   }
 }
 
 .api-mock-warning {
-  background-color: mp.$color-yellow-10;
-  padding: mp.$spacing-md mp.$spacing-lg;
+  background-color: $color-yellow-10;
+  padding: $spacing-md $spacing-lg;
   text-align: center;
   position: relative;
 }

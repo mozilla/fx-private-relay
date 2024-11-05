@@ -1,4 +1,4 @@
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
 @use "../../../styles/tokens";
 @use "../../../styles/typography" as styles-typography;
@@ -8,10 +8,10 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: mp.$spacing-2xl;
-  max-width: mp.$content-md;
+  gap: $spacing-2xl;
+  max-width: $content-md;
   margin: 0 auto;
-  padding: mp.$spacing-lg;
+  padding: $spacing-lg;
 
   .button {
     // TODO: This is not working
@@ -22,21 +22,21 @@
 
   h2 {
     @include styles-typography.text-title-xs {
-      font-family: mp.$font-stack-firefox;
+      font-family: $font-stack-firefox;
       text-align: center;
     }
   }
 
   .lead {
-    @include mp.text-title-3xs;
-    font-family: mp.$font-stack-firefox;
+    @include text-title-3xs;
+    font-family: $font-stack-firefox;
     text-align: center;
     display: flex;
     flex-direction: column;
-    gap: mp.$spacing-lg;
+    gap: $spacing-lg;
 
     p {
-      @include mp.text-body-md;
+      @include text-body-md;
     }
 
     img {
@@ -45,22 +45,22 @@
   }
 
   .description {
-    @include mp.text-body-md;
+    @include text-body-md;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: mp.$spacing-2xl;
-    padding: mp.$spacing-md;
-    margin-top: mp.$spacing-lg;
+    gap: $spacing-2xl;
+    padding: $spacing-md;
+    margin-top: $spacing-lg;
 
-    @media screen and #{mp.$mq-md} {
+    @media screen and #{$mq-md} {
       flex-direction: row;
     }
 
     ul {
       display: flex;
       flex-direction: column;
-      gap: mp.$spacing-md;
+      gap: $spacing-md;
       margin: 0;
       padding: 0;
     }
@@ -74,22 +74,22 @@
     align-items: center;
     justify-items: center;
     text-align: center;
-    gap: mp.$spacing-md;
+    gap: $spacing-md;
     background-color: tokens.$color-white;
-    padding: mp.$spacing-lg mp.$spacing-2xl;
-    border-radius: mp.$border-radius-md;
-    box-shadow: mp.$box-shadow-sm;
+    padding: $spacing-lg $spacing-2xl;
+    border-radius: $border-radius-md;
+    box-shadow: $box-shadow-sm;
 
     h3 {
-      @include mp.text-body-md;
-      font-family: mp.$font-stack-firefox;
+      @include text-body-md;
+      font-family: $font-stack-firefox;
       text-align: center;
       font-weight: 400;
     }
 
     span {
       @include styles-typography.text-title-2xs {
-        padding-top: mp.$spacing-sm;
+        padding-top: $spacing-sm;
         display: block;
         font-weight: 700;
       }
@@ -100,18 +100,18 @@
 // Step 2: Verify Phone Number
 
 .step-verify-input .error {
-  max-width: mp.$content-sm;
+  max-width: $content-sm;
   background-color: tokens.$color-white;
-  border-radius: mp.$border-radius-md;
-  box-shadow: mp.$box-shadow-sm;
-  padding: mp.$spacing-md;
+  border-radius: $border-radius-md;
+  box-shadow: $box-shadow-sm;
+  padding: $spacing-md;
   text-align: center;
   margin: 0 auto;
 }
 .step-verify-sub-body {
   background-color: tokens.$color-white;
-  border-radius: mp.$border-radius-md;
-  padding: mp.$spacing-lg;
+  border-radius: $border-radius-md;
+  padding: $spacing-lg;
 }
 
 .step-verify-input .is-hidden {
@@ -119,11 +119,11 @@
 }
 
 .form {
-  max-width: mp.$content-sm;
+  max-width: $content-sm;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: mp.$spacing-lg;
+  gap: $spacing-lg;
 }
 
 // Step 3: Enter verification code
@@ -136,7 +136,7 @@
     }
 
     h2 {
-      padding-top: mp.$spacing-md;
+      padding-top: $spacing-md;
     }
 
     &.is-error,
@@ -167,18 +167,18 @@
 
   form {
     background-color: tokens.$color-white;
-    box-shadow: mp.$box-shadow-sm;
-    padding: mp.$spacing-lg;
-    border-radius: mp.$border-radius-md;
-    max-width: mp.$screen-sm;
+    box-shadow: $box-shadow-sm;
+    padding: $spacing-lg;
+    border-radius: $border-radius-md;
+    max-width: $screen-sm;
     position: relative;
 
     &.is-hidden {
       display: none;
     }
 
-    @media screen and #{mp.$mq-md} {
-      padding: mp.$spacing-lg mp.$spacing-2xl;
+    @media screen and #{$mq-md} {
+      padding: $spacing-lg $spacing-2xl;
     }
 
     p {
@@ -195,10 +195,10 @@
     }
 
     input {
-      @include mp.text-body-xl;
-      border-radius: mp.$border-radius-md;
+      @include text-body-xl;
+      border-radius: $border-radius-md;
       display: block;
-      padding: mp.$spacing-sm;
+      padding: $spacing-sm;
       box-shadow: none;
       border: 0;
       background-color: tokens.$color-grey-10;
@@ -211,8 +211,8 @@
         outline: 4px solid tokens.$color-error-focus;
       }
 
-      @media screen and #{mp.$mq-md} {
-        padding: mp.$spacing-md;
+      @media screen and #{$mq-md} {
+        padding: $spacing-md;
         letter-spacing: 2rem;
       }
     }
@@ -221,14 +221,14 @@
 
 .step-input-verificiation-code-timeout {
   background-color: tokens.$color-white;
-  box-shadow: mp.$box-shadow-sm;
-  border-radius: mp.$border-radius-md;
-  padding: mp.$spacing-lg mp.$spacing-2xl;
-  max-width: mp.$screen-sm;
+  box-shadow: $box-shadow-sm;
+  border-radius: $border-radius-md;
+  padding: $spacing-lg $spacing-2xl;
+  max-width: $screen-sm;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: mp.$spacing-lg;
+  gap: $spacing-lg;
 
   &.is-hidden {
     display: none;
@@ -241,14 +241,14 @@
 
 .step-input-verificiation-code-success {
   background-color: tokens.$color-white;
-  box-shadow: mp.$box-shadow-sm;
-  border-radius: mp.$border-radius-md;
-  padding: mp.$spacing-lg mp.$spacing-2xl;
-  max-width: mp.$screen-sm;
+  box-shadow: $box-shadow-sm;
+  border-radius: $border-radius-md;
+  padding: $spacing-lg $spacing-2xl;
+  max-width: $screen-sm;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: mp.$spacing-lg;
+  gap: $spacing-lg;
   justify-content: center;
 
   &.is-hidden {
@@ -256,7 +256,7 @@
   }
 
   h3 {
-    @include mp.text-body-md;
+    @include text-body-md;
   }
 
   p,
@@ -270,13 +270,13 @@
   align-items: center;
   position: relative;
 
-  @include mp.text-body-sm;
+  @include text-body-sm;
 }
 
 .phone-input {
-  width: mp.$content-xs;
-  height: mp.$layout-sm;
-  padding: mp.$spacing-md mp.$spacing-sm mp.$spacing-md mp.$spacing-2xl;
+  width: $content-xs;
+  height: $layout-sm;
+  padding: $spacing-md $spacing-sm $spacing-md $spacing-2xl;
 
   &.is-error {
     border: 2px solid tokens.$color-red-60;
@@ -287,8 +287,8 @@
 // static country code in the real phone number input "+1"
 .phone-input-country-code {
   background-color: tokens.$color-grey-10;
-  border-radius: mp.$border-radius-sm;
+  border-radius: $border-radius-sm;
   position: absolute;
-  padding: 0 mp.$spacing-sm;
-  margin-left: mp.$spacing-sm;
+  padding: 0 $spacing-sm;
+  margin-left: $spacing-sm;
 }

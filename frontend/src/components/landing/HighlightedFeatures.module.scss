@@ -1,5 +1,5 @@
 @use "../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "../../styles/typography" as styles-typography;
 
 .highlighted-feature-wrapper {
@@ -7,12 +7,12 @@
   align-content: center;
   justify-content: space-between;
   flex-direction: column-reverse;
-  margin-bottom: mp.$layout-sm;
+  margin-bottom: $layout-sm;
 
-  @media screen and #{mp.$mq-md} {
+  @media screen and #{$mq-md} {
     flex-direction: row-reverse;
-    gap: mp.$spacing-2xl;
-    margin-bottom: mp.$layout-xs;
+    gap: $spacing-2xl;
+    margin-bottom: $layout-xs;
 
     &:nth-child(even) {
       flex-direction: row;
@@ -20,51 +20,51 @@
   }
 
   .new-callout-wrapper {
-    margin-bottom: mp.$spacing-md;
+    margin-bottom: $spacing-md;
 
     .new-callout {
-      @include mp.text-body-sm;
-      background-color: mp.$color-purple-30;
-      padding: mp.$spacing-xs mp.$spacing-sm;
+      @include text-body-sm;
+      background-color: $color-purple-30;
+      padding: $spacing-xs $spacing-sm;
       font-weight: 600;
       text-transform: uppercase;
-      color: mp.$color-white;
+      color: $color-white;
       text-align: center;
       align-content: center;
-      border-radius: mp.$border-radius-sm;
+      border-radius: $border-radius-sm;
     }
   }
 
   .highlighted-feature-description {
-    @media screen and #{mp.$mq-md} {
+    @media screen and #{$mq-md} {
       flex-direction: row-reverse;
       align-self: center;
       width: 100%;
     }
 
     .highlighted-feature-headline {
-      @include mp.font-firefox;
-      @include mp.text-body-xl;
-      margin-bottom: mp.$spacing-sm;
+      @include font-firefox;
+      @include text-body-xl;
+      margin-bottom: $spacing-sm;
       line-height: 100%;
     }
   }
 
   .highlighted-feature-image {
-    padding: mp.$spacing-md;
+    padding: $spacing-md;
     width: 100%;
     align-self: center;
   }
 }
 
 .section-title-wrapper {
-  padding: mp.$spacing-lg mp.$spacing-md mp.$spacing-2xl mp.$spacing-md;
+  padding: $spacing-lg $spacing-md $spacing-2xl $spacing-md;
   align-content: center;
   justify-content: center;
   text-align: center;
 
   h2 {
-    @include mp.font-firefox;
+    @include font-firefox;
     @include styles-typography.text-title-sm {
       justify-content: center;
       width: 100%;
@@ -72,7 +72,7 @@
   }
 
   .cta {
-    margin: mp.$spacing-xl 0;
-    min-width: mp.$content-xs;
+    margin: $spacing-xl 0;
+    min-width: $content-xs;
   }
 }

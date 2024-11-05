@@ -1,5 +1,5 @@
 @use "../../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 
 .wrapper {
   align-items: center;
@@ -15,16 +15,16 @@
   width: 24px;
   height: 24px;
   padding: 0;
-  border-radius: mp.$border-radius-sm;
+  border-radius: $border-radius-sm;
 
   svg {
-    color: mp.$color-white;
+    color: $color-white;
 
     &.premium {
       color: tokens.$color-grey-40;
     }
     &:hover {
-      color: mp.$color-purple-20;
+      color: $color-purple-20;
     }
   }
 }
@@ -33,14 +33,14 @@
   position: absolute;
   right: 0;
   // Design request to push popup down 4px
-  margin-top: (mp.$spacing-lg - mp.$spacing-xs);
+  margin-top: ($spacing-lg - $spacing-xs);
   padding: 0;
-  padding-bottom: mp.$spacing-lg;
-  min-width: mp.$content-xs;
+  padding-bottom: $spacing-lg;
+  min-width: $content-xs;
   list-style-type: none;
-  box-shadow: mp.$box-shadow-sm;
-  border-radius: mp.$border-radius-sm;
-  background-color: mp.$color-light-gray-10;
+  box-shadow: $box-shadow-sm;
+  border-radius: $border-radius-sm;
+  background-color: $color-light-gray-10;
 
   &::before {
     content: "";
@@ -48,42 +48,42 @@
     width: 12px;
     position: absolute;
     top: -6px;
-    right: mp.$spacing-sm;
+    right: $spacing-sm;
     transform: rotate(45deg);
-    background-color: mp.$color-light-gray-10;
+    background-color: $color-light-gray-10;
   }
 
   .app-picker-heading {
-    color: mp.$color-black;
-    padding: mp.$spacing-lg;
+    color: $color-black;
+    padding: $spacing-lg;
     text-align: center;
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: mp.$spacing-sm;
+    gap: $spacing-sm;
     background-image: linear-gradient(
         to bottom,
         #f9f9fb calc(100% - 3px),
         rgba(0, 0, 0, 0)
       ),
       linear-gradient(90deg, #f73940 1.25%, #a83db5 96.87%);
-    border-radius: mp.$border-radius-sm mp.$border-radius-sm 0 0;
+    border-radius: $border-radius-sm $border-radius-sm 0 0;
 
     img {
-      height: mp.$layout-sm;
+      height: $layout-sm;
     }
 
     h2 {
-      @include mp.text-body-md;
-      font-family: mp.$font-stack-base;
+      @include text-body-md;
+      font-family: $font-stack-base;
     }
   }
 
   ul {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: mp.$spacing-md;
-    padding: mp.$spacing-lg;
+    gap: $spacing-md;
+    padding: $spacing-lg;
     list-style-type: none;
   }
 
@@ -95,37 +95,37 @@
     .menu-link {
       display: flex;
       flex-direction: column;
-      color: mp.$color-black;
+      color: $color-black;
       align-items: center;
       text-align: center;
 
-      @include mp.text-body-sm;
+      @include text-body-sm;
       font-weight: 400;
-      font-family: mp.$font-stack-base;
+      font-family: $font-stack-base;
 
       img {
-        height: mp.$layout-sm;
-        padding: mp.$spacing-lg;
+        height: $layout-sm;
+        padding: $spacing-lg;
         width: -moz-fit-content;
         width: fit-content;
         box-sizing: content-box;
-        border-radius: mp.$border-radius-md;
+        border-radius: $border-radius-md;
         object-fit: contain;
       }
 
       &:hover {
-        color: mp.$color-violet-90;
+        color: $color-violet-90;
 
         img {
-          background-color: mp.$color-light-gray-20;
+          background-color: $color-light-gray-20;
         }
       }
 
       &.mozilla-link {
-        color: mp.$color-blue-50;
+        color: $color-blue-50;
         justify-content: center;
         width: 100%;
-        margin-top: mp.$spacing-lg;
+        margin-top: $spacing-lg;
       }
     }
 

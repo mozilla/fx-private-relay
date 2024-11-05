@@ -1,22 +1,22 @@
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "../styles/tokens";
 @use "../styles/typography" as styles-typography;
 
 .hero {
   display: flex;
   flex-direction: column;
-  gap: mp.$spacing-2xl;
-  width: mp.$content-max;
+  gap: $spacing-2xl;
+  width: $content-max;
   max-width: 100%;
   margin: 0 auto;
-  padding: mp.$spacing-lg;
+  padding: $spacing-lg;
 
   .hero-image {
     flex-basis: 0;
     flex-grow: 1;
   }
 
-  @media screen and #{mp.$mq-md} {
+  @media screen and #{$mq-md} {
     flex-direction: row;
     align-items: center;
   }
@@ -30,76 +30,76 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: mp.$spacing-lg;
+    gap: $spacing-lg;
   }
 
   h2 {
     @include styles-typography.text-title-md {
-      font-family: mp.$font-stack-firefox;
+      font-family: $font-stack-firefox;
     }
   }
 
   .social-proof {
-    border: 0 solid mp.$color-light-gray-20;
+    border: 0 solid $color-light-gray-20;
     border-top-width: 1px;
     border-bottom-width: 1px;
-    padding: mp.$spacing-lg 0;
+    padding: $spacing-lg 0;
     width: 100%;
 
-    @media screen and #{mp.$mq-md} {
+    @media screen and #{$mq-md} {
       width: auto;
     }
   }
 
   .end-of-intro-pricing-hero {
     display: flex;
-    gap: mp.$spacing-lg;
+    gap: $spacing-lg;
     flex-wrap: wrap;
 
     & > div {
-      flex: 1 1 mp.$content-xs;
+      flex: 1 1 $content-xs;
     }
   }
 }
 
 .perks-wrapper {
-  padding: mp.$layout-xs;
-  width: mp.$content-xl;
+  padding: $layout-xs;
+  width: $content-xl;
   max-width: 100%;
   margin: 0 auto;
 
-  @media screen and #{mp.$mq-md} {
-    padding: mp.$layout-sm mp.$layout-xs;
+  @media screen and #{$mq-md} {
+    padding: $layout-sm $layout-xs;
   }
 }
 
 .perks {
-  width: mp.$content-xl;
+  width: $content-xl;
   max-width: 100%;
   margin: 0 auto;
-  padding: mp.$spacing-2xl mp.$spacing-xl;
+  padding: $spacing-2xl $spacing-xl;
 
   h2 {
     @include styles-typography.text-title-sm {
-      font-family: mp.$font-stack-firefox;
+      font-family: $font-stack-firefox;
       text-align: center;
-      padding: mp.$spacing-md 0;
+      padding: $spacing-md 0;
     }
   }
 
   .lead {
-    @include mp.text-body-md;
+    @include text-body-md;
     display: block;
     width: 75%;
     margin: 0 auto;
-    padding: mp.$spacing-md 0;
+    padding: $spacing-md 0;
   }
 
   .perk {
-    padding: mp.$spacing-lg 0;
+    padding: $spacing-lg 0;
     display: flex;
     flex-direction: column;
-    gap: mp.$spacing-2xl;
+    gap: $spacing-2xl;
     align-items: center;
 
     img {
@@ -110,25 +110,25 @@
     .pill {
       background-color: tokens.$color-violet-30;
       color: tokens.$color-white;
-      border-radius: mp.$border-radius-sm;
-      padding: mp.$spacing-xs mp.$spacing-sm;
-      font-family: mp.$font-stack-firefox;
+      border-radius: $border-radius-sm;
+      padding: $spacing-xs $spacing-sm;
+      font-family: $font-stack-firefox;
       font-weight: 600;
       text-transform: uppercase;
     }
 
     h3 {
       @include styles-typography.text-title-xs {
-        font-family: mp.$font-stack-firefox;
-        padding: mp.$spacing-sm 0;
+        font-family: $font-stack-firefox;
+        padding: $spacing-sm 0;
       }
     }
 
     p {
-      padding: mp.$spacing-sm 0;
+      padding: $spacing-sm 0;
     }
 
-    @media screen and #{mp.$mq-md} {
+    @media screen and #{$mq-md} {
       flex-direction: row;
 
       &:nth-child(even) {
@@ -147,16 +147,16 @@
 }
 
 .use-cases {
-  width: mp.$content-max;
+  width: $content-max;
   max-width: 100%;
   margin: 0 auto;
-  padding: mp.$spacing-xl;
+  padding: $spacing-xl;
 
   .headline {
     @include styles-typography.text-title-sm {
-      font-family: mp.$font-stack-firefox;
+      font-family: $font-stack-firefox;
       text-align: center;
-      padding: mp.$spacing-lg;
+      padding: $spacing-lg;
     }
   }
 }
@@ -164,18 +164,18 @@
 .plans-wrapper {
   background: linear-gradient(
     180deg,
-    mp.$color-light-gray-20 0%,
-    mp.$color-light-gray-10 3%
+    $color-light-gray-20 0%,
+    $color-light-gray-10 3%
   );
 }
 
 .plans {
-  width: mp.$content-max;
+  width: $content-max;
   max-width: 100%;
   margin: 0 auto;
-  padding: mp.$spacing-2xl;
+  padding: $spacing-2xl;
   display: flex;
-  gap: mp.$spacing-2xl;
+  gap: $spacing-2xl;
   flex-direction: column-reverse;
   align-items: center;
 
@@ -190,11 +190,11 @@
     flex-direction: column;
     align-items: flex-start;
     text-align: center;
-    gap: mp.$spacing-lg;
+    gap: $spacing-lg;
 
     h2 {
       @include styles-typography.text-title-md {
-        font-family: mp.$font-stack-firefox;
+        font-family: $font-stack-firefox;
         font-weight: 500;
       }
     }
@@ -202,19 +202,19 @@
     .end-of-intro-pricing-countdown-and-warning {
       display: flex;
       flex-direction: column;
-      gap: mp.$spacing-sm;
+      gap: $spacing-sm;
     }
   }
 
-  @media screen and #{mp.$mq-xl} {
+  @media screen and #{$mq-xl} {
     flex-direction: row;
 
     .plan-comparison {
-      padding: mp.$spacing-2xl;
+      padding: $spacing-2xl;
     }
 
     .callout {
-      padding: mp.$spacing-2xl;
+      padding: $spacing-2xl;
       text-align: start;
     }
   }
@@ -223,11 +223,11 @@
 .bundle-banner-section {
   width: 100%;
   margin: 0 auto;
-  padding: calc(mp.$spacing-2xl * 2) mp.$spacing-md;
-  margin-top: mp.$layout-lg;
+  padding: calc($spacing-2xl * 2) $spacing-md;
+  margin-top: $layout-lg;
 
-  @media screen and #{mp.$mq-md} {
-    width: mp.$content-max;
+  @media screen and #{$mq-md} {
+    width: $content-max;
     margin-top: 0;
     max-width: 100%;
   }

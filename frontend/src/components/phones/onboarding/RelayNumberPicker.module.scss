@@ -1,16 +1,16 @@
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
 @use "../../../styles/tokens";
 @use "../../../styles/typography" as styles-typography;
 
 .step,
 .controls {
-  max-width: mp.$content-md;
+  max-width: $content-md;
   margin: 0 auto;
-  padding: mp.$spacing-lg;
+  padding: $spacing-lg;
 
   &.step-welcome {
-    max-width: mp.$content-lg;
+    max-width: $content-lg;
   }
 }
 
@@ -19,7 +19,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: mp.$spacing-2xl;
+  gap: $spacing-2xl;
 
   .show-more-options {
     font-weight: 400;
@@ -36,21 +36,21 @@
 
   h2 {
     @include styles-typography.text-title-xs {
-      font-family: mp.$font-stack-firefox;
+      font-family: $font-stack-firefox;
       text-align: center;
     }
   }
 
   .lead {
-    @include mp.text-body-sm;
-    font-family: mp.$font-stack-base;
+    @include text-body-sm;
+    font-family: $font-stack-base;
     text-align: center;
     display: flex;
     flex-direction: column;
-    gap: mp.$spacing-lg;
+    gap: $spacing-lg;
 
     p {
-      @include mp.text-body-md;
+      @include text-body-md;
     }
 
     img {
@@ -59,22 +59,22 @@
   }
 
   .description {
-    @include mp.text-body-md;
+    @include text-body-md;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: mp.$spacing-2xl;
-    padding: mp.$spacing-md;
-    margin-top: mp.$spacing-lg;
+    gap: $spacing-2xl;
+    padding: $spacing-md;
+    margin-top: $spacing-lg;
 
-    @media screen and #{mp.$mq-md} {
+    @media screen and #{$mq-md} {
       flex-direction: row;
     }
 
     ul {
       display: flex;
       flex-direction: column;
-      gap: mp.$spacing-md;
+      gap: $spacing-md;
       margin: 0;
       padding: 0;
     }
@@ -88,22 +88,22 @@
     align-items: center;
     justify-items: center;
     text-align: center;
-    gap: mp.$spacing-md;
+    gap: $spacing-md;
     background-color: tokens.$color-white;
-    padding: mp.$spacing-lg mp.$spacing-2xl;
-    border-radius: mp.$border-radius-md;
-    box-shadow: mp.$box-shadow-sm;
+    padding: $spacing-lg $spacing-2xl;
+    border-radius: $border-radius-md;
+    box-shadow: $box-shadow-sm;
 
     h3 {
-      @include mp.text-body-md;
-      font-family: mp.$font-stack-firefox;
+      @include text-body-md;
+      font-family: $font-stack-firefox;
       text-align: center;
       font-weight: 400;
     }
 
     span {
       @include styles-typography.text-title-2xs {
-        padding-top: mp.$spacing-sm;
+        padding-top: $spacing-sm;
         display: block;
         font-weight: 700;
       }
@@ -111,11 +111,11 @@
   }
 
   .form {
-    max-width: mp.$content-sm;
+    max-width: $content-sm;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    gap: mp.$spacing-lg;
+    gap: $spacing-lg;
   }
 }
 
@@ -156,18 +156,18 @@
 
   form {
     background-color: tokens.$color-white;
-    box-shadow: mp.$box-shadow-sm;
-    padding: mp.$spacing-lg;
-    border-radius: mp.$border-radius-md;
-    max-width: mp.$screen-sm;
+    box-shadow: $box-shadow-sm;
+    padding: $spacing-lg;
+    border-radius: $border-radius-md;
+    max-width: $screen-sm;
     position: relative;
 
     &.is-hidden {
       display: none;
     }
 
-    @media screen and #{mp.$mq-md} {
-      padding: mp.$spacing-lg mp.$spacing-2xl;
+    @media screen and #{$mq-md} {
+      padding: $spacing-lg $spacing-2xl;
     }
 
     p {
@@ -184,10 +184,10 @@
     }
 
     input {
-      @include mp.text-body-xl;
-      border-radius: mp.$border-radius-md;
+      @include text-body-xl;
+      border-radius: $border-radius-md;
       display: block;
-      padding: mp.$spacing-sm;
+      padding: $spacing-sm;
       box-shadow: none;
       border: 0;
       background-color: tokens.$color-grey-10;
@@ -200,8 +200,8 @@
         outline: 4px solid tokens.$color-error-focus;
       }
 
-      @media screen and #{mp.$mq-md} {
-        padding: mp.$spacing-md;
+      @media screen and #{$mq-md} {
+        padding: $spacing-md;
         letter-spacing: 2rem;
       }
     }
@@ -210,14 +210,14 @@
 
 .step-input-verificiation-code-success {
   background-color: tokens.$color-white;
-  box-shadow: mp.$box-shadow-sm;
-  border-radius: mp.$border-radius-md;
-  padding: mp.$spacing-lg mp.$spacing-2xl;
-  max-width: mp.$screen-sm;
+  box-shadow: $box-shadow-sm;
+  border-radius: $border-radius-md;
+  padding: $spacing-lg $spacing-2xl;
+  max-width: $screen-sm;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: mp.$spacing-lg;
+  gap: $spacing-lg;
   justify-content: center;
 
   &.is-hidden {
@@ -225,7 +225,7 @@
   }
 
   h3 {
-    @include mp.text-body-md;
+    @include text-body-md;
   }
 
   p,
@@ -236,20 +236,20 @@
 
 .step-select-phone-number-mask {
   background-color: tokens.$color-white;
-  box-shadow: mp.$box-shadow-sm;
-  border-radius: mp.$border-radius-md;
-  padding: mp.$spacing-xl mp.$spacing-lg;
+  box-shadow: $box-shadow-sm;
+  border-radius: $border-radius-md;
+  padding: $spacing-xl $spacing-lg;
   width: 100%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: mp.$spacing-lg;
+  gap: $spacing-lg;
   justify-content: center;
 
   .lead {
     display: flex;
     flex-direction: row;
-    gap: mp.$spacing-md;
+    gap: $spacing-md;
     align-items: center;
     justify-content: center;
 
@@ -268,22 +268,22 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: mp.$spacing-md;
+    gap: $spacing-md;
 
     > div {
       display: flex;
-      gap: mp.$spacing-sm;
+      gap: $spacing-sm;
     }
   }
 
   .search {
     @include mp_forms.form-input;
     position: relative;
-    padding-left: mp.$layout-md;
-    background: mp.$spacing-sm center transparent no-repeat;
+    padding-left: $layout-md;
+    background: $spacing-sm center transparent no-repeat;
     background-image: url("/icons/search-blue.svg");
     background-size: 1.5rem auto;
-    max-width: mp.$content-xs;
+    max-width: $content-xs;
     margin: 0 auto;
   }
 }
@@ -293,24 +293,24 @@
   // Magic number: Min-height for both loading animation and body copy
   // TODO: Use height of parent container
   flex-direction: column;
-  gap: mp.$spacing-md;
+  gap: $spacing-md;
   align-items: center;
   justify-content: center;
 
-  @media screen and #{mp.$mq-tall} {
+  @media screen and #{$mq-tall} {
     // min-height: 75vh;
   }
 
   .loading {
-    width: mp.$layout-lg;
-    height: mp.$layout-lg;
+    width: $layout-lg;
+    height: $layout-lg;
     background: url("./images/loading.svg") center no-repeat transparent;
     background-size: contain;
     animation: spin 1s infinite linear;
   }
 
   p {
-    max-width: mp.$content-xs;
+    max-width: $content-xs;
     margin: 0 auto;
     text-align: center;
   }

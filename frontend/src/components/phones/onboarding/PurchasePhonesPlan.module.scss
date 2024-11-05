@@ -1,35 +1,35 @@
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "../../../styles/tokens";
 @use "../../../styles/typography" as styles-typography;
 
 .wrapper {
   display: flex;
   flex-direction: column;
-  gap: mp.$spacing-xl;
+  gap: $spacing-xl;
   flex: 1 0 auto;
-  max-width: mp.$content-lg;
+  max-width: $content-lg;
   margin: 0 auto;
-  padding: mp.$spacing-2xl mp.$spacing-lg;
+  padding: $spacing-2xl $spacing-lg;
   width: 100%;
   overflow-x: hidden;
 
   h2 {
     @include styles-typography.text-title-xs {
-      font-family: mp.$font-stack-firefox;
+      font-family: $font-stack-firefox;
       text-align: center;
     }
   }
 
   .lead {
-    @include mp.text-title-3xs;
-    font-family: mp.$font-stack-firefox;
+    @include text-title-3xs;
+    font-family: $font-stack-firefox;
     text-align: center;
     display: flex;
     flex-direction: column;
-    gap: mp.$spacing-lg;
+    gap: $spacing-lg;
 
     p {
-      @include mp.text-body-md;
+      @include text-body-md;
     }
 
     img {
@@ -38,22 +38,22 @@
   }
 
   .description {
-    @include mp.text-body-md;
+    @include text-body-md;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: mp.$spacing-2xl;
-    padding: mp.$spacing-md;
-    margin-top: mp.$spacing-lg;
+    gap: $spacing-2xl;
+    padding: $spacing-md;
+    margin-top: $spacing-lg;
 
-    @media screen and #{mp.$mq-md} {
+    @media screen and #{$mq-md} {
       flex-direction: row;
     }
 
     ul {
       display: flex;
       flex-direction: column;
-      gap: mp.$spacing-md;
+      gap: $spacing-md;
       margin: 0;
       padding: 0;
 
@@ -71,15 +71,15 @@
     align-items: center;
     justify-items: center;
     text-align: center;
-    gap: mp.$spacing-md;
+    gap: $spacing-md;
     background-color: tokens.$color-white;
-    padding: mp.$spacing-lg mp.$spacing-2xl;
-    border-radius: mp.$border-radius-md;
-    box-shadow: mp.$box-shadow-sm;
+    padding: $spacing-lg $spacing-2xl;
+    border-radius: $border-radius-md;
+    box-shadow: $box-shadow-sm;
 
     h3 {
-      @include mp.text-body-md;
-      font-family: mp.$font-stack-firefox;
+      @include text-body-md;
+      font-family: $font-stack-firefox;
       text-align: center;
       font-weight: 400;
     }
@@ -87,19 +87,19 @@
     .pricing {
       display: flex;
       flex-direction: column;
-      gap: mp.$spacing-sm;
+      gap: $spacing-sm;
       width: 100%; // Ensures responsiveness of container, and that the purchase tabpanel has a static width when toggling.
 
       .pricing-toggle {
         display: flex;
         background-color: tokens.$color-grey-10;
-        padding: mp.$spacing-xs;
-        border-radius: mp.$border-radius-lg;
+        padding: $spacing-xs;
+        border-radius: $border-radius-lg;
 
         > div {
-          @include mp.text-body-sm;
+          @include text-body-sm;
           width: 50%;
-          padding: mp.$spacing-xs mp.$spacing-sm;
+          padding: $spacing-xs $spacing-sm;
           text-align: center;
           color: tokens.$color-grey-40;
           font-weight: 500;
@@ -107,7 +107,7 @@
 
           &.is-selected {
             background-color: tokens.$color-white;
-            border-radius: mp.$border-radius-lg;
+            border-radius: $border-radius-lg;
             color: tokens.$color-blue-50;
           }
         }
@@ -116,17 +116,17 @@
       [role="tabpanel"] {
         display: flex;
         flex-direction: column;
-        gap: mp.$spacing-md;
+        gap: $spacing-md;
 
         .price {
           @include styles-typography.text-title-2xs {
-            padding-top: mp.$spacing-sm;
+            padding-top: $spacing-sm;
             display: block;
             font-weight: 700;
           }
 
           > span {
-            @include mp.text-body-sm;
+            @include text-body-sm;
             font-weight: 400;
             vertical-align: middle;
           }

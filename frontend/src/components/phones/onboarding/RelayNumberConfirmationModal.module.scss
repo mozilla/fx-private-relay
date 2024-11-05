@@ -1,10 +1,10 @@
 @use "../../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
 
 .underlay {
   position: fixed;
-  background-color: rgba(mp.$color-black, 0.4);
+  background-color: rgba($color-black, 0.4);
   top: 0;
   bottom: 0;
   left: 0;
@@ -17,30 +17,30 @@
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    background: mp.$color-white;
-    gap: mp.$spacing-lg;
-    max-width: mp.$content-sm;
-    border-radius: mp.$border-radius-md;
-    box-shadow: mp.$box-shadow-sm;
-    padding: mp.$spacing-md;
+    background: $color-white;
+    gap: $spacing-lg;
+    max-width: $content-sm;
+    border-radius: $border-radius-md;
+    box-shadow: $box-shadow-sm;
+    padding: $spacing-md;
 
     .dialog-content {
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      gap: mp.$spacing-xl;
-      padding: mp.$spacing-lg mp.$spacing-md;
+      gap: $spacing-xl;
+      padding: $spacing-lg $spacing-md;
 
       p {
         display: flex;
-        gap: mp.$spacing-xs;
+        gap: $spacing-xs;
         flex-direction: column;
       }
     }
 
     .confirm-button {
-      width: mp.$content-xs;
+      width: $content-xs;
     }
 
     .cancel-button {
@@ -50,11 +50,11 @@
       color: tokens.$color-grey-40;
 
       &:hover {
-        color: mp.$color-link-hover;
+        color: $color-link-hover;
       }
 
       &:focus {
-        color: mp.$color-blue-50;
+        color: $color-blue-50;
       }
     }
   }

@@ -1,11 +1,11 @@
 @use "../../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 
 .permanence-warning {
-  @include mp.text-body-sm;
+  @include text-body-sm;
   text-align: center;
-  padding: mp.$spacing-md mp.$spacing-lg;
-  color: mp.$color-dark-gray-70;
+  padding: $spacing-md $spacing-lg;
+  color: $color-dark-gray-70;
 }
 
 .confirm {
@@ -14,13 +14,13 @@
   align-items: center;
 
   label {
-    background-color: mp.$color-light-gray-10;
-    border-radius: mp.$border-radius-md;
-    padding: mp.$spacing-md;
+    background-color: $color-light-gray-10;
+    border-radius: $border-radius-md;
+    padding: $spacing-md;
     cursor: pointer;
 
     input {
-      margin-right: mp.$spacing-sm;
+      margin-right: $spacing-sm;
     }
 
     .subdomain {
@@ -37,10 +37,10 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-top: mp.$spacing-xl;
+    padding-top: $spacing-xl;
 
     button[type="submit"] {
-      background: mp.$color-blue-50;
+      background: $color-blue-50;
       opacity: 0.4;
 
       &:not(:disabled) {
@@ -48,7 +48,7 @@
       }
 
       &:hover:not(:disabled) {
-        background-color: mp.$color-blue-60;
+        background-color: $color-blue-60;
         opacity: 1;
       }
     }
@@ -57,16 +57,16 @@
       border-style: none;
       background-color: transparent;
       cursor: pointer;
-      border-radius: mp.$border-radius-sm;
-      color: mp.$color-blue-50;
-      padding: mp.$spacing-sm mp.$spacing-md;
+      border-radius: $border-radius-sm;
+      color: $color-blue-50;
+      padding: $spacing-sm $spacing-md;
 
       &:hover {
-        color: mp.$color-link-hover;
+        color: $color-link-hover;
       }
 
       &:focus {
-        color: mp.$color-blue-50;
+        color: $color-blue-50;
       }
     }
   }

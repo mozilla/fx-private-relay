@@ -1,38 +1,38 @@
 @use "../../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 
 .wrapper {
   display: none;
   flex-direction: column;
   align-items: center;
   justify-content: space-around;
-  gap: mp.$spacing-sm;
-  padding: mp.$spacing-md 0;
-  background-color: mp.$color-purple-90;
-  color: mp.$color-white;
+  gap: $spacing-sm;
+  padding: $spacing-md 0;
+  background-color: $color-purple-90;
+  color: $color-white;
   position: relative;
 
-  @media screen and #{mp.$mq-md} {
+  @media screen and #{$mq-md} {
     display: flex;
   }
 
   .dismiss-button {
     position: absolute;
-    right: mp.$spacing-md;
+    right: $spacing-md;
     background-color: transparent;
     border-style: none;
-    color: mp.$color-white;
+    color: $color-white;
     width: 30px;
     height: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: mp.$border-radius-sm;
+    border-radius: $border-radius-sm;
     cursor: pointer;
     padding: 0;
 
     &:hover {
-      background-color: mp.$color-blue-50;
+      background-color: $color-blue-50;
     }
   }
 }
@@ -51,27 +51,27 @@
   display: flex;
   align-items: center;
   justify-content: space-around;
-  gap: mp.$spacing-md;
+  gap: $spacing-md;
 
   ol {
     display: flex;
-    gap: mp.$spacing-md;
+    gap: $spacing-md;
     list-style-type: none;
   }
 
   button {
-    border-radius: mp.$border-radius-sm;
-    background-color: mp.$color-violet-40;
-    color: mp.$color-white;
+    border-radius: $border-radius-sm;
+    background-color: $color-violet-40;
+    color: $color-white;
     transition: background-color 0.1s ease-out;
     border-style: none;
-    padding: mp.$spacing-sm;
+    padding: $spacing-sm;
     height: 2.5rem;
     text-align: center;
     cursor: pointer;
 
     &:hover {
-      background-color: mp.$color-blue-50;
+      background-color: $color-blue-50;
     }
   }
 }

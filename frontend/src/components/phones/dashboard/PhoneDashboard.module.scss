@@ -1,4 +1,4 @@
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "../../../styles/tokens";
 
 .main-phone-wrapper {
@@ -7,13 +7,13 @@
   flex-direction: column;
 
   .content-wrapper {
-    max-width: calc(mp.$content-lg + mp.$layout-lg);
+    max-width: calc($content-lg + $layout-lg);
     width: 100%;
     height: 100%;
     margin: 0 auto;
-    padding: mp.$spacing-md;
-    margin-bottom: mp.$layout-md;
-    gap: mp.$spacing-lg;
+    padding: $spacing-md;
+    margin-bottom: $layout-md;
+    gap: $spacing-lg;
     display: flex;
     flex-direction: column;
     // Ensure that the <Tips> card can always overlap elements in the profile,
@@ -22,8 +22,8 @@
   }
 
   .nav-icon {
-    color: mp.$color-light-gray-80;
-    stroke: mp.$color-light-gray-80;
+    color: $color-light-gray-80;
+    stroke: $color-light-gray-80;
     stroke-width: 1px;
 
     &:hover {
@@ -35,14 +35,14 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding: 0 mp.$spacing-xl mp.$spacing-md mp.$spacing-xl;
-    border-bottom: 1px solid mp.$color-light-gray-20;
+    padding: 0 $spacing-xl $spacing-md $spacing-xl;
+    border-bottom: 1px solid $color-light-gray-20;
   }
 
   .senders-cta {
     display: flex;
     flex-direction: row;
-    border-radius: mp.$border-radius-lg;
+    border-radius: $border-radius-lg;
     align-items: center;
     border: 0;
     padding: 0;
@@ -58,21 +58,21 @@
       }
     }
 
-    @media screen and #{mp.$mq-md} {
-      padding: mp.$spacing-sm;
-      gap: mp.$spacing-xs;
-      left: mp.$spacing-sm; // Cancel out extra space from padding
+    @media screen and #{$mq-md} {
+      padding: $spacing-sm;
+      gap: $spacing-xs;
+      left: $spacing-sm; // Cancel out extra space from padding
       position: relative;
 
       &:hover {
-        background: mp.$color-light-gray-10;
+        background: $color-light-gray-10;
       }
     }
 
     span {
       display: none;
 
-      @media screen and #{mp.$mq-md} {
+      @media screen and #{$mq-md} {
         display: block;
       }
     }
@@ -80,16 +80,16 @@
 
   .dashboard-card-caller-sms-senders-header {
     display: flex;
-    padding: 0 mp.$spacing-xl mp.$spacing-md mp.$spacing-xl;
+    padding: 0 $spacing-xl $spacing-md $spacing-xl;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 1px solid mp.$color-light-gray-20;
+    border-bottom: 1px solid $color-light-gray-20;
 
     > * {
       flex: auto;
 
-      @media screen and #{mp.$mq-md} {
+      @media screen and #{$mq-md} {
         flex: 1 1 auto;
 
         span:last-child {
@@ -99,11 +99,11 @@
     }
 
     .caller-sms-logs-title {
-      @include mp.text-title-3xs;
+      @include text-title-3xs;
       position: relative;
       text-align: center;
 
-      @media screen and #{mp.$mq-md} {
+      @media screen and #{$mq-md} {
         left: -20px; // Width of the back button
       }
     }
@@ -119,26 +119,26 @@
   }
 
   .senders-panel {
-    padding: 0 mp.$spacing-lg;
+    padding: 0 $spacing-lg;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: mp.$spacing-lg;
-    min-height: mp.$content-xs;
-    margin-top: mp.$spacing-lg;
+    gap: $spacing-lg;
+    min-height: $content-xs;
+    margin-top: $spacing-lg;
 
     .senders-panel-body {
-      padding-top: mp.$spacing-sm;
+      padding-top: $spacing-sm;
       text-align: center;
-      max-width: mp.$content-md;
+      max-width: $content-md;
       margin: 0 auto;
       display: flex;
     }
 
     .update-settings-cta {
       display: inline-block;
-      padding: mp.$spacing-md 0;
+      padding: $spacing-md 0;
       font-weight: 700;
       color: tokens.$color-blue-50;
 
@@ -156,12 +156,12 @@
   .caller-sms-senders-table {
     display: flex;
     flex-direction: column;
-    margin-top: mp.$spacing-lg;
-    padding: 0 mp.$spacing-lg;
+    margin-top: $spacing-lg;
+    padding: 0 $spacing-lg;
 
-    @media screen and #{mp.$mq-md} {
-      margin: 0 mp.$spacing-sm;
-      margin-top: mp.$spacing-2xl;
+    @media screen and #{$mq-md} {
+      margin: 0 $spacing-sm;
+      margin-top: $spacing-2xl;
     }
 
     thead {
@@ -174,7 +174,7 @@
       clip: rect(0, 0, 0, 0);
       clip-path: circle(0);
 
-      @media screen and #{mp.$mq-md} {
+      @media screen and #{$mq-md} {
         position: unset;
         width: unset;
         height: unset;
@@ -187,14 +187,14 @@
     tr {
       display: grid;
       grid-template-columns: 2fr 1fr;
-      border-bottom: 1px solid mp.$color-light-gray-20;
-      padding: mp.$spacing-sm 0;
+      border-bottom: 1px solid $color-light-gray-20;
+      padding: $spacing-sm 0;
       align-items: center;
-      gap: mp.$spacing-sm;
+      gap: $spacing-sm;
 
-      @media screen and #{mp.$mq-md} {
+      @media screen and #{$mq-md} {
         grid-template-columns: 3fr 2fr 1fr;
-        grid-gap: mp.$spacing-md;
+        grid-gap: $spacing-md;
       }
 
       th {
@@ -215,7 +215,7 @@
       .sender-date-wrapper {
         display: flex;
         align-items: center;
-        gap: mp.$spacing-sm;
+        gap: $spacing-sm;
       }
 
       .sender-controls {
@@ -226,10 +226,10 @@
       }
 
       .forwarded-type-icon {
-        color: mp.$color-light-gray-70;
+        color: $color-light-gray-70;
       }
 
-      @media screen and #{mp.$mq-md} {
+      @media screen and #{$mq-md} {
         .sender-number,
         .sender-date,
         .sender-controls {
@@ -241,7 +241,7 @@
     }
 
     .greyed-contact {
-      color: mp.$color-light-gray-80;
+      color: $color-light-gray-80;
     }
 
     .unblocked {
@@ -262,23 +262,23 @@
   }
 
   .dashboard-card {
-    box-shadow: mp.$box-shadow-sm;
+    box-shadow: $box-shadow-sm;
     background-color: tokens.$color-white;
-    border-radius: mp.$border-radius-md;
+    border-radius: $border-radius-md;
     display: flex;
     flex-direction: column;
-    padding: mp.$spacing-md 0;
-    min-height: mp.$content-xs;
+    padding: $spacing-md 0;
+    min-height: $content-xs;
 
     .header-phone-number {
-      @include mp.text-body-md;
-      @include mp.font-firefox;
+      @include text-body-md;
+      @include font-firefox;
       display: flex;
       justify-content: center;
       align-items: center;
 
-      @media screen and #{mp.$mq-sm} {
-        @include mp.text-body-xl;
+      @media screen and #{$mq-sm} {
+        @include text-body-xl;
       }
 
       .copy-controls {
@@ -287,18 +287,18 @@
     }
 
     .phone-statistics-container {
-      margin: mp.$spacing-md mp.$spacing-lg 0 mp.$spacing-lg;
+      margin: $spacing-md $spacing-lg 0 $spacing-lg;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      border-radius: mp.$border-radius-lg;
-      border: mp.$border-radius-xs solid mp.$color-light-gray-20;
-      gap: mp.$spacing-md;
-      padding-top: mp.$spacing-md;
+      border-radius: $border-radius-lg;
+      border: $border-radius-xs solid $color-light-gray-20;
+      gap: $spacing-md;
+      padding-top: $spacing-md;
 
-      @media screen and #{mp.$mq-md} {
+      @media screen and #{$mq-md} {
         flex-direction: row;
-        margin: 0 mp.$spacing-lg;
+        margin: 0 $spacing-lg;
         border-radius: auto;
         border: none;
         gap: none;
@@ -310,64 +310,64 @@
       display: flex;
       flex-direction: row-reverse;
       align-items: center;
-      padding-left: mp.$spacing-md;
-      padding-right: mp.$spacing-md;
-      padding-bottom: mp.$spacing-md;
-      border-bottom: 1px solid mp.$color-light-gray-20;
+      padding-left: $spacing-md;
+      padding-right: $spacing-md;
+      padding-bottom: $spacing-md;
+      border-bottom: 1px solid $color-light-gray-20;
       margin: 0;
 
       &:last-child {
         border-bottom: none;
       }
 
-      @media screen and #{mp.$mq-md} {
+      @media screen and #{$mq-md} {
         flex: 1;
         justify-content: center;
         align-items: center;
         flex-direction: column;
         text-align: center;
-        border-radius: mp.$border-radius-md;
-        background: mp.$color-light-gray-10;
-        padding: mp.$spacing-md mp.$spacing-lg;
+        border-radius: $border-radius-md;
+        background: $color-light-gray-10;
+        padding: $spacing-md $spacing-lg;
       }
 
       .phone-statistics-title {
         font-weight: 600;
-        border-radius: mp.$border-radius-md;
+        border-radius: $border-radius-md;
 
-        @include mp.text-title-3xs;
+        @include text-title-3xs;
 
-        @media screen and #{mp.$mq-md} {
-          @include mp.text-title-2xs;
-          @include mp.font-firefox;
+        @media screen and #{$mq-md} {
+          @include text-title-2xs;
+          @include font-firefox;
         }
       }
 
       .phone-statistics-body {
         line-height: 120%;
 
-        @media screen and #{mp.$mq-md} {
-          @include mp.text-body-xs;
+        @media screen and #{$mq-md} {
+          @include text-body-xs;
         }
       }
     }
 
     .inactive-statistics {
-      color: mp.$color-light-gray-70;
+      color: $color-light-gray-70;
     }
 
     .copy-icon {
-      padding: 0 mp.$spacing-sm;
+      padding: 0 $spacing-sm;
       opacity: 0.5;
       display: inline-block;
-      color: mp.$color-light-gray-90;
+      color: $color-light-gray-90;
       align-self: center;
     }
 
     .copy-button-wrapper {
       display: flex;
       flex-direction: row;
-      gap: mp.$spacing-xs;
+      gap: $spacing-xs;
       align-items: center;
       justify-content: center;
       position: relative;
@@ -384,7 +384,7 @@
         cursor: pointer;
 
         svg {
-          width: mp.$layout-sm;
+          width: $layout-sm;
         }
 
         &:hover {
@@ -393,15 +393,15 @@
       }
 
       .copied-confirmation {
-        @include mp.text-body-sm;
+        @include text-body-sm;
         opacity: 0;
-        padding: mp.$spacing-xs mp.$spacing-sm;
+        padding: $spacing-xs $spacing-sm;
         justify-content: center;
         pointer-events: none;
         transition: opacity 2s;
         background-color: tokens.$color-violet-30;
         color: tokens.$color-white;
-        border-radius: mp.$border-radius-md;
+        border-radius: $border-radius-md;
         right: 0;
 
         &.is-shown {
@@ -416,29 +416,29 @@
     .phone-controls-container {
       display: flex;
       flex-direction: column;
-      margin-top: mp.$spacing-md;
-      padding: 0 mp.$spacing-lg mp.$spacing-2xl mp.$spacing-lg;
+      margin-top: $spacing-md;
+      padding: 0 $spacing-lg $spacing-2xl $spacing-lg;
       width: 100%;
-      gap: mp.$spacing-lg;
-      border-bottom: 1px solid mp.$color-light-gray-20;
+      gap: $spacing-lg;
+      border-bottom: 1px solid $color-light-gray-20;
 
-      @media screen and #{mp.$mq-md} {
+      @media screen and #{$mq-md} {
         flex-direction: row;
         width: auto;
-        gap: mp.$layout-xl;
-        padding: mp.$spacing-lg mp.$spacing-lg mp.$spacing-2xl mp.$spacing-lg;
-        border-top: 1px solid mp.$color-light-gray-20;
+        gap: $layout-xl;
+        padding: $spacing-lg $spacing-lg $spacing-2xl $spacing-lg;
+        border-top: 1px solid $color-light-gray-20;
       }
 
       .phone-controls {
         $toggle-border-radius: 40px;
         .forwarding-toggle {
-          width: mp.$content-sm;
+          width: $content-sm;
           max-width: 100%;
           background-color: tokens.$color-grey-05;
           border-radius: $toggle-border-radius;
           border: 6px solid tokens.$color-white;
-          outline: mp.$border-radius-xs solid tokens.$color-grey-10;
+          outline: $border-radius-xs solid tokens.$color-grey-10;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -471,14 +471,14 @@
             // absolutely positioned so it can be animated:
             z-index: 1;
             flex: 1 0 auto;
-            padding: mp.$spacing-sm mp.$spacing-sm;
+            padding: $spacing-sm $spacing-sm;
             display: flex;
-            gap: mp.$spacing-sm;
+            gap: $spacing-sm;
             align-items: center;
             justify-content: center;
 
-            @media screen and #{mp.$mq-md} {
-              width: mp.$layout-xl;
+            @media screen and #{$mq-md} {
+              width: $layout-xl;
             }
           }
 
@@ -510,10 +510,10 @@
     .metadata-container {
       display: flex;
       flex-direction: column;
-      gap: mp.$spacing-md;
-      padding: 0 mp.$spacing-xl;
-      margin-top: mp.$spacing-md;
-      border-bottom: 1px solid mp.$color-light-gray-20;
+      gap: $spacing-md;
+      padding: 0 $spacing-xl;
+      margin-top: $spacing-md;
+      border-bottom: 1px solid $color-light-gray-20;
 
       &:last-child {
         border-bottom-style: none;
@@ -523,21 +523,21 @@
       dl {
         flex-grow: 2;
         display: flex;
-        gap: mp.$spacing-sm;
+        gap: $spacing-sm;
         flex-direction: column;
 
-        @media screen and #{mp.$mq-md} {
+        @media screen and #{$mq-md} {
           flex-direction: row;
-          gap: mp.$spacing-xl;
+          gap: $spacing-xl;
         }
 
         dt {
-          @include mp.text-body-xs;
-          color: mp.$color-dark-gray-05;
+          @include text-body-xs;
+          color: $color-dark-gray-05;
         }
       }
 
-      @media screen and #{mp.$mq-md} {
+      @media screen and #{$mq-md} {
         flex-direction: row;
 
         .metadata {
@@ -545,7 +545,7 @@
           background-repeat: no-repeat;
           background-position: left center;
           background-size: $metadataIconSize $metadataIconSize;
-          padding-left: calc($metadataIconSize + mp.$spacing-md);
+          padding-left: calc($metadataIconSize + $spacing-md);
         }
 
         .forward-target {

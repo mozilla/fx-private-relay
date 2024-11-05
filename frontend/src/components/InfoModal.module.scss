@@ -1,9 +1,9 @@
 @use "../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 
 .underlay {
   align-items: center;
-  background-color: rgba(mp.$color-black, 0.4);
+  background-color: rgba($color-black, 0.4);
   bottom: 0;
   display: flex;
   justify-content: center;
@@ -13,59 +13,59 @@
   top: 0;
 
   .dialog-wrapper {
-    background: mp.$color-white;
-    border-radius: mp.$border-radius-md;
-    box-shadow: mp.$box-shadow-sm;
+    background: $color-white;
+    border-radius: $border-radius-md;
+    box-shadow: $box-shadow-sm;
     max-width: 90%;
     position: relative;
-    width: calc((#{mp.$content-sm} + #{mp.$content-md}) / 2); // 560px
+    width: calc((#{$content-sm} + #{$content-md}) / 2); // 560px
 
     .dismiss-button {
       align-items: center;
       background-color: transparent;
-      border-radius: mp.$border-radius-sm;
+      border-radius: $border-radius-sm;
       border-style: none;
       cursor: pointer;
       display: flex;
       height: 30px;
       justify-content: center;
       position: absolute;
-      right: mp.$spacing-sm;
-      top: mp.$spacing-sm;
+      right: $spacing-sm;
+      top: $spacing-sm;
       width: 30px;
       padding: 0;
 
       &:hover {
-        background-color: mp.$color-blue-50;
-        color: mp.$color-white;
+        background-color: $color-blue-50;
+        color: $color-white;
       }
     }
 
     .dialog-container {
-      padding: mp.$spacing-md;
+      padding: $spacing-md;
 
-      @media screen and #{mp.$mq-md} {
-        padding: mp.$spacing-lg mp.$spacing-xl;
+      @media screen and #{$mq-md} {
+        padding: $spacing-lg $spacing-xl;
       }
 
       .hero {
-        padding: mp.$spacing-sm 0;
+        padding: $spacing-sm 0;
         text-align: start;
         width: 90%; // Shorter width to make room for the close button on mobile
 
-        @media screen and #{mp.$mq-md} {
+        @media screen and #{$mq-md} {
           width: 100%;
         }
 
         .headline {
-          @include mp.text-title-3xs;
-          font-family: mp.$font-stack-firefox;
+          @include text-title-3xs;
+          font-family: $font-stack-firefox;
           font-weight: 700;
         }
       }
 
       .modal-body {
-        @include mp.text-body-sm;
+        @include text-body-sm;
       }
     }
   }
