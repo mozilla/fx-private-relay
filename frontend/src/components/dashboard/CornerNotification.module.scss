@@ -1,50 +1,50 @@
 @use "../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
 
 .wrapper {
   position: relative;
-  padding-bottom: calc(lib.$spacing-md * 2 + 2rem);
+  padding-bottom: calc(mp.$spacing-md * 2 + 2rem);
   flex: 1 0 0;
 
   .card {
     position: fixed;
-    right: lib.$spacing-md;
-    bottom: lib.$spacing-md;
+    right: mp.$spacing-md;
+    bottom: mp.$spacing-md;
     display: flex;
     flex-direction: column;
 
     .card-header {
-      background-color: lib.$color-blue-90;
-      padding: lib.$spacing-md;
-      border-top-right-radius: lib.$border-radius-sm;
-      border-top-left-radius: lib.$border-radius-sm;
+      background-color: mp.$color-blue-90;
+      padding: mp.$spacing-md;
+      border-top-right-radius: mp.$border-radius-sm;
+      border-top-left-radius: mp.$border-radius-sm;
     }
 
     .card-content {
-      padding: lib.$spacing-lg;
+      padding: mp.$spacing-lg;
       display: flex;
       flex-direction: column;
-      gap: lib.$spacing-sm;
+      gap: mp.$spacing-sm;
     }
 
     .card-cta {
-      margin-top: lib.$spacing-md;
+      margin-top: mp.$spacing-md;
     }
 
     .card-title {
-      color: lib.$color-blue-90;
+      color: mp.$color-blue-90;
 
-      @include lib.text-title-3xs;
-      font-family: lib.$font-stack-firefox;
+      @include mp.text-title-3xs;
+      font-family: mp.$font-stack-firefox;
       font-weight: 600;
       word-wrap: break-word;
     }
 
     .card-description {
-      color: lib.$color-blue-90;
+      color: mp.$color-blue-90;
 
-      @include lib.text-body-md;
-      font-family: lib.$font-stack-firefox;
+      @include mp.text-body-md;
+      font-family: mp.$font-stack-firefox;
       font-weight: 400;
       word-wrap: break-word;
     }
@@ -52,14 +52,14 @@
     .close-button {
       background-color: transparent;
       border-style: none;
-      border-radius: lib.$border-radius-sm;
+      border-radius: mp.$border-radius-sm;
       padding: 0;
       cursor: pointer;
-      color: lib.$color-white;
+      color: mp.$color-white;
       float: right;
 
       &:hover {
-        color: lib.$color-blue-50;
+        color: mp.$color-blue-50;
       }
     }
   }
@@ -76,9 +76,9 @@
 }
 
 .card {
-  border-radius: lib.$border-radius-md;
-  box-shadow: lib.$box-shadow-sm;
-  background-color: lib.$color-white;
-  width: lib.$content-sm;
-  max-width: calc(100% - lib.$spacing-xl);
+  border-radius: mp.$border-radius-md;
+  box-shadow: mp.$box-shadow-sm;
+  background-color: mp.$color-white;
+  width: mp.$content-sm;
+  max-width: calc(100% - mp.$spacing-xl);
 }

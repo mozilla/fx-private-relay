@@ -1,29 +1,29 @@
 @use "../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
 @use "../../styles/typography" as styles-typography;
 
 .wrapper {
-  padding: lib.$spacing-lg;
-  border-radius: lib.$border-radius-md;
-  border: 1px solid lib.$color-light-gray-40;
+  padding: mp.$spacing-lg;
+  border-radius: mp.$border-radius-md;
+  border: 1px solid mp.$color-light-gray-40;
 
   h2 {
     @include styles-typography.text-title-2xs {
-      @include lib.font-firefox;
-      padding: lib.$spacing-sm 0;
+      @include mp.font-firefox;
+      padding: mp.$spacing-sm 0;
     }
   }
 
   .steps {
     display: flex;
     flex-direction: column;
-    gap: lib.$spacing-lg;
+    gap: mp.$spacing-lg;
     list-style-type: none;
     margin: 0;
-    padding: lib.$spacing-lg 0;
+    padding: mp.$spacing-lg 0;
     counter-reset: step-counter;
 
-    @media screen and #{lib.$mq-md} {
+    @media screen and #{mp.$mq-md} {
       flex-direction: row;
     }
 
@@ -32,10 +32,10 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: lib.$spacing-xl;
-      background-color: lib.$color-white;
-      border-radius: lib.$border-radius-md;
-      padding: lib.$spacing-lg;
+      gap: mp.$spacing-xl;
+      background-color: mp.$color-white;
+      border-radius: mp.$border-radius-md;
+      padding: mp.$spacing-lg;
       counter-increment: step-counter;
 
       &::before {
@@ -48,7 +48,7 @@
         width: 100%;
         text-align: center;
         font-weight: 700;
-        color: lib.$color-light-gray-70;
+        color: mp.$color-light-gray-70;
       }
 
       p,

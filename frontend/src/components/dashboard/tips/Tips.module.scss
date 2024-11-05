@@ -1,16 +1,16 @@
 @use "../../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
 
 .wrapper {
   position: relative;
-  padding-bottom: calc(lib.$spacing-md * 2 + 2rem);
+  padding-bottom: calc(mp.$spacing-md * 2 + 2rem);
   flex: 1 0 0;
 
   .expand-button,
   .card {
     position: fixed;
-    right: lib.$spacing-md;
-    bottom: lib.$spacing-md;
+    right: mp.$spacing-md;
+    bottom: mp.$spacing-md;
   }
 
   // .expand-button and .card stay fixed in the bottom right-hand corner,
@@ -28,43 +28,43 @@
 .expand-button {
   display: flex;
   align-items: center;
-  gap: lib.$spacing-sm;
-  background-color: lib.$color-white;
-  border-radius: lib.$border-radius-md;
+  gap: mp.$spacing-sm;
+  background-color: mp.$color-white;
+  border-radius: mp.$border-radius-md;
   border-style: none;
-  padding: lib.$spacing-md;
-  box-shadow: lib.$box-shadow-sm;
+  padding: mp.$spacing-md;
+  box-shadow: mp.$box-shadow-sm;
   cursor: pointer;
 
   &:hover {
-    background-color: lib.$color-violet-05;
+    background-color: mp.$color-violet-05;
   }
 
   .icon {
-    color: lib.$color-pink-30;
+    color: mp.$color-pink-30;
   }
 }
 
 .card {
-  border-radius: lib.$border-radius-md;
-  padding: lib.$spacing-md;
-  box-shadow: lib.$box-shadow-sm;
-  background-color: lib.$color-white;
-  width: lib.$content-sm;
-  max-width: calc(100% - lib.$spacing-xl);
+  border-radius: mp.$border-radius-md;
+  padding: mp.$spacing-md;
+  box-shadow: mp.$box-shadow-sm;
+  background-color: mp.$color-white;
+  width: mp.$content-sm;
+  max-width: calc(100% - mp.$spacing-xl);
 
   .header {
     display: flex;
     align-items: center;
-    gap: lib.$spacing-sm;
-    padding: 0 0 lib.$spacing-lg;
+    gap: mp.$spacing-sm;
+    padding: 0 0 mp.$spacing-lg;
 
     .icon {
-      color: lib.$color-pink-30;
+      color: mp.$color-pink-30;
     }
 
     h2 {
-      @include lib.text-body-sm;
+      @include mp.text-body-sm;
       font-weight: 400;
       flex: 1 0 auto;
     }
@@ -72,7 +72,7 @@
     .close-button {
       background-color: transparent;
       border-style: none;
-      border-radius: lib.$border-radius-sm;
+      border-radius: mp.$border-radius-sm;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -80,40 +80,40 @@
       cursor: pointer;
 
       &:hover {
-        color: lib.$color-blue-50;
+        color: mp.$color-blue-50;
       }
     }
   }
 
   .summary {
     display: flex;
-    gap: lib.$spacing-md;
+    gap: mp.$spacing-md;
     justify-content: space-between;
-    padding-bottom: lib.$spacing-xs;
+    padding-bottom: mp.$spacing-xs;
 
     b {
-      @include lib.text-title-3xs;
-      font-family: lib.$font-stack-firefox;
+      @include mp.text-title-3xs;
+      font-family: mp.$font-stack-firefox;
     }
 
     button {
-      @include lib.text-body-sm;
+      @include mp.text-body-sm;
       background-color: transparent;
       border-style: none;
-      border-radius: lib.$border-radius-sm;
-      color: lib.$color-blue-50;
+      border-radius: mp.$border-radius-sm;
+      color: mp.$color-blue-50;
       flex-shrink: 0;
       cursor: pointer;
 
       &:hover {
-        color: lib.$color-blue-70;
+        color: mp.$color-blue-70;
         text-decoration: underline;
       }
     }
   }
 
   .tip-carousel {
-    padding: lib.$spacing-md;
+    padding: mp.$spacing-md;
 
     .tip {
       min-height: 15 * 16px;
@@ -121,23 +121,23 @@
 
     .tip-switcher {
       display: flex;
-      gap: lib.$spacing-xs;
+      gap: mp.$spacing-xs;
       justify-content: center;
 
       .panel-dot {
-        color: lib.$color-light-gray-50;
+        color: mp.$color-light-gray-50;
         // Increase the tap target for these dots:
-        padding: lib.$spacing-sm lib.$spacing-xs;
+        padding: mp.$spacing-sm mp.$spacing-xs;
         cursor: pointer;
         // Avoid layout shifts when adding a bottom border on focus:
         border: 2px solid transparent;
 
         &.is-selected {
-          color: lib.$color-pink-30;
+          color: mp.$color-pink-30;
         }
 
         &:hover {
-          color: lib.$color-pink-40;
+          color: mp.$color-pink-40;
         }
 
         // .focus-wrapper exists just to add an outlined border to the dot
@@ -150,7 +150,7 @@
         &:focus {
           outline: none;
           .focus-wrapper {
-            border-color: lib.$color-blue-50;
+            border-color: mp.$color-blue-50;
           }
         }
       }
@@ -158,8 +158,8 @@
   }
 
   .footer {
-    border-top: 1px solid lib.$color-light-gray-20;
-    padding-top: lib.$spacing-md;
+    border-top: 1px solid mp.$color-light-gray-20;
+    padding-top: mp.$spacing-md;
 
     ul {
       list-style-type: none;
@@ -167,7 +167,7 @@
       justify-content: space-between;
 
       a {
-        color: lib.$color-blue-50;
+        color: mp.$color-blue-50;
         font-weight: 500;
       }
     }

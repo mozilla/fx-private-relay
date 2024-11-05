@@ -1,25 +1,25 @@
 @use "../../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
 @use "~@mozilla-protocol/core/protocol/css/includes/mixins/typography";
 
 .info-icon {
   align-items: center;
   background-color: transparent;
   border-style: none;
-  color: lib.$color-light-gray-70;
+  color: mp.$color-light-gray-70;
   cursor: pointer;
   display: flex;
 }
 
 .explainer-wrapper {
-  background-color: lib.$color-white;
-  box-shadow: lib.$box-shadow-sm;
-  border-radius: lib.$border-radius-md;
-  padding: lib.$spacing-lg;
+  background-color: mp.$color-white;
+  box-shadow: mp.$box-shadow-sm;
+  border-radius: mp.$border-radius-md;
+  padding: mp.$spacing-lg;
   // On small screens, appear as a modal at the top of the viewport:
-  top: lib.$spacing-lg;
-  left: lib.$spacing-lg;
-  right: lib.$spacing-lg;
+  top: mp.$spacing-lg;
+  left: mp.$spacing-lg;
+  right: mp.$spacing-lg;
   position: absolute;
 
   &::before {
@@ -30,15 +30,15 @@
     top: -6px; // Top, left: needed for tooltip arrow pointer
     left: 12px;
     transform: rotate(45deg);
-    background-color: lib.$color-white;
+    background-color: mp.$color-white;
     display: none;
   }
 
-  @media screen and #{lib.$mq-lg} {
+  @media screen and #{mp.$mq-lg} {
     // On wider screens, the popover is attached to the indicator:
     inset: unset;
     position: unset;
-    max-width: 8px + lib.$content-sm; // Magic number to avoid empty space near domain name
+    max-width: 8px + mp.$content-sm; // Magic number to avoid empty space near domain name
 
     &::before {
       display: initial;
@@ -46,29 +46,29 @@
   }
 
   h3 {
-    @include lib.text-title-3xs;
+    @include mp.text-title-3xs;
 
-    font-family: lib.$font-stack-firefox;
-    margin-bottom: lib.$spacing-sm;
+    font-family: mp.$font-stack-firefox;
+    margin-bottom: mp.$spacing-sm;
   }
 
   p {
-    @include lib.text-body-sm;
+    @include mp.text-body-sm;
   }
 
   .close-button {
     position: absolute;
-    top: lib.$spacing-sm;
-    right: lib.$spacing-sm;
+    top: mp.$spacing-sm;
+    right: mp.$spacing-sm;
     background-color: transparent;
     border-style: none;
-    border-radius: lib.$border-radius-sm;
-    width: lib.$spacing-lg;
-    height: lib.$spacing-lg;
+    border-radius: mp.$border-radius-sm;
+    width: mp.$spacing-lg;
+    height: mp.$spacing-lg;
     cursor: pointer;
 
     &:hover {
-      color: lib.$color-blue-50;
+      color: mp.$color-blue-50;
     }
   }
 }

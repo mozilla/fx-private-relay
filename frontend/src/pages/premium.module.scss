@@ -1,22 +1,22 @@
-@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
 @use "../styles/tokens";
 @use "../styles/typography" as styles-typography;
 
 .hero {
   display: flex;
   flex-direction: column;
-  gap: lib.$spacing-2xl;
-  width: lib.$content-max;
+  gap: mp.$spacing-2xl;
+  width: mp.$content-max;
   max-width: 100%;
   margin: 0 auto;
-  padding: lib.$spacing-lg;
+  padding: mp.$spacing-lg;
 
   .hero-image {
     flex-basis: 0;
     flex-grow: 1;
   }
 
-  @media screen and #{lib.$mq-md} {
+  @media screen and #{mp.$mq-md} {
     flex-direction: row;
     align-items: center;
   }
@@ -30,76 +30,76 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: lib.$spacing-lg;
+    gap: mp.$spacing-lg;
   }
 
   h2 {
     @include styles-typography.text-title-md {
-      font-family: lib.$font-stack-firefox;
+      font-family: mp.$font-stack-firefox;
     }
   }
 
   .social-proof {
-    border: 0 solid lib.$color-light-gray-20;
+    border: 0 solid mp.$color-light-gray-20;
     border-top-width: 1px;
     border-bottom-width: 1px;
-    padding: lib.$spacing-lg 0;
+    padding: mp.$spacing-lg 0;
     width: 100%;
 
-    @media screen and #{lib.$mq-md} {
+    @media screen and #{mp.$mq-md} {
       width: auto;
     }
   }
 
   .end-of-intro-pricing-hero {
     display: flex;
-    gap: lib.$spacing-lg;
+    gap: mp.$spacing-lg;
     flex-wrap: wrap;
 
     & > div {
-      flex: 1 1 lib.$content-xs;
+      flex: 1 1 mp.$content-xs;
     }
   }
 }
 
 .perks-wrapper {
-  padding: lib.$layout-xs;
-  width: lib.$content-xl;
+  padding: mp.$layout-xs;
+  width: mp.$content-xl;
   max-width: 100%;
   margin: 0 auto;
 
-  @media screen and #{lib.$mq-md} {
-    padding: lib.$layout-sm lib.$layout-xs;
+  @media screen and #{mp.$mq-md} {
+    padding: mp.$layout-sm mp.$layout-xs;
   }
 }
 
 .perks {
-  width: lib.$content-xl;
+  width: mp.$content-xl;
   max-width: 100%;
   margin: 0 auto;
-  padding: lib.$spacing-2xl lib.$spacing-xl;
+  padding: mp.$spacing-2xl mp.$spacing-xl;
 
   h2 {
     @include styles-typography.text-title-sm {
-      font-family: lib.$font-stack-firefox;
+      font-family: mp.$font-stack-firefox;
       text-align: center;
-      padding: lib.$spacing-md 0;
+      padding: mp.$spacing-md 0;
     }
   }
 
   .lead {
-    @include lib.text-body-md;
+    @include mp.text-body-md;
     display: block;
     width: 75%;
     margin: 0 auto;
-    padding: lib.$spacing-md 0;
+    padding: mp.$spacing-md 0;
   }
 
   .perk {
-    padding: lib.$spacing-lg 0;
+    padding: mp.$spacing-lg 0;
     display: flex;
     flex-direction: column;
-    gap: lib.$spacing-2xl;
+    gap: mp.$spacing-2xl;
     align-items: center;
 
     img {
@@ -110,25 +110,25 @@
     .pill {
       background-color: tokens.$color-violet-30;
       color: tokens.$color-white;
-      border-radius: lib.$border-radius-sm;
-      padding: lib.$spacing-xs lib.$spacing-sm;
-      font-family: lib.$font-stack-firefox;
+      border-radius: mp.$border-radius-sm;
+      padding: mp.$spacing-xs mp.$spacing-sm;
+      font-family: mp.$font-stack-firefox;
       font-weight: 600;
       text-transform: uppercase;
     }
 
     h3 {
       @include styles-typography.text-title-xs {
-        font-family: lib.$font-stack-firefox;
-        padding: lib.$spacing-sm 0;
+        font-family: mp.$font-stack-firefox;
+        padding: mp.$spacing-sm 0;
       }
     }
 
     p {
-      padding: lib.$spacing-sm 0;
+      padding: mp.$spacing-sm 0;
     }
 
-    @media screen and #{lib.$mq-md} {
+    @media screen and #{mp.$mq-md} {
       flex-direction: row;
 
       &:nth-child(even) {
@@ -147,16 +147,16 @@
 }
 
 .use-cases {
-  width: lib.$content-max;
+  width: mp.$content-max;
   max-width: 100%;
   margin: 0 auto;
-  padding: lib.$spacing-xl;
+  padding: mp.$spacing-xl;
 
   .headline {
     @include styles-typography.text-title-sm {
-      font-family: lib.$font-stack-firefox;
+      font-family: mp.$font-stack-firefox;
       text-align: center;
-      padding: lib.$spacing-lg;
+      padding: mp.$spacing-lg;
     }
   }
 }
@@ -164,18 +164,18 @@
 .plans-wrapper {
   background: linear-gradient(
     180deg,
-    lib.$color-light-gray-20 0%,
-    lib.$color-light-gray-10 3%
+    mp.$color-light-gray-20 0%,
+    mp.$color-light-gray-10 3%
   );
 }
 
 .plans {
-  width: lib.$content-max;
+  width: mp.$content-max;
   max-width: 100%;
   margin: 0 auto;
-  padding: lib.$spacing-2xl;
+  padding: mp.$spacing-2xl;
   display: flex;
-  gap: lib.$spacing-2xl;
+  gap: mp.$spacing-2xl;
   flex-direction: column-reverse;
   align-items: center;
 
@@ -190,11 +190,11 @@
     flex-direction: column;
     align-items: flex-start;
     text-align: center;
-    gap: lib.$spacing-lg;
+    gap: mp.$spacing-lg;
 
     h2 {
       @include styles-typography.text-title-md {
-        font-family: lib.$font-stack-firefox;
+        font-family: mp.$font-stack-firefox;
         font-weight: 500;
       }
     }
@@ -202,19 +202,19 @@
     .end-of-intro-pricing-countdown-and-warning {
       display: flex;
       flex-direction: column;
-      gap: lib.$spacing-sm;
+      gap: mp.$spacing-sm;
     }
   }
 
-  @media screen and #{lib.$mq-xl} {
+  @media screen and #{mp.$mq-xl} {
     flex-direction: row;
 
     .plan-comparison {
-      padding: lib.$spacing-2xl;
+      padding: mp.$spacing-2xl;
     }
 
     .callout {
-      padding: lib.$spacing-2xl;
+      padding: mp.$spacing-2xl;
       text-align: start;
     }
   }
@@ -223,11 +223,11 @@
 .bundle-banner-section {
   width: 100%;
   margin: 0 auto;
-  padding: calc(lib.$spacing-2xl * 2) lib.$spacing-md;
-  margin-top: lib.$layout-lg;
+  padding: calc(mp.$spacing-2xl * 2) mp.$spacing-md;
+  margin-top: mp.$layout-lg;
 
-  @media screen and #{lib.$mq-md} {
-    width: lib.$content-max;
+  @media screen and #{mp.$mq-md} {
+    width: mp.$content-max;
     margin-top: 0;
     max-width: 100%;
   }

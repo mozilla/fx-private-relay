@@ -1,29 +1,29 @@
 @use "../../../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
 @use "../../../../styles/typography";
 
 .wrapper {
   display: flex;
   flex-direction: column;
-  gap: lib.$spacing-sm;
-  padding: lib.$spacing-md lib.$spacing-md;
+  gap: mp.$spacing-sm;
+  padding: mp.$spacing-md mp.$spacing-md;
 
   img {
     width: 100%;
   }
 
   .content {
-    padding: lib.$spacing-lg 0;
+    padding: mp.$spacing-lg 0;
 
     h2 {
       @include typography.text-title-2xs {
-        font-family: lib.$font-stack-firefox;
-        padding-bottom: lib.$spacing-sm;
+        font-family: mp.$font-stack-firefox;
+        padding-bottom: mp.$spacing-sm;
       }
     }
 
     .cta {
-      padding-top: lib.$spacing-sm;
+      padding-top: mp.$spacing-sm;
     }
   }
 

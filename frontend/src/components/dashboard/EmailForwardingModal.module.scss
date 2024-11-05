@@ -1,10 +1,10 @@
 @use "../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
 @use "../../styles/typography" as styles-typography;
 
 .underlay {
   position: fixed;
-  background-color: rgba(lib.$color-black, 0.4);
+  background-color: rgba(mp.$color-black, 0.4);
   top: 0;
   bottom: 0;
   left: 0;
@@ -14,14 +14,14 @@
   justify-content: center;
 
   .dialog-wrapper {
-    background: lib.$color-light-gray-10;
-    width: calc(100% - lib.$spacing-2xl);
-    border-radius: lib.$border-radius-md;
-    box-shadow: lib.$box-shadow-sm;
-    padding: lib.$spacing-md;
+    background: mp.$color-light-gray-10;
+    width: calc(100% - mp.$spacing-2xl);
+    border-radius: mp.$border-radius-md;
+    box-shadow: mp.$box-shadow-sm;
+    padding: mp.$spacing-md;
 
-    @media screen and (lib.$mq-md) {
-      width: lib.$content-md;
+    @media screen and (mp.$mq-md) {
+      width: mp.$content-md;
     }
 
     .close-icon {
@@ -32,13 +32,13 @@
     .hero {
       display: flex;
       flex-direction: column;
-      gap: lib.$spacing-lg;
-      font-family: lib.$font-stack-firefox;
+      gap: mp.$spacing-lg;
+      font-family: mp.$font-stack-firefox;
       font-weight: 400;
       text-align: center;
-      border-radius: lib.$border-radius-md;
-      background-color: lib.$color-light-gray-10;
-      padding: lib.$spacing-lg lib.$spacing-md;
+      border-radius: mp.$border-radius-md;
+      background-color: mp.$color-light-gray-10;
+      padding: mp.$spacing-lg mp.$spacing-md;
       clear: right;
 
       img {
@@ -54,12 +54,12 @@
 
   .modal-title {
     text-align: left;
-    margin-bottom: lib.$spacing-sm;
+    margin-bottom: mp.$spacing-sm;
   }
 
   .modal-title-success {
     text-align: center;
-    margin-bottom: lib.$spacing-sm;
+    margin-bottom: mp.$spacing-sm;
     font-weight: 400;
   }
 }
@@ -69,8 +69,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: lib.$spacing-sm 0;
-    gap: lib.$spacing-sm;
+    padding: mp.$spacing-sm 0;
+    gap: mp.$spacing-sm;
     font-weight: 100;
   }
 }
@@ -78,32 +78,32 @@
 .modal-title {
   font-weight: 600;
 
-  @include lib.text-body-md;
+  @include mp.text-body-md;
   color: tokens.$color-grey-50;
 }
 
 .nevermind-link {
   background-color: transparent;
   border-style: none;
-  color: lib.$color-blue-50;
-  border-radius: lib.$border-radius-sm;
+  color: mp.$color-blue-50;
+  border-radius: mp.$border-radius-sm;
 
   &:hover {
-    color: lib.$color-blue-70;
+    color: mp.$color-blue-70;
     text-decoration: underline;
     cursor: pointer;
   }
 }
 
 .label-input {
-  font-family: lib.$font-stack-firefox;
+  font-family: mp.$font-stack-firefox;
   border: 1px solid tokens.$color-grey-30;
-  border-radius: lib.$border-radius-sm;
+  border-radius: mp.$border-radius-sm;
   font-weight: 100;
-  padding: lib.$spacing-sm lib.$spacing-md;
+  padding: mp.$spacing-sm mp.$spacing-md;
 
   // Inputs should be atleast 16px if we want to avoid iOS auto-zooming (MPP-3598)
-  @include lib.text-body-md;
+  @include mp.text-body-md;
   color: tokens.$color-grey-40;
   width: 100%;
 }

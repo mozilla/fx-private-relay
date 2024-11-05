@@ -1,17 +1,17 @@
 @use "../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
 @use "../styles/typography" as styles-typography;
 
 .hero {
   display: flex;
   flex-direction: column;
-  gap: lib.$spacing-2xl;
-  width: lib.$content-max;
+  gap: mp.$spacing-2xl;
+  width: mp.$content-max;
   max-width: 100%;
   margin: 0 auto;
-  padding: lib.$spacing-2xl lib.$spacing-lg;
+  padding: mp.$spacing-2xl mp.$spacing-lg;
 
-  @media screen and #{lib.$mq-md} {
+  @media screen and #{mp.$mq-md} {
     flex-direction: row;
     align-items: center;
   }
@@ -25,76 +25,76 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: lib.$spacing-lg;
+    gap: mp.$spacing-lg;
   }
 
   h2 {
     @include styles-typography.text-title-md {
-      font-family: lib.$font-stack-firefox;
+      font-family: mp.$font-stack-firefox;
     }
   }
 
   p {
-    max-width: calc(lib.$content-sm + lib.$layout-xl);
+    max-width: calc(mp.$content-sm + mp.$layout-xl);
   }
 
   .cta {
-    margin: lib.$spacing-xl 0;
-    min-width: lib.$content-xs;
+    margin: mp.$spacing-xl 0;
+    min-width: mp.$content-xs;
   }
   .social-proof {
-    padding: lib.$spacing-lg 0;
+    padding: mp.$spacing-lg 0;
     width: 100%;
     max-width: 55%;
 
-    @media screen and #{lib.$mq-md} {
+    @media screen and #{mp.$mq-md} {
       width: auto;
     }
   }
 
   .end-of-intro-pricing-hero {
     display: flex;
-    gap: lib.$spacing-lg;
+    gap: mp.$spacing-lg;
     flex-wrap: wrap;
 
     & > div {
-      flex: 1 1 lib.$content-xs;
+      flex: 1 1 mp.$content-xs;
     }
   }
 }
 
 .how-it-works-wrapper {
-  background-color: lib.$color-white;
+  background-color: mp.$color-white;
   // Magic number: 64px allows us to have an even spacing between sections on pages
-  padding: calc(lib.$spacing-xl * 2) lib.$spacing-md;
+  padding: calc(mp.$spacing-xl * 2) mp.$spacing-md;
 }
 
 .how-it-works {
-  width: lib.$content-max;
+  width: mp.$content-max;
   max-width: 100%;
   margin: 0 auto;
-  padding: lib.$spacing-lg;
+  padding: mp.$spacing-lg;
 
   h2 {
     @include styles-typography.text-title-sm {
-      font-family: lib.$font-stack-firefox;
+      font-family: mp.$font-stack-firefox;
       text-align: center;
-      margin-bottom: lib.$layout-sm;
+      margin-bottom: mp.$layout-sm;
     }
   }
 
   h2,
   .lead {
-    padding: lib.$spacing-sm 0;
+    padding: mp.$spacing-sm 0;
   }
 
   a {
-    color: lib.$color-blue-50;
+    color: mp.$color-blue-50;
     text-decoration: underline;
     font-weight: 700;
 
     &:hover {
-      color: lib.$color-blue-60;
+      color: mp.$color-blue-60;
       text-decoration: none;
     }
   }
@@ -102,31 +102,31 @@
   .steps {
     display: flex;
     flex-direction: column;
-    gap: lib.$layout-lg;
+    gap: mp.$layout-lg;
     list-style-type: none;
-    padding: lib.$spacing-2xl 0;
+    padding: mp.$spacing-2xl 0;
     text-align: start;
     margin: 0;
 
-    @media screen and #{lib.$mq-md} {
-      gap: lib.$layout-xl;
-      margin: lib.$spacing-2xl lib.$layout-2xl 0 lib.$layout-2xl;
+    @media screen and #{mp.$mq-md} {
+      gap: mp.$layout-xl;
+      margin: mp.$spacing-2xl mp.$layout-2xl 0 mp.$layout-2xl;
     }
-    @media screen and #{lib.$mq-lg} {
+    @media screen and #{mp.$mq-lg} {
       flex-direction: row;
       margin: 0;
     }
 
     h3 {
-      @include lib.text-title-3xs;
-      font-family: lib.$font-stack-base;
+      @include mp.text-title-3xs;
+      font-family: mp.$font-stack-base;
       font-weight: 600;
-      padding-top: lib.$spacing-md;
+      padding-top: mp.$spacing-md;
       line-height: 1.5;
     }
 
     p {
-      padding: lib.$spacing-md 0;
+      padding: mp.$spacing-md 0;
     }
 
     .step {
@@ -141,47 +141,47 @@
 }
 
 .use-cases-wrapper {
-  background-color: lib.$color-white;
+  background-color: mp.$color-white;
 }
 
 .use-cases {
-  width: lib.$content-max;
+  width: mp.$content-max;
   max-width: 100%;
   margin: 0 auto;
-  padding: lib.$spacing-lg;
+  padding: mp.$spacing-lg;
 }
 
 // Creates a page break effect
 .page-break {
   background: linear-gradient(
     180deg,
-    lib.$color-light-gray-20 0%,
-    lib.$color-light-gray-10 45%
+    mp.$color-light-gray-20 0%,
+    mp.$color-light-gray-10 45%
   );
-  height: lib.$layout-md;
+  height: mp.$layout-md;
 }
 
 .features {
-  padding: lib.$layout-xs;
-  width: lib.$content-xl;
+  padding: mp.$layout-xs;
+  width: mp.$content-xl;
   max-width: 100%;
   margin: 0 auto;
 
-  @media screen and #{lib.$mq-md} {
-    padding: lib.$layout-sm lib.$layout-xs;
+  @media screen and #{mp.$mq-md} {
+    padding: mp.$layout-sm mp.$layout-xs;
   }
 }
 
 .plans {
-  width: lib.$content-max;
+  width: mp.$content-max;
   max-width: 100%;
   margin: 0 auto;
   display: flex;
-  gap: lib.$spacing-2xl;
+  gap: mp.$spacing-2xl;
   flex-direction: column-reverse;
   align-items: center;
-  padding: 0 lib.$spacing-md lib.$spacing-md lib.$spacing-md;
-  margin-top: lib.$layout-xl;
+  padding: 0 mp.$spacing-md mp.$spacing-md mp.$spacing-md;
+  margin-top: mp.$layout-xl;
 
   &.non-premium-country {
     display: flex;
@@ -194,13 +194,13 @@
     flex-direction: column;
     align-items: flex-start;
     text-align: center;
-    max-width: lib.$content-md;
-    gap: lib.$spacing-lg;
-    margin-top: lib.$layout-xl;
+    max-width: mp.$content-md;
+    gap: mp.$spacing-lg;
+    margin-top: mp.$layout-xl;
 
     h2 {
       @include styles-typography.text-title-sm {
-        font-family: lib.$font-stack-firefox;
+        font-family: mp.$font-stack-firefox;
         font-weight: 500;
       }
     }
@@ -208,56 +208,56 @@
     .end-of-intro-pricing-countdown-and-warning {
       display: flex;
       flex-direction: column;
-      gap: lib.$spacing-sm;
+      gap: mp.$spacing-sm;
     }
   }
 
-  @media screen and #{lib.$mq-xl} {
+  @media screen and #{mp.$mq-xl} {
     flex-direction: row;
-    padding: 0 lib.$spacing-2xl lib.$spacing-2xl lib.$spacing-2xl;
+    padding: 0 mp.$spacing-2xl mp.$spacing-2xl mp.$spacing-2xl;
 
     .plan-comparison {
-      padding: lib.$spacing-2xl;
+      padding: mp.$spacing-2xl;
     }
 
     .callout {
-      padding: lib.$spacing-2xl;
+      padding: mp.$spacing-2xl;
       text-align: start;
     }
   }
 }
 
 .faq-wrapper {
-  background-color: lib.$color-white;
+  background-color: mp.$color-white;
   // Magic number: 64px allows us to have an even spacing between sections on pages
-  padding: calc(lib.$spacing-xl * 2) lib.$spacing-md;
+  padding: calc(mp.$spacing-xl * 2) mp.$spacing-md;
 }
 
 .faq {
-  width: lib.$content-max;
+  width: mp.$content-max;
   max-width: 100%;
   margin: 0 auto;
-  padding: lib.$spacing-lg;
+  padding: mp.$spacing-lg;
   display: flex;
   flex-direction: column;
 
   .lead {
     flex: 1 0 0;
 
-    @media screen and #{lib.$mq-md} {
-      padding: 0 lib.$spacing-2xl;
+    @media screen and #{mp.$mq-md} {
+      padding: 0 mp.$spacing-2xl;
     }
 
     .headline {
       @include styles-typography.text-title-sm {
-        font-family: lib.$font-stack-firefox;
+        font-family: mp.$font-stack-firefox;
         font-weight: 500;
-        padding: lib.$spacing-md 0;
+        padding: mp.$spacing-md 0;
       }
     }
 
     .read-more {
-      color: lib.$color-blue-50;
+      color: mp.$color-blue-50;
       font-weight: 700;
       text-decoration: underline;
 
@@ -269,16 +269,16 @@
 
   .entries {
     flex: 1 0 0;
-    padding-top: lib.$spacing-lg;
+    padding-top: mp.$spacing-lg;
 
-    @media screen and #{lib.$mq-md} {
-      padding: 0 lib.$spacing-2xl;
+    @media screen and #{mp.$mq-md} {
+      padding: 0 mp.$spacing-2xl;
     }
   }
 
-  @media screen and #{lib.$mq-md} {
+  @media screen and #{mp.$mq-md} {
     flex-direction: row;
-    gap: lib.$spacing-md;
+    gap: mp.$spacing-md;
   }
 }
 
@@ -286,22 +286,22 @@
   width: 100%;
   margin: 0 auto;
   // Magic number: 64px allows us to have an even spacing between sections on pages
-  padding: calc(lib.$spacing-xl * 2) lib.$spacing-md;
+  padding: calc(mp.$spacing-xl * 2) mp.$spacing-md;
 
-  @media screen and #{lib.$mq-md} {
-    width: lib.$content-max;
+  @media screen and #{mp.$mq-md} {
+    width: mp.$content-max;
     margin-top: 0;
     max-width: 100%;
   }
 }
 
 .gray-bg {
-  background-color: lib.$color-light-gray-10;
+  background-color: mp.$color-light-gray-10;
 }
 
 .reviews-container {
   // Magic number: 64px allows us to have an even spacing between sections on pages
-  padding: calc(lib.$spacing-xl * 2) lib.$spacing-md;
+  padding: calc(mp.$spacing-xl * 2) mp.$spacing-md;
 }
 
 .testimonials-wrapper {
@@ -309,13 +309,13 @@
   align-items: center;
   justify-content: center;
   flex-direction: row;
-  gap: lib.$spacing-md;
-  border: 0 solid lib.$color-light-gray-20;
+  gap: mp.$spacing-md;
+  border: 0 solid mp.$color-light-gray-20;
   border-top-width: 1px;
   border-bottom-width: 1px;
 
   p {
-    @include lib.text-body-lg;
-    font-family: lib.$font-stack-base;
+    @include mp.text-body-lg;
+    font-family: mp.$font-stack-base;
   }
 }

@@ -1,4 +1,4 @@
-@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
 
 /*
 Re-declare mozilla-protocol typography:
@@ -16,7 +16,7 @@ A typical mixin text-title-xs looks like:
     @include lib.font-size(lib.type-scale('title-2xs-size'));
     line-height: lib.type-scale('title-2xs-line-height');
 
-    @media #{lib.$mq-md} {
+    @media #{mp.$mq-md} {
         @include lib.font-size(lib.type-scale('title-xs-size'));
         line-height: lib.type-scale('title-xs-line-height');
     }
@@ -124,7 +124,7 @@ https://sass-lang.com/documentation/at-rules/mixin/#content-blocks
     line-height: lib.type-scale('title-2xs-line-height');
     @content;
 
-    @media #{lib.$mq-md} {
+    @media #{mp.$mq-md} {
         @include lib.font-size(lib.type-scale('title-xs-size'));
         line-height: lib.type-scale('title-xs-line-height');
     }
@@ -171,13 +171,13 @@ that they are using to override the base text-* mixin.
   $font-stack-mozilla;
 
 @mixin text-title-2xl {
-  @include lib.font-size(lib.type-scale("title-xl-size"));
-  line-height: lib.type-scale("title-xl-line-height");
+  @include mp.font-size(mp.type-scale("title-xl-size"));
+  line-height: mp.type-scale("title-xl-line-height");
   @content;
 
-  @media #{lib.$mq-md} {
-    @include lib.font-size(lib.type-scale("title-2xl-size"));
-    line-height: lib.type-scale("title-2xl-line-height");
+  @media #{mp.$mq-md} {
+    @include mp.font-size(mp.type-scale("title-2xl-size"));
+    line-height: mp.type-scale("title-2xl-line-height");
   }
 }
 
@@ -185,46 +185,46 @@ that they are using to override the base text-* mixin.
 // @mixin text-title-lg is not used by Relay
 
 @mixin text-title-md {
-  @include lib.font-size(lib.type-scale("title-sm-size"));
-  line-height: lib.type-scale("title-sm-line-height");
+  @include mp.font-size(mp.type-scale("title-sm-size"));
+  line-height: mp.type-scale("title-sm-line-height");
   @content;
 
-  @media #{lib.$mq-md} {
-    @include lib.font-size(lib.type-scale("title-md-size"));
-    line-height: lib.type-scale("title-md-line-height");
+  @media #{mp.$mq-md} {
+    @include mp.font-size(mp.type-scale("title-md-size"));
+    line-height: mp.type-scale("title-md-line-height");
   }
 }
 
 @mixin text-title-sm {
-  @include lib.font-size(lib.type-scale("title-xs-size"));
-  line-height: lib.type-scale("title-xs-line-height");
+  @include mp.font-size(mp.type-scale("title-xs-size"));
+  line-height: mp.type-scale("title-xs-line-height");
   @content;
 
-  @media #{lib.$mq-md} {
-    @include lib.font-size(lib.type-scale("title-sm-size"));
-    line-height: lib.type-scale("title-sm-line-height");
+  @media #{mp.$mq-md} {
+    @include mp.font-size(mp.type-scale("title-sm-size"));
+    line-height: mp.type-scale("title-sm-line-height");
   }
 }
 
 @mixin text-title-xs {
-  @include lib.font-size(lib.type-scale("title-2xs-size"));
-  line-height: lib.type-scale("title-2xs-line-height");
+  @include mp.font-size(mp.type-scale("title-2xs-size"));
+  line-height: mp.type-scale("title-2xs-line-height");
   @content;
 
-  @media #{lib.$mq-md} {
-    @include lib.font-size(lib.type-scale("title-xs-size"));
-    line-height: lib.type-scale("title-xs-line-height");
+  @media #{mp.$mq-md} {
+    @include mp.font-size(mp.type-scale("title-xs-size"));
+    line-height: mp.type-scale("title-xs-line-height");
   }
 }
 
 @mixin text-title-2xs {
-  @include lib.font-size(lib.type-scale("title-3xs-size"));
-  line-height: lib.type-scale("title-3xs-line-height");
+  @include mp.font-size(mp.type-scale("title-3xs-size"));
+  line-height: mp.type-scale("title-3xs-line-height");
   @content;
 
-  @media #{lib.$mq-md} {
-    @include lib.font-size(lib.type-scale("title-2xs-size"));
-    line-height: lib.type-scale("title-2xs-line-height");
+  @media #{mp.$mq-md} {
+    @include mp.font-size(mp.type-scale("title-2xs-size"));
+    line-height: mp.type-scale("title-2xs-line-height");
   }
 }
 

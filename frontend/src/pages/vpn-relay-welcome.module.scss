@@ -1,4 +1,4 @@
-@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
 @use "../styles/tokens";
 
 // TODO MPP-3946: Remove this legacy versioning comment
@@ -11,15 +11,15 @@
 .content-container {
   display: flex;
   flex-direction: column;
-  max-width: lib.$content-lg;
+  max-width: mp.$content-lg;
   margin: 0 auto;
 }
 
 .content-head {
   display: flex;
-  max-width: lib.$content-lg;
-  gap: lib.$spacing-md;
-  padding: lib.$layout-xl lib.$spacing-md;
+  max-width: mp.$content-lg;
+  gap: mp.$spacing-md;
+  padding: mp.$layout-xl mp.$spacing-md;
   flex-direction: column;
   align-content: center;
   align-items: center;
@@ -28,24 +28,24 @@
 }
 
 .headline {
-  font-family: lib.$font-stack-base;
+  font-family: mp.$font-stack-base;
   color: tokens.$color-grey-40;
   font-weight: 400;
 
-  @include lib.text-title-3xs;
+  @include mp.text-title-3xs;
 }
 
 .subheadline {
-  font-family: lib.$font-stack-firefox;
+  font-family: mp.$font-stack-firefox;
   color: tokens.$color-grey-60;
   font-weight: 700;
 
-  @include lib.text-title-md;
+  @include mp.text-title-md;
 }
 
 .logo {
   display: flex;
-  gap: lib.$spacing-md;
+  gap: mp.$spacing-md;
   justify-content: center;
 }
 
@@ -54,21 +54,21 @@
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
-  gap: lib.$spacing-xl;
-  margin-bottom: lib.$spacing-2xl;
+  gap: mp.$spacing-xl;
+  margin-bottom: mp.$spacing-2xl;
 
-  @media #{lib.$mq-lg} {
+  @media #{mp.$mq-lg} {
     flex-direction: row;
     background-color: tokens.$color-white;
-    padding: 0 lib.$spacing-2xl;
-    border-radius: lib.$border-radius-md;
-    box-shadow: lib.$box-shadow-sm;
+    padding: 0 mp.$spacing-2xl;
+    border-radius: mp.$border-radius-md;
+    box-shadow: mp.$box-shadow-sm;
   }
 
   .panel-art {
     display: none;
 
-    @media #{lib.$mq-lg} {
+    @media #{mp.$mq-lg} {
       display: block;
     }
   }
@@ -78,29 +78,29 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: lib.$spacing-xl;
-  max-width: lib.$content-xs;
-  background-color: lib.$color-white;
-  padding: lib.$spacing-2xl;
-  border-radius: lib.$border-radius-md;
-  box-shadow: lib.$box-shadow-sm;
+  gap: mp.$spacing-xl;
+  max-width: mp.$content-xs;
+  background-color: mp.$color-white;
+  padding: mp.$spacing-2xl;
+  border-radius: mp.$border-radius-md;
+  box-shadow: mp.$box-shadow-sm;
 
-  @media #{lib.$mq-lg} {
+  @media #{mp.$mq-lg} {
     padding: 0;
     border-radius: 0;
     box-shadow: none;
   }
 
   p {
-    max-width: lib.$content-xs;
-    font-family: lib.$font-stack-base;
+    max-width: mp.$content-xs;
+    font-family: mp.$font-stack-base;
 
-    @include lib.text-body-md;
+    @include mp.text-body-md;
   }
 
   a {
     white-space: pre;
     font-weight: 500;
-    font-family: lib.$font-stack-firefox;
+    font-family: mp.$font-stack-firefox;
   }
 }

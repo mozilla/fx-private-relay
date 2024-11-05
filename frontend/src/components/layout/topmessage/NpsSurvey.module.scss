@@ -1,37 +1,37 @@
 @use "../../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
 
 .wrapper {
   display: none;
   flex-direction: column;
   align-items: center;
   justify-content: space-around;
-  gap: lib.$spacing-sm;
-  padding: lib.$spacing-md 0;
-  background-color: lib.$color-purple-90;
-  color: lib.$color-white;
+  gap: mp.$spacing-sm;
+  padding: mp.$spacing-md 0;
+  background-color: mp.$color-purple-90;
+  color: mp.$color-white;
   position: relative;
 
-  @media screen and #{lib.$mq-md} {
+  @media screen and #{mp.$mq-md} {
     display: flex;
   }
 
   .dismiss-button {
     position: absolute;
-    right: lib.$spacing-md;
+    right: mp.$spacing-md;
     background-color: transparent;
     border-style: none;
-    color: lib.$color-white;
+    color: mp.$color-white;
     width: 30px;
     height: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: lib.$border-radius-sm;
+    border-radius: mp.$border-radius-sm;
     cursor: pointer;
 
     &:hover {
-      background-color: lib.$color-blue-50;
+      background-color: mp.$color-blue-50;
     }
   }
 }
@@ -40,18 +40,18 @@
   display: flex;
   align-items: center;
   justify-content: space-around;
-  gap: lib.$spacing-md;
+  gap: mp.$spacing-md;
 
   ol {
     display: flex;
-    gap: lib.$spacing-md;
+    gap: mp.$spacing-md;
     list-style-type: none;
   }
 
   button {
-    border-radius: lib.$border-radius-sm;
-    background-color: lib.$color-violet-40;
-    color: lib.$color-white;
+    border-radius: mp.$border-radius-sm;
+    background-color: mp.$color-violet-40;
+    color: mp.$color-white;
     transition: background-color 0.1s ease-out;
     border-style: none;
     width: 2.5rem;
@@ -60,11 +60,11 @@
     cursor: pointer;
 
     &:hover {
-      background-color: lib.$color-blue-50;
+      background-color: mp.$color-blue-50;
     }
   }
 
   .legend {
-    @include lib.text-body-sm;
+    @include mp.text-body-sm;
   }
 }

@@ -1,5 +1,5 @@
 @use "../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
 @use "../../styles/typography" as styles-typography;
 
 .highlighted-feature-wrapper {
@@ -7,12 +7,12 @@
   align-content: center;
   justify-content: space-between;
   flex-direction: column-reverse;
-  margin-bottom: lib.$layout-sm;
+  margin-bottom: mp.$layout-sm;
 
-  @media screen and #{lib.$mq-md} {
+  @media screen and #{mp.$mq-md} {
     flex-direction: row-reverse;
-    gap: lib.$spacing-2xl;
-    margin-bottom: lib.$layout-xs;
+    gap: mp.$spacing-2xl;
+    margin-bottom: mp.$layout-xs;
 
     &:nth-child(even) {
       flex-direction: row;
@@ -20,51 +20,51 @@
   }
 
   .new-callout-wrapper {
-    margin-bottom: lib.$spacing-md;
+    margin-bottom: mp.$spacing-md;
 
     .new-callout {
-      @include lib.text-body-sm;
-      background-color: lib.$color-purple-30;
-      padding: lib.$spacing-xs lib.$spacing-sm;
+      @include mp.text-body-sm;
+      background-color: mp.$color-purple-30;
+      padding: mp.$spacing-xs mp.$spacing-sm;
       font-weight: 600;
       text-transform: uppercase;
-      color: lib.$color-white;
+      color: mp.$color-white;
       text-align: center;
       align-content: center;
-      border-radius: lib.$border-radius-sm;
+      border-radius: mp.$border-radius-sm;
     }
   }
 
   .highlighted-feature-description {
-    @media screen and #{lib.$mq-md} {
+    @media screen and #{mp.$mq-md} {
       flex-direction: row-reverse;
       align-self: center;
       width: 100%;
     }
 
     .highlighted-feature-headline {
-      @include lib.font-firefox;
-      @include lib.text-body-xl;
-      margin-bottom: lib.$spacing-sm;
+      @include mp.font-firefox;
+      @include mp.text-body-xl;
+      margin-bottom: mp.$spacing-sm;
       line-height: 100%;
     }
   }
 
   .highlighted-feature-image {
-    padding: lib.$spacing-md;
+    padding: mp.$spacing-md;
     width: 100%;
     align-self: center;
   }
 }
 
 .section-title-wrapper {
-  padding: lib.$spacing-lg lib.$spacing-md lib.$spacing-2xl lib.$spacing-md;
+  padding: mp.$spacing-lg mp.$spacing-md mp.$spacing-2xl mp.$spacing-md;
   align-content: center;
   justify-content: center;
   text-align: center;
 
   h2 {
-    @include lib.font-firefox;
+    @include mp.font-firefox;
     @include styles-typography.text-title-sm {
       justify-content: center;
       width: 100%;
@@ -72,7 +72,7 @@
   }
 
   .cta {
-    margin: lib.$spacing-xl 0;
-    min-width: lib.$content-xs;
+    margin: mp.$spacing-xl 0;
+    min-width: mp.$content-xs;
   }
 }

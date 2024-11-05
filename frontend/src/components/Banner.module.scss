@@ -1,13 +1,13 @@
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as lib2;
-@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
 @use "../styles/tokens";
 
 .banner {
-  border-radius: lib2.$border-radius-md;
-  padding: lib2.$spacing-md;
+  border-radius: mp.$border-radius-md;
+  padding: mp.$spacing-md;
   background-color: tokens.$color-white;
   position: relative;
-  box-shadow: lib2.$box-shadow-sm;
+  box-shadow: mp.$box-shadow-sm;
 
   &.promo {
     // This is the gradient border width (which is implemented as a background image):
@@ -17,21 +17,21 @@
   }
 
   &.warning {
-    padding: lib2.$spacing-sm;
+    padding: mp.$spacing-sm;
   }
 
   &.info {
-    @include lib2.text-body-sm;
+    @include mp.text-body-sm;
 
-    @media screen and #{lib2.$mq-sm} {
-      padding: 0 lib2.$spacing-sm;
+    @media screen and #{mp.$mq-sm} {
+      padding: 0 mp.$spacing-sm;
     }
   }
 
   .dismiss-button {
     position: absolute;
-    top: lib2.$spacing-sm;
-    right: lib2.$spacing-sm;
+    top: mp.$spacing-sm;
+    right: mp.$spacing-sm;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -39,7 +39,7 @@
     height: 30px;
     background-color: transparent;
     border-style: none;
-    border-radius: lib2.$border-radius-sm;
+    border-radius: mp.$border-radius-sm;
     cursor: pointer;
     padding: 0;
 
@@ -58,21 +58,21 @@
   .banner.promo & {
     // .banner's border-radius - .banner's padding.
     // This is what makes .banner.promo appear as a 2px-wide border:
-    border-radius: calc(lib2.$border-radius-md - 2px);
+    border-radius: calc(mp.$border-radius-md - 2px);
   }
 
   .title-and-large-cta-wrapper {
     display: flex;
     flex-wrap: wrap;
-    flex: 1 1 lib2.$content-xs;
-    padding: lib2.$spacing-xs lib2.$spacing-md lib2.$spacing-md lib2.$spacing-md;
+    flex: 1 1 mp.$content-xs;
+    padding: mp.$spacing-xs mp.$spacing-md mp.$spacing-md mp.$spacing-md;
 
     .title-text {
       flex: 1 1 auto;
 
       .banner.warning & {
-        @media screen and #{lib2.$mq-sm} {
-          padding-left: lib2.$spacing-md;
+        @media screen and #{mp.$mq-sm} {
+          padding-left: mp.$spacing-md;
           border-left-width: 4px;
           border-left-style: solid;
           border-color: tokens.$color-yellow-50;
@@ -80,10 +80,10 @@
       }
     }
 
-    @media screen and #{lib2.$mq-sm} {
-      padding: lib2.$spacing-md;
+    @media screen and #{mp.$mq-sm} {
+      padding: mp.$spacing-md;
     }
-    @media screen and #{lib2.$mq-lg} {
+    @media screen and #{mp.$mq-lg} {
       flex-wrap: nowrap;
     }
   }
@@ -97,10 +97,10 @@
 .illustration {
   display: flex;
   align-items: center;
-  padding: lib2.$spacing-md lib2.$spacing-md 0 lib2.$spacing-md;
+  padding: mp.$spacing-md mp.$spacing-md 0 mp.$spacing-md;
 
-  @media screen and #{lib2.$mq-md} {
-    padding: 0 lib2.$spacing-md 0 lib2.$spacing-xl;
+  @media screen and #{mp.$mq-md} {
+    padding: 0 mp.$spacing-md 0 mp.$spacing-xl;
   }
 
   img {
@@ -110,19 +110,19 @@
 
 // For Banners in PremiumPromoBanners.tsx
 .flex-end {
-  border-bottom: 1px solid lib2.$color-light-gray-20;
+  border-bottom: 1px solid mp.$color-light-gray-20;
   align-items: center;
-  margin: 0 lib2.$spacing-md;
-  padding-top: lib2.$spacing-sm;
+  margin: 0 mp.$spacing-md;
+  padding-top: mp.$spacing-sm;
   width: 100%;
 
-  @media screen and #{lib2.$mq-sm} {
+  @media screen and #{mp.$mq-sm} {
     border-bottom: none;
     padding: none;
     width: auto;
     margin: 0;
   }
-  @media screen and #{lib2.$mq-lg} {
+  @media screen and #{mp.$mq-lg} {
     align-items: flex-end;
   }
 
@@ -130,28 +130,28 @@
     width: 90px;
     margin: 0 auto;
 
-    @media screen and #{lib2.$mq-sm} {
+    @media screen and #{mp.$mq-sm} {
       margin: 0;
     }
   }
 }
 
 .title {
-  @include lib2.text-title-3xs;
-  font-family: lib2.$font-stack-firefox;
+  @include mp.text-title-3xs;
+  font-family: mp.$font-stack-firefox;
   display: flex;
   align-items: center;
-  padding: lib2.$spacing-sm 0 lib2.$spacing-md 0;
+  padding: mp.$spacing-sm 0 mp.$spacing-md 0;
 
   .banner.info & {
-    @include lib2.text-body-sm;
-    font-family: lib2.$font-stack-base;
+    @include mp.text-body-sm;
+    font-family: mp.$font-stack-base;
     font-weight: 600;
   }
 
   .icon {
     flex: 0 0 auto;
-    margin-right: lib2.$spacing-sm;
+    margin-right: mp.$spacing-sm;
 
     .warning & {
       color: tokens.$color-yellow-50;
@@ -159,7 +159,7 @@
 
     .info & {
       color: tokens.$color-violet-30;
-      margin-right: lib2.$spacing-xs;
+      margin-right: mp.$spacing-xs;
     }
   }
 }
@@ -168,7 +168,7 @@
   a,
   button {
     display: inline-block;
-    padding-top: lib2.$spacing-md;
+    padding-top: mp.$spacing-md;
     font-weight: 700;
     color: tokens.$color-blue-50;
     cursor: pointer;
@@ -178,7 +178,7 @@
     .banner.info & {
       font-weight: 500;
       text-decoration: underline;
-      padding: lib2.$spacing-sm 0 0 0;
+      padding: mp.$spacing-sm 0 0 0;
     }
 
     &:hover {
@@ -193,23 +193,23 @@
 }
 
 .cta-large-button {
-  padding-top: lib2.$spacing-md;
+  padding-top: mp.$spacing-md;
   flex: 0 0 auto;
   align-self: center;
 
-  @media screen and #{lib2.$mq-md} {
+  @media screen and #{mp.$mq-md} {
     align-self: center;
     margin: 0 0 0 auto;
-    padding: lib2.$spacing-md;
+    padding: mp.$spacing-md;
   }
 
   a {
     display: block;
-    padding: lib2.$spacing-sm lib2.$spacing-md;
+    padding: mp.$spacing-sm mp.$spacing-md;
     font-weight: 700;
     border: 2px solid tokens.$color-blue-50;
     color: tokens.$color-blue-50;
-    border-radius: lib2.$border-radius-sm;
+    border-radius: mp.$border-radius-sm;
 
     &:hover {
       background-color: tokens.$color-blue-60;
@@ -217,8 +217,8 @@
     }
 
     &:focus {
-      border-color: lib.$button-border-color-focus;
-      box-shadow: lib.$field-focus-ring;
+      border-color: mp_forms.$button-border-color-focus;
+      box-shadow: mp_forms.$field-focus-ring;
       outline: none;
     }
   }

@@ -1,17 +1,17 @@
 @use "../../../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
 
 .empty-message {
   display: flex;
   flex-direction: column;
-  padding-top: lib.$spacing-lg;
-  padding-bottom: lib.$spacing-2xl;
-  gap: lib.$spacing-lg;
+  padding-top: mp.$spacing-lg;
+  padding-bottom: mp.$spacing-2xl;
+  gap: mp.$spacing-lg;
   align-items: center;
   text-align: center;
 
   p {
-    @include lib.text-body-md;
+    @include mp.text-body-md;
     max-width: 75%;
   }
 }
@@ -20,13 +20,13 @@
   display: flex;
   flex-direction: column;
   list-style-type: none;
-  padding: 0 lib.$spacing-md;
-  max-height: min(lib.$content-md, 50vh);
+  padding: 0 mp.$spacing-md;
+  max-height: min(mp.$content-md, 50vh);
   overflow-y: auto;
 
   li {
-    padding: lib.$spacing-sm 0;
-    border-bottom: 1px solid lib.$color-light-gray-30;
+    padding: mp.$spacing-sm 0;
+    border-bottom: 1px solid mp.$color-light-gray-30;
 
     &:last-child {
       border-bottom-style: none;
@@ -43,9 +43,9 @@
     .item {
       display: flex;
       align-items: center;
-      gap: lib.$spacing-md;
-      border-radius: lib.$border-radius-sm;
-      padding: lib.$spacing-xs 0;
+      gap: mp.$spacing-md;
+      border-radius: mp.$border-radius-sm;
+      padding: mp.$spacing-xs 0;
       cursor: pointer;
 
       // Forces news icon to be the same size regardless of image size
@@ -55,21 +55,21 @@
       }
 
       h3 {
-        @include lib.text-body-sm;
+        @include mp.text-body-sm;
         font-weight: 500;
       }
 
       p {
-        @include lib.text-body-sm;
+        @include mp.text-body-sm;
       }
 
       &:hover {
-        background-color: lib.$color-violet-05;
+        background-color: mp.$color-violet-05;
         // An item is $hoverOverflow wider than its container when hovered,
         // i.e. the background colour is wider than the separator.
-        $hoverOverflow: lib.$spacing-sm;
+        $hoverOverflow: mp.$spacing-sm;
         margin: 0 (-1 * $hoverOverflow);
-        padding: lib.$spacing-xs $hoverOverflow;
+        padding: mp.$spacing-xs $hoverOverflow;
       }
     }
   }

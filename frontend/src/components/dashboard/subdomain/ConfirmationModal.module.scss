@@ -1,10 +1,10 @@
 @use "../../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
 @use "../../../styles/typography" as styles-typography;
 
 .underlay {
   position: fixed;
-  background-color: rgba(lib.$color-black, 0.4);
+  background-color: rgba(mp.$color-black, 0.4);
   top: 0;
   bottom: 0;
   left: 0;
@@ -14,38 +14,38 @@
   justify-content: center;
 
   .dialog-wrapper {
-    background: lib.$color-white;
-    width: calc((#{lib.$content-sm} + #{lib.$content-md}) / 2); // 560px
+    background: mp.$color-white;
+    width: calc((#{mp.$content-sm} + #{mp.$content-md}) / 2); // 560px
     max-width: 90%;
-    border-radius: lib.$border-radius-md;
-    box-shadow: lib.$box-shadow-sm;
-    padding: lib.$spacing-md;
+    border-radius: mp.$border-radius-md;
+    box-shadow: mp.$box-shadow-sm;
+    padding: mp.$spacing-md;
 
-    $illustrationOverlap: lib.$spacing-lg;
+    $illustrationOverlap: mp.$spacing-lg;
 
     .hero {
-      @include lib.text-body-lg;
-      font-family: lib.$font-stack-firefox;
+      @include mp.text-body-lg;
+      font-family: mp.$font-stack-firefox;
       font-weight: 700;
       text-align: center;
-      border-radius: lib.$border-radius-md;
-      background-color: lib.$color-light-gray-10;
-      padding: lib.$spacing-lg lib.$spacing-md;
+      border-radius: mp.$border-radius-md;
+      background-color: mp.$color-light-gray-10;
+      padding: mp.$spacing-lg mp.$spacing-md;
 
-      @media screen and #{lib.$mq-md} {
-        @include lib.text-title-3xs;
+      @media screen and #{mp.$mq-md} {
+        @include mp.text-title-3xs;
       }
 
       .picked-confirmation & {
-        padding-bottom: $illustrationOverlap + lib.$spacing-lg;
+        padding-bottom: $illustrationOverlap + mp.$spacing-lg;
       }
 
       .headline {
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: lib.$spacing-sm 0;
-        gap: lib.$spacing-sm;
+        padding: mp.$spacing-sm 0;
+        gap: mp.$spacing-sm;
       }
 
       .modal-title {
@@ -55,8 +55,8 @@
           @include styles-typography.text-title-xs {
             display: block;
             font-weight: 700;
-            margin-bottom: lib.$spacing-sm;
-            padding: lib.$spacing-sm 0;
+            margin-bottom: mp.$spacing-sm;
+            padding: mp.$spacing-sm 0;
           }
 
           &::before {
@@ -69,31 +69,31 @@
     .picked-confirmation-body {
       display: flex;
       flex-direction: column;
-      gap: lib.$spacing-md;
+      gap: mp.$spacing-md;
       align-items: center;
-      padding-top: lib.$spacing-sm;
+      padding-top: mp.$spacing-sm;
 
       .picked-confirmation-body-content {
         margin: 0 auto;
-        padding: 0 lib.$spacing-sm;
+        padding: 0 mp.$spacing-sm;
 
-        @media screen and #{lib.$mq-md} {
-          padding: 0 lib.$spacing-2xl;
+        @media screen and #{mp.$mq-md} {
+          padding: 0 mp.$spacing-2xl;
         }
 
         .feature-item-list {
-          @include lib.text-body-sm;
+          @include mp.text-body-sm;
           list-style-type: none;
 
           li {
-            margin: lib.$spacing-sm 0;
+            margin: mp.$spacing-sm 0;
             display: flex;
             flex-direction: row;
             align-items: center;
-            gap: lib.$spacing-md;
+            gap: mp.$spacing-md;
 
             .check-icon {
-              fill: lib.$color-blue-50;
+              fill: mp.$color-blue-50;
               min-width: 20px; // Width of the check icons
             }
           }

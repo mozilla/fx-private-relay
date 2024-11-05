@@ -1,15 +1,15 @@
-@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
 @use "../../../styles/tokens";
 
 .nav-mask-phone {
   width: 100%;
   display: flex;
   flex-direction: row;
-  border-bottom: 1px solid lib.$color-light-gray-20;
+  border-bottom: 1px solid mp.$color-light-gray-20;
 
   > * {
     flex: 1 1 0;
-    padding: lib.$spacing-lg 0 lib.$spacing-md 0;
+    padding: mp.$spacing-lg 0 mp.$spacing-md 0;
     justify-content: center;
     display: flex;
     border-bottom: 5px solid transparent;
@@ -46,7 +46,7 @@
     align-content: center;
 
     p {
-      @include lib.text-body-sm;
+      @include mp.text-body-sm;
       margin: 0;
       font-weight: 600;
       align-self: center;
@@ -55,7 +55,7 @@
 }
 
 .hidden-desktop {
-  @media screen and (min-width: lib.$screen-md) {
+  @media screen and (min-width: mp.$screen-md) {
     display: none;
   }
 }

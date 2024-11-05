@@ -1,10 +1,10 @@
 @use "../../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib";
-@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as lib2;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
 
 .underlay {
   position: fixed;
-  background-color: rgba(lib.$color-black, 0.4);
+  background-color: rgba(mp.$color-black, 0.4);
   top: 0;
   bottom: 0;
   left: 0;
@@ -17,30 +17,30 @@
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    background: lib.$color-white;
-    gap: lib.$spacing-lg;
-    max-width: lib.$content-sm;
-    border-radius: lib.$border-radius-md;
-    box-shadow: lib.$box-shadow-sm;
-    padding: lib.$spacing-md;
+    background: mp.$color-white;
+    gap: mp.$spacing-lg;
+    max-width: mp.$content-sm;
+    border-radius: mp.$border-radius-md;
+    box-shadow: mp.$box-shadow-sm;
+    padding: mp.$spacing-md;
 
     .dialog-content {
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      gap: lib.$spacing-xl;
-      padding: lib.$spacing-lg lib.$spacing-md;
+      gap: mp.$spacing-xl;
+      padding: mp.$spacing-lg mp.$spacing-md;
 
       p {
         display: flex;
-        gap: lib.$spacing-xs;
+        gap: mp.$spacing-xs;
         flex-direction: column;
       }
     }
 
     .confirm-button {
-      width: lib.$content-xs;
+      width: mp.$content-xs;
     }
 
     .cancel-button {
@@ -50,11 +50,11 @@
       color: tokens.$color-grey-40;
 
       &:hover {
-        color: lib.$color-link-hover;
+        color: mp.$color-link-hover;
       }
 
       &:focus {
-        color: lib.$color-blue-50;
+        color: mp.$color-blue-50;
       }
     }
   }

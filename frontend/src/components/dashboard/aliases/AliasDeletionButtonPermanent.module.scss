@@ -1,6 +1,6 @@
 @use "../../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib";
-@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as lib2;
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
 
 .deletion-button {
   display: inline-flex;
@@ -8,26 +8,26 @@
   justify-content: center;
   cursor: pointer;
   background-color: transparent;
-  padding: lib.$spacing-sm lib.$spacing-md;
-  border-radius: lib.$border-radius-sm;
+  padding: mp.$spacing-sm mp.$spacing-md;
+  border-radius: mp.$border-radius-sm;
   font-weight: 600;
   border: 2px solid transparent;
   // Keep some space for the focus outline
   margin: 2px;
-  color: lib.$color-red-60;
+  color: mp.$color-red-60;
   line-height: 1.25;
 
-  @include lib.text-body-md;
+  @include mp.text-body-md;
 
   &:hover {
-    background-color: lib.$color-red-70;
-    color: lib.$color-white;
+    background-color: mp.$color-red-70;
+    color: mp.$color-white;
   }
 }
 
 .underlay {
   position: fixed;
-  background-color: rgba(lib.$color-black, 0.4);
+  background-color: rgba(mp.$color-black, 0.4);
   top: 0;
   bottom: 0;
   left: 0;
@@ -37,51 +37,51 @@
   justify-content: center;
 
   .dialog-wrapper {
-    background: lib.$color-white;
-    width: calc((#{lib.$content-sm} + #{lib.$content-md}) / 2); // 560px
+    background: mp.$color-white;
+    width: calc((#{mp.$content-sm} + #{mp.$content-md}) / 2); // 560px
     max-width: 90%;
-    border-radius: lib.$border-radius-md;
-    box-shadow: lib.$box-shadow-sm;
-    padding: lib.$spacing-md;
+    border-radius: mp.$border-radius-md;
+    box-shadow: mp.$box-shadow-sm;
+    padding: mp.$spacing-md;
     overflow-wrap: break-word;
 
     hr {
       border: 1px solid tokens.$color-grey-10;
-      margin-top: lib.$spacing-2xl;
+      margin-top: mp.$spacing-2xl;
     }
 
     .hero {
-      @include lib.text-title-3xs;
-      font-family: lib.$font-stack-firefox;
+      @include mp.text-title-3xs;
+      font-family: mp.$font-stack-firefox;
       font-weight: 700;
       text-align: center;
-      border-radius: lib.$border-radius-md;
-      background-color: lib.$color-light-gray-10;
-      padding: lib.$spacing-lg lib.$spacing-md;
+      border-radius: mp.$border-radius-md;
+      background-color: mp.$color-light-gray-10;
+      padding: mp.$spacing-lg mp.$spacing-md;
     }
 
     .alias-to-delete {
-      @include lib.text-title-3xs;
+      @include mp.text-title-3xs;
       font-weight: 700;
-      font-family: lib.$font-stack-firefox;
+      font-family: mp.$font-stack-firefox;
       display: block;
       text-align: center;
-      padding: lib.$spacing-lg lib.$spacing-lg lib.$spacing-sm;
+      padding: mp.$spacing-lg mp.$spacing-lg mp.$spacing-sm;
       color: tokens.$color-grey-50;
-      margin-bottom: lib.$spacing-sm;
+      margin-bottom: mp.$spacing-sm;
       user-select: auto;
       -webkit-user-select: auto; // Fixes overflow breaking in iOS devices (MPP-3686)
     }
 
     .permanence-warning {
-      @include lib.text-body-sm;
+      @include mp.text-body-sm;
       font-weight: 600;
       text-align: center;
-      padding: lib.$spacing-sm lib.$spacing-lg;
+      padding: mp.$spacing-sm mp.$spacing-lg;
       color: tokens.$color-grey-50;
-      margin: 0 auto lib.$spacing-2xl auto;
+      margin: 0 auto mp.$spacing-2xl auto;
 
-      @media screen and #{lib.$mq-md} {
+      @media screen and #{mp.$mq-md} {
         width: 75%;
       }
     }
@@ -91,24 +91,24 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-top: lib.$spacing-xl;
+      padding-top: mp.$spacing-xl;
       .delete-btn {
-        width: calc(lib.$layout-xl + lib.$layout-lg);
+        width: calc(mp.$layout-xl + mp.$layout-lg);
       }
       .cancel-button {
         border-style: none;
         background-color: transparent;
         cursor: pointer;
-        border-radius: lib.$border-radius-sm;
-        color: lib.$color-blue-50;
-        padding: lib.$spacing-sm lib.$spacing-md;
+        border-radius: mp.$border-radius-sm;
+        color: mp.$color-blue-50;
+        padding: mp.$spacing-sm mp.$spacing-md;
 
         &:hover {
-          color: lib.$color-link-hover;
+          color: mp.$color-link-hover;
         }
 
         &:focus {
-          color: lib.$color-blue-50;
+          color: mp.$color-blue-50;
         }
       }
     }
@@ -116,21 +116,21 @@
     .warning-wrapper {
       position: relative;
       display: flex;
-      border-left: lib.$border-radius-xs solid color tokens.$color-error;
+      border-left: mp.$border-radius-xs solid color tokens.$color-error;
       align-items: center;
-      padding-left: lib.$spacing-sm;
+      padding-left: mp.$spacing-sm;
       background-color: #fff;
-      gap: lib.$spacing-md;
+      gap: mp.$spacing-md;
       width: 90%;
       margin: 0 auto;
 
       .left-content {
         display: flex;
         align-self: self-start;
-        gap: lib.$spacing-sm;
+        gap: mp.$spacing-sm;
 
         p {
-          @include lib.text-body-sm;
+          @include mp.text-body-sm;
           color: tokens.$color-grey-50;
         }
       }

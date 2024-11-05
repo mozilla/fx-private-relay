@@ -1,6 +1,6 @@
 @use "../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as lib2;
-@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
 @use "../../styles/typography" as styles-typography;
 
 .onboarding {
@@ -12,21 +12,21 @@
 .step,
 .controls {
   width: 100%;
-  max-width: lib2.$content-xl;
+  max-width: mp.$content-xl;
   margin: 0 auto;
-  padding: lib2.$spacing-lg;
+  padding: mp.$spacing-lg;
 
   .generate-new-mask {
-    padding: lib2.$spacing-sm lib2.$spacing-2xl;
-    margin-bottom: lib2.$spacing-lg;
+    padding: mp.$spacing-sm mp.$spacing-2xl;
+    margin-bottom: mp.$spacing-lg;
   }
 }
 
 .step.step-copy-mask {
   .copy-mask-header {
-    margin-bottom: lib2.$spacing-lg;
+    margin-bottom: mp.$spacing-lg;
 
-    @media screen and #{lib2.$mq-lg} {
+    @media screen and #{mp.$mq-lg} {
       margin-bottom: 0;
     }
   }
@@ -42,19 +42,19 @@
   display: flex;
   flex-direction: column;
   position: relative;
-  padding: lib2.$spacing-lg lib2.$spacing-xl;
-  margin-top: lib2.$spacing-2xl;
+  padding: mp.$spacing-lg mp.$spacing-xl;
+  margin-top: mp.$spacing-2xl;
   box-sizing: border-box;
-  background: lib2.$color-white;
+  background: mp.$color-white;
   background-clip: padding-box;
   border: solid 2px transparent;
-  border-radius: lib2.$border-radius-md;
+  border-radius: mp.$border-radius-md;
 
   hr {
-    background-color: lib2.$color-white;
+    background-color: mp.$color-white;
     height: 2px;
     width: 100%;
-    margin: lib2.$spacing-md 0;
+    margin: mp.$spacing-md 0;
   }
 }
 
@@ -65,13 +65,13 @@
   margin: 0 auto;
   display: none;
 
-  @media screen and #{lib2.$mq-lg} {
+  @media screen and #{mp.$mq-lg} {
     display: block;
   }
 
   img {
     position: absolute;
-    width: lib2.$layout-xl;
+    width: mp.$layout-xl;
     height: 125px;
     /* both calculations below deal with alignment of custom art element - vertical arrow */
     bottom: -30px;
@@ -90,7 +90,7 @@
   /* sets order for clipped background */
   z-index: -1;
   /* set to the same width of the border for clipping */
-  margin: calc(lib2.$spacing-xs * -1);
+  margin: calc(mp.$spacing-xs * -1);
   border-radius: inherit;
   background: linear-gradient(
     to right,
@@ -103,11 +103,11 @@
 .content-item {
   display: flex;
   flex-direction: row;
-  gap: lib2.$spacing-lg;
+  gap: mp.$spacing-lg;
 
   .content-text {
     display: flex;
-    gap: lib2.$spacing-md;
+    gap: mp.$spacing-md;
     align-items: flex-start;
     flex-direction: column;
   }
@@ -115,15 +115,15 @@
   .headline {
     font-weight: 700;
 
-    @include lib2.text-body-md;
-    font-family: lib2.$font-stack-firefox;
-    color: lib2.$color-blue-80;
+    @include mp.text-body-md;
+    font-family: mp.$font-stack-firefox;
+    color: mp.$color-blue-80;
   }
 
   .description {
     display: flex;
     flex-direction: column;
-    gap: lib2.$spacing-lg;
+    gap: mp.$spacing-lg;
   }
 }
 
@@ -134,65 +134,65 @@
   justify-content: space-evenly;
 
   .action-complete {
-    @include lib2.text-body-sm;
-    font-family: lib2.$font-stack-firefox;
+    @include mp.text-body-sm;
+    font-family: mp.$font-stack-firefox;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: lib2.$spacing-md;
-    border-radius: lib2.$border-radius-md;
-    background-color: lib2.$color-white;
+    padding: mp.$spacing-md;
+    border-radius: mp.$border-radius-md;
+    background-color: mp.$color-white;
 
     .label {
       display: inline-flex;
       align-items: center;
-      gap: lib2.$spacing-xs;
-      padding-bottom: lib2.$spacing-xs;
+      gap: mp.$spacing-xs;
+      padding-bottom: mp.$spacing-xs;
 
       svg {
-        color: lib2.$color-blue-50;
+        color: mp.$color-blue-50;
       }
     }
 
     samp {
-      @include lib2.text-body-lg;
-      font-family: lib2.$font-stack-firefox;
+      @include mp.text-body-lg;
+      font-family: mp.$font-stack-firefox;
       font-weight: 700;
-      color: lib2.$color-purple-50;
+      color: mp.$color-purple-50;
     }
 
     .domain {
-      @include lib2.text-body-xs;
-      color: lib2.$color-light-gray-90;
+      @include mp.text-body-xs;
+      color: mp.$color-light-gray-90;
     }
   }
 
   &.step-custom-domain {
-    max-width: lib2.$content-xl;
+    max-width: mp.$content-xl;
 
     .subdomain-picker-heading {
-      padding: lib2.$spacing-md 0;
+      padding: mp.$spacing-md 0;
     }
 
     .domain-example {
-      @include lib2.font-firefox;
+      @include mp.font-firefox;
       @include styles-typography.text-title-2xs {
-        color: lib2.$color-light-gray-90;
+        color: mp.$color-light-gray-90;
         display: inline-block;
-        padding: lib2.$spacing-md 0;
+        padding: mp.$spacing-md 0;
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow-x: hidden;
-        max-width: lib2.$content-xs;
+        max-width: mp.$content-xs;
       }
 
-      @media screen and #{lib2.$mq-md} {
+      @media screen and #{mp.$mq-md} {
         max-width: 100%;
       }
 
       .customizable-part {
-        color: lib2.$color-violet-50;
+        color: mp.$color-violet-50;
         font-weight: 700;
       }
     }
@@ -202,7 +202,7 @@
       flex-direction: column;
       margin: 0 auto;
 
-      @media screen and #{lib2.$mq-md} {
+      @media screen and #{mp.$mq-md} {
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
@@ -210,15 +210,15 @@
       }
 
       input {
-        @include lib.form-input;
+        @include mp_forms.form-input;
         flex-grow: 2;
         margin: 0;
-        margin-bottom: lib2.$spacing-md;
+        margin-bottom: mp.$spacing-md;
         width: 100%;
 
-        @media screen and #{ lib2.$mq-md } {
+        @media screen and #{ mp.$mq-md } {
           margin: 0;
-          margin-right: lib2.$spacing-md;
+          margin-right: mp.$spacing-md;
         }
       }
 
@@ -233,14 +233,14 @@
       // Hide the description of the add-on on small screens,
       // because it isn't available on mobile.
       display: none;
-      padding: lib2.$spacing-md 0;
+      padding: mp.$spacing-md 0;
 
-      @media screen and #{lib2.$mq-md} {
+      @media screen and #{mp.$mq-md} {
         display: block;
       }
     }
 
-    @media screen and #{lib2.$mq-md} {
+    @media screen and #{mp.$mq-md} {
       // Don't show the description of replies on small screens,
       // to focus on the add-on availability:
       .reply-description {
@@ -252,16 +252,16 @@
     }
 
     h3 {
-      @include lib2.text-body-md;
+      @include mp.text-body-md;
     }
 
     .get-addon-button {
-      margin-top: lib2.$spacing-md;
+      margin-top: mp.$spacing-md;
       // The extension isn't available on mobile,
       // so hide it on small screens:
       display: none;
 
-      @media screen and #{lib2.$mq-md} {
+      @media screen and #{mp.$mq-md} {
         display: inline-block;
       }
     }
@@ -272,38 +272,38 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: lib2.$spacing-xs;
+    gap: mp.$spacing-xs;
 
     h1 {
       @include styles-typography.text-title-sm {
         font-weight: 700;
-        font-family: lib2.$font-stack-firefox;
-        color: lib2.$color-purple-50;
+        font-family: mp.$font-stack-firefox;
+        color: mp.$color-purple-50;
       }
     }
 
     p {
-      @include lib2.text-body-md;
+      @include mp.text-body-md;
       font-weight: 600;
-      font-family: lib2.$font-stack-firefox;
+      font-family: mp.$font-stack-firefox;
     }
   }
 
   .content-wrapper {
     display: flex;
     flex-direction: column;
-    gap: lib2.$spacing-2xl;
+    gap: mp.$spacing-2xl;
 
     img {
-      margin: lib2.$spacing-2xl auto 0 auto;
+      margin: mp.$spacing-2xl auto 0 auto;
       max-width: 300px;
 
-      @media screen and #{lib2.$mq-lg} {
+      @media screen and #{mp.$mq-lg} {
         max-width: unset;
       }
     }
 
-    @media screen and #{lib2.$mq-md} {
+    @media screen and #{mp.$mq-md} {
       flex-direction: row;
     }
   }
@@ -312,7 +312,7 @@
 .hidden-mobile {
   display: none;
 
-  @media screen and #{lib2.$mq-md} {
+  @media screen and #{mp.$mq-md} {
     display: inline-block;
   }
 }
@@ -320,20 +320,20 @@
 .headline {
   font-weight: 700;
 
-  @include lib2.text-body-md;
-  font-family: lib2.$font-stack-firefox;
-  color: lib2.$color-blue-80;
+  @include mp.text-body-md;
+  font-family: mp.$font-stack-firefox;
+  color: mp.$color-blue-80;
 }
 
 .content-text {
   display: flex;
   flex-direction: column;
-  gap: lib2.$spacing-lg;
+  gap: mp.$spacing-lg;
 
   div:nth-child(2) {
-    border: 3px solid lib2.$color-white;
-    border-radius: lib2.$border-radius-md;
-    padding: lib2.$spacing-lg lib2.$spacing-2xl;
+    border: 3px solid mp.$color-white;
+    border-radius: mp.$border-radius-md;
+    padding: mp.$spacing-lg mp.$spacing-2xl;
   }
 }
 
@@ -347,7 +347,7 @@
 .controls {
   display: flex;
   flex-direction: column;
-  gap: lib2.$spacing-xl;
+  gap: mp.$spacing-xl;
   align-items: center;
   width: 100%;
 
@@ -355,11 +355,11 @@
   .next-link {
     background-color: transparent;
     border-style: none;
-    color: lib2.$color-blue-50;
-    border-radius: lib2.$border-radius-sm;
+    color: mp.$color-blue-50;
+    border-radius: mp.$border-radius-sm;
 
     &:hover {
-      color: lib2.$color-blue-70;
+      color: mp.$color-blue-70;
       text-decoration: underline;
       cursor: pointer;
     }
@@ -367,12 +367,12 @@
 
   .next-link {
     /* allows for flush positioning of link to next page with pagination component */
-    margin: calc(lib2.$spacing-lg * -1) 0 lib2.$spacing-xs lib2.$spacing-sm;
+    margin: calc(mp.$spacing-lg * -1) 0 mp.$spacing-xs mp.$spacing-sm;
     display: flex;
     align-items: center;
   }
 
-  @media screen and (max-width: #{lib2.$screen-md}) {
+  @media screen and (max-width: #{mp.$screen-md}) {
     .get-addon-button {
       display: none;
     }
@@ -386,37 +386,37 @@
   /* this code is copied from progress bar used in premium onboarding */
   progress {
     width: 100%;
-    max-width: lib2.$content-md;
+    max-width: mp.$content-md;
   }
 
   .styled-progress-bar {
     display: flex;
     width: 100%;
-    max-width: lib2.$content-md;
-    gap: lib2.$spacing-sm;
+    max-width: mp.$content-md;
+    gap: mp.$spacing-sm;
     list-style-type: none;
 
     li {
       width: 100%;
-      color: lib2.$color-light-gray-90;
+      color: mp.$color-light-gray-90;
       text-align: center;
       transition: color 0.2s ease-out;
 
       span {
         display: block;
         height: 5px;
-        background-color: lib2.$color-light-gray-20;
-        margin-bottom: lib2.$spacing-xs;
+        background-color: mp.$color-light-gray-20;
+        margin-bottom: mp.$spacing-xs;
         transition:
           box-shadow 1s ease-out,
           color 0.2s ease-out;
       }
 
       &.is-completed {
-        color: lib2.$color-violet-20;
+        color: mp.$color-violet-20;
 
         span {
-          box-shadow: inset 300px 0 0 0 lib2.$color-violet-20;
+          box-shadow: inset 300px 0 0 0 mp.$color-violet-20;
         }
       }
     }
@@ -427,16 +427,16 @@
   .addon-content-items {
     flex-direction: column;
 
-    @media screen and #{lib2.$mq-md} {
+    @media screen and #{mp.$mq-md} {
       flex-direction: row;
     }
   }
 
   .addon-content-items:nth-child(2) {
     flex-direction: column-reverse;
-    margin-top: lib2.$spacing-2xl;
+    margin-top: mp.$spacing-2xl;
 
-    @media screen and #{ lib2.$mq-md } {
+    @media screen and #{ mp.$mq-md } {
       flex-direction: row;
     }
   }
@@ -445,7 +445,7 @@
   .small-arrow {
     display: none;
 
-    @media screen and #{lib2.$mq-md} {
+    @media screen and #{mp.$mq-md} {
       display: flex;
     }
   }
@@ -454,14 +454,14 @@
 .addon-content-wrapper {
   display: flex;
   flex-direction: column;
-  gap: lib2.$spacing-md;
-  margin-top: lib2.$spacing-lg;
+  gap: mp.$spacing-md;
+  margin-top: mp.$spacing-lg;
 
   .addon-content-items {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: lib2.$spacing-2xl;
+    gap: mp.$spacing-2xl;
     position: relative;
 
     .large-arrow,
@@ -471,24 +471,24 @@
 
     /* custom art element that requires absolute positioning */
     .large-arrow {
-      bottom: calc(lib2.$spacing-2xl * -1);
-      right: calc(lib2.$spacing-lg * -5);
+      bottom: calc(mp.$spacing-2xl * -1);
+      right: calc(mp.$spacing-lg * -5);
     }
 
     /* custom art element that requires absolute positioning */
     .small-arrow {
-      bottom: calc(lib2.$spacing-2xl * -1);
-      left: calc(lib2.$spacing-lg * -5);
+      bottom: calc(mp.$spacing-2xl * -1);
+      left: calc(mp.$spacing-lg * -5);
     }
 
     .headline {
-      @include lib2.text-body-lg;
+      @include mp.text-body-lg;
     }
 
     .addon-content-text {
       display: flex;
       flex-direction: column;
-      gap: lib2.$spacing-sm;
+      gap: mp.$spacing-sm;
       position: relative;
     }
   }
@@ -496,8 +496,8 @@
 
 .action-complete {
   text-align: center;
-  background: lib2.$color-white;
-  padding: lib2.$spacing-sm lib2.$spacing-2xl;
+  background: mp.$color-white;
+  padding: mp.$spacing-sm mp.$spacing-2xl;
 
   svg {
     margin: 0 auto;

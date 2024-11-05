@@ -1,10 +1,10 @@
 @use "../../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as lib2;
-@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
 
 .underlay {
   position: fixed;
-  background-color: rgba(lib2.$color-black, 0.4);
+  background-color: rgba(mp.$color-black, 0.4);
   top: 0;
   bottom: 0;
   left: 0;
@@ -14,48 +14,48 @@
   justify-content: center;
 
   .dialog-wrapper {
-    background: lib2.$color-white;
-    width: calc((#{lib2.$content-sm} + #{lib2.$content-md}) / 2); // 560px
+    background: mp.$color-white;
+    width: calc((#{mp.$content-sm} + #{mp.$content-md}) / 2); // 560px
     max-width: 90%;
-    border-radius: lib2.$border-radius-md;
-    box-shadow: lib2.$box-shadow-sm;
-    padding: lib2.$spacing-md;
+    border-radius: mp.$border-radius-md;
+    box-shadow: mp.$box-shadow-sm;
+    padding: mp.$spacing-md;
 
     .hero {
-      @include lib2.text-title-3xs;
-      font-family: lib2.$font-stack-firefox;
+      @include mp.text-title-3xs;
+      font-family: mp.$font-stack-firefox;
       font-weight: 700;
       text-align: center;
-      border-radius: lib2.$border-radius-md;
-      background-color: lib2.$color-light-gray-10;
-      padding: lib2.$spacing-md lib2.$spacing-sm;
+      border-radius: mp.$border-radius-md;
+      background-color: mp.$color-light-gray-10;
+      padding: mp.$spacing-md mp.$spacing-sm;
 
-      @media screen and #{lib2.$mq-sm} {
-        padding: lib2.$spacing-lg lib2.$spacing-md;
+      @media screen and #{mp.$mq-sm} {
+        padding: mp.$spacing-lg mp.$spacing-md;
       }
     }
 
     .tip {
       display: flex;
-      gap: lib2.$spacing-sm;
+      gap: mp.$spacing-sm;
       word-break: break-word;
-      border-left: 2px solid lib2.$color-violet-30;
+      border-left: 2px solid mp.$color-violet-30;
       margin: 0 auto;
       width: 85%;
-      padding-left: lib2.$spacing-sm;
-      font-family: lib2.$font-stack-base;
+      padding-left: mp.$spacing-sm;
+      font-family: mp.$font-stack-base;
       font-weight: 400;
       color: tokens.$color-grey-50;
 
-      @include lib2.text-body-sm;
+      @include mp.text-body-sm;
 
       .tip-icon {
         // There is limited space on the mask creation modal on mobile.
         // Hiding this icon until larger screens increases the available space for copy.
         display: none;
-        color: lib2.$color-pink-30;
+        color: mp.$color-pink-30;
 
-        @media screen and #{lib2.$mq-sm} {
+        @media screen and #{mp.$mq-sm} {
           display: block;
         }
 
@@ -66,11 +66,11 @@
     }
 
     hr {
-      border: 1px solid lib2.$color-light-gray-20;
-      margin-top: lib2.$spacing-lg;
+      border: 1px solid mp.$color-light-gray-20;
+      margin-top: mp.$spacing-lg;
 
-      @media screen and #{lib2.$mq-sm} {
-        margin-top: lib2.$spacing-xl;
+      @media screen and #{mp.$mq-sm} {
+        margin-top: mp.$spacing-xl;
       }
     }
 
@@ -78,16 +78,16 @@
       text-align: center;
 
       .form-heading {
-        color: lib2.$color-dark-gray-70;
-        padding: lib2.$spacing-md 0;
+        color: mp.$color-dark-gray-70;
+        padding: mp.$spacing-md 0;
 
-        @media screen and #{lib2.$mq-sm} {
-          padding: lib2.$spacing-lg 0;
+        @media screen and #{mp.$mq-sm} {
+          padding: mp.$spacing-lg 0;
         }
       }
 
       .prefix {
-        font-family: lib2.$font-stack-firefox;
+        font-family: mp.$font-stack-firefox;
         color: tokens.$color-grey-50;
         width: 70%;
         margin: 0 auto;
@@ -98,26 +98,26 @@
         label {
           text-align: start;
           font-weight: 600;
-          margin-top: lib2.$spacing-xl;
+          margin-top: mp.$spacing-xl;
         }
 
         input {
-          @include lib.form-input;
+          @include mp_forms.form-input;
           // Override form-input's margin:
-          margin: lib2.$spacing-sm 0 0 0;
+          margin: mp.$spacing-sm 0 0 0;
           font-weight: 400;
-          padding: lib2.$spacing-sm;
+          padding: mp.$spacing-sm;
           color: tokens.$color-grey-40;
-          font-family: lib2.$font-stack-base;
+          font-family: mp.$font-stack-base;
 
-          @include lib2.text-body-md;
+          @include mp.text-body-md;
         }
       }
 
       .suffix {
-        font-family: lib2.$font-stack-firefox;
+        font-family: mp.$font-stack-firefox;
         display: block;
-        padding-top: lib2.$spacing-xs;
+        padding-top: mp.$spacing-xs;
       }
     }
 
@@ -125,34 +125,34 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: lib2.$spacing-sm;
-      margin: lib2.$spacing-md lib2.$spacing-sm;
-      font-family: lib2.$font-stack-firefox;
+      gap: mp.$spacing-sm;
+      margin: mp.$spacing-md mp.$spacing-sm;
+      font-family: mp.$font-stack-firefox;
       color: tokens.$color-grey-50;
       font-weight: 600;
 
-      @media screen and #{lib2.$mq-sm} {
-        margin: lib2.$spacing-xl lib2.$spacing-sm;
+      @media screen and #{mp.$mq-sm} {
+        margin: mp.$spacing-xl mp.$spacing-sm;
       }
 
       input[type="checkbox"] {
         width: 20px;
         height: 20px;
         border: 2px solid tokens.$color-grey-20;
-        border-radius: lib2.$border-radius-sm;
+        border-radius: mp.$border-radius-sm;
         -webkit-appearance: none;
       }
 
       input[type="checkbox"]:checked {
-        background-color: lib2.$color-blue-50;
-        border-color: lib2.$color-blue-50;
+        background-color: mp.$color-blue-50;
+        border-color: mp.$color-blue-50;
         appearance: checkbox;
       }
 
       .promotionals-blocking-description {
         a {
           display: block;
-          color: lib2.$color-blue-50;
+          color: mp.$color-blue-50;
 
           &:hover {
             text-decoration: underline;
@@ -166,26 +166,26 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-top: lib2.$spacing-lg;
+      padding-top: mp.$spacing-lg;
 
-      @media screen and #{lib2.$mq-sm} {
-        padding-top: lib2.$spacing-xl;
+      @media screen and #{mp.$mq-sm} {
+        padding-top: mp.$spacing-xl;
       }
 
       .cancel-button {
         border-style: none;
         background-color: transparent;
         cursor: pointer;
-        border-radius: lib2.$border-radius-sm;
-        color: lib2.$color-blue-50;
-        padding: lib2.$spacing-sm 0;
+        border-radius: mp.$border-radius-sm;
+        color: mp.$color-blue-50;
+        padding: mp.$spacing-sm 0;
 
         &:hover {
-          color: lib2.$color-link-hover;
+          color: mp.$color-link-hover;
         }
 
         &:focus {
-          color: lib2.$color-blue-50;
+          color: mp.$color-blue-50;
         }
       }
     }

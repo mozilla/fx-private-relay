@@ -1,5 +1,5 @@
-@use "~@mozilla-protocol/core/protocol/css/includes/lib" as lib2;
-@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
+@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
 @use "../../../styles/tokens";
 
 .underlay {
@@ -15,11 +15,11 @@
 
   .dialog-wrapper {
     background: tokens.$color-white;
-    width: calc((#{lib2.$content-sm} + #{lib2.$content-md}) / 2); // 560px
+    width: calc((#{mp.$content-sm} + #{mp.$content-md}) / 2); // 560px
     max-width: 90%;
-    border-radius: lib2.$border-radius-md;
-    box-shadow: lib2.$box-shadow-sm;
-    padding: lib2.$spacing-md;
+    border-radius: mp.$border-radius-md;
+    box-shadow: mp.$box-shadow-sm;
+    padding: mp.$spacing-md;
     outline: none;
     position: relative;
 
@@ -38,19 +38,18 @@
       .invalid-address-msg {
         display: flex;
         position: absolute;
-        box-shadow: lib2.$box-shadow-sm;
-        border-radius: lib2.$border-radius-sm;
-        border-left: lib2.$border-radius-md solid color tokens.$color-error;
+        box-shadow: mp.$box-shadow-sm;
+        border-radius: mp.$border-radius-sm;
+        border-left: mp.$border-radius-md solid color tokens.$color-error;
         align-items: center;
-        padding: lib2.$spacing-sm lib2.$spacing-md lib2.$spacing-sm
-          lib2.$spacing-sm;
+        padding: mp.$spacing-sm mp.$spacing-md mp.$spacing-sm mp.$spacing-sm;
         background-color: #fff;
-        gap: lib2.$spacing-md;
+        gap: mp.$spacing-md;
 
         .left-content {
           display: flex;
           align-self: self-start;
-          gap: lib2.$spacing-sm;
+          gap: mp.$spacing-sm;
         }
 
         .prefix-error-icon {
@@ -60,7 +59,7 @@
         .prefix-error-icon.close-button {
           background-color: transparent;
           border-style: none;
-          border-radius: lib2.$border-radius-sm;
+          border-radius: mp.$border-radius-sm;
           cursor: pointer;
           color: tokens.$color-grey-30;
 
@@ -72,32 +71,32 @@
     }
 
     .hero {
-      @include lib2.text-title-3xs;
-      font-family: lib2.$font-stack-firefox;
+      @include mp.text-title-3xs;
+      font-family: mp.$font-stack-firefox;
       font-weight: 700;
       text-align: center;
-      border-radius: lib2.$border-radius-md;
-      background-color: lib2.$color-light-gray-10;
-      padding: lib2.$spacing-md lib2.$spacing-sm;
+      border-radius: mp.$border-radius-md;
+      background-color: mp.$color-light-gray-10;
+      padding: mp.$spacing-md mp.$spacing-sm;
 
-      @media screen and #{lib2.$mq-sm} {
-        padding: lib2.$spacing-lg lib2.$spacing-md;
+      @media screen and #{mp.$mq-sm} {
+        padding: mp.$spacing-lg mp.$spacing-md;
       }
     }
 
     .tip {
       display: flex;
-      gap: lib2.$spacing-sm;
+      gap: mp.$spacing-sm;
       word-break: break-word;
       border-left: 2px solid tokens.$color-violet-30;
       margin: 0 auto;
       width: 85%;
-      padding-left: lib2.$spacing-sm;
-      font-family: lib2.$font-stack-base;
+      padding-left: mp.$spacing-sm;
+      font-family: mp.$font-stack-base;
       font-weight: 400;
       color: tokens.$color-grey-50;
 
-      @include lib2.text-body-sm;
+      @include mp.text-body-sm;
 
       .tip-icon {
         // There is limited space on the mask creation modal on mobile.
@@ -105,7 +104,7 @@
         display: none;
         color: tokens.$color-pink-30;
 
-        @media screen and #{lib2.$mq-sm} {
+        @media screen and #{mp.$mq-sm} {
           display: block;
         }
 
@@ -116,11 +115,11 @@
     }
 
     hr {
-      border: 1px solid lib2.$color-light-gray-20;
-      margin-top: lib2.$spacing-lg;
+      border: 1px solid mp.$color-light-gray-20;
+      margin-top: mp.$spacing-lg;
 
-      @media screen and #{lib2.$mq-sm} {
-        margin-top: lib2.$spacing-xl;
+      @media screen and #{mp.$mq-sm} {
+        margin-top: mp.$spacing-xl;
       }
     }
 
@@ -128,16 +127,16 @@
       text-align: center;
 
       .form-heading {
-        color: lib2.$color-dark-gray-70;
-        padding: lib2.$spacing-md 0;
+        color: mp.$color-dark-gray-70;
+        padding: mp.$spacing-md 0;
 
-        @media screen and #{lib2.$mq-sm} {
-          padding: lib2.$spacing-lg 0;
+        @media screen and #{mp.$mq-sm} {
+          padding: mp.$spacing-lg 0;
         }
       }
 
       .prefix {
-        font-family: lib2.$font-stack-firefox;
+        font-family: mp.$font-stack-firefox;
         color: tokens.$color-grey-50;
         width: 70%;
         margin: 0 auto;
@@ -148,26 +147,26 @@
         label {
           text-align: start;
           font-weight: 600;
-          margin-top: lib2.$spacing-xl;
+          margin-top: mp.$spacing-xl;
         }
 
         .profile-registered-domain-value {
           color: tokens.$color-blue-50;
           word-break: break-word;
-          margin-top: lib2.$spacing-md;
-          margin-bottom: lib2.$spacing-2xl;
+          margin-top: mp.$spacing-md;
+          margin-bottom: mp.$spacing-2xl;
         }
 
         input {
-          @include lib.form-input;
+          @include mp_forms.form-input;
           // Override form-input's margin:
-          margin: lib2.$spacing-sm 0 0 0;
+          margin: mp.$spacing-sm 0 0 0;
           font-weight: 400;
-          padding: lib2.$spacing-sm;
+          padding: mp.$spacing-sm;
           color: tokens.$color-grey-40;
-          font-family: lib2.$font-stack-base;
+          font-family: mp.$font-stack-base;
 
-          @include lib2.text-body-md;
+          @include mp.text-body-md;
           &.invalid-prefix:focus {
             outline: 5px solid tokens.$color-red-10;
             border: 2px solid tokens.$color-error;
@@ -191,18 +190,18 @@
             display: flex;
             text-align: left;
             align-items: center;
-            margin: 0 0 lib2.$spacing-sm lib2.$spacing-sm;
-            gap: lib2.$spacing-md;
+            margin: 0 0 mp.$spacing-sm mp.$spacing-sm;
+            gap: mp.$spacing-md;
 
             .error-icons {
-              min-width: lib2.$spacing-md;
+              min-width: mp.$spacing-md;
               flex: 0 0 auto;
             }
 
             .check-icon {
               color: tokens.$color-green-80;
-              width: calc(lib2.$spacing-md - lib2.$spacing-xs);
-              height: calc(lib2.$spacing-md - lib2.$spacing-xs);
+              width: calc(mp.$spacing-md - mp.$spacing-xs);
+              height: calc(mp.$spacing-md - mp.$spacing-xs);
             }
 
             .close-icon {
@@ -213,13 +212,13 @@
           .tooltip {
             display: initial;
 
-            @include lib2.text-body-sm;
+            @include mp.text-body-sm;
             $triangleWidth: 10px;
             position: absolute;
             background-color: tokens.$color-white;
-            box-shadow: lib2.$box-shadow-sm;
-            border-radius: lib2.$border-radius-sm;
-            padding: lib2.$spacing-md;
+            box-shadow: mp.$box-shadow-sm;
+            border-radius: mp.$border-radius-sm;
+            padding: mp.$spacing-md;
             width: 100%;
             margin-top: $triangleWidth;
             left: 0;
@@ -245,9 +244,9 @@
       }
 
       .suffix {
-        font-family: lib2.$font-stack-firefox;
+        font-family: mp.$font-stack-firefox;
         display: block;
-        padding-top: lib2.$spacing-xs;
+        padding-top: mp.$spacing-xs;
       }
     }
 
@@ -255,8 +254,8 @@
       display: flex;
       align-items: center;
       flex-direction: column;
-      gap: lib2.$spacing-sm;
-      margin-top: lib2.$spacing-md;
+      gap: mp.$spacing-sm;
+      margin-top: mp.$spacing-md;
 
       p {
         font-weight: 700;
@@ -264,7 +263,7 @@
         width: 100%;
         text-align: center;
 
-        @include lib2.text-body-lg;
+        @include mp.text-body-lg;
       }
     }
 
@@ -272,21 +271,21 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: lib2.$spacing-sm;
-      margin: lib2.$spacing-md lib2.$spacing-sm;
-      font-family: lib2.$font-stack-firefox;
+      gap: mp.$spacing-sm;
+      margin: mp.$spacing-md mp.$spacing-sm;
+      font-family: mp.$font-stack-firefox;
       color: tokens.$color-grey-50;
       font-weight: 600;
 
-      @media screen and #{lib2.$mq-sm} {
-        margin: lib2.$spacing-xl lib2.$spacing-sm;
+      @media screen and #{mp.$mq-sm} {
+        margin: mp.$spacing-xl mp.$spacing-sm;
       }
 
       input[type="checkbox"] {
         width: 20px;
         height: 20px;
         border: 2px solid tokens.$color-grey-40;
-        border-radius: lib2.$border-radius-sm;
+        border-radius: mp.$border-radius-sm;
         -webkit-appearance: none;
       }
 
@@ -313,22 +312,22 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-top: lib2.$spacing-lg;
+      padding-top: mp.$spacing-lg;
 
-      @media screen and #{lib2.$mq-sm} {
-        padding-top: lib2.$spacing-xl;
+      @media screen and #{mp.$mq-sm} {
+        padding-top: mp.$spacing-xl;
       }
 
       .end-button {
         border-style: none;
         background-color: transparent;
         cursor: pointer;
-        border-radius: lib2.$border-radius-sm;
+        border-radius: mp.$border-radius-sm;
         color: tokens.$color-blue-50;
-        padding: lib2.$spacing-sm 0;
+        padding: mp.$spacing-sm 0;
 
         &:hover {
-          color: lib2.$color-link-hover;
+          color: mp.$color-link-hover;
         }
 
         &:focus {

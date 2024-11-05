@@ -1,35 +1,35 @@
-@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
 @use "../../../styles/tokens";
 @use "../../../styles/typography" as styles-typography;
 
 .wrapper {
   display: flex;
   flex-direction: column;
-  gap: lib.$spacing-xl;
+  gap: mp.$spacing-xl;
   flex: 1 0 auto;
-  max-width: lib.$content-lg;
+  max-width: mp.$content-lg;
   margin: 0 auto;
-  padding: lib.$spacing-2xl lib.$spacing-lg;
+  padding: mp.$spacing-2xl mp.$spacing-lg;
   width: 100%;
   overflow-x: hidden;
 
   h2 {
     @include styles-typography.text-title-xs {
-      font-family: lib.$font-stack-firefox;
+      font-family: mp.$font-stack-firefox;
       text-align: center;
     }
   }
 
   .lead {
-    @include lib.text-title-3xs;
-    font-family: lib.$font-stack-firefox;
+    @include mp.text-title-3xs;
+    font-family: mp.$font-stack-firefox;
     text-align: center;
     display: flex;
     flex-direction: column;
-    gap: lib.$spacing-lg;
+    gap: mp.$spacing-lg;
 
     p {
-      @include lib.text-body-md;
+      @include mp.text-body-md;
     }
 
     img {
@@ -38,22 +38,22 @@
   }
 
   .description {
-    @include lib.text-body-md;
+    @include mp.text-body-md;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: lib.$spacing-2xl;
-    padding: lib.$spacing-md;
-    margin-top: lib.$spacing-lg;
+    gap: mp.$spacing-2xl;
+    padding: mp.$spacing-md;
+    margin-top: mp.$spacing-lg;
 
-    @media screen and #{lib.$mq-md} {
+    @media screen and #{mp.$mq-md} {
       flex-direction: row;
     }
 
     ul {
       display: flex;
       flex-direction: column;
-      gap: lib.$spacing-md;
+      gap: mp.$spacing-md;
       margin: 0;
       padding: 0;
 
@@ -71,15 +71,15 @@
     align-items: center;
     justify-items: center;
     text-align: center;
-    gap: lib.$spacing-md;
+    gap: mp.$spacing-md;
     background-color: tokens.$color-white;
-    padding: lib.$spacing-lg lib.$spacing-2xl;
-    border-radius: lib.$border-radius-md;
-    box-shadow: lib.$box-shadow-sm;
+    padding: mp.$spacing-lg mp.$spacing-2xl;
+    border-radius: mp.$border-radius-md;
+    box-shadow: mp.$box-shadow-sm;
 
     h3 {
-      @include lib.text-body-md;
-      font-family: lib.$font-stack-firefox;
+      @include mp.text-body-md;
+      font-family: mp.$font-stack-firefox;
       text-align: center;
       font-weight: 400;
     }
@@ -87,19 +87,19 @@
     .pricing {
       display: flex;
       flex-direction: column;
-      gap: lib.$spacing-sm;
+      gap: mp.$spacing-sm;
       width: 100%; // Ensures responsiveness of container, and that the purchase tabpanel has a static width when toggling.
 
       .pricing-toggle {
         display: flex;
         background-color: tokens.$color-grey-10;
-        padding: lib.$spacing-xs;
-        border-radius: lib.$border-radius-lg;
+        padding: mp.$spacing-xs;
+        border-radius: mp.$border-radius-lg;
 
         > div {
-          @include lib.text-body-sm;
+          @include mp.text-body-sm;
           width: 50%;
-          padding: lib.$spacing-xs lib.$spacing-sm;
+          padding: mp.$spacing-xs mp.$spacing-sm;
           text-align: center;
           color: tokens.$color-grey-40;
           font-weight: 500;
@@ -107,7 +107,7 @@
 
           &.is-selected {
             background-color: tokens.$color-white;
-            border-radius: lib.$border-radius-lg;
+            border-radius: mp.$border-radius-lg;
             color: tokens.$color-blue-50;
           }
         }
@@ -116,17 +116,17 @@
       [role="tabpanel"] {
         display: flex;
         flex-direction: column;
-        gap: lib.$spacing-md;
+        gap: mp.$spacing-md;
 
         .price {
           @include styles-typography.text-title-2xs {
-            padding-top: lib.$spacing-sm;
+            padding-top: mp.$spacing-sm;
             display: block;
             font-weight: 700;
           }
 
           > span {
-            @include lib.text-body-sm;
+            @include mp.text-body-sm;
             font-weight: 400;
             vertical-align: middle;
           }

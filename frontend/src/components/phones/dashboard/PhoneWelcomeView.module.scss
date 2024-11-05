@@ -1,4 +1,4 @@
-@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
 @use "../../../styles/tokens";
 @use "../../../styles/typography" as styles-typography;
 
@@ -6,13 +6,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: lib.$content-max;
+  max-width: mp.$content-max;
   width: 100%;
   margin: 0 auto;
-  padding: lib.$spacing-md;
-  margin-bottom: lib.$layout-md;
-  margin-top: lib.$layout-sm;
-  gap: lib.$layout-md;
+  padding: mp.$spacing-md;
+  margin-bottom: mp.$layout-md;
+  margin-top: mp.$layout-sm;
+  gap: mp.$layout-md;
 
   .main-heading {
     display: flex;
@@ -21,7 +21,7 @@
 
     h1 {
       @include styles-typography.text-title-xs {
-        @include lib.font-firefox;
+        @include mp.font-firefox;
         font-weight: 600;
       }
     }
@@ -30,9 +30,9 @@
   .phone-instructions-wrapper {
     display: flex;
     flex-direction: column;
-    margin-top: lib.$layout-md;
+    margin-top: mp.$layout-md;
 
-    @media screen and #{lib.$mq-md} {
+    @media screen and #{mp.$mq-md} {
       flex-direction: row;
     }
 
@@ -41,20 +41,20 @@
       position: relative;
       display: flex;
       flex-direction: column;
-      padding: lib.$spacing-lg 0;
+      padding: mp.$spacing-lg 0;
 
-      @media screen and #{lib.$mq-md} {
-        padding: 0 lib.$spacing-md;
+      @media screen and #{mp.$mq-md} {
+        padding: 0 mp.$spacing-md;
       }
-      @media screen and #{lib.$mq-lg} {
-        padding: 0 lib.$spacing-2xl;
+      @media screen and #{mp.$mq-lg} {
+        padding: 0 mp.$spacing-2xl;
       }
 
       + .instruction-item {
-        border-top: solid 2px lib.$color-light-gray-20;
+        border-top: solid 2px mp.$color-light-gray-20;
 
-        @media screen and #{lib.$mq-md} {
-          border-left: solid 2px lib.$color-light-gray-20;
+        @media screen and #{mp.$mq-md} {
+          border-left: solid 2px mp.$color-light-gray-20;
           border-top: none;
         }
       }
@@ -63,15 +63,15 @@
         align-self: center;
         display: inline;
         border-radius: 100%;
-        background-color: lib.$color-light-gray-30;
-        color: lib.$color-dark-gray-90;
-        padding: lib.$spacing-xs;
-        margin-left: lib.$spacing-sm;
+        background-color: mp.$color-light-gray-30;
+        color: mp.$color-dark-gray-90;
+        padding: mp.$spacing-xs;
+        margin-left: mp.$spacing-sm;
       }
 
       h2 {
-        @include lib.text-title-3xs;
-        padding: lib.$spacing-md 0;
+        @include mp.text-title-3xs;
+        padding: mp.$spacing-md 0;
         font-weight: 600;
       }
 
@@ -96,15 +96,15 @@
       }
 
       .demo-wrapper {
-        padding: 0 lib.$spacing-md;
+        padding: 0 mp.$spacing-md;
 
-        @media screen and #{lib.$mq-md} {
+        @media screen and #{mp.$mq-md} {
           padding: 0;
         }
 
         .demo-heading {
-          color: lib.$color-light-gray-80;
-          padding-top: lib.$spacing-lg;
+          color: mp.$color-light-gray-80;
+          padding-top: mp.$spacing-lg;
         }
 
         .demo-input-wrapper {
@@ -113,16 +113,16 @@
           position: relative;
 
           .demo-input {
-            @include lib.text-body-lg;
+            @include mp.text-body-lg;
             position: absolute;
             // Positioning the input into the text image
             margin: 0 0 5% 5%;
 
-            @media screen and #{lib.$mq-md} {
-              @include lib.text-body-md;
+            @media screen and #{mp.$mq-md} {
+              @include mp.text-body-md;
             }
-            @media screen and #{lib.$mq-xl} {
-              @include lib.text-body-lg;
+            @media screen and #{mp.$mq-xl} {
+              @include mp.text-body-lg;
             }
           }
 
@@ -143,31 +143,31 @@
           ul {
             display: flex;
             flex-direction: column;
-            padding: lib.$spacing-sm;
+            padding: mp.$spacing-sm;
             background: tokens.$color-white;
             box-shadow: 0px 2px 12px rgba(0, 0, 0, 0.1); // Taken from Figma style to match it with the other svgs
-            border-radius: lib.$border-radius-md;
+            border-radius: mp.$border-radius-md;
             list-style: none;
-            gap: lib.$spacing-xs;
+            gap: mp.$spacing-xs;
 
             li {
               display: flex;
               flex-direction: row;
               align-items: center;
               justify-content: space-between;
-              padding: lib.$spacing-xs;
+              padding: mp.$spacing-xs;
 
               &:first-child {
-                color: lib.$color-light-gray-50;
-                padding-bottom: lib.$spacing-sm;
-                border-bottom: 1px solid lib.$color-light-gray-10;
+                color: mp.$color-light-gray-50;
+                padding-bottom: mp.$spacing-sm;
+                border-bottom: 1px solid mp.$color-light-gray-10;
               }
 
               span {
                 margin: 0;
 
                 p:nth-child(2) {
-                  @include lib.text-body-sm;
+                  @include mp.text-body-sm;
                 }
 
                 &:nth-child(2) {
@@ -182,14 +182,14 @@
   }
 
   .dashboard-btn {
-    @include lib.font-firefox;
+    @include mp.font-firefox;
     width: 100%;
     text-align: center;
-    padding: lib.$spacing-sm;
+    padding: mp.$spacing-sm;
 
-    @media screen and #{lib.$mq-md} {
+    @media screen and #{mp.$mq-md} {
       width: auto;
-      padding: lib.$spacing-sm lib.$spacing-2xl;
+      padding: mp.$spacing-sm mp.$spacing-2xl;
     }
   }
 }

@@ -1,22 +1,22 @@
 @use "../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
 @use "../styles/typography";
 
 .contains-tracker-container {
-  margin: lib.$layout-sm;
+  margin: mp.$layout-sm;
 
   .warning-banner-wrapper {
     display: flex;
     gap: 10px;
-    background-color: lib.$color-white;
-    padding: lib.$spacing-lg lib.$spacing-md;
-    border-radius: lib.$border-radius-sm;
-    box-shadow: lib.$box-shadow-sm;
+    background-color: mp.$color-white;
+    padding: mp.$spacing-lg mp.$spacing-md;
+    border-radius: mp.$border-radius-sm;
+    box-shadow: mp.$box-shadow-sm;
     justify-content: space-between;
     align-items: flex-start;
     flex-direction: column;
 
-    @media screen and #{lib.$mq-md} {
+    @media screen and #{mp.$mq-md} {
       flex-direction: row;
       align-items: center;
     }
@@ -25,15 +25,15 @@
       a {
         font-size: 15px;
         font-weight: 600;
-        font-family: lib.$font-stack-firefox;
-        color: lib.$color-black;
+        font-family: mp.$font-stack-firefox;
+        color: mp.$color-black;
         border: none;
         background-color: tokens.$color-grey-10;
         white-space: nowrap;
         align-self: center;
         margin: 0 0 0 auto;
-        padding: lib.$spacing-md;
-        border-radius: lib.$border-radius-sm;
+        padding: mp.$spacing-md;
+        border-radius: mp.$border-radius-sm;
       }
     }
 
@@ -43,7 +43,7 @@
     }
 
     svg {
-      fill: lib.$color-yellow-50;
+      fill: mp.$color-yellow-50;
       min-width: 28px;
       min-height: 28px;
     }
@@ -51,48 +51,48 @@
     h2 {
       font-size: 18px;
       font-weight: 600;
-      font-family: lib.$font-stack-firefox;
+      font-family: mp.$font-stack-firefox;
       color: tokens.$color-grey-50;
     }
 
     p {
       font-size: 16px;
       font-weight: 400;
-      font-family: lib.$font-stack-base;
+      font-family: mp.$font-stack-base;
       color: tokens.$color-grey-40;
     }
   }
 
-  @media screen and #{lib.$mq-md} {
-    max-width: lib.$content-xl;
-    margin: lib.$layout-md auto;
-    padding: 0 lib.$layout-sm;
+  @media screen and #{mp.$mq-md} {
+    max-width: mp.$content-xl;
+    margin: mp.$layout-md auto;
+    padding: 0 mp.$layout-sm;
   }
 
   .details-section {
-    gap: lib.$layout-xs;
+    gap: mp.$layout-xs;
     display: flex;
     flex-direction: column;
 
     h1 {
-      font-family: lib.$font-stack-firefox;
-      border-bottom: 1px solid lib.$color-light-gray-30;
-      padding-bottom: lib.$spacing-xs;
+      font-family: mp.$font-stack-firefox;
+      border-bottom: 1px solid mp.$color-light-gray-30;
+      padding-bottom: mp.$spacing-xs;
     }
 
     .warning-banner {
-      margin-top: lib.$spacing-sm;
+      margin-top: mp.$spacing-sm;
     }
   }
 }
 
 .faq-wrapper {
-  background-color: lib.$color-white;
+  background-color: mp.$color-white;
 
   .faq {
-    max-width: lib.$content-xl;
+    max-width: mp.$content-xl;
     margin: 0 auto;
-    padding: 0 lib.$layout-sm;
+    padding: 0 mp.$layout-sm;
     display: flex;
     flex-direction: column;
 
@@ -101,25 +101,25 @@
       flex-basis: 0;
       flex-grow: 0.35;
 
-      @media screen and #{lib.$mq-md} {
-        padding: lib.$spacing-2xl lib.$spacing-2xl 0 0;
+      @media screen and #{mp.$mq-md} {
+        padding: mp.$spacing-2xl mp.$spacing-2xl 0 0;
       }
 
       .headline {
         @include typography.text-title-xs {
-          font-family: lib.$font-stack-firefox;
+          font-family: mp.$font-stack-firefox;
           font-weight: 700;
-          padding: lib.$spacing-md 0;
-          color: lib.$color-violet-90;
+          padding: mp.$spacing-md 0;
+          color: mp.$color-violet-90;
         }
 
-        @media screen and #{lib.$mq-md} {
+        @media screen and #{mp.$mq-md} {
           @include typography.text-title-2xs;
         }
       }
 
       .read-more {
-        color: lib.$color-blue-50;
+        color: mp.$color-blue-50;
         font-weight: 700;
         text-decoration: underline;
 
@@ -131,12 +131,12 @@
 
     .entries {
       flex: 1;
-      padding: lib.$spacing-lg 0;
+      padding: mp.$spacing-lg 0;
     }
 
-    @media screen and #{lib.$mq-md} {
+    @media screen and #{mp.$mq-md} {
       flex-direction: row;
-      gap: lib.$spacing-md;
+      gap: mp.$spacing-md;
     }
   }
 }

@@ -1,10 +1,10 @@
 @use "../../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
 
 $toggleTransitionDuration: 200ms;
 
 .alias-card {
-  border-radius: lib.$border-radius-md;
+  border-radius: mp.$border-radius-md;
   padding: 0;
   transition:
     background-color $toggleTransitionDuration ease,
@@ -13,25 +13,25 @@ $toggleTransitionDuration: 200ms;
   background-position: top;
 
   &.is-enabled {
-    box-shadow: lib.$box-shadow-sm;
-    background-color: lib.$color-white;
+    box-shadow: mp.$box-shadow-sm;
+    background-color: mp.$color-white;
   }
 
   &.is-disabled {
-    background-color: rgba(lib.$color-white, 0.5);
+    background-color: rgba(mp.$color-white, 0.5);
   }
 }
 
 .main-data {
   display: flex;
-  gap: lib.$spacing-xs;
-  padding: lib.$spacing-md;
+  gap: mp.$spacing-xs;
+  padding: mp.$spacing-md;
 }
 
 .controls {
-  min-width: lib.$content-xs;
+  min-width: mp.$content-xs;
   display: flex;
-  gap: lib.$spacing-xs;
+  gap: mp.$spacing-xs;
   align-items: center;
   flex-wrap: wrap;
 }
@@ -47,19 +47,19 @@ $trackerRemovalIndicatorWidth: 20px;
     color: tokens.$color-grey-30;
     display: flex;
     align-items: center;
-    padding: 0 lib.$spacing-xs;
+    padding: 0 mp.$spacing-xs;
   }
 
   $arrowWidth: 6px;
   .tracker-removal-indicator-tooltip {
     position: absolute;
-    box-shadow: lib.$box-shadow-sm;
-    padding: lib.$spacing-md;
-    background-color: lib.$color-white;
-    border-radius: lib.$border-radius-md;
-    width: lib.$content-xs;
-    top: calc(-50% - lib.$spacing-md / 2);
-    left: $trackerRemovalIndicatorWidth + lib.$spacing-sm + $arrowWidth;
+    box-shadow: mp.$box-shadow-sm;
+    padding: mp.$spacing-md;
+    background-color: mp.$color-white;
+    border-radius: mp.$border-radius-md;
+    width: mp.$content-xs;
+    top: calc(-50% - mp.$spacing-md / 2);
+    left: $trackerRemovalIndicatorWidth + mp.$spacing-sm + $arrowWidth;
     // Overlap <LabelEditor>, which is relatively positioned:
     z-index: 1;
 
@@ -71,7 +71,7 @@ $trackerRemovalIndicatorWidth: 20px;
       top: calc(50% - $arrowWidth);
       left: $arrowWidth * -1;
       transform: rotate(45deg);
-      background-color: lib.$color-white;
+      background-color: mp.$color-white;
     }
   }
 }
@@ -81,7 +81,7 @@ $trackerRemovalIndicatorWidth: 20px;
   // Grows to push the mask address to the next line when present,
   // but not so much to push itself down below the
   // `.tracker-removal-indicator-wrapper` if present:
-  width: calc(100% - $trackerRemovalIndicatorWidth - lib.$spacing-xs);
+  width: calc(100% - $trackerRemovalIndicatorWidth - mp.$spacing-xs);
 }
 
 .copy-controls {
@@ -95,14 +95,14 @@ $trackerRemovalIndicatorWidth: 20px;
   width: 100%;
 
   .copy-button {
-    @include lib.text-body-lg;
+    @include mp.text-body-lg;
     display: flex;
     align-items: center;
     background-color: transparent;
     border: 2px solid transparent;
-    border-radius: lib.$border-radius-md;
+    border-radius: mp.$border-radius-md;
     cursor: pointer;
-    padding: 0 lib.$spacing-sm;
+    padding: 0 mp.$spacing-sm;
     width: 100%;
     flex-basis: 0;
 
@@ -111,12 +111,12 @@ $trackerRemovalIndicatorWidth: 20px;
       // relative positioning), Protocol's default outline isn't visible by
       // default. Thus, we add a focus style using a border, and then remove the
       // remnants of the outline that are made visible when there's a border.
-      border-color: lib.$color-blue-50;
+      border-color: mp.$color-blue-50;
       outline: none;
     }
 
     .address {
-      font-family: lib.$font-stack-firefox;
+      font-family: mp.$font-stack-firefox;
       overflow: hidden;
       text-overflow: ellipsis;
       display: inline-block;
@@ -126,13 +126,13 @@ $trackerRemovalIndicatorWidth: 20px;
     }
 
     .copy-icon {
-      padding: 0 lib.$spacing-sm;
+      padding: 0 mp.$spacing-sm;
       opacity: 0.5;
       display: inline-block;
       flex-grow: 2;
       flex-shrink: 0;
-      max-width: lib.$layout-sm;
-      color: lib.$color-light-gray-90;
+      max-width: mp.$layout-sm;
+      color: mp.$color-light-gray-90;
     }
 
     &:hover {
@@ -150,16 +150,16 @@ $trackerRemovalIndicatorWidth: 20px;
     opacity: 0;
     pointer-events: none;
     transition: opacity 2s;
-    background-color: lib.$color-violet-30;
-    color: lib.$color-white;
-    border-radius: lib.$border-radius-md;
-    padding: 0 lib.$spacing-xs;
+    background-color: mp.$color-violet-30;
+    color: mp.$color-white;
+    border-radius: mp.$border-radius-md;
+    padding: 0 mp.$spacing-xs;
     // By allowing this to overlap other elements,
     // we don't need to reserve empty space for it.
     // Otherwise, this empty space would push the
     // .expand-toggle out of the card on small screens:
     position: absolute;
-    left: lib.$spacing-xs;
+    left: mp.$spacing-xs;
     top: 0;
 
     &.is-shown {
@@ -176,27 +176,27 @@ $trackerRemovalIndicatorWidth: 20px;
   align-items: center;
   flex: 1 0 auto;
 
-  @media screen and #{lib.$mq-md} {
+  @media screen and #{mp.$mq-md} {
     display: flex;
   }
 
   .block-level-label {
-    @include lib.text-body-sm;
+    @include mp.text-body-sm;
     border: 2px solid transparent;
-    border-radius: lib.$border-radius-sm;
-    padding: lib.$spacing-sm;
+    border-radius: mp.$border-radius-sm;
+    padding: mp.$spacing-sm;
     font-weight: 600;
     flex: 1 0 auto;
     text-align: center;
 
     &.block-level-all-label {
-      color: lib.$color-light-gray-70;
-      border-color: lib.$color-light-gray-40;
+      color: mp.$color-light-gray-70;
+      border-color: mp.$color-light-gray-40;
     }
 
     &.block-level-promotional-label {
-      color: lib.$color-yellow-50;
-      border-color: lib.$color-yellow-40;
+      color: mp.$color-yellow-50;
+      border-color: mp.$color-yellow-40;
     }
   }
 }
@@ -209,7 +209,7 @@ $trackerRemovalIndicatorWidth: 20px;
     display: flex;
   }
 
-  @media screen and #{lib.$mq-lg} {
+  @media screen and #{mp.$mq-lg} {
     // I've grouped these together under the media query to emphasise that they
     // switch visibility at the same time:
     // stylelint-disable-next-line no-duplicate-selectors
@@ -231,24 +231,24 @@ $trackerRemovalIndicatorWidth: 20px;
 
     $arrowWidth: 6px;
     .tooltip {
-      @include lib.text-body-sm;
+      @include mp.text-body-sm;
       position: absolute;
-      width: lib.$content-sm;
-      max-width: calc(100% - 2 * lib.$spacing-xs);
-      top: calc(100% + $arrowWidth + lib.$spacing-xs);
-      right: lib.$spacing-xs;
-      background-color: lib.$color-light-gray-10;
-      border: 1px solid lib.$color-light-gray-30;
-      box-shadow: lib.$box-shadow-sm;
+      width: mp.$content-sm;
+      max-width: calc(100% - 2 * mp.$spacing-xs);
+      top: calc(100% + $arrowWidth + mp.$spacing-xs);
+      right: mp.$spacing-xs;
+      background-color: mp.$color-light-gray-10;
+      border: 1px solid mp.$color-light-gray-30;
+      box-shadow: mp.$box-shadow-sm;
       display: flex;
       flex-direction: column;
-      gap: lib.$spacing-sm;
-      padding: lib.$spacing-sm lib.$spacing-md;
-      border-radius: lib.$border-radius-sm;
+      gap: mp.$spacing-sm;
+      padding: mp.$spacing-sm mp.$spacing-md;
+      border-radius: mp.$border-radius-sm;
       // Prevent other .stat-wrapper elements from overlapping this tooltip:
       z-index: 2;
 
-      @media screen and #{lib.$mq-lg} {
+      @media screen and #{mp.$mq-lg} {
         // The wrapper doesn't span the full width on large screens,
         // so limiting the tooltip to its wrapper's size makes it too thin:
         max-width: unset;
@@ -260,11 +260,11 @@ $trackerRemovalIndicatorWidth: 20px;
         width: 2 * $arrowWidth;
         position: absolute;
         top: -1 * $arrowWidth;
-        right: lib.$spacing-xl;
+        right: mp.$spacing-xl;
         transform: rotate(45deg);
-        background-color: lib.$color-light-gray-10;
-        border-top: 1px solid lib.$color-light-gray-30;
-        border-left: 1px solid lib.$color-light-gray-30;
+        background-color: mp.$color-light-gray-10;
+        border-top: 1px solid mp.$color-light-gray-30;
+        border-left: 1px solid mp.$color-light-gray-30;
       }
     }
   }
@@ -285,17 +285,17 @@ $trackerRemovalIndicatorWidth: 20px;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 0 lib.$spacing-md;
+      padding: 0 mp.$spacing-md;
       transition: opacity $toggleTransitionDuration ease;
 
       .number {
-        @include lib.text-body-xl;
-        font-family: lib.$font-stack-firefox;
+        @include mp.text-body-xl;
+        font-family: mp.$font-stack-firefox;
         font-weight: 700;
       }
 
       .label {
-        @include lib.text-body-sm;
+        @include mp.text-body-sm;
         line-height: 1.2;
         height: 25px;
         display: flex;
@@ -330,9 +330,9 @@ $trackerRemovalIndicatorWidth: 20px;
       width: 100%;
       display: flex;
       flex-direction: row-reverse;
-      padding: lib.$spacing-sm lib.$spacing-md;
-      border-bottom: 1px solid lib.$color-light-gray-20;
-      color: lib.$color-marketing-gray-99;
+      padding: mp.$spacing-sm mp.$spacing-md;
+      border-bottom: 1px solid mp.$color-light-gray-20;
+      color: mp.$color-marketing-gray-99;
 
       .label {
         flex: 1 0 auto;
@@ -354,9 +354,9 @@ $trackerRemovalIndicatorWidth: 20px;
   button {
     background-color: transparent;
     border-style: none;
-    padding: lib.$spacing-sm;
-    border-radius: lib.$border-radius-sm;
-    color: lib.$color-dark-gray-50;
+    padding: mp.$spacing-sm;
+    border-radius: mp.$border-radius-sm;
+    color: mp.$color-dark-gray-50;
     cursor: pointer;
 
     svg {
@@ -379,25 +379,25 @@ $trackerRemovalIndicatorWidth: 20px;
     padding 200ms;
   display: flex;
   flex-direction: column;
-  gap: lib.$spacing-md;
+  gap: mp.$spacing-md;
   // Make sure hidden elements are unfocusable:
   visibility: hidden;
 
   .is-expanded & {
     // An arbitrary high value that allows it to expand to its full height:
     max-height: 1000vh;
-    border-color: lib.$color-light-gray-20;
-    padding: lib.$spacing-sm 0;
+    border-color: mp.$color-light-gray-20;
+    padding: mp.$spacing-sm 0;
     visibility: visible;
   }
 
   .row {
     display: flex;
     flex-direction: column;
-    gap: lib.$spacing-md;
-    padding-inline: lib.$spacing-md;
-    padding-bottom: lib.$spacing-md;
-    border-bottom: 1px solid lib.$color-light-gray-20;
+    gap: mp.$spacing-md;
+    padding-inline: mp.$spacing-md;
+    padding-bottom: mp.$spacing-md;
+    border-bottom: 1px solid mp.$color-light-gray-20;
 
     &:last-child {
       border-bottom-style: none;
@@ -407,21 +407,21 @@ $trackerRemovalIndicatorWidth: 20px;
     dl {
       flex-grow: 2;
       display: flex;
-      gap: lib.$spacing-sm;
+      gap: mp.$spacing-sm;
       flex-direction: column;
 
-      @media screen and #{lib.$mq-md} {
+      @media screen and #{mp.$mq-md} {
         flex-direction: row;
-        gap: lib.$spacing-xl;
+        gap: mp.$spacing-xl;
       }
 
       dt {
-        @include lib.text-body-xs;
-        color: lib.$color-dark-gray-05;
+        @include mp.text-body-xs;
+        color: mp.$color-dark-gray-05;
       }
     }
 
-    @media screen and #{lib.$mq-md} {
+    @media screen and #{mp.$mq-md} {
       flex-direction: row;
 
       .metadata {
@@ -429,7 +429,7 @@ $trackerRemovalIndicatorWidth: 20px;
         background-repeat: no-repeat;
         background-position: left center;
         background-size: $metadataIconSize $metadataIconSize;
-        padding-left: calc($metadataIconSize + lib.$spacing-md);
+        padding-left: calc($metadataIconSize + mp.$spacing-md);
       }
 
       .forward-target {

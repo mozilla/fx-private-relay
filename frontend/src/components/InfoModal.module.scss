@@ -1,9 +1,9 @@
 @use "../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
 
 .underlay {
   align-items: center;
-  background-color: rgba(lib.$color-black, 0.4);
+  background-color: rgba(mp.$color-black, 0.4);
   bottom: 0;
   display: flex;
   justify-content: center;
@@ -13,59 +13,59 @@
   top: 0;
 
   .dialog-wrapper {
-    background: lib.$color-white;
-    border-radius: lib.$border-radius-md;
-    box-shadow: lib.$box-shadow-sm;
+    background: mp.$color-white;
+    border-radius: mp.$border-radius-md;
+    box-shadow: mp.$box-shadow-sm;
     max-width: 90%;
     position: relative;
-    width: calc((#{lib.$content-sm} + #{lib.$content-md}) / 2); // 560px
+    width: calc((#{mp.$content-sm} + #{mp.$content-md}) / 2); // 560px
 
     .dismiss-button {
       align-items: center;
       background-color: transparent;
-      border-radius: lib.$border-radius-sm;
+      border-radius: mp.$border-radius-sm;
       border-style: none;
       cursor: pointer;
       display: flex;
       height: 30px;
       justify-content: center;
       position: absolute;
-      right: lib.$spacing-sm;
-      top: lib.$spacing-sm;
+      right: mp.$spacing-sm;
+      top: mp.$spacing-sm;
       width: 30px;
       padding: 0;
 
       &:hover {
-        background-color: lib.$color-blue-50;
-        color: lib.$color-white;
+        background-color: mp.$color-blue-50;
+        color: mp.$color-white;
       }
     }
 
     .dialog-container {
-      padding: lib.$spacing-md;
+      padding: mp.$spacing-md;
 
-      @media screen and #{lib.$mq-md} {
-        padding: lib.$spacing-lg lib.$spacing-xl;
+      @media screen and #{mp.$mq-md} {
+        padding: mp.$spacing-lg mp.$spacing-xl;
       }
 
       .hero {
-        padding: lib.$spacing-sm 0;
+        padding: mp.$spacing-sm 0;
         text-align: start;
         width: 90%; // Shorter width to make room for the close button on mobile
 
-        @media screen and #{lib.$mq-md} {
+        @media screen and #{mp.$mq-md} {
           width: 100%;
         }
 
         .headline {
-          @include lib.text-title-3xs;
-          font-family: lib.$font-stack-firefox;
+          @include mp.text-title-3xs;
+          font-family: mp.$font-stack-firefox;
           font-weight: 700;
         }
       }
 
       .modal-body {
-        @include lib.text-body-sm;
+        @include mp.text-body-sm;
       }
     }
   }

@@ -1,20 +1,20 @@
 @use "../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
 @use "../../styles/typography" as styles-typography;
 
 .reviews {
   display: flex;
   flex-direction: column;
-  max-width: lib.$content-max;
+  max-width: mp.$content-max;
   width: 100%;
   margin: 0 auto;
   align-items: center;
-  padding: lib.$spacing-md lib.$spacing-lg 0 lib.$spacing-lg;
+  padding: mp.$spacing-md mp.$spacing-lg 0 mp.$spacing-lg;
   justify-content: center;
-  gap: lib.$layout-sm;
+  gap: mp.$layout-sm;
 
-  @media screen and #{lib.$mq-xl} {
-    gap: lib.$layout-md;
+  @media screen and #{mp.$mq-xl} {
+    gap: mp.$layout-md;
     flex-direction: row;
     align-items: flex-start;
   }
@@ -23,32 +23,32 @@
 .left-container {
   display: flex;
   flex-direction: row;
-  gap: lib.$spacing-md;
+  gap: mp.$spacing-md;
 }
 
 .right-container {
   display: flex;
   flex-direction: column;
-  gap: lib.$spacing-2xl;
+  gap: mp.$spacing-2xl;
 }
 .logo-container {
   display: flex;
-  font-family: lib.$font-stack-base;
-  color: lib.$color-white;
-  width: lib.$layout-2xl;
+  font-family: mp.$font-stack-base;
+  color: mp.$color-white;
+  width: mp.$layout-2xl;
   flex-direction: column;
   align-items: center;
-  border-radius: lib.$border-radius-lg;
-  padding: lib.$spacing-md 0;
-  background-color: lib.$color-violet-50;
+  border-radius: mp.$border-radius-lg;
+  padding: mp.$spacing-md 0;
+  background-color: mp.$color-violet-50;
 
   .logo {
-    width: lib.$layout-xl;
-    padding: lib.$spacing-sm;
+    width: mp.$layout-xl;
+    padding: mp.$spacing-sm;
   }
 
   .logo-title {
-    @include lib.text-body-md;
+    @include mp.text-body-md;
     font-weight: 400;
   }
 
@@ -66,27 +66,27 @@
   justify-content: center;
   align-items: center;
   text-align: center;
-  padding: 0 lib.$spacing-md;
-  gap: lib.$spacing-xs;
-  background-color: lib.$color-white;
-  border-radius: lib.$border-radius-lg;
+  padding: 0 mp.$spacing-md;
+  gap: mp.$spacing-xs;
+  background-color: mp.$color-white;
+  border-radius: mp.$border-radius-lg;
 
-  @media screen and #{lib.$mq-lg} {
+  @media screen and #{mp.$mq-lg} {
     align-items: center;
   }
 
   .rating {
     .title {
       @include styles-typography.text-title-2xl {
-        font-family: lib.$font-stack-firefox;
+        font-family: mp.$font-stack-firefox;
         font-weight: 600;
       }
     }
 
     .text {
-      @include lib.text-body-sm;
+      @include mp.text-body-sm;
       color: tokens.$color-grey-40;
-      font-family: lib.$font-stack-base;
+      font-family: mp.$font-stack-base;
       font-weight: 500;
     }
   }
@@ -95,15 +95,15 @@
 .stars {
   display: flex;
   flex-direction: row;
-  padding-left: lib.$spacing-xs;
+  padding-left: mp.$spacing-xs;
 }
 
 .star {
-  color: lib.$color-yellow-50;
+  color: mp.$color-yellow-50;
 }
 
 .empty-star {
-  color: lib.$color-white;
+  color: mp.$color-white;
   stroke: tokens.$color-grey-20;
   stroke-width: 2px;
 }
@@ -114,7 +114,7 @@
   padding: 0;
   color: tokens.$color-grey-30;
   background: transparent;
-  width: lib.$layout-sm;
+  width: mp.$layout-sm;
   align-self: center;
   cursor: pointer;
 }
@@ -123,35 +123,35 @@
   position: absolute;
   display: none;
 
-  @media screen and #{lib.$mq-md} {
+  @media screen and #{mp.$mq-md} {
     display: flex;
     left: 30px; // Following design specs
     top: -10px; // Following design specs
   }
 
   svg {
-    color: lib.$color-purple-60;
-    height: lib.$layout-sm;
+    color: mp.$color-purple-60;
+    height: mp.$layout-sm;
   }
 }
 
 .reviews-container {
   display: flex;
   flex-direction: row;
-  gap: lib.$spacing-lg;
-  background-color: lib.$color-white;
-  padding: lib.$spacing-md;
-  border-radius: lib.$border-radius-lg;
+  gap: mp.$spacing-lg;
+  background-color: mp.$color-white;
+  padding: mp.$spacing-md;
+  border-radius: mp.$border-radius-lg;
   align-items: flex-start;
 
   // magic number: set to avoid shifting - no character limit on reviews yet.
-  min-height: calc(lib.$layout-2xl * 2);
+  min-height: calc(mp.$layout-2xl * 2);
   position: relative;
 
-  @media screen and #{lib.$mq-lg} {
+  @media screen and #{mp.$mq-lg} {
     // magic number: set to avoid shifting - no character limit on reviews yet.
     min-height: 200px;
-    padding: lib.$spacing-lg lib.$spacing-md;
+    padding: mp.$spacing-lg mp.$spacing-md;
   }
 
   .review-item {
@@ -165,24 +165,24 @@
     align-items: flex-start;
     position: relative; // allows us to animate - scroll
     width: 100%; // allows us to animate - scroll
-    padding: lib.$spacing-sm;
+    padding: mp.$spacing-sm;
 
     // queries set to these static widths to prevent shifting
-    @media screen and #{lib.$mq-sm} {
-      width: lib.$content-xs;
+    @media screen and #{mp.$mq-sm} {
+      width: mp.$content-xs;
     }
-    @media screen and #{lib.$mq-md} {
-      width: lib.$content-sm;
+    @media screen and #{mp.$mq-md} {
+      width: mp.$content-sm;
     }
-    @media screen and #{lib.$mq-xl} {
-      width: lib.$content-md;
+    @media screen and #{mp.$mq-xl} {
+      width: mp.$content-md;
     }
 
     .text {
       width: 100%;
 
       ul {
-        padding-left: lib.$spacing-md;
+        padding-left: mp.$spacing-md;
       }
     }
   }
@@ -192,29 +192,29 @@
     flex-direction: column;
     align-items: flex-start;
     font-weight: 400;
-    gap: lib.$spacing-md;
-    padding: 0 0 lib.$spacing-md 0;
-    font-family: lib.$font-stack-base;
+    gap: mp.$spacing-md;
+    padding: 0 0 mp.$spacing-md 0;
+    font-family: mp.$font-stack-base;
 
-    @media screen and #{lib.$mq-xl} {
+    @media screen and #{mp.$mq-xl} {
       flex-direction: row;
       align-items: flex-end;
     }
 
     .name {
-      @include lib.text-title-3xs;
-      font-family: lib.$font-stack-firefox;
+      @include mp.text-title-3xs;
+      font-family: mp.$font-stack-firefox;
       font-weight: 600;
     }
 
     .source {
-      @include lib.text-body-sm;
+      @include mp.text-body-sm;
       color: tokens.$color-grey-30;
     }
 
     .star {
-      color: lib.$color-yellow-40;
-      margin: 0 lib.$spacing-xs 0 (lib.$spacing-sm * -1);
+      color: mp.$color-yellow-40;
+      margin: 0 mp.$spacing-xs 0 (mp.$spacing-sm * -1);
     }
   }
 }
@@ -279,11 +279,11 @@
 .mobile-controls {
   display: flex;
   justify-content: space-between;
-  gap: lib.$spacing-sm;
+  gap: mp.$spacing-sm;
 
   button {
     width: 50%;
-    padding: lib.$spacing-md 0;
+    padding: mp.$spacing-md 0;
 
     &:hover {
       background-color: tokens.$color-grey-10;
@@ -298,7 +298,7 @@
 .hidden-mobile {
   display: none;
 
-  @media screen and #{lib.$mq-md} {
+  @media screen and #{mp.$mq-md} {
     display: inline-block;
   }
 }
@@ -307,7 +307,7 @@
 .show-mobile {
   display: flex;
 
-  @media screen and #{lib.$mq-md} {
+  @media screen and #{mp.$mq-md} {
     display: none;
   }
 }

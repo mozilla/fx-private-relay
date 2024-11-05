@@ -1,40 +1,40 @@
 @use "../../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
 
 // Hardcoding #5015cd after talking with design, no token for this color exists yet in Nebula.
 $banner-gradient: linear-gradient(
   90.13deg,
-  lib.$color-purple-90 -2.39%,
+  mp.$color-purple-90 -2.39%,
   #5015cd 50.81%,
-  lib.$color-purple-50 104%
+  mp.$color-purple-50 104%
 );
 
 .wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: lib.$spacing-md;
-  color: lib.$color-white;
+  padding: mp.$spacing-md;
+  color: mp.$color-white;
   position: relative;
   background-image: url("../images/holiday-promo-banner-pattern-mobile.svg"),
     $banner-gradient;
   background-repeat: no-repeat;
   background-size: cover;
   flex-direction: column;
-  gap: lib.$spacing-md;
+  gap: mp.$spacing-md;
 
-  @media screen and #{lib.$mq-sm} {
+  @media screen and #{mp.$mq-sm} {
     flex-direction: row;
-    gap: lib.$spacing-2xl;
+    gap: mp.$spacing-2xl;
     background-image: url("../images/holiday-promo-banner-pattern-tablet.svg"),
       $banner-gradient;
   }
-  @media screen and #{lib.$mq-md} {
-    gap: lib.$layout-xl;
+  @media screen and #{mp.$mq-md} {
+    gap: mp.$layout-xl;
     background-image: url("../images/holiday-promo-banner-pattern-laptop.svg"),
       $banner-gradient;
   }
-  @media screen and #{lib.$mq-xl} {
+  @media screen and #{mp.$mq-xl} {
     background-image: url("../images/holiday-promo-banner-pattern-desktop.svg"),
       $banner-gradient;
   }
@@ -43,14 +43,14 @@ $banner-gradient: linear-gradient(
     display: flex;
     align-items: center;
     flex-direction: column;
-    gap: lib.$spacing-md;
+    gap: mp.$spacing-md;
 
-    @media screen and #{lib.$mq-sm} {
+    @media screen and #{mp.$mq-sm} {
       gap: 0;
     }
-    @media screen and #{lib.$mq-lg} {
+    @media screen and #{mp.$mq-lg} {
       flex-direction: row;
-      gap: lib.$layout-xl;
+      gap: mp.$layout-xl;
     }
   }
 
@@ -63,12 +63,12 @@ $banner-gradient: linear-gradient(
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    background-color: lib.$color-white;
-    padding: lib.$spacing-sm lib.$spacing-md;
-    border-radius: lib.$border-radius-sm;
-    color: lib.$color-purple-90;
+    background-color: mp.$color-white;
+    padding: mp.$spacing-sm mp.$spacing-md;
+    border-radius: mp.$border-radius-sm;
+    color: mp.$color-purple-90;
     font-weight: 700;
-    margin-bottom: lib.$spacing-xs;
+    margin-bottom: mp.$spacing-xs;
 
     &:hover {
       cursor: pointer;
@@ -77,11 +77,11 @@ $banner-gradient: linear-gradient(
   }
 
   .promo-code-expiry {
-    color: rgba(lib.$color-white, 0.7);
+    color: rgba(mp.$color-white, 0.7);
     font-weight: 700;
     display: block;
 
-    @include lib.text-body-xs;
+    @include mp.text-body-xs;
   }
 
   .banner-pattern {
@@ -90,15 +90,15 @@ $banner-gradient: linear-gradient(
   }
 
   .promo-text {
-    @include lib.text-body-lg;
+    @include mp.text-body-lg;
 
-    font-family: lib.$font-stack-base;
+    font-family: mp.$font-stack-base;
   }
 
   .promo-text-bolded {
-    @include lib.text-body-xl;
+    @include mp.text-body-xl;
 
     font-weight: 700;
-    font-family: lib.$font-stack-firefox;
+    font-family: mp.$font-stack-firefox;
   }
 }

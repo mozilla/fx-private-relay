@@ -1,28 +1,28 @@
 @use "../../../styles/tokens";
-@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
 
 .custom-alias-tip {
   display: flex;
   flex-direction: column;
-  gap: lib.$spacing-xs;
+  gap: mp.$spacing-xs;
 
-  @include lib.text-body-sm;
+  @include mp.text-body-sm;
 
   samp {
-    @include lib.text-body-sm;
-    font-family: lib.$font-stack-base;
-    color: lib.$color-blue-50;
+    @include mp.text-body-sm;
+    font-family: mp.$font-stack-base;
+    color: mp.$color-blue-50;
     font-weight: 700;
   }
 
   h3 {
-    @include lib.text-title-3xs;
-    font-family: lib.$font-stack-firefox;
-    color: lib.$color-purple-90;
+    @include mp.text-title-3xs;
+    font-family: mp.$font-stack-firefox;
+    color: mp.$color-purple-90;
   }
 
   video {
-    border-radius: lib.$border-radius-sm;
+    border-radius: mp.$border-radius-sm;
   }
 
   @media (prefers-reduced-motion) {

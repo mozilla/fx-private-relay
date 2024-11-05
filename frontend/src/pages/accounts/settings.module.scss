@@ -1,4 +1,4 @@
-@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as mp;
 @use "../../styles/tokens";
 
 .settings-page {
@@ -7,10 +7,10 @@
 }
 
 .menu {
-  padding: lib.$spacing-lg lib.$spacing-lg 0;
+  padding: mp.$spacing-lg mp.$spacing-lg 0;
 
   h1 {
-    padding-bottom: lib.$spacing-lg;
+    padding-bottom: mp.$spacing-lg;
   }
 
   ul {
@@ -19,15 +19,15 @@
     list-style-type: none;
 
     li {
-      padding: lib.$spacing-sm 0;
+      padding: mp.$spacing-sm 0;
     }
 
     a {
-      @include lib.text-body-lg;
+      @include mp.text-body-lg;
       display: flex;
       align-items: center;
-      color: lib.$color-dark-gray-50;
-      gap: lib.$spacing-sm;
+      color: mp.$color-dark-gray-50;
+      gap: mp.$spacing-sm;
 
       &:hover {
         text-decoration: underline;
@@ -36,7 +36,7 @@
       img,
       svg.menu-icon {
         // The size of text-body-lg, i.e. the same size as the containing <a>'s font:
-        width: lib.remify(lib.type-scale("body-lg-size"));
+        width: mp.remify(mp.type-scale("body-lg-size"));
         color: tokens.$color-violet-40;
       }
     }
@@ -45,20 +45,20 @@
 
 .main {
   width: 100%;
-  padding: lib.$spacing-lg;
+  padding: mp.$spacing-lg;
 }
 
 .banner-wrapper {
-  padding-bottom: lib.$spacing-xl;
+  padding-bottom: mp.$spacing-xl;
 }
 
-$field-gap: lib.$spacing-lg;
+$field-gap: mp.$spacing-lg;
 
 .settings-form {
-  @include lib.text-body-sm;
-  box-shadow: lib.$box-shadow-sm;
-  border-radius: lib.$border-radius-md;
-  padding: lib.$spacing-md;
+  @include mp.text-body-sm;
+  box-shadow: mp.$box-shadow-sm;
+  border-radius: mp.$border-radius-md;
+  padding: mp.$spacing-md;
   background-color: white;
   display: flex;
   flex-direction: column;
@@ -67,10 +67,10 @@ $field-gap: lib.$spacing-lg;
 }
 
 .field {
-  border-bottom: 1px solid lib.$color-light-gray-20;
+  border-bottom: 1px solid mp.$color-light-gray-20;
   display: flex;
   flex-direction: column;
-  gap: lib.$spacing-sm;
+  gap: mp.$spacing-sm;
   // padding-bottom is used to have the same gap between the form field and the
   // bottom border, as the form field has to the bottom border of the form field
   // preceding it (via `.settings-form`'s `gap`).
@@ -78,20 +78,20 @@ $field-gap: lib.$spacing-lg;
 }
 
 .field-heading {
-  @include lib.text-title-3xs;
+  @include mp.text-title-3xs;
   font-weight: 400;
   flex-basis: 0;
-  min-width: lib.$layout-xl;
+  min-width: mp.$layout-xl;
 
   .field-heading-icon-wrapper {
     display: flex;
     align-items: center;
-    gap: lib.$spacing-sm;
+    gap: mp.$spacing-sm;
 
     svg {
       display: none;
 
-      @media screen and #{lib.$mq-sm} {
+      @media screen and #{mp.$mq-sm} {
         display: initial;
       }
     }
@@ -101,32 +101,32 @@ $field-gap: lib.$spacing-lg;
 .field-content {
   display: flex;
   flex-direction: column;
-  gap: lib.$spacing-md;
+  gap: mp.$spacing-md;
 
   .field-control {
     display: flex;
     align-items: flex-start;
-    gap: lib.$spacing-sm;
+    gap: mp.$spacing-sm;
 
     input {
-      margin-top: lib.$spacing-xs;
+      margin-top: mp.$spacing-xs;
     }
 
     label {
       display: inline-flex;
       flex-direction: column;
-      gap: lib.$spacing-sm;
+      gap: mp.$spacing-sm;
     }
   }
 
   .field-warning {
     display: flex;
-    gap: lib.$spacing-sm;
+    gap: mp.$spacing-sm;
     align-items: flex-start;
-    background-color: lib.$color-light-gray-20;
+    background-color: mp.$color-light-gray-20;
     width: 100%;
-    padding: lib.$spacing-md lib.$spacing-lg;
-    border-radius: lib.$border-radius-sm;
+    padding: mp.$spacing-md mp.$spacing-lg;
+    border-radius: mp.$border-radius-sm;
 
     svg {
       color: tokens.$color-yellow-50;
@@ -143,23 +143,23 @@ $field-gap: lib.$spacing-lg;
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
-  gap: lib.$spacing-md;
+  gap: mp.$spacing-md;
   align-items: center;
 }
 
 .copy-api-key-display {
-  padding: lib.$spacing-sm lib.$spacing-md;
+  padding: mp.$spacing-sm mp.$spacing-md;
   background-color: tokens.$color-grey-05;
   border: 0;
   outline: 1px solid tokens.$color-grey-20;
-  border-radius: lib.$border-radius-md;
+  border-radius: mp.$border-radius-md;
   white-space: nowrap;
   overflow: hidden;
   font-family: monospace;
   max-width: 200px;
   text-overflow: ellipsis;
 
-  @media screen and #{lib.$mq-md} {
+  @media screen and #{mp.$mq-md} {
     max-width: 350px;
   }
 }
@@ -168,7 +168,7 @@ $field-gap: lib.$spacing-lg;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: lib.$spacing-sm;
+  gap: mp.$spacing-sm;
 }
 
 .settings-api-key-copy {
@@ -183,7 +183,7 @@ $field-gap: lib.$spacing-lg;
 .copy-button-wrapper {
   display: flex;
   flex-direction: row;
-  gap: lib.$spacing-xs;
+  gap: mp.$spacing-xs;
   position: relative;
 
   .copy-button {
@@ -196,7 +196,7 @@ $field-gap: lib.$spacing-lg;
     cursor: pointer;
 
     svg {
-      width: lib.$layout-xs;
+      width: mp.$layout-xs;
     }
 
     &:hover {
@@ -210,8 +210,8 @@ $field-gap: lib.$spacing-lg;
     transition: opacity 2s;
     background-color: tokens.$color-violet-30;
     color: tokens.$color-white;
-    border-radius: lib.$border-radius-md;
-    padding: 0 lib.$spacing-xs;
+    border-radius: mp.$border-radius-md;
+    padding: 0 mp.$spacing-xs;
     // On small screens, there's not enough room for the "Copied!"
     // notification to the right of the copy button, so it's absolutely
     // positioned to overlap the copy button.
@@ -228,25 +228,25 @@ $field-gap: lib.$spacing-lg;
       transition: opacity 0s;
     }
 
-    @media screen and #{lib.$mq-sm} {
+    @media screen and #{mp.$mq-sm} {
       position: static;
       transform: none;
     }
   }
 }
 
-@media screen and #{lib.$mq-md} {
+@media screen and #{mp.$mq-md} {
   .settings-page {
     display: flex;
     flex-direction: row-reverse;
   }
 
   .settings-form {
-    padding: lib.$spacing-lg;
+    padding: mp.$spacing-lg;
   }
 
   .menu {
-    width: lib.$content-sm;
+    width: mp.$content-sm;
 
     ul {
       display: block;
@@ -255,7 +255,7 @@ $field-gap: lib.$spacing-lg;
 
   .field {
     flex-direction: row;
-    gap: lib.$spacing-2xl;
+    gap: mp.$spacing-2xl;
   }
 
   .field-heading {
@@ -266,16 +266,16 @@ $field-gap: lib.$spacing-lg;
     text-align: end;
   }
 }
-@media screen and #{lib.$mq-lg} {
+@media screen and #{mp.$mq-lg} {
   .field-heading {
     flex-basis: auto;
     // Custom percentage to accommodate tablet/laptop screens
     width: 33%;
   }
 }
-@media screen and #{lib.$mq-xl} {
+@media screen and #{mp.$mq-xl} {
   .field-heading {
     flex-basis: auto;
-    width: lib.$content-sm;
+    width: mp.$content-sm;
   }
 }
