@@ -1,6 +1,6 @@
 @use "../../../styles/tokens";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
-@use "../../../styles/typography" as t;
+@use "../../../styles/text";
 
 .underlay {
   position: fixed;
@@ -52,7 +52,7 @@
         font-weight: 400;
 
         .subdomain {
-          @include t.text-title-xs {
+          @include text.title-xs {
             display: block;
             font-weight: 700;
             margin-bottom: $spacing-sm;

@@ -1,6 +1,6 @@
 @use "../../../styles/tokens";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
-@use "../../../styles/typography" as t;
+@use "../../../styles/text";
 
 .mobile-menu {
   width: 100%;
@@ -82,7 +82,7 @@
 .menu-item {
   display: flex;
 
-  @include t.text-display-xxs {
+  @include text.display-xxs {
     font-family: $font-stack-firefox;
     border-bottom: 2px solid $color-light-gray-20;
   }

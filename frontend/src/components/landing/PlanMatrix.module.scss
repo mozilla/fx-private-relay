@@ -1,6 +1,6 @@
 @use "../../styles/tokens";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
-@use "../../styles/typography" as t;
+@use "../../styles/text";
 
 .wrapper {
   width: 100%;
@@ -10,7 +10,7 @@
   gap: $spacing-md;
 
   .bundle-offer-heading {
-    @include t.text-title-xs {
+    @include text.title-xs {
       background-image: linear-gradient(
         to right,
         $color-violet-30,
@@ -258,7 +258,7 @@ table.desktop {
       padding: $spacing-md;
 
       h3 {
-        @include t.text-title-2xs {
+        @include text.title-2xs {
           font-weight: 600;
           text-align: center;
         }

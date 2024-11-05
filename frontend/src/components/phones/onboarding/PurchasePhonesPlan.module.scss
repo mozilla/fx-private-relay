@@ -1,6 +1,6 @@
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "../../../styles/tokens";
-@use "../../../styles/typography" as t;
+@use "../../../styles/text";
 
 .wrapper {
   display: flex;
@@ -14,7 +14,7 @@
   overflow-x: hidden;
 
   h2 {
-    @include t.text-title-xs {
+    @include text.title-xs {
       font-family: $font-stack-firefox;
       text-align: center;
     }
@@ -119,7 +119,7 @@
         gap: $spacing-md;
 
         .price {
-          @include t.text-title-2xs {
+          @include text.title-2xs {
             padding-top: $spacing-sm;
             display: block;
             font-weight: 700;

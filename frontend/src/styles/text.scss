@@ -2,8 +2,8 @@
 
 /*
 Re-declare mozilla-protocol typography:
- * text-title-* mixins to take a content block
- * replace lib.type-scale to return a numberremove
+ * text-title-* becomes title-*
+ * title-* mixins to take a content block
 
 TODO MPP-3946: Replace with mozilla-protocol v18.0.x overrides
 
@@ -13,12 +13,12 @@ https://github.com/mozilla/protocol/blob/v17.0.1/assets/sass/protocol/includes/m
 A typical mixin text-title-xs looks like:
 
 @mixin text-title-xs {
-    @include lib.font-size(lib.type-scale('title-2xs-size'));
-    line-height: lib.type-scale('title-2xs-line-height');
+    @include font-size(type-scale('title-2xs-size'));
+    line-height: type-scale('title-2xs-line-height');
 
     @media #{$mq-md} {
-        @include lib.font-size(lib.type-scale('title-xs-size'));
-        line-height: lib.type-scale('title-xs-line-height');
+        @include font-size(type-scale('title-xs-size'));
+        line-height: type-scale('title-xs-line-height');
     }
 }
 
@@ -38,8 +38,8 @@ components/dashboard/EmailForwardingModal.module.scss:
 This compiles to the CSS:
 
 .EmailForwardingModal_headline__VgCSC {
-  lib.font-size: 24px;
-  lib.font-size: 1.5rem;
+  font-size: 24px;
+  font-size: 1.5rem;
   line-height: 1.08;
   display: flex;
   align-items: center;
@@ -51,8 +51,8 @@ This compiles to the CSS:
 @media(min-width:768px)
 {
   .EmailForwardingModal_headline__VgCSC {
-    lib.font-size: 28px;
-    lib.font-size: 1.75rem;
+    font-size: 28px;
+    font-size: 1.75rem;
     line-height: 1.07
   }
 }
@@ -95,20 +95,20 @@ Both result in this slightly different CSS:
   padding: 8px 0;
   gap: 8px;
   font-weight: 100
-  lib.font-size: 24px;
-  lib.font-size: 1.5rem;
+  font-size: 24px;
+  font-size: 1.5rem;
   line-height: 1.08;
 }
 @media(min-width:768px)
 {
   .EmailForwardingModal_headline__VgCSC {
-    lib.font-size: 28px;
-    lib.font-size: 1.75rem;
+    font-size: 28px;
+    font-size: 1.75rem;
     line-height: 1.07
   }
 }
 
-The change is that the lib.font-size and line-height elements have moved
+The change is that the font-size and line-height elements have moved
 from the top to the bottom of the ruleset. This can change the style
 due to browser difference and later properties overriding previous
 properties. See this Stack Overflow question for some of the subtleties:
@@ -119,21 +119,21 @@ This file implements a third method, overriding the mozilla-protocol mixins to
 accept a content;. Documentation at:
 https://sass-lang.com/documentation/at-rules/mixin/#content-blocks
 
-@mixin text-title-xs {
-    @include lib.font-size(lib.type-scale('title-2xs-size'));
-    line-height: lib.type-scale('title-2xs-line-height');
+@mixin title-xs {
+    @include font-size(type-scale('title-2xs-size'));
+    line-height: type-scale('title-2xs-line-height');
     @content;
 
     @media #{$mq-md} {
-        @include lib.font-size(lib.type-scale('title-xs-size'));
-        line-height: lib.type-scale('title-xs-line-height');
+        @include font-size(type-scale('title-xs-size'));
+        line-height: type-scale('title-xs-line-height');
     }
 }
 
 The .headline declaration changes to:
 
 .headline {
-  @include text-title-xs {
+  @include text.title-xs {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -152,7 +152,7 @@ components/layout/navigation/MobileNavigation.module.scss
 .menu-item {
   display: flex;
 
-  @include text-display-xxs {
+  @include text.display-xxs {
     font-family: $font-stack-firefox;
     border-bottom: 2px solid $color-light-gray-20;
   }
@@ -170,7 +170,7 @@ that they are using to override the base text-* mixin.
 @forward "~@mozilla-protocol/core/protocol/css/includes/mixins/typography" show
   $font-stack-mozilla;
 
-@mixin text-title-2xl {
+@mixin title-2xl {
   @include font-size(type-scale("title-xl-size"));
   line-height: type-scale("title-xl-line-height");
   @content;
@@ -184,7 +184,7 @@ that they are using to override the base text-* mixin.
 // @mixin text-title-xl is not used by Relay
 // @mixin text-title-lg is not used by Relay
 
-@mixin text-title-md {
+@mixin title-md {
   @include font-size(type-scale("title-sm-size"));
   line-height: type-scale("title-sm-line-height");
   @content;
@@ -195,7 +195,7 @@ that they are using to override the base text-* mixin.
   }
 }
 
-@mixin text-title-sm {
+@mixin title-sm {
   @include font-size(type-scale("title-xs-size"));
   line-height: type-scale("title-xs-line-height");
   @content;
@@ -206,7 +206,7 @@ that they are using to override the base text-* mixin.
   }
 }
 
-@mixin text-title-xs {
+@mixin title-xs {
   @include font-size(type-scale("title-2xs-size"));
   line-height: type-scale("title-2xs-line-height");
   @content;
@@ -217,7 +217,7 @@ that they are using to override the base text-* mixin.
   }
 }
 
-@mixin text-title-2xs {
+@mixin title-2xs {
   @include font-size(type-scale("title-3xs-size"));
   line-height: type-scale("title-3xs-line-height");
   @content;
@@ -235,8 +235,8 @@ that they are using to override the base text-* mixin.
 // @mixin text-display-sm is not used by Relay
 // @mixin text-display-xs is not used by Relay
 
-@mixin text-display-xxs {
-  @include text-title-2xs {
+@mixin display-xxs {
+  @include title-2xs {
     @content;
   }
 }

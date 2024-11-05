@@ -1,7 +1,7 @@
 @use "../../styles/tokens";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
-@use "../../styles/typography" as t;
+@use "../../styles/text";
 
 .card {
   border-radius: $border-radius-md;
@@ -63,7 +63,7 @@
     }
 
     h2 {
-      @include t.text-title-2xs {
+      @include text.title-2xs {
         padding: $spacing-sm 0;
       }
     }

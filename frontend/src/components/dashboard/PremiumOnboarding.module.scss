@@ -1,7 +1,7 @@
 @use "../../styles/tokens";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
-@use "../../styles/typography" as t;
+@use "../../styles/text";
 
 .onboarding {
   display: flex;
@@ -45,7 +45,7 @@
   }
 
   h2 {
-    @include t.text-title-sm {
+    @include text.title-sm {
       font-family: $font-stack-firefox;
       color: $color-purple-50;
       text-align: center;
@@ -135,7 +135,7 @@
 
     .domain-example {
       @include font-firefox;
-      @include t.text-title-2xs {
+      @include text.title-2xs {
         color: $color-light-gray-90;
         display: inline-block;
         padding: $spacing-md 0;

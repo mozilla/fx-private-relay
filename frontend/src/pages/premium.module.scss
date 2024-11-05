@@ -1,6 +1,6 @@
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "../styles/tokens";
-@use "../styles/typography" as t;
+@use "../styles/text";
 
 .hero {
   display: flex;
@@ -34,7 +34,7 @@
   }
 
   h2 {
-    @include t.text-title-md {
+    @include text.title-md {
       font-family: $font-stack-firefox;
     }
   }
@@ -80,7 +80,7 @@
   padding: $spacing-2xl $spacing-xl;
 
   h2 {
-    @include t.text-title-sm {
+    @include text.title-sm {
       font-family: $font-stack-firefox;
       text-align: center;
       padding: $spacing-md 0;
@@ -118,7 +118,7 @@
     }
 
     h3 {
-      @include t.text-title-xs {
+      @include text.title-xs {
         font-family: $font-stack-firefox;
         padding: $spacing-sm 0;
       }
@@ -153,7 +153,7 @@
   padding: $spacing-xl;
 
   .headline {
-    @include t.text-title-sm {
+    @include text.title-sm {
       font-family: $font-stack-firefox;
       text-align: center;
       padding: $spacing-lg;
@@ -193,7 +193,7 @@
     gap: $spacing-lg;
 
     h2 {
-      @include t.text-title-md {
+      @include text.title-md {
         font-family: $font-stack-firefox;
         font-weight: 500;
       }

@@ -1,6 +1,6 @@
 @use "../styles/tokens";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
-@use "../styles/typography";
+@use "../styles/text";
 
 .contains-tracker-container {
   margin: $layout-sm;
@@ -106,7 +106,7 @@
       }
 
       .headline {
-        @include typography.text-title-xs {
+        @include text.title-xs {
           font-family: $font-stack-firefox;
           font-weight: 700;
           padding: $spacing-md 0;
@@ -114,7 +114,7 @@
         }
 
         @media screen and #{$mq-md} {
-          @include typography.text-title-2xs;
+          @include text-title-2xs;
         }
       }
 

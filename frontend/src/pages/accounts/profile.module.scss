@@ -1,6 +1,6 @@
 @use "../../styles/tokens";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
-@use "../../styles/typography";
+@use "../../styles/text";
 
 .header {
   background-color: $color-light-gray-05;
@@ -157,7 +157,7 @@
         }
 
         .value {
-          @include typography.text-title-xs {
+          @include text.title-xs {
             font-family: $font-stack-firefox;
             font-weight: 700;
             padding: $spacing-xs 0;
@@ -260,7 +260,7 @@
   }
 
   .upsell-banner-header {
-    @include typography.text-title-md {
+    @include text.title-md {
       font-weight: 700;
     }
   }
@@ -370,7 +370,7 @@
 
     h3 {
       @include font-mozilla;
-      @include typography.text-title-xs {
+      @include text.title-xs {
         font-weight: 500;
       }
 

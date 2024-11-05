@@ -1,6 +1,6 @@
 @use "../../styles/tokens";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
-@use "../../styles/typography" as t;
+@use "../../styles/text";
 
 .bundle-banner-wrapper {
   display: grid;
@@ -195,24 +195,24 @@
       }
 
       h2 {
-        @include t.text-title-sm {
+        @include text.title-sm {
           @include font-firefox;
           font-weight: 700;
         }
 
         @media #{$mq-lg} {
-          @include t.text-title-xs;
+          @include text.title-xs;
         }
       }
 
       h3 {
-        @include t.text-title-xs {
+        @include text.title-xs {
           @include font-firefox;
           font-weight: 500;
         }
 
         @media #{$mq-lg} {
-          @include t.text-title-2xs;
+          @include text.title-2xs;
         }
       }
 

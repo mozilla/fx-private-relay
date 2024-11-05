@@ -1,6 +1,6 @@
 @use "../styles/tokens";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
-@use "../styles/typography";
+@use "../styles/text";
 
 .wrapper {
   height: 100%;
@@ -71,7 +71,7 @@
   }
 
   h1 {
-    @include typography.text-title-2xs {
+    @include text.title-2xs {
       font-family: $font-stack-firefox;
       padding: $spacing-md 0;
       border-bottom: 1px solid tokens.$color-grey-20;
@@ -129,7 +129,7 @@
     }
 
     h2 {
-      @include typography.text-title-xs {
+      @include text.title-xs {
         font-family: $font-stack-firefox;
         font-weight: 500;
       }
@@ -260,7 +260,7 @@
     }
 
     .headline {
-      @include typography.text-title-sm {
+      @include text.title-sm {
         font-family: $font-stack-firefox;
         font-weight: 500;
         padding: $spacing-md 0;

@@ -1,6 +1,6 @@
 @use "../../../styles/tokens";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
-@use "../../../styles/typography";
+@use "../../../styles/text";
 
 .wrapper {
   align-items: center;
@@ -15,7 +15,7 @@
   color: white;
   overflow: hidden;
 
-  @include typography.text-title-2xs {
+  @include text.title-2xs {
     padding: 0;
     border-style: none;
   }
