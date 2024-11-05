@@ -1,27 +1,28 @@
-@import "../../../styles/tokens";
+@use "../../../styles/tokens";
+@use "../../../../../node_modules/@mozilla-protocol/core/protocol/css/includes/tokens/dist";
 
 .filter-button {
   background-color: transparent;
   border-radius: 100%;
   border-style: none;
-  padding: $spacing-sm;
+  padding: dist.$spacing-sm;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: $color-dark-gray-50;
+  color: dist.$color-dark-gray-50;
 
   &:hover {
-    background-color: $color-white;
-    color: $color-blue-50;
+    background-color: tokens.$color-white;
+    color: tokens.$color-blue-50;
   }
 }
 
 .filter-menu {
-  box-shadow: $box-shadow-sm;
-  background-color: $color-white;
-  border-radius: $border-radius-md;
-  font-family: $font-stack-firefox;
+  box-shadow: dist.$box-shadow-sm;
+  background-color: tokens.$color-white;
+  border-radius: dist.$border-radius-md;
+  font-family: dist.$font-stack-firefox;
   overflow-y: auto;
   .filter-form {
     display: flex;
@@ -29,21 +30,21 @@
 
     label,
     .buttons {
-      padding: $spacing-md;
+      padding: dist.$spacing-md;
     }
 
     label {
-      border-bottom: 1px solid $color-light-gray-20;
+      border-bottom: 1px solid dist.$color-light-gray-20;
 
       input {
-        margin-right: $spacing-sm;
+        margin-right: dist.$spacing-sm;
       }
     }
 
     .buttons {
       display: flex;
       flex-direction: column-reverse;
-      gap: $spacing-sm;
+      gap: dist.$spacing-sm;
     }
   }
 }

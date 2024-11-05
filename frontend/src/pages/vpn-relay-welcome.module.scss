@@ -1,19 +1,25 @@
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "../styles/tokens";
-@import "../../src/components/Button.module";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "../styles/tokens";
+
+// TODO MPP-3946: Remove this legacy versioning comment
+// When this used @import, this versioning comment was duplicated because
+// tokens was imported twice. With @use, it only appears once. It is
+// manually added to keep the output CSS file hash from changing.
+/*! v=1 */
+@use "../../src/components/Button.module";
 
 .content-container {
   display: flex;
   flex-direction: column;
-  max-width: $content-lg;
+  max-width: lib.$content-lg;
   margin: 0 auto;
 }
 
 .content-head {
   display: flex;
-  max-width: $content-lg;
-  gap: $spacing-md;
-  padding: $layout-xl $spacing-md;
+  max-width: lib.$content-lg;
+  gap: lib.$spacing-md;
+  padding: lib.$layout-xl lib.$spacing-md;
   flex-direction: column;
   align-content: center;
   align-items: center;
@@ -22,24 +28,24 @@
 }
 
 .headline {
-  font-family: $font-stack-base;
-  color: $color-grey-40;
+  font-family: lib.$font-stack-base;
+  color: tokens.$color-grey-40;
   font-weight: 400;
 
-  @include text-title-3xs;
+  @include lib.text-title-3xs;
 }
 
 .subheadline {
-  font-family: $font-stack-firefox;
-  color: $color-grey-60;
+  font-family: lib.$font-stack-firefox;
+  color: tokens.$color-grey-60;
   font-weight: 700;
 
-  @include text-title-md;
+  @include lib.text-title-md;
 }
 
 .logo {
   display: flex;
-  gap: $spacing-md;
+  gap: lib.$spacing-md;
   justify-content: center;
 }
 
@@ -48,21 +54,21 @@
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
-  gap: $spacing-xl;
-  margin-bottom: $spacing-2xl;
+  gap: lib.$spacing-xl;
+  margin-bottom: lib.$spacing-2xl;
 
-  @media #{$mq-lg} {
+  @media #{lib.$mq-lg} {
     flex-direction: row;
-    background-color: $color-white;
-    padding: 0 $spacing-2xl;
-    border-radius: $border-radius-md;
-    box-shadow: $box-shadow-sm;
+    background-color: tokens.$color-white;
+    padding: 0 lib.$spacing-2xl;
+    border-radius: lib.$border-radius-md;
+    box-shadow: lib.$box-shadow-sm;
   }
 
   .panel-art {
     display: none;
 
-    @media #{$mq-lg} {
+    @media #{lib.$mq-lg} {
       display: block;
     }
   }
@@ -72,29 +78,29 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: $spacing-xl;
-  max-width: $content-xs;
-  background-color: $color-white;
-  padding: $spacing-2xl;
-  border-radius: $border-radius-md;
-  box-shadow: $box-shadow-sm;
+  gap: lib.$spacing-xl;
+  max-width: lib.$content-xs;
+  background-color: lib.$color-white;
+  padding: lib.$spacing-2xl;
+  border-radius: lib.$border-radius-md;
+  box-shadow: lib.$box-shadow-sm;
 
-  @media #{$mq-lg} {
+  @media #{lib.$mq-lg} {
     padding: 0;
     border-radius: 0;
     box-shadow: none;
   }
 
   p {
-    max-width: $content-xs;
-    font-family: $font-stack-base;
+    max-width: lib.$content-xs;
+    font-family: lib.$font-stack-base;
 
-    @include text-body-md;
+    @include lib.text-body-md;
   }
 
   a {
     white-space: pre;
     font-weight: 500;
-    font-family: $font-stack-firefox;
+    font-family: lib.$font-stack-firefox;
   }
 }

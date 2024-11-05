@@ -1,35 +1,35 @@
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "../../../styles/tokens";
-@import "../../../styles/typography";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "../../../styles/tokens";
+@use "../../../styles/typography" as styles-typography;
 
 .wrapper {
   display: flex;
   flex-direction: column;
-  gap: $spacing-xl;
+  gap: lib.$spacing-xl;
   flex: 1 0 auto;
-  max-width: $content-lg;
+  max-width: lib.$content-lg;
   margin: 0 auto;
-  padding: $spacing-2xl $spacing-lg;
+  padding: lib.$spacing-2xl lib.$spacing-lg;
   width: 100%;
   overflow-x: hidden;
 
   h2 {
-    @include text-title-xs {
-      font-family: $font-stack-firefox;
+    @include styles-typography.text-title-xs {
+      font-family: lib.$font-stack-firefox;
       text-align: center;
     }
   }
 
   .lead {
-    @include text-title-3xs;
-    font-family: $font-stack-firefox;
+    @include lib.text-title-3xs;
+    font-family: lib.$font-stack-firefox;
     text-align: center;
     display: flex;
     flex-direction: column;
-    gap: $spacing-lg;
+    gap: lib.$spacing-lg;
 
     p {
-      @include text-body-md;
+      @include lib.text-body-md;
     }
 
     img {
@@ -38,27 +38,27 @@
   }
 
   .description {
-    @include text-body-md;
+    @include lib.text-body-md;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: $spacing-2xl;
-    padding: $spacing-md;
-    margin-top: $spacing-lg;
+    gap: lib.$spacing-2xl;
+    padding: lib.$spacing-md;
+    margin-top: lib.$spacing-lg;
 
-    @media screen and #{$mq-md} {
+    @media screen and #{lib.$mq-md} {
       flex-direction: row;
     }
 
     ul {
       display: flex;
       flex-direction: column;
-      gap: $spacing-md;
+      gap: lib.$spacing-md;
       margin: 0;
       padding: 0;
 
       ::marker {
-        color: $color-violet-60;
+        color: tokens.$color-violet-60;
       }
     }
   }
@@ -71,15 +71,15 @@
     align-items: center;
     justify-items: center;
     text-align: center;
-    gap: $spacing-md;
-    background-color: $color-white;
-    padding: $spacing-lg $spacing-2xl;
-    border-radius: $border-radius-md;
-    box-shadow: $box-shadow-sm;
+    gap: lib.$spacing-md;
+    background-color: tokens.$color-white;
+    padding: lib.$spacing-lg lib.$spacing-2xl;
+    border-radius: lib.$border-radius-md;
+    box-shadow: lib.$box-shadow-sm;
 
     h3 {
-      @include text-body-md;
-      font-family: $font-stack-firefox;
+      @include lib.text-body-md;
+      font-family: lib.$font-stack-firefox;
       text-align: center;
       font-weight: 400;
     }
@@ -87,28 +87,28 @@
     .pricing {
       display: flex;
       flex-direction: column;
-      gap: $spacing-sm;
+      gap: lib.$spacing-sm;
       width: 100%; // Ensures responsiveness of container, and that the purchase tabpanel has a static width when toggling.
 
       .pricing-toggle {
         display: flex;
-        background-color: $color-grey-10;
-        padding: $spacing-xs;
-        border-radius: $border-radius-lg;
+        background-color: tokens.$color-grey-10;
+        padding: lib.$spacing-xs;
+        border-radius: lib.$border-radius-lg;
 
         > div {
-          @include text-body-sm;
+          @include lib.text-body-sm;
           width: 50%;
-          padding: $spacing-xs $spacing-sm;
+          padding: lib.$spacing-xs lib.$spacing-sm;
           text-align: center;
-          color: $color-grey-40;
+          color: tokens.$color-grey-40;
           font-weight: 500;
           cursor: pointer;
 
           &.is-selected {
-            background-color: $color-white;
-            border-radius: $border-radius-lg;
-            color: $color-blue-50;
+            background-color: tokens.$color-white;
+            border-radius: lib.$border-radius-lg;
+            color: tokens.$color-blue-50;
           }
         }
       }
@@ -116,17 +116,17 @@
       [role="tabpanel"] {
         display: flex;
         flex-direction: column;
-        gap: $spacing-md;
+        gap: lib.$spacing-md;
 
         .price {
-          @include text-title-2xs {
-            padding-top: $spacing-sm;
+          @include styles-typography.text-title-2xs {
+            padding-top: lib.$spacing-sm;
             display: block;
             font-weight: 700;
           }
 
           > span {
-            @include text-body-sm;
+            @include lib.text-body-sm;
             font-weight: 400;
             vertical-align: middle;
           }

@@ -1,5 +1,5 @@
-@import "../../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "../../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib";
 
 .wrapper {
   align-items: center;
@@ -15,16 +15,16 @@
   width: 24px;
   height: 24px;
   padding: 0;
-  border-radius: $border-radius-sm;
+  border-radius: lib.$border-radius-sm;
 
   svg {
-    color: $color-white;
+    color: lib.$color-white;
 
     &.premium {
-      color: $color-grey-40;
+      color: tokens.$color-grey-40;
     }
     &:hover {
-      color: $color-purple-20;
+      color: lib.$color-purple-20;
     }
   }
 }
@@ -33,14 +33,14 @@
   position: absolute;
   right: 0;
   // Design request to push popup down 4px
-  margin-top: ($spacing-lg - $spacing-xs);
+  margin-top: (lib.$spacing-lg - lib.$spacing-xs);
   padding: 0;
-  padding-bottom: $spacing-lg;
-  min-width: $content-xs;
+  padding-bottom: lib.$spacing-lg;
+  min-width: lib.$content-xs;
   list-style-type: none;
-  box-shadow: $box-shadow-sm;
-  border-radius: $border-radius-sm;
-  background-color: $color-light-gray-10;
+  box-shadow: lib.$box-shadow-sm;
+  border-radius: lib.$border-radius-sm;
+  background-color: lib.$color-light-gray-10;
 
   &::before {
     content: "";
@@ -48,42 +48,42 @@
     width: 12px;
     position: absolute;
     top: -6px;
-    right: $spacing-sm;
+    right: lib.$spacing-sm;
     transform: rotate(45deg);
-    background-color: $color-light-gray-10;
+    background-color: lib.$color-light-gray-10;
   }
 
   .app-picker-heading {
-    color: $color-black;
-    padding: $spacing-lg;
+    color: lib.$color-black;
+    padding: lib.$spacing-lg;
     text-align: center;
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: $spacing-sm;
+    gap: lib.$spacing-sm;
     background-image: linear-gradient(
         to bottom,
         #f9f9fb calc(100% - 3px),
         rgba(0, 0, 0, 0)
       ),
       linear-gradient(90deg, #f73940 1.25%, #a83db5 96.87%);
-    border-radius: $border-radius-sm $border-radius-sm 0 0;
+    border-radius: lib.$border-radius-sm lib.$border-radius-sm 0 0;
 
     img {
-      height: $layout-sm;
+      height: lib.$layout-sm;
     }
 
     h2 {
-      @include text-body-md;
-      font-family: $font-stack-base;
+      @include lib.text-body-md;
+      font-family: lib.$font-stack-base;
     }
   }
 
   ul {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: $spacing-md;
-    padding: $spacing-lg;
+    gap: lib.$spacing-md;
+    padding: lib.$spacing-lg;
     list-style-type: none;
   }
 
@@ -95,37 +95,37 @@
     .menu-link {
       display: flex;
       flex-direction: column;
-      color: $color-black;
+      color: lib.$color-black;
       align-items: center;
       text-align: center;
 
-      @include text-body-sm;
+      @include lib.text-body-sm;
       font-weight: 400;
-      font-family: $font-stack-base;
+      font-family: lib.$font-stack-base;
 
       img {
-        height: $layout-sm;
-        padding: $spacing-lg;
+        height: lib.$layout-sm;
+        padding: lib.$spacing-lg;
         width: -moz-fit-content;
         width: fit-content;
         box-sizing: content-box;
-        border-radius: $border-radius-md;
+        border-radius: lib.$border-radius-md;
         object-fit: contain;
       }
 
       &:hover {
-        color: $color-violet-90;
+        color: lib.$color-violet-90;
 
         img {
-          background-color: $color-light-gray-20;
+          background-color: lib.$color-light-gray-20;
         }
       }
 
       &.mozilla-link {
-        color: $color-blue-50;
+        color: lib.$color-blue-50;
         justify-content: center;
         width: 100%;
-        margin-top: $spacing-lg;
+        margin-top: lib.$spacing-lg;
       }
     }
 

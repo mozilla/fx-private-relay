@@ -1,17 +1,17 @@
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
-@import "../../../styles/tokens";
-@import "../../../styles/typography";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as lib2;
+@use "../../../styles/tokens";
+@use "../../../styles/typography" as styles-typography;
 
 .step {
   flex: 1 0 auto;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: $spacing-2xl;
-  max-width: $content-md;
+  gap: lib.$spacing-2xl;
+  max-width: lib.$content-md;
   margin: 0 auto;
-  padding: $spacing-lg;
+  padding: lib.$spacing-lg;
 
   .button {
     // TODO: This is not working
@@ -21,22 +21,22 @@
   }
 
   h2 {
-    @include text-title-xs {
-      font-family: $font-stack-firefox;
+    @include styles-typography.text-title-xs {
+      font-family: lib.$font-stack-firefox;
       text-align: center;
     }
   }
 
   .lead {
-    @include text-title-3xs;
-    font-family: $font-stack-firefox;
+    @include lib.text-title-3xs;
+    font-family: lib.$font-stack-firefox;
     text-align: center;
     display: flex;
     flex-direction: column;
-    gap: $spacing-lg;
+    gap: lib.$spacing-lg;
 
     p {
-      @include text-body-md;
+      @include lib.text-body-md;
     }
 
     img {
@@ -45,22 +45,22 @@
   }
 
   .description {
-    @include text-body-md;
+    @include lib.text-body-md;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: $spacing-2xl;
-    padding: $spacing-md;
-    margin-top: $spacing-lg;
+    gap: lib.$spacing-2xl;
+    padding: lib.$spacing-md;
+    margin-top: lib.$spacing-lg;
 
-    @media screen and #{$mq-md} {
+    @media screen and #{lib.$mq-md} {
       flex-direction: row;
     }
 
     ul {
       display: flex;
       flex-direction: column;
-      gap: $spacing-md;
+      gap: lib.$spacing-md;
       margin: 0;
       padding: 0;
     }
@@ -74,22 +74,22 @@
     align-items: center;
     justify-items: center;
     text-align: center;
-    gap: $spacing-md;
-    background-color: $color-white;
-    padding: $spacing-lg $spacing-2xl;
-    border-radius: $border-radius-md;
-    box-shadow: $box-shadow-sm;
+    gap: lib.$spacing-md;
+    background-color: tokens.$color-white;
+    padding: lib.$spacing-lg lib.$spacing-2xl;
+    border-radius: lib.$border-radius-md;
+    box-shadow: lib.$box-shadow-sm;
 
     h3 {
-      @include text-body-md;
-      font-family: $font-stack-firefox;
+      @include lib.text-body-md;
+      font-family: lib.$font-stack-firefox;
       text-align: center;
       font-weight: 400;
     }
 
     span {
-      @include text-title-2xs {
-        padding-top: $spacing-sm;
+      @include styles-typography.text-title-2xs {
+        padding-top: lib.$spacing-sm;
         display: block;
         font-weight: 700;
       }
@@ -100,18 +100,18 @@
 // Step 2: Verify Phone Number
 
 .step-verify-input .error {
-  max-width: $content-sm;
-  background-color: $color-white;
-  border-radius: $border-radius-md;
-  box-shadow: $box-shadow-sm;
-  padding: $spacing-md;
+  max-width: lib.$content-sm;
+  background-color: tokens.$color-white;
+  border-radius: lib.$border-radius-md;
+  box-shadow: lib.$box-shadow-sm;
+  padding: lib.$spacing-md;
   text-align: center;
   margin: 0 auto;
 }
 .step-verify-sub-body {
-  background-color: $color-white;
-  border-radius: $border-radius-md;
-  padding: $spacing-lg;
+  background-color: tokens.$color-white;
+  border-radius: lib.$border-radius-md;
+  padding: lib.$spacing-lg;
 }
 
 .step-verify-input .is-hidden {
@@ -119,11 +119,11 @@
 }
 
 .form {
-  max-width: $content-sm;
+  max-width: lib.$content-sm;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: $spacing-lg;
+  gap: lib.$spacing-lg;
 }
 
 // Step 3: Enter verification code
@@ -136,7 +136,7 @@
     }
 
     h2 {
-      padding-top: $spacing-md;
+      padding-top: lib.$spacing-md;
     }
 
     &.is-error,
@@ -151,7 +151,7 @@
         display: block;
       }
       h2 {
-        color: $color-error;
+        color: tokens.$color-error;
       }
     }
 
@@ -160,25 +160,25 @@
         display: block;
       }
       h2 {
-        color: $color-success;
+        color: tokens.$color-success;
       }
     }
   }
 
   form {
-    background-color: $color-white;
-    box-shadow: $box-shadow-sm;
-    padding: $spacing-lg;
-    border-radius: $border-radius-md;
-    max-width: $screen-sm;
+    background-color: tokens.$color-white;
+    box-shadow: lib.$box-shadow-sm;
+    padding: lib.$spacing-lg;
+    border-radius: lib.$border-radius-md;
+    max-width: lib.$screen-sm;
     position: relative;
 
     &.is-hidden {
       display: none;
     }
 
-    @media screen and #{$mq-md} {
-      padding: $spacing-lg $spacing-2xl;
+    @media screen and #{lib.$mq-md} {
+      padding: lib.$spacing-lg lib.$spacing-2xl;
     }
 
     p {
@@ -195,24 +195,24 @@
     }
 
     input {
-      @include text-body-xl;
-      border-radius: $border-radius-md;
+      @include lib.text-body-xl;
+      border-radius: lib.$border-radius-md;
       display: block;
-      padding: $spacing-sm;
+      padding: lib.$spacing-sm;
       box-shadow: none;
       border: 0;
-      background-color: $color-grey-10;
+      background-color: tokens.$color-grey-10;
       letter-spacing: 1rem;
       text-align: center;
       width: 100%;
 
       &.is-error {
-        border: 2px solid $color-error;
-        outline: 4px solid $color-error-focus;
+        border: 2px solid tokens.$color-error;
+        outline: 4px solid tokens.$color-error-focus;
       }
 
-      @media screen and #{$mq-md} {
-        padding: $spacing-md;
+      @media screen and #{lib.$mq-md} {
+        padding: lib.$spacing-md;
         letter-spacing: 2rem;
       }
     }
@@ -220,15 +220,15 @@
 }
 
 .step-input-verificiation-code-timeout {
-  background-color: $color-white;
-  box-shadow: $box-shadow-sm;
-  border-radius: $border-radius-md;
-  padding: $spacing-lg $spacing-2xl;
-  max-width: $screen-sm;
+  background-color: tokens.$color-white;
+  box-shadow: lib.$box-shadow-sm;
+  border-radius: lib.$border-radius-md;
+  padding: lib.$spacing-lg lib.$spacing-2xl;
+  max-width: lib.$screen-sm;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: $spacing-lg;
+  gap: lib.$spacing-lg;
 
   &.is-hidden {
     display: none;
@@ -240,15 +240,15 @@
 }
 
 .step-input-verificiation-code-success {
-  background-color: $color-white;
-  box-shadow: $box-shadow-sm;
-  border-radius: $border-radius-md;
-  padding: $spacing-lg $spacing-2xl;
-  max-width: $screen-sm;
+  background-color: tokens.$color-white;
+  box-shadow: lib.$box-shadow-sm;
+  border-radius: lib.$border-radius-md;
+  padding: lib.$spacing-lg lib.$spacing-2xl;
+  max-width: lib.$screen-sm;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: $spacing-lg;
+  gap: lib.$spacing-lg;
   justify-content: center;
 
   &.is-hidden {
@@ -256,7 +256,7 @@
   }
 
   h3 {
-    @include text-body-md;
+    @include lib.text-body-md;
   }
 
   p,
@@ -270,25 +270,25 @@
   align-items: center;
   position: relative;
 
-  @include text-body-sm;
+  @include lib.text-body-sm;
 }
 
 .phone-input {
-  width: $content-xs;
-  height: $layout-sm;
-  padding: $spacing-md $spacing-sm $spacing-md $spacing-2xl;
+  width: lib.$content-xs;
+  height: lib.$layout-sm;
+  padding: lib.$spacing-md lib.$spacing-sm lib.$spacing-md lib.$spacing-2xl;
 
   &.is-error {
-    border: 2px solid $color-red-60;
-    box-shadow: 0 0 4px 4px $color-red-30;
+    border: 2px solid tokens.$color-red-60;
+    box-shadow: 0 0 4px 4px tokens.$color-red-30;
   }
 }
 
 // static country code in the real phone number input "+1"
 .phone-input-country-code {
-  background-color: $color-grey-10;
-  border-radius: $border-radius-sm;
+  background-color: tokens.$color-grey-10;
+  border-radius: lib.$border-radius-sm;
   position: absolute;
-  padding: 0 $spacing-sm;
-  margin-left: $spacing-sm;
+  padding: 0 lib.$spacing-sm;
+  margin-left: lib.$spacing-sm;
 }

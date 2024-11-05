@@ -1,9 +1,10 @@
-@import "../../styles/tokens";
+@use "../../styles/tokens";
+@use "../../../../node_modules/@mozilla-protocol/core/protocol/css/includes/tokens/dist";
 
 .profile-banners {
   display: flex;
   flex-direction: column;
-  gap: $spacing-xl;
+  gap: dist.$spacing-xl;
 }
 
 .bundle-logo {

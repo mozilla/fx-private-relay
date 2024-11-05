@@ -1,37 +1,37 @@
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
-@import "../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as lib2;
+@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+@use "../styles/tokens";
 
 .banner {
-  border-radius: $border-radius-md;
-  padding: $spacing-md;
-  background-color: $color-white;
+  border-radius: lib2.$border-radius-md;
+  padding: lib2.$spacing-md;
+  background-color: tokens.$color-white;
   position: relative;
-  box-shadow: $box-shadow-sm;
+  box-shadow: lib2.$box-shadow-sm;
 
   &.promo {
     // This is the gradient border width (which is implemented as a background image):
     padding: 2px;
     box-shadow: none;
-    background-image: $firefoxGradient;
+    background-image: tokens.$firefoxGradient;
   }
 
   &.warning {
-    padding: $spacing-sm;
+    padding: lib2.$spacing-sm;
   }
 
   &.info {
-    @include text-body-sm;
+    @include lib2.text-body-sm;
 
-    @media screen and #{$mq-sm} {
-      padding: 0 $spacing-sm;
+    @media screen and #{lib2.$mq-sm} {
+      padding: 0 lib2.$spacing-sm;
     }
   }
 
   .dismiss-button {
     position: absolute;
-    top: $spacing-sm;
-    right: $spacing-sm;
+    top: lib2.$spacing-sm;
+    right: lib2.$spacing-sm;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -39,68 +39,68 @@
     height: 30px;
     background-color: transparent;
     border-style: none;
-    border-radius: $border-radius-sm;
+    border-radius: lib2.$border-radius-sm;
     cursor: pointer;
     padding: 0;
 
     &:hover {
-      background-color: $color-blue-50;
-      color: $color-white;
+      background-color: tokens.$color-blue-50;
+      color: tokens.$color-white;
     }
   }
 }
 
 .highlight-wrapper {
   display: flex;
-  background-color: $color-white;
+  background-color: tokens.$color-white;
   flex-wrap: wrap;
 
   .banner.promo & {
     // .banner's border-radius - .banner's padding.
     // This is what makes .banner.promo appear as a 2px-wide border:
-    border-radius: calc($border-radius-md - 2px);
+    border-radius: calc(lib2.$border-radius-md - 2px);
   }
 
   .title-and-large-cta-wrapper {
     display: flex;
     flex-wrap: wrap;
-    flex: 1 1 $content-xs;
-    padding: $spacing-xs $spacing-md $spacing-md $spacing-md;
+    flex: 1 1 lib2.$content-xs;
+    padding: lib2.$spacing-xs lib2.$spacing-md lib2.$spacing-md lib2.$spacing-md;
 
     .title-text {
       flex: 1 1 auto;
 
       .banner.warning & {
-        @media screen and #{$mq-sm} {
-          padding-left: $spacing-md;
+        @media screen and #{lib2.$mq-sm} {
+          padding-left: lib2.$spacing-md;
           border-left-width: 4px;
           border-left-style: solid;
-          border-color: $color-yellow-50;
+          border-color: tokens.$color-yellow-50;
         }
       }
     }
 
-    @media screen and #{$mq-sm} {
-      padding: $spacing-md;
+    @media screen and #{lib2.$mq-sm} {
+      padding: lib2.$spacing-md;
     }
-    @media screen and #{$mq-lg} {
+    @media screen and #{lib2.$mq-lg} {
       flex-wrap: nowrap;
     }
   }
 
   .info-icon {
     align-self: center;
-    color: $color-violet-30;
+    color: tokens.$color-violet-30;
   }
 }
 
 .illustration {
   display: flex;
   align-items: center;
-  padding: $spacing-md $spacing-md 0 $spacing-md;
+  padding: lib2.$spacing-md lib2.$spacing-md 0 lib2.$spacing-md;
 
-  @media screen and #{$mq-md} {
-    padding: 0 $spacing-md 0 $spacing-xl;
+  @media screen and #{lib2.$mq-md} {
+    padding: 0 lib2.$spacing-md 0 lib2.$spacing-xl;
   }
 
   img {
@@ -110,19 +110,19 @@
 
 // For Banners in PremiumPromoBanners.tsx
 .flex-end {
-  border-bottom: 1px solid $color-light-gray-20;
+  border-bottom: 1px solid lib2.$color-light-gray-20;
   align-items: center;
-  margin: 0 $spacing-md;
-  padding-top: $spacing-sm;
+  margin: 0 lib2.$spacing-md;
+  padding-top: lib2.$spacing-sm;
   width: 100%;
 
-  @media screen and #{$mq-sm} {
+  @media screen and #{lib2.$mq-sm} {
     border-bottom: none;
     padding: none;
     width: auto;
     margin: 0;
   }
-  @media screen and #{$mq-lg} {
+  @media screen and #{lib2.$mq-lg} {
     align-items: flex-end;
   }
 
@@ -130,36 +130,36 @@
     width: 90px;
     margin: 0 auto;
 
-    @media screen and #{$mq-sm} {
+    @media screen and #{lib2.$mq-sm} {
       margin: 0;
     }
   }
 }
 
 .title {
-  @include text-title-3xs;
-  font-family: $font-stack-firefox;
+  @include lib2.text-title-3xs;
+  font-family: lib2.$font-stack-firefox;
   display: flex;
   align-items: center;
-  padding: $spacing-sm 0 $spacing-md 0;
+  padding: lib2.$spacing-sm 0 lib2.$spacing-md 0;
 
   .banner.info & {
-    @include text-body-sm;
-    font-family: $font-stack-base;
+    @include lib2.text-body-sm;
+    font-family: lib2.$font-stack-base;
     font-weight: 600;
   }
 
   .icon {
     flex: 0 0 auto;
-    margin-right: $spacing-sm;
+    margin-right: lib2.$spacing-sm;
 
     .warning & {
-      color: $color-yellow-50;
+      color: tokens.$color-yellow-50;
     }
 
     .info & {
-      color: $color-violet-30;
-      margin-right: $spacing-xs;
+      color: tokens.$color-violet-30;
+      margin-right: lib2.$spacing-xs;
     }
   }
 }
@@ -168,9 +168,9 @@
   a,
   button {
     display: inline-block;
-    padding-top: $spacing-md;
+    padding-top: lib2.$spacing-md;
     font-weight: 700;
-    color: $color-blue-50;
+    color: tokens.$color-blue-50;
     cursor: pointer;
     background: none;
     border: none;
@@ -178,11 +178,11 @@
     .banner.info & {
       font-weight: 500;
       text-decoration: underline;
-      padding: $spacing-sm 0 0 0;
+      padding: lib2.$spacing-sm 0 0 0;
     }
 
     &:hover {
-      color: $color-blue-40;
+      color: tokens.$color-blue-40;
     }
 
     &:focus {
@@ -193,32 +193,32 @@
 }
 
 .cta-large-button {
-  padding-top: $spacing-md;
+  padding-top: lib2.$spacing-md;
   flex: 0 0 auto;
   align-self: center;
 
-  @media screen and #{$mq-md} {
+  @media screen and #{lib2.$mq-md} {
     align-self: center;
     margin: 0 0 0 auto;
-    padding: $spacing-md;
+    padding: lib2.$spacing-md;
   }
 
   a {
     display: block;
-    padding: $spacing-sm $spacing-md;
+    padding: lib2.$spacing-sm lib2.$spacing-md;
     font-weight: 700;
-    border: 2px solid $color-blue-50;
-    color: $color-blue-50;
-    border-radius: $border-radius-sm;
+    border: 2px solid tokens.$color-blue-50;
+    color: tokens.$color-blue-50;
+    border-radius: lib2.$border-radius-sm;
 
     &:hover {
-      background-color: $color-blue-60;
-      color: $color-white;
+      background-color: tokens.$color-blue-60;
+      color: tokens.$color-white;
     }
 
     &:focus {
-      border-color: $button-border-color-focus;
-      box-shadow: $field-focus-ring;
+      border-color: lib.$button-border-color-focus;
+      box-shadow: lib.$field-focus-ring;
       outline: none;
     }
   }

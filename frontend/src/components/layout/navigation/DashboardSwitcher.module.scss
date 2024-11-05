@@ -1,42 +1,42 @@
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "../../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "../../../styles/tokens";
 
 .nav-mask-phone {
   width: 100%;
   display: flex;
   flex-direction: row;
-  border-bottom: 1px solid $color-light-gray-20;
+  border-bottom: 1px solid lib.$color-light-gray-20;
 
   > * {
     flex: 1 1 0;
-    padding: $spacing-lg 0 $spacing-md 0;
+    padding: lib.$spacing-lg 0 lib.$spacing-md 0;
     justify-content: center;
     display: flex;
     border-bottom: 5px solid transparent;
 
     &.is-active {
-      border-bottom: 5px solid $color-purple-40;
+      border-bottom: 5px solid tokens.$color-purple-40;
     }
 
     &:hover {
-      background-color: $color-purple-05;
+      background-color: tokens.$color-purple-05;
     }
   }
 
   .nav-mask-phone-icon {
-    color: $color-grey-40;
-    stroke: $color-grey-40;
+    color: tokens.$color-grey-40;
+    stroke: tokens.$color-grey-40;
     stroke-width: 0.5px;
 
     p,
     p.is-active {
-      color: $color-purple-70;
+      color: tokens.$color-purple-70;
       text-transform: uppercase;
     }
 
     &.is-active {
-      color: $color-purple-40;
-      stroke: $color-purple-40;
+      color: tokens.$color-purple-40;
+      stroke: tokens.$color-purple-40;
     }
   }
 
@@ -46,7 +46,7 @@
     align-content: center;
 
     p {
-      @include text-body-sm;
+      @include lib.text-body-sm;
       margin: 0;
       font-weight: 600;
       align-self: center;
@@ -55,7 +55,7 @@
 }
 
 .hidden-desktop {
-  @media screen and (min-width: $screen-md) {
+  @media screen and (min-width: lib.$screen-md) {
     display: none;
   }
 }

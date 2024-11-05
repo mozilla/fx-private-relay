@@ -1,7 +1,7 @@
-@import "../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
-@import "../../styles/typography";
+@use "../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as lib2;
+@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+@use "../../styles/typography" as styles-typography;
 
 .onboarding {
   display: flex;
@@ -12,9 +12,9 @@
 .step,
 .controls {
   width: 100%;
-  max-width: $content-lg;
+  max-width: lib2.$content-lg;
   margin: 0 auto;
-  padding: $spacing-lg;
+  padding: lib2.$spacing-lg;
 }
 
 .step {
@@ -24,133 +24,133 @@
   justify-content: space-evenly;
 
   .title-container {
-    margin: $spacing-xl 0 $spacing-lg 0;
+    margin: lib2.$spacing-xl 0 lib2.$spacing-lg 0;
   }
 
   .feature-item-list {
     list-style-type: none;
 
     li {
-      margin: $spacing-sm 0;
+      margin: lib2.$spacing-sm 0;
       display: flex;
       flex-direction: row;
       align-items: center;
-      gap: $spacing-sm;
+      gap: lib2.$spacing-sm;
 
       .check-icon {
-        fill: $color-blue-50;
+        fill: lib2.$color-blue-50;
         min-width: 20px; // Width of the check icons
       }
     }
   }
 
   h2 {
-    @include text-title-sm {
-      font-family: $font-stack-firefox;
-      color: $color-purple-50;
+    @include styles-typography.text-title-sm {
+      font-family: lib2.$font-stack-firefox;
+      color: lib2.$color-purple-50;
       text-align: center;
     }
   }
 
   .lead {
-    @include text-title-3xs;
-    font-family: $font-stack-firefox;
+    @include lib2.text-title-3xs;
+    font-family: lib2.$font-stack-firefox;
     text-align: center;
-    padding-top: $spacing-md;
+    padding-top: lib2.$spacing-md;
   }
 
   .description {
-    @include text-body-sm;
+    @include lib2.text-body-sm;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: $spacing-2xl;
-    padding-top: $spacing-lg;
-    max-width: $content-lg;
+    gap: lib2.$spacing-2xl;
+    padding-top: lib2.$spacing-lg;
+    max-width: lib2.$content-lg;
     align-self: center;
 
     .description-bolded-headline {
-      @include text-body-md;
+      @include lib2.text-body-md;
       font-weight: 600;
       display: block;
     }
 
-    @media screen and #{$mq-md} {
+    @media screen and #{lib2.$mq-md} {
       flex-direction: row;
     }
 
     .content {
       max-width: 100%;
-      min-width: $content-xs;
+      min-width: lib2.$content-xs;
     }
 
     .description-caption {
-      @include text-body-sm;
-      color: $color-purple-30;
+      @include lib2.text-body-sm;
+      color: lib2.$color-purple-30;
       font-weight: 500;
     }
   }
 
   .action-complete {
-    @include text-body-sm;
-    font-family: $font-stack-firefox;
+    @include lib2.text-body-sm;
+    font-family: lib2.$font-stack-firefox;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: $spacing-md;
-    border-radius: $border-radius-md;
-    background-color: $color-white;
+    padding: lib2.$spacing-md;
+    border-radius: lib2.$border-radius-md;
+    background-color: lib2.$color-white;
 
     .label {
       display: inline-flex;
       align-items: center;
-      gap: $spacing-xs;
-      padding-bottom: $spacing-xs;
+      gap: lib2.$spacing-xs;
+      padding-bottom: lib2.$spacing-xs;
 
       svg {
-        color: $color-blue-50;
+        color: lib2.$color-blue-50;
       }
     }
 
     samp {
-      @include text-body-lg;
-      font-family: $font-stack-firefox;
+      @include lib2.text-body-lg;
+      font-family: lib2.$font-stack-firefox;
       font-weight: 700;
-      color: $color-purple-50;
+      color: lib2.$color-purple-50;
     }
 
     .domain {
-      @include text-body-xs;
-      color: $color-light-gray-90;
+      @include lib2.text-body-xs;
+      color: lib2.$color-light-gray-90;
     }
   }
 
   &.step-custom-domain {
-    max-width: $content-xl;
+    max-width: lib2.$content-xl;
 
     .subdomain-picker-heading {
-      padding: $spacing-md 0;
+      padding: lib2.$spacing-md 0;
     }
 
     .domain-example {
-      @include font-firefox;
-      @include text-title-2xs {
-        color: $color-light-gray-90;
+      @include lib2.font-firefox;
+      @include styles-typography.text-title-2xs {
+        color: lib2.$color-light-gray-90;
         display: inline-block;
-        padding: $spacing-md 0;
+        padding: lib2.$spacing-md 0;
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow-x: hidden;
-        max-width: $content-xs;
+        max-width: lib2.$content-xs;
       }
 
-      @media screen and #{$mq-md} {
+      @media screen and #{lib2.$mq-md} {
         max-width: 100%;
       }
 
       .customizable-part {
-        color: $color-violet-50;
+        color: lib2.$color-violet-50;
         font-weight: 700;
       }
     }
@@ -160,7 +160,7 @@
       flex-direction: column;
       margin: 0 auto;
 
-      @media screen and #{$mq-md} {
+      @media screen and #{lib2.$mq-md} {
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
@@ -168,15 +168,15 @@
       }
 
       input {
-        @include form-input;
+        @include lib.form-input;
         flex-grow: 2;
         margin: 0;
-        margin-bottom: $spacing-md;
+        margin-bottom: lib2.$spacing-md;
         width: 100%;
 
-        @media screen and #{ $mq-md } {
+        @media screen and #{ lib2.$mq-md } {
           margin: 0;
-          margin-right: $spacing-md;
+          margin-right: lib2.$spacing-md;
         }
       }
 
@@ -191,14 +191,14 @@
       // Hide the description of the add-on on small screens,
       // because it isn't available on mobile.
       display: none;
-      padding: $spacing-md 0;
+      padding: lib2.$spacing-md 0;
 
-      @media screen and #{$mq-md} {
+      @media screen and #{lib2.$mq-md} {
         display: block;
       }
     }
 
-    @media screen and #{$mq-md} {
+    @media screen and #{lib2.$mq-md} {
       // Don't show the description of replies on small screens,
       // to focus on the add-on availability:
       .reply-description {
@@ -210,16 +210,16 @@
     }
 
     h3 {
-      @include text-body-md;
+      @include lib2.text-body-md;
     }
 
     .get-addon-button {
-      margin-top: $spacing-md;
+      margin-top: lib2.$spacing-md;
       // The extension isn't available on mobile,
       // so hide it on small screens:
       display: none;
 
-      @media screen and #{$mq-md} {
+      @media screen and #{lib2.$mq-md} {
         display: inline-block;
       }
     }
@@ -229,24 +229,24 @@
 .controls {
   display: flex;
   flex-direction: column;
-  gap: $spacing-xl;
+  gap: lib2.$spacing-xl;
   align-items: center;
   width: 100%;
 
   .skip-link {
     background-color: transparent;
     border-style: none;
-    color: $color-blue-50;
-    border-radius: $border-radius-sm;
+    color: lib2.$color-blue-50;
+    border-radius: lib2.$border-radius-sm;
 
     &:hover {
-      color: $color-blue-70;
+      color: lib2.$color-blue-70;
       text-decoration: underline;
       cursor: pointer;
     }
   }
 
-  @media screen and (max-width: #{$screen-md}) {
+  @media screen and (max-width: #{lib2.$screen-md}) {
     .get-addon-button {
       display: none;
     }
@@ -259,37 +259,37 @@
 
   progress {
     width: 100%;
-    max-width: $content-md;
+    max-width: lib2.$content-md;
   }
 
   .styled-progress-bar {
     display: flex;
     width: 100%;
-    max-width: $content-md;
-    gap: $spacing-sm;
+    max-width: lib2.$content-md;
+    gap: lib2.$spacing-sm;
     list-style-type: none;
 
     li {
       width: 100%;
-      color: $color-light-gray-90;
+      color: lib2.$color-light-gray-90;
       text-align: center;
       transition: color 0.2s ease-out;
 
       span {
         display: block;
         height: 5px;
-        background-color: $color-light-gray-20;
-        margin-bottom: $spacing-xs;
+        background-color: lib2.$color-light-gray-20;
+        margin-bottom: lib2.$spacing-xs;
         transition:
           box-shadow 1s ease-out,
           color 0.2s ease-out;
       }
 
       &.is-completed {
-        color: $color-violet-30;
+        color: lib2.$color-violet-30;
 
         span {
-          box-shadow: inset 300px 0 0 0 $color-violet-30;
+          box-shadow: inset 300px 0 0 0 lib2.$color-violet-30;
         }
       }
     }

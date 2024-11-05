@@ -1,35 +1,36 @@
-@import "../../../styles/tokens";
+@use "../../../styles/tokens";
+@use "../../../../../node_modules/@mozilla-protocol/core/protocol/css/includes/tokens/dist";
 
 .label-form {
   position: relative;
 }
 
 .label-input {
-  font-family: $font-stack-firefox;
+  font-family: dist.$font-stack-firefox;
   background-color: transparent;
   background-repeat: no-repeat;
-  background-position: calc(100% - $spacing-xs);
+  background-position: calc(100% - dist.$spacing-xs);
   border-color: transparent;
-  border-radius: $border-radius-sm;
-  padding: $spacing-xs $spacing-sm;
+  border-radius: dist.$border-radius-sm;
+  padding: dist.$spacing-xs dist.$spacing-sm;
   // The pencil icon is 16px wide
-  padding-inline-end: calc($spacing-sm + 16px);
+  padding-inline-end: calc(dist.$spacing-sm + 16px);
 
   @media screen and (pointer: coarse) {
     // On touch screens, the pencil is always visible and left-aligned, to be
     // flush with the placeholder, because the user can't discover that it's
     // editable through hovering:
     background-image: url("/icons/edit.svg");
-    background-position: $spacing-xs;
-    padding-inline-end: $spacing-sm;
+    background-position: dist.$spacing-xs;
+    padding-inline-end: dist.$spacing-sm;
     // The pencil icon is 16px wide
-    padding-inline-start: calc($spacing-sm + 16px);
+    padding-inline-start: calc(dist.$spacing-sm + 16px);
   }
 
   &:hover,
   &:focus {
     background-image: url("/icons/edit.svg");
-    background-color: $color-light-gray-20;
+    background-color: dist.$color-light-gray-20;
   }
 }
 
@@ -38,11 +39,11 @@
   top: 40px;
   left: 0;
   opacity: 0;
-  background-color: $color-green-60;
-  color: $color-white;
-  border-radius: $border-radius-sm;
+  background-color: tokens.$color-green-60;
+  color: tokens.$color-white;
+  border-radius: dist.$border-radius-sm;
   transition: opacity 200ms;
-  padding: $spacing-xs;
+  padding: dist.$spacing-xs;
   // The .copy-button-wrapper is positioned as `relative` as well,
   // leading it to overlap this confirmation message.
   // Thus, this z-index makes this message overlap that.
@@ -56,7 +57,7 @@
   &::after {
     // This is the little arrow that attaches the message to the form
     $arrowEdgeLength: 4px;
-    background-color: $color-green-60;
+    background-color: tokens.$color-green-60;
     height: 2 * $arrowEdgeLength;
     width: 2 * $arrowEdgeLength;
     transform: rotate(45deg);

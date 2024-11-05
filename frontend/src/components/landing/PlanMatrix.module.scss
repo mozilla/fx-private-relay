@@ -1,21 +1,21 @@
-@import "../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "../../styles/typography";
+@use "../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "../../styles/typography" as styles-typography;
 
 .wrapper {
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: $spacing-md;
+  gap: lib.$spacing-md;
 
   .bundle-offer-heading {
-    @include text-title-xs {
+    @include styles-typography.text-title-xs {
       background-image: linear-gradient(
         to right,
-        $color-violet-30,
-        $color-violet-80 20%,
-        $color-violet-30 80%
+        lib.$color-violet-30,
+        lib.$color-violet-80 20%,
+        lib.$color-violet-30 80%
       );
       background-clip: text;
       color: transparent;
@@ -24,7 +24,7 @@
     }
   }
   .bundle-offer-content {
-    max-width: $content-md;
+    max-width: lib.$content-md;
     text-align: center;
   }
 
@@ -35,7 +35,7 @@
     display: initial;
   }
 
-  @media screen and #{$mq-xl} {
+  @media screen and #{lib.$mq-xl} {
     .desktop {
       display: table;
       table-layout: fixed;
@@ -46,18 +46,18 @@
   }
 
   .table-wrapper {
-    padding: $layout-md 0;
+    padding: lib.$layout-md 0;
   }
 
   .discount-notice-wrapper {
-    @include text-body-sm;
+    @include lib.text-body-sm;
     line-height: 100%;
     text-align: center;
 
     .discount-notice-container {
       display: flex;
       flex-direction: column;
-      gap: $spacing-sm;
+      gap: lib.$spacing-sm;
 
       .discount-notice-bolded {
         font-weight: 800;
@@ -75,29 +75,29 @@ table.desktop {
   thead tr,
   tbody tr,
   tfoot tr:not(:last-child) {
-    border-bottom: $row-spacing solid $color-grey-10;
+    border-bottom: $row-spacing solid tokens.$color-grey-10;
   }
 
   tr {
     th:first-child {
-      width: $content-sm;
+      width: lib.$content-sm;
       font-weight: 400;
       text-align: start;
     }
 
     th:not(:first-child),
     td:not(:first-child) {
-      min-width: $layout-2xl;
+      min-width: lib.$layout-2xl;
       text-align: center;
-      background-color: $color-white;
-      padding: $spacing-md;
+      background-color: lib.$color-white;
+      padding: lib.$spacing-md;
       // Fake spacing between the columns. The disadvantage of this method is
       // that the horizontal bottom border on rows is interrupted, but if we
       // used the appropriate
       //   border-collapse: separate;
       //   border-spacing: $spacing-md 0;
       // then we wouldn't have been able to apply a bottom border at all.
-      border-inline: $spacing-md * 0.5 solid $color-light-gray-10;
+      border-inline: lib.$spacing-md * 0.5 solid lib.$color-light-gray-10;
 
       &:last-child {
         border-right-style: none;
@@ -108,16 +108,16 @@ table.desktop {
   thead {
     tr {
       th:first-child {
-        color: $color-grey-40;
+        color: tokens.$color-grey-40;
       }
 
       &:first-child th {
-        border-top-left-radius: $spacing-sm;
-        border-top-right-radius: $spacing-sm;
+        border-top-left-radius: lib.$spacing-sm;
+        border-top-right-radius: lib.$spacing-sm;
       }
 
       th:not(:first-child) {
-        color: $color-violet-70;
+        color: lib.$color-violet-70;
         font-weight: 600;
 
         &.recommended {
@@ -138,9 +138,9 @@ table.desktop {
             // We make it slightly taller than the <tr> so that it overlaps the
             // `thead tr`'s bottom border (with a width of $row-spacing).
             height: calc(100% + $row-spacing);
-            background-color: $color-violet-80;
-            color: $color-white;
-            border-radius: $spacing-sm;
+            background-color: lib.$color-violet-80;
+            color: lib.$color-white;
+            border-radius: lib.$spacing-sm;
             margin-bottom: -1 * $row-spacing;
           }
         }
@@ -158,11 +158,11 @@ table.desktop {
       }
 
       td {
-        color: $color-dark-gray-50;
+        color: lib.$color-dark-gray-50;
 
         svg {
           display: inline;
-          color: $color-blue-60;
+          color: lib.$color-blue-60;
         }
       }
     }
@@ -170,8 +170,8 @@ table.desktop {
 
   tfoot {
     tr:last-child td {
-      border-bottom-left-radius: $spacing-sm;
-      border-bottom-right-radius: $spacing-sm;
+      border-bottom-left-radius: lib.$spacing-sm;
+      border-bottom-right-radius: lib.$spacing-sm;
     }
 
     tr {
@@ -190,7 +190,7 @@ table.desktop {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      gap: $spacing-md;
+      gap: lib.$spacing-md;
       width: 100%;
       height: 100%;
       text-align: center;
@@ -206,25 +206,25 @@ table.desktop {
       .pricing-overview {
         display: flex;
         flex-direction: column;
-        gap: $spacing-md;
+        gap: lib.$spacing-md;
 
         .price {
-          @include text-body-lg;
-          color: $color-blue-50;
+          @include lib.text-body-lg;
+          color: lib.$color-blue-50;
           font-weight: 600;
         }
 
         .pick-button {
-          border: 2px solid $color-blue-50;
-          border-radius: $border-radius-sm;
-          padding: $spacing-sm;
+          border: 2px solid lib.$color-blue-50;
+          border-radius: lib.$border-radius-sm;
+          padding: lib.$spacing-sm;
           text-align: center;
-          color: $color-blue-50;
+          color: lib.$color-blue-50;
           font-weight: 700;
 
           &:hover {
-            background-color: $color-blue-50;
-            color: $color-white;
+            background-color: lib.$color-blue-50;
+            color: lib.$color-white;
             cursor: pointer;
           }
         }
@@ -243,22 +243,22 @@ table.desktop {
   .plans {
     display: flex;
     flex-wrap: wrap;
-    gap: $spacing-lg;
+    gap: lib.$spacing-lg;
     list-style-type: none;
 
     .plan {
-      flex: 1 0 $content-xs;
+      flex: 1 0 lib.$content-xs;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: $spacing-lg;
+      gap: lib.$spacing-lg;
       max-width: 100%;
-      background-color: $color-white;
-      border-radius: $border-radius-md;
-      padding: $spacing-md;
+      background-color: lib.$color-white;
+      border-radius: lib.$border-radius-md;
+      padding: lib.$spacing-md;
 
       h3 {
-        @include text-title-2xs {
+        @include styles-typography.text-title-2xs {
           font-weight: 600;
           text-align: center;
         }
@@ -269,13 +269,13 @@ table.desktop {
         // Since we want the h3 to spand the full width of the plan, and to be
         // flush with the top of the .plan, we enlarge it by that amount on the
         // sides and at the top:
-        width: calc(100% + 2 * $spacing-md);
-        margin-top: -1 * $spacing-md;
-        margin-inline: -1 * $spacing-md;
-        padding: $spacing-md;
-        background-color: $color-violet-80;
-        color: $color-white;
-        border-radius: $spacing-sm;
+        width: calc(100% + 2 * lib.$spacing-md);
+        margin-top: -1 * lib.$spacing-md;
+        margin-inline: -1 * lib.$spacing-md;
+        padding: lib.$spacing-md;
+        background-color: lib.$color-violet-80;
+        color: lib.$color-white;
+        border-radius: lib.$spacing-sm;
         font-weight: 900;
       }
 
@@ -283,13 +283,13 @@ table.desktop {
         flex: 1 0 auto;
         display: flex;
         flex-direction: column;
-        gap: $spacing-sm;
+        gap: lib.$spacing-sm;
         width: 100%;
         list-style-type: none;
 
         li {
           display: flex;
-          gap: $spacing-xs;
+          gap: lib.$spacing-xs;
 
           .description {
             flex: 1 0 auto;
@@ -300,13 +300,13 @@ table.desktop {
             }
           }
           .availability {
-            flex: 0 1 $layout-2xs;
+            flex: 0 1 lib.$layout-2xs;
             display: flex;
             align-items: center;
             justify-content: center;
 
             svg {
-              color: $color-blue-60;
+              color: lib.$color-blue-60;
             }
           }
         }
@@ -315,29 +315,29 @@ table.desktop {
       .pricing {
         display: flex;
         flex-direction: column;
-        gap: $spacing-md;
+        gap: lib.$spacing-md;
         width: 100%;
 
         .pricing-overview {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: $spacing-md;
+          gap: lib.$spacing-md;
           width: 100%;
           $billingMonthlyNoteHeight: 18px;
-          padding-bottom: $billingMonthlyNoteHeight + $spacing-md;
+          padding-bottom: $billingMonthlyNoteHeight + lib.$spacing-md;
 
           small {
-            @include text-body-sm;
+            @include lib.text-body-sm;
             display: block;
             height: $billingMonthlyNoteHeight;
             line-height: $billingMonthlyNoteHeight;
-            margin-bottom: -1 * ($billingMonthlyNoteHeight + $spacing-md);
+            margin-bottom: -1 * ($billingMonthlyNoteHeight + lib.$spacing-md);
           }
 
           .price {
-            @include text-body-xl;
-            color: $color-blue-50;
+            @include lib.text-body-xl;
+            color: lib.$color-blue-50;
             font-weight: 600;
           }
 
@@ -346,17 +346,17 @@ table.desktop {
           }
 
           .pick-button {
-            border: 2px solid $color-blue-50;
-            border-radius: $border-radius-sm;
+            border: 2px solid lib.$color-blue-50;
+            border-radius: lib.$border-radius-sm;
             width: 100%;
-            padding: $spacing-sm;
+            padding: lib.$spacing-sm;
             text-align: center;
-            color: $color-blue-50;
+            color: lib.$color-blue-50;
             font-weight: 700;
 
             &:hover {
-              background-color: $color-blue-50;
-              color: $color-white;
+              background-color: lib.$color-blue-50;
+              color: lib.$color-white;
               cursor: pointer;
             }
           }
@@ -368,23 +368,23 @@ table.desktop {
 
 .pricing-toggle {
   display: flex;
-  background-color: $color-grey-10;
-  padding: $spacing-xs;
-  border-radius: $border-radius-lg;
+  background-color: tokens.$color-grey-10;
+  padding: lib.$spacing-xs;
+  border-radius: lib.$border-radius-lg;
 
   > div {
-    @include text-body-sm;
+    @include lib.text-body-sm;
     width: 50%;
-    padding: $spacing-xs $spacing-sm;
+    padding: lib.$spacing-xs lib.$spacing-sm;
     text-align: center;
-    color: $color-grey-40;
+    color: tokens.$color-grey-40;
     font-weight: 500;
     cursor: pointer;
 
     &.is-selected {
-      background-color: $color-white;
-      border-radius: $border-radius-lg;
-      color: $color-blue-50;
+      background-color: lib.$color-white;
+      border-radius: lib.$border-radius-lg;
+      color: lib.$color-blue-50;
     }
   }
 }

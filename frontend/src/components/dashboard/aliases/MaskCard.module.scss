@@ -1,15 +1,15 @@
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "../../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "../../../styles/tokens";
 
 .card {
-  background-color: $color-white;
-  border-radius: $border-radius-md;
+  background-color: tokens.$color-white;
+  border-radius: lib.$border-radius-md;
   transition:
     box-shadow 200ms ease-in-out,
     opacity 200ms ease-in-out;
 
   &.is-enabled {
-    box-shadow: $box-shadow-sm;
+    box-shadow: lib.$box-shadow-sm;
   }
   &:not(.is-enabled) {
     opacity: 0.7;
@@ -19,8 +19,8 @@
 .bar {
   display: flex;
   align-items: center;
-  gap: $spacing-sm;
-  padding: $spacing-sm;
+  gap: lib.$spacing-sm;
+  padding: lib.$spacing-sm;
 
   .summary {
     flex: 1 1 auto;
@@ -32,16 +32,16 @@
     flex-wrap: wrap;
     position: relative;
 
-    @media screen and #{$mq-md} {
-      gap: $spacing-sm;
+    @media screen and #{lib.$mq-md} {
+      gap: lib.$spacing-sm;
       flex-wrap: nowrap;
     }
 
     .label-editor-wrapper {
-      @media screen and #{$mq-md} {
+      @media screen and #{lib.$mq-md} {
         // Same as .summary's gap:
-        padding-inline-end: $spacing-sm;
-        border-right: 1px solid $color-grey-10;
+        padding-inline-end: lib.$spacing-sm;
+        border-right: 1px solid tokens.$color-grey-10;
       }
     }
 
@@ -50,10 +50,10 @@
       align-items: center;
       overflow: hidden;
 
-      @media screen and #{$mq-md} {
-        gap: $spacing-sm;
+      @media screen and #{lib.$mq-md} {
+        gap: lib.$spacing-sm;
       }
-      @media screen and (max-width: $screen-xs) {
+      @media screen and (max-width: lib.$screen-xs) {
         overflow: hidden;
       }
     }
@@ -61,18 +61,18 @@
     .copy-button {
       display: flex;
       align-items: center;
-      gap: $spacing-xs;
+      gap: lib.$spacing-xs;
       background-color: transparent;
-      color: $color-blue-50;
+      color: tokens.$color-blue-50;
       border-style: none;
-      font-family: $font-stack-firefox;
+      font-family: lib.$font-stack-firefox;
       font-weight: 500;
-      border-radius: $border-radius-sm;
+      border-radius: lib.$border-radius-sm;
       cursor: pointer;
       overflow: inherit;
 
       &:hover {
-        color: $color-green-70;
+        color: tokens.$color-green-70;
       }
 
       samp {
@@ -90,18 +90,18 @@
     }
 
     .copied-confirmation {
-      background-color: $color-green-50;
-      padding: $spacing-xs $spacing-sm;
-      border-radius: $border-radius-md;
+      background-color: tokens.$color-green-50;
+      padding: lib.$spacing-xs lib.$spacing-sm;
+      border-radius: lib.$border-radius-md;
       font-weight: 600;
       opacity: 1;
       pointer-events: none;
       z-index: 2; // Places copied label above promotions label
 
-      @media screen and (max-width: $screen-md) {
-        @include text-body-sm;
+      @media screen and (max-width: lib.$screen-md) {
+        @include lib.text-body-sm;
       }
-      @media screen and (max-width: $content-sm) {
+      @media screen and (max-width: lib.$content-sm) {
         position: absolute;
         right: 0;
       }
@@ -116,10 +116,10 @@
     .block-level-label {
       flex: 1 0 auto;
       text-align: end;
-      color: $color-grey-50;
+      color: tokens.$color-grey-50;
       display: none;
 
-      @media screen and #{$mq-lg} {
+      @media screen and #{lib.$mq-lg} {
         display: initial;
       }
     }
@@ -133,18 +133,18 @@
     background-color: transparent;
     border-style: none;
     cursor: pointer;
-    color: $color-grey-40;
-    border-radius: $border-radius-sm;
-    width: $layout-sm;
+    color: tokens.$color-grey-40;
+    border-radius: lib.$border-radius-sm;
+    width: lib.$layout-sm;
     z-index: 3; // Ensures that the button gets placed above the copied label (needed for long custom domains at viewport width ~ 780px)
 
     @media (any-pointer: coarse) {
-      width: $layout-md;
+      width: lib.$layout-md;
     }
 
     &:hover {
-      background-color: $color-grey-05;
-      color: $color-blue-50;
+      background-color: tokens.$color-grey-05;
+      color: tokens.$color-blue-50;
     }
 
     svg {
@@ -175,10 +175,10 @@
     grid-template-rows: 1fr;
 
     .details {
-      border-top: 1px solid $color-grey-10;
+      border-top: 1px solid tokens.$color-grey-10;
 
-      @media screen and #{$mq-md} {
-        padding: $spacing-md $spacing-lg;
+      @media screen and #{lib.$mq-md} {
+        padding: lib.$spacing-md lib.$spacing-lg;
       }
     }
   }
@@ -188,19 +188,19 @@
     transition: padding 200ms ease-in-out;
 
     .stats {
-      @media screen and (max-width: $screen-md) {
+      @media screen and (max-width: lib.$screen-md) {
         display: flex;
         flex-direction: column;
-        padding-inline: $spacing-md;
-        border-bottom: 1px solid $color-grey-10;
+        padding-inline: lib.$spacing-md;
+        border-bottom: 1px solid tokens.$color-grey-10;
 
         .stat {
           display: flex;
           justify-content: space-between;
-          padding-block: $spacing-sm;
+          padding-block: lib.$spacing-sm;
 
           &:not(:last-child) {
-            border-bottom: 1px solid $color-grey-10;
+            border-bottom: 1px solid tokens.$color-grey-10;
           }
 
           // De-emphasise stats for:
@@ -213,22 +213,22 @@
           .is-disabled &.trackers-removed-stat,
           // - forwarded emails when a mask is not forwarding emails.
           .is-disabled &.forwarded-stat {
-            color: $color-grey-40;
+            color: tokens.$color-grey-40;
           }
 
           dt {
-            @include text-body-md;
+            @include lib.text-body-md;
           }
 
           dd {
-            @include text-body-lg;
+            @include lib.text-body-lg;
             font-weight: 700;
           }
         }
       }
-      @media screen and #{$mq-md} {
+      @media screen and #{lib.$mq-md} {
         display: flex;
-        gap: $spacing-md;
+        gap: lib.$spacing-md;
         justify-content: space-between;
         width: 100%;
 
@@ -237,9 +237,9 @@
           display: flex;
           flex-direction: column-reverse;
           align-items: center;
-          background-color: $color-grey-05;
-          padding: $spacing-sm;
-          border-radius: $border-radius-sm;
+          background-color: tokens.$color-grey-05;
+          padding: lib.$spacing-sm;
+          border-radius: lib.$border-radius-sm;
 
           // De-emphasise stats for:
           // - blocked emails when a mask is not blocking emails,
@@ -251,12 +251,12 @@
           .is-disabled &.trackers-removed-stat,
           // - forwarded emails when a mask is not forwarding emails.
           .is-disabled &.forwarded-stat {
-            color: $color-grey-30;
+            color: tokens.$color-grey-30;
           }
 
           dd {
-            @include text-title-2xs;
-            font-family: $font-stack-firefox;
+            @include lib.text-title-2xs;
+            font-family: lib.$font-stack-firefox;
             font-weight: 600;
           }
         }
@@ -267,7 +267,7 @@
 
 .block-level {
   a {
-    color: $color-blue-50;
+    color: tokens.$color-blue-50;
     font-weight: 500;
 
     &:hover {
@@ -275,18 +275,18 @@
     }
   }
 
-  @media screen and (max-width: $screen-md) {
+  @media screen and (max-width: lib.$screen-md) {
     display: flex;
     flex-direction: column;
-    gap: $spacing-md;
-    padding: $spacing-lg;
+    gap: lib.$spacing-md;
+    padding: lib.$spacing-lg;
     $arrowWidth: 6px;
 
     .block-level-setting-description {
-      @include text-body-sm;
-      background-color: $color-grey-05;
-      padding: $spacing-lg;
-      border-radius: $border-radius-md;
+      @include lib.text-body-sm;
+      background-color: tokens.$color-grey-05;
+      padding: lib.$spacing-lg;
+      border-radius: lib.$border-radius-md;
       position: relative;
 
       &::after {
@@ -296,7 +296,7 @@
         position: absolute;
         top: -1 * $arrowWidth;
         transform: rotate(45deg);
-        background-color: $color-grey-05;
+        background-color: tokens.$color-grey-05;
       }
 
       &.without-chevron::after {
@@ -305,7 +305,7 @@
     }
 
     &.is-blocking-none .block-level-setting-description::after {
-      left: calc(calc(100% / 6) - ($spacing-md / 2));
+      left: calc(calc(100% / 6) - (lib.$spacing-md / 2));
     }
 
     &.is-blocking-promotionals .block-level-setting-description::after {
@@ -313,17 +313,17 @@
     }
 
     &.is-blocking-all .block-level-setting-description::after {
-      right: calc(calc(100% / 6) - ($spacing-md / 2));
+      right: calc(calc(100% / 6) - (lib.$spacing-md / 2));
     }
   }
-  @media screen and #{$mq-md} {
+  @media screen and #{lib.$mq-md} {
     display: flex;
     align-items: center;
-    gap: $spacing-2xl;
-    padding: $spacing-lg;
+    gap: lib.$spacing-2xl;
+    padding: lib.$spacing-lg;
 
     .block-level-setting {
-      flex: 0 0 $content-sm;
+      flex: 0 0 lib.$content-sm;
     }
 
     .block-level-setting-description {
@@ -337,7 +337,7 @@
 .block-level-control-wrapper {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: lib.$spacing-md;
 
   .block-level-control-label {
     text-align: center;
@@ -345,55 +345,55 @@
 
   .block-level-segmented-control {
     $toggle-border-radius: 40px;
-    background-color: $color-grey-05;
+    background-color: tokens.$color-grey-05;
     border-radius: $toggle-border-radius;
-    border: $border-radius-xs solid $color-grey-10;
-    padding: $spacing-xs;
+    border: lib.$border-radius-xs solid tokens.$color-grey-10;
+    padding: lib.$spacing-xs;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: $spacing-md;
+    gap: lib.$spacing-md;
 
     label {
       flex: 1 1 0;
-      padding: $spacing-xs $spacing-sm;
+      padding: lib.$spacing-xs lib.$spacing-sm;
       display: flex;
-      gap: $spacing-sm;
+      gap: lib.$spacing-sm;
       align-items: center;
       justify-content: center;
-      background-color: $color-white;
+      background-color: tokens.$color-white;
       border-radius: $toggle-border-radius;
       font-weight: 500;
-      color: $color-grey-40;
+      color: tokens.$color-grey-40;
       cursor: pointer;
 
       &:not(.is-selected) {
         &:hover {
-          background-color: $color-violet-30;
-          color: $color-white;
+          background-color: tokens.$color-violet-30;
+          color: tokens.$color-white;
         }
       }
 
       .is-selected &.is-disabled {
         &:hover {
-          border: 1px solid $color-violet-70;
+          border: 1px solid tokens.$color-violet-70;
         }
       }
 
       &.is-selected {
-        background-color: $color-violet-70;
-        color: $color-white;
+        background-color: tokens.$color-violet-70;
+        color: tokens.$color-white;
       }
 
       &.is-focused {
-        outline: 3px solid $color-blue-50;
+        outline: 3px solid tokens.$color-blue-50;
       }
 
       &.is-disabled {
-        padding-inline: $spacing-md;
-        color: $color-grey-30;
+        padding-inline: lib.$spacing-md;
+        color: tokens.$color-grey-30;
 
-        @media screen and #{$mq-md} {
+        @media screen and #{lib.$mq-md} {
           svg {
             flex: 1 1 10px;
           }
@@ -402,7 +402,7 @@
 
       &.promo-selected {
         outline-width: 2px;
-        outline-color: $color-violet-70;
+        outline-color: tokens.$color-violet-70;
         outline-style: solid;
       }
     }
@@ -410,20 +410,20 @@
 }
 
 .meta {
-  @media screen and (max-width: $screen-md) {
+  @media screen and (max-width: lib.$screen-md) {
     display: flex;
     flex-direction: column;
 
     dl {
-      @include text-body-sm;
+      @include lib.text-body-sm;
       display: flex;
       flex-direction: column;
-      gap: $spacing-md;
-      border-top: 1px solid $color-grey-10;
-      padding: $spacing-lg;
+      gap: lib.$spacing-md;
+      border-top: 1px solid tokens.$color-grey-10;
+      padding: lib.$spacing-lg;
 
       dd {
-        font-family: $font-stack-firefox;
+        font-family: lib.$font-stack-firefox;
         font-weight: 500;
 
         img {
@@ -435,30 +435,30 @@
     .deletion-button-wrapper {
       display: flex;
       flex-direction: column;
-      border-top: 1px solid $color-grey-10;
-      padding: $spacing-md;
+      border-top: 1px solid tokens.$color-grey-10;
+      padding: lib.$spacing-md;
     }
   }
-  @media screen and #{$mq-md} {
+  @media screen and #{lib.$mq-md} {
     display: flex;
-    padding-block: $spacing-lg $spacing-sm;
-    border-top: 1px solid $color-grey-10;
+    padding-block: lib.$spacing-lg lib.$spacing-sm;
+    border-top: 1px solid tokens.$color-grey-10;
 
     dl {
       display: flex;
-      gap: $spacing-2xl;
+      gap: lib.$spacing-2xl;
       font-weight: 500;
 
       dt {
-        @include text-body-sm;
-        color: $color-grey-50;
+        @include lib.text-body-sm;
+        color: tokens.$color-grey-50;
       }
 
       dd {
         display: flex;
         align-items: center;
-        gap: $spacing-sm;
-        color: $color-grey-60;
+        gap: lib.$spacing-sm;
+        color: tokens.$color-grey-60;
       }
     }
 
@@ -470,19 +470,19 @@
 }
 
 .promotions-locked-description-wrapper {
-  margin-top: $spacing-md;
-  background: $color-grey-05;
-  border-radius: $border-radius-md;
-  padding: $spacing-md;
+  margin-top: lib.$spacing-md;
+  background: tokens.$color-grey-05;
+  border-radius: lib.$border-radius-md;
+  padding: lib.$spacing-md;
   display: flex;
   flex-direction: column;
-  gap: $spacing-sm;
+  gap: lib.$spacing-sm;
 
   strong {
     display: flex;
     align-items: center;
-    gap: $spacing-sm;
-    color: $color-grey-50;
+    gap: lib.$spacing-sm;
+    color: tokens.$color-grey-50;
   }
 }
 
@@ -495,18 +495,18 @@
 }
 
 .onboarding-alias-container {
-  width: $content-xs;
+  width: lib.$content-xs;
   position: absolute;
-  padding: $spacing-sm $spacing-md;
-  color: $color-black;
-  background: $color-white;
-  border: solid 4px $color-purple-50;
-  border-radius: $border-radius-md;
-  right: $spacing-xl;
-  box-shadow: $box-shadow-md;
+  padding: lib.$spacing-sm lib.$spacing-md;
+  color: tokens.$color-black;
+  background: tokens.$color-white;
+  border: solid 4px tokens.$color-purple-50;
+  border-radius: lib.$border-radius-md;
+  right: lib.$spacing-xl;
+  box-shadow: lib.$box-shadow-md;
   display: none;
 
-  @media screen and #{$mq-lg} {
+  @media screen and #{lib.$mq-lg} {
     display: block;
   }
 }

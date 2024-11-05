@@ -1,50 +1,50 @@
-@import "../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib";
 
 .wrapper {
   position: relative;
-  padding-bottom: calc($spacing-md * 2 + 2rem);
+  padding-bottom: calc(lib.$spacing-md * 2 + 2rem);
   flex: 1 0 0;
 
   .card {
     position: fixed;
-    right: $spacing-md;
-    bottom: $spacing-md;
+    right: lib.$spacing-md;
+    bottom: lib.$spacing-md;
     display: flex;
     flex-direction: column;
 
     .card-header {
-      background-color: $color-blue-90;
-      padding: $spacing-md;
-      border-top-right-radius: $border-radius-sm;
-      border-top-left-radius: $border-radius-sm;
+      background-color: lib.$color-blue-90;
+      padding: lib.$spacing-md;
+      border-top-right-radius: lib.$border-radius-sm;
+      border-top-left-radius: lib.$border-radius-sm;
     }
 
     .card-content {
-      padding: $spacing-lg;
+      padding: lib.$spacing-lg;
       display: flex;
       flex-direction: column;
-      gap: $spacing-sm;
+      gap: lib.$spacing-sm;
     }
 
     .card-cta {
-      margin-top: $spacing-md;
+      margin-top: lib.$spacing-md;
     }
 
     .card-title {
-      color: $color-blue-90;
+      color: lib.$color-blue-90;
 
-      @include text-title-3xs;
-      font-family: $font-stack-firefox;
+      @include lib.text-title-3xs;
+      font-family: lib.$font-stack-firefox;
       font-weight: 600;
       word-wrap: break-word;
     }
 
     .card-description {
-      color: $color-blue-90;
+      color: lib.$color-blue-90;
 
-      @include text-body-md;
-      font-family: $font-stack-firefox;
+      @include lib.text-body-md;
+      font-family: lib.$font-stack-firefox;
       font-weight: 400;
       word-wrap: break-word;
     }
@@ -52,14 +52,14 @@
     .close-button {
       background-color: transparent;
       border-style: none;
-      border-radius: $border-radius-sm;
+      border-radius: lib.$border-radius-sm;
       padding: 0;
       cursor: pointer;
-      color: $color-white;
+      color: lib.$color-white;
       float: right;
 
       &:hover {
-        color: $color-blue-50;
+        color: lib.$color-blue-50;
       }
     }
   }
@@ -76,9 +76,9 @@
 }
 
 .card {
-  border-radius: $border-radius-md;
-  box-shadow: $box-shadow-sm;
-  background-color: $color-white;
-  width: $content-sm;
-  max-width: calc(100% - $spacing-xl);
+  border-radius: lib.$border-radius-md;
+  box-shadow: lib.$box-shadow-sm;
+  background-color: lib.$color-white;
+  width: lib.$content-sm;
+  max-width: calc(100% - lib.$spacing-xl);
 }

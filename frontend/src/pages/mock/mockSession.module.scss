@@ -1,56 +1,56 @@
-@import "../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib";
 
 .mock-session {
-  padding: $spacing-lg;
+  padding: lib.$spacing-lg;
 
   a {
-    color: $color-blue-50;
+    color: lib.$color-blue-50;
   }
 
   .lead {
-    max-width: $content-md;
-    padding: $spacing-md 0;
+    max-width: lib.$content-md;
+    padding: lib.$spacing-md 0;
   }
 
   form {
     display: flex;
     flex-direction: column;
-    gap: $spacing-sm;
+    gap: lib.$spacing-sm;
     align-items: flex-start;
-    padding: $spacing-lg;
-    width: $content-sm;
+    padding: lib.$spacing-lg;
+    width: lib.$content-sm;
   }
 
   input,
   button {
-    padding: $spacing-md;
+    padding: lib.$spacing-md;
   }
 
   button {
-    border-radius: $border-radius-sm;
-    border: 1px solid $color-blue-50;
-    background-color: $color-white;
-    color: $color-blue-50;
+    border-radius: lib.$border-radius-sm;
+    border: 1px solid lib.$color-blue-50;
+    background-color: lib.$color-white;
+    color: lib.$color-blue-50;
     font-weight: 700;
     cursor: pointer;
 
     &:hover {
-      background-color: $color-blue-50;
-      color: $color-white;
+      background-color: lib.$color-blue-50;
+      color: lib.$color-white;
     }
   }
 
   h1 {
-    padding: $spacing-sm 0;
+    padding: lib.$spacing-sm 0;
 
-    @include text-title-3xs;
+    @include lib.text-title-3xs;
   }
 
   ul {
     display: flex;
     flex-direction: column;
-    gap: $spacing-md;
+    gap: lib.$spacing-md;
     list-style-type: none;
   }
 }

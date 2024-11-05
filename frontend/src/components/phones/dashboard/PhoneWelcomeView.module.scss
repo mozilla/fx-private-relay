@@ -1,18 +1,18 @@
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "../../../styles/tokens";
-@import "../../../styles/typography";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "../../../styles/tokens";
+@use "../../../styles/typography" as styles-typography;
 
 .main-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: $content-max;
+  max-width: lib.$content-max;
   width: 100%;
   margin: 0 auto;
-  padding: $spacing-md;
-  margin-bottom: $layout-md;
-  margin-top: $layout-sm;
-  gap: $layout-md;
+  padding: lib.$spacing-md;
+  margin-bottom: lib.$layout-md;
+  margin-top: lib.$layout-sm;
+  gap: lib.$layout-md;
 
   .main-heading {
     display: flex;
@@ -20,8 +20,8 @@
     text-align: center;
 
     h1 {
-      @include text-title-xs {
-        @include font-firefox;
+      @include styles-typography.text-title-xs {
+        @include lib.font-firefox;
         font-weight: 600;
       }
     }
@@ -30,9 +30,9 @@
   .phone-instructions-wrapper {
     display: flex;
     flex-direction: column;
-    margin-top: $layout-md;
+    margin-top: lib.$layout-md;
 
-    @media screen and #{$mq-md} {
+    @media screen and #{lib.$mq-md} {
       flex-direction: row;
     }
 
@@ -41,20 +41,20 @@
       position: relative;
       display: flex;
       flex-direction: column;
-      padding: $spacing-lg 0;
+      padding: lib.$spacing-lg 0;
 
-      @media screen and #{$mq-md} {
-        padding: 0 $spacing-md;
+      @media screen and #{lib.$mq-md} {
+        padding: 0 lib.$spacing-md;
       }
-      @media screen and #{$mq-lg} {
-        padding: 0 $spacing-2xl;
+      @media screen and #{lib.$mq-lg} {
+        padding: 0 lib.$spacing-2xl;
       }
 
       + .instruction-item {
-        border-top: solid 2px $color-light-gray-20;
+        border-top: solid 2px lib.$color-light-gray-20;
 
-        @media screen and #{$mq-md} {
-          border-left: solid 2px $color-light-gray-20;
+        @media screen and #{lib.$mq-md} {
+          border-left: solid 2px lib.$color-light-gray-20;
           border-top: none;
         }
       }
@@ -63,15 +63,15 @@
         align-self: center;
         display: inline;
         border-radius: 100%;
-        background-color: $color-light-gray-30;
-        color: $color-dark-gray-90;
-        padding: $spacing-xs;
-        margin-left: $spacing-sm;
+        background-color: lib.$color-light-gray-30;
+        color: lib.$color-dark-gray-90;
+        padding: lib.$spacing-xs;
+        margin-left: lib.$spacing-sm;
       }
 
       h2 {
-        @include text-title-3xs;
-        padding: $spacing-md 0;
+        @include lib.text-title-3xs;
+        padding: lib.$spacing-md 0;
         font-weight: 600;
       }
 
@@ -80,14 +80,14 @@
         margin: 0;
         padding: 0;
         text-decoration: underline;
-        color: $color-blue-50;
+        color: tokens.$color-blue-50;
         cursor: pointer;
         font-weight: 500;
         background: none;
         border: none;
 
         &:hover {
-          color: $color-blue-80;
+          color: tokens.$color-blue-80;
         }
       }
 
@@ -96,15 +96,15 @@
       }
 
       .demo-wrapper {
-        padding: 0 $spacing-md;
+        padding: 0 lib.$spacing-md;
 
-        @media screen and #{$mq-md} {
+        @media screen and #{lib.$mq-md} {
           padding: 0;
         }
 
         .demo-heading {
-          color: $color-light-gray-80;
-          padding-top: $spacing-lg;
+          color: lib.$color-light-gray-80;
+          padding-top: lib.$spacing-lg;
         }
 
         .demo-input-wrapper {
@@ -113,16 +113,16 @@
           position: relative;
 
           .demo-input {
-            @include text-body-lg;
+            @include lib.text-body-lg;
             position: absolute;
             // Positioning the input into the text image
             margin: 0 0 5% 5%;
 
-            @media screen and #{$mq-md} {
-              @include text-body-md;
+            @media screen and #{lib.$mq-md} {
+              @include lib.text-body-md;
             }
-            @media screen and #{$mq-xl} {
-              @include text-body-lg;
+            @media screen and #{lib.$mq-xl} {
+              @include lib.text-body-lg;
             }
           }
 
@@ -143,35 +143,35 @@
           ul {
             display: flex;
             flex-direction: column;
-            padding: $spacing-sm;
-            background: $color-white;
+            padding: lib.$spacing-sm;
+            background: tokens.$color-white;
             box-shadow: 0px 2px 12px rgba(0, 0, 0, 0.1); // Taken from Figma style to match it with the other svgs
-            border-radius: $border-radius-md;
+            border-radius: lib.$border-radius-md;
             list-style: none;
-            gap: $spacing-xs;
+            gap: lib.$spacing-xs;
 
             li {
               display: flex;
               flex-direction: row;
               align-items: center;
               justify-content: space-between;
-              padding: $spacing-xs;
+              padding: lib.$spacing-xs;
 
               &:first-child {
-                color: $color-light-gray-50;
-                padding-bottom: $spacing-sm;
-                border-bottom: 1px solid $color-light-gray-10;
+                color: lib.$color-light-gray-50;
+                padding-bottom: lib.$spacing-sm;
+                border-bottom: 1px solid lib.$color-light-gray-10;
               }
 
               span {
                 margin: 0;
 
                 p:nth-child(2) {
-                  @include text-body-sm;
+                  @include lib.text-body-sm;
                 }
 
                 &:nth-child(2) {
-                  color: $color-blue-50;
+                  color: tokens.$color-blue-50;
                 }
               }
             }
@@ -182,14 +182,14 @@
   }
 
   .dashboard-btn {
-    @include font-firefox;
+    @include lib.font-firefox;
     width: 100%;
     text-align: center;
-    padding: $spacing-sm;
+    padding: lib.$spacing-sm;
 
-    @media screen and #{$mq-md} {
+    @media screen and #{lib.$mq-md} {
       width: auto;
-      padding: $spacing-sm $spacing-2xl;
+      padding: lib.$spacing-sm lib.$spacing-2xl;
     }
   }
 }

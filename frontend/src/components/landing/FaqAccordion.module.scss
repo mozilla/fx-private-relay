@@ -1,27 +1,27 @@
-@import "../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib";
 
 .entry {
   button {
-    @include text-body-xl;
+    @include lib.text-body-xl;
     background-color: transparent;
     border-style: none;
     display: flex;
     align-items: center;
-    gap: $spacing-md;
+    gap: lib.$spacing-md;
     justify-content: space-between;
     cursor: pointer;
-    padding: $spacing-lg $spacing-md;
+    padding: lib.$spacing-lg lib.$spacing-md;
     width: 100%;
-    border-bottom: 1px solid $color-light-gray-30;
+    border-bottom: 1px solid lib.$color-light-gray-30;
     text-align: start;
 
     &:focus {
       outline: none;
-      border-radius: $border-radius-md;
-      border-color: $color-light-gray-10;
-      background-color: $color-light-gray-10;
-      color: $color-blue-50;
+      border-radius: lib.$border-radius-md;
+      border-color: lib.$color-light-gray-10;
+      background-color: lib.$color-light-gray-10;
+      color: lib.$color-blue-50;
     }
   }
 
@@ -30,10 +30,10 @@
   }
 
   dd {
-    padding: $spacing-lg $spacing-md;
+    padding: lib.$spacing-lg lib.$spacing-md;
     display: flex;
     flex-direction: column;
-    gap: $spacing-md;
+    gap: lib.$spacing-md;
   }
 
   &.is-collapsed {
@@ -45,7 +45,7 @@
   .plus-icon {
     flex: 0 0 auto;
     transition: transform 0.2s ease-out;
-    color: $color-blue-50;
+    color: lib.$color-blue-50;
   }
 
   &.is-expanded {

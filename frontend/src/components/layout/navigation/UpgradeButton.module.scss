@@ -1,23 +1,23 @@
-@import "../../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "../../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib";
 
 #upgrade-button {
   appearance: none;
 
-  @include text-body-lg;
+  @include lib.text-body-lg;
   line-height: 1;
-  color: $color-purple-10;
+  color: lib.$color-purple-10;
   font-weight: 600;
-  border-radius: $border-radius-md;
-  font-family: $font-stack-firefox;
+  border-radius: lib.$border-radius-md;
+  font-family: lib.$font-stack-firefox;
 
-  @media screen and #{$mq-md} {
-    background-color: $color-purple-20;
-    padding: $spacing-sm $spacing-md;
-    color: $color-blue-90;
+  @media screen and #{lib.$mq-md} {
+    background-color: lib.$color-purple-20;
+    padding: lib.$spacing-sm lib.$spacing-md;
+    color: lib.$color-blue-90;
   }
 
   &:hover {
-    color: $color-blue-50;
+    color: lib.$color-blue-50;
   }
 }

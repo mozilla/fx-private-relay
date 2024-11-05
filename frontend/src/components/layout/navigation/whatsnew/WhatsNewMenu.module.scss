@@ -1,6 +1,6 @@
-@import "../../../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+@use "../../../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as lib2;
 
 button.trigger {
   flex-shrink: 0;
@@ -9,18 +9,18 @@ button.trigger {
   background-color: transparent;
   border-style: none;
   color: inherit;
-  border-radius: $border-radius-lg;
+  border-radius: lib.$border-radius-lg;
   cursor: pointer;
-  padding: $spacing-xs $spacing-md;
-  font-family: $font-stack-firefox;
+  padding: lib.$spacing-xs lib.$spacing-md;
+  font-family: lib.$font-stack-firefox;
   position: relative;
 
   &.is-open {
-    background-color: $color-light-gray-20;
-    color: $color-dark-gray-20;
+    background-color: lib.$color-light-gray-20;
+    color: lib.$color-dark-gray-20;
 
     &:hover {
-      color: $color-blue-50;
+      color: lib.$color-blue-50;
     }
   }
 
@@ -30,16 +30,16 @@ button.trigger {
 
   .pill {
     border-radius: 100%;
-    padding: $spacing-sm;
+    padding: lib.$spacing-sm;
     font-size: 14px;
     width: 20px;
     height: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: $color-yellow-40;
+    background-color: lib.$color-yellow-40;
     font-weight: 700;
-    color: $color-white;
+    color: lib.$color-white;
     font-style: normal;
     // On small screens, let the "new news entries" counter slightly overlap
     // the news icon. These position coordinates are not an exact science.
@@ -48,8 +48,8 @@ button.trigger {
     right: 0;
   }
 
-  @media screen and #{$mq-md} {
-    gap: $spacing-sm;
+  @media screen and #{lib.$mq-md} {
+    gap: lib.$spacing-sm;
     position: initial;
 
     .trigger-icon {
@@ -65,9 +65,9 @@ button.trigger {
 }
 
 .popover-wrapper {
-  box-shadow: $box-shadow-sm;
-  border-radius: $border-radius-sm;
-  width: min($content-sm, calc(100vw - 2 * $spacing-md));
+  box-shadow: lib.$box-shadow-sm;
+  border-radius: lib.$border-radius-sm;
+  width: min(lib.$content-sm, calc(100vw - 2 * lib.$spacing-md));
 
   button {
     padding: 0;
@@ -79,27 +79,27 @@ button.trigger {
     width: 12px;
     position: absolute;
     top: -6px;
-    right: $spacing-lg;
+    right: lib.$spacing-lg;
     transform: rotate(45deg);
-    background-color: $color-white;
+    background-color: lib.$color-white;
   }
 }
 
 .cta {
-  @include text-body-lg;
-  color: $color-blue-50;
+  @include lib.text-body-lg;
+  color: lib.$color-blue-50;
   font-weight: 500;
   text-decoration: underline;
-  margin-top: $spacing-sm;
+  margin-top: lib.$spacing-sm;
   cursor: pointer;
 
   &:hover {
-    color: $color-blue-80;
+    color: lib.$color-blue-80;
   }
 }
 
 .countdown-timer {
   display: flex;
   justify-content: center;
-  padding: $spacing-2xl 0;
+  padding: lib.$spacing-2xl 0;
 }

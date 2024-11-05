@@ -1,6 +1,6 @@
-@import "../../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "../../../styles/typography";
+@use "../../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "../../../styles/typography";
 
 .wrapper {
   align-items: center;
@@ -15,7 +15,7 @@
   color: white;
   overflow: hidden;
 
-  @include text-title-2xs {
+  @include typography.text-title-2xs {
     padding: 0;
     border-style: none;
   }
@@ -24,19 +24,19 @@
 .popup {
   position: absolute;
   right: 0;
-  margin-top: $spacing-md;
+  margin-top: lib.$spacing-md;
   padding: 0;
-  padding-bottom: $spacing-lg;
-  min-width: $content-xs;
+  padding-bottom: lib.$spacing-lg;
+  min-width: lib.$content-xs;
   list-style-type: none;
-  box-shadow: $box-shadow-md;
-  border-radius: $border-radius-md;
+  box-shadow: lib.$box-shadow-md;
+  border-radius: lib.$border-radius-md;
   // The .account-menu-item has its own background color
   // (to overlap the $firefoxGradient everywhere but at the bottom),
   // so we need to push it down a bit to avoid that from covering
   // .popup's rounded corners:
-  padding-top: $border-radius-md;
-  $popupBackgroundColor: $color-light-gray-10;
+  padding-top: lib.$border-radius-md;
+  $popupBackgroundColor: lib.$color-light-gray-10;
   background-color: $popupBackgroundColor;
 
   &::before {
@@ -45,7 +45,7 @@
     width: 12px;
     position: absolute;
     top: -6px;
-    right: $spacing-md;
+    right: lib.$spacing-md;
     transform: rotate(45deg);
     background-color: $popupBackgroundColor;
   }
@@ -59,25 +59,25 @@
           $popupBackgroundColor calc(100% - $gradientWidth),
           rgba(0, 0, 0, 0)
         ),
-        $firefoxGradient;
-      margin-bottom: $spacing-md;
-      padding: $spacing-lg;
+        tokens.$firefoxGradient;
+      margin-bottom: lib.$spacing-md;
+      padding: lib.$spacing-lg;
       // To avoid overlapping .popup's rounded corners,
       // it has its own padding-top of $border-radius-md. Subtract that from
       // the .account-menu-item's padding-top:
-      padding-top: $spacing-lg - $border-radius-md;
+      padding-top: lib.$spacing-lg - lib.$border-radius-md;
 
       .user-email {
         font-weight: 700;
         display: block;
-        color: $color-violet-90;
+        color: lib.$color-violet-90;
       }
 
       .settings-link {
-        color: $color-dark-gray-50;
+        color: lib.$color-dark-gray-50;
         display: flex;
         align-items: center;
-        gap: $spacing-xs;
+        gap: lib.$spacing-xs;
       }
 
       &:hover {
@@ -93,28 +93,28 @@
     .menu-button {
       display: flex;
       align-items: center;
-      gap: $spacing-md;
-      padding: $spacing-md $spacing-lg;
-      color: $color-violet-90;
+      gap: lib.$spacing-md;
+      padding: lib.$spacing-md lib.$spacing-lg;
+      color: lib.$color-violet-90;
       border-style: none;
       background-color: transparent;
       width: 100%;
       cursor: pointer;
 
       svg {
-        color: $color-purple-40;
+        color: lib.$color-purple-40;
       }
 
       &:hover {
         text-decoration: underline;
-        background-color: $color-light-gray-20;
-        color: $color-violet-90;
+        background-color: lib.$color-light-gray-20;
+        color: lib.$color-violet-90;
       }
     }
 
     .settings-link {
       svg {
-        color: $color-purple-40;
+        color: lib.$color-purple-40;
       }
     }
 

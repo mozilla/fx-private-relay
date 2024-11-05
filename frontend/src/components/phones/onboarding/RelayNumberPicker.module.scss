@@ -1,16 +1,16 @@
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
-@import "../../../styles/tokens";
-@import "../../../styles/typography";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as lib2;
+@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+@use "../../../styles/tokens";
+@use "../../../styles/typography" as styles-typography;
 
 .step,
 .controls {
-  max-width: $content-md;
+  max-width: lib2.$content-md;
   margin: 0 auto;
-  padding: $spacing-lg;
+  padding: lib2.$spacing-lg;
 
   &.step-welcome {
-    max-width: $content-lg;
+    max-width: lib2.$content-lg;
   }
 }
 
@@ -19,7 +19,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: $spacing-2xl;
+  gap: lib2.$spacing-2xl;
 
   .show-more-options {
     font-weight: 400;
@@ -35,22 +35,22 @@
   }
 
   h2 {
-    @include text-title-xs {
-      font-family: $font-stack-firefox;
+    @include styles-typography.text-title-xs {
+      font-family: lib2.$font-stack-firefox;
       text-align: center;
     }
   }
 
   .lead {
-    @include text-body-sm;
-    font-family: $font-stack-base;
+    @include lib2.text-body-sm;
+    font-family: lib2.$font-stack-base;
     text-align: center;
     display: flex;
     flex-direction: column;
-    gap: $spacing-lg;
+    gap: lib2.$spacing-lg;
 
     p {
-      @include text-body-md;
+      @include lib2.text-body-md;
     }
 
     img {
@@ -59,22 +59,22 @@
   }
 
   .description {
-    @include text-body-md;
+    @include lib2.text-body-md;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: $spacing-2xl;
-    padding: $spacing-md;
-    margin-top: $spacing-lg;
+    gap: lib2.$spacing-2xl;
+    padding: lib2.$spacing-md;
+    margin-top: lib2.$spacing-lg;
 
-    @media screen and #{$mq-md} {
+    @media screen and #{lib2.$mq-md} {
       flex-direction: row;
     }
 
     ul {
       display: flex;
       flex-direction: column;
-      gap: $spacing-md;
+      gap: lib2.$spacing-md;
       margin: 0;
       padding: 0;
     }
@@ -88,22 +88,22 @@
     align-items: center;
     justify-items: center;
     text-align: center;
-    gap: $spacing-md;
-    background-color: $color-white;
-    padding: $spacing-lg $spacing-2xl;
-    border-radius: $border-radius-md;
-    box-shadow: $box-shadow-sm;
+    gap: lib2.$spacing-md;
+    background-color: tokens.$color-white;
+    padding: lib2.$spacing-lg lib2.$spacing-2xl;
+    border-radius: lib2.$border-radius-md;
+    box-shadow: lib2.$box-shadow-sm;
 
     h3 {
-      @include text-body-md;
-      font-family: $font-stack-firefox;
+      @include lib2.text-body-md;
+      font-family: lib2.$font-stack-firefox;
       text-align: center;
       font-weight: 400;
     }
 
     span {
-      @include text-title-2xs {
-        padding-top: $spacing-sm;
+      @include styles-typography.text-title-2xs {
+        padding-top: lib2.$spacing-sm;
         display: block;
         font-weight: 700;
       }
@@ -111,11 +111,11 @@
   }
 
   .form {
-    max-width: $content-sm;
+    max-width: lib2.$content-sm;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    gap: $spacing-lg;
+    gap: lib2.$spacing-lg;
   }
 }
 
@@ -140,7 +140,7 @@
         display: block;
       }
       h2 {
-        color: $color-error;
+        color: tokens.$color-error;
       }
     }
 
@@ -149,25 +149,25 @@
         display: block;
       }
       h2 {
-        color: $color-success;
+        color: tokens.$color-success;
       }
     }
   }
 
   form {
-    background-color: $color-white;
-    box-shadow: $box-shadow-sm;
-    padding: $spacing-lg;
-    border-radius: $border-radius-md;
-    max-width: $screen-sm;
+    background-color: tokens.$color-white;
+    box-shadow: lib2.$box-shadow-sm;
+    padding: lib2.$spacing-lg;
+    border-radius: lib2.$border-radius-md;
+    max-width: lib2.$screen-sm;
     position: relative;
 
     &.is-hidden {
       display: none;
     }
 
-    @media screen and #{$mq-md} {
-      padding: $spacing-lg $spacing-2xl;
+    @media screen and #{lib2.$mq-md} {
+      padding: lib2.$spacing-lg lib2.$spacing-2xl;
     }
 
     p {
@@ -184,24 +184,24 @@
     }
 
     input {
-      @include text-body-xl;
-      border-radius: $border-radius-md;
+      @include lib2.text-body-xl;
+      border-radius: lib2.$border-radius-md;
       display: block;
-      padding: $spacing-sm;
+      padding: lib2.$spacing-sm;
       box-shadow: none;
       border: 0;
-      background-color: $color-grey-10;
+      background-color: tokens.$color-grey-10;
       letter-spacing: 1rem;
       text-align: center;
       width: 100%;
 
       &.is-error {
-        border: 2px solid $color-error;
-        outline: 4px solid $color-error-focus;
+        border: 2px solid tokens.$color-error;
+        outline: 4px solid tokens.$color-error-focus;
       }
 
-      @media screen and #{$mq-md} {
-        padding: $spacing-md;
+      @media screen and #{lib2.$mq-md} {
+        padding: lib2.$spacing-md;
         letter-spacing: 2rem;
       }
     }
@@ -209,15 +209,15 @@
 }
 
 .step-input-verificiation-code-success {
-  background-color: $color-white;
-  box-shadow: $box-shadow-sm;
-  border-radius: $border-radius-md;
-  padding: $spacing-lg $spacing-2xl;
-  max-width: $screen-sm;
+  background-color: tokens.$color-white;
+  box-shadow: lib2.$box-shadow-sm;
+  border-radius: lib2.$border-radius-md;
+  padding: lib2.$spacing-lg lib2.$spacing-2xl;
+  max-width: lib2.$screen-sm;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: $spacing-lg;
+  gap: lib2.$spacing-lg;
   justify-content: center;
 
   &.is-hidden {
@@ -225,7 +225,7 @@
   }
 
   h3 {
-    @include text-body-md;
+    @include lib2.text-body-md;
   }
 
   p,
@@ -235,21 +235,21 @@
 }
 
 .step-select-phone-number-mask {
-  background-color: $color-white;
-  box-shadow: $box-shadow-sm;
-  border-radius: $border-radius-md;
-  padding: $spacing-xl $spacing-lg;
+  background-color: tokens.$color-white;
+  box-shadow: lib2.$box-shadow-sm;
+  border-radius: lib2.$border-radius-md;
+  padding: lib2.$spacing-xl lib2.$spacing-lg;
   width: 100%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: $spacing-lg;
+  gap: lib2.$spacing-lg;
   justify-content: center;
 
   .lead {
     display: flex;
     flex-direction: row;
-    gap: $spacing-md;
+    gap: lib2.$spacing-md;
     align-items: center;
     justify-content: center;
 
@@ -268,22 +268,22 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: $spacing-md;
+    gap: lib2.$spacing-md;
 
     > div {
       display: flex;
-      gap: $spacing-sm;
+      gap: lib2.$spacing-sm;
     }
   }
 
   .search {
-    @include form-input;
+    @include lib.form-input;
     position: relative;
-    padding-left: $layout-md;
-    background: $spacing-sm center transparent no-repeat;
+    padding-left: lib2.$layout-md;
+    background: lib2.$spacing-sm center transparent no-repeat;
     background-image: url("/icons/search-blue.svg");
     background-size: 1.5rem auto;
-    max-width: $content-xs;
+    max-width: lib2.$content-xs;
     margin: 0 auto;
   }
 }
@@ -293,24 +293,24 @@
   // Magic number: Min-height for both loading animation and body copy
   // TODO: Use height of parent container
   flex-direction: column;
-  gap: $spacing-md;
+  gap: lib2.$spacing-md;
   align-items: center;
   justify-content: center;
 
-  @media screen and #{$mq-tall} {
+  @media screen and #{lib2.$mq-tall} {
     // min-height: 75vh;
   }
 
   .loading {
-    width: $layout-lg;
-    height: $layout-lg;
+    width: lib2.$layout-lg;
+    height: lib2.$layout-lg;
     background: url("./images/loading.svg") center no-repeat transparent;
     background-size: contain;
     animation: spin 1s infinite linear;
   }
 
   p {
-    max-width: $content-xs;
+    max-width: lib2.$content-xs;
     margin: 0 auto;
     text-align: center;
   }

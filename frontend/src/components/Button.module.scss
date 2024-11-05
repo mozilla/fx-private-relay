@@ -1,49 +1,49 @@
-@import "../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/mixins/typography";
-@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as forms_lib;
+@use "../styles/tokens";
 
 .button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: $spacing-xs;
+  gap: lib.$spacing-xs;
   cursor: pointer;
-  background-color: $color-blue-50;
-  padding: $spacing-sm $spacing-md;
-  border-radius: $border-radius-sm;
+  background-color: lib.$color-blue-50;
+  padding: lib.$spacing-sm lib.$spacing-md;
+  border-radius: lib.$border-radius-sm;
   border: 2px solid transparent;
-  color: $color-white;
+  color: lib.$color-white;
   font-weight: 700;
   line-height: 1.25;
 
-  @include text-body-md;
+  @include lib.text-body-md;
 
   &:hover:not(:disabled) {
-    background-color: $color-blue-60;
+    background-color: lib.$color-blue-60;
     opacity: 1;
   }
 
   &:focus {
-    border-color: $button-border-color-focus;
-    box-shadow: $field-focus-ring;
-    color: $color-white;
+    border-color: forms_lib.$button-border-color-focus;
+    box-shadow: forms_lib.$field-focus-ring;
+    color: lib.$color-white;
     outline: none;
   }
 
   &:disabled {
     cursor: not-allowed;
-    background-color: $color-light-gray-80;
+    background-color: lib.$color-light-gray-80;
   }
 
   &.is-destructive {
-    background-color: $color-red-60;
+    background-color: lib.$color-red-60;
 
     &:disabled {
-      background-color: $color-red-10;
+      background-color: lib.$color-red-10;
     }
 
     &:hover:not(:disabled) {
-      background-color: $color-red-70;
+      background-color: lib.$color-red-70;
       opacity: 1;
     }
   }
@@ -51,19 +51,19 @@
   &.is-secondary {
     background-color: transparent;
     border: none;
-    color: $color-blue-50;
+    color: lib.$color-blue-50;
 
     &:disabled {
       opacity: 0.4;
     }
 
     &:active {
-      color: $color-blue-70;
+      color: lib.$color-blue-70;
     }
 
     &:hover:not(:disabled) {
       background-color: transparent;
-      color: $color-blue-60;
+      color: lib.$color-blue-60;
     }
   }
 }

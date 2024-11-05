@@ -1,37 +1,37 @@
-@import "../../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "../../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib";
 
 .wrapper {
   display: none;
   flex-direction: column;
   align-items: center;
   justify-content: space-around;
-  gap: $spacing-sm;
-  padding: $spacing-md 0;
-  background-color: $color-purple-90;
-  color: $color-white;
+  gap: lib.$spacing-sm;
+  padding: lib.$spacing-md 0;
+  background-color: lib.$color-purple-90;
+  color: lib.$color-white;
   position: relative;
 
-  @media screen and #{$mq-md} {
+  @media screen and #{lib.$mq-md} {
     display: flex;
   }
 
   .dismiss-button {
     position: absolute;
-    right: $spacing-md;
+    right: lib.$spacing-md;
     background-color: transparent;
     border-style: none;
-    color: $color-white;
+    color: lib.$color-white;
     width: 30px;
     height: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: $border-radius-sm;
+    border-radius: lib.$border-radius-sm;
     cursor: pointer;
 
     &:hover {
-      background-color: $color-blue-50;
+      background-color: lib.$color-blue-50;
     }
   }
 }
@@ -40,18 +40,18 @@
   display: flex;
   align-items: center;
   justify-content: space-around;
-  gap: $spacing-md;
+  gap: lib.$spacing-md;
 
   ol {
     display: flex;
-    gap: $spacing-md;
+    gap: lib.$spacing-md;
     list-style-type: none;
   }
 
   button {
-    border-radius: $border-radius-sm;
-    background-color: $color-violet-40;
-    color: $color-white;
+    border-radius: lib.$border-radius-sm;
+    background-color: lib.$color-violet-40;
+    color: lib.$color-white;
     transition: background-color 0.1s ease-out;
     border-style: none;
     width: 2.5rem;
@@ -60,11 +60,11 @@
     cursor: pointer;
 
     &:hover {
-      background-color: $color-blue-50;
+      background-color: lib.$color-blue-50;
     }
   }
 
   .legend {
-    @include text-body-sm;
+    @include lib.text-body-sm;
   }
 }

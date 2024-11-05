@@ -1,58 +1,58 @@
-@import "../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "../../styles/typography";
+@use "../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "../../styles/typography" as styles-typography;
 
 .bundle-banner-wrapper {
   display: grid;
   grid-template-columns: 10fr;
   grid-template-rows: auto;
-  background-color: $color-violet-80;
-  border-radius: $border-radius-lg;
-  gap: $layout-xs;
+  background-color: lib.$color-violet-80;
+  border-radius: lib.$border-radius-lg;
+  gap: lib.$layout-xs;
 
   // Snap to 2 columns
-  @media #{$mq-lg} {
+  @media #{lib.$mq-lg} {
     background-image: url("./images/bundle-bg.png");
     grid-template-columns: 5fr 5fr;
     background-size: cover;
-    gap: $layout-md;
+    gap: lib.$layout-md;
   }
-  @media #{$mq-xl} {
+  @media #{lib.$mq-xl} {
     grid-template-columns: 5fr 6fr;
   }
 
   .first-section {
-    padding-right: $layout-lg; // Shrinks image towards the left side
+    padding-right: lib.$layout-lg; // Shrinks image towards the left side
     position: relative;
     background-image: url("./images/bundle-bg-mobile.png");
     background-size: cover;
     background-repeat: no-repeat;
-    border-bottom: 4px solid $color-purple-30;
-    border-radius: $border-radius-lg $border-radius-lg 0 0;
+    border-bottom: 4px solid lib.$color-purple-30;
+    border-radius: lib.$border-radius-lg lib.$border-radius-lg 0 0;
 
-    @media #{$mq-sm} {
-      padding-right: $layout-xl;
+    @media #{lib.$mq-sm} {
+      padding-right: lib.$layout-xl;
     }
-    @media #{$mq-md} {
-      padding-right: $content-sm;
+    @media #{lib.$mq-md} {
+      padding-right: lib.$content-sm;
     }
 
     // Snap to 2 columns
-    @media #{$mq-lg} {
-      padding-right: $layout-lg;
+    @media #{lib.$mq-lg} {
+      padding-right: lib.$layout-lg;
       border-bottom: none;
       background-image: none;
     }
 
     .main-img-wrapper {
       .main-image {
-        margin-top: -$layout-lg; // Leave space for image to bleed out of frame
+        margin-top: -(lib.$layout-lg); // Leave space for image to bleed out of frame
 
-        @media #{$mq-lg} {
+        @media #{lib.$mq-lg} {
           position: absolute;
           bottom: 0;
           margin-top: auto;
-          margin-left: $spacing-xs;
+          margin-left: lib.$spacing-xs;
           max-height: 500px; // Magic number: Ensure image does not overlay other sections
         }
       }
@@ -61,12 +61,12 @@
     .float-features-wrapper {
       display: none;
 
-      @media #{$mq-lg} {
+      @media #{lib.$mq-lg} {
         display: block;
 
         .float-features-item {
-          @include text-body-xs;
-          @include font-firefox;
+          @include lib.text-body-xs;
+          @include lib.font-firefox;
           font-weight: 600;
           background: rgba(
             255,
@@ -78,9 +78,9 @@
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: $spacing-sm;
-          padding: $spacing-sm;
-          border-radius: $border-radius-md;
+          gap: lib.$spacing-sm;
+          padding: lib.$spacing-sm;
+          border-radius: lib.$border-radius-md;
 
           .float-features-text {
             line-height: 100%;
@@ -88,16 +88,16 @@
           }
         }
         .feature-one {
-          right: $layout-lg;
-          top: $layout-lg;
+          right: lib.$layout-lg;
+          top: lib.$layout-lg;
         }
         .feature-two {
-          right: $layout-xs;
-          bottom: $layout-2xl;
+          right: lib.$layout-xs;
+          bottom: lib.$layout-2xl;
         }
         .feature-three {
-          left: $layout-sm;
-          bottom: $layout-lg;
+          left: lib.$layout-sm;
+          bottom: lib.$layout-lg;
 
           .float-features-text {
             max-width: 100px;
@@ -108,23 +108,23 @@
   }
 
   .second-section {
-    @media #{$mq-lg} {
+    @media #{lib.$mq-lg} {
       display: flex;
       justify-content: flex-end;
     }
 
     .bundle-banner-description {
       justify-content: space-between;
-      color: $color-white;
+      color: lib.$color-white;
       height: auto;
       flex-direction: column;
       display: flex;
-      gap: $spacing-md;
-      padding: 0 $spacing-md $spacing-xl $spacing-md;
+      gap: lib.$spacing-md;
+      padding: 0 lib.$spacing-md lib.$spacing-xl lib.$spacing-md;
 
-      @media #{$mq-lg} {
+      @media #{lib.$mq-lg} {
         height: auto;
-        padding: $spacing-2xl $spacing-xl;
+        padding: lib.$spacing-2xl lib.$spacing-xl;
       }
 
       .headline {
@@ -134,27 +134,27 @@
       }
 
       .bundle-banner-one-year-plan-headline {
-        margin-top: $spacing-md;
+        margin-top: lib.$spacing-md;
       }
 
       .bundle-banner-value-props {
         display: flex;
         flex-direction: column;
-        gap: $spacing-sm;
+        gap: lib.$spacing-sm;
         list-style: none;
 
-        @media #{$mq-xl} {
+        @media #{lib.$mq-xl} {
           flex-direction: row;
         }
 
         li {
           border-radius: 50px; // custom border radius to follow design spec
           background: rgba(255, 255, 255, 0.1);
-          padding: $spacing-sm $spacing-md;
+          padding: lib.$spacing-sm lib.$spacing-md;
           font-weight: 500;
           display: flex;
           flex-direction: row;
-          gap: $spacing-sm;
+          gap: lib.$spacing-sm;
           align-items: center;
         }
       }
@@ -162,11 +162,11 @@
       .bottom-section {
         display: flex;
         flex-direction: column;
-        gap: $spacing-md;
-        margin-top: $spacing-md;
+        gap: lib.$spacing-md;
+        margin-top: lib.$spacing-md;
         align-items: center;
 
-        @media #{$mq-lg} {
+        @media #{lib.$mq-lg} {
           flex-direction: row;
         }
 
@@ -174,10 +174,10 @@
           font-weight: 600;
           flex: 1 0 auto;
           background: white;
-          max-width: $content-xs;
-          color: $color-blue-50;
-          padding: $spacing-sm $spacing-md;
-          border-radius: $border-radius-sm;
+          max-width: lib.$content-xs;
+          color: lib.$color-blue-50;
+          padding: lib.$spacing-sm lib.$spacing-md;
+          border-radius: lib.$border-radius-sm;
 
           &:hover {
             opacity: 0.8;
@@ -185,41 +185,41 @@
         }
 
         .money-back-guarantee {
-          @include text-body-xs;
+          @include lib.text-body-xs;
           text-align: center;
 
-          @media #{$mq-lg} {
+          @media #{lib.$mq-lg} {
             text-align: start;
           }
         }
       }
 
       h2 {
-        @include text-title-sm {
-          @include font-firefox;
+        @include styles-typography.text-title-sm {
+          @include lib.font-firefox;
           font-weight: 700;
         }
 
-        @media #{$mq-lg} {
-          @include text-title-xs;
+        @media #{lib.$mq-lg} {
+          @include styles-typography.text-title-xs;
         }
       }
 
       h3 {
-        @include text-title-xs {
-          @include font-firefox;
+        @include styles-typography.text-title-xs {
+          @include lib.font-firefox;
           font-weight: 500;
         }
 
-        @media #{$mq-lg} {
-          @include text-title-2xs;
+        @media #{lib.$mq-lg} {
+          @include styles-typography.text-title-2xs;
         }
       }
 
       .pricing-logo-wrapper {
         display: flex;
         flex-direction: column;
-        gap: $spacing-md;
+        gap: lib.$spacing-md;
         align-items: center;
 
         .bundle-logo {
@@ -227,37 +227,37 @@
           max-width: 130px;
           align-self: center;
 
-          @media #{$mq-lg} {
+          @media #{lib.$mq-lg} {
             display: block;
           }
         }
 
-        @media #{$mq-lg} {
+        @media #{lib.$mq-lg} {
           flex-direction: row;
         }
 
         .pricing-wrapper {
-          border-radius: $border-radius-sm;
+          border-radius: lib.$border-radius-sm;
           // Using rgba to manipulate alpha value
           border: 2px solid rgba(255, 255, 255, 0.4);
           display: flex;
           flex-direction: column;
           align-items: center;
 
-          @media #{$mq-lg} {
+          @media #{lib.$mq-lg} {
             flex-direction: row;
           }
 
           span {
-            padding: $spacing-xs $spacing-md;
+            padding: lib.$spacing-xs lib.$spacing-md;
             display: flex;
             flex-direction: row;
             align-items: center;
             font-weight: 600;
-            gap: $spacing-xs;
+            gap: lib.$spacing-xs;
 
             .price {
-              @include text-body-sm;
+              @include lib.text-body-sm;
               font-weight: 400;
             }
 
@@ -265,15 +265,15 @@
               // Using rgba to manipulate alpha value
               border-bottom: 1px solid rgba(255, 255, 255, 0.4);
 
-              @media #{$mq-lg} {
+              @media #{lib.$mq-lg} {
                 border-right: 1px solid rgba(255, 255, 255, 0.4);
                 border-bottom: none;
-                margin: $spacing-sm 0;
+                margin: lib.$spacing-sm 0;
               }
             }
 
             &:nth-child(2) {
-              @include text-body-xl;
+              @include lib.text-body-xl;
             }
           }
         }

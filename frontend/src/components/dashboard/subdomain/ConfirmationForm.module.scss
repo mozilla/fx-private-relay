@@ -1,11 +1,11 @@
-@import "../../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "../../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib";
 
 .permanence-warning {
-  @include text-body-sm;
+  @include lib.text-body-sm;
   text-align: center;
-  padding: $spacing-md $spacing-lg;
-  color: $color-dark-gray-70;
+  padding: lib.$spacing-md lib.$spacing-lg;
+  color: lib.$color-dark-gray-70;
 }
 
 .confirm {
@@ -14,13 +14,13 @@
   align-items: center;
 
   label {
-    background-color: $color-light-gray-10;
-    border-radius: $border-radius-md;
-    padding: $spacing-md;
+    background-color: lib.$color-light-gray-10;
+    border-radius: lib.$border-radius-md;
+    padding: lib.$spacing-md;
     cursor: pointer;
 
     input {
-      margin-right: $spacing-sm;
+      margin-right: lib.$spacing-sm;
     }
 
     .subdomain {
@@ -37,10 +37,10 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-top: $spacing-xl;
+    padding-top: lib.$spacing-xl;
 
     button[type="submit"] {
-      background: $color-blue-50;
+      background: lib.$color-blue-50;
       opacity: 0.4;
 
       &:not(:disabled) {
@@ -48,7 +48,7 @@
       }
 
       &:hover:not(:disabled) {
-        background-color: $color-blue-60;
+        background-color: lib.$color-blue-60;
         opacity: 1;
       }
     }
@@ -57,16 +57,16 @@
       border-style: none;
       background-color: transparent;
       cursor: pointer;
-      border-radius: $border-radius-sm;
-      color: $color-blue-50;
-      padding: $spacing-sm $spacing-md;
+      border-radius: lib.$border-radius-sm;
+      color: lib.$color-blue-50;
+      padding: lib.$spacing-sm lib.$spacing-md;
 
       &:hover {
-        color: $color-link-hover;
+        color: lib.$color-link-hover;
       }
 
       &:focus {
-        color: $color-blue-50;
+        color: lib.$color-blue-50;
       }
     }
   }

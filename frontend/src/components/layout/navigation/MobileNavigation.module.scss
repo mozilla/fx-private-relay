@@ -1,6 +1,6 @@
-@import "../../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "../../../styles/typography";
+@use "../../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "../../../styles/typography" as styles-typography;
 
 .mobile-menu {
   width: 100%;
@@ -18,8 +18,8 @@
 
 #mobile-menu {
   transform: translateY(-100%);
-  background-color: $color-white;
-  box-shadow: $box-shadow-lg;
+  background-color: lib.$color-white;
+  box-shadow: lib.$box-shadow-lg;
   width: 100%;
   // Prevent the menu from being shown while collapsed;
   // otherwise it might get exposed when the browser "overscrolls":
@@ -74,7 +74,7 @@
 }
 
 .menu-item-list {
-  @media screen and #{$mq-md} {
+  @media screen and #{lib.$mq-md} {
     display: none;
   }
 }
@@ -82,25 +82,25 @@
 .menu-item {
   display: flex;
 
-  @include text-display-xxs {
-    font-family: $font-stack-firefox;
-    border-bottom: 2px solid $color-light-gray-20;
+  @include styles-typography.text-display-xxs {
+    font-family: lib.$font-stack-firefox;
+    border-bottom: 2px solid lib.$color-light-gray-20;
   }
 
   &.sign-up-menu-item {
-    padding: $spacing-md;
+    padding: lib.$spacing-md;
   }
 
   .link {
     display: flex;
     border: none;
     background-color: transparent;
-    padding: $spacing-lg $spacing-md;
+    padding: lib.$spacing-lg lib.$spacing-md;
     width: 100%;
     flex-direction: row;
-    gap: $spacing-md;
+    gap: lib.$spacing-md;
     font-weight: 500;
-    color: $color-grey-40;
+    color: tokens.$color-grey-40;
     cursor: pointer;
 
     @media screen and (max-height: 700px) {
@@ -108,7 +108,7 @@
       // the content behind it scrolls), this makes it take up less space on
       // screens without a tall viewport, to increase the odds of every item
       // being visible:
-      padding: $spacing-md;
+      padding: lib.$spacing-md;
     }
 
     &:hover {
@@ -116,7 +116,7 @@
     }
 
     svg {
-      color: $color-purple-40;
+      color: lib.$color-purple-40;
     }
   }
 
@@ -125,31 +125,31 @@
     font-weight: 400;
     text-align: center;
     width: 100%;
-    padding: $spacing-md;
-    background-color: $color-blue-50;
-    border-radius: $border-radius-sm;
-    margin: $spacing-sm auto;
+    padding: lib.$spacing-md;
+    background-color: lib.$color-blue-50;
+    border-radius: lib.$border-radius-sm;
+    margin: lib.$spacing-sm auto;
   }
 }
 
 .user-info {
   display: flex;
   border-bottom: none;
-  padding: $spacing-lg $spacing-md;
+  padding: lib.$spacing-lg lib.$spacing-md;
   background-image: linear-gradient(
       to bottom,
       #f9f9fb calc(100% - 3px),
       rgba(0, 0, 0, 0)
     ),
     linear-gradient(90deg, #f73940 1.25%, #a83db5 96.87%);
-  gap: $spacing-md;
+  gap: lib.$spacing-md;
 
   @media screen and (max-height: 700px) {
     // Because the menu is not scrollable (it stays in the same position while
     // the content behind it scrolls), this makes it take up less space on
     // screens without a tall viewport, to increase the odds of every item
     // being visible:
-    padding: $spacing-md;
+    padding: lib.$spacing-md;
   }
 
   .user-avatar {
@@ -162,7 +162,7 @@
   }
 
   .user-email {
-    color: $color-blue-90;
+    color: lib.$color-blue-90;
     font-weight: 500;
   }
 
@@ -170,17 +170,17 @@
     flex-direction: row;
     display: flex;
     align-items: center;
-    color: $color-grey-40;
+    color: tokens.$color-grey-40;
 
-    @include text-body-sm;
-    gap: $spacing-sm;
+    @include lib.text-body-sm;
+    gap: lib.$spacing-sm;
 
     &:hover {
       text-decoration: underline;
     }
 
     svg {
-      color: $color-purple-40;
+      color: lib.$color-purple-40;
     }
   }
 }

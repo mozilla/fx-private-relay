@@ -1,10 +1,10 @@
-@import "../../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "../../../styles/typography";
+@use "../../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "../../../styles/typography" as styles-typography;
 
 .underlay {
   position: fixed;
-  background-color: rgba($color-black, 0.4);
+  background-color: rgba(lib.$color-black, 0.4);
   top: 0;
   bottom: 0;
   left: 0;
@@ -14,49 +14,49 @@
   justify-content: center;
 
   .dialog-wrapper {
-    background: $color-white;
-    width: calc((#{$content-sm} + #{$content-md}) / 2); // 560px
+    background: lib.$color-white;
+    width: calc((#{lib.$content-sm} + #{lib.$content-md}) / 2); // 560px
     max-width: 90%;
-    border-radius: $border-radius-md;
-    box-shadow: $box-shadow-sm;
-    padding: $spacing-md;
+    border-radius: lib.$border-radius-md;
+    box-shadow: lib.$box-shadow-sm;
+    padding: lib.$spacing-md;
 
-    $illustrationOverlap: $spacing-lg;
+    $illustrationOverlap: lib.$spacing-lg;
 
     .hero {
-      @include text-body-lg;
-      font-family: $font-stack-firefox;
+      @include lib.text-body-lg;
+      font-family: lib.$font-stack-firefox;
       font-weight: 700;
       text-align: center;
-      border-radius: $border-radius-md;
-      background-color: $color-light-gray-10;
-      padding: $spacing-lg $spacing-md;
+      border-radius: lib.$border-radius-md;
+      background-color: lib.$color-light-gray-10;
+      padding: lib.$spacing-lg lib.$spacing-md;
 
-      @media screen and #{$mq-md} {
-        @include text-title-3xs;
+      @media screen and #{lib.$mq-md} {
+        @include lib.text-title-3xs;
       }
 
       .picked-confirmation & {
-        padding-bottom: $illustrationOverlap + $spacing-lg;
+        padding-bottom: $illustrationOverlap + lib.$spacing-lg;
       }
 
       .headline {
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: $spacing-sm 0;
-        gap: $spacing-sm;
+        padding: lib.$spacing-sm 0;
+        gap: lib.$spacing-sm;
       }
 
       .modal-title {
         font-weight: 400;
 
         .subdomain {
-          @include text-title-xs {
+          @include styles-typography.text-title-xs {
             display: block;
             font-weight: 700;
-            margin-bottom: $spacing-sm;
-            padding: $spacing-sm 0;
+            margin-bottom: lib.$spacing-sm;
+            padding: lib.$spacing-sm 0;
           }
 
           &::before {
@@ -69,31 +69,31 @@
     .picked-confirmation-body {
       display: flex;
       flex-direction: column;
-      gap: $spacing-md;
+      gap: lib.$spacing-md;
       align-items: center;
-      padding-top: $spacing-sm;
+      padding-top: lib.$spacing-sm;
 
       .picked-confirmation-body-content {
         margin: 0 auto;
-        padding: 0 $spacing-sm;
+        padding: 0 lib.$spacing-sm;
 
-        @media screen and #{$mq-md} {
-          padding: 0 $spacing-2xl;
+        @media screen and #{lib.$mq-md} {
+          padding: 0 lib.$spacing-2xl;
         }
 
         .feature-item-list {
-          @include text-body-sm;
+          @include lib.text-body-sm;
           list-style-type: none;
 
           li {
-            margin: $spacing-sm 0;
+            margin: lib.$spacing-sm 0;
             display: flex;
             flex-direction: row;
             align-items: center;
-            gap: $spacing-md;
+            gap: lib.$spacing-md;
 
             .check-icon {
-              fill: $color-blue-50;
+              fill: lib.$color-blue-50;
               min-width: 20px; // Width of the check icons
             }
           }

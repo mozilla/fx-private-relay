@@ -1,28 +1,28 @@
-@import "../../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "../../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib";
 
 .custom-alias-tip {
   display: flex;
   flex-direction: column;
-  gap: $spacing-xs;
+  gap: lib.$spacing-xs;
 
-  @include text-body-sm;
+  @include lib.text-body-sm;
 
   samp {
-    @include text-body-sm;
-    font-family: $font-stack-base;
-    color: $color-blue-50;
+    @include lib.text-body-sm;
+    font-family: lib.$font-stack-base;
+    color: lib.$color-blue-50;
     font-weight: 700;
   }
 
   h3 {
-    @include text-title-3xs;
-    font-family: $font-stack-firefox;
-    color: $color-purple-90;
+    @include lib.text-title-3xs;
+    font-family: lib.$font-stack-firefox;
+    color: lib.$color-purple-90;
   }
 
   video {
-    border-radius: $border-radius-sm;
+    border-radius: lib.$border-radius-sm;
   }
 
   @media (prefers-reduced-motion) {

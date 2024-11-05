@@ -1,20 +1,20 @@
-@import "../../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "../../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib";
 
 .generic-tip {
-  @include text-body-sm;
+  @include lib.text-body-sm;
   display: flex;
   flex-direction: column;
-  gap: $spacing-sm;
+  gap: lib.$spacing-sm;
 
   h3 {
-    @include text-title-3xs;
-    font-family: $font-stack-firefox;
-    color: $color-purple-90;
+    @include lib.text-title-3xs;
+    font-family: lib.$font-stack-firefox;
+    color: lib.$color-purple-90;
   }
 
   video {
-    border-radius: $border-radius-md;
+    border-radius: lib.$border-radius-md;
     // The video is listed last because its content is usually an example of the
     // textual content, so for screen readers it makes more sense to read it
     // last. However, we want to visually show it first.
@@ -25,7 +25,7 @@
 
   .still-alternative {
     display: none;
-    border-radius: $border-radius-md;
+    border-radius: lib.$border-radius-md;
     // The video is listed last because its content is usually an example of the
     // textual content, so for screen readers it makes more sense to read it
     // last. However, we want to visually show it first.

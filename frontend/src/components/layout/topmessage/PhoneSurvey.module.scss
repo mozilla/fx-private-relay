@@ -1,4 +1,5 @@
-@import "../../../styles/tokens";
+@use "../../../styles/tokens";
+@use "../../../../../node_modules/@mozilla-protocol/core/protocol/css/includes/tokens/dist";
 
 $dismissButtonWidth: 30px;
 
@@ -7,10 +8,11 @@ $dismissButtonWidth: 30px;
   flex-direction: column;
   align-items: center;
   justify-content: space-around;
-  gap: $spacing-sm;
-  padding: $spacing-md ($spacing-sm + $dismissButtonWidth + $spacing-md);
-  background-color: $color-purple-90;
-  color: $color-white;
+  gap: dist.$spacing-sm;
+  padding: dist.$spacing-md
+    (dist.$spacing-sm + $dismissButtonWidth + dist.$spacing-md);
+  background-color: tokens.$color-purple-90;
+  color: tokens.$color-white;
   position: relative;
   // Overlap the collapsed mobile menu (#mobile-menu.not-active),
   // which itself has a z-index of 1 to overlap the content.
@@ -18,21 +20,21 @@ $dismissButtonWidth: 30px;
 
   .dismiss-button {
     position: absolute;
-    right: $spacing-md;
+    right: dist.$spacing-md;
     background-color: transparent;
     border-style: none;
-    color: $color-white;
+    color: tokens.$color-white;
     width: $dismissButtonWidth;
     height: $dismissButtonWidth;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: $border-radius-sm;
+    border-radius: dist.$border-radius-sm;
     cursor: pointer;
     padding: 0;
 
     &:hover {
-      background-color: $color-blue-50;
+      background-color: tokens.$color-blue-50;
     }
   }
 

@@ -1,5 +1,5 @@
-@import "../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib";
 
 .patch3701 {
   pointer-events: none;
@@ -12,17 +12,17 @@
 
   // See https://fkhadra.github.io/react-toastify/how-to-style#override-css-variables
   --toastify-toast-width: 95%;
-  --toastify-color-light: #{$color-white};
-  --toastify-color-dark: #{$color-grey-50};
-  --toastify-color-info: #{$color-blue-50};
-  --toastify-color-success: #{$color-green-50};
-  --toastify-color-warning: #{$color-yellow-50};
-  --toastify-color-error: #{$color-red-60};
+  --toastify-color-light: #{lib.$color-white};
+  --toastify-color-dark: #{tokens.$color-grey-50};
+  --toastify-color-info: #{lib.$color-blue-50};
+  --toastify-color-success: #{lib.$color-green-50};
+  --toastify-color-warning: #{lib.$color-yellow-50};
+  --toastify-color-error: #{lib.$color-red-60};
 
-  --toastify-text-color-info: #{$color-white};
-  --toastify-text-color-success: #{$color-grey-50};
-  --toastify-text-color-warning: #{$color-grey-50};
-  --toastify-text-color-error: #{$color-white};
+  --toastify-text-color-info: #{lib.$color-white};
+  --toastify-text-color-success: #{tokens.$color-grey-50};
+  --toastify-text-color-warning: #{tokens.$color-grey-50};
+  --toastify-text-color-error: #{lib.$color-white};
 
   --toastify-toast-min-height: $layout-md;
   --toastify-toast-max-height: $layout-md;
@@ -33,105 +33,105 @@ $toastify-toast-close-button: var(--toast-close-button);
 
 // Targets the toast container and sets max-width to prevent it from obstructing nav items on larger screens.
 .toast-container {
-  max-width: $content-xl;
+  max-width: lib.$content-xl;
 }
 
 .toast {
-  @include text-body-sm;
+  @include lib.text-body-sm;
   text-align: center;
   font-weight: 400;
-  min-height: $layout-md;
-  border-radius: $border-radius-sm;
-  font-family: $font-stack-base;
+  min-height: lib.$layout-md;
+  border-radius: lib.$border-radius-sm;
+  font-family: lib.$font-stack-base;
   padding: 0;
-  max-width: $content-xl;
+  max-width: lib.$content-xl;
   margin: 0 auto;
 
-  @media screen and (max-width: $screen-sm) {
-    width: calc(100% - $spacing-xl);
-    margin-top: $spacing-md;
+  @media screen and (max-width: lib.$screen-sm) {
+    width: calc(100% - lib.$spacing-xl);
+    margin-top: lib.$spacing-md;
   }
 
   &:global {
     &[class*="toast--error"],
     &[class*="toast--info"] {
       [id*="close-toast-button-icon"] {
-        color: #{$color-white};
+        color: #{lib.$color-white};
       }
     }
 
     & > [class*="toast-body"] {
-      padding: $spacing-md;
+      padding: lib.$spacing-md;
     }
 
     &[class*="toast--success"],
     &[class*="toast--warning"] {
       [id*="close-toast-button-icon"] {
-        color: #{$color-grey-50};
+        color: #{tokens.$color-grey-50};
       }
     }
 
     &[class*="toast--error"] {
-      --toast-close-button: #{$color-red-60};
+      --toast-close-button: #{lib.$color-red-60};
 
       &:hover {
-        --toastify-color-error: #{$color-red-70};
+        --toastify-color-error: #{lib.$color-red-70};
       }
 
       &:active,
       &:focus {
-        --toastify-color-error: #{$color-red-80};
-        --toast-close-button: #{$color-red-80};
+        --toastify-color-error: #{lib.$color-red-80};
+        --toast-close-button: #{lib.$color-red-80};
       }
     }
 
     &[class*="toast--info"] {
-      --toast-close-button: #{$color-blue-50};
+      --toast-close-button: #{lib.$color-blue-50};
 
       &:hover {
-        --toast-close-button: #{$color-blue-60};
+        --toast-close-button: #{lib.$color-blue-60};
       }
 
       &:active,
       &:focus {
-        --toastify-color-info: #{$color-blue-70};
-        --toast-close-button: #{$color-blue-70};
+        --toastify-color-info: #{lib.$color-blue-70};
+        --toast-close-button: #{lib.$color-blue-70};
       }
     }
 
     &[class*="toast--success"] {
-      --toast-close-button: #{$color-green-50};
+      --toast-close-button: #{lib.$color-green-50};
 
       &:hover {
-        --toast-close-button: #{$color-green-60};
+        --toast-close-button: #{lib.$color-green-60};
       }
 
       &:active,
       &:focus {
-        --toastify-color-success: #{$color-green-70};
-        --toast-close-button: #{$color-green-70};
+        --toastify-color-success: #{lib.$color-green-70};
+        --toast-close-button: #{lib.$color-green-70};
       }
     }
 
     &[class*="toast--warning"] {
-      --toast-close-button: #{$color-yellow-50};
+      --toast-close-button: #{lib.$color-yellow-50};
 
       &:hover {
-        --toast-close-button: #{$color-yellow-60};
+        --toast-close-button: #{lib.$color-yellow-60};
       }
 
       &:active,
       &:focus {
-        --toastify-color-warning: #{$color-yellow-70};
-        --toast-close-button: #{$color-yellow-70};
+        --toastify-color-warning: #{lib.$color-yellow-70};
+        --toast-close-button: #{lib.$color-yellow-70};
       }
     }
   }
 }
 
 .close-toast-button-container {
-  padding: $spacing-md;
-  border-radius: 0 $border-radius-sm $border-radius-sm 0;
+  padding: lib.$spacing-md;
+  border-radius: 0 lib.$border-radius-sm lib.$border-radius-sm 0;
   background-color: $toastify-toast-close-button;
   display: flex;
   flex-direction: column;
@@ -174,7 +174,7 @@ $toastify-toast-close-button: var(--toast-close-button);
     box-shadow: none;
   }
 
-  @media screen and #{$mq-md} {
+  @media screen and #{lib.$mq-md} {
     grid-template-areas: "logoWrapper navWrapper appPickerWrapper userMenuWrapper";
   }
 
@@ -182,23 +182,23 @@ $toastify-toast-close-button: var(--toast-close-button);
     grid-area: logoWrapper;
     display: flex;
     align-items: center;
-    max-width: calc(100% - $spacing-md);
+    max-width: calc(100% - lib.$spacing-md);
 
     &.plain-page {
-      padding-top: $layout-sm;
+      padding-top: lib.$layout-sm;
       justify-content: center;
     }
 
     .logo {
       display: inline-flex;
       align-items: center;
-      gap: $spacing-sm;
-      padding: $spacing-md;
+      gap: lib.$spacing-sm;
+      padding: lib.$spacing-md;
 
       // aligns the logo with the main content @ 1152px,
       // snaps logo in to place essentially
-      @media screen and (min-width: $content-xl) {
-        padding: $spacing-md $spacing-xl;
+      @media screen and (min-width: lib.$content-xl) {
+        padding: lib.$spacing-md lib.$spacing-xl;
       }
 
       .logotype {
@@ -210,7 +210,7 @@ $toastify-toast-close-button: var(--toast-close-button);
   .nav-wrapper {
     display: flex;
 
-    @media screen and #{$mq-md} {
+    @media screen and #{lib.$mq-md} {
       grid-area: navWrapper;
     }
   }
@@ -219,9 +219,9 @@ $toastify-toast-close-button: var(--toast-close-button);
     grid-area: appPickerWrapper;
     display: none;
     align-items: center;
-    padding: 0 $spacing-sm;
+    padding: 0 lib.$spacing-sm;
 
-    @media screen and #{$mq-md} {
+    @media screen and #{lib.$mq-md} {
       display: flex;
     }
   }
@@ -230,38 +230,38 @@ $toastify-toast-close-button: var(--toast-close-button);
     grid-area: userMenuWrapper;
     display: flex;
     align-items: center;
-    padding: 0 $spacing-md;
+    padding: 0 lib.$spacing-md;
   }
 
   a:hover,
   button:hover {
-    color: $color-blue-50;
+    color: lib.$color-blue-50;
   }
 
   &.is-dark {
-    background-color: $color-blue-90;
-    border-bottom: 1px solid rgba($color-dark-gray-90, 0.5);
-    box-shadow: 0 0 3px 0 rgba($color-dark-gray-90, 0.5);
-    color: $color-white;
+    background-color: lib.$color-blue-90;
+    border-bottom: 1px solid rgba(lib.$color-dark-gray-90, 0.5);
+    box-shadow: 0 0 3px 0 rgba(lib.$color-dark-gray-90, 0.5);
+    color: lib.$color-white;
 
     a:hover,
     button:hover {
-      color: $color-light-gray-30;
+      color: lib.$color-light-gray-30;
     }
   }
 
   &.is-light {
-    background-color: $color-white;
-    color: $color-grey-40;
+    background-color: lib.$color-white;
+    color: tokens.$color-grey-40;
   }
 
   &.is-grey {
-    background-color: $color-light-gray-10;
+    background-color: lib.$color-light-gray-10;
   }
 
-  @media screen and #{$mq-md} {
+  @media screen and #{lib.$mq-md} {
     .logo {
-      padding: $spacing-md $spacing-xl;
+      padding: lib.$spacing-md lib.$spacing-xl;
     }
   }
 }
@@ -279,16 +279,16 @@ $toastify-toast-close-button: var(--toast-close-button);
   // Create a new stacking context for the content, so we can use z-indexes in
   // the content without preventing the header/mobile menu from overlapping it.
   isolation: isolate;
-  background-color: $color-light-gray-10;
+  background-color: lib.$color-light-gray-10;
 }
 
 .gray-bg {
-  background-color: $color-light-gray-10;
+  background-color: lib.$color-light-gray-10;
 }
 
 .footer {
   background-color: black;
-  color: $color-white;
+  color: lib.$color-white;
 
   .links {
     font-weight: 700;
@@ -296,37 +296,37 @@ $toastify-toast-close-button: var(--toast-close-button);
     align-items: flex-start;
     flex-direction: column;
 
-    @media screen and #{$mq-md} {
+    @media screen and #{lib.$mq-md} {
       flex-direction: row;
       align-items: center;
     }
 
     .mozilla-logo {
-      padding: $spacing-xl;
+      padding: lib.$spacing-xl;
     }
 
     .meta {
       display: flex;
       flex-direction: column;
-      padding: $spacing-lg;
+      padding: lib.$spacing-lg;
       list-style-type: none;
-      gap: $spacing-md;
+      gap: lib.$spacing-md;
 
-      @media screen and #{$mq-md} {
+      @media screen and #{lib.$mq-md} {
         flex-direction: row;
         align-items: center;
         margin-left: auto;
       }
 
       a {
-        padding: $spacing-md;
+        padding: lib.$spacing-md;
 
         img {
           display: inline-block;
         }
 
         &:hover {
-          color: $color-light-gray-40;
+          color: lib.$color-light-gray-40;
 
           img {
             opacity: 0.8;
@@ -338,14 +338,14 @@ $toastify-toast-close-button: var(--toast-close-button);
 
   .stock-photo-disclaimer {
     display: block;
-    padding: $spacing-md;
+    padding: lib.$spacing-md;
     text-align: center;
   }
 }
 
 .api-mock-warning {
-  background-color: $color-yellow-10;
-  padding: $spacing-md $spacing-lg;
+  background-color: lib.$color-yellow-10;
+  padding: lib.$spacing-md lib.$spacing-lg;
   text-align: center;
   position: relative;
 }

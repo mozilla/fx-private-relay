@@ -1,6 +1,6 @@
-@import "../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "../styles/typography";
+@use "../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "../styles/typography";
 
 .wrapper {
   height: 100%;
@@ -28,39 +28,39 @@
 }
 
 .loading {
-  padding: $spacing-xl;
+  padding: lib.$spacing-xl;
   height: 100%;
-  background-color: $color-grey-05;
+  background-color: tokens.$color-grey-05;
   animation-name: fadein;
   animation-duration: 400ms;
 }
 
 .load-error {
-  padding: $spacing-xl;
+  padding: lib.$spacing-xl;
   height: 100%;
-  background-color: $color-grey-05;
+  background-color: tokens.$color-grey-05;
 }
 
 .report-wrapper {
-  background-color: $color-grey-05;
+  background-color: tokens.$color-grey-05;
   flex: 1 0 auto;
   display: flex;
   justify-content: center;
 
   .report {
     width: 100%;
-    max-width: $content-xl;
-    padding: $spacing-xl;
+    max-width: lib.$content-xl;
+    padding: lib.$spacing-xl;
     display: flex;
     flex-direction: column;
-    gap: $spacing-md;
+    gap: lib.$spacing-md;
   }
 
   .logo {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: $spacing-xs;
+    gap: lib.$spacing-xs;
 
     .logomark {
       max-height: 35px;
@@ -71,32 +71,32 @@
   }
 
   h1 {
-    @include text-title-2xs {
-      font-family: $font-stack-firefox;
-      padding: $spacing-md 0;
-      border-bottom: 1px solid $color-grey-20;
+    @include typography.text-title-2xs {
+      font-family: lib.$font-stack-firefox;
+      padding: lib.$spacing-md 0;
+      border-bottom: 1px solid tokens.$color-grey-20;
     }
   }
 
   .meta {
     display: flex;
     flex-direction: column;
-    gap: $spacing-md;
-    padding: $spacing-lg;
+    gap: lib.$spacing-md;
+    padding: lib.$spacing-lg;
 
-    @media screen and #{$mq-md} {
+    @media screen and #{lib.$mq-md} {
       flex-direction: row;
-      gap: $spacing-2xl;
-      padding: $spacing-lg $spacing-2xl;
+      gap: lib.$spacing-2xl;
+      padding: lib.$spacing-lg lib.$spacing-2xl;
     }
 
     dt {
-      color: $color-grey-40;
+      color: tokens.$color-grey-40;
     }
 
     dd {
       font-weight: 600;
-      color: $color-grey-50;
+      color: tokens.$color-grey-50;
     }
 
     .from {
@@ -105,32 +105,32 @@
       dd {
         text-overflow: ellipsis;
         overflow: hidden;
-        max-width: $content-sm;
+        max-width: lib.$content-sm;
       }
     }
   }
 
   .trackers {
-    background-color: $color-white;
-    border-radius: $border-radius-md;
+    background-color: lib.$color-white;
+    border-radius: lib.$border-radius-md;
     display: flex;
     flex-direction: column;
-    box-shadow: $box-shadow-sm;
+    box-shadow: lib.$box-shadow-sm;
     // We typically avoid margins because they affect the positioning of other elements,
     // but since box-shadow is visible below the element, the bottom margin lets
     // us pretend like it's part of the element:
-    margin-bottom: $spacing-md;
-    padding: $spacing-lg;
-    gap: $spacing-md;
+    margin-bottom: lib.$spacing-md;
+    padding: lib.$spacing-lg;
+    gap: lib.$spacing-md;
 
-    @media screen and #{$mq-md} {
-      padding: $spacing-lg $spacing-2xl;
-      gap: $spacing-xl;
+    @media screen and #{lib.$mq-md} {
+      padding: lib.$spacing-lg lib.$spacing-2xl;
+      gap: lib.$spacing-xl;
     }
 
     h2 {
-      @include text-title-xs {
-        font-family: $font-stack-firefox;
+      @include typography.text-title-xs {
+        font-family: lib.$font-stack-firefox;
         font-weight: 500;
       }
     }
@@ -154,15 +154,15 @@
           "null count";
         grid-template-columns: auto 1fr auto;
         align-items: center;
-        column-gap: $spacing-md;
-        row-gap: $spacing-xs;
-        padding: $spacing-md 0;
-        color: $color-grey-50;
-        border-top: 1px solid $color-grey-10;
+        column-gap: lib.$spacing-md;
+        row-gap: lib.$spacing-xs;
+        padding: lib.$spacing-md 0;
+        color: tokens.$color-grey-50;
+        border-top: 1px solid tokens.$color-grey-10;
 
         .icon {
           grid-area: icon;
-          color: $color-grey-20;
+          color: tokens.$color-grey-20;
         }
 
         .tracker-domain {
@@ -179,7 +179,7 @@
           width: 100%;
         }
 
-        @media screen and #{$mq-sm} {
+        @media screen and #{lib.$mq-sm} {
           grid-template-areas: "icon tracker-domain count";
 
           .count {
@@ -193,17 +193,17 @@
   .confidentiality-notice {
     display: flex;
     align-items: center;
-    gap: $spacing-md;
-    background-color: $color-grey-10;
-    padding: $spacing-lg;
-    border-radius: $border-radius-md;
+    gap: lib.$spacing-md;
+    background-color: tokens.$color-grey-10;
+    padding: lib.$spacing-lg;
+    border-radius: lib.$border-radius-md;
 
-    @media screen and #{$mq-md} {
-      padding: $spacing-lg $spacing-2xl;
+    @media screen and #{lib.$mq-md} {
+      padding: lib.$spacing-lg lib.$spacing-2xl;
     }
 
     svg {
-      color: $color-purple-70;
+      color: lib.$color-purple-70;
       flex: 1 0 auto;
     }
   }
@@ -211,15 +211,15 @@
   .explainer {
     display: flex;
     flex-direction: column;
-    gap: $spacing-md;
-    padding: $spacing-lg;
+    gap: lib.$spacing-md;
+    padding: lib.$spacing-lg;
 
-    @media screen and #{$mq-md} {
-      padding: $spacing-lg $spacing-2xl;
+    @media screen and #{lib.$mq-md} {
+      padding: lib.$spacing-lg lib.$spacing-2xl;
     }
 
     hr {
-      background-color: $color-grey-10;
+      background-color: tokens.$color-grey-10;
       height: 2px;
       border-style: none;
     }
@@ -227,13 +227,13 @@
     .breakage-warning {
       display: flex;
       align-items: center;
-      gap: $spacing-md;
-      border-radius: $border-radius-sm;
-      border: 2px solid $color-yellow-50;
-      padding: $spacing-lg;
+      gap: lib.$spacing-md;
+      border-radius: lib.$border-radius-sm;
+      border: 2px solid lib.$color-yellow-50;
+      padding: lib.$spacing-lg;
 
       svg {
-        color: $color-yellow-50;
+        color: lib.$color-yellow-50;
         flex: 1 0 auto;
       }
     }
@@ -241,34 +241,34 @@
 }
 
 .faq-wrapper {
-  background-color: $color-white;
+  background-color: lib.$color-white;
 }
 
 .faq {
-  width: $content-max;
+  width: lib.$content-max;
   max-width: 100%;
   margin: 0 auto;
-  padding: $spacing-lg;
+  padding: lib.$spacing-lg;
   display: flex;
   flex-direction: column;
 
   .lead {
     flex: 1 0 0;
 
-    @media screen and #{$mq-md} {
-      padding: 0 $spacing-2xl;
+    @media screen and #{lib.$mq-md} {
+      padding: 0 lib.$spacing-2xl;
     }
 
     .headline {
-      @include text-title-sm {
-        font-family: $font-stack-firefox;
+      @include typography.text-title-sm {
+        font-family: lib.$font-stack-firefox;
         font-weight: 500;
-        padding: $spacing-md 0;
+        padding: lib.$spacing-md 0;
       }
     }
 
     .read-more {
-      color: $color-blue-50;
+      color: lib.$color-blue-50;
       font-weight: 500;
       text-decoration: underline;
 
@@ -280,15 +280,15 @@
 
   .entries {
     flex: 1 0 0;
-    padding-top: $spacing-lg;
+    padding-top: lib.$spacing-lg;
 
-    @media screen and #{$mq-md} {
-      padding: 0 $spacing-2xl;
+    @media screen and #{lib.$mq-md} {
+      padding: 0 lib.$spacing-2xl;
     }
   }
 
-  @media screen and #{$mq-md} {
+  @media screen and #{lib.$mq-md} {
     flex-direction: row;
-    gap: $spacing-md;
+    gap: lib.$spacing-md;
   }
 }

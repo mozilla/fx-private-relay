@@ -1,16 +1,17 @@
-@import "../../../styles/tokens";
+@use "../../../styles/tokens";
+@use "../../../../../node_modules/@mozilla-protocol/core/protocol/css/includes/tokens/dist";
 
 .site-nav {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   width: 100%;
-  padding: 0 $spacing-md;
-  gap: $spacing-md;
+  padding: 0 dist.$spacing-md;
+  gap: dist.$spacing-md;
 
-  @media screen and (min-width: $content-xl) {
-    padding: 0 $spacing-xl;
-    gap: $spacing-lg;
+  @media screen and (min-width: dist.$content-xl) {
+    padding: 0 dist.$spacing-xl;
+    gap: dist.$spacing-lg;
   }
 }
 
@@ -19,8 +20,8 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  font-family: $font-stack-firefox;
-  min-width: $spacing-2xl + $spacing-lg;
+  font-family: dist.$font-stack-firefox;
+  min-width: dist.$spacing-2xl + dist.$spacing-lg;
   color: inherit;
 
   &.is-active {
@@ -32,7 +33,7 @@
     height: 4px;
     display: block;
     content: "";
-    background: $firefoxGradient;
+    background: tokens.$firefoxGradient;
     position: absolute;
     bottom: 0;
   }
@@ -48,19 +49,19 @@
   // webkit adds a padding-right: 1em to button elements
   padding: 0;
 
-  @media screen and #{$mq-md} {
+  @media screen and #{dist.$mq-md} {
     display: none;
   }
 }
 
 .hidden-mobile {
-  @media screen and (max-width: $screen-md) {
+  @media screen and (max-width: dist.$screen-md) {
     display: none;
   }
 }
 
 .hidden-desktop {
-  @media screen and (min-width: $screen-md) {
+  @media screen and (min-width: dist.$screen-md) {
     display: none;
   }
 }

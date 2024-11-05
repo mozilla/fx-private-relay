@@ -1,22 +1,22 @@
-@import "../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "../styles/typography";
+@use "../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "../styles/typography";
 
 .contains-tracker-container {
-  margin: $layout-sm;
+  margin: lib.$layout-sm;
 
   .warning-banner-wrapper {
     display: flex;
     gap: 10px;
-    background-color: $color-white;
-    padding: $spacing-lg $spacing-md;
-    border-radius: $border-radius-sm;
-    box-shadow: $box-shadow-sm;
+    background-color: lib.$color-white;
+    padding: lib.$spacing-lg lib.$spacing-md;
+    border-radius: lib.$border-radius-sm;
+    box-shadow: lib.$box-shadow-sm;
     justify-content: space-between;
     align-items: flex-start;
     flex-direction: column;
 
-    @media screen and #{$mq-md} {
+    @media screen and #{lib.$mq-md} {
       flex-direction: row;
       align-items: center;
     }
@@ -25,15 +25,15 @@
       a {
         font-size: 15px;
         font-weight: 600;
-        font-family: $font-stack-firefox;
-        color: $color-black;
+        font-family: lib.$font-stack-firefox;
+        color: lib.$color-black;
         border: none;
-        background-color: $color-grey-10;
+        background-color: tokens.$color-grey-10;
         white-space: nowrap;
         align-self: center;
         margin: 0 0 0 auto;
-        padding: $spacing-md;
-        border-radius: $border-radius-sm;
+        padding: lib.$spacing-md;
+        border-radius: lib.$border-radius-sm;
       }
     }
 
@@ -43,7 +43,7 @@
     }
 
     svg {
-      fill: $color-yellow-50;
+      fill: lib.$color-yellow-50;
       min-width: 28px;
       min-height: 28px;
     }
@@ -51,48 +51,48 @@
     h2 {
       font-size: 18px;
       font-weight: 600;
-      font-family: $font-stack-firefox;
-      color: $color-grey-50;
+      font-family: lib.$font-stack-firefox;
+      color: tokens.$color-grey-50;
     }
 
     p {
       font-size: 16px;
       font-weight: 400;
-      font-family: $font-stack-base;
-      color: $color-grey-40;
+      font-family: lib.$font-stack-base;
+      color: tokens.$color-grey-40;
     }
   }
 
-  @media screen and #{$mq-md} {
-    max-width: $content-xl;
-    margin: $layout-md auto;
-    padding: 0 $layout-sm;
+  @media screen and #{lib.$mq-md} {
+    max-width: lib.$content-xl;
+    margin: lib.$layout-md auto;
+    padding: 0 lib.$layout-sm;
   }
 
   .details-section {
-    gap: $layout-xs;
+    gap: lib.$layout-xs;
     display: flex;
     flex-direction: column;
 
     h1 {
-      font-family: $font-stack-firefox;
-      border-bottom: 1px solid $color-light-gray-30;
-      padding-bottom: $spacing-xs;
+      font-family: lib.$font-stack-firefox;
+      border-bottom: 1px solid lib.$color-light-gray-30;
+      padding-bottom: lib.$spacing-xs;
     }
 
     .warning-banner {
-      margin-top: $spacing-sm;
+      margin-top: lib.$spacing-sm;
     }
   }
 }
 
 .faq-wrapper {
-  background-color: $color-white;
+  background-color: lib.$color-white;
 
   .faq {
-    max-width: $content-xl;
+    max-width: lib.$content-xl;
     margin: 0 auto;
-    padding: 0 $layout-sm;
+    padding: 0 lib.$layout-sm;
     display: flex;
     flex-direction: column;
 
@@ -101,25 +101,25 @@
       flex-basis: 0;
       flex-grow: 0.35;
 
-      @media screen and #{$mq-md} {
-        padding: $spacing-2xl $spacing-2xl 0 0;
+      @media screen and #{lib.$mq-md} {
+        padding: lib.$spacing-2xl lib.$spacing-2xl 0 0;
       }
 
       .headline {
-        @include text-title-xs {
-          font-family: $font-stack-firefox;
+        @include typography.text-title-xs {
+          font-family: lib.$font-stack-firefox;
           font-weight: 700;
-          padding: $spacing-md 0;
-          color: $color-violet-90;
+          padding: lib.$spacing-md 0;
+          color: lib.$color-violet-90;
         }
 
-        @media screen and #{$mq-md} {
-          @include text-title-2xs;
+        @media screen and #{lib.$mq-md} {
+          @include typography.text-title-2xs;
         }
       }
 
       .read-more {
-        color: $color-blue-50;
+        color: lib.$color-blue-50;
         font-weight: 700;
         text-decoration: underline;
 
@@ -131,12 +131,12 @@
 
     .entries {
       flex: 1;
-      padding: $spacing-lg 0;
+      padding: lib.$spacing-lg 0;
     }
 
-    @media screen and #{$mq-md} {
+    @media screen and #{lib.$mq-md} {
       flex-direction: row;
-      gap: $spacing-md;
+      gap: lib.$spacing-md;
     }
   }
 }

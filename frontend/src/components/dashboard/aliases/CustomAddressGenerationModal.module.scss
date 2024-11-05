@@ -1,10 +1,10 @@
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
-@import "../../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as lib2;
+@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+@use "../../../styles/tokens";
 
 .underlay {
   position: fixed;
-  background-color: rgba($color-black, 0.4);
+  background-color: rgba(tokens.$color-black, 0.4);
   top: 0;
   bottom: 0;
   left: 0;
@@ -14,12 +14,12 @@
   justify-content: center;
 
   .dialog-wrapper {
-    background: $color-white;
-    width: calc((#{$content-sm} + #{$content-md}) / 2); // 560px
+    background: tokens.$color-white;
+    width: calc((#{lib2.$content-sm} + #{lib2.$content-md}) / 2); // 560px
     max-width: 90%;
-    border-radius: $border-radius-md;
-    box-shadow: $box-shadow-sm;
-    padding: $spacing-md;
+    border-radius: lib2.$border-radius-md;
+    box-shadow: lib2.$box-shadow-sm;
+    padding: lib2.$spacing-md;
     outline: none;
     position: relative;
 
@@ -38,18 +38,19 @@
       .invalid-address-msg {
         display: flex;
         position: absolute;
-        box-shadow: $box-shadow-sm;
-        border-radius: $border-radius-sm;
-        border-left: $border-radius-md solid color $color-error;
+        box-shadow: lib2.$box-shadow-sm;
+        border-radius: lib2.$border-radius-sm;
+        border-left: lib2.$border-radius-md solid color tokens.$color-error;
         align-items: center;
-        padding: $spacing-sm $spacing-md $spacing-sm $spacing-sm;
+        padding: lib2.$spacing-sm lib2.$spacing-md lib2.$spacing-sm
+          lib2.$spacing-sm;
         background-color: #fff;
-        gap: $spacing-md;
+        gap: lib2.$spacing-md;
 
         .left-content {
           display: flex;
           align-self: self-start;
-          gap: $spacing-sm;
+          gap: lib2.$spacing-sm;
         }
 
         .prefix-error-icon {
@@ -59,52 +60,52 @@
         .prefix-error-icon.close-button {
           background-color: transparent;
           border-style: none;
-          border-radius: $border-radius-sm;
+          border-radius: lib2.$border-radius-sm;
           cursor: pointer;
-          color: $color-grey-30;
+          color: tokens.$color-grey-30;
 
           &:hover {
-            color: $color-blue-50;
+            color: tokens.$color-blue-50;
           }
         }
       }
     }
 
     .hero {
-      @include text-title-3xs;
-      font-family: $font-stack-firefox;
+      @include lib2.text-title-3xs;
+      font-family: lib2.$font-stack-firefox;
       font-weight: 700;
       text-align: center;
-      border-radius: $border-radius-md;
-      background-color: $color-light-gray-10;
-      padding: $spacing-md $spacing-sm;
+      border-radius: lib2.$border-radius-md;
+      background-color: lib2.$color-light-gray-10;
+      padding: lib2.$spacing-md lib2.$spacing-sm;
 
-      @media screen and #{$mq-sm} {
-        padding: $spacing-lg $spacing-md;
+      @media screen and #{lib2.$mq-sm} {
+        padding: lib2.$spacing-lg lib2.$spacing-md;
       }
     }
 
     .tip {
       display: flex;
-      gap: $spacing-sm;
+      gap: lib2.$spacing-sm;
       word-break: break-word;
-      border-left: 2px solid $color-violet-30;
+      border-left: 2px solid tokens.$color-violet-30;
       margin: 0 auto;
       width: 85%;
-      padding-left: $spacing-sm;
-      font-family: $font-stack-base;
+      padding-left: lib2.$spacing-sm;
+      font-family: lib2.$font-stack-base;
       font-weight: 400;
-      color: $color-grey-50;
+      color: tokens.$color-grey-50;
 
-      @include text-body-sm;
+      @include lib2.text-body-sm;
 
       .tip-icon {
         // There is limited space on the mask creation modal on mobile.
         // Hiding this icon until larger screens increases the available space for copy.
         display: none;
-        color: $color-pink-30;
+        color: tokens.$color-pink-30;
 
-        @media screen and #{$mq-sm} {
+        @media screen and #{lib2.$mq-sm} {
           display: block;
         }
 
@@ -115,11 +116,11 @@
     }
 
     hr {
-      border: 1px solid $color-light-gray-20;
-      margin-top: $spacing-lg;
+      border: 1px solid lib2.$color-light-gray-20;
+      margin-top: lib2.$spacing-lg;
 
-      @media screen and #{$mq-sm} {
-        margin-top: $spacing-xl;
+      @media screen and #{lib2.$mq-sm} {
+        margin-top: lib2.$spacing-xl;
       }
     }
 
@@ -127,17 +128,17 @@
       text-align: center;
 
       .form-heading {
-        color: $color-dark-gray-70;
-        padding: $spacing-md 0;
+        color: lib2.$color-dark-gray-70;
+        padding: lib2.$spacing-md 0;
 
-        @media screen and #{$mq-sm} {
-          padding: $spacing-lg 0;
+        @media screen and #{lib2.$mq-sm} {
+          padding: lib2.$spacing-lg 0;
         }
       }
 
       .prefix {
-        font-family: $font-stack-firefox;
-        color: $color-grey-50;
+        font-family: lib2.$font-stack-firefox;
+        color: tokens.$color-grey-50;
         width: 70%;
         margin: 0 auto;
         display: flex;
@@ -147,35 +148,35 @@
         label {
           text-align: start;
           font-weight: 600;
-          margin-top: $spacing-xl;
+          margin-top: lib2.$spacing-xl;
         }
 
         .profile-registered-domain-value {
-          color: $color-blue-50;
+          color: tokens.$color-blue-50;
           word-break: break-word;
-          margin-top: $spacing-md;
-          margin-bottom: $spacing-2xl;
+          margin-top: lib2.$spacing-md;
+          margin-bottom: lib2.$spacing-2xl;
         }
 
         input {
-          @include form-input;
+          @include lib.form-input;
           // Override form-input's margin:
-          margin: $spacing-sm 0 0 0;
+          margin: lib2.$spacing-sm 0 0 0;
           font-weight: 400;
-          padding: $spacing-sm;
-          color: $color-grey-40;
-          font-family: $font-stack-base;
+          padding: lib2.$spacing-sm;
+          color: tokens.$color-grey-40;
+          font-family: lib2.$font-stack-base;
 
-          @include text-body-md;
+          @include lib2.text-body-md;
           &.invalid-prefix:focus {
-            outline: 5px solid $color-red-10;
-            border: 2px solid $color-error;
+            outline: 5px solid tokens.$color-red-10;
+            border: 2px solid tokens.$color-error;
           }
         }
 
         input:focus {
-          outline: 5px solid rgba($color-informational, 0.4);
-          border: 2px solid $color-blue-50;
+          outline: 5px solid rgba(tokens.$color-informational, 0.4);
+          border: 2px solid tokens.$color-blue-50;
 
           + .wrapper {
             display: initial;
@@ -190,35 +191,35 @@
             display: flex;
             text-align: left;
             align-items: center;
-            margin: 0 0 $spacing-sm $spacing-sm;
-            gap: $spacing-md;
+            margin: 0 0 lib2.$spacing-sm lib2.$spacing-sm;
+            gap: lib2.$spacing-md;
 
             .error-icons {
-              min-width: $spacing-md;
+              min-width: lib2.$spacing-md;
               flex: 0 0 auto;
             }
 
             .check-icon {
-              color: $color-green-80;
-              width: calc($spacing-md - $spacing-xs);
-              height: calc($spacing-md - $spacing-xs);
+              color: tokens.$color-green-80;
+              width: calc(lib2.$spacing-md - lib2.$spacing-xs);
+              height: calc(lib2.$spacing-md - lib2.$spacing-xs);
             }
 
             .close-icon {
-              color: $color-error;
+              color: tokens.$color-error;
             }
           }
 
           .tooltip {
             display: initial;
 
-            @include text-body-sm;
+            @include lib2.text-body-sm;
             $triangleWidth: 10px;
             position: absolute;
-            background-color: $color-white;
-            box-shadow: $box-shadow-sm;
-            border-radius: $border-radius-sm;
-            padding: $spacing-md;
+            background-color: tokens.$color-white;
+            box-shadow: lib2.$box-shadow-sm;
+            border-radius: lib2.$border-radius-sm;
+            padding: lib2.$spacing-md;
             width: 100%;
             margin-top: $triangleWidth;
             left: 0;
@@ -226,7 +227,7 @@
             z-index: 1;
 
             &:after {
-              background-color: $color-white;
+              background-color: tokens.$color-white;
 
               content: "\00a0"; // Empty space to render the pseudo element for the tooltip triangle pointer
               display: block;
@@ -244,9 +245,9 @@
       }
 
       .suffix {
-        font-family: $font-stack-firefox;
+        font-family: lib2.$font-stack-firefox;
         display: block;
-        padding-top: $spacing-xs;
+        padding-top: lib2.$spacing-xs;
       }
     }
 
@@ -254,16 +255,16 @@
       display: flex;
       align-items: center;
       flex-direction: column;
-      gap: $spacing-sm;
-      margin-top: $spacing-md;
+      gap: lib2.$spacing-sm;
+      margin-top: lib2.$spacing-md;
 
       p {
         font-weight: 700;
-        color: $color-purple-60;
+        color: tokens.$color-purple-60;
         width: 100%;
         text-align: center;
 
-        @include text-body-lg;
+        @include lib2.text-body-lg;
       }
     }
 
@@ -271,34 +272,34 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: $spacing-sm;
-      margin: $spacing-md $spacing-sm;
-      font-family: $font-stack-firefox;
-      color: $color-grey-50;
+      gap: lib2.$spacing-sm;
+      margin: lib2.$spacing-md lib2.$spacing-sm;
+      font-family: lib2.$font-stack-firefox;
+      color: tokens.$color-grey-50;
       font-weight: 600;
 
-      @media screen and #{$mq-sm} {
-        margin: $spacing-xl $spacing-sm;
+      @media screen and #{lib2.$mq-sm} {
+        margin: lib2.$spacing-xl lib2.$spacing-sm;
       }
 
       input[type="checkbox"] {
         width: 20px;
         height: 20px;
-        border: 2px solid $color-grey-40;
-        border-radius: $border-radius-sm;
+        border: 2px solid tokens.$color-grey-40;
+        border-radius: lib2.$border-radius-sm;
         -webkit-appearance: none;
       }
 
       input[type="checkbox"]:checked {
-        background-color: $color-blue-50;
-        border-color: $color-blue-50;
+        background-color: tokens.$color-blue-50;
+        border-color: tokens.$color-blue-50;
         appearance: checkbox;
       }
 
       .promotionals-blocking-description {
         a {
           display: block;
-          color: $color-blue-50;
+          color: tokens.$color-blue-50;
 
           &:hover {
             text-decoration: underline;
@@ -312,26 +313,26 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-top: $spacing-lg;
+      padding-top: lib2.$spacing-lg;
 
-      @media screen and #{$mq-sm} {
-        padding-top: $spacing-xl;
+      @media screen and #{lib2.$mq-sm} {
+        padding-top: lib2.$spacing-xl;
       }
 
       .end-button {
         border-style: none;
         background-color: transparent;
         cursor: pointer;
-        border-radius: $border-radius-sm;
-        color: $color-blue-50;
-        padding: $spacing-sm 0;
+        border-radius: lib2.$border-radius-sm;
+        color: tokens.$color-blue-50;
+        padding: lib2.$spacing-sm 0;
 
         &:hover {
-          color: $color-link-hover;
+          color: lib2.$color-link-hover;
         }
 
         &:focus {
-          color: $color-blue-50;
+          color: tokens.$color-blue-50;
         }
       }
     }

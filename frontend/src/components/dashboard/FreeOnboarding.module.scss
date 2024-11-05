@@ -1,7 +1,7 @@
-@import "../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
-@import "../../styles/typography";
+@use "../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as lib2;
+@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+@use "../../styles/typography" as styles-typography;
 
 .onboarding {
   display: flex;
@@ -12,21 +12,21 @@
 .step,
 .controls {
   width: 100%;
-  max-width: $content-xl;
+  max-width: lib2.$content-xl;
   margin: 0 auto;
-  padding: $spacing-lg;
+  padding: lib2.$spacing-lg;
 
   .generate-new-mask {
-    padding: $spacing-sm $spacing-2xl;
-    margin-bottom: $spacing-lg;
+    padding: lib2.$spacing-sm lib2.$spacing-2xl;
+    margin-bottom: lib2.$spacing-lg;
   }
 }
 
 .step.step-copy-mask {
   .copy-mask-header {
-    margin-bottom: $spacing-lg;
+    margin-bottom: lib2.$spacing-lg;
 
-    @media screen and #{$mq-lg} {
+    @media screen and #{lib2.$mq-lg} {
       margin-bottom: 0;
     }
   }
@@ -42,19 +42,19 @@
   display: flex;
   flex-direction: column;
   position: relative;
-  padding: $spacing-lg $spacing-xl;
-  margin-top: $spacing-2xl;
+  padding: lib2.$spacing-lg lib2.$spacing-xl;
+  margin-top: lib2.$spacing-2xl;
   box-sizing: border-box;
-  background: $color-white;
+  background: lib2.$color-white;
   background-clip: padding-box;
   border: solid 2px transparent;
-  border-radius: $border-radius-md;
+  border-radius: lib2.$border-radius-md;
 
   hr {
-    background-color: $color-white;
+    background-color: lib2.$color-white;
     height: 2px;
     width: 100%;
-    margin: $spacing-md 0;
+    margin: lib2.$spacing-md 0;
   }
 }
 
@@ -65,13 +65,13 @@
   margin: 0 auto;
   display: none;
 
-  @media screen and #{$mq-lg} {
+  @media screen and #{lib2.$mq-lg} {
     display: block;
   }
 
   img {
     position: absolute;
-    width: $layout-xl;
+    width: lib2.$layout-xl;
     height: 125px;
     /* both calculations below deal with alignment of custom art element - vertical arrow */
     bottom: -30px;
@@ -90,7 +90,7 @@
   /* sets order for clipped background */
   z-index: -1;
   /* set to the same width of the border for clipping */
-  margin: calc($spacing-xs * -1);
+  margin: calc(lib2.$spacing-xs * -1);
   border-radius: inherit;
   background: linear-gradient(
     to right,
@@ -103,11 +103,11 @@
 .content-item {
   display: flex;
   flex-direction: row;
-  gap: $spacing-lg;
+  gap: lib2.$spacing-lg;
 
   .content-text {
     display: flex;
-    gap: $spacing-md;
+    gap: lib2.$spacing-md;
     align-items: flex-start;
     flex-direction: column;
   }
@@ -115,15 +115,15 @@
   .headline {
     font-weight: 700;
 
-    @include text-body-md;
-    font-family: $font-stack-firefox;
-    color: $color-blue-80;
+    @include lib2.text-body-md;
+    font-family: lib2.$font-stack-firefox;
+    color: lib2.$color-blue-80;
   }
 
   .description {
     display: flex;
     flex-direction: column;
-    gap: $spacing-lg;
+    gap: lib2.$spacing-lg;
   }
 }
 
@@ -134,65 +134,65 @@
   justify-content: space-evenly;
 
   .action-complete {
-    @include text-body-sm;
-    font-family: $font-stack-firefox;
+    @include lib2.text-body-sm;
+    font-family: lib2.$font-stack-firefox;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: $spacing-md;
-    border-radius: $border-radius-md;
-    background-color: $color-white;
+    padding: lib2.$spacing-md;
+    border-radius: lib2.$border-radius-md;
+    background-color: lib2.$color-white;
 
     .label {
       display: inline-flex;
       align-items: center;
-      gap: $spacing-xs;
-      padding-bottom: $spacing-xs;
+      gap: lib2.$spacing-xs;
+      padding-bottom: lib2.$spacing-xs;
 
       svg {
-        color: $color-blue-50;
+        color: lib2.$color-blue-50;
       }
     }
 
     samp {
-      @include text-body-lg;
-      font-family: $font-stack-firefox;
+      @include lib2.text-body-lg;
+      font-family: lib2.$font-stack-firefox;
       font-weight: 700;
-      color: $color-purple-50;
+      color: lib2.$color-purple-50;
     }
 
     .domain {
-      @include text-body-xs;
-      color: $color-light-gray-90;
+      @include lib2.text-body-xs;
+      color: lib2.$color-light-gray-90;
     }
   }
 
   &.step-custom-domain {
-    max-width: $content-xl;
+    max-width: lib2.$content-xl;
 
     .subdomain-picker-heading {
-      padding: $spacing-md 0;
+      padding: lib2.$spacing-md 0;
     }
 
     .domain-example {
-      @include font-firefox;
-      @include text-title-2xs {
-        color: $color-light-gray-90;
+      @include lib2.font-firefox;
+      @include styles-typography.text-title-2xs {
+        color: lib2.$color-light-gray-90;
         display: inline-block;
-        padding: $spacing-md 0;
+        padding: lib2.$spacing-md 0;
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow-x: hidden;
-        max-width: $content-xs;
+        max-width: lib2.$content-xs;
       }
 
-      @media screen and #{$mq-md} {
+      @media screen and #{lib2.$mq-md} {
         max-width: 100%;
       }
 
       .customizable-part {
-        color: $color-violet-50;
+        color: lib2.$color-violet-50;
         font-weight: 700;
       }
     }
@@ -202,7 +202,7 @@
       flex-direction: column;
       margin: 0 auto;
 
-      @media screen and #{$mq-md} {
+      @media screen and #{lib2.$mq-md} {
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
@@ -210,15 +210,15 @@
       }
 
       input {
-        @include form-input;
+        @include lib.form-input;
         flex-grow: 2;
         margin: 0;
-        margin-bottom: $spacing-md;
+        margin-bottom: lib2.$spacing-md;
         width: 100%;
 
-        @media screen and #{ $mq-md } {
+        @media screen and #{ lib2.$mq-md } {
           margin: 0;
-          margin-right: $spacing-md;
+          margin-right: lib2.$spacing-md;
         }
       }
 
@@ -233,14 +233,14 @@
       // Hide the description of the add-on on small screens,
       // because it isn't available on mobile.
       display: none;
-      padding: $spacing-md 0;
+      padding: lib2.$spacing-md 0;
 
-      @media screen and #{$mq-md} {
+      @media screen and #{lib2.$mq-md} {
         display: block;
       }
     }
 
-    @media screen and #{$mq-md} {
+    @media screen and #{lib2.$mq-md} {
       // Don't show the description of replies on small screens,
       // to focus on the add-on availability:
       .reply-description {
@@ -252,16 +252,16 @@
     }
 
     h3 {
-      @include text-body-md;
+      @include lib2.text-body-md;
     }
 
     .get-addon-button {
-      margin-top: $spacing-md;
+      margin-top: lib2.$spacing-md;
       // The extension isn't available on mobile,
       // so hide it on small screens:
       display: none;
 
-      @media screen and #{$mq-md} {
+      @media screen and #{lib2.$mq-md} {
         display: inline-block;
       }
     }
@@ -272,38 +272,38 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: $spacing-xs;
+    gap: lib2.$spacing-xs;
 
     h1 {
-      @include text-title-sm {
+      @include styles-typography.text-title-sm {
         font-weight: 700;
-        font-family: $font-stack-firefox;
-        color: $color-purple-50;
+        font-family: lib2.$font-stack-firefox;
+        color: lib2.$color-purple-50;
       }
     }
 
     p {
-      @include text-body-md;
+      @include lib2.text-body-md;
       font-weight: 600;
-      font-family: $font-stack-firefox;
+      font-family: lib2.$font-stack-firefox;
     }
   }
 
   .content-wrapper {
     display: flex;
     flex-direction: column;
-    gap: $spacing-2xl;
+    gap: lib2.$spacing-2xl;
 
     img {
-      margin: $spacing-2xl auto 0 auto;
+      margin: lib2.$spacing-2xl auto 0 auto;
       max-width: 300px;
 
-      @media screen and #{$mq-lg} {
+      @media screen and #{lib2.$mq-lg} {
         max-width: unset;
       }
     }
 
-    @media screen and #{$mq-md} {
+    @media screen and #{lib2.$mq-md} {
       flex-direction: row;
     }
   }
@@ -312,7 +312,7 @@
 .hidden-mobile {
   display: none;
 
-  @media screen and #{$mq-md} {
+  @media screen and #{lib2.$mq-md} {
     display: inline-block;
   }
 }
@@ -320,20 +320,20 @@
 .headline {
   font-weight: 700;
 
-  @include text-body-md;
-  font-family: $font-stack-firefox;
-  color: $color-blue-80;
+  @include lib2.text-body-md;
+  font-family: lib2.$font-stack-firefox;
+  color: lib2.$color-blue-80;
 }
 
 .content-text {
   display: flex;
   flex-direction: column;
-  gap: $spacing-lg;
+  gap: lib2.$spacing-lg;
 
   div:nth-child(2) {
-    border: 3px solid $color-white;
-    border-radius: $border-radius-md;
-    padding: $spacing-lg $spacing-2xl;
+    border: 3px solid lib2.$color-white;
+    border-radius: lib2.$border-radius-md;
+    padding: lib2.$spacing-lg lib2.$spacing-2xl;
   }
 }
 
@@ -347,7 +347,7 @@
 .controls {
   display: flex;
   flex-direction: column;
-  gap: $spacing-xl;
+  gap: lib2.$spacing-xl;
   align-items: center;
   width: 100%;
 
@@ -355,11 +355,11 @@
   .next-link {
     background-color: transparent;
     border-style: none;
-    color: $color-blue-50;
-    border-radius: $border-radius-sm;
+    color: lib2.$color-blue-50;
+    border-radius: lib2.$border-radius-sm;
 
     &:hover {
-      color: $color-blue-70;
+      color: lib2.$color-blue-70;
       text-decoration: underline;
       cursor: pointer;
     }
@@ -367,12 +367,12 @@
 
   .next-link {
     /* allows for flush positioning of link to next page with pagination component */
-    margin: calc($spacing-lg * -1) 0 $spacing-xs $spacing-sm;
+    margin: calc(lib2.$spacing-lg * -1) 0 lib2.$spacing-xs lib2.$spacing-sm;
     display: flex;
     align-items: center;
   }
 
-  @media screen and (max-width: #{$screen-md}) {
+  @media screen and (max-width: #{lib2.$screen-md}) {
     .get-addon-button {
       display: none;
     }
@@ -386,37 +386,37 @@
   /* this code is copied from progress bar used in premium onboarding */
   progress {
     width: 100%;
-    max-width: $content-md;
+    max-width: lib2.$content-md;
   }
 
   .styled-progress-bar {
     display: flex;
     width: 100%;
-    max-width: $content-md;
-    gap: $spacing-sm;
+    max-width: lib2.$content-md;
+    gap: lib2.$spacing-sm;
     list-style-type: none;
 
     li {
       width: 100%;
-      color: $color-light-gray-90;
+      color: lib2.$color-light-gray-90;
       text-align: center;
       transition: color 0.2s ease-out;
 
       span {
         display: block;
         height: 5px;
-        background-color: $color-light-gray-20;
-        margin-bottom: $spacing-xs;
+        background-color: lib2.$color-light-gray-20;
+        margin-bottom: lib2.$spacing-xs;
         transition:
           box-shadow 1s ease-out,
           color 0.2s ease-out;
       }
 
       &.is-completed {
-        color: $color-violet-20;
+        color: lib2.$color-violet-20;
 
         span {
-          box-shadow: inset 300px 0 0 0 $color-violet-20;
+          box-shadow: inset 300px 0 0 0 lib2.$color-violet-20;
         }
       }
     }
@@ -427,16 +427,16 @@
   .addon-content-items {
     flex-direction: column;
 
-    @media screen and #{$mq-md} {
+    @media screen and #{lib2.$mq-md} {
       flex-direction: row;
     }
   }
 
   .addon-content-items:nth-child(2) {
     flex-direction: column-reverse;
-    margin-top: $spacing-2xl;
+    margin-top: lib2.$spacing-2xl;
 
-    @media screen and #{ $mq-md } {
+    @media screen and #{ lib2.$mq-md } {
       flex-direction: row;
     }
   }
@@ -445,7 +445,7 @@
   .small-arrow {
     display: none;
 
-    @media screen and #{$mq-md} {
+    @media screen and #{lib2.$mq-md} {
       display: flex;
     }
   }
@@ -454,14 +454,14 @@
 .addon-content-wrapper {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
-  margin-top: $spacing-lg;
+  gap: lib2.$spacing-md;
+  margin-top: lib2.$spacing-lg;
 
   .addon-content-items {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: $spacing-2xl;
+    gap: lib2.$spacing-2xl;
     position: relative;
 
     .large-arrow,
@@ -471,24 +471,24 @@
 
     /* custom art element that requires absolute positioning */
     .large-arrow {
-      bottom: calc($spacing-2xl * -1);
-      right: calc($spacing-lg * -5);
+      bottom: calc(lib2.$spacing-2xl * -1);
+      right: calc(lib2.$spacing-lg * -5);
     }
 
     /* custom art element that requires absolute positioning */
     .small-arrow {
-      bottom: calc($spacing-2xl * -1);
-      left: calc($spacing-lg * -5);
+      bottom: calc(lib2.$spacing-2xl * -1);
+      left: calc(lib2.$spacing-lg * -5);
     }
 
     .headline {
-      @include text-body-lg;
+      @include lib2.text-body-lg;
     }
 
     .addon-content-text {
       display: flex;
       flex-direction: column;
-      gap: $spacing-sm;
+      gap: lib2.$spacing-sm;
       position: relative;
     }
   }
@@ -496,8 +496,8 @@
 
 .action-complete {
   text-align: center;
-  background: $color-white;
-  padding: $spacing-sm $spacing-2xl;
+  background: lib2.$color-white;
+  padding: lib2.$spacing-sm lib2.$spacing-2xl;
 
   svg {
     margin: 0 auto;

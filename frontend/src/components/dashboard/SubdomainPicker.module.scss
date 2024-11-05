@@ -1,23 +1,23 @@
-@import "../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
-@import "../../styles/typography";
+@use "../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as lib2;
+@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+@use "../../styles/typography" as styles-typography;
 
 .card {
-  border-radius: $border-radius-md;
-  padding: $spacing-lg;
-  box-shadow: $box-shadow-sm;
-  background-color: $color-white;
+  border-radius: lib2.$border-radius-md;
+  padding: lib2.$spacing-lg;
+  box-shadow: lib2.$box-shadow-sm;
+  background-color: lib2.$color-white;
   display: flex;
   flex-direction: column;
   align-items: center;
   border: 4px solid transparent;
 
   &:target {
-    border-color: $color-blue-50;
+    border-color: lib2.$color-blue-50;
   }
 
-  @media screen  and #{$mq-md} {
+  @media screen  and #{lib2.$mq-md} {
     flex-direction: row;
 
     .description,
@@ -27,54 +27,54 @@
   }
 
   a {
-    @include text-body-sm;
-    color: $color-blue-50;
+    @include lib2.text-body-sm;
+    color: lib2.$color-blue-50;
 
     &:hover,
     &:focus {
-      color: $color-blue-60;
+      color: lib2.$color-blue-60;
     }
   }
 
   .description {
     max-width: 100%;
-    min-width: $content-xs;
-    border-color: $color-light-gray-30;
+    min-width: lib2.$content-xs;
+    border-color: lib2.$color-light-gray-30;
     border-width: 1px;
     border-bottom-style: solid;
-    margin-bottom: $spacing-md;
-    padding-bottom: $spacing-md;
+    margin-bottom: lib2.$spacing-md;
+    padding-bottom: lib2.$spacing-md;
 
-    @media screen and #{$mq-md} {
+    @media screen and #{lib2.$mq-md} {
       border-bottom-style: none;
       margin-bottom: 0;
       padding-bottom: 0;
       border-right-style: solid;
-      margin-right: $spacing-lg;
-      padding-right: $spacing-lg;
+      margin-right: lib2.$spacing-lg;
+      padding-right: lib2.$spacing-lg;
       align-self: start;
     }
 
     .action-step {
-      @include text-body-sm;
-      color: $color-violet-50;
+      @include lib2.text-body-sm;
+      color: lib2.$color-violet-50;
       margin-top: 0;
-      margin-bottom: $spacing-md;
+      margin-bottom: lib2.$spacing-md;
     }
 
     h2 {
-      @include text-title-2xs {
-        padding: $spacing-sm 0;
+      @include styles-typography.text-title-2xs {
+        padding: lib2.$spacing-sm 0;
       }
     }
 
     .lead {
-      @include text-body-sm;
-      padding: $spacing-md 0;
-      color: $color-grey-50;
+      @include lib2.text-body-sm;
+      padding: lib2.$spacing-md 0;
+      color: tokens.$color-grey-50;
       display: flex;
       flex-direction: column;
-      gap: $spacing-md;
+      gap: lib2.$spacing-md;
     }
   }
 
@@ -88,30 +88,30 @@
     .input-wrapper {
       width: 100%;
 
-      @media screen and #{$mq-md} {
-        max-width: $content-sm;
+      @media screen and #{lib2.$mq-md} {
+        max-width: lib2.$content-sm;
       }
     }
 
     .example {
-      @include font-firefox;
-      @include text-title-3xs;
-      color: $color-light-gray-90;
+      @include lib2.font-firefox;
+      @include lib2.text-title-3xs;
+      color: lib2.$color-light-gray-90;
       display: block;
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow-x: hidden;
       text-align: center;
-      margin: $spacing-md 0;
+      margin: lib2.$spacing-md 0;
       width: 100%;
 
       .subdomain-part {
-        color: $color-violet-50;
+        color: lib2.$color-violet-50;
         font-weight: 700;
       }
     }
 
-    @media screen and #{$mq-md} {
+    @media screen and #{lib2.$mq-md} {
       width: 50%;
     }
 
@@ -120,21 +120,21 @@
       flex-direction: column;
       width: 100%;
 
-      @media screen and #{$mq-md} {
+      @media screen and #{lib2.$mq-md} {
         flex-direction: row;
         justify-content: space-between;
       }
 
       input {
-        @include form-input;
+        @include lib.form-input;
         flex-grow: 2;
         margin: 0;
-        margin-bottom: $spacing-md;
+        margin-bottom: lib2.$spacing-md;
         width: 100%;
 
-        @media screen and #{ $mq-md } {
+        @media screen and #{ lib2.$mq-md } {
           margin: 0;
-          margin-right: $spacing-md;
+          margin-right: lib2.$spacing-md;
         }
       }
 
@@ -144,7 +144,7 @@
     }
 
     .illustration {
-      margin-top: $spacing-lg;
+      margin-top: lib2.$spacing-lg;
     }
   }
 }
