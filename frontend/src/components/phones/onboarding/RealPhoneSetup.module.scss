@@ -1,7 +1,7 @@
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
 @use "../../../styles/tokens";
-@use "../../../styles/typography" as styles-typography;
+@use "../../../styles/typography" as t;
 
 .step {
   flex: 1 0 auto;
@@ -21,7 +21,7 @@
   }
 
   h2 {
-    @include styles-typography.text-title-xs {
+    @include t.text-title-xs {
       font-family: $font-stack-firefox;
       text-align: center;
     }
@@ -88,7 +88,7 @@
     }
 
     span {
-      @include styles-typography.text-title-2xs {
+      @include t.text-title-2xs {
         padding-top: $spacing-sm;
         display: block;
         font-weight: 700;

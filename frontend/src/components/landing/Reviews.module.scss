@@ -1,6 +1,6 @@
 @use "../../styles/tokens";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
-@use "../../styles/typography" as styles-typography;
+@use "../../styles/typography" as t;
 
 .reviews {
   display: flex;
@@ -53,7 +53,7 @@
   }
 
   .logo-text {
-    @include styles-typography.text-title-xs {
+    @include t.text-title-xs {
       font-weight: 600;
       text-transform: uppercase;
     }
@@ -77,7 +77,7 @@
 
   .rating {
     .title {
-      @include styles-typography.text-title-2xl {
+      @include t.text-title-2xl {
         font-family: $font-stack-firefox;
         font-weight: 600;
       }

@@ -1,6 +1,6 @@
 @use "../../styles/tokens";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
-@use "../../styles/typography" as styles-typography;
+@use "../../styles/typography" as t;
 
 .underlay {
   position: fixed;
@@ -65,7 +65,7 @@
 }
 
 .headline {
-  @include styles-typography.text-title-xs {
+  @include t.text-title-xs {
     display: flex;
     align-items: center;
     justify-content: center;

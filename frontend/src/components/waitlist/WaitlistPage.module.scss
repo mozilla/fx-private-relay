@@ -1,7 +1,7 @@
 @use "~@mozilla-protocol/core/protocol/css/includes/tokens/dist/index" as dist;
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
-@use "../../styles/typography" as styles-typography;
+@use "../../styles/typography" as t;
 
 .wrapper {
   display: flex;
@@ -79,7 +79,7 @@
   }
 
   .heading {
-    @include styles-typography.text-title-sm {
+    @include t.text-title-sm {
       font-family: $font-stack-firefox;
       align-self: center;
       text-align: center;

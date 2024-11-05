@@ -1,6 +1,6 @@
 @use "../../styles/tokens";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
-@use "../../styles/typography" as styles-typography;
+@use "../../styles/typography" as t;
 
 .wrapper {
   padding: $spacing-lg;
@@ -8,7 +8,7 @@
   border: 1px solid $color-light-gray-40;
 
   h2 {
-    @include styles-typography.text-title-2xs {
+    @include t.text-title-2xs {
       @include font-firefox;
       padding: $spacing-sm 0;
     }

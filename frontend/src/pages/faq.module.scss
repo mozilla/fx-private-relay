@@ -1,6 +1,6 @@
 @use "../styles/tokens";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
-@use "../styles/typography" as styles-typography;
+@use "../styles/typography" as t;
 
 .faq-page {
   background-color: $color-blue-90;
@@ -28,7 +28,7 @@
 }
 
 .headline {
-  @include styles-typography.text-title-sm {
+  @include t.text-title-sm {
     @include font-firefox;
     padding-bottom: $spacing-xl;
   }
@@ -50,7 +50,7 @@
   }
 
   .question {
-    @include styles-typography.text-title-2xs {
+    @include t.text-title-2xs {
       @include font-firefox;
       padding-bottom: $spacing-sm;
     }

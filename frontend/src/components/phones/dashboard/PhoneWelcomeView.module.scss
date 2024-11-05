@@ -1,6 +1,6 @@
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 @use "../../../styles/tokens";
-@use "../../../styles/typography" as styles-typography;
+@use "../../../styles/typography" as t;
 
 .main-wrapper {
   display: flex;
@@ -20,7 +20,7 @@
     text-align: center;
 
     h1 {
-      @include styles-typography.text-title-xs {
+      @include t.text-title-xs {
         @include font-firefox;
         font-weight: 600;
       }
