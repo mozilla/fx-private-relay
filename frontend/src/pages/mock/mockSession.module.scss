@@ -1,5 +1,5 @@
-@use "../../styles/color";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "../../styles/color";
 
 .mock-session {
   padding: $spacing-lg;

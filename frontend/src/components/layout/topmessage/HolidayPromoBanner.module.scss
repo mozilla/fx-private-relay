@@ -1,5 +1,5 @@
-@use "../../../styles/color";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "../../../styles/color";
 
 // Hardcoding #5015cd after talking with design, no token for this color exists yet in Nebula.
 $banner-gradient: linear-gradient(

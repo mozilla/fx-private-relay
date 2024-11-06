@@ -1,6 +1,5 @@
-@use "../../../styles/color";
 @use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
-@use "~@mozilla-protocol/core/protocol/css/includes/mixins/typography";
+@use "../../../styles/color";
 
 .info-icon {
   align-items: center;
