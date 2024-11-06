@@ -1494,23 +1494,23 @@ class GetComplaintDataTest(TestCase):
         message = {
             "complaint": {
                 "complainedRecipients": [{"emailAddress": "complainer@example.com"}],
-                "complaintFeedbackType": "abuse",
             },
             "mail": {"commonHeaders": {"from": ["relay-mask@test.com"]}},
         }
-        complaint_data = _get_complaint_data(message)
+        with self.assertNoLogs(ERROR_LOG):
+            complaint_data = _get_complaint_data(message)
         assert complaint_data == RawComplaintData(
             complained_recipients=[("complainer@example.com", {})],
             from_addresses=["relay-mask@test.com"],
             subtype="",
             user_agent="",
-            feedback_type="abuse",
+            feedback_type="",
         )
 
     def test_no_complained_recipients_error_logged(self):
         """When complaint.complainedRecipients is missing, an error is logged."""
         message = {
-            "complaint": {"complaintFeedbackType": "abuse"},
+            "complaint": {},
             "mail": {"commonHeaders": {"from": ["relay-mask@test.com"]}},
         }
         with self.assertLogs(ERROR_LOG) as error_logs:
@@ -1520,12 +1520,12 @@ class GetComplaintDataTest(TestCase):
         (err_log,) = error_logs.records
         assert err_log.msg == "_get_complaint_data: Unexpected message format"
         assert getattr(err_log, "missing_key") == "complainedRecipients"
-        assert getattr(err_log, "found_keys") == "complaintFeedbackType"
+        assert getattr(err_log, "found_keys") == ""
 
     def test_empty_complained_recipients_error_logged(self):
         """When complaint.complainedRecipients is empty, an error is logged."""
         message = {
-            "complaint": {"complainedRecipients": [], "complaintFeedbackType": "abuse"},
+            "complaint": {"complainedRecipients": []},
             "mail": {"commonHeaders": {"from": ["relay-mask@test.com"]}},
         }
         with self.assertLogs(ERROR_LOG) as error_logs:
@@ -1543,7 +1543,6 @@ class GetComplaintDataTest(TestCase):
         message = {
             "complaint": {
                 "complainedRecipients": [{"foo": "bar"}],
-                "complaintFeedbackType": "abuse",
             },
             "mail": {"commonHeaders": {"from": ["relay-mask@test.com"]}},
         }
@@ -1561,7 +1560,6 @@ class GetComplaintDataTest(TestCase):
         message = {
             "complaint": {
                 "complainedRecipients": [{"emailAddress": "complainer@example.com"}],
-                "complaintFeedbackType": "abuse",
             },
         }
         with self.assertLogs(ERROR_LOG) as error_logs:
@@ -1578,7 +1576,6 @@ class GetComplaintDataTest(TestCase):
         message = {
             "complaint": {
                 "complainedRecipients": [{"emailAddress": "complainer@example.com"}],
-                "complaintFeedbackType": "abuse",
             },
             "mail": {},
         }
@@ -1596,7 +1593,6 @@ class GetComplaintDataTest(TestCase):
         message = {
             "complaint": {
                 "complainedRecipients": [{"emailAddress": "complainer@example.com"}],
-                "complaintFeedbackType": "abuse",
             },
             "mail": {"commonHeaders": {}},
         }
@@ -1609,22 +1605,17 @@ class GetComplaintDataTest(TestCase):
         assert getattr(err_log, "missing_key") == "from"
         assert getattr(err_log, "found_keys") == ""
 
-    def test_no_feedback_type_error_logged(self):
-        """If the From header entry is missing, an error is logged."""
+    def test_no_feedback_type_not_an_error(self):
+        """If the feedback type is missing, no error is logged"""
         message = {
             "complaint": {
                 "complainedRecipients": [{"emailAddress": "complainer@example.com"}],
             },
             "mail": {"commonHeaders": {"from": ["relay-mask@test.com"]}},
         }
-        with self.assertLogs(ERROR_LOG) as error_logs:
+        with self.assertNoLogs(ERROR_LOG):
             complaint_data = _get_complaint_data(message)
         assert complaint_data.feedback_type == ""
-
-        (err_log,) = error_logs.records
-        assert err_log.msg == "_get_complaint_data: Unexpected message format"
-        assert getattr(err_log, "missing_key") == "complaintFeedbackType"
-        assert getattr(err_log, "found_keys") == "complainedRecipients"
 
 
 class GatherComplainersTest(TestCase):

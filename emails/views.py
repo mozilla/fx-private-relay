@@ -1866,8 +1866,8 @@ def _get_complaint_data(message_json: AWS_SNSMessageJSON) -> RawComplaintData:
         raw_from_addresses = []
     from_addresses = [parseaddr(addr)[1] for addr in raw_from_addresses]
 
-    feedback_type, _ = get_or_log("complaintFeedbackType", complaint, str)
-
+    # Only present when set
+    feedback_type = complaint.get("complaintFeedbackType", "")
     # Only present when destination is on account suppression list
     subtype = complaint.get("complaintSubType", "")
     # Only present for feedback reports
