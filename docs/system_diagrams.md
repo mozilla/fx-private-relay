@@ -209,10 +209,10 @@ The Production Deployment has some additional features:
 - There is a canary app deployment. This single pod is updated first, so that any errors
   will halt the full deployment.
 
-[![Stage Deployment](./img/structurizr-1-RelayStageDeployment.svg)](./img/structurizr-1-RelayStageDeployment.svg)
+[![Production Deployment](./img/structurizr-1-RelayProductionDeployment.svg)](./img/structurizr-1-RelayProductionDeployment.svg)
 
 Key:
-![Stage_Deployment](./img/structurizr-1-RelayStageDeployment-key.svg)
+![Production Deployment Key](./img/structurizr-1-RelayProductionDeployment-key.svg)
 
 # Tools: C4 and Structurizr
 
