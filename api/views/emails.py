@@ -151,7 +151,9 @@ class DomainAddressViewSet(AddressViewSet[DomainAddress]):
 
     def get_queryset(self) -> QuerySet[DomainAddress]:
         if isinstance(self.request.user, User):
-            return DomainAddress.objects.filter(user=self.request.user)
+            return DomainAddress.objects.filter(
+                user=self.request.user
+            ).prefetch_related("user", "user__profile")
         return DomainAddress.objects.none()
 
 

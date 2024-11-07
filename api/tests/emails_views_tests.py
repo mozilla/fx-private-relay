@@ -9,7 +9,7 @@ from django.utils import timezone
 
 import pytest
 from model_bakery import baker
-from pytest_django.fixtures import SettingsWrapper
+from pytest_django.fixtures import DjangoAssertNumQueries, SettingsWrapper
 from rest_framework.exceptions import MethodNotAllowed, NotAuthenticated
 from rest_framework.test import APIClient
 from waffle.testutils import override_flag
@@ -387,6 +387,32 @@ def test_patch_domainaddress_addr_with_id_fails(
     assert get_glean_event(caplog) is None
 
 
+@pytest.mark.parametrize("address_count", (0, 1, 2, 5))
+def test_get_domainaddress(
+    prem_api_client: APIClient,
+    premium_user: User,
+    django_assert_num_queries: DjangoAssertNumQueries,
+    address_count: int,
+) -> None:
+    """
+    A GET request makes 1 request for no results, and 3 requests for any results.
+    """
+    address_qs = DomainAddress.objects.filter(user=premium_user)
+    count = address_qs.count()
+    assert count <= address_count
+    while count < address_count:
+        DomainAddress.objects.create(user=premium_user, address=f"address-{count}")
+        count = address_qs.count()
+
+    url = reverse("domainaddress-list")
+    expected_queries = 3 if address_count else 1
+    with django_assert_num_queries(expected_queries):
+        response = prem_api_client.get(url)
+    data = response.json()
+    assert response.status_code == 200
+    assert len(data) == address_count
+
+
 def test_delete_domainaddress(
     prem_api_client: APIClient, premium_user: User, caplog: pytest.LogCaptureFixture
 ) -> None:
@@ -747,6 +773,29 @@ def test_delete_randomaddress(
         event_time=event["timestamp"],
     )
     assert event == expected_event
+
+
+@pytest.mark.parametrize("address_count", (0, 1, 2))
+def test_get_relayaddress(
+    free_api_client: APIClient,
+    free_user: User,
+    django_assert_num_queries: DjangoAssertNumQueries,
+    address_count: int,
+) -> None:
+    """A GET request should make 1 query, no matter the address count."""
+    address_qs = RelayAddress.objects.filter(user=free_user)
+    count = address_qs.count()
+    assert count <= address_count
+    while count < address_count:
+        RelayAddress.objects.create(user=free_user)
+        count = address_qs.count()
+
+    url = reverse("relayaddress-list")
+    with django_assert_num_queries(1):
+        response = free_api_client.get(url)
+    data = response.json()
+    assert response.status_code == 200
+    assert len(data) == address_count
 
 
 def test_first_forwarded_email_unauth(client: Client) -> None:
