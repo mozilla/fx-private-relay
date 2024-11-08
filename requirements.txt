@@ -20,7 +20,6 @@ drf-spectacular==0.27.2
 drf-spectacular-sidecar==2024.11.1
 glean_parser==15.2.1
 google-cloud-profiler==4.1.0; python_version < '3.13'
-google-cloud-sqlcommenter==2.0.0; python_version < '3.12'
 gunicorn==23.0.0
 jwcrypto==1.5.6
 markus[datadog]==5.1.0
