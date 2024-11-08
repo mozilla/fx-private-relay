@@ -21,6 +21,29 @@ from privaterelay.tests.utils import (
 )
 
 
+@pytest.fixture
+def settings_without_sqlcommenter(settings: SettingsWrapper) -> SettingsWrapper:
+    """
+    Remove the sqlcommenter from the middleware.
+
+    For sqlite, it injects two queries into the recorded queries. The
+    first is a plain string, the second is the expected dictionary format.
+    This breaks the tests using django_assert_num_queries
+    First query: "SELECT id, ...
+    Second query: {"sql": "SELECT id, ..."}A
+    """
+
+    # The sqlcommenter middleware records queries twice for sqlite
+    try:
+        settings.MIDDLEWARE.remove(
+            "google.cloud.sqlcommenter.django.middleware.SqlCommenter"
+        )
+    except ValueError:
+        # sqlcommenter not available for Python 3.12 and later
+        pass
+    return settings
+
+
 def test_post_domainaddress_success(
     prem_api_client: APIClient, premium_user: User, caplog: pytest.LogCaptureFixture
 ) -> None:
@@ -392,6 +415,7 @@ def test_get_domainaddress(
     prem_api_client: APIClient,
     premium_user: User,
     django_assert_num_queries: DjangoAssertNumQueries,
+    settings_without_sqlcommenter: SettingsWrapper,
     address_count: int,
 ) -> None:
     """
@@ -780,6 +804,7 @@ def test_get_relayaddress(
     free_api_client: APIClient,
     free_user: User,
     django_assert_num_queries: DjangoAssertNumQueries,
+    settings_without_sqlcommenter: SettingsWrapper,
     address_count: int,
 ) -> None:
     """A GET request should make 1 query, no matter the address count."""
