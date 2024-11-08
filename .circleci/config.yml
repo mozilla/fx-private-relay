@@ -74,7 +74,7 @@ executors:
         enum: ["", "-node", "-browsers"]
       postgres_version:
         description: "postgres version tag"
-        default: "14.7"
+        default: "14.13"
         type: string
   python_with_postgres:
     # https://circleci.com/developer/images/image/cimg/python
