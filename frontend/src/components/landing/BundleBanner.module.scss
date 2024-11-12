@@ -46,7 +46,7 @@
 
     .main-img-wrapper {
       .main-image {
-        margin-top: -($layout-lg); // Leave space for image to bleed out of frame
+        margin-top: -$layout-lg; // Leave space for image to bleed out of frame
 
         @media #{$mq-lg} {
           position: absolute;
