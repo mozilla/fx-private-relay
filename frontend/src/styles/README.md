@@ -42,8 +42,12 @@ When using the [Mozilla Protocol colors][], the pattern is:
 }
 ```
 
+It is possible that the code unintentionally is using the Mozilla Protocol colors.
+Auditing color usage is tracked in [MPP-3958][].
+
 [Mozilla VPN]: https://www.mozilla.org/en-US/products/vpn/
 [Mozilla Monitor]: https://monitor.mozilla.org/
+[MPP-3958]: https://mozilla-hub.atlassian.net/browse/MPP-3958
 
 ## Text
 
