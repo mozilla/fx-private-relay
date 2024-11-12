@@ -15,7 +15,7 @@
     "npm": "9.8.1"
   },
   "overrides": {
-    "cookie": "~0.7.0"
+    "typescript": "~5.4.5"
   },
   "license": "MPL-2.0",
   "private": true,
