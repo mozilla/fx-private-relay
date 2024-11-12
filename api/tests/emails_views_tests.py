@@ -32,8 +32,6 @@ def settings_without_sqlcommenter(settings: SettingsWrapper) -> SettingsWrapper:
     First query: "SELECT id, ...
     Second query: {"sql": "SELECT id, ..."}A
     """
-
-    # The sqlcommenter middleware records queries twice for sqlite
     try:
         settings.MIDDLEWARE.remove(
             "google.cloud.sqlcommenter.django.middleware.SqlCommenter"
