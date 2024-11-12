@@ -1,5 +1,6 @@
-@import "../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "../../styles/color";
+@use "../../styles/text";
 
 .bundle-banner-wrapper {
   display: grid;
@@ -194,22 +195,24 @@
       }
 
       h2 {
-        @include text-title-sm;
-        @include font-firefox;
-        font-weight: 700;
+        @include text.title-sm {
+          @include font-firefox;
+          font-weight: 700;
+        }
 
         @media #{$mq-lg} {
-          @include text-title-xs;
+          @include text.title-xs;
         }
       }
 
       h3 {
-        @include text-title-xs;
-        @include font-firefox;
-        font-weight: 500;
+        @include text.title-xs {
+          @include font-firefox;
+          font-weight: 500;
+        }
 
         @media #{$mq-lg} {
-          @include text-title-2xs;
+          @include text.title-2xs;
         }
       }
 

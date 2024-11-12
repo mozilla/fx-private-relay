@@ -1,5 +1,6 @@
-@import "../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "../styles/color";
+@use "../styles/text";
 
 .wrapper {
   height: 100%;
@@ -29,7 +30,7 @@
 .loading {
   padding: $spacing-xl;
   height: 100%;
-  background-color: $color-grey-05;
+  background-color: color.$grey-05;
   animation-name: fadein;
   animation-duration: 400ms;
 }
@@ -37,11 +38,11 @@
 .load-error {
   padding: $spacing-xl;
   height: 100%;
-  background-color: $color-grey-05;
+  background-color: color.$grey-05;
 }
 
 .report-wrapper {
-  background-color: $color-grey-05;
+  background-color: color.$grey-05;
   flex: 1 0 auto;
   display: flex;
   justify-content: center;
@@ -70,10 +71,11 @@
   }
 
   h1 {
-    @include text-title-2xs;
-    font-family: $font-stack-firefox;
-    padding: $spacing-md 0;
-    border-bottom: 1px solid $color-grey-20;
+    @include text.title-2xs {
+      font-family: $font-stack-firefox;
+      padding: $spacing-md 0;
+      border-bottom: 1px solid color.$grey-20;
+    }
   }
 
   .meta {
@@ -89,12 +91,12 @@
     }
 
     dt {
-      color: $color-grey-40;
+      color: color.$grey-40;
     }
 
     dd {
       font-weight: 600;
-      color: $color-grey-50;
+      color: color.$grey-50;
     }
 
     .from {
@@ -127,9 +129,10 @@
     }
 
     h2 {
-      @include text-title-xs;
-      font-family: $font-stack-firefox;
-      font-weight: 500;
+      @include text.title-xs {
+        font-family: $font-stack-firefox;
+        font-weight: 500;
+      }
     }
 
     table {
@@ -154,12 +157,12 @@
         column-gap: $spacing-md;
         row-gap: $spacing-xs;
         padding: $spacing-md 0;
-        color: $color-grey-50;
-        border-top: 1px solid $color-grey-10;
+        color: color.$grey-50;
+        border-top: 1px solid color.$grey-10;
 
         .icon {
           grid-area: icon;
-          color: $color-grey-20;
+          color: color.$grey-20;
         }
 
         .tracker-domain {
@@ -191,7 +194,7 @@
     display: flex;
     align-items: center;
     gap: $spacing-md;
-    background-color: $color-grey-10;
+    background-color: color.$grey-10;
     padding: $spacing-lg;
     border-radius: $border-radius-md;
 
@@ -216,7 +219,7 @@
     }
 
     hr {
-      background-color: $color-grey-10;
+      background-color: color.$grey-10;
       height: 2px;
       border-style: none;
     }
@@ -257,10 +260,11 @@
     }
 
     .headline {
-      @include text-title-sm;
-      font-family: $font-stack-firefox;
-      font-weight: 500;
-      padding: $spacing-md 0;
+      @include text.title-sm {
+        font-family: $font-stack-firefox;
+        font-weight: 500;
+        padding: $spacing-md 0;
+      }
     }
 
     .read-more {

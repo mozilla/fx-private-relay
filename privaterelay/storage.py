@@ -48,7 +48,7 @@ class RelayStaticFilesStorage(CompressedManifestStaticFilesStorage):
         Convert Next.js source map URL to absolute URL.
 
         If this changes, or other django.contrib.staticfiles changes adjust CSS output,
-        then update the cache version in globals.scss and tokens.scss to bust the cache.
+        then update the cache version in globals.scss and colors.scss to bust the cache.
         """
         if (
             name.startswith("_next/static/css/")

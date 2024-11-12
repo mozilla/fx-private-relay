@@ -1,5 +1,6 @@
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "../../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "../../../styles/color";
+@use "../../../styles/text";
 
 .wrapper {
   display: flex;
@@ -13,9 +14,10 @@
   overflow-x: hidden;
 
   h2 {
-    @include text-title-xs;
-    font-family: $font-stack-firefox;
-    text-align: center;
+    @include text.title-xs {
+      font-family: $font-stack-firefox;
+      text-align: center;
+    }
   }
 
   .lead {
@@ -56,7 +58,7 @@
       padding: 0;
 
       ::marker {
-        color: $color-violet-60;
+        color: color.$violet-60;
       }
     }
   }
@@ -70,7 +72,7 @@
     justify-items: center;
     text-align: center;
     gap: $spacing-md;
-    background-color: $color-white;
+    background-color: color.$white;
     padding: $spacing-lg $spacing-2xl;
     border-radius: $border-radius-md;
     box-shadow: $box-shadow-sm;
@@ -90,7 +92,7 @@
 
       .pricing-toggle {
         display: flex;
-        background-color: $color-grey-10;
+        background-color: color.$grey-10;
         padding: $spacing-xs;
         border-radius: $border-radius-lg;
 
@@ -99,14 +101,14 @@
           width: 50%;
           padding: $spacing-xs $spacing-sm;
           text-align: center;
-          color: $color-grey-40;
+          color: color.$grey-40;
           font-weight: 500;
           cursor: pointer;
 
           &.is-selected {
-            background-color: $color-white;
+            background-color: color.$white;
             border-radius: $border-radius-lg;
-            color: $color-blue-50;
+            color: color.$blue-50;
           }
         }
       }
@@ -117,10 +119,11 @@
         gap: $spacing-md;
 
         .price {
-          @include text-title-2xs;
-          padding-top: $spacing-sm;
-          display: block;
-          font-weight: 700;
+          @include text.title-2xs {
+            padding-top: $spacing-sm;
+            display: block;
+            font-weight: 700;
+          }
 
           > span {
             @include text-body-sm;

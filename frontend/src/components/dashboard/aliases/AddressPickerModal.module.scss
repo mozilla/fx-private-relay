@@ -1,6 +1,6 @@
-@import "../../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
+@use "../../../styles/color";
 
 .underlay {
   position: fixed;
@@ -45,7 +45,7 @@
       padding-left: $spacing-sm;
       font-family: $font-stack-base;
       font-weight: 400;
-      color: $color-grey-50;
+      color: color.$grey-50;
 
       @include text-body-sm;
 
@@ -88,7 +88,7 @@
 
       .prefix {
         font-family: $font-stack-firefox;
-        color: $color-grey-50;
+        color: color.$grey-50;
         width: 70%;
         margin: 0 auto;
         display: flex;
@@ -102,12 +102,12 @@
         }
 
         input {
-          @include form-input;
+          @include mp_forms.form-input;
           // Override form-input's margin:
           margin: $spacing-sm 0 0 0;
           font-weight: 400;
           padding: $spacing-sm;
-          color: $color-grey-40;
+          color: color.$grey-40;
           font-family: $font-stack-base;
 
           @include text-body-md;
@@ -128,7 +128,7 @@
       gap: $spacing-sm;
       margin: $spacing-md $spacing-sm;
       font-family: $font-stack-firefox;
-      color: $color-grey-50;
+      color: color.$grey-50;
       font-weight: 600;
 
       @media screen and #{$mq-sm} {
@@ -138,7 +138,7 @@
       input[type="checkbox"] {
         width: 20px;
         height: 20px;
-        border: 2px solid $color-grey-20;
+        border: 2px solid color.$grey-20;
         border-radius: $border-radius-sm;
         -webkit-appearance: none;
       }

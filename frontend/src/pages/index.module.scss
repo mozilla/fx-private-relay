@@ -1,5 +1,6 @@
-@import "../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "../styles/color";
+@use "../styles/text";
 
 .hero {
   display: flex;
@@ -28,8 +29,9 @@
   }
 
   h2 {
-    @include text-title-md;
-    font-family: $font-stack-firefox;
+    @include text.title-md {
+      font-family: $font-stack-firefox;
+    }
   }
 
   p {
@@ -74,10 +76,11 @@
   padding: $spacing-lg;
 
   h2 {
-    @include text-title-sm;
-    font-family: $font-stack-firefox;
-    text-align: center;
-    margin-bottom: $layout-sm;
+    @include text.title-sm {
+      font-family: $font-stack-firefox;
+      text-align: center;
+      margin-bottom: $layout-sm;
+    }
   }
 
   h2,
@@ -196,9 +199,10 @@
     margin-top: $layout-xl;
 
     h2 {
-      @include text-title-sm;
-      font-family: $font-stack-firefox;
-      font-weight: 500;
+      @include text.title-sm {
+        font-family: $font-stack-firefox;
+        font-weight: 500;
+      }
     }
 
     .end-of-intro-pricing-countdown-and-warning {
@@ -245,10 +249,11 @@
     }
 
     .headline {
-      @include text-title-sm;
-      font-family: $font-stack-firefox;
-      font-weight: 500;
-      padding: $spacing-md 0;
+      @include text.title-sm {
+        font-family: $font-stack-firefox;
+        font-weight: 500;
+        padding: $spacing-md 0;
+      }
     }
 
     .read-more {

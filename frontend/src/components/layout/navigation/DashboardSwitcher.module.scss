@@ -1,5 +1,5 @@
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "../../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "../../../styles/color";
 
 .nav-mask-phone {
   width: 100%;
@@ -15,28 +15,28 @@
     border-bottom: 5px solid transparent;
 
     &.is-active {
-      border-bottom: 5px solid $color-purple-40;
+      border-bottom: 5px solid color.$purple-40;
     }
 
     &:hover {
-      background-color: $color-purple-05;
+      background-color: color.$purple-05;
     }
   }
 
   .nav-mask-phone-icon {
-    color: $color-grey-40;
-    stroke: $color-grey-40;
+    color: color.$grey-40;
+    stroke: color.$grey-40;
     stroke-width: 0.5px;
 
     p,
     p.is-active {
-      color: $color-purple-70;
+      color: color.$purple-70;
       text-transform: uppercase;
     }
 
     &.is-active {
-      color: $color-purple-40;
-      stroke: $color-purple-40;
+      color: color.$purple-40;
+      stroke: color.$purple-40;
     }
   }
 

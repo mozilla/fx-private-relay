@@ -1,5 +1,5 @@
-@import "../../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "../../../styles/color";
 
 .wrapper {
   align-items: center;
@@ -21,7 +21,7 @@
     color: $color-white;
 
     &.premium {
-      color: $color-grey-40;
+      color: color.$grey-40;
     }
     &:hover {
       color: $color-purple-20;

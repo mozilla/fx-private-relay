@@ -1,6 +1,6 @@
-@import "../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/mixins/typography";
-@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
+@use "../styles/color";
 
 .button {
   display: inline-flex;
@@ -24,8 +24,8 @@
   }
 
   &:focus {
-    border-color: $button-border-color-focus;
-    box-shadow: $field-focus-ring;
+    border-color: mp_forms.$button-border-color-focus;
+    box-shadow: mp_forms.$field-focus-ring;
     color: $color-white;
     outline: none;
   }

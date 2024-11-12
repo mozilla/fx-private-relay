@@ -1,5 +1,5 @@
-@import "../../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "../../../styles/color";
 
 .permanence-warning {
   @include text-body-sm;

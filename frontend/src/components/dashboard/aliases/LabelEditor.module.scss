@@ -1,4 +1,5 @@
-@import "../../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "../../../styles/color";
 
 .label-form {
   position: relative;
@@ -38,8 +39,8 @@
   top: 40px;
   left: 0;
   opacity: 0;
-  background-color: $color-green-60;
-  color: $color-white;
+  background-color: color.$green-60;
+  color: color.$white;
   border-radius: $border-radius-sm;
   transition: opacity 200ms;
   padding: $spacing-xs;
@@ -56,7 +57,7 @@
   &::after {
     // This is the little arrow that attaches the message to the form
     $arrowEdgeLength: 4px;
-    background-color: $color-green-60;
+    background-color: color.$green-60;
     height: 2 * $arrowEdgeLength;
     width: 2 * $arrowEdgeLength;
     transform: rotate(45deg);

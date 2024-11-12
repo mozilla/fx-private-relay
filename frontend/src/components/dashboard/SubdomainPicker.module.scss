@@ -1,6 +1,7 @@
-@import "../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
+@use "../../styles/color";
+@use "../../styles/text";
 
 .card {
   border-radius: $border-radius-md;
@@ -62,14 +63,15 @@
     }
 
     h2 {
-      @include text-title-2xs;
-      padding: $spacing-sm 0;
+      @include text.title-2xs {
+        padding: $spacing-sm 0;
+      }
     }
 
     .lead {
       @include text-body-sm;
       padding: $spacing-md 0;
-      color: $color-grey-50;
+      color: color.$grey-50;
       display: flex;
       flex-direction: column;
       gap: $spacing-md;
@@ -124,7 +126,7 @@
       }
 
       input {
-        @include form-input;
+        @include mp_forms.form-input;
         flex-grow: 2;
         margin: 0;
         margin-bottom: $spacing-md;

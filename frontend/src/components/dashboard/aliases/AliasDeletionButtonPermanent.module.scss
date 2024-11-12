@@ -1,6 +1,6 @@
-@import "../../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
+@use "../../../styles/color";
 
 .deletion-button {
   display: inline-flex;
@@ -46,7 +46,7 @@
     overflow-wrap: break-word;
 
     hr {
-      border: 1px solid $color-grey-10;
+      border: 1px solid color.$grey-10;
       margin-top: $spacing-2xl;
     }
 
@@ -67,7 +67,7 @@
       display: block;
       text-align: center;
       padding: $spacing-lg $spacing-lg $spacing-sm;
-      color: $color-grey-50;
+      color: color.$grey-50;
       margin-bottom: $spacing-sm;
       user-select: auto;
       -webkit-user-select: auto; // Fixes overflow breaking in iOS devices (MPP-3686)
@@ -78,7 +78,7 @@
       font-weight: 600;
       text-align: center;
       padding: $spacing-sm $spacing-lg;
-      color: $color-grey-50;
+      color: color.$grey-50;
       margin: 0 auto $spacing-2xl auto;
 
       @media screen and #{$mq-md} {
@@ -116,7 +116,7 @@
     .warning-wrapper {
       position: relative;
       display: flex;
-      border-left: $border-radius-xs solid color $color-error;
+      border-left: $border-radius-xs solid color color.$error;
       align-items: center;
       padding-left: $spacing-sm;
       background-color: #fff;
@@ -131,7 +131,7 @@
 
         p {
           @include text-body-sm;
-          color: $color-grey-50;
+          color: color.$grey-50;
         }
       }
 

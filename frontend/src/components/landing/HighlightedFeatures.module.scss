@@ -1,5 +1,6 @@
-@import "../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "../../styles/color";
+@use "../../styles/text";
 
 .highlighted-feature-wrapper {
   display: flex;
@@ -64,9 +65,10 @@
 
   h2 {
     @include font-firefox;
-    @include text-title-sm;
-    justify-content: center;
-    width: 100%;
+    @include text.title-sm {
+      justify-content: center;
+      width: 100%;
+    }
   }
 
   .cta {

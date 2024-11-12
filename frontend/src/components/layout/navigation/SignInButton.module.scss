@@ -1,4 +1,5 @@
-@import "../../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "../../../styles/color";
 
 .sign-in-button {
   // We're using CSS's `currentColor` here because the colour
@@ -8,6 +9,6 @@
   padding: $spacing-xs $spacing-md;
 
   &:focus {
-    color: $color-blue-30;
+    color: color.$blue-30;
   }
 }

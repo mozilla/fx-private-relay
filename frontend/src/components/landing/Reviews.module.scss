@@ -1,5 +1,6 @@
-@import "../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "../../styles/color";
+@use "../../styles/text";
 
 .reviews {
   display: flex;
@@ -52,9 +53,10 @@
   }
 
   .logo-text {
-    @include text-title-xs;
-    font-weight: 600;
-    text-transform: uppercase;
+    @include text.title-xs {
+      font-weight: 600;
+      text-transform: uppercase;
+    }
   }
 }
 
@@ -75,14 +77,15 @@
 
   .rating {
     .title {
-      @include text-title-2xl;
-      font-family: $font-stack-firefox;
-      font-weight: 600;
+      @include text.title-2xl {
+        font-family: $font-stack-firefox;
+        font-weight: 600;
+      }
     }
 
     .text {
       @include text-body-sm;
-      color: $color-grey-40;
+      color: color.$grey-40;
       font-family: $font-stack-base;
       font-weight: 500;
     }
@@ -101,7 +104,7 @@
 
 .empty-star {
   color: $color-white;
-  stroke: $color-grey-20;
+  stroke: color.$grey-20;
   stroke-width: 2px;
 }
 
@@ -109,7 +112,7 @@
   appearance: none;
   border: none;
   padding: 0;
-  color: $color-grey-30;
+  color: color.$grey-30;
   background: transparent;
   width: $layout-sm;
   align-self: center;
@@ -206,7 +209,7 @@
 
     .source {
       @include text-body-sm;
-      color: $color-grey-30;
+      color: color.$grey-30;
     }
 
     .star {
@@ -283,7 +286,7 @@
     padding: $spacing-md 0;
 
     &:hover {
-      background-color: $color-grey-10;
+      background-color: color.$grey-10;
     }
 
     svg {

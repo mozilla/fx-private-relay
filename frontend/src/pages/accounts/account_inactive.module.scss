@@ -1,4 +1,4 @@
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 
 .error {
   background-color: $color-red-60;

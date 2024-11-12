@@ -1,4 +1,4 @@
-@import "~@mozilla-protocol/core/protocol/css/includes/tokens/dist/index.scss";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
 
 // See https://nextjs.org/docs/basic-features/built-in-css-support#sass-variables
 :export {

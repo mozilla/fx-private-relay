@@ -1,5 +1,6 @@
-@import "../../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "../../../styles/color";
+@use "../../../styles/text";
 
 .wrapper {
   align-items: center;
@@ -14,9 +15,10 @@
   color: white;
   overflow: hidden;
 
-  @include text-title-2xs;
-  padding: 0;
-  border-style: none;
+  @include text.title-2xs {
+    padding: 0;
+    border-style: none;
+  }
 }
 
 .popup {
@@ -57,7 +59,7 @@
           $popupBackgroundColor calc(100% - $gradientWidth),
           rgba(0, 0, 0, 0)
         ),
-        $firefoxGradient;
+        color.$firefoxGradient;
       margin-bottom: $spacing-md;
       padding: $spacing-lg;
       // To avoid overlapping .popup's rounded corners,

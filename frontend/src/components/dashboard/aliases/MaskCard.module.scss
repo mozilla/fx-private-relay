@@ -1,8 +1,8 @@
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "../../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "../../../styles/color";
 
 .card {
-  background-color: $color-white;
+  background-color: color.$white;
   border-radius: $border-radius-md;
   transition:
     box-shadow 200ms ease-in-out,
@@ -41,7 +41,7 @@
       @media screen and #{$mq-md} {
         // Same as .summary's gap:
         padding-inline-end: $spacing-sm;
-        border-right: 1px solid $color-grey-10;
+        border-right: 1px solid color.$grey-10;
       }
     }
 
@@ -63,7 +63,7 @@
       align-items: center;
       gap: $spacing-xs;
       background-color: transparent;
-      color: $color-blue-50;
+      color: color.$blue-50;
       border-style: none;
       font-family: $font-stack-firefox;
       font-weight: 500;
@@ -72,7 +72,7 @@
       overflow: inherit;
 
       &:hover {
-        color: $color-green-70;
+        color: color.$green-70;
       }
 
       samp {
@@ -90,7 +90,7 @@
     }
 
     .copied-confirmation {
-      background-color: $color-green-50;
+      background-color: color.$green-50;
       padding: $spacing-xs $spacing-sm;
       border-radius: $border-radius-md;
       font-weight: 600;
@@ -116,7 +116,7 @@
     .block-level-label {
       flex: 1 0 auto;
       text-align: end;
-      color: $color-grey-50;
+      color: color.$grey-50;
       display: none;
 
       @media screen and #{$mq-lg} {
@@ -133,7 +133,7 @@
     background-color: transparent;
     border-style: none;
     cursor: pointer;
-    color: $color-grey-40;
+    color: color.$grey-40;
     border-radius: $border-radius-sm;
     width: $layout-sm;
     z-index: 3; // Ensures that the button gets placed above the copied label (needed for long custom domains at viewport width ~ 780px)
@@ -143,8 +143,8 @@
     }
 
     &:hover {
-      background-color: $color-grey-05;
-      color: $color-blue-50;
+      background-color: color.$grey-05;
+      color: color.$blue-50;
     }
 
     svg {
@@ -175,7 +175,7 @@
     grid-template-rows: 1fr;
 
     .details {
-      border-top: 1px solid $color-grey-10;
+      border-top: 1px solid color.$grey-10;
 
       @media screen and #{$mq-md} {
         padding: $spacing-md $spacing-lg;
@@ -192,7 +192,7 @@
         display: flex;
         flex-direction: column;
         padding-inline: $spacing-md;
-        border-bottom: 1px solid $color-grey-10;
+        border-bottom: 1px solid color.$grey-10;
 
         .stat {
           display: flex;
@@ -200,7 +200,7 @@
           padding-block: $spacing-sm;
 
           &:not(:last-child) {
-            border-bottom: 1px solid $color-grey-10;
+            border-bottom: 1px solid color.$grey-10;
           }
 
           // De-emphasise stats for:
@@ -213,7 +213,7 @@
           .is-disabled &.trackers-removed-stat,
           // - forwarded emails when a mask is not forwarding emails.
           .is-disabled &.forwarded-stat {
-            color: $color-grey-40;
+            color: color.$grey-40;
           }
 
           dt {
@@ -237,7 +237,7 @@
           display: flex;
           flex-direction: column-reverse;
           align-items: center;
-          background-color: $color-grey-05;
+          background-color: color.$grey-05;
           padding: $spacing-sm;
           border-radius: $border-radius-sm;
 
@@ -251,7 +251,7 @@
           .is-disabled &.trackers-removed-stat,
           // - forwarded emails when a mask is not forwarding emails.
           .is-disabled &.forwarded-stat {
-            color: $color-grey-30;
+            color: color.$grey-30;
           }
 
           dd {
@@ -267,7 +267,7 @@
 
 .block-level {
   a {
-    color: $color-blue-50;
+    color: color.$blue-50;
     font-weight: 500;
 
     &:hover {
@@ -284,7 +284,7 @@
 
     .block-level-setting-description {
       @include text-body-sm;
-      background-color: $color-grey-05;
+      background-color: color.$grey-05;
       padding: $spacing-lg;
       border-radius: $border-radius-md;
       position: relative;
@@ -296,7 +296,7 @@
         position: absolute;
         top: -1 * $arrowWidth;
         transform: rotate(45deg);
-        background-color: $color-grey-05;
+        background-color: color.$grey-05;
       }
 
       &.without-chevron::after {
@@ -345,9 +345,9 @@
 
   .block-level-segmented-control {
     $toggle-border-radius: 40px;
-    background-color: $color-grey-05;
+    background-color: color.$grey-05;
     border-radius: $toggle-border-radius;
-    border: $border-radius-xs solid $color-grey-10;
+    border: $border-radius-xs solid color.$grey-10;
     padding: $spacing-xs;
     display: flex;
     align-items: center;
@@ -361,37 +361,37 @@
       gap: $spacing-sm;
       align-items: center;
       justify-content: center;
-      background-color: $color-white;
+      background-color: color.$white;
       border-radius: $toggle-border-radius;
       font-weight: 500;
-      color: $color-grey-40;
+      color: color.$grey-40;
       cursor: pointer;
 
       &:not(.is-selected) {
         &:hover {
-          background-color: $color-violet-30;
-          color: $color-white;
+          background-color: color.$violet-30;
+          color: color.$white;
         }
       }
 
       .is-selected &.is-disabled {
         &:hover {
-          border: 1px solid $color-violet-70;
+          border: 1px solid color.$violet-70;
         }
       }
 
       &.is-selected {
-        background-color: $color-violet-70;
-        color: $color-white;
+        background-color: color.$violet-70;
+        color: color.$white;
       }
 
       &.is-focused {
-        outline: 3px solid $color-blue-50;
+        outline: 3px solid color.$blue-50;
       }
 
       &.is-disabled {
         padding-inline: $spacing-md;
-        color: $color-grey-30;
+        color: color.$grey-30;
 
         @media screen and #{$mq-md} {
           svg {
@@ -402,7 +402,7 @@
 
       &.promo-selected {
         outline-width: 2px;
-        outline-color: $color-violet-70;
+        outline-color: color.$violet-70;
         outline-style: solid;
       }
     }
@@ -419,7 +419,7 @@
       display: flex;
       flex-direction: column;
       gap: $spacing-md;
-      border-top: 1px solid $color-grey-10;
+      border-top: 1px solid color.$grey-10;
       padding: $spacing-lg;
 
       dd {
@@ -435,14 +435,14 @@
     .deletion-button-wrapper {
       display: flex;
       flex-direction: column;
-      border-top: 1px solid $color-grey-10;
+      border-top: 1px solid color.$grey-10;
       padding: $spacing-md;
     }
   }
   @media screen and #{$mq-md} {
     display: flex;
     padding-block: $spacing-lg $spacing-sm;
-    border-top: 1px solid $color-grey-10;
+    border-top: 1px solid color.$grey-10;
 
     dl {
       display: flex;
@@ -451,14 +451,14 @@
 
       dt {
         @include text-body-sm;
-        color: $color-grey-50;
+        color: color.$grey-50;
       }
 
       dd {
         display: flex;
         align-items: center;
         gap: $spacing-sm;
-        color: $color-grey-60;
+        color: color.$grey-60;
       }
     }
 
@@ -471,7 +471,7 @@
 
 .promotions-locked-description-wrapper {
   margin-top: $spacing-md;
-  background: $color-grey-05;
+  background: color.$grey-05;
   border-radius: $border-radius-md;
   padding: $spacing-md;
   display: flex;
@@ -482,7 +482,7 @@
     display: flex;
     align-items: center;
     gap: $spacing-sm;
-    color: $color-grey-50;
+    color: color.$grey-50;
   }
 }
 
@@ -498,9 +498,9 @@
   width: $content-xs;
   position: absolute;
   padding: $spacing-sm $spacing-md;
-  color: $color-black;
-  background: $color-white;
-  border: solid 4px $color-purple-50;
+  color: color.$black;
+  background: color.$white;
+  border: solid 4px color.$purple-50;
   border-radius: $border-radius-md;
   right: $spacing-xl;
   box-shadow: $box-shadow-md;

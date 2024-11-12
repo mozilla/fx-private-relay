@@ -1,5 +1,6 @@
-@import "../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "../styles/color";
+@use "../styles/text";
 
 .faq-page {
   background-color: $color-blue-90;
@@ -27,10 +28,10 @@
 }
 
 .headline {
-  @include text-title-sm;
-  @include font-firefox;
-
-  padding-bottom: $spacing-xl;
+  @include text.title-sm {
+    @include font-firefox;
+    padding-bottom: $spacing-xl;
+  }
 }
 
 .faqs {
@@ -49,10 +50,10 @@
   }
 
   .question {
-    @include text-title-2xs;
-    @include font-firefox;
-
-    padding-bottom: $spacing-sm;
+    @include text.title-2xs {
+      @include font-firefox;
+      padding-bottom: $spacing-sm;
+    }
   }
 
   .answer {

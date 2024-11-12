@@ -1,6 +1,6 @@
-@import "~@mozilla-protocol/core/protocol/css/includes/tokens/dist/index";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
+@use "../../styles/text";
 
 .wrapper {
   display: flex;
@@ -32,7 +32,7 @@
         width: 100%;
 
         label {
-          @include field-label;
+          @include mp_forms.field-label;
           @include text-body-md;
           padding: 0;
         }
@@ -42,12 +42,12 @@
         }
 
         input {
-          @include form-input;
+          @include mp_forms.form-input;
           width: 100%;
         }
 
         select {
-          @include form-input;
+          @include mp_forms.form-input;
           width: 100%;
         }
       }
@@ -78,10 +78,11 @@
   }
 
   .heading {
-    @include text-title-sm;
-    font-family: $font-stack-firefox;
-    align-self: center;
-    text-align: center;
+    @include text.title-sm {
+      font-family: $font-stack-firefox;
+      align-self: center;
+      text-align: center;
+    }
   }
 
   .lead {

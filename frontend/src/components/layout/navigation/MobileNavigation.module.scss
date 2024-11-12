@@ -1,5 +1,6 @@
-@import "../../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "../../../styles/color";
+@use "../../../styles/text";
 
 .mobile-menu {
   width: 100%;
@@ -81,9 +82,10 @@
 .menu-item {
   display: flex;
 
-  @include text-display-xxs;
-  font-family: $font-stack-firefox;
-  border-bottom: 2px solid $color-light-gray-20;
+  @include text.display-xxs {
+    font-family: $font-stack-firefox;
+    border-bottom: 2px solid $color-light-gray-20;
+  }
 
   &.sign-up-menu-item {
     padding: $spacing-md;
@@ -98,7 +100,7 @@
     flex-direction: row;
     gap: $spacing-md;
     font-weight: 500;
-    color: $color-grey-40;
+    color: color.$grey-40;
     cursor: pointer;
 
     @media screen and (max-height: 700px) {
@@ -168,7 +170,7 @@
     flex-direction: row;
     display: flex;
     align-items: center;
-    color: $color-grey-40;
+    color: color.$grey-40;
 
     @include text-body-sm;
     gap: $spacing-sm;

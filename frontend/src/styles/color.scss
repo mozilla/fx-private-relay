@@ -1,0 +1,163 @@
+/*
+  next.js will rename the file if any of the content changes (after processing
+  and compression), which will invalidate the cache.  Django makes further
+  changes, such as fixing the sourcemap path. If an update to
+  django.contrib.staticfiles or RelayStaticFilesStorage changes the content,
+  increment the "cache version" comment below and in globals.scss to force a
+  content change and cache invalidation.
+*/
+/*! v=1 */
+
+$firefoxGradient: linear-gradient(
+  -90deg,
+  #ff9100 0%,
+  #f10366 50%,
+  #6173ff 100%
+);
+
+// For use with box-shadow:
+$buttonFocusOutline:
+  0 0 0 1px #0a84ff,
+  0 0 0 1px #0a84ff,
+  0 0 0 4px rgba(10, 132, 255, 0.3);
+
+// Overwrite the Protocol colours with Nebula colours:
+// Purple:
+$purple-90: #321c64;
+$purple-80: #45278d;
+$purple-70: #592acb;
+$purple-60: #7542e5;
+$purple-50: #9059ff;
+$purple-40: #ab71ff;
+$purple-30: #c689ff;
+$purple-20: #cb9eff;
+$purple-10: #d9bfff;
+$purple-05: #e7dfff;
+
+// Green:
+$green-90: #00736c;
+$green-80: #00a49a;
+$green-70: #1cc4a0;
+$green-60: #3ad4b3;
+$green-50: #3fe1b0;
+$green-40: #54ffbd;
+$green-30: #88ffd1;
+$green-20: #b3ffe3;
+$green-10: #d1ffee;
+$green-05: #e3fff3;
+
+// Neutral Colors
+// Grays:
+$black: #000000;
+$grey-60: #0c0c0d;
+$grey-50: #3d3d3d;
+$grey-40: #6d6d6e;
+$grey-30: #9e9e9e;
+$grey-20: #cececf;
+$grey-10: #e7e7e7;
+$grey-05: #f9f9fa;
+
+// Whites:
+$white: #ffffff;
+$white-80: rgba($white, 0.8);
+$white-60: rgba($white, 0.6);
+$white-40: rgba($white, 0.4);
+$white-20: rgba($white, 0.2);
+
+// Functional Colors
+// Informational:
+$informational: #0060df;
+$informational-active: #054096;
+$informational-hover: #0250bb;
+$informational-focus: #99bff2;
+
+// Success:
+$success: #3fe1b0;
+$success-active: #1cc4a0;
+$success-hover: #3ad4b3;
+$success-focus: #b3ffe3;
+
+// Error
+$error: #e22850;
+$error-active: #810220;
+$error-hover: #c50042;
+$error-focus: #ffbdc5;
+
+// Warning
+$warning: #ffa436;
+$warning-active: #c45a27;
+$warning-hover: #e27f2e;
+$warning-focus: #ffd5b2;
+
+// Secondary Colors
+// Violet
+$violet-90: #2b1141;
+$violet-80: #4e1a69;
+$violet-70: #722291;
+$violet-60: #952bb9;
+$violet-50: #b833e1;
+$violet-40: #d74cf0;
+$violet-30: #f770ff;
+$violet-20: #f68fff;
+$violet-10: #f6b8ff;
+$violet-05: #f7e2ff;
+
+// Blue
+$blue-90: #09204d;
+$blue-80: #073072;
+$blue-70: #054096;
+$blue-60: #0250bb;
+$blue-50: #0060df;
+$blue-40: #0090ed;
+$blue-30: #00b3f4;
+$blue-20: #00ddff;
+$blue-10: #80ebff;
+$blue-05: #aaf2ff;
+
+// Orange
+$orange-90: #7c1504;
+$orange-80: #9e280b;
+$orange-70: #cc3d00;
+$orange-60: #e25920;
+$orange-50: #ff7139;
+$orange-40: #ff8a50;
+$orange-30: #ffa266;
+$orange-20: #ffb587;
+$orange-10: #ffd5b2;
+$orange-05: #fff4de;
+
+// Yellow
+$yellow-90: #960e18;
+$yellow-80: #a7341f;
+$yellow-70: #c45a27;
+$yellow-60: #e27f2e;
+$yellow-50: #ffa436;
+$yellow-40: #ffbd4f;
+$yellow-30: #ffd567;
+$yellow-20: #ffea80;
+$yellow-10: #ffff98;
+$yellow-05: #ffffcc;
+
+// Red
+$red-90: #440306;
+$red-80: #810220;
+$red-70: #c50042;
+$red-60: #e22850;
+$red-50: #ff4f5e;
+$red-40: #ff6a75;
+$red-30: #ff848b;
+$red-20: #ff9aa2;
+$red-10: #ffbdc5;
+$red-05: #ffdfe7;
+
+// Pink
+$pink-90: #50134b;
+$pink-80: #7f145b;
+$pink-70: #c60084;
+$pink-60: #e31587;
+$pink-50: #ff298a;
+$pink-40: #ff4aa2;
+$pink-30: #ff6bba;
+$pink-20: #ff8ac5;
+$pink-10: #ffb4db;
+$pink-05: #ffdef0;

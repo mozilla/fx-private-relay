@@ -1,5 +1,5 @@
-@import "../../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "../../../styles/color";
 
 $toggleTransitionDuration: 200ms;
 
@@ -44,7 +44,7 @@ $trackerRemovalIndicatorWidth: 20px;
   button {
     border-style: none;
     background-color: transparent;
-    color: $color-grey-30;
+    color: color.$grey-30;
     display: flex;
     align-items: center;
     padding: 0 $spacing-xs;

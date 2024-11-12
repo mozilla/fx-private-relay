@@ -1,0 +1,83 @@
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+
+/*
+Re-declare mozilla-protocol v17.0.1 typography:
+ * text-title-* becomes title-*, text-display-xss becomes display-xss
+ * Mixins now take a @content block
+
+TODO MPP-3946: Replace with mozilla-protocol v18.0.0 overrides
+
+The v17.0.1 typography mixins are at:
+https://github.com/mozilla/protocol/blob/v17.0.1/assets/sass/protocol/includes/mixins/_typography.scss
+
+The next v18.0.0 typography mixins are at:
+https://github.com/mozilla/protocol/blob/v18.0.0/assets/sass/protocol/includes/mixins/_typography.scss
+*/
+
+@forward "~@mozilla-protocol/core/protocol/css/includes/mixins/typography" show
+  $font-stack-mozilla;
+
+@mixin title-2xl {
+  @include font-size(type-scale("title-xl-size"));
+  line-height: type-scale("title-xl-line-height");
+  @content;
+
+  @media #{$mq-md} {
+    @include font-size(type-scale("title-2xl-size"));
+    line-height: type-scale("title-2xl-line-height");
+  }
+}
+
+// @mixins text-title-xl and text-title-lg are not used by Relay
+
+@mixin title-md {
+  @include font-size(type-scale("title-sm-size"));
+  line-height: type-scale("title-sm-line-height");
+  @content;
+
+  @media #{$mq-md} {
+    @include font-size(type-scale("title-md-size"));
+    line-height: type-scale("title-md-line-height");
+  }
+}
+
+@mixin title-sm {
+  @include font-size(type-scale("title-xs-size"));
+  line-height: type-scale("title-xs-line-height");
+  @content;
+
+  @media #{$mq-md} {
+    @include font-size(type-scale("title-sm-size"));
+    line-height: type-scale("title-sm-line-height");
+  }
+}
+
+@mixin title-xs {
+  @include font-size(type-scale("title-2xs-size"));
+  line-height: type-scale("title-2xs-line-height");
+  @content;
+
+  @media #{$mq-md} {
+    @include font-size(type-scale("title-xs-size"));
+    line-height: type-scale("title-xs-line-height");
+  }
+}
+
+@mixin title-2xs {
+  @include font-size(type-scale("title-3xs-size"));
+  line-height: type-scale("title-3xs-line-height");
+  @content;
+
+  @media #{$mq-md} {
+    @include font-size(type-scale("title-2xs-size"));
+    line-height: type-scale("title-2xs-line-height");
+  }
+}
+
+// @mixins text-display-xxl through text-display-xs are not used by Relay
+
+@mixin display-xxs {
+  @include title-2xs {
+    @content;
+  }
+}

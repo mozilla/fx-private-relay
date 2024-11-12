@@ -1,5 +1,6 @@
-@import "../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "../styles/color";
+@use "../styles/text";
 
 .contains-tracker-container {
   margin: $layout-sm;
@@ -27,7 +28,7 @@
         font-family: $font-stack-firefox;
         color: $color-black;
         border: none;
-        background-color: $color-grey-10;
+        background-color: color.$grey-10;
         white-space: nowrap;
         align-self: center;
         margin: 0 0 0 auto;
@@ -51,14 +52,14 @@
       font-size: 18px;
       font-weight: 600;
       font-family: $font-stack-firefox;
-      color: $color-grey-50;
+      color: color.$grey-50;
     }
 
     p {
       font-size: 16px;
       font-weight: 400;
       font-family: $font-stack-base;
-      color: $color-grey-40;
+      color: color.$grey-40;
     }
   }
 
@@ -105,11 +106,12 @@
       }
 
       .headline {
-        @include text-title-xs;
-        font-family: $font-stack-firefox;
-        font-weight: 700;
-        padding: $spacing-md 0;
-        color: $color-violet-90;
+        @include text.title-xs {
+          font-family: $font-stack-firefox;
+          font-weight: 700;
+          padding: $spacing-md 0;
+          color: $color-violet-90;
+        }
 
         @media screen and #{$mq-md} {
           @include text-title-2xs;

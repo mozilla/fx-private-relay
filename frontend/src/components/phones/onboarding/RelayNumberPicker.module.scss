@@ -1,6 +1,7 @@
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
-@import "../../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
+@use "../../../styles/color";
+@use "../../../styles/text";
 
 .step,
 .controls {
@@ -34,9 +35,10 @@
   }
 
   h2 {
-    @include text-title-xs;
-    font-family: $font-stack-firefox;
-    text-align: center;
+    @include text.title-xs {
+      font-family: $font-stack-firefox;
+      text-align: center;
+    }
   }
 
   .lead {
@@ -87,7 +89,7 @@
     justify-items: center;
     text-align: center;
     gap: $spacing-md;
-    background-color: $color-white;
+    background-color: color.$white;
     padding: $spacing-lg $spacing-2xl;
     border-radius: $border-radius-md;
     box-shadow: $box-shadow-sm;
@@ -100,10 +102,11 @@
     }
 
     span {
-      @include text-title-2xs;
-      padding-top: $spacing-sm;
-      display: block;
-      font-weight: 700;
+      @include text.title-2xs {
+        padding-top: $spacing-sm;
+        display: block;
+        font-weight: 700;
+      }
     }
   }
 
@@ -137,7 +140,7 @@
         display: block;
       }
       h2 {
-        color: $color-error;
+        color: color.$error;
       }
     }
 
@@ -146,13 +149,13 @@
         display: block;
       }
       h2 {
-        color: $color-success;
+        color: color.$success;
       }
     }
   }
 
   form {
-    background-color: $color-white;
+    background-color: color.$white;
     box-shadow: $box-shadow-sm;
     padding: $spacing-lg;
     border-radius: $border-radius-md;
@@ -187,14 +190,14 @@
       padding: $spacing-sm;
       box-shadow: none;
       border: 0;
-      background-color: $color-grey-10;
+      background-color: color.$grey-10;
       letter-spacing: 1rem;
       text-align: center;
       width: 100%;
 
       &.is-error {
-        border: 2px solid $color-error;
-        outline: 4px solid $color-error-focus;
+        border: 2px solid color.$error;
+        outline: 4px solid color.$error-focus;
       }
 
       @media screen and #{$mq-md} {
@@ -206,7 +209,7 @@
 }
 
 .step-input-verificiation-code-success {
-  background-color: $color-white;
+  background-color: color.$white;
   box-shadow: $box-shadow-sm;
   border-radius: $border-radius-md;
   padding: $spacing-lg $spacing-2xl;
@@ -232,7 +235,7 @@
 }
 
 .step-select-phone-number-mask {
-  background-color: $color-white;
+  background-color: color.$white;
   box-shadow: $box-shadow-sm;
   border-radius: $border-radius-md;
   padding: $spacing-xl $spacing-lg;
@@ -274,7 +277,7 @@
   }
 
   .search {
-    @include form-input;
+    @include mp_forms.form-input;
     position: relative;
     padding-left: $layout-md;
     background: $spacing-sm center transparent no-repeat;

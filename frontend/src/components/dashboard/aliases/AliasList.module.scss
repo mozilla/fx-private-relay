@@ -1,6 +1,6 @@
-@import "../../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
+@use "../../../styles/color";
 
 // Resolves mobile extra spacing issues for 2nd step of updated free onboarding (MPP-3597).
 .alias-list-container {
@@ -92,7 +92,7 @@
   }
 
   input {
-    @include form-input;
+    @include mp_forms.form-input;
     margin: 0;
     background-image: url("/icons/search-blue.svg");
     background-repeat: no-repeat;
@@ -123,7 +123,7 @@
     // Make sure input in the input field isn't shown in the background
     background-color: $color-white;
     // Then give it the same borders as the input it's covering...
-    @include form-input;
+    @include mp_forms.form-input;
     // ...except where it intersects with the input:
     border-left: 0 solid transparent;
     border-top-left-radius: 0;

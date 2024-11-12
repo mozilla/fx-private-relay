@@ -1,6 +1,6 @@
-@import "../../../styles/tokens";
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
+@use "../../../styles/color";
 
 .underlay {
   position: fixed;
@@ -47,7 +47,7 @@
       border-style: none;
       background-color: transparent;
       cursor: pointer;
-      color: $color-grey-40;
+      color: color.$grey-40;
 
       &:hover {
         color: $color-link-hover;

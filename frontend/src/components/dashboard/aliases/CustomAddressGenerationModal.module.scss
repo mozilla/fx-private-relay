@@ -1,10 +1,10 @@
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
-@import "../../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "~@mozilla-protocol/core/protocol/css/includes/forms/lib" as mp_forms;
+@use "../../../styles/color";
 
 .underlay {
   position: fixed;
-  background-color: rgba($color-black, 0.4);
+  background-color: rgba(color.$black, 0.4);
   top: 0;
   bottom: 0;
   left: 0;
@@ -14,7 +14,7 @@
   justify-content: center;
 
   .dialog-wrapper {
-    background: $color-white;
+    background: color.$white;
     width: calc((#{$content-sm} + #{$content-md}) / 2); // 560px
     max-width: 90%;
     border-radius: $border-radius-md;
@@ -40,7 +40,7 @@
         position: absolute;
         box-shadow: $box-shadow-sm;
         border-radius: $border-radius-sm;
-        border-left: $border-radius-md solid color $color-error;
+        border-left: $border-radius-md solid color color.$error;
         align-items: center;
         padding: $spacing-sm $spacing-md $spacing-sm $spacing-sm;
         background-color: #fff;
@@ -61,10 +61,10 @@
           border-style: none;
           border-radius: $border-radius-sm;
           cursor: pointer;
-          color: $color-grey-30;
+          color: color.$grey-30;
 
           &:hover {
-            color: $color-blue-50;
+            color: color.$blue-50;
           }
         }
       }
@@ -88,13 +88,13 @@
       display: flex;
       gap: $spacing-sm;
       word-break: break-word;
-      border-left: 2px solid $color-violet-30;
+      border-left: 2px solid color.$violet-30;
       margin: 0 auto;
       width: 85%;
       padding-left: $spacing-sm;
       font-family: $font-stack-base;
       font-weight: 400;
-      color: $color-grey-50;
+      color: color.$grey-50;
 
       @include text-body-sm;
 
@@ -102,7 +102,7 @@
         // There is limited space on the mask creation modal on mobile.
         // Hiding this icon until larger screens increases the available space for copy.
         display: none;
-        color: $color-pink-30;
+        color: color.$pink-30;
 
         @media screen and #{$mq-sm} {
           display: block;
@@ -137,7 +137,7 @@
 
       .prefix {
         font-family: $font-stack-firefox;
-        color: $color-grey-50;
+        color: color.$grey-50;
         width: 70%;
         margin: 0 auto;
         display: flex;
@@ -151,31 +151,31 @@
         }
 
         .profile-registered-domain-value {
-          color: $color-blue-50;
+          color: color.$blue-50;
           word-break: break-word;
           margin-top: $spacing-md;
           margin-bottom: $spacing-2xl;
         }
 
         input {
-          @include form-input;
+          @include mp_forms.form-input;
           // Override form-input's margin:
           margin: $spacing-sm 0 0 0;
           font-weight: 400;
           padding: $spacing-sm;
-          color: $color-grey-40;
+          color: color.$grey-40;
           font-family: $font-stack-base;
 
           @include text-body-md;
           &.invalid-prefix:focus {
-            outline: 5px solid $color-red-10;
-            border: 2px solid $color-error;
+            outline: 5px solid color.$red-10;
+            border: 2px solid color.$error;
           }
         }
 
         input:focus {
-          outline: 5px solid rgba($color-informational, 0.4);
-          border: 2px solid $color-blue-50;
+          outline: 5px solid rgba(color.$informational, 0.4);
+          border: 2px solid color.$blue-50;
 
           + .wrapper {
             display: initial;
@@ -199,13 +199,13 @@
             }
 
             .check-icon {
-              color: $color-green-80;
+              color: color.$green-80;
               width: calc($spacing-md - $spacing-xs);
               height: calc($spacing-md - $spacing-xs);
             }
 
             .close-icon {
-              color: $color-error;
+              color: color.$error;
             }
           }
 
@@ -215,7 +215,7 @@
             @include text-body-sm;
             $triangleWidth: 10px;
             position: absolute;
-            background-color: $color-white;
+            background-color: color.$white;
             box-shadow: $box-shadow-sm;
             border-radius: $border-radius-sm;
             padding: $spacing-md;
@@ -226,7 +226,7 @@
             z-index: 1;
 
             &:after {
-              background-color: $color-white;
+              background-color: color.$white;
 
               content: "\00a0"; // Empty space to render the pseudo element for the tooltip triangle pointer
               display: block;
@@ -259,7 +259,7 @@
 
       p {
         font-weight: 700;
-        color: $color-purple-60;
+        color: color.$purple-60;
         width: 100%;
         text-align: center;
 
@@ -274,7 +274,7 @@
       gap: $spacing-sm;
       margin: $spacing-md $spacing-sm;
       font-family: $font-stack-firefox;
-      color: $color-grey-50;
+      color: color.$grey-50;
       font-weight: 600;
 
       @media screen and #{$mq-sm} {
@@ -284,21 +284,21 @@
       input[type="checkbox"] {
         width: 20px;
         height: 20px;
-        border: 2px solid $color-grey-40;
+        border: 2px solid color.$grey-40;
         border-radius: $border-radius-sm;
         -webkit-appearance: none;
       }
 
       input[type="checkbox"]:checked {
-        background-color: $color-blue-50;
-        border-color: $color-blue-50;
+        background-color: color.$blue-50;
+        border-color: color.$blue-50;
         appearance: checkbox;
       }
 
       .promotionals-blocking-description {
         a {
           display: block;
-          color: $color-blue-50;
+          color: color.$blue-50;
 
           &:hover {
             text-decoration: underline;
@@ -323,7 +323,7 @@
         background-color: transparent;
         cursor: pointer;
         border-radius: $border-radius-sm;
-        color: $color-blue-50;
+        color: color.$blue-50;
         padding: $spacing-sm 0;
 
         &:hover {
@@ -331,7 +331,7 @@
         }
 
         &:focus {
-          color: $color-blue-50;
+          color: color.$blue-50;
         }
       }
     }

@@ -1,5 +1,6 @@
-@import "~@mozilla-protocol/core/protocol/css/includes/lib";
-@import "../../../styles/tokens";
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "../../../styles/color";
+@use "../../../styles/text";
 
 .main-wrapper {
   display: flex;
@@ -19,9 +20,10 @@
     text-align: center;
 
     h1 {
-      @include text-title-xs;
-      @include font-firefox;
-      font-weight: 600;
+      @include text.title-xs {
+        @include font-firefox;
+        font-weight: 600;
+      }
     }
   }
 
@@ -78,14 +80,14 @@
         margin: 0;
         padding: 0;
         text-decoration: underline;
-        color: $color-blue-50;
+        color: color.$blue-50;
         cursor: pointer;
         font-weight: 500;
         background: none;
         border: none;
 
         &:hover {
-          color: $color-blue-80;
+          color: color.$blue-80;
         }
       }
 
@@ -142,7 +144,7 @@
             display: flex;
             flex-direction: column;
             padding: $spacing-sm;
-            background: $color-white;
+            background: color.$white;
             box-shadow: 0px 2px 12px rgba(0, 0, 0, 0.1); // Taken from Figma style to match it with the other svgs
             border-radius: $border-radius-md;
             list-style: none;
@@ -169,7 +171,7 @@
                 }
 
                 &:nth-child(2) {
-                  color: $color-blue-50;
+                  color: color.$blue-50;
                 }
               }
             }
