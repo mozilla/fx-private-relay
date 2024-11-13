@@ -46,13 +46,6 @@ except ImportError:
     HAS_SILK = False
 
 try:
-    import google.cloud.sqlcommenter  # noqa: F401
-
-    HAS_SQLCOMMENTER = True
-except ImportError:
-    HAS_SQLCOMMENTER = False
-
-try:
     from privaterelay.glean.server_events import GLEAN_EVENT_MOZLOG_TYPE
 except ImportError:
     # File may not be generated yet. Will be checked at initialization
@@ -404,9 +397,6 @@ MIDDLEWARE += [
     "privaterelay.middleware.AddDetectedCountryToRequestAndResponseHeaders",
     "privaterelay.middleware.StoreFirstVisit",
 ]
-
-if HAS_SQLCOMMENTER:
-    MIDDLEWARE.append("google.cloud.sqlcommenter.django.middleware.SqlCommenter")
 
 ROOT_URLCONF = "privaterelay.urls"
 
