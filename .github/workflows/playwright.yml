@@ -79,7 +79,7 @@ jobs:
           retention-days: 5
       - name: Send GitHub Action trigger data to Slack workflow
         id: slack
-        uses: slackapi/slack-github-action@v1.27.0
+        uses: slackapi/slack-github-action@v2.0.0
         if: failure()
         with:
           # For posting a rich message using Block Kit
