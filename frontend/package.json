@@ -50,7 +50,7 @@
     "eslint-config-next": "^15.0.3",
     "eslint-plugin-jest-dom": "^5.5.0",
     "eslint-plugin-testing-library": "^6.4.0",
-    "husky": "^9.1.6",
+    "husky": "^9.1.7",
     "jest": "^29.7.0",
     "jest-axe": "^9.0.0",
     "jest-environment-jsdom": "^29.7.0",
