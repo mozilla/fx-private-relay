@@ -3,22 +3,19 @@ import {
   useTreeState,
   TreeProps,
   TreeState,
-  MenuTriggerState,
   Item,
 } from "react-stately";
 import {
   useMenuTrigger,
   useButton,
-  useMenu,
   useOverlay,
   FocusScope,
   DismissButton,
   mergeProps,
   useMenuItem,
   useFocus,
-  AriaOverlayProps,
 } from "react-aria";
-import { HTMLAttributes, Key, ReactNode, useRef, useState } from "react";
+import { Key, ReactNode, useRef, useState } from "react";
 import { AriaMenuItemProps } from "@react-aria/menu";
 import Link from "next/link";
 import styles from "./UserMenu.module.scss";
@@ -37,6 +34,7 @@ import { useRuntimeData } from "../../../hooks/api/runtimeData";
 import { setCookie } from "../../../functions/cookies";
 import { useGaEvent } from "../../../hooks/gaEvent";
 import { useL10n } from "../../../hooks/l10n";
+import { MenuPopupProps, useMenu } from "../../../hooks/menu";
 
 export type Props = {
   style: string;
@@ -266,12 +264,7 @@ const UserMenuTrigger = ({
   );
 };
 
-type UserMenuPopupProps = TreeProps<Record<string, never>> & {
-  onAction: AriaMenuItemProps["onAction"];
-  domProps: HTMLAttributes<HTMLElement>;
-  onClose?: AriaOverlayProps["onClose"];
-  autoFocus?: MenuTriggerState["focusStrategy"];
-};
+type UserMenuPopupProps = MenuPopupProps<Record<string, never>>;
 const UserMenuPopup = (props: UserMenuPopupProps) => {
   const popupState = useTreeState({ ...props, selectionMode: "none" });
 

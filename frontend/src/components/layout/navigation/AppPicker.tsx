@@ -3,30 +3,19 @@ import {
   useTreeState,
   TreeProps,
   TreeState,
-  MenuTriggerState,
   Item,
 } from "react-stately";
 import {
   useMenuTrigger,
   useButton,
-  useMenu,
   useOverlay,
   FocusScope,
   DismissButton,
   mergeProps,
   useMenuItem,
   useFocus,
-  AriaOverlayProps,
 } from "react-aria";
-import {
-  HTMLAttributes,
-  Key,
-  ReactNode,
-  useRef,
-  useState,
-  useEffect,
-  RefObject,
-} from "react";
+import { Key, ReactNode, useRef, useState, useEffect, RefObject } from "react";
 import { AriaMenuItemProps } from "@react-aria/menu";
 import styles from "./AppPicker.module.scss";
 import FirefoxLogo from "../images/fx.png";
@@ -41,6 +30,7 @@ import { BentoIcon } from "../../Icons";
 import Image from "../../Image";
 import { useGaEvent } from "../../../hooks/gaEvent";
 import { useL10n } from "../../../hooks/l10n";
+import { MenuPopupProps, useMenu } from "../../../hooks/menu";
 
 const getProducts = (referringSiteUrl: string) => ({
   monitor: {
@@ -302,12 +292,7 @@ const AppPickerTrigger = ({
   );
 };
 
-type AppPickerPopupProps = TreeProps<Record<string, never>> & {
-  onAction: AriaMenuItemProps["onAction"];
-  domProps: HTMLAttributes<HTMLElement>;
-  onClose?: AriaOverlayProps["onClose"];
-  autoFocus?: MenuTriggerState["focusStrategy"];
-};
+type AppPickerPopupProps = MenuPopupProps<Record<string, never>>;
 const AppPickerPopup = (props: AppPickerPopupProps) => {
   const l10n = useL10n();
   const popupState = useTreeState({ ...props, selectionMode: "none" });
