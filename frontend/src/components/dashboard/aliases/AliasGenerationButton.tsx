@@ -2,32 +2,22 @@ import {
   FocusScope,
   useOverlay,
   useMenuTrigger,
-  useMenu,
   DismissButton,
   mergeProps,
   useMenuItem,
   useFocus,
   useButton,
-  AriaOverlayProps,
 } from "react-aria";
 import { AriaMenuItemProps } from "@react-aria/menu";
 import {
   Item,
-  MenuTriggerState,
   TreeProps,
   TreeState,
   useMenuTriggerState,
   useOverlayTriggerState,
   useTreeState,
 } from "react-stately";
-import {
-  HTMLAttributes,
-  Key,
-  ReactNode,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { Key, ReactNode, useEffect, useRef, useState } from "react";
 import styles from "./AliasGenerationButton.module.scss";
 import { ArrowDownIcon, PlusIcon } from "../../Icons";
 import { ProfileData } from "../../../hooks/api/profile";
@@ -41,6 +31,7 @@ import { CustomAddressGenerationModal } from "./CustomAddressGenerationModal";
 import { useGaEvent } from "../../../hooks/gaEvent";
 import { useL10n } from "../../../hooks/l10n";
 import { isFlagActive } from "../../../functions/waffle";
+import { MenuPopupProps, useMenu } from "../../../hooks/menu";
 import { AddressPickerModal } from "./AddressPickerModal";
 
 export type Props = {
@@ -301,12 +292,7 @@ const AliasTypeMenuButton = (props: AliasTypeMenuButtonProps) => {
   );
 };
 
-type AliasTypeMenuPopupProps = TreeProps<Record<string, never>> & {
-  onAction: AriaMenuItemProps["onAction"];
-  domProps: HTMLAttributes<HTMLElement>;
-  onClose?: AriaOverlayProps["onClose"];
-  autoFocus?: MenuTriggerState["focusStrategy"];
-};
+type AliasTypeMenuPopupProps = MenuPopupProps<Record<string, never>>;
 const AliasTypeMenuPopup = (props: AliasTypeMenuPopupProps) => {
   const popupState = useTreeState({ ...props, selectionMode: "none" });
 
