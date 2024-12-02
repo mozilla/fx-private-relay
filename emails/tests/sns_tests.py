@@ -14,9 +14,16 @@ from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from cryptography.x509.oid import NameOID
+from OpenSSL.crypto import Error
 from pytest_django.fixtures import SettingsWrapper
 
-from ..sns import NOTIFICATION_HASH_FORMAT, _grab_keyfile, verify_from_sns
+from ..sns import (
+    NOTIFICATION_HASH_FORMAT,
+    NOTIFICATION_WITHOUT_SUBJECT_HASH_FORMAT,
+    SUBSCRIPTION_HASH_FORMAT,
+    _grab_keyfile,
+    verify_from_sns,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -143,6 +150,70 @@ def test_verify_from_sns_notification_with_subject_ver1(
         "SignatureVersion": 1,
     }
     text_to_sign = NOTIFICATION_HASH_FORMAT.format(**json_body)
+    signature = key.sign(text_to_sign.encode(), padding.PKCS1v15(), hashes.SHA1())
+    json_body["Signature"] = b64encode(signature).decode()
+    ret = verify_from_sns(json_body)
+    assert ret == json_body
+
+
+def test_verify_from_sns_notification_with_subject_ver1_fails(
+    signing_cert_url_and_private_key: tuple[str, rsa.RSAPrivateKey],
+) -> None:
+    cert_url, key = signing_cert_url_and_private_key
+    json_body = {
+        "Type": "Notification",
+        "Message": "message",
+        "MessageId": "message_id",
+        "Subject": "subject",
+        "Timestamp": "timestamp",
+        "TopicArn": "topic_arn",
+        "SigningCertURL": cert_url,
+        "SignatureVersion": 1,
+    }
+    text_to_sign = NOTIFICATION_HASH_FORMAT.format(**json_body)
+    signature = key.sign(text_to_sign.encode(), padding.PKCS1v15(), hashes.SHA1())
+    json_body["Signature"] = b64encode(signature).decode()
+    json_body["Message"] = "different message"
+    with pytest.raises(Error):
+        verify_from_sns(json_body)
+
+
+def test_verify_from_sns_notification_without_subject_ver1(
+    signing_cert_url_and_private_key: tuple[str, rsa.RSAPrivateKey],
+) -> None:
+    cert_url, key = signing_cert_url_and_private_key
+    json_body = {
+        "Type": "Notification",
+        "Message": "message",
+        "MessageId": "message_id",
+        "Timestamp": "timestamp",
+        "TopicArn": "topic_arn",
+        "SigningCertURL": cert_url,
+        "SignatureVersion": 1,
+    }
+    text_to_sign = NOTIFICATION_WITHOUT_SUBJECT_HASH_FORMAT.format(**json_body)
+    signature = key.sign(text_to_sign.encode(), padding.PKCS1v15(), hashes.SHA1())
+    json_body["Signature"] = b64encode(signature).decode()
+    ret = verify_from_sns(json_body)
+    assert ret == json_body
+
+
+def test_verify_from_sns_subscription_ver1(
+    signing_cert_url_and_private_key: tuple[str, rsa.RSAPrivateKey],
+) -> None:
+    cert_url, key = signing_cert_url_and_private_key
+    json_body = {
+        "Type": "Subscription",
+        "Message": "message",
+        "MessageId": "message_id",
+        "SubscribeURL": "subscribe_url",
+        "Timestamp": "timestamp",
+        "Token": "token",
+        "TopicArn": "topic_arn",
+        "SigningCertURL": cert_url,
+        "SignatureVersion": 1,
+    }
+    text_to_sign = SUBSCRIPTION_HASH_FORMAT.format(**json_body)
     signature = key.sign(text_to_sign.encode(), padding.PKCS1v15(), hashes.SHA1())
     json_body["Signature"] = b64encode(signature).decode()
     ret = verify_from_sns(json_body)
