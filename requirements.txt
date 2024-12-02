@@ -25,7 +25,7 @@ jwcrypto==1.5.6
 markus[datadog]==5.1.0
 pem==23.1.0
 psycopg[c]==3.2.3
-PyJWT==2.10.0
+PyJWT==2.10.1
 python-decouple==3.8
 pyOpenSSL==24.2.1
 requests==2.32.3
