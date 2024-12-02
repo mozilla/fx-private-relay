@@ -58,12 +58,12 @@ def key_and_cert() -> tuple[rsa.RSAPrivateKey, x509.Certificate]:
 
 
 @pytest.fixture
-def cached_signing_key(
+def signing_cert_url_and_private_key(
     key_and_cert: tuple[rsa.RSAPrivateKey, x509.Certificate],
     key_cache: BaseCache,
     settings: SettingsWrapper,
 ) -> tuple[str, rsa.RSAPrivateKey]:
-    """Store the signing certificate in the cache."""
+    """Return the URL and private key for a cached signing certificate."""
     cert_url = f"https://sns.{settings.AWS_REGION}.amazonaws.com/cert.pem"
     key, cert = key_and_cert
     cert_pem = cert.public_bytes(serialization.Encoding.PEM)
@@ -129,9 +129,9 @@ def test_grab_keyfile_cert_chain_fails(
 
 
 def test_verify_from_sns_notification_with_subject_ver1(
-    cached_signing_key: tuple[str, rsa.RSAPrivateKey],
+    signing_cert_url_and_private_key: tuple[str, rsa.RSAPrivateKey],
 ) -> None:
-    cert_url, key = cached_signing_key
+    cert_url, key = signing_cert_url_and_private_key
     json_body = {
         "Type": "Notification",
         "Message": "message",
