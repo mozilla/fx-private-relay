@@ -64,6 +64,13 @@ SUPPORTED_SNS_TYPES = [
 
 
 def verify_from_sns(json_body):
+    """
+    Check that the SNS message was signed by the cetificate.
+
+    https://docs.aws.amazon.com/sns/latest/dg/sns-verify-signature-of-message.html
+
+    TODO MPP-3852: Stop using OpenSSL.crypto
+    """
     pemfile = _grab_keyfile(json_body["SigningCertURL"])
     cert = crypto.load_certificate(crypto.FILETYPE_PEM, pemfile)
     signature = base64.decodebytes(json_body["Signature"].encode("utf-8"))
