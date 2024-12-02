@@ -69,6 +69,9 @@ def verify_from_sns(json_body):
 
     https://docs.aws.amazon.com/sns/latest/dg/sns-verify-signature-of-message.html
 
+    Only supports SignatureVersion 1. SignatureVersion 2 (SHA256) was added in
+    September 2022, and requires opt-in.
+
     TODO MPP-3852: Stop using OpenSSL.crypto
     """
     pemfile = _grab_keyfile(json_body["SigningCertURL"])
