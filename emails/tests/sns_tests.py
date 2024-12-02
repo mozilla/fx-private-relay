@@ -1,3 +1,6 @@
+# ruff: noqa: S303  # Use of insecure SHA1 hash function
+
+from base64 import b64encode
 from collections.abc import Iterator
 from datetime import UTC, datetime, timedelta
 from io import BytesIO
@@ -9,19 +12,19 @@ from django.core.exceptions import SuspiciousOperation
 import pytest
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from cryptography.x509.oid import NameOID
 from pytest_django.fixtures import SettingsWrapper
 
-from ..sns import _grab_keyfile
+from ..sns import NOTIFICATION_HASH_FORMAT, _grab_keyfile, verify_from_sns
 
 
 @pytest.fixture(autouse=True)
-def pem_cache(settings: SettingsWrapper) -> Iterator[BaseCache]:
-    pem_cache = caches[getattr(settings, "AWS_SNS_KEY_CACHE", "default")]
-    pem_cache.clear()
-    yield pem_cache
-    pem_cache.clear()
+def key_cache(settings: SettingsWrapper) -> Iterator[BaseCache]:
+    key_cache = caches[getattr(settings, "AWS_SNS_KEY_CACHE", "default")]
+    key_cache.clear()
+    yield key_cache
+    key_cache.clear()
 
 
 @pytest.fixture
@@ -64,7 +67,7 @@ def test_grab_keyfile_checks_cert_url_origin(mock_urlopen: Mock) -> None:
 def test_grab_keyfile_downloads_valid_certificate(
     mock_urlopen: Mock,
     key_and_cert: tuple[rsa.RSAPrivateKey, x509.Certificate],
-    pem_cache: BaseCache,
+    key_cache: BaseCache,
     settings: SettingsWrapper,
 ) -> None:
     cert_url = f"https://sns.{settings.AWS_REGION}.amazonaws.com/cert.pem"
@@ -74,17 +77,17 @@ def test_grab_keyfile_downloads_valid_certificate(
     ret_value = _grab_keyfile(cert_url)
     mock_urlopen.assert_called_once_with(cert_url)
     assert ret_value == cert_pem
-    assert pem_cache.get(cert_url) == cert_pem
+    assert key_cache.get(cert_url) == cert_pem
 
 
 def test_grab_keyfile_reads_from_cache(
     mock_urlopen: Mock,
-    pem_cache: BaseCache,
+    key_cache: BaseCache,
     settings: SettingsWrapper,
 ) -> None:
     cert_url = f"https://sns.{settings.AWS_REGION}.amazonaws.com/cert.pem"
     fake_pem = b"I am fake"
-    pem_cache.set(cert_url, fake_pem)
+    key_cache.set(cert_url, fake_pem)
     ret_value = _grab_keyfile(cert_url)
     assert ret_value == fake_pem
     mock_urlopen.assert_not_called()
@@ -93,7 +96,7 @@ def test_grab_keyfile_reads_from_cache(
 def test_grab_keyfile_cert_chain_fails(
     mock_urlopen: Mock,
     key_and_cert: tuple[rsa.RSAPrivateKey, x509.Certificate],
-    pem_cache: BaseCache,
+    key_cache: BaseCache,
     settings: SettingsWrapper,
 ) -> None:
     cert_url = f"https://sns.{settings.AWS_REGION}.amazonaws.com/cert.pem"
@@ -103,3 +106,30 @@ def test_grab_keyfile_cert_chain_fails(
     mock_urlopen.return_value = BytesIO(two_cert_pem)
     with pytest.raises(ValueError, match="Invalid Certificate File"):
         _grab_keyfile(cert_url)
+
+
+def test_verify_from_sns_notification_with_subject_ver1(
+    key_and_cert: tuple[rsa.RSAPrivateKey, x509.Certificate],
+    key_cache: BaseCache,
+    settings: SettingsWrapper,
+) -> None:
+    cert_url = f"https://sns.{settings.AWS_REGION}.amazonaws.com/cert.pem"
+    key, cert = key_and_cert
+    cert_pem = cert.public_bytes(serialization.Encoding.PEM)
+    key_cache.set(cert_url, cert_pem)
+
+    json_body = {
+        "Type": "Notification",
+        "Message": "message",
+        "MessageId": "message_id",
+        "Subject": "subject",
+        "Timestamp": "timestamp",
+        "TopicArn": "topic_arn",
+        "SigningCertURL": cert_url,
+        "SignatureVersion": 1,
+    }
+    text_to_sign = NOTIFICATION_HASH_FORMAT.format(**json_body)
+    signature = key.sign(text_to_sign.encode(), padding.PKCS1v15(), hashes.SHA1())
+    json_body["Signature"] = b64encode(signature).decode()
+    ret = verify_from_sns(json_body)
+    assert ret == json_body
