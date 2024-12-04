@@ -112,11 +112,25 @@ def _get_hash_format(json_body: dict[str, Any]) -> str:
 
 
 def _get_signing_public_key(cert_url: str) -> rsa.RSAPublicKey:
-    pemfile = _grab_keyfile(cert_url)
+    cert_url_origin = f"https://sns.{settings.AWS_REGION}.amazonaws.com/"
+    if not (cert_url.startswith(cert_url_origin)):
+        raise SuspiciousOperation(
+            f'SNS SigningCertURL "{cert_url}" did not start with "{cert_url_origin}"'
+        )
+
+    key_cache = caches[getattr(settings, "AWS_SNS_KEY_CACHE", "default")]
+    pemfile = key_cache.get(cert_url)
+
+    set_cache = False
+    if not pemfile:
+        set_cache = True
+        response = urlopen(cert_url)  # noqa: S310 (check for custom scheme)
+        pemfile = response.read()
 
     # Extract the first certificate in the file and confirm it's a valid
     # PEM certificate
     certs = x509.load_pem_x509_certificates(pemfile)
+
     # A proper certificate file will contain 1 certificate
     if len(certs) != 1:
         raise VerificationFailed(
@@ -125,36 +139,7 @@ def _get_signing_public_key(cert_url: str) -> rsa.RSAPublicKey:
     cert_pubkey = certs[0].public_key()
     if not isinstance(cert_pubkey, rsa.RSAPublicKey):
         raise VerificationFailed(f"SigningCertURL {cert_url} is not an RSA key")
-    return cert_pubkey
 
-
-def _grab_keyfile(cert_url: str) -> bytes:
-    cert_url_origin = f"https://sns.{settings.AWS_REGION}.amazonaws.com/"
-    if not (cert_url.startswith(cert_url_origin)):
-        raise SuspiciousOperation(
-            f'SNS SigningCertURL "{cert_url}" did not start with "{cert_url_origin}"'
-        )
-
-    key_cache = caches[getattr(settings, "AWS_SNS_KEY_CACHE", "default")]
-
-    pemfile = key_cache.get(cert_url)
-    if not pemfile:
-        response = urlopen(cert_url)  # noqa: S310 (check for custom scheme)
-        pemfile = response.read()
-
-        # Extract the first certificate in the file and confirm it's a valid
-        # PEM certificate
-        certs = x509.load_pem_x509_certificates(pemfile)
-        # A proper certificate file will contain 1 certificate
-        if len(certs) != 1:
-            raise VerificationFailed(
-                f"SigningCertURL {cert_url} has {len(certs)} certificates."
-            )
-        cert_pubkey = certs[0].public_key()
-        if not isinstance(cert_pubkey, rsa.RSAPublicKey):
-            raise VerificationFailed(f"SigningCertURL {cert_url} is not an RSA key")
-
+    if set_cache:
         key_cache.set(cert_url, pemfile)
-    if not isinstance(pemfile, bytes):  # pragma: no cover
-        raise ValueError(f"pemfile is {type(pemfile)}, not bytes")
-    return pemfile
+    return cert_pubkey
