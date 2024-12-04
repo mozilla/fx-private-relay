@@ -3,6 +3,7 @@
 
 import base64
 import logging
+from typing import Any
 from urllib.request import urlopen
 
 from django.conf import settings
@@ -71,9 +72,9 @@ class VerificationFailed(ValueError):
     pass
 
 
-def verify_from_sns(json_body):
+def verify_from_sns(json_body: dict[str, Any]) -> dict[str, Any]:
     """
-    Check that the SNS message was signed by the cetificate.
+    Raise an exception if SNS signature verification fails.
 
     https://docs.aws.amazon.com/sns/latest/dg/sns-verify-signature-of-message.html
 
@@ -105,7 +106,7 @@ def verify_from_sns(json_body):
     return json_body
 
 
-def _get_hash_format(json_body):
+def _get_hash_format(json_body: dict[str, Any]) -> str:
     message_type = json_body["Type"]
     if message_type == "Notification":
         if "Subject" in json_body.keys():
@@ -115,7 +116,7 @@ def _get_hash_format(json_body):
     return SUBSCRIPTION_HASH_FORMAT
 
 
-def _grab_keyfile(cert_url):
+def _grab_keyfile(cert_url: str) -> bytes:
     cert_url_origin = f"https://sns.{settings.AWS_REGION}.amazonaws.com/"
     if not (cert_url.startswith(cert_url_origin)):
         raise SuspiciousOperation(
@@ -142,4 +143,6 @@ def _grab_keyfile(cert_url):
             raise VerificationFailed(f"SigningCertURL {cert_url} is not an RSA key")
 
         key_cache.set(cert_url, pemfile)
+    if not isinstance(pemfile, bytes):  # pragma: no cover
+        raise ValueError(f"pemfile is {type(pemfile)}, not bytes")
     return pemfile
