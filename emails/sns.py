@@ -11,7 +11,10 @@ from django.core.exceptions import SuspiciousOperation
 from django.utils.encoding import smart_bytes
 
 import pem
-from OpenSSL import crypto
+from cryptography import x509
+from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding, rsa
 
 logger = logging.getLogger("events")
 
@@ -63,6 +66,10 @@ SUPPORTED_SNS_TYPES = [
 ]
 
 
+class VerificationFailed(ValueError):
+    pass
+
+
 def verify_from_sns(json_body):
     """
     Check that the SNS message was signed by the cetificate.
@@ -71,18 +78,29 @@ def verify_from_sns(json_body):
 
     Only supports SignatureVersion 1. SignatureVersion 2 (SHA256) was added in
     September 2022, and requires opt-in.
-
-    TODO MPP-3852: Stop using OpenSSL.crypto
     """
-    pemfile = _grab_keyfile(json_body["SigningCertURL"])
-    cert = crypto.load_certificate(crypto.FILETYPE_PEM, pemfile)
-    signature = base64.decodebytes(json_body["Signature"].encode("utf-8"))
+    signing_cert_url = json_body["SigningCertURL"]
+    pemfile = _grab_keyfile(signing_cert_url)
+    cert = x509.load_pem_x509_certificate(pemfile)
+    signature = base64.decodebytes(json_body["Signature"].encode())
 
     hash_format = _get_hash_format(json_body)
+    cert_pubkey = cert.public_key()
+    if not isinstance(cert_pubkey, rsa.RSAPublicKey):
+        raise VerificationFailed(f"SigningCertURL {signing_cert_url} is not an RSA key")
 
-    crypto.verify(
-        cert, signature, hash_format.format(**json_body).encode("utf-8"), "sha1"
-    )
+    try:
+        cert_pubkey.verify(
+            signature,
+            hash_format.format(**json_body).encode(),
+            padding.PKCS1v15(),
+            hashes.SHA1(),  # noqa: S303  # Use of insecure hash SHA1
+        )
+    except InvalidSignature as e:
+        raise VerificationFailed(
+            f"Invalid signature with SigningCertURL {signing_cert_url}"
+        ) from e
+
     return json_body
 
 

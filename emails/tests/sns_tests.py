@@ -14,13 +14,13 @@ from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from cryptography.x509.oid import NameOID
-from OpenSSL.crypto import Error
 from pytest_django.fixtures import SettingsWrapper
 
 from ..sns import (
     NOTIFICATION_HASH_FORMAT,
     NOTIFICATION_WITHOUT_SUBJECT_HASH_FORMAT,
     SUBSCRIPTION_HASH_FORMAT,
+    VerificationFailed,
     _grab_keyfile,
     verify_from_sns,
 )
@@ -174,7 +174,7 @@ def test_verify_from_sns_notification_with_subject_ver1_fails(
     signature = key.sign(text_to_sign.encode(), padding.PKCS1v15(), hashes.SHA1())
     json_body["Signature"] = b64encode(signature).decode()
     json_body["Message"] = "different message"
-    with pytest.raises(Error):
+    with pytest.raises(VerificationFailed):
         verify_from_sns(json_body)
 
 
