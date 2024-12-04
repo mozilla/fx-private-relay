@@ -64,6 +64,17 @@ def key_and_cert() -> tuple[rsa.RSAPrivateKey, x509.Certificate]:
     return key, cert
 
 
+def _cache_key(cert_url: str) -> str:
+    return f"{cert_url}:public_key"
+
+
+def _public_pem(cert_or_private_key: rsa.RSAPrivateKey | x509.Certificate) -> bytes:
+    return cert_or_private_key.public_key().public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo,
+    )
+
+
 @pytest.fixture
 def signing_cert_url_and_private_key(
     key_and_cert: tuple[rsa.RSAPrivateKey, x509.Certificate],
@@ -73,8 +84,7 @@ def signing_cert_url_and_private_key(
     """Return the URL and private key for a cached signing certificate."""
     cert_url = f"https://sns.{settings.AWS_REGION}.amazonaws.com/cert.pem"
     key, cert = key_and_cert
-    cert_pem = cert.public_bytes(serialization.Encoding.PEM)
-    key_cache.set(cert_url, cert_pem)
+    key_cache.set(_cache_key(cert_url), _public_pem(cert))
     return cert_url, key
 
 
@@ -84,7 +94,7 @@ def mock_urlopen() -> Iterator[Mock]:
         yield mock_urlopen
 
 
-def test_get_signing_public_key(mock_urlopen: Mock) -> None:
+def test_get_signing_public_key_suspicious_url(mock_urlopen: Mock) -> None:
     cert_url = "https://attacker.com/cert.pem"
     with pytest.raises(SuspiciousOperation):
         _get_signing_public_key(cert_url)
@@ -104,7 +114,7 @@ def test_get_signing_public_key_downloads_valid_certificate(
     ret_value = _get_signing_public_key(cert_url)
     mock_urlopen.assert_called_once_with(cert_url)
     assert ret_value == cert.public_key()
-    assert key_cache.get(cert_url) == cert_pem
+    assert key_cache.get(_cache_key(cert_url)) == _public_pem(cert)
 
 
 def test_get_signing_public_key_reads_from_cache(
@@ -115,8 +125,7 @@ def test_get_signing_public_key_reads_from_cache(
 ) -> None:
     cert_url = f"https://sns.{settings.AWS_REGION}.amazonaws.com/cert.pem"
     _, cert = key_and_cert
-    cert_pem = cert.public_bytes(serialization.Encoding.PEM)
-    key_cache.set(cert_url, cert_pem)
+    key_cache.set(_cache_key(cert_url), _public_pem(cert))
     ret_value = _get_signing_public_key(cert_url)
     assert ret_value == cert.public_key()
     mock_urlopen.assert_not_called()
