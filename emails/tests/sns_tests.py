@@ -21,7 +21,7 @@ from ..sns import (
     NOTIFICATION_WITHOUT_SUBJECT_HASH_FORMAT,
     SUBSCRIPTION_HASH_FORMAT,
     VerificationFailed,
-    _grab_keyfile,
+    _get_signing_public_key,
     verify_from_sns,
 )
 
@@ -84,43 +84,45 @@ def mock_urlopen() -> Iterator[Mock]:
         yield mock_urlopen
 
 
-def test_grab_keyfile_checks_cert_url_origin(mock_urlopen: Mock) -> None:
+def test_get_signing_public_key(mock_urlopen: Mock) -> None:
     cert_url = "https://attacker.com/cert.pem"
     with pytest.raises(SuspiciousOperation):
-        _grab_keyfile(cert_url)
+        _get_signing_public_key(cert_url)
     mock_urlopen.assert_not_called()
 
 
-def test_grab_keyfile_downloads_valid_certificate(
+def test_get_signing_public_key_downloads_valid_certificate(
     mock_urlopen: Mock,
     key_and_cert: tuple[rsa.RSAPrivateKey, x509.Certificate],
     key_cache: BaseCache,
     settings: SettingsWrapper,
 ) -> None:
     cert_url = f"https://sns.{settings.AWS_REGION}.amazonaws.com/cert.pem"
-    key, cert = key_and_cert
+    _, cert = key_and_cert
     cert_pem = cert.public_bytes(serialization.Encoding.PEM)
     mock_urlopen.return_value = BytesIO(cert_pem)
-    ret_value = _grab_keyfile(cert_url)
+    ret_value = _get_signing_public_key(cert_url)
     mock_urlopen.assert_called_once_with(cert_url)
-    assert ret_value == cert_pem
+    assert ret_value == cert.public_key()
     assert key_cache.get(cert_url) == cert_pem
 
 
-def test_grab_keyfile_reads_from_cache(
+def test_get_signing_public_key_reads_from_cache(
     mock_urlopen: Mock,
+    key_and_cert: tuple[rsa.RSAPrivateKey, x509.Certificate],
     key_cache: BaseCache,
     settings: SettingsWrapper,
 ) -> None:
     cert_url = f"https://sns.{settings.AWS_REGION}.amazonaws.com/cert.pem"
-    fake_pem = b"I am fake"
-    key_cache.set(cert_url, fake_pem)
-    ret_value = _grab_keyfile(cert_url)
-    assert ret_value == fake_pem
+    _, cert = key_and_cert
+    cert_pem = cert.public_bytes(serialization.Encoding.PEM)
+    key_cache.set(cert_url, cert_pem)
+    ret_value = _get_signing_public_key(cert_url)
+    assert ret_value == cert.public_key()
     mock_urlopen.assert_not_called()
 
 
-def test_grab_keyfile_cert_chain_fails(
+def test_get_signing_public_key_cert_chain_fails(
     mock_urlopen: Mock,
     key_and_cert: tuple[rsa.RSAPrivateKey, x509.Certificate],
     key_cache: BaseCache,
@@ -133,7 +135,7 @@ def test_grab_keyfile_cert_chain_fails(
     mock_urlopen.return_value = BytesIO(two_cert_pem)
     expected = f"SigningCertURL {cert_url} has 2 certificates."
     with pytest.raises(VerificationFailed, match=expected):
-        _grab_keyfile(cert_url)
+        _get_signing_public_key(cert_url)
 
 
 def test_verify_from_sns_notification_with_subject_ver1(
