@@ -25,7 +25,6 @@ from django.db import connection
 from django.http import HttpResponse
 
 import boto3
-import OpenSSL
 from botocore.exceptions import ClientError
 from codetiming import Timer
 from markus.utils import generate_tag
@@ -37,7 +36,7 @@ from emails.management.command_from_django_settings import (
     CommandFromDjangoSettings,
     SettingToLocal,
 )
-from emails.sns import verify_from_sns
+from emails.sns import VerificationFailed, verify_from_sns
 from emails.utils import gauge_if_enabled, incr_if_enabled
 from emails.views import _sns_inbound_logic, validate_sns_arn_and_type
 
@@ -395,7 +394,7 @@ class Command(CommandFromDjangoSettings):
             return results
         try:
             verified_json_body = verify_from_sns(json_body)
-        except (KeyError, OpenSSL.crypto.Error) as e:
+        except (KeyError, VerificationFailed) as e:
             logger.error("Failed SNS verification", extra={"error": str(e)})
             results["success"] = False
             results["error"] = f"Failed SNS verification: {e}"
