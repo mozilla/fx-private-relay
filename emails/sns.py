@@ -82,14 +82,9 @@ def verify_from_sns(json_body: dict[str, Any]) -> dict[str, Any]:
     September 2022, and requires opt-in.
     """
     signing_cert_url = json_body["SigningCertURL"]
-    pemfile = _grab_keyfile(signing_cert_url)
-    cert = x509.load_pem_x509_certificate(pemfile)
+    cert_pubkey = _get_signing_public_key(signing_cert_url)
     signature = base64.decodebytes(json_body["Signature"].encode())
-
     hash_format = _get_hash_format(json_body)
-    cert_pubkey = cert.public_key()
-    if not isinstance(cert_pubkey, rsa.RSAPublicKey):
-        raise VerificationFailed(f"SigningCertURL {signing_cert_url} is not an RSA key")
 
     try:
         cert_pubkey.verify(
@@ -114,6 +109,23 @@ def _get_hash_format(json_body: dict[str, Any]) -> str:
         return NOTIFICATION_WITHOUT_SUBJECT_HASH_FORMAT
 
     return SUBSCRIPTION_HASH_FORMAT
+
+
+def _get_signing_public_key(cert_url: str) -> rsa.RSAPublicKey:
+    pemfile = _grab_keyfile(cert_url)
+
+    # Extract the first certificate in the file and confirm it's a valid
+    # PEM certificate
+    certs = x509.load_pem_x509_certificates(pemfile)
+    # A proper certificate file will contain 1 certificate
+    if len(certs) != 1:
+        raise VerificationFailed(
+            f"SigningCertURL {cert_url} has {len(certs)} certificates."
+        )
+    cert_pubkey = certs[0].public_key()
+    if not isinstance(cert_pubkey, rsa.RSAPublicKey):
+        raise VerificationFailed(f"SigningCertURL {cert_url} is not an RSA key")
+    return cert_pubkey
 
 
 def _grab_keyfile(cert_url: str) -> bytes:
