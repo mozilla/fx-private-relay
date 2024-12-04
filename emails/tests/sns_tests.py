@@ -131,7 +131,8 @@ def test_grab_keyfile_cert_chain_fails(
     cert_pem = cert.public_bytes(serialization.Encoding.PEM)
     two_cert_pem = b"\n".join((cert_pem, cert_pem))
     mock_urlopen.return_value = BytesIO(two_cert_pem)
-    with pytest.raises(ValueError, match="Invalid Certificate File"):
+    expected = f"SigningCertURL {cert_url} has 2 certificates."
+    with pytest.raises(VerificationFailed, match=expected):
         _grab_keyfile(cert_url)
 
 

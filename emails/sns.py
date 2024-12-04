@@ -8,9 +8,7 @@ from urllib.request import urlopen
 from django.conf import settings
 from django.core.cache import caches
 from django.core.exceptions import SuspiciousOperation
-from django.utils.encoding import smart_bytes
 
-import pem
 from cryptography import x509
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import hashes
@@ -130,14 +128,18 @@ def _grab_keyfile(cert_url):
     if not pemfile:
         response = urlopen(cert_url)  # noqa: S310 (check for custom scheme)
         pemfile = response.read()
+
         # Extract the first certificate in the file and confirm it's a valid
         # PEM certificate
-        certificates = pem.parse(smart_bytes(pemfile))
-
+        certs = x509.load_pem_x509_certificates(pemfile)
         # A proper certificate file will contain 1 certificate
-        if len(certificates) != 1:
-            logger.error("Invalid Certificate File: URL %s", cert_url)
-            raise ValueError("Invalid Certificate File")
+        if len(certs) != 1:
+            raise VerificationFailed(
+                f"SigningCertURL {cert_url} has {len(certs)} certificates."
+            )
+        cert_pubkey = certs[0].public_key()
+        if not isinstance(cert_pubkey, rsa.RSAPublicKey):
+            raise VerificationFailed(f"SigningCertURL {cert_url} is not an RSA key")
 
         key_cache.set(cert_url, pemfile)
     return pemfile
