@@ -18,7 +18,8 @@ from cryptography.hazmat.primitives.asymmetric import padding, rsa
 
 logger = logging.getLogger("events")
 
-NOTIFICATION_HASH_FORMAT = """Message
+NOTIFICATION_HASH_FORMAT = """\
+Message
 {Message}
 MessageId
 {MessageId}
@@ -32,7 +33,8 @@ Type
 {Type}
 """
 
-NOTIFICATION_WITHOUT_SUBJECT_HASH_FORMAT = """Message
+NOTIFICATION_WITHOUT_SUBJECT_HASH_FORMAT = """\
+Message
 {Message}
 MessageId
 {MessageId}
@@ -44,7 +46,8 @@ Type
 {Type}
 """
 
-SUBSCRIPTION_HASH_FORMAT = """Message
+SUBSCRIPTION_HASH_FORMAT = """\
+Message
 {Message}
 MessageId
 {MessageId}
