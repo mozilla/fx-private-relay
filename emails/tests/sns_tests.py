@@ -14,14 +14,14 @@ from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from cryptography.x509.oid import NameOID
-from OpenSSL.crypto import Error
 from pytest_django.fixtures import SettingsWrapper
 
 from ..sns import (
     NOTIFICATION_HASH_FORMAT,
     NOTIFICATION_WITHOUT_SUBJECT_HASH_FORMAT,
     SUBSCRIPTION_HASH_FORMAT,
-    _grab_keyfile,
+    VerificationFailed,
+    _get_signing_public_key,
     verify_from_sns,
 )
 
@@ -64,6 +64,17 @@ def key_and_cert() -> tuple[rsa.RSAPrivateKey, x509.Certificate]:
     return key, cert
 
 
+def _cache_key(cert_url: str) -> str:
+    return f"{cert_url}:public_key"
+
+
+def _public_pem(cert_or_private_key: rsa.RSAPrivateKey | x509.Certificate) -> bytes:
+    return cert_or_private_key.public_key().public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo,
+    )
+
+
 @pytest.fixture
 def signing_cert_url_and_private_key(
     key_and_cert: tuple[rsa.RSAPrivateKey, x509.Certificate],
@@ -73,8 +84,7 @@ def signing_cert_url_and_private_key(
     """Return the URL and private key for a cached signing certificate."""
     cert_url = f"https://sns.{settings.AWS_REGION}.amazonaws.com/cert.pem"
     key, cert = key_and_cert
-    cert_pem = cert.public_bytes(serialization.Encoding.PEM)
-    key_cache.set(cert_url, cert_pem)
+    key_cache.set(_cache_key(cert_url), _public_pem(cert))
     return cert_url, key
 
 
@@ -84,43 +94,44 @@ def mock_urlopen() -> Iterator[Mock]:
         yield mock_urlopen
 
 
-def test_grab_keyfile_checks_cert_url_origin(mock_urlopen: Mock) -> None:
+def test_get_signing_public_key_suspicious_url(mock_urlopen: Mock) -> None:
     cert_url = "https://attacker.com/cert.pem"
     with pytest.raises(SuspiciousOperation):
-        _grab_keyfile(cert_url)
+        _get_signing_public_key(cert_url)
     mock_urlopen.assert_not_called()
 
 
-def test_grab_keyfile_downloads_valid_certificate(
+def test_get_signing_public_key_downloads_valid_certificate(
     mock_urlopen: Mock,
     key_and_cert: tuple[rsa.RSAPrivateKey, x509.Certificate],
     key_cache: BaseCache,
     settings: SettingsWrapper,
 ) -> None:
     cert_url = f"https://sns.{settings.AWS_REGION}.amazonaws.com/cert.pem"
-    key, cert = key_and_cert
+    _, cert = key_and_cert
     cert_pem = cert.public_bytes(serialization.Encoding.PEM)
     mock_urlopen.return_value = BytesIO(cert_pem)
-    ret_value = _grab_keyfile(cert_url)
+    ret_value = _get_signing_public_key(cert_url)
     mock_urlopen.assert_called_once_with(cert_url)
-    assert ret_value == cert_pem
-    assert key_cache.get(cert_url) == cert_pem
+    assert ret_value == cert.public_key()
+    assert key_cache.get(_cache_key(cert_url)) == _public_pem(cert)
 
 
-def test_grab_keyfile_reads_from_cache(
+def test_get_signing_public_key_reads_from_cache(
     mock_urlopen: Mock,
+    key_and_cert: tuple[rsa.RSAPrivateKey, x509.Certificate],
     key_cache: BaseCache,
     settings: SettingsWrapper,
 ) -> None:
     cert_url = f"https://sns.{settings.AWS_REGION}.amazonaws.com/cert.pem"
-    fake_pem = b"I am fake"
-    key_cache.set(cert_url, fake_pem)
-    ret_value = _grab_keyfile(cert_url)
-    assert ret_value == fake_pem
+    _, cert = key_and_cert
+    key_cache.set(_cache_key(cert_url), _public_pem(cert))
+    ret_value = _get_signing_public_key(cert_url)
+    assert ret_value == cert.public_key()
     mock_urlopen.assert_not_called()
 
 
-def test_grab_keyfile_cert_chain_fails(
+def test_get_signing_public_key_cert_chain_fails(
     mock_urlopen: Mock,
     key_and_cert: tuple[rsa.RSAPrivateKey, x509.Certificate],
     key_cache: BaseCache,
@@ -131,8 +142,9 @@ def test_grab_keyfile_cert_chain_fails(
     cert_pem = cert.public_bytes(serialization.Encoding.PEM)
     two_cert_pem = b"\n".join((cert_pem, cert_pem))
     mock_urlopen.return_value = BytesIO(two_cert_pem)
-    with pytest.raises(ValueError, match="Invalid Certificate File"):
-        _grab_keyfile(cert_url)
+    expected = f"SigningCertURL {cert_url} has 2 certificates."
+    with pytest.raises(VerificationFailed, match=expected):
+        _get_signing_public_key(cert_url)
 
 
 def test_verify_from_sns_notification_with_subject_ver1(
@@ -174,7 +186,7 @@ def test_verify_from_sns_notification_with_subject_ver1_fails(
     signature = key.sign(text_to_sign.encode(), padding.PKCS1v15(), hashes.SHA1())
     json_body["Signature"] = b64encode(signature).decode()
     json_body["Message"] = "different message"
-    with pytest.raises(Error):
+    with pytest.raises(VerificationFailed):
         verify_from_sns(json_body)
 
 

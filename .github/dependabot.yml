@@ -69,7 +69,6 @@ updates:
         patterns:
           - "django-stubs"
           - "djangorestframework-stubs"
-          - "types-pyOpenSSL"
           - "types-requests"
   - package-ecosystem: "github-actions"
     directory: "/"

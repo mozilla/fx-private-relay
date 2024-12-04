@@ -10,13 +10,13 @@ from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.http import HttpResponse
 
-import OpenSSL
 import pytest
 from botocore.exceptions import ClientError
 from markus.testing import MetricsMock
 from pytest import LogCaptureFixture
 from pytest_django.fixtures import SettingsWrapper
 
+from emails.sns import VerificationFailed
 from emails.tests.views_tests import EMAIL_SNS_BODIES
 from privaterelay.tests.utils import log_extra, omit_markus_logs
 
@@ -168,7 +168,6 @@ def mock_process_pool_future() -> Iterator[Mock]:
             callback: Callable[[Any], None] | None = None,
             error_callback: Callable[[BaseException], None] | None = None,
         ) -> Mock:
-
             def call_wait(timeout: float) -> None:
                 mock_future._timeouts.append(timeout)
                 if not mock_future._is_stalled():
@@ -520,7 +519,7 @@ def test_verify_from_sns_raises_openssl_error(
     mock_verify_from_sns: Mock, mock_sqs_client: Mock, caplog: LogCaptureFixture
 ) -> None:
     """If verify_from_sns raises an exception, the message is deleted."""
-    mock_verify_from_sns.side_effect = OpenSSL.crypto.Error("failed")
+    mock_verify_from_sns.side_effect = VerificationFailed("failed")
     msg = fake_sqs_message(json.dumps(TEST_SNS_MESSAGE))
     mock_sqs_client.return_value = fake_queue([msg], [])
     call_command(COMMAND_NAME)
