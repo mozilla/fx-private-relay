@@ -1,5 +1,5 @@
 [project]
-requires-python = ">= 3.12"
+requires-python = ">= 3.11"
 
 [tool.coverage.report]
 omit = [
@@ -28,7 +28,7 @@ django_settings_module = "privaterelay.settings"
 exclude = "env"
 mypy_path = "$MYPY_CONFIG_FILE_DIR/mypy_stubs"
 plugins = ["mypy_django_plugin.main"]
-python_version = "3.12"
+python_version = "3.11"
 show_error_codes = true
 strict = true
 
