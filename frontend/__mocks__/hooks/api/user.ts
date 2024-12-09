@@ -7,10 +7,12 @@ jest.mock("../../../src/hooks/api/user");
 const mockedUseUsers = useUsers as jest.MockedFunction<typeof useUsers>;
 
 function getReturnValue(
-  userData?: Partial<UserData>
+  userData?: Partial<UserData>,
 ): ReturnType<typeof useUsers> {
   return {
     isValidating: false,
+    isLoading: false,
+    error: undefined,
     mutate: jest.fn(),
     data: [
       {
