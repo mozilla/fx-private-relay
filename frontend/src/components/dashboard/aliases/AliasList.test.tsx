@@ -152,7 +152,13 @@ describe("<AliasList>", () => {
     const mockAlias = { ...getMockRandomAlias(), description: "" };
     LocalLabelsMock.setMockLocalLabels(
       LocalLabelsMock.getReturnValueWithAddon(
-        [{ ...mockAlias, description: "some local description" }],
+        [
+          {
+            ...mockAlias,
+            used_on: undefined,
+            description: "some local description",
+          },
+        ],
         jest.fn(),
       ),
     );

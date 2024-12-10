@@ -158,12 +158,17 @@ describe("The 'What's new' dashboard", () => {
       />,
     );
 
-    expect(screen.queryByText(allEntries[1].content)).not.toBeInTheDocument();
+    expect(typeof allEntries[1].content).toBe("string");
+    if (typeof allEntries[1].content !== "string") {
+      return;
+    }
+    const new_entry_content = allEntries[1].content;
+    expect(screen.queryByText(new_entry_content)).not.toBeInTheDocument();
 
     const menuItems = screen.getAllByRole("menuitem");
     await userEvent.click(menuItems[1]);
 
-    expect(screen.getByText(allEntries[1].content)).toBeInTheDocument();
+    expect(screen.getByText(new_entry_content)).toBeInTheDocument();
   });
 
   it("can go back to overview of all new features after clicking one of them", async () => {
@@ -182,7 +187,12 @@ describe("The 'What's new' dashboard", () => {
       />,
     );
 
-    expect(screen.queryByText(allEntries[1]?.content)).not.toBeInTheDocument();
+    expect(typeof allEntries[1].content).toBe("string");
+    if (typeof allEntries[1].content !== "string") {
+      return;
+    }
+    const new_entry_content = allEntries[1].content;
+    expect(screen.queryByText(new_entry_content)).not.toBeInTheDocument();
 
     const menuItems = screen.getAllByRole("menuitem");
     await userEvent.click(menuItems[1]);

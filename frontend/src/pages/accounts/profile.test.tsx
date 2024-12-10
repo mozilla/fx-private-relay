@@ -732,7 +732,7 @@ describe("The dashboard", () => {
     const updateFn: ProfileUpdateFn = jest.fn();
     setMockProfileDataOnce(
       { id: 42, has_premium: true, onboarding_state: 1 },
-      { updater: updateFn },
+      { updater: updateFn, setSubdomain: jest.fn() },
     );
     render(<Profile />);
 
@@ -748,7 +748,7 @@ describe("The dashboard", () => {
     const updateFn: ProfileUpdateFn = jest.fn();
     setMockProfileDataOnce(
       { id: 42, has_premium: true, onboarding_state: 2 },
-      { updater: updateFn },
+      { updater: updateFn, setSubdomain: jest.fn() },
     );
     render(<Profile />);
 

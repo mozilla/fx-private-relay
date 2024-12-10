@@ -13,7 +13,7 @@ const mockedUseInboundContact = useInboundContact as jest.MockedFunction<
 >;
 
 export function getMockInboundContact(
-  inboundContact: Partial<InboundContact>
+  inboundContact: Partial<InboundContact> | undefined,
 ): InboundContact {
   return {
     id: 0,
@@ -23,8 +23,10 @@ export function getMockInboundContact(
     last_inbound_type: "call",
     num_calls: 45,
     num_calls_blocked: 3,
+    last_call_date: "2024-12-09T10:18:01.801Z",
     num_texts: 13,
     num_texts_blocked: 18,
+    last_text_date: "2024-12-09T01:18:01.801Z",
     blocked: false,
     ...inboundContact,
   };
@@ -35,35 +37,39 @@ type Callbacks = {
 };
 
 function getReturnValue(
-  inboundContacts: Array<Partial<InboundContact>> = [getMockInboundContact()],
-  callbacks?: Callbacks
+  inboundContacts: Array<Partial<InboundContact>> = [
+    getMockInboundContact(undefined),
+  ],
+  callbacks?: Callbacks,
 ): ReturnType<typeof useInboundContact> {
   return {
     isValidating: false,
     mutate: jest.fn(),
     data: inboundContacts.map((partialInboundContact) =>
-      getMockInboundContact(partialInboundContact)
+      getMockInboundContact(partialInboundContact),
     ),
     setForwardingState:
       callbacks?.setForwardingState ??
       jest.fn(() => Promise.resolve({ ok: true } as unknown as Response)),
+    error: undefined,
+    isLoading: false,
   };
 }
 
 export const setMockInboundContactData = (
   inboundContacts?: Array<Partial<InboundContact>>,
-  callbacks?: Callbacks
+  callbacks?: Callbacks,
 ) => {
   mockedUseInboundContact.mockReturnValue(
-    getReturnValue(inboundContacts, callbacks)
+    getReturnValue(inboundContacts, callbacks),
   );
 };
 
 export const setMockRelayNumberDataOnce = (
   inboundContacts?: Array<Partial<InboundContact>>,
-  callbacks?: Callbacks
+  callbacks?: Callbacks,
 ) => {
   mockedUseInboundContact.mockReturnValueOnce(
-    getReturnValue(inboundContacts, callbacks)
+    getReturnValue(inboundContacts, callbacks),
   );
 };

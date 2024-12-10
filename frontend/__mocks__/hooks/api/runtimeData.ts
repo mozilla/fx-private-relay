@@ -47,61 +47,65 @@ function getUnavailableProductData(): ProductData {
 export function getMockRuntimeDataWithBundle(): RuntimeData {
   return {
     FXA_ORIGIN: "https://fxa-mock.com",
-    BASKET_ORIGIN: "https://basket-mock.com",
     GOOGLE_ANALYTICS_ID: "UA-123456789-0",
+    GA4_MEASUREMENT_ID: "G-4-measurement-id",
     PERIODICAL_PREMIUM_PRODUCT_ID: "prod_123456789",
     PHONE_PRODUCT_ID: "prod_123456789",
     BUNDLE_PRODUCT_ID: "prod_123456789",
     PERIODICAL_PREMIUM_PLANS: getAvailableProductData(),
     PHONE_PLANS: getAvailableProductData(),
     BUNDLE_PLANS: getAvailableProductData(),
-    MAX_MINUTES_TO_VERIFY_REAL_PHONE: 5,
+    BASKET_ORIGIN: "https://basket-mock.com",
     WAFFLE_FLAGS: [],
+    MAX_MINUTES_TO_VERIFY_REAL_PHONE: 5,
   };
 }
 export function getMockRuntimeDataWithPhones(): RuntimeData {
   return {
     FXA_ORIGIN: "https://fxa-mock.com",
-    BASKET_ORIGIN: "https://basket-mock.com",
     GOOGLE_ANALYTICS_ID: "UA-123456789-0",
+    GA4_MEASUREMENT_ID: "G-4-measurement-id",
     PERIODICAL_PREMIUM_PRODUCT_ID: "prod_123456789",
     PHONE_PRODUCT_ID: "prod_123456789",
     BUNDLE_PRODUCT_ID: "prod_123456789",
     PERIODICAL_PREMIUM_PLANS: getAvailableProductData(),
     PHONE_PLANS: getAvailableProductData(),
     BUNDLE_PLANS: getUnavailableProductData(),
-    MAX_MINUTES_TO_VERIFY_REAL_PHONE: 5,
+    BASKET_ORIGIN: "https://basket-mock.com",
     WAFFLE_FLAGS: [],
+    MAX_MINUTES_TO_VERIFY_REAL_PHONE: 5,
   };
 }
 export function getMockRuntimeDataWithPeriodicalPremium(): RuntimeData {
   return {
     FXA_ORIGIN: "https://fxa-mock.com",
-    BASKET_ORIGIN: "https://basket-mock.com",
     GOOGLE_ANALYTICS_ID: "UA-123456789-0",
+    GA4_MEASUREMENT_ID: "G-4-measurement-id",
     PERIODICAL_PREMIUM_PRODUCT_ID: "prod_123456789",
     PHONE_PRODUCT_ID: "prod_123456789",
     BUNDLE_PRODUCT_ID: "prod_123456789",
     PERIODICAL_PREMIUM_PLANS: getAvailableProductData(),
     PHONE_PLANS: getUnavailableProductData(),
     BUNDLE_PLANS: getUnavailableProductData(),
-    MAX_MINUTES_TO_VERIFY_REAL_PHONE: 5,
+    BASKET_ORIGIN: "https://basket-mock.com",
     WAFFLE_FLAGS: [],
+    MAX_MINUTES_TO_VERIFY_REAL_PHONE: 5,
   };
 }
 export function getMockRuntimeDataWithoutPremium(): RuntimeData {
   return {
     FXA_ORIGIN: "https://fxa-mock.com",
-    BASKET_ORIGIN: "https://basket-mock.com",
     GOOGLE_ANALYTICS_ID: "UA-123456789-0",
+    GA4_MEASUREMENT_ID: "G-4-measurement-id",
     PERIODICAL_PREMIUM_PRODUCT_ID: "prod_123456789",
     PHONE_PRODUCT_ID: "prod_123456789",
     BUNDLE_PRODUCT_ID: "prod_123456789",
     PERIODICAL_PREMIUM_PLANS: getUnavailableProductData(),
     PHONE_PLANS: getUnavailableProductData(),
     BUNDLE_PLANS: getUnavailableProductData(),
-    MAX_MINUTES_TO_VERIFY_REAL_PHONE: 5,
+    BASKET_ORIGIN: "https://basket-mock.com",
     WAFFLE_FLAGS: [],
+    MAX_MINUTES_TO_VERIFY_REAL_PHONE: 5,
   };
 }
 
