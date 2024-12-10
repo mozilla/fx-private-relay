@@ -21,8 +21,11 @@ describe("<AliasGenerationButton>", () => {
       <AliasGenerationButton
         aliases={[getMockRandomAlias()]}
         profile={getMockProfileData({ has_premium: false })}
-        onCreate={jest.fn()}
         runtimeData={getMockRuntimeDataWithoutPremium()}
+        onCreate={jest.fn()}
+        onUpdate={jest.fn()}
+        findAliasDataFromPrefix={jest.fn()}
+        setGeneratedAlias={jest.fn()}
       />,
     );
 
@@ -46,8 +49,11 @@ describe("<AliasGenerationButton>", () => {
           getMockRandomAlias(),
         ]}
         profile={getMockProfileData({ has_premium: true })}
-        onCreate={jest.fn()}
         runtimeData={getMockRuntimeDataWithoutPremium()}
+        onCreate={jest.fn()}
+        onUpdate={jest.fn()}
+        findAliasDataFromPrefix={jest.fn()}
+        setGeneratedAlias={jest.fn()}
       />,
     );
 
@@ -70,8 +76,11 @@ describe("<AliasGenerationButton>", () => {
           getMockRandomAlias(),
         ]}
         profile={getMockProfileData({ has_premium: false })}
-        onCreate={jest.fn()}
         runtimeData={getMockRuntimeDataWithPeriodicalPremium()}
+        onCreate={jest.fn()}
+        onUpdate={jest.fn()}
+        findAliasDataFromPrefix={jest.fn()}
+        setGeneratedAlias={jest.fn()}
       />,
     );
 
@@ -93,8 +102,11 @@ describe("<AliasGenerationButton>", () => {
           getMockRandomAlias(),
         ]}
         profile={getMockProfileData({ has_premium: false })}
-        onCreate={jest.fn()}
         runtimeData={getMockRuntimeDataWithoutPremium()}
+        onCreate={jest.fn()}
+        onUpdate={jest.fn()}
+        findAliasDataFromPrefix={jest.fn()}
+        setGeneratedAlias={jest.fn()}
       />,
     );
 
@@ -117,8 +129,11 @@ describe("<AliasGenerationButton>", () => {
           has_premium: false,
           subdomain: "mydomain",
         })}
-        onCreate={jest.fn()}
         runtimeData={getMockRuntimeDataWithoutPremium()}
+        onCreate={jest.fn()}
+        onUpdate={jest.fn()}
+        findAliasDataFromPrefix={jest.fn()}
+        setGeneratedAlias={jest.fn()}
       />,
     );
 
@@ -140,8 +155,11 @@ describe("<AliasGenerationButton>", () => {
             getMockRandomAlias(),
           ]}
           profile={getMockProfileData({ has_premium: true, subdomain: null })}
-          onCreate={jest.fn()}
           runtimeData={getMockRuntimeDataWithoutPremium()}
+          onCreate={jest.fn()}
+          onUpdate={jest.fn()}
+          findAliasDataFromPrefix={jest.fn()}
+          setGeneratedAlias={jest.fn()}
         />,
       );
 
@@ -178,8 +196,11 @@ describe("<AliasGenerationButton>", () => {
             has_premium: true,
             subdomain: "mydomain",
           })}
-          onCreate={jest.fn()}
           runtimeData={getMockRuntimeDataWithoutPremium()}
+          onCreate={jest.fn()}
+          onUpdate={jest.fn()}
+          findAliasDataFromPrefix={jest.fn()}
+          setGeneratedAlias={jest.fn()}
         />,
       );
 
