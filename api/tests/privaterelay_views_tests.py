@@ -20,9 +20,7 @@ from api.authentication import INTROSPECT_TOKEN_URL, get_cache_key
 from api.tests.authentication_tests import _setup_fxa_response
 from api.views.privaterelay import FXA_PROFILE_URL
 from privaterelay.models import Profile
-from privaterelay.tests.utils import (
-    log_extra,
-)
+from privaterelay.tests.utils import log_extra
 
 
 @pytest.mark.django_db
@@ -216,7 +214,7 @@ class TermsAcceptedUserViewTest(TestCase):
         fxa_response = _setup_fxa_response(
             200, {"active": True, "sub": self.uid, "exp": exp_time}
         )
-        # setup fxa profile reponse
+        # setup fxa profile response
         profile_json = {
             "email": email,
             "amrValues": ["pwd", "email"],
@@ -406,7 +404,7 @@ def test_duplicate_email_logs_details_for_debugging(
     # Note: FXA iat and exp are timestamps in *milliseconds*
     exp_time = (now_time + 60 * 60) * 1000
     _setup_fxa_response(200, {"active": True, "sub": uid, "exp": exp_time})
-    # setup fxa profile reponse
+    # setup fxa profile response
     profile_json = {
         "email": email,
         "amrValues": ["pwd", "email"],
