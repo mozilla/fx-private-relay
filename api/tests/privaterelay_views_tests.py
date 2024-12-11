@@ -2,9 +2,12 @@
 
 import logging
 from datetime import datetime
+from unittest.mock import patch
 
 from django.contrib.auth.models import User
 from django.core.cache import cache
+from django.db import IntegrityError
+from django.http import HttpRequest
 from django.test import RequestFactory, TestCase
 from django.test.client import Client
 from django.urls import reverse
@@ -12,7 +15,8 @@ from django.urls import reverse
 import pytest
 import responses
 from allauth.account.models import EmailAddress
-from allauth.socialaccount.models import SocialAccount
+from allauth.socialaccount.internal.flows.signup import process_auto_signup
+from allauth.socialaccount.models import SocialAccount, SocialLogin
 from model_bakery import baker
 from rest_framework.test import APIClient
 
@@ -254,6 +258,57 @@ class TermsAcceptedUserViewTest(TestCase):
         assert response.data is None
         assert responses.assert_call_count(self.fxa_verify_path, 2) is True
         assert responses.assert_call_count(FXA_PROFILE_URL, 1) is True
+
+    @responses.activate
+    def test_account_created_during_request_raises_exception(self) -> None:
+        """If the SocialAccount is created during the request, raises."""
+        email = "user@email.com"
+        user_token = "user-123"
+        self._setup_client(user_token)
+        exp_time = (int(datetime.now().timestamp()) + 60 * 60) * 1000
+        _setup_fxa_response(200, {"active": True, "sub": self.uid, "exp": exp_time})
+        # setup fxa profile response
+        profile_json = {
+            "email": email,
+            "amrValues": ["pwd", "email"],
+            "twoFactorAuthentication": False,
+            "metricsEnabled": True,
+            "uid": self.uid,
+            "avatar": "https://profile.stage.mozaws.net/v1/avatar/t",
+            "avatarDefault": False,
+        }
+        responses.add(
+            responses.GET,
+            FXA_PROFILE_URL,
+            status=200,
+            json=profile_json,
+        )
+
+        def process_auto_signup_then_create_account(
+            request: HttpRequest, social_login: SocialLogin
+        ) -> tuple[bool, None]:
+            """Create a duplicate SocialAccount after an email check"""
+            auto_signup, response = process_auto_signup(request, social_login)
+            assert auto_signup is True
+            assert response is None
+            user = User.objects.create(email=email)
+            user.profile.created_by = "mocked_function"
+            user.profile.save()
+            SocialAccount.objects.create(provider="fxa", uid=self.uid, user=user)
+            return auto_signup, response
+
+        # get 500 response for problems
+        with (
+            patch(
+                "allauth.socialaccount.internal.flows.signup.process_auto_signup",
+                side_effect=process_auto_signup_then_create_account,
+            ) as mock_process_signup,
+            pytest.raises(
+                IntegrityError, match="duplicate key value violates unique constraint"
+            ),
+        ):
+            self.client.post(self.path)
+        mock_process_signup.assert_called_once()
 
     @responses.activate
     def test_failed_profile_fetch_for_new_user_returns_500(self) -> None:
