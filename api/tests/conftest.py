@@ -5,7 +5,6 @@ from django.contrib.sites.models import Site
 
 import pytest
 from allauth.socialaccount.models import SocialApp
-from model_bakery import baker
 from rest_framework.test import APIClient
 
 from privaterelay.tests.utils import make_free_test_user, make_premium_test_user
@@ -43,5 +42,7 @@ def prem_api_client(premium_user: User) -> APIClient:
 
 @pytest.fixture
 def fxa_social_app(db: None) -> SocialApp:
-    app: SocialApp = baker.make(SocialApp, provider="fxa", sites=[Site.objects.first()])
-    return app
+    social_app, _created = SocialApp.objects.get_or_create(provider="fxa")
+    if _created:
+        social_app.sites.set((Site.objects.first(),))
+    return social_app
