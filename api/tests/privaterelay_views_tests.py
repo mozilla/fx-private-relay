@@ -199,7 +199,10 @@ def _setup_client(token: str) -> APIClient:
 
 
 def _mock_fxa_profile_response(
-    status_code: int = 200, email: str = "user@example.com", uid: str = "a-relay-uid"
+    status_code: int = 200,
+    email: str = "user@example.com",
+    uid: str = "a-relay-uid",
+    metrics_enabled: bool = True,
 ) -> responses.BaseResponse:
     """Setup Mozilla Accounts profile response"""
     if status_code == 502:
@@ -210,7 +213,7 @@ def _mock_fxa_profile_response(
         "email": email,
         "amrValues": ["pwd", "email"],
         "twoFactorAuthentication": False,
-        "metricsEnabled": True,
+        "metricsEnabled": metrics_enabled,
         "uid": uid,
         "avatar": "https://profile.stage.mozaws.net/v1/avatar/t",
         "avatarDefault": False,
@@ -468,5 +471,30 @@ def test_duplicate_email_logs_details_for_debugging(
     assert "socialaccount_signup" in rec1.message
     assert rec1_extra.get("fxa_uid") == uid
     assert rec1_extra.get("social_login_state") == {}
+    assert introspect_response.call_count == 1
+    assert profile_response.call_count == 1
+
+
+@responses.activate
+@pytest.mark.usefixtures("fxa_social_app")
+def test_metrics_disabled_user_fxa_uid_not_logged(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    caplog.set_level(logging.ERROR)
+    uid = "relay-user-fxa-uid"
+    email = "user@email.com"
+    baker.make(EmailAddress, email=email, verified=True)
+    user_token = "user-123"
+    client = _setup_client(user_token)
+    introspect_response, _ = setup_fxa_introspect(uid=uid)
+    profile_response = _mock_fxa_profile_response(
+        email=email, uid=uid, metrics_enabled=False
+    )
+
+    response = client.post("/api/v1/terms-accepted-user/")
+
+    assert response.status_code == 500
+    (rec1,) = caplog.records
+    assert "fxa_uid" not in log_extra(rec1)
     assert introspect_response.call_count == 1
     assert profile_response.call_count == 1

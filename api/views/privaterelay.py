@@ -399,17 +399,11 @@ def _create_socialaccount_from_bearer_token(
         # TODO: use this logging to fix the underlying issue
         # MPP-3473: NoReverseMatch socialaccount_signup
         #  Another user has the same email?
-        if "socialaccount_signup" in e.args[0]:
-            logger.error(
-                "socialaccount_signup_error",
-                extra={
-                    "exception": str(e),
-                    "fxa_uid": fxa_uid,
-                    "social_login_state": social_login.state,
-                },
-            )
-            return None, Response(status=500)
-        raise e
+        log_extra = {"exception": str(e), "social_login_state": social_login.state}
+        if fxa_profile.get("metricsEnabled", False):
+            log_extra["fxa_uid"] = fxa_uid
+        logger.error("socialaccount_signup_error", extra=log_extra)
+        return None, Response(status=500)
 
     # complete_social_login writes ['account_verified_email', 'user_created',
     # '_auth_user_id', '_auth_user_backend', '_auth_user_hash'] on
