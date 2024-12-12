@@ -410,8 +410,7 @@ def _create_socialaccount_from_bearer_token(
     # '_auth_user_id', '_auth_user_backend', '_auth_user_hash'] on
     # request.session which sets the cookie because complete_social_login does
     # the "login" The user did not actually log in, logout to clear the session
-    if request.user.is_authenticated:
-        get_account_adapter(request).logout(request)
+    get_account_adapter(request).logout(request)
 
     sa: SocialAccount = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
 
