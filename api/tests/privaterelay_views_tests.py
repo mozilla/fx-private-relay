@@ -6,7 +6,6 @@ from unittest.mock import patch
 
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.db import IntegrityError
 from django.http import HttpRequest
 from django.test import TestCase
 from django.test.client import Client
@@ -267,8 +266,12 @@ class TermsAcceptedUserViewTest(TestCase):
         assert profile_response.call_count == 1
 
     @responses.activate
-    def test_account_created_during_request_raises_exception(self) -> None:
-        """If the SocialAccount is created during the request, raises."""
+    def test_account_created_during_request_returns_500(self) -> None:
+        """
+        If the SocialAccount is created while creating a new user, return 500
+
+        MPP-3505: Previously raised Unhandled IntegrityError
+        """
         email = "user@email.com"
         user_token = "user-123"
         client = _setup_client(user_token)
@@ -288,17 +291,12 @@ class TermsAcceptedUserViewTest(TestCase):
             SocialAccount.objects.create(provider="fxa", uid=self.uid, user=user)
             return auto_signup, response
 
-        # MPP-3505: Unhandled IntegrityError when other process creates SocialAccount
-        with (
-            patch(
-                "allauth.socialaccount.internal.flows.signup.process_auto_signup",
-                side_effect=process_auto_signup_then_create_account,
-            ) as mock_process_signup,
-            self.assertRaisesMessage(
-                IntegrityError, "duplicate key value violates unique constraint"
-            ),
-        ):
-            client.post(self.path)
+        with patch(
+            "allauth.socialaccount.internal.flows.signup.process_auto_signup",
+            side_effect=process_auto_signup_then_create_account,
+        ) as mock_process_signup:
+            response = client.post(self.path)
+        assert response.status_code == 500
         mock_process_signup.assert_called_once()
         assert introspect_response.call_count == 1
         assert profile_response.call_count == 1
