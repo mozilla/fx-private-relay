@@ -17,6 +17,7 @@ from allauth.account.models import EmailAddress
 from allauth.socialaccount.internal.flows.signup import process_auto_signup
 from allauth.socialaccount.models import SocialAccount, SocialLogin
 from model_bakery import baker
+from requests import ReadTimeout
 from rest_framework.test import APIClient
 
 from api.authentication import get_cache_key
@@ -202,11 +203,16 @@ def _mock_fxa_profile_response(
     email: str = "user@example.com",
     uid: str = "a-relay-uid",
     metrics_enabled: bool = True,
+    timeout: bool = False,
 ) -> responses.BaseResponse:
     """Setup Mozilla Accounts profile response"""
     if status_code == 502:
         # FxA profile server is down
         return responses.add(responses.GET, FXA_PROFILE_URL, status=200, body="")
+    elif timeout:
+        return responses.add(
+            responses.GET, FXA_PROFILE_URL, body=ReadTimeout("FxA is slow today")
+        )
 
     profile_json = {
         "email": email,
@@ -442,6 +448,39 @@ class TermsAcceptedUserViewTest(TestCase):
         ):
             response = client.post(self.path)
         assert response.status_code == 202
+        assert cache.get(cache_key) == expected_data
+        assert introspect_response.call_count == 1
+        assert profile_response.call_count == 1
+
+    @responses.activate
+    def test_fxa_introspect_fetch_timeout_returns_401(self) -> None:
+        slow_token = "slow-123"
+        email = "user@slow.example.com"
+        introspect_response, expected_data = setup_fxa_introspect(timeout=True)
+        profile_response = _mock_fxa_profile_response(email=email, uid=self.uid)
+        cache_key = get_cache_key(slow_token)
+        client = _setup_client(slow_token)
+
+        assert cache.get(cache_key) is None
+
+        response = client.post(self.path)
+        assert response.status_code == 401
+        assert cache.get(cache_key) is None
+        assert introspect_response.call_count == 1
+        assert profile_response.call_count == 0
+
+    @responses.activate
+    def test_fxa_profile_fetch_timeout_raises_exception(self) -> None:
+        slow_token = "user-123"
+        introspect_response, expected_data = setup_fxa_introspect(uid=self.uid)
+        profile_response = _mock_fxa_profile_response(timeout=True)
+        cache_key = get_cache_key(slow_token)
+        client = _setup_client(slow_token)
+
+        assert cache.get(cache_key) is None
+
+        with self.assertRaisesMessage(ReadTimeout, "FxA is slow today"):
+            client.post(self.path)
         assert cache.get(cache_key) == expected_data
         assert introspect_response.call_count == 1
         assert profile_response.call_count == 1
