@@ -327,44 +327,66 @@ def terms_accepted_user(request: Request) -> Response:
             return Response(data={"detail": e.get_full_details()}, status=e.status_code)
 
     existing_sa = False
+    action: str | None = None
     try:
         socialaccount = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
         existing_sa = True
+        action = "found_existing"
     except SocialAccount.DoesNotExist:
         pass
 
     if not existing_sa:
+        # Get the user's profile
+        fxa_profile, response = _get_fxa_profile_from_bearer_token(token)
+        if response:
+            return response
+
+        # Since this takes time, see if another request created the SocialAccount
+        try:
+            socialaccount = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
+            existing_sa = True
+            action = "created_during_profile_fetch"
+        except SocialAccount.DoesNotExist:
+            pass
+
+    if not existing_sa:
+        # mypy type narrowing, but should always be true
+        if not isinstance(fxa_profile, dict):
+            raise ValueError(f"fxa_profile is {type(fxa_profile)}, not dict")
+
+        # Still no SocialAccount, attempt to create it
         socialaccount, response = _create_socialaccount_from_bearer_token(
-            request, fxa_uid, token
+            request, token, fxa_uid, fxa_profile
         )
         if response:
             return response
+        action = "created"
 
     status_code = 202 if existing_sa else 201
     info_logger.info(
         "terms_accepted_user",
-        extra={"social_account": socialaccount.uid, "status_code": status_code},
+        extra={
+            "social_account": socialaccount.uid,
+            "status_code": status_code,
+            "action": action,
+        },
     )
     return Response(status=status_code)
 
 
 def _create_socialaccount_from_bearer_token(
-    request: Request,
-    fxa_uid: str,
-    token: str,
+    request: Request, token: str, fxa_uid: str, fxa_profile: dict[str, Any]
 ) -> tuple[SocialAccount, None] | tuple[None, Response]:
     """Create a new Relay user with a SocialAccount from an FXA Bearer Token."""
-
-    fxa_profile, response = _get_fxa_profile_from_bearer_token(token)
-    if response:
-        return None, response
 
     # This is not exactly the request object that FirefoxAccountsProvider expects,
     # but it has all of the necessary attributes to initialize the Provider
     provider = get_social_adapter().get_provider(request, "fxa")
+
     # This may not save the new user that was created
     # https://github.com/pennersr/django-allauth/blob/77368a84903d32283f07a260819893ec15df78fb/allauth/socialaccount/providers/base/provider.py#L44
     social_login = provider.sociallogin_from_response(request, fxa_profile)
+
     # Complete social login is called by callback, see
     # https://github.com/pennersr/django-allauth/blob/77368a84903d32283f07a260819893ec15df78fb/allauth/socialaccount/providers/oauth/views.py#L118
     # for what we are mimicking to create new SocialAccount, User, and Profile for
@@ -373,15 +395,10 @@ def _create_socialaccount_from_bearer_token(
     # (no Social Token object created).
     try:
         complete_social_login(request, social_login)
-        # complete_social_login writes ['account_verified_email', 'user_created',
-        # '_auth_user_id', '_auth_user_backend', '_auth_user_hash'] on
-        # request.session which sets the cookie because complete_social_login does
-        # the "login" The user did not actually log in, logout to clear the session
-        if request.user.is_authenticated:
-            get_account_adapter(request).logout(request)
     except NoReverseMatch as e:
         # TODO: use this logging to fix the underlying issue
-        # https://mozilla-hub.atlassian.net/browse/MPP-3473
+        # MPP-3473: NoReverseMatch socialaccount_signup
+        #  Another user has the same email?
         if "socialaccount_signup" in e.args[0]:
             logger.error(
                 "socialaccount_signup_error",
@@ -393,7 +410,16 @@ def _create_socialaccount_from_bearer_token(
             )
             return None, Response(status=500)
         raise e
+
+    # complete_social_login writes ['account_verified_email', 'user_created',
+    # '_auth_user_id', '_auth_user_backend', '_auth_user_hash'] on
+    # request.session which sets the cookie because complete_social_login does
+    # the "login" The user did not actually log in, logout to clear the session
+    if request.user.is_authenticated:
+        get_account_adapter(request).logout(request)
+
     sa: SocialAccount = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
+
     # Indicate profile was created from the resource flow
     profile = sa.user.profile
     profile.created_by = "firefox_resource"
