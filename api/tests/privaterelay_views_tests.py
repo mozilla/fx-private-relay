@@ -470,7 +470,7 @@ class TermsAcceptedUserViewTest(TestCase):
         assert profile_response.call_count == 0
 
     @responses.activate
-    def test_fxa_profile_fetch_timeout_raises_exception(self) -> None:
+    def test_fxa_profile_fetch_timeout_returns_503(self) -> None:
         slow_token = "user-123"
         introspect_response, expected_data = setup_fxa_introspect(uid=self.uid)
         profile_response = _mock_fxa_profile_response(timeout=True)
@@ -479,8 +479,8 @@ class TermsAcceptedUserViewTest(TestCase):
 
         assert cache.get(cache_key) is None
 
-        with self.assertRaisesMessage(ReadTimeout, "FxA is slow today"):
-            client.post(self.path)
+        response = client.post(self.path)
+        assert response.status_code == 503
         assert cache.get(cache_key) == expected_data
         assert introspect_response.call_count == 1
         assert profile_response.call_count == 1

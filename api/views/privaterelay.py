@@ -427,11 +427,18 @@ def _get_fxa_profile_from_bearer_token(
 ) -> tuple[dict[str, Any], None] | tuple[None, Response]:
     """Use a bearer token to get the Mozilla Account user's profile data"""
     # Use the bearer token
-    fxa_profile_resp = requests.get(
-        FXA_PROFILE_URL,
-        headers={"Authorization": f"Bearer {token}"},
-        timeout=settings.FXA_REQUESTS_TIMEOUT_SECONDS,
-    )
+    try:
+        fxa_profile_resp = requests.get(
+            FXA_PROFILE_URL,
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=settings.FXA_REQUESTS_TIMEOUT_SECONDS,
+        )
+    except requests.Timeout:
+        return None, Response(
+            "Account profile request timeout, try again later.",
+            status=503,
+        )
+
     if not (fxa_profile_resp.ok and fxa_profile_resp.content):
         logger.error(
             "terms_accepted_user: bad account profile response",
