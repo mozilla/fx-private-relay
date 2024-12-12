@@ -323,7 +323,8 @@ def terms_accepted_user(request: Request) -> Response:
         # https://www.django-rest-framework.org/api-guide/authentication/#custom-authentication
         if isinstance(e.detail, ErrorDetail):
             return Response(data={"detail": e.detail.title()}, status=e.status_code)
-        else:
+        else:  # pragma: no cover
+            # Used when detail is a list[Detail] or dict[str, Detail]
             return Response(data={"detail": e.get_full_details()}, status=e.status_code)
 
     existing_sa = False
@@ -351,7 +352,7 @@ def terms_accepted_user(request: Request) -> Response:
 
     if not existing_sa:
         # mypy type narrowing, but should always be true
-        if not isinstance(fxa_profile, dict):
+        if not isinstance(fxa_profile, dict):  # pragma: no cover
             raise ValueError(f"fxa_profile is {type(fxa_profile)}, not dict")
 
         # Still no SocialAccount, attempt to create it
