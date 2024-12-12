@@ -1,6 +1,7 @@
 """Tests for api/views/email_views.py"""
 
 import logging
+from typing import Any
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
@@ -21,7 +22,7 @@ from rest_framework.test import APIClient
 
 from api.authentication import get_cache_key
 from api.tests.authentication_tests import setup_fxa_introspect
-from api.views.privaterelay import FXA_PROFILE_URL
+from api.views.privaterelay import FXA_PROFILE_URL, _get_fxa_profile_from_bearer_token
 from privaterelay.models import Profile
 from privaterelay.tests.utils import log_extra
 
@@ -410,6 +411,39 @@ class TermsAcceptedUserViewTest(TestCase):
         assert response.json()["detail"] == "FXA did not return an FXA UID."
         assert introspect_response.call_count == 1
         assert cache.get(cache_key) is None
+
+    @responses.activate
+    def test_socialaccount_created_during_fxa_profile_fetch(self) -> None:
+        user_token = "user-123"
+        email = "user@slow.example.com"
+        introspect_response, expected_data = setup_fxa_introspect(uid=self.uid)
+        profile_response = _mock_fxa_profile_response(email=email, uid=self.uid)
+        cache_key = get_cache_key(user_token)
+        client = _setup_client(user_token)
+
+        assert cache.get(cache_key) is None
+
+        def get_profile_then_create_socialaccount(
+            token: str,
+        ) -> tuple[dict[str, Any], None]:
+            fxa_profile, error_rsp = _get_fxa_profile_from_bearer_token(token)
+            assert isinstance(fxa_profile, dict)
+            assert error_rsp is None
+            user = User.objects.create(email=email)
+            user.profile.created_by = "mocked_function"
+            user.profile.save()
+            SocialAccount.objects.create(provider="fxa", uid=self.uid, user=user)
+            return fxa_profile, error_rsp
+
+        with patch(
+            "api.views.privaterelay._get_fxa_profile_from_bearer_token",
+            side_effect=get_profile_then_create_socialaccount,
+        ):
+            response = client.post(self.path)
+        assert response.status_code == 202
+        assert cache.get(cache_key) == expected_data
+        assert introspect_response.call_count == 1
+        assert profile_response.call_count == 1
 
 
 @responses.activate
