@@ -7,6 +7,7 @@ from django.test import RequestFactory, TestCase
 import responses
 from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
+from requests import ReadTimeout
 from rest_framework.exceptions import APIException, AuthenticationFailed, NotFound
 from rest_framework.test import APIClient
 
@@ -45,9 +46,15 @@ def _create_fxa_introspect_data(
 
 
 def _mock_fxa_introspect_response(
-    status_code: int = 200, data: FxaIntrospectData | str | None = None
+    status_code: int = 200,
+    data: FxaIntrospectData | str | None = None,
+    timeout: bool = False,
 ) -> responses.BaseResponse:
     """Mock the response to a Mozilla Accounts introspection request"""
+    if timeout:
+        return responses.add(
+            responses.POST, INTROSPECT_TOKEN_URL, body=ReadTimeout("FxA is slow today")
+        )
     return responses.add(
         responses.POST,
         INTROSPECT_TOKEN_URL,
@@ -59,7 +66,7 @@ def _mock_fxa_introspect_response(
 class CachedFxaIntrospectResponse(TypedDict):
     """The data stored in the cache to avoid multiple introspection requests."""
 
-    status_code: int
+    status_code: int | None
     json: NotRequired[FxaIntrospectData | str]
 
 
@@ -70,6 +77,7 @@ def setup_fxa_introspect(
     active: bool = True,
     uid: str | None = "an-fxa-id",
     error: str | None = None,
+    timeout: bool = False,
 ) -> tuple[responses.BaseResponse, CachedFxaIntrospectResponse]:
     """
     Mock a Mozilla Accounts introspection response. Return it and
@@ -81,6 +89,9 @@ def setup_fxa_introspect(
     elif text_body:
         mock_response = _mock_fxa_introspect_response(status_code, text_body)
         cached_data = {"status_code": status_code, "json": text_body}
+    elif timeout:
+        mock_response = _mock_fxa_introspect_response(timeout=True)
+        cached_data = {"status_code": None, "json": {}}
     else:
         json_data = _create_fxa_introspect_data(active=active, uid=uid, error=error)
         mock_response = _mock_fxa_introspect_response(status_code, json_data)
@@ -115,6 +126,16 @@ class IntrospectTokenTests(TestCase):
         fxa_resp_data = introspect_token(valid_token)
         assert mock_response.call_count == 1
         assert fxa_resp_data == expected_data
+
+    @responses.activate
+    def test_timeout_raises_exception(self):
+        mock_response = _mock_fxa_introspect_response(timeout=True)
+        slow_token = "slow-123"
+        expected_error_msg = "Could not introspect token with FXA."
+
+        with self.assertRaisesMessage(AuthenticationFailed, expected_error_msg):
+            introspect_token(slow_token)
+        assert mock_response.call_count == 1
 
 
 class GetFxaUidFromOauthTokenTests(TestCase):
@@ -225,6 +246,29 @@ class GetFxaUidFromOauthTokenTests(TestCase):
         # now check that the 2nd call did NOT make another fxa request
         with self.assertRaisesMessage(NotFound, expected_error_msg):
             get_fxa_uid_from_oauth_token(user_token)
+        assert mock_response.call_count == 1
+
+    @responses.activate
+    def test_timeout_raises_authentication_failed(self):
+        slow_token = "user-123"
+        mock_response, expected_data = setup_fxa_introspect(timeout=True)
+        cache_key = get_cache_key(slow_token)
+
+        assert cache.get(cache_key) is None
+
+        # get fxa response that times out
+        with self.assertRaisesMessage(
+            AuthenticationFailed, "Could not introspect token with FXA."
+        ):
+            get_fxa_uid_from_oauth_token(slow_token)
+        assert mock_response.call_count == 1
+        assert cache.get(cache_key) == expected_data
+
+        # now check that the 2nd call did NOT make another fxa request
+        with self.assertRaisesMessage(
+            APIException, "Previous FXA call failed, wait to retry."
+        ):
+            get_fxa_uid_from_oauth_token(slow_token)
         assert mock_response.call_count == 1
 
 
@@ -383,6 +427,36 @@ class FxaTokenAuthenticationTest(TestCase):
         # now check that the 2nd call did NOT make another fxa request
         assert mock_response.call_count == 1
         assert cache.get(get_cache_key(user_token)) == expected_data
+
+    @responses.activate
+    def test_fxa_introspect_timeout(self) -> None:
+        slow_token = "slow-123"
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION=f"Bearer {slow_token}")
+        mock_response, expected_data = setup_fxa_introspect(timeout=True)
+
+        assert cache.get(get_cache_key(slow_token)) is None
+
+        # check the endpoint status code
+        response = client.get("/api/v1/relayaddresses/")
+        assert response.status_code == 401
+        expected_detail = "Could not introspect token with FXA."
+        assert response.json()["detail"] == expected_detail
+        assert mock_response.call_count == 1
+        assert cache.get(get_cache_key(slow_token)) == expected_data
+
+        # check the function raises an exception
+        headers = {"Authorization": f"Bearer {slow_token}"}
+        get_addresses_req = self.factory.get(self.path, headers=headers)
+
+        with self.assertRaisesMessage(
+            APIException, "Previous FXA call failed, wait to retry."
+        ):
+            self.auth.authenticate(get_addresses_req)
+
+        # now check that the 2nd call did NOT make another fxa request
+        assert mock_response.call_count == 1
+        assert cache.get(get_cache_key(slow_token)) == expected_data
 
     @responses.activate
     def test_write_requests_make_calls_to_fxa(self) -> None:
