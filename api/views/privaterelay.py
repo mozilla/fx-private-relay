@@ -3,6 +3,7 @@ from typing import Any, Literal
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db import IntegrityError
 from django.db.models.query import QuerySet
 from django.urls.exceptions import NoReverseMatch
 
@@ -396,7 +397,7 @@ def _create_socialaccount_from_bearer_token(
     # (no Social Token object created).
     try:
         complete_social_login(request, social_login)
-    except NoReverseMatch as e:
+    except (IntegrityError, NoReverseMatch) as e:
         # TODO: use this logging to fix the underlying issue
         # MPP-3473: NoReverseMatch socialaccount_signup
         #  Another user has the same email?
