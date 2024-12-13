@@ -2,14 +2,14 @@ from datetime import datetime
 from typing import NotRequired, TypedDict
 
 from django.core.cache import cache
-from django.test import RequestFactory, TestCase
+from django.test import TestCase
 
 import responses
 from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
 from requests import ReadTimeout, Timeout
 from rest_framework.exceptions import APIException, AuthenticationFailed, NotFound
-from rest_framework.test import APIClient
+from rest_framework.test import APIClient, APIRequestFactory
 
 from ..authentication import (
     INTROSPECT_TOKEN_URL,
@@ -273,7 +273,7 @@ class GetFxaUidFromOauthTokenTests(TestCase):
 class FxaTokenAuthenticationTest(TestCase):
     def setUp(self) -> None:
         self.auth = FxaTokenAuthentication()
-        self.factory = RequestFactory()
+        self.factory = APIRequestFactory()
         self.path = "/api/v1/relayaddresses/"
         self.uid = "relay-user-fxa-uid"
 
@@ -293,8 +293,9 @@ class FxaTokenAuthenticationTest(TestCase):
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION="Bearer ")
         response = client.get("/api/v1/relayaddresses/")
-        assert response.status_code == 400
-        assert response.json()["detail"] == "Missing FXA Token after 'Bearer'."
+        assert response.status_code == 401
+        expected_detail = "Invalid token header. No credentials provided."
+        assert response.json()["detail"] == expected_detail
 
     @responses.activate
     def test_non_200_resp_from_fxa_raises_error_and_caches(self) -> None:
