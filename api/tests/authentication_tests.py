@@ -7,7 +7,7 @@ from django.test import RequestFactory, TestCase
 import responses
 from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
-from requests import ReadTimeout
+from requests import ReadTimeout, Timeout
 from rest_framework.exceptions import APIException, AuthenticationFailed, NotFound
 from rest_framework.test import APIClient
 
@@ -131,9 +131,9 @@ class IntrospectTokenTests(TestCase):
     def test_timeout_raises_exception(self):
         mock_response = _mock_fxa_introspect_response(timeout=True)
         slow_token = "slow-123"
-        expected_error_msg = "Could not introspect token with FXA."
+        expected_error_msg = "FxA is slow today"
 
-        with self.assertRaisesMessage(AuthenticationFailed, expected_error_msg):
+        with self.assertRaisesMessage(Timeout, expected_error_msg):
             introspect_token(slow_token)
         assert mock_response.call_count == 1
 
@@ -257,9 +257,7 @@ class GetFxaUidFromOauthTokenTests(TestCase):
         assert cache.get(cache_key) is None
 
         # get fxa response that times out
-        with self.assertRaisesMessage(
-            AuthenticationFailed, "Could not introspect token with FXA."
-        ):
+        with self.assertRaisesMessage(Timeout, "FxA is slow today"):
             get_fxa_uid_from_oauth_token(slow_token)
         assert mock_response.call_count == 1
         assert cache.get(cache_key) == expected_data
@@ -438,10 +436,8 @@ class FxaTokenAuthenticationTest(TestCase):
         assert cache.get(get_cache_key(slow_token)) is None
 
         # check the endpoint status code
-        response = client.get("/api/v1/relayaddresses/")
-        assert response.status_code == 401
-        expected_detail = "Could not introspect token with FXA."
-        assert response.json()["detail"] == expected_detail
+        with self.assertRaisesMessage(Timeout, "FxA is slow today"):
+            client.get("/api/v1/relayaddresses/")
         assert mock_response.call_count == 1
         assert cache.get(get_cache_key(slow_token)) == expected_data
 
