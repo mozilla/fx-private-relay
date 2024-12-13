@@ -25,7 +25,7 @@ INTROSPECT_TOKEN_URL = "{}/introspect".format(
 
 
 def get_cache_key(token):
-    return hash(token)
+    return f"introspect_result:{token}"
 
 
 def introspect_token(token: str) -> dict[str, Any]:
