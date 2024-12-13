@@ -453,7 +453,7 @@ class TermsAcceptedUserViewTest(TestCase):
         assert profile_response.call_count == 1
 
     @responses.activate
-    def test_fxa_introspect_fetch_timeout_returns_401(self) -> None:
+    def test_fxa_introspect_fetch_timeout_returns_503(self) -> None:
         slow_token = "slow-123"
         email = "user@slow.example.com"
         introspect_response, expected_data = setup_fxa_introspect(timeout=True)
@@ -464,7 +464,7 @@ class TermsAcceptedUserViewTest(TestCase):
         assert cache.get(cache_key) is None
 
         response = client.post(self.path)
-        assert response.status_code == 401
+        assert response.status_code == 503
         assert cache.get(cache_key) is None
         assert introspect_response.call_count == 1
         assert profile_response.call_count == 0
