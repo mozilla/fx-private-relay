@@ -34,6 +34,8 @@ def introspect_token(token: str) -> dict[str, Any]:
             json={"token": token},
             timeout=settings.FXA_REQUESTS_TIMEOUT_SECONDS,
         )
+    except requests.Timeout:
+        raise
     except Exception as exc:
         logger.error(
             "Could not introspect token with FXA.",
@@ -74,7 +76,7 @@ def get_fxa_uid_from_oauth_token(token: str, use_cache: bool = True) -> str:
             else:
                 # no cached data, get new
                 fxa_resp_data = introspect_token(token)
-        except AuthenticationFailed:
+        except (AuthenticationFailed, requests.Timeout):
             raise
         finally:
             # Store potential valid response, errors, inactive users, etc. from FxA
