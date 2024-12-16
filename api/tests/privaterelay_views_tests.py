@@ -258,7 +258,7 @@ class TermsAcceptedUserViewTest(TestCase):
         assert "csrftoken" in response.cookies
         assert introspect_response.call_count == 1
         assert profile_response.call_count == 1
-        assert cache.get(cache_key) == introspect_data
+        assert cache.get(cache_key) == {"status_code": 200, "json": introspect_data}
         assert SocialAccount.objects.filter(user__email=email).count() == 1
         assert Profile.objects.filter(user__email=email).count() == 1
         assert Profile.objects.get(user__email=email).created_by == "firefox_resource"
@@ -423,7 +423,7 @@ class TermsAcceptedUserViewTest(TestCase):
     def test_socialaccount_created_during_fxa_profile_fetch(self) -> None:
         user_token = "user-123"
         email = "user@slow.example.com"
-        introspect_response, expected_data = setup_fxa_introspect(uid=self.uid)
+        introspect_response, fxa_data = setup_fxa_introspect(uid=self.uid)
         profile_response = _mock_fxa_profile_response(email=email, uid=self.uid)
         cache_key = get_cache_key(user_token)
         client = _setup_client(user_token)
@@ -448,7 +448,7 @@ class TermsAcceptedUserViewTest(TestCase):
         ):
             response = client.post(self.path)
         assert response.status_code == 202
-        assert cache.get(cache_key) == expected_data
+        assert cache.get(cache_key) == {"status_code": 200, "json": fxa_data}
         assert introspect_response.call_count == 1
         assert profile_response.call_count == 1
 
@@ -472,7 +472,7 @@ class TermsAcceptedUserViewTest(TestCase):
     @responses.activate
     def test_fxa_profile_fetch_timeout_returns_503(self) -> None:
         slow_token = "user-123"
-        introspect_response, expected_data = setup_fxa_introspect(uid=self.uid)
+        introspect_response, fxa_data = setup_fxa_introspect(uid=self.uid)
         profile_response = _mock_fxa_profile_response(timeout=True)
         cache_key = get_cache_key(slow_token)
         client = _setup_client(slow_token)
@@ -481,7 +481,7 @@ class TermsAcceptedUserViewTest(TestCase):
 
         response = client.post(self.path)
         assert response.status_code == 503
-        assert cache.get(cache_key) == expected_data
+        assert cache.get(cache_key) == {"status_code": 200, "json": fxa_data}
         assert introspect_response.call_count == 1
         assert profile_response.call_count == 1
 
