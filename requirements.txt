@@ -50,7 +50,7 @@ ruff==0.8.2
 boto3-stubs==1.35.81
 botocore-stubs==1.35.81
 django-stubs==5.1.1
-djangorestframework-stubs==3.15.1
+djangorestframework-stubs==3.15.2
 mypy-boto3-s3==1.35.76.post1
 mypy-boto3-ses==1.35.68
 mypy-boto3-sns==1.35.68
