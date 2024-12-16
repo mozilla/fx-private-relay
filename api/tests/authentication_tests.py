@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import NotRequired, TypedDict
 
 from django.core.cache import cache
 from django.test import TestCase
@@ -13,6 +12,8 @@ from rest_framework.test import APIClient, APIRequestFactory
 
 from ..authentication import (
     INTROSPECT_TOKEN_URL,
+    CachedFxaIntrospectResponse,
+    FxaIntrospectData,
     FxaTokenAuthentication,
     get_cache_key,
     get_fxa_uid_from_oauth_token,
@@ -20,15 +21,6 @@ from ..authentication import (
 )
 
 MOCK_BASE = "api.authentication"
-
-
-class FxaIntrospectData(TypedDict, total=False):
-    """Keys seen in the JSON returned from a Mozilla Accounts introspection request"""
-
-    active: bool
-    sub: str
-    exp: int
-    error: str
 
 
 def _create_fxa_introspect_data(
@@ -61,13 +53,6 @@ def _mock_fxa_introspect_response(
         status=status_code,
         json=data,
     )
-
-
-class CachedFxaIntrospectResponse(TypedDict):
-    """The data stored in the cache to avoid multiple introspection requests."""
-
-    status_code: int | None
-    data: NotRequired[FxaIntrospectData | str]
 
 
 def setup_fxa_introspect(
@@ -311,6 +296,7 @@ class FxaTokenAuthenticationTest(TestCase):
     @responses.activate
     def test_non_200_non_json_resp_from_fxa_raises_error_and_caches(self) -> None:
         mock_response, fxa_data = setup_fxa_introspect(503, text_body="Bad Gateway")
+        assert fxa_data is None
         not_found_token = "fxa-gw-error"
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION=f"Bearer {not_found_token}")
@@ -321,7 +307,10 @@ class FxaTokenAuthenticationTest(TestCase):
         assert response.status_code == 500
 
         assert mock_response.call_count == 1
-        assert cache.get(cache_key) == {"status_code": 503, "data": "Bad Gateway"}
+        assert cache.get(cache_key) == {
+            "status_code": 503,
+            "data": {"error": "Bad Gateway"},
+        }
 
         # now check that the code does NOT make another fxa request
         response = client.get("/api/v1/relayaddresses/")
