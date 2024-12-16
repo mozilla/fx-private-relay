@@ -25,7 +25,7 @@ INTROSPECT_TOKEN_URL = "{}/introspect".format(
 
 
 def get_cache_key(token):
-    return f"introspect_result:{token}"
+    return f"introspect_result:v1:{token}"
 
 
 def introspect_token(token: str) -> dict[str, Any]:
@@ -44,9 +44,9 @@ def introspect_token(token: str) -> dict[str, Any]:
         )
         raise AuthenticationFailed("Could not introspect token with FXA.")
 
-    fxa_resp_data = {"status_code": fxa_resp.status_code, "json": {}}
+    fxa_resp_data = {"status_code": fxa_resp.status_code, "data": {}}
     try:
-        fxa_resp_data["json"] = fxa_resp.json()
+        fxa_resp_data["data"] = fxa_resp.json()
     except requests.exceptions.JSONDecodeError:
         logger.error(
             "JSONDecodeError from FXA introspect response.",
@@ -68,7 +68,7 @@ def get_fxa_uid_from_oauth_token(token: str, use_cache: bool = True) -> str:
         # set a default fxa_resp_data, so any error during introspection
         # will still cache for at least cache_timeout to prevent an outage
         # from causing useless run-away repetitive introspection requests
-        fxa_resp_data = {"status_code": None, "json": {}}
+        fxa_resp_data = {"status_code": None, "data": {}}
         try:
             cached_fxa_resp_data = cache.get(cache_key)
 
@@ -90,19 +90,19 @@ def get_fxa_uid_from_oauth_token(token: str, use_cache: bool = True) -> str:
     if not fxa_resp_data["status_code"] == 200:
         raise APIException("Did not receive a 200 response from FXA.")
 
-    if not fxa_resp_data["json"].get("active"):
+    if not fxa_resp_data["data"].get("active"):
         raise AuthenticationFailed("FXA returned active: False for token.")
 
     # FxA user is active, check for the associated Relay account
-    if (raw_fxa_uid := fxa_resp_data.get("json", {}).get("sub")) is None:
+    if (raw_fxa_uid := fxa_resp_data.get("data", {}).get("sub")) is None:
         raise NotFound("FXA did not return an FXA UID.")
     fxa_uid = str(raw_fxa_uid)
 
     # cache valid access_token and fxa_resp_data until access_token expiration
     # TODO: revisit this since the token can expire before its time
-    if isinstance(fxa_resp_data.get("json", {}).get("exp"), int):
+    if isinstance(fxa_resp_data.get("data", {}).get("exp"), int):
         # Note: FXA iat and exp are timestamps in *milliseconds*
-        fxa_token_exp_time = int(fxa_resp_data["json"]["exp"] / 1000)
+        fxa_token_exp_time = int(fxa_resp_data["data"]["exp"] / 1000)
         now_time = int(datetime.now(UTC).timestamp())
         fxa_token_exp_cache_timeout = fxa_token_exp_time - now_time
         if fxa_token_exp_cache_timeout > cache_timeout:

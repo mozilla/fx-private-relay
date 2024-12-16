@@ -258,7 +258,7 @@ class TermsAcceptedUserViewTest(TestCase):
         assert "csrftoken" in response.cookies
         assert introspect_response.call_count == 1
         assert profile_response.call_count == 1
-        assert cache.get(cache_key) == {"status_code": 200, "json": introspect_data}
+        assert cache.get(cache_key) == {"status_code": 200, "data": introspect_data}
         assert SocialAccount.objects.filter(user__email=email).count() == 1
         assert Profile.objects.filter(user__email=email).count() == 1
         assert Profile.objects.get(user__email=email).created_by == "firefox_resource"
@@ -448,7 +448,7 @@ class TermsAcceptedUserViewTest(TestCase):
         ):
             response = client.post(self.path)
         assert response.status_code == 202
-        assert cache.get(cache_key) == {"status_code": 200, "json": fxa_data}
+        assert cache.get(cache_key) == {"status_code": 200, "data": fxa_data}
         assert introspect_response.call_count == 1
         assert profile_response.call_count == 1
 
@@ -481,7 +481,7 @@ class TermsAcceptedUserViewTest(TestCase):
 
         response = client.post(self.path)
         assert response.status_code == 503
-        assert cache.get(cache_key) == {"status_code": 200, "json": fxa_data}
+        assert cache.get(cache_key) == {"status_code": 200, "data": fxa_data}
         assert introspect_response.call_count == 1
         assert profile_response.call_count == 1
 
