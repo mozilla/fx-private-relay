@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import logging
 import shlex
 from datetime import UTC, datetime
-from typing import Any
+from typing import TypedDict, cast
 
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, User
@@ -24,11 +26,27 @@ INTROSPECT_TOKEN_URL = "{}/introspect".format(
 )
 
 
+class CachedFxaIntrospectResponse(TypedDict, total=False):
+    """The data stored in the cache to avoid multiple introspection requests."""
+
+    status_code: int | None
+    data: FxaIntrospectData
+
+
+class FxaIntrospectData(TypedDict, total=False):
+    """Keys seen in the JSON returned from a Mozilla Accounts introspection request"""
+
+    active: bool
+    sub: str
+    exp: int
+    error: str
+
+
 def get_cache_key(token):
     return f"introspect_result:v1:{token}"
 
 
-def introspect_token(token: str) -> dict[str, Any]:
+def introspect_token(token: str) -> CachedFxaIntrospectResponse:
     try:
         fxa_resp = requests.post(
             INTROSPECT_TOKEN_URL,
@@ -44,16 +62,22 @@ def introspect_token(token: str) -> dict[str, Any]:
         )
         raise AuthenticationFailed("Could not introspect token with FXA.")
 
-    fxa_resp_data = {"status_code": fxa_resp.status_code, "data": {}}
     try:
-        fxa_resp_data["data"] = fxa_resp.json()
+        data = fxa_resp.json()
     except requests.exceptions.JSONDecodeError:
         logger.error(
             "JSONDecodeError from FXA introspect response.",
             extra={"fxa_response": shlex.quote(fxa_resp.text)},
         )
         raise AuthenticationFailed("JSONDecodeError from FXA introspect response")
-    return fxa_resp_data
+    if not isinstance(data, dict):
+        logger.error(
+            "FXA returned a non-object.",
+            extra={"fxa_response": shlex.quote(fxa_resp.text)},
+        )
+        data = {"error": data}
+
+    return {"status_code": fxa_resp.status_code, "data": cast(FxaIntrospectData, data)}
 
 
 def get_fxa_uid_from_oauth_token(token: str, use_cache: bool = True) -> str:
