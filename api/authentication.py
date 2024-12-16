@@ -85,26 +85,22 @@ def get_fxa_uid_from_oauth_token(token: str, use_cache: bool = True) -> str:
     # the 'exp' time in the JWT returned by FxA
     cache_timeout = 60
     cache_key = get_cache_key(token)
+
+    fxa_resp_data: CachedFxaIntrospectResponse | None = None
     from_cache = False
 
-    if not use_cache:
-        fxa_resp_data = introspect_token(token)
-    else:
-        cached_fxa_resp_data = cache.get(cache_key)
-
-        if cached_fxa_resp_data:
-            fxa_resp_data = cached_fxa_resp_data
+    if use_cache:
+        if fxa_resp_data := cache.get(cache_key):
             from_cache = True
-        else:
-            # no cached data, get new
-            try:
-                fxa_resp_data = introspect_token(token)
-            except (AuthenticationFailed, requests.Timeout):
-                # Cache an empty fxa_resp_data to prevent an outage
-                # from causing useless run-away repetitive introspection requests
-                fxa_resp_data = {"status_code": None, "data": {}}
-                cache.set(cache_key, fxa_resp_data, cache_timeout)
-                raise
+    if fxa_resp_data is None:
+        try:
+            fxa_resp_data = introspect_token(token)
+        except (AuthenticationFailed, requests.Timeout):
+            # Cache an empty fxa_resp_data to prevent an outage
+            # from causing useless run-away repetitive introspection requests
+            fxa_resp_data = {"status_code": None, "data": {}}
+            cache.set(cache_key, fxa_resp_data, cache_timeout)
+            raise
 
     try:
         if fxa_resp_data["status_code"] is None:
@@ -120,7 +116,7 @@ def get_fxa_uid_from_oauth_token(token: str, use_cache: bool = True) -> str:
         if (raw_fxa_uid := fxa_resp_data.get("data", {}).get("sub")) is None:
             raise NotFound("FXA did not return an FXA UID.")
     except (APIException, AuthenticationFailed, NotFound):
-        if use_cache and not from_cache:
+        if not from_cache:
             cache.set(cache_key, fxa_resp_data, cache_timeout)
         raise
 
