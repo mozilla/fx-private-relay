@@ -85,41 +85,45 @@ def get_fxa_uid_from_oauth_token(token: str, use_cache: bool = True) -> str:
     # the 'exp' time in the JWT returned by FxA
     cache_timeout = 60
     cache_key = get_cache_key(token)
+    from_cache = False
 
     if not use_cache:
         fxa_resp_data = introspect_token(token)
     else:
-        # set a default fxa_resp_data, so any error during introspection
-        # will still cache for at least cache_timeout to prevent an outage
-        # from causing useless run-away repetitive introspection requests
-        fxa_resp_data = {"status_code": None, "data": {}}
-        try:
-            cached_fxa_resp_data = cache.get(cache_key)
+        cached_fxa_resp_data = cache.get(cache_key)
 
-            if cached_fxa_resp_data:
-                fxa_resp_data = cached_fxa_resp_data
-            else:
-                # no cached data, get new
+        if cached_fxa_resp_data:
+            fxa_resp_data = cached_fxa_resp_data
+            from_cache = True
+        else:
+            # no cached data, get new
+            try:
                 fxa_resp_data = introspect_token(token)
-        except (AuthenticationFailed, requests.Timeout):
-            raise
-        finally:
-            # Store potential valid response, errors, inactive users, etc. from FxA
-            # for at least 60 seconds. Valid access_token cache extended after checking.
+            except (AuthenticationFailed, requests.Timeout):
+                # Cache an empty fxa_resp_data to prevent an outage
+                # from causing useless run-away repetitive introspection requests
+                fxa_resp_data = {"status_code": None, "data": {}}
+                cache.set(cache_key, fxa_resp_data, cache_timeout)
+                raise
+
+    try:
+        if fxa_resp_data["status_code"] is None:
+            raise APIException("Previous FXA call failed, wait to retry.")
+
+        if not fxa_resp_data["status_code"] == 200:
+            raise APIException("Did not receive a 200 response from FXA.")
+
+        if not fxa_resp_data["data"].get("active"):
+            raise AuthenticationFailed("FXA returned active: False for token.")
+
+        # FxA user is active, check for the associated Relay account
+        if (raw_fxa_uid := fxa_resp_data.get("data", {}).get("sub")) is None:
+            raise NotFound("FXA did not return an FXA UID.")
+    except (APIException, AuthenticationFailed, NotFound):
+        if use_cache and not from_cache:
             cache.set(cache_key, fxa_resp_data, cache_timeout)
+        raise
 
-    if fxa_resp_data["status_code"] is None:
-        raise APIException("Previous FXA call failed, wait to retry.")
-
-    if not fxa_resp_data["status_code"] == 200:
-        raise APIException("Did not receive a 200 response from FXA.")
-
-    if not fxa_resp_data["data"].get("active"):
-        raise AuthenticationFailed("FXA returned active: False for token.")
-
-    # FxA user is active, check for the associated Relay account
-    if (raw_fxa_uid := fxa_resp_data.get("data", {}).get("sub")) is None:
-        raise NotFound("FXA did not return an FXA UID.")
     fxa_uid = str(raw_fxa_uid)
 
     # cache valid access_token and fxa_resp_data until access_token expiration
