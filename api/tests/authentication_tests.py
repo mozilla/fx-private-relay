@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 
 from django.core.cache import cache
@@ -6,47 +7,58 @@ from django.test import TestCase
 import responses
 from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
-from requests import ReadTimeout, Timeout
-from rest_framework.exceptions import APIException, AuthenticationFailed, NotFound
+from requests import ReadTimeout
+from rest_framework.exceptions import APIException
 from rest_framework.test import APIClient, APIRequestFactory
 
 from ..authentication import (
     INTROSPECT_TOKEN_URL,
-    CachedFxaIntrospectResponse,
     FxaIntrospectData,
     FxaTokenAuthentication,
+    IntrospectAuthenticationFailed,
+    IntrospectionError,
+    IntrospectionResponse,
+    IntrospectUnavailable,
     get_cache_key,
-    get_fxa_uid_from_oauth_token,
     introspect_token,
+    introspect_token_or_raise,
 )
 
 MOCK_BASE = "api.authentication"
 
 
 def _create_fxa_introspect_data(
-    active: bool = True, uid: str | None = "an-fxa-id", error: str | None = None
+    active: bool = True,
+    uid: str | None = "an-fxa-id",
+    expiration: bool = True,
+    error: str | None = None,
 ) -> FxaIntrospectData:
     """Create a Mozilla Accounts introspection response"""
-    now_time = int(datetime.now().timestamp())
-    exp_ms = (now_time + 60 * 60) * 1000  # Time in milliseconds
     if error:
         return {"error": error}
+    data: FxaIntrospectData = {"active": active}
     if uid:
-        return {"active": active, "sub": uid, "exp": exp_ms}
-    else:
-        return {"active": active, "exp": exp_ms}
+        data["sub"] = uid
+    if expiration:
+        now_time = int(datetime.now().timestamp())
+        exp_ms = (now_time + 60 * 60) * 1000  # Time in milliseconds
+        data["exp"] = exp_ms
+    return data
 
 
 def _mock_fxa_introspect_response(
     status_code: int = 200,
     data: FxaIntrospectData | str | None = None,
     timeout: bool = False,
+    exception: Exception | None = None,
 ) -> responses.BaseResponse:
     """Mock the response to a Mozilla Accounts introspection request"""
     if timeout:
         return responses.add(
             responses.POST, INTROSPECT_TOKEN_URL, body=ReadTimeout("FxA is slow today")
         )
+    if exception:
+        return responses.add(responses.POST, INTROSPECT_TOKEN_URL, body=exception)
     return responses.add(
         responses.POST,
         INTROSPECT_TOKEN_URL,
@@ -61,8 +73,10 @@ def setup_fxa_introspect(
     text_body: str | None = None,
     active: bool = True,
     uid: str | None = "an-fxa-id",
+    expiration: bool = True,
     error: str | None = None,
     timeout: bool = False,
+    exception: Exception | None = None,
 ) -> tuple[responses.BaseResponse, FxaIntrospectData | None]:
     """
     Mock a Mozilla Accounts introspection response. Return it and
@@ -75,8 +89,12 @@ def setup_fxa_introspect(
         mock_response = _mock_fxa_introspect_response(status_code, text_body)
     elif timeout:
         mock_response = _mock_fxa_introspect_response(timeout=True)
+    elif exception:
+        mock_response = _mock_fxa_introspect_response(exception=exception)
     else:
-        data = _create_fxa_introspect_data(active=active, uid=uid, error=error)
+        data = _create_fxa_introspect_data(
+            active=active, uid=uid, expiration=expiration, error=error
+        )
         mock_response = _mock_fxa_introspect_response(status_code, data)
     return mock_response, data
 
@@ -84,43 +102,107 @@ def setup_fxa_introspect(
 class IntrospectTokenTests(TestCase):
     """Tests for introspect_token"""
 
-    def tearDown(self):
-        cache.clear()
-
     @responses.activate
-    def test_JSONDecodeError_raises_AuthenticationFailed(self):
-        mock_response = _mock_fxa_introspect_response(200)
-        invalid_token = "invalid-123"
-        expected_error_msg = "JSONDecodeError from FXA introspect response"
-
-        with self.assertRaisesMessage(AuthenticationFailed, expected_error_msg):
-            introspect_token(invalid_token)
-        assert mock_response.call_count == 1
-
-    @responses.activate
-    def test_returns_fxa_introspect_data(self):
+    def test_success_returns_introspection_response(self):
         mock_response, fxa_data = setup_fxa_introspect()
-        valid_token = "valid-123"
-        cache_key = get_cache_key(valid_token)
-        assert cache.get(cache_key) is None
+        assert fxa_data is not None
 
-        fxa_resp_data = introspect_token(valid_token)
+        fxa_resp = introspect_token("the-token")
+        assert fxa_resp == IntrospectionResponse(fxa_data)
         assert mock_response.call_count == 1
-        assert fxa_resp_data == {"status_code": 200, "data": fxa_data}
 
     @responses.activate
-    def test_timeout_raises_exception(self):
+    def test_timeout_returns_error(self):
         mock_response = _mock_fxa_introspect_response(timeout=True)
-        slow_token = "slow-123"
-        expected_error_msg = "FxA is slow today"
 
-        with self.assertRaisesMessage(Timeout, expected_error_msg):
-            introspect_token(slow_token)
+        fxa_resp = introspect_token("the-token")
+        assert fxa_resp == IntrospectionError("Timeout")
+        assert mock_response.call_count == 1
+
+    @responses.activate
+    def test_other_request_exception_returns_error(self):
+        mock_response = _mock_fxa_introspect_response(
+            exception=Exception("An Exception")
+        )
+
+        fxa_resp = introspect_token("the-token")
+        assert fxa_resp == IntrospectionError(
+            "FailedRequest", ["Exception", "An Exception"]
+        )
+        assert mock_response.call_count == 1
+
+    @responses.activate
+    def test_no_body_returns_error(self) -> None:
+        mock_response, _ = setup_fxa_introspect(no_body=True)
+
+        fxa_resp = introspect_token("the-token")
+        assert fxa_resp == IntrospectionError("NotJson", [""], status_code=200)
+        assert mock_response.call_count == 1
+
+    @responses.activate
+    def test_list_body_returns_error(self) -> None:
+        valid_data = _create_fxa_introspect_data()
+        invalid_data = [valid_data]
+        invalid_text = json.dumps(invalid_data)
+        mock_response, _ = setup_fxa_introspect(text_body=invalid_text)
+
+        fxa_resp = introspect_token("the-token")
+        assert fxa_resp == IntrospectionError(
+            "NotJsonDict", [invalid_text], status_code=200
+        )
+        assert mock_response.call_count == 1
+
+    @responses.activate
+    def test_401_response_returns_error(self) -> None:
+        mock_response, fxa_data = setup_fxa_introspect(401, active=False)
+
+        fxa_resp = introspect_token("the-token")
+        assert fxa_resp == IntrospectionError(
+            "NotAuthorized", status_code=401, data=fxa_data
+        )
+        assert mock_response.call_count == 1
+
+    @responses.activate
+    def test_500_response_returns_error(self) -> None:
+        mock_response, fxa_data = setup_fxa_introspect(500)
+
+        fxa_resp = introspect_token("the-token")
+        assert fxa_resp == IntrospectionError("NotOK", status_code=500, data=fxa_data)
+        assert mock_response.call_count == 1
+
+    @responses.activate
+    def test_inactive_response_returns_error(self) -> None:
+        mock_response, fxa_data = setup_fxa_introspect(active=False)
+
+        fxa_resp = introspect_token("the-token")
+        assert fxa_resp == IntrospectionError(
+            "NotActive", status_code=200, data=fxa_data
+        )
+        assert mock_response.call_count == 1
+
+    @responses.activate
+    def test_no_subject_response_returns_error(self) -> None:
+        mock_response, fxa_data = setup_fxa_introspect(uid=None)
+
+        fxa_resp = introspect_token("the-token")
+        assert fxa_resp == IntrospectionError(
+            "NoSubject", status_code=200, data=fxa_data
+        )
+        assert mock_response.call_count == 1
+
+    @responses.activate
+    def test_no_expiration_response_is_ok(self) -> None:
+        mock_response, fxa_data = setup_fxa_introspect(expiration=False)
+        assert fxa_data
+
+        fxa_resp = introspect_token("the-token")
+        assert fxa_resp == IntrospectionResponse(data=fxa_data)
+        assert getattr(fxa_resp, "cache_timeout", None) == 0
         assert mock_response.call_count == 1
 
 
-class GetFxaUidFromOauthTokenTests(TestCase):
-    """Tests for get_fxa_uid_from_oauth_token"""
+class IntrospectTokenOrRaiseTests(TestCase):
+    """Tests for introspect_token_or_raise"""
 
     uid = "relay-user-fxa-uid"
 
@@ -131,97 +213,20 @@ class GetFxaUidFromOauthTokenTests(TestCase):
     def test_cached_success_response(self):
         user_token = "user-123"
         mock_response, fxa_data = setup_fxa_introspect(uid=self.uid)
+        assert fxa_data is not None
         cache_key = get_cache_key(user_token)
         assert cache.get(cache_key) is None
 
         # get FxA uid for the first time
-        fxa_uid = get_fxa_uid_from_oauth_token(user_token)
-        assert fxa_uid == self.uid
+        fxa_resp = introspect_token_or_raise(user_token)
+        assert fxa_resp.fxa_id == self.uid
+        assert not fxa_resp.from_cache
         assert mock_response.call_count == 1
-        assert cache.get(cache_key) == {"status_code": 200, "data": fxa_data}
+        assert cache.get(cache_key) == {"v": 1, "data": fxa_data}
 
         # now check that the 2nd call did NOT make another fxa request
-        fxa_uid = get_fxa_uid_from_oauth_token(user_token)
-        assert fxa_uid == self.uid
-        assert mock_response.call_count == 1
-
-    @responses.activate
-    def test_cached_no_body_response(self) -> None:
-        mock_response, _ = setup_fxa_introspect(no_body=True)
-        invalid_token = "invalid-123"
-        cache_key = get_cache_key(invalid_token)
-        assert cache.get(cache_key) is None
-
-        # get fxa response with no status code for the first time
-        with self.assertRaisesMessage(
-            AuthenticationFailed, "JSONDecodeError from FXA introspect response"
-        ):
-            get_fxa_uid_from_oauth_token(invalid_token)
-        assert mock_response.call_count == 1
-        assert cache.get(cache_key) == {"status_code": None, "data": {}}
-
-        # now check that the 2nd call did NOT make another fxa request
-        with self.assertRaisesMessage(
-            APIException, "Previous FXA call failed, wait to retry."
-        ):
-            get_fxa_uid_from_oauth_token(invalid_token)
-        assert mock_response.call_count == 1
-
-    @responses.activate
-    def test_cached_401_response(self) -> None:
-        mock_response, fxa_data = setup_fxa_introspect(401, active=False)
-        invalid_token = "invalid-123"
-        cache_key = get_cache_key(invalid_token)
-        expected_error_msg = "Did not receive a 200 response from FXA."
-        assert cache.get(cache_key) is None
-
-        # get fxa response with 401 (not 200) for the first time
-        with self.assertRaisesMessage(APIException, expected_error_msg):
-            get_fxa_uid_from_oauth_token(invalid_token)
-        assert mock_response.call_count == 1
-        assert cache.get(cache_key) == {"status_code": 401, "data": fxa_data}
-
-        # now check that the 2nd call did NOT make another fxa request
-        with self.assertRaisesMessage(APIException, expected_error_msg):
-            get_fxa_uid_from_oauth_token(invalid_token)
-        assert mock_response.call_count == 1
-
-    @responses.activate
-    def test_cached_inactive_response(self) -> None:
-        mock_response, fxa_data = setup_fxa_introspect(active=False)
-        invalid_token = "invalid-123"
-        cache_key = get_cache_key(invalid_token)
-        expected_error_msg = "FXA returned active: False for token."
-        assert cache.get(cache_key) is None
-
-        # get fxa response with token inactive for the first time
-        with self.assertRaisesMessage(AuthenticationFailed, expected_error_msg):
-            get_fxa_uid_from_oauth_token(invalid_token)
-        assert mock_response.call_count == 1
-        assert cache.get(cache_key) == {"status_code": 200, "data": fxa_data}
-
-        # now check that the 2nd call did NOT make another fxa request
-        with self.assertRaisesMessage(AuthenticationFailed, expected_error_msg):
-            get_fxa_uid_from_oauth_token(invalid_token)
-        assert mock_response.call_count == 1
-
-    @responses.activate
-    def test_cached_missing_uid(self):
-        user_token = "user-123"
-        mock_response, fxa_data = setup_fxa_introspect(uid=None)
-        cache_key = get_cache_key(user_token)
-        expected_error_msg = "FXA did not return an FXA UID."
-        assert cache.get(cache_key) is None
-
-        # get fxa response with no fxa uid for the first time
-        with self.assertRaisesMessage(NotFound, expected_error_msg):
-            get_fxa_uid_from_oauth_token(user_token)
-        assert mock_response.call_count == 1
-        assert cache.get(cache_key) == {"status_code": 200, "data": fxa_data}
-
-        # now check that the 2nd call did NOT make another fxa request
-        with self.assertRaisesMessage(NotFound, expected_error_msg):
-            get_fxa_uid_from_oauth_token(user_token)
+        fxa_resp2 = introspect_token_or_raise(user_token)
+        assert fxa_resp2.from_cache
         assert mock_response.call_count == 1
 
     @responses.activate
@@ -232,16 +237,106 @@ class GetFxaUidFromOauthTokenTests(TestCase):
         assert cache.get(cache_key) is None
 
         # get fxa response that times out
-        with self.assertRaisesMessage(Timeout, "FxA is slow today"):
-            get_fxa_uid_from_oauth_token(slow_token)
+        with self.assertRaises(IntrospectUnavailable):
+            introspect_token_or_raise(slow_token)
         assert mock_response.call_count == 1
-        assert cache.get(cache_key) == {"status_code": None, "data": {}}
+        assert cache.get(cache_key) == {"v": 1, "error": "Timeout"}
 
         # now check that the 2nd call did NOT make another fxa request
-        with self.assertRaisesMessage(
-            APIException, "Previous FXA call failed, wait to retry."
-        ):
-            get_fxa_uid_from_oauth_token(slow_token)
+        with self.assertRaises(IntrospectUnavailable):
+            introspect_token_or_raise(slow_token)
+        assert mock_response.call_count == 1
+
+    @responses.activate
+    def test_cached_no_body_response(self) -> None:
+        mock_response, _ = setup_fxa_introspect(no_body=True)
+        invalid_token = "invalid-123"
+        cache_key = get_cache_key(invalid_token)
+        assert cache.get(cache_key) is None
+
+        # get fxa response with no status code for the first time
+        with self.assertRaises(IntrospectUnavailable):
+            introspect_token_or_raise(invalid_token)
+        assert mock_response.call_count == 1
+        assert cache.get(cache_key) == {
+            "v": 1,
+            "error": "NotJson",
+            "error_args": [""],
+            "status_code": 200,
+        }
+
+        # now check that the 2nd call did NOT make another fxa request
+        with self.assertRaises(IntrospectUnavailable):
+            introspect_token_or_raise(invalid_token)
+        assert mock_response.call_count == 1
+
+    @responses.activate
+    def test_cached_401_response(self) -> None:
+        mock_response, fxa_data = setup_fxa_introspect(401, active=False)
+        invalid_token = "invalid-123"
+        cache_key = get_cache_key(invalid_token)
+        assert cache.get(cache_key) is None
+
+        # get fxa response with 401 (not 200) for the first time
+        with self.assertRaises(IntrospectAuthenticationFailed):
+            introspect_token_or_raise(invalid_token)
+        assert mock_response.call_count == 1
+        assert cache.get(cache_key) == {
+            "v": 1,
+            "error": "NotAuthorized",
+            "status_code": 401,
+            "data": fxa_data,
+        }
+
+        # now check that the 2nd call did NOT make another fxa request
+        with self.assertRaises(IntrospectAuthenticationFailed):
+            introspect_token_or_raise(invalid_token)
+        assert mock_response.call_count == 1
+
+    @responses.activate
+    def test_cached_inactive_response(self) -> None:
+        mock_response, fxa_data = setup_fxa_introspect(active=False)
+        invalid_token = "invalid-123"
+        cache_key = get_cache_key(invalid_token)
+        assert cache.get(cache_key) is None
+
+        # get fxa response with token inactive for the first time
+        with self.assertRaises(IntrospectAuthenticationFailed):
+            introspect_token_or_raise(invalid_token)
+        assert mock_response.call_count == 1
+        assert cache.get(cache_key) == {
+            "v": 1,
+            "error": "NotActive",
+            "status_code": 200,
+            "data": fxa_data,
+        }
+
+        # now check that the 2nd call did NOT make another fxa request
+        with self.assertRaises(IntrospectAuthenticationFailed):
+            introspect_token_or_raise(invalid_token)
+        assert mock_response.call_count == 1
+
+    @responses.activate
+    def test_cached_missing_uid(self):
+        user_token = "user-123"
+        mock_response, fxa_data = setup_fxa_introspect(uid=None)
+        cache_key = get_cache_key(user_token)
+        assert cache.get(cache_key) is None
+
+        # get fxa response with no fxa uid for the first time
+        with self.assertRaises(IntrospectUnavailable):
+            introspect_token_or_raise(user_token)
+        assert mock_response.call_count == 1
+        assert cache.get(cache_key) == {
+            "v": 1,
+            "error": "NoSubject",
+            "status_code": 200,
+            "data": fxa_data,
+        }
+
+        # now check that the 2nd call did NOT make another fxa request
+        with self.assertRaises(IntrospectUnavailable):
+            introspect_token_or_raise(user_token)
         assert mock_response.call_count == 1
 
 
@@ -282,15 +377,20 @@ class FxaTokenAuthenticationTest(TestCase):
         assert cache.get(cache_key) is None
 
         response = client.get("/api/v1/relayaddresses/")
-        assert response.status_code == 500
-        assert response.json()["detail"] == "Did not receive a 200 response from FXA."
+        assert response.status_code == 401
+        assert response.json()["detail"] == "Incorrect authentication credentials."
 
         assert mock_response.call_count == 1
-        assert cache.get(cache_key) == {"status_code": 401, "data": fxa_data}
+        assert cache.get(cache_key) == {
+            "v": 1,
+            "error": "NotAuthorized",
+            "status_code": 401,
+            "data": fxa_data,
+        }
 
         # now check that the code does NOT make another fxa request
         response2 = client.get("/api/v1/relayaddresses/")
-        assert response2.status_code == 500
+        assert response2.status_code == 401
         assert mock_response.call_count == 1
 
     @responses.activate
@@ -304,12 +404,14 @@ class FxaTokenAuthenticationTest(TestCase):
         assert cache.get(cache_key) is None
 
         response = client.get("/api/v1/relayaddresses/")
-        assert response.status_code == 500
+        assert response.status_code == 503
 
         assert mock_response.call_count == 1
         assert cache.get(cache_key) == {
+            "v": 1,
+            "error": "NotJsonDict",
+            "error_args": ["Bad Gateway"],
             "status_code": 503,
-            "data": {"error": "Bad Gateway"},
         }
 
         # now check that the code does NOT make another fxa request
@@ -327,9 +429,14 @@ class FxaTokenAuthenticationTest(TestCase):
 
         response = client.get("/api/v1/relayaddresses/")
         assert response.status_code == 401
-        assert response.json()["detail"] == "FXA returned active: False for token."
+        assert response.json()["detail"] == "Incorrect authentication credentials."
         assert mock_response.call_count == 1
-        assert cache.get(cache_key) == {"status_code": 200, "data": fxa_data}
+        assert cache.get(cache_key) == {
+            "v": 1,
+            "error": "NotActive",
+            "status_code": 200,
+            "data": fxa_data,
+        }
 
         # now check that the code does NOT make another fxa request
         response2 = client.get("/api/v1/relayaddresses/")
@@ -353,7 +460,7 @@ class FxaTokenAuthenticationTest(TestCase):
         )
         assert response.json()["detail"] == expected_detail
         assert mock_response.call_count == 1
-        assert cache.get(cache_key) == {"status_code": 200, "data": fxa_data}
+        assert cache.get(cache_key) == {"v": 1, "data": fxa_data}
 
         # the code does NOT make another fxa request
         response2 = client.get("/api/v1/relayaddresses/")
@@ -385,6 +492,7 @@ class FxaTokenAuthenticationTest(TestCase):
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION=f"Bearer {user_token}")
         mock_response, fxa_data = setup_fxa_introspect(uid=self.uid)
+        assert fxa_data is not None
         cache_key = get_cache_key(user_token)
         assert cache.get(cache_key) is None
 
@@ -392,14 +500,17 @@ class FxaTokenAuthenticationTest(TestCase):
         response = client.get("/api/v1/relayaddresses/")
         assert response.status_code == 200
         assert mock_response.call_count == 1
-        expected_cache_value = {"status_code": 200, "data": fxa_data}
+        expected_cache_value = {"v": 1, "data": fxa_data}
         assert cache.get(cache_key) == expected_cache_value
 
         # check the function returns the right user
         headers = {"Authorization": f"Bearer {user_token}"}
         get_addresses_req = self.factory.get(self.path, headers=headers)
         auth_return = self.auth.authenticate(get_addresses_req)
-        assert auth_return == (sa.user, user_token)
+        assert auth_return == (
+            sa.user,
+            IntrospectionResponse(data=fxa_data, from_cache=True),
+        )
 
         # now check that the 2nd call did NOT make another fxa request
         assert mock_response.call_count == 1
@@ -415,27 +526,22 @@ class FxaTokenAuthenticationTest(TestCase):
         assert cache.get(cache_key) is None
 
         # check the endpoint status code
-        with self.assertRaisesMessage(Timeout, "FxA is slow today"):
-            client.get("/api/v1/relayaddresses/")
+        response = client.get("/api/v1/relayaddresses/")
+        assert response.status_code == 503
         assert mock_response.call_count == 1
-        expected_cache_value: CachedFxaIntrospectResponse = {
-            "status_code": None,
-            "data": {},
-        }
-        assert cache.get(cache_key) == expected_cache_value
+        assert cache.get(cache_key) == {"v": 1, "error": "Timeout"}
 
         # check the function raises an exception
         headers = {"Authorization": f"Bearer {slow_token}"}
         get_addresses_req = self.factory.get(self.path, headers=headers)
 
         with self.assertRaisesMessage(
-            APIException, "Previous FXA call failed, wait to retry."
+            APIException, "Introspection temporarily unavailable, try again later."
         ):
             self.auth.authenticate(get_addresses_req)
 
         # now check that the 2nd call did NOT make another fxa request
         assert mock_response.call_count == 1
-        assert cache.get(cache_key) == expected_cache_value
 
     @responses.activate
     def test_write_requests_make_calls_to_fxa(self) -> None:
@@ -444,6 +550,7 @@ class FxaTokenAuthenticationTest(TestCase):
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION=f"Bearer {user_token}")
         mock_response, fxa_data = setup_fxa_introspect(uid=self.uid)
+        assert fxa_data is not None
         cache_key = get_cache_key(user_token)
         assert cache.get(cache_key) is None
 
@@ -451,14 +558,17 @@ class FxaTokenAuthenticationTest(TestCase):
         response = client.get("/api/v1/relayaddresses/")
         assert response.status_code == 200
         assert mock_response.call_count == 1
-        expected_cache_value = {"status_code": 200, "data": fxa_data}
+        expected_cache_value = {"v": 1, "data": fxa_data}
         assert cache.get(cache_key) == expected_cache_value
 
         # check the function returns the right user
         headers = {"Authorization": f"Bearer {user_token}"}
         get_addresses_req = self.factory.get(self.path, headers=headers)
         auth_return = self.auth.authenticate(get_addresses_req)
-        assert auth_return == (sa.user, user_token)
+        assert auth_return == (
+            sa.user,
+            IntrospectionResponse(data=fxa_data, from_cache=True),
+        )
 
         # now check that the 2nd GET request did NOT make another fxa request
         assert mock_response.call_count == 1
