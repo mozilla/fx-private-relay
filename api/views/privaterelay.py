@@ -44,7 +44,7 @@ from privaterelay.plans import (
 )
 from privaterelay.utils import get_countries_info_from_request_and_mapping
 
-from ..authentication import get_fxa_uid_from_oauth_token
+from ..authentication import introspect_token_or_raise
 from ..permissions import CanManageFlags, IsOwner
 from ..serializers.privaterelay import (
     FlagSerializer,
@@ -317,13 +317,7 @@ def terms_accepted_user(request: Request) -> Response:
         raise ParseError("Missing FXA Token after 'Bearer'.")
 
     try:
-        fxa_uid = get_fxa_uid_from_oauth_token(token, use_cache=False)
-    except requests.Timeout:
-        return Response(
-            data={"detail": "Account introspection request timeout, try again later."},
-            status=503,
-        )
-
+        introspect_response = introspect_token_or_raise(token, use_cache=False)
     except AuthenticationFailed as e:
         # AuthenticationFailed exception returns 403 instead of 401 because we are not
         # using the proper config that comes with the authentication_classes. See:
@@ -333,6 +327,7 @@ def terms_accepted_user(request: Request) -> Response:
         else:  # pragma: no cover
             # Used when detail is a list[Detail] or dict[str, Detail]
             return Response(data={"detail": e.get_full_details()}, status=e.status_code)
+    fxa_uid = introspect_response.fxa_id
 
     existing_sa = False
     action: str | None = None
