@@ -337,7 +337,7 @@ class TermsAcceptedUserViewTest(TestCase):
         assert "csrftoken" in response.cookies
         assert introspect_response.call_count == 1
         assert profile_response.call_count == 1
-        assert cache.get(cache_key) == {"status_code": 200, "data": introspect_data}
+        assert cache.get(cache_key) == {"v": 1, "data": introspect_data}
         assert SocialAccount.objects.filter(user__email=email).count() == 1
         assert Profile.objects.filter(user__email=email).count() == 1
         assert Profile.objects.get(user__email=email).created_by == "firefox_resource"
@@ -425,16 +425,18 @@ class TermsAcceptedUserViewTest(TestCase):
         introspect_response, fxa_data = setup_fxa_introspect(401, error="401")
         not_found_token = "not-found-123"
         client = _setup_client(not_found_token)
-
-        assert cache.get(get_cache_key(not_found_token)) is None
+        cache_key = get_cache_key(not_found_token)
+        assert cache.get(cache_key) is None
 
         response = client.post(self.path)
-        assert response.status_code == 500
-        assert response.json()["detail"] == "Did not receive a 200 response from FXA."
+        assert response.status_code == 401
+        assert response.json()["detail"] == "Incorrect Authentication Credentials."
         assert introspect_response.call_count == 1
-        assert cache.get(get_cache_key(not_found_token)) == {
+        assert cache.get(cache_key) == {
+            "v": 1,
+            "error": "NotAuthorized",
             "status_code": 401,
-            "data": fxa_data,
+            "data": {"error": "401"},
         }
 
     @responses.activate
@@ -447,11 +449,16 @@ class TermsAcceptedUserViewTest(TestCase):
 
         # get fxa response with no status code for the first time
         response = client.post(self.path)
-        assert response.status_code == 401
-        expected_detail = "Jsondecodeerror From Fxa Introspect Response"
+        assert response.status_code == 503
+        expected_detail = "Introspection temporarily unavailable, try again later."
         assert response.json()["detail"] == expected_detail
         assert introspect_response.call_count == 1
-        assert cache.get(cache_key) == {"status_code": None, "data": {}}
+        assert cache.get(cache_key) == {
+            "v": 1,
+            "error": "NotJson",
+            "error_args": [""],
+            "status_code": 200,
+        }
 
     @responses.activate
     def test_non_200_response_from_fxa_returns_500_and_is_cached(self) -> None:
@@ -465,42 +472,57 @@ class TermsAcceptedUserViewTest(TestCase):
 
         # get fxa response with non-200 response for the first time
         response = client.post(self.path)
-        assert response.status_code == 500
-        assert response.json()["detail"] == "Did not receive a 200 response from FXA."
+        assert response.status_code == 401
+        assert response.json()["detail"] == "Incorrect Authentication Credentials."
         assert introspect_response.call_count == 1
-        assert cache.get(cache_key) == {"status_code": 401, "data": fxa_data}
+        assert cache.get(cache_key) == {
+            "v": 1,
+            "error": "NotAuthorized",
+            "status_code": 401,
+            "data": fxa_data,
+        }
 
     @responses.activate
-    def test_inactive_fxa_oauth_token_returns_401_and_is_cached(self) -> None:
+    def test_inactive_fxa_oauth_token_returns_401(self) -> None:
         introspect_response, fxa_data = setup_fxa_introspect(active=False, uid=self.uid)
         invalid_token = "invalid-123"
         cache_key = get_cache_key(invalid_token)
         client = _setup_client(invalid_token)
-
         assert cache.get(cache_key) is None
 
         # get fxa response with token inactive for the first time
         response = client.post(self.path)
         assert response.status_code == 401
-        assert response.json()["detail"] == "Fxa Returned Active: False For Token."
+        assert response.json()["detail"] == "Incorrect Authentication Credentials."
         assert introspect_response.call_count == 1
-        assert cache.get(cache_key) == {"status_code": 200, "data": fxa_data}
+        assert cache.get(cache_key) == {
+            "v": 1,
+            "error": "NotActive",
+            "status_code": 200,
+            "data": fxa_data,
+        }
 
     @responses.activate
-    def test_fxa_responds_with_no_fxa_uid_returns_404_and_is_cached(self) -> None:
+    def test_fxa_responds_with_no_fxa_uid_returns_404(self) -> None:
         user_token = "user-123"
         introspect_response, fxa_data = setup_fxa_introspect(uid=None)
         cache_key = get_cache_key(user_token)
         client = _setup_client(user_token)
-
         assert cache.get(cache_key) is None
 
         # get fxa response with no fxa uid for the first time
         response = client.post(self.path)
-        assert response.status_code == 404
-        assert response.json()["detail"] == "FXA did not return an FXA UID."
-        assert introspect_response.call_count == 1
-        assert cache.get(cache_key) == {"status_code": 200, "data": fxa_data}
+        assert response.status_code == 503
+        assert (
+            response.json()["detail"]
+            == "Introspection temporarily unavailable, try again later."
+        )
+        assert cache.get(cache_key) == {
+            "v": 1,
+            "error": "NoSubject",
+            "status_code": 200,
+            "data": fxa_data,
+        }
 
     @responses.activate
     def test_fxa_responds_with_missing_relay_scope_returns_401_and_is_cached(
@@ -515,12 +537,14 @@ class TermsAcceptedUserViewTest(TestCase):
         # get fxa response with no fxa uid for the first time
         response = client.post(self.path)
         assert response.status_code == 401
-        expected = (
-            "Fxa Token Is Missing Scope: Https://Identity.Mozilla.Com/Apps/Relay."
-        )
-        assert response.json()["detail"] == expected
+        assert response.json()["detail"] == "Incorrect Authentication Credentials."
         assert introspect_response.call_count == 1
-        assert cache.get(cache_key) == {"status_code": 200, "data": fxa_data}
+        assert cache.get(cache_key) == {
+            "v": 1,
+            "error": "MissingScope",
+            "status_code": 200,
+            "data": fxa_data,
+        }
 
     @responses.activate
     def test_socialaccount_created_during_fxa_profile_fetch(self) -> None:
@@ -551,7 +575,7 @@ class TermsAcceptedUserViewTest(TestCase):
         ):
             response = client.post(self.path)
         assert response.status_code == 202
-        assert cache.get(cache_key) == {"status_code": 200, "data": fxa_data}
+        assert cache.get(cache_key) == {"v": 1, "data": fxa_data}
         assert introspect_response.call_count == 1
         assert profile_response.call_count == 1
 
@@ -568,7 +592,7 @@ class TermsAcceptedUserViewTest(TestCase):
 
         response = client.post(self.path)
         assert response.status_code == 503
-        assert cache.get(cache_key) == {"status_code": None, "data": {}}
+        assert cache.get(cache_key) == {"v": 1, "error": "Timeout"}
         assert introspect_response.call_count == 1
         assert profile_response.call_count == 0
 
@@ -584,6 +608,6 @@ class TermsAcceptedUserViewTest(TestCase):
 
         response = client.post(self.path)
         assert response.status_code == 503
-        assert cache.get(cache_key) == {"status_code": 200, "data": fxa_data}
+        assert cache.get(cache_key) == {"v": 1, "data": fxa_data}
         assert introspect_response.call_count == 1
         assert profile_response.call_count == 1
