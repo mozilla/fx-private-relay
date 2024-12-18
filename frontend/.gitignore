@@ -22,6 +22,9 @@ coverage
 .DS_Store
 *.pem
 
+# typescript
+tsconfig.tsbuildinfo
+
 # debug
 npm-debug.log*
 yarn-debug.log*

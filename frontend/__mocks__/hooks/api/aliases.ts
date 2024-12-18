@@ -28,7 +28,7 @@ const mockedGetFullAddress = getFullAddress as jest.MockedFunction<
 // We only need to mock out the functions that make HTTP requests;
 // restore the rest:
 const actualModule = jest.requireActual(
-  "../../../src/hooks/api/aliases"
+  "../../../src/hooks/api/aliases",
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ) as any;
 mockedIsRandomAlias.mockImplementation(actualModule.isRandomAlias);
@@ -36,7 +36,7 @@ mockedGetAllAliases.mockImplementation(actualModule.getAllAliases);
 mockedGetFullAddress.mockImplementation(actualModule.getFullAddress);
 
 export function getMockRandomAlias(
-  alias?: Partial<RandomAliasData>
+  alias?: Partial<RandomAliasData>,
 ): RandomAliasData {
   return {
     mask_type: "random",
@@ -62,7 +62,7 @@ export function getMockRandomAlias(
   };
 }
 export function getMockCustomAlias(
-  alias?: Partial<CustomAliasData>
+  alias?: Partial<CustomAliasData>,
 ): CustomAliasData {
   return {
     mask_type: "custom",
@@ -98,23 +98,27 @@ type Callbacks = {
 };
 function getReturnValue(
   aliasesData?: MockData,
-  callbacks?: Callbacks
+  callbacks?: Callbacks,
 ): ReturnType<typeof useAliases> {
   const randomAliasData = (aliasesData?.random || [{}]).map((alias) =>
-    getMockRandomAlias(alias)
+    getMockRandomAlias(alias),
   );
   const customAliasData = (aliasesData?.custom || [{}]).map((alias) =>
-    getMockCustomAlias(alias)
+    getMockCustomAlias(alias),
   );
 
   return {
     randomAliasData: {
       isValidating: false,
+      isLoading: false,
+      error: undefined,
       mutate: jest.fn(),
       data: randomAliasData,
     },
     customAliasData: {
       isValidating: false,
+      isLoading: false,
+      error: undefined,
       mutate: jest.fn(),
       data: customAliasData,
     },
@@ -132,14 +136,14 @@ function getReturnValue(
 
 export const setMockAliasesData = (
   aliasesData?: MockData,
-  callbacks?: Callbacks
+  callbacks?: Callbacks,
 ) => {
   mockedUseAliases.mockReturnValue(getReturnValue(aliasesData, callbacks));
 };
 
 export const setMockAliasesDataOnce = (
   aliasesData?: MockData,
-  callbacks?: Callbacks
+  callbacks?: Callbacks,
 ) => {
   mockedUseAliases.mockReturnValueOnce(getReturnValue(aliasesData, callbacks));
 };
