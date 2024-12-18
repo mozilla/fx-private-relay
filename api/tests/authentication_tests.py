@@ -1,9 +1,11 @@
 import json
+import re
 from datetime import datetime
 
 from django.core.cache import cache
 from django.test import TestCase
 
+import pytest
 import responses
 from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
@@ -98,6 +100,31 @@ def setup_fxa_introspect(
         )
         mock_response = _mock_fxa_introspect_response(status_code, data)
     return mock_response, data
+
+
+_INTROSPECTION_RESPONSE_TEST_CASES = {
+    "active_missing": ({}, "active should be true"),
+    "active_false": ({"active": False}, "active should be true"),
+    "sub_missing": ({"active": True}, "sub (FxA ID) should be set"),
+    "sub_not_str": ({"active": True, "sub": 1}, "sub (FxA ID) should be set"),
+    "sub_empty": ({"active": True, "sub": ""}, "sub (FxA ID) should be set"),
+    "exp_not_int": (
+        {"active": True, "sub": "s", "exp": "123"},
+        "exp (Expiration timestamp in milliseconds) should be int",
+    ),
+}
+
+
+@pytest.mark.parametrize(
+    "data,message",
+    _INTROSPECTION_RESPONSE_TEST_CASES.values(),
+    ids=_INTROSPECTION_RESPONSE_TEST_CASES.keys(),
+)
+def test_introspection_response_init_bad_data_raises_value_error(
+    data: FxaIntrospectData, message: str
+) -> None:
+    with pytest.raises(ValueError, match=re.escape(message)):
+        IntrospectionResponse(data)
 
 
 class IntrospectTokenTests(TestCase):
