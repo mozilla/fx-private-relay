@@ -258,7 +258,7 @@ class TermsAcceptedUserViewTest(TestCase):
         assert "csrftoken" in response.cookies
         assert introspect_response.call_count == 1
         assert profile_response.call_count == 1
-        assert cache.get(cache_key) == {"v": 1, "data": introspect_data}
+        assert cache.get(cache_key) == {"data": introspect_data}
         assert SocialAccount.objects.filter(user__email=email).count() == 1
         assert Profile.objects.filter(user__email=email).count() == 1
         assert Profile.objects.get(user__email=email).created_by == "firefox_resource"
@@ -354,7 +354,6 @@ class TermsAcceptedUserViewTest(TestCase):
         assert response.json()["detail"] == "Incorrect Authentication Credentials."
         assert introspect_response.call_count == 1
         assert cache.get(cache_key) == {
-            "v": 1,
             "error": "NotAuthorized",
             "status_code": 401,
             "data": {"error": "401"},
@@ -375,7 +374,6 @@ class TermsAcceptedUserViewTest(TestCase):
         assert response.json()["detail"] == expected_detail
         assert introspect_response.call_count == 1
         assert cache.get(cache_key) == {
-            "v": 1,
             "error": "NotJson",
             "error_args": [""],
             "status_code": 200,
@@ -397,7 +395,6 @@ class TermsAcceptedUserViewTest(TestCase):
         assert response.json()["detail"] == "Incorrect Authentication Credentials."
         assert introspect_response.call_count == 1
         assert cache.get(cache_key) == {
-            "v": 1,
             "error": "NotAuthorized",
             "status_code": 401,
             "data": fxa_data,
@@ -418,7 +415,6 @@ class TermsAcceptedUserViewTest(TestCase):
         assert response.json()["detail"] == "Incorrect Authentication Credentials."
         assert introspect_response.call_count == 1
         assert cache.get(cache_key) == {
-            "v": 1,
             "error": "NotActive",
             "status_code": 200,
             "data": fxa_data,
@@ -442,7 +438,6 @@ class TermsAcceptedUserViewTest(TestCase):
         )
         assert introspect_response.call_count == 1
         assert cache.get(cache_key) == {
-            "v": 1,
             "error": "NoSubject",
             "status_code": 200,
             "data": fxa_data,
@@ -477,7 +472,7 @@ class TermsAcceptedUserViewTest(TestCase):
         ):
             response = client.post(self.path)
         assert response.status_code == 202
-        assert cache.get(cache_key) == {"v": 1, "data": fxa_data}
+        assert cache.get(cache_key) == {"data": fxa_data}
         assert introspect_response.call_count == 1
         assert profile_response.call_count == 1
 
@@ -494,7 +489,7 @@ class TermsAcceptedUserViewTest(TestCase):
 
         response = client.post(self.path)
         assert response.status_code == 503
-        assert cache.get(cache_key) == {"v": 1, "error": "Timeout"}
+        assert cache.get(cache_key) == {"error": "Timeout"}
         assert introspect_response.call_count == 1
         assert profile_response.call_count == 0
 
@@ -510,7 +505,7 @@ class TermsAcceptedUserViewTest(TestCase):
 
         response = client.post(self.path)
         assert response.status_code == 503
-        assert cache.get(cache_key) == {"v": 1, "data": fxa_data}
+        assert cache.get(cache_key) == {"data": fxa_data}
         assert introspect_response.call_count == 1
         assert profile_response.call_count == 1
 
