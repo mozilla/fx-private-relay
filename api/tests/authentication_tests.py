@@ -28,7 +28,7 @@ from ..authentication import (
 MOCK_BASE = "api.authentication"
 
 
-def _create_fxa_introspect_data(
+def _create_fxa_introspect_response(
     active: bool = True,
     uid: str | None = "an-fxa-id",
     scope: str | None = None,
@@ -83,8 +83,9 @@ def setup_fxa_introspect(
     exception: Exception | None = None,
 ) -> tuple[responses.BaseResponse, FxaIntrospectData | None]:
     """
-    Mock a Mozilla Accounts introspection response. Return it and
-    the expected cached value for that response.
+    Mock a Mozilla Accounts introspection response. Return both the
+    request-level response mock (to check how often the request was made)
+    and the mocked response body.
     """
     data: FxaIntrospectData | None = None
     if no_body:
@@ -96,7 +97,7 @@ def setup_fxa_introspect(
     elif exception:
         mock_response = _mock_fxa_introspect_response(exception=exception)
     else:
-        data = _create_fxa_introspect_data(
+        data = _create_fxa_introspect_response(
             active=active, uid=uid, scope=scope, expiration=expiration, error=error
         )
         mock_response = _mock_fxa_introspect_response(status_code, data)
@@ -145,7 +146,7 @@ class IntrospectTokenTests(TestCase):
 
     @responses.activate
     def test_list_body_returns_error(self) -> None:
-        valid_data = _create_fxa_introspect_data()
+        valid_data = _create_fxa_introspect_response()
         invalid_data = [valid_data]
         invalid_text = json.dumps(invalid_data)
         mock_response, _ = setup_fxa_introspect(text_body=invalid_text)
