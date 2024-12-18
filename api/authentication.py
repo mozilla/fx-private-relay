@@ -74,7 +74,9 @@ class IntrospectionResponse:
         if "sub" not in data or not isinstance(data["sub"], str) or not data["sub"]:
             raise ValueError("sub (FxA ID) should be set")
         if "exp" in data and not isinstance(data["exp"], int):
-            raise ValueError("exp (Expiration timestamp in milliseconds) should int")
+            raise ValueError("exp (Expiration timestamp in milliseconds) should be int")
+        if settings.RELAY_SCOPE not in data.get("scope", "").split():
+            raise ValueError(f"scope should include {settings.RELAY_SCOPE!r}")
 
         self.data: FxaIntrospectCompleteData = cast(FxaIntrospectCompleteData, data)
         self.from_cache = from_cache
