@@ -28,7 +28,6 @@ INTROSPECT_TOKEN_URL = "{}/introspect".format(
 class CachedFxaIntrospectResponse(TypedDict, total=False):
     """The data stored in the cache to avoid multiple introspection requests."""
 
-    v: Literal[1]
     status_code: int
     data: FxaIntrospectData
     error: INTROSPECT_ERROR
@@ -92,7 +91,6 @@ class IntrospectionResponse:
 
     def save_to_cache(self, cache: BaseCache, key: str, timeout: int) -> None:
         cached: CachedFxaIntrospectResponse = {
-            "v": 1,
             "data": cast(FxaIntrospectData, self.data),
         }
         cache.set(key, cached, timeout)
@@ -201,7 +199,7 @@ class IntrospectionError:
         raise ValueError("Unknown error {self.error}")
 
     def save_to_cache(self, cache: BaseCache, key: str, timeout: int) -> None:
-        cached: CachedFxaIntrospectResponse = {"v": 1, "error": self.error}
+        cached: CachedFxaIntrospectResponse = {"error": self.error}
         if self.status_code:
             cached["status_code"] = self.status_code
         if self.data:
@@ -235,7 +233,7 @@ def load_introspection_result_from_cache(
     cache: BaseCache, cache_key: str
 ) -> IntrospectionResponse | IntrospectionError | None:
     cached = cache.get(cache_key)
-    if cached is None or not isinstance(cached, dict) or cached.get("v") != 1:
+    if cached is None or not isinstance(cached, dict):
         return None
     error = cached.get("error")
     if error:
