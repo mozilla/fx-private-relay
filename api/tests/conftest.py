@@ -1,7 +1,11 @@
 """Shared fixtures for API tests."""
 
+from collections.abc import Iterator
+
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
+from django.core.cache import BaseCache
+from django.core.cache import cache as django_cache
 
 import pytest
 from allauth.socialaccount.models import SocialApp
@@ -46,3 +50,9 @@ def fxa_social_app(db: None) -> SocialApp:
     if _created:
         social_app.sites.set((Site.objects.first(),))
     return social_app
+
+
+@pytest.fixture
+def cache() -> Iterator[BaseCache]:
+    yield django_cache
+    django_cache.clear()

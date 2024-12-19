@@ -26,7 +26,7 @@ from rest_framework.decorators import (
     authentication_classes,
     permission_classes,
 )
-from rest_framework.exceptions import AuthenticationFailed, ErrorDetail, ParseError
+from rest_framework.exceptions import ParseError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -44,7 +44,10 @@ from privaterelay.plans import (
 )
 from privaterelay.utils import get_countries_info_from_request_and_mapping
 
-from ..authentication import introspect_token_or_raise
+from ..authentication import (
+    FxaTokenAuthenticationRelayUserOptional,
+    IntrospectionResponse,
+)
 from ..permissions import CanManageFlags, IsOwner
 from ..serializers.privaterelay import (
     FlagSerializer,
@@ -295,7 +298,7 @@ def runtime_data(request):
 )
 @api_view(["POST"])
 @permission_classes([AllowAny])
-@authentication_classes([])
+@authentication_classes([FxaTokenAuthenticationRelayUserOptional])
 def terms_accepted_user(request: Request) -> Response:
     """
     Create a Relay user from an FXA token.
@@ -304,10 +307,7 @@ def terms_accepted_user(request: Request) -> Response:
 
     [api-auth-doc]: https://github.com/mozilla/fx-private-relay/blob/main/docs/api_auth.md#firefox-oauth-token-authentication-and-accept-terms-of-service
     """  # noqa: E501
-    # Setting authentication_classes to empty due to
-    # authentication still happening despite permissions being set to allowany
-    # https://forum.djangoproject.com/t/solved-allowany-override-does-not-work-on-apiview/9754
-    # TODO: Implement an FXA token authentication class
+
     authorization = get_authorization_header(request).decode()
     if not authorization or not authorization.startswith("Bearer "):
         raise ParseError("Missing Bearer header.")
@@ -316,27 +316,21 @@ def terms_accepted_user(request: Request) -> Response:
     if token == "":
         raise ParseError("Missing FXA Token after 'Bearer'.")
 
-    try:
-        introspect_response = introspect_token_or_raise(token, use_cache=False)
-    except AuthenticationFailed as e:
-        # AuthenticationFailed exception returns 403 instead of 401 because we are not
-        # using the proper config that comes with the authentication_classes. See:
-        # https://www.django-rest-framework.org/api-guide/authentication/#custom-authentication
-        if isinstance(e.detail, ErrorDetail):
-            return Response(data={"detail": e.detail.title()}, status=e.status_code)
-        else:  # pragma: no cover
-            # Used when detail is a list[Detail] or dict[str, Detail]
-            return Response(data={"detail": e.get_full_details()}, status=e.status_code)
+    user = request.user
+    introspect_response = request.auth
+    if not isinstance(introspect_response, IntrospectionResponse):
+        raise ValueError(
+            "Expected request.auth to be IntrospectionResponse,"
+            f" got {type(IntrospectionResponse)}"
+        )
     fxa_uid = introspect_response.fxa_id
 
     existing_sa = False
     action: str | None = None
-    try:
-        socialaccount = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
+    if isinstance(user, User):
+        socialaccount = SocialAccount.objects.get(user=user, provider="fxa")
         existing_sa = True
         action = "found_existing"
-    except SocialAccount.DoesNotExist:
-        pass
 
     if not existing_sa:
         # Get the user's profile
