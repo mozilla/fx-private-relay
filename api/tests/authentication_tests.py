@@ -1,5 +1,4 @@
 import re
-from collections.abc import Iterator
 from datetime import datetime
 from typing import Any
 from unittest.mock import Mock, patch
@@ -7,7 +6,6 @@ from unittest.mock import Mock, patch
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, User
 from django.core.cache import BaseCache
-from django.core.cache import cache as django_cache
 
 import pytest
 import responses
@@ -31,12 +29,6 @@ from ..authentication import (
     introspect_token_or_raise,
     load_introspection_result_from_cache,
 )
-
-
-@pytest.fixture
-def cache() -> Iterator[BaseCache]:
-    yield django_cache
-    django_cache.clear()
 
 
 def _create_fxa_introspect_response(

@@ -410,13 +410,14 @@ class TermsAcceptedUserViewTest(TestCase):
         assert response.status_code == 400
         assert response.json()["detail"] == "Missing Bearer header."
 
-    def test_no_token_returns_400(self) -> None:
+    def test_no_token_returns_401(self) -> None:
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION="Bearer ")
         response = client.post(self.path)
 
-        assert response.status_code == 400
-        assert response.json()["detail"] == "Missing FXA Token after 'Bearer'."
+        assert response.status_code == 401
+        expected_detail = "Invalid token header. No credentials provided."
+        assert response.json()["detail"] == expected_detail
 
     @responses.activate
     def test_invalid_bearer_token_error_from_fxa_returns_500_and_is_cached(
@@ -430,7 +431,7 @@ class TermsAcceptedUserViewTest(TestCase):
 
         response = client.post(self.path)
         assert response.status_code == 401
-        assert response.json()["detail"] == "Incorrect Authentication Credentials."
+        assert response.json()["detail"] == "Incorrect authentication credentials."
         assert introspect_response.call_count == 1
         assert cache.get(cache_key) == {
             "error": "NotAuthorized",
@@ -471,7 +472,7 @@ class TermsAcceptedUserViewTest(TestCase):
         # get fxa response with non-200 response for the first time
         response = client.post(self.path)
         assert response.status_code == 401
-        assert response.json()["detail"] == "Incorrect Authentication Credentials."
+        assert response.json()["detail"] == "Incorrect authentication credentials."
         assert introspect_response.call_count == 1
         assert cache.get(cache_key) == {
             "error": "NotAuthorized",
@@ -490,7 +491,7 @@ class TermsAcceptedUserViewTest(TestCase):
         # get fxa response with token inactive for the first time
         response = client.post(self.path)
         assert response.status_code == 401
-        assert response.json()["detail"] == "Incorrect Authentication Credentials."
+        assert response.json()["detail"] == "Incorrect authentication credentials."
         assert introspect_response.call_count == 1
         assert cache.get(cache_key) == {
             "error": "NotActive",
@@ -532,7 +533,7 @@ class TermsAcceptedUserViewTest(TestCase):
         # get fxa response with no fxa uid for the first time
         response = client.post(self.path)
         assert response.status_code == 401
-        assert response.json()["detail"] == "Incorrect Authentication Credentials."
+        assert response.json()["detail"] == "Incorrect authentication credentials."
         assert introspect_response.call_count == 1
         assert cache.get(cache_key) == {
             "error": "MissingScope",
