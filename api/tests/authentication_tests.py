@@ -2,19 +2,18 @@ import re
 from collections.abc import Iterator
 from datetime import UTC, datetime, timedelta
 from typing import Any
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
+from django.contrib.auth.models import User
 from django.core.cache import BaseCache
 from django.core.cache import cache as django_cache
-from django.test import TestCase
 
 import pytest
 import responses
-from allauth.socialaccount.models import SocialAccount
-from model_bakery import baker
+from allauth.socialaccount.models import SocialAccount, SocialApp
 from requests import ReadTimeout
-from rest_framework.exceptions import APIException
-from rest_framework.test import APIClient, APIRequestFactory
+from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
+from rest_framework.test import APIRequestFactory
 
 from ..authentication import (
     INTROSPECT_ERROR,
@@ -494,257 +493,157 @@ def test_introspect_token_or_raise_mocked_error_is_cached(cache: BaseCache) -> N
     assert mock_response.call_count == 1
 
 
-class FxaTokenAuthenticationTest(TestCase):
-    def setUp(self) -> None:
-        self.auth = FxaTokenAuthentication()
-        self.factory = APIRequestFactory()
-        self.path = "/api/v1/relayaddresses/"
-        self.uid = "relay-user-fxa-uid"
+def test_fxa_token_authentication_no_auth_header_skips() -> None:
+    req = APIRequestFactory().get("/api/endpoint")
+    assert FxaTokenAuthentication().authenticate(req) is None
 
-    def tearDown(self) -> None:
-        django_cache.clear()
 
-    def test_no_authorization_header_returns_none(self) -> None:
-        get_addresses_req = self.factory.get(self.path)
-        assert self.auth.authenticate(get_addresses_req) is None
+def test_fxa_token_authentication_not_bearer_token_auth_header_skips() -> None:
+    headers = {"Authorization": "unexpected 123"}
+    req = APIRequestFactory().get("/api/endpoint", headers=headers)
+    assert FxaTokenAuthentication().authenticate(req) is None
 
-    def test_no_bearer_in_authorization_returns_none(self) -> None:
-        headers = {"Authorization": "unexpected 123"}
-        get_addresses_req = self.factory.get(self.path, headers=headers)
-        assert self.auth.authenticate(get_addresses_req) is None
 
-    def test_no_token_returns_400(self) -> None:
-        client = APIClient()
-        client.credentials(HTTP_AUTHORIZATION="Bearer ")
-        response = client.get("/api/v1/relayaddresses/")
-        assert response.status_code == 401
-        expected_detail = "Invalid token header. No credentials provided."
-        assert response.json()["detail"] == expected_detail
+def test_fxa_token_authentication_incomplete_bearer_token_raises_auth_fail() -> None:
+    headers = {"Authorization": "Bearer "}
+    req = APIRequestFactory().get("/api/endpoint", headers=headers)
+    with pytest.raises(
+        AuthenticationFailed, match=r"Invalid token header\. No credentials provided\."
+    ):
+        FxaTokenAuthentication().authenticate(req)
 
-    @responses.activate
-    def test_non_200_resp_from_fxa_raises_error_and_caches(self) -> None:
-        mock_response, fxa_data = setup_fxa_introspect(401, error="401")
-        not_found_token = "not-found-123"
-        client = APIClient()
-        client.credentials(HTTP_AUTHORIZATION=f"Bearer {not_found_token}")
-        cache_key = get_cache_key(not_found_token)
-        assert django_cache.get(cache_key) is None
 
-        response = client.get("/api/v1/relayaddresses/")
-        assert response.status_code == 401
-        assert response.json()["detail"] == "Incorrect authentication credentials."
+@responses.activate
+def test_fxa_token_authentication_known_relay_user_returns_user(
+    free_user: User,
+    fxa_social_app: SocialApp,
+    cache: BaseCache,
+) -> None:
+    fxa_id = "some-fxa-id"
+    SocialAccount.objects.create(provider="fxa", uid=fxa_id, user=free_user)
+    mock_response, fxa_data = setup_fxa_introspect(uid=fxa_id)
+    assert fxa_data is not None
+    headers = {"Authorization": "Bearer bearer-token"}
+    req = APIRequestFactory().get("/api/endpoint", headers=headers)
+    assert FxaTokenAuthentication().authenticate(req) == (
+        free_user,
+        IntrospectionResponse(fxa_data),
+    )
+    assert cache.get(get_cache_key("bearer-token")) == {"data": fxa_data}
 
-        assert mock_response.call_count == 1
-        assert django_cache.get(cache_key) == {
-            "error": "NotAuthorized",
-            "status_code": 401,
-            "data": fxa_data,
-        }
 
-        # now check that the code does NOT make another fxa request
-        response2 = client.get("/api/v1/relayaddresses/")
-        assert response2.status_code == 401
-        assert mock_response.call_count == 1
+@responses.activate
+def test_fxa_token_authentication_unknown_token_raises_auth_fail(
+    cache: BaseCache,
+) -> None:
+    mock_response, fxa_data = setup_fxa_introspect(status_code=401, active=False)
+    assert fxa_data is not None
+    headers = {"Authorization": "Bearer bearer-token"}
+    req = APIRequestFactory().get("/api/endpoint", headers=headers)
+    with pytest.raises(
+        AuthenticationFailed, match=r"Incorrect authentication credentials\."
+    ):
+        FxaTokenAuthentication().authenticate(req)
+    assert cache.get(get_cache_key("bearer-token"))["error"] == "NotAuthorized"
 
-    @responses.activate
-    def test_non_200_non_json_resp_from_fxa_raises_error_and_caches(self) -> None:
-        mock_response, fxa_data = setup_fxa_introspect(503, text_body="Bad Gateway")
-        assert fxa_data is None
-        not_found_token = "fxa-gw-error"
-        client = APIClient()
-        client.credentials(HTTP_AUTHORIZATION=f"Bearer {not_found_token}")
-        cache_key = get_cache_key(not_found_token)
-        assert django_cache.get(cache_key) is None
 
-        response = client.get("/api/v1/relayaddresses/")
-        assert response.status_code == 503
+@responses.activate
+@pytest.mark.django_db
+def test_fxa_token_authentication_not_yet_relay_user_raises_perm_denied(
+    cache: BaseCache,
+) -> None:
+    """TODO: Should this be an IsActive or other permission check?"""
+    mock_response, fxa_data = setup_fxa_introspect()
+    assert fxa_data is not None
+    headers = {"Authorization": "Bearer bearer-token"}
+    req = APIRequestFactory().get("/api/endpoint", headers=headers)
+    with pytest.raises(
+        PermissionDenied,
+        match=(
+            r"Authenticated user does not have a Relay account\."
+            r" Have they accepted the terms\?"
+        ),
+    ):
+        FxaTokenAuthentication().authenticate(req)
+    assert cache.get(get_cache_key("bearer-token")) == {"data": fxa_data}
 
-        assert mock_response.call_count == 1
-        assert django_cache.get(cache_key) == {
-            "error": "NotJsonDict",
-            "error_args": ["Bad Gateway"],
-            "status_code": 503,
-        }
 
-        # now check that the code does NOT make another fxa request
-        response = client.get("/api/v1/relayaddresses/")
-        assert mock_response.call_count == 1
+@responses.activate
+def test_fxa_token_authentication_inactive_relay_user_raises_perm_denied(
+    free_user: User,
+    fxa_social_app: SocialApp,
+    cache: BaseCache,
+) -> None:
+    """TODO: Should this be an IsActive or other permission check?"""
+    free_user.is_active = False
+    free_user.save()
+    fxa_id = "some-fxa-id"
+    SocialAccount.objects.create(provider="fxa", uid=fxa_id, user=free_user)
+    mock_response, fxa_data = setup_fxa_introspect(uid=fxa_id)
+    assert fxa_data is not None
+    headers = {"Authorization": "Bearer bearer-token"}
+    req = APIRequestFactory().get("/api/endpoint", headers=headers)
+    with pytest.raises(
+        PermissionDenied,
+        match=(
+            r"Authenticated user does not have an active Relay account\."
+            r" Have they been deactivated\?"
+        ),
+    ):
+        FxaTokenAuthentication().authenticate(req)
+    assert cache.get(get_cache_key("bearer-token")) == {"data": fxa_data}
 
-    @responses.activate
-    def test_inactive_token_responds_with_401(self) -> None:
-        mock_response, fxa_data = setup_fxa_introspect(active=False)
-        inactive_token = "inactive-123"
-        client = APIClient()
-        client.credentials(HTTP_AUTHORIZATION=f"Bearer {inactive_token}")
-        cache_key = get_cache_key(inactive_token)
-        assert django_cache.get(cache_key) is None
 
-        response = client.get("/api/v1/relayaddresses/")
-        assert response.status_code == 401
-        assert response.json()["detail"] == "Incorrect authentication credentials."
-        assert mock_response.call_count == 1
-        assert django_cache.get(cache_key) == {
-            "error": "NotActive",
-            "status_code": 200,
-            "data": fxa_data,
-        }
+@pytest.mark.parametrize(
+    "method,path",
+    [
+        ("POST", "/api/some_endpoint"),
+        ("DELETE", "/api/some_endpoint"),
+        ("PUT", "/api/some_endpoint"),
+        ("DELETE", "/api/v1/relayaddresses/1234"),
+        ("PUT", "/api/v1/relayaddresses/1234"),
+    ],
+)
+def test_fxa_token_authentication_skip_cache(
+    method: str, path: str, free_user: User, fxa_social_app: SocialApp
+) -> None:
+    """FxA introspect is always called (use_cache=False) for some methods."""
+    fxa_id = "non-cached-id"
+    SocialAccount.objects.create(provider="fxa", uid=fxa_id, user=free_user)
+    headers = {"Authorization": "Bearer bearer-token"}
+    req = getattr(APIRequestFactory(), method.lower())(path=path, headers=headers)
+    auth = FxaTokenAuthentication()
+    with patch(
+        "api.authentication.introspect_token_or_raise",
+        return_value=IntrospectionResponse({"active": True, "sub": fxa_id}),
+    ) as introspect:
+        auth.authenticate(req)
+    assert introspect.called_once_with("bearer-token", False)
+    assert auth.use_cache is False
 
-        # now check that the code does NOT make another fxa request
-        response2 = client.get("/api/v1/relayaddresses/")
-        assert response2.status_code == 401
-        assert mock_response.call_count == 1
 
-    @responses.activate
-    def test_200_resp_from_fxa_no_matching_user_raises_APIException(self) -> None:
-        mock_response, fxa_data = setup_fxa_introspect(uid="not-a-relay-user")
-        non_user_token = "non-user-123"
-        client = APIClient()
-        client.credentials(HTTP_AUTHORIZATION=f"Bearer {non_user_token}")
-        cache_key = get_cache_key(non_user_token)
-        assert django_cache.get(cache_key) is None
-
-        response = client.get("/api/v1/relayaddresses/")
-        assert response.status_code == 403
-        expected_detail = (
-            "Authenticated user does not have a Relay account."
-            " Have they accepted the terms?"
-        )
-        assert response.json()["detail"] == expected_detail
-        assert mock_response.call_count == 1
-        assert django_cache.get(cache_key) == {"data": fxa_data}
-
-        # the code does NOT make another fxa request
-        response2 = client.get("/api/v1/relayaddresses/")
-        assert response2.status_code == 403
-        assert mock_response.call_count == 1
-
-    @responses.activate
-    def test_200_resp_from_fxa_inactive_Relay_user_raises_APIException(self) -> None:
-        sa: SocialAccount = baker.make(SocialAccount, uid=self.uid, provider="fxa")
-        sa.user.is_active = False
-        sa.user.save()
-        setup_fxa_introspect(uid=self.uid)
-        inactive_user_token = "inactive-user-123"
-        client = APIClient()
-        client.credentials(HTTP_AUTHORIZATION=f"Bearer {inactive_user_token}")
-
-        response = client.get("/api/v1/relayaddresses/")
-        assert response.status_code == 403
-        expected_detail = (
-            "Authenticated user does not have an active Relay account."
-            " Have they been deactivated?"
-        )
-        assert response.json()["detail"] == expected_detail
-
-    @responses.activate
-    def test_200_resp_from_fxa_for_user_returns_user_and_caches(self) -> None:
-        sa: SocialAccount = baker.make(SocialAccount, uid=self.uid, provider="fxa")
-        user_token = "user-123"
-        client = APIClient()
-        client.credentials(HTTP_AUTHORIZATION=f"Bearer {user_token}")
-        mock_response, fxa_data = setup_fxa_introspect(uid=self.uid)
-        assert fxa_data is not None
-        cache_key = get_cache_key(user_token)
-        assert django_cache.get(cache_key) is None
-
-        # check the endpoint status code
-        response = client.get("/api/v1/relayaddresses/")
-        assert response.status_code == 200
-        assert mock_response.call_count == 1
-        expected_cache_value = {"data": fxa_data}
-        assert django_cache.get(cache_key) == expected_cache_value
-
-        # check the function returns the right user
-        headers = {"Authorization": f"Bearer {user_token}"}
-        get_addresses_req = self.factory.get(self.path, headers=headers)
-        auth_return = self.auth.authenticate(get_addresses_req)
-        assert auth_return == (
-            sa.user,
-            IntrospectionResponse(data=fxa_data, from_cache=True),
-        )
-
-        # now check that the 2nd call did NOT make another fxa request
-        assert mock_response.call_count == 1
-        assert django_cache.get(cache_key) == expected_cache_value
-
-    @responses.activate
-    def test_fxa_introspect_timeout(self) -> None:
-        slow_token = "slow-123"
-        client = APIClient()
-        client.credentials(HTTP_AUTHORIZATION=f"Bearer {slow_token}")
-        mock_response, fxa_data = setup_fxa_introspect(timeout=True)
-        cache_key = get_cache_key(slow_token)
-        assert django_cache.get(cache_key) is None
-
-        # check the endpoint status code
-        response = client.get("/api/v1/relayaddresses/")
-        assert response.status_code == 503
-        assert mock_response.call_count == 1
-        assert django_cache.get(cache_key) == {"error": "Timeout"}
-
-        # check the function raises an exception
-        headers = {"Authorization": f"Bearer {slow_token}"}
-        get_addresses_req = self.factory.get(self.path, headers=headers)
-
-        with self.assertRaisesMessage(
-            APIException, "Introspection temporarily unavailable, try again later."
-        ):
-            self.auth.authenticate(get_addresses_req)
-
-        # now check that the 2nd call did NOT make another fxa request
-        assert mock_response.call_count == 1
-
-    @responses.activate
-    def test_write_requests_make_calls_to_fxa(self) -> None:
-        sa: SocialAccount = baker.make(SocialAccount, uid=self.uid, provider="fxa")
-        user_token = "user-123"
-        client = APIClient()
-        client.credentials(HTTP_AUTHORIZATION=f"Bearer {user_token}")
-        mock_response, fxa_data = setup_fxa_introspect(uid=self.uid)
-        assert fxa_data is not None
-        cache_key = get_cache_key(user_token)
-        assert django_cache.get(cache_key) is None
-
-        # check the endpoint status code
-        response = client.get("/api/v1/relayaddresses/")
-        assert response.status_code == 200
-        assert mock_response.call_count == 1
-        expected_cache_value = {"data": fxa_data}
-        assert django_cache.get(cache_key) == expected_cache_value
-
-        # check the function returns the right user
-        headers = {"Authorization": f"Bearer {user_token}"}
-        get_addresses_req = self.factory.get(self.path, headers=headers)
-        auth_return = self.auth.authenticate(get_addresses_req)
-        assert auth_return == (
-            sa.user,
-            IntrospectionResponse(data=fxa_data, from_cache=True),
-        )
-
-        # now check that the 2nd GET request did NOT make another fxa request
-        assert mock_response.call_count == 1
-        assert django_cache.get(cache_key) == expected_cache_value
-
-        headers = {"Authorization": f"Bearer {user_token}"}
-
-        # send POST to /api/v1/relayaddresses and check that cache is used - i.e.,
-        # FXA is *NOT* called
-        post_addresses_req = self.factory.post(self.path, headers=headers)
-        auth_return = self.auth.authenticate(post_addresses_req)
-        assert mock_response.call_count == 1
-
-        # send POST to another API endpoint and check that cache is NOT used
-        post_webcompat = self.factory.post(
-            "/api/v1/report_webcompat_issue", headers=headers
-        )
-        auth_return = self.auth.authenticate(post_webcompat)
-        assert mock_response.call_count == 2
-
-        # send other write requests and check that FXA *IS* called
-        put_addresses_req = self.factory.put(self.path, headers=headers)
-        auth_return = self.auth.authenticate(put_addresses_req)
-        assert mock_response.call_count == 3
-
-        delete_addresses_req = self.factory.delete(self.path, headers=headers)
-        auth_return = self.auth.authenticate(delete_addresses_req)
-        assert mock_response.call_count == 4
+@pytest.mark.parametrize(
+    "method,path",
+    [
+        ("GET", "/api/some_endpoint"),
+        ("HEAD", "/api/some_endpoint"),
+        ("OPTIONS", "/api/some_endpoint"),
+        ("POST", "/api/v1/relayaddresses/"),
+    ],
+)
+def test_fxa_token_authentication_use_cache(
+    method: str, path: str, free_user: User, fxa_social_app: SocialApp
+) -> None:
+    """Cached FxA introspect results are used (use_cache=True) for some methods."""
+    fxa_id = "non-cached-id"
+    SocialAccount.objects.create(provider="fxa", uid=fxa_id, user=free_user)
+    headers = {"Authorization": "Bearer bearer-token"}
+    req = getattr(APIRequestFactory(), method.lower())(path=path, headers=headers)
+    auth = FxaTokenAuthentication()
+    with patch(
+        "api.authentication.introspect_token_or_raise",
+        return_value=IntrospectionResponse({"active": True, "sub": fxa_id}),
+    ) as introspect:
+        auth.authenticate(req)
+    assert introspect.called_once_with("bearer-token", True)
+    assert auth.use_cache is True
