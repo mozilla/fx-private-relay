@@ -88,7 +88,8 @@ class IntrospectionResponse:
             return (self.data == other.data) and (self.from_cache == other.from_cache)
         return False
 
-    def save_to_cache(self, cache: BaseCache, key: str, timeout: int) -> None:
+    def save_to_cache(self, cache: BaseCache, token: str, timeout: int) -> None:
+        key = get_cache_key(token)
         cached: CachedFxaIntrospectResponse = {
             "data": cast(FxaIntrospectData, self.data),
         }
@@ -207,7 +208,8 @@ class IntrospectionError:
             raise IntrospectUnavailable(self)
         assert_never(code)
 
-    def save_to_cache(self, cache: BaseCache, key: str, timeout: int) -> None:
+    def save_to_cache(self, cache: BaseCache, token: str, timeout: int) -> None:
+        key = get_cache_key(token)
         cached: CachedFxaIntrospectResponse = {"error": self.error}
         if self.status_code:
             cached["status_code"] = self.status_code
@@ -239,8 +241,9 @@ class IntrospectAuthenticationFailed(AuthenticationFailed):
 
 
 def load_introspection_result_from_cache(
-    cache: BaseCache, cache_key: str
+    cache: BaseCache, token: str
 ) -> IntrospectionResponse | IntrospectionError | None:
+    cache_key = get_cache_key(token)
     cached = cache.get(cache_key)
     if cached is None or not isinstance(cached, dict):
         return None
@@ -313,23 +316,22 @@ def introspect_token_or_raise(
     If anything goes wrong, raise an exception.
     """
     default_cache_timeout = 60
-    cache_key = get_cache_key(token)
 
     fxa_resp: IntrospectionResponse | IntrospectionError | None = None
     if use_cache:
-        fxa_resp = load_introspection_result_from_cache(cache, cache_key)
+        fxa_resp = load_introspection_result_from_cache(cache, token)
     if fxa_resp is None:
         fxa_resp = introspect_token(token)
 
     # If the response is an error, raise an exception
     if isinstance(fxa_resp, IntrospectionError):
         if not fxa_resp.from_cache:
-            fxa_resp.save_to_cache(cache, cache_key, default_cache_timeout)
+            fxa_resp.save_to_cache(cache, token, default_cache_timeout)
         fxa_resp.raise_exception()
 
     if not fxa_resp.from_cache:
         cache_timeout = max(default_cache_timeout, fxa_resp.cache_timeout)
-        fxa_resp.save_to_cache(cache, cache_key, cache_timeout)
+        fxa_resp.save_to_cache(cache, token, cache_timeout)
     return fxa_resp
 
 
