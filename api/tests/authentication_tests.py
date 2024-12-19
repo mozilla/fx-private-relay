@@ -4,7 +4,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 from unittest.mock import Mock, patch
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AnonymousUser, User
 from django.core.cache import BaseCache
 from django.core.cache import cache as django_cache
 
@@ -20,6 +20,7 @@ from ..authentication import (
     INTROSPECT_TOKEN_URL,
     FxaIntrospectData,
     FxaTokenAuthentication,
+    FxaTokenAuthenticationRelayUserOptional,
     IntrospectAuthenticationFailed,
     IntrospectionError,
     IntrospectionResponse,
@@ -613,13 +614,15 @@ def test_fxa_token_authentication_skip_cache(
     headers = {"Authorization": "Bearer bearer-token"}
     req = getattr(APIRequestFactory(), method.lower())(path=path, headers=headers)
     auth = FxaTokenAuthentication()
+    introspect_response = IntrospectionResponse({"active": True, "sub": fxa_id})
+
     with patch(
-        "api.authentication.introspect_token_or_raise",
-        return_value=IntrospectionResponse({"active": True, "sub": fxa_id}),
+        "api.authentication.introspect_token_or_raise", return_value=introspect_response
     ) as introspect:
-        auth.authenticate(req)
+        user_and_token = auth.authenticate(req)
     assert introspect.called_once_with("bearer-token", False)
     assert auth.use_cache is False
+    assert user_and_token == (free_user, introspect_response)
 
 
 @pytest.mark.parametrize(
@@ -640,10 +643,30 @@ def test_fxa_token_authentication_use_cache(
     headers = {"Authorization": "Bearer bearer-token"}
     req = getattr(APIRequestFactory(), method.lower())(path=path, headers=headers)
     auth = FxaTokenAuthentication()
+    introspect_response = IntrospectionResponse(
+        {"active": True, "sub": fxa_id}, from_cache=True
+    )
+
     with patch(
-        "api.authentication.introspect_token_or_raise",
-        return_value=IntrospectionResponse({"active": True, "sub": fxa_id}),
+        "api.authentication.introspect_token_or_raise", return_value=introspect_response
     ) as introspect:
-        auth.authenticate(req)
+        user_and_token = auth.authenticate(req)
     assert introspect.called_once_with("bearer-token", True)
     assert auth.use_cache is True
+    assert user_and_token == (free_user, introspect_response)
+
+
+@pytest.mark.django_db
+def test_fxa_token_authentication_relay_user_optional():
+    fxa_id = "non-cached-id"
+    headers = {"Authorization": "Bearer bearer-token"}
+    req = APIRequestFactory().get("/api/endpoint", headers=headers)
+    auth = FxaTokenAuthenticationRelayUserOptional()
+    introspect_response = IntrospectionResponse({"active": True, "sub": fxa_id})
+    with patch(
+        "api.authentication.introspect_token_or_raise", return_value=introspect_response
+    ) as introspect:
+        user_and_token = auth.authenticate(req)
+    assert introspect.called_once_with("bearer-token", True)
+    assert auth.use_cache is True
+    assert user_and_token == (AnonymousUser(), introspect_response)
