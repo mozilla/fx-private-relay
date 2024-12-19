@@ -5,7 +5,7 @@ from typing import Any
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
-from django.core.cache import cache
+from django.core.cache import BaseCache, cache
 from django.http import HttpRequest
 from django.test import TestCase
 from django.test.client import Client
@@ -15,7 +15,7 @@ import pytest
 import responses
 from allauth.account.models import EmailAddress
 from allauth.socialaccount.internal.flows.signup import process_auto_signup
-from allauth.socialaccount.models import SocialAccount, SocialLogin
+from allauth.socialaccount.models import SocialAccount, SocialApp, SocialLogin
 from model_bakery import baker
 from requests import ReadTimeout
 from rest_framework.test import APIClient
@@ -330,13 +330,14 @@ class TermsAcceptedUserViewTest(TestCase):
         assert response.status_code == 400
         assert response.json()["detail"] == "Missing Bearer header."
 
-    def test_no_token_returns_400(self) -> None:
+    def test_no_token_returns_401(self) -> None:
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION="Bearer ")
         response = client.post(self.path)
 
-        assert response.status_code == 400
-        assert response.json()["detail"] == "Missing FXA Token after 'Bearer'."
+        assert response.status_code == 401
+        expected_detail = "Invalid token header. No credentials provided."
+        assert response.json()["detail"] == expected_detail
 
     @responses.activate
     def test_invalid_bearer_token_error_from_fxa_returns_500_and_is_cached(
@@ -351,7 +352,7 @@ class TermsAcceptedUserViewTest(TestCase):
 
         response = client.post(self.path)
         assert response.status_code == 401
-        assert response.json()["detail"] == "Incorrect Authentication Credentials."
+        assert response.json()["detail"] == "Incorrect authentication credentials."
         assert introspect_response.call_count == 1
         assert cache.get(cache_key) == {
             "error": "NotAuthorized",
@@ -392,7 +393,7 @@ class TermsAcceptedUserViewTest(TestCase):
         # get fxa response with non-200 response for the first time
         response = client.post(self.path)
         assert response.status_code == 401
-        assert response.json()["detail"] == "Incorrect Authentication Credentials."
+        assert response.json()["detail"] == "Incorrect authentication credentials."
         assert introspect_response.call_count == 1
         assert cache.get(cache_key) == {
             "error": "NotAuthorized",
@@ -412,7 +413,7 @@ class TermsAcceptedUserViewTest(TestCase):
         # get fxa response with token inactive for the first time
         response = client.post(self.path)
         assert response.status_code == 401
-        assert response.json()["detail"] == "Incorrect Authentication Credentials."
+        assert response.json()["detail"] == "Incorrect authentication credentials."
         assert introspect_response.call_count == 1
         assert cache.get(cache_key) == {
             "error": "NotActive",
@@ -511,9 +512,10 @@ class TermsAcceptedUserViewTest(TestCase):
 
 
 @responses.activate
-@pytest.mark.usefixtures("fxa_social_app")
 def test_duplicate_email_logs_details_for_debugging(
     caplog: pytest.LogCaptureFixture,
+    fxa_social_app: SocialApp,
+    cache: BaseCache,
 ) -> None:
     caplog.set_level(logging.ERROR)
     uid = "relay-user-fxa-uid"
@@ -537,9 +539,10 @@ def test_duplicate_email_logs_details_for_debugging(
 
 
 @responses.activate
-@pytest.mark.usefixtures("fxa_social_app")
 def test_metrics_disabled_user_fxa_uid_not_logged(
     caplog: pytest.LogCaptureFixture,
+    fxa_social_app: SocialApp,
+    cache: BaseCache,
 ) -> None:
     caplog.set_level(logging.ERROR)
     uid = "relay-user-fxa-uid"
