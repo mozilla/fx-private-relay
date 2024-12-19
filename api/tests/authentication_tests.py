@@ -212,6 +212,14 @@ def test_introspection_response_save_to_cache():
     mock_cache.set.assert_called_once_with("the-key", {"data": data}, 60)
 
 
+def test_introspection_response_save_to_cache_from_cache_dropped():
+    data = _create_fxa_introspect_response()
+    response = IntrospectionResponse(data, from_cache=True)
+    mock_cache = Mock(spec_set=["set"])
+    response.save_to_cache(mock_cache, "the-key", 60)
+    mock_cache.set.assert_called_once_with("the-key", {"data": data}, 60)
+
+
 _INTROSPECTION_ERROR_REPR_TEST_CASES: list[
     tuple[INTROSPECT_ERROR, dict[str, Any], str]
 ] = [
@@ -278,6 +286,35 @@ def test_introspection_error_repr(
 ) -> None:
     introspect_error = IntrospectionError(error, **params)
     assert repr(introspect_error) == expected
+
+
+def test_introspection_error_save_to_cache_no_optional_params() -> None:
+    error = IntrospectionError("Timeout")
+    mock_cache = Mock(spec_set=["set"])
+    error.save_to_cache(mock_cache, "cache-key", 60)
+    mock_cache.set.assert_called_once_with("cache-key", {"error": "Timeout"}, 60)
+
+
+def test_introspection_error_save_to_cache_all_optional_params() -> None:
+    error = IntrospectionError(
+        "NotOK",
+        error_args=["something"],
+        status_code=401,
+        data={"error": "crazy stuff"},
+        from_cache=True,
+    )
+    mock_cache = Mock(spec_set=["set"])
+    error.save_to_cache(mock_cache, "cache-key", 60)
+    mock_cache.set.assert_called_once_with(
+        "cache-key",
+        {
+            "error": "NotOK",
+            "status_code": 401,
+            "data": {"error": "crazy stuff"},
+            "error_args": ["something"],
+        },
+        60,
+    )
 
 
 def test_introspection_error_eq() -> None:
