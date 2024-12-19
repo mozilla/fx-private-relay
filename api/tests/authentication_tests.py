@@ -178,7 +178,7 @@ def test_introspection_response_save_to_cache():
     mock_cache = Mock(spec_set=["set"])
     response.save_to_cache(mock_cache, "the-key", 60)
     mock_cache.set.assert_called_once_with(
-        "the-key", {"data": {"active": True, "sub": "old-fxa-id"}}, 60
+        get_cache_key("the-key"), {"data": {"active": True, "sub": "old-fxa-id"}}, 60
     )
 
 
@@ -189,7 +189,7 @@ def test_introspection_response_save_to_cache_from_cache_dropped():
     mock_cache = Mock(spec_set=["set"])
     response.save_to_cache(mock_cache, "the-key", 60)
     mock_cache.set.assert_called_once_with(
-        "the-key", {"data": {"active": True, "sub": "some-fxa-id"}}, 60
+        get_cache_key("the-key"), {"data": {"active": True, "sub": "some-fxa-id"}}, 60
     )
 
 
@@ -242,7 +242,9 @@ def test_introspection_error_save_to_cache_no_optional_params() -> None:
     error = IntrospectionError("Timeout")
     mock_cache = Mock(spec_set=["set"])
     error.save_to_cache(mock_cache, "cache-key", 60)
-    mock_cache.set.assert_called_once_with("cache-key", {"error": "Timeout"}, 60)
+    mock_cache.set.assert_called_once_with(
+        get_cache_key("cache-key"), {"error": "Timeout"}, 60
+    )
 
 
 def test_introspection_error_save_to_cache_all_optional_params() -> None:
@@ -256,7 +258,7 @@ def test_introspection_error_save_to_cache_all_optional_params() -> None:
     mock_cache = Mock(spec_set=["set"])
     error.save_to_cache(mock_cache, "cache-key", 60)
     mock_cache.set.assert_called_once_with(
-        "cache-key",
+        get_cache_key("cache-key"),
         {
             "error": "NotOK",
             "status_code": 401,
@@ -383,7 +385,7 @@ def test_load_introspection_result_from_cache_introspection_response() -> None:
     response = load_introspection_result_from_cache(cache, "cache_key")
     assert isinstance(response, IntrospectionResponse)
     assert response == IntrospectionResponse(fxa_data, from_cache=True)
-    cache.get.assert_called_once_with("cache_key")
+    cache.get.assert_called_once_with(get_cache_key("cache_key"))
 
 
 def test_load_introspection_result_from_cache_introspection_error_no_args() -> None:
@@ -393,7 +395,7 @@ def test_load_introspection_result_from_cache_introspection_error_no_args() -> N
     error = load_introspection_result_from_cache(cache, "cache_key")
     assert isinstance(error, IntrospectionError)
     assert error == IntrospectionError("Timeout", from_cache=True)
-    cache.get.assert_called_once_with("cache_key")
+    cache.get.assert_called_once_with(get_cache_key("cache_key"))
 
 
 def test_load_introspection_result_from_cache_introspection_error_all_args() -> None:
@@ -414,7 +416,7 @@ def test_load_introspection_result_from_cache_introspection_error_all_args() -> 
         data={"error": "crazy stuff"},
         from_cache=True,
     )
-    cache.get.assert_called_once_with("cache_key")
+    cache.get.assert_called_once_with(get_cache_key("cache_key"))
 
 
 def test_load_introspection_result_from_cache_introspection_bad_value() -> None:
@@ -422,7 +424,7 @@ def test_load_introspection_result_from_cache_introspection_bad_value() -> None:
     cache.get.return_value = "Not a dictionary"
 
     assert load_introspection_result_from_cache(cache, "cache_key") is None
-    cache.get.assert_called_once_with("cache_key")
+    cache.get.assert_called_once_with(get_cache_key("cache_key"))
 
 
 @responses.activate
