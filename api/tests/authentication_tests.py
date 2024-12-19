@@ -1,4 +1,3 @@
-import json
 import re
 from datetime import UTC, datetime, timedelta
 from typing import Any
@@ -253,7 +252,7 @@ class IntrospectTokenTests(TestCase):
 
     @responses.activate
     def test_timeout_returns_error(self):
-        mock_response = _mock_fxa_introspect_response(timeout=True)
+        mock_response, fxa_data = setup_fxa_introspect(timeout=True)
 
         fxa_resp = introspect_token("the-token")
         assert fxa_resp == IntrospectionError("Timeout")
@@ -261,7 +260,7 @@ class IntrospectTokenTests(TestCase):
 
     @responses.activate
     def test_other_request_exception_returns_error(self):
-        mock_response = _mock_fxa_introspect_response(
+        mock_response, fxa_data = setup_fxa_introspect(
             exception=Exception("An Exception")
         )
 
@@ -281,14 +280,11 @@ class IntrospectTokenTests(TestCase):
 
     @responses.activate
     def test_list_body_returns_error(self) -> None:
-        valid_data = _create_fxa_introspect_response()
-        invalid_data = [valid_data]
-        invalid_text = json.dumps(invalid_data)
-        mock_response, _ = setup_fxa_introspect(text_body=invalid_text)
+        mock_response, _ = setup_fxa_introspect(text_body='[{"active": false}]')
 
         fxa_resp = introspect_token("the-token")
         assert fxa_resp == IntrospectionError(
-            "NotJsonDict", [invalid_text], status_code=200
+            "NotJsonDict", ['[{"active": false}]'], status_code=200
         )
         assert mock_response.call_count == 1
 
