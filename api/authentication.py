@@ -343,17 +343,7 @@ class FxaTokenAuthentication(TokenAuthentication):
     """
 
     keyword = "Bearer"
-
-    def __init__(self, relay_user_required: bool = True) -> None:
-        """
-        Initialize FxATokenAuthentication.
-
-        If relay_user_required=False, request.user is set to AnonymousUser
-        for a valid Accounts token without a matching user. If False
-        (the default), authentication fails if there is no matching user.
-        """
-        self.use_cache = False
-        self.relay_user_required = relay_user_required
+    relay_user_required = True
 
     def authenticate(
         self, request: Request
@@ -362,8 +352,7 @@ class FxaTokenAuthentication(TokenAuthentication):
         Try to authenticate with a Accounts bearer token.
 
         If successful, it returns a tuple (user, token), which can be accessed at
-        request.user and request.auth. If self.relay_user_required is False,
-        this may be an AnonymousUser. Also, request.successful_authenticator will be
+        request.user and request.auth. Also, request.successful_authenticator will be
         an instance of this class.
 
         If it fails, it raises an APIException with a status code:
@@ -412,3 +401,9 @@ class FxaTokenAuthentication(TokenAuthentication):
                 " Have they been deactivated?"
             )
         return (user, introspected_token)
+
+
+class FxaTokenAuthenticationRelayUserOptional(FxaTokenAuthentication):
+    # Allow a valid FxA bearer token without a matching Relay user.
+    # The return from authenticate will be (AnonymousUser, IntrospectionResponse)
+    relay_user_required = False
