@@ -238,103 +238,81 @@ def test_introspection_error_eq() -> None:
     assert err != IntrospectAuthenticationFailed(err)
 
 
-class IntrospectTokenTests(TestCase):
-    """Tests for introspect_token"""
+@responses.activate
+def test_introspect_token_success_returns_introspection_response():
+    mock_response, fxa_data = setup_fxa_introspect()
+    assert fxa_data is not None
 
-    @responses.activate
-    def test_success_returns_introspection_response(self):
-        mock_response, fxa_data = setup_fxa_introspect()
+    fxa_resp = introspect_token("the-token")
+    assert fxa_resp == IntrospectionResponse(fxa_data)
+    assert mock_response.call_count == 1
+
+
+@responses.activate
+def test_introspect_token_no_expiration_returns_introspection_response():
+    mock_response, fxa_data = setup_fxa_introspect(expiration=False)
+    assert fxa_data is not None
+
+    fxa_resp = introspect_token("the-token")
+    assert isinstance(fxa_resp, IntrospectionResponse)
+    assert fxa_resp == IntrospectionResponse(fxa_data)
+    assert fxa_resp.cache_timeout == 0
+    assert mock_response.call_count == 1
+
+
+# Test cases for introspect_token() that return an IntrospectionError
+# Tuple is:
+# - arguments to setup_fxa_introspect
+# - the IntrospectionError error
+# - other keyword parameters to IntrospectionError.
+#   The special keyword parameter {"data": _SETUP_FXA_DATA} means to use
+#   the mocked FxA Introspect body.
+_SETUP_FXA_DATA = object()
+_INTROSPECT_TOKEN_FAILURE_TEST_CASES: list[
+    tuple[dict[str, Any], INTROSPECT_ERROR, dict[str, Any]]
+] = [
+    ({"timeout": True}, "Timeout", {}),
+    (
+        {"exception": Exception("An Exception")},
+        "FailedRequest",
+        {"error_args": ["Exception", "An Exception"]},
+    ),
+    ({"no_body": True}, "NotJson", {"status_code": 200, "error_args": [""]}),
+    (
+        {"text_body": '[{"active": false}]'},
+        "NotJsonDict",
+        {"status_code": 200, "error_args": ['[{"active": false}]']},
+    ),
+    (
+        {"status_code": 401, "active": False},
+        "NotAuthorized",
+        {"status_code": 401, "data": _SETUP_FXA_DATA},
+    ),
+    ({"status_code": 500}, "NotOK", {"status_code": 500, "data": _SETUP_FXA_DATA}),
+    ({"active": False}, "NotActive", {"status_code": 200, "data": _SETUP_FXA_DATA}),
+    ({"uid": None}, "NoSubject", {"status_code": 200, "data": _SETUP_FXA_DATA}),
+]
+
+
+@pytest.mark.parametrize(
+    "setup_args,error,error_params",
+    _INTROSPECT_TOKEN_FAILURE_TEST_CASES,
+    ids=[case[1] for case in _INTROSPECT_TOKEN_FAILURE_TEST_CASES],
+)
+@responses.activate
+def test_introspect_token_error_returns_introspection_error(
+    setup_args, error, error_params
+):
+    mock_response, fxa_data = setup_fxa_introspect(**setup_args)
+    params = error_params.copy()
+    if error_params.get("data") is _SETUP_FXA_DATA:
         assert fxa_data is not None
+        params["data"] = fxa_data
+    expected_resp = IntrospectionError(error, **params)
 
-        fxa_resp = introspect_token("the-token")
-        assert fxa_resp == IntrospectionResponse(fxa_data)
-        assert mock_response.call_count == 1
-
-    @responses.activate
-    def test_timeout_returns_error(self):
-        mock_response, fxa_data = setup_fxa_introspect(timeout=True)
-
-        fxa_resp = introspect_token("the-token")
-        assert fxa_resp == IntrospectionError("Timeout")
-        assert mock_response.call_count == 1
-
-    @responses.activate
-    def test_other_request_exception_returns_error(self):
-        mock_response, fxa_data = setup_fxa_introspect(
-            exception=Exception("An Exception")
-        )
-
-        fxa_resp = introspect_token("the-token")
-        assert fxa_resp == IntrospectionError(
-            "FailedRequest", ["Exception", "An Exception"]
-        )
-        assert mock_response.call_count == 1
-
-    @responses.activate
-    def test_no_body_returns_error(self) -> None:
-        mock_response, _ = setup_fxa_introspect(no_body=True)
-
-        fxa_resp = introspect_token("the-token")
-        assert fxa_resp == IntrospectionError("NotJson", [""], status_code=200)
-        assert mock_response.call_count == 1
-
-    @responses.activate
-    def test_list_body_returns_error(self) -> None:
-        mock_response, _ = setup_fxa_introspect(text_body='[{"active": false}]')
-
-        fxa_resp = introspect_token("the-token")
-        assert fxa_resp == IntrospectionError(
-            "NotJsonDict", ['[{"active": false}]'], status_code=200
-        )
-        assert mock_response.call_count == 1
-
-    @responses.activate
-    def test_401_response_returns_error(self) -> None:
-        mock_response, fxa_data = setup_fxa_introspect(401, active=False)
-
-        fxa_resp = introspect_token("the-token")
-        assert fxa_resp == IntrospectionError(
-            "NotAuthorized", status_code=401, data=fxa_data
-        )
-        assert mock_response.call_count == 1
-
-    @responses.activate
-    def test_500_response_returns_error(self) -> None:
-        mock_response, fxa_data = setup_fxa_introspect(500)
-
-        fxa_resp = introspect_token("the-token")
-        assert fxa_resp == IntrospectionError("NotOK", status_code=500, data=fxa_data)
-        assert mock_response.call_count == 1
-
-    @responses.activate
-    def test_inactive_response_returns_error(self) -> None:
-        mock_response, fxa_data = setup_fxa_introspect(active=False)
-
-        fxa_resp = introspect_token("the-token")
-        assert fxa_resp == IntrospectionError(
-            "NotActive", status_code=200, data=fxa_data
-        )
-        assert mock_response.call_count == 1
-
-    @responses.activate
-    def test_no_subject_response_returns_error(self) -> None:
-        mock_response, fxa_data = setup_fxa_introspect(uid=None)
-
-        fxa_resp = introspect_token("the-token")
-        assert fxa_resp == IntrospectionError(
-            "NoSubject", status_code=200, data=fxa_data
-        )
-        assert mock_response.call_count == 1
-
-    @responses.activate
-    def test_no_expiration_response_is_ok(self) -> None:
-        mock_response, fxa_data = setup_fxa_introspect(expiration=False)
-        assert fxa_data
-
-        fxa_resp = introspect_token("the-token")
-        assert fxa_resp == IntrospectionResponse(data=fxa_data)
-        assert getattr(fxa_resp, "cache_timeout", None) == 0
-        assert mock_response.call_count == 1
+    fxa_resp = introspect_token("err-token")
+    assert fxa_resp == expected_resp
+    assert mock_response.call_count == 1
 
 
 class IntrospectTokenOrRaiseTests(TestCase):
