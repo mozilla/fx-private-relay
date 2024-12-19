@@ -244,12 +244,11 @@ def load_introspection_result_from_cache(
     cached = cache.get(cache_key)
     if cached is None or not isinstance(cached, dict):
         return None
-    error = cached.get("error")
-    if error:
+    if error := cached.get("error"):
         return IntrospectionError(
+            error=error,
             status_code=cached.get("status_code"),
             data=cached.get("data"),
-            error=cached.get("error"),
             error_args=cached.get("error_args"),
             from_cache=True,
         )
