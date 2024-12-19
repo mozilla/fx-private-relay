@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import shlex
 from datetime import UTC, datetime
-from typing import Any, Literal, NoReturn, NotRequired, TypedDict, cast
+from typing import Any, Literal, NoReturn, NotRequired, TypedDict, assert_never, cast
 
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, User
@@ -173,30 +173,43 @@ class IntrospectionError:
             )
         return False
 
+    _log_failure: set[INTROSPECT_ERROR] = {
+        "Timeout",
+        "FailedRequest",
+        "NotJson",
+        "NotJsonDict",
+        "NotOK",
+        "NoSubject",
+    }
+
+    _exception_code: dict[INTROSPECT_ERROR, Literal[401, 503]] = {
+        "Timeout": 503,
+        "FailedRequest": 503,
+        "NotJson": 503,
+        "NotJsonDict": 503,
+        "NotOK": 503,
+        "NotAuthorized": 401,
+        "NotActive": 401,
+        "NoSubject": 503,
+    }
+
     def raise_exception(self) -> NoReturn:
-        if self.error in (
-            "Timeout",
-            "FailedRequest",
-            "NotJson",
-            "NotJsonDict",
-            "NotOK",
-            "NoSubject",
-            "BadExpiration",
-        ):
-            if not self.from_cache:
-                logger.error(
-                    "accounts_introspection_failed",
-                    extra={
-                        "error": self.error,
-                        "error_args": [shlex.quote(arg) for arg in self.error_args],
-                        "status_code": self.status_code,
-                        "data": self.data,
-                    },
-                )
-            raise IntrospectUnavailable(self)
-        elif self.error in ("NotAuthorized", "NotActive"):
+        if not self.from_cache and self.error in self._log_failure:
+            logger.error(
+                "accounts_introspection_failed",
+                extra={
+                    "error": self.error,
+                    "error_args": [shlex.quote(arg) for arg in self.error_args],
+                    "status_code": self.status_code,
+                    "data": self.data,
+                },
+            )
+        code = self._exception_code[self.error]
+        if code == 401:
             raise IntrospectAuthenticationFailed(self)
-        raise ValueError("Unknown error {self.error}")
+        elif code == 503:
+            raise IntrospectUnavailable(self)
+        assert_never(code)
 
     def save_to_cache(self, cache: BaseCache, key: str, timeout: int) -> None:
         cached: CachedFxaIntrospectResponse = {"error": self.error}
