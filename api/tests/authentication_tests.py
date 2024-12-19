@@ -1,6 +1,7 @@
 import json
 import re
 from datetime import UTC, datetime, timedelta
+from typing import Any
 from unittest.mock import Mock
 
 from django.core.cache import cache
@@ -15,6 +16,7 @@ from rest_framework.exceptions import APIException
 from rest_framework.test import APIClient, APIRequestFactory
 
 from ..authentication import (
+    INTROSPECT_ERROR,
     INTROSPECT_TOKEN_URL,
     FxaIntrospectData,
     FxaTokenAuthentication,
@@ -133,21 +135,30 @@ def test_introspection_response_with_expiration():
     data: FxaIntrospectData = {"active": True, "sub": "an-fxa-id", "exp": expiration}
     response = IntrospectionResponse(data)
     assert repr(response) == (
-        "IntrospectionResponse(data={'active': True, 'sub': 'an-fxa-id', 'exp': "
+        "IntrospectionResponse({'active': True, 'sub': 'an-fxa-id', 'exp': "
         + str(expiration)
-        + "}, from_cache=False)"
+        + "})"
     )
     assert 50 < response.cache_timeout <= 60  # about 60 seconds
 
 
 def test_introspection_response_without_expiration():
     data: FxaIntrospectData = {"active": True, "sub": "other-fxa-id"}
-    response = IntrospectionResponse(data, from_cache=True)
+    response = IntrospectionResponse(data)
     assert repr(response) == (
-        "IntrospectionResponse(data={'active': True, 'sub': 'other-fxa-id'},"
-        " from_cache=True)"
+        "IntrospectionResponse({'active': True, 'sub': 'other-fxa-id'})"
     )
     assert response.cache_timeout == 0
+
+
+def test_introspection_response_repr_from_cache():
+    data: FxaIntrospectData = {"active": True, "sub": "other-fxa-id", "exp": 100}
+    response = IntrospectionResponse(data, from_cache=True)
+    assert repr(response) == (
+        "IntrospectionResponse("
+        "{'active': True, 'sub': 'other-fxa-id', 'exp': 100}"
+        ", from_cache=True)"
+    )
 
 
 def test_introspection_response_fxa_id():
@@ -171,6 +182,51 @@ def test_introspection_response_save_to_cache():
     mock_cache.set.assert_called_once_with(
         "the-key", {"data": {"active": True, "sub": "old-fxa-id"}}, 60
     )
+
+
+_INTROSPECTION_ERROR_REPR_TEST_CASES: list[
+    tuple[INTROSPECT_ERROR, dict[str, Any], str]
+] = [
+    ("Timeout", {}, "IntrospectionError('Timeout')"),
+    (
+        "FailedRequest",
+        {"error_args": ["requests.ConnectionError", "Accounts Rebooting"]},
+        (
+            "IntrospectionError('FailedRequest',"
+            " error_args=['requests.ConnectionError', 'Accounts Rebooting'])"
+        ),
+    ),
+    (
+        "NotJson",
+        {"error_args": [""], "status_code": 200},
+        "IntrospectionError('NotJson', error_args=[''], status_code=200)",
+    ),
+    (
+        "NotAuthorized",
+        {"status_code": 401},
+        "IntrospectionError('NotAuthorized', status_code=401)",
+    ),
+    (
+        "NotActive",
+        {"status_code": 200, "data": {"active": False}, "from_cache": True},
+        (
+            "IntrospectionError('NotActive', status_code=200, data={'active': False},"
+            " from_cache=True)"
+        ),
+    ),
+]
+
+
+@pytest.mark.parametrize(
+    "error,params,expected",
+    _INTROSPECTION_ERROR_REPR_TEST_CASES,
+    ids=[case[0] for case in _INTROSPECTION_ERROR_REPR_TEST_CASES],
+)
+def test_introspection_error_repr(
+    error: INTROSPECT_ERROR, params: dict[str, Any], expected: str
+) -> None:
+    introspect_error = IntrospectionError(error, **params)
+    assert repr(introspect_error) == expected
 
 
 class IntrospectTokenTests(TestCase):

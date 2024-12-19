@@ -78,11 +78,10 @@ class IntrospectionResponse:
         self.from_cache = from_cache
 
     def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}("
-            f"data={self.data!r}, "
-            f"from_cache={self.from_cache!r})"
-        )
+        params = [repr(self.data)]
+        if self.from_cache:
+            params.append(f"from_cache={self.from_cache!r}")
+        return f"{self.__class__.__name__}({', '.join(params)})"
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, IntrospectionResponse):
@@ -147,20 +146,17 @@ class IntrospectionError:
         self.from_cache = from_cache
 
     def __repr__(self) -> str:
-        parts = [f"{self.__class__.__name__}("]
-        first_arg = True
-        args = ("error", "error_args", "status_code", "data", "from_cache")
-        for arg in args:
-            val = getattr(self, arg)
-            if val is None or (arg == "error_args" and len(val) == 0):
-                continue
-            if first_arg:
-                first_arg = False
-            else:
-                parts.append(", ")
-            parts.append(f"{arg}={val!r}")
-        parts.append(")")
-        return "".join(parts)
+        params = [f"{self.error!r}"]
+        defaults: dict[str, Any] = {
+            "error_args": [],
+            "status_code": None,
+            "data": None,
+            "from_cache": False,
+        }
+        for name, default in defaults.items():
+            if (val := getattr(self, name)) != default:
+                params.append(f"{name}={val!r}")
+        return f"{self.__class__.__name__}({', '.join(params)})"
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, IntrospectionError):
