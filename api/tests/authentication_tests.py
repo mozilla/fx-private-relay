@@ -229,6 +229,16 @@ def test_introspection_error_repr(
     assert repr(introspect_error) == expected
 
 
+def test_introspection_error_eq() -> None:
+    err = IntrospectionError("NotActive")
+    assert err == IntrospectionError("NotActive")
+    assert err != IntrospectionError("NotActive", status_code=200)
+    assert err != IntrospectionError("NotActive", data={})
+    assert err != IntrospectionError("NotActive", error_args=["an arg"])
+    assert err != IntrospectionError("NotActive", from_cache=True)
+    assert err != IntrospectAuthenticationFailed(err)
+
+
 class IntrospectTokenTests(TestCase):
     """Tests for introspect_token"""
 
