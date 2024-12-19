@@ -28,6 +28,7 @@ from ..authentication import (
     get_cache_key,
     introspect_token,
     introspect_token_or_raise,
+    load_introspection_result_from_cache,
 )
 
 
@@ -359,6 +360,56 @@ def test_introspect_token_error_returns_introspection_error(
     fxa_resp = introspect_token("err-token")
     assert fxa_resp == expected_resp
     assert mock_response.call_count == 1
+
+
+def test_load_introspection_result_from_cache_introspection_response() -> None:
+    fxa_data: FxaIntrospectData = {"active": True, "sub": "fxa_id"}
+    cache = Mock(spec_set=["get"])
+    cache.get.return_value = {"data": fxa_data}
+
+    response = load_introspection_result_from_cache(cache, "cache_key")
+    assert isinstance(response, IntrospectionResponse)
+    assert response == IntrospectionResponse(fxa_data, from_cache=True)
+    cache.get.assert_called_once_with("cache_key")
+
+
+def test_load_introspection_result_from_cache_introspection_error_no_args() -> None:
+    cache = Mock(spec_set=["get"])
+    cache.get.return_value = {"error": "Timeout"}
+
+    error = load_introspection_result_from_cache(cache, "cache_key")
+    assert isinstance(error, IntrospectionError)
+    assert error == IntrospectionError("Timeout", from_cache=True)
+    cache.get.assert_called_once_with("cache_key")
+
+
+def test_load_introspection_result_from_cache_introspection_error_all_args() -> None:
+    cache = Mock(spec_set=["get"])
+    cache.get.return_value = {
+        "error": "NotOK",
+        "status_code": 401,
+        "data": {"error": "crazy stuff"},
+        "error_args": ["something"],
+    }
+
+    error = load_introspection_result_from_cache(cache, "cache_key")
+    assert isinstance(error, IntrospectionError)
+    assert error == IntrospectionError(
+        "NotOK",
+        error_args=["something"],
+        status_code=401,
+        data={"error": "crazy stuff"},
+        from_cache=True,
+    )
+    cache.get.assert_called_once_with("cache_key")
+
+
+def test_load_introspection_result_from_cache_introspection_bad_value() -> None:
+    cache = Mock(spec_set=["get"])
+    cache.get.return_value = "Not a dictionary"
+
+    assert load_introspection_result_from_cache(cache, "cache_key") is None
+    cache.get.assert_called_once_with("cache_key")
 
 
 class IntrospectTokenOrRaiseTests(TestCase):
