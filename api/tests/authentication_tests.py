@@ -645,7 +645,7 @@ def test_fxa_token_authentication_skip_cache(
         "api.authentication.introspect_token_or_raise", return_value=introspect_response
     ) as introspect:
         user_and_token = auth.authenticate(req)
-    assert introspect.called_once_with("bearer-token", False)
+    introspect.assert_called_once_with("bearer-token", False)
     assert auth.use_cache is False
     assert user_and_token == (free_user, introspect_response)
 
