@@ -676,7 +676,7 @@ def test_fxa_token_authentication_use_cache(
         "api.authentication.introspect_token_or_raise", return_value=introspect_response
     ) as introspect:
         user_and_token = auth.authenticate(req)
-    assert introspect.called_once_with("bearer-token", True)
+    introspect.assert_called_once_with("bearer-token", True)
     assert auth.use_cache is True
     assert user_and_token == (free_user, introspect_response)
 
@@ -692,6 +692,6 @@ def test_fxa_token_authentication_relay_user_optional() -> None:
         "api.authentication.introspect_token_or_raise", return_value=introspect_response
     ) as introspect:
         user_and_token = auth.authenticate(req)
-    assert introspect.called_once_with("bearer-token", True)
+    introspect.assert_called_once_with("bearer-token", True)
     assert auth.use_cache is True
     assert user_and_token == (AnonymousUser(), introspect_response)
