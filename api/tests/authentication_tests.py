@@ -504,7 +504,7 @@ def test_introspect_token_or_raise_mocked_success_is_cached(cache: BaseCache) ->
     assert fxa_resp.fxa_id == fxa_id
     assert not fxa_resp.from_cache
     assert mock_response.call_count == 1
-    assert cache.get(cache_key) == {"data": fxa_data}
+    assert cache.get(cache_key) == fxa_resp.as_cache_value()
 
     # now check that the 2nd call did NOT make another fxa request
     fxa_resp2 = introspect_token_or_raise(user_token)
@@ -528,7 +528,7 @@ def test_introspect_token_or_raise_mocked_success_with_use_cache_false(
     assert fxa_resp.fxa_id == fxa_id
     assert not fxa_resp.from_cache
     assert mock_response.call_count == 1
-    assert cache.get(cache_key) == {"data": fxa_data}
+    assert cache.get(cache_key) == fxa_resp.as_cache_value()
 
 
 @responses.activate
@@ -540,10 +540,12 @@ def test_introspect_token_or_raise_mocked_error_is_cached(cache: BaseCache) -> N
     assert cache.get(cache_key) is None
 
     # Timeout for the first time
-    with pytest.raises(IntrospectUnavailable):
+    expected_error = IntrospectionError("Timeout")
+    with pytest.raises(IntrospectUnavailable) as exc_info:
         introspect_token_or_raise(user_token)
+    assert exc_info.value.args[0] == expected_error
     assert mock_response.call_count == 1
-    assert cache.get(cache_key) == {"error": "Timeout"}
+    assert cache.get(cache_key) == expected_error.as_cache_value()
 
     # now check that the 2nd call did NOT make another fxa request
     with pytest.raises(IntrospectUnavailable):
@@ -606,11 +608,10 @@ def test_fxa_token_authentication_known_relay_user_returns_user(
     assert fxa_data is not None
     headers = {"Authorization": "Bearer bearer-token"}
     req = APIRequestFactory().get("/api/endpoint", headers=headers)
-    assert FxaTokenAuthentication().authenticate(req) == (
-        free_user,
-        IntrospectionResponse(fxa_data),
-    )
-    assert cache.get(get_cache_key("bearer-token")) == {"data": fxa_data}
+    expected_resp = IntrospectionResponse(fxa_data)
+
+    assert FxaTokenAuthentication().authenticate(req) == (free_user, expected_resp)
+    assert cache.get(get_cache_key("bearer-token")) == expected_resp.as_cache_value()
 
 
 @responses.activate
@@ -621,11 +622,14 @@ def test_fxa_token_authentication_unknown_token_raises_auth_fail(
     assert fxa_data is not None
     headers = {"Authorization": "Bearer bearer-token"}
     req = APIRequestFactory().get("/api/endpoint", headers=headers)
+    expected_error = IntrospectionError("NotAuthorized", status_code=401, data=fxa_data)
+
     with pytest.raises(
         AuthenticationFailed, match=r"Incorrect authentication credentials\."
-    ):
+    ) as exc_info:
         FxaTokenAuthentication().authenticate(req)
-    assert cache.get(get_cache_key("bearer-token"))["error"] == "NotAuthorized"
+    assert exc_info.value.args[0] == expected_error
+    assert cache.get(get_cache_key("bearer-token")) == expected_error.as_cache_value()
 
 
 @responses.activate
@@ -638,6 +642,8 @@ def test_fxa_token_authentication_not_yet_relay_user_raises_perm_denied(
     assert fxa_data is not None
     headers = {"Authorization": "Bearer bearer-token"}
     req = APIRequestFactory().get("/api/endpoint", headers=headers)
+    expected_resp = IntrospectionResponse(fxa_data)
+
     with pytest.raises(
         PermissionDenied,
         match=(
@@ -646,7 +652,7 @@ def test_fxa_token_authentication_not_yet_relay_user_raises_perm_denied(
         ),
     ):
         FxaTokenAuthentication().authenticate(req)
-    assert cache.get(get_cache_key("bearer-token")) == {"data": fxa_data}
+    assert cache.get(get_cache_key("bearer-token")) == expected_resp.as_cache_value()
 
 
 @responses.activate
@@ -664,6 +670,8 @@ def test_fxa_token_authentication_inactive_relay_user_raises_perm_denied(
     assert fxa_data is not None
     headers = {"Authorization": "Bearer bearer-token"}
     req = APIRequestFactory().get("/api/endpoint", headers=headers)
+    expected_resp = IntrospectionResponse(fxa_data)
+
     with pytest.raises(
         PermissionDenied,
         match=(
@@ -672,7 +680,7 @@ def test_fxa_token_authentication_inactive_relay_user_raises_perm_denied(
         ),
     ):
         FxaTokenAuthentication().authenticate(req)
-    assert cache.get(get_cache_key("bearer-token")) == {"data": fxa_data}
+    assert cache.get(get_cache_key("bearer-token")) == expected_resp.as_cache_value()
 
 
 @pytest.mark.parametrize(
