@@ -173,23 +173,28 @@ def test_introspection_response_equality():
     assert response != IntrospectionResponse({"active": True, "sub": "other-fxa-id"})
 
 
+@pytest.mark.parametrize("from_cache", (True, False))
+def test_introspection_response_as_cache_value(from_cache: bool) -> None:
+    response = IntrospectionResponse(
+        {"active": True, "sub": "old-fxa-id"}, from_cache=from_cache
+    )
+    # from_cache is not in cached value
+    assert response.as_cache_value() == {"data": {"active": True, "sub": "old-fxa-id"}}
+
+
+def test_introspection_response_as_cache_value_from_cache_dropped():
+    response = IntrospectionResponse(
+        {"active": True, "sub": "old-fxa-id"}, from_cache=True
+    )
+    assert response.as_cache_value() == {"data": {"active": True, "sub": "old-fxa-id"}}
+
+
 def test_introspection_response_save_to_cache():
     response = IntrospectionResponse({"active": True, "sub": "old-fxa-id"})
     mock_cache = Mock(spec_set=["set"])
     response.save_to_cache(mock_cache, "the-key", 60)
     mock_cache.set.assert_called_once_with(
-        get_cache_key("the-key"), {"data": {"active": True, "sub": "old-fxa-id"}}, 60
-    )
-
-
-def test_introspection_response_save_to_cache_from_cache_dropped():
-    response = IntrospectionResponse(
-        {"active": True, "sub": "some-fxa-id"}, from_cache=True
-    )
-    mock_cache = Mock(spec_set=["set"])
-    response.save_to_cache(mock_cache, "the-key", 60)
-    mock_cache.set.assert_called_once_with(
-        get_cache_key("the-key"), {"data": {"active": True, "sub": "some-fxa-id"}}, 60
+        get_cache_key("the-key"), response.as_cache_value(), 60
     )
 
 
@@ -238,13 +243,38 @@ def test_introspection_error_repr(
     assert repr(introspect_error) == expected
 
 
+@pytest.mark.parametrize("from_cache", (True, False))
+def test_introspection_error_as_cache_value_no_optional_params(
+    from_cache: bool,
+) -> None:
+    error = IntrospectionError("Timeout", from_cache=from_cache)
+    # from_cache is not in cached value
+    assert error.as_cache_value() == {"error": "Timeout"}
+
+
 def test_introspection_error_save_to_cache_no_optional_params() -> None:
     error = IntrospectionError("Timeout")
     mock_cache = Mock(spec_set=["set"])
     error.save_to_cache(mock_cache, "cache-key", 60)
     mock_cache.set.assert_called_once_with(
-        get_cache_key("cache-key"), {"error": "Timeout"}, 60
+        get_cache_key("cache-key"), error.as_cache_value(), 60
     )
+
+
+def test_introspection_error_as_cache_value_all_optional_params() -> None:
+    error = IntrospectionError(
+        "NotOK",
+        error_args=["something"],
+        status_code=401,
+        data={"error": "crazy stuff"},
+        from_cache=True,
+    )
+    assert error.as_cache_value() == {
+        "error": "NotOK",
+        "status_code": 401,
+        "data": {"error": "crazy stuff"},
+        "error_args": ["something"],
+    }
 
 
 def test_introspection_error_save_to_cache_all_optional_params() -> None:
@@ -258,14 +288,7 @@ def test_introspection_error_save_to_cache_all_optional_params() -> None:
     mock_cache = Mock(spec_set=["set"])
     error.save_to_cache(mock_cache, "cache-key", 60)
     mock_cache.set.assert_called_once_with(
-        get_cache_key("cache-key"),
-        {
-            "error": "NotOK",
-            "status_code": 401,
-            "data": {"error": "crazy stuff"},
-            "error_args": ["something"],
-        },
-        60,
+        get_cache_key("cache-key"), error.as_cache_value(), 60
     )
 
 
