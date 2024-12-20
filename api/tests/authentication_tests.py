@@ -128,7 +128,7 @@ def test_introspection_response_init_bad_data_raises_value_error(
         IntrospectionResponse(data)
 
 
-def test_introspection_response_with_expiration():
+def test_introspection_response_with_expiration() -> None:
     expiration = int((datetime.now(UTC) + timedelta(seconds=60)).timestamp()) * 1000
     data: FxaIntrospectData = {"active": True, "sub": "an-fxa-id", "exp": expiration}
     response = IntrospectionResponse(data)
@@ -149,7 +149,7 @@ def test_introspection_response_without_expiration():
     assert response.cache_timeout == 0
 
 
-def test_introspection_response_repr_with_from_cache():
+def test_introspection_response_repr_with_from_cache() -> None:
     data: FxaIntrospectData = {"active": True, "sub": "other-fxa-id", "exp": 100}
     response = IntrospectionResponse(data, from_cache=True)
     assert repr(response) == (
@@ -159,12 +159,12 @@ def test_introspection_response_repr_with_from_cache():
     )
 
 
-def test_introspection_response_fxa_id():
+def test_introspection_response_fxa_id() -> None:
     response = IntrospectionResponse({"active": True, "sub": "the-fxa-id"})
     assert response.fxa_id == "the-fxa-id"
 
 
-def test_introspection_response_equality():
+def test_introspection_response_equality() -> None:
     data: FxaIntrospectData = {"active": True, "sub": "some-fxa-id"}
     response = IntrospectionResponse(data)
     assert response == IntrospectionResponse(data)
@@ -182,14 +182,14 @@ def test_introspection_response_as_cache_value(from_cache: bool) -> None:
     assert response.as_cache_value() == {"data": {"active": True, "sub": "old-fxa-id"}}
 
 
-def test_introspection_response_as_cache_value_from_cache_dropped():
+def test_introspection_response_as_cache_value_from_cache_dropped() -> None:
     response = IntrospectionResponse(
         {"active": True, "sub": "old-fxa-id"}, from_cache=True
     )
     assert response.as_cache_value() == {"data": {"active": True, "sub": "old-fxa-id"}}
 
 
-def test_introspection_response_save_to_cache():
+def test_introspection_response_save_to_cache() -> None:
     response = IntrospectionResponse({"active": True, "sub": "old-fxa-id"})
     mock_cache = Mock(spec_set=["set"])
     response.save_to_cache(mock_cache, "the-key", 60)
@@ -324,7 +324,7 @@ def test_introspection_error_raises_exception_503() -> None:
 
 
 @responses.activate
-def test_introspect_token_success_returns_introspection_response():
+def test_introspect_token_success_returns_introspection_response() -> None:
     mock_response, fxa_data = setup_fxa_introspect()
     assert fxa_data is not None
 
@@ -334,7 +334,7 @@ def test_introspect_token_success_returns_introspection_response():
 
 
 @responses.activate
-def test_introspect_token_no_expiration_returns_introspection_response():
+def test_introspect_token_no_expiration_returns_introspection_response() -> None:
     mock_response, fxa_data = setup_fxa_introspect(expiration=False)
     assert fxa_data is not None
 
@@ -386,8 +386,8 @@ _INTROSPECT_TOKEN_FAILURE_TEST_CASES: list[
 )
 @responses.activate
 def test_introspect_token_error_returns_introspection_error(
-    setup_args, error, error_params
-):
+    setup_args: dict[str, Any], error: INTROSPECT_ERROR, error_params: dict[str, Any]
+) -> None:
     mock_response, fxa_data = setup_fxa_introspect(**setup_args)
     params = error_params.copy()
     if error_params.get("data") is _SETUP_FXA_DATA:
@@ -674,7 +674,7 @@ def test_fxa_token_authentication_use_cache(
 
 
 @pytest.mark.django_db
-def test_fxa_token_authentication_relay_user_optional():
+def test_fxa_token_authentication_relay_user_optional() -> None:
     fxa_id = "non-cached-id"
     headers = {"Authorization": "Bearer bearer-token"}
     req = APIRequestFactory().get("/api/endpoint", headers=headers)
