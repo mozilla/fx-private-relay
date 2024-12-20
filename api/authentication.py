@@ -88,12 +88,13 @@ class IntrospectionResponse:
             return (self.data == other.data) and (self.from_cache == other.from_cache)
         return False
 
-    def save_to_cache(self, cache: BaseCache, token: str, timeout: int) -> None:
-        key = get_cache_key(token)
-        cached: CachedFxaIntrospectResponse = {
+    def as_cache_value(self) -> CachedFxaIntrospectResponse:
+        return {
             "data": cast(FxaIntrospectData, self.data),
         }
-        cache.set(key, cached, timeout)
+
+    def save_to_cache(self, cache: BaseCache, token: str, timeout: int) -> None:
+        cache.set(get_cache_key(token), self.as_cache_value(), timeout)
 
     @property
     def cache_timeout(self) -> int:
@@ -208,8 +209,7 @@ class IntrospectionError:
             raise IntrospectUnavailable(self)
         assert_never(code)
 
-    def save_to_cache(self, cache: BaseCache, token: str, timeout: int) -> None:
-        key = get_cache_key(token)
+    def as_cache_value(self) -> CachedFxaIntrospectResponse:
         cached: CachedFxaIntrospectResponse = {"error": self.error}
         if self.status_code:
             cached["status_code"] = self.status_code
@@ -217,7 +217,10 @@ class IntrospectionError:
             cached["data"] = self.data
         if self.error_args:
             cached["error_args"] = self.error_args
-        cache.set(key, cached, timeout)
+        return cached
+
+    def save_to_cache(self, cache: BaseCache, token: str, timeout: int) -> None:
+        cache.set(get_cache_key(token), self.as_cache_value(), timeout)
 
 
 class IntrospectUnavailable(APIException):
