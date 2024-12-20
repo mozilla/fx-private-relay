@@ -19,7 +19,7 @@ from allauth.socialaccount.models import SocialAccount, SocialLogin
 from requests import ReadTimeout
 from rest_framework.test import APIClient
 
-from api.authentication import get_cache_key
+from api.authentication import IntrospectionError, IntrospectionResponse, get_cache_key
 from api.tests.authentication_tests import setup_fxa_introspect
 from api.views.privaterelay import FXA_PROFILE_URL, _get_fxa_profile_from_bearer_token
 from privaterelay.models import Profile
@@ -233,8 +233,8 @@ def test_profile_patch_with_model_and_serializer_fields(
 
 
 def test_profile_patch_with_non_read_only_and_read_only_fields(
-    premium_user, prem_api_client
-):
+    premium_user: User, prem_api_client: Client
+) -> None:
     """A request that includes at least one read only field will give a 400 response"""
     premium_profile = premium_user.profile
     old_onboarding_state = premium_profile.onboarding_state
@@ -324,8 +324,10 @@ class TermsAcceptedUserViewTest(TestCase):
         user_token = "user-123"
         client = _setup_client(user_token)
         introspect_response, introspect_data = setup_fxa_introspect(uid=self.uid)
+        assert introspect_data is not None
         profile_response = _mock_fxa_profile_response(email=email, uid=self.uid)
         cache_key = get_cache_key(user_token)
+        expected_resp = IntrospectionResponse(introspect_data)
 
         # get fxa response with 201 response for new user and profile created
         response = client.post(self.path)
@@ -337,7 +339,7 @@ class TermsAcceptedUserViewTest(TestCase):
         assert "csrftoken" in response.cookies
         assert introspect_response.call_count == 1
         assert profile_response.call_count == 1
-        assert cache.get(cache_key) == {"data": introspect_data}
+        assert cache.get(cache_key) == expected_resp.as_cache_value()
         assert SocialAccount.objects.filter(user__email=email).count() == 1
         assert Profile.objects.filter(user__email=email).count() == 1
         assert Profile.objects.get(user__email=email).created_by == "firefox_resource"
@@ -356,7 +358,7 @@ class TermsAcceptedUserViewTest(TestCase):
         email = "user@email.com"
         user_token = "user-123"
         client = _setup_client(user_token)
-        introspect_response, _ = setup_fxa_introspect(uid=self.uid)
+        introspect_response, introspect_data_ = setup_fxa_introspect(uid=self.uid)
         profile_response = _mock_fxa_profile_response(email=email, uid=self.uid)
 
         def process_auto_signup_then_create_account(
@@ -423,29 +425,31 @@ class TermsAcceptedUserViewTest(TestCase):
     def test_invalid_bearer_token_error_from_fxa_returns_500_and_is_cached(
         self,
     ) -> None:
-        introspect_response, fxa_data = setup_fxa_introspect(401, error="401")
+        introspect_response, introspect_data = setup_fxa_introspect(401, error="401")
+        assert introspect_data is not None
         not_found_token = "not-found-123"
         client = _setup_client(not_found_token)
         cache_key = get_cache_key(not_found_token)
+        exp_error = IntrospectionError(
+            "NotAuthorized", status_code=401, data=introspect_data
+        )
         assert cache.get(cache_key) is None
 
         response = client.post(self.path)
         assert response.status_code == 401
         assert response.json()["detail"] == "Incorrect authentication credentials."
         assert introspect_response.call_count == 1
-        assert cache.get(cache_key) == {
-            "error": "NotAuthorized",
-            "status_code": 401,
-            "data": {"error": "401"},
-        }
+        assert cache.get(cache_key) == exp_error.as_cache_value()
 
     @responses.activate
     def test_jsondecodeerror_returns_401_and_is_cached(self) -> None:
-        introspect_response, _ = setup_fxa_introspect(200, no_body=True)
+        introspect_response, introspect_data = setup_fxa_introspect(200, no_body=True)
+        assert introspect_data is None
         invalid_token = "invalid-123"
         cache_key = get_cache_key(invalid_token)
-        client = _setup_client(invalid_token)
         assert cache.get(cache_key) is None
+        client = _setup_client(invalid_token)
+        expected_err = IntrospectionError("NotJson", error_args=[""], status_code=200)
 
         # get fxa response with no status code for the first time
         response = client.post(self.path)
@@ -453,11 +457,7 @@ class TermsAcceptedUserViewTest(TestCase):
         expected_detail = "Introspection temporarily unavailable, try again later."
         assert response.json()["detail"] == expected_detail
         assert introspect_response.call_count == 1
-        assert cache.get(cache_key) == {
-            "error": "NotJson",
-            "error_args": [""],
-            "status_code": 200,
-        }
+        assert cache.get(cache_key) == expected_err.as_cache_value()
 
     @responses.activate
     def test_non_200_response_from_fxa_returns_500_and_is_cached(self) -> None:
@@ -466,59 +466,51 @@ class TermsAcceptedUserViewTest(TestCase):
         )
         invalid_token = "invalid-123"
         cache_key = get_cache_key(invalid_token)
-        client = _setup_client(invalid_token)
         assert cache.get(cache_key) is None
+        client = _setup_client(invalid_token)
+        expected_err = IntrospectionError(
+            "NotAuthorized", status_code=401, data=fxa_data
+        )
 
         # get fxa response with non-200 response for the first time
         response = client.post(self.path)
         assert response.status_code == 401
         assert response.json()["detail"] == "Incorrect authentication credentials."
         assert introspect_response.call_count == 1
-        assert cache.get(cache_key) == {
-            "error": "NotAuthorized",
-            "status_code": 401,
-            "data": fxa_data,
-        }
+        assert cache.get(cache_key) == expected_err.as_cache_value()
 
     @responses.activate
     def test_inactive_fxa_oauth_token_returns_401(self) -> None:
         introspect_response, fxa_data = setup_fxa_introspect(active=False, uid=self.uid)
         invalid_token = "invalid-123"
         cache_key = get_cache_key(invalid_token)
-        client = _setup_client(invalid_token)
         assert cache.get(cache_key) is None
+        client = _setup_client(invalid_token)
+        expected_err = IntrospectionError("NotActive", status_code=200, data=fxa_data)
 
         # get fxa response with token inactive for the first time
         response = client.post(self.path)
         assert response.status_code == 401
         assert response.json()["detail"] == "Incorrect authentication credentials."
         assert introspect_response.call_count == 1
-        assert cache.get(cache_key) == {
-            "error": "NotActive",
-            "status_code": 200,
-            "data": fxa_data,
-        }
+        assert cache.get(cache_key) == expected_err.as_cache_value()
 
     @responses.activate
     def test_fxa_responds_with_no_fxa_uid_returns_404(self) -> None:
         user_token = "user-123"
         introspect_response, fxa_data = setup_fxa_introspect(uid=None)
         cache_key = get_cache_key(user_token)
-        client = _setup_client(user_token)
         assert cache.get(cache_key) is None
+        client = _setup_client(user_token)
+        expected_err = IntrospectionError("NoSubject", status_code=200, data=fxa_data)
 
         # get fxa response with no fxa uid for the first time
         response = client.post(self.path)
         assert response.status_code == 503
-        assert (
-            response.json()["detail"]
-            == "Introspection temporarily unavailable, try again later."
-        )
-        assert cache.get(cache_key) == {
-            "error": "NoSubject",
-            "status_code": 200,
-            "data": fxa_data,
-        }
+        expected_detail = "Introspection temporarily unavailable, try again later."
+        assert response.json()["detail"] == expected_detail
+        assert introspect_response.call_count == 1
+        assert cache.get(cache_key) == expected_err.as_cache_value()
 
     @responses.activate
     def test_fxa_responds_with_missing_relay_scope_returns_401_and_is_cached(
@@ -546,11 +538,12 @@ class TermsAcceptedUserViewTest(TestCase):
         user_token = "user-123"
         email = "user@slow.example.com"
         introspect_response, fxa_data = setup_fxa_introspect(uid=self.uid)
+        assert fxa_data is not None
         profile_response = _mock_fxa_profile_response(email=email, uid=self.uid)
         cache_key = get_cache_key(user_token)
-        client = _setup_client(user_token)
-
         assert cache.get(cache_key) is None
+        client = _setup_client(user_token)
+        expected_resp = IntrospectionResponse(fxa_data)
 
         def get_profile_then_create_socialaccount(
             token: str,
@@ -570,7 +563,7 @@ class TermsAcceptedUserViewTest(TestCase):
         ):
             response = client.post(self.path)
         assert response.status_code == 202
-        assert cache.get(cache_key) == {"data": fxa_data}
+        assert cache.get(cache_key) == expected_resp.as_cache_value()
         assert introspect_response.call_count == 1
         assert profile_response.call_count == 1
 
@@ -582,12 +575,13 @@ class TermsAcceptedUserViewTest(TestCase):
         assert expected_data is None
         profile_response = _mock_fxa_profile_response(email=email, uid=self.uid)
         cache_key = get_cache_key(slow_token)
-        client = _setup_client(slow_token)
         assert cache.get(cache_key) is None
+        client = _setup_client(slow_token)
+        expected_err = IntrospectionError("Timeout")
 
         response = client.post(self.path)
         assert response.status_code == 503
-        assert cache.get(cache_key) == {"error": "Timeout"}
+        assert cache.get(cache_key) == expected_err.as_cache_value()
         assert introspect_response.call_count == 1
         assert profile_response.call_count == 0
 
@@ -595,14 +589,15 @@ class TermsAcceptedUserViewTest(TestCase):
     def test_fxa_profile_fetch_timeout_returns_503(self) -> None:
         slow_token = "user-123"
         introspect_response, fxa_data = setup_fxa_introspect(uid=self.uid)
+        assert fxa_data is not None
         profile_response = _mock_fxa_profile_response(timeout=True)
         cache_key = get_cache_key(slow_token)
-        client = _setup_client(slow_token)
-
         assert cache.get(cache_key) is None
+        client = _setup_client(slow_token)
+        expected_resp = IntrospectionResponse(fxa_data)
 
         response = client.post(self.path)
         assert response.status_code == 503
-        assert cache.get(cache_key) == {"data": fxa_data}
+        assert cache.get(cache_key) == expected_resp.as_cache_value()
         assert introspect_response.call_count == 1
         assert profile_response.call_count == 1
