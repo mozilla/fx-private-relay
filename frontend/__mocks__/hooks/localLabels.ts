@@ -16,33 +16,33 @@ const mockedUseLocalLabels = useLocalLabels as jest.MockedFunction<
 
 export function getReturnValueWithAddon(
   localLabels: Array<Partial<LocalLabel>> = [],
-  callback: SetLocalLabel = jest.fn()
+  callback: SetLocalLabel = jest.fn(),
 ): LocalLabelHook {
   return [
     localLabels.map((localLabel, i) => ({
       description: "Arbitrary description",
       generated_for: "https://example.com",
       id: i,
-      type: "random",
+      mask_type: "random",
       ...localLabel,
     })),
     callback,
   ];
 }
 export function getReturnValueWithoutAddon(
-  callback: SetLocalLabel = jest.fn()
+  callback: SetLocalLabel = jest.fn(),
 ): NotEnabled {
   return [null, callback];
 }
 
 export const setMockLocalLabels = (
-  returnValue: LocalLabelHook | NotEnabled = getReturnValueWithoutAddon()
+  returnValue: LocalLabelHook | NotEnabled = getReturnValueWithoutAddon(),
 ) => {
   mockedUseLocalLabels.mockReturnValue(returnValue);
 };
 
 export const setMockLocalLabelsOnce = (
-  returnValue: LocalLabelHook | NotEnabled = getReturnValueWithoutAddon()
+  returnValue: LocalLabelHook | NotEnabled = getReturnValueWithoutAddon(),
 ) => {
   mockedUseLocalLabels.mockReturnValueOnce(returnValue);
 };

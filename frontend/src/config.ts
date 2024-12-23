@@ -6,6 +6,14 @@ export function getRuntimeConfig(): RuntimeConfig {
   return getConfig().publicRuntimeConfig;
 }
 
+type FeatureFlags = {
+  tips: boolean;
+  generateCustomAliasMenu: boolean;
+  generateCustomAliasSubdomain: boolean;
+  interviewRecruitment: boolean;
+  csatSurvey: boolean;
+};
+
 export type RuntimeConfig = {
   backendOrigin: string;
   frontendOrigin: string;
@@ -19,4 +27,5 @@ export type RuntimeConfig = {
   googleAnalyticsId: `UA-${number}-${number}`;
   maxOnboardingAvailable: number;
   maxOnboardingFreeAvailable: number;
+  featureFlags: FeatureFlags;
 };
