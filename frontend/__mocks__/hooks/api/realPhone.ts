@@ -5,12 +5,14 @@ import {
   useRealPhonesData,
   PhoneNumberRequestVerificationFn,
   PhoneNumberSubmitVerificationFn,
+  RequestPhoneRemovalFn,
+  ResendWelcomeSMSFn,
 } from "../../../src/hooks/api/realPhone";
 
 jest.mock("../../../src/hooks/api/realPhone", () => {
   // Do not mock functions like `isVerified`:
   const actualUseRealPhonesModule = jest.requireActual(
-    "../../../src/hooks/api/realPhone"
+    "../../../src/hooks/api/realPhone",
   );
   return {
     ...actualUseRealPhonesModule,
@@ -25,7 +27,7 @@ const mockedUseRealPhonesData = useRealPhonesData as jest.MockedFunction<
 >;
 
 export function getMockVerifiedRealPhone(
-  realPhone?: Partial<VerifiedPhone>
+  realPhone?: Partial<VerifiedPhone>,
 ): VerifiedPhone {
   return {
     id: 0,
@@ -40,7 +42,7 @@ export function getMockVerifiedRealPhone(
 }
 
 export function getMockVerificationPendingRealPhone(
-  realPhone?: Partial<UnverifiedPhone>
+  realPhone?: Partial<UnverifiedPhone>,
 ): UnverifiedPhone {
   return {
     id: 0,
@@ -55,7 +57,7 @@ export function getMockVerificationPendingRealPhone(
 }
 
 export function getMockUnverifiedRealPhone(
-  realPhone?: Partial<UnverifiedPhone>
+  realPhone?: Partial<UnverifiedPhone>,
 ): UnverifiedPhone {
   return {
     id: 0,
@@ -70,7 +72,7 @@ export function getMockUnverifiedRealPhone(
 }
 
 export function getMockRealPhone(
-  realPhone?: Partial<RealPhone>
+  realPhone?: Partial<RealPhone>,
 ): UnverifiedPhone {
   return getMockUnverifiedRealPhone(realPhone as Partial<UnverifiedPhone>);
 }
@@ -78,17 +80,21 @@ export function getMockRealPhone(
 type Callbacks = {
   requestPhoneVerification: PhoneNumberRequestVerificationFn;
   submitPhoneVerification: PhoneNumberSubmitVerificationFn;
+  requestPhoneRemoval: RequestPhoneRemovalFn;
+  resendWelcomeSMS: ResendWelcomeSMSFn;
 };
 
 function getReturnValue(
   realPhones: Array<Partial<RealPhone>> = [getMockRealPhone()],
-  callbacks?: Callbacks
+  callbacks?: Callbacks,
 ): ReturnType<typeof useRealPhonesData> {
   return {
     isValidating: false,
+    isLoading: false,
+    error: undefined,
     mutate: jest.fn(),
     data: realPhones.map((partialRealPhone) =>
-      getMockRealPhone(partialRealPhone)
+      getMockRealPhone(partialRealPhone),
     ),
     requestPhoneVerification:
       callbacks?.requestPhoneVerification ??
@@ -96,23 +102,29 @@ function getReturnValue(
     submitPhoneVerification:
       callbacks?.submitPhoneVerification ??
       jest.fn(() => Promise.resolve({ ok: true } as unknown as Response)),
+    requestPhoneRemoval:
+      callbacks?.requestPhoneRemoval ??
+      jest.fn(() => Promise.resolve({ ok: true } as unknown as Response)),
+    resendWelcomeSMS:
+      callbacks?.resendWelcomeSMS ??
+      jest.fn(() => Promise.resolve({ ok: true } as unknown as Response)),
   };
 }
 
 export const setMockRealPhonesData = (
   realPhones?: Array<Partial<RealPhone>>,
-  callbacks?: Callbacks
+  callbacks?: Callbacks,
 ) => {
   mockedUseRealPhonesData.mockReturnValue(
-    getReturnValue(realPhones, callbacks)
+    getReturnValue(realPhones, callbacks),
   );
 };
 
 export const setMockRealPhonesDataOnce = (
   realPhones?: Array<Partial<RealPhone>>,
-  callbacks?: Callbacks
+  callbacks?: Callbacks,
 ) => {
   mockedUseRealPhonesData.mockReturnValueOnce(
-    getReturnValue(realPhones, callbacks)
+    getReturnValue(realPhones, callbacks),
   );
 };

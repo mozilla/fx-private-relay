@@ -26,6 +26,8 @@ export function getMockProfileData(profileData?: MockData): ProfileData {
     remove_level_one_email_trackers: false,
     subdomain: null,
     onboarding_state: 3,
+    onboarding_free_state: 3,
+    forwarded_first_reply: true,
     avatar: "",
     date_subscribed: null,
     bounce_status: [false, ""],
@@ -35,6 +37,7 @@ export function getMockProfileData(profileData?: MockData): ProfileData {
     emails_forwarded: 0,
     emails_replied: 0,
     level_one_trackers_blocked: 0,
+    metrics_enabled: false,
     ...profileData,
   };
 }
@@ -45,7 +48,7 @@ type Callbacks = {
 };
 function getReturnValue(
   profileData?: MockData | null,
-  callbacks?: Callbacks
+  callbacks?: Callbacks,
 ): ReturnType<typeof useProfiles> {
   return {
     isValidating: false,
@@ -53,19 +56,21 @@ function getReturnValue(
     update: callbacks?.updater ?? jest.fn(),
     data: profileData === null ? undefined : [getMockProfileData(profileData)],
     setSubdomain: callbacks?.setSubdomain ?? jest.fn(),
+    isLoading: false,
+    error: undefined,
   };
 }
 
 export const setMockProfileData = (
   profileData?: MockData | null,
-  callbacks?: Callbacks
+  callbacks?: Callbacks,
 ) => {
   mockedUseProfiles.mockReturnValue(getReturnValue(profileData, callbacks));
 };
 
 export const setMockProfileDataOnce = (
   profileData?: MockData | null,
-  callbacks?: Callbacks
+  callbacks?: Callbacks,
 ) => {
   mockedUseProfiles.mockReturnValueOnce(getReturnValue(profileData, callbacks));
 };

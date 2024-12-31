@@ -8,6 +8,7 @@ export const mockConfigModule = {
       fxaOrigin: "https://accounts.example.com",
       fxaLoginUrl: "https://accounts.example.com/login/",
       fxaLogoutUrl: "https://accounts.example.com/logout/",
+      supportUrl: "https://support.example.com/products/relay",
       premiumProductId: "prod_X00XXXX0xXX0Xx",
       emailSizeLimitNumber: 10,
       emailSizeLimitUnit: "MB",
@@ -15,8 +16,13 @@ export const mockConfigModule = {
       mozmailDomain: "mozmail.com",
       googleAnalyticsId: "UA-00000000-00",
       maxOnboardingAvailable: 3,
+      maxOnboardingFreeAvailable: 3,
       featureFlags: {
-        generateCustomAlias: false,
+        tips: false,
+        generateCustomAliasMenu: false,
+        generateCustomAliasSubdomain: false,
+        interviewRecruitment: false,
+        csatSurvey: false,
       },
     };
   }),
