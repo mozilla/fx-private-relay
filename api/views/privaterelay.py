@@ -3,6 +3,7 @@ from typing import Any, Literal
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db import IntegrityError
 from django.db.models.query import QuerySet
 from django.urls.exceptions import NoReverseMatch
 
@@ -25,8 +26,9 @@ from rest_framework.decorators import (
     authentication_classes,
     permission_classes,
 )
-from rest_framework.exceptions import AuthenticationFailed, ErrorDetail, ParseError
+from rest_framework.exceptions import ParseError
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 from rest_framework.viewsets import ModelViewSet
@@ -42,7 +44,10 @@ from privaterelay.plans import (
 )
 from privaterelay.utils import get_countries_info_from_request_and_mapping
 
-from ..authentication import get_fxa_uid_from_oauth_token
+from ..authentication import (
+    FxaTokenAuthenticationRelayUserOptional,
+    IntrospectionResponse,
+)
 from ..permissions import CanManageFlags, IsOwner
 from ..serializers.privaterelay import (
     FlagSerializer,
@@ -293,8 +298,8 @@ def runtime_data(request):
 )
 @api_view(["POST"])
 @permission_classes([AllowAny])
-@authentication_classes([])
-def terms_accepted_user(request):
+@authentication_classes([FxaTokenAuthenticationRelayUserOptional])
+def terms_accepted_user(request: Request) -> Response:
     """
     Create a Relay user from an FXA token.
 
@@ -302,10 +307,7 @@ def terms_accepted_user(request):
 
     [api-auth-doc]: https://github.com/mozilla/fx-private-relay/blob/main/docs/api_auth.md#firefox-oauth-token-authentication-and-accept-terms-of-service
     """  # noqa: E501
-    # Setting authentication_classes to empty due to
-    # authentication still happening despite permissions being set to allowany
-    # https://forum.djangoproject.com/t/solved-allowany-override-does-not-work-on-apiview/9754
-    # TODO: Implement an FXA token authentication class
+
     authorization = get_authorization_header(request).decode()
     if not authorization or not authorization.startswith("Bearer "):
         raise ParseError("Missing Bearer header.")
@@ -314,84 +316,134 @@ def terms_accepted_user(request):
     if token == "":
         raise ParseError("Missing FXA Token after 'Bearer'.")
 
-    try:
-        fxa_uid = get_fxa_uid_from_oauth_token(token, use_cache=False)
-    except AuthenticationFailed as e:
-        # AuthenticationFailed exception returns 403 instead of 401 because we are not
-        # using the proper config that comes with the authentication_classes. See:
-        # https://www.django-rest-framework.org/api-guide/authentication/#custom-authentication
-        if isinstance(e.detail, ErrorDetail):
-            return Response(data={"detail": e.detail.title()}, status=e.status_code)
-        else:
-            return Response(data={"detail": e.get_full_details()}, status=e.status_code)
-    status_code = 201
+    user = request.user
+    introspect_response = request.auth
+    if not isinstance(introspect_response, IntrospectionResponse):
+        raise ValueError(
+            "Expected request.auth to be IntrospectionResponse,"
+            f" got {type(IntrospectionResponse)}"
+        )
+    fxa_uid = introspect_response.fxa_id
 
+    existing_sa = False
+    action: str | None = None
+    if isinstance(user, User):
+        socialaccount = SocialAccount.objects.get(user=user, provider="fxa")
+        existing_sa = True
+        action = "found_existing"
+
+    if not existing_sa:
+        # Get the user's profile
+        fxa_profile, response = _get_fxa_profile_from_bearer_token(token)
+        if response:
+            return response
+
+        # Since this takes time, see if another request created the SocialAccount
+        try:
+            socialaccount = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
+            existing_sa = True
+            action = "created_during_profile_fetch"
+        except SocialAccount.DoesNotExist:
+            pass
+
+    if not existing_sa:
+        # mypy type narrowing, but should always be true
+        if not isinstance(fxa_profile, dict):  # pragma: no cover
+            raise ValueError(f"fxa_profile is {type(fxa_profile)}, not dict")
+
+        # Still no SocialAccount, attempt to create it
+        socialaccount, response = _create_socialaccount_from_bearer_token(
+            request, token, fxa_uid, fxa_profile
+        )
+        if response:
+            return response
+        action = "created"
+
+    status_code = 202 if existing_sa else 201
+    info_logger.info(
+        "terms_accepted_user",
+        extra={
+            "social_account": socialaccount.uid,
+            "status_code": status_code,
+            "action": action,
+        },
+    )
+    return Response(status=status_code)
+
+
+def _create_socialaccount_from_bearer_token(
+    request: Request, token: str, fxa_uid: str, fxa_profile: dict[str, Any]
+) -> tuple[SocialAccount, None] | tuple[None, Response]:
+    """Create a new Relay user with a SocialAccount from an FXA Bearer Token."""
+
+    # This is not exactly the request object that FirefoxAccountsProvider expects,
+    # but it has all of the necessary attributes to initialize the Provider
+    provider = get_social_adapter().get_provider(request, "fxa")
+
+    # This may not save the new user that was created
+    # https://github.com/pennersr/django-allauth/blob/77368a84903d32283f07a260819893ec15df78fb/allauth/socialaccount/providers/base/provider.py#L44
+    social_login = provider.sociallogin_from_response(request, fxa_profile)
+
+    # Complete social login is called by callback, see
+    # https://github.com/pennersr/django-allauth/blob/77368a84903d32283f07a260819893ec15df78fb/allauth/socialaccount/providers/oauth/views.py#L118
+    # for what we are mimicking to create new SocialAccount, User, and Profile for
+    # the new Relay user from Firefox Since this is a Resource Provider/Server flow
+    # and are NOT a Relying Party (RP) of FXA No social token information is stored
+    # (no Social Token object created).
     try:
-        sa = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
-        status_code = 202
-    except SocialAccount.DoesNotExist:
-        # User does not exist, create a new Relay user
+        complete_social_login(request, social_login)
+    except (IntegrityError, NoReverseMatch) as e:
+        # TODO: use this logging to fix the underlying issue
+        # MPP-3473: NoReverseMatch socialaccount_signup
+        #  Another user has the same email?
+        log_extra = {"exception": str(e), "social_login_state": social_login.state}
+        if fxa_profile.get("metricsEnabled", False):
+            log_extra["fxa_uid"] = fxa_uid
+        logger.error("socialaccount_signup_error", extra=log_extra)
+        return None, Response(status=500)
+
+    # complete_social_login writes ['account_verified_email', 'user_created',
+    # '_auth_user_id', '_auth_user_backend', '_auth_user_hash'] on
+    # request.session which sets the cookie because complete_social_login does
+    # the "login" The user did not actually log in, logout to clear the session
+    get_account_adapter(request).logout(request)
+
+    sa: SocialAccount = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
+
+    # Indicate profile was created from the resource flow
+    profile = sa.user.profile
+    profile.created_by = "firefox_resource"
+    profile.save()
+    return sa, None
+
+
+def _get_fxa_profile_from_bearer_token(
+    token: str,
+) -> tuple[dict[str, Any], None] | tuple[None, Response]:
+    """Use a bearer token to get the Mozilla Account user's profile data"""
+    # Use the bearer token
+    try:
         fxa_profile_resp = requests.get(
             FXA_PROFILE_URL,
             headers={"Authorization": f"Bearer {token}"},
             timeout=settings.FXA_REQUESTS_TIMEOUT_SECONDS,
         )
-        if not (fxa_profile_resp.ok and fxa_profile_resp.content):
-            logger.error(
-                "terms_accepted_user: bad account profile response",
-                extra={
-                    "status_code": fxa_profile_resp.status_code,
-                    "content": fxa_profile_resp.content,
-                },
-            )
-            return Response(
-                data={"detail": "Did not receive a 200 response for account profile."},
-                status=500,
-            )
-
-        # This is not exactly the request object that FirefoxAccountsProvider expects,
-        # but it has all of the necessary attributes to initialize the Provider
-        provider = get_social_adapter().get_provider(request, "fxa")
-        # This may not save the new user that was created
-        # https://github.com/pennersr/django-allauth/blob/77368a84903d32283f07a260819893ec15df78fb/allauth/socialaccount/providers/base/provider.py#L44
-        social_login = provider.sociallogin_from_response(
-            request, fxa_profile_resp.json()
+    except requests.Timeout:
+        return None, Response(
+            "Account profile request timeout, try again later.",
+            status=503,
         )
-        # Complete social login is called by callback, see
-        # https://github.com/pennersr/django-allauth/blob/77368a84903d32283f07a260819893ec15df78fb/allauth/socialaccount/providers/oauth/views.py#L118
-        # for what we are mimicking to create new SocialAccount, User, and Profile for
-        # the new Relay user from Firefox Since this is a Resource Provider/Server flow
-        # and are NOT a Relying Party (RP) of FXA No social token information is stored
-        # (no Social Token object created).
-        try:
-            complete_social_login(request, social_login)
-            # complete_social_login writes ['account_verified_email', 'user_created',
-            # '_auth_user_id', '_auth_user_backend', '_auth_user_hash'] on
-            # request.session which sets the cookie because complete_social_login does
-            # the "login" The user did not actually log in, logout to clear the session
-            if request.user.is_authenticated:
-                get_account_adapter(request).logout(request)
-        except NoReverseMatch as e:
-            # TODO: use this logging to fix the underlying issue
-            # https://mozilla-hub.atlassian.net/browse/MPP-3473
-            if "socialaccount_signup" in e.args[0]:
-                logger.error(
-                    "socialaccount_signup_error",
-                    extra={
-                        "exception": str(e),
-                        "fxa_uid": fxa_uid,
-                        "social_login_state": social_login.state,
-                    },
-                )
-                return Response(status=500)
-            raise e
-        sa = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
-        # Indicate profile was created from the resource flow
-        profile = sa.user.profile
-        profile.created_by = "firefox_resource"
-        profile.save()
-    info_logger.info(
-        "terms_accepted_user",
-        extra={"social_account": sa.uid, "status_code": status_code},
-    )
-    return Response(status=status_code)
+
+    if not (fxa_profile_resp.ok and fxa_profile_resp.content):
+        logger.error(
+            "terms_accepted_user: bad account profile response",
+            extra={
+                "status_code": fxa_profile_resp.status_code,
+                "content": fxa_profile_resp.content,
+            },
+        )
+        return None, Response(
+            data={"detail": "Did not receive a 200 response for account profile."},
+            status=500,
+        )
+    return fxa_profile_resp.json(), None
