@@ -23,7 +23,7 @@ from email._header_value_parser import InvalidMessageID, get_unstructured
 from email.headerregistry import BaseHeader, UnstructuredHeader
 from email.headerregistry import HeaderRegistry as PythonHeaderRegistry
 from email.headerregistry import MessageIDHeader as PythonMessageIDHeader
-from email.policy import EmailPolicy
+from email.policy import EmailPolicy, Policy
 from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
@@ -82,4 +82,4 @@ relay_header_factory.registry["message-id"] = cast(
     type["_HeaderParser"], RelayMessageIDHeader
 )
 
-relay_policy = EmailPolicy(header_factory=relay_header_factory)
+relay_policy: Policy = cast(Policy, EmailPolicy(header_factory=relay_header_factory))
