@@ -497,7 +497,7 @@ class SliderValueFormatter implements Intl.NumberFormat {
   formatRangeToParts(
     _startDate: number | bigint,
     _endDate: number | bigint,
-  ): Intl.NumberRangeFormatPart[] {
+  ): Intl.NumberFormatPart[] {
     throw new Error("Method not implemented.");
   }
 
