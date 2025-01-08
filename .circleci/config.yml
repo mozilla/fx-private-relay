@@ -10,7 +10,7 @@
 version: 2.1
 orbs:
   # https://circleci.com/developer/orbs/orb/circleci/node
-  node: circleci/node@5.1.0
+  node: circleci/node@7.0.0
   # https://circleci.com/developer/orbs/orb/circleci/python
   python: circleci/python@2.1.1
   # https://circleci.com/developer/orbs/orb/circleci/heroku
@@ -55,7 +55,7 @@ executors:
     parameters:
       node_version:
         description: "version tag"
-        default: "18.18"
+        default: "18.20"
         type: string
   python:
     # https://circleci.com/developer/images/image/cimg/python
