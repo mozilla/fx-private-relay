@@ -268,7 +268,7 @@ def introspect_token(token: str) -> IntrospectionResponse | IntrospectionError:
     """
     Validate an Accounts OAuth token with the introspect API.
 
-    If it is a valid token for a Accounts user, returns IntrospectionResponse.
+    If it is a valid token for an Accounts user, returns IntrospectionResponse.
     If there are any issues, returns IntrospectionError.
 
     See Firefox Ecosystem Platform docs:
