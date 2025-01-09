@@ -48,7 +48,9 @@ class FxaIntrospectCompleteData(TypedDict):
     A valid Mozilla Accounts introspection response.
 
     There are more keys (scope, client_id, token_type, iat, jti) that are
-    present but unused.
+    present but unused. See Firefox Ecosystem Platform docs:
+
+    https://mozilla.github.io/ecosystem-platform/api#tag/OAuth-Server-API-Overview/operation/postIntrospect
     """
 
     active: bool
@@ -267,6 +269,9 @@ def introspect_token(token: str) -> IntrospectionResponse | IntrospectionError:
 
     If it is a valid token for a Accounts user, returns IntrospectionResponse.
     If there are any issues, returns IntrospectionError.
+
+    See Firefox Ecosystem Platform docs:
+    https://mozilla.github.io/ecosystem-platform/api#tag/OAuth-Server-API-Overview/operation/postIntrospect
     """
     try:
         fxa_resp = requests.post(
