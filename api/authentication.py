@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import shlex
 from datetime import UTC, datetime
+from hashlib import sha256
 from typing import Any, Literal, NoReturn, NotRequired, TypedDict, assert_never, cast
 
 from django.conf import settings
@@ -58,8 +59,8 @@ class FxaIntrospectCompleteData(TypedDict):
     exp: NotRequired[int]
 
 
-def get_cache_key(token):
-    return f"introspect_result:v1:{token}"
+def get_cache_key(token: str) -> str:
+    return f"introspect_result:v1:{sha256(token.encode()).hexdigest()}"
 
 
 class IntrospectionResponse:
