@@ -383,7 +383,6 @@ class FxaTokenAuthentication(TokenAuthentication):
     """
 
     keyword = "Bearer"
-    relay_user_required = True
 
     def authenticate(
         self, request: Request
@@ -428,11 +427,6 @@ class FxaTokenAuthentication(TokenAuthentication):
                 uid=fxa_id, provider="fxa"
             )
         except SocialAccount.DoesNotExist:
-            if self.relay_user_required:
-                raise PermissionDenied(
-                    "Authenticated user does not have a Relay account."
-                    " Have they accepted the terms?"
-                )
             return (AnonymousUser(), introspected_token)
         user = sa.user
         if not user.is_active:
@@ -441,9 +435,3 @@ class FxaTokenAuthentication(TokenAuthentication):
                 " Have they been deactivated?"
             )
         return (user, introspected_token)
-
-
-class FxaTokenAuthenticationRelayUserOptional(FxaTokenAuthentication):
-    # Allow a valid FxA bearer token without a matching Relay user.
-    # The return from authenticate will be (AnonymousUser, IntrospectionResponse)
-    relay_user_required = False
