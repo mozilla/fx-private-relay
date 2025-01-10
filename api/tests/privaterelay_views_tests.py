@@ -248,7 +248,7 @@ class TermsAcceptedUserViewTest(TestCase):
         assert introspect_data is not None
         profile_response = _mock_fxa_profile_response(email=email, uid=self.uid)
         cache_key = get_cache_key(user_token)
-        expected_resp = IntrospectionResponse(introspect_data)
+        expected_resp = IntrospectionResponse(user_token, introspect_data)
 
         # get fxa response with 201 response for new user and profile created
         response = client.post(self.path)
@@ -351,7 +351,7 @@ class TermsAcceptedUserViewTest(TestCase):
         client = _setup_client(not_found_token)
         cache_key = get_cache_key(not_found_token)
         exp_error = IntrospectionError(
-            "NotAuthorized", status_code=401, data=introspect_data
+            not_found_token, "NotAuthorized", status_code=401, data=introspect_data
         )
 
         assert cache.get(cache_key) is None
@@ -370,7 +370,9 @@ class TermsAcceptedUserViewTest(TestCase):
         cache_key = get_cache_key(invalid_token)
         assert cache.get(cache_key) is None
         client = _setup_client(invalid_token)
-        expected_err = IntrospectionError("NotJson", error_args=[""], status_code=200)
+        expected_err = IntrospectionError(
+            invalid_token, "NotJson", error_args=[""], status_code=200
+        )
 
         # get fxa response with no status code for the first time
         response = client.post(self.path)
@@ -390,7 +392,7 @@ class TermsAcceptedUserViewTest(TestCase):
         assert cache.get(cache_key) is None
         client = _setup_client(invalid_token)
         expected_err = IntrospectionError(
-            "NotAuthorized", status_code=401, data=fxa_data
+            invalid_token, "NotAuthorized", status_code=401, data=fxa_data
         )
 
         # get fxa response with non-200 response for the first time
@@ -407,7 +409,9 @@ class TermsAcceptedUserViewTest(TestCase):
         cache_key = get_cache_key(invalid_token)
         assert cache.get(cache_key) is None
         client = _setup_client(invalid_token)
-        expected_err = IntrospectionError("NotActive", status_code=200, data=fxa_data)
+        expected_err = IntrospectionError(
+            invalid_token, "NotActive", status_code=200, data=fxa_data
+        )
 
         # get fxa response with token inactive for the first time
         response = client.post(self.path)
@@ -423,7 +427,9 @@ class TermsAcceptedUserViewTest(TestCase):
         cache_key = get_cache_key(user_token)
         assert cache.get(cache_key) is None
         client = _setup_client(user_token)
-        expected_err = IntrospectionError("NoSubject", status_code=200, data=fxa_data)
+        expected_err = IntrospectionError(
+            user_token, "NoSubject", status_code=200, data=fxa_data
+        )
 
         # get fxa response with no fxa uid for the first time
         response = client.post(self.path)
@@ -443,7 +449,7 @@ class TermsAcceptedUserViewTest(TestCase):
         cache_key = get_cache_key(user_token)
         assert cache.get(cache_key) is None
         client = _setup_client(user_token)
-        expected_resp = IntrospectionResponse(fxa_data)
+        expected_resp = IntrospectionResponse(user_token, fxa_data)
 
         def get_profile_then_create_socialaccount(
             token: str,
@@ -477,7 +483,7 @@ class TermsAcceptedUserViewTest(TestCase):
         cache_key = get_cache_key(slow_token)
         assert cache.get(cache_key) is None
         client = _setup_client(slow_token)
-        expected_err = IntrospectionError("Timeout")
+        expected_err = IntrospectionError(slow_token, "Timeout")
 
         response = client.post(self.path)
         assert response.status_code == 503
@@ -494,7 +500,7 @@ class TermsAcceptedUserViewTest(TestCase):
         cache_key = get_cache_key(slow_token)
         assert cache.get(cache_key) is None
         client = _setup_client(slow_token)
-        expected_resp = IntrospectionResponse(fxa_data)
+        expected_resp = IntrospectionResponse(slow_token, fxa_data)
 
         response = client.post(self.path)
         assert response.status_code == 503
