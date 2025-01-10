@@ -18,7 +18,6 @@ from ..authentication import (
     INTROSPECT_TOKEN_URL,
     FxaIntrospectData,
     FxaTokenAuthentication,
-    FxaTokenAuthenticationRelayUserOptional,
     IntrospectAuthenticationFailed,
     IntrospectionError,
     IntrospectionResponse,
@@ -592,26 +591,21 @@ def test_fxa_token_authentication_unknown_token_raises_auth_fail(
 
 @responses.activate
 @pytest.mark.django_db
-def test_fxa_token_authentication_not_yet_relay_user_raises_perm_denied(
+def test_fxa_token_authentication_not_yet_relay_user_returns_anon_user(
     cache: BaseCache,
 ) -> None:
-    """TODO: Should this be an IsActive or other permission check?"""
     mock_response, fxa_data = setup_fxa_introspect()
     assert fxa_data is not None
     token = "bearer-token"
     headers = {"Authorization": f"Bearer {token}"}
     req = APIRequestFactory().get("/api/endpoint", headers=headers)
-    expected_resp = IntrospectionResponse(token, fxa_data)
-
-    with pytest.raises(
-        PermissionDenied,
-        match=(
-            r"Authenticated user does not have a Relay account\."
-            r" Have they accepted the terms\?"
-        ),
-    ):
-        FxaTokenAuthentication().authenticate(req)
-    assert cache.get(get_cache_key(token)) == expected_resp.as_cache_value()
+    introspect_response = IntrospectionResponse(token, fxa_data)
+    user_and_auth = FxaTokenAuthentication().authenticate(req)
+    assert user_and_auth is not None
+    user, auth = user_and_auth
+    assert user == AnonymousUser()
+    assert not user.is_authenticated
+    assert auth == introspect_response
 
 
 @responses.activate
@@ -704,20 +698,3 @@ def test_fxa_token_authentication_use_cache(
     introspect.assert_called_once_with(token, True)
     assert auth.use_cache is True
     assert user_and_token == (free_user, introspect_response)
-
-
-@pytest.mark.django_db
-def test_fxa_token_authentication_relay_user_optional() -> None:
-    fxa_id = "non-cached-id"
-    token = "bearer-token"
-    headers = {"Authorization": f"Bearer {token}"}
-    req = APIRequestFactory().get("/api/endpoint", headers=headers)
-    auth = FxaTokenAuthenticationRelayUserOptional()
-    introspect_response = IntrospectionResponse(token, {"active": True, "sub": fxa_id})
-    with patch(
-        "api.authentication.introspect_token_or_raise", return_value=introspect_response
-    ) as introspect:
-        user_and_token = auth.authenticate(req)
-    introspect.assert_called_once_with(token, True)
-    assert auth.use_cache is True
-    assert user_and_token == (AnonymousUser(), introspect_response)
