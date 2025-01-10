@@ -325,12 +325,13 @@ class TermsAcceptedUserViewTest(TestCase):
         assert introspect_response.call_count == 1
         assert profile_response.call_count == 1
 
-    def test_no_authorization_header_returns_400(self) -> None:
+    def test_no_authorization_header_returns_401(self) -> None:
         client = APIClient()
         response = client.post(self.path)
 
-        assert response.status_code == 400
-        assert response.json()["detail"] == "Missing Bearer header."
+        assert response.status_code == 401
+        expected_detail = "Authentication credentials were not provided."
+        assert response.json()["detail"] == expected_detail
 
     def test_no_token_returns_401(self) -> None:
         client = APIClient()
