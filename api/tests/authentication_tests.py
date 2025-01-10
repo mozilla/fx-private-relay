@@ -10,7 +10,7 @@ import pytest
 import responses
 from allauth.socialaccount.models import SocialAccount, SocialApp
 from requests import ReadTimeout
-from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.test import APIRequestFactory
 
 from ..authentication import (
@@ -609,7 +609,7 @@ def test_fxa_token_authentication_not_yet_relay_user_returns_anon_user(
 
 
 @responses.activate
-def test_fxa_token_authentication_inactive_relay_user_raises_perm_denied(
+def test_fxa_token_authentication_inactive_relay_user(
     free_user: User,
     fxa_social_app: SocialApp,
     cache: BaseCache,
@@ -625,15 +625,12 @@ def test_fxa_token_authentication_inactive_relay_user_raises_perm_denied(
     headers = {"Authorization": f"Bearer {token}"}
     req = APIRequestFactory().get("/api/endpoint", headers=headers)
     expected_resp = IntrospectionResponse(token, fxa_data)
-
-    with pytest.raises(
-        PermissionDenied,
-        match=(
-            r"Authenticated user does not have an active Relay account\."
-            r" Have they been deactivated\?"
-        ),
-    ):
-        FxaTokenAuthentication().authenticate(req)
+    user_and_auth = FxaTokenAuthentication().authenticate(req)
+    assert user_and_auth is not None
+    user, auth = user_and_auth
+    assert user == free_user
+    assert user.is_active is False
+    assert auth == expected_resp
     assert cache.get(get_cache_key(token)) == expected_resp.as_cache_value()
 
 

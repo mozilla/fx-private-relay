@@ -16,7 +16,6 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.exceptions import (
     APIException,
     AuthenticationFailed,
-    PermissionDenied,
 )
 from rest_framework.request import Request
 
@@ -378,14 +377,14 @@ class FxaTokenAuthentication(TokenAuthentication):
         Try to authenticate with a Accounts bearer token.
 
         If successful, it returns a tuple (user, token), which can be accessed at
-        request.user and request.auth. Also, request.successful_authenticator will be
+        request.user and request.auth. If there is a not a matching Relay user, then
+        the user is an AnonymousUser. Also, request.successful_authenticator will be
         an instance of this class.
 
         If it fails, it raises an APIException with a status code:
         * 503 Service Unavailable - The introspect API request failed, or had bad data
-        * 401 Authentication Failed - The introspect API says the account is inactive
-        * 403 Forbidden - The introspect API returns an active account, but the
-          matching Relay user is required.
+        * 401 Authentication Failed - The introspect API says the account is inactive,
+          or the token is invalid.
 
         If the authentication header is not an Accounts bearer token, it returns None
         to skip to the next authentication method.
@@ -415,10 +414,4 @@ class FxaTokenAuthentication(TokenAuthentication):
             )
         except SocialAccount.DoesNotExist:
             return (AnonymousUser(), introspected_token)
-        user = sa.user
-        if not user.is_active:
-            raise PermissionDenied(
-                "Authenticated user does not have an active Relay account."
-                " Have they been deactivated?"
-            )
-        return (user, introspected_token)
+        return (sa.user, introspected_token)

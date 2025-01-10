@@ -43,7 +43,7 @@ from privaterelay.plans import (
 from privaterelay.utils import get_countries_info_from_request_and_mapping
 
 from ..authentication import FxaTokenAuthentication, IntrospectionResponse
-from ..permissions import CanManageFlags, HasValidFxaToken, IsOwner
+from ..permissions import CanManageFlags, HasValidFxaToken, IsActive, IsNewUser, IsOwner
 from ..serializers.privaterelay import (
     FlagSerializer,
     ProfileSerializer,
@@ -292,7 +292,7 @@ def runtime_data(request):
     },
 )
 @api_view(["POST"])
-@permission_classes([HasValidFxaToken])
+@permission_classes([HasValidFxaToken, IsNewUser | IsActive])
 @authentication_classes([FxaTokenAuthentication])
 def terms_accepted_user(request: Request) -> Response:
     """
