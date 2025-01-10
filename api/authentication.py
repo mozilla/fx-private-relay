@@ -66,6 +66,7 @@ def get_cache_key(token: str) -> str:
 class IntrospectionResponse:
     def __init__(
         self,
+        token: str,
         data: FxaIntrospectData,
         from_cache: bool = False,
     ):
@@ -77,18 +78,23 @@ class IntrospectionResponse:
         if "exp" in data and not isinstance(data["exp"], int):
             raise ValueError("exp (Expiration timestamp in milliseconds) should be int")
 
+        self.token = token
         self.data: FxaIntrospectCompleteData = cast(FxaIntrospectCompleteData, data)
         self.from_cache = from_cache
 
     def __repr__(self) -> str:
-        params = [repr(self.data)]
+        params = [repr(self.token), repr(self.data)]
         if self.from_cache:
             params.append(f"from_cache={self.from_cache!r}")
         return f"{self.__class__.__name__}({', '.join(params)})"
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, IntrospectionResponse):
-            return (self.data == other.data) and (self.from_cache == other.from_cache)
+            return (
+                (self.token == other.token)
+                and (self.data == other.data)
+                and (self.from_cache == other.from_cache)
+            )
         return False
 
     def as_cache_value(self) -> CachedFxaIntrospectResponse:
@@ -138,20 +144,22 @@ INTROSPECT_ERROR = Literal[
 class IntrospectionError:
     def __init__(
         self,
+        token: str,
         error: INTROSPECT_ERROR,
         error_args: list[str] | None = None,
         status_code: int | None = None,
         data: FxaIntrospectData | None = None,
         from_cache: bool = False,
     ):
-        self.status_code = status_code
-        self.data = data
+        self.token = token
         self.error = error
         self.error_args = error_args or []
         self.from_cache = from_cache
+        self.status_code = status_code
+        self.data = data
 
     def __repr__(self) -> str:
-        params = [f"{self.error!r}"]
+        params = [repr(self.token), repr(self.error)]
         defaults: dict[str, Any] = {
             "error_args": [],
             "status_code": None,
@@ -166,7 +174,8 @@ class IntrospectionError:
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, IntrospectionError):
             return (
-                (self.status_code == other.status_code)
+                (self.token == other.token)
+                and (self.status_code == other.status_code)
                 and (self.data == other.data)
                 and (self.error == other.error)
                 and (self.error_args == other.error_args)
@@ -255,13 +264,14 @@ def load_introspection_result_from_cache(
         return None
     if error := cached.get("error"):
         return IntrospectionError(
+            token,
             error=error,
             status_code=cached.get("status_code"),
             data=cached.get("data"),
             error_args=cached.get("error_args"),
             from_cache=True,
         )
-    return IntrospectionResponse(data=cached.get("data"), from_cache=True)
+    return IntrospectionResponse(token, data=cached.get("data"), from_cache=True)
 
 
 def introspect_token(token: str) -> IntrospectionResponse | IntrospectionError:
@@ -281,39 +291,45 @@ def introspect_token(token: str) -> IntrospectionResponse | IntrospectionError:
             timeout=settings.FXA_REQUESTS_TIMEOUT_SECONDS,
         )
     except requests.Timeout:
-        return IntrospectionError("Timeout")
+        return IntrospectionError(token, "Timeout")
     except Exception as exc:
         error_args = [exc.__class__.__name__]
         error_args.extend(exc.args)
-        return IntrospectionError("FailedRequest", error_args=error_args)
+        return IntrospectionError(token, "FailedRequest", error_args=error_args)
 
     status_code = fxa_resp.status_code
     try:
         data = fxa_resp.json()
     except requests.exceptions.JSONDecodeError:
         return IntrospectionError(
-            "NotJson", status_code=status_code, error_args=[fxa_resp.text]
+            token, "NotJson", status_code=status_code, error_args=[fxa_resp.text]
         )
     if not isinstance(data, dict):
         return IntrospectionError(
-            "NotJsonDict", status_code=status_code, error_args=[data]
+            token, "NotJsonDict", status_code=status_code, error_args=[data]
         )
 
     fxa_data = cast(FxaIntrospectData, data)
     if status_code == 401:
         return IntrospectionError(
-            "NotAuthorized", status_code=status_code, data=fxa_data
+            token, "NotAuthorized", status_code=status_code, data=fxa_data
         )
     if status_code != 200:
-        return IntrospectionError("NotOK", status_code=status_code, data=fxa_data)
+        return IntrospectionError(
+            token, "NotOK", status_code=status_code, data=fxa_data
+        )
 
     if data.get("active", False) is not True:
-        return IntrospectionError("NotActive", status_code=status_code, data=fxa_data)
+        return IntrospectionError(
+            token, "NotActive", status_code=status_code, data=fxa_data
+        )
 
     if not isinstance(sub := data.get("sub", None), str) or not sub:
-        return IntrospectionError("NoSubject", status_code=status_code, data=fxa_data)
+        return IntrospectionError(
+            token, "NoSubject", status_code=status_code, data=fxa_data
+        )
 
-    return IntrospectionResponse(data=cast(FxaIntrospectData, data))
+    return IntrospectionResponse(token, data=cast(FxaIntrospectData, data))
 
 
 def introspect_token_or_raise(
