@@ -47,3 +47,13 @@ class CanManageFlags(permissions.BasePermission):
 class HasValidFxaToken(permissions.BasePermission):
     def has_permission(self, request: Request, view: APIView) -> bool:
         return isinstance(request.auth, IntrospectionResponse)
+
+
+class IsActive(permissions.BasePermission):
+    def has_permission(self, request: Request, view: APIView) -> bool:
+        return isinstance(request.user, User) and request.user.is_active
+
+
+class IsNewUser(permissions.BasePermission):
+    def has_permission(self, request: Request, view: APIView) -> bool:
+        return isinstance(request.user, AnonymousUser)
