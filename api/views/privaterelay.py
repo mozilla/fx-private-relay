@@ -18,13 +18,11 @@ from drf_spectacular.utils import (
     OpenApiResponse,
     extend_schema,
 )
-from rest_framework.authentication import get_authorization_header
 from rest_framework.decorators import (
     api_view,
     authentication_classes,
     permission_classes,
 )
-from rest_framework.exceptions import ParseError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -52,7 +50,7 @@ from ..authentication import (
     FxaTokenAuthenticationRelayUserOptional,
     IntrospectionResponse,
 )
-from ..permissions import CanManageFlags, IsOwner
+from ..permissions import CanManageFlags, HasValidFxaToken, IsOwner
 from ..serializers.privaterelay import (
     FlagSerializer,
     ProfileSerializer,
@@ -325,7 +323,7 @@ def runtime_data(request):
     },
 )
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([HasValidFxaToken])
 @authentication_classes([FxaTokenAuthenticationRelayUserOptional])
 def terms_accepted_user(request: Request) -> Response:
     """
@@ -336,22 +334,15 @@ def terms_accepted_user(request: Request) -> Response:
     [api-auth-doc]: https://github.com/mozilla/fx-private-relay/blob/main/docs/api_auth.md#firefox-oauth-token-authentication-and-accept-terms-of-service
     """  # noqa: E501
 
-    authorization = get_authorization_header(request).decode()
-    if not authorization or not authorization.startswith("Bearer "):
-        raise ParseError("Missing Bearer header.")
-
-    token = authorization.split(" ")[1]
-    if token == "":
-        raise ParseError("Missing FXA Token after 'Bearer'.")
-
     user = request.user
     introspect_response = request.auth
     if not isinstance(introspect_response, IntrospectionResponse):
         raise ValueError(
             "Expected request.auth to be IntrospectionResponse,"
-            f" got {type(IntrospectionResponse)}"
+            f" got {type(introspect_response)}"
         )
     fxa_uid = introspect_response.fxa_id
+    token = introspect_response.token
 
     existing_sa = False
     action: str | None = None
