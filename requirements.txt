@@ -37,7 +37,7 @@ vobject==0.9.9
 
 # tests
 coverage==7.6.10
-model-bakery==1.20.0
+model-bakery==1.20.1
 pytest-cov==6.0.0
 pytest-django==4.9.0
 responses==0.25.3
