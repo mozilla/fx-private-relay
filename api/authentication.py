@@ -13,12 +13,15 @@ from django.core.cache import BaseCache, cache
 import requests
 from allauth.socialaccount.models import SocialAccount
 from codetiming import Timer
+from markus.utils import generate_tag
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.exceptions import (
     APIException,
     AuthenticationFailed,
 )
 from rest_framework.request import Request
+
+from emails.utils import histogram_if_enabled
 
 logger = logging.getLogger("events")
 INTROSPECT_TOKEN_URL = "{}/introspect".format(
@@ -212,7 +215,7 @@ class IntrospectionError:
         "NoSubject": 503,
     }
 
-    def raise_exception(self) -> NoReturn:
+    def raise_exception(self, method: str, path: str) -> NoReturn:
         if not self.from_cache and self.error in self._log_failure:
             logger.error(
                 "accounts_introspection_failed",
@@ -221,8 +224,16 @@ class IntrospectionError:
                     "error_args": [shlex.quote(arg) for arg in self.error_args],
                     "status_code": self.status_code,
                     "data": self.data,
+                    "method": method,
+                    "path": path,
                     "introspection_time_s": self.request_s,
                 },
+            )
+        if self.request_s:
+            histogram_if_enabled(
+                name="accounts_introspection_ms",
+                value=int(self.request_s * 1000),
+                tags=[generate_tag("method", method), generate_tag("path", path)],
             )
         code = self._exception_code[self.error]
         if code == 401:
@@ -368,9 +379,9 @@ def introspect_token(token: str) -> IntrospectionResponse | IntrospectionError:
     )
 
 
-def introspect_token_or_raise(
-    token: str, use_cache: bool = True
-) -> IntrospectionResponse:
+def introspect_and_cache_token(
+    token: str, read_from_cache: bool = True
+) -> IntrospectionResponse | IntrospectionError:
     """
     Introspect a Mozilla account OAuth token, to get data like the FxA UID.
 
@@ -379,7 +390,7 @@ def introspect_token_or_raise(
     default_cache_timeout = 60
 
     fxa_resp: IntrospectionResponse | IntrospectionError | None = None
-    if use_cache:
+    if read_from_cache:
         fxa_resp = load_introspection_result_from_cache(cache, token)
     if fxa_resp is None:
         fxa_resp = introspect_token(token)
@@ -388,7 +399,7 @@ def introspect_token_or_raise(
     if isinstance(fxa_resp, IntrospectionError):
         if not fxa_resp.from_cache:
             fxa_resp.save_to_cache(cache, token, default_cache_timeout)
-        fxa_resp.raise_exception()
+        return fxa_resp
 
     if not fxa_resp.from_cache:
         cache_timeout = max(default_cache_timeout, fxa_resp.cache_timeout)
@@ -426,15 +437,8 @@ class FxaTokenAuthentication(TokenAuthentication):
         If the authentication header is not an Accounts bearer token, it returns None
         to skip to the next authentication method.
         """
-        method = request.method
-        path = request.path
-        use_cache = True
-        if method in {"POST", "DELETE", "PUT"}:
-            use_cache = False
-            if method == "POST" and path == "/api/v1/relayaddresses/":
-                use_cache = True
-        self.use_cache = use_cache
-
+        self.method = request.method
+        self.path = request.path
         # Validate the token header, call authentication_credentials
         return super().authenticate(request)
 
@@ -446,12 +450,24 @@ class FxaTokenAuthentication(TokenAuthentication):
 
         This is called by DRF authentication framework's authenticate.
         """
-        introspected_token = introspect_token_or_raise(key, self.use_cache)
-        fxa_id = introspected_token.fxa_id
+        read_from_cache = True
+        if self.method in {"POST", "DELETE", "PUT"}:
+            # Require token re-inspection for methods that change content
+            read_from_cache = False
+            if self.method == "POST" and self.path == "/api/v1/relayaddresses/":
+                # MPP-3156: Except for creating a new random address, often
+                # done directly after reading the list of random addresses
+                read_from_cache = True
+
+        introspection_result = introspect_and_cache_token(key, read_from_cache)
+        if isinstance(introspection_result, IntrospectionError):
+            introspection_result.raise_exception(self.method or "UNKNOWN", self.path)
+
+        fxa_id = introspection_result.fxa_id
         try:
             sa = SocialAccount.objects.select_related("user").get(
                 uid=fxa_id, provider="fxa"
             )
         except SocialAccount.DoesNotExist:
-            return (AnonymousUser(), introspected_token)
-        return (sa.user, introspected_token)
+            return (AnonymousUser(), introspection_result)
+        return (sa.user, introspection_result)
