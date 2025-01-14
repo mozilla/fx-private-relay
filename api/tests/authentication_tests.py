@@ -158,6 +158,15 @@ def test_introspection_response_repr_with_from_cache() -> None:
     )
 
 
+def test_introspection_response_repr_with_request_s() -> None:
+    data: FxaIntrospectData = {"active": True, "sub": "fxa-id"}
+    response = IntrospectionResponse("token", data, request_s=0.23)
+    assert repr(response) == (
+        "IntrospectionResponse('token', "
+        "{'active': True, 'sub': 'fxa-id'}, request_s=0.23)"
+    )
+
+
 def test_introspection_response_fxa_id() -> None:
     response = IntrospectionResponse("token", {"active": True, "sub": "the-fxa-id"})
     assert response.fxa_id == "the-fxa-id"
@@ -176,9 +185,15 @@ def test_introspection_response_equality() -> None:
 
 
 @pytest.mark.parametrize("from_cache", (True, False))
-def test_introspection_response_as_cache_value(from_cache: bool) -> None:
+@pytest.mark.parametrize("request_s", (1.0, None))
+def test_introspection_response_as_cache_value(
+    from_cache: bool, request_s: None | float
+) -> None:
     response = IntrospectionResponse(
-        "token", {"active": True, "sub": "old-fxa-id"}, from_cache=from_cache
+        "token",
+        {"active": True, "sub": "old-fxa-id"},
+        from_cache=from_cache,
+        request_s=request_s,
     )
     # from_cache is not in cached value
     assert response.as_cache_value() == {"data": {"active": True, "sub": "old-fxa-id"}}
@@ -232,6 +247,15 @@ _INTROSPECTION_ERROR_REPR_TEST_CASES: list[
         (
             "IntrospectionError('token5', 'NotActive', status_code=200,"
             " data={'active': False}, from_cache=True)"
+        ),
+    ),
+    (
+        "token6",
+        "NoSubject",
+        {"status_code": 200, "data": {"active": True}, "request_s": 0.3},
+        (
+            "IntrospectionError('token6', 'NoSubject', status_code=200,"
+            " data={'active': True}, request_s=0.3)"
         ),
     ),
 ]
