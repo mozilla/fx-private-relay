@@ -428,9 +428,12 @@ class FxaTokenAuthentication(TokenAuthentication):
         """
         method = request.method
         path = request.path
-        self.use_cache = (method == "POST" and path == "/api/v1/relayaddresses/") or (
-            method not in ("POST", "DELETE", "PUT")
-        )
+        use_cache = True
+        if method in {"POST", "DELETE", "PUT"}:
+            use_cache = False
+            if method == "POST" and path == "/api/v1/relayaddresses/":
+                use_cache = True
+        self.use_cache = use_cache
 
         # Validate the token header, call authentication_credentials
         return super().authenticate(request)
