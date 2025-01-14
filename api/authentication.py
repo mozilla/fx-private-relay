@@ -449,8 +449,7 @@ class FxaTokenAuthentication(TokenAuthentication):
             # Require token re-inspection for methods that change content...
             read_from_cache = False
             if self.method == "POST" and self.path == "/api/v1/relayaddresses/":
-                # ... except for creating a new random address, often done directly
-                # after reading the list of random addresses (MPP-3156)
+                # ... except for creating a new random address (MPP-3156)
                 read_from_cache = True
 
         introspection_result = introspect_and_cache_token(key, read_from_cache)
