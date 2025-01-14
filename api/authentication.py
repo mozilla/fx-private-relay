@@ -12,6 +12,7 @@ from django.core.cache import BaseCache, cache
 
 import requests
 from allauth.socialaccount.models import SocialAccount
+from codetiming import Timer
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.exceptions import (
     APIException,
@@ -293,51 +294,77 @@ def introspect_token(token: str) -> IntrospectionResponse | IntrospectionError:
     https://mozilla.github.io/ecosystem-platform/api#tag/OAuth-Server-API-Overview/operation/postIntrospect
     """
     try:
-        fxa_resp = requests.post(
-            INTROSPECT_TOKEN_URL,
-            json={"token": token},
-            timeout=settings.FXA_REQUESTS_TIMEOUT_SECONDS,
-        )
+        with Timer(logger=None) as request_timer:
+            fxa_resp = requests.post(
+                INTROSPECT_TOKEN_URL,
+                json={"token": token},
+                timeout=settings.FXA_REQUESTS_TIMEOUT_SECONDS,
+            )
     except requests.Timeout:
-        return IntrospectionError(token, "Timeout")
+        return IntrospectionError(token, "Timeout", request_s=request_timer.last)
     except Exception as exc:
         error_args = [exc.__class__.__name__]
         error_args.extend(exc.args)
-        return IntrospectionError(token, "FailedRequest", error_args=error_args)
+        return IntrospectionError(
+            token, "FailedRequest", error_args=error_args, request_s=request_timer.last
+        )
 
     status_code = fxa_resp.status_code
+    request_s = request_timer.last
     try:
         data = fxa_resp.json()
     except requests.exceptions.JSONDecodeError:
         return IntrospectionError(
-            token, "NotJson", status_code=status_code, error_args=[fxa_resp.text]
+            token,
+            "NotJson",
+            status_code=status_code,
+            error_args=[fxa_resp.text],
+            request_s=request_s,
         )
     if not isinstance(data, dict):
         return IntrospectionError(
-            token, "NotJsonDict", status_code=status_code, error_args=[data]
+            token,
+            "NotJsonDict",
+            status_code=status_code,
+            error_args=[data],
+            request_s=request_s,
         )
 
     fxa_data = cast(FxaIntrospectData, data)
     if status_code == 401:
         return IntrospectionError(
-            token, "NotAuthorized", status_code=status_code, data=fxa_data
+            token,
+            "NotAuthorized",
+            status_code=status_code,
+            data=fxa_data,
+            request_s=request_s,
         )
     if status_code != 200:
         return IntrospectionError(
-            token, "NotOK", status_code=status_code, data=fxa_data
+            token, "NotOK", status_code=status_code, data=fxa_data, request_s=request_s
         )
 
     if data.get("active", False) is not True:
         return IntrospectionError(
-            token, "NotActive", status_code=status_code, data=fxa_data
+            token,
+            "NotActive",
+            status_code=status_code,
+            data=fxa_data,
+            request_s=request_s,
         )
 
     if not isinstance(sub := data.get("sub", None), str) or not sub:
         return IntrospectionError(
-            token, "NoSubject", status_code=status_code, data=fxa_data
+            token,
+            "NoSubject",
+            status_code=status_code,
+            data=fxa_data,
+            request_s=request_s,
         )
 
-    return IntrospectionResponse(token, data=cast(FxaIntrospectData, data))
+    return IntrospectionResponse(
+        token, data=cast(FxaIntrospectData, data), request_s=request_s
+    )
 
 
 def introspect_token_or_raise(
