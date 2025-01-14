@@ -371,16 +371,16 @@ def _create_socialaccount_from_bearer_token(
 ) -> tuple[SocialAccount, None] | tuple[None, Response]:
     """Create a new Relay user with a SocialAccount from an FXA Bearer Token."""
 
-    # This is not exactly the request object that FirefoxAccountsProvider expects,
+    # request is not exactly the request object that FirefoxAccountsProvider expects,
     # but it has all of the necessary attributes to initialize the Provider
     provider = get_social_adapter().get_provider(request, "fxa")
 
-    # This may not save the new user that was created
-    # https://github.com/pennersr/django-allauth/blob/77368a84903d32283f07a260819893ec15df78fb/allauth/socialaccount/providers/base/provider.py#L44
+    # sociallogin_from_response does not save the new user that was created
+    # https://github.com/pennersr/django-allauth/blob/65.3.0/allauth/socialaccount/providers/base/provider.py#L84
     social_login = provider.sociallogin_from_response(request, fxa_profile)
 
     # Complete social login is called by callback, see
-    # https://github.com/pennersr/django-allauth/blob/77368a84903d32283f07a260819893ec15df78fb/allauth/socialaccount/providers/oauth/views.py#L118
+    # https://github.com/pennersr/django-allauth/blob/65.3.0/allauth/socialaccount/providers/oauth/views.py#L116
     # for what we are mimicking to create new SocialAccount, User, and Profile for
     # the new Relay user from Firefox Since this is a Resource Provider/Server flow
     # and are NOT a Relying Party (RP) of FXA No social token information is stored
