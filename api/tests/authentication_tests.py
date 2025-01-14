@@ -1,4 +1,5 @@
 import re
+from collections.abc import Iterator
 from datetime import UTC, datetime, timedelta
 from typing import Any
 from unittest.mock import Mock, patch
@@ -67,6 +68,25 @@ def _mock_fxa_introspect_response(
         status=status_code,
         json=data,
     )
+
+
+class MockTimer:
+    """Mocked version of codetiming.Timer."""
+
+    def __init__(self, logger: Any) -> None:
+        assert logger is None
+
+    def __enter__(self) -> "MockTimer":
+        return self
+
+    def __exit__(self, *exc_info: Any) -> None:
+        self.last = 0.5
+
+
+@pytest.fixture(autouse=True)
+def mock_timer() -> Iterator[Mock]:
+    with patch("api.authentication.Timer", side_effect=MockTimer) as MockedTimer:
+        yield MockedTimer
 
 
 def setup_fxa_introspect(
@@ -364,7 +384,7 @@ def test_introspect_token_success_returns_introspection_response() -> None:
     assert fxa_data is not None
 
     fxa_resp = introspect_token("the-token")
-    assert fxa_resp == IntrospectionResponse("the-token", fxa_data)
+    assert fxa_resp == IntrospectionResponse("the-token", fxa_data, request_s=0.5)
     assert mock_response.call_count == 1
 
 
@@ -375,7 +395,7 @@ def test_introspect_token_no_expiration_returns_introspection_response() -> None
 
     fxa_resp = introspect_token("the-token")
     assert isinstance(fxa_resp, IntrospectionResponse)
-    assert fxa_resp == IntrospectionResponse("the-token", fxa_data)
+    assert fxa_resp == IntrospectionResponse("the-token", fxa_data, request_s=0.5)
     assert fxa_resp.cache_timeout == 0
     assert mock_response.call_count == 1
 
@@ -428,7 +448,7 @@ def test_introspect_token_error_returns_introspection_error(
     if error_params.get("data") is _SETUP_FXA_DATA:
         assert fxa_data is not None
         params["data"] = fxa_data
-    expected_resp = IntrospectionError("err-token", error, **params)
+    expected_resp = IntrospectionError("err-token", error, request_s=0.5, **params)
 
     fxa_resp = introspect_token("err-token")
     assert fxa_resp == expected_resp
@@ -540,7 +560,7 @@ def test_introspect_token_or_raise_mocked_error_is_cached(cache: BaseCache) -> N
     assert cache.get(cache_key) is None
 
     # Timeout for the first time
-    expected_error = IntrospectionError(user_token, "Timeout")
+    expected_error = IntrospectionError(user_token, "Timeout", request_s=0.5)
     with pytest.raises(IntrospectUnavailable) as exc_info:
         introspect_token_or_raise(user_token)
     assert exc_info.value.args[0] == expected_error
@@ -586,7 +606,7 @@ def test_fxa_token_authentication_known_relay_user_returns_user(
     assert fxa_data is not None
     headers = {"Authorization": f"Bearer {token}"}
     req = APIRequestFactory().get("/api/endpoint", headers=headers)
-    expected_resp = IntrospectionResponse(token, fxa_data)
+    expected_resp = IntrospectionResponse(token, fxa_data, request_s=0.5)
 
     assert FxaTokenAuthentication().authenticate(req) == (free_user, expected_resp)
     assert cache.get(get_cache_key(token)) == expected_resp.as_cache_value()
@@ -602,7 +622,7 @@ def test_fxa_token_authentication_unknown_token_raises_auth_fail(
     headers = {"Authorization": f"Bearer {token}"}
     req = APIRequestFactory().get("/api/endpoint", headers=headers)
     expected_error = IntrospectionError(
-        token, "NotAuthorized", status_code=401, data=fxa_data
+        token, "NotAuthorized", status_code=401, data=fxa_data, request_s=0.5
     )
 
     with pytest.raises(
@@ -623,7 +643,7 @@ def test_fxa_token_authentication_not_yet_relay_user_returns_anon_user(
     token = "bearer-token"
     headers = {"Authorization": f"Bearer {token}"}
     req = APIRequestFactory().get("/api/endpoint", headers=headers)
-    introspect_response = IntrospectionResponse(token, fxa_data)
+    introspect_response = IntrospectionResponse(token, fxa_data, request_s=0.5)
     user_and_auth = FxaTokenAuthentication().authenticate(req)
     assert user_and_auth is not None
     user, auth = user_and_auth
@@ -648,7 +668,7 @@ def test_fxa_token_authentication_inactive_relay_user(
     assert fxa_data is not None
     headers = {"Authorization": f"Bearer {token}"}
     req = APIRequestFactory().get("/api/endpoint", headers=headers)
-    expected_resp = IntrospectionResponse(token, fxa_data)
+    expected_resp = IntrospectionResponse(token, fxa_data, request_s=0.5)
     user_and_auth = FxaTokenAuthentication().authenticate(req)
     assert user_and_auth is not None
     user, auth = user_and_auth
