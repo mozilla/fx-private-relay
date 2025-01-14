@@ -229,12 +229,6 @@ class IntrospectionError:
                     "introspection_time_s": self.request_s,
                 },
             )
-        if self.request_s:
-            histogram_if_enabled(
-                name="accounts_introspection_ms",
-                value=int(self.request_s * 1000),
-                tags=[generate_tag("method", method), generate_tag("path", path)],
-            )
         code = self._exception_code[self.error]
         if code == 401:
             raise IntrospectAuthenticationFailed(self)
@@ -437,7 +431,7 @@ class FxaTokenAuthentication(TokenAuthentication):
         If the authentication header is not an Accounts bearer token, it returns None
         to skip to the next authentication method.
         """
-        self.method = request.method
+        self.method = request.method or "unknown"
         self.path = request.path
         # Validate the token header, call authentication_credentials
         return super().authenticate(request)
@@ -460,8 +454,23 @@ class FxaTokenAuthentication(TokenAuthentication):
                 read_from_cache = True
 
         introspection_result = introspect_and_cache_token(key, read_from_cache)
+        if introspection_result.request_s is not None:
+            if isinstance(introspection_result, IntrospectionResponse):
+                result = "OK"
+            else:
+                result = introspection_result.error
+            histogram_if_enabled(
+                name="accounts_introspection_ms",
+                value=int(introspection_result.request_s * 1000),
+                tags=[
+                    generate_tag("result", result),
+                    generate_tag("method", self.method),
+                    generate_tag("path", self.path),
+                ],
+            )
+
         if isinstance(introspection_result, IntrospectionError):
-            introspection_result.raise_exception(self.method or "UNKNOWN", self.path)
+            introspection_result.raise_exception(self.method, self.path)
 
         fxa_id = introspection_result.fxa_id
         try:
