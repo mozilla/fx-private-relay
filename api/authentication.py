@@ -221,6 +221,7 @@ class IntrospectionError:
                     "error_args": [shlex.quote(arg) for arg in self.error_args],
                     "status_code": self.status_code,
                     "data": self.data,
+                    "introspection_time_s": self.request_s,
                 },
             )
         code = self._exception_code[self.error]

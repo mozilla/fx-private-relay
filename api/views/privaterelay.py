@@ -354,6 +354,8 @@ def terms_accepted_user(request: Request) -> Response:
             "social_account": socialaccount.uid,
             "status_code": status_code,
             "action": action,
+            "introspection_from_cache": introspect_response.from_cache,
+            "introspection_time_s": introspect_response.request_s,
         },
     )
     return Response(status=status_code)
