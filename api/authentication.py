@@ -68,6 +68,7 @@ class IntrospectionResponse:
         token: str,
         data: FxaIntrospectData,
         from_cache: bool = False,
+        request_s: float | None = None,
     ):
         # Check if this should have been an IntrospectionError
         if "active" not in data or data["active"] is not True:
@@ -80,11 +81,14 @@ class IntrospectionResponse:
         self.token = token
         self.data: FxaIntrospectCompleteData = cast(FxaIntrospectCompleteData, data)
         self.from_cache = from_cache
+        self.request_s = None if request_s is None else round(request_s, 3)
 
     def __repr__(self) -> str:
         params = [repr(self.token), repr(self.data)]
         if self.from_cache:
             params.append(f"from_cache={self.from_cache!r}")
+        if self.request_s is not None:
+            params.append(f"request_s={self.request_s!r}")
         return f"{self.__class__.__name__}({', '.join(params)})"
 
     def __eq__(self, other: Any) -> bool:
@@ -93,6 +97,7 @@ class IntrospectionResponse:
                 (self.token == other.token)
                 and (self.data == other.data)
                 and (self.from_cache == other.from_cache)
+                and (self.request_s == other.request_s)
             )
         return False
 
@@ -149,13 +154,15 @@ class IntrospectionError:
         status_code: int | None = None,
         data: FxaIntrospectData | None = None,
         from_cache: bool = False,
+        request_s: float | None = None,
     ):
         self.token = token
         self.error = error
         self.error_args = error_args or []
-        self.from_cache = from_cache
         self.status_code = status_code
         self.data = data
+        self.from_cache = from_cache
+        self.request_s = None if request_s is None else round(request_s, 3)
 
     def __repr__(self) -> str:
         params = [repr(self.token), repr(self.error)]
@@ -164,6 +171,7 @@ class IntrospectionError:
             "status_code": None,
             "data": None,
             "from_cache": False,
+            "request_s": None,
         }
         for name, default in defaults.items():
             if (val := getattr(self, name)) != default:
@@ -179,6 +187,7 @@ class IntrospectionError:
                 and (self.error == other.error)
                 and (self.error_args == other.error_args)
                 and (self.from_cache == other.from_cache)
+                and (self.request_s == other.request_s)
             )
         return False
 
