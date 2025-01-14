@@ -12,6 +12,7 @@ from allauth.account.adapter import get_adapter as get_account_adapter
 from allauth.socialaccount.adapter import get_adapter as get_social_adapter
 from allauth.socialaccount.helpers import complete_social_login
 from allauth.socialaccount.models import SocialAccount
+from codetiming import Timer
 from django_filters.rest_framework import FilterSet
 from drf_spectacular.utils import (
     OpenApiExample,
@@ -315,6 +316,7 @@ def terms_accepted_user(request: Request) -> Response:
 
     existing_sa = False
     action: str | None = None
+    profile_time_s: float | None = None
     if isinstance(user, User):
         socialaccount = SocialAccount.objects.get(user=user, provider="fxa")
         existing_sa = True
@@ -322,7 +324,9 @@ def terms_accepted_user(request: Request) -> Response:
 
     if not existing_sa:
         # Get the user's profile
-        fxa_profile, response = _get_fxa_profile_from_bearer_token(token)
+        fxa_profile, response, profile_time_s = _get_fxa_profile_from_bearer_token(
+            token
+        )
         if response:
             return response
 
@@ -356,6 +360,7 @@ def terms_accepted_user(request: Request) -> Response:
             "action": action,
             "introspection_from_cache": introspect_response.from_cache,
             "introspection_time_s": introspect_response.request_s,
+            "profile_time_s": profile_time_s,
         },
     )
     return Response(status=status_code)
@@ -409,31 +414,48 @@ def _create_socialaccount_from_bearer_token(
 
 def _get_fxa_profile_from_bearer_token(
     token: str,
-) -> tuple[dict[str, Any], None] | tuple[None, Response]:
+) -> tuple[dict[str, Any], None, float] | tuple[None, Response, None]:
     """Use a bearer token to get the Mozilla Account user's profile data"""
     # Use the bearer token
     try:
-        fxa_profile_resp = requests.get(
-            FXA_PROFILE_URL,
-            headers={"Authorization": f"Bearer {token}"},
-            timeout=settings.FXA_REQUESTS_TIMEOUT_SECONDS,
-        )
+        with Timer(logger=None) as profile_timer:
+            fxa_profile_resp = requests.get(
+                FXA_PROFILE_URL,
+                headers={"Authorization": f"Bearer {token}"},
+                timeout=settings.FXA_REQUESTS_TIMEOUT_SECONDS,
+            )
     except requests.Timeout:
-        return None, Response(
-            "Account profile request timeout, try again later.",
-            status=503,
+        logger.error(
+            "terms_accepted_user: timeout",
+            extra={
+                "profile_time_s": round(profile_timer.last, 3),
+            },
+        )
+        return (
+            None,
+            Response(
+                "Account profile request timeout, try again later.",
+                status=503,
+            ),
+            None,
         )
 
+    profile_time_s = round(profile_timer.last, 3)
     if not (fxa_profile_resp.ok and fxa_profile_resp.content):
         logger.error(
             "terms_accepted_user: bad account profile response",
             extra={
                 "status_code": fxa_profile_resp.status_code,
                 "content": fxa_profile_resp.content,
+                "profile_time_s": profile_time_s,
             },
         )
-        return None, Response(
-            data={"detail": "Did not receive a 200 response for account profile."},
-            status=500,
+        return (
+            None,
+            Response(
+                data={"detail": "Did not receive a 200 response for account profile."},
+                status=500,
+            ),
+            None,
         )
-    return fxa_profile_resp.json(), None
+    return fxa_profile_resp.json(), None, profile_time_s

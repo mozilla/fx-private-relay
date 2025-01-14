@@ -454,15 +454,16 @@ class TermsAcceptedUserViewTest(TestCase):
 
         def get_profile_then_create_socialaccount(
             token: str,
-        ) -> tuple[dict[str, Any], None]:
-            fxa_profile, error_rsp = _get_fxa_profile_from_bearer_token(token)
+        ) -> tuple[dict[str, Any], None, float]:
+            fxa_profile, error_rsp, time_s = _get_fxa_profile_from_bearer_token(token)
             assert isinstance(fxa_profile, dict)
             assert error_rsp is None
+            assert isinstance(time_s, float)
             user = User.objects.create(email=email)
             user.profile.created_by = "mocked_function"
             user.profile.save()
             SocialAccount.objects.create(provider="fxa", uid=self.uid, user=user)
-            return fxa_profile, error_rsp
+            return fxa_profile, error_rsp, time_s
 
         with patch(
             "api.views.privaterelay._get_fxa_profile_from_bearer_token",
