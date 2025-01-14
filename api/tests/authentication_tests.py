@@ -25,8 +25,8 @@ from ..authentication import (
     IntrospectionResponse,
     IntrospectUnavailable,
     get_cache_key,
+    introspect_and_cache_token,
     introspect_token,
-    introspect_token_or_raise,
     load_introspection_result_from_cache,
 )
 
@@ -393,7 +393,7 @@ def test_introspection_error_raises_exception_401() -> None:
         "token", "NotActive", status_code=401, data={"active": False}
     )
     with pytest.raises(IntrospectAuthenticationFailed) as exc_info:
-        error.raise_exception()
+        error.raise_exception("METHOD", "path")
     exception = exc_info.value
     assert exception.status_code == 401
     assert str(exception.detail) == "Incorrect authentication credentials."
@@ -403,7 +403,7 @@ def test_introspection_error_raises_exception_401() -> None:
 def test_introspection_error_raises_exception_503() -> None:
     error = IntrospectionError("token", "Timeout")
     with pytest.raises(IntrospectUnavailable) as exc_info:
-        error.raise_exception()
+        error.raise_exception("METHOD", "path")
     exception = exc_info.value
     assert exception.status_code == 503
     expected_detail = "Introspection temporarily unavailable, try again later."
@@ -545,7 +545,7 @@ def test_load_introspection_result_from_cache_introspection_bad_value() -> None:
 
 
 @responses.activate
-def test_introspect_token_or_raise_mocked_success_is_cached(cache: BaseCache) -> None:
+def test_introspect_and_cache_token_mocked_success_is_cached(cache: BaseCache) -> None:
     user_token = "user-123"
     cache_key = get_cache_key(user_token)
     fxa_id = "fxa-id-for-user-123"
@@ -554,20 +554,22 @@ def test_introspect_token_or_raise_mocked_success_is_cached(cache: BaseCache) ->
     assert cache.get(cache_key) is None
 
     # get FxA ID for the first time
-    fxa_resp = introspect_token_or_raise(user_token)
+    fxa_resp = introspect_and_cache_token(user_token)
+    assert isinstance(fxa_resp, IntrospectionResponse)
     assert fxa_resp.fxa_id == fxa_id
     assert not fxa_resp.from_cache
     assert mock_response.call_count == 1
     assert cache.get(cache_key) == fxa_resp.as_cache_value()
 
     # now check that the 2nd call did NOT make another fxa request
-    fxa_resp2 = introspect_token_or_raise(user_token)
+    fxa_resp2 = introspect_and_cache_token(user_token)
+    assert isinstance(fxa_resp, IntrospectionResponse)
     assert fxa_resp2.from_cache
     assert mock_response.call_count == 1
 
 
 @responses.activate
-def test_introspect_token_or_raise_mocked_success_with_use_cache_false(
+def test_introspect_and_cache_token_mocked_success_with_use_cache_false(
     cache: BaseCache,
 ) -> None:
     user_token = "user-123"
@@ -578,7 +580,8 @@ def test_introspect_token_or_raise_mocked_success_with_use_cache_false(
     cache.set(cache_key, "An invalid cache value that is not read")
 
     # skip cache, call introspect API, set cache to new data
-    fxa_resp = introspect_token_or_raise(user_token, use_cache=False)
+    fxa_resp = introspect_and_cache_token(user_token, read_from_cache=False)
+    assert isinstance(fxa_resp, IntrospectionResponse)
     assert fxa_resp.fxa_id == fxa_id
     assert not fxa_resp.from_cache
     assert mock_response.call_count == 1
@@ -586,7 +589,7 @@ def test_introspect_token_or_raise_mocked_success_with_use_cache_false(
 
 
 @responses.activate
-def test_introspect_token_or_raise_mocked_error_is_cached(cache: BaseCache) -> None:
+def test_introspect_and_cache_token_mocked_error_is_cached(cache: BaseCache) -> None:
     user_token = "user-123"
     cache_key = get_cache_key(user_token)
     mock_response, fxa_data = setup_fxa_introspect(timeout=True)
@@ -595,38 +598,14 @@ def test_introspect_token_or_raise_mocked_error_is_cached(cache: BaseCache) -> N
 
     # Timeout for the first time
     expected_error = IntrospectionError(user_token, "Timeout", request_s=0.5)
-    with pytest.raises(IntrospectUnavailable) as exc_info:
-        introspect_token_or_raise(user_token)
-    assert exc_info.value.args[0] == expected_error
+    result = introspect_and_cache_token(user_token)
+    assert result == expected_error
     assert mock_response.call_count == 1
     assert cache.get(cache_key) == expected_error.as_cache_value()
 
     # now check that the 2nd call did NOT make another fxa request
-    with pytest.raises(IntrospectUnavailable):
-        introspect_token_or_raise(user_token)
-    assert mock_response.call_count == 1
-
-
-@responses.activate
-def test_cached_wrong_scope(cache: BaseCache) -> None:
-    mock_response, fxa_data = setup_fxa_introspect(scope="foo")
-    missing_scopes_token = "missing-scopes-123"
-    cache_key = get_cache_key(missing_scopes_token)
-    assert cache.get(cache_key) is None
-
-    # get fxa response with wrong scope for the first time
-    with pytest.raises(IntrospectAuthenticationFailed):
-        introspect_token_or_raise(missing_scopes_token)
-    assert mock_response.call_count == 1
-    assert cache.get(cache_key) == {
-        "error": "MissingScope",
-        "status_code": 200,
-        "data": fxa_data,
-    }
-
-    # now check that the 2nd call did NOT make another fxa request
-    with pytest.raises(IntrospectAuthenticationFailed):
-        introspect_token_or_raise(missing_scopes_token)
+    result = introspect_and_cache_token(user_token)
+    assert result == IntrospectionError(user_token, "Timeout", from_cache=True)
     assert mock_response.call_count == 1
 
 
@@ -760,11 +739,11 @@ def test_fxa_token_authentication_skip_cache(
     )
 
     with patch(
-        "api.authentication.introspect_token_or_raise", return_value=introspect_response
+        "api.authentication.introspect_and_cache_token",
+        return_value=introspect_response,
     ) as introspect:
         user_and_token = auth.authenticate(req)
     introspect.assert_called_once_with(token, False)
-    assert auth.use_cache is False
     assert user_and_token == (free_user, introspect_response)
 
 
@@ -777,7 +756,7 @@ def test_fxa_token_authentication_skip_cache(
         ("POST", "/api/v1/relayaddresses/"),
     ],
 )
-def test_fxa_token_authentication_use_cache(
+def test_fxa_token_authentication_read_from_cache(
     method: str, path: str, free_user: User, fxa_social_app: SocialApp
 ) -> None:
     """Cached FxA introspect results are used (use_cache=True) for some methods."""
@@ -792,9 +771,9 @@ def test_fxa_token_authentication_use_cache(
     )
 
     with patch(
-        "api.authentication.introspect_token_or_raise", return_value=introspect_response
+        "api.authentication.introspect_and_cache_token",
+        return_value=introspect_response,
     ) as introspect:
         user_and_token = auth.authenticate(req)
     introspect.assert_called_once_with(token, True)
-    assert auth.use_cache is True
     assert user_and_token == (free_user, introspect_response)
