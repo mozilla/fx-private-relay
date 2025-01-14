@@ -179,6 +179,19 @@ def test_introspection_response_repr_from_cache():
     )
 
 
+def test_introspection_response_repr_with_request_s() -> None:
+    data = _create_fxa_introspect_response()
+    response = IntrospectionResponse("token", data, request_s=0.23)
+    assert repr(response) == (
+        "IntrospectionResponse('token', "
+        "{'active': True,"
+        " 'sub': 'an-fxa-id',"
+        f" 'scope': 'profile {settings.RELAY_SCOPE}',"
+        f" 'exp': {data['exp']}"
+        "}, request_s=0.23)"
+    )
+
+
 def test_introspection_response_fxa_id():
     data = _create_fxa_introspect_response(uid="the-fxa-id")
     response = IntrospectionResponse("token", data)
@@ -197,10 +210,15 @@ def test_introspection_response_equality():
 
 
 @pytest.mark.parametrize("from_cache", (True, False))
-def test_introspection_response_as_cache_value(from_cache: bool) -> None:
+@pytest.mark.parametrize("request_s", (1.0, None))
+def test_introspection_response_as_cache_value(
+    from_cache: bool, request_s: None | float
+) -> None:
     data = _create_fxa_introspect_response()
-    response = IntrospectionResponse("token", data, from_cache=from_cache)
-    # from_cache is not in cached value
+    response = IntrospectionResponse(
+        "token", data, from_cache=from_cache, request_s=request_s
+    )
+    # from_cache, request_s is not in cached value
     assert response.as_cache_value() == {"data": data}
 
 
@@ -243,18 +261,20 @@ _INTROSPECTION_ERROR_REPR_TEST_CASES: dict[
         {"error_args": [""], "status_code": 200},
         "IntrospectionError('token4', 'NotJson', error_args=[''], status_code=200)",
     ),
-    # add the FxA introspection data, which has an issue
+    # add the FxA introspection data, which has an issue, and the request time
     "data": (
         "token5",
         "MissingScope",
         {
             "status_code": 200,
             "data": {"active": False, "sub": "fxa-id", "scope": "foo"},
+            "request_s": 0.3,
         },
         (
             "IntrospectionError('token5', 'MissingScope',"
             " status_code=200,"
-            " data={'active': False, 'sub': 'fxa-id', 'scope': 'foo'}"
+            " data={'active': False, 'sub': 'fxa-id', 'scope': 'foo'},"
+            " request_s=0.3"
             ")"
         ),
     ),
