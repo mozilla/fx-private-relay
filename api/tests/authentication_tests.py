@@ -159,7 +159,7 @@ def test_introspection_response_init_bad_data_raises_value_error(
         IntrospectionResponse("token", data)
 
 
-def test_introspection_response_with_expiration():
+def test_introspection_response_with_expiration() -> None:
     data = _create_fxa_introspect_response()
     response = IntrospectionResponse("token", data)
     assert repr(response) == (
@@ -171,9 +171,10 @@ def test_introspection_response_with_expiration():
         "})"
     )
     assert 3530 < response.cache_timeout <= 3600  # about 60 minutes
+    assert not response.is_expired
 
 
-def test_introspection_response_without_expiration():
+def test_introspection_response_without_expiration() -> None:
     data = _create_fxa_introspect_response(expiration=False)
     response = IntrospectionResponse("token", data, from_cache=True)
     assert repr(response) == (
@@ -184,9 +185,10 @@ def test_introspection_response_without_expiration():
         "}, from_cache=True)"
     )
     assert response.cache_timeout == 0
+    assert response.is_expired
 
 
-def test_introspection_response_repr_from_cache():
+def test_introspection_response_repr_from_cache() -> None:
     data = _create_fxa_introspect_response(uid="other-fxa-id")
     response = IntrospectionResponse("token", data, from_cache=True)
     assert repr(response) == (
@@ -197,6 +199,8 @@ def test_introspection_response_repr_from_cache():
         f" 'exp': {data['exp']}"
         "}, from_cache=True)"
     )
+    assert 3530 < response.cache_timeout <= 3600  # about 60 minutes
+    assert not response.is_expired
 
 
 def test_introspection_response_repr_with_request_s() -> None:
@@ -212,13 +216,13 @@ def test_introspection_response_repr_with_request_s() -> None:
     )
 
 
-def test_introspection_response_fxa_id():
+def test_introspection_response_fxa_id() -> None:
     data = _create_fxa_introspect_response(uid="the-fxa-id")
     response = IntrospectionResponse("token", data)
     assert response.fxa_id == "the-fxa-id"
 
 
-def test_introspection_response_equality():
+def test_introspection_response_equality() -> None:
     data = _create_fxa_introspect_response()
     response = IntrospectionResponse("token", data)
     assert response == IntrospectionResponse("token", data)
