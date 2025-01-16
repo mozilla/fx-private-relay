@@ -157,6 +157,7 @@ def test_introspection_response_with_expiration() -> None:
         + "})"
     )
     assert 50 < response.cache_timeout <= 60  # about 60 seconds
+    assert not response.is_expired
 
 
 def test_introspection_response_without_expiration():
@@ -166,6 +167,7 @@ def test_introspection_response_without_expiration():
         "IntrospectionResponse('token', {'active': True, 'sub': 'other-fxa-id'})"
     )
     assert response.cache_timeout == 0
+    assert response.is_expired
 
 
 def test_introspection_response_repr_with_from_cache() -> None:
@@ -176,6 +178,8 @@ def test_introspection_response_repr_with_from_cache() -> None:
         "{'active': True, 'sub': 'other-fxa-id', 'exp': 100}"
         ", from_cache=True)"
     )
+    assert response.cache_timeout == 0
+    assert response.is_expired
 
 
 def test_introspection_response_repr_with_request_s() -> None:

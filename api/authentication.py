@@ -130,7 +130,11 @@ class IntrospectionResponse:
             return 0
         fxa_token_exp_time = int(self.data["exp"] / 1000)
         now_time = int(datetime.now(UTC).timestamp())
-        return fxa_token_exp_time - now_time
+        return max(0, fxa_token_exp_time - now_time)
+
+    @property
+    def is_expired(self) -> bool:
+        return self.cache_timeout <= 0
 
     @property
     def fxa_id(self) -> str:
