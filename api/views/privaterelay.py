@@ -21,6 +21,7 @@ from drf_spectacular.utils import (
     OpenApiResponse,
     extend_schema,
 )
+from markus.utils import generate_tag
 from rest_framework.decorators import (
     api_view,
     authentication_classes,
@@ -34,7 +35,7 @@ from rest_framework.viewsets import ModelViewSet
 from waffle import get_waffle_flag_model
 from waffle.models import Sample, Switch
 
-from emails.utils import incr_if_enabled
+from emails.utils import histogram_if_enabled, incr_if_enabled
 from privaterelay.models import Profile
 from privaterelay.plans import (
     get_bundle_country_language_mapping,
@@ -431,6 +432,12 @@ def _get_fxa_profile_from_bearer_token(
 
     if error is None and not (fxa_profile_resp.ok and fxa_profile_resp.content):
         error = "bad_response"
+
+    histogram_if_enabled(
+        name="accounts_profile_ms",
+        value=int(profile_time_s * 1000),
+        tags=[generate_tag("result", error or "OK")],
+    )
 
     if error == "timeout":
         logger.error(
