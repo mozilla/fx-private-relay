@@ -324,11 +324,10 @@ def terms_accepted_user(request: Request) -> Response:
 
     if not existing_sa:
         # Get the user's profile
-        fxa_profile, response, profile_time_s = _get_fxa_profile_from_bearer_token(
-            token
-        )
-        if response:
-            return response
+        fxa_prof_or_resp, profile_time_s = _get_fxa_profile_from_bearer_token(token)
+        if isinstance(fxa_prof_or_resp, Response):
+            return fxa_prof_or_resp
+        fxa_profile = fxa_prof_or_resp
 
         # Since this takes time, see if another request created the SocialAccount
         try:
@@ -414,7 +413,7 @@ def _create_socialaccount_from_bearer_token(
 
 def _get_fxa_profile_from_bearer_token(
     token: str,
-) -> tuple[dict[str, Any], None, float] | tuple[None, Response, float]:
+) -> tuple[dict[str, Any] | Response, float]:
     """Use a bearer token to get the Mozilla Account user's profile data"""
 
     error: None | Literal["timeout", "bad_response"] = None
@@ -441,7 +440,6 @@ def _get_fxa_profile_from_bearer_token(
             },
         )
         return (
-            None,
             Response(
                 "Account profile request timeout, try again later.",
                 status=503,
@@ -458,7 +456,6 @@ def _get_fxa_profile_from_bearer_token(
             },
         )
         return (
-            None,
             Response(
                 data={"detail": "Did not receive a 200 response for account profile."},
                 status=500,
@@ -466,4 +463,4 @@ def _get_fxa_profile_from_bearer_token(
             profile_time_s,
         )
     else:
-        return fxa_profile_resp.json(), None, profile_time_s
+        return fxa_profile_resp.json(), profile_time_s
