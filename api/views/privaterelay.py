@@ -414,9 +414,11 @@ def _create_socialaccount_from_bearer_token(
 
 def _get_fxa_profile_from_bearer_token(
     token: str,
-) -> tuple[dict[str, Any], None, float] | tuple[None, Response, None]:
+) -> tuple[dict[str, Any], None, float] | tuple[None, Response, float]:
     """Use a bearer token to get the Mozilla Account user's profile data"""
-    # Use the bearer token
+
+    error: None | Literal["timeout", "bad_response"] = None
+
     try:
         with Timer(logger=None) as profile_timer:
             fxa_profile_resp = requests.get(
@@ -425,10 +427,17 @@ def _get_fxa_profile_from_bearer_token(
                 timeout=settings.FXA_REQUESTS_TIMEOUT_SECONDS,
             )
     except requests.Timeout:
+        error = "timeout"
+    profile_time_s = round(profile_timer.last, 3)
+
+    if error is None and not (fxa_profile_resp.ok and fxa_profile_resp.content):
+        error = "bad_response"
+
+    if error == "timeout":
         logger.error(
             "terms_accepted_user: timeout",
             extra={
-                "profile_time_s": round(profile_timer.last, 3),
+                "profile_time_s": profile_time_s,
             },
         )
         return (
@@ -437,11 +446,9 @@ def _get_fxa_profile_from_bearer_token(
                 "Account profile request timeout, try again later.",
                 status=503,
             ),
-            None,
+            profile_time_s,
         )
-
-    profile_time_s = round(profile_timer.last, 3)
-    if not (fxa_profile_resp.ok and fxa_profile_resp.content):
+    elif error == "bad_response":
         logger.error(
             "terms_accepted_user: bad account profile response",
             extra={
@@ -456,6 +463,7 @@ def _get_fxa_profile_from_bearer_token(
                 data={"detail": "Did not receive a 200 response for account profile."},
                 status=500,
             ),
-            None,
+            profile_time_s,
         )
-    return fxa_profile_resp.json(), None, profile_time_s
+    else:
+        return fxa_profile_resp.json(), None, profile_time_s
