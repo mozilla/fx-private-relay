@@ -54,5 +54,6 @@ def fxa_social_app(db: None) -> SocialApp:
 
 @pytest.fixture
 def cache() -> Iterator[BaseCache]:
+    django_cache.clear()
     yield django_cache
     django_cache.clear()
