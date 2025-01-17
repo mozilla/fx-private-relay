@@ -10,6 +10,7 @@ from django.core.cache import BaseCache
 import pytest
 import responses
 from allauth.socialaccount.models import SocialAccount, SocialApp
+from pytest_django.fixtures import SettingsWrapper
 from requests import ReadTimeout
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.test import APIRequestFactory
@@ -87,6 +88,12 @@ class MockTimer:
 def mock_timer() -> Iterator[Mock]:
     with patch("api.authentication.Timer", side_effect=MockTimer) as MockedTimer:
         yield MockedTimer
+
+
+@pytest.fixture(autouse=True)
+def auth_2025_settings(settings: SettingsWrapper) -> SettingsWrapper:
+    settings.FXA_TOKEN_AUTH_VERSION = "2025"
+    return settings
 
 
 def setup_fxa_introspect(

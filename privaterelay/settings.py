@@ -631,6 +631,9 @@ FXA_ACCOUNTS_ENDPOINT = config(
     "https://api.accounts.firefox.com/v1",
 )
 FXA_SUPPORT_URL = config("FXA_SUPPORT_URL", f"{FXA_BASE_ORIGIN}/support/")
+FXA_TOKEN_AUTH_VERSION = config(
+    "FXA_TOKEN_AUTH_VERSION", "2024", cast=Choices(["2024", "2025"], cast=str)
+)
 
 LOGGING = {
     "version": 1,

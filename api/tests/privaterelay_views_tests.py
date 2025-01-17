@@ -1,4 +1,4 @@
-"""Tests for api/views/email_views.py"""
+"""Tests for api/views/privaterelay_views.py"""
 
 import logging
 from typing import Any
@@ -7,7 +7,7 @@ from unittest.mock import patch
 from django.contrib.auth.models import User
 from django.core.cache import BaseCache, cache
 from django.http import HttpRequest
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.test.client import Client
 from django.urls import reverse
 
@@ -17,10 +17,16 @@ from allauth.account.models import EmailAddress
 from allauth.socialaccount.internal.flows.signup import process_auto_signup
 from allauth.socialaccount.models import SocialAccount, SocialApp, SocialLogin
 from model_bakery import baker
+from pytest_django.fixtures import SettingsWrapper
 from requests import ReadTimeout
 from rest_framework.test import APIClient
 
-from api.authentication import IntrospectionError, IntrospectionResponse, get_cache_key
+from api.authentication import (
+    FXA_TOKEN_AUTH_NEW_AND_BUSTED,
+    IntrospectionError,
+    IntrospectionResponse,
+    get_cache_key,
+)
 from api.tests.authentication_tests import setup_fxa_introspect
 from api.views.privaterelay import FXA_PROFILE_URL, _get_fxa_profile_from_bearer_token
 from privaterelay.models import Profile
@@ -231,6 +237,9 @@ def _mock_fxa_profile_response(
     )
 
 
+@override_settings(
+    FXA_TOKEN_AUTH_VERSION=FXA_TOKEN_AUTH_NEW_AND_BUSTED
+)  # noqa: S106 # Possible hardcoded password
 @pytest.mark.usefixtures("fxa_social_app")
 class TermsAcceptedUserViewTest(TestCase):
     path = "/api/v1/terms-accepted-user/"
@@ -542,7 +551,9 @@ def test_metrics_disabled_user_fxa_uid_not_logged(
     caplog: pytest.LogCaptureFixture,
     fxa_social_app: SocialApp,
     cache: BaseCache,
+    settings: SettingsWrapper,
 ) -> None:
+    settings.FXA_TOKEN_AUTH_VERSION = "2025"
     caplog.set_level(logging.ERROR)
     uid = "relay-user-fxa-uid"
     email = "user@email.com"

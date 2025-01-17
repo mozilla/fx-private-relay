@@ -22,11 +22,13 @@ from drf_spectacular.utils import (
     extend_schema,
 )
 from markus.utils import generate_tag
+from rest_framework.authentication import get_authorization_header
 from rest_framework.decorators import (
     api_view,
     authentication_classes,
     permission_classes,
 )
+from rest_framework.exceptions import AuthenticationFailed, ErrorDetail, ParseError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -44,7 +46,14 @@ from privaterelay.plans import (
 )
 from privaterelay.utils import get_countries_info_from_request_and_mapping
 
-from ..authentication import FxaTokenAuthentication, IntrospectionResponse
+from ..authentication import (
+    FXA_TOKEN_AUTH_NEW_AND_BUSTED,
+    FxaTokenAuthentication,
+    IntrospectionResponse,
+)
+from ..authentication import (
+    get_fxa_uid_from_oauth_token_2024 as get_fxa_uid_from_oauth_token,
+)
 from ..permissions import CanManageFlags, HasValidFxaToken, IsActive, IsNewUser, IsOwner
 from ..serializers.privaterelay import (
     FlagSerializer,
@@ -294,9 +303,18 @@ def runtime_data(request):
     },
 )
 @api_view(["POST"])
-@permission_classes([HasValidFxaToken, IsNewUser | IsActive])
-@authentication_classes([FxaTokenAuthentication])
+@permission_classes([AllowAny])
+@authentication_classes([])
 def terms_accepted_user(request: Request) -> Response:
+    """Pick 2024 or 2025 version based on settings"""
+    if settings.FXA_TOKEN_AUTH_VERSION == FXA_TOKEN_AUTH_NEW_AND_BUSTED:
+        # Use request._request to re-do authentication, permissions checks
+        return terms_accepted_user_2025(request._request)
+    else:
+        return terms_accepted_user_2024(request)
+
+
+def terms_accepted_user_2024(request: Request) -> Response:
     """
     Create a Relay user from an FXA token.
 
@@ -304,6 +322,112 @@ def terms_accepted_user(request: Request) -> Response:
 
     [api-auth-doc]: https://github.com/mozilla/fx-private-relay/blob/main/docs/api_auth.md#firefox-oauth-token-authentication-and-accept-terms-of-service
     """  # noqa: E501
+    # Setting authentication_classes to empty due to
+    # authentication still happening despite permissions being set to allowany
+    # https://forum.djangoproject.com/t/solved-allowany-override-does-not-work-on-apiview/9754
+    # TODO: Implement an FXA token authentication class
+    authorization = get_authorization_header(request).decode()
+    if not authorization or not authorization.startswith("Bearer "):
+        raise ParseError("Missing Bearer header.")
+
+    token = authorization.split(" ")[1]
+    if token == "":
+        raise ParseError("Missing FXA Token after 'Bearer'.")
+
+    try:
+        fxa_uid = get_fxa_uid_from_oauth_token(token, use_cache=False)
+    except AuthenticationFailed as e:
+        # AuthenticationFailed exception returns 403 instead of 401 because we are not
+        # using the proper config that comes with the authentication_classes. See:
+        # https://www.django-rest-framework.org/api-guide/authentication/#custom-authentication
+        if isinstance(e.detail, ErrorDetail):
+            return Response(data={"detail": e.detail.title()}, status=e.status_code)
+        else:
+            return Response(data={"detail": e.get_full_details()}, status=e.status_code)
+    status_code = 201
+
+    try:
+        sa = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
+        status_code = 202
+    except SocialAccount.DoesNotExist:
+        # User does not exist, create a new Relay user
+        fxa_profile_resp = requests.get(
+            FXA_PROFILE_URL,
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=settings.FXA_REQUESTS_TIMEOUT_SECONDS,
+        )
+        if not (fxa_profile_resp.ok and fxa_profile_resp.content):
+            logger.error(
+                "terms_accepted_user: bad account profile response",
+                extra={
+                    "status_code": fxa_profile_resp.status_code,
+                    "content": fxa_profile_resp.content,
+                },
+            )
+            return Response(
+                data={"detail": "Did not receive a 200 response for account profile."},
+                status=500,
+            )
+
+        # This is not exactly the request object that FirefoxAccountsProvider expects,
+        # but it has all of the necessary attributes to initialize the Provider
+        provider = get_social_adapter().get_provider(request, "fxa")
+        # This may not save the new user that was created
+        # https://github.com/pennersr/django-allauth/blob/77368a84903d32283f07a260819893ec15df78fb/allauth/socialaccount/providers/base/provider.py#L44
+        social_login = provider.sociallogin_from_response(
+            request, fxa_profile_resp.json()
+        )
+        # Complete social login is called by callback, see
+        # https://github.com/pennersr/django-allauth/blob/77368a84903d32283f07a260819893ec15df78fb/allauth/socialaccount/providers/oauth/views.py#L118
+        # for what we are mimicking to create new SocialAccount, User, and Profile for
+        # the new Relay user from Firefox Since this is a Resource Provider/Server flow
+        # and are NOT a Relying Party (RP) of FXA No social token information is stored
+        # (no Social Token object created).
+        try:
+            complete_social_login(request, social_login)
+            # complete_social_login writes ['account_verified_email', 'user_created',
+            # '_auth_user_id', '_auth_user_backend', '_auth_user_hash'] on
+            # request.session which sets the cookie because complete_social_login does
+            # the "login" The user did not actually log in, logout to clear the session
+            if request.user.is_authenticated:
+                get_account_adapter(request).logout(request)
+        except NoReverseMatch as e:
+            # TODO: use this logging to fix the underlying issue
+            # https://mozilla-hub.atlassian.net/browse/MPP-3473
+            if "socialaccount_signup" in e.args[0]:
+                logger.error(
+                    "socialaccount_signup_error",
+                    extra={
+                        "exception": str(e),
+                        "fxa_uid": fxa_uid,
+                        "social_login_state": social_login.state,
+                    },
+                )
+                return Response(status=500)
+            raise e
+        sa = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
+        # Indicate profile was created from the resource flow
+        profile = sa.user.profile
+        profile.created_by = "firefox_resource"
+        profile.save()
+    info_logger.info(
+        "terms_accepted_user",
+        extra={"social_account": sa.uid, "status_code": status_code},
+    )
+    return Response(status=status_code)
+
+
+@api_view(["POST"])
+@permission_classes([HasValidFxaToken, IsNewUser | IsActive])
+@authentication_classes([FxaTokenAuthentication])
+def terms_accepted_user_2025(request: Request) -> Response:
+    """
+    Create a Relay user from an FXA token.
+
+    See API Auth doc for details:
+
+    https://github.com/mozilla/fx-private-relay/blob/main/docs/api_auth.md#firefox-oauth-token-authentication-and-accept-terms-of-service
+    """
 
     user = request.user
     introspect_response = request.auth
