@@ -114,27 +114,35 @@ class IntrospectionResponse:
         cache.set(get_cache_key(token), self.as_cache_value(), timeout)
 
     @property
+    def time_to_expire(self) -> int:
+        """
+        Return the expiration time in seconds from now for an introspected token.
+
+        If `exp` is omitted, a value for about 1 year ago is returned.
+        """
+        if "exp" not in self.data:
+            return -(365 * 24 * 60 * 60)
+        # Note: FXA exp, other timestamps are milliseconds
+        fxa_token_exp_time = int(self.data["exp"] / 1000)
+        now_time = int(datetime.now(UTC).timestamp())
+        return fxa_token_exp_time - now_time
+
+    @property
     def cache_timeout(self) -> int:
         """
         Return the timeout in seconds from now for an introspected token.
 
-        If `exp` is omitted, 0 is returned. Django's cache framework will not cache
-        a value with a 0 timeout.
+        The minimum is 0, which signals to not cache.
 
         Typical expiration is 24 - 48 hours. The token could be revoked before
         the expiration time, so we may want an upper cache limit or to ensure
         the cache is skipped for some operations.
         """
-        # Note: FXA iat and exp are timestamps in *milliseconds*
-        if "exp" not in self.data:
-            return 0
-        fxa_token_exp_time = int(self.data["exp"] / 1000)
-        now_time = int(datetime.now(UTC).timestamp())
-        return max(0, fxa_token_exp_time - now_time)
+        return max(0, self.time_to_expire)
 
     @property
     def is_expired(self) -> bool:
-        return self.cache_timeout <= 0
+        return self.time_to_expire <= 0
 
     @property
     def fxa_id(self) -> str:
@@ -150,6 +158,7 @@ INTROSPECT_ERROR = Literal[
     "NotAuthorized",  # Introspection API returned a 401 response
     "NotActive",  # The Accounts user is inactive
     "NoSubject",  # Introspection API did not return a "sub" field
+    "TokenExpired",  # The token is expired according to our clock
 ]
 
 
@@ -281,16 +290,26 @@ def load_introspection_result_from_cache(
     cached = cache.get(cache_key)
     if cached is None or not isinstance(cached, dict):
         return None
+    data_maybe = cached.get("data")
     if error := cached.get("error"):
         return IntrospectionError(
             token,
             error=error,
             status_code=cached.get("status_code"),
-            data=cached.get("data"),
+            data=data_maybe,
             error_args=cached.get("error_args"),
             from_cache=True,
         )
-    return IntrospectionResponse(token, data=cached.get("data"), from_cache=True)
+    response = IntrospectionResponse(token, data=data_maybe, from_cache=True)
+    if response.is_expired:
+        return IntrospectionError(
+            token,
+            "TokenExpired",
+            error_args=[str(response.time_to_expire)],
+            data=data_maybe,
+            from_cache=True,
+        )
+    return response
 
 
 def introspect_token(token: str) -> IntrospectionResponse | IntrospectionError:
@@ -372,9 +391,16 @@ def introspect_token(token: str) -> IntrospectionResponse | IntrospectionError:
             request_s=request_s,
         )
 
-    return IntrospectionResponse(
-        token, data=cast(FxaIntrospectData, data), request_s=request_s
-    )
+    response = IntrospectionResponse(token, data=fxa_data, request_s=request_s)
+    if response.is_expired:
+        return IntrospectionError(
+            token,
+            "TokenExpired",
+            error_args=[str(response.time_to_expire)],
+            data=fxa_data,
+            request_s=request_s,
+        )
+    return response
 
 
 def introspect_and_cache_token(

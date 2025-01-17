@@ -393,14 +393,20 @@ def test_introspect_token_success_returns_introspection_response() -> None:
 
 
 @responses.activate
-def test_introspect_token_no_expiration_returns_introspection_response() -> None:
+def test_introspect_token_no_expiration_returns_expired_token_error() -> None:
     mock_response, fxa_data = setup_fxa_introspect(expiration=False)
     assert fxa_data is not None
 
     fxa_resp = introspect_token("the-token")
-    assert isinstance(fxa_resp, IntrospectionResponse)
-    assert fxa_resp == IntrospectionResponse("the-token", fxa_data, request_s=0.5)
-    assert fxa_resp.cache_timeout == 0
+    assert isinstance(fxa_resp, IntrospectionError)
+    one_year = 365 * 24 * 60 * 60
+    assert fxa_resp == IntrospectionError(
+        "the-token",
+        "TokenExpired",
+        error_args=[str(-one_year)],
+        data=fxa_data,
+        request_s=0.5,
+    )
     assert mock_response.call_count == 1
 
 
@@ -459,8 +465,27 @@ def test_introspect_token_error_returns_introspection_error(
     assert mock_response.call_count == 1
 
 
-def test_load_introspection_result_from_cache_introspection_response() -> None:
+def test_load_introspection_result_from_cache_expired_token() -> None:
     fxa_data: FxaIntrospectData = {"active": True, "sub": "fxa_id"}
+    cache = Mock(spec_set=["get"])
+    cache.get.return_value = {"data": fxa_data}
+    token = "cached_token"
+
+    response = load_introspection_result_from_cache(cache, token)
+    assert isinstance(response, IntrospectionError)
+    one_year = 365 * 24 * 60 * 60
+    assert response == IntrospectionError(
+        token,
+        "TokenExpired",
+        error_args=[str(-one_year)],
+        data=fxa_data,
+        from_cache=True,
+    )
+    cache.get.assert_called_once_with(get_cache_key(token))
+
+
+def test_load_introspection_result_from_cache_introspection_response() -> None:
+    fxa_data = _create_fxa_introspect_response()
     cache = Mock(spec_set=["get"])
     cache.get.return_value = {"data": fxa_data}
     token = "cached_token"
