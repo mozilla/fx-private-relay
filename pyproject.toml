@@ -15,8 +15,6 @@ exclude_also = [
     "if TYPE_CHECKING:",
     # Skip abstract methods
     "raise NotImplementedError",
-    # Skip mypy exhaustion statement
-    "assert_never\\(.*\\)",
 ]
 
 [tool.coverage.run]
