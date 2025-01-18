@@ -4,7 +4,7 @@ import logging
 import shlex
 from datetime import UTC, datetime
 from hashlib import sha256
-from typing import Any, Literal, NoReturn, NotRequired, TypedDict, assert_never, cast
+from typing import Any, Literal, NoReturn, NotRequired, TypedDict, cast
 
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, User
@@ -249,6 +249,7 @@ class IntrospectionError:
         "NotJsonDict",
         "NotOK",
         "NoSubject",
+        "TokenExpired",
     }
 
     _exception_code: dict[INTROSPECT_ERROR, Literal[401, 503]] = {
@@ -260,6 +261,7 @@ class IntrospectionError:
         "NotAuthorized": 401,
         "NotActive": 401,
         "NoSubject": 503,
+        "TokenExpired": 401,
     }
 
     def raise_exception(self, method: str, path: str) -> NoReturn:
@@ -281,7 +283,6 @@ class IntrospectionError:
             raise IntrospectAuthenticationFailed(self)
         elif code == 503:
             raise IntrospectUnavailable(self)
-        assert_never(code)
 
     def as_cache_value(self) -> CachedFxaIntrospectResponse:
         cached: CachedFxaIntrospectResponse = {"error": self.error}
