@@ -29,13 +29,14 @@ another more appropriate party.
 
 1. Check [Security Dependabot Alerts][security-dependabot-alerts] for any critical
    security updates to make
-2. Check #relay-alerts for any critical operational issues to fix
-3. Check the [Sentry Releases][sentry-releases] report to watch for any new issues
-4. Check #relay-jira-triage for any urgent new tickets
-5. Check #privsec-customer-experience channel for any urgent inbound CX requests
-6. Check [dependabot pull requests][dependabot-prs].
-   - See the [Dependency Updates doc][dependency-updates-doc].
-7. Co-ordinate, re-tag for [stage fixes][stage-fixes] as needed
+1. Check #relay-alerts for any critical operational issues to fix
+1. Check the [Sentry Releases][sentry-releases] report to watch for any new issues
+1. Check #relay-jira-triage for any urgent new tickets
+1. Check [Bugzilla][bugzilla-passmgr-relay-1w] for recent [Password Manager bugs][bugzilla-passmgr] mentioning [Relay][bugzilla-passmgr-relay]
+1. Check #privsec-customer-experience channel for any urgent inbound CX requests
+1. Check [dependabot pull requests][dependabot-prs]
+   (see the [Dependency Updates doc][dependency-updates-doc])
+1. Co-ordinate, re-tag for [stage fixes][stage-fixes] as needed
 
 [incident-level severity]: https://mozilla-hub.atlassian.net/wiki/spaces/MIR/pages/20512894/Incident+Severity+Levels
 
@@ -90,3 +91,6 @@ another more appropriate party.
 [release-to-prod]: https://github.com/mozilla/fx-private-relay/blob/main/docs/release_process.md#release-to-prod
 [dependabot-prs]: https://github.com/mozilla/fx-private-relay/pulls/app%2Fdependabot
 [dependency-updates-doc]: https://github.com/mozilla/fx-private-relay/blob/main/docs/dependency-updates.md
+[bugzilla-passmgr-relay-1w]: https://bugzilla.mozilla.org/buglist.cgi?list_id=17370610&classification=Client%20Software&classification=Developer%20Infrastructure&classification=Components&classification=Server%20Software&classification=Other&short_desc=relay&component=Password%20Manager&resolution=---&query_format=advanced&short_desc_type=allwordssubstr&product=Toolkit&chfieldfrom=-1w&chfield=%5BBug%20creation%5D
+[bugzilla-passmgr-relay]: https://bugzilla.mozilla.org/buglist.cgi?component=Password%20Manager&list_id=17381002&short_desc_type=allwordssubstr&query_format=advanced&resolution=---&short_desc=Relay&product=Toolkit
+[bugzilla-passmgr]: https://bugzilla.mozilla.org/buglist.cgi?product=Toolkit&component=Password%20Manager&resolution=---&list_id=17380991
