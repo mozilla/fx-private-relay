@@ -28,7 +28,7 @@ Configuration is controlled by these variables:
 | _n/a_                   | `STATSD_ENABLED`        | `DJANGO_STATSD_ENABLED or STATSD_DEBUG` | Enables `incr_if_enabled()`, `gauge_if_enabled()`, etc.) |
 | `DJANGO_STATSD_HOST`    | `STATSD_HOST`           | `"127.0.0.1"`                           | statsd server IP                                         |
 | `DJANGO_STATSD_PORT`    | `STATSD_PORT`           | `8125`                                  | statsd server port                                       |
-| `DJANGO_STATSD_PREFIX`  | `STATSD_PREFIX`         | `"fx.private.relay"`                    | prefix for all metrics emitted to statsd server          |
+| `DJANGO_STATSD_PREFIX`  | `STATSD_PREFIX`         | `"firefox_relay"`                       | prefix for all metrics emitted to statsd server          |
 
 With the defaults `DJANGO_STATSD_ENABLED=False` and `STATSD_DEBUG=False`, no metrics
 are emitted. In deployments, `DJANGO_STATSD_ENABLED=True` and `STATSD_DEBUG=False`,
