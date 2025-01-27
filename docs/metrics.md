@@ -83,12 +83,8 @@ class CodeTest(TestCase):
         with MetricsMock() as mm:
             assert code_that_emits_metric() == 1
 
-        mm.assert_incr_once("fx.private.relay.code_called")
+        mm.assert_incr_once("code_called")
 ```
-
-When testing, note that the `STATSD_PREFIX` (default `"fx.private.relay"`) is
-in the emitted metric name, so in this example, the test is looking for
-`"fx.private.relay.code_called"`, not `"code_called"`.
 
 `MetricsMock` has other useful helper methods, such as
 [print_records()][print_records] to see all captured metrics. This can help

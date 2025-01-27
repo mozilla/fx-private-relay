@@ -861,7 +861,7 @@ if DJANGO_STATSD_ENABLED:
             "options": {
                 "statsd_host": STATSD_HOST,
                 "statsd_port": STATSD_PORT,
-                "statsd_prefix": STATSD_PREFIX,
+                "statsd_namespace": STATSD_PREFIX,
             },
         }
     )

@@ -377,7 +377,7 @@ def test_fxa_rp_events_password_change(
         response = client.get("/fxa-rp-events", HTTP_AUTHORIZATION=auth_header)
 
     mm.assert_timing_once(
-        "fx.private.relay.response",
+        "response",
         tags=["status:200", "view:privaterelay.views.fxa_rp_events", "method:GET"],
     )
     assert caplog.record_tuples == [
@@ -407,7 +407,7 @@ def test_fxa_rp_events_password_change_slight_future_iat(
         response = client.get("/fxa-rp-events", HTTP_AUTHORIZATION=auth_header)
 
     mm.assert_timing_once(
-        "fx.private.relay.response",
+        "response",
         tags=["status:200", "view:privaterelay.views.fxa_rp_events", "method:GET"],
     )
     assert caplog.record_tuples == [
@@ -441,7 +441,7 @@ def test_fxa_rp_events_password_change_far_future_iat(
         client.get("/fxa-rp-events", HTTP_AUTHORIZATION=auth_header)
 
     mm.assert_timing_once(
-        "fx.private.relay.response",
+        "response",
         tags=["status:500", "view:privaterelay.views.fxa_rp_events", "method:GET"],
     )
     assert caplog.record_tuples == [
@@ -472,7 +472,7 @@ def test_fxa_rp_events_profile_change(
         response = client.get("/fxa-rp-events", HTTP_AUTHORIZATION=auth_header)
 
     mm.assert_timing_once(
-        "fx.private.relay.response",
+        "response",
         tags=["status:200", "view:privaterelay.views.fxa_rp_events", "method:GET"],
     )
     assert caplog.record_tuples == [
@@ -513,7 +513,7 @@ def test_fxa_rp_events_subscription_change(
     with MetricsMock() as mm:
         response = client.get("/fxa-rp-events", HTTP_AUTHORIZATION=auth_header)
     mm.assert_timing_once(
-        "fx.private.relay.response",
+        "response",
         tags=["status:200", "view:privaterelay.views.fxa_rp_events", "method:GET"],
     )
     assert caplog.record_tuples == [
@@ -554,7 +554,7 @@ def test_fxa_rp_events_delete_user(
     with MetricsMock() as mm:
         response = client.get("/fxa-rp-events", HTTP_AUTHORIZATION=auth_header)
     mm.assert_timing_once(
-        "fx.private.relay.response",
+        "response",
         tags=["status:200", "view:privaterelay.views.fxa_rp_events", "method:GET"],
     )
     assert caplog.record_tuples == [
@@ -604,7 +604,7 @@ def test_metrics_event_GET(client: Client, caplog: pytest.LogCaptureFixture) -> 
         response = client.get("/metrics-event")
     assert response.status_code == 405
     assert caplog.record_tuples == [("request.summary", logging.INFO, "")]
-    mm.assert_not_incr("fx.private.relay.metrics_event")
+    mm.assert_not_incr("metrics_event")
 
 
 @override_settings(STATSD_ENABLED=True)
@@ -615,7 +615,7 @@ def test_metrics_event_POST_non_json(
         response = client.post("/metrics-event")
     assert response.status_code == 415
     assert caplog.record_tuples == [("request.summary", logging.INFO, "")]
-    mm.assert_not_incr("fx.private.relay.metrics_event")
+    mm.assert_not_incr("metrics_event")
 
 
 @override_settings(STATSD_ENABLED=True)
@@ -628,7 +628,7 @@ def test_metrics_event_POST_json_no_ga_uuid(
         )
     assert response.status_code == 404
     assert caplog.record_tuples == [("request.summary", logging.INFO, "")]
-    mm.assert_not_incr("fx.private.relay.metrics_event")
+    mm.assert_not_incr("metrics_event")
 
 
 @override_settings(STATSD_ENABLED=True)
@@ -653,4 +653,4 @@ def test_metrics_event_POST_json_ga_uuid_ok(
     assert getattr(record, "ga_uuid_hash") == "1aa8606ede8415d8"
     assert getattr(record, "source") == "website"
 
-    mm.assert_incr_once("fx.private.relay.metrics_event", 1, tags=["source:website"])
+    mm.assert_incr_once("metrics_event", 1, tags=["source:website"])

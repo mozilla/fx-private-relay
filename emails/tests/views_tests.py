@@ -534,7 +534,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
             _sns_notification(EMAIL_SNS_BODIES["spamVerdict_FAIL"])
 
         assert_log_email_dropped(caplog, "auto_block_spam", self.ra)
-        mm.assert_incr_once("fx.private.relay.email_auto_suppressed_for_spam")
+        mm.assert_incr_once("email_auto_suppressed_for_spam")
 
         self.mock_send_raw_email.assert_not_called()
         self.ra.refresh_from_db()
@@ -1077,7 +1077,7 @@ class BounceHandlingTest(TestCase):
         }
 
         mm.assert_incr_once(
-            "fx.private.relay.email_bounce",
+            "email_bounce",
             tags=[
                 "bounce_type:permanent",
                 "bounce_subtype:onaccountsuppressionlist",
@@ -1112,7 +1112,7 @@ class BounceHandlingTest(TestCase):
         }
 
         mm.assert_incr_once(
-            "fx.private.relay.email_bounce",
+            "email_bounce",
             tags=[
                 "bounce_type:transient",
                 "bounce_subtype:sreteameatenbydinosaurs",
@@ -1143,7 +1143,7 @@ class BounceHandlingTest(TestCase):
         }
 
         mm.assert_incr_once(
-            "fx.private.relay.email_bounce",
+            "email_bounce",
             tags=[
                 "bounce_type:transient",
                 "bounce_subtype:stoprelayingspamforthisuser",
@@ -1238,7 +1238,7 @@ class ComplaintHandlingTest(TestCase):
         self.mock_ses_client.send_raw_email.assert_not_called()
 
         mm.assert_incr_once(
-            "fx.private.relay.email_complaint",
+            "email_complaint",
             tags=[
                 "complaint_subtype:none",
                 "complaint_feedback:abuse",
@@ -1309,9 +1309,9 @@ class ComplaintHandlingTest(TestCase):
         assert "This mask has been deactivated" in msg_without_newlines
         assert self.ra.full_address in msg_without_newlines
 
-        mm.assert_incr_once("fx.private.relay.send_disabled_mask_email")
+        mm.assert_incr_once("send_disabled_mask_email")
         mm.assert_incr_once(
-            "fx.private.relay.email_complaint",
+            "email_complaint",
             tags=[
                 "complaint_subtype:none",
                 "complaint_feedback:abuse",
@@ -2073,9 +2073,7 @@ class SNSNotificationRemoveEmailsInS3Test(TestCase):
 
         with MetricsMock() as mm:
             response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
-        mm.assert_incr_once(
-            "fx.private.relay.reply_email_header_error", tags=["detail:no-header"]
-        )
+        mm.assert_incr_once("reply_email_header_error", tags=["detail:no-header"])
         mocked_get_keys.assert_called_once()
         self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 400
@@ -2092,9 +2090,7 @@ class SNSNotificationRemoveEmailsInS3Test(TestCase):
 
         with MetricsMock() as mm:
             response = _sns_notification(sns_msg)
-        mm.assert_incr_once(
-            "fx.private.relay.reply_email_header_error", tags=["detail:no-header"]
-        )
+        mm.assert_incr_once("reply_email_header_error", tags=["detail:no-header"])
         self.mock_remove_message_from_s3.assert_called_once_with(None, None)
         assert response.status_code == 400
 
@@ -2108,9 +2104,7 @@ class SNSNotificationRemoveEmailsInS3Test(TestCase):
 
         with MetricsMock() as mm:
             response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
-        mm.assert_incr_once(
-            "fx.private.relay.reply_email_header_error", tags=["detail:no-reply-record"]
-        )
+        mm.assert_incr_once("reply_email_header_error", tags=["detail:no-reply-record"])
         mocked_get_record.assert_called_once()
         self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 404
@@ -2127,9 +2121,7 @@ class SNSNotificationRemoveEmailsInS3Test(TestCase):
 
         with MetricsMock() as mm:
             response = _sns_notification(EMAIL_SNS_BODIES["replies"])
-        mm.assert_incr_once(
-            "fx.private.relay.reply_email_header_error", tags=["detail:no-reply-record"]
-        )
+        mm.assert_incr_once("reply_email_header_error", tags=["detail:no-reply-record"])
         mocked_get_record.assert_called_once()
         self.mock_remove_message_from_s3.assert_called_once_with(None, None)
         assert response.status_code == 404
@@ -2231,7 +2223,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         assert response.status_code == 200
         assert response.content == b"Address rejects spam."
         self.assert_log_incoming_email_dropped(caplog, "auto_block_spam")
-        mm.assert_incr_once("fx.private.relay.email_auto_suppressed_for_spam")
+        mm.assert_incr_once("email_auto_suppressed_for_spam")
 
     def test_user_bounce_soft_paused_email_in_s3_deleted(self) -> None:
         self.profile.last_soft_bounce = datetime.now(UTC)
@@ -2243,7 +2235,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         assert response.status_code == 200
         assert response.content == b"Address is temporarily disabled."
         self.assert_log_incoming_email_dropped(caplog, "soft_bounce_pause")
-        mm.assert_incr_once("fx.private.relay.email_suppressed_for_soft_bounce")
+        mm.assert_incr_once("email_suppressed_for_soft_bounce")
 
     def test_user_bounce_hard_paused_email_in_s3_deleted(self) -> None:
         self.profile.last_hard_bounce = datetime.now(UTC)
@@ -2255,7 +2247,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         assert response.status_code == 200
         assert response.content == b"Address is temporarily disabled."
         self.assert_log_incoming_email_dropped(caplog, "hard_bounce_pause")
-        mm.assert_incr_once("fx.private.relay.email_suppressed_for_hard_bounce")
+        mm.assert_incr_once("email_suppressed_for_hard_bounce")
 
     def test_user_deactivated_email_in_s3_deleted(self) -> None:
         self.profile.user.is_active = False
@@ -2320,7 +2312,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         assert (event := get_glean_event(caplog)) is not None
         expected = self.expected_glean_event(event["timestamp"], "block_all")
         assert event == expected
-        mm.assert_incr_once("fx.private.relay.email_for_disabled_address")
+        mm.assert_incr_once("email_for_disabled_address")
 
     @patch("emails.views._check_email_from_list")
     def test_blocked_list_email_in_s3_deleted(
@@ -2346,7 +2338,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         assert (event := get_glean_event(caplog)) is not None
         expected = self.expected_glean_event(event["timestamp"], "block_promotional")
         assert event == expected
-        mm.assert_incr_once("fx.private.relay.list_email_for_address_blocking_lists")
+        mm.assert_incr_once("list_email_for_address_blocking_lists")
 
     @patch("emails.views.get_message_content_from_s3")
     def test_get_text_html_s3_client_error_email_in_s3_not_deleted(
@@ -2427,7 +2419,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         assert response.content == b"DMARC failure, policy is reject"
         assert_log_email_dropped(caplog, "dmarc_reject_failed", self.address)
         mm.assert_incr_once(
-            "fx.private.relay.email_suppressed_for_dmarc_failure",
+            "email_suppressed_for_dmarc_failure",
             tags=["dmarcPolicy:reject", "dmarcVerdict:FAIL"],
         )
 
@@ -2537,19 +2529,19 @@ class GetAddressTest(TestCase):
     def test_unknown_relay_address_raises(self):
         with pytest.raises(RelayAddress.DoesNotExist), MetricsMock() as mm:
             _get_address("unknown@test.com")
-        mm.assert_incr_once("fx.private.relay.email_for_unknown_address")
+        mm.assert_incr_once("email_for_unknown_address")
 
     def test_deleted_relay_address_raises(self):
         with pytest.raises(RelayAddress.DoesNotExist), MetricsMock() as mm:
             _get_address("deleted456@test.com")
-        mm.assert_incr_once("fx.private.relay.email_for_deleted_address")
+        mm.assert_incr_once("email_for_deleted_address")
 
     def test_multiple_deleted_relay_addresses_raises_same_as_one(self):
         """Multiple DeletedAddress records can have the same hash."""
         baker.make(DeletedAddress, address_hash=self.deleted_relay_address.address_hash)
         with pytest.raises(RelayAddress.DoesNotExist), MetricsMock() as mm:
             _get_address("deleted456@test.com")
-        mm.assert_incr_once("fx.private.relay.email_for_deleted_address_multiple")
+        mm.assert_incr_once("email_for_deleted_address_multiple")
 
     def test_existing_domain_address(self) -> None:
         with self.assertNoLogs(GLEAN_LOG, "INFO"):
@@ -2578,7 +2570,7 @@ class GetAddressTest(TestCase):
         ):
             _get_address("unknown@subdomain.example.com")
         assert str(exc_info.value) == "Address does not exist"
-        mm.assert_incr_once("fx.private.relay.email_for_not_supported_domain")
+        mm.assert_incr_once("email_for_not_supported_domain")
 
     def test_unknown_subdomain_raises(self) -> None:
         with (
@@ -2587,7 +2579,7 @@ class GetAddressTest(TestCase):
             self.assertNoLogs(GLEAN_LOG, "INFO"),
         ):
             _get_address("domain@unknown.test.com")
-        mm.assert_incr_once("fx.private.relay.email_for_dne_subdomain")
+        mm.assert_incr_once("email_for_dne_subdomain")
 
     def test_unknown_domain_address_is_created(self) -> None:
         """
@@ -2691,19 +2683,19 @@ class GetAddressIfExistsTest(TestCase):
     def test_unknown_relay_address(self):
         with MetricsMock() as mm:
             assert _get_address_if_exists("unknown@test.com") is None
-        mm.assert_not_incr("fx.private.relay.email_for_unknown_address")
+        mm.assert_not_incr("email_for_unknown_address")
 
     def test_deleted_relay_address(self):
         with MetricsMock() as mm:
             assert _get_address_if_exists("deleted456@test.com") is None
-        mm.assert_not_incr("fx.private.relay.email_for_deleted_address")
+        mm.assert_not_incr("email_for_deleted_address")
 
     def test_multiple_deleted_relay_addresses_same_as_one(self):
         """Multiple DeletedAddress records can have the same hash."""
         baker.make(DeletedAddress, address_hash=self.deleted_relay_address.address_hash)
         with MetricsMock() as mm:
             assert _get_address_if_exists("deleted456@test.com") is None
-        mm.assert_not_incr("fx.private.relay.email_for_deleted_address_multiple")
+        mm.assert_not_incr("email_for_deleted_address_multiple")
 
     def test_existing_domain_address(self) -> None:
         with self.assertNoLogs(GLEAN_LOG, "INFO"):
@@ -2715,12 +2707,12 @@ class GetAddressIfExistsTest(TestCase):
     def test_subdomain_for_wrong_domain(self) -> None:
         with MetricsMock() as mm, self.assertNoLogs(GLEAN_LOG, "INFO"):
             assert _get_address_if_exists("unknown@subdomain.example.com") is None
-        mm.assert_not_incr("fx.private.relay.email_for_not_supported_domain")
+        mm.assert_not_incr("email_for_not_supported_domain")
 
     def test_unknown_subdomain(self) -> None:
         with MetricsMock() as mm, self.assertNoLogs(GLEAN_LOG, "INFO"):
             assert _get_address_if_exists("domain@unknown.test.com") is None
-        mm.assert_not_incr("fx.private.relay.email_for_dne_subdomain")
+        mm.assert_not_incr("email_for_dne_subdomain")
 
     def test_unknown_domain_address(self) -> None:
         """An unknown but valid domain address raises with create=False"""
@@ -2868,7 +2860,7 @@ class RecordReceiptVerdictsTests(SimpleTestCase):
         verdict_metrics = [
             MetricsRecord(
                 stat_type="incr",
-                key=f"fx.private.relay.relay.emails.verdicts.{verdict}Verdict",
+                key=f"relay.emails.verdicts.{verdict}Verdict",
                 value=1,
                 tags=[f"state:{state}"],
             )
@@ -2887,7 +2879,7 @@ class RecordReceiptVerdictsTests(SimpleTestCase):
             state_tags.sort()
         state_metric = MetricsRecord(
             stat_type="incr",
-            key=f"fx.private.relay.relay.emails.state.{state}",
+            key=f"relay.emails.state.{state}",
             value=1,
             tags=state_tags,
         )
@@ -3156,7 +3148,7 @@ def test_get_keys_from_headers_no_reply_headers(settings):
     settings.STATSD_ENABLED = True
     with MetricsMock() as mm, pytest.raises(ReplyHeadersNotFound):
         _get_keys_from_headers(headers)
-    mm.assert_incr_once("fx.private.relay.mail_to_replies_without_reply_headers")
+    mm.assert_incr_once("mail_to_replies_without_reply_headers")
 
 
 def test_get_keys_from_headers_in_reply_to():
