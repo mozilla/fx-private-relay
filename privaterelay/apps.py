@@ -8,6 +8,7 @@ from django.apps import AppConfig
 from django.conf import settings
 from django.utils.functional import cached_property
 
+import markus
 import requests
 
 ROOT_DIR = os.path.abspath(os.curdir)
@@ -44,10 +45,38 @@ def write_gcp_key_json_file(gcp_key_json_path: Path) -> None:
             gcp_key_file.write(google_app_creds.decode("utf-8"))
 
 
+def configure_markus() -> None:
+    backends: list[dict[str, Any]] = []
+    if settings.DJANGO_STATSD_ENABLED and not settings.IN_PYTEST:
+        backends.append(
+            {
+                "class": "markus.backends.datadog.DatadogMetrics",
+                "options": {
+                    "statsd_host": settings.STATSD_HOST,
+                    "statsd_port": settings.STATSD_PORT,
+                    "statsd_namespace": settings.STATSD_PREFIX,
+                },
+            }
+        )
+    if settings.STATSD_DEBUG:
+        backends.append(
+            {
+                "class": "markus.backends.logging.LoggingMetrics",
+                "options": {
+                    "logger_name": "markus",
+                    "leader": "METRICS",
+                },
+            }
+        )
+    markus.configure(backends=backends)
+
+
 class PrivateRelayConfig(AppConfig):
     name = "privaterelay"
 
     def ready(self) -> None:
+        configure_markus()
+
         if (
             settings.GOOGLE_APPLICATION_CREDENTIALS != ""
             and settings.GOOGLE_CLOUD_PROFILER_CREDENTIALS_B64 != ""

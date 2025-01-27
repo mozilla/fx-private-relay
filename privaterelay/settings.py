@@ -24,7 +24,6 @@ from django.conf.global_settings import LANGUAGES as DEFAULT_LANGUAGES
 
 import dj_database_url
 import django_stubs_ext
-import markus
 import sentry_sdk
 from csp.constants import NONCE, NONE, SELF, UNSAFE_INLINE
 from decouple import Choices, Csv, config
@@ -851,31 +850,6 @@ ignore_logger("django_ftl.message_errors")
 # Security scanner attempts on Heroku dev, no action required
 if RELAY_CHANNEL == "dev":
     ignore_logger("django.security.SuspiciousFileOperation")
-
-
-_MARKUS_BACKENDS: list[dict[str, Any]] = []
-if DJANGO_STATSD_ENABLED:
-    _MARKUS_BACKENDS.append(
-        {
-            "class": "markus.backends.datadog.DatadogMetrics",
-            "options": {
-                "statsd_host": STATSD_HOST,
-                "statsd_port": STATSD_PORT,
-                "statsd_namespace": STATSD_PREFIX,
-            },
-        }
-    )
-if STATSD_DEBUG:
-    _MARKUS_BACKENDS.append(
-        {
-            "class": "markus.backends.logging.LoggingMetrics",
-            "options": {
-                "logger_name": "markus",
-                "leader": "METRICS",
-            },
-        }
-    )
-markus.configure(backends=_MARKUS_BACKENDS)
 
 if USE_SILK:
     SILKY_PYTHON_PROFILER = True
