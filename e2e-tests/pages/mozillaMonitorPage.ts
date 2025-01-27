@@ -12,9 +12,7 @@ export class MozillaMonitorPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.monitorSignUpInput = page
-      .locator("//form[contains(@class, 'SignUpForm_form')]/input")
-      .first();
+    this.monitorSignUpInput = page.locator("input[type='email']").first();
     this.monitorSignUpButton = page
       .locator("button.Button_primary___XZsP")
       .first();
