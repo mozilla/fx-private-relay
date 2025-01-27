@@ -175,7 +175,7 @@ class RelayStaticFilesMiddleware(WhiteNoiseMiddleware):
         file with a hash of its contents as part of its name) which can
         therefore be cached forever.
 
-        All files outputed by next.js are hashed and immutable
+        All files outputted by next.js are hashed and immutable
         """
         if not url.startswith(self.static_prefix):
             return False
