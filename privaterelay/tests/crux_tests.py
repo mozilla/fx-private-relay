@@ -1,5 +1,7 @@
 """Tests for privaterelay/crux.py"""
 
+import pytest
+
 from ..crux import CruxQuery, CruxQuerySpecification, main
 
 
@@ -30,10 +32,45 @@ def test_crux_query_metric() -> None:
     )
 
 
-def test_crux_query_specification_origin_combined() -> None:
+def test_crux_query_specification_origin_only() -> None:
     query_spec = CruxQuerySpecification("https://example.com")
     assert repr(query_spec) == "CruxQuerySpecification('https://example.com')"
     assert query_spec.queries() == [CruxQuery("https://example.com")]
+
+
+def test_crux_query_specification_origin_invalid_protocol_raises() -> None:
+    with pytest.raises(
+        ValueError, match="origin should start with 'http://' or 'https://'"
+    ):
+        CruxQuerySpecification("ftp://example.com")
+
+
+def test_crux_query_specification_origin_trailing_slash_raises() -> None:
+    with pytest.raises(ValueError, match="origin should not end with a slash"):
+        CruxQuerySpecification("https://example.com/")
+
+
+def test_crux_query_specification_origin_is_path_raises() -> None:
+    with pytest.raises(ValueError, match="origin should not include a path"):
+        CruxQuerySpecification("https://example.com/faq")
+
+
+def test_crux_query_specification_paths_specified() -> None:
+    query_spec = CruxQuerySpecification("https://example.com", paths=["/foo", "/bar"])
+    assert repr(query_spec) == (
+        "CruxQuerySpecification('https://example.com', paths=['/foo', '/bar'])"
+    )
+    assert query_spec.queries() == [
+        CruxQuery("https://example.com/foo"),
+        CruxQuery("https://example.com/bar"),
+    ]
+
+
+def test_crux_query_specification_paths_no_leading_slash_raises() -> None:
+    with pytest.raises(
+        ValueError, match="in paths, every path should start with a slash"
+    ):
+        CruxQuerySpecification("http://example.com", paths=["foo"])
 
 
 def test_main() -> None:

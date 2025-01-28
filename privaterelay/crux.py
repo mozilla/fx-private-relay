@@ -80,6 +80,15 @@ class CruxQuerySpecification:
         form_factor: CRUX_FORM_FACTOR_SPECIFICATION = "COMBINED",
         metrics: CRUX_METRICS_SPECIFICATION = "ALL",
     ) -> None:
+        if not (origin.startswith("http://") or origin.startswith("https://")):
+            raise ValueError("origin should start with 'http://' or 'https://'")
+        if origin.endswith("/"):
+            raise ValueError("origin should not end with a slash")
+        if origin.count("/") > 2:
+            raise ValueError("origin should not include a path")
+        if isinstance(paths, list) and not all(path.startswith("/") for path in paths):
+            raise ValueError("in paths, every path should start with a slash")
+
         self.origin = origin
         self.paths = paths
         self.form_factor = form_factor
@@ -87,10 +96,16 @@ class CruxQuerySpecification:
 
     def __repr__(self) -> str:
         args = [f"{self.origin!r}"]
+        if self.paths != "COMBINED":
+            args.append(f"paths={self.paths!r}")
         return f"{self.__class__.__name__}({', '.join(args)})"
 
     def queries(self, paths: list[str] | None = None) -> list[CruxQuery]:
-        return [CruxQuery(self.origin)]
+        path_options: list[str] = [""]
+        if isinstance(self.paths, list):
+            path_options = self.paths[:]
+
+        return [CruxQuery(self.origin + path) for path in path_options]
 
 
 def get_main_query_parameters() -> Any:
