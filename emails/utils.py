@@ -40,7 +40,7 @@ from .apps import s3_client, ses_client
 logger = logging.getLogger("events")
 info_logger = logging.getLogger("eventsinfo")
 study_logger = logging.getLogger("studymetrics")
-metrics = markus.get_metrics("fx-private-relay")
+metrics = markus.get_metrics()
 
 shavar_prod_lists_url = (
     "https://raw.githubusercontent.com/mozilla-services/shavar-prod-lists/"

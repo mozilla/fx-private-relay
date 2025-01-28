@@ -24,7 +24,6 @@ from django.conf.global_settings import LANGUAGES as DEFAULT_LANGUAGES
 
 import dj_database_url
 import django_stubs_ext
-import markus
 import sentry_sdk
 from csp.constants import NONCE, NONE, SELF, UNSAFE_INLINE
 from decouple import Choices, Csv, config
@@ -310,7 +309,7 @@ STATSD_DEBUG = config("STATSD_DEBUG", False, cast=bool)
 STATSD_ENABLED: bool = DJANGO_STATSD_ENABLED or STATSD_DEBUG
 STATSD_HOST = config("DJANGO_STATSD_HOST", "127.0.0.1")
 STATSD_PORT = config("DJANGO_STATSD_PORT", "8125")
-STATSD_PREFIX = config("DJANGO_STATSD_PREFIX", "fx.private.relay")
+STATSD_PREFIX = config("DJANGO_STATSD_PREFIX", "firefox_relay")
 
 SERVE_ADDON = config("SERVE_ADDON", None)
 
@@ -851,31 +850,6 @@ ignore_logger("django_ftl.message_errors")
 # Security scanner attempts on Heroku dev, no action required
 if RELAY_CHANNEL == "dev":
     ignore_logger("django.security.SuspiciousFileOperation")
-
-
-_MARKUS_BACKENDS: list[dict[str, Any]] = []
-if DJANGO_STATSD_ENABLED:
-    _MARKUS_BACKENDS.append(
-        {
-            "class": "markus.backends.datadog.DatadogMetrics",
-            "options": {
-                "statsd_host": STATSD_HOST,
-                "statsd_port": STATSD_PORT,
-                "statsd_prefix": STATSD_PREFIX,
-            },
-        }
-    )
-if STATSD_DEBUG:
-    _MARKUS_BACKENDS.append(
-        {
-            "class": "markus.backends.logging.LoggingMetrics",
-            "options": {
-                "logger_name": "markus",
-                "leader": "METRICS",
-            },
-        }
-    )
-markus.configure(backends=_MARKUS_BACKENDS)
 
 if USE_SILK:
     SILKY_PYTHON_PROFILER = True

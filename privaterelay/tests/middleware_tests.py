@@ -29,7 +29,7 @@ def test_response_metrics_django_view(
         response = client.get("/metrics-event")
     assert response.status_code == 405
     mm.assert_timing_once(
-        "fx.private.relay.response",
+        "response",
         tags=["status:405", "view:privaterelay.views.metrics_event", "method:GET"],
     )
 
@@ -46,7 +46,7 @@ def test_response_metrics_dockerflow_heartbeat(
     # In others, a warning or better results in a 200
     assert response.status_code in [200, 500]
     mm.assert_timing_once(
-        "fx.private.relay.response",
+        "response",
         tags=[
             f"status:{response.status_code}",
             "view:dockerflow.django.views.heartbeat",
@@ -64,7 +64,7 @@ def test_response_metrics_other_dockerflow_view(
         response = client.get(f"/__{viewname}__")
     assert response.status_code == 200
     mm.assert_timing_once(
-        "fx.private.relay.response",
+        "response",
         tags=[
             "status:200",
             f"view:dockerflow.django.views.{viewname}",
@@ -82,7 +82,7 @@ def test_response_metrics_api_viewset(
         response = client.get("/api/v1/users/")
     assert response.status_code == 401
     mm.assert_timing_once(
-        "fx.private.relay.response",
+        "response",
         tags=["status:401", "view:api.views.privaterelay.UserViewSet", "method:GET"],
     )
 
@@ -96,7 +96,7 @@ def test_response_metrics_api_view(
         response = client.get("/api/v1/runtime_data")
     assert response.status_code == 200
     mm.assert_timing_once(
-        "fx.private.relay.response",
+        "response",
         tags=["status:200", "view:api.views.privaterelay.runtime_data", "method:GET"],
     )
 
@@ -113,7 +113,7 @@ def test_response_metrics_frontend_path(
     # Metrics are only emitted if found.
     if response.status_code == 200:
         mm.assert_timing_once(
-            "fx.private.relay.response",
+            "response",
             tags=["status:200", "view:<static_file>", "method:GET"],
         )
 
@@ -131,7 +131,7 @@ def test_response_metrics_frontend_file(
     # Metrics are only emitted if found.
     if response.status_code == 200:
         mm.assert_timing_once(
-            "fx.private.relay.response",
+            "response",
             tags=["status:200", "view:<static_file>", "method:GET"],
         )
 

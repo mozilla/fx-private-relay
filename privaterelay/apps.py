@@ -8,6 +8,7 @@ from django.apps import AppConfig
 from django.conf import settings
 from django.utils.functional import cached_property
 
+import markus
 import requests
 
 ROOT_DIR = os.path.abspath(os.curdir)
@@ -15,6 +16,43 @@ ROOT_DIR = os.path.abspath(os.curdir)
 
 if TYPE_CHECKING:
     from allauth.socialaccount.models import SocialApp
+
+
+def configure_google_profiler() -> None:
+    if (
+        settings.GOOGLE_APPLICATION_CREDENTIALS == ""
+        or settings.GOOGLE_CLOUD_PROFILER_CREDENTIALS_B64 == ""
+    ):
+        return
+
+    # Set up Google Cloud Profiler
+    service, version = get_profiler_startup_data()
+    if service is None:
+        return
+
+    gcp_key_json_path = Path(settings.GOOGLE_APPLICATION_CREDENTIALS)
+    if not gcp_key_json_path.exists():
+        write_gcp_key_json_file(gcp_key_json_path)
+    try:
+        with gcp_key_json_path.open() as gcp_key_file:
+            try:
+                # Make sure the expected gcp_key.json file is valid json
+                gcp_key_data = json.load(gcp_key_file)
+                import googlecloudprofiler
+
+                googlecloudprofiler.start(
+                    service=service,
+                    service_version=version,
+                    project_id=gcp_key_data["project_id"],
+                )
+            except json.JSONDecodeError:
+                print(f"error during json.load({gcp_key_json_path})")
+    except Exception as exc:
+        print(
+            f"exception {repr(exc)}"
+            " while starting google cloud profiler"
+            f" with key file: {gcp_key_json_path}"
+        )
 
 
 def get_profiler_startup_data() -> tuple[str | None, str | None]:
@@ -44,40 +82,38 @@ def write_gcp_key_json_file(gcp_key_json_path: Path) -> None:
             gcp_key_file.write(google_app_creds.decode("utf-8"))
 
 
+def configure_markus() -> None:
+    backends: list[dict[str, Any]] = []
+    if settings.DJANGO_STATSD_ENABLED and not settings.IN_PYTEST:
+        backends.append(
+            {
+                "class": "markus.backends.datadog.DatadogMetrics",
+                "options": {
+                    "statsd_host": settings.STATSD_HOST,
+                    "statsd_port": settings.STATSD_PORT,
+                    "statsd_namespace": settings.STATSD_PREFIX,
+                },
+            }
+        )
+    if settings.STATSD_DEBUG:
+        backends.append(
+            {
+                "class": "markus.backends.logging.LoggingMetrics",
+                "options": {
+                    "logger_name": "markus",
+                    "leader": "METRICS",
+                },
+            }
+        )
+    markus.configure(backends=backends)
+
+
 class PrivateRelayConfig(AppConfig):
     name = "privaterelay"
 
     def ready(self) -> None:
-        if (
-            settings.GOOGLE_APPLICATION_CREDENTIALS != ""
-            and settings.GOOGLE_CLOUD_PROFILER_CREDENTIALS_B64 != ""
-        ):
-            # Set up Google Cloud Profiler
-            service, version = get_profiler_startup_data()
-            if service is not None:
-                gcp_key_json_path = Path(settings.GOOGLE_APPLICATION_CREDENTIALS)
-                if not gcp_key_json_path.exists():
-                    write_gcp_key_json_file(gcp_key_json_path)
-                try:
-                    with gcp_key_json_path.open() as gcp_key_file:
-                        try:
-                            # Make sure the expect gcp_key.json file is valid json
-                            gcp_key_data = json.load(gcp_key_file)
-                            import googlecloudprofiler
-
-                            googlecloudprofiler.start(
-                                service=service,
-                                service_version=version,
-                                project_id=gcp_key_data["project_id"],
-                            )
-                        except json.JSONDecodeError:
-                            print(f"error during json.load({gcp_key_json_path})")
-                except Exception as exc:
-                    print(
-                        f"exception {repr(exc)}"
-                        " while starting google cloud profiler"
-                        f" with key file: {gcp_key_json_path}"
-                    )
+        configure_markus()
+        configure_google_profiler()
 
         import privaterelay.signals  # noqa: F401 (imported but unused warning)
 

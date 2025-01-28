@@ -297,13 +297,9 @@ def test_metrics(test_settings: SettingsWrapper, caplog: LogCaptureFixture) -> N
     with MetricsMock() as mm:
         call_command(COMMAND_NAME)
     assert summary_from_exit_log(caplog)["cycles"] == 1
-    mm.assert_gauge("fx.private.relay.email_queue_count", 1, ["queue:queue-name"])
-    mm.assert_gauge(
-        "fx.private.relay.email_queue_count_delayed", 2, ["queue:queue-name"]
-    )
-    mm.assert_gauge(
-        "fx.private.relay.email_queue_count_not_visible", 3, ["queue:queue-name"]
-    )
+    mm.assert_gauge("email_queue_count", 1, ["queue:queue-name"])
+    mm.assert_gauge("email_queue_count_delayed", 2, ["queue:queue-name"])
+    mm.assert_gauge("email_queue_count_not_visible", 3, ["queue:queue-name"])
 
 
 def test_one_message(

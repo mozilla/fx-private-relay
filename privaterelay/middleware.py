@@ -13,7 +13,7 @@ import markus
 from csp.middleware import CSPMiddleware
 from whitenoise.middleware import WhiteNoiseMiddleware
 
-metrics = markus.get_metrics("fx-private-relay")
+metrics = markus.get_metrics()
 
 
 # To find all the URL paths that serve HTML which need the CSP nonce:
@@ -107,7 +107,6 @@ class AddDetectedCountryToRequestAndResponseHeaders:
 
 
 class ResponseMetrics:
-
     re_dockerflow = re.compile(r"/__(version|heartbeat|lbheartbeat)__/?$")
 
     def __init__(self, get_response: Callable[[HttpRequest], HttpResponse]) -> None:
@@ -176,7 +175,7 @@ class RelayStaticFilesMiddleware(WhiteNoiseMiddleware):
         file with a hash of its contents as part of its name) which can
         therefore be cached forever.
 
-        All files outputed by next.js are hashed and immutable
+        All files outputted by next.js are hashed and immutable
         """
         if not url.startswith(self.static_prefix):
             return False
