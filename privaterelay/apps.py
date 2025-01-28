@@ -36,7 +36,7 @@ def configure_google_profiler() -> None:
     try:
         with gcp_key_json_path.open() as gcp_key_file:
             try:
-                # Make sure the expect gcp_key.json file is valid json
+                # Make sure the expected gcp_key.json file is valid json
                 gcp_key_data = json.load(gcp_key_file)
                 import googlecloudprofiler
 
