@@ -1,6 +1,6 @@
 """Tests for privaterelay/crux.py"""
 
-from ..crux import CruxQuery, main
+from ..crux import CruxQuery, CruxQuerySpecification, main
 
 
 def test_crux_query_only_origin() -> None:
@@ -28,6 +28,12 @@ def test_crux_query_metric() -> None:
         "CruxQuery('https://example.com',"
         " metrics=['first_contentful_paint', 'largest_contentful_paint'])"
     )
+
+
+def test_crux_query_specification_origin_combined() -> None:
+    query_spec = CruxQuerySpecification("https://example.com")
+    assert repr(query_spec) == "CruxQuerySpecification('https://example.com')"
+    assert query_spec.queries() == [CruxQuery("https://example.com")]
 
 
 def test_main() -> None:

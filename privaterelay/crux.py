@@ -28,6 +28,8 @@ CRUX_METRIC = Literal[
 
 
 class CruxQuery:
+    """Represents a CrUX API query body"""
+
     def __init__(
         self,
         origin: str,
@@ -46,6 +48,14 @@ class CruxQuery:
             args.append(f"metrics={sorted(self.metrics)!r}")
         return f"{self.__class__.__name__}({', '.join(args)})"
 
+    def __eq__(self, other: Any) -> bool:
+        return (
+            isinstance(other, CruxQuery)
+            and self.origin == other.origin
+            and self.form_factor == other.form_factor
+            and self.metrics == other.metrics
+        )
+
     def as_dict(self) -> dict[str, Any]:
         result: dict[str, Any] = {"origin": self.origin}
         if self.form_factor is not None:
@@ -53,6 +63,34 @@ class CruxQuery:
         if self.metrics is not None:
             result["metrics"] = sorted(self.metrics)
         return result
+
+
+CRUX_PATH_SPECIFICATION = list[str] | Literal["COMBINED", "EACH_PATH"]
+CRUX_FORM_FACTOR_SPECIFICATION = CRUX_FORM_FACTOR | Literal["COMBINED", "EACH_FORM"]
+CRUX_METRICS_SPECIFICATION = list[CRUX_METRIC] | Literal["ALL"]
+
+
+class CruxQuerySpecification:
+    """Represents a family of CrUX API queries"""
+
+    def __init__(
+        self,
+        origin: str,
+        paths: CRUX_PATH_SPECIFICATION = "COMBINED",
+        form_factor: CRUX_FORM_FACTOR_SPECIFICATION = "COMBINED",
+        metrics: CRUX_METRICS_SPECIFICATION = "ALL",
+    ) -> None:
+        self.origin = origin
+        self.paths = paths
+        self.form_factor = form_factor
+        self.metrics = metrics
+
+    def __repr__(self) -> str:
+        args = [f"{self.origin!r}"]
+        return f"{self.__class__.__name__}({', '.join(args)})"
+
+    def queries(self, paths: list[str] | None = None) -> list[CruxQuery]:
+        return [CruxQuery(self.origin)]
 
 
 def get_main_query_parameters() -> Any:
