@@ -4,13 +4,30 @@ Interface to Chrome User Experience (CrUX) API
 https://developer.chrome.com/docs/crux/api
 """
 
+from typing import Any
 
-def main(api_key: str) -> str:
-    # Gather query parameters
-    # Call API for each query, respect API limit
-    # Generate text report
-    # Return text report
+
+def main(crux_api_requester: Any) -> str:
+    qp = get_main_query_parameters()
+    results = gather_api_results(qp, crux_api_requester)
+    report = create_command_line_report(results)
+    return report
+
+
+def get_main_query_parameters() -> Any:
+    return "main_query_parameters"
+
+
+def gather_api_results(query_parameters: Any, crux_api_requester: Any) -> Any:
+    return "api_results"
+
+
+def create_command_line_report(results: Any) -> str:
     return "to do"
+
+
+def get_crux_api_requester(api_key: str) -> Any:
+    return "crux_api_requester"
 
 
 if __name__ == "__main__":
@@ -22,5 +39,6 @@ if __name__ == "__main__":
         print("Set CRUX_API_KEY to the API key")
         sys.exit(1)
 
-    result = main(api_key)
+    requester = get_crux_api_requester(api_key)
+    result = main(requester)
     print(result)
