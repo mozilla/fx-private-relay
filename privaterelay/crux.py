@@ -65,7 +65,7 @@ class CruxQuery:
         return result
 
 
-CRUX_PATH_SPECIFICATION = list[str] | Literal["COMBINED", "EACH_PATH"]
+CRUX_PATH_SPECIFICATION = list[str] | Literal["COMBINED"]
 CRUX_FORM_FACTOR_SPECIFICATION = CRUX_FORM_FACTOR | Literal["COMBINED", "EACH_FORM"]
 CRUX_METRICS_SPECIFICATION = list[CRUX_METRIC] | Literal["ALL"]
 
@@ -100,7 +100,7 @@ class CruxQuerySpecification:
             args.append(f"paths={self.paths!r}")
         return f"{self.__class__.__name__}({', '.join(args)})"
 
-    def queries(self, paths: list[str] | None = None) -> list[CruxQuery]:
+    def queries(self) -> list[CruxQuery]:
         path_options: list[str] = [""]
         if isinstance(self.paths, list):
             path_options = self.paths[:]
