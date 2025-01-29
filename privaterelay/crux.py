@@ -4,9 +4,15 @@ Interface to Chrome User Experience (CrUX) API
 https://developer.chrome.com/docs/crux/api
 """
 
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+from collections import deque
 from collections.abc import Iterable
 from itertools import product
-from typing import Any, Literal, get_args
+from typing import Any, Literal, NamedTuple, get_args
+
+import requests
 
 
 def main(domain: str, crux_api_requester: Any) -> str:
@@ -132,6 +138,101 @@ class CruxQuerySpecification:
             CruxQuery(self.origin + path, form_factor=form_factor, metrics=metrics)
             for path, form_factor in product(path_options, form_options)
         ]
+
+
+class RequestEngine(ABC):
+    @abstractmethod
+    def post(
+        self, url: str, params: dict[str, str], data: dict[str, Any], timeout: float
+    ) -> ResponseWrapper:
+        pass
+
+
+class ResponseWrapper(ABC):
+    @property
+    @abstractmethod
+    def status_code(self) -> int:
+        pass
+
+    @abstractmethod
+    def json(self) -> dict[str, Any]:
+        pass
+
+
+class RequestsEngine(RequestEngine):
+    def post(
+        self, url: str, params: dict[str, str], data: dict[str, Any], timeout: float
+    ) -> ResponseWrapper:
+        return RequestsResponse(
+            requests.post(url=url, params=params, data=data, timeout=timeout)
+        )
+
+
+class RequestsResponse(ResponseWrapper):
+    def __init__(self, response: requests.Response) -> None:
+        self._response = response
+
+    @property
+    def status_code(self) -> int:
+        return self._response.status_code
+
+    def json(self) -> dict[str, Any]:
+        data = self._response.json()
+        if not isinstance(data, dict):
+            raise ValueError(f"response.json() returned {type(data)}, not dict")
+        return data
+
+
+class StubbedRequest(NamedTuple):
+    url: str
+    params: dict[str, str]
+    data: dict[str, Any]
+    timeout: float
+
+
+class StubbedRequestAction(NamedTuple):
+    status_code: int
+    data: dict[str, Any]
+
+
+class StubbedEngine(RequestEngine):
+    def __init__(self) -> None:
+        self.requests: list[StubbedRequest] = []
+        self._expected_requests: deque[tuple[StubbedRequest, StubbedRequestAction]] = (
+            deque()
+        )
+
+    def expect_request(
+        self, request: StubbedRequest, action: StubbedRequestAction
+    ) -> None:
+        self._expected_requests.append((request, action))
+
+    def post(
+        self,
+        url: str,
+        params: dict[str, str],
+        data: dict[str, Any],
+        timeout: float = 1.0,
+    ) -> ResponseWrapper:
+        request = StubbedRequest(url, params, data, timeout)
+        self.requests.append(request)
+        expected_request, action = self._expected_requests.popleft()
+        if request != expected_request:
+            raise RuntimeError(f"Expected {expected_request}, got {request}")
+        return StubbedResponse(action.status_code, action.data)
+
+
+class StubbedResponse(ResponseWrapper):
+    def __init__(self, status_code: int, data: dict[str, Any]) -> None:
+        self._status_code = status_code
+        self._data = data
+
+    @property
+    def status_code(self) -> int:
+        return self._status_code
+
+    def json(self) -> dict[str, Any]:
+        return self._data
 
 
 def get_main_query_parameters(domain: str) -> list[CruxQuery]:

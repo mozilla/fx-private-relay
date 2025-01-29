@@ -1,8 +1,19 @@
 """Tests for privaterelay/crux.py"""
 
-import pytest
+import re
 
-from ..crux import CruxQuery, CruxQuerySpecification, main
+import pytest
+import responses
+
+from ..crux import (
+    CruxQuery,
+    CruxQuerySpecification,
+    RequestsEngine,
+    StubbedEngine,
+    StubbedRequest,
+    StubbedRequestAction,
+    main,
+)
 
 
 def test_crux_query_only_origin() -> None:
@@ -124,6 +135,71 @@ def test_crux_query_specification_metric_specified() -> None:
             ],
         )
     ]
+
+
+def test_requests_engine_json_response_OK():
+    url = "https://example.com/foo"
+    engine = RequestsEngine()
+    with responses.RequestsMock() as mocks:
+        mock = mocks.post(
+            url, body='{"foo": "bar"}', status=200, content_type="application/json"
+        )
+        resp = engine.post(url, {"key": "API_KEY"}, {"query": "foo"}, 1.0)
+    assert mock.calls[0].request.url == "https://example.com/foo?key=API_KEY"
+    assert resp.status_code == 200
+    assert resp.json() == {"foo": "bar"}
+
+
+def test_requests_engine_string_response_raises():
+    url = "https://example.com"
+    engine = RequestsEngine()
+    with responses.RequestsMock() as mocks:
+        mocks.post(url, body='"a string"', status=400, content_type="application/json")
+        resp = engine.post(url, {}, {}, 2.0)
+    assert resp.status_code == 400
+    with pytest.raises(
+        ValueError, match=re.escape("response.json() returned <class 'str'>, not dict")
+    ):
+        resp.json()
+
+
+def test_stubbed_engine_expected_request() -> None:
+    url = "https://example.com"
+    params = {"key": "API_KEY"}
+    data = {"query": "foo"}
+    expected_request = StubbedRequest(url, params, data, 1.5)
+    stubbed_action = StubbedRequestAction(200, {"foo": "bar"})
+    engine = StubbedEngine()
+    engine.expect_request(expected_request, stubbed_action)
+    resp = engine.post(url, params, data, 1.5)
+    assert resp.status_code == 200
+    assert resp.json() == {"foo": "bar"}
+    assert engine.requests == [expected_request]
+
+
+def test_stubbed_engine_no_expected_requests() -> None:
+    url = "https://example.com"
+    params = {"key": "API_KEY"}
+    data = {"query": "foo"}
+    expected_request = StubbedRequest(url, params, data, 1.5)
+    engine = StubbedEngine()
+    with pytest.raises(IndexError):
+        engine.post(url, params, data, 1.5)
+    assert engine.requests == [expected_request]
+
+
+def test_stubbed_engine_unexpected_request() -> None:
+    url = "https://example.com"
+    params = {"key": "API_KEY"}
+    data = {"query": "foo"}
+    expected_request = StubbedRequest(url, params, data, 1.5)
+    engine = StubbedEngine()
+    engine.expect_request(
+        StubbedRequest(url, {}, data, 1.5), StubbedRequestAction(200, {})
+    )
+    with pytest.raises(RuntimeError):
+        engine.post(url, params, data, 1.5)
+    assert engine.requests == [expected_request]
 
 
 def test_main() -> None:
