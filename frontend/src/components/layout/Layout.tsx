@@ -15,7 +15,7 @@ import logoTypePremiumLight from "./images/fx-private-relay-premium-logotype-lig
 import logoTypePremiumDark from "./images/fx-private-relay-premium-logotype-dark.svg";
 import logo from "./images/relay-logo.svg";
 import vpnRelayLogo from "./images/vpn-relay-logo.svg";
-import mozillaLogo from "./images/moz-logo-bw-rgb.svg";
+import mozillaLogo from "./images/moz-logo-white-rgb.svg";
 import Image from "../Image";
 import { useProfiles } from "../../hooks/api/profile";
 import { Navigation } from "./navigation/Navigation";
