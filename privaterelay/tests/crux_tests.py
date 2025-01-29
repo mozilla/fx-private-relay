@@ -78,6 +78,32 @@ def test_crux_query_specification_paths_path_as_string_raises() -> None:
         CruxQuerySpecification("http://example.com", paths="foo")
 
 
+def test_crux_query_specification_metric_specified() -> None:
+    query_spec = CruxQuerySpecification(
+        "http://example.com",
+        metrics=[
+            "largest_contentful_paint",
+            "interaction_to_next_paint",
+            "cumulative_layout_shift",
+        ],
+    )
+    assert repr(query_spec) == (
+        "CruxQuerySpecification('http://example.com',"
+        " metrics=['cumulative_layout_shift', 'interaction_to_next_paint',"
+        " 'largest_contentful_paint'])"
+    )
+    assert query_spec.queries() == [
+        CruxQuery(
+            "http://example.com",
+            metrics=[
+                "cumulative_layout_shift",
+                "interaction_to_next_paint",
+                "largest_contentful_paint",
+            ],
+        )
+    ]
+
+
 def test_main() -> None:
     result = main("crux_api_requester")
     assert result == "to do"

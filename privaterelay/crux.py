@@ -99,20 +99,25 @@ class CruxQuerySpecification:
         self.origin = origin
         self.paths = sorted(paths) if paths != "COMBINED" else "COMBINED"
         self.form_factor = form_factor
-        self.metrics = metrics
+        self.metrics: CRUX_METRICS_SPECIFICATION = (
+            sorted(metrics) if metrics != "ALL" else "ALL"
+        )
 
     def __repr__(self) -> str:
         args = [f"{self.origin!r}"]
         if self.paths != "COMBINED":
             args.append(f"paths={self.paths!r}")
+        if self.metrics != "ALL":
+            args.append(f"metrics={self.metrics!r}")
         return f"{self.__class__.__name__}({', '.join(args)})"
 
     def queries(self) -> list[CruxQuery]:
         path_options: list[str] = [""]
         if isinstance(self.paths, list):
-            path_options = self.paths[:]
+            path_options = self.paths
+        metrics = None if self.metrics == "ALL" else self.metrics
 
-        return [CruxQuery(self.origin + path) for path in path_options]
+        return [CruxQuery(self.origin + path, metrics=metrics) for path in path_options]
 
 
 def get_main_query_parameters() -> Any:
