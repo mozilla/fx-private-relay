@@ -4,6 +4,7 @@ Interface to Chrome User Experience (CrUX) API
 https://developer.chrome.com/docs/crux/api
 """
 
+from collections.abc import Iterable
 from typing import Any, Literal
 
 
@@ -34,18 +35,18 @@ class CruxQuery:
         self,
         origin: str,
         form_factor: CRUX_FORM_FACTOR | None = None,
-        metrics: list[CRUX_METRIC] | None = None,
+        metrics: Iterable[CRUX_METRIC] | None = None,
     ) -> None:
         self.origin = origin
         self.form_factor = form_factor
-        self.metrics = metrics
+        self.metrics = sorted(metrics) if metrics else None
 
     def __repr__(self) -> str:
         args = [repr(self.origin)]
         if self.form_factor is not None:
             args.append(f"form_factor={self.form_factor!r}")
         if self.metrics is not None:
-            args.append(f"metrics={sorted(self.metrics)!r}")
+            args.append(f"metrics={self.metrics!r}")
         return f"{self.__class__.__name__}({', '.join(args)})"
 
     def __eq__(self, other: Any) -> bool:
@@ -61,13 +62,13 @@ class CruxQuery:
         if self.form_factor is not None:
             result["form_factor"] = self.form_factor
         if self.metrics is not None:
-            result["metrics"] = sorted(self.metrics)
+            result["metrics"] = self.metrics
         return result
 
 
-CRUX_PATH_SPECIFICATION = list[str] | Literal["COMBINED"]
+CRUX_PATH_SPECIFICATION = Iterable[str] | Literal["COMBINED"]
 CRUX_FORM_FACTOR_SPECIFICATION = CRUX_FORM_FACTOR | Literal["COMBINED", "EACH_FORM"]
-CRUX_METRICS_SPECIFICATION = list[CRUX_METRIC] | Literal["ALL"]
+CRUX_METRICS_SPECIFICATION = Iterable[CRUX_METRIC] | Literal["ALL"]
 
 
 class CruxQuerySpecification:
@@ -86,11 +87,17 @@ class CruxQuerySpecification:
             raise ValueError("origin should not end with a slash")
         if origin.count("/") > 2:
             raise ValueError("origin should not include a path")
-        if isinstance(paths, list) and not all(path.startswith("/") for path in paths):
+        if isinstance(paths, str) and paths != "COMBINED":
+            raise ValueError("paths should be a list of path strings")
+        if (
+            isinstance(paths, Iterable)
+            and not isinstance(paths, str)
+            and not all(path.startswith("/") for path in paths)
+        ):
             raise ValueError("in paths, every path should start with a slash")
 
         self.origin = origin
-        self.paths = paths
+        self.paths = sorted(paths) if paths != "COMBINED" else "COMBINED"
         self.form_factor = form_factor
         self.metrics = metrics
 
