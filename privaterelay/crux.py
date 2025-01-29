@@ -9,8 +9,8 @@ from itertools import product
 from typing import Any, Literal, get_args
 
 
-def main(crux_api_requester: Any) -> str:
-    qp = get_main_query_parameters()
+def main(domain: str, crux_api_requester: Any) -> str:
+    qp = get_main_query_parameters(domain)
     results = gather_api_results(qp, crux_api_requester)
     report = create_command_line_report(results)
     return report
@@ -134,11 +134,13 @@ class CruxQuerySpecification:
         ]
 
 
-def get_main_query_parameters() -> Any:
-    return "main_query_parameters"
+def get_main_query_parameters(domain: str) -> list[CruxQuery]:
+    return CruxQuerySpecification(domain).queries()
 
 
-def gather_api_results(query_parameters: Any, crux_api_requester: Any) -> Any:
+def gather_api_results(
+    query_parameters: list[CruxQuery], crux_api_requester: Any
+) -> Any:
     return "api_results"
 
 
@@ -160,5 +162,5 @@ if __name__ == "__main__":
         sys.exit(1)
 
     requester = get_crux_api_requester(api_key)
-    result = main(requester)
+    result = main("https://relay.firefox.com", requester)
     print(result)

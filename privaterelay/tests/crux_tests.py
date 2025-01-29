@@ -127,5 +127,5 @@ def test_crux_query_specification_metric_specified() -> None:
 
 
 def test_main() -> None:
-    result = main("crux_api_requester")
+    result = main("https://example.com", "crux_api_requester")
     assert result == "to do"
