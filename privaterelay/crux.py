@@ -6,6 +6,7 @@ https://developer.chrome.com/docs/crux/api
 
 from __future__ import annotations
 
+import json
 from abc import ABC, abstractmethod
 from collections import deque
 from collections.abc import Iterable
@@ -15,9 +16,9 @@ from typing import Any, Literal, NamedTuple, get_args
 import requests
 
 
-def main(domain: str, crux_api_requester: Any) -> str:
+def main(domain: str, requester: CruxApiRequester) -> str:
     qp = get_main_query_parameters(domain)
-    results = gather_api_results(qp, crux_api_requester)
+    results = gather_api_results(qp, requester)
     report = create_command_line_report(results)
     return report
 
@@ -239,18 +240,33 @@ def get_main_query_parameters(domain: str) -> list[CruxQuery]:
     return CruxQuerySpecification(domain).queries()
 
 
-def gather_api_results(
-    query_parameters: list[CruxQuery], crux_api_requester: Any
-) -> Any:
-    return "api_results"
+def gather_api_results(queries: list[CruxQuery], requester: CruxApiRequester) -> Any:
+    return [requester.query(query) for query in queries]
 
 
 def create_command_line_report(results: Any) -> str:
-    return "to do"
+    return json.dumps(results)
 
 
-def get_crux_api_requester(api_key: str) -> Any:
-    return "crux_api_requester"
+CruxResult = dict[str, Any]
+
+
+class CruxApiRequester:
+    API_URL = "https://chromeuxreport.googleapis.com/v1/records:queryRecord"
+    DEFAULT_TIMEOUT = 1.0
+
+    def __init__(self, api_key: str, engine: RequestEngine) -> None:
+        self._api_key = api_key
+        self._engine = engine
+
+    def query(self, query: CruxQuery) -> tuple[int, CruxResult]:
+        resp = self._engine.post(
+            url=self.API_URL,
+            params={"key": self._api_key},
+            data=query.as_dict(),
+            timeout=self.DEFAULT_TIMEOUT,
+        )
+        return resp.status_code, resp.json()
 
 
 if __name__ == "__main__":
@@ -262,6 +278,7 @@ if __name__ == "__main__":
         print("Set CRUX_API_KEY to the API key")
         sys.exit(1)
 
-    requester = get_crux_api_requester(api_key)
+    engine = RequestsEngine()
+    requester = CruxApiRequester(api_key, engine)
     result = main("https://relay.firefox.com", requester)
     print(result)

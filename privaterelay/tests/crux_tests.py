@@ -6,6 +6,7 @@ import pytest
 import responses
 
 from ..crux import (
+    CruxApiRequester,
     CruxQuery,
     CruxQuerySpecification,
     RequestsEngine,
@@ -203,5 +204,15 @@ def test_stubbed_engine_unexpected_request() -> None:
 
 
 def test_main() -> None:
-    result = main("https://example.com", "crux_api_requester")
-    assert result == "to do"
+    engine = StubbedEngine()
+    expected_request = StubbedRequest(
+        url=CruxApiRequester.API_URL,
+        params={"key": "API_KEY"},
+        data={"origin": "https://example.com"},
+        timeout=CruxApiRequester.DEFAULT_TIMEOUT,
+    )
+    action = StubbedRequestAction(200, {"fake": "data"})
+    engine.expect_request(expected_request, action)
+    requester = CruxApiRequester("API_KEY", engine)
+    result = main("https://example.com", requester)
+    assert result == r'[[200, {"fake": "data"}]]'
