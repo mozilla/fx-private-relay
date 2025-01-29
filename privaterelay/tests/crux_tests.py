@@ -73,9 +73,31 @@ def test_crux_query_specification_paths_no_leading_slash_raises() -> None:
         CruxQuerySpecification("http://example.com", paths=["foo"])
 
 
-def test_crux_query_specification_paths_path_as_string_raises() -> None:
+def test_crux_query_specification_paths_as_string_raises() -> None:
     with pytest.raises(ValueError, match="paths should be a list of path strings"):
         CruxQuerySpecification("http://example.com", paths="foo")
+
+
+def test_crux_query_specification_form_factor_single() -> None:
+    query_spec = CruxQuerySpecification("https://example.com", form_factor="DESKTOP")
+    assert repr(query_spec) == (
+        "CruxQuerySpecification('https://example.com', form_factor='DESKTOP')"
+    )
+    assert query_spec.queries() == [
+        CruxQuery("https://example.com", form_factor="DESKTOP")
+    ]
+
+
+def test_crux_query_specification_form_factor_each_form() -> None:
+    query_spec = CruxQuerySpecification("https://example.com", form_factor="EACH_FORM")
+    assert repr(query_spec) == (
+        "CruxQuerySpecification('https://example.com', form_factor='EACH_FORM')"
+    )
+    assert query_spec.queries() == [
+        CruxQuery("https://example.com", form_factor="DESKTOP"),
+        CruxQuery("https://example.com", form_factor="PHONE"),
+        CruxQuery("https://example.com", form_factor="TABLET"),
+    ]
 
 
 def test_crux_query_specification_metric_specified() -> None:

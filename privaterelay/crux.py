@@ -5,7 +5,8 @@ https://developer.chrome.com/docs/crux/api
 """
 
 from collections.abc import Iterable
-from typing import Any, Literal
+from itertools import product
+from typing import Any, Literal, get_args
 
 
 def main(crux_api_requester: Any) -> str:
@@ -107,6 +108,8 @@ class CruxQuerySpecification:
         args = [f"{self.origin!r}"]
         if self.paths != "COMBINED":
             args.append(f"paths={self.paths!r}")
+        if self.form_factor != "COMBINED":
+            args.append(f"form_factor={self.form_factor!r}")
         if self.metrics != "ALL":
             args.append(f"metrics={self.metrics!r}")
         return f"{self.__class__.__name__}({', '.join(args)})"
@@ -115,9 +118,20 @@ class CruxQuerySpecification:
         path_options: list[str] = [""]
         if isinstance(self.paths, list):
             path_options = self.paths
+
+        if self.form_factor == "COMBINED":
+            form_options: list[CRUX_FORM_FACTOR] | list[None] = [None]
+        elif self.form_factor == "EACH_FORM":
+            form_options = sorted(get_args(CRUX_FORM_FACTOR))
+        else:
+            form_options = [self.form_factor]
+
         metrics = None if self.metrics == "ALL" else self.metrics
 
-        return [CruxQuery(self.origin + path, metrics=metrics) for path in path_options]
+        return [
+            CruxQuery(self.origin + path, form_factor=form_factor, metrics=metrics)
+            for path, form_factor in product(path_options, form_options)
+        ]
 
 
 def get_main_query_parameters() -> Any:
