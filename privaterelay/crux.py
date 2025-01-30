@@ -286,21 +286,27 @@ class CruxFloatHistogram:
     def __init__(
         self, intervals: list[float], densities: list[float], p75: float
     ) -> None:
+        if len(intervals) != 3:
+            raise ValueError(f"len(intervals) should be 3, is {len(intervals)}")
+        if len(densities) != 3:
+            raise ValueError(f"len(densities) should be 3, is {len(densities)}")
+        total = sum(densities)
+        if not (0.998 < total < 1.002):
+            raise ValueError(f"sum(densities) should be 1.0, is {total}")
+
         self.intervals = intervals
         self.densities = densities
         self.p75 = p75
 
     def __repr__(self) -> str:
-        """TODO: test"""
         return (
             f"{self.__class__.__name__}("
             f"intervals={self.intervals!r}, "
             f"densities={self.densities!r}, "
-            f"p75={self.p75!r}"
+            f"p75={self.p75!r})"
         )
 
     def __eq__(self, other: Any) -> bool:
-        """TODO: test"""
         return (
             isinstance(other, CruxFloatHistogram)
             and self.intervals == other.intervals
@@ -320,12 +326,12 @@ class CruxFloatHistogram:
             elif key == "percentiles":
                 p75 = cls._parse_float_histogram_percentiles(val)
             else:
-                raise ValueError()  # TODO
+                raise ValueError(f"Unknown key {key!r}")
 
         if not intervals or not densities:
-            raise ValueError()  # TODO test
+            raise ValueError("No key 'histogram'")
         if p75 is None:
-            raise ValueError()  # TODO test
+            raise ValueError("No key 'percentiles'")
 
         return CruxFloatHistogram(intervals=intervals, densities=densities, p75=p75)
 
@@ -338,13 +344,17 @@ class CruxFloatHistogram:
             bins.append(cls._parse_float_histogram_bin(bin))
 
         if len(bins) != 3:
-            raise ValueError()  # TODO test
+            raise ValueError(f"Expected 3 bins, got {len(bins)}")
         if bins[0][1] != bins[1][0]:
-            raise ValueError()  # TODO test
+            raise ValueError(
+                f"Bin 1 end {bins[0][1]} does not match Bin 2 start {bins[1][0]}"
+            )
         if bins[1][1] != bins[2][0]:
-            raise ValueError()  # TODO test
+            raise ValueError(
+                f"Bin 2 end {bins[1][1]} does not match Bin 3 start {bins[2][0]}"
+            )
         if bins[2][1] is not None:
-            raise ValueError()  # TODO test
+            raise ValueError("Bin 3 has end, none expected")
 
         intervals = [bin[0] for bin in bins]
         densities = [bin[2] for bin in bins]
@@ -366,12 +376,12 @@ class CruxFloatHistogram:
             elif key == "density":
                 density = float(val)
             else:
-                raise ValueError()  # TODO test
+                raise ValueError(f"Unknown key {key!r}")
 
         if start is None:
-            raise ValueError()  # TODO test
+            raise ValueError("Bin has no key 'start'")
         if density is None:
-            raise ValueError()  # TODO test
+            raise ValueError("Bin has no key 'density'")
 
         return start, end, density
 
@@ -383,10 +393,10 @@ class CruxFloatHistogram:
             if key == "p75":
                 p75 = float(val)
             else:
-                raise ValueError()  # TODO test
+                raise ValueError(f"Percentiles has unknown key {key!r}")
 
         if p75 is None:
-            raise ValueError()  # TODO test
+            raise ValueError("Percentiles has no key 'p75'")
 
         return p75
 
@@ -471,7 +481,7 @@ class CruxResult:
             elif key == "metrics":
                 metrics = cls._parse_metrics(val)
             else:
-                raise ValueError()  # TODO
+                raise ValueError(f"Unknown key {key!r}")  # TODO
 
         if record_key is None:
             raise ValueError("In record, no key 'key'")

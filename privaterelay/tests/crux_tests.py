@@ -300,6 +300,13 @@ def test_crux_result_from_raw_query_no_record_key_raises() -> None:
         CruxResult.from_raw_query(record)
 
 
+def test_crux_result_from_raw_query_unknown_record_key_raises() -> None:
+    record = create_crux_api_record(_BASIC_QUERY)
+    record["record"]["foo"] = "bar"
+    with pytest.raises(ValueError, match="Unknown key 'foo'"):
+        CruxResult.from_raw_query(record)
+
+
 def test_crux_record_key_from_raw_query_origin_only() -> None:
     key = CruxRecordKey.from_raw_query({"origin": "https://example.com"})
     assert repr(key) == "CruxRecordKey(origin='https://example.com')"
@@ -342,6 +349,163 @@ def test_crux_record_key_from_raw_query_invalid_form_factor_raises() -> None:
 def test_crux_record_key_from_raw_query_unknown_key_raises() -> None:
     with pytest.raises(ValueError, match="Unknown key 'foo'"):
         CruxRecordKey.from_raw_query({"origin": "https://example.com", "foo": "bar"})
+
+
+def test_crux_float_histogram_from_raw_query() -> None:
+    data = {
+        "histogram": [
+            {"start": "0.00", "end": "0.10", "density": 0.8077},
+            {"start": "0.10", "end": "0.25", "density": 0.1003},
+            {"start": "0.25", "density": 0.092},
+        ],
+        "percentiles": {"p75": "0.07"},
+    }
+    histogram = CruxFloatHistogram.from_raw_query(data)
+    assert repr(histogram) == (
+        "CruxFloatHistogram(intervals=[0.0, 0.1, 0.25],"
+        " densities=[0.8077, 0.1003, 0.092],"
+        " p75=0.07)"
+    )
+    assert histogram == CruxFloatHistogram(
+        intervals=[0.0, 0.1, 0.25], densities=[0.8077, 0.1003, 0.092], p75=0.07
+    )
+
+
+def test_crux_float_histogram_from_raw_query_unknown_key_raises() -> None:
+    with pytest.raises(ValueError, match="Unknown key 'foo'"):
+        CruxFloatHistogram.from_raw_query({"foo": "bar"})
+
+
+def test_crux_float_histogram_from_raw_query_no_histogram_raises() -> None:
+    with pytest.raises(ValueError, match="No key 'histogram'"):
+        CruxFloatHistogram.from_raw_query({"percentiles": {"p75": "0.07"}})
+
+
+def test_crux_float_histogram_from_raw_query_no_percentiles_raises() -> None:
+    data = {
+        "histogram": [
+            {"start": "0.00", "end": "0.10", "density": 0.8077},
+            {"start": "0.10", "end": "0.25", "density": 0.1003},
+            {"start": "0.25", "density": 0.092},
+        ],
+    }
+    with pytest.raises(ValueError, match="No key 'percentiles'"):
+        CruxFloatHistogram.from_raw_query(data)
+
+
+def test_crux_float_histogram_from_raw_query_2_bins_raises() -> None:
+    data = {
+        "histogram": [
+            {"start": "0.00", "end": "0.25", "density": 0.9},
+            {"start": "0.25", "density": 0.1},
+        ],
+        "percentiles": {"p75": "0.07"},
+    }
+    with pytest.raises(ValueError, match="Expected 3 bins, got 2"):
+        CruxFloatHistogram.from_raw_query(data)
+
+
+def test_crux_float_histogram_from_raw_query_bin1_end_not_bin2_start_raises() -> None:
+    data = {
+        "histogram": [
+            {"start": "0.00", "end": "0.10", "density": 0.8077},
+            {"start": "0.11", "end": "0.25", "density": 0.1003},
+            {"start": "0.25", "density": 0.092},
+        ],
+        "percentiles": {"p75": "0.07"},
+    }
+    with pytest.raises(
+        ValueError, match="Bin 1 end 0.1 does not match Bin 2 start 0.11"
+    ):
+        CruxFloatHistogram.from_raw_query(data)
+
+
+def test_crux_float_histogram_from_raw_query_bin2_end_not_bin3_start_raises() -> None:
+    data = {
+        "histogram": [
+            {"start": "0.00", "end": "0.10", "density": 0.8077},
+            {"start": "0.10", "end": "0.26", "density": 0.1003},
+            {"start": "0.25", "density": 0.092},
+        ],
+        "percentiles": {"p75": "0.07"},
+    }
+    with pytest.raises(
+        ValueError, match="Bin 2 end 0.26 does not match Bin 3 start 0.25"
+    ):
+        CruxFloatHistogram.from_raw_query(data)
+
+
+def test_crux_float_histogram_from_raw_query_bin3_end_set_raises() -> None:
+    data = {
+        "histogram": [
+            {"start": "0.00", "end": "0.10", "density": 0.8077},
+            {"start": "0.10", "end": "0.25", "density": 0.1003},
+            {"start": "0.25", "end": "1000.0", "density": 0.092},
+        ],
+        "percentiles": {"p75": "0.07"},
+    }
+    with pytest.raises(ValueError, match="Bin 3 has end, none expected"):
+        CruxFloatHistogram.from_raw_query(data)
+
+
+def test_crux_float_histogram_from_raw_query_missing_start_raises() -> None:
+    data = {
+        "histogram": [{"end": "0.10", "density": 0.8077}],
+        "percentiles": {"p75": "0.07"},
+    }
+    with pytest.raises(ValueError, match="Bin has no key 'start'"):
+        CruxFloatHistogram.from_raw_query(data)
+
+
+def test_crux_float_histogram_from_raw_query_missing_density_raises() -> None:
+    data = {
+        "histogram": [{"start": "0.0", "end": "0.10"}],
+        "percentiles": {"p75": "0.07"},
+    }
+    with pytest.raises(ValueError, match="Bin has no key 'density'"):
+        CruxFloatHistogram.from_raw_query(data)
+
+
+def test_crux_float_histogram_from_raw_query_extra_histogram_key_raises() -> None:
+    data = {
+        "histogram": [{"start": "0.0", "end": "0.10", "density": 0.8, "color": "BLUE"}],
+        "percentiles": {"p75": "0.07"},
+    }
+    with pytest.raises(ValueError, match="Unknown key 'color'"):
+        CruxFloatHistogram.from_raw_query(data)
+
+
+def test_crux_float_histogram_from_raw_query_no_p75_raises() -> None:
+    with pytest.raises(ValueError, match="Percentiles has no key 'p75'"):
+        CruxFloatHistogram.from_raw_query({"percentiles": {}})
+
+
+def test_crux_float_histogram_from_raw_query_extra_percentile_raises() -> None:
+    with pytest.raises(ValueError, match="Percentiles has unknown key 'p50'"):
+        CruxFloatHistogram.from_raw_query(
+            {"percentiles": {"p50": "0.5", "p75": "0.75"}}
+        )
+
+
+def test_crux_float_histogram_short_intervals_raises() -> None:
+    with pytest.raises(ValueError, match=re.escape("len(intervals) should be 3, is 2")):
+        CruxFloatHistogram(intervals=[0.0, 1.0], densities=[0.9, 0.09, 0.01], p75=0.5)
+
+
+def test_crux_float_histogram_long_densities_raises() -> None:
+    with pytest.raises(ValueError, match=re.escape("len(densities) should be 3, is 4")):
+        CruxFloatHistogram(
+            intervals=[0.0, 1.0, 2.0], densities=[0.9, 0.09, 0.01, 0.0], p75=0.5
+        )
+
+
+def test_crux_float_histogram_high_density_total_raises() -> None:
+    with pytest.raises(
+        ValueError, match=re.escape("sum(densities) should be 1.0, is 1.1")
+    ):
+        CruxFloatHistogram(
+            intervals=[0.0, 1.0, 2.0], densities=[0.9, 0.09, 0.11], p75=0.5
+        )
 
 
 def create_crux_error_service_disabled() -> dict[str, Any]:
