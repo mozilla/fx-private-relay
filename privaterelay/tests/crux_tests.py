@@ -9,8 +9,11 @@ import responses
 
 from ..crux import (
     CruxApiRequester,
+    CruxFloatHistogram,
     CruxQuery,
     CruxQuerySpecification,
+    CruxRecordKey,
+    CruxResult,
     RequestsEngine,
     StubbedEngine,
     StubbedRequest,
@@ -205,6 +208,15 @@ def test_stubbed_engine_unexpected_request() -> None:
     assert engine.requests == [expected_request]
 
 
+_BASIC_QUERY = CruxQuery("https://example.com", metrics=["cumulative_layout_shift"])
+_BASIC_REQUEST = StubbedRequest(
+    url=CruxApiRequester.API_URL,
+    params={"key": "API_KEY"},
+    data={"origin": "https://example.com", "metrics": ["cumulative_layout_shift"]},
+    timeout=CruxApiRequester.DEFAULT_TIMEOUT,
+)
+
+
 def create_crux_api_record(query: CruxQuery) -> dict[str, Any]:
     """Create a test CrUX API record based on the query"""
 
@@ -247,21 +259,70 @@ def create_crux_api_record(query: CruxQuery) -> dict[str, Any]:
 
 
 def test_crux_api_requester_raw_query_success() -> None:
-    query = CruxQuery("https://example.com", metrics=["cumulative_layout_shift"])
-    expected_request = StubbedRequest(
-        url=CruxApiRequester.API_URL,
-        params={"key": "API_KEY"},
-        data={"origin": "https://example.com", "metrics": ["cumulative_layout_shift"]},
-        timeout=CruxApiRequester.DEFAULT_TIMEOUT,
-    )
-    record = create_crux_api_record(query)
+    record = create_crux_api_record(_BASIC_QUERY)
     action = StubbedRequestAction(200, record)
     engine = StubbedEngine()
-    engine.expect_request(expected_request, action)
+    engine.expect_request(_BASIC_REQUEST, action)
     requester = CruxApiRequester("API_KEY", engine)
-    status_code, data = requester.raw_query(query)
+    status_code, data = requester.raw_query(_BASIC_QUERY)
     assert status_code == 200
     assert data == record
+
+
+def test_crux_result_from_raw_query_origin_query() -> None:
+    record = create_crux_api_record(_BASIC_QUERY)
+    result = CruxResult.from_raw_query(record)
+    expected = CruxResult(
+        key=CruxRecordKey(origin="https://example.com"),
+        cumulative_layout_shift=CruxFloatHistogram(
+            intervals=[0.0, 0.1, 0.25], densities=[0.8077, 0.1003, 0.092], p75=0.07
+        ),
+        first_date=date.today() - timedelta(days=30),
+        last_date=date.today() - timedelta(days=2),
+    )
+    assert result == expected
+
+
+def test_crux_result_from_raw_query_unknown_key_raises() -> None:
+    with pytest.raises(ValueError, match="At top level, unexpected key 'foo'"):
+        CruxResult.from_raw_query({"foo": "bar"})
+
+
+def test_crux_result_from_raw_query_no_record_raises() -> None:
+    with pytest.raises(ValueError, match="At top level, no key 'record'"):
+        CruxResult.from_raw_query({})
+
+
+def test_crux_result_from_raw_query_no_record_key_raises() -> None:
+    record = create_crux_api_record(_BASIC_QUERY)
+    del record["record"]["key"]
+    with pytest.raises(ValueError, match="In record, no key 'key'"):
+        CruxResult.from_raw_query(record)
+
+
+def test_crux_record_key_origin_only() -> None:
+    key = CruxRecordKey(origin="https://example.com")
+    assert repr(key) == "CruxRecordKey(origin='https://example.com')"
+    assert key == CruxRecordKey(origin="https://example.com")
+
+
+_CRUX_RECORD_KEY_FROM_RAW_QUERY_TESTS = {
+    "origin": (
+        {"origin": "https://example.com"},
+        CruxRecordKey(origin="https://example.com"),
+    ),
+}
+
+
+@pytest.mark.parametrize(
+    "data,expected",
+    _CRUX_RECORD_KEY_FROM_RAW_QUERY_TESTS.values(),
+    ids=_CRUX_RECORD_KEY_FROM_RAW_QUERY_TESTS.keys(),
+)
+def test_crux_record_key_from_raw_query_success(
+    data: dict[str, str], expected: CruxRecordKey
+) -> None:
+    assert CruxRecordKey.from_raw_query(data) == expected
 
 
 def create_crux_error_service_disabled() -> dict[str, Any]:
@@ -320,4 +381,4 @@ def test_main() -> None:
     engine.expect_request(expected_request, action)
     requester = CruxApiRequester("API_KEY", engine)
     result = main("https://example.com", requester)
-    assert result == r'[{"fake": "data"}]'
+    assert result == '{"fake": "data"}'

@@ -10,18 +10,11 @@ import json
 from abc import ABC, abstractmethod
 from collections import deque
 from collections.abc import Iterable
+from datetime import date
 from itertools import product
 from typing import Any, Literal, NamedTuple, get_args
 
 import requests
-
-
-def main(domain: str, requester: CruxApiRequester) -> str:
-    qp = get_main_query_parameters(domain)
-    results = gather_api_results(qp, requester)
-    report = create_command_line_report(results)
-    return report
-
 
 CRUX_FORM_FACTOR = Literal["PHONE", "TABLET", "DESKTOP"]
 CRUX_METRIC = Literal[
@@ -236,25 +229,306 @@ class StubbedResponse(ResponseWrapper):
         return self._data
 
 
-def get_main_query_parameters(domain: str) -> list[CruxQuery]:
-    return CruxQuerySpecification(domain).queries()
+class CruxRecordKey:
+    def __init__(
+        self,
+        origin: str | None = None,
+    ) -> None:
+        """
+        TODO: url
+        TODO: form_factor
+        TODO: exclusive origin / url check
+        """
+        self.origin = origin
+
+    def __repr__(self) -> str:
+        attrs = ["origin"]
+        args = [
+            f"{attr}={getattr(self, attr)!r}"
+            for attr in attrs
+            if getattr(self, attr, None) is not None
+        ]
+        return f"{self.__class__.__name__}({', '.join(args)})"
+
+    def __eq__(self, other: Any) -> bool:
+        return isinstance(other, CruxRecordKey) and self.origin == other.origin
+
+    @classmethod
+    def from_raw_query(cls, data: dict[str, str]) -> CruxRecordKey:
+        origin: str | None = None
+        for key, val in data.items():
+            if key == "origin":
+                origin = val
+            else:
+                raise ValueError()
+        return CruxRecordKey(origin=origin)
 
 
-def gather_api_results(queries: list[CruxQuery], requester: CruxApiRequester) -> Any:
-    return [requester.query(query) for query in queries]
+class CruxFloatHistogram:
+    def __init__(
+        self, intervals: list[float], densities: list[float], p75: float
+    ) -> None:
+        self.intervals = intervals
+        self.densities = densities
+        self.p75 = p75
 
+    def __repr__(self) -> str:
+        """TODO: test"""
+        return (
+            f"{self.__class__.__name__}("
+            f"intervals={self.intervals!r}, "
+            f"densities={self.densities!r}, "
+            f"p75={self.p75!r}"
+        )
 
-def create_command_line_report(results: list[CruxResult]) -> str:
-    return json.dumps([result.raw_data for result in results])
+    def __eq__(self, other: Any) -> bool:
+        """TODO: test"""
+        return (
+            isinstance(other, CruxFloatHistogram)
+            and self.intervals == other.intervals
+            and self.densities == other.densities
+            and self.p75 == other.p75
+        )
 
 
 class CruxResult:
-    def __init__(self, raw_data: dict[str, Any]) -> None:
-        self.raw_data = raw_data
+    def __init__(
+        self,
+        key: CruxRecordKey,
+        first_date: date,
+        last_date: date,
+        cumulative_layout_shift: CruxFloatHistogram | None = None,
+    ) -> None:
+        self.key = key
+        self.first_date = first_date
+        self.last_date = last_date
+        self.cumulative_layout_shift = cumulative_layout_shift
+
+    def __repr__(self) -> str:
+        args = [
+            f"key={self.key!r}",
+            f"first_date={self.first_date!r}",
+            f"last_date={self.last_date!r}",
+        ]
+        if self.cumulative_layout_shift is not None:
+            args.append(f"cumulative_layout_shift={self.cumulative_layout_shift!r}")
+        return f"{self.__class__.__name__}({', '.join(args)})"
+
+    def __eq__(self, other: Any) -> bool:
+        return (
+            isinstance(other, CruxResult)
+            and self.key == other.key
+            and self.first_date == other.first_date
+            and self.last_date == other.last_date
+            and self.cumulative_layout_shift == other.cumulative_layout_shift
+        )
 
     @classmethod
     def from_raw_query(cls, data: dict[str, Any]) -> CruxResult:
-        return CruxResult(raw_data=data)
+        """
+        Parse a JSON response from the CrUX API into a CruxResult
+
+        TODO: Handle urlNormalizationDetails
+        """
+        record: CruxResult._RecordItems | None = None
+
+        for key, value in data.items():
+            if key == "record":
+                record = cls._parse_record(value)
+            else:
+                raise ValueError(f"At top level, unexpected key {key!r}")
+
+        if record is None:
+            raise ValueError("At top level, no key 'record'")
+        return CruxResult(
+            key=record.key,
+            first_date=record.first_date,
+            last_date=record.last_date,
+            cumulative_layout_shift=record.metrics.cumulative_layout_shift,
+        )
+
+    class _RecordMetrics(NamedTuple):
+        cumulative_layout_shift: CruxFloatHistogram | None = None
+
+    class _RecordItems(NamedTuple):
+        key: CruxRecordKey
+        first_date: date
+        last_date: date
+        metrics: CruxResult._RecordMetrics
+
+    @classmethod
+    def _parse_record(cls, record: dict[str, Any]) -> _RecordItems:
+        record_key: CruxRecordKey | None = None
+        first_date: date | None = None
+        last_date: date | None = None
+        metrics: CruxResult._RecordMetrics | None = None
+
+        for key, val in record.items():
+            if key == "key":
+                record_key = CruxRecordKey.from_raw_query(val)
+            elif key == "collectionPeriod":
+                first_date, last_date = cls._parse_collection_period(val)
+            elif key == "metrics":
+                metrics = cls._parse_metrics(val)
+            else:
+                raise ValueError()  # TODO
+
+        if record_key is None:
+            raise ValueError("In record, no key 'key'")
+        if first_date is None:
+            raise ValueError()
+        if last_date is None:
+            raise ValueError()
+        if metrics is None:
+            raise ValueError()
+
+        return CruxResult._RecordItems(
+            key=record_key,
+            first_date=first_date,
+            last_date=last_date,
+            metrics=metrics,
+        )
+
+    @classmethod
+    def _parse_collection_period(cls, data: dict[str, Any]) -> tuple[date, date]:
+        first_date: date | None = None
+        last_date: date | None = None
+
+        for key, val in data.items():
+            if key == "firstDate":
+                first_date = cls._parse_date(val)
+            elif key == "lastDate":
+                last_date = cls._parse_date(val)
+            else:
+                raise ValueError()  # TODO: test
+
+        if first_date is None:
+            raise ValueError()  # TODO test
+        if last_date is None:
+            raise ValueError()  # TODO test
+        return first_date, last_date
+
+    @classmethod
+    def _parse_date(cls, data: dict[str, int]) -> date:
+        """Parse a date dict, like {"year": 2025, "month": 1, "day": 30}"""
+        year: int | None = None
+        month: int | None = None
+        day: int | None = None
+
+        for key, val in data.items():
+            if key == "year":
+                year = val
+            elif key == "month":
+                month = val
+            elif key == "day":
+                day = val
+            else:
+                raise ValueError()  # TODO: test
+
+        if year is None:
+            raise ValueError()  # TODO test
+        if month is None:
+            raise ValueError()  # TODO test
+        if day is None:
+            raise ValueError()  # TODO test
+
+        return date(year=year, month=month, day=day)
+
+    @classmethod
+    def _parse_metrics(cls, data: dict[str, Any]) -> CruxResult._RecordMetrics:
+        cumulative_layout_shift: CruxFloatHistogram | None = None
+
+        for key, val in data.items():
+            if key == "cumulative_layout_shift":
+                cumulative_layout_shift = cls._parse_float_histogram(val)
+            else:
+                raise ValueError()  # TODO test
+
+        return CruxResult._RecordMetrics(
+            cumulative_layout_shift=cumulative_layout_shift
+        )
+
+    @classmethod
+    def _parse_float_histogram(cls, data: dict[str, Any]) -> CruxFloatHistogram:
+        intervals: list[float] = []
+        densities: list[float] = []
+        p75: float | None = None
+
+        for key, val in data.items():
+            if key == "histogram":
+                intervals, densities = cls._parse_float_histogram_bin_list(val)
+            elif key == "percentiles":
+                p75 = cls._parse_float_histogram_percentiles(val)
+            else:
+                raise ValueError()  # TODO
+
+        if not intervals or not densities:
+            raise ValueError()  # TODO test
+        if p75 is None:
+            raise ValueError()  # TODO test
+
+        return CruxFloatHistogram(intervals=intervals, densities=densities, p75=p75)
+
+    @classmethod
+    def _parse_float_histogram_bin_list(
+        cls, data: list[dict[str, float]]
+    ) -> tuple[list[float], list[float]]:
+        bins: list[tuple[float, float | None, float]] = []
+        for bin in data:
+            bins.append(cls._parse_float_histogram_bin(bin))
+
+        if len(bins) != 3:
+            raise ValueError()  # TODO test
+        if bins[0][1] != bins[1][0]:
+            raise ValueError()  # TODO test
+        if bins[1][1] != bins[2][0]:
+            raise ValueError()  # TODO test
+        if bins[2][1] is not None:
+            raise ValueError()  # TODO test
+
+        intervals = [bin[0] for bin in bins]
+        densities = [bin[2] for bin in bins]
+        return intervals, densities
+
+    @classmethod
+    def _parse_float_histogram_bin(
+        cls, data: dict[str, float]
+    ) -> tuple[float, float | None, float]:
+        start: float | None = None
+        end: float | None = None
+        density: float | None = None
+
+        for key, val in data.items():
+            if key == "start":
+                start = float(val)
+            elif key == "end":
+                end = float(val)
+            elif key == "density":
+                density = float(val)
+            else:
+                raise ValueError()  # TODO test
+
+        if start is None:
+            raise ValueError()  # TODO test
+        if density is None:
+            raise ValueError()  # TODO test
+
+        return start, end, density
+
+    @classmethod
+    def _parse_float_histogram_percentiles(cls, data: dict[str, Any]) -> float:
+        p75: float | None = None
+
+        for key, val in data.items():
+            if key == "p75":
+                p75 = float(val)
+            else:
+                raise ValueError()  # TODO test
+
+        if p75 is None:
+            raise ValueError()  # TODO test
+
+        return p75
 
 
 class CruxError:
@@ -298,6 +572,12 @@ class CruxApiRequester:
             return CruxResult.from_raw_query(data)
         else:
             return CruxError.from_raw_query(status_code, data)
+
+
+def main(domain: str, requester: CruxApiRequester) -> str:
+    query = CruxQuerySpecification(domain).queries()[0]
+    status_code, data = requester.raw_query(query)
+    return json.dumps(data)
 
 
 if __name__ == "__main__":
