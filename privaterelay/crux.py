@@ -244,11 +244,27 @@ def gather_api_results(queries: list[CruxQuery], requester: CruxApiRequester) ->
     return [requester.query(query) for query in queries]
 
 
-def create_command_line_report(results: Any) -> str:
-    return json.dumps(results)
+def create_command_line_report(results: list[CruxResult]) -> str:
+    return json.dumps([result.raw_data for result in results])
 
 
-CruxResult = dict[str, Any]
+class CruxResult:
+    def __init__(self, raw_data: dict[str, Any]) -> None:
+        self.raw_data = raw_data
+
+    @classmethod
+    def from_raw_query(cls, data: dict[str, Any]) -> CruxResult:
+        return CruxResult(raw_data=data)
+
+
+class CruxError:
+    def __init__(self, status_code: int, raw_data: dict[str, Any]) -> None:
+        self.status_code = status_code
+        self.raw_data = raw_data
+
+    @classmethod
+    def from_raw_query(cls, status_code: int, data: dict[str, Any]) -> CruxError:
+        return CruxError(status_code=status_code, raw_data=data)
 
 
 class CruxApiRequester:
@@ -259,7 +275,7 @@ class CruxApiRequester:
         self._api_key = api_key
         self._engine = engine
 
-    def query(self, query: CruxQuery) -> tuple[int, CruxResult]:
+    def raw_query(self, query: CruxQuery) -> tuple[int, dict[str, Any]]:
         resp = self._engine.post(
             url=self.API_URL,
             params={"key": self._api_key},
@@ -267,6 +283,21 @@ class CruxApiRequester:
             timeout=self.DEFAULT_TIMEOUT,
         )
         return resp.status_code, resp.json()
+
+    def query(self, query: CruxQuery) -> CruxResult | CruxError:
+        """
+        Request data from the CrUX API
+
+        TODO:
+        * Time the request
+        * Handle timeout error
+        * Handle resp.json() failure
+        """
+        status_code, data = self.raw_query(query)
+        if status_code == 200:
+            return CruxResult.from_raw_query(data)
+        else:
+            return CruxError.from_raw_query(status_code, data)
 
 
 if __name__ == "__main__":

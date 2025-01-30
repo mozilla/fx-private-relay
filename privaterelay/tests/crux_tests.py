@@ -1,6 +1,8 @@
 """Tests for privaterelay/crux.py"""
 
 import re
+from datetime import date, timedelta
+from typing import Any
 
 import pytest
 import responses
@@ -203,7 +205,48 @@ def test_stubbed_engine_unexpected_request() -> None:
     assert engine.requests == [expected_request]
 
 
-def test_crux_api_requester_success() -> None:
+def create_crux_api_record(query: CruxQuery) -> dict[str, Any]:
+    """Create a test CrUX API record based on the query"""
+
+    key = {"origin": query.origin}
+
+    assert isinstance(query.metrics, list)
+    metrics: dict[str, Any] = {}
+    for metric in query.metrics:
+        if metric == "cumulative_layout_shift":
+            data = {
+                "histogram": [
+                    {"start": "0.00", "end": "0.10", "density": 0.8077},
+                    {"start": "0.10", "end": "0.25", "density": 0.1003},
+                    {"start": "0.25", "density": 0.092},
+                ],
+                "percentiles": {"p75": "0.07"},
+            }
+            metrics[metric] = data
+        else:
+            raise ValueError(f"need handler for metric {metric}")
+
+    today = date.today()
+    first_date = today - timedelta(days=30)
+    last_date = today - timedelta(days=2)
+
+    def date_as_dict(date: date) -> dict[str, int]:
+        return {"year": date.year, "month": date.month, "day": date.day}
+
+    collection_period = {
+        "firstDate": date_as_dict(first_date),
+        "lastDate": date_as_dict(last_date),
+    }
+
+    record = {
+        "key": key,
+        "metrics": metrics,
+        "collectionPeriod": collection_period,
+    }
+    return {"record": record}
+
+
+def test_crux_api_requester_raw_query_success() -> None:
     query = CruxQuery("https://example.com", metrics=["cumulative_layout_shift"])
     expected_request = StubbedRequest(
         url=CruxApiRequester.API_URL,
@@ -211,42 +254,17 @@ def test_crux_api_requester_success() -> None:
         data={"origin": "https://example.com", "metrics": ["cumulative_layout_shift"]},
         timeout=CruxApiRequester.DEFAULT_TIMEOUT,
     )
-    record = {
-        "record": {
-            "key": {"origin": "https://relay.firefox.com"},
-            "metrics": {
-                "cumulative_layout_shift": {
-                    "histogram": [
-                        {"start": "0.00", "end": "0.10", "density": 0.8077},
-                        {"start": "0.10", "end": "0.25", "density": 0.1003},
-                        {"start": "0.25", "density": 0.092},
-                    ],
-                    "percentiles": {"p75": "0.07"},
-                },
-            },
-            "collectionPeriod": {
-                "firstDate": {"year": 2024, "month": 12, "day": 31},
-                "lastDate": {"year": 2025, "month": 1, "day": 27},
-            },
-        }
-    }
+    record = create_crux_api_record(query)
     action = StubbedRequestAction(200, record)
     engine = StubbedEngine()
     engine.expect_request(expected_request, action)
     requester = CruxApiRequester("API_KEY", engine)
-    status_code, data = requester.query(query)
+    status_code, data = requester.raw_query(query)
     assert status_code == 200
-    assert data == record  # TODO: parsed record
+    assert data == record
 
 
-def test_crux_api_requester_permission_denied() -> None:
-    query = CruxQuery("https://example.com", metrics=["cumulative_layout_shift"])
-    expected_request = StubbedRequest(
-        url=CruxApiRequester.API_URL,
-        params={"key": "API_KEY"},
-        data={"origin": "https://example.com", "metrics": ["cumulative_layout_shift"]},
-        timeout=CruxApiRequester.DEFAULT_TIMEOUT,
-    )
+def create_crux_error_service_disabled() -> dict[str, Any]:
     proj_num = "1234567890"
     enable_url = (
         "https://console.developers.google.com/apis/api/chromeuxreport.googleapis.com"
@@ -259,47 +277,35 @@ def test_crux_api_requester_permission_denied() -> None:
         " systems and retry."
     )
     error = {
-        "error": {
-            "code": 403,
-            "message": err_msg,
-            "status": "PERMISSION_DENIED",
-            "details": [
-                {
-                    "@type": "type.googleapis.com/google.rpc.ErrorInfo",
-                    "reason": "SERVICE_DISABLED",
-                    "domain": "googleapis.com",
-                    "metadata": {
-                        "containerInfo": proj_num,
-                        "activationUrl": enable_url,
-                        "serviceTitle": "Chrome UX Report API",
-                        "consumer": f"projects/{proj_num}",
-                        "service": "chromeuxreport.googleapis.com",
-                    },
-                },
-                {
-                    "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
-                    "locale": "en-US",
-                    "message": err_msg,
-                },
-                {
-                    "@type": "type.googleapis.com/google.rpc.Help",
-                    "links": [
-                        {
-                            "description": "Google developers console API activation",
-                            "url": enable_url,
-                        }
-                    ],
-                },
-            ],
-        }
+        "code": 403,
+        "message": err_msg,
+        "status": "PERMISSION_DENIED",
+        "details": [
+            # Details omitted for tests
+            # "@type": "type.googleapis.com/google.rpc.ErrorInfo"
+            # "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+            # "@type": "type.googleapis.com/google.rpc.Help",
+        ],
     }
-    action = StubbedRequestAction(403, error)
+    return {"error": error}
+
+
+def test_crux_api_requester_raw_query_permission_denied() -> None:
+    query = CruxQuery("https://example.com", metrics=["cumulative_layout_shift"])
+    expected_request = StubbedRequest(
+        url=CruxApiRequester.API_URL,
+        params={"key": "API_KEY"},
+        data={"origin": "https://example.com", "metrics": ["cumulative_layout_shift"]},
+        timeout=CruxApiRequester.DEFAULT_TIMEOUT,
+    )
+    error = create_crux_error_service_disabled()
+    action = StubbedRequestAction(error["error"]["code"], error)
     engine = StubbedEngine()
     engine.expect_request(expected_request, action)
     requester = CruxApiRequester("API_KEY", engine)
-    status_code, data = requester.query(query)
+    status_code, data = requester.raw_query(query)
     assert status_code == 403
-    assert data == error  # TODO: parsed error
+    assert data == error
 
 
 def test_main() -> None:
@@ -314,4 +320,4 @@ def test_main() -> None:
     engine.expect_request(expected_request, action)
     requester = CruxApiRequester("API_KEY", engine)
     result = main("https://example.com", requester)
-    assert result == r'[[200, {"fake": "data"}]]'
+    assert result == r'[{"fake": "data"}]'
