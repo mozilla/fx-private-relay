@@ -12,7 +12,7 @@ from collections import deque
 from collections.abc import Iterable
 from datetime import date
 from itertools import product
-from typing import Any, Literal, NamedTuple, get_args
+from typing import Any, Literal, NamedTuple, cast, get_args
 
 import requests
 
@@ -233,16 +233,19 @@ class CruxRecordKey:
     def __init__(
         self,
         origin: str | None = None,
+        url: str | None = None,
+        form_factor: CRUX_FORM_FACTOR | None = None,
     ) -> None:
-        """
-        TODO: url
-        TODO: form_factor
-        TODO: exclusive origin / url check
-        """
+        if origin is None and url is None:
+            raise ValueError("Either origin or url must be set")
+        if origin is not None and url is not None:
+            raise ValueError("Can not set both origin and url")
         self.origin = origin
+        self.url = url
+        self.form_factor = form_factor
 
     def __repr__(self) -> str:
-        attrs = ["origin"]
+        attrs = ["origin", "url", "form_factor"]
         args = [
             f"{attr}={getattr(self, attr)!r}"
             for attr in attrs
@@ -251,17 +254,32 @@ class CruxRecordKey:
         return f"{self.__class__.__name__}({', '.join(args)})"
 
     def __eq__(self, other: Any) -> bool:
-        return isinstance(other, CruxRecordKey) and self.origin == other.origin
+        return (
+            isinstance(other, CruxRecordKey)
+            and self.origin == other.origin
+            and self.url == other.url
+            and self.form_factor == other.form_factor
+        )
 
     @classmethod
     def from_raw_query(cls, data: dict[str, str]) -> CruxRecordKey:
         origin: str | None = None
+        url: str | None = None
+        form_factor: CRUX_FORM_FACTOR | None = None
+
         for key, val in data.items():
             if key == "origin":
                 origin = val
+            elif key == "url":
+                url = val
+            elif key == "formFactor":
+                if val in get_args(CRUX_FORM_FACTOR):
+                    form_factor = cast(CRUX_FORM_FACTOR, val)
+                else:
+                    raise ValueError(f"{val!r} is not a valid formFactor")
             else:
-                raise ValueError()
-        return CruxRecordKey(origin=origin)
+                raise ValueError(f"Unknown key {key!r}")
+        return CruxRecordKey(origin=origin, url=url, form_factor=form_factor)
 
 
 class CruxFloatHistogram:

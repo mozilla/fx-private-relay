@@ -300,29 +300,48 @@ def test_crux_result_from_raw_query_no_record_key_raises() -> None:
         CruxResult.from_raw_query(record)
 
 
-def test_crux_record_key_origin_only() -> None:
-    key = CruxRecordKey(origin="https://example.com")
+def test_crux_record_key_from_raw_query_origin_only() -> None:
+    key = CruxRecordKey.from_raw_query({"origin": "https://example.com"})
     assert repr(key) == "CruxRecordKey(origin='https://example.com')"
     assert key == CruxRecordKey(origin="https://example.com")
 
 
-_CRUX_RECORD_KEY_FROM_RAW_QUERY_TESTS = {
-    "origin": (
-        {"origin": "https://example.com"},
-        CruxRecordKey(origin="https://example.com"),
-    ),
-}
+def test_crux_record_key_from_raw_query_url_only() -> None:
+    key = CruxRecordKey.from_raw_query({"url": "https://example.com/"})
+    assert repr(key) == "CruxRecordKey(url='https://example.com/')"
+    assert key == CruxRecordKey(url="https://example.com/")
 
 
-@pytest.mark.parametrize(
-    "data,expected",
-    _CRUX_RECORD_KEY_FROM_RAW_QUERY_TESTS.values(),
-    ids=_CRUX_RECORD_KEY_FROM_RAW_QUERY_TESTS.keys(),
-)
-def test_crux_record_key_from_raw_query_success(
-    data: dict[str, str], expected: CruxRecordKey
-) -> None:
-    assert CruxRecordKey.from_raw_query(data) == expected
+def test_crux_record_key_from_raw_query_with_form_factor() -> None:
+    key = CruxRecordKey.from_raw_query(
+        {"url": "https://example.com/", "formFactor": "PHONE"}
+    )
+    assert repr(key) == "CruxRecordKey(url='https://example.com/', form_factor='PHONE')"
+    assert key == CruxRecordKey(url="https://example.com/", form_factor="PHONE")
+
+
+def test_crux_record_key_no_origin_or_url_raises() -> None:
+    with pytest.raises(ValueError, match="Either origin or url must be set"):
+        CruxRecordKey.from_raw_query({})
+
+
+def test_crux_record_key_both_origin_and_url_raises() -> None:
+    with pytest.raises(ValueError, match="Can not set both origin and url"):
+        CruxRecordKey.from_raw_query(
+            {"origin": "https://example.com", "url": "https://example.com/faq"}
+        )
+
+
+def test_crux_record_key_from_raw_query_invalid_form_factor_raises() -> None:
+    with pytest.raises(ValueError, match="'VR' is not a valid formFactor"):
+        CruxRecordKey.from_raw_query(
+            {"origin": "https://example.com", "formFactor": "VR"}
+        )
+
+
+def test_crux_record_key_from_raw_query_unknown_key_raises() -> None:
+    with pytest.raises(ValueError, match="Unknown key 'foo'"):
+        CruxRecordKey.from_raw_query({"origin": "https://example.com", "foo": "bar"})
 
 
 def create_crux_error_service_disabled() -> dict[str, Any]:
