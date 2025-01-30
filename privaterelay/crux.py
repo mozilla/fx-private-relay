@@ -481,16 +481,14 @@ class CruxResult:
             elif key == "metrics":
                 metrics = cls._parse_metrics(val)
             else:
-                raise ValueError(f"Unknown key {key!r}")  # TODO
+                raise ValueError(f"In record, unknown key {key!r}")
 
         if record_key is None:
             raise ValueError("In record, no key 'key'")
-        if first_date is None:
-            raise ValueError()
-        if last_date is None:
-            raise ValueError()
+        if first_date is None or last_date is None:
+            raise ValueError("In record, no key 'collectionPeriod'")
         if metrics is None:
-            raise ValueError()
+            raise ValueError("In record, no key 'metrics'")
 
         return CruxResult._RecordItems(
             key=record_key,
@@ -510,12 +508,12 @@ class CruxResult:
             elif key == "lastDate":
                 last_date = cls._parse_date(val)
             else:
-                raise ValueError()  # TODO: test
+                raise ValueError(f"In collectionPeriod, unknown key {key!r}")
 
         if first_date is None:
-            raise ValueError()  # TODO test
+            raise ValueError("In collectionPeriod, no key 'firstDate'")
         if last_date is None:
-            raise ValueError()  # TODO test
+            raise ValueError("In collectionPeriod, no key 'lastDate'")
         return first_date, last_date
 
     @classmethod
@@ -533,14 +531,14 @@ class CruxResult:
             elif key == "day":
                 day = val
             else:
-                raise ValueError()  # TODO: test
+                raise ValueError(f"In date, unknown key {key!r}")
 
         if year is None:
-            raise ValueError()  # TODO test
+            raise ValueError("In date, no key 'year'")
         if month is None:
-            raise ValueError()  # TODO test
+            raise ValueError("In date, no key 'month'")
         if day is None:
-            raise ValueError()  # TODO test
+            raise ValueError("In date, no key 'day'")
 
         return date(year=year, month=month, day=day)
 
@@ -552,7 +550,7 @@ class CruxResult:
             if key == "cumulative_layout_shift":
                 cumulative_layout_shift = CruxFloatHistogram.from_raw_query(val)
             else:
-                raise ValueError()  # TODO test
+                raise ValueError(f"In metrics, unknown key {key!r}")
 
         return CruxResult._RecordMetrics(
             cumulative_layout_shift=cumulative_layout_shift
@@ -590,10 +588,10 @@ class CruxApiRequester:
         """
         Request data from the CrUX API
 
-        TODO:
-        * Time the request
-        * Handle timeout error
-        * Handle resp.json() failure
+        TODO: Time the request
+        TODO: Handle timeout error
+        TODO: Handle resp.json() failure
+        TODO: Handle parsing ValueError
         """
         status_code, data = self.raw_query(query)
         if status_code == 200:

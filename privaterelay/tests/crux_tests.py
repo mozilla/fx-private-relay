@@ -293,17 +293,48 @@ def test_crux_result_from_raw_query_no_record_raises() -> None:
         CruxResult.from_raw_query({})
 
 
-def test_crux_result_from_raw_query_no_record_key_raises() -> None:
+@pytest.mark.parametrize("field", ("key", "collectionPeriod", "metrics"))
+def test_crux_result_from_raw_query_missing_record_key_raises(field: str) -> None:
     record = create_crux_api_record(_BASIC_QUERY)
-    del record["record"]["key"]
-    with pytest.raises(ValueError, match="In record, no key 'key'"):
+    del record["record"][field]
+    with pytest.raises(ValueError, match=f"In record, no key {field!r}"):
         CruxResult.from_raw_query(record)
 
 
 def test_crux_result_from_raw_query_unknown_record_key_raises() -> None:
     record = create_crux_api_record(_BASIC_QUERY)
     record["record"]["foo"] = "bar"
-    with pytest.raises(ValueError, match="Unknown key 'foo'"):
+    with pytest.raises(ValueError, match="In record, unknown key 'foo'"):
+        CruxResult.from_raw_query(record)
+
+
+@pytest.mark.parametrize("field", ("firstDate", "lastDate"))
+def test_crux_result_from_raw_query_no_date_raises(field: str) -> None:
+    record = create_crux_api_record(_BASIC_QUERY)
+    del record["record"]["collectionPeriod"][field]
+    with pytest.raises(ValueError, match=f"In collectionPeriod, no key '{field}'"):
+        CruxResult.from_raw_query(record)
+
+
+@pytest.mark.parametrize("field", ["year", "month", "day"])
+def test_crux_result_from_raw_query_missing_date_field_raises(field: str) -> None:
+    record = create_crux_api_record(_BASIC_QUERY)
+    del record["record"]["collectionPeriod"]["firstDate"][field]
+    with pytest.raises(ValueError, match=f"In date, no key {field!r}"):
+        CruxResult.from_raw_query(record)
+
+
+def test_crux_result_from_raw_query_unknown_date_field_raises() -> None:
+    record = create_crux_api_record(_BASIC_QUERY)
+    record["record"]["collectionPeriod"]["firstDate"]["hour"] = 12
+    with pytest.raises(ValueError, match="In date, unknown key 'hour'"):
+        CruxResult.from_raw_query(record)
+
+
+def test_crux_result_from_raw_query_unknown_metric_raises() -> None:
+    record = create_crux_api_record(_BASIC_QUERY)
+    record["record"]["metrics"]["pizzazz"] = "on fleek"
+    with pytest.raises(ValueError, match="In metrics, unknown key 'pizzazz'"):
         CruxResult.from_raw_query(record)
 
 
