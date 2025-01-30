@@ -308,6 +308,88 @@ class CruxFloatHistogram:
             and self.p75 == other.p75
         )
 
+    @classmethod
+    def from_raw_query(cls, data: dict[str, Any]) -> CruxFloatHistogram:
+        intervals: list[float] = []
+        densities: list[float] = []
+        p75: float | None = None
+
+        for key, val in data.items():
+            if key == "histogram":
+                intervals, densities = cls._parse_float_histogram_bin_list(val)
+            elif key == "percentiles":
+                p75 = cls._parse_float_histogram_percentiles(val)
+            else:
+                raise ValueError()  # TODO
+
+        if not intervals or not densities:
+            raise ValueError()  # TODO test
+        if p75 is None:
+            raise ValueError()  # TODO test
+
+        return CruxFloatHistogram(intervals=intervals, densities=densities, p75=p75)
+
+    @classmethod
+    def _parse_float_histogram_bin_list(
+        cls, data: list[dict[str, float]]
+    ) -> tuple[list[float], list[float]]:
+        bins: list[tuple[float, float | None, float]] = []
+        for bin in data:
+            bins.append(cls._parse_float_histogram_bin(bin))
+
+        if len(bins) != 3:
+            raise ValueError()  # TODO test
+        if bins[0][1] != bins[1][0]:
+            raise ValueError()  # TODO test
+        if bins[1][1] != bins[2][0]:
+            raise ValueError()  # TODO test
+        if bins[2][1] is not None:
+            raise ValueError()  # TODO test
+
+        intervals = [bin[0] for bin in bins]
+        densities = [bin[2] for bin in bins]
+        return intervals, densities
+
+    @classmethod
+    def _parse_float_histogram_bin(
+        cls, data: dict[str, float]
+    ) -> tuple[float, float | None, float]:
+        start: float | None = None
+        end: float | None = None
+        density: float | None = None
+
+        for key, val in data.items():
+            if key == "start":
+                start = float(val)
+            elif key == "end":
+                end = float(val)
+            elif key == "density":
+                density = float(val)
+            else:
+                raise ValueError()  # TODO test
+
+        if start is None:
+            raise ValueError()  # TODO test
+        if density is None:
+            raise ValueError()  # TODO test
+
+        return start, end, density
+
+    @classmethod
+    def _parse_float_histogram_percentiles(cls, data: dict[str, Any]) -> float:
+        p75: float | None = None
+
+        for key, val in data.items():
+            if key == "p75":
+                p75 = float(val)
+            else:
+                raise ValueError()  # TODO test
+
+        if p75 is None:
+            raise ValueError()  # TODO test
+
+        return p75
+
 
 class CruxResult:
     def __init__(
@@ -458,95 +540,13 @@ class CruxResult:
 
         for key, val in data.items():
             if key == "cumulative_layout_shift":
-                cumulative_layout_shift = cls._parse_float_histogram(val)
+                cumulative_layout_shift = CruxFloatHistogram.from_raw_query(val)
             else:
                 raise ValueError()  # TODO test
 
         return CruxResult._RecordMetrics(
             cumulative_layout_shift=cumulative_layout_shift
         )
-
-    @classmethod
-    def _parse_float_histogram(cls, data: dict[str, Any]) -> CruxFloatHistogram:
-        intervals: list[float] = []
-        densities: list[float] = []
-        p75: float | None = None
-
-        for key, val in data.items():
-            if key == "histogram":
-                intervals, densities = cls._parse_float_histogram_bin_list(val)
-            elif key == "percentiles":
-                p75 = cls._parse_float_histogram_percentiles(val)
-            else:
-                raise ValueError()  # TODO
-
-        if not intervals or not densities:
-            raise ValueError()  # TODO test
-        if p75 is None:
-            raise ValueError()  # TODO test
-
-        return CruxFloatHistogram(intervals=intervals, densities=densities, p75=p75)
-
-    @classmethod
-    def _parse_float_histogram_bin_list(
-        cls, data: list[dict[str, float]]
-    ) -> tuple[list[float], list[float]]:
-        bins: list[tuple[float, float | None, float]] = []
-        for bin in data:
-            bins.append(cls._parse_float_histogram_bin(bin))
-
-        if len(bins) != 3:
-            raise ValueError()  # TODO test
-        if bins[0][1] != bins[1][0]:
-            raise ValueError()  # TODO test
-        if bins[1][1] != bins[2][0]:
-            raise ValueError()  # TODO test
-        if bins[2][1] is not None:
-            raise ValueError()  # TODO test
-
-        intervals = [bin[0] for bin in bins]
-        densities = [bin[2] for bin in bins]
-        return intervals, densities
-
-    @classmethod
-    def _parse_float_histogram_bin(
-        cls, data: dict[str, float]
-    ) -> tuple[float, float | None, float]:
-        start: float | None = None
-        end: float | None = None
-        density: float | None = None
-
-        for key, val in data.items():
-            if key == "start":
-                start = float(val)
-            elif key == "end":
-                end = float(val)
-            elif key == "density":
-                density = float(val)
-            else:
-                raise ValueError()  # TODO test
-
-        if start is None:
-            raise ValueError()  # TODO test
-        if density is None:
-            raise ValueError()  # TODO test
-
-        return start, end, density
-
-    @classmethod
-    def _parse_float_histogram_percentiles(cls, data: dict[str, Any]) -> float:
-        p75: float | None = None
-
-        for key, val in data.items():
-            if key == "p75":
-                p75 = float(val)
-            else:
-                raise ValueError()  # TODO test
-
-        if p75 is None:
-            raise ValueError()  # TODO test
-
-        return p75
 
 
 class CruxError:
