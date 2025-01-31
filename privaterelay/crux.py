@@ -12,7 +12,7 @@ from collections import deque
 from collections.abc import Iterable
 from datetime import date
 from itertools import product
-from typing import Any, Literal, NamedTuple, cast, get_args
+from typing import Any, Generic, Literal, NamedTuple, Self, TypeVar, cast, get_args
 
 import requests
 
@@ -308,10 +308,27 @@ class CruxPercentiles:
         return CruxPercentiles(p75=p75)
 
 
-class CruxFloatHistogram:
+FloatOrInt = TypeVar("FloatOrInt", float, int)
+
+
+class GenericCruxHistogram(Generic[FloatOrInt]):
+    """
+    Generic base class for CrUX histograms.
+
+    CrUX histograms have 3 intervals:
+    * "Good" (intervals[0] to intervals[1])
+    * "Needs Improvement" (intervals[1] to intervals[2])
+    * "Poor" (intervals[2] and above)
+
+    The densities are the fraction of traffic in that interval, and add up to ~1.0
+
+    Most histograms have interval boundaries in integer milliseconds.
+    One (cumulative layout shift) has boundaries with unitless float values.
+    """
+
     def __init__(
         self,
-        intervals: list[float],
+        intervals: list[FloatOrInt],
         densities: list[float],
         percentiles: CruxPercentiles,
     ) -> None:
@@ -323,7 +340,7 @@ class CruxFloatHistogram:
         if not (0.998 < total < 1.002):
             raise ValueError(f"sum(densities) should be 1.0, is {total}")
 
-        self.intervals = intervals
+        self.intervals: list[FloatOrInt] = intervals
         self.densities = densities
         self.percentiles = percentiles
 
@@ -337,21 +354,21 @@ class CruxFloatHistogram:
 
     def __eq__(self, other: Any) -> bool:
         return (
-            isinstance(other, CruxFloatHistogram)
+            isinstance(other, GenericCruxHistogram)
             and self.intervals == other.intervals
             and self.densities == other.densities
             and self.percentiles == other.percentiles
         )
 
     @classmethod
-    def from_raw_query(cls, data: dict[str, Any]) -> CruxFloatHistogram:
-        intervals: list[float] = []
+    def from_raw_query(cls, data: dict[str, Any]) -> Self:
+        intervals: list[FloatOrInt] = []
         densities: list[float] = []
         percentiles: CruxPercentiles | None = None
 
         for key, val in data.items():
             if key == "histogram":
-                intervals, densities = cls._parse_float_histogram_bin_list(val)
+                intervals, densities = cls._parse_bin_list(val)
             elif key == "percentiles":
                 percentiles = CruxPercentiles.from_raw_query(val)
             else:
@@ -362,17 +379,15 @@ class CruxFloatHistogram:
         if percentiles is None:
             raise ValueError("No key 'percentiles'")
 
-        return CruxFloatHistogram(
-            intervals=intervals, densities=densities, percentiles=percentiles
-        )
+        return cls(intervals=intervals, densities=densities, percentiles=percentiles)
 
     @classmethod
-    def _parse_float_histogram_bin_list(
-        cls, data: list[dict[str, float]]
-    ) -> tuple[list[float], list[float]]:
-        bins: list[tuple[float, float | None, float]] = []
+    def _parse_bin_list(
+        cls, data: list[dict[str, Any]]
+    ) -> tuple[list[FloatOrInt], list[float]]:
+        bins: list[tuple[FloatOrInt, FloatOrInt | None, float]] = []
         for bin in data:
-            bins.append(cls._parse_float_histogram_bin(bin))
+            bins.append(cls._parse_bin(bin))
 
         if len(bins) != 3:
             raise ValueError(f"Expected 3 bins, got {len(bins)}")
@@ -392,18 +407,22 @@ class CruxFloatHistogram:
         return intervals, densities
 
     @classmethod
-    def _parse_float_histogram_bin(
-        cls, data: dict[str, float]
-    ) -> tuple[float, float | None, float]:
-        start: float | None = None
-        end: float | None = None
+    def _convert(cls, val: Any) -> FloatOrInt:
+        raise NotImplementedError()
+
+    @classmethod
+    def _parse_bin(
+        cls, data: dict[str, Any]
+    ) -> tuple[FloatOrInt, FloatOrInt | None, float]:
+        start: FloatOrInt | None = None
+        end: FloatOrInt | None = None
         density: float | None = None
 
         for key, val in data.items():
             if key == "start":
-                start = float(val)
+                start = cls._convert(val)
             elif key == "end":
-                end = float(val)
+                end = cls._convert(val)
             elif key == "density":
                 density = float(val)
             else:
@@ -417,17 +436,44 @@ class CruxFloatHistogram:
         return start, end, density
 
 
+class CruxHistogram(GenericCruxHistogram[int]):
+    """
+    Represents a CrUX Histogram with millisecond intervals.
+
+    See GenericCruxHistogram for more information.
+    """
+
+    @classmethod
+    def _convert(cls, val: Any) -> int:
+        return int(val)
+
+
+class CruxFloatHistogram(GenericCruxHistogram[float]):
+    """
+    Represents a CrUX Histogram with unitless float intervals.
+
+    This is just used by cumulative layout shift.
+    See GenericCruxHistogram for more information.
+    """
+
+    @classmethod
+    def _convert(cls, val: Any) -> float:
+        return float(val)
+
+
 class CruxResult:
     def __init__(
         self,
         key: CruxRecordKey,
         first_date: date,
         last_date: date,
+        experimental_time_to_first_byte: CruxHistogram | None = None,
         cumulative_layout_shift: CruxFloatHistogram | None = None,
     ) -> None:
         self.key = key
         self.first_date = first_date
         self.last_date = last_date
+        self.experimental_time_to_first_byte = experimental_time_to_first_byte
         self.cumulative_layout_shift = cumulative_layout_shift
 
     def __repr__(self) -> str:
@@ -436,6 +482,11 @@ class CruxResult:
             f"first_date={self.first_date!r}",
             f"last_date={self.last_date!r}",
         ]
+        if self.experimental_time_to_first_byte is not None:
+            args.append(
+                "experimental_time_to_first_byte="
+                f"{self.experimental_time_to_first_byte!r}"
+            )
         if self.cumulative_layout_shift is not None:
             args.append(f"cumulative_layout_shift={self.cumulative_layout_shift!r}")
         return f"{self.__class__.__name__}({', '.join(args)})"
@@ -446,6 +497,8 @@ class CruxResult:
             and self.key == other.key
             and self.first_date == other.first_date
             and self.last_date == other.last_date
+            and self.experimental_time_to_first_byte
+            == other.experimental_time_to_first_byte
             and self.cumulative_layout_shift == other.cumulative_layout_shift
         )
 
@@ -470,11 +523,12 @@ class CruxResult:
             key=record.key,
             first_date=record.first_date,
             last_date=record.last_date,
+            experimental_time_to_first_byte=record.metrics.experimental_time_to_first_byte,
             cumulative_layout_shift=record.metrics.cumulative_layout_shift,
         )
 
     class _RecordMetrics(NamedTuple):
-        # experimental_time_to_first_byte: CruxHistogram | None = None
+        experimental_time_to_first_byte: CruxHistogram | None = None
         # first_contentful_paint: CruxHistogram | None = None
         # form_factors: CruxFractions | None = None
         # interaction_to_next_paint: CruxHistogram | None = None
@@ -566,16 +620,20 @@ class CruxResult:
 
     @classmethod
     def _parse_metrics(cls, data: dict[str, Any]) -> CruxResult._RecordMetrics:
+        experimental_time_to_first_byte: CruxHistogram | None = None
         cumulative_layout_shift: CruxFloatHistogram | None = None
 
         for key, val in data.items():
-            if key == "cumulative_layout_shift":
+            if key == "experimental_time_to_first_byte":
+                experimental_time_to_first_byte = CruxHistogram.from_raw_query(val)
+            elif key == "cumulative_layout_shift":
                 cumulative_layout_shift = CruxFloatHistogram.from_raw_query(val)
             else:
                 raise ValueError(f"In metrics, unknown key {key!r}")
 
         return CruxResult._RecordMetrics(
-            cumulative_layout_shift=cumulative_layout_shift
+            experimental_time_to_first_byte=experimental_time_to_first_byte,
+            cumulative_layout_shift=cumulative_layout_shift,
         )
 
 

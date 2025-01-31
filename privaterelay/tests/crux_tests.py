@@ -10,6 +10,7 @@ import responses
 from ..crux import (
     CruxApiRequester,
     CruxFloatHistogram,
+    CruxHistogram,
     CruxPercentiles,
     CruxQuery,
     CruxQuerySpecification,
@@ -219,15 +220,24 @@ _BASIC_REQUEST = StubbedRequest(
 
 
 def create_crux_api_record(query: CruxQuery) -> dict[str, Any]:
-    """Create a test CrUX API record based on the query"""
+    """Create a test CrUX API record based on 2025-01-27 data and the query"""
 
     key = {"origin": query.origin}
 
     assert isinstance(query.metrics, list)
     metrics: dict[str, Any] = {}
     for metric in query.metrics:
-        if metric == "cumulative_layout_shift":
-            data = {
+        if metric == "experimental_time_to_first_byte":
+            metrics[metric] = {
+                "histogram": [
+                    {"start": 0, "end": 800, "density": 0.7425},
+                    {"start": 800, "end": 1800, "density": 0.1969},
+                    {"start": 1800, "density": 0.0606},
+                ],
+                "percentiles": {"p75": 817},
+            }
+        elif metric == "cumulative_layout_shift":
+            metrics[metric] = {
                 "histogram": [
                     {"start": "0.00", "end": "0.10", "density": 0.8077},
                     {"start": "0.10", "end": "0.25", "density": 0.1003},
@@ -235,7 +245,6 @@ def create_crux_api_record(query: CruxQuery) -> dict[str, Any]:
                 ],
                 "percentiles": {"p75": "0.07"},
             }
-            metrics[metric] = data
         else:
             raise ValueError(f"need handler for metric {metric}")
 
@@ -270,7 +279,7 @@ def test_crux_api_requester_raw_query_success() -> None:
     assert data == record
 
 
-def test_crux_result_from_raw_query_origin_query() -> None:
+def test_crux_result_from_raw_query_basic_query() -> None:
     record = create_crux_api_record(_BASIC_QUERY)
     result = CruxResult.from_raw_query(record)
     expected = CruxResult(
@@ -279,6 +288,25 @@ def test_crux_result_from_raw_query_origin_query() -> None:
             intervals=[0.0, 0.1, 0.25],
             densities=[0.8077, 0.1003, 0.092],
             percentiles=CruxPercentiles(p75=0.07),
+        ),
+        first_date=date.today() - timedelta(days=30),
+        last_date=date.today() - timedelta(days=2),
+    )
+    assert result == expected
+
+
+def test_crux_result_from_raw_query_experimental_time_to_first_byte() -> None:
+    query = CruxQuery(
+        origin="https://example.com", metrics=["experimental_time_to_first_byte"]
+    )
+    record = create_crux_api_record(query)
+    result = CruxResult.from_raw_query(record)
+    expected = CruxResult(
+        key=CruxRecordKey(origin="https://example.com"),
+        experimental_time_to_first_byte=CruxHistogram(
+            intervals=[0, 800, 1800],
+            densities=[0.7425, 0.1969, 0.0606],
+            percentiles=CruxPercentiles(p75=817),
         ),
         first_date=date.today() - timedelta(days=30),
         last_date=date.today() - timedelta(days=2),
