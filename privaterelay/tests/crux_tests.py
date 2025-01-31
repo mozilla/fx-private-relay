@@ -10,6 +10,7 @@ import responses
 from ..crux import (
     CruxApiRequester,
     CruxFloatHistogram,
+    CruxPercentiles,
     CruxQuery,
     CruxQuerySpecification,
     CruxRecordKey,
@@ -275,7 +276,9 @@ def test_crux_result_from_raw_query_origin_query() -> None:
     expected = CruxResult(
         key=CruxRecordKey(origin="https://example.com"),
         cumulative_layout_shift=CruxFloatHistogram(
-            intervals=[0.0, 0.1, 0.25], densities=[0.8077, 0.1003, 0.092], p75=0.07
+            intervals=[0.0, 0.1, 0.25],
+            densities=[0.8077, 0.1003, 0.092],
+            percentiles=CruxPercentiles(p75=0.07),
         ),
         first_date=date.today() - timedelta(days=30),
         last_date=date.today() - timedelta(days=2),
@@ -382,6 +385,22 @@ def test_crux_record_key_from_raw_query_unknown_key_raises() -> None:
         CruxRecordKey.from_raw_query({"origin": "https://example.com", "foo": "bar"})
 
 
+def test_crux_percentiles_from_raw_query() -> None:
+    percentiles = CruxPercentiles.from_raw_query({"p75": "0.07"})
+    assert repr(percentiles) == "CruxPercentiles(p75=0.07)"
+    assert percentiles == CruxPercentiles(p75=0.07)
+
+
+def test_crux_percentiles_from_raw_query_no_p75_raises() -> None:
+    with pytest.raises(ValueError, match="Percentiles has no key 'p75'"):
+        CruxPercentiles.from_raw_query({})
+
+
+def test_crux_percentiles_from_raw_query_extra_percentile_raises() -> None:
+    with pytest.raises(ValueError, match="Percentiles has unknown key 'p50'"):
+        CruxPercentiles.from_raw_query({"p50": "0.5", "p75": "0.75"})
+
+
 def test_crux_float_histogram_from_raw_query() -> None:
     data = {
         "histogram": [
@@ -395,10 +414,12 @@ def test_crux_float_histogram_from_raw_query() -> None:
     assert repr(histogram) == (
         "CruxFloatHistogram(intervals=[0.0, 0.1, 0.25],"
         " densities=[0.8077, 0.1003, 0.092],"
-        " p75=0.07)"
+        " percentiles=CruxPercentiles(p75=0.07))"
     )
     assert histogram == CruxFloatHistogram(
-        intervals=[0.0, 0.1, 0.25], densities=[0.8077, 0.1003, 0.092], p75=0.07
+        intervals=[0.0, 0.1, 0.25],
+        densities=[0.8077, 0.1003, 0.092],
+        percentiles=CruxPercentiles(p75=0.07),
     )
 
 
@@ -506,27 +527,21 @@ def test_crux_float_histogram_from_raw_query_extra_histogram_key_raises() -> Non
         CruxFloatHistogram.from_raw_query(data)
 
 
-def test_crux_float_histogram_from_raw_query_no_p75_raises() -> None:
-    with pytest.raises(ValueError, match="Percentiles has no key 'p75'"):
-        CruxFloatHistogram.from_raw_query({"percentiles": {}})
-
-
-def test_crux_float_histogram_from_raw_query_extra_percentile_raises() -> None:
-    with pytest.raises(ValueError, match="Percentiles has unknown key 'p50'"):
-        CruxFloatHistogram.from_raw_query(
-            {"percentiles": {"p50": "0.5", "p75": "0.75"}}
-        )
-
-
 def test_crux_float_histogram_short_intervals_raises() -> None:
     with pytest.raises(ValueError, match=re.escape("len(intervals) should be 3, is 2")):
-        CruxFloatHistogram(intervals=[0.0, 1.0], densities=[0.9, 0.09, 0.01], p75=0.5)
+        CruxFloatHistogram(
+            intervals=[0.0, 1.0],
+            densities=[0.9, 0.09, 0.01],
+            percentiles=CruxPercentiles(p75=0.5),
+        )
 
 
 def test_crux_float_histogram_long_densities_raises() -> None:
     with pytest.raises(ValueError, match=re.escape("len(densities) should be 3, is 4")):
         CruxFloatHistogram(
-            intervals=[0.0, 1.0, 2.0], densities=[0.9, 0.09, 0.01, 0.0], p75=0.5
+            intervals=[0.0, 1.0, 2.0],
+            densities=[0.9, 0.09, 0.01, 0.0],
+            percentiles=CruxPercentiles(p75=0.5),
         )
 
 
@@ -535,7 +550,9 @@ def test_crux_float_histogram_high_density_total_raises() -> None:
         ValueError, match=re.escape("sum(densities) should be 1.0, is 1.1")
     ):
         CruxFloatHistogram(
-            intervals=[0.0, 1.0, 2.0], densities=[0.9, 0.09, 0.11], p75=0.5
+            intervals=[0.0, 1.0, 2.0],
+            densities=[0.9, 0.09, 0.11],
+            percentiles=CruxPercentiles(p75=0.5),
         )
 
 

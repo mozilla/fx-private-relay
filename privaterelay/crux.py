@@ -282,9 +282,38 @@ class CruxRecordKey:
         return CruxRecordKey(origin=origin, url=url, form_factor=form_factor)
 
 
+class CruxPercentiles:
+    def __init__(self, p75: float) -> None:
+        self.p75 = p75
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(p75={self.p75!r})"
+
+    def __eq__(self, other: Any) -> bool:
+        return isinstance(other, CruxPercentiles) and self.p75 == other.p75
+
+    @classmethod
+    def from_raw_query(cls, data: dict[str, Any]) -> CruxPercentiles:
+        p75: float | None = None
+
+        for key, val in data.items():
+            if key == "p75":
+                p75 = float(val)
+            else:
+                raise ValueError(f"Percentiles has unknown key {key!r}")
+
+        if p75 is None:
+            raise ValueError("Percentiles has no key 'p75'")
+
+        return CruxPercentiles(p75=p75)
+
+
 class CruxFloatHistogram:
     def __init__(
-        self, intervals: list[float], densities: list[float], p75: float
+        self,
+        intervals: list[float],
+        densities: list[float],
+        percentiles: CruxPercentiles,
     ) -> None:
         if len(intervals) != 3:
             raise ValueError(f"len(intervals) should be 3, is {len(intervals)}")
@@ -296,14 +325,14 @@ class CruxFloatHistogram:
 
         self.intervals = intervals
         self.densities = densities
-        self.p75 = p75
+        self.percentiles = percentiles
 
     def __repr__(self) -> str:
         return (
             f"{self.__class__.__name__}("
             f"intervals={self.intervals!r}, "
             f"densities={self.densities!r}, "
-            f"p75={self.p75!r})"
+            f"percentiles={self.percentiles!r})"
         )
 
     def __eq__(self, other: Any) -> bool:
@@ -311,29 +340,31 @@ class CruxFloatHistogram:
             isinstance(other, CruxFloatHistogram)
             and self.intervals == other.intervals
             and self.densities == other.densities
-            and self.p75 == other.p75
+            and self.percentiles == other.percentiles
         )
 
     @classmethod
     def from_raw_query(cls, data: dict[str, Any]) -> CruxFloatHistogram:
         intervals: list[float] = []
         densities: list[float] = []
-        p75: float | None = None
+        percentiles: CruxPercentiles | None = None
 
         for key, val in data.items():
             if key == "histogram":
                 intervals, densities = cls._parse_float_histogram_bin_list(val)
             elif key == "percentiles":
-                p75 = cls._parse_float_histogram_percentiles(val)
+                percentiles = CruxPercentiles.from_raw_query(val)
             else:
                 raise ValueError(f"Unknown key {key!r}")
 
         if not intervals or not densities:
             raise ValueError("No key 'histogram'")
-        if p75 is None:
+        if percentiles is None:
             raise ValueError("No key 'percentiles'")
 
-        return CruxFloatHistogram(intervals=intervals, densities=densities, p75=p75)
+        return CruxFloatHistogram(
+            intervals=intervals, densities=densities, percentiles=percentiles
+        )
 
     @classmethod
     def _parse_float_histogram_bin_list(
@@ -384,21 +415,6 @@ class CruxFloatHistogram:
             raise ValueError("Bin has no key 'density'")
 
         return start, end, density
-
-    @classmethod
-    def _parse_float_histogram_percentiles(cls, data: dict[str, Any]) -> float:
-        p75: float | None = None
-
-        for key, val in data.items():
-            if key == "p75":
-                p75 = float(val)
-            else:
-                raise ValueError(f"Percentiles has unknown key {key!r}")
-
-        if p75 is None:
-            raise ValueError("Percentiles has no key 'p75'")
-
-        return p75
 
 
 class CruxResult:
@@ -458,6 +474,12 @@ class CruxResult:
         )
 
     class _RecordMetrics(NamedTuple):
+        # experimental_time_to_first_byte: CruxHistogram | None = None
+        # first_contentful_paint: CruxHistogram | None = None
+        # form_factors: CruxFractions | None = None
+        # interaction_to_next_paint: CruxHistogram | None = None
+        # largest_contentful_paint: CruxHistogram | None = None
+        # round_trip_time: CruxPercentiles | None = None
         cumulative_layout_shift: CruxFloatHistogram | None = None
 
     class _RecordItems(NamedTuple):
