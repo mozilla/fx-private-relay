@@ -35,6 +35,7 @@ import { setCookie } from "../../../functions/cookies";
 import { useGaEvent } from "../../../hooks/gaEvent";
 import { useL10n } from "../../../hooks/l10n";
 import { MenuPopupProps, useMenu } from "../../../hooks/menu";
+import React from "react";
 
 export type Props = {
   style: string;
@@ -162,7 +163,7 @@ export const UserMenu = (props: Props) => {
           {l10n.getString("nav-profile-settings")}
         </Link>
       </Item>
-      {contactLink as JSX.Element}
+      {contactLink as React.JSX.Element}
       <Item key={itemKeys.help} textValue={l10n.getString("nav-profile-help")}>
         <a
           ref={helpLinkRef}

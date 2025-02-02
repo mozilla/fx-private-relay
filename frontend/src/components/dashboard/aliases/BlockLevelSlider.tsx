@@ -49,7 +49,7 @@ const onlyThumbIndex = 0;
 
 export const BlockLevelSlider = (props: Props) => {
   const l10n = useL10n();
-  const trackRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement | null>(null);
   const gaEvent = useGaEvent();
   const numberFormatter = new SliderValueFormatter(l10n);
   const sliderSettings: Parameters<typeof useSliderState>[0] = {
@@ -209,7 +209,7 @@ export const BlockLevelSlider = (props: Props) => {
 
 type ThumbProps = {
   sliderState: SliderState;
-  trackRef: React.RefObject<HTMLDivElement>;
+  trackRef: React.RefObject<HTMLDivElement | null>;
 };
 const Thumb = (props: ThumbProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -303,14 +303,14 @@ type PromotionalTrackStopGhostProps = {
  */
 const PromotionalTrackStopGhost = (props: PromotionalTrackStopGhostProps) => {
   const overlayTriggerState = useOverlayTriggerState({});
-  const triggerRef = useRef<HTMLButtonElement>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
 
   const { triggerProps, overlayProps } = useOverlayTrigger(
     {
       type: "dialog",
     },
     overlayTriggerState,
-    triggerRef,
+    triggerRef as React.RefObject<HTMLButtonElement>,
   );
   const { buttonProps } = useButton(triggerProps, triggerRef);
 
@@ -346,7 +346,7 @@ const PromotionalTrackStopGhost = (props: PromotionalTrackStopGhostProps) => {
 
 type PromotionalTooltipProps = {
   onClose: () => void;
-  triggerRef: React.RefObject<HTMLButtonElement>;
+  triggerRef: React.RefObject<HTMLButtonElement | null>;
   overlayProps: HTMLAttributes<HTMLDivElement>;
   premiumAvailableInCountry: boolean;
 };

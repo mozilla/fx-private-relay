@@ -1,3 +1,4 @@
+import React from "react";
 import styles from "./SignUpButton.module.scss";
 import { setCookie } from "../../../functions/cookies";
 import { useGaEvent } from "../../../hooks/gaEvent";
@@ -7,7 +8,7 @@ import { useL10n } from "../../../hooks/l10n";
 export type Props = {
   className: string;
 };
-export const SignUpButton = (props: Props): JSX.Element => {
+export const SignUpButton = (props: Props): React.JSX.Element => {
   const l10n = useL10n();
   const signUpFxaFlowTracker = useFxaFlowTracker({
     category: "Sign In",
