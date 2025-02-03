@@ -9,6 +9,7 @@ import responses
 
 from ..crux import (
     CruxApiRequester,
+    CruxCollectionPeriod,
     CruxFloatHistogram,
     CruxFloatPercentiles,
     CruxFractions,
@@ -328,8 +329,10 @@ def test_crux_result_from_raw_query_basic_query() -> None:
                 percentiles=CruxFloatPercentiles(p75=0.07),
             )
         ),
-        first_date=date.today() - timedelta(days=30),
-        last_date=date.today() - timedelta(days=2),
+        collection_period=CruxCollectionPeriod(
+            first_date=date.today() - timedelta(days=30),
+            last_date=date.today() - timedelta(days=2),
+        ),
     )
     assert result == expected
 
@@ -349,8 +352,10 @@ def test_crux_result_from_raw_query_experimental_time_to_first_byte() -> None:
                 percentiles=CruxFloatPercentiles(p75=817),
             )
         ),
-        first_date=date.today() - timedelta(days=30),
-        last_date=date.today() - timedelta(days=2),
+        collection_period=CruxCollectionPeriod(
+            first_date=date.today() - timedelta(days=30),
+            last_date=date.today() - timedelta(days=2),
+        ),
     )
     assert result == expected
 
@@ -368,8 +373,10 @@ def test_crux_result_from_raw_query_first_contentful_paint() -> None:
                 percentiles=CruxFloatPercentiles(p75=2136),
             )
         ),
-        first_date=date.today() - timedelta(days=30),
-        last_date=date.today() - timedelta(days=2),
+        collection_period=CruxCollectionPeriod(
+            first_date=date.today() - timedelta(days=30),
+            last_date=date.today() - timedelta(days=2),
+        ),
     )
     assert result == expected
 
@@ -389,8 +396,10 @@ def test_crux_result_from_raw_query_interaction_to_next_paint() -> None:
                 percentiles=CruxFloatPercentiles(p75=102),
             )
         ),
-        first_date=date.today() - timedelta(days=30),
-        last_date=date.today() - timedelta(days=2),
+        collection_period=CruxCollectionPeriod(
+            first_date=date.today() - timedelta(days=30),
+            last_date=date.today() - timedelta(days=2),
+        ),
     )
     assert result == expected
 
@@ -410,8 +419,10 @@ def test_crux_result_from_raw_query_largest_contentful_paint() -> None:
                 percentiles=CruxFloatPercentiles(p75=2261),
             )
         ),
-        first_date=date.today() - timedelta(days=30),
-        last_date=date.today() - timedelta(days=2),
+        collection_period=CruxCollectionPeriod(
+            first_date=date.today() - timedelta(days=30),
+            last_date=date.today() - timedelta(days=2),
+        ),
     )
     assert result == expected
 
@@ -423,8 +434,10 @@ def test_crux_result_from_raw_query_round_trip_time() -> None:
     expected = CruxResult(
         key=CruxRecordKey(origin="https://example.com"),
         metrics=CruxMetrics(round_trip_time=CruxIntPercentiles(p75=138)),
-        first_date=date.today() - timedelta(days=30),
-        last_date=date.today() - timedelta(days=2),
+        collection_period=CruxCollectionPeriod(
+            first_date=date.today() - timedelta(days=30),
+            last_date=date.today() - timedelta(days=2),
+        ),
     )
     assert result == expected
 
@@ -438,8 +451,39 @@ def test_crux_result_from_raw_query_form_factors() -> None:
         metrics=CruxMetrics(
             form_factors=CruxFractions(phone=0.4959, tablet=0.0148, desktop=0.4893)
         ),
-        first_date=date.today() - timedelta(days=30),
-        last_date=date.today() - timedelta(days=2),
+        collection_period=CruxCollectionPeriod(
+            first_date=date.today() - timedelta(days=30),
+            last_date=date.today() - timedelta(days=2),
+        ),
+    )
+    assert result == expected
+
+
+def test_crux_result_from_raw_query_origin_url_normalization() -> None:
+    record = create_crux_api_record(_BASIC_QUERY)
+    assert not (origin := record["record"]["key"]["origin"]).endswith("/")
+    record["record"]["urlNormalizationDetails"] = {
+        "originalUrl": origin + "/",
+        "normalizedUrl": origin,
+    }
+    result = CruxResult.from_raw_query(record)
+    expected = CruxResult(
+        key=CruxRecordKey(origin="https://example.com"),
+        metrics=CruxMetrics(
+            cumulative_layout_shift=CruxFloatHistogram(
+                intervals=[0.0, 0.1, 0.25],
+                densities=[0.8077, 0.1003, 0.092],
+                percentiles=CruxFloatPercentiles(p75=0.07),
+            )
+        ),
+        collection_period=CruxCollectionPeriod(
+            first_date=date.today() - timedelta(days=30),
+            last_date=date.today() - timedelta(days=2),
+        ),
+        url_normalization_details=CruxUrlNormalizationDetails(
+            original_url=origin + "/",
+            normalized_url=origin,
+        ),
     )
     assert result == expected
 
@@ -469,47 +513,11 @@ def test_crux_result_from_raw_query_unknown_record_key_raises() -> None:
         CruxResult.from_raw_query(record)
 
 
-@pytest.mark.parametrize("field", ("firstDate", "lastDate"))
-def test_crux_result_from_raw_query_no_date_raises(field: str) -> None:
-    record = create_crux_api_record(_BASIC_QUERY)
-    del record["record"]["collectionPeriod"][field]
-    with pytest.raises(ValueError, match=f"In collectionPeriod, no key '{field}'"):
-        CruxResult.from_raw_query(record)
-
-
-@pytest.mark.parametrize("field", ["year", "month", "day"])
-def test_crux_result_from_raw_query_missing_date_field_raises(field: str) -> None:
-    record = create_crux_api_record(_BASIC_QUERY)
-    del record["record"]["collectionPeriod"]["firstDate"][field]
-    with pytest.raises(ValueError, match=f"In date, no key {field!r}"):
-        CruxResult.from_raw_query(record)
-
-
-def test_crux_result_from_raw_query_unknown_date_field_raises() -> None:
-    record = create_crux_api_record(_BASIC_QUERY)
-    record["record"]["collectionPeriod"]["firstDate"]["hour"] = 12
-    with pytest.raises(ValueError, match="In date, unknown key 'hour'"):
-        CruxResult.from_raw_query(record)
-
-
 def test_crux_result_from_raw_query_unknown_metric_raises() -> None:
     record = create_crux_api_record(_BASIC_QUERY)
     record["record"]["metrics"]["pizzazz"] = "on fleek"
     with pytest.raises(ValueError, match="In metrics, unknown key 'pizzazz'"):
         CruxResult.from_raw_query(record)
-
-
-def test_crux_result_from_raw_query_origin_url_normalization() -> None:
-    record = create_crux_api_record(_BASIC_QUERY)
-    assert not (origin := record["record"]["key"]["origin"]).endswith("/")
-    record["record"]["urlNormalizationDetails"] = {
-        "originalUrl": origin + "/",
-        "normalizedUrl": origin,
-    }
-    result = CruxResult.from_raw_query(record)
-    assert result.url_normalization_details == CruxUrlNormalizationDetails(
-        original_url=origin + "/", normalized_url=origin
-    )
 
 
 def test_crux_record_key_from_raw_query_origin_only() -> None:
@@ -758,6 +766,64 @@ def test_crux_fractions_from_raw_query_extra_device_key_raises() -> None:
     data = {"fractions": {"phone": 0.5, "tablet": 0.1, "desktop": 0.4, "vr": 0.001}}
     with pytest.raises(ValueError, match="In fractions, unknown key 'vr'"):
         CruxFractions.from_raw_query(data)
+
+
+def test_crux_collection_period_from_raw_query() -> None:
+    data = {
+        "firstDate": {"year": 2024, "month": 12, "day": 31},
+        "lastDate": {"year": 2025, "month": 1, "day": 27},
+    }
+    period = CruxCollectionPeriod.from_raw_query(data)
+    assert repr(period) == (
+        "CruxCollectionPeriod(first_date=datetime.date(2024, 12, 31),"
+        " last_date=datetime.date(2025, 1, 27))"
+    )
+    assert period == CruxCollectionPeriod(
+        first_date=date(2024, 12, 31), last_date=date(2025, 1, 27)
+    )
+
+
+@pytest.mark.parametrize("field", ("firstDate", "lastDate"))
+def test_crux_collection_period_from_raw_query_no_date_raises(field: str) -> None:
+    data = {
+        "firstDate": {"year": 2024, "month": 12, "day": 31},
+        "lastDate": {"year": 2025, "month": 1, "day": 27},
+    }
+    del data[field]
+    with pytest.raises(ValueError, match=f"In collectionPeriod, no key '{field}'"):
+        CruxCollectionPeriod.from_raw_query(data)
+
+
+def test_crux_collection_period_from_raw_query_unknown_date_raises() -> None:
+    data = {
+        "first_date": {"year": 2024, "month": 12, "day": 31},
+    }
+    with pytest.raises(
+        ValueError, match="In collectionPeriod, unknown key 'first_date'"
+    ):
+        CruxCollectionPeriod.from_raw_query(data)
+
+
+@pytest.mark.parametrize("field", ["year", "month", "day"])
+def test_crux_collection_period_from_raw_query_missing_date_field_raises(
+    field: str,
+) -> None:
+    data = {
+        "firstDate": {"year": 2024, "month": 12, "day": 31},
+        "lastDate": {"year": 2025, "month": 1, "day": 27},
+    }
+    del data["firstDate"][field]
+    with pytest.raises(ValueError, match=f"In date, no key {field!r}"):
+        CruxCollectionPeriod.from_raw_query(data)
+
+
+def test_crux_collection_period_unknown_date_field_raises() -> None:
+    data = {
+        "firstDate": {"year": 2024, "month": 12, "day": 31, "hour": 12},
+        "lastDate": {"year": 2025, "month": 1, "day": 27},
+    }
+    with pytest.raises(ValueError, match="In date, unknown key 'hour'"):
+        CruxCollectionPeriod.from_raw_query(data)
 
 
 def test_crux_url_normalization_details_from_raw_query() -> None:

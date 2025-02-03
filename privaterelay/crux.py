@@ -669,6 +669,14 @@ class CruxUrlNormalizationDetails:
         ]
         return f"{self.__class__.__name__}({', '.join(args)})"
 
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, CruxUrlNormalizationDetails):
+            return NotImplemented
+        return (
+            self.original_url == other.original_url
+            and self.normalized_url == other.normalized_url
+        )
+
     @classmethod
     def from_raw_query(cls, data: dict[str, Any]) -> Self:
         original_url: str | None = None
@@ -689,116 +697,26 @@ class CruxUrlNormalizationDetails:
 
         return cls(original_url=original_url, normalized_url=normalized_url)
 
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, CruxUrlNormalizationDetails):
-            return NotImplemented
-        return (
-            self.original_url == other.original_url
-            and self.normalized_url == other.normalized_url
-        )
 
-
-class CruxResult:
-    def __init__(
-        self,
-        key: CruxRecordKey,
-        metrics: CruxMetrics,
-        first_date: date,
-        last_date: date,
-        url_normalization_details: CruxUrlNormalizationDetails | None = None,
-    ) -> None:
-        self.key = key
-        self.metrics = metrics
+class CruxCollectionPeriod:
+    def __init__(self, first_date: date, last_date: date) -> None:
         self.first_date = first_date
         self.last_date = last_date
-        self.url_normalization_details = url_normalization_details
 
     def __repr__(self) -> str:
         args = [
-            f"key={self.key!r}",
-            f"metrics={self.metrics!r}",
             f"first_date={self.first_date!r}",
             f"last_date={self.last_date!r}",
         ]
         return f"{self.__class__.__name__}({', '.join(args)})"
 
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, CruxResult):
+        if not isinstance(other, CruxCollectionPeriod):
             return NotImplemented
-        return (
-            self.key == other.key
-            and self.metrics == other.metrics
-            and self.first_date == other.first_date
-            and self.last_date == other.last_date
-        )
+        return self.first_date == other.first_date and self.last_date == other.last_date
 
     @classmethod
     def from_raw_query(cls, data: dict[str, Any]) -> Self:
-        """Parse a JSON response from the CrUX API into a CruxResult"""
-        record: CruxResult._RecordItems | None = None
-
-        for key, value in data.items():
-            if key == "record":
-                record = cls._parse_record(value)
-            else:
-                raise ValueError(f"At top level, unexpected key {key!r}")
-
-        if record is None:
-            raise ValueError("At top level, no key 'record'")
-        return cls(
-            key=record.key,
-            metrics=record.metrics,
-            first_date=record.first_date,
-            last_date=record.last_date,
-            url_normalization_details=record.url_normalization_details,
-        )
-
-    class _RecordItems(NamedTuple):
-        key: CruxRecordKey
-        first_date: date
-        last_date: date
-        metrics: CruxMetrics
-        url_normalization_details: CruxUrlNormalizationDetails | None = None
-
-    @classmethod
-    def _parse_record(cls, record: dict[str, Any]) -> _RecordItems:
-        record_key: CruxRecordKey | None = None
-        metrics: CruxMetrics | None = None
-        first_date: date | None = None
-        last_date: date | None = None
-        url_normalization_details: CruxUrlNormalizationDetails | None = None
-
-        for key, val in record.items():
-            if key == "key":
-                record_key = CruxRecordKey.from_raw_query(val)
-            elif key == "metrics":
-                metrics = CruxMetrics.from_raw_query(val)
-            elif key == "collectionPeriod":
-                first_date, last_date = cls._parse_collection_period(val)
-            elif key == "urlNormalizationDetails":
-                url_normalization_details = CruxUrlNormalizationDetails.from_raw_query(
-                    val
-                )
-            else:
-                raise ValueError(f"In record, unknown key {key!r}")
-
-        if record_key is None:
-            raise ValueError("In record, no key 'key'")
-        if metrics is None:
-            raise ValueError("In record, no key 'metrics'")
-        if first_date is None or last_date is None:
-            raise ValueError("In record, no key 'collectionPeriod'")
-
-        return CruxResult._RecordItems(
-            key=record_key,
-            metrics=metrics,
-            first_date=first_date,
-            last_date=last_date,
-            url_normalization_details=url_normalization_details,
-        )
-
-    @classmethod
-    def _parse_collection_period(cls, data: dict[str, Any]) -> tuple[date, date]:
         first_date: date | None = None
         last_date: date | None = None
 
@@ -814,7 +732,8 @@ class CruxResult:
             raise ValueError("In collectionPeriod, no key 'firstDate'")
         if last_date is None:
             raise ValueError("In collectionPeriod, no key 'lastDate'")
-        return first_date, last_date
+
+        return cls(first_date=first_date, last_date=last_date)
 
     @classmethod
     def _parse_date(cls, data: dict[str, int]) -> date:
@@ -841,6 +760,101 @@ class CruxResult:
             raise ValueError("In date, no key 'day'")
 
         return date(year=year, month=month, day=day)
+
+
+class CruxResult:
+    def __init__(
+        self,
+        key: CruxRecordKey,
+        metrics: CruxMetrics,
+        collection_period: CruxCollectionPeriod,
+        url_normalization_details: CruxUrlNormalizationDetails | None = None,
+    ) -> None:
+        self.key = key
+        self.metrics = metrics
+        self.collection_period = collection_period
+        self.url_normalization_details = url_normalization_details
+
+    def __repr__(self) -> str:
+        args = [
+            f"key={self.key!r}",
+            f"metrics={self.metrics!r}",
+            f"collection_period={self.collection_period!r}",
+        ]
+        if self.url_normalization_details:
+            args.append(f"url_normalization_details={self.url_normalization_details!r}")
+        return f"{self.__class__.__name__}({', '.join(args)})"
+
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, CruxResult):
+            return NotImplemented
+        return (
+            self.key == other.key
+            and self.metrics == other.metrics
+            and self.collection_period == other.collection_period
+            and self.url_normalization_details == other.url_normalization_details
+        )
+
+    @classmethod
+    def from_raw_query(cls, data: dict[str, Any]) -> Self:
+        """Parse a JSON response from the CrUX API into a CruxResult"""
+        record: CruxResult._RecordItems | None = None
+
+        for key, value in data.items():
+            if key == "record":
+                record = cls._parse_record(value)
+            else:
+                raise ValueError(f"At top level, unexpected key {key!r}")
+
+        if record is None:
+            raise ValueError("At top level, no key 'record'")
+        return cls(
+            key=record.key,
+            metrics=record.metrics,
+            collection_period=record.collection_period,
+            url_normalization_details=record.url_normalization_details,
+        )
+
+    class _RecordItems(NamedTuple):
+        key: CruxRecordKey
+        metrics: CruxMetrics
+        collection_period: CruxCollectionPeriod
+        url_normalization_details: CruxUrlNormalizationDetails | None = None
+
+    @classmethod
+    def _parse_record(cls, record: dict[str, Any]) -> _RecordItems:
+        record_key: CruxRecordKey | None = None
+        metrics: CruxMetrics | None = None
+        collection_period: CruxCollectionPeriod | None = None
+        url_normalization_details: CruxUrlNormalizationDetails | None = None
+
+        for key, val in record.items():
+            if key == "key":
+                record_key = CruxRecordKey.from_raw_query(val)
+            elif key == "metrics":
+                metrics = CruxMetrics.from_raw_query(val)
+            elif key == "collectionPeriod":
+                collection_period = CruxCollectionPeriod.from_raw_query(val)
+            elif key == "urlNormalizationDetails":
+                url_normalization_details = CruxUrlNormalizationDetails.from_raw_query(
+                    val
+                )
+            else:
+                raise ValueError(f"In record, unknown key {key!r}")
+
+        if record_key is None:
+            raise ValueError("In record, no key 'key'")
+        if metrics is None:
+            raise ValueError("In record, no key 'metrics'")
+        if collection_period is None:
+            raise ValueError("In record, no key 'collectionPeriod'")
+
+        return CruxResult._RecordItems(
+            key=record_key,
+            metrics=metrics,
+            collection_period=collection_period,
+            url_normalization_details=url_normalization_details,
+        )
 
 
 class CruxError:
