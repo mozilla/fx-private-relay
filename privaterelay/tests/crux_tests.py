@@ -19,6 +19,7 @@ from ..crux import (
     CruxQuerySpecification,
     CruxRecordKey,
     CruxResult,
+    CruxUrlNormalizationDetails,
     RequestsEngine,
     StubbedEngine,
     StubbedRequest,
@@ -498,6 +499,19 @@ def test_crux_result_from_raw_query_unknown_metric_raises() -> None:
         CruxResult.from_raw_query(record)
 
 
+def test_crux_result_from_raw_query_origin_url_normalization() -> None:
+    record = create_crux_api_record(_BASIC_QUERY)
+    assert not (origin := record["record"]["key"]["origin"]).endswith("/")
+    record["record"]["urlNormalizationDetails"] = {
+        "originalUrl": origin + "/",
+        "normalizedUrl": origin,
+    }
+    result = CruxResult.from_raw_query(record)
+    assert result.url_normalization_details == CruxUrlNormalizationDetails(
+        original_url=origin + "/", normalized_url=origin
+    )
+
+
 def test_crux_record_key_from_raw_query_origin_only() -> None:
     key = CruxRecordKey.from_raw_query({"origin": "https://example.com"})
     assert repr(key) == "CruxRecordKey(origin='https://example.com')"
@@ -746,6 +760,46 @@ def test_crux_fractions_from_raw_query_extra_device_key_raises() -> None:
         CruxFractions.from_raw_query(data)
 
 
+def test_crux_url_normalization_details_from_raw_query() -> None:
+    data = {
+        "originalUrl": "http://example.com/",
+        "normalizedUrl": "http://example.com/",
+    }
+    details = CruxUrlNormalizationDetails.from_raw_query(data)
+    assert repr(details) == (
+        "CruxUrlNormalizationDetails(original_url='http://example.com/',"
+        " normalized_url='http://example.com/')"
+    )
+    assert details == CruxUrlNormalizationDetails(
+        original_url="http://example.com/", normalized_url="http://example.com/"
+    )
+
+
+@pytest.mark.parametrize("key", ("originalUrl", "normalizedUrl"))
+def test_crux_url_normalization_details_missing_key_raises(key: str) -> None:
+    data = {
+        "originalUrl": "http://example.com/",
+        "normalizedUrl": "http://example.com/",
+    }
+    del data[key]
+    with pytest.raises(
+        ValueError, match=f"In urlNormalizationDetails, missing key {key!r}"
+    ):
+        CruxUrlNormalizationDetails.from_raw_query(data)
+
+
+def test_crux_url_normalization_details_unknown_key_raises() -> None:
+    data = {
+        "originalUrl": "http://example.com/",
+        "normalizedUrl": "http://example.com/",
+        "foo": "bar",
+    }
+    with pytest.raises(
+        ValueError, match="In urlNormalizationDetails, unknown key 'foo'"
+    ):
+        CruxUrlNormalizationDetails.from_raw_query(data)
+
+
 def create_crux_error_service_disabled() -> dict[str, Any]:
     proj_num = "1234567890"
     enable_url = (
@@ -794,7 +848,7 @@ def test_main() -> None:
     expected_request = StubbedRequest(
         url=CruxApiRequester.API_URL,
         params={"key": "API_KEY"},
-        data={"origin": "https://example.com"},
+        data={"origin": "https://example.com/"},
         timeout=CruxApiRequester.DEFAULT_TIMEOUT,
     )
     action = StubbedRequestAction(200, {"fake": "data"})

@@ -657,6 +657,47 @@ class CruxMetrics:
         )
 
 
+class CruxUrlNormalizationDetails:
+    def __init__(self, original_url: str, normalized_url: str) -> None:
+        self.original_url = original_url
+        self.normalized_url = normalized_url
+
+    def __repr__(self) -> str:
+        args = [
+            f"original_url={self.original_url!r}",
+            f"normalized_url={self.normalized_url!r}",
+        ]
+        return f"{self.__class__.__name__}({', '.join(args)})"
+
+    @classmethod
+    def from_raw_query(cls, data: dict[str, Any]) -> Self:
+        original_url: str | None = None
+        normalized_url: str | None = None
+
+        for key, val in data.items():
+            if key == "originalUrl":
+                original_url = val
+            elif key == "normalizedUrl":
+                normalized_url = val
+            else:
+                raise ValueError(f"In urlNormalizationDetails, unknown key {key!r}")
+
+        if original_url is None:
+            raise ValueError("In urlNormalizationDetails, missing key 'originalUrl'")
+        if normalized_url is None:
+            raise ValueError("In urlNormalizationDetails, missing key 'normalizedUrl'")
+
+        return cls(original_url=original_url, normalized_url=normalized_url)
+
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, CruxUrlNormalizationDetails):
+            return NotImplemented
+        return (
+            self.original_url == other.original_url
+            and self.normalized_url == other.normalized_url
+        )
+
+
 class CruxResult:
     def __init__(
         self,
@@ -664,11 +705,13 @@ class CruxResult:
         metrics: CruxMetrics,
         first_date: date,
         last_date: date,
+        url_normalization_details: CruxUrlNormalizationDetails | None = None,
     ) -> None:
         self.key = key
         self.metrics = metrics
         self.first_date = first_date
         self.last_date = last_date
+        self.url_normalization_details = url_normalization_details
 
     def __repr__(self) -> str:
         args = [
@@ -691,11 +734,7 @@ class CruxResult:
 
     @classmethod
     def from_raw_query(cls, data: dict[str, Any]) -> CruxResult:
-        """
-        Parse a JSON response from the CrUX API into a CruxResult
-
-        TODO: Handle urlNormalizationDetails
-        """
+        """Parse a JSON response from the CrUX API into a CruxResult"""
         record: CruxResult._RecordItems | None = None
 
         for key, value in data.items():
@@ -711,6 +750,7 @@ class CruxResult:
             metrics=record.metrics,
             first_date=record.first_date,
             last_date=record.last_date,
+            url_normalization_details=record.url_normalization_details,
         )
 
     class _RecordItems(NamedTuple):
@@ -718,6 +758,7 @@ class CruxResult:
         first_date: date
         last_date: date
         metrics: CruxMetrics
+        url_normalization_details: CruxUrlNormalizationDetails | None = None
 
     @classmethod
     def _parse_record(cls, record: dict[str, Any]) -> _RecordItems:
@@ -725,6 +766,7 @@ class CruxResult:
         metrics: CruxMetrics | None = None
         first_date: date | None = None
         last_date: date | None = None
+        url_normalization_details: CruxUrlNormalizationDetails | None = None
 
         for key, val in record.items():
             if key == "key":
@@ -733,6 +775,10 @@ class CruxResult:
                 metrics = CruxMetrics.from_raw_query(val)
             elif key == "collectionPeriod":
                 first_date, last_date = cls._parse_collection_period(val)
+            elif key == "urlNormalizationDetails":
+                url_normalization_details = CruxUrlNormalizationDetails.from_raw_query(
+                    val
+                )
             else:
                 raise ValueError(f"In record, unknown key {key!r}")
 
@@ -748,6 +794,7 @@ class CruxResult:
             metrics=metrics,
             first_date=first_date,
             last_date=last_date,
+            url_normalization_details=url_normalization_details,
         )
 
     @classmethod
@@ -840,7 +887,7 @@ class CruxApiRequester:
 
 
 def main(domain: str, requester: CruxApiRequester) -> str:
-    query = CruxQuerySpecification(domain).queries()[0]
+    query = CruxQuerySpecification(domain, paths=["/"]).queries()[0]
     status_code, data = requester.raw_query(query)
     return json.dumps(data)
 
