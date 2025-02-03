@@ -284,35 +284,71 @@ class CruxRecordKey:
         return CruxRecordKey(origin=origin, url=url, form_factor=form_factor)
 
 
-class CruxPercentiles:
-    def __init__(self, p75: float) -> None:
-        self.p75 = p75
+FloatOrInt = TypeVar("FloatOrInt", float, int)
+
+
+class GenericCruxPercentiles(Generic[FloatOrInt]):
+    """Generic base class for CrUX (float or int) percentiles"""
+
+    def __init__(self, p75: FloatOrInt) -> None:
+        self.p75: FloatOrInt = p75
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(p75={self.p75!r})"
 
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, CruxPercentiles):
+        if not isinstance(other, GenericCruxPercentiles):
             return NotImplemented
-        return self.p75 == other.p75
+        return bool(self.p75 == other.p75)
 
     @classmethod
-    def from_raw_query(cls, data: dict[str, Any]) -> CruxPercentiles:
-        p75: float | None = None
+    def from_raw_query(cls, data: dict[str, Any]) -> Self:
+        p75: FloatOrInt | None = None
+
+        for key, val in data.items():
+            if key == "percentiles":
+                p75 = cls._parse_percentiles(val)
+            else:
+                raise ValueError(f"Percentiles has unknown key {key!r}")
+
+        if p75 is None:
+            raise ValueError("Percentiles has no key 'percentiles'")
+
+        return cls(p75=p75)
+
+    @classmethod
+    def _convert(cls, val: Any) -> FloatOrInt:
+        raise NotImplementedError()
+
+    @classmethod
+    def _parse_percentiles(cls, data: dict[str, FloatOrInt]) -> FloatOrInt:
+        p75: FloatOrInt | None = None
 
         for key, val in data.items():
             if key == "p75":
-                p75 = float(val)
+                p75 = cls._convert(val)
             else:
                 raise ValueError(f"Percentiles has unknown key {key!r}")
 
         if p75 is None:
             raise ValueError("Percentiles has no key 'p75'")
+        return p75
 
-        return CruxPercentiles(p75=p75)
+
+class CruxFloatPercentiles(GenericCruxPercentiles[float]):
+    """Represents a CrUX percentiles with a floating point p75."""
+
+    @classmethod
+    def _convert(cls, val: Any) -> float:
+        return float(val)
 
 
-FloatOrInt = TypeVar("FloatOrInt", float, int)
+class CruxIntPercentiles(GenericCruxPercentiles[float]):
+    """Represents a CrUX percentiles with an integer p75."""
+
+    @classmethod
+    def _convert(cls, val: Any) -> int:
+        return int(val)
 
 
 class GenericCruxHistogram(Generic[FloatOrInt]):
@@ -334,7 +370,7 @@ class GenericCruxHistogram(Generic[FloatOrInt]):
         self,
         intervals: list[FloatOrInt],
         densities: list[float],
-        percentiles: CruxPercentiles,
+        percentiles: CruxFloatPercentiles,
     ) -> None:
         if len(intervals) != 3:
             raise ValueError(f"len(intervals) should be 3, is {len(intervals)}")
@@ -369,13 +405,13 @@ class GenericCruxHistogram(Generic[FloatOrInt]):
     def from_raw_query(cls, data: dict[str, Any]) -> Self:
         intervals: list[FloatOrInt] = []
         densities: list[float] = []
-        percentiles: CruxPercentiles | None = None
+        percentiles: CruxFloatPercentiles | None = None
 
         for key, val in data.items():
             if key == "histogram":
                 intervals, densities = cls._parse_bin_list(val)
             elif key == "percentiles":
-                percentiles = CruxPercentiles.from_raw_query(val)
+                percentiles = CruxFloatPercentiles.from_raw_query({"percentiles": val})
             else:
                 raise ValueError(f"Unknown key {key!r}")
 
@@ -474,13 +510,14 @@ class CruxMetrics:
         # form_factors: CruxFractions | None = None,
         interaction_to_next_paint: CruxHistogram | None = None,
         largest_contentful_paint: CruxHistogram | None = None,
-        # round_trip_time: CruxPercentiles | None = None,
+        round_trip_time: CruxIntPercentiles | None = None,
         cumulative_layout_shift: CruxFloatHistogram | None = None,
     ) -> None:
         self.experimental_time_to_first_byte = experimental_time_to_first_byte
         self.first_contentful_paint = first_contentful_paint
         self.interaction_to_next_paint = interaction_to_next_paint
         self.largest_contentful_paint = largest_contentful_paint
+        self.round_trip_time = round_trip_time
         self.cumulative_layout_shift = cumulative_layout_shift
 
     def __repr__(self) -> str:
@@ -489,6 +526,7 @@ class CruxMetrics:
             "first_contentful_paint",
             "interaction_to_next_paint",
             "largest_contentful_paint",
+            "round_trip_time",
             "cumulative_layout_shift",
         )
         args = [
@@ -507,6 +545,7 @@ class CruxMetrics:
             and self.first_contentful_paint == other.first_contentful_paint
             and self.interaction_to_next_paint == other.interaction_to_next_paint
             and self.largest_contentful_paint == other.largest_contentful_paint
+            and self.round_trip_time == other.round_trip_time
             and self.cumulative_layout_shift == other.cumulative_layout_shift
         )
 
@@ -516,6 +555,7 @@ class CruxMetrics:
         first_contentful_paint: CruxHistogram | None = None
         interaction_to_next_paint: CruxHistogram | None = None
         largest_contentful_paint: CruxHistogram | None = None
+        round_trip_time: CruxIntPercentiles | None = None
         cumulative_layout_shift: CruxFloatHistogram | None = None
 
         for key, val in data.items():
@@ -527,6 +567,8 @@ class CruxMetrics:
                 interaction_to_next_paint = CruxHistogram.from_raw_query(val)
             elif key == "largest_contentful_paint":
                 largest_contentful_paint = CruxHistogram.from_raw_query(val)
+            elif key == "round_trip_time":
+                round_trip_time = CruxIntPercentiles.from_raw_query(val)
             elif key == "cumulative_layout_shift":
                 cumulative_layout_shift = CruxFloatHistogram.from_raw_query(val)
             else:
@@ -537,6 +579,7 @@ class CruxMetrics:
             first_contentful_paint=first_contentful_paint,
             interaction_to_next_paint=interaction_to_next_paint,
             largest_contentful_paint=largest_contentful_paint,
+            round_trip_time=round_trip_time,
             cumulative_layout_shift=cumulative_layout_shift,
         )
 

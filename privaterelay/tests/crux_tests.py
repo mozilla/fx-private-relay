@@ -10,9 +10,10 @@ import responses
 from ..crux import (
     CruxApiRequester,
     CruxFloatHistogram,
+    CruxFloatPercentiles,
     CruxHistogram,
+    CruxIntPercentiles,
     CruxMetrics,
-    CruxPercentiles,
     CruxQuery,
     CruxQuerySpecification,
     CruxRecordKey,
@@ -264,6 +265,8 @@ def create_crux_api_record(query: CruxQuery) -> dict[str, Any]:
                 ],
                 "percentiles": {"p75": 2261},
             }
+        elif metric == "round_trip_time":
+            metrics[metric] = {"percentiles": {"p75": 138}}
         elif metric == "cumulative_layout_shift":
             metrics[metric] = {
                 "histogram": [
@@ -316,7 +319,7 @@ def test_crux_result_from_raw_query_basic_query() -> None:
             cumulative_layout_shift=CruxFloatHistogram(
                 intervals=[0.0, 0.1, 0.25],
                 densities=[0.8077, 0.1003, 0.092],
-                percentiles=CruxPercentiles(p75=0.07),
+                percentiles=CruxFloatPercentiles(p75=0.07),
             )
         ),
         first_date=date.today() - timedelta(days=30),
@@ -337,7 +340,7 @@ def test_crux_result_from_raw_query_experimental_time_to_first_byte() -> None:
             experimental_time_to_first_byte=CruxHistogram(
                 intervals=[0, 800, 1800],
                 densities=[0.7425, 0.1969, 0.0606],
-                percentiles=CruxPercentiles(p75=817),
+                percentiles=CruxFloatPercentiles(p75=817),
             )
         ),
         first_date=date.today() - timedelta(days=30),
@@ -356,7 +359,7 @@ def test_crux_result_from_raw_query_first_contentful_paint() -> None:
             first_contentful_paint=CruxHistogram(
                 intervals=[0, 1800, 3000],
                 densities=[0.6787, 0.1922, 0.1291],
-                percentiles=CruxPercentiles(p75=2136),
+                percentiles=CruxFloatPercentiles(p75=2136),
             )
         ),
         first_date=date.today() - timedelta(days=30),
@@ -377,7 +380,7 @@ def test_crux_result_from_raw_query_interaction_to_next_paint() -> None:
             interaction_to_next_paint=CruxHistogram(
                 intervals=[0, 200, 500],
                 densities=[0.905, 0.067, 0.028],
-                percentiles=CruxPercentiles(p75=102),
+                percentiles=CruxFloatPercentiles(p75=102),
             )
         ),
         first_date=date.today() - timedelta(days=30),
@@ -398,9 +401,22 @@ def test_crux_result_from_raw_query_largest_contentful_paint() -> None:
             largest_contentful_paint=CruxHistogram(
                 intervals=[0, 2500, 4000],
                 densities=[0.7916, 0.134, 0.0744],
-                percentiles=CruxPercentiles(p75=2261),
+                percentiles=CruxFloatPercentiles(p75=2261),
             )
         ),
+        first_date=date.today() - timedelta(days=30),
+        last_date=date.today() - timedelta(days=2),
+    )
+    assert result == expected
+
+
+def test_crux_result_from_raw_query_round_trip_time() -> None:
+    query = CruxQuery(origin="https://example.com", metrics=["round_trip_time"])
+    record = create_crux_api_record(query)
+    result = CruxResult.from_raw_query(record)
+    expected = CruxResult(
+        key=CruxRecordKey(origin="https://example.com"),
+        metrics=CruxMetrics(round_trip_time=CruxIntPercentiles(p75=138)),
         first_date=date.today() - timedelta(days=30),
         last_date=date.today() - timedelta(days=2),
     )
@@ -507,19 +523,19 @@ def test_crux_record_key_from_raw_query_unknown_key_raises() -> None:
 
 
 def test_crux_percentiles_from_raw_query() -> None:
-    percentiles = CruxPercentiles.from_raw_query({"p75": "0.07"})
-    assert repr(percentiles) == "CruxPercentiles(p75=0.07)"
-    assert percentiles == CruxPercentiles(p75=0.07)
+    percentiles = CruxFloatPercentiles.from_raw_query({"percentiles": {"p75": "0.07"}})
+    assert repr(percentiles) == "CruxFloatPercentiles(p75=0.07)"
+    assert percentiles == CruxFloatPercentiles(p75=0.07)
 
 
 def test_crux_percentiles_from_raw_query_no_p75_raises() -> None:
     with pytest.raises(ValueError, match="Percentiles has no key 'p75'"):
-        CruxPercentiles.from_raw_query({})
+        CruxFloatPercentiles.from_raw_query({"percentiles": {}})
 
 
 def test_crux_percentiles_from_raw_query_extra_percentile_raises() -> None:
     with pytest.raises(ValueError, match="Percentiles has unknown key 'p50'"):
-        CruxPercentiles.from_raw_query({"p50": "0.5", "p75": "0.75"})
+        CruxFloatPercentiles.from_raw_query({"p50": "0.5", "p75": "0.75"})
 
 
 def test_crux_float_histogram_from_raw_query() -> None:
@@ -535,12 +551,12 @@ def test_crux_float_histogram_from_raw_query() -> None:
     assert repr(histogram) == (
         "CruxFloatHistogram(intervals=[0.0, 0.1, 0.25],"
         " densities=[0.8077, 0.1003, 0.092],"
-        " percentiles=CruxPercentiles(p75=0.07))"
+        " percentiles=CruxFloatPercentiles(p75=0.07))"
     )
     assert histogram == CruxFloatHistogram(
         intervals=[0.0, 0.1, 0.25],
         densities=[0.8077, 0.1003, 0.092],
-        percentiles=CruxPercentiles(p75=0.07),
+        percentiles=CruxFloatPercentiles(p75=0.07),
     )
 
 
@@ -653,7 +669,7 @@ def test_crux_float_histogram_short_intervals_raises() -> None:
         CruxFloatHistogram(
             intervals=[0.0, 1.0],
             densities=[0.9, 0.09, 0.01],
-            percentiles=CruxPercentiles(p75=0.5),
+            percentiles=CruxFloatPercentiles(p75=0.5),
         )
 
 
@@ -662,7 +678,7 @@ def test_crux_float_histogram_long_densities_raises() -> None:
         CruxFloatHistogram(
             intervals=[0.0, 1.0, 2.0],
             densities=[0.9, 0.09, 0.01, 0.0],
-            percentiles=CruxPercentiles(p75=0.5),
+            percentiles=CruxFloatPercentiles(p75=0.5),
         )
 
 
@@ -673,7 +689,7 @@ def test_crux_float_histogram_high_density_total_raises() -> None:
         CruxFloatHistogram(
             intervals=[0.0, 1.0, 2.0],
             densities=[0.9, 0.09, 0.11],
-            percentiles=CruxPercentiles(p75=0.5),
+            percentiles=CruxFloatPercentiles(p75=0.5),
         )
 
 
