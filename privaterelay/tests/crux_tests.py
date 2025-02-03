@@ -236,6 +236,15 @@ def create_crux_api_record(query: CruxQuery) -> dict[str, Any]:
                 ],
                 "percentiles": {"p75": 817},
             }
+        elif metric == "first_contentful_paint":
+            metrics[metric] = {
+                "histogram": [
+                    {"start": 0, "end": 1800, "density": 0.6787},
+                    {"start": 1800, "end": 3000, "density": 0.1922},
+                    {"start": 3000, "density": 0.1291},
+                ],
+                "percentiles": {"p75": 2136},
+            }
         elif metric == "cumulative_layout_shift":
             metrics[metric] = {
                 "histogram": [
@@ -307,6 +316,23 @@ def test_crux_result_from_raw_query_experimental_time_to_first_byte() -> None:
             intervals=[0, 800, 1800],
             densities=[0.7425, 0.1969, 0.0606],
             percentiles=CruxPercentiles(p75=817),
+        ),
+        first_date=date.today() - timedelta(days=30),
+        last_date=date.today() - timedelta(days=2),
+    )
+    assert result == expected
+
+
+def test_crux_result_from_raw_query_first_contentful_paint() -> None:
+    query = CruxQuery(origin="https://example.com", metrics=["first_contentful_paint"])
+    record = create_crux_api_record(query)
+    result = CruxResult.from_raw_query(record)
+    expected = CruxResult(
+        key=CruxRecordKey(origin="https://example.com"),
+        first_contentful_paint=CruxHistogram(
+            intervals=[0, 1800, 3000],
+            densities=[0.6787, 0.1922, 0.1291],
+            percentiles=CruxPercentiles(p75=2136),
         ),
         first_date=date.today() - timedelta(days=30),
         last_date=date.today() - timedelta(days=2),
