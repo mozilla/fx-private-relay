@@ -51,9 +51,10 @@ class CruxQuery:
         return f"{self.__class__.__name__}({', '.join(args)})"
 
     def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, CruxQuery):
+            return NotImplemented
         return (
-            isinstance(other, CruxQuery)
-            and self.origin == other.origin
+            self.origin == other.origin
             and self.form_factor == other.form_factor
             and self.metrics == other.metrics
         )
@@ -254,9 +255,10 @@ class CruxRecordKey:
         return f"{self.__class__.__name__}({', '.join(args)})"
 
     def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, CruxRecordKey):
+            return NotImplemented
         return (
-            isinstance(other, CruxRecordKey)
-            and self.origin == other.origin
+            self.origin == other.origin
             and self.url == other.url
             and self.form_factor == other.form_factor
         )
@@ -290,7 +292,9 @@ class CruxPercentiles:
         return f"{self.__class__.__name__}(p75={self.p75!r})"
 
     def __eq__(self, other: Any) -> bool:
-        return isinstance(other, CruxPercentiles) and self.p75 == other.p75
+        if not isinstance(other, CruxPercentiles):
+            return NotImplemented
+        return self.p75 == other.p75
 
     @classmethod
     def from_raw_query(cls, data: dict[str, Any]) -> CruxPercentiles:
@@ -353,9 +357,10 @@ class GenericCruxHistogram(Generic[FloatOrInt]):
         )
 
     def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, GenericCruxHistogram):
+            return NotImplemented
         return (
-            isinstance(other, GenericCruxHistogram)
-            and self.intervals == other.intervals
+            self.intervals == other.intervals
             and self.densities == other.densities
             and self.percentiles == other.percentiles
         )
@@ -490,9 +495,10 @@ class CruxMetrics:
         return f"{self.__class__.__name__}({', '.join(args)})"
 
     def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, CruxMetrics):
+            return NotImplemented
         return (
-            isinstance(other, CruxMetrics)
-            and self.experimental_time_to_first_byte
+            self.experimental_time_to_first_byte
             == other.experimental_time_to_first_byte
             and self.first_contentful_paint == other.first_contentful_paint
             and self.cumulative_layout_shift == other.cumulative_layout_shift
@@ -544,9 +550,10 @@ class CruxResult:
         return f"{self.__class__.__name__}({', '.join(args)})"
 
     def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, CruxResult):
+            return NotImplemented
         return (
-            isinstance(other, CruxResult)
-            and self.key == other.key
+            self.key == other.key
             and self.metrics == other.metrics
             and self.first_date == other.first_date
             and self.last_date == other.last_date
