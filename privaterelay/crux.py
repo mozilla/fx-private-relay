@@ -461,47 +461,95 @@ class CruxFloatHistogram(GenericCruxHistogram[float]):
         return float(val)
 
 
-class CruxResult:
+class CruxMetrics:
     def __init__(
         self,
-        key: CruxRecordKey,
-        first_date: date,
-        last_date: date,
         experimental_time_to_first_byte: CruxHistogram | None = None,
         first_contentful_paint: CruxHistogram | None = None,
+        # form_factors: CruxFractions | None = None,
+        # interaction_to_next_paint: CruxHistogram | None = None,
+        # largest_contentful_paint: CruxHistogram | None = None,
+        # round_trip_time: CruxPercentiles | None = None,
         cumulative_layout_shift: CruxFloatHistogram | None = None,
     ) -> None:
-        self.key = key
-        self.first_date = first_date
-        self.last_date = last_date
         self.experimental_time_to_first_byte = experimental_time_to_first_byte
         self.first_contentful_paint = first_contentful_paint
         self.cumulative_layout_shift = cumulative_layout_shift
 
     def __repr__(self) -> str:
+        attrs = (
+            "experimental_time_to_first_byte",
+            "first_contentful_paint",
+            "cumulative_layout_shift",
+        )
+        args = [
+            f"{_attr}={val!r}"
+            for _attr in attrs
+            if (val := getattr(self, _attr, None)) is not None
+        ]
+        return f"{self.__class__.__name__}({', '.join(args)})"
+
+    def __eq__(self, other: Any) -> bool:
+        return (
+            isinstance(other, CruxMetrics)
+            and self.experimental_time_to_first_byte
+            == other.experimental_time_to_first_byte
+            and self.first_contentful_paint == other.first_contentful_paint
+            and self.cumulative_layout_shift == other.cumulative_layout_shift
+        )
+
+    @classmethod
+    def from_raw_query(cls, data: dict[str, Any]) -> CruxMetrics:
+        experimental_time_to_first_byte: CruxHistogram | None = None
+        first_contentful_paint: CruxHistogram | None = None
+        cumulative_layout_shift: CruxFloatHistogram | None = None
+
+        for key, val in data.items():
+            if key == "experimental_time_to_first_byte":
+                experimental_time_to_first_byte = CruxHistogram.from_raw_query(val)
+            elif key == "cumulative_layout_shift":
+                cumulative_layout_shift = CruxFloatHistogram.from_raw_query(val)
+            elif key == "first_contentful_paint":
+                first_contentful_paint = CruxHistogram.from_raw_query(val)
+            else:
+                raise ValueError(f"In metrics, unknown key {key!r}")
+
+        return CruxMetrics(
+            experimental_time_to_first_byte=experimental_time_to_first_byte,
+            first_contentful_paint=first_contentful_paint,
+            cumulative_layout_shift=cumulative_layout_shift,
+        )
+
+
+class CruxResult:
+    def __init__(
+        self,
+        key: CruxRecordKey,
+        metrics: CruxMetrics,
+        first_date: date,
+        last_date: date,
+    ) -> None:
+        self.key = key
+        self.metrics = metrics
+        self.first_date = first_date
+        self.last_date = last_date
+
+    def __repr__(self) -> str:
         args = [
             f"key={self.key!r}",
+            f"metrics={self.metrics!r}",
             f"first_date={self.first_date!r}",
             f"last_date={self.last_date!r}",
         ]
-        if self.experimental_time_to_first_byte is not None:
-            args.append(
-                "experimental_time_to_first_byte="
-                f"{self.experimental_time_to_first_byte!r}"
-            )
-        if self.cumulative_layout_shift is not None:
-            args.append(f"cumulative_layout_shift={self.cumulative_layout_shift!r}")
         return f"{self.__class__.__name__}({', '.join(args)})"
 
     def __eq__(self, other: Any) -> bool:
         return (
             isinstance(other, CruxResult)
             and self.key == other.key
+            and self.metrics == other.metrics
             and self.first_date == other.first_date
             and self.last_date == other.last_date
-            and self.experimental_time_to_first_byte
-            == other.experimental_time_to_first_byte
-            and self.cumulative_layout_shift == other.cumulative_layout_shift
         )
 
     @classmethod
@@ -523,56 +571,46 @@ class CruxResult:
             raise ValueError("At top level, no key 'record'")
         return CruxResult(
             key=record.key,
+            metrics=record.metrics,
             first_date=record.first_date,
             last_date=record.last_date,
-            experimental_time_to_first_byte=record.metrics.experimental_time_to_first_byte,
-            cumulative_layout_shift=record.metrics.cumulative_layout_shift,
         )
-
-    class _RecordMetrics(NamedTuple):
-        experimental_time_to_first_byte: CruxHistogram | None = None
-        first_contentful_paint: CruxHistogram | None = None
-        # form_factors: CruxFractions | None = None
-        # interaction_to_next_paint: CruxHistogram | None = None
-        # largest_contentful_paint: CruxHistogram | None = None
-        # round_trip_time: CruxPercentiles | None = None
-        cumulative_layout_shift: CruxFloatHistogram | None = None
 
     class _RecordItems(NamedTuple):
         key: CruxRecordKey
         first_date: date
         last_date: date
-        metrics: CruxResult._RecordMetrics
+        metrics: CruxMetrics
 
     @classmethod
     def _parse_record(cls, record: dict[str, Any]) -> _RecordItems:
         record_key: CruxRecordKey | None = None
+        metrics: CruxMetrics | None = None
         first_date: date | None = None
         last_date: date | None = None
-        metrics: CruxResult._RecordMetrics | None = None
 
         for key, val in record.items():
             if key == "key":
                 record_key = CruxRecordKey.from_raw_query(val)
+            elif key == "metrics":
+                metrics = CruxMetrics.from_raw_query(val)
             elif key == "collectionPeriod":
                 first_date, last_date = cls._parse_collection_period(val)
-            elif key == "metrics":
-                metrics = cls._parse_metrics(val)
             else:
                 raise ValueError(f"In record, unknown key {key!r}")
 
         if record_key is None:
             raise ValueError("In record, no key 'key'")
-        if first_date is None or last_date is None:
-            raise ValueError("In record, no key 'collectionPeriod'")
         if metrics is None:
             raise ValueError("In record, no key 'metrics'")
+        if first_date is None or last_date is None:
+            raise ValueError("In record, no key 'collectionPeriod'")
 
         return CruxResult._RecordItems(
             key=record_key,
+            metrics=metrics,
             first_date=first_date,
             last_date=last_date,
-            metrics=metrics,
         )
 
     @classmethod
@@ -619,28 +657,6 @@ class CruxResult:
             raise ValueError("In date, no key 'day'")
 
         return date(year=year, month=month, day=day)
-
-    @classmethod
-    def _parse_metrics(cls, data: dict[str, Any]) -> CruxResult._RecordMetrics:
-        experimental_time_to_first_byte: CruxHistogram | None = None
-        first_contentful_paint: CruxHistogram | None = None
-        cumulative_layout_shift: CruxFloatHistogram | None = None
-
-        for key, val in data.items():
-            if key == "experimental_time_to_first_byte":
-                experimental_time_to_first_byte = CruxHistogram.from_raw_query(val)
-            elif key == "cumulative_layout_shift":
-                cumulative_layout_shift = CruxFloatHistogram.from_raw_query(val)
-            elif key == "first_contentful_paint":
-                first_contentful_paint = CruxHistogram.from_raw_query(val)
-            else:
-                raise ValueError(f"In metrics, unknown key {key!r}")
-
-        return CruxResult._RecordMetrics(
-            experimental_time_to_first_byte=experimental_time_to_first_byte,
-            first_contentful_paint=first_contentful_paint,
-            cumulative_layout_shift=cumulative_layout_shift,
-        )
 
 
 class CruxError:

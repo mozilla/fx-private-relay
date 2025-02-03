@@ -11,6 +11,7 @@ from ..crux import (
     CruxApiRequester,
     CruxFloatHistogram,
     CruxHistogram,
+    CruxMetrics,
     CruxPercentiles,
     CruxQuery,
     CruxQuerySpecification,
@@ -293,10 +294,12 @@ def test_crux_result_from_raw_query_basic_query() -> None:
     result = CruxResult.from_raw_query(record)
     expected = CruxResult(
         key=CruxRecordKey(origin="https://example.com"),
-        cumulative_layout_shift=CruxFloatHistogram(
-            intervals=[0.0, 0.1, 0.25],
-            densities=[0.8077, 0.1003, 0.092],
-            percentiles=CruxPercentiles(p75=0.07),
+        metrics=CruxMetrics(
+            cumulative_layout_shift=CruxFloatHistogram(
+                intervals=[0.0, 0.1, 0.25],
+                densities=[0.8077, 0.1003, 0.092],
+                percentiles=CruxPercentiles(p75=0.07),
+            )
         ),
         first_date=date.today() - timedelta(days=30),
         last_date=date.today() - timedelta(days=2),
@@ -312,10 +315,12 @@ def test_crux_result_from_raw_query_experimental_time_to_first_byte() -> None:
     result = CruxResult.from_raw_query(record)
     expected = CruxResult(
         key=CruxRecordKey(origin="https://example.com"),
-        experimental_time_to_first_byte=CruxHistogram(
-            intervals=[0, 800, 1800],
-            densities=[0.7425, 0.1969, 0.0606],
-            percentiles=CruxPercentiles(p75=817),
+        metrics=CruxMetrics(
+            experimental_time_to_first_byte=CruxHistogram(
+                intervals=[0, 800, 1800],
+                densities=[0.7425, 0.1969, 0.0606],
+                percentiles=CruxPercentiles(p75=817),
+            )
         ),
         first_date=date.today() - timedelta(days=30),
         last_date=date.today() - timedelta(days=2),
@@ -329,10 +334,12 @@ def test_crux_result_from_raw_query_first_contentful_paint() -> None:
     result = CruxResult.from_raw_query(record)
     expected = CruxResult(
         key=CruxRecordKey(origin="https://example.com"),
-        first_contentful_paint=CruxHistogram(
-            intervals=[0, 1800, 3000],
-            densities=[0.6787, 0.1922, 0.1291],
-            percentiles=CruxPercentiles(p75=2136),
+        metrics=CruxMetrics(
+            first_contentful_paint=CruxHistogram(
+                intervals=[0, 1800, 3000],
+                densities=[0.6787, 0.1922, 0.1291],
+                percentiles=CruxPercentiles(p75=2136),
+            )
         ),
         first_date=date.today() - timedelta(days=30),
         last_date=date.today() - timedelta(days=2),
