@@ -472,19 +472,21 @@ class CruxMetrics:
         experimental_time_to_first_byte: CruxHistogram | None = None,
         first_contentful_paint: CruxHistogram | None = None,
         # form_factors: CruxFractions | None = None,
-        # interaction_to_next_paint: CruxHistogram | None = None,
+        interaction_to_next_paint: CruxHistogram | None = None,
         # largest_contentful_paint: CruxHistogram | None = None,
         # round_trip_time: CruxPercentiles | None = None,
         cumulative_layout_shift: CruxFloatHistogram | None = None,
     ) -> None:
         self.experimental_time_to_first_byte = experimental_time_to_first_byte
         self.first_contentful_paint = first_contentful_paint
+        self.interaction_to_next_paint = interaction_to_next_paint
         self.cumulative_layout_shift = cumulative_layout_shift
 
     def __repr__(self) -> str:
         attrs = (
             "experimental_time_to_first_byte",
             "first_contentful_paint",
+            "interaction_to_next_paint",
             "cumulative_layout_shift",
         )
         args = [
@@ -501,6 +503,7 @@ class CruxMetrics:
             self.experimental_time_to_first_byte
             == other.experimental_time_to_first_byte
             and self.first_contentful_paint == other.first_contentful_paint
+            and self.interaction_to_next_paint == other.interaction_to_next_paint
             and self.cumulative_layout_shift == other.cumulative_layout_shift
         )
 
@@ -508,21 +511,25 @@ class CruxMetrics:
     def from_raw_query(cls, data: dict[str, Any]) -> CruxMetrics:
         experimental_time_to_first_byte: CruxHistogram | None = None
         first_contentful_paint: CruxHistogram | None = None
+        interaction_to_next_paint: CruxHistogram | None = None
         cumulative_layout_shift: CruxFloatHistogram | None = None
 
         for key, val in data.items():
             if key == "experimental_time_to_first_byte":
                 experimental_time_to_first_byte = CruxHistogram.from_raw_query(val)
-            elif key == "cumulative_layout_shift":
-                cumulative_layout_shift = CruxFloatHistogram.from_raw_query(val)
             elif key == "first_contentful_paint":
                 first_contentful_paint = CruxHistogram.from_raw_query(val)
+            elif key == "interaction_to_next_paint":
+                interaction_to_next_paint = CruxHistogram.from_raw_query(val)
+            elif key == "cumulative_layout_shift":
+                cumulative_layout_shift = CruxFloatHistogram.from_raw_query(val)
             else:
                 raise ValueError(f"In metrics, unknown key {key!r}")
 
         return CruxMetrics(
             experimental_time_to_first_byte=experimental_time_to_first_byte,
             first_contentful_paint=first_contentful_paint,
+            interaction_to_next_paint=interaction_to_next_paint,
             cumulative_layout_shift=cumulative_layout_shift,
         )
 
