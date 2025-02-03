@@ -264,7 +264,7 @@ class CruxRecordKey:
         )
 
     @classmethod
-    def from_raw_query(cls, data: dict[str, str]) -> CruxRecordKey:
+    def from_raw_query(cls, data: dict[str, str]) -> Self:
         origin: str | None = None
         url: str | None = None
         form_factor: CRUX_FORM_FACTOR | None = None
@@ -281,7 +281,7 @@ class CruxRecordKey:
                     raise ValueError(f"{val!r} is not a valid formFactor")
             else:
                 raise ValueError(f"Unknown key {key!r}")
-        return CruxRecordKey(origin=origin, url=url, form_factor=form_factor)
+        return cls(origin=origin, url=url, form_factor=form_factor)
 
 
 FloatOrInt = TypeVar("FloatOrInt", float, int)
@@ -526,7 +526,7 @@ class CruxFractions:
         )
 
     @classmethod
-    def from_raw_query(cls, data: dict[str, Any]) -> CruxFractions:
+    def from_raw_query(cls, data: dict[str, Any]) -> Self:
         phone: float | None = None
         tablet: float | None = None
         desktop: float | None = None
@@ -619,7 +619,7 @@ class CruxMetrics:
         )
 
     @classmethod
-    def from_raw_query(cls, data: dict[str, Any]) -> CruxMetrics:
+    def from_raw_query(cls, data: dict[str, Any]) -> Self:
         experimental_time_to_first_byte: CruxHistogram | None = None
         first_contentful_paint: CruxHistogram | None = None
         form_factors: CruxFractions | None = None
@@ -646,7 +646,7 @@ class CruxMetrics:
             else:
                 raise ValueError(f"In metrics, unknown key {key!r}")
 
-        return CruxMetrics(
+        return cls(
             experimental_time_to_first_byte=experimental_time_to_first_byte,
             first_contentful_paint=first_contentful_paint,
             form_factors=form_factors,
@@ -733,7 +733,7 @@ class CruxResult:
         )
 
     @classmethod
-    def from_raw_query(cls, data: dict[str, Any]) -> CruxResult:
+    def from_raw_query(cls, data: dict[str, Any]) -> Self:
         """Parse a JSON response from the CrUX API into a CruxResult"""
         record: CruxResult._RecordItems | None = None
 
@@ -745,7 +745,7 @@ class CruxResult:
 
         if record is None:
             raise ValueError("At top level, no key 'record'")
-        return CruxResult(
+        return cls(
             key=record.key,
             metrics=record.metrics,
             first_date=record.first_date,
@@ -849,8 +849,8 @@ class CruxError:
         self.raw_data = raw_data
 
     @classmethod
-    def from_raw_query(cls, status_code: int, data: dict[str, Any]) -> CruxError:
-        return CruxError(status_code=status_code, raw_data=data)
+    def from_raw_query(cls, status_code: int, data: dict[str, Any]) -> Self:
+        return cls(status_code=status_code, raw_data=data)
 
 
 class CruxApiRequester:
