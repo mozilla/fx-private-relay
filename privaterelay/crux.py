@@ -502,12 +502,78 @@ class CruxFloatHistogram(GenericCruxHistogram[float]):
         return float(val)
 
 
+class CruxFractions:
+    def __init__(self, phone: float, tablet: float, desktop: float) -> None:
+        self.phone = phone
+        self.tablet = tablet
+        self.desktop = desktop
+
+    def __repr__(self) -> str:
+        args = [
+            f"phone={self.phone!r}",
+            f"tablet={self.tablet!r}",
+            f"desktop={self.desktop!r}",
+        ]
+        return f"{self.__class__.__name__}({', '.join(args)})"
+
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, CruxFractions):
+            return NotImplemented
+        return (
+            self.phone == other.phone
+            and self.tablet == other.tablet
+            and self.desktop == other.desktop
+        )
+
+    @classmethod
+    def from_raw_query(cls, data: dict[str, Any]) -> CruxFractions:
+        phone: float | None = None
+        tablet: float | None = None
+        desktop: float | None = None
+
+        for key, val in data.items():
+            if key == "fractions":
+                phone, tablet, desktop = cls._parse_devices(val)
+            else:
+                raise ValueError(f"Unknown key {key!r}")
+
+        if phone is None or tablet is None or desktop is None:
+            raise ValueError("No key 'fractions'")
+
+        return cls(phone=phone, tablet=tablet, desktop=desktop)
+
+    @classmethod
+    def _parse_devices(cls, data: dict[str, float]) -> tuple[float, float, float]:
+        phone: float | None = None
+        tablet: float | None = None
+        desktop: float | None = None
+
+        for key, val in data.items():
+            if key == "phone":
+                phone = float(val)
+            elif key == "tablet":
+                tablet = float(val)
+            elif key == "desktop":
+                desktop = float(val)
+            else:
+                raise ValueError(f"In fractions, unknown key {key!r}")
+
+        if phone is None:
+            raise ValueError("In fractions, no key 'phone'")
+        if tablet is None:
+            raise ValueError("In fractions, no key 'tablet'")
+        if desktop is None:
+            raise ValueError("In fractions, no key 'desktop'")
+
+        return phone, tablet, desktop
+
+
 class CruxMetrics:
     def __init__(
         self,
         experimental_time_to_first_byte: CruxHistogram | None = None,
         first_contentful_paint: CruxHistogram | None = None,
-        # form_factors: CruxFractions | None = None,
+        form_factors: CruxFractions | None = None,
         interaction_to_next_paint: CruxHistogram | None = None,
         largest_contentful_paint: CruxHistogram | None = None,
         round_trip_time: CruxIntPercentiles | None = None,
@@ -515,6 +581,7 @@ class CruxMetrics:
     ) -> None:
         self.experimental_time_to_first_byte = experimental_time_to_first_byte
         self.first_contentful_paint = first_contentful_paint
+        self.form_factors = form_factors
         self.interaction_to_next_paint = interaction_to_next_paint
         self.largest_contentful_paint = largest_contentful_paint
         self.round_trip_time = round_trip_time
@@ -524,6 +591,7 @@ class CruxMetrics:
         attrs = (
             "experimental_time_to_first_byte",
             "first_contentful_paint",
+            "form_factors",
             "interaction_to_next_paint",
             "largest_contentful_paint",
             "round_trip_time",
@@ -543,6 +611,7 @@ class CruxMetrics:
             self.experimental_time_to_first_byte
             == other.experimental_time_to_first_byte
             and self.first_contentful_paint == other.first_contentful_paint
+            and self.form_factors == other.form_factors
             and self.interaction_to_next_paint == other.interaction_to_next_paint
             and self.largest_contentful_paint == other.largest_contentful_paint
             and self.round_trip_time == other.round_trip_time
@@ -553,6 +622,7 @@ class CruxMetrics:
     def from_raw_query(cls, data: dict[str, Any]) -> CruxMetrics:
         experimental_time_to_first_byte: CruxHistogram | None = None
         first_contentful_paint: CruxHistogram | None = None
+        form_factors: CruxFractions | None = None
         interaction_to_next_paint: CruxHistogram | None = None
         largest_contentful_paint: CruxHistogram | None = None
         round_trip_time: CruxIntPercentiles | None = None
@@ -563,6 +633,8 @@ class CruxMetrics:
                 experimental_time_to_first_byte = CruxHistogram.from_raw_query(val)
             elif key == "first_contentful_paint":
                 first_contentful_paint = CruxHistogram.from_raw_query(val)
+            elif key == "form_factors":
+                form_factors = CruxFractions.from_raw_query(val)
             elif key == "interaction_to_next_paint":
                 interaction_to_next_paint = CruxHistogram.from_raw_query(val)
             elif key == "largest_contentful_paint":
@@ -577,6 +649,7 @@ class CruxMetrics:
         return CruxMetrics(
             experimental_time_to_first_byte=experimental_time_to_first_byte,
             first_contentful_paint=first_contentful_paint,
+            form_factors=form_factors,
             interaction_to_next_paint=interaction_to_next_paint,
             largest_contentful_paint=largest_contentful_paint,
             round_trip_time=round_trip_time,

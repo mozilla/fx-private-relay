@@ -11,6 +11,7 @@ from ..crux import (
     CruxApiRequester,
     CruxFloatHistogram,
     CruxFloatPercentiles,
+    CruxFractions,
     CruxHistogram,
     CruxIntPercentiles,
     CruxMetrics,
@@ -247,6 +248,10 @@ def create_crux_api_record(query: CruxQuery) -> dict[str, Any]:
                 ],
                 "percentiles": {"p75": 2136},
             }
+        elif metric == "form_factors":
+            metrics[metric] = {
+                "fractions": {"phone": 0.4959, "tablet": 0.0148, "desktop": 0.4893}
+            }
         elif metric == "interaction_to_next_paint":
             metrics[metric] = {
                 "histogram": [
@@ -417,6 +422,21 @@ def test_crux_result_from_raw_query_round_trip_time() -> None:
     expected = CruxResult(
         key=CruxRecordKey(origin="https://example.com"),
         metrics=CruxMetrics(round_trip_time=CruxIntPercentiles(p75=138)),
+        first_date=date.today() - timedelta(days=30),
+        last_date=date.today() - timedelta(days=2),
+    )
+    assert result == expected
+
+
+def test_crux_result_from_raw_query_form_factors() -> None:
+    query = CruxQuery(origin="https://example.com", metrics=["form_factors"])
+    record = create_crux_api_record(query)
+    result = CruxResult.from_raw_query(record)
+    expected = CruxResult(
+        key=CruxRecordKey(origin="https://example.com"),
+        metrics=CruxMetrics(
+            form_factors=CruxFractions(phone=0.4959, tablet=0.0148, desktop=0.4893)
+        ),
         first_date=date.today() - timedelta(days=30),
         last_date=date.today() - timedelta(days=2),
     )
@@ -691,6 +711,39 @@ def test_crux_float_histogram_high_density_total_raises() -> None:
             densities=[0.9, 0.09, 0.11],
             percentiles=CruxFloatPercentiles(p75=0.5),
         )
+
+
+def test_crux_fractions_from_raw_query() -> None:
+    fractions = CruxFractions.from_raw_query(
+        {"fractions": {"phone": 0.5, "tablet": 0.1, "desktop": 0.4}}
+    )
+    assert repr(fractions) == "CruxFractions(phone=0.5, tablet=0.1, desktop=0.4)"
+    assert fractions == CruxFractions(phone=0.5, tablet=0.1, desktop=0.4)
+
+
+def test_crux_fractions_from_raw_query_no_fractions_key_raises() -> None:
+    with pytest.raises(ValueError, match="No key 'fractions'"):
+        CruxFractions.from_raw_query({})
+
+
+def test_crux_fractions_from_raw_query_extra_key_raises() -> None:
+    data = {"fractions": {"phone": 0.5, "tablet": 0.1, "desktop": 0.4}, "foo": "bar"}
+    with pytest.raises(ValueError, match="Unknown key 'foo'"):
+        CruxFractions.from_raw_query(data)
+
+
+@pytest.mark.parametrize("device", ("phone", "tablet", "desktop"))
+def test_crux_fractions_from_raw_query_no_device_key_raises(device: str) -> None:
+    data = {"fractions": {"phone": 0.5, "tablet": 0.1, "desktop": 0.4}}
+    del data["fractions"][device]
+    with pytest.raises(ValueError, match=f"In fractions, no key '{device}'"):
+        CruxFractions.from_raw_query(data)
+
+
+def test_crux_fractions_from_raw_query_extra_device_key_raises() -> None:
+    data = {"fractions": {"phone": 0.5, "tablet": 0.1, "desktop": 0.4, "vr": 0.001}}
+    with pytest.raises(ValueError, match="In fractions, unknown key 'vr'"):
+        CruxFractions.from_raw_query(data)
 
 
 def create_crux_error_service_disabled() -> dict[str, Any]:
