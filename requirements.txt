@@ -32,7 +32,7 @@ whitenoise==6.8.2
 
 # phones app
 phonenumbers==8.13.54
-twilio==9.4.3
+twilio==9.4.4
 vobject==0.9.9
 
 # tests
