@@ -733,7 +733,7 @@ def test_cleaner_task_counts_for_deactivate_odd(four_users: dict[str, User]) -> 
 
 
 def test_cleaner_task_cleanup_data_for_deactivate_odd(
-    four_users: dict[str, User]
+    four_users: dict[str, User],
 ) -> None:
     assert DeactivateOddUsersTask().cleanup_data == {"users": "users.is_odd.active"}
 
@@ -743,7 +743,7 @@ def test_cleaner_task_issues_for_deactivate_odd(four_users: dict[str, User]) -> 
 
 
 def test_cleaner_task_get_report_entries_preclean_for_deactivate_odd(
-    four_users: dict[str, User]
+    four_users: dict[str, User],
 ) -> None:
     task = DeactivateOddUsersTask()
     reports = task.get_report_entries()
@@ -777,7 +777,7 @@ def test_cleaner_task_get_report_entries_preclean_for_deactivate_odd(
 
 
 def test_cleaner_task_markdown_report_preclean_for_deactivate_odd(
-    four_users: dict[str, User]
+    four_users: dict[str, User],
 ) -> None:
     markdown = DeactivateOddUsersTask().markdown_report()
     expected = """\
@@ -801,7 +801,7 @@ def test_cleaner_task_clean_for_deactivate_odd(four_users: dict[str, User]) -> N
 
 
 def test_cleaner_task_counts_postclean_for_deactivate_odd(
-    four_users: dict[str, User]
+    four_users: dict[str, User],
 ) -> None:
     task = DeactivateOddUsersTask()
     task.clean()
@@ -818,7 +818,7 @@ def test_cleaner_task_counts_postclean_for_deactivate_odd(
 
 
 def test_cleaner_task_get_report_entries_postclean_for_deactivate_odd(
-    four_users: dict[str, User]
+    four_users: dict[str, User],
 ) -> None:
     task = DeactivateOddUsersTask()
     task.clean()
@@ -854,7 +854,7 @@ def test_cleaner_task_get_report_entries_postclean_for_deactivate_odd(
 
 
 def test_cleaner_task_markdown_report_postclean_for_deactivate_odd(
-    four_users: dict[str, User]
+    four_users: dict[str, User],
 ) -> None:
     task = DeactivateOddUsersTask()
     task.clean()
