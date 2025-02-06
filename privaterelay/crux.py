@@ -153,6 +153,11 @@ class ResponseWrapper(ABC):
     def json(self) -> dict[str, Any]:
         pass
 
+    @property
+    @abstractmethod
+    def text(self) -> str:
+        pass
+
 
 class RequestsEngine(RequestEngine):
     def post(
@@ -177,6 +182,10 @@ class RequestsResponse(ResponseWrapper):
             raise ValueError(f"response.json() returned {type(data)}, not dict")
         return data
 
+    @property
+    def text(self) -> str:
+        return self._response.text
+
 
 class StubbedRequest(NamedTuple):
     url: str
@@ -187,7 +196,8 @@ class StubbedRequest(NamedTuple):
 
 class StubbedRequestAction(NamedTuple):
     status_code: int
-    data: dict[str, Any]
+    data: dict[str, Any] | None = None
+    text: str | None = None
 
 
 class StubbedEngine(RequestEngine):
@@ -200,6 +210,8 @@ class StubbedEngine(RequestEngine):
     def expect_request(
         self, request: StubbedRequest, action: StubbedRequestAction
     ) -> None:
+        if action.data is None and action.text is None:
+            raise ValueError("Set either action.data or action.text")
         self._expected_requests.append((request, action))
 
     def post(
@@ -214,11 +226,11 @@ class StubbedEngine(RequestEngine):
         expected_request, action = self._expected_requests.popleft()
         if request != expected_request:
             raise RuntimeError(f"Expected {expected_request}, got {request}")
-        return StubbedResponse(action.status_code, action.data)
+        return StubbedResponse(action.status_code, action.data or action.text or "")
 
 
 class StubbedResponse(ResponseWrapper):
-    def __init__(self, status_code: int, data: dict[str, Any]) -> None:
+    def __init__(self, status_code: int, data: dict[str, Any] | str) -> None:
         self._status_code = status_code
         self._data = data
 
@@ -227,6 +239,14 @@ class StubbedResponse(ResponseWrapper):
         return self._status_code
 
     def json(self) -> dict[str, Any]:
+        if isinstance(self._data, str):
+            raise ValueError("JSON decoding error")
+        return self._data
+
+    @property
+    def text(self) -> str:
+        if isinstance(self._data, dict):
+            return json.dumps(self._data)
         return self._data
 
 

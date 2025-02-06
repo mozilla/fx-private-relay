@@ -176,6 +176,18 @@ def test_requests_engine_string_response_raises():
         resp.json()
 
 
+def test_requests_engine_text_response() -> None:
+    url = "https://example.com"
+    engine = RequestsEngine()
+    with responses.RequestsMock() as mocks:
+        mocks.post(url, body="some text", status=200, content_type="text/plain")
+        resp = engine.post(url, {}, {}, 2.0)
+    assert resp.status_code == 200
+    with pytest.raises(ValueError):
+        resp.json()
+    assert resp.text == "some text"
+
+
 def test_stubbed_engine_expected_request() -> None:
     url = "https://example.com"
     params = {"key": "API_KEY"}
@@ -213,6 +225,21 @@ def test_stubbed_engine_unexpected_request() -> None:
     with pytest.raises(RuntimeError):
         engine.post(url, params, data, 1.5)
     assert engine.requests == [expected_request]
+
+
+def test_stubbed_engine_text_response() -> None:
+    url = "https://example.com"
+    params = {"key": "API_KEY"}
+    data = {"query": "foo"}
+    expected_request = StubbedRequest(url, params, data, 1.5)
+    engine = StubbedEngine()
+    engine.expect_request(expected_request, StubbedRequestAction(200, text="some text"))
+
+    resp = engine.post(url, params, data, 1.5)
+    assert engine.requests == [expected_request]
+    with pytest.raises(ValueError):
+        resp.json()
+    assert resp.text == "some text"
 
 
 _BASIC_QUERY = CruxQuery("https://example.com", metrics=["cumulative_layout_shift"])
