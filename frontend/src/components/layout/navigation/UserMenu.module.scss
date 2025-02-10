@@ -54,7 +54,8 @@
     .account-menu-item {
       display: block;
       $gradientWidth: 3px;
-      background-image: linear-gradient(
+      background-image:
+        linear-gradient(
           to bottom,
           $popupBackgroundColor calc(100% - $gradientWidth),
           rgba(0, 0, 0, 0)

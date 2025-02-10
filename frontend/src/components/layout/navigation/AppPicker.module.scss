@@ -61,11 +61,8 @@
     flex-direction: row;
     align-items: center;
     gap: $spacing-sm;
-    background-image: linear-gradient(
-        to bottom,
-        #f9f9fb calc(100% - 3px),
-        rgba(0, 0, 0, 0)
-      ),
+    background-image:
+      linear-gradient(to bottom, #f9f9fb calc(100% - 3px), rgba(0, 0, 0, 0)),
       linear-gradient(90deg, #f73940 1.25%, #a83db5 96.87%);
     border-radius: $border-radius-sm $border-radius-sm 0 0;
 
