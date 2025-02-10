@@ -55,5 +55,5 @@ mypy-boto3-s3==1.36.15
 mypy-boto3-ses==1.36.0
 mypy-boto3-sns==1.36.3
 mypy-boto3-sqs==1.36.0
-mypy==1.14.1
+mypy==1.15.0
 types-requests==2.32.0.20241016
