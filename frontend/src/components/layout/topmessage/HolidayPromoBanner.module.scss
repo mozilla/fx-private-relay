@@ -16,8 +16,8 @@ $banner-gradient: linear-gradient(
   padding: $spacing-md;
   color: $color-white;
   position: relative;
-  background-image: url("../images/holiday-promo-banner-pattern-mobile.svg"),
-    $banner-gradient;
+  background-image:
+    url("../images/holiday-promo-banner-pattern-mobile.svg"), $banner-gradient;
   background-repeat: no-repeat;
   background-size: cover;
   flex-direction: column;
@@ -26,16 +26,17 @@ $banner-gradient: linear-gradient(
   @media screen and #{$mq-sm} {
     flex-direction: row;
     gap: $spacing-2xl;
-    background-image: url("../images/holiday-promo-banner-pattern-tablet.svg"),
-      $banner-gradient;
+    background-image:
+      url("../images/holiday-promo-banner-pattern-tablet.svg"), $banner-gradient;
   }
   @media screen and #{$mq-md} {
     gap: $layout-xl;
-    background-image: url("../images/holiday-promo-banner-pattern-laptop.svg"),
-      $banner-gradient;
+    background-image:
+      url("../images/holiday-promo-banner-pattern-laptop.svg"), $banner-gradient;
   }
   @media screen and #{$mq-xl} {
-    background-image: url("../images/holiday-promo-banner-pattern-desktop.svg"),
+    background-image:
+      url("../images/holiday-promo-banner-pattern-desktop.svg"),
       $banner-gradient;
   }
 
