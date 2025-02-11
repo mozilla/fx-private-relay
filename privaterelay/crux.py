@@ -15,6 +15,7 @@ from itertools import product
 from typing import Any, Generic, Literal, NamedTuple, Self, TypeVar, cast, get_args
 
 import requests
+from codetiming import Timer
 
 CRUX_FORM_FACTOR = Literal["PHONE", "TABLET", "DESKTOP"]
 CRUX_METRIC = Literal[
@@ -789,11 +790,13 @@ class CruxResult:
         metrics: CruxMetrics,
         collection_period: CruxCollectionPeriod,
         url_normalization_details: CruxUrlNormalizationDetails | None = None,
+        query_time: float | None = None,
     ) -> None:
         self.key = key
         self.metrics = metrics
         self.collection_period = collection_period
         self.url_normalization_details = url_normalization_details
+        self.query_time = query_time
 
     def __repr__(self) -> str:
         args = [
@@ -801,8 +804,10 @@ class CruxResult:
             f"metrics={self.metrics!r}",
             f"collection_period={self.collection_period!r}",
         ]
-        if self.url_normalization_details:
+        if self.url_normalization_details is not None:
             args.append(f"url_normalization_details={self.url_normalization_details!r}")
+        if self.query_time is not None:
+            args.append(f"query_time={self.query_time!r}")
         return f"{self.__class__.__name__}({', '.join(args)})"
 
     def __eq__(self, other: Any) -> bool:
@@ -813,10 +818,13 @@ class CruxResult:
             and self.metrics == other.metrics
             and self.collection_period == other.collection_period
             and self.url_normalization_details == other.url_normalization_details
+            and self.query_time == other.query_time
         )
 
     @classmethod
-    def from_raw_query(cls, data: dict[str, Any]) -> Self:
+    def from_raw_query(
+        cls, data: dict[str, Any], query_time: float | None = None
+    ) -> Self:
         """Parse a JSON response from the CrUX API into a CruxResult"""
         record: CruxResult._RecordItems | None = None
 
@@ -877,14 +885,43 @@ class CruxResult:
         )
 
 
-class CruxError:
-    def __init__(self, status_code: int, raw_data: dict[str, Any]) -> None:
-        self.status_code = status_code
-        self.raw_data = raw_data
+class CruxError(Exception):
+    """Base class for CrUX errors."""
 
-    @classmethod
-    def from_raw_query(cls, status_code: int, data: dict[str, Any]) -> Self:
-        return cls(status_code=status_code, raw_data=data)
+    def __init__(self, query_time: float | None = None):
+        self.query_time = query_time
+
+
+class CruxDidNotReturnJSON(CruxError):
+    def __init__(self, response_text: str, query_time: float | None = None):
+        super().__init__(query_time)
+        self.response_text = response_text
+
+
+class CruxTimeout(CruxError):
+    pass
+
+
+class CruxReturnedError(CruxError):
+    def __init__(
+        self,
+        status_code: int,
+        error_data: dict[str, Any],
+        query_time: float | None = None,
+    ):
+        super().__init__(query_time)
+        self.status_code = status_code
+        self.error_data = error_data
+
+
+class CruxUnknownData(CruxError):
+    def __init__(
+        self,
+        raw_data: dict[str, Any],
+        query_time: float | None = None,
+    ):
+        super().__init__(query_time)
+        self.raw_data = raw_data
 
 
 class CruxApiRequester:
@@ -896,28 +933,45 @@ class CruxApiRequester:
         self._engine = engine
 
     def raw_query(self, query: CruxQuery) -> tuple[int, dict[str, Any]]:
+        """Request JSON data from the CrUX API."""
         resp = self._engine.post(
             url=self.API_URL,
             params={"key": self._api_key},
             data=query.as_dict(),
             timeout=self.DEFAULT_TIMEOUT,
         )
-        return resp.status_code, resp.json()
+        try:
+            data = resp.json()
+        except requests.exceptions.JSONDecodeError:
+            raise CruxDidNotReturnJSON(resp.text)
+        return resp.status_code, data
 
-    def query(self, query: CruxQuery) -> CruxResult | CruxError:
+    def query(self, query: CruxQuery) -> CruxResult:
         """
-        Request data from the CrUX API
+        Request and decode data from the CrUX API
 
-        TODO: Time the request
-        TODO: Handle timeout error
-        TODO: Handle resp.json() failure
-        TODO: Handle parsing ValueError
+        If successful, a CruxResult is returned. On failure, an exception
+        derived from CruxError is raised.
         """
-        status_code, data = self.raw_query(query)
-        if status_code == 200:
-            return CruxResult.from_raw_query(data)
-        else:
-            return CruxError.from_raw_query(status_code, data)
+        with Timer(logger=None) as timer:
+            try:
+                status_code, data = self.raw_query(query)
+            except requests.Timeout as err:
+                raise CruxTimeout(query_time=round(timer.last, 3)) from err
+            except CruxDidNotReturnJSON as err:
+                raise CruxDidNotReturnJSON(
+                    err.response_text, query_time=round(timer.last, 3)
+                ) from err
+
+        query_time = round(timer.last, 3)
+        if status_code != 200:
+            raise CruxReturnedError(
+                status_code=status_code, error_data=data, query_time=query_time
+            )
+        try:
+            return CruxResult.from_raw_query(data, query_time=query_time)
+        except ValueError as error:
+            raise CruxUnknownData(data, query_time=query_time) from error
 
 
 def main(domain: str, requester: CruxApiRequester) -> str:
