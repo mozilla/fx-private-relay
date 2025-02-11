@@ -21,6 +21,7 @@ from ..utils import (
     AcceptLanguageError,
     flag_is_active_in_task,
     get_countries_info_from_request_and_mapping,
+    get_subplat_upgrade_link_by_language,
     get_version_info,
     guess_country_from_accept_lang,
 )
@@ -635,3 +636,45 @@ def test_get_version_info() -> None:
         "source": "https://github.com/mozilla/fx-private-relay",
         "build": "https://circleci.com/gh/mozilla/fx-private-relay/100",
     }
+
+
+@pytest.fixture()
+def get_subplat_link_settings(settings: SettingsWrapper) -> SettingsWrapper:
+    settings.FXA_BASE_ORIGIN = "https://accounts.example.com"
+    settings.PERIODICAL_PREMIUM_PROD_ID = "prod_xyz"
+    return settings
+
+
+def test_get_subplat_upgrade_link_by_language(
+    get_subplat_link_settings: SettingsWrapper,
+) -> None:
+    country_lang_mapping = get_premium_country_language_mapping()
+    expected_plan = country_lang_mapping["US"]["*"]["yearly"]["id"]
+    expected_link = (
+        "https://accounts.example.com/subscriptions/products/prod_xyz?plan="
+        + expected_plan
+    )
+
+    link = get_subplat_upgrade_link_by_language("en-us")
+    assert link == expected_link
+
+
+def test_get_subplat_upgrade_link_by_language_unsupported_region(
+    get_subplat_link_settings: SettingsWrapper,
+) -> None:
+    country_lang_mapping = get_premium_country_language_mapping()
+    expected_plan = country_lang_mapping["US"]["*"]["yearly"]["id"]
+    expected_link = (
+        "https://accounts.example.com/subscriptions/products/prod_xyz?plan="
+        + expected_plan
+    )
+
+    link = get_subplat_upgrade_link_by_language("zh-Hant")
+    assert link == expected_link
+
+
+def test_get_subplat_upgrade_link_by_language_invalid_header(
+    get_subplat_link_settings: SettingsWrapper,
+) -> None:
+    with pytest.raises(AcceptLanguageError, match="Invalid Accept-Language string"):
+        get_subplat_upgrade_link_by_language("en-gb;q=1.0000")
