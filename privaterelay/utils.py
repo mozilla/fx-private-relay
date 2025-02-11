@@ -280,7 +280,7 @@ _LANGUAGE_TAG_TO_COUNTRY_OVERRIDE = {
 class AcceptLanguageError(ValueError):
     """There was an issue processing the Accept-Language header."""
 
-    def __init__(self, message: str, accept_lang: str):
+    def __init__(self, message: str, accept_lang: str | None = None):
         super().__init__(message)
         self.accept_lang = accept_lang
 

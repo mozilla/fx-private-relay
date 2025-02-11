@@ -1,4 +1,5 @@
 import logging
+import pickle
 from collections.abc import Iterator
 from pathlib import Path
 from unittest.mock import patch
@@ -309,6 +310,20 @@ def test_guess_country_from_accept_lang_short_primary_lang_fails(
         guess_country_from_accept_lang(accept_lang)
     assert str(exc_info.value) == "Invalid one-character primary language"
     assert exc_info.value.accept_lang == accept_lang
+
+
+def test_accept_language_error_is_pickleable_mpp_3936() -> None:
+    bad_header = "en-gb;q=1.0000"
+    expected_msg = "Invalid Accept-Language string"
+    with pytest.raises(AcceptLanguageError, match=expected_msg) as exc_info:
+        guess_country_from_accept_lang(bad_header)
+    error = exc_info.value
+    assert isinstance(error, AcceptLanguageError)
+    pickled = pickle.dumps(error)
+    unpickled = pickle.loads(pickled)  # noqa: S301  # Pickle can be unsafe
+    assert isinstance(unpickled, AcceptLanguageError)
+    assert str(unpickled) == expected_msg
+    assert unpickled.accept_lang == bad_header
 
 
 def test_get_countries_info_bad_accept_language(
