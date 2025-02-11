@@ -72,8 +72,11 @@ def get_countries_info_from_lang_and_mapping(
 def get_subplat_upgrade_link_by_language(
     accept_language: str, period: PeriodStr = "yearly"
 ) -> str:
-    country_str = guess_country_from_accept_lang(accept_language)
-    country = cast(CountryStr, country_str)
+    try:
+        country_str = guess_country_from_accept_lang(accept_language)
+        country = cast(CountryStr, country_str)
+    except AcceptLanguageError:
+        country = "US"
     language_str = accept_language.split("-")[0].lower()
     language = cast(LanguageStr, language_str)
     country_lang_mapping = get_premium_country_language_mapping()

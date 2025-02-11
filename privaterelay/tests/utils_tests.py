@@ -676,5 +676,12 @@ def test_get_subplat_upgrade_link_by_language_unsupported_region(
 def test_get_subplat_upgrade_link_by_language_invalid_header(
     get_subplat_link_settings: SettingsWrapper,
 ) -> None:
-    with pytest.raises(AcceptLanguageError, match="Invalid Accept-Language string"):
-        get_subplat_upgrade_link_by_language("en-gb;q=1.0000")
+    country_lang_mapping = get_premium_country_language_mapping()
+    expected_plan = country_lang_mapping["US"]["*"]["yearly"]["id"]
+    expected_link = (
+        "https://accounts.example.com/subscriptions/products/prod_xyz?plan="
+        + expected_plan
+    )
+
+    link = get_subplat_upgrade_link_by_language("en-gb;q=1.0000")
+    assert link == expected_link
