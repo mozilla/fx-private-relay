@@ -18,4 +18,4 @@ publish = "out/"
 # Default build command.
 command = "npm install; npm run build:mocked"
 
-environment = { NODE_VERSION = "18.20.5", NPM_VERSION = "9.9.4" }
+environment = { NODE_VERSION = "18.20.6", NPM_VERSION = "9.9.4" }
