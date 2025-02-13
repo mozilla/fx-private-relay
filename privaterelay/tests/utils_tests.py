@@ -1,4 +1,5 @@
 import logging
+import pickle
 from collections.abc import Iterator
 from pathlib import Path
 from unittest.mock import patch
@@ -20,6 +21,7 @@ from ..utils import (
     AcceptLanguageError,
     flag_is_active_in_task,
     get_countries_info_from_request_and_mapping,
+    get_subplat_upgrade_link_by_language,
     get_version_info,
     guess_country_from_accept_lang,
 )
@@ -309,6 +311,20 @@ def test_guess_country_from_accept_lang_short_primary_lang_fails(
         guess_country_from_accept_lang(accept_lang)
     assert str(exc_info.value) == "Invalid one-character primary language"
     assert exc_info.value.accept_lang == accept_lang
+
+
+def test_accept_language_error_is_pickleable_mpp_3936() -> None:
+    bad_header = "en-gb;q=1.0000"
+    expected_msg = "Invalid Accept-Language string"
+    with pytest.raises(AcceptLanguageError, match=expected_msg) as exc_info:
+        guess_country_from_accept_lang(bad_header)
+    error = exc_info.value
+    assert isinstance(error, AcceptLanguageError)
+    pickled = pickle.dumps(error)
+    unpickled = pickle.loads(pickled)  # noqa: S301  # Pickle can be unsafe
+    assert isinstance(unpickled, AcceptLanguageError)
+    assert str(unpickled) == expected_msg
+    assert unpickled.accept_lang == bad_header
 
 
 def test_get_countries_info_bad_accept_language(
@@ -620,3 +636,52 @@ def test_get_version_info() -> None:
         "source": "https://github.com/mozilla/fx-private-relay",
         "build": "https://circleci.com/gh/mozilla/fx-private-relay/100",
     }
+
+
+@pytest.fixture()
+def get_subplat_link_settings(settings: SettingsWrapper) -> SettingsWrapper:
+    settings.FXA_BASE_ORIGIN = "https://accounts.example.com"
+    settings.PERIODICAL_PREMIUM_PROD_ID = "prod_xyz"
+    return settings
+
+
+def test_get_subplat_upgrade_link_by_language(
+    get_subplat_link_settings: SettingsWrapper,
+) -> None:
+    country_lang_mapping = get_premium_country_language_mapping()
+    expected_plan = country_lang_mapping["US"]["*"]["yearly"]["id"]
+    expected_link = (
+        "https://accounts.example.com/subscriptions/products/prod_xyz?plan="
+        + expected_plan
+    )
+
+    link = get_subplat_upgrade_link_by_language("en-us")
+    assert link == expected_link
+
+
+def test_get_subplat_upgrade_link_by_language_unsupported_region(
+    get_subplat_link_settings: SettingsWrapper,
+) -> None:
+    country_lang_mapping = get_premium_country_language_mapping()
+    expected_plan = country_lang_mapping["US"]["*"]["yearly"]["id"]
+    expected_link = (
+        "https://accounts.example.com/subscriptions/products/prod_xyz?plan="
+        + expected_plan
+    )
+
+    link = get_subplat_upgrade_link_by_language("zh-Hant")
+    assert link == expected_link
+
+
+def test_get_subplat_upgrade_link_by_language_invalid_header(
+    get_subplat_link_settings: SettingsWrapper,
+) -> None:
+    country_lang_mapping = get_premium_country_language_mapping()
+    expected_plan = country_lang_mapping["US"]["*"]["yearly"]["id"]
+    expected_link = (
+        "https://accounts.example.com/subscriptions/products/prod_xyz?plan="
+        + expected_plan
+    )
+
+    link = get_subplat_upgrade_link_by_language("en-gb;q=1.0000")
+    assert link == expected_link
