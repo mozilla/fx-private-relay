@@ -74,6 +74,18 @@ transition in June 2025.
 
 ## Outcomes
 
+The change to the metrics backend are reflected in the system diagrams:
+
+- Rename "Operational Metrics Platform" to "Google Managed Prometheus", and
+  change relationship from "Sends metrics (Telegraf)" to "Pulls metrics
+  (Prometheus)"
+- Remove stackdriver telegraf from stage and production deployments
+
+Two additional changes clarify the metrics data flow:
+
+- Add Amazon CloudWatch as metrics source in stage and production deployments
+- Correct statsd connections to be UDP, not HTTP
+
 The changes to the metrics infrastructure has positive and negative
 effect for Relay.
 

@@ -26,8 +26,8 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                 description "The Mozilla Telemetry Platform"
                 tags "Other Software System"
             }
-            metrics_system = softwareSystem "Operational Metrics Platform" {
-                description "The Mozilla operational metrics and reporting platform"
+            metrics_system = softwareSystem "Google Managed Prometheus" {
+                description "Stores metrics for queries and reports"
                 tags "Other Software System"
             }
             sentry = softwareSystem "Sentry" {
@@ -68,7 +68,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                     description "Collects metrics from other containers"
                     tags "Optional Application",in_other_managed_services
                     technology telegraf
-                    -> metrics_system "Sends metrics" "Telegraf"
+                    -> metrics_system "Pulls metrics" "Prometheus"
                     -> db "Queries" "SQL"
                 }
                 profiler = container Profiler {
@@ -240,7 +240,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                     -> ga "Forwards extension's UI events" "Measurement Protocol"
                     -> email_sender "Sends email" "SES API"
                     -> sentry "Sends exceptions" "HTTPS API"
-                    -> metrics "Sends metrics" "HTTP"
+                    -> metrics "Sends metrics" "UDP"
                     -> logs "Emits logs" "stdout / stderr"
                     -> phone_service "Reserves phone number, routes SMS and calls" "Stripe API, HTTPS callbacks"
                     -> iq_phone_service "Reserves phone number, routes SMS" "Inteliquent API, HTTPS callbacks" "Optional Relationship"
@@ -255,7 +255,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                     -> email_queue "Polls" "SQS API"
                     -> email_object_store "Reads, deletes emails" "S3 API"
                     -> sentry "Sends exceptions" "HTTPS API"
-                    -> metrics "Sends metrics" "HTTP"
+                    -> metrics "Sends metrics" "UDP"
                     -> logs "Emits logs" "stdout / stderr"
                     -> profiler "Sends profiles" "Profile API"
                 }
@@ -353,7 +353,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
 
         // Other Managed Services
         c2_other_managed_services -> data_system "Sends Glean events" "JSON over GCP SNS"
-        c2_other_managed_services -> metrics_system "Sends counter, gauge, and timing metrics" "Telegraf"
+        c2_other_managed_services -> metrics_system "Pulls metrics" "Prometheus"
         c2_other_managed_services -> db "Queries and replicates data" "SQL"
         web_app -> c2_other_managed_services "Uses"
         email_processor -> c2_other_managed_services "Uses"
@@ -373,7 +373,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
         c2_periodic_tasks -> email_dlq_queue "Cleans undeliverable email" "AWS APIs"
         c2_periodic_tasks -> email_object_store "Deletes undeliverable email" "AWS APIs"
         c2_periodic_tasks -> c2_other_managed_services "Uses"
-        c2_periodic_tasks -> metrics "Sends metrics"
+        c2_periodic_tasks -> metrics "Sends metrics" "UDP"
         c2_periodic_tasks -> logs "Emits logs"
 
         dev_deploy = deploymentEnvironment "dev.fxprivaterelay.nonprod.cloudops.mozgcp.net" {
@@ -484,6 +484,10 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                         stage_kms_emails = containerInstance email_key
                     }
                 }
+                stage_cloudwatch = infrastructureNode "Amazon CloudWatch" {
+                    description "AWS metrics storage and reporting"
+                    tags "Managed Service"
+                }
             }
             deploymentNode "Google Cloud Platform" {
                 deploymentNode "Kubernetes Engine" {
@@ -544,13 +548,6 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                             tags "Deployment Service"
                         }
                     }
-                    deploymentNode "stackdriver-telegraf" {
-                        technology "Kubernetes Deployment"
-                        instances 1
-                        stage_stackdriver_telegraf = infrastructureNode "stackdriver-telegraf" {
-                            tags "Deployment Service"
-                        }
-                    }
                     deploymentNode "statsd-telegraf" {
                         technology "Kubernetes Deployment"
                         instances 1
@@ -580,12 +577,6 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                 deploymentNode "Cloud Load Balancing" {
                     stage_lb = infrastructureNode "Load Balancer" {
                         description "Zone for fxprivaterelay.nonprod.cloudops.mozgcp.net"
-                        tags "Managed Service"
-                    }
-                }
-                deploymentNode "Cloud Metrics" {
-                    stage_cloud_metrics = infrastructureNode "Cloud Metrics" {
-                        description "GCP service metrics"
                         tags "Managed Service"
                     }
                 }
@@ -621,10 +612,9 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
             stage_lb -> stage_iprepd_nginx "Requests" "HTTP"
             stage_web -> stage_lb "Uses API, requests static assets"
             stage_add_on -> stage_lb "Uses API, sends UI events"
-            stage_cloud_metrics -> stage_stackdriver_telegraf "Sends metrics"
-            stage_stackdriver_telegraf -> stage_metrics "Sends metrics"
             stage_phone -> stage_lb "Informs of incoming SMS and calls"
             stage_email_topic -> stage_lb "Sends emails, complaints, bounces" "SQS" "Optional Relationship"
+            stage_cloudwatch -> stage_metrics "Polls metrics"
         }
         prod_deploy = deploymentEnvironment "relay.firefox.com" {
             deploymentNode "Stage User Interfaces" {
@@ -652,6 +642,10 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                     deploymentNode "Amazon KMS" {
                         prod_kms_emails = containerInstance email_key
                     }
+                }
+                prod_cloudwatch = infrastructureNode "Amazon CloudWatch" {
+                    description "AWS metrics storage and reporting"
+                    tags "Managed Service"
                 }
             }
             deploymentNode "Google Cloud Platform" {
@@ -713,13 +707,6 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                             tags "Deployment Service"
                         }
                     }
-                    deploymentNode "stackdriver-telegraf" {
-                        technology "Kubernetes Deployment"
-                        instances 1
-                        prod_stackdriver_telegraf = infrastructureNode "stackdriver-telegraf" {
-                            tags "Deployment Service"
-                        }
-                    }
                     deploymentNode "statsd-telegraf" {
                         technology "Kubernetes Deployment"
                         instances 1
@@ -748,12 +735,6 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                 deploymentNode "Cloud Load Balancing" {
                     prod_lb = infrastructureNode "Load Balancer" {
                         description "Zone for prod.fxprivaterelay.prod.cloudops.mozgcp.net"
-                        tags "Managed Service"
-                    }
-                }
-                deploymentNode "Cloud Metrics" {
-                    prod_cloud_metrics = infrastructureNode "Cloud Metrics" {
-                        description "GCP service metrics"
                         tags "Managed Service"
                     }
                 }
@@ -791,8 +772,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
             prod_add_on -> prod_lb "Uses API, sends UI events"
             prod_firefox -> prod_lb "Uses API"
             prod_other_client -> prod_lb "Uses API"
-            prod_cloud_metrics -> prod_stackdriver_telegraf "Sends metrics"
-            prod_stackdriver_telegraf -> prod_metrics "Sends metrics"
+            prod_cloudwatch -> prod_metrics "Pulls metrics"
             prod_phone -> prod_lb "Informs of incoming SMS and calls"
             prod_email_topic -> prod_lb "Sends emails, complaints, bounces" "SQS" "Optional Relationship"
         }
