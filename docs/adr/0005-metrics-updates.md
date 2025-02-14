@@ -114,7 +114,6 @@ effect for Relay.
 - [Google Managed Prometheus][] (_Mozilla Only_) - Project page for the migration effort.
 
 [DogStatsD]: https://docs.datadoghq.com/developers/dogstatsd/datagram_shell?tab=metrics
-[Glean]: https://docs.telemetry.mozilla.org/concepts/glean/glean.html
 [Google Cloud Managed Service for Prometheus]: https://cloud.google.com/stackdriver/docs/managed-prometheus
 [Google Managed Prometheus]: https://mozilla-hub.atlassian.net/wiki/spaces/IP/pages/748879873/Google+Managed+Prometheus
 [Grafana]: https://en.wikipedia.org/wiki/Grafana
@@ -127,8 +126,4 @@ effect for Relay.
 [Proposal: Evolving metrics storage at Mozilla]: https://docs.google.com/document/d/1gd_f2sARvka-PsEVGQAfXRQIr1h2MRz16f-fPomjsH8/edit?usp=sharing
 [Simple Email Service]: https://docs.aws.amazon.com/ses/latest/dg/Welcome.html
 [Stackdriver]: https://cloud.google.com/blog/products/gcp/google-stackdriver-integrated-monitoring-and-logging-for-hybrid-cloud
-[datadog]: https://datadogpy.readthedocs.io/en/latest/
-[markus]: https://markus.readthedocs.io/en/latest/
 [telegraf]: https://www.influxdata.com/time-series-platform/telegraf/
-
-<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
