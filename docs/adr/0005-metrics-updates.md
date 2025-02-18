@@ -13,15 +13,15 @@ technologies for metrics aggregation, storage, display, and alerting:
   Both InfluxDB and Grafana are hosted by [InfluxData][].
 - A "statsd" [telegraf][] instance. This instance receives counters, gauges,
   and timing events from the application, in a format known as [DogStatsD][].
-  This instance also queries the database for product metrics. This instance
-  writes the aggregated data to InfluxDB.
+  This instance also queries the database for product metrics. This telegraf
+  instance writes the aggregated metrics to InfluxDB.
 - A "stackdriver" telegraf instance. This instance reads cloud infrastructure
-  data from Google Cloud Platform (GCP). This includes data for services
+  metrics from Google Cloud Platform (GCP). This includes metrics for services
   running in GCP, but also Amazon Web Services (AWS) such as the [Simple Email
-  Service][] (SES). This cloud metrics ingestion feature was called
-  [Stackdriver] until 2020, when it was rebranded as [Observability][]. This
-  telegraf instance writes the aggregated cloud infrastructure data to
-  InfluxDB.
+  Service][] (SES). The GCP feature that collects metrics from other cloud
+  services was called [Stackdriver] until 2020, when it was rebranded as
+  [Observability][]. This telegraf instance writes the aggregated cloud
+  infrastructure metrics to InfluxDB.
 
 ```mermaid
 ---
@@ -45,11 +45,12 @@ From H2 2024 through H1 2025, the SRE team is migrating to a new metrics stack:
 - A self-hosted [Grafana][] instance, for dashboards and alerting. It will
   query Monarch directly, so the stackdriver telegraf instance is no longer
   needed.
-- A "statsd" [telegraf][] instance, that will be similar to the existing
-  service, including writing to the old InfluxDB database during the
-  transition. However, it will also expose a [Prometheus][] endpoint with
-  aggregated statistics, which will be periodically polled by the GCP
-  service and written to Monarch.
+- A "statsd" [telegraf][] instance, with a similar purpose as the previous
+  statsd instance. It will continue to receive counter, gauge, and timing
+  data from the Relay application, and to query the database. However,
+  instead of pushing aggregated metrics, it will publish a [Prometheus][]
+  endpoint, which will be periodically polled by a GCP service and written to
+  Monarch.
 
 ```mermaid
 ---
@@ -64,13 +65,17 @@ flowchart TD
     monarch -->|PromQL| grafana[Grafana]
 ```
 
-During the transition period, the InfluxDB database will continue to be
-populated. This will allow comparing metrics and dashboards between the
-old and new environments. The SRE team is developing tools to recreate
-dashboards based on PromQL, which should help in the majority of cases.
-Manual work will be needed to convert the remaining panels, if possible.
-The goal is to move all teams by March 2025, and to complete the
-transition in June 2025.
+Telegraf instances are capable of multiple outputs. During the transition
+period, they will continue to push metrics to the InfluxDB database. This will
+allow comparing metrics and dashboards between the old and new environments.
+
+The SRE team is developing tools to recreate dashboards using InfluxDB queries
+to ones using [PromQL][], the Prometheus query language. This should handle the
+majority of cases. should help in the majority of cases. Manual work will be
+needed to convert the remaining panels, if possible.
+
+The goal is to move all teams by March 2025, and to complete the transition in
+June 2025.
 
 ## Outcomes
 
@@ -87,18 +92,20 @@ Two additional changes clarify the metrics data flow:
 - Correct statsd connections to be UDP, not HTTP
 
 The changes to the metrics infrastructure has positive and negative
-effect for Relay.
+effects for Relay.
 
 ### Positive Consequences
 
 - Aggregated metrics (such as average latency) are correct when queried
   directly from GCP using PromQL. This allows for accurate dashboards and
   alerts. Previously, the metrics were not copied correctly to InfluxDB. This was
-  not widely known, so Relay spent wasted effort dealing with incorrect data
-  ([MPP-3900][]).
+  not widely known, so the Relay team wasted time answering alerts and trying to
+  fix performance based on chaotic data sources. ([MPP-3900][]).
 
 ### Negative Consequences
 
+- Relay dashboards have been partially migrated to the new Grafana instance.
+  Manual work is needed to validate and fix the migrated panels.
 - Google Cloud Prometheus is a worse match than InfluxDB for the metrics
   emitted by the Relay application. Some issues discovered by other teams are
   counters that reset to zero or go negative, and missing data for infrequent
@@ -106,7 +113,7 @@ effect for Relay.
   involve changing how Relay emits metrics, project-level customization of the
   telegraf configuration, or abandoning statsd metrics. Until the issues are
   addressed, the data that passes through statsd telegraf should be considered
-  unreliable, and cross-checked against other data like structured logs.
+  unreliable, and cross-checked against other data sources like structured logs.
 
 ## Links
 
@@ -123,6 +130,7 @@ effect for Relay.
 [Monarch]: https://research.google/pubs/monarch-googles-planet-scale-in-memory-time-series-database/
 [Observability]: https://cloud.google.com/products/observability
 [Prometheus]: https://en.wikipedia.org/wiki/Prometheus_(software)
+[PromQL]: https://prometheus.io/docs/prometheus/latest/querying/basics/
 [Proposal: Evolving metrics storage at Mozilla]: https://docs.google.com/document/d/1gd_f2sARvka-PsEVGQAfXRQIr1h2MRz16f-fPomjsH8/edit?usp=sharing
 [Simple Email Service]: https://docs.aws.amazon.com/ses/latest/dg/Welcome.html
 [Stackdriver]: https://cloud.google.com/blog/products/gcp/google-stackdriver-integrated-monitoring-and-logging-for-hybrid-cloud
