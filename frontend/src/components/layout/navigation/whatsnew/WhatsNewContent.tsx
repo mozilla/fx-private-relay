@@ -1,3 +1,4 @@
+import React from "react";
 import { StaticImageData } from "next/image";
 import styles from "./WhatsNewContent.module.scss";
 import Image from "../../../Image";
@@ -7,7 +8,7 @@ export type Props = {
   description: string;
   image: StaticImageData;
   videos?: Record<string, string>;
-  cta?: JSX.Element | null;
+  cta?: React.JSX.Element | null;
 };
 
 /**
@@ -66,8 +67,8 @@ const Hero = (props: Pick<Props, "image" | "videos">) => {
 export type WhatsNewComponentContentProps = {
   heading: string;
   description: string;
-  hero: JSX.Element;
-  cta?: JSX.Element | null;
+  hero: React.JSX.Element;
+  cta?: React.JSX.Element | null;
 };
 /**
  * Content of a "What's New" entry with a component as the hero

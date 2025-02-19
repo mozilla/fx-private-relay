@@ -1,3 +1,4 @@
+import React from "react";
 import { useL10n } from "../../../hooks/l10n";
 import { CloseIcon, MenuIcon } from "../../Icons";
 
@@ -5,7 +6,7 @@ export type Props = {
   toggleState: boolean | undefined;
 };
 
-export const MenuToggle = (props: Props): JSX.Element => {
+export const MenuToggle = (props: Props): React.JSX.Element => {
   const l10n = useL10n();
   const { toggleState } = props;
 

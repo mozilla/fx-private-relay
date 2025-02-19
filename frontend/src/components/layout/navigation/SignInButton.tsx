@@ -1,3 +1,4 @@
+import React from "react";
 import styles from "./SignInButton.module.scss";
 import { setCookie } from "../../../functions/cookies";
 import { getLoginUrl, useFxaFlowTracker } from "../../../hooks/fxaFlowTracker";
@@ -8,7 +9,7 @@ export type Props = {
   className?: string;
 };
 
-export const SignInButton = (props: Props): JSX.Element => {
+export const SignInButton = (props: Props): React.JSX.Element => {
   const l10n = useL10n();
   const signInFxaFlowTracker = useFxaFlowTracker({
     category: "Sign In",

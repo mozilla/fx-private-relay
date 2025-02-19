@@ -87,7 +87,7 @@ export const AppPicker = (props: Props) => {
   );
   const linkRefs: Record<
     keyof typeof products,
-    RefObject<HTMLAnchorElement>
+    RefObject<HTMLAnchorElement | null>
   > = {
     monitor: useRef<HTMLAnchorElement>(null),
     pocket: useRef<HTMLAnchorElement>(null),

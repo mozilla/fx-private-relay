@@ -38,7 +38,7 @@ const defaultAddonData: AddonData = {
 };
 
 function useMutationObserver(
-  elementRef: RefObject<HTMLElement>,
+  elementRef: RefObject<HTMLElement | null>,
   options: MutationObserverInit,
   callback: MutationCallback,
 ) {
@@ -125,7 +125,7 @@ const parseAddonData = (addonElement: HTMLElement): AddonData => {
  * @returns The data that should be set as the element's props, to ensure they're aligned with its in-DOM attributes.
  */
 export function useAddonElementWatcher(
-  addonElementRef: RefObject<HTMLElement>,
+  addonElementRef: RefObject<HTMLElement | null>,
 ): AddonData {
   const [addonData, setAddonData] = useState<AddonData>(
     addonElementRef.current !== null

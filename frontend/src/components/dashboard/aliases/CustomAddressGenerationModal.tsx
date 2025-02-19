@@ -122,7 +122,7 @@ type CustomMaskCreatorProps = {
   profile: ProfileData;
   errorExplainerState: MenuTriggerState;
   cancelButton: ButtonAria<ButtonHTMLAttributes<HTMLButtonElement>>;
-  cancelButtonRef: RefObject<HTMLButtonElement>;
+  cancelButtonRef: RefObject<HTMLButtonElement | null>;
   onPick: (address: string, setErrorState: (flag: boolean) => void) => void;
   setAddress: (address: string) => void;
 };

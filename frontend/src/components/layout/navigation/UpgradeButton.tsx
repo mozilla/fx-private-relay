@@ -1,10 +1,11 @@
+import React from "react";
 import styles from "./UpgradeButton.module.scss";
 import { useGaViewPing } from "../../../hooks/gaViewPing";
 import Link from "next/link";
 import { useGaEvent } from "../../../hooks/gaEvent";
 import { useL10n } from "../../../hooks/l10n";
 
-export const UpgradeButton = (): JSX.Element => {
+export const UpgradeButton = (): React.JSX.Element => {
   const l10n = useL10n();
   const upgradeButtonRef = useGaViewPing({
     category: "Purchase Button",

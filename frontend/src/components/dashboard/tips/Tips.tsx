@@ -321,7 +321,7 @@ const TipPanel = ({
 }: { tabListState: TabListState<object> } & Parameters<
   typeof useTabPanel
 >[0]) => {
-  const panelRef = useRef<HTMLDivElement>();
+  const panelRef = useRef<HTMLDivElement | null>(null);
   const inViewRef = useGaViewPing({
     category: "Tips",
     label: tabListState.selectedItem?.key.toString(),

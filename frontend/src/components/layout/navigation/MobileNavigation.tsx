@@ -1,3 +1,4 @@
+import React from "react";
 import Link from "next/link";
 import styles from "./MobileNavigation.module.scss";
 import { SignUpButton } from "./SignUpButton";
@@ -20,7 +21,7 @@ import { useL10n } from "../../../hooks/l10n";
 export type MenuItem = {
   url: string;
   isVisible?: boolean;
-  icon: JSX.Element;
+  icon: React.JSX.Element;
   l10n: string;
 };
 
