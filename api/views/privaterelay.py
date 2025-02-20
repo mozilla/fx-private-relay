@@ -3,6 +3,7 @@ from typing import Any, Literal
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db import IntegrityError
 from django.db.models.query import QuerySet
 from django.urls.exceptions import NoReverseMatch
 
@@ -11,6 +12,7 @@ from allauth.account.adapter import get_adapter as get_account_adapter
 from allauth.socialaccount.adapter import get_adapter as get_social_adapter
 from allauth.socialaccount.helpers import complete_social_login
 from allauth.socialaccount.models import SocialAccount
+from codetiming import Timer
 from django_filters.rest_framework import FilterSet
 from drf_spectacular.utils import (
     OpenApiExample,
@@ -19,6 +21,7 @@ from drf_spectacular.utils import (
     OpenApiResponse,
     extend_schema,
 )
+from markus.utils import generate_tag
 from rest_framework.authentication import get_authorization_header
 from rest_framework.decorators import (
     api_view,
@@ -27,13 +30,14 @@ from rest_framework.decorators import (
 )
 from rest_framework.exceptions import AuthenticationFailed, ErrorDetail, ParseError
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 from rest_framework.viewsets import ModelViewSet
 from waffle import get_waffle_flag_model
 from waffle.models import Sample, Switch
 
-from emails.utils import incr_if_enabled
+from emails.utils import histogram_if_enabled, incr_if_enabled
 from privaterelay.models import Profile
 from privaterelay.plans import (
     get_bundle_country_language_mapping,
@@ -42,8 +46,15 @@ from privaterelay.plans import (
 )
 from privaterelay.utils import get_countries_info_from_request_and_mapping
 
-from ..authentication import get_fxa_uid_from_oauth_token
-from ..permissions import CanManageFlags, IsOwner
+from ..authentication import (
+    FXA_TOKEN_AUTH_NEW_AND_BUSTED,
+    FxaTokenAuthentication,
+    IntrospectionResponse,
+)
+from ..authentication import (
+    get_fxa_uid_from_oauth_token_2024 as get_fxa_uid_from_oauth_token,
+)
+from ..permissions import CanManageFlags, HasValidFxaToken, IsActive, IsNewUser, IsOwner
 from ..serializers.privaterelay import (
     FlagSerializer,
     ProfileSerializer,
@@ -294,7 +305,16 @@ def runtime_data(request):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 @authentication_classes([])
-def terms_accepted_user(request):
+def terms_accepted_user(request: Request) -> Response:
+    """Pick 2024 or 2025 version based on settings"""
+    if settings.FXA_TOKEN_AUTH_VERSION == FXA_TOKEN_AUTH_NEW_AND_BUSTED:
+        # Use request._request to re-do authentication, permissions checks
+        return terms_accepted_user_2025(request._request)
+    else:
+        return terms_accepted_user_2024(request)
+
+
+def terms_accepted_user_2024(request: Request) -> Response:
     """
     Create a Relay user from an FXA token.
 
@@ -395,3 +415,183 @@ def terms_accepted_user(request):
         extra={"social_account": sa.uid, "status_code": status_code},
     )
     return Response(status=status_code)
+
+
+@api_view(["POST"])
+@permission_classes([HasValidFxaToken, IsNewUser | IsActive])
+@authentication_classes([FxaTokenAuthentication])
+def terms_accepted_user_2025(request: Request) -> Response:
+    """
+    Create a Relay user from an FXA token.
+
+    See API Auth doc for details:
+
+    https://github.com/mozilla/fx-private-relay/blob/main/docs/api_auth.md#firefox-oauth-token-authentication-and-accept-terms-of-service
+    """
+
+    user = request.user
+    introspect_response = request.auth
+    if not isinstance(introspect_response, IntrospectionResponse):
+        raise ValueError(
+            "Expected request.auth to be IntrospectionResponse,"
+            f" got {type(introspect_response)}"
+        )
+    fxa_uid = introspect_response.fxa_id
+    token = introspect_response.token
+
+    existing_sa = False
+    action: str | None = None
+    profile_time_s: float | None = None
+    if isinstance(user, User):
+        socialaccount = SocialAccount.objects.get(user=user, provider="fxa")
+        existing_sa = True
+        action = "found_existing"
+
+    if not existing_sa:
+        # Get the user's profile
+        fxa_prof_or_resp, profile_time_s = _get_fxa_profile_from_bearer_token(token)
+        if isinstance(fxa_prof_or_resp, Response):
+            return fxa_prof_or_resp
+        fxa_profile = fxa_prof_or_resp
+
+        # Since this takes time, see if another request created the SocialAccount
+        try:
+            socialaccount = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
+            existing_sa = True
+            action = "created_during_profile_fetch"
+        except SocialAccount.DoesNotExist:
+            pass
+
+    if not existing_sa:
+        # mypy type narrowing, but should always be true
+        if not isinstance(fxa_profile, dict):  # pragma: no cover
+            raise ValueError(f"fxa_profile is {type(fxa_profile)}, not dict")
+
+        # Still no SocialAccount, attempt to create it
+        socialaccount, response = _create_socialaccount_from_bearer_token(
+            request, token, fxa_uid, fxa_profile
+        )
+        if response:
+            return response
+        action = "created"
+
+    status_code = 202 if existing_sa else 201
+    info_logger.info(
+        "terms_accepted_user",
+        extra={
+            "social_account": socialaccount.uid,
+            "status_code": status_code,
+            "action": action,
+            "introspection_from_cache": introspect_response.from_cache,
+            "introspection_time_s": introspect_response.request_s,
+            "profile_time_s": profile_time_s,
+        },
+    )
+    return Response(status=status_code)
+
+
+def _create_socialaccount_from_bearer_token(
+    request: Request, token: str, fxa_uid: str, fxa_profile: dict[str, Any]
+) -> tuple[SocialAccount, None] | tuple[None, Response]:
+    """Create a new Relay user with a SocialAccount from an FXA Bearer Token."""
+
+    # request is not exactly the request object that FirefoxAccountsProvider expects,
+    # but it has all of the necessary attributes to initialize the Provider
+    provider = get_social_adapter().get_provider(request, "fxa")
+
+    # sociallogin_from_response does not save the new user that was created
+    # https://github.com/pennersr/django-allauth/blob/65.3.0/allauth/socialaccount/providers/base/provider.py#L84
+    social_login = provider.sociallogin_from_response(request, fxa_profile)
+
+    # Complete social login is called by callback, see
+    # https://github.com/pennersr/django-allauth/blob/65.3.0/allauth/socialaccount/providers/oauth/views.py#L116
+    # for what we are mimicking to create new SocialAccount, User, and Profile for
+    # the new Relay user from Firefox Since this is a Resource Provider/Server flow
+    # and are NOT a Relying Party (RP) of FXA No social token information is stored
+    # (no Social Token object created).
+    try:
+        complete_social_login(request, social_login)
+    except (IntegrityError, NoReverseMatch) as e:
+        # TODO: use this logging to fix the underlying issue
+        # MPP-3473: NoReverseMatch socialaccount_signup
+        #  Another user has the same email?
+        log_extra = {"exception": str(e), "social_login_state": social_login.state}
+        if fxa_profile.get("metricsEnabled", False):
+            log_extra["fxa_uid"] = fxa_uid
+        logger.error("socialaccount_signup_error", extra=log_extra)
+        return None, Response(status=500)
+
+    # complete_social_login writes ['account_verified_email', 'user_created',
+    # '_auth_user_id', '_auth_user_backend', '_auth_user_hash'] on
+    # request.session which sets the cookie because complete_social_login does
+    # the "login" The user did not actually log in, logout to clear the session
+    get_account_adapter(request).logout(request)
+
+    sa: SocialAccount = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
+
+    # Indicate profile was created from the resource flow
+    profile = sa.user.profile
+    profile.created_by = "firefox_resource"
+    profile.save()
+    return sa, None
+
+
+def _get_fxa_profile_from_bearer_token(
+    token: str,
+) -> tuple[dict[str, Any] | Response, float]:
+    """Use a bearer token to get the Mozilla Account user's profile data"""
+
+    error: None | Literal["timeout", "bad_response"] = None
+
+    try:
+        with Timer(logger=None) as profile_timer:
+            fxa_profile_resp = requests.get(
+                FXA_PROFILE_URL,
+                headers={"Authorization": f"Bearer {token}"},
+                timeout=settings.FXA_REQUESTS_TIMEOUT_SECONDS,
+            )
+    except requests.Timeout:
+        error = "timeout"
+    profile_time_s = round(profile_timer.last, 3)
+
+    if error is None and not (fxa_profile_resp.ok and fxa_profile_resp.content):
+        error = "bad_response"
+
+    histogram_if_enabled(
+        name="accounts_profile_ms",
+        value=int(profile_time_s * 1000),
+        tags=[generate_tag("result", error or "OK")],
+    )
+
+    if error == "timeout":
+        logger.error(
+            "terms_accepted_user: timeout",
+            extra={
+                "profile_time_s": profile_time_s,
+            },
+        )
+        return (
+            Response(
+                "Account profile request timeout, try again later.",
+                status=503,
+            ),
+            profile_time_s,
+        )
+    elif error == "bad_response":
+        logger.error(
+            "terms_accepted_user: bad account profile response",
+            extra={
+                "status_code": fxa_profile_resp.status_code,
+                "content": fxa_profile_resp.content,
+                "profile_time_s": profile_time_s,
+            },
+        )
+        return (
+            Response(
+                data={"detail": "Did not receive a 200 response for account profile."},
+                status=500,
+            ),
+            profile_time_s,
+        )
+    else:
+        return fxa_profile_resp.json(), profile_time_s
