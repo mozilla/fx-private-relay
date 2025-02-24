@@ -3,7 +3,10 @@ name: Glean probe-scraper
 # See:
 # https://mozilla.github.io/glean/book/user/adding-glean-to-your-project/enable-data-ingestion.html#validate-and-publish-metrics
 on:
-  [push, pull_request]
+  push:
+  pull_request:
+  workflow_dispatch:
+
 jobs:
   glean-probe-scraper:
     uses: mozilla/probe-scraper/.github/workflows/glean.yaml@main
