@@ -27,7 +27,7 @@ psycopg[c]==3.2.4
 PyJWT==2.10.1
 python-decouple==3.8
 requests==2.32.3
-sentry-sdk==2.21.0
+sentry-sdk==2.22.0
 whitenoise==6.9.0
 
 # phones app
