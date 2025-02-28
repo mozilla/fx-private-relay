@@ -18,7 +18,7 @@ export const AddonData = (props: Props) => {
     // TODO: Make it look for this custom element instead.
     id: "profile-main",
     "data-api-token": props.profile.api_token,
-    "data-has-premium": props.profile.has_premium,
+    "data-has-premium": String(props.profile.has_premium),
     "data-fxa-subscriptions-url": `${props.runtimeData.FXA_ORIGIN}/subscriptions`,
     "data-aliases-used-val": props.aliases.length,
     "data-emails-forwarded-val": props.totalForwardedEmails,
