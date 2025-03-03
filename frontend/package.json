@@ -22,7 +22,7 @@
     "@fluent/react": "^0.15.2",
     "@mozilla-protocol/core": "^17.0.1",
     "@next/third-parties": "^15.1.7",
-    "@stripe/stripe-js": "^5.6.0",
+    "@stripe/stripe-js": "^5.7.0",
     "chokidar-cli": "^3.0.0",
     "cldr-localenames-modern": "^45.0.0",
     "msw": "^2.7.1",
