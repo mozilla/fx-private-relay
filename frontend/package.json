@@ -34,7 +34,7 @@
     "react-intersection-observer": "^9.15.1",
     "react-singleton-hook": "^4.0.1",
     "react-stately": "^3.35.0",
-    "react-toastify": "^11.0.3",
+    "react-toastify": "^11.0.5",
     "swr": "^2.3.2"
   },
   "devDependencies": {
