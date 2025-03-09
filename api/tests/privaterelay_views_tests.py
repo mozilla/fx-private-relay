@@ -1,28 +1,36 @@
-"""Tests for api/views/email_views.py"""
+"""Tests for api/views/privaterelay_views.py"""
 
 import logging
-from datetime import datetime
+from typing import Any
+from unittest.mock import patch
 
 from django.contrib.auth.models import User
-from django.core.cache import cache
-from django.test import RequestFactory, TestCase
+from django.core.cache import BaseCache, cache
+from django.http import HttpRequest
+from django.test import TestCase, override_settings
 from django.test.client import Client
 from django.urls import reverse
 
 import pytest
 import responses
 from allauth.account.models import EmailAddress
-from allauth.socialaccount.models import SocialAccount
+from allauth.socialaccount.internal.flows.signup import process_auto_signup
+from allauth.socialaccount.models import SocialAccount, SocialApp, SocialLogin
 from model_bakery import baker
+from pytest_django.fixtures import SettingsWrapper
+from requests import ReadTimeout
 from rest_framework.test import APIClient
 
-from api.authentication import INTROSPECT_TOKEN_URL, get_cache_key
-from api.tests.authentication_tests import _setup_fxa_response
-from api.views.privaterelay import FXA_PROFILE_URL
-from privaterelay.models import Profile
-from privaterelay.tests.utils import (
-    log_extra,
+from api.authentication import (
+    FXA_TOKEN_AUTH_NEW_AND_BUSTED,
+    IntrospectionError,
+    IntrospectionResponse,
+    get_cache_key,
 )
+from api.tests.authentication_tests import setup_fxa_introspect
+from api.views.privaterelay import FXA_PROFILE_URL, _get_fxa_profile_from_bearer_token
+from privaterelay.models import Profile
+from privaterelay.tests.utils import log_extra
 
 
 @pytest.mark.django_db
@@ -151,8 +159,8 @@ def test_profile_patch_with_model_and_serializer_fields(
 
 
 def test_profile_patch_with_non_read_only_and_read_only_fields(
-    premium_user, prem_api_client
-):
+    premium_user: User, prem_api_client: Client
+) -> None:
     """A request that includes at least one read only field will give a 400 response"""
     premium_profile = premium_user.profile
     old_onboarding_state = premium_profile.onboarding_state
@@ -190,17 +198,52 @@ def test_profile_patch_fields_that_dont_exist(
     assert response.status_code == 200
 
 
+def _setup_client(token: str) -> APIClient:
+    client = APIClient()
+    client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+    return client
+
+
+def _mock_fxa_profile_response(
+    status_code: int = 200,
+    email: str = "user@example.com",
+    uid: str = "a-relay-uid",
+    metrics_enabled: bool = True,
+    timeout: bool = False,
+) -> responses.BaseResponse:
+    """Setup Mozilla Accounts profile response"""
+    if status_code == 502:
+        # FxA profile server is down
+        return responses.add(responses.GET, FXA_PROFILE_URL, status=200, body="")
+    elif timeout:
+        return responses.add(
+            responses.GET, FXA_PROFILE_URL, body=ReadTimeout("FxA is slow today")
+        )
+
+    profile_json = {
+        "email": email,
+        "amrValues": ["pwd", "email"],
+        "twoFactorAuthentication": False,
+        "metricsEnabled": metrics_enabled,
+        "uid": uid,
+        "avatar": "https://profile.stage.mozaws.net/v1/avatar/t",
+        "avatarDefault": False,
+    }
+    return responses.add(
+        responses.GET,
+        FXA_PROFILE_URL,
+        status=status_code,
+        json=profile_json,
+    )
+
+
+@override_settings(
+    FXA_TOKEN_AUTH_VERSION=FXA_TOKEN_AUTH_NEW_AND_BUSTED
+)  # noqa: S106 # Possible hardcoded password
 @pytest.mark.usefixtures("fxa_social_app")
 class TermsAcceptedUserViewTest(TestCase):
-    def setUp(self) -> None:
-        self.factory = RequestFactory()
-        self.path = "/api/v1/terms-accepted-user/"
-        self.fxa_verify_path = INTROSPECT_TOKEN_URL
-        self.uid = "relay-user-fxa-uid"
-
-    def _setup_client(self, token: str) -> None:
-        self.client = APIClient()
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+    path = "/api/v1/terms-accepted-user/"
+    uid = "relay-user-fxa-uid"
 
     def tearDown(self) -> None:
         cache.clear()
@@ -209,192 +252,278 @@ class TermsAcceptedUserViewTest(TestCase):
     def test_201_new_user_created_and_202_user_exists(self) -> None:
         email = "user@email.com"
         user_token = "user-123"
-        self._setup_client(user_token)
-        now_time = int(datetime.now().timestamp())
-        # Note: FXA iat and exp are timestamps in *milliseconds*
-        exp_time = (now_time + 60 * 60) * 1000
-        fxa_response = _setup_fxa_response(
-            200, {"active": True, "sub": self.uid, "exp": exp_time}
-        )
-        # setup fxa profile reponse
-        profile_json = {
-            "email": email,
-            "amrValues": ["pwd", "email"],
-            "twoFactorAuthentication": False,
-            "metricsEnabled": True,
-            "uid": self.uid,
-            "avatar": "https://profile.stage.mozaws.net/v1/avatar/t",
-            "avatarDefault": False,
-        }
-        responses.add(
-            responses.GET,
-            FXA_PROFILE_URL,
-            status=200,
-            json=profile_json,
-        )
+        client = _setup_client(user_token)
+        introspect_response, introspect_data = setup_fxa_introspect(uid=self.uid)
+        assert introspect_data is not None
+        profile_response = _mock_fxa_profile_response(email=email, uid=self.uid)
         cache_key = get_cache_key(user_token)
+        expected_resp = IntrospectionResponse(user_token, introspect_data)
 
         # get fxa response with 201 response for new user and profile created
-        response = self.client.post(self.path)
+        response = client.post(self.path)
         assert response.status_code == 201
         assert hasattr(response, "data")
         assert response.data is None
         # ensure no session cookie was set
         assert len(response.cookies.keys()) == 1
         assert "csrftoken" in response.cookies
-        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
-        assert responses.assert_call_count(FXA_PROFILE_URL, 1) is True
-        assert cache.get(cache_key) == fxa_response
+        assert introspect_response.call_count == 1
+        assert profile_response.call_count == 1
+        assert cache.get(cache_key) == expected_resp.as_cache_value()
         assert SocialAccount.objects.filter(user__email=email).count() == 1
         assert Profile.objects.filter(user__email=email).count() == 1
         assert Profile.objects.get(user__email=email).created_by == "firefox_resource"
 
         # now check that the 2nd call returns 202
-        response = self.client.post(self.path)
-        assert response.status_code == 202
-        assert hasattr(response, "data")
-        assert response.data is None
-        assert responses.assert_call_count(self.fxa_verify_path, 2) is True
-        assert responses.assert_call_count(FXA_PROFILE_URL, 1) is True
+        response2 = client.post(self.path)
+        assert response2.status_code == 202
+        assert hasattr(response2, "data")
+        assert response2.data is None
+        assert introspect_response.call_count == 2
+        assert profile_response.call_count == 1
+
+    @responses.activate
+    def test_account_created_during_request_returns_500(self) -> None:
+        """
+        If the SocialAccount is created while creating a new user, return 500
+
+        MPP-3505: Previously raised Unhandled IntegrityError
+        """
+        email = "user@email.com"
+        user_token = "user-123"
+        client = _setup_client(user_token)
+        introspect_response, introspect_data_ = setup_fxa_introspect(uid=self.uid)
+        profile_response = _mock_fxa_profile_response(email=email, uid=self.uid)
+
+        def process_auto_signup_then_create_account(
+            request: HttpRequest, social_login: SocialLogin
+        ) -> tuple[bool, None]:
+            """Create a duplicate SocialAccount after an email check"""
+            auto_signup, response = process_auto_signup(request, social_login)
+            assert auto_signup is True
+            assert response is None
+            user = User.objects.create(email=email)
+            user.profile.created_by = "mocked_function"
+            user.profile.save()
+            SocialAccount.objects.create(provider="fxa", uid=self.uid, user=user)
+            return auto_signup, response
+
+        with patch(
+            "allauth.socialaccount.internal.flows.signup.process_auto_signup",
+            side_effect=process_auto_signup_then_create_account,
+        ) as mock_process_signup:
+            response = client.post(self.path)
+        assert response.status_code == 500
+        mock_process_signup.assert_called_once()
+        assert introspect_response.call_count == 1
+        assert profile_response.call_count == 1
 
     @responses.activate
     def test_failed_profile_fetch_for_new_user_returns_500(self) -> None:
         user_token = "user-123"
-        self._setup_client(user_token)
-        now_time = int(datetime.now().timestamp())
-        exp_time = (now_time + 60 * 60) * 1000
-        _setup_fxa_response(200, {"active": True, "sub": self.uid, "exp": exp_time})
+        client = _setup_client(user_token)
+        introspect_response, _ = setup_fxa_introspect(uid=self.uid)
         # FxA profile server is down
-        responses.add(responses.GET, FXA_PROFILE_URL, status=502, body="")
-        response = self.client.post(self.path)
+        profile_response = _mock_fxa_profile_response(status_code=502)
+        response = client.post(self.path)
 
         assert response.status_code == 500
         assert response.json()["detail"] == (
             "Did not receive a 200 response for account profile."
         )
+        assert introspect_response.call_count == 1
+        assert profile_response.call_count == 1
 
-    def test_no_authorization_header_returns_400(self) -> None:
+    def test_no_authorization_header_returns_401(self) -> None:
         client = APIClient()
         response = client.post(self.path)
 
-        assert response.status_code == 400
-        assert response.json()["detail"] == "Missing Bearer header."
+        assert response.status_code == 401
+        expected_detail = "Authentication credentials were not provided."
+        assert response.json()["detail"] == expected_detail
 
-    def test_no_token_returns_400(self) -> None:
+    def test_no_token_returns_401(self) -> None:
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION="Bearer ")
         response = client.post(self.path)
 
-        assert response.status_code == 400
-        assert response.json()["detail"] == "Missing FXA Token after 'Bearer'."
+        assert response.status_code == 401
+        expected_detail = "Invalid token header. No credentials provided."
+        assert response.json()["detail"] == expected_detail
 
     @responses.activate
-    def test_invalid_bearer_token_error_from_fxa_returns_500_and_cache_returns_500(
+    def test_invalid_bearer_token_error_from_fxa_returns_500_and_is_cached(
         self,
     ) -> None:
-        _setup_fxa_response(401, {"error": "401"})
+        introspect_response, introspect_data = setup_fxa_introspect(401, error="401")
+        assert introspect_data is not None
         not_found_token = "not-found-123"
-        self._setup_client(not_found_token)
-
-        assert cache.get(get_cache_key(not_found_token)) is None
-
-        response = self.client.post(self.path)
-        assert response.status_code == 500
-        assert response.json()["detail"] == "Did not receive a 200 response from FXA."
-        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
-
-    @responses.activate
-    def test_jsondecodeerror_returns_401_and_cache_returns_500(
-        self,
-    ) -> None:
-        _setup_fxa_response(200)
-        invalid_token = "invalid-123"
-        cache_key = get_cache_key(invalid_token)
-        self._setup_client(invalid_token)
+        client = _setup_client(not_found_token)
+        cache_key = get_cache_key(not_found_token)
+        exp_error = IntrospectionError(
+            not_found_token, "NotAuthorized", status_code=401, data=introspect_data
+        )
 
         assert cache.get(cache_key) is None
+
+        response = client.post(self.path)
+        assert response.status_code == 401
+        assert response.json()["detail"] == "Incorrect authentication credentials."
+        assert introspect_response.call_count == 1
+        assert cache.get(cache_key) == exp_error.as_cache_value()
+
+    @responses.activate
+    def test_jsondecodeerror_returns_401_and_is_cached(self) -> None:
+        introspect_response, introspect_data = setup_fxa_introspect(200, no_body=True)
+        assert introspect_data is None
+        invalid_token = "invalid-123"
+        cache_key = get_cache_key(invalid_token)
+        assert cache.get(cache_key) is None
+        client = _setup_client(invalid_token)
+        expected_err = IntrospectionError(
+            invalid_token, "NotJson", error_args=[""], status_code=200
+        )
 
         # get fxa response with no status code for the first time
-        response = self.client.post(self.path)
-        assert response.status_code == 401
-        assert (
-            response.json()["detail"] == "Jsondecodeerror From Fxa Introspect Response"
-        )
-        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        response = client.post(self.path)
+        assert response.status_code == 503
+        expected_detail = "Introspection temporarily unavailable, try again later."
+        assert response.json()["detail"] == expected_detail
+        assert introspect_response.call_count == 1
+        assert cache.get(cache_key) == expected_err.as_cache_value()
 
     @responses.activate
-    def test_non_200_response_from_fxa_returns_500_and_cache_returns_500(
-        self,
-    ) -> None:
-        now_time = int(datetime.now().timestamp())
-        # Note: FXA iat and exp are timestamps in *milliseconds*
-        exp_time = (now_time + 60 * 60) * 1000
-        _setup_fxa_response(401, {"active": False, "sub": self.uid, "exp": exp_time})
+    def test_non_200_response_from_fxa_returns_500_and_is_cached(self) -> None:
+        introspect_response, fxa_data = setup_fxa_introspect(
+            401, active=False, uid=self.uid
+        )
         invalid_token = "invalid-123"
         cache_key = get_cache_key(invalid_token)
-        self._setup_client(invalid_token)
-
         assert cache.get(cache_key) is None
+        client = _setup_client(invalid_token)
+        expected_err = IntrospectionError(
+            invalid_token, "NotAuthorized", status_code=401, data=fxa_data
+        )
 
         # get fxa response with non-200 response for the first time
-        response = self.client.post(self.path)
-        assert response.status_code == 500
-        assert response.json()["detail"] == "Did not receive a 200 response from FXA."
-        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        response = client.post(self.path)
+        assert response.status_code == 401
+        assert response.json()["detail"] == "Incorrect authentication credentials."
+        assert introspect_response.call_count == 1
+        assert cache.get(cache_key) == expected_err.as_cache_value()
 
     @responses.activate
-    def test_inactive_fxa_oauth_token_returns_401_and_cache_returns_401(
-        self,
-    ) -> None:
-        now_time = int(datetime.now().timestamp())
-        # Note: FXA iat and exp are timestamps in *milliseconds*
-        old_exp_time = (now_time - 60 * 60) * 1000
-        _setup_fxa_response(
-            200, {"active": False, "sub": self.uid, "exp": old_exp_time}
-        )
+    def test_inactive_fxa_oauth_token_returns_401(self) -> None:
+        introspect_response, fxa_data = setup_fxa_introspect(active=False, uid=self.uid)
         invalid_token = "invalid-123"
         cache_key = get_cache_key(invalid_token)
-        self._setup_client(invalid_token)
-
         assert cache.get(cache_key) is None
+        client = _setup_client(invalid_token)
+        expected_err = IntrospectionError(
+            invalid_token, "NotActive", status_code=200, data=fxa_data
+        )
 
         # get fxa response with token inactive for the first time
-        response = self.client.post(self.path)
+        response = client.post(self.path)
         assert response.status_code == 401
-        assert response.json()["detail"] == "Fxa Returned Active: False For Token."
-        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert response.json()["detail"] == "Incorrect authentication credentials."
+        assert introspect_response.call_count == 1
+        assert cache.get(cache_key) == expected_err.as_cache_value()
 
     @responses.activate
-    def test_fxa_responds_with_no_fxa_uid_returns_404_and_cache_returns_404(
-        self,
-    ) -> None:
+    def test_fxa_responds_with_no_fxa_uid_returns_404(self) -> None:
         user_token = "user-123"
-        now_time = int(datetime.now().timestamp())
-        # Note: FXA iat and exp are timestamps in *milliseconds*
-        exp_time = (now_time + 60 * 60) * 1000
-        _setup_fxa_response(200, {"active": True, "exp": exp_time})
+        introspect_response, fxa_data = setup_fxa_introspect(uid=None)
         cache_key = get_cache_key(user_token)
-        self._setup_client(user_token)
-
         assert cache.get(cache_key) is None
+        client = _setup_client(user_token)
+        expected_err = IntrospectionError(
+            user_token, "NoSubject", status_code=200, data=fxa_data
+        )
 
         # get fxa response with no fxa uid for the first time
-        response = self.client.post(self.path)
-        assert response.status_code == 404
-        assert response.json()["detail"] == "FXA did not return an FXA UID."
-        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        response = client.post(self.path)
+        assert response.status_code == 503
+        expected_detail = "Introspection temporarily unavailable, try again later."
+        assert response.json()["detail"] == expected_detail
+        assert introspect_response.call_count == 1
+        assert cache.get(cache_key) == expected_err.as_cache_value()
 
+    @responses.activate
+    def test_socialaccount_created_during_fxa_profile_fetch(self) -> None:
+        user_token = "user-123"
+        email = "user@slow.example.com"
+        introspect_response, fxa_data = setup_fxa_introspect(uid=self.uid)
+        assert fxa_data is not None
+        profile_response = _mock_fxa_profile_response(email=email, uid=self.uid)
+        cache_key = get_cache_key(user_token)
+        assert cache.get(cache_key) is None
+        client = _setup_client(user_token)
+        expected_resp = IntrospectionResponse(user_token, fxa_data)
 
-def _setup_client(token: str) -> APIClient:
-    client = APIClient()
-    client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
-    return client
+        def get_profile_then_create_socialaccount(
+            token: str,
+        ) -> tuple[dict[str, Any], float]:
+            fxa_profile, time_s = _get_fxa_profile_from_bearer_token(token)
+            assert isinstance(fxa_profile, dict)
+            assert isinstance(time_s, float)
+            user = User.objects.create(email=email)
+            user.profile.created_by = "mocked_function"
+            user.profile.save()
+            SocialAccount.objects.create(provider="fxa", uid=self.uid, user=user)
+            return fxa_profile, time_s
+
+        with patch(
+            "api.views.privaterelay._get_fxa_profile_from_bearer_token",
+            side_effect=get_profile_then_create_socialaccount,
+        ):
+            response = client.post(self.path)
+        assert response.status_code == 202
+        assert cache.get(cache_key) == expected_resp.as_cache_value()
+        assert introspect_response.call_count == 1
+        assert profile_response.call_count == 1
+
+    @responses.activate
+    def test_fxa_introspect_fetch_timeout_returns_503(self) -> None:
+        slow_token = "slow-123"
+        email = "user@slow.example.com"
+        introspect_response, expected_data = setup_fxa_introspect(timeout=True)
+        assert expected_data is None
+        profile_response = _mock_fxa_profile_response(email=email, uid=self.uid)
+        cache_key = get_cache_key(slow_token)
+        assert cache.get(cache_key) is None
+        client = _setup_client(slow_token)
+        expected_err = IntrospectionError(slow_token, "Timeout")
+
+        response = client.post(self.path)
+        assert response.status_code == 503
+        assert cache.get(cache_key) == expected_err.as_cache_value()
+        assert introspect_response.call_count == 1
+        assert profile_response.call_count == 0
+
+    @responses.activate
+    def test_fxa_profile_fetch_timeout_returns_503(self) -> None:
+        slow_token = "user-123"
+        introspect_response, fxa_data = setup_fxa_introspect(uid=self.uid)
+        assert fxa_data is not None
+        profile_response = _mock_fxa_profile_response(timeout=True)
+        cache_key = get_cache_key(slow_token)
+        assert cache.get(cache_key) is None
+        client = _setup_client(slow_token)
+        expected_resp = IntrospectionResponse(slow_token, fxa_data)
+
+        response = client.post(self.path)
+        assert response.status_code == 503
+        assert cache.get(cache_key) == expected_resp.as_cache_value()
+        assert introspect_response.call_count == 1
+        assert profile_response.call_count == 1
 
 
 @responses.activate
-@pytest.mark.usefixtures("fxa_social_app")
 def test_duplicate_email_logs_details_for_debugging(
     caplog: pytest.LogCaptureFixture,
+    fxa_social_app: SocialApp,
+    cache: BaseCache,
 ) -> None:
     caplog.set_level(logging.ERROR)
     uid = "relay-user-fxa-uid"
@@ -402,26 +531,8 @@ def test_duplicate_email_logs_details_for_debugging(
     baker.make(EmailAddress, email=email, verified=True)
     user_token = "user-123"
     client = _setup_client(user_token)
-    now_time = int(datetime.now().timestamp())
-    # Note: FXA iat and exp are timestamps in *milliseconds*
-    exp_time = (now_time + 60 * 60) * 1000
-    _setup_fxa_response(200, {"active": True, "sub": uid, "exp": exp_time})
-    # setup fxa profile reponse
-    profile_json = {
-        "email": email,
-        "amrValues": ["pwd", "email"],
-        "twoFactorAuthentication": False,
-        "metricsEnabled": True,
-        "uid": uid,
-        "avatar": "https://profile.stage.mozaws.net/v1/avatar/t",
-        "avatarDefault": False,
-    }
-    responses.add(
-        responses.GET,
-        FXA_PROFILE_URL,
-        status=200,
-        json=profile_json,
-    )
+    introspect_response, _ = setup_fxa_introspect(uid=uid)
+    profile_response = _mock_fxa_profile_response(email=email, uid=uid)
 
     response = client.post("/api/v1/terms-accepted-user/")
 
@@ -431,3 +542,33 @@ def test_duplicate_email_logs_details_for_debugging(
     assert "socialaccount_signup" in rec1.message
     assert rec1_extra.get("fxa_uid") == uid
     assert rec1_extra.get("social_login_state") == {}
+    assert introspect_response.call_count == 1
+    assert profile_response.call_count == 1
+
+
+@responses.activate
+def test_metrics_disabled_user_fxa_uid_not_logged(
+    caplog: pytest.LogCaptureFixture,
+    fxa_social_app: SocialApp,
+    cache: BaseCache,
+    settings: SettingsWrapper,
+) -> None:
+    settings.FXA_TOKEN_AUTH_VERSION = "2025"
+    caplog.set_level(logging.ERROR)
+    uid = "relay-user-fxa-uid"
+    email = "user@email.com"
+    baker.make(EmailAddress, email=email, verified=True)
+    user_token = "user-123"
+    client = _setup_client(user_token)
+    introspect_response, _ = setup_fxa_introspect(uid=uid)
+    profile_response = _mock_fxa_profile_response(
+        email=email, uid=uid, metrics_enabled=False
+    )
+
+    response = client.post("/api/v1/terms-accepted-user/")
+
+    assert response.status_code == 500
+    (rec1,) = caplog.records
+    assert "fxa_uid" not in log_extra(rec1)
+    assert introspect_response.call_count == 1
+    assert profile_response.call_count == 1
