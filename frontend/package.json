@@ -33,7 +33,7 @@
     "react-ga": "^3.3.1",
     "react-intersection-observer": "^9.16.0",
     "react-singleton-hook": "^4.0.1",
-    "react-stately": "^3.35.0",
+    "react-stately": "^3.36.0",
     "react-toastify": "^11.0.5",
     "swr": "^2.3.3"
   },
