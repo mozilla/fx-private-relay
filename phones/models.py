@@ -295,7 +295,20 @@ class RelayNumber(models.Model):
         # if this number exists for this user, this is an update call
         existing_numbers = RelayNumber.objects.filter(user=self.user)
         this_number = existing_numbers.filter(number=self.number).first()
+        update_user_profile_last_engagement = False
         if this_number and this_number.id == self.id:
+            update_user_profile_last_engagement = any(
+                [
+                    self.enabled != this_number.enabled,
+                    self.calls_forwarded != this_number.calls_forwarded,
+                    self.calls_blocked != this_number.calls_blocked,
+                    self.texts_forwarded != this_number.texts_forwarded,
+                    self.texts_blocked != this_number.texts_blocked,
+                ]
+            )
+            if update_user_profile_last_engagement:
+                self.user.profile.last_engagement = datetime.now(UTC)
+                self.user.profile.save()
             return super().save(*args, **kwargs)
         elif existing_numbers.exists():
             raise ValidationError("User can have only one relay number.")
