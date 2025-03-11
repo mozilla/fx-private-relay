@@ -14,8 +14,8 @@ Relay ENGRs rotate thru the "Base load" role every 2 weeks on Tuesdays, to coinc
 our weekly Tuesday release schedule. The current Relay ENGR team consists of these
 engineers who rotate thru the role:
 
-1. [@jwhitlock](https://github.com/jwhitlock)
-2. [@groovecoder](https://github.com/groovecoder)
+1. [@groovecoder](https://github.com/groovecoder)
+2. [@vpremamozilla](https://github.com/vpremamozilla)
 
 ## Daily routine
 
@@ -31,7 +31,9 @@ another more appropriate party.
    security updates to make
 1. Check #relay-alerts for any critical operational issues to fix
 1. Check the [Sentry Releases][sentry-releases] report to watch for any new issues
-1. Check #relay-jira-triage for any urgent new tickets
+1. Check #relay-jira-triage for any new tickets.
+   - is assigned to a Sprint
+   - and includes a [work category][work-categories]
 1. Check [Bugzilla][bugzilla-passmgr-relay-1w] for recent [Password Manager bugs][bugzilla-passmgr] mentioning [Relay][bugzilla-passmgr-relay]
 1. Check #privsec-customer-experience channel for any urgent inbound CX requests
 1. Check [dependabot pull requests][dependabot-prs]
@@ -56,7 +58,8 @@ another more appropriate party.
 2. SRE processes ticket to release the tag to production
 3. Update [Github Release][github-releases] to current release
 4. Monitor [Sentry Releases][sentry-releases] for new production issues
-5. (On your 3rd Tuesday) Hand-off base load duties to next engineer in rotation
+5. [Run e2e tests][run-e2e-tests] against the prod environment via GitHub Actions.
+6. (On your 3rd Tuesday) Hand-off base load duties to next engineer in rotation
 
 ## Wednesdays
 
@@ -73,6 +76,10 @@ another more appropriate party.
 ## Thursday and Fridays
 
 1. Daily routine
+
+## Sick Days/ Personal Emergencies
+
+Contact other engineers to transfer Base Load Engineer responsibilities to another engineer in case of illness or personal emergency.
 
 [security-dependabot-alerts]: https://github.com/mozilla/fx-private-relay/security/dependabot
 [whats-deployed]: https://whatsdeployed.io/s/60j/mozilla/fx-private-relay
@@ -94,3 +101,4 @@ another more appropriate party.
 [bugzilla-passmgr-relay-1w]: https://bugzilla.mozilla.org/buglist.cgi?list_id=17370610&classification=Client%20Software&classification=Developer%20Infrastructure&classification=Components&classification=Server%20Software&classification=Other&short_desc=relay&component=Password%20Manager&resolution=---&query_format=advanced&short_desc_type=allwordssubstr&product=Toolkit&chfieldfrom=-1w&chfield=%5BBug%20creation%5D
 [bugzilla-passmgr-relay]: https://bugzilla.mozilla.org/buglist.cgi?component=Password%20Manager&list_id=17381002&short_desc_type=allwordssubstr&query_format=advanced&resolution=---&short_desc=Relay&product=Toolkit
 [bugzilla-passmgr]: https://bugzilla.mozilla.org/buglist.cgi?product=Toolkit&component=Password%20Manager&resolution=---&list_id=17380991
+[work-categories]: https://docs.google.com/document/d/1fgcParg78LZkhsZSwFWkPBWeibNF7TYAHLQ9a2VKHU0/edit?tab=t.0#heading=h.ymszsodqgebv
