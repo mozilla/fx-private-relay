@@ -99,6 +99,16 @@ def upgrade_test_user_to_phone(user):
     return user
 
 
+def add_verified_realphone_to_user(phone_user: User) -> "RealPhone":
+    number = "+12223334444"
+    return RealPhone.objects.create(
+        user=phone_user,
+        number=number,
+        verification_sent_date=datetime.now(UTC),
+        verified=True,
+    )
+
+
 @pytest.fixture(autouse=True)
 def phone_user(db):
     return make_phone_test_user()
@@ -770,6 +780,89 @@ def test_save_store_phone_log_true_doesnt_delete_data() -> None:
 
     inbound_contact.refresh_from_db()
     assert inbound_contact
+
+
+def _setup_phone_user_for_last_engagment(phone_user):
+    add_verified_realphone_to_user(phone_user)
+    relay_number = RelayNumber.objects.create(user=phone_user, number="+12223334444")
+
+    # Get initial last_engagement
+    initial_last_engagement = phone_user.profile.last_engagement
+    return relay_number, initial_last_engagement
+
+
+def test_relaynumber_save_updates_last_engagement(phone_user):
+    """
+    Test that updating specific RelayNumber fields triggers last_engagement update.
+    """
+    relay_number, initial_last_engagement = _setup_phone_user_for_last_engagment(
+        phone_user
+    )
+
+    # Update one of the tracked fields
+    relay_number.calls_forwarded += 1
+    relay_number.save()
+
+    # Check if last_engagement was updated
+    phone_user.profile.refresh_from_db()
+    assert phone_user.profile.last_engagement is not None
+
+    if initial_last_engagement:
+        assert phone_user.profile.last_engagement > initial_last_engagement
+
+
+def test_relaynumber_save_no_update_when_other_fields_change(phone_user):
+    """
+    Test that updating fields NOT in the tracked list does NOT update last_engagement.
+    """
+    relay_number, initial_last_engagement = _setup_phone_user_for_last_engagment(
+        phone_user
+    )
+
+    # Update a field that is NOT in the tracked list
+    relay_number.remaining_seconds -= 10
+    relay_number.save()
+
+    # Ensure last_engagement was NOT updated
+    phone_user.profile.refresh_from_db()
+    assert phone_user.profile.last_engagement == initial_last_engagement
+
+
+def test_relaynumber_create_does_not_trigger_last_engagement(phone_user):
+    """
+    Test that creating a new RelayNumber does NOT trigger last_engagement update.
+    """
+    add_verified_realphone_to_user(phone_user)
+    initial_last_engagement = phone_user.profile.last_engagement
+
+    RelayNumber.objects.create(user=phone_user, number="+12223334444")
+
+    # Ensure last_engagement was NOT updated
+    phone_user.profile.refresh_from_db()
+    assert phone_user.profile.last_engagement == initial_last_engagement
+
+
+def test_multiple_relaynumber_updates_trigger_last_engagement_once(phone_user):
+    """
+    Test that multiple updates to a tracked field still updates last_engagement.
+    """
+    relay_number, initial_last_engagement = _setup_phone_user_for_last_engagment(
+        phone_user
+    )
+
+    # Update multiple tracked fields
+    relay_number.calls_forwarded += 1
+    relay_number.calls_blocked += 1
+    relay_number.texts_forwarded += 1
+    relay_number.save()
+
+    # Check if last_engagement was updated
+    phone_user.profile.refresh_from_db()
+
+    assert phone_user.profile.last_engagement is not None
+
+    if initial_last_engagement:
+        assert phone_user.profile.last_engagement > initial_last_engagement
 
 
 def test_save_store_phone_log_false_deletes_data() -> None:
