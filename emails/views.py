@@ -37,6 +37,7 @@ from privaterelay.ftl_bundles import main as ftl_bundle
 from privaterelay.models import Profile
 from privaterelay.utils import (
     flag_is_active_in_task,
+    get_subplat3_upgrade_link_by_product_and_period,
     get_subplat_upgrade_link_by_language,
     glean_logger,
 )
@@ -195,7 +196,10 @@ def wrap_html_email(
     tracker_report_link: str | None = None,
 ) -> str:
     """Add Relay banners, surveys, etc. to an HTML email"""
-    subplat_upgrade_link = get_subplat_upgrade_link_by_language(language)
+    if settings.USE_SUBPLAT3:
+        subplat_upgrade_link = get_subplat3_upgrade_link_by_product_and_period("premium", "yearly")
+    else:
+        subplat_upgrade_link = get_subplat_upgrade_link_by_language(language)
     email_context = {
         "original_html": original_html,
         "language": language,

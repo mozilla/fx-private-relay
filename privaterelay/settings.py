@@ -621,14 +621,13 @@ ACCOUNT_USERNAME_REQUIRED = False
 
 FXA_REQUESTS_TIMEOUT_SECONDS = config("FXA_REQUESTS_TIMEOUT_SECONDS", 1, cast=int)
 FXA_SETTINGS_URL = config("FXA_SETTINGS_URL", f"{FXA_BASE_ORIGIN}/settings")
-FXA_SUBSCRIPTIONS_URL = config(
-    "FXA_SUBSCRIPTIONS_URL", f"{FXA_BASE_ORIGIN}/subscriptions"
-)
 # check https://mozilla.github.io/ecosystem-platform/api#tag/Subscriptions/operation/getOauthMozillasubscriptionsCustomerBillingandsubscriptions  # noqa: E501 (line too long)
 FXA_ACCOUNTS_ENDPOINT = config(
     "FXA_ACCOUNTS_ENDPOINT",
     "https://api.accounts.firefox.com/v1",
 )
+USE_SUBPLAT3 = config("USE_SUBPLAT3", False, cast=bool)
+SUBPLAT3_HOST = "https://payments.firefox.com" if FXA_BASE_ORIGIN == "https://accounts.firefox.com" else "https://payments-next.stage.fxa.nonprod.webservices.mozgcp.net"
 FXA_SUPPORT_URL = config("FXA_SUPPORT_URL", f"{FXA_BASE_ORIGIN}/support/")
 
 LOGGING = {

@@ -24,9 +24,12 @@ from .plans import (
     CountryStr,
     LanguageStr,
     PeriodStr,
-    PlanCountryLangMapping,
-    get_premium_country_language_mapping,
 )
+
+if settings.USE_SUBPLAT3:
+    from .sp3_plans import get_country_language_mapping, SP3PlanCountryLangMapping
+else:
+    from .plans import get_premium_country_language_mapping, PlanCountryLangMapping
 
 if TYPE_CHECKING:
     from .glean_interface import RelayGleanLogger
@@ -38,11 +41,11 @@ class CountryInfo(TypedDict):
     country_code: str
     countries: list[CountryStr]
     available_in_country: bool
-    plan_country_lang_mapping: PlanCountryLangMapping
+    plan_country_lang_mapping: PlanCountryLangMapping | SP3PlanCountryLangMapping
 
 
 def get_countries_info_from_request_and_mapping(
-    request: HttpRequest, mapping: PlanCountryLangMapping
+    request: HttpRequest, mapping: PlanCountryLangMapping | SP3PlanCountryLangMapping
 ) -> CountryInfo:
     country_code = _get_cc_from_request(request)
     countries = sorted(mapping.keys())
@@ -56,7 +59,7 @@ def get_countries_info_from_request_and_mapping(
 
 
 def get_countries_info_from_lang_and_mapping(
-    accept_lang: str, mapping: PlanCountryLangMapping
+    accept_lang: str, mapping: PlanCountryLangMapping | SP3PlanCountryLangMapping
 ) -> CountryInfo:
     country_code = _get_cc_from_lang(accept_lang)
     countries = sorted(mapping.keys())
@@ -67,6 +70,14 @@ def get_countries_info_from_lang_and_mapping(
         "available_in_country": available_in_country,
         "plan_country_lang_mapping": mapping,
     }
+
+
+def get_subplat3_upgrade_link_by_product_and_period(
+    product: str, period: PeriodStr = "yearly"
+) -> str:
+    return (
+        f"{settings.SUBPLAT3_HOST}/{product}/{period}/landing"
+    )
 
 
 def get_subplat_upgrade_link_by_language(

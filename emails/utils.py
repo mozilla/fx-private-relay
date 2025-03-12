@@ -32,7 +32,10 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.hkdf import HKDFExpand
 from mypy_boto3_ses.type_defs import ContentTypeDef, SendRawEmailResponseTypeDef
 
-from privaterelay.plans import get_bundle_country_language_mapping
+if settings.USE_SUBPLAT3:
+    from privaterelay.sp3_plans import get_country_language_mapping
+else:
+    from privaterelay.plans import get_bundle_country_language_mapping
 from privaterelay.utils import get_countries_info_from_lang_and_mapping
 
 from .apps import s3_client, ses_client
@@ -209,8 +212,12 @@ def _get_hero_img_src(lang_code):
 
 def get_welcome_email(user: User, format: str) -> str:
     sa = SocialAccount.objects.get(user=user)
+    if settings.USE_SUBPLAT3:
+        mapping = get_country_language_mapping("bundle")
+    else:
+        mapping = get_bundle_country_language_mapping()
     bundle_plans = get_countries_info_from_lang_and_mapping(
-        sa.extra_data.get("locale", "en"), get_bundle_country_language_mapping()
+        sa.extra_data.get("locale", "en"), mapping
     )
     lang_code = user.profile.language
     hero_img_src = _get_hero_img_src(lang_code)

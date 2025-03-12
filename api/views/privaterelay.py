@@ -35,11 +35,15 @@ from waffle.models import Sample, Switch
 
 from emails.utils import incr_if_enabled
 from privaterelay.models import Profile
-from privaterelay.plans import (
-    get_bundle_country_language_mapping,
-    get_phone_country_language_mapping,
-    get_premium_country_language_mapping,
-)
+if settings.USE_SUBPLAT3:
+    from privaterelay.sp3_plans import get_country_language_mapping
+else:
+    from privaterelay.plans import (
+        get_bundle_country_language_mapping,
+        get_phone_country_language_mapping,
+        get_premium_country_language_mapping,
+    )
+
 from privaterelay.utils import get_countries_info_from_request_and_mapping
 
 from ..authentication import get_fxa_uid_from_oauth_token
@@ -231,6 +235,14 @@ def runtime_data(request):
     switch_values = [(s.name, s.is_active()) for s in switches]
     samples = Sample.get_all()
     sample_values = [(s.name, s.is_active()) for s in samples]
+    if settings.USE_SUBPLAT3:
+        premium_mapping = get_country_language_mapping("premium")
+        phones_mapping = get_country_language_mapping("phones")
+        bundle_mapping = get_country_language_mapping("bundle")
+    else:
+        s3_premium_mapping = get_premium_country_language_mapping()
+        s3_phones_mapping = get_phone_country_language_mapping()
+        s3_bundle_mapping = get_bundle_country_language_mapping()
     return Response(
         {
             "FXA_ORIGIN": settings.FXA_BASE_ORIGIN,
@@ -240,13 +252,13 @@ def runtime_data(request):
             "BUNDLE_PRODUCT_ID": settings.BUNDLE_PROD_ID,
             "PHONE_PRODUCT_ID": settings.PHONE_PROD_ID,
             "PERIODICAL_PREMIUM_PLANS": get_countries_info_from_request_and_mapping(
-                request, get_premium_country_language_mapping()
+                request, premium_mapping
             ),
             "PHONE_PLANS": get_countries_info_from_request_and_mapping(
-                request, get_phone_country_language_mapping()
+                request, phones_mapping
             ),
             "BUNDLE_PLANS": get_countries_info_from_request_and_mapping(
-                request, get_bundle_country_language_mapping()
+                request, bundle_mapping
             ),
             "BASKET_ORIGIN": settings.BASKET_ORIGIN,
             "WAFFLE_FLAGS": flag_values,
