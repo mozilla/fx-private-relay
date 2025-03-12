@@ -312,7 +312,6 @@ In detail:
 
 | Var                            | Value                                                                 |
 | ------------------------------ | --------------------------------------------------------------------- |
-| `FXA_SUBSCRIPTIONS_URL`        | `https://accounts.stage.mozaws.net/subscriptions`                     |
 | `PERIODICAL_PREMIUM_PROD_ID`   | `prod_KEq0LXqs7vysQT` (from Stripe)                                   |
 | `PREMIUM_PLAN_ID_US_MONTHLY`   | `price_1LiMjeKb9q6OnNsLzwixHuRz` (from Stripe)                        |
 | `PREMIUM_PLAN_ID_US_YEARLY`    | `price_1LiMlBKb9q6OnNsL7tvrtI7y` (from Stripe)                        |

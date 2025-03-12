@@ -35,11 +35,7 @@ from waffle.models import Sample, Switch
 
 from emails.utils import incr_if_enabled
 from privaterelay.models import Profile
-from privaterelay.plans import (
-    get_bundle_country_language_mapping,
-    get_phone_country_language_mapping,
-    get_premium_country_language_mapping,
-)
+from privaterelay.plans import get_country_language_mapping
 from privaterelay.utils import get_countries_info_from_request_and_mapping
 
 from ..authentication import get_fxa_uid_from_oauth_token
@@ -240,13 +236,13 @@ def runtime_data(request):
             "BUNDLE_PRODUCT_ID": settings.BUNDLE_PROD_ID,
             "PHONE_PRODUCT_ID": settings.PHONE_PROD_ID,
             "PERIODICAL_PREMIUM_PLANS": get_countries_info_from_request_and_mapping(
-                request, get_premium_country_language_mapping()
+                request, get_country_language_mapping("premium")
             ),
             "PHONE_PLANS": get_countries_info_from_request_and_mapping(
-                request, get_phone_country_language_mapping()
+                request, get_country_language_mapping("phones")
             ),
             "BUNDLE_PLANS": get_countries_info_from_request_and_mapping(
-                request, get_bundle_country_language_mapping()
+                request, get_country_language_mapping("bundle")
             ),
             "BASKET_ORIGIN": settings.BASKET_ORIGIN,
             "WAFFLE_FLAGS": flag_values,

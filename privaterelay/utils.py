@@ -25,7 +25,7 @@ from .plans import (
     LanguageStr,
     PeriodStr,
     PlanCountryLangMapping,
-    get_premium_country_language_mapping,
+    get_country_language_mapping,
 )
 
 if TYPE_CHECKING:
@@ -79,7 +79,7 @@ def get_subplat_upgrade_link_by_language(
         country = "US"
     language_str = accept_language.split("-")[0].lower()
     language = cast(LanguageStr, language_str)
-    country_lang_mapping = get_premium_country_language_mapping()
+    country_lang_mapping = get_country_language_mapping("premium")
     country_details = country_lang_mapping.get(country, country_lang_mapping["US"])
     if language in country_details:
         plan = country_details[language][period]
