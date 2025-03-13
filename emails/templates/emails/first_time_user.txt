@@ -34,7 +34,7 @@ https://support.mozilla.org/products/relay
 149 New Montgomery St, 4th Floor, San Francisco, CA 94105
 
 {% ftlmsg 'first-time-user-email-footer-text-legal' %}
-https://www.mozilla.org/about/legal/terms/firefox-relay/
+https://www.mozilla.org/about/legal/terms/subscription-services/
 
 {% ftlmsg 'first-time-user-email-footer-text-privacy' %}
-https://www.mozilla.org/privacy/firefox-relay/{% endwithftl %}{% endcache %}
+https://www.mozilla.org/privacy/subscription-services/{% endwithftl %}{% endcache %}

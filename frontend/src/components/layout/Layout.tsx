@@ -250,7 +250,7 @@ export const Layout = (props: Props) => {
               <ul className={styles.meta}>
                 <li>
                   <a
-                    href="https://www.mozilla.org/privacy/firefox-relay/"
+                    href="https://www.mozilla.org/privacy/subscription-services/"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -259,7 +259,7 @@ export const Layout = (props: Props) => {
                 </li>
                 <li>
                   <a
-                    href="https://www.mozilla.org/about/legal/terms/firefox-relay/"
+                    href="https://www.mozilla.org/about/legal/terms/subscription-services/"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
