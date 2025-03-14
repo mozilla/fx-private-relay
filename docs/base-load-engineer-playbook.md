@@ -32,7 +32,6 @@ another more appropriate party.
 1. Check #relay-alerts for any critical operational issues to fix
 1. Check the [Sentry Releases][sentry-releases] report to watch for any new issues
 1. Check #relay-jira-triage for any new tickets.
-   - belongs to an epic/parent
    - is assigned to a Sprint
    - and includes a [work category][work-categories]
 1. Check [Bugzilla][bugzilla-passmgr-relay-1w] for recent [Password Manager bugs][bugzilla-passmgr] mentioning [Relay][bugzilla-passmgr-relay]
