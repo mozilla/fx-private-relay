@@ -3,6 +3,7 @@
 import logging
 from datetime import datetime
 
+from django.conf import LazySettings
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.test import RequestFactory, TestCase
@@ -26,10 +27,91 @@ from privaterelay.tests.utils import (
 
 
 @pytest.mark.django_db
-def test_runtime_data(client: Client) -> None:
+def test_runtime_data_response_structure(client: Client) -> None:
+    """Test that runtime_data returns the expected structure."""
     path = "/api/v1/runtime_data/"
     response = client.get(path)
+
     assert response.status_code == 200
+    data = response.json()
+
+    # Check that all expected keys are present
+    expected_keys = [
+        "FXA_ORIGIN",
+        "PERIODICAL_PREMIUM_PRODUCT_ID",
+        "GOOGLE_ANALYTICS_ID",
+        "GA4_MEASUREMENT_ID",
+        "BUNDLE_PRODUCT_ID",
+        "PHONE_PRODUCT_ID",
+        "PERIODICAL_PREMIUM_PLANS",
+        "PHONE_PLANS",
+        "BUNDLE_PLANS",
+        "BASKET_ORIGIN",
+        "WAFFLE_FLAGS",
+        "WAFFLE_SWITCHES",
+        "WAFFLE_SAMPLES",
+        "MAX_MINUTES_TO_VERIFY_REAL_PHONE",
+    ]
+
+    for key in expected_keys:
+        assert key in data, f"Expected key {key} missing from response"
+
+    # Check that plans data is present
+    assert isinstance(data["PERIODICAL_PREMIUM_PLANS"], dict)
+    assert isinstance(data["PHONE_PLANS"], dict)
+    assert isinstance(data["BUNDLE_PLANS"], dict)
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("use_subplat3", [True, False])
+def test_runtime_data_uses_correct_plan_mapping(
+    client: Client, settings: LazySettings, use_subplat3: bool
+) -> None:
+    """
+    Test that runtime_data uses the correct plan mapping based on
+    USE_SUBPLAT3 setting.
+    """
+    settings.USE_SUBPLAT3 = use_subplat3
+
+    path = "/api/v1/runtime_data/"
+    response = client.get(path)
+
+    assert response.status_code == 200
+    data = response.json()
+
+    # Check that the correct plan data is returned
+    if use_subplat3:
+        # Check for SP3 plan data
+        assert (
+            "url"
+            in data["PERIODICAL_PREMIUM_PLANS"]["plan_country_lang_mapping"]["US"]["*"][
+                "monthly"
+            ]
+        )
+        assert (
+            "url"
+            in data["PHONE_PLANS"]["plan_country_lang_mapping"]["US"]["*"]["monthly"]
+        )
+        assert (
+            "url"
+            in data["BUNDLE_PLANS"]["plan_country_lang_mapping"]["US"]["*"]["yearly"]
+        )
+    else:
+        # Check for regular plan data
+        assert (
+            "id"
+            in data["PERIODICAL_PREMIUM_PLANS"]["plan_country_lang_mapping"]["US"]["*"][
+                "monthly"
+            ]
+        )
+        assert (
+            "id"
+            in data["PHONE_PLANS"]["plan_country_lang_mapping"]["US"]["*"]["monthly"]
+        )
+        assert (
+            "id"
+            in data["BUNDLE_PLANS"]["plan_country_lang_mapping"]["US"]["*"]["yearly"]
+        )
 
 
 def test_patch_premium_user_subdomain_cannot_be_changed(

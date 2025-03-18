@@ -17,13 +17,10 @@ from django.utils.translation.trans_real import (
 
 from allauth.socialaccount.models import SocialAccount
 
+from .country_utils import AcceptLanguageError, guess_country_from_accept_lang
 from .exceptions import CannotMakeSubdomainException
 from .plans import get_premium_countries
-from .utils import (
-    AcceptLanguageError,
-    flag_is_active_in_task,
-    guess_country_from_accept_lang,
-)
+from .utils import flag_is_active_in_task
 from .validators import valid_available_subdomain
 
 if TYPE_CHECKING:

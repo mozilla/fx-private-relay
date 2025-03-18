@@ -16,14 +16,13 @@ from waffle.models import AbstractUserFlag, Flag
 from waffle.testutils import override_flag
 from waffle.utils import get_cache as get_waffle_cache
 
+from ..country_utils import AcceptLanguageError, guess_country_from_accept_lang
 from ..plans import get_premium_country_language_mapping
 from ..utils import (
-    AcceptLanguageError,
     flag_is_active_in_task,
     get_countries_info_from_request_and_mapping,
     get_subplat_upgrade_link_by_language,
     get_version_info,
-    guess_country_from_accept_lang,
 )
 
 

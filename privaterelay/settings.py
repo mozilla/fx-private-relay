@@ -630,6 +630,21 @@ FXA_ACCOUNTS_ENDPOINT = config(
     "https://api.accounts.firefox.com/v1",
 )
 FXA_SUPPORT_URL = config("FXA_SUPPORT_URL", f"{FXA_BASE_ORIGIN}/support/")
+USE_SUBPLAT3 = config("USE_SUBPLAT3", False, cast=bool)
+SUBPLAT3_HOST = (
+    "https://payments.firefox.com"
+    if FXA_BASE_ORIGIN == "https://accounts.firefox.com"
+    else "https://payments-next.stage.fxa.nonprod.webservices.mozgcp.net"
+)
+SUBPLAT3_PREMIUM_PRODUCT_KEY = config(
+    "SUBPLAT3_PREMIUM_PRODUCT_KEY", "relay-premium-127", cast=str
+)
+SUBPLAT3_PHONES_PRODUCT_KEY = config(
+    "SUBPLAT3_PREMIUM_PRODUCT_KEY", "relay-premium-127-phone", cast=str
+)
+SUBPLAT3_BUNDLE_PRODUCT_KEY = config(
+    "SUBPLAT3_PREMIUM_PRODUCT_KEY", "bundle-relay-vpn-dev", cast=str
+)
 
 LOGGING = {
     "version": 1,
