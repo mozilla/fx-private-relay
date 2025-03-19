@@ -21,8 +21,8 @@ export type FlagNames =
 type WaffleFlag = [FlagNames, boolean];
 
 export type PlanData = {
-  monthly: { id: string; price: number; currency: string };
-  yearly: { id: string; price: number; currency: string };
+  monthly: { id?: string; price: number; currency: string; url?: string };
+  yearly: { id?: string; price: number; currency: string; url?: string };
 };
 
 export type ProductData<P extends Partial<PlanData> = PlanData> = {

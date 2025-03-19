@@ -35,8 +35,10 @@ export const getPeriodicalPremiumSubscribeLink = (
   billingPeriod: keyof PlanData,
 ) => {
   const plan = getPlan(runtimeData.PERIODICAL_PREMIUM_PLANS, billingPeriod);
-
-  return `${runtimeData.FXA_ORIGIN}/subscriptions/products/${runtimeData.PERIODICAL_PREMIUM_PRODUCT_ID}?plan=${plan.id}`;
+  if (plan.id) {
+    return `${runtimeData.FXA_ORIGIN}/subscriptions/products/${runtimeData.PERIODICAL_PREMIUM_PRODUCT_ID}?plan=${plan.id}`;
+  }
+  return plan.url ?? "";
 };
 
 export const getPhonesPrice = (
@@ -56,7 +58,10 @@ export const getPhoneSubscribeLink = (
   billingPeriod: keyof PlanData,
 ) => {
   const plan = getPlan(runtimeData.PHONE_PLANS, billingPeriod);
-  return `${runtimeData.FXA_ORIGIN}/subscriptions/products/${runtimeData.PHONE_PRODUCT_ID}?plan=${plan.id}`;
+  if (plan.id) {
+    return `${runtimeData.FXA_ORIGIN}/subscriptions/products/${runtimeData.PHONE_PRODUCT_ID}?plan=${plan.id}`;
+  }
+  return plan.url ?? "";
 };
 
 export const getBundlePrice = (
@@ -74,7 +79,10 @@ export const getBundleSubscribeLink = (
   runtimeData: RuntimeDataWithBundleAvailable,
 ) => {
   const plan = getPlan(runtimeData.BUNDLE_PLANS, "yearly");
-  return `${runtimeData.FXA_ORIGIN}/subscriptions/products/${runtimeData.BUNDLE_PRODUCT_ID}?plan=${plan.id}`;
+  if (plan.id) {
+    return `${runtimeData.FXA_ORIGIN}/subscriptions/products/${runtimeData.BUNDLE_PRODUCT_ID}?plan=${plan.id}`;
+  }
+  return plan.url ?? "";
 };
 
 /**
