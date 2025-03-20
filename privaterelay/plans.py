@@ -1,4 +1,6 @@
 """
+REMOVE this module when we are migrated to SP3
+
 Paid plans for Relay
 
 There is currently a free plan and 3 paid plans:
