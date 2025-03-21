@@ -138,13 +138,13 @@ const Faq: NextPage = () => {
         <Localized
           id="phone-masking-faq-answer-data"
           vars={{
-            url: "https://www.mozilla.org/privacy/firefox-relay/",
+            url: "https://www.mozilla.org/privacy/subscription-services/",
             attrs: "",
           }}
           elems={{
             a: (
               <a
-                href="https://www.mozilla.org/privacy/firefox-relay/"
+                href="https://www.mozilla.org/privacy/subscription-services/"
                 target="_blank"
                 rel="noopener noreferrer"
               />
@@ -375,13 +375,13 @@ const Faq: NextPage = () => {
                 <Localized
                   id="faq-question-8-answer-3-html"
                   vars={{
-                    url: "https://www.mozilla.org/privacy/firefox-relay/",
+                    url: "https://www.mozilla.org/privacy/subscription-services/",
                     attrs: "",
                   }}
                   elems={{
                     a: (
                       <a
-                        href="https://www.mozilla.org/privacy/firefox-relay/"
+                        href="https://www.mozilla.org/privacy/subscription-services/"
                         target="_blank"
                         rel="noopener noreferrer"
                       />
@@ -398,13 +398,13 @@ const Faq: NextPage = () => {
                 <Localized
                   id="faq-question-email-storage-answer"
                   vars={{
-                    url: "https://www.mozilla.org/privacy/firefox-relay/",
+                    url: "https://www.mozilla.org/privacy/subscription-services/",
                     attrs: "",
                   }}
                   elems={{
                     a: (
                       <a
-                        href="https://www.mozilla.org/privacy/firefox-relay/"
+                        href="https://www.mozilla.org/privacy/subscription-services/"
                         target="_blank"
                         rel="noopener noreferrer"
                       />
@@ -458,13 +458,13 @@ const Faq: NextPage = () => {
                 <Localized
                   id="faq-question-acceptable-use-answer-b-html"
                   vars={{
-                    url: "https://www.mozilla.org/about/legal/terms/firefox-relay/",
+                    url: "https://www.mozilla.org/about/legal/terms/subscription-services/",
                     attrs: "",
                   }}
                   elems={{
                     a: (
                       <a
-                        href="https://www.mozilla.org/about/legal/terms/firefox-relay/"
+                        href="https://www.mozilla.org/about/legal/terms/subscription-services/"
                         target="_blank"
                         rel="noopener noreferrer"
                       />

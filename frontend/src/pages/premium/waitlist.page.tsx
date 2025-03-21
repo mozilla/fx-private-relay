@@ -16,7 +16,7 @@ const PremiumWaitlist: NextPage = () => {
         elems={{
           a: (
             <a
-              href="https://www.mozilla.org/privacy/firefox-relay/"
+              href="https://www.mozilla.org/privacy/subscription-services/"
               target="_blank"
               rel="noopener noreferrer"
             />
