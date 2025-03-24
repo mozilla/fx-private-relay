@@ -639,10 +639,10 @@ SUBPLAT3_PREMIUM_PRODUCT_KEY = config(
     "SUBPLAT3_PREMIUM_PRODUCT_KEY", "relay-premium-127", cast=str
 )
 SUBPLAT3_PHONES_PRODUCT_KEY = config(
-    "SUBPLAT3_PREMIUM_PRODUCT_KEY", "relay-premium-127-phone", cast=str
+    "SUBPLAT3_PHONES_PRODUCT_KEY", "relay-premium-127-phone", cast=str
 )
 SUBPLAT3_BUNDLE_PRODUCT_KEY = config(
-    "SUBPLAT3_PREMIUM_PRODUCT_KEY", "bundle-relay-vpn-dev", cast=str
+    "SUBPLAT3_BUNDLE_PRODUCT_KEY", "bundle-relay-vpn-dev", cast=str
 )
 
 LOGGING = {
