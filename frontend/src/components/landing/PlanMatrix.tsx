@@ -30,6 +30,7 @@ import { useL10n } from "../../hooks/l10n";
 import { Localized } from "../Localized";
 import { LinkButton } from "../Button";
 import { VisuallyHidden } from "../VisuallyHidden";
+import { useUsers } from "../../hooks/api/user";
 
 type FeatureList = {
   "email-masks": number;
@@ -104,6 +105,8 @@ export const PlanMatrix = (props: Props) => {
     setCookie("user-sign-in", "true", { maxAgeInSeconds: 60 * 60 });
   };
 
+  const userData = useUsers();
+
   const desktopView = (
     <table className={styles.desktop}>
       <thead>
@@ -167,8 +170,13 @@ export const PlanMatrix = (props: Props) => {
                   href={getRuntimeConfig().fxaLoginUrl}
                   onClick={() => countSignIn("plan-matrix-free-cta-desktop")}
                   className={styles["primary-pick-button"]}
+                  disabled={
+                    typeof userData.data?.[0] === "object" && !userData.error
+                  }
                 >
-                  {l10n.getString("plan-matrix-get-relay-cta")}
+                  {typeof userData.data?.[0] === "object" && !userData.error
+                    ? l10n.getString("plan-matrix-your-plan")
+                    : l10n.getString("plan-matrix-get-relay-cta")}
                 </LinkButton>
                 {/*
                 The <small> has space for price-related notices (e.g. "* billed
