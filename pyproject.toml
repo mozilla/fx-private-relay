@@ -19,7 +19,7 @@ exclude_also = [
 
 [tool.coverage.run]
 relative_files = true
-source = ["."]
+source_dirs = ["."]
 
 [tool.django-stubs]
 django_settings_module = "privaterelay.settings"
