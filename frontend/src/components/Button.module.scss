@@ -67,3 +67,26 @@
     }
   }
 }
+
+.disabled {
+  cursor: not-allowed;
+  background-color: $color-light-gray-80;
+  color: $color-dark-gray-60; // darker text
+  opacity: 0.4; // much more faded
+  pointer-events: none;
+  box-shadow: none;
+  border-color: transparent;
+  text-shadow: none;
+  transition: none;
+  filter: grayscale(100%);
+}
+
+.button.is-destructive.disabled {
+  background-color: $color-red-10;
+}
+
+.button.is-secondary.disabled {
+  background-color: transparent;
+  color: $color-blue-50;
+  opacity: 0.4;
+}
