@@ -10,6 +10,7 @@ import styles from "./Button.module.scss";
 export type Props = {
   children: ReactNode;
   variant?: "destructive" | "secondary";
+  disabled?: boolean;
 };
 
 const variants = {
@@ -46,29 +47,32 @@ export const LinkButton = forwardRef<
   HTMLAnchorElement,
   Props & AnchorHTMLAttributes<HTMLAnchorElement>
 >((props, ref) => {
-  if (props.href?.startsWith("/")) {
-    const propsWithoutHref = { ...props };
-    delete propsWithoutHref.href;
+  const { disabled, className, variant, href, children, ...rest } = props;
+
+  const classes = `${styles.button} ${className ?? ""} ${
+    variant === "destructive" ? styles["is-destructive"] : ""
+  } ${disabled ? styles["disabled"] : ""}`;
+
+  if (href?.startsWith("/") && !disabled) {
     return (
-      <Link
-        href={props.href}
-        {...propsWithoutHref}
-        ref={ref}
-        className={`${styles.button} ${props.className} ${
-          props.variant === "destructive" ? styles["is-destructive"] : ""
-        }`}
-      ></Link>
+      <Link href={href} {...rest} ref={ref} className={classes}>
+        {children}
+      </Link>
+    );
+  }
+
+  if (disabled) {
+    return (
+      <span className={classes} aria-disabled="true">
+        {children}
+      </span>
     );
   }
 
   return (
-    <a
-      {...props}
-      ref={ref}
-      className={`${styles.button} ${props.className} ${
-        props.variant === "destructive" ? styles["is-destructive"] : ""
-      }`}
-    />
+    <a href={href} {...rest} ref={ref} className={classes}>
+      {children}
+    </a>
   );
 });
 LinkButton.displayName = "LinkButton";
