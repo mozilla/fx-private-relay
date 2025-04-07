@@ -17,7 +17,7 @@
     "postinstall": "msw init public/ --save"
   },
   "dependencies": {
-    "@fluent/bundle": "^0.19.0",
+    "@fluent/bundle": "^0.19.1",
     "@fluent/langneg": "^0.7.0",
     "@fluent/react": "^0.15.2",
     "@mozilla-protocol/core": "^17.0.1",
