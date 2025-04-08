@@ -1,5 +1,4 @@
-import type { PlaywrightTestConfig } from '@playwright/test';
-import { devices } from '@playwright/test';
+import { devices, defineConfig } from '@playwright/test';
 
 /**
  * Read environment variables from file.
@@ -10,7 +9,7 @@ require('dotenv').config();
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
-const config: PlaywrightTestConfig = {
+const config = defineConfig({
 
   /* Add location of specs. */
   testDir: 'e2e-tests/specs',
@@ -109,6 +108,6 @@ const config: PlaywrightTestConfig = {
   //   command: 'npm run start',
   //   port: 3000,
   // },
-};
+});
 
 export default config;
