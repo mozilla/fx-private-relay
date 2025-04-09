@@ -552,3 +552,33 @@ def test_log_email_blocked_with_opt_out(
 
     # Check the one glean-server-event log
     assert len(caplog.records) == 0
+
+
+@pytest.mark.django_db
+def test_log_api_accessed(
+    glean_logger: RelayGleanLogger,
+    caplog: pytest.LogCaptureFixture,
+    rf: RequestFactory,
+) -> None:
+    """Check that log_api_accessed emits a Glean server-side log."""
+    user_agent = "RelayBot/0.9"
+    path = "/api/v1/profiles/"
+    request = rf.get(path, HTTP_USER_AGENT=user_agent)
+    user = make_free_test_user()
+    request.user = user
+
+    glean_logger.log_api_accessed(request)
+
+    # Check the one glean-server-event log
+    assert len(caplog.records) == 1
+    record = caplog.records[0]
+    assert_glean_record(record, user_agent=user_agent)
+
+    # Check payload structure
+    payload = json.loads(getattr(record, "payload"))
+    payload_event = payload["events"][0]
+    assert payload_event["category"] == "api"
+    assert payload_event["name"] == "accessed"
+    assert payload_event["extra"]["endpoint"] == path
+    assert payload_event["extra"]["method"] == "GET"
+    assert payload_event["extra"]["fxa_id"] == user.profile.metrics_fxa_id

@@ -298,3 +298,17 @@ class RelayGleanLogger(EventsServerEventLogger):
             is_reply=is_reply,
             reason=reason,
         )
+
+    def log_api_accessed(self, request: HttpRequest) -> None:
+        """Log that any Relay API endpoint was accessed."""
+        if not request.user or not request.user.is_authenticated:
+            return
+        request_data = RequestData.from_request(request)
+        user_data = UserData.from_user(request.user)
+        self.record_api_accessed(
+            user_agent=_opt_str_to_glean(request_data.user_agent),
+            ip_address=_opt_str_to_glean(request_data.ip_address),
+            endpoint=request.path,
+            method=_opt_str_to_glean(request.method),
+            fxa_id=_opt_str_to_glean(user_data.fxa_id),
+        )
