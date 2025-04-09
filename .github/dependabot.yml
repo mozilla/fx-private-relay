@@ -26,7 +26,6 @@ updates:
         patterns:
           - "react"
           - "react-dom"
-          - "react-test-renderer"
       testing-library:
         patterns:
           - "@testing-library/dom"
