@@ -1,5 +1,5 @@
 import { Locator, Page, expect } from "@playwright/test";
-import { checkAuthState } from "../e2eTestUtils/helpers";
+import { checkAuthState, TIMEOUTS } from "../e2eTestUtils/helpers";
 
 export class DashboardPage {
   readonly page: Page;
@@ -215,7 +215,7 @@ export class DashboardPage {
   async skipOnboarding() {
     const onboardingElem = this.page.getByRole("button", { name: "Skip" });
 
-    if (await onboardingElem.isVisible({ timeout: 6000 })) {
+    if (await onboardingElem.isVisible({ timeout: TIMEOUTS.LONG })) {
       await onboardingElem.click();
     }
   }
@@ -262,12 +262,12 @@ export class DashboardPage {
 
     if (preMaskCardsCount === 0) {
       // Wait for the first mask card
-      expect(maskCards).toBeVisible({ timeout: 3000 });
+      expect(maskCards).toBeVisible({ timeout: TIMEOUTS.MEDIUM });
     } else {
       // Wait for the mask card count to increase, or the error banner
       expect(
         this.bannerEmailError.or(maskCards.nth(preMaskCardsCount)),
-      ).toBeVisible({ timeout: 3000 });
+      ).toBeVisible({ timeout: TIMEOUTS.MEDIUM });
     }
 
     expect(
@@ -279,7 +279,7 @@ export class DashboardPage {
     );
 
     // randomize between .5-1.0 secs between each generate to deal with issue of multiple quick clicks
-    await this.page.waitForTimeout(Math.random() * 500 + 500);
+    await this.page.waitForTimeout(Math.random() * 500 + 1000);
     if (await this.closeCornerUpsell.isVisible()) {
       await this.closeCornerUpsell.click();
     }
@@ -322,7 +322,9 @@ export class DashboardPage {
     // if clear all, check if there's an expanded mask card
     if (clearAll) {
       try {
-        await this.page.waitForSelector(this.maskCardString, { timeout: 3000 });
+        await this.page.waitForSelector(this.maskCardString, {
+          timeout: TIMEOUTS.MEDIUM,
+        });
       } catch (error) {
         console.error("There are no masks to delete");
         return;
@@ -353,7 +355,7 @@ export class DashboardPage {
     }
 
     // wait for 500 ms and run flow again with the next masks
-    await this.page.waitForTimeout(500);
+    await this.page.waitForTimeout(TIMEOUTS.SHORT);
     await this.maybeDeleteMasks(true, numberOfMasks - 1);
   }
 
@@ -406,7 +408,7 @@ export class DashboardPage {
     await this.page.getByRole("button", { name: "Save" }).click();
     await this.page
       .getByText("Your settings have been updated")
-      .waitFor({ state: "attached", timeout: 3000 });
+      .waitFor({ state: "attached", timeout: TIMEOUTS.MEDIUM });
     await this.page
       .locator("//button[starts-with(@class, 'Toastify__close-button')]")
       .click();
@@ -421,14 +423,14 @@ export class DashboardPage {
     await this.page
       .getByRole("button", { name: "let me have that cheat sheet!" })
       .click();
-    await this.page.waitForTimeout(5000);
+    await this.page.waitForTimeout(TIMEOUTS.MEDIUM);
     const captchaShown = await this.page.isVisible(".seva-overlay");
     if (captchaShown) {
       throw new Error("Unable to continue test, captcha was shown");
     }
     await this.page
       .getByText("New to Agile? You NEED To See This!")
-      .waitFor({ state: "attached", timeout: 3000 });
+      .waitFor({ state: "attached", timeout: TIMEOUTS.MEDIUM });
     await this.open();
   }
 
@@ -461,7 +463,7 @@ export class DashboardPage {
       return trackersCount;
     }
 
-    this.page.waitForTimeout(500);
+    this.page.waitForTimeout(TIMEOUTS.MEDIUM);
     return this.checkTrackersCount(attempts - 1);
   }
 }
