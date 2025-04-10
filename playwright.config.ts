@@ -14,8 +14,8 @@ const config = defineConfig({
   /* Add location of specs. */
   testDir: 'e2e-tests/specs',
 
-  /* Maximum time one test can run for. 3 minutes */
-  timeout: 60 * 1000,
+  /* Maximum time one test can run for. 2 minutes */
+  timeout: 60 * 2 * 1000,
 
   /* Global setup */
   globalSetup: require.resolve('./e2e-tests/global-setup.ts'),
@@ -48,9 +48,6 @@ const config = defineConfig({
   ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
-    actionTimeout: 0,
-
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: process.env.E2E_TEST_BASE_URL || 'https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net',
 

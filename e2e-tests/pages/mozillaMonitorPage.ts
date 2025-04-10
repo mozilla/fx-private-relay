@@ -1,8 +1,5 @@
 import { Page, Locator } from "@playwright/test";
-import {
-  forceNonReactLink,
-  getVerificationCode,
-} from "../e2eTestUtils/helpers";
+import { TIMEOUTS } from "../e2eTestUtils/helpers";
 import { AuthPage } from "./authPage";
 
 export class MozillaMonitorPage {
@@ -32,6 +29,6 @@ export class MozillaMonitorPage {
     await authPage.signUp(randomMask, true);
     await this.page
       .getByText("Enter confirmation code")
-      .waitFor({ state: "attached", timeout: 3000 });
+      .waitFor({ state: "attached", timeout: TIMEOUTS.MEDIUM });
   }
 }

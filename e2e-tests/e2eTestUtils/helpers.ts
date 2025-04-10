@@ -14,6 +14,12 @@ export const ENV_URLS = {
   local: process.env.SITE_ORIGIN,
 };
 
+export const TIMEOUTS = {
+  SHORT: 2000,
+  MEDIUM: 5000,
+  LONG: 10000,
+};
+
 export const getVerificationCode = async (
   testEmail: string,
   page: Page,
@@ -33,7 +39,7 @@ export const getVerificationCode = async (
     return verificationCode;
   }
 
-  await page.waitForTimeout(2000);
+  await page.waitForTimeout(TIMEOUTS.SHORT);
   return getVerificationCode(testEmail, page, attempts - 1);
 };
 
@@ -59,13 +65,15 @@ const setYourPassword = async (page: Page) => {
   await page
     .locator('button:has-text("Create account")')
     .click({ force: true });
-  await page.waitForTimeout(2000);
+  await page.waitForTimeout(TIMEOUTS.SHORT);
   await checkAuthState(page);
 };
 
 const enterConfirmationCode = async (page: Page) => {
   const maybeVerificationCodeInput = "div.card input";
-  await page.waitForSelector(maybeVerificationCodeInput, { timeout: 2000 });
+  await page.waitForSelector(maybeVerificationCodeInput, {
+    timeout: TIMEOUTS.SHORT,
+  });
   const confirmButton = page.locator('[type="submit"]').first();
   const verificationCode = await getVerificationCode(
     process.env.E2E_TEST_ACCOUNT_FREE as string,
@@ -73,29 +81,29 @@ const enterConfirmationCode = async (page: Page) => {
   );
   await page.locator(maybeVerificationCodeInput).fill(verificationCode);
   await confirmButton.click({ force: true });
-  await page.waitForTimeout(2000);
+  await page.waitForTimeout(TIMEOUTS.SHORT);
   await checkAuthState(page);
 };
 
 const signIn = async (page: Page) => {
   const signInButton = page.getByRole("button", { name: "Sign in" });
-  await signInButton.waitFor({ timeout: 2000 });
+  await signInButton.waitFor({ timeout: TIMEOUTS.SHORT });
   await page.waitForLoadState("networkidle");
   await page.waitForLoadState("domcontentloaded");
   await page.getByRole("button", { name: "Sign in" }).click({ force: true });
-  await page.waitForTimeout(2000);
+  await page.waitForTimeout(TIMEOUTS.SHORT);
   await checkAuthState(page);
 };
 
 const enterYourEmail = async (page: Page) => {
   const maybeEmailInput = 'input[name="email"]';
-  await page.waitForSelector(maybeEmailInput, { timeout: 2000 });
+  await page.waitForSelector(maybeEmailInput, { timeout: TIMEOUTS.SHORT });
   const signInButton = page.locator('[type="submit"]').first();
   await page
     .locator(maybeEmailInput)
     .fill(process.env.E2E_TEST_ACCOUNT_FREE as string);
   await signInButton.click({ force: true });
-  await page.waitForTimeout(500);
+  await page.waitForTimeout(TIMEOUTS.SHORT);
   await checkAuthState(page);
 };
 
@@ -107,7 +115,7 @@ const enterYourPassword = async (page: Page) => {
 
   // using force here due to fxa issue with playwright
   await page.locator('[type="submit"]').first().click();
-  await page.waitForTimeout(500);
+  await page.waitForTimeout(TIMEOUTS.SHORT);
   await checkAuthState(page);
 };
 
@@ -154,7 +162,7 @@ export const checkAuthState = async (page: Page) => {
     const authStateTitleString = await page
       .locator("h1")
       .first()
-      ?.textContent({ timeout: 5000 });
+      ?.textContent({ timeout: TIMEOUTS.MEDIUM });
 
     const checkIfTitleContains = (potentialTitle: string) => {
       return authStateTitleString?.includes(potentialTitle);

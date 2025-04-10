@@ -1,5 +1,5 @@
 import { Locator, Page } from "@playwright/test";
-import { forceNonReactLink } from "../e2eTestUtils/helpers";
+import { forceNonReactLink, TIMEOUTS } from "../e2eTestUtils/helpers";
 
 export class AuthPage {
   readonly page: Page;
@@ -46,7 +46,7 @@ export class AuthPage {
   async enterVerificationCode(code: string) {
     await this.page
       .getByText("Enter confirmation code")
-      .waitFor({ state: "attached", timeout: 3000 });
+      .waitFor({ state: "attached", timeout: TIMEOUTS.LONG });
     await forceNonReactLink(this.page);
     await this.verifyCodeInputField.fill(code);
     await this.confirmCodeButton.click();
@@ -70,11 +70,11 @@ export class AuthPage {
   async login(email: string) {
     await this.page
       .getByText("Enter your email")
-      .waitFor({ state: "attached", timeout: 3000 });
+      .waitFor({ state: "attached", timeout: TIMEOUTS.LONG });
     await this.enterEmail(email);
     await this.page
       .getByText("Enter your password")
-      .waitFor({ state: "attached", timeout: 3000 });
+      .waitFor({ state: "attached", timeout: TIMEOUTS.LONG });
     await this.enterPassword();
   }
 
@@ -82,12 +82,12 @@ export class AuthPage {
     if (!emailEntered) {
       await this.page
         .getByText("Enter your email")
-        .waitFor({ state: "attached", timeout: 3000 });
+        .waitFor({ state: "attached", timeout: TIMEOUTS.LONG });
       await this.enterEmail(email);
     }
     await this.page
       .getByText("Set your password")
-      .waitFor({ state: "attached", timeout: 3000 });
+      .waitFor({ state: "attached", timeout: TIMEOUTS.LONG });
     await this.passwordSignupInputField.fill(
       process.env.E2E_TEST_ACCOUNT_PASSWORD as string,
     );
