@@ -13,6 +13,8 @@ import markus
 from csp.middleware import CSPMiddleware
 from whitenoise.middleware import WhiteNoiseMiddleware
 
+from privaterelay.utils import glean_logger
+
 metrics = markus.get_metrics()
 
 
@@ -197,3 +199,13 @@ class RelayStaticFilesMiddleware(WhiteNoiseMiddleware):
         else:
             static_file = self.files.get(path_info)
         return static_file is not None
+
+
+class GleanApiAccessMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if request.path.startswith("/api/"):
+            glean_logger().log_api_accessed(request)
+        return self.get_response(request)

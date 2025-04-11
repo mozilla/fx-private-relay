@@ -395,6 +395,7 @@ MIDDLEWARE += [
     "waffle.middleware.WaffleMiddleware",
     "privaterelay.middleware.AddDetectedCountryToRequestAndResponseHeaders",
     "privaterelay.middleware.StoreFirstVisit",
+    "privaterelay.middleware.GleanApiAccessMiddleware",
 ]
 
 ROOT_URLCONF = "privaterelay.urls"
