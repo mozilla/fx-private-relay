@@ -62,6 +62,7 @@ from phones.models import (
     suggested_numbers,
 )
 from privaterelay.ftl_bundles import main as ftl_bundle
+from privaterelay.utils import glean_logger
 
 from ..exceptions import ConflictError
 from ..permissions import HasPhoneService
@@ -721,6 +722,7 @@ def inbound_sms(request):
             template_name="twiml_empty_response.xml",
         )
 
+    glean_logger().log_text_received(user=real_phone.user)
     _check_remaining(relay_number, "texts")
 
     if inbound_from == real_phone.number:
@@ -1004,6 +1006,7 @@ def inbound_call(request):
             template_name="twiml_empty_response.xml",
         )
 
+    glean_logger().log_call_received(user=real_phone.user)
     number_disabled = _check_disabled(relay_number, "calls")
     if number_disabled:
         say = "Sorry, that number is not available."

@@ -1,3 +1,4 @@
+import json
 import re
 from collections.abc import Iterator
 from dataclasses import dataclass
@@ -16,6 +17,8 @@ from twilio.base.exceptions import TwilioRestException
 from twilio.request_validator import RequestValidator
 from twilio.rest import Client
 from waffle.testutils import override_flag
+
+from privaterelay.tests.glean_tests import assert_glean_record
 
 if settings.PHONES_ENABLED:
     from api.views.phones import MatchByPrefix, _match_by_prefix
@@ -867,7 +870,9 @@ def test_inbound_sms_valid_twilio_signature_good_data_deactivated_user(
     assert relay_number.remaining_texts == pre_inbound_remaining_texts
 
 
-def test_inbound_sms_valid_twilio_signature_good_data(phone_user, mocked_twilio_client):
+def test_inbound_sms_valid_twilio_signature_good_data(
+    phone_user, mocked_twilio_client, caplog
+):
     real_phone = _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user)
     pre_inbound_remaining_texts = relay_number.remaining_texts
@@ -876,7 +881,9 @@ def test_inbound_sms_valid_twilio_signature_good_data(phone_user, mocked_twilio_
     client = APIClient()
     path = "/api/v1/inbound_sms"
     data = {"From": "+15556660000", "To": relay_number.number, "Body": "test body"}
-    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    with caplog.at_level("INFO"):
+        response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
     assert response.status_code == 201
     mocked_twilio_client.messages.create.assert_called_once()
@@ -887,6 +894,15 @@ def test_inbound_sms_valid_twilio_signature_good_data(phone_user, mocked_twilio_
     relay_number.refresh_from_db()
     assert relay_number.texts_forwarded == 1
     assert relay_number.remaining_texts == pre_inbound_remaining_texts - 1
+
+    for record in caplog.records:
+        if record.name == "glean-server-event":
+            assert_glean_record(record)
+            payload = json.loads(getattr(record, "payload"))
+            event = payload["events"][0]
+            assert event["category"] == "phone"
+            assert event["name"] == "text_received"
+            assert event["extra"]["fxa_id"] == phone_user.profile.metrics_fxa_id
 
 
 def test_inbound_sms_valid_twilio_signature_disabled_number(
@@ -2092,7 +2108,7 @@ def test_inbound_call_valid_twilio_signature_good_data_deactivated_user(
 
 
 def test_inbound_call_valid_twilio_signature_good_data(
-    phone_user, mocked_twilio_client
+    phone_user, mocked_twilio_client, caplog
 ):
     real_phone = _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=True)
@@ -2103,7 +2119,8 @@ def test_inbound_call_valid_twilio_signature_good_data(
     client = APIClient()
     path = "/api/v1/inbound_call"
     data = {"Caller": caller_number, "Called": relay_number.number}
-    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+    with caplog.at_level("INFO"):
+        response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
     assert response.status_code == 201
     decoded_content = response.content.decode()
@@ -2116,6 +2133,15 @@ def test_inbound_call_valid_twilio_signature_good_data(
     )
     assert inbound_contact.num_calls == 1
     assert inbound_contact.last_inbound_type == "call"
+
+    for record in caplog.records:
+        if record.name == "glean-server-event":
+            assert_glean_record(record)
+            payload = json.loads(getattr(record, "payload"))
+            event = payload["events"][0]
+            assert event["category"] == "phone"
+            assert event["name"] == "call_received"
+            assert event["extra"]["fxa_id"] == phone_user.profile.metrics_fxa_id
 
 
 def test_inbound_call_valid_twilio_signature_disabled_number(

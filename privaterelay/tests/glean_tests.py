@@ -582,3 +582,43 @@ def test_log_api_accessed(
     assert payload_event["extra"]["endpoint"] == path
     assert payload_event["extra"]["method"] == "GET"
     assert payload_event["extra"]["fxa_id"] == user.profile.metrics_fxa_id
+
+
+@pytest.mark.django_db
+def test_log_text_received(
+    glean_logger: RelayGleanLogger,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Check that log_text_received emits a Glean server-side log."""
+    user = make_free_test_user()
+    with caplog.at_level("INFO"):
+        glean_logger.log_text_received(user=user)
+
+    assert len(caplog.records) == 1
+    record = caplog.records[0]
+    assert_glean_record(record)
+    payload = json.loads(getattr(record, "payload"))
+    event = payload["events"][0]
+    assert event["category"] == "phone"
+    assert event["name"] == "text_received"
+    assert event["extra"]["fxa_id"] == user.profile.metrics_fxa_id
+
+
+@pytest.mark.django_db
+def test_log_call_received(
+    glean_logger: RelayGleanLogger,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Check that log_call_received emits a Glean server-side log."""
+    user = make_free_test_user()
+    with caplog.at_level("INFO"):
+        glean_logger.log_call_received(user=user)
+
+    assert len(caplog.records) == 1
+    record = caplog.records[0]
+    assert_glean_record(record)
+    payload = json.loads(getattr(record, "payload"))
+    event = payload["events"][0]
+    assert event["category"] == "phone"
+    assert event["name"] == "call_received"
+    assert event["extra"]["fxa_id"] == user.profile.metrics_fxa_id

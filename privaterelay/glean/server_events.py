@@ -426,6 +426,56 @@ class EventsServerEventLogger:
         }
         self._record(user_agent, ip_address, event)
 
+    def record_phone_call_received(
+        self,
+        user_agent: str,
+        ip_address: str,
+        fxa_id: str,
+    ) -> None:
+        """
+        Record and submit a phone_call_received event:
+        A Relay user receives a phone call.
+        Event is logged to STDOUT via `print`.
+
+        :param str user_agent: The user agent.
+        :param str ip_address: The IP address. Will be used to decode Geo information
+            and scrubbed at ingestion.
+        :param str fxa_id: Mozilla accounts user ID
+        """
+        event = {
+            "category": "phone",
+            "name": "call_received",
+            "extra": {
+                "fxa_id": str(fxa_id),
+            },
+        }
+        self._record(user_agent, ip_address, event)
+
+    def record_phone_text_received(
+        self,
+        user_agent: str,
+        ip_address: str,
+        fxa_id: str,
+    ) -> None:
+        """
+        Record and submit a phone_text_received event:
+        A Relay user receives a text message.
+        Event is logged to STDOUT via `print`.
+
+        :param str user_agent: The user agent.
+        :param str ip_address: The IP address. Will be used to decode Geo information
+            and scrubbed at ingestion.
+        :param str fxa_id: Mozilla accounts user ID
+        """
+        event = {
+            "category": "phone",
+            "name": "text_received",
+            "extra": {
+                "fxa_id": str(fxa_id),
+            },
+        }
+        self._record(user_agent, ip_address, event)
+
 
 def create_events_server_event_logger(
     application_id: str,

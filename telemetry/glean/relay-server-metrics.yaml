@@ -142,7 +142,7 @@ api:
     description: An API endpoint was accessed.
     expires: never
     data_reviews:
-      - https://example.com/data-review
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
     notification_emails:
       - relay-team@mozilla.com
     data_sensitivity:
@@ -156,6 +156,41 @@ api:
       method:
         description: HTTP method used
         type: string
+      fxa_id:
+        description: Mozilla accounts user ID
+        type: string
+
+phone:
+  text_received:
+    type: event
+    description: A Relay user receives a text message.
+    expires: never
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/MPP-4014
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
+    notification_emails:
+      - relay-team@mozilla.com
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      fxa_id:
+        description: Mozilla accounts user ID
+        type: string
+
+  call_received:
+    type: event
+    description: A Relay user receives a phone call.
+    expires: never
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/MPP-4014
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
+    notification_emails:
+      - relay-team@mozilla.com
+    data_sensitivity:
+      - interaction
+    extra_keys:
       fxa_id:
         description: Mozilla accounts user ID
         type: string

@@ -312,3 +312,35 @@ class RelayGleanLogger(EventsServerEventLogger):
             method=_opt_str_to_glean(request.method),
             fxa_id=_opt_str_to_glean(user_data.fxa_id),
         )
+
+    def log_text_received(
+        self,
+        *,
+        user: User,
+    ) -> None:
+        """Log that a text message was received."""
+        user_data = UserData.from_user(user)
+        if not user_data.metrics_enabled:
+            return
+        request_data = RequestData()
+        self.record_phone_text_received(
+            user_agent=_opt_str_to_glean(request_data.user_agent),
+            ip_address=_opt_str_to_glean(request_data.ip_address),
+            fxa_id=_opt_str_to_glean(user_data.fxa_id),
+        )
+
+    def log_call_received(
+        self,
+        *,
+        user: User,
+    ) -> None:
+        """Log that a phone call was received."""
+        user_data = UserData.from_user(user)
+        if not user_data.metrics_enabled:
+            return
+        request_data = RequestData()
+        self.record_phone_call_received(
+            user_agent=_opt_str_to_glean(request_data.user_agent),
+            ip_address=_opt_str_to_glean(request_data.ip_address),
+            fxa_id=_opt_str_to_glean(user_data.fxa_id),
+        )
