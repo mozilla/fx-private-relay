@@ -22,6 +22,7 @@ email_mask:
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
     notification_emails:
+      - lcrouch@mozilla.com
       - relay-team@mozilla.com
     data_sensitivity:
       - interaction
@@ -72,6 +73,7 @@ email_mask:
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
     notification_emails:
+      - lcrouch@mozilla.com
       - relay-team@mozilla.com
     data_sensitivity:
       - interaction
@@ -93,6 +95,7 @@ email_mask:
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
     notification_emails:
+      - lcrouch@mozilla.com
       - relay-team@mozilla.com
     data_sensitivity:
       - interaction
@@ -109,6 +112,7 @@ email:
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
     notification_emails:
+      - lcrouch@mozilla.com
       - relay-team@mozilla.com
     data_sensitivity:
       - interaction
@@ -127,6 +131,7 @@ email:
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
     notification_emails:
+      - lcrouch@mozilla.com
       - relay-team@mozilla.com
     data_sensitivity:
       - interaction
@@ -144,6 +149,7 @@ api:
     data_reviews:
       - https://github.com/mozilla/fx-private-relay/pull/5500
     notification_emails:
+      - lcrouch@mozilla.com
       - relay-team@mozilla.com
     data_sensitivity:
       - interaction
@@ -170,6 +176,7 @@ phone:
     data_reviews:
       - https://github.com/mozilla/fx-private-relay/pull/5500
     notification_emails:
+      - lcrouch@mozilla.com
       - relay-team@mozilla.com
     data_sensitivity:
       - interaction
@@ -187,6 +194,7 @@ phone:
     data_reviews:
       - https://github.com/mozilla/fx-private-relay/pull/5500
     notification_emails:
+      - lcrouch@mozilla.com
       - relay-team@mozilla.com
     data_sensitivity:
       - interaction
