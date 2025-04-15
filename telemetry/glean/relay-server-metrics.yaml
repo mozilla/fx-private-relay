@@ -142,7 +142,7 @@ api:
     description: An API endpoint was accessed.
     expires: never
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
+      - https://github.com/mozilla/fx-private-relay/pull/5500
     notification_emails:
       - relay-team@mozilla.com
     data_sensitivity:
@@ -168,7 +168,7 @@ phone:
     bugs:
       - https://mozilla-hub.atlassian.net/browse/MPP-4014
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
+      - https://github.com/mozilla/fx-private-relay/pull/5500
     notification_emails:
       - relay-team@mozilla.com
     data_sensitivity:
@@ -185,7 +185,7 @@ phone:
     bugs:
       - https://mozilla-hub.atlassian.net/browse/MPP-4014
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
+      - https://github.com/mozilla/fx-private-relay/pull/5500
     notification_emails:
       - relay-team@mozilla.com
     data_sensitivity:
