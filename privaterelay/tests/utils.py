@@ -24,12 +24,13 @@ def make_free_test_user(email: str = "") -> User:
         user = baker.make(User)
     user.profile.server_storage = True
     user.profile.save()
+    uid = str(uuid4())
     baker.make(
         SocialAccount,
         user=user,
-        uid=str(uuid4()),
+        uid=uid,
         provider="fxa",
-        extra_data={"avatar": "avatar.png"},
+        extra_data={"avatar": "avatar.png", "uid": uid},
     )
     return user
 
@@ -48,12 +49,17 @@ def upgrade_test_user_to_premium(user: User) -> None:
     """Create an FxA SocialAccount with an unlimited email masks plan."""
     if SocialAccount.objects.filter(user=user).exists():
         raise Exception("upgrade_test_user_to_premium does not (yet) handle this.")
+    uid = str(uuid4())
     baker.make(
         SocialAccount,
         user=user,
-        uid=str(uuid4()),
+        uid=uid,
         provider="fxa",
-        extra_data={"avatar": "avatar.png", "subscriptions": [premium_subscription()]},
+        extra_data={
+            "avatar": "avatar.png",
+            "subscriptions": [premium_subscription()],
+            "uid": uid,
+        },
     )
 
 
@@ -205,6 +211,7 @@ def get_glean_event(
     caplog: pytest.LogCaptureFixture | _LoggingWatcher,
     category: str | None = None,
     name: str | None = None,
+    exclude_api_access: bool = True,
 ) -> dict[str, Any] | None:
     """Return the event payload from a Glean server event log."""
     for record in caplog.records:
@@ -212,6 +219,12 @@ def get_glean_event(
             assert hasattr(record, "payload")
             event = json.loads(record.payload)["events"][0]
             assert isinstance(event, dict)
+            if (
+                exclude_api_access
+                and event["category"] == "api"
+                and event["name"] == "accessed"
+            ):
+                continue
             if (not category or event["category"] == category) and (
                 not name or event["name"] == name
             ):

@@ -22,7 +22,8 @@ email_mask:
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
     notification_emails:
-      - jwhitlock@mozilla.com
+      - lcrouch@mozilla.com
+      - relay-team@mozilla.com
     data_sensitivity:
       - interaction
     extra_keys: &default_mask_extra_keys
@@ -72,7 +73,8 @@ email_mask:
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
     notification_emails:
-      - jwhitlock@mozilla.com
+      - lcrouch@mozilla.com
+      - relay-team@mozilla.com
     data_sensitivity:
       - interaction
     extra_keys:
@@ -93,7 +95,8 @@ email_mask:
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
     notification_emails:
-      - jwhitlock@mozilla.com
+      - lcrouch@mozilla.com
+      - relay-team@mozilla.com
     data_sensitivity:
       - interaction
     extra_keys: *default_mask_extra_keys
@@ -109,7 +112,8 @@ email:
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
     notification_emails:
-      - jwhitlock@mozilla.com
+      - lcrouch@mozilla.com
+      - relay-team@mozilla.com
     data_sensitivity:
       - interaction
     extra_keys: &default_email_extra_keys
@@ -127,11 +131,74 @@ email:
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
     notification_emails:
-      - jwhitlock@mozilla.com
+      - lcrouch@mozilla.com
+      - relay-team@mozilla.com
     data_sensitivity:
       - interaction
     extra_keys:
       <<: *default_email_extra_keys
       reason:
         description: Code describing why the email was blocked
+        type: string
+
+api:
+  accessed:
+    type: event
+    description: An API endpoint was accessed.
+    expires: never
+    data_reviews:
+      - https://github.com/mozilla/fx-private-relay/pull/5500
+    notification_emails:
+      - lcrouch@mozilla.com
+      - relay-team@mozilla.com
+    data_sensitivity:
+      - interaction
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/MPP-4012
+    extra_keys:
+      endpoint:
+        description: The name of the endpoint accessed
+        type: string
+      method:
+        description: HTTP method used
+        type: string
+      fxa_id:
+        description: Mozilla accounts user ID
+        type: string
+
+phone:
+  text_received:
+    type: event
+    description: A Relay user receives a text message.
+    expires: never
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/MPP-4014
+    data_reviews:
+      - https://github.com/mozilla/fx-private-relay/pull/5500
+    notification_emails:
+      - lcrouch@mozilla.com
+      - relay-team@mozilla.com
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      fxa_id:
+        description: Mozilla accounts user ID
+        type: string
+
+  call_received:
+    type: event
+    description: A Relay user receives a phone call.
+    expires: never
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/MPP-4014
+    data_reviews:
+      - https://github.com/mozilla/fx-private-relay/pull/5500
+    notification_emails:
+      - lcrouch@mozilla.com
+      - relay-team@mozilla.com
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      fxa_id:
+        description: Mozilla accounts user ID
         type: string
