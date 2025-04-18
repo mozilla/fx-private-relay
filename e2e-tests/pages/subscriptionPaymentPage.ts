@@ -13,9 +13,12 @@ export class SubscriptionPaymentPage {
   readonly postalCodeField: Locator;
   readonly authorizationCheckbox: Locator;
   readonly subscriptionTitle: Locator;
+  readonly subscription3Title: Locator;
   readonly subscriptionType: Locator;
   readonly planDetails: Locator;
+  readonly planDetails3: Locator;
   readonly planType: Locator;
+  readonly planType3: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -40,7 +43,41 @@ export class SubscriptionPaymentPage {
     this.subscriptionTitle = page.locator(
       '[data-testid="subscription-create-title"]',
     );
+    this.subscription3Title = page.getByRole("heading", {
+      name: "Set up your subscription",
+    });
     this.planDetails = page.locator("#plan-details-product");
+    this.planDetails3 = page
+      .getByLabel("Purchase details")
+      .first()
+      .getByRole("heading")
+      .first();
     this.planType = page.locator(".plan-details-description");
+    this.planType3 = page.getByTestId("total-price");
+  }
+
+  private isVersion3(): boolean {
+    return this.page.url().includes("payments-next");
+  }
+
+  async getSubscriptionTitleText(): Promise<string> {
+    if (this.isVersion3()) {
+      return await this.subscription3Title.textContent();
+    }
+    return await this.subscriptionTitle.textContent();
+  }
+
+  async getPlanDetailsText(): Promise<string> {
+    if (this.isVersion3()) {
+      return await this.planDetails3.textContent();
+    }
+    return await this.planDetails.textContent();
+  }
+
+  async getPriceDetailsText(): Promise<string> {
+    if (this.isVersion3()) {
+      return await this.planType3.textContent();
+    }
+    return await this.planType.textContent();
   }
 }

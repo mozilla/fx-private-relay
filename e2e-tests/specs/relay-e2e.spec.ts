@@ -105,13 +105,13 @@ test.describe("Subscription flows @health_check", () => {
 
     await landingPage.selectYearlyEmailsPlan();
     // verify redirect to subscription page
-    expect(await subscriptionPage.subscriptionTitle.textContent()).toContain(
+    expect(await subscriptionPage.getSubscriptionTitleText()).toContain(
       "Set up your subscription",
     );
-    expect(await subscriptionPage.planDetails.textContent()).toEqual(
+    expect(await subscriptionPage.getPlanDetailsText()).toEqual(
       expectedEmailsPlansDetails,
     );
-    expect(await subscriptionPage.planType.textContent()).toContain("yearly");
+    expect(await subscriptionPage.getPriceDetailsText()).toContain("yearly");
   });
 
   test('Verify that the monthly emails plan "Sign Up" button works correctly, C1818792', async ({
@@ -125,13 +125,13 @@ test.describe("Subscription flows @health_check", () => {
 
     await landingPage.selectMonthlyEmailsPlan();
     // verify redirect to subscription page
-    expect(await subscriptionPage.subscriptionTitle.textContent()).toContain(
+    expect(await subscriptionPage.getSubscriptionTitleText()).toContain(
       "Set up your subscription",
     );
-    expect(await subscriptionPage.planDetails.textContent()).toEqual(
+    expect(await subscriptionPage.getPlanDetailsText()).toEqual(
       expectedEmailsPlansDetails,
     );
-    expect(await subscriptionPage.planType.textContent()).toContain("monthly");
+    expect(await subscriptionPage.getPriceDetailsText()).toContain("monthly");
   });
 
   test('Verify that the yearly emails and phones bundle plan "Sign Up" button works correctly, C1818792', async ({
@@ -141,13 +141,13 @@ test.describe("Subscription flows @health_check", () => {
     await landingPage.selectYearlyPhonesEmailsBundle();
 
     // verify redirect to subscription page
-    expect(await subscriptionPage.subscriptionTitle.textContent()).toContain(
+    expect(await subscriptionPage.getSubscriptionTitleText()).toContain(
       "Set up your subscription",
     );
-    expect(await subscriptionPage.planDetails.textContent()).toEqual(
+    expect(await subscriptionPage.getPlanDetailsText()).toEqual(
       expectedPhonesEmailsPlanDetails,
     );
-    expect(await subscriptionPage.planType.textContent()).toContain("yearly");
+    expect(await subscriptionPage.getPriceDetailsText()).toContain("yearly");
   });
 
   test('Verify that the monthly emails and phones bundle plan "Sign Up" button works correctly, C1818792', async ({
@@ -161,13 +161,13 @@ test.describe("Subscription flows @health_check", () => {
 
     await landingPage.selectMonthlyPhonesEmailsBundle();
     // verify redirect to subscription page
-    expect(await subscriptionPage.subscriptionTitle.textContent()).toContain(
+    expect(await subscriptionPage.getSubscriptionTitleText()).toContain(
       "Set up your subscription",
     );
-    expect(await subscriptionPage.planDetails.textContent()).toEqual(
+    expect(await subscriptionPage.getPlanDetailsText()).toEqual(
       expectedPhonesEmailsPlanDetails,
     );
-    expect(await subscriptionPage.planType.textContent()).toContain("monthly");
+    expect(await subscriptionPage.getPriceDetailsText()).toContain("monthly");
   });
 
   test('Verify that the VPN bundle "Sign Up" button works correctly, C1818792', async ({
@@ -177,12 +177,12 @@ test.describe("Subscription flows @health_check", () => {
     await landingPage.selectVpnBundlePlan();
 
     // verify redirect to subscription page
-    expect(await subscriptionPage.subscriptionTitle.textContent()).toContain(
+    expect(await subscriptionPage.getSubscriptionTitleText()).toContain(
       "Set up your subscription",
     );
-    expect(await subscriptionPage.planDetails.textContent()).toEqual(
+    expect(await subscriptionPage.getPlanDetailsText()).toEqual(
       expectedVPNBundleDetails,
     );
-    expect(await subscriptionPage.planType.textContent()).toContain("yearly");
+    expect(await subscriptionPage.getPriceDetailsText()).toContain("yearly");
   });
 });
