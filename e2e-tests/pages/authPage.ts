@@ -5,7 +5,6 @@ export class AuthPage {
   readonly page: Page;
   readonly emailInputField: Locator;
   readonly passwordInputField: Locator;
-  readonly passwordConfirmInputField: Locator;
   readonly ageInputField: Locator;
   readonly continueButton: Locator;
   readonly createAccountButton: Locator;
@@ -13,7 +12,6 @@ export class AuthPage {
   readonly confirmCodeButton: Locator;
   readonly newPasswordInputFieldSignIn: Locator;
   readonly passwordSignupInputField: Locator;
-  readonly passwordSignupConfirmInputField: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -21,9 +19,6 @@ export class AuthPage {
     this.passwordInputField = page.locator('[type="password"]').nth(0);
     this.passwordSignupInputField = page.getByTestId(
       "new-password-input-field",
-    );
-    this.passwordSignupConfirmInputField = page.getByTestId(
-      "verify-password-input-field",
     );
     this.ageInputField = page.getByTestId("age-input-field");
     this.continueButton = page.locator('[type="submit"]').first();
@@ -91,10 +86,7 @@ export class AuthPage {
     await this.passwordSignupInputField.fill(
       process.env.E2E_TEST_ACCOUNT_PASSWORD as string,
     );
-    await this.passwordSignupConfirmInputField.fill(
-      process.env.E2E_TEST_ACCOUNT_PASSWORD as string,
-    );
-    await this.ageInputField.type("31");
+    await this.ageInputField.fill("31");
     await this.createAccountButton.click();
   }
 }
