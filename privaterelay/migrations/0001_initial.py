@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
     initial = True
 
-    dependencies: list[tuple[str, str]] = []
+    dependencies = []
 
     operations = [
         migrations.CreateModel(

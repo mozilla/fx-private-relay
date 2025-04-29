@@ -9,4 +9,4 @@ class Migration(migrations.Migration):
         ("emails", "0018_reply_squashed_0022_auto_20210817_0327"),
     ]
 
-    operations: list[migrations.operations.base.Operation] = []
+    operations = []
