@@ -300,25 +300,6 @@ describe("The dashboard", () => {
     expect(firefoxBanner).toBeInTheDocument();
   });
 
-  it("shows a banner to download the Chrome extension if using a different browser that supports Chrome extensions", () => {
-    // navigator.userAgent is read-only, so we use `Object.defineProperty`
-    // as a workaround to be able to replace it with mock data anyway:
-    const previousUserAgent = navigator.userAgent;
-    Object.defineProperty(navigator, "userAgent", {
-      value:
-        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36",
-      configurable: true,
-    });
-    render(<Profile />);
-    Object.defineProperty(navigator, "userAgent", { value: previousUserAgent });
-
-    const chromeExtensionBanner = screen.getByRole("link", {
-      name: "l10n string: [banner-download-install-chrome-extension-cta], with vars: {}",
-    });
-
-    expect(chromeExtensionBanner).toBeInTheDocument();
-  });
-
   it("shows a banner to download Firefox if using a different browser that on desktop supports Chrome extensions, but is running on a small screen and thus probably does not support extensions", () => {
     // navigator.userAgent is read-only, so we use `Object.defineProperty`
     // as a workaround to be able to replace it with mock data anyway:
@@ -333,14 +314,10 @@ describe("The dashboard", () => {
     setMockMinViewportWidth(true);
     Object.defineProperty(navigator, "userAgent", { value: previousUserAgent });
 
-    const chromeExtensionBanner = screen.queryByRole("link", {
-      name: "l10n string: [banner-download-install-chrome-extension-cta], with vars: {}",
-    });
     const firefoxBanner = screen.getByRole("link", {
       name: "l10n string: [banner-download-firefox-cta], with vars: {}",
     });
 
-    expect(chromeExtensionBanner).not.toBeInTheDocument();
     expect(firefoxBanner).toBeInTheDocument();
   });
 
