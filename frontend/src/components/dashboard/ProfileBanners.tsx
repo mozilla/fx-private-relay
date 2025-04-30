@@ -11,7 +11,6 @@ import {
 } from "../../functions/getPlan";
 import {
   isUsingFirefox,
-  supportsChromeExtension,
   supportsFirefoxExtension,
 } from "../../functions/userAgent";
 import { ProfileData } from "../../hooks/api/profile";
@@ -81,7 +80,7 @@ export const ProfileBanners = (props: Props) => {
 
   // Don't show the "Get Firefox" banner if we have an extension available,
   // to avoid banner overload:
-  if (!isUsingFirefox() && (!supportsChromeExtension() || !isLargeScreen)) {
+  if (!isUsingFirefox() || !isLargeScreen) {
     banners.push(<NoFirefoxBanner key="firefox-banner" />);
   }
 
@@ -97,18 +96,6 @@ export const ProfileBanners = (props: Props) => {
     // so we'll just let the add-on hide it:
     banners.push(
       <NoAddonBanner profileData={props.profile} key="addon-banner" />,
-    );
-  }
-
-  if (supportsChromeExtension() && isLargeScreen) {
-    // This pushes a banner promoting the add-on - detecting the add-on
-    // and determining whether to show it based on that is a bit slow,
-    // so we'll just let the add-on hide it:
-    banners.push(
-      <NoChromeExtensionBanner
-        profileData={props.profile}
-        key="chrome-extension-banner"
-      />,
     );
   }
 
@@ -210,51 +197,6 @@ const NoAddonBanner = (props: NoAddonBannerProps) => {
       hiddenWithAddon={true}
     >
       <p>{l10n.getString("banner-download-install-extension-copy-2")}</p>
-    </Banner>
-  );
-};
-
-type NoChromeExtensionBannerProps = {
-  profileData: ProfileData;
-};
-
-// make dismissble
-const NoChromeExtensionBanner = (props: NoChromeExtensionBannerProps) => {
-  const l10n = useL10n();
-  const gaEvent = useGaEvent();
-
-  return (
-    <Banner
-      type="promo"
-      title={l10n.getString(
-        "banner-download-install-chrome-extension-headline",
-      )}
-      illustration={{
-        img: <Image src={AddonIllustration} alt="" width={60} height={60} />,
-      }}
-      cta={{
-        target:
-          "https://chrome.google.com/webstore/detail/firefox-relay/lknpoadjjkjcmjhbjpcljdednccbldeb?utm_source=fx-relay&utm_medium=banner&utm_campaign=install-addon",
-        content: l10n.getString("banner-download-install-chrome-extension-cta"),
-        size: "large",
-        gaViewPing: {
-          category: "Download Extension",
-          label: "profile-banner-download-chrome-extension",
-        },
-        onClick: () => {
-          gaEvent({
-            category: "Download Firefox",
-            action: "Engage",
-            label: "profile-banner-download-chrome-extension",
-          });
-        },
-      }}
-      hiddenWithAddon={true}
-      dismissal={{
-        key: `no-chrome-extension-banner-${props.profileData.id}`,
-      }}
-    >
-      <p>{l10n.getString("banner-download-install-chrome-extension-copy-2")}</p>
     </Banner>
   );
 };
