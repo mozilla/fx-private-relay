@@ -1,5 +1,5 @@
 import { Page, Locator } from "@playwright/test";
-import { TIMEOUTS } from "../e2eTestUtils/helpers";
+import { ENV_MONITOR, TIMEOUTS } from "../e2eTestUtils/helpers";
 import { AuthPage } from "./authPage";
 
 export class MozillaMonitorPage {
@@ -19,7 +19,7 @@ export class MozillaMonitorPage {
     if (randomMask === null) {
       return new Error("Mask could not be created.");
     }
-    await this.page.goto("https://monitor.mozilla.org/", {
+    await this.page.goto(ENV_MONITOR[process.env.E2E_TEST_ENV as string], {
       waitUntil: "networkidle",
     });
     await this.monitorSignUpInput.fill(randomMask as string);

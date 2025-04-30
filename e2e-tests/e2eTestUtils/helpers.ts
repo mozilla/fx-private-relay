@@ -14,6 +14,11 @@ export const ENV_URLS = {
   local: process.env.SITE_ORIGIN,
 };
 
+export const ENV_MONITOR = {
+  stage: "https://monitor-stage.allizom.org/",
+  prod: "https://monitor.mozilla.org/",
+};
+
 export const TIMEOUTS = {
   SHORT: 2000,
   MEDIUM: 5000,
