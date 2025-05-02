@@ -15,6 +15,8 @@ export const ENV_URLS = {
 };
 
 export const ENV_MONITOR = {
+  dev: "https://monitor-stage.allizom.org/",
+  local: "https://monitor-stage.allizom.org/",
   stage: "https://monitor-stage.allizom.org/",
   prod: "https://monitor.mozilla.org/",
 };
