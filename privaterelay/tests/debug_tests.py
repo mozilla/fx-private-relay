@@ -17,8 +17,13 @@ def test_default_filter() -> None:
 @pytest.mark.parametrize(
     "name",
     (
-        "ACCOUNT_ADAPTER",
-        "LOGGING_CONFIG",
+        "BUNDLE_PLAN_ID_US",
+        "BUNDLE_PROD_ID",
+        "RELAY_CHANNEL",
+        "RELAY_FROM_ADDRESS",
+        "SUBPLAT3_BUNDLE_PRODUCT_KEY",
+        "SUBPLAT3_PHONES_PRODUCT_KEY",
+        "SUBPLAT3_PREMIUM_PRODUCT_KEY",
     ),
 )
 def test_safe_settings(name: str) -> None:
@@ -31,6 +36,7 @@ def test_safe_settings(name: str) -> None:
 @pytest.mark.parametrize(
     "name",
     (
+        "ACCOUNT_ADAPTER",
         "ALLOWED_ACCOUNTS",
         "ALLOWED_HOSTS",
         "AUTH_PASSWORD_VALIDATORS",
@@ -43,6 +49,7 @@ def test_safe_settings(name: str) -> None:
         "AWS_SQS_EMAIL_DLQ_URL",
         "AWS_SQS_EMAIL_QUEUE_URL",
         "AWS_SQS_QUEUE_URL",
+        "CACHES",
         "DJANGO_ALLOWED_HOSTS",
         "IQ_ENABLED",
         "IQ_FOR_NEW_NUMBERS",
@@ -53,6 +60,7 @@ def test_safe_settings(name: str) -> None:
         "IQ_MESSAGE_PATH",
         "IQ_OUTBOUND_API_KEY",
         "IQ_PUBLISH_MESSAGE_URL",
+        "LOGGING_CONFIG",
         "PASSWORD_HASHERS",
         "PASSWORD_RESET_TIMEOUT",
         "SECRET_KEY",
@@ -80,6 +88,9 @@ def test_unsafe_settings(name: str) -> None:
 def meta_request(rf: RequestFactory) -> HttpRequest:
     request = rf.get(
         path="/meta-test",
+        BUNDLE_PLAN_ID_US="price_1LwoSDJNcmPzuWtR6wPJZeoh",
+        BUNDLE_PROD_ID="bundle-relay-vpn-dev",
+        CACHES={"default": {"LOCATION": "rediss://user:pass@redis.example.com:10001"}},
         CSRF_COOKIE="cross-site-request-forgery-cookie",
         DATABASE_URL="postgres://user:pass@db.example.com:5432/relay_db",
         DJANGO_ALLOWED_HOST="relay.example.com",
@@ -95,9 +106,8 @@ def meta_request(rf: RequestFactory) -> HttpRequest:
 @pytest.mark.parametrize(
     "name",
     (
-        "REMOTE_ADDR",
-        "SCRIPT_NAME",
-        "wsgi.version",
+        "BUNDLE_PLAN_ID_US",
+        "BUNDLE_PROD_ID",
     ),
 )
 def test_safe_meta(name: str, meta_request: HttpRequest) -> None:
@@ -109,6 +119,7 @@ def test_safe_meta(name: str, meta_request: HttpRequest) -> None:
 @pytest.mark.parametrize(
     "name",
     (
+        "CACHES",
         "CSRF_COOKIE",
         "DATABASE_URL",
         "DJANGO_ALLOWED_HOST",

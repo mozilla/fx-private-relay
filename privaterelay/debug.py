@@ -5,36 +5,30 @@ from django.views.debug import SafeExceptionReporterFilter
 
 class RelaySaferExceptionReporterFilter(SafeExceptionReporterFilter):
     """
-    Add more settings values that should be hidden in debug and exception reports.
-
-    This is also used by the Django Debug Toolbar settings panel.
+    Hide all settings EXCEPT ones explicitly allowed by SAFE_PREFIXES or SAFE_NAMES.
     """
 
-    # Hide any variable value that starts with these prefixes
-    UNSAFE_PREFIXES = ["AWS_", "IQ_", "TWILIO_", "REDIS_"]
+    # Allow variable values that start with these prefixes
+    SAFE_PREFIXES: list = []
 
-    # Hide any variable value named in this list
-    UNSAFE_NAMES = [
-        # Settings
-        "ALLOWED_ACCOUNTS",
-        "ALLOWED_HOSTS",
-        "DJANGO_ALLOWED_HOSTS",
-        "INTERNAL_IPS",
-        # Environment Variables / META
-        "CSRF_COOKIE",
-        "DATABASE_URL",
-        "DJANGO_ALLOWED_HOST",
-        "DJANGO_ALLOWED_SUBNET",
-        "DJANGO_INTERNAL_IPS",
-        "GOOGLE_APPLICATION_CREDENTIALS",
-        "GOOGLE_CLOUD_PROFILER_CREDENTIALS_B64",
-        "SENTRY_DSN",
+    # Allow variable values named in this list
+    SAFE_NAMES = [
+        "BUNDLE_PLAN_ID_US",
+        "BUNDLE_PROD_ID",
+        "RELAY_CHANNEL",
+        "RELAY_CHANNEL_NAME",
+        "RELAY_FROM_ADDRESS",
+        "SUBPLAT3_BUNDLE_PRODUCT_KEY",
+        "SUBPLAT3_PHONES_PRODUCT_KEY",
+        "SUBPLAT3_PREMIUM_PRODUCT_KEY",
     ]
 
+    # Match everything EXCEPT safe names and safe prefixes
     hidden_settings = re.compile(
-        "API|TOKEN|KEY|SECRET|PASS|SIGNATURE|HTTP_COOKIE|"
-        + "|".join(f"^{prefix}" for prefix in UNSAFE_PREFIXES)
+        r"^(?!("
+        + "|".join(f"{re.escape(name)}" for name in SAFE_NAMES)
         + "|"
-        + "|".join(f"^{name}$" for name in UNSAFE_NAMES),
+        + "|".join(f"{re.escape(prefix)}.*" for prefix in SAFE_PREFIXES)
+        + r")$).+",
         re.IGNORECASE,
     )
