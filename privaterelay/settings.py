@@ -489,7 +489,10 @@ if REDIS_URL:
     }
     # Heroku mini uses self-signed certificates
     if REDIS_SELF_SIGNED_CERT:
-        _redis_options["CONNECTION_POOL_KWARGS"] = {"ssl_cert_reqs": None}
+        _redis_options["CONNECTION_POOL_KWARGS"] = {
+            "ssl_cert_reqs": None,
+            "ssl_check_hostname": False,
+        }
 
     CACHES = {
         "default": {
