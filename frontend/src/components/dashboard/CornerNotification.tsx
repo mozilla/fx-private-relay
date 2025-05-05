@@ -38,15 +38,15 @@ export const CornerNotification = (props: Props) => {
   const gaEvent = useGaEvent();
 
   const title = l10n.getString(
-    `upsell-banner-4-masks-${isPhonesAvailable ? "us" : "non-us"}-heading`,
+    `upsell-banner-4-masks-${isPhonesAvailable ? "us" : "non-us"}-heading2`,
   );
   const description = l10n.getString(
-    `upsell-banner-4-masks-${isPhonesAvailable ? "us" : "non-us"}-description`,
+    `upsell-banner-4-masks-${isPhonesAvailable ? "us" : "non-us"}-description2`,
   );
   const illustration = isPhonesAvailable ? UpsellBannerUs : UpsellBannerNonUs;
 
   if (
-    isFlagActive(runtimeData, "four_mask_limit_upsell") &&
+    // isFlagActive(runtimeData, "four_mask_limit_upsell") &&
     !profile.has_premium &&
     !dismissal.isDismissed &&
     aliases.length === 4
