@@ -1,5 +1,6 @@
 import re
 
+from django.http.request import HttpRequest
 from django.views.debug import SafeExceptionReporterFilter
 
 
@@ -7,6 +8,14 @@ class RelaySaferExceptionReporterFilter(SafeExceptionReporterFilter):
     """
     Hide all settings EXCEPT ones explicitly allowed by SAFE_PREFIXES or SAFE_NAMES.
     """
+
+    # By default, Django disables the filter if DEBUG=True.
+    # Django correctly assumes "If DEBUG is True then your site is not safe anyway."
+    # (https://github.com/django/django/blob/1520d18/django/views/debug.py#L175)
+    # But, we sometimes temporarily set DEBUG=True in our dev environment to help debug.
+    # And even in that case, we want as much additional safety as we can get.
+    def is_active(self, request: HttpRequest | None) -> bool:
+        return True
 
     # Allow variable values that start with these prefixes
     SAFE_PREFIXES: list = []
