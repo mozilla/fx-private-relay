@@ -5,14 +5,12 @@ import Image from "../Image";
 import { ProfileData } from "../../hooks/api/profile";
 import { useLocalDismissal } from "../../hooks/localDismissal";
 import UpsellBannerNonUs from "../../pages/accounts/images/upsell-banner-nonus.svg";
-import UpsellBannerUs from "../../pages/accounts/images/upsell-banner-us.svg";
 import { useGaViewPing } from "../../hooks/gaViewPing";
 import { RuntimeData } from "../../hooks/api/runtimeData";
 import { isFlagActive } from "../../functions/waffle";
 import { useGaEvent } from "../../hooks/gaEvent";
 import { useL10n } from "../../hooks/l10n";
 import { LinkButton } from "../Button";
-import { isPhonesAvailableInCountry } from "../../functions/getPlan";
 import { AliasData } from "../../hooks/api/aliases";
 
 export type Props = {
@@ -29,7 +27,6 @@ export const CornerNotification = (props: Props) => {
   const dismissal = useLocalDismissal(
     `corner_notification_masks_upsell_${props.profile.id}`,
   );
-  const isPhonesAvailable = isPhonesAvailableInCountry(runtimeData);
   const aliases = props.aliases;
   const ctaRef = useGaViewPing({
     category: "Purchase Button",
@@ -37,13 +34,8 @@ export const CornerNotification = (props: Props) => {
   });
   const gaEvent = useGaEvent();
 
-  const title = l10n.getString(
-    `upsell-banner-4-masks-${isPhonesAvailable ? "us" : "non-us"}-heading`,
-  );
-  const description = l10n.getString(
-    `upsell-banner-4-masks-${isPhonesAvailable ? "us" : "non-us"}-description`,
-  );
-  const illustration = isPhonesAvailable ? UpsellBannerUs : UpsellBannerNonUs;
+  const title = l10n.getString(`upsell-banner-4-masks-us-heading-2`);
+  const description = l10n.getString(`upsell-banner-4-masks-us-description-2`);
 
   if (
     isFlagActive(runtimeData, "four_mask_limit_upsell") &&
@@ -71,14 +63,14 @@ export const CornerNotification = (props: Props) => {
                 height={20}
               />
             </button>
-            <Image src={illustration} alt="" />
+            <Image src={UpsellBannerNonUs} alt="" />
           </div>
           <div className={styles["card-content"]}>
             <p className={styles["card-title"]}>{title}</p>
             <p className={styles["card-description"]}>{description}</p>
             <LinkButton
               className={styles["card-cta"]}
-              href="/premium#pricing"
+              href="/premium/?utm_medium=referral&utm_source=relay-dashboard&utm_campaign=4-masks-modal#pricing"
               ref={ctaRef}
               onClick={() => {
                 gaEvent({
