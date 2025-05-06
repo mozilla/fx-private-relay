@@ -12,7 +12,7 @@ import { SubdomainSearchForm } from "./subdomain/SearchForm";
 import { SubdomainConfirmationModal } from "./subdomain/ConfirmationModal";
 import { getRuntimeConfig } from "../../config";
 import { useMinViewportWidth } from "../../hooks/mediaQuery";
-import { supportsChromeExtension } from "../../functions/userAgent";
+import { supportsFirefoxExtension } from "../../functions/userAgent";
 import { CheckBadgeIcon, CheckIcon } from "../Icons";
 import { useGaEvent } from "../../hooks/gaEvent";
 import { useL10n } from "../../hooks/l10n";
@@ -31,6 +31,7 @@ export type Props = {
 export const PremiumOnboarding = (props: Props) => {
   const l10n = useL10n();
   const isLargeScreen = useMinViewportWidth("md");
+  const shouldShowStepThree = supportsFirefoxExtension();
 
   const getStartedButtonRef = useGaViewPing({
     category: "Premium Onboarding",
@@ -103,10 +104,20 @@ export const PremiumOnboarding = (props: Props) => {
         });
       };
 
+      const skipToDashboard = () => {
+        props.onNextStep(3);
+        gaEvent({
+          category: "Premium Onboarding",
+          action: "Engage",
+          label: "onboarding-step-3-skip",
+          value: 3,
+        });
+      };
+
       skipButton = (
         <button
           ref={skipDomainButtonRef}
-          onClick={skipDomain}
+          onClick={shouldShowStepThree ? skipDomain : skipToDashboard}
           className={styles["skip-link"]}
         >
           {l10n.getString("multi-part-onboarding-skip")}
@@ -197,12 +208,12 @@ export const PremiumOnboarding = (props: Props) => {
           */}
           <VisuallyHidden>
             <progress
-              max={getRuntimeConfig().maxOnboardingAvailable}
+              max={shouldShowStepThree ? 3 : 2}
               value={props.profile.onboarding_state + 1}
             >
               {l10n.getString("multi-part-onboarding-step-counter", {
                 step: props.profile.onboarding_state,
-                max: getRuntimeConfig().maxOnboardingAvailable,
+                max: shouldShowStepThree ? 3 : 2,
               })}
             </progress>
           </VisuallyHidden>
@@ -225,15 +236,17 @@ export const PremiumOnboarding = (props: Props) => {
             >
               <span></span>2
             </li>
-            <li
-              className={
-                props.profile.onboarding_state >= 2
-                  ? styles["is-completed"]
-                  : undefined
-              }
-            >
-              <span></span>3
-            </li>
+            {shouldShowStepThree && (
+              <li
+                className={
+                  props.profile.onboarding_state >= 2
+                    ? styles["is-completed"]
+                    : undefined
+                }
+              >
+                <span></span>3
+              </li>
+            )}
           </ol>
 
           {skipButton}
@@ -477,9 +490,8 @@ interface AddonDescriptionProps {
   linkMessageId: string;
 }
 const getAddonDescriptionProps = () => {
-  const linkForBrowser = supportsChromeExtension()
-    ? "https://chrome.google.com/webstore/detail/firefox-relay/lknpoadjjkjcmjhbjpcljdednccbldeb?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon"
-    : "https://addons.mozilla.org/en-CA/firefox/addon/private-relay/";
+  const linkForBrowser =
+    "https://addons.mozilla.org/en-CA/firefox/addon/private-relay/";
 
   return {
     headerMessageId:

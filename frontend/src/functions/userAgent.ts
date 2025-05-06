@@ -11,17 +11,6 @@ export function supportsFirefoxExtension() {
   );
 }
 
-export function supportsChromeExtension() {
-  return (
-    typeof navigator !== "undefined" &&
-    /chrome|chromium/i.test(navigator.userAgent)
-  );
-}
-
-export function supportsAnExtension() {
-  return supportsFirefoxExtension() || supportsChromeExtension();
-}
-
 export function hasDoNotTrackEnabled() {
   return typeof navigator !== "undefined" && navigator.doNotTrack === "1";
 }

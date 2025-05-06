@@ -706,6 +706,12 @@ describe("The dashboard", () => {
   });
 
   it("allows skipping the custom domain set up during Premium onboarding", async () => {
+    const originalUserAgent = navigator.userAgent;
+    Object.defineProperty(navigator, "userAgent", {
+      value: "Chrome",
+      configurable: true,
+    });
+
     const updateFn: ProfileUpdateFn = jest.fn();
     setMockProfileDataOnce(
       { id: 42, has_premium: true, onboarding_state: 1 },
@@ -718,7 +724,12 @@ describe("The dashboard", () => {
     });
     await userEvent.click(skipButton);
 
-    expect(updateFn).toHaveBeenCalledWith(42, { onboarding_state: 2 });
+    expect(updateFn).toHaveBeenCalledWith(42, { onboarding_state: 3 });
+
+    Object.defineProperty(navigator, "userAgent", {
+      value: originalUserAgent,
+      configurable: true,
+    });
   }, 10000);
 
   it("allows skipping the extension set up during Premium onboarding", async () => {
