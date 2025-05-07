@@ -60,9 +60,11 @@ class Command(BaseCommand):
         existing_domains = {rec['domain'] for rec in existing_records}
         print(f"Found {len(existing_domains)} existing domains.")
 
-        # Delete records no longer in the domain allowlist
+        # Delete records:
+        # 1. no longer in the domain allowlist
+        # 2. where id does not match domain
         for existing_record in existing_records:
-            if existing_record["domain"] not in new_domains:
+            if (existing_record["domain"] not in new_domains or existing_record["domain"] != existing_record["id"]):
                 print(f'🗑 removed domain: {existing_record["domain"]}')
                 client.delete_record(id=existing_record["id"], bucket=BUCKET, collection=COLLECTION)
 
@@ -74,6 +76,6 @@ class Command(BaseCommand):
                 record = {
                     "domain": domain,
                 }
-                client.create_record(data=record, bucket=BUCKET, collection=COLLECTION)
+                client.create_record(id=domain, data=record, bucket=BUCKET, collection=COLLECTION)
 
         print("Allowlist synchronized 🔄 successfully. ✅")

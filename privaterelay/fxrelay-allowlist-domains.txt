@@ -1,4 +1,3 @@
-mozilla.github.io
 myaccount.nytimes.com
 account.booking.com
 secure.indeed.com
@@ -137,3 +136,4 @@ www.wattpad.com
 singlekey-id.com
 auth.services.adobe.com
 fill.dev
+mozilla.github.io
