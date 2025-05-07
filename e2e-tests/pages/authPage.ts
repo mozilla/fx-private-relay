@@ -1,11 +1,14 @@
 import { Locator, Page } from "@playwright/test";
-import { forceNonReactLink, TIMEOUTS } from "../e2eTestUtils/helpers";
+import {
+  forceNonReactLink,
+  FXA_HOSTS,
+  TIMEOUTS,
+} from "../e2eTestUtils/helpers";
 
 export class AuthPage {
   readonly page: Page;
   readonly emailInputField: Locator;
   readonly passwordInputField: Locator;
-  readonly ageInputField: Locator;
   readonly continueButton: Locator;
   readonly createAccountButton: Locator;
   readonly verifyCodeInputField: Locator;
@@ -20,7 +23,6 @@ export class AuthPage {
     this.passwordSignupInputField = page.getByTestId(
       "new-password-input-field",
     );
-    this.ageInputField = page.getByTestId("age-input-field");
     this.continueButton = page.locator('[type="submit"]').first();
     this.createAccountButton = page.getByRole("button", {
       name: "Create account",
@@ -75,9 +77,8 @@ export class AuthPage {
 
   async signUp(email: string, emailEntered: boolean = false) {
     if (!emailEntered) {
-      await this.page
-        .getByText("Enter your email")
-        .waitFor({ state: "attached", timeout: TIMEOUTS.LONG });
+      const fxaHost = FXA_HOSTS[process.env.E2E_TEST_ENV as string];
+      await this.page.waitForURL(`**${fxaHost}/**`);
       await this.enterEmail(email);
     }
     await this.page
@@ -86,7 +87,6 @@ export class AuthPage {
     await this.passwordSignupInputField.fill(
       process.env.E2E_TEST_ACCOUNT_PASSWORD as string,
     );
-    await this.ageInputField.fill("31");
     await this.createAccountButton.click();
   }
 }

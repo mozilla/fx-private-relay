@@ -1,4 +1,5 @@
 import { Locator, Page } from "@playwright/test";
+import { FXA_HOSTS } from "../e2eTestUtils/helpers";
 
 export class LandingPage {
   readonly page: Page;
@@ -115,8 +116,9 @@ export class LandingPage {
   }
 
   async goToSignIn() {
+    const fxaHost = FXA_HOSTS[process.env.E2E_TEST_ENV as string];
     await this.signInButton.click();
-    await this.page.waitForURL("**/oauth/**");
+    await this.page.waitForURL(`**${fxaHost}/**`);
   }
 
   async openFirefoxAppsServices() {
