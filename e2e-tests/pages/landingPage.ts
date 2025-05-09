@@ -116,7 +116,7 @@ export class LandingPage {
 
   async goToSignIn() {
     await this.signInButton.click();
-    await this.page.waitForURL("**/oauth/**");
+    await this.page.waitForURL("**/oauth**");
   }
 
   async openFirefoxAppsServices() {

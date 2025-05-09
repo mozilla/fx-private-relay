@@ -5,7 +5,6 @@ export class AuthPage {
   readonly page: Page;
   readonly emailInputField: Locator;
   readonly passwordInputField: Locator;
-  readonly ageInputField: Locator;
   readonly continueButton: Locator;
   readonly createAccountButton: Locator;
   readonly verifyCodeInputField: Locator;
@@ -20,7 +19,6 @@ export class AuthPage {
     this.passwordSignupInputField = page.getByTestId(
       "new-password-input-field",
     );
-    this.ageInputField = page.getByTestId("age-input-field");
     this.continueButton = page.locator('[type="submit"]').first();
     this.createAccountButton = page.getByRole("button", {
       name: "Create account",
@@ -64,7 +62,7 @@ export class AuthPage {
 
   async login(email: string) {
     await this.page
-      .getByText("Enter your email")
+      .locator('[data-testid="input-label"]', { hasText: "Enter your email" })
       .waitFor({ state: "attached", timeout: TIMEOUTS.LONG });
     await this.enterEmail(email);
     await this.page
@@ -76,7 +74,7 @@ export class AuthPage {
   async signUp(email: string, emailEntered: boolean = false) {
     if (!emailEntered) {
       await this.page
-        .getByText("Enter your email")
+        .locator('[data-testid="input-label"]', { hasText: "Enter your email" })
         .waitFor({ state: "attached", timeout: TIMEOUTS.LONG });
       await this.enterEmail(email);
     }
@@ -86,7 +84,6 @@ export class AuthPage {
     await this.passwordSignupInputField.fill(
       process.env.E2E_TEST_ACCOUNT_PASSWORD as string,
     );
-    await this.ageInputField.fill("31");
     await this.createAccountButton.click();
   }
 }
