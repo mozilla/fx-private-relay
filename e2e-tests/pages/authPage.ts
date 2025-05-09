@@ -1,9 +1,5 @@
 import { Locator, Page } from "@playwright/test";
-import {
-  forceNonReactLink,
-  // FXA_HOSTS,
-  TIMEOUTS,
-} from "../e2eTestUtils/helpers";
+import { forceNonReactLink, TIMEOUTS } from "../e2eTestUtils/helpers";
 
 export class AuthPage {
   readonly page: Page;

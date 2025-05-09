@@ -21,12 +21,6 @@ export const ENV_MONITOR = {
   prod: "https://monitor.mozilla.org/",
 };
 
-// export const FXA_HOSTS = {
-//   stage: "accounts.stage.mozaws.net",
-//   prod: "accounts.firefox.com",
-//   dev: "accounts.stage.mozaws.net",
-// };
-
 export const TIMEOUTS = {
   SHORT: 2000,
   MEDIUM: 5000,

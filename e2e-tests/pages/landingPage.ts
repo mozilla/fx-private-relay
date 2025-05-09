@@ -1,5 +1,4 @@
 import { Locator, Page } from "@playwright/test";
-// import { FXA_HOSTS } from "../e2eTestUtils/helpers";
 
 export class LandingPage {
   readonly page: Page;
