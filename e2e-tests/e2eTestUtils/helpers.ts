@@ -24,7 +24,7 @@ export const ENV_MONITOR = {
 export const FXA_HOSTS = {
   stage: "accounts.stage.mozaws.net",
   prod: "accounts.firefox.com",
-  dev: "accounts.dev.mozaws.net",
+  dev: "accounts.stage.mozaws.net",
 };
 
 export const TIMEOUTS = {
