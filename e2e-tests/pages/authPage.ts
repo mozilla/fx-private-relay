@@ -1,7 +1,7 @@
 import { Locator, Page } from "@playwright/test";
 import {
   forceNonReactLink,
-  FXA_HOSTS,
+  // FXA_HOSTS,
   TIMEOUTS,
 } from "../e2eTestUtils/helpers";
 
@@ -66,7 +66,7 @@ export class AuthPage {
 
   async login(email: string) {
     await this.page
-      .getByText("Enter your email")
+      .locator('[data-testid="input-label"]', { hasText: "Enter your email" })
       .waitFor({ state: "attached", timeout: TIMEOUTS.LONG });
     await this.enterEmail(email);
     await this.page
@@ -77,8 +77,9 @@ export class AuthPage {
 
   async signUp(email: string, emailEntered: boolean = false) {
     if (!emailEntered) {
-      const fxaHost = FXA_HOSTS[process.env.E2E_TEST_ENV as string];
-      await this.page.waitForURL(`**${fxaHost}/**`);
+      await this.page
+        .locator('[data-testid="input-label"]', { hasText: "Enter your email" })
+        .waitFor({ state: "attached", timeout: TIMEOUTS.LONG });
       await this.enterEmail(email);
     }
     await this.page
