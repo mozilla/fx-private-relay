@@ -928,5 +928,12 @@ AUTO_RELOAD_BUNDLES = False  # Requires pyinotify
 # accounts that should not have abuse metrics
 ALLOWED_ACCOUNTS = ["relay-team+e2e@mozilla.com"]
 
+# settings for kinto / remote settings
+KINTO_SERVER = config("KINTO_SERVER", "", str)
+KINTO_AUTH_TOKEN = config("KINTO_AUTH_TOKEN", "", str)
+KINTO_BUCKET = config("KINTO_BUCKET", "", str)
+KINTO_COLLECTION = config("KINTO_COLLECTION", "", str)
+ALLOWLIST_JSON_INPUT_URL = config("ALLOWLIST_JSON_INPUT_URL", "", str)
+
 # Patching for django-types
 django_stubs_ext.monkeypatch()
