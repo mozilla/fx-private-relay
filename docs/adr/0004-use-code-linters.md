@@ -54,15 +54,11 @@ Relay has added several linters to check code quality:
 | Standardize Constructs | stylelint | ESLint           | _none_ | _none_   | _none_        |
 | Spelling and Grammar   | _none_    | _none_           | _none_ | _none_   | _none_        |
 
-Relay includes [husky][] and [lint-staged][] to run linters as a pre-commit
-hook. The linters are configured in [.lintstagedrc.js][]. They run against the
-files changed in each commit. When a tool supports fixing issues, it can update
-the files before committing. Otherwise, detected issues will halt the commit,
-giving the developer a chance to fix them.
+Relay includes a pre-commit hook to run linters.
 
-[husky]: https://typicode.github.io/husky/
-[lint-staged]: https://github.com/lint-staged/lint-staged
-[.lintstagedrc.js]: https://github.com/mozilla/fx-private-relay/blob/main/.lintstagedrc.js
+When a tool supports fixing issues, it can update the files before committing.
+Otherwise, detected issues will halt the commit, giving the developer a chance to fix
+them.
 
 ### stylelint
 

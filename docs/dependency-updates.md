@@ -165,12 +165,6 @@ the Console in the browser Dev Tools when browsing the preview deployment, e.g.
 Used for the list of countries in the "What country or region do you live in?"
 dropdown at `/premium/waitlist`, so if you see that, it's all good.
 
-### `husky` and `lint-staged`
-
-Used to run basic code formatting when committing. You can verify that these
-work locally by changing formatting (e.g. changing `"` into `'`) and checking
-that it gets changed back (resulting in an empty commit) when committing.
-
 ### `chokidar-cli`
 
 To watch files when running `npm run watch`. You can verify that this still

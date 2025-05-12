@@ -1,0 +1,85 @@
+#!/bin/sh
+# Pre-commit hook to run formatters and linters
+
+echo "🔍 Running pre-commit checks..."
+
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+if [ -z "$STAGED_FILES" ]; then
+  echo "✅ No staged files to check"
+  exit 0
+fi
+
+# First, format files
+# Prettier for frontend
+echo "🧹 Formatting with Prettier..."
+frontend_files=$( echo $STAGED_FILES | grep -E '^(frontend/.*\.(ts|tsx|js|jsx|scss|css)|e2e-tests/.*\.ts|.*\.md)$')
+[ -n "$frontend_files" ] && echo "$frontend_files" | xargs npx prettier --write
+
+# black for python
+PY_FILES=$(echo "$STAGED_FILES" | grep -E '\.py$')
+if [ -n "$PY_FILES" ]; then
+  echo "🐍 Formatting Python with black..."
+  echo "$PY_FILES" | xargs black
+fi
+
+# Next, lint files
+PASS=true
+
+# Stylelint
+echo "🎨 Linting SCSS/CSS with stylelint..."
+css_files=$(echo "$STAGED_FILES" | grep -E '^frontend/.*\.(scss|css)$')
+for FILE in $css_files; do
+  if npx stylelint --fix "$FILE"; then
+    echo "✅ $FILE passed stylelint"
+  else
+    echo "❌ $FILE failed stylelint"
+    PASS=false
+  fi
+done
+
+# Next.js lint
+echo "🧪 Running Next.js lint..."
+FRONTEND_TS=$(echo "$STAGED_FILES" | grep -E '^frontend/.*\.(ts|tsx|js|jsx)$')
+if [ -n "$FRONTEND_TS" ]; then
+  FILE_ARGS=$(echo "$FRONTEND_TS" | xargs -n1 echo --file | xargs)
+  npx next lint frontend --fix $FILE_ARGS
+fi
+
+# Python tools
+PY_FILES=$(echo "$STAGED_FILES" | grep -E '\.py$')
+if [ -n "$PY_FILES" ]; then
+  echo "📊 Type checking Python with mypy..."
+  echo "$PY_FILES" | xargs mypy
+  echo "🧼 Linting Python with ruff..."
+  echo "$PY_FILES" | xargs ruff check --fix
+fi
+
+# ESLint (for each file individually)
+echo "🔎 Running ESLint..."
+for FILE in $STAGED_FILES; do
+  if echo "$FILE" | grep -q '^frontend/'; then
+    if eslint --config frontend/.eslintrc.js "$FILE"; then
+      echo "✅ $FILE passed ESLint"
+    else
+      echo "❌ $FILE failed ESLint"
+      PASS=false
+    fi
+  fi
+done
+
+if ! $PASS; then
+  echo "🚫 Commit aborted due to ESLint errors"
+  exit 1
+fi
+
+if git diff --cached --quiet; then
+  echo "🚫 Commit aborted: no staged changes to commit."
+  exit 1
+fi
+
+# Re-add files that may have been fixed
+echo "➕ Re-adding fixed files to commit..."
+echo "$STAGED_FILES" | xargs git add
+
+echo "✅ All pre-commit checks passed!"
+exit 0
