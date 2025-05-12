@@ -38,7 +38,8 @@
     .tip {
       display: flex;
       gap: $spacing-sm;
-      word-break: break-word;
+      word-break: normal;
+      overflow-wrap: anywhere;
       border-left: 2px solid $color-violet-30;
       margin: 0 auto;
       width: 85%;
@@ -146,7 +147,7 @@
       input[type="checkbox"]:checked {
         background-color: $color-blue-50;
         border-color: $color-blue-50;
-        appearance: checkbox;
+        appearance: auto;
       }
 
       .promotionals-blocking-description {
