@@ -1,6 +1,6 @@
 import { setupServer } from "msw/node";
-import { handlers } from "./handlers";
+import { getHandlers } from "./handlers";
 
 export function initialiseServer() {
-  return setupServer(...handlers);
+  return setupServer(...getHandlers());
 }

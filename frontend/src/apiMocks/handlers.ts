@@ -1,4 +1,4 @@
-import { http, HttpHandler, HttpResponse } from "msw";
+import { http, HttpResponse, RequestHandler } from "msw";
 import { CustomAliasData, RandomAliasData } from "../hooks/api/aliases";
 import { UnverifiedPhone, VerifiedPhone } from "../hooks/api/realPhone";
 import { RelayNumber } from "../hooks/api/relayNumber";
@@ -17,8 +17,8 @@ import {
 
 export function getHandlers(
   defaultMockId: null | (typeof mockIds)[number] = null,
-): HttpHandler[] {
-  const handlers: HttpHandler[] = [];
+): RequestHandler[] {
+  const handlers: RequestHandler[] = [];
 
   const getMockId = (req: Request): (typeof mockIds)[number] | null => {
     const authHeader = req.headers.get("Authorization");
@@ -553,4 +553,3 @@ export function getHandlers(
 
   return handlers;
 }
-export const handlers: HttpHandler[] = getHandlers();

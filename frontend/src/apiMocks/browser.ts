@@ -1,6 +1,6 @@
 import { setupWorker } from "msw/browser";
-import { handlers } from "./handlers";
+import { getHandlers } from "./handlers";
 
 export function initialiseWorker() {
-  return setupWorker(...handlers);
+  return setupWorker(...getHandlers());
 }
