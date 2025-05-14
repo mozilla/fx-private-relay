@@ -124,3 +124,14 @@ upsell-banner-4-masks-us-cta = Upgrade to { -brand-name-relay-premium }
 moz-monitor = { -brand-name-mozilla-monitor }
 
 plan-matrix-your-plan = Your Plan
+
+megabundle-banner-header = Protect your online privacy for { $monthly_price }/month
+megabundle-banner-header-tools = Get 3 tools for 1 unbeatable price
+megabundle-banner-plan-modules-vpn = { -brand-name-vpn }
+-brand-name-monitor = Monitor
+megabundle-banner-plan-modules-monitor = { -brand-name-monitor }
+megabundle-banner-plan-modules-relay = { -brand-name-relay }
+megabundle-banner-plan-body = Plan includes { -brand-name-vpn }, data broker protection, and unlimited email masks to prevent spam.
+megabundle-banner-cta = Get year-round protection
+megabundle-banner-money-back-guarantee = { $days_guarantee }-day money-back guarantee.
+megabundle-banner-billed-annually = { $billed }/year, billed annually.
