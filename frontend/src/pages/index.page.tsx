@@ -18,6 +18,7 @@ import { Reviews } from "../components/landing/Reviews";
 import { PlanMatrix } from "../components/landing/PlanMatrix";
 import { PlanGrid } from "../components/landing/PlanGrid";
 import { BundleBanner } from "../components/landing/BundleBanner";
+import { MegaBundleBanner } from "../components/landing/MegaBundleBanner";
 import { useFlaggedAnchorLinks } from "../hooks/flaggedAnchorLinks";
 import { useL10n } from "../hooks/l10n";
 import { HighlightedFeatures } from "../components/landing/HighlightedFeatures";
@@ -66,9 +67,11 @@ const Home: NextPage = () => {
             <Image src={HeroImage} alt="" />
           </div>
         </section>
-        {isBundleAvailableInCountry(runtimeData.data) && (
+        {/* {isBundleAvailableInCountry(runtimeData.data) && ( */}
+        {true && (
           <section id="vpn_promo" className={styles["bundle-banner-section"]}>
-            <BundleBanner runtimeData={runtimeData.data} />
+            {/* <MegaBundleBanner runtimeData={runtimeData.data} /> */}
+            <MegaBundleBanner runtimeData={true} />
           </section>
         )}
         <section id="how_it_works" className={styles["how-it-works-wrapper"]}>

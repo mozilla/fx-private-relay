@@ -142,8 +142,15 @@ export function isPhonesAvailableInCountry(
   return runtimeData?.PHONE_PLANS?.available_in_country === true;
 }
 
+// this needs to be updated for megabundle vs bundle - ie bundle only for canada
 export function isBundleAvailableInCountry(
   runtimeData: RuntimeData | undefined,
 ): runtimeData is RuntimeDataWithBundleAvailable {
   return runtimeData?.BUNDLE_PLANS?.available_in_country === true;
+}
+
+export function isMegabundleAvailableInCountry(
+  runtimeData: RuntimeData | undefined,
+): runtimeData is RuntimeDataWithBundleAvailable {
+  return runtimeData?.MEGABUNDLE_PLANS?.available_in_country === true;
 }
