@@ -22,7 +22,7 @@ import { UserData } from "../../hooks/api/user";
 import { RuntimeData } from "../../hooks/api/runtimeData";
 import { EmailForwardingModal } from "./EmailForwardingModal";
 import { useState } from "react";
-import { supportsChromeExtension } from "../../functions/userAgent";
+import { supportsFirefoxExtension } from "../../functions/userAgent";
 import { CheckBadgeIcon, ChevronRightIcon } from "../Icons";
 import { AliasList } from "./aliases/AliasList";
 
@@ -211,9 +211,8 @@ export const FreeOnboarding = (props: Props) => {
   }
 
   if (props.profile.onboarding_free_state === 2) {
-    const linkForBrowser = supportsChromeExtension()
-      ? "https://chrome.google.com/webstore/detail/firefox-relay/lknpoadjjkjcmjhbjpcljdednccbldeb?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon"
-      : "https://addons.mozilla.org/firefox/addon/private-relay/";
+    const linkForBrowser =
+      "https://addons.mozilla.org/firefox/addon/private-relay/";
 
     const skipAddonStep = () => {
       props.onNextStep(3);
@@ -238,7 +237,7 @@ export const FreeOnboarding = (props: Props) => {
 
     step = <StepThree />;
 
-    next = (
+    next = supportsFirefoxExtension() ? (
       <button
         ref={nextStepTwoButtonRef}
         className={styles["next-link"]}
@@ -247,9 +246,9 @@ export const FreeOnboarding = (props: Props) => {
         {l10n.getString("profile-free-onboarding-addon-finish")}
         <ChevronRightIcon className={styles.chevron} width={16} alt="" />
       </button>
-    );
+    ) : null;
 
-    button = (
+    button = supportsFirefoxExtension() ? (
       <>
         <LinkButton
           href={linkForBrowser}
@@ -265,9 +264,18 @@ export const FreeOnboarding = (props: Props) => {
           </div>
         </div>
       </>
+    ) : (
+      <LinkButton
+        ref={nextStepTwoButtonRef}
+        target="_blank"
+        className={`is-hidden-with-addon ${styles["get-addon-button"]}`}
+        onClick={finish}
+      >
+        {l10n.getString("profile-free-onboarding-addon-finish")}
+      </LinkButton>
     );
 
-    skipButton = (
+    skipButton = supportsFirefoxExtension() ? (
       <button
         ref={skipStepThreeButtonRef}
         className={styles["skip-link"]}
@@ -275,7 +283,7 @@ export const FreeOnboarding = (props: Props) => {
       >
         {l10n.getString("profile-free-onboarding-skip-step")}
       </button>
-    );
+    ) : null;
   }
 
   return (
@@ -466,6 +474,21 @@ const StepTwo = (props: StepTwoProps) => {
 const StepThree = () => {
   const l10n = useL10n();
 
+  const extensionGraphic = supportsFirefoxExtension() ? (
+    <div className={styles["addon-content-items"]}>
+      <Image src={Extension} alt="" />
+      <div className={styles["addon-content-text"]}>
+        <p className={styles.headline}>
+          {l10n.getString("profile-free-onboarding-addon-item-headline-2")}
+        </p>
+        <p className={styles.description}>
+          {l10n.getString("profile-free-onboarding-addon-item-description-2")}
+        </p>
+        <Image className={styles["small-arrow"]} src={SmallArrow} alt="" />
+      </div>
+    </div>
+  ) : null;
+
   return (
     <div
       className={`${styles.step} ${styles["step-copy-mask"]} ${styles["mask-use"]}`}
@@ -489,21 +512,7 @@ const StepThree = () => {
           </div>
           <Image src={WorkingMan} alt="" />
         </div>
-
-        <div className={styles["addon-content-items"]}>
-          <Image src={Extension} alt="" />
-          <div className={styles["addon-content-text"]}>
-            <p className={styles.headline}>
-              {l10n.getString("profile-free-onboarding-addon-item-headline-2")}
-            </p>
-            <p className={styles.description}>
-              {l10n.getString(
-                "profile-free-onboarding-addon-item-description-2",
-              )}
-            </p>
-            <Image className={styles["small-arrow"]} src={SmallArrow} alt="" />
-          </div>
-        </div>
+        {extensionGraphic}
       </div>
     </div>
   );
