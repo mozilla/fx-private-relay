@@ -62,6 +62,8 @@ module = [
     "jwcrypto",
     "jwcrypto.jwe",
     "jwcrypto.jwk",
+    "kinto_http",
+    "kinto_http.patch_type",
     "markus",
     "markus.main",
     "markus.testing",
