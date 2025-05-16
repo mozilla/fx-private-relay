@@ -1,10 +1,11 @@
 """Tasks that detect and fix data issues in privaterelay app or 3rd party apps."""
 
 from django.contrib.auth.models import User
+from django.db import transaction
 from django.db.models import Q, QuerySet, Value
 from django.db.models.functions import Coalesce, NullIf
 
-from allauth.socialaccount.models import SocialAccount, SocialApp
+from allauth.socialaccount.models import EmailAddress, SocialAccount, SocialApp
 
 from .cleaner_task import CleanerTask, DataBisectSpec, DataModelSpec
 
@@ -70,5 +71,61 @@ class MissingEmailCleaner(CleanerTask):
             if fxa_email := fxa_account.extra_data.get("email"):
                 user.email = fxa_email
                 user.save(update_fields=["email"])
+                fixed += 1
+        return fixed
+
+
+class IDNAEmailCleaner(CleanerTask):
+    slug = "idna-email"
+    title = "Fix non-ASCII domains in user emails"
+    check_description = (
+        "Users with non-ASCII characters in their email domain cannot receive emails"
+        "via AWS SES. Convert these domains to ASCII-compatible Punycode using IDNA."
+    )
+
+    def has_non_ascii_domain(self, email: str) -> bool:
+        try:
+            domain = email.split("@", 1)[1]
+            domain.encode("ascii")
+            return False
+        except (IndexError, UnicodeEncodeError):
+            return True
+
+    def punycode_email(self, email: str) -> str:
+        local, domain = email.split("@", 1)
+        domain_ascii = domain.encode("idna").decode("ascii")
+        return f"{local}@{domain_ascii}"
+
+    data_specification = [
+        DataModelSpec(
+            model=User,
+            subdivisions=[
+                DataBisectSpec(
+                    "ascii_domain",
+                    ~Q(email__regex=r".*@.*[^\x00-\x7F].*"),
+                )
+            ],
+            report_name_overrides={
+                "ascii_domain": "Has ASCII Domain",
+                "!ascii_domain": "Non-ASCII Domain",
+            },
+            ok_key="ascii_domain",
+            needs_cleaning_key="!ascii_domain",
+        )
+    ]
+
+    def clean_users(self, queryset: QuerySet[User]) -> int:
+        fixed = 0
+        for user in queryset:
+            if user.email and self.has_non_ascii_domain(user.email):
+                updated_email = self.punycode_email(user.email)
+                with transaction.atomic():
+                    user.email = updated_email
+                    user.save(update_fields=["email"])
+                    EmailAddress.objects.filter(user=user).update(email=updated_email)
+                    sa = SocialAccount.objects.filter(user=user).first()
+                    if sa is not None:
+                        sa.extra_data["email"] = updated_email
+                        sa.save(update_fields=["extra_data"])
                 fixed += 1
         return fixed

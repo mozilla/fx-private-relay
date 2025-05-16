@@ -6,11 +6,12 @@ from uuid import uuid4
 from django.contrib.auth.models import User
 
 import pytest
+from allauth.account.models import EmailAddress
 from allauth.socialaccount.models import SocialAccount, SocialApp
 from model_bakery import baker
 
 from privaterelay.cleaner_task import DataItem
-from privaterelay.cleaners import MissingEmailCleaner
+from privaterelay.cleaners import IDNAEmailCleaner, MissingEmailCleaner
 
 
 def setup_missing_email_cleaner_test_data(provider_id: str = "") -> None:
@@ -104,3 +105,61 @@ def test_missing_email_cleaner_data_clean_users_handles_missing_fxa_data(
     assert isinstance(item, DataItem)
     assert item.count() == 4
     assert cleaner.clean_users(item.get_queryset()) == 1
+
+
+@pytest.mark.django_db
+def test_idna_email_cleaner_no_data() -> None:
+    """IDNAEmailCleaner works on an empty database."""
+    cleaner = IDNAEmailCleaner()
+    assert cleaner.issues() == 0
+    assert cleaner.counts == {
+        "summary": {"ok": 0, "needs_cleaning": 0},
+        "users": {"!ascii_domain": 0, "ascii_domain": 0, "all": 0},
+    }
+    assert cleaner.clean() == 0
+    report = cleaner.markdown_report()
+    expected = """\
+Users:
+  All: 0"""
+    assert report == expected
+
+
+@pytest.mark.django_db
+def test_idna_email_cleaner_valid_ascii_emails_skipped() -> None:
+    """Emails with ASCII-only domains are not modified."""
+    baker.make(User, email="ascii@example.com", username="ascii_user")
+    cleaner = IDNAEmailCleaner()
+    assert cleaner.issues() == 0
+    assert cleaner.clean() == 0
+    assert User.objects.get(username="ascii_user").email == "ascii@example.com"
+
+
+@pytest.mark.django_db
+def test_idna_email_cleaner_converts_non_ascii_domains() -> None:
+    """Emails with non-ASCII domains are converted to Punycode."""
+    user = baker.make(User, email="test@nçaismo.com", username="nonascii_user")
+    ea: EmailAddress = baker.make(EmailAddress, user=user, email=user.email)
+    sa: SocialAccount = baker.make(
+        SocialAccount, user=user, extra_data={"email": user.email}
+    )
+    cleaner = IDNAEmailCleaner()
+
+    assert cleaner.issues() == 1
+    assert cleaner.counts["users"]["!ascii_domain"] == 1
+    assert cleaner.clean() == 1
+
+    user.refresh_from_db()
+    assert user.email == "test@xn--naismo-wua.com"
+    ea.refresh_from_db()
+    assert ea.email == user.email
+    sa.refresh_from_db()
+    assert sa.extra_data["email"] == user.email
+
+
+@pytest.mark.django_db
+def test_idna_email_cleaner_ignores_invalid_emails() -> None:
+    """Malformed emails without @ are skipped gracefully."""
+    baker.make(User, email="bademail", username="broken_user")
+    cleaner = IDNAEmailCleaner()
+    assert cleaner.issues() == 0
+    assert cleaner.clean() == 0
