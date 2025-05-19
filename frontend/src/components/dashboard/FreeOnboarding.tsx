@@ -268,7 +268,7 @@ export const FreeOnboarding = (props: Props) => {
       <LinkButton
         ref={nextStepTwoButtonRef}
         target="_blank"
-        className={`is-hidden-with-addon ${styles["get-addon-button"]}`}
+        className={`is-hidden-with-addon`}
         onClick={finish}
       >
         {l10n.getString("profile-free-onboarding-addon-finish")}
