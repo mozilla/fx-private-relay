@@ -2,13 +2,7 @@ import { ReactNode } from "react";
 
 import styles from "./ProfileBanners.module.scss";
 import FirefoxLogo from "./images/fx-logo.svg";
-import BundleLogo from "./images/vpn-and-relay-logo.svg";
 import AddonIllustration from "./images/banner-addon.svg";
-import {
-  getBundlePrice,
-  isBundleAvailableInCountry,
-  RuntimeDataWithBundleAvailable,
-} from "../../functions/getPlan";
 import {
   isUsingFirefox,
   supportsFirefoxExtension,
@@ -56,16 +50,6 @@ export const ProfileBanners = (props: Props) => {
         key="bounce-banner"
         email={props.user.email}
         profile={props.profile}
-      />,
-    );
-  }
-
-  if (isBundleAvailableInCountry(props.runtimeData) && !props.profile.has_vpn) {
-    banners.push(
-      <BundlePromoBanner
-        key="bundle-promo"
-        runtimeData={props.runtimeData}
-        profileData={props.profile}
       />,
     );
   }
@@ -197,61 +181,6 @@ const NoAddonBanner = (props: NoAddonBannerProps) => {
       hiddenWithAddon={true}
     >
       <p>{l10n.getString("banner-download-install-extension-copy-2")}</p>
-    </Banner>
-  );
-};
-
-type BundleBannerProps = {
-  runtimeData: RuntimeDataWithBundleAvailable;
-  profileData: ProfileData;
-};
-
-const BundlePromoBanner = (props: BundleBannerProps) => {
-  const l10n = useL10n();
-  const gaEvent = useGaEvent();
-
-  return (
-    <Banner
-      key="bundle-banner"
-      type="promo"
-      illustration={{
-        img: (
-          <Image
-            src={BundleLogo}
-            alt=""
-            width={120}
-            height={60}
-            className={styles["bundle-logo"]}
-          />
-        ),
-      }}
-      title={l10n.getString("bundle-banner-dashboard-header")}
-      cta={{
-        target: "/premium#pricing",
-        size: "large",
-        gaViewPing: {
-          category: "Purchase Bundle button",
-          label: "profile-banner-bundle-promo",
-        },
-        onClick: () => {
-          gaEvent({
-            category: "Purchase Bundle button",
-            action: "Engage",
-            label: "profile-banner-bundle-promo",
-          });
-        },
-        content: l10n.getString("bundle-banner-dashboard-upgrade-cta"),
-      }}
-      dismissal={{
-        key: `bundle-promo-banner-${props.profileData.id}`,
-      }}
-    >
-      <p>
-        {l10n.getString("bundle-banner-dashboard-body", {
-          savings: "40%",
-          monthly_price: getBundlePrice(props.runtimeData, l10n),
-        })}
-      </p>
     </Banner>
   );
 };
