@@ -1,0 +1,32 @@
+name: Update FxRelay Allowlist Collection
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'privaterelay/fxrelay-allowlist-domains.txt'
+
+jobs:
+  update-allowlist:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5.6.0
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      - name: Run update_fxrelay_allowlist_collection
+        env:
+          REMOTE_SETTINGS_SERVER: ${{ secrets.REMOTE_SETTINGS_SERVER }}
+          REMOTE_SETTINGS_AUTH: ${{ secrets.REMOTE_SETTINGS_AUTH }}
+          REMOTE_SETTINGS_BUCKET: ${{ secrets.REMOTE_SETTINGS_BUCKET }}
+          REMOTE_SETTINGS_COLLECTION: ${{ secrets.REMOTE_SETTINGS_COLLECTION }}
+          ALLOWLIST_INPUT_URL: ${{ secrets.ALLOWLIST_INPUT_URL }}
+        run: |
+          python manage.py update_fxrelay_allowlist_collection
