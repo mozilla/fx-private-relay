@@ -12,7 +12,6 @@ export class DashboardPage {
   readonly getMoreProtectionButton: Locator;
   readonly userMenuPopEmail: Locator;
   readonly upgradeButton: Locator;
-  readonly upgradeNowButton: Locator;
   readonly userMenuButton: Locator;
   readonly signOutButton: Locator;
   readonly signOutToastAlert: Locator;
@@ -85,7 +84,6 @@ export class DashboardPage {
     );
 
     // dashboard elements
-    this.upgradeNowButton = page.locator('a:has-text("Upgrade Now")');
     this.upgradeButton = page.locator('a:has-text("Upgrade")').first();
     this.getMoreProtectionButton = page.locator(
       ':has-text("Get more protection")',
@@ -291,10 +289,6 @@ export class DashboardPage {
       this.page.waitForURL(/.*\/accounts\/profile\/.*/),
       this.upgradeButton.click(),
     ]);
-  }
-
-  async upgradeNow() {
-    await Promise.all([this.upgradeNowButton.click()]);
   }
 
   async maybeDeleteMasks(clearAll = true, numberOfMasks = 1) {
