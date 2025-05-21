@@ -18,19 +18,3 @@ test.describe("Premium Relay - Purchase Premium Flow, Desktop", () => {
     expect(page).toHaveURL("/premium/#pricing");
   });
 });
-
-test.describe("Premium Relay - Purchase Premium Flow, Desktop - Visual Regression", () => {
-  test.beforeEach(async ({ dashboardPage, page }) => {
-    await dashboardPage.open();
-    await checkAuthState(page);
-    await dashboardPage.skipOnboarding();
-  });
-
-  test("Verify that the subscription page is displayed correctly, C1553108", async ({
-    dashboardPage,
-    page,
-  }) => {
-    await dashboardPage.upgradeNow();
-    expect(page).toHaveURL("/premium/#pricing");
-  });
-});
