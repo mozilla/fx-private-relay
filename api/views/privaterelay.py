@@ -38,6 +38,7 @@ from privaterelay.models import Profile
 from privaterelay.plans import (
     PlanCountryLangMapping,
     get_bundle_country_language_mapping,
+    get_megabundle_country_language_mapping,
     get_phone_country_language_mapping,
     get_premium_country_language_mapping,
 )
@@ -243,10 +244,12 @@ def runtime_data(request):
         premium_plans = get_sp3_country_language_mapping("premium")
         phone_plans = get_sp3_country_language_mapping("phones")
         bundle_plans = get_sp3_country_language_mapping("bundle")
+        megabundle_plans = get_sp3_country_language_mapping("megabundle")
     else:
         premium_plans = get_premium_country_language_mapping()
         phone_plans = get_phone_country_language_mapping()
         bundle_plans = get_bundle_country_language_mapping()
+        megabundle_plans = get_megabundle_country_language_mapping()
     return Response(
         {
             "FXA_ORIGIN": settings.FXA_BASE_ORIGIN,
@@ -263,6 +266,9 @@ def runtime_data(request):
             ),
             "BUNDLE_PLANS": get_countries_info_from_request_and_mapping(
                 request, bundle_plans
+            ),
+            "MEGABUNDLE_PLANS": get_countries_info_from_request_and_mapping(
+                request, megabundle_plans
             ),
             "BASKET_ORIGIN": settings.BASKET_ORIGIN,
             "WAFFLE_FLAGS": flag_values,

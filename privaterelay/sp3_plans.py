@@ -64,7 +64,7 @@ from privaterelay.country_utils import _get_cc_from_request
 # Public types
 #
 
-PlanType = Literal["premium", "phones", "bundle"]
+PlanType = Literal["premium", "phones", "bundle", "megabundle"]
 PeriodStr = Literal["monthly", "yearly"]
 CurrencyStr = Literal["CHF", "CZK", "DKK", "EUR", "PLN", "USD"]
 CountryStr = Literal[

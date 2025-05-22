@@ -183,6 +183,11 @@ def get_bundle_country_language_mapping() -> PlanCountryLangMapping:
     return _country_language_mapping("bundle")
 
 
+def get_megabundle_country_language_mapping() -> PlanCountryLangMapping:
+    """Get mapping for bundle countries (premium + monitor + VPN)"""
+    return _country_language_mapping("megabundle")
+
+
 #
 # Private types for Selected Stripe data (_STRIPE_PLAN_DATA)
 #
@@ -236,6 +241,7 @@ class _StripePlanData(TypedDict):
     premium: _StripeMonthlyPlanDetails
     phones: _StripeMonthlyPlanDetails
     bundle: _StripeYearlyPlanDetails
+    megabundle: _StripeYearlyPlanDetails
 
 
 _StripePlanDetails = _StripeMonthlyPlanDetails | _StripeYearlyPlanDetails
@@ -432,11 +438,23 @@ _STRIPE_PLAN_DATA: _StripePlanData = {
             }
         },
     },
+    "megabundle": {
+        "periods": "yearly",
+        "prices": {
+            "USD": {"monthly_when_yearly": 0.00},
+        },
+        "countries_and_regions": {
+            "US": {  # United States
+                "currency": "USD",
+                "yearly_id": "price_1LwoSDJNcmPzuWtR6wPJZeoh",
+            }
+        },
+    },
 }
 
 
 # Private types for _RELAY_PLANS
-_RelayPlanCategory = Literal["premium", "phones", "bundle"]
+_RelayPlanCategory = Literal["premium", "phones", "bundle", "megabundle"]
 
 
 class _RelayPlansByType(TypedDict, total=False):
