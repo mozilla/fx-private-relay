@@ -72,3 +72,54 @@ class MissingEmailCleaner(CleanerTask):
                 user.save(update_fields=["email"])
                 fixed += 1
         return fixed
+
+
+class IDNAEmailCleaner(CleanerTask):
+    slug = "idna-email"
+    title = "Fix non-ASCII domains in user emails"
+    check_description = (
+        "Users with non-ASCII characters in their email domain cannot receive emails"
+        "via AWS SES. Convert these domains to ASCII-compatible Punycode using IDNA."
+    )
+
+    def has_non_ascii_domain(self, email: str) -> bool:
+        try:
+            domain = email.split("@", 1)[1]
+            domain.encode("ascii")
+            return False
+        except (IndexError, UnicodeEncodeError):
+            return True
+
+    def punycode_email(self, email: str) -> str:
+        local, domain = email.split("@", 1)
+        domain_ascii = domain.encode("idna").decode("ascii")
+        return f"{local}@{domain_ascii}"
+
+    data_specification = [
+        DataModelSpec(
+            model=User,
+            subdivisions=[
+                DataBisectSpec(
+                    "ascii_domain",
+                    ~Q(email__regex=r".*@.*[^\x00-\x7F].*"),
+                )
+            ],
+            report_name_overrides={
+                "ascii_domain": "Has ASCII Domain",
+                "!ascii_domain": "Non-ASCII Domain",
+            },
+            ok_key="ascii_domain",
+            needs_cleaning_key="!ascii_domain",
+        )
+    ]
+
+    def clean_users(self, queryset: QuerySet[User]) -> int:
+        fixed = 0
+        for user in queryset:
+            if user.email and self.has_non_ascii_domain(user.email):
+                updated_email = self.punycode_email(user.email)
+                user.email = updated_email
+                user.save(update_fields=["email"])
+                # TODO: should we update their email in their SocialAccount?
+                fixed += 1
+        return fixed

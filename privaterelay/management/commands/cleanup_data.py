@@ -12,7 +12,7 @@ from django.db import transaction
 from codetiming import Timer
 
 from emails.cleaners import MissingProfileCleaner, ServerStorageCleaner
-from privaterelay.cleaners import MissingEmailCleaner
+from privaterelay.cleaners import IDNAEmailCleaner, MissingEmailCleaner
 
 if TYPE_CHECKING:  # pragma: no cover
     from argparse import ArgumentParser
@@ -35,6 +35,7 @@ class Command(BaseCommand):
         ServerStorageCleaner,
         MissingProfileCleaner,
         MissingEmailCleaner,
+        IDNAEmailCleaner,
     ]
     tasks: dict[str, DataIssueTask]
 
