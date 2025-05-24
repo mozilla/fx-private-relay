@@ -1,0 +1,424 @@
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "../../styles/color";
+@use "../../styles/text";
+
+.megabundle-banner-wrapper {
+  display: flex;
+  flex-direction: row;
+  background-image:
+    url("./images/megabundle-shield-field-illus.svg"),
+    radial-gradient(
+      141.42% 141.42% at 100% 0%,
+      rgba(184, 51, 225, 0.1) 0%,
+      rgba(144, 89, 255, 0.1) 37.1%,
+      rgba(91, 109, 248, 0.1) 61.4%,
+      rgba(0, 144, 237, 0.1) 100%
+    );
+  background-repeat: no-repeat;
+  background-position:
+    -27% center,
+    center;
+  background-size:
+    55% auto,
+    cover;
+  border-radius: $border-radius-lg;
+  gap: $layout-xs;
+
+  .first-section {
+    flex: 1 1 25%;
+    border-top-left-radius: $border-radius-lg;
+    border-bottom-left-radius: $border-radius-lg;
+    min-height: 300px;
+
+    .shield-img-wrapper {
+      display: none;
+    }
+  }
+
+  .second-section {
+    flex: 1 1 75%;
+    display: flex;
+
+    justify-content: flex-start;
+    text-align: left;
+
+    .megabundle-banner-description {
+      justify-content: space-between;
+      color: $color-black;
+      flex-direction: column;
+      display: flex;
+      gap: 24px;
+      height: auto;
+      padding: $spacing-2xl $spacing-xl;
+
+      .middle-section {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-sm;
+        font-size: 18px;
+      }
+
+      .megabundle-banner-tools {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: $spacing-md;
+      }
+
+      .megabundle-banner-tools-headline {
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 600;
+        color: #000;
+      }
+
+      .megabundle-banner-value-props {
+        display: flex;
+        flex-direction: row;
+        gap: $spacing-sm;
+        list-style: none;
+        font-size: 18px;
+
+        li {
+          border-radius: 24px;
+          background: rgba(0, 96, 223, 0.12);
+          padding: $spacing-xs $spacing-md;
+          font-weight: 500;
+          display: flex;
+          flex-direction: row;
+          gap: $spacing-sm;
+          align-items: center;
+          font-size: 18px;
+        }
+      }
+
+      .bottom-section {
+        display: flex;
+        flex-direction: row;
+        gap: $spacing-md;
+        align-items: center;
+
+        .button {
+          font-weight: 600;
+          font-size: 18px;
+          flex: 1 0 auto;
+          background: $color-blue-50;
+          max-width: $content-xs;
+          color: white;
+          padding: $spacing-sm $spacing-md;
+          border-radius: $border-radius-sm;
+
+          &:hover {
+            background: #0250bb;
+          }
+        }
+
+        .button-sub-text {
+          text-align: start;
+          font-size: 14px;
+        }
+
+        .bottom-section-text {
+          display: flex;
+          flex-direction: column;
+        }
+      }
+
+      h2 {
+        font-size: 32px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: 44px;
+      }
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  // tablet
+  .megabundle-banner-wrapper {
+    display: flex;
+    flex-direction: row;
+    background-image:
+      url("./images/megabundle-shield-field-illus.svg"),
+      radial-gradient(
+        141.42% 141.42% at 100% 0%,
+        rgba(184, 51, 225, 0.1) 0%,
+        rgba(144, 89, 255, 0.1) 37.1%,
+        rgba(91, 109, 248, 0.1) 61.4%,
+        rgba(0, 144, 237, 0.1) 100%
+      );
+    background-repeat: no-repeat;
+    background-position:
+      376% 82%,
+      center;
+    background-size:
+      90% auto,
+      cover;
+    border-radius: $border-radius-lg;
+    gap: $layout-xs;
+
+    .first-section {
+      flex: 1 1 25%;
+      border-top-left-radius: $border-radius-lg;
+      border-bottom-left-radius: $border-radius-lg;
+      min-height: 300px;
+      display: none;
+
+      .shield-img-wrapper {
+        display: none;
+      }
+    }
+
+    .second-section {
+      flex: 1 1 100%;
+      margin-right: 30%;
+      display: flex;
+      justify-content: flex-start;
+      text-align: left;
+
+      .megabundle-banner-description {
+        justify-content: space-between;
+        color: $color-black;
+        flex-direction: column;
+        display: flex;
+        gap: 24px;
+        height: auto;
+        padding: $spacing-2xl $spacing-xl;
+
+        .middle-section {
+          display: flex;
+          flex-direction: column;
+          gap: $spacing-sm;
+          font-size: 18px;
+        }
+
+        .megabundle-banner-tools {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: $spacing-sm;
+        }
+
+        .megabundle-plan-body {
+          padding-right: 3px;
+        }
+
+        .megabundle-banner-tools-headline {
+          font-size: 20px;
+          font-style: normal;
+          font-weight: 600;
+          color: #000;
+        }
+
+        .megabundle-banner-value-props {
+          display: flex;
+          flex-direction: row;
+          gap: $spacing-sm;
+          list-style: none;
+          font-size: 18px;
+
+          li {
+            border-radius: 24px;
+            background: rgba(0, 96, 223, 0.12);
+            padding: $spacing-xs $spacing-md;
+            font-weight: 500;
+            display: flex;
+            flex-direction: row;
+            gap: $spacing-sm;
+            align-items: center;
+            font-size: 18px;
+            height: 36px;
+          }
+        }
+
+        .bottom-section {
+          display: flex;
+          flex-direction: column;
+          gap: $spacing-md;
+          align-items: flex-start;
+
+          .button {
+            font-weight: 600;
+            font-size: 18px;
+            flex: 1 0 auto;
+            background: $color-blue-50;
+            max-width: $content-xs;
+            color: white;
+            padding: $spacing-sm $spacing-md;
+            border-radius: $border-radius-sm;
+
+            &:hover {
+              background: #0250bb;
+            }
+          }
+
+          .button-sub-text {
+            text-align: start;
+            font-size: 14px;
+          }
+
+          .bottom-section-text {
+            display: flex;
+            flex-direction: column;
+          }
+        }
+
+        h2 {
+          font-size: 32px;
+          font-style: normal;
+          font-weight: 700;
+          line-height: 44px;
+          padding-right: 9px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .megabundle-banner-wrapper {
+    display: flex;
+    flex-direction: column;
+    background-image:
+      url("./images/megabundle-shield-field-illus.svg"),
+      radial-gradient(
+        141.42% 141.42% at 100% 0%,
+        rgba(184, 51, 225, 0.1) 0%,
+        rgba(144, 89, 255, 0.1) 37.1%,
+        rgba(91, 109, 248, 0.1) 61.4%,
+        rgba(0, 144, 237, 0.1) 100%
+      );
+    background-repeat: no-repeat;
+    background-position:
+      center -597%,
+      center;
+    background-size:
+      115% auto,
+      cover;
+    border-radius: $border-radius-lg;
+    max-height: 568px;
+    gap: $layout-xs;
+    align-items: center;
+
+    .first-section {
+      display: flex;
+      flex: 1 1 10%;
+      border-top-left-radius: $border-radius-lg;
+      border-bottom-left-radius: $border-radius-lg;
+      min-height: 100px;
+
+      .shield-img-wrapper {
+        display: none;
+      }
+    }
+
+    .second-section {
+      flex: 1 1 90%;
+      margin: 0;
+      display: flex;
+      justify-content: flex-start;
+      text-align: left;
+
+      .megabundle-banner-description {
+        justify-content: space-between;
+        color: $color-black;
+        flex-direction: column;
+        display: flex;
+        gap: 6px;
+        padding: 0 $spacing-lg $spacing-md;
+        height: auto;
+
+        .middle-section {
+          display: flex;
+          flex-direction: column;
+          gap: $spacing-sm;
+          font-size: 18px;
+          padding-bottom: $spacing-sm;
+        }
+
+        .megabundle-banner-tools {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: $spacing-sm;
+        }
+
+        .megabundle-plan-body {
+          padding-right: 3px;
+          font-size: 16px;
+        }
+
+        .megabundle-banner-tools-headline {
+          font-size: 16px;
+          font-style: normal;
+          font-weight: 600;
+          color: #000;
+        }
+
+        .megabundle-banner-value-props {
+          display: flex;
+          flex-direction: row;
+          gap: $spacing-sm;
+          list-style: none;
+          font-size: 16px;
+
+          li {
+            border-radius: 24px;
+            background: rgba(0, 96, 223, 0.12);
+            padding: $spacing-xs $spacing-md;
+            font-weight: 500;
+            display: flex;
+            flex-direction: row;
+            gap: $spacing-sm;
+            align-items: center;
+            font-size: 16px;
+            height: 36px;
+          }
+        }
+
+        .bottom-section {
+          display: flex;
+          flex-direction: column;
+          gap: $spacing-sm;
+          align-items: center;
+
+          .button {
+            font-weight: 600;
+            font-size: 18px;
+            flex: 1 0 auto;
+            background: $color-blue-50;
+            max-width: $content-xs;
+            color: white;
+            padding: $spacing-md $spacing-lg;
+            border-radius: $border-radius-sm;
+
+            &:hover {
+              background: #0250bb;
+            }
+          }
+
+          .button-sub-text {
+            text-align: start;
+            font-size: 14px;
+          }
+
+          .bottom-section-text {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+          }
+        }
+
+        h2 {
+          font-size: 20px;
+          font-style: normal;
+          font-weight: 700;
+          line-height: 28px;
+          text-align: center;
+          padding: $spacing-2xl 0 $spacing-sm 0;
+        }
+      }
+    }
+  }
+}

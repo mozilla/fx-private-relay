@@ -11,7 +11,7 @@ import {
   isPeriodicalPremiumAvailableInCountry,
 } from "../functions/getPlan";
 import { PlanMatrix } from "../components/landing/PlanMatrix";
-import { BundleBanner } from "../components/landing/BundleBanner";
+import { MegaBundleBanner } from "../components/landing/MegaBundleBanner";
 import { useFlaggedAnchorLinks } from "../hooks/flaggedAnchorLinks";
 import { useGaEvent } from "../hooks/gaEvent";
 import { useL10n } from "../hooks/l10n";
@@ -68,9 +68,11 @@ const PremiumPromo: NextPage = () => {
           </div>
         </section>
 
-        {isBundleAvailableInCountry(runtimeData.data) && (
+        {/* {isBundleAvailableInCountry(runtimeData.data) && ( */}
+        {true && (
           <section id="vpn_promo" className={styles["bundle-banner-section"]}>
-            <BundleBanner runtimeData={runtimeData.data} />
+            {/* <MegaBundleBanner runtimeData={runtimeData.data} /> */}
+            <MegaBundleBanner runtimeData={true} />
           </section>
         )}
 

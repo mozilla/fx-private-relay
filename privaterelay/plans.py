@@ -9,6 +9,7 @@ There is currently a free plan and 3 paid plans:
 * premium - unlimited email masks, replies, and a custom subdomain
 * phones - premium, plus a phone mask
 * bundle - premium and phones, plus Mozilla VPN
+* megabundle - relay, monitor and vpn
 
 These functions get the details of the paid plans:
 
@@ -16,6 +17,7 @@ These functions get the details of the paid plans:
   * get_premium_countries
 * get_phone_country_language_mapping
 * get_bundle_country_language_mapping
+* get_megabundle_country_language_mapping
 
 They all return a PlanCountryLangMapping dict, which has this structure:
 
@@ -182,6 +184,10 @@ def get_bundle_country_language_mapping() -> PlanCountryLangMapping:
     """Get mapping for bundle countries (premium + phone mask + VPN)"""
     return _country_language_mapping("bundle")
 
+def get_megabundle_country_language_mapping() -> PlanCountryLangMapping:
+    """Get mapping for megabundle countries (monitor + relay + vpn)"""
+    return _country_language_mapping("megabundle")
+
 
 #
 # Private types for Selected Stripe data (_STRIPE_PLAN_DATA)
@@ -236,6 +242,7 @@ class _StripePlanData(TypedDict):
     premium: _StripeMonthlyPlanDetails
     phones: _StripeMonthlyPlanDetails
     bundle: _StripeYearlyPlanDetails
+    megabundle: _StripeYearlyPlanDetails
 
 
 _StripePlanDetails = _StripeMonthlyPlanDetails | _StripeYearlyPlanDetails
@@ -432,11 +439,23 @@ _STRIPE_PLAN_DATA: _StripePlanData = {
             }
         },
     },
+    "megabundle": {
+        "periods": "yearly",
+        "prices": {
+            "USD": {"monthly_when_yearly": 99},
+        },
+        "countries_and_regions": {
+            "US": {  # United States
+                "currency": "USD",
+                "yearly_id": "price_1LwoSDJNcmPzuWtR6wPJZeoh",
+            }
+        },
+    },
 }
 
 
 # Private types for _RELAY_PLANS
-_RelayPlanCategory = Literal["premium", "phones", "bundle"]
+_RelayPlanCategory = Literal["premium", "phones", "bundle", "megabundle"]
 
 
 class _RelayPlansByType(TypedDict, total=False):
@@ -525,6 +544,9 @@ _RELAY_PLANS: _RelayPlans = {
             "CA": "US",  # Canada -> United States
             "PR": "US",  # Puerto Rico -> United States
         },
+    },
+    "megabundle": {
+        "by_country": ["US"],  # United States
     },
 }
 

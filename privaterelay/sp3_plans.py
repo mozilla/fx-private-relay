@@ -7,6 +7,7 @@ There is currently a free plan and 3 paid plans:
 * premium - unlimited email masks, replies, and a custom subdomain
 * phones - premium, plus a phone mask
 * bundle - premium and phones, plus Mozilla VPN
+* megabundle - relay, monitor, and vpn
 
 get_sp3_country_language_mapping gets the details of the paid plans in this structure:
 
@@ -64,7 +65,7 @@ from privaterelay.country_utils import _get_cc_from_request
 # Public types
 #
 
-PlanType = Literal["premium", "phones", "bundle"]
+PlanType = Literal["premium", "phones", "bundle", "megabundle"]
 PeriodStr = Literal["monthly", "yearly"]
 CurrencyStr = Literal["CHF", "CZK", "DKK", "EUR", "PLN", "USD"]
 CountryStr = Literal[
@@ -143,6 +144,9 @@ PLAN_PRICING: dict[PlanType, dict[CurrencyStr, dict[PeriodStr, float]]] = {
     },
     "bundle": {
         "USD": {"monthly": 6.99, "yearly": 6.99},
+    },
+    "megabundle": {
+        "USD": {"monthly": 8.25, "yearly": 99},
     },
 }
 
@@ -255,6 +259,7 @@ def _get_supported_countries_by_plan(plan: PlanType) -> list[CountryStr]:
         ],
         "phones": ["US", "CA", "PR"],
         "bundle": ["US", "CA", "PR"],
+        "megabundle": ["US"],
     }
     return plan_countries.get(plan, [])
 
