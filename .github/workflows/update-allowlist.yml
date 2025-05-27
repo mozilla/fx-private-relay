@@ -6,6 +6,21 @@ on:
       - main
     paths:
       - 'privaterelay/fxrelay-allowlist-domains.txt'
+  workflow_dispatch:
+    inputs:
+      remote_settings_env:
+        description: 'Remote Settings Server to update'
+        required: true
+        default: 'prod'
+        type: choice
+        options:
+          - dev
+          - stage
+          - prod
+      branch:
+        description: 'Branch from which to fetch fxrelay-allowlist-domains.txt'
+        required: true
+        default: 'main'
 
 jobs:
   update-allowlist:
@@ -13,20 +28,46 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5.6.0
         with:
           python-version: '3.11'
           cache: 'pip'
+
       - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Set environment-specific variables
+        id: set-env
         run: |
-          pip install -r requirements.txt
+          case "${{ github.event.inputs.remote_settings_env }}" in
+            dev)
+              echo "REMOTE_SETTINGS_SERVER=https://remote-settings-dev.allizom.org/v1/" >> $GITHUB_ENV
+              echo "REMOTE_SETTINGS_AUTH=${{ secrets.REMOTE_SETTINGS_AUTH_DEV }}" >> $GITHUB_ENV
+              ;;
+            stage)
+              echo "REMOTE_SETTINGS_SERVER=https://remote-settings.allizom.org/v1/" >> $GITHUB_ENV
+              echo "REMOTE_SETTINGS_AUTH=${{ secrets.REMOTE_SETTINGS_AUTH_STAGE }}" >> $GITHUB_ENV
+              ;;
+            prod)
+              echo "REMOTE_SETTINGS_SERVER=https://remote-settings.mozilla.org/v1/" >> $GITHUB_ENV
+              echo "REMOTE_SETTINGS_AUTH=${{ secrets.REMOTE_SETTINGS_AUTH_PROD }}" >> $GITHUB_ENV
+              ;;
+            *)
+              echo "Invalid remote_settings_env value" >&2
+              exit 1
+              ;;
+          esac
+
+          echo "ALLOWLIST_INPUT_URL=https://raw.githubusercontent.com/mozilla/fx-private-relay/refs/heads/${{ github.event.inputs.branch }}/privaterelay/fxrelay-allowlist-domains.txt" >> $GITHUB_ENV
+
       - name: Run update_fxrelay_allowlist_collection
         env:
-          REMOTE_SETTINGS_SERVER: ${{ secrets.REMOTE_SETTINGS_SERVER }}
-          REMOTE_SETTINGS_AUTH: ${{ secrets.REMOTE_SETTINGS_AUTH }}
-          REMOTE_SETTINGS_BUCKET: ${{ secrets.REMOTE_SETTINGS_BUCKET }}
-          REMOTE_SETTINGS_COLLECTION: ${{ secrets.REMOTE_SETTINGS_COLLECTION }}
-          ALLOWLIST_INPUT_URL: ${{ secrets.ALLOWLIST_INPUT_URL }}
+          REMOTE_SETTINGS_SERVER: ${{ env.REMOTE_SETTINGS_SERVER }}
+          REMOTE_SETTINGS_AUTH: ${{ env.REMOTE_SETTINGS_AUTH }}
+          REMOTE_SETTINGS_BUCKET: ${{ env.REMOTE_SETTINGS_BUCKET }}
+          REMOTE_SETTINGS_COLLECTION: ${{ env.REMOTE_SETTINGS_COLLECTION }}
+          ALLOWLIST_INPUT_URL: ${{ env.ALLOWLIST_INPUT_URL }}
         run: |
           python manage.py update_fxrelay_allowlist_collection
