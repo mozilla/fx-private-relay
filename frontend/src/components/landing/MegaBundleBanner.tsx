@@ -1,14 +1,13 @@
 import { FluentVariable } from "@fluent/bundle";
 import { StaticImageData } from "next/image";
 import {
-  getBundlePrice,
-  getBundleSubscribeLink,
-  isBundleAvailableInCountry,
+  getMegabundlePrice,
+  getMegabundleSubscribeLink,
+  isMegabundleAvailableInCountry,
 } from "../../functions/getPlan";
 import { RuntimeData } from "../../hooks/api/runtimeData";
 import styles from "./MegaBundleBanner.module.scss";
 import { LinkButton } from "../Button";
-import megabundleShield from "./images/megabundle-shield-field-illus.svg";
 import { trackPlanPurchaseStart } from "../../functions/trackPurchase";
 import { useGaViewPing } from "../../hooks/gaViewPing";
 import { useGaEvent } from "../../hooks/gaEvent";
@@ -18,11 +17,10 @@ import RelayIcon from "./images/relay-icon.svg";
 import MonitorIcon from "./images/monitor-icon.svg";
 
 export type Props = {
-  // runtimeData: RuntimeData;
-  runtimeData: boolean;
+  runtimeData: RuntimeData;
 };
 
-export const MegaBundleBanner = (props: Props) => {
+export const MegabundleBanner = (props: Props) => {
   const l10n = useL10n();
   const gaEvent = useGaEvent();
 
@@ -36,16 +34,13 @@ export const MegaBundleBanner = (props: Props) => {
       <div className={styles["first-section"]}>
         <div className={styles["shield-img-wrapper"]} />
       </div>
-      {/* {isBundleAvailableInCountry(props.runtimeData) && ( */}
-      {true && (
+      {isMegabundleAvailableInCountry(props.runtimeData) && (
         <div className={styles["second-section"]}>
           <div className={styles["megabundle-banner-description"]}>
-            {/* {props.runtimeData && ( */}
-            {true && (
+            {props.runtimeData && (
               <h2>
                 {l10n.getString("megabundle-banner-header", {
-                  monthly_price: "$8.25",
-                  // monthly_price: getBundlePrice(props.runtimeData, l10n),
+                  monthly_price: getMegabundlePrice(props.runtimeData, l10n),
                 })}
               </h2>
             )}
@@ -92,8 +87,7 @@ export const MegaBundleBanner = (props: Props) => {
               <LinkButton
                 ref={bundleUpgradeCta}
                 className={styles["button"]}
-                href={""}
-                // href={getBundleSubscribeLink(props.runtimeData)}
+                href={getMegabundleSubscribeLink(props.runtimeData)}
                 onClick={() =>
                   trackPlanPurchaseStart(
                     gaEvent,

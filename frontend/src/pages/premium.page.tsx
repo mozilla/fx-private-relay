@@ -8,10 +8,12 @@ import HeroImage from "./images/relay-hero-image.svg";
 import { useRuntimeData } from "../hooks/api/runtimeData";
 import {
   isBundleAvailableInCountry,
+  isMegabundleAvailableInCountry,
   isPeriodicalPremiumAvailableInCountry,
 } from "../functions/getPlan";
 import { PlanMatrix } from "../components/landing/PlanMatrix";
-import { MegaBundleBanner } from "../components/landing/MegaBundleBanner";
+import { MegabundleBanner } from "../components/landing/MegaBundleBanner";
+import { BundleBanner } from "../components/landing/BundleBanner";
 import { useFlaggedAnchorLinks } from "../hooks/flaggedAnchorLinks";
 import { useGaEvent } from "../hooks/gaEvent";
 import { useL10n } from "../hooks/l10n";
@@ -68,13 +70,15 @@ const PremiumPromo: NextPage = () => {
           </div>
         </section>
 
-        {/* {isBundleAvailableInCountry(runtimeData.data) && ( */}
-        {true && (
+        {isMegabundleAvailableInCountry(runtimeData.data) ? (
           <section id="vpn_promo" className={styles["bundle-banner-section"]}>
-            {/* <MegaBundleBanner runtimeData={runtimeData.data} /> */}
-            <MegaBundleBanner runtimeData={true} />
+            <MegabundleBanner runtimeData={runtimeData.data} />
           </section>
-        )}
+        ) : isBundleAvailableInCountry(runtimeData.data) ? (
+          <section id="vpn_promo" className={styles["bundle-banner-section"]}>
+            <BundleBanner runtimeData={runtimeData.data} />
+          </section>
+        ): null}
 
         <section id="perks" className={styles["perks-wrapper"]}>
           <HighlightedFeatures />

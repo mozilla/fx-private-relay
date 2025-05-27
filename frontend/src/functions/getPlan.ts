@@ -85,6 +85,28 @@ export const getBundleSubscribeLink = (
   return plan.url ?? "";
 };
 
+export const getMegabundlePrice = (
+  runtimeData: RuntimeDataWithBundleAvailable,
+  l10n: ReactLocalization,
+) => {
+  const plan = getPlan(runtimeData.MEGABUNDLE_PLANS, "yearly");
+  const formatter = new Intl.NumberFormat(getLocale(l10n), {
+    style: "currency",
+    currency: plan.currency,
+  });
+  return formatter.format(plan.price);
+};
+export const getMegabundleSubscribeLink = (
+  runtimeData: RuntimeDataWithBundleAvailable,
+) => {
+  const plan = getPlan(runtimeData.MEGABUNDLE_PLANS, "yearly");
+  // if (plan.id) {
+    // return `${runtimeData.FXA_ORIGIN}/subscriptions/products/${runtimeData.MEGABUNDLE_PRODUCT_ID}?plan=${plan.id}`;
+  // }
+  // return plan.url ?? "";
+   return 'https://payments-next.stage.fxa.nonprod.webservices.mozgcp.net/privacyprotectionplan/yearly/landing'
+};
+
 /**
  * Helper type that is used to create helper types like
  * {@see RuntimeDataWithBundleAvailable}, which in turn can help make sure
@@ -99,6 +121,8 @@ export type RuntimeDataWithPhonesAvailable =
   RuntimeDataWithPlanAvailable<"PHONE_PLANS">;
 export type RuntimeDataWithBundleAvailable =
   RuntimeDataWithPlanAvailable<"BUNDLE_PLANS">;
+  export type RuntimeDataWithMegabundleAvailable =
+  RuntimeDataWithPlanAvailable<"MEGABUNDLE_PLANS">;
 
 export function isPeriodicalPremiumAvailableInCountry(
   runtimeData: RuntimeData | undefined,
@@ -112,7 +136,6 @@ export function isPhonesAvailableInCountry(
   return runtimeData?.PHONE_PLANS?.available_in_country === true;
 }
 
-// this needs to be updated for megabundle vs bundle - ie bundle only for canada
 export function isBundleAvailableInCountry(
   runtimeData: RuntimeData | undefined,
 ): runtimeData is RuntimeDataWithBundleAvailable {
