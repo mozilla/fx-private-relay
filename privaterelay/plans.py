@@ -54,7 +54,7 @@ the language is not, or is not one of the listed languages, the first language i
 default for that country.
 
 The third-level keys are the plan periods. Premium and phones are available on
-monthly and yearly periods, and bundle is yearly only.
+monthly and yearly periods, and bundle and megabundle are yearly only.
 
 The raw data is stored in two dicts:
 * _STRIPE_PLAN_DATA
@@ -183,6 +183,7 @@ def get_phone_country_language_mapping() -> PlanCountryLangMapping:
 def get_bundle_country_language_mapping() -> PlanCountryLangMapping:
     """Get mapping for bundle countries (premium + phone mask + VPN)"""
     return _country_language_mapping("bundle")
+
 
 def get_megabundle_country_language_mapping() -> PlanCountryLangMapping:
     """Get mapping for megabundle countries (monitor + relay + vpn)"""
@@ -447,7 +448,7 @@ _STRIPE_PLAN_DATA: _StripePlanData = {
         "countries_and_regions": {
             "US": {  # United States
                 "currency": "USD",
-                "yearly_id": "price_1LwoSDJNcmPzuWtR6wPJZeoh",
+                "yearly_id": "price_1RMAopKb9q6OnNsLSGe1vLtt",
             }
         },
     },
@@ -565,6 +566,7 @@ def _country_language_mapping(plan: _RelayPlanCategory) -> PlanCountryLangMappin
         us_phone_monthly_price_id=settings.PHONE_PLAN_ID_US_MONTHLY,
         us_phone_yearly_price_id=settings.PHONE_PLAN_ID_US_YEARLY,
         us_bundle_yearly_price_id=settings.BUNDLE_PLAN_ID_US,
+        us_megabundle_yearly_price_id=settings.MEGABUNDLE_PLAN_ID_US,
     )
 
 
@@ -576,6 +578,7 @@ def _cached_country_language_mapping(
     us_phone_monthly_price_id: str,
     us_phone_yearly_price_id: str,
     us_bundle_yearly_price_id: str,
+    us_megabundle_yearly_price_id: str,
 ) -> PlanCountryLangMapping:
     """Create the plan mapping with settings overrides"""
     relay_maps = _RELAY_PLANS[plan]
@@ -585,6 +588,7 @@ def _cached_country_language_mapping(
         us_phone_monthly_price_id=us_phone_monthly_price_id,
         us_phone_yearly_price_id=us_phone_yearly_price_id,
         us_bundle_yearly_price_id=us_bundle_yearly_price_id,
+        us_megabundle_yearly_price_id=us_megabundle_yearly_price_id,
     )[plan]
 
     mapping: PlanCountryLangMapping = {}
@@ -649,6 +653,7 @@ def _get_stripe_data_with_overrides(
     us_phone_monthly_price_id: str,
     us_phone_yearly_price_id: str,
     us_bundle_yearly_price_id: str,
+    us_megabundle_yearly_price_id: str,
 ) -> _StripePlanData:
     """Returns the Stripe plan data with settings overrides"""
     plan_data = deepcopy(_STRIPE_PLAN_DATA)
@@ -667,4 +672,7 @@ def _get_stripe_data_with_overrides(
     plan_data["bundle"]["countries_and_regions"]["US"][
         "yearly_id"
     ] = us_bundle_yearly_price_id
+    plan_data["megabundle"]["countries_and_regions"]["US"][
+        "yearly_id"
+    ] = us_megabundle_yearly_price_id
     return plan_data

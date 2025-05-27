@@ -156,7 +156,9 @@ def report_webcompat_issue(request):
     return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 
-def _get_example_plan(plan: Literal["premium", "phones", "bundle", "megabundle"]) -> dict[str, Any]:
+def _get_example_plan(
+    plan: Literal["premium", "phones", "bundle", "megabundle"],
+) -> dict[str, Any]:
     prices = {
         "premium": {"monthly": 1.99, "yearly": 0.99},
         "phones": {"monthly": 4.99, "yearly": 4.99},

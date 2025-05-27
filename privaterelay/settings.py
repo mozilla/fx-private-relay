@@ -437,6 +437,9 @@ PHONE_PLAN_ID_US_YEARLY: str = config(
 )
 BUNDLE_PROD_ID = config("BUNDLE_PROD_ID", "")
 BUNDLE_PLAN_ID_US: str = config("BUNDLE_PLAN_ID_US", "price_1LwoSDJNcmPzuWtR6wPJZeoh")
+MEGABUNDLE_PLAN_ID_US: str = config(
+    "MEGABUNDLE_PLAN_ID_US", "price_1RMAopKb9q6OnNsLSGe1vLtt"
+)
 
 SUBSCRIPTIONS_WITH_UNLIMITED: list[str] = config(
     "SUBSCRIPTIONS_WITH_UNLIMITED", default="", cast=Csv()
@@ -647,6 +650,9 @@ SUBPLAT3_PHONES_PRODUCT_KEY = config(
 )
 SUBPLAT3_BUNDLE_PRODUCT_KEY = config(
     "SUBPLAT3_BUNDLE_PRODUCT_KEY", "bundle-relay-vpn-dev", cast=str
+)
+SUBPLAT3_MEGABUNDLE_PRODUCT_KEY = config(
+    "SUBPLAT3_BUNDLE_PRODUCT_KEY", "privacyprotectionplan", cast=str
 )
 
 LOGGING = {
