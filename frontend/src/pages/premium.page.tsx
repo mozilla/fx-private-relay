@@ -71,19 +71,25 @@ const PremiumPromo: NextPage = () => {
           </div>
         </section>
 
-        {isMegabundleAvailableInCountry(runtimeData.data) ? (
-          <section id="vpn_promo" className={styles["bundle-banner-section"]}>
-            <MegabundleBanner runtimeData={runtimeData.data} />
-          </section>
-        ) : isBundleAvailableInCountry(runtimeData.data) ? (
-          <section id="vpn_promo" className={styles["bundle-banner-section"]}>
-            <BundleBanner runtimeData={runtimeData.data} />
-          </section>
-        ): null}
+        {!isMegabundleAvailableInCountry(runtimeData.data) &&
+          isBundleAvailableInCountry(runtimeData.data) && (
+            <section id="vpn_promo" className={styles["bundle-banner-section"]}>
+              <BundleBanner runtimeData={runtimeData.data} />
+            </section>
+          )}
 
         <section id="perks" className={styles["perks-wrapper"]}>
           <HighlightedFeatures />
         </section>
+
+        {isMegabundleAvailableInCountry(runtimeData.data) && (
+          <section
+            id="megabundle_promo"
+            className={styles["bundle-banner-section"]}
+          >
+            <MegabundleBanner runtimeData={runtimeData.data} />
+          </section>
+        )}
 
         <section className={styles["plans-wrapper"]}>
           <div className={styles.plans}>

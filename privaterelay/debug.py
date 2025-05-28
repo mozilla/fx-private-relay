@@ -24,6 +24,7 @@ class RelaySaferExceptionReporterFilter(SafeExceptionReporterFilter):
     SAFE_NAMES = [
         "BUNDLE_PLAN_ID_US",
         "BUNDLE_PROD_ID",
+        "MEGABUNDLE_PROD_ID",
         "RELAY_CHANNEL",
         "RELAY_CHANNEL_NAME",
         "RELAY_FROM_ADDRESS",

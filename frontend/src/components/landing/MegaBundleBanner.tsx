@@ -1,9 +1,8 @@
-import { FluentVariable } from "@fluent/bundle";
-import { StaticImageData } from "next/image";
 import {
   getMegabundlePrice,
   getMegabundleSubscribeLink,
   isMegabundleAvailableInCountry,
+  getMegabundleYearlyPrice,
 } from "../../functions/getPlan";
 import { RuntimeData } from "../../hooks/api/runtimeData";
 import styles from "./MegaBundleBanner.module.scss";
@@ -101,7 +100,7 @@ export const MegabundleBanner = (props: Props) => {
               <div className={styles["bottom-section-text"]}>
                 <span className={styles["button-sub-text"]}>
                   {l10n.getString("megabundle-banner-billed-annually", {
-                    billed: "$90",
+                    billed: getMegabundleYearlyPrice(props.runtimeData, l10n),
                   })}
                 </span>
                 <span className={styles["button-sub-text"]}>

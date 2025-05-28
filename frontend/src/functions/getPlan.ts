@@ -126,15 +126,28 @@ export const getMegabundlePrice = (
   });
   return formatter.format(plan.price);
 };
+
+export const getMegabundleYearlyPrice = (
+  runtimeData: RuntimeDataWithBundleAvailable,
+  l10n: ReactLocalization,
+) => {
+  const plan = getPlan(runtimeData.MEGABUNDLE_PLANS, "yearly");
+  const total = plan.price * 12;
+  const formatter = new Intl.NumberFormat(getLocale(l10n), {
+    style: "currency",
+    currency: plan.currency,
+  });
+  return formatter.format(total);
+};
+
 export const getMegabundleSubscribeLink = (
   runtimeData: RuntimeDataWithBundleAvailable,
 ) => {
   const plan = getPlan(runtimeData.MEGABUNDLE_PLANS, "yearly");
-  // if (plan.id) {
-    // return `${runtimeData.FXA_ORIGIN}/subscriptions/products/${runtimeData.MEGABUNDLE_PRODUCT_ID}?plan=${plan.id}`;
-  // }
-  // return plan.url ?? "";
-   return 'https://payments-next.stage.fxa.nonprod.webservices.mozgcp.net/privacyprotectionplan/yearly/landing'
+  if (plan.id) {
+    return `${runtimeData.FXA_ORIGIN}/subscriptions/products/${runtimeData.MEGABUNDLE_PRODUCT_ID}?plan=${plan.id}`;
+  }
+  return plan.url ?? "";
 };
 
 /**
@@ -151,7 +164,7 @@ export type RuntimeDataWithPhonesAvailable =
   RuntimeDataWithPlanAvailable<"PHONE_PLANS">;
 export type RuntimeDataWithBundleAvailable =
   RuntimeDataWithPlanAvailable<"BUNDLE_PLANS">;
-  export type RuntimeDataWithMegabundleAvailable =
+export type RuntimeDataWithMegabundleAvailable =
   RuntimeDataWithPlanAvailable<"MEGABUNDLE_PLANS">;
 
 export function isPeriodicalPremiumAvailableInCountry(

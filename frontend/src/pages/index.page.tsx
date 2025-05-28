@@ -12,7 +12,10 @@ import { Layout } from "../components/layout/Layout";
 import { useGaViewPing } from "../hooks/gaViewPing";
 import { LinkButton } from "../components/Button";
 import { useRuntimeData } from "../hooks/api/runtimeData";
-import { isBundleAvailableInCountry, isMegabundleAvailableInCountry } from "../functions/getPlan";
+import {
+  isBundleAvailableInCountry,
+  isMegabundleAvailableInCountry,
+} from "../functions/getPlan";
 import { FaqAccordionItem } from "../components/landing/FaqAccordion";
 import { Reviews } from "../components/landing/Reviews";
 import { PlanMatrix } from "../components/landing/PlanMatrix";
@@ -22,6 +25,7 @@ import { useFlaggedAnchorLinks } from "../hooks/flaggedAnchorLinks";
 import { useL10n } from "../hooks/l10n";
 import { HighlightedFeatures } from "../components/landing/HighlightedFeatures";
 import Image from "../components/Image";
+import { PlanGrid } from "../components/landing/PlanGrid";
 
 const Home: NextPage = () => {
   const l10n = useL10n();
@@ -66,15 +70,12 @@ const Home: NextPage = () => {
             <Image src={HeroImage} alt="" />
           </div>
         </section>
-        {isMegabundleAvailableInCountry(runtimeData.data) ? (
-          <section id="vpn_promo" className={styles["bundle-banner-section"]}>
-            <MegabundleBanner runtimeData={runtimeData.data} />
-          </section>
-        ) : isBundleAvailableInCountry(runtimeData.data) ? (
-          <section id="vpn_promo" className={styles["bundle-banner-section"]}>
-            <BundleBanner runtimeData={runtimeData.data} />
-          </section>
-        ) : null}
+        {!isMegabundleAvailableInCountry(runtimeData.data) &&
+          isBundleAvailableInCountry(runtimeData.data) && (
+            <section id="vpn_promo" className={styles["bundle-banner-section"]}>
+              <BundleBanner runtimeData={runtimeData.data} />
+            </section>
+          )}
         <section id="how_it_works" className={styles["how-it-works-wrapper"]}>
           <div className={styles["how-it-works"]}>
             <h2 className={styles.headline}>
@@ -114,14 +115,22 @@ const Home: NextPage = () => {
         */}
         <div className={`${styles["gray-bg"]} ${styles["reviews-container"]}`}>
           <Reviews />
-          {/* Anchor link "pricing" exists within the PlanMatrix component */}
-          <div className={styles.plans}>
+        </div>
+        {/* Anchor link "pricing" exists within the PlanMatrix component */}
+        {isMegabundleAvailableInCountry(runtimeData.data) && (
+          <section
+            id="megabundle_promo"
+            className={styles["bundle-banner-section"]}
+          >
+            <MegabundleBanner runtimeData={runtimeData.data} />
+          </section>
+        )}
+        <div className={styles.plans}>
             {/* <PlanMatrix runtimeData={runtimeData.data} /> */}
           </div>
           <div className={styles.plans}>
             <PlanGrid runtimeData={runtimeData.data} />
           </div>
-        </div>
         <section id="highlighted-features" className={styles.features}>
           <HighlightedFeatures />
         </section>

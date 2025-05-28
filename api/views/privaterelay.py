@@ -211,6 +211,7 @@ def _get_example_plan(
                         "GOOGLE_ANALYTICS_ID": "UA-########-##",
                         "GA4_MEASUREMENT_ID": "G-XXXXXXXXX",
                         "BUNDLE_PRODUCT_ID": "prod_XXXXXXXXXXXXXX",
+                        "MEGABUNDLE_PRODUCT_ID": "prod_XXXXXXXXXXXXXX",
                         "PHONE_PRODUCT_ID": "prod_XXXXXXXXXXXXXX",
                         "PERIODICAL_PREMIUM_PLANS": _get_example_plan("premium"),
                         "PHONE_PLANS": _get_example_plan("phones"),
@@ -264,6 +265,7 @@ def runtime_data(request):
             "GA4_MEASUREMENT_ID": settings.GA4_MEASUREMENT_ID,
             "BUNDLE_PRODUCT_ID": settings.BUNDLE_PROD_ID,
             "PHONE_PRODUCT_ID": settings.PHONE_PROD_ID,
+            "MEGABUNDLE_PRODUCT_ID": settings.MEGABUNDLE_PROD_ID,
             "PERIODICAL_PREMIUM_PLANS": get_countries_info_from_request_and_mapping(
                 request, premium_plans
             ),
