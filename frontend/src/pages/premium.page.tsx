@@ -11,6 +11,7 @@ import {
   isPeriodicalPremiumAvailableInCountry,
 } from "../functions/getPlan";
 import { PlanMatrix } from "../components/landing/PlanMatrix";
+import { PlanGrid } from "../components/landing/PlanGrid";
 import { BundleBanner } from "../components/landing/BundleBanner";
 import { useFlaggedAnchorLinks } from "../hooks/flaggedAnchorLinks";
 import { useGaEvent } from "../hooks/gaEvent";
@@ -81,6 +82,9 @@ const PremiumPromo: NextPage = () => {
         <section className={styles["plans-wrapper"]}>
           <div className={styles.plans}>
             <PlanMatrix runtimeData={runtimeData.data} />
+          </div>
+          <div className={styles.plans}>
+            <PlanGrid runtimeData={runtimeData.data} />
           </div>
         </section>
       </main>

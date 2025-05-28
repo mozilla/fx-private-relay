@@ -16,6 +16,7 @@ import { isBundleAvailableInCountry } from "../functions/getPlan";
 import { FaqAccordionItem } from "../components/landing/FaqAccordion";
 import { Reviews } from "../components/landing/Reviews";
 import { PlanMatrix } from "../components/landing/PlanMatrix";
+import { PlanGrid } from "../components/landing/PlanGrid";
 import { BundleBanner } from "../components/landing/BundleBanner";
 import { useFlaggedAnchorLinks } from "../hooks/flaggedAnchorLinks";
 import { useL10n } from "../hooks/l10n";
@@ -111,7 +112,10 @@ const Home: NextPage = () => {
           <Reviews />
           {/* Anchor link "pricing" exists within the PlanMatrix component */}
           <div className={styles.plans}>
-            <PlanMatrix runtimeData={runtimeData.data} />
+            {/* <PlanMatrix runtimeData={runtimeData.data} /> */}
+          </div>
+          <div className={styles.plans}>
+            <PlanGrid runtimeData={runtimeData.data} />
           </div>
         </div>
         <section id="highlighted-features" className={styles.features}>

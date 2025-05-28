@@ -27,6 +27,21 @@ export const getPeriodicalPremiumPrice = (
   });
   return formatter.format(plan.price);
 };
+
+export const getPeriodicalPremiumYearlyPrice = (
+  runtimeData: RuntimeDataWithPeriodicalPremiumAvailable,
+  billingPeriod: keyof PlanData,
+  l10n: ReactLocalization,
+) => {
+  const plan = getPlan(runtimeData.PERIODICAL_PREMIUM_PLANS, billingPeriod);
+  const total = plan.price * 12;
+  const formatter = new Intl.NumberFormat(getLocale(l10n), {
+    style: "currency",
+    currency: plan.currency,
+  });
+  return formatter.format(total);
+};
+
 /**
  * Given {@link RuntimeDataWithPeriodicalPremiumAvailable}, returns the URL the user should visit to purchase Premium.
  */
@@ -53,6 +68,21 @@ export const getPhonesPrice = (
   });
   return formatter.format(plan.price);
 };
+
+export const getPhonesYearlyPrice = (
+  runtimeData: RuntimeDataWithPhonesAvailable,
+  billingPeriod: keyof PlanData,
+  l10n: ReactLocalization,
+) => {
+  const plan = getPlan(runtimeData.PHONE_PLANS, billingPeriod);
+  const total = plan.price * 12;
+  const formatter = new Intl.NumberFormat(getLocale(l10n), {
+    style: "currency",
+    currency: plan.currency,
+  });
+  return formatter.format(total);
+};
+
 export const getPhoneSubscribeLink = (
   runtimeData: RuntimeDataWithPhonesAvailable,
   billingPeriod: keyof PlanData,

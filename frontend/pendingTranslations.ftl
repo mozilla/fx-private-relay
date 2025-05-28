@@ -124,3 +124,36 @@ upsell-banner-4-masks-us-cta = Upgrade to { -brand-name-relay-premium }
 moz-monitor = { -brand-name-mozilla-monitor }
 
 plan-matrix-your-plan = Your Plan
+
+## Megabundle plan grid
+plan-grid-title = Choose your level of protection
+plan-grid-body = 30-day money-back guarantee (first-time customers only)
+plan-grid-free-title = { -brand-name-relay }
+plan-grid-card-free-item-one = <b>{ $mask_limit } email masks</b> to protect your real email address
+plan-grid-card-free-item-two = <b>Browser extension</b> to use { -brand-name-relay } on any site
+plan-grid-card-free-item-three = <b>Remove email trackers</b>
+plan-grid-card-btn = Get Started
+plan-grid-premium-title = { -brand-name-relay-premium }
+plan-grid-premium-subtitle = Unlimited email protection
+plan-grid-card-premium-plus = Everything in { -brand-name-relay }
+plan-grid-card-premium-item-one = <b>Unlimited email masks</b> to protect your real email address
+plan-grid-card-premium-item-two = <b>Block promotional emails</b>
+plan-grid-card-premium-item-three = { -brand-name-relay } email domain to <b>create masks on-the-go</b>
+plan-grid-card-premium-item-four = <b>Reply anonymously</b> to emails
+plan-grid-phone-subtitle = Email and phone protection
+plan-grid-card-phone-plus = Everything in { -brand-name-relay-premium }
+plan-grid-card-phone-item-one = Phone mask to <b>protect your real phone number</b>
+plan-grid-megabundle-title = Privacy Protection Plan
+plan-grid-megabundle-label = Best value, save { $discountPercentage }%
+plan-grid-megabundle-subtitle = 3 privacy tools, 1 price
+plan-grid-megabundle-vpn-title = { -brand-name-mozilla-vpn}
+plan-grid-megabundle-vpn-description = Online activity protection
+-brand-name-monitor-plus = Monitor Plus
+plan-grid-megabundle-monitor-title = { -brand-name-monitor-plus }
+plan-grid-megabundle-monitor-description = Data broker protection
+plan-grid-megabundle-relay-title = { -brand-name-relay-premium }
+plan-grid-megabundle-relay-description = Unlimited email masks for spam protection
+plan-grid-billed-monthly = Billed monthly
+plan-matrix-price-yearly-calculated = { $yearly_price } billed yearly
+plan-grid-megabundle-monthly = { $price }/mo
+plan-grid-megabundle-yearly = { $yearly_price } billed yearly

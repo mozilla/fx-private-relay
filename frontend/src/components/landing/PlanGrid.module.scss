@@ -1,0 +1,342 @@
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "../../styles/color";
+@use "../../styles/text";
+
+.content {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  max-width: 1263px;
+  gap: $layout-md;
+}
+
+.header {
+  gap: $spacing-md;
+  text-align: center;
+
+  b {
+    font-family: Metropolis, sans-serif;
+    font-size: 28px;
+    font-style: normal;
+    line-height: 30px;
+  }
+
+  p {
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px;
+    padding-top: 8px;
+  }
+}
+
+.pricingPlans {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+
+  @media screen and (min-width: $screen-md) {
+    flex-wrap: wrap;
+    flex-direction: row-reverse;
+  }
+
+  @media screen and (min-width: $screen-lg) {
+    flex-wrap: nowrap;
+  }
+}
+
+.pricingCard {
+  box-shadow: inset 0 0 0 2px #e0e0e6;
+  background-color: $color-white;
+  border-radius: calc($border-radius-lg + $border-radius-md);
+  display: inline-flex;
+  flex: 1;
+  flex-direction: column;
+  font-size: 14px;
+  padding: $layout-sm $spacing-lg;
+  position: relative;
+  height: 645px;
+
+  &:first-of-type {
+    background: linear-gradient(
+      75deg,
+      $color-violet-50 0%,
+      $color-purple-50 37.1%,
+      $color-blue-40 61.4%,
+      #0090ed 100%
+    );
+    box-shadow: none;
+
+    @media screen and (min-width: $screen-md) {
+      min-width: 100%;
+    }
+
+    @media screen and (min-width: $screen-lg) {
+      min-width: auto;
+    }
+
+    &::before {
+      background: $color-white;
+      border-radius: calc($border-radius-lg + $border-radius-md - 2px);
+      content: "";
+      display: block;
+      height: calc(100% - 4px);
+      left: 2px;
+      position: absolute;
+      top: 2px;
+      width: calc(100% - 4px);
+    }
+  }
+
+  &Label {
+    color: $color-purple-70;
+    font-weight: 700;
+    left: 50%;
+    position: absolute;
+    top: $spacing-lg;
+    transform: translate(-50%);
+    white-space: nowrap;
+  }
+
+  dt,
+  dd {
+    // Ensure that the card content is not covered by the pseudo element
+    // `.pricingCard::before` that’s used for creating the border gradient of
+    // the bundle pricing card.
+    z-index: 1;
+  }
+
+  dt {
+    border-bottom: 1px solid #e0e0e6;
+    padding: $spacing-md 0;
+    text-align: center;
+
+    b {
+      font-size: 22px;
+      font-weight: 700;
+      padding: $spacing-xs 0;
+    }
+
+    p {
+      color: #3a3944;
+      font-size: 14px;
+    }
+
+    hr {
+      border-style: none;
+      border-top: 1px solid #e0e0e6;
+      margin: $spacing-md 0;
+      width: 100%;
+    }
+  }
+
+  dd {
+    align-items: flex-start;
+    display: flex;
+    gap: $spacing-sm;
+    padding: $spacing-sm 0;
+
+    &:first-of-type {
+      padding: $spacing-md 0 $spacing-sm;
+    }
+
+    &.pricingCardCta {
+      align-items: normal;
+      border: none;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      justify-content: center;
+      margin-top: auto;
+      padding: $spacing-md $spacing-xs 0;
+
+      p {
+        align-items: center;
+        display: flex;
+        gap: $spacing-xs;
+        flex-direction: column;
+      }
+
+      strong {
+        display: flex;
+        font-size: 22px;
+        gap: $spacing-sm;
+        text-align: center;
+      }
+
+      s {
+        text-decoration-thickness: 0.1em;
+      }
+
+      // button,
+      // a {
+      //   width: 100%;
+      //   padding: 16px 16px;
+      // }
+
+      .pick-button {
+        border: 2px solid $color-blue-50;
+        border-radius: 4px;
+        padding: 16px 16px;
+        text-align: center;
+        background-color: $color-white;
+        color: $color-blue-50;
+        font-weight: 700;
+        font-size: 16px;
+        font-size: 1rem;
+        line-height: 1.5;
+
+        &:hover {
+          background-color: $color-blue-50;
+          color: $color-white;
+          cursor: pointer;
+        }
+      }
+
+      .megabundle-pick-button {
+        border: 2px solid $color-white;
+        border-radius: 4px;
+        padding: 16px 16px;
+        text-align: center;
+        background-color: $color-blue-50;
+        color: $color-white;
+        font-weight: 700;
+        font-size: 16px;
+        font-size: 1rem;
+        line-height: 1.5;
+
+        &:hover {
+          background-color: $color-white;
+          color: $color-blue-50;
+          border: 2px solid $color-blue-50;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+      }
+
+      .pricing {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: $spacing-md;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        $pricing-toggle-height: 38px;
+
+        &.single-price {
+          justify-content: flex-end;
+        }
+        .pricing-toggle-wrapper {
+          min-height: $pricing-toggle-height;
+        }
+
+        .pricing-overview {
+          display: flex;
+          flex-direction: column;
+          gap: $spacing-lg;
+
+          .price-text {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            gap: $spacing-xs;
+          }
+
+          .price {
+            align-items: center;
+            display: flex;
+            gap: $spacing-xs;
+            flex-direction: column;
+            font-size: 22px;
+            font-weight: 700;
+          }
+
+          small {
+            color: #3a3944;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 400;
+          }
+        }
+      }
+    }
+
+    svg {
+      stroke: $color-purple-70;
+      flex: 1 0 24px;
+      max-width: 24px;
+      height: auto;
+    }
+  }
+
+  .plusNote {
+    border-bottom: 1px solid #e0e0e6;
+    align-items: center;
+    display: flex;
+    gap: $spacing-sm;
+    padding-bottom: $spacing-md;
+    width: 100%;
+  }
+
+  .bundleTitle {
+    align-items: center;
+    display: flex;
+    gap: $spacing-xs;
+    justify-content: center;
+    font-size: 16px;
+
+    svg {
+      color: $color-black;
+      padding: calc($spacing-xs * 0.5);
+      stroke: none;
+    }
+  }
+
+  .bundleItemLink {
+    border: 2px solid #e0e0e6;
+    border-radius: calc($border-radius-md + $border-radius-sm);
+    color: $color-black;
+    padding: $spacing-sm;
+    text-align: center;
+    text-decoration: none;
+    width: 100%;
+
+    &:hover {
+      border: 2px solid $color-blue-50;
+      color: $color-blue-50;
+
+      svg {
+        color: $color-blue-50;
+      }
+    }
+  }
+
+  .pricingCardSavings {
+    color: #3a3944;
+  }
+}
+
+.pricing-toggle {
+  display: flex;
+  background-color: color.$grey-10;
+  padding: $spacing-xs;
+  border-radius: $border-radius-lg;
+
+  > div {
+    width: 50%;
+    padding: 4px 4px;
+    text-align: center;
+    color: color.$grey-40;
+    font-weight: 500;
+    font-size: 15px;
+    cursor: pointer;
+
+    &.is-selected {
+      background-color: $color-white;
+      border-radius: $border-radius-lg;
+      color: $color-blue-50;
+      font-weight: 700;
+    }
+  }
+}
