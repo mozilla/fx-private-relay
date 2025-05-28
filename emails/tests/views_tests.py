@@ -2402,6 +2402,29 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         expected = self.expected_glean_event(event["timestamp"])
         assert event == expected
 
+    @patch("emails.apps.EmailsConfig.ses_client", spec_set=["send_raw_email"])
+    @patch("emails.views.get_message_content_from_s3")
+    def test_successful_email_in_s3_deleted_with_punycode(
+        self, mocked_get_content: Mock, mocked_ses_client: Mock
+    ) -> None:
+        test_email = "user@münchen.de"
+        punycode_email = "user@xn--mnchen-3ya.de"
+        self.user.email = test_email
+        self.user.save()
+
+        notification = EMAIL_SNS_BODIES["s3_stored"].copy()
+        mocked_get_content.return_value = create_email_from_notification(
+            notification, "text_content"
+        )
+        mocked_ses_client.send_raw_email.return_value = {"MessageId": "NICE"}
+
+        _sns_notification(notification)
+
+        # Verify the email was sent with punycode address
+        mocked_ses_client.send_raw_email.assert_called_once()
+        call_args = mocked_ses_client.send_raw_email.call_args[1]
+        assert call_args["Destinations"] == [punycode_email]
+
     @override_settings(STATSD_ENABLED=True)
     @patch("emails.apps.EmailsConfig.ses_client", spec_set=["send_raw_email"])
     @patch("emails.views.get_message_content_from_s3")

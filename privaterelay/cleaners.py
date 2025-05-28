@@ -84,11 +84,13 @@ class IDNAEmailCleaner(CleanerTask):
     )
 
     def has_non_ascii_domain(self, email: str) -> bool:
+        if not email or "@" not in email:
+            return False
         try:
             domain = email.split("@", 1)[1]
             domain.encode("ascii")
             return False
-        except (IndexError, UnicodeEncodeError):
+        except UnicodeEncodeError:
             return True
 
     def punycode_email(self, email: str) -> str:

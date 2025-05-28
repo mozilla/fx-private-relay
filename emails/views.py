@@ -33,6 +33,7 @@ from markus.utils import generate_tag
 from sentry_sdk import capture_message
 from waffle import get_waffle_flag_model, sample_is_active
 
+from privaterelay.cleaners import IDNAEmailCleaner
 from privaterelay.ftl_bundles import main as ftl_bundle
 from privaterelay.models import Profile
 from privaterelay.utils import (
@@ -824,6 +825,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         )
 
     # Send new email
+    destination_address = ensure_ascii_email(destination_address)
     try:
         ses_response = ses_send_raw_email(
             source_address=reply_address,
@@ -1314,6 +1316,7 @@ def _send_reply_requires_premium_email(
     msg = _build_reply_requires_premium_email(
         from_address, reply_record, message_id, decrypted_metadata
     )
+    from_address = ensure_ascii_email(from_address)
     try:
         ses_send_raw_email(
             source_address=get_reply_to_address(premium=False),
@@ -1421,7 +1424,7 @@ def _handle_reply(
         "To": to_address,
         "Reply-To": outbound_from_address,
     }
-
+    to_address = ensure_ascii_email(to_address)
     try:
         (email_bytes, transport, load_time_s) = _get_email_bytes(message_json)
     except ClientError as e:
@@ -1703,10 +1706,11 @@ def _send_disabled_mask_for_spam_email(mask: RelayAddress | DomainAddress) -> No
         raise ValueError(
             "Must set settings.RELAY_FROM_ADDRESS to send disabled_mask_for_spam email."
         )
+    user_email = ensure_ascii_email(mask.user.email)
     try:
         ses_send_raw_email(
             source_address=settings.RELAY_FROM_ADDRESS,
-            destination_address=mask.user.email,
+            destination_address=user_email,
             message=msg,
         )
     except ClientError as e:
@@ -2066,3 +2070,21 @@ def init_waffle_flags() -> None:
     for name, note in flags:
         waffle_flag_table.get_or_create(name=name, defaults={"note": note})
     _WAFFLE_FLAGS_INITIALIZED = True
+
+
+def ensure_ascii_email(email: str) -> str:
+    """
+    Ensure the given email has an ASCII-compatible domain (Punycode).
+    If the email has a non-ASCII domain, clean it in the DB and return the clean value.
+    """
+    if not email or "@" not in email:
+        return email
+    idna_cleaner = IDNAEmailCleaner()
+    if idna_cleaner.has_non_ascii_domain(email):
+        punycode_email = idna_cleaner.punycode_email(email)
+        users = User.objects.filter(email=email)
+        idna_cleaner.clean_users(users)
+        user = User.objects.get(email=punycode_email)
+        if user:
+            return user.email
+    return email
