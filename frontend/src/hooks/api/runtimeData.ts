@@ -39,6 +39,7 @@ export type RuntimeData = {
   PERIODICAL_PREMIUM_PRODUCT_ID: `prod_${string}`;
   PHONE_PRODUCT_ID: `prod_${string}`;
   BUNDLE_PRODUCT_ID: `prod_${string}`;
+  MEGABUNDLE_PRODUCT_ID: `prod_${string}`;
   PERIODICAL_PREMIUM_PLANS: ProductData<PlanData>;
   PHONE_PLANS: ProductData<PlanData>;
   BUNDLE_PLANS: ProductData<Pick<PlanData, "yearly">>;

@@ -437,6 +437,7 @@ PHONE_PLAN_ID_US_YEARLY: str = config(
 )
 BUNDLE_PROD_ID = config("BUNDLE_PROD_ID", "")
 BUNDLE_PLAN_ID_US: str = config("BUNDLE_PLAN_ID_US", "price_1LwoSDJNcmPzuWtR6wPJZeoh")
+MEGABUNDLE_PROD_ID = config("MEGABUNDLE_PROD_ID", "prod_SFb8iVuZIOPREe")
 MEGABUNDLE_PLAN_ID_US: str = config(
     "MEGABUNDLE_PLAN_ID_US", "price_1RMAopKb9q6OnNsLSGe1vLtt"
 )

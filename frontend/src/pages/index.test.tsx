@@ -9,6 +9,7 @@ import {
   getMockRuntimeDataWithPhones,
   setMockRuntimeData,
   setMockRuntimeDataOnce,
+  getMockRuntimeDataWithMegabundle,
 } from "../../__mocks__/hooks/api/runtimeData";
 import { mockUseFxaFlowTrackerModule } from "../../__mocks__/hooks/fxaFlowTracker";
 import { mockUseL10nModule } from "../../__mocks__/hooks/l10n";
@@ -158,5 +159,27 @@ describe("The landing page", () => {
     });
 
     expect(vpnFeatureRow).toBeInTheDocument();
+  });
+
+  it("shows the megabundle banner if megabundle is available in the user's country", () => {
+    setMockRuntimeDataOnce(getMockRuntimeDataWithMegabundle());
+
+    render(<Home />);
+
+    const heading = screen.getByText((content) =>
+      content.startsWith("l10n string: [megabundle-banner-header], with vars:"),
+    );
+    expect(heading).toBeInTheDocument();
+  });
+
+  it("does not show the bundle banner if megabundle is available in the user's country", () => {
+    setMockRuntimeDataOnce(getMockRuntimeDataWithMegabundle());
+
+    render(<Home />);
+
+    const bundleText = screen.queryByText(
+      "[<Localized> with id [bundle-banner-heading] and vars: {}]",
+    );
+    expect(bundleText).not.toBeInTheDocument();
   });
 });
