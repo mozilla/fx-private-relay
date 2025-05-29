@@ -189,6 +189,7 @@ export const FreeOnboarding = (props: Props) => {
     button = (
       <Button
         className={styles["generate-new-mask"]}
+        data-testid="open-forwarding-modal"
         onClick={() => {
           setIsModalOpen(true);
         }}
@@ -415,7 +416,9 @@ const StepTwo = (props: StepTwoProps) => {
         isSet={isSet}
       />
       <div className={styles["copy-mask-header"]}>
-        <h1>{l10n.getString("profile-free-onboarding-copy-mask-headline")}</h1>
+        <h1 data-testid="copy-mask-item-headline">
+          {l10n.getString("profile-free-onboarding-copy-mask-headline")}
+        </h1>
         <p>{l10n.getString("profile-free-onboarding-copy-mask-description")}</p>
       </div>
       <div className={styles["content-wrapper-copy-mask"]}>
@@ -436,7 +439,10 @@ const StepTwo = (props: StepTwoProps) => {
             <div className={styles["content-item"]}>
               <Image src={Emails} alt="" />
               <div className={styles["content-text"]}>
-                <p className={styles["headline"]}>
+                <p
+                  className={styles["headline"]}
+                  data-testid="copy-mask-item-headline-1"
+                >
                   {l10n.getString(
                     "profile-free-onboarding-copy-mask-item-headline-1",
                   )}

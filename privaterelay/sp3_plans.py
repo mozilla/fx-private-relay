@@ -7,6 +7,7 @@ There is currently a free plan and 3 paid plans:
 * premium - unlimited email masks, replies, and a custom subdomain
 * phones - premium, plus a phone mask
 * bundle - premium and phones, plus Mozilla VPN
+* megabundle - relay, monitor, and vpn
 
 get_sp3_country_language_mapping gets the details of the paid plans in this structure:
 
@@ -53,7 +54,7 @@ monthly and yearly periods, and bundle is yearly only.
 """
 
 from functools import lru_cache
-from typing import Literal, TypedDict
+from typing import Literal, TypedDict, assert_never, get_args
 
 from django.conf import settings
 from django.http import HttpRequest
@@ -64,7 +65,7 @@ from privaterelay.country_utils import _get_cc_from_request
 # Public types
 #
 
-PlanType = Literal["premium", "phones", "bundle"]
+PlanType = Literal["premium", "phones", "bundle", "megabundle"]
 PeriodStr = Literal["monthly", "yearly"]
 CurrencyStr = Literal["CHF", "CZK", "DKK", "EUR", "PLN", "USD"]
 CountryStr = Literal[
@@ -115,6 +116,16 @@ ProductKey = Literal[
     "relaypremiumemailstage",
     "relaypremiumphonestage",
     "vpnrelaybundlestage",
+    "privacyprotectionplan",
+]
+
+TEST_PRODUCT_KEYS = [
+    "premium-key",
+    "phones-key",
+    "bundle-key",
+    "new-premium-key",
+    "new-phones-key",
+    "new-bundle-key",
 ]
 
 
@@ -144,6 +155,9 @@ PLAN_PRICING: dict[PlanType, dict[CurrencyStr, dict[PeriodStr, float]]] = {
     "bundle": {
         "USD": {"monthly": 6.99, "yearly": 6.99},
     },
+    "megabundle": {
+        "USD": {"monthly": 8.25, "yearly": 8.25},
+    },
 }
 
 
@@ -164,9 +178,23 @@ def get_supported_countries(plan: PlanType) -> set[CountryStr]:
 
 def get_subscription_url(plan: PlanType, period: PeriodStr) -> str:
     """Generate the URL for a given plan and period."""
-    product_key: ProductKey
-    settings_attr = f"SUBPLAT3_{plan.upper()}_PRODUCT_KEY"
-    product_key = getattr(settings, settings_attr)
+    product_key: str
+    match plan:
+        case "phones":
+            product_key = settings.SUBPLAT3_PHONES_PRODUCT_KEY
+        case "premium":
+            product_key = settings.SUBPLAT3_PREMIUM_PRODUCT_KEY
+        case "bundle":
+            product_key = settings.SUBPLAT3_BUNDLE_PRODUCT_KEY
+        case "megabundle":
+            product_key = settings.SUBPLAT3_MEGABUNDLE_PRODUCT_KEY
+        case _ as unreachable:  # pragma: no cover
+            assert_never(unreachable)
+    valid_keys = list(get_args(ProductKey))
+    if settings.IN_PYTEST:
+        valid_keys.extend(TEST_PRODUCT_KEYS)
+    if product_key not in valid_keys:
+        raise ValueError("'{product_key}' is not a ProductKey")
     return f"{settings.SUBPLAT3_HOST}/{product_key}/{period}/landing"
 
 
@@ -255,6 +283,7 @@ def _get_supported_countries_by_plan(plan: PlanType) -> list[CountryStr]:
         ],
         "phones": ["US", "CA", "PR"],
         "bundle": ["US", "CA", "PR"],
+        "megabundle": ["US"],
     }
     return plan_countries.get(plan, [])
 

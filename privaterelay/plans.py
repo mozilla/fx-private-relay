@@ -9,6 +9,7 @@ There is currently a free plan and 3 paid plans:
 * premium - unlimited email masks, replies, and a custom subdomain
 * phones - premium, plus a phone mask
 * bundle - premium and phones, plus Mozilla VPN
+* megabundle - relay, monitor and vpn
 
 These functions get the details of the paid plans:
 
@@ -16,6 +17,7 @@ These functions get the details of the paid plans:
   * get_premium_countries
 * get_phone_country_language_mapping
 * get_bundle_country_language_mapping
+* get_megabundle_country_language_mapping
 
 They all return a PlanCountryLangMapping dict, which has this structure:
 
@@ -52,7 +54,7 @@ the language is not, or is not one of the listed languages, the first language i
 default for that country.
 
 The third-level keys are the plan periods. Premium and phones are available on
-monthly and yearly periods, and bundle is yearly only.
+monthly and yearly periods, and bundle and megabundle are yearly only.
 
 The raw data is stored in two dicts:
 * _STRIPE_PLAN_DATA
@@ -183,6 +185,11 @@ def get_bundle_country_language_mapping() -> PlanCountryLangMapping:
     return _country_language_mapping("bundle")
 
 
+def get_megabundle_country_language_mapping() -> PlanCountryLangMapping:
+    """Get mapping for megabundle countries (monitor + relay + vpn)"""
+    return _country_language_mapping("megabundle")
+
+
 #
 # Private types for Selected Stripe data (_STRIPE_PLAN_DATA)
 #
@@ -236,6 +243,7 @@ class _StripePlanData(TypedDict):
     premium: _StripeMonthlyPlanDetails
     phones: _StripeMonthlyPlanDetails
     bundle: _StripeYearlyPlanDetails
+    megabundle: _StripeYearlyPlanDetails
 
 
 _StripePlanDetails = _StripeMonthlyPlanDetails | _StripeYearlyPlanDetails
@@ -432,11 +440,23 @@ _STRIPE_PLAN_DATA: _StripePlanData = {
             }
         },
     },
+    "megabundle": {
+        "periods": "yearly",
+        "prices": {
+            "USD": {"monthly_when_yearly": 99},
+        },
+        "countries_and_regions": {
+            "US": {  # United States
+                "currency": "USD",
+                "yearly_id": "price_1RMAopKb9q6OnNsLSGe1vLtt",
+            }
+        },
+    },
 }
 
 
 # Private types for _RELAY_PLANS
-_RelayPlanCategory = Literal["premium", "phones", "bundle"]
+_RelayPlanCategory = Literal["premium", "phones", "bundle", "megabundle"]
 
 
 class _RelayPlansByType(TypedDict, total=False):
@@ -526,6 +546,9 @@ _RELAY_PLANS: _RelayPlans = {
             "PR": "US",  # Puerto Rico -> United States
         },
     },
+    "megabundle": {
+        "by_country": ["US"],  # United States
+    },
 }
 
 
@@ -543,6 +566,7 @@ def _country_language_mapping(plan: _RelayPlanCategory) -> PlanCountryLangMappin
         us_phone_monthly_price_id=settings.PHONE_PLAN_ID_US_MONTHLY,
         us_phone_yearly_price_id=settings.PHONE_PLAN_ID_US_YEARLY,
         us_bundle_yearly_price_id=settings.BUNDLE_PLAN_ID_US,
+        us_megabundle_yearly_price_id=settings.MEGABUNDLE_PLAN_ID_US,
     )
 
 
@@ -554,6 +578,7 @@ def _cached_country_language_mapping(
     us_phone_monthly_price_id: str,
     us_phone_yearly_price_id: str,
     us_bundle_yearly_price_id: str,
+    us_megabundle_yearly_price_id: str,
 ) -> PlanCountryLangMapping:
     """Create the plan mapping with settings overrides"""
     relay_maps = _RELAY_PLANS[plan]
@@ -563,6 +588,7 @@ def _cached_country_language_mapping(
         us_phone_monthly_price_id=us_phone_monthly_price_id,
         us_phone_yearly_price_id=us_phone_yearly_price_id,
         us_bundle_yearly_price_id=us_bundle_yearly_price_id,
+        us_megabundle_yearly_price_id=us_megabundle_yearly_price_id,
     )[plan]
 
     mapping: PlanCountryLangMapping = {}
@@ -627,6 +653,7 @@ def _get_stripe_data_with_overrides(
     us_phone_monthly_price_id: str,
     us_phone_yearly_price_id: str,
     us_bundle_yearly_price_id: str,
+    us_megabundle_yearly_price_id: str,
 ) -> _StripePlanData:
     """Returns the Stripe plan data with settings overrides"""
     plan_data = deepcopy(_STRIPE_PLAN_DATA)
@@ -645,4 +672,7 @@ def _get_stripe_data_with_overrides(
     plan_data["bundle"]["countries_and_regions"]["US"][
         "yearly_id"
     ] = us_bundle_yearly_price_id
+    plan_data["megabundle"]["countries_and_regions"]["US"][
+        "yearly_id"
+    ] = us_megabundle_yearly_price_id
     return plan_data

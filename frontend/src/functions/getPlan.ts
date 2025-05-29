@@ -85,6 +85,41 @@ export const getBundleSubscribeLink = (
   return plan.url ?? "";
 };
 
+export const getMegabundlePrice = (
+  runtimeData: RuntimeDataWithBundleAvailable,
+  l10n: ReactLocalization,
+) => {
+  const plan = getPlan(runtimeData.MEGABUNDLE_PLANS, "yearly");
+  const formatter = new Intl.NumberFormat(getLocale(l10n), {
+    style: "currency",
+    currency: plan.currency,
+  });
+  return formatter.format(plan.price);
+};
+
+export const getMegabundleYearlyPrice = (
+  runtimeData: RuntimeDataWithBundleAvailable,
+  l10n: ReactLocalization,
+) => {
+  const plan = getPlan(runtimeData.MEGABUNDLE_PLANS, "yearly");
+  const total = plan.price * 12;
+  const formatter = new Intl.NumberFormat(getLocale(l10n), {
+    style: "currency",
+    currency: plan.currency,
+  });
+  return formatter.format(total);
+};
+
+export const getMegabundleSubscribeLink = (
+  runtimeData: RuntimeDataWithBundleAvailable,
+) => {
+  const plan = getPlan(runtimeData.MEGABUNDLE_PLANS, "yearly");
+  if (plan.id) {
+    return `${runtimeData.FXA_ORIGIN}/subscriptions/products/${runtimeData.MEGABUNDLE_PRODUCT_ID}?plan=${plan.id}`;
+  }
+  return plan.url ?? "";
+};
+
 /**
  * Helper type that is used to create helper types like
  * {@see RuntimeDataWithBundleAvailable}, which in turn can help make sure
@@ -99,6 +134,8 @@ export type RuntimeDataWithPhonesAvailable =
   RuntimeDataWithPlanAvailable<"PHONE_PLANS">;
 export type RuntimeDataWithBundleAvailable =
   RuntimeDataWithPlanAvailable<"BUNDLE_PLANS">;
+export type RuntimeDataWithMegabundleAvailable =
+  RuntimeDataWithPlanAvailable<"MEGABUNDLE_PLANS">;
 
 export function isPeriodicalPremiumAvailableInCountry(
   runtimeData: RuntimeData | undefined,
@@ -116,4 +153,10 @@ export function isBundleAvailableInCountry(
   runtimeData: RuntimeData | undefined,
 ): runtimeData is RuntimeDataWithBundleAvailable {
   return runtimeData?.BUNDLE_PLANS?.available_in_country === true;
+}
+
+export function isMegabundleAvailableInCountry(
+  runtimeData: RuntimeData | undefined,
+): runtimeData is RuntimeDataWithBundleAvailable {
+  return runtimeData?.MEGABUNDLE_PLANS?.available_in_country === true;
 }

@@ -19,6 +19,7 @@ def test_default_filter() -> None:
     (
         "BUNDLE_PLAN_ID_US",
         "BUNDLE_PROD_ID",
+        "MEGABUNDLE_PROD_ID",
         "RELAY_CHANNEL",
         "RELAY_FROM_ADDRESS",
         "SUBPLAT3_BUNDLE_PRODUCT_KEY",
@@ -95,6 +96,7 @@ def meta_request(rf: RequestFactory) -> HttpRequest:
         DATABASE_URL="postgres://user:pass@db.example.com:5432/relay_db",
         DJANGO_ALLOWED_HOST="relay.example.com",
         GOOGLE_CLOUD_PROFILER_CREDENTIALS_B64="eyJwYXNzd29yZCI6ICJzZWNyZXQifQo=",
+        MEGABUNDLE_PROD_ID="prod_SFb8iVuZIOPREe",
         REDIS_TEMPORARY_URL="redis://user:pass@redis.example.com:10001",
         REDIS_TLS_URL="rediss://user:pass@redis.example.com:10001",
         REDIS_URL="redis://user:pass@redis.example.com:10001",
@@ -108,6 +110,7 @@ def meta_request(rf: RequestFactory) -> HttpRequest:
     (
         "BUNDLE_PLAN_ID_US",
         "BUNDLE_PROD_ID",
+        "MEGABUNDLE_PROD_ID",
     ),
 )
 def test_safe_meta(name: str, meta_request: HttpRequest) -> None:

@@ -17,6 +17,7 @@ export const mockedRuntimeData: RuntimeData = {
   PERIODICAL_PREMIUM_PRODUCT_ID: "prod_123456789",
   PHONE_PRODUCT_ID: "prod_123456789",
   BUNDLE_PRODUCT_ID: "prod_123456789",
+  MEGABUNDLE_PRODUCT_ID: "prod_123456789",
   PERIODICAL_PREMIUM_PLANS: {
     country_code: "NL",
     plan_country_lang_mapping: {
@@ -78,6 +79,23 @@ export const mockedRuntimeData: RuntimeData = {
       },
     },
     countries: ["NL"],
+    available_in_country: true,
+  },
+  MEGABUNDLE_PLANS: {
+    country_code: "US",
+    plan_country_lang_mapping: {
+      US: {
+        "*": {
+          yearly: {
+            id: "price_1RMAopKb9q6OnNsLSGe1vLtt",
+            price: 8.25,
+            currency: "USD",
+            url: "https://payments-next.stage.fxa.nonprod.webservices.mozgcp.net/privacyprotectionplan/yearly/landing",
+          },
+        },
+      },
+    },
+    countries: ["US"],
     available_in_country: true,
   },
   WAFFLE_FLAGS: [

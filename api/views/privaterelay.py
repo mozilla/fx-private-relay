@@ -38,6 +38,7 @@ from privaterelay.models import Profile
 from privaterelay.plans import (
     PlanCountryLangMapping,
     get_bundle_country_language_mapping,
+    get_megabundle_country_language_mapping,
     get_phone_country_language_mapping,
     get_premium_country_language_mapping,
 )
@@ -155,11 +156,14 @@ def report_webcompat_issue(request):
     return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 
-def _get_example_plan(plan: Literal["premium", "phones", "bundle"]) -> dict[str, Any]:
+def _get_example_plan(
+    plan: Literal["premium", "phones", "bundle", "megabundle"],
+) -> dict[str, Any]:
     prices = {
         "premium": {"monthly": 1.99, "yearly": 0.99},
         "phones": {"monthly": 4.99, "yearly": 4.99},
         "bundle": {"monthly": 6.99, "yearly": 6.99},
+        "megabundle": {"monthly": 8.25, "yearly": 99},
     }
     monthly_price = {
         "id": f"price_{plan.title()}Monthlyxxxx",
@@ -207,15 +211,18 @@ def _get_example_plan(plan: Literal["premium", "phones", "bundle"]) -> dict[str,
                         "GOOGLE_ANALYTICS_ID": "UA-########-##",
                         "GA4_MEASUREMENT_ID": "G-XXXXXXXXX",
                         "BUNDLE_PRODUCT_ID": "prod_XXXXXXXXXXXXXX",
+                        "MEGABUNDLE_PRODUCT_ID": "prod_XXXXXXXXXXXXXX",
                         "PHONE_PRODUCT_ID": "prod_XXXXXXXXXXXXXX",
                         "PERIODICAL_PREMIUM_PLANS": _get_example_plan("premium"),
                         "PHONE_PLANS": _get_example_plan("phones"),
                         "BUNDLE_PLANS": _get_example_plan("bundle"),
+                        "MEGABUNDLE_PLANS": _get_example_plan("megabundle"),
                         "BASKET_ORIGIN": "https://basket.mozilla.org",
                         "WAFFLE_FLAGS": [
                             ["foxfood", False],
                             ["phones", True],
                             ["bundle", True],
+                            ["megabundle", True],
                         ],
                         "WAFFLE_SWITCHES": [],
                         "WAFFLE_SAMPLES": [],
@@ -239,14 +246,17 @@ def runtime_data(request):
     premium_plans: SP3PlanCountryLangMapping | PlanCountryLangMapping
     phone_plans: SP3PlanCountryLangMapping | PlanCountryLangMapping
     bundle_plans: SP3PlanCountryLangMapping | PlanCountryLangMapping
+    megabundle_plans: SP3PlanCountryLangMapping | PlanCountryLangMapping
     if settings.USE_SUBPLAT3:
         premium_plans = get_sp3_country_language_mapping("premium")
         phone_plans = get_sp3_country_language_mapping("phones")
         bundle_plans = get_sp3_country_language_mapping("bundle")
+        megabundle_plans = get_sp3_country_language_mapping("megabundle")
     else:
         premium_plans = get_premium_country_language_mapping()
         phone_plans = get_phone_country_language_mapping()
         bundle_plans = get_bundle_country_language_mapping()
+        megabundle_plans = get_megabundle_country_language_mapping()
     return Response(
         {
             "FXA_ORIGIN": settings.FXA_BASE_ORIGIN,
@@ -255,6 +265,7 @@ def runtime_data(request):
             "GA4_MEASUREMENT_ID": settings.GA4_MEASUREMENT_ID,
             "BUNDLE_PRODUCT_ID": settings.BUNDLE_PROD_ID,
             "PHONE_PRODUCT_ID": settings.PHONE_PROD_ID,
+            "MEGABUNDLE_PRODUCT_ID": settings.MEGABUNDLE_PROD_ID,
             "PERIODICAL_PREMIUM_PLANS": get_countries_info_from_request_and_mapping(
                 request, premium_plans
             ),
@@ -263,6 +274,9 @@ def runtime_data(request):
             ),
             "BUNDLE_PLANS": get_countries_info_from_request_and_mapping(
                 request, bundle_plans
+            ),
+            "MEGABUNDLE_PLANS": get_countries_info_from_request_and_mapping(
+                request, megabundle_plans
             ),
             "BASKET_ORIGIN": settings.BASKET_ORIGIN,
             "WAFFLE_FLAGS": flag_values,

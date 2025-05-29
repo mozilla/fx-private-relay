@@ -42,6 +42,7 @@ def test_runtime_data_response_structure(client: Client) -> None:
         "GOOGLE_ANALYTICS_ID",
         "GA4_MEASUREMENT_ID",
         "BUNDLE_PRODUCT_ID",
+        "MEGABUNDLE_PRODUCT_ID",
         "PHONE_PRODUCT_ID",
         "PERIODICAL_PREMIUM_PLANS",
         "PHONE_PLANS",
