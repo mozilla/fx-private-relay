@@ -36,11 +36,12 @@
 
   @media screen and (min-width: $screen-md) {
     flex-wrap: wrap;
-    flex-direction: row-reverse;
+    flex-direction: row;
   }
 
   @media screen and (min-width: $screen-lg) {
     flex-wrap: nowrap;
+    flex-direction: row-reverse;
   }
 }
 
@@ -54,7 +55,11 @@
   font-size: 14px;
   padding: $layout-sm $spacing-lg;
   position: relative;
-  height: 645px;
+  height: auto;
+
+  @media screen and (min-width: $screen-md) {
+    min-width: 48%;
+  }
 
   &:first-of-type {
     background: linear-gradient(
@@ -65,10 +70,6 @@
       color.$blue-40 100%
     );
     box-shadow: none;
-
-    @media screen and (min-width: $screen-md) {
-      min-width: 48%;
-    }
 
     @media screen and (min-width: $screen-lg) {
       min-width: auto;
