@@ -68,7 +68,7 @@ describe("PlanMatrix", () => {
     expect(waitlistLink.length).toBeGreaterThan(0);
   });
 
-  it("renders mobile plan headers", () => {
+  it("renders phone plan headers", () => {
     setMockRuntimeDataOnce(getMockRuntimeDataWithPhones());
     render(<PlanMatrix runtimeData={getMockRuntimeDataWithPhones()} />);
 

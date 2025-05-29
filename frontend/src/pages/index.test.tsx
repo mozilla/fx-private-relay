@@ -54,7 +54,7 @@ describe("The landing page", () => {
       });
     });
 
-    it("shows the new feature comparison matrix", () => {
+    it("shows the old feature comparison matrix", () => {
       render(<Home />);
       const comparisonMatrix = screen.getByRole("columnheader", {
         name: "l10n string: [plan-matrix-heading-plan-free], with vars: {}",
