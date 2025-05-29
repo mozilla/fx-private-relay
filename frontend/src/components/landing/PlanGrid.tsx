@@ -20,6 +20,7 @@ import {
   getMegabundlePrice,
   getMegabundleYearlyPrice,
   isMegabundleAvailableInCountry,
+  getMegabundleSubscribeLink,
   getIndividualBundlePrice,
   getBundleDiscountPercentage,
 } from "../../functions/getPlan";
@@ -104,7 +105,11 @@ export const PlanGrid = (props: Props) => {
               <p>{l10n.getString("plan-grid-megabundle-subtitle")}</p>
             </dt>
             <dd key={`megabundle-feature-1`}>
-              <a key="bundle-vpn" className={styles.bundleItemLink} href={""}>
+              <a
+                key="bundle-vpn"
+                className={styles.bundleItemLink}
+                href={"https://www.mozilla.org/en-US/products/vpn/"}
+              >
                 <div className={styles.bundleTitle}>
                   <VpnIcon alt="" />
                   <b>{l10n.getString("plan-grid-megabundle-vpn-title")}</b>
@@ -116,7 +121,7 @@ export const PlanGrid = (props: Props) => {
               <Link
                 key="megabundle-monitor"
                 className={styles.bundleItemLink}
-                href="/"
+                href="https://monitor.mozilla.org/"
               >
                 <div className={styles.bundleTitle}>
                   <MonitorIcon alt="" />
@@ -156,9 +161,7 @@ export const PlanGrid = (props: Props) => {
                 </strong>
               </p>
               <LinkButton
-                ref={() => {}}
-                href={""}
-                onClick={() => {}}
+                href={getMegabundleSubscribeLink(props.runtimeData)}
                 className={styles["megabundle-pick-button"]}
               >
                 {l10n.getString("plan-grid-card-btn")}
