@@ -51,23 +51,11 @@ export type Props = {
 export const PlanGrid = (props: Props) => {
   const l10n = useL10n();
 
-  // are we using google analytics in this grid?
   const freeButtonDesktopRef = useGaViewPing({
     category: "Sign In",
     label: "plan-matrix-free-cta-desktop",
   });
-  const bundleButtonDesktopRef = useGaViewPing({
-    category: "Purchase Bundle button",
-    label: "plan-matrix-bundle-cta-desktop",
-  });
-  const freeButtonMobileRef = useGaViewPing({
-    category: "Sign In",
-    label: "plan-matrix-free-cta-mobile",
-  });
-  const bundleButtonMobileRef = useGaViewPing({
-    category: "Purchase Bundle button",
-    label: "plan-matrix-bundle-cta-mobile",
-  });
+
   const gaEvent = useGaEvent();
 
   const countSignIn = (label: string) => {
@@ -80,11 +68,6 @@ export const PlanGrid = (props: Props) => {
   };
 
   const isLoggedIn = useIsLoggedIn();
-
-  // need to use runtime data numbers here
-  // const bundleDiscountPercentage = Math.floor(
-  //   (1 - bundlePriceBilling.monthly / bundlePriceBilling.individual) * 100,
-  // );
 
   const formatter = new Intl.NumberFormat(getLocale(l10n), {
     style: "currency",

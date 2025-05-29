@@ -165,7 +165,7 @@ export const getMegabundleSubscribeLink = (
 };
 
 export const getIndividualBundlePrice = (billingPeriod: keyof PlanData) => {
-  if (billingPeriod == "yearly") {
+  if (billingPeriod === "yearly") {
     return 14.99 * 12;
   }
   return 14.99;
