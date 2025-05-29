@@ -1,5 +1,4 @@
 import { render, screen } from "@testing-library/react";
-import { axe } from "jest-axe";
 
 import { mockLocalizedModule } from "../../../__mocks__/components/Localized";
 import { mockConfigModule } from "../../../__mocks__/configMock";

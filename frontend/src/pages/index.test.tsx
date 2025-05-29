@@ -4,8 +4,6 @@ import { mockLocalizedModule } from "../../__mocks__/components/Localized";
 import { mockConfigModule } from "../../__mocks__/configMock";
 import { setMockProfileData } from "../../__mocks__/hooks/api/profile";
 import {
-  getMockRuntimeDataWithBundle,
-  getMockRuntimeDataWithoutPremium,
   getMockRuntimeDataWithPhones,
   setMockRuntimeData,
   setMockRuntimeDataOnce,

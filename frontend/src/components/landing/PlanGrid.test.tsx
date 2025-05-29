@@ -4,7 +4,8 @@ import { useL10n } from "../../hooks/l10n";
 import { useIsLoggedIn } from "../../hooks/session";
 import { useGaViewPing } from "../../hooks/gaViewPing";
 import { useGaEvent } from "../../hooks/gaEvent";
-import { trackPlanPurchaseStart } from "../../functions/trackPurchase";
+import { RuntimeData } from "../../hooks/api/runtimeData";
+import { isMegabundleAvailableInCountry } from "../../functions/getPlan";
 
 // Mock hooks and utilities
 jest.mock("../../hooks/l10n");
@@ -44,17 +45,9 @@ const l10nMock = {
   getFragment: jest.fn((key, options) => `l10n fragment: [${key}]`),
 };
 
-const mockRuntimeData = {
-  MEGABUNDLE_PLANS: {
-    available_in_country: true,
-  },
-  PHONE_PLANS: {
-    available_in_country: true,
-  },
-  PERIODICAL_PREMIUM_PLANS: {
-    available_in_country: true,
-  },
-};
+import { mockedRuntimeData } from "../../apiMocks/mockData";
+
+const mockRuntimeData: RuntimeData = mockedRuntimeData;
 
 describe("PlanGrid", () => {
   beforeEach(() => {
@@ -67,7 +60,7 @@ describe("PlanGrid", () => {
   describe("basic rendering", () => {
     it("renders all plans when available in country", () => {
       (useIsLoggedIn as jest.Mock).mockReturnValue("logged-out");
-      render(<PlanGrid runtimeData={mockRuntimeData as any} />);
+      render(<PlanGrid runtimeData={mockRuntimeData} />);
 
       expect(screen.getByTestId("plan-grid-megabundle")).toBeInTheDocument();
       expect(
@@ -77,12 +70,9 @@ describe("PlanGrid", () => {
     });
 
     it("hides megabundle if not available in country", () => {
-      const {
-        isMegabundleAvailableInCountry,
-      } = require("../../functions/getPlan");
-      isMegabundleAvailableInCountry.mockReturnValueOnce(false);
+      jest.mocked(isMegabundleAvailableInCountry).mockReturnValueOnce(false);
+      render(<PlanGrid runtimeData={mockRuntimeData} />);
 
-      render(<PlanGrid runtimeData={mockRuntimeData as any} />);
       expect(
         screen.queryByText(/plan-grid-megabundle-title/),
       ).not.toBeInTheDocument();
@@ -92,7 +82,7 @@ describe("PlanGrid", () => {
   describe("user state interactions", () => {
     it("disables free plan button when user is logged in", () => {
       (useIsLoggedIn as jest.Mock).mockReturnValue("logged-in");
-      render(<PlanGrid runtimeData={mockRuntimeData as any} />);
+      render(<PlanGrid runtimeData={mockRuntimeData} />);
 
       expect(screen.getByText(/plan-matrix-your-plan/)).toBeInTheDocument();
     });
@@ -100,7 +90,7 @@ describe("PlanGrid", () => {
 
   describe("pricing toggle", () => {
     it("renders PricingToggle yearly price by default", () => {
-      render(<PlanGrid runtimeData={mockRuntimeData as any} />);
+      render(<PlanGrid runtimeData={mockRuntimeData} />);
       expect(
         screen.getAllByText(/plan-matrix-price-yearly-calculated/).length,
       ).toBeGreaterThan(0);
@@ -109,14 +99,13 @@ describe("PlanGrid", () => {
 
   describe("analytics", () => {
     it("tracks GA event on subscription button click", () => {
-      render(<PlanGrid runtimeData={mockRuntimeData as any} />);
+      render(<PlanGrid runtimeData={mockRuntimeData} />);
       const buttons = screen.getAllByRole("link", {
         name: /plan-grid-card-btn/,
       });
       fireEvent.click(buttons[0]);
 
       expect(buttons[0]).toBeInTheDocument();
-      // You could add expect(trackPlanPurchaseStart).toHaveBeenCalled() if needed
     });
   });
 });
