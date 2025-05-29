@@ -25,6 +25,7 @@ import { useFlaggedAnchorLinks } from "../hooks/flaggedAnchorLinks";
 import { useL10n } from "../hooks/l10n";
 import { HighlightedFeatures } from "../components/landing/HighlightedFeatures";
 import Image from "../components/Image";
+import { PlanGrid } from "../components/landing/PlanGrid";
 
 const Home: NextPage = () => {
   const l10n = useL10n();
@@ -125,7 +126,11 @@ const Home: NextPage = () => {
           </section>
         )}
         <div className={styles.plans}>
-          <PlanMatrix runtimeData={runtimeData.data} />
+          {isMegabundleAvailableInCountry(runtimeData.data) ? (
+            <PlanGrid runtimeData={runtimeData.data} />
+          ) : (
+            <PlanMatrix runtimeData={runtimeData.data} />
+          )}
         </div>
         <section id="highlighted-features" className={styles.features}>
           <HighlightedFeatures />

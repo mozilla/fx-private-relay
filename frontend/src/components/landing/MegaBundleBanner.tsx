@@ -29,7 +29,10 @@ export const MegabundleBanner = (props: Props) => {
   });
 
   return (
-    <div className={styles["megabundle-banner-wrapper"]}>
+    <div
+      className={styles["megabundle-banner-wrapper"]}
+      data-testid="megabundle-banner"
+    >
       <div className={styles["first-section"]}>
         <div className={styles["shield-img-wrapper"]} />
       </div>

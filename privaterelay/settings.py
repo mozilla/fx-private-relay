@@ -653,7 +653,7 @@ SUBPLAT3_BUNDLE_PRODUCT_KEY = config(
     "SUBPLAT3_BUNDLE_PRODUCT_KEY", "bundle-relay-vpn-dev", cast=str
 )
 SUBPLAT3_MEGABUNDLE_PRODUCT_KEY = config(
-    "SUBPLAT3_BUNDLE_PRODUCT_KEY", "privacyprotectionplan", cast=str
+    "SUBPLAT3_MEGABUNDLE_PRODUCT_KEY", "privacyprotectionplan", cast=str
 )
 
 LOGGING = {
