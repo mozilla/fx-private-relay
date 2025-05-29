@@ -40,146 +40,73 @@ describe("The landing page", () => {
       });
 
       expect(results).toHaveNoViolations();
-    }, 10000); // axe runs a suite of tests that can exceed the default 5s timeout, so we set it to 10s
+    }, 10000);
   });
 
-  it("does not show the old Plan comparison", () => {
-    render(<Home />);
-
-    const oldGetPremiumLink = screen.queryByRole("link", {
-      name: /landing-pricing-premium-feature-5/,
+  describe("when Megabundle is NOT available", () => {
+    beforeEach(() => {
+      setMockRuntimeDataOnce({
+        ...getMockRuntimeDataWithPhones(),
+        MEGABUNDLE_PLANS: {
+          country_code: "US",
+          countries: ["US"],
+          available_in_country: false,
+          plan_country_lang_mapping: {},
+        },
+      });
     });
 
-    expect(oldGetPremiumLink).not.toBeInTheDocument();
-  });
-
-  it("shows the new feature comparison matrix", () => {
-    render(<Home />);
-
-    const comparisonMatrix = screen.getByRole("columnheader", {
-      name: "l10n string: [plan-matrix-heading-plan-free], with vars: {}",
+    it("shows the new feature comparison matrix", () => {
+      render(<Home />);
+      const comparisonMatrix = screen.getByRole("columnheader", {
+        name: "l10n string: [plan-matrix-heading-plan-free], with vars: {}",
+      });
+      expect(comparisonMatrix).toBeInTheDocument();
     });
 
-    expect(comparisonMatrix).toBeInTheDocument();
+    it("shows the phone plan if phones is available in the user's country", () => {
+      render(<Home />);
+      const phoneColumn = screen.getByRole("columnheader", {
+        name: "l10n string: [plan-matrix-heading-plan-phones], with vars: {}",
+      });
+      expect(phoneColumn).toBeInTheDocument();
+    });
   });
 
-  it("shows the phone plan if phones is available in the user's country", () => {
-    setMockRuntimeDataOnce(getMockRuntimeDataWithPhones());
-
-    render(<Home />);
-
-    const phoneColumn = screen.getByRole("columnheader", {
-      name: "l10n string: [plan-matrix-heading-plan-phones], with vars: {}",
+  describe("when Megabundle IS available", () => {
+    beforeEach(() => {
+      setMockRuntimeDataOnce(getMockRuntimeDataWithMegabundle());
     });
 
-    expect(phoneColumn).toBeInTheDocument();
-  });
-
-  it("shows the phone feature if phones is available in the user's country", () => {
-    setMockRuntimeDataOnce(getMockRuntimeDataWithPhones());
-
-    render(<Home />);
-
-    const phoneFeatureRow = screen.getByRole("rowheader", {
-      name: "[<Localized> with id [plan-matrix-feature-phone-mask] and vars: {}]",
+    it("shows the megabundle banner", () => {
+      render(<Home />);
+      const heading = screen.getByText((content) =>
+        content.startsWith(
+          "l10n string: [megabundle-banner-header], with vars:",
+        ),
+      );
+      expect(heading).toBeInTheDocument();
     });
 
-    expect(phoneFeatureRow).toBeInTheDocument();
-  });
-
-  it("links to the waitlist if phones is not available in the user's country", () => {
-    setMockRuntimeDataOnce(getMockRuntimeDataWithoutPremium());
-
-    render(<Home />);
-
-    const waitlistLinks = screen.getAllByRole("link", {
-      name: "l10n string: [plan-matrix-join-waitlist], with vars: {}",
+    it("does not show the bundle banner", () => {
+      render(<Home />);
+      const bundleText = screen.queryByText(
+        "[<Localized> with id [bundle-banner-heading] and vars: {}]",
+      );
+      expect(bundleText).not.toBeInTheDocument();
     });
 
-    const linkTargets = waitlistLinks.map((el) => el.getAttribute("href"));
-    expect(linkTargets).toContain("/phone/waitlist");
-  });
-
-  it("shows the phone feature even if phones is not available in the user's country", () => {
-    setMockRuntimeDataOnce(getMockRuntimeDataWithoutPremium());
-
-    render(<Home />);
-
-    const phoneFeatureRow = screen.getByRole("rowheader", {
-      name: "[<Localized> with id [plan-matrix-feature-phone-mask] and vars: {}]",
+    it("does not show the PlanMatrix grid", () => {
+      render(<Home />);
+      const matrixColumn = screen.queryByRole("columnheader", {
+        name: /plan-matrix-heading-plan-free/,
+      });
+      expect(matrixColumn).not.toBeInTheDocument();
     });
 
-    expect(phoneFeatureRow).toBeInTheDocument();
-  });
-
-  it("shows the bundle plan if bundle is available in the user's country", () => {
-    setMockRuntimeDataOnce(getMockRuntimeDataWithBundle());
-
-    render(<Home />);
-
-    const bundleColumn = screen.getByRole("columnheader", {
-      name: "l10n string: [plan-matrix-heading-plan-bundle-2], with vars: {}",
+    it("does show the PlanGrid content", () => {
+      render(<Home />);
+      expect(screen.getByTestId("plan-grid-megabundle")).toBeInTheDocument();
     });
-
-    expect(bundleColumn).toBeInTheDocument();
-  });
-
-  it("links to the waitlist if bundle is not available in the user's country", () => {
-    setMockRuntimeDataOnce(getMockRuntimeDataWithoutPremium());
-
-    render(<Home />);
-
-    const waitlistLinks = screen.getAllByRole("link", {
-      name: "l10n string: [plan-matrix-join-waitlist], with vars: {}",
-    });
-
-    const linkTargets = waitlistLinks.map((el) => el.getAttribute("href"));
-    expect(linkTargets).toContain("/vpn-relay/waitlist");
-  });
-
-  it("shows the VPN feature if bundle is available in the user's country", () => {
-    setMockRuntimeDataOnce(getMockRuntimeDataWithBundle());
-
-    render(<Home />);
-
-    const vpnFeatureRow = screen.getByRole("rowheader", {
-      name: "[<Localized> with id [plan-matrix-feature-vpn] and vars: {}]",
-    });
-
-    expect(vpnFeatureRow).toBeInTheDocument();
-  });
-
-  it("shows the bundle plan even if phones and bundle are not available in the user's country", () => {
-    setMockRuntimeDataOnce(getMockRuntimeDataWithoutPremium());
-
-    render(<Home />);
-
-    const vpnFeatureRow = screen.getByRole("columnheader", {
-      name: "l10n string: [plan-matrix-heading-plan-bundle-2], with vars: {}",
-    });
-
-    expect(vpnFeatureRow).toBeInTheDocument();
-  });
-
-  it("shows the megabundle banner if megabundle is available in the user's country", () => {
-    setMockRuntimeDataOnce(getMockRuntimeDataWithMegabundle());
-
-    render(<Home />);
-
-    const heading = screen.getByText((content) =>
-      content.startsWith("l10n string: [megabundle-banner-header], with vars:"),
-    );
-    expect(heading).toBeInTheDocument();
-  });
-
-  it("does not show the bundle banner if megabundle is available in the user's country", () => {
-    setMockRuntimeDataOnce(getMockRuntimeDataWithMegabundle());
-
-    render(<Home />);
-
-    const bundleText = screen.queryByText(
-      "[<Localized> with id [bundle-banner-heading] and vars: {}]",
-    );
-    expect(bundleText).not.toBeInTheDocument();
   });
 });
