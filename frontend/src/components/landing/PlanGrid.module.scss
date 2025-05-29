@@ -45,7 +45,7 @@
 }
 
 .pricingCard {
-  box-shadow: inset 0 0 0 2px $grey-15;
+  box-shadow: inset 0 0 0 2px color.$grey-15;
   background-color: $color-white;
   border-radius: calc($border-radius-lg + $border-radius-md);
   display: inline-flex;
@@ -62,7 +62,7 @@
       $color-violet-50 0%,
       $color-purple-50 37.1%,
       $color-blue-40 61.4%,
-      $blue-40 100%
+      color.$blue-40 100%
     );
     box-shadow: none;
 
@@ -106,7 +106,7 @@
   }
 
   dt {
-    border-bottom: 1px solid $grey-15;
+    border-bottom: 1px solid color.$grey-15;
     padding: $spacing-md 0;
     text-align: center;
 
@@ -117,13 +117,13 @@
     }
 
     p {
-      color: $grey-55;
+      color: color.$grey-55;
       font-size: 14px;
     }
 
     hr {
       border-style: none;
-      border-top: 1px solid $grey-15;
+      border-top: 1px solid color.$grey-15;
       margin: $spacing-md 0;
       width: 100%;
     }
@@ -244,7 +244,7 @@
           }
 
           small {
-            color: $grey-55;
+            color: color.$grey-55;
             text-align: center;
             font-size: 14px;
             font-weight: 400;
@@ -262,7 +262,7 @@
   }
 
   .plusNote {
-    border-bottom: 1px solid $grey-15;
+    border-bottom: 1px solid color.$grey-15;
     align-items: center;
     display: flex;
     gap: $spacing-sm;
@@ -285,7 +285,7 @@
   }
 
   .bundleItemLink {
-    border: 2px solid $grey-15;
+    border: 2px solid color.$grey-15;
     border-radius: calc($border-radius-md + $border-radius-sm);
     color: $color-black;
     padding: $spacing-sm;
@@ -304,7 +304,7 @@
   }
 
   .pricingCardSavings {
-    color: $grey-55;
+    color: color.$grey-55;
   }
 }
 
