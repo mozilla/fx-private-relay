@@ -42,7 +42,7 @@ const l10nMock = {
       ? `l10n string: [${key}], with vars: ${JSON.stringify(vars)}`
       : `l10n string: [${key}], with vars: {}`,
   ),
-  getFragment: jest.fn((key, options) => `l10n fragment: [${key}]`),
+  getFragment: jest.fn((key, _) => `l10n fragment: [${key}]`),
 };
 
 import { mockedRuntimeData } from "../../apiMocks/mockData";
