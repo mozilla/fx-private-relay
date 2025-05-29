@@ -140,6 +140,20 @@ export const getMegabundleYearlyPrice = (
   return formatter.format(total);
 };
 
+export const getBundleDiscountPercentage = (
+  runtimeData: RuntimeDataWithBundleAvailable,
+  l10n: ReactLocalization,
+) => {
+  const plan = getPlan(runtimeData.MEGABUNDLE_PLANS, "yearly");
+  const individualBundlePrice = getIndividualBundlePrice("monthly");
+  const discount = Math.floor(1 - plan.price / individualBundlePrice);
+  const formatter = new Intl.NumberFormat(getLocale(l10n), {
+    style: "currency",
+    currency: plan.currency,
+  });
+  return formatter.format(discount);
+};
+
 export const getMegabundleSubscribeLink = (
   runtimeData: RuntimeDataWithBundleAvailable,
 ) => {
@@ -148,6 +162,13 @@ export const getMegabundleSubscribeLink = (
     return `${runtimeData.FXA_ORIGIN}/subscriptions/products/${runtimeData.MEGABUNDLE_PRODUCT_ID}?plan=${plan.id}`;
   }
   return plan.url ?? "";
+};
+
+export const getIndividualBundlePrice = (billingPeriod: keyof PlanData) => {
+  if (billingPeriod == "yearly") {
+    return 14.99 * 12;
+  }
+  return 14.99;
 };
 
 /**

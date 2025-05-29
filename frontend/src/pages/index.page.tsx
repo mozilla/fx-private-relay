@@ -126,10 +126,11 @@ const Home: NextPage = () => {
           </section>
         )}
         <div className={styles.plans}>
-          {/* <PlanMatrix runtimeData={runtimeData.data} /> */}
-        </div>
-        <div className={styles.plans}>
-          <PlanGrid runtimeData={runtimeData.data} />
+          {isMegabundleAvailableInCountry(runtimeData.data) ? (
+            <PlanGrid runtimeData={runtimeData.data} />
+          ) : (
+            <PlanMatrix runtimeData={runtimeData.data} />
+          )}
         </div>
         <section id="highlighted-features" className={styles.features}>
           <HighlightedFeatures />
