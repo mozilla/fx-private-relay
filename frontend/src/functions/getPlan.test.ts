@@ -11,6 +11,8 @@ import {
   getPeriodicalPremiumPrice,
   getPhonesPrice,
   getBundlePrice,
+  getBundleDiscountPercentage,
+  getIndividualBundlePrice,
   isPeriodicalPremiumAvailableInCountry,
   isPhonesAvailableInCountry,
   isBundleAvailableInCountry,
@@ -27,6 +29,12 @@ const mockDataPlanID = "price_1JmROfJNcmPzuWtR6od8OfDW";
 const billingPeriod = "yearly";
 const country = "NL";
 const lang = "*";
+
+const mockL10n = {
+  bundles: [],
+  getString: () => "",
+} as unknown as ReactLocalization;
+
 type PlanDetails = {
   id?: string;
   url?: string;
@@ -157,11 +165,6 @@ describe("Megabundle Tests", () => {
   });
 
   it("getMegabundlePrice should return formatted price", () => {
-    const mockL10n = {
-      bundles: [],
-      getString: () => "",
-    } as unknown as ReactLocalization;
-
     const price = 8.25;
     const currency = "USD";
     const plan = ensurePlan(mockedRuntimeData.MEGABUNDLE_PLANS, billingPeriod);
@@ -182,11 +185,6 @@ describe("Megabundle Tests", () => {
   });
 
   it("getMegabundleYearlyPrice should return formatted yearly price", () => {
-    const mockL10n = {
-      bundles: [],
-      getString: () => "",
-    } as unknown as ReactLocalization;
-
     const price = 8.25;
     const currency = "USD";
     const plan = ensurePlan(mockedRuntimeData.MEGABUNDLE_PLANS, billingPeriod);
@@ -205,14 +203,30 @@ describe("Megabundle Tests", () => {
 
     expect(formatted).toBe(expected);
   });
+
+  it("getBundleDiscountPercentage should return formatted discount", () => {
+    const price = 8.25;
+    const currency = "USD";
+    const plan = ensurePlan(mockedRuntimeData.MEGABUNDLE_PLANS, "yearly");
+    plan.price = price;
+    plan.currency = currency;
+
+    const individual = getIndividualBundlePrice("monthly");
+    const expectedDiscount = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency,
+    }).format(Math.floor(1 - price / individual));
+
+    const result = getBundleDiscountPercentage(
+      mockedRuntimeData as RuntimeDataWithBundleAvailable,
+      mockL10n,
+    );
+
+    expect(result).toBe(expectedDiscount);
+  });
 });
 
 describe("Price Formatting Tests", () => {
-  const mockL10n = {
-    bundles: [],
-    getString: () => "",
-  } as unknown as ReactLocalization;
-
   it("getPeriodicalPremiumPrice should return formatted price", () => {
     const plan = ensurePlan(
       mockedRuntimeData.PERIODICAL_PREMIUM_PLANS,
@@ -270,6 +284,11 @@ describe("Price Formatting Tests", () => {
         currency: "CAD",
       }).format(19.99),
     );
+  });
+
+  it("getIndividualBundlePrice should return correct yearly and monthly prices", () => {
+    expect(getIndividualBundlePrice("monthly")).toBe(14.99);
+    expect(getIndividualBundlePrice("yearly")).toBe(14.99 * 12);
   });
 });
 

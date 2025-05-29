@@ -75,7 +75,7 @@ export const PlanGrid = (props: Props) => {
   });
 
   return (
-    <div className={styles.content}>
+    <div className={styles.content} data-testid="plan-grid-megabundle">
       <div className={styles.header}>
         <h2>
           <b>{l10n.getString("plan-grid-title")}</b>
