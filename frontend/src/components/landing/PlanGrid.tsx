@@ -108,7 +108,7 @@ export const PlanGrid = (props: Props) => {
               <a
                 key="bundle-vpn"
                 className={styles.bundleItemLink}
-                href={"https://www.mozilla.org/en-US/products/vpn/"}
+                href={"https://www.mozilla.org/products/vpn/"}
               >
                 <div className={styles.bundleTitle}>
                   <VpnIcon alt="" />
@@ -131,17 +131,20 @@ export const PlanGrid = (props: Props) => {
               </Link>
             </dd>
             <dd key={"megabundle-feature-3"}>
-              <Link
+              <a
                 key="megabundle-relay"
                 className={styles.bundleItemLink}
-                href="/"
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                }}
               >
                 <div className={styles.bundleTitle}>
                   <RelayIcon alt="" />
                   <b>{l10n.getString("plan-grid-megabundle-relay-title")}</b>
                 </div>
                 {l10n.getString("plan-grid-megabundle-relay-description")}
-              </Link>
+              </a>
             </dd>
             <dd className={styles.pricingCardCta}>
               <p id="pricingPlanBundle">

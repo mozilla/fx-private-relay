@@ -23,6 +23,9 @@ jest.mock("../../functions/getPlan", () => ({
   getIndividualBundlePrice: jest.fn(() => 15),
   getBundleDiscountPercentage: jest.fn(() => "33%"),
   isMegabundleAvailableInCountry: jest.fn(() => true),
+  getMegabundleSubscribeLink: jest.fn(
+    () => "https://subscribe.megabundle.mock",
+  ),
 
   getPhonesPrice: jest.fn(() => "$5"),
   getPhonesYearlyPrice: jest.fn(() => "$50"),
