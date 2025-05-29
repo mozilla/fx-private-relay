@@ -19,6 +19,7 @@ import { useGaEvent } from "../hooks/gaEvent";
 import { useL10n } from "../hooks/l10n";
 import { Localized } from "../components/Localized";
 import { HighlightedFeatures } from "../components/landing/HighlightedFeatures";
+import { PlanGrid } from "../components/landing/PlanGrid";
 
 const PremiumPromo: NextPage = () => {
   const l10n = useL10n();
@@ -93,6 +94,9 @@ const PremiumPromo: NextPage = () => {
         <section className={styles["plans-wrapper"]}>
           <div className={styles.plans}>
             <PlanMatrix runtimeData={runtimeData.data} />
+          </div>
+          <div className={styles.plans}>
+            <PlanGrid runtimeData={runtimeData.data} />
           </div>
         </section>
       </main>
