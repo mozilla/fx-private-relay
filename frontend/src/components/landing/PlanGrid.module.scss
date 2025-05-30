@@ -321,7 +321,7 @@
   display: flex;
   background-color: color.$grey-10;
   padding: $spacing-xs;
-  border-radius: $border-radius-lg;
+  border-radius: 1.5rem;
 
   > div {
     width: 50%;
@@ -334,7 +334,7 @@
 
     &.is-selected {
       background-color: $color-white;
-      border-radius: $border-radius-lg;
+      border-radius: 1.5rem;
       color: $color-blue-50;
       font-weight: 700;
     }

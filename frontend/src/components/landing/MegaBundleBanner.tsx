@@ -23,9 +23,9 @@ export const MegabundleBanner = (props: Props) => {
   const l10n = useL10n();
   const gaEvent = useGaEvent();
 
-  const bundleUpgradeCta = useGaViewPing({
-    category: "Bundle banner",
-    label: "bundle-banner-upgrade-promo",
+  const megabundleUpgradeCta = useGaViewPing({
+    category: "Megabundle banner",
+    label: "megabundle-banner-upgrade-promo",
   });
 
   return (
@@ -87,14 +87,14 @@ export const MegabundleBanner = (props: Props) => {
             </div>
             <div className={styles["bottom-section"]}>
               <LinkButton
-                ref={bundleUpgradeCta}
+                ref={megabundleUpgradeCta}
                 className={styles["button"]}
                 href={getMegabundleSubscribeLink(props.runtimeData)}
                 onClick={() =>
                   trackPlanPurchaseStart(
                     gaEvent,
-                    { plan: "bundle" },
-                    { label: "bundle-banner-upgrade-promo" },
+                    { plan: "megabundle" },
+                    { label: "megabundle-banner-upgrade-promo" },
                   )
                 }
               >

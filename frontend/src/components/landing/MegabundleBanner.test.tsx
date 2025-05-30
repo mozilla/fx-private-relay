@@ -152,8 +152,8 @@ describe("MegabundleBanner", () => {
 
     expect(trackPlanPurchaseStart).toHaveBeenCalledWith(
       expect.any(Function),
-      { plan: "bundle" },
-      { label: "bundle-banner-upgrade-promo" },
+      { plan: "megabundle" },
+      { label: "megabundle-banner-upgrade-promo" },
     );
   });
 
