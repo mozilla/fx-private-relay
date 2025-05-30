@@ -66,35 +66,33 @@ test.describe("Email forwarding and trackers removal", () => {
   });
 });
 
-test.describe("Subscription flows @health_check", () => {
+test.describe("Subscription flows with PlanGrid @health_check", () => {
   /**
-   * Verifies that all plans correctly redirect to its corresponding subscriptions page.
+   * Verifies that all plans correctly redirect to their corresponding subscriptions page.
    */
-  let expectedEmailsPlansDetails;
-  let expectedPhonesEmailsPlanDetails;
-  let expectedVPNBundleDetails;
+  let expectedPremiumPlanDetails;
+  let expectedPhonesPlanDetails;
+  let expectedMegabundleDetails;
 
   test.beforeEach(async ({ landingPage }) => {
     if (process.env["E2E_TEST_ENV"] === "prod") {
-      expectedEmailsPlansDetails = "Relay Premium";
-      expectedPhonesEmailsPlanDetails =
+      expectedPremiumPlanDetails = "Relay Premium";
+      expectedPhonesPlanDetails =
         "Relay Premium: Phone Number & Email Address Masking";
-      expectedVPNBundleDetails = "Mozilla VPN & Firefox Relay";
+      expectedMegabundleDetails = "Privacy protection plan";
     } else if (process.env["E2E_TEST_ENV"] === "stage") {
-      expectedEmailsPlansDetails = "Relay Premium (stage)";
-      expectedPhonesEmailsPlanDetails =
-        "Relay Email & Phone Protection (stage)";
-      expectedVPNBundleDetails = "Firefox Relay & Mozilla VPN (Stage)";
+      expectedPremiumPlanDetails = "Relay Premium (stage)";
+      expectedPhonesPlanDetails = "Relay Email & Phone Protection (stage)";
+      expectedMegabundleDetails = "Privacy protection plan";
     } else {
-      expectedPhonesEmailsPlanDetails = "Relay Email & Phone Protection (dev)";
-
-      expectedVPNBundleDetails = "Firefox Relay & Mozilla VPN (dev)";
+      expectedPhonesPlanDetails = "Relay Email & Phone Protection (dev)";
+      expectedMegabundleDetails = "Privacy protection plan";
     }
 
     await landingPage.open();
   });
 
-  test('Verify that the yearly emails plan "Sign Up" button works correctly, C1818792', async ({
+  test('Verify that the yearly "Relay Premium" plan works correctly, C1818792', async ({
     landingPage,
     subscriptionPage,
   }) => {
@@ -102,19 +100,17 @@ test.describe("Subscription flows @health_check", () => {
       process.env.E2E_TEST_ENV === "dev",
       "Invalid flow in the dev environment.",
     );
-
-    await landingPage.selectYearlyEmailsPlan();
-    // verify redirect to subscription page
+    await landingPage.selectYearlyPremiumPlan();
     expect(await subscriptionPage.getSubscriptionTitleText()).toContain(
       "Set up your subscription",
     );
     expect(await subscriptionPage.getPlanDetailsText()).toEqual(
-      expectedEmailsPlansDetails,
+      expectedPremiumPlanDetails,
     );
     expect(await subscriptionPage.getPriceDetailsText()).toContain("yearly");
   });
 
-  test('Verify that the monthly emails plan "Sign Up" button works correctly, C1818792', async ({
+  test('Verify that the monthly "Relay Premium" plan works correctly, C1818792', async ({
     landingPage,
     subscriptionPage,
   }) => {
@@ -122,66 +118,54 @@ test.describe("Subscription flows @health_check", () => {
       process.env.E2E_TEST_ENV === "dev",
       "Invalid flow in the dev environment.",
     );
-
-    await landingPage.selectMonthlyEmailsPlan();
-    // verify redirect to subscription page
+    await landingPage.selectMonthlyPremiumPlan();
     expect(await subscriptionPage.getSubscriptionTitleText()).toContain(
       "Set up your subscription",
     );
     expect(await subscriptionPage.getPlanDetailsText()).toEqual(
-      expectedEmailsPlansDetails,
+      expectedPremiumPlanDetails,
     );
     expect(await subscriptionPage.getPriceDetailsText()).toContain("monthly");
   });
 
-  test('Verify that the yearly emails and phones bundle plan "Sign Up" button works correctly, C1818792', async ({
+  test('Verify that the yearly "Relay + Phone" bundle plan works correctly, C1818792', async ({
     landingPage,
     subscriptionPage,
   }) => {
-    await landingPage.selectYearlyPhonesEmailsBundle();
-
-    // verify redirect to subscription page
+    await landingPage.selectYearlyPhonesBundle();
     expect(await subscriptionPage.getSubscriptionTitleText()).toContain(
       "Set up your subscription",
     );
     expect(await subscriptionPage.getPlanDetailsText()).toEqual(
-      expectedPhonesEmailsPlanDetails,
+      expectedPhonesPlanDetails,
     );
     expect(await subscriptionPage.getPriceDetailsText()).toContain("yearly");
   });
 
-  test('Verify that the monthly emails and phones bundle plan "Sign Up" button works correctly, C1818792', async ({
+  test('Verify that the monthly "Relay + Phone" bundle plan works correctly, C1818792', async ({
     landingPage,
     subscriptionPage,
   }) => {
-    test.skip(
-      process.env.E2E_TEST_ENV === "dev",
-      "Dev environment will redirect to the yearly subscription plan.",
-    );
-
-    await landingPage.selectMonthlyPhonesEmailsBundle();
-    // verify redirect to subscription page
+    await landingPage.selectMonthlyPhonesBundle();
     expect(await subscriptionPage.getSubscriptionTitleText()).toContain(
       "Set up your subscription",
     );
     expect(await subscriptionPage.getPlanDetailsText()).toEqual(
-      expectedPhonesEmailsPlanDetails,
+      expectedPhonesPlanDetails,
     );
     expect(await subscriptionPage.getPriceDetailsText()).toContain("monthly");
   });
 
-  test('Verify that the VPN bundle "Sign Up" button works correctly, C1818792', async ({
+  test('Verify that the "Megabundle" plan works correctly, C1818792', async ({
     landingPage,
     subscriptionPage,
   }) => {
-    await landingPage.selectVpnBundlePlan();
-
-    // verify redirect to subscription page
+    await landingPage.selectMegabundlePlan();
     expect(await subscriptionPage.getSubscriptionTitleText()).toContain(
       "Set up your subscription",
     );
     expect(await subscriptionPage.getPlanDetailsText()).toEqual(
-      expectedVPNBundleDetails,
+      expectedMegabundleDetails,
     );
     expect(await subscriptionPage.getPriceDetailsText()).toContain("yearly");
   });

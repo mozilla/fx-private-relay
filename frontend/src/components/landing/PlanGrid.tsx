@@ -52,9 +52,14 @@ export type Props = {
 export const PlanGrid = (props: Props) => {
   const l10n = useL10n();
 
-  const freeButtonDesktopRef = useGaViewPing({
+  const freeButtonRef = useGaViewPing({
     category: "Sign In",
-    label: "plan-matrix-free-cta-desktop",
+    label: "plan-grid-free-cta",
+  });
+
+  const bundleButtonRef = useGaViewPing({
+    category: "Purchase Megabundle button",
+    label: "plan-grid-megabundle-cta",
   });
 
   const gaEvent = useGaEvent();
@@ -165,6 +170,17 @@ export const PlanGrid = (props: Props) => {
               <LinkButton
                 href={getMegabundleSubscribeLink(props.runtimeData)}
                 className={styles["megabundle-pick-button"]}
+                ref={bundleButtonRef}
+                data-testid="plan-cta-megabundle"
+                onClick={() =>
+                  trackPlanPurchaseStart(
+                    gaEvent,
+                    { plan: "megabundle" },
+                    {
+                      label: "plan-grid-megabundle-cta",
+                    },
+                  )
+                }
               >
                 {l10n.getString("plan-grid-card-btn")}
               </LinkButton>
@@ -209,7 +225,7 @@ export const PlanGrid = (props: Props) => {
                   ),
                   gaViewPing: {
                     category: "Purchase monthly Premium+phones button",
-                    label: "plan-matrix-phone-monthly-cta-desktop",
+                    label: "plan-grid-phone-monthly-cta",
                   },
                   plan: {
                     plan: "phones",
@@ -233,7 +249,7 @@ export const PlanGrid = (props: Props) => {
                   ),
                   gaViewPing: {
                     category: "Purchase yearly Premium+phones button",
-                    label: "plan-matrix-phone-yearly-cta-desktop",
+                    label: "plan-grid-phone-yearly-cta",
                   },
                   plan: {
                     plan: "phones",
@@ -307,7 +323,7 @@ export const PlanGrid = (props: Props) => {
                   ),
                   gaViewPing: {
                     category: "Purchase monthly Premium button",
-                    label: "plan-matrix-premium-monthly-cta-desktop",
+                    label: "plan-grid-premium-monthly-cta",
                   },
                   plan: {
                     plan: "premium",
@@ -331,7 +347,7 @@ export const PlanGrid = (props: Props) => {
                   ),
                   gaViewPing: {
                     category: "Purchase yearly Premium button",
-                    label: "plan-matrix-premium-yearly-cta-desktop",
+                    label: "plan-grid-premium-yearly-cta",
                   },
                   plan: {
                     plan: "premium",
@@ -384,9 +400,9 @@ export const PlanGrid = (props: Props) => {
               <strong>{l10n.getString("plan-matrix-price-free")}</strong>
             </p>
             <LinkButton
-              ref={freeButtonDesktopRef}
+              ref={freeButtonRef}
               href={getRuntimeConfig().fxaLoginUrl}
-              onClick={() => countSignIn("plan-matrix-free-cta-desktop")}
+              onClick={() => countSignIn("plan-grid-free-cta")}
               className={styles["pick-button"]}
               disabled={isLoggedIn === "logged-in"}
             >
@@ -416,6 +432,7 @@ type PricingToggleProps = {
     plan: Plan;
   };
 };
+
 const PricingToggle = (props: PricingToggleProps) => {
   const l10n = useL10n();
   const gaEvent = useGaEvent();
@@ -450,6 +467,7 @@ const PricingToggle = (props: PricingToggleProps) => {
           }
           tabIndex={0}
           className={styles["pick-button"]}
+          data-testid={`plan-cta-${props.yearlyBilled.plan.plan}-yearly`}
         >
           {l10n.getString("plan-grid-card-btn")}
         </a>
@@ -470,12 +488,17 @@ const PricingToggle = (props: PricingToggleProps) => {
           ref={monthlyButtonRef}
           href={props.monthlyBilled.subscribeLink}
           onClick={() =>
-            trackPlanPurchaseStart(gaEvent, props.monthlyBilled.plan, {
-              label: props.monthlyBilled.gaViewPing?.label,
-            })
+            trackPlanPurchaseStart(
+              gaEvent,
+              { plan: "megabundle" },
+              {
+                label: props.monthlyBilled.gaViewPing?.label,
+              },
+            )
           }
           tabIndex={0}
           className={styles["pick-button"]}
+          data-testid={`plan-cta-${props.monthlyBilled.plan.plan}-monthly`}
         >
           {l10n.getString("plan-grid-card-btn")}
         </a>
