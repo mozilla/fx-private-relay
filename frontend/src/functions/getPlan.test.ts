@@ -204,22 +204,17 @@ describe("Megabundle Tests", () => {
     expect(formatted).toBe(expected);
   });
 
-  it("getBundleDiscountPercentage should return formatted discount", () => {
+  it("getBundleDiscountPercentage should return discount percentage as number", () => {
     const price = 8.25;
-    const currency = "USD";
     const plan = ensurePlan(mockedRuntimeData.MEGABUNDLE_PLANS, "yearly");
     plan.price = price;
-    plan.currency = currency;
 
     const individual = getIndividualBundlePrice("monthly");
-    const expectedDiscount = new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency,
-    }).format(Math.floor(1 - price / individual));
+    const ratio = price / individual;
+    const expectedDiscount = Math.ceil((1 - ratio) * 100);
 
     const result = getBundleDiscountPercentage(
       mockedRuntimeData as RuntimeDataWithBundleAvailable,
-      mockL10n,
     );
 
     expect(result).toBe(expectedDiscount);

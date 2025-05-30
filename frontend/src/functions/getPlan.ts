@@ -142,16 +142,12 @@ export const getMegabundleYearlyPrice = (
 
 export const getBundleDiscountPercentage = (
   runtimeData: RuntimeDataWithBundleAvailable,
-  l10n: ReactLocalization,
 ) => {
   const plan = getPlan(runtimeData.MEGABUNDLE_PLANS, "yearly");
   const individualBundlePrice = getIndividualBundlePrice("monthly");
-  const discount = Math.floor(1 - plan.price / individualBundlePrice);
-  const formatter = new Intl.NumberFormat(getLocale(l10n), {
-    style: "currency",
-    currency: plan.currency,
-  });
-  return formatter.format(discount);
+  const ratio = plan.price / individualBundlePrice;
+  const discount = Math.ceil((1 - ratio) * 100);
+  return discount;
 };
 
 export const getMegabundleSubscribeLink = (

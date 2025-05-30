@@ -97,7 +97,6 @@ export const PlanGrid = (props: Props) => {
                   vars: {
                     discountPercentage: getBundleDiscountPercentage(
                       props.runtimeData,
-                      l10n,
                     ),
                   },
                 })}
