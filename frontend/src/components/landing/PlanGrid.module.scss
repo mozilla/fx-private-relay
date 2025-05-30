@@ -5,7 +5,6 @@
   align-items: center;
   display: flex;
   flex-direction: column;
-  max-width: 1263px;
   gap: $layout-md;
 }
 
@@ -58,7 +57,12 @@
   height: auto;
 
   @media screen and (min-width: $screen-md) {
-    min-width: 48%;
+    flex-basis: 48%;
+    max-width: 48%;
+  }
+
+  @media screen and (min-width: $screen-lg) {
+    max-width: none;
   }
 
   &:first-of-type {
@@ -70,6 +74,10 @@
       color.$blue-40 100%
     );
     box-shadow: none;
+
+    @media screen and (min-width: $screen-md) {
+      min-width: 48%;
+    }
 
     @media screen and (min-width: $screen-lg) {
       min-width: auto;
