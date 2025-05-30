@@ -3,72 +3,125 @@
 ![Firefox integration screenshot](fx-integration-screenshot.png "Firefox integration
 screenshot")
 
-As of Firefox 111, Relay has been integrated into the Firefox browser credential
-manager. It will show up for Firefox users who are signed into the browser with their
-FxA. This document describes the technical implementation.
+In Firefox 111, Firefox desktop started to show Relay UI to signed-in users.
 
-As of 2023-07-13, Relay integration is only enabled for Nightly users, so to test
-reliably you'll need to use Nightly. By 2023-08-29, it should be available for all
-Firefox users signed into the browser with their FxA.
+In Firefox 135, Firefox desktop started to show Relay UI to ALL users.
+
+Firefox mobile will show Relay UI to ALL users in a future version.
 
 ## Overview
 
-1. Firefox users sign into their browser with their FxA.
-2. Firefox requests an FxA access token with Relay scope for the user.
-3. Firefox sends HTTPS requests to the Relay REST API with the access token.
+When Firefox Desktop shows a sign-up form in a website, it adds an autocomplete option
+to use a Relay mask. This is an **opt-in feature**, backed by a **Relay API** that
+authenticates users via **Firefox Account (FxA)** OAuth tokens.
 
-## Firefox users sign into their browsers with their FxA
+This integration:
 
-Relay has to forward emails to someone's existing email address. So, to use Relay, users
-create a [Mozilla Account][sumo-fxa], which requires and verifies an existing email address.
+- Offers Relay to eligible users when they are asked to give their email address to a website.
+- Authenticates using a short-lived FxA token.
+- Allows users to create or reuse Relay masks.
+- Records interactions through Glean telemetry.
 
-TODO: Link to tech doc for Firefox/FxA integration.
+---
 
-## Firefox requests an FxA access token with Relay scope for the user
+## Key Components
 
-Firefox uses [`FxAccounts.getOAuthToken`][fxa-getOAuthToken], which `POST`s to [the FxA
-`/oauth/token` endpoint][fxa-oauth-token] to get an access token with these scopes:
+### On the Client (Firefox Desktop)
 
-- `profile`: allows Relay to access the user's profile data which contains the user's primary email, profile pic, and more. See more information about the `profile` scope at [FxA doc](https://mozilla.github.io/ecosystem-platform/reference/oauth-details#profile-data)
-- `https://identity.mozilla.com/apps/relay`: enforces the token to be only used by Relay as a [resource server](https://www.oauth.com/oauth2-servers/the-resource-server/)
-  - Read more about resource server scoped access key on [FxA's development](https://mozilla.github.io/ecosystem-platform/relying-parties/tutorials/integration-with-fxa#development) doc part 8.
+- **`FirefoxRelay.sys.mjs`**: Core integration module.
+  - **`RelayFeature`**: Opt-in feature implementation with three states:
+    - `RelayOffered`: User has not opted in yet.
+    - `RelayEnabled`: User has opted in and can generate/reuse masks.
+    - `RelayDisabled`: User has opted out.
+- **`LoginHelper`**, **`FxAccounts`**, **`NimbusFeatures`**: Utilities for account checks, token acquisition, and experimentation.
+- **Autocomplete UI**: Triggered during sign-up form detection (`SignUpFormScenario`), with various UX treatments.
 
-By default, these access tokens expire in 24 hours. When they expire, Firefox
-automatically requests a new access token for the user.
+### On the Server (Relay API)
 
-## Firefox sends HTTPS requests to the Relay REST API with the access token
+- Validates **FXA tokens** via the FxA OAuth2 `/verify` endpoint.
+- Django REST Framework backend:
 
-Firefox sends the FxA access token to the Relay REST API as described in
-[the FxA OAuth Token Authentication section of the Relay API auth doc][relay-api-doc-auth].
+  - `/api/v1/terms-accepted-user`: Accepts ToS and creates the user.
+  - `/api/v1/relayaddresses`: Manages Relay masks (create, list, etc.).
+  - `/api/v1/profiles`: Provides user profile info.
 
-Firefox uses [Relay's REST API][relay-rest-api]. In particular, it uses these endpoints:
+---
 
-- `POST /api/v1/terms-accepted-user/` when the user opts into Relay integration.
-- `GET /api/v1/profiles/` to get the user's Relay profile data.
-- `GET|POST /api/v1/relayaddresses/` to get and make relay addresses for the user.
+## Authentication Flow
 
-## Testing with local, dev, or stage Relay
+1. **FxA OAuth Token**:
 
-As of 2023-07-13, Relay integration is only enabled for Nightly users, so to test
-reliably you'll need to use Nightly. By 2023-08-29, it should be available for all
-Firefox users signed into the browser with their FxA.
+   - Firefox obtains a scoped access token via `getOAuthToken({ scope: ["https://identity.mozilla.com/apps/relay"] })`.
+   - All API requests include `Authorization: Bearer <token>`. Relay validates the token with FxA and creates or reuses the user profile.
 
-To test the Firefox integration outside of the production environment, you need to
-configure a Firefox profile to use non-production Relay and FxA servers.
+2. **Terms of Service**:
 
-1. Create a new Firefox profile
-2. Go to `about:config`
-3. Change values per the table below
-4. Restart Firefox with the profile
+   - Firefox POSTs to `/api/v1/terms-accepted-user` with the bearer token.
 
-|             | `identity.fxaccounts.autoconfig.uri` | `signon.firefoxRelay.base_url`                                     | `signon.firefoxRelay.manage_url`                           |
-| ----------- | ------------------------------------ | ------------------------------------------------------------------ | ---------------------------------------------------------- |
-| Local Relay | `https://accounts.stage.mozaws.net`  | `http://127.0.0.1:8000/api/v1/`                                    | `http://127.0.0.1:8000`                                    |
-| Dev Relay   | `https://accounts.stage.mozaws.net`  | `https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/api/v1/`   | `https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net`   |
-| Stage Relay | `https://accounts.stage.mozaws.net`  | `https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net/api/v1/` | `https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net` |
+3. **Mask Management**:
 
-[sumo-fxa]: https://support.mozilla.org/kb/access-mozilla-services-firefox-account
-[fxa-getOAuthToken]: https://searchfox.org/mozilla-central/search?q=symbol:FxAccounts%23getOAuthToken&redirect=false
-[fxa-oauth-token]: https://mozilla.github.io/ecosystem-platform/api#tag/Oauth/operation/postOauthToken
-[relay-rest-api]: https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/api/v1/docs/
-[relay-api-doc-auth]: api_auth.md#fxa-oauth-token-authentication
+   - Firefox POSTs to `/api/v1/relayaddresses` to create a new Relay mask.
+   - GET to the same endpoint lists reusable masks.
+   - POST failures (e.g. `403` due to free-tier limits) trigger reuse UI.
+
+---
+
+## Feature Logic
+
+### Eligibility Checks
+
+- User must be in a form **sign-up scenario**.
+- Must be signed into the browser
+  or
+  be on a website in [the **RemoteSettings allow list**][fxrelay-allowlist] that controls where we offer Relay to signed-out users.
+
+### Offer Presentation
+
+- Firefox uses a **Nimbus experiment variable** (`firstOfferVersion`) to decide UI treatment.
+- A **notification prompt** asks the user to opt into Relay.
+
+  - For signed-out users, the flow redirects to FxA sign-in and observes verification.
+
+- On confirmation, Firefox:
+
+  - Notifies the Relay backend via `terms-accepted-user`.
+  - Calls `generateUsernameAsync` to get a mask.
+  - Autofills it into the sign-up form.
+
+---
+
+## Telemetry & Logging
+
+Firefox records events through **Glean**, with each user interaction tied to a `flowId`.
+
+Examples:
+
+- `relayIntegration.shownOfferRelay`
+- `relayIntegration.enabledOptInPanel`
+- `relayIntegration.reuseMaskReusePanel`
+
+Server-side logging uses `glean_logger()` for mask creation, deletion, and updates.
+
+---
+
+## Server API Details
+
+- **`terms_accepted_user`**:
+
+  - Verifies bearer token.
+  - Creates `SocialAccount` and `Profile` if missing.
+  - Returns `201` (created) or `202` (already exists).
+
+- **`RelayAddressViewSet`**:
+
+  - Full CRUD for random-name Relay masks.
+  - Requires `IsAuthenticated` and ownership.
+
+---
+
+## Additional Notes
+
+- Relay supports **rate limits**, **feature flags**, and **RemoteSettings** allowlist for granular control.
+- Autocomplete UX is localized via FTL and presented through `PopupNotifications`.
+
+[fxrelay-allowlist]: https://github.com/mozilla/fx-private-relay/blob/main/docs/fxrelay-allowlist.md
