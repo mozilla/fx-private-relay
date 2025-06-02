@@ -32,6 +32,9 @@ export type Plan =
       plan: "phones";
       billing_period: "yearly" | "monthly";
     }
+  | {
+      plan: "megabundle";
+    }
   | { plan: "bundle" };
 
 export const getCookieId = (plan: Plan): string => {

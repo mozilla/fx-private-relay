@@ -7,15 +7,16 @@ export class LandingPage {
   readonly homeButton: Locator;
   readonly signUpButton: Locator;
   readonly subscriptionTitle: Locator;
-  readonly planMatrixDesktop: Locator;
-  readonly planMatrixMobile: Locator;
-  yearlyEmailsPlan: Locator;
-  monthlyEmailsPlan: Locator;
-  emailsPlanSubmit: Locator;
-  yearlyEmailsPhonesBundle: Locator;
-  monthlyEmailsPhonesBundle: Locator;
-  emailsPhonesBundleSubmit: Locator;
-  vpnBundleSubmit: Locator;
+  readonly planGrid: Locator;
+  yearlyPremiumTab: Locator;
+  monthlyPremiumTab: Locator;
+  yearlyPhoneTab: Locator;
+  monthlyPhoneTab: Locator;
+  yearlyPremiumSubmit: Locator;
+  monthlyPremiumSubmit: Locator;
+  yearlyPhoneSubmit: Locator;
+  monthlyPhoneSubmit: Locator;
+  megabundleSubmit: Locator;
   readonly signInButton: Locator;
   readonly firefoxAppsServices: Locator;
   readonly firefoxAppsServicesHeading: Locator;
@@ -29,12 +30,7 @@ export class LandingPage {
     this.FAQButton = page.getByRole("link", { name: "FAQ", exact: true });
     this.homeButton = page.getByRole("link", { name: "Home", exact: true });
     this.signUpButton = page.locator('a:has-text("Sign Up")').first();
-    this.planMatrixDesktop = page.locator(
-      '//table[starts-with(@class, "PlanMatrix_desktop")]',
-    );
-    this.planMatrixMobile = page.locator(
-      '//div[starts-with(@class, "PlanMatrix_mobile")]',
-    );
+    this.planGrid = page.locator('[data-testid="plan-grid-megabundle"]');
     this.subscriptionTitle = page.locator(
       '[data-testid="subscription-create-title"]',
     );
@@ -50,25 +46,28 @@ export class LandingPage {
   }
 
   async setPlanElements() {
-    const isDesktop = await this.planMatrixDesktop.isVisible();
-    const currPlanMatrix = isDesktop
-      ? this.planMatrixDesktop
-      : this.planMatrixMobile;
-    this.yearlyEmailsPlan = currPlanMatrix
-      .locator('[id*="tab-yearly"]')
-      .first();
-    this.monthlyEmailsPlan = currPlanMatrix
+    // PlanGrid has 3 plans with pricing toggles: premium, phone, megabundle
+    // Tabs and submit buttons are ordered from bottom-up in markup
+    this.yearlyPremiumTab = this.planGrid.locator('[id*="tab-yearly"]').last();
+    this.monthlyPremiumTab = this.planGrid
       .locator('[id*="tab-monthly"]')
-      .first();
-    this.emailsPlanSubmit = currPlanMatrix.getByText("Sign Up").first();
-    this.yearlyEmailsPhonesBundle = currPlanMatrix
-      .locator('[id*="tab-yearly"]')
-      .nth(1);
-    this.monthlyEmailsPhonesBundle = currPlanMatrix
-      .locator('[id*="tab-monthly"]')
-      .nth(1);
-    this.emailsPhonesBundleSubmit = currPlanMatrix.getByText("Sign Up").nth(1);
-    this.vpnBundleSubmit = currPlanMatrix.getByText("Sign Up").nth(2);
+      .last();
+    this.yearlyPhoneTab = this.planGrid.locator('[id*="tab-yearly"]').first();
+    this.monthlyPhoneTab = this.planGrid.locator('[id*="tab-monthly"]').first();
+
+    this.yearlyPremiumSubmit = this.planGrid.getByTestId(
+      "plan-cta-premium-yearly",
+    );
+    this.monthlyPremiumSubmit = this.planGrid.getByTestId(
+      "plan-cta-premium-monthly",
+    );
+    this.yearlyPhoneSubmit = this.planGrid.getByTestId(
+      "plan-cta-phones-yearly",
+    );
+    this.monthlyPhoneSubmit = this.planGrid.getByTestId(
+      "plan-cta-phones-monthly",
+    );
+    this.megabundleSubmit = this.planGrid.getByTestId("plan-cta-megabundle");
   }
 
   async open() {
@@ -90,28 +89,28 @@ export class LandingPage {
     await this.signUpButton.click();
   }
 
-  async selectYearlyEmailsPlan() {
-    await this.yearlyEmailsPlan.click();
-    await this.emailsPlanSubmit.click();
+  async selectYearlyPremiumPlan() {
+    await this.yearlyPremiumTab.click();
+    await this.yearlyPremiumSubmit.click();
   }
 
-  async selectMonthlyEmailsPlan() {
-    await this.monthlyEmailsPlan.click();
-    await this.emailsPlanSubmit.click();
+  async selectMonthlyPremiumPlan() {
+    await this.monthlyPremiumTab.click();
+    await this.monthlyPremiumSubmit.click();
   }
 
-  async selectYearlyPhonesEmailsBundle() {
-    await this.yearlyEmailsPhonesBundle.click();
-    await this.emailsPhonesBundleSubmit.click();
+  async selectYearlyPhonesBundle() {
+    await this.yearlyPhoneTab.click();
+    await this.yearlyPhoneSubmit.click();
   }
 
-  async selectMonthlyPhonesEmailsBundle() {
-    await this.monthlyEmailsPhonesBundle.click();
-    await this.emailsPhonesBundleSubmit.click();
+  async selectMonthlyPhonesBundle() {
+    await this.monthlyPhoneTab.click();
+    await this.monthlyPhoneSubmit.click();
   }
 
-  async selectVpnBundlePlan() {
-    await this.vpnBundleSubmit.click();
+  async selectMegabundlePlan() {
+    await this.megabundleSubmit.click();
   }
 
   async goToSignIn() {
