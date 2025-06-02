@@ -76,7 +76,11 @@ export const PlanGrid = (props: Props) => {
   });
 
   return (
-    <div className={styles.content} data-testid="plan-grid-megabundle">
+    <div
+      id="pricing"
+      className={styles.content}
+      data-testid="plan-grid-megabundle"
+    >
       <div className={styles.header}>
         <h2>
           <b>{l10n.getString("plan-grid-title")}</b>
@@ -165,6 +169,7 @@ export const PlanGrid = (props: Props) => {
               <LinkButton
                 href={getMegabundleSubscribeLink(props.runtimeData)}
                 className={styles["megabundle-pick-button"]}
+                data-testid="plan-cta-megabundle"
               >
                 {l10n.getString("plan-grid-card-btn")}
               </LinkButton>
@@ -450,6 +455,7 @@ const PricingToggle = (props: PricingToggleProps) => {
           }
           tabIndex={0}
           className={styles["pick-button"]}
+          data-testid={`plan-cta-${props.yearlyBilled.plan.plan}-yearly`}
         >
           {l10n.getString("plan-grid-card-btn")}
         </a>
@@ -476,6 +482,7 @@ const PricingToggle = (props: PricingToggleProps) => {
           }
           tabIndex={0}
           className={styles["pick-button"]}
+          data-testid={`plan-cta-${props.monthlyBilled.plan.plan}-monthly`}
         >
           {l10n.getString("plan-grid-card-btn")}
         </a>
