@@ -443,7 +443,7 @@ _STRIPE_PLAN_DATA: _StripePlanData = {
     "megabundle": {
         "periods": "yearly",
         "prices": {
-            "USD": {"monthly_when_yearly": 99},
+            "USD": {"monthly_when_yearly": 8.25},
         },
         "countries_and_regions": {
             "US": {  # United States
