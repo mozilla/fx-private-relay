@@ -37,7 +37,7 @@ const getProducts = (referringSiteUrl: string) => ({
     id: "monitor",
     url: `https://monitor.firefox.com/?utm_source=${encodeURIComponent(
       referringSiteUrl,
-    )}&utm_medium=referral&utm_campaign=bento&utm_content=desktop&prompt=none`,
+    )}&utm_medium=referral&utm_campaign=bento&utm_content=desktop`,
     gaLabel: "moz-monitor",
   },
   pocket: {
