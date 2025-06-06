@@ -5,6 +5,7 @@ test.describe("Premium - General Functionalities, Desktop", () => {
     await landingPage.open();
     await landingPage.goToSignIn();
     await authPage.login(process.env.E2E_TEST_ACCOUNT_PREMIUM as string);
+    await dashboardPage.emailMasksUsedAmount.waitFor({ state: "visible" });
     const totalMasks = await dashboardPage.emailMasksUsedAmount.textContent();
     await dashboardPage.maybeDeleteMasks(true, parseInt(totalMasks as string));
   });

@@ -97,9 +97,9 @@ export class DashboardPage {
     this.emailsBlockedAmount = page.locator(
       '(//dd[starts-with(@class, "profile_value")])[2]',
     );
-    this.emailMasksUsedAmount = page.locator(
-      '(//dd[starts-with(@class, "profile_value")])[1]',
-    );
+    this.emailMasksUsedAmount = page
+      .locator('//dd[starts-with(@class, "profile_value")]')
+      .nth(0);
     this.generateNewMaskButton = page.getByTitle("Generate new mask");
     this.generateNewMaskPremiumButton = page.locator(
       "button:has-text('Generate new mask')",
@@ -457,7 +457,7 @@ export class DashboardPage {
       return trackersCount;
     }
 
-    this.page.waitForTimeout(TIMEOUTS.MEDIUM);
+    await this.page.waitForTimeout(TIMEOUTS.MEDIUM);
     return this.checkTrackersCount(attempts - 1);
   }
 }
