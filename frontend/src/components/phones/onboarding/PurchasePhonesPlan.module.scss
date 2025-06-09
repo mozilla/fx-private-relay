@@ -138,4 +138,19 @@
       }
     }
   }
+  .learn-more {
+    background-color: transparent;
+    border-style: none;
+    border-radius: $border-radius-lg;
+    color: $color-blue-50;
+    padding-inline: $spacing-md;
+    font-family: $font-stack-base;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: color.$grey-10;
+    }
+  }
 }
