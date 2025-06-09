@@ -96,8 +96,16 @@ const PricingToggle = (props: PricingToggleProps) => {
           tabIndex={0}
           className={styles["pick-button"]}
         >
-          {l10n.getString("phone-onboarding-step1-button-cta")}
+          {l10n.getString("phone-onboarding-step1-button-cta-2")}
         </LinkButton>
+        <a
+          className={styles["learn-more"]}
+          href={
+            "https://support.mozilla.org/kb/how-do-i-upgrade-my-subscription"
+          }
+        >
+          {l10n.getString("phone-onboarding-step1-learn-more")}
+        </a>
       </Item>
       <Item
         key="monthly"
@@ -124,8 +132,16 @@ const PricingToggle = (props: PricingToggleProps) => {
           tabIndex={0}
           className={styles["pick-button"]}
         >
-          {l10n.getString("phone-onboarding-step1-button-cta")}
+          {l10n.getString("phone-onboarding-step1-button-cta-2")}
         </LinkButton>
+        <a
+          className={styles["learn-more"]}
+          href={
+            "https://support.mozilla.org/kb/how-do-i-upgrade-my-subscription"
+          }
+        >
+          {l10n.getString("phone-onboarding-step1-learn-more")}
+        </a>
       </Item>
     </PricingTabs>
   );

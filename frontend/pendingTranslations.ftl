@@ -176,3 +176,6 @@ whatsnew-megabundle-cta = Get year-round protection
 whatsnew-megabundle-premium-snippet = For { $monthly_price }/month, combine { -brand-name-relay } with { -brand-name-vpn }‘s online activity protection and { -brand-name-monitor }‘s data…
 whatsnew-megabundle-premium-description = For { $monthly_price }/month, combine { -brand-name-relay } with { -brand-name-vpn }‘s online activity protection and { -brand-name-monitor }‘s protection from data brokers who sell your info online.
 whatsnew-megabundle-premium-cta = Upgrade my protection
+
+phone-onboarding-step1-button-cta-2 = Sign up
+phone-onboarding-step1-learn-more = Learn more
