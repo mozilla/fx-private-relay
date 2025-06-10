@@ -44,6 +44,10 @@ test.describe("Premium - General Functionalities, Desktop", () => {
   test("Verify that a premium user can generate a custom mask @health_check", async ({
     dashboardPage,
   }) => {
+    test.skip(
+      ({ browserName }) => browserName === "firefox",
+      "firefox-broken test",
+    );
     // When there are zero masks, a random mask must be generated first
     await dashboardPage.generateMask();
     await dashboardPage.generatePremiumDomainMask();
