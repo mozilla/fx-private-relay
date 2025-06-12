@@ -50,6 +50,8 @@ describe("WhatsNewMenu", () => {
     (useAddonData as jest.Mock).mockReturnValue({ present: false });
     (isUsingFirefox as jest.Mock).mockReturnValue(false);
     (isFlagActive as unknown as jest.Mock).mockReturnValue(true);
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date("2025-06-10T12:00:00Z"));
   });
 
   it("renders trigger when there are visible announcements", () => {

@@ -26,6 +26,7 @@ export const InfoTooltip = (props: Props) => {
         ref={triggerRef}
         {...tooltipTrigger.triggerProps}
         className={styles.trigger}
+        data-testid="trigger"
       >
         <InfoIcon
           alt={props.alt}
