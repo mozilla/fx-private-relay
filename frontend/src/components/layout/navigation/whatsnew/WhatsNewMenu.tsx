@@ -648,7 +648,10 @@ export const WhatsNewMenu = (props: Props) => {
     `whatsnew-megabundle_${props.profile.id}`,
   );
 
-  if (isMegabundleAvailableInCountry(props.runtimeData)) {
+  if (
+    isMegabundleAvailableInCountry(props.runtimeData) &&
+    !isBundleAvailableInCountry(props.runtimeData)
+  ) {
     const isPremium = isPeriodicalPremiumAvailableInCountry(props.runtimeData);
 
     const snippet = l10n.getString(
