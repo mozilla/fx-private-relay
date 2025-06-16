@@ -270,7 +270,7 @@ describe.each([true, false])(
           label: "news-dashboard",
         });
       } else {
-        expect(mockReactGa.event).not.toBeCalled();
+        expect(mockReactGa.event).not.toHaveBeenCalled();
       }
     });
 
@@ -301,7 +301,7 @@ describe.each([true, false])(
           label: allEntries[1].title,
         });
       } else {
-        expect(mockReactGa.event).not.toBeCalled();
+        expect(mockReactGa.event).not.toHaveBeenCalled();
       }
     });
 
@@ -337,7 +337,7 @@ describe.each([true, false])(
           label: allEntries[1].title,
         });
       } else {
-        expect(mockReactGa.event).not.toBeCalled();
+        expect(mockReactGa.event).not.toHaveBeenCalled();
       }
     });
 
@@ -371,7 +371,7 @@ describe.each([true, false])(
           value: newEntries.length,
         });
       } else {
-        expect(mockReactGa.event).not.toBeCalled();
+        expect(mockReactGa.event).not.toHaveBeenCalled();
       }
     });
   },
