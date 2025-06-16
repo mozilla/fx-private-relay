@@ -25,6 +25,14 @@ const l10nMock = {
   ),
 };
 
+const mockedRuntimeDataWithNoBundle = {
+  ...mockedRuntimeData,
+  BUNDLE_PLANS: {
+    ...mockedRuntimeData.BUNDLE_PLANS,
+    available_in_country: false,
+  },
+};
+
 beforeAll(() => {
   class MockIntersectionObserver implements IntersectionObserver {
     readonly root: Element | null = null;
@@ -61,7 +69,7 @@ describe("WhatsNewMenu", () => {
     render(
       <WhatsNewMenu
         profile={mockedProfiles.full}
-        runtimeData={mockedRuntimeData}
+        runtimeData={mockedRuntimeDataWithNoBundle}
         style="test-style"
       />,
     );
@@ -80,7 +88,7 @@ describe("WhatsNewMenu", () => {
     render(
       <WhatsNewMenu
         profile={mockedProfiles.full}
-        runtimeData={mockedRuntimeData}
+        runtimeData={mockedRuntimeDataWithNoBundle}
         style="test-style"
       />,
     );
@@ -97,7 +105,7 @@ describe("WhatsNewMenu", () => {
     render(
       <WhatsNewMenu
         profile={mockedProfiles.full}
-        runtimeData={mockedRuntimeData}
+        runtimeData={mockedRuntimeDataWithNoBundle}
         style="test-style"
       />,
     );
