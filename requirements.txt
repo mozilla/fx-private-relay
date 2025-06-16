@@ -14,7 +14,7 @@ django-redis==5.4.0
 django-ftl==0.14
 django-referrer-policy==1.0
 djangorestframework==3.16.0
-django-waffle==4.2.0
+django-waffle==5.0.0
 dockerflow==2024.4.2
 drf-spectacular==0.28.0
 drf-spectacular-sidecar==2025.6.1
