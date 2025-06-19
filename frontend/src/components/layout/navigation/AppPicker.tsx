@@ -98,9 +98,8 @@ export const AppPicker = (props: Props) => {
   const mozillaLinkRef = useRef<HTMLAnchorElement>(null);
 
   const onSelect = (itemKey: Key) => {
-    Object.entries(products).forEach(([key, productData]) => {
+    Object.values(products).forEach((productData) => {
       if (itemKey === productData.id) {
-        linkRefs[key as keyof typeof products].current?.click();
         gaEvent({
           category: "bento",
           action: "bento-app-link-click",
@@ -109,7 +108,6 @@ export const AppPicker = (props: Props) => {
       }
     });
     if (itemKey === "mozilla") {
-      mozillaLinkRef.current?.click();
       gaEvent({
         category: "bento",
         action: "bento-app-link-click",
