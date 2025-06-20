@@ -73,18 +73,6 @@ export const UserMenu = (props: Props) => {
   }
 
   const onSelect = (itemKey: Key) => {
-    if (itemKey === itemKeys.account) {
-      accountLinkRef.current?.click();
-    }
-    if (itemKey === itemKeys.settings) {
-      settingsLinkRef.current?.click();
-    }
-    if (itemKey === itemKeys.contact) {
-      contactLinkRef.current?.click();
-    }
-    if (itemKey === itemKeys.help) {
-      helpLinkRef.current?.click();
-    }
     if (itemKey === itemKeys.signout) {
       gaEvent({
         category: "Sign Out",

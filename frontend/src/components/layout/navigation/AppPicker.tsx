@@ -16,7 +16,7 @@ import {
   useFocus,
 } from "react-aria";
 import { Key, ReactNode, useRef, useState, useEffect, RefObject } from "react";
-import { AriaMenuItemProps } from "@react-aria/menu";
+import { AriaMenuItemProps, AriaMenuOptions } from "@react-aria/menu";
 import styles from "./AppPicker.module.scss";
 import FirefoxLogo from "../images/fx.png";
 import MonitorLogo from "../images/monitor.png";
@@ -98,9 +98,8 @@ export const AppPicker = (props: Props) => {
   const mozillaLinkRef = useRef<HTMLAnchorElement>(null);
 
   const onSelect = (itemKey: Key) => {
-    Object.entries(products).forEach(([key, productData]) => {
+    Object.values(products).forEach((productData) => {
       if (itemKey === productData.id) {
-        linkRefs[key as keyof typeof products].current?.click();
         gaEvent({
           category: "bento",
           action: "bento-app-link-click",
@@ -109,7 +108,6 @@ export const AppPicker = (props: Props) => {
       }
     });
     if (itemKey === "mozilla") {
-      mozillaLinkRef.current?.click();
       gaEvent({
         category: "bento",
         action: "bento-app-link-click",
@@ -213,7 +211,7 @@ type AppPickerTriggerProps = Parameters<typeof useMenuTriggerState>[0] & {
   label: string;
   style: string;
   children: TreeProps<Record<string, never>>["children"];
-  onAction: AriaMenuItemProps["onAction"];
+  onAction: AriaMenuOptions<Record<string, never>>["onAction"];
   theme?: LayoutProps["theme"];
 };
 const AppPickerTrigger = ({
@@ -335,7 +333,6 @@ const AppPickerPopup = (props: AppPickerPopupProps) => {
                 // TODO: Fix the typing (likely: report to react-aria that the type does not include an isDisabled prop)
                 item={item as unknown as AppPickerItemProps["item"]}
                 state={popupState}
-                onAction={props.onAction}
                 onClose={props.onClose}
               />
             ))}
@@ -355,7 +352,6 @@ type AppPickerItemProps = {
     rendered?: ReactNode;
   };
   state: TreeState<unknown>;
-  onAction: AriaMenuItemProps["onAction"];
   onClose: AriaMenuItemProps["onClose"];
 };
 
@@ -365,7 +361,6 @@ const AppPickerItem = (props: AppPickerItemProps) => {
     {
       key: props.item.key,
       isDisabled: props.item.isDisabled,
-      onAction: props.onAction,
       onClose: props.onClose,
     },
     props.state,
