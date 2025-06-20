@@ -47,11 +47,7 @@ export class SubscriptionPaymentPage {
       name: "Set up your subscription",
     });
     this.planDetails = page.locator("#plan-details-product");
-    this.planDetails3 = page
-      .getByLabel("Purchase details")
-      .first()
-      .getByRole("heading")
-      .first();
+    this.planDetails3 = page.locator("#product-details-heading");
     this.planType = page.locator(".plan-details-description");
     this.planType3 = page.getByTestId("total-price");
   }
