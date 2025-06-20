@@ -79,7 +79,7 @@ export class AuthPage {
       await this.enterEmail(email);
     }
     await this.page
-      .getByText("Set your password")
+      .getByTestId("new-password-input-field")
       .waitFor({ state: "attached", timeout: TIMEOUTS.LONG });
     await this.passwordSignupInputField.fill(
       process.env.E2E_TEST_ACCOUNT_PASSWORD as string,
