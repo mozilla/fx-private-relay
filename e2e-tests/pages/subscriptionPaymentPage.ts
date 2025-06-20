@@ -43,15 +43,9 @@ export class SubscriptionPaymentPage {
     this.subscriptionTitle = page.locator(
       '[data-testid="subscription-create-title"]',
     );
-    this.subscription3Title = page.getByRole("heading", {
-      name: "Set up your subscription",
-    });
+    this.subscription3Title = page.locator("#subscription-heading");
     this.planDetails = page.locator("#plan-details-product");
-    this.planDetails3 = page
-      .getByLabel("Purchase details")
-      .first()
-      .getByRole("heading")
-      .first();
+    this.planDetails3 = page.locator("#product-details-heading");
     this.planType = page.locator(".plan-details-description");
     this.planType3 = page.getByTestId("total-price");
   }
