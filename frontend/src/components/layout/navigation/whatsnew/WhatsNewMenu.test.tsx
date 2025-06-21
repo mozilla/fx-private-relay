@@ -25,12 +25,10 @@ const l10nMock = {
   ),
 };
 
-const mockedRuntimeDataWithNoBundle = {
-  ...mockedRuntimeData,
-  BUNDLE_PLANS: {
-    ...mockedRuntimeData.BUNDLE_PLANS,
-    available_in_country: false,
-  },
+const mockedProfileswithMegabundle = {
+  ...mockedProfiles.full,
+  has_phone: false,
+  has_vpn: false,
 };
 
 beforeAll(() => {
@@ -68,8 +66,8 @@ describe("WhatsNewMenu", () => {
 
     render(
       <WhatsNewMenu
-        profile={mockedProfiles.full}
-        runtimeData={mockedRuntimeDataWithNoBundle}
+        profile={mockedProfileswithMegabundle}
+        runtimeData={mockedRuntimeData}
         style="test-style"
       />,
     );
@@ -87,8 +85,8 @@ describe("WhatsNewMenu", () => {
 
     render(
       <WhatsNewMenu
-        profile={mockedProfiles.full}
-        runtimeData={mockedRuntimeDataWithNoBundle}
+        profile={mockedProfileswithMegabundle}
+        runtimeData={mockedRuntimeData}
         style="test-style"
       />,
     );
@@ -104,8 +102,8 @@ describe("WhatsNewMenu", () => {
 
     render(
       <WhatsNewMenu
-        profile={mockedProfiles.full}
-        runtimeData={mockedRuntimeDataWithNoBundle}
+        profile={mockedProfileswithMegabundle}
+        runtimeData={mockedRuntimeData}
         style="test-style"
       />,
     );
