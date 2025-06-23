@@ -60,7 +60,7 @@
     "next": "^15.3.3",
     "prettier": "3.5.3",
     "sass": "^1.89.2",
-    "stylelint": "^16.20.0",
+    "stylelint": "^16.21.0",
     "stylelint-config-recommended-scss": "^15.0.1",
     "stylelint-scss": "^6.12.1",
     "typescript": "^5.8.3"
