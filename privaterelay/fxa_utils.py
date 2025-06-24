@@ -59,7 +59,7 @@ def _get_oauth2_session(social_account: SocialAccount) -> OAuth2Session:
         "client_secret": client_secret,
     }
 
-    expires_in = (social_token.expires_at - datetime.now(UTC)).total_seconds()
+    expires_in = int((social_token.expires_at - datetime.now(UTC)).total_seconds())
     token = {
         "access_token": social_token.token,
         "refresh_token": social_token.token_secret,
