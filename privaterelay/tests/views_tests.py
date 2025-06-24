@@ -251,6 +251,7 @@ def setup_fxa_rp_events(
         "avatar": "https://profile.stage.mozaws.net/v1/avatar/t",
         "avatarDefault": False,
         "subscriptions": [premium_subscription(), "test-phone"],
+        "expires_in": 60,
     }
     fxa_acct: SocialAccount = baker.make(
         SocialAccount,
