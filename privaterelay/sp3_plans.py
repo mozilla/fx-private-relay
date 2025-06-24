@@ -107,15 +107,22 @@ CountryStr = Literal[
 ]
 # See https://docs.google.com/spreadsheets/d/1qThASP94f4KBSwc4pOJRcb09cSInw7vUy_SE8y4KKPc/edit?usp=sharing for valid product keys  # noqa: E501  # ignore long line for URL
 ProductKey = Literal[
+    # local product keys
     "relay-premium-127",
     "relay-premium-127-phone",
     "relay-email-phone-protection-127",
+    # dev product keys
     "relay-premium-dev",
     "relay-email-phone-protection-dev",
     "bundle-relay-vpn-dev",
+    # stage product keys
     "relaypremiumemailstage",
     "relaypremiumphonestage",
     "vpnrelaybundlestage",
+    # production product keys
+    "relaypremium",
+    "relaypremiumphone",
+    "vpn-relay-bundle",
     "privacyprotectionplan",
 ]
 
