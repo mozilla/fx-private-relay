@@ -8,7 +8,7 @@
   },
   "devDependencies": {
     "@playwright/test": "1.53.1",
-    "dotenv": "^16.5.0"
+    "dotenv": "^17.0.0"
   },
   "volta": {
     "node": "22.15.0",
