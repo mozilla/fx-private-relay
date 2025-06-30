@@ -51,7 +51,7 @@
     "eslint-plugin-jest-dom": "^5.5.0",
     "eslint-plugin-testing-library": "^7.5.3",
     "husky": "^9.1.7",
-    "jest": "^30.0.2",
+    "jest": "^30.0.3",
     "jest-axe": "^10.0.0",
     "jest-environment-jsdom": "^30.0.2",
     "jest-junit": "^16.0.0",
