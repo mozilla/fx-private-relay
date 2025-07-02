@@ -327,6 +327,16 @@ class Profile(models.Model):
         return False
 
     @property
+    def has_megabundle(self) -> bool:
+        if not self.fxa:
+            return False
+        user_subscriptions = self.fxa.extra_data.get("subscriptions", [])
+        for sub in settings.SUBSCRIPTIONS_WITH_MEGABUNDLE:
+            if sub in user_subscriptions:
+                return True
+        return False
+
+    @property
     def emails_forwarded(self) -> int:
         return (
             sum(ra.num_forwarded for ra in self.relay_addresses)
