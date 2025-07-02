@@ -452,6 +452,10 @@ SUBSCRIPTIONS_WITH_VPN: list[str] = config(
     "SUBSCRIPTIONS_WITH_VPN", default="", cast=Csv()
 )
 
+SUBSCRIPTIONS_WITH_MEGABUNDLE: list[str] = config(
+    "SUBSCRIPTIONS_WITH_MEGABUNDLE", default="", cast=Csv()
+)
+
 MAX_ONBOARDING_AVAILABLE = config("MAX_ONBOARDING_AVAILABLE", 0, cast=int)
 MAX_ONBOARDING_FREE_AVAILABLE = config("MAX_ONBOARDING_FREE_AVAILABLE", 3, cast=int)
 
