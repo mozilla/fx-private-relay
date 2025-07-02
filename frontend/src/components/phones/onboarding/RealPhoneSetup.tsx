@@ -178,7 +178,11 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
           />
         </div>
 
-        <Button className={styles.button} type="submit">
+        <Button
+          className={styles.button}
+          type="submit"
+          data-testid="relay-number-intro-cta"
+        >
           {l10n.getString("phone-onboarding-step2-button-cta")}
         </Button>
       </form>
