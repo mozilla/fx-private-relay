@@ -652,7 +652,8 @@ export const WhatsNewMenu = (props: Props) => {
     isMegabundleAvailableInCountry(props.runtimeData) &&
     props.profile.has_premium &&
     !props.profile.has_phone &&
-    !props.profile.has_vpn
+    !props.profile.has_vpn &&
+    !props.profile.has_megabundle
   ) {
     const isPremium = isPeriodicalPremiumAvailableInCountry(props.runtimeData);
 

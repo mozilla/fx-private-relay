@@ -8,6 +8,7 @@ export type ProfileData = {
   has_premium: boolean;
   has_phone: boolean;
   has_vpn: boolean;
+  has_megabundle: boolean;
   subdomain: string | null;
   onboarding_state: number;
   onboarding_free_state: number;
