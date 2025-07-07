@@ -71,7 +71,10 @@ const RelayNumberIntro = (props: RelayNumberIntroProps) => {
 
       {/* TODO: Add logic to display success message */}
 
-      <div className={`${styles["step-input-verificiation-code-success"]} `}>
+      <div
+        data-testid="confirmation-success-title"
+        className={`${styles["step-input-verificiation-code-success"]} `}
+      >
         <h3>
           {l10n.getString("phone-onboarding-step3-code-success-subhead-title")}
         </h3>
