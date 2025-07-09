@@ -74,13 +74,7 @@ export const UserMenu = (props: Props) => {
 
   const onSelect = (itemKey: Key) => {
     if (itemKey === itemKeys.signout) {
-      gaEvent({
-        category: "Sign Out",
-        action: "Click",
-        label: "Website Sign Out",
-      });
-      setCookie("user-sign-out", "true", { maxAgeInSeconds: 60 * 60 });
-      logoutFormRef.current?.submit();
+      return;
     }
   };
 
@@ -167,10 +161,7 @@ export const UserMenu = (props: Props) => {
           {l10n.getString("nav-profile-help")}
         </a>
       </Item>
-      <Item
-        key={itemKeys.signout}
-        textValue={l10n.getString("nav-profile-sign-out")}
-      >
+      <Item key={itemKeys.signout}>
         <form
           method="POST"
           action={getRuntimeConfig().fxaLogoutUrl}
@@ -181,7 +172,19 @@ export const UserMenu = (props: Props) => {
             name="csrfmiddlewaretoken"
             value={getCsrfToken()}
           />
-          <button type="submit" className={styles["menu-button"]}>
+          <button
+            type="button"
+            className={styles["menu-button"]}
+            onClick={() => {
+              gaEvent({
+                category: "Sign Out",
+                action: "Click",
+                label: "Website Sign Out",
+              });
+              setCookie("user-sign-out", "true", { maxAgeInSeconds: 60 * 60 });
+              logoutFormRef.current?.submit();
+            }}
+          >
             <SignOutIcon alt="" />
             {l10n.getString("nav-profile-sign-out")}
           </button>
