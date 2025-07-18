@@ -10,8 +10,9 @@ export const mockIds = ["demo", "empty", "onboarding", "some", "full"] as const;
 
 // This is the same for all mock users, at this time:
 export const mockedRuntimeData: RuntimeData = {
-  FXA_ORIGIN: "https://fxa-mock.com",
-  BASKET_ORIGIN: "https://basket-mock.com",
+  // not sure if this is the mock url we want to use
+  FXA_ORIGIN: "http://localhost/mock/fxa",
+  BASKET_ORIGIN: "http://localhost/mock/basket",
   GOOGLE_ANALYTICS_ID: "UA-123456789-0",
   GA4_MEASUREMENT_ID: "G-YXT33S87LT",
   PERIODICAL_PREMIUM_PRODUCT_ID: "prod_123456789",
