@@ -158,7 +158,7 @@ describe("Megabundle Tests", () => {
       );
 
       const expectedLink =
-        "https://fxa-mock.com/subscriptions/products/prod_123456789?plan=price_1RMAopKb9q6OnNsLSGe1vLtt";
+        "http://localhost/mock/fxa/subscriptions/products/prod_123456789?plan=price_1RMAopKb9q6OnNsLSGe1vLtt";
 
       expect(link).toBe(expectedLink);
     });

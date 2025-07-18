@@ -9,8 +9,6 @@ import ReactGa from "react-ga";
 import { getL10n } from "../functions/getL10n";
 import { AddonDataContext, useAddonElementWatcher } from "../hooks/addon";
 import { ReactAriaI18nProvider } from "../components/ReactAriaI18nProvider";
-import { initialiseApiMocks } from "../apiMocks/initialise";
-import { mockIds } from "../apiMocks/mockData";
 import { useIsLoggedIn } from "../hooks/session";
 import { useMetrics } from "../hooks/metrics";
 import {
@@ -60,6 +58,9 @@ function MyApp({ Component, pageProps }: AppProps) {
       return;
     }
     (async () => {
+      const { initialiseApiMocks } = await import("../apiMocks/initialise");
+      const { mockIds } = await import("../apiMocks/mockData");
+
       await initialiseApiMocks();
 
       if (
