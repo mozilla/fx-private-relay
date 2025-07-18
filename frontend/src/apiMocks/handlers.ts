@@ -535,7 +535,7 @@ export function getHandlers(
   });
 
   handlers.push(
-    http.post("https://basket-mock.com/news/subscribe/", (_info) => {
+    http.post("http://localhost/mock/news/subscribe", (_info) => {
       return HttpResponse.json({ status: "ok" }, { status: 200 });
     }),
   );

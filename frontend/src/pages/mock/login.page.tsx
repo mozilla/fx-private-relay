@@ -5,7 +5,6 @@ import styles from "./mockSession.module.scss";
 import { getRuntimeConfig } from "../../config";
 import { apiFetch } from "../../hooks/api/api";
 import { UsersData } from "../../hooks/api/user";
-import { mockIds } from "../../apiMocks/mockData";
 
 type UsedToken = {
   token: string;
@@ -20,15 +19,18 @@ const MockLogin: NextPage = () => {
 
   useEffect(() => {
     if (process.env.NEXT_PUBLIC_MOCK_API === "true") {
-      // When the API is mocked out, the API tokens are fake as well:
-      const mockIdsAsTokens: UsedToken[] = mockIds.map((id) => ({
-        lastUsed: 0,
-        token: id,
-        user: `${id}@example.com`,
-      }));
-      setUsedTokens(mockIdsAsTokens);
+      (async () => {
+        const { mockIds } = await import("../../apiMocks/mockData");
+        const mockIdsAsTokens: UsedToken[] = mockIds.map((id) => ({
+          lastUsed: 0,
+          token: id,
+          user: `${id}@example.com`,
+        }));
+        setUsedTokens(mockIdsAsTokens);
+      })();
       return;
     }
+
     const usedTokensString = localStorage.getItem("usedTokens") ?? "[]";
     setUsedTokens(JSON.parse(usedTokensString).sort(byUseDate));
   }, []);

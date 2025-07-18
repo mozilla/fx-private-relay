@@ -1,14 +1,13 @@
-import { initialiseWorker } from "./browser";
-import { initialiseServer } from "./server";
-
 export async function initialiseApiMocks() {
   if (typeof window === "undefined") {
+    const { initialiseServer } = await import("./server");
     const server = initialiseServer();
     await server.listen();
   } else {
+    const { initialiseWorker } = await import("./browser");
     const worker = initialiseWorker();
     await worker.start({
-      // This custom handler supresses the default warnings about not mocking expected requests:
+      // This custom handler suppresses the default warnings about not mocking expected requests:
       onUnhandledRequest: (req, print) => {
         const requestUrl = new URL(req.url);
         if (
