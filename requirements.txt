@@ -28,11 +28,11 @@ psycopg[c]==3.2.9
 PyJWT==2.10.1
 python-decouple==3.8
 requests==2.32.4
-sentry-sdk==2.32.0
+sentry-sdk==2.33.0
 whitenoise==6.9.0
 
 # phones app
-phonenumbers==9.0.9
+phonenumbers==9.0.10
 twilio==9.6.5
 vobject==0.9.9
 
@@ -45,16 +45,16 @@ responses==0.25.7
 
 # linting
 black==25.1.0
-ruff==0.12.3
+ruff==0.12.4
 
 # type hinting
 boto3-stubs==1.39.4
 botocore-stubs==1.38.46
-django-stubs==5.2.1
-djangorestframework-stubs==3.16.0
+django-stubs==5.2.2
+djangorestframework-stubs==3.16.1
 mypy-boto3-s3==1.39.2
 mypy-boto3-ses==1.39.0
 mypy-boto3-sns==1.39.0
 mypy-boto3-sqs==1.39.0
-mypy==1.16.1
+mypy==1.17.0
 types-requests==2.32.4.20250611

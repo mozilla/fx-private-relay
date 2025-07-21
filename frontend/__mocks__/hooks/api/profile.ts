@@ -20,6 +20,7 @@ export function getMockProfileData(profileData?: MockData): ProfileData {
     has_premium: false,
     has_phone: false,
     has_vpn: false,
+    has_megabundle: false,
     store_phone_log: true,
     id: 0,
     server_storage: true,

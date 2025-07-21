@@ -244,6 +244,40 @@ class ProfileHasPhoneTest(ProfileTestCase):
         assert self.profile.has_phone is True
 
 
+class ProfileHasMegabundleTest(ProfileTestCase):
+    """Tests for Profile.has_megabundle"""
+
+    def test_default_False(self) -> None:
+        assert self.profile.has_megabundle is False
+
+    def test_has_megabundle_returns_True(self) -> None:
+        social_account = self.get_or_create_social_account()
+        social_account.extra_data["subscriptions"] = (
+            settings.SUBSCRIPTIONS_THAT_MEGABUNDLE_PROVIDES.copy()
+        )
+        social_account.save()
+
+        assert self.profile.has_megabundle is True
+
+    def test_has_megabundle_returns_False_with_partial_subscription(self) -> None:
+        if len(settings.SUBSCRIPTIONS_THAT_MEGABUNDLE_PROVIDES) < 2:
+            pytest.skip(
+                "Test requires multiple subscriptions in "
+                "settings.SUBSCRIPTIONS_THAT_MEGABUNDLE_PROVIDES"
+            )
+
+        partial_subs = settings.SUBSCRIPTIONS_THAT_MEGABUNDLE_PROVIDES[:-1]
+        social_account = self.get_or_create_social_account()
+        social_account.extra_data["subscriptions"] = partial_subs
+        social_account.save()
+
+        assert self.profile.has_megabundle is False
+
+    def test_has_megabundle_returns_False_with_no_fxa(self) -> None:
+        SocialAccount.objects.filter(user=self.profile.user).delete()
+        assert self.profile.has_megabundle is False
+
+
 @pytest.mark.skipif(not settings.PHONES_ENABLED, reason="PHONES_ENABLED is False")
 @override_settings(PHONES_NO_CLIENT_CALLS_IN_TEST=True)
 class ProfileDatePhoneRegisteredTest(ProfileTestCase):
