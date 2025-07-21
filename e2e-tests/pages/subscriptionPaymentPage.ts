@@ -47,7 +47,10 @@ export class SubscriptionPaymentPage {
     this.planDetails = page.locator("#plan-details-product");
     this.planDetails3 = page.locator("#product-details-heading");
     this.planType = page.locator(".plan-details-description");
-    this.planType3 = page.getByTestId("total-price");
+    // this is ugly but someone repeated the datatest-id="total-price" in the component
+    this.planType3 = page.locator(
+      ".overflow-hidden.text-ellipsis.text-lg.whitespace-nowrap",
+    );
   }
 
   private isVersion3(): boolean {
@@ -55,23 +58,34 @@ export class SubscriptionPaymentPage {
   }
 
   async getSubscriptionTitleText(): Promise<string> {
-    if (this.isVersion3()) {
-      return await this.subscription3Title.textContent();
+    const text = await this.subscription3Title.textContent();
+
+    if (!text) {
+      throw new Error("Subscription title text not found.");
     }
-    return await this.subscriptionTitle.textContent();
+
+    return text;
   }
 
   async getPlanDetailsText(): Promise<string> {
-    if (this.isVersion3()) {
-      return await this.planDetails3.textContent();
+    const text = this.isVersion3()
+      ? await this.planDetails3.textContent()
+      : await this.planDetails.textContent();
+
+    if (!text) {
+      throw new Error("Get Plan title text not found.");
     }
-    return await this.planDetails.textContent();
+
+    return text;
   }
 
   async getPriceDetailsText(): Promise<string> {
-    if (this.isVersion3()) {
-      return await this.planType3.textContent();
+    const text = await this.planType3.textContent();
+
+    if (!text) {
+      throw new Error("Get Plan type text not found.");
     }
-    return await this.planType.textContent();
+
+    return text;
   }
 }
