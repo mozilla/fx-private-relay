@@ -1331,10 +1331,10 @@ def _send_reply_requires_premium_email(
 def _reply_allowed(
     from_address, to_address, reply_record, message_id=None, decrypted_metadata=None
 ):
-    stripped_from_address = _strip_localpart_tag(from_address)
-    reply_record_email = reply_record.address.user.email
+    stripped_from_address = _strip_localpart_tag(from_address).lower()
+    reply_record_email = reply_record.address.user.email.lower()
     stripped_reply_record_address = _strip_localpart_tag(reply_record_email)
-    if (from_address == reply_record_email) or (
+    if (from_address.lower() == reply_record_email) or (
         stripped_from_address == stripped_reply_record_address
     ):
         # This is a Relay user replying to an external sender;

@@ -969,6 +969,15 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
             expected_fixture_name="s3_stored_replies_with_emoji",
         )
 
+    def test_reply_case_insensitive_relay_user_email(self) -> None:
+        """Casing of a Relay user's email doesn't prevent outgoing replies"""
+        self.user.email = "sOuRcE@sender.com"
+        self.user.save()
+        self.successful_reply_test_implementation(
+            text="this is a text reply",
+            expected_fixture_name="s3_stored_replies",
+        )
+
     @patch("emails.views._reply_allowed")
     def test_reply_not_allowed(self, mocked_reply_allowed: Mock) -> None:
         mocked_reply_allowed.return_value = False
