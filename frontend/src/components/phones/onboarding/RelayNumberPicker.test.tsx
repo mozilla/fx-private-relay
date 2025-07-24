@@ -3,6 +3,7 @@ import { RelayNumberPicker } from "../onboarding/RelayNumberPicker";
 import { OverlayProvider } from "react-aria";
 import { useL10n } from "../../../hooks/l10n";
 import * as relayNumberHooks from "../../../hooks/api/relayNumber";
+import { formatPhone } from "../../../functions/formatPhone";
 
 jest.mock("../../../hooks/l10n", () => ({
   useL10n: jest.fn(),
@@ -165,7 +166,8 @@ describe("RelayNumberPicker", () => {
       expect(relayNumberHooks.search).toHaveBeenCalledWith("999");
     });
 
-    const label = screen.getByLabelText("(999) 888 - 7777");
+    const formatted = formatPhone("+19998887777");
+    const label = await screen.findByLabelText(formatted);
     expect(label).toBeInTheDocument();
   });
 
