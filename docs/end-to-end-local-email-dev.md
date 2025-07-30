@@ -62,6 +62,14 @@ AWS needs to verify you own the domain before it will send its email to you.
 2. Go to your domain's DNS and add the new CNAME records with the values that
    SES generated for you.
 
+#### Verify emails
+
+If you are using the AWS free trial, you will need to verify any emails you are using. SES in the AWS free tier will only send to verified emails, if you "Request production access" in the dashboard you don't need to do this. Otherwise, verifying the following emails for local testing:
+
+- `replies@yourdomain.com`
+- `your-relay-user-real-email@example.com`
+- `external-email-that-sends-replies@example.com` (only if you need to do testing with replies)
+
 #### (Suggested) Use ngrok to make your local server available
 When SES sends email thru an SNS HTTPS subscription, it is helpful to have a
 permanent public domain that proxies your local server. [ngrok](ngrok) is a
@@ -123,7 +131,18 @@ right domain. So, you'll need to set some environment variable values:
 * `MOZMAIL_DOMAIN=yourdomain.com`
 * `RELAY_FROM_ADDRESS=relay@yourdomain.com`
 
-Note again: These are NOT your ngrok.io domain.
+Note again: These are NOT your ngrok.io domain. Any user that wishes to reply will need to have their email verified in the free tier of SES (see the "Verify Emails" section above)
+
+One challenge with making both of these domains the same is that the reply logic assumes there are two different domains. In order to test replies in a local environment, you have two options:
+
+1. Set up an additional domain for the `replies` email address that is configured for SES reply handling (follow same steps as above)
+2. Alter the following line in `emails/views.py`:
+
+   `domain_numerical = get_domain_numerical(domain)` can be replaced with:
+
+   `domain_numerical = get_domain_numerical(domain) if local_address != 'example_mask_address' else 2`.
+
+   This will allow replies that are sent to `replies@yourdomain.com` to be properly forwarded to the user that owns the mask.
 
 ### Set up your AWS SES to send emails FROM your app
 The last part of Relay is sending emails FROM the Relay app to the real email
