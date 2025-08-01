@@ -155,7 +155,11 @@ export const SendersPanelView = (props: Props) => {
   );
 
   return (
-    <div id="secondary-panel" className={styles["dashboard-card"]}>
+    <div
+      id="secondary-panel"
+      className={styles["dashboard-card"]}
+      data-testid="senders-panel-view"
+    >
       <div className={styles["dashboard-card-caller-sms-senders-header"]}>
         <span>
           <button

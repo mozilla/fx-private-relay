@@ -73,3 +73,5 @@ export const setMockRelayNumberDataOnce = (
     getReturnValue(inboundContacts, callbacks),
   );
 };
+
+export { useInboundContact };

@@ -291,7 +291,6 @@ export const PhoneDashboard = (props: Props) => {
         ) : (
           // Caller and SMS Senders Panel
           <SendersPanelView
-            data-testid="senders-panel-view"
             type={getSendersPanelType()}
             back_btn={toggleSendersPanel}
           />
