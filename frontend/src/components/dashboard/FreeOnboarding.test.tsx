@@ -141,4 +141,125 @@ describe("FreeOnboarding", () => {
 
     expect(baseProps.onNextStep).toHaveBeenCalledWith(4);
   });
+  it("does not proceed on mask creation error if user has no masks", async () => {
+    const erroringProps = {
+      ...baseProps,
+      generateNewMask: jest.fn(() => Promise.reject(new Error("fail"))),
+      hasAtleastOneMask: false,
+    };
+
+    render(
+      <FreeOnboarding
+        {...erroringProps}
+        profile={{ ...erroringProps.profile, onboarding_free_state: 0 }}
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "profile-free-onboarding-welcome-generate-new-mask",
+      }),
+    );
+
+    await waitFor(() =>
+      expect(erroringProps.onNextStep).not.toHaveBeenCalled(),
+    );
+  });
+
+  it("skips step 1 when skip button is clicked", () => {
+    render(
+      <FreeOnboarding
+        {...baseProps}
+        profile={{ ...baseProps.profile, onboarding_free_state: 0 }}
+      />,
+    );
+
+    const skipButton = screen.getByRole("button", {
+      name: "profile-free-onboarding-skip-step",
+    });
+    fireEvent.click(skipButton);
+
+    expect(baseProps.onNextStep).toHaveBeenCalledWith(3);
+  });
+
+  it("calls onNextStep from EmailForwardingModal continue", async () => {
+    render(
+      <FreeOnboarding
+        {...baseProps}
+        profile={{ ...baseProps.profile, onboarding_free_state: 1 }}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("open-forwarding-modal"));
+
+    const onContinue = screen.getByText(
+      "profile-free-onboarding-copy-mask-how-forwarding-works",
+    );
+
+    expect(onContinue).toBeInTheDocument();
+  });
+
+  it("goes to next step from step 2", () => {
+    render(
+      <FreeOnboarding
+        {...baseProps}
+        profile={{ ...baseProps.profile, onboarding_free_state: 1 }}
+      />,
+    );
+
+    const nextButton = screen.getByRole("button", {
+      name: "profile-free-onboarding-next-step",
+    });
+
+    fireEvent.click(nextButton);
+    expect(baseProps.onNextStep).toHaveBeenCalledWith(2);
+  });
+
+  it("skips step 2", () => {
+    render(
+      <FreeOnboarding
+        {...baseProps}
+        profile={{ ...baseProps.profile, onboarding_free_state: 1 }}
+      />,
+    );
+
+    const skipButton = screen.getByRole("button", {
+      name: "profile-free-onboarding-skip-step",
+    });
+
+    fireEvent.click(skipButton);
+    expect(baseProps.onNextStep).toHaveBeenCalledWith(3);
+  });
+
+  it("skips step 3 with Firefox extension supported", () => {
+    render(
+      <FreeOnboarding
+        {...baseProps}
+        profile={{ ...baseProps.profile, onboarding_free_state: 2 }}
+      />,
+    );
+
+    const skipButton = screen.getByRole("button", {
+      name: "profile-free-onboarding-skip-step",
+    });
+
+    fireEvent.click(skipButton);
+    expect(baseProps.onNextStep).toHaveBeenCalledWith(3);
+  });
+  jest.mock("../../functions/userAgent", () => ({
+    supportsFirefoxExtension: () => false,
+  }));
+
+  it("renders the hidden progress bar with correct value", () => {
+    render(
+      <FreeOnboarding
+        {...baseProps}
+        profile={{ ...baseProps.profile, onboarding_free_state: 1 }}
+      />,
+    );
+
+    const progress = screen.getByRole("progressbar", { hidden: true });
+    expect(progress).toHaveValue(2);
+    expect(progress).toHaveAttribute("max", "3");
+  });
 });

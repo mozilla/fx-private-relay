@@ -11,6 +11,8 @@ import { setMockRuntimeData } from "../../../__mocks__/hooks/api/runtimeData";
 import { setMockAddonData } from "../../../__mocks__/hooks/addon";
 import { mockUseL10nModule } from "../../../__mocks__/hooks/l10n";
 import { mockLocalizedModule } from "../../../__mocks__/components/Localized";
+import { useProfiles } from "../../../src/hooks/api/profile";
+import { useRuntimeData } from "../../../src/hooks/api/runtimeData";
 
 // Important: make sure mocks are imported *before* the page under test:
 import Settings from "./settings.page";
@@ -21,6 +23,13 @@ jest.mock("../../config.ts", () => mockConfigModule);
 jest.mock("../../hooks/gaViewPing.ts");
 jest.mock("../../hooks/l10n.ts", () => mockUseL10nModule);
 jest.mock("../../components/Localized.tsx", () => mockLocalizedModule);
+
+const mockedUseProfiles = useProfiles as jest.MockedFunction<
+  typeof useProfiles
+>;
+const mockedUseRuntimeData = useRuntimeData as jest.MockedFunction<
+  typeof useRuntimeData
+>;
 
 setMockAliasesData();
 setMockProfileData();
@@ -127,5 +136,78 @@ describe("The settings screen", () => {
     );
 
     expect(addonNotifier).toHaveBeenCalledWith("serverStorageChange");
+  });
+
+  it("copies API key to clipboard and shows confirmation", async () => {
+    const writeText = jest.fn();
+    Object.assign(navigator, {
+      clipboard: { writeText },
+    });
+
+    render(<Settings />);
+    const copyButtons = screen.getAllByTitle(
+      "l10n string: [settings-button-copy], with vars: {}",
+    );
+    const copyButton = copyButtons[0];
+
+    await userEvent.click(copyButton);
+    expect(writeText).toHaveBeenCalled();
+
+    const confirmation = screen.getByText(
+      "l10n string: [setting-api-key-copied], with vars: {}",
+    );
+    expect(confirmation).toBeVisible();
+  });
+
+  it("shows contact us link if user has premium", () => {
+    setMockProfileData({ has_premium: true });
+    render(<Settings />);
+    const contactLink = screen.getByRole("link", {
+      name: /l10n string: \[settings-meta-contact-label\]/i,
+    });
+    expect(contactLink).toBeInTheDocument();
+  });
+
+  it("renders and toggles tracker removal setting if supported and flag is active", async () => {
+    setMockProfileData({
+      remove_level_one_email_trackers: true,
+    });
+
+    setMockRuntimeData({
+      WAFFLE_FLAGS: [["tracker_removal", true]],
+    });
+
+    render(<Settings />);
+
+    const checkboxes = screen.getAllByRole("checkbox");
+    const trackerCheckbox = checkboxes.find(
+      (el) => el.getAttribute("name") === "tracker-removal",
+    );
+    expect(trackerCheckbox).toBeInTheDocument();
+
+    await userEvent.click(trackerCheckbox!);
+    expect(trackerCheckbox).not.toBeChecked();
+  });
+
+  it("renders nothing if runtime data or profile data is missing", () => {
+    mockedUseRuntimeData.mockReturnValueOnce({
+      data: undefined,
+      error: undefined,
+      isLoading: false,
+      isValidating: false,
+      mutate: jest.fn(),
+    });
+
+    mockedUseProfiles.mockReturnValueOnce({
+      data: undefined,
+      error: undefined,
+      isLoading: false,
+      isValidating: false,
+      mutate: jest.fn(),
+      update: jest.fn(),
+      setSubdomain: jest.fn(),
+    });
+
+    expect(screen.queryByRole("form")).not.toBeInTheDocument();
   });
 });
