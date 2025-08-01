@@ -18,7 +18,7 @@ export type FlagNames =
   | "holiday_promo_2023"
   | "four_mask_limit_upsell";
 
-type WaffleFlag = [FlagNames, boolean];
+export type WaffleFlag = [FlagNames, boolean];
 
 export type PlanData = {
   monthly: { id?: string; price: number; currency: string; url?: string };

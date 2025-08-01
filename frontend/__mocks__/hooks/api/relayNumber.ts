@@ -75,3 +75,5 @@ export const setMockRelayNumberDataOnce = (
     getReturnValue(relayNumbers, callbacks),
   );
 };
+
+export { useRelayNumber };

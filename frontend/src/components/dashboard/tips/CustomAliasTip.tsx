@@ -29,6 +29,7 @@ export const CustomAliasTip = (props: CustomAliasTipProps) => {
         <video
           // This animation is redundant with the regular text accompanying it,
           // so screen readers should ignore it:
+          data-testid="custom-alias-video"
           aria-hidden={true}
           autoPlay={true}
           loop={true}
