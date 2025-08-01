@@ -1,11 +1,11 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, within, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-
 import { mockConfigModule } from "../../../../__mocks__/configMock";
 import { mockLocalizedModule } from "../../../../__mocks__/components/Localized";
 import { getMockRandomAlias } from "../../../../__mocks__/hooks/api/aliases";
 import { mockUseL10nModule } from "../../../../__mocks__/hooks/l10n";
 
+import * as aliasApi from "../../../hooks/api/aliases";
 import { AliasDeletionButton } from "./AliasDeletionButton";
 
 jest.mock("../../../config.ts", () => mockConfigModule);
@@ -14,16 +14,29 @@ jest.mock("../../../hooks/l10n.ts", () => mockUseL10nModule);
 jest.mock("../../../components/Localized.tsx", () => mockLocalizedModule);
 
 describe("<AliasDeletionButton>", () => {
+  const openLabel = "l10n string: [profile-label-delete], with vars: {}";
+  const cancelLabel = "l10n string: [profile-label-cancel], with vars: {}";
+  const confirmLabel =
+    "l10n string: [modal-delete-confirmation-2], with vars: {}";
+  const titleLabel = "l10n string: [modal-delete-headline-2], with vars: {}";
+  const usageRandomLabel =
+    "l10n string: [modal-delete-warning-upgrade-2], with vars: {}";
+  const usageCustomLabel =
+    "l10n string: [modal-delete-domain-address-warning-upgrade-2], with vars: {}";
+
+  beforeEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it("displays a usable button to delete an alias", () => {
     render(
       <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />,
     );
 
     const button = screen.getByRole("button", {
-      name: "l10n string: [profile-label-delete], with vars: {}",
+      name: openLabel,
       hidden: false,
     });
-
     expect(button).toBeInTheDocument();
   });
 
@@ -33,16 +46,15 @@ describe("<AliasDeletionButton>", () => {
     );
 
     const button = screen.getByRole("button", {
-      name: "l10n string: [profile-label-delete], with vars: {}",
+      name: openLabel,
       hidden: false,
     });
-
     await userEvent.click(button);
 
     const prompt = screen.getByRole("dialog");
     const promptCheckbox = within(prompt).getByRole("checkbox");
     const promptButton = within(prompt).getByRole("button", {
-      name: "l10n string: [profile-label-delete], with vars: {}",
+      name: openLabel,
     });
 
     expect(promptCheckbox).not.toBeChecked();
@@ -54,16 +66,11 @@ describe("<AliasDeletionButton>", () => {
       <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />,
     );
 
-    const button = screen.getByRole("button", {
-      name: "l10n string: [profile-label-delete], with vars: {}",
-    });
-
-    await userEvent.click(button);
-
+    await userEvent.click(screen.getByRole("button", { name: openLabel }));
     const prompt = screen.getByRole("dialog");
-    const promptCheckbox = screen.getByRole("checkbox");
+    const promptCheckbox = within(prompt).getByRole("checkbox");
     const promptButton = within(prompt).getByRole("button", {
-      name: "l10n string: [profile-label-delete], with vars: {}",
+      name: openLabel,
     });
 
     await userEvent.click(promptCheckbox);
@@ -77,28 +84,29 @@ describe("<AliasDeletionButton>", () => {
       <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />,
     );
 
-    const button = screen.getByRole("button", {
-      name: "l10n string: [profile-label-delete], with vars: {}",
-    });
+    const trigger = screen.getByRole("button", { name: openLabel });
 
-    await userEvent.click(button);
+    await userEvent.click(trigger);
 
     const firstPrompt = screen.getByRole("dialog");
     const firstPromptCheckbox = within(firstPrompt).getByRole("checkbox");
     const firstPromptCancelButton = within(firstPrompt).getByRole("button", {
-      name: "l10n string: [profile-label-cancel], with vars: {}",
+      name: cancelLabel,
     });
 
-    // Click confirmation checkbox on modal
     await userEvent.click(firstPromptCheckbox);
-    // Click cancel button to dismiss modal
     await userEvent.click(firstPromptCancelButton);
-    // Click delete button again
-    await userEvent.click(button);
+
+    // Dialog is closed and focus restored to trigger
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    await waitFor(() => expect(trigger).toHaveFocus());
+
+    // Reopen – state should be reset
+    await userEvent.click(trigger);
 
     const secondPrompt = screen.getByRole("dialog");
     const secondPromptDeleteButton = within(secondPrompt).getByRole("button", {
-      name: "l10n string: [profile-label-delete], with vars: {}",
+      name: openLabel,
     });
     const secondPromptCheckbox = within(secondPrompt).getByRole("checkbox");
 
@@ -106,34 +114,115 @@ describe("<AliasDeletionButton>", () => {
     expect(secondPromptDeleteButton).toBeDisabled();
   });
 
-  it("resets the inputs on the confirmation prompt when reopened, after clicking off the propmt", async () => {
+  it("resets the inputs on the confirmation prompt when reopened, after clicking off the prompt", async () => {
     render(
       <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />,
     );
 
-    const button = screen.getByRole("button", {
-      name: "l10n string: [profile-label-delete], with vars: {}",
-    });
-
-    await userEvent.click(button);
+    const trigger = screen.getByRole("button", { name: openLabel });
+    await userEvent.click(trigger);
 
     const firstPrompt = screen.getByRole("dialog");
     const firstPromptCheckbox = within(firstPrompt).getByRole("checkbox");
 
-    // Click confirmation checkbox on modal
     await userEvent.click(firstPromptCheckbox);
-    // Click outside modal to dismiss modal
+    // Click outside modal (underlay)
     await userEvent.click(document.body);
-    // Click delete button again
-    await userEvent.click(button);
+
+    // Reopen – state should be reset
+    await userEvent.click(trigger);
 
     const secondPrompt = screen.getByRole("dialog");
     const secondPromptDeleteButton = within(secondPrompt).getByRole("button", {
-      name: "l10n string: [profile-label-delete], with vars: {}",
+      name: openLabel,
     });
     const secondPromptCheckbox = within(secondPrompt).getByRole("checkbox");
 
     expect(secondPromptCheckbox).not.toBeChecked();
     expect(secondPromptDeleteButton).toBeDisabled();
+  });
+
+  it("closes the dialog when pressing Escape", async () => {
+    render(
+      <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />,
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: openLabel }));
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+
+    await userEvent.keyboard("{Escape}");
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("calls onDelete and closes when the form is submitted after confirming", async () => {
+    const onDelete = jest.fn();
+    render(
+      <AliasDeletionButton alias={getMockRandomAlias()} onDelete={onDelete} />,
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: openLabel }));
+
+    const prompt = screen.getByRole("dialog");
+    const checkbox = within(prompt).getByRole("checkbox");
+    const submit = within(prompt).getByRole("button", { name: openLabel });
+
+    // Without checkbox, submit should be disabled
+    expect(submit).toBeDisabled();
+
+    await userEvent.click(checkbox);
+    expect(submit).toBeEnabled();
+
+    await userEvent.click(submit);
+
+    expect(onDelete).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("renders the modal title and the confirmation copy", async () => {
+    render(
+      <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />,
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: openLabel }));
+
+    // Title is rendered in an <h3> via useDialog titleProps
+    const heading = screen.getByRole("heading", { level: 3, name: titleLabel });
+    expect(heading).toBeInTheDocument();
+
+    // Confirmation label copy appears next to the checkbox
+    expect(screen.getByText(confirmLabel)).toBeInTheDocument();
+  });
+
+  it("shows the address from getFullAddress inside <samp> and uses the 'random' usage warning by default", async () => {
+    // Force a predictable address so we can assert on it
+    jest.spyOn(aliasApi, "getFullAddress").mockReturnValue("mask@relay.test");
+
+    render(
+      <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />,
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: openLabel }));
+
+    // The <samp> contains the address
+    expect(screen.getByText("mask@relay.test")).toBeInTheDocument();
+
+    // Random alias path should choose the non-domain warning key
+    expect(screen.getByText(usageRandomLabel)).toBeInTheDocument();
+  });
+
+  it("uses the domain-address usage warning when isRandomAlias is false", async () => {
+    jest.spyOn(aliasApi, "isRandomAlias").mockReturnValue(false);
+    jest.spyOn(aliasApi, "getFullAddress").mockReturnValue("custom@you.test");
+
+    render(
+      // The actual alias object shape is irrelevant here because we stub isRandomAlias/getFullAddress
+      // @ts-expect-error: we stub out behavior, so the concrete fields aren't needed
+      <AliasDeletionButton alias={{}} onDelete={jest.fn()} />,
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: openLabel }));
+
+    expect(screen.getByText("custom@you.test")).toBeInTheDocument();
+    expect(screen.getByText(usageCustomLabel)).toBeInTheDocument();
   });
 });
