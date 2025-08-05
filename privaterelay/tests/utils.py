@@ -2,6 +2,7 @@
 
 import json
 import random
+from collections.abc import Callable
 from datetime import UTC, datetime
 from logging import LogRecord
 from typing import Any
@@ -43,24 +44,6 @@ def make_premium_test_user() -> User:
     premium_user.profile.save()
     upgrade_test_user_to_premium(premium_user)
     return premium_user
-
-
-def upgrade_test_user_to_premium(user: User) -> None:
-    """Create an FxA SocialAccount with an unlimited email masks plan."""
-    if SocialAccount.objects.filter(user=user).exists():
-        raise Exception("upgrade_test_user_to_premium does not (yet) handle this.")
-    uid = str(uuid4())
-    baker.make(
-        SocialAccount,
-        user=user,
-        uid=uid,
-        provider="fxa",
-        extra_data={
-            "avatar": "avatar.png",
-            "subscriptions": [premium_subscription()],
-            "uid": uid,
-        },
-    )
 
 
 def make_storageless_test_user() -> User:
@@ -108,6 +91,45 @@ def vpn_subscription() -> str:
     )
     assert vpn_only_plans
     return random.choice(vpn_only_plans)
+
+
+def bundle_subscription() -> str:
+    """Return a Mozilla account subscription that provides the bundle"""
+    assert settings.SUBSCRIPTIONS_WITH_VPN
+    bundle_plans = list(
+        set(settings.SUBSCRIPTIONS_WITH_VPN)
+        | set(settings.SUBSCRIPTIONS_WITH_PHONE)
+        | set(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
+    )
+    assert bundle_plans
+    return random.choice(bundle_plans)
+
+
+def upgrade_test_user_to_premium(
+    user: User, subscription: Callable = premium_subscription
+) -> None:
+    """Create an FxA SocialAccount with a premium plan."""
+    sa = SocialAccount.objects.filter(user=user).first()
+    if sa:
+        sa.extra_data["subscriptions"].append(subscription())
+        sa.save()
+    else:
+        uid = str(uuid4())
+        baker.make(
+            SocialAccount,
+            user=user,
+            uid=uid,
+            provider="fxa",
+            extra_data={
+                "avatar": "avatar.png",
+                "subscriptions": [subscription()],
+                "uid": uid,
+            },
+        )
+    user.profile.date_subscribed = datetime.now(tz=UTC)
+    if subscription == phone_subscription:
+        user.profile.date_subscribed_phone = datetime.now(tz=UTC)
+    user.profile.save()
 
 
 def omit_markus_logs(caplog: pytest.LogCaptureFixture) -> list[LogRecord]:

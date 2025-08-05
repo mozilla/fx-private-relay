@@ -259,6 +259,19 @@ def test_patch_domainaddress(
             event_time=event["timestamp"],
         )
         assert event == expected_event
+    elif key in ["enabled", "block_list_emails"]:
+        assert event is not None
+        expected_event = create_expected_glean_event(
+            category="email_mask",
+            name="blocking_updated",
+            user=premium_user,
+            extra_items={
+                "n_domain_masks": "1",
+                "is_random_mask": "false",
+            },
+            event_time=event["timestamp"],
+        )
+        assert event == expected_event
     else:
         assert event is None
 
@@ -624,6 +637,19 @@ def test_patch_relayaddress(
             event_time=event["timestamp"],
         )
         assert event == expected_event
+    elif key in ["enabled", "block_list_emails"]:
+        assert event is not None
+        expected_event = create_expected_glean_event(
+            category="email_mask",
+            name="blocking_updated",
+            user=free_user,
+            extra_items={
+                "n_random_masks": "1",
+                "is_random_mask": "true",
+            },
+            event_time=event["timestamp"],
+        )
+        assert event == expected_event
     else:
         assert event is None
 
@@ -771,7 +797,19 @@ def test_patch_relayaddress_format_premium_user_can_clear_block_list_emails(
     ra.refresh_from_db()
     assert ra.enabled is True
     assert ra.block_list_emails is False
-    assert get_glean_event(caplog) is None
+    event = get_glean_event(caplog)
+    assert event is not None
+    expected_event = create_expected_glean_event(
+        category="email_mask",
+        name="blocking_updated",
+        user=premium_user,
+        extra_items={
+            "n_random_masks": "1",
+            "is_random_mask": "true",
+        },
+        event_time=event["timestamp"],
+    )
+    assert event == expected_event
 
 
 def test_delete_randomaddress(
