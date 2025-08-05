@@ -1,0 +1,18 @@
+name: Push container image to MozCloud GAR
+on:
+  push:
+    branches: [ main ]
+    tags: ['*']
+
+jobs:
+  build-and-push:
+    secrets: inherit
+    permissions:
+      packages: write
+      contents: read
+      id-token: write
+    uses: mozilla-it/deploy-actions/.github/workflows/build-and-push.yml@main
+    with:
+      image_name: fx-private-relay
+      gar_name: ${{ vars.GCP_MOZCLOUD_GAR_NAME_PROD }}
+      project_id: ${{ vars.GCP_MOZCLOUD_PROJECT_ID_PROD }}
