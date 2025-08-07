@@ -8,7 +8,7 @@ from logging import getLogger
 from typing import Any, Literal, NamedTuple
 
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AnonymousUser, User
 from django.http import HttpRequest
 
 from ipware import get_client_ip
@@ -75,8 +75,8 @@ class UserData(NamedTuple):
             return cls(metrics_enabled=False)
 
         fxa_id = user.profile.metrics_fxa_id or None
-        n_random_masks = user.relayaddress_set.count()
-        n_domain_masks = user.domainaddress_set.count()
+        n_random_masks = getattr(user, "n_random_masks")
+        n_domain_masks = getattr(user, "n_domain_masks")
         n_deleted_random_masks = user.profile.num_deleted_relay_addresses
         n_deleted_domain_masks = user.profile.num_deleted_domain_addresses
         date_joined_relay = user.date_joined
@@ -245,6 +245,37 @@ class RelayGleanLogger(EventsServerEventLogger):
             return
         request_data = RequestData.from_request(request)
         self.record_email_mask_deleted(
+            user_agent=_opt_str_to_glean(request_data.user_agent),
+            ip_address=_opt_str_to_glean(request_data.ip_address),
+            fxa_id=_opt_str_to_glean(user_data.fxa_id),
+            platform="",
+            n_random_masks=user_data.n_random_masks,
+            n_domain_masks=user_data.n_domain_masks,
+            n_deleted_random_masks=user_data.n_deleted_random_masks,
+            n_deleted_domain_masks=user_data.n_deleted_domain_masks,
+            date_joined_relay=_opt_dt_to_glean(user_data.date_joined_relay),
+            premium_status=user_data.premium_status,
+            date_joined_premium=_opt_dt_to_glean(user_data.date_joined_premium),
+            has_extension=user_data.has_extension,
+            date_got_extension=_opt_dt_to_glean(user_data.date_got_extension),
+            is_random_mask=is_random_mask,
+        )
+
+    def log_email_mask_list_viewed(
+        self,
+        *,
+        request: HttpRequest,
+        user: User | AnonymousUser,
+        is_random_mask: bool,
+    ) -> None:
+        """Log that a Relay user viewed the list of email masks."""
+        if not isinstance(user, User):
+            return
+        user_data = UserData.from_user(user)
+        if not user_data.metrics_enabled:
+            return
+        request_data = RequestData.from_request(request)
+        self.record_email_mask_list_viewed(
             user_agent=_opt_str_to_glean(request_data.user_agent),
             ip_address=_opt_str_to_glean(request_data.ip_address),
             fxa_id=_opt_str_to_glean(user_data.fxa_id),

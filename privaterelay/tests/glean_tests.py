@@ -450,6 +450,44 @@ def test_log_email_mask_deleted_with_opt_out(
     assert len(caplog.records) == 0
 
 
+@pytest.mark.django_db
+def test_log_email_mask_list_viewed_free_user(
+    glean_logger: RelayGleanLogger,
+    caplog: pytest.LogCaptureFixture,
+    settings: SettingsWrapper,
+    rf: RequestFactory,
+) -> None:
+    """Check that log_email_mask_list_viewed results in a Glean server-side log."""
+    user = make_free_test_user()
+    request = rf.get("/api/v1/relayaddresses/")
+    request.user = user
+
+    glean_logger.log_email_mask_list_viewed(
+        request=request, user=user, is_random_mask=True
+    )
+
+    assert len(caplog.records) == 1
+    record = caplog.records[0]
+    assert_glean_record(record)
+
+    payload = json.loads(getattr(record, "payload"))
+    parts = extract_parts_from_payload(payload)
+    expected_payload = create_expected_glean_payload(
+        category="email_mask",
+        name="list_viewed",
+        extra_items={
+            "n_random_masks": "0",
+            "is_random_mask": "true",
+        },
+        user=user,
+        event_time=parts.event_timestamp_ms,
+        app_channel=settings.RELAY_CHANNEL,
+        telemetry_sdk_build=parts.telemetry_sdk_build,
+        ping_time=parts.ping_time_iso,
+    )
+    assert payload == expected_payload
+
+
 @pytest.mark.parametrize("is_reply", (True, False))
 def test_log_email_forwarded(
     glean_logger: RelayGleanLogger,

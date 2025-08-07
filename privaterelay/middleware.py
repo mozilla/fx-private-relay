@@ -6,6 +6,8 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 
 from django.conf import settings
+from django.contrib.auth.models import User
+from django.db.models import Count
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 
@@ -208,4 +210,21 @@ class GleanApiAccessMiddleware:
     def __call__(self, request):
         if request.path.startswith("/api/"):
             glean_logger().log_api_accessed(request)
+        return self.get_response(request)
+
+
+class PrefetchUserProfileMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if hasattr(request, "user") and request.user.is_authenticated:
+            request.user = (
+                User.objects.select_related("profile")
+                .annotate(
+                    n_random_masks=Count("relayaddress"),
+                    n_domain_masks=Count("domainaddress"),
+                )
+                .get(pk=request.user.pk)
+            )
         return self.get_response(request)

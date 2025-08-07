@@ -484,6 +484,64 @@ class EventsServerEventLogger:
         }
         self._record(user_agent, ip_address, event)
 
+    def record_email_mask_list_viewed(
+        self,
+        user_agent: str,
+        ip_address: str,
+        fxa_id: str,
+        platform: str,
+        n_random_masks: int,
+        n_domain_masks: int,
+        n_deleted_random_masks: int,
+        n_deleted_domain_masks: int,
+        date_joined_relay: int,
+        premium_status: str,
+        date_joined_premium: int,
+        has_extension: bool,
+        date_got_extension: int,
+        is_random_mask: bool,
+    ) -> None:
+        """
+        Record and submit a email_mask_list_viewed event:
+        A Relay user viewed the list of email masks.
+        Event is logged to STDOUT via `print`.
+
+        :param str user_agent: The user agent.
+        :param str ip_address: The IP address. Will be used to decode Geo information
+            and scrubbed at ingestion.
+        :param str fxa_id: Mozilla accounts user ID
+        :param str platform: Relay client platform
+        :param int n_random_masks: Number of random masks
+        :param int n_domain_masks: Number of premium subdomain masks
+        :param int n_deleted_random_masks: Number of deleted random masks
+        :param int n_deleted_domain_masks: Number of deleted domain masks
+        :param int date_joined_relay: Timestamp for joining Relay, seconds since epoch
+        :param str premium_status: Subscription type and term
+        :param int date_joined_premium: Timestamp for starting premium_status subscription, seconds since epoch, -1 if not subscribed
+        :param bool has_extension: The user has the Relay Add-on
+        :param int date_got_extension: Timestamp for adding Relay Add-on, seconds since epoch, -1 if not used
+        :param bool is_random_mask: The mask is a random mask, instead of a domain mask
+        """
+        event = {
+            "category": "email_mask",
+            "name": "list_viewed",
+            "extra": {
+                "fxa_id": str(fxa_id),
+                "platform": str(platform),
+                "n_random_masks": str(n_random_masks),
+                "n_domain_masks": str(n_domain_masks),
+                "n_deleted_random_masks": str(n_deleted_random_masks),
+                "n_deleted_domain_masks": str(n_deleted_domain_masks),
+                "date_joined_relay": str(date_joined_relay),
+                "premium_status": str(premium_status),
+                "date_joined_premium": str(date_joined_premium),
+                "has_extension": str(has_extension).lower(),
+                "date_got_extension": str(date_got_extension),
+                "is_random_mask": str(is_random_mask).lower(),
+            },
+        }
+        self._record(user_agent, ip_address, event)
+
     def record_phone_call_received(
         self,
         user_agent: str,

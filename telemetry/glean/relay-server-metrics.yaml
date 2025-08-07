@@ -115,6 +115,21 @@ email_mask:
     data_sensitivity:
       - interaction
     extra_keys: *default_mask_extra_keys
+  list_viewed:
+    type: event
+    description: A Relay user viewed the list of email masks.
+    expires: never
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
+      - https://mozilla-hub.atlassian.net/browse/MPP-3352
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1882565
+    notification_emails:
+      - lcrouch@mozilla.com
+      - relay-team@mozilla.com
+    data_sensitivity:
+      - interaction
+    extra_keys: *default_mask_extra_keys
 
 email:
   forwarded:

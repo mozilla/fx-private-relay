@@ -1,7 +1,7 @@
 """API views for emails"""
 
 from logging import getLogger
-from typing import Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
 from django.apps import apps
 from django.conf import settings
@@ -15,6 +15,7 @@ from django_filters import rest_framework as filters
 from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.serializers import BaseSerializer
 from rest_framework.status import (
@@ -72,6 +73,13 @@ _Address = TypeVar("_Address", RelayAddress, DomainAddress)
 
 
 class AddressViewSet(Generic[_Address], SaveToRequestUser, ModelViewSet):
+    def list(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        is_random_mask = self.get_queryset().model == RelayAddress
+        glean_logger().log_email_mask_list_viewed(
+            request=self.request, user=self.request.user, is_random_mask=is_random_mask
+        )
+        return super().list(request, *args, **kwargs)
+
     def perform_create(self, serializer: BaseSerializer[_Address]) -> None:
         super().perform_create(serializer)
         if not serializer.instance:
@@ -124,7 +132,9 @@ class RelayAddressViewSet(AddressViewSet[RelayAddress]):
 
     def get_queryset(self) -> QuerySet[RelayAddress]:
         if isinstance(self.request.user, User):
-            return RelayAddress.objects.filter(user=self.request.user)
+            return RelayAddress.objects.filter(user=self.request.user).select_related(
+                "user", "user__profile"
+            )
         return RelayAddress.objects.none()
 
 
@@ -161,9 +171,9 @@ class DomainAddressViewSet(AddressViewSet[DomainAddress]):
 
     def get_queryset(self) -> QuerySet[DomainAddress]:
         if isinstance(self.request.user, User):
-            return DomainAddress.objects.filter(
-                user=self.request.user
-            ).prefetch_related("user", "user__profile")
+            return DomainAddress.objects.filter(user=self.request.user).select_related(
+                "user", "user__profile"
+            )
         return DomainAddress.objects.none()
 
 
