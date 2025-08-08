@@ -27,6 +27,7 @@ from privaterelay.tests.utils import (
     make_free_test_user,
     make_premium_test_user,
     phone_subscription,
+    upgrade_test_user_to_premium,
     vpn_subscription,
 )
 from privaterelay.types import RELAY_CHANNEL_NAME
@@ -139,9 +140,7 @@ def test_user_data_premium_user() -> None:
 def test_user_data_phone_user() -> None:
     """Data is extracted for a premium email + phone user."""
     user = make_premium_test_user()
-    social_account = SocialAccount.objects.get(user=user)
-    social_account.extra_data["subscriptions"].append(phone_subscription())
-    social_account.save()
+    upgrade_test_user_to_premium(user, phone_subscription)
 
     user_data = UserData.from_user(user)
 
@@ -153,14 +152,15 @@ def test_user_data_phone_user() -> None:
 def test_user_data_vpn_user() -> None:
     """Data is extracted for a VPN bundle user."""
     user = make_premium_test_user()
-    social_account = SocialAccount.objects.get(user=user)
-    social_account.extra_data["subscriptions"].append(phone_subscription())
-    social_account.extra_data["subscriptions"].append(vpn_subscription())
-    social_account.save()
+    upgrade_test_user_to_premium(user, phone_subscription)
+    upgrade_test_user_to_premium(user, vpn_subscription)
 
     user_data = UserData.from_user(user)
-
-    assert user_data.date_joined_premium == user.profile.date_subscribed_phone
+    assert user_data.date_joined_premium
+    assert user.profile.date_subscribed
+    assert user_data.date_joined_premium.replace(
+        microsecond=0
+    ) == user.profile.date_subscribed.replace(microsecond=0)
     assert user_data.premium_status == "bundle_unknown"
 
 

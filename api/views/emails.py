@@ -85,11 +85,21 @@ class AddressViewSet(Generic[_Address], SaveToRequestUser, ModelViewSet):
     def perform_update(self, serializer: BaseSerializer[_Address]) -> None:
         if not serializer.instance:
             raise ValueError("serializer.instance must be truthy value.")
-        old_description = serializer.instance.description
+        old_instance = serializer.instance
+        old_description = old_instance.description
+        old_enabled = old_instance.enabled
+        old_block_list_emails = old_instance.block_list_emails
         super().perform_update(serializer)
-        new_description = serializer.instance.description
+        new_instance = serializer.instance
+        new_description = new_instance.description
+        new_enabled = new_instance.enabled
+        new_block_list_emails = new_instance.block_list_emails
         if old_description != new_description:
             glean_logger().log_email_mask_label_updated(
+                request=self.request, mask=serializer.instance
+            )
+        if old_enabled != new_enabled or old_block_list_emails != new_block_list_emails:
+            glean_logger().log_email_mask_blocking_updated(
                 request=self.request, mask=serializer.instance
             )
 

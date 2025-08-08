@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from datetime import datetime
 from logging import getLogger
 from typing import Any, Literal, NamedTuple
@@ -79,13 +80,9 @@ class UserData(NamedTuple):
         n_deleted_random_masks = user.profile.num_deleted_relay_addresses
         n_deleted_domain_masks = user.profile.num_deleted_domain_addresses
         date_joined_relay = user.date_joined
-        if user.profile.has_premium:
-            if user.profile.has_phone:
-                date_joined_premium = user.profile.date_subscribed_phone
-            else:
-                date_joined_premium = user.profile.date_subscribed
-        else:
-            date_joined_premium = None
+        date_joined_premium = (
+            user.profile.date_subscribed_phone or user.profile.date_subscribed or None
+        )
         premium_status = user.profile.metrics_premium_status
         # Until more accurate date_got_extension is calculated (MPP-3765)
         # do not check for when the user got extension
@@ -179,19 +176,20 @@ class RelayGleanLogger(EventsServerEventLogger):
             has_website=mask_data.has_website,
         )
 
-    def log_email_mask_label_updated(
+    def _log_email_mask_operation(
         self,
         *,
         request: HttpRequest,
         mask: RelayAddress | DomainAddress,
+        record_func: Callable,
     ) -> None:
-        """Log that a Relay email mask's label was changed."""
+        """Base logic for logging an email mask operation."""
         user_data = UserData.from_user(mask.user)
         if not user_data.metrics_enabled:
             return
         request_data = RequestData.from_request(request)
         mask_data = EmailMaskData.from_mask(mask)
-        self.record_email_mask_label_updated(
+        record_func(
             user_agent=_opt_str_to_glean(request_data.user_agent),
             ip_address=_opt_str_to_glean(request_data.ip_address),
             fxa_id=_opt_str_to_glean(user_data.fxa_id),
@@ -206,6 +204,32 @@ class RelayGleanLogger(EventsServerEventLogger):
             has_extension=user_data.has_extension,
             date_got_extension=_opt_dt_to_glean(user_data.date_got_extension),
             is_random_mask=mask_data.is_random_mask,
+        )
+
+    def log_email_mask_label_updated(
+        self,
+        *,
+        request: HttpRequest,
+        mask: RelayAddress | DomainAddress,
+    ) -> None:
+        """Log that a Relay email mask's label was changed."""
+        self._log_email_mask_operation(
+            request=request,
+            mask=mask,
+            record_func=self.record_email_mask_label_updated,
+        )
+
+    def log_email_mask_blocking_updated(
+        self,
+        *,
+        request: HttpRequest,
+        mask: RelayAddress | DomainAddress,
+    ) -> None:
+        """Log that a Relay email mask's blocking settings were changed."""
+        self._log_email_mask_operation(
+            request=request,
+            mask=mask,
+            record_func=self.record_email_mask_blocking_updated,
         )
 
     def log_email_mask_deleted(
