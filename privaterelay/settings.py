@@ -645,7 +645,7 @@ USE_SUBPLAT3 = config("USE_SUBPLAT3", False, cast=bool)
 SUBPLAT3_HOST = (
     "https://payments.firefox.com"
     if FXA_BASE_ORIGIN == "https://accounts.firefox.com"
-    else "https://payments-next.stage.fxa.nonprod.webservices.mozgcp.net"
+    else "https://payments-next.allizom.org"
 )
 SUBPLAT3_PREMIUM_PRODUCT_KEY = config(
     "SUBPLAT3_PREMIUM_PRODUCT_KEY", "relay-premium-127", cast=str

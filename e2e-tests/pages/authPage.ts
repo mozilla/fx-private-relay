@@ -5,10 +5,8 @@ export class AuthPage {
   readonly page: Page;
   readonly emailInputField: Locator;
   readonly passwordInputField: Locator;
-  readonly continueButton: Locator;
-  readonly createAccountButton: Locator;
+  readonly submitButton: Locator;
   readonly verifyCodeInputField: Locator;
-  readonly confirmCodeButton: Locator;
   readonly newPasswordInputFieldSignIn: Locator;
   readonly passwordSignupInputField: Locator;
 
@@ -19,21 +17,17 @@ export class AuthPage {
     this.passwordSignupInputField = page.getByTestId(
       "new-password-input-field",
     );
-    this.continueButton = page.locator('[type="submit"]').first();
-    this.createAccountButton = page.getByRole("button", {
-      name: "Create account",
-    });
+    this.submitButton = page.locator('[type="submit"]').first();
     this.verifyCodeInputField = page.getByTestId(
       "confirm-signup-code-input-field",
     );
-    this.confirmCodeButton = page.getByRole("button", { name: "Confirm" });
     this.newPasswordInputFieldSignIn = page.locator(
       "input[data-testid='input-field'][name='password'][type='password']",
     );
   }
 
   async continue() {
-    await this.continueButton.click();
+    await this.submitButton.click();
   }
 
   async enterVerificationCode(code: string) {
@@ -42,7 +36,7 @@ export class AuthPage {
       .waitFor({ state: "attached", timeout: TIMEOUTS.LONG });
     await forceNonReactLink(this.page);
     await this.verifyCodeInputField.fill(code);
-    await this.confirmCodeButton.click();
+    await this.submitButton.click();
   }
 
   async enterEmail(email: string) {
@@ -84,6 +78,6 @@ export class AuthPage {
     await this.passwordSignupInputField.fill(
       process.env.E2E_TEST_ACCOUNT_PASSWORD as string,
     );
-    await this.createAccountButton.click();
+    await this.submitButton.click();
   }
 }

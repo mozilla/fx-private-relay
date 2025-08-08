@@ -75,7 +75,11 @@ test.describe("Subscription flows with PlanGrid @health_check", () => {
   let expectedMegabundleDetails;
 
   test.beforeEach(async ({ landingPage }) => {
-    if (process.env["E2E_TEST_ENV"] === "prod") {
+    if (process.env["E2E_TEST_ENV"] === "local") {
+      expectedPremiumPlanDetails = "Relay Premium (127.0.0.1)";
+      expectedPhonesPlanDetails = "Relay Premium (127.0.0.1)";
+      expectedMegabundleDetails = "Privacy protection plan";
+    } else if (process.env["E2E_TEST_ENV"] === "prod") {
       expectedPremiumPlanDetails = "Relay Premium";
       expectedPhonesPlanDetails =
         "Relay Premium: Phone Number & Email Address Masking";
@@ -84,7 +88,7 @@ test.describe("Subscription flows with PlanGrid @health_check", () => {
       expectedPremiumPlanDetails = "Relay Premium (stage)";
       expectedPhonesPlanDetails = "Relay Email & Phone Protection (stage)";
       expectedMegabundleDetails = "Privacy protection plan";
-    } else {
+    } else if (process.env["E2E_TEST_ENV"] === "dev") {
       expectedPhonesPlanDetails = "Relay Email & Phone Protection (dev)";
       expectedMegabundleDetails = "Privacy protection plan";
     }
