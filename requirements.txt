@@ -38,11 +38,11 @@ twilio==9.7.0
 vobject==0.9.9
 
 # tests
-coverage==7.10.2
+coverage==7.10.3
 model-bakery==1.20.5
 pytest-cov==6.2.1
 pytest-django==4.11.1
-responses==0.25.7
+responses==0.25.8
 
 # linting
 black==25.1.0
