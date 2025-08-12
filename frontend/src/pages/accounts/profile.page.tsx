@@ -596,12 +596,6 @@ const Profile: NextPage = () => {
               runtimeData={runtimeData.data}
               setModalOpenedState={setModalOpenedState}
             />
-            <p className={styles["size-information"]}>
-              {l10n.getString("profile-supports-email-forwarding", {
-                size: getRuntimeConfig().emailSizeLimitNumber,
-                unit: getRuntimeConfig().emailSizeLimitUnit,
-              })}
-            </p>
           </section>
           {bottomBanners}
         </main>
