@@ -35,7 +35,7 @@
     "react-singleton-hook": "^4.0.1",
     "react-stately": "^3.40.0",
     "react-toastify": "^11.0.5",
-    "swr": "^2.3.4"
+    "swr": "^2.3.6"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^15.4.6",
