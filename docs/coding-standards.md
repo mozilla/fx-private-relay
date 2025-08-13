@@ -2,13 +2,13 @@
 
 ### Lint styles
 
-For JavaScript, we follow [ESLint's recommended rules](https://eslint.org/docs/rules/). 
+For JavaScript, we follow [ESLint's recommended rules](https://eslint.org/docs/rules/).
 
-For SCSS and CSS, we follow [the standard configuration](https://github.com/stylelint/stylelint-config-standard) with a few exceptions noted in the [StyleLint config file](https://github.com/mozilla/fx-private-relay/blob/main/.stylelintrc.json). 
+For SCSS and CSS, we follow [the standard configuration](https://github.com/stylelint/stylelint-config-standard) with a few exceptions noted in the [StyleLint config file](https://github.com/mozilla/fx-private-relay/blob/main/.stylelintrc.json).
 
 ## Protocol Integration
 
-We leverage the Protocol [design system](https://protocol.mozilla.org/docs/glossary.html) and framework. See additional documentation on Protocol at https://protocol.mozilla.org/docs.  
+We leverage the Protocol [design system](https://protocol.mozilla.org/docs/glossary.html) and framework. See additional documentation on Protocol at https://protocol.mozilla.org/docs.
 
 ### Class Naming Convention
 
@@ -29,7 +29,7 @@ Our names are all lowercase and hyphen-separated or “kebab-case,” e.g. `.mzp
 
 ### CSS Coding Guide
 
-We follow [Protocol's CSS coding guide](https://protocol.mozilla.org/docs/css-guide.html). See their documentation for additional details. 
+We follow [Protocol's CSS coding guide](https://protocol.mozilla.org/docs/css-guide.html). See their documentation for additional details.
 
 - Use [simple selectors](https://protocol.mozilla.org/docs/css-guide.html#simple-selectors)
 - Use [minimal nesting](https://protocol.mozilla.org/docs/css-guide.html#minimal-nesting)
