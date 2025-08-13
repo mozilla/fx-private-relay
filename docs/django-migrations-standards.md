@@ -18,7 +18,6 @@ The Django migration command `./manage.py makemigrations` utilizes [AddField ope
    - New empty tables are added.
    - New columns are added to existing tables.
 3. Version X code needs to run happily against the X+1 database:
-
    - When writing a new entry to the updated table with a new column, version X doesn't know about new columns and will omit them from INSERT statements.
      > [!NOTE]
      > These columns need a database default or allow `NULL`
