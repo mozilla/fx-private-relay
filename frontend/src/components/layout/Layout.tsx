@@ -26,7 +26,7 @@ import { useUsers } from "../../hooks/api/user";
 import { MobileNavigation } from "./navigation/MobileNavigation";
 import { CloseIcon } from "../Icons";
 import { PageMetadata } from "./PageMetadata";
-import { RuntimeData } from "../../hooks/api/runtimeData";
+import { RuntimeData } from "../../hooks/api/types";
 import { useRouter } from "next/router";
 import { isPhonesAvailableInCountry } from "../../functions/getPlan";
 import { useL10n } from "../../hooks/l10n";

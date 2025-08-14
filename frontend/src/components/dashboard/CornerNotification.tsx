@@ -6,7 +6,7 @@ import { ProfileData } from "../../hooks/api/profile";
 import { useLocalDismissal } from "../../hooks/localDismissal";
 import UpsellBannerNonUs from "../../pages/accounts/images/upsell-banner-nonus.svg";
 import { useGaViewPing } from "../../hooks/gaViewPing";
-import { RuntimeData } from "../../hooks/api/runtimeData";
+import { RuntimeData } from "../../hooks/api/types";
 import { isFlagActive } from "../../functions/waffle";
 import { useGaEvent } from "../../hooks/gaEvent";
 import { useL10n } from "../../hooks/l10n";

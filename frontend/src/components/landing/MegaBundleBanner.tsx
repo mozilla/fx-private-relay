@@ -4,7 +4,7 @@ import {
   isMegabundleAvailableInCountry,
   getMegabundleYearlyPrice,
 } from "../../functions/getPlan";
-import { RuntimeData } from "../../hooks/api/runtimeData";
+import { RuntimeData } from "../../hooks/api/types";
 import styles from "./MegaBundleBanner.module.scss";
 import { LinkButton } from "../Button";
 import { trackPlanPurchaseStart } from "../../functions/trackPurchase";

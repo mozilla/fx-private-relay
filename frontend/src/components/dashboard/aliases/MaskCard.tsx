@@ -33,7 +33,7 @@ import {
 } from "../../../hooks/api/aliases";
 import { UserData } from "../../../hooks/api/user";
 import { ProfileData } from "../../../hooks/api/profile";
-import { RuntimeData } from "../../../hooks/api/runtimeData";
+import { RuntimeData } from "../../../hooks/api/types";
 import { useL10n } from "../../../hooks/l10n";
 import { LabelEditor } from "./LabelEditor";
 import { ArrowDownIcon, CopyIcon, LockIcon } from "../../Icons";

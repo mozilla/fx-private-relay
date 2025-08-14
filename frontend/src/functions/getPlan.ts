@@ -1,5 +1,5 @@
 import { ReactLocalization } from "@fluent/react";
-import { PlanData, ProductData, RuntimeData } from "../hooks/api/runtimeData";
+import { PlanData, ProductData, RuntimeData } from "../hooks/api/types";
 import { getLocale } from "./getLocale";
 
 const getPlan = <P extends Partial<PlanData>>(
