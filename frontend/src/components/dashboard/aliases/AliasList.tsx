@@ -6,7 +6,7 @@ import { Alias } from "./Alias";
 import { filterAliases } from "../../../functions/filterAliases";
 import { CategoryFilter, SelectedFilters } from "./CategoryFilter";
 import { UserData } from "../../../hooks/api/user";
-import { RuntimeData } from "../../../hooks/api/runtimeData";
+import { RuntimeData } from "../../../hooks/api/types";
 import { useLocalLabels } from "../../../hooks/localLabels";
 import { AliasGenerationButton } from "./AliasGenerationButton";
 import { SearchIcon } from "../../Icons";

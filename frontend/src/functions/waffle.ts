@@ -1,4 +1,4 @@
-import { FlagNames, RuntimeData } from "../hooks/api/runtimeData";
+import { RuntimeData } from "../hooks/api/types";
 
 export type RuntimeDataWithWaffle = RuntimeData & {
   WAFFLE_FLAGS: RuntimeData["WAFFLE_FLAGS"];
@@ -6,7 +6,7 @@ export type RuntimeDataWithWaffle = RuntimeData & {
 
 export function isFlagActive(
   runtimeData: RuntimeData | undefined,
-  flagName: FlagNames,
+  flagName: string,
 ): runtimeData is RuntimeDataWithWaffle {
   if (runtimeData?.WAFFLE_FLAGS) {
     for (const flag of runtimeData.WAFFLE_FLAGS) {

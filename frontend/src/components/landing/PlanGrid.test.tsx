@@ -4,7 +4,7 @@ import { useL10n } from "../../hooks/l10n";
 import { useIsLoggedIn } from "../../hooks/session";
 import { useGaViewPing } from "../../hooks/gaViewPing";
 import { useGaEvent } from "../../hooks/gaEvent";
-import { RuntimeData } from "../../hooks/api/runtimeData";
+import { RuntimeData } from "../../hooks/api/types";
 import { isMegabundleAvailableInCountry } from "../../functions/getPlan";
 
 // Mock hooks and utilities

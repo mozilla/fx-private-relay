@@ -58,7 +58,7 @@ import { WhatsNewDashboard } from "./WhatsNewDashboard";
 import { useAddonData } from "../../../../hooks/addon";
 import { isUsingFirefox } from "../../../../functions/userAgent";
 import { getLocale } from "../../../../functions/getLocale";
-import { RuntimeData } from "../../../../hooks/api/runtimeData";
+import { RuntimeData } from "../../../../hooks/api/types";
 import { isFlagActive } from "../../../../functions/waffle";
 import {
   getBundlePrice,

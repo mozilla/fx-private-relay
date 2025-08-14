@@ -9,7 +9,7 @@ import {
 } from "../../functions/userAgent";
 import { ProfileData } from "../../hooks/api/profile";
 import { UserData } from "../../hooks/api/user";
-import { RuntimeData } from "../../../src/hooks/api/runtimeData";
+import { RuntimeData } from "../../hooks/api/types";
 import { Banner } from "../Banner";
 import Image from "../Image";
 import { renderDate } from "../../functions/renderDate";

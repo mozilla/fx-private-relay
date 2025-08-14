@@ -5,7 +5,7 @@ import {
   getBundleSubscribeLink,
   isBundleAvailableInCountry,
 } from "../../functions/getPlan";
-import { RuntimeData } from "../../hooks/api/runtimeData";
+import { RuntimeData } from "../../hooks/api/types";
 import { MaskIcon, PhoneIcon, VpnIcon } from "../Icons";
 import styles from "./BundleBanner.module.scss";
 import { LinkButton } from "../Button";
