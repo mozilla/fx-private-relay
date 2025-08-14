@@ -128,7 +128,7 @@ make this easier.
         subdomain: pick-a-subdomain
    ```
    Note: You will need ngrok premium to get a static subdomain.
-3. Add `your-subdomain.ngrok.io` to your `.env` `DJANGO_ALLOWED_HOST`
+3. Add `your-subdomain.ngrok.io` to your `.env` `ALLOWED_HOSTS`
 4. Set your `.env` `SITE_ORIGIN` to `your-subdomain.ngrok.io`
 5. Run `ngrok start relay`
 6. Hit https://your-subdomain.ngrok.io/api/v1/docs/ to check that it's working.

@@ -96,7 +96,7 @@ Forwarding      https://myrelay.ngrok.io -> 127.0.0.1:8000
 
 Add the ngrok.io domain to the allowed hosts:
 
-- `DJANGO_ALLOWED_HOST=127.0.0.1,myrelay.ngrok.io`
+- `ALLOWED_HOSTS=127.0.0.1,myrelay.ngrok.io`
 
 In a different console, run the development server. Ensure:
 

@@ -80,7 +80,9 @@ RELAY_CHANNEL: RELAY_CHANNEL_NAME = cast(
 
 DEBUG = config("DEBUG", False, cast=bool)
 if DEBUG:
-    INTERNAL_IPS = config("DJANGO_INTERNAL_IPS", default="", cast=Csv())
+    INTERNAL_IPS = config("INTERNAL_IPS", default="", cast=Csv()) or config(
+        "DJANGO_INTERNAL_IPS", default="", cast=Csv()
+    )
 IN_PYTEST: bool = "pytest" in sys.modules
 USE_SILK = DEBUG and HAS_SILK and not IN_PYTEST
 DEFAULT_EXCEPTION_REPORTER_FILTER = (
@@ -89,19 +91,30 @@ DEFAULT_EXCEPTION_REPORTER_FILTER = (
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-SECURE_SSL_HOST = config("DJANGO_SECURE_SSL_HOST", None)
-SECURE_SSL_REDIRECT = config("DJANGO_SECURE_SSL_REDIRECT", False, cast=bool)
+SECURE_SSL_HOST = config("SECURE_SSL_HOST", None) or config(
+    "DJANGO_SECURE_SSL_HOST", None
+)
+SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", False, cast=bool) or config(
+    "DJANGO_SECURE_SSL_REDIRECT", False, cast=bool
+)
 SECURE_REDIRECT_EXEMPT = [
     r"^__version__",
     r"^__heartbeat__",
     r"^__lbheartbeat__",
 ]
 SECURE_HSTS_INCLUDE_SUBDOMAINS = config(
-    "DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS", False, cast=bool
+    "SECURE_HSTS_INCLUDE_SUBDOMAINS", False, cast=bool
+) or config("DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS", False, cast=bool)
+SECURE_HSTS_PRELOAD = config("SECURE_HSTS_PRELOAD", False, cast=bool) or config(
+    "DJANGO_SECURE_HSTS_PRELOAD", False, cast=bool
 )
-SECURE_HSTS_PRELOAD = config("DJANGO_SECURE_HSTS_PRELOAD", False, cast=bool)
-SECURE_HSTS_SECONDS = config("DJANGO_SECURE_HSTS_SECONDS", None)
-SECURE_BROWSER_XSS_FILTER = config("DJANGO_SECURE_BROWSER_XSS_FILTER", True)
+SECURE_HSTS_SECONDS = config("SECURE_HSTS_SECONDS", None) or config(
+    "DJANGO_SECURE_HSTS_SECONDS", None
+)
+# Default to "false" in first envvar check so that we fall back to the GCP v1 value
+SECURE_BROWSER_XSS_FILTER = config("SECURE_BROWSER_XSS_FILTER", False) or config(
+    "DJANGO_SECURE_BROWSER_XSS_FILTER", True
+)
 SESSION_COOKIE_SECURE = config("DJANGO_SESSION_COOKIE_SECURE", False, cast=bool)
 CSRF_COOKIE_SECURE = config("DJANGO_CSRF_COOKIE_SECURE", False, cast=bool)
 
@@ -228,12 +241,15 @@ if _CSP_REPORT_URI := config("CSP_REPORT_URI", ""):
 REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 ALLOWED_HOSTS: list[str] = []
-DJANGO_ALLOWED_HOSTS = config("DJANGO_ALLOWED_HOST", "", cast=Csv())
+DJANGO_ALLOWED_HOSTS = config("ALLOWED_HOSTS", "", cast=Csv()) or config(
+    "DJANGO_ALLOWED_HOST", "", cast=Csv()
+)
+
 if DJANGO_ALLOWED_HOSTS:
     ALLOWED_HOSTS += DJANGO_ALLOWED_HOSTS
-DJANGO_ALLOWED_SUBNET = config("DJANGO_ALLOWED_SUBNET", None)
-if DJANGO_ALLOWED_SUBNET:
-    ALLOWED_HOSTS += [str(ip) for ip in ipaddress.IPv4Network(DJANGO_ALLOWED_SUBNET)]
+ALLOWED_SUBNET = config("ALLOWED_SUBNET", None) or config("DJANGO_ALLOWED_SUBNET", None)
+if ALLOWED_SUBNET:
+    ALLOWED_HOSTS += [str(ip) for ip in ipaddress.IPv4Network(ALLOWED_SUBNET)]
 
 
 # Get our backing resource configs to check if we should install the app
@@ -249,9 +265,6 @@ AWS_SES_CONFIGSET: str | None = config("AWS_SES_CONFIGSET", None)
 AWS_SQS_EMAIL_QUEUE_URL = config("AWS_SQS_EMAIL_QUEUE_URL", None)
 AWS_SQS_EMAIL_DLQ_URL = config("AWS_SQS_EMAIL_DLQ_URL", None)
 
-# Dead-Letter Queue (DLQ) for SNS push subscription
-AWS_SQS_QUEUE_URL = config("AWS_SQS_QUEUE_URL", None)
-
 RELAY_FROM_ADDRESS: str = config("RELAY_FROM_ADDRESS", "")
 GOOGLE_ANALYTICS_ID = config("GOOGLE_ANALYTICS_ID", None)
 GA4_MEASUREMENT_ID = config("GA4_MEASUREMENT_ID", None)
@@ -259,7 +272,6 @@ GOOGLE_APPLICATION_CREDENTIALS: str = config("GOOGLE_APPLICATION_CREDENTIALS", "
 GOOGLE_CLOUD_PROFILER_CREDENTIALS_B64: str = config(
     "GOOGLE_CLOUD_PROFILER_CREDENTIALS_B64", ""
 )
-INCLUDE_VPN_BANNER = config("INCLUDE_VPN_BANNER", False, cast=bool)
 RECRUITMENT_BANNER_LINK = config("RECRUITMENT_BANNER_LINK", None)
 RECRUITMENT_BANNER_TEXT = config("RECRUITMENT_BANNER_TEXT", None)
 RECRUITMENT_EMAIL_BANNER_TEXT = config("RECRUITMENT_EMAIL_BANNER_TEXT", None)
@@ -304,12 +316,18 @@ IQ_MESSAGE_API_ORIGIN = config(
 IQ_MESSAGE_PATH = "/msgbroker/rest/publishMessages"
 IQ_PUBLISH_MESSAGE_URL: str = f"{IQ_MESSAGE_API_ORIGIN}{IQ_MESSAGE_PATH}"
 
-DJANGO_STATSD_ENABLED = config("DJANGO_STATSD_ENABLED", False, cast=bool)
 STATSD_DEBUG = config("STATSD_DEBUG", False, cast=bool)
-STATSD_ENABLED: bool = DJANGO_STATSD_ENABLED or STATSD_DEBUG
-STATSD_HOST = config("DJANGO_STATSD_HOST", "127.0.0.1")
-STATSD_PORT = config("DJANGO_STATSD_PORT", "8125")
-STATSD_PREFIX = config("DJANGO_STATSD_PREFIX", "firefox_relay")
+STATSD_ENABLED: bool = (
+    config("STATSD_ENABLED", False, cast=bool)
+    or config("DJANGO_STATSD_ENABLED", False, cast=bool)
+    or STATSD_DEBUG
+)
+STATSD_HOST = config("STATSD_HOST", "") or config("DJANGO_STATSD_HOST", "127.0.0.1")
+
+STATSD_PORT = config("STATSD_PORT", "") or config("DJANGO_STATSD_PORT", "8125")
+STATSD_PREFIX = config("STATSD_PREFIX", "") or config(
+    "DJANGO_STATSD_PREFIX", "firefox_relay"
+)
 
 SERVE_ADDON = config("SERVE_ADDON", None)
 

@@ -297,12 +297,10 @@ In detail:
 3. Create a new product in Stripe.
 
 4. Add all [required `product:` metadata](https://github.com/mozilla/fxa/blob/a0c7ac2b4bad0412a0f3a25fc82b5670922f8957/packages/fxa-auth-server/lib/routes/validators.js#L396-L437).
-
    - Note: each piece of this metadata must have a `product:` prefix. So, for
      example, `webIconURL` must be entered as `product:webIconURL`.
 
 5. Add `capabilities:` metadata.
-
    - Note: Each piece of this metadata must have a format like
      `capabilities:<fxa oauth client ID>`, and the value is a free-form string
      to describe the "capability" that purchasing the subscription gives to the
@@ -362,6 +360,6 @@ Production environments should also set some additional environment variables:
 
 ```
 DATABASE_URL=postgresql://<username>:<password>@<host>:<port>/<database>
-DJANGO_SECURE_HSTS_SECONDS=15768000
-DJANGO_SECURE_SSL_REDIRECT=True
+SECURE_HSTS_SECONDS=15768000
+SECURE_SSL_REDIRECT=True
 ```
