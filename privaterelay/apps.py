@@ -84,7 +84,7 @@ def write_gcp_key_json_file(gcp_key_json_path: Path) -> None:
 
 def configure_markus() -> None:
     backends: list[dict[str, Any]] = []
-    if settings.DJANGO_STATSD_ENABLED and not settings.IN_PYTEST:
+    if settings.STATSD_ENABLED and not settings.IN_PYTEST:
         backends.append(
             {
                 "class": "markus.backends.datadog.DatadogMetrics",

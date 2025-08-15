@@ -49,7 +49,6 @@ def test_safe_settings(name: str) -> None:
         "AWS_SNS_TOPIC",
         "AWS_SQS_EMAIL_DLQ_URL",
         "AWS_SQS_EMAIL_QUEUE_URL",
-        "AWS_SQS_QUEUE_URL",
         "CACHES",
         "DJANGO_ALLOWED_HOSTS",
         "IQ_ENABLED",

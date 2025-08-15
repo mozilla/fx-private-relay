@@ -67,7 +67,7 @@ be accessible at a public domain. [`localutnnel`][lt-download] is a great tool t
 make this easier.
 
 1. Follow the instructions on the [`localtunnel`][lt-download].
-2. Add `your-subdomain.loca.lt` to your `.env` `DJANGO_ALLOWED_HOST`
+2. Add `your-subdomain.loca.lt` to your `.env` `ALLOWED_HOSTS`
 3. Set your `.env` `SITE_ORIGIN` to `your-subdomain.loca.lt`
 4. Run `lt --port 8000 --subdomain your-subdomain`
 5. Hit https://your-subdomain.loca.lt/api/v1/docs/ to check that it's working.

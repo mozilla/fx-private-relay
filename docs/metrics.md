@@ -21,17 +21,17 @@ default.
 
 Configuration is controlled by these variables:
 
-| Shell Environment       | Django Settings         | Default                                 | Description                                              |
-| :---------------------- | :---------------------- | :-------------------------------------- | :------------------------------------------------------- |
-| `DJANGO_STATSD_ENABLED` | `DJANGO_STATSD_ENABLED` | `False`                                 | Enables / disables emitting metrics to a statsd server   |
-| `STATSD_DEBUG`          | `STATSD_DEBUG`          | `False`                                 | Enables / disables metrics logging                       |
-| _n/a_                   | `STATSD_ENABLED`        | `DJANGO_STATSD_ENABLED or STATSD_DEBUG` | Enables `incr_if_enabled()`, `gauge_if_enabled()`, etc.) |
-| `DJANGO_STATSD_HOST`    | `STATSD_HOST`           | `"127.0.0.1"`                           | statsd server IP                                         |
-| `DJANGO_STATSD_PORT`    | `STATSD_PORT`           | `8125`                                  | statsd server port                                       |
-| `DJANGO_STATSD_PREFIX`  | `STATSD_PREFIX`         | `"firefox_relay"`                       | prefix for all metrics emitted to statsd server          |
+| Shell Environment | Django Settings  | Default                          | Description                                                     |
+| :---------------- | :--------------- | :------------------------------- | :-------------------------------------------------------------- |
+| `STATSD_ENABLED`  | `STATSD_ENABLED` | `False`                          | Enables / disables emitting metrics to a statsd server          |
+| `STATSD_DEBUG`    | `STATSD_DEBUG`   | `False`                          | Enables / disables metrics logging, if true ignores above value |
+| _n/a_             | `STATSD_ENABLED` | `STATSD_ENABLED or STATSD_DEBUG` | Enables `incr_if_enabled()`, `gauge_if_enabled()`, etc.)        |
+| `STATSD_HOST`     | `STATSD_HOST`    | `"127.0.0.1"`                    | statsd server IP                                                |
+| `STATSD_PORT`     | `STATSD_PORT`    | `8125`                           | statsd server port                                              |
+| `STATSD_PREFIX`   | `STATSD_PREFIX`  | `"firefox_relay"`                | prefix for all metrics emitted to statsd server                 |
 
-With the defaults `DJANGO_STATSD_ENABLED=False` and `STATSD_DEBUG=False`, no metrics
-are emitted. In deployments, `DJANGO_STATSD_ENABLED=True` and `STATSD_DEBUG=False`,
+With the defaults `STATSD_ENABLED=False` and `STATSD_DEBUG=False`, no metrics
+are emitted. In deployments, `STATSD_ENABLED=True` and `STATSD_DEBUG=False`,
 so metrics are emitted but do not appear in logs.
 
 ## Development
@@ -46,7 +46,7 @@ Metrics are set by utility functions in [emails/utils.py](../emails/utils.py):
 - `histogram_if_enabled(name, value, tags=None)`
 - `gauge_if_enabled(name, value, tags=None)`
 
-With `DJANGO_STATSD_ENABLED=True`, metrics are sent to the server identified by
+With `STATSD_ENABLED=True`, metrics are sent to the server identified by
 `STATSD_HOST` and `STATSD_PORT`, using the [DatadogMetrics
 backend][markus-datadogmetrics]. These are sent as UDP packets, which means
 they are silently dropped if there is no server to receive them. In local
