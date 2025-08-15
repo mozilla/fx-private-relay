@@ -24,7 +24,7 @@ import {
   getIndividualBundlePrice,
   getBundleDiscountPercentage,
 } from "../../functions/getPlan";
-import { RuntimeData } from "../../hooks/api/runtimeData";
+import { RuntimeData } from "../../hooks/api/types";
 import {
   CheckIcon2,
   VpnIcon,

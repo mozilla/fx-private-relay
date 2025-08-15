@@ -19,7 +19,7 @@ import {
   isMegabundleAvailableInCountry,
 } from "./getPlan";
 import { mockedRuntimeData } from "../apiMocks/mockData";
-import { PlanData } from "../hooks/api/runtimeData";
+import { PlanData } from "../hooks/api/types";
 import { ReactLocalization } from "@fluent/react";
 
 const sp2LinkPrefix = `${mockedRuntimeData.FXA_ORIGIN}/subscriptions/products`;

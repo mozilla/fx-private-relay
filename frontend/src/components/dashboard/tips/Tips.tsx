@@ -15,7 +15,7 @@ import { getRuntimeConfig } from "../../../config";
 import { CustomAliasTip } from "./CustomAliasTip";
 import { useGaViewPing } from "../../../hooks/gaViewPing";
 import { useRelayNumber } from "../../../hooks/api/relayNumber";
-import { RuntimeData } from "../../../hooks/api/runtimeData";
+import { RuntimeData } from "../../../hooks/api/types";
 import { isFlagActive } from "../../../functions/waffle";
 import { GenericTip } from "./GenericTip";
 import { useGaEvent } from "../../../hooks/gaEvent";

@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { useL10n } from "../../../hooks/l10n";
 import { Localized } from "../../Localized";
 import styles from "./HolidayPromoBanner.module.scss";
-import { RuntimeData } from "../../../hooks/api/runtimeData";
+import { RuntimeData } from "../../../hooks/api/types";
 import {
   getPeriodicalPremiumSubscribeLink,
   isPeriodicalPremiumAvailableInCountry,

@@ -23,7 +23,7 @@ import { AliasDeletionButton } from "./AliasDeletionButton";
 import { getRuntimeConfig } from "../../../config";
 import { getLocale } from "../../../functions/getLocale";
 import { BlockLevel, BlockLevelSlider } from "./BlockLevelSlider";
-import { RuntimeData } from "../../../hooks/api/runtimeData";
+import { RuntimeData } from "../../../hooks/api/types";
 import { isFlagActive } from "../../../functions/waffle";
 import { isPeriodicalPremiumAvailableInCountry } from "../../../functions/getPlan";
 import { useL10n } from "../../../hooks/l10n";
