@@ -1222,8 +1222,4 @@ describe("The dashboard", () => {
       expect(confettiCanvas).toBeInTheDocument();
     });
   });
-
-  describe("Premium onboarding flow", () => {
-    // ...
-  });
 });

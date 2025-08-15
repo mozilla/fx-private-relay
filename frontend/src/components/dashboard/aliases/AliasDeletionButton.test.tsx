@@ -97,11 +97,9 @@ describe("<AliasDeletionButton>", () => {
     await userEvent.click(firstPromptCheckbox);
     await userEvent.click(firstPromptCancelButton);
 
-    // Dialog is closed and focus restored to trigger
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     await waitFor(() => expect(trigger).toHaveFocus());
 
-    // Reopen – state should be reset
     await userEvent.click(trigger);
 
     const secondPrompt = screen.getByRole("dialog");
@@ -126,10 +124,8 @@ describe("<AliasDeletionButton>", () => {
     const firstPromptCheckbox = within(firstPrompt).getByRole("checkbox");
 
     await userEvent.click(firstPromptCheckbox);
-    // Click outside modal (underlay)
     await userEvent.click(document.body);
 
-    // Reopen – state should be reset
     await userEvent.click(trigger);
 
     const secondPrompt = screen.getByRole("dialog");
@@ -166,7 +162,6 @@ describe("<AliasDeletionButton>", () => {
     const checkbox = within(prompt).getByRole("checkbox");
     const submit = within(prompt).getByRole("button", { name: openLabel });
 
-    // Without checkbox, submit should be disabled
     expect(submit).toBeDisabled();
 
     await userEvent.click(checkbox);
@@ -185,16 +180,13 @@ describe("<AliasDeletionButton>", () => {
 
     await userEvent.click(screen.getByRole("button", { name: openLabel }));
 
-    // Title is rendered in an <h3> via useDialog titleProps
     const heading = screen.getByRole("heading", { level: 3, name: titleLabel });
     expect(heading).toBeInTheDocument();
 
-    // Confirmation label copy appears next to the checkbox
     expect(screen.getByText(confirmLabel)).toBeInTheDocument();
   });
 
   it("shows the address from getFullAddress inside <samp> and uses the 'random' usage warning by default", async () => {
-    // Force a predictable address so we can assert on it
     jest.spyOn(aliasApi, "getFullAddress").mockReturnValue("mask@relay.test");
 
     render(
@@ -203,10 +195,8 @@ describe("<AliasDeletionButton>", () => {
 
     await userEvent.click(screen.getByRole("button", { name: openLabel }));
 
-    // The <samp> contains the address
     expect(screen.getByText("mask@relay.test")).toBeInTheDocument();
 
-    // Random alias path should choose the non-domain warning key
     expect(screen.getByText(usageRandomLabel)).toBeInTheDocument();
   });
 
@@ -215,7 +205,6 @@ describe("<AliasDeletionButton>", () => {
     jest.spyOn(aliasApi, "getFullAddress").mockReturnValue("custom@you.test");
 
     render(
-      // The actual alias object shape is irrelevant here because we stub isRandomAlias/getFullAddress
       // @ts-expect-error: we stub out behavior, so the concrete fields aren't needed
       <AliasDeletionButton alias={{}} onDelete={jest.fn()} />,
     );
