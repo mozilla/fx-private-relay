@@ -1,18 +1,34 @@
 name: Push container image to MozCloud GAR
 on:
+  pull_request: {}
   push:
     branches: [ main ]
     tags: ['*']
 
 jobs:
   build-and-push:
-    secrets: inherit
     permissions:
-      packages: write
       contents: read
       id-token: write
-    uses: mozilla-it/deploy-actions/.github/workflows/build-and-push.yml@main
-    with:
-      image_name: fx-private-relay
-      gar_name: ${{ vars.GCP_MOZCLOUD_GAR_NAME_PROD }}
-      project_id: ${{ vars.GCP_MOZCLOUD_PROJECT_ID_PROD }}
+      packages: write
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          submodules: true
+      - name: Build and Tag Container Image
+        id: build
+        uses: mozilla-it/deploy-actions/docker-build@v4.4.0
+        with:
+          gar_name: ${{ vars.GCP_MOZCLOUD_GAR_NAME_PROD }}
+          image_name: fx-private-relay
+          project_id: ${{ vars.GCP_MOZCLOUD_PROJECT_ID_PROD }}
+          dockerfile_path: "./Dockerfile-unified"
+      - name: Push Container Image
+        uses: mozilla-it/deploy-actions/docker-push@v4.4.0
+        with:
+          image_tags: ${{ steps.build.outputs.image_tags }}
+          project_id: ${{ vars.GCP_MOZCLOUD_PROJECT_ID_PROD }}
+          workload_identity_pool_project_number: ${{ vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
