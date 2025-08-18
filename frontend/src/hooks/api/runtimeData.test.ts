@@ -1,52 +1,69 @@
-import { renderHook, waitFor } from "@testing-library/react";
-import { http, HttpResponse } from "msw";
-
+import { renderHook } from "@testing-library/react";
 import { useRuntimeData } from "./runtimeData";
 import { DEFAULT_RUNTIME_DATA } from "./runtimeData-default";
-import { initialiseServer } from "../../apiMocks/server";
-import { mockedRuntimeData } from "../../apiMocks/mockData";
+import type { RuntimeData } from "./types";
 
-const server = initialiseServer();
+// Fully mock the transport; no MSW / network needed.
+jest.mock("./api", () => ({
+  useApiV1: jest.fn(),
+}));
 
-beforeAll(() => {
-  server.listen();
-});
+// Local alias to the mocked function for convenience.
+const mockedUseApiV1 = jest.requireMock("./api").useApiV1 as jest.Mock;
 
-afterEach(() => {
-  server.resetHandlers(); // back to default handlers (including runtime_data success)
-});
+describe("useRuntimeData (no MSW, pure unit)", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
-afterAll(() => {
-  server.close();
-});
+  it("returns live API data when available", () => {
+    // Distinct reference so we can assert identity.
+    // @ts-expect-error minimal shape for identity assertion only
+    const LIVE_DATA: RuntimeData = { __sentinel__: "live" };
 
-describe("useRuntimeData (MSW-backed)", () => {
-  it("uses live API runtime data when available", async () => {
+    mockedUseApiV1.mockReturnValue({ data: LIVE_DATA });
+
     const { result } = renderHook(() => useRuntimeData());
 
-    // Wait for the request SWR makes to resolve
-    await waitFor(() => {
-      expect(result.current.data).toEqual(mockedRuntimeData);
-    });
-
-    // Ensure it isn’t the fallback reference
+    expect(result.current.data).toBe(LIVE_DATA);
     expect(result.current.data).not.toBe(DEFAULT_RUNTIME_DATA);
   });
 
-  it("falls back to DEFAULT_RUNTIME_DATA when API data is unavailable", async () => {
-    // Override just for this test to simulate a backend failure
-    server.use(
-      http.get("/api/v1/runtime_data", () =>
-        HttpResponse.text(null, { status: 500 }),
-      ),
-    );
+  it("falls back to DEFAULT_RUNTIME_DATA when API data is undefined (client, pending/empty)", () => {
+    mockedUseApiV1.mockReturnValue({ data: undefined });
 
     const { result } = renderHook(() => useRuntimeData());
 
-    // Immediate fallback before/after the failing fetch
     expect(result.current.data).toBe(DEFAULT_RUNTIME_DATA);
-    await waitFor(() => {
-      expect(result.current.data).toBe(DEFAULT_RUNTIME_DATA);
+  });
+
+  it("falls back to DEFAULT_RUNTIME_DATA when API errors (simulated 5xx)", () => {
+    mockedUseApiV1.mockReturnValue({
+      data: undefined,
+      error: new Error("500 Internal Server Error"),
     });
+
+    const { result } = renderHook(() => useRuntimeData());
+
+    expect(result.current.data).toBe(DEFAULT_RUNTIME_DATA);
+    expect(result.current.error).toBeInstanceOf(Error);
+  });
+
+  it("switches from fallback to live data when API starts returning data", () => {
+    let currentData: RuntimeData | undefined = undefined;
+    mockedUseApiV1.mockImplementation(() => ({ data: currentData }));
+
+    const { result, rerender } = renderHook(() => useRuntimeData());
+
+    // initial undefined -> client fallback
+    expect(result.current.data).toBe(DEFAULT_RUNTIME_DATA);
+
+    // simulate SWR fetching success, then re-render
+    // @ts-expect-error minimal shape for identity assertion only
+    const LIVE_DATA: RuntimeData = { __sentinel__: "live" };
+    currentData = LIVE_DATA;
+    rerender();
+
+    expect(result.current.data).toBe(LIVE_DATA);
   });
 });
