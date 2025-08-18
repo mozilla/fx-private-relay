@@ -11,7 +11,7 @@ jobs:
     if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' && startsWith( github.head_ref, 'dependabot/pip/glean-parser' ) }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: 'recursive'
       - name: Checkout pull request
