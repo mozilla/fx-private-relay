@@ -8,7 +8,7 @@ jobs:
   detect-unresolved-conflicts:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: List files with merge conflict markers
         run: git --no-pager grep "<<<<<<<" ":(exclude).github/workflows/conflicts.yml" || true
       - name: Fail or succeed job if any files with merge conflict markers have been checked in
