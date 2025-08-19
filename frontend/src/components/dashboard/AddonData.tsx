@@ -1,7 +1,7 @@
 import { createElement } from "react";
 import { AliasData } from "../../hooks/api/aliases";
 import { ProfileData } from "../../hooks/api/profile";
-import { RuntimeData } from "../../hooks/api/runtimeData";
+import { RuntimeData } from "../../hooks/api/types";
 
 export type Props = {
   profile: ProfileData;

@@ -19,7 +19,7 @@ import { useGaViewPing } from "../../hooks/gaViewPing";
 import { useGaEvent } from "../../hooks/gaEvent";
 import { AliasData } from "../../hooks/api/aliases";
 import { UserData } from "../../hooks/api/user";
-import { RuntimeData } from "../../hooks/api/runtimeData";
+import { RuntimeData } from "../../hooks/api/types";
 import { EmailForwardingModal } from "./EmailForwardingModal";
 import { useState } from "react";
 import { supportsFirefoxExtension } from "../../functions/userAgent";

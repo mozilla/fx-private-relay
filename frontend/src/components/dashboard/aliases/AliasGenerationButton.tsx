@@ -24,7 +24,7 @@ import { ProfileData } from "../../../hooks/api/profile";
 import { Button, LinkButton } from "../../Button";
 import { AliasData } from "../../../hooks/api/aliases";
 import { getRuntimeConfig } from "../../../config";
-import { RuntimeData } from "../../../hooks/api/runtimeData";
+import { RuntimeData } from "../../../hooks/api/types";
 import { isPeriodicalPremiumAvailableInCountry } from "../../../functions/getPlan";
 import { useGaViewPing } from "../../../hooks/gaViewPing";
 import { CustomAddressGenerationModal } from "./CustomAddressGenerationModal";

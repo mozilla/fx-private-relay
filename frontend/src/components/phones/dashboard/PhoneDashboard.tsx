@@ -18,7 +18,7 @@ import { formatPhone } from "../../../functions/formatPhone";
 import { getLocale } from "../../../functions/getLocale";
 import { parseDate } from "../../../functions/parseDate";
 import { Tips } from "../../dashboard/tips/Tips";
-import { RuntimeData } from "../../../hooks/api/runtimeData";
+import { RuntimeData } from "../../../hooks/api/types";
 import { DismissalData } from "../../../hooks/localDismissal";
 import { Banner } from "../../Banner";
 import { useL10n } from "../../../hooks/l10n";

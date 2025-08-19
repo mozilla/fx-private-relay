@@ -3,7 +3,7 @@ import { RealPhoneData } from "../hooks/api/realPhone";
 import { RelayNumberData } from "../hooks/api/relayNumber";
 import { InboundContactData } from "../hooks/api/inboundContact";
 import { ProfileData } from "../hooks/api/profile";
-import { RuntimeData } from "../hooks/api/runtimeData";
+import { RuntimeData } from "../hooks/api/types";
 import { UserData } from "../hooks/api/user";
 
 export const mockIds = ["demo", "empty", "onboarding", "some", "full"] as const;
@@ -108,6 +108,8 @@ export const mockedRuntimeData: RuntimeData = {
     ["mask_redesign", true],
     ["custom_domain_management_redesign", true],
   ],
+  WAFFLE_SWITCHES: [],
+  WAFFLE_SAMPLES: [],
   MAX_MINUTES_TO_VERIFY_REAL_PHONE: 5,
 };
 

@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import { ProfileData } from "../../../hooks/api/profile";
 import { InterviewRecruitment } from "./InterviewRecruitment";
 import { CsatSurvey } from "./CsatSurvey";
-import { RuntimeData } from "../../../hooks/api/runtimeData";
+import { RuntimeData } from "../../../hooks/api/types";
 import { isFlagActive } from "../../../functions/waffle";
 import { getLocale } from "../../../functions/getLocale";
 import { PhoneSurvey } from "./PhoneSurvey";

@@ -12,7 +12,7 @@ import {
   PhoneNumberSubmitVerificationFn,
   useRealPhonesData,
 } from "../../../hooks/api/realPhone";
-import { RuntimeData } from "../../../hooks/api/runtimeData";
+import { RuntimeData } from "../../../hooks/api/types";
 import { parseDate } from "../../../functions/parseDate";
 import { formatPhone } from "../../../functions/formatPhone";
 import { useInterval } from "../../../hooks/interval";
