@@ -17,6 +17,7 @@ export const AddonData = (props: Props) => {
     // #profile-main is used by the add-on to look up the API token.
     // TODO: Make it look for this custom element instead.
     id: "profile-main",
+    "data-testid": "addon-element",
     "data-api-token": props.profile.api_token,
     "data-has-premium": String(props.profile.has_premium),
     "data-fxa-subscriptions-url": `${props.runtimeData.FXA_ORIGIN}/subscriptions`,

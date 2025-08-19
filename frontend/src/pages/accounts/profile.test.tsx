@@ -58,6 +58,11 @@ jest.mock("../../hooks/gaViewPing.ts");
 jest.mock("../../hooks/fxaFlowTracker.ts", () => mockUseFxaFlowTrackerModule);
 jest.mock("../../hooks/l10n.ts", () => mockUseL10nModule);
 jest.mock("../../components/Localized.tsx", () => mockLocalizedModule);
+jest.mock("react-confetti", () => {
+  const MockConfetti = () => <div data-testid="react-confetti" />;
+  MockConfetti.displayName = "MockConfetti";
+  return MockConfetti;
+});
 
 setMockAliasesData();
 setMockProfileData();
@@ -219,6 +224,43 @@ describe("The dashboard", () => {
     expect(countOf50.parentElement?.textContent).toMatch("50");
     // eslint-disable-next-line testing-library/no-node-access
     expect(countOf72.parentElement?.textContent).toMatch("72");
+  });
+
+  it("shows and hides the StatExplainer tooltip for trackers removed", async () => {
+    setMockProfileDataOnce({
+      has_premium: true,
+      level_one_trackers_blocked: 123,
+    });
+    setMockAliasesDataOnce({ random: [], custom: [] });
+    setMockRuntimeDataOnce({
+      ...getMockRuntimeDataWithPeriodicalPremium(),
+      WAFFLE_FLAGS: [["tracker_removal", true]],
+    });
+
+    render(<Profile />);
+
+    const learnMoreButton = screen.getByRole("button", {
+      name: "l10n string: [profile-stat-learn-more], with vars: {}",
+    });
+    await userEvent.click(learnMoreButton);
+
+    const tooltip = await screen.findByText(
+      "l10n string: [profile-stat-label-trackers-learn-more-part1], with vars: {}",
+    );
+    expect(tooltip).toBeInTheDocument();
+
+    const closeButton = screen.getByRole("button", {
+      name: "l10n string: [profile-stat-learn-more-close], with vars: {}",
+    });
+    await userEvent.click(closeButton);
+
+    await waitFor(() => {
+      expect(
+        screen.queryByText(
+          "l10n string: [profile-stat-label-trackers-learn-more-part1], with vars: {}",
+        ),
+      ).not.toBeInTheDocument();
+    });
   });
 
   it("shows the domain search form for Premium users that do not have a domain yet", () => {
@@ -1159,6 +1201,25 @@ describe("The dashboard", () => {
       expect(generateRandomAliasMenuItem).toBeInTheDocument();
       expect(generateCustomAliasMenuItem).toBeInTheDocument();
       mockConfigModule.getRuntimeConfig.mockReturnValue(mockedConfig);
+    });
+  });
+
+  describe("Free onboarding flow", () => {
+    it("shows confetti when user completes free onboarding", () => {
+      setMockProfileDataOnce({
+        has_premium: false,
+        onboarding_free_state: 4,
+      });
+      setMockAliasesDataOnce({ random: [], custom: [] });
+      setMockRuntimeDataOnce({
+        ...getMockRuntimeDataWithPeriodicalPremium(),
+        WAFFLE_FLAGS: [["free_user_onboarding", true]],
+      });
+
+      render(<Profile />);
+
+      const confettiCanvas = screen.getByTestId("react-confetti");
+      expect(confettiCanvas).toBeInTheDocument();
     });
   });
 });
