@@ -302,9 +302,17 @@ yout.com
 idp.carmax.com
 picsart.com
 verizon.com
+secure.verizon.com
 aliexpress.com
+www.aliexpress.com
+www.aliexpress.us
 battle.net
+account.battle.net
 theverge.com
+www.theverge.com
 tillys.com
+www.tillys.com
 digitalocean.com
+cloud.digitalocean.com
 ynab.com
+www.ynab.com
