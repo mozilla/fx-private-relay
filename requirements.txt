@@ -46,7 +46,7 @@ responses==0.25.8
 
 # linting
 black==25.1.0
-ruff==0.12.9
+ruff==0.12.10
 
 # type hinting
 boto3-stubs==1.40.11
