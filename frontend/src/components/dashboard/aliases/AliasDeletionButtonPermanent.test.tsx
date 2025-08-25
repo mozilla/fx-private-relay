@@ -51,45 +51,88 @@ jest.mock("../../../hooks/api/aliases", () => {
 describe("AliasDeletionButtonPermanent", () => {
   const makeAlias = (): AliasData => ({}) as AliasData;
 
+  const makeProps = (
+    overrides?: Partial<
+      React.ComponentProps<typeof AliasDeletionButtonPermanent>
+    >,
+  ): React.ComponentProps<typeof AliasDeletionButtonPermanent> => ({
+    alias: makeAlias(),
+    onDelete: jest.fn(),
+    ...(overrides ?? {}),
+  });
+
+  const setup = (
+    overrides?: Partial<
+      React.ComponentProps<typeof AliasDeletionButtonPermanent>
+    >,
+  ) => {
+    const props = makeProps(overrides);
+    render(<AliasDeletionButtonPermanent {...props} />);
+
+    const getTrigger = () =>
+      screen.getByRole("button", { name: STRINGS["profile-label-delete"] });
+    const open = async () => {
+      await userEvent.click(getTrigger());
+      return screen.findByRole("dialog");
+    };
+    const getDialog = () => screen.getByRole("dialog");
+    const getCancelButton = () =>
+      within(getDialog()).getByRole("button", {
+        name: STRINGS["profile-label-cancel"],
+      });
+    const getConfirmButton = () =>
+      within(getDialog()).getByRole("button", {
+        name: STRINGS["profile-label-delete"],
+      });
+
+    return {
+      props,
+      getTrigger,
+      open,
+      getDialog,
+      getCancelButton,
+      getConfirmButton,
+    };
+  };
+
   it("renders the trigger button", () => {
-    render(
-      <AliasDeletionButtonPermanent alias={makeAlias()} onDelete={jest.fn()} />,
-    );
-    expect(screen.getByRole("button", { name: /delete/i })).toBeInTheDocument();
+    const { getTrigger } = setup();
+    expect(getTrigger()).toBeInTheDocument();
   });
 
   it("opens the confirmation modal and shows alias and warnings", async () => {
-    render(
-      <AliasDeletionButtonPermanent alias={makeAlias()} onDelete={jest.fn()} />,
-    );
+    const { open, getDialog } = setup();
 
-    await userEvent.click(screen.getByRole("button", { name: /delete/i }));
+    await open();
 
-    const dialog = await screen.findByRole("dialog");
+    const dialog = getDialog();
+
     expect(
-      within(dialog).getByRole("heading", { name: /delete this mask\?/i }),
+      within(dialog).getByRole("heading", {
+        name: STRINGS["mask-deletion-header"],
+      }),
     ).toBeInTheDocument();
+
     expect(
       within(dialog).getByText("mask-123@example.com"),
     ).toBeInTheDocument();
+
     expect(
-      within(dialog).getByText(/this action is permanent/i),
+      within(dialog).getByText(STRINGS["mask-deletion-warning-no-recovery"]),
     ).toBeInTheDocument();
+
     expect(
-      within(dialog).getByText(/sign-ins will break/i),
+      within(dialog).getByText(STRINGS["mask-deletion-warning-sign-ins"]),
     ).toBeInTheDocument();
+
     expect(within(dialog).getByTestId("error-icon")).toBeInTheDocument();
   });
 
   it("closes the modal when Cancel is clicked", async () => {
-    render(
-      <AliasDeletionButtonPermanent alias={makeAlias()} onDelete={jest.fn()} />,
-    );
+    const { open, getCancelButton } = setup();
 
-    await userEvent.click(screen.getByRole("button", { name: /delete/i }));
-    const dialog = await screen.findByRole("dialog");
-    const cancelBtn = within(dialog).getByRole("button", { name: /cancel/i });
-    await userEvent.click(cancelBtn);
+    await open();
+    await userEvent.click(getCancelButton());
 
     await waitFor(() => {
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -98,16 +141,10 @@ describe("AliasDeletionButtonPermanent", () => {
 
   it("calls onDelete and closes the modal when Delete is confirmed", async () => {
     const onDelete = jest.fn();
-    render(
-      <AliasDeletionButtonPermanent alias={makeAlias()} onDelete={onDelete} />,
-    );
+    const { open, getConfirmButton } = setup({ onDelete });
 
-    await userEvent.click(screen.getByRole("button", { name: /delete/i }));
-    const dialog = await screen.findByRole("dialog");
-    const confirmBtn = within(dialog).getByRole("button", {
-      name: /^delete$/i,
-    });
-    await userEvent.click(confirmBtn);
+    await open();
+    await userEvent.click(getConfirmButton());
 
     expect(onDelete).toHaveBeenCalledTimes(1);
     await waitFor(() => {
@@ -117,23 +154,12 @@ describe("AliasDeletionButtonPermanent", () => {
 
   it("reports modal open and close via setModalOpenedState", async () => {
     const setModalOpenedState = jest.fn();
-    render(
-      <AliasDeletionButtonPermanent
-        alias={makeAlias()}
-        onDelete={jest.fn()}
-        setModalOpenedState={setModalOpenedState}
-      />,
-    );
+    const { open, getCancelButton } = setup({ setModalOpenedState });
 
-    await userEvent.click(screen.getByRole("button", { name: /delete/i }));
-    await screen.findByRole("dialog");
+    await open();
     expect(setModalOpenedState).toHaveBeenLastCalledWith(true);
 
-    await userEvent.click(
-      within(screen.getByRole("dialog")).getByRole("button", {
-        name: /cancel/i,
-      }),
-    );
+    await userEvent.click(getCancelButton());
     await waitFor(() => {
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     });

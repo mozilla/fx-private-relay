@@ -178,11 +178,22 @@ describe("AddressPickerModal", () => {
     });
   });
 
-  it("shows validation error for invalid address on blur", () => {
+  it("does not submit and sets a validation message for an invalid address", () => {
+    const setCustomValiditySpy = jest.spyOn(
+      HTMLInputElement.prototype,
+      "setCustomValidity",
+    );
+    const reportValiditySpy = jest.spyOn(
+      HTMLInputElement.prototype,
+      "reportValidity",
+    );
+
     setup();
+
     const input = screen.getByPlaceholderText(
       "String for modal-custom-alias-picker-form-prefix-placeholder-2",
-    );
+    ) as HTMLInputElement;
+
     fireEvent.change(input, { target: { value: "invalid alias" } });
     fireEvent.blur(input);
 
@@ -190,6 +201,14 @@ describe("AddressPickerModal", () => {
       name: "String for modal-custom-alias-picker-form-submit-label-2",
     });
     fireEvent.click(submit);
+
     expect(onPick).not.toHaveBeenCalled();
+    expect(setCustomValiditySpy).toHaveBeenCalledWith(
+      "String for modal-custom-alias-picker-form-prefix-spaces-warning",
+    );
+    expect(reportValiditySpy).toHaveBeenCalled();
+
+    setCustomValiditySpy.mockRestore();
+    reportValiditySpy.mockRestore();
   });
 });

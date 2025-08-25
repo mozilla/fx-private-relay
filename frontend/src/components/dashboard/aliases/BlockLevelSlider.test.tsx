@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 import { BlockLevelSlider, type BlockLevel } from "./BlockLevelSlider";
-import type { AliasData } from "../../../hooks/api/aliases";
+import type { AliasData, RandomAliasData } from "../../../hooks/api/aliases";
 
 jest.mock("next/link", () => {
   const MockLink = ({
@@ -49,36 +49,13 @@ jest.mock("../../../hooks/l10n", () => ({
   }),
 }));
 
-type RandomAliasShape = {
-  mask_type: "random";
-  domain: 1;
-  generated_for: string;
-  enabled: boolean;
-  block_list_emails: boolean;
-  block_level_one_trackers: boolean;
-  description: string;
-  id: number;
-  address: string;
-  full_address: string;
-  created_at: string;
-  last_modified_at: string;
-  last_used_at: string | null;
-  starred: boolean;
-  is_protected: boolean;
-  num_blocked: number;
-  num_forwarded: number;
-  num_spam: number;
-  num_replied: number;
-  num_level_one_trackers_blocked: number;
-  used_on: string[];
-  notes: string;
-};
-
-function makeRandomAlias(overrides: Partial<RandomAliasShape> = {}): AliasData {
-  const base: RandomAliasShape = {
+function makeRandomAlias(
+  overrides: Partial<RandomAliasData> = {},
+): RandomAliasData {
+  const base: RandomAliasData = {
     mask_type: "random",
     domain: 1,
-    generated_for: "test",
+    generated_for: "",
     enabled: true,
     block_list_emails: false,
     block_level_one_trackers: false,
@@ -89,17 +66,14 @@ function makeRandomAlias(overrides: Partial<RandomAliasShape> = {}): AliasData {
     created_at: "2024-01-01T00:00:00Z",
     last_modified_at: "2024-01-01T00:00:00Z",
     last_used_at: null,
-    starred: false,
-    is_protected: false,
-    num_blocked: 0,
     num_forwarded: 0,
+    num_blocked: 0,
     num_spam: 0,
     num_replied: 0,
     num_level_one_trackers_blocked: 0,
-    used_on: [],
-    notes: "",
+    used_on: "",
   };
-  return { ...base, ...overrides } as unknown as AliasData;
+  return { ...base, ...overrides };
 }
 
 function renderSlider(
@@ -164,8 +138,10 @@ describe("BlockLevelSlider", () => {
       hasPremium: true,
       alias: makeRandomAlias({ enabled: true, block_list_emails: false }),
     });
+
     const slider = screen.getByRole("slider");
     slider.focus();
+
     await user.keyboard("{ArrowRight}");
     expect(onChange).toHaveBeenLastCalledWith("promotional");
     expect(gaSpy).toHaveBeenLastCalledWith({
@@ -173,6 +149,7 @@ describe("BlockLevelSlider", () => {
       action: "Toggle Forwarding",
       label: "User enabled promotional emails blocking",
     });
+
     await user.keyboard("{ArrowRight}");
     expect(onChange).toHaveBeenLastCalledWith("all");
     expect(gaSpy).toHaveBeenLastCalledWith({
@@ -180,6 +157,7 @@ describe("BlockLevelSlider", () => {
       action: "Toggle Forwarding",
       label: "User disabled forwarding",
     });
+
     await user.keyboard("{Home}");
     expect(onChange).toHaveBeenLastCalledWith("none");
     expect(gaSpy).toHaveBeenLastCalledWith({
@@ -195,8 +173,10 @@ describe("BlockLevelSlider", () => {
       hasPremium: false,
       alias: makeRandomAlias({ enabled: true, block_list_emails: false }),
     });
+
     const slider = screen.getByRole("slider");
     slider.focus();
+
     await user.keyboard("{ArrowRight}");
     expect(onChange).toHaveBeenCalledWith("all");
     expect(onChange).not.toHaveBeenCalledWith("promotional");
@@ -208,10 +188,13 @@ describe("BlockLevelSlider", () => {
       hasPremium: false,
       premiumAvailableInCountry: true,
     });
+
     const ghostButton = screen.getByRole("button", {
       name: /profile-promo-email-blocking-option-promotions/i,
     });
+
     await user.click(ghostButton);
+
     expect(
       screen.getByText(
         "profile-promo-email-blocking-description-promotionals-locked-label",
@@ -220,6 +203,7 @@ describe("BlockLevelSlider", () => {
     expect(
       screen.getByText("profile-promo-email-blocking-description-promotionals"),
     ).toBeInTheDocument();
+
     const cta = screen.getByRole("link", {
       name: "profile-promo-email-blocking-description-promotionals-locked-cta",
     });
@@ -230,10 +214,13 @@ describe("BlockLevelSlider", () => {
   test("free user in unavailable country sees waitlist link in tooltip", async () => {
     const user = userEvent.setup();
     renderSlider({ hasPremium: false, premiumAvailableInCountry: false });
+
     const ghostButton = screen.getByRole("button", {
       name: /profile-promo-email-blocking-option-promotions/i,
     });
+
     await user.click(ghostButton);
+
     const waitlistCta = screen.getByRole("link", {
       name: "profile-promo-email-blocking-description-promotionals-locked-waitlist-cta",
     });

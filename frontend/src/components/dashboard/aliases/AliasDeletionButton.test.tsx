@@ -28,122 +28,113 @@ describe("<AliasDeletionButton>", () => {
     jest.restoreAllMocks();
   });
 
+  const setup = (
+    overrides?: Partial<React.ComponentProps<typeof AliasDeletionButton>>,
+  ) => {
+    const onDelete = jest.fn();
+    const props: React.ComponentProps<typeof AliasDeletionButton> = {
+      alias: getMockRandomAlias(),
+      onDelete,
+      ...(overrides ?? {}),
+    };
+
+    render(<AliasDeletionButton {...props} />);
+
+    const getTrigger = () => screen.getByRole("button", { name: openLabel });
+
+    const open = async () => {
+      await userEvent.click(getTrigger());
+      return screen.getByRole("dialog");
+    };
+
+    const getPrompt = () => screen.getByRole("dialog");
+    const getCheckbox = () => within(getPrompt()).getByRole("checkbox");
+    const getDeleteButton = () =>
+      within(getPrompt()).getByRole("button", { name: openLabel });
+    const getCancelButton = () =>
+      within(getPrompt()).getByRole("button", { name: cancelLabel });
+
+    return {
+      onDelete,
+      getTrigger,
+      open,
+      getPrompt,
+      getCheckbox,
+      getDeleteButton,
+      getCancelButton,
+    };
+  };
+
   it("displays a usable button to delete an alias", () => {
-    render(
-      <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />,
-    );
-
-    const button = screen.getByRole("button", {
-      name: openLabel,
-      hidden: false,
-    });
-    expect(button).toBeInTheDocument();
+    const { getTrigger } = setup();
+    expect(getTrigger()).toBeInTheDocument();
   });
 
-  it("displays a confirmation prompt, with an unchecked checkbox and a disabled button", async () => {
-    render(
-      <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />,
-    );
+  it("displays a confirmation prompt with an unchecked checkbox and a disabled delete button", async () => {
+    const { open, getCheckbox, getDeleteButton } = setup();
+    await open();
 
-    const button = screen.getByRole("button", {
-      name: openLabel,
-      hidden: false,
-    });
-    await userEvent.click(button);
-
-    const prompt = screen.getByRole("dialog");
-    const promptCheckbox = within(prompt).getByRole("checkbox");
-    const promptButton = within(prompt).getByRole("button", {
-      name: openLabel,
-    });
-
-    expect(promptCheckbox).not.toBeChecked();
-    expect(promptButton).toBeDisabled();
+    expect(getCheckbox()).not.toBeChecked();
+    expect(getDeleteButton()).toBeDisabled();
   });
 
-  it("enables the delete button on the confirmation prompt, once the checkbox is checked", async () => {
-    render(
-      <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />,
-    );
+  it("enables the delete button once the checkbox is checked", async () => {
+    const { open, getCheckbox, getDeleteButton } = setup();
+    await open();
 
-    await userEvent.click(screen.getByRole("button", { name: openLabel }));
-    const prompt = screen.getByRole("dialog");
-    const promptCheckbox = within(prompt).getByRole("checkbox");
-    const promptButton = within(prompt).getByRole("button", {
-      name: openLabel,
-    });
+    await userEvent.click(getCheckbox());
 
-    await userEvent.click(promptCheckbox);
-
-    expect(promptCheckbox).toBeChecked();
-    expect(promptButton).toBeEnabled();
+    expect(getCheckbox()).toBeChecked();
+    expect(getDeleteButton()).toBeEnabled();
   });
 
-  it("resets the inputs on the confirmation prompt when reopened, after clicking the Cancel button", async () => {
-    render(
-      <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />,
-    );
+  it("resets inputs when reopened after clicking the Cancel button", async () => {
+    const { getTrigger, open, getCheckbox, getCancelButton } = setup();
 
-    const trigger = screen.getByRole("button", { name: openLabel });
-
-    await userEvent.click(trigger);
-
-    const firstPrompt = screen.getByRole("dialog");
-    const firstPromptCheckbox = within(firstPrompt).getByRole("checkbox");
-    const firstPromptCancelButton = within(firstPrompt).getByRole("button", {
-      name: cancelLabel,
-    });
-
-    await userEvent.click(firstPromptCheckbox);
-    await userEvent.click(firstPromptCancelButton);
+    await open();
+    await userEvent.click(getCheckbox());
+    await userEvent.click(getCancelButton());
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    await waitFor(() => expect(trigger).toHaveFocus());
+    await waitFor(() => expect(getTrigger()).toHaveFocus());
 
-    await userEvent.click(trigger);
+    await userEvent.click(getTrigger());
 
-    const secondPrompt = screen.getByRole("dialog");
-    const secondPromptDeleteButton = within(secondPrompt).getByRole("button", {
-      name: openLabel,
-    });
-    const secondPromptCheckbox = within(secondPrompt).getByRole("checkbox");
-
-    expect(secondPromptCheckbox).not.toBeChecked();
-    expect(secondPromptDeleteButton).toBeDisabled();
-  });
-
-  it("resets the inputs on the confirmation prompt when reopened, after clicking off the prompt", async () => {
-    render(
-      <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />,
+    const secondCheckbox = within(screen.getByRole("dialog")).getByRole(
+      "checkbox",
+    );
+    const secondDeleteButton = within(screen.getByRole("dialog")).getByRole(
+      "button",
+      { name: openLabel },
     );
 
-    const trigger = screen.getByRole("button", { name: openLabel });
-    await userEvent.click(trigger);
+    expect(secondCheckbox).not.toBeChecked();
+    expect(secondDeleteButton).toBeDisabled();
+  });
 
+  it("resets inputs when reopened after clicking off the prompt", async () => {
+    const { getTrigger, open } = setup();
+
+    await open();
     const firstPrompt = screen.getByRole("dialog");
-    const firstPromptCheckbox = within(firstPrompt).getByRole("checkbox");
-
-    await userEvent.click(firstPromptCheckbox);
+    await userEvent.click(within(firstPrompt).getByRole("checkbox"));
     await userEvent.click(document.body);
 
-    await userEvent.click(trigger);
+    await userEvent.click(getTrigger());
 
     const secondPrompt = screen.getByRole("dialog");
-    const secondPromptDeleteButton = within(secondPrompt).getByRole("button", {
+    const secondCheckbox = within(secondPrompt).getByRole("checkbox");
+    const secondDeleteButton = within(secondPrompt).getByRole("button", {
       name: openLabel,
     });
-    const secondPromptCheckbox = within(secondPrompt).getByRole("checkbox");
 
-    expect(secondPromptCheckbox).not.toBeChecked();
-    expect(secondPromptDeleteButton).toBeDisabled();
+    expect(secondCheckbox).not.toBeChecked();
+    expect(secondDeleteButton).toBeDisabled();
   });
 
   it("closes the dialog when pressing Escape", async () => {
-    render(
-      <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />,
-    );
-
-    await userEvent.click(screen.getByRole("button", { name: openLabel }));
+    const { open } = setup();
+    await open();
     expect(screen.getByRole("dialog")).toBeInTheDocument();
 
     await userEvent.keyboard("{Escape}");
@@ -151,37 +142,28 @@ describe("<AliasDeletionButton>", () => {
   });
 
   it("calls onDelete and closes when the form is submitted after confirming", async () => {
-    const onDelete = jest.fn();
-    render(
-      <AliasDeletionButton alias={getMockRandomAlias()} onDelete={onDelete} />,
-    );
+    const { onDelete, open, getCheckbox, getDeleteButton } = setup();
 
-    await userEvent.click(screen.getByRole("button", { name: openLabel }));
+    await open();
 
-    const prompt = screen.getByRole("dialog");
-    const checkbox = within(prompt).getByRole("checkbox");
-    const submit = within(prompt).getByRole("button", { name: openLabel });
+    expect(getDeleteButton()).toBeDisabled();
 
-    expect(submit).toBeDisabled();
+    await userEvent.click(getCheckbox());
+    expect(getDeleteButton()).toBeEnabled();
 
-    await userEvent.click(checkbox);
-    expect(submit).toBeEnabled();
-
-    await userEvent.click(submit);
+    await userEvent.click(getDeleteButton());
 
     expect(onDelete).toHaveBeenCalledTimes(1);
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
   it("renders the modal title and the confirmation copy", async () => {
-    render(
-      <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />,
-    );
+    const { open } = setup();
+    await open();
 
-    await userEvent.click(screen.getByRole("button", { name: openLabel }));
-
-    const heading = screen.getByRole("heading", { level: 3, name: titleLabel });
-    expect(heading).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 3, name: titleLabel }),
+    ).toBeInTheDocument();
 
     expect(screen.getByText(confirmLabel)).toBeInTheDocument();
   });
@@ -189,14 +171,10 @@ describe("<AliasDeletionButton>", () => {
   it("shows the address from getFullAddress inside <samp> and uses the 'random' usage warning by default", async () => {
     jest.spyOn(aliasApi, "getFullAddress").mockReturnValue("mask@relay.test");
 
-    render(
-      <AliasDeletionButton alias={getMockRandomAlias()} onDelete={jest.fn()} />,
-    );
-
-    await userEvent.click(screen.getByRole("button", { name: openLabel }));
+    const { open } = setup();
+    await open();
 
     expect(screen.getByText("mask@relay.test")).toBeInTheDocument();
-
     expect(screen.getByText(usageRandomLabel)).toBeInTheDocument();
   });
 
@@ -204,12 +182,11 @@ describe("<AliasDeletionButton>", () => {
     jest.spyOn(aliasApi, "isRandomAlias").mockReturnValue(false);
     jest.spyOn(aliasApi, "getFullAddress").mockReturnValue("custom@you.test");
 
-    render(
-      // @ts-expect-error: we stub out behavior, so the concrete fields aren't needed
-      <AliasDeletionButton alias={{}} onDelete={jest.fn()} />,
-    );
-
-    await userEvent.click(screen.getByRole("button", { name: openLabel }));
+    const { open } = setup({
+      // @ts-expect-error: stubbing behavior only; concrete alias fields not needed for this branch
+      alias: {},
+    });
+    await open();
 
     expect(screen.getByText("custom@you.test")).toBeInTheDocument();
     expect(screen.getByText(usageCustomLabel)).toBeInTheDocument();
