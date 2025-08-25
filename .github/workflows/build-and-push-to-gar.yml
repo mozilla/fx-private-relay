@@ -1,18 +1,55 @@
 name: Push container image to MozCloud GAR
 on:
+  pull_request: {}
   push:
     branches: [ main ]
     tags: ['*']
 
 jobs:
   build-and-push:
-    secrets: inherit
     permissions:
-      packages: write
       contents: read
       id-token: write
-    uses: mozilla-it/deploy-actions/.github/workflows/build-and-push.yml@main
-    with:
-      image_name: fx-private-relay
-      gar_name: ${{ vars.GCP_MOZCLOUD_GAR_NAME_PROD }}
-      project_id: ${{ vars.GCP_MOZCLOUD_PROJECT_ID_PROD }}
+      packages: write
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          submodules: true
+      - name: Set GIT_BRANCH and GIT_TAG environment variables
+        id: git_env_vars
+        env:
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          GITHUB_REF_TYPE: ${{ github.ref_type }}
+        run: |
+          if [[ ${GITHUB_REF_TYPE} == "branch" ]]; then
+            echo "GIT_BRANCH=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+            echo 'GIT_TAG=""' >> "$GITHUB_OUTPUT"
+          elif [[ ${GITHUB_REF_TYPE} == "tag" ]]; then
+            echo 'GIT_BRANCH=""' >> "$GITHUB_OUTPUT"
+            echo "GIT_TAG=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Build and Tag Container Image
+        env:
+          GIT_BRANCH: ${{ steps.git_env_vars.outputs.GIT_BRANCH }}
+          GIT_TAG: ${{ steps.git_env_vars.outputs.GIT_TAG }}
+        id: build
+        uses: mozilla-it/deploy-actions/docker-build@v4.4.0
+        with:
+          gar_name: ${{ vars.GCP_MOZCLOUD_GAR_NAME_PROD }}
+          image_name: fx-private-relay
+          project_id: ${{ vars.GCP_MOZCLOUD_PROJECT_ID_PROD }}
+          docker_build_args: |
+            GIT_BRANCH=${{ env.GIT_BRANCH }}
+            GIT_SHA1=${{ github.sha }} 
+            GIT_TAG=${{ env.GIT_TAG }}
+          dockerfile_path: "./Dockerfile-unified"
+      - name: Push Container Image
+        uses: mozilla-it/deploy-actions/docker-push@v4.4.0
+        if: ${{ github.event_name != 'pull_request' }}
+        with:
+          image_tags: ${{ steps.build.outputs.image_tags }}
+          project_id: ${{ vars.GCP_MOZCLOUD_PROJECT_ID_PROD }}
+          workload_identity_pool_project_number: ${{ vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
