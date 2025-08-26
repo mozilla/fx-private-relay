@@ -7,6 +7,8 @@ on:
 
 jobs:
   build-and-push:
+    name: Build and push
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
