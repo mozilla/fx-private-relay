@@ -51,7 +51,6 @@ www.bestbuy.com
 accounts.firefox.com
 mail.google.com
 z-lib.id
-http://localhost:3000
 www.youtube.com
 id.tamedia.ch
 subscribestar.adult
@@ -92,7 +91,6 @@ www.google.com
 www.amazon.es
 app.link.com
 thothub.to
-http://localhost:5173
 forum.mobilism.org
 www.cgtrader.com
 rutracker.net
@@ -126,7 +124,6 @@ auth.discoveryplus.com
 pmvhaven.com
 creatives.attn.tv
 accounts.mathpix.com
-http://localhost
 dashboard.ngrok.com
 unparalleled-broadcast.life
 login.discogs.com
