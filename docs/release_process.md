@@ -164,9 +164,8 @@ can check the tag on GCP infrastucture before we deploy it to production.
 
 On Monday, after the Release Readiness Review:
 
-1. File an [SRE ticket][sre-board] to deploy the tag to [Prod][prod].
+1. File an [SRE ticket][sre-form] to deploy the tag to [Prod][prod].
    - Include a link to the GitHub Release
-   - You can assign it directly to our primary SRE for the day
 2. On the GitHub release, update the summary with a reference to the ticket:
    ```
    Planned for release to relay.firefox.com on August 9th, 2022 with SVCSE-1385.
@@ -363,6 +362,6 @@ long-running branches")
 [github-heroku-incident]: https://blog.heroku.com/april-2022-incident-review
 [service-account]: https://mana.mozilla.org/wiki/display/TS/List+of+Heroku+service+accounts
 [calver]: https://calver.org/
-[sre-board]: https://mozilla-hub.atlassian.net/jira/software/c/projects/SVCSE/boards/316
+[sre-form]: https://mozilla-hub.atlassian.net/jira/software/c/projects/SREIN/form/1344
 [github-new-release]: https://github.com/mozilla/fx-private-relay/releases/new
 [prod-version]: https://relay.firefox.com/__version__
