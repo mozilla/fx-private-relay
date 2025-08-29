@@ -37,7 +37,7 @@
       @include text-title-3xs;
       font-family: $font-stack-firefox;
       font-weight: 600;
-      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
 
     .card-description {
@@ -46,7 +46,7 @@
       @include text-body-md;
       font-family: $font-stack-firefox;
       font-weight: 400;
-      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
 
     .close-button {
