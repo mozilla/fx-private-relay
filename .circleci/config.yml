@@ -115,48 +115,95 @@ commands:
 
 jobs:
   build_frontend:
-    executor: node
+    executor:
+      name: base
+    working_directory: "/home/circleci/backend-project"
     steps:
+      - attach_workspace:
+          at: /tmp/workspace
       - checkout_with_submodules
-      - node/install-packages:
-          override-ci-command: npm ci --workspace frontend
+      - setup_remote_docker:
+          docker_layer_caching: True
       - run:
-          name: Build Code
-          command: npm run build --workspace frontend
-      - save_cache:
-          key: v1-frontend-build-{{ .Branch }}-{{ .Revision }}
+          name: Build Docker image
+          command: |
+            docker build --target frontend --tag fx-private-relay .
+      - run:
+          name: docker save fx-private-relay
+          command: |
+            mkdir --parents /tmp/workspace;
+            docker save --output /tmp/workspace/docker.tar "fx-private-relay"
+      - persist_to_workspace:
+          root: /tmp/workspace
           paths:
-            - ./frontend/out/
-
+            - docker.tar
   test_frontend:
-    executor: node
+    executor:
+      name: base
     steps:
-      - checkout
-      - node/install-packages:
-          override-ci-command: npm ci --workspace frontend
+      - setup_remote_docker:
+          docker_layer_caching: True
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          name: Restore Docker image cache
+          command: docker load --input /tmp/workspace/docker.tar
       - run:
           name: Check licences of frontend dependencies
-          command: npm run licensecheck --workspace frontend
+          command: |
+            docker run \
+              --entrypoint "/bin/bash" \
+              fx-private-relay \
+              -c \
+                'npm run licensecheck --workspace frontend'
       - run:
           name: Lint Code
-          command: npm run lint --workspace frontend -- --max-warnings=0
+          command: |
+            docker run \
+              --entrypoint "/bin/bash" \
+              fx-private-relay \
+              -c \
+                'npm run lint --workspace frontend -- --max-warnings=0'
       - run:
           name: Test Code
           command: |
-            mkdir --parents /tmp/workspace/test-results/frontend-coverage
-            npm test --workspace frontend -- \
-              --ci \
-              --runInBand \
-              --coverageDirectory=/tmp/workspace/test-results/frontend-coverage
+            # Create a volume
+            docker run \
+              --volume /tmp/workspace \
+              --name workspace-test-results \
+              alpine \
+              /bin/sh -c \
+                "chmod 0777 /tmp/workspace && \
+                 chown 10001:10001 /tmp/workspace"
+            # Actually run test
+            set +e
+            docker run \
+              --entrypoint "/bin/bash" \
+              --volumes-from workspace-test-results \
+              fx-private-relay \
+              -c \
+                'npm test --workspace frontend -- \
+                  --ci \
+                  --runInBand \
+                  --coverageDirectory=/tmp/workspace/test-results/frontend-coverage ; \
+                  STATUS=$?
+                  mkdir --parents /tmp/workspace/test-results/frontend
+                  mv /home/node/frontend/junit.xml /tmp/workspace/test-results/frontend/junit.xml ; \
+                  exit $STATUS'
+            TEST_STATUS=$?
+            set -e
+            # Copy results to local disk
+            mkdir --parents /tmp/workspace/
+            docker cp workspace-test-results:/tmp/workspace/test-results /tmp/workspace
+            # Exit with test error code
+            exit $TEST_STATUS
       - store_test_results:
-          path: frontend/junit.xml
-      - store_artifacts:
-          path: /tmp/workspace/test-results/frontend-coverage
-          destination: frontend_test_coverage
+          path: /tmp/workspace/test-results/frontend/junit.xml
       - persist_to_workspace:
           root: /tmp/workspace
           paths:
             - test-results/frontend-coverage
+
 
   convert_frontend_coverage:
     executor: ruby
@@ -194,18 +241,9 @@ jobs:
       - checkout_with_submodules
       - setup_remote_docker:
           docker_layer_caching: True
-      - restore_cache:
-          key: v1-frontend-build-{{ .Branch }}-{{ .Revision }}
       - run:
-          name: Copy build artefacts from build_frontend into this folder
-          command: mv /home/circleci/project/frontend/out ${CIRCLE_WORKING_DIRECTORY}/frontend/
-
-      - run:
-          name: Copy email tracker lists into this folder
-          command: |
-            cp /tmp/workspace/email-trackers/level-one-trackers.json ${CIRCLE_WORKING_DIRECTORY}/emails/tracker_lists/
-            cp /tmp/workspace/email-trackers/level-two-trackers.json ${CIRCLE_WORKING_DIRECTORY}/emails/tracker_lists/
-
+          name: Restore Docker image cache
+          command: docker load --input /tmp/workspace/docker.tar
       - run:
           name: Create a version.json
           command: |
@@ -574,15 +612,6 @@ jobs:
           steps:
             - store_test_results:
                 path: job-results
-      - when:
-          condition:
-            equal: ["build_email_tracker_lists", << parameters.command >>]
-          steps:
-            - persist_to_workspace:
-                root: /tmp/workspace
-                paths:
-                  - email-trackers/level-one-trackers.json
-                  - email-trackers/level-two-trackers.json
 
 workflows:
   version: 2
@@ -592,15 +621,8 @@ workflows:
           filters: &default_filters
             tags:
               only: /.*/
-
-      - python_job:
-          name: build email tracker lists
-          command: "build_email_tracker_lists"
-          filters: *default_filters
-
       - build_test_backend:
           requires:
-            - "build email tracker lists"
             - build_frontend
           filters: *default_filters
 
