@@ -171,15 +171,13 @@
       width: 1px;
       height: 1px;
       overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      clip-path: circle(0);
+      clip-path: inset(50%);
 
       @media screen and #{$mq-md} {
         position: unset;
         width: unset;
         height: unset;
         overflow: unset;
-        clip: unset;
         clip-path: unset;
       }
     }
@@ -194,7 +192,7 @@
 
       @media screen and #{$mq-md} {
         grid-template-columns: 3fr 2fr 1fr;
-        grid-gap: $spacing-md;
+        gap: $spacing-md;
       }
 
       th {

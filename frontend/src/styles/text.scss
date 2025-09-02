@@ -17,15 +17,17 @@ https://github.com/mozilla/protocol/blob/v18.0.0/assets/sass/protocol/includes/m
 @forward "~@mozilla-protocol/core/protocol/css/includes/mixins/typography" show
   $font-stack-mozilla;
 
+/* stylelint-disable no-invalid-position-declaration */
+
 @mixin title-2xl {
   @include font-size(type-scale("title-xl-size"));
   line-height: type-scale("title-xl-line-height");
-  @content;
 
   @media #{$mq-md} {
     @include font-size(type-scale("title-2xl-size"));
     line-height: type-scale("title-2xl-line-height");
   }
+  @content;
 }
 
 // @mixins text-title-xl and text-title-lg are not used by Relay
@@ -33,46 +35,48 @@ https://github.com/mozilla/protocol/blob/v18.0.0/assets/sass/protocol/includes/m
 @mixin title-md {
   @include font-size(type-scale("title-sm-size"));
   line-height: type-scale("title-sm-line-height");
-  @content;
 
   @media #{$mq-md} {
     @include font-size(type-scale("title-md-size"));
     line-height: type-scale("title-md-line-height");
   }
+  @content;
 }
 
 @mixin title-sm {
   @include font-size(type-scale("title-xs-size"));
   line-height: type-scale("title-xs-line-height");
-  @content;
 
   @media #{$mq-md} {
     @include font-size(type-scale("title-sm-size"));
     line-height: type-scale("title-sm-line-height");
   }
+  @content;
 }
 
 @mixin title-xs {
   @include font-size(type-scale("title-2xs-size"));
   line-height: type-scale("title-2xs-line-height");
-  @content;
 
   @media #{$mq-md} {
     @include font-size(type-scale("title-xs-size"));
     line-height: type-scale("title-xs-line-height");
   }
+  @content;
 }
 
 @mixin title-2xs {
   @include font-size(type-scale("title-3xs-size"));
   line-height: type-scale("title-3xs-line-height");
-  @content;
 
   @media #{$mq-md} {
     @include font-size(type-scale("title-2xs-size"));
     line-height: type-scale("title-2xs-line-height");
   }
+  @content;
 }
+
+/* stylelint-enable no-invalid-position-declaration */
 
 // @mixins text-display-xxl through text-display-xs are not used by Relay
 
