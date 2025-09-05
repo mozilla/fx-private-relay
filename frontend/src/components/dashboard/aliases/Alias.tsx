@@ -144,6 +144,7 @@ export const Alias = (props: Props) => {
 
   return (
     <div
+      data-testid="alias-card"
       className={classNames}
       style={{
         backgroundImage: backgroundImage
