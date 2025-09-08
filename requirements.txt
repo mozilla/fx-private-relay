@@ -17,7 +17,7 @@ djangorestframework==3.16.1
 django-waffle==5.0.0
 dockerflow==2024.4.2
 drf-spectacular==0.28.0
-drf-spectacular-sidecar==2025.8.1
+drf-spectacular-sidecar==2025.9.1
 glean_parser==17.3.0
 google-cloud-profiler==4.1.0; python_version < '3.13'
 gunicorn==23.0.0
