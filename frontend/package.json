@@ -59,7 +59,7 @@
     "lint-staged": "^16.1.6",
     "next": "^15.5.2",
     "prettier": "3.6.2",
-    "sass": "^1.91.0",
+    "sass": "^1.92.1",
     "stylelint": "^16.24.0",
     "stylelint-config-recommended-scss": "^16.0.0",
     "stylelint-scss": "^6.12.1",
