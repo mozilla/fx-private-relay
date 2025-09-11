@@ -663,7 +663,7 @@ workflows:
           command: pytest
           matrix:
             parameters:
-              postgres_version: ["15.5", "16.1"]
+              postgres_version: ["17.5"]
           executor: python_with_postgres
           test_results_filename: "pytest-postgres-<< matrix.postgres_version >>.xml"
           filters: *default_filters
