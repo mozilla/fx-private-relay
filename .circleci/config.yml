@@ -434,10 +434,10 @@ jobs:
         type: boolean
         default: false
       pytest_phones_backend:
-        description: "Enable phones with Twilio or Inteliquent"
+        description: "Enable phones with Twilio"
         default: "twilio"
         type: enum
-        enum: ["no-phones", "twilio", "iq"]
+        enum: ["no-phones", "twilio"]
       test_results_filename:
         description: "What is the name of the jUnit XML test output? (Optional)"
         default: ""
@@ -477,17 +477,10 @@ jobs:
             if [ "twilio" == "<< parameters.pytest_phones_backend >>" ]
             then
               PHONES_ENABLED=1
-              IQ_ENABLED=0
-            elif [ "iq" == "<< parameters.pytest_phones_backend >>" ]
-            then
-              PHONES_ENABLED=1
-              IQ_ENABLED=1
             else
               PHONES_ENABLED=0
-              IQ_ENABLED=0
             fi
             echo "export PHONES_ENABLED=${PHONES_ENABLED}" >> "$TMP_ENV"
-            echo "export IQ_ENABLED=${IQ_ENABLED}" >> "$TMP_ENV"
 
             if [ "<<# parameters.mypy_strict >>mypy_strict<</ parameters.mypy_strict >>" == "mypy_strict" ]
             then
@@ -715,13 +708,6 @@ workflows:
           command: pytest
           pytest_fail_fast: true
           test_results_filename: pytest-python-3-13.xml
-          filters: *default_filters
-
-      - python_job:
-          name: python test iq enabled
-          command: pytest
-          pytest_phones_backend: iq
-          test_results_filename: pytest-iq-enabled.xml
           filters: *default_filters
 
       - python_job:

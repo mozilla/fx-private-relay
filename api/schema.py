@@ -56,7 +56,6 @@ _TAG_TO_PARTIAL_PATH = {
     "phones": {"inboundcontact", "realphone", "relaynumber", "vCard"},
     "phones: Twilio": {"inbound_call", "inbound_sms", "sms_status", "voice_status"},
     "phones: Outbound": {"call", "message", "messages"},
-    "phones: Inteliquent": {"inbound_sms_iq"},
 }
 
 # Reverse the dictionary to be partial paths to their tag
@@ -72,7 +71,6 @@ _TAG_ORDER = {
     "email": 20,
     "phones": 30,
     "phones: Twilio": 31,
-    "phones: Inteliquent": 32,
     "phones: Outbound": 33,
 }
 

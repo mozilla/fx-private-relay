@@ -162,10 +162,6 @@ The Dev Deployment lacks some of the full Relay System features:
 - Firefox does not integrate with this deployment
 - There are no other API users (as far as we know)
 
-The Dev Deployment has some additional features:
-
-- The Inteliquent service is enabled as an alternate phone provider
-
 [![Development Deployment](./img/structurizr-1-RelayDevelopmentDeployment.svg)](./img/structurizr-1-RelayDevelopmentDeployment.svg)
 
 Key:

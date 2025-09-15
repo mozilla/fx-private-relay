@@ -90,15 +90,6 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                     # -> user "Forwards Texts, Calls" "PSTN via user's real phone"
                     # -> phone_contact "Sends reply texts" "PSTN via user's phone mask"
                 }
-                iq_phone_service = container "iQ Phone Service" {
-                    description "Provides phone numbers, sends and receives SMS messages and voice calls"
-                    tags "Optional Managed Service",omit_in_gcp,omit_in_c2_high_level
-                    technology "Inteliquent"
-                    # Forward relationships defined below
-                    # -> user "Forwards Texts, Calls" "PSTN via user's real phone" "Optional Relationship"
-                    # -> phone_contact "Sends reply texts" "PSTN via user's phone mask"
-                }
-
 
                 // "Email Services" for C2 top-level diagram
                 c2_email_services = container "Email Services" {
@@ -243,7 +234,6 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                     -> metrics "Sends metrics" "UDP"
                     -> logs "Emits logs" "stdout / stderr"
                     -> phone_service "Reserves phone number, routes SMS and calls" "Stripe API, HTTPS callbacks"
-                    -> iq_phone_service "Reserves phone number, routes SMS" "Inteliquent API, HTTPS callbacks" "Optional Relationship"
                     -> profiler "Sends Profiles" "Profile API"
                 }
                 email_processor = container "Email Processor" {
@@ -319,7 +309,6 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
             description "A person or business calling or texting with a Relay User."
             tags "External Contact"
             -> phone_service "Sends texts, starts calls" "PSTN via user's phone mask"
-            -> iq_phone_service "Sends texts, starts calls" "PSTN via user's phone mask"
         }
 
         // Other relationships (defined earlier to defined later)
@@ -328,8 +317,6 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
         email_sender -> email_contact "Sends replies" "SMTP via user's email mask"
         phone_service -> phone_contact "Sends reply texts" "PSTN via user's phone mask"
         phone_service -> user "Forwards Texts, Calls" "PSTN via user's real phone"
-        iq_phone_service -> user "Forwards Texts, Calls" "PSTN via user's real phone" "Optional Relationship"
-        iq_phone_service -> phone_contact "Sends reply texts" "PSTN via user's phone mask"
 
         //
         // Alternate relations for C2 high-level graph
@@ -453,9 +440,6 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
             }
             deploymentNode twilio.com {
                 dev_twilio_phone = containerInstance phone_service
-            }
-            deploymentNode inteliquent.com {
-                dev_iq_phone = containerInstance iq_phone_service
             }
         }
 
