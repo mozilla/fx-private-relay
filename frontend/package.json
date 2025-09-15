@@ -25,7 +25,7 @@
     "@next/third-parties": "^15.5.2",
     "chokidar-cli": "^3.0.0",
     "cldr-localenames-modern": "^45.0.0",
-    "msw": "^2.11.1",
+    "msw": "^2.11.2",
     "react": "19.1.1",
     "react-aria": "^3.43.1",
     "react-confetti": "^6.4.0",
