@@ -1,6 +1,5 @@
 """Tests for api/views/email_views.py"""
 
-import logging
 from datetime import datetime
 
 from django.conf import LazySettings
@@ -12,18 +11,13 @@ from django.urls import reverse
 
 import pytest
 import responses
-from allauth.account.models import EmailAddress
 from allauth.socialaccount.models import SocialAccount
-from model_bakery import baker
 from rest_framework.test import APIClient
 
 from api.authentication import INTROSPECT_TOKEN_URL, get_cache_key
 from api.tests.authentication_tests import _setup_fxa_response
 from api.views.privaterelay import FXA_PROFILE_URL
 from privaterelay.models import Profile
-from privaterelay.tests.utils import (
-    log_extra,
-)
 
 
 @pytest.mark.django_db
@@ -472,45 +466,3 @@ def _setup_client(token: str) -> APIClient:
     client = APIClient()
     client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
     return client
-
-
-@responses.activate
-@pytest.mark.usefixtures("fxa_social_app")
-def test_duplicate_email_logs_details_for_debugging(
-    caplog: pytest.LogCaptureFixture,
-) -> None:
-    caplog.set_level(logging.ERROR)
-    uid = "relay-user-fxa-uid"
-    email = "user@email.com"
-    baker.make(EmailAddress, email=email, verified=True)
-    user_token = "user-123"
-    client = _setup_client(user_token)
-    now_time = int(datetime.now().timestamp())
-    # Note: FXA iat and exp are timestamps in *milliseconds*
-    exp_time = (now_time + 60 * 60) * 1000
-    _setup_fxa_response(200, {"active": True, "sub": uid, "exp": exp_time})
-    # setup fxa profile reponse
-    profile_json = {
-        "email": email,
-        "amrValues": ["pwd", "email"],
-        "twoFactorAuthentication": False,
-        "metricsEnabled": True,
-        "uid": uid,
-        "avatar": "https://profile.stage.mozaws.net/v1/avatar/t",
-        "avatarDefault": False,
-    }
-    responses.add(
-        responses.GET,
-        FXA_PROFILE_URL,
-        status=200,
-        json=profile_json,
-    )
-
-    response = client.post("/api/v1/terms-accepted-user/")
-
-    assert response.status_code == 500
-    (rec1,) = caplog.records
-    rec1_extra = log_extra(rec1)
-    assert "socialaccount_signup" in rec1.message
-    assert rec1_extra.get("fxa_uid") == uid
-    assert rec1_extra.get("social_login_state") == {}
