@@ -304,17 +304,6 @@ MAX_MINUTES_PER_BILLING_CYCLE: int = config(
 )
 DAYS_PER_BILLING_CYCLE = config("DAYS_PER_BILLING_CYCLE", 30, cast=int)
 MAX_DAYS_IN_MONTH = 31
-IQ_ENABLED = config("IQ_ENABLED", False, cast=bool)
-IQ_FOR_VERIFICATION: bool = config("IQ_FOR_VERIFICATION", False, cast=bool)
-IQ_FOR_NEW_NUMBERS = config("IQ_FOR_NEW_NUMBERS", False, cast=bool)
-IQ_MAIN_NUMBER: str = config("IQ_MAIN_NUMBER", "")
-IQ_OUTBOUND_API_KEY: str = config("IQ_OUTBOUND_API_KEY", "")
-IQ_INBOUND_API_KEY = config("IQ_INBOUND_API_KEY", "")
-IQ_MESSAGE_API_ORIGIN = config(
-    "IQ_MESSAGE_API_ORIGIN", "https://messagebroker.inteliquent.com"
-)
-IQ_MESSAGE_PATH = "/msgbroker/rest/publishMessages"
-IQ_PUBLISH_MESSAGE_URL: str = f"{IQ_MESSAGE_API_ORIGIN}{IQ_MESSAGE_PATH}"
 
 STATSD_DEBUG = config("STATSD_DEBUG", False, cast=bool)
 STATSD_ENABLED: bool = (

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import logging
 import re
 import string
@@ -49,7 +48,6 @@ from phones.exceptions import (
     RelaySMSException,
     ShortPrefixMatchesNoSenders,
 )
-from phones.iq_utils import send_iq_sms
 from phones.models import (
     DEFAULT_REGION,
     InboundContact,
@@ -69,7 +67,6 @@ from ..permissions import HasPhoneService
 from ..renderers import TemplateTwiMLRenderer, vCardRenderer
 from ..serializers.phones import (
     InboundContactSerializer,
-    IqInboundSmsSerializer,
     OutboundCallSerializer,
     OutboundSmsSerializer,
     RealPhoneSerializer,
@@ -623,7 +620,7 @@ def message_body(from_num, body):
 
 
 def _log_sms_exception(
-    phone_provider: Literal["twilio", "iq"],
+    phone_provider: Literal["twilio"],
     real_phone: RealPhone,
     sms_exception: RelaySMSException,
 ) -> None:
@@ -813,96 +810,6 @@ def inbound_sms(request):
         status=201,
         template_name="twiml_empty_response.xml",
     )
-
-
-@extend_schema(
-    tags=["phones: Inteliquent"],
-    request=OpenApiRequest(
-        IqInboundSmsSerializer,
-        examples=[
-            OpenApiExample(
-                "request",
-                {"to": "+13035556789", "from": "+14045556789", "text": "Hello!"},
-            )
-        ],
-    ),
-    parameters=[
-        OpenApiParameter(name="VerificationToken", required=True, location="header"),
-        OpenApiParameter(name="MessageId", required=True, location="header"),
-    ],
-    responses={
-        "200": OpenApiResponse(
-            description=(
-                "The message was forwarded, or the user is out of text messages."
-            )
-        ),
-        "401": OpenApiResponse(description="Invalid signature"),
-        "400": OpenApiResponse(description="Invalid request"),
-    },
-)
-@decorators.api_view(["POST"])
-@decorators.permission_classes([permissions.AllowAny])
-def inbound_sms_iq(request: Request) -> response.Response:
-    """Handle an inbound SMS message sent by Inteliquent."""
-    incr_if_enabled("phones_inbound_sms_iq")
-    _validate_iq_request(request)
-
-    inbound_body = request.data.get("text", None)
-    inbound_from = request.data.get("from", None)
-    inbound_to = request.data.get("to", None)
-    if inbound_body is None or inbound_from is None or inbound_to is None:
-        raise exceptions.ValidationError("Request missing from, to, or text.")
-
-    from_num = phonenumbers.format_number(
-        phonenumbers.parse(inbound_from, DEFAULT_REGION),
-        phonenumbers.PhoneNumberFormat.E164,
-    )
-    single_num = inbound_to[0]
-    relay_num = phonenumbers.format_number(
-        phonenumbers.parse(single_num, DEFAULT_REGION),
-        phonenumbers.PhoneNumberFormat.E164,
-    )
-
-    relay_number, real_phone = _get_phone_objects(relay_num)
-    _check_remaining(relay_number, "texts")
-
-    if from_num == real_phone.number:
-        try:
-            relay_number, destination_number, body = _prepare_sms_reply(
-                relay_number, inbound_body
-            )
-            send_iq_sms(destination_number, relay_number.number, body)
-            relay_number.remaining_texts -= 1
-            relay_number.texts_forwarded += 1
-            relay_number.save()
-            incr_if_enabled("phones_send_sms_reply_iq")
-        except RelaySMSException as sms_exception:
-            _log_sms_exception("iq", real_phone, sms_exception)
-            user_error_message = _get_user_error_message(real_phone, sms_exception)
-            send_iq_sms(real_phone.number, relay_number.number, user_error_message)
-            if sms_exception.status_code >= 400:
-                raise
-
-        return response.Response(
-            status=200,
-            template_name="twiml_empty_response.xml",
-        )
-
-    number_disabled = _check_disabled(relay_number, "texts")
-    if number_disabled:
-        return response.Response(status=200)
-
-    inbound_contact = _get_inbound_contact(relay_number, from_num)
-    if inbound_contact:
-        _check_and_update_contact(inbound_contact, "texts", relay_number)
-
-    text = message_body(inbound_from, inbound_body)
-    send_iq_sms(real_phone.number, relay_number.number, text)
-
-    relay_number.remaining_texts -= 1
-    relay_number.texts_forwarded += 1
-    relay_number.save()
-    return response.Response(status=200)
 
 
 @extend_schema(
@@ -1645,32 +1552,6 @@ def _validate_twilio_request(request):
     if not validator.validate(url, sorted_params, request_signature):
         incr_if_enabled("phones_invalid_twilio_signature")
         raise exceptions.ValidationError("Invalid request: invalid signature")
-
-
-def compute_iq_mac(message_id: str) -> str:
-    iq_api_key = settings.IQ_INBOUND_API_KEY
-    # FIXME: switch to proper hmac when iQ is ready
-    # mac = hmac.new(
-    #     iq_api_key.encode(), msg=message_id.encode(), digestmod=hashlib.sha256
-    # )
-    combined = iq_api_key + message_id
-    return hashlib.sha256(combined.encode()).hexdigest()
-
-
-def _validate_iq_request(request: Request) -> None:
-    if "Verificationtoken" not in request._request.headers:
-        raise exceptions.AuthenticationFailed("missing Verificationtoken header.")
-
-    if "MessageId" not in request._request.headers:
-        raise exceptions.AuthenticationFailed("missing MessageId header.")
-
-    message_id = request._request.headers["Messageid"]
-    mac = compute_iq_mac(message_id)
-
-    token = request._request.headers["verificationToken"]
-
-    if mac != token:
-        raise exceptions.AuthenticationFailed("verificationToken != computed sha256")
 
 
 def convert_twilio_messages_to_dict(twilio_messages):

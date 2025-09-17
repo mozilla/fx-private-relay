@@ -164,18 +164,6 @@ if settings.PHONES_ENABLED:
     ]
 
 
-if settings.PHONES_ENABLED and settings.IQ_ENABLED:
-    from .views.phones import inbound_sms_iq
-
-    urlpatterns += [
-        path(
-            "v1/inbound_sms_iq/",
-            enable_if_setting("IQ_ENABLED")(inbound_sms_iq),
-            name="inbound_sms",
-        ),
-    ]
-
-
 urlpatterns += [
     path("v1/", include(api_router.urls)),
 ]

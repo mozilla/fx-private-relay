@@ -8,7 +8,6 @@ from unittest.mock import Mock, call, patch
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.test.utils import override_settings
 
 import pytest
 from model_bakery import baker
@@ -226,14 +225,6 @@ def mocked_twilio_validator():
     ) as mock_twilio_validator:
         mock_twilio_validator.validate = Mock(return_value=True)
         yield mock_twilio_validator
-
-
-@override_settings(IQ_ENABLED=False)
-def test_iq_endpoint_without_iq_enabled_not_found():
-    client = APIClient()
-    path = "/api/v1/inbound_sms_iq/"
-    response = client.post(path)
-    assert response.status_code == 404
 
 
 @pytest.mark.parametrize("endpoint", ("realphone", "relaynumber"))

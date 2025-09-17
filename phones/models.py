@@ -17,14 +17,12 @@ from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 from django.urls import reverse
 
-import phonenumbers
 from twilio.base.exceptions import TwilioRestException
 from twilio.rest import Client
 
 from emails.utils import incr_if_enabled
 
 from .apps import phones_config, twilio_client
-from .iq_utils import send_iq_sms
 
 logger = logging.getLogger("eventsinfo")
 events_logger = logging.getLogger("events")
@@ -79,10 +77,6 @@ def get_last_text_sender(relay_number: RelayNumber) -> InboundContact | None:
         return latest_by_old_method
 
     return latest
-
-
-def iq_fmt(e164_number: str) -> str:
-    return "1" + str(phonenumbers.parse(e164_number, "E164").national_number)
 
 
 class VerifiedRealPhoneManager(models.Manager["RealPhone"]):
@@ -231,9 +225,6 @@ def realphone_post_save(sender, instance, created, **kwargs):
             f"Your Firefox Relay verification code is {instance.verification_code}"
         )
         if settings.PHONES_NO_CLIENT_CALLS_IN_TEST:
-            return
-        if settings.IQ_FOR_VERIFICATION:
-            send_iq_sms(instance.number, settings.IQ_MAIN_NUMBER, text_body)
             return
         client = twilio_client()
         client.messages.create(
@@ -424,10 +415,6 @@ def register_with_messaging_service(client: Client, number_sid: str) -> None:
 def relaynumber_post_save(sender, instance, created, **kwargs):
     # don't do anything if running migrations
     if isinstance(instance, MigrationRecorder.Migration):
-        return
-
-    # TODO: if IQ_FOR_NEW_NUMBERS, send welcome message via IQ
-    if not instance.vendor == "twilio":
         return
 
     if created:
