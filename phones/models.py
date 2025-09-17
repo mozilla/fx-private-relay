@@ -417,10 +417,6 @@ def relaynumber_post_save(sender, instance, created, **kwargs):
     if isinstance(instance, MigrationRecorder.Migration):
         return
 
-    # TODO: if IQ_FOR_NEW_NUMBERS, send welcome message via IQ
-    if not instance.vendor == "twilio":
-        return
-
     if created:
         incr_if_enabled("phones_RelayNumber.post_save_created_send_welcome")
         if not settings.PHONES_NO_CLIENT_CALLS_IN_TEST:

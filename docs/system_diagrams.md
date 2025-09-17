@@ -125,8 +125,6 @@ Key:
 Here are all the Relay containers in a single diagram, with no container collections. It adds a few optional
 containers:
 
-- **iQ Phone Service** - An alternative phone provider tested in some deployments
-
 [![Relay Containers (All Details)](./img/structurizr-1-RelayContainersAllDetails.svg)](./img/structurizr-1-RelayContainersAllDetails.svg)
 
 Key:
