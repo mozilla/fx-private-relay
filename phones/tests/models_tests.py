@@ -15,7 +15,7 @@ import pytest
 import responses
 from allauth.socialaccount.models import SocialAccount, SocialToken
 from model_bakery import baker
-from twilio.base.exceptions import TwilioRestException
+from twilio.base.exceptions import TwilioException, TwilioRestException
 
 from privaterelay.tests.utils import omit_markus_logs
 
@@ -706,6 +706,37 @@ def test_suggested_numbers(phone_user, real_phone_us, mock_twilio_client):
         call(contains="+1222*******", limit=10),
         call(limit=10),
     ]
+
+
+def test_suggested_numbers_hotfix_error_test(
+    phone_user, real_phone_us, mock_twilio_client
+):
+    # Special hotfix test case for error handling certain types of numbers, clean later
+    def _twilioCall(contains=None, limit=None):
+        if contains:
+            # Any prefix will raise an error, only the most general fetch succeeds
+            if contains == "+1***3334444":
+                raise TwilioRestException(500, "/url", "Service Error 500")
+            raise TwilioException("Unable to fetch page")
+        return [Mock() for i in range(5)]
+
+    mock_list = Mock(side_effect=_twilioCall)
+    mock_twilio_client.available_phone_numbers = Mock(
+        return_value=Mock(local=Mock(list=mock_list))
+    )
+
+    numbers = suggested_numbers(phone_user)
+    available_numbers_calls = mock_twilio_client.available_phone_numbers.call_args_list
+    assert available_numbers_calls == [call("US")]
+    assert mock_list.call_args_list == [
+        call(contains="+1222333****", limit=10),
+        call(contains="+122233***44", limit=10),
+        call(contains="+12223******", limit=10),
+        call(contains="+1***3334444", limit=10),
+        call(contains="+1222*******", limit=10),
+        call(limit=10),
+    ]
+    assert len(numbers) == 5
 
 
 def test_suggested_numbers_ca(phone_user, mock_twilio_client):
