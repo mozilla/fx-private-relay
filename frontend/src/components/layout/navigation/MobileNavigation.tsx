@@ -147,9 +147,7 @@ export const MobileNavigation = (props: Props) => {
         })}
 
         {renderMenuItem({
-          url: `${runtimeData?.data?.FXA_ORIGIN}/support/?utm_source=${
-            getRuntimeConfig().frontendOrigin
-          }`,
+          url: "https://support.mozilla.org/questions/new/relay/form",
           isVisible: isLoggedIn && hasPremium,
           icon: <ContactIcon width={20} height={20} alt="" />,
           l10n: "nav-contact",

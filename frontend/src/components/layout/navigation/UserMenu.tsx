@@ -86,9 +86,7 @@ export const UserMenu = (props: Props) => {
       >
         <a
           ref={contactLinkRef}
-          href={`${runtimeData.data.FXA_ORIGIN}/support/?utm_source=${
-            getRuntimeConfig().frontendOrigin
-          }`}
+          href={"https://support.mozilla.org/questions/new/relay/form"}
           title={l10n.getString("nav-profile-contact-tooltip")}
           className={styles["menu-link"]}
           target="_blank"
