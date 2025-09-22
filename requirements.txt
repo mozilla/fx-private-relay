@@ -29,7 +29,7 @@ PyJWT==2.10.1
 python-decouple==3.8
 requests==2.32.5
 requests-oauthlib==2.0.0
-sentry-sdk==2.37.1
+sentry-sdk==2.38.0
 whitenoise==6.10.0
 
 # phones app
