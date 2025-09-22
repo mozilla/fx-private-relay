@@ -17,7 +17,7 @@ from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 from django.urls import reverse
 
-from twilio.base.exceptions import TwilioRestException
+from twilio.base.exceptions import TwilioException, TwilioRestException
 from twilio.rest import Client
 
 from emails.utils import incr_if_enabled
@@ -493,30 +493,57 @@ def suggested_numbers(user):
 
     # TODO: can we make multiple pattern searches in a single Twilio API request
     same_prefix_options = []
+    other_areas_options = []
+    same_area_options = []
     # look for numbers with same area code and 3-number prefix
-    contains = f"{real_num[:8]}****" if real_num else ""
-    twilio_nums = avail_nums.local.list(contains=contains, limit=10)
-    same_prefix_options.extend(convert_twilio_numbers_to_dict(twilio_nums))
+    try:
+        contains = f"{real_num[:8]}****" if real_num else ""
+        twilio_nums = avail_nums.local.list(contains=contains, limit=10)
+        same_prefix_options.extend(convert_twilio_numbers_to_dict(twilio_nums))
+    except (TwilioException, TwilioRestException):
+        events_logger.warning(
+            "Could not complete area code + 3 number prefix lookup. Failed with: {ex}"
+        )
 
     # look for numbers with same area code, 2-number prefix and suffix
-    contains = f"{real_num[:7]}***{real_num[10:]}" if real_num else ""
-    twilio_nums = avail_nums.local.list(contains=contains, limit=10)
-    same_prefix_options.extend(convert_twilio_numbers_to_dict(twilio_nums))
+    try:
+        contains = f"{real_num[:7]}***{real_num[10:]}" if real_num else ""
+        twilio_nums = avail_nums.local.list(contains=contains, limit=10)
+        same_prefix_options.extend(convert_twilio_numbers_to_dict(twilio_nums))
+    except (TwilioException, TwilioRestException):
+        events_logger.warning(
+            "Could not complete 2-number prefix lookup. Failed with: {ex}"
+        )
 
     # look for numbers with same area code and 1-number prefix
-    contains = f"{real_num[:6]}******" if real_num else ""
-    twilio_nums = avail_nums.local.list(contains=contains, limit=10)
-    same_prefix_options.extend(convert_twilio_numbers_to_dict(twilio_nums))
+    try:
+        contains = f"{real_num[:6]}******" if real_num else ""
+        twilio_nums = avail_nums.local.list(contains=contains, limit=10)
+        same_prefix_options.extend(convert_twilio_numbers_to_dict(twilio_nums))
+    except (TwilioException, TwilioRestException):
+        events_logger.warning(
+            "Could not complete 1-number prefix lookup. Failed with: {ex}"
+        )
 
     # look for same number in other area codes
-    contains = f"+1***{real_num[5:]}" if real_num else ""
-    twilio_nums = avail_nums.local.list(contains=contains, limit=10)
-    other_areas_options = convert_twilio_numbers_to_dict(twilio_nums)
+    try:
+        contains = f"+1***{real_num[5:]}" if real_num else ""
+        twilio_nums = avail_nums.local.list(contains=contains, limit=10)
+        other_areas_options = convert_twilio_numbers_to_dict(twilio_nums)
+    except (TwilioException, TwilioRestException):
+        events_logger.warning(
+            "Could not complete other area code lookup. Failed with: {ex}"
+        )
 
     # look for any numbers in the area code
-    contains = f"{real_num[:5]}*******" if real_num else ""
-    twilio_nums = avail_nums.local.list(contains=contains, limit=10)
-    same_area_options = convert_twilio_numbers_to_dict(twilio_nums)
+    try:
+        contains = f"{real_num[:5]}*******" if real_num else ""
+        twilio_nums = avail_nums.local.list(contains=contains, limit=10)
+        same_area_options = convert_twilio_numbers_to_dict(twilio_nums)
+    except (TwilioException, TwilioRestException):
+        events_logger.warning(
+            "Could not complete same area code lookup. Failed with: {ex}"
+        )
 
     # look for any available numbers
     twilio_nums = avail_nums.local.list(limit=10)
