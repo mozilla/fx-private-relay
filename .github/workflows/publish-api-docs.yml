@@ -1,0 +1,58 @@
+name: Build & Publish API Docs
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    environment:
+      name: github-pages
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Generate OpenAPI schema
+        env:
+          API_DOCS_ENABLED: "True"
+          AWS_SES_CONFIGSET: "True" # to add emails to INSTALLED_APPS
+          AWS_SNS_TOPIC: "True" # to add emails to INSTALLED_APPS
+          PHONES_ENABLED: "True" # to add phones to INSTALLED_APPS
+        run: python manage.py spectacular --file docs/api_schema.yaml --skip-checks
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'  # or your preferred version
+
+      - name: Install Redocly CLI
+        run: npm install -g @redocly/cli
+
+      - name: Build static API docs
+        run: npx @redocly/cli build-docs docs/api_schema.yaml -o docs/api_docs.html
+
+      - name: Upload API docs artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
