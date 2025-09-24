@@ -16,7 +16,6 @@ export class SubscriptionPaymentPage {
   readonly subscription3Title: Locator;
   readonly subscriptionType: Locator;
   readonly planDetails: Locator;
-  readonly planDetails3: Locator;
   readonly planType: Locator;
   readonly planType3: Locator;
 
@@ -44,17 +43,12 @@ export class SubscriptionPaymentPage {
       '[data-testid="subscription-create-title"]',
     );
     this.subscription3Title = page.locator("#subscription-heading");
-    this.planDetails = page.locator("#plan-details-product");
-    this.planDetails3 = page.locator("#product-details-heading");
+    this.planDetails = page.locator("#product-details-heading");
     this.planType = page.locator(".plan-details-description");
     // this is ugly but someone repeated the datatest-id="total-price" in the component
     this.planType3 = page.locator(
       ".overflow-hidden.text-ellipsis.text-lg.whitespace-nowrap",
     );
-  }
-
-  private isVersion3(): boolean {
-    return this.page.url().includes("payments-next");
   }
 
   async getSubscriptionTitleText(): Promise<string> {
@@ -68,10 +62,7 @@ export class SubscriptionPaymentPage {
   }
 
   async getPlanDetailsText(): Promise<string> {
-    const text = this.isVersion3()
-      ? await this.planDetails3.textContent()
-      : await this.planDetails.textContent();
-
+    const text = await this.planDetails.textContent();
     if (!text) {
       throw new Error("Get Plan title text not found.");
     }
