@@ -142,9 +142,7 @@ const Settings: NextPage = () => {
   const contactUsLink = profile.has_premium ? (
     <li>
       <a
-        href={`${runtimeData.data.FXA_ORIGIN}/support/?utm_source=${
-          getRuntimeConfig().frontendOrigin
-        }`}
+        href={"https://support.mozilla.org/questions/new/relay/form"}
         target="_blank"
         rel="noopener noreferrer"
         title={l10n.getString("nav-profile-contact-tooltip")}
