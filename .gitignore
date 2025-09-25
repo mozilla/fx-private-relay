@@ -20,3 +20,5 @@ allure-results/
 allure-report/
 gcp_key.json
 version.json
+docs/api_schema.yaml
+docs/api_docs.html
