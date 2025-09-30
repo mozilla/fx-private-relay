@@ -41,6 +41,7 @@ import { useL10n } from "../../hooks/l10n";
 import { LinkButton } from "../Button";
 import { useIsLoggedIn } from "../../hooks/session";
 import { getLocale } from "../../functions/getLocale";
+import { useUtmApplier } from "../../hooks/utmApplier";
 
 export type Props = {
   runtimeData: RuntimeData;
@@ -74,6 +75,8 @@ export const PlanGrid = (props: Props) => {
   };
 
   const isLoggedIn = useIsLoggedIn();
+
+  const applyUtmParams = useUtmApplier();
 
   const formatter = new Intl.NumberFormat(getLocale(l10n), {
     style: "currency",
@@ -321,9 +324,11 @@ export const PlanGrid = (props: Props) => {
                     "monthly",
                     l10n,
                   ),
-                  subscribeLink: getPeriodicalPremiumSubscribeLink(
-                    props.runtimeData,
-                    "monthly",
+                  subscribeLink: applyUtmParams(
+                    getPeriodicalPremiumSubscribeLink(
+                      props.runtimeData,
+                      "monthly",
+                    ),
                   ),
                   gaViewPing: {
                     category: "Purchase monthly Premium button",
@@ -345,9 +350,11 @@ export const PlanGrid = (props: Props) => {
                     "yearly",
                     l10n,
                   ),
-                  subscribeLink: getPeriodicalPremiumSubscribeLink(
-                    props.runtimeData,
-                    "yearly",
+                  subscribeLink: applyUtmParams(
+                    getPeriodicalPremiumSubscribeLink(
+                      props.runtimeData,
+                      "yearly",
+                    ),
                   ),
                   gaViewPing: {
                     category: "Purchase yearly Premium button",
@@ -405,7 +412,7 @@ export const PlanGrid = (props: Props) => {
             </p>
             <LinkButton
               ref={freeButtonRef}
-              href={getRuntimeConfig().fxaLoginUrl}
+              href={applyUtmParams(getRuntimeConfig().fxaLoginUrl)}
               onClick={() => countSignIn("plan-grid-free-cta")}
               className={styles["pick-button"]}
               disabled={isLoggedIn === "logged-in"}

@@ -63,6 +63,7 @@ import { FreeOnboarding } from "../../components/dashboard/FreeOnboarding";
 import Confetti from "react-confetti";
 import { useRouter } from "next/router";
 import { CornerNotification } from "../../components/dashboard/CornerNotification";
+import { useUtmApplier } from "../../hooks/utmApplier";
 
 const Profile: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -84,17 +85,16 @@ const Profile: NextPage = () => {
   }
   usePurchaseTracker(profileData.data?.[0]);
   const [modalOpened, setModalOpenedState] = useState(false);
+  const applyUtmParams = useUtmApplier();
 
   if (!userData.isValidating && userData.error) {
     if (document.location.hash) {
       setCookie("profile-location-hash", document.location.hash);
     }
     // Add url params to auth_params so django-allauth will send them to FXA
-    const originalUrlParams = document.location.search.replace("?", "");
-    const fxaLoginWithAuthParams =
-      getRuntimeConfig().fxaLoginUrl +
-      "&auth_params=" +
-      encodeURIComponent(originalUrlParams);
+    const fxaLoginWithAuthParams = applyUtmParams(
+      getRuntimeConfig().fxaLoginUrl,
+    );
     document.location.assign(fxaLoginWithAuthParams);
   }
 
