@@ -405,7 +405,11 @@ export const PlanGrid = (props: Props) => {
             </p>
             <LinkButton
               ref={freeButtonRef}
-              href={getRuntimeConfig().fxaLoginUrl}
+              href={`${getRuntimeConfig().fxaLoginUrl}&auth_params=${
+                typeof window !== "undefined"
+                  ? encodeURIComponent(window.location.search.slice(1))
+                  : ""
+              }`}
               onClick={() => countSignIn("plan-grid-free-cta")}
               className={styles["pick-button"]}
               disabled={isLoggedIn === "logged-in"}

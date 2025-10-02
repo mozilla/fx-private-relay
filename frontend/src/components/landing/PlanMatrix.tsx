@@ -167,7 +167,11 @@ export const PlanMatrix = (props: Props) => {
                 </span>
                 <LinkButton
                   ref={freeButtonDesktopRef}
-                  href={getRuntimeConfig().fxaLoginUrl}
+                  href={`${getRuntimeConfig().fxaLoginUrl}&auth_params=${
+                    typeof window !== "undefined"
+                      ? encodeURIComponent(window.location.search.slice(1))
+                      : ""
+                  }`}
                   onClick={() => countSignIn("plan-matrix-free-cta-desktop")}
                   className={styles["primary-pick-button"]}
                   disabled={isLoggedIn === "logged-in"}
@@ -406,7 +410,11 @@ export const PlanMatrix = (props: Props) => {
               </span>
               <LinkButton
                 ref={freeButtonMobileRef}
-                href={getRuntimeConfig().fxaLoginUrl}
+                href={`${getRuntimeConfig().fxaLoginUrl}&auth_params=${
+                  typeof window !== "undefined"
+                    ? encodeURIComponent(window.location.search.slice(1))
+                    : ""
+                }`}
                 onClick={() => countSignIn("plan-matrix-free-cta-mobile")}
                 className={styles["primary-pick-button"]}
               >

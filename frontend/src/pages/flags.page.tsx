@@ -22,7 +22,13 @@ const Flags: NextPage = () => {
   }
 
   if (!isFlagActive(runtimeData.data, "manage_flags") || flagData.error) {
-    document.location.assign(getRuntimeConfig().fxaLoginUrl);
+    const authParams =
+      typeof window !== "undefined"
+        ? encodeURIComponent(window.location.search.replace(/^\?/, ""))
+        : "";
+    document.location.assign(
+      `${getRuntimeConfig().fxaLoginUrl}&auth_params=${authParams}`,
+    );
     return null;
   }
 

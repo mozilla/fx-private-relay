@@ -73,7 +73,13 @@ const Phone: NextPage = () => {
   }, [isInOnboarding, relayNumberData]);
 
   if (!userData.isValidating && userData.error) {
-    document.location.assign(getRuntimeConfig().fxaLoginUrl);
+    const authParams =
+      typeof window !== "undefined"
+        ? encodeURIComponent(window.location.search.replace(/^\?/, ""))
+        : "";
+    document.location.assign(
+      `${getRuntimeConfig().fxaLoginUrl}&auth_params=${authParams}`,
+    );
   }
 
   if (!profile || !user || !relayNumberData.data || !runtimeData.data) {
