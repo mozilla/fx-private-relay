@@ -16,6 +16,7 @@ import { useRouter } from "next/router";
 import { isPhonesAvailableInCountry } from "../functions/getPlan";
 import { PhoneWelcomeView } from "../components/phones/dashboard/PhoneWelcomeView";
 import { useLocalDismissal } from "../hooks/localDismissal";
+import { useUtmApplier } from "../hooks/utmApplier";
 
 const Phone: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -72,14 +73,9 @@ const Phone: NextPage = () => {
     }
   }, [isInOnboarding, relayNumberData]);
 
+  const applyUtmParams = useUtmApplier();
   if (!userData.isValidating && userData.error) {
-    const authParams =
-      typeof window !== "undefined"
-        ? encodeURIComponent(window.location.search.replace(/^\?/, ""))
-        : "";
-    document.location.assign(
-      `${getRuntimeConfig().fxaLoginUrl}&auth_params=${authParams}`,
-    );
+    document.location.assign(applyUtmParams(getRuntimeConfig().fxaLoginUrl));
   }
 
   if (!profile || !user || !relayNumberData.data || !runtimeData.data) {

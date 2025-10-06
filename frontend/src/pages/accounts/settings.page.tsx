@@ -30,6 +30,7 @@ import { useAddonData } from "../../hooks/addon";
 import { isFlagActive } from "../../functions/waffle";
 import { isPhonesAvailableInCountry } from "../../functions/getPlan";
 import { useL10n } from "../../hooks/l10n";
+import { useUtmApplier } from "../../hooks/utmApplier";
 
 const Settings: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -60,14 +61,9 @@ const Settings: NextPage = () => {
     countLabelCollectionDisabledWarningToggle();
   }, [labelCollectionEnabled]);
 
+  const applyUtmParams = useUtmApplier();
   if (!profileData.isValidating && profileData.error) {
-    const authParams =
-      typeof window !== "undefined"
-        ? encodeURIComponent(window.location.search.replace(/^\?/, ""))
-        : "";
-    document.location.assign(
-      `${getRuntimeConfig().fxaLoginUrl}&auth_params=${authParams}`,
-    );
+    document.location.assign(applyUtmParams(getRuntimeConfig().fxaLoginUrl));
   }
 
   if (!profileData.data || !runtimeData.data) {

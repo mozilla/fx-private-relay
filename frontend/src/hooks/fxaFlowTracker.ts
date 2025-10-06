@@ -98,22 +98,6 @@ export function getLoginUrl(entrypoint: string, flowData?: FlowData): string {
     );
   }
 
-  if (typeof window !== "undefined") {
-    const inbound = new URLSearchParams(window.location.search);
-    [
-      "utm_source",
-      "utm_campaign",
-      "utm_medium",
-      "utm_content",
-      "utm_term",
-    ].forEach((k) => {
-      const v = inbound.get(k);
-      if (v && !urlObject.searchParams.has(k)) {
-        urlObject.searchParams.append(k, v);
-      }
-    });
-  }
-
   const fullUrl = urlObject.href;
   // If the configured fxaLoginUrl was a relative URL,
   // the URL we return should be relative as well, rather than potentially

@@ -51,31 +51,10 @@ export const getPeriodicalPremiumSubscribeLink = (
 ) => {
   const plan = getPlan(runtimeData.PERIODICAL_PREMIUM_PLANS, billingPeriod);
 
-  const baseHref = plan.id
-    ? `${runtimeData.FXA_ORIGIN}/subscriptions/products/${runtimeData.PERIODICAL_PREMIUM_PRODUCT_ID}?plan=${plan.id}`
-    : (plan.url ?? "");
-
-  if (typeof window !== "undefined" && baseHref) {
-    const url = new URL(baseHref, window.location.origin);
-    const inbound = new URLSearchParams(window.location.search);
-
-    (
-      [
-        "utm_source",
-        "utm_campaign",
-        "utm_medium",
-        "utm_content",
-        "utm_term",
-      ] as const
-    ).forEach((k) => {
-      const v = inbound.get(k);
-      if (v && !url.searchParams.has(k)) url.searchParams.set(k, v);
-    });
-
-    return url.toString();
+  if (plan.id) {
+    return `${runtimeData.FXA_ORIGIN}/subscriptions/products/${runtimeData.PERIODICAL_PREMIUM_PRODUCT_ID}?plan=${plan.id}`;
   }
-
-  return baseHref;
+  return plan.url ?? "";
 };
 
 export const getPhonesPrice = (
