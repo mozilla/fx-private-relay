@@ -1,16 +1,16 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import React from "react";
 import { PurchasePhonesPlan } from "./PurchasePhonesPlan";
 import { RuntimeDataWithPhonesAvailable } from "../../../functions/getPlan";
-import { mockedRuntimeData } from "frontend/src/apiMocks/mockData";
+import { mockedRuntimeData } from "frontend/__mocks__/api/mockData";
 
-jest.mock("../../../hooks/l10n", () => ({
-  useL10n: () => ({
-    getString: (id: string, vars?: Record<string, string>) =>
-      vars
-        ? `l10n string: [${id}] with vars: ${JSON.stringify(vars)}`
-        : `l10n string: [${id}]`,
-  }),
-}));
+jest.mock("../../../hooks/l10n", () => {
+  const { mockUseL10nModule } = jest.requireActual(
+    "../../../../__mocks__/hooks/l10n",
+  );
+  return mockUseL10nModule;
+});
 
 jest.mock("../../../hooks/gaViewPing", () => ({
   useGaViewPing: () => ({ current: null }),
@@ -33,6 +33,9 @@ jest.mock("../../../functions/getPlan", () => {
   };
 });
 
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const byMsgId = (id: string) => new RegExp(`\\[${escapeRe(id)}\\]`);
+
 describe("PurchasePhonesPlan", () => {
   const runtimeData = mockedRuntimeData as RuntimeDataWithPhonesAvailable;
 
@@ -40,43 +43,54 @@ describe("PurchasePhonesPlan", () => {
     render(<PurchasePhonesPlan runtimeData={runtimeData} />);
 
     expect(
-      screen.getByText(/phone-onboarding-step1-headline/),
+      screen.getByText(byMsgId("phone-onboarding-step1-headline")),
     ).toBeInTheDocument();
-    expect(screen.getByText(/phone-onboarding-step1-body/)).toBeInTheDocument();
+    expect(
+      screen.getByText(byMsgId("phone-onboarding-step1-body")),
+    ).toBeInTheDocument();
     expect(screen.getAllByRole("listitem")).toHaveLength(4);
   });
 
-  it("renders both yearly and monthly pricing options", () => {
+  it("renders both yearly and monthly pricing options", async () => {
+    const user = userEvent.setup();
     render(<PurchasePhonesPlan runtimeData={runtimeData} />);
 
     expect(
-      screen.getByText(/phone-onboarding-step1-period-toggle-yearly/),
+      screen.getByText(byMsgId("phone-onboarding-step1-period-toggle-yearly")),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/phone-onboarding-step1-period-toggle-monthly/),
+      screen.getByText(byMsgId("phone-onboarding-step1-period-toggle-monthly")),
     ).toBeInTheDocument();
+
     expect(
-      screen.getAllByText(/phone-onboarding-step1-button-price/),
-    ).toHaveLength(2);
+      screen.getByText(byMsgId("phone-onboarding-step1-button-price")),
+    ).toBeInTheDocument();
+
+    await user.click(
+      screen.getByText(byMsgId("phone-onboarding-step1-period-toggle-monthly")),
+    );
+
+    expect(
+      screen.getByText(byMsgId("phone-onboarding-step1-button-price")),
+    ).toBeInTheDocument();
   });
 
-  it("has clickable links for yearly and monthly subscription", () => {
+  it("has clickable links for yearly and monthly subscription", async () => {
+    const user = userEvent.setup();
     render(<PurchasePhonesPlan runtimeData={runtimeData} />);
 
-    // Yearly is selected by default
     const yearlyLink = screen.getByRole("link", {
-      name: /phone-onboarding-step1-button-cta-2/,
+      name: byMsgId("phone-onboarding-step1-button-cta-2"),
     });
     expect(yearlyLink).toHaveAttribute("href", "/subscribe/yearly");
 
-    // Switch to monthly tab
     const monthlyTab = screen.getByText(
-      /phone-onboarding-step1-period-toggle-monthly/,
+      byMsgId("phone-onboarding-step1-period-toggle-monthly"),
     );
-    fireEvent.click(monthlyTab);
+    await user.click(monthlyTab);
 
     const monthlyLink = screen.getByRole("link", {
-      name: /phone-onboarding-step1-button-cta-2/,
+      name: byMsgId("phone-onboarding-step1-button-cta-2"),
     });
     expect(monthlyLink).toHaveAttribute("href", "/subscribe/monthly");
   });

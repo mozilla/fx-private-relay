@@ -1,4 +1,5 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { SendersPanelView } from "./SendersPanelView";
 import * as l10nModule from "frontend/src/hooks/l10n";
 import * as metricsModule from "frontend/src/hooks/metrics";
@@ -112,9 +113,10 @@ describe("SendersPanelView", () => {
     expect(buttons).toHaveLength(2);
   });
 
-  it("calls back_btn when the back button is clicked", () => {
+  it("calls back_btn when the back button is clicked", async () => {
+    const user = userEvent.setup();
     render(<SendersPanelView type="primary" back_btn={mockBack} />);
-    fireEvent.click(
+    await user.click(
       screen.getByRole("button", { name: "Back to Primary Dashboard" }),
     );
     expect(mockBack).toHaveBeenCalled();

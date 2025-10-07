@@ -1,12 +1,11 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { PremiumOnboarding } from "./PremiumOnboarding";
-import { mockedProfiles } from "../../apiMocks/mockData";
+import { mockedProfiles } from "../../../__mocks__/api/mockData";
 import { useL10n } from "../../hooks/l10n";
 import { supportsFirefoxExtension } from "../../functions/userAgent";
 import { useMinViewportWidth } from "../../hooks/mediaQuery";
-
-import { LocalizationProvider, ReactLocalization } from "@fluent/react";
-import { FluentBundle, FluentResource } from "@fluent/bundle";
+import { renderWithProviders } from "frontend/__mocks__/modules/renderWithProviders";
 
 jest.mock("../../hooks/l10n");
 jest.mock("../../hooks/gaViewPing", () => ({
@@ -23,20 +22,6 @@ jest.mock("../../config", () => ({
   }),
 }));
 
-const MockL10nProvider = ({ children }: { children: React.ReactNode }) => {
-  const resource = new FluentResource("");
-  const bundle = new FluentBundle("en-US");
-  bundle.addResource(resource);
-  const l10n = new ReactLocalization([bundle]);
-
-  return <LocalizationProvider l10n={l10n}>{children}</LocalizationProvider>;
-};
-MockL10nProvider.displayName = "MockL10nProvider";
-
-const renderWithL10n = (ui: React.ReactElement) => {
-  return render(<MockL10nProvider>{ui}</MockL10nProvider>);
-};
-
 describe("PremiumOnboarding", () => {
   const mockL10nGetString = jest.fn((id: string) => id);
 
@@ -49,11 +34,12 @@ describe("PremiumOnboarding", () => {
     (useMinViewportWidth as jest.Mock).mockReturnValue(true);
   });
 
-  it("renders Step 1 and continues to Step 2", () => {
+  it("renders Step 1 and continues to Step 2", async () => {
+    const user = userEvent.setup();
     const onNextStep = jest.fn();
     const onPickSubdomain = jest.fn();
 
-    renderWithL10n(
+    renderWithProviders(
       <PremiumOnboarding
         profile={{ ...mockedProfiles.full, onboarding_state: 0 }}
         onNextStep={onNextStep}
@@ -70,12 +56,13 @@ describe("PremiumOnboarding", () => {
     const button = screen.getByRole("button", {
       name: "multi-part-onboarding-premium-welcome-feature-cta",
     });
-    fireEvent.click(button);
+    await user.click(button);
 
     expect(onNextStep).toHaveBeenCalledWith(1);
   });
 
-  it("renders Step 2 with subdomain search when subdomain is null", () => {
+  it("renders Step 2 with subdomain search when subdomain is null", async () => {
+    const user = userEvent.setup();
     const onNextStep = jest.fn();
     const onPickSubdomain = jest.fn();
     const profile = {
@@ -84,7 +71,7 @@ describe("PremiumOnboarding", () => {
       subdomain: null,
     };
 
-    renderWithL10n(
+    renderWithProviders(
       <PremiumOnboarding
         profile={profile}
         onNextStep={onNextStep}
@@ -101,15 +88,16 @@ describe("PremiumOnboarding", () => {
     const skipButton = screen.getByRole("button", {
       name: "multi-part-onboarding-skip",
     });
-    fireEvent.click(skipButton);
+    await user.click(skipButton);
 
     expect(onNextStep).toHaveBeenCalledWith(2);
   });
 
-  it("renders Step 2 with continue button when subdomain is set", () => {
+  it("renders Step 2 with continue button when subdomain is set", async () => {
+    const user = userEvent.setup();
     const onNextStep = jest.fn();
 
-    renderWithL10n(
+    renderWithProviders(
       <PremiumOnboarding
         profile={{
           ...mockedProfiles.full,
@@ -124,15 +112,16 @@ describe("PremiumOnboarding", () => {
     const button = screen.getByRole("button", {
       name: "multi-part-onboarding-continue",
     });
-    fireEvent.click(button);
+    await user.click(button);
 
     expect(onNextStep).toHaveBeenCalledWith(2);
   });
 
-  it("renders Step 3 and allows skipping extension", () => {
+  it("renders Step 3 and allows skipping extension", async () => {
+    const user = userEvent.setup();
     const onNextStep = jest.fn();
 
-    renderWithL10n(
+    renderWithProviders(
       <PremiumOnboarding
         profile={{ ...mockedProfiles.full, onboarding_state: 2 }}
         onNextStep={onNextStep}
@@ -149,13 +138,13 @@ describe("PremiumOnboarding", () => {
     const skipButton = screen.getByRole("button", {
       name: "multi-part-onboarding-skip-download-extension",
     });
-    fireEvent.click(skipButton);
+    await user.click(skipButton);
 
     expect(onNextStep).toHaveBeenCalledWith(3);
   });
 
   it("renders progress bar with correct value and max", () => {
-    renderWithL10n(
+    renderWithProviders(
       <PremiumOnboarding
         profile={{ ...mockedProfiles.full, onboarding_state: 1 }}
         onNextStep={jest.fn()}
