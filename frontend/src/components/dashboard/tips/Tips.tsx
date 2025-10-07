@@ -144,7 +144,7 @@ export const Tips = (props: Props) => {
           </li>
           <li>
             <a
-              href={"https://support.mozilla.org/questions/new/relay/form"}
+              href={"https://support.mozilla.org/products/relay"}
               target="_blank"
               rel="noopener noreferrer"
               title={l10n.getString("tips-footer-link-support-tooltip")}
