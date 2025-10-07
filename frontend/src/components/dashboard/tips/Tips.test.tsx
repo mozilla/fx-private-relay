@@ -148,7 +148,7 @@ describe("Tips", () => {
     const support = screen.getByRole("link", { name: "Support" });
     expect(support).toHaveAttribute(
       "href",
-      expect.stringContaining("http://relay.local"),
+      "https://support.mozilla.org/products/relay",
     );
   });
 
