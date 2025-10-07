@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import { mockUseL10nModule } from "../../../__mocks__/hooks/l10n";
 
 jest.mock("../../components/layout/Layout", () => ({
   Layout: ({ children }: { children: React.ReactNode }) => (
@@ -6,19 +7,20 @@ jest.mock("../../components/layout/Layout", () => ({
   ),
 }));
 
-jest.mock("../../hooks/l10n", () => ({
-  useL10n: () => ({
-    getString: (id: string) =>
-      id === "api-error-account-is-inactive" ? "Your account is inactive." : id,
-  }),
-}));
+jest.mock("../../hooks/l10n", () => mockUseL10nModule);
 
 import AccountInactive from "./account_inactive.page";
 
 describe("AccountInactive page", () => {
   it("renders the inactive account error message", () => {
     render(<AccountInactive />);
-    expect(screen.getByText("Your account is inactive.")).toBeInTheDocument();
+
+    expect(
+      screen.getByText(
+        "l10n string: [api-error-account-is-inactive], with vars: {}",
+      ),
+    ).toBeInTheDocument();
+
     expect(screen.getByTestId("mock-layout")).toBeInTheDocument();
   });
 });

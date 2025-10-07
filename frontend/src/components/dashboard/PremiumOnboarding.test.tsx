@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { PremiumOnboarding } from "./PremiumOnboarding";
-import { mockedProfiles } from "../../apiMocks/mockData";
+import { mockedProfiles } from "../../../__mocks__/api/mockData";
 import { useL10n } from "../../hooks/l10n";
 import { supportsFirefoxExtension } from "../../functions/userAgent";
 import { useMinViewportWidth } from "../../hooks/mediaQuery";

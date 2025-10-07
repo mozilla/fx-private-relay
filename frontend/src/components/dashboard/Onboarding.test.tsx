@@ -1,12 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { Onboarding, Props } from "./Onboarding";
-import { AliasData } from "../../hooks/api/aliases";
-
-jest.mock("../../hooks/l10n", () => ({
-  useL10n: () => ({
-    getString: (key: string) => `[${key}]`,
-  }),
-}));
+import type { Props } from "./Onboarding";
+import type { AliasData } from "../../hooks/api/aliases";
 
 jest.mock("../Image", () => ({
   __esModule: true,
@@ -14,6 +8,13 @@ jest.mock("../Image", () => ({
     <img src={src} alt={alt} data-testid="mocked-image" />
   ),
 }));
+
+jest.mock("../../hooks/l10n", () => {
+  const { mockUseL10nModule } = require("../../../__mocks__/hooks/l10n");
+  return mockUseL10nModule;
+});
+
+import { Onboarding } from "./Onboarding";
 
 describe("Onboarding", () => {
   const mockOnCreate = jest.fn();
@@ -26,15 +27,15 @@ describe("Onboarding", () => {
   it("renders onboarding steps when no aliases are present", () => {
     render(<Onboarding {...defaultProps} />);
 
-    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(
-      "[onboarding-headline-2]",
-    );
+    expect(
+      screen.getByRole("heading", { level: 2, name: /onboarding-headline-2/ }),
+    ).toBeInTheDocument();
 
     expect(screen.getAllByRole("listitem")).toHaveLength(3);
 
     expect(
       screen.getByRole("button", {
-        name: "[profile-label-generate-new-alias-2]",
+        name: /profile-label-generate-new-alias-2/,
       }),
     ).toBeInTheDocument();
 
@@ -72,7 +73,7 @@ describe("Onboarding", () => {
     render(<Onboarding {...defaultProps} />);
     fireEvent.click(
       screen.getByRole("button", {
-        name: "[profile-label-generate-new-alias-2]",
+        name: /profile-label-generate-new-alias-2/,
       }),
     );
     expect(mockOnCreate).toHaveBeenCalledTimes(1);

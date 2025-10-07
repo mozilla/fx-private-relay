@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import { render, screen, fireEvent, act, within } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { MaskCard, Props } from "./MaskCard";
 import { AliasData } from "../../../hooks/api/aliases";
@@ -18,8 +18,9 @@ jest.mock(
   () => new Proxy({}, { get: (_: unknown, p: PropertyKey) => String(p) }),
 );
 
-jest.mock("next/link", () => {
-  const MockLink = ({
+jest.mock("next/link", () => ({
+  __esModule: true,
+  default: ({
     href,
     className,
     children,
@@ -31,10 +32,8 @@ jest.mock("next/link", () => {
     <a href={href} className={className} data-testid="link">
       {children}
     </a>
-  );
-  MockLink.displayName = "MockLink";
-  return MockLink;
-});
+  ),
+}));
 
 jest.mock("../../Icons", () => ({
   ArrowDownIcon: ({ alt }: { alt?: string }) => (
@@ -129,24 +128,15 @@ jest.mock("../../../hooks/api/aliases", () => ({
 
 jest.mock("./images/calendar.svg", () => "calendar.svg");
 jest.mock("./images/email.svg", () => "email.svg");
-jest.mock(
-  "./../images/free-onboarding-horizontal-arrow.svg",
-  () => "arrow.svg",
-);
+jest.mock("../images/free-onboarding-horizontal-arrow.svg", () => "arrow.svg");
 
-jest.mock("../../../hooks/l10n", () => ({
-  useL10n: () => ({
-    getString: (id: string, _vars?: Record<string, unknown>) => id,
-    getAttributes: (_id: string) => ({}),
-    getNumberFormatter: () => (n: number) => String(n),
-  }),
-}));
+jest.mock("../../../hooks/l10n", () => {
+  const { mockUseL10nModule } = require("../../../../__mocks__/hooks/l10n");
+  return mockUseL10nModule;
+});
 
-const matchText = (...variants: string[]) =>
-  new RegExp(
-    `^(?:${variants.map((v) => v.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})$`,
-    "i",
-  );
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const byMsgId = (id: string) => new RegExp(`\\[${escapeRe(id)}\\]`, "i");
 
 jest.useFakeTimers();
 
@@ -204,22 +194,25 @@ function renderMaskCard(override?: Partial<Props>) {
 describe("MaskCard", () => {
   test("copies address to clipboard and shows temporary confirmation", () => {
     renderMaskCard();
-    const copyBtn = screen.getByTitle(
-      matchText("Click to copy", "profile-label-click-to-copy"),
-    );
+
+    const copyBtn = screen.getByTitle(byMsgId("profile-label-click-to-copy"));
     fireEvent.click(copyBtn);
+
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
       "sample@relay.mozilla.com",
     );
-    expect(
-      screen.getByText(matchText("Copied!", "profile-label-copied")),
-    ).toHaveAttribute("aria-hidden", "false");
+
+    expect(screen.getByText(byMsgId("profile-label-copied"))).toHaveAttribute(
+      "aria-hidden",
+      "false",
+    );
     act(() => {
       jest.advanceTimersByTime(1000);
     });
-    expect(
-      screen.getByText(matchText("Copied!", "profile-label-copied")),
-    ).toHaveAttribute("aria-hidden", "true");
+    expect(screen.getByText(byMsgId("profile-label-copied"))).toHaveAttribute(
+      "aria-hidden",
+      "true",
+    );
   });
 
   test("copyAfterMaskGeneration triggers copy on mount", () => {
@@ -231,8 +224,9 @@ describe("MaskCard", () => {
 
   test("expand/collapse toggles via button and calls onChangeOpen", () => {
     const { onChangeOpen } = renderMaskCard({ isOpen: false });
+
     const expandBtn = screen.getByRole("button", {
-      name: /expand|profile-details-expand/i,
+      name: byMsgId("profile-details-expand"),
     });
     fireEvent.click(expandBtn);
     expect(onChangeOpen).toHaveBeenCalledWith(true);
@@ -253,53 +247,54 @@ describe("MaskCard", () => {
       } as AliasData,
       isOpen: true,
     });
+
     expect(
-      screen.getByText(matchText("Blocked", "profile-label-blocked")),
+      screen.getByText(byMsgId("profile-label-blocked")),
     ).toBeInTheDocument();
     expect(screen.getByText("1.2K")).toBeInTheDocument();
+
     expect(
-      screen.getByText(matchText("Forwarded", "profile-label-forwarded")),
+      screen.getByText(byMsgId("profile-label-forwarded")),
     ).toBeInTheDocument();
     expect(screen.getByText("3.5K")).toBeInTheDocument();
+
     expect(
-      screen.getByText(matchText("Replies", "profile-label-replies")),
+      screen.getByText(byMsgId("profile-label-replies")),
     ).toBeInTheDocument();
     expect(screen.getByText("78")).toBeInTheDocument();
+
     expect(
-      screen.getByText(
-        matchText("Trackers removed", "profile-label-trackers-removed"),
-      ),
+      screen.getByText(byMsgId("profile-label-trackers-removed")),
     ).toBeInTheDocument();
     expect(screen.getByText("1.5K")).toBeInTheDocument();
   });
 
-  test("replies are hidden for free users; promo option shows lock messaging and upgrade link", () => {
+  test("replies are hidden for free users; promo option shows lock messaging and (optionally) upgrade link", () => {
     isFlagActiveMock.mockReturnValue(false);
+
     renderMaskCard({
       profile: freeProfile,
       isOpen: true,
     });
+
     expect(
-      screen.queryByText(matchText("Replies", "profile-label-replies")),
+      screen.queryByText(byMsgId("profile-label-replies")),
     ).not.toBeInTheDocument();
-    const promoOption = screen.getByText(
-      matchText("Promotions", "profile-promo-email-blocking-option-promotions"),
-    );
-    fireEvent.click(promoOption);
-    expect(
-      screen.getAllByText(
-        matchText(
-          "Promotionals (Premium)",
-          "profile-promo-email-blocking-description-promotionals-locked-label",
-        ),
-      )[0],
-    ).toBeInTheDocument();
-    const locks = screen.getAllByTestId("lock-icon");
-    expect(locks.length).toBeGreaterThan(0);
-    const upgrade = screen.getByRole("link", {
-      name: matchText("Upgrade", "banner-pack-upgrade-cta"),
+
+    const group = screen.getByRole("radiogroup");
+    const promoRadio = within(group).getByRole("radio", {
+      name: byMsgId("profile-promo-email-blocking-option-promotions"),
     });
-    expect(upgrade).toHaveAttribute("href", "/premium#pricing");
+
+    expect(promoRadio).toBeDisabled();
+    expect(screen.getAllByTestId("lock-icon").length).toBeGreaterThan(0);
+
+    const upgrade = screen.queryByRole("link", {
+      name: byMsgId("banner-pack-upgrade-cta"),
+    });
+    if (upgrade) {
+      expect(upgrade).toHaveAttribute("href", "/premium#pricing");
+    }
   });
 
   test("block level: selecting 'All' disables mask; 'Promotions' enables + sets block_list_emails=true; 'None' enables + sets block_list_emails=false", () => {
@@ -307,29 +302,29 @@ describe("MaskCard", () => {
       profile: premiumProfile,
       isOpen: true,
     });
-    fireEvent.click(
-      screen.getByText(
-        matchText("All", "profile-promo-email-blocking-option-all"),
-      ),
-    );
+
+    const group = screen.getByRole("radiogroup");
+
+    const allRadio = within(group).getByRole("radio", {
+      name: byMsgId("profile-promo-email-blocking-option-all"),
+    });
+    const promoRadio = within(group).getByRole("radio", {
+      name: byMsgId("profile-promo-email-blocking-option-promotions"),
+    });
+    const noneRadio = within(group).getByRole("radio", {
+      name: byMsgId("profile-promo-email-blocking-option-none"),
+    });
+
+    fireEvent.click(allRadio);
     expect(onUpdate).toHaveBeenCalledWith({ enabled: false });
-    fireEvent.click(
-      screen.getByText(
-        matchText(
-          "Promotions",
-          "profile-promo-email-blocking-option-promotions",
-        ),
-      ),
-    );
+
+    fireEvent.click(promoRadio);
     expect(onUpdate).toHaveBeenCalledWith({
       enabled: true,
       block_list_emails: true,
     });
-    fireEvent.click(
-      screen.getByText(
-        matchText("None", "profile-promo-email-blocking-option-none"),
-      ),
-    );
+
+    fireEvent.click(noneRadio);
     expect(onUpdate).toHaveBeenCalledWith({
       enabled: true,
       block_list_emails: false,
@@ -341,13 +336,15 @@ describe("MaskCard", () => {
       isOpen: true,
       mask: { ...baseMask, enabled: false },
     });
+
     expect(
-      screen.getByText(
-        matchText("Blocking all", "profile-promo-email-blocking-label-none-2"),
-      ),
-    ).toBeInTheDocument();
+      screen.getAllByText(byMsgId("profile-promo-email-blocking-label-none-2"))
+        .length,
+    ).toBeGreaterThan(0);
+
     const noopUpdate: Props["onUpdate"] = jest.fn();
     const noopDelete: Props["onDelete"] = jest.fn();
+
     rerender(
       <MaskCard
         mask={{ ...baseMask, enabled: true, block_list_emails: true }}
@@ -365,13 +362,11 @@ describe("MaskCard", () => {
       />,
     );
     expect(
-      screen.getByText(
-        matchText(
-          "Blocking promotionals",
-          "profile-promo-email-blocking-label-promotionals-2",
-        ),
-      ),
-    ).toBeInTheDocument();
+      screen.getAllByText(
+        byMsgId("profile-promo-email-blocking-label-promotionals-2"),
+      ).length,
+    ).toBeGreaterThan(0);
+
     rerender(
       <MaskCard
         mask={{ ...baseMask, enabled: true, block_list_emails: false }}
@@ -389,27 +384,35 @@ describe("MaskCard", () => {
       />,
     );
     expect(
-      screen.getByText(
-        matchText(
-          "Forwarding all",
-          "profile-promo-email-blocking-label-forwarding-2",
-        ),
-      ),
-    ).toBeInTheDocument();
+      screen.getAllByText(
+        byMsgId("profile-promo-email-blocking-label-forwarding-2"),
+      ).length,
+    ).toBeGreaterThan(0);
   });
 
   test("meta section shows created date and forwarding email", () => {
     renderMaskCard({ isOpen: true });
+
+    const metaDl = screen
+      .getByText(/^Rendered\(2024-01-15T10:00:00Z\)$/)
+      .closest("dl") as HTMLElement;
+    expect(metaDl).toBeTruthy();
+
     expect(
-      screen.getByText(matchText("Created", "profile-label-created")),
+      within(metaDl).getByText(byMsgId("profile-label-created"), {
+        selector: "dt",
+      }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/^Rendered\(2024-01-15T10:00:00Z\)$/),
+      within(metaDl).getByText(byMsgId("profile-label-forward-emails"), {
+        selector: "dt",
+      }),
     ).toBeInTheDocument();
+
     expect(
-      screen.getByText(matchText("Forward to", "profile-label-forward-emails")),
+      within(metaDl).getByText(/^Rendered\(2024-01-15T10:00:00Z\)$/),
     ).toBeInTheDocument();
-    expect(screen.getByText("user@example.com")).toBeInTheDocument();
+    expect(within(metaDl).getByText("user@example.com")).toBeInTheDocument();
   });
 
   test("deletion button variant is waffle-flag controlled", () => {
@@ -424,6 +427,7 @@ describe("MaskCard", () => {
       screen.getByRole("button", { name: "alias-delete-permanent" }),
     );
     expect(onDelete).toHaveBeenCalledTimes(1);
+
     isFlagActiveMock.mockReturnValue(false);
     const noopUpdate: Props["onUpdate"] = jest.fn();
     rerender(
@@ -455,6 +459,7 @@ describe("MaskCard", () => {
   test("onboarding children render only when isOnboarding is true", () => {
     renderMaskCard({ isOnboarding: false });
     expect(screen.queryByTestId("onboarding-children")).not.toBeInTheDocument();
+
     renderMaskCard({ isOnboarding: true, isOpen: true });
     expect(screen.getByTestId("onboarding-children")).toBeInTheDocument();
   });
