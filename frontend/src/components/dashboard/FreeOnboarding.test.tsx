@@ -1,4 +1,5 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { FreeOnboarding, Props } from "./FreeOnboarding";
 import { useL10n } from "../../hooks/l10n";
 import { RandomAliasData, AliasData } from "../../hooks/api/aliases";
@@ -82,6 +83,8 @@ describe("FreeOnboarding", () => {
   });
 
   it("renders Step 1 and handles mask creation", async () => {
+    const user = userEvent.setup();
+
     render(
       <FreeOnboarding
         {...baseProps}
@@ -93,7 +96,7 @@ describe("FreeOnboarding", () => {
       screen.getByText("profile-free-onboarding-welcome-headline"),
     ).toBeInTheDocument();
 
-    fireEvent.click(
+    await user.click(
       screen.getByRole("button", {
         name: "profile-free-onboarding-welcome-generate-new-mask",
       }),
@@ -108,7 +111,9 @@ describe("FreeOnboarding", () => {
     await waitFor(() => expect(baseProps.onNextStep).toHaveBeenCalledWith(1));
   });
 
-  it("renders Step 2 and opens forwarding modal", () => {
+  it("renders Step 2 and opens forwarding modal", async () => {
+    const user = userEvent.setup();
+
     render(
       <FreeOnboarding
         {...baseProps}
@@ -117,12 +122,14 @@ describe("FreeOnboarding", () => {
     );
 
     const modalButton = screen.getByTestId("open-forwarding-modal");
-    fireEvent.click(modalButton);
+    await user.click(modalButton);
 
     expect(screen.getByTestId("copy-mask-item-headline")).toBeInTheDocument();
   });
 
-  it("renders Step 3 with extension instructions and completes onboarding", () => {
+  it("renders Step 3 with extension instructions and completes onboarding", async () => {
+    const user = userEvent.setup();
+
     render(
       <FreeOnboarding
         {...baseProps}
@@ -137,11 +144,14 @@ describe("FreeOnboarding", () => {
     const finishButton = screen.getByRole("button", {
       name: "profile-free-onboarding-addon-finish",
     });
-    fireEvent.click(finishButton);
+    await user.click(finishButton);
 
     expect(baseProps.onNextStep).toHaveBeenCalledWith(4);
   });
+
   it("does not proceed on mask creation error if user has no masks", async () => {
+    const user = userEvent.setup();
+
     const erroringProps = {
       ...baseProps,
       generateNewMask: jest.fn(() => Promise.reject(new Error("fail"))),
@@ -155,7 +165,7 @@ describe("FreeOnboarding", () => {
       />,
     );
 
-    fireEvent.click(
+    await user.click(
       screen.getByRole("button", {
         name: "profile-free-onboarding-welcome-generate-new-mask",
       }),
@@ -166,7 +176,9 @@ describe("FreeOnboarding", () => {
     );
   });
 
-  it("skips step 1 when skip button is clicked", () => {
+  it("skips step 1 when skip button is clicked", async () => {
+    const user = userEvent.setup();
+
     render(
       <FreeOnboarding
         {...baseProps}
@@ -177,12 +189,14 @@ describe("FreeOnboarding", () => {
     const skipButton = screen.getByRole("button", {
       name: "profile-free-onboarding-skip-step",
     });
-    fireEvent.click(skipButton);
+    await user.click(skipButton);
 
     expect(baseProps.onNextStep).toHaveBeenCalledWith(3);
   });
 
   it("calls onNextStep from EmailForwardingModal continue", async () => {
+    const user = userEvent.setup();
+
     render(
       <FreeOnboarding
         {...baseProps}
@@ -190,7 +204,7 @@ describe("FreeOnboarding", () => {
       />,
     );
 
-    fireEvent.click(screen.getByTestId("open-forwarding-modal"));
+    await user.click(screen.getByTestId("open-forwarding-modal"));
 
     const onContinue = screen.getByText(
       "profile-free-onboarding-copy-mask-how-forwarding-works",
@@ -199,7 +213,9 @@ describe("FreeOnboarding", () => {
     expect(onContinue).toBeInTheDocument();
   });
 
-  it("goes to next step from step 2", () => {
+  it("goes to next step from step 2", async () => {
+    const user = userEvent.setup();
+
     render(
       <FreeOnboarding
         {...baseProps}
@@ -211,11 +227,13 @@ describe("FreeOnboarding", () => {
       name: "profile-free-onboarding-next-step",
     });
 
-    fireEvent.click(nextButton);
+    await user.click(nextButton);
     expect(baseProps.onNextStep).toHaveBeenCalledWith(2);
   });
 
-  it("skips step 2", () => {
+  it("skips step 2", async () => {
+    const user = userEvent.setup();
+
     render(
       <FreeOnboarding
         {...baseProps}
@@ -227,11 +245,13 @@ describe("FreeOnboarding", () => {
       name: "profile-free-onboarding-skip-step",
     });
 
-    fireEvent.click(skipButton);
+    await user.click(skipButton);
     expect(baseProps.onNextStep).toHaveBeenCalledWith(3);
   });
 
-  it("skips step 3 with Firefox extension supported", () => {
+  it("skips step 3 with Firefox extension supported", async () => {
+    const user = userEvent.setup();
+
     render(
       <FreeOnboarding
         {...baseProps}
@@ -243,9 +263,10 @@ describe("FreeOnboarding", () => {
       name: "profile-free-onboarding-skip-step",
     });
 
-    fireEvent.click(skipButton);
+    await user.click(skipButton);
     expect(baseProps.onNextStep).toHaveBeenCalledWith(3);
   });
+
   jest.mock("../../functions/userAgent", () => ({
     supportsFirefoxExtension: () => false,
   }));

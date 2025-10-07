@@ -1,8 +1,8 @@
 import { http, HttpHandler, HttpResponse } from "msw";
-import { CustomAliasData, RandomAliasData } from "../hooks/api/aliases";
-import { UnverifiedPhone, VerifiedPhone } from "../hooks/api/realPhone";
-import { RelayNumber } from "../hooks/api/relayNumber";
-import { ProfileData } from "../hooks/api/profile";
+import { CustomAliasData, RandomAliasData } from "../../src/hooks/api/aliases";
+import { UnverifiedPhone, VerifiedPhone } from "../../src/hooks/api/realPhone";
+import { RelayNumber } from "../../src/hooks/api/relayNumber";
+import { ProfileData } from "../../src/hooks/api/profile";
 import {
   mockIds,
   mockedDomainaddresses,

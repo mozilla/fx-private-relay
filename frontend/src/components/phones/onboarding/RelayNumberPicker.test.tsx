@@ -1,9 +1,10 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { RelayNumberPicker } from "../onboarding/RelayNumberPicker";
-import { OverlayProvider } from "react-aria";
 import { useL10n } from "../../../hooks/l10n";
 import * as relayNumberHooks from "../../../hooks/api/relayNumber";
 import { formatPhone } from "../../../functions/formatPhone";
+import { renderWithProviders } from "frontend/__mocks__/modules/renderWithProviders";
 
 jest.mock("../../../hooks/l10n", () => ({
   useL10n: jest.fn(),
@@ -50,12 +51,9 @@ describe("RelayNumberPicker", () => {
     ]);
   });
 
-  const renderWithProvider = (ui: React.ReactElement) => {
-    return render(<OverlayProvider>{ui}</OverlayProvider>);
-  };
-
-  it("starts with intro and progresses to selection", () => {
-    renderWithProvider(<RelayNumberPicker onComplete={mockOnComplete} />);
+  it("starts with intro and progresses to selection", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<RelayNumberPicker onComplete={mockOnComplete} />);
 
     expect(
       screen.getByText("translated(phone-onboarding-step3-code-success-title)"),
@@ -64,7 +62,7 @@ describe("RelayNumberPicker", () => {
     const startButton = screen.getByRole("button", {
       name: "translated(phone-onboarding-step3-code-success-cta-2)",
     });
-    fireEvent.click(startButton);
+    await user.click(startButton);
 
     expect(
       screen.getByText("translated(phone-onboarding-step4-country)"),
@@ -72,20 +70,21 @@ describe("RelayNumberPicker", () => {
   });
 
   it("opens confirmation modal after selecting and submitting a number", async () => {
-    renderWithProvider(<RelayNumberPicker onComplete={mockOnComplete} />);
+    const user = userEvent.setup();
+    renderWithProviders(<RelayNumberPicker onComplete={mockOnComplete} />);
 
     const startButton = screen.getByRole("button", {
       name: "translated(phone-onboarding-step3-code-success-cta-2)",
     });
-    fireEvent.click(startButton);
+    await user.click(startButton);
 
     const radios = await screen.findAllByRole("radio");
-    fireEvent.click(radios[0]);
+    await user.click(radios[0]);
 
     const submitBtn = screen.getByRole("button", {
       name: "translated(phone-onboarding-step4-button-register-phone-number)",
     });
-    fireEvent.click(submitBtn);
+    await user.click(submitBtn);
 
     expect(
       await screen.findByText(
@@ -94,18 +93,19 @@ describe("RelayNumberPicker", () => {
     ).toBeInTheDocument();
   });
 
-  it("does not open modal if no number selected", () => {
-    renderWithProvider(<RelayNumberPicker onComplete={mockOnComplete} />);
+  it("does not open modal if no number selected", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<RelayNumberPicker onComplete={mockOnComplete} />);
 
     const startButton = screen.getByRole("button", {
       name: "translated(phone-onboarding-step3-code-success-cta-2)",
     });
-    fireEvent.click(startButton);
+    await user.click(startButton);
 
     const submitBtn = screen.getByRole("button", {
       name: "translated(phone-onboarding-step4-button-register-phone-number)",
     });
-    fireEvent.click(submitBtn);
+    await user.click(submitBtn);
 
     expect(
       screen.queryByText(
@@ -115,9 +115,10 @@ describe("RelayNumberPicker", () => {
   });
 
   it("cycles relay number suggestions when clicking 'more options'", async () => {
-    renderWithProvider(<RelayNumberPicker onComplete={mockOnComplete} />);
+    const user = userEvent.setup();
+    renderWithProviders(<RelayNumberPicker onComplete={mockOnComplete} />);
 
-    fireEvent.click(
+    await user.click(
       screen.getByRole("button", {
         name: "translated(phone-onboarding-step3-code-success-cta-2)",
       }),
@@ -132,7 +133,7 @@ describe("RelayNumberPicker", () => {
       return label.textContent?.trim();
     });
 
-    fireEvent.click(
+    await user.click(
       screen.getByRole("button", {
         name: "translated(phone-onboarding-step4-button-more-options)",
       }),
@@ -150,17 +151,17 @@ describe("RelayNumberPicker", () => {
   });
 
   it("handles search input and updates suggestions", async () => {
-    renderWithProvider(<RelayNumberPicker onComplete={mockOnComplete} />);
+    const user = userEvent.setup();
+    renderWithProviders(<RelayNumberPicker onComplete={mockOnComplete} />);
 
-    fireEvent.click(
+    await user.click(
       screen.getByRole("button", {
         name: "translated(phone-onboarding-step3-code-success-cta-2)",
       }),
     );
 
     const searchInput = screen.getByRole("searchbox");
-    fireEvent.change(searchInput, { target: { value: "999" } });
-    fireEvent.submit(searchInput);
+    await user.type(searchInput, "999{enter}");
 
     await waitFor(() => {
       expect(relayNumberHooks.search).toHaveBeenCalledWith("999");
@@ -177,7 +178,7 @@ describe("RelayNumberPicker", () => {
       registerRelayNumber: mockRegisterRelayNumber,
     });
 
-    renderWithProvider(<RelayNumberPicker onComplete={mockOnComplete} />);
+    renderWithProviders(<RelayNumberPicker onComplete={mockOnComplete} />);
 
     const successHeader = screen.getByTestId("confirmation-success-title");
     expect(successHeader).toBeInTheDocument();

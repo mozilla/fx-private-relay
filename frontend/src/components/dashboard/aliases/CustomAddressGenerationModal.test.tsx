@@ -21,11 +21,12 @@ jest.mock("next/link", () => ({
   }) => <a href={href}>{children}</a>,
 }));
 
-jest.mock("../../../hooks/l10n", () => ({
-  useL10n: () => ({
-    getString: (id: string) => id,
-  }),
-}));
+jest.mock("../../../hooks/l10n", () => {
+  const { mockUseL10nModule } = jest.requireActual(
+    "../../../../__mocks__/hooks/l10n",
+  );
+  return mockUseL10nModule;
+});
 
 const mockUseProfiles = jest.fn();
 jest.mock("../../../hooks/api/profile", () => ({
@@ -81,24 +82,25 @@ describe("CustomAddressGenerationModal - creator flow", () => {
     expect(
       screen.getByRole("heading", {
         level: 3,
-        name: "modal-custom-alias-picker-heading-2",
+        name: /modal-custom-alias-picker-heading-2/,
       }),
     ).toBeInTheDocument();
 
     const input = screen.getByPlaceholderText(
-      "modal-custom-alias-picker-form-prefix-placeholder-redesign",
+      /modal-custom-alias-picker-form-prefix-placeholder-redesign/,
     ) as HTMLInputElement;
 
     // invalid (symbols)
     await user.type(input, "Bad!");
     const submit = screen.getByRole("button", {
-      name: "modal-custom-alias-picker-form-submit-label-2",
+      name: /modal-custom-alias-picker-form-submit-label-2/,
     });
     expect(submit).toBeDisabled();
 
     await user.click(submit);
+    // 👇 only match the generic ID, not the suffixed variants
     expect(
-      screen.getByText("error-alias-picker-prefix-invalid"),
+      screen.getByText(/error-alias-picker-prefix-invalid(?!-)/),
     ).toBeInTheDocument();
 
     // invalid (uppercase)
@@ -122,7 +124,7 @@ describe("CustomAddressGenerationModal - creator flow", () => {
     const user = userEvent.setup();
     const { onClose } = renderModal({ aliasGeneratedState: false });
 
-    const cancel = screen.getByRole("button", { name: "profile-label-cancel" });
+    const cancel = screen.getByRole("button", { name: /profile-label-cancel/ });
     await user.click(cancel);
     expect(onClose).toHaveBeenCalledTimes(1);
   });
@@ -157,7 +159,7 @@ describe("CustomAddressGenerationModal - success flow", () => {
     );
 
     const input = screen.getByPlaceholderText(
-      "modal-custom-alias-picker-form-prefix-placeholder-redesign",
+      /modal-custom-alias-picker-form-prefix-placeholder-redesign/,
     );
     await user.type(input, "mymask");
 
@@ -217,7 +219,7 @@ describe("CustomAddressGenerationModal - success flow", () => {
     );
 
     const input = screen.getByPlaceholderText(
-      "modal-custom-alias-picker-form-prefix-placeholder-redesign",
+      /modal-custom-alias-picker-form-prefix-placeholder-redesign/,
     );
     await user.type(input, "donecase");
 
@@ -233,7 +235,7 @@ describe("CustomAddressGenerationModal - success flow", () => {
       />,
     );
 
-    const doneBtn = screen.getByRole("button", { name: "done-msg" });
+    const doneBtn = screen.getByRole("button", { name: /done-msg/ });
     await user.click(doneBtn);
 
     expect(findAliasDataFromPrefix).toHaveBeenCalledWith("donecase");
@@ -274,6 +276,6 @@ describe("isAddressValid", () => {
     expect(isAddressValid("café")).toBe(false);
     expect(isAddressValid("ümlaut")).toBe(false);
     expect(isAddressValid("mask😊")).toBe(false);
-    expect(isAddressValid("masк")).toBe(false); // Cyrillic 'k'
+    expect(isAddressValid("masк")).toBe(false);
   });
 });
