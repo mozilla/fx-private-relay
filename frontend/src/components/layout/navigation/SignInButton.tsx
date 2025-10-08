@@ -4,6 +4,7 @@ import { setCookie } from "../../../functions/cookies";
 import { getLoginUrl, useFxaFlowTracker } from "../../../hooks/fxaFlowTracker";
 import { useGaEvent } from "../../../hooks/gaEvent";
 import { useL10n } from "../../../hooks/l10n";
+import { useUtmApplier } from "../../../hooks/utmApplier";
 
 export type Props = {
   className?: string;
@@ -16,9 +17,10 @@ export const SignInButton = (props: Props): React.JSX.Element => {
     label: "nav-profile-sign-in",
     entrypoint: "relay-sign-in-header",
   });
-  const signInUrl = getLoginUrl(
-    "relay-sign-in-header",
-    signInFxaFlowTracker.flowData,
+
+  const applyUtmParams = useUtmApplier();
+  const signInUrl = applyUtmParams(
+    getLoginUrl("relay-sign-in-header", signInFxaFlowTracker.flowData),
   );
   const gaEvent = useGaEvent();
 

@@ -10,19 +10,21 @@ import { isFlagActive } from "../functions/waffle";
 import { apiFetch, useApiV1 } from "../hooks/api/api";
 import { BlockIcon, CheckIcon } from "../components/Icons";
 import { toast } from "react-toastify";
+import { useUtmApplier } from "../hooks/utmApplier";
 
 const Flags: NextPage = () => {
   const runtimeData = useRuntimeData();
   const flagData = useFlagData();
   const [actionInput, setActionInput] = useState("");
   const [flagInput, setFlagInput] = useState("");
+  const applyUtmParams = useUtmApplier();
 
   if (!runtimeData.data) {
     return null;
   }
 
   if (!isFlagActive(runtimeData.data, "manage_flags") || flagData.error) {
-    document.location.assign(getRuntimeConfig().fxaLoginUrl);
+    document.location.assign(applyUtmParams(getRuntimeConfig().fxaLoginUrl));
     return null;
   }
 

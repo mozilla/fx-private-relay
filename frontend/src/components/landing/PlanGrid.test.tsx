@@ -11,6 +11,7 @@ import { isMegabundleAvailableInCountry } from "../../functions/getPlan";
 jest.mock("../../hooks/l10n");
 jest.mock("../../hooks/gaViewPing");
 jest.mock("../../hooks/gaEvent");
+jest.mock("../../hooks/hasRenderedClientSide");
 jest.mock("../../hooks/session");
 jest.mock("../../functions/trackPurchase");
 jest.mock("../../functions/cookies", () => ({ setCookie: jest.fn() }));

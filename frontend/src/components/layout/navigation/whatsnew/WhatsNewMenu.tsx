@@ -77,6 +77,7 @@ import { useL10n } from "../../../../hooks/l10n";
 import { VisuallyHidden } from "../../../VisuallyHidden";
 import { useOverlayBugWorkaround } from "../../../../hooks/overlayBugWorkaround";
 import { useGaViewPing } from "../../../../hooks/gaViewPing";
+import { useUtmApplier } from "../../../../hooks/utmApplier";
 
 export type WhatsNewEntry = {
   title: string;
@@ -342,11 +343,14 @@ export const WhatsNewMenu = (props: Props) => {
     entries.push(premiumInFinland);
   }
 
+  const applyUtmParams = useUtmApplier();
   // Check if yearlyPlanLink should be generated based on runtimeData and availability
   const yearlyPlanLink =
     props.runtimeData &&
     isPeriodicalPremiumAvailableInCountry(props.runtimeData)
-      ? getPeriodicalPremiumSubscribeLink(props.runtimeData, "yearly")
+      ? applyUtmParams(
+          getPeriodicalPremiumSubscribeLink(props.runtimeData, "yearly"),
+        )
       : undefined;
 
   const yearlyPlanRefWithCoupon = `${yearlyPlanLink}&coupon=HOLIDAY20&utm_source=relay.firefox.com&utm_medium=whatsnew-announcement&utm_campaign=relay-holiday-promo-2023`;

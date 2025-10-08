@@ -50,6 +50,7 @@ export const getPeriodicalPremiumSubscribeLink = (
   billingPeriod: keyof PlanData,
 ) => {
   const plan = getPlan(runtimeData.PERIODICAL_PREMIUM_PLANS, billingPeriod);
+
   if (plan.id) {
     return `${runtimeData.FXA_ORIGIN}/subscriptions/products/${runtimeData.PERIODICAL_PREMIUM_PRODUCT_ID}?plan=${plan.id}`;
   }

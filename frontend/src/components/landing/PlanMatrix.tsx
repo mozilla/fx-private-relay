@@ -31,6 +31,7 @@ import { Localized } from "../Localized";
 import { LinkButton } from "../Button";
 import { VisuallyHidden } from "../VisuallyHidden";
 import { useIsLoggedIn } from "../../hooks/session";
+import { useUtmApplier } from "../../hooks/utmApplier";
 
 type FeatureList = {
   "email-masks": number;
@@ -107,6 +108,8 @@ export const PlanMatrix = (props: Props) => {
 
   const isLoggedIn = useIsLoggedIn();
 
+  const applyUtmParams = useUtmApplier();
+
   const desktopView = (
     <table className={styles.desktop}>
       <thead>
@@ -167,7 +170,7 @@ export const PlanMatrix = (props: Props) => {
                 </span>
                 <LinkButton
                   ref={freeButtonDesktopRef}
-                  href={getRuntimeConfig().fxaLoginUrl}
+                  href={applyUtmParams(getRuntimeConfig().fxaLoginUrl)}
                   onClick={() => countSignIn("plan-matrix-free-cta-desktop")}
                   className={styles["primary-pick-button"]}
                   disabled={isLoggedIn === "logged-in"}
@@ -195,9 +198,11 @@ export const PlanMatrix = (props: Props) => {
                     "monthly",
                     l10n,
                   ),
-                  subscribeLink: getPeriodicalPremiumSubscribeLink(
-                    props.runtimeData,
-                    "monthly",
+                  subscribeLink: applyUtmParams(
+                    getPeriodicalPremiumSubscribeLink(
+                      props.runtimeData,
+                      "monthly",
+                    ),
                   ),
                   gaViewPing: {
                     category: "Purchase monthly Premium button",
@@ -214,9 +219,11 @@ export const PlanMatrix = (props: Props) => {
                     "yearly",
                     l10n,
                   ),
-                  subscribeLink: getPeriodicalPremiumSubscribeLink(
-                    props.runtimeData,
-                    "yearly",
+                  subscribeLink: applyUtmParams(
+                    getPeriodicalPremiumSubscribeLink(
+                      props.runtimeData,
+                      "yearly",
+                    ),
                   ),
                   gaViewPing: {
                     category: "Purchase yearly Premium button",
@@ -406,7 +413,7 @@ export const PlanMatrix = (props: Props) => {
               </span>
               <LinkButton
                 ref={freeButtonMobileRef}
-                href={getRuntimeConfig().fxaLoginUrl}
+                href={applyUtmParams(getRuntimeConfig().fxaLoginUrl)}
                 onClick={() => countSignIn("plan-matrix-free-cta-mobile")}
                 className={styles["primary-pick-button"]}
               >
@@ -426,9 +433,11 @@ export const PlanMatrix = (props: Props) => {
                   "monthly",
                   l10n,
                 ),
-                subscribeLink: getPeriodicalPremiumSubscribeLink(
-                  props.runtimeData,
-                  "monthly",
+                subscribeLink: applyUtmParams(
+                  getPeriodicalPremiumSubscribeLink(
+                    props.runtimeData,
+                    "monthly",
+                  ),
                 ),
                 gaViewPing: {
                   category: "Purchase monthly Premium button",
@@ -445,9 +454,11 @@ export const PlanMatrix = (props: Props) => {
                   "yearly",
                   l10n,
                 ),
-                subscribeLink: getPeriodicalPremiumSubscribeLink(
-                  props.runtimeData,
-                  "yearly",
+                subscribeLink: applyUtmParams(
+                  getPeriodicalPremiumSubscribeLink(
+                    props.runtimeData,
+                    "yearly",
+                  ),
                 ),
                 gaViewPing: {
                   category: "Purchase yearly Premium button",
