@@ -5,7 +5,7 @@ import {
   mockedRuntimeData,
   mockedProfiles,
   mockedRelayaddresses,
-} from "frontend/src/apiMocks/mockData";
+} from "frontend/__mocks__/api/mockData";
 import { useL10n } from "frontend/src/hooks/l10n";
 import { useLocalDismissal } from "frontend/src/hooks/localDismissal";
 import { useGaEvent } from "frontend/src/hooks/gaEvent";

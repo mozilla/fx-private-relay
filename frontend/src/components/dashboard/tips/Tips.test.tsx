@@ -5,8 +5,9 @@ import { Tips } from "./Tips";
 import type { ProfileData } from "../../../hooks/api/profile";
 import type { RuntimeData } from "../../../hooks/api/types";
 
-jest.mock("next/link", () => {
-  const Link = ({
+jest.mock("next/link", () => ({
+  __esModule: true,
+  default: ({
     href,
     children,
     title,
@@ -18,36 +19,17 @@ jest.mock("next/link", () => {
     <a href={href} title={title}>
       {children}
     </a>
-  );
-  return Link;
-});
+  ),
+}));
 
 jest.mock("react-intersection-observer", () => ({
   useInView: () => [jest.fn(), true] as const,
 }));
 
-jest.mock("../../../hooks/l10n", () => ({
-  useL10n: () => ({
-    getString: (key: string, vars?: Record<string, unknown>) => {
-      if (key === "tips-header-title") return "Helpful tips";
-      if (key === "tips-footer-link-faq-label") return "FAQ";
-      if (key === "tips-footer-link-faq-tooltip") return "Read the FAQ";
-      if (key === "tips-footer-link-support-label") return "Support";
-      if (key === "tips-footer-link-support-tooltip") return "Open Support";
-      if (key === "tips-header-button-close-label") return "Minimize tips";
-      if (key === "tips-toast-button-expand-label") return "View";
-      if (key === "tips-custom-alias-heading-2")
-        return "Create a custom subdomain";
-      if (key === "tips-multi-replies-heading")
-        return "Reply to multiple senders";
-      if (key === "tips-multi-replies-content")
-        return "Use short codes to reply";
-      if (key === "tips-switcher-label")
-        return `Tip ${(vars?.nr as number) ?? 1}`;
-      return key;
-    },
-  }),
-}));
+jest.mock("../../../hooks/l10n", () => {
+  const { mockUseL10nModule } = require("../../../../__mocks__/hooks/l10n");
+  return mockUseL10nModule;
+});
 
 const mockDismiss = jest.fn();
 jest.mock("../../../hooks/localDismissal", () => ({
@@ -108,6 +90,9 @@ const baseProfile = (overrides: Partial<ProfileData> = {}): ProfileData =>
 
 const rd = {} as unknown as RuntimeData;
 
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const byMsgIdName = (id: string) => new RegExp(`\\[${escapeRe(id)}\\]`);
+
 describe("Tips", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -121,7 +106,9 @@ describe("Tips", () => {
   it("renders null when there are no eligible tips", () => {
     render(<Tips profile={baseProfile()} runtimeData={rd} />);
     expect(
-      screen.queryByRole("complementary", { name: "Helpful tips" }),
+      screen.queryByRole("complementary", {
+        name: byMsgIdName("tips-header-title"),
+      }),
     ).not.toBeInTheDocument();
   });
 
@@ -135,17 +122,29 @@ describe("Tips", () => {
     );
 
     expect(
-      screen.getByRole("heading", { name: "Helpful tips" }),
+      screen.getByRole("heading", { name: byMsgIdName("tips-header-title") }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Create a custom subdomain")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "View" }));
+    expect(
+      screen.getByText(byMsgIdName("tips-custom-alias-heading-2")),
+    ).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", {
+        name: byMsgIdName("tips-toast-button-expand-label"),
+      }),
+    );
+
     expect(screen.getByText("Your subdomain: me")).toBeInTheDocument();
 
-    const faq = screen.getByRole("link", { name: "FAQ" });
+    const faq = screen.getByRole("link", {
+      name: byMsgIdName("tips-footer-link-faq-label"),
+    });
     expect(faq).toHaveAttribute("href", "/faq");
 
-    const support = screen.getByRole("link", { name: "Support" });
+    const support = screen.getByRole("link", {
+      name: byMsgIdName("tips-footer-link-support-label"),
+    });
     expect(support).toHaveAttribute(
       "href",
       expect.stringContaining("http://relay.local"),
@@ -161,15 +160,27 @@ describe("Tips", () => {
     );
 
     expect(
-      screen.getByRole("heading", { name: "Helpful tips" }),
+      screen.getByRole("heading", { name: byMsgIdName("tips-header-title") }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Reply to multiple senders")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "View" }));
     expect(
-      screen.getByRole("heading", { name: "Reply to multiple senders" }),
+      screen.getByText(byMsgIdName("tips-multi-replies-heading")),
     ).toBeInTheDocument();
-    expect(screen.getByText("Use short codes to reply")).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", {
+        name: byMsgIdName("tips-toast-button-expand-label"),
+      }),
+    );
+
+    expect(
+      screen.getByRole("heading", {
+        name: byMsgIdName("tips-multi-replies-heading"),
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(byMsgIdName("tips-multi-replies-content")),
+    ).toBeInTheDocument();
   });
 
   it("minimizes, dismisses tips, and shows teaser summary after closing", async () => {
@@ -178,7 +189,9 @@ describe("Tips", () => {
       <Tips profile={baseProfile({ has_premium: true })} runtimeData={rd} />,
     );
 
-    const close = screen.getByRole("button", { name: "Minimize tips" });
+    const close = screen.getByRole("button", {
+      name: byMsgIdName("tips-header-button-close-label"),
+    });
     await user.click(close);
 
     expect(mockDismiss).toHaveBeenCalledTimes(1);
@@ -188,8 +201,15 @@ describe("Tips", () => {
       label: "tips-header",
     });
 
-    expect(screen.getByText("Create a custom subdomain")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "View" })).toBeInTheDocument();
+    expect(
+      screen.getByText(byMsgIdName("tips-custom-alias-heading-2")),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("button", {
+        name: byMsgIdName("tips-toast-button-expand-label"),
+      }),
+    ).toBeInTheDocument();
   });
 
   it("shows a tip switcher with multiple tips and can switch to the custom alias tip", async () => {
@@ -208,14 +228,21 @@ describe("Tips", () => {
       />,
     );
 
-    expect(screen.getByText("Reply to multiple senders")).toBeInTheDocument();
+    expect(
+      screen.getByText(byMsgIdName("tips-multi-replies-heading")),
+    ).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "View" }));
+    await user.click(
+      screen.getByRole("button", {
+        name: byMsgIdName("tips-toast-button-expand-label"),
+      }),
+    );
 
     const tabs = screen.getAllByRole("tab");
     expect(tabs).toHaveLength(2);
 
     await user.click(tabs[1]);
+
     expect(
       screen.getByText(/Your subdomain: me|Create your subdomain/),
     ).toBeInTheDocument();
@@ -227,7 +254,11 @@ describe("Tips", () => {
       <Tips profile={baseProfile({ has_premium: true })} runtimeData={rd} />,
     );
 
-    await user.click(screen.getByRole("button", { name: "View" }));
+    await user.click(
+      screen.getByRole("button", {
+        name: byMsgIdName("tips-toast-button-expand-label"),
+      }),
+    );
 
     expect(mockGaEvent).toHaveBeenCalledWith({
       category: "Tips",

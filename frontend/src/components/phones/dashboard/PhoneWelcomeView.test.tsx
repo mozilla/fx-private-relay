@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { PhoneWelcomeView } from "./PhoneWelcomeView";
-import { mockedProfiles } from "frontend/src/apiMocks/mockData";
+import { mockedProfiles } from "frontend/__mocks__/api/mockData";
 import * as l10nModule from "frontend/src/hooks/l10n";
 import { toast } from "react-toastify";
 import { LocalizationProvider, ReactLocalization } from "@fluent/react";

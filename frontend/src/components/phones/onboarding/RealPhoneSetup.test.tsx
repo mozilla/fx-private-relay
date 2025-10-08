@@ -1,21 +1,23 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import React from "react";
 import { RealPhoneSetup } from "./RealPhoneSetup";
 import {
   mockedRuntimeData,
   mockedRealphones,
-} from "frontend/src/apiMocks/mockData";
+} from "frontend/__mocks__/api/mockData";
 import { UnverifiedPhone } from "../../../hooks/api/realPhone";
-import React from "react";
 
-jest.mock("../../../hooks/l10n", () => ({
-  useL10n: () => ({
-    getString: (id: string) => id,
-  }),
-}));
+jest.mock("../../../hooks/l10n", () => {
+  const { mockUseL10nModule } = require("../../../../__mocks__/hooks/l10n");
+  return mockUseL10nModule;
+});
 
-jest.mock("../../Localized", () => ({
-  Localized: ({ children }: React.PropsWithChildren) => <>{children}</>,
-}));
+jest.mock("../../Localized", () => {
+  const {
+    mockLocalizedModule,
+  } = require("../../../../__mocks__/components/Localized");
+  return mockLocalizedModule;
+});
 
 jest.mock("../../../hooks/api/realPhone", () => {
   const actual = jest.requireActual("../../../hooks/api/realPhone");
@@ -24,6 +26,9 @@ jest.mock("../../../hooks/api/realPhone", () => {
     useRealPhonesData: () => ({ data: [] }),
   };
 });
+
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const byMsgId = (id: string) => new RegExp(`\\[${escapeRe(id)}\\]`);
 
 describe("RealPhoneSetup", () => {
   const onRequestVerification = jest.fn(() =>
@@ -47,7 +52,7 @@ describe("RealPhoneSetup", () => {
     render(<RealPhoneSetup {...baseProps} unverifiedRealPhones={[]} />);
 
     expect(
-      screen.getByText(/phone-onboarding-step2-headline/),
+      screen.getByText(byMsgId("phone-onboarding-step2-headline")),
     ).toBeInTheDocument();
   });
 
@@ -58,7 +63,7 @@ describe("RealPhoneSetup", () => {
     fireEvent.change(input, { target: { value: "4155552671" } });
 
     const submit = screen.getByRole("button", {
-      name: /phone-onboarding-step2-button-cta/,
+      name: byMsgId("phone-onboarding-step2-button-cta"),
     });
 
     fireEvent.click(submit);
@@ -81,12 +86,12 @@ describe("RealPhoneSetup", () => {
     );
 
     expect(
-      screen.getByText(/phone-onboarding-step2-headline/),
+      screen.getByText(byMsgId("phone-onboarding-step2-headline")),
     ).toBeInTheDocument();
 
     expect(
       screen.getByRole("button", {
-        name: /phone-onboarding-step3-button-cta/,
+        name: byMsgId("phone-onboarding-step3-button-cta"),
       }),
     ).toBeInTheDocument();
   });

@@ -1,10 +1,10 @@
-import { CustomAliasData, RandomAliasData } from "../hooks/api/aliases";
-import { RealPhoneData } from "../hooks/api/realPhone";
-import { RelayNumberData } from "../hooks/api/relayNumber";
-import { InboundContactData } from "../hooks/api/inboundContact";
-import { ProfileData } from "../hooks/api/profile";
-import { RuntimeData } from "../hooks/api/types";
-import { UserData } from "../hooks/api/user";
+import { CustomAliasData, RandomAliasData } from "../../src/hooks/api/aliases";
+import { RealPhoneData } from "../../src/hooks/api/realPhone";
+import { RelayNumberData } from "../../src/hooks/api/relayNumber";
+import { InboundContactData } from "../../src/hooks/api/inboundContact";
+import { ProfileData } from "../../src/hooks/api/profile";
+import { RuntimeData } from "../../src/hooks/api/types";
+import { UserData } from "../../src/hooks/api/user";
 
 export const mockIds = ["demo", "empty", "onboarding", "some", "full"] as const;
 

@@ -24,21 +24,10 @@ jest.mock("../../Icons", () => ({
   ),
 }));
 
-const STRINGS: Record<string, string> = {
-  "profile-label-delete": "Delete",
-  "profile-label-cancel": "Cancel",
-  "mask-deletion-header": "Delete this mask?",
-  "mask-deletion-warning-no-recovery":
-    "This action is permanent. You can’t recover this mask.",
-  "mask-deletion-warning-sign-ins":
-    "If you use this mask to sign in anywhere, those sign-ins will break.",
-};
-
-jest.mock("../../../hooks/l10n", () => ({
-  useL10n: () => ({
-    getString: (id: string) => STRINGS[id] ?? id,
-  }),
-}));
+jest.mock("../../../hooks/l10n", () => {
+  const { mockUseL10nModule } = require("../../../../__mocks__/hooks/l10n");
+  return mockUseL10nModule;
+});
 
 jest.mock("../../../hooks/api/aliases", () => {
   const actual = jest.requireActual("../../../hooks/api/aliases");
@@ -70,20 +59,18 @@ describe("AliasDeletionButtonPermanent", () => {
     render(<AliasDeletionButtonPermanent {...props} />);
 
     const getTrigger = () =>
-      screen.getByRole("button", { name: STRINGS["profile-label-delete"] });
+      screen.getByRole("button", { name: /profile-label-delete/ });
+
     const open = async () => {
       await userEvent.click(getTrigger());
       return screen.findByRole("dialog");
     };
+
     const getDialog = () => screen.getByRole("dialog");
     const getCancelButton = () =>
-      within(getDialog()).getByRole("button", {
-        name: STRINGS["profile-label-cancel"],
-      });
+      within(getDialog()).getByRole("button", { name: /profile-label-cancel/ });
     const getConfirmButton = () =>
-      within(getDialog()).getByRole("button", {
-        name: STRINGS["profile-label-delete"],
-      });
+      within(getDialog()).getByRole("button", { name: /profile-label-delete/ });
 
     return {
       props,
@@ -108,9 +95,7 @@ describe("AliasDeletionButtonPermanent", () => {
     const dialog = getDialog();
 
     expect(
-      within(dialog).getByRole("heading", {
-        name: STRINGS["mask-deletion-header"],
-      }),
+      within(dialog).getByRole("heading", { name: /mask-deletion-header/ }),
     ).toBeInTheDocument();
 
     expect(
@@ -118,11 +103,11 @@ describe("AliasDeletionButtonPermanent", () => {
     ).toBeInTheDocument();
 
     expect(
-      within(dialog).getByText(STRINGS["mask-deletion-warning-no-recovery"]),
+      within(dialog).getByText(/mask-deletion-warning-no-recovery/),
     ).toBeInTheDocument();
 
     expect(
-      within(dialog).getByText(STRINGS["mask-deletion-warning-sign-ins"]),
+      within(dialog).getByText(/mask-deletion-warning-sign-ins/),
     ).toBeInTheDocument();
 
     expect(within(dialog).getByTestId("error-icon")).toBeInTheDocument();

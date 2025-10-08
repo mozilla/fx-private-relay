@@ -6,7 +6,7 @@ import {
   mockedRelaynumbers,
   mockedRealphones,
   mockedInboundContacts,
-} from "frontend/src/apiMocks/mockData";
+} from "frontend/__mocks__/api/mockData";
 import { toast } from "react-toastify";
 import { VerifiedPhone } from "frontend/src/hooks/api/realPhone";
 import * as l10nModule from "frontend/src/hooks/l10n";

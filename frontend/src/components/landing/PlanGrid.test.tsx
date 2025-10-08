@@ -48,7 +48,7 @@ const l10nMock = {
   getFragment: jest.fn((key, _) => `l10n fragment: [${key}]`),
 };
 
-import { mockedRuntimeData } from "../../apiMocks/mockData";
+import { mockedRuntimeData } from "../../../__mocks__/api/mockData";
 
 const mockRuntimeData: RuntimeData = mockedRuntimeData;
 

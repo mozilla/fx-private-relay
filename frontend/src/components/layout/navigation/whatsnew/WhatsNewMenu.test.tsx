@@ -9,7 +9,7 @@ import { isFlagActive } from "../../../../functions/waffle";
 import {
   mockedRuntimeData,
   mockedProfiles,
-} from "../../../../apiMocks/mockData";
+} from "../../../../../__mocks__/api/mockData";
 
 jest.mock("../../../../hooks/l10n");
 jest.mock("../../../../hooks/gaEvent");

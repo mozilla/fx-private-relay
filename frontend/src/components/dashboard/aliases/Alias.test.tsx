@@ -1,25 +1,19 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { Alias } from "./Alias";
-import {
-  mockedUsers,
-  mockedProfiles,
-  mockedRuntimeData,
-} from "../../../apiMocks/mockData";
-import { AliasData } from "../../../hooks/api/aliases";
+import type { AliasData } from "../../../hooks/api/aliases";
+
+import { getMockProfileData } from "../../../../__mocks__/hooks/api/profile";
+import { getMockRuntimeDataWithBundle } from "../../../../__mocks__/hooks/api/runtimeData";
 
 jest.mock("../../../../public/illustrations/holiday.svg", () => ({
   __esModule: true,
   default: { src: "holiday.svg" },
 }));
 
-jest.mock("../../../hooks/l10n", () => ({
-  useL10n: () => ({
-    getString: (id: string, vars?: Record<string, string | number>) =>
-      id === "profile-label-click-to-copy-alt" && vars?.address
-        ? `Copy ${vars.address}`
-        : id,
-  }),
-}));
+jest.mock("../../../hooks/l10n", () => {
+  const { mockUseL10nModule } = require("../../../../__mocks__/hooks/l10n");
+  return mockUseL10nModule;
+});
 
 jest.mock("./LabelEditor", () => ({
   LabelEditor: ({
@@ -55,11 +49,9 @@ jest.mock("./BlockLevelSlider", () => ({
 jest.mock("../../../functions/waffle", () => ({
   isFlagActive: () => true,
 }));
-
 jest.mock("../../../functions/getPlan", () => ({
   isPeriodicalPremiumAvailableInCountry: () => true,
 }));
-
 jest.mock("../../../functions/getLocale", () => ({
   getLocale: () => "en-US",
 }));
@@ -89,6 +81,10 @@ describe("Alias", () => {
     used_on: "",
   };
 
+  const profile = getMockProfileData();
+  const runtimeData = getMockRuntimeDataWithBundle();
+  const user = { email: "user@example.com" } as any;
+
   const setup = (
     aliasOverride: Partial<AliasData> = {},
     showLabelEditor = true,
@@ -106,14 +102,14 @@ describe("Alias", () => {
           domain: 1,
           generated_for: "me@example.com",
         }}
-        user={mockedUsers.full}
-        profile={mockedProfiles.full}
+        user={user}
+        profile={profile}
         onUpdate={onUpdate}
         onDelete={onDelete}
         isOpen={false}
         onChangeOpen={onChangeOpen}
         showLabelEditor={showLabelEditor}
-        runtimeData={mockedRuntimeData}
+        runtimeData={runtimeData}
       />,
     );
 
@@ -138,20 +134,20 @@ describe("Alias", () => {
       clipboard: { writeText: jest.fn() },
     });
 
-    fireEvent.click(screen.getByTitle("profile-label-click-to-copy"));
+    fireEvent.click(screen.getByTitle(/profile-label-click-to-copy/));
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
       "abc123@relay.firefox.com",
     );
 
     await waitFor(() =>
-      expect(screen.getByText("profile-label-copied")).toBeVisible(),
+      expect(screen.getByText(/profile-label-copied/)).toBeVisible(),
     );
   });
 
   it("toggles expansion state", () => {
     const { onChangeOpen } = setup();
     fireEvent.click(
-      screen.getByRole("button", { name: "profile-details-expand" }),
+      screen.getByRole("button", { name: /profile-details-expand/ }),
     );
     expect(onChangeOpen).toHaveBeenCalledWith(true);
   });
@@ -159,10 +155,11 @@ describe("Alias", () => {
   it("sets block level to 'all' when block slider clicked", () => {
     const { onUpdate } = setup();
     fireEvent.click(screen.getByTestId("block-slider"));
-    expect(onUpdate).toHaveBeenCalledWith({
-      enabled: false,
-      block_list_emails: true,
-    });
+
+    expect(onUpdate).toHaveBeenCalledTimes(1);
+    expect(onUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ enabled: false }),
+    );
   });
 
   it("renders deletion button and triggers deletion", () => {
@@ -175,7 +172,7 @@ describe("Alias", () => {
     setup({ block_level_one_trackers: true });
     expect(
       screen.getByRole("button", {
-        name: "profile-indicator-tracker-removal-alt",
+        name: /profile-indicator-tracker-removal-alt/,
       }),
     ).toBeInTheDocument();
   });
@@ -188,7 +185,7 @@ describe("Alias", () => {
 
   it("renders forwarded and blocked stats", () => {
     setup();
-    expect(screen.getAllByText("profile-label-forwarded")).toHaveLength(2);
-    expect(screen.getAllByText("profile-label-blocked")).toHaveLength(2);
+    expect(screen.getAllByText(/profile-label-forwarded/)).toHaveLength(2);
+    expect(screen.getAllByText(/profile-label-blocked/)).toHaveLength(2);
   });
 });

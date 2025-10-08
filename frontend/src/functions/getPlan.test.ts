@@ -18,7 +18,7 @@ import {
   isBundleAvailableInCountry,
   isMegabundleAvailableInCountry,
 } from "./getPlan";
-import { mockedRuntimeData } from "../apiMocks/mockData";
+import { mockedRuntimeData } from "../../__mocks__/api/mockData";
 import { PlanData } from "../hooks/api/types";
 import { ReactLocalization } from "@fluent/react";
 
