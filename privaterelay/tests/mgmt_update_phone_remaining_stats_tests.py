@@ -46,7 +46,7 @@ def test_no_accounts_with_phones(db):
 @pytest.fixture
 def patch_datetime_now():
     """
-    Selectively patch datatime.now() for emails models
+    Selectively patch datetime.now() for emails models
 
     https://docs.python.org/3/library/unittest.mock-examples.html#partial-mocking
     """

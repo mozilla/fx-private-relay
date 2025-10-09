@@ -293,7 +293,7 @@ class TermsAcceptedUserViewTest(TestCase):
         fxa_response = _setup_fxa_response(
             200, {"active": True, "sub": self.uid, "exp": exp_time}
         )
-        # setup fxa profile reponse
+        # setup fxa profile response
         profile_json = {
             "email": email,
             "amrValues": ["pwd", "email"],

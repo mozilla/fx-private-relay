@@ -160,7 +160,7 @@ After you push the tag to GitHub, you should also
 ## Release to Prod
 
 We leave the tag on [Stage][stage] for a week so that we (and especially QA)
-can check the tag on GCP infrastucture before we deploy it to production.
+can check the tag on GCP infrastructure before we deploy it to production.
 
 On Monday, after the Release Readiness Review:
 
@@ -289,7 +289,7 @@ GitHub, you should [make a pre-release on GitHub][github-new-release] for the
 new release tag.
 
 1. Choose the tag you just pushed (e.g., `2022.08.02.1`)
-2. Type the same tag name for the releae title (e.g., `2022.08.02.1`)
+2. Type the same tag name for the release title (e.g., `2022.08.02.1`)
 3. Click "Previous tag:" and choose the previous tag. (e.g., `2022.08.02`)
 4. Click the "Generate release notes" button!
 5. Check the pre-release box.

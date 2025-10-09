@@ -693,7 +693,7 @@ class ProfileUpdateAbuseMetricTest(ProfileTestCase):
         self.mocked_abuse_info = patcher_logger.start()
         self.addCleanup(patcher_logger.stop)
 
-        # Selectively patch datatime.now() for emails models
+        # Selectively patch datetime.now() for emails models
         # https://docs.python.org/3/library/unittest.mock-examples.html#partial-mocking
         patcher = patch("privaterelay.models.datetime")
         mocked_datetime = patcher.start()

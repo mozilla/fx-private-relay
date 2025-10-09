@@ -383,7 +383,7 @@ flag, users can view new content and test buying a subscription.
 
 > [!NOTE]
 > Testing subscriptions in a new region requires setting the preferred language.
-> Change the browser language preference, `intl.accept_languagues` in `about:config`.
+> Change the browser language preference, `intl.accept_languages` in `about:config`.
 > Use a Mozilla account created with that language preference.
 >
 > Do not use a language-switcher extension. Many extensions are not allowed to run on the

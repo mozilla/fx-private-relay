@@ -68,7 +68,7 @@ sequenceDiagram
     Firefox->>Relay: POST /api/v1/terms-accepted-user Authorization: Token {token}
     Relay->>FXA: POST /v1/introspect {token}
     FXA->>Relay: 200 OK
-    Relay->>Relay: Create new user on DB if Fxa user DNE
+    Relay->>Relay: Create new user on DB if Fxa user does not exist
     Relay->>Firefox: 201 Created or 202 User already exists
     end
     rect rgba(255, 255, 153, .09)

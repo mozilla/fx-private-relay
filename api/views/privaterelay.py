@@ -235,7 +235,7 @@ def _get_example_plan(
 @api_view()
 @permission_classes([AllowAny])
 def runtime_data(request):
-    """Get data needed to present the Relay dashboard to a vistor or user."""
+    """Get data needed to present the Relay dashboard to a visitor or user."""
     flags = get_waffle_flag_model().get_all()
     flag_values = [(f.name, f.is_active(request)) for f in flags]
     switches = Switch.get_all()

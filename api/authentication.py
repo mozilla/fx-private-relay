@@ -54,7 +54,7 @@ def introspect_token(token: str) -> dict[str, Any]:
 
 
 def get_fxa_uid_from_oauth_token(token: str, use_cache: bool = True) -> str:
-    # set a default cache_timeout, but this will be overriden to match
+    # set a default cache_timeout, but this will be overridden to match
     # the 'exp' time in the JWT returned by FxA
     cache_timeout = 60
     cache_key = get_cache_key(token)

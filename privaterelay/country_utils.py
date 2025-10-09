@@ -145,7 +145,7 @@ _LANGUAGE_TAG_TO_COUNTRY_OVERRIDE = {
     # Would be Catalan in Valencian script -> France
     # Change to Valencian -> Spain
     ("ca", "VALENCIA"): "ES",
-    # Spanish in UN region 419 (Latin America and Carribean)
+    # Spanish in UN region 419 (Latin America and Caribbean)
     # Pick Mexico, which has highest number of Spanish speakers
     ("es", "419"): "MX",
     # Would be Galician (Greenland) -> Greenland
@@ -229,7 +229,7 @@ def guess_country_from_accept_lang(accept_lang: str) -> str:
     try:
         return _PRIMARY_LANGUAGE_TO_COUNTRY[lang]
     except KeyError:
-        raise AcceptLanguageError("Unknown langauge", accept_lang)
+        raise AcceptLanguageError("Unknown language", accept_lang)
 
 
 def _get_cc_from_lang(accept_lang: str) -> str:

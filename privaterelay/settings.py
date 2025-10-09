@@ -151,7 +151,7 @@ API_DOCS_ENABLED = config("API_DOCS_ENABLED", False, cast=bool) or DEBUG
 _CSP_SCRIPT_INLINE = USE_SILK
 
 # When running locally, styles might get refreshed while the server is running, so their
-# hashes would get oudated. Hence, we just allow all of them.
+# hashes would get outdated. Hence, we just allow all of them.
 _CSP_STYLE_INLINE = API_DOCS_ENABLED or RELAY_CHANNEL == "local"
 
 if API_DOCS_ENABLED:

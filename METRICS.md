@@ -284,7 +284,7 @@ Here is an index of the event categories and actions:
 [Email Masks, Get Domain Link]: #ctx-web-emails-link-get-domain "Details for the link 'Get your own domain with Premium'"
 [Email Masks, Get Firefox Banner]: #ctx-web-emails-banner-firefox "Details for the banner to download the Relay extension"
 [Email Masks, Mask Details]: #ctx-web-emails-detail "Details for the Email Masks dashboard, opening the details for a mask."
-[Email Masks, Maximize Banner]: #ctx-web-emails-banner-maximize "Details for the banner 'Introducting: Relay + VPN subscription plan'."
+[Email Masks, Maximize Banner]: #ctx-web-emails-banner-maximize "Details for the banner 'Introducing: Relay + VPN subscription plan'."
 [Email Masks, Unlimited Button]: #ctx-web-emails-button-unlimited "Details for the 'Get unlimited email masks' button."
 [Email Masks, Upgrade Corner Notification]: #ctx-web-emails-corner-upgrade "Details for the lower-right corner notification to upgrade to premium"
 [Free Onboarding]: #ctx-web-onboarding-free "Details for the free onboarding sequence"
@@ -1385,7 +1385,7 @@ survey is not covered by this document, but is processed in accordance with
 
 [<img src="./docs/img/website-survey-recruitment.png"
       width=380
-      alt="The intereview recruitment survey, with the text &quot;Want to help improve Firefox Relay? We'd love to hear what you think. Research participants receive a $50 gift card.&quot;"
+      alt="The interview recruitment survey, with the text &quot;Want to help improve Firefox Relay? We'd love to hear what you think. Research participants receive a $50 gift card.&quot;"
 />](./docs/img/website-survey-recruitment.png)
 
 The Google Analytics events:
