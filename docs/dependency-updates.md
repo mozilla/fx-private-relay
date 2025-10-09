@@ -53,7 +53,7 @@ What follows is a list of dependencies and how to check for potential breakage w
 
 For linters, type definitions, and non-Playwright testing-related packages, a
 successful CI run generally provides enough confidence that the upgrade is fine.
-That said, it can't harm to occassionally scan the results of the
+That said, it can't harm to occasionally scan the results of the
 `build_frontend` or `test_frontend` CI runs to see if any new warnings were
 added. If `jest-junit` is updated, you'll want to check that CircleCI can still
 see code coverage for the frontend.
@@ -94,7 +94,7 @@ workflow", and pick the `main` branch and the `stage` environment.
 These dependencies handle most of the dynamic UI elements in our frontend, such
 as the user menu and the app menu in the header, the modals when claiming a
 subdomain or creating a new custom mask, or the toggle that allows you to set a
-mask to block nothing, promotional emails, or everything. To verfy these
+mask to block nothing, promotional emails, or everything. To verify these
 updates, open the preview deployments and check that you can still interact with
 those using both a keyboard and a mouse.
 
@@ -102,7 +102,7 @@ those using both a keyboard and a mouse.
 
 [Fluent](https://projectfluent.org/) handles localisation, so verifying these
 involves setting your browser language to something other than English, and
-verifing that the website content indeed shows up in your chosen different
+verifying that the website content indeed shows up in your chosen different
 language.
 
 ### `next`

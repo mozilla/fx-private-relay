@@ -79,7 +79,7 @@ def sort_by_tag(endpoint: ENDPOINT) -> tuple[int, str, int]:
     """
     Sort paths by their tag, then name, then method.
 
-    The browseable APIs will sort by tag, but in the order returned by this sort key.
+    The browsable APIs will sort by tag, but in the order returned by this sort key.
     """
     drf_order = alpha_operation_sorter(endpoint)
     partial_path = endpoint[0].split("/")[3]

@@ -229,7 +229,7 @@ class Command(BaseCommand):
             totals[2] += query_timer
             totals[3] += clean_timer
 
-            # Details are ommited on low verbosity
+            # Details are omitted on low verbosity
             if verbosity <= 1:
                 continue
 

@@ -216,7 +216,7 @@ An example:
       }
     }
 
-You can generate this URL yourself by pasing the following in your browser
+You can generate this URL yourself by passing the following in your browser
 console, changing the contents of `JSON.stringify()` with your desired values:
 
     { let url = new URL("http://localhost:3000/tracker-report"); url.hash = JSON.stringify({ sender: "email@example.com", received_at: Date.now(), trackers: { "ads.facebook.com": 1, "ads.googletagmanager.com": 2 } }); url.href }
