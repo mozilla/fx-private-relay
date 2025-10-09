@@ -65,9 +65,13 @@ SITE_ORIGIN: str | None = config("SITE_ORIGIN", None)
 
 ORIGIN_CHANNEL_MAP: dict[str, RELAY_CHANNEL_NAME] = {
     "http://127.0.0.1:8000": "local",
-    "https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net": "dev",
-    "https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net": "stage",
     "https://relay.firefox.com": "prod",
+    # GCPv1
+    "https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net": "heroku",
+    "https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net": "stage",
+    # GCPv2
+    "https://relay-dev.allizom.org": "dev",
+    "https://relay.allizom.org": "stage",
 }
 RELAY_CHANNEL: RELAY_CHANNEL_NAME = cast(
     RELAY_CHANNEL_NAME,
@@ -151,7 +155,7 @@ API_DOCS_ENABLED = config("API_DOCS_ENABLED", False, cast=bool) or DEBUG
 _CSP_SCRIPT_INLINE = USE_SILK
 
 # When running locally, styles might get refreshed while the server is running, so their
-# hashes would get oudated. Hence, we just allow all of them.
+# hashes would get outdated. Hence, we just allow all of them.
 _CSP_STYLE_INLINE = API_DOCS_ENABLED or RELAY_CHANNEL == "local"
 
 if API_DOCS_ENABLED:
@@ -752,7 +756,7 @@ if DEBUG and not IN_PYTEST:
     ]
 
 FIRST_EMAIL_RATE_LIMIT = config("FIRST_EMAIL_RATE_LIMIT", "5/minute")
-if IN_PYTEST or RELAY_CHANNEL in ["local", "dev"]:
+if IN_PYTEST or RELAY_CHANNEL in ["local", "dev", "heroku"]:
     FIRST_EMAIL_RATE_LIMIT = "1000/minute"
 
 REST_FRAMEWORK = {
@@ -785,7 +789,7 @@ SPECTACULAR_SETTINGS = {
     "SORT_OPERATIONS": "api.schema.sort_by_tag",
 }
 
-if IN_PYTEST or RELAY_CHANNEL in ["local", "dev"]:
+if IN_PYTEST or RELAY_CHANNEL in ["local", "dev", "heroku"]:
     _DEFAULT_PHONE_RATE_LIMIT = "1000/minute"
 else:
     _DEFAULT_PHONE_RATE_LIMIT = "5/minute"
@@ -805,7 +809,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://vault.bitwarden.com",
     "https://vault.bitwarden.eu",
 ]
-if RELAY_CHANNEL in ["dev", "stage"]:
+if RELAY_CHANNEL in ["dev", "stage", "heroku"]:
     CORS_ALLOWED_ORIGINS += [
         "https://vault.qa.bitwarden.pw",
         "https://vault.euqa.bitwarden.pw",
@@ -819,13 +823,22 @@ if RELAY_CHANNEL == "local":
         "http://127.0.0.1:8000",
     ]
     CORS_URLS_REGEX = r"^/(api|accounts)/"
-if RELAY_CHANNEL == "dev":
+if RELAY_CHANNEL == "heroku":
     CORS_ALLOWED_ORIGINS += [
         "https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net",
     ]
+if RELAY_CHANNEL == "dev":
+    CORS_ALLOWED_ORIGINS += [
+        "https://dev.relay.nonprod.webservices.mozgcp.net",
+        "https://relay-dev.allizom.org",
+    ]
 if RELAY_CHANNEL == "stage":
     CORS_ALLOWED_ORIGINS += [
+        # GCP v1
         "https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+        # GCP v2
+        "https://stage.relay.nonprod.webservices.mozgcp.net",
+        "https://relay.allizom.org",
     ]
 
 CSRF_TRUSTED_ORIGINS = []
@@ -884,7 +897,7 @@ ignore_logger("django.security.DisallowedHost")
 # as events in Sentry.
 ignore_logger("django_ftl.message_errors")
 # Security scanner attempts on Heroku dev, no action required
-if RELAY_CHANNEL == "dev":
+if RELAY_CHANNEL == "heroku":
     ignore_logger("django.security.SuspiciousFileOperation")
 
 if USE_SILK:

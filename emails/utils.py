@@ -150,7 +150,7 @@ def get_email_domain_from_settings() -> str:
     email_network_locality = str(urlparse(settings.SITE_ORIGIN).netloc)
     # on dev server we need to add "mail" prefix
     # because we can’t publish MX records on Heroku
-    if settings.RELAY_CHANNEL == "dev":
+    if settings.RELAY_CHANNEL == "heroku":
         email_network_locality = f"mail.{email_network_locality}"
     return email_network_locality
 
