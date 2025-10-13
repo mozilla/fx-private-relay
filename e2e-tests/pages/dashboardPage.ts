@@ -15,7 +15,7 @@ export class DashboardPage {
   readonly userMenuButton: Locator;
   readonly signOutButton: Locator;
   readonly signOutToastAlert: Locator;
-  readonly bottomUgradeBanner: Locator;
+  readonly bottomUpgradeBanner: Locator;
   readonly relayExtensionBanner: Locator;
   readonly dashBoardWithoutMasks: Locator;
   readonly dashBoardWithoutMasksEmail: Locator;
@@ -116,7 +116,7 @@ export class DashboardPage {
     this.closeCornerTips = page.locator(
       '//button[starts-with(@class, "Tips_close-button")]',
     );
-    this.bottomUgradeBanner = page.locator(
+    this.bottomUpgradeBanner = page.locator(
       '//div[starts-with(@class, "profile_bottom-banner-wrapper")]',
     );
     this.relayExtensionBanner = page.locator(
