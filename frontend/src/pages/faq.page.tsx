@@ -293,7 +293,7 @@ const Faq: NextPage = () => {
                   elems={{
                     a: (
                       <a
-                        href="https://addons.mozilla.org/firefox/addon/private-relay/"
+                        href="https://support.mozilla.org/questions/new/relay/form"
                         target="_blank"
                         rel="noopener noreferrer"
                       />
