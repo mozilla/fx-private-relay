@@ -855,6 +855,9 @@ if RELAY_CHANNEL == "local":
     ]
 
 SENTRY_RELEASE = config("SENTRY_RELEASE", "")
+GIT_BRANCH = config("GIT_BRANCH", "")
+GIT_SHA = config("GIT_SHA", "")
+GIT_TAG = config("GIT_TAG", "")
 CIRCLE_SHA1 = config("CIRCLE_SHA1", "")
 CIRCLE_TAG = config("CIRCLE_TAG", "")
 CIRCLE_BRANCH = config("CIRCLE_BRANCH", "")
@@ -862,6 +865,10 @@ CIRCLE_BRANCH = config("CIRCLE_BRANCH", "")
 sentry_release: str | None = None
 if SENTRY_RELEASE:
     sentry_release = SENTRY_RELEASE
+elif GIT_TAG and GIT_TAG != "unknown":
+    sentry_release = GIT_TAG
+elif GIT_SHA and GIT_SHA != "unknown" and GIT_BRANCH and GIT_BRANCH != "unknown":
+    sentry_release = f"{GIT_BRANCH}:{GIT_SHA}"
 elif CIRCLE_TAG and CIRCLE_TAG != "unknown":
     sentry_release = CIRCLE_TAG
 elif (
