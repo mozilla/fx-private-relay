@@ -48,13 +48,36 @@ RUN PHONES_ENABLED=True \
     python manage.py collectstatic --no-input -v 2
 
 # These arguments change frequently so define them last
+# TODO remove `CIRCLE_*` vars after we move off CircleCI
 ARG CIRCLE_BRANCH
 ARG CIRCLE_SHA1
 ARG CIRCLE_TAG
-# TODO change `CIRCLE_*` to `GIT_*` after we move off CircleCI
+ARG GITHUB_REPOSITORY
+ARG GITHUB_RUN_ID
+ARG GITHUB_SERVER_URL
+ARG GIT_BRANCH
+ARG GIT_SHA
+ARG GIT_TAG
 ENV CIRCLE_BRANCH=${CIRCLE_BRANCH:-unknown} \
     CIRCLE_SHA1=${CIRCLE_SHA1:-unknown} \
-    CIRCLE_TAG=${CIRCLE_TAG:-unknown}
+    CIRCLE_TAG=${CIRCLE_TAG:-unknown} \
+    GITHUB_REPOSITORY=${GITHUB_REPOSITORY:-mozilla/fx-private-relay} \
+    GITHUB_RUN_ID=${GITHUB_RUN_ID:-unknown} \
+    GITHUB_SERVER_URL=${GITHUB_SERVER_URL:-https://github.com} \
+    GIT_BRANCH=${GIT_BRANCH:-unknown} \
+    GIT_SHA=${GIT_SHA:-unknown} \
+    GIT_TAG=${GIT_TAG:-unknown}
+
+# Do not override the CircleCI version if created
+RUN if [ ! -f "/app/version.json" ]; then \
+    printf '{"commit":"%s","version":"%s","source":"https://github.com/%s","build":"%s/%s/actions/runs/%s"}\n' \
+    "$GIT_SHA" \
+    "$GIT_TAG" \
+    "$GITHUB_REPOSITORY" \
+    "$GITHUB_SERVER_URL" \
+    "$GITHUB_REPOSITORY" \
+    "$GITHUB_RUN_ID" > /app/version.json; \
+    fi
 
 ENTRYPOINT ["/app/.local/bin/gunicorn"]
 

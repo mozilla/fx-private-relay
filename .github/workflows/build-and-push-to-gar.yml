@@ -44,9 +44,12 @@ jobs:
           image_name: fx-private-relay
           project_id: ${{ vars.GCP_MOZCLOUD_PROJECT_ID_PROD }}
           docker_build_args: |
-            CIRCLE_BRANCH=${{ env.GIT_BRANCH }}
-            CIRCLE_SHA1=${{ github.sha }}
-            CIRCLE_TAG=${{ env.GIT_TAG }}
+            GITHUB_REPOSITORY=${{ env.GITHUB_REPOSITORY }}
+            GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }}
+            GITHUB_SERVER_URL=${{ env.GITHUB_SERVER_URL }}
+            GIT_BRANCH=${{ env.GIT_BRANCH }}
+            GIT_SHA=${{ github.sha }}
+            GIT_TAG=${{ env.GIT_TAG }}
           dockerfile_path: "./Dockerfile"
       - name: Push Container Image
         uses: mozilla-it/deploy-actions/docker-push@v5.1.0
