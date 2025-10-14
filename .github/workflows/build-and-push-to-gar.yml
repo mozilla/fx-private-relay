@@ -53,7 +53,7 @@ jobs:
           dockerfile_path: "./Dockerfile"
       - name: Push Container Image
         uses: mozilla-it/deploy-actions/docker-push@v5.1.0
-        if: ${{ github.event_name != 'pull_request' || github.ref_name == '5963/merge' }}
+        if: ${{ github.event_name != 'pull_request' }}
         with:
           image_tags: ${{ steps.build.outputs.image_tags }}
           project_id: ${{ vars.GCP_MOZCLOUD_PROJECT_ID_PROD }}
