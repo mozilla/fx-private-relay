@@ -13,7 +13,7 @@ jobs:
       contents: read
       id-token: write
       packages: write
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
@@ -44,9 +44,9 @@ jobs:
           image_name: fx-private-relay
           project_id: ${{ vars.GCP_MOZCLOUD_PROJECT_ID_PROD }}
           docker_build_args: |
-            GITHUB_REPOSITORY=${{ env.GITHUB_REPOSITORY }}
-            GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }}
-            GITHUB_SERVER_URL=${{ env.GITHUB_SERVER_URL }}
+            GITHUB_REPOSITORY=${{ github.repository }}
+            GITHUB_RUN_ID=${{ github.run_id }}
+            GITHUB_SERVER_URL=${{ github.server_url }}
             GIT_BRANCH=${{ env.GIT_BRANCH }}
             GIT_SHA=${{ github.sha }}
             GIT_TAG=${{ env.GIT_TAG }}
