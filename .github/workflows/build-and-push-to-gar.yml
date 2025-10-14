@@ -28,9 +28,9 @@ jobs:
         run: |
           if [[ ${GITHUB_REF_TYPE} == "branch" ]]; then
             echo "GIT_BRANCH=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
-            echo 'GIT_TAG=""' >> "$GITHUB_OUTPUT"
+            echo 'GIT_TAG=' >> "$GITHUB_OUTPUT"
           elif [[ ${GITHUB_REF_TYPE} == "tag" ]]; then
-            echo 'GIT_BRANCH=""' >> "$GITHUB_OUTPUT"
+            echo 'GIT_BRANCH=' >> "$GITHUB_OUTPUT"
             echo "GIT_TAG=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
           fi
       - name: Build and Tag Container Image
