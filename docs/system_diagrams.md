@@ -150,20 +150,11 @@ additional services for the deployment environment.
 
 ## Development Deployment Diagram
 
-The development deployment is hosted in Heroku and AWS. Deployments are done by Relay
-developers, by pushing a branch to Heroku.
+Up until October 2025, the development deployment was hosted in Heroku and AWS.
+After October 2025, the development deployment is in MozCloud (a Mozilla-managed
+GCP environment) and AWS.
 
-The Dev Deployment lacks some of the full Relay System features:
-
-- Logs are not forwarded to the data platform
-- Metrics are disabled
-- Firefox does not integrate with this deployment
-- There are no other API users (as far as we know)
-
-[![Development Deployment](./img/structurizr-1-RelayDevelopmentDeployment.svg)](./img/structurizr-1-RelayDevelopmentDeployment.svg)
-
-Key:
-![Development_Deployment](./img/structurizr-1-RelayDevelopmentDeployment-key.svg)
+**TODO**: Update diagrams for MozCloud.
 
 ## Stage Deployment Diagram
 

@@ -18,7 +18,7 @@ import os
 import sys
 from hashlib import sha256
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast, get_args
+from typing import TYPE_CHECKING, cast, get_args
 
 from django.conf.global_settings import LANGUAGES as DEFAULT_LANGUAGES
 
@@ -67,7 +67,6 @@ ORIGIN_CHANNEL_MAP: dict[str, RELAY_CHANNEL_NAME] = {
     "http://127.0.0.1:8000": "local",
     "https://relay.firefox.com": "prod",
     # GCPv1
-    "https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net": "heroku",
     "https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net": "stage",
     # GCPv2
     "https://relay-dev.allizom.org": "dev",
@@ -501,23 +500,12 @@ if TEST_DB_NAME:
     DATABASES["default"]["TEST"] = {"NAME": TEST_DB_NAME}
 
 REDIS_URL = config("REDIS_URL", "")
-REDIS_SELF_SIGNED_CERT = config("REDIS_SELF_SIGNED_CERT", False, bool)
 if REDIS_URL:
-    _redis_options: dict[str, Any] = {
-        "CLIENT_CLASS": "django_redis.client.DefaultClient"
-    }
-    # Heroku mini uses self-signed certificates
-    if REDIS_SELF_SIGNED_CERT:
-        _redis_options["CONNECTION_POOL_KWARGS"] = {
-            "ssl_cert_reqs": None,
-            "ssl_check_hostname": False,
-        }
-
     CACHES = {
         "default": {
             "BACKEND": "django_redis.cache.RedisCache",
             "LOCATION": REDIS_URL,
-            "OPTIONS": _redis_options,
+            "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
         }
     }
     SESSION_ENGINE = "django.contrib.sessions.backends.cache"
@@ -756,7 +744,7 @@ if DEBUG and not IN_PYTEST:
     ]
 
 FIRST_EMAIL_RATE_LIMIT = config("FIRST_EMAIL_RATE_LIMIT", "5/minute")
-if IN_PYTEST or RELAY_CHANNEL in ["local", "dev", "heroku"]:
+if IN_PYTEST or RELAY_CHANNEL in ["local", "dev"]:
     FIRST_EMAIL_RATE_LIMIT = "1000/minute"
 
 REST_FRAMEWORK = {
@@ -789,7 +777,7 @@ SPECTACULAR_SETTINGS = {
     "SORT_OPERATIONS": "api.schema.sort_by_tag",
 }
 
-if IN_PYTEST or RELAY_CHANNEL in ["local", "dev", "heroku"]:
+if IN_PYTEST or RELAY_CHANNEL in ["local", "dev"]:
     _DEFAULT_PHONE_RATE_LIMIT = "1000/minute"
 else:
     _DEFAULT_PHONE_RATE_LIMIT = "5/minute"
@@ -809,7 +797,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://vault.bitwarden.com",
     "https://vault.bitwarden.eu",
 ]
-if RELAY_CHANNEL in ["dev", "stage", "heroku"]:
+if RELAY_CHANNEL in ["dev", "stage"]:
     CORS_ALLOWED_ORIGINS += [
         "https://vault.qa.bitwarden.pw",
         "https://vault.euqa.bitwarden.pw",
@@ -823,10 +811,6 @@ if RELAY_CHANNEL == "local":
         "http://127.0.0.1:8000",
     ]
     CORS_URLS_REGEX = r"^/(api|accounts)/"
-if RELAY_CHANNEL == "heroku":
-    CORS_ALLOWED_ORIGINS += [
-        "https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net",
-    ]
 if RELAY_CHANNEL == "dev":
     CORS_ALLOWED_ORIGINS += [
         "https://dev.relay.nonprod.webservices.mozgcp.net",
@@ -903,9 +887,6 @@ ignore_logger("django.security.DisallowedHost")
 # It is more effective to process these from logs using BigQuery than to track
 # as events in Sentry.
 ignore_logger("django_ftl.message_errors")
-# Security scanner attempts on Heroku dev, no action required
-if RELAY_CHANNEL == "heroku":
-    ignore_logger("django.security.SuspiciousFileOperation")
 
 if USE_SILK:
     SILKY_PYTHON_PROFILER = True

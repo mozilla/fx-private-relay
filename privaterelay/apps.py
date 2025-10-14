@@ -58,10 +58,10 @@ def configure_google_profiler() -> None:
 def get_profiler_startup_data() -> tuple[str | None, str | None]:
     from .utils import get_version_info
 
-    if settings.RELAY_CHANNEL not in ("dev", "stage", "prod", "heroku"):
+    if settings.RELAY_CHANNEL not in ("dev", "stage", "prod"):
         return (None, None)
 
-    if settings.RELAY_CHANNEL in ("dev", "stage", "heroku"):
+    if settings.RELAY_CHANNEL in ("dev", "stage"):
         service = f"fxprivaterelay-{settings.RELAY_CHANNEL}"
     if settings.RELAY_CHANNEL == "prod":
         service = "fxprivaterelay"

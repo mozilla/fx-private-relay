@@ -4,7 +4,7 @@ from typing import Literal, TypedDict
 
 from csp.constants import Nonce
 
-RELAY_CHANNEL_NAME = Literal["local", "dev", "stage", "prod", "heroku"]
+RELAY_CHANNEL_NAME = Literal["local", "dev", "stage", "prod"]
 
 # django-csp 4.0: types for CONTENT_SECURITY_POLICY in settings.py
 
