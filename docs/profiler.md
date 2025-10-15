@@ -2,6 +2,10 @@
 
 This doc describes how we profile Relay code.
 
+**TODO** [MPP-4441][]: Update instructions for MozCloud
+
+[MPP-4441]: https://mozilla-hub.atlassian.net/browse/MPP-4441
+
 ## Google Cloud Profiler
 
 We use Google Cloud Profiler: https://cloud.google.com/profiler/docs/about-profiler
@@ -26,17 +30,13 @@ These are the high-level steps to set up Google Cloud Profiler in Relay.
 
 #### Dev server
 
-The dev server should already have profiling set up. If it does not:
+Up until October 2025, the dev server ran in Heroku and had profiling enabled. In October
+2025, the dev server moved to MozCloud, a GCP-based environment. Additional work is needed
+to enable profiling in MozCloud.
 
-1. Get the Base64-encoded JSON key from another Relay ENGR
-2. Use `heroku config:set` to set the `GOOGLE_CLOUD_PROFILER_CREDENTIALS_B64`
-   environment variable value to the Base64-encoded JSON key.
-3. Use `heroku config:set` to set the `GOOGLE_APPLICATION_CREDENTIALS`
-   environment variable value to `gcp_key.json`
+#### Stage and Prod
 
-#### Stage & Prod
-
-The stage & prod servers should already have profiling set up. If they do not:
+The traditional GCP-based servers should already have profiling set up. If they do not:
 
 1. Have SRE set the `GOOGLE_CLOUD_PROFILER_CREDENTIALS_B64` environment variable value
    to the corresponding Base64-encoded JSON key with `roles/cloudprofiler.agent`

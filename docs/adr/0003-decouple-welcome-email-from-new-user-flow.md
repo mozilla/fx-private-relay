@@ -60,7 +60,7 @@ Proceeded with **Option 3. Implement cron job to send welcome email** because it
 
 ### Option 3: Implement cron job to send welcome email
 
-Relay already has [many scheduled jobs](https://dashboard.heroku.com/apps/fx-private-relay/scheduler) setup to handle asynchronous work ranging from maintaining old data to renewing monthly phone limits for users.
+Relay already has many scheduled jobs setup to handle asynchronous work ranging from maintaining old data to renewing monthly phone limits for users.
 
 - Good, because Relay can reuse code to send welcome email if or when we move to Option 1 using Redis Queue.
 - Good, because this option is inline with how we used scheduled jobs and is the lowest complexity to implement.

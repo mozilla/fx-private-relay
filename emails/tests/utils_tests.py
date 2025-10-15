@@ -24,13 +24,8 @@ from emails.utils import (
 
 
 class GetEmailDomainFromSettingsTest(TestCase):
-    @override_settings(RELAY_CHANNEL="heroku", SITE_ORIGIN="https://test.com")
-    def test_get_email_domain_from_settings_on_dev(self) -> None:
-        email_domain = get_email_domain_from_settings()
-        assert "mail.test.com" == email_domain
-
     @override_settings(RELAY_CHANNEL="test", SITE_ORIGIN="https://test.com")
-    def test_get_email_domain_from_settings_not_on_dev(self) -> None:
+    def test_get_email_domain_from_settings(self) -> None:
         email_domain = get_email_domain_from_settings()
         assert "test.com" == email_domain
 

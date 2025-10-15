@@ -363,86 +363,6 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
         c2_periodic_tasks -> metrics "Sends metrics" "UDP"
         c2_periodic_tasks -> logs "Emits logs"
 
-        dev_deploy = deploymentEnvironment "dev.fxprivaterelay.nonprod.cloudops.mozgcp.net" {
-            deploymentNode "Dev User Interfaces" {
-                dev_web = containerInstance web
-                dev_add_on = containerInstance add_on
-            }
-            deploymentNode "Amazon Web Services" {
-                deploymentNode "us-east-1 region" {
-                    deploymentNode "Amazon SQS" {
-                        dev_sqs_dlq = containerInstance email_dlq_queue
-                        dev_sqs_emails = containerInstance email_queue
-                    }
-                    deploymentNode "Amazon SNS" {
-                        dev_sns_topic = containerInstance email_topic
-                    }
-                    deploymentNode "Amazon SES" {
-                        dev_ses_incoming = containerInstance email_receiver
-                        dev_ses_outgoing = containerInstance email_sender
-                    }
-                    deploymentNode "Amazon S3" {
-                        dev_s3_emails = containerInstance email_object_store
-                    }
-                    deploymentNode "Amazon KMS" {
-                        dev_kms_emails = containerInstance email_key
-                    }
-                }
-            }
-            deploymentNode "Heroku" {
-                deploymentNode "Dynos" {
-                    deploymentNode "web" {
-                        web_dyno = containerInstance web_app
-                    }
-                    deploymentNode "worker" {
-                        worker_dyno = containerInstance email_processor
-                    }
-                }
-                deploymentNode "Heroku Add-Ons" {
-                    deploymentNode "Heroku Data for Redis" {
-                        heroku_cache = containerInstance cache
-                    }
-                    deploymentNode "Heroku Postgres" {
-                        heroku_psql = containerInstance db
-                    }
-                    deploymentNode "Heroku Scheduler" {
-                        heroku_task_cleanup = containerInstance task_cleanup
-                        heroku_task_clean_replies = containerInstance task_clean_replies
-                        heroku_task_sync_phones = containerInstance task_sync_phones
-                        heroku_task_update_phones = containerInstance task_update_phones
-                        heroku_task_welcome = containerInstance task_welcome
-                        heroku_task_dql = containerInstance task_dlq
-                    }
-
-                    deploymentNode "Papertrail" {
-                        heroku_papertrail = containerInstance logs
-                    }
-                }
-            }
-            deploymentNode "Google Cloud Platform" {
-                deploymentNode "Cloud Profiler" {
-                    dev_gcprofiler = containerInstance profiler
-                }
-            }
-            deploymentNode accounts.stage.mozaws.net {
-                dev_accounts = softwareSystemInstance accounts
-            }
-            deploymentNode analytics.google.com {
-                dev_ga = softwareSystemInstance ga
-            }
-            deploymentNode mozilla.sentry.io {
-                dev_sentry = softwareSystemInstance sentry
-            }
-            deploymentNode "Stripe" {
-                dev_stripe = softwareSystemInstance stripe {
-                    description "Development Stripe, with select subscriptions"
-                }
-            }
-            deploymentNode twilio.com {
-                dev_twilio_phone = containerInstance phone_service
-            }
-        }
-
         stage_deploy = deploymentEnvironment "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net" {
             deploymentNode "Stage User Interfaces" {
                 stage_web = containerInstance web
@@ -923,10 +843,6 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
             email_sender -> user "User receives email"
         }
 
-        deployment relay dev_deploy "RelayDevelopmentDeployment" {
-            title "[Deployment] Development"
-            include *
-        }
         deployment relay stage_deploy "RelayStageDeployment" {
             title "[Deployment] Stage"
             include *

@@ -4,7 +4,7 @@
 
 - [Production][prod] - Run by SRE team in GCP
 - [Stage][stage] - Run by SRE team in GCP
-- [Dev][dev] - Run by ENGR team in Heroku
+- [Dev][dev] - Run by ENGR team in MozCloud
 - Locals: Run by ENGRs on their own devices. (See [README][readme] and other [`docs/`][docs].)
 
 ## Code branches
@@ -65,23 +65,11 @@ environment. To do this, we first release code to [Dev][dev] and
 
 ## Release to Dev
 
-Every commit to `main` is automatically deployed to the [Dev][dev] server, as
-long as it can be done with a fast-forward push. Since the
-[Great GitHub Heroku Incident of 2022][github-heroku-incident], this is
-done from CircleCI using a [service account][service-account].
+Every commit to `main` is automatically deployed to the [Dev][dev] server.
 
-To push a different branch, you need to add the Heroku app as a remote:
+**TODO** [MPP-4443][]: Add instructions for pushing an alternate branch in MozCloud.
 
-- `heroku login`
-- `heroku git:remote -a fx-private-relay`
-
-Then, you can push your local unmerged branch to Heroku:
-
-- `git push -f heroku change-1:main`
-
-Merges to main will fail to deploy until someone manually resets it to `main`:
-
-- `git push -f heroku main`
+[MPP-4443]: https://mozilla-hub.atlassian.net/browse/MPP-4443
 
 ## Release to Stage
 
@@ -136,7 +124,7 @@ After you push the tag to GitHub, you should also
 5. Edit the generated notes to add a planned release summary and organize PRs
    into sections, such as:
 
-   ```
+   ```text
    Planned for release to relay.firefox.com on August 9th, 2022.
 
    ## User-facing changes
@@ -167,7 +155,8 @@ On Monday, after the Release Readiness Review:
 1. File an [SRE ticket][sre-form] to deploy the tag to [Prod][prod].
    - Include a link to the GitHub Release
 2. On the GitHub release, update the summary with a reference to the ticket:
-   ```
+
+   ```text
    Planned for release to relay.firefox.com on August 9th, 2022 with SVCSE-1385.
    ```
 
@@ -181,10 +170,13 @@ On Tuesday:
    - Check [grafana dashboard](https://earthangel-b40313e5.influxcloud.net/d/qiwPC76Zk/fx-private-relay?orgId=1&refresh=1m&from=now-1h&to=now) for any unexpected spike in ops
    - (optional) [Run end-to-end tests](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml) on prod (Note: as of 2023-07-12 these are known-broken. 😢)
 3. Update the GitHub release:
+
    - Update the summary:
-     ```
+
+     ```text
      Released to relay.firefox.com on August 9th, 2022 with SVCSE-1385.
      ```
+
    - De-select "Set as a pre-release",
    - Select "Set as the latest release"
    - Click "Update release"
@@ -355,13 +347,12 @@ long-running branches")
 
 [prod]: https://relay.firefox.com/
 [stage]: https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net/
-[dev]: https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/
+[dev]: https://relay-dev.allizom.org/
 [readme]: https://github.com/mozilla/fx-private-relay/blob/main/README.md
 [docs]: https://github.com/mozilla/fx-private-relay/tree/main/docs
 [github-flow]: https://docs.github.com/en/get-started/quickstart/github-flow
-[github-heroku-incident]: https://blog.heroku.com/april-2022-incident-review
-[service-account]: https://mana.mozilla.org/wiki/display/TS/List+of+Heroku+service+accounts
 [calver]: https://calver.org/
 [sre-form]: https://mozilla-hub.atlassian.net/jira/software/c/projects/SREIN/form/1344
 [github-new-release]: https://github.com/mozilla/fx-private-relay/releases/new
 [prod-version]: https://relay.firefox.com/__version__
+[feature-flags]: ./feature_flags.md
