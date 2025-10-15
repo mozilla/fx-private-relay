@@ -67,7 +67,9 @@ environment. To do this, we first release code to [Dev][dev] and
 
 Every commit to `main` is automatically deployed to the [Dev][dev] server.
 
-**TODO**: Add instructions for pushing an alternate branch in MozCloud.
+**TODO** [MPP-4443][]: Add instructions for pushing an alternate branch in MozCloud.
+
+[MPP-4443]: https://mozilla-hub.atlassian.net/browse/MPP-4443
 
 ## Release to Stage
 

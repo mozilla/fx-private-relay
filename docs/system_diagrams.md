@@ -154,7 +154,9 @@ Up until October 2025, the development deployment was hosted in Heroku and AWS.
 After October 2025, the development deployment is in MozCloud (a Mozilla-managed
 GCP environment) and AWS.
 
-**TODO**: Update diagrams for MozCloud.
+**TODO** MPP-4442: Update diagrams for MozCloud.
+
+[MPP-4442]: https://mozilla-hub.atlassian.net/browse/MPP-4442
 
 ## Stage Deployment Diagram
 
