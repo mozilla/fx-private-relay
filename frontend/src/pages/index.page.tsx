@@ -19,7 +19,6 @@ import {
 import { FaqAccordionItem } from "../components/landing/FaqAccordion";
 import { Reviews } from "../components/landing/Reviews";
 import { PlanMatrix } from "../components/landing/PlanMatrix";
-import { MegabundleBanner } from "../components/landing/MegaBundleBanner";
 import { BundleBanner } from "../components/landing/BundleBanner";
 import { useFlaggedAnchorLinks } from "../hooks/flaggedAnchorLinks";
 import { useL10n } from "../hooks/l10n";
@@ -116,15 +115,6 @@ const Home: NextPage = () => {
         <div className={`${styles["gray-bg"]} ${styles["reviews-container"]}`}>
           <Reviews />
         </div>
-        {/* Anchor link "pricing" exists within the PlanMatrix component */}
-        {isMegabundleAvailableInCountry(runtimeData.data) && (
-          <section
-            id="megabundle_promo"
-            className={styles["bundle-banner-section"]}
-          >
-            <MegabundleBanner runtimeData={runtimeData.data} />
-          </section>
-        )}
         <div className={styles.plans}>
           {isMegabundleAvailableInCountry(runtimeData.data) ? (
             <PlanGrid runtimeData={runtimeData.data} />
