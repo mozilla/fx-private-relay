@@ -12,7 +12,6 @@ import {
   isPeriodicalPremiumAvailableInCountry,
 } from "../functions/getPlan";
 import { PlanMatrix } from "../components/landing/PlanMatrix";
-import { MegabundleBanner } from "../components/landing/MegaBundleBanner";
 import { BundleBanner } from "../components/landing/BundleBanner";
 import { useFlaggedAnchorLinks } from "../hooks/flaggedAnchorLinks";
 import { useGaEvent } from "../hooks/gaEvent";
@@ -81,15 +80,6 @@ const PremiumPromo: NextPage = () => {
         <section id="perks" className={styles["perks-wrapper"]}>
           <HighlightedFeatures />
         </section>
-
-        {isMegabundleAvailableInCountry(runtimeData.data) && (
-          <section
-            id="megabundle_promo"
-            className={styles["bundle-banner-section"]}
-          >
-            <MegabundleBanner runtimeData={runtimeData.data} />
-          </section>
-        )}
 
         <section className={styles["plans-wrapper"]}>
           <div className={styles.plans}>

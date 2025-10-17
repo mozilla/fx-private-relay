@@ -76,24 +76,6 @@ describe("The landing page", () => {
       setMockRuntimeDataOnce(getMockRuntimeDataWithMegabundle());
     });
 
-    it("shows the megabundle banner", () => {
-      render(<Home />);
-      const heading = screen.getByText((content) =>
-        content.startsWith(
-          "l10n string: [megabundle-banner-header], with vars:",
-        ),
-      );
-      expect(heading).toBeInTheDocument();
-    });
-
-    it("does not show the bundle banner", () => {
-      render(<Home />);
-      const bundleText = screen.queryByText(
-        "[<Localized> with id [bundle-banner-heading] and vars: {}]",
-      );
-      expect(bundleText).not.toBeInTheDocument();
-    });
-
     it("does not show the PlanMatrix grid", () => {
       render(<Home />);
       const matrixColumn = screen.queryByRole("columnheader", {
