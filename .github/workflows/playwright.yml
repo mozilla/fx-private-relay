@@ -55,11 +55,11 @@ jobs:
           npm install -D @playwright/test --with-deps
           npx playwright install
       - name: Run Playwright tests
+        env:
+          commandenv: ${{ inputs.environment != null && inputs.environment || 'stage' }}
+          health_check: ${{ contains(inputs.health_check, 'true') }}
         run: >
-          commandenv="${{ inputs.environment != null && inputs.environment || 'stage'
-          }}"
-
-          if ${{ contains(inputs.health_check, 'true') }}; then
+          if $health_check; then
             E2E_TEST_ENV=$commandenv npx playwright test --grep "@health_check"
           else
             npm run test:$commandenv
