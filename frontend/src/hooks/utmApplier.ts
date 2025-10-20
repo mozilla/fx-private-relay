@@ -47,8 +47,19 @@ export function useUtmApplier(): (url: string) => string {
       return baseUrl.href;
     }
 
-    const encodedUtm = encodeURIComponent(utmParams.toString());
-    baseUrl.searchParams.set("auth_params", encodedUtm);
+    baseUrl.searchParams.set("auth_params", utmParams.toString());
+
+    // Set a next URL to preserve UTM params through authenticationI
+    const nextPath = inbound.get("next") ?? "/accounts/profile/";
+    const nextUrl = new URL(nextPath, window.location.origin);
+    for (const [key, value] of utmParams) {
+      nextUrl.searchParams.set(key, value);
+    }
+    let nextRelUrl = nextUrl.pathname + "?" + nextUrl.searchParams.toString();
+    if (nextUrl.hash) {
+      nextRelUrl += nextUrl.hash;
+    }
+    baseUrl.searchParams.set("next", nextRelUrl);
 
     return baseUrl.href;
   };
