@@ -4,6 +4,7 @@ import re
 import time
 from collections.abc import Callable
 from datetime import UTC, datetime
+from urllib.parse import urlencode, urlsplit, urlunsplit
 
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse
@@ -199,6 +200,44 @@ class RelayStaticFilesMiddleware(WhiteNoiseMiddleware):
         else:
             static_file = self.files.get(path_info)
         return static_file is not None
+
+    PRESERVE_QS_KEYS = set(
+        (
+            "utm_source",
+            "utm_campaign",
+            "utm_medium",
+            "utm_content",
+            "utm_term",
+        )
+    )
+
+    @staticmethod
+    def serve(static_file, request):
+        """Preserve some query params when redirecting."""
+        resp = WhiteNoiseMiddleware.serve(static_file, request)
+        if (
+            resp.status_code == 302
+            and (redirect_url := resp["location"])
+            and (request_qs_params := request.GET)
+            and (
+                response_qs_params := {
+                    key: val
+                    for key, val in request_qs_params.items()
+                    if key in RelayStaticFilesMiddleware.PRESERVE_QS_KEYS
+                }
+            )
+        ):
+            redirect_url_parts = urlsplit(redirect_url)
+            new_redirect_parts = (
+                redirect_url_parts.scheme,
+                redirect_url_parts.netloc,
+                redirect_url_parts.path,
+                urlencode(response_qs_params),
+                redirect_url_parts.fragment,
+            )
+            new_redirect_url = urlunsplit(new_redirect_parts)
+            resp["location"] = new_redirect_url
+        return resp
 
 
 class GleanApiAccessMiddleware:
