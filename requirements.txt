@@ -38,7 +38,7 @@ twilio==9.8.4
 vobject==0.9.9
 
 # tests
-coverage==7.10.7
+coverage==7.11.0
 model-bakery==1.20.5
 pytest-cov==7.0.0
 pytest-django==4.11.1
