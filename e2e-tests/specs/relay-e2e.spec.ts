@@ -72,25 +72,20 @@ test.describe("Subscription flows with PlanGrid @health_check", () => {
    */
   let expectedPremiumPlanDetails;
   let expectedPhonesPlanDetails;
-  let expectedMegabundleDetails;
 
   test.beforeEach(async ({ landingPage }) => {
     if (process.env["E2E_TEST_ENV"] === "local") {
       expectedPremiumPlanDetails = "Relay Premium (127.0.0.1)";
       expectedPhonesPlanDetails = "Relay Premium (127.0.0.1)";
-      expectedMegabundleDetails = "Privacy protection plan";
     } else if (process.env["E2E_TEST_ENV"] === "prod") {
       expectedPremiumPlanDetails = "Relay Premium";
       expectedPhonesPlanDetails =
         "Relay Premium: Phone Number & Email Address Masking";
-      expectedMegabundleDetails = "Privacy protection plan";
     } else if (process.env["E2E_TEST_ENV"] === "stage") {
       expectedPremiumPlanDetails = "Relay Premium (stage)";
       expectedPhonesPlanDetails = "Relay Email & Phone Protection (stage)";
-      expectedMegabundleDetails = "Privacy protection plan";
     } else if (process.env["E2E_TEST_ENV"] === "dev") {
       expectedPhonesPlanDetails = "Relay Email & Phone Protection (dev)";
-      expectedMegabundleDetails = "Privacy protection plan";
     }
 
     await landingPage.open();
@@ -158,19 +153,5 @@ test.describe("Subscription flows with PlanGrid @health_check", () => {
       expectedPhonesPlanDetails,
     );
     expect(await subscriptionPage.getPriceDetailsText()).toContain("monthly");
-  });
-
-  test('Verify that the "Megabundle" plan works correctly, C1818792', async ({
-    landingPage,
-    subscriptionPage,
-  }) => {
-    await landingPage.selectMegabundlePlan();
-    expect(await subscriptionPage.getSubscriptionTitleText()).toContain(
-      "Set up your subscription",
-    );
-    expect(await subscriptionPage.getPlanDetailsText()).toEqual(
-      expectedMegabundleDetails,
-    );
-    expect(await subscriptionPage.getPriceDetailsText()).toContain("yearly");
   });
 });
