@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import logging
 from collections.abc import Iterable
@@ -22,6 +24,7 @@ from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapt
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 from markus.utils import generate_tag
 from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error
+from requests.exceptions import JSONDecodeError
 from rest_framework.decorators import api_view, schema
 
 from emails.models import DomainAddress, RelayAddress
@@ -32,12 +35,13 @@ from .exceptions import CannotMakeSubdomainException
 from .fxa_utils import NoSocialToken, _get_oauth2_session
 from .validators import valid_available_subdomain
 
-FXA_PROFILE_CHANGE_EVENT = "https://schemas.accounts.firefox.com/event/profile-change"
-FXA_SUBSCRIPTION_CHANGE_EVENT = (
-    "https://schemas.accounts.firefox.com/event/subscription-state-change"
-)
-FXA_DELETE_EVENT = "https://schemas.accounts.firefox.com/event/delete-user"
+FXA_SCHEMA_BASE = "https://schemas.accounts.firefox.com/event"
+FXA_PROFILE_CHANGE_EVENT = FXA_SCHEMA_BASE + "/profile-change"
+FXA_SUBSCRIPTION_CHANGE_EVENT = FXA_SCHEMA_BASE + "/subscription-state-change"
+FXA_DELETE_EVENT = FXA_SCHEMA_BASE + "/delete-user"
+FXA_PWD_CHANGE_EVENT = FXA_SCHEMA_BASE + "/password-change"
 PROFILE_EVENTS = [FXA_PROFILE_CHANGE_EVENT, FXA_SUBSCRIPTION_CHANGE_EVENT]
+IGNORED_EVENTS = [FXA_PWD_CHANGE_EVENT]
 
 logger = logging.getLogger("events")
 info_logger = logging.getLogger("eventsinfo")
@@ -127,8 +131,26 @@ def metrics_event(request: HttpRequest) -> JsonResponse:
 
 @csrf_exempt
 def fxa_rp_events(request: HttpRequest) -> HttpResponse:
+    """MPP-4460: Track more data for FxA relying party exceptions"""
+    if (auth := request.headers.get("Authorization")) is None or not auth.startswith(
+        "Bearer "
+    ):
+        return HttpResponse(
+            "401 Unauthorized", status=401, headers={"WWW-Authenticate": "Bearer"}
+        )
     req_jwt = _parse_jwt_from_request(request)
     authentic_jwt = _authenticate_fxa_jwt(req_jwt)
+    with sentry_sdk.new_scope() as scope:
+        sentry_context = {"body": request.body, "jwt": authentic_jwt}
+        scope.set_context("fxa_rp_event", sentry_context)
+        return fxa_rp_events_process_event(authentic_jwt, sentry_context)
+
+
+def fxa_rp_events_process_event(
+    authentic_jwt: FxAEvent, sentry_context: dict[str, Any]
+) -> HttpResponse:
+    """Augment previous version of fxa_rp_events with additional sentry data"""
+
     event_keys = _get_event_keys_from_jwt(authentic_jwt)
     try:
         social_account = _get_account_from_jwt(authentic_jwt)
@@ -137,6 +159,7 @@ def fxa_rp_events(request: HttpRequest) -> HttpResponse:
         return HttpResponse("202 Accepted", status=202)
 
     for event_key in event_keys:
+        sentry_context["event_key"] = event_key
         if event_key in PROFILE_EVENTS:
             if settings.DEBUG:
                 info_logger.info(
@@ -147,8 +170,10 @@ def fxa_rp_events(request: HttpRequest) -> HttpResponse:
                     },
                 )
             update_fxa(social_account, authentic_jwt, event_key)
-        if event_key == FXA_DELETE_EVENT:
+        elif event_key == FXA_DELETE_EVENT:
             _handle_fxa_delete(authentic_jwt, social_account, event_key)
+        elif event_key not in IGNORED_EVENTS:
+            sentry_sdk.capture_message(f"fxa_rp_events: Unknown event key {event_key}")
     return HttpResponse("200 OK", status=200)
 
 
@@ -272,6 +297,28 @@ def update_fxa(
     authentic_jwt: FxAEvent | None = None,
     event_key: str | None = None,
 ) -> HttpResponse:
+    """MPP-4460: Track more data for FxA profile update exceptions"""
+
+    with sentry_sdk.new_scope() as scope:
+        sentry_context = {
+            "social_account_uid": social_account.uid,
+            "authentic_jwt": authentic_jwt,
+            "event_key": event_key,
+        }
+        scope.set_context("update_fxa", sentry_context)
+        return update_fxa_inner(
+            social_account, sentry_context, authentic_jwt, event_key
+        )
+
+
+def update_fxa_inner(
+    social_account: SocialAccount,
+    sentry_context: dict[str, Any],
+    authentic_jwt: FxAEvent | None = None,
+    event_key: str | None = None,
+) -> HttpResponse:
+    """Augment previous version of update_fxa with additional sentry data"""
+
     try:
         client = _get_oauth2_session(social_account)
     except NoSocialToken as e:
@@ -285,7 +332,13 @@ def update_fxa(
         sentry_sdk.capture_exception(e)
         return HttpResponse("202 Accepted", status=202)
 
-    extra_data = resp.json()
+    sentry_context["profile_status_code"] = resp.status_code
+    try:
+        extra_data = resp.json()
+    except JSONDecodeError:
+        sentry_context["profile_resp_body"] = resp.body
+        raise
+    sentry_context["profile_resp"] = extra_data
 
     try:
         new_email = extra_data["email"]

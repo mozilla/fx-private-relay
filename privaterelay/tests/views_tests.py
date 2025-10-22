@@ -574,6 +574,12 @@ def test_fxa_rp_events_delete_user(
     assert DeletedAddress.objects.filter(address_hash=da_address_hash).exists()
 
 
+def test_fxa_rp_events_no_auth_header(client: Client) -> None:
+    response = client.get("/fxa-rp-events")
+    assert response.status_code == 401
+    assert response.headers["WWW-Authenticate"] == "Bearer"
+
+
 def test_version_view(client: Client, version_json_path: Path) -> None:
     version_info = {
         "commit": "a_commit_hash",
