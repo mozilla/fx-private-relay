@@ -18,7 +18,7 @@ import os
 import sys
 from hashlib import sha256
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast, get_args
+from typing import TYPE_CHECKING, cast, get_args
 
 from django.conf.global_settings import LANGUAGES as DEFAULT_LANGUAGES
 
@@ -65,9 +65,12 @@ SITE_ORIGIN: str | None = config("SITE_ORIGIN", None)
 
 ORIGIN_CHANNEL_MAP: dict[str, RELAY_CHANNEL_NAME] = {
     "http://127.0.0.1:8000": "local",
-    "https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net": "dev",
-    "https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net": "stage",
     "https://relay.firefox.com": "prod",
+    # GCPv1
+    "https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net": "stage",
+    # GCPv2
+    "https://relay-dev.allizom.org": "dev",
+    "https://relay.allizom.org": "stage",
 }
 RELAY_CHANNEL: RELAY_CHANNEL_NAME = cast(
     RELAY_CHANNEL_NAME,
@@ -151,7 +154,7 @@ API_DOCS_ENABLED = config("API_DOCS_ENABLED", False, cast=bool) or DEBUG
 _CSP_SCRIPT_INLINE = USE_SILK
 
 # When running locally, styles might get refreshed while the server is running, so their
-# hashes would get oudated. Hence, we just allow all of them.
+# hashes would get outdated. Hence, we just allow all of them.
 _CSP_STYLE_INLINE = API_DOCS_ENABLED or RELAY_CHANNEL == "local"
 
 if API_DOCS_ENABLED:
@@ -497,23 +500,12 @@ if TEST_DB_NAME:
     DATABASES["default"]["TEST"] = {"NAME": TEST_DB_NAME}
 
 REDIS_URL = config("REDIS_URL", "")
-REDIS_SELF_SIGNED_CERT = config("REDIS_SELF_SIGNED_CERT", False, bool)
 if REDIS_URL:
-    _redis_options: dict[str, Any] = {
-        "CLIENT_CLASS": "django_redis.client.DefaultClient"
-    }
-    # Heroku mini uses self-signed certificates
-    if REDIS_SELF_SIGNED_CERT:
-        _redis_options["CONNECTION_POOL_KWARGS"] = {
-            "ssl_cert_reqs": None,
-            "ssl_check_hostname": False,
-        }
-
     CACHES = {
         "default": {
             "BACKEND": "django_redis.cache.RedisCache",
             "LOCATION": REDIS_URL,
-            "OPTIONS": _redis_options,
+            "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
         }
     }
     SESSION_ENGINE = "django.contrib.sessions.backends.cache"
@@ -821,11 +813,16 @@ if RELAY_CHANNEL == "local":
     CORS_URLS_REGEX = r"^/(api|accounts)/"
 if RELAY_CHANNEL == "dev":
     CORS_ALLOWED_ORIGINS += [
-        "https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+        "https://dev.relay.nonprod.webservices.mozgcp.net",
+        "https://relay-dev.allizom.org",
     ]
 if RELAY_CHANNEL == "stage":
     CORS_ALLOWED_ORIGINS += [
+        # GCP v1
         "https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+        # GCP v2
+        "https://stage.relay.nonprod.webservices.mozgcp.net",
+        "https://relay.allizom.org",
     ]
 
 CSRF_TRUSTED_ORIGINS = []
@@ -842,6 +839,9 @@ if RELAY_CHANNEL == "local":
     ]
 
 SENTRY_RELEASE = config("SENTRY_RELEASE", "")
+GIT_BRANCH = config("GIT_BRANCH", "")
+GIT_SHA = config("GIT_SHA", "")
+GIT_TAG = config("GIT_TAG", "")
 CIRCLE_SHA1 = config("CIRCLE_SHA1", "")
 CIRCLE_TAG = config("CIRCLE_TAG", "")
 CIRCLE_BRANCH = config("CIRCLE_BRANCH", "")
@@ -849,6 +849,10 @@ CIRCLE_BRANCH = config("CIRCLE_BRANCH", "")
 sentry_release: str | None = None
 if SENTRY_RELEASE:
     sentry_release = SENTRY_RELEASE
+elif GIT_TAG and GIT_TAG != "unknown":
+    sentry_release = GIT_TAG
+elif GIT_SHA and GIT_SHA != "unknown" and GIT_BRANCH and GIT_BRANCH != "unknown":
+    sentry_release = f"{GIT_BRANCH}:{GIT_SHA}"
 elif CIRCLE_TAG and CIRCLE_TAG != "unknown":
     sentry_release = CIRCLE_TAG
 elif (
@@ -883,9 +887,6 @@ ignore_logger("django.security.DisallowedHost")
 # It is more effective to process these from logs using BigQuery than to track
 # as events in Sentry.
 ignore_logger("django_ftl.message_errors")
-# Security scanner attempts on Heroku dev, no action required
-if RELAY_CHANNEL == "dev":
-    ignore_logger("django.security.SuspiciousFileOperation")
 
 if USE_SILK:
     SILKY_PYTHON_PROFILER = True

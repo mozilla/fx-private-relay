@@ -1,6 +1,5 @@
 import { useTab, useTabList, useTabPanel } from "react-aria";
 import { ReactNode, useRef } from "react";
-import Link from "next/link";
 import {
   Item,
   TabListProps,
@@ -17,21 +16,9 @@ import {
   getPhoneSubscribeLink,
   isPeriodicalPremiumAvailableInCountry,
   isPhonesAvailableInCountry,
-  getMegabundlePrice,
-  getMegabundleYearlyPrice,
-  isMegabundleAvailableInCountry,
-  getMegabundleSubscribeLink,
-  getIndividualBundlePrice,
-  getBundleDiscountPercentage,
 } from "../../functions/getPlan";
 import { RuntimeData } from "../../hooks/api/types";
-import {
-  CheckIcon2,
-  VpnIcon,
-  PlusIcon2,
-  MonitorIcon,
-  RelayIcon,
-} from "../Icons";
+import { CheckIcon2, PlusIcon2 } from "../Icons";
 import { getRuntimeConfig } from "../../config";
 import { useGaEvent } from "../../hooks/gaEvent";
 import { useGaViewPing } from "../../hooks/gaViewPing";
@@ -56,11 +43,6 @@ export const PlanGrid = (props: Props) => {
   const freeButtonRef = useGaViewPing({
     category: "Sign In",
     label: "plan-grid-free-cta",
-  });
-
-  const bundleButtonRef = useGaViewPing({
-    category: "Purchase Megabundle button",
-    label: "plan-grid-megabundle-cta",
   });
 
   const gaEvent = useGaEvent();
@@ -96,104 +78,6 @@ export const PlanGrid = (props: Props) => {
         <p>{l10n.getString("plan-grid-body")}</p>
       </div>
       <section id="pricing-grid" className={styles.pricingPlans}>
-        {isMegabundleAvailableInCountry(props.runtimeData) ? (
-          <dl
-            key={"megabundle"}
-            className={styles.pricingCard}
-            aria-label={l10n.getString("plan-grid-megabundle-title")}
-          >
-            <dt>
-              <b>{l10n.getString("plan-grid-megabundle-title")}</b>
-              <span className={styles.pricingCardLabel}>
-                {l10n.getFragment("plan-grid-megabundle-label", {
-                  vars: {
-                    discountPercentage: getBundleDiscountPercentage(
-                      props.runtimeData,
-                    ),
-                  },
-                })}
-              </span>
-              <p>{l10n.getString("plan-grid-megabundle-subtitle")}</p>
-            </dt>
-            <dd key={`megabundle-feature-1`}>
-              <a
-                key="bundle-vpn"
-                className={styles.bundleItemLink}
-                href={"https://www.mozilla.org/products/vpn/"}
-              >
-                <div className={styles.bundleTitle}>
-                  <VpnIcon alt="" />
-                  <b>{l10n.getString("plan-grid-megabundle-vpn-title")}</b>
-                </div>
-                {l10n.getString("plan-grid-megabundle-vpn-description")}
-              </a>
-            </dd>
-            <dd key={"megabundle-feature-2"}>
-              <Link
-                key="megabundle-monitor"
-                className={styles.bundleItemLink}
-                href="https://monitor.mozilla.org/"
-              >
-                <div className={styles.bundleTitle}>
-                  <MonitorIcon alt="" />
-                  <b>{l10n.getString("plan-grid-megabundle-monitor-title")}</b>
-                </div>
-                {l10n.getString("plan-grid-megabundle-monitor-description")}
-              </Link>
-            </dd>
-            <dd key={"megabundle-feature-3"}>
-              <a
-                key="megabundle-relay"
-                className={styles.bundleItemLink}
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                }}
-              >
-                <div className={styles.bundleTitle}>
-                  <RelayIcon alt="" />
-                  <b>{l10n.getString("plan-grid-megabundle-relay-title")}</b>
-                </div>
-                {l10n.getString("plan-grid-megabundle-relay-description")}
-              </a>
-            </dd>
-            <dd className={styles.pricingCardCta}>
-              <p id="pricingPlanBundle">
-                <span className={styles.pricingCardSavings}>
-                  {l10n.getString("plan-grid-megabundle-yearly", {
-                    yearly_price: getMegabundleYearlyPrice(
-                      props.runtimeData,
-                      l10n,
-                    ),
-                  })}
-                </span>
-                <strong>
-                  <s>{formatter.format(getIndividualBundlePrice("monthly"))}</s>
-                  {l10n.getString("plan-grid-megabundle-monthly", {
-                    price: getMegabundlePrice(props.runtimeData, l10n),
-                  })}
-                </strong>
-              </p>
-              <LinkButton
-                href={getMegabundleSubscribeLink(props.runtimeData)}
-                className={styles["megabundle-pick-button"]}
-                ref={bundleButtonRef}
-                data-testid="plan-cta-megabundle"
-                onClick={() =>
-                  trackPlanPurchaseStart(
-                    gaEvent,
-                    { plan: "megabundle" },
-                    {
-                      label: "plan-grid-megabundle-cta",
-                    },
-                  )
-                }
-              >
-                {l10n.getString("plan-grid-card-btn")}
-              </LinkButton>
-            </dd>
-          </dl>
-        ) : null}
         <dl
           key={"phone"}
           className={styles.pricingCard}

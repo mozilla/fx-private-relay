@@ -7,8 +7,8 @@
     "url": "https://github.com/mozilla/fx-private-relay/issues"
   },
   "devDependencies": {
-    "@playwright/test": "1.55.1",
-    "dotenv": "^17.2.2"
+    "@playwright/test": "1.56.1",
+    "dotenv": "^17.2.3"
   },
   "volta": {
     "node": "22.15.0",
@@ -29,8 +29,6 @@
     "test:dev": "E2E_TEST_ENV=dev playwright test --retries=2",
     "test:stage": "E2E_TEST_ENV=stage playwright test --retries=2",
     "test:prod": "E2E_TEST_ENV=prod playwright test --retries=2",
-    "heroku-prebuild": "printf '{\"commit\":\"%s\", \"commit_link\":\"https://github.com/mozilla/fx-private-relay/commit/%s\"}\n' \"$SOURCE_VERSION\" \"$SOURCE_VERSION\" > version.json",
-    "heroku-postbuild": "cd frontend; NODE_ENV=\"development\" npm ci; npm run build",
     "prepare": "husky"
   },
   "homepage": "https://github.com/mozilla/fx-private-relay#readme"

@@ -4,8 +4,6 @@
 # DOCKER_USER    - login info for docker hub
 # DOCKER_PASS
 # COVERALLS_REPO_TOKEN - used by coveralls-python
-# HEROKU_APP_NAME - Name on Heroku
-# HEROKU_API_KEY - API key from service account
 #
 version: 2.1
 orbs:
@@ -13,8 +11,6 @@ orbs:
   node: circleci/node@7.0.0
   # https://circleci.com/developer/orbs/orb/circleci/python
   python: circleci/python@2.1.1
-  # https://circleci.com/developer/orbs/orb/circleci/heroku
-  heroku: circleci/heroku@1.2.6
 
 executors:
   # Using executors so most of the version information is here
@@ -385,13 +381,6 @@ jobs:
               docker push "${DOCKERHUB_REPO}:${CIRCLE_TAG}"
             fi
 
-  heroku_deploy:
-    executor: heroku/default
-    steps:
-      - checkout
-      - heroku/install
-      - heroku/deploy-via-git
-
   # python_job is a generic job for Python and Django tests
   # It avoids duplicating code and forgetting to duplicate fixes
   # It uses functions defined in python_job.bash
@@ -737,12 +726,5 @@ workflows:
           filters:
             tags:
               ignore: /addon-.*/
-            branches:
-              only: main
-
-      - heroku_deploy:
-          requires:
-            - build_test_backend
-          filters:
             branches:
               only: main

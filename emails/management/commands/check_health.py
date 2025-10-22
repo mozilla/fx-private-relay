@@ -1,7 +1,7 @@
 """
 Check that a healthcheck JSON file exists and is recent.
 
-A healthcheck file with JSON is loaded. If the timestamp (a string, formated
+A healthcheck file with JSON is loaded. If the timestamp (a string, formatted
 like Python's datetime.isoformat) is too far in the past, it exits with a
 non-zero exit code. This makes it suitable for Kubernetes liveness checks of
 processes without a webservice.

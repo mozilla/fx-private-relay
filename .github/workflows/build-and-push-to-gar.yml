@@ -13,7 +13,7 @@ jobs:
       contents: read
       id-token: write
       packages: write
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
@@ -28,9 +28,9 @@ jobs:
         run: |
           if [[ ${GITHUB_REF_TYPE} == "branch" ]]; then
             echo "GIT_BRANCH=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
-            echo 'GIT_TAG=""' >> "$GITHUB_OUTPUT"
+            echo 'GIT_TAG=' >> "$GITHUB_OUTPUT"
           elif [[ ${GITHUB_REF_TYPE} == "tag" ]]; then
-            echo 'GIT_BRANCH=""' >> "$GITHUB_OUTPUT"
+            echo 'GIT_BRANCH=' >> "$GITHUB_OUTPUT"
             echo "GIT_TAG=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
           fi
       - name: Build and Tag Container Image
@@ -38,18 +38,21 @@ jobs:
           GIT_BRANCH: ${{ steps.git_env_vars.outputs.GIT_BRANCH }}
           GIT_TAG: ${{ steps.git_env_vars.outputs.GIT_TAG }}
         id: build
-        uses: mozilla-it/deploy-actions/docker-build@v5.1.0
+        uses: mozilla-it/deploy-actions/docker-build@v5.2.0
         with:
           gar_name: ${{ vars.GCP_MOZCLOUD_GAR_NAME_PROD }}
           image_name: fx-private-relay
           project_id: ${{ vars.GCP_MOZCLOUD_PROJECT_ID_PROD }}
           docker_build_args: |
-            CIRCLE_BRANCH=${{ env.GIT_BRANCH }}
-            CIRCLE_SHA1=${{ github.sha }}
-            CIRCLE_TAG=${{ env.GIT_TAG }}
+            GITHUB_REPOSITORY=${{ github.repository }}
+            GITHUB_RUN_ID=${{ github.run_id }}
+            GITHUB_SERVER_URL=${{ github.server_url }}
+            GIT_BRANCH=${{ env.GIT_BRANCH }}
+            GIT_SHA=${{ github.sha }}
+            GIT_TAG=${{ env.GIT_TAG }}
           dockerfile_path: "./Dockerfile"
       - name: Push Container Image
-        uses: mozilla-it/deploy-actions/docker-push@v5.1.0
+        uses: mozilla-it/deploy-actions/docker-push@v5.2.0
         if: ${{ github.event_name != 'pull_request' }}
         with:
           image_tags: ${{ steps.build.outputs.image_tags }}

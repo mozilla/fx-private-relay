@@ -287,13 +287,13 @@ const Faq: NextPage = () => {
                 <Localized
                   id="faq-question-1-answer-b-2-html"
                   vars={{
-                    url: "https://addons.mozilla.org/firefox/addon/private-relay/",
+                    url: "https://support.mozilla.org/questions/new/relay/form",
                     attrs: "",
                   }}
                   elems={{
                     a: (
                       <a
-                        href="https://addons.mozilla.org/firefox/addon/private-relay/"
+                        href="https://support.mozilla.org/questions/new/relay/form"
                         target="_blank"
                         rel="noopener noreferrer"
                       />

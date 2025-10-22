@@ -41,16 +41,6 @@ describe("The promotional page about Relay Premium", () => {
       setMockRuntimeDataOnce(getMockRuntimeDataWithMegabundle());
     });
 
-    it("shows the megabundle banner", () => {
-      render(<PremiumPromo />);
-      const heading = screen.getByText((content) =>
-        content.startsWith(
-          "l10n string: [megabundle-banner-header], with vars:",
-        ),
-      );
-      expect(heading).toBeInTheDocument();
-    });
-
     it("does not show the PlanMatrix grid", () => {
       render(<PremiumPromo />);
       const matrixColumn = screen.queryByRole("columnheader", {

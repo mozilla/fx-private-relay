@@ -139,16 +139,16 @@ def get_phone_subscription_dates(social_account):
         return None, None, None
 
     date_subscribed_phone = start_date = end_date = None
-    product_w_phone_capabilites = [settings.PHONE_PROD_ID, settings.BUNDLE_PROD_ID]
+    product_w_phone_capabilities = [settings.PHONE_PROD_ID, settings.BUNDLE_PROD_ID]
     for sub in subscription_data.get("subscriptions", []):
         # Even if a user upgrade subscription e.g. from monthly to yearly
         # or from phone to VPN bundle use the last subscription subscription dates
-        # Later, when the subscription details only show one valid subsription
+        # Later, when the subscription details only show one valid subscription
         # this information can be updated
         subscription_created_timestamp = None
         subscription_start_timestamp = None
         subscription_end_timestamp = None
-        if sub.get("product_id") in product_w_phone_capabilites:
+        if sub.get("product_id") in product_w_phone_capabilities:
             subscription_created_timestamp = sub.get("created")
             subscription_start_timestamp = sub.get("current_period_start")
             subscription_end_timestamp = sub.get("current_period_end")

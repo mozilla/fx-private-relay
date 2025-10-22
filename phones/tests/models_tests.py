@@ -784,7 +784,7 @@ def test_save_store_phone_log_true_doesnt_delete_data() -> None:
     assert inbound_contact
 
 
-def _setup_phone_user_for_last_engagment(phone_user):
+def _setup_phone_user_for_last_engagement(phone_user):
     add_verified_realphone_to_user(phone_user)
     relay_number = RelayNumber.objects.create(user=phone_user, number="+12223334444")
 
@@ -797,7 +797,7 @@ def test_relaynumber_save_updates_last_engagement(phone_user):
     """
     Test that updating specific RelayNumber fields triggers last_engagement update.
     """
-    relay_number, initial_last_engagement = _setup_phone_user_for_last_engagment(
+    relay_number, initial_last_engagement = _setup_phone_user_for_last_engagement(
         phone_user
     )
 
@@ -817,7 +817,7 @@ def test_relaynumber_save_no_update_when_other_fields_change(phone_user):
     """
     Test that updating fields NOT in the tracked list does NOT update last_engagement.
     """
-    relay_number, initial_last_engagement = _setup_phone_user_for_last_engagment(
+    relay_number, initial_last_engagement = _setup_phone_user_for_last_engagement(
         phone_user
     )
 
@@ -848,7 +848,7 @@ def test_multiple_relaynumber_updates_trigger_last_engagement_once(phone_user):
     """
     Test that multiple updates to a tracked field still updates last_engagement.
     """
-    relay_number, initial_last_engagement = _setup_phone_user_for_last_engagment(
+    relay_number, initial_last_engagement = _setup_phone_user_for_last_engagement(
         phone_user
     )
 
