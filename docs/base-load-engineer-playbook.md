@@ -15,13 +15,19 @@ our weekly Tuesday release schedule. The current Relay ENGR team consists of the
 engineers who rotate thru the role:
 
 1. [@groovecoder](https://github.com/groovecoder)
-2. [@vpremamozilla](https://github.com/vpremamozilla)
+1. [@joeherm](https://github.com/joeherm)
+1. [@vpremamozilla](https://github.com/vpremamozilla)
+1. [@jwhitlock](https://github.com/jwhitlock)
 
 ## Daily routine
 
 Your primary role is to perform the checks and make sure the necessary work gets done.
 You don't have to perform every task yourself. When you check any of the channels below,
 you may delegate the resulting task to the most appropriate party.
+
+The work is tracked in the [Relay Base Load Engineer Log][], along with current long-term
+issues that are being monitored or worked on. If that document and this one disagree, usually
+the log is up-to-date.
 
 If any items found during the checks below are [incident-level severity][], you are
 likely to take the role of engineering lead for the incident unless you delegate to
@@ -102,3 +108,4 @@ Contact other engineers to transfer Base Load Engineer responsibilities to anoth
 [bugzilla-passmgr-relay]: https://bugzilla.mozilla.org/buglist.cgi?component=Password%20Manager&list_id=17381002&short_desc_type=allwordssubstr&query_format=advanced&resolution=---&short_desc=Relay&product=Toolkit
 [bugzilla-passmgr]: https://bugzilla.mozilla.org/buglist.cgi?product=Toolkit&component=Password%20Manager&resolution=---&list_id=17380991
 [work-categories]: https://docs.google.com/document/d/1fgcParg78LZkhsZSwFWkPBWeibNF7TYAHLQ9a2VKHU0/edit?tab=t.0#heading=h.ymszsodqgebv
+[Relay Base Load Engineer Log]: https://docs.google.com/document/d/1eftTFds1Z2smDqPvcYSwFacQ26nynsMbvW1TUB--4FA/edit?usp=sharing
