@@ -105,6 +105,20 @@ export const getBundlePrice = (
   });
   return formatter.format(plan.price);
 };
+
+export const getBundleYearlyPrice = (
+  runtimeData: RuntimeDataWithBundleAvailable,
+  l10n: ReactLocalization,
+) => {
+  const plan = getPlan(runtimeData.BUNDLE_PLANS, "yearly");
+  const total = plan.price * 12;
+  const formatter = new Intl.NumberFormat(getLocale(l10n), {
+    style: "currency",
+    currency: plan.currency,
+  });
+  return formatter.format(total);
+};
+
 export const getBundleSubscribeLink = (
   runtimeData: RuntimeDataWithBundleAvailable,
 ) => {

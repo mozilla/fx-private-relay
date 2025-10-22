@@ -1,5 +1,6 @@
 import { useTab, useTabList, useTabPanel } from "react-aria";
 import { ReactNode, useRef } from "react";
+import Link from "next/link";
 import {
   Item,
   TabListProps,
@@ -16,6 +17,10 @@ import {
   getPhoneSubscribeLink,
   isPeriodicalPremiumAvailableInCountry,
   isPhonesAvailableInCountry,
+  isMegabundleAvailableInCountry,
+  getBundlePrice,
+  getBundleYearlyPrice,
+  getBundleSubscribeLink,
 } from "../../functions/getPlan";
 import { RuntimeData } from "../../hooks/api/types";
 import { CheckIcon2, PlusIcon2 } from "../Icons";
@@ -27,6 +32,7 @@ import { setCookie } from "../../functions/cookies";
 import { useL10n } from "../../hooks/l10n";
 import { LinkButton } from "../Button";
 import { useIsLoggedIn } from "../../hooks/session";
+import { getLocale } from "../../functions/getLocale";
 
 export type Props = {
   runtimeData: RuntimeData;
@@ -43,6 +49,11 @@ export const PlanGrid = (props: Props) => {
     label: "plan-grid-free-cta",
   });
 
+  const bundleButtonRef = useGaViewPing({
+    category: "Purchase Megabundle button",
+    label: "plan-grid-megabundle-cta",
+  });
+
   const gaEvent = useGaEvent();
 
   const countSignIn = (label: string) => {
@@ -55,6 +66,11 @@ export const PlanGrid = (props: Props) => {
   };
 
   const isLoggedIn = useIsLoggedIn();
+
+  const formatter = new Intl.NumberFormat(getLocale(l10n), {
+    style: "currency",
+    currency: "USD",
+  });
 
   return (
     <div
@@ -69,6 +85,88 @@ export const PlanGrid = (props: Props) => {
         <p>{l10n.getString("plan-grid-body")}</p>
       </div>
       <section id="pricing-grid" className={styles.pricingPlans}>
+        {isMegabundleAvailableInCountry(props.runtimeData) ? (
+          <dl
+            key={"megabundle"}
+            className={styles.pricingCard}
+            aria-label={l10n.getString("plan-grid-megabundle-title-2")}
+          >
+            <dt>
+              <b>{l10n.getString("plan-grid-megabundle-title-2")}</b>
+              <span className={styles.pricingCardLabel}>
+                {l10n.getFragment("plan-grid-megabundle-label", {
+                  vars: {
+                    discountPercentage: 40,
+                  },
+                })}
+              </span>
+              <p>{l10n.getString("plan-grid-megabundle-subtitle-2")}</p>
+            </dt>
+            <dd key={`megabundle-feature-plus`}>
+              <span className={styles.plusNote}>
+                <PlusIcon2
+                  alt={l10n.getString("plan-grid-megabundle-card-plus")}
+                />
+                <b>{l10n.getString("plan-grid-megabundle-card-plus")}</b>
+              </span>
+            </dd>
+            <dd key={"megabundle-feature-1"}>
+              <CheckIcon2 alt={""} />
+              <span>
+                {l10n.getFragment("plan-grid-card-phone-item-one", {
+                  elems: { b: <b /> },
+                })}
+              </span>
+            </dd>
+            <dd key={"megabundle-feature-2"}>
+              <CheckIcon2 alt={""} />
+              <span>
+                {l10n.getFragment("plan-grid-card-megabundle-item-two", {
+                  elems: { b: <b /> },
+                })}
+              </span>
+            </dd>
+            <dd key={"megabundle-feature-3"}>
+              <CheckIcon2 alt={""} />
+              <span>
+                {l10n.getFragment("plan-grid-card-megabundle-item-three", {
+                  elems: { b: <b /> },
+                })}
+              </span>
+            </dd>
+            <dd className={styles.pricingCardCta}>
+              <p id="pricingPlanBundle">
+                <span className={styles.pricingCardSavings}>
+                  {l10n.getString("plan-grid-megabundle-yearly", {
+                    yearly_price: getBundleYearlyPrice(props.runtimeData, l10n),
+                  })}
+                </span>
+                <strong>
+                  {l10n.getString("plan-grid-megabundle-monthly", {
+                    price: getBundlePrice(props.runtimeData, l10n),
+                  })}
+                </strong>
+              </p>
+              <LinkButton
+                href={getBundleSubscribeLink(props.runtimeData)}
+                className={styles["megabundle-pick-button"]}
+                ref={bundleButtonRef}
+                data-testid="plan-cta-bundle"
+                onClick={() =>
+                  trackPlanPurchaseStart(
+                    gaEvent,
+                    { plan: "bundle" },
+                    {
+                      label: "plan-grid-bundle-cta",
+                    },
+                  )
+                }
+              >
+                {l10n.getString("plan-grid-card-btn")}
+              </LinkButton>
+            </dd>
+          </dl>
+        ) : null}
         <dl
           key={"phone"}
           className={styles.pricingCard}
