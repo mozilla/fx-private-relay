@@ -63,6 +63,9 @@ jest.mock("react-confetti", () => {
   MockConfetti.displayName = "MockConfetti";
   return MockConfetti;
 });
+jest.mock("../../hooks/utmApplier.ts", () => ({
+  useUtmApplier: () => (url: string) => url,
+}));
 
 setMockAliasesData();
 setMockProfileData();

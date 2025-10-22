@@ -11,6 +11,7 @@ import {
 import { ProfileData } from "../../../hooks/api/profile";
 import { useGaEvent } from "../../../hooks/gaEvent";
 import { useGaViewPing } from "../../../hooks/gaViewPing";
+import { useUtmApplier } from "../../../hooks/utmApplier";
 
 type Props = {
   isLoading: boolean;
@@ -23,8 +24,11 @@ export const HolidayPromoBanner = (props: Props) => {
   const gaEvent = useGaEvent();
   const router = useRouter();
   const coupon = "HOLIDAY20";
+  const applyUtmParams = useUtmApplier();
   const subscribeLink = isPeriodicalPremiumAvailableInCountry(props.runtimeData)
-    ? getPeriodicalPremiumSubscribeLink(props.runtimeData, "yearly")
+    ? applyUtmParams(
+        getPeriodicalPremiumSubscribeLink(props.runtimeData, "yearly"),
+      )
     : null;
   const todaysDate = new Date();
   const expiryDate = new Date("December 31, 2023");
