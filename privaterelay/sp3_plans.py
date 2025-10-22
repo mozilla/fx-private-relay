@@ -201,7 +201,7 @@ def get_subscription_url(plan: PlanType, period: PeriodStr) -> str:
     if settings.IN_PYTEST:
         valid_keys.extend(TEST_PRODUCT_KEYS)
     if product_key not in valid_keys:
-        raise ValueError("'{product_key}' is not a ProductKey")
+        raise ValueError(f"'{product_key}' is not a ProductKey")
     return f"{settings.SUBPLAT3_HOST}/{product_key}/{period}/landing"
 
 
