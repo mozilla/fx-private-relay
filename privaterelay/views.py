@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import logging
 from collections.abc import Iterable
@@ -130,20 +132,25 @@ def metrics_event(request: HttpRequest) -> JsonResponse:
 @csrf_exempt
 def fxa_rp_events(request: HttpRequest) -> HttpResponse:
     """MPP-4460: Track more data for FxA relying party exceptions"""
+    if (auth := request.headers.get("Authorization")) is None or not auth.startswith(
+        "Bearer "
+    ):
+        return HttpResponse(
+            "401 Unauthorized", status=401, headers={"WWW-Authenticate": "Bearer"}
+        )
+    req_jwt = _parse_jwt_from_request(request)
+    authentic_jwt = _authenticate_fxa_jwt(req_jwt)
     with sentry_sdk.new_scope() as scope:
-        sentry_context = {"body": request.body}
+        sentry_context = {"body": request.body, "jwt": authentic_jwt}
         scope.set_context("fxa_rp_event", sentry_context)
-        return fxa_rp_events_inner(request, sentry_context)
+        return fxa_rp_events_process_event(authentic_jwt, sentry_context)
 
 
-def fxa_rp_events_inner(
-    request: HttpRequest, sentry_context: dict[str, Any]
+def fxa_rp_events_process_event(
+    authentic_jwt: FxAEvent, sentry_context: dict[str, Any]
 ) -> HttpResponse:
     """Augment previous version of fxa_rp_events with additional sentry data"""
 
-    req_jwt = _parse_jwt_from_request(request)
-    authentic_jwt = _authenticate_fxa_jwt(req_jwt)
-    sentry_context["jwt"] = authentic_jwt
     event_keys = _get_event_keys_from_jwt(authentic_jwt)
     try:
         social_account = _get_account_from_jwt(authentic_jwt)
