@@ -985,8 +985,8 @@ describe("The dashboard", () => {
 
     const randomAlias1 = screen.queryByText(/address1/);
     const randomAlias2 = screen.queryByText(/address2/);
-    expect(randomAlias1).toBeInDocument();
-    expect(randomAlias2).toBeInDocument();
+    expect(randomAlias1).toBeInTheDocument();
+    expect(randomAlias2).toBeInTheDocument();
 
     const customAlias = screen.queryByText(/address3/);
     expect(customAlias).toBeInTheDocument();
@@ -1034,8 +1034,8 @@ describe("The dashboard", () => {
 
     const randomAlias1 = screen.queryByText(/address1/);
     const randomAlias2 = screen.queryByText(/address2/);
-    expect(randomAlias1).toBeInDocument();
-    expect(randomAlias2).toBeInDocument();
+    expect(randomAlias1).toBeInTheDocument();
+    expect(randomAlias2).toBeInTheDocument();
 
     const customAlias = screen.queryByText(/address3/);
     expect(customAlias).toBeInTheDocument();

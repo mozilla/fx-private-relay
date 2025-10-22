@@ -30,8 +30,7 @@ jest.mock("../../../hooks/api/realPhone", () => {
   };
 });
 
-const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-const byMsgId = (id: string) => new RegExp(`\\[${escapeRe(id)}\\]`);
+import { byMsgId } from "../../../../__mocks__/hooks/l10n";
 
 describe("RealPhoneSetup", () => {
   const onRequestVerification = jest.fn(() =>

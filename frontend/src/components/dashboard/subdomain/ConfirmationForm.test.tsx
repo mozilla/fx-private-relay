@@ -40,8 +40,7 @@ jest.mock("../../Localized", () => ({
   },
 }));
 
-const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-const byMsgIdName = (id: string) => new RegExp(`\\[${escapeRe(id)}\\]`);
+import { byMsgIdName } from "../../../../__mocks__/hooks/l10n";
 
 describe("SubdomainConfirmationForm", () => {
   const mockOnConfirm = jest.fn();

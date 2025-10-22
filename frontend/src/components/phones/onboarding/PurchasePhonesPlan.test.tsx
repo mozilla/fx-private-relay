@@ -33,8 +33,7 @@ jest.mock("../../../functions/getPlan", () => {
   };
 });
 
-const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-const byMsgId = (id: string) => new RegExp(`\\[${escapeRe(id)}\\]`);
+import { byMsgId } from "../../../../__mocks__/hooks/l10n";
 
 describe("PurchasePhonesPlan", () => {
   const runtimeData = mockedRuntimeData as RuntimeDataWithPhonesAvailable;

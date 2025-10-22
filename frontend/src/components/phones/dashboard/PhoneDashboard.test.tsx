@@ -14,6 +14,11 @@ import * as l10nModule from "frontend/src/hooks/l10n";
 import { formatPhone } from "frontend/src/functions/formatPhone";
 import { useRelayNumber } from "frontend/src/hooks/api/relayNumber";
 import { useInboundContact } from "frontend/src/hooks/api/inboundContact";
+import type {
+  ClipboardShim,
+  NavigatorClipboard,
+  ClipboardWrite,
+} from "frontend/__mocks__/components/clipboard";
 
 jest.mock("next/config", () => () => ({
   publicRuntimeConfig: {
@@ -179,7 +184,10 @@ describe("PhoneDashboard", () => {
       nav,
       "clipboard",
     );
-    const writeTextMock = jest.fn<void, [string]>();
+
+    const writeTextMock: jest.MockedFunction<ClipboardWrite> = jest
+      .fn<ReturnType<ClipboardWrite>, Parameters<ClipboardWrite>>()
+      .mockResolvedValue(undefined);
 
     Object.defineProperty(navigator, "clipboard", {
       value: { writeText: writeTextMock } as ClipboardShim,

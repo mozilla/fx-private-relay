@@ -15,16 +15,19 @@ const getPlan = <P extends Partial<PlanData>>(
   return plan[billingPeriod];
 };
 
+const formatCurrency = (l10n: ReactLocalization, currency: string) =>
+  new Intl.NumberFormat(getLocale(l10n), {
+    style: "currency",
+    currency,
+  });
+
 export const getPeriodicalPremiumPrice = (
   runtimeData: RuntimeDataWithPeriodicalPremiumAvailable,
   billingPeriod: keyof PlanData,
   l10n: ReactLocalization,
 ) => {
   const plan = getPlan(runtimeData.PERIODICAL_PREMIUM_PLANS, billingPeriod);
-  const formatter = new Intl.NumberFormat(getLocale(l10n), {
-    style: "currency",
-    currency: plan.currency,
-  });
+  const formatter = formatCurrency(l10n, plan.currency);
   return formatter.format(plan.price);
 };
 
@@ -35,10 +38,7 @@ export const getPeriodicalPremiumYearlyPrice = (
 ) => {
   const plan = getPlan(runtimeData.PERIODICAL_PREMIUM_PLANS, billingPeriod);
   const total = plan.price * 12;
-  const formatter = new Intl.NumberFormat(getLocale(l10n), {
-    style: "currency",
-    currency: plan.currency,
-  });
+  const formatter = formatCurrency(l10n, plan.currency);
   return formatter.format(total);
 };
 
@@ -62,10 +62,7 @@ export const getPhonesPrice = (
   l10n: ReactLocalization,
 ) => {
   const plan = getPlan(runtimeData.PHONE_PLANS, billingPeriod);
-  const formatter = new Intl.NumberFormat(getLocale(l10n), {
-    style: "currency",
-    currency: plan.currency,
-  });
+  const formatter = formatCurrency(l10n, plan.currency);
   return formatter.format(plan.price);
 };
 
@@ -76,10 +73,7 @@ export const getPhonesYearlyPrice = (
 ) => {
   const plan = getPlan(runtimeData.PHONE_PLANS, billingPeriod);
   const total = plan.price * 12;
-  const formatter = new Intl.NumberFormat(getLocale(l10n), {
-    style: "currency",
-    currency: plan.currency,
-  });
+  const formatter = formatCurrency(l10n, plan.currency);
   return formatter.format(total);
 };
 
@@ -99,12 +93,20 @@ export const getBundlePrice = (
   l10n: ReactLocalization,
 ) => {
   const plan = getPlan(runtimeData.BUNDLE_PLANS, "yearly");
-  const formatter = new Intl.NumberFormat(getLocale(l10n), {
-    style: "currency",
-    currency: plan.currency,
-  });
+  const formatter = formatCurrency(l10n, plan.currency);
   return formatter.format(plan.price);
 };
+
+export const getBundleYearlyPrice = (
+  runtimeData: RuntimeDataWithBundleAvailable,
+  l10n: ReactLocalization,
+) => {
+  const plan = getPlan(runtimeData.BUNDLE_PLANS, "yearly");
+  const total = plan.price * 12;
+  const formatter = formatCurrency(l10n, plan.currency);
+  return formatter.format(total);
+};
+
 export const getBundleSubscribeLink = (
   runtimeData: RuntimeDataWithBundleAvailable,
 ) => {
@@ -120,10 +122,7 @@ export const getMegabundlePrice = (
   l10n: ReactLocalization,
 ) => {
   const plan = getPlan(runtimeData.MEGABUNDLE_PLANS, "yearly");
-  const formatter = new Intl.NumberFormat(getLocale(l10n), {
-    style: "currency",
-    currency: plan.currency,
-  });
+  const formatter = formatCurrency(l10n, plan.currency);
   return formatter.format(plan.price);
 };
 
@@ -133,10 +132,7 @@ export const getMegabundleYearlyPrice = (
 ) => {
   const plan = getPlan(runtimeData.MEGABUNDLE_PLANS, "yearly");
   const total = plan.price * 12;
-  const formatter = new Intl.NumberFormat(getLocale(l10n), {
-    style: "currency",
-    currency: plan.currency,
-  });
+  const formatter = formatCurrency(l10n, plan.currency);
   return formatter.format(total);
 };
 

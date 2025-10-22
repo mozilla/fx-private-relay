@@ -15,8 +15,7 @@ jest.mock("../../../src/components/waitlist/WaitlistPage", () => ({
   WaitlistPage: jest.fn(() => <div data-testid="mock-waitlist-page" />),
 }));
 
-const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-const byMsgId = (id: string) => new RegExp(`\\[${escapeRe(id)}\\]`);
+import { byMsgId } from "../../../__mocks__/hooks/l10n";
 
 describe("PremiumWaitlist page", () => {
   const mockGetString = jest.fn();
