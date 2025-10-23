@@ -1,13 +1,15 @@
 name: Push container image to MozCloud GAR
 on:
-  pull_request: {}
-  push:
-    branches: [ main ]
-    tags: ['*']
+  workflow_call:
+    inputs:
+      image_tag_metadata:
+        required: false
+        description: Optional metadata to append to image tag
+        type: string
 
 jobs:
   build-and-push:
-    name: Build and push
+    name: Build and push Docker image
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -51,6 +53,7 @@ jobs:
             GIT_SHA=${{ github.sha }}
             GIT_TAG=${{ env.GIT_TAG }}
           dockerfile_path: "./Dockerfile"
+          image_tag_metadata: ${{ inputs.image_tag_metadata }}
       - name: Push Container Image
         uses: mozilla-it/deploy-actions/docker-push@v5.2.0
         if: ${{ github.event_name != 'pull_request' }}
