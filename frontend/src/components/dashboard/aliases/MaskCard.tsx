@@ -119,6 +119,7 @@ export const MaskCard = (props: Props) => {
         ? "promotionals"
         : "none";
 
+  // TODO MPP-4464: Remove flag custom_domain_management_redesign, assume on
   return (
     <>
       <div className={classNames}>
