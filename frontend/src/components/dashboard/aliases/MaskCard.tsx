@@ -213,6 +213,7 @@ export const MaskCard = (props: Props) => {
               )}
 
               {/*
+                TODO MPP-4465: Retire tracker_removal flag as enabled
               If the back-end does not yet support providing tracker blocking stats,
               hide the blocked trackers count:
             */}

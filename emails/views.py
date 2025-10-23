@@ -794,6 +794,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         "Resent-From": from_address,
     }
     sample_trackers = bool(sample_is_active("tracker_sample"))
+    # TODO MPP-4465: Retire tracker_removal flag as enabled
     tracker_removal_flag = flag_is_active_in_task("tracker_removal", address.user)
     remove_level_one_trackers = bool(
         tracker_removal_flag and user_profile.remove_level_one_email_trackers

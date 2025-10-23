@@ -490,6 +490,7 @@ export const WhatsNewMenu = (props: Props) => {
       day: 16,
     },
   };
+  // TODO: MPP-4465: Retire tracker_removal flag as enabled
   // Only show its announcement if tracker removal is live:
   if (isFlagActive(props.runtimeData, "tracker_removal")) {
     entries.push(trackerRemoval);

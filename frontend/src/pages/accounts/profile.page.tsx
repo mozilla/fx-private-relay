@@ -448,6 +448,7 @@ const Profile: NextPage = () => {
             </dd>
           </div>
           {/*
+            TODO: MPP-4465: Retire tracker_removal flag as enabled
             Only show tracker blocking stats if the back-end provides them:
           */}
           {isFlagActive(runtimeData.data, "tracker_removal") &&
