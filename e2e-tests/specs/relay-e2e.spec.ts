@@ -35,7 +35,8 @@ test.describe("FxA auth, random mask generation, and email forwarding @health_ch
   });
 });
 
-test.describe("Email forwarding and trackers removal", () => {
+// TODO MPP-4466: Find a new website / method that sends emails with trackers.
+test.skip("Email forwarding and trackers removal", () => {
   test.skip(
     ({ browserName }) => browserName !== "firefox",
     "firefox only test",
