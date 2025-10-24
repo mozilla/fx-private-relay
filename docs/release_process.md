@@ -63,19 +63,36 @@ will be a new version of the Relay web app on the [Production][prod]
 environment. To do this, we first release code to [Dev][dev] and
 [Stage][stage].
 
+## Release strategy
+
+Our [release workflow][release-workflow] builds and tags Docker container images
+such that newly built images are picked up by our auto-synced ArgoCD dev/stage/prod applications.
+Each environment filters for certain tags that it is allowed to deploy.
+
+The tag structure is as follows:
+
+| Environment | Allowed Tags                           |
+| ----------- | -------------------------------------- |
+| dev         | `10digitSHA--dev` or `YYYY.MM.DD--dev` |
+| stage       | `YYYY.MM.DD--stage`                    |
+| prod        | `YYYY.MM.DD--prod`                     |
+
+Note: `dev` will auto-deploy code that is pushed to `main`.
+
 ## Release to Dev
 
 Every commit to `main` is automatically deployed to the [Dev][dev] server.
 
-**TODO** [MPP-4443][]: Add instructions for pushing an alternate branch in MozCloud.
+To deploy an alternate branch or tag to the `dev` environment, use the [release workflow][release-workflow]
+in Github and select the branch or tag that you wish to deploy, along with the `dev` environment.
 
-[MPP-4443]: https://mozilla-hub.atlassian.net/browse/MPP-4443
+Note that if your branch or tag has migrations, they will be run automatically. This might cause conflicts
+that need to be manually fixed in `dev` later on.
 
 ## Release to Stage
 
-Every tag pushed to GitHub is automatically deployed to the [Stage][stage]
-server. The standard practice is to create a tag from `main` every Tuesday at
-the end of the day, and to name the tag with `YYYY-MM-DD` [CalVer][calver]
+The standard practice is for the Base Load Engineer to create a tag from `main` every Tuesday at
+the end of the day, and to name the tag with `YYYY.MM.DD` [CalVer][calver]
 syntax. This tag will include only the changes that have been merged to `main`.
 E.g.,
 
@@ -106,6 +123,9 @@ E.g., the following `2022.08.02` tag includes only `change-1` and `change-2`.
        commit
        checkout main
 ```
+
+Once you've created the tag, you should use the [release workflow][release-workflow]
+to select the tag and deploy to the [Stage][stage] environment by selecting `stage`.
 
 ### Create Release Notes on GitHub
 
@@ -150,27 +170,16 @@ After you push the tag to GitHub, you should also
 We leave the tag on [Stage][stage] for a week so that we (and especially QA)
 can check the tag on GCP infrastructure before we deploy it to production.
 
-On Monday, after the Release Readiness Review:
+On Tuesday, after the Release Readiness review with QA:
 
-1. File an [SRE ticket][sre-form] to deploy the tag to [Prod][prod].
-   - Include a link to the GitHub Release
-2. On the GitHub release, update the summary with a reference to the ticket:
-
-   ```text
-   Planned for release to relay.firefox.com on August 9th, 2022 with SVCSE-1385.
-   ```
-
-On Tuesday:
-
-1. When SRE starts the deploy, "cloudops-jenkins" will send status messages
-   into the #fx-private-relay-eng channel.
-2. When you see `PROMOTE PROD COMPLETE`, do some checks on prod:
+1. Use the [release workflow][release-workflow] to select the tag and deploy
+   to the [Prod][prod] environment by selecting `prod`.
+2. When you see `Application relay... is now running new version of deployments manifests.` in `#fx-private-relay-eng` on Slack, do some checks on prod:
    - Spot-check the site for basic functionality
    - Check [sentry prod project](https://mozilla.sentry.io/releases/?environment=prod) for a spike in any new issues
-   - Check [grafana dashboard](https://earthangel-b40313e5.influxcloud.net/d/qiwPC76Zk/fx-private-relay?orgId=1&refresh=1m&from=now-1h&to=now) for any unexpected spike in ops
-   - (optional) [Run end-to-end tests](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml) on prod (Note: as of 2023-07-12 these are known-broken. 😢)
+   - Check [grafana dashboard](https://yardstick.mozilla.org/) for any unexpected spike in ops
+   - (optional) [Run end-to-end tests](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml) on prod
 3. Update the GitHub release:
-
    - Update the summary:
 
      ```text
@@ -346,7 +355,7 @@ branches](release-process-future-long-branches.png "Future release process with
 long-running branches")
 
 [prod]: https://relay.firefox.com/
-[stage]: https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net/
+[stage]: relay.allizom.org
 [dev]: https://relay-dev.allizom.org/
 [readme]: https://github.com/mozilla/fx-private-relay/blob/main/README.md
 [docs]: https://github.com/mozilla/fx-private-relay/tree/main/docs
@@ -356,3 +365,4 @@ long-running branches")
 [github-new-release]: https://github.com/mozilla/fx-private-relay/releases/new
 [prod-version]: https://relay.firefox.com/__version__
 [feature-flags]: ./feature_flags.md
+[release-workflow]: https://github.com/mozilla/fx-private-relay/actions/workflows/deploy-mozcloud.yml

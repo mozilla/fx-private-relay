@@ -1,0 +1,26 @@
+name: Deploy to MozCloud environment
+on:
+  push:
+    branches: [ main ]
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        default: dev
+        type: string
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment to deploy
+        required: true
+        default: stage
+        type: choice
+        options:
+          - dev
+          - stage
+          - prod
+jobs:
+  build-and-deploy-dev:
+    uses: ./.github/workflows/build-and-push-to-gar.yml
+    with:
+      image_tag_metadata: ${{ inputs.environment }}
