@@ -30,6 +30,7 @@ import { useL10n } from "../../../hooks/l10n";
 import { Localized } from "../../Localized";
 
 // Deprecated, flag "mask_redesign" is in use and uses <MaskCard/> instead of <Alias/>
+// TODO MPP-4463: Remove code and tests
 
 export type Props = {
   alias: AliasData;

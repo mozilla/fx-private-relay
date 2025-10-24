@@ -119,6 +119,7 @@ export const MaskCard = (props: Props) => {
         ? "promotionals"
         : "none";
 
+  // TODO MPP-4464: Remove flag custom_domain_management_redesign, assume on
   return (
     <>
       <div className={classNames}>
@@ -212,6 +213,7 @@ export const MaskCard = (props: Props) => {
               )}
 
               {/*
+                TODO MPP-4465: Retire tracker_removal flag as enabled
               If the back-end does not yet support providing tracker blocking stats,
               hide the blocked trackers count:
             */}

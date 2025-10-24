@@ -138,6 +138,7 @@ export const AliasList = (props: Props) => {
       }
     };
 
+    // TODO MPP-4463: Retire mask_redesign as always on
     return (
       <li
         className={styles["alias-card-wrapper"]}

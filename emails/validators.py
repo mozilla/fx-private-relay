@@ -79,6 +79,7 @@ def valid_address(address: str, domain: str, subdomain: str | None = None) -> bo
     address_pattern_valid = valid_address_pattern(address)
     address_contains_badword = has_bad_words(address)
     address_already_deleted = 0
+    # TODO MPP-4464: Remove custom_domain_management_redesign flag, assume on
     if not subdomain or flag_is_active_in_task(
         "custom_domain_management_redesign", None
     ):
