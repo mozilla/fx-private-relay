@@ -1,6 +1,6 @@
 import { render, screen, act } from "@testing-library/react";
 import { SubdomainPicker } from "./SubdomainPicker";
-import { mockedProfiles } from "../../apiMocks/mockData";
+import { mockedProfiles } from "../../../__mocks__/api/mockData";
 import { useL10n } from "../../hooks/l10n";
 import { getRuntimeConfig } from "../../config";
 import { SubdomainSearchForm } from "./subdomain/SearchForm";

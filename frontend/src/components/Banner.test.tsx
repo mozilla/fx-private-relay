@@ -1,5 +1,6 @@
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import Image from "../components/Image";
 import FirefoxLogo from "./dashboard/images/fx-logo.svg";
 
@@ -46,7 +47,9 @@ describe("<Banner>", () => {
     expect(screen.getByAltText("Firefox Logo")).toBeInTheDocument();
   });
 
-  it("dismisses the banner when the dismiss button is clicked", () => {
+  it("dismisses the banner when the dismiss button is clicked", async () => {
+    const user = userEvent.setup();
+
     render(
       <Banner type="promo" title="Promo Banner" dismissal={{ key: "promo" }}>
         Banner content
@@ -60,7 +63,7 @@ describe("<Banner>", () => {
       name: "l10n string: [banner-dismiss], with vars: {}",
     });
 
-    fireEvent.click(dismissButton);
+    await user.click(dismissButton);
 
     expect(screen.queryByText("Promo Banner")).not.toBeInTheDocument();
     expect(screen.queryByText("Banner content")).not.toBeInTheDocument();

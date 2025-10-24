@@ -1,10 +1,11 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import React from "react";
+import { screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { PhoneWelcomeView } from "./PhoneWelcomeView";
-import { mockedProfiles } from "frontend/src/apiMocks/mockData";
+import { mockedProfiles } from "frontend/__mocks__/api/mockData";
 import * as l10nModule from "frontend/src/hooks/l10n";
 import { toast } from "react-toastify";
-import { LocalizationProvider, ReactLocalization } from "@fluent/react";
-import { FluentBundle } from "@fluent/bundle";
+import { renderWithProviders } from "frontend/__mocks__/modules/renderWithProviders";
 
 jest.mock("frontend/src/hooks/l10n", () => ({
   useL10n: jest.fn(),
@@ -25,12 +26,6 @@ const mockResponse = {
 
 const requestContactCardMock = jest.fn(() => Promise.resolve(mockResponse));
 
-function createLocalizationBundle(): ReactLocalization {
-  const bundle = new FluentBundle("en-US");
-  bundle.hasMessage("placeholder-id");
-  return new ReactLocalization([bundle]);
-}
-
 describe("PhoneWelcomeView", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -44,39 +39,33 @@ describe("PhoneWelcomeView", () => {
   const renderView = (
     overrides: Partial<Parameters<typeof PhoneWelcomeView>[0]> = {},
   ) => {
-    const l10n = createLocalizationBundle();
-
-    render(
-      <LocalizationProvider l10n={l10n}>
-        <PhoneWelcomeView
-          dismissal={{
-            welcomeScreen: {
-              isDismissed: false,
-              dismiss: dismissMock,
-            },
-            resendSMS: {
-              isDismissed: false,
-              dismiss: resendDismissMock,
-            },
-          }}
-          onRequestContactCard={requestContactCardMock}
-          profile={mockedProfiles.full}
-          {...overrides}
-        />
-      </LocalizationProvider>,
+    renderWithProviders(
+      <PhoneWelcomeView
+        dismissal={{
+          welcomeScreen: {
+            isDismissed: false,
+            dismiss: dismissMock,
+          },
+          resendSMS: {
+            isDismissed: false,
+            dismiss: resendDismissMock,
+          },
+        }}
+        onRequestContactCard={requestContactCardMock}
+        profile={mockedProfiles.full}
+        {...overrides}
+      />,
     );
   };
 
   it("renders welcome content: header, subheading, instructions, and continue button", () => {
     renderView();
 
-    // Header + subheading
     expect(screen.getByText("phone-masking-splash-header")).toBeInTheDocument();
     expect(
       screen.getByText("phone-masking-splash-subheading"),
     ).toBeInTheDocument();
 
-    // Three instruction sections
     expect(
       screen.getByText("phone-masking-splash-save-contact-title"),
     ).toBeInTheDocument();
@@ -91,15 +80,17 @@ describe("PhoneWelcomeView", () => {
     ).toBeInTheDocument();
   });
 
-  it("dismisses welcome screen on continue button click", () => {
+  it("dismisses welcome screen on continue button click", async () => {
+    const user = userEvent.setup();
     renderView();
-    fireEvent.click(screen.getByText("phone-masking-splash-continue-btn"));
+    await user.click(screen.getByText("phone-masking-splash-continue-btn"));
     expect(dismissMock).toHaveBeenCalled();
   });
 
   it("shows resend SMS button and calls contact card + toast", async () => {
+    const user = userEvent.setup();
     renderView();
-    fireEvent.click(screen.getByText("phone-masking-splash-save-contact-cta"));
+    await user.click(screen.getByText("phone-masking-splash-save-contact-cta"));
 
     await waitFor(() => {
       expect(requestContactCardMock).toHaveBeenCalled();
