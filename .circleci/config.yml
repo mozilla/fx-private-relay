@@ -530,10 +530,12 @@ jobs:
           name: Set test defaults
           command: cp .env-dist .env
       - run:
-          name: Create empty staticfiles directories
+          name: Create test staticfiles directories
           command: |
-            mkdir -p staticfiles
-            mkdir -p frontend/out
+            mkdir -p staticfiles/accounts/profile
+            mkdir -p frontend/out/accounts/profile
+            touch frontend/out/accounts/profile/index.html
+            touch staticfiles/accounts/profile/index.html
       # Section 2: Setup optional steps
       # Setup postgres, if selected
       # This is done later in the process to give the postgres image more time to boot up.
