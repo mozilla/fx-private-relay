@@ -39,18 +39,30 @@ def test_account_adapter_is_safe_url_empty_does_not_log(
     assert len(caplog.records) == 0
 
 
+def test_account_adapter_is_safe_url_frontend_path(
+    adapter: AccountAdapter, caplog: pytest.LogCaptureFixture
+) -> None:
+    assert adapter.is_safe_url("/accounts/profile/")
+
+
+def test_account_adapter_is_safe_url_frontend_path_with_search(
+    adapter: AccountAdapter, caplog: pytest.LogCaptureFixture
+) -> None:
+    assert adapter.is_safe_url("/accounts/profile/?utm_profile=foo")
+
+
 @pytest.mark.parametrize("found", (True, False))
 def test_account_adapter_is_safe_url_try_frontend_path(
     adapter: AccountAdapter, caplog: pytest.LogCaptureFixture, found: bool
 ) -> None:
     mock_instance = Mock()
-    mock_instance.find_file = Mock(return_value=found)
+    mock_instance.is_staticfile = Mock(return_value=found)
     path = "/frontend/path/"
     with patch(
         "privaterelay.allauth.RelayStaticFilesMiddleware", return_value=mock_instance
     ):
         assert adapter.is_safe_url(path) == found
-    mock_instance.find_file.assert_called_once_with(path)
+    mock_instance.is_staticfile.assert_called_once_with(path)
     if found:
         assert len(caplog.records) == 0
     else:
