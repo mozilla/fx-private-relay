@@ -47,8 +47,7 @@ class AccountAdapter(DefaultAccountAdapter):
             # Staticfiles are not available
             pass
         else:
-            found = middleware.find_file(path)
-            if found:
+            if middleware.is_staticfile(path):
                 return True
 
         # The path is invalid
