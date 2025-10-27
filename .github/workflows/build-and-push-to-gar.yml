@@ -3,8 +3,9 @@ on:
   workflow_call:
     inputs:
       image_tag_metadata:
-        required: false
-        description: Optional metadata to append to image tag
+        required: true
+        description: Metadata to append to image tag to set the environment
+        default: dev
         type: string
 
 jobs:
