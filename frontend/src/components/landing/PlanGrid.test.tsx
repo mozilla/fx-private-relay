@@ -18,15 +18,12 @@ jest.mock("../../functions/cookies", () => ({ setCookie: jest.fn() }));
 jest.mock("../../config", () => ({
   getRuntimeConfig: () => ({ fxaLoginUrl: "/login" }),
 }));
+
 jest.mock("../../functions/getPlan", () => ({
-  getMegabundlePrice: jest.fn(() => "$10"),
-  getMegabundleYearlyPrice: jest.fn(() => "$100"),
-  getIndividualBundlePrice: jest.fn(() => 15),
-  getBundleDiscountPercentage: jest.fn(() => 33),
+  getBundlePrice: jest.fn(() => "$10"),
+  getBundleYearlyPrice: jest.fn(() => "$100"),
+  getBundleSubscribeLink: jest.fn(() => "https://subscribe.megabundle.mock"),
   isMegabundleAvailableInCountry: jest.fn(() => true),
-  getMegabundleSubscribeLink: jest.fn(
-    () => "https://subscribe.megabundle.mock",
-  ),
 
   getPhonesPrice: jest.fn(() => "$5"),
   getPhonesYearlyPrice: jest.fn(() => "$50"),
@@ -41,12 +38,12 @@ jest.mock("../../functions/getPlan", () => ({
 
 const l10nMock = {
   bundles: [{ locales: ["en"] }],
-  getString: jest.fn((key, vars) =>
+  getString: jest.fn((key: string, vars?: Record<string, unknown>) =>
     vars
       ? `l10n string: [${key}], with vars: ${JSON.stringify(vars)}`
       : `l10n string: [${key}], with vars: {}`,
   ),
-  getFragment: jest.fn((key, _) => `l10n fragment: [${key}]`),
+  getFragment: jest.fn((key: string) => `l10n fragment: [${key}]`),
 };
 
 import { mockedRuntimeData } from "../../apiMocks/mockData";
@@ -78,7 +75,7 @@ describe("PlanGrid", () => {
       render(<PlanGrid runtimeData={mockRuntimeData} />);
 
       expect(
-        screen.queryByText(/plan-grid-megabundle-title/),
+        screen.queryByText(/plan-grid-megabundle-title-2/),
       ).not.toBeInTheDocument();
     });
   });

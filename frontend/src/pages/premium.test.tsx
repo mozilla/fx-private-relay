@@ -8,7 +8,7 @@ import {
   getMockRuntimeDataWithBundle,
   getMockRuntimeDataWithoutPremium,
   getMockRuntimeDataWithPhones,
-  setMockRuntimeDataOnce,
+  setMockRuntimeData,
 } from "../../__mocks__/hooks/api/runtimeData";
 import { mockUseFxaFlowTrackerModule } from "../../__mocks__/hooks/fxaFlowTracker";
 import { mockUseL10nModule } from "../../__mocks__/hooks/l10n";
@@ -24,13 +24,18 @@ jest.mock("../hooks/fxaFlowTracker.ts", () => mockUseFxaFlowTrackerModule);
 jest.mock("../hooks/l10n.ts", () => mockUseL10nModule);
 jest.mock("../components/Localized.tsx", () => mockLocalizedModule);
 
+jest.mock("../functions/getPlan", () =>
+  jest.requireActual("../../__mocks__/functions/getPlan"),
+);
+
 import PremiumPromo from "./premium.page";
 
+setMockRuntimeData();
 setMockProfileData(null);
 
 describe("The promotional page about Relay Premium", () => {
   it("passes axe accessibility testing", async () => {
-    setMockRuntimeDataOnce(getMockRuntimeDataWithBundle());
+    setMockRuntimeData(getMockRuntimeDataWithBundle());
     const { baseElement } = render(<PremiumPromo />);
     const results = await act(() => axe(baseElement));
     expect(results).toHaveNoViolations();
@@ -38,7 +43,7 @@ describe("The promotional page about Relay Premium", () => {
 
   describe("when Megabundle IS available", () => {
     beforeEach(() => {
-      setMockRuntimeDataOnce(getMockRuntimeDataWithMegabundle());
+      setMockRuntimeData(getMockRuntimeDataWithMegabundle());
     });
 
     it("does not show the PlanMatrix grid", () => {
@@ -57,7 +62,7 @@ describe("The promotional page about Relay Premium", () => {
 
   describe("when Megabundle is NOT available", () => {
     beforeEach(() => {
-      setMockRuntimeDataOnce({
+      setMockRuntimeData({
         ...getMockRuntimeDataWithPhones(),
         MEGABUNDLE_PLANS: {
           country_code: "US",
@@ -86,7 +91,7 @@ describe("The promotional page about Relay Premium", () => {
   });
 
   it("shows a waitlist link when premium is not available", () => {
-    setMockRuntimeDataOnce(getMockRuntimeDataWithoutPremium());
+    setMockRuntimeData(getMockRuntimeDataWithoutPremium());
     render(<PremiumPromo />);
     const waitlistLink = screen.getByRole("link", {
       name: "l10n string: [waitlist-submit-label-2], with vars: {}",

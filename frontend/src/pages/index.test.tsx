@@ -6,7 +6,6 @@ import { setMockProfileData } from "../../__mocks__/hooks/api/profile";
 import {
   getMockRuntimeDataWithPhones,
   setMockRuntimeData,
-  setMockRuntimeDataOnce,
   getMockRuntimeDataWithMegabundle,
 } from "../../__mocks__/hooks/api/runtimeData";
 import { mockUseFxaFlowTrackerModule } from "../../__mocks__/hooks/fxaFlowTracker";
@@ -24,6 +23,10 @@ jest.mock("../hooks/fxaFlowTracker.ts", () => mockUseFxaFlowTrackerModule);
 jest.mock("../hooks/l10n.ts", () => mockUseL10nModule);
 jest.mock("../components/Localized.tsx", () => mockLocalizedModule);
 
+jest.mock("../functions/getPlan", () =>
+  jest.requireActual("../../__mocks__/functions/getPlan"),
+);
+
 setMockRuntimeData();
 setMockProfileData(null);
 
@@ -31,19 +34,17 @@ describe("The landing page", () => {
   describe("under axe accessibility testing", () => {
     it("passes axe accessibility testing", async () => {
       const { baseElement } = render(<Home />);
-
       let results;
       await act(async () => {
         results = await axe(baseElement);
       });
-
-      expect(results).toHaveNoViolations();
+      expect(results!).toHaveNoViolations();
     }, 10000);
   });
 
   describe("when Megabundle is NOT available", () => {
     beforeEach(() => {
-      setMockRuntimeDataOnce({
+      setMockRuntimeData({
         ...getMockRuntimeDataWithPhones(),
         MEGABUNDLE_PLANS: {
           country_code: "US",
@@ -73,7 +74,7 @@ describe("The landing page", () => {
 
   describe("when Megabundle IS available", () => {
     beforeEach(() => {
-      setMockRuntimeDataOnce(getMockRuntimeDataWithMegabundle());
+      setMockRuntimeData(getMockRuntimeDataWithMegabundle());
     });
 
     it("does not show the PlanMatrix grid", () => {
