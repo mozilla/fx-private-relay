@@ -1,7 +1,9 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import React from "react";
+import { screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { RelayNumberConfirmationModal } from "../onboarding/RelayNumberConfirmationModal";
 import { useL10n } from "../../../hooks/l10n";
-import { OverlayProvider } from "react-aria";
+import { renderWithProviders } from "frontend/__mocks__/modules/renderWithProviders";
 
 jest.mock("../../../hooks/l10n", () => ({
   useL10n: jest.fn(),
@@ -28,9 +30,6 @@ describe("RelayNumberConfirmationModal", () => {
     });
   });
 
-  const renderWithProvider = (ui: React.ReactElement) =>
-    render(<OverlayProvider>{ui}</OverlayProvider>);
-
   const defaultProps = {
     onClose: mockOnClose,
     confirm: mockConfirm,
@@ -39,7 +38,7 @@ describe("RelayNumberConfirmationModal", () => {
   };
 
   it("renders modal when isOpen is true", () => {
-    renderWithProvider(<RelayNumberConfirmationModal {...defaultProps} />);
+    renderWithProviders(<RelayNumberConfirmationModal {...defaultProps} />);
     expect(
       screen.getByText(
         "translated(phone-onboarding-step4-body-confirm-relay-number)",
@@ -50,24 +49,26 @@ describe("RelayNumberConfirmationModal", () => {
     ).toBeInTheDocument();
   });
 
-  it("calls onClose when close icon is clicked", () => {
-    renderWithProvider(<RelayNumberConfirmationModal {...defaultProps} />);
+  it("calls onClose when close icon is clicked", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<RelayNumberConfirmationModal {...defaultProps} />);
     const closeButton = screen.getByRole("button", { name: /Close/ });
-    fireEvent.click(closeButton);
+    await user.click(closeButton);
     expect(mockOnClose).toHaveBeenCalled();
   });
 
-  it("calls confirm when confirm button is clicked", () => {
-    renderWithProvider(<RelayNumberConfirmationModal {...defaultProps} />);
+  it("calls confirm when confirm button is clicked", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<RelayNumberConfirmationModal {...defaultProps} />);
     const confirmButton = screen.getByRole("button", {
       name: "translated(phone-onboarding-step4-button-confirm-relay-number)",
     });
-    fireEvent.click(confirmButton);
+    await user.click(confirmButton);
     expect(mockConfirm).toHaveBeenCalled();
   });
 
   it("disables confirm button if relayNumber is empty", () => {
-    renderWithProvider(
+    renderWithProviders(
       <RelayNumberConfirmationModal {...defaultProps} relayNumber="" />,
     );
     const confirmButton = screen.getByRole("button", {

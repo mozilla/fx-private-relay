@@ -20,7 +20,7 @@ const MockLogin: NextPage = () => {
   useEffect(() => {
     if (process.env.NEXT_PUBLIC_MOCK_API === "true") {
       (async () => {
-        const { mockIds } = await import("../../apiMocks/mockData");
+        const { mockIds } = await import("../../../__mocks__/api/mockData");
         const mockIdsAsTokens: UsedToken[] = mockIds.map((id) => ({
           lastUsed: 0,
           token: id,

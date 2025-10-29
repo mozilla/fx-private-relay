@@ -1,12 +1,14 @@
 import { getAddressValidationMessage } from "./AddressPickerModal";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { AddressPickerModal } from "./AddressPickerModal";
 
-jest.mock("../../../hooks/l10n", () => ({
-  useL10n: () => ({
-    getString: (id: string) => `String for ${id}`,
-  }),
-}));
+jest.mock("../../../hooks/l10n", () => {
+  const { mockUseL10nModule } = jest.requireActual(
+    "../../../../__mocks__/hooks/l10n",
+  );
+  return mockUseL10nModule;
+});
 
 describe("getAddressValidationMessage", () => {
   it("returns `null` for valid addresses", () => {
@@ -31,7 +33,7 @@ describe("getAddressValidationMessage", () => {
     );
   });
 
-  it("returns a message specific to spaces when the address includes a space, even if there are other validation errors", () => {
+  it("returns a message specific to spaces even if other errors exist", () => {
     const mockL10n = {
       getString: jest.fn((id: string) => `String ID: ${id}`),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -129,21 +131,21 @@ describe("AddressPickerModal", () => {
   it("renders modal when open", () => {
     setup();
     expect(
-      screen.getByText("String for modal-custom-alias-picker-heading-2"),
+      screen.getByText(/modal-custom-alias-picker-heading-2/),
     ).toBeInTheDocument();
   });
 
   it("still renders modal even when isOpen is false", () => {
     setup(false);
-    const heading = screen.queryByText(
-      "String for modal-custom-alias-picker-heading-2",
-    );
-    expect(heading).toBeInTheDocument();
+    expect(
+      screen.getByText(/modal-custom-alias-picker-heading-2/),
+    ).toBeInTheDocument();
   });
 
-  it("calls onClose when cancel button is clicked", () => {
+  it("calls onClose when cancel button is clicked", async () => {
+    const utils = userEvent.setup();
     setup();
-    fireEvent.click(screen.getByText("String for profile-label-cancel"));
+    await utils.click(screen.getByText(/profile-label-cancel/));
     expect(onClose).toHaveBeenCalled();
   });
 
@@ -151,34 +153,37 @@ describe("AddressPickerModal", () => {
     setup();
     expect(
       screen.getByRole("button", {
-        name: "String for modal-custom-alias-picker-form-submit-label-2",
+        name: /modal-custom-alias-picker-form-submit-label-2/,
       }),
     ).toBeDisabled();
   });
 
-  it("allows user to fill address and submit successfully", () => {
+  it("allows user to fill address and submit successfully", async () => {
+    const utils = userEvent.setup();
     setup();
+
     const input = screen.getByPlaceholderText(
-      "String for modal-custom-alias-picker-form-prefix-placeholder-2",
+      /modal-custom-alias-picker-form-prefix-placeholder-2/,
     );
-    fireEvent.change(input, { target: { value: "valid-alias" } });
+    await utils.type(input, "valid-alias");
 
     const checkbox = screen.getByLabelText(
-      "String for popover-custom-alias-explainer-promotional-block-checkbox",
+      /popover-custom-alias-explainer-promotional-block-checkbox/,
     );
-    fireEvent.click(checkbox);
+    await utils.click(checkbox);
 
     const submit = screen.getByRole("button", {
-      name: "String for modal-custom-alias-picker-form-submit-label-2",
+      name: /modal-custom-alias-picker-form-submit-label-2/,
     });
-    fireEvent.click(submit);
+    await utils.click(submit);
 
     expect(onPick).toHaveBeenCalledWith("valid-alias", {
       blockPromotionals: true,
     });
   });
 
-  it("does not submit and sets a validation message for an invalid address", () => {
+  it("does not submit and sets a validation message for an invalid address", async () => {
+    const utils = userEvent.setup();
     const setCustomValiditySpy = jest.spyOn(
       HTMLInputElement.prototype,
       "setCustomValidity",
@@ -191,20 +196,22 @@ describe("AddressPickerModal", () => {
     setup();
 
     const input = screen.getByPlaceholderText(
-      "String for modal-custom-alias-picker-form-prefix-placeholder-2",
+      /modal-custom-alias-picker-form-prefix-placeholder-2/,
     ) as HTMLInputElement;
 
-    fireEvent.change(input, { target: { value: "invalid alias" } });
-    fireEvent.blur(input);
+    await utils.type(input, "invalid alias");
+    await utils.tab();
 
     const submit = screen.getByRole("button", {
-      name: "String for modal-custom-alias-picker-form-submit-label-2",
+      name: /modal-custom-alias-picker-form-submit-label-2/,
     });
-    fireEvent.click(submit);
+    await utils.click(submit);
 
     expect(onPick).not.toHaveBeenCalled();
     expect(setCustomValiditySpy).toHaveBeenCalledWith(
-      "String for modal-custom-alias-picker-form-prefix-spaces-warning",
+      expect.stringMatching(
+        /modal-custom-alias-picker-form-prefix-spaces-warning/,
+      ),
     );
     expect(reportValiditySpy).toHaveBeenCalled();
 

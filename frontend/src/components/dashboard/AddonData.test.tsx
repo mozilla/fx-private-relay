@@ -5,7 +5,7 @@ import {
   mockedRuntimeData,
   mockedRelayaddresses,
   mockedDomainaddresses,
-} from "frontend/src/apiMocks/mockData";
+} from "frontend/__mocks__/api/mockData";
 
 const mockProps = {
   profile: mockedProfiles.demo,

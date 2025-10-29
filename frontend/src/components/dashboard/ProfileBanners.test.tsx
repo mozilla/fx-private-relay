@@ -4,7 +4,7 @@ import {
   mockedProfiles,
   mockedUsers,
   mockedRuntimeData,
-} from "../../apiMocks/mockData";
+} from "../../../__mocks__/api/mockData";
 import { useMinViewportWidth } from "../../hooks/mediaQuery";
 import {
   isUsingFirefox,

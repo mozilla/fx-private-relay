@@ -20,10 +20,12 @@ jest.mock("../../Button", () => ({
   }) => <button {...rest}>{children}</button>,
 }));
 
-const mockGetString = jest.fn((id: string) => id);
-jest.mock("../../../hooks/l10n", () => ({
-  useL10n: () => ({ getString: mockGetString }),
-}));
+jest.mock("../../../hooks/l10n", () => {
+  const { mockUseL10nModule } = jest.requireActual(
+    "../../../../__mocks__/hooks/l10n",
+  );
+  return mockUseL10nModule;
+});
 
 interface LocalizedProps {
   id: string;
@@ -33,10 +35,12 @@ interface LocalizedProps {
 }
 jest.mock("../../Localized", () => ({
   Localized: ({ id, vars }: LocalizedProps) => {
-    const text = id + (vars && vars.subdomain ? ` ${vars.subdomain}` : "");
+    const text = `l10n string: [${id}], with vars: ${JSON.stringify(vars ?? {})}`;
     return <span data-testid={id}>{text}</span>;
   },
 }));
+
+import { byMsgIdName } from "../../../../__mocks__/hooks/l10n";
 
 describe("SubdomainConfirmationForm", () => {
   const mockOnConfirm = jest.fn();
@@ -66,12 +70,12 @@ describe("SubdomainConfirmationForm", () => {
     render(<SubdomainConfirmationForm {...defaultProps} />);
 
     const submitButton = screen.getByRole("button", {
-      name: "modal-email-domain-register",
+      name: byMsgIdName("modal-email-domain-register"),
     });
     expect(submitButton).toBeDisabled();
 
     const checkbox = screen.getByRole("checkbox", {
-      name: /modal-domain-register-confirmation-checkbox-2/i,
+      name: byMsgIdName("modal-domain-register-confirmation-checkbox-2"),
     });
     await user.click(checkbox);
 
@@ -85,7 +89,7 @@ describe("SubdomainConfirmationForm", () => {
     const user = userEvent.setup();
     render(<SubdomainConfirmationForm {...defaultProps} />);
     const cancelButton = screen.getByRole("button", {
-      name: "modal-email-domain-cancel",
+      name: byMsgIdName("modal-email-domain-cancel"),
     });
     await user.click(cancelButton);
     expect(mockOnCancel).toHaveBeenCalledTimes(1);
