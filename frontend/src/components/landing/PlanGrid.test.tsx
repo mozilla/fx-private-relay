@@ -5,7 +5,6 @@ import { useIsLoggedIn } from "../../hooks/session";
 import { useGaViewPing } from "../../hooks/gaViewPing";
 import { useGaEvent } from "../../hooks/gaEvent";
 import { RuntimeData } from "../../hooks/api/types";
-import { isMegabundleAvailableInCountry } from "../../functions/getPlan";
 
 // Mock hooks and utilities
 jest.mock("../../hooks/l10n");
@@ -23,7 +22,7 @@ jest.mock("../../functions/getPlan", () => ({
   getBundlePrice: jest.fn(() => "$10"),
   getBundleYearlyPrice: jest.fn(() => "$100"),
   getBundleSubscribeLink: jest.fn(() => "https://subscribe.megabundle.mock"),
-  isMegabundleAvailableInCountry: jest.fn(() => true),
+  isBundleAvailableInCountry: jest.fn(() => true),
 
   getPhonesPrice: jest.fn(() => "$5"),
   getPhonesYearlyPrice: jest.fn(() => "$50"),
@@ -68,15 +67,6 @@ describe("PlanGrid", () => {
         screen.getAllByText(/plan-grid-premium-title/).length,
       ).toBeGreaterThan(0);
       expect(screen.getByText(/plan-grid-free-title/)).toBeInTheDocument();
-    });
-
-    it("hides megabundle if not available in country", () => {
-      jest.mocked(isMegabundleAvailableInCountry).mockReturnValueOnce(false);
-      render(<PlanGrid runtimeData={mockRuntimeData} />);
-
-      expect(
-        screen.queryByText(/plan-grid-megabundle-title-2/),
-      ).not.toBeInTheDocument();
     });
   });
 

@@ -46,8 +46,6 @@ import FirefoxIntegrationHero from "./images/firefox-integration-hero.svg";
 import FirefoxIntegrationIcon from "./images/firefox-integration-icon.svg";
 import MailingListHero from "./images/mailing-list-hero.svg";
 import MailingListIcon from "./images/mailing-list-icon.svg";
-import ShieldHero from "./images/shield-hero.svg";
-import ShieldIcon from "./images/shield-icon.svg";
 import { WhatsNewContent } from "./WhatsNewContent";
 import {
   DismissalData,
@@ -62,11 +60,8 @@ import { RuntimeData } from "../../../../hooks/api/types";
 import { isFlagActive } from "../../../../functions/waffle";
 import {
   getBundlePrice,
-  getMegabundlePrice,
-  getMegabundleSubscribeLink,
   getPeriodicalPremiumSubscribeLink,
   isBundleAvailableInCountry,
-  isMegabundleAvailableInCountry,
   isPeriodicalPremiumAvailableInCountry,
   isPhonesAvailableInCountry,
 } from "../../../../functions/getPlan";
@@ -647,68 +642,6 @@ export const WhatsNewMenu = (props: Props) => {
 
   if (isFlagActive(props.runtimeData, "mailing_list_announcement")) {
     entries.push(mailingListAnnouncement);
-  }
-
-  const megabundleDismissal = useLocalDismissal(
-    `whatsnew-megabundle_${props.profile.id}`,
-  );
-
-  if (
-    isMegabundleAvailableInCountry(props.runtimeData) &&
-    props.profile.has_premium &&
-    !props.profile.has_phone &&
-    !props.profile.has_vpn &&
-    !props.profile.has_megabundle
-  ) {
-    const isPremium = isPeriodicalPremiumAvailableInCountry(props.runtimeData);
-
-    const snippet = l10n.getString(
-      isPremium
-        ? "whatsnew-megabundle-premium-snippet"
-        : "whatsnew-megabundle-snippet",
-      { monthly_price: getMegabundlePrice(props.runtimeData, l10n) },
-    );
-
-    const description = l10n.getString(
-      isPremium
-        ? "whatsnew-megabundle-premium-description"
-        : "whatsnew-megabundle-description",
-      { monthly_price: getMegabundlePrice(props.runtimeData, l10n) },
-    );
-
-    const ctaText = l10n.getString(
-      isPremium ? "whatsnew-megabundle-premium-cta" : "whatsnew-megabundle-cta",
-    );
-
-    const megabundleEntry: WhatsNewEntry = {
-      title: l10n.getString("whatsnew-megabundle-heading"),
-      snippet,
-      content: (
-        <WhatsNewContent
-          heading={l10n.getString("whatsnew-megabundle-heading")}
-          description={description}
-          image={ShieldHero}
-          cta={
-            <a
-              className={styles.cta}
-              href={getMegabundleSubscribeLink(props.runtimeData)}
-              target="_blank"
-            >
-              {ctaText}
-            </a>
-          }
-        />
-      ),
-      icon: ShieldIcon,
-      dismissal: megabundleDismissal,
-      announcementDate: {
-        year: 2025,
-        month: 6,
-        day: 3,
-      },
-    };
-
-    entries.push(megabundleEntry);
   }
 
   const entriesNotInFuture = entries.filter((entry) => {

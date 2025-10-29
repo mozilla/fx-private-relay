@@ -116,7 +116,7 @@ const Home: NextPage = () => {
           <Reviews />
         </div>
         <div className={styles.plans}>
-          {isMegabundleAvailableInCountry(runtimeData.data) ? (
+          {isBundleAvailableInCountry(runtimeData.data) ? (
             <PlanGrid runtimeData={runtimeData.data} />
           ) : (
             <PlanMatrix runtimeData={runtimeData.data} />

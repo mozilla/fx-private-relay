@@ -16,7 +16,7 @@ import {
   getPhoneSubscribeLink,
   isPeriodicalPremiumAvailableInCountry,
   isPhonesAvailableInCountry,
-  isMegabundleAvailableInCountry,
+  isBundleAvailableInCountry,
   getBundlePrice,
   getBundleYearlyPrice,
   getBundleSubscribeLink,
@@ -81,7 +81,7 @@ export const PlanGrid = (props: Props) => {
         <p>{l10n.getString("plan-grid-body")}</p>
       </div>
       <section id="pricing-grid" className={styles.pricingPlans}>
-        {isMegabundleAvailableInCountry(props.runtimeData) ? (
+        {isBundleAvailableInCountry(props.runtimeData) ? (
           <dl
             key={"megabundle"}
             className={styles.pricingCard}
@@ -125,7 +125,7 @@ export const PlanGrid = (props: Props) => {
             <dd key={"megabundle-feature-3"}>
               <CheckIcon2 alt={""} />
               <span>
-                {l10n.getFragment("plan-grid-card-megabundle-item-three", {
+                {l10n.getFragment("plan-grid-card-megabundle-item-three-2", {
                   elems: { b: <b /> },
                   vars: { items: 5 },
                 })}
