@@ -64,7 +64,7 @@ export const ProfileBanners = (props: Props) => {
 
   // Don't show the "Get Firefox" banner if we have an extension available,
   // to avoid banner overload:
-  if (!isUsingFirefox() || !isLargeScreen) {
+  if (!isUsingFirefox()) {
     banners.push(<NoFirefoxBanner key="firefox-banner" />);
   }
 
