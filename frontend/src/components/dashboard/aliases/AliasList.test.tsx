@@ -8,7 +8,11 @@ import { getMockProfileData } from "../../../../__mocks__/hooks/api/profile";
 import { mockUseL10nModule } from "../../../../__mocks__/hooks/l10n";
 import * as LocalLabelsMock from "../../../../__mocks__/hooks/localLabels";
 import { AliasList } from "./AliasList";
-import * as Waffle from "../../../functions/waffle";
+
+jest.mock("../../../functions/waffle", () =>
+  jest.requireActual("frontend/__mocks__/functions/waffle"),
+);
+import { resetFlags, withFlag } from "frontend/__mocks__/functions/flags";
 
 declare global {
   interface Window {
@@ -19,9 +23,7 @@ declare global {
 jest.mock("../../../config.ts", () => mockConfigModule);
 jest.mock("../../../hooks/l10n.ts", () => mockUseL10nModule);
 jest.mock("../../../components/Localized.tsx", () => mockLocalizedModule);
-jest.mock("../../../functions/waffle", () => ({
-  isFlagActive: jest.fn(() => false),
-}));
+
 jest.mock("./AliasGenerationButton", () => ({
   AliasGenerationButton: (props: {
     findAliasDataFromPrefix?: (
@@ -39,6 +41,7 @@ jest.mock("./AliasGenerationButton", () => ({
     </button>
   ),
 }));
+
 jest.mock("./MaskCard", () => ({
   MaskCard: (props: { isOpen?: boolean; children?: ReactNode }) => (
     <div data-testid="mask-card">
@@ -47,19 +50,15 @@ jest.mock("./MaskCard", () => ({
     </div>
   ),
 }));
+
 jest.mock("./CategoryFilter", () => ({
   CategoryFilter: () => <div data-testid="category-filter" />,
 }));
 
 LocalLabelsMock.setMockLocalLabels();
 
-const mockedIsFlagActive =
-  Waffle.isFlagActive as unknown as jest.MockedFunction<
-    (rd: unknown, name: string) => boolean
-  >;
 beforeEach(() => {
-  mockedIsFlagActive.mockReset();
-  mockedIsFlagActive.mockImplementation(() => false);
+  resetFlags();
 });
 
 describe("<AliasList>", () => {
@@ -115,7 +114,7 @@ describe("<AliasList>", () => {
     );
   });
 
-  it("sends a request to the back-end to update the label if server-side label storage is enabled, even if the add-on is present", async () => {
+  it("sends to back-end when server-side is enabled, even if add-on is present", async () => {
     const updateCallback = jest.fn();
     const storeLocalLabelCallback = jest.fn();
     LocalLabelsMock.setMockLocalLabelsOnce(
@@ -140,7 +139,7 @@ describe("<AliasList>", () => {
     expect(storeLocalLabelCallback).not.toHaveBeenCalled();
   });
 
-  it("does not provide the option to edit the label when server-side storage is disabled and local storage is not available", async () => {
+  it("does not provide label edit when server-side disabled and local storage unavailable", async () => {
     LocalLabelsMock.setMockLocalLabelsOnce(
       LocalLabelsMock.getReturnValueWithoutAddon(),
     );
@@ -158,7 +157,7 @@ describe("<AliasList>", () => {
     expect(labelField).not.toBeInTheDocument();
   });
 
-  it("allows filtering aliases by their labels if server-side storage is enabled", async () => {
+  it("allows filtering by server-side labels", async () => {
     const mockAlias = {
       ...getMockRandomAlias(),
       description: "some server-side description",
@@ -175,16 +174,12 @@ describe("<AliasList>", () => {
     );
     const stringFilterField = screen.getByRole("searchbox");
     await userEvent.type(stringFilterField, "some server-side description");
-    const aliasElementMatchingFilter = screen.getByText(mockAlias.full_address);
-    expect(aliasElementMatchingFilter).toBeInTheDocument();
+    expect(screen.getByText(mockAlias.full_address)).toBeInTheDocument();
     await userEvent.type(stringFilterField, "arbitrary other description");
-    const aliasElementNotMatchingFilter = screen.queryByText(
-      mockAlias.full_address,
-    );
-    expect(aliasElementNotMatchingFilter).not.toBeInTheDocument();
+    expect(screen.queryByText(mockAlias.full_address)).not.toBeInTheDocument();
   });
 
-  it("also allows filtering aliases by their labels if server-side storage is disabled", async () => {
+  it("also allows filtering when server-side disabled but local label exists", async () => {
     const mockAlias = { ...getMockRandomAlias(), description: "" };
     LocalLabelsMock.setMockLocalLabels(
       LocalLabelsMock.getReturnValueWithAddon(
@@ -210,13 +205,9 @@ describe("<AliasList>", () => {
     );
     const stringFilterField = screen.getByRole("searchbox");
     await userEvent.type(stringFilterField, "some local description");
-    const aliasElementMatchingFilter = screen.getByText(mockAlias.full_address);
-    expect(aliasElementMatchingFilter).toBeInTheDocument();
+    expect(screen.getByText(mockAlias.full_address)).toBeInTheDocument();
     await userEvent.type(stringFilterField, "arbitrary other description");
-    const aliasElementNotMatchingFilter = screen.queryByText(
-      mockAlias.full_address,
-    );
-    expect(aliasElementNotMatchingFilter).not.toBeInTheDocument();
+    expect(screen.queryByText(mockAlias.full_address)).not.toBeInTheDocument();
   });
 });
 
@@ -250,6 +241,7 @@ describe("<AliasList> – extra coverage", () => {
       />,
     );
     expect(screen.queryByTestId("category-filter")).not.toBeInTheDocument();
+
     rerender(
       <AliasList
         aliases={[getMockRandomAlias()]}
@@ -335,27 +327,25 @@ describe("<AliasList> – extra coverage", () => {
     expect(labelField).toHaveValue("local label here");
   });
 
-  it("hides controls and renders only the first alias when free_user_onboarding flag is active with onboarding=true", () => {
-    mockedIsFlagActive.mockImplementation(
-      (_rd, name) => name === "free_user_onboarding",
-    );
-    render(
-      <AliasList
-        aliases={[
-          { ...getMockRandomAlias(), full_address: "one@example.com" },
-          { ...getMockRandomAlias(), full_address: "two@example.com" },
-        ]}
-        onUpdate={jest.fn()}
-        onCreate={jest.fn()}
-        onDelete={jest.fn()}
-        profile={getMockProfileData({ server_storage: true })}
-        user={{ email: "u@example.com" }}
-        onboarding
-      />,
-    );
-    expect(screen.queryByRole("searchbox")).not.toBeInTheDocument();
-    expect(screen.getAllByRole("listitem")).toHaveLength(1);
-    mockedIsFlagActive.mockImplementation(() => false);
+  it("hides controls and renders only the first alias when free_user_onboarding flag is active with onboarding=true", async () => {
+    await withFlag("free_user_onboarding", true, async () => {
+      render(
+        <AliasList
+          aliases={[
+            { ...getMockRandomAlias(), full_address: "one@example.com" },
+            { ...getMockRandomAlias(), full_address: "two@example.com" },
+          ]}
+          onUpdate={jest.fn()}
+          onCreate={jest.fn()}
+          onDelete={jest.fn()}
+          profile={getMockProfileData({ server_storage: true })}
+          user={{ email: "u@example.com" }}
+          onboarding
+        />,
+      );
+      expect(screen.queryByRole("searchbox")).not.toBeInTheDocument();
+      expect(screen.getAllByRole("listitem")).toHaveLength(1);
+    });
   });
 
   it("plumbs findAliasDataFromPrefix into AliasGenerationButton", async () => {
@@ -403,21 +393,19 @@ describe("<AliasList> – extra coverage", () => {
     expect(items[1]).toHaveTextContent("older@example.com");
   });
 
-  it("renders MaskCard instead of Alias when mask_redesign flag is active", () => {
-    mockedIsFlagActive.mockImplementation(
-      (_rd, name) => name === "mask_redesign",
-    );
-    render(
-      <AliasList
-        aliases={[getMockRandomAlias()]}
-        onUpdate={jest.fn()}
-        onCreate={jest.fn()}
-        onDelete={jest.fn()}
-        profile={getMockProfileData({ server_storage: true })}
-        user={{ email: "u@example.com" }}
-      />,
-    );
-    expect(screen.getByTestId("mask-card")).toBeInTheDocument();
-    mockedIsFlagActive.mockImplementation(() => false);
+  it("renders MaskCard instead of Alias when mask_redesign flag is active", async () => {
+    await withFlag("mask_redesign", true, async () => {
+      render(
+        <AliasList
+          aliases={[getMockRandomAlias()]}
+          onUpdate={jest.fn()}
+          onCreate={jest.fn()}
+          onDelete={jest.fn()}
+          profile={getMockProfileData({ server_storage: true })}
+          user={{ email: "u@example.com" }}
+        />,
+      );
+      expect(screen.getByTestId("mask-card")).toBeInTheDocument();
+    });
   });
 });

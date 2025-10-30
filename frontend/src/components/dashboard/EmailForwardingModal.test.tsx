@@ -1,4 +1,5 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { EmailForwardingModal, Props } from "./EmailForwardingModal";
 import { useL10n } from "../../hooks/l10n";
 import { aliasEmailTest } from "../../hooks/api/aliases";
@@ -42,6 +43,7 @@ describe("EmailForwardingModal", () => {
   });
 
   it("submits the email and triggers aliasEmailTest and gaEvent", async () => {
+    const user = userEvent.setup();
     (aliasEmailTest as jest.Mock).mockResolvedValueOnce(true);
 
     render(<EmailForwardingModal {...defaultProps} />);
@@ -50,8 +52,9 @@ describe("EmailForwardingModal", () => {
       "profile-free-onboarding-copy-mask-placeholder-relay-email-mask",
     );
 
-    fireEvent.change(input, { target: { value: "test@relay.example" } });
-    fireEvent.click(
+    await user.type(input, "test@relay.example");
+
+    await user.click(
       screen.getByText("profile-free-onboarding-copy-mask-send-email"),
     );
 
@@ -70,18 +73,17 @@ describe("EmailForwardingModal", () => {
   });
 
   it("does not call onConfirm if aliasEmailTest fails", async () => {
+    const user = userEvent.setup();
     (aliasEmailTest as jest.Mock).mockResolvedValueOnce(false);
 
     render(<EmailForwardingModal {...defaultProps} />);
 
-    fireEvent.change(
-      screen.getByPlaceholderText(
-        "profile-free-onboarding-copy-mask-placeholder-relay-email-mask",
-      ),
-      { target: { value: "bad@relay.example" } },
+    const input = screen.getByPlaceholderText(
+      "profile-free-onboarding-copy-mask-placeholder-relay-email-mask",
     );
+    await user.type(input, "bad@relay.example");
 
-    fireEvent.click(
+    await user.click(
       screen.getByText("profile-free-onboarding-copy-mask-send-email"),
     );
 
@@ -90,9 +92,10 @@ describe("EmailForwardingModal", () => {
     await waitFor(() => expect(mockGaEvent).not.toHaveBeenCalled());
   });
 
-  it("calls onClose when Nevermind button is clicked", () => {
+  it("calls onClose when Nevermind button is clicked", async () => {
+    const user = userEvent.setup();
     render(<EmailForwardingModal {...defaultProps} />);
-    fireEvent.click(
+    await user.click(
       screen.getByText("profile-free-onboarding-copy-mask-nevermind"),
     );
     expect(defaultProps.onClose).toHaveBeenCalled();
@@ -105,9 +108,10 @@ describe("EmailForwardingModal", () => {
     ).toBeInTheDocument();
   });
 
-  it("calls onComplete when Continue button is clicked in SuccessModal", () => {
+  it("calls onComplete when Continue button is clicked in SuccessModal", async () => {
+    const user = userEvent.setup();
     render(<EmailForwardingModal {...defaultProps} isSet={true} />);
-    fireEvent.click(
+    await user.click(
       screen.getByText("profile-free-onboarding-copy-mask-continue"),
     );
     expect(defaultProps.onComplete).toHaveBeenCalled();

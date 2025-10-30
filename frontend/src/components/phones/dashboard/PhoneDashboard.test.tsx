@@ -1,4 +1,5 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { PhoneDashboard } from "./PhoneDashboard";
 import {
   mockedRuntimeData,
@@ -6,13 +7,18 @@ import {
   mockedRelaynumbers,
   mockedRealphones,
   mockedInboundContacts,
-} from "frontend/src/apiMocks/mockData";
+} from "frontend/__mocks__/api/mockData";
 import { toast } from "react-toastify";
 import { VerifiedPhone } from "frontend/src/hooks/api/realPhone";
 import * as l10nModule from "frontend/src/hooks/l10n";
 import { formatPhone } from "frontend/src/functions/formatPhone";
 import { useRelayNumber } from "frontend/src/hooks/api/relayNumber";
 import { useInboundContact } from "frontend/src/hooks/api/inboundContact";
+import type {
+  ClipboardShim,
+  NavigatorClipboard,
+  ClipboardWrite,
+} from "frontend/__mocks__/components/clipboard";
 
 jest.mock("next/config", () => () => ({
   publicRuntimeConfig: {
@@ -26,9 +32,7 @@ beforeAll(() => {
     readonly root: Element | null = null;
     readonly rootMargin: string = "";
     readonly thresholds: ReadonlyArray<number> = [];
-
     constructor() {}
-
     observe(): void {}
     unobserve(): void {}
     disconnect(): void {}
@@ -36,7 +40,6 @@ beforeAll(() => {
       return [];
     }
   }
-
   global.IntersectionObserver = MockIntersectionObserver;
 });
 
@@ -130,6 +133,7 @@ describe("PhoneDashboard", () => {
   });
 
   it("clicks resend SMS CTA and triggers toast and dismissal", async () => {
+    const user = userEvent.setup();
     render(
       <PhoneDashboard
         profile={mockProfile}
@@ -140,7 +144,8 @@ describe("PhoneDashboard", () => {
       />,
     );
 
-    fireEvent.click(screen.getByText("phone-banner-resend-welcome-sms-cta"));
+    await user.click(screen.getByText("phone-banner-resend-welcome-sms-cta"));
+
     await waitFor(() => expect(mockRequestContactCard).toHaveBeenCalled());
     expect(mockDismiss).toHaveBeenCalled();
     expect(toast).toHaveBeenCalledWith(
@@ -149,7 +154,8 @@ describe("PhoneDashboard", () => {
     );
   });
 
-  it("toggles to the SendersPanelView when senders button is clicked", () => {
+  it("toggles to the SendersPanelView when senders button is clicked", async () => {
+    const user = userEvent.setup();
     render(
       <PhoneDashboard
         profile={mockProfile}
@@ -160,15 +166,26 @@ describe("PhoneDashboard", () => {
       />,
     );
 
-    fireEvent.click(screen.getByText("phone-dashboard-senders-header"));
+    await user.click(screen.getByText("phone-dashboard-senders-header"));
     expect(screen.getByTestId("senders-panel-view")).toBeInTheDocument();
   });
 
   it("copies relay number on click and shows copied message", async () => {
-    Object.assign(navigator, {
-      clipboard: {
-        writeText: jest.fn(),
-      },
+    const user = userEvent.setup();
+
+    const nav = navigator as unknown as NavigatorClipboard;
+    const originalDescriptor = Object.getOwnPropertyDescriptor(
+      nav,
+      "clipboard",
+    );
+
+    const writeTextMock: jest.MockedFunction<ClipboardWrite> = jest
+      .fn<ReturnType<ClipboardWrite>, Parameters<ClipboardWrite>>()
+      .mockResolvedValue(undefined);
+
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText: writeTextMock } as ClipboardShim,
+      configurable: true,
     });
 
     render(
@@ -181,14 +198,23 @@ describe("PhoneDashboard", () => {
       />,
     );
 
-    fireEvent.click(screen.getByTitle("Copied"));
+    await user.click(screen.getByTitle("Copied"));
 
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+    expect(writeTextMock).toHaveBeenCalledWith(
       mockRelayNumber.number.replace("+", ""),
     );
 
     expect(
       await screen.findByText("phone-dashboard-number-copied"),
     ).toBeInTheDocument();
+
+    if (originalDescriptor) {
+      Object.defineProperty(navigator, "clipboard", originalDescriptor);
+    } else {
+      Object.defineProperty(navigator, "clipboard", {
+        value: undefined,
+        configurable: true,
+      });
+    }
   });
 });

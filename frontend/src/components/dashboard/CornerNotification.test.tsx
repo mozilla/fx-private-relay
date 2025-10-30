@@ -1,19 +1,28 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { CornerNotification } from "./CornerNotification";
 import React from "react";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { CornerNotification } from "./CornerNotification";
 import {
   mockedRuntimeData,
   mockedProfiles,
   mockedRelayaddresses,
-} from "frontend/src/apiMocks/mockData";
+} from "frontend/__mocks__/api/mockData";
 import { useL10n } from "frontend/src/hooks/l10n";
 import { useLocalDismissal } from "frontend/src/hooks/localDismissal";
 import { useGaEvent } from "frontend/src/hooks/gaEvent";
-import { isFlagActive } from "frontend/src/functions/waffle";
 
-jest.mock("frontend/src/functions/waffle", () => ({
-  isFlagActive: jest.fn(),
-}));
+jest.mock("frontend/src/functions/waffle", () => {
+  const { mockIsFlagActive } = jest.requireActual(
+    "frontend/__mocks__/functions/flags",
+  );
+  return { isFlagActive: mockIsFlagActive };
+});
+
+import {
+  mockIsFlagActive,
+  resetFlags,
+} from "frontend/__mocks__/functions/flags";
+
 jest.mock("frontend/src/hooks/l10n", () => ({
   useL10n: jest.fn(),
 }));
@@ -32,7 +41,6 @@ beforeAll(() => {
     readonly root: Element | null = null;
     readonly rootMargin: string = "";
     readonly thresholds: ReadonlyArray<number> = [];
-
     observe(): void {}
     unobserve(): void {}
     disconnect(): void {}
@@ -40,13 +48,12 @@ beforeAll(() => {
       return [];
     }
   }
-
   global.IntersectionObserver = MockIntersectionObserver;
 });
 
 describe("CornerNotification", () => {
   const mockL10n = {
-    getString: jest.fn((key) => key),
+    getString: jest.fn((key: string) => key),
   };
 
   const mockDismiss = jest.fn();
@@ -62,13 +69,16 @@ describe("CornerNotification", () => {
   };
 
   beforeEach(() => {
+    resetFlags();
+    mockIsFlagActive.mockReset();
+    mockIsFlagActive.mockImplementation(() => true);
+
     (useL10n as jest.Mock).mockReturnValue(mockL10n);
     (useLocalDismissal as jest.Mock).mockReturnValue({
       isDismissed: false,
       dismiss: mockDismiss,
     });
     (useGaEvent as jest.Mock).mockReturnValue(jest.fn());
-    (isFlagActive as unknown as jest.Mock).mockReturnValue(true);
     mockL10n.getString.mockClear();
   });
 
@@ -123,30 +133,32 @@ describe("CornerNotification", () => {
   });
 
   it("does not render if flag is inactive", () => {
-    (isFlagActive as unknown as jest.Mock).mockReturnValue(false);
+    mockIsFlagActive.mockReturnValueOnce(false);
     render(<CornerNotification {...defaultProps} />);
     expect(
       screen.queryByText("upsell-banner-4-masks-us-heading-2"),
     ).not.toBeInTheDocument();
   });
 
-  it("dismisses when close button is clicked", () => {
+  it("dismisses when close button is clicked", async () => {
+    const user = userEvent.setup();
     render(<CornerNotification {...defaultProps} />);
     const closeButton = screen.getByRole("button", {
       name: "upsell-banner-4-masks-button-close-label",
     });
-    fireEvent.click(closeButton);
+    await user.click(closeButton);
     expect(mockDismiss).toHaveBeenCalled();
   });
 
-  it("fires GA event when CTA is clicked", () => {
+  it("fires GA event when CTA is clicked", async () => {
+    const user = userEvent.setup();
     const mockGaEvent = jest.fn();
     (useGaEvent as jest.Mock).mockReturnValue(mockGaEvent);
     render(<CornerNotification {...defaultProps} />);
     const cta = screen.getByRole("link", {
       name: "upsell-banner-4-masks-us-cta",
     });
-    fireEvent.click(cta);
+    await user.click(cta);
     expect(mockGaEvent).toHaveBeenCalledWith({
       category: "Purchase Button",
       action: "Engage",

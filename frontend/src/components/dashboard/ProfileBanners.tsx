@@ -72,7 +72,7 @@ export const ProfileBanners = (props: Props) => {
     supportsFirefoxExtension() &&
     isLargeScreen &&
     // This identifies mock data used for demonstration purposes.
-    // See /frontend/src/apiMocks/mockData.ts:
+    // See /frontend/__mocks__/api/mockData.ts:
     props.profile.api_token !== "demo"
   ) {
     // This pushes a banner promoting the add-on - detecting the add-on

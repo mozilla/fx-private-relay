@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 import { BlockLevelSlider, type BlockLevel } from "./BlockLevelSlider";
@@ -43,11 +43,13 @@ jest.mock("../../../hooks/gaEvent", () => ({
   useGaEvent: () => gaSpy,
 }));
 
-jest.mock("../../../hooks/l10n", () => ({
-  useL10n: () => ({
-    getString: (id: string) => id,
-  }),
-}));
+// Centralized l10n mock
+jest.mock("../../../hooks/l10n", () => {
+  const { mockUseL10nModule } = jest.requireActual(
+    "../../../../__mocks__/hooks/l10n",
+  );
+  return mockUseL10nModule;
+});
 
 function makeRandomAlias(
   overrides: Partial<RandomAliasData> = {},
@@ -109,10 +111,10 @@ describe("BlockLevelSlider", () => {
       alias: makeRandomAlias({ enabled: true, block_list_emails: false }),
     });
     expect(
-      screen.getByText("profile-promo-email-blocking-title"),
+      screen.getByText(/profile-promo-email-blocking-title/),
     ).toBeInTheDocument();
     expect(
-      screen.getByText("profile-promo-email-blocking-description-none-2"),
+      screen.getByText(/profile-promo-email-blocking-description-none-2/),
     ).toBeInTheDocument();
   });
 
@@ -121,14 +123,14 @@ describe("BlockLevelSlider", () => {
       alias: makeRandomAlias({ enabled: true, block_list_emails: true }),
     });
     expect(
-      screen.getByText("profile-promo-email-blocking-description-promotionals"),
+      screen.getByText(/profile-promo-email-blocking-description-promotionals/),
     ).toBeInTheDocument();
   });
 
   test("renders initial state based on alias: all", () => {
     renderSlider({ alias: makeRandomAlias({ enabled: false }) });
     expect(
-      screen.getByText("profile-promo-email-blocking-description-all-2"),
+      screen.getByText(/profile-promo-email-blocking-description-all-2/),
     ).toBeInTheDocument();
   });
 
@@ -195,19 +197,24 @@ describe("BlockLevelSlider", () => {
 
     await user.click(ghostButton);
 
+    const tooltip = await screen.findByRole("dialog");
+
     expect(
-      screen.getByText(
-        "profile-promo-email-blocking-description-promotionals-locked-label",
+      within(tooltip).getByText(
+        /profile-promo-email-blocking-description-promotionals-locked-label/,
       ),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText("profile-promo-email-blocking-description-promotionals"),
-    ).toBeInTheDocument();
 
-    const cta = screen.getByRole("link", {
-      name: "profile-promo-email-blocking-description-promotionals-locked-cta",
+    const descNodes = within(tooltip).getAllByText(
+      /profile-promo-email-blocking-description-promotionals/,
+    );
+    expect(descNodes.length).toBeGreaterThan(0);
+
+    const cta = within(tooltip).getByRole("link", {
+      name: /profile-promo-email-blocking-description-promotionals-locked-cta/,
     });
     expect(cta).toHaveAttribute("href", "/premium/");
+
     expect(onChange).not.toHaveBeenCalledWith("promotional");
   });
 
@@ -221,8 +228,8 @@ describe("BlockLevelSlider", () => {
 
     await user.click(ghostButton);
 
-    const waitlistCta = screen.getByRole("link", {
-      name: "profile-promo-email-blocking-description-promotionals-locked-waitlist-cta",
+    const waitlistCta = await screen.findByRole("link", {
+      name: /profile-promo-email-blocking-description-promotionals-locked-waitlist-cta/,
     });
     expect(waitlistCta).toHaveAttribute("href", "/premium/waitlist");
   });

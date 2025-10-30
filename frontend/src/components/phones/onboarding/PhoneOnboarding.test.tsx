@@ -5,7 +5,7 @@ import {
   mockedProfiles,
   mockedRuntimeData,
   mockedRealphones,
-} from "frontend/src/apiMocks/mockData";
+} from "frontend/__mocks__/api/mockData";
 import { RuntimeDataWithPhonesAvailable } from "../../../functions/getPlan";
 import { useL10n } from "../../../hooks/l10n";
 

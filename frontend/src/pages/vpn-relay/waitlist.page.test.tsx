@@ -3,15 +3,19 @@ import BundleWaitlist from "../../../src/pages/vpn-relay/waitlist.page";
 import { useL10n } from "../../../src/hooks/l10n";
 import { WaitlistPage } from "../../../src/components/waitlist/WaitlistPage";
 
-// Mock Localized to avoid needing <LocalizationProvider>
-jest.mock("../../../src/components/Localized", () => ({
-  Localized: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}));
+jest.mock("../../../src/components/Localized", () => {
+  const { mockLocalizedModule } = jest.requireActual(
+    "../../../__mocks__/components/Localized",
+  );
+  return mockLocalizedModule;
+});
 
 jest.mock("../../../src/hooks/l10n");
 jest.mock("../../../src/components/waitlist/WaitlistPage", () => ({
   WaitlistPage: jest.fn(() => <div data-testid="mock-waitlist-page" />),
 }));
+
+import { byMsgId } from "../../../__mocks__/hooks/l10n";
 
 describe("BundleWaitlist page", () => {
   const mockGetString = jest.fn();
@@ -55,6 +59,10 @@ describe("BundleWaitlist page", () => {
     const legalese = (WaitlistPage as jest.Mock).mock.calls[0][0].legalese;
 
     render(<>{legalese}</>);
+
+    expect(
+      screen.getByText(byMsgId("waitlist-privacy-policy-agree-2")),
+    ).toBeInTheDocument();
 
     expect(
       screen.getByText("We’ll only use your info for bundle updates."),

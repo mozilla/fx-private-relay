@@ -310,7 +310,8 @@ describe("The dashboard", () => {
       "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}",
     );
 
-    await userEvent.type(domainSearchField, "SpoNGeBoB");
+    const user = userEvent.setup();
+    await user.type(domainSearchField, "SpoNGeBoB");
 
     const preview = screen.getByText("spongebob");
     expect(preview).toBeInTheDocument();
@@ -318,7 +319,7 @@ describe("The dashboard", () => {
     const searchButton = screen.getByRole("button", {
       name: "l10n string: [banner-set-email-domain-input-search], with vars: {}",
     });
-    await userEvent.click(searchButton);
+    await user.click(searchButton);
 
     const subdomainDialog = screen.getByRole("dialog", {
       name: '[<Localized> with id [modal-email-domain-available] and vars: {"custom_domain_full":"spongebob.mozmail.com"}]',
@@ -718,7 +719,8 @@ describe("The dashboard", () => {
       "l10n string: [banner-set-email-domain-input-placeholder-label], with vars: {}",
     );
 
-    await userEvent.type(subdomainSearchField, "sPoNGeBob");
+    const user = userEvent.setup();
+    await user.type(subdomainSearchField, "sPoNGeBob");
 
     const preview = screen.getByText("spongebob");
     expect(preview).toBeInTheDocument();
@@ -726,7 +728,7 @@ describe("The dashboard", () => {
     const searchButton = screen.getByRole("button", {
       name: "l10n string: [banner-set-email-domain-input-search], with vars: {}",
     });
-    await userEvent.click(searchButton);
+    await user.click(searchButton);
 
     const subdomainDialog = screen.getByRole("dialog", {
       name: '[<Localized> with id [modal-email-domain-available] and vars: {"custom_domain_full":"spongebob.mozmail.com"}]',
@@ -767,7 +769,9 @@ describe("The dashboard", () => {
     const skipButton = screen.getByRole("button", {
       name: "l10n string: [multi-part-onboarding-skip], with vars: {}",
     });
-    await userEvent.click(skipButton);
+
+    const user = userEvent.setup();
+    await user.click(skipButton);
 
     expect(updateFn).toHaveBeenCalledWith(42, { onboarding_state: 3 });
 
@@ -788,7 +792,9 @@ describe("The dashboard", () => {
     const skipButton = screen.getByRole("button", {
       name: "l10n string: [multi-part-onboarding-skip-download-extension], with vars: {}",
     });
-    await userEvent.click(skipButton);
+
+    const user = userEvent.setup();
+    await user.click(skipButton);
 
     expect(updateFn).toHaveBeenCalledWith(42, { onboarding_state: 3 });
   });
@@ -805,8 +811,9 @@ describe("The dashboard", () => {
       name: "l10n string: [profile-promo-email-blocking-title], with vars: {}",
     });
 
-    await userEvent.click(blockLevelSlider);
-    await userEvent.keyboard("[ArrowRight][ArrowRight]");
+    const user = userEvent.setup();
+    await user.click(blockLevelSlider);
+    await user.keyboard("[ArrowRight][ArrowRight]");
   });
 
   it("shows the Generate Alias button if the user is not at the max number of aliases", () => {
@@ -924,18 +931,20 @@ describe("The dashboard", () => {
     const categoryFilterButton = screen.getByRole("button", {
       name: "l10n string: [profile-filter-category-button-label], with vars: {}",
     });
-    await userEvent.click(categoryFilterButton);
+
+    const user = userEvent.setup();
+    await user.click(categoryFilterButton);
 
     const categoryFilterCheckboxCustomMask = screen.getByLabelText(
       "l10n string: [profile-filter-category-option-custom-masks], with vars: {}",
     );
-    await userEvent.click(categoryFilterCheckboxCustomMask);
+    await user.click(categoryFilterCheckboxCustomMask);
 
     // Apply category filter selection
     const categoryFilterApplyButton = screen.getByRole("button", {
       name: "l10n string: [profile-label-apply], with vars: {}",
     });
-    await userEvent.click(categoryFilterApplyButton);
+    await user.click(categoryFilterApplyButton);
 
     const randomAlias1 = screen.queryByText(/address1/);
     const randomAlias2 = screen.queryByText(/address2/);
@@ -962,15 +971,17 @@ describe("The dashboard", () => {
     const categoryFilterButton = screen.getByRole("button", {
       name: "l10n string: [profile-filter-category-button-label], with vars: {}",
     });
-    await userEvent.click(categoryFilterButton);
+
+    const user = userEvent.setup();
+    await user.click(categoryFilterButton);
 
     const categoryFilterCheckboxRandomMask = screen.getByLabelText(
       "l10n string: [profile-filter-category-option-random-masks], with vars: {}",
     );
-    await userEvent.click(categoryFilterCheckboxRandomMask);
+    await user.click(categoryFilterCheckboxRandomMask);
 
     // Close and discard changes
-    await userEvent.click(categoryFilterButton);
+    await user.click(categoryFilterButton);
 
     const randomAlias1 = screen.queryByText(/address1/);
     const randomAlias2 = screen.queryByText(/address2/);
@@ -997,27 +1008,29 @@ describe("The dashboard", () => {
     const categoryFilterButton = screen.getByRole("button", {
       name: "l10n string: [profile-filter-category-button-label], with vars: {}",
     });
-    await userEvent.click(categoryFilterButton);
+
+    const user = userEvent.setup();
+    await user.click(categoryFilterButton);
 
     const categoryFilterCheckboxCustomMask = screen.getByLabelText(
       "l10n string: [profile-filter-category-option-custom-masks], with vars: {}",
     );
-    await userEvent.click(categoryFilterCheckboxCustomMask);
+    await user.click(categoryFilterCheckboxCustomMask);
 
     // Apply category filter selection
     const categoryFilterApplyButton = screen.getByRole("button", {
       name: "l10n string: [profile-label-reset], with vars: {}",
     });
-    await userEvent.click(categoryFilterApplyButton);
+    await user.click(categoryFilterApplyButton);
 
     // Reopen and clear category filter selection
-    await userEvent.click(categoryFilterButton);
-    await userEvent.click(categoryFilterCheckboxCustomMask);
+    await user.click(categoryFilterButton);
+    await user.click(categoryFilterCheckboxCustomMask);
 
     const categoryFilterResetButton = screen.getByRole("button", {
       name: "l10n string: [profile-label-reset], with vars: {}",
     });
-    await userEvent.click(categoryFilterResetButton);
+    await user.click(categoryFilterResetButton);
 
     const randomAlias1 = screen.queryByText(/address1/);
     const randomAlias2 = screen.queryByText(/address2/);
@@ -1054,7 +1067,9 @@ describe("The dashboard", () => {
     const generateAliasButton = screen.getByRole("button", {
       name: "l10n string: [profile-label-generate-new-alias-2], with vars: {}",
     });
-    await userEvent.click(generateAliasButton);
+
+    const user = userEvent.setup();
+    await user.click(generateAliasButton);
 
     expect(addonNotifier).toHaveBeenCalledWith("aliasListUpdate");
   });
@@ -1069,17 +1084,19 @@ describe("The dashboard", () => {
     const aliasDeleteButton = screen.getByRole("button", {
       name: "l10n string: [profile-label-delete], with vars: {}",
     });
-    await userEvent.click(aliasDeleteButton);
+
+    const user = userEvent.setup();
+    await user.click(aliasDeleteButton);
 
     const confirmationCheckbox = screen.getByLabelText(
       "l10n string: [modal-delete-confirmation-2], with vars: {}",
     );
-    await userEvent.click(confirmationCheckbox);
+    await user.click(confirmationCheckbox);
 
     const confirmationButton = screen.getAllByRole("button", {
       name: "l10n string: [profile-label-delete], with vars: {}",
     });
-    await userEvent.click(confirmationButton[1]);
+    await user.click(confirmationButton[1]);
 
     expect(addonNotifier).toHaveBeenCalledWith("aliasListUpdate");
   });
@@ -1187,7 +1204,10 @@ describe("The dashboard", () => {
       const generateAliasDropdown = screen.getByRole("button", {
         name: "l10n string: [profile-label-generate-new-alias-2], with vars: {}",
       });
-      await userEvent.click(generateAliasDropdown);
+
+      const user = userEvent.setup();
+      await user.click(generateAliasDropdown);
+
       const generateAliasMenu = screen.getByRole("menu", {
         name: "l10n string: [profile-label-generate-new-alias-2], with vars: {}",
       });

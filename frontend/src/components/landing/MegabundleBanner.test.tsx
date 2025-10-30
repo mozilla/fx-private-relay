@@ -1,4 +1,5 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { MegabundleBanner } from "./MegaBundleBanner";
 import { trackPlanPurchaseStart } from "../../functions/trackPurchase";
 import { useGaEvent } from "../../hooks/gaEvent";
@@ -143,10 +144,11 @@ describe("MegabundleBanner", () => {
     expect(screen.queryByText(/megabundle-banner-cta/)).not.toBeInTheDocument();
   });
 
-  it("fires trackPlanPurchaseStart on button click", () => {
+  it("fires trackPlanPurchaseStart on button click", async () => {
+    const user = userEvent.setup();
     render(<MegabundleBanner runtimeData={mockRuntimeData} />);
 
-    fireEvent.click(
+    await user.click(
       screen.getByRole("link", { name: /megabundle-banner-cta/ }),
     );
 

@@ -78,7 +78,7 @@ from that PR. However, the back-end is mocked out (using [Mock Service Worker](h
 You can also run the UI with a mocked back-end locally by running `npm run dev:mocked`
 in the `frontend` directory.
 
-The mock data is defined in `/frontend/src/apiMocks/mockData.ts`. For every API endpoint,
+The mock data is defined in `frontend/__mocks__/api/mockData.ts`. For every API endpoint,
 different sets of data are defined for different user IDs, defined in the
 `mockIds` array. At the time of writing, the following mock users are available
 (IDs are inspired by [the nine states of design](https://medium.com/swlh/the-nine-states-of-design-5bfe9b3d6d85)):

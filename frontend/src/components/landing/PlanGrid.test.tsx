@@ -1,4 +1,5 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { PlanGrid } from "./PlanGrid";
 import { useL10n } from "../../hooks/l10n";
 import { useIsLoggedIn } from "../../hooks/session";
@@ -46,7 +47,7 @@ const l10nMock = {
   getFragment: jest.fn((key: string) => `l10n fragment: [${key}]`),
 };
 
-import { mockedRuntimeData } from "../../apiMocks/mockData";
+import { mockedRuntimeData } from "../../../__mocks__/api/mockData";
 
 const mockRuntimeData: RuntimeData = mockedRuntimeData;
 
@@ -99,12 +100,14 @@ describe("PlanGrid", () => {
   });
 
   describe("analytics", () => {
-    it("tracks GA event on subscription button click", () => {
+    it("tracks GA event on subscription button click", async () => {
+      const user = userEvent.setup();
       render(<PlanGrid runtimeData={mockRuntimeData} />);
       const buttons = screen.getAllByRole("link", {
         name: /plan-grid-card-btn/,
       });
-      fireEvent.click(buttons[0]);
+
+      await user.click(buttons[0]);
 
       expect(buttons[0]).toBeInTheDocument();
     });
