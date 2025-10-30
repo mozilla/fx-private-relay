@@ -32,10 +32,12 @@ const l10nMock = {
   ),
 };
 
-const mockedProfileswithMegabundle = {
-  ...mockedProfiles.full,
-  has_phone: false,
-  has_vpn: false,
+const mockedRuntimeDataWithNoBundle = {
+  ...mockedRuntimeData,
+  BUNDLE_PLANS: {
+    ...mockedRuntimeData.BUNDLE_PLANS,
+    available_in_country: false,
+  },
 };
 
 beforeAll(() => {
@@ -68,7 +70,7 @@ describe("WhatsNewMenu", () => {
     (isUsingFirefox as jest.Mock).mockReturnValue(false);
 
     jest.useFakeTimers();
-    jest.setSystemTime(new Date("2025-06-10T12:00:00Z"));
+    jest.setSystemTime(new Date("2022-03-15T12:00:00Z"));
   });
 
   it("renders trigger when there are visible announcements", () => {
@@ -79,8 +81,8 @@ describe("WhatsNewMenu", () => {
 
     render(
       <WhatsNewMenu
-        profile={mockedProfileswithMegabundle}
-        runtimeData={mockedRuntimeData}
+        profile={mockedProfiles.empty}
+        runtimeData={mockedRuntimeDataWithNoBundle}
         style="test-style"
       />,
     );
@@ -98,8 +100,8 @@ describe("WhatsNewMenu", () => {
 
     render(
       <WhatsNewMenu
-        profile={mockedProfileswithMegabundle}
-        runtimeData={mockedRuntimeData}
+        profile={mockedProfiles.empty}
+        runtimeData={mockedRuntimeDataWithNoBundle}
         style="test-style"
       />,
     );
@@ -117,8 +119,8 @@ describe("WhatsNewMenu", () => {
 
     render(
       <WhatsNewMenu
-        profile={mockedProfileswithMegabundle}
-        runtimeData={mockedRuntimeData}
+        profile={mockedProfiles.empty}
+        runtimeData={mockedRuntimeDataWithNoBundle}
         style="test-style"
       />,
     );

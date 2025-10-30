@@ -8,7 +8,6 @@ import HeroImage from "./images/relay-hero-image.svg";
 import { useRuntimeData } from "../hooks/api/runtimeData";
 import {
   isBundleAvailableInCountry,
-  isMegabundleAvailableInCountry,
   isPeriodicalPremiumAvailableInCountry,
 } from "../functions/getPlan";
 import { PlanMatrix } from "../components/landing/PlanMatrix";
@@ -70,12 +69,11 @@ const PremiumPromo: NextPage = () => {
           </div>
         </section>
 
-        {!isMegabundleAvailableInCountry(runtimeData.data) &&
-          isBundleAvailableInCountry(runtimeData.data) && (
-            <section id="vpn_promo" className={styles["bundle-banner-section"]}>
-              <BundleBanner runtimeData={runtimeData.data} />
-            </section>
-          )}
+        {isBundleAvailableInCountry(runtimeData.data) && (
+          <section id="vpn_promo" className={styles["bundle-banner-section"]}>
+            <BundleBanner runtimeData={runtimeData.data} />
+          </section>
+        )}
 
         <section id="perks" className={styles["perks-wrapper"]}>
           <HighlightedFeatures />
@@ -83,7 +81,7 @@ const PremiumPromo: NextPage = () => {
 
         <section className={styles["plans-wrapper"]}>
           <div className={styles.plans}>
-            {isMegabundleAvailableInCountry(runtimeData.data) ? (
+            {isBundleAvailableInCountry(runtimeData.data) ? (
               <PlanGrid runtimeData={runtimeData.data} />
             ) : (
               <PlanMatrix runtimeData={runtimeData.data} />
