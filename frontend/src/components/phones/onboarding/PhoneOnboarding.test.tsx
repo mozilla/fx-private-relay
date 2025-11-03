@@ -7,13 +7,11 @@ import {
   mockedRealphones,
 } from "frontend/__mocks__/api/mockData";
 import { RuntimeDataWithPhonesAvailable } from "../../../functions/getPlan";
-import { useL10n } from "../../../hooks/l10n";
 
-// Mocks
-jest.mock("../../../hooks/l10n");
 jest.mock("../../../hooks/api/realPhone");
 
-const mockUseRealPhonesData = realPhoneHook.useRealPhonesData as jest.Mock;
+const mockUseRealPhonesData =
+  realPhoneHook.useRealPhonesData as unknown as jest.Mock;
 
 const l10nMock = {
   bundles: [{ locales: ["en"] }],
@@ -37,7 +35,7 @@ const renderComponent = (profileKey: keyof typeof mockedProfiles) =>
 describe("PhoneOnboarding", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (useL10n as jest.Mock).mockReturnValue(l10nMock);
+    global.useL10nImpl = () => l10nMock;
   });
 
   it("renders nothing if realPhoneData is undefined", () => {

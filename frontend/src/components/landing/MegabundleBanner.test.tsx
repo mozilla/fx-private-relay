@@ -2,20 +2,12 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MegabundleBanner } from "./MegaBundleBanner";
 import { trackPlanPurchaseStart } from "../../functions/trackPurchase";
-import { useGaEvent } from "../../hooks/gaEvent";
-import { useL10n } from "../../hooks/l10n";
-import { useGaViewPing } from "../../hooks/gaViewPing";
 import type { RuntimeDataWithBundleAvailable } from "../../functions/getPlan";
 
 // Mock icons
 jest.mock("./images/vpn-icon.svg", () => ({ src: "vpn-icon.svg" }));
 jest.mock("./images/relay-icon.svg", () => ({ src: "relay-icon.svg" }));
 jest.mock("./images/monitor-icon.svg", () => ({ src: "monitor-icon.svg" }));
-
-// Mock hooks
-jest.mock("../../hooks/l10n");
-jest.mock("../../hooks/gaViewPing");
-jest.mock("../../hooks/gaEvent");
 
 // Mock functions
 jest.mock("../../functions/getPlan", () => ({
@@ -90,10 +82,6 @@ describe("MegabundleBanner", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-
-    (useL10n as jest.Mock).mockReturnValue({ getString: getStringMock });
-    (useGaViewPing as jest.Mock).mockReturnValue({ current: null });
-    (useGaEvent as jest.Mock).mockReturnValue(jest.fn());
 
     getStringMock.mockImplementation((key: string, vars?: string) => {
       if (vars) return `${key} ${JSON.stringify(vars)}`;

@@ -1,18 +1,10 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EmailForwardingModal, Props } from "./EmailForwardingModal";
-import { useL10n } from "../../hooks/l10n";
 import { aliasEmailTest } from "../../hooks/api/aliases";
-import { useGaEvent } from "../../hooks/gaEvent";
 
-jest.mock("../../hooks/l10n", () => ({
-  useL10n: jest.fn(),
-}));
 jest.mock("../../hooks/api/aliases", () => ({
   aliasEmailTest: jest.fn(),
-}));
-jest.mock("../../hooks/gaEvent", () => ({
-  useGaEvent: jest.fn(),
 }));
 
 const mockGetString = jest.fn((id) => id);
@@ -28,8 +20,8 @@ const defaultProps: Props = {
 
 describe("EmailForwardingModal", () => {
   beforeEach(() => {
-    (useL10n as jest.Mock).mockReturnValue({ getString: mockGetString });
-    (useGaEvent as jest.Mock).mockReturnValue(mockGaEvent);
+    global.useL10nImpl = () => ({ getString: mockGetString });
+    global.gaEventMock = mockGaEvent;
     jest.clearAllMocks();
   });
 
