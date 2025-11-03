@@ -1,14 +1,9 @@
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { RelayNumberPicker } from "../onboarding/RelayNumberPicker";
-import { useL10n } from "../../../hooks/l10n";
 import * as relayNumberHooks from "../../../hooks/api/relayNumber";
 import { formatPhone } from "../../../functions/formatPhone";
 import { renderWithProviders } from "frontend/__mocks__/modules/renderWithProviders";
-
-jest.mock("../../../hooks/l10n", () => ({
-  useL10n: jest.fn(),
-}));
 
 jest.mock("../../../hooks/api/relayNumber", () => ({
   useRelayNumber: jest.fn(),
@@ -23,7 +18,7 @@ describe("RelayNumberPicker", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    (useL10n as jest.Mock).mockReturnValue({
+    global.useL10nImpl = () => ({
       getString: (key: string) => `translated(${key})`,
     });
 

@@ -1,16 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { PlanGrid } from "./PlanGrid";
-import { useL10n } from "../../hooks/l10n";
 import { useIsLoggedIn } from "../../hooks/session";
-import { useGaViewPing } from "../../hooks/gaViewPing";
-import { useGaEvent } from "../../hooks/gaEvent";
 import { RuntimeData } from "../../hooks/api/types";
 
-// Mock hooks and utilities
-jest.mock("../../hooks/l10n");
-jest.mock("../../hooks/gaViewPing");
-jest.mock("../../hooks/gaEvent");
 jest.mock("../../hooks/hasRenderedClientSide");
 jest.mock("../../hooks/session");
 jest.mock("../../functions/trackPurchase");
@@ -53,9 +46,7 @@ const mockRuntimeData: RuntimeData = mockedRuntimeData;
 describe("PlanGrid", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (useL10n as jest.Mock).mockReturnValue(l10nMock);
-    (useGaViewPing as jest.Mock).mockReturnValue({ current: null });
-    (useGaEvent as jest.Mock).mockReturnValue(jest.fn());
+    global.useL10nImpl = () => l10nMock;
   });
 
   describe("basic rendering", () => {

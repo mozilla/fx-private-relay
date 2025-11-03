@@ -1,7 +1,9 @@
 import { mockConfigModule } from "../../__mocks__/configMock";
-import { getLoginUrl } from "./fxaFlowTracker";
 
-jest.mock("../config.ts", () => mockConfigModule);
+// This test needs to test the real implementation, so unmock it
+jest.unmock("./fxaFlowTracker");
+
+import { getLoginUrl } from "./fxaFlowTracker";
 
 const mockFlowBeginTime = new Date("1990-11-12T13:37:42.000Z").getTime();
 

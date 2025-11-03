@@ -1,6 +1,5 @@
 import { render, screen } from "@testing-library/react";
 import BundleWaitlist from "../../../src/pages/vpn-relay/waitlist.page";
-import { useL10n } from "../../../src/hooks/l10n";
 import { WaitlistPage } from "../../../src/components/waitlist/WaitlistPage";
 
 jest.mock("../../../src/components/Localized", () => {
@@ -10,7 +9,6 @@ jest.mock("../../../src/components/Localized", () => {
   return mockLocalizedModule;
 });
 
-jest.mock("../../../src/hooks/l10n");
 jest.mock("../../../src/components/waitlist/WaitlistPage", () => ({
   WaitlistPage: jest.fn(() => <div data-testid="mock-waitlist-page" />),
 }));
@@ -21,7 +19,7 @@ describe("BundleWaitlist page", () => {
   const mockGetString = jest.fn();
 
   beforeEach(() => {
-    (useL10n as jest.Mock).mockReturnValue({
+    global.useL10nImpl = () => ({
       getString: mockGetString,
     });
 
@@ -30,7 +28,7 @@ describe("BundleWaitlist page", () => {
         "waitlist-heading-bundle": "Bundle up with VPN and Relay",
         "waitlist-lead-bundle": "Get notified when our privacy bundle is ready",
         "waitlist-privacy-policy-use-bundle":
-          "We’ll only use your info for bundle updates.",
+          "We'll only use your info for bundle updates.",
       };
       return strings[id] ?? id;
     });
@@ -65,7 +63,9 @@ describe("BundleWaitlist page", () => {
     ).toBeInTheDocument();
 
     expect(
-      screen.getByText("We’ll only use your info for bundle updates."),
+      screen.getByText((content) =>
+        content.includes("We'll only use your info for bundle updates"),
+      ),
     ).toBeInTheDocument();
   });
 });

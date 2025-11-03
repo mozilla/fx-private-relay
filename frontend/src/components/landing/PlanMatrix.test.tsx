@@ -1,7 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
+import { renderWithProviders as render } from "../../../__mocks__/modules/renderWithProviders";
 
-import { mockLocalizedModule } from "../../../__mocks__/components/Localized";
-import { mockConfigModule } from "../../../__mocks__/configMock";
 import { setMockProfileData } from "../../../__mocks__/hooks/api/profile";
 import {
   setMockRuntimeDataOnce,
@@ -9,19 +8,6 @@ import {
   getMockRuntimeDataWithBundle,
   getMockRuntimeDataWithoutPremium,
 } from "../../../__mocks__/hooks/api/runtimeData";
-import { mockUseFxaFlowTrackerModule } from "../../../__mocks__/hooks/fxaFlowTracker";
-import { mockUseL10nModule } from "../../../__mocks__/hooks/l10n";
-import { mockNextRouter } from "../../../__mocks__/modules/next__router";
-import { mockReactGa } from "../../../__mocks__/modules/react-ga";
-
-jest.mock("next/router", () => mockNextRouter);
-jest.mock("react-ga", () => mockReactGa);
-jest.mock("../../config.ts", () => mockConfigModule);
-jest.mock("../../hooks/gaViewPing.ts");
-jest.mock("../../hooks/gaEvent.ts");
-jest.mock("../../hooks/fxaFlowTracker.ts", () => mockUseFxaFlowTrackerModule);
-jest.mock("../../hooks/l10n.ts", () => mockUseL10nModule);
-jest.mock("../../components/Localized.tsx", () => mockLocalizedModule);
 
 import { PlanMatrix } from "./PlanMatrix";
 

@@ -3,7 +3,6 @@ import { render, screen } from "@testing-library/react";
 import { CustomAliasTip } from "./CustomAliasTip";
 import { getRuntimeConfig } from "../../../config";
 import { getLocale } from "../../../functions/getLocale";
-import { useL10n } from "../../../hooks/l10n";
 
 jest.mock("./CustomAliasTip.module.scss", () => ({}), { virtual: true });
 
@@ -15,17 +14,13 @@ jest.mock("../../../functions/getLocale", () => ({
   getLocale: jest.fn(),
 }));
 
-jest.mock("../../../hooks/l10n", () => ({
-  useL10n: jest.fn(),
-}));
-
 describe("CustomAliasTip", () => {
   const mockGetString = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
 
-    (useL10n as jest.Mock).mockReturnValue({
+    global.useL10nImpl = () => ({
       getString: mockGetString,
     });
 

@@ -1,7 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { FreeOnboarding, Props } from "./FreeOnboarding";
-import { useL10n } from "../../hooks/l10n";
 import { RandomAliasData, AliasData } from "../../hooks/api/aliases";
 import { ProfileData } from "../../hooks/api/profile";
 import { UserData } from "../../hooks/api/user";
@@ -10,18 +9,6 @@ jest.mock("next/config", () => () => ({
   publicRuntimeConfig: {
     maxOnboardingAvailable: 3,
   },
-}));
-
-jest.mock("../../hooks/l10n", () => ({
-  useL10n: jest.fn(),
-}));
-
-jest.mock("../../hooks/gaEvent", () => ({
-  useGaEvent: jest.fn(() => jest.fn()),
-}));
-
-jest.mock("../../hooks/gaViewPing", () => ({
-  useGaViewPing: jest.fn(() => null),
 }));
 
 jest.mock("../../functions/userAgent", () => ({
@@ -54,10 +41,6 @@ const mockAlias: AliasData = {
 } as RandomAliasData;
 
 const mockL10nGetString = jest.fn((key) => key);
-(useL10n as jest.Mock).mockReturnValue({
-  getString: mockL10nGetString,
-  bundles: [{ locales: ["en"] }],
-});
 
 const baseProps: Props = {
   profile: {
@@ -80,6 +63,10 @@ const baseProps: Props = {
 describe("FreeOnboarding", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    global.useL10nImpl = () => ({
+      getString: mockL10nGetString,
+      bundles: [{ locales: ["en"] }],
+    });
   });
 
   it("renders Step 1 and handles mask creation", async () => {
