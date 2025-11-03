@@ -6,7 +6,7 @@ dj-database-url==3.0.1
 django-allauth[socialaccount]==65.12.1
 django-cors-headers==4.9.0
 django-csp==4.0
-django-debug-toolbar==6.0.0
+django-debug-toolbar==6.1.0
 django-filter==25.2
 django-ipware==7.0.1
 python-ipware==2.0.3  # 2.0.4, 2.0.5 break tests
