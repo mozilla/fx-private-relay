@@ -41,7 +41,7 @@ jobs:
           GIT_BRANCH: ${{ steps.git_env_vars.outputs.GIT_BRANCH }}
           GIT_TAG: ${{ steps.git_env_vars.outputs.GIT_TAG }}
         id: build
-        uses: mozilla-it/deploy-actions/docker-build@v5.3.0
+        uses: mozilla-it/deploy-actions/docker-build@v5.3.1
         with:
           gar_name: ${{ vars.GCP_MOZCLOUD_GAR_NAME_PROD }}
           image_name: fx-private-relay
@@ -56,7 +56,7 @@ jobs:
           dockerfile_path: "./Dockerfile"
           image_tag_metadata: ${{ inputs.image_tag_metadata }}
       - name: Push Container Image
-        uses: mozilla-it/deploy-actions/docker-push@v5.3.0
+        uses: mozilla-it/deploy-actions/docker-push@v5.3.1
         if: ${{ github.event_name != 'pull_request' }}
         with:
           image_tags: ${{ steps.build.outputs.image_tags }}
