@@ -158,9 +158,7 @@ def test_user_data_vpn_user() -> None:
     user_data = UserData.from_user(user)
     assert user_data.date_joined_premium
     assert user.profile.date_subscribed
-    assert user_data.date_joined_premium.replace(
-        microsecond=0
-    ) == user.profile.date_subscribed.replace(microsecond=0)
+    assert user_data.date_joined_premium == user.profile.date_subscribed_phone
     assert user_data.premium_status == "bundle_unknown"
 
 
