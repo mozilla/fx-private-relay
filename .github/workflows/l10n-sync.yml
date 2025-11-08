@@ -51,7 +51,7 @@ jobs:
           # Create PR using gh CLI
           PR_URL=$(gh pr create \
             --title "chore: Merge in latest l10n strings" \
-            --body "Automated pull request to sync the latest localization strings from the l10n repository."
+            --body "Automated pull request to sync the latest localization strings from the l10n repository." \
             --base main \
             --head "$BRANCH_NAME")
           
@@ -67,4 +67,3 @@ jobs:
         run: gh pr merge ${{ steps.create_pr.outputs.pr_number }} --auto --merge
         env:
           GH_TOKEN: ${{ secrets.L10N_UPDATE_TOKEN }}
-
