@@ -4,6 +4,7 @@ import { setMockInboundContactData } from "../../__mocks__/hooks/api/inboundCont
 import {
   setMockProfileData,
   setMockProfileDataOnce,
+  setMockProfileErrorOnce,
 } from "../../__mocks__/hooks/api/profile";
 import {
   getMockVerifiedRealPhone,
@@ -13,6 +14,7 @@ import {
   getMockRelayNumber,
   setMockRelayNumberData,
   setMockRelayNumberDataOnce,
+  setMockRelayNumberErrorOnce,
 } from "../../__mocks__/hooks/api/relayNumber";
 import {
   getMockRuntimeDataWithPeriodicalPremium,
@@ -111,6 +113,28 @@ describe("The Phone dashboard", () => {
       expect(shownPhoneNumbers).toHaveLength(2);
       expect(shownPhoneNumbers[0]).toBeInTheDocument();
       expect(shownPhoneNumbers[1]).toBeInTheDocument();
+    });
+  });
+  describe("error state", () => {
+    it("shows an error page if profile call errors", async () => {
+      setMockProfileErrorOnce();
+      setMockRealPhonesData([getMockVerifiedRealPhone()]);
+      render(<PhoneDashboard />);
+
+      const errorText = await screen.findByText(
+        "l10n string: [error-general], with vars: {}",
+      );
+      expect(errorText).toBeInTheDocument();
+    });
+    it("shows an error page if relay number call errors", async () => {
+      setMockProfileDataOnce({ has_premium: false });
+      setMockRelayNumberErrorOnce();
+      render(<PhoneDashboard />);
+
+      const errorText = await screen.findByText(
+        "l10n string: [error-general], with vars: {}",
+      );
+      expect(errorText).toBeInTheDocument();
     });
   });
 });

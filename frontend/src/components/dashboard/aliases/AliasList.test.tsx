@@ -3,9 +3,9 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { mockLocalizedModule } from "../../../../__mocks__/components/Localized";
 import { mockConfigModule } from "../../../../__mocks__/configMock";
+import { mockUseL10nModule } from "../../../../__mocks__/hooks/l10n";
 import { getMockRandomAlias } from "../../../../__mocks__/hooks/api/aliases";
 import { getMockProfileData } from "../../../../__mocks__/hooks/api/profile";
-import { mockUseL10nModule } from "../../../../__mocks__/hooks/l10n";
 import * as LocalLabelsMock from "../../../../__mocks__/hooks/localLabels";
 import { AliasList } from "./AliasList";
 

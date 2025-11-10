@@ -16,6 +16,7 @@ import { useRouter } from "next/router";
 import { isPhonesAvailableInCountry } from "../functions/getPlan";
 import { PhoneWelcomeView } from "../components/phones/dashboard/PhoneWelcomeView";
 import { useLocalDismissal } from "../hooks/localDismissal";
+import { ErrorGeneral } from "../components/layout/ErrorGeneral";
 
 const Phone: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -74,6 +75,17 @@ const Phone: NextPage = () => {
 
   if (!userData.isValidating && userData.error) {
     document.location.assign(getRuntimeConfig().fxaLoginUrl);
+  }
+
+  // userData errors are handled above, runtimeData errors won't impede rendering
+  if (profileData.error || relayNumberData.error) {
+    return (
+      <>
+        <Layout>
+          <ErrorGeneral></ErrorGeneral>
+        </Layout>
+      </>
+    );
   }
 
   if (!profile || !user || !relayNumberData.data || !runtimeData.data) {
