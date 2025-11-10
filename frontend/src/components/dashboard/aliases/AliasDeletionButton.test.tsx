@@ -1,9 +1,9 @@
 import { render, screen, within, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { mockConfigModule } from "../../../../__mocks__/configMock";
+import { mockUseL10nModule } from "../../../../__mocks__/hooks/l10n";
 import { mockLocalizedModule } from "../../../../__mocks__/components/Localized";
 import { getMockRandomAlias } from "../../../../__mocks__/hooks/api/aliases";
-import { mockUseL10nModule } from "../../../../__mocks__/hooks/l10n";
 
 import * as aliasApi from "../../../hooks/api/aliases";
 import { AliasDeletionButton } from "./AliasDeletionButton";
