@@ -61,9 +61,3 @@ jobs:
           echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{ secrets.L10N_UPDATE_TOKEN }}
-
-      - name: Enable auto-merge
-        if: steps.check_changes.outputs.has_changes == 'true' && steps.create_pr.outputs.pr_number
-        run: gh pr merge ${{ steps.create_pr.outputs.pr_number }} --auto --merge
-        env:
-          GH_TOKEN: ${{ secrets.L10N_UPDATE_TOKEN }}
