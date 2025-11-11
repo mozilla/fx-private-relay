@@ -1,0 +1,25 @@
+queue_rules:
+  - name: default
+    conditions:
+      - status-success=ci/circleci: build_frontend
+      - status-success=ci/circleci: build_test_backend
+      - status-success=ci/circleci: test_frontend
+
+pull_request_rules:
+  # Automatically approve and merge l10n updates from GitHub Actions
+  - name: L10N auto-merge
+    conditions:
+      - author=github-actions[bot]
+      - files~=^privaterelay/locales/
+      # Ensure ONLY l10n files are modified
+      - -files~=^(?!privaterelay/locales/)
+      - status-success=ci/circleci: build_frontend
+      - status-success=ci/circleci: build_test_backend
+      - status-success=ci/circleci: test_frontend
+    actions:
+      review:
+        type: APPROVE
+        message: "LGTM 😎"
+      queue:
+        name: default
+        method: merge
