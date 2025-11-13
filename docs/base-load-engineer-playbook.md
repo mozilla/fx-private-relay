@@ -90,7 +90,7 @@ Contact other engineers to transfer Base Load Engineer responsibilities to anoth
 [security-dependabot-alerts]: https://github.com/mozilla/fx-private-relay/security/dependabot
 [whats-deployed]: https://whatsdeployed.io/s/60j/mozilla/fx-private-relay
 [github-compare]: https://github.com/mozilla/fx-private-relay/compare/
-[stage-version]: https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net/__version__
+[stage-version]: https://relay.allizom.org/__version__
 [prod-version]: https://relay.firefox.com/__version__
 [github-releases]: https://github.com/mozilla/fx-private-relay/releases
 [run-e2e-tests]: https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml

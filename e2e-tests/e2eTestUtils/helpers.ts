@@ -8,7 +8,7 @@ export const ENV_EMAIL_DOMAINS = {
 };
 
 export const ENV_URLS = {
-  stage: "https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+  stage: "https://relay.allizom.org",
   prod: "https://relay.firefox.com",
   dev: "https://relay-dev.allizom.org",
   local: process.env.SITE_ORIGIN,

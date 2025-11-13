@@ -57,9 +57,9 @@ The premium account needs to have a chosen subdomain for the premium tests to pa
 npm run test:e2e
 ```
 
-By default, `npm run test:e2e` will run the tests on https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net/.
+By default, `npm run test:e2e` will run the tests on https://relay.allizom.org/.
 
-You can also run tests locally, on our dev server (https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/), and in production (https://relay.firefox.com/). You can find the commands [here](https://github.com/mozilla/fx-private-relay/blob/main/package.json#L26-L31), or you can run `E2E_TEST_ENV=<env (prod, dev, stage)> npx playwright test`.
+You can also run tests locally, on our dev server (https://relay-dev.allizom.org/), and in production (https://relay.firefox.com/). You can find the commands [here](https://github.com/mozilla/fx-private-relay/blob/main/package.json#L26-L31), or you can run `E2E_TEST_ENV=<env (prod, dev, stage)> npx playwright test`.
 
 To view the tests live in the browser, you can add `--headed` to the end of the command:
 
