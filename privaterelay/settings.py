@@ -66,8 +66,6 @@ SITE_ORIGIN: str | None = config("SITE_ORIGIN", None)
 ORIGIN_CHANNEL_MAP: dict[str, RELAY_CHANNEL_NAME] = {
     "http://127.0.0.1:8000": "local",
     "https://relay.firefox.com": "prod",
-    # GCPv1
-    "https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net": "stage",
     # GCPv2
     "https://relay-dev.allizom.org": "dev",
     "https://relay.allizom.org": "stage",
@@ -819,7 +817,7 @@ if RELAY_CHANNEL == "dev":
 if RELAY_CHANNEL == "stage":
     CORS_ALLOWED_ORIGINS += [
         # GCP v1
-        "https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+        "https://relay.allizom.org",
         # GCP v2
         "https://stage.relay.nonprod.webservices.mozgcp.net",
         "https://relay.allizom.org",

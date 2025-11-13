@@ -11,7 +11,7 @@
       "containerInstances" : [ {
         "containerId" : "102",
         "deploymentGroups" : [ "Default" ],
-        "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+        "environment" : "relay.allizom.org",
         "id" : "171",
         "instanceId" : 1,
         "properties" : {
@@ -63,7 +63,7 @@
       }, {
         "containerId" : "108",
         "deploymentGroups" : [ "Default" ],
-        "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+        "environment" : "relay.allizom.org",
         "id" : "172",
         "instanceId" : 1,
         "properties" : {
@@ -99,7 +99,7 @@
         } ],
         "tags" : "Container Instance"
       } ],
-      "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+      "environment" : "relay.allizom.org",
       "id" : "170",
       "instances" : "1",
       "name" : "Stage User Interfaces",
@@ -113,7 +113,7 @@
           "containerInstances" : [ {
             "containerId" : "27",
             "deploymentGroups" : [ "Default" ],
-            "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+            "environment" : "relay.allizom.org",
             "id" : "177",
             "instanceId" : 1,
             "properties" : {
@@ -131,7 +131,7 @@
           }, {
             "containerId" : "29",
             "deploymentGroups" : [ "Default" ],
-            "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+            "environment" : "relay.allizom.org",
             "id" : "178",
             "instanceId" : 1,
             "properties" : {
@@ -154,7 +154,7 @@
             } ],
             "tags" : "Container Instance"
           } ],
-          "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+          "environment" : "relay.allizom.org",
           "id" : "176",
           "instances" : "1",
           "name" : "Amazon SQS",
@@ -166,7 +166,7 @@
           "containerInstances" : [ {
             "containerId" : "32",
             "deploymentGroups" : [ "Default" ],
-            "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+            "environment" : "relay.allizom.org",
             "id" : "181",
             "instanceId" : 1,
             "properties" : {
@@ -210,7 +210,7 @@
             } ],
             "tags" : "Container Instance"
           } ],
-          "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+          "environment" : "relay.allizom.org",
           "id" : "180",
           "instances" : "1",
           "name" : "Amazon SNS",
@@ -222,7 +222,7 @@
           "containerInstances" : [ {
             "containerId" : "38",
             "deploymentGroups" : [ "Default" ],
-            "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+            "environment" : "relay.allizom.org",
             "id" : "184",
             "instanceId" : 1,
             "properties" : {
@@ -254,7 +254,7 @@
           }, {
             "containerId" : "35",
             "deploymentGroups" : [ "Default" ],
-            "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+            "environment" : "relay.allizom.org",
             "id" : "186",
             "instanceId" : 1,
             "properties" : {
@@ -277,7 +277,7 @@
             } ],
             "tags" : "Container Instance"
           } ],
-          "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+          "environment" : "relay.allizom.org",
           "id" : "183",
           "instances" : "1",
           "name" : "Amazon SES",
@@ -289,7 +289,7 @@
           "containerInstances" : [ {
             "containerId" : "25",
             "deploymentGroups" : [ "Default" ],
-            "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+            "environment" : "relay.allizom.org",
             "id" : "189",
             "instanceId" : 1,
             "properties" : {
@@ -305,7 +305,7 @@
             } ],
             "tags" : "Container Instance"
           } ],
-          "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+          "environment" : "relay.allizom.org",
           "id" : "188",
           "instances" : "1",
           "name" : "Amazon S3",
@@ -317,7 +317,7 @@
           "containerInstances" : [ {
             "containerId" : "24",
             "deploymentGroups" : [ "Default" ],
-            "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+            "environment" : "relay.allizom.org",
             "id" : "192",
             "instanceId" : 1,
             "properties" : {
@@ -325,7 +325,7 @@
             },
             "tags" : "Container Instance"
           } ],
-          "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+          "environment" : "relay.allizom.org",
           "id" : "191",
           "instances" : "1",
           "name" : "Amazon KMS",
@@ -334,7 +334,7 @@
           },
           "tags" : "Element,Deployment Node"
         } ],
-        "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+        "environment" : "relay.allizom.org",
         "id" : "175",
         "instances" : "1",
         "name" : "us-east-1 region",
@@ -343,11 +343,11 @@
         },
         "tags" : "Element,Deployment Node"
       } ],
-      "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+      "environment" : "relay.allizom.org",
       "id" : "174",
       "infrastructureNodes" : [ {
         "description" : "AWS metrics storage and reporting",
-        "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+        "environment" : "relay.allizom.org",
         "id" : "199",
         "name" : "Amazon CloudWatch",
         "properties" : {
@@ -374,7 +374,7 @@
           "containerInstances" : [ {
             "containerId" : "80",
             "deploymentGroups" : [ "Default" ],
-            "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+            "environment" : "relay.allizom.org",
             "id" : "204",
             "instanceId" : 1,
             "properties" : {
@@ -453,11 +453,11 @@
             } ],
             "tags" : "Container Instance"
           } ],
-          "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+          "environment" : "relay.allizom.org",
           "id" : "202",
           "infrastructureNodes" : [ {
             "description" : "Reverse proxy",
-            "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+            "environment" : "relay.allizom.org",
             "id" : "203",
             "name" : "nginx",
             "properties" : {
@@ -485,7 +485,7 @@
             "containerId" : "80",
             "deploymentGroups" : [ "Default" ],
             "description" : "Canary App for deployment testing",
-            "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+            "environment" : "relay.allizom.org",
             "id" : "211",
             "instanceId" : 1,
             "properties" : {
@@ -564,11 +564,11 @@
             } ],
             "tags" : "Container Instance"
           } ],
-          "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+          "environment" : "relay.allizom.org",
           "id" : "209",
           "infrastructureNodes" : [ {
             "description" : "Reverse proxy",
-            "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+            "environment" : "relay.allizom.org",
             "id" : "210",
             "name" : "nginx",
             "properties" : {
@@ -595,7 +595,7 @@
           "containerInstances" : [ {
             "containerId" : "43",
             "deploymentGroups" : [ "Default" ],
-            "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+            "environment" : "relay.allizom.org",
             "id" : "217",
             "instanceId" : 1,
             "properties" : {
@@ -624,7 +624,7 @@
             } ],
             "tags" : "Container Instance"
           } ],
-          "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+          "environment" : "relay.allizom.org",
           "id" : "216",
           "instances" : "1",
           "name" : "cleanup",
@@ -637,7 +637,7 @@
           "containerInstances" : [ {
             "containerId" : "92",
             "deploymentGroups" : [ "Default" ],
-            "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+            "environment" : "relay.allizom.org",
             "id" : "219",
             "instanceId" : 1,
             "properties" : {
@@ -702,7 +702,7 @@
             } ],
             "tags" : "Container Instance"
           } ],
-          "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+          "environment" : "relay.allizom.org",
           "id" : "218",
           "instances" : "6",
           "name" : "emails",
@@ -715,7 +715,7 @@
           "containerInstances" : [ {
             "containerId" : "49",
             "deploymentGroups" : [ "Default" ],
-            "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+            "environment" : "relay.allizom.org",
             "id" : "224",
             "instanceId" : 1,
             "properties" : {
@@ -744,7 +744,7 @@
             } ],
             "tags" : "Container Instance"
           } ],
-          "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+          "environment" : "relay.allizom.org",
           "id" : "223",
           "instances" : "1",
           "name" : "replys [sic]",
@@ -757,7 +757,7 @@
           "containerInstances" : [ {
             "containerId" : "72",
             "deploymentGroups" : [ "Default" ],
-            "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+            "environment" : "relay.allizom.org",
             "id" : "226",
             "instanceId" : 1,
             "properties" : {
@@ -807,7 +807,7 @@
             } ],
             "tags" : "Container Instance"
           } ],
-          "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+          "environment" : "relay.allizom.org",
           "id" : "225",
           "instances" : "1",
           "name" : "sqs-dlq",
@@ -820,7 +820,7 @@
           "containerInstances" : [ {
             "containerId" : "54",
             "deploymentGroups" : [ "Default" ],
-            "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+            "environment" : "relay.allizom.org",
             "id" : "231",
             "instanceId" : 1,
             "properties" : {
@@ -856,7 +856,7 @@
             } ],
             "tags" : "Container Instance"
           } ],
-          "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+          "environment" : "relay.allizom.org",
           "id" : "230",
           "instances" : "1",
           "name" : "syncphones",
@@ -869,7 +869,7 @@
           "containerInstances" : [ {
             "containerId" : "61",
             "deploymentGroups" : [ "Default" ],
-            "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+            "environment" : "relay.allizom.org",
             "id" : "233",
             "instanceId" : 1,
             "properties" : {
@@ -898,7 +898,7 @@
             } ],
             "tags" : "Container Instance"
           } ],
-          "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+          "environment" : "relay.allizom.org",
           "id" : "232",
           "instances" : "1",
           "name" : "updphones",
@@ -911,7 +911,7 @@
           "containerInstances" : [ {
             "containerId" : "66",
             "deploymentGroups" : [ "Default" ],
-            "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+            "environment" : "relay.allizom.org",
             "id" : "235",
             "instanceId" : 1,
             "properties" : {
@@ -947,7 +947,7 @@
             } ],
             "tags" : "Container Instance"
           } ],
-          "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+          "environment" : "relay.allizom.org",
           "id" : "234",
           "instances" : "1",
           "name" : "welcome",
@@ -957,11 +957,11 @@
           "tags" : "Element,Deployment Node",
           "technology" : "Kubernetes Cron Job"
         }, {
-          "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+          "environment" : "relay.allizom.org",
           "id" : "237",
           "infrastructureNodes" : [ {
             "description" : "Tracks IP reputation, blocks IPs",
-            "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+            "environment" : "relay.allizom.org",
             "id" : "238",
             "name" : "iprepd-nginx",
             "properties" : {
@@ -995,7 +995,7 @@
           "containerInstances" : [ {
             "containerId" : "16",
             "deploymentGroups" : [ "Default" ],
-            "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+            "environment" : "relay.allizom.org",
             "id" : "240",
             "instanceId" : 1,
             "properties" : {
@@ -1018,7 +1018,7 @@
             } ],
             "tags" : "Container Instance"
           } ],
-          "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+          "environment" : "relay.allizom.org",
           "id" : "239",
           "instances" : "1",
           "name" : "statsd-telegraf",
@@ -1028,7 +1028,7 @@
           "tags" : "Element,Deployment Node",
           "technology" : "Kubernetes Deployment"
         } ],
-        "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+        "environment" : "relay.allizom.org",
         "id" : "201",
         "instances" : "1",
         "name" : "Kubernetes Engine",
@@ -1040,7 +1040,7 @@
         "containerInstances" : [ {
           "containerId" : "9",
           "deploymentGroups" : [ "Default" ],
-          "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+          "environment" : "relay.allizom.org",
           "id" : "251",
           "instanceId" : 1,
           "properties" : {
@@ -1050,7 +1050,7 @@
         }, {
           "containerId" : "11",
           "deploymentGroups" : [ "Default" ],
-          "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+          "environment" : "relay.allizom.org",
           "id" : "262",
           "instanceId" : 1,
           "properties" : {
@@ -1066,7 +1066,7 @@
           } ],
           "tags" : "Container Instance"
         } ],
-        "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+        "environment" : "relay.allizom.org",
         "id" : "250",
         "instances" : "1",
         "name" : "Cloud SQL",
@@ -1078,7 +1078,7 @@
         "containerInstances" : [ {
           "containerId" : "13",
           "deploymentGroups" : [ "Default" ],
-          "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+          "environment" : "relay.allizom.org",
           "id" : "265",
           "instanceId" : 1,
           "properties" : {
@@ -1100,7 +1100,7 @@
           } ],
           "tags" : "Container Instance"
         } ],
-        "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+        "environment" : "relay.allizom.org",
         "id" : "264",
         "instances" : "1",
         "name" : "Cloud Logging",
@@ -1109,11 +1109,11 @@
         },
         "tags" : "Element,Deployment Node"
       }, {
-        "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+        "environment" : "relay.allizom.org",
         "id" : "275",
         "infrastructureNodes" : [ {
           "description" : "Log Analytics, 90 day retention",
-          "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+          "environment" : "relay.allizom.org",
           "id" : "276",
           "name" : "log_storage",
           "properties" : {
@@ -1132,7 +1132,7 @@
         "containerInstances" : [ {
           "containerId" : "21",
           "deploymentGroups" : [ "Default" ],
-          "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+          "environment" : "relay.allizom.org",
           "id" : "278",
           "instanceId" : 1,
           "properties" : {
@@ -1140,7 +1140,7 @@
           },
           "tags" : "Container Instance"
         } ],
-        "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+        "environment" : "relay.allizom.org",
         "id" : "277",
         "instances" : "1",
         "name" : "MemoryStore",
@@ -1152,7 +1152,7 @@
         "containerInstances" : [ {
           "containerId" : "20",
           "deploymentGroups" : [ "Default" ],
-          "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+          "environment" : "relay.allizom.org",
           "id" : "282",
           "instanceId" : 1,
           "properties" : {
@@ -1160,7 +1160,7 @@
           },
           "tags" : "Container Instance"
         } ],
-        "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+        "environment" : "relay.allizom.org",
         "id" : "281",
         "instances" : "1",
         "name" : "Cloud Profiler",
@@ -1169,11 +1169,11 @@
         },
         "tags" : "Element,Deployment Node"
       }, {
-        "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+        "environment" : "relay.allizom.org",
         "id" : "286",
         "infrastructureNodes" : [ {
           "description" : "Zone for fxprivaterelay.nonprod.cloudops.mozgcp.net",
-          "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+          "environment" : "relay.allizom.org",
           "id" : "287",
           "name" : "Load Balancer",
           "properties" : {
@@ -1196,7 +1196,7 @@
         },
         "tags" : "Element,Deployment Node"
       } ],
-      "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+      "environment" : "relay.allizom.org",
       "id" : "200",
       "instances" : "1",
       "name" : "Google Cloud Platform",
@@ -1205,7 +1205,7 @@
       },
       "tags" : "Element,Deployment Node"
     }, {
-      "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+      "environment" : "relay.allizom.org",
       "id" : "288",
       "instances" : "1",
       "name" : "accounts.stage.mozaws.net",
@@ -1214,7 +1214,7 @@
       },
       "softwareSystemInstances" : [ {
         "deploymentGroups" : [ "Default" ],
-        "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+        "environment" : "relay.allizom.org",
         "id" : "289",
         "instanceId" : 1,
         "properties" : {
@@ -1233,7 +1233,7 @@
       } ],
       "tags" : "Element,Deployment Node"
     }, {
-      "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+      "environment" : "relay.allizom.org",
       "id" : "294",
       "instances" : "1",
       "name" : "analytics.google.com",
@@ -1242,7 +1242,7 @@
       },
       "softwareSystemInstances" : [ {
         "deploymentGroups" : [ "Default" ],
-        "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+        "environment" : "relay.allizom.org",
         "id" : "295",
         "instanceId" : 1,
         "properties" : {
@@ -1253,7 +1253,7 @@
       } ],
       "tags" : "Element,Deployment Node"
     }, {
-      "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+      "environment" : "relay.allizom.org",
       "id" : "299",
       "instances" : "1",
       "name" : "Mozilla Data Platform",
@@ -1262,7 +1262,7 @@
       },
       "softwareSystemInstances" : [ {
         "deploymentGroups" : [ "Default" ],
-        "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+        "environment" : "relay.allizom.org",
         "id" : "300",
         "instanceId" : 1,
         "properties" : {
@@ -1273,7 +1273,7 @@
       } ],
       "tags" : "Element,Deployment Node"
     }, {
-      "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+      "environment" : "relay.allizom.org",
       "id" : "302",
       "instances" : "1",
       "name" : "Stripe",
@@ -1283,7 +1283,7 @@
       "softwareSystemInstances" : [ {
         "deploymentGroups" : [ "Default" ],
         "description" : "Development Stripe, with select subscriptions",
-        "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+        "environment" : "relay.allizom.org",
         "id" : "303",
         "instanceId" : 1,
         "properties" : {
@@ -1294,7 +1294,7 @@
       } ],
       "tags" : "Element,Deployment Node"
     }, {
-      "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+      "environment" : "relay.allizom.org",
       "id" : "306",
       "instances" : "1",
       "name" : "mozilla.sentry.io",
@@ -1303,7 +1303,7 @@
       },
       "softwareSystemInstances" : [ {
         "deploymentGroups" : [ "Default" ],
-        "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+        "environment" : "relay.allizom.org",
         "id" : "307",
         "instanceId" : 1,
         "properties" : {
@@ -1314,7 +1314,7 @@
       } ],
       "tags" : "Element,Deployment Node"
     }, {
-      "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+      "environment" : "relay.allizom.org",
       "id" : "317",
       "instances" : "1",
       "name" : "influxcloud.net",
@@ -1323,7 +1323,7 @@
       },
       "softwareSystemInstances" : [ {
         "deploymentGroups" : [ "Default" ],
-        "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+        "environment" : "relay.allizom.org",
         "id" : "318",
         "instanceId" : 1,
         "properties" : {
@@ -1337,7 +1337,7 @@
       "containerInstances" : [ {
         "containerId" : "22",
         "deploymentGroups" : [ "Default" ],
-        "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+        "environment" : "relay.allizom.org",
         "id" : "321",
         "instanceId" : 1,
         "properties" : {
@@ -1352,7 +1352,7 @@
         } ],
         "tags" : "Container Instance"
       } ],
-      "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+      "environment" : "relay.allizom.org",
       "id" : "320",
       "instances" : "1",
       "name" : "twilio.com",
@@ -6396,7 +6396,7 @@
         "x" : 6376,
         "y" : 221
       } ],
-      "environment" : "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net",
+      "environment" : "relay.allizom.org",
       "key" : "RelayStageDeployment",
       "order" : 9,
       "relationships" : [ {

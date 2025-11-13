@@ -49,7 +49,7 @@ const config = defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: process.env.E2E_TEST_BASE_URL || 'https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net',
+    baseURL: process.env.E2E_TEST_BASE_URL || 'https://relay.allizom.org',
 
     /* automatically take screenshot only on failures */
     screenshot: 'only-on-failure',

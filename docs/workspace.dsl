@@ -363,7 +363,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
         c2_periodic_tasks -> metrics "Sends metrics" "UDP"
         c2_periodic_tasks -> logs "Emits logs"
 
-        stage_deploy = deploymentEnvironment "stage.fxprivaterelay.nonprod.cloudops.mozgcp.net" {
+        stage_deploy = deploymentEnvironment "relay.allizom.org" {
             deploymentNode "Stage User Interfaces" {
                 stage_web = containerInstance web
                 stage_add_on = containerInstance add_on

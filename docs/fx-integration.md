@@ -61,14 +61,14 @@ configure a Firefox profile to use non-production Relay and FxA servers.
 3. Change values per the table below
 4. Restart Firefox with the profile
 
-|             | `identity.fxaccounts.autoconfig.uri` | `signon.firefoxRelay.base_url`                                     | `signon.firefoxRelay.manage_url`                           |
-| ----------- | ------------------------------------ | ------------------------------------------------------------------ | ---------------------------------------------------------- |
-| Local Relay | `https://accounts.stage.mozaws.net`  | `http://127.0.0.1:8000/api/v1/`                                    | `http://127.0.0.1:8000`                                    |
-| Dev Relay   | `https://accounts.stage.mozaws.net`  | `https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/api/v1/`   | `https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net`   |
-| Stage Relay | `https://accounts.stage.mozaws.net`  | `https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net/api/v1/` | `https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net` |
+|             | `identity.fxaccounts.autoconfig.uri` | `signon.firefoxRelay.base_url`          | `signon.firefoxRelay.manage_url` |
+| ----------- | ------------------------------------ | --------------------------------------- | -------------------------------- |
+| Local Relay | `https://accounts.stage.mozaws.net`  | `http://127.0.0.1:8000/api/v1/`         | `http://127.0.0.1:8000`          |
+| Dev Relay   | `https://accounts.stage.mozaws.net`  | `https://relay-dev.allizom.org/api/v1/` | `https://relay-dev.allizom.org`  |
+| Stage Relay | `https://accounts.stage.mozaws.net`  | `https://relay.allizom.org/api/v1/`     | `https://relay.allizom.org`      |
 
 [sumo-fxa]: https://support.mozilla.org/kb/access-mozilla-services-firefox-account
 [fxa-getOAuthToken]: https://searchfox.org/mozilla-central/search?q=symbol:FxAccounts%23getOAuthToken&redirect=false
 [fxa-oauth-token]: https://mozilla.github.io/ecosystem-platform/api#tag/Oauth/operation/postOauthToken
-[relay-rest-api]: https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/api/v1/docs/
+[relay-rest-api]: https://relay-dev.allizom.org/api/v1/docs/
 [relay-api-doc-auth]: api_auth.md#fxa-oauth-token-authentication
