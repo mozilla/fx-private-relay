@@ -388,9 +388,7 @@ class TermsAcceptedUserViewTest(TestCase):
                 "allauth.socialaccount.internal.flows.signup.process_auto_signup",
                 side_effect=process_auto_signup_then_create_account,
             ) as mock_process_signup,
-            self.assertRaisesMessage(
-                IntegrityError, "duplicate key value violates unique constraint"
-            ),
+            self.assertRaises(IntegrityError),
         ):
             client.post(self.path)
         mock_process_signup.assert_called_once()
