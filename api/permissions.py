@@ -5,6 +5,8 @@ from rest_framework.request import Request
 from rest_framework.views import APIView
 from waffle import flag_is_active
 
+from .authentication import IntrospectionResponse
+
 READ_METHODS = ["GET", "HEAD"]
 
 
@@ -40,3 +42,18 @@ class CanManageFlags(permissions.BasePermission):
         return flag_is_active(request, "manage_flags") and request.user.email.endswith(
             "@mozilla.com"
         )
+
+
+class HasValidFxaToken(permissions.BasePermission):
+    def has_permission(self, request: Request, view: APIView) -> bool:
+        return isinstance(request.auth, IntrospectionResponse)
+
+
+class IsActive(permissions.BasePermission):
+    def has_permission(self, request: Request, view: APIView) -> bool:
+        return isinstance(request.user, User) and request.user.is_active
+
+
+class IsNewUser(permissions.BasePermission):
+    def has_permission(self, request: Request, view: APIView) -> bool:
+        return isinstance(request.user, AnonymousUser)
