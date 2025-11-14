@@ -9,6 +9,7 @@ import { mockConfigModule } from "../../../__mocks__/configMock";
 import {
   setMockProfileData,
   setMockProfileDataOnce,
+  setMockProfileErrorOnce,
 } from "../../../__mocks__/hooks/api/profile";
 import { setMockUserData } from "../../../__mocks__/hooks/api/user";
 import {
@@ -16,6 +17,7 @@ import {
   getMockRandomAlias,
   setMockAliasesData,
   setMockAliasesDataOnce,
+  setMockAliasesErrorOnce,
 } from "../../../__mocks__/hooks/api/aliases";
 import {
   getMockRuntimeDataWithPhones,
@@ -1243,6 +1245,35 @@ describe("The dashboard", () => {
 
       const confettiCanvas = screen.getByTestId("react-confetti");
       expect(confettiCanvas).toBeInTheDocument();
+    });
+  });
+
+  describe("error state", () => {
+    it("shows an error page if profile call errors", async () => {
+      setMockProfileErrorOnce();
+      setMockAliasesDataOnce({
+        random: [
+          getMockRandomAlias({ address: "address1", num_blocked: 13 }),
+          getMockRandomAlias({ address: "address2", num_blocked: 37 }),
+        ],
+        custom: [],
+      });
+      render(<Profile />);
+
+      const errorText = await screen.findByText(
+        "l10n string: [error-general], with vars: {}",
+      );
+      expect(errorText).toBeInTheDocument();
+    });
+    it("shows an error page if alias call errors", async () => {
+      setMockProfileDataOnce({ has_premium: false });
+      setMockAliasesErrorOnce();
+      render(<Profile />);
+
+      const errorText = await screen.findByText(
+        "l10n string: [error-general], with vars: {}",
+      );
+      expect(errorText).toBeInTheDocument();
     });
   });
 });

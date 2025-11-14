@@ -6,11 +6,11 @@ import { type Props as CountryPickerProps } from "./CountryPicker";
 import { type Props as LocalePickerProps } from "./LocalePicker";
 import { mockNextRouter } from "../../../__mocks__/modules/next__router";
 import { mockConfigModule } from "../../../__mocks__/configMock";
+import { mockUseL10nModule } from "../../../__mocks__/hooks/l10n";
 import { setMockRuntimeData } from "../../../__mocks__/hooks/api/runtimeData";
 import { setMockUserData } from "../../../__mocks__/hooks/api/user";
 import { setMockProfileData } from "../../../__mocks__/hooks/api/profile";
 import { mockUseFxaFlowTrackerModule } from "../../../__mocks__/hooks/fxaFlowTracker";
-import { mockUseL10nModule } from "../../../__mocks__/hooks/l10n";
 import { mockLocalizedModule } from "../../../__mocks__/components/Localized";
 
 import { WaitlistPage } from "./WaitlistPage";
