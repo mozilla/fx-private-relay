@@ -187,7 +187,7 @@ class IntrospectionResponse:
 
 
 INTROSPECT_ERROR = Literal[
-    "Timeout",  # Introspection API took too long to response
+    "Timeout",  # Introspection API took too long to respond
     "FailedRequest",  # Introspection API request failed
     "NotJson",  # Introspection API did not return JSON
     "NotJsonDict",  # Introspection API did not return a JSON dictionary
