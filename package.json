@@ -31,5 +31,11 @@
     "test:prod": "E2E_TEST_ENV=prod playwright test --retries=2",
     "prepare": "husky"
   },
+  "overrides": {
+    "js-yaml": "^4.1.1",
+    "@istanbuljs/load-nyc-config": {
+      "js-yaml": "^4.1.1"
+    }
+  },
   "homepage": "https://github.com/mozilla/fx-private-relay#readme"
 }
