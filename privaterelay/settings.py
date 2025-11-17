@@ -428,6 +428,10 @@ TEMPLATES = [
 
 RELAY_FIREFOX_DOMAIN: str = config("RELAY_FIREFOX_DOMAIN", "relay.firefox.com")
 MOZMAIL_DOMAIN: str = config("MOZMAIL_DOMAIN", "mozmail.com")
+# A particular scope that we require OAuth applications to have
+RELAY_SCOPE: str = config(
+    "RELAY_SCOPE", "https://identity.mozilla.com/apps/relay", cast=str
+)
 MAX_NUM_FREE_ALIASES: int = config("MAX_NUM_FREE_ALIASES", 5, cast=int)
 PERIODICAL_PREMIUM_PROD_ID: str = config("PERIODICAL_PREMIUM_PROD_ID", "")
 PREMIUM_PLAN_ID_US_MONTHLY: str = config(
@@ -607,7 +611,11 @@ AUTHENTICATION_BACKENDS = (
 SOCIALACCOUNT_PROVIDERS = {
     "fxa": {
         # Note: to request "profile" scope, must be a trusted Mozilla client
-        "SCOPE": ["profile", "https://identity.mozilla.com/account/subscriptions"],
+        "SCOPE": [
+            "profile",
+            "https://identity.mozilla.com/account/subscriptions",
+            RELAY_SCOPE,
+        ],
         "AUTH_PARAMS": {"access_type": "offline"},
         "OAUTH_ENDPOINT": config(
             "FXA_OAUTH_ENDPOINT", "https://oauth.accounts.firefox.com/v1"
