@@ -65,7 +65,7 @@ environment. To do this, we first release code to [Dev][dev] and
 
 ## Release strategy
 
-Our [release workflow][release-workflow] builds and tags Docker container images
+Our ["Deploy to MozCloud environment" workflow][release-workflow] builds and tags Docker container images
 such that newly built images are picked up by our auto-synced ArgoCD dev/stage/prod applications.
 Each environment filters for certain tags that it is allowed to deploy.
 
@@ -77,14 +77,20 @@ The tag structure is as follows:
 | stage       | `YYYY.MM.DD--stage`                    |
 | prod        | `YYYY.MM.DD--prod`                     |
 
-Note: `dev` will auto-deploy code that is pushed to `main`.
+All code that is pushed to `main` will auto-deploy to the `dev` environment. To manually deploy a change, you can use the ["Deploy to MozCloud environment" workflow][release-workflow] to select a branch/tag to deploy:
+
+[<img src="./img/gha-deploy-mozcloud.png"
+      alt="Screenshot of MozCloud" />
+](./img/gha-deploy-mozcloud.png)
+
+**Note: There will be a slight delay between the action finishing and the actual deploy. This is because the action builds an image that is automatically picked up by ArgoCD. A bot will update the `#fx-private-relay-eng` when the deploy actually goes out.**
 
 ## Release to Dev
 
 Every commit to `main` is automatically deployed to the [Dev][dev] server.
 
-To deploy an alternate branch or tag to the `dev` environment, use the [release workflow][release-workflow]
-in Github and select the branch or tag that you wish to deploy, along with the `dev` environment.
+To deploy an alternate branch or tag to the `dev` environment, use the ["Deploy to MozCloud environment" workflow][release-workflow]
+in Github and select the branch or tag that you wish to deploy, along with the `dev` environment. See the "Release to Stage" section below for a screenshot.
 
 Note that if your branch or tag has migrations, they will be run automatically. This might cause conflicts
 that need to be manually fixed in `dev` later on.
@@ -124,7 +130,7 @@ E.g., the following `2022.08.02` tag includes only `change-1` and `change-2`.
        checkout main
 ```
 
-Once you've created the tag, you should use the [release workflow][release-workflow]
+Once you've created the tag, you should use the ["Deploy to MozCloud environment" workflow][release-workflow]
 to select the tag and deploy to the [Stage][stage] environment by selecting `stage`.
 
 ### Create Release Notes on GitHub
@@ -355,7 +361,7 @@ branches](release-process-future-long-branches.png "Future release process with
 long-running branches")
 
 [prod]: https://relay.firefox.com/
-[stage]: relay.allizom.org
+[stage]: https://relay.allizom.org
 [dev]: https://relay-dev.allizom.org/
 [readme]: https://github.com/mozilla/fx-private-relay/blob/main/README.md
 [docs]: https://github.com/mozilla/fx-private-relay/tree/main/docs
