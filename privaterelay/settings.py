@@ -649,6 +649,12 @@ FXA_SUPPORT_URL = config("FXA_SUPPORT_URL", f"{FXA_BASE_ORIGIN}/support/")
 FXA_TOKEN_AUTH_VERSION = config(
     "FXA_TOKEN_AUTH_VERSION", "2024", cast=Choices(["2024", "2025"], cast=str)
 )
+# How many seconds an FxA token can be expired but still valid, for clock skew.
+# Also default time for caching token errors
+FXA_TOKEN_EXPIRATION_GRACE_PERIOD: int = config(
+    "FXA_TOKEN_EXPIRATION_GRACE_PERIOD", 60, cast=int
+)
+
 USE_SUBPLAT3 = config("USE_SUBPLAT3", False, cast=bool)
 SUBPLAT3_HOST = (
     "https://payments.firefox.com"
