@@ -159,9 +159,9 @@ def test_introspection_response_with_expiration() -> None:
     data: FxaIntrospectData = {"active": True, "sub": "an-fxa-id", "exp": expiration}
     response = IntrospectionResponse("token", data)
     assert repr(response) == (
-        "IntrospectionResponse('token', {'active': True, 'sub': 'an-fxa-id', 'exp': "
-        + str(expiration)
-        + "})"
+        "IntrospectionResponse(token='token',"
+        f" data={{'active': True, 'sub': 'an-fxa-id', 'exp': {expiration}}},"
+        " from_cache=False, request_s=None)"
     )
     assert 50 < response.cache_timeout <= 60  # about 60 seconds
     assert not response.is_expired
@@ -171,7 +171,9 @@ def test_introspection_response_without_expiration():
     data: FxaIntrospectData = {"active": True, "sub": "other-fxa-id"}
     response = IntrospectionResponse("token", data)
     assert repr(response) == (
-        "IntrospectionResponse('token', {'active': True, 'sub': 'other-fxa-id'})"
+        "IntrospectionResponse(token='token',"
+        " data={'active': True, 'sub': 'other-fxa-id'},"
+        " from_cache=False, request_s=None)"
     )
     assert response.cache_timeout == 0
     assert response.is_expired
@@ -181,9 +183,9 @@ def test_introspection_response_repr_with_from_cache() -> None:
     data: FxaIntrospectData = {"active": True, "sub": "other-fxa-id", "exp": 100}
     response = IntrospectionResponse("token", data, from_cache=True)
     assert repr(response) == (
-        "IntrospectionResponse('token', "
-        "{'active': True, 'sub': 'other-fxa-id', 'exp': 100}"
-        ", from_cache=True)"
+        "IntrospectionResponse(token='token',"
+        " data={'active': True, 'sub': 'other-fxa-id', 'exp': 100},"
+        " from_cache=True, request_s=None)"
     )
     assert response.cache_timeout == 0
     assert response.is_expired
@@ -193,8 +195,9 @@ def test_introspection_response_repr_with_request_s() -> None:
     data: FxaIntrospectData = {"active": True, "sub": "fxa-id"}
     response = IntrospectionResponse("token", data, request_s=0.23)
     assert repr(response) == (
-        "IntrospectionResponse('token', "
-        "{'active': True, 'sub': 'fxa-id'}, request_s=0.23)"
+        "IntrospectionResponse(token='token',"
+        " data={'active': True, 'sub': 'fxa-id'},"
+        " from_cache=False, request_s=0.23)"
     )
 
 
@@ -246,62 +249,60 @@ def test_introspection_response_save_to_cache() -> None:
     )
 
 
-_INTROSPECTION_ERROR_REPR_TEST_CASES: list[
-    tuple[str, INTROSPECT_ERROR, dict[str, Any], str]
-] = [
-    ("token", "Timeout", {}, "IntrospectionError('token', 'Timeout')"),
-    (
-        "token2",
-        "FailedRequest",
-        {"error_args": ["requests.ConnectionError", "Accounts Rebooting"]},
-        (
-            "IntrospectionError('token2', 'FailedRequest',"
-            " error_args=['requests.ConnectionError', 'Accounts Rebooting'])"
+_INTROSPECTION_ERROR_REPR_TEST_CASES: dict[str, tuple[IntrospectionError, str]] = {
+    "Timeout": (
+        IntrospectionError("token", "Timeout"),
+        "IntrospectionError(token='token', error='Timeout', error_args=[],"
+        " status_code=None, data=None, from_cache=False, request_s=None)",
+    ),
+    "FailedRequest": (
+        IntrospectionError(
+            "token2",
+            "FailedRequest",
+            error_args=["requests.ConnectionError", "Accounts Rebooting"],
         ),
+        "IntrospectionError(token='token2', error='FailedRequest',"
+        " error_args=['requests.ConnectionError', 'Accounts Rebooting'],"
+        " status_code=None, data=None, from_cache=False, request_s=None)",
     ),
-    (
-        "token3",
-        "NotJson",
-        {"error_args": [""], "status_code": 200},
-        "IntrospectionError('token3', 'NotJson', error_args=[''], status_code=200)",
+    "NotJson": (
+        IntrospectionError("token3", "NotJson", error_args=[""], status_code=200),
+        "IntrospectionError(token='token3', error='NotJson', error_args=[''],"
+        " status_code=200, data=None, from_cache=False, request_s=None)",
     ),
-    (
-        "token4",
-        "NotAuthorized",
-        {"status_code": 401},
-        "IntrospectionError('token4', 'NotAuthorized', status_code=401)",
+    "NotAuthorized": (
+        IntrospectionError("token4", "NotAuthorized", status_code=401),
+        "IntrospectionError(token='token4', error='NotAuthorized', error_args=[],"
+        " status_code=401, data=None, from_cache=False, request_s=None)",
     ),
-    (
-        "token5",
-        "NotActive",
-        {"status_code": 200, "data": {"active": False}, "from_cache": True},
-        (
-            "IntrospectionError('token5', 'NotActive', status_code=200,"
-            " data={'active': False}, from_cache=True)"
+    "NotActive": (
+        IntrospectionError(
+            "token5",
+            "NotActive",
+            status_code=200,
+            data={"active": False},
+            from_cache=True,
         ),
+        "IntrospectionError(token='token5', error='NotActive', error_args=[],"
+        " status_code=200, data={'active': False}, from_cache=True, request_s=None)",
     ),
-    (
-        "token6",
-        "NoSubject",
-        {"status_code": 200, "data": {"active": True}, "request_s": 0.3},
-        (
-            "IntrospectionError('token6', 'NoSubject', status_code=200,"
-            " data={'active': True}, request_s=0.3)"
+    "NoSubject": (
+        IntrospectionError(
+            "token6", "NoSubject", status_code=200, data={"active": True}, request_s=0.3
         ),
+        "IntrospectionError(token='token6', error='NoSubject', error_args=[],"
+        " status_code=200, data={'active': True}, from_cache=False, request_s=0.3)",
     ),
-]
+}
 
 
 @pytest.mark.parametrize(
-    "token,error,params,expected",
-    _INTROSPECTION_ERROR_REPR_TEST_CASES,
-    ids=[case[1] for case in _INTROSPECTION_ERROR_REPR_TEST_CASES],
+    "err,expected",
+    _INTROSPECTION_ERROR_REPR_TEST_CASES.values(),
+    ids=_INTROSPECTION_ERROR_REPR_TEST_CASES.keys(),
 )
-def test_introspection_error_repr(
-    token: str, error: INTROSPECT_ERROR, params: dict[str, Any], expected: str
-) -> None:
-    introspect_error = IntrospectionError(token, error, **params)
-    assert repr(introspect_error) == expected
+def test_introspection_error_repr(err: IntrospectionError, expected: str) -> None:
+    assert repr(err) == expected
 
 
 @pytest.mark.parametrize("from_cache", (True, False))
