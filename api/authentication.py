@@ -274,7 +274,7 @@ class IntrospectionError:
                 "accounts_introspection_failed",
                 extra={
                     "error": self.error,
-                    "error_args": [shlex.quote(arg) for arg in self.error_args],
+                    "error_args": [shlex.quote(str(arg)) for arg in self.error_args],
                     "status_code": self.status_code,
                     "data": self.data,
                     "method": method,
