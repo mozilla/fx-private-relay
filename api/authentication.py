@@ -471,7 +471,7 @@ def introspect_token(token: str) -> IntrospectionResponse | IntrospectionError:
             token,
             "NotJson",
             status_code=status_code,
-            error_args=[fxa_resp.text],
+            error_args=[b64encode(fxa_resp.text.encode()).decode()],
             request_s=request_s,
         )
     if not isinstance(data, dict):
