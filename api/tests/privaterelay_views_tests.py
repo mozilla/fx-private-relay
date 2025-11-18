@@ -291,7 +291,13 @@ class TermsAcceptedUserViewTest(TestCase):
         # Note: FXA iat and exp are timestamps in *milliseconds*
         exp_time = (now_time + 60 * 60) * 1000
         fxa_response = _setup_fxa_response(
-            200, {"active": True, "sub": self.uid, "exp": exp_time}
+            200,
+            {
+                "active": True,
+                "sub": self.uid,
+                "exp": exp_time,
+                "scope": "https://identity.mozilla.com/apps/relay",
+            },
         )
         # setup fxa profile response
         profile_json = {
@@ -340,7 +346,15 @@ class TermsAcceptedUserViewTest(TestCase):
         self._setup_client(user_token)
         now_time = int(datetime.now().timestamp())
         exp_time = (now_time + 60 * 60) * 1000
-        _setup_fxa_response(200, {"active": True, "sub": self.uid, "exp": exp_time})
+        _setup_fxa_response(
+            200,
+            {
+                "active": True,
+                "sub": self.uid,
+                "exp": exp_time,
+                "scope": "https://identity.mozilla.com/apps/relay",
+            },
+        )
         # FxA profile server is down
         responses.add(responses.GET, FXA_PROFILE_URL, status=502, body="")
         response = self.client.post(self.path)
