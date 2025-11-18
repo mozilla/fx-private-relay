@@ -125,12 +125,13 @@ class IntrospectionResponse:
         self.request_s = None if request_s is None else round(request_s, 3)
 
     def __repr__(self) -> str:
-        params = [repr(self.token), repr(self.data)]
-        if self.from_cache:
-            params.append(f"from_cache={self.from_cache!r}")
-        if self.request_s is not None:
-            params.append(f"request_s={self.request_s!r}")
-        return f"{self.__class__.__name__}({', '.join(params)})"
+        return (
+            f"{self.__class__.__name__}"
+            f"(token={self.token!r},"
+            f" data={self.data!r},"
+            f" from_cache={self.from_cache!r},"
+            f" request_s={self.request_s!r})"
+        )
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, IntrospectionResponse):
@@ -220,18 +221,16 @@ class IntrospectionError:
         self.request_s = None if request_s is None else round(request_s, 3)
 
     def __repr__(self) -> str:
-        params = [repr(self.token), repr(self.error)]
-        defaults: dict[str, Any] = {
-            "error_args": [],
-            "status_code": None,
-            "data": None,
-            "from_cache": False,
-            "request_s": None,
-        }
-        for name, default in defaults.items():
-            if (val := getattr(self, name)) != default:
-                params.append(f"{name}={val!r}")
-        return f"{self.__class__.__name__}({', '.join(params)})"
+        return (
+            f"{self.__class__.__name__}"
+            f"(token={self.token!r},"
+            f" error={self.error!r},"
+            f" error_args={self.error_args!r},"
+            f" status_code={self.status_code!r},"
+            f" data={self.data!r},"
+            f" from_cache={self.from_cache!r},"
+            f" request_s={self.request_s!r})"
+        )
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, IntrospectionError):

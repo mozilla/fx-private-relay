@@ -170,12 +170,14 @@ def test_introspection_response_with_expiration() -> None:
     data = _create_fxa_introspect_response()
     response = IntrospectionResponse("token", data)
     assert repr(response) == (
-        "IntrospectionResponse('token', "
-        "{'active': True,"
+        "IntrospectionResponse(token='token',"
+        " data={'active': True,"
         " 'sub': 'an-fxa-id',"
         f" 'scope': 'profile {settings.RELAY_SCOPE}',"
         f" 'exp': {data['exp']}"
-        "})"
+        "},"
+        " from_cache=False,"
+        " request_s=None)"
     )
     assert 3530 < response.cache_timeout <= 3600  # about 60 minutes
     assert not response.is_expired
@@ -185,11 +187,13 @@ def test_introspection_response_without_expiration() -> None:
     data = _create_fxa_introspect_response(expiration=False)
     response = IntrospectionResponse("token", data, from_cache=True)
     assert repr(response) == (
-        "IntrospectionResponse('token', "
-        "{'active': True,"
+        "IntrospectionResponse(token='token',"
+        " data={'active': True,"
         " 'sub': 'an-fxa-id',"
         f" 'scope': 'profile {settings.RELAY_SCOPE}'"
-        "}, from_cache=True)"
+        "},"
+        " from_cache=True,"
+        " request_s=None)"
     )
     assert response.cache_timeout == 0
     assert response.is_expired
@@ -199,12 +203,14 @@ def test_introspection_response_repr_from_cache() -> None:
     data = _create_fxa_introspect_response(uid="other-fxa-id")
     response = IntrospectionResponse("token", data, from_cache=True)
     assert repr(response) == (
-        "IntrospectionResponse('token', "
-        "{'active': True,"
+        "IntrospectionResponse(token='token',"
+        " data={'active': True,"
         " 'sub': 'other-fxa-id',"
         f" 'scope': 'profile {settings.RELAY_SCOPE}',"
         f" 'exp': {data['exp']}"
-        "}, from_cache=True)"
+        "},"
+        " from_cache=True,"
+        " request_s=None)"
     )
     assert 3530 < response.cache_timeout <= 3600  # about 60 minutes
     assert not response.is_expired
@@ -214,12 +220,14 @@ def test_introspection_response_repr_with_request_s() -> None:
     data = _create_fxa_introspect_response()
     response = IntrospectionResponse("token", data, request_s=0.23)
     assert repr(response) == (
-        "IntrospectionResponse('token', "
-        "{'active': True,"
+        "IntrospectionResponse(token='token',"
+        " data={'active': True,"
         " 'sub': 'an-fxa-id',"
         f" 'scope': 'profile {settings.RELAY_SCOPE}',"
         f" 'exp': {data['exp']}"
-        "}, request_s=0.23)"
+        "},"
+        " from_cache=False,"
+        " request_s=0.23)"
     )
 
 
@@ -262,63 +270,104 @@ def test_introspection_response_save_to_cache(from_cache: bool) -> None:
     mock_cache.set.assert_called_once_with(get_cache_key("the-key"), {"data": data}, 60)
 
 
-_INTROSPECTION_ERROR_REPR_TEST_CASES: dict[
-    str, tuple[str, INTROSPECT_ERROR, dict[str, Any], str]
-] = {
+_INTROSPECTION_ERROR_REPR_TEST_CASES: dict[str, tuple[IntrospectionError, str]] = {
     # only the INTROSPECT_ERROR name
-    "simple": ("token1", "Timeout", {}, "IntrospectionError('token1', 'Timeout')"),
+    "simple": (
+        IntrospectionError("token1", "Timeout"),
+        (
+            "IntrospectionError(token='token1',"
+            " error='Timeout',"
+            " error_args=[],"
+            " status_code=None,"
+            " data=None,"
+            " from_cache=False,"
+            " request_s=None"
+            ")"
+        ),
+    ),
     # with error_args (a list of strings)
     "error_args": (
-        "token2",
-        "FailedRequest",
-        {"error_args": ["requests.ConnectionError", "Accounts Rebooting"]},
+        IntrospectionError(
+            "token2",
+            "FailedRequest",
+            error_args=["requests.ConnectionError", "Accounts Rebooting"],
+        ),
         (
-            "IntrospectionError('token2', 'FailedRequest',"
-            " error_args=['requests.ConnectionError', 'Accounts Rebooting']"
+            "IntrospectionError(token='token2',"
+            " error='FailedRequest',"
+            " error_args=['requests.ConnectionError', 'Accounts Rebooting'],"
+            " status_code=None,"
+            " data=None,"
+            " from_cache=False,"
+            " request_s=None"
             ")"
         ),
     ),
     # with a status code, since the request completed
     "status_code": (
-        "token3",
-        "NotAuthorized",
-        {"status_code": 401},
-        "IntrospectionError('token3', 'NotAuthorized', status_code=401)",
+        IntrospectionError("token3", "NotAuthorized", status_code=401),
+        (
+            "IntrospectionError(token='token3',"
+            " error='NotAuthorized',"
+            " error_args=[],"
+            " status_code=401,"
+            " data=None,"
+            " from_cache=False,"
+            " request_s=None"
+            ")"
+        ),
     ),
     # with both error_args and a status_code
     "error_args_and_status_code": (
-        "token4",
-        "NotJson",
-        {"error_args": [""], "status_code": 200},
-        "IntrospectionError('token4', 'NotJson', error_args=[''], status_code=200)",
+        IntrospectionError("token4", "NotJson", error_args=[""], status_code=200),
+        (
+            "IntrospectionError(token='token4',"
+            " error='NotJson',"
+            " error_args=[''],"
+            " status_code=200,"
+            " data=None,"
+            " from_cache=False,"
+            " request_s=None"
+            ")"
+        ),
     ),
     # add the FxA introspection data, which has an issue, and the request time
     "data": (
-        "token5",
-        "MissingScope",
-        {
-            "status_code": 200,
-            "data": {"active": False, "sub": "fxa-id", "scope": "foo"},
-            "request_s": 0.3,
-        },
+        IntrospectionError(
+            "token5",
+            "MissingScope",
+            status_code=200,
+            data={"active": False, "sub": "fxa-id", "scope": "foo"},
+            request_s=0.3,
+        ),
         (
-            "IntrospectionError('token5', 'MissingScope',"
+            "IntrospectionError(token='token5',"
+            " error='MissingScope',"
+            " error_args=[],"
             " status_code=200,"
             " data={'active': False, 'sub': 'fxa-id', 'scope': 'foo'},"
+            " from_cache=False,"
             " request_s=0.3"
             ")"
         ),
     ),
     # add that the error was cached from a previous call
     "cached": (
-        "token6",
-        "NotActive",
-        {"status_code": 200, "data": {"active": False}, "from_cache": True},
+        IntrospectionError(
+            "token6",
+            "NotActive",
+            status_code=200,
+            data={"active": False},
+            from_cache=True,
+        ),
         (
-            "IntrospectionError('token6', 'NotActive',"
+            "IntrospectionError(token='token6',"
+            " error='NotActive',"
+            " error_args=[],"
             " status_code=200,"
             " data={'active': False},"
-            " from_cache=True"
+            " from_cache=True,"
+            " request_s=None"
             ")"
         ),
     ),
@@ -326,15 +375,12 @@ _INTROSPECTION_ERROR_REPR_TEST_CASES: dict[
 
 
 @pytest.mark.parametrize(
-    "token,error,params,expected",
+    "err,expected",
     _INTROSPECTION_ERROR_REPR_TEST_CASES.values(),
     ids=_INTROSPECTION_ERROR_REPR_TEST_CASES.keys(),
 )
-def test_introspection_error_repr(
-    token: str, error: INTROSPECT_ERROR, params: dict[str, Any], expected: str
-) -> None:
-    introspect_error = IntrospectionError(token, error, **params)
-    assert repr(introspect_error) == expected
+def test_introspection_error_repr(err: IntrospectionError, expected: str) -> None:
+    assert repr(err) == expected
 
 
 @pytest.mark.parametrize("from_cache", (True, False))
