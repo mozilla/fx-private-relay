@@ -466,7 +466,7 @@ def introspect_token(token: str) -> IntrospectionResponse | IntrospectionError:
             token,
             "NotJson",
             status_code=status_code,
-            error_args=[b64encode(fxa_resp.text.encode()).decode()],
+            error_args=["b64:" + b64encode(fxa_resp.text.encode()).decode()],
             request_s=request_s,
         )
     if not isinstance(data, dict):
@@ -474,7 +474,7 @@ def introspect_token(token: str) -> IntrospectionResponse | IntrospectionError:
             token,
             "NotJsonDict",
             status_code=status_code,
-            error_args=[data],
+            error_args=["b64:" + b64encode(repr(data).encode()).decode()],
             request_s=request_s,
         )
 
