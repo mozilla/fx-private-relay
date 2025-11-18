@@ -3,15 +3,16 @@ from __future__ import annotations
 import logging
 import shlex
 from base64 import b64encode
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from hashlib import sha256
-from typing import Any, Literal, NoReturn, NotRequired, TypedDict, cast
+from typing import Any, Literal, NoReturn, TypedDict, cast
 
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, User
 from django.core.cache import BaseCache, cache
 
 import requests
+import sentry_sdk
 from allauth.socialaccount.models import SocialAccount
 from codetiming import Timer
 from markus.utils import generate_tag
@@ -89,7 +90,7 @@ class FxaIntrospectCompleteData(TypedDict):
 
     active: bool
     sub: str
-    exp: NotRequired[int]
+    exp: int
 
 
 def get_cache_key_2024(token):
@@ -114,7 +115,7 @@ class IntrospectionResponse:
             raise ValueError("active should be true")
         if "sub" not in data or not isinstance(data["sub"], str) or not data["sub"]:
             raise ValueError("sub (FxA ID) should be set")
-        if "exp" in data and not isinstance(data["exp"], int):
+        if "exp" not in data or not isinstance(data["exp"], int):
             raise ValueError("exp (Expiration timestamp in milliseconds) should be int")
 
         self.token = token
@@ -198,6 +199,11 @@ INTROSPECT_ERROR = Literal[
 ]
 
 
+def as_b64(data: Any) -> str:
+    """Return a potentially sensitive value as base64 encoded"""
+    return "b64:" + b64encode(repr(data).encode()).decode()
+
+
 class IntrospectionError:
     def __init__(
         self,
@@ -272,7 +278,7 @@ class IntrospectionError:
                     "error": self.error,
                     "error_args": [shlex.quote(str(arg)) for arg in self.error_args],
                     "status_code": self.status_code,
-                    "data_b64": b64encode(repr(self.data).encode()).decode(),
+                    "data": as_b64(self.data),
                     "method": method,
                     "path": path,
                     "introspection_time_s": self.request_s,
@@ -466,7 +472,7 @@ def introspect_token(token: str) -> IntrospectionResponse | IntrospectionError:
             token,
             "NotJson",
             status_code=status_code,
-            error_args=["b64:" + b64encode(fxa_resp.text.encode()).decode()],
+            error_args=[as_b64(fxa_resp.text)],
             request_s=request_s,
         )
     if not isinstance(data, dict):
@@ -474,51 +480,67 @@ def introspect_token(token: str) -> IntrospectionResponse | IntrospectionError:
             token,
             "NotJsonDict",
             status_code=status_code,
-            error_args=["b64:" + b64encode(repr(data).encode()).decode()],
+            error_args=[as_b64(data)],
             request_s=request_s,
         )
 
-    fxa_data = cast(FxaIntrospectData, data)
     if status_code == 401:
         return IntrospectionError(
             token,
             "NotAuthorized",
+            error_args=[as_b64(data)],
             status_code=status_code,
-            data=fxa_data,
             request_s=request_s,
         )
-    if status_code != 200:
-        return IntrospectionError(
-            token, "NotOK", status_code=status_code, data=fxa_data, request_s=request_s
+    with sentry_sdk.new_scope():
+        sentry_sdk.set_context(
+            "introspect_token", {"status_code": status_code, "data": data}
         )
+        fxa_data = cast(FxaIntrospectData, data)
 
-    if data.get("active", False) is not True:
-        return IntrospectionError(
-            token,
-            "NotActive",
-            status_code=status_code,
-            data=fxa_data,
-            request_s=request_s,
-        )
+        if status_code != 200:
+            return IntrospectionError(
+                token,
+                "NotOK",
+                status_code=status_code,
+                data=fxa_data,
+                request_s=request_s,
+            )
 
-    if not isinstance(sub := data.get("sub", None), str) or not sub:
-        return IntrospectionError(
-            token,
-            "NoSubject",
-            status_code=status_code,
-            data=fxa_data,
-            request_s=request_s,
-        )
+        if data.get("active", False) is not True:
+            return IntrospectionError(
+                token,
+                "NotActive",
+                status_code=status_code,
+                data=fxa_data,
+                request_s=request_s,
+            )
 
-    response = IntrospectionResponse(token, data=fxa_data, request_s=request_s)
-    if response.is_expired:
-        return IntrospectionError(
-            token,
-            "TokenExpired",
-            error_args=[str(response.time_to_expire)],
-            data=fxa_data,
-            request_s=request_s,
-        )
+        if not isinstance(sub := data.get("sub", None), str) or not sub:
+            return IntrospectionError(
+                token,
+                "NoSubject",
+                status_code=status_code,
+                data=fxa_data,
+                request_s=request_s,
+            )
+
+        if not isinstance(data.get("exp", None), int):
+            sentry_sdk.capture_message("exp is not int")
+            future = datetime.now() + timedelta(
+                seconds=settings.FXA_TOKEN_EXPIRATION_GRACE_PERIOD
+            )
+            fxa_data["exp"] = int(future.timestamp()) * 1000
+
+        response = IntrospectionResponse(token, data=fxa_data, request_s=request_s)
+        if response.is_expired:
+            return IntrospectionError(
+                token,
+                "TokenExpired",
+                error_args=[str(response.time_to_expire)],
+                data=fxa_data,
+                request_s=request_s,
+            )
     return response
 
 
