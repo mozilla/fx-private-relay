@@ -457,7 +457,7 @@ class TermsAcceptedUserViewTest(TestCase):
         assert cache.get(cache_key) is None
         client = _setup_client(invalid_token)
         expected_err = IntrospectionError(
-            invalid_token, "NotJson", error_args=[""], status_code=200
+            invalid_token, "NotJson", error_args=["b64:"], status_code=200
         )
 
         # get fxa response with no status code for the first time

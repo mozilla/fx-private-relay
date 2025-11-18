@@ -1,4 +1,5 @@
 import re
+from base64 import b64encode
 from collections.abc import Iterator
 from datetime import datetime, timedelta
 from typing import Any
@@ -513,11 +514,14 @@ _INTROSPECT_TOKEN_FAILURE_TEST_CASES: list[
         "FailedRequest",
         {"error_args": ["Exception", "An Exception"]},
     ),
-    ({"no_body": True}, "NotJson", {"status_code": 200, "error_args": [""]}),
+    ({"no_body": True}, "NotJson", {"status_code": 200, "error_args": ["b64:"]}),
     (
         {"text_body": '[{"active": false}]'},
         "NotJsonDict",
-        {"status_code": 200, "error_args": ['[{"active": false}]']},
+        {
+            "status_code": 200,
+            "error_args": ["b64:" + b64encode(b"'[{\"active\": false}]'").decode()],
+        },
     ),
     (
         {"status_code": 401, "active": False},
