@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import shlex
+from base64 import b64encode
 from datetime import UTC, datetime
 from hashlib import sha256
 from typing import Any, Literal, NoReturn, NotRequired, TypedDict, cast
@@ -276,7 +277,7 @@ class IntrospectionError:
                     "error": self.error,
                     "error_args": [shlex.quote(str(arg)) for arg in self.error_args],
                     "status_code": self.status_code,
-                    "data": self.data,
+                    "data_b64": b64encode(repr(self.data).encode()).decode(),
                     "method": method,
                     "path": path,
                     "introspection_time_s": self.request_s,
