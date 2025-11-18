@@ -513,7 +513,8 @@ _INTROSPECT_TOKEN_FAILURE_TEST_CASES: list[
         "NotAuthorized",
         {"status_code": 401, "error_args": [_SETUP_FXA_DATA_B64]},
     ),
-    ({"status_code": 500}, "NotOK", {"status_code": 500, "data": _SETUP_FXA_DATA}),
+    # Attempting to continue on non-200 error
+    # ({"status_code": 500}, "NotOK", {"status_code": 500, "data": _SETUP_FXA_DATA}),
     ({"active": False}, "NotActive", {"status_code": 200, "data": _SETUP_FXA_DATA}),
     ({"uid": None}, "NoSubject", {"status_code": 200, "data": _SETUP_FXA_DATA}),
     ({"scope": "foo"}, "MissingScope", {"status_code": 200, "data": _SETUP_FXA_DATA}),

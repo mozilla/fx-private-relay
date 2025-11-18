@@ -504,13 +504,18 @@ def introspect_token(token: str) -> IntrospectionResponse | IntrospectionError:
         fxa_data = cast(FxaIntrospectData, data)
 
         if status_code != 200:
-            return IntrospectionError(
-                token,
-                "NotOK",
-                status_code=status_code,
-                data=fxa_data,
-                request_s=request_s,
+            # Log but attempt to continue
+            sentry_sdk.capture_message(
+                f"FxA token introspect returned {status_code}, expected 200"
             )
+            # Old version - log, raise 503
+            # return IntrospectionError(
+            #     token,
+            #     "NotOK",
+            #     status_code=status_code,
+            #     data=fxa_data,
+            #     request_s=request_s,
+            # )
 
         if data.get("active", False) is not True:
             return IntrospectionError(
