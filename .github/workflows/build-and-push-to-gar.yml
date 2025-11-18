@@ -47,3 +47,4 @@ jobs:
         GIT_BRANCH=${{ needs.determine-metadata.outputs.git_branch }}
         GIT_SHA=${{ github.sha }}
         GIT_TAG=${{ needs.determine-metadata.outputs.git_tag }}
+      postbuild_script: "./scripts/smoketest.sh fx-private-relay"
