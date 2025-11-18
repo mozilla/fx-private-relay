@@ -23,6 +23,7 @@ from api.authentication import (
     FXA_TOKEN_AUTH_NEW_AND_BUSTED,
     IntrospectionError,
     IntrospectionResponse,
+    as_b64,
     get_cache_key,
 )
 from api.tests.authentication_tests import setup_fxa_introspect
@@ -429,7 +430,7 @@ class TermsAcceptedUserViewTest(TestCase):
         assert response.json()["detail"] == expected_detail
 
     @responses.activate
-    def test_invalid_bearer_token_error_from_fxa_returns_500_and_is_cached(
+    def test_invalid_bearer_token_error_from_fxa_returns_401_and_is_cached(
         self,
     ) -> None:
         introspect_response, introspect_data = setup_fxa_introspect(401, error="401")
@@ -438,7 +439,10 @@ class TermsAcceptedUserViewTest(TestCase):
         client = _setup_client(not_found_token)
         cache_key = get_cache_key(not_found_token)
         exp_error = IntrospectionError(
-            not_found_token, "NotAuthorized", status_code=401, data=introspect_data
+            not_found_token,
+            "NotAuthorized",
+            status_code=401,
+            error_args=[as_b64(introspect_data)],
         )
         assert cache.get(cache_key) is None
 
@@ -449,7 +453,7 @@ class TermsAcceptedUserViewTest(TestCase):
         assert cache.get(cache_key) == exp_error.as_cache_value()
 
     @responses.activate
-    def test_jsondecodeerror_returns_401_and_is_cached(self) -> None:
+    def test_jsondecodeerror_returns_503_and_is_cached(self) -> None:
         introspect_response, introspect_data = setup_fxa_introspect(200, no_body=True)
         assert introspect_data is None
         invalid_token = "invalid-123"
@@ -457,7 +461,7 @@ class TermsAcceptedUserViewTest(TestCase):
         assert cache.get(cache_key) is None
         client = _setup_client(invalid_token)
         expected_err = IntrospectionError(
-            invalid_token, "NotJson", error_args=["b64:"], status_code=200
+            invalid_token, "NotJson", error_args=[as_b64("")], status_code=200
         )
 
         # get fxa response with no status code for the first time
@@ -469,7 +473,7 @@ class TermsAcceptedUserViewTest(TestCase):
         assert cache.get(cache_key) == expected_err.as_cache_value()
 
     @responses.activate
-    def test_non_200_response_from_fxa_returns_500_and_is_cached(self) -> None:
+    def test_401_response_from_fxa_returns_401_and_is_cached(self) -> None:
         introspect_response, fxa_data = setup_fxa_introspect(
             401, active=False, uid=self.uid
         )
@@ -478,7 +482,10 @@ class TermsAcceptedUserViewTest(TestCase):
         assert cache.get(cache_key) is None
         client = _setup_client(invalid_token)
         expected_err = IntrospectionError(
-            invalid_token, "NotAuthorized", status_code=401, data=fxa_data
+            invalid_token,
+            "NotAuthorized",
+            status_code=401,
+            error_args=[as_b64(fxa_data)],
         )
 
         # get fxa response with non-200 response for the first time
