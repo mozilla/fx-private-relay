@@ -23,6 +23,7 @@ from api.authentication import (
     FXA_TOKEN_AUTH_NEW_AND_BUSTED,
     IntrospectionError,
     IntrospectionResponse,
+    as_b64,
     get_cache_key,
 )
 from api.tests.authentication_tests import setup_fxa_introspect
@@ -438,7 +439,10 @@ class TermsAcceptedUserViewTest(TestCase):
         client = _setup_client(not_found_token)
         cache_key = get_cache_key(not_found_token)
         exp_error = IntrospectionError(
-            not_found_token, "NotAuthorized", status_code=401, data=introspect_data
+            not_found_token,
+            "NotAuthorized",
+            status_code=401,
+            error_args=[as_b64(introspect_data)],
         )
 
         assert cache.get(cache_key) is None
@@ -458,7 +462,7 @@ class TermsAcceptedUserViewTest(TestCase):
         assert cache.get(cache_key) is None
         client = _setup_client(invalid_token)
         expected_err = IntrospectionError(
-            invalid_token, "NotJson", error_args=[""], status_code=200
+            invalid_token, "NotJson", error_args=[as_b64("")], status_code=200
         )
 
         # get fxa response with no status code for the first time
@@ -470,7 +474,7 @@ class TermsAcceptedUserViewTest(TestCase):
         assert cache.get(cache_key) == expected_err.as_cache_value()
 
     @responses.activate
-    def test_non_200_response_from_fxa_returns_500_and_is_cached(self) -> None:
+    def test_401_response_from_fxa_returns_401_and_is_cached(self) -> None:
         introspect_response, fxa_data = setup_fxa_introspect(
             401, active=False, uid=self.uid
         )
@@ -479,7 +483,10 @@ class TermsAcceptedUserViewTest(TestCase):
         assert cache.get(cache_key) is None
         client = _setup_client(invalid_token)
         expected_err = IntrospectionError(
-            invalid_token, "NotAuthorized", status_code=401, data=fxa_data
+            invalid_token,
+            "NotAuthorized",
+            status_code=401,
+            error_args=[as_b64(fxa_data)],
         )
 
         # get fxa response with non-200 response for the first time
