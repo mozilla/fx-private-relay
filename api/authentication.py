@@ -178,7 +178,7 @@ class IntrospectionResponse:
 
     @property
     def is_expired(self) -> bool:
-        return self.time_to_expire <= 0
+        return self.time_to_expire <= -(settings.FXA_TOKEN_EXPIRATION_GRACE_PERIOD)
 
     @property
     def fxa_id(self) -> str:
@@ -530,7 +530,7 @@ def introspect_and_cache_token(
 
     If anything goes wrong, raise an exception.
     """
-    default_cache_timeout = 60
+    default_cache_timeout = settings.FXA_TOKEN_EXPIRATION_GRACE_PERIOD
 
     fxa_resp: IntrospectionResponse | IntrospectionError | None = None
     if read_from_cache:
