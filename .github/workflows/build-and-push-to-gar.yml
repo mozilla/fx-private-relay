@@ -9,20 +9,13 @@ on:
         type: string
 
 jobs:
-  build-and-push:
-    name: Build and push Docker image
+  determine-metadata:
+    name: Determine git metadata
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-      packages: write
-
+    outputs:
+      git_branch: ${{ steps.git_env_vars.outputs.GIT_BRANCH }}
+      git_tag: ${{ steps.git_env_vars.outputs.GIT_TAG }}
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v5
-        with:
-          persist-credentials: false
-          submodules: true
       - name: Set GIT_BRANCH and GIT_TAG environment variables
         id: git_env_vars
         env:
@@ -36,29 +29,22 @@ jobs:
             echo 'GIT_BRANCH=' >> "$GITHUB_OUTPUT"
             echo "GIT_TAG=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
           fi
-      - name: Build and Tag Container Image
-        env:
-          GIT_BRANCH: ${{ steps.git_env_vars.outputs.GIT_BRANCH }}
-          GIT_TAG: ${{ steps.git_env_vars.outputs.GIT_TAG }}
-        id: build
-        uses: mozilla-it/deploy-actions/docker-build@v5.3.4
-        with:
-          gar_name: ${{ vars.GCP_MOZCLOUD_GAR_NAME_PROD }}
-          image_name: fx-private-relay
-          project_id: ${{ vars.GCP_MOZCLOUD_PROJECT_ID_PROD }}
-          docker_build_args: |
-            GITHUB_REPOSITORY=${{ github.repository }}
-            GITHUB_RUN_ID=${{ github.run_id }}
-            GITHUB_SERVER_URL=${{ github.server_url }}
-            GIT_BRANCH=${{ env.GIT_BRANCH }}
-            GIT_SHA=${{ github.sha }}
-            GIT_TAG=${{ env.GIT_TAG }}
-          dockerfile_path: "./Dockerfile"
-          image_tag_metadata: ${{ inputs.image_tag_metadata }}
-      - name: Push Container Image
-        uses: mozilla-it/deploy-actions/docker-push@v5.3.4
-        if: ${{ github.event_name != 'pull_request' }}
-        with:
-          image_tags: ${{ steps.build.outputs.image_tags }}
-          project_id: ${{ vars.GCP_MOZCLOUD_PROJECT_ID_PROD }}
-          workload_identity_pool_project_number: ${{ vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
+
+  build-and-push:
+    name: Build and push Docker image
+    needs: determine-metadata
+    uses: mozilla-it/deploy-actions/.github/workflows/build-and-push.yml@v5.3.4
+    with:
+      image_name: fx-private-relay
+      gar_name: ${{ vars.GCP_MOZCLOUD_GAR_NAME_PROD }}
+      project_id: ${{ vars.GCP_MOZCLOUD_PROJECT_ID_PROD }}
+      workload_identity_pool_project_number: ${{ vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
+      image_tag_metadata: ${{ inputs.image_tag_metadata }}
+      docker_build_args: |
+        GITHUB_REPOSITORY=${{ github.repository }}
+        GITHUB_RUN_ID=${{ github.run_id }}
+        GITHUB_SERVER_URL=${{ github.server_url }}
+        GIT_BRANCH=${{ needs.determine-metadata.outputs.git_branch }}
+        GIT_SHA=${{ github.sha }}
+        GIT_TAG=${{ needs.determine-metadata.outputs.git_tag }}
+      postbuild_script: "./scripts/smoketest.sh fx-private-relay"
