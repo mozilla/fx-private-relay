@@ -47,4 +47,5 @@ jobs:
         GIT_BRANCH=${{ needs.determine-metadata.outputs.git_branch }}
         GIT_SHA=${{ github.sha }}
         GIT_TAG=${{ needs.determine-metadata.outputs.git_tag }}
+      prebuild_script: "git submodule update --init --recursive"
       postbuild_script: "./scripts/smoketest.sh fx-private-relay"
