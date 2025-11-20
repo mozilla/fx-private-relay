@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { mockConfigModule } from "../../../../__mocks__/configMock";
+import { mockUseL10nModule } from "../../../../__mocks__/hooks/l10n";
 import { setMockProfileData } from "../../../../__mocks__/hooks/api/profile";
 import {
   getMockRuntimeDataWithPeriodicalPremium,
@@ -8,7 +9,6 @@ import {
 } from "../../../../__mocks__/hooks/api/runtimeData";
 import { setMockUserData } from "../../../../__mocks__/hooks/api/user";
 import { mockUseFxaFlowTrackerModule } from "../../../../__mocks__/hooks/fxaFlowTracker";
-import { mockUseL10nModule } from "../../../../__mocks__/hooks/l10n";
 import { mockNextRouter } from "../../../../__mocks__/modules/next__router";
 import { mockReactIntersectionObsever } from "../../../../__mocks__/modules/react-intersection-observer";
 

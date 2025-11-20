@@ -62,6 +62,18 @@ function getReturnValue(
   };
 }
 
+function getErrorReturnValue(): ReturnType<typeof useProfiles> {
+  return {
+    isValidating: false,
+    mutate: jest.fn(),
+    update: jest.fn(),
+    data: undefined,
+    setSubdomain: jest.fn(),
+    isLoading: false,
+    error: { some_error_key: "some_error_val" },
+  };
+}
+
 export const setMockProfileData = (
   profileData?: MockData | null,
   callbacks?: Callbacks,
@@ -74,4 +86,8 @@ export const setMockProfileDataOnce = (
   callbacks?: Callbacks,
 ) => {
   mockedUseProfiles.mockReturnValueOnce(getReturnValue(profileData, callbacks));
+};
+
+export const setMockProfileErrorOnce = () => {
+  mockedUseProfiles.mockReturnValueOnce(getErrorReturnValue());
 };

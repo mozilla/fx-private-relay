@@ -60,6 +60,22 @@ function getReturnValue(
   };
 }
 
+function getErrorReturnValue(): ReturnType<typeof useRelayNumber> {
+  return {
+    isValidating: false,
+    isLoading: false,
+    error: { some_error_key: "some_error_val" },
+    mutate: jest.fn(),
+    data: undefined,
+    registerRelayNumber: jest.fn(() =>
+      Promise.resolve({ ok: true } as unknown as Response),
+    ),
+    setForwardingState: jest.fn(() =>
+      Promise.resolve({ ok: true } as unknown as Response),
+    ),
+  };
+}
+
 export const setMockRelayNumberData = (
   relayNumbers?: Array<Partial<RelayNumber>>,
   callbacks?: Callbacks,
@@ -74,6 +90,10 @@ export const setMockRelayNumberDataOnce = (
   mockedUseRelayNumber.mockReturnValueOnce(
     getReturnValue(relayNumbers, callbacks),
   );
+};
+
+export const setMockRelayNumberErrorOnce = () => {
+  mockedUseRelayNumber.mockReturnValueOnce(getErrorReturnValue());
 };
 
 export { useRelayNumber };

@@ -4,6 +4,7 @@ import { useProfiles } from "../hooks/api/profile";
 import { useUsers } from "../hooks/api/user";
 import { PhoneOnboarding } from "../components/phones/onboarding/PhoneOnboarding";
 import { useRelayNumber } from "../hooks/api/relayNumber";
+import { useL10n } from "../hooks/l10n";
 import { useEffect, useState } from "react";
 import { PhoneDashboard } from "../components/phones/dashboard/PhoneDashboard";
 import { getRuntimeConfig } from "../config";
@@ -22,6 +23,7 @@ const Phone: NextPage = () => {
   const profileData = useProfiles();
   const profile = profileData.data?.[0];
   const router = useRouter();
+  const l10n = useL10n();
   const userData = useUsers();
   const user = userData.data?.[0];
   const relayNumberData = useRelayNumber();
@@ -74,6 +76,17 @@ const Phone: NextPage = () => {
 
   if (!userData.isValidating && userData.error) {
     document.location.assign(getRuntimeConfig().fxaLoginUrl);
+  }
+
+  // userData errors are handled above, runtimeData errors won't impede rendering
+  if (profileData.error || relayNumberData.error) {
+    return (
+      <>
+        <Layout>
+          <div>{l10n.getString("error-general")}</div>
+        </Layout>
+      </>
+    );
   }
 
   if (!profile || !user || !relayNumberData.data || !runtimeData.data) {
