@@ -33,6 +33,9 @@ jobs:
   build-and-push:
     name: Build and push Docker image
     needs: determine-metadata
+    permissions:
+      contents: read
+      id-token: write     
     uses: mozilla-it/deploy-actions/.github/workflows/build-and-push.yml@v5.3.4
     with:
       image_name: fx-private-relay
