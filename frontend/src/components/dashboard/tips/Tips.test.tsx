@@ -5,25 +5,12 @@ import { Tips } from "./Tips";
 import type { ProfileData } from "../../../hooks/api/profile";
 import type { RuntimeData } from "../../../hooks/api/types";
 
-jest.mock("next/link", () => ({
-  __esModule: true,
-  default: ({
-    href,
-    children,
-    title,
-  }: {
-    href: string;
-    children: React.ReactNode;
-    title?: string;
-  }) => (
-    <a href={href} title={title}>
-      {children}
-    </a>
-  ),
-}));
-
 jest.mock("react-intersection-observer", () => ({
   useInView: () => [jest.fn(), true] as const,
+}));
+
+jest.mock("../../../config", () => ({
+  getRuntimeConfig: () => ({ frontendOrigin: "http://relay.local" }),
 }));
 
 jest.mock("../../../hooks/l10n", () => {
@@ -32,6 +19,10 @@ jest.mock("../../../hooks/l10n", () => {
   );
   return mockUseL10nModule;
 });
+
+jest.mock("../../../hooks/gaViewPing", () => ({
+  useGaViewPing: () => () => {},
+}));
 
 const mockDismiss = jest.fn();
 jest.mock("../../../hooks/localDismissal", () => ({
@@ -42,19 +33,6 @@ const mockGaEvent = jest.fn();
 jest.mock("../../../hooks/gaEvent", () => ({
   useGaEvent: () => mockGaEvent,
 }));
-
-jest.mock("../../../hooks/gaViewPing", () => ({
-  useGaViewPing: () => () => {},
-}));
-
-jest.mock("../../../config", () => ({
-  getRuntimeConfig: () => ({ frontendOrigin: "http://relay.local" }),
-}));
-
-// --- use centralized waffle/flags mocks
-jest.mock("../../../functions/waffle", () =>
-  jest.requireActual("frontend/__mocks__/functions/waffle"),
-);
 import { setFlag, resetFlags } from "frontend/__mocks__/functions/flags";
 
 let relayData: unknown[] = [];

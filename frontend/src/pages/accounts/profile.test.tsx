@@ -1,4 +1,3 @@
-import React from "react";
 import { act, render, screen, within, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
@@ -24,7 +23,6 @@ import {
   setMockRuntimeData,
   setMockRuntimeDataOnce,
 } from "../../../__mocks__/hooks/api/runtimeData";
-import { mockGetLocaleModule } from "../../../__mocks__/functions/getLocale";
 import { setMockMinViewportWidth } from "../../../__mocks__/hooks/mediaQuery";
 import { mockUseFxaFlowTrackerModule } from "../../../__mocks__/hooks/fxaFlowTracker";
 import { setMockAddonData } from "../../../__mocks__/hooks/addon";
@@ -42,8 +40,14 @@ jest.mock("next/router", () => mockNextRouter);
 jest.mock("react-ga", () => mockReactGa);
 jest.mock("react-intersection-observer", () => mockReactIntersectionObsever);
 jest.mock("../../config.ts", () => mockConfigModule);
+jest.mock("../../hooks/gaViewPing.ts");
+jest.mock("../../hooks/fxaFlowTracker.ts", () => mockUseFxaFlowTrackerModule);
+jest.mock("../../hooks/l10n.ts", () => mockUseL10nModule);
+jest.mock("../../components/Localized.tsx", () => mockLocalizedModule);
 jest.mock("../../functions/renderDate.ts");
-jest.mock("../../functions/getLocale.ts", () => mockGetLocaleModule);
+
+// This test needs real waffle flags that read from runtime data
+jest.unmock("../../functions/waffle");
 jest.mock("../../hooks/api/api.ts", () => ({
   // `authenticatedFetch` is currently only used to check whether a subdomain
   // is available, so we're just mocking that:
@@ -54,10 +58,6 @@ jest.mock("../../hooks/api/api.ts", () => ({
     }),
   ),
 }));
-jest.mock("../../hooks/gaViewPing.ts");
-jest.mock("../../hooks/fxaFlowTracker.ts", () => mockUseFxaFlowTrackerModule);
-jest.mock("../../hooks/l10n.ts", () => mockUseL10nModule);
-jest.mock("../../components/Localized.tsx", () => mockLocalizedModule);
 jest.mock("react-confetti", () => {
   const MockConfetti = () => <div data-testid="react-confetti" />;
   MockConfetti.displayName = "MockConfetti";
@@ -909,7 +909,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const categoryFilterButton = screen.getByRole("button", {
-      name: "l10n string: [profile-filter-category-button-label], with vars: {}",
+      name: "l10n string: [profile-filter-category-button-tooltip], with vars: {}",
     });
 
     expect(categoryFilterButton).toBeInTheDocument();
@@ -929,7 +929,7 @@ describe("The dashboard", () => {
 
     // Open and select a category filter option
     const categoryFilterButton = screen.getByRole("button", {
-      name: "l10n string: [profile-filter-category-button-label], with vars: {}",
+      name: "l10n string: [profile-filter-category-button-tooltip], with vars: {}",
     });
 
     const user = userEvent.setup();
@@ -969,7 +969,7 @@ describe("The dashboard", () => {
 
     // Open and select a category filter option
     const categoryFilterButton = screen.getByRole("button", {
-      name: "l10n string: [profile-filter-category-button-label], with vars: {}",
+      name: "l10n string: [profile-filter-category-button-tooltip], with vars: {}",
     });
 
     const user = userEvent.setup();
@@ -1006,7 +1006,7 @@ describe("The dashboard", () => {
 
     // Open and select a category filter option
     const categoryFilterButton = screen.getByRole("button", {
-      name: "l10n string: [profile-filter-category-button-label], with vars: {}",
+      name: "l10n string: [profile-filter-category-button-tooltip], with vars: {}",
     });
 
     const user = userEvent.setup();

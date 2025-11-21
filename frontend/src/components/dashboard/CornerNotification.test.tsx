@@ -7,9 +7,7 @@ import {
   mockedProfiles,
   mockedRelayaddresses,
 } from "frontend/__mocks__/api/mockData";
-import { useL10n } from "frontend/src/hooks/l10n";
 import { useLocalDismissal } from "frontend/src/hooks/localDismissal";
-import { useGaEvent } from "frontend/src/hooks/gaEvent";
 
 jest.mock("frontend/src/functions/waffle", () => {
   const { mockIsFlagActive } = jest.requireActual(
@@ -23,17 +21,8 @@ import {
   resetFlags,
 } from "frontend/__mocks__/functions/flags";
 
-jest.mock("frontend/src/hooks/l10n", () => ({
-  useL10n: jest.fn(),
-}));
 jest.mock("frontend/src/hooks/localDismissal", () => ({
   useLocalDismissal: jest.fn(),
-}));
-jest.mock("frontend/src/hooks/gaEvent", () => ({
-  useGaEvent: jest.fn(),
-}));
-jest.mock("frontend/src/hooks/gaViewPing", () => ({
-  useGaViewPing: jest.fn(() => React.createRef()),
 }));
 
 beforeAll(() => {
@@ -73,12 +62,11 @@ describe("CornerNotification", () => {
     mockIsFlagActive.mockReset();
     mockIsFlagActive.mockImplementation(() => true);
 
-    (useL10n as jest.Mock).mockReturnValue(mockL10n);
+    global.useL10nImpl = () => mockL10n;
     (useLocalDismissal as jest.Mock).mockReturnValue({
       isDismissed: false,
       dismiss: mockDismiss,
     });
-    (useGaEvent as jest.Mock).mockReturnValue(jest.fn());
     mockL10n.getString.mockClear();
   });
 
@@ -153,7 +141,7 @@ describe("CornerNotification", () => {
   it("fires GA event when CTA is clicked", async () => {
     const user = userEvent.setup();
     const mockGaEvent = jest.fn();
-    (useGaEvent as jest.Mock).mockReturnValue(mockGaEvent);
+    global.gaEventMock = mockGaEvent;
     render(<CornerNotification {...defaultProps} />);
     const cta = screen.getByRole("link", {
       name: "upsell-banner-4-masks-us-cta",

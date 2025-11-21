@@ -4,32 +4,6 @@ import React from "react";
 import { BlockLevelSlider, type BlockLevel } from "./BlockLevelSlider";
 import type { AliasData, RandomAliasData } from "../../../hooks/api/aliases";
 
-jest.mock("next/link", () => {
-  const MockLink = ({
-    href,
-    children,
-    ...rest
-  }: { href: string; children: React.ReactNode } & Omit<
-    React.AnchorHTMLAttributes<HTMLAnchorElement>,
-    "href"
-  >) => (
-    <a href={href} {...rest}>
-      {children}
-    </a>
-  );
-  MockLink.displayName = "MockLink";
-  return { __esModule: true, default: MockLink };
-});
-
-jest.mock("../../Image", () => {
-  const MockImage = ({
-    alt = "",
-    ...rest
-  }: React.ImgHTMLAttributes<HTMLImageElement>) => <img alt={alt} {...rest} />;
-  MockImage.displayName = "MockImage";
-  return { __esModule: true, default: MockImage };
-});
-
 jest.mock("./BlockLevelSlider.module.scss", () => {
   const styles = new Proxy({} as Record<string, string>, {
     get: (_t, p: string) => p,
@@ -42,14 +16,6 @@ const gaSpy = jest.fn();
 jest.mock("../../../hooks/gaEvent", () => ({
   useGaEvent: () => gaSpy,
 }));
-
-// Centralized l10n mock
-jest.mock("../../../hooks/l10n", () => {
-  const { mockUseL10nModule } = jest.requireActual(
-    "../../../../__mocks__/hooks/l10n",
-  );
-  return mockUseL10nModule;
-});
 
 function makeRandomAlias(
   overrides: Partial<RandomAliasData> = {},

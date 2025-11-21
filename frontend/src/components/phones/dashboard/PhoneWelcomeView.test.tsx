@@ -3,13 +3,8 @@ import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { PhoneWelcomeView } from "./PhoneWelcomeView";
 import { mockedProfiles } from "frontend/__mocks__/api/mockData";
-import * as l10nModule from "frontend/src/hooks/l10n";
 import { toast } from "react-toastify";
 import { renderWithProviders } from "frontend/__mocks__/modules/renderWithProviders";
-
-jest.mock("frontend/src/hooks/l10n", () => ({
-  useL10n: jest.fn(),
-}));
 
 jest.mock("react-toastify", () => ({
   toast: jest.fn(),
@@ -30,7 +25,7 @@ describe("PhoneWelcomeView", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    (l10nModule.useL10n as jest.Mock).mockReturnValue({
+    global.useL10nImpl = () => ({
       getString: (key: string) => key,
       bundles: [{ locales: ["en-US"] }],
     });

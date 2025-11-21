@@ -80,6 +80,7 @@ export const CategoryFilter = (props: Props) => {
         {...buttonProps}
         ref={triggerRef}
         title={l10n.getString("profile-filter-category-button-tooltip")}
+        aria-label={l10n.getString("profile-filter-category-button-tooltip")}
         className={styles["filter-button"]}
       >
         <FilterIcon

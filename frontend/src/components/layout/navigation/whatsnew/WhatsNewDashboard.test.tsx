@@ -16,6 +16,12 @@ jest.mock(
   () => mockUseGoogleAnalyticsModule,
 );
 jest.mock("../../../../hooks/l10n.ts", () => mockUseL10nModule);
+jest.mock("../../../../hooks/gaEvent.ts", () => ({
+  useGaEvent: () => {
+    const googleAnalytics = mockUseGoogleAnalyticsModule.useGoogleAnalytics();
+    return googleAnalytics ? global.gaEventMock : jest.fn();
+  },
+}));
 
 function getMockEntry(
   id: number,
@@ -233,6 +239,8 @@ describe.each([true, false])(
   "The 'What's new' dashboard metrics, with googleAnalytics=%s",
   (googleAnalyticsAvailable) => {
     beforeEach(() => {
+      jest.clearAllMocks();
+      global.gaEventMock = jest.fn();
       mockUseGoogleAnalyticsModule.useGoogleAnalytics.mockReturnValue(
         googleAnalyticsAvailable,
       );
@@ -258,19 +266,19 @@ describe.each([true, false])(
       await userEvent.click(tabs[0]);
 
       if (googleAnalyticsAvailable) {
-        expect(mockReactGa.event).toHaveBeenCalledTimes(2);
-        expect(mockReactGa.event).toHaveBeenCalledWith({
+        expect(global.gaEventMock).toHaveBeenCalledTimes(2);
+        expect(global.gaEventMock).toHaveBeenCalledWith({
           category: "News",
           action: "Switch to 'History' tab",
           label: "news-dashboard",
         });
-        expect(mockReactGa.event).toHaveBeenCalledWith({
+        expect(global.gaEventMock).toHaveBeenCalledWith({
           category: "News",
           action: "Switch to 'News' tab",
           label: "news-dashboard",
         });
       } else {
-        expect(mockReactGa.event).not.toHaveBeenCalled();
+        expect(global.gaEventMock).not.toHaveBeenCalled();
       }
     });
 
@@ -294,14 +302,14 @@ describe.each([true, false])(
       await userEvent.click(menuItems[1]);
 
       if (googleAnalyticsAvailable) {
-        expect(mockReactGa.event).toHaveBeenCalledTimes(1);
-        expect(mockReactGa.event).toHaveBeenCalledWith({
+        expect(global.gaEventMock).toHaveBeenCalledTimes(1);
+        expect(global.gaEventMock).toHaveBeenCalledWith({
           category: "News",
           action: "Open entry",
           label: allEntries[1].title,
         });
       } else {
-        expect(mockReactGa.event).not.toHaveBeenCalled();
+        expect(global.gaEventMock).not.toHaveBeenCalled();
       }
     });
 
@@ -330,14 +338,14 @@ describe.each([true, false])(
       await userEvent.click(goBackButton);
 
       if (googleAnalyticsAvailable) {
-        expect(mockReactGa.event).toHaveBeenCalledTimes(2);
-        expect(mockReactGa.event).toHaveBeenCalledWith({
+        expect(global.gaEventMock).toHaveBeenCalledTimes(2);
+        expect(global.gaEventMock).toHaveBeenCalledWith({
           category: "News",
           action: "Close entry",
           label: allEntries[1].title,
         });
       } else {
-        expect(mockReactGa.event).not.toHaveBeenCalled();
+        expect(global.gaEventMock).not.toHaveBeenCalled();
       }
     });
 
@@ -363,15 +371,15 @@ describe.each([true, false])(
       await userEvent.click(clearAllButton);
 
       if (googleAnalyticsAvailable) {
-        expect(mockReactGa.event).toHaveBeenCalledTimes(1);
-        expect(mockReactGa.event).toHaveBeenCalledWith({
+        expect(global.gaEventMock).toHaveBeenCalledTimes(1);
+        expect(global.gaEventMock).toHaveBeenCalledWith({
           category: "News",
           action: "Clear all",
           label: "news-dashboard",
           value: newEntries.length,
         });
       } else {
-        expect(mockReactGa.event).not.toHaveBeenCalled();
+        expect(global.gaEventMock).not.toHaveBeenCalled();
       }
     });
   },

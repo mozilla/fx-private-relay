@@ -2,18 +2,10 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { PremiumOnboarding } from "./PremiumOnboarding";
 import { mockedProfiles } from "../../../__mocks__/api/mockData";
-import { useL10n } from "../../hooks/l10n";
 import { supportsFirefoxExtension } from "../../functions/userAgent";
 import { useMinViewportWidth } from "../../hooks/mediaQuery";
 import { renderWithProviders } from "frontend/__mocks__/modules/renderWithProviders";
 
-jest.mock("../../hooks/l10n");
-jest.mock("../../hooks/gaViewPing", () => ({
-  useGaViewPing: () => undefined,
-}));
-jest.mock("../../hooks/gaEvent", () => ({
-  useGaEvent: () => jest.fn(),
-}));
 jest.mock("../../functions/userAgent");
 jest.mock("../../hooks/mediaQuery");
 jest.mock("../../config", () => ({
@@ -26,7 +18,7 @@ describe("PremiumOnboarding", () => {
   const mockL10nGetString = jest.fn((id: string) => id);
 
   beforeEach(() => {
-    (useL10n as jest.Mock).mockReturnValue({
+    global.useL10nImpl = () => ({
       getString: mockL10nGetString,
     });
 

@@ -1,12 +1,7 @@
-import React from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Image from "../components/Image";
 import FirefoxLogo from "./dashboard/images/fx-logo.svg";
-
-jest.mock("../hooks/l10n.ts", () => mockUseL10nModule);
-
-import { mockUseL10nModule } from "../../__mocks__/hooks/l10n";
 
 import { Banner } from "./Banner";
 

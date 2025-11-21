@@ -10,24 +10,6 @@ import type { AliasData } from "../../../hooks/api/aliases";
 
 const TEST_SUBDOMAIN = "demo";
 
-jest.mock("next/link", () => ({
-  __esModule: true,
-  default: ({
-    href,
-    children,
-  }: {
-    href: string;
-    children: React.ReactNode;
-  }) => <a href={href}>{children}</a>,
-}));
-
-jest.mock("../../../hooks/l10n", () => {
-  const { mockUseL10nModule } = jest.requireActual(
-    "../../../../__mocks__/hooks/l10n",
-  );
-  return mockUseL10nModule;
-});
-
 const mockUseProfiles = jest.fn();
 jest.mock("../../../hooks/api/profile", () => ({
   useProfiles: () => mockUseProfiles(),

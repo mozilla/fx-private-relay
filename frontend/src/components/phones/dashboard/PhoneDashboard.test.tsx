@@ -10,7 +10,6 @@ import {
 } from "frontend/__mocks__/api/mockData";
 import { toast } from "react-toastify";
 import { VerifiedPhone } from "frontend/src/hooks/api/realPhone";
-import * as l10nModule from "frontend/src/hooks/l10n";
 import { formatPhone } from "frontend/src/functions/formatPhone";
 import { useRelayNumber } from "frontend/src/hooks/api/relayNumber";
 import { useInboundContact } from "frontend/src/hooks/api/inboundContact";
@@ -19,13 +18,6 @@ import type {
   NavigatorClipboard,
   ClipboardWrite,
 } from "frontend/__mocks__/components/clipboard";
-
-jest.mock("next/config", () => () => ({
-  publicRuntimeConfig: {
-    BASE_URL: "https://example.com",
-    API_URL: "https://api.example.com",
-  },
-}));
 
 beforeAll(() => {
   class MockIntersectionObserver implements IntersectionObserver {
@@ -43,16 +35,19 @@ beforeAll(() => {
   global.IntersectionObserver = MockIntersectionObserver;
 });
 
+jest.mock("next/config", () => () => ({
+  publicRuntimeConfig: {
+    BASE_URL: "https://example.com",
+    API_URL: "https://api.example.com",
+  },
+}));
+
 jest.mock("frontend/src/hooks/api/relayNumber", () => ({
   useRelayNumber: jest.fn(),
 }));
 
 jest.mock("frontend/src/hooks/api/inboundContact", () => ({
   useInboundContact: jest.fn(),
-}));
-
-jest.mock("frontend/src/hooks/l10n", () => ({
-  useL10n: jest.fn(),
 }));
 
 jest.mock("react-toastify", () => ({
@@ -71,7 +66,7 @@ describe("PhoneDashboard", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    (l10nModule.useL10n as jest.Mock).mockReturnValue({
+    global.useL10nImpl = () => ({
       getString: (key: string) => key,
       bundles: [{ locales: ["en-US"] }],
     });
