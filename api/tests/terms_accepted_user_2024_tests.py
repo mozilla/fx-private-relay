@@ -10,13 +10,8 @@ import responses
 from allauth.socialaccount.models import SocialAccount
 from rest_framework.test import APIClient
 
-from api.authentication import (
-    FXA_TOKEN_AUTH_OLD_AND_PROVEN,
-    INTROSPECT_TOKEN_URL,
-)
-from api.authentication import (
-    get_cache_key_2024 as get_cache_key,
-)
+from api.authentication import FXA_TOKEN_AUTH_OLD_AND_PROVEN, INTROSPECT_TOKEN_URL
+from api.authentication import get_cache_key_2024 as get_cache_key
 from api.tests.authentication_2024_tests import _setup_fxa_response
 from api.views.privaterelay import FXA_PROFILE_URL
 from privaterelay.models import Profile
@@ -49,7 +44,13 @@ class TermsAcceptedUserViewTest(TestCase):
         # Note: FXA iat and exp are timestamps in *milliseconds*
         exp_time = (now_time + 60 * 60) * 1000
         fxa_response = _setup_fxa_response(
-            200, {"active": True, "sub": self.uid, "exp": exp_time}
+            200,
+            {
+                "active": True,
+                "sub": self.uid,
+                "exp": exp_time,
+                "scope": "https://identity.mozilla.com/apps/relay",
+            },
         )
         # setup fxa profile response
         profile_json = {
@@ -98,7 +99,15 @@ class TermsAcceptedUserViewTest(TestCase):
         self._setup_client(user_token)
         now_time = int(datetime.now().timestamp())
         exp_time = (now_time + 60 * 60) * 1000
-        _setup_fxa_response(200, {"active": True, "sub": self.uid, "exp": exp_time})
+        _setup_fxa_response(
+            200,
+            {
+                "active": True,
+                "sub": self.uid,
+                "exp": exp_time,
+                "scope": "https://identity.mozilla.com/apps/relay",
+            },
+        )
         # FxA profile server is down
         responses.add(responses.GET, FXA_PROFILE_URL, status=502, body="")
         response = self.client.post(self.path)
