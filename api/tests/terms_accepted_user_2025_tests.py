@@ -12,7 +12,7 @@ from rest_framework.test import APIClient
 
 from api.authentication import FXA_TOKEN_AUTH_OLD_AND_PROVEN, INTROSPECT_TOKEN_URL
 from api.authentication import get_cache_key_2024 as get_cache_key
-from api.tests.authentication_2024_tests import _setup_fxa_response
+from api.tests.authentication_2025_tests import _setup_fxa_response
 from api.views.privaterelay import FXA_PROFILE_URL
 from privaterelay.models import Profile
 
