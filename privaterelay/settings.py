@@ -647,7 +647,7 @@ FXA_ACCOUNTS_ENDPOINT = config(
 )
 FXA_SUPPORT_URL = config("FXA_SUPPORT_URL", f"{FXA_BASE_ORIGIN}/support/")
 FXA_TOKEN_AUTH_VERSION = config(
-    "FXA_TOKEN_AUTH_VERSION", "2024", cast=Choices(["2024", "2025"], cast=str)
+    "FXA_TOKEN_AUTH_VERSION", "2025", cast=Choices(["2025", "2026"], cast=str)
 )
 # How many seconds an FxA token can be expired but still valid, for clock skew.
 # Also default time for caching token errors

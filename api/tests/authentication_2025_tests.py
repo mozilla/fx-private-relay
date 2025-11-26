@@ -14,14 +14,14 @@ from ..authentication import (
     FXA_TOKEN_AUTH_OLD_AND_PROVEN,
     INTROSPECT_TOKEN_URL,
 )
-from ..authentication import FxaTokenAuthentication2024 as FxaTokenAuthentication
-from ..authentication import get_cache_key_2024 as get_cache_key
-from ..authentication import (
-    get_fxa_uid_from_oauth_token_2024 as get_fxa_uid_from_oauth_token,
+from ..authentication_2025 import (
+    FxaTokenAuthentication,
+    get_cache_key,
+    get_fxa_uid_from_oauth_token,
+    introspect_token,
 )
-from ..authentication import introspect_token_2024 as introspect_token
 
-MOCK_BASE = "api.authentication"
+MOCK_BASE = "api.authentication_2025"
 
 
 # TODO MPP-3527 - Many tests mock FxA responses. This one should specify that it is

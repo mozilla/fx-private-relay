@@ -11,15 +11,13 @@ from allauth.socialaccount.models import SocialAccount
 from rest_framework.test import APIClient
 
 from api.authentication import FXA_TOKEN_AUTH_OLD_AND_PROVEN, INTROSPECT_TOKEN_URL
-from api.authentication import get_cache_key_2024 as get_cache_key
+from api.authentication_2025 import get_cache_key
 from api.tests.authentication_2025_tests import _setup_fxa_response
 from api.views.privaterelay import FXA_PROFILE_URL
 from privaterelay.models import Profile
 
 
-@override_settings(
-    FXA_TOKEN_AUTH_VERSION=FXA_TOKEN_AUTH_OLD_AND_PROVEN
-)  # noqa: S106 # Possible hardcoded password
+@override_settings(FXA_TOKEN_AUTH_VERSION=FXA_TOKEN_AUTH_OLD_AND_PROVEN)
 @pytest.mark.usefixtures("fxa_social_app")
 class TermsAcceptedUserViewTest(TestCase):
     def setUp(self) -> None:

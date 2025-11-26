@@ -95,8 +95,8 @@ def mock_timer() -> Iterator[Mock]:
 
 
 @pytest.fixture(autouse=True)
-def auth_2025_settings(settings: SettingsWrapper) -> SettingsWrapper:
-    settings.FXA_TOKEN_AUTH_VERSION = "2025"
+def auth_2026_settings(settings: SettingsWrapper) -> SettingsWrapper:
+    settings.FXA_TOKEN_AUTH_VERSION = "2026"
     return settings
 
 
