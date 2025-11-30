@@ -2,21 +2,6 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { Props } from "./Onboarding";
 import type { AliasData } from "../../hooks/api/aliases";
-
-jest.mock("../Image", () => ({
-  __esModule: true,
-  default: ({ src, alt }: { src: string; alt: string }) => (
-    <img src={src} alt={alt} data-testid="mocked-image" />
-  ),
-}));
-
-jest.mock("../../hooks/l10n", () => {
-  const { mockUseL10nModule } = jest.requireActual(
-    "../../../__mocks__/hooks/l10n",
-  );
-  return mockUseL10nModule;
-});
-
 import { Onboarding } from "./Onboarding";
 
 describe("Onboarding", () => {

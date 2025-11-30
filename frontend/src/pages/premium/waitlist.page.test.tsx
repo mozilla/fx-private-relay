@@ -1,6 +1,5 @@
 import { render, screen } from "@testing-library/react";
 import PremiumWaitlist from "../../../src/pages/premium/waitlist.page";
-import { useL10n } from "../../../src/hooks/l10n";
 import { WaitlistPage } from "../../../src/components/waitlist/WaitlistPage";
 
 jest.mock("../../../src/components/Localized", () => {
@@ -10,7 +9,6 @@ jest.mock("../../../src/components/Localized", () => {
   return mockLocalizedModule;
 });
 
-jest.mock("../../../src/hooks/l10n");
 jest.mock("../../../src/components/waitlist/WaitlistPage", () => ({
   WaitlistPage: jest.fn(() => <div data-testid="mock-waitlist-page" />),
 }));
@@ -21,7 +19,7 @@ describe("PremiumWaitlist page", () => {
   const mockGetString = jest.fn();
 
   beforeEach(() => {
-    (useL10n as jest.Mock).mockReturnValue({
+    global.useL10nImpl = () => ({
       getString: mockGetString,
     });
 

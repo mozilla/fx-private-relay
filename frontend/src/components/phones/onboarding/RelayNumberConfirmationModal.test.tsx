@@ -2,12 +2,7 @@ import React from "react";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { RelayNumberConfirmationModal } from "../onboarding/RelayNumberConfirmationModal";
-import { useL10n } from "../../../hooks/l10n";
 import { renderWithProviders } from "frontend/__mocks__/modules/renderWithProviders";
-
-jest.mock("../../../hooks/l10n", () => ({
-  useL10n: jest.fn(),
-}));
 
 jest.mock("react-aria", () => {
   const original = jest.requireActual("react-aria");
@@ -25,7 +20,7 @@ describe("RelayNumberConfirmationModal", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useL10n as jest.Mock).mockReturnValue({
+    global.useL10nImpl = () => ({
       getString: (key: string) => `translated(${key})`,
     });
   });
