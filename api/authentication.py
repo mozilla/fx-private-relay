@@ -95,12 +95,6 @@ def get_fxa_uid_from_oauth_token(token: str, use_cache: bool = True) -> str:
         raise NotFound("FXA did not return an FXA UID.")
     fxa_uid = str(raw_fxa_uid)
 
-    scopes = fxa_resp_data.get("json", {}).get("scope", "").split()
-    if settings.RELAY_SCOPE not in scopes:
-        raise AuthenticationFailed(
-            "FXA token is missing scope: https://identity.mozilla.com/apps/relay."
-        )
-
     # cache valid access_token and fxa_resp_data until access_token expiration
     # TODO: revisit this since the token can expire before its time
     if isinstance(fxa_resp_data.get("json", {}).get("exp"), int):

@@ -49,6 +49,10 @@ Firefox uses [Relay's REST API][relay-rest-api]. In particular, it uses these en
 
 ## Testing with local, dev, or stage Relay
 
+As of 2023-07-13, Relay integration is only enabled for Nightly users, so to test
+reliably you'll need to use Nightly. By 2023-08-29, it should be available for all
+Firefox users signed into the browser with their FxA.
+
 To test the Firefox integration outside of the production environment, you need to
 configure a Firefox profile to use non-production Relay and FxA servers.
 
@@ -56,7 +60,6 @@ configure a Firefox profile to use non-production Relay and FxA servers.
 2. Go to `about:config`
 3. Change values per the table below
 4. Restart Firefox with the profile
-5. Make sure you are logging in with a user that you have logged in with in your local instance (i.e. follow the login flow from 127.0.0.1:8000)
 
 |             | `identity.fxaccounts.autoconfig.uri` | `signon.firefoxRelay.base_url`          | `signon.firefoxRelay.manage_url` |
 | ----------- | ------------------------------------ | --------------------------------------- | -------------------------------- |

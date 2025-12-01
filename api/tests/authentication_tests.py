@@ -31,7 +31,6 @@ class FxaResponse(TypedDict, total=False):
     sub: str
     exp: int
     error: str
-    scope: str
 
 
 class CachedFxaResponse(TypedDict):
@@ -49,10 +48,7 @@ def _setup_fxa_response(
         json=json,
     )
     if json is None:
-        return {
-            "status_code": status_code,
-            "json": {"scope": "https://identity.mozilla.com/apps/relay"},
-        }
+        return {"status_code": status_code}
     return {"status_code": status_code, "json": json}
 
 
@@ -89,7 +85,6 @@ class AuthenticationMiscellaneous(TestCase):
             "active": True,
             "sub": self.uid,
             "exp": exp_time,
-            "scope": "https://identity.mozilla.com/apps/relay",
         }
         status_code = 200
         expected_fxa_resp_data = {"status_code": status_code, "json": json_data}
@@ -110,13 +105,7 @@ class AuthenticationMiscellaneous(TestCase):
         # Note: FXA iat and exp are timestamps in *milliseconds*
         exp_time = (now_time + 60 * 60) * 1000
         fxa_response = _setup_fxa_response(
-            200,
-            {
-                "active": True,
-                "sub": self.uid,
-                "exp": exp_time,
-                "scope": "https://identity.mozilla.com/apps/relay",
-            },
+            200, {"active": True, "sub": self.uid, "exp": exp_time}
         )
         cache_key = get_cache_key(user_token)
 
@@ -225,62 +214,12 @@ class AuthenticationMiscellaneous(TestCase):
         self.fail("Should have raised AuthenticationFailed")
 
     @responses.activate
-    def test_get_fxa_uid_from_oauth_token_has_wrong_scope_returns_error_response(  # noqa: E501
-        self,
-    ) -> None:
-        now_time = int(datetime.now().timestamp())
-        # Note: FXA iat and exp are timestamps in *milliseconds*
-        exp_time = (now_time + 60 * 60) * 1000
-        json_data: FxaResponse = {
-            "active": True,
-            "sub": self.uid,
-            "exp": exp_time,
-            "scope": "foo",
-        }
-        status_code = 200
-        fxa_response = _setup_fxa_response(status_code, json_data)
-        missing_scopes_token = "missing-scopes-123"
-        cache_key = get_cache_key(missing_scopes_token)
-
-        assert cache.get(cache_key) is None
-
-        # get fxa response with no fxa uid for the first time
-        try:
-            get_fxa_uid_from_oauth_token(missing_scopes_token)
-        except AuthenticationFailed as e:
-            assert (
-                str(e.detail)
-                == "FXA token is missing scope: https://identity.mozilla.com/apps/relay."
-            )
-            assert responses.assert_call_count(self.fxa_verify_path, 1) is True
-        assert cache.get(cache_key) == fxa_response
-
-        # now check that the 2nd call did NOT make another fxa request
-        try:
-            get_fxa_uid_from_oauth_token(missing_scopes_token)
-        except AuthenticationFailed as e:
-            assert (
-                str(e.detail)
-                == "FXA token is missing scope: https://identity.mozilla.com/apps/relay."
-            )
-            assert responses.assert_call_count(self.fxa_verify_path, 1) is True
-            return
-        self.fail("Should have raised AuthenticationFailed")
-
-    @responses.activate
     def test_get_fxa_uid_from_oauth_token_returns_fxa_response_with_no_fxa_uid(self):
         user_token = "user-123"
         now_time = int(datetime.now().timestamp())
         # Note: FXA iat and exp are timestamps in *milliseconds*
         exp_time = (now_time + 60 * 60) * 1000
-        fxa_response = _setup_fxa_response(
-            200,
-            {
-                "active": True,
-                "exp": exp_time,
-                "scope": "https://identity.mozilla.com/apps/relay",
-            },
-        )
+        fxa_response = _setup_fxa_response(200, {"active": True, "exp": exp_time})
         cache_key = get_cache_key(user_token)
 
         assert cache.get(cache_key) is None
@@ -390,14 +329,8 @@ class FxaTokenAuthenticationTest(TestCase):
 
     @responses.activate
     def test_200_resp_from_fxa_no_matching_user_raises_APIException(self) -> None:
-        # I think this scope is realistic for a user that has not not accepted terms
         fxa_response = _setup_fxa_response(
-            200,
-            {
-                "active": True,
-                "sub": "not-a-relay-user",
-                "scope": "https://identity.mozilla.com/apps/relay",
-            },
+            200, {"active": True, "sub": "not-a-relay-user"}
         )
         non_user_token = "non-user-123"
         client = APIClient()
@@ -426,15 +359,7 @@ class FxaTokenAuthenticationTest(TestCase):
         now_time = int(datetime.now().timestamp())
         # Note: FXA iat and exp are timestamps in *milliseconds*
         exp_time = (now_time + 60 * 60) * 1000
-        _setup_fxa_response(
-            200,
-            {
-                "active": True,
-                "sub": self.uid,
-                "exp": exp_time,
-                "scope": "https://identity.mozilla.com/apps/relay",
-            },
-        )
+        _setup_fxa_response(200, {"active": True, "sub": self.uid, "exp": exp_time})
         inactive_user_token = "inactive-user-123"
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION=f"Bearer {inactive_user_token}")
@@ -457,13 +382,7 @@ class FxaTokenAuthenticationTest(TestCase):
         # Note: FXA iat and exp are timestamps in *milliseconds*
         exp_time = (now_time + 60 * 60) * 1000
         fxa_response = _setup_fxa_response(
-            200,
-            {
-                "active": True,
-                "sub": self.uid,
-                "exp": exp_time,
-                "scope": "https://identity.mozilla.com/apps/relay",
-            },
+            200, {"active": True, "sub": self.uid, "exp": exp_time}
         )
 
         assert cache.get(get_cache_key(user_token)) is None
@@ -494,13 +413,7 @@ class FxaTokenAuthenticationTest(TestCase):
         # Note: FXA iat and exp are timestamps in *milliseconds*
         exp_time = (now_time + 60 * 60) * 1000
         fxa_response = _setup_fxa_response(
-            200,
-            {
-                "active": True,
-                "sub": self.uid,
-                "exp": exp_time,
-                "scope": "https://identity.mozilla.com/apps/relay",
-            },
+            200, {"active": True, "sub": self.uid, "exp": exp_time}
         )
 
         assert cache.get(get_cache_key(user_token)) is None
