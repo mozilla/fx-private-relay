@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 
 import { mockLocalizedModule } from "../../../__mocks__/components/Localized";
 import { mockConfigModule } from "../../../__mocks__/configMock";
+import { mockUseL10nModule } from "../../../__mocks__/hooks/l10n";
 import { setMockProfileData } from "../../../__mocks__/hooks/api/profile";
 import {
   setMockRuntimeDataOnce,
@@ -10,7 +11,6 @@ import {
   getMockRuntimeDataWithoutPremium,
 } from "../../../__mocks__/hooks/api/runtimeData";
 import { mockUseFxaFlowTrackerModule } from "../../../__mocks__/hooks/fxaFlowTracker";
-import { mockUseL10nModule } from "../../../__mocks__/hooks/l10n";
 import { mockNextRouter } from "../../../__mocks__/modules/next__router";
 import { mockReactGa } from "../../../__mocks__/modules/react-ga";
 

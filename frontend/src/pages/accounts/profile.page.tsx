@@ -101,6 +101,21 @@ const Profile: NextPage = () => {
   const profile = profileData.data?.[0];
   const user = userData.data?.[0];
   if (
+    profileData.error ||
+    aliasData.randomAliasData.error ||
+    aliasData.customAliasData.error
+  ) {
+    // We don't need runtimeData.error in this, since we have defaults for that
+    return (
+      <>
+        <Layout>
+          <div>{l10n.getString("error-general")}</div>
+        </Layout>
+      </>
+    );
+  }
+
+  if (
     !runtimeData.data ||
     !profile ||
     !user ||
