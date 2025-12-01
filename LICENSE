@@ -1,3 +1,5 @@
+Copyright (c) 2025 joemherdezz (https://github.com/joemherdezz)
+
 Mozilla Public License Version 2.0
 ==================================
 
@@ -26,9 +28,9 @@ following, which contain images copyright iStockPhoto.com:
 
 1.4. "Covered Software"
     means Source Code Form to which the initial Contributor has attached
-    the notice in Exhibit A, the Executable Form of such Source Code
-    Form, and Modifications of such Source Code Form, in each case
-    including portions thereof.
+the notice in Exhibit A, the Executable Form of such Source Code
+Form, and Modifications of such Source Code Form, in each case
+including portions thereof.
 
 1.5. "Incompatible With Secondary Licenses"
     means
@@ -45,15 +47,15 @@ following, which contain images copyright iStockPhoto.com:
 
 1.7. "Larger Work"
     means a work that combines Covered Software with other material, in 
-    a separate file or files, that is not Covered Software.
+a separate file or files, that is not Covered Software.
 
 1.8. "License"
     means this document.
 
 1.9. "Licensable"
     means having the right to grant, to the maximum extent possible,
-    whether at the time of the initial grant or subsequently, any and
-    all of the rights conveyed by this License.
+whether at the time of the initial grant or subsequently, any and
+all of the rights conveyed by this License.
 
 1.10. "Modifications"
     means any of the following:
@@ -67,11 +69,11 @@ following, which contain images copyright iStockPhoto.com:
 
 1.11. "Patent Claims" of a Contributor
     means any patent claim(s), including without limitation, method,
-    process, and apparatus claims, in any patent Licensable by such
-    Contributor that would be infringed, but for the grant of the
-    License, by the making, using, selling, offering for sale, having
-    made, import, or transfer of either its Contributions or its
-    Contributor Version.
+process, and apparatus claims, in any patent Licensable by such
+Contributor that would be infringed, but for the grant of the
+License, by the making, using, selling, offering for sale, having
+made, import, or transfer of either its Contributions or its
+Contributor Version.
 
 1.12. "Secondary License"
     means either the GNU General Public License, Version 2.0, the GNU
@@ -88,9 +90,9 @@ following, which contain images copyright iStockPhoto.com:
     controls, is controlled by, or is under common control with You. For
     purposes of this definition, "control" means (a) the power, direct
     or indirect, to cause the direction or management of such entity,
-    whether by contract or otherwise, or (b) ownership of more than
-    fifty percent (50%) of the outstanding shares or beneficial
-    ownership of such entity.
+whether by contract or otherwise, or (b) ownership of more than
+fifty percent (50%) of the outstanding shares or beneficial
+ownership of such entity.
 
 2. License Grants and Conditions
 --------------------------------
@@ -182,14 +184,14 @@ If You distribute Covered Software in Executable Form then:
 
 (a) such Covered Software must also be made available in Source Code
     Form, as described in Section 3.1, and You must inform recipients of
-    the Executable Form how they can obtain a copy of such Source Code
+the Executable Form how they can obtain a copy of such Source Code
     Form by reasonable means in a timely manner, at a charge no more
     than the cost of distribution to the recipient; and
 
 (b) You may distribute such Executable Form under the terms of this
     License, or sublicense it under different terms, provided that the
     license for the Executable Form does not attempt to limit or alter
-    the recipients' rights in the Source Code Form under this License.
+the recipients' rights in the Source Code Form under this License.
 
 3.3. Distribution of a Larger Work
 
@@ -250,10 +252,10 @@ ongoing basis, if such Contributor fails to notify You of the
 non-compliance by some reasonable means prior to 60 days after You have
 come back into compliance. Moreover, Your grants from a particular
 Contributor are reinstated on an ongoing basis if such Contributor
-notifies You of the non-compliance by some reasonable means, this is the
-first time You have received notice of non-compliance with this License
-from such Contributor, and You become compliant prior to 30 days after
-Your receipt of the notice.
+notifies You of the non-compliance by some reasonable means, this is
+the first time You have received notice of non-compliance with this
+License from such Contributor, and You become compliant prior to 30
+days after Your receipt of the notice.
 
 5.2. If You initiate litigation against any entity by asserting a patent
 infringement claim (excluding declaratory judgment actions,
