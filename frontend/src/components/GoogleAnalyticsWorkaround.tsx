@@ -29,9 +29,6 @@ import { GAParams } from "@next/third-parties/dist/types/google";
 import Script, { ScriptProps } from "next/script";
 import { useEffect } from "react";
 
-// We don't send Analytics events in tests:
-/* c8 ignore start */
-
 let currDataLayerName: string | undefined = undefined;
 
 /**
@@ -105,4 +102,3 @@ export const sendGAEvent = (type: "event", eventName: string, args: object) => {
     );
   }
 };
-/* c8 ignore stop */

@@ -1,15 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { SendersPanelView } from "./SendersPanelView";
-import * as l10nModule from "frontend/src/hooks/l10n";
 import * as metricsModule from "frontend/src/hooks/metrics";
 import * as inboundContactModule from "frontend/src/hooks/api/inboundContact";
 import { FluentBundle } from "@fluent/bundle";
 import { ReactLocalization } from "@fluent/react";
-
-jest.mock("frontend/src/hooks/l10n", () => ({
-  useL10n: jest.fn(),
-}));
 
 jest.mock("frontend/src/hooks/metrics", () => ({
   useMetrics: jest.fn(),
@@ -29,7 +24,7 @@ function mockL10n(): ReactLocalization {
 beforeEach(() => {
   jest.clearAllMocks();
 
-  (l10nModule.useL10n as jest.Mock).mockReturnValue({
+  global.useL10nImpl = () => ({
     getString: (key: string) => key,
     bundles: mockL10n().bundles,
   });
@@ -79,7 +74,7 @@ describe("SendersPanelView", () => {
       screen.getByRole("link", {
         name: "phone-dashboard-sender-disabled-update-settings",
       }),
-    ).toHaveAttribute("href", "/accounts/settings");
+    ).toHaveAttribute("href", "/accounts/settings/");
   });
 
   it("renders sorted sender logs", () => {

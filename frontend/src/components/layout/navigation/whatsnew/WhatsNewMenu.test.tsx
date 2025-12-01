@@ -1,8 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { WhatsNewMenu } from "./WhatsNewMenu";
-import { useL10n } from "../../../../hooks/l10n";
-import { useGaEvent } from "../../../../hooks/gaEvent";
 import { useAddonData } from "../../../../hooks/addon";
 import { useLocalDismissal } from "../../../../hooks/localDismissal";
 import { isUsingFirefox } from "../../../../functions/userAgent";
@@ -19,15 +17,13 @@ import {
   resetFlags,
 } from "frontend/__mocks__/functions/flags";
 
-jest.mock("../../../../hooks/l10n");
 jest.mock("../../../../hooks/gaEvent");
 jest.mock("../../../../hooks/addon");
 jest.mock("../../../../hooks/localDismissal");
 jest.mock("../../../../functions/userAgent");
-jest.mock("../../../../functions/getLocale", () => ({ getLocale: () => "en" }));
 
 const l10nMock = {
-  getString: jest.fn((key, vars) =>
+  getString: jest.fn((key: string, vars?: unknown) =>
     vars ? `${key}:${JSON.stringify(vars)}` : `${key}`,
   ),
 };
@@ -40,23 +36,6 @@ const mockedRuntimeDataWithNoBundle = {
   },
 };
 
-beforeAll(() => {
-  class MockIntersectionObserver implements IntersectionObserver {
-    readonly root: Element | null = null;
-    readonly rootMargin: string = "0px";
-    readonly thresholds: ReadonlyArray<number> = [0];
-    disconnect() {}
-    observe() {}
-    takeRecords(): IntersectionObserverEntry[] {
-      return [];
-    }
-    unobserve() {}
-    constructor() {}
-  }
-  global.IntersectionObserver =
-    MockIntersectionObserver as typeof IntersectionObserver;
-});
-
 describe("WhatsNewMenu", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -64,17 +43,20 @@ describe("WhatsNewMenu", () => {
     mockIsFlagActive.mockReset();
     mockIsFlagActive.mockReturnValue(true);
 
-    (useL10n as jest.Mock).mockReturnValue(l10nMock);
-    (useGaEvent as jest.Mock).mockReturnValue(jest.fn());
-    (useAddonData as jest.Mock).mockReturnValue({ present: false });
-    (isUsingFirefox as jest.Mock).mockReturnValue(false);
+    // @ts-expect-error set by jest.setup.ts
+    global.useL10nImpl = () => l10nMock;
+    global.getLocaleMock.mockReturnValue("en");
+    global.gaEventMock = jest.fn();
+
+    (useAddonData as unknown as jest.Mock).mockReturnValue({ present: false });
+    (isUsingFirefox as unknown as jest.Mock).mockReturnValue(false);
 
     jest.useFakeTimers();
     jest.setSystemTime(new Date("2022-03-15T12:00:00Z"));
   });
 
   it("renders trigger when there are visible announcements", () => {
-    (useLocalDismissal as jest.Mock).mockImplementation(() => ({
+    (useLocalDismissal as unknown as jest.Mock).mockImplementation(() => ({
       isDismissed: false,
       dismiss: jest.fn(),
     }));
@@ -93,7 +75,7 @@ describe("WhatsNewMenu", () => {
   });
 
   it("shows pill when undismissed entries exist", () => {
-    (useLocalDismissal as jest.Mock).mockImplementation(() => ({
+    (useLocalDismissal as unknown as jest.Mock).mockImplementation(() => ({
       isDismissed: false,
       dismiss: jest.fn(),
     }));
@@ -110,7 +92,7 @@ describe("WhatsNewMenu", () => {
   });
 
   it("opens the overlay and displays the dashboard", async () => {
-    (useLocalDismissal as jest.Mock).mockImplementation(() => ({
+    (useLocalDismissal as unknown as jest.Mock).mockImplementation(() => ({
       isDismissed: false,
       dismiss: jest.fn(),
     }));

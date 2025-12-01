@@ -5,25 +5,12 @@ import { Tips } from "./Tips";
 import type { ProfileData } from "../../../hooks/api/profile";
 import type { RuntimeData } from "../../../hooks/api/types";
 
-jest.mock("next/link", () => ({
-  __esModule: true,
-  default: ({
-    href,
-    children,
-    title,
-  }: {
-    href: string;
-    children: React.ReactNode;
-    title?: string;
-  }) => (
-    <a href={href} title={title}>
-      {children}
-    </a>
-  ),
-}));
-
 jest.mock("react-intersection-observer", () => ({
   useInView: () => [jest.fn(), true] as const,
+}));
+
+jest.mock("../../../config", () => ({
+  getRuntimeConfig: () => ({ frontendOrigin: "http://relay.local" }),
 }));
 
 jest.mock("../../../hooks/l10n", () => {
@@ -33,28 +20,23 @@ jest.mock("../../../hooks/l10n", () => {
   return mockUseL10nModule;
 });
 
+jest.mock("../../../hooks/gaViewPing", () => ({
+  useGaViewPing: () => () => {},
+}));
+
 const mockDismiss = jest.fn();
+let mockIsDismissed = false;
 jest.mock("../../../hooks/localDismissal", () => ({
-  useLocalDismissal: () => ({ isDismissed: false, dismiss: mockDismiss }),
+  useLocalDismissal: () => ({
+    isDismissed: mockIsDismissed,
+    dismiss: mockDismiss,
+  }),
 }));
 
 const mockGaEvent = jest.fn();
 jest.mock("../../../hooks/gaEvent", () => ({
   useGaEvent: () => mockGaEvent,
 }));
-
-jest.mock("../../../hooks/gaViewPing", () => ({
-  useGaViewPing: () => () => {},
-}));
-
-jest.mock("../../../config", () => ({
-  getRuntimeConfig: () => ({ frontendOrigin: "http://relay.local" }),
-}));
-
-// --- use centralized waffle/flags mocks
-jest.mock("../../../functions/waffle", () =>
-  jest.requireActual("frontend/__mocks__/functions/waffle"),
-);
 import { setFlag, resetFlags } from "frontend/__mocks__/functions/flags";
 
 let relayData: unknown[] = [];
@@ -97,6 +79,7 @@ describe("Tips", () => {
     jest.clearAllMocks();
     mockDismiss.mockClear();
     mockGaEvent.mockClear();
+    mockIsDismissed = false;
     relayData = [];
     resetFlags(); // clear all mocked flags
   });
@@ -264,6 +247,119 @@ describe("Tips", () => {
       category: "Tips",
       action: "Expand (from teaser)",
       label: "custom-subdomain",
+    });
+  });
+
+  it("shows minimised button and can expand from minimised state when all tips are dismissed", async () => {
+    const user = userEvent.setup();
+    mockIsDismissed = true;
+
+    render(
+      <Tips profile={baseProfile({ has_premium: true })} runtimeData={rd} />,
+    );
+
+    // When all tips are dismissed, should show the minimised expand button
+    const expandFromMinimised = screen.getByRole("button", {
+      name: byMsgIdName("tips-header-title"),
+    });
+
+    expect(expandFromMinimised).toBeInTheDocument();
+
+    await user.click(expandFromMinimised);
+
+    expect(mockGaEvent).toHaveBeenCalledWith({
+      category: "Tips",
+      action: "Expand (from minimised)",
+      label: "custom-subdomain",
+    });
+
+    // Should show full tip content after expanding
+    expect(
+      screen.getByRole("heading", { name: byMsgIdName("tips-header-title") }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows multiple tip indicators when there are multiple tips", async () => {
+    const user = userEvent.setup();
+    setFlag("multi_replies", true);
+    relayData = [{}];
+
+    render(
+      <Tips
+        profile={baseProfile({
+          has_premium: true,
+          has_phone: true,
+          subdomain: "me",
+        })}
+        runtimeData={rd}
+      />,
+    );
+
+    await user.click(
+      screen.getByRole("button", {
+        name: byMsgIdName("tips-toast-button-expand-label"),
+      }),
+    );
+
+    const tabs = screen.getAllByRole("tab");
+    expect(tabs).toHaveLength(2);
+
+    // Each tab should contain an img (svg) with aria-label indicating the tip number
+    // eslint-disable-next-line testing-library/no-node-access
+    const tab1Svg = tabs[0].querySelector('svg[role="img"]');
+    // eslint-disable-next-line testing-library/no-node-access
+    const tab2Svg = tabs[1].querySelector('svg[role="img"]');
+
+    expect(tab1Svg).toHaveAttribute("aria-label", expect.stringContaining("1"));
+    expect(tab2Svg).toHaveAttribute("aria-label", expect.stringContaining("2"));
+  });
+
+  it("does not show tip switcher when there is only one tip", async () => {
+    const user = userEvent.setup();
+    render(
+      <Tips profile={baseProfile({ has_premium: true })} runtimeData={rd} />,
+    );
+
+    await user.click(
+      screen.getByRole("button", {
+        name: byMsgIdName("tips-toast-button-expand-label"),
+      }),
+    );
+
+    const tabs = screen.queryAllByRole("tab");
+    expect(tabs).toHaveLength(0);
+  });
+
+  it("can close tips from the expanded state", async () => {
+    const user = userEvent.setup();
+    render(
+      <Tips profile={baseProfile({ has_premium: true })} runtimeData={rd} />,
+    );
+
+    // First expand the tips
+    await user.click(
+      screen.getByRole("button", {
+        name: byMsgIdName("tips-toast-button-expand-label"),
+      }),
+    );
+
+    // Should show the expanded content
+    expect(
+      screen.getByRole("heading", { name: byMsgIdName("tips-header-title") }),
+    ).toBeInTheDocument();
+
+    // Now close from the expanded state
+    const closeButton = screen.getByRole("button", {
+      name: byMsgIdName("tips-header-button-close-label"),
+    });
+    await user.click(closeButton);
+
+    // Should dismiss and show teaser
+    expect(mockDismiss).toHaveBeenCalled();
+    expect(mockGaEvent).toHaveBeenCalledWith({
+      category: "Tips",
+      action: "Collapse",
+      label: "tips-header",
     });
   });
 });

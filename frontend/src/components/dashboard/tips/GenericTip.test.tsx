@@ -1,6 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
 import { GenericTip, GenericTipProps } from "./GenericTip";
-import { useL10n } from "../../../hooks/l10n";
 import { getLocale } from "../../../functions/getLocale";
 import React from "react";
 
@@ -25,9 +24,6 @@ jest.mock("../../Image", () => {
   return { __esModule: true, default: MockImage };
 });
 
-jest.mock("../../../hooks/l10n", () => ({
-  useL10n: jest.fn(),
-}));
 jest.mock("../../../functions/getLocale", () => ({
   getLocale: jest.fn(),
 }));
@@ -46,7 +42,7 @@ describe("GenericTip", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useL10n as jest.Mock).mockReturnValue(mockL10n);
+    global.useL10nImpl = () => mockL10n;
     // default to a non-English locale
     (getLocale as jest.Mock).mockReturnValue("fr");
   });

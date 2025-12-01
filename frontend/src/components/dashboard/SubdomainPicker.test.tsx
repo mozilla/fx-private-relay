@@ -1,14 +1,9 @@
 import { render, screen, act } from "@testing-library/react";
 import { SubdomainPicker } from "./SubdomainPicker";
 import { mockedProfiles } from "../../../__mocks__/api/mockData";
-import { useL10n } from "../../hooks/l10n";
 import { getRuntimeConfig } from "../../config";
 import { SubdomainSearchForm } from "./subdomain/SearchForm";
 import { SubdomainConfirmationModal } from "./subdomain/ConfirmationModal";
-
-jest.mock("../../hooks/l10n", () => ({
-  useL10n: jest.fn(),
-}));
 
 jest.mock("../../hooks/flaggedAnchorLinks", () => ({
   useFlaggedAnchorLinks: jest.fn(),
@@ -37,7 +32,7 @@ describe("SubdomainPicker", () => {
   };
 
   beforeEach(() => {
-    (useL10n as jest.Mock).mockReturnValue(mockL10nStrings);
+    global.useL10nImpl = () => mockL10nStrings;
     (getRuntimeConfig as jest.Mock).mockReturnValue({
       mozmailDomain: "mozmail.com",
     });

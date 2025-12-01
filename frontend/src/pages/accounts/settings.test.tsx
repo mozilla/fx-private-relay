@@ -1,4 +1,3 @@
-import React from "react";
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
@@ -7,22 +6,23 @@ import { mockReactGa } from "../../../__mocks__/modules/react-ga";
 import { mockConfigModule } from "../../../__mocks__/configMock";
 import { setMockProfileData } from "../../../__mocks__/hooks/api/profile";
 import { setMockAliasesData } from "../../../__mocks__/hooks/api/aliases";
-import { setMockRuntimeData } from "../../../__mocks__/hooks/api/runtimeData";
+import {
+  setMockRuntimeData,
+  getMockRuntimeDataWithPhones,
+} from "../../../__mocks__/hooks/api/runtimeData";
 import { setMockAddonData } from "../../../__mocks__/hooks/addon";
-import { mockUseL10nModule } from "../../../__mocks__/hooks/l10n";
-import { mockLocalizedModule } from "../../../__mocks__/components/Localized";
 import { useProfiles } from "../../../src/hooks/api/profile";
 import { useRuntimeData } from "../../../src/hooks/api/runtimeData";
-
-// Important: make sure mocks are imported *before* the page under test:
-import Settings from "./settings.page";
 
 jest.mock("next/router", () => mockNextRouter);
 jest.mock("react-ga", () => mockReactGa);
 jest.mock("../../config.ts", () => mockConfigModule);
-jest.mock("../../hooks/gaViewPing.ts");
-jest.mock("../../hooks/l10n.ts", () => mockUseL10nModule);
-jest.mock("../../components/Localized.tsx", () => mockLocalizedModule);
+
+// This test needs real waffle flags that read from runtime data
+jest.unmock("../../functions/waffle");
+
+// Important: make sure mocks are imported *before* the page under test:
+import Settings from "./settings.page";
 
 const mockedUseProfiles = useProfiles as jest.MockedFunction<
   typeof useProfiles
@@ -209,5 +209,106 @@ describe("The settings screen", () => {
     });
 
     expect(screen.queryByRole("form")).not.toBeInTheDocument();
+  });
+
+  it("renders and toggles phone caller/SMS log setting if phones are available", async () => {
+    setMockProfileData({
+      store_phone_log: true,
+    });
+
+    setMockRuntimeData(getMockRuntimeDataWithPhones());
+
+    render(<Settings />);
+
+    const phoneLogCheckbox = screen.getByLabelText(
+      "l10n string: [phone-settings-caller-sms-log-description], with vars: {}",
+    );
+    expect(phoneLogCheckbox).toBeInTheDocument();
+    expect(phoneLogCheckbox).toBeChecked();
+
+    await userEvent.click(phoneLogCheckbox);
+    expect(phoneLogCheckbox).not.toBeChecked();
+
+    const warning = screen.getByText(
+      "l10n string: [phone-settings-caller-sms-log-warning], with vars: {}",
+    );
+    expect(warning).toBeInTheDocument();
+  });
+
+  it("does not render phone caller/SMS log setting if phones are not available", () => {
+    setMockProfileData({
+      store_phone_log: true,
+    });
+
+    setMockRuntimeData({
+      PHONE_PLANS: {
+        available_in_country: false,
+        countries: [],
+        country_code: "BE",
+        plan_country_lang_mapping: {},
+      },
+    });
+
+    render(<Settings />);
+
+    const phoneLogCheckbox = screen.queryByLabelText(
+      "l10n string: [phone-settings-caller-sms-log-description], with vars: {}",
+    );
+    expect(phoneLogCheckbox).not.toBeInTheDocument();
+  });
+
+  it("shows help/support link in sidebar", () => {
+    render(<Settings />);
+
+    const helpLink = screen.getByRole("link", {
+      name: /l10n string: \[settings-meta-help-label\]/i,
+    });
+    expect(helpLink).toBeInTheDocument();
+    expect(helpLink).toHaveAttribute(
+      "href",
+      expect.stringContaining("support"),
+    );
+  });
+
+  it("shows status link in sidebar", () => {
+    render(<Settings />);
+
+    const statusLink = screen.getByRole("link", {
+      name: /l10n string: \[settings-meta-status-label\]/i,
+    });
+    expect(statusLink).toBeInTheDocument();
+    expect(statusLink).toHaveAttribute(
+      "href",
+      "https://status.relay.firefox.com/",
+    );
+  });
+
+  it("calls update function when saving settings successfully", async () => {
+    const updateFn = jest.fn().mockResolvedValue({ ok: true });
+    setMockProfileData(
+      { id: 1, server_storage: true },
+      { updater: updateFn, setSubdomain: jest.fn() },
+    );
+
+    render(<Settings />);
+
+    await userEvent.click(
+      screen.getByLabelText(
+        "l10n string: [setting-label-collection-description-3], with vars: {}",
+      ),
+    );
+
+    await userEvent.click(
+      screen.getByRole("button", {
+        name: "l10n string: [settings-button-save-label], with vars: {}",
+      }),
+    );
+
+    expect(updateFn).toHaveBeenCalledWith(
+      1,
+      expect.objectContaining({
+        server_storage: false,
+      }),
+    );
   });
 });
