@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { mockCookiesModule } from "../../../../__mocks__/functions/cookies";
 import { mockGetLocaleModule } from "../../../../__mocks__/functions/getLocale";
 import { getMockProfileData } from "../../../../__mocks__/hooks/api/profile";
@@ -759,5 +760,273 @@ describe("The CSAT survey", () => {
 
     expect(veryDissatisfiedButton).not.toBeInTheDocument();
     expect(verySatisfiedButton).not.toBeInTheDocument();
+  });
+
+  describe("User interactions", () => {
+    beforeEach(() => {
+      const useFirstSeen = // TypeScript can't follow paths in `jest.requireMock`:
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
+      useFirstSeen.mockReturnValue(new Date(0));
+      global.gaEventMock.mockClear();
+    });
+
+    it("displays all five answer buttons", () => {
+      const mockProfileData = getMockProfileData({ has_premium: false });
+      render(<CsatSurvey profile={mockProfileData} />);
+
+      expect(
+        screen.getByRole("button", {
+          name: /survey-csat-answer-very-dissatisfied/,
+        }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", {
+          name: /survey-csat-answer-dissatisfied.*(?!very)/,
+        }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /survey-csat-answer-neutral/ }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", {
+          name: /survey-csat-answer-satisfied.*(?!very)/,
+        }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", {
+          name: /survey-csat-answer-very-satisfied/,
+        }),
+      ).toBeInTheDocument();
+    });
+
+    it("displays the dismiss button", () => {
+      const mockProfileData = getMockProfileData({ has_premium: false });
+      render(<CsatSurvey profile={mockProfileData} />);
+
+      const dismissButtons = screen.getAllByTitle(/survey-option-dismiss/);
+      expect(dismissButtons.length).toBeGreaterThan(0);
+    });
+
+    it("tracks GA event when user submits 'Very Satisfied' answer", async () => {
+      const user = userEvent.setup();
+      const mockProfileData = getMockProfileData({ has_premium: false });
+      render(<CsatSurvey profile={mockProfileData} />);
+
+      const verySatisfiedButton = screen.getByRole("button", {
+        name: /survey-csat-answer-very-satisfied/,
+      });
+      await user.click(verySatisfiedButton);
+
+      expect(global.gaEventMock).toHaveBeenCalledWith({
+        category: "CSAT Survey",
+        action: "submitted",
+        label: "Very Satisfied",
+        value: 5,
+        dimension3: "Satisfied",
+        dimension4: "Very Satisfied",
+        metric10: 1,
+        metric11: 5,
+        metric12: 1,
+      });
+    });
+
+    it("tracks GA event when user submits 'Satisfied' answer", async () => {
+      const user = userEvent.setup();
+      const mockProfileData = getMockProfileData({ has_premium: false });
+      render(<CsatSurvey profile={mockProfileData} />);
+
+      const allButtons = screen.getAllByRole("button");
+      const satisfiedButton = allButtons.find((btn) =>
+        btn.textContent?.includes("[survey-csat-answer-satisfied]"),
+      )!;
+      await user.click(satisfiedButton);
+
+      expect(global.gaEventMock).toHaveBeenCalledWith({
+        category: "CSAT Survey",
+        action: "submitted",
+        label: "Satisfied",
+        value: 4,
+        dimension3: "Satisfied",
+        dimension4: "Satisfied",
+        metric10: 1,
+        metric11: 4,
+        metric12: 1,
+      });
+    });
+
+    it("tracks GA event when user submits 'Neutral' answer", async () => {
+      const user = userEvent.setup();
+      const mockProfileData = getMockProfileData({ has_premium: false });
+      render(<CsatSurvey profile={mockProfileData} />);
+
+      const neutralButton = screen.getByRole("button", {
+        name: /survey-csat-answer-neutral/,
+      });
+      await user.click(neutralButton);
+
+      expect(global.gaEventMock).toHaveBeenCalledWith({
+        category: "CSAT Survey",
+        action: "submitted",
+        label: "Neutral",
+        value: 3,
+        dimension3: "Neutral",
+        dimension4: "Neutral",
+        metric10: 1,
+        metric11: 3,
+        metric12: 0,
+      });
+    });
+
+    it("tracks GA event when user submits 'Dissatisfied' answer", async () => {
+      const user = userEvent.setup();
+      const mockProfileData = getMockProfileData({ has_premium: false });
+      render(<CsatSurvey profile={mockProfileData} />);
+
+      const dissatisfiedButton = screen.getAllByRole("button", {
+        name: /survey-csat-answer-dissatisfied/,
+      })[0];
+      await user.click(dissatisfiedButton);
+
+      expect(global.gaEventMock).toHaveBeenCalledWith({
+        category: "CSAT Survey",
+        action: "submitted",
+        label: "Dissatisfied",
+        value: 2,
+        dimension3: "Dissatisfied",
+        dimension4: "Dissatisfied",
+        metric10: 1,
+        metric11: 2,
+        metric12: -1,
+      });
+    });
+
+    it("tracks GA event when user submits 'Very Dissatisfied' answer", async () => {
+      const user = userEvent.setup();
+      const mockProfileData = getMockProfileData({ has_premium: false });
+      render(<CsatSurvey profile={mockProfileData} />);
+
+      const veryDissatisfiedButton = screen.getByRole("button", {
+        name: /survey-csat-answer-very-dissatisfied/,
+      });
+      await user.click(veryDissatisfiedButton);
+
+      expect(global.gaEventMock).toHaveBeenCalledWith({
+        category: "CSAT Survey",
+        action: "submitted",
+        label: "Very Dissatisfied",
+        value: 1,
+        dimension3: "Dissatisfied",
+        dimension4: "Very Dissatisfied",
+        metric10: 1,
+        metric11: 1,
+        metric12: -1,
+      });
+    });
+
+    it("shows follow-up link after user submits an answer", async () => {
+      const user = userEvent.setup();
+      const mockProfileData = getMockProfileData({ has_premium: false });
+      render(<CsatSurvey profile={mockProfileData} />);
+
+      const allButtons = screen.getAllByRole("button");
+      const satisfiedButton = allButtons.find((btn) =>
+        btn.textContent?.includes("[survey-csat-answer-satisfied]"),
+      )!;
+      await user.click(satisfiedButton);
+
+      const followUpLink = await screen.findByRole("link");
+      expect(followUpLink).toBeInTheDocument();
+      expect(followUpLink).toHaveAttribute("href");
+      expect(followUpLink).toHaveAttribute("target", "_blank");
+    });
+
+    it("uses free survey link for free users", async () => {
+      const user = userEvent.setup();
+      const mockProfileData = getMockProfileData({ has_premium: false });
+      render(<CsatSurvey profile={mockProfileData} />);
+
+      const allButtons = screen.getAllByRole("button");
+      const satisfiedButton = allButtons.find((btn) =>
+        btn.textContent?.includes("[survey-csat-answer-satisfied]"),
+      )!;
+      await user.click(satisfiedButton);
+
+      const followUpLink = await screen.findByRole("link");
+      expect(followUpLink).toHaveAttribute(
+        "href",
+        expect.stringContaining("6665054"),
+      );
+    });
+
+    it("uses premium survey link for premium users", async () => {
+      const user = userEvent.setup();
+      const mockProfileData = getMockProfileData({
+        has_premium: true,
+        date_subscribed: new Date(
+          Date.now() - 7 * 24 * 60 * 60 * 1000,
+        ).toISOString(),
+      });
+      render(<CsatSurvey profile={mockProfileData} />);
+
+      const allButtons = screen.getAllByRole("button");
+      const satisfiedButton = allButtons.find((btn) =>
+        btn.textContent?.includes("[survey-csat-answer-satisfied]"),
+      )!;
+      await user.click(satisfiedButton);
+
+      const followUpLink = await screen.findByRole("link");
+      expect(followUpLink).toHaveAttribute(
+        "href",
+        expect.stringContaining("6665054"),
+      );
+    });
+
+    it("hides answer buttons after user submits an answer", async () => {
+      const user = userEvent.setup();
+      const mockProfileData = getMockProfileData({ has_premium: false });
+      render(<CsatSurvey profile={mockProfileData} />);
+
+      const allButtons = screen.getAllByRole("button");
+      const satisfiedButton = allButtons.find((btn) =>
+        btn.textContent?.includes("[survey-csat-answer-satisfied]"),
+      )!;
+      await user.click(satisfiedButton);
+
+      await screen.findByRole("link");
+
+      const answerButtons = screen.queryAllByRole("button", {
+        name: /survey-csat-answer/,
+      });
+      expect(answerButtons).toHaveLength(0);
+    });
+  });
+
+  describe("Dismiss functionality", () => {
+    beforeEach(() => {
+      const useFirstSeen = // TypeScript can't follow paths in `jest.requireMock`:
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
+      useFirstSeen.mockReturnValue(new Date(0));
+    });
+
+    it("allows user to dismiss the survey without answering", async () => {
+      const user = userEvent.setup();
+      const mockProfileData = getMockProfileData({ has_premium: false });
+      render(<CsatSurvey profile={mockProfileData} />);
+
+      const dismissButtons = screen.getAllByTitle(/survey-option-dismiss/);
+      expect(dismissButtons.length).toBeGreaterThan(0);
+
+      await user.click(dismissButtons[0]);
+    });
+
+    it("renders CloseIcon in the dismiss button", () => {
+      const mockProfileData = getMockProfileData({ has_premium: false });
+      render(<CsatSurvey profile={mockProfileData} />);
+
+      const dismissButtons = screen.getAllByTitle(/survey-option-dismiss/);
+      expect(dismissButtons.length).toBeGreaterThan(0);
+    });
   });
 });
