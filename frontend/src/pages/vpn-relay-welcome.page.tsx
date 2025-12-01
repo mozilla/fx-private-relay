@@ -55,7 +55,7 @@ const VpnRelayWelcome: NextPage = () => {
                 />
               </div>
 
-              <p>{l10n.getString("vpn-relay-go-relay-body")}</p>
+              <p>{l10n.getString("vpn-relay-go-relay-body-3")}</p>
               <Link href={"/"} className={styles.button}>
                 {l10n.getString("vpn-relay-go-relay-cta")}
               </Link>
@@ -69,11 +69,11 @@ const VpnRelayWelcome: NextPage = () => {
                   src={VpnLogo}
                   alt={l10n.getString("logo-premium-alt")}
                   className={styles["vpn-logo"]}
-                  height={20}
+                  height={40}
                 />
               </div>
 
-              <p>{l10n.getString("vpn-relay-go-vpn-body")}</p>
+              <p>{l10n.getString("vpn-relay-go-vpn-body-2")}</p>
               <LinkButton
                 href={`https://vpn.mozilla.org/vpn/download/?utm_source=${encodeURIComponent(
                   referringSiteUrl,
