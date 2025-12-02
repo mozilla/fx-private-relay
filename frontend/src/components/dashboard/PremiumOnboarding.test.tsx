@@ -85,7 +85,7 @@ describe("PremiumOnboarding", () => {
     expect(onNextStep).toHaveBeenCalledWith(2);
   });
 
-  it("renders Step 2 with continue button and skips to dashboard when subdomain is set", async () => {
+  it("renders Step 2 with continue button when subdomain is set", async () => {
     const user = userEvent.setup();
     const onNextStep = jest.fn();
 
@@ -106,7 +106,7 @@ describe("PremiumOnboarding", () => {
     });
     await user.click(button);
 
-    expect(onNextStep).toHaveBeenCalledWith(3);
+    expect(onNextStep).toHaveBeenCalledWith(2);
   });
 
   it("renders Step 3 and allows skipping extension", async () => {
@@ -154,7 +154,7 @@ describe("PremiumOnboarding", () => {
       (supportsFirefoxExtension as jest.Mock).mockReturnValue(false);
     });
 
-    it("goes to step 3 when continuing after subdomain creation", async () => {
+    it("skips step 3 when continuing after subdomain creation", async () => {
       const user = userEvent.setup();
       const onNextStep = jest.fn();
 
@@ -175,7 +175,7 @@ describe("PremiumOnboarding", () => {
       });
       await user.click(button);
 
-      expect(onNextStep).toHaveBeenCalledWith(2);
+      expect(onNextStep).toHaveBeenCalledWith(3);
     });
 
     it("skips step 3 when skipping subdomain creation", async () => {
