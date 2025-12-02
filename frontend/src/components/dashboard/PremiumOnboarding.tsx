@@ -124,8 +124,8 @@ export const PremiumOnboarding = (props: Props) => {
         </button>
       );
     } else {
-      const continueToNextStep = () => {
-        props.onNextStep(shouldShowStepThree ? 3 : 2);
+      const continueToExtension = () => {
+        props.onNextStep(2);
         gaEvent({
           category: "Premium Onboarding",
           action: "Engage",
@@ -133,8 +133,24 @@ export const PremiumOnboarding = (props: Props) => {
           value: 2,
         });
       };
+
+      const continueToDashboard = () => {
+        props.onNextStep(3);
+        gaEvent({
+          category: "Premium Onboarding",
+          action: "Engage",
+          label: "onboarding-step-2-continue",
+          value: 2,
+        });
+      };
+
       button = (
-        <Button ref={continueWithDomainButtonRef} onClick={continueToNextStep}>
+        <Button
+          ref={continueWithDomainButtonRef}
+          onClick={
+            shouldShowStepThree ? continueToExtension : continueToDashboard
+          }
+        >
           {l10n.getString("multi-part-onboarding-continue")}
         </Button>
       );
