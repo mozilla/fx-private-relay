@@ -58,9 +58,8 @@ function MyApp({ Component, pageProps }: AppProps) {
       return;
     }
     (async () => {
-      const { initialiseApiMocks } = await import(
-        "../../__mocks__/api/initialise"
-      );
+      const { initialiseApiMocks } =
+        await import("../../__mocks__/api/initialise");
       const { mockIds } = await import("../../__mocks__/api/mockData");
 
       await initialiseApiMocks();
