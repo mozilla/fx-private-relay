@@ -76,10 +76,48 @@ const nextConfig: NextConfig = {
   // in order to use authenticated sessions.
   // Thus, we use `npm run watch` to create a build every time a file in `src/`
   // changes — but builds are production builds in Next.js by default.
-  // Thus, we cannot use different .env files for different environments
-  // (https://nextjs.org/docs/basic-features/environment-variables),
-  // and use this mechanism instead:
-  publicRuntimeConfig: runtimeConfigs[applicableConfig],
+  // Runtime configuration is now passed via environment variables with NEXT_PUBLIC_ prefix
+  env: {
+    NEXT_PUBLIC_BACKEND_ORIGIN: runtimeConfigs[applicableConfig].backendOrigin,
+    NEXT_PUBLIC_FRONTEND_ORIGIN:
+      runtimeConfigs[applicableConfig].frontendOrigin,
+    NEXT_PUBLIC_FXA_LOGIN_URL: runtimeConfigs[applicableConfig].fxaLoginUrl,
+    NEXT_PUBLIC_FXA_LOGOUT_URL: runtimeConfigs[applicableConfig].fxaLogoutUrl,
+    NEXT_PUBLIC_SUPPORT_URL: runtimeConfigs[applicableConfig].supportUrl,
+    NEXT_PUBLIC_EMAIL_SIZE_LIMIT_NUMBER: String(
+      runtimeConfigs[applicableConfig].emailSizeLimitNumber,
+    ),
+    NEXT_PUBLIC_EMAIL_SIZE_LIMIT_UNIT:
+      runtimeConfigs[applicableConfig].emailSizeLimitUnit,
+    NEXT_PUBLIC_MAX_FREE_ALIASES: String(
+      runtimeConfigs[applicableConfig].maxFreeAliases,
+    ),
+    NEXT_PUBLIC_MOZMAIL_DOMAIN: runtimeConfigs[applicableConfig].mozmailDomain,
+    NEXT_PUBLIC_GOOGLE_ANALYTICS_ID:
+      runtimeConfigs[applicableConfig].googleAnalyticsId,
+    NEXT_PUBLIC_MAX_ONBOARDING_AVAILABLE: String(
+      runtimeConfigs[applicableConfig].maxOnboardingAvailable,
+    ),
+    NEXT_PUBLIC_MAX_ONBOARDING_FREE_AVAILABLE: String(
+      runtimeConfigs[applicableConfig].maxOnboardingFreeAvailable,
+    ),
+    NEXT_PUBLIC_FEATURE_TIPS: String(
+      runtimeConfigs[applicableConfig].featureFlags.tips,
+    ),
+    NEXT_PUBLIC_FEATURE_GENERATE_CUSTOM_ALIAS_MENU: String(
+      runtimeConfigs[applicableConfig].featureFlags.generateCustomAliasMenu,
+    ),
+    NEXT_PUBLIC_FEATURE_GENERATE_CUSTOM_ALIAS_SUBDOMAIN: String(
+      runtimeConfigs[applicableConfig].featureFlags
+        .generateCustomAliasSubdomain,
+    ),
+    NEXT_PUBLIC_FEATURE_INTERVIEW_RECRUITMENT: String(
+      runtimeConfigs[applicableConfig].featureFlags.interviewRecruitment,
+    ),
+    NEXT_PUBLIC_FEATURE_CSAT_SURVEY: String(
+      runtimeConfigs[applicableConfig].featureFlags.csatSurvey,
+    ),
+  },
   images: {
     // Since we're statically exporting the frontend (i.e. turning it into HTML
     // as build time, rather than running Next.js on the backend), we can't use
