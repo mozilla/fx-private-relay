@@ -20,7 +20,6 @@ import { AriaMenuItemProps, AriaMenuOptions } from "@react-aria/menu";
 import styles from "./AppPicker.module.scss";
 import FirefoxLogo from "../images/fx.png";
 import MonitorLogo from "../images/monitor.png";
-import PocketLogo from "../images/pocket.png";
 import VpnLogo from "../images/vpn.svg";
 import FxDesktopLogo from "../images/fx-logo.svg";
 import FxMobileLogo from "../images/fx-mobile.png";
@@ -39,11 +38,6 @@ const getProducts = (referringSiteUrl: string) => ({
       referringSiteUrl,
     )}&utm_medium=referral&utm_campaign=bento&utm_content=desktop&prompt=none`,
     gaLabel: "moz-monitor",
-  },
-  pocket: {
-    id: "pocket",
-    url: "https://app.adjust.com/hr2n0yz?engagement_type=fallback_click&fallback=https%3A%2F%2Fgetpocket.com%2Ffirefox_learnmore%3Fsrc%3Dff_bento&fallback_lp=https%3A%2F%2Fapps.apple.com%2Fapp%2Fpocket-save-read-grow%2Fid309601447",
-    gaLabel: "pocket",
   },
   fxDesktop: {
     id: "fxDesktop",
@@ -90,7 +84,6 @@ export const AppPicker = (props: Props) => {
     RefObject<HTMLAnchorElement | null>
   > = {
     monitor: useRef<HTMLAnchorElement>(null),
-    pocket: useRef<HTMLAnchorElement>(null),
     fxDesktop: useRef<HTMLAnchorElement>(null),
     fxMobile: useRef<HTMLAnchorElement>(null),
     vpn: useRef<HTMLAnchorElement>(null),
@@ -145,18 +138,6 @@ export const AppPicker = (props: Props) => {
         >
           <Image src={MonitorLogo} alt="" width={16} height={16} />
           {l10n.getString("moz-monitor")}
-        </a>
-      </Item>
-      <Item key={products.pocket.id} textValue={l10n.getString("fx-pocket")}>
-        <a
-          ref={linkRefs.pocket}
-          href={products.pocket.url}
-          className={`${styles["menu-link"]} ${styles["pocket-link"]}`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image src={PocketLogo} alt="" width={16} height={16} />
-          {l10n.getString("fx-pocket")}
         </a>
       </Item>
       <Item
