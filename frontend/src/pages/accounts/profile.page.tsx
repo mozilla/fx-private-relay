@@ -64,6 +64,7 @@ import Confetti from "react-confetti";
 import { useRouter } from "next/router";
 import { CornerNotification } from "../../components/dashboard/CornerNotification";
 import { useUtmApplier } from "../../hooks/utmApplier";
+import { ErrorGeneral } from "../../components/layout/ErrorGeneral";
 
 const Profile: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -100,6 +101,21 @@ const Profile: NextPage = () => {
 
   const profile = profileData.data?.[0];
   const user = userData.data?.[0];
+  if (
+    profileData.error ||
+    aliasData.randomAliasData.error ||
+    aliasData.customAliasData.error
+  ) {
+    // We don't need runtimeData.error in this, since we have defaults for that
+    return (
+      <>
+        <Layout>
+          <ErrorGeneral></ErrorGeneral>
+        </Layout>
+      </>
+    );
+  }
+
   if (
     !runtimeData.data ||
     !profile ||

@@ -134,6 +134,28 @@ function getReturnValue(
   };
 }
 
+function getErrorRandomReturnValue(): ReturnType<typeof useAliases> {
+  return {
+    randomAliasData: {
+      isValidating: false,
+      isLoading: false,
+      error: { some_error_key: "some_error_val" },
+      mutate: jest.fn(),
+      data: undefined,
+    },
+    customAliasData: {
+      isValidating: false,
+      isLoading: false,
+      error: { some_error_key: "some_error_val" },
+      mutate: jest.fn(),
+      data: undefined,
+    },
+    create: jest.fn(() => Promise.resolve({ ok: true } as unknown as Response)),
+    update: jest.fn(() => Promise.resolve({ ok: true } as unknown as Response)),
+    delete: jest.fn(() => Promise.resolve({ ok: true } as unknown as Response)),
+  };
+}
+
 export const setMockAliasesData = (
   aliasesData?: MockData,
   callbacks?: Callbacks,
@@ -146,4 +168,11 @@ export const setMockAliasesDataOnce = (
   callbacks?: Callbacks,
 ) => {
   mockedUseAliases.mockReturnValueOnce(getReturnValue(aliasesData, callbacks));
+};
+
+export const setMockAliasesErrorOnce = (
+  aliasesData?: MockData,
+  callbacks?: Callbacks,
+) => {
+  mockedUseAliases.mockReturnValueOnce(getErrorRandomReturnValue());
 };

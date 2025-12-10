@@ -64,6 +64,7 @@ const Settings: NextPage = () => {
     document.location.assign(getRuntimeConfig().fxaLoginUrl);
   }
 
+  // We don't need a special error Layout since fetch failures don't cause rendering issues
   if (!profileData.data || !runtimeData.data) {
     // TODO: Show a loading spinner?
     return null;
