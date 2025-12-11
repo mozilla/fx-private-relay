@@ -102,7 +102,7 @@ describe("The VPN + Relay welcome page", () => {
 
       expect(
         screen.getByText(
-          "l10n string: [vpn-relay-go-relay-body], with vars: {}",
+          "l10n string: [vpn-relay-go-relay-body-3], with vars: {}",
         ),
       ).toBeInTheDocument();
     });
@@ -133,7 +133,9 @@ describe("The VPN + Relay welcome page", () => {
       render(<VpnRelayWelcome />);
 
       expect(
-        screen.getByText("l10n string: [vpn-relay-go-vpn-body], with vars: {}"),
+        screen.getByText(
+          "l10n string: [vpn-relay-go-vpn-body-2], with vars: {}",
+        ),
       ).toBeInTheDocument();
     });
 
@@ -229,10 +231,10 @@ describe("The VPN + Relay welcome page", () => {
       render(<VpnRelayWelcome />);
 
       const relayPanel = screen.getByText(
-        "l10n string: [vpn-relay-go-relay-body], with vars: {}",
+        "l10n string: [vpn-relay-go-relay-body-3], with vars: {}",
       );
       const vpnPanel = screen.getByText(
-        "l10n string: [vpn-relay-go-vpn-body], with vars: {}",
+        "l10n string: [vpn-relay-go-vpn-body-2], with vars: {}",
       );
 
       expect(relayPanel).toBeInTheDocument();

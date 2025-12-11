@@ -1,0 +1,25 @@
+@use "~@mozilla-protocol/core/protocol/css/includes/lib" as *;
+@use "../../styles/text";
+
+.error-general {
+  @include text-body-sm;
+  font-family: $font-stack-firefox;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-md;
+  border-radius: $border-radius-md;
+  background-color: $color-white;
+  height: 100%;
+  vertical-align: middle;
+
+  h1 {
+    @include text-title-xs;
+    margin-bottom: $spacing-sm;
+  }
+
+  p {
+    @include text-title-3xs;
+  }
+}

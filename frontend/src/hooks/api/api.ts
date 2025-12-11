@@ -1,6 +1,8 @@
 import useSWR, { Fetcher, SWRConfig, SWRConfiguration, SWRResponse } from "swr";
 import { getRuntimeConfig } from "../../config";
 import { getCsrfToken } from "../../functions/cookies";
+import { toast } from "react-toastify";
+import { useL10n } from "../l10n";
 
 /**
  * Can be used to make API calls to the backend that work both in production and when running on the dev server.
@@ -69,6 +71,7 @@ export function useApiV1<Data = unknown>(
   route: string | null,
   swrOptions: Partial<SWRConfiguration> = {},
 ): SWRResponse<Data, FetchError> {
+  const l10n = useL10n();
   const onErrorRetry: typeof SWRConfig.defaultValue.onErrorRetry = (
     error: unknown | FetchError,
     key,
@@ -78,6 +81,9 @@ export function useApiV1<Data = unknown>(
   ) => {
     if (error instanceof FetchError && error.response.ok === false) {
       // When the request got rejected by the back-end, do not retry:
+      toast(l10n.getString("error-general"), {
+        type: "error",
+      });
       return;
     }
     // Otherwise, use SWR's default exponential back-off to retry:

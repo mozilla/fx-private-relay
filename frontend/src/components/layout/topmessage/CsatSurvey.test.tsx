@@ -2,8 +2,8 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { mockCookiesModule } from "../../../../__mocks__/functions/cookies";
 import { mockGetLocaleModule } from "../../../../__mocks__/functions/getLocale";
-import { getMockProfileData } from "../../../../__mocks__/hooks/api/profile";
 import { mockUseL10nModule } from "../../../../__mocks__/hooks/l10n";
+import { getMockProfileData } from "../../../../__mocks__/hooks/api/profile";
 
 import { CsatSurvey } from "./CsatSurvey";
 

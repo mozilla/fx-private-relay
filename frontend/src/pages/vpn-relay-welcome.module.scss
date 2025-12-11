@@ -78,7 +78,6 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: $spacing-xl;
   max-width: $content-xs;
   background-color: $color-white;
   padding: $spacing-2xl;
@@ -86,14 +85,20 @@
   box-shadow: $box-shadow-sm;
 
   @media #{$mq-lg} {
+    flex: 1;
     padding: 0;
     border-radius: 0;
     box-shadow: none;
   }
 
+  .logo {
+    margin-bottom: $spacing-xl;
+  }
+
   p {
     max-width: $content-xs;
     font-family: $font-stack-base;
+    margin-bottom: $spacing-xl;
 
     @include text-body-md;
   }
@@ -102,5 +107,6 @@
     white-space: pre;
     font-weight: 500;
     font-family: $font-stack-firefox;
+    margin-top: auto;
   }
 }

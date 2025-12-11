@@ -152,10 +152,24 @@ function getReturnValue(
   };
 }
 
+function getErrorReturnValue(): ReturnType<typeof useRuntimeData> {
+  return {
+    isValidating: false,
+    mutate: jest.fn(),
+    data: undefined,
+    isLoading: false,
+    error: { some_error_key: "some_error_val" },
+  };
+}
+
 export const setMockRuntimeData = (runtimeData?: Partial<RuntimeData>) => {
   mockedUseRuntimeData.mockReturnValue(getReturnValue(runtimeData));
 };
 
 export const setMockRuntimeDataOnce = (runtimeData?: Partial<RuntimeData>) => {
   mockedUseRuntimeData.mockReturnValueOnce(getReturnValue(runtimeData));
+};
+
+export const setMockRuntimeErrorOnce = (runtimeData?: Partial<RuntimeData>) => {
+  mockedUseRuntimeData.mockReturnValueOnce(getErrorReturnValue());
 };

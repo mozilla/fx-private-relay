@@ -6,11 +6,9 @@ import {
   getMockRuntimeDataWithPeriodicalPremium,
   getMockRuntimeDataWithoutPremium,
 } from "../../../../__mocks__/hooks/api/runtimeData";
-import { mockUseL10nModule } from "../../../../__mocks__/hooks/l10n";
 import { HolidayPromoBanner } from "./HolidayPromoBanner";
 
 jest.mock("next/router", () => mockNextRouter);
-jest.mock("../../../hooks/l10n.ts", () => mockUseL10nModule);
 jest.mock("../../../hooks/gaEvent.ts");
 jest.mock("../../../hooks/gaViewPing.ts", () => ({
   useGaViewPing: () => ({ current: null }),

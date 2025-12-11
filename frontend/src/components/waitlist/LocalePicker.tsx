@@ -58,9 +58,8 @@ async function importLanguages(locale: string): Promise<LocaleDisplayNames> {
       );
       return languages.main[truncatedLocale].localeDisplayNames.languages;
     } catch (_e) {
-      const languagesEn = await import(
-        "cldr-localenames-modern/main/en/languages.json"
-      );
+      const languagesEn =
+        await import("cldr-localenames-modern/main/en/languages.json");
       return languagesEn.main.en.localeDisplayNames.languages;
     }
   }

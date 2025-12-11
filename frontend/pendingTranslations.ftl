@@ -184,3 +184,7 @@ whatsnew-megabundle-premium-cta = Upgrade my protection
 
 phone-onboarding-step1-button-cta-2 = Sign up
 phone-onboarding-step1-learn-more = Learn more
+
+vpn-relay-go-relay-body-3 = Keep your identity private.
+vpn-relay-go-vpn-body-2 = Protect your online activity.
+

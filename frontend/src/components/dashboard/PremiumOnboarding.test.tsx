@@ -148,4 +148,72 @@ describe("PremiumOnboarding", () => {
     expect(progress).toHaveValue(2);
     expect(progress).toHaveAttribute("max", "3");
   });
+
+  describe("non-Firefox browsers", () => {
+    beforeEach(() => {
+      (supportsFirefoxExtension as jest.Mock).mockReturnValue(false);
+    });
+
+    it("skips step 3 when continuing after subdomain creation", async () => {
+      const user = userEvent.setup();
+      const onNextStep = jest.fn();
+
+      renderWithProviders(
+        <PremiumOnboarding
+          profile={{
+            ...mockedProfiles.full,
+            onboarding_state: 1,
+            subdomain: "test-sub",
+          }}
+          onNextStep={onNextStep}
+          onPickSubdomain={jest.fn()}
+        />,
+      );
+
+      const button = screen.getByRole("button", {
+        name: "multi-part-onboarding-continue",
+      });
+      await user.click(button);
+
+      expect(onNextStep).toHaveBeenCalledWith(3);
+    });
+
+    it("skips step 3 when skipping subdomain creation", async () => {
+      const user = userEvent.setup();
+      const onNextStep = jest.fn();
+      const profile = {
+        ...mockedProfiles.full,
+        onboarding_state: 1,
+        subdomain: null,
+      };
+
+      renderWithProviders(
+        <PremiumOnboarding
+          profile={profile}
+          onNextStep={onNextStep}
+          onPickSubdomain={jest.fn()}
+        />,
+      );
+
+      const skipButton = screen.getByRole("button", {
+        name: "multi-part-onboarding-skip",
+      });
+      await user.click(skipButton);
+
+      expect(onNextStep).toHaveBeenCalledWith(3);
+    });
+
+    it("renders progress bar with max of 2 steps", () => {
+      renderWithProviders(
+        <PremiumOnboarding
+          profile={{ ...mockedProfiles.full, onboarding_state: 1 }}
+          onNextStep={jest.fn()}
+          onPickSubdomain={jest.fn()}
+        />,
+      );
+
+      const progress = screen.getByRole("progressbar");
+      expect(progress).toHaveAttribute("max", "2");
+    });
+  });
 });

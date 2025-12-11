@@ -65,9 +65,8 @@ async function importTerritories(locale: string): Promise<LocaleDisplayNames> {
       );
       return territories.main[truncatedLocale].localeDisplayNames.territories;
     } catch (_e) {
-      const territoriesEn = await import(
-        "cldr-localenames-modern/main/en/territories.json"
-      );
+      const territoriesEn =
+        await import("cldr-localenames-modern/main/en/territories.json");
       return territoriesEn.main.en.localeDisplayNames.territories;
     }
   }

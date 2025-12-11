@@ -5,11 +5,9 @@ import {
   getMockRuntimeDataWithPeriodicalPremium,
   getMockRuntimeDataWithPhones,
 } from "../../../../__mocks__/hooks/api/runtimeData";
-import { mockUseL10nModule } from "../../../../__mocks__/hooks/l10n";
 import { TopMessage } from "./TopMessage";
 
 jest.mock("next/router", () => mockNextRouter);
-jest.mock("../../../hooks/l10n.ts", () => mockUseL10nModule);
 jest.mock("../../../functions/waffle.ts", () => ({
   isFlagActive: jest.fn(),
 }));
