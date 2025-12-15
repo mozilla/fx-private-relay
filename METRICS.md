@@ -756,7 +756,6 @@ The Google Analytics events:
   - `eventLabel`: One of:
     - `vpn` (Mozilla VPN)
     - `moz-monitor` (Mozilla Monitor)
-    - `pocket` (Pocket)
     - `fx-desktop` (Firefox for Desktop)
     - `fx-mobile` (Firefox for Mobile)
 - The user clicks the "Made by Mozilla" link in the bento menu.
