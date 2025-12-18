@@ -1,10 +1,10 @@
-# agends.md
+# agents.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code, Codex CLI, and Gemini CLI when working with code in this repository.
 
 ## Project Overview
 
-Firefox Private Relay is a Mozilla privacy service that generates masked email addresses and phone numbers. The project uses Django (Python) for the backend API and Next.js (TypeScript/React) for the frontend, with static HTML export served by Django.
+Firefox Private Relay is a Mozilla privacy service that generates masked email addresses and phone numbers. The project uses Django (Python) for the backend API and Next.js (TypeScript/React) for the frontend, with static HTML export served by Django. The production site is https://relay.firefox.com
 
 ## Common Commands
 
@@ -62,9 +62,9 @@ npm run lint  # Run linting (StyleLint, ESLint, Prettier)
 
 # E2E tests (Playwright)
 npm run test:e2e  # Default environment
-npm run test:local  # Local dev server
-npm run test:dev  # Dev environment
-npm run test:stage  # Stage environment
+npm run test:local  # Local dev server at http://127.0.0.1:8000
+npm run test:dev  # Dev environment at https://relay-dev.allizom.org
+npm run test:stage  # Stage environment at https://relay.allizom.org
 ```
 
 ### Code Quality
@@ -93,6 +93,30 @@ ANALYZE=true npm run build
 ```
 
 ## Architecture
+
+## Key Files
+
+- `privaterelay/settings.py` - All Django configuration
+- `api/views/emails.py` - Email API endpoints
+- `api/views/phones.py` - Phone API endpoints
+- `api/views/privaterelay.py` - Account/profile API
+- `emails/models.py` - Email masking models and business logic
+- `emails/views.py` - Email forwarding handlers
+- `frontend/src/pages/` - Next.js page routes
+- `frontend/src/hooks/api/` - SWR data fetching hooks
+- `docs/` - Comprehensive documentation
+
+## Technology Stack
+
+- **Backend**: Python 3, Django, DRF, Gunicorn
+- **Frontend**: TypeScript, React, Next.js
+- **Database**: PostgreSQL
+- **Caching**: Redis via django-redis
+- **Email**: AWS SES/SNS via boto3
+- **Phone**: Twilio
+- **Auth**: Mozilla Accounts OAuth via django-allauth
+- **Testing**: pytest-django, Jest, Playwright, React Testing Library
+- **Code Quality**: Ruff, mypy, ESLint, Prettier, StyleLint
 
 ### Backend Structure
 
@@ -144,6 +168,38 @@ ANALYZE=true npm run build
 4. Backend processes email forwarding via AWS SES/SNS
 5. Backend handles phone masking via Twilio
 6. Authentication flows through Mozilla Accounts OAuth
+
+### Add-on
+
+The Firefox Private Relay add-on is a WebExtension that integrates email masking directly into Firefox browsers.
+
+It's code is at https://github.com/mozilla/fx-private-relay-add-on/.
+It's listing on AMO is at https://addons.mozilla.org/en-US/firefox/addon/private-relay/.
+
+**Key Technologies:**
+
+- WebExtensions API
+- Fathom ML for email field detection
+- Background script for API communication
+- Content scripts for form filling and field detection
+- Fluent for i18n (translations in git submodule)
+
+**Architecture:**
+
+- `/src/js/background/` - Background scripts handle API requests, context menus, and data storage
+- `/src/js/popup/` - Toolbar popup UI for managing aliases
+- `/src/js/relay.firefox.com/` - scripts for communicating with website
+- `/src/js/other-websites/` - Content scripts injected into all websites for field detection and form filling
+- `/src/js/shared/` - Utility functions and metrics
+
+**Communication with Relay Frontend Website:**
+
+The add-on communicates with relay.firefox.com through DOM elements and browser storage:
+
+- Reads website data via `<firefox-private-relay-addon>` custom element attributes (see "Add-on Communication" section)
+- Injects profile data and labels into website via `#profile-main` element
+- Syncs aliases and settings bidirectionally
+- Detects logout events to clear local storage
 
 ## Development Guidelines
 
@@ -310,7 +366,7 @@ Show/hide content based on add-on: use `is-visible-with-addon` or `is-hidden-wit
 - Fixtures: model-bakery for model factories
 - Mocking: responses library for HTTP mocks
 - Coverage: coverage.py with HTML reports
-- Run specific app: `pytest emails/` or `pytest api/tests/test_views.py`
+- Test specific app: `pytest emails/` or `pytest api/tests/test_views.py`
 
 ### Frontend Testing
 
@@ -350,32 +406,6 @@ def test_code():
 - **Dev**: relay-dev.allizom.org (run by ENGR in MozCloud)
 - **Local**: 127.0.0.1:8000
 
-### Release Process
-
-Standard release interval: 1 week. Uses CalVer tagging (`YYYY.MM.DD`).
-
-**Release timeline:**
-
-1. Every commit to `main` auto-deploys to Dev
-2. Tuesday end-of-day: Base Load Engineer tags `main` with `YYYY.MM.DD` and deploys to Stage
-3. Following Tuesday: After QA review, deploy to Prod
-
-**Deploy workflow:** Use "Deploy to MozCloud environment" GitHub Action to select branch/tag and environment.
-
-**Tag structure:**
-
-- Dev: `10digitSHA--dev` or `YYYY.MM.DD--dev`
-- Stage: `YYYY.MM.DD--stage`
-- Prod: `YYYY.MM.DD--prod`
-
-**Stage-fixes:** If bug found on Stage before Prod release:
-
-- Create `stage-fix-YYYY.MM.DD` branch from tag
-- Make PR to `main`
-- Create new tag `YYYY.MM.DD.1` (from `main` if clean, from branch if dirty)
-
-**Release notes:** Create pre-release on GitHub after tagging. Organize PRs into: User-facing changes, Upcoming Features (with flag names), Other changes, Dependency updates.
-
 ### Build Process
 
 Multi-stage Docker build:
@@ -386,11 +416,11 @@ Multi-stage Docker build:
 
 ### Monitoring
 
-- Metrics: markus with datadog extensions → telegraf → influxdb
+- Metrics: markus with datadog extensions → telegraf → Monarch (GCP Prometheus storage)
 - Errors: Sentry
 - Profiling: Google Cloud Profiler
 - Telemetry: Glean
-- Logs: MozLog format
+- Logs: MozLog JSON format
 
 Enable metrics in development:
 
@@ -403,30 +433,6 @@ Utility functions in `emails/utils.py`:
 - `incr_if_enabled(name, value=1, tags=None)`
 - `histogram_if_enabled(name, value, tags=None)`
 - `gauge_if_enabled(name, value, tags=None)`
-
-## Key Files
-
-- `privaterelay/settings.py` - All Django configuration
-- `api/views/emails.py` - Email API endpoints
-- `api/views/phones.py` - Phone API endpoints
-- `api/views/privaterelay.py` - Account/profile API
-- `emails/models.py` - Email masking models and business logic
-- `emails/views.py` - Email forwarding handlers
-- `frontend/src/pages/` - Next.js page routes
-- `frontend/src/hooks/api/` - SWR data fetching hooks
-- `docs/` - Comprehensive documentation
-
-## Technology Stack
-
-- **Backend**: Python 3, Django, DRF, Gunicorn
-- **Frontend**: TypeScript, React, Next.js
-- **Database**: PostgreSQL
-- **Caching**: Redis via django-redis
-- **Email**: AWS SES/SNS via boto3
-- **Phone**: Twilio
-- **Auth**: Mozilla Accounts OAuth via django-allauth
-- **Testing**: pytest-django, Jest, Playwright, React Testing Library
-- **Code Quality**: Ruff, mypy, ESLint, Prettier, StyleLint
 
 ## Code Quality Guidelines
 
@@ -441,19 +447,19 @@ When writing code for this project, follow these principles to keep it clean and
 **Example**:
 
 ```python
-# ❌ Verbose
+# Bad: Verbose
 def get_user_data(user_id):
     # Get the user from the database
     user = db.query(User).filter(User.id == user_id).first()
     # Return the user
     return user
 
-# ✅ Concise
+# Good: Concise
 def get_user(user_id):
     return db.query(User).filter_by(id=user_id).first()
 ```
 
-### When to Add Comments
+### Comments
 
 Add comments only for:
 
@@ -467,6 +473,8 @@ Skip comments that:
 - Describe obvious operations
 - Would be better expressed as better variable names
 
+Do NOT use emoji in comments.
+
 ### When to Extract Functions
 
 **Extract a function when:**
@@ -474,6 +482,7 @@ Skip comments that:
 - The same code appears 3+ times (not 2)
 - A block genuinely improves readability when named
 - It needs independent testing
+- In python code, when it is indented too many levels
 
 **Don't extract when:**
 
