@@ -97,6 +97,8 @@ const Profile: NextPage = () => {
       getRuntimeConfig().fxaLoginUrl,
     );
     document.location.assign(fxaLoginWithAuthParams);
+    // avoid race condition where we flash the error below before the redirect finishes
+    return null;
   }
 
   const profile = profileData.data?.[0];
