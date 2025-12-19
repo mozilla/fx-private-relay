@@ -75,6 +75,8 @@ const Phone: NextPage = () => {
 
   if (!userData.isValidating && userData.error) {
     document.location.assign(getRuntimeConfig().fxaLoginUrl);
+    // avoid race condition where we flash the error below before the redirect finishes
+    return null;
   }
 
   // userData errors are handled above, runtimeData errors won't impede rendering
