@@ -1,4 +1,4 @@
-boto3==1.42.4
+boto3==1.42.9
 codetiming==1.4.0
 cryptography==46.0.3
 Django==5.2.8
@@ -33,24 +33,24 @@ sentry-sdk==2.47.0
 whitenoise==6.11.0
 
 # phones app
-phonenumbers==9.0.19
+phonenumbers==9.0.20
 twilio==9.8.8
 vobject==0.9.9
 
 # tests
-coverage==7.12.0
+coverage==7.13.0
 model-bakery==1.20.5
 pytest-cov==7.0.0
 pytest-django==4.11.1
 responses==0.25.8
 
 # linting
-black==25.11.0
+black==25.12.0
 ruff==0.14.9
 
 # type hinting
-boto3-stubs==1.42.4
-botocore-stubs==1.42.4
+boto3-stubs==1.42.9
+botocore-stubs==1.42.9
 mypy-boto3-s3==1.42.3
 django-stubs==5.2.8
 djangorestframework-stubs==3.16.6
