@@ -162,12 +162,11 @@ ANALYZE=true npm run build
 
 ### Data Flow
 
-1. Frontend builds to static HTML/JS/CSS in `/frontend/out/`
-2. Django serves static files via Whitenoise
-3. Frontend fetches runtime config and data from Django REST API
-4. Backend processes email forwarding via AWS SES/SNS
-5. Backend handles phone masking via Twilio
-6. Authentication flows through Mozilla Accounts OAuth
+1. Django serves static files via Whitenoise
+2. Frontend fetches runtime config and data from Django REST API
+3. Backend background tasks process and forward emails via AWS SES/SNS
+4. Backend handles phone masking via Twilio
+5. Authentication flows through Mozilla Accounts OAuth
 
 ### Add-on
 
@@ -220,13 +219,29 @@ To test with Mozilla Accounts:
 
 ### API Authentication
 
-The API uses three authentication methods:
+The API uses three authentication methods configured in DRF settings:
 
-1. **FXA OAuth Token**: Used by Firefox browsers - clients send `Authorization: Bearer {fxa-access-token}` header
-2. **SessionAuthentication**: Used by add-on "first run" to fetch token
-3. **TokenAuthentication**: Used by add-on and React website
+1. **FxA OAuth Bearer Token**: Firefox browsers send `Authorization: Bearer {fxa-access-token}` header
 
-Firefox clients must first POST to `/api/v1/terms-accepted-user` to accept Terms of Service and create user records.
+- Validated against Mozilla Accounts OAuth server
+- Used for Firefox integrations
+
+2. **Session Authentication**: Frontend uses Django session cookies after OAuth login
+
+- Session established via `/accounts/login/fxa/callback/`
+- Used by React website after user completes FxA OAuth flow
+
+3. **API Token Authentication**: Add-on and 3rd party integrations send `Authorization: Token {api-token}` header
+
+- Tokens auto-generated for all users (stored in Profile.api_token)
+- Used by browser add-on and external integrations
+
+#### Special endpoint
+
+Firefox browsers POST to `/api/v1/terms-accepted-user/` to create new Relay user accounts.
+
+- Accepts FxA bearer token
+- Creates user if needed, doesn't establish session
 
 ### Premium Features Testing
 
@@ -333,6 +348,9 @@ This prevents errors when code references deleted columns during rollout.
 - Serializers in `api/serializers.py` validate/transform API data
 - Tests in `{app}/tests/test_*.py` using pytest-django
 - Management commands in `{app}/management/commands/`
+  - Some commands are one-time tasks (migrations, data cleanup)
+  - Some run as long-lived background processes (email processing, welcome emails)
+  - Background email processor: `process_emails_from_sqs` polls AWS SQS queue
 - Type hints required (mypy strict mode)
 
 ### Frontend
@@ -408,11 +426,13 @@ def test_code():
 
 ### Build Process
 
-Multi-stage Docker build:
+Production uses multi-stage Docker build:
 
-1. Node stage: Build frontend static files
-2. Python stage: Install dependencies, collect static files
-3. Django serves via Whitenoise + Gunicorn
+1. Node stage: Runs `npm run build` (see Building section)
+2. Python stage: Installs dependencies, collects static files
+3. Runtime: Gunicorn + Whitenoise serves Django + static files
+
+See "Building" section for local development build commands.
 
 ### Monitoring
 
