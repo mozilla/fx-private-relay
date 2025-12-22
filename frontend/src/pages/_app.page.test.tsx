@@ -60,9 +60,7 @@ setMockRuntimeData();
 
 const mockL10n = {
   bundles: [{ locales: ["en"] }],
-  getString: jest.fn((id: string) => `l10n: ${id}`),
-  getFragment: jest.fn((id: string) => `fragment: ${id}`),
-};
+} as unknown as ReactLocalization;
 
 const MockComponent = () => <div>Test Component</div>;
 
