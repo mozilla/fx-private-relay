@@ -1,3 +1,4 @@
+import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { PhoneDashboard } from "./PhoneDashboard";
@@ -34,13 +35,6 @@ beforeAll(() => {
   }
   global.IntersectionObserver = MockIntersectionObserver;
 });
-
-jest.mock("next/config", () => () => ({
-  publicRuntimeConfig: {
-    BASE_URL: "https://example.com",
-    API_URL: "https://api.example.com",
-  },
-}));
 
 jest.mock("frontend/src/hooks/api/relayNumber", () => ({
   useRelayNumber: jest.fn(),
