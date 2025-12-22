@@ -353,6 +353,42 @@ This prevents errors when code references deleted columns during rollout.
   - Background email processor: `process_emails_from_sqs` polls AWS SQS queue
 - Type hints required (mypy strict mode)
 
+#### Available Management Commands
+
+**Email Processing (emails/):**
+
+- `process_emails_from_sqs` - Long-running background process that polls SQS queue and forwards emails
+- `send_welcome_emails` - Sends welcome emails to users who haven't received one yet
+- `delete_old_reply_records` - Deletes Reply records older than specified days
+- `get_latest_email_tracker_lists` - Downloads email tracker lists from Shavar Prod repository
+- `check_health` - Verifies healthcheck JSON file for Kubernetes liveness probes
+
+**User Management (privaterelay/):**
+
+- `deactivate_user` - Deactivates a user by API key, email, or FXA UID
+- `add_user_to_group` - Adds a user to a Django group by email
+- `update_user_group` - Updates groups for users with specific email domain
+- `get_or_create_user_group` - Creates or fetches a Django group by name
+
+**Data Management (privaterelay/):**
+
+- `cleanup_data` - Detects and optionally cleans data issues (server storage, missing profiles, etc.)
+- `aggregate_generated_for` - Aggregates mask usage statistics by generated_for field
+
+**Phone Features (privaterelay/, phones/):**
+
+- `update_phone_remaining_stats` - Resets monthly phone usage limits for subscribers
+- `sync_phone_related_dates_on_profile` - Syncs phone subscription dates from FxA to Profile
+- `delete_phone_data` - Deletes user's phone data for re-enrollment
+
+**Feature Flags (privaterelay/):**
+
+- `waffle_flag_by_fxa_uid` - Manages waffle flags by FxA UID (extends django-waffle)
+
+**Remote Settings (privaterelay/):**
+
+- `update_fxrelay_allowlist_collection` - Updates Firefox Relay allowlist in Remote Settings
+
 ### Frontend
 
 - Components use CSS modules (`component.module.scss`)
