@@ -1,4 +1,4 @@
-# Relay e2e Test Suite
+# Relay e2e Test Suites
 
 ---
 
@@ -53,13 +53,37 @@ The premium account needs to have a chosen subdomain for the premium tests to pa
 
 ### 6. Run Tests
 
+#### Running the full suite
+
 ```
-npm run test:e2e
+npm run test:e2e           # Runs on stage (default)
+npm run test:full:stage    # Explicit full suite on stage
+npm run test:full:prod     # Full suite on production
 ```
 
-By default, `npm run test:e2e` will run the tests on https://relay.allizom.org/.
+By default, `npm run test:e2e` will run all tests on https://relay.allizom.org/.
 
-You can also run tests locally, on our dev server (https://relay-dev.allizom.org/), and in production (https://relay.firefox.com/). You can find the commands [here](https://github.com/mozilla/fx-private-relay/blob/main/package.json#L26-L31), or you can run `E2E_TEST_ENV=<env (prod, dev, stage)> npx playwright test`.
+#### Running the relay-only suite
+
+The relay-only suite excludes tests that depend on Mozilla Monitor, SubPlat payment flows, or third-party sites like developmentthatpays.com.
+
+```
+npm run test:relay-only         # Runs on stage (default)
+npm run test:relay-only:stage   # Relay-only on stage
+npm run test:relay-only:prod    # Relay-only on production
+```
+
+**Test suites:**
+
+- **Relay-only**: Landing page, free user functionality, premium functionality, upgrade flow
+- **Full**: All relay-only tests plus Monitor integration, subscription flows, tracker tests
+
+**External dependencies:**
+
+- Relay-only requires: Relay deployment, FXA, Restmail.net
+- Full suite additionally requires: Mozilla Monitor, SubPlat, developmentthatpays.com
+
+You can also run tests locally or on our dev server. See all commands [here](https://github.com/mozilla/fx-private-relay/blob/main/package.json), or use `E2E_TEST_ENV=<env (prod, dev, stage, local)> npx playwright test`.
 
 To view the tests live in the browser, you can add `--headed` to the end of the command:
 
@@ -87,13 +111,22 @@ Error: A snapshot doesn't exist at example.spec.ts-snapshots/example-test-1-chro
 
 This is because playwright needs to create an image initially. On the following runs, it will compare that a screenshot of the respective element matches the one added initially. Do not push your local images into the repo, the only ones that are needed for CI end in `linux`.
 
-### 8. Health check
+### 8. Relay-Only Suite
 
-Our ![health check](https://github.com/mozilla/fx-private-relay/actions/workflows/relay_e2e_health.yml) runs a subset of the entire e2e test suite everyday. This subset of tests focuses on critical tests for free and premium users for the overall health of the relay application. To add a test into the healthcheck CI, add `@health_check` into the title of your test or test group. See the following as an example,
+The [Relay e2e tests workflow](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml) runs the relay-only test suite daily at 8 AM UTC. This suite focuses on core Relay functionality without dependencies on external services like Monitor or payment processors.
 
-`test.describe("Subscription flows @health_check", ...)`
+The relay-only suite runs automatically on a schedule, but you can also trigger it manually:
 
-To run the health check manually, go to ![Relay e2e tests](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml), click run workflow, and check off "enable health check" before clicking "run workflow".
+1. Go to [Relay e2e tests](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml)
+2. Click "Run workflow"
+3. Select "relay-only" from the suite dropdown
+4. Click "Run workflow"
+
+To run the relay-only suite locally:
+
+```bash
+npm run test:relay-only:stage
+```
 
 ### 9. Diagnosing Test Failures
 
