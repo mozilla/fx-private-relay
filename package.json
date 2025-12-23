@@ -29,6 +29,16 @@
     "test:dev": "E2E_TEST_ENV=dev playwright test --retries=2",
     "test:stage": "E2E_TEST_ENV=stage playwright test --retries=2",
     "test:prod": "E2E_TEST_ENV=prod playwright test --retries=2",
+    "test:relay-only": "playwright test --project=relay-only-* --retries=2",
+    "test:relay-only:local": "E2E_TEST_ENV=local playwright test --project=relay-only-*",
+    "test:relay-only:dev": "E2E_TEST_ENV=dev playwright test --project=relay-only-* --retries=2",
+    "test:relay-only:stage": "E2E_TEST_ENV=stage playwright test --project=relay-only-* --retries=2",
+    "test:relay-only:prod": "E2E_TEST_ENV=prod playwright test --project=relay-only-* --retries=2",
+    "test:full": "playwright test --project=full-* --retries=2",
+    "test:full:local": "E2E_TEST_ENV=local playwright test --project=full-*",
+    "test:full:dev": "E2E_TEST_ENV=dev playwright test --project=full-* --retries=2",
+    "test:full:stage": "E2E_TEST_ENV=stage playwright test --project=full-* --retries=2",
+    "test:full:prod": "E2E_TEST_ENV=prod playwright test --project=full-* --retries=2",
     "prepare": "husky"
   },
   "overrides": {

@@ -184,7 +184,7 @@ On Tuesday, after the Release Readiness review with QA:
    - Spot-check the site for basic functionality
    - Check [sentry prod project](https://mozilla.sentry.io/releases/?environment=prod) for a spike in any new issues
    - Check [grafana dashboard](https://yardstick.mozilla.org/) for any unexpected spike in ops
-   - (optional) [Run end-to-end tests](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml) on prod
+   - (optional) [Run the relay-only e2e test suite](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml) on prod
 3. Update the GitHub release:
    - Update the summary:
 

@@ -11,7 +11,7 @@ test.describe("Free - General Functionalities, Desktop", () => {
     await dashboardPage.maybeDeleteMasks();
   });
 
-  test("Check the free user can only create 5 masks, C1553067 @health_check", async ({
+  test("Check the free user can only create 5 masks, C1553067", async ({
     dashboardPage,
     page,
   }) => {
@@ -84,7 +84,7 @@ test.describe("Free - General Functionalities, Desktop - Visual Regression", () 
     );
   });
 
-  test("Check that the user can delete an mask, and is prompted to confirm before they delete, C1553071 @health_check", async ({
+  test("Check that the user can delete an mask, and is prompted to confirm before they delete, C1553071", async ({
     dashboardPage,
     page,
   }) => {

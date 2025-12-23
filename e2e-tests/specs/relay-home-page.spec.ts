@@ -1,7 +1,7 @@
 import test, { expect } from "../fixtures/basePages";
 import { defaultScreenshotOpts } from "../e2eTestUtils/helpers";
 
-test.describe("Firefox Relay - Landing Page - Visual Regression @health_check", () => {
+test.describe("Firefox Relay - Landing Page - Visual Regression", () => {
   test.skip(
     ({ browserName }) => browserName !== "firefox",
     "firefox only image comparisons!",
@@ -28,7 +28,7 @@ test.describe("Firefox Relay - Landing Page - Visual Regression @health_check", 
   });
 });
 
-test.describe("Check header buttons and their redirects, C1812638 @health_check", () => {
+test.describe("Check header buttons and their redirects, C1812638", () => {
   test.beforeEach(async ({ landingPage }) => {
     await landingPage.open();
   });
