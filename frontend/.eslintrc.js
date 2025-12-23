@@ -1,11 +1,31 @@
 module.exports = {
   extends: [
     "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
     "plugin:jest-dom/recommended",
-    "next/core-web-vitals",
-    "next/typescript",
   ],
-  plugins: ["@typescript-eslint", "testing-library", "jest-dom"],
+  parser: "@typescript-eslint/parser",
+  parserOptions: {
+    ecmaVersion: "latest",
+    sourceType: "module",
+    ecmaFeatures: {
+      jsx: true,
+    },
+  },
+  plugins: [
+    "@typescript-eslint",
+    "react",
+    "react-hooks",
+    "testing-library",
+    "jest-dom",
+  ],
+  settings: {
+    react: {
+      version: "detect",
+    },
+  },
   rules: {
     // We export the Next.js app to static HTML,
     // whereas Next.js's <Image> depends on a server-side component:

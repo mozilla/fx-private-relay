@@ -1,3 +1,4 @@
+import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { FreeOnboarding, Props } from "./FreeOnboarding";
@@ -5,10 +6,10 @@ import { RandomAliasData, AliasData } from "../../hooks/api/aliases";
 import { ProfileData } from "../../hooks/api/profile";
 import { UserData } from "../../hooks/api/user";
 
-jest.mock("next/config", () => () => ({
-  publicRuntimeConfig: {
+jest.mock("../../config", () => ({
+  getRuntimeConfig: () => ({
     maxOnboardingAvailable: 3,
-  },
+  }),
 }));
 
 jest.mock("../../functions/userAgent", () => ({
