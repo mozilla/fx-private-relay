@@ -2,7 +2,7 @@ import test, { expect } from "../fixtures/basePages";
 import { checkAuthState } from "../e2eTestUtils/helpers";
 
 test.describe.configure({ mode: "parallel" });
-test.describe("FxA auth, random mask generation, and email forwarding @health_check", () => {
+test.describe("FxA auth, random mask generation, and email forwarding", () => {
   test.skip(
     process.env.E2E_TEST_ENV === "prod",
     "This test only works on stage/dev environments because you cannot use masks to sign up for monitor, see 'Email forwarding and trackers removal' for a similar test",
@@ -67,7 +67,7 @@ test.skip("Email forwarding and trackers removal", () => {
   });
 });
 
-test.describe("Subscription flows with PlanGrid @health_check", () => {
+test.describe("Subscription flows with PlanGrid", () => {
   /**
    * Verifies that all plans correctly redirect to their corresponding subscriptions page.
    */
