@@ -22,3 +22,5 @@ gcp_key.json
 version.json
 docs/api_schema.yaml
 docs/api_docs.html
+
+.claude/settings.local.json
