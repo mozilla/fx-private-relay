@@ -161,25 +161,6 @@ describe("<InterviewRecruitment>", () => {
       await user.click(dismissButton);
 
       expect(mockDismiss).toHaveBeenCalledTimes(1);
-    });
-
-    it("calls dismiss with no arguments", async () => {
-      const user = userEvent.setup();
-      const mockDismiss = jest.fn();
-      const useLocalDismissal =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("../../../hooks/localDismissal.ts") as any)
-          .useLocalDismissal;
-      useLocalDismissal.mockReturnValue({
-        isDismissed: false,
-        dismiss: mockDismiss,
-      });
-
-      render(<InterviewRecruitment />);
-
-      const dismissButton = screen.getByRole("button");
-      await user.click(dismissButton);
-
       expect(mockDismiss).toHaveBeenCalledWith();
     });
   });

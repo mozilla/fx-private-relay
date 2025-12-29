@@ -5,6 +5,7 @@ import {
   getMockRelayNumber,
   setMockRelayNumberData,
 } from "../../../../__mocks__/hooks/api/relayNumber";
+import { mockLocalDismissal } from "../../../../__mocks__/testHelpers";
 import { PhoneSurvey } from "./PhoneSurvey";
 
 jest.mock("../../../hooks/l10n.ts", () => mockUseL10nModule);
@@ -20,15 +21,7 @@ describe("<PhoneSurvey>", () => {
     jest.clearAllMocks();
     global.gaEventMock.mockClear();
 
-    const useLocalDismissal =
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/localDismissal.ts") as any)
-        .useLocalDismissal;
-    useLocalDismissal.mockReturnValue({
-      isDismissed: false,
-      dismiss: jest.fn(),
-    });
-
+    mockLocalDismissal(false);
     setMockRelayNumberData([getMockRelayNumber()]);
   });
 
@@ -41,14 +34,7 @@ describe("<PhoneSurvey>", () => {
     });
 
     it("does not render when dismissed", () => {
-      const useLocalDismissal =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("../../../hooks/localDismissal.ts") as any)
-          .useLocalDismissal;
-      useLocalDismissal.mockReturnValue({
-        isDismissed: true,
-        dismiss: jest.fn(),
-      });
+      mockLocalDismissal(true);
 
       const { container } = render(<PhoneSurvey />);
 
@@ -194,25 +180,6 @@ describe("<PhoneSurvey>", () => {
       await user.click(dismissButton);
 
       expect(mockDismiss).toHaveBeenCalledTimes(1);
-    });
-
-    it("calls dismiss with no arguments", async () => {
-      const user = userEvent.setup();
-      const mockDismiss = jest.fn();
-      const useLocalDismissal =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("../../../hooks/localDismissal.ts") as any)
-          .useLocalDismissal;
-      useLocalDismissal.mockReturnValue({
-        isDismissed: false,
-        dismiss: mockDismiss,
-      });
-
-      render(<PhoneSurvey />);
-
-      const dismissButton = screen.getByRole("button");
-      await user.click(dismissButton);
-
       expect(mockDismiss).toHaveBeenCalledWith();
     });
 

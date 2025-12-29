@@ -2,6 +2,12 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { mockUseL10nModule } from "../../../../__mocks__/hooks/l10n";
 import { getMockProfileData } from "../../../../__mocks__/hooks/api/profile";
+import {
+  mockFirstSeenDaysAgo,
+  mockFirstSeen,
+  mockLocalDismissal,
+  mockLoginStatus,
+} from "../../../../__mocks__/testHelpers";
 import { NpsSurvey } from "./NpsSurvey";
 
 jest.mock("../../../hooks/l10n.ts", () => mockUseL10nModule);
@@ -16,26 +22,9 @@ describe("<NpsSurvey>", () => {
     jest.clearAllMocks();
     global.gaEventMock.mockClear();
 
-    const useLocalDismissal =
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/localDismissal.ts") as any)
-        .useLocalDismissal;
-    useLocalDismissal.mockReturnValue({
-      isDismissed: false,
-      dismiss: jest.fn(),
-    });
-
-    const useFirstSeen =
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-    useFirstSeen.mockReturnValue(
-      new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
-    );
-
-    const useIsLoggedIn =
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/session.ts") as any).useIsLoggedIn;
-    useIsLoggedIn.mockReturnValue("logged-in");
+    mockLocalDismissal(false);
+    mockFirstSeenDaysAgo(4);
+    mockLoginStatus("logged-in");
 
     const useProfiles =
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -54,14 +43,7 @@ describe("<NpsSurvey>", () => {
     });
 
     it("does not render when dismissed", () => {
-      const useLocalDismissal =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("../../../hooks/localDismissal.ts") as any)
-          .useLocalDismissal;
-      useLocalDismissal.mockReturnValue({
-        isDismissed: true,
-        dismiss: jest.fn(),
-      });
+      mockLocalDismissal(true);
 
       const { container } = render(<NpsSurvey />);
 
@@ -70,10 +52,7 @@ describe("<NpsSurvey>", () => {
     });
 
     it("does not render when user has been active for less than the threshold", () => {
-      const useFirstSeen =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-      useFirstSeen.mockReturnValue(new Date(Date.now() - 1000));
+      mockFirstSeen(new Date(Date.now() - 1000));
 
       const { container } = render(<NpsSurvey />);
 
@@ -82,10 +61,7 @@ describe("<NpsSurvey>", () => {
     });
 
     it("does not render when user is not logged in", () => {
-      const useIsLoggedIn =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("../../../hooks/session.ts") as any).useIsLoggedIn;
-      useIsLoggedIn.mockReturnValue("logged-out");
+      mockLoginStatus("logged-out");
 
       const { container } = render(<NpsSurvey />);
 
@@ -94,10 +70,7 @@ describe("<NpsSurvey>", () => {
     });
 
     it("does not render when firstSeen is not a Date", () => {
-      const useFirstSeen =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-      useFirstSeen.mockReturnValue(null);
+      mockFirstSeen(null);
 
       const { container } = render(<NpsSurvey />);
 
@@ -170,119 +143,34 @@ describe("<NpsSurvey>", () => {
   });
 
   describe("User interactions - Submit ratings", () => {
-    it("tracks GA event as detractor when rating 1", async () => {
-      const user = userEvent.setup();
-      render(<NpsSurvey />);
+    test.each([
+      { rating: 1, category: "detractor", metric3: -1 },
+      { rating: 6, category: "detractor", metric3: -1 },
+      { rating: 7, category: "passive", metric3: 0 },
+      { rating: 8, category: "passive", metric3: 0 },
+      { rating: 9, category: "promoter", metric3: 1 },
+      { rating: 10, category: "promoter", metric3: 1 },
+    ])(
+      "tracks GA event as $category when rating $rating",
+      async ({ rating, category, metric3 }) => {
+        const user = userEvent.setup();
+        render(<NpsSurvey />);
 
-      const button = screen.getByRole("button", { name: "1" });
-      await user.click(button);
+        const button = screen.getByRole("button", { name: rating.toString() });
+        await user.click(button);
 
-      expect(global.gaEventMock).toHaveBeenCalledWith({
-        category: "NPS Survey",
-        action: "submitted",
-        label: "detractor",
-        value: 1,
-        dimension1: "detractor",
-        metric1: 1,
-        metric2: 1,
-        metric3: -1,
-      });
-    });
-
-    it("tracks GA event as detractor when rating 6", async () => {
-      const user = userEvent.setup();
-      render(<NpsSurvey />);
-
-      const button = screen.getByRole("button", { name: "6" });
-      await user.click(button);
-
-      expect(global.gaEventMock).toHaveBeenCalledWith({
-        category: "NPS Survey",
-        action: "submitted",
-        label: "detractor",
-        value: 6,
-        dimension1: "detractor",
-        metric1: 1,
-        metric2: 6,
-        metric3: -1,
-      });
-    });
-
-    it("tracks GA event as passive when rating 7", async () => {
-      const user = userEvent.setup();
-      render(<NpsSurvey />);
-
-      const button = screen.getByRole("button", { name: "7" });
-      await user.click(button);
-
-      expect(global.gaEventMock).toHaveBeenCalledWith({
-        category: "NPS Survey",
-        action: "submitted",
-        label: "passive",
-        value: 7,
-        dimension1: "passive",
-        metric1: 1,
-        metric2: 7,
-        metric3: 0,
-      });
-    });
-
-    it("tracks GA event as passive when rating 8", async () => {
-      const user = userEvent.setup();
-      render(<NpsSurvey />);
-
-      const button = screen.getByRole("button", { name: "8" });
-      await user.click(button);
-
-      expect(global.gaEventMock).toHaveBeenCalledWith({
-        category: "NPS Survey",
-        action: "submitted",
-        label: "passive",
-        value: 8,
-        dimension1: "passive",
-        metric1: 1,
-        metric2: 8,
-        metric3: 0,
-      });
-    });
-
-    it("tracks GA event as promoter when rating 9", async () => {
-      const user = userEvent.setup();
-      render(<NpsSurvey />);
-
-      const button = screen.getByRole("button", { name: "9" });
-      await user.click(button);
-
-      expect(global.gaEventMock).toHaveBeenCalledWith({
-        category: "NPS Survey",
-        action: "submitted",
-        label: "promoter",
-        value: 9,
-        dimension1: "promoter",
-        metric1: 1,
-        metric2: 9,
-        metric3: 1,
-      });
-    });
-
-    it("tracks GA event as promoter when rating 10", async () => {
-      const user = userEvent.setup();
-      render(<NpsSurvey />);
-
-      const button = screen.getByRole("button", { name: "10" });
-      await user.click(button);
-
-      expect(global.gaEventMock).toHaveBeenCalledWith({
-        category: "NPS Survey",
-        action: "submitted",
-        label: "promoter",
-        value: 10,
-        dimension1: "promoter",
-        metric1: 1,
-        metric2: 10,
-        metric3: 1,
-      });
-    });
+        expect(global.gaEventMock).toHaveBeenCalledWith({
+          category: "NPS Survey",
+          action: "submitted",
+          label: category,
+          value: rating,
+          dimension1: category,
+          metric1: 1,
+          metric2: rating,
+          metric3,
+        });
+      },
+    );
 
     it("calls dismiss when rating is submitted", async () => {
       const user = userEvent.setup();

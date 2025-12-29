@@ -169,7 +169,24 @@ describe("HolidayPromoBanner", () => {
       global.Date = realDate;
     });
 
-    it("renders promo text", () => {
+    test.each([
+      {
+        textMatch: /holiday-promo-banner-protect-inbox/,
+        description: "promo text",
+      },
+      {
+        textMatch: /holiday-promo-banner-code-desc/,
+        description: "code description",
+      },
+      {
+        textMatch: /holiday-promo-banner-code-usage/,
+        description: "coupon code",
+      },
+      {
+        textMatch: /holiday-promo-banner-promo-expiry/,
+        description: "promo expiry",
+      },
+    ])("renders $description", ({ textMatch }) => {
       const runtimeData = getMockRuntimeDataWithPeriodicalPremium();
       render(
         <HolidayPromoBanner
@@ -179,27 +196,7 @@ describe("HolidayPromoBanner", () => {
         />,
       );
 
-      expect(
-        screen.getByText(/holiday-promo-banner-protect-inbox/),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(/holiday-promo-banner-code-desc/),
-      ).toBeInTheDocument();
-    });
-
-    it("renders coupon code in text", () => {
-      const runtimeData = getMockRuntimeDataWithPeriodicalPremium();
-      render(
-        <HolidayPromoBanner
-          isLoading={false}
-          runtimeData={runtimeData}
-          profile={undefined}
-        />,
-      );
-
-      expect(
-        screen.getByText(/holiday-promo-banner-code-usage/),
-      ).toBeInTheDocument();
+      expect(screen.getByText(textMatch)).toBeInTheDocument();
     });
 
     it("renders CTA button with correct text", () => {
@@ -216,21 +213,6 @@ describe("HolidayPromoBanner", () => {
         name: /holiday-promo-banner-cta-button/,
       });
       expect(ctaButton).toBeInTheDocument();
-    });
-
-    it("renders promo expiry text", () => {
-      const runtimeData = getMockRuntimeDataWithPeriodicalPremium();
-      render(
-        <HolidayPromoBanner
-          isLoading={false}
-          runtimeData={runtimeData}
-          profile={undefined}
-        />,
-      );
-
-      expect(
-        screen.getByText(/holiday-promo-banner-promo-expiry/),
-      ).toBeInTheDocument();
     });
 
     it("CTA button has correct href with coupon code and UTM params", () => {

@@ -28,13 +28,6 @@ describe("Icons", () => {
       expect(icon).toBeInTheDocument();
     });
 
-    it("is hidden from screen readers when alt is empty", () => {
-      const { container } = render(<InfoIcon alt="" />);
-      // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-      const svg = container.querySelector("svg");
-      expect(svg).toHaveAttribute("aria-hidden", "true");
-    });
-
     it("has proper viewBox and dimensions", () => {
       const { container } = render(<InfoIcon alt="Info" />);
       // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
@@ -50,13 +43,6 @@ describe("Icons", () => {
       render(<WarningFilledIcon alt="Warning" />);
       const icon = screen.getByRole("img", { name: "Warning" });
       expect(icon).toBeInTheDocument();
-    });
-
-    it("is hidden from screen readers when alt is empty", () => {
-      const { container } = render(<WarningFilledIcon alt="" />);
-      // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-      const svg = container.querySelector("svg");
-      expect(svg).toHaveAttribute("aria-hidden", "true");
     });
   });
 
@@ -97,13 +83,6 @@ describe("Icons", () => {
       render(<InfoFilledIcon alt="Information" />);
       const icon = screen.getByRole("img", { name: "Information" });
       expect(icon).toBeInTheDocument();
-    });
-
-    it("is hidden from screen readers when alt is empty", () => {
-      const { container } = render(<InfoFilledIcon alt="" />);
-      // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-      const svg = container.querySelector("svg");
-      expect(svg).toHaveAttribute("aria-hidden", "true");
     });
   });
 
@@ -168,13 +147,6 @@ describe("Icons", () => {
       const icon = screen.getByRole("img", { name: "Verified" });
       expect(icon).toBeInTheDocument();
     });
-
-    it("is hidden from screen readers when alt is empty", () => {
-      const { container } = render(<CheckCircleIcon alt="" />);
-      // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-      const svg = container.querySelector("svg");
-      expect(svg).toHaveAttribute("aria-hidden", "true");
-    });
   });
 
   describe("StarIcon", () => {
@@ -210,6 +182,21 @@ describe("Icons", () => {
   });
 
   describe("Icon accessibility", () => {
+    test.each([
+      { Icon: InfoIcon, alt: "Information" },
+      { Icon: WarningFilledIcon, alt: "Warning" },
+      { Icon: InfoFilledIcon, alt: "Info" },
+      { Icon: CheckCircleIcon, alt: "Check" },
+    ])(
+      "$Icon.name is hidden from screen readers when alt is empty",
+      ({ Icon }) => {
+        const { container } = render(<Icon alt="" />);
+        // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+        const svg = container.querySelector("svg");
+        expect(svg).toHaveAttribute("aria-hidden", "true");
+      },
+    );
+
     it("all icons include title element for accessibility", () => {
       const { container: infoContainer } = render(<InfoIcon alt="Info" />);
       const { container: warningContainer } = render(

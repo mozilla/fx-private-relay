@@ -4,6 +4,11 @@ import { mockCookiesModule } from "../../../../__mocks__/functions/cookies";
 import { mockGetLocaleModule } from "../../../../__mocks__/functions/getLocale";
 import { mockUseL10nModule } from "../../../../__mocks__/hooks/l10n";
 import { getMockProfileData } from "../../../../__mocks__/hooks/api/profile";
+import {
+  mockFirstSeen,
+  mockFirstSeenDaysAgo,
+  mockCookieDismissal,
+} from "../../../../__mocks__/testHelpers";
 
 import { CsatSurvey } from "./CsatSurvey";
 
@@ -14,10 +19,7 @@ jest.mock("../../../hooks/l10n.ts", () => mockUseL10nModule);
 
 describe("The CSAT survey", () => {
   it("does not display the survey if the user has joined within the last week", () => {
-    const useFirstSeen = // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-    useFirstSeen.mockReturnValueOnce(new Date(Date.now()));
+    mockFirstSeen(new Date(Date.now()));
     const mockProfileData = getMockProfileData({ has_premium: false });
 
     render(<CsatSurvey profile={mockProfileData} />);
@@ -34,10 +36,7 @@ describe("The CSAT survey", () => {
   });
 
   it("displays the survey to a new free user", () => {
-    const useFirstSeen = // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-    useFirstSeen.mockReturnValueOnce(new Date(0));
+    mockFirstSeen(new Date(0));
     const mockProfileData = getMockProfileData({ has_premium: false });
 
     render(<CsatSurvey profile={mockProfileData} />);
@@ -54,19 +53,8 @@ describe("The CSAT survey", () => {
   });
 
   it("does not display the survey to a new free user that has dismissed or completed it before", () => {
-    const useFirstSeen = // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-    useFirstSeen.mockReturnValueOnce(
-      new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-    );
-    const getCookie: jest.Mock =
-      // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../functions/cookies.ts") as any).getCookie;
-    getCookie.mockImplementation((key: string) =>
-      key.includes("free-7days") ? Date.now() : undefined,
-    );
+    mockFirstSeenDaysAgo(7);
+    mockCookieDismissal("free-7days");
     const mockProfileData = getMockProfileData({ has_premium: false });
 
     render(<CsatSurvey profile={mockProfileData} />);
@@ -83,12 +71,7 @@ describe("The CSAT survey", () => {
   });
 
   it("displays the survey to a free user for more than a month", () => {
-    const useFirstSeen = // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-    useFirstSeen.mockReturnValueOnce(
-      new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-    );
+    mockFirstSeenDaysAgo(30);
     const mockProfileData = getMockProfileData({ has_premium: false });
 
     render(<CsatSurvey profile={mockProfileData} />);
@@ -105,19 +88,8 @@ describe("The CSAT survey", () => {
   });
 
   it("displays the survey to a free user for more than a month that has dismissed or completed the 1-week survey before", () => {
-    const useFirstSeen = // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-    useFirstSeen.mockReturnValueOnce(
-      new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-    );
-    const getCookie: jest.Mock =
-      // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../functions/cookies.ts") as any).getCookie;
-    getCookie.mockImplementation((key: string) =>
-      key.includes("free-7days") ? Date.now() : undefined,
-    );
+    mockFirstSeenDaysAgo(30);
+    mockCookieDismissal("free-7days");
     const mockProfileData = getMockProfileData({ has_premium: false });
 
     render(<CsatSurvey profile={mockProfileData} />);
@@ -134,19 +106,8 @@ describe("The CSAT survey", () => {
   });
 
   it("does not display the survey to a free user for more than a month that has dismissed or completed it before", () => {
-    const useFirstSeen = // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-    useFirstSeen.mockReturnValueOnce(
-      new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-    );
-    const getCookie: jest.Mock =
-      // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../functions/cookies.ts") as any).getCookie;
-    getCookie.mockImplementation((key: string) =>
-      key.includes("free-30days") ? Date.now() : undefined,
-    );
+    mockFirstSeenDaysAgo(30);
+    mockCookieDismissal("free-30days");
     const mockProfileData = getMockProfileData({ has_premium: false });
 
     render(<CsatSurvey profile={mockProfileData} />);
@@ -163,12 +124,7 @@ describe("The CSAT survey", () => {
   });
 
   it("displays the survey to a free user for more than three months", () => {
-    const useFirstSeen = // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-    useFirstSeen.mockReturnValueOnce(
-      new Date(Date.now() - 3 * 30 * 24 * 60 * 60 * 1000),
-    );
+    mockFirstSeenDaysAgo(90);
     const mockProfileData = getMockProfileData({ has_premium: false });
 
     render(<CsatSurvey profile={mockProfileData} />);
@@ -185,19 +141,8 @@ describe("The CSAT survey", () => {
   });
 
   it("displays the survey to a free user for more than three months that has dismissed or completed the 1-month survey before", () => {
-    const useFirstSeen = // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-    useFirstSeen.mockReturnValueOnce(
-      new Date(Date.now() - 3 * 30 * 24 * 60 * 60 * 1000),
-    );
-    const getCookie: jest.Mock =
-      // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../functions/cookies.ts") as any).getCookie;
-    getCookie.mockImplementation((key: string) =>
-      key.includes("free-30days") ? Date.now() : undefined,
-    );
+    mockFirstSeenDaysAgo(90);
+    mockCookieDismissal("free-30days");
     const mockProfileData = getMockProfileData({ has_premium: false });
 
     render(<CsatSurvey profile={mockProfileData} />);
@@ -214,19 +159,8 @@ describe("The CSAT survey", () => {
   });
 
   it("displays the survey to a free user for more than three months that has dismissed or completed the 1-week survey before", () => {
-    const useFirstSeen = // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-    useFirstSeen.mockReturnValueOnce(
-      new Date(Date.now() - 3 * 30 * 24 * 60 * 60 * 1000),
-    );
-    const getCookie: jest.Mock =
-      // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../functions/cookies.ts") as any).getCookie;
-    getCookie.mockImplementation((key: string) =>
-      key.includes("free-7days") ? Date.now() : undefined,
-    );
+    mockFirstSeenDaysAgo(90);
+    mockCookieDismissal("free-7days");
     const mockProfileData = getMockProfileData({ has_premium: false });
 
     render(<CsatSurvey profile={mockProfileData} />);
@@ -243,19 +177,8 @@ describe("The CSAT survey", () => {
   });
 
   it("does not display the survey to a free user for more than three months that has dismissed or completed it before", () => {
-    const useFirstSeen = // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-    useFirstSeen.mockReturnValueOnce(
-      new Date(Date.now() - 3 * 30 * 24 * 60 * 60 * 1000),
-    );
-    const getCookie: jest.Mock =
-      // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../functions/cookies.ts") as any).getCookie;
-    getCookie.mockImplementation((key: string) =>
-      key.includes("free-90days") ? Date.now() : undefined,
-    );
+    mockFirstSeenDaysAgo(90);
+    mockCookieDismissal("free-90days");
     const mockProfileData = getMockProfileData({ has_premium: false });
 
     render(<CsatSurvey profile={mockProfileData} />);
@@ -808,121 +731,54 @@ describe("The CSAT survey", () => {
       expect(dismissButtons.length).toBeGreaterThan(0);
     });
 
-    it("tracks GA event when user submits 'Very Satisfied' answer", async () => {
-      const user = userEvent.setup();
-      const mockProfileData = getMockProfileData({ has_premium: false });
-      render(<CsatSurvey profile={mockProfileData} />);
-
-      const verySatisfiedButton = screen.getByRole("button", {
-        name: /survey-csat-answer-very-satisfied/,
-      });
-      await user.click(verySatisfiedButton);
-
-      expect(global.gaEventMock).toHaveBeenCalledWith({
-        category: "CSAT Survey",
-        action: "submitted",
+    test.each([
+      {
         label: "Very Satisfied",
         value: 5,
         dimension3: "Satisfied",
-        dimension4: "Very Satisfied",
-        metric10: 1,
-        metric11: 5,
         metric12: 1,
-      });
-    });
-
-    it("tracks GA event when user submits 'Satisfied' answer", async () => {
-      const user = userEvent.setup();
-      const mockProfileData = getMockProfileData({ has_premium: false });
-      render(<CsatSurvey profile={mockProfileData} />);
-
-      const allButtons = screen.getAllByRole("button");
-      const satisfiedButton = allButtons.find((btn) =>
-        btn.textContent?.includes("[survey-csat-answer-satisfied]"),
-      )!;
-      await user.click(satisfiedButton);
-
-      expect(global.gaEventMock).toHaveBeenCalledWith({
-        category: "CSAT Survey",
-        action: "submitted",
-        label: "Satisfied",
-        value: 4,
-        dimension3: "Satisfied",
-        dimension4: "Satisfied",
-        metric10: 1,
-        metric11: 4,
-        metric12: 1,
-      });
-    });
-
-    it("tracks GA event when user submits 'Neutral' answer", async () => {
-      const user = userEvent.setup();
-      const mockProfileData = getMockProfileData({ has_premium: false });
-      render(<CsatSurvey profile={mockProfileData} />);
-
-      const neutralButton = screen.getByRole("button", {
-        name: /survey-csat-answer-neutral/,
-      });
-      await user.click(neutralButton);
-
-      expect(global.gaEventMock).toHaveBeenCalledWith({
-        category: "CSAT Survey",
-        action: "submitted",
-        label: "Neutral",
-        value: 3,
-        dimension3: "Neutral",
-        dimension4: "Neutral",
-        metric10: 1,
-        metric11: 3,
-        metric12: 0,
-      });
-    });
-
-    it("tracks GA event when user submits 'Dissatisfied' answer", async () => {
-      const user = userEvent.setup();
-      const mockProfileData = getMockProfileData({ has_premium: false });
-      render(<CsatSurvey profile={mockProfileData} />);
-
-      const dissatisfiedButton = screen.getAllByRole("button", {
-        name: /survey-csat-answer-dissatisfied/,
-      })[0];
-      await user.click(dissatisfiedButton);
-
-      expect(global.gaEventMock).toHaveBeenCalledWith({
-        category: "CSAT Survey",
-        action: "submitted",
+      },
+      { label: "Satisfied", value: 4, dimension3: "Satisfied", metric12: 1 },
+      { label: "Neutral", value: 3, dimension3: "Neutral", metric12: 0 },
+      {
         label: "Dissatisfied",
         value: 2,
         dimension3: "Dissatisfied",
-        dimension4: "Dissatisfied",
-        metric10: 1,
-        metric11: 2,
         metric12: -1,
-      });
-    });
-
-    it("tracks GA event when user submits 'Very Dissatisfied' answer", async () => {
-      const user = userEvent.setup();
-      const mockProfileData = getMockProfileData({ has_premium: false });
-      render(<CsatSurvey profile={mockProfileData} />);
-
-      const veryDissatisfiedButton = screen.getByRole("button", {
-        name: /survey-csat-answer-very-dissatisfied/,
-      });
-      await user.click(veryDissatisfiedButton);
-
-      expect(global.gaEventMock).toHaveBeenCalledWith({
-        category: "CSAT Survey",
-        action: "submitted",
+      },
+      {
         label: "Very Dissatisfied",
         value: 1,
         dimension3: "Dissatisfied",
-        dimension4: "Very Dissatisfied",
-        metric10: 1,
-        metric11: 1,
         metric12: -1,
-      });
-    });
+      },
+    ])(
+      "tracks GA event when user submits '$label' answer",
+      async ({ label, value, dimension3, metric12 }) => {
+        const user = userEvent.setup();
+        const mockProfileData = getMockProfileData({ has_premium: false });
+        render(<CsatSurvey profile={mockProfileData} />);
+
+        const button = screen.getByRole("button", {
+          name: new RegExp(
+            `survey-csat-answer-${label.toLowerCase().replace(" ", "-")}`,
+          ),
+        });
+        await user.click(button);
+
+        expect(global.gaEventMock).toHaveBeenCalledWith({
+          category: "CSAT Survey",
+          action: "submitted",
+          label,
+          value,
+          dimension3,
+          dimension4: label,
+          metric10: 1,
+          metric11: value,
+          metric12,
+        });
+      },
+    );
 
     it("shows follow-up link after user submits an answer", async () => {
       const user = userEvent.setup();

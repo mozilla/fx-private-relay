@@ -131,7 +131,11 @@ describe("useAliases", () => {
     expect(useApiV1).toHaveBeenCalledWith("/domainaddresses/");
   });
 
-  it("includes create function in response", () => {
+  test.each([
+    { functionName: "create" },
+    { functionName: "update" },
+    { functionName: "delete" },
+  ])("includes $functionName function in response", ({ functionName }) => {
     const useApiV1 = jest.requireMock("./api").useApiV1;
 
     useApiV1.mockReturnValue({
@@ -144,42 +148,12 @@ describe("useAliases", () => {
 
     const { result } = renderHook(() => useAliases());
 
-    expect(result.current.create).toBeDefined();
-    expect(typeof result.current.create).toBe("function");
-  });
-
-  it("includes update function in response", () => {
-    const useApiV1 = jest.requireMock("./api").useApiV1;
-
-    useApiV1.mockReturnValue({
-      data: [],
-      error: undefined,
-      isLoading: false,
-      isValidating: false,
-      mutate: jest.fn(),
-    });
-
-    const { result } = renderHook(() => useAliases());
-
-    expect(result.current.update).toBeDefined();
-    expect(typeof result.current.update).toBe("function");
-  });
-
-  it("includes delete function in response", () => {
-    const useApiV1 = jest.requireMock("./api").useApiV1;
-
-    useApiV1.mockReturnValue({
-      data: [],
-      error: undefined,
-      isLoading: false,
-      isValidating: false,
-      mutate: jest.fn(),
-    });
-
-    const { result } = renderHook(() => useAliases());
-
-    expect(result.current.delete).toBeDefined();
-    expect(typeof result.current.delete).toBe("function");
+    expect(
+      result.current[functionName as keyof typeof result.current],
+    ).toBeDefined();
+    expect(
+      typeof result.current[functionName as keyof typeof result.current],
+    ).toBe("function");
   });
 
   it("create makes POST request for random alias", async () => {
