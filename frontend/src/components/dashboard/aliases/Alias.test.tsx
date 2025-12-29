@@ -42,8 +42,8 @@ jest.mock("./LabelEditor", () => ({
   ),
 }));
 
-jest.mock("./AliasDeletionButton", () => ({
-  AliasDeletionButton: ({ onDelete }: { onDelete: () => void }) => (
+jest.mock("./AliasDeletionButtonPermanent", () => ({
+  AliasDeletionButtonPermanent: ({ onDelete }: { onDelete: () => void }) => (
     <button data-testid="delete-button" onClick={onDelete}>
       Delete Alias
     </button>

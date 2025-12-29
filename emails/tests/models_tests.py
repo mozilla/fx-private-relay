@@ -10,7 +10,6 @@ from django.test import TestCase, override_settings
 import pytest
 from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
-from waffle.testutils import override_flag
 
 from privaterelay.tests.utils import (
     make_free_test_user,
@@ -421,25 +420,6 @@ class DomainAddressTest(TestCase):
             DomainAddress.make_domain_address(self.user, address=address)
         assert exc_info.value.get_codes() == "duplicate_address"
 
-    @override_flag("custom_domain_management_redesign", active=False)
-    def test_make_domain_address_can_make_dupe_of_deleted(self) -> None:
-        address = "same-address"
-        domain_address = DomainAddress.make_domain_address(self.user, address=address)
-        domain_address_hash = address_hash(
-            domain_address.address,
-            domain_address.user.profile.subdomain,
-            domain_address.domain_value,
-        )
-        domain_address.delete()
-        dupe_domain_address = DomainAddress.make_domain_address(
-            self.user, address=address
-        )
-        assert (
-            DeletedAddress.objects.filter(address_hash=domain_address_hash).count() == 1
-        )
-        assert dupe_domain_address.full_address == domain_address.full_address
-
-    @override_flag("custom_domain_management_redesign", active=True)
     def test_make_domain_address_cannot_make_dupe_of_deleted(self) -> None:
         address = "same-address"
         domain_address = DomainAddress.make_domain_address(self.user, address=address)
