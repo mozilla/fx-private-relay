@@ -465,11 +465,10 @@ describe("MaskCard", () => {
     expect(screen.getByText("user@example.com")).toBeInTheDocument();
   });
 
-  test("deletion button variant is waffle-flag controlled", async () => {
+  test("deletion button calls onDelete", async () => {
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    setFlag("custom_domain_management_redesign", true);
-    const { onDelete, rerender } = renderMaskCard({
+    const { onDelete } = renderMaskCard({
       isOnboarding: false,
       isOpen: true,
     });
@@ -477,27 +476,6 @@ describe("MaskCard", () => {
       screen.getByRole("button", { name: "alias-delete-permanent" }),
     );
     expect(onDelete).toHaveBeenCalledTimes(1);
-
-    setFlag("custom_domain_management_redesign", false);
-    const noopUpdate: Props["onUpdate"] = jest.fn();
-    rerender(
-      <MaskCard
-        mask={baseMask}
-        user={baseUser}
-        profile={premiumProfile}
-        onUpdate={noopUpdate}
-        onDelete={onDelete}
-        isOpen={true}
-        onChangeOpen={jest.fn() as Props["onChangeOpen"]}
-        showLabelEditor={true}
-        runtimeData={runtimeData}
-        placeholder="Add a label"
-        isOnboarding={false}
-        copyAfterMaskGeneration={false}
-      />,
-    );
-    await user.click(screen.getByRole("button", { name: "alias-delete" }));
-    expect(onDelete).toHaveBeenCalledTimes(2);
   });
 
   test("label editor submits and calls onUpdate with new description", async () => {
