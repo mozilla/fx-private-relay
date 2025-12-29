@@ -41,7 +41,6 @@ import Image from "../../Image";
 import { getLocale } from "../../../functions/getLocale";
 import { isFlagActive } from "../../../functions/waffle";
 import { renderDate } from "../../../functions/renderDate";
-import { AliasDeletionButton } from "./AliasDeletionButton";
 import { VisuallyHidden } from "./../../VisuallyHidden";
 import HorizontalArrow from "./../images/free-onboarding-horizontal-arrow.svg";
 import { AliasDeletionButtonPermanent } from "./AliasDeletionButtonPermanent";
@@ -119,7 +118,6 @@ export const MaskCard = (props: Props) => {
         ? "promotionals"
         : "none";
 
-  // TODO MPP-4464: Remove flag custom_domain_management_redesign, assume on
   return (
     <>
       <div className={classNames}>
@@ -387,21 +385,11 @@ export const MaskCard = (props: Props) => {
               </dl>
               {!props.isOnboarding && (
                 <div className={styles["deletion-button-wrapper"]}>
-                  {isFlagActive(
-                    props.runtimeData,
-                    "custom_domain_management_redesign",
-                  ) ? (
-                    <AliasDeletionButtonPermanent
-                      setModalOpenedState={props.setModalOpenedState}
-                      onDelete={props.onDelete}
-                      alias={props.mask}
-                    />
-                  ) : (
-                    <AliasDeletionButton
-                      onDelete={props.onDelete}
-                      alias={props.mask}
-                    />
-                  )}
+                  <AliasDeletionButtonPermanent
+                    setModalOpenedState={props.setModalOpenedState}
+                    onDelete={props.onDelete}
+                    alias={props.mask}
+                  />
                 </div>
               )}
             </div>

@@ -30,9 +30,7 @@ import { useGaViewPing } from "../../../hooks/gaViewPing";
 import { CustomAddressGenerationModal } from "./CustomAddressGenerationModal";
 import { useGaEvent } from "../../../hooks/gaEvent";
 import { useL10n } from "../../../hooks/l10n";
-import { isFlagActive } from "../../../functions/waffle";
 import { MenuPopupProps, useMenu } from "../../../hooks/menu";
-import { AddressPickerModal } from "./AddressPickerModal";
 
 export type Props = {
   aliases: AliasData[];
@@ -168,18 +166,6 @@ const AliasTypeMenu = (props: AliasTypeMenuProps) => {
     );
   };
 
-  const onPickNonRedesign = (
-    address: string,
-    settings: { blockPromotionals: boolean },
-  ) => {
-    props.onCreate({
-      mask_type: "custom",
-      address: address,
-      blockPromotionals: settings.blockPromotionals,
-    });
-    modalState.close();
-  };
-
   const onSuccessClose = (
     aliasToUpdate: AliasData | undefined,
     blockPromotions: boolean,
@@ -198,24 +184,15 @@ const AliasTypeMenu = (props: AliasTypeMenuProps) => {
   };
 
   const dialog = modalState.isOpen ? (
-    isFlagActive(props.runtimeData, "custom_domain_management_redesign") ? (
-      <CustomAddressGenerationModal
-        isOpen={modalState.isOpen}
-        onClose={() => modalState.close()}
-        onUpdate={onSuccessClose}
-        onPick={onPick}
-        subdomain={props.subdomain}
-        aliasGeneratedState={aliasGeneratedState}
-        findAliasDataFromPrefix={props.findAliasDataFromPrefix}
-      />
-    ) : (
-      <AddressPickerModal
-        isOpen={modalState.isOpen}
-        onClose={() => modalState.close()}
-        onPick={onPickNonRedesign}
-        subdomain={props.subdomain}
-      />
-    )
+    <CustomAddressGenerationModal
+      isOpen={modalState.isOpen}
+      onClose={() => modalState.close()}
+      onUpdate={onSuccessClose}
+      onPick={onPick}
+      subdomain={props.subdomain}
+      aliasGeneratedState={aliasGeneratedState}
+      findAliasDataFromPrefix={props.findAliasDataFromPrefix}
+    />
   ) : null;
 
   useEffect(() => {

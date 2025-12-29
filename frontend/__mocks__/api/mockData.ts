@@ -106,7 +106,6 @@ export const mockedRuntimeData: RuntimeData = {
     ["firefox_integration", true],
     ["premium_promo_banners", false],
     ["mask_redesign", true],
-    ["custom_domain_management_redesign", true],
   ],
   WAFFLE_SWITCHES: [],
   WAFFLE_SAMPLES: [],

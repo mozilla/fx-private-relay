@@ -1090,11 +1090,6 @@ describe("The dashboard", () => {
     const user = userEvent.setup();
     await user.click(aliasDeleteButton);
 
-    const confirmationCheckbox = screen.getByLabelText(
-      "l10n string: [modal-delete-confirmation-2], with vars: {}",
-    );
-    await user.click(confirmationCheckbox);
-
     const confirmationButton = screen.getAllByRole("button", {
       name: "l10n string: [profile-label-delete], with vars: {}",
     });

@@ -19,7 +19,7 @@ import { LabelEditor } from "./LabelEditor";
 import { UserData } from "../../../hooks/api/user";
 import { ProfileData } from "../../../hooks/api/profile";
 import { renderDate } from "../../../functions/renderDate";
-import { AliasDeletionButton } from "./AliasDeletionButton";
+import { AliasDeletionButtonPermanent } from "./AliasDeletionButtonPermanent";
 import { getRuntimeConfig } from "../../../config";
 import { getLocale } from "../../../functions/getLocale";
 import { BlockLevel, BlockLevelSlider } from "./BlockLevelSlider";
@@ -237,7 +237,10 @@ export const Alias = (props: Props) => {
               <dd>{renderDate(props.alias.created_at, l10n)}</dd>
             </div>
           </dl>
-          <AliasDeletionButton onDelete={props.onDelete} alias={props.alias} />
+          <AliasDeletionButtonPermanent
+            onDelete={props.onDelete}
+            alias={props.alias}
+          />
         </div>
       </div>
     </div>
