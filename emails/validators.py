@@ -4,8 +4,6 @@ import re
 
 from django.contrib.auth.models import User
 
-from privaterelay.utils import flag_is_active_in_task
-
 from .apps import BadWords, emails_config
 from .exceptions import (
     AccountIsInactiveException,
@@ -78,14 +76,9 @@ def valid_address(address: str, domain: str, subdomain: str | None = None) -> bo
 
     address_pattern_valid = valid_address_pattern(address)
     address_contains_badword = has_bad_words(address)
-    address_already_deleted = 0
-    # TODO MPP-4464: Remove custom_domain_management_redesign flag, assume on
-    if not subdomain or flag_is_active_in_task(
-        "custom_domain_management_redesign", None
-    ):
-        address_already_deleted = DeletedAddress.objects.filter(
-            address_hash=address_hash(address, domain=domain, subdomain=subdomain)
-        ).count()
+    address_already_deleted = DeletedAddress.objects.filter(
+        address_hash=address_hash(address, domain=domain, subdomain=subdomain)
+    ).count()
     if (
         address_already_deleted > 0
         or address_contains_badword
