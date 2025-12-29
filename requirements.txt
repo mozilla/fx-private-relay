@@ -57,5 +57,5 @@ djangorestframework-stubs==3.16.6
 mypy-boto3-ses==1.42.3
 mypy-boto3-sns==1.42.3
 mypy-boto3-sqs==1.42.3
-mypy==1.19.0
+mypy==1.19.1
 types-requests==2.32.4.20250913
