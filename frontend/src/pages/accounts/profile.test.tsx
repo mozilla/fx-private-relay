@@ -109,18 +109,6 @@ describe("The dashboard", () => {
       expect(results).toHaveNoViolations();
     }, 10000); // axe runs a suite of tests that can exceed the default 5s timeout, so we set it to 10s
 
-    it("redesigned mask waffle flag is turned on", async () => {
-      setMockRuntimeDataOnce({ WAFFLE_FLAGS: [["mask_redesign", true]] });
-      const { baseElement } = render(<Profile />);
-
-      let results;
-      await act(async () => {
-        results = await axe(baseElement);
-      });
-
-      expect(results).toHaveNoViolations();
-    }, 10000);
-
     it("passes axe accessibility testing with the Premium user interface", async () => {
       // The label editor sets a timeout when submitted, which axe doesn't wait for.
       // Hence, we disable the label editor by disabling server-side data storage for this user.
@@ -809,13 +797,17 @@ describe("The dashboard", () => {
     );
     render(<Profile />);
 
-    const blockLevelSlider = screen.getByRole("slider", {
-      name: "l10n string: [profile-promo-email-blocking-title], with vars: {}",
-    });
-
     const user = userEvent.setup();
-    await user.click(blockLevelSlider);
-    await user.keyboard("[ArrowRight][ArrowRight]");
+
+    const expandButton = screen.getByRole("button", {
+      name: "l10n string: [profile-details-expand], with vars: {}",
+    });
+    await user.click(expandButton);
+
+    const blockAllButton = screen.getByRole("radio", {
+      name: "l10n string: [profile-promo-email-blocking-option-all], with vars: {}",
+    });
+    await user.click(blockAllButton);
   });
 
   it("shows the Generate Alias button if the user is not at the max number of aliases", () => {
@@ -1083,11 +1075,16 @@ describe("The dashboard", () => {
     setMockProfileDataOnce({ has_premium: false });
     render(<Profile />);
 
+    const user = userEvent.setup();
+
+    const expandButton = screen.getByRole("button", {
+      name: "l10n string: [profile-details-expand], with vars: {}",
+    });
+    await user.click(expandButton);
+
     const aliasDeleteButton = screen.getByRole("button", {
       name: "l10n string: [profile-label-delete], with vars: {}",
     });
-
-    const user = userEvent.setup();
     await user.click(aliasDeleteButton);
 
     const confirmationButton = screen.getAllByRole("button", {
