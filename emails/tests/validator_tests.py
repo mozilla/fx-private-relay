@@ -4,8 +4,6 @@ from unittest.mock import Mock, patch
 
 from django.test import TestCase
 
-from waffle.testutils import override_flag
-
 from privaterelay.tests.utils import make_free_test_user, make_premium_test_user
 
 from ..models import DomainAddress, RelayAddress
@@ -84,7 +82,6 @@ class ValidAddressTest(TestCase):
         relay_address.delete()
         assert not valid_address(relay_address.address, relay_address.domain_value)
 
-    @override_flag("custom_domain_management_redesign", active=True)
     def test_valid_address_dupe_domain_address_of_deleted_is_not_valid(self) -> None:
         user = make_premium_test_user()
         user.profile.subdomain = "mysubdomain"

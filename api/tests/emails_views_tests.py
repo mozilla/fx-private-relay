@@ -191,7 +191,6 @@ def test_post_domainaddress_conflict_existing(
 
 
 @pytest.mark.django_db
-@override_flag("custom_domain_management_redesign", active=True)
 def test_post_domainaddress_conflict_deleted(
     prem_api_client: APIClient, premium_user: User, caplog: pytest.LogCaptureFixture
 ) -> None:
