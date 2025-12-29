@@ -21,7 +21,6 @@ export const DEFAULT_RUNTIME_DATA: RuntimeData = {
     ["bundle", true],
     ["phone_launch_survey", true],
     ["multi_replies", true],
-    ["mask_redesign", true],
     ["welcome_email", true],
     ["mailing_list_announcement", true],
     ["eu_country_expansion", true],
