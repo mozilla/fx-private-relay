@@ -77,11 +77,11 @@ Check out the update branch and run:
 ```
 npm install
 npx playwright install
-npx playwright test
+npm run test:relay-only:stage
 ```
 
 This will confirm that `dotenv` picked up the settings from `.env`, and that
-the new playwright runs against stage.
+the new playwright runs the relay-only test suite against stage.
 
 Once the PR is merged, you can wait for the daily test run, or manually run the
 test by going to the [Relay e2e Tests][] GitHub Action page, select "Run
