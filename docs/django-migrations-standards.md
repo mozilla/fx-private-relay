@@ -21,12 +21,10 @@ The Django migration command `./manage.py makemigrations` utilizes [AddField ope
    - When writing a new entry to the updated table with a new column, version X doesn't know about new columns and will omit them from INSERT statements.
      > [!NOTE]
      > These columns need a database default or allow `NULL`
-
-4. Canary pod with Version X+1 starts. It is running the same time as all the Version X pods.
-5. Kubernetes rollout of Version X+1 starts:
+4. Kubernetes rollout of Version X+1 starts:
    - New pod with Version X+1 starts.
    - When the Version X+1 pod is running, the Version X pod is shut down. This continues until no pods run Version X.
-6. Version X+1 code is happily running in several pods.
+5. Version X+1 code is happily running in several pods.
    > [!WARNING]
    > Misaligned code and database happens in Step 3 when Version X adds a new entry to the table without proper default set. In Step 6, the Version X+1 retrieves the entry. The fetched entry added by Version X does not meet the field validation in Version X+1 causing validation error.
 
@@ -46,11 +44,10 @@ Like adding a new field in an existing model, when deleting an existing model or
    - Meanwhile the column remains in the database.
      > [!NOTE]
      > When writing to an existing table, version X should not refer to deleted columns.
-4. Canary pod with Version X+1 starts. It is running the same time as all the Version X pods.
-5. Kubernetes rollout of Version X+1 starts:
+4. Kubernetes rollout of Version X+1 starts:
    - New pod with Version X+1 starts.
    - When the Version X+1 pod is running, the Version X pod is shut down. This continues until no pods run Version X.
-6. Version X+1 code is happily running in several pods.
+5. Version X+1 code is happily running in several pods.
    > [!WARNING]
    > Error happens when Version X or Version X+1 code refers to the deleted column.
 

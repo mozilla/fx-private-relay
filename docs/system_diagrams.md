@@ -160,8 +160,8 @@ GCP environment) and AWS.
 
 ## Stage Deployment Diagram
 
-The stage deployment is hosted in GCP and AWS. Deployments are done by Jenkins
-when a new tagged Docker image is published.
+The stage deployment is hosted in GCP and AWS. Deployments are done by ArgoCD
+when a new tagged Docker image is published to Google Artifact Registry.
 
 The Stage Deployment lacks some of the full Relay System features:
 
@@ -171,7 +171,6 @@ The Stage Deployment lacks some of the full Relay System features:
 The Stage Deployment has some additional features:
 
 - There is a read-only replica of the database
-- There is a canary app deployment. This single pod is updated first, so that any errors
   will halt the full deployment.
 - The Metrics Aggregator (statsd-telegraf) queries the database periodically
 - The stackdriver-telegraf service queries the GCP Cloud Metrics periodically
@@ -183,8 +182,9 @@ Key:
 
 ## Production Deployment Diagram
 
-The production deployment is hosted in GCP and AWS. Deployments are done by Jenkins
-when an SRE continues a stage deploy.
+The production deployment is hosted in GCP and AWS. Deployments are done by ArgoCD
+when a engineer clicks "Sync" after pushing up a production image tag to Google Artifact
+Registry.
 
 The Production Deployment has some additional features:
 
