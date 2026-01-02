@@ -1,4 +1,4 @@
-import { act, render, screen } from "@testing-library/react";
+import { act, render, screen, cleanup } from "@testing-library/react";
 import { axe } from "jest-axe";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
@@ -64,6 +64,29 @@ const mockL10n = {
 
 const MockComponent = () => <div>Test Component</div>;
 
+const createMockRouter = (pathname = "/", asPath = "/") => ({
+  pathname,
+  asPath,
+  push: jest.fn(),
+  query: {},
+  route: pathname,
+  events: { on: jest.fn(), off: jest.fn(), emit: jest.fn() },
+  isFallback: false,
+  isReady: true,
+  isPreview: false,
+  basePath: "",
+  locale: undefined,
+  locales: undefined,
+  defaultLocale: undefined,
+  isLocaleDomain: false,
+  beforePopState: jest.fn(),
+  prefetch: jest.fn(),
+  back: jest.fn(),
+  reload: jest.fn(),
+  replace: jest.fn(),
+  forward: jest.fn(),
+});
+
 const defaultAppProps: AppProps = {
   Component: MockComponent,
   pageProps: {},
@@ -106,262 +129,126 @@ describe("MyApp component", () => {
       sendEvent: jest.fn(),
     });
     mockedGetL10n.mockReturnValue(mockL10n);
-    mockedUseRouter.mockReturnValue({
-      pathname: "/",
-      asPath: "/",
-      push: jest.fn(),
-      query: {},
-      route: "/",
-      events: {
-        on: jest.fn(),
-        off: jest.fn(),
-        emit: jest.fn(),
-      },
-      isFallback: false,
-      isReady: true,
-      isPreview: false,
-      basePath: "",
-      locale: undefined,
-      locales: undefined,
-      defaultLocale: undefined,
-      isLocaleDomain: false,
-      beforePopState: jest.fn(),
-      prefetch: jest.fn(),
-      back: jest.fn(),
-      reload: jest.fn(),
-      replace: jest.fn(),
-      forward: jest.fn(),
-    });
+    mockedUseRouter.mockReturnValue(createMockRouter());
   });
 
-  describe("under axe accessibility testing", () => {
-    it("passes axe accessibility testing", async () => {
-      const { baseElement } = render(<MyApp {...defaultAppProps} />);
-      const results = await act(() =>
-        axe(baseElement, {
-          rules: { region: { enabled: false } },
-        }),
-      );
-      expect(results).toHaveNoViolations();
-    }, 10000);
+  it("passes axe accessibility testing", async () => {
+    const { baseElement } = render(<MyApp {...defaultAppProps} />);
+    const results = await act(() =>
+      axe(baseElement, {
+        rules: { region: { enabled: false } },
+      }),
+    );
+    expect(results).toHaveNoViolations();
+  }, 10000);
+
+  it("initializes l10n with deterministic locales then updates to user-preferred", async () => {
+    render(<MyApp {...defaultAppProps} />);
+    expect(mockedGetL10n).toHaveBeenCalledWith({ deterministicLocales: true });
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(mockedGetL10n).toHaveBeenCalledWith({ deterministicLocales: false });
   });
 
-  describe("localization", () => {
-    it("initializes l10n with deterministic locales on first render", () => {
-      render(<MyApp {...defaultAppProps} />);
-      expect(mockedGetL10n).toHaveBeenCalledWith({
-        deterministicLocales: true,
-      });
-    });
+  it("handles Google Analytics initialization and pageview tracking", async () => {
+    mockedUseMetrics.mockReturnValue("enabled");
+    mockedUseGoogleAnalytics.mockReturnValue(false);
 
-    it("updates l10n to user-preferred locales after mount", async () => {
-      render(<MyApp {...defaultAppProps} />);
+    render(<MyApp {...defaultAppProps} />);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(mockedInitGoogleAnalytics).toHaveBeenCalled();
 
-      await new Promise((resolve) => setTimeout(resolve, 0));
+    cleanup();
+    jest.clearAllMocks();
+    mockedUseMetrics.mockReturnValue("disabled");
+    render(<MyApp {...defaultAppProps} />);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(mockedInitGoogleAnalytics).not.toHaveBeenCalled();
 
-      expect(mockedGetL10n).toHaveBeenCalledWith({
-        deterministicLocales: false,
-      });
-    });
+    cleanup();
+    jest.clearAllMocks();
+    mockedUseMetrics.mockReturnValue("enabled");
+    mockedUseGoogleAnalytics.mockReturnValue(true);
+    render(<MyApp {...defaultAppProps} />);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(mockedInitGoogleAnalytics).not.toHaveBeenCalled();
+
+    cleanup();
+    jest.clearAllMocks();
+    mockedUseRouter.mockReturnValue(createMockRouter("/test", "/test"));
+    render(<MyApp {...defaultAppProps} />);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(ReactGa.pageview).toHaveBeenCalledWith("/test");
+
+    cleanup();
+    jest.clearAllMocks();
+    mockedUseGoogleAnalytics.mockReturnValue(false);
+    render(<MyApp {...defaultAppProps} />);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(ReactGa.pageview).not.toHaveBeenCalled();
   });
 
-  describe("Google Analytics", () => {
-    it("initializes Google Analytics when metrics are enabled", async () => {
-      mockedUseMetrics.mockReturnValue("enabled");
-      mockedUseGoogleAnalytics.mockReturnValue(false);
+  it("provides addon data context and sets element attributes based on login state", () => {
+    const mockAddonData = {
+      present: true,
+      localLabels: [{ id: 1, label: "test" }],
+      sendEvent: jest.fn(),
+    };
+    mockedUseAddonElementWatcher.mockReturnValue(mockAddonData);
 
-      render(<MyApp {...defaultAppProps} />);
+    render(<MyApp {...defaultAppProps} />);
+    expect(mockedUseAddonElementWatcher).toHaveBeenCalled();
 
-      await new Promise((resolve) => setTimeout(resolve, 0));
+    let addonElement = document.querySelector("firefox-private-relay-addon");
+    expect(addonElement).toBeInTheDocument();
+    expect(addonElement).toHaveAttribute("data-addon-installed");
+    expect(addonElement).toHaveAttribute(
+      "data-local-labels",
+      JSON.stringify([{ id: 1, label: "test" }]),
+    );
 
-      expect(mockedInitGoogleAnalytics).toHaveBeenCalled();
-    });
+    cleanup();
+    mockedUseIsLoggedIn.mockReturnValue("logged-in");
+    render(<MyApp {...defaultAppProps} />);
+    addonElement = document.querySelector("firefox-private-relay-addon");
+    expect(addonElement).toHaveAttribute("data-user-logged-in", "True");
 
-    it("does not initialize Google Analytics when metrics are disabled", async () => {
-      mockedUseMetrics.mockReturnValue("disabled");
+    cleanup();
+    mockedUseIsLoggedIn.mockReturnValue("logged-out");
+    render(<MyApp {...defaultAppProps} />);
+    addonElement = document.querySelector("firefox-private-relay-addon");
+    expect(addonElement).toHaveAttribute("data-user-logged-in", "False");
 
-      render(<MyApp {...defaultAppProps} />);
-
-      await new Promise((resolve) => setTimeout(resolve, 0));
-
-      expect(mockedInitGoogleAnalytics).not.toHaveBeenCalled();
-    });
-
-    it("does not initialize Google Analytics when already initialized", async () => {
-      mockedUseMetrics.mockReturnValue("enabled");
-      mockedUseGoogleAnalytics.mockReturnValue(true);
-
-      render(<MyApp {...defaultAppProps} />);
-
-      await new Promise((resolve) => setTimeout(resolve, 0));
-
-      expect(mockedInitGoogleAnalytics).not.toHaveBeenCalled();
-    });
-
-    it("tracks pageview when Google Analytics is initialized", async () => {
-      mockedUseGoogleAnalytics.mockReturnValue(true);
-      mockedUseRouter.mockReturnValue({
-        pathname: "/test",
-        asPath: "/test",
-        push: jest.fn(),
-        query: {},
-        route: "/test",
-        events: {
-          on: jest.fn(),
-          off: jest.fn(),
-          emit: jest.fn(),
-        },
-        isFallback: false,
-        isReady: true,
-        isPreview: false,
-        basePath: "",
-        locale: undefined,
-        locales: undefined,
-        defaultLocale: undefined,
-        isLocaleDomain: false,
-        beforePopState: jest.fn(),
-        prefetch: jest.fn(),
-        back: jest.fn(),
-        reload: jest.fn(),
-        replace: jest.fn(),
-        forward: jest.fn(),
-      });
-
-      render(<MyApp {...defaultAppProps} />);
-
-      await new Promise((resolve) => setTimeout(resolve, 0));
-
-      expect(ReactGa.pageview).toHaveBeenCalledWith("/test");
-    });
-
-    it("does not track pageview when Google Analytics is not initialized", async () => {
-      mockedUseGoogleAnalytics.mockReturnValue(false);
-
-      render(<MyApp {...defaultAppProps} />);
-
-      await new Promise((resolve) => setTimeout(resolve, 0));
-
-      expect(ReactGa.pageview).not.toHaveBeenCalled();
-    });
+    cleanup();
+    mockedUseIsLoggedIn.mockReturnValue("unknown");
+    render(<MyApp {...defaultAppProps} />);
+    addonElement = document.querySelector("firefox-private-relay-addon");
+    expect(addonElement).toHaveAttribute("data-user-logged-in", "False");
   });
 
-  describe("addon data context", () => {
-    it("provides addon data to child components", () => {
-      const mockAddonData = {
-        present: true,
-        localLabels: [{ id: 1, label: "test" }],
-        sendEvent: jest.fn(),
-      };
-      mockedUseAddonElementWatcher.mockReturnValue(mockAddonData);
+  it("handles MSW mock API initialization based on NEXT_PUBLIC_MOCK_API", () => {
+    delete (global as any).URLSearchParams;
+    delete (global as any).document;
 
-      render(<MyApp {...defaultAppProps} />);
+    process.env.NEXT_PUBLIC_MOCK_API = "true";
+    render(<MyApp {...defaultAppProps} />);
+    expect(screen.queryByText("Test Component")).not.toBeInTheDocument();
 
-      expect(mockedUseAddonElementWatcher).toHaveBeenCalled();
-    });
+    cleanup();
+    process.env.NEXT_PUBLIC_MOCK_API = "false";
+    render(<MyApp {...defaultAppProps} />);
+    expect(screen.getByText("Test Component")).toBeInTheDocument();
 
-    it("sets addon element attributes based on addon data", () => {
-      const mockAddonData = {
-        present: true,
-        localLabels: [{ id: 1, label: "test" }],
-        sendEvent: jest.fn(),
-      };
-      mockedUseAddonElementWatcher.mockReturnValue(mockAddonData);
-
-      render(<MyApp {...defaultAppProps} />);
-      // eslint-disable-next-line testing-library/no-node-access
-      const addonElement = document.querySelector(
-        "firefox-private-relay-addon",
-      );
-
-      expect(addonElement).toBeInTheDocument();
-      expect(addonElement).toHaveAttribute("data-addon-installed");
-      expect(addonElement).toHaveAttribute(
-        "data-local-labels",
-        JSON.stringify([{ id: 1, label: "test" }]),
-      );
-    });
-
-    it("sets user-logged-in attribute to 'True' when logged in", () => {
-      mockedUseIsLoggedIn.mockReturnValue("logged-in");
-
-      render(<MyApp {...defaultAppProps} />);
-      // eslint-disable-next-line testing-library/no-node-access
-      const addonElement = document.querySelector(
-        "firefox-private-relay-addon",
-      );
-
-      expect(addonElement).toHaveAttribute("data-user-logged-in", "True");
-    });
-
-    it("sets user-logged-in attribute to 'False' when logged out", () => {
-      mockedUseIsLoggedIn.mockReturnValue("logged-out");
-
-      render(<MyApp {...defaultAppProps} />);
-      // eslint-disable-next-line testing-library/no-node-access
-      const addonElement = document.querySelector(
-        "firefox-private-relay-addon",
-      );
-
-      expect(addonElement).toHaveAttribute("data-user-logged-in", "False");
-    });
-
-    it("sets user-logged-in attribute to 'False' when login state is unknown", () => {
-      mockedUseIsLoggedIn.mockReturnValue("unknown");
-
-      render(<MyApp {...defaultAppProps} />);
-      // eslint-disable-next-line testing-library/no-node-access
-      const addonElement = document.querySelector(
-        "firefox-private-relay-addon",
-      );
-
-      expect(addonElement).toHaveAttribute("data-user-logged-in", "False");
-    });
+    cleanup();
+    delete process.env.NEXT_PUBLIC_MOCK_API;
+    render(<MyApp {...defaultAppProps} />);
+    expect(screen.getByText("Test Component")).toBeInTheDocument();
   });
 
-  describe("MSW mock API initialization", () => {
-    beforeEach(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete (global as any).URLSearchParams;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete (global as any).document;
-    });
-
-    it("waits for MSW to initialize when NEXT_PUBLIC_MOCK_API is true", () => {
-      process.env.NEXT_PUBLIC_MOCK_API = "true";
-
-      render(<MyApp {...defaultAppProps} />);
-
-      expect(screen.queryByText("Test Component")).not.toBeInTheDocument();
-    });
-
-    it("does not wait for MSW when NEXT_PUBLIC_MOCK_API is false", () => {
-      process.env.NEXT_PUBLIC_MOCK_API = "false";
-
-      render(<MyApp {...defaultAppProps} />);
-
-      expect(screen.getByText("Test Component")).toBeInTheDocument();
-    });
-
-    it("renders app immediately when NEXT_PUBLIC_MOCK_API is not set", () => {
-      render(<MyApp {...defaultAppProps} />);
-
-      expect(screen.getByText("Test Component")).toBeInTheDocument();
-    });
-  });
-
-  describe("rendering", () => {
-    it("renders the Component prop with pageProps", () => {
-      render(<MyApp {...defaultAppProps} />);
-
-      expect(screen.getByText("Test Component")).toBeInTheDocument();
-    });
-
-    it("wraps component in required providers", () => {
-      render(<MyApp {...defaultAppProps} />);
-
-      // eslint-disable-next-line testing-library/no-node-access
-      const overlayProvider = document.querySelector('[id="overlayProvider"]');
-      expect(overlayProvider).toBeInTheDocument();
-    });
+  it("renders component with required providers", () => {
+    render(<MyApp {...defaultAppProps} />);
+    expect(screen.getByText("Test Component")).toBeInTheDocument();
+    const overlayProvider = document.querySelector('[id="overlayProvider"]');
+    expect(overlayProvider).toBeInTheDocument();
   });
 });

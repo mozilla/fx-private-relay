@@ -5,11 +5,10 @@ import { RandomAliasData, AliasData } from "../../hooks/api/aliases";
 import { ProfileData } from "../../hooks/api/profile";
 import { UserData } from "../../hooks/api/user";
 
-jest.mock("next/config", () => () => ({
-  publicRuntimeConfig: {
-    maxOnboardingAvailable: 3,
-  },
-}));
+jest.mock(
+  "../../config.ts",
+  () => jest.requireActual("../../../__mocks__/configMock").mockConfigModule,
+);
 
 jest.mock("../../functions/userAgent", () => ({
   supportsFirefoxExtension: () => true,

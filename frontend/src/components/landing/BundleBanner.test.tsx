@@ -9,22 +9,11 @@ jest.mock(
   () => new Proxy({}, { get: (_: unknown, p: PropertyKey) => String(p) }),
 );
 
-jest.mock("../Localized", () => {
-  const React = jest.requireActual("react");
-  const Localized = ({
-    id,
-    children,
-  }: {
-    id: string;
-    children?: React.ReactNode;
-  }) => (
-    <span>
-      {`l10n string: [${id}], with vars: {}`}
-      {children}
-    </span>
+jest.mock("../Localized.tsx", () => {
+  const { mockLocalizedModule } = jest.requireActual(
+    "../../../__mocks__/components/Localized",
   );
-  (Localized as React.FC).displayName = "Localized";
-  return { __esModule: true, default: Localized, Localized };
+  return mockLocalizedModule;
 });
 
 const getBundlePriceMock = jest.fn();
@@ -127,7 +116,7 @@ describe("BundleBanner", () => {
     expect(screen.getAllByTestId("svg-icon").length).toBeGreaterThanOrEqual(3);
     expect(
       screen.getByText(
-        "l10n string: [bundle-banner-money-back-guarantee], with vars: {}",
+        /\[<Localized> with id \[bundle-banner-money-back-guarantee\] and vars:/,
       ),
     ).toBeInTheDocument();
   });

@@ -8,11 +8,10 @@ import { renderWithProviders } from "frontend/__mocks__/modules/renderWithProvid
 
 jest.mock("../../functions/userAgent");
 jest.mock("../../hooks/mediaQuery");
-jest.mock("../../config", () => ({
-  getRuntimeConfig: () => ({
-    mozmailDomain: "mozmail.test",
-  }),
-}));
+jest.mock(
+  "../../config.ts",
+  () => jest.requireActual("../../../__mocks__/configMock").mockConfigModule,
+);
 
 describe("PremiumOnboarding", () => {
   const mockL10nGetString = jest.fn((id: string) => id);

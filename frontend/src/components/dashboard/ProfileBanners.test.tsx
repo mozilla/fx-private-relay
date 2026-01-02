@@ -33,21 +33,12 @@ beforeAll(() => {
   global.IntersectionObserver = MockIntersectionObserver;
 });
 
-jest.mock("../../hooks/l10n", () => ({
-  useL10n: jest.fn(() => ({
-    bundles: [{ locales: ["en-US"] }],
-    getString: (id: string) => id,
-    getFragment: (
-      _id: string,
-      {
-        vars,
-      }: {
-        vars: { username: string; bounce_type: string; date: string };
-      },
-    ) =>
-      `Bounced email to ${vars.username} failed due to ${vars.bounce_type} on ${vars.date}`,
-  })),
-}));
+jest.mock("../../hooks/l10n", () => {
+  const { mockUseL10nModule } = jest.requireActual(
+    "../../../__mocks__/hooks/l10n",
+  );
+  return mockUseL10nModule;
+});
 
 jest.mock("../../hooks/mediaQuery", () => ({
   useMinViewportWidth: jest.fn(),
@@ -98,7 +89,7 @@ describe("ProfileBanners", () => {
     });
 
     expect(screen.getByText(/banner-bounced-headline/)).toBeInTheDocument();
-    expect(screen.getByText(/Bounced email to/)).toBeInTheDocument();
+    expect(screen.getByText(/fragment:/)).toBeInTheDocument();
   });
 
   it("always renders SubdomainPicker", () => {
@@ -112,7 +103,7 @@ describe("ProfileBanners", () => {
 
     renderComponent();
     expect(
-      screen.getByText("banner-download-firefox-headline"),
+      screen.getByText(/banner-download-firefox-headline/),
     ).toBeInTheDocument();
   });
 
@@ -122,7 +113,7 @@ describe("ProfileBanners", () => {
 
     renderComponent();
     expect(
-      screen.queryByText("banner-download-firefox-headline"),
+      screen.queryByText(/banner-download-firefox-headline/),
     ).not.toBeInTheDocument();
   });
 
@@ -133,7 +124,7 @@ describe("ProfileBanners", () => {
 
     renderComponent({ api_token: "not_demo" });
     expect(
-      screen.getByText("banner-download-install-extension-headline"),
+      screen.getByText(/banner-download-install-extension-headline/),
     ).toBeInTheDocument();
   });
 
@@ -144,7 +135,7 @@ describe("ProfileBanners", () => {
 
     renderComponent({ api_token: "demo" });
     expect(
-      screen.queryByText("banner-download-install-extension-headline"),
+      screen.queryByText(/banner-download-install-extension-headline/),
     ).not.toBeInTheDocument();
   });
 });

@@ -5,7 +5,6 @@ import {
   sendGAEvent,
 } from "./GoogleAnalyticsWorkaround";
 
-// Mock Next.js Script component
 jest.mock("next/script", () => {
   return function Script(props: {
     id: string;
@@ -15,7 +14,6 @@ jest.mock("next/script", () => {
   }) {
     if (props.dangerouslySetInnerHTML) {
       return (
-        // eslint-disable-next-line @next/next/no-sync-scripts
         <script
           id={props.id}
           data-testid={props.id}
@@ -25,7 +23,6 @@ jest.mock("next/script", () => {
       );
     }
     return (
-      // eslint-disable-next-line @next/next/no-sync-scripts
       <script
         id={props.id}
         data-testid={props.id}
@@ -40,7 +37,6 @@ describe("GoogleAnalyticsWorkaround", () => {
   let performanceMarkSpy: jest.SpyInstance | undefined;
 
   beforeEach(() => {
-    // Mock performance.mark if it doesn't exist
     if (typeof performance.mark !== "function") {
       performance.mark = jest.fn();
     }
@@ -51,166 +47,94 @@ describe("GoogleAnalyticsWorkaround", () => {
     performanceMarkSpy?.mockRestore();
   });
 
-  it("renders both GA scripts with the provided gaId", () => {
-    render(<GoogleAnalyticsWorkaround gaId="G-TEST123" />);
+  it("renders scripts with correct configuration and content", () => {
+    let result = render(<GoogleAnalyticsWorkaround gaId="G-TEST123" />);
+    let initScript = screen.getByTestId("_next-ga-init");
+    let mainScript = screen.getByTestId("_next-ga");
+    let scriptContent = initScript.innerHTML;
 
-    const initScript = screen.getByTestId("_next-ga-init");
-    const mainScript = screen.getByTestId("_next-ga");
-
-    expect(initScript).toBeInTheDocument();
-    expect(mainScript).toBeInTheDocument();
     expect(mainScript).toHaveAttribute(
       "src",
       "https://www.googletagmanager.com/gtag/js?id=G-TEST123",
     );
-  });
-
-  it("uses default dataLayer name when not specified", () => {
-    render(<GoogleAnalyticsWorkaround gaId="G-TEST123" />);
-
-    const initScript = screen.getByTestId("_next-ga-init");
-    const scriptContent = initScript.innerHTML;
-
     expect(scriptContent).toContain("window['dataLayer']");
-  });
+    expect(scriptContent).toContain("'debug_mode': undefined");
+    expect(scriptContent).toContain("gtag('config', 'G-TEST123'");
+    expect(scriptContent).toContain("function gtag()");
+    expect(scriptContent).toContain(".push(arguments)");
+    expect(scriptContent).toContain("gtag('js', new Date())");
+    result.unmount();
 
-  it("uses custom dataLayer name when specified", () => {
-    render(
+    result = render(
       <GoogleAnalyticsWorkaround
         gaId="G-TEST123"
         dataLayerName="customLayer"
       />,
     );
-
-    const initScript = screen.getByTestId("_next-ga-init");
-    const scriptContent = initScript.innerHTML;
-
+    scriptContent = screen.getByTestId("_next-ga-init").innerHTML;
     expect(scriptContent).toContain("window['customLayer']");
-  });
+    result.unmount();
 
-  it("passes nonce to both scripts when provided", () => {
-    render(
-      <GoogleAnalyticsWorkaround gaId="G-TEST123" nonce="test-nonce-123" />,
+    result = render(
+      <GoogleAnalyticsWorkaround gaId="G-TEST123" debugMode={true} />,
     );
-
-    const initScript = screen.getByTestId("_next-ga-init");
-    const mainScript = screen.getByTestId("_next-ga");
-
-    expect(initScript).toHaveAttribute("data-nonce", "test-nonce-123");
-    expect(mainScript).toHaveAttribute("data-nonce", "test-nonce-123");
-  });
-
-  it("sets debug_mode to undefined by default", () => {
-    render(<GoogleAnalyticsWorkaround gaId="G-TEST123" />);
-
-    const initScript = screen.getByTestId("_next-ga-init");
-    const scriptContent = initScript.innerHTML;
-
-    expect(scriptContent).toContain("'debug_mode': undefined");
-  });
-
-  it("sets debug_mode to true when debugMode prop is true", () => {
-    render(<GoogleAnalyticsWorkaround gaId="G-TEST123" debugMode={true} />);
-
-    const initScript = screen.getByTestId("_next-ga-init");
-    const scriptContent = initScript.innerHTML;
-
+    scriptContent = screen.getByTestId("_next-ga-init").innerHTML;
     expect(scriptContent).toContain("'debug_mode': true");
-  });
+    result.unmount();
 
-  it("calls performance.mark with correct feature usage", () => {
-    render(<GoogleAnalyticsWorkaround gaId="G-TEST123" />);
-
-    expect(performanceMarkSpy).toHaveBeenCalledWith("mark_feature_usage", {
-      detail: {
-        feature: "next-third-parties-ga",
-      },
-    });
-  });
-
-  it("does not crash when performance.mark is not available", () => {
-    // Clear the spy and remove performance.mark temporarily
-    performanceMarkSpy?.mockRestore();
-    const originalMark = performance.mark;
-    // @ts-expect-error Testing missing API
-    delete performance.mark;
-
-    // Should not throw an error
-    expect(() => {
-      render(<GoogleAnalyticsWorkaround gaId="G-TEST123" />);
-    }).not.toThrow();
-
-    // Restore
-    performance.mark = originalMark;
-    performanceMarkSpy = jest.spyOn(performance, "mark");
-  });
-
-  it("includes gtag configuration with the provided gaId", () => {
-    render(<GoogleAnalyticsWorkaround gaId="G-CUSTOM456" />);
-
-    const initScript = screen.getByTestId("_next-ga-init");
-    const scriptContent = initScript.innerHTML;
-
-    expect(scriptContent).toContain("gtag('config', 'G-CUSTOM456'");
-  });
-
-  it("sets debug_mode to false when debugMode prop is false", () => {
-    render(<GoogleAnalyticsWorkaround gaId="G-TEST123" debugMode={false} />);
-
-    const initScript = screen.getByTestId("_next-ga-init");
-    const scriptContent = initScript.innerHTML;
-
+    result = render(
+      <GoogleAnalyticsWorkaround gaId="G-TEST123" debugMode={false} />,
+    );
+    scriptContent = screen.getByTestId("_next-ga-init").innerHTML;
     expect(scriptContent).toContain("'debug_mode': false");
-  });
+    result.unmount();
 
-  it("includes gtag function definition in the init script", () => {
-    render(<GoogleAnalyticsWorkaround gaId="G-TEST123" />);
+    result = render(
+      <GoogleAnalyticsWorkaround gaId="G-TEST123" nonce="test-nonce" />,
+    );
+    expect(screen.getByTestId("_next-ga-init")).toHaveAttribute(
+      "data-nonce",
+      "test-nonce",
+    );
+    expect(screen.getByTestId("_next-ga")).toHaveAttribute(
+      "data-nonce",
+      "test-nonce",
+    );
+    result.unmount();
 
-    const initScript = screen.getByTestId("_next-ga-init");
-    const scriptContent = initScript.innerHTML;
-
-    expect(scriptContent).toContain("function gtag()");
-    expect(scriptContent).toContain(".push(arguments)");
-  });
-
-  it("includes gtag js call with new Date in the init script", () => {
-    render(<GoogleAnalyticsWorkaround gaId="G-TEST123" />);
-
-    const initScript = screen.getByTestId("_next-ga-init");
-    const scriptContent = initScript.innerHTML;
-
-    expect(scriptContent).toContain("gtag('js', new Date())");
-  });
-
-  it("handles nonce being undefined", () => {
-    render(<GoogleAnalyticsWorkaround gaId="G-TEST123" nonce={undefined} />);
-
-    const initScript = screen.getByTestId("_next-ga-init");
-    const mainScript = screen.getByTestId("_next-ga");
-
-    expect(initScript).toBeInTheDocument();
-    expect(mainScript).toBeInTheDocument();
-  });
-
-  it("renders correctly with all optional props", () => {
-    render(
+    result = render(
       <GoogleAnalyticsWorkaround
-        gaId="G-ALL-PROPS"
+        gaId="G-ALL"
         dataLayerName="myLayer"
         nonce="my-nonce"
         debugMode={true}
       />,
     );
+    const allPropsScript = screen.getByTestId("_next-ga-init");
+    const allPropsContent = allPropsScript.innerHTML;
+    expect(allPropsScript).toHaveAttribute("data-nonce", "my-nonce");
+    expect(screen.getByTestId("_next-ga")).toHaveAttribute(
+      "data-nonce",
+      "my-nonce",
+    );
+    expect(allPropsContent).toContain("window['myLayer']");
+    expect(allPropsContent).toContain("'debug_mode': true");
+    expect(allPropsContent).toContain("gtag('config', 'G-ALL'");
+  });
 
-    const initScript = screen.getByTestId("_next-ga-init");
-    const mainScript = screen.getByTestId("_next-ga");
-    const scriptContent = initScript.innerHTML;
+  it("calls performance.mark and handles missing API gracefully", () => {
+    render(<GoogleAnalyticsWorkaround gaId="G-TEST123" />);
+    expect(performanceMarkSpy).toHaveBeenCalledWith("mark_feature_usage", {
+      detail: { feature: "next-third-parties-ga" },
+    });
 
-    expect(initScript).toHaveAttribute("data-nonce", "my-nonce");
-    expect(mainScript).toHaveAttribute("data-nonce", "my-nonce");
-    expect(scriptContent).toContain("window['myLayer']");
-    expect(scriptContent).toContain("'debug_mode': true");
-    expect(scriptContent).toContain("gtag('config', 'G-ALL-PROPS'");
+    performanceMarkSpy?.mockRestore();
+    const originalMark = performance.mark;
+    delete (performance as any).mark;
+    expect(() =>
+      render(<GoogleAnalyticsWorkaround gaId="G-TEST456" />),
+    ).not.toThrow();
+    performance.mark = originalMark;
   });
 });
 
@@ -228,69 +152,39 @@ describe("sendGAEvent", () => {
     process.env.NODE_ENV = originalEnv;
   });
 
-  it("returns early in test environment without calling gtag", () => {
+  it("handles different environments and dataLayer states", () => {
     process.env.NODE_ENV = "test";
-
     sendGAEvent("event", "test_event", { test: "data" });
-
     expect(consoleWarnSpy).not.toHaveBeenCalled();
-  });
 
-  it("warns when dataLayer does not exist on window", () => {
     process.env.NODE_ENV = "production";
-
-    render(<GoogleAnalyticsWorkaround gaId="G-TEST123" />);
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (window as any).dataLayer;
-
     sendGAEvent("event", "click_event", { button: "submit" });
-
     expect(consoleWarnSpy).toHaveBeenCalledWith(
       "@next/third-parties: GA dataLayer dataLayer does not exist",
     );
-  });
 
-  describe("when dataLayer exists", () => {
-    let mockGtag: jest.Mock;
+    const mockGtag = jest.fn();
+    (window as any).gtag = mockGtag;
+    (window as any).dataLayer = [];
 
-    beforeEach(() => {
-      process.env.NODE_ENV = "production";
-      mockGtag = jest.fn();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (window as any).gtag = mockGtag;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (window as any).dataLayer = [];
-      render(<GoogleAnalyticsWorkaround gaId="G-TEST123" />);
+    sendGAEvent("event", "conversion", { value: 100, currency: "USD" });
+    expect(mockGtag).toHaveBeenCalledWith("event", "conversion", {
+      value: 100,
+      currency: "USD",
     });
 
-    afterEach(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete (window as any).gtag;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete (window as any).dataLayer;
+    mockGtag.mockClear();
+    sendGAEvent("event", "page_view", { page: "/home" });
+    expect(mockGtag).toHaveBeenCalledWith("event", "page_view", {
+      page: "/home",
     });
 
-    test.each([
-      {
-        description: "conversion event",
-        eventName: "conversion",
-        eventArgs: { value: 100, currency: "USD" },
-      },
-      {
-        description: "page_view event",
-        eventName: "page_view",
-        eventArgs: { page: "/home" },
-      },
-      {
-        description: "empty event arguments",
-        eventName: "simple_event",
-        eventArgs: {},
-      },
-    ])("calls window.gtag with $description", ({ eventName, eventArgs }) => {
-      sendGAEvent("event", eventName, eventArgs);
+    mockGtag.mockClear();
+    sendGAEvent("event", "simple_event", {});
+    expect(mockGtag).toHaveBeenCalledWith("event", "simple_event", {});
 
-      expect(mockGtag).toHaveBeenCalledWith("event", eventName, eventArgs);
-    });
+    delete (window as any).gtag;
+    delete (window as any).dataLayer;
   });
 });

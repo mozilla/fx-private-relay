@@ -15,9 +15,10 @@ jest.mock("../../../hooks/api/profile", () => ({
   useProfiles: () => mockUseProfiles(),
 }));
 
-jest.mock("../../../config", () => ({
-  getRuntimeConfig: () => ({ mozmailDomain: "mozmail.com" }),
-}));
+jest.mock(
+  "../../../config.ts",
+  () => jest.requireActual("../../../../__mocks__/configMock").mockConfigModule,
+);
 
 function renderModal(
   overrides: Partial<

@@ -26,382 +26,197 @@ jest.mock("./CsatSurvey", () => ({
   CsatSurvey: () => <div data-testid="csat-survey">CSAT Survey</div>,
 }));
 
-describe("<TopMessage>", () => {
+describe("TopMessage", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-
-    const useRouter =
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("next/router") as any).useRouter;
-    useRouter.mockReturnValue({
-      pathname: "/",
-      push: jest.fn(),
-    });
-
-    const isFlagActive =
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../functions/waffle.ts") as any).isFlagActive;
+    const useRouter = (jest.requireMock("next/router") as any).useRouter;
+    useRouter.mockReturnValue({ pathname: "/", push: jest.fn() });
+    const isFlagActive = (
+      jest.requireMock("../../../functions/waffle.ts") as any
+    ).isFlagActive;
     isFlagActive.mockReturnValue(false);
-
-    const getLocale =
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../functions/getLocale.ts") as any).getLocale;
+    const getLocale = (
+      jest.requireMock("../../../functions/getLocale.ts") as any
+    ).getLocale;
     getLocale.mockReturnValue("en-US");
   });
 
-  describe("InterviewRecruitment conditions", () => {
-    it("renders InterviewRecruitment when all conditions are met", () => {
-      const useRouter =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("next/router") as any).useRouter;
-      useRouter.mockReturnValue({
-        pathname: "/accounts/profile",
-        push: jest.fn(),
-      });
+  it("renders InterviewRecruitment based on conditions", () => {
+    const useRouter = (jest.requireMock("next/router") as any).useRouter;
+    const isFlagActive = (
+      jest.requireMock("../../../functions/waffle.ts") as any
+    ).isFlagActive;
+    const getLocale = (
+      jest.requireMock("../../../functions/getLocale.ts") as any
+    ).getLocale;
+    const profile = getMockProfileData({ has_premium: false });
+    const runtimeData = getMockRuntimeDataWithPeriodicalPremium();
+    runtimeData.PERIODICAL_PREMIUM_PLANS.country_code = "us";
 
-      const isFlagActive =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("../../../functions/waffle.ts") as any).isFlagActive;
-      isFlagActive.mockReturnValue(true);
-
-      const profile = getMockProfileData({ has_premium: false });
-      const runtimeData = getMockRuntimeDataWithPeriodicalPremium();
-      runtimeData.PERIODICAL_PREMIUM_PLANS.country_code = "us";
-
-      render(<TopMessage profile={profile} runtimeData={runtimeData} />);
-
-      expect(screen.getByTestId("interview-recruitment")).toBeInTheDocument();
+    useRouter.mockReturnValue({
+      pathname: "/accounts/profile",
+      push: jest.fn(),
     });
+    isFlagActive.mockReturnValue(true);
+    let result = render(
+      <TopMessage profile={profile} runtimeData={runtimeData} />,
+    );
+    expect(screen.getByTestId("interview-recruitment")).toBeInTheDocument();
+    result.unmount();
 
-    it("does not render InterviewRecruitment when flag is inactive", () => {
-      const useRouter =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("next/router") as any).useRouter;
-      useRouter.mockReturnValue({
-        pathname: "/accounts/profile",
-        push: jest.fn(),
-      });
+    isFlagActive.mockReturnValue(false);
+    result = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
+    expect(
+      screen.queryByTestId("interview-recruitment"),
+    ).not.toBeInTheDocument();
+    expect(screen.getByTestId("csat-survey")).toBeInTheDocument();
+    result.unmount();
 
-      const isFlagActive =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("../../../functions/waffle.ts") as any).isFlagActive;
-      isFlagActive.mockReturnValue(false);
+    isFlagActive.mockReturnValue(true);
+    useRouter.mockReturnValue({ pathname: "/premium", push: jest.fn() });
+    result = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
+    expect(
+      screen.queryByTestId("interview-recruitment"),
+    ).not.toBeInTheDocument();
+    result.unmount();
 
-      const profile = getMockProfileData({ has_premium: false });
-      const runtimeData = getMockRuntimeDataWithPeriodicalPremium();
-      runtimeData.PERIODICAL_PREMIUM_PLANS.country_code = "us";
-
-      render(<TopMessage profile={profile} runtimeData={runtimeData} />);
-
-      expect(
-        screen.queryByTestId("interview-recruitment"),
-      ).not.toBeInTheDocument();
-      expect(screen.getByTestId("csat-survey")).toBeInTheDocument();
+    useRouter.mockReturnValue({
+      pathname: "/accounts/profile",
+      push: jest.fn(),
     });
+    runtimeData.PERIODICAL_PREMIUM_PLANS.country_code = "ca";
+    result = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
+    expect(
+      screen.queryByTestId("interview-recruitment"),
+    ).not.toBeInTheDocument();
+    result.unmount();
 
-    it("does not render InterviewRecruitment when not on dashboard", () => {
-      const useRouter =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("next/router") as any).useRouter;
-      useRouter.mockReturnValue({
-        pathname: "/premium",
-        push: jest.fn(),
-      });
+    runtimeData.PERIODICAL_PREMIUM_PLANS.country_code = "us";
+    getLocale.mockReturnValue("fr-FR");
+    result = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
+    expect(
+      screen.queryByTestId("interview-recruitment"),
+    ).not.toBeInTheDocument();
+    result.unmount();
 
-      const isFlagActive =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("../../../functions/waffle.ts") as any).isFlagActive;
-      isFlagActive.mockReturnValue(true);
-
-      const profile = getMockProfileData({ has_premium: false });
-      const runtimeData = getMockRuntimeDataWithPeriodicalPremium();
-      runtimeData.PERIODICAL_PREMIUM_PLANS.country_code = "us";
-
-      render(<TopMessage profile={profile} runtimeData={runtimeData} />);
-
-      expect(
-        screen.queryByTestId("interview-recruitment"),
-      ).not.toBeInTheDocument();
-      expect(screen.getByTestId("csat-survey")).toBeInTheDocument();
-    });
-
-    it("does not render InterviewRecruitment when user is not from US", () => {
-      const useRouter =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("next/router") as any).useRouter;
-      useRouter.mockReturnValue({
-        pathname: "/accounts/profile",
-        push: jest.fn(),
-      });
-
-      const isFlagActive =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("../../../functions/waffle.ts") as any).isFlagActive;
-      isFlagActive.mockReturnValue(true);
-
-      const profile = getMockProfileData({ has_premium: false });
-      const runtimeData = getMockRuntimeDataWithPeriodicalPremium();
-      runtimeData.PERIODICAL_PREMIUM_PLANS.country_code = "ca";
-
-      render(<TopMessage profile={profile} runtimeData={runtimeData} />);
-
-      expect(
-        screen.queryByTestId("interview-recruitment"),
-      ).not.toBeInTheDocument();
-      expect(screen.getByTestId("csat-survey")).toBeInTheDocument();
-    });
-
-    it("does not render InterviewRecruitment when user does not speak English", () => {
-      const useRouter =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("next/router") as any).useRouter;
-      useRouter.mockReturnValue({
-        pathname: "/accounts/profile",
-        push: jest.fn(),
-      });
-
-      const isFlagActive =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("../../../functions/waffle.ts") as any).isFlagActive;
-      isFlagActive.mockReturnValue(true);
-
-      const getLocale =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("../../../functions/getLocale.ts") as any).getLocale;
-      getLocale.mockReturnValue("fr-FR");
-
-      const profile = getMockProfileData({ has_premium: false });
-      const runtimeData = getMockRuntimeDataWithPeriodicalPremium();
-      runtimeData.PERIODICAL_PREMIUM_PLANS.country_code = "us";
-
-      render(<TopMessage profile={profile} runtimeData={runtimeData} />);
-
-      expect(
-        screen.queryByTestId("interview-recruitment"),
-      ).not.toBeInTheDocument();
-      expect(screen.getByTestId("csat-survey")).toBeInTheDocument();
-    });
-
-    it("does not render InterviewRecruitment when profile is undefined", () => {
-      const useRouter =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("next/router") as any).useRouter;
-      useRouter.mockReturnValue({
-        pathname: "/accounts/profile",
-        push: jest.fn(),
-      });
-
-      const isFlagActive =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("../../../functions/waffle.ts") as any).isFlagActive;
-      isFlagActive.mockReturnValue(true);
-
-      const runtimeData = getMockRuntimeDataWithPeriodicalPremium();
-      runtimeData.PERIODICAL_PREMIUM_PLANS.country_code = "US";
-
-      render(<TopMessage profile={undefined} runtimeData={runtimeData} />);
-
-      expect(
-        screen.queryByTestId("interview-recruitment"),
-      ).not.toBeInTheDocument();
-    });
+    getLocale.mockReturnValue("en-US");
+    result = render(
+      <TopMessage profile={undefined} runtimeData={runtimeData} />,
+    );
+    expect(
+      screen.queryByTestId("interview-recruitment"),
+    ).not.toBeInTheDocument();
   });
 
-  describe("PhoneSurvey conditions", () => {
-    it("renders PhoneSurvey when all conditions are met", () => {
-      const isFlagActive =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("../../../functions/waffle.ts") as any).isFlagActive;
-      isFlagActive.mockImplementation((runtimeData, flag) => {
-        return flag === "phone_launch_survey";
-      });
+  it("renders PhoneSurvey based on conditions", () => {
+    const isFlagActive = (
+      jest.requireMock("../../../functions/waffle.ts") as any
+    ).isFlagActive;
+    const getLocale = (
+      jest.requireMock("../../../functions/getLocale.ts") as any
+    ).getLocale;
+    const profile = getMockProfileData({ has_phone: true });
+    const runtimeData = getMockRuntimeDataWithPhones();
 
-      const profile = getMockProfileData({ has_phone: true });
-      const runtimeData = getMockRuntimeDataWithPhones();
-      runtimeData.PHONE_PLANS.country_code = "us";
+    isFlagActive.mockImplementation(
+      (_, flag) => flag === "phone_launch_survey",
+    );
+    runtimeData.PHONE_PLANS.country_code = "us";
+    let result = render(
+      <TopMessage profile={profile} runtimeData={runtimeData} />,
+    );
+    expect(screen.getByTestId("phone-survey")).toBeInTheDocument();
+    result.unmount();
 
-      render(<TopMessage profile={profile} runtimeData={runtimeData} />);
+    runtimeData.PHONE_PLANS.country_code = "ca";
+    result = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
+    expect(screen.getByTestId("phone-survey")).toBeInTheDocument();
+    result.unmount();
 
-      expect(screen.getByTestId("phone-survey")).toBeInTheDocument();
-    });
+    isFlagActive.mockReturnValue(false);
+    result = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
+    expect(screen.queryByTestId("phone-survey")).not.toBeInTheDocument();
+    expect(screen.getByTestId("csat-survey")).toBeInTheDocument();
+    result.unmount();
 
-    it("renders PhoneSurvey for Canadian users", () => {
-      const isFlagActive =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("../../../functions/waffle.ts") as any).isFlagActive;
-      isFlagActive.mockImplementation((runtimeData, flag) => {
-        return flag === "phone_launch_survey";
-      });
+    isFlagActive.mockImplementation(
+      (_, flag) => flag === "phone_launch_survey",
+    );
+    const noPhoneProfile = getMockProfileData({ has_phone: false });
+    result = render(
+      <TopMessage profile={noPhoneProfile} runtimeData={runtimeData} />,
+    );
+    expect(screen.queryByTestId("phone-survey")).not.toBeInTheDocument();
+    result.unmount();
 
-      const profile = getMockProfileData({ has_phone: true });
-      const runtimeData = getMockRuntimeDataWithPhones();
-      runtimeData.PHONE_PLANS.country_code = "ca";
+    runtimeData.PHONE_PLANS.country_code = "uk";
+    result = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
+    expect(screen.queryByTestId("phone-survey")).not.toBeInTheDocument();
+    result.unmount();
 
-      render(<TopMessage profile={profile} runtimeData={runtimeData} />);
-
-      expect(screen.getByTestId("phone-survey")).toBeInTheDocument();
-    });
-
-    it("does not render PhoneSurvey when flag is inactive", () => {
-      const isFlagActive =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("../../../functions/waffle.ts") as any).isFlagActive;
-      isFlagActive.mockReturnValue(false);
-
-      const profile = getMockProfileData({ has_phone: true });
-      const runtimeData = getMockRuntimeDataWithPhones();
-      runtimeData.PHONE_PLANS.country_code = "us";
-
-      render(<TopMessage profile={profile} runtimeData={runtimeData} />);
-
-      expect(screen.queryByTestId("phone-survey")).not.toBeInTheDocument();
-      expect(screen.getByTestId("csat-survey")).toBeInTheDocument();
-    });
-
-    it("does not render PhoneSurvey when user does not have phone plan", () => {
-      const isFlagActive =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("../../../functions/waffle.ts") as any).isFlagActive;
-      isFlagActive.mockImplementation((runtimeData, flag) => {
-        return flag === "phone_launch_survey";
-      });
-
-      const profile = getMockProfileData({ has_phone: false });
-      const runtimeData = getMockRuntimeDataWithPhones();
-      runtimeData.PHONE_PLANS.country_code = "us";
-
-      render(<TopMessage profile={profile} runtimeData={runtimeData} />);
-
-      expect(screen.queryByTestId("phone-survey")).not.toBeInTheDocument();
-      expect(screen.getByTestId("csat-survey")).toBeInTheDocument();
-    });
-
-    it("does not render PhoneSurvey when user is not from US or CA", () => {
-      const isFlagActive =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("../../../functions/waffle.ts") as any).isFlagActive;
-      isFlagActive.mockImplementation((runtimeData, flag) => {
-        return flag === "phone_launch_survey";
-      });
-
-      const profile = getMockProfileData({ has_phone: true });
-      const runtimeData = getMockRuntimeDataWithPhones();
-      runtimeData.PHONE_PLANS.country_code = "uk";
-
-      render(<TopMessage profile={profile} runtimeData={runtimeData} />);
-
-      expect(screen.queryByTestId("phone-survey")).not.toBeInTheDocument();
-      expect(screen.getByTestId("csat-survey")).toBeInTheDocument();
-    });
-
-    it("does not render PhoneSurvey when user does not speak English", () => {
-      const isFlagActive =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("../../../functions/waffle.ts") as any).isFlagActive;
-      isFlagActive.mockImplementation((runtimeData, flag) => {
-        return flag === "phone_launch_survey";
-      });
-
-      const getLocale =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("../../../functions/getLocale.ts") as any).getLocale;
-      getLocale.mockReturnValue("de-DE");
-
-      const profile = getMockProfileData({ has_phone: true });
-      const runtimeData = getMockRuntimeDataWithPhones();
-      runtimeData.PHONE_PLANS.country_code = "us";
-
-      render(<TopMessage profile={profile} runtimeData={runtimeData} />);
-
-      expect(screen.queryByTestId("phone-survey")).not.toBeInTheDocument();
-      expect(screen.getByTestId("csat-survey")).toBeInTheDocument();
-    });
+    runtimeData.PHONE_PLANS.country_code = "us";
+    getLocale.mockReturnValue("de-DE");
+    result = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
+    expect(screen.queryByTestId("phone-survey")).not.toBeInTheDocument();
   });
 
-  describe("CsatSurvey fallback", () => {
-    it("renders CsatSurvey when profile exists and no other conditions met", () => {
-      const profile = getMockProfileData({ has_premium: false });
-      const runtimeData = getMockRuntimeDataWithPeriodicalPremium();
+  it("handles fallback and no profile scenarios", () => {
+    const profile = getMockProfileData({ has_premium: false });
+    const runtimeData = getMockRuntimeDataWithPeriodicalPremium();
 
-      render(<TopMessage profile={profile} runtimeData={runtimeData} />);
+    let result = render(
+      <TopMessage profile={profile} runtimeData={runtimeData} />,
+    );
+    expect(screen.getByTestId("csat-survey")).toBeInTheDocument();
+    result.unmount();
 
-      expect(screen.getByTestId("csat-survey")).toBeInTheDocument();
-    });
+    const premiumProfile = getMockProfileData({ has_premium: true });
+    result = render(
+      <TopMessage profile={premiumProfile} runtimeData={runtimeData} />,
+    );
+    expect(screen.getByTestId("csat-survey")).toBeInTheDocument();
+    result.unmount();
 
-    it("renders CsatSurvey with the profile prop", () => {
-      const profile = getMockProfileData({ has_premium: true });
-      const runtimeData = getMockRuntimeDataWithPeriodicalPremium();
+    const { container: noProfile } = render(
+      <TopMessage profile={undefined} runtimeData={runtimeData} />,
+    );
+    expect(noProfile.firstChild).toBeNull();
 
-      render(<TopMessage profile={profile} runtimeData={runtimeData} />);
-
-      expect(screen.getByTestId("csat-survey")).toBeInTheDocument();
-    });
+    const { container: nothingDefined } = render(
+      <TopMessage profile={undefined} runtimeData={undefined} />,
+    );
+    expect(nothingDefined.firstChild).toBeNull();
   });
 
-  describe("No profile", () => {
-    it("renders nothing when profile is undefined", () => {
-      const runtimeData = getMockRuntimeDataWithPeriodicalPremium();
-      const { container } = render(
-        <TopMessage profile={undefined} runtimeData={runtimeData} />,
-      );
+  it("respects priority order", () => {
+    const useRouter = (jest.requireMock("next/router") as any).useRouter;
+    const isFlagActive = (
+      jest.requireMock("../../../functions/waffle.ts") as any
+    ).isFlagActive;
 
-      // eslint-disable-next-line testing-library/no-node-access, jest-dom/prefer-empty
-      expect(container.firstChild).toBeNull();
+    useRouter.mockReturnValue({
+      pathname: "/accounts/profile",
+      push: jest.fn(),
     });
+    isFlagActive.mockReturnValue(true);
+    const profile = getMockProfileData({ has_phone: true });
+    const runtimeData = getMockRuntimeDataWithPhones();
+    runtimeData.PERIODICAL_PREMIUM_PLANS.country_code = "us";
+    runtimeData.PHONE_PLANS.country_code = "us";
 
-    it("renders nothing when both profile and runtimeData are undefined", () => {
-      const { container } = render(
-        <TopMessage profile={undefined} runtimeData={undefined} />,
-      );
+    let result = render(
+      <TopMessage profile={profile} runtimeData={runtimeData} />,
+    );
+    expect(screen.getByTestId("interview-recruitment")).toBeInTheDocument();
+    expect(screen.queryByTestId("phone-survey")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("csat-survey")).not.toBeInTheDocument();
+    result.unmount();
 
-      // eslint-disable-next-line testing-library/no-node-access, jest-dom/prefer-empty
-      expect(container.firstChild).toBeNull();
-    });
-  });
-
-  describe("Priority order", () => {
-    it("prioritizes InterviewRecruitment over PhoneSurvey", () => {
-      const useRouter =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("next/router") as any).useRouter;
-      useRouter.mockReturnValue({
-        pathname: "/accounts/profile",
-        push: jest.fn(),
-      });
-
-      const isFlagActive =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("../../../functions/waffle.ts") as any).isFlagActive;
-      isFlagActive.mockReturnValue(true);
-
-      const profile = getMockProfileData({ has_phone: true });
-      const runtimeData = getMockRuntimeDataWithPhones();
-      runtimeData.PERIODICAL_PREMIUM_PLANS.country_code = "us";
-      runtimeData.PHONE_PLANS.country_code = "us";
-
-      render(<TopMessage profile={profile} runtimeData={runtimeData} />);
-
-      expect(screen.getByTestId("interview-recruitment")).toBeInTheDocument();
-      expect(screen.queryByTestId("phone-survey")).not.toBeInTheDocument();
-      expect(screen.queryByTestId("csat-survey")).not.toBeInTheDocument();
-    });
-
-    it("prioritizes PhoneSurvey over CsatSurvey", () => {
-      const isFlagActive =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("../../../functions/waffle.ts") as any).isFlagActive;
-      isFlagActive.mockImplementation((runtimeData, flag) => {
-        return flag === "phone_launch_survey";
-      });
-
-      const profile = getMockProfileData({ has_phone: true });
-      const runtimeData = getMockRuntimeDataWithPhones();
-      runtimeData.PHONE_PLANS.country_code = "us";
-
-      render(<TopMessage profile={profile} runtimeData={runtimeData} />);
-
-      expect(screen.getByTestId("phone-survey")).toBeInTheDocument();
-      expect(screen.queryByTestId("csat-survey")).not.toBeInTheDocument();
-    });
+    isFlagActive.mockImplementation(
+      (_, flag) => flag === "phone_launch_survey",
+    );
+    result = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
+    expect(screen.getByTestId("phone-survey")).toBeInTheDocument();
+    expect(screen.queryByTestId("csat-survey")).not.toBeInTheDocument();
   });
 });

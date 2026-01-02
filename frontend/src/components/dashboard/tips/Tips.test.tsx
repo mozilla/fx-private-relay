@@ -9,9 +9,10 @@ jest.mock("react-intersection-observer", () => ({
   useInView: () => [jest.fn(), true] as const,
 }));
 
-jest.mock("../../../config", () => ({
-  getRuntimeConfig: () => ({ frontendOrigin: "http://relay.local" }),
-}));
+jest.mock(
+  "../../../config.ts",
+  () => jest.requireActual("../../../../__mocks__/configMock").mockConfigModule,
+);
 
 jest.mock("../../../hooks/l10n", () => {
   const { mockUseL10nModule } = jest.requireActual(
@@ -128,7 +129,7 @@ describe("Tips", () => {
     });
     expect(support).toHaveAttribute(
       "href",
-      expect.stringContaining("http://relay.local"),
+      expect.stringContaining("https://frontend.example.com"),
     );
   });
 

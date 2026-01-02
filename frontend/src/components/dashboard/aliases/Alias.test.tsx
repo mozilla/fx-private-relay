@@ -65,7 +65,10 @@ jest.mock("../../../functions/getLocale", () => ({
   getLocale: () => "en-US",
 }));
 
-jest.mock("../../../config");
+jest.mock(
+  "../../../config.ts",
+  () => jest.requireActual("../../../../__mocks__/configMock").mockConfigModule,
+);
 
 describe("Alias", () => {
   const alias: AliasData = {

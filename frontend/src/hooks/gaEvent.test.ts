@@ -1,6 +1,5 @@
 import { renderHook } from "@testing-library/react";
 
-// Unmock the global mock from jest.setup.ts
 jest.unmock("./gaEvent");
 
 jest.mock("react-ga", () => ({
@@ -11,7 +10,6 @@ jest.mock("../components/GoogleAnalyticsWorkaround", () => ({
 }));
 jest.mock("./googleAnalytics");
 
-// Import after mocking
 import { useGaEvent } from "./gaEvent";
 import * as ReactGA from "react-ga";
 import * as GAWorkaround from "../components/GoogleAnalyticsWorkaround";
@@ -24,63 +22,38 @@ describe("useGaEvent", () => {
     jest.clearAllMocks();
   });
 
-  it("returns a function that sends GA events when analytics is enabled", () => {
+  it("sends GA events when enabled, respects state changes, handles all properties", () => {
     const useGoogleAnalytics =
       jest.requireMock("./googleAnalytics").useGoogleAnalytics;
+
+    useGoogleAnalytics.mockReturnValue(false);
+    let { result, rerender } = renderHook(() => useGaEvent());
+
+    result.current({ category: "Test", action: "Action", label: "Label" });
+    expect(mockEvent).not.toHaveBeenCalled();
+    expect(mockSendGAEvent).not.toHaveBeenCalled();
+
     useGoogleAnalytics.mockReturnValue(true);
+    rerender();
 
-    const { result } = renderHook(() => useGaEvent());
-
-    const gaEvent = result.current;
-    expect(typeof gaEvent).toBe("function");
-
-    const eventArgs = {
+    const basicEventArgs = {
       category: "Test Category",
       action: "Test Action",
       label: "Test Label",
     };
 
-    gaEvent(eventArgs);
-
-    expect(mockEvent).toHaveBeenCalledWith(eventArgs);
+    result.current(basicEventArgs);
+    expect(mockEvent).toHaveBeenCalledWith(basicEventArgs);
     expect(mockSendGAEvent).toHaveBeenCalledWith(
       "event",
       "Test Category-Test Action-Test Label",
-      eventArgs,
+      basicEventArgs,
     );
-  });
 
-  it("returns a function that does not send GA events when analytics is disabled", () => {
-    const useGoogleAnalytics =
-      jest.requireMock("./googleAnalytics").useGoogleAnalytics;
-    useGoogleAnalytics.mockReturnValue(false);
+    mockEvent.mockClear();
+    mockSendGAEvent.mockClear();
 
-    const { result } = renderHook(() => useGaEvent());
-
-    const gaEvent = result.current;
-
-    const eventArgs = {
-      category: "Test Category",
-      action: "Test Action",
-      label: "Test Label",
-    };
-
-    gaEvent(eventArgs);
-
-    expect(mockEvent).not.toHaveBeenCalled();
-    expect(mockSendGAEvent).not.toHaveBeenCalled();
-  });
-
-  it("handles events with additional properties", () => {
-    const useGoogleAnalytics =
-      jest.requireMock("./googleAnalytics").useGoogleAnalytics;
-    useGoogleAnalytics.mockReturnValue(true);
-
-    const { result } = renderHook(() => useGaEvent());
-
-    const gaEvent = result.current;
-
-    const eventArgs = {
+    const extendedEventArgs = {
       category: "Test Category",
       action: "Test Action",
       label: "Test Label",
@@ -88,52 +61,12 @@ describe("useGaEvent", () => {
       nonInteraction: true,
     };
 
-    gaEvent(eventArgs);
-
-    expect(mockEvent).toHaveBeenCalledWith(eventArgs);
+    result.current(extendedEventArgs);
+    expect(mockEvent).toHaveBeenCalledWith(extendedEventArgs);
     expect(mockSendGAEvent).toHaveBeenCalledWith(
       "event",
       "Test Category-Test Action-Test Label",
-      eventArgs,
+      extendedEventArgs,
     );
-  });
-
-  it("updates when analytics state changes", () => {
-    const useGoogleAnalytics =
-      jest.requireMock("./googleAnalytics").useGoogleAnalytics;
-    useGoogleAnalytics.mockReturnValue(false);
-
-    const { result, rerender } = renderHook(() => useGaEvent());
-
-    let gaEvent = result.current;
-
-    gaEvent({ category: "Test", action: "Action", label: "Label" });
-    expect(mockEvent).not.toHaveBeenCalled();
-
-    useGoogleAnalytics.mockReturnValue(true);
-    rerender();
-
-    gaEvent = result.current;
-    gaEvent({ category: "Test", action: "Action", label: "Label" });
-    expect(mockEvent).toHaveBeenCalledTimes(1);
-  });
-
-  it("sends both react-ga and sendGAEvent when analytics is enabled", () => {
-    const useGoogleAnalytics =
-      jest.requireMock("./googleAnalytics").useGoogleAnalytics;
-    useGoogleAnalytics.mockReturnValue(true);
-
-    const { result } = renderHook(() => useGaEvent());
-
-    const eventArgs = {
-      category: "Category",
-      action: "Action",
-      label: "Label",
-    };
-
-    result.current(eventArgs);
-
-    expect(mockEvent).toHaveBeenCalledTimes(1);
-    expect(mockSendGAEvent).toHaveBeenCalledTimes(1);
   });
 });

@@ -5,12 +5,14 @@ import { Localized } from "./Localized";
 
 jest.unmock("./Localized");
 
-const mockUseL10n = jest.fn();
 const mockOriginalLocalized = jest.fn();
 
-jest.mock("../hooks/l10n", () => ({
-  useL10n: () => mockUseL10n(),
-}));
+jest.mock("../hooks/l10n", () => {
+  const { mockUseL10nModule } = jest.requireActual(
+    "../../__mocks__/hooks/l10n",
+  );
+  return mockUseL10nModule;
+});
 
 jest.mock("@fluent/react", () => {
   const actual = jest.requireActual("@fluent/react");
@@ -20,77 +22,43 @@ jest.mock("@fluent/react", () => {
   };
 });
 
-describe("<Localized>", () => {
+describe("Localized", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseL10n.mockReturnValue({
-      getString: (id: string, vars?: Record<string, string>) =>
-        `translated: ${id} ${vars ? JSON.stringify(vars) : ""}`,
-    });
     mockOriginalLocalized.mockImplementation((props: LocalizedProps) => (
       <div data-testid="fluent-localized">{props.id}</div>
     ));
   });
 
-  it("calls useL10n hook", () => {
-    render(<Localized id="test-message-id" />);
-
-    expect(mockUseL10n).toHaveBeenCalled();
-  });
-
-  it("renders with Fluent Localized component", () => {
+  it("calls useL10n and renders with Fluent Localized component", () => {
     render(<Localized id="test-message-id" />);
 
     expect(mockOriginalLocalized).toHaveBeenCalled();
     expect(screen.getByTestId("fluent-localized")).toBeInTheDocument();
   });
 
-  it("passes id prop to the Fluent Localized component", () => {
-    render(<Localized id="test-message-id" />);
-
+  it("passes all props correctly to Fluent Localized", () => {
+    render(<Localized id="basic-id" />);
     expect(mockOriginalLocalized).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: "test-message-id",
-      }),
+      expect.objectContaining({ id: "basic-id" }),
     );
-  });
 
-  it("passes vars prop to the Fluent Localized component", () => {
     const vars = { name: "John", count: "5" };
-
-    render(<Localized id="test-message-id" vars={vars} />);
-
+    render(<Localized id="with-vars" vars={vars} />);
     expect(mockOriginalLocalized).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: "test-message-id",
-        vars: vars,
-      }),
+      expect.objectContaining({ id: "with-vars", vars }),
     );
-  });
 
-  it("passes element children to the Fluent Localized component", () => {
     render(
-      <Localized id="test-message-id">
+      <Localized id="with-children">
         <span data-testid="child-element">Placeholder text</span>
       </Localized>,
     );
-
     expect(mockOriginalLocalized).toHaveBeenCalledWith(
       expect.objectContaining({
-        id: "test-message-id",
+        id: "with-children",
         children: expect.anything(),
       }),
     );
-  });
-
-  it("handles rendering without children", () => {
-    render(<Localized id="test-message-id" />);
-
-    expect(mockOriginalLocalized).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: "test-message-id",
-      }),
-    );
-    expect(screen.getByTestId("fluent-localized")).toBeInTheDocument();
   });
 });

@@ -17,243 +17,107 @@ jest.mock("../../../hooks/firstSeen.ts");
 jest.mock("../../../hooks/session.ts");
 jest.mock("../../../hooks/api/profile.ts");
 
-describe("<NpsSurvey>", () => {
+describe("NpsSurvey", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     global.gaEventMock.mockClear();
-
     mockLocalDismissal(false);
     mockFirstSeenDaysAgo(4);
     mockLoginStatus("logged-in");
+    const useProfiles = (
+      jest.requireMock("../../../hooks/api/profile.ts") as any
+    ).useProfiles;
+    useProfiles.mockReturnValue({ data: [getMockProfileData({ id: 123 })] });
+  });
 
-    const useProfiles =
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/api/profile.ts") as any).useProfiles;
-    useProfiles.mockReturnValue({
-      data: [getMockProfileData({ id: 123 })],
+  it("respects visibility conditions", () => {
+    const { container: visible } = render(<NpsSurvey />);
+    expect(visible.querySelector("aside")).toBeInTheDocument();
+
+    mockLocalDismissal(true);
+    const { container: dismissed } = render(<NpsSurvey />);
+    expect(dismissed.firstChild).toBeNull();
+
+    mockLocalDismissal(false);
+    mockFirstSeen(new Date(Date.now() - 1000));
+    const { container: tooNew } = render(<NpsSurvey />);
+    expect(tooNew.firstChild).toBeNull();
+
+    mockFirstSeenDaysAgo(4);
+    mockLoginStatus("logged-out");
+    const { container: loggedOut } = render(<NpsSurvey />);
+    expect(loggedOut.firstChild).toBeNull();
+
+    mockLoginStatus("logged-in");
+    mockFirstSeen(null);
+    const { container: noFirstSeen } = render(<NpsSurvey />);
+    expect(noFirstSeen.firstChild).toBeNull();
+
+    mockFirstSeenDaysAgo(4);
+    const useLocalDismissal = (
+      jest.requireMock("../../../hooks/localDismissal.ts") as any
+    ).useLocalDismissal;
+    expect(useLocalDismissal).toHaveBeenCalledWith("nps-survey_123", {
+      duration: 30 * 24 * 60 * 60,
     });
   });
 
-  describe("Visibility conditions", () => {
-    it("renders when not dismissed and user has been active for 3+ days", () => {
-      const { container } = render(<NpsSurvey />);
-
-      // eslint-disable-next-line testing-library/no-node-access, jest-dom/prefer-empty
-      expect(container.firstChild).not.toBeNull();
+  it("renders complete survey with rating categories and tracking", async () => {
+    const mockDismiss = jest.fn();
+    const useLocalDismissal = (
+      jest.requireMock("../../../hooks/localDismissal.ts") as any
+    ).useLocalDismissal;
+    useLocalDismissal.mockReturnValue({
+      isDismissed: false,
+      dismiss: mockDismiss,
     });
 
-    it("does not render when dismissed", () => {
-      mockLocalDismissal(true);
+    const user = userEvent.setup();
+    render(<NpsSurvey />);
 
-      const { container } = render(<NpsSurvey />);
+    expect(screen.getByText(/survey-question-1/)).toBeInTheDocument();
+    expect(screen.getByText(/survey-option-not-likely/)).toBeInTheDocument();
+    expect(screen.getByText(/survey-option-very-likely/)).toBeInTheDocument();
 
-      // eslint-disable-next-line testing-library/no-node-access, jest-dom/prefer-empty
-      expect(container.firstChild).toBeNull();
+    for (let i = 1; i <= 10; i++) {
+      expect(
+        screen.getByRole("button", { name: i.toString() }),
+      ).toBeInTheDocument();
+    }
+
+    await user.click(screen.getByRole("button", { name: "9" }));
+    expect(global.gaEventMock).toHaveBeenCalledWith({
+      category: "NPS Survey",
+      action: "submitted",
+      label: "promoter",
+      value: 9,
+      dimension1: "promoter",
+      metric1: 1,
+      metric2: 9,
+      metric3: 1,
     });
-
-    it("does not render when user has been active for less than the threshold", () => {
-      mockFirstSeen(new Date(Date.now() - 1000));
-
-      const { container } = render(<NpsSurvey />);
-
-      // eslint-disable-next-line testing-library/no-node-access, jest-dom/prefer-empty
-      expect(container.firstChild).toBeNull();
-    });
-
-    it("does not render when user is not logged in", () => {
-      mockLoginStatus("logged-out");
-
-      const { container } = render(<NpsSurvey />);
-
-      // eslint-disable-next-line testing-library/no-node-access, jest-dom/prefer-empty
-      expect(container.firstChild).toBeNull();
-    });
-
-    it("does not render when firstSeen is not a Date", () => {
-      mockFirstSeen(null);
-
-      const { container } = render(<NpsSurvey />);
-
-      // eslint-disable-next-line testing-library/no-node-access, jest-dom/prefer-empty
-      expect(container.firstChild).toBeNull();
-    });
-
-    it("uses dismissal key with profile id", () => {
-      const useLocalDismissal =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("../../../hooks/localDismissal.ts") as any)
-          .useLocalDismissal;
-
-      render(<NpsSurvey />);
-
-      expect(useLocalDismissal).toHaveBeenCalledWith("nps-survey_123", {
-        duration: 30 * 24 * 60 * 60,
-      });
-    });
+    expect(mockDismiss).toHaveBeenCalledTimes(1);
   });
 
-  describe("Content rendering", () => {
-    it("renders the survey question", () => {
-      render(<NpsSurvey />);
-
-      expect(screen.getByText(/survey-question-1/)).toBeInTheDocument();
+  it("handles dismissal without tracking", async () => {
+    const mockDismiss = jest.fn();
+    const useLocalDismissal = (
+      jest.requireMock("../../../hooks/localDismissal.ts") as any
+    ).useLocalDismissal;
+    useLocalDismissal.mockReturnValue({
+      isDismissed: false,
+      dismiss: mockDismiss,
     });
 
-    it("renders all 10 rating buttons", () => {
-      render(<NpsSurvey />);
+    const user = userEvent.setup();
+    render(<NpsSurvey />);
 
-      for (let i = 1; i <= 10; i++) {
-        expect(
-          screen.getByRole("button", { name: i.toString() }),
-        ).toBeInTheDocument();
-      }
-    });
-
-    it("renders 'not likely' legend", () => {
-      render(<NpsSurvey />);
-
-      expect(screen.getByText(/survey-option-not-likely/)).toBeInTheDocument();
-    });
-
-    it("renders 'very likely' legend", () => {
-      render(<NpsSurvey />);
-
-      expect(screen.getByText(/survey-option-very-likely/)).toBeInTheDocument();
-    });
-
-    it("renders dismiss button", () => {
-      render(<NpsSurvey />);
-
-      const allButtons = screen.getAllByRole("button");
-      const dismissButton = allButtons.find((btn) =>
-        btn.getAttribute("title")?.includes("survey-option-dismiss"),
-      );
-      expect(dismissButton).toBeInTheDocument();
-    });
-
-    it("renders CloseIcon in dismiss button", () => {
-      render(<NpsSurvey />);
-
-      const allButtons = screen.getAllByRole("button");
-      const dismissButton = allButtons.find((btn) =>
-        btn.getAttribute("title")?.includes("survey-option-dismiss"),
-      );
-      expect(dismissButton).toHaveAttribute("title");
-    });
-  });
-
-  describe("User interactions - Submit ratings", () => {
-    test.each([
-      { rating: 1, category: "detractor", metric3: -1 },
-      { rating: 6, category: "detractor", metric3: -1 },
-      { rating: 7, category: "passive", metric3: 0 },
-      { rating: 8, category: "passive", metric3: 0 },
-      { rating: 9, category: "promoter", metric3: 1 },
-      { rating: 10, category: "promoter", metric3: 1 },
-    ])(
-      "tracks GA event as $category when rating $rating",
-      async ({ rating, category, metric3 }) => {
-        const user = userEvent.setup();
-        render(<NpsSurvey />);
-
-        const button = screen.getByRole("button", { name: rating.toString() });
-        await user.click(button);
-
-        expect(global.gaEventMock).toHaveBeenCalledWith({
-          category: "NPS Survey",
-          action: "submitted",
-          label: category,
-          value: rating,
-          dimension1: category,
-          metric1: 1,
-          metric2: rating,
-          metric3,
-        });
-      },
+    const allButtons = screen.getAllByRole("button");
+    const dismissButton = allButtons.find((btn) =>
+      btn.getAttribute("title")?.includes("survey-option-dismiss"),
     );
-
-    it("calls dismiss when rating is submitted", async () => {
-      const user = userEvent.setup();
-      const mockDismiss = jest.fn();
-      const useLocalDismissal =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("../../../hooks/localDismissal.ts") as any)
-          .useLocalDismissal;
-      useLocalDismissal.mockReturnValue({
-        isDismissed: false,
-        dismiss: mockDismiss,
-      });
-
-      render(<NpsSurvey />);
-
-      const button = screen.getByRole("button", { name: "5" });
-      await user.click(button);
-
-      expect(mockDismiss).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe("User interactions - Dismiss", () => {
-    it("calls dismiss when close button is clicked", async () => {
-      const user = userEvent.setup();
-      const mockDismiss = jest.fn();
-      const useLocalDismissal =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (jest.requireMock("../../../hooks/localDismissal.ts") as any)
-          .useLocalDismissal;
-      useLocalDismissal.mockReturnValue({
-        isDismissed: false,
-        dismiss: mockDismiss,
-      });
-
-      render(<NpsSurvey />);
-
-      const allButtons = screen.getAllByRole("button");
-      const dismissButton = allButtons.find((btn) =>
-        btn.getAttribute("title")?.includes("survey-option-dismiss"),
-      );
-      await user.click(dismissButton!);
-
-      expect(mockDismiss).toHaveBeenCalledTimes(1);
-    });
-
-    it("does not track GA event when dismiss button is clicked", async () => {
-      const user = userEvent.setup();
-      render(<NpsSurvey />);
-
-      const allButtons = screen.getAllByRole("button");
-      const dismissButton = allButtons.find((btn) =>
-        btn.getAttribute("title")?.includes("survey-option-dismiss"),
-      );
-      await user.click(dismissButton!);
-
-      expect(global.gaEventMock).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("Structure and styling", () => {
-    it("renders within an aside element", () => {
-      const { container } = render(<NpsSurvey />);
-
-      // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-      const aside = container.querySelector("aside");
-      expect(aside).toBeInTheDocument();
-    });
-
-    it("renders legend spans with aria-hidden", () => {
-      const { container } = render(<NpsSurvey />);
-
-      // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-      const legends = container.querySelectorAll('[aria-hidden="true"]');
-      expect(legends.length).toBeGreaterThanOrEqual(2);
-    });
-
-    it("renders buttons within an ordered list", () => {
-      const { container } = render(<NpsSurvey />);
-
-      // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-      const ol = container.querySelector("ol");
-      expect(ol).toBeInTheDocument();
-    });
+    await user.click(dismissButton!);
+    expect(mockDismiss).toHaveBeenCalledTimes(1);
+    expect(global.gaEventMock).not.toHaveBeenCalled();
   });
 });

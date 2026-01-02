@@ -35,12 +35,10 @@ beforeAll(() => {
   global.IntersectionObserver = MockIntersectionObserver;
 });
 
-jest.mock("next/config", () => () => ({
-  publicRuntimeConfig: {
-    BASE_URL: "https://example.com",
-    API_URL: "https://api.example.com",
-  },
-}));
+jest.mock(
+  "frontend/src/config.ts",
+  () => jest.requireActual("frontend/__mocks__/configMock").mockConfigModule,
+);
 
 jest.mock("frontend/src/hooks/api/relayNumber", () => ({
   useRelayNumber: jest.fn(),
