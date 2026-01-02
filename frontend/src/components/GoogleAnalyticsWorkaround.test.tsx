@@ -261,7 +261,6 @@ describe("sendGAEvent", () => {
       (window as any).gtag = mockGtag;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).dataLayer = [];
-      render(<GoogleAnalyticsWorkaround gaId="G-TEST123" />);
     });
 
     afterEach(() => {
