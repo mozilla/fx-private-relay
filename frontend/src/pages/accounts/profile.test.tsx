@@ -231,10 +231,11 @@ describe("The dashboard", () => {
     expect(countOf72.parentElement?.textContent).toMatch("72");
   });
 
-  it("shows and hides the StatExplainer tooltip for trackers removed", async () => {
+  it("shows 'Remove trackers' link for users not opted into tracker removal", async () => {
     setMockProfileDataOnce({
       has_premium: true,
       level_one_trackers_blocked: 123,
+      remove_level_one_email_trackers: false,
     });
     setMockAliasesDataOnce({ random: [], custom: [] });
     setMockRuntimeDataOnce({
@@ -244,28 +245,16 @@ describe("The dashboard", () => {
 
     render(<Profile />);
 
-    const learnMoreButton = screen.getByRole("button", {
-      name: "l10n string: [profile-stat-learn-more], with vars: {}",
-    });
-    await userEvent.click(learnMoreButton);
-
-    const tooltip = await screen.findByText(
-      "l10n string: [profile-stat-label-trackers-learn-more-part1], with vars: {}",
+    const trackersDetectedLabel = screen.getByText(
+      /profile-stat-label-trackers-detected/,
     );
-    expect(tooltip).toBeInTheDocument();
+    expect(trackersDetectedLabel).toBeInTheDocument();
 
-    const closeButton = screen.getByRole("button", {
-      name: "l10n string: [profile-stat-learn-more-close], with vars: {}",
+    const removeTrackersLink = screen.getByRole("link", {
+      name: "l10n string: [profile-stat-label-trackers-remove-trackers], with vars: {}",
     });
-    await userEvent.click(closeButton);
-
-    await waitFor(() => {
-      expect(
-        screen.queryByText(
-          "l10n string: [profile-stat-label-trackers-learn-more-part1], with vars: {}",
-        ),
-      ).not.toBeInTheDocument();
-    });
+    expect(removeTrackersLink).toBeInTheDocument();
+    expect(removeTrackersLink).toHaveAttribute("href", "/accounts/settings/");
   });
 
   it("shows the domain search form for Premium users that do not have a domain yet", () => {
@@ -1274,10 +1263,11 @@ describe("The dashboard", () => {
     expect(secondAlias).not.toBeInTheDocument();
   });
 
-  it("shows correct count of email trackers removed for Premium users with tracker removal flag", () => {
+  it("shows correct count of email trackers removed for Premium users with tracker removal enabled", () => {
     setMockProfileDataOnce({
       has_premium: true,
       level_one_trackers_blocked: 99,
+      remove_level_one_email_trackers: true,
     });
     setMockAliasesDataOnce({ random: [], custom: [] });
     setMockRuntimeDataOnce({
@@ -1293,6 +1283,12 @@ describe("The dashboard", () => {
 
     // eslint-disable-next-line testing-library/no-node-access
     expect(trackersCount.parentElement?.textContent).toMatch("99");
+
+    // Verify no "Remove trackers" link is shown when tracker removal is enabled
+    const removeTrackersLink = screen.queryByRole("link", {
+      name: "l10n string: [profile-stat-label-trackers-remove-trackers], with vars: {}",
+    });
+    expect(removeTrackersLink).not.toBeInTheDocument();
   });
 
   describe("error state", () => {
