@@ -52,10 +52,10 @@ const customJestConfig = {
   // An object that configures minimum threshold enforcement for coverage results
   coverageThreshold: {
     global: {
-      branches: 50,
-      functions: 30,
-      lines: 50,
-      statements: 50,
+      branches: 70,
+      functions: 70,
+      lines: 80,
+      statements: 80,
     },
   },
 
