@@ -473,22 +473,24 @@ const Profile: NextPage = () => {
             typeof profile.level_one_trackers_blocked === "number" && (
               <div className={styles.stat}>
                 <dt className={styles.label}>
-                  {l10n.getString("profile-stat-label-trackers-removed")}
+                  {profile.remove_level_one_email_trackers
+                    ? l10n.getString("profile-stat-label-trackers-removed")
+                    : l10n.getString("profile-stat-label-trackers-detected")}
                 </dt>
                 <dd className={styles.value}>
                   {numberFormatter.format(profile.level_one_trackers_blocked)}
-                  <StatExplainer>
-                    <p>
-                      {l10n.getString(
-                        "profile-stat-label-trackers-learn-more-part1",
-                      )}
-                    </p>
-                    <p>
-                      {l10n.getString(
-                        "profile-stat-label-trackers-learn-more-part2-2",
-                      )}
-                    </p>
-                  </StatExplainer>
+                  {profile.remove_level_one_email_trackers ? null : (
+                    <div className={styles["learn-more-wrapper"]}>
+                      <Link
+                        href="/accounts/settings/"
+                        className={styles["open-button"]}
+                      >
+                        {l10n.getString(
+                          "profile-stat-label-trackers-remove-trackers",
+                        )}
+                      </Link>
+                    </div>
+                  )}
                 </dd>
               </div>
             )}
