@@ -1,9 +1,60 @@
-import getConfig from "next/config";
+// Configuration objects for different environments
+const productionConfig: RuntimeConfig = {
+  backendOrigin: "",
+  frontendOrigin: "",
+  fxaLoginUrl: "/accounts/fxa/login/?process=login",
+  fxaLogoutUrl: "/accounts/logout/",
+  supportUrl: "https://support.mozilla.org/products/relay",
+  emailSizeLimitNumber: 10,
+  emailSizeLimitUnit: "MB",
+  maxFreeAliases: 5,
+  mozmailDomain: "mozmail.com",
+  googleAnalyticsId: "UA-77033033-33",
+  maxOnboardingAvailable: 3,
+  maxOnboardingFreeAvailable: 3,
+  featureFlags: {
+    tips: true,
+    generateCustomAliasMenu: true,
+    generateCustomAliasSubdomain: false,
+    interviewRecruitment: true,
+    csatSurvey: true,
+  },
+};
 
-// Used to provide autocompletion for the config defined in next.config.js.
-// See that file for more information on why we use this.
+const developmentConfig: RuntimeConfig = {
+  ...productionConfig,
+  backendOrigin: "http://127.0.0.1:8000",
+  frontendOrigin: "http://localhost:3000",
+  fxaLoginUrl: "http://localhost:3000/mock/login",
+  fxaLogoutUrl: "http://localhost:3000/mock/logout",
+};
+
+const apimockConfig: RuntimeConfig = {
+  ...productionConfig,
+  backendOrigin: "",
+  frontendOrigin: "",
+  fxaLoginUrl: "/mock/login",
+  fxaLogoutUrl: "/mock/logout",
+};
+
+const runtimeConfigs: Record<string, RuntimeConfig> = {
+  production: productionConfig,
+  development: developmentConfig,
+  apimock: apimockConfig,
+};
+
+// Determines which config to use based on environment variables
 export function getRuntimeConfig(): RuntimeConfig {
-  return getConfig().publicRuntimeConfig;
+  let applicableConfig = "production";
+
+  if (process.env.NEXT_PUBLIC_MOCK_API === "true") {
+    applicableConfig = "apimock";
+  }
+  if (process.env.NODE_ENV === "development") {
+    applicableConfig = "development";
+  }
+
+  return runtimeConfigs[applicableConfig];
 }
 
 type FeatureFlags = {

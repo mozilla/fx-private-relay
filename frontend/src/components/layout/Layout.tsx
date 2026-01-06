@@ -268,15 +268,6 @@ export const Layout = (props: Props) => {
                 </li>
                 <li>
                   <a
-                    href="https://www.mozilla.org/about/legal/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {l10n.getString("nav-footer-legal")}
-                  </a>
-                </li>
-                <li>
-                  <a
                     href="https://github.com/mozilla/fx-private-relay"
                     rel="noopener noreferrer"
                     target="_blank"
