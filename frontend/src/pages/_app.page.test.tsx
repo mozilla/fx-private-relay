@@ -111,6 +111,8 @@ const defaultAppProps: AppProps = {
   },
 };
 
+const waitForNextTick = () => new Promise((resolve) => setTimeout(resolve, 0));
+
 describe("MyApp component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -138,12 +140,16 @@ describe("MyApp component", () => {
     expect(results).toHaveNoViolations();
   }, 10000);
 
-  it("initializes l10n with deterministic locales then updates to user-preferred", async () => {
+  it("initializes l10n, renders providers, and handles component rendering", async () => {
     render(<MyApp {...defaultAppProps} />);
     expect(mockedGetL10n).toHaveBeenCalledWith({ deterministicLocales: true });
 
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await waitForNextTick();
     expect(mockedGetL10n).toHaveBeenCalledWith({ deterministicLocales: false });
+
+    expect(screen.getByText("Test Component")).toBeInTheDocument();
+    const overlayProvider = document.querySelector('[id="overlayProvider"]');
+    expect(overlayProvider).toBeInTheDocument();
   });
 
   it("handles Google Analytics initialization and pageview tracking", async () => {
@@ -151,14 +157,14 @@ describe("MyApp component", () => {
     mockedUseGoogleAnalytics.mockReturnValue(false);
 
     render(<MyApp {...defaultAppProps} />);
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await waitForNextTick();
     expect(mockedInitGoogleAnalytics).toHaveBeenCalled();
 
     cleanup();
     jest.clearAllMocks();
     mockedUseMetrics.mockReturnValue("disabled");
     render(<MyApp {...defaultAppProps} />);
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await waitForNextTick();
     expect(mockedInitGoogleAnalytics).not.toHaveBeenCalled();
 
     cleanup();
@@ -166,21 +172,21 @@ describe("MyApp component", () => {
     mockedUseMetrics.mockReturnValue("enabled");
     mockedUseGoogleAnalytics.mockReturnValue(true);
     render(<MyApp {...defaultAppProps} />);
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await waitForNextTick();
     expect(mockedInitGoogleAnalytics).not.toHaveBeenCalled();
 
     cleanup();
     jest.clearAllMocks();
     mockedUseRouter.mockReturnValue(createMockRouter("/test", "/test"));
     render(<MyApp {...defaultAppProps} />);
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await waitForNextTick();
     expect(ReactGa.pageview).toHaveBeenCalledWith("/test");
 
     cleanup();
     jest.clearAllMocks();
     mockedUseGoogleAnalytics.mockReturnValue(false);
     render(<MyApp {...defaultAppProps} />);
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await waitForNextTick();
     expect(ReactGa.pageview).not.toHaveBeenCalled();
   });
 
@@ -239,12 +245,5 @@ describe("MyApp component", () => {
     delete process.env.NEXT_PUBLIC_MOCK_API;
     render(<MyApp {...defaultAppProps} />);
     expect(screen.getByText("Test Component")).toBeInTheDocument();
-  });
-
-  it("renders component with required providers", () => {
-    render(<MyApp {...defaultAppProps} />);
-    expect(screen.getByText("Test Component")).toBeInTheDocument();
-    const overlayProvider = document.querySelector('[id="overlayProvider"]');
-    expect(overlayProvider).toBeInTheDocument();
   });
 });

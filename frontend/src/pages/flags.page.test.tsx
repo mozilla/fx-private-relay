@@ -140,7 +140,7 @@ describe("The flags management page", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("displays flag list, form, and applies appropriate row styles", async () => {
+  it("displays flag list, form, row styles, and handles edge cases", async () => {
     const user = userEvent.setup();
     render(<Flags />);
 
@@ -177,9 +177,21 @@ describe("The flags management page", () => {
     expect(flagInput.value).toBe("new_flag");
     await user.type(actionInput, "enable");
     expect(actionInput.value).toBe("enable");
+
+    cleanup();
+    mockedUseApiV1.mockReturnValue({
+      data: [{ id: 1, name: "manage_flags", everyone: true, note: "" }],
+      error: undefined,
+      isLoading: false,
+      isValidating: false,
+      mutate: jest.fn(),
+    });
+    render(<Flags />);
+    expect(screen.queryAllByRole("row").length).toBe(1);
+    expect(screen.queryByText("manage_flags")).not.toBeInTheDocument();
   });
 
-  it("enables and disables flags with appropriate API calls and form clearing", async () => {
+  it("enables, disables flags, handles API calls, form clearing, and errors", async () => {
     const mutateMock = jest.fn();
     mockedUseApiV1.mockReturnValue({
       data: mockFlagData,
@@ -233,11 +245,8 @@ describe("The flags management page", () => {
     jest.clearAllMocks();
     await fillAndSubmitForm("test_flag_1", "enable");
     await waitFor(() => expectEmptyForm());
-  });
 
-  it("handles errors in flag modification appropriately", async () => {
-    render(<Flags />);
-
+    jest.clearAllMocks();
     await fillAndSubmitForm("test_flag_3", "enable");
     await waitFor(() => {
       expect(mockedToast).toHaveBeenCalledWith(expect.anything(), {
@@ -268,18 +277,5 @@ describe("The flags management page", () => {
     await waitFor(() => {
       expect(mockedApiFetch).not.toHaveBeenCalled();
     });
-  });
-
-  it("handles edge cases in flag list", () => {
-    mockedUseApiV1.mockReturnValue({
-      data: [{ id: 1, name: "manage_flags", everyone: true, note: "" }],
-      error: undefined,
-      isLoading: false,
-      isValidating: false,
-      mutate: jest.fn(),
-    });
-    render(<Flags />);
-    expect(screen.queryAllByRole("row").length).toBe(1);
-    expect(screen.queryByText("manage_flags")).not.toBeInTheDocument();
   });
 });
