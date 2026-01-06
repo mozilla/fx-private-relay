@@ -2,6 +2,7 @@ import { act, render, screen, cleanup } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { setMockProfileData } from "../../__mocks__/hooks/api/profile";
 import { setMockRuntimeData } from "../../__mocks__/hooks/api/runtimeData";
+import { expectL10nStrings } from "../../__mocks__/testHelpers";
 import { useMetrics } from "../hooks/metrics";
 
 jest.mock("../hooks/metrics");
@@ -31,6 +32,22 @@ const setHashWithTrackerData = (data: any) => {
   window.location.hash = data ? encodeURIComponent(JSON.stringify(data)) : "";
 };
 
+const expectViewLink = (href: string) => {
+  const link = screen.getByRole("link", {
+    name: "l10n string: [contains-tracker-warning-view-link-cta], with vars: {}",
+  });
+  expect(link).toHaveAttribute("href", href);
+  return link;
+};
+
+const expectNoViewLink = () => {
+  expect(
+    screen.queryByRole("link", {
+      name: "l10n string: [contains-tracker-warning-view-link-cta], with vars: {}",
+    }),
+  ).not.toBeInTheDocument();
+};
+
 describe("The contains-tracker-warning page", () => {
   beforeEach(() => {
     jest.spyOn(window, "addEventListener");
@@ -57,25 +74,17 @@ describe("The contains-tracker-warning page", () => {
     cleanup();
     setHashWithTrackerData(null);
     render(<ContainsTracker />);
-    expect(
-      screen.getByText("l10n string: [contains-tracker-title], with vars: {}"),
-    ).toBeInTheDocument();
+    expectL10nStrings(screen, ["contains-tracker-title"]);
 
     cleanup();
     window.location.hash = "invalid-json";
     render(<ContainsTracker />);
-    expect(
-      screen.getByText("l10n string: [contains-tracker-title], with vars: {}"),
-    ).toBeInTheDocument();
+    expectL10nStrings(screen, ["contains-tracker-title"]);
 
     cleanup();
     setHashWithTrackerData({ sender: "test@example.com" });
     render(<ContainsTracker />);
-    expect(
-      screen.queryByText(
-        "l10n string: [contains-tracker-warning-view-link-cta], with vars: {}",
-      ),
-    ).not.toBeInTheDocument();
+    expectNoViewLink();
 
     cleanup();
     setHashWithTrackerData({
@@ -84,20 +93,12 @@ describe("The contains-tracker-warning page", () => {
       original_link: true,
     });
     render(<ContainsTracker />);
-    expect(
-      screen.queryByText(
-        "l10n string: [contains-tracker-warning-view-link-cta], with vars: {}",
-      ),
-    ).not.toBeInTheDocument();
+    expectNoViewLink();
 
     cleanup();
     setHashWithTrackerData(null);
     render(<ContainsTracker />);
-    expect(
-      screen.queryByText(
-        "l10n string: [contains-tracker-warning-view-link-cta], with vars: {}",
-      ),
-    ).not.toBeInTheDocument();
+    expectNoViewLink();
   });
 
   it("displays tracker warning banner and formatted content when valid data present", () => {
@@ -109,16 +110,10 @@ describe("The contains-tracker-warning page", () => {
       ),
     );
     render(<ContainsTracker />);
-    expect(
-      screen.getByText(
-        "l10n string: [contains-tracker-warning-title], with vars: {}",
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "l10n string: [contains-tracker-warning-description], with vars: {}",
-      ),
-    ).toBeInTheDocument();
+    expectL10nStrings(screen, [
+      "contains-tracker-warning-title",
+      "contains-tracker-warning-description",
+    ]);
 
     cleanup();
     setHashWithTrackerData(null);
@@ -145,10 +140,7 @@ describe("The contains-tracker-warning page", () => {
       ),
     );
     render(<ContainsTracker />);
-    let link = screen.getByRole("link", {
-      name: "l10n string: [contains-tracker-warning-view-link-cta], with vars: {}",
-    });
-    expect(link).toHaveAttribute("href", "https://example.com/tracked-link");
+    let link = expectViewLink("https://example.com/tracked-link");
     expect(link).toHaveAttribute("target", "_blank");
     expect(link).toHaveAttribute("rel", "noopener noreferrer");
 
@@ -162,20 +154,13 @@ describe("The contains-tracker-warning page", () => {
       ),
     );
     render(<ContainsTracker />);
-    link = screen.getByRole("link", {
-      name: "l10n string: [contains-tracker-warning-view-link-cta], with vars: {}",
-    });
-    expect(link).toHaveAttribute("href", "https://example.com/tracked-link");
+    expectViewLink("https://example.com/tracked-link");
 
     cleanup();
     mockedUseMetrics.mockReturnValue("enabled");
     window.location.hash = "invalid";
     render(<ContainsTracker />);
-    expect(
-      screen.queryByRole("link", {
-        name: "l10n string: [contains-tracker-warning-view-link-cta], with vars: {}",
-      }),
-    ).not.toBeInTheDocument();
+    expectNoViewLink();
   });
 
   it("manages hashchange event listener lifecycle", () => {
@@ -194,35 +179,15 @@ describe("The contains-tracker-warning page", () => {
 
   it("renders page structure with FAQ section and layout", () => {
     render(<ContainsTracker />);
-    expect(
-      screen.getByText("l10n string: [contains-tracker-title], with vars: {}"),
-    ).toBeInTheDocument();
     expect(screen.getByRole("main")).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "l10n string: [contains-tracker-faq-section-title], with vars: {}",
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "l10n string: [faq-question-define-tracker-question], with vars: {}",
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "l10n string: [faq-question-disable-trackerremoval-question], with vars: {}",
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "l10n string: [faq-question-bulk-trackerremoval-question], with vars: {}",
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "l10n string: [faq-question-trackerremoval-breakage-question], with vars: {}",
-      ),
-    ).toBeInTheDocument();
+    expectL10nStrings(screen, [
+      "contains-tracker-title",
+      "contains-tracker-faq-section-title",
+      "faq-question-define-tracker-question",
+      "faq-question-disable-trackerremoval-question",
+      "faq-question-bulk-trackerremoval-question",
+      "faq-question-trackerremoval-breakage-question",
+    ]);
   });
 
   it("handles edge cases in tracker data", () => {
@@ -245,21 +210,11 @@ describe("The contains-tracker-warning page", () => {
       ),
     );
     render(<ContainsTracker />);
-    const link = screen.getByRole("link", {
-      name: "l10n string: [contains-tracker-warning-view-link-cta], with vars: {}",
-    });
-    expect(link).toHaveAttribute(
-      "href",
-      "https://example.com/link?param1=value&param2=value#anchor",
-    );
+    expectViewLink("https://example.com/link?param1=value&param2=value#anchor");
 
     cleanup();
     setHashWithTrackerData(createTrackerData("test@example.com", 1609459200.5));
     render(<ContainsTracker />);
-    expect(
-      screen.queryByText(
-        "l10n string: [contains-tracker-warning-view-link-cta], with vars: {}",
-      ),
-    ).not.toBeInTheDocument();
+    expectNoViewLink();
   });
 });

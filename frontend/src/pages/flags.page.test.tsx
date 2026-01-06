@@ -39,15 +39,31 @@ const mockFlagData = [
   { id: 4, name: "test_flag_3", everyone: null, note: "" },
 ];
 
+const getFormInputs = () => ({
+  flagInput: screen.getByLabelText(
+    "Which flag do you want to modify?",
+  ) as HTMLInputElement,
+  actionInput: screen.getByPlaceholderText(
+    "`enable` or `disable`",
+  ) as HTMLInputElement,
+  submitButton: screen.getByRole("button", { name: "Set flag status" }),
+});
+
 const fillAndSubmitForm = async (flagName: string, action: string) => {
   const user = userEvent.setup();
-  const flagInput = screen.getByLabelText("Which flag do you want to modify?");
-  const actionInput = screen.getByPlaceholderText("`enable` or `disable`");
-  const submitButton = screen.getByRole("button", { name: "Set flag status" });
+  const { flagInput, actionInput, submitButton } = getFormInputs();
 
+  await user.clear(flagInput);
+  await user.clear(actionInput);
   await user.type(flagInput, flagName);
   await user.type(actionInput, action);
   await user.click(submitButton);
+};
+
+const expectEmptyForm = () => {
+  const { flagInput, actionInput } = getFormInputs();
+  expect(flagInput.value).toBe("");
+  expect(actionInput.value).toBe("");
 };
 
 describe("The flags management page", () => {
@@ -124,8 +140,10 @@ describe("The flags management page", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("displays flag list with appropriate icons and styles", () => {
+  it("displays flag list, form, and applies appropriate row styles", async () => {
+    const user = userEvent.setup();
     render(<Flags />);
+
     expect(screen.getByRole("table")).toBeInTheDocument();
     expect(screen.getByText("Active?")).toBeInTheDocument();
     expect(screen.getByText("Flag")).toBeInTheDocument();
@@ -148,34 +166,15 @@ describe("The flags management page", () => {
     expect(activeRow?.className).toContain("is-active");
     expect(inactiveRow?.className).toContain("is-inactive");
     expect(nonGlobalRow?.className).toContain("is-non-global");
-  });
 
-  it("renders and manages flag modification form with user interactions", async () => {
-    const user = userEvent.setup();
-    render(<Flags />);
-
-    expect(
-      screen.getByLabelText("Which flag do you want to modify?"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText("`enable` or `disable`"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Set flag status" }),
-    ).toBeInTheDocument();
-
-    const flagInput = screen.getByLabelText(
-      "Which flag do you want to modify?",
-    ) as HTMLInputElement;
-    const actionInput = screen.getByPlaceholderText(
-      "`enable` or `disable`",
-    ) as HTMLInputElement;
-
+    const { flagInput, actionInput, submitButton } = getFormInputs();
+    expect(flagInput).toBeInTheDocument();
+    expect(actionInput).toBeInTheDocument();
+    expect(submitButton).toBeInTheDocument();
     expect(flagInput.placeholder).toContain("test_flag_1");
 
     await user.type(flagInput, "new_flag");
     expect(flagInput.value).toBe("new_flag");
-
     await user.type(actionInput, "enable");
     expect(actionInput.value).toBe("enable");
   });
@@ -204,10 +203,7 @@ describe("The flags management page", () => {
       type: "success",
     });
 
-    cleanup();
     jest.clearAllMocks();
-    render(<Flags />);
-
     await fillAndSubmitForm("test_flag_2", "enable");
     await waitFor(() => {
       expect(mockedApiFetch).toHaveBeenCalledWith("/flags/3/", {
@@ -216,10 +212,7 @@ describe("The flags management page", () => {
       });
     });
 
-    cleanup();
     jest.clearAllMocks();
-    render(<Flags />);
-
     await fillAndSubmitForm("new_flag", "disable");
     await waitFor(() => {
       expect(mockedApiFetch).toHaveBeenCalledWith("/flags/", {
@@ -228,10 +221,7 @@ describe("The flags management page", () => {
       });
     });
 
-    cleanup();
     jest.clearAllMocks();
-    render(<Flags />);
-
     await fillAndSubmitForm("test_flag_1", "disable");
     await waitFor(() => {
       expect(mockedApiFetch).toHaveBeenCalledWith("/flags/2/", {
@@ -240,21 +230,9 @@ describe("The flags management page", () => {
       });
     });
 
-    cleanup();
     jest.clearAllMocks();
-    render(<Flags />);
-
     await fillAndSubmitForm("test_flag_1", "enable");
-    const flagInput = screen.getByLabelText(
-      "Which flag do you want to modify?",
-    ) as HTMLInputElement;
-    const actionInput = screen.getByPlaceholderText(
-      "`enable` or `disable`",
-    ) as HTMLInputElement;
-    await waitFor(() => {
-      expect(flagInput.value).toBe("");
-      expect(actionInput.value).toBe("");
-    });
+    await waitFor(() => expectEmptyForm());
   });
 
   it("handles errors in flag modification appropriately", async () => {
@@ -269,13 +247,11 @@ describe("The flags management page", () => {
     expect(mockedApiFetch).not.toHaveBeenCalled();
     expect(mockedToast.mock.calls[0][0]).toBeDefined();
 
-    cleanup();
     jest.clearAllMocks();
     mockedApiFetch.mockResolvedValue({
       ok: false,
       json: async () => ({}),
     } as Response);
-    render(<Flags />);
 
     await fillAndSubmitForm("test_flag_1", "enable");
     await waitFor(() => {
@@ -283,23 +259,11 @@ describe("The flags management page", () => {
         type: "error",
       });
     });
-    const flagInput = screen.getByLabelText(
-      "Which flag do you want to modify?",
-    ) as HTMLInputElement;
-    const actionInput = screen.getByPlaceholderText(
-      "`enable` or `disable`",
-    ) as HTMLInputElement;
+    const { flagInput, actionInput } = getFormInputs();
     expect(flagInput.value).toBe("test_flag_1");
     expect(actionInput.value).toBe("enable");
 
-    cleanup();
     jest.clearAllMocks();
-    mockedApiFetch.mockResolvedValue({
-      ok: true,
-      json: async () => ({}),
-    } as Response);
-    render(<Flags />);
-
     await fillAndSubmitForm("test_flag_1", "invalid");
     await waitFor(() => {
       expect(mockedApiFetch).not.toHaveBeenCalled();

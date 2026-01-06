@@ -41,66 +41,46 @@ const createMockSuggestion = (name: string, phone: string, code: string) => ({
 describe("useRelayNumber", () => {
   const mockMutate = jest.fn();
   const mockApiFetch = jest.fn();
+  const useApiV1 = jest.requireMock("./api").useApiV1;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    const api = jest.requireMock("./api");
-    api.apiFetch = mockApiFetch;
+    jest.requireMock("./api").apiFetch = mockApiFetch;
   });
 
-  it("fetches relay number data and handles register/forwarding operations", async () => {
-    const useApiV1 = jest.requireMock("./api").useApiV1;
-
+  const mockApiResponse = (data: any, error?: Error, isLoading = false) => {
     useApiV1.mockReturnValue({
-      data: undefined,
-      error: undefined,
-      isLoading: true,
+      data,
+      error,
+      isLoading,
       isValidating: false,
       mutate: mockMutate,
     });
+  };
 
+  it("fetches relay number data with loading, success, and error states", async () => {
+    mockApiResponse(undefined, undefined, true);
     let { result, rerender } = renderHook(() => useRelayNumber());
 
     expect(useApiV1).toHaveBeenCalledWith("/relaynumber/");
     expect(result.current.isLoading).toBe(true);
 
-    useApiV1.mockReturnValue({
-      data: [createMockRelayNumber()],
-      error: undefined,
-      isLoading: false,
-      isValidating: false,
-      mutate: mockMutate,
-    });
-
+    mockApiResponse([createMockRelayNumber()]);
     rerender();
-    await waitFor(() => {
-      expect(result.current.data).toHaveLength(1);
-    });
+    await waitFor(() => expect(result.current.data).toHaveLength(1));
 
-    useApiV1.mockReturnValue({
-      data: undefined,
-      error: new Error("Network error"),
-      isLoading: false,
-      isValidating: false,
-      mutate: mockMutate,
-    });
-
+    mockApiResponse(undefined, new Error("Network error"));
     rerender();
-    await waitFor(() => {
-      expect(result.current.error).toBeDefined();
-    });
+    await waitFor(() => expect(result.current.error).toBeDefined());
 
-    useApiV1.mockReturnValue({
-      data: [],
-      error: undefined,
-      isLoading: false,
-      isValidating: false,
-      mutate: mockMutate,
-    });
-
-    rerender();
+    mockApiResponse([]);
     renderHook(() => useRelayNumber({ disable: true }));
     expect(useApiV1).toHaveBeenCalledWith(null);
+  });
+
+  it("handles register and forwarding operations", async () => {
+    mockApiResponse([]);
+    const { result } = renderHook(() => useRelayNumber());
 
     mockApiFetch.mockResolvedValue({
       ok: true,
@@ -133,17 +113,20 @@ describe("useRelayNumber", () => {
 });
 
 describe("useRelayNumberSuggestions", () => {
-  it("fetches relay number suggestions with all loading states", async () => {
-    const useApiV1 = jest.requireMock("./api").useApiV1;
+  const useApiV1 = jest.requireMock("./api").useApiV1;
 
+  const mockApiResponse = (data: any, error?: Error, isLoading = false) => {
     useApiV1.mockReturnValue({
-      data: undefined,
-      error: undefined,
-      isLoading: true,
+      data,
+      error,
+      isLoading,
       isValidating: false,
       mutate: jest.fn(),
     });
+  };
 
+  it("fetches relay number suggestions with all loading states", async () => {
+    mockApiResponse(undefined, undefined, true);
     let { result, rerender } = renderHook(() => useRelayNumberSuggestions());
 
     expect(useApiV1).toHaveBeenCalledWith("/relaynumber/suggestions/");
@@ -159,31 +142,13 @@ describe("useRelayNumberSuggestions", () => {
       random_options: [],
     };
 
-    useApiV1.mockReturnValue({
-      data: mockData,
-      error: undefined,
-      isLoading: false,
-      isValidating: false,
-      mutate: jest.fn(),
-    });
-
+    mockApiResponse(mockData);
     rerender();
-    await waitFor(() => {
-      expect(result.current.data).toBeDefined();
-    });
+    await waitFor(() => expect(result.current.data).toBeDefined());
 
-    useApiV1.mockReturnValue({
-      data: undefined,
-      error: new Error("Network error"),
-      isLoading: false,
-      isValidating: false,
-      mutate: jest.fn(),
-    });
-
+    mockApiResponse(undefined, new Error("Network error"));
     rerender();
-    await waitFor(() => {
-      expect(result.current.error).toBeDefined();
-    });
+    await waitFor(() => expect(result.current.error).toBeDefined());
   });
 });
 
@@ -192,13 +157,11 @@ describe("search", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    const api = jest.requireMock("./api");
-    api.apiFetch = mockApiFetch;
+    jest.requireMock("./api").apiFetch = mockApiFetch;
   });
 
   it("searches by area code and location, handles edge cases", async () => {
-    const result = await search("");
-    expect(result).toBeUndefined();
+    expect(await search("")).toBeUndefined();
     expect(mockApiFetch).not.toHaveBeenCalled();
 
     const mockSuggestions = [
@@ -223,12 +186,11 @@ describe("search", () => {
       { method: "GET" },
     );
 
-    const searchResult = await search("California");
-    expect(searchResult).toEqual(mockSuggestions);
+    expect(await search("California")).toEqual(mockSuggestions);
 
-    const FetchError = jest.requireActual("./api").FetchError;
     mockApiFetch.mockResolvedValue({ ok: false, status: 404 });
-
-    await expect(search("invalid")).rejects.toThrow(FetchError);
+    await expect(search("invalid")).rejects.toThrow(
+      jest.requireActual("./api").FetchError,
+    );
   });
 });

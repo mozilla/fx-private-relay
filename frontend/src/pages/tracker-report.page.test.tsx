@@ -2,6 +2,7 @@ import { act, render, screen, cleanup } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { setMockProfileData } from "../../__mocks__/hooks/api/profile";
 import { setMockRuntimeData } from "../../__mocks__/hooks/api/runtimeData";
+import { expectL10nStrings } from "../../__mocks__/testHelpers";
 
 import TrackerReport from "./tracker-report.page";
 
@@ -20,6 +21,20 @@ const createReportData = (
 
 const setHashWithReportData = (data: any) => {
   window.location.hash = data ? encodeURIComponent(JSON.stringify(data)) : "";
+};
+
+const expectErrorMessage = () => {
+  expect(
+    screen.getByText("l10n string: [trackerreport-load-error], with vars: {}"),
+  ).toBeInTheDocument();
+};
+
+const expectNoTrackersMessage = () => {
+  expect(
+    screen.getByText(
+      "l10n string: [trackerreport-trackers-none], with vars: {}",
+    ),
+  ).toBeInTheDocument();
 };
 
 describe("The tracker report page", () => {
@@ -51,20 +66,12 @@ describe("The tracker report page", () => {
   it("parses report data from URL hash and handles errors", () => {
     window.location.hash = "invalid-json";
     render(<TrackerReport />);
-    expect(
-      screen.getByText(
-        "l10n string: [trackerreport-load-error], with vars: {}",
-      ),
-    ).toBeInTheDocument();
+    expectErrorMessage();
 
     cleanup();
     setHashWithReportData(null);
     render(<TrackerReport />);
-    expect(
-      screen.getByText(
-        "l10n string: [trackerreport-load-error], with vars: {}",
-      ),
-    ).toBeInTheDocument();
+    expectErrorMessage();
 
     cleanup();
     setHashWithReportData(
@@ -81,40 +88,24 @@ describe("The tracker report page", () => {
     cleanup();
     setHashWithReportData(createReportData());
     render(<TrackerReport />);
-    expect(
-      screen.getByText(
-        "l10n string: [trackerreport-trackers-none], with vars: {}",
-      ),
-    ).toBeInTheDocument();
+    expectNoTrackersMessage();
 
     cleanup();
     setHashWithReportData(
       createReportData("test@example.com", 1609459200000, {}),
     );
     render(<TrackerReport />);
-    expect(
-      screen.getByText(
-        "l10n string: [trackerreport-trackers-none], with vars: {}",
-      ),
-    ).toBeInTheDocument();
+    expectNoTrackersMessage();
 
     cleanup();
     setHashWithReportData({ received_at: 1609459200000, trackers: {} });
     render(<TrackerReport />);
-    expect(
-      screen.getByText(
-        "l10n string: [trackerreport-load-error], with vars: {}",
-      ),
-    ).toBeInTheDocument();
+    expectErrorMessage();
 
     cleanup();
     setHashWithReportData({ sender: "test@example.com", trackers: {} });
     render(<TrackerReport />);
-    expect(
-      screen.getByText(
-        "l10n string: [trackerreport-load-error], with vars: {}",
-      ),
-    ).toBeInTheDocument();
+    expectErrorMessage();
 
     cleanup();
     setHashWithReportData({
@@ -123,22 +114,14 @@ describe("The tracker report page", () => {
       trackers: "not-an-object",
     });
     render(<TrackerReport />);
-    expect(
-      screen.getByText(
-        "l10n string: [trackerreport-load-error], with vars: {}",
-      ),
-    ).toBeInTheDocument();
+    expectErrorMessage();
 
     cleanup();
     setHashWithReportData(
       createReportData("test@example.com", 1609459200.5, {}),
     );
     render(<TrackerReport />);
-    expect(
-      screen.getByText(
-        "l10n string: [trackerreport-load-error], with vars: {}",
-      ),
-    ).toBeInTheDocument();
+    expectErrorMessage();
 
     cleanup();
     setHashWithReportData(
@@ -147,20 +130,12 @@ describe("The tracker report page", () => {
       }),
     );
     render(<TrackerReport />);
-    expect(
-      screen.getByText(
-        "l10n string: [trackerreport-load-error], with vars: {}",
-      ),
-    ).toBeInTheDocument();
+    expectErrorMessage();
 
     cleanup();
     setHashWithReportData(null);
     render(<TrackerReport />);
-    expect(
-      screen.getByText(
-        "l10n string: [trackerreport-load-error], with vars: {}",
-      ),
-    ).toBeInTheDocument();
+    expectErrorMessage();
   });
 
   it("displays trackers in sorted table or empty message", () => {
@@ -172,16 +147,10 @@ describe("The tracker report page", () => {
     );
     render(<TrackerReport />);
     expect(screen.getByRole("table")).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "l10n string: [trackerreport-trackers-tracker-heading], with vars: {}",
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "l10n string: [trackerreport-trackers-count-heading], with vars: {}",
-      ),
-    ).toBeInTheDocument();
+    expectL10nStrings(screen, [
+      "trackerreport-trackers-tracker-heading",
+      "trackerreport-trackers-count-heading",
+    ]);
 
     cleanup();
     setHashWithReportData(
@@ -212,106 +181,41 @@ describe("The tracker report page", () => {
       createReportData("test@example.com", 1609459200000, {}),
     );
     render(<TrackerReport />);
-    expect(
-      screen.getByText(
-        "l10n string: [trackerreport-trackers-none], with vars: {}",
-      ),
-    ).toBeInTheDocument();
+    expectNoTrackersMessage();
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
   });
 
-  it("displays report metadata correctly", () => {
+  it("displays complete page content including metadata", () => {
     setHashWithReportData(
-      createReportData("sender@example.com", 1609459200000, {}),
-    );
-    render(<TrackerReport />);
-    expect(
-      screen.getByText(
-        "l10n string: [trackerreport-meta-from-heading], with vars: {}",
-      ),
-    ).toBeInTheDocument();
-    expect(screen.getByText("sender@example.com")).toBeInTheDocument();
-
-    expect(
-      screen.getByText(
-        "l10n string: [trackerreport-meta-receivedat-heading], with vars: {}",
-      ),
-    ).toBeInTheDocument();
-    const date = new Date(1609459200000).toLocaleString();
-    expect(screen.getByText(date)).toBeInTheDocument();
-
-    cleanup();
-    setHashWithReportData(
-      createReportData("test@example.com", 1609459200000, {
+      createReportData("sender@example.com", 1609459200000, {
         "tracker1.com": 5,
         "tracker2.com": 3,
         "tracker3.com": 2,
       }),
     );
     render(<TrackerReport />);
-    expect(
-      screen.getByText(
-        "l10n string: [trackerreport-meta-count-heading], with vars: {}",
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        'l10n string: [trackerreport-trackers-value], with vars: {"count":10}',
-      ),
-    ).toBeInTheDocument();
-  });
 
-  it("displays complete page content and sections", () => {
-    setHashWithReportData(
-      createReportData("test@example.com", 1609459200000, {}),
-    );
-    render(<TrackerReport />);
+    expectL10nStrings(screen, [
+      "trackerreport-title",
+      "trackerreport-confidentiality-notice",
+      "trackerreport-removal-explainer-heading",
+      "trackerreport-removal-explainer-content",
+      "trackerreport-trackers-explainer-heading",
+      "trackerreport-trackers-explainer-content-part1",
+      "trackerreport-trackers-explainer-content-part2",
+      "trackerreport-breakage-warning-2",
+      "trackerreport-faq-heading",
+      "trackerreport-meta-from-heading",
+      "trackerreport-meta-receivedat-heading",
+      "trackerreport-meta-count-heading",
+      "faq-question-define-tracker-question",
+      "faq-question-disable-trackerremoval-question",
+      "faq-question-bulk-trackerremoval-question",
+      "faq-question-trackerremoval-breakage-question",
+    ]);
 
-    expect(
-      screen.getByText("l10n string: [trackerreport-title], with vars: {}"),
-    ).toBeInTheDocument();
     expect(
       screen.getByAltText("l10n string: [logo-alt], with vars: {}"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "l10n string: [trackerreport-confidentiality-notice], with vars: {}",
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "l10n string: [trackerreport-removal-explainer-heading], with vars: {}",
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "l10n string: [trackerreport-removal-explainer-content], with vars: {}",
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "l10n string: [trackerreport-trackers-explainer-heading], with vars: {}",
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "l10n string: [trackerreport-trackers-explainer-content-part1], with vars: {}",
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "l10n string: [trackerreport-trackers-explainer-content-part2], with vars: {}",
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "l10n string: [trackerreport-breakage-warning-2], with vars: {}",
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "l10n string: [trackerreport-faq-heading], with vars: {}",
-      ),
     ).toBeInTheDocument();
 
     const link = screen.getByRole("link", {
@@ -319,24 +223,12 @@ describe("The tracker report page", () => {
     });
     expect(link).toHaveAttribute("href", "/faq");
 
+    expect(screen.getByText("sender@example.com")).toBeInTheDocument();
+    const date = new Date(1609459200000).toLocaleString();
+    expect(screen.getByText(date)).toBeInTheDocument();
     expect(
       screen.getByText(
-        "l10n string: [faq-question-define-tracker-question], with vars: {}",
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "l10n string: [faq-question-disable-trackerremoval-question], with vars: {}",
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "l10n string: [faq-question-bulk-trackerremoval-question], with vars: {}",
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "l10n string: [faq-question-trackerremoval-breakage-question], with vars: {}",
+        'l10n string: [trackerreport-trackers-value], with vars: {"count":10}',
       ),
     ).toBeInTheDocument();
   });

@@ -36,8 +36,6 @@ beforeAll(() => {
   global.IntersectionObserver = MockIntersectionObserver;
 });
 
-jest.mock("frontend/src/config");
-
 jest.mock("frontend/src/hooks/api/relayNumber", () => ({
   useRelayNumber: jest.fn(),
 }));

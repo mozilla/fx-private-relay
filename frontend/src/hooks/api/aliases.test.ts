@@ -47,20 +47,15 @@ describe("useAliases", () => {
   const mockRandomMutate = jest.fn();
   const mockCustomMutate = jest.fn();
   const mockApiFetch = jest.fn();
+  const useApiV1 = jest.requireMock("./api").useApiV1;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    const api = jest.requireMock("./api");
-    api.apiFetch = mockApiFetch;
-  });
-
-  it("fetches data and handles full CRUD lifecycle", async () => {
-    const useApiV1 = jest.requireMock("./api").useApiV1;
+    jest.requireMock("./api").apiFetch = mockApiFetch;
     mockApiFetch.mockResolvedValue({
       ok: true,
       json: async () => ({ success: true }),
     });
-
     useApiV1.mockImplementation((route: string) => ({
       data:
         route === "/relayaddresses/"
@@ -72,7 +67,9 @@ describe("useAliases", () => {
       mutate:
         route === "/relayaddresses/" ? mockRandomMutate : mockCustomMutate,
     }));
+  });
 
+  it("fetches alias data from both endpoints", async () => {
     const { result } = renderHook(() => useAliases());
 
     expect(useApiV1).toHaveBeenCalledWith("/relayaddresses/");
@@ -82,10 +79,10 @@ describe("useAliases", () => {
       expect(result.current.randomAliasData.data).toHaveLength(1);
       expect(result.current.customAliasData.data).toHaveLength(1);
     });
+  });
 
-    expect(result.current.create).toBeDefined();
-    expect(result.current.update).toBeDefined();
-    expect(result.current.delete).toBeDefined();
+  it("handles CRUD operations for both random and custom aliases", async () => {
+    const { result } = renderHook(() => useAliases());
 
     await result.current.create({ mask_type: "random" });
     expect(mockApiFetch).toHaveBeenCalledWith("/relayaddresses/", {
@@ -94,8 +91,7 @@ describe("useAliases", () => {
     });
     expect(mockRandomMutate).toHaveBeenCalled();
 
-    mockApiFetch.mockClear();
-    mockRandomMutate.mockClear();
+    jest.clearAllMocks();
     await result.current.create({
       mask_type: "custom",
       address: "test",
@@ -111,7 +107,7 @@ describe("useAliases", () => {
     });
     expect(mockCustomMutate).toHaveBeenCalled();
 
-    mockApiFetch.mockClear();
+    jest.clearAllMocks();
     await result.current.update(
       { id: 123, mask_type: "random" },
       { enabled: false },
@@ -122,8 +118,7 @@ describe("useAliases", () => {
     });
     expect(mockRandomMutate).toHaveBeenCalled();
 
-    mockApiFetch.mockClear();
-    mockRandomMutate.mockClear();
+    jest.clearAllMocks();
     await result.current.update(
       { id: 456, mask_type: "custom" },
       { description: "Updated" },
@@ -134,7 +129,7 @@ describe("useAliases", () => {
     });
     expect(mockCustomMutate).toHaveBeenCalled();
 
-    mockApiFetch.mockClear();
+    jest.clearAllMocks();
     await result.current.delete({
       id: 789,
       mask_type: "random",
@@ -144,8 +139,7 @@ describe("useAliases", () => {
     });
     expect(mockRandomMutate).toHaveBeenCalled();
 
-    mockApiFetch.mockClear();
-    mockRandomMutate.mockClear();
+    jest.clearAllMocks();
     await result.current.delete({
       id: 999,
       mask_type: "custom",
@@ -199,30 +193,9 @@ describe("API and helper functions", () => {
 
     expect(getFullAddress(randomAlias)).toBe("test1@relay.firefox.com");
 
-    const mockProfile: ProfileData = {
-      id: 1,
-      server_storage: true,
-      has_premium: true,
-      has_phone: false,
-      has_vpn: false,
-      has_megabundle: false,
-      subdomain: null,
-      onboarding_state: 0,
-      onboarding_free_state: 0,
-      forwarded_first_reply: false,
-      avatar: "",
-      date_subscribed: null,
+    const mockProfile = {
       remove_level_one_email_trackers: true,
-      next_email_try: "2025-01-01T00:00:00Z",
-      bounce_status: [false, ""],
-      api_token: "",
-      emails_blocked: 0,
-      emails_forwarded: 0,
-      emails_replied: 0,
-      level_one_trackers_blocked: 0,
-      store_phone_log: false,
-      metrics_enabled: false,
-    };
+    } as ProfileData;
 
     expect(
       isBlockingLevelOneTrackers(
@@ -239,7 +212,7 @@ describe("API and helper functions", () => {
     expect(
       isBlockingLevelOneTrackers(
         { block_level_one_trackers: undefined } as unknown as AliasData,
-        { ...mockProfile, remove_level_one_email_trackers: true },
+        mockProfile,
       ),
     ).toBe(true);
     expect(

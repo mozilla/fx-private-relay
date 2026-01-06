@@ -96,3 +96,16 @@ export function getMockedDismissFn(): jest.Mock {
     useLocalDismissal.mock.results.length - 1
   ].value.dismiss;
 }
+
+/**
+ * Check that multiple l10n strings are present in the document
+ * @param screen - The screen object from @testing-library/react
+ * @param strings - Array of l10n string keys to check
+ */
+export function expectL10nStrings(screen: any, strings: string[]): void {
+  strings.forEach((str) => {
+    expect(
+      screen.getByText(`l10n string: [${str}], with vars: {}`),
+    ).toBeInTheDocument();
+  });
+}
