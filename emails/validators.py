@@ -76,9 +76,10 @@ def valid_address(address: str, domain: str, subdomain: str | None = None) -> bo
 
     address_pattern_valid = valid_address_pattern(address)
     address_contains_badword = has_bad_words(address)
-    address_already_deleted = DeletedAddress.objects.filter(
-        address_hash=address_hash(address, domain=domain, subdomain=subdomain)
-    ).count()
+    if not subdomain:
+        address_already_deleted = DeletedAddress.objects.filter(
+            address_hash=address_hash(address, domain=domain, subdomain=subdomain)
+        ).count()
     if (
         address_already_deleted > 0
         or address_contains_badword
