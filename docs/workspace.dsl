@@ -368,6 +368,12 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                 stage_web = containerInstance web
                 stage_add_on = containerInstance add_on
             }
+            deploymentNode "Fastly" {
+                stage_fastly = infrastructureNode "fastly" {
+                    description "Tracks IP reputation, blocks IPs"
+                    tags "Deployment Service"
+                }
+            }
             deploymentNode "Amazon Web Services" {
                 deploymentNode "us-east-1 region" {
                     deploymentNode "Amazon SQS" {
@@ -404,17 +410,6 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                         }
                         stage_app_web = containerInstance web_app
                     }
-                    deploymentNode "app-canary" {
-                        technology "Kubernetes Deployment"
-                        instances 1
-                        stage_app_canary_nginx = infrastructureNode "nginx" {
-                            tags "Deployment Service"
-                            description "Reverse proxy"
-                        }
-                        stage_app_canary_web = containerInstance web_app {
-                            description "Canary App for deployment testing"
-                        }
-                    }
                     deploymentNode "cleanup" {
                         technology "Kubernetes Cron Job"
                         stage_task_cleanup = containerInstance task_cleanup
@@ -444,14 +439,6 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                         technology "Kubernetes Cron Job"
                         stage_task_welcome = containerInstance task_welcome
                     }
-                    deploymentNode "iprepd-nginx" {
-                        technology "Kubernetes Deployment"
-                        instances 3
-                        stage_iprepd_nginx = infrastructureNode "iprepd-nginx" {
-                            description "Tracks IP reputation, blocks IPs"
-                            tags "Deployment Service"
-                        }
-                    }
                     deploymentNode "statsd-telegraf" {
                         technology "Kubernetes Deployment"
                         instances 1
@@ -480,7 +467,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                 }
                 deploymentNode "Cloud Load Balancing" {
                     stage_lb = infrastructureNode "Load Balancer" {
-                        description "Zone for fxprivaterelay.nonprod.cloudops.mozgcp.net"
+                        description "Zone for stage.relay.nonprod.webservices.mozgcp.net"
                         tags "Managed Service"
                     }
                 }
@@ -508,16 +495,14 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
             deploymentNode twilio.com {
                 stage_phone = containerInstance phone_service
             }
-            stage_iprepd_nginx -> stage_app_nginx "Requests" "HTTP"
-            stage_iprepd_nginx -> stage_app_canary_nginx "Requests" "HTTP"
+            stage_fastly -> stage_lb "Requests" "HTTP"
+            stage_lb -> stage_app_nginx "Requests" "HTTP"
             stage_app_nginx -> stage_app_web "Requests" "HTTP 1.0"
-            stage_app_canary_nginx -> stage_app_canary_web "Requests" "HTTP"
             stage_logs -> stage_bq "Forwards Logs"
-            stage_lb -> stage_iprepd_nginx "Requests" "HTTP"
-            stage_web -> stage_lb "Uses API, requests static assets"
-            stage_add_on -> stage_lb "Uses API, sends UI events"
-            stage_phone -> stage_lb "Informs of incoming SMS and calls"
-            stage_email_topic -> stage_lb "Sends emails, complaints, bounces" "SQS" "Optional Relationship"
+            stage_web -> stage_fastly "Uses API, requests static assets"
+            stage_add_on -> stage_fastly "Uses API, sends UI events"
+            stage_phone -> stage_fastly "Informs of incoming SMS and calls"
+            stage_email_topic -> stage_fastly "Sends emails, complaints, bounces" "SQS" "Optional Relationship"
             stage_cloudwatch -> stage_metrics "Polls metrics"
         }
         prod_deploy = deploymentEnvironment "relay.firefox.com" {
@@ -552,6 +537,12 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                     tags "Managed Service"
                 }
             }
+            deploymentNode "Fastly" {
+                prod_fastly = infrastructureNode "fastly" {
+                    description "Tracks IP reputation, blocks IPs"
+                    tags "Deployment Service"
+                }
+            }
             deploymentNode "Google Cloud Platform" {
                 deploymentNode "Kubernetes Engine" {
                     deploymentNode "app" {
@@ -562,17 +553,6 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                             description "Reverse proxy"
                         }
                         prod_app_web = containerInstance web_app
-                    }
-                    deploymentNode "app-canary" {
-                        technology "Kubernetes Deployment"
-                        instances 1
-                        prod_app_canary_nginx = infrastructureNode "nginx" {
-                            tags "Deployment Service"
-                            description "Reverse proxy"
-                        }
-                        prod_app_canary_web = containerInstance web_app {
-                            description "Canary App for deployment testing"
-                        }
                     }
                     deploymentNode "cleanup" {
                         technology "Kubernetes Cron Job"
@@ -603,14 +583,6 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                         technology "Kubernetes Cron Job"
                         prod_task_welcome = containerInstance task_welcome
                     }
-                    deploymentNode "iprepd-nginx" {
-                        technology "Kubernetes Deployment"
-                        instances 3
-                        prod_iprepd_nginx = infrastructureNode "iprepd-nginx" {
-                            description "Tracks IP reputation, blocks IPs"
-                            tags "Deployment Service"
-                        }
-                    }
                     deploymentNode "statsd-telegraf" {
                         technology "Kubernetes Deployment"
                         instances 1
@@ -638,7 +610,7 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
                 }
                 deploymentNode "Cloud Load Balancing" {
                     prod_lb = infrastructureNode "Load Balancer" {
-                        description "Zone for prod.fxprivaterelay.prod.cloudops.mozgcp.net"
+                        description "Zone for prod.relay.prod.webservices.mozgcp.net"
                         tags "Managed Service"
                     }
                 }
@@ -666,19 +638,17 @@ workspace "${SERVICE_NAME}" "Mozilla's service providing email and phone masks."
             deploymentNode twilio.com {
                 prod_phone = containerInstance phone_service
             }
-            prod_iprepd_nginx -> prod_app_nginx "Requests" "HTTP"
-            prod_iprepd_nginx -> prod_app_canary_nginx "Requests" "HTTP"
+            prod_fastly -> prod_lb "Requests" "HTTP"
+            prod_lb -> prod_app_nginx "Requests" "HTTP"
             prod_app_nginx -> prod_app_web "Requests" "HTTP 1.0"
-            prod_app_canary_nginx -> prod_app_canary_web "Requests" "HTTP"
             prod_logs -> prod_bq "Forwards Logs"
-            prod_lb -> prod_iprepd_nginx "Requests" "HTTP"
-            prod_web -> prod_lb "Uses API, requests static assets"
-            prod_add_on -> prod_lb "Uses API, sends UI events"
-            prod_firefox -> prod_lb "Uses API"
-            prod_other_client -> prod_lb "Uses API"
+            prod_web -> prod_fastly "Uses API, requests static assets"
+            prod_add_on -> prod_fastly "Uses API, sends UI events"
+            prod_firefox -> prod_fastly "Uses API"
+            prod_other_client -> prod_fastly "Uses API"
             prod_cloudwatch -> prod_metrics "Pulls metrics"
-            prod_phone -> prod_lb "Informs of incoming SMS and calls"
-            prod_email_topic -> prod_lb "Sends emails, complaints, bounces" "SQS" "Optional Relationship"
+            prod_phone -> prod_fastly "Informs of incoming SMS and calls"
+            prod_email_topic -> prod_fastly "Sends emails, complaints, bounces" "SQS" "Optional Relationship"
         }
     }
 

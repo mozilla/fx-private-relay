@@ -24,8 +24,8 @@
   --toastify-text-color-warning: #{color.$grey-50};
   --toastify-text-color-error: #{$color-white};
 
-  --toastify-toast-min-height: $layout-md;
-  --toastify-toast-max-height: $layout-md;
+  --toastify-toast-min-height: #{$layout-md};
+  --toastify-toast-max-height: #{$layout-md};
 }
 
 // Allows us to dynamically set the background color based on Toast container state

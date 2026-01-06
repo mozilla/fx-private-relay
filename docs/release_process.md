@@ -2,8 +2,8 @@
 
 ## Environments
 
-- [Production][prod] - Run by SRE team in GCP
-- [Stage][stage] - Run by SRE team in GCP
+- [Production][prod] - Run by ENGR team in GCP
+- [Stage][stage] - Run by ENGR in GCP
 - [Dev][dev] - Run by ENGR team in MozCloud
 - Locals: Run by ENGRs on their own devices. (See [README][readme] and other [`docs/`][docs].)
 
@@ -180,12 +180,13 @@ On Tuesday, after the Release Readiness review with QA:
 
 1. Use the [release workflow][release-workflow] to select the tag and deploy
    to the [Prod][prod] environment by selecting `prod`.
-2. When you see `Application relay... is now running new version of deployments manifests.` in `#fx-private-relay-eng` on Slack, do some checks on prod:
+2. Once the GitHub action finishes- go to ArgoCD an click "Sync" in the production application.
+3. When you see `Application relay... is now running new version of deployments manifests.` in `#fx-private-relay-eng` on Slack, do some checks on prod:
    - Spot-check the site for basic functionality
    - Check [sentry prod project](https://mozilla.sentry.io/releases/?environment=prod) for a spike in any new issues
    - Check [grafana dashboard](https://yardstick.mozilla.org/) for any unexpected spike in ops
    - (optional) [Run the relay-only e2e test suite](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml) on prod
-3. Update the GitHub release:
+4. Update the GitHub release:
    - Update the summary:
 
      ```text
