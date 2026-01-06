@@ -5,10 +5,7 @@ import { RandomAliasData, AliasData } from "../../hooks/api/aliases";
 import { ProfileData } from "../../hooks/api/profile";
 import { UserData } from "../../hooks/api/user";
 
-jest.mock(
-  "../../config.ts",
-  () => jest.requireActual("../../../__mocks__/configMock").mockConfigModule,
-);
+jest.mock("../../config");
 
 jest.mock("../../functions/userAgent", () => ({
   supportsFirefoxExtension: () => true,

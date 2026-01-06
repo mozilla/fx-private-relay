@@ -9,10 +9,7 @@ jest.mock("react-intersection-observer", () => ({
   useInView: () => [jest.fn(), true] as const,
 }));
 
-jest.mock(
-  "../../../config.ts",
-  () => jest.requireActual("../../../../__mocks__/configMock").mockConfigModule,
-);
+jest.mock("../../../config");
 
 jest.mock("../../../hooks/l10n", () => {
   const { mockUseL10nModule } = jest.requireActual(

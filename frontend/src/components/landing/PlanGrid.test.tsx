@@ -8,10 +8,7 @@ jest.mock("../../hooks/hasRenderedClientSide");
 jest.mock("../../hooks/session");
 jest.mock("../../functions/trackPurchase");
 jest.mock("../../functions/cookies", () => ({ setCookie: jest.fn() }));
-jest.mock(
-  "../../config.ts",
-  () => jest.requireActual("../../../__mocks__/configMock").mockConfigModule,
-);
+jest.mock("../../config");
 
 jest.mock("../../functions/getPlan", () => ({
   getBundlePrice: jest.fn(() => "$10"),

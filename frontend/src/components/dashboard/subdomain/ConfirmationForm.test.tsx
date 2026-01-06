@@ -27,12 +27,7 @@ jest.mock("../../../hooks/l10n", () => {
   return mockUseL10nModule;
 });
 
-jest.mock("../../Localized.tsx", () => {
-  const { mockLocalizedModule } = jest.requireActual(
-    "../../../../__mocks__/components/Localized",
-  );
-  return mockLocalizedModule;
-});
+jest.mock("../../Localized.tsx");
 
 import { byMsgIdName } from "../../../../__mocks__/hooks/l10n";
 

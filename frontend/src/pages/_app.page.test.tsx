@@ -6,11 +6,7 @@ import ReactGa from "react-ga";
 import { setMockProfileData } from "../../__mocks__/hooks/api/profile";
 import { setMockRuntimeData } from "../../__mocks__/hooks/api/runtimeData";
 
-jest.mock(
-  "next/router",
-  () =>
-    jest.requireActual("../../__mocks__/modules/next__router").mockNextRouter,
-);
+jest.mock("next/router");
 jest.mock("../hooks/session");
 jest.mock("../hooks/metrics");
 jest.mock("../hooks/googleAnalytics");

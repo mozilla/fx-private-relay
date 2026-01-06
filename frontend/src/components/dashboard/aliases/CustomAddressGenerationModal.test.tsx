@@ -15,10 +15,7 @@ jest.mock("../../../hooks/api/profile", () => ({
   useProfiles: () => mockUseProfiles(),
 }));
 
-jest.mock(
-  "../../../config.ts",
-  () => jest.requireActual("../../../../__mocks__/configMock").mockConfigModule,
-);
+jest.mock("../../../config");
 
 function renderModal(
   overrides: Partial<

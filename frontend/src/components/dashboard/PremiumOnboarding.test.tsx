@@ -8,10 +8,7 @@ import { renderWithProviders } from "frontend/__mocks__/modules/renderWithProvid
 
 jest.mock("../../functions/userAgent");
 jest.mock("../../hooks/mediaQuery");
-jest.mock(
-  "../../config.ts",
-  () => jest.requireActual("../../../__mocks__/configMock").mockConfigModule,
-);
+jest.mock("../../config");
 
 describe("PremiumOnboarding", () => {
   const mockL10nGetString = jest.fn((id: string) => id);

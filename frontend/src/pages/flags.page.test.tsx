@@ -11,10 +11,7 @@ import { toast } from "react-toastify";
 jest.mock("../hooks/api/runtimeData");
 jest.mock("../hooks/api/api");
 jest.mock("../functions/waffle");
-jest.mock(
-  "../config.ts",
-  () => jest.requireActual("../../__mocks__/configMock").mockConfigModule,
-);
+jest.mock("../config");
 jest.mock("react-toastify", () => ({
   toast: jest.fn(),
   ToastContainer: () => null,

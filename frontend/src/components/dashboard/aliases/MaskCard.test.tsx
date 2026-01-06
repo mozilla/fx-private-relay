@@ -110,9 +110,7 @@ jest.mock("../../../functions/renderDate", () => ({
   renderDate: (iso: string) => `Rendered(${iso})`,
 }));
 
-jest.mock("../../../functions/waffle", () =>
-  jest.requireActual("frontend/__mocks__/functions/waffle"),
-);
+jest.mock("../../../functions/waffle");
 import { setFlag, resetFlags } from "frontend/__mocks__/functions/flags";
 
 jest.mock("../../../hooks/api/aliases", () => ({

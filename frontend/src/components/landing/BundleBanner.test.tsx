@@ -9,12 +9,7 @@ jest.mock(
   () => new Proxy({}, { get: (_: unknown, p: PropertyKey) => String(p) }),
 );
 
-jest.mock("../Localized.tsx", () => {
-  const { mockLocalizedModule } = jest.requireActual(
-    "../../../__mocks__/components/Localized",
-  );
-  return mockLocalizedModule;
-});
+jest.mock("../Localized");
 
 const getBundlePriceMock = jest.fn();
 const getBundleSubscribeLinkMock = jest.fn();

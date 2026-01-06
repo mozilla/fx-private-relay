@@ -15,12 +15,7 @@ jest.mock("../../../hooks/l10n", () => {
   return mockUseL10nModule;
 });
 
-jest.mock("../../Localized", () => {
-  const { mockLocalizedModule } = jest.requireActual(
-    "../../../../__mocks__/components/Localized",
-  );
-  return mockLocalizedModule;
-});
+jest.mock("../../Localized");
 
 jest.mock("../../../hooks/api/realPhone", () => {
   const actual = jest.requireActual("../../../hooks/api/realPhone");
