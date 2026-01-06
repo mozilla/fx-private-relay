@@ -8,10 +8,11 @@ on:
         required: true
         default: stage
         type: string
-      health_check:
+      suite:
+        description: Test suite to run
         required: false
-        default: false
-        type: boolean
+        default: relay-only
+        type: string
     secrets:
       E2E_TEST_ACCOUNT_FREE: 
         required: true
@@ -32,14 +33,17 @@ on:
           - stage
           - prod
           - dev
-      health_check:
-        description: Enable health check
+      suite:
+        description: Test suite to run
         required: false
-        default: false
-        type: boolean
+        default: full
+        type: choice
+        options:
+          - relay-only
+          - full
 jobs:
   relaye2e:
-    name: ${{ inputs.health_check && 'Relay e2e health check' || 'Relay e2e all tests' }} 
+    name: ${{ inputs.suite == 'relay-only' && 'Relay e2e relay-only suite' || 'Relay e2e full suite' }}
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
@@ -55,15 +59,9 @@ jobs:
           npm install -D @playwright/test --with-deps
           npx playwright install
       - name: Run Playwright tests
-        run: >
-          if $HEALTH_CHECK; then
-            E2E_TEST_ENV=$E2E_TEST_ENV npx playwright test --grep "@health_check"
-          else
-            npm run test:$E2E_TEST_ENV
-          fi
+        run: |
+          npm run test:${{ inputs.suite }}:${{ inputs.environment }}
         env:
-          HEALTH_CHECK: ${{ contains(inputs.health_check, 'true') }}
-          E2E_TEST_ENV: ${{ inputs.environment != null && inputs.environment || 'stage' }}
           E2E_TEST_ACCOUNT_FREE: ${{ secrets.E2E_TEST_ACCOUNT_FREE }}
           E2E_TEST_ACCOUNT_PASSWORD: ${{ secrets.E2E_TEST_ACCOUNT_PASSWORD }}
           E2E_TEST_ACCOUNT_PREMIUM: ${{ secrets.E2E_TEST_ACCOUNT_PREMIUM }}
@@ -101,4 +99,3 @@ jobs:
                     text: "*Ref:*\n ${{ github.ref }}"
                   - type: mrkdwn
                     text: "*Triggered by:*\n ${{ github.triggering_actor }}"
-

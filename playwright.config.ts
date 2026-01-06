@@ -7,6 +7,18 @@ import { devices, defineConfig } from '@playwright/test';
 require('dotenv').config({quiet: true});
 
 /**
+ * Test suite definitions
+ */
+const RELAY_ONLY_TESTS = [
+  '**/relay-home-page.spec.ts',
+  '**/relay-general-functionality.spec.ts',
+  '**/relay-premium-functionality.spec.ts',
+  '**/relay-premium-upgrade.spec.ts',
+];
+
+const FULL_TESTS = '**/*.spec.ts';
+
+/**
  * See https://playwright.dev/docs/test-configuration.
  */
 const config = defineConfig({
@@ -61,16 +73,32 @@ const config = defineConfig({
     trace: 'on-first-retry',
   },
 
-  /* Configure projects for major browsers */
+  /* Configure projects for test suites and browsers */
   projects: [
     {
-      name: 'chromium',
+      name: 'relay-only-chromium',
+      testMatch: RELAY_ONLY_TESTS,
       use: {
         ...devices['Desktop Chrome'],
       },
     },
     {
-      name: 'firefox',
+      name: 'relay-only-firefox',
+      testMatch: RELAY_ONLY_TESTS,
+      use: {
+        ...devices['Desktop Firefox'],
+      },
+    },
+    {
+      name: 'full-chromium',
+      testMatch: FULL_TESTS,
+      use: {
+        ...devices['Desktop Chrome'],
+      },
+    },
+    {
+      name: 'full-firefox',
+      testMatch: FULL_TESTS,
       use: {
         ...devices['Desktop Firefox'],
       },
