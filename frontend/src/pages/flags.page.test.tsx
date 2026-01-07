@@ -1,3 +1,5 @@
+import React from "react";
+// eslint-disable-next-line testing-library/no-manual-cleanup
 import { act, render, screen, waitFor, cleanup } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";

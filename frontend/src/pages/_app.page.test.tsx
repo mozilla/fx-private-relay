@@ -1,3 +1,5 @@
+import React from "react";
+// eslint-disable-next-line testing-library/no-manual-cleanup
 import { act, render, screen, cleanup } from "@testing-library/react";
 import { axe } from "jest-axe";
 import type { AppProps } from "next/app";
@@ -148,8 +150,10 @@ describe("MyApp component", () => {
     expect(mockedGetL10n).toHaveBeenCalledWith({ deterministicLocales: false });
 
     expect(screen.getByText("Test Component")).toBeInTheDocument();
-    const overlayProvider = document.querySelector('[id="overlayProvider"]');
-    expect(overlayProvider).toBeInTheDocument();
+    expect(screen.getByRole("generic", { hidden: true })).toHaveAttribute(
+      "id",
+      "overlayProvider",
+    );
   });
 
   it("handles Google Analytics initialization and pageview tracking", async () => {
@@ -198,10 +202,11 @@ describe("MyApp component", () => {
     };
     mockedUseAddonElementWatcher.mockReturnValue(mockAddonData);
 
-    render(<MyApp {...defaultAppProps} />);
+    const { container } = render(<MyApp {...defaultAppProps} />);
     expect(mockedUseAddonElementWatcher).toHaveBeenCalled();
 
-    let addonElement = document.querySelector("firefox-private-relay-addon");
+    // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+    let addonElement = container.querySelector("firefox-private-relay-addon");
     expect(addonElement).toBeInTheDocument();
     expect(addonElement).toHaveAttribute("data-addon-installed");
     expect(addonElement).toHaveAttribute(
@@ -211,25 +216,30 @@ describe("MyApp component", () => {
 
     cleanup();
     mockedUseIsLoggedIn.mockReturnValue("logged-in");
-    render(<MyApp {...defaultAppProps} />);
-    addonElement = document.querySelector("firefox-private-relay-addon");
+    const { container: container2 } = render(<MyApp {...defaultAppProps} />);
+    // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+    addonElement = container2.querySelector("firefox-private-relay-addon");
     expect(addonElement).toHaveAttribute("data-user-logged-in", "True");
 
     cleanup();
     mockedUseIsLoggedIn.mockReturnValue("logged-out");
-    render(<MyApp {...defaultAppProps} />);
-    addonElement = document.querySelector("firefox-private-relay-addon");
+    const { container: container3 } = render(<MyApp {...defaultAppProps} />);
+    // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+    addonElement = container3.querySelector("firefox-private-relay-addon");
     expect(addonElement).toHaveAttribute("data-user-logged-in", "False");
 
     cleanup();
     mockedUseIsLoggedIn.mockReturnValue("unknown");
-    render(<MyApp {...defaultAppProps} />);
-    addonElement = document.querySelector("firefox-private-relay-addon");
+    const { container: container4 } = render(<MyApp {...defaultAppProps} />);
+    // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+    addonElement = container4.querySelector("firefox-private-relay-addon");
     expect(addonElement).toHaveAttribute("data-user-logged-in", "False");
   });
 
   it("handles MSW mock API initialization based on NEXT_PUBLIC_MOCK_API", () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (global as any).URLSearchParams;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (global as any).document;
 
     process.env.NEXT_PUBLIC_MOCK_API = "true";

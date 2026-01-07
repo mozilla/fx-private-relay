@@ -1,3 +1,5 @@
+import React from "react";
+// eslint-disable-next-line testing-library/no-manual-cleanup
 import { act, render, screen, cleanup } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { setMockProfileData } from "../../__mocks__/hooks/api/profile";
@@ -23,12 +25,12 @@ setMockRuntimeData();
 setMockProfileData(null);
 
 const createTrackerData = (
-  sender: any = "test@example.com",
-  received_at: any = 1609459200000,
-  original_link: any = "https://example.com/link",
+  sender: unknown = "test@example.com",
+  received_at: unknown = 1609459200000,
+  original_link: unknown = "https://example.com/link",
 ) => ({ sender, received_at, original_link });
 
-const setHashWithTrackerData = (data: any) => {
+const setHashWithTrackerData = (data: unknown) => {
   window.location.hash = data ? encodeURIComponent(JSON.stringify(data)) : "";
 };
 
@@ -140,7 +142,7 @@ describe("The contains-tracker-warning page", () => {
       ),
     );
     render(<ContainsTracker />);
-    let link = expectViewLink("https://example.com/tracked-link");
+    const link = expectViewLink("https://example.com/tracked-link");
     expect(link).toHaveAttribute("target", "_blank");
     expect(link).toHaveAttribute("rel", "noopener noreferrer");
 

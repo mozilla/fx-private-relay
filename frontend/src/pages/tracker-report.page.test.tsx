@@ -1,3 +1,5 @@
+import React from "react";
+// eslint-disable-next-line testing-library/no-manual-cleanup
 import { act, render, screen, cleanup } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { setMockProfileData } from "../../__mocks__/hooks/api/profile";
@@ -10,16 +12,16 @@ setMockRuntimeData();
 setMockProfileData(null);
 
 const createReportData = (
-  sender: any = "test@example.com",
-  received_at: any = 1609459200000,
-  trackers?: any,
+  sender: unknown = "test@example.com",
+  received_at: unknown = 1609459200000,
+  trackers?: unknown,
 ) => ({
   sender,
   received_at,
   ...(trackers !== undefined && { trackers }),
 });
 
-const setHashWithReportData = (data: any) => {
+const setHashWithReportData = (data: unknown) => {
   window.location.hash = data ? encodeURIComponent(JSON.stringify(data)) : "";
 };
 
