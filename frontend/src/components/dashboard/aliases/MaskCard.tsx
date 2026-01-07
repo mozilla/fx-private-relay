@@ -1,4 +1,4 @@
-import {
+import React, {
   createContext,
   ReactElement,
   ReactNode,
@@ -41,7 +41,6 @@ import Image from "../../Image";
 import { getLocale } from "../../../functions/getLocale";
 import { isFlagActive } from "../../../functions/waffle";
 import { renderDate } from "../../../functions/renderDate";
-import { AliasDeletionButton } from "./AliasDeletionButton";
 import { VisuallyHidden } from "./../../VisuallyHidden";
 import HorizontalArrow from "./../images/free-onboarding-horizontal-arrow.svg";
 import { AliasDeletionButtonPermanent } from "./AliasDeletionButtonPermanent";
@@ -91,9 +90,15 @@ export const MaskCard = (props: Props) => {
 
   useEffect(() => {
     if (props.copyAfterMaskGeneration) {
-      copyAddressToClipboard();
+      void navigator.clipboard.writeText(props.mask.full_address);
+      queueMicrotask(() => {
+        setJustCopied(true);
+        setTimeout(() => {
+          setJustCopied(false);
+        }, 1 * 1000);
+      });
     }
-  }, [props.copyAfterMaskGeneration, copyAddressToClipboard]);
+  }, [props.copyAfterMaskGeneration, props.mask.full_address]);
 
   const statNumberFormatter = new Intl.NumberFormat(getLocale(l10n), {
     notation: "compact",
@@ -119,7 +124,6 @@ export const MaskCard = (props: Props) => {
         ? "promotionals"
         : "none";
 
-  // TODO MPP-4464: Remove flag custom_domain_management_redesign, assume on
   return (
     <>
       <div className={classNames}>
@@ -387,21 +391,11 @@ export const MaskCard = (props: Props) => {
               </dl>
               {!props.isOnboarding && (
                 <div className={styles["deletion-button-wrapper"]}>
-                  {isFlagActive(
-                    props.runtimeData,
-                    "custom_domain_management_redesign",
-                  ) ? (
-                    <AliasDeletionButtonPermanent
-                      setModalOpenedState={props.setModalOpenedState}
-                      onDelete={props.onDelete}
-                      alias={props.mask}
-                    />
-                  ) : (
-                    <AliasDeletionButton
-                      onDelete={props.onDelete}
-                      alias={props.mask}
-                    />
-                  )}
+                  <AliasDeletionButtonPermanent
+                    setModalOpenedState={props.setModalOpenedState}
+                    onDelete={props.onDelete}
+                    alias={props.mask}
+                  />
                 </div>
               )}
             </div>

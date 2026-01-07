@@ -1,3 +1,4 @@
+import React from "react";
 import { act, render, screen, within, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
@@ -1090,15 +1091,19 @@ describe("The dashboard", () => {
     const user = userEvent.setup();
     await user.click(aliasDeleteButton);
 
-    const confirmationCheckbox = screen.getByLabelText(
-      "l10n string: [modal-delete-confirmation-2], with vars: {}",
-    );
-    await user.click(confirmationCheckbox);
+    // Wait for the deletion confirmation dialog to open
+    const dialog = await screen.findByRole("dialog");
 
-    const confirmationButton = screen.getAllByRole("button", {
+    // Find and click the delete button inside the dialog
+    const confirmationButton = await within(dialog).findByRole("button", {
       name: "l10n string: [profile-label-delete], with vars: {}",
     });
-    await user.click(confirmationButton[1]);
+    await user.click(confirmationButton);
+
+    // Wait for the dialog to close after deletion
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    });
 
     expect(addonNotifier).toHaveBeenCalledWith("aliasListUpdate");
   });
