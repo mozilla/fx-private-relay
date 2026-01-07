@@ -60,7 +60,7 @@ jobs:
           npx playwright install
       - name: Run Playwright tests
         run: |
-          npm run test:${{ inputs.suite }}:${{ inputs.environment }}
+          npm run test:${{ inputs.suite || 'relay-only' }}:${{ inputs.environment || 'stage' }}
         env:
           E2E_TEST_ACCOUNT_FREE: ${{ secrets.E2E_TEST_ACCOUNT_FREE }}
           E2E_TEST_ACCOUNT_PASSWORD: ${{ secrets.E2E_TEST_ACCOUNT_PASSWORD }}
