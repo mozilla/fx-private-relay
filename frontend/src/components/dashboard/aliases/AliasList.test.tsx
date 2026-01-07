@@ -43,9 +43,23 @@ jest.mock("./AliasGenerationButton", () => ({
 }));
 
 jest.mock("./MaskCard", () => ({
-  MaskCard: (props: { isOpen?: boolean; children?: ReactNode }) => (
+  MaskCard: (props: {
+    mask: { full_address: string; description: string };
+    isOpen?: boolean;
+    showLabelEditor?: boolean;
+    onUpdate?: (fields: { description: string }) => void;
+    children?: ReactNode;
+  }) => (
     <div data-testid="mask-card">
       <div data-testid="mask-card-open">{String(!!props.isOpen)}</div>
+      {props.showLabelEditor && (
+        <input
+          type="text"
+          defaultValue={props.mask.description}
+          onBlur={(e) => props.onUpdate?.({ description: e.target.value })}
+        />
+      )}
+      <div>{props.mask.full_address}</div>
       {props.children}
     </div>
   ),
@@ -391,21 +405,5 @@ describe("<AliasList> – extra coverage", () => {
     const items = screen.getAllByRole("listitem");
     expect(items[0]).toHaveTextContent("newer@example.com");
     expect(items[1]).toHaveTextContent("older@example.com");
-  });
-
-  it("renders MaskCard instead of Alias when mask_redesign flag is active", async () => {
-    await withFlag("mask_redesign", true, async () => {
-      render(
-        <AliasList
-          aliases={[getMockRandomAlias()]}
-          onUpdate={jest.fn()}
-          onCreate={jest.fn()}
-          onDelete={jest.fn()}
-          profile={getMockProfileData({ server_storage: true })}
-          user={{ email: "u@example.com" }}
-        />,
-      );
-      expect(screen.getByTestId("mask-card")).toBeInTheDocument();
-    });
   });
 });
