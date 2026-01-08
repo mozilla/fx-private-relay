@@ -57,8 +57,8 @@ frontend/
       useAliases.ts
       useAliases.test.ts
     pages/
-      home.page.tsx
-      home.page.test.tsx
+      faq.page.tsx
+      faq.page.test.tsx
 ```
 
 ## Test Helper Files
@@ -67,449 +67,55 @@ All test helpers are organized in the `__mocks__/` directory:
 
 ### API Mocking (`__mocks__/api/`)
 
-| File            | Purpose                                     |
-| --------------- | ------------------------------------------- |
-| `initialise.ts` | Entry point for MSW setup                   |
-| `browser.ts`    | MSW browser worker for component tests      |
-| `server.ts`     | MSW Node.js server for unit tests           |
-| `handlers.ts`   | HTTP request handlers for all API endpoints |
-| `mockData.ts`   | Pre-defined mock data for all user states   |
-
-**Mock Users Available**: `"demo"`, `"empty"`, `"onboarding"`, `"some"`, `"full"`
+Contains MSW setup files, HTTP request handlers, and pre-defined mock data for all API endpoints and user states.
 
 ### Hook Mocks (`__mocks__/hooks/`)
 
-| File                    | Purpose                              |
-| ----------------------- | ------------------------------------ |
-| `l10n.ts`               | Localization mock with test matchers |
-| `api/profile.ts`        | Profile data mock factory            |
-| `api/aliases.ts`        | Alias data mock factory              |
-| `api/runtimeData.ts`    | Runtime data mock factory            |
-| `api/realPhone.ts`      | Real phone number mocks              |
-| `api/relayNumber.ts`    | Relay number mocks                   |
-| `api/inboundContact.ts` | Inbound contact mocks                |
-| `api/user.ts`           | User data mocks                      |
+Contains mock factories for localization, API data (profile, aliases, runtime data, phone numbers, contacts, users), and related hooks.
 
 ### Component Mocks (`__mocks__/components/`)
 
-| File            | Purpose                         |
-| --------------- | ------------------------------- |
-| `Localized.tsx` | Mockable localization component |
-| `ImageMock.tsx` | Next.js Image component mock    |
-| `IconsMock.tsx` | SVG icon mocks                  |
+Contains mocks for localization components, Next.js Image component, and SVG icons.
 
 ### Function Mocks (`__mocks__/functions/`)
 
-| File           | Purpose                        |
-| -------------- | ------------------------------ |
-| `flags.ts`     | Feature flag testing utilities |
-| `getLocale.ts` | Locale function mock           |
-| `getPlan.ts`   | Plan availability mock         |
-| `cookies.ts`   | Cookie handling mock           |
+Contains utilities for testing feature flags, locale functions, plan availability, and cookie handling.
 
 ### Module Mocks (`__mocks__/modules/`)
 
-| File                      | Purpose                          |
-| ------------------------- | -------------------------------- |
-| `renderWithProviders.tsx` | Custom render with all providers |
-| `next__router.ts`         | Next.js router mock              |
+Contains custom render utilities with providers and Next.js router mocks.
 
 ## Writing Tests
 
-### Basic Component Test
-
-```typescript
-import { render, screen } from "@testing-library/react";
-import { Button } from "./Button";
-
-describe("Button", () => {
-  it("renders with text", () => {
-    render(<Button>Click me</Button>);
-    expect(screen.getByRole("button", { name: "Click me" })).toBeInTheDocument();
-  });
-
-  it("can be disabled", () => {
-    render(<Button disabled>Click me</Button>);
-    expect(screen.getByRole("button")).toBeDisabled();
-  });
-});
-```
-
-### Component with Providers
-
-If your component needs providers (localization, overlay provider), use `renderWithProviders`:
-
-```typescript
-import { renderWithProviders } from "__mocks__/modules/renderWithProviders";
-import { MyComponent } from "./MyComponent";
-
-describe("MyComponent", () => {
-  it("renders correctly", () => {
-    renderWithProviders(<MyComponent />);
-    expect(screen.getByRole("main")).toBeInTheDocument();
-  });
-});
-```
-
-### Testing User Interactions
-
-Always use `userEvent` for realistic user interactions:
-
-```typescript
-import userEvent from "@testing-library/user-event";
-import { render, screen } from "@testing-library/react";
-
-it("handles user input", async () => {
-  render(<Input />);
-  const input = screen.getByRole("textbox");
-
-  await userEvent.type(input, "Hello World");
-  expect(input).toHaveValue("Hello World");
-
-  await userEvent.clear(input);
-  expect(input).toHaveValue("");
-});
-
-it("handles clicks", async () => {
-  const handleClick = jest.fn();
-  render(<Button onClick={handleClick}>Click</Button>);
-
-  await userEvent.click(screen.getByRole("button"));
-  expect(handleClick).toHaveBeenCalledTimes(1);
-});
-```
-
-### Testing Hooks
-
-Use `renderHook` from React Testing Library:
-
-```typescript
-import { renderHook, waitFor } from "@testing-library/react";
-import { useAliases } from "./useAliases";
-import { setMockAliasesData } from "__mocks__/hooks/api/aliases";
-
-describe("useAliases", () => {
-  it("fetches aliases", async () => {
-    const mockAliases = [{ id: 1, address: "test@relay.com" }];
-    setMockAliasesData({ random: mockAliases });
-
-    const { result } = renderHook(() => useAliases());
-
-    await waitFor(() => {
-      expect(result.current.randomAliasData.data).toEqual(mockAliases);
-    });
-  });
-});
-```
-
-### Mocking API Data
-
-Use mock factory functions for consistent, configurable data:
-
-```typescript
-import { setMockProfileData } from "__mocks__/hooks/api/profile";
-import { setMockRuntimeData, getMockRuntimeDataWithPhones } from "__mocks__/hooks/api/runtimeData";
-import { getMockRandomAlias } from "__mocks__/hooks/api/aliases";
-
-describe("Premium features", () => {
-  it("shows premium UI for premium users", () => {
-    setMockProfileData({ has_premium: true });
-    setMockRuntimeData(getMockRuntimeDataWithPhones());
-
-    render(<Dashboard />);
-    expect(screen.getByText(/premium/i)).toBeInTheDocument();
-  });
-
-  it("customizes alias with partial override", () => {
-    const customAlias = getMockRandomAlias({
-      enabled: false,
-      description: "My custom description"
-    });
-
-    // Use customAlias in your test
-  });
-});
-```
-
-### One-Time Mock Overrides
-
-Use `*Once()` methods when you need different data for a single test:
-
-```typescript
-import { setMockAliasesDataOnce } from "__mocks__/hooks/api/aliases";
-
-it("handles empty state", () => {
-  setMockAliasesDataOnce({ random: [] });
-  render(<AliasList />);
-  expect(screen.getByText("No aliases yet")).toBeInTheDocument();
-});
-```
-
-### Testing with Feature Flags
-
-Use the flags utilities for testing conditional features:
-
-```typescript
-import { setFlags, resetFlags, withFlag } from "__mocks__/functions/flags";
-
-describe("Feature flag dependent component", () => {
-  beforeEach(() => {
-    resetFlags();
-  });
-
-  it("shows feature when flag is active", () => {
-    setFlags({ new_feature: true });
-    render(<Component />);
-    expect(screen.getByTestId("new-feature")).toBeInTheDocument();
-  });
-
-  it("hides feature when flag is inactive", () => {
-    setFlags({ new_feature: false });
-    render(<Component />);
-    expect(screen.queryByTestId("new-feature")).not.toBeInTheDocument();
-  });
-
-  it("uses withFlag for isolated flag testing", async () => {
-    await withFlag("new_feature", true, () => {
-      render(<Component />);
-      expect(screen.getByTestId("new-feature")).toBeInTheDocument();
-    });
-  });
-});
-```
-
-### Testing Localization
-
-Use the l10n mock matchers for testing localized content:
-
-```typescript
-import { byMsgId } from "__mocks__/hooks/l10n";
-
-it("displays localized text", () => {
-  render(<Component />);
-  expect(screen.getByText(byMsgId("welcome-message"))).toBeInTheDocument();
-});
-
-it("finds button by localized label", () => {
-  render(<Component />);
-  const button = screen.getByRole("button", { name: byMsgId("submit-button") });
-  expect(button).toBeInTheDocument();
-});
-```
-
-The mock l10n returns identifiable strings like `"l10n string: [message-id], with vars: {...}"` for easy testing.
-
-### Accessibility Testing
-
-Every component should have an accessibility test:
-
-```typescript
-import { axe } from "jest-axe";
-
-it("passes axe accessibility testing", async () => {
-  const { baseElement } = render(<Component />);
-  const results = await axe(baseElement);
-  expect(results).toHaveNoViolations();
-});
-```
+- Use `render` and `screen` from `@testing-library/react` for basic component tests
+- If your component needs providers (localization, overlay provider), use `renderWithProviders` from `__mocks__/modules/renderWithProviders`
+- Always use `userEvent` for realistic user interactions (clicks, typing, etc.) and remember to `await` all userEvent calls
+- Use `renderHook` from React Testing Library for testing custom hooks
+- Use mock factory functions (`setMockProfileData`, `getMockRuntimeData`, `getMockRandomAlias`, etc.) for consistent, configurable API data
+- Use `*Once()` methods (e.g., `setMockAliasesDataOnce`) when you need different mock data for a single test
+- Use `setFlags`, `resetFlags`, and `withFlag` from `__mocks__/functions/flags` for testing feature flag dependent components
+- Use `byMsgId` from `__mocks__/hooks/l10n` for testing localized content
+- Every component should have an accessibility test using `axe` from `jest-axe`
 
 ## Best Practices
 
-### 1. Use Accessibility-First Queries
-
-Prefer queries that reflect how users interact with your app:
-
-```typescript
-// Good - accessible queries
-screen.getByRole("button", { name: "Submit" });
-screen.getByLabelText("Email address");
-screen.getByRole("heading", { name: "Dashboard" });
-
-// Avoid - implementation details
-screen.getByTestId("submit-btn");
-screen.getByClassName("email-input");
-```
-
-### 2. Use Mock Factories, Not Hardcoded Data
-
-```typescript
-// Good - configurable, maintainable
-const alias = getMockRandomAlias({ enabled: false });
-setMockProfileData({ has_premium: true });
-
-// Avoid - brittle, hard to maintain
-const alias = {
-  id: 1,
-  address: "test@relay.com",
-  enabled: false,
-  // ... 20 more required fields
-};
-```
-
-### 3. Reset State Between Tests
-
-```typescript
-import { resetFlags } from "__mocks__/functions/flags";
-
-describe("MyComponent", () => {
-  beforeEach(() => {
-    resetFlags();
-    // Reset other global state
-  });
-});
-```
-
-Jest automatically clears all mocks between tests (`clearMocks: true` in config).
-
-### 4. Test User Flows, Not Implementation
-
-```typescript
-// Good - tests behavior
-it("allows user to create a new alias", async () => {
-  render(<AliasGenerator />);
-  await userEvent.click(screen.getByRole("button", { name: "Generate" }));
-  expect(screen.getByText(/new alias created/i)).toBeInTheDocument();
-});
-
-// Avoid - tests implementation
-it("calls createAlias function", () => {
-  const createAlias = jest.fn();
-  render(<AliasGenerator onGenerate={createAlias} />);
-  // This tests the prop, not the user experience
-});
-```
-
-### 5. Use `waitFor` for Async Behavior
-
-```typescript
-import { waitFor } from "@testing-library/react";
-
-it("loads data asynchronously", async () => {
-  render(<AsyncComponent />);
-
-  await waitFor(() => {
-    expect(screen.getByText("Data loaded")).toBeInTheDocument();
-  });
-});
-```
-
-### 6. Keep Tests Focused
-
-One assertion per test when possible. Use descriptive test names.
-
-```typescript
-// Good - focused, clear
-it("disables submit button when form is invalid", () => {
-  render(<Form />);
-  expect(screen.getByRole("button", { name: "Submit" })).toBeDisabled();
-});
-
-it("enables submit button when form is valid", async () => {
-  render(<Form />);
-  await userEvent.type(screen.getByLabelText("Email"), "user@example.com");
-  expect(screen.getByRole("button", { name: "Submit" })).toBeEnabled();
-});
-
-// Avoid - tests multiple unrelated things
-it("works correctly", () => {
-  // Tests 10 different behaviors
-});
-```
-
-### 7. Don't Test External Libraries
-
-Trust that React Testing Library, Next.js, etc. work correctly. Test your code.
-
-```typescript
-// Avoid - testing React Router
-it("navigates to home page", () => {
-  // Don't test that Next.js routing works
-});
-
-// Good - test your component's behavior
-it("shows link to home page", () => {
-  render(<Navigation />);
-  expect(screen.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
-});
-```
+- Use accessibility-first queries (e.g., `getByRole`, `getByLabelText`) that reflect how users interact with your app instead of implementation details like test IDs or class names
+- Use mock factories (e.g., `getMockRandomAlias`, `setMockProfileData`) instead of hardcoded data for configurable, maintainable tests
+- Reset state between tests using `beforeEach` (e.g., `resetFlags()`). Jest automatically clears all mocks between tests
+- Test user flows and behavior, not implementation details like function calls or internal state
+- Use `waitFor` from `@testing-library/react` for async behavior
+- Keep tests focused with one assertion per test when possible, and use descriptive test names
+- Don't test external libraries (React Testing Library, Next.js, etc.). Trust they work and test your code's behavior
 
 ## Common Patterns
 
-### Testing Forms
+Search the codebase for real examples of these patterns:
 
-```typescript
-it("submits form with valid data", async () => {
-  const handleSubmit = jest.fn();
-  render(<ContactForm onSubmit={handleSubmit} />);
-
-  await userEvent.type(screen.getByLabelText("Email"), "user@example.com");
-  await userEvent.type(screen.getByLabelText("Message"), "Hello!");
-  await userEvent.click(screen.getByRole("button", { name: "Send" }));
-
-  expect(handleSubmit).toHaveBeenCalledWith({
-    email: "user@example.com",
-    message: "Hello!"
-  });
-});
-```
-
-### Testing Error States
-
-```typescript
-import { setMockProfileDataOnce } from "__mocks__/hooks/api/profile";
-
-it("displays error when profile fetch fails", async () => {
-  setMockProfileDataOnce(null); // Simulate error
-
-  render(<Profile />);
-
-  await waitFor(() => {
-    expect(screen.getByText(/error loading profile/i)).toBeInTheDocument();
-  });
-});
-```
-
-### Testing Loading States
-
-```typescript
-it("shows loading indicator", () => {
-  render(<DataComponent />);
-  expect(screen.getByRole("status", { name: /loading/i })).toBeInTheDocument();
-});
-```
-
-### Testing Conditional Rendering
-
-```typescript
-it("shows premium features for premium users", () => {
-  setMockProfileData({ has_premium: true });
-  render(<Dashboard />);
-  expect(screen.getByText(/premium feature/i)).toBeInTheDocument();
-});
-
-it("hides premium features for free users", () => {
-  setMockProfileData({ has_premium: false });
-  render(<Dashboard />);
-  expect(screen.queryByText(/premium feature/i)).not.toBeInTheDocument();
-});
-```
-
-### Testing Lists
-
-```typescript
-it("renders list of aliases", () => {
-  const aliases = [
-    getMockRandomAlias({ address: "alias1@relay.com" }),
-    getMockRandomAlias({ address: "alias2@relay.com" }),
-  ];
-  setMockAliasesData({ random: aliases });
-
-  render(<AliasList />);
-
-  expect(screen.getByText("alias1@relay.com")).toBeInTheDocument();
-  expect(screen.getByText("alias2@relay.com")).toBeInTheDocument();
-});
-```
+- **Forms**: Use `userEvent.type()` for inputs, `userEvent.click()` for submission, and assert the handler was called with expected data
+- **Error States**: Use `setMock*DataOnce(null)` to simulate fetch failures, then assert error messages appear with `waitFor`
+- **Loading States**: Assert loading indicators appear using `getByRole("status")`
+- **Conditional Rendering**: Set mock data with different states and use `getBy*` for expected elements, `queryBy*` with `.not.toBeInTheDocument()` for hidden elements
+- **Lists**: Create multiple mock items with factory functions, set mock data, and assert each item appears in the document
 
 ## Troubleshooting
 

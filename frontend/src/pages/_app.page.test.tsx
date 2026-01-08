@@ -143,17 +143,17 @@ describe("MyApp component", () => {
   }, 10000);
 
   it("initializes l10n, renders providers, and handles component rendering", async () => {
-    render(<MyApp {...defaultAppProps} />);
+    const { container } = render(<MyApp {...defaultAppProps} />);
     expect(mockedGetL10n).toHaveBeenCalledWith({ deterministicLocales: true });
 
     await waitForNextTick();
     expect(mockedGetL10n).toHaveBeenCalledWith({ deterministicLocales: false });
 
     expect(screen.getByText("Test Component")).toBeInTheDocument();
-    expect(screen.getByRole("generic", { hidden: true })).toHaveAttribute(
-      "id",
-      "overlayProvider",
-    );
+    // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+    const overlayProvider = container.querySelector("#overlayProvider");
+    expect(overlayProvider).toBeInTheDocument();
+    expect(overlayProvider).toHaveAttribute("id", "overlayProvider");
   });
 
   it("handles Google Analytics initialization and pageview tracking", async () => {
