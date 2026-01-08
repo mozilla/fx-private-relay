@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./AliasList.module.scss";
 import { AliasData, isRandomAlias } from "../../../hooks/api/aliases";
 import { ProfileData } from "../../../hooks/api/profile";
-import { Alias } from "./Alias";
 import { filterAliases } from "../../../functions/filterAliases";
 import { CategoryFilter, SelectedFilters } from "./CategoryFilter";
 import { UserData } from "../../../hooks/api/user";
@@ -68,6 +67,7 @@ export const AliasList = (props: Props) => {
 
   useEffect(() => {
     if (props.aliases.length === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setOpenAlias(undefined);
     } else {
       const existingAliasIds = existingAliases.map((alias) => alias.id);
@@ -75,9 +75,11 @@ export const AliasList = (props: Props) => {
         (alias) => existingAliasIds.indexOf(alias.id) === -1,
       );
       if (newAliases.length !== 0) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setOpenAlias(newAliases[0]);
       }
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setExistingAliases(props.aliases);
   }, [props.aliases, existingAliases]);
 
@@ -138,55 +140,32 @@ export const AliasList = (props: Props) => {
       }
     };
 
-    // TODO MPP-4463: Retire mask_redesign as always on
     return (
       <li
         className={styles["alias-card-wrapper"]}
         key={alias.address + isRandomAlias(alias)}
         id={encodeURIComponent(alias.full_address)}
       >
-        {isFlagActive(props.runtimeData, "mask_redesign") ? (
-          <MaskCard
-            mask={alias}
-            user={props.user}
-            profile={props.profile}
-            onUpdate={onUpdate}
-            onDelete={() => props.onDelete(alias)}
-            isOpen={
-              openAlias !== undefined &&
-              openAlias.id === alias.id &&
-              openAlias.mask_type === alias.mask_type
-            }
-            onChangeOpen={onChangeOpen}
-            showLabelEditor={
-              props.profile.server_storage || localLabels !== null
-            }
-            runtimeData={props.runtimeData}
-            isOnboarding={onboarding}
-            copyAfterMaskGeneration={generatedAlias?.id === alias.id}
-            setModalOpenedState={props.setModalOpenedState}
-          >
-            {props.children}
-          </MaskCard>
-        ) : (
-          <Alias
-            alias={alias}
-            user={props.user}
-            profile={props.profile}
-            onUpdate={onUpdate}
-            onDelete={() => props.onDelete(alias)}
-            isOpen={
-              openAlias !== undefined &&
-              openAlias.id === alias.id &&
-              openAlias.mask_type === alias.mask_type
-            }
-            onChangeOpen={onChangeOpen}
-            showLabelEditor={
-              props.profile.server_storage || localLabels !== null
-            }
-            runtimeData={props.runtimeData}
-          />
-        )}
+        <MaskCard
+          mask={alias}
+          user={props.user}
+          profile={props.profile}
+          onUpdate={onUpdate}
+          onDelete={() => props.onDelete(alias)}
+          isOpen={
+            openAlias !== undefined &&
+            openAlias.id === alias.id &&
+            openAlias.mask_type === alias.mask_type
+          }
+          onChangeOpen={onChangeOpen}
+          showLabelEditor={props.profile.server_storage || localLabels !== null}
+          runtimeData={props.runtimeData}
+          isOnboarding={onboarding}
+          copyAfterMaskGeneration={generatedAlias?.id === alias.id}
+          setModalOpenedState={props.setModalOpenedState}
+        >
+          {props.children}
+        </MaskCard>
       </li>
     );
   });
