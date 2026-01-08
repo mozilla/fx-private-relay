@@ -9,7 +9,7 @@ const mockedUseAddonData = useAddonData as jest.MockedFunction<
 >;
 
 function getReturnValue(
-  addonData?: Partial<AddonData>
+  addonData?: Partial<AddonData>,
 ): ReturnType<typeof useAddonData> {
   return {
     sendEvent: jest.fn(),

@@ -1,4 +1,4 @@
-import { cloneElement, isValidElement, ReactNode } from "react";
+import React, { cloneElement, isValidElement, ReactNode } from "react";
 
 export const mockLocalizedModule = {
   Localized: (props: {
@@ -13,7 +13,7 @@ export const mockLocalizedModule = {
         <>
           [&lt;Localized&gt; with id [{props.id}] and vars:{" "}
           {JSON.stringify(props.vars ?? {})}]
-        </>
+        </>,
       )
     ) : (
       <>Invalid Localized element (more than a single child element)</>

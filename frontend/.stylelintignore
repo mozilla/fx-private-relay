@@ -1,0 +1,5 @@
+# Build artifacts and generated files
+out/
+coverage/
+.next/
+node_modules/
