@@ -9,9 +9,7 @@ jest.mock("../../hooks/flaggedAnchorLinks", () => ({
   useFlaggedAnchorLinks: jest.fn(),
 }));
 
-jest.mock("../../config", () => ({
-  getRuntimeConfig: jest.fn(),
-}));
+jest.mock("../../config");
 
 jest.mock("./subdomain/SearchForm", () => ({
   SubdomainSearchForm: jest.fn(() => (

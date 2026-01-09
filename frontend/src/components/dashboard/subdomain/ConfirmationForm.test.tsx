@@ -27,18 +27,7 @@ jest.mock("../../../hooks/l10n", () => {
   return mockUseL10nModule;
 });
 
-interface LocalizedProps {
-  id: string;
-  vars?: Record<string, string>;
-  elems?: Record<string, ReactNode>;
-  children?: ReactNode;
-}
-jest.mock("../../Localized", () => ({
-  Localized: ({ id, vars }: LocalizedProps) => {
-    const text = `l10n string: [${id}], with vars: ${JSON.stringify(vars ?? {})}`;
-    return <span data-testid={id}>{text}</span>;
-  },
-}));
+jest.mock("../../Localized.tsx");
 
 import { byMsgIdName } from "../../../../__mocks__/hooks/l10n";
 
@@ -58,10 +47,14 @@ describe("SubdomainConfirmationForm", () => {
   it("renders warning text and checkbox label", () => {
     render(<SubdomainConfirmationForm {...defaultProps} />);
     expect(
-      screen.getByTestId("modal-email-domain-available-body"),
+      screen.getByText(
+        /\[<Localized> with id \[modal-email-domain-available-body\] and vars:/,
+      ),
     ).toBeInTheDocument();
     expect(
-      screen.getByTestId("modal-domain-register-confirmation-checkbox-2"),
+      screen.getByText(
+        /\[<Localized> with id \[modal-domain-register-confirmation-checkbox-2\] and vars:/,
+      ),
     ).toBeInTheDocument();
   });
 
@@ -97,8 +90,8 @@ describe("SubdomainConfirmationForm", () => {
 
   it("passes subdomain to Localized for checkbox label", () => {
     render(<SubdomainConfirmationForm {...defaultProps} />);
-    const checkboxLabelNode = screen.getByTestId(
-      "modal-domain-register-confirmation-checkbox-2",
+    const checkboxLabelNode = screen.getByText(
+      /\[<Localized> with id \[modal-domain-register-confirmation-checkbox-2\] and vars:/,
     );
     expect(checkboxLabelNode).toHaveTextContent("my-subdomain");
   });

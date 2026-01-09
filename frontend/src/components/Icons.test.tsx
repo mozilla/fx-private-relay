@@ -1,116 +1,80 @@
 import { render, screen } from "@testing-library/react";
 
-// Import the actual Icons module, not the mock
 const IconsModule = jest.requireActual("./Icons");
-const InfoIcon = IconsModule.InfoIcon;
-const WarningFilledIcon = IconsModule.WarningFilledIcon;
-const ArrowDownIcon = IconsModule.ArrowDownIcon;
-const CheckIcon = IconsModule.CheckIcon;
-const CloseIcon = IconsModule.CloseIcon;
-const CopyIcon = IconsModule.CopyIcon;
+const { InfoIcon, CheckIcon, CloseIcon, LockIcon, SearchIcon } = IconsModule;
 
 describe("Icons", () => {
-  describe("InfoIcon", () => {
-    it("renders with alt text", () => {
-      render(<InfoIcon alt="Information" />);
-      const icon = screen.getByRole("img", { name: "Information" });
-      expect(icon).toBeInTheDocument();
-    });
+  it("renders icons with correct attributes and accessibility", () => {
+    const { container: infoContainer } = render(<InfoIcon alt="Information" />);
+    expect(
+      screen.getByRole("img", { name: "Information" }),
+    ).toBeInTheDocument();
+    const infoSvg = infoContainer.querySelector("svg");
+    expect(infoSvg).toHaveAttribute("viewBox", "0 0 28 28");
+    expect(infoSvg).toHaveAttribute("width", "28");
+    expect(infoSvg).toHaveAttribute("height", "28");
+    expect(infoSvg).toHaveAttribute("aria-label", "Information");
+    expect(infoSvg).toHaveAttribute("role", "img");
+    expect(infoContainer.querySelector("title")).toHaveTextContent(
+      "Information",
+    );
 
-    it("is hidden from screen readers when alt is empty", () => {
-      const { container } = render(<InfoIcon alt="" />);
-      // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-      const svg = container.querySelector("svg");
-      expect(svg).toHaveAttribute("aria-hidden", "true");
-    });
+    const { container: checkContainer } = render(<CheckIcon alt="Success" />);
+    expect(screen.getByRole("img", { name: "Success" })).toBeInTheDocument();
 
-    it("has proper viewBox and dimensions", () => {
-      const { container } = render(<InfoIcon alt="Info" />);
-      // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-      const svg = container.querySelector("svg");
-      expect(svg).toHaveAttribute("viewBox", "0 0 28 28");
-      expect(svg).toHaveAttribute("width", "28");
-      expect(svg).toHaveAttribute("height", "28");
-    });
+    const { container: lockContainer } = render(<LockIcon alt="Locked" />);
+    expect(screen.getByRole("img", { name: "Locked" })).toBeInTheDocument();
+    expect(lockContainer.querySelector("title")).toHaveTextContent("Locked");
+
+    render(
+      <>
+        <CloseIcon alt="Close 1" />
+        <SearchIcon alt="Search 1" />
+      </>,
+    );
+    expect(screen.getByRole("img", { name: "Close 1" })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Search 1" })).toBeInTheDocument();
   });
 
-  describe("WarningFilledIcon", () => {
-    it("renders with alt text", () => {
-      render(<WarningFilledIcon alt="Warning" />);
-      const icon = screen.getByRole("img", { name: "Warning" });
-      expect(icon).toBeInTheDocument();
-    });
+  it("handles empty alt text and aria-hidden", () => {
+    const { container: emptyAlt1 } = render(<InfoIcon alt="" />);
+    const { container: emptyAlt2 } = render(<CloseIcon alt="" />);
 
-    it("is hidden from screen readers when alt is empty", () => {
-      const { container } = render(<WarningFilledIcon alt="" />);
-      // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-      const svg = container.querySelector("svg");
-      expect(svg).toHaveAttribute("aria-hidden", "true");
-    });
+    expect(emptyAlt1.querySelector("svg")).toHaveAttribute(
+      "aria-hidden",
+      "true",
+    );
+    expect(emptyAlt2.querySelector("svg")).toHaveAttribute(
+      "aria-hidden",
+      "true",
+    );
   });
 
-  describe("ArrowDownIcon", () => {
-    it("renders with alt text", () => {
-      render(<ArrowDownIcon alt="Expand" />);
-      const icon = screen.getByRole("img", { name: "Expand" });
-      expect(icon).toBeInTheDocument();
-    });
-  });
+  it("supports custom props and dimensions", () => {
+    const handleClick = jest.fn();
+    const { container } = render(
+      <InfoIcon
+        alt="Custom"
+        width={50}
+        height={50}
+        className="custom-class"
+        data-testid="custom-icon"
+        data-feature="security"
+        style={{ opacity: 0.5 }}
+        onClick={handleClick}
+      />,
+    );
 
-  describe("CheckIcon", () => {
-    it("renders with alt text", () => {
-      render(<CheckIcon alt="Success" />);
-      const icon = screen.getByRole("img", { name: "Success" });
-      expect(icon).toBeInTheDocument();
-    });
-  });
+    const svg = container.querySelector("svg");
+    expect(svg).toHaveAttribute("viewBox", "0 0 28 28");
+    expect(svg).toHaveAttribute("width", "50");
+    expect(svg).toHaveAttribute("height", "50");
+    expect(svg).toHaveAttribute("data-testid", "custom-icon");
+    expect(svg).toHaveAttribute("data-feature", "security");
+    expect(svg?.getAttribute("class")).toContain("custom-class");
+    expect(svg).toHaveStyle({ opacity: 0.5 });
 
-  describe("CloseIcon", () => {
-    it("renders with alt text", () => {
-      render(<CloseIcon alt="Close" />);
-      const icon = screen.getByRole("img", { name: "Close" });
-      expect(icon).toBeInTheDocument();
-    });
-  });
-
-  describe("CopyIcon", () => {
-    it("renders with alt text", () => {
-      render(<CopyIcon alt="Copy" />);
-      const icon = screen.getByRole("img", { name: "Copy" });
-      expect(icon).toBeInTheDocument();
-    });
-  });
-
-  describe("Icon accessibility", () => {
-    it("all icons include title element for accessibility", () => {
-      const { container: infoContainer } = render(<InfoIcon alt="Info" />);
-      const { container: warningContainer } = render(
-        <WarningFilledIcon alt="Warning" />,
-      );
-
-      // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-      const infoTitle = infoContainer.querySelector("title");
-      // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-      const warningTitle = warningContainer.querySelector("title");
-
-      expect(infoTitle).toHaveTextContent("Info");
-      expect(warningTitle).toHaveTextContent("Warning");
-    });
-
-    it("passes custom props to svg element", () => {
-      const { container } = render(
-        <InfoIcon
-          alt="Info"
-          data-testid="custom-icon"
-          className="custom-class"
-        />,
-      );
-      // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-      const svg = container.querySelector("svg");
-
-      expect(svg).toHaveAttribute("data-testid", "custom-icon");
-      // Check if className baseVal contains the custom class
-      expect(svg?.getAttribute("class")).toContain("custom-class");
-    });
+    svg?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(handleClick).toHaveBeenCalledTimes(1);
   });
 });

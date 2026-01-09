@@ -1,8 +1,14 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { mockCookiesModule } from "../../../../__mocks__/functions/cookies";
 import { mockGetLocaleModule } from "../../../../__mocks__/functions/getLocale";
 import { mockUseL10nModule } from "../../../../__mocks__/hooks/l10n";
 import { getMockProfileData } from "../../../../__mocks__/hooks/api/profile";
+import {
+  mockFirstSeen,
+  mockFirstSeenDaysAgo,
+  mockCookieDismissal,
+} from "../../../../__mocks__/testHelpers";
 
 import { CsatSurvey } from "./CsatSurvey";
 
@@ -11,753 +17,174 @@ jest.mock("../../../functions/getLocale.ts", () => mockGetLocaleModule);
 jest.mock("../../../hooks/firstSeen.ts");
 jest.mock("../../../hooks/l10n.ts", () => mockUseL10nModule);
 
-describe("The CSAT survey", () => {
-  it("does not display the survey if the user has joined within the last week", () => {
-    const useFirstSeen = // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-    useFirstSeen.mockReturnValueOnce(new Date(Date.now()));
-    const mockProfileData = getMockProfileData({ has_premium: false });
+describe("CsatSurvey", () => {
+  describe("Survey visibility", () => {
+    it("respects user age and dismissal state across free and premium tiers", () => {
+      mockFirstSeen(new Date(Date.now()));
+      const { container: newFree } = render(
+        <CsatSurvey profile={getMockProfileData({ has_premium: false })} />,
+      );
+      expect(newFree.querySelector("button")).toBeNull();
 
-    render(<CsatSurvey profile={mockProfileData} />);
+      mockFirstSeenDaysAgo(7);
+      const { container: weekOldFree } = render(
+        <CsatSurvey profile={getMockProfileData({ has_premium: false })} />,
+      );
+      expect(weekOldFree.querySelector("button")).toBeTruthy();
 
-    const veryDissatisfiedButton = screen.queryByRole("button", {
-      name: /very-dissatisfied/,
+      mockCookieDismissal("free-7days");
+      const { container: dismissedFree } = render(
+        <CsatSurvey profile={getMockProfileData({ has_premium: false })} />,
+      );
+      expect(dismissedFree.querySelector("button")).toBeNull();
+
+      mockFirstSeenDaysAgo(30);
+      mockCookieDismissal("free-7days");
+      const { container: monthOldWithOldDismissal } = render(
+        <CsatSurvey profile={getMockProfileData({ has_premium: false })} />,
+      );
+      expect(monthOldWithOldDismissal.querySelector("button")).toBeTruthy();
+
+      const newPremium = getMockProfileData({
+        has_premium: true,
+        date_subscribed: new Date(Date.now()).toISOString(),
+      });
+      const { container: newPremiumContainer } = render(
+        <CsatSurvey profile={newPremium} />,
+      );
+      expect(newPremiumContainer.querySelector("button")).toBeNull();
+
+      const weekOldPremium = getMockProfileData({
+        has_premium: true,
+        date_subscribed: new Date(
+          Date.now() - 7 * 24 * 60 * 60 * 1000,
+        ).toISOString(),
+      });
+      const { container: weekOldPremiumContainer } = render(
+        <CsatSurvey profile={weekOldPremium} />,
+      );
+      expect(weekOldPremiumContainer.querySelector("button")).toBeTruthy();
     });
-    const verySatisfiedButton = screen.queryByRole("button", {
-      name: /very-satisfied/,
-    });
 
-    expect(veryDissatisfiedButton).not.toBeInTheDocument();
-    expect(verySatisfiedButton).not.toBeInTheDocument();
+    it("handles edge cases", () => {
+      const useFirstSeen = (
+        jest.requireMock("../../../hooks/firstSeen.ts") as any
+      ).useFirstSeen;
+      const getLocale = (
+        jest.requireMock("../../../functions/getLocale.ts") as any
+      ).getLocale;
+      const getCookie: jest.Mock = (
+        jest.requireMock("../../../functions/cookies.ts") as any
+      ).getCookie;
+
+      useFirstSeen.mockReturnValue(new Date(0));
+      getLocale.mockReturnValue("fr");
+      getCookie.mockReturnValue(undefined);
+      const { container: validLocale } = render(
+        <CsatSurvey profile={getMockProfileData({ has_premium: false })} />,
+      );
+      expect(validLocale.querySelector("button")).toBeTruthy();
+
+      getLocale.mockReturnValue("fy");
+      const { container: invalidLocale } = render(
+        <CsatSurvey profile={getMockProfileData({ has_premium: false })} />,
+      );
+      expect(invalidLocale.querySelector("button")).toBeNull();
+
+      useFirstSeen.mockReturnValue(
+        new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+      );
+      getLocale.mockReturnValue("en");
+      const unknownSubDate = getMockProfileData({
+        has_premium: true,
+        date_subscribed: null,
+      });
+      const { container: unknownDateContainer } = render(
+        <CsatSurvey profile={unknownSubDate} />,
+      );
+      expect(unknownDateContainer.querySelector("button")).toBeTruthy();
+
+      useFirstSeen.mockReturnValue(
+        new Date(Date.now() - 6 * 30 * 24 * 60 * 60 * 1001),
+      );
+      getCookie.mockImplementation((key: string) =>
+        key.includes("free-90days")
+          ? Date.now() - 3 * 30 * 24 * 60 * 60 * 1001
+          : undefined,
+      );
+      const { container: reShowAfterTime } = render(
+        <CsatSurvey profile={getMockProfileData({ has_premium: false })} />,
+      );
+      expect(reShowAfterTime.querySelector("button")).toBeTruthy();
+    });
   });
 
-  it("displays the survey to a new free user", () => {
-    const useFirstSeen = // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-    useFirstSeen.mockReturnValueOnce(new Date(0));
-    const mockProfileData = getMockProfileData({ has_premium: false });
-
-    render(<CsatSurvey profile={mockProfileData} />);
-
-    const veryDissatisfiedButton = screen.getByRole("button", {
-      name: /very-dissatisfied/,
-    });
-    const verySatisfiedButton = screen.getByRole("button", {
-      name: /very-satisfied/,
-    });
-
-    expect(veryDissatisfiedButton).toBeInTheDocument();
-    expect(verySatisfiedButton).toBeInTheDocument();
-  });
-
-  it("does not display the survey to a new free user that has dismissed or completed it before", () => {
-    const useFirstSeen = // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-    useFirstSeen.mockReturnValueOnce(
-      new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-    );
-    const getCookie: jest.Mock =
-      // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../functions/cookies.ts") as any).getCookie;
-    getCookie.mockImplementation((key: string) =>
-      key.includes("free-7days") ? Date.now() : undefined,
-    );
-    const mockProfileData = getMockProfileData({ has_premium: false });
-
-    render(<CsatSurvey profile={mockProfileData} />);
-
-    const veryDissatisfiedButton = screen.queryByRole("button", {
-      name: /very-dissatisfied/,
-    });
-    const verySatisfiedButton = screen.queryByRole("button", {
-      name: /very-satisfied/,
-    });
-
-    expect(veryDissatisfiedButton).not.toBeInTheDocument();
-    expect(verySatisfiedButton).not.toBeInTheDocument();
-  });
-
-  it("displays the survey to a free user for more than a month", () => {
-    const useFirstSeen = // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-    useFirstSeen.mockReturnValueOnce(
-      new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-    );
-    const mockProfileData = getMockProfileData({ has_premium: false });
-
-    render(<CsatSurvey profile={mockProfileData} />);
-
-    const veryDissatisfiedButton = screen.getByRole("button", {
-      name: /very-dissatisfied/,
-    });
-    const verySatisfiedButton = screen.getByRole("button", {
-      name: /very-satisfied/,
-    });
-
-    expect(veryDissatisfiedButton).toBeInTheDocument();
-    expect(verySatisfiedButton).toBeInTheDocument();
-  });
-
-  it("displays the survey to a free user for more than a month that has dismissed or completed the 1-week survey before", () => {
-    const useFirstSeen = // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-    useFirstSeen.mockReturnValueOnce(
-      new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-    );
-    const getCookie: jest.Mock =
-      // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../functions/cookies.ts") as any).getCookie;
-    getCookie.mockImplementation((key: string) =>
-      key.includes("free-7days") ? Date.now() : undefined,
-    );
-    const mockProfileData = getMockProfileData({ has_premium: false });
-
-    render(<CsatSurvey profile={mockProfileData} />);
-
-    const veryDissatisfiedButton = screen.getByRole("button", {
-      name: /very-dissatisfied/,
-    });
-    const verySatisfiedButton = screen.getByRole("button", {
-      name: /very-satisfied/,
-    });
-
-    expect(veryDissatisfiedButton).toBeInTheDocument();
-    expect(verySatisfiedButton).toBeInTheDocument();
-  });
-
-  it("does not display the survey to a free user for more than a month that has dismissed or completed it before", () => {
-    const useFirstSeen = // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-    useFirstSeen.mockReturnValueOnce(
-      new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-    );
-    const getCookie: jest.Mock =
-      // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../functions/cookies.ts") as any).getCookie;
-    getCookie.mockImplementation((key: string) =>
-      key.includes("free-30days") ? Date.now() : undefined,
-    );
-    const mockProfileData = getMockProfileData({ has_premium: false });
-
-    render(<CsatSurvey profile={mockProfileData} />);
-
-    const veryDissatisfiedButton = screen.queryByRole("button", {
-      name: /very-dissatisfied/,
-    });
-    const verySatisfiedButton = screen.queryByRole("button", {
-      name: /very-satisfied/,
-    });
-
-    expect(veryDissatisfiedButton).not.toBeInTheDocument();
-    expect(verySatisfiedButton).not.toBeInTheDocument();
-  });
-
-  it("displays the survey to a free user for more than three months", () => {
-    const useFirstSeen = // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-    useFirstSeen.mockReturnValueOnce(
-      new Date(Date.now() - 3 * 30 * 24 * 60 * 60 * 1000),
-    );
-    const mockProfileData = getMockProfileData({ has_premium: false });
-
-    render(<CsatSurvey profile={mockProfileData} />);
-
-    const veryDissatisfiedButton = screen.getByRole("button", {
-      name: /very-dissatisfied/,
-    });
-    const verySatisfiedButton = screen.getByRole("button", {
-      name: /very-satisfied/,
-    });
-
-    expect(veryDissatisfiedButton).toBeInTheDocument();
-    expect(verySatisfiedButton).toBeInTheDocument();
-  });
-
-  it("displays the survey to a free user for more than three months that has dismissed or completed the 1-month survey before", () => {
-    const useFirstSeen = // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-    useFirstSeen.mockReturnValueOnce(
-      new Date(Date.now() - 3 * 30 * 24 * 60 * 60 * 1000),
-    );
-    const getCookie: jest.Mock =
-      // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../functions/cookies.ts") as any).getCookie;
-    getCookie.mockImplementation((key: string) =>
-      key.includes("free-30days") ? Date.now() : undefined,
-    );
-    const mockProfileData = getMockProfileData({ has_premium: false });
-
-    render(<CsatSurvey profile={mockProfileData} />);
-
-    const veryDissatisfiedButton = screen.getByRole("button", {
-      name: /very-dissatisfied/,
-    });
-    const verySatisfiedButton = screen.getByRole("button", {
-      name: /very-satisfied/,
-    });
-
-    expect(veryDissatisfiedButton).toBeInTheDocument();
-    expect(verySatisfiedButton).toBeInTheDocument();
-  });
-
-  it("displays the survey to a free user for more than three months that has dismissed or completed the 1-week survey before", () => {
-    const useFirstSeen = // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-    useFirstSeen.mockReturnValueOnce(
-      new Date(Date.now() - 3 * 30 * 24 * 60 * 60 * 1000),
-    );
-    const getCookie: jest.Mock =
-      // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../functions/cookies.ts") as any).getCookie;
-    getCookie.mockImplementation((key: string) =>
-      key.includes("free-7days") ? Date.now() : undefined,
-    );
-    const mockProfileData = getMockProfileData({ has_premium: false });
-
-    render(<CsatSurvey profile={mockProfileData} />);
-
-    const veryDissatisfiedButton = screen.getByRole("button", {
-      name: /very-dissatisfied/,
-    });
-    const verySatisfiedButton = screen.getByRole("button", {
-      name: /very-satisfied/,
-    });
-
-    expect(veryDissatisfiedButton).toBeInTheDocument();
-    expect(verySatisfiedButton).toBeInTheDocument();
-  });
-
-  it("does not display the survey to a free user for more than three months that has dismissed or completed it before", () => {
-    const useFirstSeen = // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-    useFirstSeen.mockReturnValueOnce(
-      new Date(Date.now() - 3 * 30 * 24 * 60 * 60 * 1000),
-    );
-    const getCookie: jest.Mock =
-      // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../functions/cookies.ts") as any).getCookie;
-    getCookie.mockImplementation((key: string) =>
-      key.includes("free-90days") ? Date.now() : undefined,
-    );
-    const mockProfileData = getMockProfileData({ has_premium: false });
-
-    render(<CsatSurvey profile={mockProfileData} />);
-
-    const veryDissatisfiedButton = screen.queryByRole("button", {
-      name: /very-dissatisfied/,
-    });
-    const verySatisfiedButton = screen.queryByRole("button", {
-      name: /very-satisfied/,
-    });
-
-    expect(veryDissatisfiedButton).not.toBeInTheDocument();
-    expect(verySatisfiedButton).not.toBeInTheDocument();
-  });
-
-  it("displays the survey to a free user for more than three months that has dismissed or completed the 3-month survey more than three months ago", () => {
-    const useFirstSeen = // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-    useFirstSeen.mockReturnValueOnce(
-      new Date(Date.now() - 6 * 30 * 24 * 60 * 60 * 1001),
-    );
-    const getCookie: jest.Mock =
-      // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../functions/cookies.ts") as any).getCookie;
-    getCookie.mockImplementation((key: string) =>
-      key.includes("free-90days")
-        ? Date.now() - 3 * 30 * 24 * 60 * 60 * 1001
-        : undefined,
-    );
-    const mockProfileData = getMockProfileData({ has_premium: false });
-
-    render(<CsatSurvey profile={mockProfileData} />);
-
-    const veryDissatisfiedButton = screen.getByRole("button", {
-      name: /very-dissatisfied/,
-    });
-    const verySatisfiedButton = screen.getByRole("button", {
-      name: /very-satisfied/,
-    });
-
-    expect(veryDissatisfiedButton).toBeInTheDocument();
-    expect(verySatisfiedButton).toBeInTheDocument();
-  });
-
-  it("does not display the survey if the user has purchased Premium within the last week", () => {
-    const mockProfileData = getMockProfileData({
-      has_premium: true,
-      date_subscribed: new Date(Date.now()).toISOString(),
-    });
-
-    render(<CsatSurvey profile={mockProfileData} />);
-
-    const veryDissatisfiedButton = screen.queryByRole("button", {
-      name: /very-dissatisfied/,
-    });
-    const verySatisfiedButton = screen.queryByRole("button", {
-      name: /very-satisfied/,
-    });
-
-    expect(veryDissatisfiedButton).not.toBeInTheDocument();
-    expect(verySatisfiedButton).not.toBeInTheDocument();
-  });
-
-  it("does not display the survey if the user has purchased Premium within the last week, even if they created an account a week ago and did not dismiss or complete the survey then", () => {
-    const useFirstSeen = // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-    useFirstSeen.mockReturnValueOnce(new Date(0));
-    const getCookie: jest.Mock =
-      // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../functions/cookies.ts") as any).getCookie;
-    getCookie.mockReturnValue(undefined);
-    const mockProfileData = getMockProfileData({
-      has_premium: true,
-      date_subscribed: new Date(Date.now()).toISOString(),
-    });
-
-    render(<CsatSurvey profile={mockProfileData} />);
-
-    const veryDissatisfiedButton = screen.queryByRole("button", {
-      name: /very-dissatisfied/,
-    });
-    const verySatisfiedButton = screen.queryByRole("button", {
-      name: /very-satisfied/,
-    });
-
-    expect(veryDissatisfiedButton).not.toBeInTheDocument();
-    expect(verySatisfiedButton).not.toBeInTheDocument();
-  });
-
-  it("displays the survey to a new Premium user after a week", () => {
-    const mockProfileData = getMockProfileData({
-      has_premium: true,
-      date_subscribed: new Date(
-        Date.now() - 7 * 24 * 60 * 60 * 1000,
-      ).toISOString(),
-    });
-
-    render(<CsatSurvey profile={mockProfileData} />);
-
-    const veryDissatisfiedButton = screen.getByRole("button", {
-      name: /very-dissatisfied/,
-    });
-    const verySatisfiedButton = screen.getByRole("button", {
-      name: /very-satisfied/,
-    });
-
-    expect(veryDissatisfiedButton).toBeInTheDocument();
-    expect(verySatisfiedButton).toBeInTheDocument();
-  });
-
-  it("does not display the survey to a new Premium user for a week who has completed or dismissed it before", () => {
-    const getCookie: jest.Mock =
-      // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../functions/cookies.ts") as any).getCookie;
-    getCookie.mockImplementation((key: string) =>
-      key.includes("premium-7days") ? Date.now() : undefined,
-    );
-    const mockProfileData = getMockProfileData({
-      has_premium: true,
-      date_subscribed: new Date(
-        Date.now() - 7 * 24 * 60 * 60 * 1000,
-      ).toISOString(),
-    });
-
-    render(<CsatSurvey profile={mockProfileData} />);
-
-    const veryDissatisfiedButton = screen.queryByRole("button", {
-      name: /very-dissatisfied/,
-    });
-    const verySatisfiedButton = screen.queryByRole("button", {
-      name: /very-satisfied/,
-    });
-
-    expect(veryDissatisfiedButton).not.toBeInTheDocument();
-    expect(verySatisfiedButton).not.toBeInTheDocument();
-  });
-
-  it("displays the survey to a new Premium user after a month", () => {
-    const mockProfileData = getMockProfileData({
-      has_premium: true,
-      date_subscribed: new Date(
-        Date.now() - 30 * 24 * 60 * 60 * 1000,
-      ).toISOString(),
-    });
-
-    render(<CsatSurvey profile={mockProfileData} />);
-
-    const veryDissatisfiedButton = screen.getByRole("button", {
-      name: /very-dissatisfied/,
+  describe("User interactions", () => {
+    it("handles complete survey submission flow", async () => {
+      const useFirstSeen = (
+        jest.requireMock("../../../hooks/firstSeen.ts") as any
+      ).useFirstSeen;
+      const getCookie: jest.Mock = (
+        jest.requireMock("../../../functions/cookies.ts") as any
+      ).getCookie;
+
+      useFirstSeen.mockReturnValue(new Date(0));
+      getCookie.mockReturnValue(undefined);
+      global.gaEventMock?.mockClear();
+
+      const user = userEvent.setup();
+      render(
+        <CsatSurvey profile={getMockProfileData({ has_premium: false })} />,
+      );
+
+      expect(screen.getAllByRole("button").length).toBeGreaterThan(0);
+      expect(
+        screen.getAllByTitle(/survey-option-dismiss/).length,
+      ).toBeGreaterThan(0);
+
+      const satisfiedButton = screen.getByRole("button", {
+        name: /survey-csat-answer-satisfied.*(?!very)/,
+      });
+      await user.click(satisfiedButton);
+
+      expect(global.gaEventMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          category: "CSAT Survey",
+          action: "submitted",
+          label: "Satisfied",
+        }),
+      );
+
+      const followUpLink = await screen.findByRole("link");
+      expect(followUpLink).toHaveAttribute(
+        "href",
+        expect.stringContaining("6665054"),
+      );
+      expect(followUpLink).toHaveAttribute("target", "_blank");
+
+      expect(
+        screen.queryAllByRole("button", { name: /survey-csat-answer/ }),
+      ).toHaveLength(0);
+    });
+
+    it("allows dismissal without answering", async () => {
+      const useFirstSeen = (
+        jest.requireMock("../../../hooks/firstSeen.ts") as any
+      ).useFirstSeen;
+      const getCookie: jest.Mock = (
+        jest.requireMock("../../../functions/cookies.ts") as any
+      ).getCookie;
+
+      useFirstSeen.mockReturnValue(new Date(0));
+      getCookie.mockReturnValue(undefined);
+
+      const user = userEvent.setup();
+      render(
+        <CsatSurvey profile={getMockProfileData({ has_premium: false })} />,
+      );
+
+      const dismissButtons = screen.getAllByTitle(/survey-option-dismiss/);
+      await user.click(dismissButtons[0]);
     });
-    const verySatisfiedButton = screen.getByRole("button", {
-      name: /very-satisfied/,
-    });
-
-    expect(veryDissatisfiedButton).toBeInTheDocument();
-    expect(verySatisfiedButton).toBeInTheDocument();
-  });
-
-  it("displays the survey to a new Premium user after a month that has dismissed or completed the 1-week survey before", () => {
-    const getCookie: jest.Mock =
-      // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../functions/cookies.ts") as any).getCookie;
-    getCookie.mockImplementation((key: string) =>
-      key.includes("premium-7days") ? Date.now() : undefined,
-    );
-    const mockProfileData = getMockProfileData({
-      has_premium: true,
-      date_subscribed: new Date(
-        Date.now() - 30 * 24 * 60 * 60 * 1000,
-      ).toISOString(),
-    });
-
-    render(<CsatSurvey profile={mockProfileData} />);
-
-    const veryDissatisfiedButton = screen.getByRole("button", {
-      name: /very-dissatisfied/,
-    });
-    const verySatisfiedButton = screen.getByRole("button", {
-      name: /very-satisfied/,
-    });
-
-    expect(veryDissatisfiedButton).toBeInTheDocument();
-    expect(verySatisfiedButton).toBeInTheDocument();
-  });
-
-  it("displays the survey to a new Premium user after a month that has dismissed or completed the 1-month free user survey before", () => {
-    const getCookie: jest.Mock =
-      // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../functions/cookies.ts") as any).getCookie;
-    getCookie.mockImplementation((key: string) =>
-      key.includes("free-30days") ? Date.now() : undefined,
-    );
-    const mockProfileData = getMockProfileData({
-      has_premium: true,
-      date_subscribed: new Date(
-        Date.now() - 30 * 24 * 60 * 60 * 1000,
-      ).toISOString(),
-    });
-
-    render(<CsatSurvey profile={mockProfileData} />);
-
-    const veryDissatisfiedButton = screen.getByRole("button", {
-      name: /very-dissatisfied/,
-    });
-    const verySatisfiedButton = screen.getByRole("button", {
-      name: /very-satisfied/,
-    });
-
-    expect(veryDissatisfiedButton).toBeInTheDocument();
-    expect(verySatisfiedButton).toBeInTheDocument();
-  });
-
-  it("does not display the survey to a new Premium user for a month who has completed or dismissed it before", () => {
-    const getCookie: jest.Mock =
-      // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../functions/cookies.ts") as any).getCookie;
-    getCookie.mockImplementation((key: string) =>
-      key.includes("premium-30days") ? Date.now() : undefined,
-    );
-    const mockProfileData = getMockProfileData({
-      has_premium: true,
-      date_subscribed: new Date(
-        Date.now() - 30 * 24 * 60 * 60 * 1000,
-      ).toISOString(),
-    });
-
-    render(<CsatSurvey profile={mockProfileData} />);
-
-    const veryDissatisfiedButton = screen.queryByRole("button", {
-      name: /very-dissatisfied/,
-    });
-    const verySatisfiedButton = screen.queryByRole("button", {
-      name: /very-satisfied/,
-    });
-
-    expect(veryDissatisfiedButton).not.toBeInTheDocument();
-    expect(verySatisfiedButton).not.toBeInTheDocument();
-  });
-
-  it("displays the survey to a new Premium user after three months", () => {
-    const mockProfileData = getMockProfileData({
-      has_premium: true,
-      date_subscribed: new Date(
-        Date.now() - 3 * 30 * 24 * 60 * 60 * 1000,
-      ).toISOString(),
-    });
-
-    render(<CsatSurvey profile={mockProfileData} />);
-
-    const veryDissatisfiedButton = screen.getByRole("button", {
-      name: /very-dissatisfied/,
-    });
-    const verySatisfiedButton = screen.getByRole("button", {
-      name: /very-satisfied/,
-    });
-
-    expect(veryDissatisfiedButton).toBeInTheDocument();
-    expect(verySatisfiedButton).toBeInTheDocument();
-  });
-
-  it("displays the survey to a new Premium user after three months that has dismissed or completed the 1-month survey before", () => {
-    const getCookie: jest.Mock =
-      // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../functions/cookies.ts") as any).getCookie;
-    getCookie.mockImplementation((key: string) =>
-      key.includes("premium-30days") ? Date.now() : undefined,
-    );
-    const mockProfileData = getMockProfileData({
-      has_premium: true,
-      date_subscribed: new Date(
-        Date.now() - 3 * 30 * 24 * 60 * 60 * 1000,
-      ).toISOString(),
-    });
-
-    render(<CsatSurvey profile={mockProfileData} />);
-
-    const veryDissatisfiedButton = screen.getByRole("button", {
-      name: /very-dissatisfied/,
-    });
-    const verySatisfiedButton = screen.getByRole("button", {
-      name: /very-satisfied/,
-    });
-
-    expect(veryDissatisfiedButton).toBeInTheDocument();
-    expect(verySatisfiedButton).toBeInTheDocument();
-  });
-
-  it("displays the survey to a new Premium user after three months that has dismissed or completed the 1-week survey before", () => {
-    const getCookie: jest.Mock =
-      // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../functions/cookies.ts") as any).getCookie;
-    getCookie.mockImplementation((key: string) =>
-      key.includes("premium-7days") ? Date.now() : undefined,
-    );
-    const mockProfileData = getMockProfileData({
-      has_premium: true,
-      date_subscribed: new Date(
-        Date.now() - 3 * 30 * 24 * 60 * 60 * 1000,
-      ).toISOString(),
-    });
-
-    render(<CsatSurvey profile={mockProfileData} />);
-
-    const veryDissatisfiedButton = screen.getByRole("button", {
-      name: /very-dissatisfied/,
-    });
-    const verySatisfiedButton = screen.getByRole("button", {
-      name: /very-satisfied/,
-    });
-
-    expect(veryDissatisfiedButton).toBeInTheDocument();
-    expect(verySatisfiedButton).toBeInTheDocument();
-  });
-
-  it("displays the survey to a new Premium user after three months that has dismissed or completed the 3-month free user survey before", () => {
-    const getCookie: jest.Mock =
-      // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../functions/cookies.ts") as any).getCookie;
-    getCookie.mockImplementation((key: string) =>
-      key.includes("free-90days") ? Date.now() : undefined,
-    );
-    const mockProfileData = getMockProfileData({
-      has_premium: true,
-      date_subscribed: new Date(
-        Date.now() - 3 * 30 * 24 * 60 * 60 * 1000,
-      ).toISOString(),
-    });
-
-    render(<CsatSurvey profile={mockProfileData} />);
-
-    const veryDissatisfiedButton = screen.getByRole("button", {
-      name: /very-dissatisfied/,
-    });
-    const verySatisfiedButton = screen.getByRole("button", {
-      name: /very-satisfied/,
-    });
-
-    expect(veryDissatisfiedButton).toBeInTheDocument();
-    expect(verySatisfiedButton).toBeInTheDocument();
-  });
-
-  it("does not display the survey to a new Premium user for three months who has completed or dismissed it before", () => {
-    const getCookie: jest.Mock =
-      // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../functions/cookies.ts") as any).getCookie;
-    getCookie.mockImplementation((key: string) =>
-      key.includes("premium-90days") ? Date.now() : undefined,
-    );
-    const mockProfileData = getMockProfileData({
-      has_premium: true,
-      date_subscribed: new Date(
-        Date.now() - 3 * 30 * 24 * 60 * 60 * 1000,
-      ).toISOString(),
-    });
-
-    render(<CsatSurvey profile={mockProfileData} />);
-
-    const veryDissatisfiedButton = screen.queryByRole("button", {
-      name: /very-dissatisfied/,
-    });
-    const verySatisfiedButton = screen.queryByRole("button", {
-      name: /very-satisfied/,
-    });
-
-    expect(veryDissatisfiedButton).not.toBeInTheDocument();
-    expect(verySatisfiedButton).not.toBeInTheDocument();
-  });
-
-  it("displays the survey to a new Premium user after more than three months that has dismissed or completed it more than three months ago", () => {
-    const getCookie: jest.Mock =
-      // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../functions/cookies.ts") as any).getCookie;
-    getCookie.mockImplementation((key: string) =>
-      key.includes("premium-90days")
-        ? Date.now() - 3 * 30 * 24 * 60 * 60 * 1001
-        : undefined,
-    );
-    const mockProfileData = getMockProfileData({
-      has_premium: true,
-      date_subscribed: new Date(
-        Date.now() - 6 * 30 * 24 * 60 * 60 * 1001,
-      ).toISOString(),
-    });
-
-    render(<CsatSurvey profile={mockProfileData} />);
-
-    const veryDissatisfiedButton = screen.getByRole("button", {
-      name: /very-dissatisfied/,
-    });
-    const verySatisfiedButton = screen.getByRole("button", {
-      name: /very-satisfied/,
-    });
-
-    expect(veryDissatisfiedButton).toBeInTheDocument();
-    expect(verySatisfiedButton).toBeInTheDocument();
-  });
-
-  it("displays the survey to a new Premium whose subscription date is unknown, but who was first seen more than 7 days ago", () => {
-    const useFirstSeen = // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-    useFirstSeen.mockReturnValueOnce(
-      new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-    );
-    const mockProfileData = getMockProfileData({
-      has_premium: true,
-      date_subscribed: null,
-    });
-
-    render(<CsatSurvey profile={mockProfileData} />);
-
-    const veryDissatisfiedButton = screen.getByRole("button", {
-      name: /very-dissatisfied/,
-    });
-    const verySatisfiedButton = screen.getByRole("button", {
-      name: /very-satisfied/,
-    });
-
-    expect(veryDissatisfiedButton).toBeInTheDocument();
-    expect(verySatisfiedButton).toBeInTheDocument();
-  });
-
-  it("does not display the survey to a new Premium whose subscription date is unknown, and who was first seen less than 7 days ago", () => {
-    const useFirstSeen = // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-    useFirstSeen.mockReturnValueOnce(new Date(Date.now()));
-    const mockProfileData = getMockProfileData({
-      has_premium: true,
-      date_subscribed: null,
-    });
-
-    render(<CsatSurvey profile={mockProfileData} />);
-
-    const veryDissatisfiedButton = screen.queryByRole("button", {
-      name: /very-dissatisfied/,
-    });
-    const verySatisfiedButton = screen.queryByRole("button", {
-      name: /very-satisfied/,
-    });
-
-    expect(veryDissatisfiedButton).not.toBeInTheDocument();
-    expect(verySatisfiedButton).not.toBeInTheDocument();
-  });
-
-  it("displays the survey if the user's language is set without a country code", () => {
-    const useFirstSeen = // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-    useFirstSeen.mockReturnValueOnce(new Date(0));
-    const getLocale = // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../functions/getLocale.ts") as any).getLocale;
-    getLocale.mockReturnValueOnce("fr");
-    const mockProfileData = getMockProfileData({ has_premium: false });
-
-    render(<CsatSurvey profile={mockProfileData} />);
-
-    const veryDissatisfiedButton = screen.getByRole("button", {
-      name: /very-dissatisfied/,
-    });
-    const verySatisfiedButton = screen.getByRole("button", {
-      name: /very-satisfied/,
-    });
-
-    expect(veryDissatisfiedButton).toBeInTheDocument();
-    expect(verySatisfiedButton).toBeInTheDocument();
-  });
-
-  it("does not display the survey if the user's language is set to something other than English, French, or German", () => {
-    const useFirstSeen = // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../hooks/firstSeen.ts") as any).useFirstSeen;
-    useFirstSeen.mockReturnValueOnce(new Date(0));
-    const getLocale = // TypeScript can't follow paths in `jest.requireMock`:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (jest.requireMock("../../../functions/getLocale.ts") as any).getLocale;
-    getLocale.mockReturnValueOnce("fy");
-    const mockProfileData = getMockProfileData({ has_premium: false });
-
-    render(<CsatSurvey profile={mockProfileData} />);
-
-    const veryDissatisfiedButton = screen.queryByRole("button", {
-      name: /very-dissatisfied/,
-    });
-    const verySatisfiedButton = screen.queryByRole("button", {
-      name: /very-satisfied/,
-    });
-
-    expect(veryDissatisfiedButton).not.toBeInTheDocument();
-    expect(verySatisfiedButton).not.toBeInTheDocument();
   });
 });

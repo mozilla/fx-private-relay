@@ -6,9 +6,7 @@ import { getLocale } from "../../../functions/getLocale";
 
 jest.mock("./CustomAliasTip.module.scss", () => ({}), { virtual: true });
 
-jest.mock("../../../config", () => ({
-  getRuntimeConfig: jest.fn(),
-}));
+jest.mock("../../../config");
 
 jest.mock("../../../functions/getLocale", () => ({
   getLocale: jest.fn(),

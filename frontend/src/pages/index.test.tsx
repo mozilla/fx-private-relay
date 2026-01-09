@@ -9,9 +9,7 @@ import {
 
 import Home from "./index.page";
 
-jest.mock("../functions/getPlan", () =>
-  jest.requireActual("../../__mocks__/functions/getPlan"),
-);
+jest.mock("../functions/getPlan");
 
 setMockRuntimeData();
 setMockProfileData(null);

@@ -9,9 +9,7 @@ import { getMockProfileData } from "../../../../__mocks__/hooks/api/profile";
 import * as LocalLabelsMock from "../../../../__mocks__/hooks/localLabels";
 import { AliasList } from "./AliasList";
 
-jest.mock("../../../functions/waffle", () =>
-  jest.requireActual("frontend/__mocks__/functions/waffle"),
-);
+jest.mock("../../../functions/waffle");
 import { resetFlags, withFlag } from "frontend/__mocks__/functions/flags";
 
 declare global {

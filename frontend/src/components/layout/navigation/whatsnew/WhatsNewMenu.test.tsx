@@ -9,9 +9,7 @@ import {
   mockedProfiles,
 } from "../../../../../__mocks__/api/mockData";
 
-jest.mock("../../../../functions/waffle", () =>
-  jest.requireActual("frontend/__mocks__/functions/waffle"),
-);
+jest.mock("../../../../functions/waffle");
 import {
   mockIsFlagActive,
   resetFlags,

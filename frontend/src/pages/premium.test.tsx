@@ -9,9 +9,7 @@ import {
   setMockRuntimeData,
 } from "../../__mocks__/hooks/api/runtimeData";
 
-jest.mock("../functions/getPlan", () =>
-  jest.requireActual("../../__mocks__/functions/getPlan"),
-);
+jest.mock("../functions/getPlan");
 
 import PremiumPromo from "./premium.page";
 

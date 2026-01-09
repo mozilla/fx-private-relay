@@ -2,12 +2,7 @@ import { render, screen } from "@testing-library/react";
 import PhoneWaitlist from "../../../src/pages/phone/waitlist.page";
 import { WaitlistPage } from "../../../src/components/waitlist/WaitlistPage";
 
-jest.mock("../../../src/components/Localized", () => {
-  const { mockLocalizedModule } = jest.requireActual(
-    "../../../__mocks__/components/Localized",
-  );
-  return mockLocalizedModule;
-});
+jest.mock("../../../src/components/Localized");
 
 jest.mock("../../../src/components/waitlist/WaitlistPage", () => ({
   WaitlistPage: jest.fn(() => <div data-testid="mock-waitlist-page" />),
