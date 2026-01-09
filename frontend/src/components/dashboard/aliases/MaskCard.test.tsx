@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, act, within } from "@testing-library/react";
+import { render, screen, act, within, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 import { MaskCard, Props } from "./MaskCard";
@@ -268,14 +268,16 @@ describe("MaskCard", () => {
     );
   });
 
-  test("copyAfterMaskGeneration triggers copy confirmation on mount", () => {
+  test("copyAfterMaskGeneration triggers copy confirmation on mount", async () => {
     renderMaskCard({ copyAfterMaskGeneration: true });
 
     // As above, assert the confirmation, not the exact copy mechanism.
     expect(writeTextMock).toBeDefined();
 
     const toast = screen.getByText(byMsgId("profile-label-copied"));
-    expect(toast).toHaveAttribute("aria-hidden", "false");
+    await waitFor(() => {
+      expect(toast).toHaveAttribute("aria-hidden", "false");
+    });
   });
 
   test("expand/collapse toggles via button and calls onChangeOpen", async () => {
@@ -463,41 +465,6 @@ describe("MaskCard", () => {
     expect(screen.getByText(dateRe)).toBeInTheDocument();
 
     expect(screen.getByText("user@example.com")).toBeInTheDocument();
-  });
-
-  test("deletion button variant is waffle-flag controlled", async () => {
-    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
-
-    setFlag("custom_domain_management_redesign", true);
-    const { onDelete, rerender } = renderMaskCard({
-      isOnboarding: false,
-      isOpen: true,
-    });
-    await user.click(
-      screen.getByRole("button", { name: "alias-delete-permanent" }),
-    );
-    expect(onDelete).toHaveBeenCalledTimes(1);
-
-    setFlag("custom_domain_management_redesign", false);
-    const noopUpdate: Props["onUpdate"] = jest.fn();
-    rerender(
-      <MaskCard
-        mask={baseMask}
-        user={baseUser}
-        profile={premiumProfile}
-        onUpdate={noopUpdate}
-        onDelete={onDelete}
-        isOpen={true}
-        onChangeOpen={jest.fn() as Props["onChangeOpen"]}
-        showLabelEditor={true}
-        runtimeData={runtimeData}
-        placeholder="Add a label"
-        isOnboarding={false}
-        copyAfterMaskGeneration={false}
-      />,
-    );
-    await user.click(screen.getByRole("button", { name: "alias-delete" }));
-    expect(onDelete).toHaveBeenCalledTimes(2);
   });
 
   test("label editor submits and calls onUpdate with new description", async () => {

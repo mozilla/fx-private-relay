@@ -17,7 +17,6 @@ export const DEFAULT_RUNTIME_DATA: RuntimeData = {
     ["four_mask_limit_upsell", true],
     ["interview_recruitment", false],
     ["intro_pricing_countdown", true],
-    ["custom_domain_management_redesign", true],
     ["phones", true],
     ["bundle", true],
     ["phone_launch_survey", true],
