@@ -1,3 +1,4 @@
+import React from "react";
 import { NextPage } from "next";
 import Image from "../components/Image";
 import { Layout } from "../components/layout/Layout";
@@ -69,7 +70,7 @@ const VpnRelayWelcome: NextPage = () => {
                   src={VpnLogo}
                   alt={l10n.getString("logo-premium-alt")}
                   className={styles["vpn-logo"]}
-                  height={40}
+                  height={44}
                 />
               </div>
 
