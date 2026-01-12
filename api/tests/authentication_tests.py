@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import NotRequired, TypedDict
+from typing import Any, Required, TypedDict
 
 from django.core.cache import cache
 from django.test import RequestFactory, TestCase
@@ -21,38 +21,45 @@ from ..authentication import (
 MOCK_BASE = "api.authentication"
 
 
-# TODO MPP-3527 - Many tests mock FxA responses. This one should specify that it is
-# mocking the introspection URL. It could also be refactored to a pytest fixture, or a
-# nullable.
+class FxaIntrospectData(TypedDict, total=False):
+    """
+    Data returned from FxA's /v1/introspect endpoint.
 
+    For more information, see:
+    https://mozilla.github.io/ecosystem-platform/api#tag/OAuth-Server-API-Overview/operation/postIntrospect
+    """
 
-class FxaResponse(TypedDict, total=False):
-    active: bool
+    active: Required[bool]
     sub: str
     exp: int
-    error: str
     scope: str
 
 
-class CachedFxaResponse(TypedDict):
+class CachedFxaIntrospectionResponse(TypedDict):
+    """The cached Fxa /v1/introspect response, to avoid overwhelming FxA API."""
+
     status_code: int
-    json: NotRequired[FxaResponse | str]
+    json: Any
 
 
-def _setup_fxa_response(
-    status_code: int, json: FxaResponse | str | None = None
-) -> CachedFxaResponse:
-    responses.add(
-        responses.POST,
-        INTROSPECT_TOKEN_URL,
-        status=status_code,
-        json=json,
-    )
-    if json is None:
-        return {
-            "status_code": status_code,
-            "json": {"scope": "https://identity.mozilla.com/apps/relay"},
-        }
+def setup_fxa_introspection_response(
+    data: FxaIntrospectData | None = None,
+) -> CachedFxaIntrospectionResponse:
+    """
+    Setup a successful call to FxA's /v1/introspect, return expected cached data.
+
+    Authentication can still fail, for example if the user is inactive or required data
+    is missing.
+    """
+    responses.add(responses.POST, INTROSPECT_TOKEN_URL, status=200, json=data)
+    return {"status_code": 200, "json": data}
+
+
+def setup_fxa_introspection_failure(
+    *, status_code: int, json: Any
+) -> CachedFxaIntrospectionResponse:
+    """Setup a failed call to FxA's /v1/introspect, return expected cached data"""
+    responses.add(responses.POST, INTROSPECT_TOKEN_URL, status=status_code, json=json)
     return {"status_code": status_code, "json": json}
 
 
@@ -69,7 +76,7 @@ class AuthenticationMiscellaneous(TestCase):
 
     @responses.activate
     def test_introspect_token_catches_JSONDecodeError_raises_AuthenticationFailed(self):
-        _setup_fxa_response(200)
+        setup_fxa_introspection_failure(status_code=200, json=None)
         invalid_token = "invalid-123"
 
         try:
@@ -85,7 +92,7 @@ class AuthenticationMiscellaneous(TestCase):
         now_time = int(datetime.now().timestamp())
         # Note: FXA iat and exp are timestamps in *milliseconds*
         exp_time = (now_time + 60 * 60) * 1000
-        json_data: FxaResponse = {
+        json_data: FxaIntrospectData = {
             "active": True,
             "sub": self.uid,
             "exp": exp_time,
@@ -93,7 +100,7 @@ class AuthenticationMiscellaneous(TestCase):
         }
         status_code = 200
         expected_fxa_resp_data = {"status_code": status_code, "json": json_data}
-        _setup_fxa_response(status_code, json_data)
+        setup_fxa_introspection_response(json_data)
         valid_token = "valid-123"
         cache_key = get_cache_key(valid_token)
 
@@ -109,14 +116,13 @@ class AuthenticationMiscellaneous(TestCase):
         now_time = int(datetime.now().timestamp())
         # Note: FXA iat and exp are timestamps in *milliseconds*
         exp_time = (now_time + 60 * 60) * 1000
-        fxa_response = _setup_fxa_response(
-            200,
+        fxa_response = setup_fxa_introspection_response(
             {
                 "active": True,
                 "sub": self.uid,
                 "exp": exp_time,
                 "scope": "https://identity.mozilla.com/apps/relay",
-            },
+            }
         )
         cache_key = get_cache_key(user_token)
 
@@ -137,7 +143,7 @@ class AuthenticationMiscellaneous(TestCase):
     def test_get_fxa_uid_from_oauth_token_status_code_None_uses_cached_response_returns_error_response(  # noqa: E501
         self,
     ) -> None:
-        _setup_fxa_response(200)
+        setup_fxa_introspection_failure(status_code=200, json=None)
         invalid_token = "invalid-123"
         cache_key = get_cache_key(invalid_token)
 
@@ -167,8 +173,8 @@ class AuthenticationMiscellaneous(TestCase):
         now_time = int(datetime.now().timestamp())
         # Note: FXA iat and exp are timestamps in *milliseconds*
         exp_time = (now_time + 60 * 60) * 1000
-        fxa_response = _setup_fxa_response(
-            401, {"active": False, "sub": self.uid, "exp": exp_time}
+        fxa_response = setup_fxa_introspection_failure(
+            status_code=401, json={"active": False, "sub": self.uid, "exp": exp_time}
         )
         invalid_token = "invalid-123"
         cache_key = get_cache_key(invalid_token)
@@ -199,8 +205,8 @@ class AuthenticationMiscellaneous(TestCase):
         now_time = int(datetime.now().timestamp())
         # Note: FXA iat and exp are timestamps in *milliseconds*
         old_exp_time = (now_time - 60 * 60) * 1000
-        fxa_response = _setup_fxa_response(
-            200, {"active": False, "sub": self.uid, "exp": old_exp_time}
+        fxa_response = setup_fxa_introspection_response(
+            {"active": False, "sub": self.uid, "exp": old_exp_time}
         )
         invalid_token = "invalid-123"
         cache_key = get_cache_key(invalid_token)
@@ -231,14 +237,13 @@ class AuthenticationMiscellaneous(TestCase):
         now_time = int(datetime.now().timestamp())
         # Note: FXA iat and exp are timestamps in *milliseconds*
         exp_time = (now_time + 60 * 60) * 1000
-        json_data: FxaResponse = {
+        json_data: FxaIntrospectData = {
             "active": True,
             "sub": self.uid,
             "exp": exp_time,
             "scope": "foo",
         }
-        status_code = 200
-        fxa_response = _setup_fxa_response(status_code, json_data)
+        fxa_response = setup_fxa_introspection_response(json_data)
         missing_scopes_token = "missing-scopes-123"
         cache_key = get_cache_key(missing_scopes_token)
 
@@ -273,13 +278,12 @@ class AuthenticationMiscellaneous(TestCase):
         now_time = int(datetime.now().timestamp())
         # Note: FXA iat and exp are timestamps in *milliseconds*
         exp_time = (now_time + 60 * 60) * 1000
-        fxa_response = _setup_fxa_response(
-            200,
+        fxa_response = setup_fxa_introspection_response(
             {
                 "active": True,
                 "exp": exp_time,
                 "scope": "https://identity.mozilla.com/apps/relay",
-            },
+            }
         )
         cache_key = get_cache_key(user_token)
 
@@ -332,7 +336,9 @@ class FxaTokenAuthenticationTest(TestCase):
 
     @responses.activate
     def test_non_200_resp_from_fxa_raises_error_and_caches(self) -> None:
-        fxa_response = _setup_fxa_response(401, {"error": "401"})
+        fxa_response = setup_fxa_introspection_failure(
+            status_code=401, json={"error": "401"}
+        )
         not_found_token = "not-found-123"
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION=f"Bearer {not_found_token}")
@@ -352,7 +358,9 @@ class FxaTokenAuthenticationTest(TestCase):
 
     @responses.activate
     def test_non_200_non_json_resp_from_fxa_raises_error_and_caches(self) -> None:
-        fxa_response = _setup_fxa_response(503, "Bad Gateway")
+        fxa_response = setup_fxa_introspection_failure(
+            status_code=503, json="Bad Gateway"
+        )
         not_found_token = "fxa-gw-error"
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION=f"Bearer {not_found_token}")
@@ -371,7 +379,7 @@ class FxaTokenAuthenticationTest(TestCase):
 
     @responses.activate
     def test_inactive_token_responds_with_401(self) -> None:
-        fxa_response = _setup_fxa_response(200, {"active": False})
+        fxa_response = setup_fxa_introspection_response({"active": False})
         inactive_token = "inactive-123"
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION=f"Bearer {inactive_token}")
@@ -391,8 +399,7 @@ class FxaTokenAuthenticationTest(TestCase):
     @responses.activate
     def test_200_resp_from_fxa_no_matching_user_raises_APIException(self) -> None:
         # I think this scope is realistic for a user that has not not accepted terms
-        fxa_response = _setup_fxa_response(
-            200,
+        fxa_response = setup_fxa_introspection_response(
             {
                 "active": True,
                 "sub": "not-a-relay-user",
@@ -426,8 +433,7 @@ class FxaTokenAuthenticationTest(TestCase):
         now_time = int(datetime.now().timestamp())
         # Note: FXA iat and exp are timestamps in *milliseconds*
         exp_time = (now_time + 60 * 60) * 1000
-        _setup_fxa_response(
-            200,
+        setup_fxa_introspection_response(
             {
                 "active": True,
                 "sub": self.uid,
@@ -456,8 +462,7 @@ class FxaTokenAuthenticationTest(TestCase):
         now_time = int(datetime.now().timestamp())
         # Note: FXA iat and exp are timestamps in *milliseconds*
         exp_time = (now_time + 60 * 60) * 1000
-        fxa_response = _setup_fxa_response(
-            200,
+        fxa_response = setup_fxa_introspection_response(
             {
                 "active": True,
                 "sub": self.uid,
@@ -493,8 +498,7 @@ class FxaTokenAuthenticationTest(TestCase):
         now_time = int(datetime.now().timestamp())
         # Note: FXA iat and exp are timestamps in *milliseconds*
         exp_time = (now_time + 60 * 60) * 1000
-        fxa_response = _setup_fxa_response(
-            200,
+        fxa_response = setup_fxa_introspection_response(
             {
                 "active": True,
                 "sub": self.uid,
