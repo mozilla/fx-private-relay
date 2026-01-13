@@ -1,6 +1,8 @@
 from datetime import datetime
 from typing import Any, Required, TypedDict
+from uuid import uuid4
 
+from django.conf import settings
 from django.core.cache import cache
 from django.test import RequestFactory, TestCase
 
@@ -35,6 +37,32 @@ class FxaIntrospectData(TypedDict, total=False):
     scope: str
 
 
+def create_fxa_introspect_data(
+    *,
+    active: bool = True,
+    sub: str | None = None,
+    scope: str | None = None,
+    no_sub: bool = False,
+    exp_expired: bool = False,
+) -> FxaIntrospectData:
+    """Create the data returned from FxA's /v1/introspect endpoint."""
+    now_time = int(datetime.now().timestamp())
+    # Note: FxA exp is timestamp in milliseconds
+    if exp_expired:
+        exp = (now_time - 60 * 60) * 1000
+    else:
+        exp = (now_time + 60 * 60) * 1000
+    data: FxaIntrospectData = {
+        "active": active,
+        "sub": uuid4().hex if sub is None else sub,
+        "exp": exp,
+        "scope": settings.RELAY_SCOPE if scope is None else scope,
+    }
+    if no_sub:
+        del data["sub"]
+    return data
+
+
 class CachedFxaIntrospectionResponse(TypedDict):
     """The cached Fxa /v1/introspect response, to avoid overwhelming FxA API."""
 
@@ -43,7 +71,7 @@ class CachedFxaIntrospectionResponse(TypedDict):
 
 
 def setup_fxa_introspection_response(
-    data: FxaIntrospectData | None = None,
+    data: FxaIntrospectData,
 ) -> CachedFxaIntrospectionResponse:
     """
     Setup a successful call to FxA's /v1/introspect, return expected cached data.
@@ -64,13 +92,6 @@ def setup_fxa_introspection_failure(
 
 
 class AuthenticationMiscellaneous(TestCase):
-    def setUp(self):
-        self.auth = FxaTokenAuthentication
-        self.factory = RequestFactory()
-        self.path = "/api/v1/relayaddresses"
-        self.fxa_verify_path = INTROSPECT_TOKEN_URL
-        self.uid = "relay-user-fxa-uid"
-
     def tearDown(self):
         cache.clear()
 
@@ -83,23 +104,14 @@ class AuthenticationMiscellaneous(TestCase):
             introspect_token(invalid_token)
         except AuthenticationFailed as e:
             assert str(e.detail) == "JSONDecodeError from FXA introspect response"
-            assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+            assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
             return
         self.fail("Should have raised AuthenticationFailed")
 
     @responses.activate
     def test_introspect_token_returns_fxa_introspect_response(self):
-        now_time = int(datetime.now().timestamp())
-        # Note: FXA iat and exp are timestamps in *milliseconds*
-        exp_time = (now_time + 60 * 60) * 1000
-        json_data: FxaIntrospectData = {
-            "active": True,
-            "sub": self.uid,
-            "exp": exp_time,
-            "scope": "https://identity.mozilla.com/apps/relay",
-        }
-        status_code = 200
-        expected_fxa_resp_data = {"status_code": status_code, "json": json_data}
+        json_data = create_fxa_introspect_data()
+        expected_fxa_resp_data = {"status_code": 200, "json": json_data}
         setup_fxa_introspection_response(json_data)
         valid_token = "valid-123"
         cache_key = get_cache_key(valid_token)
@@ -107,37 +119,29 @@ class AuthenticationMiscellaneous(TestCase):
         assert cache.get(cache_key) is None
 
         fxa_resp_data = introspect_token(valid_token)
-        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
         assert fxa_resp_data == expected_fxa_resp_data
 
     @responses.activate
     def test_get_fxa_uid_from_oauth_token_returns_cached_response(self):
         user_token = "user-123"
-        now_time = int(datetime.now().timestamp())
-        # Note: FXA iat and exp are timestamps in *milliseconds*
-        exp_time = (now_time + 60 * 60) * 1000
-        fxa_response = setup_fxa_introspection_response(
-            {
-                "active": True,
-                "sub": self.uid,
-                "exp": exp_time,
-                "scope": "https://identity.mozilla.com/apps/relay",
-            }
-        )
+        uid = "relay-user-fxa-uid"
+        fxa_introspect_data = create_fxa_introspect_data(sub=uid)
+        fxa_response = setup_fxa_introspection_response(fxa_introspect_data)
         cache_key = get_cache_key(user_token)
 
         assert cache.get(cache_key) is None
 
         # get FxA uid for the first time
         fxa_uid = get_fxa_uid_from_oauth_token(user_token)
-        assert fxa_uid == self.uid
-        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert fxa_uid == uid
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
         assert cache.get(cache_key) == fxa_response
 
         # now check that the 2nd call did NOT make another fxa request
         fxa_uid = get_fxa_uid_from_oauth_token(user_token)
-        assert fxa_uid == self.uid
-        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert fxa_uid == uid
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
 
     @responses.activate
     def test_get_fxa_uid_from_oauth_token_status_code_None_uses_cached_response_returns_error_response(  # noqa: E501
@@ -154,7 +158,7 @@ class AuthenticationMiscellaneous(TestCase):
             get_fxa_uid_from_oauth_token(invalid_token)
         except AuthenticationFailed as e:
             assert str(e.detail) == "JSONDecodeError from FXA introspect response"
-            assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+            assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
         assert cache.get(cache_key) == {"status_code": None, "json": {}}
 
         # now check that the 2nd call did NOT make another fxa request
@@ -162,7 +166,7 @@ class AuthenticationMiscellaneous(TestCase):
             get_fxa_uid_from_oauth_token(invalid_token)
         except APIException as e:
             assert str(e.detail) == "Previous FXA call failed, wait to retry."
-            assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+            assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
             return
         self.fail("Should have raised APIException")
 
@@ -170,12 +174,8 @@ class AuthenticationMiscellaneous(TestCase):
     def test_get_fxa_uid_from_oauth_token_status_code_not_200_uses_cached_response_returns_error_response(  # noqa: E501
         self,
     ) -> None:
-        now_time = int(datetime.now().timestamp())
-        # Note: FXA iat and exp are timestamps in *milliseconds*
-        exp_time = (now_time + 60 * 60) * 1000
-        fxa_response = setup_fxa_introspection_failure(
-            status_code=401, json={"active": False, "sub": self.uid, "exp": exp_time}
-        )
+        data = create_fxa_introspect_data(active=False)
+        fxa_response = setup_fxa_introspection_failure(status_code=401, json=data)
         invalid_token = "invalid-123"
         cache_key = get_cache_key(invalid_token)
 
@@ -186,7 +186,7 @@ class AuthenticationMiscellaneous(TestCase):
             get_fxa_uid_from_oauth_token(invalid_token)
         except APIException as e:
             assert str(e.detail) == "Did not receive a 200 response from FXA."
-            assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+            assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
         assert cache.get(cache_key) == fxa_response
 
         # now check that the 2nd call did NOT make another fxa request
@@ -194,7 +194,7 @@ class AuthenticationMiscellaneous(TestCase):
             get_fxa_uid_from_oauth_token(invalid_token)
         except APIException as e:
             assert str(e.detail) == "Did not receive a 200 response from FXA."
-            assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+            assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
             return
         self.fail("Should have raised APIException")
 
@@ -202,12 +202,8 @@ class AuthenticationMiscellaneous(TestCase):
     def test_get_fxa_uid_from_oauth_token_not_active_uses_cached_response_returns_error_response(  # noqa: E501
         self,
     ) -> None:
-        now_time = int(datetime.now().timestamp())
-        # Note: FXA iat and exp are timestamps in *milliseconds*
-        old_exp_time = (now_time - 60 * 60) * 1000
-        fxa_response = setup_fxa_introspection_response(
-            {"active": False, "sub": self.uid, "exp": old_exp_time}
-        )
+        data = create_fxa_introspect_data(active=False, exp_expired=True)
+        fxa_response = setup_fxa_introspection_response(data)
         invalid_token = "invalid-123"
         cache_key = get_cache_key(invalid_token)
 
@@ -218,7 +214,7 @@ class AuthenticationMiscellaneous(TestCase):
             get_fxa_uid_from_oauth_token(invalid_token)
         except AuthenticationFailed as e:
             assert str(e.detail) == "FXA returned active: False for token."
-            assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+            assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
         assert cache.get(cache_key) == fxa_response
 
         # now check that the 2nd call did NOT make another fxa request
@@ -226,7 +222,7 @@ class AuthenticationMiscellaneous(TestCase):
             get_fxa_uid_from_oauth_token(invalid_token)
         except AuthenticationFailed as e:
             assert str(e.detail) == "FXA returned active: False for token."
-            assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+            assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
             return
         self.fail("Should have raised AuthenticationFailed")
 
@@ -234,15 +230,7 @@ class AuthenticationMiscellaneous(TestCase):
     def test_get_fxa_uid_from_oauth_token_has_wrong_scope_returns_error_response(  # noqa: E501
         self,
     ) -> None:
-        now_time = int(datetime.now().timestamp())
-        # Note: FXA iat and exp are timestamps in *milliseconds*
-        exp_time = (now_time + 60 * 60) * 1000
-        json_data: FxaIntrospectData = {
-            "active": True,
-            "sub": self.uid,
-            "exp": exp_time,
-            "scope": "foo",
-        }
+        json_data = create_fxa_introspect_data(scope="foo")
         fxa_response = setup_fxa_introspection_response(json_data)
         missing_scopes_token = "missing-scopes-123"
         cache_key = get_cache_key(missing_scopes_token)
@@ -250,41 +238,28 @@ class AuthenticationMiscellaneous(TestCase):
         assert cache.get(cache_key) is None
 
         # get fxa response with no fxa uid for the first time
+        expected_err = f"FXA token is missing scope: {settings.RELAY_SCOPE}."
         try:
             get_fxa_uid_from_oauth_token(missing_scopes_token)
         except AuthenticationFailed as e:
-            assert (
-                str(e.detail)
-                == "FXA token is missing scope: https://identity.mozilla.com/apps/relay."
-            )
-            assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+            assert str(e.detail) == expected_err
+            assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
         assert cache.get(cache_key) == fxa_response
 
         # now check that the 2nd call did NOT make another fxa request
         try:
             get_fxa_uid_from_oauth_token(missing_scopes_token)
         except AuthenticationFailed as e:
-            assert (
-                str(e.detail)
-                == "FXA token is missing scope: https://identity.mozilla.com/apps/relay."
-            )
-            assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+            assert str(e.detail) == expected_err
+            assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
             return
         self.fail("Should have raised AuthenticationFailed")
 
     @responses.activate
     def test_get_fxa_uid_from_oauth_token_returns_fxa_response_with_no_fxa_uid(self):
         user_token = "user-123"
-        now_time = int(datetime.now().timestamp())
-        # Note: FXA iat and exp are timestamps in *milliseconds*
-        exp_time = (now_time + 60 * 60) * 1000
-        fxa_response = setup_fxa_introspection_response(
-            {
-                "active": True,
-                "exp": exp_time,
-                "scope": "https://identity.mozilla.com/apps/relay",
-            }
-        )
+        fxa_introspect_data = create_fxa_introspect_data(no_sub=True)
+        fxa_response = setup_fxa_introspection_response(fxa_introspect_data)
         cache_key = get_cache_key(user_token)
 
         assert cache.get(cache_key) is None
@@ -294,7 +269,7 @@ class AuthenticationMiscellaneous(TestCase):
             get_fxa_uid_from_oauth_token(user_token)
         except NotFound as e:
             assert str(e.detail) == "FXA did not return an FXA UID."
-            assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+            assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
         assert cache.get(cache_key) == fxa_response
 
         # now check that the 2nd call did NOT make another fxa request
@@ -302,7 +277,7 @@ class AuthenticationMiscellaneous(TestCase):
             get_fxa_uid_from_oauth_token(user_token)
         except NotFound as e:
             assert str(e.detail) == "FXA did not return an FXA UID."
-            assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+            assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
             return
         self.fail("Should have raised AuthenticationFailed")
 
@@ -312,7 +287,6 @@ class FxaTokenAuthenticationTest(TestCase):
         self.auth = FxaTokenAuthentication()
         self.factory = RequestFactory()
         self.path = "/api/v1/relayaddresses/"
-        self.fxa_verify_path = INTROSPECT_TOKEN_URL
         self.uid = "relay-user-fxa-uid"
 
     def tearDown(self) -> None:
@@ -349,12 +323,12 @@ class FxaTokenAuthenticationTest(TestCase):
         assert response.status_code == 500
         assert response.json()["detail"] == "Did not receive a 200 response from FXA."
 
-        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
         assert cache.get(get_cache_key(not_found_token)) == fxa_response
 
         # now check that the code does NOT make another fxa request
         response = client.get("/api/v1/relayaddresses/")
-        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
 
     @responses.activate
     def test_non_200_non_json_resp_from_fxa_raises_error_and_caches(self) -> None:
@@ -370,12 +344,12 @@ class FxaTokenAuthenticationTest(TestCase):
         response = client.get("/api/v1/relayaddresses/")
         assert response.status_code == 500
 
-        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
         assert cache.get(get_cache_key(not_found_token)) == fxa_response
 
         # now check that the code does NOT make another fxa request
         response = client.get("/api/v1/relayaddresses/")
-        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
 
     @responses.activate
     def test_inactive_token_responds_with_401(self) -> None:
@@ -389,23 +363,20 @@ class FxaTokenAuthenticationTest(TestCase):
         response = client.get("/api/v1/relayaddresses/")
         assert response.status_code == 401
         assert response.json()["detail"] == "FXA returned active: False for token."
-        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
         assert cache.get(get_cache_key(inactive_token)) == fxa_response
 
         # now check that the code does NOT make another fxa request
         response = client.get("/api/v1/relayaddresses/")
-        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
 
     @responses.activate
     def test_200_resp_from_fxa_no_matching_user_raises_APIException(self) -> None:
         # I think this scope is realistic for a user that has not not accepted terms
-        fxa_response = setup_fxa_introspection_response(
-            {
-                "active": True,
-                "sub": "not-a-relay-user",
-                "scope": "https://identity.mozilla.com/apps/relay",
-            },
+        fxa_introspect_data = create_fxa_introspect_data(
+            scope="https://identity.mozilla.com/apps/relay"
         )
+        fxa_response = setup_fxa_introspection_response(fxa_introspect_data)
         non_user_token = "non-user-123"
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION=f"Bearer {non_user_token}")
@@ -423,24 +394,15 @@ class FxaTokenAuthenticationTest(TestCase):
 
         # the code does NOT make another fxa request
         response = client.get("/api/v1/relayaddresses/")
-        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
 
     @responses.activate
     def test_200_resp_from_fxa_inactive_Relay_user_raises_APIException(self) -> None:
         sa: SocialAccount = baker.make(SocialAccount, uid=self.uid, provider="fxa")
         sa.user.is_active = False
         sa.user.save()
-        now_time = int(datetime.now().timestamp())
-        # Note: FXA iat and exp are timestamps in *milliseconds*
-        exp_time = (now_time + 60 * 60) * 1000
-        setup_fxa_introspection_response(
-            {
-                "active": True,
-                "sub": self.uid,
-                "exp": exp_time,
-                "scope": "https://identity.mozilla.com/apps/relay",
-            },
-        )
+        fxa_introspect_data = create_fxa_introspect_data(sub=self.uid)
+        setup_fxa_introspection_response(fxa_introspect_data)
         inactive_user_token = "inactive-user-123"
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION=f"Bearer {inactive_user_token}")
@@ -459,24 +421,15 @@ class FxaTokenAuthenticationTest(TestCase):
         user_token = "user-123"
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION=f"Bearer {user_token}")
-        now_time = int(datetime.now().timestamp())
-        # Note: FXA iat and exp are timestamps in *milliseconds*
-        exp_time = (now_time + 60 * 60) * 1000
-        fxa_response = setup_fxa_introspection_response(
-            {
-                "active": True,
-                "sub": self.uid,
-                "exp": exp_time,
-                "scope": "https://identity.mozilla.com/apps/relay",
-            },
-        )
+        fxa_introspect_data = create_fxa_introspect_data(sub=self.uid)
+        fxa_response = setup_fxa_introspection_response(fxa_introspect_data)
 
         assert cache.get(get_cache_key(user_token)) is None
 
         # check the endpoint status code
         response = client.get("/api/v1/relayaddresses/")
         assert response.status_code == 200
-        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
         assert cache.get(get_cache_key(user_token)) == fxa_response
 
         # check the function returns the right user
@@ -486,7 +439,7 @@ class FxaTokenAuthenticationTest(TestCase):
         assert auth_return == (sa.user, user_token)
 
         # now check that the 2nd call did NOT make another fxa request
-        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
         assert cache.get(get_cache_key(user_token)) == fxa_response
 
     @responses.activate
@@ -495,24 +448,15 @@ class FxaTokenAuthenticationTest(TestCase):
         user_token = "user-123"
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION=f"Bearer {user_token}")
-        now_time = int(datetime.now().timestamp())
-        # Note: FXA iat and exp are timestamps in *milliseconds*
-        exp_time = (now_time + 60 * 60) * 1000
-        fxa_response = setup_fxa_introspection_response(
-            {
-                "active": True,
-                "sub": self.uid,
-                "exp": exp_time,
-                "scope": "https://identity.mozilla.com/apps/relay",
-            },
-        )
+        fxa_introspect_data = create_fxa_introspect_data(sub=self.uid)
+        fxa_response = setup_fxa_introspection_response(fxa_introspect_data)
 
         assert cache.get(get_cache_key(user_token)) is None
 
         # check the endpoint status code
         response = client.get("/api/v1/relayaddresses/")
         assert response.status_code == 200
-        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
         assert cache.get(get_cache_key(user_token)) == fxa_response
 
         # check the function returns the right user
@@ -522,7 +466,7 @@ class FxaTokenAuthenticationTest(TestCase):
         assert auth_return == (sa.user, user_token)
 
         # now check that the 2nd GET request did NOT make another fxa request
-        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
         assert cache.get(get_cache_key(user_token)) == fxa_response
 
         headers = {"Authorization": f"Bearer {user_token}"}
@@ -531,20 +475,20 @@ class FxaTokenAuthenticationTest(TestCase):
         # FXA is *NOT* called
         post_addresses_req = self.factory.post(self.path, headers=headers)
         auth_return = self.auth.authenticate(post_addresses_req)
-        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
 
         # send POST to another API endpoint and check that cache is NOT used
         post_webcompat = self.factory.post(
             "/api/v1/report_webcompat_issue", headers=headers
         )
         auth_return = self.auth.authenticate(post_webcompat)
-        assert responses.assert_call_count(self.fxa_verify_path, 2) is True
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 2) is True
 
         # send other write requests and check that FXA *IS* called
         put_addresses_req = self.factory.put(self.path, headers=headers)
         auth_return = self.auth.authenticate(put_addresses_req)
-        assert responses.assert_call_count(self.fxa_verify_path, 3) is True
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 3) is True
 
         delete_addresses_req = self.factory.delete(self.path, headers=headers)
         auth_return = self.auth.authenticate(delete_addresses_req)
-        assert responses.assert_call_count(self.fxa_verify_path, 4) is True
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 4) is True
