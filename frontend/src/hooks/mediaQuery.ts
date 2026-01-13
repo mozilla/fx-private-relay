@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import variables from "./mediaQuery.module.scss";
+import { MEDIA_QUERIES } from "./mediaQueryConstants";
 
 function useMediaQueryImp(mediaQuery: string): boolean {
   const [mediaQueryList, setMediaQueryList] = useState(
@@ -39,21 +39,5 @@ export const useMediaQuery =
 export function useMinViewportWidth(
   width: "xs" | "sm" | "md" | "lg" | "xl",
 ): boolean {
-  let mediaQuery = "";
-  if (width === "xl") {
-    mediaQuery = variables.mq_xl.replace('"', "").replace('"', "");
-  }
-  if (width === "lg") {
-    mediaQuery = variables.mq_lg.replace('"', "").replace('"', "");
-  }
-  if (width === "md") {
-    mediaQuery = variables.mq_md.replace('"', "").replace('"', "");
-  }
-  if (width === "sm") {
-    mediaQuery = variables.mq_sm.replace('"', "").replace('"', "");
-  }
-  if (width === "xs") {
-    mediaQuery = variables.mq_xs.replace('"', "").replace('"', "");
-  }
-  return useMediaQuery(mediaQuery);
+  return useMediaQuery(MEDIA_QUERIES[width]);
 }

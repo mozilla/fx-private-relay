@@ -52,79 +52,77 @@ $toastify-toast-close-button: var(--toast-close-button);
     margin-top: $spacing-md;
   }
 
-  &:global {
-    &[class*="toast--error"],
-    &[class*="toast--info"] {
-      [id*="close-toast-button-icon"] {
-        color: #{$color-white};
-      }
+  :global([class*="toast--error"]),
+  :global([class*="toast--info"]) {
+    [id*="close-toast-button-icon"] {
+      color: #{$color-white};
+    }
+  }
+
+  :global([class*="toast-body"]) {
+    padding: $spacing-md;
+  }
+
+  :global([class*="toast--success"]),
+  :global([class*="toast--warning"]) {
+    [id*="close-toast-button-icon"] {
+      color: #{color.$grey-50};
+    }
+  }
+
+  :global([class*="toast--error"]) {
+    --toast-close-button: #{$color-red-60};
+
+    &:hover {
+      --toastify-color-error: #{$color-red-70};
     }
 
-    & > [class*="toast-body"] {
-      padding: $spacing-md;
+    &:active,
+    &:focus {
+      --toastify-color-error: #{$color-red-80};
+      --toast-close-button: #{$color-red-80};
+    }
+  }
+
+  :global([class*="toast--info"]) {
+    --toast-close-button: #{$color-blue-50};
+
+    &:hover {
+      --toast-close-button: #{$color-blue-60};
     }
 
-    &[class*="toast--success"],
-    &[class*="toast--warning"] {
-      [id*="close-toast-button-icon"] {
-        color: #{color.$grey-50};
-      }
+    &:active,
+    &:focus {
+      --toastify-color-info: #{$color-blue-70};
+      --toast-close-button: #{$color-blue-70};
+    }
+  }
+
+  :global([class*="toast--success"]) {
+    --toast-close-button: #{$color-green-50};
+
+    &:hover {
+      --toast-close-button: #{$color-green-60};
     }
 
-    &[class*="toast--error"] {
-      --toast-close-button: #{$color-red-60};
+    &:active,
+    &:focus {
+      --toastify-color-success: #{$color-green-70};
+      --toast-close-button: #{$color-green-70};
+    }
+  }
 
-      &:hover {
-        --toastify-color-error: #{$color-red-70};
-      }
+  :global([class*="toast--warning"]) {
+    --toast-close-button: #{$color-yellow-50};
 
-      &:active,
-      &:focus {
-        --toastify-color-error: #{$color-red-80};
-        --toast-close-button: #{$color-red-80};
-      }
+    &:hover {
+      --toast-close-button: #{$color-yellow-60};
     }
 
-    &[class*="toast--info"] {
-      --toast-close-button: #{$color-blue-50};
-
-      &:hover {
-        --toast-close-button: #{$color-blue-60};
-      }
-
-      &:active,
-      &:focus {
-        --toastify-color-info: #{$color-blue-70};
-        --toast-close-button: #{$color-blue-70};
-      }
-    }
-
-    &[class*="toast--success"] {
-      --toast-close-button: #{$color-green-50};
-
-      &:hover {
-        --toast-close-button: #{$color-green-60};
-      }
-
-      &:active,
-      &:focus {
-        --toastify-color-success: #{$color-green-70};
-        --toast-close-button: #{$color-green-70};
-      }
-    }
-
-    &[class*="toast--warning"] {
-      --toast-close-button: #{$color-yellow-50};
-
-      &:hover {
-        --toast-close-button: #{$color-yellow-60};
-      }
-
-      &:active,
-      &:focus {
-        --toastify-color-warning: #{$color-yellow-70};
-        --toast-close-button: #{$color-yellow-70};
-      }
+    &:active,
+    &:focus {
+      --toastify-color-warning: #{$color-yellow-70};
+      --toast-close-button: #{$color-yellow-70};
     }
   }
 }

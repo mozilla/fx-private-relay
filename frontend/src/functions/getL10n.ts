@@ -26,7 +26,9 @@ export function getL10n(options: { deterministicLocales: boolean }) {
 
     if (locale) {
       RESOURCES[locale] ??= [];
-      RESOURCES[locale].push(new FluentResource(translationsContext(fileName)));
+      const fileContent =
+        translationsContext(fileName).default || translationsContext(fileName);
+      RESOURCES[locale].push(new FluentResource(fileContent));
     }
   }
 
@@ -58,9 +60,11 @@ export function getL10n(options: { deterministicLocales: boolean }) {
       if (locale === "en") {
         // `require` isn't usually valid JS, so skip type checking for that:
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const pendingTranslations = (require as any)(
+        const pendingTranslationsModule = (require as any)(
           "../../pendingTranslations.ftl",
         );
+        const pendingTranslations =
+          pendingTranslationsModule.default || pendingTranslationsModule;
         const pendingTranslationsResource = new FluentResource(
           pendingTranslations,
         );
