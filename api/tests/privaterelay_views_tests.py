@@ -15,7 +15,10 @@ from allauth.socialaccount.models import SocialAccount
 from rest_framework.test import APIClient
 
 from api.authentication import INTROSPECT_TOKEN_URL, get_cache_key
-from api.tests.authentication_tests import _setup_fxa_response
+from api.tests.authentication_tests import (
+    setup_fxa_introspection_failure,
+    setup_fxa_introspection_response,
+)
 from api.views.privaterelay import FXA_PROFILE_URL
 from privaterelay.models import Profile
 
@@ -290,8 +293,7 @@ class TermsAcceptedUserViewTest(TestCase):
         now_time = int(datetime.now().timestamp())
         # Note: FXA iat and exp are timestamps in *milliseconds*
         exp_time = (now_time + 60 * 60) * 1000
-        fxa_response = _setup_fxa_response(
-            200,
+        fxa_response = setup_fxa_introspection_response(
             {
                 "active": True,
                 "sub": self.uid,
@@ -346,8 +348,7 @@ class TermsAcceptedUserViewTest(TestCase):
         self._setup_client(user_token)
         now_time = int(datetime.now().timestamp())
         exp_time = (now_time + 60 * 60) * 1000
-        _setup_fxa_response(
-            200,
+        setup_fxa_introspection_response(
             {
                 "active": True,
                 "sub": self.uid,
@@ -383,7 +384,7 @@ class TermsAcceptedUserViewTest(TestCase):
     def test_invalid_bearer_token_error_from_fxa_returns_500_and_cache_returns_500(
         self,
     ) -> None:
-        _setup_fxa_response(401, {"error": "401"})
+        setup_fxa_introspection_failure(status_code=401, json={"error": "401"})
         not_found_token = "not-found-123"
         self._setup_client(not_found_token)
 
@@ -398,7 +399,7 @@ class TermsAcceptedUserViewTest(TestCase):
     def test_jsondecodeerror_returns_401_and_cache_returns_500(
         self,
     ) -> None:
-        _setup_fxa_response(200)
+        setup_fxa_introspection_failure(status_code=200, json=None)
         invalid_token = "invalid-123"
         cache_key = get_cache_key(invalid_token)
         self._setup_client(invalid_token)
@@ -420,7 +421,9 @@ class TermsAcceptedUserViewTest(TestCase):
         now_time = int(datetime.now().timestamp())
         # Note: FXA iat and exp are timestamps in *milliseconds*
         exp_time = (now_time + 60 * 60) * 1000
-        _setup_fxa_response(401, {"active": False, "sub": self.uid, "exp": exp_time})
+        setup_fxa_introspection_failure(
+            status_code=401, json={"active": False, "sub": self.uid, "exp": exp_time}
+        )
         invalid_token = "invalid-123"
         cache_key = get_cache_key(invalid_token)
         self._setup_client(invalid_token)
@@ -440,8 +443,8 @@ class TermsAcceptedUserViewTest(TestCase):
         now_time = int(datetime.now().timestamp())
         # Note: FXA iat and exp are timestamps in *milliseconds*
         old_exp_time = (now_time - 60 * 60) * 1000
-        _setup_fxa_response(
-            200, {"active": False, "sub": self.uid, "exp": old_exp_time}
+        setup_fxa_introspection_response(
+            {"active": False, "sub": self.uid, "exp": old_exp_time}
         )
         invalid_token = "invalid-123"
         cache_key = get_cache_key(invalid_token)
@@ -463,7 +466,7 @@ class TermsAcceptedUserViewTest(TestCase):
         now_time = int(datetime.now().timestamp())
         # Note: FXA iat and exp are timestamps in *milliseconds*
         exp_time = (now_time + 60 * 60) * 1000
-        _setup_fxa_response(200, {"active": True, "exp": exp_time})
+        setup_fxa_introspection_response({"active": True, "exp": exp_time})
         cache_key = get_cache_key(user_token)
         self._setup_client(user_token)
 
