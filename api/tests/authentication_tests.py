@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Any, Required, TypedDict
+from unittest.mock import patch
 from uuid import uuid4
 
 from django.conf import settings
@@ -9,6 +10,7 @@ from django.test import RequestFactory, TestCase
 import responses
 from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
+from requests.exceptions import Timeout
 from rest_framework.exceptions import APIException, AuthenticationFailed, NotFound
 from rest_framework.test import APIClient
 
@@ -112,6 +114,15 @@ class IntrospectTokenTests(TestCase):
         fxa_resp_data = introspect_token("valid-123")
         assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
         assert fxa_resp_data == expected_fxa_resp_data
+
+    @responses.activate
+    def test_timeout_raises_AuthenticationFailed(self):
+        responses.add(responses.POST, INTROSPECT_TOKEN_URL, body=Timeout("so slow"))
+
+        expected_err = "Could not introspect token with FXA."
+        with self.assertRaisesRegex(AuthenticationFailed, expected_err):
+            introspect_token("slow-123")
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
 
 
 class GetFxaUidFromOauthTests(TestCase):
@@ -245,6 +256,80 @@ class GetFxaUidFromOauthTests(TestCase):
         with self.assertRaisesRegex(NotFound, expected_err):
             get_fxa_uid_from_oauth_token(user_token)
         assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
+
+    @responses.activate
+    def test_timeout_fails_auth_and_cache_raises_APIException(self):
+        responses.add(responses.POST, INTROSPECT_TOKEN_URL, body=Timeout("so slow"))
+        token = "slow-123"
+        cache_key = get_cache_key(token)
+
+        assert cache.get(cache_key) is None
+
+        # fxa request times out for the first time
+        expected_err1 = "Could not introspect token with FXA."
+        with self.assertRaisesRegex(AuthenticationFailed, expected_err1):
+            get_fxa_uid_from_oauth_token(token)
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
+        assert cache.get(cache_key) == {"status_code": None, "json": {}}
+
+        # now check that the 2nd call did NOT make another fxa request
+        expected_err2 = "Previous FXA call failed, wait to retry."
+        with self.assertRaisesRegex(APIException, expected_err2):
+            get_fxa_uid_from_oauth_token(token)
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
+
+    @responses.activate
+    def test_cache_timeout_uses_exp_if_long(self):
+        fxa_introspect_data = create_fxa_introspect_data()
+        fxa_response = setup_fxa_introspection_response(fxa_introspect_data)
+        token = "long-exp-123"
+        cache_key = get_cache_key(token)
+
+        with patch("api.authentication.cache") as mock_cache:
+            mock_cache.get.return_value = None
+            get_fxa_uid_from_oauth_token(token)
+        call1, call2 = mock_cache.set.call_args_list
+        # First call to cache.set uses default of 60 seconds
+        assert call1.args == (cache_key, fxa_response, 60)
+        assert call2.args[0:2] == (cache_key, fxa_response)
+        # Second call to cache.set uses exp from introspect data
+        assert 3550 < call2.args[2] <= 3600  # Second call uses exp
+
+    @responses.activate
+    def test_cache_timeout_uses_default_if_exp_is_short(self):
+        fxa_introspect_data = create_fxa_introspect_data()
+        fxa_introspect_data["exp"] = (
+            int(datetime.now().timestamp()) * 1000
+        )  # expires now
+        fxa_response = setup_fxa_introspection_response(fxa_introspect_data)
+        token = "short-exp-123"
+        cache_key = get_cache_key(token)
+
+        with patch("api.authentication.cache") as mock_cache:
+            mock_cache.get.return_value = None
+            get_fxa_uid_from_oauth_token(token)
+        call1, call2 = mock_cache.set.call_args_list
+        # First call to cache.set uses default of 60 seconds
+        assert call1.args == (cache_key, fxa_response, 60)
+        # Second call to cache.set also uses default
+        assert call2.args == (cache_key, fxa_response, 60)
+
+    @responses.activate
+    def test_cache_timeout_uses_default_if_exp_is_omitted(self):
+        fxa_introspect_data = create_fxa_introspect_data()
+        del fxa_introspect_data["exp"]
+        fxa_response = setup_fxa_introspection_response(fxa_introspect_data)
+        token = "short-exp-123"
+        cache_key = get_cache_key(token)
+
+        with patch("api.authentication.cache") as mock_cache:
+            mock_cache.get.return_value = None
+            get_fxa_uid_from_oauth_token(token)
+        call1, call2 = mock_cache.set.call_args_list
+        # First call to cache.set uses default of 60 seconds
+        assert call1.args == (cache_key, fxa_response, 60)
+        # Second call to cache.set also uses default
+        assert call2.args == (cache_key, fxa_response, 60)
 
 
 class FxaTokenAuthenticationTest(TestCase):
