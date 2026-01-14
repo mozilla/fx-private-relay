@@ -97,15 +97,11 @@ class IntrospectTokenTests(TestCase):
     @responses.activate
     def test_invalid_json_raises_AuthenticationFailed(self):
         setup_fxa_introspection_failure(status_code=200, json=None)
-        invalid_token = "invalid-123"
 
-        try:
-            introspect_token(invalid_token)
-        except AuthenticationFailed as e:
-            assert str(e.detail) == "JSONDecodeError from FXA introspect response"
-            assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
-            return
-        self.fail("Should have raised AuthenticationFailed")
+        expected_err = "JSONDecodeError from FXA introspect response"
+        with self.assertRaisesRegex(AuthenticationFailed, expected_err):
+            introspect_token("invalid-123")
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
 
     @responses.activate
     def test_valid_json_returns_fxa_introspect_response(self):
@@ -154,21 +150,17 @@ class GetFxaUidFromOauthTests(TestCase):
         assert cache.get(cache_key) is None
 
         # get fxa response with no status code for the first time
-        try:
+        expected_err1 = "JSONDecodeError from FXA introspect response"
+        with self.assertRaisesRegex(AuthenticationFailed, expected_err1):
             get_fxa_uid_from_oauth_token(invalid_token)
-        except AuthenticationFailed as e:
-            assert str(e.detail) == "JSONDecodeError from FXA introspect response"
-            assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
         assert cache.get(cache_key) == {"status_code": None, "json": {}}
 
         # now check that the 2nd call did NOT make another fxa request
-        try:
+        expected_err2 = "Previous FXA call failed, wait to retry."
+        with self.assertRaisesRegex(APIException, expected_err2):
             get_fxa_uid_from_oauth_token(invalid_token)
-        except APIException as e:
-            assert str(e.detail) == "Previous FXA call failed, wait to retry."
-            assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
-            return
-        self.fail("Should have raised APIException")
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
 
     @responses.activate
     def test_failed_request_raises_APIException_and_cache_raises_same(self) -> None:
@@ -180,21 +172,16 @@ class GetFxaUidFromOauthTests(TestCase):
         assert cache.get(cache_key) is None
 
         # get fxa response with none 200 response for the first time
-        try:
+        expected_err = "Did not receive a 200 response from FXA."
+        with self.assertRaisesRegex(APIException, expected_err):
             get_fxa_uid_from_oauth_token(invalid_token)
-        except APIException as e:
-            assert str(e.detail) == "Did not receive a 200 response from FXA."
-            assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
         assert cache.get(cache_key) == fxa_response
 
         # now check that the 2nd call did NOT make another fxa request
-        try:
+        with self.assertRaisesRegex(APIException, expected_err):
             get_fxa_uid_from_oauth_token(invalid_token)
-        except APIException as e:
-            assert str(e.detail) == "Did not receive a 200 response from FXA."
-            assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
-            return
-        self.fail("Should have raised APIException")
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
 
     @responses.activate
     def test_inactive_user_fails_auth_and_cache_fails_auth(self) -> None:
@@ -206,21 +193,16 @@ class GetFxaUidFromOauthTests(TestCase):
         assert cache.get(cache_key) is None
 
         # get fxa response with token inactive for the first time
-        try:
+        expected_err = "FXA returned active: False for token."
+        with self.assertRaisesRegex(AuthenticationFailed, expected_err):
             get_fxa_uid_from_oauth_token(invalid_token)
-        except AuthenticationFailed as e:
-            assert str(e.detail) == "FXA returned active: False for token."
-            assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
         assert cache.get(cache_key) == fxa_response
 
         # now check that the 2nd call did NOT make another fxa request
-        try:
+        with self.assertRaisesRegex(AuthenticationFailed, expected_err):
             get_fxa_uid_from_oauth_token(invalid_token)
-        except AuthenticationFailed as e:
-            assert str(e.detail) == "FXA returned active: False for token."
-            assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
-            return
-        self.fail("Should have raised AuthenticationFailed")
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
 
     @responses.activate
     def test_wrong_scope_fails_auth_and_cache_fails_auth(self) -> None:
@@ -233,21 +215,15 @@ class GetFxaUidFromOauthTests(TestCase):
 
         # get fxa response with no fxa uid for the first time
         expected_err = f"FXA token is missing scope: {settings.RELAY_SCOPE}."
-        try:
+        with self.assertRaisesRegex(AuthenticationFailed, expected_err):
             get_fxa_uid_from_oauth_token(missing_scopes_token)
-        except AuthenticationFailed as e:
-            assert str(e.detail) == expected_err
-            assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
         assert cache.get(cache_key) == fxa_response
 
         # now check that the 2nd call did NOT make another fxa request
-        try:
+        with self.assertRaisesRegex(AuthenticationFailed, expected_err):
             get_fxa_uid_from_oauth_token(missing_scopes_token)
-        except AuthenticationFailed as e:
-            assert str(e.detail) == expected_err
-            assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
-            return
-        self.fail("Should have raised AuthenticationFailed")
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
 
     @responses.activate
     def test_no_sub_raises_NotFound_and_cache_raises_same(self):
@@ -259,21 +235,16 @@ class GetFxaUidFromOauthTests(TestCase):
         assert cache.get(cache_key) is None
 
         # get fxa response with no fxa uid for the first time
-        try:
+        expected_err = "FXA did not return an FXA UID."
+        with self.assertRaisesRegex(NotFound, expected_err):
             get_fxa_uid_from_oauth_token(user_token)
-        except NotFound as e:
-            assert str(e.detail) == "FXA did not return an FXA UID."
-            assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
         assert cache.get(cache_key) == fxa_response
 
         # now check that the 2nd call did NOT make another fxa request
-        try:
+        with self.assertRaisesRegex(NotFound, expected_err):
             get_fxa_uid_from_oauth_token(user_token)
-        except NotFound as e:
-            assert str(e.detail) == "FXA did not return an FXA UID."
-            assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
-            return
-        self.fail("Should have raised AuthenticationFailed")
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
 
 
 class FxaTokenAuthenticationTest(TestCase):
