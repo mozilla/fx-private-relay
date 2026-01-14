@@ -91,12 +91,14 @@ def setup_fxa_introspection_failure(
     return {"status_code": status_code, "json": json}
 
 
-class AuthenticationMiscellaneous(TestCase):
+class IntrospectTokenTests(TestCase):
+    """Tests for introspect_token()"""
+
     def tearDown(self):
         cache.clear()
 
     @responses.activate
-    def test_introspect_token_catches_JSONDecodeError_raises_AuthenticationFailed(self):
+    def test_invalid_json_raises_AuthenticationFailed(self):
         setup_fxa_introspection_failure(status_code=200, json=None)
         invalid_token = "invalid-123"
 
@@ -109,7 +111,7 @@ class AuthenticationMiscellaneous(TestCase):
         self.fail("Should have raised AuthenticationFailed")
 
     @responses.activate
-    def test_introspect_token_returns_fxa_introspect_response(self):
+    def test_valid_json_returns_fxa_introspect_response(self):
         json_data = create_fxa_introspect_data()
         expected_fxa_resp_data = {"status_code": 200, "json": json_data}
         setup_fxa_introspection_response(json_data)
@@ -122,8 +124,15 @@ class AuthenticationMiscellaneous(TestCase):
         assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
         assert fxa_resp_data == expected_fxa_resp_data
 
+
+class GetFxaUidFromOauthTests(TestCase):
+    """Tests for get_fxa_uid_from_oauth_token()"""
+
+    def tearDown(self):
+        cache.clear()
+
     @responses.activate
-    def test_get_fxa_uid_from_oauth_token_returns_cached_response(self):
+    def test_active_user_passes_auth_and_cache_passes_auth(self):
         user_token = "user-123"
         uid = "relay-user-fxa-uid"
         fxa_introspect_data = create_fxa_introspect_data(sub=uid)
@@ -144,9 +153,7 @@ class AuthenticationMiscellaneous(TestCase):
         assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
 
     @responses.activate
-    def test_get_fxa_uid_from_oauth_token_status_code_None_uses_cached_response_returns_error_response(  # noqa: E501
-        self,
-    ) -> None:
+    def test_invalid_json_fails_auth_and_cache_raises_APIException(self) -> None:
         setup_fxa_introspection_failure(status_code=200, json=None)
         invalid_token = "invalid-123"
         cache_key = get_cache_key(invalid_token)
@@ -171,9 +178,7 @@ class AuthenticationMiscellaneous(TestCase):
         self.fail("Should have raised APIException")
 
     @responses.activate
-    def test_get_fxa_uid_from_oauth_token_status_code_not_200_uses_cached_response_returns_error_response(  # noqa: E501
-        self,
-    ) -> None:
+    def test_failed_request_raises_APIException_and_cache_raises_same(self) -> None:
         data = create_fxa_introspect_data(active=False)
         fxa_response = setup_fxa_introspection_failure(status_code=401, json=data)
         invalid_token = "invalid-123"
@@ -199,9 +204,7 @@ class AuthenticationMiscellaneous(TestCase):
         self.fail("Should have raised APIException")
 
     @responses.activate
-    def test_get_fxa_uid_from_oauth_token_not_active_uses_cached_response_returns_error_response(  # noqa: E501
-        self,
-    ) -> None:
+    def test_inactive_user_fails_auth_and_cache_fails_auth(self) -> None:
         data = create_fxa_introspect_data(active=False, exp_expired=True)
         fxa_response = setup_fxa_introspection_response(data)
         invalid_token = "invalid-123"
@@ -227,9 +230,7 @@ class AuthenticationMiscellaneous(TestCase):
         self.fail("Should have raised AuthenticationFailed")
 
     @responses.activate
-    def test_get_fxa_uid_from_oauth_token_has_wrong_scope_returns_error_response(  # noqa: E501
-        self,
-    ) -> None:
+    def test_wrong_scope_fails_auth_and_cache_fails_auth(self) -> None:
         json_data = create_fxa_introspect_data(scope="foo")
         fxa_response = setup_fxa_introspection_response(json_data)
         missing_scopes_token = "missing-scopes-123"
@@ -256,7 +257,7 @@ class AuthenticationMiscellaneous(TestCase):
         self.fail("Should have raised AuthenticationFailed")
 
     @responses.activate
-    def test_get_fxa_uid_from_oauth_token_returns_fxa_response_with_no_fxa_uid(self):
+    def test_no_sub_raises_NotFound_and_cache_raises_same(self):
         user_token = "user-123"
         fxa_introspect_data = create_fxa_introspect_data(no_sub=True)
         fxa_response = setup_fxa_introspection_response(fxa_introspect_data)
