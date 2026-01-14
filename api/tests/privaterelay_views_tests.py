@@ -1,6 +1,4 @@
-"""Tests for api/views/email_views.py"""
-
-from datetime import datetime
+"""Tests for api/views/privaterelay_views.py"""
 
 from django.conf import LazySettings
 from django.contrib.auth.models import User
@@ -16,6 +14,7 @@ from rest_framework.test import APIClient
 
 from api.authentication import INTROSPECT_TOKEN_URL, get_cache_key
 from api.tests.authentication_tests import (
+    create_fxa_introspect_data,
     setup_fxa_introspection_failure,
     setup_fxa_introspection_response,
 )
@@ -290,17 +289,8 @@ class TermsAcceptedUserViewTest(TestCase):
         email = "user@email.com"
         user_token = "user-123"
         self._setup_client(user_token)
-        now_time = int(datetime.now().timestamp())
-        # Note: FXA iat and exp are timestamps in *milliseconds*
-        exp_time = (now_time + 60 * 60) * 1000
-        fxa_response = setup_fxa_introspection_response(
-            {
-                "active": True,
-                "sub": self.uid,
-                "exp": exp_time,
-                "scope": "https://identity.mozilla.com/apps/relay",
-            },
-        )
+        fxa_introspect_data = create_fxa_introspect_data(sub=self.uid)
+        fxa_response = setup_fxa_introspection_response(fxa_introspect_data)
         # setup fxa profile response
         profile_json = {
             "email": email,
@@ -346,16 +336,8 @@ class TermsAcceptedUserViewTest(TestCase):
     def test_failed_profile_fetch_for_new_user_returns_500(self) -> None:
         user_token = "user-123"
         self._setup_client(user_token)
-        now_time = int(datetime.now().timestamp())
-        exp_time = (now_time + 60 * 60) * 1000
-        setup_fxa_introspection_response(
-            {
-                "active": True,
-                "sub": self.uid,
-                "exp": exp_time,
-                "scope": "https://identity.mozilla.com/apps/relay",
-            },
-        )
+        fxa_introspect_data = create_fxa_introspect_data(sub=self.uid)
+        setup_fxa_introspection_response(fxa_introspect_data)
         # FxA profile server is down
         responses.add(responses.GET, FXA_PROFILE_URL, status=502, body="")
         response = self.client.post(self.path)
@@ -418,12 +400,8 @@ class TermsAcceptedUserViewTest(TestCase):
     def test_non_200_response_from_fxa_returns_500_and_cache_returns_500(
         self,
     ) -> None:
-        now_time = int(datetime.now().timestamp())
-        # Note: FXA iat and exp are timestamps in *milliseconds*
-        exp_time = (now_time + 60 * 60) * 1000
-        setup_fxa_introspection_failure(
-            status_code=401, json={"active": False, "sub": self.uid, "exp": exp_time}
-        )
+        fxa_introspect_data = create_fxa_introspect_data(sub=self.uid)
+        setup_fxa_introspection_failure(status_code=401, json=fxa_introspect_data)
         invalid_token = "invalid-123"
         cache_key = get_cache_key(invalid_token)
         self._setup_client(invalid_token)
@@ -440,12 +418,8 @@ class TermsAcceptedUserViewTest(TestCase):
     def test_inactive_fxa_oauth_token_returns_401_and_cache_returns_401(
         self,
     ) -> None:
-        now_time = int(datetime.now().timestamp())
-        # Note: FXA iat and exp are timestamps in *milliseconds*
-        old_exp_time = (now_time - 60 * 60) * 1000
-        setup_fxa_introspection_response(
-            {"active": False, "sub": self.uid, "exp": old_exp_time}
-        )
+        fxa_introspect_data = create_fxa_introspect_data(active=False, sub=self.uid)
+        setup_fxa_introspection_response(fxa_introspect_data)
         invalid_token = "invalid-123"
         cache_key = get_cache_key(invalid_token)
         self._setup_client(invalid_token)
@@ -463,10 +437,8 @@ class TermsAcceptedUserViewTest(TestCase):
         self,
     ) -> None:
         user_token = "user-123"
-        now_time = int(datetime.now().timestamp())
-        # Note: FXA iat and exp are timestamps in *milliseconds*
-        exp_time = (now_time + 60 * 60) * 1000
-        setup_fxa_introspection_response({"active": True, "exp": exp_time})
+        fxa_introspect_data = create_fxa_introspect_data(no_sub=True)
+        setup_fxa_introspection_response(fxa_introspect_data)
         cache_key = get_cache_key(user_token)
         self._setup_client(user_token)
 
