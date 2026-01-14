@@ -96,6 +96,12 @@ jobs:
               - type: section
                 fields:
                   - type: mrkdwn
+                    text: "*Environment:*\n ${{ inputs.environment }}"
+                  - type: mrkdwn
+                    text: "*Suite:*\n ${{ inputs.suite }}"
+              - type: section
+                fields:
+                  - type: mrkdwn
                     text: "*Ref:*\n ${{ github.ref }}"
                   - type: mrkdwn
                     text: "*Triggered by:*\n ${{ github.triggering_actor }}"
