@@ -94,9 +94,6 @@ def setup_fxa_introspection_failure(
 class IntrospectTokenTests(TestCase):
     """Tests for introspect_token()"""
 
-    def tearDown(self):
-        cache.clear()
-
     @responses.activate
     def test_invalid_json_raises_AuthenticationFailed(self):
         setup_fxa_introspection_failure(status_code=200, json=None)
@@ -115,12 +112,8 @@ class IntrospectTokenTests(TestCase):
         json_data = create_fxa_introspect_data()
         expected_fxa_resp_data = {"status_code": 200, "json": json_data}
         setup_fxa_introspection_response(json_data)
-        valid_token = "valid-123"
-        cache_key = get_cache_key(valid_token)
 
-        assert cache.get(cache_key) is None
-
-        fxa_resp_data = introspect_token(valid_token)
+        fxa_resp_data = introspect_token("valid-123")
         assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
         assert fxa_resp_data == expected_fxa_resp_data
 
