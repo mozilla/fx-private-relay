@@ -1,5 +1,17 @@
 import { useEffect, useState } from "react";
-import variables from "./mediaQuery.module.scss";
+
+// We used to import these directly from the source of truth (the SCSS),
+// but Next.js does not support that with Turbopack:
+// https://github.com/vercel/next.js/issues/88544
+// Hence, we manually inline the breakpoints from Protocol.
+// Since we're not matching Protocol updates, that should be safe enough:
+const breakpoints = {
+  xs: "(min-width: 320px)",
+  sm: "(min-width: 480px)",
+  md: "(min-width: 768px)",
+  lg: "(min-width: 1024px)",
+  xl: "(min-width: 1312px)",
+} as const;
 
 function useMediaQueryImp(mediaQuery: string): boolean {
   const [mediaQueryList, setMediaQueryList] = useState(
@@ -36,24 +48,6 @@ export const useMediaQuery =
  * @param width Matches the `$mq-xs` to `$mq-xl` media queries from Protocol.
  * @returns Whether the current viewport width matches that media query.
  */
-export function useMinViewportWidth(
-  width: "xs" | "sm" | "md" | "lg" | "xl",
-): boolean {
-  let mediaQuery = "";
-  if (width === "xl") {
-    mediaQuery = variables.mq_xl.replace('"', "").replace('"', "");
-  }
-  if (width === "lg") {
-    mediaQuery = variables.mq_lg.replace('"', "").replace('"', "");
-  }
-  if (width === "md") {
-    mediaQuery = variables.mq_md.replace('"', "").replace('"', "");
-  }
-  if (width === "sm") {
-    mediaQuery = variables.mq_sm.replace('"', "").replace('"', "");
-  }
-  if (width === "xs") {
-    mediaQuery = variables.mq_xs.replace('"', "").replace('"', "");
-  }
-  return useMediaQuery(mediaQuery);
+export function useMinViewportWidth(width: keyof typeof breakpoints): boolean {
+  return useMediaQuery(breakpoints[width] ?? "all");
 }

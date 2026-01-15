@@ -52,7 +52,7 @@ $toastify-toast-close-button: var(--toast-close-button);
     margin-top: $spacing-md;
   }
 
-  &:global {
+  :global(&) {
     &[class*="toast--error"],
     &[class*="toast--info"] {
       [id*="close-toast-button-icon"] {
