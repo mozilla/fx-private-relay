@@ -2,7 +2,7 @@
 
 Frontend guidance for Firefox Private Relay Next.js/React/TypeScript codebase.
 
-See [agents.md](agents.md) for project overview and global principles.
+See [.agents/agents.md](.agents/agents.md) for project overview and global principles.
 
 ## Technology Stack
 
@@ -34,7 +34,7 @@ Next.js generates static HTML served by Django/Whitenoise. Build output in `/fro
 
 ### Single Build for All Environments
 
-Frontend built once, deployed to dev/stage/prod. Environment-specific config fetched at runtime from `/api/runtime_data/` via `useRuntimeData` hook. See [agents.md](agents.md).
+Frontend built once, deployed to dev/stage/prod. Environment-specific config fetched at runtime from `/api/runtime_data/` via `useRuntimeData` hook. See [.agents/agents.md](.agents/agents.md).
 
 ### Runtime Config
 
@@ -55,6 +55,21 @@ Mock data in `frontend/__mocks__/api/mockData.ts`. Available mock users: `empty`
 ## CSS/Styling
 
 Use tokens from the [Protocol design system](https://protocol.mozilla.org) (see `node_modules/@mozilla-protocol/core/protocol/css/includes/_lib.scss`).
+
+### Protocol Design System Values
+
+Don't invent or guess Protocol design tokens. Verify actual values from the source.
+
+1. Check `node_modules/@mozilla-protocol/core/protocol/css/includes/_lib.scss` for actual values
+2. Search existing codebase usage to see how values are used
+3. If you cannot find the exact value, ask the user to verify rather than guessing
+4. Never assume "standard" or "typical" values match Protocol
+
+**Common Protocol tokens:**
+
+- Media queries: `$mq-xs`, `$mq-sm`, `$mq-md`, `$mq-lg`, `$mq-xl`
+- Colors: `$color-*` (e.g., `$color-blue-50`, `$color-red-60`)
+- Spacing: `$spacing-*` (e.g., `$spacing-sm`, `$spacing-lg`)
 
 ## Translations (i18n)
 
@@ -77,11 +92,11 @@ See [agents.testing.md](agents.testing.md) for details. Use Jest with React Test
 
 ## Code Quality Guidelines
 
-See [agents.md](agents.md) for global rules. Use TypeScript strict mode, functional components, hooks for state/effects, and React Aria for accessibility.
+See [.agents/agents.md](.agents/agents.md) for global rules. Use TypeScript strict mode, functional components, hooks for state/effects, and React Aria for accessibility.
 
 ## Further Reading
 
-- [agents.md](agents.md) - Project overview
+- [.agents/agents.md](.agents/agents.md) - Project overview
 - [agents.backend.md](agents.backend.md) - Backend API
 - [agents.testing.md](agents.testing.md) - Testing guidance
 - [Protocol Design System](https://protocol.mozilla.org)
