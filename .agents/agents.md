@@ -48,6 +48,16 @@ The frontend is built **once** and deployed to **all environments** (dev, stage,
 - No emoji in code or comments.
 - Type hints required (Python mypy strict mode).
 
+### Making Changes: Prefer Small and Conservative
+
+When implementing changes, especially migrations or refactors:
+
+- **Minimum necessary changes:** Only modify what's required to achieve the goal
+- **Keep working code:** Don't delete functional fallbacks or compatibility layers unless explicitly asked
+- **Verify before deleting:** If removing code, confirm it's truly unused (not just less common path)
+- **Ask before aggressive changes:** When unsure between conservative and aggressive approach, ask user preference
+- **Backwards compatibility:** Prefer keeping old code alongside new code during transitions
+
 #### Code comments
 
 Add comments only for:
