@@ -23,7 +23,7 @@ import MonitorLogo from "../images/monitor.png";
 import VpnLogo from "../images/vpn.svg";
 import FxDesktopLogo from "../images/fx-logo.svg";
 import FxMobileLogo from "../images/fx-mobile.png";
-import SoloLogo from "../images/solo.svg";
+import SoloLogo from "../images/solo.png";
 import { Props as LayoutProps } from "../Layout";
 import { getRuntimeConfig } from "../../../config";
 import { BentoIcon } from "../../Icons";
