@@ -265,7 +265,7 @@ export const AliasList = (props: Props) => {
           </div>
         </div>
       )}
-      <ul>
+      <ul data-testid="alias-list">
         {isFlagActive(props.runtimeData, "free_user_onboarding") && onboarding
           ? aliasCards[0]
           : aliasCards}

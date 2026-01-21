@@ -24,7 +24,7 @@ export class DashboardPage {
   readonly emailsBlockedAmount: Locator;
   readonly emailMasksUsedAmount: Locator;
   readonly maskCard: Locator;
-  readonly maskCardString: string;
+  readonly maskCards: Locator;
   readonly maskCardExpanded: Locator;
   readonly maskCardExpandButton: Locator;
   readonly maskCardHeader: Locator;
@@ -38,6 +38,7 @@ export class DashboardPage {
   readonly maskCardDeleteDialogModal: Locator;
   readonly maskCardDeleteDialogModalGeneratedEmail: Locator;
   readonly maskCardFinalDeleteButton: Locator;
+  readonly maskList: Locator;
   readonly maxMaskLimitButton: Locator;
   readonly maxMaskBannerText: Locator;
   readonly generateNewMaskPremiumButton: Locator;
@@ -135,7 +136,8 @@ export class DashboardPage {
 
     // mask card elements
     this.maskCard = page.getByRole("button", { name: "Generate new mask" });
-    this.maskCardString = '//div[starts-with(@class, "MaskCard_card")]';
+    this.maskList = page.getByTestId("alias-list");
+    this.maskCards = this.maskList.locator("li");
     this.maskCardExpanded = page.locator(
       '//button[starts-with(@class, "MaskCard_expand")]',
     );
@@ -247,8 +249,7 @@ export class DashboardPage {
       ? this.generateNewMaskPremiumButton
       : this.generateNewMaskButton;
 
-    const maskCards = this.page.locator(this.maskCardString);
-    const preMaskCardsCount = await maskCards.count();
+    const preMaskCardsCount = await this.maskCards.count();
 
     // generate a new mask
     await generateMaskBtn.click();
@@ -260,11 +261,11 @@ export class DashboardPage {
 
     if (preMaskCardsCount === 0) {
       // Wait for the first mask card
-      expect(maskCards).toBeVisible({ timeout: TIMEOUTS.MEDIUM });
+      expect(this.maskCards).toBeVisible({ timeout: TIMEOUTS.MEDIUM });
     } else {
       // Wait for the mask card count to increase, or the error banner
       expect(
-        this.bannerEmailError.or(maskCards.nth(preMaskCardsCount)),
+        this.bannerEmailError.or(this.maskCards.nth(preMaskCardsCount)),
       ).toBeVisible({ timeout: TIMEOUTS.MEDIUM });
     }
 
@@ -272,7 +273,7 @@ export class DashboardPage {
       this.bannerEmailError,
       "No mask error banner. If fails, maybe rate-limited?",
     ).not.toBeVisible();
-    expect(await maskCards, "Mask cards should go up by one").toHaveCount(
+    expect(this.maskCards, "Mask cards should go up by one").toHaveCount(
       preMaskCardsCount + 1,
     );
 
@@ -295,7 +296,7 @@ export class DashboardPage {
     let isExpanded = false;
 
     try {
-      numberOfMasks = await this.page.locator(this.maskCardString).count();
+      numberOfMasks = await this.maskCards.count();
     } catch (err) {
       numberOfMasks = 0;
     }
@@ -316,7 +317,7 @@ export class DashboardPage {
     // if clear all, check if there's an expanded mask card
     if (clearAll) {
       try {
-        await this.page.waitForSelector(this.maskCardString, {
+        await this.maskCards.waitFor({
           timeout: TIMEOUTS.MEDIUM,
         });
       } catch (error) {

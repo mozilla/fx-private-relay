@@ -13,12 +13,11 @@ test.describe("Free - General Functionalities, Desktop", () => {
 
   test("Check the free user can only create 5 masks, C1553067", async ({
     dashboardPage,
-    page,
   }) => {
     // Generating five masks takes a while:
     await expect(async () => {
       await dashboardPage.generateMask(5);
-      expect((await page.locator(dashboardPage.maskCardString).count()) === 5);
+      expect((await dashboardPage.maskCards.count()) === 5);
     }).toPass();
 
     // After five times, user cannot add other masks anymore
@@ -65,14 +64,13 @@ test.describe("Free - General Functionalities, Desktop - Visual Regression", () 
 
   test("Verify that opened mask cards are displayed correctly to a Free user, C1553070", async ({
     dashboardPage,
-    page,
   }) => {
     await expect(async () => {
       await dashboardPage.generateMask(1);
-      expect((await page.locator(dashboardPage.maskCardString).count()) === 1);
+      expect((await dashboardPage.maskCards.count()) === 1);
     }).toPass();
 
-    await expect(page.locator(dashboardPage.maskCardString)).toHaveScreenshot(
+    await expect(dashboardPage.maskCards).toHaveScreenshot(
       `${process.env.E2E_TEST_ENV}-maskCard.png`,
       {
         ...defaultScreenshotOpts,
@@ -86,11 +84,10 @@ test.describe("Free - General Functionalities, Desktop - Visual Regression", () 
 
   test("Check that the user can delete an mask, and is prompted to confirm before they delete, C1553071", async ({
     dashboardPage,
-    page,
   }) => {
     await expect(async () => {
       await dashboardPage.generateMask(1);
-      expect((await page.locator(dashboardPage.maskCardString).count()) === 1);
+      expect((await dashboardPage.maskCards.count()) === 1);
       await dashboardPage.maskCardDeleteButton.click();
     }).toPass();
 
