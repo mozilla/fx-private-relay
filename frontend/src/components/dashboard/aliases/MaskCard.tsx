@@ -148,6 +148,7 @@ export const MaskCard = (props: Props) => {
                   address: props.mask.full_address,
                 })}
                 onClick={copyAddressToClipboard}
+                data-testid="mask-card-copy"
               >
                 <samp className={styles.address}>
                   {props.mask.full_address}
@@ -163,7 +164,10 @@ export const MaskCard = (props: Props) => {
                 {l10n.getString("profile-label-copied")}
               </span>
             </div>
-            <div className={styles["block-level-label"]}>
+            <div
+              className={styles["block-level-label"]}
+              data-testid="mask-card-block-level-label"
+            >
               {props.mask.enabled === false
                 ? l10n.getString("profile-promo-email-blocking-label-none-2")
                 : props.mask.block_list_emails === true
@@ -181,6 +185,7 @@ export const MaskCard = (props: Props) => {
             className={styles["expand-button"]}
             aria-expanded={expandButtonState.isSelected}
             aria-controls={detailsElementId}
+            data-testid="mask-card-expand"
           >
             <ArrowDownIcon
               alt={l10n.getString(
@@ -206,7 +211,9 @@ export const MaskCard = (props: Props) => {
               </div>
               <div className={`${styles.stat} ${styles["forwarded-stat"]}`}>
                 <dt>{l10n.getString("profile-label-forwarded")}</dt>
-                <dd>{statNumberFormatter.format(props.mask.num_forwarded)}</dd>
+                <dd data-testid="mask-card-forwarded-stat">
+                  {statNumberFormatter.format(props.mask.num_forwarded)}
+                </dd>
               </div>
               {/* If user is not premium, hide the replies count */}
               {props.profile.has_premium && (
@@ -228,7 +235,7 @@ export const MaskCard = (props: Props) => {
                     className={`${styles.stat} ${styles["trackers-removed-stat"]}`}
                   >
                     <dt>{l10n.getString("profile-label-trackers-removed")}</dt>
-                    <dd>
+                    <dd data-testid="mask-card-trackers-removed-stat">
                       {statNumberFormatter.format(
                         props.mask.num_level_one_trackers_blocked,
                       )}
@@ -372,7 +379,7 @@ export const MaskCard = (props: Props) => {
                   )}
               </div>
             </div>
-            <div className={styles.meta}>
+            <div className={styles.meta} data-testid="mask-card-meta">
               <dl>
                 <div className={styles.metadata}>
                   <dt>{l10n.getString("profile-label-created")}</dt>
@@ -451,7 +458,10 @@ const BlockLevelSegmentedControl = (
       <span {...labelProps} className={styles["block-level-control-label"]}>
         {props.label}
       </span>
-      <div className={styles["block-level-segmented-control"]}>
+      <div
+        className={styles["block-level-segmented-control"]}
+        data-testid="mask-card-block-level-segmented-control"
+      >
         <BlockLevelContext.Provider value={state}>
           {props.children}
         </BlockLevelContext.Provider>

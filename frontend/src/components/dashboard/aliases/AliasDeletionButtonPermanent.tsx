@@ -99,6 +99,7 @@ export const AliasDeletionButtonPermanent = (props: Props) => {
               variant="destructive"
               className={styles["delete-btn"]}
               {...confirmButton.buttonProps}
+              data-testid="alias-deletion-button-permanent-button"
             >
               {l10n.getString("profile-label-delete")}
             </Button>
@@ -159,6 +160,7 @@ const ConfirmationDialog = (
           {...dialogProps}
           {...modalProps}
           ref={wrapperRef}
+          data-testid="alias-deletion-button-permanent-dialog-wrapper"
         >
           <div className={styles.hero}>
             <h3 {...titleProps}>{props.title}</h3>

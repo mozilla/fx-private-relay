@@ -56,6 +56,7 @@ export const CornerNotification = (props: Props) => {
             <button
               className={styles["close-button"]}
               onClick={() => dismissal.dismiss()}
+              data-testid="corner-notification-close-button"
             >
               <CloseIcon
                 alt={l10n.getString("upsell-banner-4-masks-button-close-label")}
