@@ -11,7 +11,7 @@ export class MozillaMonitorPage {
     this.page = page;
     this.monitorSignUpInput = page.locator("input[type='email']").first();
     this.monitorSignUpButton = page
-      .locator("button.Button_primary___XZsP")
+      .getByRole("button", { name: "Get free scan" })
       .first();
   }
 

@@ -41,7 +41,7 @@ export class LandingPage {
     this.firefoxAppsServicesHeading = page.getByRole("heading", {
       name: "Firefox is tech that fights for your online privacy.",
     });
-    this.firefoxLogo = page.locator('//a[starts-with(@class, "Layout_logo")]');
+    this.firefoxLogo = page.getByTestId("layout-logo");
     this.setPlanElements();
   }
 

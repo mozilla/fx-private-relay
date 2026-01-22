@@ -128,7 +128,7 @@ export const Layout = (props: Props) => {
       className={`${styles["header-inner"]} ${styles["is-grey"]} ${styles["plain-page"]}`}
     >
       <div className={`${styles["logo-wrapper"]} ${styles["plain-page"]}`}>
-        <Link href={homePath} className={styles.logo}>
+        <Link href={homePath} className={styles.logo} data-testid="layout-logo">
           {RelayHeaderLogo}
         </Link>
       </div>
@@ -152,7 +152,9 @@ export const Layout = (props: Props) => {
       return;
     }
     // When the modal is open, pointer events is disabled for the layout wrapper.
-    setPointerEventsNone(true);
+    setTimeout(() => {
+      setPointerEventsNone(true);
+    }, 0);
   }, [props.isModalOpen]);
 
   return (
