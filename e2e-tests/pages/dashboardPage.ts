@@ -7,34 +7,20 @@ export class DashboardPage {
   readonly homeButton: Locator;
   readonly FAQButton: Locator;
   readonly newsButton: Locator;
-  readonly userMenuPopUp: Locator;
-  readonly userMenuLetter: Locator;
   readonly getMoreProtectionButton: Locator;
-  readonly userMenuPopEmail: Locator;
   readonly upgradeButton: Locator;
-  readonly userMenuButton: Locator;
   readonly signOutButton: Locator;
-  readonly signOutToastAlert: Locator;
-  readonly bottomUpgradeBanner: Locator;
   readonly relayExtensionBanner: Locator;
   readonly dashBoardWithoutMasks: Locator;
-  readonly dashBoardWithoutMasksEmail: Locator;
   readonly generateNewMaskButton: Locator;
-  readonly emailsForwardedAmount: Locator;
-  readonly emailsBlockedAmount: Locator;
   readonly emailMasksUsedAmount: Locator;
   readonly maskCard: Locator;
   readonly maskCards: Locator;
   readonly maskCardExpanded: Locator;
-  readonly maskCardExpandButton: Locator;
-  readonly maskCardHeader: Locator;
   readonly maskCardGeneratedEmail: Locator;
   readonly maskCardForwardedAmount: Locator;
-  readonly maskCardRepliesAmount: Locator;
-  readonly maskCardBlockedAmount: Locator;
   readonly maskCardDeleteButton: Locator;
   readonly maskCardCancelButton: Locator;
-  readonly dashboardPageWithoutHeader: Locator;
   readonly maskCardDeleteDialogModal: Locator;
   readonly maskCardDeleteDialogModalGeneratedEmail: Locator;
   readonly maskCardFinalDeleteButton: Locator;
@@ -67,36 +53,12 @@ export class DashboardPage {
     this.FAQButton = page.getByText("FAQ").first();
     this.newsButton = page.getByText("News");
     this.homeButton = page.getByRole("link", { name: "Email masks" });
-    this.userMenuButton = page.locator(
-      '//div[starts-with(@class, "UserMenu_wrapper")]',
-    );
-    this.userMenuPopUp = page.locator(
-      '//ul[starts-with(@class, "UserMenu_popup")]',
-    );
-    this.userMenuLetter = page.locator(
-      '//div[starts-with(@class, "UserMenu_wrapper")]',
-    );
-    this.userMenuPopEmail = page.locator(
-      '//span[starts-with(@class, "UserMenu_account")]/b',
-    );
     this.signOutButton = page.locator('button:has-text("Sign Out")').first();
-    this.signOutToastAlert = page.locator(
-      '//div[@class="Toastify__toast-body"]',
-    );
 
     // dashboard elements
     this.upgradeButton = page.locator('a:has-text("Upgrade")').first();
     this.getMoreProtectionButton = page.locator(
       ':has-text("Get more protection")',
-    );
-    this.dashboardPageWithoutHeader = page.locator(
-      '//main[starts-with(@class, "profile_profile-wrapper")]',
-    );
-    this.emailsForwardedAmount = page.locator(
-      '(//dd[starts-with(@class, "profile_value")])[3]',
-    );
-    this.emailsBlockedAmount = page.locator(
-      '(//dd[starts-with(@class, "profile_value")])[2]',
     );
     this.emailMasksUsedAmount = page.locator(
       '(//dd[starts-with(@class, "profile_value")])[1]',
@@ -117,17 +79,11 @@ export class DashboardPage {
     this.closeCornerTips = page.locator(
       '//button[starts-with(@class, "Tips_close-button")]',
     );
-    this.bottomUpgradeBanner = page.locator(
-      '//div[starts-with(@class, "profile_bottom-banner-wrapper")]',
-    );
     this.relayExtensionBanner = page.locator(
       '//div[contains(@class, "is-hidden-with-addon")]',
     );
     this.dashBoardWithoutMasks = page.locator(
       '//section[starts-with(@class, "Onboarding_wrapper")]',
-    );
-    this.dashBoardWithoutMasksEmail = page.locator(
-      '//section[starts-with(@class, "profile_no-premium-header")]',
     );
     this.chooseSubdomain = page.locator("id=mpp-choose-subdomain");
     this.bannerEmailError = page.getByText(
@@ -141,12 +97,6 @@ export class DashboardPage {
     this.maskCardExpanded = page.locator(
       '//button[starts-with(@class, "MaskCard_expand")]',
     );
-    this.maskCardExpandButton = page.locator(
-      '//button[starts-with(@class, "MaskCard_expand")]',
-    );
-    this.maskCardHeader = page.locator(
-      '//div[starts-with(@class, "MaskCard_summary")]',
-    );
     this.maskCardGeneratedEmail = page
       .locator('//button[starts-with(@class, "MaskCard_copy")]/samp')
       .first();
@@ -159,12 +109,6 @@ export class DashboardPage {
     this.maskCardTrackersCount = page
       .locator('//div[contains(@class, "MaskCard_trackers-removed-stat")]/dd')
       .first();
-    this.maskCardRepliesAmount = page.locator(
-      '(//span[contains(@class, "Alias_blocked-stat")])[2]',
-    );
-    this.maskCardBlockedAmount = page.locator(
-      '(//span[contains(@class, "Alias_blocked-stat")])[1]',
-    );
     this.maskCardDeleteButton = page.locator('button:has-text("Delete")');
     this.maskCardCancelButton = page.locator('button:has-text("Cancel")');
     this.maskCardDeleteDialogModal = page.locator(
