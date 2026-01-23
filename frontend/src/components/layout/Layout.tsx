@@ -152,9 +152,11 @@ export const Layout = (props: Props) => {
       return;
     }
     // When the modal is open, pointer events is disabled for the layout wrapper.
-    setTimeout(() => {
-      setPointerEventsNone(true);
-    }, 0);
+    // TODO MPP-4549: See if useEffect can be removed or altered to avoid re-rendering
+    // without reverting MPP-3701 fix.
+    // https://react.dev/learn/you-might-not-need-an-effect
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPointerEventsNone(true);
   }, [props.isModalOpen]);
 
   return (
