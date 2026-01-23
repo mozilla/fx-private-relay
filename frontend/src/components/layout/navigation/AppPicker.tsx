@@ -23,6 +23,7 @@ import MonitorLogo from "../images/monitor.png";
 import VpnLogo from "../images/vpn.svg";
 import FxDesktopLogo from "../images/fx-logo.svg";
 import FxMobileLogo from "../images/fx-mobile.png";
+import SoloLogo from "../images/solo.svg";
 import { Props as LayoutProps } from "../Layout";
 import { getRuntimeConfig } from "../../../config";
 import { BentoIcon } from "../../Icons";
@@ -52,6 +53,11 @@ const getProducts = (referringSiteUrl: string) => ({
       referringSiteUrl,
     )}&utm_medium=referral&utm_campaign=bento&utm_content=desktop`,
     gaLabel: "fx-mobile",
+  },
+  solo: {
+    id: "solo",
+    url: `https://soloist.ai/?utm_source=firefox-relay&utm_medium=referral&utm_campaign=firefox&utm_content=desktop`,
+    gaLabel: "solo",
   },
   vpn: {
     id: "vpn",
@@ -86,6 +92,7 @@ export const AppPicker = (props: Props) => {
     monitor: useRef<HTMLAnchorElement>(null),
     fxDesktop: useRef<HTMLAnchorElement>(null),
     fxMobile: useRef<HTMLAnchorElement>(null),
+    solo: useRef<HTMLAnchorElement>(null),
     vpn: useRef<HTMLAnchorElement>(null),
   };
   const mozillaLinkRef = useRef<HTMLAnchorElement>(null);
@@ -168,6 +175,18 @@ export const AppPicker = (props: Props) => {
         >
           <Image src={FxMobileLogo} alt="" width={16} height={16} />
           {l10n.getString("fx-mobile-2")}
+        </a>
+      </Item>
+      <Item key={products.solo.id} textValue={l10n.getString("fx-solo")}>
+        <a
+          ref={linkRefs.solo}
+          href={products.solo.url}
+          className={`${styles["menu-link"]} ${styles["solo-link"]}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Image src={SoloLogo} alt="" width={16} height={16} />
+          {l10n.getString("fx-solo")}
         </a>
       </Item>
 

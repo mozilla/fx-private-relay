@@ -36,3 +36,8 @@ detailed-instructions-about-blocking-html = <a href="{ $learn_more_url }">Detail
 detailed-instructions-about-blocking = Detailed instructions to remove email blocking: { $learn_more_url }
 
 remove-email-blocking = Remove email blocking
+
+## Solo bento menu item (MPP-4527)
+
+-brand-name-solo = Solo
+fx-solo = { -brand-name-solo }
