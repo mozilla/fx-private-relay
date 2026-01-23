@@ -6,10 +6,9 @@ from unittest.mock import patch
 from django.conf import LazySettings
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.db import IntegrityError
 from django.http import HttpRequest
 from django.test.client import Client
-from django.urls import NoReverseMatch, reverse
+from django.urls import reverse
 
 import pytest
 import responses
@@ -413,14 +412,9 @@ class TermsAcceptedUserViewTest(APITestCase):
         assert response.json()["detail"] == "FXA did not return an FXA UID."
         assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
 
-    @pytest.mark.xfail(raises=Timeout)
     @responses.activate
     def test_profile_request_timeout_returns_500(self) -> None:
-        """
-        Bug: If the profile request times out, the exception is unhandled.
-
-        Desired: log error, return 500
-        """
+        """If the profile request times out, return 500."""
         fxa_introspect_data = create_fxa_introspect_data(sub=self.uid)
         fxa_introspect_resp = setup_fxa_introspection_response(fxa_introspect_data)
         responses.add(responses.GET, FXA_PROFILE_URL, body=Timeout("so slow"))
@@ -430,7 +424,7 @@ class TermsAcceptedUserViewTest(APITestCase):
         assert response.status_code == 500
         assert hasattr(response, "data")
         assert response.data == {
-            "detail": "Error setting up Relay user, please try again."
+            "detail": "Timeout waiting for a response for account profile."
         }
         assert cache.get(self.cache_key) == fxa_introspect_resp
         assert len(response.cookies.keys()) == 0
@@ -483,18 +477,16 @@ class TermsAcceptedUserViewTest(APITestCase):
         profile = Profile.objects.get(user__email=self.email)
         assert profile.created_by == "firefox_resource"  # Overwritten by our code
 
-    @pytest.mark.xfail(raises=IntegrityError, reason="MPP-3505")
     @responses.activate
     def test_account_created_after_user_check_returns_500(self) -> None:
         """
-        Bug: Parallel creation of SocialAccount can raise IntegrityError
+        If a parallel process creates a user that django-allauth misses, return 500
 
         If the user is created after the django-allauth `process_auto_signup` check,
         then a duplicate user is created with the same email, a duplicate profile,
         etc. It then fails with an IntegrityError when attempting to create the
-        SocialAccount.
-
-        Desired behaviour: roll back any changes, return 500
+        SocialAccount. This exception is caught, changes are rolled back, and the
+        view returns 500.
         """
         fxa_introspect_data = create_fxa_introspect_data(sub=self.uid)
         fxa_introspect_resp = setup_fxa_introspection_response(fxa_introspect_data)
@@ -539,18 +531,16 @@ class TermsAcceptedUserViewTest(APITestCase):
         assert not User.objects.filter(email=self.email).exists()
         assert not Profile.objects.filter(user__email=self.email).exists()
 
-    @pytest.mark.xfail(raises=NoReverseMatch, reason="MPP-3928")
     @responses.activate
     def test_account_created_before_user_check_returns_500(self) -> None:
         """
-        Bug: Parallel creation of SocialAccount can raise exception NoReverseMatch.
+        If a parallel process creates a user that django-allauth detects, return 500.
 
         If the user is created before django-allauth `process_auto_signup` check,
         then it determines an existing user is adding a social login, and redirects
         them to `socialaccount_signup`. Since we have no view for that, it raises
-        NoReverseMatch.
-
-        Desired behaviour: roll back any changes, return 500
+        NoReverseMatch. This exception is caught, changes are rolled back, and
+        the view returns 500
         """
         fxa_introspect_data = create_fxa_introspect_data(sub=self.uid)
         fxa_introspect_resp = setup_fxa_introspection_response(fxa_introspect_data)
