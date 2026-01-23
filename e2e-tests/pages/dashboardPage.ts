@@ -246,7 +246,7 @@ export class DashboardPage {
     // if clear all, check if there's an expanded mask card
     if (clearAll) {
       try {
-        await this.maskCards.waitFor({
+        await this.maskCards.first().waitFor({
           timeout: TIMEOUTS.MEDIUM,
         });
       } catch (error) {
