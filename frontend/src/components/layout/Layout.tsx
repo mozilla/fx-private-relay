@@ -184,7 +184,11 @@ export const Layout = (props: Props) => {
           ) : (
             <div className={`${styles["header-inner"]} ${darkClass}`}>
               <div className={styles["logo-wrapper"]}>
-                <Link href={homePath} className={styles.logo}>
+                <Link
+                  href={homePath}
+                  className={styles.logo}
+                  data-testid="layout-logo"
+                >
                   <>
                     {router.pathname === "/vpn-relay-welcome" ? (
                       <Image src={vpnRelayLogo} alt="" height={32} />
