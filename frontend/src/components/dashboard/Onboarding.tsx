@@ -22,7 +22,7 @@ export const Onboarding = (props: Props) => {
   }
 
   return (
-    <section className={styles.wrapper}>
+    <section className={styles.wrapper} data-testid="onboarding-wrapper">
       <h2>{l10n.getString("onboarding-headline-2")}</h2>
       <ol className={styles.steps}>
         <li className={styles.step}>

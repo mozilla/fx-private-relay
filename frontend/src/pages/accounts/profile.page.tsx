@@ -438,13 +438,19 @@ const Profile: NextPage = () => {
             they are a free user, show the maxed masks tooltip */}
             {isPeriodicalPremiumAvailableInCountry(runtimeData.data) &&
             freeMaskLimitReached ? (
-              <dd className={`${styles.value} ${styles.maxed}`}>
+              <dd
+                className={`${styles.value} ${styles.maxed}`}
+                data-testid="profile-masks-used"
+              >
                 <MaxedMasksTooltip>
                   {numberFormatter.format(allAliases.length)}
                 </MaxedMasksTooltip>
               </dd>
             ) : (
-              <dd className={`${styles.value}`}>
+              <dd
+                className={`${styles.value}`}
+                data-testid="profile-masks-used"
+              >
                 {numberFormatter.format(allAliases.length)}
               </dd>
             )}
@@ -521,7 +527,10 @@ const Profile: NextPage = () => {
               ? l10n.getString("profile-maxed-aliases-with-phone-header")
               : l10n.getString("profile-maxed-aliases-without-phone-header")}
           </p>
-          <p className={styles["upsell-banner-description"]}>
+          <p
+            className={styles["upsell-banner-description"]}
+            data-testid="profile-upsell-banner-description"
+          >
             {l10n.getString(
               isPhonesAvailableInCountry(runtimeData.data)
                 ? "profile-maxed-aliases-with-phone-description"

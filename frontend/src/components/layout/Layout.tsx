@@ -128,7 +128,7 @@ export const Layout = (props: Props) => {
       className={`${styles["header-inner"]} ${styles["is-grey"]} ${styles["plain-page"]}`}
     >
       <div className={`${styles["logo-wrapper"]} ${styles["plain-page"]}`}>
-        <Link href={homePath} className={styles.logo}>
+        <Link href={homePath} className={styles.logo} data-testid="layout-logo">
           {RelayHeaderLogo}
         </Link>
       </div>
@@ -152,6 +152,10 @@ export const Layout = (props: Props) => {
       return;
     }
     // When the modal is open, pointer events is disabled for the layout wrapper.
+    // TODO MPP-4549: See if useEffect can be removed or altered to avoid re-rendering
+    // without reverting MPP-3701 fix.
+    // https://react.dev/learn/you-might-not-need-an-effect
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPointerEventsNone(true);
   }, [props.isModalOpen]);
 

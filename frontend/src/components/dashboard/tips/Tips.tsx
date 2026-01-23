@@ -117,7 +117,11 @@ export const Tips = (props: Props) => {
           <InfoIcon alt="" width={20} height={20} />
         </span>
         <h2>{l10n.getString("tips-header-title")}</h2>
-        <button onClick={() => minimise()} className={styles["close-button"]}>
+        <button
+          onClick={() => minimise()}
+          className={styles["close-button"]}
+          data-testid="tips-close-button"
+        >
           <ArrowDownIcon
             alt={l10n.getString("tips-header-button-close-label")}
             width={20}

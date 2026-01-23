@@ -7,45 +7,34 @@ export class DashboardPage {
   readonly homeButton: Locator;
   readonly FAQButton: Locator;
   readonly newsButton: Locator;
-  readonly userMenuPopUp: Locator;
-  readonly userMenuLetter: Locator;
   readonly getMoreProtectionButton: Locator;
-  readonly userMenuPopEmail: Locator;
   readonly upgradeButton: Locator;
-  readonly userMenuButton: Locator;
   readonly signOutButton: Locator;
-  readonly signOutToastAlert: Locator;
-  readonly bottomUpgradeBanner: Locator;
   readonly relayExtensionBanner: Locator;
   readonly dashBoardWithoutMasks: Locator;
-  readonly dashBoardWithoutMasksEmail: Locator;
   readonly generateNewMaskButton: Locator;
-  readonly emailsForwardedAmount: Locator;
-  readonly emailsBlockedAmount: Locator;
   readonly emailMasksUsedAmount: Locator;
   readonly maskCard: Locator;
-  readonly maskCardString: string;
+  readonly maskCards: Locator;
   readonly maskCardExpanded: Locator;
-  readonly maskCardExpandButton: Locator;
-  readonly maskCardHeader: Locator;
   readonly maskCardGeneratedEmail: Locator;
   readonly maskCardForwardedAmount: Locator;
-  readonly maskCardRepliesAmount: Locator;
-  readonly maskCardBlockedAmount: Locator;
   readonly maskCardDeleteButton: Locator;
   readonly maskCardCancelButton: Locator;
-  readonly dashboardPageWithoutHeader: Locator;
   readonly maskCardDeleteDialogModal: Locator;
   readonly maskCardDeleteDialogModalGeneratedEmail: Locator;
   readonly maskCardFinalDeleteButton: Locator;
+  readonly maskList: Locator;
   readonly maxMaskLimitButton: Locator;
   readonly maxMaskBannerText: Locator;
   readonly generateNewMaskPremiumButton: Locator;
   readonly premiumRandomMask: Locator;
   readonly closeCornerUpsell: Locator;
   readonly closeCornerTips: Locator;
+  readonly blockSegmentedControl: Locator;
   readonly blockPromotions: Locator;
   readonly blockAll: Locator;
+  readonly blockLevelLabel: Locator;
   readonly blockLevelAllLabel: Locator;
   readonly blockLevelPromosLabel: Locator;
   readonly premiumDomainMask: Locator;
@@ -66,68 +55,32 @@ export class DashboardPage {
     this.FAQButton = page.getByText("FAQ").first();
     this.newsButton = page.getByText("News");
     this.homeButton = page.getByRole("link", { name: "Email masks" });
-    this.userMenuButton = page.locator(
-      '//div[starts-with(@class, "UserMenu_wrapper")]',
-    );
-    this.userMenuPopUp = page.locator(
-      '//ul[starts-with(@class, "UserMenu_popup")]',
-    );
-    this.userMenuLetter = page.locator(
-      '//div[starts-with(@class, "UserMenu_wrapper")]',
-    );
-    this.userMenuPopEmail = page.locator(
-      '//span[starts-with(@class, "UserMenu_account")]/b',
-    );
     this.signOutButton = page.locator('button:has-text("Sign Out")').first();
-    this.signOutToastAlert = page.locator(
-      '//div[@class="Toastify__toast-body"]',
-    );
 
     // dashboard elements
     this.upgradeButton = page.locator('a:has-text("Upgrade")').first();
     this.getMoreProtectionButton = page.locator(
       ':has-text("Get more protection")',
     );
-    this.dashboardPageWithoutHeader = page.locator(
-      '//main[starts-with(@class, "profile_profile-wrapper")]',
-    );
-    this.emailsForwardedAmount = page.locator(
-      '(//dd[starts-with(@class, "profile_value")])[3]',
-    );
-    this.emailsBlockedAmount = page.locator(
-      '(//dd[starts-with(@class, "profile_value")])[2]',
-    );
-    this.emailMasksUsedAmount = page.locator(
-      '(//dd[starts-with(@class, "profile_value")])[1]',
-    );
+    this.emailMasksUsedAmount = page.getByTestId("profile-masks-used").first();
     this.generateNewMaskButton = page.getByTitle("Generate new mask");
     this.generateNewMaskPremiumButton = page.locator(
       "button:has-text('Generate new mask')",
     );
     this.maxMaskLimitButton = page.getByText("Get unlimited email masks");
-    this.maxMaskBannerText = page.locator(
-      '//p[starts-with(@class, "profile_upsell-banner-description")]',
+    this.maxMaskBannerText = page.getByTestId(
+      "profile-upsell-banner-description",
     );
     this.premiumRandomMask = page.locator('//li[@data-key="random"]');
     this.premiumDomainMask = page.locator('//li[@data-key="custom"]');
-    this.closeCornerUpsell = page.locator(
-      '//button[starts-with(@class, "CornerNotification_close-button")]',
+    this.closeCornerUpsell = page.getByTestId(
+      "corner-notification-close-button",
     );
-    this.closeCornerTips = page.locator(
-      '//button[starts-with(@class, "Tips_close-button")]',
-    );
-    this.bottomUpgradeBanner = page.locator(
-      '//div[starts-with(@class, "profile_bottom-banner-wrapper")]',
-    );
+    this.closeCornerTips = page.getByTestId("tips-close-button");
     this.relayExtensionBanner = page.locator(
       '//div[contains(@class, "is-hidden-with-addon")]',
     );
-    this.dashBoardWithoutMasks = page.locator(
-      '//section[starts-with(@class, "Onboarding_wrapper")]',
-    );
-    this.dashBoardWithoutMasksEmail = page.locator(
-      '//section[starts-with(@class, "profile_no-premium-header")]',
-    );
+    this.dashBoardWithoutMasks = page.getByTestId("onboarding-wrapper");
     this.chooseSubdomain = page.locator("id=mpp-choose-subdomain");
     this.bannerEmailError = page.getByText(
       "The mask could not be created. Please try again.",
@@ -135,67 +88,45 @@ export class DashboardPage {
 
     // mask card elements
     this.maskCard = page.getByRole("button", { name: "Generate new mask" });
-    this.maskCardString = '//div[starts-with(@class, "MaskCard_card")]';
-    this.maskCardExpanded = page.locator(
-      '//button[starts-with(@class, "MaskCard_expand")]',
-    );
-    this.maskCardExpandButton = page.locator(
-      '//button[starts-with(@class, "MaskCard_expand")]',
-    );
-    this.maskCardHeader = page.locator(
-      '//div[starts-with(@class, "MaskCard_summary")]',
-    );
-    this.maskCardGeneratedEmail = page
-      .locator('//button[starts-with(@class, "MaskCard_copy")]/samp')
-      .first();
-    this.maskCardBottomMeta = page.locator(
-      '//div[starts-with(@class, "MaskCard_meta")]',
-    );
-    this.maskCardForwardedAmount = page
-      .locator('//div[contains(@class, "MaskCard_forwarded")]/dd')
-      .first();
-    this.maskCardTrackersCount = page
-      .locator('//div[contains(@class, "MaskCard_trackers-removed-stat")]/dd')
-      .first();
-    this.maskCardRepliesAmount = page.locator(
-      '(//span[contains(@class, "Alias_blocked-stat")])[2]',
-    );
-    this.maskCardBlockedAmount = page.locator(
-      '(//span[contains(@class, "Alias_blocked-stat")])[1]',
-    );
+    this.maskList = page.getByTestId("alias-list");
+    this.maskCards = this.maskList.locator("li");
+    this.maskCardExpanded = page.getByTestId("mask-card-expand");
+    this.maskCardGeneratedEmail = this.maskCards
+      .first()
+      .getByTestId("mask-card-copy");
+    this.maskCardBottomMeta = page.getByTestId("mask-card-meta");
+    this.maskCardForwardedAmount = this.maskCards
+      .first()
+      .getByTestId("mask-card-forwarded-stat");
+    this.maskCardTrackersCount = this.maskCards
+      .first()
+      .getByTestId("mask-card-trackers-removed-stat");
     this.maskCardDeleteButton = page.locator('button:has-text("Delete")');
     this.maskCardCancelButton = page.locator('button:has-text("Cancel")');
-    this.maskCardDeleteDialogModal = page.locator(
-      '//div[starts-with(@class, "AliasDeletionButtonPermanent_dialog-wrapper")]',
+    this.maskCardDeleteDialogModal = page.getByTestId(
+      "alias-deletion-button-permanent-dialog-wrapper",
     );
-    this.maskCardDeleteDialogModalGeneratedEmail = page.locator(
-      '//div[starts-with(@class, "AliasDeletionButtonPermanent_dialog-wrapper")]//samp',
+    this.maskCardDeleteDialogModalGeneratedEmail =
+      this.maskCardDeleteDialogModal.locator("samp");
+    this.maskCardFinalDeleteButton = page.getByTestId(
+      "alias-deletion-button-permanent-button",
     );
-    this.maskCardFinalDeleteButton = page.locator(
-      '//button[contains(@class, "Button_is-destructive")]',
-    );
-    this.blockPromotions = page
-      .locator(
-        '//div[starts-with(@class, "MaskCard_block-level-segmented-control")]',
-      )
+    this.blockSegmentedControl = this.maskCards
       .first()
+      .getByTestId("mask-card-block-level-segmented-control");
+    this.blockPromotions = this.blockSegmentedControl
       .getByText("Promotions")
       .first();
-    this.blockLevelPromosLabel = page
-      .locator('//div[starts-with(@class, "MaskCard_block-level-label")]')
-      .getByText("Blocking promo emails")
-      .first();
-    this.blockLevelAllLabel = page
-      .locator('//div[starts-with(@class, "MaskCard_block-level-label")]')
-      .getByText("Blocking all emails")
-      .first();
-    this.blockAll = page
-      .locator(
-        '//div[starts-with(@class, "MaskCard_block-level-segmented-control")]',
-      )
+    this.blockLevelLabel = this.maskCards
       .first()
-      .getByText("All")
-      .first();
+      .getByTestId("mask-card-block-level-label");
+    this.blockLevelPromosLabel = this.blockLevelLabel.getByText(
+      "Blocking promo emails",
+    );
+    this.blockLevelAllLabel = this.blockLevelLabel.getByText(
+      "Blocking all emails",
+    );
+    this.blockAll = this.blockSegmentedControl.getByText("All").first();
     this.customMaskInput = page.getByPlaceholder("Enter text");
     this.generateCustomMaskConfirm = page.getByRole("button", {
       name: "Generate mask",
@@ -247,8 +178,7 @@ export class DashboardPage {
       ? this.generateNewMaskPremiumButton
       : this.generateNewMaskButton;
 
-    const maskCards = this.page.locator(this.maskCardString);
-    const preMaskCardsCount = await maskCards.count();
+    const preMaskCardsCount = await this.maskCards.count();
 
     // generate a new mask
     await generateMaskBtn.click();
@@ -260,11 +190,11 @@ export class DashboardPage {
 
     if (preMaskCardsCount === 0) {
       // Wait for the first mask card
-      expect(maskCards).toBeVisible({ timeout: TIMEOUTS.MEDIUM });
+      expect(this.maskCards).toBeVisible({ timeout: TIMEOUTS.MEDIUM });
     } else {
       // Wait for the mask card count to increase, or the error banner
       expect(
-        this.bannerEmailError.or(maskCards.nth(preMaskCardsCount)),
+        this.bannerEmailError.or(this.maskCards.nth(preMaskCardsCount)),
       ).toBeVisible({ timeout: TIMEOUTS.MEDIUM });
     }
 
@@ -272,7 +202,7 @@ export class DashboardPage {
       this.bannerEmailError,
       "No mask error banner. If fails, maybe rate-limited?",
     ).not.toBeVisible();
-    expect(await maskCards, "Mask cards should go up by one").toHaveCount(
+    expect(this.maskCards, "Mask cards should go up by one").toHaveCount(
       preMaskCardsCount + 1,
     );
 
@@ -295,7 +225,7 @@ export class DashboardPage {
     let isExpanded = false;
 
     try {
-      numberOfMasks = await this.page.locator(this.maskCardString).count();
+      numberOfMasks = await this.maskCards.count();
     } catch (err) {
       numberOfMasks = 0;
     }
@@ -316,7 +246,7 @@ export class DashboardPage {
     // if clear all, check if there's an expanded mask card
     if (clearAll) {
       try {
-        await this.page.waitForSelector(this.maskCardString, {
+        await this.maskCards.waitFor({
           timeout: TIMEOUTS.MEDIUM,
         });
       } catch (error) {
