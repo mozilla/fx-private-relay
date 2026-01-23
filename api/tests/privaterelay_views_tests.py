@@ -1,16 +1,23 @@
 """Tests for api/views/privaterelay_views.py"""
 
+import json
+from unittest.mock import patch
+
 from django.conf import LazySettings
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.test import RequestFactory, TestCase
+from django.db import IntegrityError
+from django.http import HttpRequest
 from django.test.client import Client
-from django.urls import reverse
+from django.urls import NoReverseMatch, reverse
 
 import pytest
 import responses
-from allauth.socialaccount.models import SocialAccount
-from rest_framework.test import APIClient
+from allauth.socialaccount.internal.flows.signup import process_auto_signup
+from allauth.socialaccount.models import SocialAccount, SocialLogin
+from requests import PreparedRequest
+from requests.exceptions import Timeout
+from rest_framework.test import APIClient, APITestCase
 
 from api.authentication import INTROSPECT_TOKEN_URL, get_cache_key
 from api.tests.authentication_tests import (
@@ -270,44 +277,35 @@ def test_profile_patch_fields_that_dont_exist(
 
 
 @pytest.mark.usefixtures("fxa_social_app")
-class TermsAcceptedUserViewTest(TestCase):
-    def setUp(self) -> None:
-        self.factory = RequestFactory()
-        self.path = "/api/v1/terms-accepted-user/"
-        self.fxa_verify_path = INTROSPECT_TOKEN_URL
-        self.uid = "relay-user-fxa-uid"
+class TermsAcceptedUserViewTest(APITestCase):
+    path = "/api/v1/terms-accepted-user/"
+    uid = "relay-user-fxa-uid"
+    token = "the-test-token"
+    cache_key = get_cache_key(token)
+    email = "user@email.com"
+    fxa_profile_data = {
+        "email": email,
+        "amrValues": ["pwd", "email"],
+        "twoFactorAuthentication": False,
+        "metricsEnabled": True,
+        "uid": uid,
+        "avatar": "https://profile.stage.mozaws.net/v1/avatar/t",
+        "avatarDefault": False,
+    }
 
-    def _setup_client(self, token: str) -> None:
-        self.client = APIClient()
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+    def setUp(self) -> None:
+        cache.delete(self.cache_key)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
     def tearDown(self) -> None:
         cache.clear()
 
     @responses.activate
     def test_201_new_user_created_and_202_user_exists(self) -> None:
-        email = "user@email.com"
-        user_token = "user-123"
-        self._setup_client(user_token)
         fxa_introspect_data = create_fxa_introspect_data(sub=self.uid)
         fxa_response = setup_fxa_introspection_response(fxa_introspect_data)
         # setup fxa profile response
-        profile_json = {
-            "email": email,
-            "amrValues": ["pwd", "email"],
-            "twoFactorAuthentication": False,
-            "metricsEnabled": True,
-            "uid": self.uid,
-            "avatar": "https://profile.stage.mozaws.net/v1/avatar/t",
-            "avatarDefault": False,
-        }
-        responses.add(
-            responses.GET,
-            FXA_PROFILE_URL,
-            status=200,
-            json=profile_json,
-        )
-        cache_key = get_cache_key(user_token)
+        responses.get(FXA_PROFILE_URL, status=200, json=self.fxa_profile_data)
 
         # get fxa response with 201 response for new user and profile created
         response = self.client.post(self.path)
@@ -317,29 +315,28 @@ class TermsAcceptedUserViewTest(TestCase):
         # ensure no session cookie was set
         assert len(response.cookies.keys()) == 1
         assert "csrftoken" in response.cookies
-        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
         assert responses.assert_call_count(FXA_PROFILE_URL, 1) is True
-        assert cache.get(cache_key) == fxa_response
-        assert SocialAccount.objects.filter(user__email=email).count() == 1
-        assert Profile.objects.filter(user__email=email).count() == 1
-        assert Profile.objects.get(user__email=email).created_by == "firefox_resource"
+        assert cache.get(self.cache_key) == fxa_response
+        assert SocialAccount.objects.filter(user__email=self.email).count() == 1
+        profile = Profile.objects.get(user__email=self.email)
+        assert profile.created_by == "firefox_resource"
 
         # now check that the 2nd call returns 202
         response = self.client.post(self.path)
         assert response.status_code == 202
         assert hasattr(response, "data")
         assert response.data is None
-        assert responses.assert_call_count(self.fxa_verify_path, 2) is True
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 2) is True
         assert responses.assert_call_count(FXA_PROFILE_URL, 1) is True
 
     @responses.activate
     def test_failed_profile_fetch_for_new_user_returns_500(self) -> None:
-        user_token = "user-123"
-        self._setup_client(user_token)
         fxa_introspect_data = create_fxa_introspect_data(sub=self.uid)
         setup_fxa_introspection_response(fxa_introspect_data)
         # FxA profile server is down
         responses.add(responses.GET, FXA_PROFILE_URL, status=502, body="")
+
         response = self.client.post(self.path)
 
         assert response.status_code == 500
@@ -363,30 +360,17 @@ class TermsAcceptedUserViewTest(TestCase):
         assert response.json()["detail"] == "Missing FXA Token after 'Bearer'."
 
     @responses.activate
-    def test_invalid_bearer_token_error_from_fxa_returns_500_and_cache_returns_500(
-        self,
-    ) -> None:
+    def test_invalid_bearer_token_error_from_fxa_returns_500(self) -> None:
         setup_fxa_introspection_failure(status_code=401, json={"error": "401"})
-        not_found_token = "not-found-123"
-        self._setup_client(not_found_token)
-
-        assert cache.get(get_cache_key(not_found_token)) is None
 
         response = self.client.post(self.path)
         assert response.status_code == 500
         assert response.json()["detail"] == "Did not receive a 200 response from FXA."
-        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
 
     @responses.activate
-    def test_jsondecodeerror_returns_401_and_cache_returns_500(
-        self,
-    ) -> None:
+    def test_jsondecodeerror_returns_401(self) -> None:
         setup_fxa_introspection_failure(status_code=200, json=None)
-        invalid_token = "invalid-123"
-        cache_key = get_cache_key(invalid_token)
-        self._setup_client(invalid_token)
-
-        assert cache.get(cache_key) is None
 
         # get fxa response with no status code for the first time
         response = self.client.post(self.path)
@@ -394,64 +378,218 @@ class TermsAcceptedUserViewTest(TestCase):
         assert (
             response.json()["detail"] == "Jsondecodeerror From Fxa Introspect Response"
         )
-        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
 
     @responses.activate
-    def test_non_200_response_from_fxa_returns_500_and_cache_returns_500(
-        self,
-    ) -> None:
+    def test_non_200_response_from_fxa_returns_500(self) -> None:
         fxa_introspect_data = create_fxa_introspect_data(sub=self.uid)
         setup_fxa_introspection_failure(status_code=401, json=fxa_introspect_data)
-        invalid_token = "invalid-123"
-        cache_key = get_cache_key(invalid_token)
-        self._setup_client(invalid_token)
-
-        assert cache.get(cache_key) is None
 
         # get fxa response with non-200 response for the first time
         response = self.client.post(self.path)
         assert response.status_code == 500
         assert response.json()["detail"] == "Did not receive a 200 response from FXA."
-        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
 
     @responses.activate
-    def test_inactive_fxa_oauth_token_returns_401_and_cache_returns_401(
-        self,
-    ) -> None:
+    def test_inactive_fxa_oauth_token_returns_401(self) -> None:
         fxa_introspect_data = create_fxa_introspect_data(active=False, sub=self.uid)
         setup_fxa_introspection_response(fxa_introspect_data)
-        invalid_token = "invalid-123"
-        cache_key = get_cache_key(invalid_token)
-        self._setup_client(invalid_token)
-
-        assert cache.get(cache_key) is None
 
         # get fxa response with token inactive for the first time
         response = self.client.post(self.path)
         assert response.status_code == 401
         assert response.json()["detail"] == "Fxa Returned Active: False For Token."
-        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
 
     @responses.activate
-    def test_fxa_responds_with_no_fxa_uid_returns_404_and_cache_returns_404(
-        self,
-    ) -> None:
-        user_token = "user-123"
+    def test_fxa_responds_with_no_fxa_uid_returns_404(self) -> None:
         fxa_introspect_data = create_fxa_introspect_data(no_sub=True)
         setup_fxa_introspection_response(fxa_introspect_data)
-        cache_key = get_cache_key(user_token)
-        self._setup_client(user_token)
-
-        assert cache.get(cache_key) is None
 
         # get fxa response with no fxa uid for the first time
         response = self.client.post(self.path)
         assert response.status_code == 404
         assert response.json()["detail"] == "FXA did not return an FXA UID."
-        assert responses.assert_call_count(self.fxa_verify_path, 1) is True
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
 
+    @pytest.mark.xfail(raises=Timeout)
+    @responses.activate
+    def test_profile_request_timeout_returns_500(self) -> None:
+        """
+        Bug: If the profile request times out, the exception is unhandled.
 
-def _setup_client(token: str) -> APIClient:
-    client = APIClient()
-    client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
-    return client
+        Desired: log error, return 500
+        """
+        fxa_introspect_data = create_fxa_introspect_data(sub=self.uid)
+        fxa_introspect_resp = setup_fxa_introspection_response(fxa_introspect_data)
+        responses.add(responses.GET, FXA_PROFILE_URL, body=Timeout("so slow"))
+
+        response = self.client.post(self.path)
+
+        assert response.status_code == 500
+        assert hasattr(response, "data")
+        assert response.data == {
+            "detail": "Error setting up Relay user, please try again."
+        }
+        assert cache.get(self.cache_key) == fxa_introspect_resp
+        assert len(response.cookies.keys()) == 0
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
+        assert responses.assert_call_count(FXA_PROFILE_URL, 1) is True
+        assert cache.get(self.cache_key) == fxa_introspect_resp
+
+    @responses.activate
+    def test_account_created_during_profile_request_returns_201(self) -> None:
+        """
+        If the SocialAccount is created during the profile request, returns created.
+
+        We'd expect the existing Profile to have a blank `created_by` field. However,
+        when the SocialAccount is created during the profile request, the `created_by`
+        field is set to "firefox_resource", as if the user, profile, and social
+        account were created by requesting the terms-accepted-user endpoint.
+        """
+        fxa_introspect_data = create_fxa_introspect_data(sub=self.uid)
+        fxa_introspect_resp = setup_fxa_introspection_response(fxa_introspect_data)
+
+        def create_account_during_profile_request(
+            request: PreparedRequest,
+        ) -> tuple[int, dict[str, str], str]:
+            """Create a duplicate SocialAccount during the profile request"""
+            user = User.objects.create(email=self.email)
+            user.profile.created_by = "mocked_function"
+            user.profile.save()
+            SocialAccount.objects.create(provider="fxa", uid=self.uid, user=user)
+            return (200, {}, json.dumps(self.fxa_profile_data))
+
+        responses.add_callback(
+            responses.GET,
+            FXA_PROFILE_URL,
+            callback=create_account_during_profile_request,
+            content_type="application/json",
+        )
+
+        response = self.client.post(self.path)
+
+        assert response.status_code == 201
+        assert hasattr(response, "data")
+        assert response.data is None
+        # ensure no session cookie was set
+        assert len(response.cookies.keys()) == 1
+        assert "csrftoken" in response.cookies
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
+        assert responses.assert_call_count(FXA_PROFILE_URL, 1) is True
+        assert cache.get(self.cache_key) == fxa_introspect_resp
+        assert SocialAccount.objects.filter(user__email=self.email).count() == 1
+        profile = Profile.objects.get(user__email=self.email)
+        assert profile.created_by == "firefox_resource"  # Overwritten by our code
+
+    @pytest.mark.xfail(raises=IntegrityError, reason="MPP-3505")
+    @responses.activate
+    def test_account_created_after_user_check_returns_500(self) -> None:
+        """
+        Bug: Parallel creation of SocialAccount can raise IntegrityError
+
+        If the user is created after the django-allauth `process_auto_signup` check,
+        then a duplicate user is created with the same email, a duplicate profile,
+        etc. It then fails with an IntegrityError when attempting to create the
+        SocialAccount.
+
+        Desired behaviour: roll back any changes, return 500
+        """
+        fxa_introspect_data = create_fxa_introspect_data(sub=self.uid)
+        fxa_introspect_resp = setup_fxa_introspection_response(fxa_introspect_data)
+        responses.get(FXA_PROFILE_URL, status=200, json=self.fxa_profile_data)
+
+        def process_auto_signup_then_create_account(
+            request: HttpRequest, social_login: SocialLogin
+        ) -> tuple[bool, None]:
+            """Run process_auto_signup, then create the user"""
+            auto_signup, response = process_auto_signup(request, social_login)
+            assert auto_signup is True  # Detects new user creation
+            assert response is None
+
+            user = User.objects.create(email=self.email)
+            user.profile.created_by = "mocked_function"
+            user.profile.save(update_fields=["created_by"])
+            SocialAccount.objects.create(provider="fxa", uid=self.uid, user=user)
+
+            return auto_signup, response
+
+        with patch(
+            "allauth.socialaccount.internal.flows.signup.process_auto_signup",
+            side_effect=process_auto_signup_then_create_account,
+        ) as mock_process_signup:
+            response = self.client.post(self.path)
+
+        mock_process_signup.assert_called_once()
+        assert response.status_code == 500
+        assert hasattr(response, "data")
+        assert response.data == {
+            "detail": "Error setting up Relay user, please try again."
+        }
+        assert cache.get(self.cache_key) == fxa_introspect_resp
+        assert len(response.cookies.keys()) == 0
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
+        assert responses.assert_call_count(FXA_PROFILE_URL, 1) is True
+        assert cache.get(self.cache_key) == fxa_introspect_resp
+
+        # Testing limitation: colliding user is rolledback as well
+        # In running deployment, new user is present for next call
+        assert not SocialAccount.objects.filter(user__email=self.email).exists()
+        assert not User.objects.filter(email=self.email).exists()
+        assert not Profile.objects.filter(user__email=self.email).exists()
+
+    @pytest.mark.xfail(raises=NoReverseMatch, reason="MPP-3928")
+    @responses.activate
+    def test_account_created_before_user_check_returns_500(self) -> None:
+        """
+        Bug: Parallel creation of SocialAccount can raise exception NoReverseMatch.
+
+        If the user is created before django-allauth `process_auto_signup` check,
+        then it determines an existing user is adding a social login, and redirects
+        them to `socialaccount_signup`. Since we have no view for that, it raises
+        NoReverseMatch.
+
+        Desired behaviour: roll back any changes, return 500
+        """
+        fxa_introspect_data = create_fxa_introspect_data(sub=self.uid)
+        fxa_introspect_resp = setup_fxa_introspection_response(fxa_introspect_data)
+        responses.get(FXA_PROFILE_URL, status=200, json=self.fxa_profile_data)
+
+        def create_account_then_process_auto_signup(
+            request: HttpRequest, social_login: SocialLogin
+        ) -> tuple[bool, None]:
+            """Create an existing user, then continue with process_auto_signup"""
+            user = User.objects.create(email=self.email)
+            user.profile.created_by = "mocked_function"
+            user.profile.save(update_fields=["created_by"])
+            SocialAccount.objects.create(provider="fxa", uid=self.uid, user=user)
+
+            auto_signup, response = process_auto_signup(request, social_login)
+            assert auto_signup is False  # Can't auto-create a new user
+            assert response is None
+            return auto_signup, response
+
+        with patch(
+            "allauth.socialaccount.internal.flows.signup.process_auto_signup",
+            side_effect=create_account_then_process_auto_signup,
+        ) as mock_process_signup:
+            response = self.client.post(self.path)
+
+        mock_process_signup.assert_called_once()
+        assert response.status_code == 500
+        assert hasattr(response, "data")
+        assert response.data == {
+            "detail": "Error setting up Relay user, please try again."
+        }
+        assert cache.get(self.cache_key) == fxa_introspect_resp
+        assert len(response.cookies.keys()) == 0
+        assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
+        assert responses.assert_call_count(FXA_PROFILE_URL, 1) is True
+        assert cache.get(self.cache_key) == fxa_introspect_resp
+
+        # Testing limitation: colliding user is rolledback as well
+        # In running deployment, new user is present for next call
+        assert not SocialAccount.objects.filter(user__email=self.email).exists()
+        assert not User.objects.filter(email=self.email).exists()
+        assert not Profile.objects.filter(user__email=self.email).exists()
