@@ -3,7 +3,9 @@ from typing import Any, Literal
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db import IntegrityError, transaction
 from django.db.models.query import QuerySet
+from django.urls import NoReverseMatch
 
 import requests
 from allauth.account.adapter import get_adapter as get_account_adapter
@@ -18,6 +20,7 @@ from drf_spectacular.utils import (
     OpenApiResponse,
     extend_schema,
 )
+from requests.exceptions import Timeout
 from rest_framework.authentication import get_authorization_header
 from rest_framework.decorators import (
     api_view,
@@ -26,9 +29,15 @@ from rest_framework.decorators import (
 )
 from rest_framework.exceptions import AuthenticationFailed, ErrorDetail, ParseError
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
+from rest_framework.status import (
+    HTTP_201_CREATED,
+    HTTP_202_ACCEPTED,
+    HTTP_400_BAD_REQUEST,
+)
 from rest_framework.viewsets import ModelViewSet
+from sentry_sdk import capture_exception
 from waffle import get_waffle_flag_model
 from waffle.models import Sample, Switch
 
@@ -323,7 +332,7 @@ def runtime_data(request):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 @authentication_classes([])
-def terms_accepted_user(request):
+def terms_accepted_user(request: Request) -> Response:
     """
     Create a Relay user from an FXA token.
 
@@ -353,60 +362,115 @@ def terms_accepted_user(request):
             return Response(data={"detail": e.detail.title()}, status=e.status_code)
         else:
             return Response(data={"detail": e.get_full_details()}, status=e.status_code)
-    status_code = 201
+
+    created = True
+    sa: SocialAccount | None = None
 
     try:
         sa = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
-        status_code = 202
+        created = False
     except SocialAccount.DoesNotExist:
-        # User does not exist, create a new Relay user
-        fxa_profile_resp = requests.get(
-            FXA_PROFILE_URL,
-            headers={"Authorization": f"Bearer {token}"},
-            timeout=settings.FXA_REQUESTS_TIMEOUT_SECONDS,
-        )
-        if not (fxa_profile_resp.ok and fxa_profile_resp.content):
+        pass
+
+    if sa is None:
+        try:
+            profile_data = _get_fxa_profile(token)
+        except BadProfileResponse as err:
             logger.error(
                 "terms_accepted_user: bad account profile response",
-                extra={
-                    "status_code": fxa_profile_resp.status_code,
-                    "content": fxa_profile_resp.content,
-                },
+                extra={"status_code": err.status_code, "content": err.content},
             )
             return Response(
                 data={"detail": "Did not receive a 200 response for account profile."},
                 status=500,
             )
+        except Timeout:
+            logger.error(
+                "terms_accepted_user: profile response timeout",
+            )
+            return Response(
+                data={"detail": "Timeout waiting for a response for account profile."},
+                status=500,
+            )
 
-        # This is not exactly the request object that FirefoxAccountsProvider expects,
-        # but it has all of the necessary attributes to initialize the Provider
-        provider = get_social_adapter().get_provider(request, "fxa")
-        # This may not save the new user that was created
-        # https://github.com/pennersr/django-allauth/blob/77368a84903d32283f07a260819893ec15df78fb/allauth/socialaccount/providers/base/provider.py#L44
-        social_login = provider.sociallogin_from_response(
-            request, fxa_profile_resp.json()
-        )
-        # Complete social login is called by callback, see
-        # https://github.com/pennersr/django-allauth/blob/77368a84903d32283f07a260819893ec15df78fb/allauth/socialaccount/providers/oauth/views.py#L118
-        # for what we are mimicking to create new SocialAccount, User, and Profile for
-        # the new Relay user from Firefox Since this is a Resource Provider/Server flow
-        # and are NOT a Relying Party (RP) of FXA No social token information is stored
-        # (no Social Token object created).
-        complete_social_login(request, social_login)
-        # complete_social_login writes ['account_verified_email', 'user_created',
-        # '_auth_user_id', '_auth_user_backend', '_auth_user_hash'] on
-        # request.session which sets the cookie because complete_social_login does
-        # the "login" The user did not actually log in, logout to clear the session
-        if request.user.is_authenticated:
-            get_account_adapter(request).logout(request)
+        try:
+            sa = _create_social_account(request, profile_data)
+        except (IntegrityError, NoReverseMatch) as err:
+            # A SocialAccount was created by a parallel process, and either
+            # django-allauth raises an IntegrityError when writing a duplicate
+            # SocialAccount, or is redirecting the user to the non-existent
+            # "socialaccont_signup" view to sign them up. In either case, log with
+            # Sentry and hint that the client should try again.
+            capture_exception(err)
+            return Response(
+                data={"detail": "Error setting up Relay user, please try again."},
+                status=500,
+            )
 
-        sa = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
         # Indicate profile was created from the resource flow
         profile = sa.user.profile
         profile.created_by = "firefox_resource"
         profile.save()
+
+    status_code = HTTP_201_CREATED if created else HTTP_202_ACCEPTED
     info_logger.info(
         "terms_accepted_user",
         extra={"social_account": sa.uid, "status_code": status_code},
     )
     return Response(status=status_code)
+
+
+class BadProfileResponse(RuntimeError):
+    def __init__(self, status_code: int, content: Any) -> None:
+        super().__init__()
+        self.status_code = status_code
+        self.content = content
+
+
+def _get_fxa_profile(token: str) -> Any:
+    """Get a Mozilla Accounts profile with a Firefox bearer token"""
+
+    resp = requests.get(
+        FXA_PROFILE_URL,
+        headers={"Authorization": f"Bearer {token}"},
+        timeout=settings.FXA_REQUESTS_TIMEOUT_SECONDS,
+    )
+    if not (resp.ok and resp.content):
+        raise BadProfileResponse(status_code=resp.status_code, content=resp.content)
+    return resp.json()
+
+
+def _create_social_account(request: Request, profile_data: Any) -> SocialAccount:
+    """
+    Create a social account, user, and profile from Firefox data.
+
+    This calls parts of the auto-signup flow from django-allauth. These
+    private APIs may change in the future, but it is unlikely since they are
+    the building blocks of all social account providers.
+    """
+
+    # This is not exactly the request object that FirefoxAccountsProvider expects,
+    # but it has all of the necessary attributes to initialize the Provider
+    provider = get_social_adapter().get_provider(request, "fxa")
+
+    # This may not save the new user that was created
+    # https://github.com/pennersr/django-allauth/blob/65.13.1/allauth/socialaccount/providers/base/provider.py#L94
+    social_login = provider.sociallogin_from_response(request, profile_data)
+
+    # Complete social login is called by callback, see
+    # https://github.com/pennersr/django-allauth/blob/65.13.1/allauth/socialaccount/providers/oauth/views.py#L113
+    # for what we are mimicking to create new SocialAccount, User, and Profile for
+    # the new Relay user from Firefox Since this is a Resource Provider/Server flow
+    # and are NOT a Relying Party (RP) of FXA No social token information is stored
+    # (no Social Token object created).
+    with transaction.atomic():
+        complete_social_login(request, social_login)
+
+    # complete_social_login writes ['account_verified_email', 'user_created',
+    # '_auth_user_id', '_auth_user_backend', '_auth_user_hash'] on
+    # request.session which sets the cookie because complete_social_login does
+    # the "login" The user did not actually log in, logout to clear the session
+    if request.user.is_authenticated:
+        get_account_adapter(request).logout(request)
+
+    return social_login.account

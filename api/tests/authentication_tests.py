@@ -5,14 +5,14 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.core.cache import cache
-from django.test import RequestFactory, TestCase
+from django.test import TestCase
 
 import responses
 from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
 from requests.exceptions import Timeout
 from rest_framework.exceptions import APIException, AuthenticationFailed, NotFound
-from rest_framework.test import APIClient
+from rest_framework.test import APIClient, APIRequestFactory, APITestCase
 
 from ..authentication import (
     INTROSPECT_TOKEN_URL,
@@ -332,10 +332,10 @@ class GetFxaUidFromOauthTests(TestCase):
         assert call2.args == (cache_key, fxa_response, 60)
 
 
-class FxaTokenAuthenticationTest(TestCase):
+class FxaTokenAuthenticationTest(APITestCase):
     def setUp(self) -> None:
         self.auth = FxaTokenAuthentication()
-        self.factory = RequestFactory()
+        self.factory = APIRequestFactory()
         self.path = "/api/v1/relayaddresses/"
         self.uid = "relay-user-fxa-uid"
 
@@ -352,9 +352,8 @@ class FxaTokenAuthenticationTest(TestCase):
         assert self.auth.authenticate(get_addresses_req) is None
 
     def test_no_token_returns_400(self) -> None:
-        client = APIClient()
-        client.credentials(HTTP_AUTHORIZATION="Bearer ")
-        response = client.get("/api/v1/relayaddresses/")
+        self.client.credentials(HTTP_AUTHORIZATION="Bearer ")
+        response = self.client.get("/api/v1/relayaddresses/")
         assert response.status_code == 400
         assert response.json()["detail"] == "Missing FXA Token after 'Bearer'."
 
@@ -364,12 +363,11 @@ class FxaTokenAuthenticationTest(TestCase):
             status_code=401, json={"error": "401"}
         )
         not_found_token = "not-found-123"
-        client = APIClient()
-        client.credentials(HTTP_AUTHORIZATION=f"Bearer {not_found_token}")
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {not_found_token}")
 
         assert cache.get(get_cache_key(not_found_token)) is None
 
-        response = client.get("/api/v1/relayaddresses/")
+        response = self.client.get("/api/v1/relayaddresses/")
         assert response.status_code == 500
         assert response.json()["detail"] == "Did not receive a 200 response from FXA."
 
@@ -377,7 +375,7 @@ class FxaTokenAuthenticationTest(TestCase):
         assert cache.get(get_cache_key(not_found_token)) == fxa_response
 
         # now check that the code does NOT make another fxa request
-        response = client.get("/api/v1/relayaddresses/")
+        response = self.client.get("/api/v1/relayaddresses/")
         assert responses.assert_call_count(INTROSPECT_TOKEN_URL, 1) is True
 
     @responses.activate

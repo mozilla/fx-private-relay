@@ -1,9 +1,11 @@
 import logging
 import shlex
 from datetime import UTC, datetime
+from hashlib import sha256
 from typing import Any
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.cache import cache
 
 import requests
@@ -16,6 +18,7 @@ from rest_framework.exceptions import (
     ParseError,
     PermissionDenied,
 )
+from rest_framework.request import Request
 
 logger = logging.getLogger("events")
 INTROSPECT_TOKEN_URL = "{}/introspect".format(
@@ -23,8 +26,9 @@ INTROSPECT_TOKEN_URL = "{}/introspect".format(
 )
 
 
-def get_cache_key(token):
-    return hash(token)
+def get_cache_key(token: str) -> str:
+    """Get the cache key for a token"""
+    return f"fxa_token_sha256:{sha256(token.encode()).hexdigest()}"
 
 
 def introspect_token(token: str) -> dict[str, Any]:
@@ -118,13 +122,13 @@ def get_fxa_uid_from_oauth_token(token: str, use_cache: bool = True) -> str:
 
 
 class FxaTokenAuthentication(BaseAuthentication):
-    def authenticate_header(self, request):
+    def authenticate_header(self, request: Request) -> str:
         # Note: we need to implement this function to make DRF return a 401 status code
         # when we raise AuthenticationFailed, rather than a 403. See:
         # https://www.django-rest-framework.org/api-guide/authentication/#custom-authentication
         return "Bearer"
 
-    def authenticate(self, request):
+    def authenticate(self, request: Request) -> tuple[User, str] | None:
         authorization = get_authorization_header(request).decode()
         if not authorization or not authorization.startswith("Bearer "):
             # If the request has no Bearer token, return None to attempt the next
@@ -160,7 +164,4 @@ class FxaTokenAuthentication(BaseAuthentication):
                 " Have they been deactivated?"
             )
 
-        if user:
-            return (user, token)
-        else:
-            raise NotFound()
+        return (user, token)
