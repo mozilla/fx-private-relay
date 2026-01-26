@@ -13,7 +13,7 @@ junit.xml
 /test-results/
 /playwright-report/
 /playwright/.cache/
-e2e-tests/specs/*-snapshots/**
+e2e-tests/specs/*-snapshots/*-darwin.png
 state.json
 har/
 allure-results/
