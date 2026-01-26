@@ -70,7 +70,7 @@ const VpnRelayWelcome: NextPage = () => {
                   src={VpnLogo}
                   alt={l10n.getString("logo-premium-alt")}
                   className={styles["vpn-logo"]}
-                  height={44}
+                  height={43}
                 />
               </div>
 
