@@ -31,7 +31,7 @@
     "react-confetti": "^6.4.0",
     "react-dom": "19.2.3",
     "react-ga": "^3.3.1",
-    "react-intersection-observer": "^10.0.0",
+    "react-intersection-observer": "^10.0.2",
     "react-singleton-hook": "^4.0.1",
     "react-stately": "^3.43.0",
     "react-toastify": "^11.0.5",
