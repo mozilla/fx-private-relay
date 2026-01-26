@@ -53,7 +53,7 @@ boto3-stubs==1.42.25
 botocore-stubs==1.42.25
 mypy-boto3-s3==1.42.21
 django-stubs==5.2.8
-djangorestframework-stubs==3.16.6
+djangorestframework-stubs==3.16.7
 mypy-boto3-ses==1.42.3
 mypy-boto3-sns==1.42.3
 mypy-boto3-sqs==1.42.3
