@@ -96,9 +96,9 @@ jobs:
               - type: section
                 fields:
                   - type: mrkdwn
-                    text: "*Environment:*\n ${{ inputs.environment }}"
+                    text: "*Environment:*\n ${{ case(inputs.environment, inputs.environment, 'stage (default)') }}"
                   - type: mrkdwn
-                    text: "*Suite:*\n ${{ inputs.suite }}"
+                    text: "*Suite:*\n ${{ case(inputs.suite, inputs.suite, 'full (default)') }}"
               - type: section
                 fields:
                   - type: mrkdwn
