@@ -190,6 +190,6 @@ vpn-relay-go-vpn-body-2 = Protect your online activity.
 
 ## Solo bento menu item (MPP-4527)
 
--brand-name-solo = Solo
-fx-solo = { -brand-name-solo }
+-brand-name-solo-ai = Solo AI
+fx-solo-ai = { -brand-name-solo-ai }
 

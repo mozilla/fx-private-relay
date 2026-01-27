@@ -177,7 +177,7 @@ export const AppPicker = (props: Props) => {
           {l10n.getString("fx-mobile-2")}
         </a>
       </Item>
-      <Item key={products.solo.id} textValue={l10n.getString("fx-solo")}>
+      <Item key={products.solo.id} textValue={l10n.getString("fx-solo-ai")}>
         <a
           ref={linkRefs.solo}
           href={products.solo.url}
@@ -186,7 +186,7 @@ export const AppPicker = (props: Props) => {
           rel="noopener noreferrer"
         >
           <Image src={SoloLogo} alt="" width={16} height={16} />
-          {l10n.getString("fx-solo")}
+          {l10n.getString("fx-solo-ai")}
         </a>
       </Item>
 
