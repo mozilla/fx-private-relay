@@ -24,19 +24,24 @@ export function getL10n(options: { deterministicLocales: boolean }) {
     // Example: ./en/bundle.ftl
     const locale = fileName.split("/")[1];
     const sourceModule = translationsContext(fileName);
+    const loadedSource = getLoadedSource(sourceModule);
+
+    if (locale) {
+      RESOURCES[locale] ??= [];
+      RESOURCES[locale].push(new FluentResource(loadedSource));
+    }
+  }
+
+  function getLoadedSource(sourceModule: string | { default: string }): string {
     // Turbopack's behaviour is currently different from Webpack's behaviour,
     // in that it returns an object with the file contents on a `default` property.
     // This is considered a bug, so they might restore the Webpack behaviour
     // in the future, so best to be compatible with both.
     // See https://github.com/vercel/next.js/issues/78406
-    const loadedSource =
-      typeof sourceModule.default === "string"
-        ? sourceModule.default
-        : sourceModule;
-
-    if (locale) {
-      RESOURCES[locale] ??= [];
-      RESOURCES[locale].push(new FluentResource(loadedSource));
+    if (typeof sourceModule === "string") {
+      return sourceModule;
+    } else {
+      return sourceModule.default;
     }
   }
 
@@ -72,7 +77,7 @@ export function getL10n(options: { deterministicLocales: boolean }) {
           "../../pendingTranslations.ftl",
         );
         const pendingTranslationsResource = new FluentResource(
-          pendingTranslations,
+          getLoadedSource(pendingTranslations),
         );
         bundle.addResource(pendingTranslationsResource);
         if (process.env.NEXT_PUBLIC_DEBUG === "true") {
