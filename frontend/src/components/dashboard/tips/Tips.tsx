@@ -194,6 +194,7 @@ export const Tips = (props: Props) => {
             onClick={() => minimise()}
             className={styles["close-button"]}
             aria-label={l10n.getString("tips-header-button-close-label")}
+            data-testid="tips-close-button"
           >
             <ArrowDownIcon
               alt={l10n.getString("tips-header-button-close-label")}
