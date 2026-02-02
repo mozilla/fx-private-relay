@@ -58,7 +58,7 @@
     "license-checker": "^25.0.1",
     "lint-staged": "^16.2.7",
     "next": "^16.1.5",
-    "prettier": "3.8.0",
+    "prettier": "3.8.1",
     "raw-loader": "^4.0.2",
     "sass": "^1.97.2",
     "stylelint": "^17.0.0",
