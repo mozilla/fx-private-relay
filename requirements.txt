@@ -52,7 +52,7 @@ ruff==0.14.13
 boto3-stubs==1.42.30
 botocore-stubs==1.42.30
 mypy-boto3-s3==1.42.21
-django-stubs==5.2.8
+django-stubs==5.2.9
 djangorestframework-stubs==3.16.7
 mypy-boto3-ses==1.42.3
 mypy-boto3-sns==1.42.3
