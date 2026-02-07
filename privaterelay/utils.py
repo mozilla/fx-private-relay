@@ -40,6 +40,47 @@ if TYPE_CHECKING:
 info_logger = logging.getLogger("eventsinfo")
 
 
+def parse_relay_client_platform(relay_client_header: str) -> tuple[str, str]:
+    """
+    Parse the X-Relay-Client header to extract platform information.
+
+    Header format: "appservices-{OS}"
+
+    Args:
+        relay_client_header: The raw X-Relay-Client header value
+
+    Returns:
+        Tuple of (os_value, platform_value):
+        - os_value: Raw OS (e.g., "ios", "android", "macos") or empty string
+        - platform_value: Formatted platform for Glean (e.g., "mobile-ios",
+          "desktop-macos") or empty string
+
+    Note: Returns empty strings (not "unknown") to match Glean's convention
+    for missing values, consistent with other fields like fxa_id.
+    """
+    if not relay_client_header:
+        return ("", "")
+
+    header_lower = relay_client_header.lower()
+    if not header_lower.startswith("appservices-"):
+        return ("", "")
+
+    os_value = header_lower.removeprefix("appservices-")
+
+    # Map to platform categories for Glean
+    mobile_platforms = {"ios", "android"}
+    desktop_platforms = {"macos", "linux", "windows"}
+
+    if os_value in mobile_platforms:
+        platform_value = f"mobile-{os_value}"
+    elif os_value in desktop_platforms:
+        platform_value = f"desktop-{os_value}"
+    else:
+        return ("", "")
+
+    return (os_value, platform_value)
+
+
 class CountryInfo(TypedDict):
     country_code: str
     countries: list[CountryStr]
