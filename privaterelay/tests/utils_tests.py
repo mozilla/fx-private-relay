@@ -23,6 +23,7 @@ from ..utils import (
     get_countries_info_from_request_and_mapping,
     get_subplat_upgrade_link_by_language,
     get_version_info,
+    parse_relay_client_platform,
 )
 
 
@@ -684,3 +685,22 @@ def test_get_subplat_upgrade_link_by_language_invalid_header(
 
     link = get_subplat_upgrade_link_by_language("en-gb;q=1.0000")
     assert link == expected_link
+
+
+@pytest.mark.parametrize(
+    "relay_client_platform, expected_os_platform",
+    (
+        ("appservices-ios", ("ios", "mobile-ios")),
+        ("appservices-android", ("android", "mobile-android")),
+        ("appservices-macos", ("macos", "desktop-macos")),
+        ("appservices-linux", ("linux", "desktop-linux")),
+        ("appservices-windows", ("windows", "desktop-windows")),
+        ("AppServices-iOS", ("ios", "mobile-ios")),
+        ("", ("", "")),
+        ("invalid-header-value", ("", "")),
+    ),
+)
+def test_parse_relay_client_platform(
+    relay_client_platform: str, expected_os_platform: tuple
+) -> None:
+    assert parse_relay_client_platform(relay_client_platform) == expected_os_platform

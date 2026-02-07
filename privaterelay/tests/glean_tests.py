@@ -89,6 +89,20 @@ def test_request_data_non_routable_ip_is_discarded(rf: RequestFactory) -> None:
     assert RequestData.from_request(request).ip_address is None
 
 
+def test_request_data_defaults_to_none(rf: RequestFactory) -> None:
+    request = rf.get("/api/v1/relayaddresses/")
+    assert RequestData.from_request(request).platform is None
+
+
+def test_request_data_reads_platform_from_middleware(rf: RequestFactory) -> None:
+    request = rf.get("/api/v1/relayaddresses/")
+
+    # Simulate middleware setting attributes
+    setattr(request, "relay_client_platform", "mobile-ios")
+
+    assert RequestData.from_request(request).platform == "mobile-ios"
+
+
 @pytest.mark.django_db
 def test_user_data_free_user() -> None:
     """Data is extracted for a free user."""

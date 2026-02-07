@@ -44,13 +44,15 @@ class RequestData(NamedTuple):
 
     user_agent: str | None = None
     ip_address: str | None = None
+    platform: str | None = None
 
     @classmethod
     def from_request(cls, request: HttpRequest) -> RequestData:
         user_agent = request.headers.get("user-agent", None)
         client_ip, is_routable = get_client_ip(request)
         ip_address = client_ip if (client_ip and is_routable) else None
-        return cls(user_agent=user_agent, ip_address=ip_address)
+        platform = getattr(request, "relay_client_platform", None)
+        return cls(user_agent=user_agent, ip_address=ip_address, platform=platform)
 
 
 class UserData(NamedTuple):
@@ -161,7 +163,7 @@ class RelayGleanLogger(EventsServerEventLogger):
             user_agent=_opt_str_to_glean(request_data.user_agent),
             ip_address=_opt_str_to_glean(request_data.ip_address),
             fxa_id=_opt_str_to_glean(user_data.fxa_id),
-            platform="",
+            platform=_opt_str_to_glean(request_data.platform),
             n_random_masks=user_data.n_random_masks,
             n_domain_masks=user_data.n_domain_masks,
             n_deleted_random_masks=user_data.n_deleted_random_masks,
@@ -193,7 +195,7 @@ class RelayGleanLogger(EventsServerEventLogger):
             user_agent=_opt_str_to_glean(request_data.user_agent),
             ip_address=_opt_str_to_glean(request_data.ip_address),
             fxa_id=_opt_str_to_glean(user_data.fxa_id),
-            platform="",
+            platform=_opt_str_to_glean(request_data.platform),
             n_random_masks=user_data.n_random_masks,
             n_domain_masks=user_data.n_domain_masks,
             n_deleted_random_masks=user_data.n_deleted_random_masks,
@@ -248,7 +250,7 @@ class RelayGleanLogger(EventsServerEventLogger):
             user_agent=_opt_str_to_glean(request_data.user_agent),
             ip_address=_opt_str_to_glean(request_data.ip_address),
             fxa_id=_opt_str_to_glean(user_data.fxa_id),
-            platform="",
+            platform=_opt_str_to_glean(request_data.platform),
             n_random_masks=user_data.n_random_masks,
             n_domain_masks=user_data.n_domain_masks,
             n_deleted_random_masks=user_data.n_deleted_random_masks,
@@ -277,7 +279,7 @@ class RelayGleanLogger(EventsServerEventLogger):
             user_agent=_opt_str_to_glean(request_data.user_agent),
             ip_address=_opt_str_to_glean(request_data.ip_address),
             fxa_id=_opt_str_to_glean(user_data.fxa_id),
-            platform="",
+            platform=_opt_str_to_glean(request_data.platform),
             n_random_masks=user_data.n_random_masks,
             n_domain_masks=user_data.n_domain_masks,
             n_deleted_random_masks=user_data.n_deleted_random_masks,
@@ -308,7 +310,7 @@ class RelayGleanLogger(EventsServerEventLogger):
             user_agent=_opt_str_to_glean(request_data.user_agent),
             ip_address=_opt_str_to_glean(request_data.ip_address),
             fxa_id=_opt_str_to_glean(user_data.fxa_id),
-            platform="",
+            platform=_opt_str_to_glean(request_data.platform),
             n_random_masks=user_data.n_random_masks,
             n_domain_masks=user_data.n_domain_masks,
             n_deleted_random_masks=user_data.n_deleted_random_masks,
