@@ -14,7 +14,7 @@ import markus
 from csp.middleware import CSPMiddleware
 from whitenoise.middleware import WhiteNoiseMiddleware
 
-from privaterelay.utils import glean_logger
+from privaterelay.utils import glean_logger, parse_relay_client_platform
 
 metrics = markus.get_metrics()
 
@@ -238,6 +238,34 @@ class RelayStaticFilesMiddleware(WhiteNoiseMiddleware):
             new_redirect_url = urlunsplit(new_redirect_parts)
             resp["Location"] = new_redirect_url
         return resp
+
+
+class AddRelayClientPlatformToRequest:
+    """
+    Extract and parse X-Relay-Client header once for use by:
+    - Glean metrics (via RequestData)
+    - Sentry error tracking (via before_send hook)
+    - Structured logging
+
+    Adds these attributes to request:
+        - relay_client_header: Raw header value (e.g., "appservices-ios")
+        - relay_client_os: OS value (e.g., "ios", "android", "macos")
+        - relay_client_platform: platform (e.g., "mobile-ios", "desktop-macos")
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        relay_client_header = request.headers.get("X-Relay-Client", "")
+        os_value, platform_value = parse_relay_client_platform(relay_client_header)
+
+        request.relay_client_header = relay_client_header
+        request.relay_client_os = os_value
+        request.relay_client_platform = platform_value
+
+        response = self.get_response(request)
+        return response
 
 
 class GleanApiAccessMiddleware:

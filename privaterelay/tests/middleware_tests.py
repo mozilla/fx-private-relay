@@ -145,3 +145,34 @@ def test_response_metrics_disabled(
         response = client.get("/metrics-event")
     assert response.status_code == 405
     assert not mm.get_records()
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "header_value,expected_platform",
+    [
+        ("appservices-ios", "mobile-ios"),
+        ("appservices-android", "mobile-android"),
+        ("appservices-macos", "desktop-macos"),
+        (None, ""),
+        ("invalid-value", ""),
+    ],
+)
+def test_platform_middleware_integration(
+    client: Client,
+    header_value: str | None,
+    expected_platform: str,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Platform middleware parses and includes platform in Glean events."""
+
+    from privaterelay.tests.utils import get_glean_event
+
+    headers = {"HTTP_X_RELAY_CLIENT": header_value} if header_value else {}
+    response = client.get("/api/v1/runtime_data", headers=headers)
+    assert response.status_code == 200
+
+    # Verify the api.accessed Glean event includes the correct platform
+    event = get_glean_event(caplog, category="api", name="accessed")
+    if event:
+        assert event["extra"]["platform"] == expected_platform

@@ -29,6 +29,7 @@ from csp.constants import NONCE, NONE, SELF, UNSAFE_INLINE
 from decouple import Choices, Csv, config
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import ignore_logger
+from sentry_sdk.types import Event, Hint
 
 from .types import CONTENT_SECURITY_POLICY_T, RELAY_CHANNEL_NAME
 
@@ -393,6 +394,7 @@ MIDDLEWARE += [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "privaterelay.middleware.AddRelayClientPlatformToRequest",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.locale.LocaleMiddleware",
@@ -876,6 +878,39 @@ SENTRY_ENVIRONMENT = config("SENTRY_ENVIRONMENT", RELAY_CHANNEL)
 if SENTRY_ENVIRONMENT == "prod" and SITE_ORIGIN != "https://relay.firefox.com":
     SENTRY_ENVIRONMENT = "local"
 
+
+def _sentry_before_send(event: Event, hint: Hint) -> Event | None:
+    """
+    Reads pre-parsed platform from request object (set by middleware).
+
+    See https://docs.sentry.io/platforms/python/configuration/filtering/#using-before-send
+    """
+    request = None
+    if hint and "request" in hint:
+        request = hint["request"]
+
+    if request:
+        os_value = getattr(request, "relay_client_os", None)
+        platform_value = getattr(request, "relay_client_platform", None)
+        header_value = getattr(request, "relay_client_header", None)
+
+        if os_value:
+            if "tags" not in event:
+                event["tags"] = {}
+            event["tags"]["relay_client_platform"] = os_value
+
+            # Also add to context for detailed analysis
+            if "contexts" not in event:
+                event["contexts"] = {}
+            event["contexts"]["relay_client"] = {
+                "header_value": header_value or "",
+                "os": os_value,
+                "platform": platform_value or "",
+            }
+
+    return event
+
+
 sentry_sdk.init(
     dsn=config("SENTRY_DSN", None),
     integrations=[DjangoIntegration()],
@@ -883,6 +918,7 @@ sentry_sdk.init(
     include_local_variables=DEBUG,
     release=sentry_release,
     environment=SENTRY_ENVIRONMENT,
+    before_send=_sentry_before_send,
 )
 # Duplicates events for unhandled exceptions, but without useful tracebacks
 ignore_logger("request.summary")
