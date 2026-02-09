@@ -61,7 +61,7 @@
     "prettier": "3.8.1",
     "raw-loader": "^4.0.2",
     "sass": "^1.97.3",
-    "stylelint": "^17.0.0",
+    "stylelint": "^17.1.0",
     "stylelint-config-recommended-scss": "^17.0.0",
     "stylelint-scss": "^7.0.0",
     "typescript": "^5.9.3"
