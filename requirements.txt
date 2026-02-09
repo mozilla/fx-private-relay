@@ -15,7 +15,7 @@ django-ftl==0.14
 django-referrer-policy==1.0
 djangorestframework==3.16.1
 django-waffle==5.0.0
-dockerflow==2024.4.2
+dockerflow==2026.1.26
 drf-spectacular==0.29.0
 drf-spectacular-sidecar==2026.1.1
 glean_parser==18.2.0
