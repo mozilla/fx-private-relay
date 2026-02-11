@@ -96,6 +96,10 @@ class RealPhoneRateThrottle(throttling.UserRateThrottle):
     rate = settings.PHONE_RATE_LIMIT
 
 
+class VCardRateThrottle(throttling.AnonRateThrottle):
+    rate = settings.VCARD_RATE_LIMIT
+
+
 @extend_schema(tags=["phones"])
 class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     """
@@ -547,10 +551,12 @@ def _get_number_details(e164_number):
             ],
         ),
         "404": OpenApiResponse(description="No or unknown lookup key"),
+        "429": OpenApiResponse(description="Rate limit exceeded"),
     },
 )
 @decorators.api_view()
 @decorators.permission_classes([permissions.AllowAny])
+@decorators.throttle_classes([VCardRateThrottle])
 @decorators.renderer_classes([vCardRenderer])
 def vCard(request: Request, lookup_key: str) -> response.Response:
     """
