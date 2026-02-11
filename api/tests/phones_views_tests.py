@@ -8,6 +8,7 @@ from unittest.mock import Mock, call, patch
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.cache import cache
 
 import pytest
 from model_bakery import baker
@@ -761,6 +762,28 @@ def test_vcard_valid_lookup_key(phone_user):
         response.headers["Content-Disposition"]
         == "attachment; filename=+19998887777.vcf"
     )
+
+
+@pytest.mark.django_db
+def test_vcard_rate_limiting(phone_user):
+    """
+    Make 10 requests (should all succeed)
+    11th request should be rate limited
+    (Clear the throttle cache to ensure clean slate)
+    """
+    cache.clear()
+    _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user)
+
+    client = APIClient()
+    path = f"/api/v1/vCard/{relay_number.vcard_lookup_key}"
+
+    for _ in range(10):
+        response = client.get(path)
+        assert response.status_code == 200
+
+    response = client.get(path)
+    assert response.status_code == 429
 
 
 def test_resend_welcome_sms_requires_phone_user():

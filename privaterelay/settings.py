@@ -791,6 +791,8 @@ else:
     _DEFAULT_PHONE_RATE_LIMIT = "5/minute"
 PHONE_RATE_LIMIT = config("PHONE_RATE_LIMIT", _DEFAULT_PHONE_RATE_LIMIT)
 
+VCARD_RATE_LIMIT = config("VCARD_RATE_LIMIT", "10/minute")
+
 # Turn on logging out on GET in development.
 # This allows `/mock/logout/` in the front-end to clear the
 # session cookie. Without this, after switching accounts in dev mode,
