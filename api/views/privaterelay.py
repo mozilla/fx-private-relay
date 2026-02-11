@@ -38,7 +38,7 @@ from rest_framework.status import (
 )
 from rest_framework.viewsets import ModelViewSet
 from sentry_sdk import capture_exception
-from waffle import get_waffle_flag_model
+from waffle import flag_is_active, get_waffle_flag_model
 from waffle.models import Sample, Switch
 
 from emails.utils import incr_if_enabled
@@ -292,6 +292,11 @@ def runtime_data(request):
             "WAFFLE_SAMPLES": sample_values,
             "MAX_MINUTES_TO_VERIFY_REAL_PHONE": (
                 settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE
+            ),
+            "MAX_NUM_FREE_ALIASES": (
+                settings.INCREASED_MAX_NUM_FREE_ALIASES
+                if flag_is_active(request, "increased_free_mask_limit")
+                else settings.MAX_NUM_FREE_ALIASES
             ),
         }
     )

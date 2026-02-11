@@ -63,7 +63,9 @@ export const AliasGenerationButton = (props: Props) => {
   });
   const gaEvent = useGaEvent();
 
-  const maxAliases = getRuntimeConfig().maxFreeAliases;
+  const maxAliases =
+    props.runtimeData?.MAX_NUM_FREE_ALIASES ??
+    getRuntimeConfig().maxFreeAliases;
   if (!props.profile.has_premium && props.aliases.length >= maxAliases) {
     // If the user does not have Premium, has reached the alias limit,
     // and Premium is not available to them, show a greyed-out button:
