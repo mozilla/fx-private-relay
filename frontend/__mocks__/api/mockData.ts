@@ -109,6 +109,9 @@ export const mockedRuntimeData: RuntimeData = {
   WAFFLE_SWITCHES: [],
   WAFFLE_SAMPLES: [],
   MAX_MINUTES_TO_VERIFY_REAL_PHONE: 5,
+  // Note: Set to 5 for test performance. Production default is 50 (see runtimeData-default.ts),
+  // but tests use 5 to avoid creating 49 aliases to trigger limit-related UI.
+  MAX_NUM_FREE_ALIASES: 5,
 };
 
 export const mockedUsers: Record<(typeof mockIds)[number], UserData> = {

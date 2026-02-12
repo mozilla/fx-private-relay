@@ -10,6 +10,7 @@ export const DEFAULT_RUNTIME_DATA: RuntimeData = {
   MEGABUNDLE_PRODUCT_ID: "prod_SOYBYCOWallcgz",
   BASKET_ORIGIN: "https://basket.mozilla.org",
   MAX_MINUTES_TO_VERIFY_REAL_PHONE: 5,
+  MAX_NUM_FREE_ALIASES: 5,
   WAFFLE_FLAGS: [
     ["free_user_onboarding", true],
     ["holiday_promo_2023", false],

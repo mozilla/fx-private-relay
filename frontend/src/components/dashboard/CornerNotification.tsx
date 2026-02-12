@@ -37,11 +37,14 @@ export const CornerNotification = (props: Props) => {
   const title = l10n.getString(`upsell-banner-4-masks-us-heading-2`);
   const description = l10n.getString(`upsell-banner-4-masks-us-description-2`);
 
+  const maxFreeAliases = runtimeData.MAX_NUM_FREE_ALIASES;
+  const showAtMaskCount = maxFreeAliases - 1;
+
   if (
     isFlagActive(runtimeData, "four_mask_limit_upsell") &&
     !profile.has_premium &&
     !dismissal.isDismissed &&
-    aliases.length === 4
+    aliases.length === showAtMaskCount
   ) {
     return (
       <aside

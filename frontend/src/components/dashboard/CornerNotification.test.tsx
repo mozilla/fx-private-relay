@@ -48,6 +48,10 @@ describe("CornerNotification", () => {
   const mockDismiss = jest.fn();
   const mockAlias = mockedRelayaddresses.full[0];
 
+  // Note: mockedRuntimeData has MAX_NUM_FREE_ALIASES: 5, so the notification
+  // triggers at 4 aliases (limit - 1). We keep the mock at 5 instead of 50
+  // for test performance (creating 49 aliases would be unnecessarily slow).
+  // The component logic is tested with the dynamic calculation.
   const defaultProps = {
     profile: {
       ...mockedProfiles.some,
@@ -70,7 +74,7 @@ describe("CornerNotification", () => {
     mockL10n.getString.mockClear();
   });
 
-  it("renders when flag is active, user has 4 aliases, is not premium, and not dismissed", () => {
+  it("renders when flag is active, user has MAX_NUM_FREE_ALIASES-1 aliases, is not premium, and not dismissed", () => {
     render(<CornerNotification {...defaultProps} />);
     expect(
       screen.getByText("upsell-banner-4-masks-us-heading-2"),
@@ -111,7 +115,7 @@ describe("CornerNotification", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("does not render if aliases are less than 4", () => {
+  it("does not render if aliases are less than MAX_NUM_FREE_ALIASES-1", () => {
     render(
       <CornerNotification {...defaultProps} aliases={[mockAlias, mockAlias]} />,
     );
