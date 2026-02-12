@@ -37,9 +37,9 @@ export const SubdomainSearchForm = (props: Props) => {
     props.onPick(subdomainInput.toLowerCase());
   };
 
-  const onInput: ChangeEventHandler<HTMLInputElement> = async (event) => {
-    setSubdomainInput(event.target.value);
-    props.onType(event.target.value.toLowerCase());
+  const onInput: FormEventHandler<HTMLInputElement> = async (event) => {
+    setSubdomainInput(event.currentTarget.value);
+    props.onType(event.currentTarget.value.toLowerCase());
   };
 
   return (
