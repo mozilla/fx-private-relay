@@ -46,7 +46,7 @@
     "@types/jest-axe": "^3.5.9",
     "@types/react": "^19.2.13",
     "babel-jest": "^30.2.0",
-    "eslint": "^8.57.1",
+    "eslint": "^10.0.0",
     "eslint-config-next": "^16.1.6",
     "eslint-plugin-jest-dom": "^5.5.0",
     "eslint-plugin-testing-library": "^7.15.4",
