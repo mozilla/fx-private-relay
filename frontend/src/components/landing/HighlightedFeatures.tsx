@@ -46,7 +46,7 @@ export const HighlightedFeatures = () => {
             </h3>
             <p className={styles["highlighted-feature-body"]}>
               {l10n.getString(
-                `highlighted-features-section-${props.name}-body`,
+                `highlighted-features-section-${props.name}-body-1`,
                 variables,
               )}
             </p>
