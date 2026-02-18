@@ -435,6 +435,9 @@ RELAY_SCOPE: str = config(
     "RELAY_SCOPE", "https://identity.mozilla.com/apps/relay", cast=str
 )
 MAX_NUM_FREE_ALIASES: int = config("MAX_NUM_FREE_ALIASES", 5, cast=int)
+INCREASED_MAX_NUM_FREE_ALIASES: int = config(
+    "INCREASED_MAX_NUM_FREE_ALIASES", 50, cast=int
+)
 PERIODICAL_PREMIUM_PROD_ID: str = config("PERIODICAL_PREMIUM_PROD_ID", "")
 PREMIUM_PLAN_ID_US_MONTHLY: str = config(
     "PREMIUM_PLAN_ID_US_MONTHLY", "price_1LXUcnJNcmPzuWtRpbNOajYS"

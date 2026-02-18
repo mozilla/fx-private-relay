@@ -183,7 +183,8 @@ const Profile: NextPage = () => {
     );
   }
 
-  const freeMaskLimit = getRuntimeConfig().maxFreeAliases;
+  const freeMaskLimit =
+    runtimeData.data?.MAX_NUM_FREE_ALIASES ?? getRuntimeConfig().maxFreeAliases;
   const freeMaskLimitReached =
     allAliases.length >= freeMaskLimit && !profile.has_premium;
 

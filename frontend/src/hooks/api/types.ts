@@ -32,4 +32,5 @@ export type RuntimeData = {
   WAFFLE_SWITCHES: WaffleValue;
   WAFFLE_SAMPLES: WaffleValue;
   MAX_MINUTES_TO_VERIFY_REAL_PHONE: number;
+  MAX_NUM_FREE_ALIASES: number;
 };

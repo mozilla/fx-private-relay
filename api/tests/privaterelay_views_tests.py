@@ -17,6 +17,7 @@ from allauth.socialaccount.models import SocialAccount, SocialLogin
 from requests import PreparedRequest
 from requests.exceptions import Timeout
 from rest_framework.test import APIClient, APITestCase
+from waffle.testutils import override_flag
 
 from api.authentication import INTROSPECT_TOKEN_URL, get_cache_key
 from api.tests.authentication_tests import (
@@ -54,6 +55,7 @@ def test_runtime_data_response_structure(client: Client) -> None:
         "WAFFLE_SWITCHES",
         "WAFFLE_SAMPLES",
         "MAX_MINUTES_TO_VERIFY_REAL_PHONE",
+        "MAX_NUM_FREE_ALIASES",
     ]
 
     for key in expected_keys:
@@ -63,6 +65,27 @@ def test_runtime_data_response_structure(client: Client) -> None:
     assert isinstance(data["PERIODICAL_PREMIUM_PLANS"], dict)
     assert isinstance(data["PHONE_PLANS"], dict)
     assert isinstance(data["BUNDLE_PLANS"], dict)
+
+
+@pytest.mark.django_db
+def test_runtime_data_mask_limit_with_flag(
+    client: Client, settings: LazySettings
+) -> None:
+    """Test that MAX_NUM_FREE_ALIASES respects the increased_free_mask_limit flag."""
+    path = "/api/v1/runtime_data/"
+
+    # Without flag, should return standard limit
+    response = client.get(path)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["MAX_NUM_FREE_ALIASES"] == settings.MAX_NUM_FREE_ALIASES
+
+    # With flag enabled, should return increased limit
+    with override_flag("increased_free_mask_limit", active=True):
+        response = client.get(path)
+        assert response.status_code == 200
+        data = response.json()
+        assert data["MAX_NUM_FREE_ALIASES"] == settings.INCREASED_MAX_NUM_FREE_ALIASES
 
 
 @pytest.mark.django_db
