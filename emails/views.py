@@ -874,7 +874,17 @@ def _get_verdict(receipt, verdict_type):
 
 def _check_email_from_list(headers):
     for header in headers:
-        if header["name"].lower().startswith("list-"):
+        name = header["name"].lower()
+        # RFC 2369 defines List-* headers (List-Unsubscribe, List-ID, etc.)
+        # as standard indicators that an email was sent by a mailing list.
+        if name.startswith("list-"):
+            return True
+        # Feedback-ID is required by Google for bulk senders and used by many
+        # ESPs to track campaigns. Transactional emails do not include it.
+        if name == "feedback-id":
+            return True
+        # Precedence: bulk or list is a classic indicator of bulk mail.
+        if name == "precedence" and header["value"].lower() in ("bulk", "list"):
             return True
     return False
 

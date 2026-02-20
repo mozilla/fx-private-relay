@@ -51,6 +51,7 @@ from emails.views import (
     ReplyHeadersNotFound,
     _build_disabled_mask_for_spam_email,
     _build_reply_requires_premium_email,
+    _check_email_from_list,
     _gather_complainers,
     _get_address,
     _get_address_if_exists,
@@ -3148,6 +3149,49 @@ def test_build_reply_requires_premium_email_after_forward():
     assert_email_equals_fixture(
         msg.as_string(), "reply_requires_premium_second", replace_mime_boundaries=True
     )
+
+
+@pytest.mark.parametrize(
+    "headers, expected",
+    [
+        ([{"name": "List-Unsubscribe", "value": "https://example.com/unsub"}], True),
+        ([{"name": "list-id", "value": "<list.example.com>"}], True),
+        ([{"name": "Feedback-ID", "value": "campaign:sender:amazonses.com"}], True),
+        ([{"name": "Precedence", "value": "bulk"}], True),
+        ([{"name": "Precedence", "value": "list"}], True),
+        # Precedence: first-class is not a list signal
+        ([{"name": "Precedence", "value": "first-class"}], False),
+        # multiple list signals present
+        (
+            [
+                {"name": "List-Unsubscribe", "value": "https://example.com/unsub"},
+                {"name": "Feedback-ID", "value": "campaign:sender:amazonses.com"},
+                {"name": "Precedence", "value": "bulk"},
+            ],
+            True,
+        ),
+        # Feedback-ID mixed with non-list headers
+        (
+            [
+                {"name": "From", "value": "support@duolingo.com"},
+                {"name": "Feedback-ID", "value": "campaign:amazonses.com"},
+                {"name": "Subject", "value": "Welcome!"},
+            ],
+            True,
+        ),
+        # transactional email with no list headers
+        (
+            [
+                {"name": "From", "value": "support@example.com"},
+                {"name": "Subject", "value": "Your order"},
+                {"name": "Message-ID", "value": "<abc123@example.com>"},
+            ],
+            False,
+        ),
+    ],
+)
+def test_check_email_from_list(headers, expected):
+    assert _check_email_from_list(headers) is expected
 
 
 def test_get_keys_from_headers_no_reply_headers(settings):
