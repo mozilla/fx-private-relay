@@ -193,6 +193,6 @@ vpn-relay-go-vpn-body-2 = Protect your online activity.
 -brand-name-solo-ai = Solo AI
 fx-solo-ai = { -brand-name-solo-ai }
 
-highlighted-features-section-unlimited-masks-body-1 = Everyone gets { $mask_limit } email masks for free. 
+highlighted-features-section-unlimited-masks-body-2 = Everyone gets { $mask_limit } email masks for free. 
     But with { -brand-name-relay-premium }, you can generate as many masks as you need to help protect your email 
     from spammers, hackers, data breaches, and online trackers.
