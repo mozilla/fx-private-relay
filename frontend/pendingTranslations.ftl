@@ -193,6 +193,20 @@ vpn-relay-go-vpn-body-2 = Protect your online activity.
 -brand-name-solo-ai = Solo AI
 fx-solo-ai = { -brand-name-solo-ai }
 
-highlighted-features-section-unlimited-masks-body-1 = Everyone gets { $mask_limit } email masks for free. 
+highlighted-features-section-unlimited-masks-body-2 = Everyone gets { $mask_limit } email masks for free. 
     But with { -brand-name-relay-premium }, you can generate as many masks as you need to help protect your email 
     from spammers, hackers, data breaches, and online trackers.
+
+highlighted-features-section-masks-on-the-go-body-2 = { -brand-name-relay-premium } gives you a unique { -brand-name-relay } email domain so you can instantly 
+    create new masks anywhere you are. Simply add any word or phrase before the @ symbol. At a restaurant? Use restaurant@yourdomain.{ $mozmail }. 
+    Shopping? Try shop@yourdomain.{ $mozmail }.
+
+highlighted-features-section-replying-body-2 = { -brand-name-relay-premium } lets you respond to emails from your
+    masked email account, so senders will never know your real email address. With phone masking, you can reply 
+    to texts from your masked phone number to protect your real number. 
+
+highlighted-features-section-block-promotions-body-2 = With { -brand-name-relay-premium }, you can block promotional emails from reaching your 
+    inbox while still receiving emails like receipts or shipping information. 
+
+highlighted-features-section-remove-trackers-body-2 = { -brand-name-relay } can remove common email trackers from any emails forwarded to you, helping 
+    you stay invisible to trackers and advertisers.

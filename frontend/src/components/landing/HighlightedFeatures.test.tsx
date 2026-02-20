@@ -48,7 +48,7 @@ describe("HighlightedFeatures", () => {
       ).toBeInTheDocument();
       expect(
         screen.getByText(
-          `l10n string: [highlighted-features-section-${n}-body-1], with vars: {"mask_limit":"5","mozmail":"mozmail.com"}`,
+          `l10n string: [highlighted-features-section-${n}-body-2], with vars: {"mask_limit":"5","mozmail":"mozmail.com"}`,
         ),
       ).toBeInTheDocument();
     }
