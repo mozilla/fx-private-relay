@@ -8,7 +8,7 @@ from django.core.cache import cache
 from django.test import TestCase
 
 import responses
-from allauth.socialaccount.models import SocialAccount
+from @bndrs21.allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
 from requests.exceptions import Timeout
 from rest_framework.exceptions import APIException, AuthenticationFailed, NotFound
