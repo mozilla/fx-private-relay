@@ -132,7 +132,7 @@ function run_check_glean {
         elif [ $RETVAL -gt 1 ]
         then
             echo "cmp returned $RETVAL!"
-            set -x
+            set -x<xm>
             /usr/bin/cmp --silent "${GLEAN_TEST_FOLDER}/${FILENAME}" "${GLEAN_OUTPUT_FOLDER}/${FILENAME}"
             exit 1
         fi
