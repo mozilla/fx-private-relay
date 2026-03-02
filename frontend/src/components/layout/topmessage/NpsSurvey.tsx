@@ -5,6 +5,7 @@ import { useIsLoggedIn } from "../../../hooks/session";
 import { useProfiles } from "../../../hooks/api/profile";
 import { CloseIcon } from "../../Icons";
 import { useGaEvent } from "../../../hooks/gaEvent";
+import { useMemo } from "react";
 import { useL10n } from "../../../hooks/l10n";
 
 /**
@@ -22,11 +23,13 @@ export const NpsSurvey = () => {
   const isLoggedIn = useIsLoggedIn();
   const l10n = useL10n();
   const gaEvent = useGaEvent();
+  // eslint-disable-next-line react-hooks/purity
+  const now = useMemo(() => Date.now(), []);
 
   const hasBeenUserForThreeDays =
     isLoggedIn === "logged-in" &&
     firstSeen instanceof Date &&
-    Date.now() - firstSeen.getTime() > 3 * 24 * 60 * 60;
+    now - firstSeen.getTime() > 3 * 24 * 60 * 60;
 
   // TODO: Show if either the user has been one for three days,
   // *or* they've been a Premium customer for three days:

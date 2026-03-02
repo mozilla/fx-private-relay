@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 import { getCookie, setCookie } from "../functions/cookies";
 
 export type DismissOptions = {
@@ -36,7 +36,9 @@ export function useLocalDismissal(
   // Whenever `key` (and therefore `cookieId`) changes, re-check the appropriate
   // cookie.
   useEffect(() => {
-    setIsDismissed(hasDismissedCookie(cookieId, options.duration));
+    startTransition(() =>
+      setIsDismissed(hasDismissedCookie(cookieId, options.duration)),
+    );
   }, [cookieId, options.duration]);
 
   const dismiss = (dismissOptions?: DismissOptions) => {

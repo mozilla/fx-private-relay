@@ -16,50 +16,51 @@ type HighlightedItemProps = {
   isNew?: boolean;
 };
 
+const HighlightedItem = (props: HighlightedItemProps) => {
+  const l10n = useL10n();
+  const variables = {
+    mask_limit: "5",
+    mozmail: "mozmail.com",
+  };
+
+  const newCallOut = (
+    <span className={styles["new-callout"]}>
+      {l10n.getString("highlighted-features-section-new-item")}
+    </span>
+  );
+
+  return (
+    <div className={styles["highlighted-feature-wrapper"]}>
+      <div className={styles["highlighted-feature-description"]}>
+        <>
+          {/* Add "New" pill to new features */}
+          {props.isNew && (
+            <div className={styles["new-callout-wrapper"]}>{newCallOut}</div>
+          )}
+          <h3 className={styles["highlighted-feature-headline"]}>
+            {l10n.getString(
+              `highlighted-features-section-${props.name}-headline`,
+            )}
+          </h3>
+          <p className={styles["highlighted-feature-body"]}>
+            {l10n.getString(
+              `highlighted-features-section-${props.name}-body-2`,
+              variables,
+            )}
+          </p>
+        </>
+      </div>
+      <Image
+        alt=""
+        src={props.image}
+        className={styles["highlighted-feature-image"]}
+      />
+    </div>
+  );
+};
+
 export const HighlightedFeatures = () => {
   const l10n = useL10n();
-
-  const HighlightedItem = (props: HighlightedItemProps) => {
-    const variables = {
-      mask_limit: "5",
-      mozmail: "mozmail.com",
-    };
-
-    const newCallOut = (
-      <span className={styles["new-callout"]}>
-        {l10n.getString("highlighted-features-section-new-item")}
-      </span>
-    );
-
-    return (
-      <div className={styles["highlighted-feature-wrapper"]}>
-        <div className={styles["highlighted-feature-description"]}>
-          <>
-            {/* Add "New" pill to new features */}
-            {props.isNew && (
-              <div className={styles["new-callout-wrapper"]}>{newCallOut}</div>
-            )}
-            <h3 className={styles["highlighted-feature-headline"]}>
-              {l10n.getString(
-                `highlighted-features-section-${props.name}-headline`,
-              )}
-            </h3>
-            <p className={styles["highlighted-feature-body"]}>
-              {l10n.getString(
-                `highlighted-features-section-${props.name}-body-2`,
-                variables,
-              )}
-            </p>
-          </>
-        </div>
-        <Image
-          alt=""
-          src={props.image}
-          className={styles["highlighted-feature-image"]}
-        />
-      </div>
-    );
-  };
 
   return (
     <div>

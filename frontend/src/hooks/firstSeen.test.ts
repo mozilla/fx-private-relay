@@ -23,7 +23,7 @@ describe("useFirstSeen", () => {
     const useIsLoggedIn = jest.requireMock("./session").useIsLoggedIn;
 
     useIsLoggedIn.mockReturnValue("logged-out");
-    let { result, rerender } = renderHook(() => useFirstSeen());
+    const { result, rerender } = renderHook(() => useFirstSeen());
     expect(result.current).toBeNull();
 
     useIsLoggedIn.mockReturnValue("unknown");
@@ -45,14 +45,16 @@ describe("useFirstSeen", () => {
     rerender();
     expect(mockCookiesModule.setCookie).not.toHaveBeenCalled();
 
+    // Test "first visit" scenario with a new profile (no existing cookie)
     mockCookiesModule.getCookie.mockReturnValue(undefined);
+    setMockProfileData({ id: 124 });
     const now = Date.now();
     const dateSpy = jest.spyOn(Date, "now").mockReturnValue(now);
 
     rerender();
     expect(result.current?.getTime()).toBe(now);
     expect(mockCookiesModule.setCookie).toHaveBeenCalledWith(
-      "first_seen_123",
+      "first_seen_124",
       now.toString(),
       {
         maxAgeInSeconds: 315360000,

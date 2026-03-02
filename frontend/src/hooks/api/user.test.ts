@@ -15,7 +15,7 @@ describe("useUsers", () => {
       mutate: jest.fn(),
     });
 
-    let { result, rerender } = renderHook(() => useUsers());
+    const { result, rerender } = renderHook(() => useUsers());
 
     const calls = useApiV1.mock.calls;
     expect(calls[0][0]).toBe("/users/");

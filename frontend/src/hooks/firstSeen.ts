@@ -1,3 +1,4 @@
+import { startTransition, useEffect, useState } from "react";
 import { getCookie, setCookie } from "../functions/cookies";
 import { useProfiles } from "./api/profile";
 import { useIsLoggedIn } from "./session";
@@ -14,23 +15,31 @@ import { useIsLoggedIn } from "./session";
 export function useFirstSeen(): Date | null {
   const isLoggedIn = useIsLoggedIn();
   const profileData = useProfiles();
+  const profileId = profileData.data?.[0]?.id;
 
-  if (!(isLoggedIn === "logged-in") || !profileData.data?.[0].id) {
+  const [firstSeen, setFirstSeen] = useState<Date | null>(null);
+
+  useEffect(() => {
+    if (isLoggedIn !== "logged-in" || typeof profileId === "undefined") {
+      return;
+    }
+    const firstSeenString = getCookie("first_seen_" + profileId);
+    if (typeof firstSeenString === "string") {
+      startTransition(() =>
+        setFirstSeen(new Date(Number.parseInt(firstSeenString, 10))),
+      );
+      return;
+    }
+    const currentTimestamp = Date.now();
+    setCookie("first_seen_" + profileId, currentTimestamp.toString(), {
+      maxAgeInSeconds: 10 * 365 * 24 * 60 * 60,
+    });
+    startTransition(() => setFirstSeen(new Date(currentTimestamp)));
+  }, [isLoggedIn, profileId]);
+
+  if (isLoggedIn !== "logged-in" || typeof profileId === "undefined") {
     return null;
   }
 
-  const firstSeenString = getCookie("first_seen_" + profileData.data[0].id);
-  if (typeof firstSeenString === "string") {
-    return new Date(Number.parseInt(firstSeenString, 10));
-  }
-
-  const currentTimestamp = Date.now();
-  setCookie(
-    "first_seen_" + profileData.data[0].id,
-    currentTimestamp.toString(),
-    {
-      maxAgeInSeconds: 10 * 365 * 24 * 60 * 60,
-    },
-  );
-  return new Date(currentTimestamp);
+  return firstSeen;
 }

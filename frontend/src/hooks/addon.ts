@@ -4,6 +4,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { LocalLabel } from "./localLabels";
@@ -42,11 +43,13 @@ function useMutationObserver(
   options: MutationObserverInit,
   callback: MutationCallback,
 ) {
-  const [observer, setObserver] = useState<MutationObserver>();
+  const observerRef = useRef<MutationObserver | undefined>(undefined);
 
   useEffect(() => {
-    const observer = new MutationObserver(callback);
-    setObserver(observer);
+    observerRef.current = new MutationObserver(callback);
+    return () => {
+      observerRef.current?.disconnect();
+    };
   }, [callback]);
 
   useEffect(() => {
@@ -54,12 +57,8 @@ function useMutationObserver(
       return;
     }
 
-    observer?.observe(elementRef.current, options);
-
-    return () => {
-      observer?.disconnect();
-    };
-  }, [observer, options, elementRef]);
+    observerRef.current?.observe(elementRef.current, options);
+  }, [options, elementRef]);
 }
 
 /**
@@ -127,11 +126,7 @@ const parseAddonData = (addonElement: HTMLElement): AddonData => {
 export function useAddonElementWatcher(
   addonElementRef: RefObject<HTMLElement | null>,
 ): AddonData {
-  const [addonData, setAddonData] = useState<AddonData>(
-    addonElementRef.current !== null
-      ? parseAddonData(addonElementRef.current)
-      : defaultAddonData,
-  );
+  const [addonData, setAddonData] = useState<AddonData>(defaultAddonData);
   useEffect(() => {
     if (addonElementRef.current === null) {
       return;

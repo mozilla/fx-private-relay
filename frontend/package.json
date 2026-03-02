@@ -11,7 +11,7 @@
     "build": "next build",
     "build:mocked": "NEXT_PUBLIC_MOCK_API=true NEXT_PUBLIC_DEBUG=true npm run build",
     "start": "next start",
-    "lint": "stylelint '**/*.scss' && prettier --check './src' && eslint --config .eslintrc.js",
+    "lint": "stylelint '**/*.scss' && prettier --check './src' && ESLINT_USE_FLAT_CONFIG=false eslint --config .eslintrc.js './src'",
     "licensecheck": "license-checker --excludePrivatePackages --production --onlyAllow 'MPL; MIT; BSD-3-Clause; BSD-2-Clause; 0BSD; Apache-2.0; ISC; Zlib; CC0; Unlicense; WTFPL; Unicode-DFS-2016;'",
     "test": "jest",
     "postinstall": "msw init public/ --save"
@@ -46,7 +46,7 @@
     "@types/jest-axe": "^3.5.9",
     "@types/react": "^19.2.14",
     "babel-jest": "^30.2.0",
-    "eslint": "^8.57.1",
+    "eslint": "^9.39.3",
     "eslint-config-next": "^16.1.6",
     "eslint-plugin-jest-dom": "^5.5.0",
     "eslint-plugin-testing-library": "^7.15.4",

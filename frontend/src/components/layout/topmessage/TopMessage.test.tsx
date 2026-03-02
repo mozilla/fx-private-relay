@@ -29,25 +29,37 @@ jest.mock("./CsatSurvey", () => ({
 describe("TopMessage", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    const useRouter = (jest.requireMock("next/router") as any).useRouter;
+    const useRouter = (
+      jest.requireMock("next/router") as { useRouter: jest.Mock }
+    ).useRouter;
     useRouter.mockReturnValue({ pathname: "/", push: jest.fn() });
     const isFlagActive = (
-      jest.requireMock("../../../functions/waffle.ts") as any
+      jest.requireMock("../../../functions/waffle.ts") as {
+        isFlagActive: jest.Mock;
+      }
     ).isFlagActive;
     isFlagActive.mockReturnValue(false);
     const getLocale = (
-      jest.requireMock("../../../functions/getLocale.ts") as any
+      jest.requireMock("../../../functions/getLocale.ts") as {
+        getLocale: jest.Mock;
+      }
     ).getLocale;
     getLocale.mockReturnValue("en-US");
   });
 
   it("renders InterviewRecruitment based on conditions", () => {
-    const useRouter = (jest.requireMock("next/router") as any).useRouter;
+    const useRouter = (
+      jest.requireMock("next/router") as { useRouter: jest.Mock }
+    ).useRouter;
     const isFlagActive = (
-      jest.requireMock("../../../functions/waffle.ts") as any
+      jest.requireMock("../../../functions/waffle.ts") as {
+        isFlagActive: jest.Mock;
+      }
     ).isFlagActive;
     const getLocale = (
-      jest.requireMock("../../../functions/getLocale.ts") as any
+      jest.requireMock("../../../functions/getLocale.ts") as {
+        getLocale: jest.Mock;
+      }
     ).getLocale;
     const profile = getMockProfileData({ has_premium: false });
     const runtimeData = getMockRuntimeDataWithPeriodicalPremium();
@@ -58,51 +70,49 @@ describe("TopMessage", () => {
       push: jest.fn(),
     });
     isFlagActive.mockReturnValue(true);
-    let result = render(
+    let view = render(
       <TopMessage profile={profile} runtimeData={runtimeData} />,
     );
     expect(screen.getByTestId("interview-recruitment")).toBeInTheDocument();
-    result.unmount();
+    view.unmount();
 
     isFlagActive.mockReturnValue(false);
-    result = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
+    view = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
     expect(
       screen.queryByTestId("interview-recruitment"),
     ).not.toBeInTheDocument();
     expect(screen.getByTestId("csat-survey")).toBeInTheDocument();
-    result.unmount();
+    view.unmount();
 
     isFlagActive.mockReturnValue(true);
     useRouter.mockReturnValue({ pathname: "/premium", push: jest.fn() });
-    result = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
+    view = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
     expect(
       screen.queryByTestId("interview-recruitment"),
     ).not.toBeInTheDocument();
-    result.unmount();
+    view.unmount();
 
     useRouter.mockReturnValue({
       pathname: "/accounts/profile",
       push: jest.fn(),
     });
     runtimeData.PERIODICAL_PREMIUM_PLANS.country_code = "ca";
-    result = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
+    view = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
     expect(
       screen.queryByTestId("interview-recruitment"),
     ).not.toBeInTheDocument();
-    result.unmount();
+    view.unmount();
 
     runtimeData.PERIODICAL_PREMIUM_PLANS.country_code = "us";
     getLocale.mockReturnValue("fr-FR");
-    result = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
+    view = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
     expect(
       screen.queryByTestId("interview-recruitment"),
     ).not.toBeInTheDocument();
-    result.unmount();
+    view.unmount();
 
     getLocale.mockReturnValue("en-US");
-    result = render(
-      <TopMessage profile={undefined} runtimeData={runtimeData} />,
-    );
+    view = render(<TopMessage profile={undefined} runtimeData={runtimeData} />);
     expect(
       screen.queryByTestId("interview-recruitment"),
     ).not.toBeInTheDocument();
@@ -110,10 +120,14 @@ describe("TopMessage", () => {
 
   it("renders PhoneSurvey based on conditions", () => {
     const isFlagActive = (
-      jest.requireMock("../../../functions/waffle.ts") as any
+      jest.requireMock("../../../functions/waffle.ts") as {
+        isFlagActive: jest.Mock;
+      }
     ).isFlagActive;
     const getLocale = (
-      jest.requireMock("../../../functions/getLocale.ts") as any
+      jest.requireMock("../../../functions/getLocale.ts") as {
+        getLocale: jest.Mock;
+      }
     ).getLocale;
     const profile = getMockProfileData({ has_phone: true });
     const runtimeData = getMockRuntimeDataWithPhones();
@@ -122,41 +136,41 @@ describe("TopMessage", () => {
       (_, flag) => flag === "phone_launch_survey",
     );
     runtimeData.PHONE_PLANS.country_code = "us";
-    let result = render(
+    let view = render(
       <TopMessage profile={profile} runtimeData={runtimeData} />,
     );
     expect(screen.getByTestId("phone-survey")).toBeInTheDocument();
-    result.unmount();
+    view.unmount();
 
     runtimeData.PHONE_PLANS.country_code = "ca";
-    result = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
+    view = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
     expect(screen.getByTestId("phone-survey")).toBeInTheDocument();
-    result.unmount();
+    view.unmount();
 
     isFlagActive.mockReturnValue(false);
-    result = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
+    view = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
     expect(screen.queryByTestId("phone-survey")).not.toBeInTheDocument();
     expect(screen.getByTestId("csat-survey")).toBeInTheDocument();
-    result.unmount();
+    view.unmount();
 
     isFlagActive.mockImplementation(
       (_, flag) => flag === "phone_launch_survey",
     );
     const noPhoneProfile = getMockProfileData({ has_phone: false });
-    result = render(
+    view = render(
       <TopMessage profile={noPhoneProfile} runtimeData={runtimeData} />,
     );
     expect(screen.queryByTestId("phone-survey")).not.toBeInTheDocument();
-    result.unmount();
+    view.unmount();
 
     runtimeData.PHONE_PLANS.country_code = "uk";
-    result = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
+    view = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
     expect(screen.queryByTestId("phone-survey")).not.toBeInTheDocument();
-    result.unmount();
+    view.unmount();
 
     runtimeData.PHONE_PLANS.country_code = "us";
     getLocale.mockReturnValue("de-DE");
-    result = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
+    view = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
     expect(screen.queryByTestId("phone-survey")).not.toBeInTheDocument();
   });
 
@@ -164,34 +178,38 @@ describe("TopMessage", () => {
     const profile = getMockProfileData({ has_premium: false });
     const runtimeData = getMockRuntimeDataWithPeriodicalPremium();
 
-    let result = render(
+    let view = render(
       <TopMessage profile={profile} runtimeData={runtimeData} />,
     );
     expect(screen.getByTestId("csat-survey")).toBeInTheDocument();
-    result.unmount();
+    view.unmount();
 
     const premiumProfile = getMockProfileData({ has_premium: true });
-    result = render(
+    view = render(
       <TopMessage profile={premiumProfile} runtimeData={runtimeData} />,
     );
     expect(screen.getByTestId("csat-survey")).toBeInTheDocument();
-    result.unmount();
+    view.unmount();
 
     const { container: noProfile } = render(
       <TopMessage profile={undefined} runtimeData={runtimeData} />,
     );
-    expect(noProfile.firstChild).toBeNull();
+    expect(noProfile).toBeEmptyDOMElement();
 
     const { container: nothingDefined } = render(
       <TopMessage profile={undefined} runtimeData={undefined} />,
     );
-    expect(nothingDefined.firstChild).toBeNull();
+    expect(nothingDefined).toBeEmptyDOMElement();
   });
 
   it("respects priority order", () => {
-    const useRouter = (jest.requireMock("next/router") as any).useRouter;
+    const useRouter = (
+      jest.requireMock("next/router") as { useRouter: jest.Mock }
+    ).useRouter;
     const isFlagActive = (
-      jest.requireMock("../../../functions/waffle.ts") as any
+      jest.requireMock("../../../functions/waffle.ts") as {
+        isFlagActive: jest.Mock;
+      }
     ).isFlagActive;
 
     useRouter.mockReturnValue({
@@ -204,18 +222,18 @@ describe("TopMessage", () => {
     runtimeData.PERIODICAL_PREMIUM_PLANS.country_code = "us";
     runtimeData.PHONE_PLANS.country_code = "us";
 
-    let result = render(
+    let view = render(
       <TopMessage profile={profile} runtimeData={runtimeData} />,
     );
     expect(screen.getByTestId("interview-recruitment")).toBeInTheDocument();
     expect(screen.queryByTestId("phone-survey")).not.toBeInTheDocument();
     expect(screen.queryByTestId("csat-survey")).not.toBeInTheDocument();
-    result.unmount();
+    view.unmount();
 
     isFlagActive.mockImplementation(
       (_, flag) => flag === "phone_launch_survey",
     );
-    result = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
+    view = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
     expect(screen.getByTestId("phone-survey")).toBeInTheDocument();
     expect(screen.queryByTestId("csat-survey")).not.toBeInTheDocument();
   });

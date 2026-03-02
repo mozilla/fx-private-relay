@@ -48,9 +48,9 @@ describe("GoogleAnalyticsWorkaround", () => {
   });
 
   it("renders scripts with correct configuration and content", () => {
-    let result = render(<GoogleAnalyticsWorkaround gaId="G-TEST123" />);
-    let initScript = screen.getByTestId("_next-ga-init");
-    let mainScript = screen.getByTestId("_next-ga");
+    let view = render(<GoogleAnalyticsWorkaround gaId="G-TEST123" />);
+    const initScript = screen.getByTestId("_next-ga-init");
+    const mainScript = screen.getByTestId("_next-ga");
     let scriptContent = initScript.innerHTML;
 
     expect(mainScript).toHaveAttribute(
@@ -63,9 +63,9 @@ describe("GoogleAnalyticsWorkaround", () => {
     expect(scriptContent).toContain("function gtag()");
     expect(scriptContent).toContain(".push(arguments)");
     expect(scriptContent).toContain("gtag('js', new Date())");
-    result.unmount();
+    view.unmount();
 
-    result = render(
+    view = render(
       <GoogleAnalyticsWorkaround
         gaId="G-TEST123"
         dataLayerName="customLayer"
@@ -73,23 +73,23 @@ describe("GoogleAnalyticsWorkaround", () => {
     );
     scriptContent = screen.getByTestId("_next-ga-init").innerHTML;
     expect(scriptContent).toContain("window['customLayer']");
-    result.unmount();
+    view.unmount();
 
-    result = render(
+    view = render(
       <GoogleAnalyticsWorkaround gaId="G-TEST123" debugMode={true} />,
     );
     scriptContent = screen.getByTestId("_next-ga-init").innerHTML;
     expect(scriptContent).toContain("'debug_mode': true");
-    result.unmount();
+    view.unmount();
 
-    result = render(
+    view = render(
       <GoogleAnalyticsWorkaround gaId="G-TEST123" debugMode={false} />,
     );
     scriptContent = screen.getByTestId("_next-ga-init").innerHTML;
     expect(scriptContent).toContain("'debug_mode': false");
-    result.unmount();
+    view.unmount();
 
-    result = render(
+    view = render(
       <GoogleAnalyticsWorkaround gaId="G-TEST123" nonce="test-nonce" />,
     );
     expect(screen.getByTestId("_next-ga-init")).toHaveAttribute(
@@ -100,9 +100,9 @@ describe("GoogleAnalyticsWorkaround", () => {
       "data-nonce",
       "test-nonce",
     );
-    result.unmount();
+    view.unmount();
 
-    result = render(
+    view = render(
       <GoogleAnalyticsWorkaround
         gaId="G-ALL"
         dataLayerName="myLayer"
@@ -130,7 +130,7 @@ describe("GoogleAnalyticsWorkaround", () => {
 
     performanceMarkSpy?.mockRestore();
     const originalMark = performance.mark;
-    delete (performance as any).mark;
+    delete (performance as unknown as Record<string, unknown>).mark;
     expect(() =>
       render(<GoogleAnalyticsWorkaround gaId="G-TEST456" />),
     ).not.toThrow();
@@ -158,15 +158,15 @@ describe("sendGAEvent", () => {
     expect(consoleWarnSpy).not.toHaveBeenCalled();
 
     process.env.NODE_ENV = "production";
-    delete (window as any).dataLayer;
+    delete (window as unknown as Record<string, unknown>).dataLayer;
     sendGAEvent("event", "click_event", { button: "submit" });
     expect(consoleWarnSpy).toHaveBeenCalledWith(
       "@next/third-parties: GA dataLayer dataLayer does not exist",
     );
 
     const mockGtag = jest.fn();
-    (window as any).gtag = mockGtag;
-    (window as any).dataLayer = [];
+    (window as unknown as Record<string, unknown>).gtag = mockGtag;
+    (window as unknown as Record<string, unknown>).dataLayer = [];
 
     sendGAEvent("event", "conversion", { value: 100, currency: "USD" });
     expect(mockGtag).toHaveBeenCalledWith("event", "conversion", {
@@ -184,7 +184,7 @@ describe("sendGAEvent", () => {
     sendGAEvent("event", "simple_event", {});
     expect(mockGtag).toHaveBeenCalledWith("event", "simple_event", {});
 
-    delete (window as any).gtag;
-    delete (window as any).dataLayer;
+    delete (window as unknown as Record<string, unknown>).gtag;
+    delete (window as unknown as Record<string, unknown>).dataLayer;
   });
 });
