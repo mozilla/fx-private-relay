@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 /**
  * Hook to help selectively opting out of static site generation
@@ -19,11 +19,9 @@ import { useEffect, useState } from "react";
  *          subsequent renders are guaranteed to be on the client-side.
  */
 export function useHasRenderedClientSide() {
-  const [hasRenderedClientSide, setHasRenderedClientSide] = useState(false);
-
-  useEffect(() => {
-    setHasRenderedClientSide(true);
-  }, []);
-
-  return hasRenderedClientSide;
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
 }

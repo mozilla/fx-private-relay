@@ -25,37 +25,41 @@ describe("NpsSurvey", () => {
     mockFirstSeenDaysAgo(4);
     mockLoginStatus("logged-in");
     const useProfiles = (
-      jest.requireMock("../../../hooks/api/profile.ts") as any
+      jest.requireMock("../../../hooks/api/profile.ts") as {
+        useProfiles: jest.Mock;
+      }
     ).useProfiles;
     useProfiles.mockReturnValue({ data: [getMockProfileData({ id: 123 })] });
   });
 
   it("respects visibility conditions", () => {
-    const { container: visible } = render(<NpsSurvey />);
-    expect(visible.querySelector("aside")).toBeInTheDocument();
+    render(<NpsSurvey />);
+    expect(screen.getByRole("complementary")).toBeInTheDocument();
 
     mockLocalDismissal(true);
     const { container: dismissed } = render(<NpsSurvey />);
-    expect(dismissed.firstChild).toBeNull();
+    expect(dismissed).toBeEmptyDOMElement();
 
     mockLocalDismissal(false);
     mockFirstSeen(new Date(Date.now() - 1000));
     const { container: tooNew } = render(<NpsSurvey />);
-    expect(tooNew.firstChild).toBeNull();
+    expect(tooNew).toBeEmptyDOMElement();
 
     mockFirstSeenDaysAgo(4);
     mockLoginStatus("logged-out");
     const { container: loggedOut } = render(<NpsSurvey />);
-    expect(loggedOut.firstChild).toBeNull();
+    expect(loggedOut).toBeEmptyDOMElement();
 
     mockLoginStatus("logged-in");
     mockFirstSeen(null);
     const { container: noFirstSeen } = render(<NpsSurvey />);
-    expect(noFirstSeen.firstChild).toBeNull();
+    expect(noFirstSeen).toBeEmptyDOMElement();
 
     mockFirstSeenDaysAgo(4);
     const useLocalDismissal = (
-      jest.requireMock("../../../hooks/localDismissal.ts") as any
+      jest.requireMock("../../../hooks/localDismissal.ts") as {
+        useLocalDismissal: jest.Mock;
+      }
     ).useLocalDismissal;
     expect(useLocalDismissal).toHaveBeenCalledWith("nps-survey_123", {
       duration: 30 * 24 * 60 * 60,
@@ -65,7 +69,9 @@ describe("NpsSurvey", () => {
   it("renders complete survey with rating categories and tracking", async () => {
     const mockDismiss = jest.fn();
     const useLocalDismissal = (
-      jest.requireMock("../../../hooks/localDismissal.ts") as any
+      jest.requireMock("../../../hooks/localDismissal.ts") as {
+        useLocalDismissal: jest.Mock;
+      }
     ).useLocalDismissal;
     useLocalDismissal.mockReturnValue({
       isDismissed: false,
@@ -102,7 +108,9 @@ describe("NpsSurvey", () => {
   it("handles dismissal without tracking", async () => {
     const mockDismiss = jest.fn();
     const useLocalDismissal = (
-      jest.requireMock("../../../hooks/localDismissal.ts") as any
+      jest.requireMock("../../../hooks/localDismissal.ts") as {
+        useLocalDismissal: jest.Mock;
+      }
     ).useLocalDismissal;
     useLocalDismissal.mockReturnValue({
       isDismissed: false,

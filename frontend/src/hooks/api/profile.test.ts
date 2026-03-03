@@ -67,7 +67,7 @@ describe("useProfiles", () => {
       mutate: mockMutate,
     });
 
-    let { result, rerender } = renderHook(() => useProfiles());
+    const { result, rerender } = renderHook(() => useProfiles());
 
     const calls = useSWR.mock.calls;
     expect(calls[0][0]).toBe("/profiles/");

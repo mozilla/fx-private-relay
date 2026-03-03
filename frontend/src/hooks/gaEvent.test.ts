@@ -27,7 +27,7 @@ describe("useGaEvent", () => {
       jest.requireMock("./googleAnalytics").useGoogleAnalytics;
 
     useGoogleAnalytics.mockReturnValue(false);
-    let { result, rerender } = renderHook(() => useGaEvent());
+    const { result, rerender } = renderHook(() => useGaEvent());
 
     result.current({ category: "Test", action: "Action", label: "Label" });
     expect(mockEvent).not.toHaveBeenCalled();

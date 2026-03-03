@@ -15,7 +15,7 @@ import {
   useMenuItem,
   useFocus,
 } from "react-aria";
-import { Key, ReactNode, useRef, useState, useEffect, RefObject } from "react";
+import { Key, ReactNode, useRef, useState, useEffect } from "react";
 import { AriaMenuItemProps, AriaMenuOptions } from "@react-aria/menu";
 import styles from "./AppPicker.module.scss";
 import FirefoxLogo from "../images/fx.png";
@@ -85,16 +85,11 @@ export const AppPicker = (props: Props) => {
       ? document.location.host
       : "relay.firefox.com",
   );
-  const linkRefs: Record<
-    keyof typeof products,
-    RefObject<HTMLAnchorElement | null>
-  > = {
-    monitor: useRef<HTMLAnchorElement>(null),
-    fxDesktop: useRef<HTMLAnchorElement>(null),
-    fxMobile: useRef<HTMLAnchorElement>(null),
-    solo: useRef<HTMLAnchorElement>(null),
-    vpn: useRef<HTMLAnchorElement>(null),
-  };
+  const vpnLinkRef = useRef<HTMLAnchorElement>(null);
+  const monitorLinkRef = useRef<HTMLAnchorElement>(null);
+  const fxDesktopLinkRef = useRef<HTMLAnchorElement>(null);
+  const fxMobileLinkRef = useRef<HTMLAnchorElement>(null);
+  const soloLinkRef = useRef<HTMLAnchorElement>(null);
   const mozillaLinkRef = useRef<HTMLAnchorElement>(null);
 
   const onSelect = (itemKey: Key) => {
@@ -125,7 +120,7 @@ export const AppPicker = (props: Props) => {
     >
       <Item key={products.vpn.id} textValue={l10n.getString("fx-vpn")}>
         <a
-          ref={linkRefs.vpn}
+          ref={vpnLinkRef}
           href={products.vpn.url}
           className={`${styles["menu-link"]} ${styles["vpn-link"]}`}
           target="_blank"
@@ -137,7 +132,7 @@ export const AppPicker = (props: Props) => {
       </Item>
       <Item key={products.monitor.id} textValue={l10n.getString("moz-monitor")}>
         <a
-          ref={linkRefs.monitor}
+          ref={monitorLinkRef}
           href={products.monitor.url}
           className={`${styles["menu-link"]} ${styles["monitor-link"]}`}
           target="_blank"
@@ -152,7 +147,7 @@ export const AppPicker = (props: Props) => {
         textValue={l10n.getString("fx-desktop-2")}
       >
         <a
-          ref={linkRefs.fxDesktop}
+          ref={fxDesktopLinkRef}
           href={products.fxDesktop.url}
           className={`${styles["menu-link"]} ${styles["fx-desktop-link"]}`}
           target="_blank"
@@ -167,7 +162,7 @@ export const AppPicker = (props: Props) => {
         textValue={l10n.getString("fx-mobile-2")}
       >
         <a
-          ref={linkRefs.fxMobile}
+          ref={fxMobileLinkRef}
           href={products.fxMobile.url}
           className={`${styles["menu-link"]} ${styles["fx-mobile-link"]}`}
           target="_blank"
@@ -179,7 +174,7 @@ export const AppPicker = (props: Props) => {
       </Item>
       <Item key={products.solo.id} textValue={l10n.getString("fx-solo-ai")}>
         <a
-          ref={linkRefs.solo}
+          ref={soloLinkRef}
           href={products.solo.url}
           className={`${styles["menu-link"]} ${styles["solo-link"]}`}
           target="_blank"

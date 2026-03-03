@@ -1,4 +1,4 @@
-import { FormEventHandler, ChangeEventHandler, useState } from "react";
+import { FormEventHandler, useState } from "react";
 import { toast } from "react-toastify";
 import { authenticatedFetch } from "../../../hooks/api/api";
 import { useL10n } from "../../../hooks/l10n";

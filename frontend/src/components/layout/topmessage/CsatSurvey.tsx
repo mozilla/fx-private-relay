@@ -7,7 +7,7 @@ import {
 import { ProfileData } from "../../../hooks/api/profile";
 import { CloseIcon } from "../../Icons";
 import { parseDate } from "../../../functions/parseDate";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { getLocale } from "../../../functions/getLocale";
 import { useGaEvent } from "../../../hooks/gaEvent";
 import { useL10n } from "../../../hooks/l10n";
@@ -69,6 +69,8 @@ export const CsatSurvey = (props: Props) => {
   const l10n = useL10n();
   const [answer, setAnswer] = useState<keyof SurveyLinks>();
   const gaEvent = useGaEvent();
+  // eslint-disable-next-line react-hooks/purity
+  const now = useMemo(() => Date.now(), []);
 
   let reasonToShow:
     | null
@@ -99,7 +101,7 @@ export const CsatSurvey = (props: Props) => {
         // hence the type assertion:
         (firstSeen as Date);
     const daysSinceSubscription =
-      (Date.now() - subscriptionDate.getTime()) / 1000 / 60 / 60 / 24;
+      (now - subscriptionDate.getTime()) / 1000 / 60 / 60 / 24;
     if (daysSinceSubscription >= 90) {
       if (!premium90DaysDismissal.isDismissed) {
         reasonToShow = "premium90days";
@@ -115,7 +117,7 @@ export const CsatSurvey = (props: Props) => {
     }
   } else if (!props.profile.has_premium && firstSeen instanceof Date) {
     const daysSinceFirstSeen =
-      (Date.now() - firstSeen.getTime()) / 1000 / 60 / 60 / 24;
+      (now - firstSeen.getTime()) / 1000 / 60 / 60 / 24;
     if (daysSinceFirstSeen >= 90) {
       if (!free90DaysDismissal.isDismissed) {
         reasonToShow = "free90days";

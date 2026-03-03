@@ -39,7 +39,7 @@ describe("useInboundContact", () => {
       mutate: mockMutate,
     });
 
-    let { result, rerender } = renderHook(() => useInboundContact());
+    const { result, rerender } = renderHook(() => useInboundContact());
 
     expect(useApiV1).toHaveBeenCalledWith("/inboundcontact/");
     expect(result.current.isLoading).toBe(true);

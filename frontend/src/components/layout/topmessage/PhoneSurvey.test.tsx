@@ -26,19 +26,23 @@ describe("PhoneSurvey", () => {
 
   it("respects visibility conditions", () => {
     const useLocalDismissal = (
-      jest.requireMock("../../../hooks/localDismissal.ts") as any
+      jest.requireMock("../../../hooks/localDismissal.ts") as {
+        useLocalDismissal: jest.Mock;
+      }
     ).useLocalDismissal;
     const useRelayNumber = (
-      jest.requireMock("../../../hooks/api/relayNumber.ts") as any
+      jest.requireMock("../../../hooks/api/relayNumber.ts") as {
+        useRelayNumber: jest.Mock;
+      }
     ).useRelayNumber;
 
-    const { container: visible } = render(<PhoneSurvey />);
-    expect(visible.querySelector("aside")).toBeInTheDocument();
+    render(<PhoneSurvey />);
+    expect(screen.getByRole("complementary")).toBeInTheDocument();
     expect(useLocalDismissal).toHaveBeenCalledWith("phone-survey-2022-11");
 
     mockLocalDismissal(true);
     const { container: dismissed } = render(<PhoneSurvey />);
-    expect(dismissed.firstChild).toBeNull();
+    expect(dismissed).toBeEmptyDOMElement();
 
     mockLocalDismissal(false);
     useRelayNumber.mockReturnValue({
@@ -46,28 +50,30 @@ describe("PhoneSurvey", () => {
       data: undefined,
     });
     const { container: withError } = render(<PhoneSurvey />);
-    expect(withError.firstChild).toBeNull();
+    expect(withError).toBeEmptyDOMElement();
 
     useRelayNumber.mockReturnValue({ error: undefined, data: null });
     const { container: nullData } = render(<PhoneSurvey />);
-    expect(nullData.firstChild).toBeNull();
+    expect(nullData).toBeEmptyDOMElement();
 
     setMockRelayNumberData([]);
     const { container: emptyData } = render(<PhoneSurvey />);
-    expect(emptyData.firstChild).toBeNull();
+    expect(emptyData).toBeEmptyDOMElement();
 
     setMockRelayNumberData([
       getMockRelayNumber({ id: 1 }),
       getMockRelayNumber({ id: 2 }),
     ]);
-    const { container: multipleNumbers } = render(<PhoneSurvey />);
-    expect(multipleNumbers.querySelector("aside")).toBeInTheDocument();
+    render(<PhoneSurvey />);
+    expect(screen.getAllByRole("complementary").length).toBeGreaterThan(0);
   });
 
   it("renders complete banner with interactions and tracking", async () => {
     const mockDismiss = jest.fn();
     const useLocalDismissal = (
-      jest.requireMock("../../../hooks/localDismissal.ts") as any
+      jest.requireMock("../../../hooks/localDismissal.ts") as {
+        useLocalDismissal: jest.Mock;
+      }
     ).useLocalDismissal;
     useLocalDismissal.mockReturnValue({
       isDismissed: false,

@@ -3,6 +3,7 @@ import {
   HTMLAttributes,
   ReactNode,
   RefObject,
+  useMemo,
   useRef,
 } from "react";
 import {
@@ -135,6 +136,8 @@ export const WhatsNewMenu = (props: Props) => {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const addonData = useAddonData();
+  // eslint-disable-next-line react-hooks/purity
+  const now = useMemo(() => Date.now(), []);
 
   const entries: WhatsNewEntry[] = [
     {
@@ -623,6 +626,7 @@ export const WhatsNewMenu = (props: Props) => {
             className={styles.cta}
             href="https://www.mozilla.org/newsletter/security-and-privacy/"
             target="_blank"
+            rel="noreferrer"
           >
             {l10n.getString("whatsnew-feature-mailing-list-cta")}
           </a>
@@ -653,7 +657,7 @@ export const WhatsNewMenu = (props: Props) => {
       ),
     );
     // Filter out entries that are in the future:
-    return entryDate.getTime() <= Date.now();
+    return entryDate.getTime() <= now;
   });
   entriesNotInFuture.sort(entriesDescByDateSorter);
 
@@ -665,7 +669,7 @@ export const WhatsNewMenu = (props: Props) => {
         entry.announcementDate.day,
       ),
     );
-    const ageInMilliSeconds = Date.now() - entryDate.getTime();
+    const ageInMilliSeconds = now - entryDate.getTime();
     // Automatically move entries to the archive after 30 days:
     const isExpired = ageInMilliSeconds > 30 * 24 * 60 * 60 * 1000;
     return !entry.dismissal.isDismissed && !isExpired;
