@@ -11,15 +11,16 @@ jobs:
     if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' && startsWith( github.head_ref, 'dependabot/pip/glean-parser' ) }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           submodules: 'recursive'
+          persist-credentials: false
       - name: Checkout pull request
         run: gh pr checkout --recurse-submodules ${{ github.event.pull_request.number }}
         env:
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Set up Python 3
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
         with:
           python-version: '3.11'
           cache: 'pip'
@@ -28,7 +29,7 @@ jobs:
           pip install -r requirements.txt
       - name: Dependabot metadata
         id: dependabot-metadata
-        uses: dependabot/fetch-metadata@v2
+        uses: dependabot/fetch-metadata@21025c705c08248db411dc16f3619e6b5f9ea21a # v2
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
       - name: Run glean-parser to regenerate code
