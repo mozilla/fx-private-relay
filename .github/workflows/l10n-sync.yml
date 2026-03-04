@@ -10,10 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           submodules: 'recursive'
           token: ${{ secrets.L10N_UPDATE_TOKEN }}
+          persist-credentials: false
 
       - name: Pull & update submodules recursively
         run: |
@@ -64,6 +65,7 @@ jobs:
 
       - name: Enable auto-merge
         if: steps.check_changes.outputs.has_changes == 'true' && steps.create_pr.outputs.pr_number
-        run: gh pr merge ${{ steps.create_pr.outputs.pr_number }} --auto --merge
+        run: gh pr merge ${PR_NUMBER} --auto --merge
         env:
           GH_TOKEN: ${{ secrets.L10N_UPDATE_TOKEN }}
+          PR_NUMBER: ${{ steps.create_pr.outputs.pr_number }}
