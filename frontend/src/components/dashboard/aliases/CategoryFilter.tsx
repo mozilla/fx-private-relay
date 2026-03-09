@@ -34,6 +34,7 @@ export type Props = {
   onChange: (selected: SelectedFilters) => void;
   resetChecks: boolean;
   setCheckboxes: (isReset: boolean) => void;
+  showPremiumFilters: boolean;
 };
 
 type OnCloseParams = {
@@ -100,6 +101,7 @@ export const CategoryFilter = (props: Props) => {
           onClose={onClose}
           resetChecks={props.resetChecks}
           setCheckboxes={props.setCheckboxes}
+          showPremiumFilters={props.showPremiumFilters}
         />
       </OverlayContainer>
     </>
@@ -112,6 +114,7 @@ type FilterMenuProps = HTMLAttributes<HTMLDivElement> & {
   isOpen: boolean;
   resetChecks: boolean;
   setCheckboxes: (isReset: boolean) => void;
+  showPremiumFilters: boolean;
 };
 const FilterMenu = forwardRef<HTMLDivElement, FilterMenuProps>(
   function FilterMenuWithForwardedRef(
@@ -121,6 +124,7 @@ const FilterMenu = forwardRef<HTMLDivElement, FilterMenuProps>(
       isOpen,
       resetChecks,
       setCheckboxes,
+      showPremiumFilters,
       ...otherProps
     },
     overlayRef,
@@ -192,30 +196,38 @@ const FilterMenu = forwardRef<HTMLDivElement, FilterMenuProps>(
             onReset={onReset}
             className={styles["filter-form"]}
           >
-            <label>
-              <input
-                type="checkbox"
-                checked={domainType === "custom"}
-                onChange={(e) =>
-                  setDomainType(e.target.checked ? "custom" : undefined)
-                }
-                name="customAliases"
-                id="customAliases"
-              />
-              {l10n.getString("profile-filter-category-option-custom-masks")}
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={domainType === "random"}
-                onChange={(e) =>
-                  setDomainType(e.target.checked ? "random" : undefined)
-                }
-                name="randomAliases"
-                id="randomAliases"
-              />
-              {l10n.getString("profile-filter-category-option-random-masks")}
-            </label>
+            {showPremiumFilters && (
+              <>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={domainType === "custom"}
+                    onChange={(e) =>
+                      setDomainType(e.target.checked ? "custom" : undefined)
+                    }
+                    name="customAliases"
+                    id="customAliases"
+                  />
+                  {l10n.getString(
+                    "profile-filter-category-option-custom-masks",
+                  )}
+                </label>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={domainType === "random"}
+                    onChange={(e) =>
+                      setDomainType(e.target.checked ? "random" : undefined)
+                    }
+                    name="randomAliases"
+                    id="randomAliases"
+                  />
+                  {l10n.getString(
+                    "profile-filter-category-option-random-masks",
+                  )}
+                </label>
+              </>
+            )}
             <label>
               <input
                 type="checkbox"
@@ -228,20 +240,22 @@ const FilterMenu = forwardRef<HTMLDivElement, FilterMenuProps>(
               />
               {l10n.getString("profile-filter-category-option-active-masks")}
             </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={status === "promo-blocking"}
-                onChange={(e) =>
-                  setStatus(e.target.checked ? "promo-blocking" : undefined)
-                }
-                name="promoBlockingAliases"
-                id="promoBlockingAliases"
-              />
-              {l10n.getString(
-                "profile-filter-category-option-promo-blocking-masks",
-              )}
-            </label>
+            {showPremiumFilters && (
+              <label>
+                <input
+                  type="checkbox"
+                  checked={status === "promo-blocking"}
+                  onChange={(e) =>
+                    setStatus(e.target.checked ? "promo-blocking" : undefined)
+                  }
+                  name="promoBlockingAliases"
+                  id="promoBlockingAliases"
+                />
+                {l10n.getString(
+                  "profile-filter-category-option-promo-blocking-masks",
+                )}
+              </label>
+            )}
             <label>
               <input
                 type="checkbox"
