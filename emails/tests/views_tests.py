@@ -2191,7 +2191,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
 
     def expected_glean_event(
         self,
-        timestamp: str,
+        timestamp: int,
         reason: str | None = None,
         is_reply: bool = False,
     ) -> dict[str, Any]:

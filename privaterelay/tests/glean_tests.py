@@ -1,5 +1,5 @@
 import json
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from logging import LogRecord
 from pathlib import Path
 from typing import Any, NamedTuple
@@ -220,7 +220,6 @@ def create_expected_glean_payload(
     name: str,
     extra_items: dict[str, str],
     user: User,
-    event_time: str,
     app_channel: RELAY_CHANNEL_NAME,
     telemetry_sdk_build: str,
     ping_time: str,
@@ -228,9 +227,7 @@ def create_expected_glean_payload(
     """Return the expected payload, JSON-decoded from the glean log."""
     return {
         "metrics": {},
-        "events": [
-            create_expected_glean_event(category, name, user, extra_items, event_time)
-        ],
+        "events": [create_expected_glean_event(category, name, user, extra_items, 0)],
         "client_info": {
             "app_build": "Unknown",
             "app_channel": app_channel,
@@ -266,29 +263,30 @@ def assert_glean_record(
 class PayloadVariedParts(NamedTuple):
     """Parts of a Glean payload that vary over test runs"""
 
-    event_timestamp_ms: str
     ping_time_iso: str
     telemetry_sdk_build: str
 
 
 def extract_parts_from_payload(payload: dict[str, Any]) -> PayloadVariedParts:
     """Check and return parts of the Glean payload that vary over test runs."""
-    event_ts_ms = payload["events"][0]["timestamp"]
-    event_time = datetime.fromtimestamp(event_ts_ms / 1000.0)
-    # The event_time is milliseconds from epoch. Check we converted it correctly.
-    assert 0 < (datetime.now() - event_time).total_seconds() < 0.5
-
     start_time_iso = payload["ping_info"]["start_time"]
     start_time = datetime.fromisoformat(start_time_iso)
     # The start_time is in ISO 8601 format with timezone data. Check the conversion.
     assert 0 < (datetime.now(UTC) - start_time).total_seconds() < 0.5
+
+    # Per Glean spec, event timestamp is ms relative to ping start. The absolute
+    # event time is start_time + offset. A single-event server ping always has
+    # offset 0, so the absolute event time equals start_time.
+    event_timestamp_ms = payload["events"][0]["timestamp"]
+    assert event_timestamp_ms == 0
+    event_time = start_time + timedelta(milliseconds=event_timestamp_ms)
+    assert 0 < (datetime.now(UTC) - event_time).total_seconds() < 0.5
 
     telemetry_sdk_build = payload["client_info"]["telemetry_sdk_build"]
     # The version will change with glean_parser releases, so only check prefix
     assert telemetry_sdk_build.startswith("glean_parser v")
 
     return PayloadVariedParts(
-        event_timestamp_ms=event_ts_ms,
         ping_time_iso=start_time_iso,
         telemetry_sdk_build=telemetry_sdk_build,
     )
@@ -323,7 +321,6 @@ def test_log_email_mask_created(
             "created_by_api": "true",
         },
         user=user,
-        event_time=parts.event_timestamp_ms,
         app_channel=settings.RELAY_CHANNEL,
         telemetry_sdk_build=parts.telemetry_sdk_build,
         ping_time=parts.ping_time_iso,
@@ -380,7 +377,6 @@ def test_log_email_mask_label_updated(
             "is_random_mask": "true",
         },
         user=user,
-        event_time=parts.event_timestamp_ms,
         app_channel=settings.RELAY_CHANNEL,
         telemetry_sdk_build=parts.telemetry_sdk_build,
         ping_time=parts.ping_time_iso,
@@ -438,7 +434,6 @@ def test_log_email_mask_deleted(
             "n_deleted_random_masks": "1",
         },
         user=user,
-        event_time=parts.event_timestamp_ms,
         app_channel=settings.RELAY_CHANNEL,
         telemetry_sdk_build=parts.telemetry_sdk_build,
         ping_time=parts.ping_time_iso,
@@ -492,7 +487,6 @@ def test_log_email_forwarded(
             "is_reply": "true" if is_reply else "false",
         },
         user=user,
-        event_time=parts.event_timestamp_ms,
         app_channel=settings.RELAY_CHANNEL,
         telemetry_sdk_build=parts.telemetry_sdk_build,
         ping_time=parts.ping_time_iso,
@@ -544,7 +538,6 @@ def test_log_email_blocked(
             "reason": reason,
         },
         user=user,
-        event_time=parts.event_timestamp_ms,
         app_channel=settings.RELAY_CHANNEL,
         telemetry_sdk_build=parts.telemetry_sdk_build,
         ping_time=parts.ping_time_iso,

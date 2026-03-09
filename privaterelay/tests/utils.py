@@ -180,8 +180,8 @@ def create_expected_glean_event(
     name: str,
     user: User,
     extra_items: dict[str, str],
-    event_time: str,
-) -> dict[str, str | dict[str, str]]:
+    event_time: int,
+) -> dict[str, int | str | dict[str, str]]:
     """
     Return the expected 'event' section of the event payload.
 
@@ -190,7 +190,7 @@ def create_expected_glean_event(
     user: The requesting user. The fxa_id, date_joined_relay, date_joined_premium, and
       premium_status will be extracted from the user.
     extra_items: Additional or override extra items for this event
-    event_time: The time of the event
+    event_time: The event timestamp in ms relative to ping start (0 for first event)
     """
     user_extra_items: dict[str, str] = {}
 
