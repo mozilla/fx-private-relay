@@ -1,4 +1,4 @@
-import { act, render, screen, cleanup } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { setMockProfileData } from "../../__mocks__/hooks/api/profile";
 import { setMockRuntimeData } from "../../__mocks__/hooks/api/runtimeData";

@@ -13,7 +13,7 @@ describe("useInterval", () => {
   it("handles interval lifecycle, delay changes, callback updates, and cleanup", () => {
     const callback = jest.fn();
 
-    let { rerender, unmount } = renderHook(
+    const { rerender, unmount } = renderHook(
       ({ cb, delay }) => useInterval(cb, delay),
       { initialProps: { cb: callback, delay: 1000 } },
     );

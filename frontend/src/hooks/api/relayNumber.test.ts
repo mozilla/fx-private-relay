@@ -48,7 +48,7 @@ describe("useRelayNumber", () => {
     jest.requireMock("./api").apiFetch = mockApiFetch;
   });
 
-  const mockApiResponse = (data: any, error?: Error, isLoading = false) => {
+  const mockApiResponse = (data: unknown, error?: Error, isLoading = false) => {
     useApiV1.mockReturnValue({
       data,
       error,
@@ -60,7 +60,7 @@ describe("useRelayNumber", () => {
 
   it("fetches relay number data with loading, success, and error states", async () => {
     mockApiResponse(undefined, undefined, true);
-    let { result, rerender } = renderHook(() => useRelayNumber());
+    const { result, rerender } = renderHook(() => useRelayNumber());
 
     expect(useApiV1).toHaveBeenCalledWith("/relaynumber/");
     expect(result.current.isLoading).toBe(true);
@@ -115,7 +115,7 @@ describe("useRelayNumber", () => {
 describe("useRelayNumberSuggestions", () => {
   const useApiV1 = jest.requireMock("./api").useApiV1;
 
-  const mockApiResponse = (data: any, error?: Error, isLoading = false) => {
+  const mockApiResponse = (data: unknown, error?: Error, isLoading = false) => {
     useApiV1.mockReturnValue({
       data,
       error,
@@ -127,7 +127,7 @@ describe("useRelayNumberSuggestions", () => {
 
   it("fetches relay number suggestions with all loading states", async () => {
     mockApiResponse(undefined, undefined, true);
-    let { result, rerender } = renderHook(() => useRelayNumberSuggestions());
+    const { result, rerender } = renderHook(() => useRelayNumberSuggestions());
 
     expect(useApiV1).toHaveBeenCalledWith("/relaynumber/suggestions/");
     expect(result.current.isLoading).toBe(true);

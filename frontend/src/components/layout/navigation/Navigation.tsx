@@ -16,6 +16,24 @@ import {
 } from "../../../functions/getPlan";
 import { useL10n } from "../../../hooks/l10n";
 
+type ToggleButtonProps = {
+  mobileMenuExpanded?: boolean;
+  handleToggle: CallableFunction;
+};
+const ToggleButton = ({
+  mobileMenuExpanded,
+  handleToggle,
+}: ToggleButtonProps) => (
+  <button
+    className={styles["menu-toggle"]}
+    aria-expanded={mobileMenuExpanded}
+    onClick={() => handleToggle()}
+  >
+    {/* passing toggle state to show correct icon */}
+    <MenuToggle toggleState={mobileMenuExpanded} />
+  </button>
+);
+
 export type Props = {
   theme: "free" | "premium";
   hasPremium: boolean;
@@ -72,17 +90,6 @@ export const Navigation = (props: Props) => {
       </Link>
     ) : null;
 
-  const ToggleButton = () => (
-    <button
-      className={styles["menu-toggle"]}
-      aria-expanded={mobileMenuExpanded}
-      onClick={() => handleToggle()}
-    >
-      {/* passing toggle state to show correct icon */}
-      <MenuToggle toggleState={mobileMenuExpanded} />
-    </button>
-  );
-
   return (
     <nav className={styles["site-nav"]}>
       {isLoggedIn ? emailDashboardLink : landingLink}
@@ -131,7 +138,10 @@ export const Navigation = (props: Props) => {
           <UpgradeButton />
         )}
 
-      <ToggleButton />
+      <ToggleButton
+        mobileMenuExpanded={mobileMenuExpanded}
+        handleToggle={handleToggle}
+      />
 
       <AppPicker theme={theme} style={styles["hidden-mobile"]} />
 

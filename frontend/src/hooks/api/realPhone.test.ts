@@ -18,15 +18,16 @@ jest.mock("./api", () => {
   };
 });
 
-const createMockPhone = (verified: boolean): any => ({
-  id: 1,
-  number: "+15555551234",
-  verification_code: "123456",
-  verification_sent_date: "2025-01-01T00:00:00Z",
-  verified,
-  verified_date: verified ? "2025-01-01T00:05:00Z" : null,
-  country_code: "US",
-});
+const createMockPhone = (verified: boolean): RealPhone =>
+  ({
+    id: 1,
+    number: "+15555551234",
+    verification_code: "123456",
+    verification_sent_date: "2025-01-01T00:00:00Z",
+    verified,
+    verified_date: verified ? "2025-01-01T00:05:00Z" : null,
+    country_code: "US",
+  }) as RealPhone;
 
 describe("useRealPhonesData", () => {
   const mockMutate = jest.fn();
@@ -49,7 +50,7 @@ describe("useRealPhonesData", () => {
       mutate: mockMutate,
     });
 
-    let { result, rerender } = renderHook(() => useRealPhonesData());
+    const { result, rerender } = renderHook(() => useRealPhonesData());
 
     expect(useApiV1).toHaveBeenCalledWith("/realphone/");
     expect(result.current.isLoading).toBe(true);

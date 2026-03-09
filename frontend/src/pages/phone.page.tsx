@@ -4,7 +4,7 @@ import { useProfiles } from "../hooks/api/profile";
 import { useUsers } from "../hooks/api/user";
 import { PhoneOnboarding } from "../components/phones/onboarding/PhoneOnboarding";
 import { useRelayNumber } from "../hooks/api/relayNumber";
-import { useEffect, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 import { PhoneDashboard } from "../components/phones/dashboard/PhoneDashboard";
 import { getRuntimeConfig } from "../config";
 import { PurchasePhonesPlan } from "../components/phones/onboarding/PurchasePhonesPlan";
@@ -69,7 +69,7 @@ const Phone: NextPage = () => {
       Array.isArray(relayNumberData.data) &&
       relayNumberData.data.length === 0
     ) {
-      setIsInOnboarding(true);
+      startTransition(() => setIsInOnboarding(true));
     }
   }, [isInOnboarding, relayNumberData]);
 

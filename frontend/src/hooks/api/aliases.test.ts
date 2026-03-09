@@ -21,27 +21,28 @@ jest.mock("./api", () => {
   };
 });
 
-const createMockAlias = (type: "random" | "custom", id: number): any => ({
-  mask_type: type,
-  id,
-  address: `test${id}`,
-  full_address: `test${id}@${type === "random" ? "relay.firefox.com" : "test.mozmail.com"}`,
-  domain: type === "random" ? 1 : 2,
-  enabled: true,
-  block_list_emails: false,
-  block_level_one_trackers: true,
-  description: "",
-  created_at: "2025-01-01T00:00:00Z",
-  last_modified_at: "2025-01-01T00:00:00Z",
-  last_used_at: null,
-  num_forwarded: 0,
-  num_blocked: 0,
-  num_spam: 0,
-  num_replied: 0,
-  num_level_one_trackers_blocked: 0,
-  used_on: "",
-  ...(type === "random" ? { generated_for: "" } : {}),
-});
+const createMockAlias = (type: "random" | "custom", id: number): AliasData =>
+  ({
+    mask_type: type,
+    id,
+    address: `test${id}`,
+    full_address: `test${id}@${type === "random" ? "relay.firefox.com" : "test.mozmail.com"}`,
+    domain: type === "random" ? 1 : 2,
+    enabled: true,
+    block_list_emails: false,
+    block_level_one_trackers: true,
+    description: "",
+    created_at: "2025-01-01T00:00:00Z",
+    last_modified_at: "2025-01-01T00:00:00Z",
+    last_used_at: null,
+    num_forwarded: 0,
+    num_blocked: 0,
+    num_spam: 0,
+    num_replied: 0,
+    num_level_one_trackers_blocked: 0,
+    used_on: "",
+    ...(type === "random" ? { generated_for: "" } : {}),
+  }) as AliasData;
 
 describe("useAliases", () => {
   const mockRandomMutate = jest.fn();
