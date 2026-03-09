@@ -123,7 +123,7 @@ const Home: NextPage = () => {
           )}
         </div>
         <section id="highlighted-features" className={styles.features}>
-          <HighlightedFeatures />
+          <HighlightedFeatures runtimeData={runtimeData.data} />
         </section>
 
         <section id="faq" className={styles["faq-wrapper"]}>

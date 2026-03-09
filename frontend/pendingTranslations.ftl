@@ -210,3 +210,5 @@ highlighted-features-section-block-promotions-body-2 = With { -brand-name-relay-
 
 highlighted-features-section-remove-trackers-body-2 = { -brand-name-relay } can remove common email trackers from any emails forwarded to you, helping 
     you stay invisible to trackers and advertisers.
+
+faq-question-unsubscribe-domain-answer-3 = If you downgrade from { -brand-name-relay-premium }, you’ll still receive emails forwarded through your custom email masks, but you’ll no longer be able to create new masks using that subdomain. If you have more than { $mask_limit } masks in total, you will not be able to create any more. You’ll also lose the ability to reply to forwarded messages. You can resubscribe to { -brand-name-relay-premium } and regain access to these features.

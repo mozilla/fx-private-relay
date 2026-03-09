@@ -9,6 +9,8 @@ import { StaticImageData } from "next/image";
 import styles from "./HighlightedFeatures.module.scss";
 import { LinkButton } from "../Button";
 import Image from "../Image";
+import { RuntimeData } from "../../hooks/api/types";
+import { getRuntimeConfig } from "../../config";
 
 type HighlightedItemProps = {
   image: StaticImageData;
@@ -16,12 +18,19 @@ type HighlightedItemProps = {
   isNew?: boolean;
 };
 
-export const HighlightedFeatures = () => {
+export type Props = {
+  runtimeData?: RuntimeData;
+};
+
+export const HighlightedFeatures = (props: Props) => {
   const l10n = useL10n();
+  const freeMaskLimit =
+    props.runtimeData?.MAX_NUM_FREE_ALIASES ??
+    getRuntimeConfig().maxFreeAliases;
 
   const HighlightedItem = (props: HighlightedItemProps) => {
     const variables = {
-      mask_limit: "5",
+      mask_limit: freeMaskLimit,
       mozmail: "mozmail.com",
     };
 

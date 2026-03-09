@@ -76,7 +76,7 @@ const PremiumPromo: NextPage = () => {
         )}
 
         <section id="perks" className={styles["perks-wrapper"]}>
-          <HighlightedFeatures />
+          <HighlightedFeatures runtimeData={runtimeData.data} />
         </section>
 
         <section className={styles["plans-wrapper"]}>
