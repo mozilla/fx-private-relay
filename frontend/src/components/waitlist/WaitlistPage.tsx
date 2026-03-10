@@ -1,7 +1,13 @@
 import styles from "./WaitlistPage.module.scss";
 import { Layout } from "../layout/Layout";
 import { Button } from "../Button";
-import { FormEventHandler, ReactNode, useEffect, useState } from "react";
+import {
+  FormEventHandler,
+  ReactNode,
+  startTransition,
+  useEffect,
+  useState,
+} from "react";
 import { getLocale } from "../../functions/getLocale";
 import { toast } from "react-toastify";
 import { CountryPicker } from "./CountryPicker";
@@ -33,11 +39,9 @@ export const WaitlistPage = (props: Props) => {
   );
 
   useEffect(() => {
-    if (
-      typeof email === "undefined" &&
-      typeof usersData.data?.[0]?.email === "string"
-    ) {
-      setEmail(usersData.data[0].email);
+    const userEmail = usersData.data?.[0]?.email;
+    if (typeof email === "undefined" && typeof userEmail === "string") {
+      startTransition(() => setEmail(userEmail));
     }
   }, [email, usersData]);
 
@@ -52,7 +56,7 @@ export const WaitlistPage = (props: Props) => {
       );
 
       // Set the locale to the matched locale or fallback to "en" if not found
-      setLocale(matchedLocale || "en");
+      startTransition(() => setLocale(matchedLocale || "en"));
     }
   }, [props.supportedLocales]);
 

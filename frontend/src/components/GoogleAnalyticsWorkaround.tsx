@@ -41,9 +41,11 @@ export const GoogleAnalyticsWorkaround = (
 ) => {
   const { gaId, dataLayerName = "dataLayer", nonce, debugMode } = props;
 
-  if (currDataLayerName === undefined) {
-    currDataLayerName = dataLayerName;
-  }
+  useEffect(() => {
+    if (currDataLayerName === undefined) {
+      currDataLayerName = dataLayerName;
+    }
+  }, [dataLayerName]);
 
   useEffect(() => {
     if (typeof performance.mark !== "function") {

@@ -13,7 +13,7 @@ describe("useIsLoggedIn", () => {
       error: undefined,
       isLoading: true,
     });
-    let { result, rerender } = renderHook(() => useIsLoggedIn());
+    const { result, rerender } = renderHook(() => useIsLoggedIn());
     expect(result.current).toBe("unknown");
 
     useProfiles.mockReturnValue({

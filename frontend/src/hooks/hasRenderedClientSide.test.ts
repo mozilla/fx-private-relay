@@ -3,7 +3,7 @@ import { useHasRenderedClientSide } from "./hasRenderedClientSide";
 
 describe("useHasRenderedClientSide", () => {
   it("returns true in test environment and maintains state across renders and remounts", () => {
-    let { result, rerender, unmount } = renderHook(() =>
+    const { result, rerender, unmount } = renderHook(() =>
       useHasRenderedClientSide(),
     );
 

@@ -2,7 +2,7 @@
 // should be used instead, but of course this hook can use it just fine:
 // eslint-disable-next-line no-restricted-imports
 import { ReactLocalization, useLocalization } from "@fluent/react";
-import { createElement, Fragment, useEffect, useState } from "react";
+import { createElement, Fragment, useSyncExternalStore } from "react";
 
 /**
  * Equivalent to ReactLocalization.getString, but returns a React Fragment.
@@ -39,14 +39,14 @@ type ExtendedReactLocalization = ReactLocalization & {
  */
 export const useL10n = (): ExtendedReactLocalization => {
   const { l10n } = useLocalization();
-  const [isPrerendering, setIsPrerendering] = useState(true);
+  const isPrerendering = useSyncExternalStore(
+    () => () => {},
+    () => false,
+    () => true,
+  );
 
   const getFragment: GetFragment = (id, args, fallback) =>
     l10n.getElement(createElement(Fragment, null, fallback ?? id), id, args);
-
-  useEffect(() => {
-    setIsPrerendering(false);
-  }, []);
 
   if (isPrerendering) {
     const prerenderingL10n: ExtendedReactLocalization = {
@@ -73,9 +73,7 @@ export const useL10n = (): ExtendedReactLocalization => {
     return prerenderingL10n;
   }
 
-  const extendedL10n: ExtendedReactLocalization =
-    l10n as ExtendedReactLocalization;
-  extendedL10n.getFragment = getFragment;
-
-  return extendedL10n;
+  return Object.assign(Object.create(l10n as unknown as object), {
+    getFragment,
+  }) as ExtendedReactLocalization;
 };

@@ -272,33 +272,34 @@ export const PremiumOnboarding = (props: Props) => {
   );
 };
 
+type FeatureItemProps = {
+  name: string;
+};
+
+const FeatureItem = (props: FeatureItemProps) => {
+  const l10n = useL10n();
+  return (
+    <li>
+      <CheckIcon alt={""} className={styles["check-icon"]} />
+      <p>
+        <strong>
+          {l10n.getString(
+            `multi-part-onboarding-premium-welcome-feature-headline-${props.name}`,
+          )}
+        </strong>
+        <br />
+        <span>
+          {l10n.getString(
+            `multi-part-onboarding-premium-welcome-feature-body-${props.name}`,
+          )}
+        </span>
+      </p>
+    </li>
+  );
+};
+
 const StepOne = () => {
   const l10n = useL10n();
-
-  type FeatureItemProps = {
-    name: string;
-  };
-
-  const FeatureItem = (props: FeatureItemProps) => {
-    return (
-      <li>
-        <CheckIcon alt={""} className={styles["check-icon"]} />
-        <p>
-          <strong>
-            {l10n.getString(
-              `multi-part-onboarding-premium-welcome-feature-headline-${props.name}`,
-            )}
-          </strong>
-          <br />
-          <span>
-            {l10n.getString(
-              `multi-part-onboarding-premium-welcome-feature-body-${props.name}`,
-            )}
-          </span>
-        </p>
-      </li>
-    );
-  };
 
   return (
     <div className={`${styles.step} ${styles["step-welcome"]}`}>

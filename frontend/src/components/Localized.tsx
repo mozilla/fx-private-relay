@@ -3,7 +3,7 @@
 // just fine:
 // eslint-disable-next-line no-restricted-imports
 import { LocalizedProps, Localized as OriginalLocalized } from "@fluent/react";
-import { cloneElement, isValidElement, useEffect, useState } from "react";
+import { cloneElement, isValidElement, useSyncExternalStore } from "react";
 import { useL10n } from "../hooks/l10n";
 
 /**
@@ -25,12 +25,12 @@ import { useL10n } from "../hooks/l10n";
  * but since that's only for SEO and the initial render, that's acceptable.
  */
 export const Localized = (props: LocalizedProps) => {
-  const [isPrerendering, setIsPrerendering] = useState(true);
+  const isPrerendering = useSyncExternalStore(
+    () => () => {},
+    () => false,
+    () => true,
+  );
   const l10n = useL10n();
-
-  useEffect(() => {
-    setIsPrerendering(false);
-  }, []);
 
   if (isPrerendering) {
     // `useL10n` makes sure that this is a prerenderable string

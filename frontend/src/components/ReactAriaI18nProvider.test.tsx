@@ -1,6 +1,7 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import { ReactAriaI18nProvider } from "./ReactAriaI18nProvider";
+import * as l10nHook from "../hooks/l10n";
 
 const mockI18nProvider = jest.fn();
 
@@ -28,9 +29,9 @@ describe("ReactAriaI18nProvider", () => {
   });
 
   it("integrates l10n with react-aria I18nProvider and renders children", () => {
-    const useL10nSpy = jest.spyOn(require("../hooks/l10n"), "useL10n");
+    const useL10nSpy = jest.spyOn(l10nHook, "useL10n");
 
-    let result = render(
+    let view = render(
       <ReactAriaI18nProvider>
         <div data-testid="test-child">Child content</div>
       </ReactAriaI18nProvider>,
@@ -42,13 +43,13 @@ describe("ReactAriaI18nProvider", () => {
       expect.objectContaining({ locale: "en-GB" }),
     );
 
-    let provider = screen.getByTestId("i18n-provider");
+    const provider = screen.getByTestId("i18n-provider");
     expect(provider).toHaveAttribute("data-locale", "en-GB");
     expect(screen.getByTestId("test-child")).toHaveTextContent("Child content");
-    result.unmount();
+    view.unmount();
 
     global.getLocaleMock.mockReturnValue("fr");
-    result = render(
+    view = render(
       <ReactAriaI18nProvider>
         <div>French content</div>
       </ReactAriaI18nProvider>,
@@ -56,10 +57,10 @@ describe("ReactAriaI18nProvider", () => {
     expect(mockI18nProvider).toHaveBeenCalledWith(
       expect.objectContaining({ locale: "fr" }),
     );
-    result.unmount();
+    view.unmount();
 
     global.getLocaleMock.mockReturnValue("es-ES");
-    result = render(
+    view = render(
       <ReactAriaI18nProvider>
         <div>Spanish content</div>
       </ReactAriaI18nProvider>,

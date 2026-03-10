@@ -18,7 +18,9 @@ describe("InterviewRecruitment", () => {
 
   it("respects dismissal state", () => {
     const useLocalDismissal = (
-      jest.requireMock("../../../hooks/localDismissal.ts") as any
+      jest.requireMock("../../../hooks/localDismissal.ts") as {
+        useLocalDismissal: jest.Mock;
+      }
     ).useLocalDismissal;
 
     useLocalDismissal.mockReturnValue({
@@ -26,14 +28,14 @@ describe("InterviewRecruitment", () => {
       dismiss: jest.fn(),
     });
     const { container: dismissed } = render(<InterviewRecruitment />);
-    expect(dismissed.firstChild).toBeNull();
+    expect(dismissed).toBeEmptyDOMElement();
 
     useLocalDismissal.mockReturnValue({
       isDismissed: false,
       dismiss: jest.fn(),
     });
-    const { container: visible } = render(<InterviewRecruitment />);
-    expect(visible.querySelector("aside")).toBeInTheDocument();
+    render(<InterviewRecruitment />);
+    expect(screen.getByRole("complementary")).toBeInTheDocument();
 
     expect(useLocalDismissal).toHaveBeenCalledWith(
       "interview-recruitment-2022-08",
@@ -43,7 +45,9 @@ describe("InterviewRecruitment", () => {
   it("renders complete banner with interactions and tracking", async () => {
     const mockDismiss = jest.fn();
     const useLocalDismissal = (
-      jest.requireMock("../../../hooks/localDismissal.ts") as any
+      jest.requireMock("../../../hooks/localDismissal.ts") as {
+        useLocalDismissal: jest.Mock;
+      }
     ).useLocalDismissal;
     useLocalDismissal.mockReturnValue({
       isDismissed: false,

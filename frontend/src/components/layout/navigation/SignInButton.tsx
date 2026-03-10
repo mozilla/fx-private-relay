@@ -12,21 +12,21 @@ export type Props = {
 
 export const SignInButton = (props: Props): React.JSX.Element => {
   const l10n = useL10n();
-  const signInFxaFlowTracker = useFxaFlowTracker({
+  const { flowData: signInFlowData, ref: signInRef } = useFxaFlowTracker({
     category: "Sign In",
     label: "nav-profile-sign-in",
     entrypoint: "relay-sign-in-header",
   });
   const applyUtmParams = useUtmApplier();
   const signInUrl = applyUtmParams(
-    getLoginUrl("relay-sign-in-header", signInFxaFlowTracker.flowData),
+    getLoginUrl("relay-sign-in-header", signInFlowData),
   );
   const gaEvent = useGaEvent();
 
   return (
     <a
       href={signInUrl}
-      ref={signInFxaFlowTracker.ref}
+      ref={signInRef}
       onClick={() => {
         gaEvent({
           category: "Sign In",

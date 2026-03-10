@@ -1,6 +1,7 @@
 import {
   FocusEventHandler,
   FormEventHandler,
+  startTransition,
   useEffect,
   useRef,
   useState,
@@ -29,8 +30,11 @@ export const LabelEditor = (props: Props) => {
   const justSaved = labelJustUpdated && hasSaved;
 
   useEffect(() => {
-    setLabelJustUpdated(true);
-    const updateTimeout = setTimeout(() => setLabelJustUpdated(false), 1000);
+    startTransition(() => setLabelJustUpdated(true));
+    const updateTimeout = setTimeout(
+      () => startTransition(() => setLabelJustUpdated(false)),
+      1000,
+    );
     return () => clearTimeout(updateTimeout);
   }, [props.label]);
 

@@ -21,12 +21,12 @@ const mockHolidayDate = () => {
   const realDate = Date;
   const mockDate = new realDate("2023-12-15");
   global.Date = class extends realDate {
-    constructor(...args: any[]) {
+    constructor(...args: ConstructorParameters<typeof Date>) {
       super();
       if (args.length === 0) {
-        return mockDate as any;
+        return mockDate as unknown as Date;
       }
-      return new realDate(...args) as any;
+      return new realDate(...args) as unknown as Date;
     }
     static now() {
       return mockDate.getTime();
@@ -39,14 +39,18 @@ describe("HolidayPromoBanner", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     global.gaEventMock.mockClear();
-    const useRouter = (jest.requireMock("next/router") as any).useRouter;
+    const useRouter = (
+      jest.requireMock("next/router") as { useRouter: jest.Mock }
+    ).useRouter;
     useRouter.mockReturnValue({ pathname: "/", push: jest.fn() });
   });
 
   it("respects visibility conditions", () => {
     const runtimeData = getMockRuntimeDataWithPeriodicalPremium();
     const profile = getMockProfileData({ has_premium: false });
-    const useRouter = (jest.requireMock("next/router") as any).useRouter;
+    const useRouter = (
+      jest.requireMock("next/router") as { useRouter: jest.Mock }
+    ).useRouter;
 
     const { container: loading } = render(
       <HolidayPromoBanner
@@ -55,7 +59,7 @@ describe("HolidayPromoBanner", () => {
         profile={undefined}
       />,
     );
-    expect(loading.firstChild).toBeNull();
+    expect(loading).toBeEmptyDOMElement();
 
     const { container: noPremium } = render(
       <HolidayPromoBanner
@@ -64,7 +68,7 @@ describe("HolidayPromoBanner", () => {
         profile={undefined}
       />,
     );
-    expect(noPremium.firstChild).toBeNull();
+    expect(noPremium).toBeEmptyDOMElement();
 
     const { container: noRuntime } = render(
       <HolidayPromoBanner
@@ -73,7 +77,7 @@ describe("HolidayPromoBanner", () => {
         profile={undefined}
       />,
     );
-    expect(noRuntime.firstChild).toBeNull();
+    expect(noRuntime).toBeEmptyDOMElement();
 
     useRouter.mockReturnValue({ pathname: "/", push: jest.fn() });
     const { container: wrongPath } = render(
@@ -83,18 +87,18 @@ describe("HolidayPromoBanner", () => {
         profile={profile}
       />,
     );
-    expect(wrongPath.firstChild).toBeNull();
+    expect(wrongPath).toBeEmptyDOMElement();
 
     const realDate = mockHolidayDate();
     useRouter.mockReturnValue({ pathname: "/premium", push: jest.fn() });
-    const { container: visible } = render(
+    render(
       <HolidayPromoBanner
         isLoading={false}
         runtimeData={runtimeData}
         profile={profile}
       />,
     );
-    expect(visible.querySelector("aside")).toBeInTheDocument();
+    expect(screen.getByRole("complementary")).toBeInTheDocument();
     global.Date = realDate;
   });
 

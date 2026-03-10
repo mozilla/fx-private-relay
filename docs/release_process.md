@@ -184,7 +184,7 @@ On Tuesday, after the Release Readiness review with QA:
 3. When you see `Application relay... is now running new version of deployments manifests.` in `#fx-private-relay-eng` on Slack, do some checks on prod:
    - Spot-check the site for basic functionality
    - Check [sentry prod project](https://mozilla.sentry.io/releases/?environment=prod) for a spike in any new issues
-   - Check [grafana dashboard](https://yardstick.mozilla.org/) for any unexpected spike in ops
+   - Check [grafana dashboard](https://yardstick.mozilla.org/d/aa1uq7grkj85de/relay-mozcloud-golden-metrics?orgId=1&from=now-12h&to=now&timezone=browser&var-env=prod&var-deployment=$__all&var-v2_datasource=adpvtjmrxoc1sb&var-project_id=moz-fx-%28data%7Cweb%29services-%28high%7Clow%29-%28prod%7Cnonpro%28d%29%3F%29&var-namespace=relay-prod&var-cloudwatch_account=711387098705/) for any unexpected spike in ops
    - (optional) [Run the relay-only e2e test suite](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml) on prod
 4. Update the GitHub release:
    - Update the summary:

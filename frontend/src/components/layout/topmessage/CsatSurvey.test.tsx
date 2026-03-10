@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { mockCookiesModule } from "../../../../__mocks__/functions/cookies";
 import { mockGetLocaleModule } from "../../../../__mocks__/functions/getLocale";
@@ -24,26 +24,30 @@ describe("CsatSurvey", () => {
       const { container: newFree } = render(
         <CsatSurvey profile={getMockProfileData({ has_premium: false })} />,
       );
-      expect(newFree.querySelector("button")).toBeNull();
+      expect(within(newFree).queryByRole("button")).not.toBeInTheDocument();
 
       mockFirstSeenDaysAgo(7);
       const { container: weekOldFree } = render(
         <CsatSurvey profile={getMockProfileData({ has_premium: false })} />,
       );
-      expect(weekOldFree.querySelector("button")).toBeTruthy();
+      expect(within(weekOldFree).getAllByRole("button")[0]).toBeInTheDocument();
 
       mockCookieDismissal("free-7days");
       const { container: dismissedFree } = render(
         <CsatSurvey profile={getMockProfileData({ has_premium: false })} />,
       );
-      expect(dismissedFree.querySelector("button")).toBeNull();
+      expect(
+        within(dismissedFree).queryByRole("button"),
+      ).not.toBeInTheDocument();
 
       mockFirstSeenDaysAgo(30);
       mockCookieDismissal("free-7days");
       const { container: monthOldWithOldDismissal } = render(
         <CsatSurvey profile={getMockProfileData({ has_premium: false })} />,
       );
-      expect(monthOldWithOldDismissal.querySelector("button")).toBeTruthy();
+      expect(
+        within(monthOldWithOldDismissal).getAllByRole("button")[0],
+      ).toBeInTheDocument();
 
       const newPremium = getMockProfileData({
         has_premium: true,
@@ -52,7 +56,9 @@ describe("CsatSurvey", () => {
       const { container: newPremiumContainer } = render(
         <CsatSurvey profile={newPremium} />,
       );
-      expect(newPremiumContainer.querySelector("button")).toBeNull();
+      expect(
+        within(newPremiumContainer).queryByRole("button"),
+      ).not.toBeInTheDocument();
 
       const weekOldPremium = getMockProfileData({
         has_premium: true,
@@ -63,18 +69,26 @@ describe("CsatSurvey", () => {
       const { container: weekOldPremiumContainer } = render(
         <CsatSurvey profile={weekOldPremium} />,
       );
-      expect(weekOldPremiumContainer.querySelector("button")).toBeTruthy();
+      expect(
+        within(weekOldPremiumContainer).getAllByRole("button")[0],
+      ).toBeInTheDocument();
     });
 
     it("handles edge cases", () => {
       const useFirstSeen = (
-        jest.requireMock("../../../hooks/firstSeen.ts") as any
+        jest.requireMock("../../../hooks/firstSeen.ts") as {
+          useFirstSeen: jest.Mock;
+        }
       ).useFirstSeen;
       const getLocale = (
-        jest.requireMock("../../../functions/getLocale.ts") as any
+        jest.requireMock("../../../functions/getLocale.ts") as {
+          getLocale: jest.Mock;
+        }
       ).getLocale;
       const getCookie: jest.Mock = (
-        jest.requireMock("../../../functions/cookies.ts") as any
+        jest.requireMock("../../../functions/cookies.ts") as {
+          getCookie: jest.Mock;
+        }
       ).getCookie;
 
       useFirstSeen.mockReturnValue(new Date(0));
@@ -83,13 +97,15 @@ describe("CsatSurvey", () => {
       const { container: validLocale } = render(
         <CsatSurvey profile={getMockProfileData({ has_premium: false })} />,
       );
-      expect(validLocale.querySelector("button")).toBeTruthy();
+      expect(within(validLocale).getAllByRole("button")[0]).toBeInTheDocument();
 
       getLocale.mockReturnValue("fy");
       const { container: invalidLocale } = render(
         <CsatSurvey profile={getMockProfileData({ has_premium: false })} />,
       );
-      expect(invalidLocale.querySelector("button")).toBeNull();
+      expect(
+        within(invalidLocale).queryByRole("button"),
+      ).not.toBeInTheDocument();
 
       useFirstSeen.mockReturnValue(
         new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
@@ -102,7 +118,9 @@ describe("CsatSurvey", () => {
       const { container: unknownDateContainer } = render(
         <CsatSurvey profile={unknownSubDate} />,
       );
-      expect(unknownDateContainer.querySelector("button")).toBeTruthy();
+      expect(
+        within(unknownDateContainer).getAllByRole("button")[0],
+      ).toBeInTheDocument();
 
       useFirstSeen.mockReturnValue(
         new Date(Date.now() - 6 * 30 * 24 * 60 * 60 * 1001),
@@ -115,17 +133,23 @@ describe("CsatSurvey", () => {
       const { container: reShowAfterTime } = render(
         <CsatSurvey profile={getMockProfileData({ has_premium: false })} />,
       );
-      expect(reShowAfterTime.querySelector("button")).toBeTruthy();
+      expect(
+        within(reShowAfterTime).getAllByRole("button")[0],
+      ).toBeInTheDocument();
     });
   });
 
   describe("User interactions", () => {
     it("handles complete survey submission flow", async () => {
       const useFirstSeen = (
-        jest.requireMock("../../../hooks/firstSeen.ts") as any
+        jest.requireMock("../../../hooks/firstSeen.ts") as {
+          useFirstSeen: jest.Mock;
+        }
       ).useFirstSeen;
       const getCookie: jest.Mock = (
-        jest.requireMock("../../../functions/cookies.ts") as any
+        jest.requireMock("../../../functions/cookies.ts") as {
+          getCookie: jest.Mock;
+        }
       ).getCookie;
 
       useFirstSeen.mockReturnValue(new Date(0));
@@ -169,10 +193,14 @@ describe("CsatSurvey", () => {
 
     it("allows dismissal without answering", async () => {
       const useFirstSeen = (
-        jest.requireMock("../../../hooks/firstSeen.ts") as any
+        jest.requireMock("../../../hooks/firstSeen.ts") as {
+          useFirstSeen: jest.Mock;
+        }
       ).useFirstSeen;
       const getCookie: jest.Mock = (
-        jest.requireMock("../../../functions/cookies.ts") as any
+        jest.requireMock("../../../functions/cookies.ts") as {
+          getCookie: jest.Mock;
+        }
       ).getCookie;
 
       useFirstSeen.mockReturnValue(new Date(0));

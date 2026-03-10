@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
   useEffect,
+  startTransition,
 } from "react";
 import {
   FocusScope,
@@ -168,9 +169,11 @@ const FilterMenu = forwardRef<HTMLDivElement, FilterMenuProps>(
     // This is for the empty state message, where a user's filters return no alias'
     // When they click "Clear all filters", the checkboxes should be reset.
     useEffect(() => {
-      setDomainType(undefined);
-      setStatus(undefined);
-      setCheckboxes(false); // Finished reset, toggle back to false
+      startTransition(() => {
+        setDomainType(undefined);
+        setStatus(undefined);
+        setCheckboxes(false); // Finished reset, toggle back to false
+      });
     }, [resetChecks, setCheckboxes]);
 
     return (
