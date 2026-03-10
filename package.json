@@ -47,5 +47,8 @@
       "js-yaml": "^4.1.1"
     }
   },
-  "homepage": "https://github.com/mozilla/fx-private-relay#readme"
+  "homepage": "https://github.com/mozilla/fx-private-relay#readme",
+  "dependencies": {
+    "immutable": "^5.1.5"
+  }
 }
