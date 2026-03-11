@@ -42,6 +42,9 @@ export type Props = {
  */
 export const PlanGrid = (props: Props) => {
   const l10n = useL10n();
+  const freeMaskLimit =
+    props.runtimeData?.MAX_NUM_FREE_ALIASES ??
+    getRuntimeConfig().maxFreeAliases;
 
   const freeButtonRef = useGaViewPing({
     category: "Sign In",
@@ -354,7 +357,7 @@ export const PlanGrid = (props: Props) => {
             <span>
               {l10n.getFragment("plan-grid-card-free-item-one", {
                 vars: {
-                  mask_limit: 5,
+                  mask_limit: freeMaskLimit,
                 },
                 elems: { b: <b /> },
               })}

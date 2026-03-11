@@ -12,6 +12,8 @@ import { Localized } from "../components/Localized";
 const Faq: NextPage = () => {
   const l10n = useL10n();
   const runtimeData = useRuntimeData();
+  const freeMaskLimit =
+    runtimeData.data?.MAX_NUM_FREE_ALIASES ?? getRuntimeConfig().maxFreeAliases;
 
   const phoneMaskingFaqs = isPhonesAvailableInCountry(runtimeData.data) ? (
     <>
@@ -365,7 +367,9 @@ const Faq: NextPage = () => {
                 )}
               >
                 <p>
-                  {l10n.getString("faq-question-unsubscribe-domain-answer-2")}
+                  {l10n.getString("faq-question-unsubscribe-domain-answer-3", {
+                    mask_limit: freeMaskLimit,
+                  })}
                 </p>
               </QAndA>
               <QAndA
@@ -447,6 +451,7 @@ const Faq: NextPage = () => {
                   <li>
                     {l10n.getString(
                       "faq-question-acceptable-use-answer-measure-unlimited-payment-2",
+                      { mask_limit: freeMaskLimit },
                     )}
                   </li>
                   <li>

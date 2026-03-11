@@ -68,15 +68,12 @@ describe("<AliasGenerationButton>", () => {
   it("displays an upgrade button when a free user has reached the alias limit, and Premium is available in their country", () => {
     render(
       <AliasGenerationButton
-        aliases={[
-          getMockRandomAlias(),
-          getMockRandomAlias(),
-          getMockRandomAlias(),
-          getMockRandomAlias(),
-          getMockRandomAlias(),
-        ]}
+        aliases={Array.from({ length: 5 }, () => getMockRandomAlias())}
         profile={getMockProfileData({ has_premium: false })}
-        runtimeData={getMockRuntimeDataWithPeriodicalPremium()}
+        runtimeData={{
+          ...getMockRuntimeDataWithPeriodicalPremium(),
+          MAX_NUM_FREE_ALIASES: 5,
+        }}
         onCreate={jest.fn()}
         onUpdate={jest.fn()}
         findAliasDataFromPrefix={jest.fn()}
@@ -94,15 +91,12 @@ describe("<AliasGenerationButton>", () => {
   it("displays a disabled button when a free user has reached the alias limit, and Premium is not available in their country", () => {
     render(
       <AliasGenerationButton
-        aliases={[
-          getMockRandomAlias(),
-          getMockRandomAlias(),
-          getMockRandomAlias(),
-          getMockRandomAlias(),
-          getMockRandomAlias(),
-        ]}
+        aliases={Array.from({ length: 5 }, () => getMockRandomAlias())}
         profile={getMockProfileData({ has_premium: false })}
-        runtimeData={getMockRuntimeDataWithoutPremium()}
+        runtimeData={{
+          ...getMockRuntimeDataWithoutPremium(),
+          MAX_NUM_FREE_ALIASES: 5,
+        }}
         onCreate={jest.fn()}
         onUpdate={jest.fn()}
         findAliasDataFromPrefix={jest.fn()}
@@ -118,18 +112,15 @@ describe("<AliasGenerationButton>", () => {
   it("disables the button when relevant, also if the user still has a subdomain set from a previous Premium subscription", () => {
     render(
       <AliasGenerationButton
-        aliases={[
-          getMockRandomAlias(),
-          getMockRandomAlias(),
-          getMockRandomAlias(),
-          getMockRandomAlias(),
-          getMockRandomAlias(),
-        ]}
+        aliases={Array.from({ length: 5 }, () => getMockRandomAlias())}
         profile={getMockProfileData({
           has_premium: false,
           subdomain: "mydomain",
         })}
-        runtimeData={getMockRuntimeDataWithoutPremium()}
+        runtimeData={{
+          ...getMockRuntimeDataWithoutPremium(),
+          MAX_NUM_FREE_ALIASES: 5,
+        }}
         onCreate={jest.fn()}
         onUpdate={jest.fn()}
         findAliasDataFromPrefix={jest.fn()}

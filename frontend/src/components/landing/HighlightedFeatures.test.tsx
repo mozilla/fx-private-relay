@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { HighlightedFeatures } from "./HighlightedFeatures";
+import { mockedRuntimeData } from "../../../__mocks__/api/mockData";
 
 jest.mock("./HighlightedFeatures.module.scss", () => ({
   __esModule: true,
@@ -31,7 +32,11 @@ describe("HighlightedFeatures", () => {
   });
 
   it("renders all highlighted items with headline and body", () => {
-    render(<HighlightedFeatures />);
+    const runtimeDataWith50Limit = {
+      ...mockedRuntimeData,
+      MAX_NUM_FREE_ALIASES: 50,
+    };
+    render(<HighlightedFeatures runtimeData={runtimeDataWith50Limit} />);
     const names = [
       "unlimited-masks",
       "masks-on-the-go",
@@ -48,7 +53,7 @@ describe("HighlightedFeatures", () => {
       ).toBeInTheDocument();
       expect(
         screen.getByText(
-          `l10n string: [highlighted-features-section-${n}-body-2], with vars: {"mask_limit":"5","mozmail":"mozmail.com"}`,
+          `l10n string: [highlighted-features-section-${n}-body-2], with vars: {"mask_limit":50,"mozmail":"mozmail.com"}`,
         ),
       ).toBeInTheDocument();
     }

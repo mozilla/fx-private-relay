@@ -9,17 +9,20 @@ import { StaticImageData } from "next/image";
 import styles from "./HighlightedFeatures.module.scss";
 import { LinkButton } from "../Button";
 import Image from "../Image";
+import { RuntimeData } from "../../hooks/api/types";
+import { getRuntimeConfig } from "../../config";
 
 type HighlightedItemProps = {
   image: StaticImageData;
   name: string;
   isNew?: boolean;
+  maskLimit: number;
 };
 
 const HighlightedItem = (props: HighlightedItemProps) => {
   const l10n = useL10n();
   const variables = {
-    mask_limit: "5",
+    mask_limit: props.maskLimit,
     mozmail: "mozmail.com",
   };
 
@@ -59,8 +62,15 @@ const HighlightedItem = (props: HighlightedItemProps) => {
   );
 };
 
-export const HighlightedFeatures = () => {
+export type Props = {
+  runtimeData?: RuntimeData;
+};
+
+export const HighlightedFeatures = (props: Props) => {
   const l10n = useL10n();
+  const freeMaskLimit =
+    props.runtimeData?.MAX_NUM_FREE_ALIASES ??
+    getRuntimeConfig().maxFreeAliases;
 
   return (
     <div>
@@ -71,26 +81,31 @@ export const HighlightedFeatures = () => {
         <HighlightedItem
           image={CreateUnlimitedEmailMasksImage}
           name={"unlimited-masks"}
+          maskLimit={freeMaskLimit}
         />
 
         <HighlightedItem
           image={CreateMasksOnTheGoImage}
           name={"masks-on-the-go"}
+          maskLimit={freeMaskLimit}
         />
 
         <HighlightedItem
           image={ReplyToEmailsAnonymouslyImage}
           name={"replying"}
+          maskLimit={freeMaskLimit}
         />
 
         <HighlightedItem
           image={BlockPromotionalEmailsImage}
           name={"block-promotions"}
+          maskLimit={freeMaskLimit}
         />
 
         <HighlightedItem
           image={RemoveEmailTrackersImage}
           name={"remove-trackers"}
+          maskLimit={freeMaskLimit}
         />
       </div>
       <div className={styles["section-title-wrapper"]}>
