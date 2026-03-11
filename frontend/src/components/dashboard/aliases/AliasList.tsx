@@ -170,18 +170,20 @@ export const AliasList = (props: Props) => {
     );
   });
 
-  // With at most five aliases, filters aren't really useful
-  // for non-Premium users.
-  const categoryFilter = props.profile.has_premium ? (
-    <div className={styles["category-filter"]}>
-      <CategoryFilter
-        onChange={setCategoryFilters}
-        selectedFilters={categoryFilters}
-        resetChecks={resetCheckBoxes}
-        setCheckboxes={setCheckboxes}
-      />
-    </div>
-  ) : null;
+  // Filters enabled for all users, only blocked and forwarding show for non-premium
+  const categoryFilter =
+    props.profile.has_premium ||
+    isFlagActive(props.runtimeData, "increased_free_mask_limit") ? (
+      <div className={styles["category-filter"]}>
+        <CategoryFilter
+          onChange={setCategoryFilters}
+          selectedFilters={categoryFilters}
+          resetChecks={resetCheckBoxes}
+          setCheckboxes={setCheckboxes}
+          showPremiumFilters={props.profile.has_premium}
+        />
+      </div>
+    ) : null;
 
   const emptyStateMessage =
     props.aliases.length > 0 && aliases.length === 0 ? (

@@ -238,37 +238,59 @@ describe("<AliasList> – extra coverage", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("shows CategoryFilter only for Premium users", async () => {
-    const { rerender } = render(
-      <AliasList
-        aliases={[getMockRandomAlias()]}
-        onUpdate={jest.fn()}
-        onCreate={jest.fn()}
-        onDelete={jest.fn()}
-        profile={getMockProfileData({
-          server_storage: true,
-          has_premium: false,
-        })}
-        user={{ email: "u@example.com" }}
-      />,
-    );
-    expect(screen.queryByTestId("category-filter")).not.toBeInTheDocument();
+  it.each([
+    {
+      description: "premium users",
+      hasPremium: true,
+      flagEnabled: false,
+      shouldShowFilter: true,
+    },
+    {
+      description: "free users with increased_free_mask_limit flag",
+      hasPremium: false,
+      flagEnabled: true,
+      shouldShowFilter: true,
+    },
+    {
+      description: "free users without increased_free_mask_limit flag",
+      hasPremium: false,
+      flagEnabled: false,
+      shouldShowFilter: false,
+    },
+  ])(
+    "shows CategoryFilter for $description",
+    async ({ hasPremium, flagEnabled, shouldShowFilter }) => {
+      const renderTest = async () => {
+        render(
+          <AliasList
+            aliases={[getMockRandomAlias()]}
+            onUpdate={jest.fn()}
+            onCreate={jest.fn()}
+            onDelete={jest.fn()}
+            profile={getMockProfileData({
+              server_storage: true,
+              has_premium: hasPremium,
+            })}
+            user={{ email: "u@example.com" }}
+          />,
+        );
 
-    rerender(
-      <AliasList
-        aliases={[getMockRandomAlias()]}
-        onUpdate={jest.fn()}
-        onCreate={jest.fn()}
-        onDelete={jest.fn()}
-        profile={getMockProfileData({
-          server_storage: true,
-          has_premium: true,
-        })}
-        user={{ email: "u@example.com" }}
-      />,
-    );
-    expect(screen.getByTestId("category-filter")).toBeInTheDocument();
-  });
+        if (shouldShowFilter) {
+          expect(screen.getByTestId("category-filter")).toBeInTheDocument();
+        } else {
+          expect(
+            screen.queryByTestId("category-filter"),
+          ).not.toBeInTheDocument();
+        }
+      };
+
+      if (flagEnabled) {
+        await withFlag("increased_free_mask_limit", true, renderTest);
+      } else {
+        await renderTest();
+      }
+    },
+  );
 
   it("search toggle works and match-count shows filtered/total", async () => {
     const a1 = { ...getMockRandomAlias(), description: "alpha" };
