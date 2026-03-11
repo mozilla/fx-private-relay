@@ -16,6 +16,50 @@ type HighlightedItemProps = {
   image: StaticImageData;
   name: string;
   isNew?: boolean;
+  maskLimit: number;
+};
+
+const HighlightedItem = (props: HighlightedItemProps) => {
+  const l10n = useL10n();
+  const variables = {
+    mask_limit: props.maskLimit,
+    mozmail: "mozmail.com",
+  };
+
+  const newCallOut = (
+    <span className={styles["new-callout"]}>
+      {l10n.getString("highlighted-features-section-new-item")}
+    </span>
+  );
+
+  return (
+    <div className={styles["highlighted-feature-wrapper"]}>
+      <div className={styles["highlighted-feature-description"]}>
+        <>
+          {/* Add "New" pill to new features */}
+          {props.isNew && (
+            <div className={styles["new-callout-wrapper"]}>{newCallOut}</div>
+          )}
+          <h3 className={styles["highlighted-feature-headline"]}>
+            {l10n.getString(
+              `highlighted-features-section-${props.name}-headline`,
+            )}
+          </h3>
+          <p className={styles["highlighted-feature-body"]}>
+            {l10n.getString(
+              `highlighted-features-section-${props.name}-body-2`,
+              variables,
+            )}
+          </p>
+        </>
+      </div>
+      <Image
+        alt=""
+        src={props.image}
+        className={styles["highlighted-feature-image"]}
+      />
+    </div>
+  );
 };
 
 export type Props = {
@@ -28,48 +72,6 @@ export const HighlightedFeatures = (props: Props) => {
     props.runtimeData?.MAX_NUM_FREE_ALIASES ??
     getRuntimeConfig().maxFreeAliases;
 
-  const HighlightedItem = (props: HighlightedItemProps) => {
-    const variables = {
-      mask_limit: freeMaskLimit,
-      mozmail: "mozmail.com",
-    };
-
-    const newCallOut = (
-      <span className={styles["new-callout"]}>
-        {l10n.getString("highlighted-features-section-new-item")}
-      </span>
-    );
-
-    return (
-      <div className={styles["highlighted-feature-wrapper"]}>
-        <div className={styles["highlighted-feature-description"]}>
-          <>
-            {/* Add "New" pill to new features */}
-            {props.isNew && (
-              <div className={styles["new-callout-wrapper"]}>{newCallOut}</div>
-            )}
-            <h3 className={styles["highlighted-feature-headline"]}>
-              {l10n.getString(
-                `highlighted-features-section-${props.name}-headline`,
-              )}
-            </h3>
-            <p className={styles["highlighted-feature-body"]}>
-              {l10n.getString(
-                `highlighted-features-section-${props.name}-body-2`,
-                variables,
-              )}
-            </p>
-          </>
-        </div>
-        <Image
-          alt=""
-          src={props.image}
-          className={styles["highlighted-feature-image"]}
-        />
-      </div>
-    );
-  };
-
   return (
     <div>
       <div className={styles["section-title-wrapper"]}>
@@ -79,26 +81,31 @@ export const HighlightedFeatures = (props: Props) => {
         <HighlightedItem
           image={CreateUnlimitedEmailMasksImage}
           name={"unlimited-masks"}
+          maskLimit={freeMaskLimit}
         />
 
         <HighlightedItem
           image={CreateMasksOnTheGoImage}
           name={"masks-on-the-go"}
+          maskLimit={freeMaskLimit}
         />
 
         <HighlightedItem
           image={ReplyToEmailsAnonymouslyImage}
           name={"replying"}
+          maskLimit={freeMaskLimit}
         />
 
         <HighlightedItem
           image={BlockPromotionalEmailsImage}
           name={"block-promotions"}
+          maskLimit={freeMaskLimit}
         />
 
         <HighlightedItem
           image={RemoveEmailTrackersImage}
           name={"remove-trackers"}
+          maskLimit={freeMaskLimit}
         />
       </div>
       <div className={styles["section-title-wrapper"]}>
