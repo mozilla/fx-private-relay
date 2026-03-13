@@ -47,6 +47,8 @@ import FirefoxIntegrationHero from "./images/firefox-integration-hero.svg";
 import FirefoxIntegrationIcon from "./images/firefox-integration-icon.svg";
 import MailingListHero from "./images/mailing-list-hero.svg";
 import MailingListIcon from "./images/mailing-list-icon.svg";
+import MaskExpansionHero from "./images/mask-expansion-hero.svg";
+import MaskExpansionIcon from "./images/mask-expansion-icon.svg";
 import { WhatsNewContent } from "./WhatsNewContent";
 import {
   DismissalData,
@@ -647,6 +649,39 @@ export const WhatsNewMenu = (props: Props) => {
   if (isFlagActive(props.runtimeData, "mailing_list_announcement")) {
     entries.push(mailingListAnnouncement);
   }
+
+  const freeMaskExpansion: WhatsNewEntry = {
+    title: "Free email masks",
+    snippet: "body",
+    content: (
+      <WhatsNewContent
+        description={"We have increased free email masks from 5 to 50."}
+        heading={"More email protection, with 50 free masks"}
+        image={MaskExpansionHero}
+        // Uncomment if you need a CTA button:
+        // cta={
+        //   <Link href="/your-link-here" legacyBehavior>
+        //     <span className={styles.cta}>
+        //       {l10n.getString("whatsnew-feature-new-feature-cta")}
+        //     </span>
+        //   </Link>
+        // }
+      />
+    ),
+    icon: MaskExpansionIcon,
+    dismissal: useLocalDismissal(
+      `whatsnew-feature_mask-expansion_${props.profile.id}`,
+    ),
+    announcementDate: {
+      year: 2026,
+      month: 3,
+      day: 12,
+    },
+  };
+
+  // if (isFlagActive(props.runtimeData, "increased_free_mask_limit")) {
+  entries.push(freeMaskExpansion);
+  // }
 
   const entriesNotInFuture = entries.filter((entry) => {
     const entryDate = new Date(
