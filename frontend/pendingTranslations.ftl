@@ -212,3 +212,7 @@ highlighted-features-section-remove-trackers-body-2 = { -brand-name-relay } can 
     you stay invisible to trackers and advertisers.
 
 faq-question-unsubscribe-domain-answer-3 = If you downgrade from { -brand-name-relay-premium }, you’ll still receive emails forwarded through your custom email masks, but you’ll no longer be able to create new masks using that subdomain. If you have more than { $mask_limit } masks in total, you will not be able to create any more. You’ll also lose the ability to reply to forwarded messages. You can resubscribe to { -brand-name-relay-premium } and regain access to these features.
+
+whatsnew-feature-mask-expansion-heading = 50 email masks, on us
+whatsnew-feature-mask-expansion-snippet = Now you get 50 free masks (up from 5). Use one for every account to keep your real email private.
+whatsnew-feature-mask-expansion-cta = Get email masks
