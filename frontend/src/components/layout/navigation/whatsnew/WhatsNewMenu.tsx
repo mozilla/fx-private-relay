@@ -47,6 +47,8 @@ import FirefoxIntegrationHero from "./images/firefox-integration-hero.svg";
 import FirefoxIntegrationIcon from "./images/firefox-integration-icon.svg";
 import MailingListHero from "./images/mailing-list-hero.svg";
 import MailingListIcon from "./images/mailing-list-icon.svg";
+import MaskExpansionHero from "./images/mask-expansion-hero.svg";
+import MaskExpansionIcon from "./images/mask-expansion-icon.svg";
 import { WhatsNewContent } from "./WhatsNewContent";
 import {
   DismissalData,
@@ -646,6 +648,38 @@ export const WhatsNewMenu = (props: Props) => {
 
   if (isFlagActive(props.runtimeData, "mailing_list_announcement")) {
     entries.push(mailingListAnnouncement);
+  }
+
+  const freeMaskExpansion: WhatsNewEntry = {
+    title: l10n.getString("whatsnew-feature-mask-expansion-heading"),
+    snippet: l10n.getString("whatsnew-feature-mask-expansion-snippet"),
+    content: (
+      <WhatsNewContent
+        description={l10n.getString("whatsnew-feature-mask-expansion-snippet")}
+        heading={l10n.getString("whatsnew-feature-mask-expansion-heading")}
+        image={MaskExpansionHero}
+        cta={
+          <Link href="/premium#pricing">
+            <span className={styles.cta}>
+              {l10n.getString("whatsnew-feature-mask-expansion-cta")}
+            </span>
+          </Link>
+        }
+      />
+    ),
+    icon: MaskExpansionIcon,
+    dismissal: useLocalDismissal(
+      `whatsnew-feature_mask-expansion_${props.profile.id}`,
+    ),
+    announcementDate: {
+      year: 2026,
+      month: 3,
+      day: 15,
+    },
+  };
+
+  if (isFlagActive(props.runtimeData, "increased_free_mask_limit")) {
+    entries.push(freeMaskExpansion);
   }
 
   const entriesNotInFuture = entries.filter((entry) => {
