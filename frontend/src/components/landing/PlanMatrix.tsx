@@ -44,30 +44,38 @@ type FeatureList = {
   vpn: boolean;
 };
 
-const freeFeatures: FeatureList = {
-  "email-masks": 5,
-  "browser-extension": true,
-  "email-tracker-removal": true,
-  "promo-email-blocking": false,
-  "email-subdomain": false,
-  "email-reply": false,
-  "phone-mask": false,
-  vpn: false,
+const getFreeMaskLimit = (runtimeData?: RuntimeData): number => {
+  return runtimeData?.MAX_NUM_FREE_ALIASES ?? getRuntimeConfig().maxFreeAliases;
 };
-const premiumFeatures: FeatureList = {
-  ...freeFeatures,
-  "email-masks": Number.POSITIVE_INFINITY,
-  "promo-email-blocking": true,
-  "email-subdomain": true,
-  "email-reply": true,
-};
-const phoneFeatures: FeatureList = {
-  ...premiumFeatures,
-  "phone-mask": true,
-};
-const bundleFeatures: FeatureList = {
-  ...phoneFeatures,
-  vpn: true,
+
+const getFeatureLists = (runtimeData?: RuntimeData) => {
+  const freeFeatures: FeatureList = {
+    "email-masks": getFreeMaskLimit(runtimeData),
+    "browser-extension": true,
+    "email-tracker-removal": true,
+    "promo-email-blocking": false,
+    "email-subdomain": false,
+    "email-reply": false,
+    "phone-mask": false,
+    vpn: false,
+  };
+  const premiumFeatures: FeatureList = {
+    ...freeFeatures,
+    "email-masks": Number.POSITIVE_INFINITY,
+    "promo-email-blocking": true,
+    "email-subdomain": true,
+    "email-reply": true,
+  };
+  const phoneFeatures: FeatureList = {
+    ...premiumFeatures,
+    "phone-mask": true,
+  };
+  const bundleFeatures: FeatureList = {
+    ...phoneFeatures,
+    vpn: true,
+  };
+
+  return { freeFeatures, premiumFeatures, phoneFeatures, bundleFeatures };
 };
 
 export type Props = {
@@ -78,6 +86,8 @@ export type Props = {
  * Matrix to compare and choose between the different plans available to the user.
  */
 export const PlanMatrix = (props: Props) => {
+  const { freeFeatures, premiumFeatures, phoneFeatures, bundleFeatures } =
+    getFeatureLists(props.runtimeData);
   const l10n = useL10n();
   const freeButtonDesktopRef = useGaViewPing({
     category: "Sign In",
@@ -649,6 +659,9 @@ type DesktopFeatureProps = {
   runtimeData?: RuntimeData;
 };
 const DesktopFeature = (props: DesktopFeatureProps) => {
+  const { freeFeatures, premiumFeatures, phoneFeatures, bundleFeatures } =
+    getFeatureLists(props.runtimeData);
+
   return (
     <tr>
       <Localized
