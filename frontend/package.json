@@ -57,7 +57,7 @@
     "jest-junit": "^16.0.0",
     "license-checker": "^25.0.1",
     "lint-staged": "^16.3.2",
-    "next": "^16.1.6",
+    "next": "^16.1.7",
     "prettier": "3.8.1",
     "raw-loader": "^4.0.2",
     "sass": "^1.97.3",
