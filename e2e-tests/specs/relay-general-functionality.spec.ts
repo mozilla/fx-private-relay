@@ -23,17 +23,16 @@ test.describe("Free - General Functionalities, Desktop", () => {
     await dashboardPage.open();
     await checkAuthState(page);
     await dashboardPage.skipOnboarding();
-    await dashboardPage.maybeDeleteMasks();
+    // Leave freeMaskLimit - 1 masks so the test only needs to create one more.
+    await dashboardPage.maybeDeleteMasks(freeMaskLimit - 1);
   });
 
   test(`Check the free user can only create ${MAX_NUM_FREE_ALIASES} masks, C1553067`, async ({
     dashboardPage,
   }) => {
-    // Generating masks up to the free limit takes a while:
-    await expect(async () => {
-      await dashboardPage.generateMask(freeMaskLimit);
-      expect((await dashboardPage.maskCards.count()) === freeMaskLimit);
-    }).toPass();
+    // beforeEach leaves freeMaskLimit - 1 masks; create the final one via UI
+    // to verify the limit is enforced.
+    await dashboardPage.generateMask(1);
 
     // After reaching the limit, user cannot add other masks anymore
     expect(await dashboardPage.maxMaskLimitButton.textContent()).toContain(
