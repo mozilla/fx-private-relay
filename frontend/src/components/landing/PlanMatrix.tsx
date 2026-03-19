@@ -86,8 +86,9 @@ export type Props = {
  * Matrix to compare and choose between the different plans available to the user.
  */
 export const PlanMatrix = (props: Props) => {
+  const featureLists = getFeatureLists(props.runtimeData);
   const { freeFeatures, premiumFeatures, phoneFeatures, bundleFeatures } =
-    getFeatureLists(props.runtimeData);
+    featureLists;
   const l10n = useL10n();
   const freeButtonDesktopRef = useGaViewPing({
     category: "Sign In",
@@ -144,26 +145,23 @@ export const PlanMatrix = (props: Props) => {
         </tr>
       </thead>
       <tbody>
-        <DesktopFeature runtimeData={props.runtimeData} feature="email-masks" />
+        <DesktopFeature featureLists={featureLists} feature="email-masks" />
         <DesktopFeature
-          runtimeData={props.runtimeData}
+          featureLists={featureLists}
           feature="browser-extension"
         />
         <DesktopFeature
-          runtimeData={props.runtimeData}
+          featureLists={featureLists}
           feature="email-tracker-removal"
         />
         <DesktopFeature
-          runtimeData={props.runtimeData}
+          featureLists={featureLists}
           feature="promo-email-blocking"
         />
-        <DesktopFeature
-          runtimeData={props.runtimeData}
-          feature="email-subdomain"
-        />
-        <DesktopFeature runtimeData={props.runtimeData} feature="email-reply" />
-        <DesktopFeature runtimeData={props.runtimeData} feature="phone-mask" />
-        <DesktopFeature runtimeData={props.runtimeData} feature="vpn" />
+        <DesktopFeature featureLists={featureLists} feature="email-subdomain" />
+        <DesktopFeature featureLists={featureLists} feature="email-reply" />
+        <DesktopFeature featureLists={featureLists} feature="phone-mask" />
+        <DesktopFeature featureLists={featureLists} feature="vpn" />
       </tbody>
       <tfoot>
         <tr>
@@ -656,11 +654,11 @@ export const PlanMatrix = (props: Props) => {
 
 type DesktopFeatureProps = {
   feature: keyof FeatureList;
-  runtimeData?: RuntimeData;
+  featureLists: ReturnType<typeof getFeatureLists>;
 };
 const DesktopFeature = (props: DesktopFeatureProps) => {
   const { freeFeatures, premiumFeatures, phoneFeatures, bundleFeatures } =
-    getFeatureLists(props.runtimeData);
+    props.featureLists;
 
   return (
     <tr>
