@@ -54,6 +54,31 @@ describe("PlanMatrix", () => {
     expect(waitlistLink.length).toBeGreaterThan(0);
   });
 
+  it("shows the free mask limit from runtimeData", () => {
+    const runtimeDataWith5 = {
+      ...getMockRuntimeDataWithBundle(),
+      MAX_NUM_FREE_ALIASES: 5,
+    };
+    setMockRuntimeDataOnce(runtimeDataWith5);
+    const { unmount } = render(<PlanMatrix runtimeData={runtimeDataWith5} />);
+
+    // AvailabilityListing renders the number directly in the desktop table.
+    expect(screen.getAllByText("5").length).toBeGreaterThan(0);
+    expect(screen.queryByText("50")).not.toBeInTheDocument();
+
+    unmount();
+
+    const runtimeDataWith50 = {
+      ...getMockRuntimeDataWithBundle(),
+      MAX_NUM_FREE_ALIASES: 50,
+    };
+    setMockRuntimeDataOnce(runtimeDataWith50);
+    render(<PlanMatrix runtimeData={runtimeDataWith50} />);
+
+    expect(screen.getAllByText("50").length).toBeGreaterThan(0);
+    expect(screen.queryByText("5")).not.toBeInTheDocument();
+  });
+
   it("renders phone plan headers", () => {
     setMockRuntimeDataOnce(getMockRuntimeDataWithPhones());
     render(<PlanMatrix runtimeData={getMockRuntimeDataWithPhones()} />);
