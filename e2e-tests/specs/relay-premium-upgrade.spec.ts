@@ -1,5 +1,5 @@
 import test, { expect } from "../fixtures/basePages";
-import { checkAuthState, defaultScreenshotOpts } from "../e2eTestUtils/helpers";
+import { checkAuthState } from "../e2eTestUtils/helpers";
 
 // using logged in state outside of describe block will cover state for all tests in file
 test.use({ storageState: "state.json" });

@@ -18,15 +18,17 @@ test.describe("Premium - General Functionalities, Desktop", () => {
     await landingPage.open();
     await landingPage.goToSignIn();
     await authPage.login(process.env.E2E_TEST_ACCOUNT_PREMIUM as string);
-    const totalMasks = await dashboardPage.emailMasksUsedAmount.textContent();
-    await dashboardPage.maybeDeleteMasks(true, parseInt(totalMasks as string));
+    // Pre-seed to freeMaskLimit via API so tests start with masks already present.
+    // This avoids creating all masks via UI and keeps the account out of onboarding mode.
+    await dashboardPage.maybeDeleteMasks(freeMaskLimit);
   });
 
   test(`Verify that a premium user can make more than ${MAX_NUM_FREE_ALIASES} masks`, async ({
     dashboardPage,
   }) => {
-    expect(await dashboardPage.emailMasksUsedAmount.textContent()).toBe("0");
-    await dashboardPage.generateMask(freeMaskLimit + 1, true);
+    // beforeEach leaves exactly freeMaskLimit masks; create one more via UI to
+    // verify the premium account can exceed the free limit.
+    await dashboardPage.generateMask(1, true);
 
     await expect
       .poll(
@@ -57,8 +59,9 @@ test.describe("Premium - General Functionalities, Desktop", () => {
   test("Verify that a premium user can generate a custom mask", async ({
     dashboardPage,
   }) => {
-    // When there are zero masks, a random mask must be generated first
-    await dashboardPage.generateMask();
+    // When there are zero masks, a random mask must be generated first.
+    // Use isPremium=true so the premium button is clicked, not the free one.
+    await dashboardPage.generateMask(1, true);
     await dashboardPage.generatePremiumDomainMask();
   });
 });

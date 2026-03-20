@@ -183,6 +183,10 @@ export class DashboardPage {
     // generate a new mask
     await generateMaskBtn.click();
 
+    // For premium, a dropdown appears. Wait briefly before checking.
+    await this.premiumRandomMask
+      .waitFor({ state: "visible", timeout: TIMEOUTS.SHORT })
+      .catch(() => {});
     const randomMaskShown = await this.premiumRandomMask.isVisible();
     if (randomMaskShown) {
       await this.premiumRandomMask.click();
@@ -190,19 +194,19 @@ export class DashboardPage {
 
     if (preMaskCardsCount === 0) {
       // Wait for the first mask card
-      expect(this.maskCards).toBeVisible({ timeout: TIMEOUTS.MEDIUM });
+      await expect(this.maskCards).toBeVisible({ timeout: TIMEOUTS.MEDIUM });
     } else {
       // Wait for the mask card count to increase, or the error banner
-      expect(
+      await expect(
         this.bannerEmailError.or(this.maskCards.nth(preMaskCardsCount)),
       ).toBeVisible({ timeout: TIMEOUTS.MEDIUM });
     }
 
-    expect(
+    await expect(
       this.bannerEmailError,
       "No mask error banner. If fails, maybe rate-limited?",
     ).not.toBeVisible();
-    expect(this.maskCards, "Mask cards should go up by one").toHaveCount(
+    await expect(this.maskCards, "Mask cards should go up by one").toHaveCount(
       preMaskCardsCount + 1,
     );
 
@@ -221,66 +225,73 @@ export class DashboardPage {
     ]);
   }
 
-  async maybeDeleteMasks(clearAll = true, numberOfMasks = 1) {
-    let isExpanded = false;
+  async maybeDeleteMasks(keepCount = 0) {
+    // Wait for the Relay dashboard session to be established. Required for the
+    // premium test flow, which calls this immediately after an FxA login before
+    // the OAuth redirect back to Relay has completed.
+    await this.page.waitForURL(/\/accounts\/profile\//, {
+      timeout: TIMEOUTS.LONG,
+    });
 
-    try {
-      numberOfMasks = await this.maskCards.count();
-    } catch (err) {
-      numberOfMasks = 0;
+    // DRF SessionAuthentication requires X-CSRFToken on mutating requests.
+    // Use browser fetch (via page.evaluate) so the Origin header is sent,
+    // which Django's CSRF middleware requires on stage/prod.
+    const [relayRes, domainRes] = await Promise.all([
+      this.page.request.get("/api/v1/relayaddresses/"),
+      this.page.request.get("/api/v1/domainaddresses/"),
+    ]);
+
+    const relayMasks: { id: number }[] = await relayRes.json();
+    const domainMasks: { id: number }[] = await domainRes.json();
+
+    const currentTotal = relayMasks.length + domainMasks.length;
+
+    if (currentTotal > keepCount) {
+      // Delete the excess in parallel. Relay addresses first since domain
+      // addresses are premium-only and fewer in number.
+      const urlsToDelete = [
+        ...relayMasks.map((m) => `/api/v1/relayaddresses/${m.id}/`),
+        ...domainMasks.map((m) => `/api/v1/domainaddresses/${m.id}/`),
+      ].slice(0, currentTotal - keepCount);
+
+      await this.page.evaluate(async (urls) => {
+        const csrfToken = document.cookie.match(/csrftoken=([^;]+)/)?.[1] ?? "";
+        await Promise.all(
+          urls.map((url) =>
+            fetch(url, {
+              method: "DELETE",
+              headers: { "X-CSRFToken": csrfToken },
+              credentials: "same-origin",
+            }),
+          ),
+        );
+      }, urlsToDelete);
+    } else if (currentTotal < keepCount) {
+      // Create relay masks via API to fill up to keepCount.
+      const masksToCreate = keepCount - currentTotal;
+      await this.page.evaluate(async (count) => {
+        const csrfToken = document.cookie.match(/csrftoken=([^;]+)/)?.[1] ?? "";
+        await Promise.all(
+          Array.from({ length: count }, () =>
+            fetch("/api/v1/relayaddresses/", {
+              method: "POST",
+              headers: {
+                "X-CSRFToken": csrfToken,
+                "Content-Type": "application/json",
+              },
+              credentials: "same-origin",
+              body: JSON.stringify({}),
+            }),
+          ),
+        );
+      }, masksToCreate);
     }
 
-    if (await this.closeCornerUpsell.isVisible()) {
-      await this.closeCornerUpsell.click();
-    }
-
-    if (await this.closeCornerTips.isVisible()) {
-      await this.closeCornerTips.click();
-    }
-
-    // check number of masks available
-    if (numberOfMasks === 0) {
-      return;
-    }
-
-    // if clear all, check if there's an expanded mask card
-    if (clearAll) {
-      try {
-        await this.maskCards.first().waitFor({
-          timeout: TIMEOUTS.MEDIUM,
-        });
-      } catch (error) {
-        console.error("There are no masks to delete");
-        return;
-      }
-
-      try {
-        isExpanded = await this.page
-          .getByRole("button", { expanded: true })
-          .first()
-          .isVisible();
-      } catch {}
-    }
-
-    // locate mask expand button only if mask is not already expanded
-    if (numberOfMasks && !isExpanded) {
-      try {
-        await this.maskCardExpanded.first().click();
-      } catch {}
-    }
-
-    // delete flow
-    if (numberOfMasks) {
-      const currentMaskCardDeleteButton = this.page
-        .locator('button:has-text("Delete")')
-        .first();
-      await currentMaskCardDeleteButton.click();
-      await this.maskCardFinalDeleteButton.click();
-    }
-
-    // wait for 500 ms and run flow again with the next masks
-    await this.page.waitForTimeout(TIMEOUTS.SHORT);
-    await this.maybeDeleteMasks(true, numberOfMasks - 1);
+    // Reload so the UI reflects the new API state, then dismiss onboarding
+    // in case it reappears (e.g. after all masks are deleted).
+    await this.page.reload();
+    await this.page.waitForLoadState("networkidle");
+    await this.skipOnboarding();
   }
 
   async generateOneRandomMask() {
