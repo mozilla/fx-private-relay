@@ -75,7 +75,7 @@ jobs:
           retention-days: 5
       - name: Send GitHub Action trigger data to Slack workflow
         id: slack
-        uses: slackapi/slack-github-action@v2.1.1
+        uses: slackapi/slack-github-action@v3.0.1
         if: failure()
         with:
           webhook: ${{ secrets.SLACK_GHA_FAILURES_WEBHOOK }}
