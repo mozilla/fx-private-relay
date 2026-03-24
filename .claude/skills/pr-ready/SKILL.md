@@ -16,6 +16,14 @@ cd frontend && npx --no-install lint-staged --cwd ..
 
 This runs stylelint, prettier, eslint, black, mypy, and ruff on staged files. Fix any errors before continuing.
 
+If any `.ftl` files in `privaterelay/pending_locales/` were changed, also run the Fluent linter:
+
+```bash
+moz-fluent-lint privaterelay/pending_locales --config privaterelay/locales/.github/linter_config.yml
+```
+
+Common fix: the linter requires right single quotation marks (`'`) instead of straight apostrophes (`'`) in English strings.
+
 ## Step 2: Review PR checklist
 
 Inspect `git diff --cached` (or `git diff HEAD` if nothing staged) and answer each item:

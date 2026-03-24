@@ -216,6 +216,7 @@ def get_welcome_email(user: User, format: str) -> str:
             "SITE_ORIGIN": settings.SITE_ORIGIN,
             "hero_img_src": hero_img_src,
             "language": lang_code,
+            "mask_limit": settings.MAX_NUM_FREE_ALIASES,
         },
     )
 

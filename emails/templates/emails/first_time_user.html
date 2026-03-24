@@ -238,7 +238,7 @@
 
                 <td style="overflow-wrap:break-word;word-break:break-word;padding:10px;" align="left"> 
                   <h1 class="hero-title" style="margin: 0px; color: #ffffff; line-height: 100%; text-align: left; word-wrap: break-word; font-weight: 500px;">{% ftlmsg 'first-time-user-email-welcome' %}</h1>  
-                  <p class="hero-text" style="line-height: 140%; color: #ffffff;font-family: metropolis medium, system-ui, sans-serif">{% ftlmsg 'first-time-user-email-welcome-subhead' %}</p>
+                  <p class="hero-text" style="line-height: 140%; color: #ffffff;font-family: metropolis medium, system-ui, sans-serif">{% ftlmsg 'first-time-user-email-welcome-subhead-2' %}</p>
                 </td>
               </tr>
             </tbody>
@@ -250,10 +250,9 @@
               <tr>
                 <td style="overflow-wrap:break-word;word-break:break-word;" align="center">
 
-                  <p style="color: #321C64; font-size: 18px; font-family: metropolis medium, system-ui, sans-serif;">{% ftlmsg 'first-time-user-email-hero-primary-text' %}</p> 
-                  <p style="color: #321C64; font-size: 18px; font-family: metropolis medium, system-ui, sans-serif;margin-top: 20px;">{% ftlmsg 'first-time-user-email-hero-secondary-text' %}</p>
+                  <p style="color: #321C64; font-size: 18px; font-family: metropolis medium, system-ui, sans-serif;">{% ftlmsg 'first-time-user-email-hero-primary-text-2' mask_limit=mask_limit %}</p>
 
-                  <a href="{{ SITE_ORIGIN }}/accounts/profile/?utm_campaign=relay-onboarding&utm_source=relay-onboarding&utm_medium=email&utm_content=hero-cta" target="_blank" class="button" style="margin-top: 30px; color: #FFFFFF;" rel="noreferrer">{% ftlmsg 'first-time-user-email-cta-dashboard-button' %}</a>
+                  <a href="{{ SITE_ORIGIN }}/accounts/profile/?utm_campaign=relay-onboarding&utm_source=relay-onboarding&utm_medium=email&utm_content=hero-cta" target="_blank" class="button" style="margin-top: 30px; color: #FFFFFF;" rel="noreferrer">{% ftlmsg 'first-time-user-email-cta-dashboard-button-2' %}</a>
 
                 </td>
               </tr>
@@ -292,11 +291,11 @@
                       <td style="overflow-wrap:break-word;word-break:break-word;padding:10px 20px;font-family:inter, system-ui, sans-serif;font-size:16px;" align="left">
 
                           <p style="line-height: 140%; text-align: left; word-wrap: break-word; color: #20123A">
-                            <strong>{% ftlmsg 'first-time-user-email-how-item-1-header' %}</strong> 
+                            <strong>{% ftlmsg 'first-time-user-email-how-item-1-header-2' %}</strong> 
                           </p>
 
                           <p style="line-height: 140%; text-align: left; word-wrap: break-word;">
-                            {% ftlmsg 'first-time-user-email-how-item-1-subhead-html' url='https://addons.mozilla.org/firefox/addon/private-relay/?utm_campaign=relay-onboarding&utm_source=relay-onboarding&utm_medium=email&utm_content=addon-cta' attrs='' %}
+                            {% ftlmsg 'first-time-user-email-how-item-1-subhead-html-2' url='https://addons.mozilla.org/firefox/addon/private-relay/?utm_campaign=relay-onboarding&utm_source=relay-onboarding&utm_medium=email&utm_content=addon-cta' attrs='' %}
                           </p>
 
                       </td>
@@ -312,11 +311,11 @@
                       <td style="overflow-wrap:break-word;word-break:break-word;padding:10px 20px;font-family:inter, system-ui, sans-serif;font-size:16px;" align="left">
 
                           <p style="line-height: 140%; text-align: left; word-wrap: break-word; color: #20123A">
-                            <strong>{% ftlmsg 'first-time-user-email-how-item-2-header' %}</strong> 
+                            <strong>{% ftlmsg 'first-time-user-email-how-item-2-header-2' %}</strong> 
                           </p>
 
                           <p style="line-height: 140%; text-align: left; word-wrap: break-word;">
-                            {% ftlmsg 'first-time-user-email-how-item-2-subhead' %}
+                            {% ftlmsg 'first-time-user-email-how-item-2-subhead-2' %}
                           </p>
 
                       </td>
@@ -332,11 +331,11 @@
                       <td style="overflow-wrap:break-word;word-break:break-word;padding:10px 20px;font-family:inter, system-ui, sans-serif;font-size:16px;" align="left">
 
                           <p style="line-height: 140%; text-align: left; word-wrap: break-word; color: #20123A">
-                            <strong>{% ftlmsg 'first-time-user-email-how-item-3-header' %}</strong> 
+                            <strong>{% ftlmsg 'first-time-user-email-how-item-3-header-2' %}</strong> 
                           </p>
 
                           <p style="line-height: 140%; text-align: left; word-wrap: break-word;">
-                            {% ftlmsg 'first-time-user-email-how-item-3-subhead-html' url=SITE_ORIGIN|add:'/accounts/profile/' attrs='' %}
+                            {% ftlmsg 'first-time-user-email-how-item-3-subhead-html-2' url=SITE_ORIGIN|add:'/accounts/profile/' attrs='' %}
                           </p>
 
                       </td>
@@ -371,7 +370,7 @@
                 <td style="display: block; text-align: center;" align="center">
                   <img src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/union-icon.png" alt="" title="" style="display: block;height: auto;width: 100%;margin: 0 auto;max-width: 26px;" />
                   <h1 style="word-wrap: break-word; font-size: 22px;font-family: metropolis bold, system-ui, sans-serif; color: #321C64; margin-top: 30px;">{% ftlmsg 'first-time-user-email-questions-title' %}</h1>
-                  <p style="font-size: 16px; font-family: inter, system-ui, sans-serif; color: #000000;margin-top: 15px;">{% ftlmsg 'first-time-user-email-questions-subhead-html' url='https://support.mozilla.org/products/relay?utm_campaign=relay-onboarding&utm_source=relay-onboarding&utm_medium=email&utm_content=questions-link' attrs=''%}</p>
+                  <p style="font-size: 16px; font-family: inter, system-ui, sans-serif; color: #000000;margin-top: 15px;">{% ftlmsg 'first-time-user-email-questions-subhead-html-2' url='https://support.mozilla.org/products/relay?utm_campaign=relay-onboarding&utm_source=relay-onboarding&utm_medium=email&utm_content=questions-link' attrs=''%}</p>
                 </td>
               </tr>
             </tbody>
@@ -393,7 +392,7 @@
             <tbody>
               <tr>
                 <td style="overflow-wrap: break-word;word-break: break-word;width: 70%;margin: 0 auto;display: block;" align="center"> 
-                  <p style="line-height: 140%;font-size: 14px; font-family: inter, system-ui, sans-serif; color: #0C0C0D;">{% ftlmsg 'first-time-user-email-footer-text-1' %}</p>
+                  <p style="line-height: 140%;font-size: 14px; font-family: inter, system-ui, sans-serif; color: #0C0C0D;">{% ftlmsg 'first-time-user-email-footer-text-1-2' %}</p>
                   <p style="line-height: 140%;font-size: 14px; font-family: inter, system-ui, sans-serif; color: #0C0C0D;">{% ftlmsg 'first-time-user-email-footer-text-2-html' url='https://support.mozilla.org/products/relay?utm_campaign=relay-onboarding&utm_source=relay-onboarding&utm_medium=email&utm_content=footer-support-link' attrs='style="color: #0C0C0D;"' %}</p>
                   <img align="center" border="0" src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/mozilla-logo.png" alt="" title="" style="height: auto; width: 100%;max-width: 146px; margin: 30px auto; display: block;" />
                   <p style="line-height: 140%;font-size: 14px; font-family: inter, system-ui, sans-serif; color: #0C0C0D;">149 New Montgomery St, 4th Floor, San Francisco, CA 94105</p>

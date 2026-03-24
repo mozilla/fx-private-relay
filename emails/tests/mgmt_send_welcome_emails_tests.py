@@ -70,7 +70,7 @@ def test_send_welcome_emails(
     assert source == settings.RELAY_FROM_ADDRESS
     with django_ftl.override(user.profile.language):
         expected_subject = ftl_bundle.format("first-time-user-email-welcome")
-        expected_cta = ftl_bundle.format("first-time-user-email-cta-dashboard-button")
+        expected_cta = ftl_bundle.format("first-time-user-email-cta-dashboard-button-2")
     assert subject == expected_subject
     assert expected_cta in body_html
 
@@ -136,7 +136,10 @@ def _add_locale_to_user(user: User, locale: str) -> User:
 def _assert_caplog_for_1_email_to_user(
     user: User, caplog: pytest.LogCaptureFixture
 ) -> None:
-    rec1, rec2, rec3, rec4 = caplog.records
+    # Filter to only the send_welcome_emails logger records, ignoring FTL
+    # missing-translation errors for pending locale strings.
+    records = [r for r in caplog.records if r.name == "eventsinfo.send_welcome_emails"]
+    rec1, rec2, rec3, rec4 = records
     assert "Starting" in rec1.getMessage()
     assert rec2.getMessage() == "Emails to send: 1"
     assert f"Sent welcome email to user ID: {user.id}" in rec3.getMessage()

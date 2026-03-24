@@ -36,3 +36,40 @@ detailed-instructions-about-blocking-html = <a href="{ $learn_more_url }">Detail
 detailed-instructions-about-blocking = Detailed instructions to remove email blocking: { $learn_more_url }
 
 remove-email-blocking = Remove email blocking
+
+## Updated first-time user welcome email (MPP-4613)
+
+first-time-user-email-welcome-subhead-2 = Mask your email. Control your inbox.
+
+# Variables
+#   $mask_limit (number) - the number of free email masks available
+first-time-user-email-hero-primary-text-2 = You have { $mask_limit } free email masks ready to go. Use one when you shop online or sign up for a new account or app.
+
+first-time-user-email-cta-dashboard-button-2 = Go to { -brand-name-firefox-relay }
+
+first-time-user-email-how-item-1-header-2 = Create a mask in seconds
+
+# Variables
+#   $url (string) - link to the Relay add-on
+#   $attrs (string) - link attributes
+first-time-user-email-how-item-1-subhead-html-2 = Right in { -brand-name-firefox }, with the <a href="{ $url }" { $attrs }>{ -brand-name-relay } add-on</a>, or from your dashboard.
+first-time-user-email-how-item-1-subhead-text-2 = Right in { -brand-name-firefox }, with the { -brand-name-relay } add-on, or from your dashboard.
+
+first-time-user-email-how-item-2-header-2 = Forward the emails you want
+first-time-user-email-how-item-2-subhead-2 = Senders never see your real address. Keep using a mask to hide your real email or block emails you get.
+
+first-time-user-email-how-item-3-header-2 = You’re in control
+
+# Variables
+#   $url (string) - link to sign in
+#   $attrs (string) - link attributes
+first-time-user-email-how-item-3-subhead-html-2 = <a href="{ $url }" { $attrs }>Sign in</a> to create, label, or delete masks anytime.
+first-time-user-email-how-item-3-subhead-text-2 = Sign in to create, label, or delete masks anytime.
+
+# Variables
+#   $url (string) - link to support center
+#   $attrs (string) - link attributes
+first-time-user-email-questions-subhead-html-2 = Visit our <a href="{ $url }" { $attrs }>Support Center</a> for help
+first-time-user-email-questions-subhead-text-2 = Visit our Support Center for help
+
+first-time-user-email-footer-text-1-2 = You’re receiving this automated email as a subscriber of { -brand-name-firefox-relay }. If you received it in error, no action is required.
