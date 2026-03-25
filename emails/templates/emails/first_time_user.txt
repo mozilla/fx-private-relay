@@ -1,23 +1,22 @@
 {% load cache %}{% load ftl %}{% load email_extras %}{% cache 86400 welcome_email_txt language %}{% withftl bundle='privaterelay.ftl_bundles.main' language=language %}{% ftlmsg 'first-time-user-email-welcome' %}
 
-{% ftlmsg 'first-time-user-email-welcome-subhead' %}
+{% ftlmsg 'first-time-user-email-welcome-subhead-2' %}
 
-{% ftlmsg 'first-time-user-email-hero-primary-text' %}
+{% ftlmsg 'first-time-user-email-hero-primary-text-2' mask_limit=mask_limit %}
 
-{% ftlmsg 'first-time-user-email-hero-secondary-text' %}
 {{ SITE_ORIGIN }}/accounts/profile/
 
 {% ftlmsg 'first-time-user-email-how-title' %}
 
-{% ftlmsg 'first-time-user-email-how-item-1-header' %}
-{% ftlmsg 'first-time-user-email-how-item-1-subhead-text' %}
+{% ftlmsg 'first-time-user-email-how-item-1-header-2' %}
+{% ftlmsg 'first-time-user-email-how-item-1-subhead-text-2' %}
 https://addons.mozilla.org/firefox/addon/private-relay/
 
-{% ftlmsg 'first-time-user-email-how-item-2-header' %}
-{% ftlmsg 'first-time-user-email-how-item-2-subhead' %}
+{% ftlmsg 'first-time-user-email-how-item-2-header-2' %}
+{% ftlmsg 'first-time-user-email-how-item-2-subhead-2' %}
 
-{% ftlmsg 'first-time-user-email-how-item-3-header' %}
-{% ftlmsg 'first-time-user-email-how-item-3-subhead-text' %}
+{% ftlmsg 'first-time-user-email-how-item-3-header-2' %}
+{% ftlmsg 'first-time-user-email-how-item-3-subhead-text-2' %}
 {{ SITE_ORIGIN }}/accounts/profile/
 
 {% ftlmsg 'first-time-user-email-extra-protection-inbox-phone-title' %}
@@ -25,10 +24,10 @@ https://addons.mozilla.org/firefox/addon/private-relay/
 {{ SITE_ORIGIN }}/premium/
 
 {% ftlmsg 'first-time-user-email-questions-title' %}
-{% ftlmsg 'first-time-user-email-questions-subhead-text' %}
+{% ftlmsg 'first-time-user-email-questions-subhead-text-2' %}
 https://support.mozilla.org/products/relay
 
-{% ftlmsg 'first-time-user-email-footer-text-1' %}{% ftlmsg 'first-time-user-email-footer-text-2-text' %}
+{% ftlmsg 'first-time-user-email-footer-text-1-2' %}{% ftlmsg 'first-time-user-email-footer-text-2-text' %}
 https://support.mozilla.org/products/relay
 
 149 New Montgomery St, 4th Floor, San Francisco, CA 94105
