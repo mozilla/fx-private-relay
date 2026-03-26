@@ -658,13 +658,6 @@ export const WhatsNewMenu = (props: Props) => {
         description={l10n.getString("whatsnew-feature-mask-expansion-snippet")}
         heading={l10n.getString("whatsnew-feature-mask-expansion-heading")}
         image={MaskExpansionHero}
-        cta={
-          <Link href="/premium#pricing">
-            <span className={styles.cta}>
-              {l10n.getString("whatsnew-feature-mask-expansion-cta")}
-            </span>
-          </Link>
-        }
       />
     ),
     icon: MaskExpansionIcon,
