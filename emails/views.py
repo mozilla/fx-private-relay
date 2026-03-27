@@ -62,6 +62,7 @@ from .types import (
 from .utils import (
     InvalidFromHeader,
     _get_bucket_and_key_from_s3_json,
+    _get_hero_img_src,
     b64_lookup_key,
     count_all_trackers,
     decrypt_reply_metadata,
@@ -98,9 +99,13 @@ def first_time_user_test(request):
     come from a random free profile.
     """
     in_bundle_country = strtobool(request.GET.get("in_bundle_country", "yes"))
+    language = request.GET.get("language", "en")
     email_context = {
         "in_bundle_country": in_bundle_country,
         "SITE_ORIGIN": settings.SITE_ORIGIN,
+        "language": language,
+        "mask_limit": settings.MAX_NUM_FREE_ALIASES,
+        "hero_img_src": _get_hero_img_src(language),
     }
     if request.GET.get("format", "html") == "text":
         return render(
