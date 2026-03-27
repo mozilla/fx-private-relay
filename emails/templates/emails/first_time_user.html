@@ -5,7 +5,7 @@
 {% load cache %}
 {% load ftl %}
 {% load email_extras %}
-{% cache 86400 welcome_email_html_v2 language %}
+{% cache 86400 welcome_email_html_v3 language %}
 {% withftl bundle='privaterelay.ftl_bundles.main' language=language %}
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -295,7 +295,7 @@
                           </p>
 
                           <p style="line-height: 140%; text-align: left; word-wrap: break-word;">
-                            {% ftlmsg 'first-time-user-email-how-item-1-subhead-html-2' url='https://addons.mozilla.org/firefox/addon/private-relay/?utm_campaign=relay-onboarding&utm_source=relay-onboarding&utm_medium=email&utm_content=addon-cta' attrs='' %}
+                            {% ftlmsg 'first-time-user-email-how-item-1-subhead-2-html' url='https://addons.mozilla.org/firefox/addon/private-relay/?utm_campaign=relay-onboarding&utm_source=relay-onboarding&utm_medium=email&utm_content=addon-cta' attrs='' %}
                           </p>
 
                       </td>
@@ -335,7 +335,7 @@
                           </p>
 
                           <p style="line-height: 140%; text-align: left; word-wrap: break-word;">
-                            {% ftlmsg 'first-time-user-email-how-item-3-subhead-html-2' url=SITE_ORIGIN|add:'/accounts/profile/' attrs='' %}
+                            {% ftlmsg 'first-time-user-email-how-item-3-subhead-2-html' url=SITE_ORIGIN|add:'/accounts/profile/' attrs='' %}
                           </p>
 
                       </td>
@@ -370,7 +370,7 @@
                 <td style="display: block; text-align: center;" align="center">
                   <img src="{{ SITE_ORIGIN }}/static/images/email-images/first-time-user/union-icon.png" alt="" title="" style="display: block;height: auto;width: 100%;margin: 0 auto;max-width: 26px;" />
                   <h1 style="word-wrap: break-word; font-size: 22px;font-family: metropolis bold, system-ui, sans-serif; color: #321C64; margin-top: 30px;">{% ftlmsg 'first-time-user-email-questions-title' %}</h1>
-                  <p style="font-size: 16px; font-family: inter, system-ui, sans-serif; color: #000000;margin-top: 15px;">{% ftlmsg 'first-time-user-email-questions-subhead-html-2' url='https://support.mozilla.org/products/relay?utm_campaign=relay-onboarding&utm_source=relay-onboarding&utm_medium=email&utm_content=questions-link' attrs=''%}</p>
+                  <p style="font-size: 16px; font-family: inter, system-ui, sans-serif; color: #000000;margin-top: 15px;">{% ftlmsg 'first-time-user-email-questions-subhead-2-html' url='https://support.mozilla.org/products/relay?utm_campaign=relay-onboarding&utm_source=relay-onboarding&utm_medium=email&utm_content=questions-link' attrs=''%}</p>
                 </td>
               </tr>
             </tbody>

@@ -52,7 +52,7 @@ first-time-user-email-how-item-1-header-2 = Create a mask in seconds
 # Variables
 #   $url (string) - link to the Relay add-on
 #   $attrs (string) - link attributes
-first-time-user-email-how-item-1-subhead-html-2 = Right in { -brand-name-firefox }, with the <a href="{ $url }" { $attrs }>{ -brand-name-relay } add-on</a>, or from your dashboard.
+first-time-user-email-how-item-1-subhead-2-html = Right in { -brand-name-firefox }, with the <a href="{ $url }" { $attrs }>{ -brand-name-relay } add-on</a>, or from your dashboard.
 first-time-user-email-how-item-1-subhead-text-2 = Right in { -brand-name-firefox }, with the { -brand-name-relay } add-on, or from your dashboard.
 
 first-time-user-email-how-item-2-header-2 = Forward the emails you want
@@ -63,13 +63,13 @@ first-time-user-email-how-item-3-header-2 = You’re in control
 # Variables
 #   $url (string) - link to sign in
 #   $attrs (string) - link attributes
-first-time-user-email-how-item-3-subhead-html-2 = <a href="{ $url }" { $attrs }>Sign in</a> to create, label, or delete masks anytime.
+first-time-user-email-how-item-3-subhead-2-html = <a href="{ $url }" { $attrs }>Sign in</a> to create, label, or delete masks anytime.
 first-time-user-email-how-item-3-subhead-text-2 = Sign in to create, label, or delete masks anytime.
 
 # Variables
 #   $url (string) - link to support center
 #   $attrs (string) - link attributes
-first-time-user-email-questions-subhead-html-2 = Visit our <a href="{ $url }" { $attrs }>Support Center</a> for help
+first-time-user-email-questions-subhead-2-html = Visit our <a href="{ $url }" { $attrs }>Support Center</a> for help
 first-time-user-email-questions-subhead-text-2 = Visit our Support Center for help
 
 first-time-user-email-footer-text-1-2 = You’re receiving this automated email as a subscriber of { -brand-name-firefox-relay }. If you received it in error, no action is required.
