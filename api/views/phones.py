@@ -1055,7 +1055,6 @@ def sms_status(request):
     return response.Response(status=200)
 
 
-@decorators.permission_classes([permissions.IsAuthenticated, HasPhoneService])
 @extend_schema(
     tags=["phones: Outbound"],
     request=OpenApiRequest(
@@ -1074,6 +1073,7 @@ def sms_status(request):
     },
 )
 @decorators.api_view(["POST"])
+@decorators.permission_classes([permissions.IsAuthenticated, HasPhoneService])
 def outbound_call(request):
     """Make a call from the authenticated user's relay number."""
     # TODO: Create or update an OutboundContact (new model) on send, or limit
@@ -1108,7 +1108,6 @@ def outbound_call(request):
     return response.Response(status=200)
 
 
-@decorators.permission_classes([permissions.IsAuthenticated, HasPhoneService])
 @extend_schema(
     tags=["phones: Outbound"],
     request=OpenApiRequest(
@@ -1129,6 +1128,7 @@ def outbound_call(request):
     },
 )
 @decorators.api_view(["POST"])
+@decorators.permission_classes([permissions.IsAuthenticated, HasPhoneService])
 def outbound_sms(request):
     """
     Send a message from the user's relay number.
@@ -1168,7 +1168,6 @@ def outbound_sms(request):
     return response.Response(status=200)
 
 
-@decorators.permission_classes([permissions.IsAuthenticated, HasPhoneService])
 @extend_schema(
     tags=["phones: Outbound"],
     parameters=[
@@ -1205,6 +1204,7 @@ def outbound_sms(request):
     },
 )
 @decorators.api_view(["GET"])
+@decorators.permission_classes([permissions.IsAuthenticated, HasPhoneService])
 def list_messages(request):
     """
     Get the user's SMS messages sent to or from the phone mask
