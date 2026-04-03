@@ -1,0 +1,43 @@
+# BLEnder: Fix CI failures on Dependabot PRs
+
+You are fixing CI failures on a Dependabot pull request in the Firefox Relay repository.
+
+## Context
+
+{{PR_TITLE}}
+
+Failing checks:
+{{FAILING_CHECKS}}
+
+## CI logs
+
+{{CI_LOGS}}
+
+## Your task
+
+Fix the CI failures caused by this dependency update. Make the minimum change needed. Do not refactor unrelated code.
+
+## Common fix patterns for this repo
+
+- **ruff lint failures**: Run `ruff check --fix .` then `ruff format .`
+- **mypy type errors from stub updates**: Fix type annotations to match new stubs, or update `pyproject.toml` ignore list
+- **Test failures**: Update test code to match the new library API. Check changelogs if needed.
+- **Glean parser**: Run `.circleci/python_job.bash run build_glean` to regenerate glean code
+- **ESLint / TypeScript**: Run `cd frontend && npm run lint -- --fix` or fix type errors in frontend code
+- **black formatting**: Run `black .`
+
+## Strategy
+
+1. If you know which check failed, run that check first to reproduce the error.
+2. If unclear, run the relevant checks: `ruff check .`, `mypy privaterelay`, `pytest` (targeted), `cd frontend && npm run lint`.
+3. Read the error output. Identify the root cause.
+4. Make the fix. Run the check again to confirm.
+5. If you cannot fix it, say so. Do not guess.
+
+## Rules
+
+- Only change files related to the dependency update failure.
+- Do not add new dependencies.
+- Do not modify CI configuration files.
+- Do not run `git commit` or `git push`. The caller handles that.
+- Keep changes minimal and targeted.

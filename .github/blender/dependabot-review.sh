@@ -294,6 +294,12 @@ for i in $(seq 0 $((pr_count - 1))); do
     fi
   fi
 
+  # Flag failing-CI PRs as eligible for auto-fix
+  fix_eligible=false
+  if [ "$ci_status" = "failing" ] && [ "$is_major" = false ]; then
+    fix_eligible=true
+  fi
+
   # Build result object
   result=$(jq -n \
     --argjson pr "$pr" \
@@ -309,6 +315,7 @@ for i in $(seq 0 $((pr_count - 1))); do
     --arg ecosystem "$ecosystem" \
     --argjson is_safe "$is_safe" \
     --argjson is_major "$is_major" \
+    --argjson fix_eligible "$fix_eligible" \
     '{
       number: $pr.number,
       title: $pr.title,
@@ -321,6 +328,7 @@ for i in $(seq 0 $((pr_count - 1))); do
       ecosystem: $ecosystem,
       is_safe_listed: $is_safe,
       is_major_bump: $is_major,
+      fix_eligible: $fix_eligible,
       classification: $classification,
       decision: $decision,
       reason: $reason,
