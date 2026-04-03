@@ -1,0 +1,47 @@
+# Safe dependencies for automated Dependabot review.
+# One pattern per line. Supports glob-style wildcards (*).
+# Derived from docs/dependency-updates.md -- these are packages where
+# passing CI is sufficient evidence that the upgrade is safe.
+
+# --- Python: testing tools ---
+pytest
+pytest-cov
+pytest-django
+coverage
+model-bakery
+responses
+
+# --- Python: linters and formatters ---
+ruff
+black
+
+# --- Python: type checking ---
+mypy
+django-stubs
+django-stubs-ext
+djangorestframework-stubs
+types-*
+
+# --- Python: AWS (generated from API definitions, frequent patches) ---
+boto3
+botocore
+mypy-boto3-*
+
+# --- npm: type definitions ---
+@types/*
+
+# --- npm: linters and formatters ---
+@typescript-eslint/*
+eslint*
+prettier
+
+# --- npm: testing ---
+@testing-library/*
+*jest*
+
+# --- npm: git hooks and formatting ---
+husky
+lint-staged
+
+# --- GitHub Actions ---
+actions/*

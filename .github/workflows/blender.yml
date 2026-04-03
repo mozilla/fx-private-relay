@@ -1,0 +1,87 @@
+name: BLEnder Daily Report
+
+on:
+  schedule:
+    # Mon-Fri at 9:00 UTC
+    - cron: "0 9 * * 1-5"
+  workflow_dispatch:
+
+jobs:
+  gather:
+    name: Gather data
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Gather data
+        run: .github/blender/gather.sh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          REPO_DIR: .
+          OUTPUT_DIR: blender-data
+
+      - name: Upload gathered data
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
+        with:
+          name: blender-data
+          path: blender-data/
+          retention-days: 7
+
+  analyze:
+    name: Analyze with Claude
+    needs: gather
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+
+      - name: Download gathered data
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
+        with:
+          name: blender-data
+          path: blender-data/
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code@latest
+
+      - name: Analyze data
+        run: .github/blender/analyze.sh
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DATA_DIR: blender-data
+          BLENDER_DIR: .github/blender
+          OUTPUT_DIR: blender-data
+
+      - name: Upload report
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
+        with:
+          name: blender-report
+          path: blender-data/report.md
+          retention-days: 7
+
+  post:
+    name: Post GitHub Issue
+    needs: analyze
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+
+      - name: Download report
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
+        with:
+          name: blender-report
+          path: blender-report/
+
+      - name: Post report
+        run: .github/blender/post.sh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          REPORT_FILE: blender-report/report.md

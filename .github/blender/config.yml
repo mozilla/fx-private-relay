@@ -1,0 +1,24 @@
+# BLEnder configuration for Firefox Relay
+# This file drives the gather step. Values here override hardcoded defaults.
+
+project:
+  name: "Firefox Relay"
+  repo: "mozilla/fx-private-relay"
+
+environments:
+  prod: "https://relay.firefox.com/__version__"
+  stage: "https://relay.allizom.org/__version__"
+  dev: "https://relay-dev.allizom.org/__version__"
+
+bugzilla:
+  - name: "Password Manager + Relay"
+    product: "Toolkit"
+    component: "Password Manager"
+    short_desc: "relay"
+  - name: "Relay component"
+    product: "Mozilla Relay"
+
+e2e_workflow: "playwright.yml"
+
+cooldown_days: 8
+major_cooldown_days: 14
