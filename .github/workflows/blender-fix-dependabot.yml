@@ -56,6 +56,14 @@ jobs:
           PR_NUMBER: ${{ inputs.pr_number }}
           REPO: ${{ github.repository }}
 
+      # Create the commit by having this github action workflow create blob + tree + push via GitHub API.
+      #
+      # The usual git credentials are unavailable,
+      # because we use persist-credentials: false
+      # to keep the token out of Claude's environment).
+      #
+      # This blog + tree + push technique operates via the GitHub API,
+      # so the commit is automatically signed and verified by github-actions[bot]. 
       - name: Commit and push fix
         if: ${{ inputs.dry_run != 'true' }}
         run: |
@@ -63,19 +71,49 @@ jobs:
             echo "No changes to commit."
             exit 0
           fi
-          git add -A
-          TREE=$(git write-tree)
+
+          REPO="${{ github.repository }}"
           PARENT=$(git rev-parse HEAD)
-          COMMIT=$(gh api "repos/${{ github.repository }}/git/commits" \
+          BASE_TREE=$(gh api "repos/${REPO}/git/commits/${PARENT}" --jq '.tree.sha')
+
+          # Upload each changed file as a blob
+          TREE_ITEMS="[]"
+          for file in $(git diff --name-only); do
+            BLOB_SHA=$(gh api "repos/${REPO}/git/blobs" \
+              --method POST \
+              --field "encoding=base64" \
+              --field "content=$(base64 -w 0 "$file")" \
+              --jq '.sha')
+            TREE_ITEMS=$(echo "$TREE_ITEMS" | jq \
+              --arg path "$file" \
+              --arg sha "$BLOB_SHA" \
+              '. + [{"path": $path, "mode": "100644", "type": "blob", "sha": $sha}]')
+          done
+
+          # Create tree from blobs
+          TREE_SHA=$(jq -n \
+            --arg base "$BASE_TREE" \
+            --argjson tree "$TREE_ITEMS" \
+            '{"base_tree": $base, "tree": $tree}' | \
+            gh api "repos/${REPO}/git/trees" \
+              --method POST \
+              --input - \
+              --jq '.sha')
+
+          # Create verified commit
+          COMMIT=$(gh api "repos/${REPO}/git/commits" \
             --method POST \
             --field "message=fix: auto-fix CI failure from dependency update" \
-            --field "tree=${TREE}" \
+            --field "tree=${TREE_SHA}" \
             --field "parents[]=${PARENT}" \
             --jq '.sha')
+
+          # Update branch ref
           BRANCH=$(git rev-parse --abbrev-ref HEAD)
-          gh api "repos/${{ github.repository }}/git/refs/heads/${BRANCH}" \
+          gh api "repos/${REPO}/git/refs/heads/${BRANCH}" \
             --method PATCH \
             --field "sha=${COMMIT}"
+
           echo "Pushed verified commit ${COMMIT}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
