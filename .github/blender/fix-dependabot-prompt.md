@@ -41,3 +41,24 @@ Fix the CI failures caused by this dependency update. Make the minimum change ne
 - Do not modify CI configuration files.
 - Do not run `git commit` or `git push`. The caller handles that.
 - Keep changes minimal and targeted.
+
+## Commit message
+
+After fixing the issue, write a commit message to `.blender-commit-msg` using this format:
+
+```
+BLEnder fix(<dependency-name>): <1-line summary of what you fixed>
+
+<Short explanation of the root cause and what you changed. A few sentences max.>
+```
+
+Example:
+
+```
+BLEnder fix(typescript): add scrollMargin to IntersectionObserver mock
+
+TypeScript 6.0 added scrollMargin to the IntersectionObserver interface.
+The test mock was missing this property, causing a type error.
+```
+
+Write the file with the Edit tool. Do not include backticks or markdown formatting in the file.

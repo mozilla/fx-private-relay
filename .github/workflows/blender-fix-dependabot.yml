@@ -67,6 +67,14 @@ jobs:
       - name: Commit and push fix
         if: ${{ inputs.dry_run != 'true' }}
         run: |
+          # Read commit message from Claude, fall back to default
+          if [ -f .blender-commit-msg ]; then
+            COMMIT_MSG=$(cat .blender-commit-msg)
+            rm .blender-commit-msg
+          else
+            COMMIT_MSG="BLEnder fix: auto-fix CI failure from dependency update"
+          fi
+
           if git diff --quiet && git diff --cached --quiet; then
             echo "No changes to commit."
             exit 0
@@ -103,7 +111,7 @@ jobs:
           # Create verified commit
           COMMIT=$(gh api "repos/${REPO}/git/commits" \
             --method POST \
-            --field "message=fix: auto-fix CI failure from dependency update" \
+            --field "message=${COMMIT_MSG}" \
             --field "tree=${TREE_SHA}" \
             --field "parents[]=${PARENT}" \
             --jq '.sha')
