@@ -41,6 +41,7 @@ Fix the CI failures caused by this dependency update. Make the minimum change ne
 - Do not modify CI configuration files.
 - Do not run `git commit` or `git push`. The caller handles that.
 - Keep changes minimal and targeted.
+- Suppressing deprecation warnings is acceptable. The goal is to make CI pass, not to migrate away from deprecated features.
 
 ## Commit message
 
