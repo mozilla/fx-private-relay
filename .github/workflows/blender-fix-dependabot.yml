@@ -55,4 +55,27 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ inputs.pr_number }}
           REPO: ${{ github.repository }}
-          DRY_RUN: ${{ inputs.dry_run }}
+
+      - name: Commit and push fix
+        if: ${{ inputs.dry_run != 'true' }}
+        run: |
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git add -A
+          TREE=$(git write-tree)
+          PARENT=$(git rev-parse HEAD)
+          COMMIT=$(gh api "repos/${{ github.repository }}/git/commits" \
+            --method POST \
+            --field "message=fix: auto-fix CI failure from dependency update" \
+            --field "tree=${TREE}" \
+            --field "parents[]=${PARENT}" \
+            --jq '.sha')
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          gh api "repos/${{ github.repository }}/git/refs/heads/${BRANCH}" \
+            --method PATCH \
+            --field "sha=${COMMIT}"
+          echo "Pushed verified commit ${COMMIT}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

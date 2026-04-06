@@ -5,14 +5,12 @@
 #   PR_NUMBER          -- PR number to fix (required)
 #   REPO               -- GitHub repo, e.g. mozilla/fx-private-relay (required)
 #   ANTHROPIC_API_KEY  -- Anthropic API key (required)
-#   DRY_RUN            -- Set to "true" to skip push (default: true)
 #   GH_TOKEN           -- GitHub token for API calls (optional, uses gh auth)
 #   BLENDER_DIR        -- Path to blender directory (default: .github/blender)
 
 set -euo pipefail
 
 BLENDER_DIR="${BLENDER_DIR:-.github/blender}"
-DRY_RUN="${DRY_RUN:-true}"
 PROMPT_TEMPLATE="$BLENDER_DIR/fix-dependabot-prompt.md"
 
 if [ -z "${PR_NUMBER:-}" ] || [ -z "${REPO:-}" ]; then
@@ -44,7 +42,7 @@ sanitize_for_prompt() {
   echo "$input"
 }
 
-echo "BLEnder fix-dependabot: PR #${PR_NUMBER} repo=${REPO} dry_run=${DRY_RUN}"
+echo "BLEnder fix-dependabot: PR #${PR_NUMBER} repo=${REPO}"
 
 # --- Fetch PR metadata ---
 echo "Fetching PR metadata..."
@@ -190,21 +188,4 @@ echo "=== Changes produced ==="
 git diff --stat
 echo ""
 
-if [ "$DRY_RUN" = "true" ]; then
-  echo "DRY_RUN=true -- not committing or pushing."
-  echo "Review changes with: git diff"
-  exit 0
-fi
-
-# --- Commit and push ---
-echo "Committing and pushing fix..."
-git config user.email "<>"
-git config user.name "BLEnder"
-git add -A
-git commit -m "fix: auto-fix CI failure from dependency update
-
-BLEnder auto-fix for PR #${PR_NUMBER}
-Failing checks: $(echo "$failing_checks" | tr '\n' ', ')"
-git push
-
-echo "Fix pushed to branch ${pr_branch}."
+echo "Review changes with: git diff"
