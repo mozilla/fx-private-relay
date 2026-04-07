@@ -29,7 +29,7 @@ jobs:
           pip install -r requirements.txt
       - name: Dependabot metadata
         id: dependabot-metadata
-        uses: dependabot/fetch-metadata@21025c705c08248db411dc16f3619e6b5f9ea21a # v2
+        uses: dependabot/fetch-metadata@ffa630c65fa7e0ecfa0625b5ceda64399aea1b36 # v2
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
       - name: Run glean-parser to regenerate code
