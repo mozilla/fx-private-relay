@@ -28,6 +28,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Install sandbox dependencies
+        run: sudo apt-get install -y bubblewrap socat
+
       - name: Install Claude Code
         run: npm install -g @anthropic-ai/claude-code@latest
 

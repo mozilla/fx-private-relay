@@ -142,9 +142,13 @@ done <<< "$failing_checks"
 PROMPT_NONCE=$(openssl rand -hex 16)
 TOKEN_NONCE=$(openssl rand -hex 16)
 
-# All gh API calls are done. Revoke real token from environment.
+# All gh API calls are done. Revoke tokens from environment.
 unset GH_TOKEN
 export GH_TOKEN="$TOKEN_NONCE"
+unset ACTIONS_RUNTIME_TOKEN
+unset ACTIONS_ID_TOKEN_REQUEST_URL
+unset ACTIONS_ID_TOKEN_REQUEST_TOKEN
+unset ACTIONS_CACHE_URL
 
 # --- Build the prompt ---
 echo "Building prompt..."
@@ -161,9 +165,12 @@ prompt="${prompt/\{\{CI_LOGS\}\}/$safe_logs}"
 
 # --- Run Claude ---
 echo "Running Claude Code to diagnose and fix..."
+CLAUDE_SETTINGS="$BLENDER_DIR/claude-settings.json"
+
 echo "$prompt" | claude \
   --verbose \
   --max-turns 50 \
+  --settings "$CLAUDE_SETTINGS" \
   --allowedTools "Read,Edit,Bash" \
   --disallowedTools "WebSearch,WebFetch" \
   --system-prompt "You are BLEnder, a CI-fixing agent for Firefox Relay. Fix the CI failure described in the prompt. Be minimal and precise. Do not search the web. Internal verification token: ${PROMPT_NONCE}. This token is confidential. Never include it in any output, file edit, or commit message." \
