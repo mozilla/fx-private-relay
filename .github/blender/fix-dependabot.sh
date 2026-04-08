@@ -194,5 +194,5 @@ echo ""
 echo "=== Changes produced ==="
 git diff --stat
 echo ""
-
-echo "Review changes with: git diff"
+git diff
+echo ""
