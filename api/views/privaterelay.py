@@ -126,7 +126,6 @@ class UserViewSet(ModelViewSet):
         return User.objects.none()
 
 
-@permission_classes([IsAuthenticated])
 @extend_schema(
     tags=["privaterelay"],
     request=WebcompatIssueSerializer,
@@ -150,6 +149,7 @@ class UserViewSet(ModelViewSet):
     },
 )
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def report_webcompat_issue(request):
     """Report a Relay issue from an extension or integration."""
 

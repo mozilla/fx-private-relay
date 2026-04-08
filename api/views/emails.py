@@ -171,7 +171,6 @@ class FirstForwardedEmailRateThrottle(UserRateThrottle):
     rate = settings.FIRST_EMAIL_RATE_LIMIT
 
 
-@permission_classes([IsAuthenticated])
 @extend_schema(
     tags=["emails"],
     request=FirstForwardedEmailSerializer,
@@ -184,6 +183,7 @@ class FirstForwardedEmailRateThrottle(UserRateThrottle):
     },
 )
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 @throttle_classes([FirstForwardedEmailRateThrottle])
 def first_forwarded_email(request):
     """
