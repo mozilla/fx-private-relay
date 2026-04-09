@@ -1,0 +1,10 @@
+name: BLEnder Auto-merge Dependabot
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run: { description: 'Dry run', default: 'true' }
+jobs:
+  automerge:
+    uses: mozilla/blender/.github/workflows/automerge-dependabot.yml@v1
+    with:
+      dry_run: ${{ inputs.dry_run }}
