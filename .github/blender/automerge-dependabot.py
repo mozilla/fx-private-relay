@@ -33,6 +33,10 @@ class SkipPR(Exception):
     """Raised when a gate fails. Message becomes the skip reason."""
 
 
+class RetryPR(SkipPR):
+    """Score-related skip that may resolve on a future run."""
+
+
 @dataclass
 class DependencyUpdate:
     """Structured metadata from Dependabot's commit message YAML."""
@@ -42,6 +46,7 @@ class DependencyUpdate:
     dependency_type: str  # direct:production, direct:development, indirect
     update_type: str  # version-update:semver-major, etc.
     group: str = ""
+    old_version: str = ""
 
 
 @dataclass
@@ -50,6 +55,7 @@ class PRMetadata:
 
     dependencies: list[DependencyUpdate] = field(default_factory=list)
     ecosystem: str = "unknown"
+    raw_ecosystem: str = ""  # original ecosystem from branch name
     has_major: bool = False
     old_version: str = ""  # first dependency only, from commit title
     new_version: str = ""  # first dependency only, from YAML
@@ -76,7 +82,13 @@ ECOSYSTEM_MAP = {
     "nuget": "nuget",
 }
 
-VERSION_FROM_TITLE_RE = re.compile(r"[Ff]rom\s+(\d[\w.\-]*)\s+[Tt]o\s+(\d[\w.\-]*)")
+VERSION_FROM_TITLE_RE = re.compile(
+    r"[Ff]rom\s+(?P<old_version>\d[\w.\-]*)\s+[Tt]o\s+(?P<new_version>\d[\w.\-]*)"
+)
+# Group PR commit bodies: "Updates `name` from X to Y"
+GROUP_VERSION_RE = re.compile(
+    r"Updates\s+`(?P<name>[^`]+)`\s+from\s+(?P<old_version>\d[\w.\-]*)\s+to\s+(?P<new_version>\d[\w.\-]*)"
+)
 
 
 def semver_major(version: str) -> int | None:
@@ -152,6 +164,7 @@ def extract_metadata(pr: PullRequest) -> PRMetadata:
     # Ecosystem from branch name: dependabot/<ecosystem>/<package>
     parts = pr.head.ref.split("/")
     if len(parts) >= 2 and parts[0] == "dependabot":
+        meta.raw_ecosystem = parts[1]
         meta.ecosystem = ECOSYSTEM_MAP.get(parts[1], "unknown")
 
     # Parse YAML from first commit message
@@ -163,12 +176,25 @@ def extract_metadata(pr: PullRequest) -> PRMetadata:
         # Old version from commit title (not in YAML)
         version_match = VERSION_FROM_TITLE_RE.search(message)
         if version_match:
-            meta.old_version = version_match.group(1)
+            meta.old_version = version_match.group("old_version")
+
+        # Per-dependency old versions from group PR commit body
+        dep_by_name = {d.name: d for d in meta.dependencies}
+        for match in GROUP_VERSION_RE.finditer(message):
+            name = match.group("name")
+            old_ver = match.group("old_version")
+            new_ver = match.group("new_version")
+            if name in dep_by_name:
+                dep_by_name[name].old_version = old_ver
+                # Fill version if YAML didn't have it
+                if not dep_by_name[name].version:
+                    dep_by_name[name].version = new_ver
 
     # Fill in missing update_type from version comparison
     for dep in meta.dependencies:
-        if not dep.update_type and dep.version and meta.old_version:
-            dep.update_type = compute_update_type(meta.old_version, dep.version)
+        old = dep.old_version or meta.old_version
+        if not dep.update_type and dep.version and old:
+            dep.update_type = compute_update_type(old, dep.version)
 
     # Derive new version and major-bump flag
     for dep in meta.dependencies:
@@ -186,7 +212,7 @@ BADGE_URL_RE = re.compile(
     r"(https://dependabot-badges\.githubapp\.com"
     r"/badges/compatibility_score[^\s)\"'>]*)"
 )
-COMPAT_SCORE_RE = re.compile(r'aria-label="compatibility:\s*(\d+)%')
+COMPAT_SCORE_RE = re.compile(r'aria-label="compatibility:\s*(?P<score>\d+)%')
 COMPAT_UNKNOWN_RE = re.compile(r'aria-label="compatibility:\s*unknown')
 
 
@@ -294,38 +320,113 @@ def gate_versions(meta: PRMetadata) -> None:
         )
 
 
-def gate_compatibility(pr: PullRequest, meta: PRMetadata) -> int | None:
-    """Gate 4: Compatibility score >= 80%."""
-    body = pr.body or ""
-    badge_match = BADGE_URL_RE.search(body)
+def build_badge_url(dep: DependencyUpdate, raw_ecosystem: str) -> str | None:
+    """Construct a compatibility badge URL for a single dependency."""
+    old = dep.old_version
+    new = dep.version
+    if not (dep.name and old and new and raw_ecosystem):
+        return None
+    return (
+        "https://dependabot-badges.githubapp.com/badges/compatibility_score"
+        f"?dependency-name={dep.name}"
+        f"&package-manager={raw_ecosystem}"
+        f"&previous-version={old}"
+        f"&new-version={new}"
+    )
 
-    if not badge_match:
-        raise SkipPR("no compatibility badge found in PR body")
 
-    badge_svg = fetch_badge_svg(badge_match.group(1))
-    if not badge_svg:
-        raise SkipPR("could not fetch compatibility badge")
+def _is_patch_or_minor(old_version: str, new_version: str) -> bool:
+    """Return True if the bump is patch or minor (not major)."""
+    old_major = semver_major(old_version)
+    new_major = semver_major(new_version)
+    if old_major is not None and new_major is not None and new_major > old_major:
+        return False
+    return True
 
+
+def _check_badge_svg(
+    badge_svg: str, old_version: str, new_version: str, label: str
+) -> int | None:
+    """Parse a badge SVG and return score, None for unknown-ok, or raise."""
     if COMPAT_UNKNOWN_RE.search(badge_svg):
-        if meta.old_version and meta.new_version:
-            old_minor = semver_minor(meta.old_version)
-            new_minor = semver_minor(meta.new_version)
-            if old_minor == new_minor:
-                print("  Compatibility: unknown (patch bump, proceeding)")
-                return None
-            raise SkipPR("compatibility score is unknown (not a patch bump)")
-        raise SkipPR("compatibility score is unknown")
+        if old_version and new_version and _is_patch_or_minor(old_version, new_version):
+            print(f"  Compatibility: unknown ({label} patch/minor bump, proceeding)")
+            return None
+        raise RetryPR("compatibility score is unknown")
 
     score_match = COMPAT_SCORE_RE.search(badge_svg)
     if not score_match:
-        raise SkipPR("could not parse compatibility score from badge")
+        raise RetryPR("could not parse compatibility score from badge")
 
-    score = int(score_match.group(1))
+    score = int(score_match.group("score"))
     if score < 80:
-        raise SkipPR(f"compatibility score {score}% < 80%")
+        raise RetryPR(f"compatibility score {score}% < 80%")
 
-    print(f"  Compatibility: {score}%")
     return score
+
+
+def gate_compatibility(pr: PullRequest, meta: PRMetadata) -> int | None:
+    """Gate 4: Compatibility score >= 80%."""
+    # Try badge URL from PR body (single-dep PRs)
+    body = pr.body or ""
+    badge_match = BADGE_URL_RE.search(body)
+
+    if badge_match:
+        badge_svg = fetch_badge_svg(badge_match.group(1))
+        if not badge_svg:
+            raise RetryPR("could not fetch compatibility badge")
+        score = _check_badge_svg(badge_svg, meta.old_version, meta.new_version, "")
+        if score is not None:
+            print(f"  Compatibility: {score}%")
+        return score
+
+    # No badge in body -- try per-dep badge URLs (group PRs)
+    deps_with_old = [d for d in meta.dependencies if d.old_version and d.version]
+    if not deps_with_old:
+        raise RetryPR("no compatibility badge found in PR body")
+
+    min_score: int | None = None
+    all_unknown = True
+
+    for dep in deps_with_old:
+        url = build_badge_url(dep, meta.raw_ecosystem)
+        if not url:
+            continue
+        badge_svg = fetch_badge_svg(url)
+        if not badge_svg:
+            raise RetryPR(f"could not fetch compatibility badge for {dep.name}")
+
+        old = dep.old_version
+        new = dep.version
+
+        if COMPAT_UNKNOWN_RE.search(badge_svg):
+            if old and new and _is_patch_or_minor(old, new):
+                print(
+                    f"  Compatibility ({dep.name}): "
+                    f"unknown (patch/minor bump, proceeding)"
+                )
+                continue
+            raise RetryPR(f"compatibility score is unknown for {dep.name}")
+
+        all_unknown = False
+        score_match = COMPAT_SCORE_RE.search(badge_svg)
+        if not score_match:
+            raise RetryPR(f"could not parse compatibility score for {dep.name}")
+
+        score = int(score_match.group("score"))
+        print(f"  Compatibility ({dep.name}): {score}%")
+        if score < 80:
+            raise RetryPR(f"compatibility score {score}% < 80% for {dep.name}")
+        if min_score is None or score < min_score:
+            min_score = score
+
+    if all_unknown:
+        print("  Compatibility: all unknown (patch/minor bumps, proceeding)")
+        return None
+
+    if min_score is not None:
+        print(f"  Compatibility (group min): {min_score}%")
+    return min_score
 
 
 def gate_advisories(gh: Github, meta: PRMetadata) -> None:
@@ -340,6 +441,10 @@ def gate_advisories(gh: Github, meta: PRMetadata) -> None:
         return
 
     for dep in deps_to_check:
+        print(
+            f"  Advisories: checking {dep.name}@{dep.version} "
+            f"(ecosystem={meta.ecosystem})"
+        )
         advisories = list(
             gh.get_global_advisories(
                 ecosystem=meta.ecosystem,
@@ -347,22 +452,32 @@ def gate_advisories(gh: Github, meta: PRMetadata) -> None:
                 type="reviewed",
             )
         )
-        # Count advisories where the NEW version is in a vulnerable range
-        # Filter to vulnerabilities for this specific package — an advisory
-        # can span multiple packages (e.g. cryptography + openssl-src).
-        count = sum(
-            1
-            for a in advisories
-            if any(
-                v.vulnerable_version_range
-                and v.package.name == dep.name
-                and version_in_range(dep.version, v.vulnerable_version_range)
-                for v in a.vulnerabilities
-            )
+        print(
+            f"  Advisories: found {len(advisories)} total advisory(ies) for {dep.name}"
         )
-        if count > 0:
+
+        # Filter to advisories where the NEW version is in a vulnerable range.
+        # An advisory can span multiple packages (e.g. cryptography + openssl-src),
+        # so filter to vulnerabilities for this specific package.
+        affecting = []
+        for a in advisories:
+            for v in a.vulnerabilities:
+                if not v.vulnerable_version_range:
+                    continue
+                if v.package.name != dep.name:
+                    continue
+                in_range = version_in_range(dep.version, v.vulnerable_version_range)
+                print(
+                    f"    {a.ghsa_id}: range {v.vulnerable_version_range!r} "
+                    f"-> {dep.version} in range: {in_range}"
+                )
+                if in_range:
+                    affecting.append(a.ghsa_id)
+
+        if affecting:
             raise SkipPR(
-                f"{count} security advisory(ies) affect {dep.name}@{dep.version}"
+                f"{len(affecting)} security advisory(ies) affect "
+                f"{dep.name}@{dep.version}: {', '.join(affecting)}"
             )
 
     names = ", ".join(d.name for d in deps_to_check)
@@ -458,15 +573,38 @@ def main() -> None:
     merged = 0
     skipped = 0
     skip_reasons: list[str] = []
+    retry_comment = "BLEnder: skipped ({reason}). Will retry on next scheduled run."
 
     for pr in prs:
         try:
             if process_pr(config, gh, repo, pr):
                 merged += 1
         except SkipPR as e:
-            print(f"  SKIP: {e}")
+            is_retry = isinstance(e, RetryPR)
+            tag = "[retry] " if is_retry else ""
+            print(f"  SKIP: {tag}{e}")
             skipped += 1
-            skip_reasons.append(f"#{pr.number}: {e}")
+            parts = pr.head.ref.split("/")
+            pkg = "/".join(parts[2:]) if len(parts) > 2 else pr.head.ref
+            skip_reasons.append(f"#{pr.number} ({pkg}): {tag}{e}")
+
+            if is_retry:
+                comment_body = retry_comment.format(reason=e)
+                if config.dry_run:
+                    print(f"  DRY_RUN: would comment: {comment_body}")
+                else:
+                    # Avoid duplicate retry comments
+                    already_commented = any(
+                        c.body.startswith("BLEnder: skipped")
+                        for c in pr.get_issue_comments()
+                        if c.user.login == "github-actions[bot]"
+                        or c.user.login == gh.get_user().login
+                    )
+                    if not already_commented:
+                        pr.create_issue_comment(comment_body)
+                        print(f"  Posted retry comment on PR #{pr.number}")
+                    else:
+                        print(f"  Retry comment already exists on PR #{pr.number}")
 
     # Summary
     print("\n=== Summary ===")
