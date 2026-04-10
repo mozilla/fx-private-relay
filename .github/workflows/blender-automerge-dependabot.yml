@@ -7,7 +7,6 @@ on:
         default: 'true'
 
 permissions:
-  contents: write
   pull-requests: write
 
 jobs:
@@ -20,7 +19,7 @@ jobs:
           persist-credentials: false
 
       - name: Install dependencies
-        run: pip install PyGithub PyYAML packaging
+        run: pip install -r .github/blender/requirements.txt
 
       - name: Auto-merge safe Dependabot PRs
         run: python .github/blender/automerge-dependabot.py

@@ -373,7 +373,7 @@ def gate_advisories(gh: Github, meta: PRMetadata) -> None:
 
 
 def approve_and_merge(pr: PullRequest, compat_score: int | None) -> None:
-    """Approve the PR and enable auto-merge."""
+    """Approve the PR and tell Dependabot to merge it."""
     compat_display = f"{compat_score}%" if compat_score is not None else "unknown"
     pr.create_review(
         event="APPROVE",
@@ -383,7 +383,7 @@ def approve_and_merge(pr: PullRequest, compat_score: int | None) -> None:
             "no advisories)."
         ),
     )
-    pr.enable_automerge(merge_method="MERGE")
+    pr.create_issue_comment("@dependabot merge")
 
 
 # --- Main ---

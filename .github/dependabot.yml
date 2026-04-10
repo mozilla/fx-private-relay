@@ -73,6 +73,12 @@ updates:
           - "django-stubs"
           - "djangorestframework-stubs"
           - "types-requests"
+  - package-ecosystem: "pip"
+    directory: "/.github/blender"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 8
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
