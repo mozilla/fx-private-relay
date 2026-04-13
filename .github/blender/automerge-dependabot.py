@@ -365,6 +365,41 @@ def _check_badge_svg(
     return score
 
 
+def _check_group_compatibility(
+    deps: list[DependencyUpdate], raw_ecosystem: str
+) -> int | None:
+    """Check compatibility for each dep in a group PR. Return min score."""
+    min_score: int | None = None
+    all_unknown = True
+
+    for dep in deps:
+        url = build_badge_url(dep, raw_ecosystem)
+        if not url:
+            continue
+        badge_svg = fetch_badge_svg(url)
+        if not badge_svg:
+            raise RetryPR(f"could not fetch compatibility badge for {dep.name}")
+
+        score = _check_badge_svg(
+            badge_svg, dep.old_version, dep.version, f"{dep.name} "
+        )
+        if score is None:
+            continue
+
+        all_unknown = False
+        print(f"  Compatibility ({dep.name}): {score}%")
+        if min_score is None or score < min_score:
+            min_score = score
+
+    if all_unknown:
+        print("  Compatibility: all unknown (patch/minor bumps, proceeding)")
+        return None
+
+    if min_score is not None:
+        print(f"  Compatibility (group min): {min_score}%")
+    return min_score
+
+
 def gate_compatibility(pr: PullRequest, meta: PRMetadata) -> int | None:
     """Gate 4: Compatibility score >= 80%."""
     # Try badge URL from PR body (single-dep PRs)
@@ -385,48 +420,30 @@ def gate_compatibility(pr: PullRequest, meta: PRMetadata) -> int | None:
     if not deps_with_old:
         raise RetryPR("no compatibility badge found in PR body")
 
-    min_score: int | None = None
-    all_unknown = True
+    return _check_group_compatibility(deps_with_old, meta.raw_ecosystem)
 
-    for dep in deps_with_old:
-        url = build_badge_url(dep, meta.raw_ecosystem)
-        if not url:
-            continue
-        badge_svg = fetch_badge_svg(url)
-        if not badge_svg:
-            raise RetryPR(f"could not fetch compatibility badge for {dep.name}")
 
-        old = dep.old_version
-        new = dep.version
+def _find_affecting_advisories(advisories: list, dep: DependencyUpdate) -> list[str]:
+    """Return GHSA IDs from advisories where the new version is vulnerable.
 
-        if COMPAT_UNKNOWN_RE.search(badge_svg):
-            if old and new and _is_patch_or_minor(old, new):
-                print(
-                    f"  Compatibility ({dep.name}): "
-                    f"unknown (patch/minor bump, proceeding)"
-                )
+    An advisory can span multiple packages (e.g. cryptography + openssl-src),
+    so filter to vulnerabilities for this specific package.
+    """
+    affecting: list[str] = []
+    for a in advisories:
+        for v in a.vulnerabilities:
+            if not v.vulnerable_version_range:
                 continue
-            raise RetryPR(f"compatibility score is unknown for {dep.name}")
-
-        all_unknown = False
-        score_match = COMPAT_SCORE_RE.search(badge_svg)
-        if not score_match:
-            raise RetryPR(f"could not parse compatibility score for {dep.name}")
-
-        score = int(score_match.group("score"))
-        print(f"  Compatibility ({dep.name}): {score}%")
-        if score < 80:
-            raise RetryPR(f"compatibility score {score}% < 80% for {dep.name}")
-        if min_score is None or score < min_score:
-            min_score = score
-
-    if all_unknown:
-        print("  Compatibility: all unknown (patch/minor bumps, proceeding)")
-        return None
-
-    if min_score is not None:
-        print(f"  Compatibility (group min): {min_score}%")
-    return min_score
+            if v.package.name != dep.name:
+                continue
+            in_range = version_in_range(dep.version, v.vulnerable_version_range)
+            print(
+                f"    {a.ghsa_id}: range {v.vulnerable_version_range!r} "
+                f"-> {dep.version} in range: {in_range}"
+            )
+            if in_range:
+                affecting.append(a.ghsa_id)
+    return affecting
 
 
 def gate_advisories(gh: Github, meta: PRMetadata) -> None:
@@ -456,24 +473,7 @@ def gate_advisories(gh: Github, meta: PRMetadata) -> None:
             f"  Advisories: found {len(advisories)} total advisory(ies) for {dep.name}"
         )
 
-        # Filter to advisories where the NEW version is in a vulnerable range.
-        # An advisory can span multiple packages (e.g. cryptography + openssl-src),
-        # so filter to vulnerabilities for this specific package.
-        affecting = []
-        for a in advisories:
-            for v in a.vulnerabilities:
-                if not v.vulnerable_version_range:
-                    continue
-                if v.package.name != dep.name:
-                    continue
-                in_range = version_in_range(dep.version, v.vulnerable_version_range)
-                print(
-                    f"    {a.ghsa_id}: range {v.vulnerable_version_range!r} "
-                    f"-> {dep.version} in range: {in_range}"
-                )
-                if in_range:
-                    affecting.append(a.ghsa_id)
-
+        affecting = _find_affecting_advisories(advisories, dep)
         if affecting:
             raise SkipPR(
                 f"{len(affecting)} security advisory(ies) affect "
@@ -487,18 +487,42 @@ def gate_advisories(gh: Github, meta: PRMetadata) -> None:
 # --- Merge action ---
 
 
-def approve_and_merge(pr: PullRequest, compat_score: int | None) -> None:
-    """Approve the PR and tell Dependabot to merge it."""
-    compat_display = f"{compat_score}%" if compat_score is not None else "unknown"
-    pr.create_review(
-        event="APPROVE",
-        body=(
-            "BLEnder auto-merge: all safety gates passed "
-            f"(CI green, patch/minor, compat {compat_display}, "
-            "no advisories)."
-        ),
+def _enable_auto_merge(pr: PullRequest) -> None:
+    """Enable auto-merge on a PR via the GraphQL API.
+
+    The REST API merge endpoint requires elevated permissions that
+    GITHUB_TOKEN in Actions doesn't have with branch protection.
+    The GraphQL enablePullRequestAutoMerge mutation works with the
+    standard token and lets GitHub merge once protection rules pass.
+    """
+    query = """
+    mutation EnableAutoMerge($prId: ID!) {
+      enablePullRequestAutoMerge(input: {pullRequestId: $prId, mergeMethod: SQUASH}) {
+        pullRequest { autoMergeRequest { enabledAt } }
+      }
+    }
+    """
+    _, data = pr._requester.requestJsonAndCheck(
+        "POST",
+        "/graphql",
+        input={"query": query, "variables": {"prId": pr.node_id}},
     )
-    pr.create_issue_comment("@dependabot merge")
+    errors = data.get("errors")
+    if errors:
+        msg = "; ".join(e.get("message", str(e)) for e in errors)
+        raise RuntimeError(f"GraphQL enablePullRequestAutoMerge failed: {msg}")
+
+
+def approve_and_merge(pr: PullRequest, compat_score: int | None) -> None:
+    """Approve the PR and enable auto-merge."""
+    compat_display = f"{compat_score}%" if compat_score is not None else "unknown"
+    review_body = (
+        "BLEnder auto-merge: all safety gates passed "
+        f"(CI green, patch/minor, compat {compat_display}, "
+        "no advisories)."
+    )
+    pr.create_review(event="APPROVE", body=review_body)
+    _enable_auto_merge(pr)
 
 
 # --- Main ---
@@ -544,11 +568,52 @@ def process_pr(
     if config.dry_run:
         print("  All gates passed. DRY_RUN=true -- would approve and merge.")
     else:
-        print("  All gates passed. Approving and merging...")
+        print("  All gates passed. Approving and enabling auto-merge...")
         approve_and_merge(pr, compat_score)
-        print("  Queued for auto-merge.")
+        print("  Auto-merge enabled.")
 
     return True
+
+
+def _post_retry_comment(
+    pr: PullRequest, reason: str, gh: Github, dry_run: bool
+) -> None:
+    """Leave a retry comment on the PR, skipping if one exists."""
+    comment_body = f"BLEnder: skipped ({reason}). Will retry on next scheduled run."
+    if dry_run:
+        print(f"  DRY_RUN: would comment: {comment_body}")
+        return
+
+    already_commented = any(
+        c.body.startswith("BLEnder: skipped")
+        for c in pr.get_issue_comments()
+        if c.user.login == "github-actions[bot]" or c.user.login == gh.get_user().login
+    )
+    if already_commented:
+        print(f"  Retry comment already exists on PR #{pr.number}")
+    else:
+        pr.create_issue_comment(comment_body)
+        print(f"  Posted retry comment on PR #{pr.number}")
+
+
+def _print_summary(
+    merged: int, skipped: int, skip_reasons: list[str], dry_run: bool
+) -> None:
+    """Print end-of-run summary."""
+    print("\n=== Summary ===")
+    label = "Would merge" if dry_run else "Merged"
+    print(f"{label}: {merged}")
+    print(f"Skipped: {skipped}")
+    if skip_reasons:
+        print("\nSkip reasons:")
+        for reason in skip_reasons:
+            print(f"  - {reason}")
+
+
+def _package_name_from_branch(branch_ref: str) -> str:
+    """Extract package name from dependabot branch ref."""
+    parts = branch_ref.split("/")
+    return "/".join(parts[2:]) if len(parts) > 2 else branch_ref
 
 
 def main() -> None:
@@ -573,7 +638,6 @@ def main() -> None:
     merged = 0
     skipped = 0
     skip_reasons: list[str] = []
-    retry_comment = "BLEnder: skipped ({reason}). Will retry on next scheduled run."
 
     for pr in prs:
         try:
@@ -584,37 +648,13 @@ def main() -> None:
             tag = "[retry] " if is_retry else ""
             print(f"  SKIP: {tag}{e}")
             skipped += 1
-            parts = pr.head.ref.split("/")
-            pkg = "/".join(parts[2:]) if len(parts) > 2 else pr.head.ref
+            pkg = _package_name_from_branch(pr.head.ref)
             skip_reasons.append(f"#{pr.number} ({pkg}): {tag}{e}")
 
             if is_retry:
-                comment_body = retry_comment.format(reason=e)
-                if config.dry_run:
-                    print(f"  DRY_RUN: would comment: {comment_body}")
-                else:
-                    # Avoid duplicate retry comments
-                    already_commented = any(
-                        c.body.startswith("BLEnder: skipped")
-                        for c in pr.get_issue_comments()
-                        if c.user.login == "github-actions[bot]"
-                        or c.user.login == gh.get_user().login
-                    )
-                    if not already_commented:
-                        pr.create_issue_comment(comment_body)
-                        print(f"  Posted retry comment on PR #{pr.number}")
-                    else:
-                        print(f"  Retry comment already exists on PR #{pr.number}")
+                _post_retry_comment(pr, str(e), gh, config.dry_run)
 
-    # Summary
-    print("\n=== Summary ===")
-    label = "Would merge" if config.dry_run else "Merged"
-    print(f"{label}: {merged}")
-    print(f"Skipped: {skipped}")
-    if skip_reasons:
-        print("\nSkip reasons:")
-        for reason in skip_reasons:
-            print(f"  - {reason}")
+    _print_summary(merged, skipped, skip_reasons, config.dry_run)
 
 
 if __name__ == "__main__":
