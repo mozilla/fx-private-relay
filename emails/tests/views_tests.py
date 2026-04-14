@@ -2280,6 +2280,11 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         # no longer has the premium subscription
         mocked_reply_allowed.return_value = False
 
+        # Mock the reply record to have the same user as the address (MPP-4633 fix)
+        mock_reply = Mock()
+        mock_reply.address = self.address
+        mocked_reply_record.return_value = mock_reply
+
         with self.assertLogs(INFO_LOG) as caplog:
             response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
         self.mock_remove_message_from_s3.assert_called_once_with(self.bucket, self.key)
@@ -2432,6 +2437,72 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
             "email_suppressed_for_dmarc_failure",
             tags=["dmarcPolicy:reject", "dmarcVerdict:FAIL"],
         )
+
+    @patch("emails.views._get_keys_from_headers")
+    @patch("emails.views._get_reply_record_from_lookup_key")
+    def test_cross_account_reply_bypass_blocked(
+        self, mocked_reply_record: Mock, mocked_get_keys: Mock
+    ) -> None:
+        """
+        Security test for MPP-4633: Verify that reply records from a different user
+        cannot be used to bypass victim mask policies.
+
+        An attacker should not be able to use their own reply Message-ID in an
+        In-Reply-To header to bypass a victim's "Block all email" setting.
+        """
+        # Create attacker user with their own mask and reply record
+        attacker_user = baker.make(User, email="attacker@example.com")
+        baker.make(SocialAccount, user=attacker_user, provider="fxa")
+        attacker_mask = baker.make(
+            RelayAddress, user=attacker_user, address="attacker", domain=2
+        )
+
+        # Create a reply record for the attacker's mask
+        attacker_message_id = "<attacker-msg-id-123@example.com>"
+        lookup_key, encryption_key = derive_reply_keys(
+            get_message_id_bytes(attacker_message_id)
+        )
+        metadata = {
+            "message-id": str(uuid4()),
+            "from": "external@example.com",
+        }
+        encrypted_metadata = encrypt_reply_metadata(encryption_key, metadata)
+        attacker_reply = Reply.objects.create(
+            lookup=b64_lookup_key(lookup_key),
+            encrypted_metadata=encrypted_metadata,
+            relay_address=attacker_mask,
+        )
+
+        # Configure victim's mask to block all email
+        self.address.enabled = False
+        self.address.save()
+
+        # Mock the reply lookup to return the attacker's reply record
+        mocked_get_keys.return_value = (lookup_key, encryption_key)
+        mocked_reply_record.return_value = attacker_reply
+
+        # Send email to victim's mask with attacker's Message-ID in In-Reply-To
+        with self.assertLogs(GLEAN_LOG) as caplog, MetricsMock() as mm:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
+
+        # Verify the email was blocked due to victim's mask being disabled
+        # The fix prevents the attacker's reply record from bypassing victim's policies
+        assert response.status_code == 200
+        assert response.content == b"Address is temporarily disabled."
+
+        # Verify the victim's mask blocked counter was incremented (not attacker's)
+        self.address.refresh_from_db()
+        assert self.address.num_blocked == 1
+
+        # Verify the attacker's mask was NOT affected
+        attacker_mask.refresh_from_db()
+        assert attacker_mask.num_blocked == 0
+
+        # Verify proper logging
+        assert (event := get_glean_event(caplog)) is not None
+        expected = self.expected_glean_event(event["timestamp"], "block_all")
+        assert event == expected
+        mm.assert_incr_once("email_for_disabled_address")
 
 
 class SnsMessageTest(TestCase):

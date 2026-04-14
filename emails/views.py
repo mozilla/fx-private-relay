@@ -691,6 +691,14 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     try:
         lookup_key, _ = _get_keys_from_headers(mail["headers"])
         reply_record = _get_reply_record_from_lookup_key(lookup_key)
+
+        # SECURITY: Verify the reply record belongs to the same user as the recipient
+        # This prevents cross-account authorization bypass where an attacker could use
+        # their own reply Message-ID to bypass a victim's mask policies (MPP-4633)
+        if reply_record.address.user != address.user:
+            # Reply record belongs to a different user - treat as regular email
+            raise Reply.DoesNotExist
+
         user_address = address
         address = reply_record.address
         message_id = _get_message_id_from_headers(mail["headers"])
