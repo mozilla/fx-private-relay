@@ -90,10 +90,11 @@ jobs:
           # Upload each changed file as a blob
           TREE_ITEMS="[]"
           for file in $(git diff --name-only); do
-            BLOB_SHA=$(gh api "repos/${REPO}/git/blobs" \
+            BLOB_SHA=$(base64 -w 0 "$file" | \
+              jq -Rs '{"encoding": "base64", "content": .}' | \
+              gh api "repos/${REPO}/git/blobs" \
               --method POST \
-              --field "encoding=base64" \
-              --field "content=$(base64 -w 0 "$file")" \
+              --input - \
               --jq '.sha')
             TREE_ITEMS=$(echo "$TREE_ITEMS" | jq \
               --arg path "$file" \
