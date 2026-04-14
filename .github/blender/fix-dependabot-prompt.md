@@ -32,7 +32,15 @@ Fix the CI failures caused by this dependency update. Make the minimum change ne
 2. If unclear, run the relevant checks: `ruff check .`, `mypy privaterelay`, `pytest` (targeted), `cd frontend && npm run lint`.
 3. Read the error output. Identify the root cause.
 4. Make the fix. Run the check again to confirm.
-5. If you cannot fix it, say so. Do not guess.
+5. After all fixes pass, run the pre-commit hooks to fix formatting. The hooks require staged files, but the caller expects unstaged changes, so stage then unstage:
+   ```
+   git add -A
+   cd frontend && npx --no-install lint-staged --cwd ..
+   cd ..
+   git reset HEAD
+   ```
+   If lint-staged reports issues, fix them and repeat until it passes.
+6. You have a limited number of turns. Be direct. Do not explore the codebase beyond what is needed to fix the specific error.
 
 ## Rules
 
@@ -41,6 +49,7 @@ Fix the CI failures caused by this dependency update. Make the minimum change ne
 - Do not modify CI configuration files.
 - Do not run `git commit` or `git push`. The caller handles that.
 - Keep changes minimal and targeted.
+- Do not make whitespace, formatting, or style changes to any file unless those changes fix the CI error.
 - Suppressing deprecation warnings is acceptable. The goal is to make CI pass, not to migrate away from deprecated features.
 
 ## Commit message

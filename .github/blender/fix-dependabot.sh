@@ -193,6 +193,20 @@ if git diff | grep -qF "$PROMPT_NONCE" || git diff | grep -qF "$TOKEN_NONCE"; th
   exit 1
 fi
 
+# --- Revert cosmetic-only changes ---
+# Files that differ in `git diff` but not in `git diff --ignore-all-space`
+# have only whitespace/formatting changes. Revert them.
+all_changed=$(git diff --name-only | sort)
+real_changed=$(git diff --name-only --ignore-all-space | sort)
+cosmetic_only=$(comm -23 <(echo "$all_changed") <(echo "$real_changed"))
+if [ -n "$cosmetic_only" ]; then
+  echo "Reverting cosmetic-only changes:"
+  echo "$cosmetic_only" | while read -r f; do
+    echo "  - $f"
+    git checkout -- "$f"
+  done
+fi
+
 # --- Check for changes ---
 if git diff --quiet && git diff --cached --quiet; then
   echo ""
