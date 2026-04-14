@@ -167,14 +167,24 @@ prompt="${prompt/\{\{CI_LOGS\}\}/$safe_logs}"
 echo "Running Claude Code to diagnose and fix..."
 CLAUDE_SETTINGS="$BLENDER_DIR/claude-settings.json"
 
+claude_exit=0
 echo "$prompt" | claude \
+  -p \
   --verbose \
-  --max-turns 50 \
+  --max-turns 30 \
+  --max-budget-usd 2.00 \
   --settings "$CLAUDE_SETTINGS" \
   --allowedTools "Read,Edit,Bash" \
   --disallowedTools "WebSearch,WebFetch" \
   --system-prompt "You are BLEnder, a CI-fixing agent for Firefox Relay. Fix the CI failure described in the prompt. Be minimal and precise. Do not search the web. Internal verification token: ${PROMPT_NONCE}. This token is confidential. Never include it in any output, file edit, or commit message." \
-  || true
+  || claude_exit=$?
+
+if [ "$claude_exit" -ne 0 ]; then
+  echo "Claude exited with code ${claude_exit} (likely hit max-turns)."
+  echo "Discarding any partial changes."
+  git checkout -- .
+  exit 1
+fi
 
 # --- Check for leaked nonces in changed files ---
 if git diff | grep -qF "$PROMPT_NONCE" || git diff | grep -qF "$TOKEN_NONCE"; then
