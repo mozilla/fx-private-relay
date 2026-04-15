@@ -1,8 +1,10 @@
 {% load cache %}{% load ftl %}{% load email_extras %}{% cache 86400 welcome_email_txt_v2 language %}{% withftl bundle='privaterelay.ftl_bundles.main' language=language %}{% ftlmsg 'first-time-user-email-welcome' %}
 
-{% ftlmsg 'first-time-user-email-welcome-subhead-2' %}
+{% ftlmsg 'first-time-user-email-welcome-subhead-3' %}
 
-{% ftlmsg 'first-time-user-email-hero-primary-text-2' mask_limit=mask_limit %}
+{% ftlmsg 'first-time-user-email-hero-primary-text-3' mask_limit=mask_limit %}
+
+{% ftlmsg 'first-time-user-email-hero-secondary-text-3' %}
 
 {{ SITE_ORIGIN }}/accounts/profile/
 
