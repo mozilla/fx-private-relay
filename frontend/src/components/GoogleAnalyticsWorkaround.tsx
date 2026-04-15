@@ -25,9 +25,26 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 "use client";
 
-import { GAParams } from "@next/third-parties/dist/types/google";
 import Script, { ScriptProps } from "next/script";
 import { useEffect } from "react";
+
+// GAParams was previously imported from @next/third-parties/dist/types/google,
+// but that internal path is no longer in the package's exports map in
+// @next/third-parties 16.x. Define the equivalent types locally.
+type GAParams = {
+  gaId: string;
+  dataLayerName?: string;
+  debugMode?: boolean;
+  nonce?: string;
+};
+
+declare global {
+  interface Window {
+    dataLayer?: object[];
+    gtag: (...args: unknown[]) => void;
+    [key: string]: unknown;
+  }
+}
 
 let currDataLayerName: string | undefined = undefined;
 
