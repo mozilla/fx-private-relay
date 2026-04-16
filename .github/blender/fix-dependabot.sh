@@ -180,9 +180,7 @@ echo "$prompt" | claude \
   || claude_exit=$?
 
 if [ "$claude_exit" -ne 0 ]; then
-  echo "Claude exited with code ${claude_exit} (likely hit max-turns)."
-  echo "Discarding any partial changes."
-  git checkout -- .
+  echo "Claude exited with code ${claude_exit} (likely hit max-turns or budget)."
   exit 1
 fi
 

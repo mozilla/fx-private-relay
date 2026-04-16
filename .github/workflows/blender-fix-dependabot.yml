@@ -32,7 +32,7 @@ jobs:
         run: sudo apt-get install -y bubblewrap socat
 
       - name: Install Claude Code
-        run: npm install -g @anthropic-ai/claude-code@latest
+        run: npm install -g @anthropic-ai/claude-code@2.1.111
 
       - name: Setup Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
