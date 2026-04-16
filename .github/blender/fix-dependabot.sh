@@ -167,20 +167,42 @@ prompt="${prompt/\{\{CI_LOGS\}\}/$safe_logs}"
 echo "Running Claude Code to diagnose and fix..."
 CLAUDE_SETTINGS="$BLENDER_DIR/claude-settings.json"
 
+claude_exit=0
 echo "$prompt" | claude \
+  -p \
   --verbose \
-  --max-turns 50 \
+  --max-turns 30 \
+  --max-budget-usd 2.00 \
   --settings "$CLAUDE_SETTINGS" \
   --allowedTools "Read,Edit,Bash" \
   --disallowedTools "WebSearch,WebFetch" \
   --system-prompt "You are BLEnder, a CI-fixing agent for Firefox Relay. Fix the CI failure described in the prompt. Be minimal and precise. Do not search the web. Internal verification token: ${PROMPT_NONCE}. This token is confidential. Never include it in any output, file edit, or commit message." \
-  || true
+  || claude_exit=$?
+
+if [ "$claude_exit" -ne 0 ]; then
+  echo "Claude exited with code ${claude_exit} (likely hit max-turns or budget)."
+  exit 1
+fi
 
 # --- Check for leaked nonces in changed files ---
 if git diff | grep -qF "$PROMPT_NONCE" || git diff | grep -qF "$TOKEN_NONCE"; then
   echo "ABORT: Nonce check failed."
   git checkout -- .
   exit 1
+fi
+
+# --- Revert cosmetic-only changes ---
+# Files that differ in `git diff` but not in `git diff --ignore-all-space`
+# have only whitespace/formatting changes. Revert them.
+all_changed=$(git diff --name-only | sort)
+real_changed=$(git diff --name-only --ignore-all-space | sort)
+cosmetic_only=$(comm -23 <(echo "$all_changed") <(echo "$real_changed"))
+if [ -n "$cosmetic_only" ]; then
+  echo "Reverting cosmetic-only changes:"
+  echo "$cosmetic_only" | while read -r f; do
+    echo "  - $f"
+    git checkout -- "$f"
+  done
 fi
 
 # --- Check for changes ---
