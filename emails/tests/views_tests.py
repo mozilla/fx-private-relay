@@ -2451,34 +2451,19 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         In-Reply-To header to bypass a victim's "Block all email" setting.
         """
         # Create attacker user with their own mask and reply record
-        attacker_user = baker.make(User, email="attacker@example.com")
+        attacker_user = make_free_test_user("attacker@example.com")
         baker.make(SocialAccount, user=attacker_user, provider="fxa")
         attacker_mask = baker.make(
             RelayAddress, user=attacker_user, address="attacker", domain=2
         )
 
         # Create a reply record for the attacker's mask
-        attacker_message_id = "<attacker-msg-id-123@example.com>"
-        lookup_key, encryption_key = derive_reply_keys(
-            get_message_id_bytes(attacker_message_id)
-        )
-        metadata = {
-            "message-id": str(uuid4()),
-            "from": "external@example.com",
-        }
-        encrypted_metadata = encrypt_reply_metadata(encryption_key, metadata)
-        attacker_reply = Reply.objects.create(
-            lookup=b64_lookup_key(lookup_key),
-            encrypted_metadata=encrypted_metadata,
-            relay_address=attacker_mask,
-        )
-
+        attacker_reply = baker.make(Reply, relay_address=attacker_mask)
         # Configure victim's mask to block all email
         self.address.enabled = False
         self.address.save()
-
         # Mock the reply lookup to return the attacker's reply record
-        mocked_get_keys.return_value = (lookup_key, encryption_key)
+        mocked_get_keys.return_value = ("lookup_key", "encryption_key")
         mocked_reply_record.return_value = attacker_reply
 
         # Send email to victim's mask with attacker's Message-ID in In-Reply-To
