@@ -217,14 +217,3 @@ whatsnew-feature-mask-expansion-heading = 50 email masks, on us
 whatsnew-feature-mask-expansion-snippet = Now you get 50 free masks (up from 5). Use one for every account to keep your real email private.
 whatsnew-feature-mask-expansion-cta = Get email masks
 
-## Updated first-time user welcome email (v3)
-
-first-time-user-email-welcome-subhead-3 = Your email address can be used to track you online — we’re here to help put an end to it.
-
-# Variables
-#   $mask_limit (number) - the number of free email masks available
-first-time-user-email-hero-primary-text-3 = As a { -brand-name-firefox } user, you get { $mask_limit } email masks for free. Use them to hide your real email address, protect your identity, and forward only the emails you want to your inbox.
-
-first-time-user-email-hero-secondary-text-3 = Manage all your masks from your { -brand-name-relay } dashboard.
-
-first-time-user-email-cta-dashboard-button-3 = Learn to use email masks

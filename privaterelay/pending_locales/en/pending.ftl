@@ -49,6 +49,18 @@ first-time-user-email-cta-dashboard-button-2 = Go to { -brand-name-firefox-relay
 
 first-time-user-email-how-item-1-header-2 = Create a mask in seconds
 
+## Updated first-time user welcome email (v3)
+
+first-time-user-email-welcome-subhead-3 = Your email address can be used to track you online — we’re here to help put an end to it.
+
+# Variables
+#   $mask_limit (number) - the number of free email masks available
+first-time-user-email-hero-primary-text-3 = As a { -brand-name-firefox } user, you get { $mask_limit } email masks for free. Use them to hide your real email address, protect your identity, and forward only the emails you want to your inbox.
+
+first-time-user-email-hero-secondary-text-3 = Manage all your masks from your { -brand-name-relay } dashboard.
+
+first-time-user-email-cta-dashboard-button-3 = Learn to use email masks
+
 # Variables
 #   $url (string) - link to the Relay add-on
 #   $attrs (string) - link attributes
