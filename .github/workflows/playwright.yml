@@ -14,13 +14,15 @@ on:
         default: relay-only
         type: string
     secrets:
-      E2E_TEST_ACCOUNT_FREE: 
+      E2E_TEST_ACCOUNT_FREE:
         required: true
       E2E_TEST_ACCOUNT_PASSWORD:
         required: true
       E2E_TEST_ACCOUNT_PREMIUM:
         required: true
       E2E_TEST_BASE_URL:
+        required: true
+      FXA_CI_SECRET:
         required: true 
   workflow_dispatch:
     inputs:
@@ -68,6 +70,7 @@ jobs:
           E2E_TEST_ACCOUNT_PASSWORD: ${{ secrets.E2E_TEST_ACCOUNT_PASSWORD }}
           E2E_TEST_ACCOUNT_PREMIUM: ${{ secrets.E2E_TEST_ACCOUNT_PREMIUM }}
           E2E_TEST_BASE_URL: ${{ secrets.E2E_TEST_BASE_URL }}
+          FXA_CI_SECRET: ${{ secrets.FXA_CI_SECRET }}
       - name: Upload html report as artifact to troubleshoot failures.
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         if: always()
