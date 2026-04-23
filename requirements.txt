@@ -33,7 +33,7 @@ sentry-sdk==2.57.0
 whitenoise==6.12.0
 
 # phones app
-phonenumbers==9.0.27
+phonenumbers==9.0.28
 twilio==9.10.4
 vobject==0.9.9
 
