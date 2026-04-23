@@ -1,0 +1,4 @@
+repo_name: "Firefox Private Relay"
+node_version: "22.15.0"
+python_version: "3.11"
+install_command: "pip install -r requirements.txt && npm ci"
