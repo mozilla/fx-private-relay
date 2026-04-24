@@ -13,6 +13,7 @@ from pytest_django.fixtures import DjangoAssertNumQueries, SettingsWrapper
 from rest_framework.exceptions import MethodNotAllowed, NotAuthenticated
 from rest_framework.test import APIClient
 from waffle.testutils import override_flag
+from datetime import timedelta
 
 from emails.models import DomainAddress, RelayAddress
 from privaterelay.tests.utils import (
@@ -862,7 +863,6 @@ def test_get_relayaddress_ordered_by_created_at_desc(
     free_api_client: APIClient, free_user: User
 ) -> None:
     """GET /relayaddresses/ returns addresses ordered newest first."""
-    from datetime import timedelta
 
     now = timezone.now()
 
