@@ -11,7 +11,25 @@ const { chromium } = require("@playwright/test");
 async function globalSetup() {
   // playwright setup
   const browser = await chromium.launch();
-  const page = await browser.newPage();
+  const page = await browser.newPage({
+    // Send fxa-ci header to bypass Fastly CAPTCHA on FxA stage
+    extraHTTPHeaders: process.env.FXA_CI_SECRET
+      ? { "fxa-ci": process.env.FXA_CI_SECRET }
+      : {},
+  });
+
+  // Strip fxa-ci from api-accounts requests to avoid CORS preflight failures.
+  // The fxa-ci custom header triggers a CORS preflight on cross-origin fetch()
+  // calls. api-accounts doesn't include fxa-ci in Access-Control-Allow-Headers,
+  // so the browser blocks the response. This breaks the OAuth client info fetch
+  // and causes "Invalid OAuth parameter: scope" errors.
+  if (process.env.FXA_CI_SECRET) {
+    await page.route("**/api-accounts*/**", (route: any) => {
+      const headers = { ...route.request().headers() };
+      delete headers["fxa-ci"];
+      return route.continue({ headers });
+    });
+  }
 
   // generate email and set env variables
   const randomEmail = `${Date.now()}_tstact@restmail.net`;
