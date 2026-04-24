@@ -1,5 +1,6 @@
 """Tests for api/views/email_views.py"""
 
+from datetime import timedelta
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
@@ -13,7 +14,6 @@ from pytest_django.fixtures import DjangoAssertNumQueries, SettingsWrapper
 from rest_framework.exceptions import MethodNotAllowed, NotAuthenticated
 from rest_framework.test import APIClient
 from waffle.testutils import override_flag
-from datetime import timedelta
 
 from emails.models import DomainAddress, RelayAddress
 from privaterelay.tests.utils import (
@@ -863,12 +863,17 @@ def test_get_relayaddress_ordered_by_created_at_desc(
     free_api_client: APIClient, free_user: User
 ) -> None:
     """GET /relayaddresses/ returns addresses ordered newest first."""
-
     now = timezone.now()
 
-    addr_oldest = baker.make(RelayAddress, user=free_user, created_at=now - timedelta(days=3))
-    addr_newest = baker.make(RelayAddress, user=free_user, created_at=now - timedelta(days=1))
-    addr_middle = baker.make(RelayAddress, user=free_user, created_at=now - timedelta(days=2))
+    addr_oldest = baker.make(
+        RelayAddress, user=free_user, created_at=now - timedelta(days=3)
+    )
+    addr_middle = baker.make(
+        RelayAddress, user=free_user, created_at=now - timedelta(days=2)
+    )
+    addr_newest = baker.make(
+        RelayAddress, user=free_user, created_at=now - timedelta(days=1)
+    )
 
     url = reverse("relayaddress-list")
     response = free_api_client.get(url)
@@ -876,9 +881,9 @@ def test_get_relayaddress_ordered_by_created_at_desc(
 
     assert response.status_code == 200
     assert len(data) == 3
-    assert data[0]["id"] == address2.id
-    assert data[1]["id"] == address3.id
-    assert data[2]["id"] == address1.id
+    assert data[0]["id"] == addr_newest.id
+    assert data[1]["id"] == addr_middle.id
+    assert data[2]["id"] == addr_oldest.id
 
 
 def test_first_forwarded_email_unauth(client: Client) -> None:
