@@ -124,7 +124,9 @@ class RelayAddressViewSet(AddressViewSet[RelayAddress]):
 
     def get_queryset(self) -> QuerySet[RelayAddress]:
         if isinstance(self.request.user, User):
-            return RelayAddress.objects.filter(user=self.request.user)
+            return RelayAddress.objects.filter(user=self.request.user).order_by(
+                "-created_at"
+            )
         return RelayAddress.objects.none()
 
 
