@@ -866,17 +866,9 @@ def test_get_relayaddress_ordered_by_created_at_desc(
 
     now = timezone.now()
 
-    address1 = RelayAddress.objects.create(user=free_user)
-    address1.created_at = now - timedelta(days=3)
-    address1.save()
-
-    address2 = RelayAddress.objects.create(user=free_user)
-    address2.created_at = now - timedelta(days=1)
-    address2.save()
-
-    address3 = RelayAddress.objects.create(user=free_user)
-    address3.created_at = now - timedelta(days=2)
-    address3.save()
+      addr_oldest = baker.make(RelayAddress, user=free_user, created_at=now - timedelta(days=3))
+      addr_newest = baker.make(RelayAddress, user=free_user, created_at=now - timedelta(days=1))
+      addr_middle = baker.make(RelayAddress, user=free_user, created_at=now - timedelta(days=2))
 
     url = reverse("relayaddress-list")
     response = free_api_client.get(url)
