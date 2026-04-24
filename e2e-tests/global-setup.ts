@@ -2,6 +2,7 @@ import {
   ENV_URLS,
   getVerificationCode,
   setEnvVariables,
+  setupFxaCiRoutes,
 } from "./e2eTestUtils/helpers";
 import { AuthPage } from "./pages/authPage";
 import { LandingPage } from "./pages/landingPage";
@@ -11,7 +12,12 @@ const { chromium } = require("@playwright/test");
 async function globalSetup() {
   // playwright setup
   const browser = await chromium.launch();
-  const page = await browser.newPage();
+  const page = await browser.newPage({
+    extraHTTPHeaders: process.env.FXA_CI_SECRET
+      ? { "fxa-ci": process.env.FXA_CI_SECRET }
+      : {},
+  });
+  await setupFxaCiRoutes(page);
 
   // generate email and set env variables
   const randomEmail = `${Date.now()}_tstact@restmail.net`;
