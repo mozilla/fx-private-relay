@@ -858,6 +858,37 @@ def test_get_relayaddress(
     assert len(data) == address_count
 
 
+def test_get_relayaddress_ordered_by_created_at_desc(
+    free_api_client: APIClient, free_user: User
+) -> None:
+    """GET /relayaddresses/ returns addresses ordered newest first."""
+    from datetime import timedelta
+
+    now = timezone.now()
+
+    address1 = RelayAddress.objects.create(user=free_user)
+    address1.created_at = now - timedelta(days=3)
+    address1.save()
+
+    address2 = RelayAddress.objects.create(user=free_user)
+    address2.created_at = now - timedelta(days=1)
+    address2.save()
+
+    address3 = RelayAddress.objects.create(user=free_user)
+    address3.created_at = now - timedelta(days=2)
+    address3.save()
+
+    url = reverse("relayaddress-list")
+    response = free_api_client.get(url)
+    data = response.json()
+
+    assert response.status_code == 200
+    assert len(data) == 3
+    assert data[0]["id"] == address2.id
+    assert data[1]["id"] == address3.id
+    assert data[2]["id"] == address1.id
+
+
 def test_first_forwarded_email_unauth(client: Client) -> None:
     response = client.post("/api/v1/first-forwarded-email/")
     assert response.status_code == 401
