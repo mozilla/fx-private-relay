@@ -1,0 +1,233 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOCKER_BUILDKIT: 1
+  COMPOSE_DOCKER_CLI_BUILD: 1
+
+jobs:
+  frontend:
+    name: Frontend Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --workspace frontend
+
+      - name: Check licenses
+        run: npm run licensecheck --workspace frontend
+
+      - name: Lint
+        run: npm run lint --workspace frontend -- --max-warnings=0
+
+      - name: Run tests with coverage
+        run: |
+          npm test --workspace frontend -- \
+            --ci \
+            --runInBand \
+            --coverage \
+            --coverageDirectory=coverage
+
+      - name: Add frontend prefix to lcov.info
+        run: |
+          ls -la frontend/coverage/
+          sed 's|^SF:|SF:frontend/|' frontend/coverage/lcov.info > lcov-prefixed.info
+
+      - name: Upload frontend coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: |
+            lcov-prefixed.info
+            frontend/junit.xml
+          retention-days: 7
+
+      - name: Store test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontend-test-results
+          path: frontend/junit.xml
+          retention-days: 7
+
+  backend:
+    name: Backend Build & Test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.7
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: relay_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.8'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Create test environment
+        run: |
+          cp .env-dist .env
+          mkdir -p staticfiles/accounts/profile
+          mkdir -p frontend/out/accounts/profile
+          touch frontend/out/accounts/profile/index.html
+          touch staticfiles/accounts/profile/index.html
+
+      - name: Run tests with coverage
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/relay_test
+          PHONES_ENABLED: 1
+        run: |
+          pytest \
+            --cov=. \
+            --cov-config=.coveragerc \
+            --cov-report=term-missing \
+            --cov-report=xml:coverage.xml \
+            --cov-fail-under=60 \
+            --cov-branch \
+            --junitxml=pytest-results.xml \
+            .
+
+      - name: Rename .coverage for artifact upload
+        run: mv .coverage coverage.dat
+
+      - name: Upload backend coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: |
+            coverage.xml
+            coverage.dat
+          retention-days: 7
+
+      - name: Store test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-test-results
+          path: pytest-results.xml
+          retention-days: 7
+
+  upload-coverage:
+    name: Upload Coverage to Coveralls
+    needs: [frontend, backend]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.8'
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '2.7.2'
+
+      - name: Download frontend coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-coverage
+          path: frontend-coverage
+
+      - name: Download backend coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-coverage
+          path: backend-coverage
+
+      - name: Rename coverage.dat back to .coverage
+        run: mv backend-coverage/coverage.dat backend-coverage/.coverage
+
+      - name: Install coveralls tools
+        run: |
+          pip install coveralls
+          gem install coveralls-lcov
+
+      - name: Generate frontend coveralls.json
+        run: |
+          ls -la frontend-coverage/
+          coveralls-lcov \
+            --verbose --dry-run \
+            frontend-coverage/lcov-prefixed.info \
+            > frontend-coveralls.json
+
+      - name: Upload to Coveralls
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ls -la backend-coverage/
+          cp backend-coverage/.coverage .
+          coveralls --merge=frontend-coveralls.json || true
+
+  docker-build:
+    name: Docker Build Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: fx-private-relay:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            GITHUB_REPOSITORY=${{ github.repository }}
+            GITHUB_RUN_ID=${{ github.run_id }}
+            GITHUB_SERVER_URL=${{ github.server_url }}
+            GIT_BRANCH=${{ github.ref_name }}
+            GIT_SHA=${{ github.sha }}
+            GIT_TAG=${{ github.ref_type == 'tag' && github.ref_name || '' }}

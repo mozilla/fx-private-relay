@@ -162,7 +162,7 @@ function run_check_glean {
         echo
         echo "To fix, run:"
         echo
-        echo "  bash .circleci/python_job.bash run build_glean"
+        echo "  bash .github/workflows/python/python_job.bash run build_glean"
         echo
         echo "and add as a commit to this pull request."
         exit 1

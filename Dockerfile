@@ -36,7 +36,7 @@ RUN ln --symbolic /app/privaterelay/locales/es-ES/ privaterelay/locales/es
 COPY --chown=app .env-dist /app/.env
 
 # TODO The email tracker list commands are a duplicate of a CircleCI job
-# https://github.com/jbuck/fx-private-relay/blob/57cdfc5421b5faf0fe1f228aeb524d4232a221e0/.circleci/python_job.bash#L69-L77
+# https://github.com/jbuck/fx-private-relay/blob/57cdfc5421b5faf0fe1f228aeb524d4232a221e0/.github/workflows/python/python_job.bash#L69-L77
 RUN python manage.py get_latest_email_tracker_lists --skip-checks
 RUN python manage.py get_latest_email_tracker_lists --skip-checks --tracker-level=2
 
