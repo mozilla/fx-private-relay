@@ -666,8 +666,8 @@ export const WhatsNewMenu = (props: Props) => {
     ),
     announcementDate: {
       year: 2026,
-      month: 3,
-      day: 15,
+      month: 4,
+      day: 27,
     },
   };
 
