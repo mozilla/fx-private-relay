@@ -1,5 +1,9 @@
 name: Python Quality Checks
 
+# TODO: Remove .circleci/python_job.bash fallback after migration is in production
+# All script sourcing currently checks both .github/workflows/python/python_job.bash
+# and .circleci/python_job.bash for backwards compatibility with production tag
+
 on:
   push:
     branches:
@@ -73,7 +77,11 @@ jobs:
           TEST_RESULTS_DIR: job-results
           TEST_RESULTS_FILENAME: ${{ matrix.check.command }}.xml
         run: |
-          source .github/workflows/python/python_job.bash
+          if [ -f .github/workflows/python/python_job.bash ]; then
+            source .github/workflows/python/python_job.bash
+          else
+            source .circleci/python_job.bash
+          fi
           run_command ${{ matrix.check.command == 'mypy-strict' && 'mypy' || matrix.check.command }}
 
       - name: Upload test results
@@ -220,13 +228,21 @@ jobs:
       - name: Show migrations (before)
         if: matrix.test.migrations_test
         run: |
-          source .github/workflows/python/python_job.bash
+          if [ -f .github/workflows/python/python_job.bash ]; then
+            source .github/workflows/python/python_job.bash
+          else
+            source .circleci/python_job.bash
+          fi
           show_migrations
 
       - name: Switch to production for migrations test
         if: matrix.test.migrations_test
         run: |
-          source .github/workflows/python/python_job.bash
+          if [ -f .github/workflows/python/python_job.bash ]; then
+            source .github/workflows/python/python_job.bash
+          else
+            source .circleci/python_job.bash
+          fi
           switch_to_production
 
       - name: Run pytest
@@ -243,7 +259,11 @@ jobs:
       - name: Show migrations (after)
         if: matrix.test.migrations_test
         run: |
-          source .github/workflows/python/python_job.bash
+          if [ -f .github/workflows/python/python_job.bash ]; then
+            source .github/workflows/python/python_job.bash
+          else
+            source .circleci/python_job.bash
+          fi
           show_migrations
 
       - name: Upload test results
