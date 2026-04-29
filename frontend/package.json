@@ -64,7 +64,7 @@
     "stylelint": "^17.7.0",
     "stylelint-config-recommended-scss": "^17.0.1",
     "stylelint-scss": "^7.0.0",
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.3"
   },
   "volta": {
     "node": "22.15.0",
