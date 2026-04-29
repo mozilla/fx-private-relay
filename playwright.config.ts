@@ -72,10 +72,13 @@ const config = defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
 
-    /* Extra HTTP headers to bypass Fastly CAPTCHA on FxA stage */
+    /* Send fxa-ci header to bypass Fastly CAPTCHA on FxA stage.
+       setupFxaCiRoutes() strips this header from non-FxA domains
+       to avoid CORS preflight failures. */
     extraHTTPHeaders: process.env.FXA_CI_SECRET ? {
       'fxa-ci': process.env.FXA_CI_SECRET,
     } : {},
+
   },
 
   /* Configure projects for test suites and browsers */

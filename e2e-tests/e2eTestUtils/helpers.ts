@@ -27,6 +27,36 @@ export const TIMEOUTS = {
   LONG: 10000,
 };
 
+// Strip fxa-ci from all third-party domains to avoid leaking the
+// Fastly bypass secret. extraHTTPHeaders sends fxa-ci on ALL requests
+// (needed because page.route() can't intercept navigation requests
+// after redirects). A broad catch-all route breaks extraHTTPHeaders
+// on navigations, so we list each third-party domain explicitly.
+// FxA domains behind Fastly (accounts, api-accounts, oauth, profile
+// on *.mozaws.net or *.firefox.com) are NOT listed — they need it.
+const STRIP_FXA_CI_PATTERNS = [
+  "**/accounts-cdn*/**",
+  "**/*.sentry.io/**",
+  "**/*.stripe.com/**",
+  "**/*.stripe.network/**",
+  "**/pay.google.com/**",
+  "**/www.google-analytics.com/**",
+  "**/www.googletagmanager.com/**",
+  "**/*.paypal.com/**",
+];
+
+export async function setupFxaCiRoutes(page: Page) {
+  if (!process.env.FXA_CI_SECRET) return;
+  const stripFxaCi = (route: any) => {
+    const headers = { ...route.request().headers() };
+    delete headers["fxa-ci"];
+    return route.continue({ headers });
+  };
+  for (const pattern of STRIP_FXA_CI_PATTERNS) {
+    await page.route(pattern, stripFxaCi);
+  }
+}
+
 // Default free mask limit — matches INCREASED_MAX_NUM_FREE_ALIASES in settings.py.
 // Used in test names (must be static) and as a fallback if the API fetch fails.
 export const MAX_NUM_FREE_ALIASES = 50;

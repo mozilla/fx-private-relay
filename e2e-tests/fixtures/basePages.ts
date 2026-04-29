@@ -4,6 +4,7 @@ import { test as baseTest } from "@playwright/test";
 import { DashboardPage } from "../pages/dashboardPage";
 import { SubscriptionPaymentPage } from "../pages/subscriptionPaymentPage";
 import { MozillaMonitorPage } from "../pages/mozillaMonitorPage";
+import { setupFxaCiRoutes } from "../e2eTestUtils/helpers";
 
 const test = baseTest.extend<{
   landingPage: LandingPage;
@@ -12,6 +13,10 @@ const test = baseTest.extend<{
   subscriptionPage: SubscriptionPaymentPage;
   mozillaMonitorPage: MozillaMonitorPage;
 }>({
+  page: async ({ page }, use) => {
+    await setupFxaCiRoutes(page);
+    await use(page);
+  },
   authPage: async ({ page }, use) => {
     await use(new AuthPage(page));
   },
