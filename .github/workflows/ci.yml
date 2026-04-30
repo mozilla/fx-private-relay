@@ -12,8 +12,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  frontend:
-    name: Frontend Build & Test
+  build-docker:
+    name: Build Docker Images
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -21,53 +21,139 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          cache: 'npm'
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Install dependencies
-        run: npm ci --workspace frontend
+      - name: Build frontend Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          target: frontend
+          tags: fx-private-relay:frontend
+          outputs: type=docker,dest=/tmp/docker-image-frontend.tar
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,mode=max,scope=frontend
+
+      - name: Build backend Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: fx-private-relay:backend
+          outputs: type=docker,dest=/tmp/docker-image-backend.tar
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,mode=max,scope=backend
+          build-args: |
+            GITHUB_REPOSITORY=${{ github.repository }}
+            GITHUB_RUN_ID=${{ github.run_id }}
+            GITHUB_SERVER_URL=${{ github.server_url }}
+            GIT_BRANCH=${{ github.ref_name }}
+            GIT_SHA=${{ github.sha }}
+            GIT_TAG=${{ github.ref_type == 'tag' && github.ref_name || '' }}
+
+      - name: Upload Docker images
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-images
+          path: |
+            /tmp/docker-image-frontend.tar
+            /tmp/docker-image-backend.tar
+          retention-days: 1
+
+  frontend:
+    name: Frontend Tests
+    needs: build-docker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Docker images
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-images
+          path: /tmp
+
+      - name: Load frontend Docker image
+        run: docker load --input /tmp/docker-image-frontend.tar
 
       - name: Check licenses
-        run: npm run licensecheck --workspace frontend
-
-      - name: Lint
-        run: npm run lint --workspace frontend -- --max-warnings=0
-
-      - name: Run tests with coverage
         run: |
-          npm test --workspace frontend -- \
-            --ci \
-            --runInBand \
-            --coverage \
-            --coverageDirectory=coverage
+          docker run \
+            --rm \
+            --entrypoint "/bin/bash" \
+            fx-private-relay:frontend \
+            -c 'npm run licensecheck --workspace frontend'
+
+      - name: Lint frontend
+        run: |
+          docker run \
+            --rm \
+            --entrypoint "/bin/bash" \
+            fx-private-relay:frontend \
+            -c 'npm run lint --workspace frontend -- --max-warnings=0'
+
+      - name: Run frontend tests with coverage
+        run: |
+          # Create a volume to hold test results with open permissions
+          docker run \
+            --volume /tmp/test-results \
+            --name test-results-volume \
+            alpine \
+            /bin/sh -c "chmod 0777 /tmp/test-results"
+
+          # Run tests and capture exit code
+          set +e
+          docker run \
+            --rm \
+            --entrypoint "/bin/bash" \
+            --volumes-from test-results-volume \
+            fx-private-relay:frontend \
+            -c 'npm test --workspace frontend -- \
+                  --ci \
+                  --runInBand \
+                  --coverage \
+                  --coverageDirectory=/tmp/test-results/frontend-coverage && \
+                mv /home/node/frontend/junit.xml /tmp/test-results/junit.xml'
+          TEST_STATUS=$?
+          set -e
+
+          # Copy results to local disk
+          mkdir -p /tmp/test-results
+          docker cp test-results-volume:/tmp/test-results ./test-results
+
+          # Clean up volume
+          docker rm test-results-volume
+
+          # Exit with test status
+          exit $TEST_STATUS
 
       - name: Add frontend prefix to lcov.info
+        if: always()
         run: |
-          ls -la frontend/coverage/
-          sed 's|^SF:|SF:frontend/|' frontend/coverage/lcov.info > lcov-prefixed.info
+          if [ -f test-results/frontend-coverage/lcov.info ]; then
+            sed 's|^SF:|SF:frontend/|' test-results/frontend-coverage/lcov.info > lcov-prefixed.info
+          fi
 
       - name: Upload frontend coverage
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: frontend-coverage
           path: |
             lcov-prefixed.info
-            frontend/junit.xml
+            test-results/junit.xml
           retention-days: 7
 
       - name: Store test results
-        uses: actions/upload-artifact@v4
         if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: frontend-test-results
-          path: frontend/junit.xml
+          path: test-results/junit.xml
           retention-days: 7
 
   backend:
-    name: Backend Build & Test
+    name: Backend Tests
+    needs: build-docker
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -85,63 +171,85 @@ jobs:
           - 5432:5432
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Download Docker images
+        uses: actions/download-artifact@v4
         with:
-          submodules: recursive
+          name: docker-images
+          path: /tmp
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11.8'
-          cache: 'pip'
+      - name: Load backend Docker image
+        run: docker load --input /tmp/docker-image-backend.tar
 
-      - name: Install dependencies
+      - name: Run backend tests with coverage
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          # Create a volume to hold test results, owned by the app user (10001:10001)
+          docker run \
+            --volume /tmp/test-results \
+            --name test-results-volume \
+            alpine \
+            /bin/sh -c "chmod 0777 /tmp/test-results && chown 10001:10001 /tmp/test-results"
 
-      - name: Create test environment
-        run: |
-          cp .env-dist .env
-          mkdir -p staticfiles/accounts/profile
-          mkdir -p frontend/out/accounts/profile
-          touch frontend/out/accounts/profile/index.html
-          touch staticfiles/accounts/profile/index.html
+          # Get host IP for accessing postgres service
+          HOST_IP=$(ip -4 addr show docker0 | grep -Po 'inet \K[\d.]+')
 
-      - name: Run tests with coverage
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/relay_test
-          PHONES_ENABLED: 1
-        run: |
-          pytest \
-            --cov=. \
-            --cov-config=.coveragerc \
-            --cov-report=term-missing \
-            --cov-report=xml:coverage.xml \
-            --cov-fail-under=60 \
-            --cov-branch \
-            --junitxml=pytest-results.xml \
-            .
+          # Run tests and capture exit code
+          set +e
+          docker run \
+            --rm \
+            --entrypoint "/bin/bash" \
+            --volumes-from test-results-volume \
+            --add-host=host.docker.internal:${HOST_IP} \
+            -e DATABASE_URL=postgresql://postgres:postgres@host.docker.internal:5432/relay_test \
+            -e PHONES_ENABLED=1 \
+            fx-private-relay:backend \
+            -c 'mkdir -p /tmp/test-results/backend-coverage && \
+                /app/.local/bin/pytest \
+                  --cov=. \
+                  --cov-config=.coveragerc \
+                  --cov-report=term-missing \
+                  --cov-report=xml \
+                  --cov-fail-under=60 \
+                  --cov-branch \
+                  --junitxml=/tmp/test-results/pytest-results.xml \
+                  . && \
+                mv coverage.xml /tmp/test-results/backend-coverage/coverage.xml && \
+                mv .coverage /tmp/test-results/backend-coverage/.coverage'
+          TEST_STATUS=$?
+          set -e
+
+          # Copy results to local disk
+          mkdir -p /tmp/test-results
+          docker cp test-results-volume:/tmp/test-results ./test-results
+
+          # Clean up volume
+          docker rm test-results-volume
+
+          # Exit with test status
+          exit $TEST_STATUS
 
       - name: Rename .coverage for artifact upload
-        run: mv .coverage coverage.dat
+        if: always()
+        run: |
+          if [ -f test-results/backend-coverage/.coverage ]; then
+            mv test-results/backend-coverage/.coverage test-results/backend-coverage/coverage.dat
+          fi
 
       - name: Upload backend coverage
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: backend-coverage
           path: |
-            coverage.xml
-            coverage.dat
+            test-results/backend-coverage/coverage.xml
+            test-results/backend-coverage/coverage.dat
           retention-days: 7
 
       - name: Store test results
-        uses: actions/upload-artifact@v4
         if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: backend-test-results
-          path: pytest-results.xml
+          path: test-results/pytest-results.xml
           retention-days: 7
 
   upload-coverage:
@@ -176,7 +284,10 @@ jobs:
           path: backend-coverage
 
       - name: Rename coverage.dat back to .coverage
-        run: mv backend-coverage/coverage.dat backend-coverage/.coverage
+        run: |
+          if [ -f backend-coverage/coverage.dat ]; then
+            mv backend-coverage/coverage.dat backend-coverage/.coverage
+          fi
 
       - name: Install coveralls tools
         run: |
@@ -185,45 +296,26 @@ jobs:
 
       - name: Generate frontend coveralls.json
         run: |
-          ls -la frontend-coverage/
-          coveralls-lcov \
-            --verbose --dry-run \
-            frontend-coverage/lcov-prefixed.info \
-            > frontend-coveralls.json
+          if [ -f frontend-coverage/lcov-prefixed.info ]; then
+            ls -la frontend-coverage/
+            coveralls-lcov \
+              --verbose --dry-run \
+              frontend-coverage/lcov-prefixed.info \
+              > frontend-coveralls.json
+          else
+            echo "No frontend coverage found"
+            echo "{}" > frontend-coveralls.json
+          fi
 
       - name: Upload to Coveralls
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ls -la backend-coverage/
-          cp backend-coverage/.coverage .
-          coveralls --merge=frontend-coveralls.json || true
-
-  docker-build:
-    name: Docker Build Check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: false
-          tags: fx-private-relay:test
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          build-args: |
-            GITHUB_REPOSITORY=${{ github.repository }}
-            GITHUB_RUN_ID=${{ github.run_id }}
-            GITHUB_SERVER_URL=${{ github.server_url }}
-            GIT_BRANCH=${{ github.ref_name }}
-            GIT_SHA=${{ github.sha }}
-            GIT_TAG=${{ github.ref_type == 'tag' && github.ref_name || '' }}
+          if [ -f backend-coverage/.coverage ]; then
+            ls -la backend-coverage/
+            cp backend-coverage/.coverage .
+            coveralls --merge=frontend-coveralls.json || true
+          else
+            echo "No backend coverage found"
+          fi

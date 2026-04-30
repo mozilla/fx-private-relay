@@ -16,8 +16,45 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  build-docker:
+    name: Build Docker Image for Python Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: fx-private-relay:python-checks
+          outputs: type=docker,dest=/tmp/docker-image.tar
+          cache-from: type=gha,scope=python-checks
+          cache-to: type=gha,mode=max,scope=python-checks
+          build-args: |
+            GITHUB_REPOSITORY=${{ github.repository }}
+            GITHUB_RUN_ID=${{ github.run_id }}
+            GITHUB_SERVER_URL=${{ github.server_url }}
+            GIT_BRANCH=${{ github.ref_name }}
+            GIT_SHA=${{ github.sha }}
+            GIT_TAG=${{ github.ref_type == 'tag' && github.ref_name || '' }}
+
+      - name: Upload Docker image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image-python-checks
+          path: /tmp/docker-image.tar
+          retention-days: 1
+
   code-quality:
     name: ${{ matrix.check.name }}
+    needs: build-docker
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -45,44 +82,67 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Download Docker image
+        uses: actions/download-artifact@v4
         with:
-          python-version: '3.11.8'
-          cache: 'pip'
+          name: docker-image-python-checks
+          path: /tmp
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Create test environment
-        run: |
-          cp .env-dist .env
-          mkdir -p job-results
-          mkdir -p staticfiles/accounts/profile
-          mkdir -p frontend/out/accounts/profile
-          touch frontend/out/accounts/profile/index.html
-          touch staticfiles/accounts/profile/index.html
+      - name: Load Docker image
+        run: docker load --input /tmp/docker-image.tar
 
       - name: Run ${{ matrix.check.name }}
         id: run_check
         continue-on-error: ${{ matrix.check.allow_failure }}
-        env:
-          DJANGO_SETTINGS_MODULE: privaterelay.settings
-          DATABASE_URL: sqlite:///db.sqlite3
-          DATABASE_ENGINE: sqlite
-          PHONES_ENABLED: 1
-          MYPY_STRICT: ${{ matrix.check.command == 'mypy-strict' && '1' || '0' }}
-          TEST_RESULTS_DIR: job-results
-          TEST_RESULTS_FILENAME: ${{ matrix.check.command }}.xml
         run: |
-          if [ -f .github/workflows/python/python_job.bash ]; then
-            source .github/workflows/python/python_job.bash
+          # Create a volume to hold test results, owned by the app user (10001:10001)
+          docker run \
+            --volume /tmp/test-results \
+            --name test-results-volume \
+            alpine \
+            /bin/sh -c "chmod 0777 /tmp/test-results && chown 10001:10001 /tmp/test-results"
+
+          # Determine the actual command to run
+          if [ "${{ matrix.check.command }}" = "mypy-strict" ]; then
+            ACTUAL_COMMAND="mypy"
+            MYPY_STRICT=1
           else
-            source .circleci/python_job.bash
+            ACTUAL_COMMAND="${{ matrix.check.command }}"
+            MYPY_STRICT=0
           fi
-          run_command ${{ matrix.check.command == 'mypy-strict' && 'mypy' || matrix.check.command }}
+
+          # Run the check
+          set +e
+          docker run \
+            --rm \
+            --entrypoint "/bin/bash" \
+            --volumes-from test-results-volume \
+            -e DJANGO_SETTINGS_MODULE=privaterelay.settings \
+            -e DATABASE_URL=sqlite:///db.sqlite3 \
+            -e DATABASE_ENGINE=sqlite \
+            -e PHONES_ENABLED=1 \
+            -e MYPY_STRICT=${MYPY_STRICT} \
+            -e TEST_RESULTS_DIR=/tmp/test-results \
+            -e TEST_RESULTS_FILENAME=${{ matrix.check.command }}.xml \
+            fx-private-relay:python-checks \
+            -c "if [ -f .github/workflows/python/python_job.bash ]; then
+                  source .github/workflows/python/python_job.bash
+                else
+                  source .circleci/python_job.bash
+                fi
+                run_command ${ACTUAL_COMMAND}"
+          CHECK_STATUS=$?
+          set -e
+
+          # Copy results to local disk
+          mkdir -p ./job-results
+          docker cp test-results-volume:/tmp/test-results/. ./job-results/ 2>/dev/null || true
+
+          # Clean up volume
+          docker rm test-results-volume
+
+          # Exit with check status
+          exit $CHECK_STATUS
 
       - name: Upload test results
         if: always()
@@ -94,6 +154,7 @@ jobs:
 
   pytest-matrix:
     name: pytest - ${{ matrix.test.name }}
+    needs: build-docker
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -154,6 +215,16 @@ jobs:
             allow_failure: true
             pytest_args: '--maxfail=3'
 
+          # Django version test
+          # - name: Django 6.0 compatibility
+          #   test_results_filename: pytest-django-6-0.xml
+          #   python_version: '3.11.8'
+          #   postgres_version: null
+          #   phones_enabled: '1'
+          #   allow_failure: true
+          #   pytest_args: '--maxfail=3'
+          #   update_dependency: 'Django>=6.0,<6.1'
+
     services:
       postgres:
         image: ${{ matrix.test.postgres_version && format('postgres:{0}', matrix.test.postgres_version) || '' }}
@@ -175,96 +246,173 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Download Docker image
+        uses: actions/download-artifact@v4
         with:
-          python-version: ${{ matrix.test.python_version }}
-          cache: 'pip'
+          name: docker-image-python-checks
+          path: /tmp
 
-      - name: Install dependencies
+      - name: Load Docker image
+        run: docker load --input /tmp/docker-image.tar
+
+      - name: Build Python ${{ matrix.test.python_version }} image if needed
+        if: matrix.test.python_version != '3.11.8'
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          # For non-default Python versions, build a custom image
+          cat > Dockerfile.test <<EOF
+          FROM python:${{ matrix.test.python_version }}
 
-      - name: Update dependency
+          RUN pip install --no-cache --upgrade pip
+
+          RUN groupadd --gid 10001 app && \\
+              useradd -g app --uid 10001 --shell /usr/sbin/nologin --create-home --home-dir /app app
+
+          WORKDIR /app
+          USER app
+
+          COPY --chown=app ./requirements.txt /app/requirements.txt
+          RUN pip install --no-cache -r requirements.txt
+          COPY --chown=app . /app
+          RUN ln --symbolic /app/privaterelay/locales/fy-NL/ privaterelay/locales/fy
+          RUN ln --symbolic /app/privaterelay/locales/sv-SE/ privaterelay/locales/sv
+          RUN ln --symbolic /app/privaterelay/locales/pt-BR/ privaterelay/locales/pt
+          RUN ln --symbolic /app/privaterelay/locales/es-ES/ privaterelay/locales/es
+          COPY --chown=app .env-dist /app/.env
+          EOF
+
+          docker build -f Dockerfile.test -t fx-private-relay:python-checks .
+
+      - name: Update dependency if specified
         if: matrix.test.update_dependency
-        run: pip install --pre --upgrade "${{ matrix.test.update_dependency }}"
-
-      - name: Install sqlite3 (for migrations test)
-        if: matrix.test.migrations_test && matrix.test.db_type == 'sqlite'
-        run: sudo apt-get update && sudo apt-get install -y sqlite3
-
-      - name: Create test environment
         run: |
-          cp .env-dist .env
-          mkdir -p staticfiles/accounts/profile
-          mkdir -p frontend/out/accounts/profile
-          touch frontend/out/accounts/profile/index.html
-          touch staticfiles/accounts/profile/index.html
-          mkdir -p job-results
+          # Create a new image with updated dependency
+          docker run \
+            --name temp-container \
+            --entrypoint "/bin/bash" \
+            fx-private-relay:python-checks \
+            -c "pip install --pre --upgrade '${{ matrix.test.update_dependency }}' && \
+                echo 'Dependency updated'"
+          docker commit temp-container fx-private-relay:python-checks
+          docker rm temp-container
 
-      - name: Set database URL
+      - name: Set database configuration
         id: set_db
         run: |
           if [ -n "${{ matrix.test.postgres_version }}" ]; then
-            echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/relay_test" >> $GITHUB_ENV
+            echo "DB_TYPE=postgres" >> $GITHUB_ENV
+            HOST_IP=$(ip -4 addr show docker0 | grep -Po 'inet \K[\d.]+')
+            echo "DATABASE_URL=postgresql://postgres:postgres@host.docker.internal:5432/relay_test" >> $GITHUB_ENV
             echo "TEST_DB_NAME=test_relay_test" >> $GITHUB_ENV
-            echo "TEST_DB_URL=postgresql://postgres:postgres@localhost:5432/test_relay_test" >> $GITHUB_ENV
+            echo "TEST_DB_URL=postgresql://postgres:postgres@host.docker.internal:5432/test_relay_test" >> $GITHUB_ENV
             echo "DATABASE_ENGINE=postgres" >> $GITHUB_ENV
+            echo "HOST_IP=${HOST_IP}" >> $GITHUB_ENV
           else
+            echo "DB_TYPE=sqlite" >> $GITHUB_ENV
             echo "DATABASE_URL=sqlite:///db.sqlite3" >> $GITHUB_ENV
             echo "TEST_DB_NAME=test.sqlite3" >> $GITHUB_ENV
             echo "TEST_DB_URL=sqlite:///test.sqlite3" >> $GITHUB_ENV
             echo "DATABASE_ENGINE=sqlite" >> $GITHUB_ENV
+            echo "HOST_IP=" >> $GITHUB_ENV
           fi
 
       - name: Run migrations test (create initial DB)
         if: matrix.test.migrations_test
-        env:
-          PHONES_ENABLED: ${{ matrix.test.phones_enabled }}
         run: |
-          pytest --create-db ${{ matrix.test.pytest_args }} .
+          docker run \
+            --rm \
+            --entrypoint "/bin/bash" \
+            ${{ env.DB_TYPE == 'postgres' && format('--add-host=host.docker.internal:{0}', env.HOST_IP) || '' }} \
+            -e DATABASE_URL=${{ env.DATABASE_URL }} \
+            -e PHONES_ENABLED=${{ matrix.test.phones_enabled }} \
+            fx-private-relay:python-checks \
+            -c "/app/.local/bin/pytest --create-db ${{ matrix.test.pytest_args }} ."
 
       - name: Show migrations (before)
         if: matrix.test.migrations_test
         run: |
-          if [ -f .github/workflows/python/python_job.bash ]; then
-            source .github/workflows/python/python_job.bash
-          else
-            source .circleci/python_job.bash
-          fi
-          show_migrations
+          docker run \
+            --rm \
+            --entrypoint "/bin/bash" \
+            ${{ env.DB_TYPE == 'postgres' && format('--add-host=host.docker.internal:{0}', env.HOST_IP) || '' }} \
+            -e DATABASE_URL=${{ env.DATABASE_URL }} \
+            fx-private-relay:python-checks \
+            -c "if [ -f .github/workflows/python/python_job.bash ]; then
+                  source .github/workflows/python/python_job.bash
+                else
+                  source .circleci/python_job.bash
+                fi
+                show_migrations"
 
       - name: Switch to production for migrations test
         if: matrix.test.migrations_test
         run: |
-          if [ -f .github/workflows/python/python_job.bash ]; then
-            source .github/workflows/python/python_job.bash
-          else
-            source .circleci/python_job.bash
-          fi
-          switch_to_production
+          docker run \
+            --rm \
+            --entrypoint "/bin/bash" \
+            ${{ env.DB_TYPE == 'postgres' && format('--add-host=host.docker.internal:{0}', env.HOST_IP) || '' }} \
+            -e DATABASE_URL=${{ env.DATABASE_URL }} \
+            fx-private-relay:python-checks \
+            -c "if [ -f .github/workflows/python/python_job.bash ]; then
+                  source .github/workflows/python/python_job.bash
+                else
+                  source .circleci/python_job.bash
+                fi
+                switch_to_production"
 
       - name: Run pytest
         id: pytest
         continue-on-error: ${{ matrix.test.allow_failure }}
-        env:
-          PHONES_ENABLED: ${{ matrix.test.phones_enabled }}
         run: |
-          pytest \
-            ${{ matrix.test.pytest_args }} \
-            --junitxml=job-results/${{ matrix.test.test_results_filename }} \
-            .
+          # Create a volume to hold test results, owned by the app user (10001:10001)
+          docker run \
+            --volume /tmp/test-results \
+            --name test-results-volume \
+            alpine \
+            /bin/sh -c "chmod 0777 /tmp/test-results && chown 10001:10001 /tmp/test-results"
+
+          # Run pytest
+          set +e
+          docker run \
+            --rm \
+            --entrypoint "/bin/bash" \
+            --volumes-from test-results-volume \
+            ${{ env.DB_TYPE == 'postgres' && format('--add-host=host.docker.internal:{0}', env.HOST_IP) || '' }} \
+            -e DATABASE_URL=${{ env.DATABASE_URL }} \
+            -e PHONES_ENABLED=${{ matrix.test.phones_enabled }} \
+            fx-private-relay:python-checks \
+            -c "mkdir -p /tmp/test-results && \
+                /app/.local/bin/pytest \
+                  ${{ matrix.test.pytest_args }} \
+                  --junitxml=/tmp/test-results/${{ matrix.test.test_results_filename }} \
+                  ."
+          TEST_STATUS=$?
+          set -e
+
+          # Copy results to local disk
+          mkdir -p ./job-results
+          docker cp test-results-volume:/tmp/test-results/. ./job-results/ 2>/dev/null || true
+
+          # Clean up volume
+          docker rm test-results-volume
+
+          # Exit with test status
+          exit $TEST_STATUS
 
       - name: Show migrations (after)
         if: matrix.test.migrations_test
         run: |
-          if [ -f .github/workflows/python/python_job.bash ]; then
-            source .github/workflows/python/python_job.bash
-          else
-            source .circleci/python_job.bash
-          fi
-          show_migrations
+          docker run \
+            --rm \
+            --entrypoint "/bin/bash" \
+            ${{ env.DB_TYPE == 'postgres' && format('--add-host=host.docker.internal:{0}', env.HOST_IP) || '' }} \
+            -e DATABASE_URL=${{ env.DATABASE_URL }} \
+            fx-private-relay:python-checks \
+            -c "if [ -f .github/workflows/python/python_job.bash ]; then
+                  source .github/workflows/python/python_job.bash
+                else
+                  source .circleci/python_job.bash
+                fi
+                show_migrations"
 
       - name: Upload test results
         if: always()
