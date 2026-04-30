@@ -212,21 +212,6 @@ function run_command {
     fi
 }
 
-# Install the dockerize tool
-# $1 - The version to install, default v0.6.1
-function install_dockerize {
-    local DOCKERIZE_VERSION=${1:-v0.6.1}
-    set -x
-    wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz &&
-    sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz &&
-    rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
-}
-
-# Wait for the PostgreSQL database to respond
-function wait_for_the_database {
-    dockerize -wait tcp://localhost:5432 -timeout 1m
-}
-
 # Get the Docker tag from the production version endpoint
 function get_prod_tag {
     echo "$(curl --silent https://relay.firefox.com/__version__ | jq -r '.version')"
