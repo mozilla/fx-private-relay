@@ -99,14 +99,14 @@ jobs:
       fail-fast: false
       matrix:
         test:
-          # Main test configurations
-          - name: PostgreSQL 17.7
-            test_results_filename: pytest-postgres-17-7.xml
-            python_version: '3.11.8'
-            postgres_version: '17.7'
-            phones_enabled: '1'
-            allow_failure: false
-            pytest_args: ''
+          # Example DB test configuration, can be run when we look to upgrade the DB
+          # - name: PostgreSQL 17.7
+          #   test_results_filename: pytest-postgres-17-7.xml
+          #   python_version: '3.11.8'
+          #   postgres_version: '17.7'
+          #   phones_enabled: '1'
+          #   allow_failure: false
+          #   pytest_args: ''
 
           - name: Phones disabled
             test_results_filename: pytest-phones-disabled.xml
