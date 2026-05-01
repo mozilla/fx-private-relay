@@ -20,99 +20,48 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  code-quality:
-    name: ${{ matrix.check.name }}
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        check:
-          - name: Black formatting
-            command: black
-            allow_failure: false
-          - name: Ruff linting
-            command: ruff
-            allow_failure: false
-          - name: Mypy type check
-            command: mypy
-            allow_failure: false
-          - name: Mypy strict type check
-            command: mypy-strict
-            allow_failure: true
-          - name: Glean parser check
-            command: check_glean
-            allow_failure: false
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11.8'
-          cache: 'pip'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Create test environment
-        run: |
-          cp .env-dist .env
-          mkdir -p job-results
-          mkdir -p staticfiles/accounts/profile
-          mkdir -p frontend/out/accounts/profile
-          touch frontend/out/accounts/profile/index.html
-          touch staticfiles/accounts/profile/index.html
-
-      - name: Run ${{ matrix.check.name }}
-        id: run_check
-        continue-on-error: ${{ matrix.check.allow_failure }}
-        env:
-          DJANGO_SETTINGS_MODULE: privaterelay.settings
-          DATABASE_URL: sqlite:///db.sqlite3
-          DATABASE_ENGINE: sqlite
-          PHONES_ENABLED: 1
-          MYPY_STRICT: ${{ matrix.check.command == 'mypy-strict' && '1' || '0' }}
-          TEST_RESULTS_DIR: job-results
-          TEST_RESULTS_FILENAME: ${{ matrix.check.command }}.xml
-        run: |
-          if [ -f .github/workflows/python/python_job.bash ]; then
-            source .github/workflows/python/python_job.bash
-          else
-            source .circleci/python_job.bash
-          fi
-          run_command ${{ matrix.check.command == 'mypy-strict' && 'mypy' || matrix.check.command }}
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.check.command }}-results
-          path: job-results/*.xml
-          retention-days: 7
-
-  pytest-matrix:
-    name: pytest - ${{ matrix.test.name }}
+  python-checks:
+    name: ${{ matrix.test.name }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         test:
-          # Example DB test configuration, can be run when we look to upgrade the DB
-          # - name: PostgreSQL 17.7
-          #   test_results_filename: pytest-postgres-17-7.xml
-          #   python_version: '3.11.8'
-          #   postgres_version: '17.7'
-          #   phones_enabled: '1'
-          #   allow_failure: false
-          #   pytest_args: ''
+          # Code quality checks
+          - name: Black formatting
+            command: black
+            python_version: '3.11.8'
+            allow_failure: false
+            test_results_filename: black.xml
 
+          - name: Ruff linting
+            command: ruff
+            python_version: '3.11.8'
+            allow_failure: false
+            test_results_filename: ruff.xml
+
+          - name: Mypy type check
+            command: mypy
+            python_version: '3.11.8'
+            allow_failure: false
+            test_results_filename: mypy.xml
+
+          - name: Mypy strict type check
+            command: mypy
+            python_version: '3.11.8'
+            allow_failure: true
+            mypy_strict: true
+            test_results_filename: mypy-strict.xml
+
+          - name: Glean parser check
+            command: check_glean
+            python_version: '3.11.8'
+            allow_failure: false
+            test_results_filename: check_glean.xml
+
+          # Pytest tests
           - name: Phones disabled
+            command: pytest
             test_results_filename: pytest-phones-disabled.xml
             python_version: '3.11.8'
             postgres_version: null
@@ -120,8 +69,8 @@ jobs:
             allow_failure: false
             pytest_args: ''
 
-          # Migration tests
           - name: SQLite migrations
+            command: pytest
             test_results_filename: sqlite3-migrations.xml
             python_version: '3.11.8'
             postgres_version: null
@@ -129,9 +78,9 @@ jobs:
             allow_failure: false
             pytest_args: '--reuse-db --maxfail=3'
             migrations_test: true
-            db_type: sqlite
 
           - name: PostgreSQL migrations
+            command: pytest
             test_results_filename: postgres-migrations.xml
             python_version: '3.11.8'
             postgres_version: '17.7'
@@ -139,18 +88,18 @@ jobs:
             allow_failure: false
             pytest_args: '--reuse-db --maxfail=3'
             migrations_test: true
-            db_type: postgres
 
-          # Python version tests
           - name: Python 3.12
+            command: pytest
             test_results_filename: pytest-python-3-12.xml
-            python_version: '3.12.7'
+            python_version: '3.12'
             postgres_version: null
             phones_enabled: '1'
             allow_failure: false
             pytest_args: ''
 
           - name: Python 3.13
+            command: pytest
             test_results_filename: pytest-python-3-13.xml
             python_version: '3.13'
             postgres_version: null
@@ -160,6 +109,7 @@ jobs:
 
     services:
       postgres:
+        # When no Postgres version is specified, no image is pulled / setup
         image: ${{ matrix.test.postgres_version && format('postgres:{0}', matrix.test.postgres_version) || '' }}
         env:
           POSTGRES_USER: postgres
@@ -194,20 +144,21 @@ jobs:
         if: matrix.test.update_dependency
         run: pip install --pre --upgrade "${{ matrix.test.update_dependency }}"
 
-      - name: Install sqlite3 (for migrations test)
-        if: matrix.test.migrations_test && matrix.test.db_type == 'sqlite'
+      - name: Install sqlite3 (for SQLite migrations test)
+        if: matrix.test.migrations_test && !matrix.test.postgres_version
         run: sudo apt-get update && sudo apt-get install -y sqlite3
 
       - name: Create test environment
         run: |
           cp .env-dist .env
+          mkdir -p job-results
           mkdir -p staticfiles/accounts/profile
           mkdir -p frontend/out/accounts/profile
           touch frontend/out/accounts/profile/index.html
           touch staticfiles/accounts/profile/index.html
-          mkdir -p job-results
 
       - name: Set database URL
+        if: matrix.test.command == 'pytest'
         id: set_db
         run: |
           if [ -n "${{ matrix.test.postgres_version }}" ]; then
@@ -249,16 +200,32 @@ jobs:
           fi
           switch_to_production
 
-      - name: Run pytest
-        id: pytest
+      - name: Run ${{ matrix.test.name }}
+        id: run_check
         continue-on-error: ${{ matrix.test.allow_failure }}
         env:
-          PHONES_ENABLED: ${{ matrix.test.phones_enabled }}
+          DJANGO_SETTINGS_MODULE: privaterelay.settings
+          DATABASE_URL: ${{ env.DATABASE_URL || 'sqlite:///db.sqlite3' }}
+          DATABASE_ENGINE: ${{ env.DATABASE_ENGINE || 'sqlite' }}
+          PHONES_ENABLED: ${{ matrix.test.phones_enabled || '1' }}
+          MYPY_STRICT: ${{ matrix.test.mypy_strict && '1' || '0' }}
+          TEST_RESULTS_DIR: job-results
+          TEST_RESULTS_FILENAME: ${{ matrix.test.test_results_filename }}
         run: |
-          pytest \
-            ${{ matrix.test.pytest_args }} \
-            --junitxml=job-results/${{ matrix.test.test_results_filename }} \
-            .
+          if [ -f .github/workflows/python/python_job.bash ]; then
+            source .github/workflows/python/python_job.bash
+          else
+            source .circleci/python_job.bash
+          fi
+
+          if [ "${{ matrix.test.command }}" = "pytest" ]; then
+            pytest \
+              ${{ matrix.test.pytest_args }} \
+              --junitxml=job-results/${{ matrix.test.test_results_filename }} \
+              .
+          else
+            run_command ${{ matrix.test.command }}
+          fi
 
       - name: Show migrations (after)
         if: matrix.test.migrations_test
@@ -279,5 +246,5 @@ jobs:
           retention-days: 7
 
       - name: Mark as allowed failure
-        if: matrix.test.allow_failure && steps.pytest.outcome == 'failure'
+        if: matrix.test.allow_failure && steps.run_check.outcome == 'failure'
         run: echo "Test failed but failure is allowed"

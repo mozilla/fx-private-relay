@@ -227,6 +227,7 @@ jobs:
           # Exit with test status
           exit $TEST_STATUS
 
+      # For hidden files to be uploaded we need to rename them
       - name: Rename .coverage for artifact upload
         if: always()
         run: |
