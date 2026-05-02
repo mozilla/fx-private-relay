@@ -4,7 +4,7 @@ import { createElement, useEffect, useRef, useState } from "react";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
 import { LocalizationProvider, ReactLocalization } from "@fluent/react";
-import { OverlayProvider } from "@react-aria/overlays";
+import { OverlayProvider } from "react-aria";
 import ReactGa from "react-ga";
 import { getL10n } from "../functions/getL10n";
 import { AddonDataContext, useAddonElementWatcher } from "../hooks/addon";
