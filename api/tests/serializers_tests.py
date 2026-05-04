@@ -1,13 +1,10 @@
 from django.contrib.auth.models import User
 from django.urls import reverse
 
-import pytest
 from model_bakery import baker
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
-from waffle.models import Flag
 
-from api.serializers.privaterelay import FlagSerializer
 from emails.models import RelayAddress
 from privaterelay.tests.utils import make_free_test_user, make_premium_test_user
 
@@ -72,41 +69,3 @@ class PremiumValidatorsTest(APITestCase):
         assert response.status_code == 200
         premium_alias.refresh_from_db()
         assert premium_alias.block_list_emails is True
-
-
-@pytest.fixture
-def test_flag(db):
-    flag = Flag.objects.create(name="test_flag")
-    assert flag.everyone is None
-    return flag
-
-
-def test_flag_serializer_enable(test_flag):
-    serializer = FlagSerializer(test_flag, data={"everyone": True}, partial=True)
-    assert serializer.is_valid()
-    updated_flag = serializer.save()
-    assert test_flag.name == updated_flag.name
-    assert updated_flag.everyone is True
-
-
-def test_flag_serializer_disable(test_flag):
-    """
-    Disabling through the API sets everyone to None, so that flag users will
-    still be considered.
-    """
-    test_flag.everyone = True
-    test_flag.save()
-    serializer = FlagSerializer(test_flag, data={"everyone": False}, partial=True)
-    assert serializer.is_valid()
-    updated_flag = serializer.save()
-    assert test_flag.name == updated_flag.name
-    assert updated_flag.everyone is None
-
-
-def test_flag_serializer_cannot_change_name_to_manage_flags(test_flag):
-    serializer = FlagSerializer(
-        test_flag, data={"name": "manage_flags", "everyone": False}, partial=True
-    )
-    assert not serializer.is_valid()
-    expected = "Changing the `manage_flags` flag is not allowed."
-    assert str(serializer.errors["non_field_errors"][0]) == expected

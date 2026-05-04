@@ -3,7 +3,6 @@ from django.contrib.auth.models import AnonymousUser, User
 from rest_framework import permissions
 from rest_framework.request import Request
 from rest_framework.views import APIView
-from waffle import flag_is_active
 
 READ_METHODS = ["GET", "HEAD"]
 
@@ -33,10 +32,3 @@ class HasPhoneService(permissions.BasePermission):
         if request.method in READ_METHODS:
             return True
         return request.user.profile.has_phone
-
-
-class CanManageFlags(permissions.BasePermission):
-    def has_permission(self, request, view):
-        return flag_is_active(request, "manage_flags") and request.user.email.endswith(
-            "@mozilla.com"
-        )
