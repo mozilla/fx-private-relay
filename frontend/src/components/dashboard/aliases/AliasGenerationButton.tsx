@@ -8,7 +8,7 @@ import {
   useFocus,
   useButton,
 } from "react-aria";
-import { AriaMenuItemProps } from "@react-aria/menu";
+import type { AriaMenuItemProps } from "react-aria";
 import {
   Item,
   TreeProps,

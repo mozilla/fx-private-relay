@@ -16,7 +16,7 @@ import {
   useFocus,
 } from "react-aria";
 import { Key, ReactNode, useRef, useState, useEffect } from "react";
-import { AriaMenuItemProps, AriaMenuOptions } from "@react-aria/menu";
+import type { AriaMenuItemProps, AriaMenuOptions } from "react-aria";
 import styles from "./AppPicker.module.scss";
 import FirefoxLogo from "../images/fx.png";
 import MonitorLogo from "../images/monitor.png";

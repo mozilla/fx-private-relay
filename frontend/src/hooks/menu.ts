@@ -1,5 +1,5 @@
 import { AriaOverlayProps, useMenu as useAriaMenu } from "react-aria";
-import { AriaMenuItemProps, AriaMenuOptions, MenuAria } from "@react-aria/menu";
+import type { AriaMenuItemProps, AriaMenuOptions, MenuAria } from "react-aria";
 import { MenuTriggerState, TreeProps, TreeState } from "react-stately";
 import { RefObject } from "@react-types/shared";
 import { HTMLAttributes } from "react";

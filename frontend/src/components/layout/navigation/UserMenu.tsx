@@ -16,7 +16,7 @@ import {
   useFocus,
 } from "react-aria";
 import { Key, ReactNode, useRef, useState } from "react";
-import { AriaMenuItemProps } from "@react-aria/menu";
+import type { AriaMenuItemProps } from "react-aria";
 import Link from "next/link";
 import styles from "./UserMenu.module.scss";
 import {
