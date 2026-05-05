@@ -4,13 +4,12 @@
 
 # Private Relay
 
-<!-- Badges include: license, size of repository, overall coverage for project via coveralls.io on main branch, status of what is deployed via whatsdeployed.io and our circleci status for main branch. -->
+<!-- Badges include: license, size of repository, overall coverage for project via coveralls.io on main branch, status of what is deployed via whatsdeployed.io. -->
 
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](https://raw.githubusercontent.com/mozilla/fx-private-relay/main/LICENSE)
 ![Repo Size](https://img.shields.io/github/repo-size/Mozilla/fx-private-relay)
 [![Coverage Status](https://coveralls.io/repos/github/mozilla/fx-private-relay/badge.svg?branch=main)](https://coveralls.io/github/mozilla/fx-private-relay?branch=main)
 [![What's Deployed](https://img.shields.io/badge/whatsdeployed-dev,stage,prod-green.svg)](https://whatsdeployed.io/s/60j/mozilla/fx-private-relay)
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/mozilla/fx-private-relay/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/mozilla/fx-private-relay/tree/main)
 [![Relay e2e Tests](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml/badge.svg?branch=main)](https://github.com/mozilla/fx-private-relay/actions/workflows/playwright.yml)
 
 Private Relay provides generated email addresses to use in place of personal
@@ -178,7 +177,7 @@ If you're not yet ready to submit some strings for translation, you can
 tentatively add them to `frontend/pendingTranslations.ftl`. Strings in that file
 will show up until strings with the same ID are added to the l10n repository.
 
-Similarly, there is a `pending_locales/pending.ftl` where temporary backend locales strings can be stored. Once the strings from the pull request in [the l10n repo](https://github.com/mozilla-l10n/fx-private-relay-l10n) has been merged into the Relay repo, these respective strings need to be removed from `pending_locales/pending.ftl` to avoid failing CircleCI tests.
+Similarly, there is a `pending_locales/pending.ftl` where temporary backend locales strings can be stored. Once the strings from the pull request in [the l10n repo](https://github.com/mozilla-l10n/fx-private-relay-l10n) has been merged into the Relay repo, these respective strings need to be removed from `pending_locales/pending.ftl` to avoid failing GHA tests.
 
 #### Commit translations for release
 

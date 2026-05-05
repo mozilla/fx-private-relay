@@ -634,7 +634,7 @@ def test_get_version_info() -> None:
         "commit": "the_commit_hash",
         "version": "2024.01.17",
         "source": "https://github.com/mozilla/fx-private-relay",
-        "build": "https://circleci.com/gh/mozilla/fx-private-relay/100",
+        "build": "https://github.com/mozilla/fx-private-relay/actions/runs/100",
     }
 
 
