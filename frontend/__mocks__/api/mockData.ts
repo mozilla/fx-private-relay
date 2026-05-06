@@ -103,7 +103,6 @@ export const mockedRuntimeData: RuntimeData = {
     ["tracker_removal", true],
     ["phone_launch_survey", true],
     ["multi_replies", true],
-    ["firefox_integration", true],
     ["premium_promo_banners", false],
   ],
   WAFFLE_SWITCHES: [],

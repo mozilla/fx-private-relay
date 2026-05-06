@@ -25,7 +25,6 @@ metrics = markus.get_metrics()
 CSP_NONCE_COOKIE_PATHS = [
     "/",
     "/contains-tracker-warning/",
-    "/flags/",
     "/faq/",
     "/vpn-relay/waitlist/",
     "/accounts/settings/",

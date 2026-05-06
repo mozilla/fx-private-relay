@@ -3,7 +3,6 @@
 from django.contrib.auth.models import User
 
 from rest_framework import serializers
-from waffle import get_waffle_flag_model
 
 from privaterelay.models import Profile
 
@@ -67,40 +66,6 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ["email"]
         read_only_fields = ["email"]
-
-
-class FlagSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = get_waffle_flag_model()
-        fields = [
-            "id",
-            "name",
-            "everyone",
-            "note",
-        ]
-        read_only_fields = [
-            "id",
-        ]
-
-    def validate_everyone(self, value):
-        """
-        Turn False into None. This disables the flag for most, but allows users
-        and groups to still have the flag. Setting the flag to False would also
-        disable the flag for those users.
-        """
-        if value:
-            return True
-        return None
-
-    def validate(self, data):
-        if (data.get("name", "").lower() == "manage_flags") or (
-            hasattr(self, "instance")
-            and getattr(self.instance, "name", "").lower() == "manage_flags"
-        ):
-            raise serializers.ValidationError(
-                "Changing the `manage_flags` flag is not allowed."
-            )
-        return super().validate(data)
 
 
 class WebcompatIssueSerializer(serializers.Serializer):

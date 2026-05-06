@@ -606,10 +606,7 @@ export const WhatsNewMenu = (props: Props) => {
       day: 21,
     },
   };
-  if (
-    isFlagActive(props.runtimeData, "firefox_integration") &&
-    isUsingFirefox()
-  ) {
+  if (isUsingFirefox()) {
     entries.push(firefoxIntegrationAnnouncement);
   }
 

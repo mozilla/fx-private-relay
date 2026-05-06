@@ -17,7 +17,6 @@ from .views.emails import (
     sentry_test,
 )
 from .views.privaterelay import (
-    FlagViewSet,
     ProfileViewSet,
     UserViewSet,
     report_webcompat_issue,
@@ -44,7 +43,6 @@ api_router.register(r"domainaddresses", DomainAddressViewSet, "domainaddress")
 api_router.register(r"relayaddresses", RelayAddressViewSet, "relayaddress")
 api_router.register(r"profiles", ProfileViewSet, "profiles")
 api_router.register(r"users", UserViewSet, "user")
-api_router.register(r"flags", FlagViewSet, "flag")
 
 
 urlpatterns: list[URLPattern | URLResolver] = [

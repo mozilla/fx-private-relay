@@ -12,7 +12,6 @@ from allauth.account.adapter import get_adapter as get_account_adapter
 from allauth.socialaccount.adapter import get_adapter as get_social_adapter
 from allauth.socialaccount.helpers import complete_social_login
 from allauth.socialaccount.models import SocialAccount
-from django_filters.rest_framework import FilterSet
 from drf_spectacular.utils import (
     OpenApiExample,
     OpenApiParameter,
@@ -57,9 +56,8 @@ from privaterelay.sp3_plans import (
 from privaterelay.utils import get_countries_info_from_request_and_mapping
 
 from ..authentication import get_fxa_uid_from_oauth_token
-from ..permissions import CanManageFlags, IsOwner
+from ..permissions import IsOwner
 from ..serializers.privaterelay import (
-    FlagSerializer,
     ProfileSerializer,
     UserSerializer,
     WebcompatIssueSerializer,
@@ -70,32 +68,6 @@ info_logger = getLogger("eventsinfo")
 FXA_PROFILE_URL = (
     f"{settings.SOCIALACCOUNT_PROVIDERS['fxa']['PROFILE_ENDPOINT']}/profile"
 )
-
-
-class FlagFilter(FilterSet):
-    class Meta:
-        model = get_waffle_flag_model()
-        fields = [
-            "name",
-            "everyone",
-            # "users",
-            # read-only
-            "id",
-        ]
-
-
-@extend_schema(tags=["privaterelay"])
-class FlagViewSet(ModelViewSet):
-    """Feature flags."""
-
-    serializer_class = FlagSerializer
-    permission_classes = [IsAuthenticated, CanManageFlags]
-    filterset_class = FlagFilter
-    http_method_names = ["get", "post", "head", "patch"]
-
-    def get_queryset(self):
-        flags = get_waffle_flag_model().objects
-        return flags
 
 
 @extend_schema(tags=["privaterelay"])
