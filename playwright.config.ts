@@ -54,10 +54,14 @@ const config = defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: [
-    ['list'],
-    ['html'],
-  ],
+  /* HTML reporter generates detailed reports with step arguments that can
+     contain secrets. Only enable it for local runs where the output stays
+     on the developer's machine. CI uses the list reporter only — pass/fail
+     results appear in the workflow log, and GitHub Actions masks secret
+     values there automatically. */
+  reporter: process.env.CI
+    ? [['list']]
+    : [['list'], ['html']],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
@@ -66,11 +70,14 @@ const config = defineConfig({
     /* automatically take screenshot only on failures */
     screenshot: 'only-on-failure',
 
-    /* automatically record video on retry  */
-    video: 'retry-with-video',
+    /* Video disabled — recordings can capture credential entry and end up
+       in uploaded artifacts on this public repo. */
+    video: 'off',
 
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    /* Trace disabled — trace files capture full network data (headers,
+       request/response bodies) which includes secrets passed via env vars
+       and extraHTTPHeaders. See MPP-4662. */
+    trace: 'off',
 
     /* Send fxa-ci header to bypass Fastly CAPTCHA on FxA stage.
        setupFxaCiRoutes() strips this header from non-FxA domains
