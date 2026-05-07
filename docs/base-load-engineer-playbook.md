@@ -19,6 +19,18 @@ engineers who rotate thru the role:
 1. [@vpremamozilla](https://github.com/vpremamozilla)
 1. [@jwhitlock](https://github.com/jwhitlock)
 
+## Claude Code `/ble` skill
+
+The `/ble` command in [Claude Code][] automates the daily routine checks below. It reads
+Slack channels, Jira, Bugzilla, GitHub, and environment endpoints in parallel, then
+produces a prioritized ACTION NEEDED / FYI report. Run `/ble` to start your day.
+
+First-time setup instructions are built into the skill — run `/ble` and it will tell you
+what to install. See [`.claude/skills/ble/SKILL.md`][ble-skill] for the full spec.
+
+[Claude Code]: https://docs.anthropic.com/en/docs/claude-code/overview
+[ble-skill]: https://github.com/mozilla/fx-private-relay/blob/main/.claude/skills/ble/SKILL.md
+
 ## Daily routine
 
 Your primary role is to perform the checks and make sure the necessary work gets done.

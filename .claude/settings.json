@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:relay.firefox.com)",
+      "WebFetch(domain:relay.allizom.org)",
+      "WebFetch(domain:relay-dev.allizom.org)"
+    ]
+  },
+  "sandbox": {
+    "enabled": true,
+    "failIfUnavailable": true,
+    "autoAllowBashIfSandboxed": true,
+    "network": {
+      "allowedDomains": [
+        "api.github.com",
+        "bugzilla.mozilla.org",
+        "relay.firefox.com",
+        "relay.allizom.org",
+        "relay-dev.allizom.org"
+      ]
+    }
+  },
+  "allowUnsandboxedCommands": false
+}
