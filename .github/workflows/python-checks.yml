@@ -1,0 +1,250 @@
+name: Python Quality Checks
+
+# Note: These use the native Github runner for speed, we still run backend tests in Docker
+# in ci.yml. This tests runs code quality checks that don't need to be run in the Dockerized environemnt
+# and Python tests that might differ from the built Dockerfile
+
+# TODO: Remove .circleci/python_job.bash fallback after migration is in production
+# All script sourcing currently checks both .github/workflows/python/python_job.bash
+# and .circleci/python_job.bash for backwards compatibility with production tag
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python-checks:
+    name: ${{ matrix.test.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        test:
+          # Code quality checks
+          - name: Black formatting
+            command: black
+            python_version: '3.11.8'
+            allow_failure: false
+            test_results_filename: black.xml
+
+          - name: Ruff linting
+            command: ruff
+            python_version: '3.11.8'
+            allow_failure: false
+            test_results_filename: ruff.xml
+
+          - name: Mypy type check
+            command: mypy
+            python_version: '3.11.8'
+            allow_failure: false
+            test_results_filename: mypy.xml
+
+          - name: Mypy strict type check
+            command: mypy
+            python_version: '3.11.8'
+            allow_failure: true
+            mypy_strict: true
+            test_results_filename: mypy-strict.xml
+
+          - name: Glean parser check
+            command: check_glean
+            python_version: '3.11.8'
+            allow_failure: false
+            test_results_filename: check_glean.xml
+
+          # Pytest tests
+          - name: Phones disabled
+            command: pytest
+            test_results_filename: pytest-phones-disabled.xml
+            python_version: '3.11.8'
+            postgres_version: null
+            phones_enabled: '0'
+            allow_failure: false
+            pytest_args: ''
+
+          - name: SQLite migrations
+            command: pytest
+            test_results_filename: sqlite3-migrations.xml
+            python_version: '3.11.8'
+            postgres_version: null
+            phones_enabled: '1'
+            allow_failure: false
+            pytest_args: '--reuse-db --maxfail=3'
+            migrations_test: true
+
+          - name: PostgreSQL migrations
+            command: pytest
+            test_results_filename: postgres-migrations.xml
+            python_version: '3.11.8'
+            postgres_version: '17.7'
+            phones_enabled: '1'
+            allow_failure: false
+            pytest_args: '--reuse-db --maxfail=3'
+            migrations_test: true
+
+          - name: Python 3.12
+            command: pytest
+            test_results_filename: pytest-python-3-12.xml
+            python_version: '3.12'
+            postgres_version: null
+            phones_enabled: '1'
+            allow_failure: false
+            pytest_args: ''
+
+          - name: Python 3.13
+            command: pytest
+            test_results_filename: pytest-python-3-13.xml
+            python_version: '3.13'
+            postgres_version: null
+            phones_enabled: '1'
+            allow_failure: true
+            pytest_args: '--maxfail=3'
+
+    services:
+      postgres:
+        # When no Postgres version is specified, no image is pulled / setup
+        image: ${{ matrix.test.postgres_version && format('postgres:{0}', matrix.test.postgres_version) || '' }}
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: relay_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.test.python_version }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Update dependency
+        if: matrix.test.update_dependency
+        run: pip install --pre --upgrade "${{ matrix.test.update_dependency }}"
+
+      - name: Install sqlite3 (for SQLite migrations test)
+        if: matrix.test.migrations_test && !matrix.test.postgres_version
+        run: sudo apt-get update && sudo apt-get install -y sqlite3
+
+      - name: Create test environment
+        run: |
+          cp .env-dist .env
+          mkdir -p job-results
+          mkdir -p staticfiles/accounts/profile
+          mkdir -p frontend/out/accounts/profile
+          touch frontend/out/accounts/profile/index.html
+          touch staticfiles/accounts/profile/index.html
+
+      - name: Set database URL
+        if: matrix.test.command == 'pytest'
+        id: set_db
+        run: |
+          if [ -n "${{ matrix.test.postgres_version }}" ]; then
+            echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/relay_test" >> $GITHUB_ENV
+            echo "TEST_DB_NAME=test_relay_test" >> $GITHUB_ENV
+            echo "TEST_DB_URL=postgresql://postgres:postgres@localhost:5432/test_relay_test" >> $GITHUB_ENV
+            echo "DATABASE_ENGINE=postgres" >> $GITHUB_ENV
+          else
+            echo "DATABASE_URL=sqlite:///db.sqlite3" >> $GITHUB_ENV
+            echo "TEST_DB_NAME=test.sqlite3" >> $GITHUB_ENV
+            echo "TEST_DB_URL=sqlite:///test.sqlite3" >> $GITHUB_ENV
+            echo "DATABASE_ENGINE=sqlite" >> $GITHUB_ENV
+          fi
+
+      - name: Run migrations test (create initial DB)
+        if: matrix.test.migrations_test
+        env:
+          PHONES_ENABLED: ${{ matrix.test.phones_enabled }}
+        run: |
+          pytest --create-db ${{ matrix.test.pytest_args }} .
+
+      - name: Show migrations (before)
+        if: matrix.test.migrations_test
+        run: |
+          if [ -f .github/workflows/python/python_job.bash ]; then
+            source .github/workflows/python/python_job.bash
+          else
+            source .circleci/python_job.bash
+          fi
+          show_migrations
+
+      - name: Switch to production for migrations test
+        if: matrix.test.migrations_test
+        run: |
+          if [ -f .github/workflows/python/python_job.bash ]; then
+            source .github/workflows/python/python_job.bash
+          else
+            source .circleci/python_job.bash
+          fi
+          switch_to_production
+
+      - name: Run ${{ matrix.test.name }}
+        id: run_check
+        continue-on-error: ${{ matrix.test.allow_failure }}
+        env:
+          DJANGO_SETTINGS_MODULE: privaterelay.settings
+          DATABASE_URL: ${{ env.DATABASE_URL || 'sqlite:///db.sqlite3' }}
+          DATABASE_ENGINE: ${{ env.DATABASE_ENGINE || 'sqlite' }}
+          PHONES_ENABLED: ${{ matrix.test.phones_enabled || '1' }}
+          MYPY_STRICT: ${{ matrix.test.mypy_strict && '1' || '0' }}
+          TEST_RESULTS_DIR: job-results
+          TEST_RESULTS_FILENAME: ${{ matrix.test.test_results_filename }}
+        run: |
+          if [ -f .github/workflows/python/python_job.bash ]; then
+            source .github/workflows/python/python_job.bash
+          else
+            source .circleci/python_job.bash
+          fi
+
+          if [ "${{ matrix.test.command }}" = "pytest" ]; then
+            pytest \
+              ${{ matrix.test.pytest_args }} \
+              --junitxml=job-results/${{ matrix.test.test_results_filename }} \
+              .
+          else
+            run_command ${{ matrix.test.command }}
+          fi
+
+      - name: Show migrations (after)
+        if: matrix.test.migrations_test
+        run: |
+          if [ -f .github/workflows/python/python_job.bash ]; then
+            source .github/workflows/python/python_job.bash
+          else
+            source .circleci/python_job.bash
+          fi
+          show_migrations
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.test.test_results_filename }}-results
+          path: job-results/*.xml
+          retention-days: 7
+
+      - name: Mark as allowed failure
+        if: matrix.test.allow_failure && steps.run_check.outcome == 'failure'
+        run: echo "Test failed but failure is allowed"

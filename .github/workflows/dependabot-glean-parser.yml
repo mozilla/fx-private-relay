@@ -33,7 +33,7 @@ jobs:
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
       - name: Run glean-parser to regenerate code
-        run: .circleci/python_job.bash run build_glean
+        run: .github/workflows/python/python_job.bash run build_glean
       - name: Commit changed file
         run: |
           git config user.email "<>"

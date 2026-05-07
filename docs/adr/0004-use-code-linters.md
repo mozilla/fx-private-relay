@@ -184,7 +184,7 @@ document with a few typos is still useful and easy to fix. Authors and
 reviewers can use tools like the [markdownlint demo][] when needed.
 
 Relay does not suffer from a lack of shell script linters. Relay uses shell
-scripts in CircleCI for build and test steps. Errors in these scripts appear as
+scripts in Github actions for build and test steps. Errors in these scripts appear as
 broken builds. Developers fix them to unblock the build. These build failures
 do not have a direct impact on our users. Authors and reviewers can use tools
 like [ShellCheck][] when needed.

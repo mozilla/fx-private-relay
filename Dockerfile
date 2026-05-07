@@ -35,8 +35,6 @@ RUN ln --symbolic /app/privaterelay/locales/pt-BR/ privaterelay/locales/pt
 RUN ln --symbolic /app/privaterelay/locales/es-ES/ privaterelay/locales/es
 COPY --chown=app .env-dist /app/.env
 
-# TODO The email tracker list commands are a duplicate of a CircleCI job
-# https://github.com/jbuck/fx-private-relay/blob/57cdfc5421b5faf0fe1f228aeb524d4232a221e0/.circleci/python_job.bash#L69-L77
 RUN python manage.py get_latest_email_tracker_lists --skip-checks
 RUN python manage.py get_latest_email_tracker_lists --skip-checks --tracker-level=2
 
@@ -48,36 +46,27 @@ RUN PHONES_ENABLED=True \
     python manage.py collectstatic --no-input -v 2
 
 # These arguments change frequently so define them last
-# TODO remove `CIRCLE_*` vars after we move off CircleCI
-ARG CIRCLE_BRANCH
-ARG CIRCLE_SHA1
-ARG CIRCLE_TAG
 ARG GITHUB_REPOSITORY
 ARG GITHUB_RUN_ID
 ARG GITHUB_SERVER_URL
 ARG GIT_BRANCH
 ARG GIT_SHA
 ARG GIT_TAG
-ENV CIRCLE_BRANCH=${CIRCLE_BRANCH:-unknown} \
-    CIRCLE_SHA1=${CIRCLE_SHA1:-unknown} \
-    CIRCLE_TAG=${CIRCLE_TAG:-unknown} \
-    GITHUB_REPOSITORY=${GITHUB_REPOSITORY:-mozilla/fx-private-relay} \
+ENV GITHUB_REPOSITORY=${GITHUB_REPOSITORY:-mozilla/fx-private-relay} \
     GITHUB_RUN_ID=${GITHUB_RUN_ID:-unknown} \
     GITHUB_SERVER_URL=${GITHUB_SERVER_URL:-https://github.com} \
     GIT_BRANCH=${GIT_BRANCH:-unknown} \
     GIT_SHA=${GIT_SHA:-unknown} \
     GIT_TAG=${GIT_TAG:-unknown}
 
-# Do not override the CircleCI version if created
-RUN if [ ! -f "/app/version.json" ]; then \
-    printf '{"commit":"%s","version":"%s","source":"https://github.com/%s","build":"%s/%s/actions/runs/%s"}\n' \
+# Create version.json with build metadata
+RUN printf '{"commit":"%s","version":"%s","source":"https://github.com/%s","build":"%s/%s/actions/runs/%s"}\n' \
     "$GIT_SHA" \
     "$GIT_TAG" \
     "$GITHUB_REPOSITORY" \
     "$GITHUB_SERVER_URL" \
     "$GITHUB_REPOSITORY" \
-    "$GITHUB_RUN_ID" > /app/version.json; \
-    fi
+    "$GITHUB_RUN_ID" > /app/version.json
 
 ENTRYPOINT ["/app/.local/bin/gunicorn"]
 

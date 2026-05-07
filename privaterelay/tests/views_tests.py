@@ -585,7 +585,7 @@ def test_version_view(client: Client, version_json_path: Path) -> None:
         "commit": "a_commit_hash",
         "version": "2024.01.17.1",
         "source": "https://github.com/mozilla/fx-private-relay",
-        "build": "https://circleci.com/gh/mozilla/fx-private-relay/200",
+        "build": "https://github.com/mozilla/fx-private-relay/actions/runs/200",
     }
     version_json_path.write_text(json.dumps(version_info))
     response = client.get("/__version__")

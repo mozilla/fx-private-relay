@@ -55,7 +55,7 @@ For linters, type definitions, and non-Playwright testing-related packages, a
 successful CI run generally provides enough confidence that the upgrade is fine.
 That said, it can't harm to occasionally scan the results of the
 `build_frontend` or `test_frontend` CI runs to see if any new warnings were
-added. If `jest-junit` is updated, you'll want to check that CircleCI can still
+added. If `jest-junit` is updated, you'll want to check that Github Actions can still
 see code coverage for the frontend.
 
 ### `@playwright/test` and `dotenv`
