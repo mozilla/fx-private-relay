@@ -22,7 +22,6 @@ import sentry_sdk
 from allauth.socialaccount.models import SocialAccount, SocialApp
 from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
-from markus.utils import generate_tag
 from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error
 from requests.exceptions import JSONDecodeError
 from rest_framework.decorators import api_view, schema
@@ -96,37 +95,13 @@ def profile_subdomain(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-def metrics_event(request: HttpRequest) -> JsonResponse:
-    """
-    Handle metrics events from the Relay extension.
+def metrics_event(request: HttpRequest) -> HttpResponse:
+    """Intentionally inert endpoint kept for backward compatibility.
 
-    This used to forward data to Google Analytics, but was not updated for GA4.
-
-    Now it logs the information and updates statsd counters.
+    The browser extension POSTs here fire-and-forget. The endpoint used to forward
+    events to Google Analytics but was never updated for GA4. It now does nothing.
     """
-    try:
-        request_data = json.loads(request.body)
-    except json.JSONDecodeError:
-        return JsonResponse({"msg": "Could not decode JSON"}, status=415)
-    if "ga_uuid" not in request_data:
-        return JsonResponse({"msg": "No GA uuid found"}, status=404)
-    event_data = {
-        "ga_uuid_hash": sha256(request_data["ga_uuid"].encode()).hexdigest()[:16],
-        "category": request_data.get("category", None),
-        "action": request_data.get("action", None),
-        "label": request_data.get("label", None),
-        "value": request_data.get("value", None),
-        "browser": request_data.get("browser", None),  # dimension5 in GA
-        "source": request_data.get("dimension7", "website"),
-    }
-    info_logger.info("metrics_event", extra=event_data)
-    tags = [
-        generate_tag(key, val)
-        for key, val in event_data.items()
-        if val is not None and key != "ga_uuid_hash"
-    ]
-    incr_if_enabled("metrics_event", tags=tags)
-    return JsonResponse({"msg": "OK"}, status=200)
+    return HttpResponse(status=204)
 
 
 @csrf_exempt

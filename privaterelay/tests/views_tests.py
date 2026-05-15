@@ -605,59 +605,18 @@ def test_lbheartbeat_view(client: Client) -> None:
     assert response.content == b""
 
 
-@override_settings(STATSD_ENABLED=True)
-def test_metrics_event_GET(client: Client, caplog: pytest.LogCaptureFixture) -> None:
-    with MetricsMock() as mm:
-        response = client.get("/metrics-event")
+def test_metrics_event_GET(client: Client) -> None:
+    response = client.get("/metrics-event")
     assert response.status_code == 405
-    assert caplog.record_tuples == [("request.summary", logging.INFO, "")]
-    mm.assert_not_incr("metrics_event")
 
 
 @override_settings(STATSD_ENABLED=True)
-def test_metrics_event_POST_non_json(
+def test_metrics_event_POST_returns_204(
     client: Client, caplog: pytest.LogCaptureFixture
 ) -> None:
     with MetricsMock() as mm:
         response = client.post("/metrics-event")
-    assert response.status_code == 415
+    assert response.status_code == 204
+    assert response.content == b""
     assert caplog.record_tuples == [("request.summary", logging.INFO, "")]
     mm.assert_not_incr("metrics_event")
-
-
-@override_settings(STATSD_ENABLED=True)
-def test_metrics_event_POST_json_no_ga_uuid(
-    client: Client, caplog: pytest.LogCaptureFixture
-) -> None:
-    with MetricsMock() as mm:
-        response = client.post(
-            "/metrics-event", {"category": "addon"}, content_type="application/json"
-        )
-    assert response.status_code == 404
-    assert caplog.record_tuples == [("request.summary", logging.INFO, "")]
-    mm.assert_not_incr("metrics_event")
-
-
-@override_settings(STATSD_ENABLED=True)
-def test_metrics_event_POST_json_ga_uuid_ok(
-    client: Client,
-    caplog: pytest.LogCaptureFixture,
-    settings: SettingsWrapper,
-) -> None:
-    with MetricsMock() as mm:
-        response = client.post(
-            "/metrics-event",
-            {"ga_uuid": "anything-is-ok"},
-            content_type="application/json",
-        )
-    assert response.status_code == 200
-
-    assert caplog.record_tuples == [
-        ("eventsinfo", logging.INFO, "metrics_event"),
-        ("request.summary", logging.INFO, ""),
-    ]
-    record = caplog.records[0]
-    assert getattr(record, "ga_uuid_hash") == "1aa8606ede8415d8"
-    assert getattr(record, "source") == "website"
-
-    mm.assert_incr_once("metrics_event", 1, tags=["source:website"])
