@@ -54,7 +54,7 @@ jobs:
             GIT_TAG=${{ github.ref_type == 'tag' && github.ref_name || '' }}
 
       - name: Upload Docker images
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: docker-images
           path: |
@@ -136,7 +136,7 @@ jobs:
 
       - name: Upload frontend coverage
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: frontend-coverage
           path: |
@@ -146,7 +146,7 @@ jobs:
 
       - name: Store test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: frontend-test-results
           path: test-results/junit.xml
@@ -238,7 +238,7 @@ jobs:
 
       - name: Upload backend coverage
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: backend-coverage
           path: |
@@ -248,7 +248,7 @@ jobs:
 
       - name: Store test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: backend-test-results
           path: test-results/pytest-results.xml
