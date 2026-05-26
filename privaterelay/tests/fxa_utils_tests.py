@@ -3,24 +3,67 @@ Tests for private_relay/fxa_utils.py
 """
 
 from datetime import UTC, datetime, timedelta
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from django.conf import settings
 
 import pytest
 from allauth.socialaccount.models import SocialAccount
-from waffle.testutils import override_flag
+from waffle.testutils import override_flag, override_switch
 
-from privaterelay.fxa_utils import get_phone_subscription_dates
+from privaterelay.fxa_utils import (
+    get_phone_subscription_dates,
+    get_subscription_data_from_fxa,
+)
 
 if settings.PHONES_ENABLED:
     from phones.tests.models_tests import make_phone_test_user
 
-pytestmark = pytest.mark.skipif(
+MOCK_BASE = "privaterelay.fxa_utils"
+
+
+def _call_get_subscription_data(mock_session: MagicMock) -> str:
+    """Set up mocks and call get_subscription_data_from_fxa. Return the URL called."""
+    mock_resp = MagicMock()
+    mock_resp.json.return_value = {"subscriptions": []}
+    mock_client = MagicMock()
+    mock_client.get.return_value = mock_resp
+    mock_session.return_value = mock_client
+
+    sa = MagicMock(spec=SocialAccount)
+    get_subscription_data_from_fxa(sa)
+
+    called_url: str = mock_client.get.call_args[0][0]
+    return called_url
+
+
+@pytest.mark.django_db
+@override_switch("use_subplat_billing_api", active=True)
+@patch(f"{MOCK_BASE}._get_oauth2_session")
+def test_get_subscription_data_uses_subplat_api_when_switch_active(
+    mock_session: MagicMock,
+) -> None:
+    called_url = _call_get_subscription_data(mock_session)
+    assert called_url == settings.SUBPLAT_API_ENDPOINT + "/billing-and-subscriptions"
+
+
+@pytest.mark.django_db
+@override_switch("use_subplat_billing_api", active=False)
+@patch(f"{MOCK_BASE}._get_oauth2_session")
+def test_get_subscription_data_uses_fxa_when_switch_inactive(
+    mock_session: MagicMock,
+) -> None:
+    called_url = _call_get_subscription_data(mock_session)
+    expected = (
+        settings.FXA_ACCOUNTS_ENDPOINT
+        + "/oauth/mozilla-subscriptions/customer/billing-and-subscriptions"
+    )
+    assert called_url == expected
+
+
+_phones_skip = pytest.mark.skipif(
     not settings.PHONES_ENABLED, reason="PHONES_ENABLED is False"
 )
-
-MOCK_BASE = "privaterelay.fxa_utils"
 
 
 @pytest.fixture()
@@ -28,6 +71,7 @@ def phone_user(db):
     yield make_phone_test_user()
 
 
+@_phones_skip
 @patch(f"{MOCK_BASE}.get_subscription_data_from_fxa")
 def test_get_phone_subscription_dates_refreshed_twice(mocked_data_from_fxa, phone_user):
     social_account = SocialAccount.objects.get(user=phone_user)
@@ -43,6 +87,7 @@ def test_get_phone_subscription_dates_refreshed_twice(mocked_data_from_fxa, phon
     assert date_phone_subscription_end is None
 
 
+@_phones_skip
 @patch(f"{MOCK_BASE}.get_subscription_data_from_fxa")
 @patch(f"{MOCK_BASE}.logger.error")
 def test_get_phone_subscription_dates_subscription_not_in_data_no_free_phone(
@@ -65,6 +110,7 @@ def test_get_phone_subscription_dates_subscription_not_in_data_no_free_phone(
     )
 
 
+@_phones_skip
 @override_flag("free_phones", active=True)
 @patch(f"{MOCK_BASE}.get_subscription_data_from_fxa")
 @patch(f"{MOCK_BASE}.logger.error")
@@ -85,6 +131,7 @@ def test_get_phone_subscription_dates_subscription_not_in_data_has_free_phone(
     mocked_logger.assert_not_called()
 
 
+@_phones_skip
 @patch(f"{MOCK_BASE}.get_subscription_data_from_fxa")
 @patch(f"{MOCK_BASE}.logger.error")
 def test_get_phone_subscription_dates_subscription_not_phones(
@@ -119,6 +166,7 @@ def test_get_phone_subscription_dates_subscription_not_phones(
     mocked_logger.assert_not_called()
 
 
+@_phones_skip
 @patch(f"{MOCK_BASE}.get_subscription_data_from_fxa")
 @patch(f"{MOCK_BASE}.logger.error")
 def test_get_phone_subscription_dates_subscription_has_invalid_phone_susbscription_data(
@@ -151,6 +199,7 @@ def test_get_phone_subscription_dates_subscription_has_invalid_phone_susbscripti
     )
 
 
+@_phones_skip
 @patch(f"{MOCK_BASE}.get_subscription_data_from_fxa")
 @patch(f"{MOCK_BASE}.logger.error")
 def test_get_phone_subscription_dates_subscription_has_phone_subscription_data(

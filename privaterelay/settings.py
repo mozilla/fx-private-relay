@@ -653,6 +653,14 @@ FXA_ACCOUNTS_ENDPOINT = config(
 )
 FXA_SUPPORT_URL = config("FXA_SUPPORT_URL", f"{FXA_BASE_ORIGIN}/support/")
 USE_SUBPLAT3 = config("USE_SUBPLAT3", False, cast=bool)
+SUBPLAT_API_ENDPOINT = config(
+    "SUBPLAT_API_ENDPOINT",
+    (
+        "https://api.payments.firefox.com/v1"
+        if FXA_BASE_ORIGIN == "https://accounts.firefox.com"
+        else "https://api.payments-next.allizom.org/v1"
+    ),
+)
 SUBPLAT3_HOST = (
     "https://payments.firefox.com"
     if FXA_BASE_ORIGIN == "https://accounts.firefox.com"
