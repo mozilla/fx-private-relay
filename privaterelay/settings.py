@@ -440,25 +440,9 @@ INCREASED_MAX_NUM_FREE_ALIASES: int = config(
     "INCREASED_MAX_NUM_FREE_ALIASES", 50, cast=int
 )
 PERIODICAL_PREMIUM_PROD_ID: str = config("PERIODICAL_PREMIUM_PROD_ID", "")
-PREMIUM_PLAN_ID_US_MONTHLY: str = config(
-    "PREMIUM_PLAN_ID_US_MONTHLY", "price_1LXUcnJNcmPzuWtRpbNOajYS"
-)
-PREMIUM_PLAN_ID_US_YEARLY: str = config(
-    "PREMIUM_PLAN_ID_US_YEARLY", "price_1LXUdlJNcmPzuWtRKTYg7mpZ"
-)
 PHONE_PROD_ID = config("PHONE_PROD_ID", "")
-PHONE_PLAN_ID_US_MONTHLY: str = config(
-    "PHONE_PLAN_ID_US_MONTHLY", "price_1Li0w8JNcmPzuWtR2rGU80P3"
-)
-PHONE_PLAN_ID_US_YEARLY: str = config(
-    "PHONE_PLAN_ID_US_YEARLY", "price_1Li15WJNcmPzuWtRIh0F4VwP"
-)
 BUNDLE_PROD_ID = config("BUNDLE_PROD_ID", "")
-BUNDLE_PLAN_ID_US: str = config("BUNDLE_PLAN_ID_US", "price_1LwoSDJNcmPzuWtR6wPJZeoh")
 MEGABUNDLE_PROD_ID = config("MEGABUNDLE_PROD_ID", "prod_SFb8iVuZIOPREe")
-MEGABUNDLE_PLAN_ID_US: str = config(
-    "MEGABUNDLE_PLAN_ID_US", "price_1RMAopKb9q6OnNsLSGe1vLtt"
-)
 
 SUBSCRIPTIONS_WITH_UNLIMITED: list[str] = config(
     "SUBSCRIPTIONS_WITH_UNLIMITED", default="", cast=Csv()
@@ -652,7 +636,6 @@ FXA_ACCOUNTS_ENDPOINT = config(
     "https://api.accounts.firefox.com/v1",
 )
 FXA_SUPPORT_URL = config("FXA_SUPPORT_URL", f"{FXA_BASE_ORIGIN}/support/")
-USE_SUBPLAT3 = config("USE_SUBPLAT3", False, cast=bool)
 SUBPLAT_API_ENDPOINT = config(
     "SUBPLAT_API_ENDPOINT",
     (

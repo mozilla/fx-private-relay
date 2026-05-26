@@ -24,14 +24,11 @@ from privaterelay.country_utils import (
     _get_cc_from_request,
     guess_country_from_accept_lang,
 )
-from privaterelay.sp3_plans import SP3PlanCountryLangMapping
-
-from .plans import (
+from privaterelay.sp3_plans import (
     CountryStr,
-    LanguageStr,
     PeriodStr,
-    PlanCountryLangMapping,
-    get_premium_country_language_mapping,
+    SP3PlanCountryLangMapping,
+    get_sp3_country_language_mapping,
 )
 
 if TYPE_CHECKING:
@@ -85,11 +82,11 @@ class CountryInfo(TypedDict):
     country_code: str
     countries: list[CountryStr]
     available_in_country: bool
-    plan_country_lang_mapping: PlanCountryLangMapping | SP3PlanCountryLangMapping
+    plan_country_lang_mapping: SP3PlanCountryLangMapping
 
 
 def get_countries_info_from_request_and_mapping(
-    request: HttpRequest, mapping: PlanCountryLangMapping | SP3PlanCountryLangMapping
+    request: HttpRequest, mapping: SP3PlanCountryLangMapping
 ) -> CountryInfo:
     country_code = _get_cc_from_request(request)
     countries = sorted(mapping.keys())
@@ -103,7 +100,7 @@ def get_countries_info_from_request_and_mapping(
 
 
 def get_countries_info_from_lang_and_mapping(
-    accept_lang: str, mapping: PlanCountryLangMapping
+    accept_lang: str, mapping: SP3PlanCountryLangMapping
 ) -> CountryInfo:
     country_code = _get_cc_from_lang(accept_lang)
     countries = sorted(mapping.keys())
@@ -124,19 +121,10 @@ def get_subplat_upgrade_link_by_language(
         country = cast(CountryStr, country_str)
     except AcceptLanguageError:
         country = "US"
-    language_str = accept_language.split("-")[0].lower()
-    language = cast(LanguageStr, language_str)
-    country_lang_mapping = get_premium_country_language_mapping()
+    country_lang_mapping = get_sp3_country_language_mapping("premium")
     country_details = country_lang_mapping.get(country, country_lang_mapping["US"])
-    if language in country_details:
-        plan = country_details[language][period]
-    else:
-        first_key = list(country_details.keys())[0]
-        plan = country_details[first_key][period]
-    return (
-        f"{settings.FXA_BASE_ORIGIN}/subscriptions/products/"
-        f"{settings.PERIODICAL_PREMIUM_PROD_ID}?plan={plan['id']}"
-    )
+    plan = country_details["*"][period]
+    return str(plan["url"])
 
 
 # Generics for defining function decorators

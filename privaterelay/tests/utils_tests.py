@@ -17,7 +17,7 @@ from waffle.testutils import override_flag
 from waffle.utils import get_cache as get_waffle_cache
 
 from ..country_utils import AcceptLanguageError, guess_country_from_accept_lang
-from ..plans import get_premium_country_language_mapping
+from ..sp3_plans import get_sp3_country_language_mapping
 from ..utils import (
     flag_is_active_in_task,
     get_countries_info_from_request_and_mapping,
@@ -331,7 +331,7 @@ def test_get_countries_info_bad_accept_language(
     rf: RequestFactory, caplog: LogCaptureFixture
 ) -> None:
     request = rf.get("/api/v1/runtime_data", HTTP_ACCEPT_LANGUAGE="xx")
-    mapping = get_premium_country_language_mapping()
+    mapping = get_sp3_country_language_mapping("premium")
     result = get_countries_info_from_request_and_mapping(request, mapping)
     assert result == {
         "country_code": "",
@@ -352,7 +352,7 @@ def test_get_countries_info_cdn_language(
     rf: RequestFactory, caplog: LogCaptureFixture
 ) -> None:
     request = rf.get("/api/v1/runtime_data", HTTP_X_CLIENT_REGION="DE")
-    mapping = get_premium_country_language_mapping()
+    mapping = get_sp3_country_language_mapping("premium")
     result = get_countries_info_from_request_and_mapping(request, mapping)
     assert result == {
         "country_code": "DE",
@@ -377,7 +377,7 @@ def test_get_countries_info_cdn_and_accept_language_uses_cdn(
         HTTP_X_CLIENT_REGION="CA",
         HTTP_ACCEPT_LANGUAGE="en-US, en",
     )
-    mapping = get_premium_country_language_mapping()
+    mapping = get_sp3_country_language_mapping("premium")
     result = get_countries_info_from_request_and_mapping(request, mapping)
     assert result == {
         "country_code": "CA",
@@ -398,7 +398,7 @@ def test_get_countries_info_no_language(
     rf: RequestFactory, caplog: LogCaptureFixture
 ) -> None:
     request = rf.get("/api/v1/runtime_data")
-    mapping = get_premium_country_language_mapping()
+    mapping = get_sp3_country_language_mapping("premium")
     result = get_countries_info_from_request_and_mapping(request, mapping)
     assert result == {
         "country_code": "US",
@@ -638,53 +638,28 @@ def test_get_version_info() -> None:
     }
 
 
-@pytest.fixture()
-def get_subplat_link_settings(settings: SettingsWrapper) -> SettingsWrapper:
-    settings.FXA_BASE_ORIGIN = "https://accounts.example.com"
-    settings.PERIODICAL_PREMIUM_PROD_ID = "prod_xyz"
-    return settings
-
-
-def test_get_subplat_upgrade_link_by_language(
-    get_subplat_link_settings: SettingsWrapper,
-) -> None:
-    country_lang_mapping = get_premium_country_language_mapping()
-    expected_plan = country_lang_mapping["US"]["*"]["yearly"]["id"]
-    expected_link = (
-        "https://accounts.example.com/subscriptions/products/prod_xyz?plan="
-        + expected_plan
-    )
+def test_get_subplat_upgrade_link_by_language() -> None:
+    mapping = get_sp3_country_language_mapping("premium")
+    expected_url = mapping["US"]["*"]["yearly"]["url"]
 
     link = get_subplat_upgrade_link_by_language("en-us")
-    assert link == expected_link
+    assert link == expected_url
 
 
-def test_get_subplat_upgrade_link_by_language_unsupported_region(
-    get_subplat_link_settings: SettingsWrapper,
-) -> None:
-    country_lang_mapping = get_premium_country_language_mapping()
-    expected_plan = country_lang_mapping["US"]["*"]["yearly"]["id"]
-    expected_link = (
-        "https://accounts.example.com/subscriptions/products/prod_xyz?plan="
-        + expected_plan
-    )
+def test_get_subplat_upgrade_link_by_language_unsupported_region() -> None:
+    mapping = get_sp3_country_language_mapping("premium")
+    expected_url = mapping["US"]["*"]["yearly"]["url"]
 
     link = get_subplat_upgrade_link_by_language("zh-Hant")
-    assert link == expected_link
+    assert link == expected_url
 
 
-def test_get_subplat_upgrade_link_by_language_invalid_header(
-    get_subplat_link_settings: SettingsWrapper,
-) -> None:
-    country_lang_mapping = get_premium_country_language_mapping()
-    expected_plan = country_lang_mapping["US"]["*"]["yearly"]["id"]
-    expected_link = (
-        "https://accounts.example.com/subscriptions/products/prod_xyz?plan="
-        + expected_plan
-    )
+def test_get_subplat_upgrade_link_by_language_invalid_header() -> None:
+    mapping = get_sp3_country_language_mapping("premium")
+    expected_url = mapping["US"]["*"]["yearly"]["url"]
 
     link = get_subplat_upgrade_link_by_language("en-gb;q=1.0000")
-    assert link == expected_link
+    assert link == expected_url
 
 
 @pytest.mark.parametrize(

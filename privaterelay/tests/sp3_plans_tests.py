@@ -15,7 +15,6 @@ from privaterelay.sp3_plans import (
 # Fixture to set SP3 settings; these can be overridden by individual tests
 @pytest.fixture(autouse=True)
 def sp3_plan_settings(settings):
-    settings.USE_SUBPLAT3 = True
     settings.SUBPLAT3_HOST = "https://payments-test.example.com"
     settings.SUBPLAT3_PREMIUM_PRODUCT_KEY = "premium-key"
     settings.SUBPLAT3_PHONES_PRODUCT_KEY = "phones-key"

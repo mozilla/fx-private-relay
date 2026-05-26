@@ -367,18 +367,15 @@ selects the price for a region. For example, a region can use the prices of a di
 region. Another case is when a region has per-language prices. The manager highlights
 these complex cases.
 
-The Relay engineer updates the data structures in [privaterelay/plans.py][]:
+The Relay engineer updates the data structures in [privaterelay/sp3_plans.py][]:
 
 1. Add new currencies in `CurrencyStr`
 2. Add new regions in `CountryStr`
-3. Add new prices details in `_STRIPE_PLAN_DATA`
-4. Add a new section in `_RELAY_PLANS`, such as `premium_expansion`, with the expanded
-   regions
-5. Update the relevant functions to take a boolean signaling the waffle flag is
-   on or off. See [PR #3745][], which retired the 2023 expansion flag, for
-   details.
+3. Add new pricing data in `PLAN_PRICING`
+4. Add new countries in `_get_supported_countries_by_plan`
+5. Add new country-to-currency mappings in `_get_country_currency`
 
-Relay staff can turn on the expansion flag for themselves and others. With an enabled
+Relay staff can turn on an expansion flag for themselves and others. With an enabled
 flag, users can view new content and test buying a subscription.
 
 > [!NOTE]
@@ -391,16 +388,10 @@ flag, users can view new content and test buying a subscription.
 > "[Identifying The User's Preferred Languages](#identifying-the-users-preferred-languages)"
 > for more information.
 
-When the expansion ships to all users, a Relay engineer can cleanup the data
-structures:
+When the expansion ships to all users, a Relay engineer can clean up any expansion
+waffle flags and merge temporary data structures.
 
-1. Merge the expanded section in `_RELAY_PLANS`, and re-sort
-2. Drop the expansion boolean. Or, add a comment for the unused variable. Or, if time
-   allows, leave flexible code for future expansions.
-3. Remove other code and documentation references to the expansion waffle flag
-
-[privaterelay/plans.py]: https://github.com/mozilla/fx-private-relay/blob/main/privaterelay/plans.py
-[PR #3745]: https://github.com/mozilla/fx-private-relay/pull/3745
+[privaterelay/sp3_plans.py]: https://github.com/mozilla/fx-private-relay/blob/main/privaterelay/sp3_plans.py
 [Stripe]: https://stripe.com
 [Stripe Price]: https://stripe.com/docs/api/prices
 
@@ -719,7 +710,7 @@ the krone. Others share the price of a nearby region, such as Austria, which use
 Germany's prices in German and Euros. A minority are more complex, choosing a price
 based on language. Belgium users share the price in Euros of a neighbor, based on
 language. Switzerland has separate prices for German, French, and Italian speakers.
-All the Swiss prices are in Swiss Francs. See [privaterelay/plans.py][] for details.
+All the Swiss prices are in Swiss Francs. See [privaterelay/sp3_plans.py][] for details.
 
 The Subscription Platform supports certain [markets and currencies][]. The Subscription
 Platform has configured Stripe to reject payments from outside these markets.
