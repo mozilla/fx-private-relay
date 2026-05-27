@@ -75,11 +75,10 @@ export const AliasList = (props: Props) => {
         (alias) => existingAliasIds.indexOf(alias.id) === -1,
       );
       if (newAliases.length !== 0) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setOpenAlias(newAliases[0]);
       }
     }
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+
     setExistingAliases(props.aliases);
   }, [props.aliases, existingAliases]);
 

@@ -141,7 +141,7 @@ describe("The dashboard", () => {
     // Unfortunately we can't select by role=definition to directly query for
     // the parent item, so we'll have to make do with this crutch. See:
     // https://github.com/testing-library/dom-testing-library/issues/1083
-    // eslint-disable-next-line testing-library/no-node-access
+
     expect(countOf2.parentElement?.textContent).toMatch("2");
   });
 
@@ -161,7 +161,7 @@ describe("The dashboard", () => {
     // Unfortunately we can't select by role=definition to directly query for
     // the parent item, so we'll have to make do with this crutch. See:
     // https://github.com/testing-library/dom-testing-library/issues/1083
-    // eslint-disable-next-line testing-library/no-node-access
+
     expect(countOf42.parentElement?.textContent).toMatch("42");
   });
 
@@ -181,7 +181,7 @@ describe("The dashboard", () => {
     // Unfortunately we can't select by role=definition to directly query for
     // the parent item, so we'll have to make do with this crutch. See:
     // https://github.com/testing-library/dom-testing-library/issues/1083
-    // eslint-disable-next-line testing-library/no-node-access
+
     expect(countOf50.parentElement?.textContent).toMatch("50");
   });
 
@@ -214,9 +214,9 @@ describe("The dashboard", () => {
     // Unfortunately we can't select by role=definition to directly query for
     // the parent item, so we'll have to make do with this crutch. See:
     // https://github.com/testing-library/dom-testing-library/issues/1083
-    // eslint-disable-next-line testing-library/no-node-access
+
     expect(countOf50.parentElement?.textContent).toMatch("50");
-    // eslint-disable-next-line testing-library/no-node-access
+
     expect(countOf72.parentElement?.textContent).toMatch("72");
   });
 
@@ -1298,7 +1298,6 @@ describe("The dashboard", () => {
       /profile-stat-label-trackers-removed/,
     );
 
-    // eslint-disable-next-line testing-library/no-node-access
     expect(trackersCount.parentElement?.textContent).toMatch("99");
   });
 
