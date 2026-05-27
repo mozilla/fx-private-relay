@@ -112,7 +112,7 @@ describe("TopMessage", () => {
     view.unmount();
 
     getLocale.mockReturnValue("en-US");
-    view = render(<TopMessage profile={undefined} runtimeData={runtimeData} />);
+    render(<TopMessage profile={undefined} runtimeData={runtimeData} />);
     expect(
       screen.queryByTestId("interview-recruitment"),
     ).not.toBeInTheDocument();
@@ -170,7 +170,7 @@ describe("TopMessage", () => {
 
     runtimeData.PHONE_PLANS.country_code = "us";
     getLocale.mockReturnValue("de-DE");
-    view = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
+    render(<TopMessage profile={profile} runtimeData={runtimeData} />);
     expect(screen.queryByTestId("phone-survey")).not.toBeInTheDocument();
   });
 
@@ -222,7 +222,7 @@ describe("TopMessage", () => {
     runtimeData.PERIODICAL_PREMIUM_PLANS.country_code = "us";
     runtimeData.PHONE_PLANS.country_code = "us";
 
-    let view = render(
+    const view = render(
       <TopMessage profile={profile} runtimeData={runtimeData} />,
     );
     expect(screen.getByTestId("interview-recruitment")).toBeInTheDocument();
@@ -233,7 +233,7 @@ describe("TopMessage", () => {
     isFlagActive.mockImplementation(
       (_, flag) => flag === "phone_launch_survey",
     );
-    view = render(<TopMessage profile={profile} runtimeData={runtimeData} />);
+    render(<TopMessage profile={profile} runtimeData={runtimeData} />);
     expect(screen.getByTestId("phone-survey")).toBeInTheDocument();
     expect(screen.queryByTestId("csat-survey")).not.toBeInTheDocument();
   });

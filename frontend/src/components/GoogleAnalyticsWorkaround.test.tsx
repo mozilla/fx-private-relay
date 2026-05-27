@@ -102,7 +102,7 @@ describe("GoogleAnalyticsWorkaround", () => {
     );
     view.unmount();
 
-    view = render(
+    render(
       <GoogleAnalyticsWorkaround
         gaId="G-ALL"
         dataLayerName="myLayer"

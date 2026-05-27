@@ -483,7 +483,7 @@ const BlockLevelOption = (
   const inputRef = useRef<HTMLInputElement>(null);
   // The `!` is safe here as long as <BlockLevelOption> is only used as a child
   // of <BlockLevelSwitch>, which sets the state in the context:
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
   const { inputProps, isSelected } = useRadio(props, state!, inputRef);
   const { isFocusVisible, focusProps } = useFocusRing();
 

@@ -13,7 +13,7 @@ export type GenericTipProps = {
   alt?: string;
 };
 // This component will probably be used for future tips that are yet to be added:
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 export const GenericTip = (props: GenericTipProps) => {
   const l10n = useL10n();
 

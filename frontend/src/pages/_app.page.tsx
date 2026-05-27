@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import "../styles/globals.scss";
 import { createElement, useEffect, useRef, useState } from "react";
 import type { AppProps } from "next/app";

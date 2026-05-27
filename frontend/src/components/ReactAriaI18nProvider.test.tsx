@@ -60,7 +60,7 @@ describe("ReactAriaI18nProvider", () => {
     view.unmount();
 
     global.getLocaleMock.mockReturnValue("es-ES");
-    view = render(
+    render(
       <ReactAriaI18nProvider>
         <div>Spanish content</div>
       </ReactAriaI18nProvider>,
