@@ -207,7 +207,7 @@ def test_create_relaynumber_without_realphone_raises_error(
     phone_user, mock_twilio_client
 ):
     with pytest.raises(ValidationError) as exc_info:
-        RelayNumber.objects.create(user=phone_user, number="+19998887777")
+        RelayNumber.objects.create(user=phone_user, number="+12015557777")
     assert exc_info.value.message == "User does not have a verified real phone."
     mock_twilio_client.messages.create.assert_not_called()
     mock_twilio_client.incoming_phone_numbers.create.assert_not_called()
@@ -224,7 +224,7 @@ def test_create_relaynumber_when_user_already_has_one_raises_error(
     mock_messages_create.assert_called_once()
     mock_messages_create.reset_mock()
 
-    relay_number = "+19998887777"
+    relay_number = "+12125557777"
     relay_number_obj = RelayNumber.objects.create(user=phone_user, number=relay_number)
 
     mock_number_create.assert_called_once()
@@ -241,7 +241,7 @@ def test_create_relaynumber_when_user_already_has_one_raises_error(
 
     mock_number_create.reset_mock()
     mock_messages_create.reset_mock()
-    second_relay_number = "+14445556666"
+    second_relay_number = "+13125556666"
     with pytest.raises(ValidationError) as exc_info:
         RelayNumber.objects.create(user=phone_user, number=second_relay_number)
     assert exc_info.value.message == "User can have only one relay number."
@@ -265,7 +265,7 @@ def test_create_duplicate_relaynumber_raises_error(phone_user, mock_twilio_clien
     mock_messages_create.assert_called_once()
     mock_messages_create.reset_mock()
 
-    relay_number = "+19998887777"
+    relay_number = "+12125557777"
     RelayNumber.objects.create(user=phone_user, number=relay_number)
 
     mock_number_create.assert_called_once()
@@ -279,7 +279,7 @@ def test_create_duplicate_relaynumber_raises_error(phone_user, mock_twilio_clien
     mock_messages_create.reset_mock()
 
     second_user = make_phone_test_user()
-    second_phone = "+15553334444"
+    second_phone = "+15103334444"
     RealPhone.objects.create(user=second_user, verified=True, number=second_phone)
     mock_messages_create.assert_called_once()
     mock_messages_create.reset_mock()
@@ -309,7 +309,7 @@ def test_create_relaynumber_creates_twilio_incoming_number_and_sends_welcome(
     phone_user, real_phone_us, mock_twilio_client, settings, twilio_number_sid
 ):
     """A successful relay phone creation sends a welcome message."""
-    relay_number = "+19998887777"
+    relay_number = "+12015557777"
     relay_number_obj = RelayNumber.objects.create(user=phone_user, number=relay_number)
 
     mock_twilio_client.incoming_phone_numbers.create.assert_called_once_with(
@@ -342,7 +342,7 @@ def test_create_relaynumber_with_two_real_numbers(
     phone2.mark_verified()
     mock_twilio_client.reset_mock()
 
-    relay_number = "+19998887777"
+    relay_number = "+12015557777"
     relay_number_obj = RelayNumber.objects.create(user=phone_user, number=relay_number)
 
     mock_twilio_client.incoming_phone_numbers.create.assert_called_once_with(
@@ -390,7 +390,7 @@ def test_create_relaynumber_already_registered_with_service(
     )
 
     # Does not raise exception
-    relay_number = "+19998887777"
+    relay_number = "+12015557777"
     RelayNumber.objects.create(user=phone_user, number=relay_number)
 
     mock_twilio_client.incoming_phone_numbers.create.assert_called_once_with(
@@ -429,7 +429,7 @@ def test_create_relaynumber_fail_if_all_services_are_full(
 
     # "Pool full" exception is raised
     with pytest.raises(Exception) as exc_info:
-        RelayNumber.objects.create(user=phone_user, number="+19998887777")
+        RelayNumber.objects.create(user=phone_user, number="+12015557777")
     assert (
         str(exc_info.value) == "All services in TWILIO_MESSAGING_SERVICE_SID are full"
     )
@@ -451,7 +451,7 @@ def test_create_relaynumber_no_service(
     """If no Twilio Messaging Service IDs are defined, registration is skipped."""
     settings.TWILIO_MESSAGING_SERVICE_SID = []
 
-    RelayNumber.objects.create(user=phone_user, number="+19998887777")
+    RelayNumber.objects.create(user=phone_user, number="+12015557777")
 
     mock_services = mock_twilio_client.messaging.v1.services
     mock_services.return_value.phone_numbers.create.assert_not_called()
@@ -494,7 +494,7 @@ def test_create_relaynumber_fallback_to_second_service(
         None,
     ]
 
-    RelayNumber.objects.create(user=phone_user, number="+19998887777")
+    RelayNumber.objects.create(user=phone_user, number="+12015557777")
 
     mock_services.assert_has_calls(
         [
@@ -529,7 +529,7 @@ def test_create_relaynumber_skip_known_full_service(
     settings.TWILIO_MESSAGING_SERVICE_SID = [twilio_service1_sid, twilio_service2_sid]
     django_cache.set("twilio_messaging_service_closed", twilio_service1_sid)
 
-    RelayNumber.objects.create(user=phone_user, number="+19998887777")
+    RelayNumber.objects.create(user=phone_user, number="+12015557777")
 
     mock_services = mock_twilio_client.messaging.v1.services
     mock_services.assert_called_once_with(twilio_service2_sid)
@@ -568,7 +568,7 @@ def test_create_relaynumber_other_messaging_error_raised(
     )
 
     with pytest.raises(TwilioRestException):
-        RelayNumber.objects.create(user=phone_user, number="+19998887777")
+        RelayNumber.objects.create(user=phone_user, number="+12015557777")
 
     mock_services.assert_called_once_with(twilio_service_sid)
     mock_messaging_number_create.assert_called_once_with(
@@ -621,6 +621,36 @@ def test_create_relaynumber_canada(
     assert relay_number_obj.vcard_lookup_key in call_kwargs["media_url"][0]
 
 
+def test_create_relaynumber_unsupported_country_rejected(
+    phone_user, real_phone_us, mock_twilio_client
+):
+    """A UK number is rejected even with a verified US real phone."""
+    with pytest.raises(ValidationError) as exc_info:
+        RelayNumber.objects.create(user=phone_user, number="+447911123456")
+    assert "supported country" in exc_info.value.message
+    mock_twilio_client.incoming_phone_numbers.create.assert_not_called()
+
+
+def test_create_relaynumber_cross_border_us_ca_allowed(
+    phone_user, real_phone_ca, mock_twilio_client
+):
+    """A CA-verified user can pick a US relay number."""
+    relay_number = "+12125551234"
+    relay_number_obj = RelayNumber.objects.create(user=phone_user, number=relay_number)
+    assert relay_number_obj.country_code == "US"
+    mock_twilio_client.incoming_phone_numbers.create.assert_called_once()
+
+
+def test_create_relaynumber_us_user_us_number_allowed(
+    phone_user, real_phone_us, mock_twilio_client
+):
+    """A US-verified user can pick a US relay number."""
+    relay_number = "+12125551234"
+    relay_number_obj = RelayNumber.objects.create(user=phone_user, number=relay_number)
+    assert relay_number_obj.country_code == "US"
+    mock_twilio_client.incoming_phone_numbers.create.assert_called_once()
+
+
 def test_relaynumber_remaining_minutes_returns_properly_formats_remaining_seconds(
     phone_user, real_phone_us, mock_twilio_client
 ):
@@ -654,7 +684,7 @@ def test_suggested_numbers_bad_request_for_user_without_real_phone(
 def test_suggested_numbers_bad_request_for_user_who_already_has_number(
     phone_user, real_phone_us, mock_twilio_client
 ):
-    RelayNumber.objects.create(user=phone_user, number="+19998887777")
+    RelayNumber.objects.create(user=phone_user, number="+12015557777")
     with pytest.raises(BadRequest):
         suggested_numbers(phone_user)
     mock_twilio_client.available_phone_numbers.assert_not_called()
@@ -775,7 +805,7 @@ def test_save_store_phone_log_no_relay_number_does_nothing() -> None:
 def test_save_store_phone_log_true_doesnt_delete_data() -> None:
     user = make_phone_test_user()
     baker.make(RealPhone, user=user, verified=True)
-    relay_number = baker.make(RelayNumber, user=user)
+    relay_number = baker.make(RelayNumber, user=user, number="+12025551000")
     inbound_contact = baker.make(InboundContact, relay_number=relay_number)
     user.profile.store_phone_log = True
     user.profile.save()
@@ -786,7 +816,7 @@ def test_save_store_phone_log_true_doesnt_delete_data() -> None:
 
 def _setup_phone_user_for_last_engagement(phone_user):
     add_verified_realphone_to_user(phone_user)
-    relay_number = RelayNumber.objects.create(user=phone_user, number="+12223334444")
+    relay_number = RelayNumber.objects.create(user=phone_user, number="+12025554444")
 
     # Get initial last_engagement
     initial_last_engagement = phone_user.profile.last_engagement
@@ -837,7 +867,7 @@ def test_relaynumber_create_does_not_trigger_last_engagement(phone_user):
     add_verified_realphone_to_user(phone_user)
     initial_last_engagement = phone_user.profile.last_engagement
 
-    RelayNumber.objects.create(user=phone_user, number="+12223334444")
+    RelayNumber.objects.create(user=phone_user, number="+12025554444")
 
     # Ensure last_engagement was NOT updated
     phone_user.profile.refresh_from_db()
@@ -870,7 +900,7 @@ def test_multiple_relaynumber_updates_trigger_last_engagement_once(phone_user):
 def test_save_store_phone_log_false_deletes_data() -> None:
     user = make_phone_test_user()
     baker.make(RealPhone, user=user, verified=True)
-    relay_number = baker.make(RelayNumber, user=user)
+    relay_number = baker.make(RelayNumber, user=user, number="+12025551001")
     inbound_contact = baker.make(InboundContact, relay_number=relay_number)
     user.profile.store_phone_log = False
     user.profile.save()
@@ -882,7 +912,7 @@ def test_save_store_phone_log_false_deletes_data() -> None:
 def test_get_last_text_sender_returning_None():
     user = make_phone_test_user()
     baker.make(RealPhone, user=user, verified=True)
-    relay_number = baker.make(RelayNumber, user=user)
+    relay_number = baker.make(RelayNumber, user=user, number="+12025551002")
 
     assert get_last_text_sender(relay_number) is None
 
@@ -890,7 +920,7 @@ def test_get_last_text_sender_returning_None():
 def test_get_last_text_sender_returning_one():
     user = make_phone_test_user()
     baker.make(RealPhone, user=user, verified=True)
-    relay_number = baker.make(RelayNumber, user=user)
+    relay_number = baker.make(RelayNumber, user=user, number="+12025551003")
     inbound_contact = baker.make(
         InboundContact, relay_number=relay_number, last_inbound_type="text"
     )
@@ -901,7 +931,7 @@ def test_get_last_text_sender_returning_one():
 def test_get_last_text_sender_lots_of_inbound_returns_one():
     user = make_phone_test_user()
     baker.make(RealPhone, user=user, verified=True)
-    relay_number = baker.make(RelayNumber, user=user)
+    relay_number = baker.make(RelayNumber, user=user, number="+12025551004")
     baker.make(
         InboundContact,
         relay_number=relay_number,

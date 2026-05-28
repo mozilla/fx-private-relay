@@ -37,7 +37,7 @@ def phone_user(db):
 
 
 _REAL_PHONE = "+12223334444"
-_RELAY_NUMBER = "+19998887777"
+_RELAY_NUMBER = "+12015557777"
 
 
 def _make_real_phone(phone_user, **kwargs):
@@ -760,7 +760,7 @@ def test_vcard_valid_lookup_key(phone_user):
     assert response.data["number"] == relay_number.number
     assert (
         response.headers["Content-Disposition"]
-        == "attachment; filename=+19998887777.vcf"
+        == f"attachment; filename={_RELAY_NUMBER}.vcf"
     )
 
 
