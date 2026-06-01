@@ -3212,7 +3212,9 @@ def test_build_reply_requires_premium_email_after_forward():
     [
         ([{"name": "List-Unsubscribe", "value": "https://example.com/unsub"}], True),
         ([{"name": "list-id", "value": "<list.example.com>"}], True),
-        ([{"name": "Feedback-ID", "value": "campaign:sender:amazonses.com"}], True),
+        # Feedback-ID alone is not a reliable signal — many ESPs (SendGrid,
+        # Mailgun, Amazon SES) attach it to transactional mail too (MPP-4684).
+        ([{"name": "Feedback-ID", "value": "campaign:sender:amazonses.com"}], False),
         ([{"name": "Precedence", "value": "bulk"}], True),
         ([{"name": "Precedence", "value": "list"}], True),
         # Precedence: first-class is not a list signal
@@ -3226,14 +3228,14 @@ def test_build_reply_requires_premium_email_after_forward():
             ],
             True,
         ),
-        # Feedback-ID mixed with non-list headers
+        # Feedback-ID without list headers is not blocked (MPP-4684)
         (
             [
                 {"name": "From", "value": "support@duolingo.com"},
                 {"name": "Feedback-ID", "value": "campaign:amazonses.com"},
                 {"name": "Subject", "value": "Welcome!"},
             ],
-            True,
+            False,
         ),
         # transactional email with no list headers
         (
