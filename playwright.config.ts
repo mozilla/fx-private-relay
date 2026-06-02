@@ -1,4 +1,5 @@
 import { devices, defineConfig } from '@playwright/test';
+import { getFxaCiSecret } from './e2e-tests/e2eTestUtils/helpers';
 
 /**
  * Read environment variables from file.
@@ -82,8 +83,8 @@ const config = defineConfig({
     /* Send fxa-ci header to bypass Fastly CAPTCHA on FxA stage.
        setupFxaCiRoutes() strips this header from non-FxA domains
        to avoid CORS preflight failures. */
-    extraHTTPHeaders: process.env.FXA_CI_SECRET ? {
-      'fxa-ci': process.env.FXA_CI_SECRET,
+    extraHTTPHeaders: getFxaCiSecret() ? {
+      'fxa-ci': getFxaCiSecret(),
     } : {},
 
   },
