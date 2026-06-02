@@ -73,7 +73,11 @@ def mock_free_phones_user(db: None) -> User:
 def _make_used_relay_number(user):
     baker.make(RealPhone, user=user, verified=True)
     relay_number = baker.make(
-        RelayNumber, user=user, remaining_texts=10, remaining_seconds=15
+        RelayNumber,
+        user=user,
+        number="+12025551234",
+        remaining_texts=10,
+        remaining_seconds=15,
     )
     return relay_number
 

@@ -17,6 +17,7 @@ from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 from django.urls import reverse
 
+import phonenumbers
 from twilio.base.exceptions import TwilioException, TwilioRestException
 from twilio.rest import Client
 
@@ -279,7 +280,7 @@ class RelayNumber(models.Model):
 
     def save(self, *args, **kwargs):
         try:
-            realphone = RealPhone.verified_objects.get(user=self.user)
+            RealPhone.verified_objects.get(user=self.user)
         except RealPhone.DoesNotExist:
             raise ValidationError("User does not have a verified real phone.")
 
@@ -307,6 +308,21 @@ class RelayNumber(models.Model):
         if RelayNumber.objects.filter(number=self.number).exists():
             raise ValidationError("This number is already claimed.")
 
+        # Validate the number is in a supported country before purchasing
+        try:
+            parsed = phonenumbers.parse(self.number)
+        except phonenumbers.NumberParseException as e:
+            raise ValidationError(f"Invalid phone number: {e}")
+        number_country = phonenumbers.region_code_for_number(parsed)
+        if (
+            number_country is None
+            or number_country.upper() not in settings.TWILIO_ALLOWED_COUNTRY_CODES
+        ):
+            raise ValidationError(
+                "Relay number must be in a supported country: "
+                f"{sorted(settings.TWILIO_ALLOWED_COUNTRY_CODES)}"
+            )
+
         use_twilio = (
             self.vendor == "twilio" and not settings.PHONES_NO_CLIENT_CALLS_IN_TEST
         )
@@ -326,9 +342,7 @@ class RelayNumber(models.Model):
                 voice_application_sid=settings.TWILIO_SMS_APPLICATION_SID,
             )
 
-        # Assume number was selected through suggested_numbers, so same country
-        # as realphone
-        self.country_code = realphone.country_code.upper()
+        self.country_code = number_country.upper()
 
         # Add numbers to the Relay messaging service, so it goes into our
         # A2P 10DLC campaigns

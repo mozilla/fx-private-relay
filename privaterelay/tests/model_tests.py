@@ -323,7 +323,9 @@ class ProfileDatePhoneRegisteredTest(ProfileTestCase):
             verified=True,
             verified_date=datetime_now,
         )
-        relay_number = RelayNumber.objects.create(user=phone_user)
+        relay_number = RelayNumber.objects.create(
+            user=phone_user, number="+12025551234"
+        )
         assert self.profile.date_phone_registered == relay_number.created_at
 
     def test_real_phone_and_relay_number_wo_created_at_returns_verified_date(
@@ -338,7 +340,9 @@ class ProfileDatePhoneRegisteredTest(ProfileTestCase):
             verified=True,
             verified_date=datetime_now,
         )
-        relay_number = RelayNumber.objects.create(user=phone_user)
+        relay_number = RelayNumber.objects.create(
+            user=phone_user, number="+12025551234"
+        )
         # since created_at is auto set, update to None
         relay_number.created_at = None
         relay_number.save()
