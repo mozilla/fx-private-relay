@@ -19,7 +19,7 @@ from allauth.socialaccount.models import SocialAccount
 
 from .country_utils import AcceptLanguageError, guess_country_from_accept_lang
 from .exceptions import CannotMakeSubdomainException
-from .plans import get_premium_countries
+from .sp3_plans import get_premium_countries
 from .utils import flag_is_active_in_task
 from .validators import valid_available_subdomain
 

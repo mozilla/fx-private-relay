@@ -9,6 +9,7 @@ from allauth.socialaccount.models import SocialAccount, SocialToken
 from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
 from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error, TokenExpiredError
 from requests_oauthlib import OAuth2Session
+from waffle import switch_is_active
 
 from .utils import flag_is_active_in_task
 
@@ -89,10 +90,15 @@ def _refresh_token(client, social_account):
 
 
 def get_subscription_data_from_fxa(social_account: SocialAccount) -> dict[str, Any]:
-    accounts_subscription_url = (
-        settings.FXA_ACCOUNTS_ENDPOINT
-        + "/oauth/mozilla-subscriptions/customer/billing-and-subscriptions"
-    )
+    if switch_is_active("use_subplat_billing_api"):
+        accounts_subscription_url = (
+            settings.SUBPLAT_API_ENDPOINT + "/billing-and-subscriptions"
+        )
+    else:
+        accounts_subscription_url = (
+            settings.FXA_ACCOUNTS_ENDPOINT
+            + "/oauth/mozilla-subscriptions/customer/billing-and-subscriptions"
+        )
 
     try:
         client = _get_oauth2_session(social_account)

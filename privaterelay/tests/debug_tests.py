@@ -17,7 +17,6 @@ def test_default_filter() -> None:
 @pytest.mark.parametrize(
     "name",
     (
-        "BUNDLE_PLAN_ID_US",
         "BUNDLE_PROD_ID",
         "MEGABUNDLE_PROD_ID",
         "RELAY_CHANNEL",
@@ -79,7 +78,6 @@ def test_unsafe_settings(name: str) -> None:
 def meta_request(rf: RequestFactory) -> HttpRequest:
     request = rf.get(
         path="/meta-test",
-        BUNDLE_PLAN_ID_US="price_1LwoSDJNcmPzuWtR6wPJZeoh",
         BUNDLE_PROD_ID="bundle-relay-vpn-dev",
         CACHES={"default": {"LOCATION": "rediss://user:pass@redis.example.com:10001"}},
         CSRF_COOKIE="cross-site-request-forgery-cookie",
@@ -98,7 +96,6 @@ def meta_request(rf: RequestFactory) -> HttpRequest:
 @pytest.mark.parametrize(
     "name",
     (
-        "BUNDLE_PLAN_ID_US",
         "BUNDLE_PROD_ID",
         "MEGABUNDLE_PROD_ID",
     ),

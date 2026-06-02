@@ -42,15 +42,7 @@ from waffle.models import Sample, Switch
 
 from emails.utils import incr_if_enabled
 from privaterelay.models import Profile
-from privaterelay.plans import (
-    PlanCountryLangMapping,
-    get_bundle_country_language_mapping,
-    get_megabundle_country_language_mapping,
-    get_phone_country_language_mapping,
-    get_premium_country_language_mapping,
-)
 from privaterelay.sp3_plans import (
-    SP3PlanCountryLangMapping,
     get_sp3_country_language_mapping,
 )
 from privaterelay.utils import get_countries_info_from_request_and_mapping
@@ -223,20 +215,10 @@ def runtime_data(request):
     switch_values = [(s.name, s.is_active()) for s in switches]
     samples = Sample.get_all()
     sample_values = [(s.name, s.is_active()) for s in samples]
-    premium_plans: SP3PlanCountryLangMapping | PlanCountryLangMapping
-    phone_plans: SP3PlanCountryLangMapping | PlanCountryLangMapping
-    bundle_plans: SP3PlanCountryLangMapping | PlanCountryLangMapping
-    megabundle_plans: SP3PlanCountryLangMapping | PlanCountryLangMapping
-    if settings.USE_SUBPLAT3:
-        premium_plans = get_sp3_country_language_mapping("premium")
-        phone_plans = get_sp3_country_language_mapping("phones")
-        bundle_plans = get_sp3_country_language_mapping("bundle")
-        megabundle_plans = get_sp3_country_language_mapping("megabundle")
-    else:
-        premium_plans = get_premium_country_language_mapping()
-        phone_plans = get_phone_country_language_mapping()
-        bundle_plans = get_bundle_country_language_mapping()
-        megabundle_plans = get_megabundle_country_language_mapping()
+    premium_plans = get_sp3_country_language_mapping("premium")
+    phone_plans = get_sp3_country_language_mapping("phones")
+    bundle_plans = get_sp3_country_language_mapping("bundle")
+    megabundle_plans = get_sp3_country_language_mapping("megabundle")
     return Response(
         {
             "FXA_ORIGIN": settings.FXA_BASE_ORIGIN,

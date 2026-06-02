@@ -22,7 +22,6 @@ class RelaySaferExceptionReporterFilter(SafeExceptionReporterFilter):
 
     # Allow variable values named in this list
     SAFE_NAMES = [
-        "BUNDLE_PLAN_ID_US",
         "BUNDLE_PROD_ID",
         "MEGABUNDLE_PROD_ID",
         "RELAY_CHANNEL",

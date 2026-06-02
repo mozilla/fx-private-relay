@@ -89,55 +89,26 @@ def test_runtime_data_mask_limit_with_flag(
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize("use_subplat3", [True, False])
-def test_runtime_data_uses_correct_plan_mapping(
-    client: Client, settings: LazySettings, use_subplat3: bool
-) -> None:
-    """
-    Test that runtime_data uses the correct plan mapping based on
-    USE_SUBPLAT3 setting.
-    """
-    settings.USE_SUBPLAT3 = use_subplat3
-
+def test_runtime_data_uses_sp3_plan_mapping(client: Client) -> None:
+    """Test that runtime_data returns SP3 plan data with URLs."""
     path = "/api/v1/runtime_data/"
     response = client.get(path)
 
     assert response.status_code == 200
     data = response.json()
 
-    # Check that the correct plan data is returned
-    if use_subplat3:
-        # Check for SP3 plan data
-        assert (
-            "url"
-            in data["PERIODICAL_PREMIUM_PLANS"]["plan_country_lang_mapping"]["US"]["*"][
-                "monthly"
-            ]
-        )
-        assert (
-            "url"
-            in data["PHONE_PLANS"]["plan_country_lang_mapping"]["US"]["*"]["monthly"]
-        )
-        assert (
-            "url"
-            in data["BUNDLE_PLANS"]["plan_country_lang_mapping"]["US"]["*"]["yearly"]
-        )
-    else:
-        # Check for regular plan data
-        assert (
-            "id"
-            in data["PERIODICAL_PREMIUM_PLANS"]["plan_country_lang_mapping"]["US"]["*"][
-                "monthly"
-            ]
-        )
-        assert (
-            "id"
-            in data["PHONE_PLANS"]["plan_country_lang_mapping"]["US"]["*"]["monthly"]
-        )
-        assert (
-            "id"
-            in data["BUNDLE_PLANS"]["plan_country_lang_mapping"]["US"]["*"]["yearly"]
-        )
+    assert (
+        "url"
+        in data["PERIODICAL_PREMIUM_PLANS"]["plan_country_lang_mapping"]["US"]["*"][
+            "monthly"
+        ]
+    )
+    assert (
+        "url" in data["PHONE_PLANS"]["plan_country_lang_mapping"]["US"]["*"]["monthly"]
+    )
+    assert (
+        "url" in data["BUNDLE_PLANS"]["plan_country_lang_mapping"]["US"]["*"]["yearly"]
+    )
 
 
 def test_patch_premium_user_subdomain_cannot_be_changed(
