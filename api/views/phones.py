@@ -10,6 +10,7 @@ from typing import Any, Literal
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.db import IntegrityError, transaction
 from django.db.models.query import QuerySet
 from django.forms import model_to_dict
 
@@ -314,13 +315,22 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         [e164]: https://en.wikipedia.org/wiki/E.164
         """  # noqa: E501  # ignore long line for URL
         incr_if_enabled("phones_RelayNumberViewSet.create")
-        existing_number = RelayNumber.objects.filter(user=request.user)
-        if existing_number:
-            raise exceptions.ValidationError("User already has a RelayNumber.")
-        try:
-            return super().create(request, *args, **kwargs)
-        except ValidationError as e:
-            raise exceptions.ValidationError(e.message)
+        # The OneToOneField on RelayNumber.user enforces one-per-user at the
+        # DB level. The lock here serializes concurrent attempts so only one
+        # thread reaches Twilio provisioning — without it, racing requests
+        # would each buy a Twilio number before the DB constraint rejects
+        # the duplicate insert.
+        with transaction.atomic():
+            User.objects.select_for_update().get(pk=request.user.pk)
+            existing_number = RelayNumber.objects.filter(user=request.user)
+            if existing_number:
+                raise exceptions.ValidationError("User already has a RelayNumber.")
+            try:
+                return super().create(request, *args, **kwargs)
+            except ValidationError as e:
+                raise exceptions.ValidationError(e.message)
+            except IntegrityError:
+                raise exceptions.ValidationError("User already has a RelayNumber.")
 
     def partial_update(self, request, *args, **kwargs):
         """
