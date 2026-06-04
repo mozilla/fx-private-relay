@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 
 // We used to import these directly from the source of truth (the SCSS),
 // but Next.js does not support that with Turbopack:
@@ -14,27 +14,21 @@ const breakpoints = {
 } as const;
 
 function useMediaQueryImp(mediaQuery: string): boolean {
-  const [mediaQueryList, setMediaQueryList] = useState(
-    window.matchMedia(mediaQuery),
+  const subscribe = useCallback(
+    (callback: () => void) => {
+      const mql = window.matchMedia(mediaQuery);
+      mql.addEventListener("change", callback);
+      return () => mql.removeEventListener("change", callback);
+    },
+    [mediaQuery],
   );
-  useEffect(() => {
-    setMediaQueryList(window.matchMedia(mediaQuery));
-  }, [mediaQuery]);
 
-  const [matches, setMatches] = useState(mediaQueryList.matches);
-  useEffect(() => {
-    const changeListener: Parameters<MediaQueryList["addEventListener"]>[1] = (
-      _changedList,
-    ) => {
-      setMatches(mediaQueryList.matches);
-    };
-    mediaQueryList.addEventListener("change", changeListener);
-    return () => {
-      mediaQueryList.removeEventListener("change", changeListener);
-    };
-  }, [mediaQueryList]);
+  const getSnapshot = useCallback(
+    () => window.matchMedia(mediaQuery).matches,
+    [mediaQuery],
+  );
 
-  return matches;
+  return useSyncExternalStore(subscribe, getSnapshot);
 }
 
 export const useMediaQuery =
