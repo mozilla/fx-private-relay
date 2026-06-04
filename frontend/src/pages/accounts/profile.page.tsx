@@ -4,6 +4,7 @@ import {
   HTMLAttributes,
   ReactNode,
   RefObject,
+  useEffect,
   useRef,
   useState,
 } from "react";
@@ -66,6 +67,98 @@ import { CornerNotification } from "../../components/dashboard/CornerNotificatio
 import { useUtmApplier } from "../../hooks/utmApplier";
 import { ErrorGeneral } from "../../components/layout/ErrorGeneral";
 
+const MaxedMasksTooltip = (props: {
+  freeMaskLimit: number;
+  children: ReactNode;
+}) => {
+  const l10n = useL10n();
+  const triggerState = useTooltipTriggerState({ delay: 0 });
+  const triggerRef = useRef<HTMLSpanElement>(null);
+  const tooltipTrigger = useTooltipTrigger({}, triggerState, triggerRef);
+  const { tooltipProps } = useTooltip({}, triggerState);
+
+  return (
+    <div className={styles["stat-wrapper"]}>
+      <span
+        ref={triggerRef}
+        {...tooltipTrigger.triggerProps}
+        className={`${styles.stat} ${styles["forwarded-stat"]}`}
+      >
+        {props.children}
+      </span>
+      {triggerState.isOpen && (
+        <div
+          {...mergeProps(tooltipTrigger.tooltipProps, tooltipProps)}
+          className={styles.tooltip}
+        >
+          <p>
+            {l10n.getString("profile-maxed-aliases-tooltip", {
+              limit: props.freeMaskLimit,
+            })}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const UpsellBanner = (props: {
+  isPhonesAvailable: boolean;
+  freeMaskLimit: number;
+}) => {
+  const l10n = useL10n();
+  const gaEvent = useGaEvent();
+  const upsellViewPingRef = useGaViewPing({
+    category: "Purchase Button",
+    label: "upgrade-premium-header-mask-limit",
+  });
+
+  return (
+    <div className={styles["upsell-banner"]}>
+      <div className={styles["upsell-banner-wrapper"]}>
+        <div className={styles["upsell-banner-content"]}>
+          <p className={styles["upsell-banner-header"]}>
+            {props.isPhonesAvailable
+              ? l10n.getString("profile-maxed-aliases-with-phone-header")
+              : l10n.getString("profile-maxed-aliases-without-phone-header")}
+          </p>
+          <p
+            className={styles["upsell-banner-description"]}
+            data-testid="profile-upsell-banner-description"
+          >
+            {l10n.getString(
+              props.isPhonesAvailable
+                ? "profile-maxed-aliases-with-phone-description"
+                : "profile-maxed-aliases-without-phone-description",
+              {
+                limit: props.freeMaskLimit,
+              },
+            )}
+          </p>
+          <LinkButton
+            href="/premium#pricing"
+            ref={upsellViewPingRef}
+            onClick={() => {
+              gaEvent({
+                category: "Purchase Button",
+                action: "Engage",
+                label: "upgrade-premium-header-mask-limit",
+              });
+            }}
+          >
+            {l10n.getString("profile-maxed-aliases-cta")}
+          </LinkButton>
+        </div>
+        <Image
+          className={styles["upsell-banner-image"]}
+          src={props.isPhonesAvailable ? UpsellBannerUs : UpsellBannerNonUs}
+          alt=""
+        />
+      </div>
+    </div>
+  );
+};
+
 const Profile: NextPage = () => {
   const runtimeData = useRuntimeData();
   const profileData = useProfiles();
@@ -79,11 +172,13 @@ const Profile: NextPage = () => {
     label: "profile-set-custom-domain",
   });
   const gaEvent = useGaEvent();
-  const hash = getCookie("profile-location-hash");
-  if (hash) {
-    document.location.hash = hash;
-    clearCookie("profile-location-hash");
-  }
+  useEffect(() => {
+    const hash = getCookie("profile-location-hash");
+    if (hash) {
+      document.location.hash = hash;
+      clearCookie("profile-location-hash");
+    }
+  }, []);
   usePurchaseTracker(profileData.data?.[0]);
   const [modalOpened, setModalOpenedState] = useState(false);
   const applyUtmParams = useUtmApplier();
@@ -362,42 +457,6 @@ const Profile: NextPage = () => {
     compactDisplay: "short",
   });
 
-  type TooltipProps = {
-    children: ReactNode;
-  };
-
-  const MaxedMasksTooltip = (props: TooltipProps) => {
-    const l10n = useL10n();
-    const triggerState = useTooltipTriggerState({ delay: 0 });
-    const triggerRef = useRef<HTMLSpanElement>(null);
-    const tooltipTrigger = useTooltipTrigger({}, triggerState, triggerRef);
-    const { tooltipProps } = useTooltip({}, triggerState);
-
-    return (
-      <div className={styles["stat-wrapper"]}>
-        <span
-          ref={triggerRef}
-          {...tooltipTrigger.triggerProps}
-          className={`${styles.stat} ${styles["forwarded-stat"]}`}
-        >
-          {props.children}
-        </span>
-        {triggerState.isOpen && (
-          <div
-            {...mergeProps(tooltipTrigger.tooltipProps, tooltipProps)}
-            className={styles.tooltip}
-          >
-            <p>
-              {l10n.getString("profile-maxed-aliases-tooltip", {
-                limit: freeMaskLimit,
-              })}
-            </p>
-          </div>
-        )}
-      </div>
-    );
-  };
-
   // Show stats for free users and premium users
   const stats = (
     <section className={styles.header}>
@@ -443,7 +502,7 @@ const Profile: NextPage = () => {
                 className={`${styles.value} ${styles.maxed}`}
                 data-testid="profile-masks-used"
               >
-                <MaxedMasksTooltip>
+                <MaxedMasksTooltip freeMaskLimit={freeMaskLimit}>
                   {numberFormatter.format(allAliases.length)}
                 </MaxedMasksTooltip>
               </dd>
@@ -518,59 +577,6 @@ const Profile: NextPage = () => {
   const topBanners = allAliases.length > 0 ? banners : null;
   const bottomBanners = allAliases.length === 0 ? banners : null;
 
-  // Render the upsell banner when a user has reached the free mask limit
-  const UpsellBanner = () => (
-    <div className={styles["upsell-banner"]}>
-      <div className={styles["upsell-banner-wrapper"]}>
-        <div className={styles["upsell-banner-content"]}>
-          <p className={styles["upsell-banner-header"]}>
-            {isPhonesAvailableInCountry(runtimeData.data)
-              ? l10n.getString("profile-maxed-aliases-with-phone-header")
-              : l10n.getString("profile-maxed-aliases-without-phone-header")}
-          </p>
-          <p
-            className={styles["upsell-banner-description"]}
-            data-testid="profile-upsell-banner-description"
-          >
-            {l10n.getString(
-              isPhonesAvailableInCountry(runtimeData.data)
-                ? "profile-maxed-aliases-with-phone-description"
-                : "profile-maxed-aliases-without-phone-description",
-              {
-                limit: freeMaskLimit,
-              },
-            )}
-          </p>
-          <LinkButton
-            href="/premium#pricing"
-            ref={useGaViewPing({
-              category: "Purchase Button",
-              label: "upgrade-premium-header-mask-limit",
-            })}
-            onClick={() => {
-              gaEvent({
-                category: "Purchase Button",
-                action: "Engage",
-                label: "upgrade-premium-header-mask-limit",
-              });
-            }}
-          >
-            {l10n.getString("profile-maxed-aliases-cta")}
-          </LinkButton>
-        </div>
-        <Image
-          className={styles["upsell-banner-image"]}
-          src={
-            isPhonesAvailableInCountry(runtimeData.data)
-              ? UpsellBannerUs
-              : UpsellBannerNonUs
-          }
-          alt=""
-        />
-      </div>
-    </div>
-  );
-
   return (
     <>
       <AddonData
@@ -602,7 +608,10 @@ const Profile: NextPage = () => {
         premium is available in their country, show upsell banner */}
         {freeMaskLimitReached &&
           isPeriodicalPremiumAvailableInCountry(runtimeData.data) && (
-            <UpsellBanner />
+            <UpsellBanner
+              isPhonesAvailable={isPhonesAvailableInCountry(runtimeData.data)}
+              freeMaskLimit={freeMaskLimit}
+            />
           )}
         {isPhonesAvailableInCountry(runtimeData.data) ? (
           <DashboardSwitcher />

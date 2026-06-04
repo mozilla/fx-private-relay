@@ -144,9 +144,8 @@ describe("MyApp component", () => {
 
   it("initializes l10n, renders providers, and handles component rendering", async () => {
     const { container } = render(<MyApp {...defaultAppProps} />);
-    expect(mockedGetL10n).toHaveBeenCalledWith({ deterministicLocales: true });
-
-    await waitForNextTick();
+    // In a browser environment (jsdom), l10n is initialized with
+    // non-deterministic locales via the useState lazy initializer.
     expect(mockedGetL10n).toHaveBeenCalledWith({ deterministicLocales: false });
 
     expect(screen.getByText("Test Component")).toBeInTheDocument();

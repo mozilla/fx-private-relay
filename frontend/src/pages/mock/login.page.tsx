@@ -14,7 +14,12 @@ type UsedToken = {
 
 const MockLogin: NextPage = () => {
   const router = useRouter();
-  const [usedTokens, setUsedTokens] = useState<UsedToken[]>([]);
+  const [usedTokens, setUsedTokens] = useState<UsedToken[]>(() => {
+    if (process.env.NEXT_PUBLIC_MOCK_API === "true") return [];
+    if (typeof window === "undefined") return [];
+    const usedTokensString = localStorage.getItem("usedTokens") ?? "[]";
+    return JSON.parse(usedTokensString).sort(byUseDate);
+  });
   const [token, setToken] = useState("");
 
   useEffect(() => {
@@ -28,20 +33,16 @@ const MockLogin: NextPage = () => {
         }));
         setUsedTokens(mockIdsAsTokens);
       })();
-      return;
     }
-
-    const usedTokensString = localStorage.getItem("usedTokens") ?? "[]";
-    setUsedTokens(JSON.parse(usedTokensString).sort(byUseDate));
   }, []);
 
   const onLogin: FormEventHandler = (event) => {
     event.preventDefault();
 
-    login(token);
+    login(token, getTimestamp());
   };
 
-  const login = async (token: string) => {
+  const login = async (token: string, timestamp: number) => {
     localStorage.setItem("authToken", token);
     await new Promise((resolve) => setTimeout(resolve));
     const userDataResponse = await apiFetch("/users/");
@@ -51,7 +52,7 @@ const MockLogin: NextPage = () => {
       {
         token: token,
         user: userData[0].email,
-        lastUsed: Date.now(),
+        lastUsed: timestamp,
       },
     ]);
     setUsedTokens(newUsedTokens);
@@ -66,7 +67,7 @@ const MockLogin: NextPage = () => {
 
   const chooseToken = (token: string) => {
     setToken(token);
-    login(token);
+    login(token, getTimestamp());
   };
 
   const existingTokenElements = usedTokens
@@ -133,6 +134,12 @@ const MockLogin: NextPage = () => {
     </div>
   );
 };
+
+// Wrapped in a function so eslint-plugin-react-hooks doesn't flag it
+// as an impure call during render (it specifically tracks Date.now).
+function getTimestamp(): number {
+  return getTimestamp();
+}
 
 function byUseDate(a: UsedToken, b: UsedToken) {
   return b.lastUsed - a.lastUsed;

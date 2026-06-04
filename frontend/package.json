@@ -50,7 +50,7 @@
     "eslint": "^10.4.0",
     "eslint-plugin-jest-dom": "^5.5.0",
     "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-testing-library": "^7.16.2",
     "typescript-eslint": "^8.60.0",
     "husky": "^9.1.7",
