@@ -45,8 +45,18 @@ const STRIP_FXA_CI_PATTERNS = [
   "**/*.paypal.com/**",
 ];
 
+// Returns the appropriate FxA CI secret based on the environment.
+// Production tests use FXA_PROD_CI_SECRET, while dev/stage/local use FXA_CI_SECRET.
+export function getFxaCiSecret(): string | undefined {
+  const env = process.env.E2E_TEST_ENV;
+  if (env === "prod" && process.env.FXA_PROD_CI_SECRET) {
+    return process.env.FXA_PROD_CI_SECRET;
+  }
+  return process.env.FXA_CI_SECRET;
+}
+
 export async function setupFxaCiRoutes(page: Page) {
-  if (!process.env.FXA_CI_SECRET) return;
+  if (!getFxaCiSecret()) return;
   const stripFxaCi = (route: any) => {
     const headers = { ...route.request().headers() };
     delete headers["fxa-ci"];
