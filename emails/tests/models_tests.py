@@ -600,6 +600,21 @@ class DomainAddressTest(TestCase):
         self.user.profile.refresh_from_db()
         assert self.user.profile.last_engagement == pre_save_last_engagement
 
+    @override_settings(MAX_ADDRESS_CREATION_PER_DAY=10)
+    def test_email_auto_created_addresses_do_not_flag_account(self) -> None:
+        for i in range(15):
+            DomainAddress.make_domain_address(self.user, f"auto-{i}", True)
+        self.user.profile.refresh_from_db()
+        assert not self.user.profile.is_flagged
+        assert DomainAddress.objects.filter(user=self.user).count() == 15
+
+    @override_settings(MAX_ADDRESS_CREATION_PER_DAY=10)
+    def test_api_created_addresses_flag_account(self) -> None:
+        for i in range(10):
+            DomainAddress.make_domain_address(self.user, f"api-{i}")
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.is_flagged
+
     def test_delete_updates_profile_last_engagement(self) -> None:
         domain_address = DomainAddress.make_domain_address(self.user, address="delete")
         assert self.user.profile.last_engagement

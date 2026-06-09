@@ -268,7 +268,11 @@ class DomainAddress(models.Model):
             ).exists():
                 raise DomainAddrDuplicateException(duplicate_address=self.address)
 
-            self.user.profile.update_abuse_metric(address_created=True)
+            # MPP-4679: Only count toward abuse limits if user creates the mask.
+            # Addresses auto-created by inbound email (first_emailed_at is set)
+            # may not be user-initiated, so shouldn't flag the user's account.
+            if not self.first_emailed_at:
+                self.user.profile.update_abuse_metric(address_created=True)
             self.user.profile.last_engagement = datetime.now(UTC)
             self.user.profile.save(update_fields=["last_engagement"])
             incr_if_enabled("domainaddress.create")
