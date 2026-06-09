@@ -571,6 +571,25 @@ def test_relaynumber_post_with_existing_returns_error(phone_user, mocked_twilio_
     mock_create.assert_not_called()
 
 
+def test_relaynumber_post_unsupported_country_returns_400(
+    phone_user, mocked_twilio_client
+):
+    _make_real_phone(phone_user, verified=True)
+    mock_create = Mock()
+    mocked_twilio_client.incoming_phone_numbers.create = mock_create
+
+    client = APIClient()
+    client.force_authenticate(phone_user)
+    path = "/api/v1/relaynumber/"
+    data = {"number": "+447911123456"}
+    response = client.post(path, data, format="json")
+
+    assert response.status_code == 400
+    decoded_content = response.content.decode()
+    assert "supported country" in decoded_content
+    mock_create.assert_not_called()
+
+
 def test_relaynumber_patch_to_toggle(phone_user, mocked_twilio_client):
     _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user)

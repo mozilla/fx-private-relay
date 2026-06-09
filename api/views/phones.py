@@ -9,7 +9,7 @@ from typing import Any, Literal
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db.models.query import QuerySet
 from django.forms import model_to_dict
 
@@ -317,7 +317,10 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         existing_number = RelayNumber.objects.filter(user=request.user)
         if existing_number:
             raise exceptions.ValidationError("User already has a RelayNumber.")
-        return super().create(request, *args, **kwargs)
+        try:
+            return super().create(request, *args, **kwargs)
+        except ValidationError as e:
+            raise exceptions.ValidationError(e.message)
 
     def partial_update(self, request, *args, **kwargs):
         """
