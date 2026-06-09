@@ -242,7 +242,7 @@ def vcard_lookup_key_default():
 
 
 class RelayNumber(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     number = models.CharField(max_length=15, db_index=True, unique=True)
     vendor = models.CharField(max_length=15, default="twilio")
     location = models.CharField(max_length=255)

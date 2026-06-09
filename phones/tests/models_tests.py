@@ -256,6 +256,23 @@ def test_create_relaynumber_when_user_already_has_one_raises_error(
     mock_messages_create.assert_not_called()
 
 
+def test_relaynumber_user_unique_constraint(phone_user, mock_twilio_client):
+    """The DB enforces one RelayNumber per user, even if save() is bypassed."""
+    RealPhone.objects.create(user=phone_user, verified=True, number="+12223334444")
+    mock_twilio_client.messages.create.reset_mock()
+
+    RelayNumber.objects.create(user=phone_user, number="+12125557777")
+
+    # Insert a second row for the same user, bypassing save() to simulate
+    # the race window where two requests pass application-level checks.
+    from django.db import IntegrityError
+
+    with pytest.raises(IntegrityError):
+        RelayNumber.objects.bulk_create(
+            [RelayNumber(user=phone_user, number="+13125556666")]
+        )
+
+
 def test_create_duplicate_relaynumber_raises_error(phone_user, mock_twilio_client):
     mock_messages_create = mock_twilio_client.messages.create
     mock_number_create = mock_twilio_client.incoming_phone_numbers.create
