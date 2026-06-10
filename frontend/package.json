@@ -27,7 +27,7 @@
     "cldr-localenames-modern": "^45.0.0",
     "msw": "^2.14.6",
     "react": "19.2.6",
-    "react-aria": "^3.48.0",
+    "react-aria": "^3.49.0",
     "react-confetti": "^6.4.0",
     "react-dom": "19.2.6",
     "react-ga": "^3.3.1",
