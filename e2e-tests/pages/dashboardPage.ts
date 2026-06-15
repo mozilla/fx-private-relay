@@ -142,10 +142,26 @@ export class DashboardPage {
   }
 
   async skipOnboarding() {
-    const onboardingElem = this.page.getByRole("button", { name: "Skip" });
+    // Premium onboarding step 1 shows "Set up Relay Premium" instead of Skip.
+    const setupBtn = this.page.getByRole("button", {
+      name: "Set up Relay Premium",
+    });
+    if (await setupBtn.isVisible({ timeout: TIMEOUTS.SHORT })) {
+      await setupBtn.click();
+      // Steps 2 and 3 each have a Skip button; click through both.
+      const skipBtn = this.page.getByRole("button", { name: /Skip/ });
+      for (let i = 0; i < 2; i++) {
+        if (await skipBtn.isVisible({ timeout: TIMEOUTS.SHORT })) {
+          await skipBtn.click();
+        }
+      }
+      return;
+    }
 
-    if (await onboardingElem.isVisible({ timeout: TIMEOUTS.LONG })) {
-      await onboardingElem.click();
+    // Free-tier onboarding has a single Skip button.
+    const freeSkip = this.page.getByRole("button", { name: "Skip" });
+    if (await freeSkip.isVisible({ timeout: TIMEOUTS.SHORT })) {
+      await freeSkip.click();
     }
   }
 
@@ -232,6 +248,9 @@ export class DashboardPage {
     await this.page.waitForURL(/\/accounts\/profile\//, {
       timeout: TIMEOUTS.LONG,
     });
+
+    // Dismiss onboarding if the account was reset or is new.
+    await this.skipOnboarding();
 
     // DRF SessionAuthentication requires X-CSRFToken on mutating requests.
     // Use browser fetch (via page.evaluate) so the Origin header is sent,
