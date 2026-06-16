@@ -23,7 +23,9 @@ on:
       E2E_TEST_BASE_URL:
         required: true
       FXA_CI_SECRET:
-        required: true 
+        required: true
+      FXA_PROD_CI_SECRET:
+        required: false 
   workflow_dispatch:
     inputs:
       environment:
@@ -71,6 +73,7 @@ jobs:
           E2E_TEST_ACCOUNT_PREMIUM: ${{ secrets.E2E_TEST_ACCOUNT_PREMIUM }}
           E2E_TEST_BASE_URL: ${{ secrets.E2E_TEST_BASE_URL }}
           FXA_CI_SECRET: ${{ secrets.FXA_CI_SECRET }}
+          FXA_PROD_CI_SECRET: ${{ secrets.FXA_PROD_CI_SECRET }}
       - name: Send GitHub Action trigger data to Slack workflow
         id: slack
         uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3

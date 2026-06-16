@@ -1,5 +1,6 @@
 import {
   ENV_URLS,
+  getFxaCiSecret,
   getVerificationCode,
   setEnvVariables,
   setupFxaCiRoutes,
@@ -12,10 +13,9 @@ const { chromium } = require("@playwright/test");
 async function globalSetup() {
   // playwright setup
   const browser = await chromium.launch();
+  const fxaCiSecret = getFxaCiSecret();
   const page = await browser.newPage({
-    extraHTTPHeaders: process.env.FXA_CI_SECRET
-      ? { "fxa-ci": process.env.FXA_CI_SECRET }
-      : {},
+    extraHTTPHeaders: fxaCiSecret ? { "fxa-ci": fxaCiSecret } : {},
   });
   await setupFxaCiRoutes(page);
 
