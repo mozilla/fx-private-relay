@@ -49,7 +49,10 @@ const STRIP_FXA_CI_PATTERNS = [
 // Production tests use FXA_PROD_CI_SECRET, while dev/stage/local use FXA_CI_SECRET.
 export function getFxaCiSecret(): string | undefined {
   const env = process.env.E2E_TEST_ENV;
-  if (env === "prod" && process.env.FXA_PROD_CI_SECRET) {
+  if (env === "prod") {
+    if (!process.env.FXA_PROD_CI_SECRET) {
+      throw new Error("FXA_PROD_CI_SECRET is required for prod environment");
+    }
     return process.env.FXA_PROD_CI_SECRET;
   }
   return process.env.FXA_CI_SECRET;
