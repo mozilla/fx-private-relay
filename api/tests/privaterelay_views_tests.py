@@ -111,6 +111,20 @@ def test_runtime_data_uses_sp3_plan_mapping(client: Client) -> None:
     )
 
 
+@pytest.mark.django_db
+def test_runtime_data_cache_control(client: Client) -> None:
+    response = client.get(reverse("runtime_data"))
+    assert response.status_code == 200
+    assert response["Cache-Control"] == "public, max-age=300"
+
+
+@pytest.mark.django_db
+def test_profile_list_cache_control(free_api_client: APIClient) -> None:
+    response = free_api_client.get(reverse("profiles-list"))
+    assert response.status_code == 200
+    assert response["Cache-Control"] == "private, max-age=60"
+
+
 def test_patch_premium_user_subdomain_cannot_be_changed(
     premium_user: User, prem_api_client: Client
 ) -> None:
