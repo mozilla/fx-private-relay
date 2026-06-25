@@ -61,7 +61,7 @@
 
   button {
     border-radius: $border-radius-sm;
-    background-color: $color-violet-40;
+    background-color: $color-violet-60;
     color: $color-white;
     transition: background-color 0.1s ease-out;
     border-style: none;
@@ -71,7 +71,7 @@
     cursor: pointer;
 
     &:hover {
-      background-color: $color-blue-50;
+      background-color: $color-violet-70;
     }
   }
 }
