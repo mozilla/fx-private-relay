@@ -979,6 +979,28 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
             expected_fixture_name="s3_stored_replies",
         )
 
+    def test_reply_hides_relay_user_real_email_in_body(self) -> None:
+        """
+        The user's real email is replaced with the mask in the reply body.
+
+        A client like Outlook quotes the original message, which can include the
+        user's real email (e.g. in a quoted "To:" line). It must not leak to the
+        recipient (MPP-1395 / #1377).
+        """
+        self.mock_get_content.return_value = create_email_from_notification(
+            EMAIL_SNS_BODIES["s3_stored_replies"],
+            text=(
+                "My reply.\n\nOn Mon, sender wrote:\n"
+                "> To: SOURCE@sender.com\n> original quoted text\n"
+            ),
+        )
+        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
+        assert response.status_code == 200
+        self.mock_send_raw_email.assert_called_once()
+        raw_message = self.mock_send_raw_email.call_args[1]["RawMessage"]["Data"]
+        assert "source@sender.com" not in raw_message.lower()
+        assert "a1b2c3d4@test.com" in raw_message
+
     @patch("emails.views._reply_allowed")
     def test_reply_not_allowed(self, mocked_reply_allowed: Mock) -> None:
         mocked_reply_allowed.return_value = False

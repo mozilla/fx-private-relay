@@ -1225,6 +1225,33 @@ def _replace_headers(
     return issues
 
 
+def _replace_reply_email_in_body(
+    email: EmailMessage, real_address: str, mask_address: str
+) -> None:
+    """
+    Replace the Relay user's real email with their mask in the reply body.
+
+    Relay rewrites a reply's headers to the mask address, but the body is sent as-is.
+    When a user replies from a client that includes the quoted original message,
+    it can include the user's real email (such as in a quoted "To:" line), exposing
+    it to the recipient (MPP-1395 / #1377). Replace it in the plain text and
+    HTML bodies. Matching is case-insensitive because email addresses are.
+    """
+    pattern = re.compile(re.escape(real_address), re.IGNORECASE)
+
+    text_body = email.get_body("plain")
+    if isinstance(text_body, EmailMessage):
+        new_content, count = pattern.subn(mask_address, text_body.get_content())
+        if count:
+            text_body.set_content(new_content)
+
+    html_body = email.get_body("html")
+    if isinstance(html_body, EmailMessage):
+        new_content, count = pattern.subn(mask_address, html_body.get_content())
+        if count:
+            html_body.set_content(new_content, subtype="html")
+
+
 def _convert_html_content(
     html_content: str,
     to_address: str,
@@ -1461,6 +1488,7 @@ def _handle_reply(
     # Convert to a reply email
     # TODO: Issue #1747 - Remove wrapper / prefix in replies
     _replace_headers(email, headers)
+    _replace_reply_email_in_body(email, address.user.email, outbound_from_address)
 
     try:
         ses_send_raw_email(
