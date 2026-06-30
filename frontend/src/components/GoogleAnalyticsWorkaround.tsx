@@ -25,7 +25,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 "use client";
 
-import Script, { ScriptProps } from "next/script";
 import { useEffect } from "react";
 
 // GAParams was previously imported from @next/third-parties/dist/types/google,
@@ -54,7 +53,7 @@ let currDataLayerName: string | undefined = undefined;
  * @param props
  */
 export const GoogleAnalyticsWorkaround = (
-  props: GAParams & { nonce?: ScriptProps["nonce"]; debugMode?: boolean },
+  props: GAParams & { debugMode?: boolean },
 ) => {
   const { gaId, dataLayerName = "dataLayer", nonce, debugMode } = props;
 
@@ -82,8 +81,9 @@ export const GoogleAnalyticsWorkaround = (
 
   return (
     <>
-      <Script
+      <script
         id="_next-ga-init"
+        nonce={nonce}
         dangerouslySetInnerHTML={{
           __html: `
           window['${dataLayerName}'] = window['${dataLayerName}'] || [];
@@ -92,12 +92,12 @@ export const GoogleAnalyticsWorkaround = (
 
           gtag('config', '${gaId}', { 'debug_mode': ${debugMode} });`,
         }}
-        nonce={nonce}
       />
-      <Script
+      <script
         id="_next-ga"
         src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
         nonce={nonce}
+        async
       />
     </>
   );
