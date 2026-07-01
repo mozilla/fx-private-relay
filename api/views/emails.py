@@ -1,7 +1,7 @@
 """API views for emails"""
 
 from logging import getLogger
-from typing import Any, Generic, TypeVar
+from typing import Generic, TypeVar
 
 from django.apps import apps
 from django.conf import settings
@@ -15,7 +15,6 @@ from django_filters import rest_framework as filters
 from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.serializers import BaseSerializer
 from rest_framework.status import (
@@ -43,11 +42,6 @@ from ..serializers.emails import (
 from . import SaveToRequestUser
 
 logger = getLogger("events")
-
-
-class AddressRateThrottle(UserRateThrottle):
-    scope = "address"
-    rate = settings.ADDRESS_RATE_LIMIT
 
 
 class RelayAddressFilter(filters.FilterSet):
@@ -119,16 +113,6 @@ class AddressViewSet(Generic[_Address], SaveToRequestUser, ModelViewSet):
             is_random_mask=is_random_mask,
         )
 
-    def list(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        response = super().list(request, *args, **kwargs)
-        response["Cache-Control"] = "private, max-age=60"
-        return response
-
-    def retrieve(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        response = super().retrieve(request, *args, **kwargs)
-        response["Cache-Control"] = "private, max-age=60"
-        return response
-
 
 @extend_schema(tags=["emails"])
 class RelayAddressViewSet(AddressViewSet[RelayAddress]):
@@ -136,7 +120,6 @@ class RelayAddressViewSet(AddressViewSet[RelayAddress]):
 
     serializer_class = RelayAddressSerializer
     permission_classes = [IsAuthenticated, IsOwner]
-    throttle_classes = [AddressRateThrottle]
     filterset_class = RelayAddressFilter
 
     def get_queryset(self) -> QuerySet[RelayAddress]:
@@ -176,7 +159,6 @@ class DomainAddressViewSet(AddressViewSet[DomainAddress]):
 
     serializer_class = DomainAddressSerializer
     permission_classes = [IsAuthenticated, IsOwner]
-    throttle_classes = [AddressRateThrottle]
     filterset_class = DomainAddressFilter
 
     def get_queryset(self) -> QuerySet[DomainAddress]:
