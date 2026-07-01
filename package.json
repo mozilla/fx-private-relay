@@ -49,6 +49,6 @@
   },
   "homepage": "https://github.com/mozilla/fx-private-relay#readme",
   "dependencies": {
-    "immutable": "^5.1.6"
+    "immutable": "^5.1.7"
   }
 }
