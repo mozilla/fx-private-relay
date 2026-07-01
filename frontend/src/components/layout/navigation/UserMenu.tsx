@@ -309,7 +309,7 @@ type UserMenuItemProps = {
     isDisabled: AriaMenuItemProps["isDisabled"];
     rendered?: ReactNode;
   };
-  state: TreeState<unknown>;
+  state: TreeState<object>;
   onAction: AriaMenuItemProps["onAction"];
   onClose: AriaMenuItemProps["onClose"];
 };

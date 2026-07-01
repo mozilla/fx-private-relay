@@ -346,7 +346,7 @@ type AppPickerItemProps = {
     isDisabled: AriaMenuItemProps["isDisabled"];
     rendered?: ReactNode;
   };
-  state: TreeState<unknown>;
+  state: TreeState<object>;
   onClose: AriaMenuItemProps["onClose"];
 };
 
