@@ -59,7 +59,7 @@
     "jest-environment-jsdom": "^30.4.1",
     "jest-junit": "^17.0.0",
     "license-checker": "^25.0.1",
-    "lint-staged": "^17.0.7",
+    "lint-staged": "^17.0.8",
     "next": "^16.2.9",
     "prettier": "3.8.4",
     "raw-loader": "^4.0.2",
