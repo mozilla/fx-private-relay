@@ -137,13 +137,13 @@ SEND_RAW_EMAIL_FAILED = ClientError(
 
 
 def create_email_from_notification(
-    notification: AWS_SNSMessageJSON, text: str
+    notification: AWS_SNSMessageJSON, text: str, html: str | None = None
 ) -> bytes:
     """
     Create an email from an SNS notification, return the serialized bytes.
 
     The email will have the headers from the notification and the `text` value as the
-    plain text body.
+    plain text body. If `html` is given, it is added as an HTML alternative.
     """
     message_json = notification.get("Message")
     assert message_json
@@ -157,6 +157,8 @@ def create_email_from_notification(
         email[entry["name"]] = entry["value"]
     assert email["Content-Type"].startswith("multipart/alternative")
     email.add_alternative(text, subtype="plain")
+    if html is not None:
+        email.add_alternative(html, subtype="html")
     return email.as_bytes()
 
 
@@ -985,13 +987,18 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
 
         A client like Outlook quotes the original message, which can include the
         user's real email (e.g. in a quoted "To:" line). It must not leak to the
-        recipient (MPP-1395 / #1377).
+        recipient in either the plain text or HTML body (MPP-1395 / #1377).
         """
         self.mock_get_content.return_value = create_email_from_notification(
             EMAIL_SNS_BODIES["s3_stored_replies"],
             text=(
                 "My reply.\n\nOn Mon, sender wrote:\n"
                 "> To: SOURCE@sender.com\n> original quoted text\n"
+            ),
+            html=(
+                "<html><body>My reply."
+                "<blockquote>To: SOURCE@sender.com</blockquote>"
+                "</body></html>"
             ),
         )
         response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
