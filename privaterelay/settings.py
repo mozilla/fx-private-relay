@@ -788,6 +788,15 @@ PHONE_RATE_LIMIT = config("PHONE_RATE_LIMIT", _DEFAULT_PHONE_RATE_LIMIT)
 
 VCARD_RATE_LIMIT = config("VCARD_RATE_LIMIT", "10/minute")
 
+if IN_PYTEST or RELAY_CHANNEL in ["local", "dev", "stage"]:
+    _DEFAULT_PROFILE_RATE_LIMIT = "1000/minute"
+    _DEFAULT_ADDRESS_RATE_LIMIT = "1000/minute"
+else:
+    _DEFAULT_PROFILE_RATE_LIMIT = "30/minute"
+    _DEFAULT_ADDRESS_RATE_LIMIT = "30/minute"
+PROFILE_RATE_LIMIT = config("PROFILE_RATE_LIMIT", _DEFAULT_PROFILE_RATE_LIMIT)
+ADDRESS_RATE_LIMIT = config("ADDRESS_RATE_LIMIT", _DEFAULT_ADDRESS_RATE_LIMIT)
+
 # Turn on logging out on GET in development.
 # This allows `/mock/logout/` in the front-end to clear the
 # session cookie. Without this, after switching accounts in dev mode,

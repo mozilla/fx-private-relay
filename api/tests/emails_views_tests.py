@@ -886,6 +886,16 @@ def test_get_relayaddress_ordered_by_created_at_desc(
     assert data[2]["id"] == addr_oldest.id
 
 
+@pytest.mark.django_db
+def test_relayaddress_list_cache_control(
+    free_api_client: APIClient, free_user: User
+) -> None:
+    RelayAddress.objects.create(user=free_user)
+    response = free_api_client.get(reverse("relayaddress-list"))
+    assert response.status_code == 200
+    assert response["Cache-Control"] == "private, max-age=60"
+
+
 def test_first_forwarded_email_unauth(client: Client) -> None:
     response = client.post("/api/v1/first-forwarded-email/")
     assert response.status_code == 401
