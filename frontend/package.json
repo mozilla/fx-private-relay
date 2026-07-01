@@ -35,7 +35,7 @@
     "react-singleton-hook": "^4.0.1",
     "react-stately": "^3.46.0",
     "react-toastify": "^11.1.0",
-    "swr": "^2.4.1"
+    "swr": "^2.4.2"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.1",
