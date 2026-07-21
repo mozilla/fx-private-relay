@@ -20,8 +20,10 @@ from typing import Any, cast
 from urllib.parse import urlsplit
 
 from django import setup
+from django.conf import settings
 from django.core.management.base import CommandError
 from django.db import connection
+from django.db.backends.base.base import BaseDatabaseWrapper
 from django.http import HttpResponse
 
 import boto3
@@ -495,6 +497,34 @@ def run_sns_inbound_logic(
         if not cursor.db.is_usable():
             cursor.db.close()
 
+    set_worker_statement_timeout(connection)
+
     result = cast(HttpResponse, _sns_inbound_logic(topic_arn, message_type, json_body))
     connection.close()
     return result
+
+
+def set_worker_statement_timeout(conn: BaseDatabaseWrapper) -> None:
+    """Cap how long a single query runs on the worker's DB connection.
+
+    Email processing can wait on a locked row. One example is the per-user daily
+    abuse counter in Profile.update_abuse_metric, which two pods can contend on
+    when they process email for the same user at once. That wait is bounded by
+    lock_timeout, which is set on the Cloud SQL instance itself (see
+    webservices-infra). This adds statement_timeout as a backstop for any query
+    that runs long for some other reason.
+
+    statement_timeout is set here on the worker, not on the instance, because
+    migrations and the cleanup cron jobs share the same database and run long on
+    purpose. A cap on the whole instance would kill them. Web and API
+    connections are unaffected. See MPP-4723.
+    """
+    if conn.vendor != "postgresql":
+        return
+    statement_ms = int(settings.PROCESS_EMAIL_STATEMENT_TIMEOUT_SECONDS * 1000)
+    with conn.cursor() as cursor:
+        # set_config with a bind parameter avoids interpolating into a SET statement.
+        # false = session-level, so it persists for the life of this connection.
+        cursor.execute(
+            "SELECT set_config('statement_timeout', %s, false)", [str(statement_ms)]
+        )

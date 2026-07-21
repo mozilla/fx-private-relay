@@ -954,6 +954,14 @@ PROCESS_EMAIL_MAX_SECONDS_PER_MESSAGE = config(
     PROCESS_EMAIL_MAX_SECONDS or 120.0,
     cast=float,
 )
+# Cap how long a single query runs on the worker's DB session, as a backstop for
+# a slow query. Applied only in the worker subprocess; web and API connections are
+# unaffected. The row-lock wait is bounded separately by lock_timeout, set on the
+# Cloud SQL instance in webservices-infra. 0 disables (Postgres semantics).
+# See MPP-4723.
+PROCESS_EMAIL_STATEMENT_TIMEOUT_SECONDS = config(
+    "PROCESS_EMAIL_STATEMENT_TIMEOUT_SECONDS", 30.0, cast=float
+)
 
 # Django 3.2 switches default to BigAutoField
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
