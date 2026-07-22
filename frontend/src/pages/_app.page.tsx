@@ -42,7 +42,10 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
     if (!googleAnalytics) return;
-    ReactGa.pageview(router.asPath);
+    // Strip the URL fragment before reporting the pageview. Tracker report
+    // pages carry email metadata (sender, trackers, original link) in the
+    // fragment, and that data must not leave the client. See MPP-4722.
+    ReactGa.pageview((router.asPath ?? "").split("#")[0]);
   }, [router.asPath, googleAnalytics]);
 
   const [waitingForMsw, setIsWaitingForMsw] = useState(
