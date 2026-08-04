@@ -15,7 +15,10 @@ export const PageMetadata = () => {
       <meta name="description" content={l10n.getString("meta-description-2")} />
       <meta
         property="og:url"
-        content={getRuntimeConfig().frontendOrigin + router.asPath}
+        content={
+          getRuntimeConfig().frontendOrigin +
+          (router.asPath ?? "").split("#")[0]
+        }
       />
       <meta property="og:type" content="website" />
       <meta property="og:title" content={l10n.getString("meta-title")} />

@@ -193,6 +193,20 @@ describe("MyApp component", () => {
     expect(ReactGa.pageview).not.toHaveBeenCalled();
   });
 
+  it("strips the URL fragment from the tracker report pageview (MPP-4722)", async () => {
+    mockedUseMetrics.mockReturnValue("enabled");
+    mockedUseGoogleAnalytics.mockReturnValue(true);
+    mockedUseRouter.mockReturnValue(
+      createMockRouter(
+        "/tracker-report/",
+        '/tracker-report/#{"sender":"sender@example.test"}',
+      ),
+    );
+    render(<MyApp {...defaultAppProps} />);
+    await waitForNextTick();
+    expect(ReactGa.pageview).toHaveBeenCalledWith("/tracker-report/");
+  });
+
   it("provides addon data context and sets element attributes based on login state", () => {
     const mockAddonData = {
       present: true,
