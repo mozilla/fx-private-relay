@@ -1,8 +1,10 @@
 import base64
 import json
 import random
+import signal
 import zlib
 from base64 import b64encode
+from types import FrameType
 from typing import Literal, TypedDict
 from unittest.mock import patch
 from urllib.parse import quote_plus
@@ -391,6 +393,36 @@ class RemoveTrackers(TestCase):
         assert changed_content == content
         assert general_removed == 0
         assert general_count == 0
+
+
+@override_settings(SITE_ORIGIN="https://test.com")
+def test_remove_trackers_does_not_backtrack_on_dotted_url() -> None:
+    """A non-matching dotted URL must not blow up the tracker regex.
+
+    Uses the real tracker list, not a stub. The other tests here patch it down to
+    three domains, which is fast no matter how bad the pattern is. The cost is
+    paid by every domain that fails to match, so only the full list shows it.
+    """
+    url = "https://click.mailer.example/r?u=" + "seg." * 20 + "end&id=9"
+    content = f'<a href="{url}">click</a>'
+
+    def on_timeout(signum: int, frame: FrameType | None) -> None:
+        raise AssertionError("remove_trackers did not finish in 10s; regex backtracked")
+
+    # Fail fast on a regression. Without a bound, the old pattern runs for hours
+    # on 20 dots instead of failing, which is useless in a test suite.
+    previous = signal.signal(signal.SIGALRM, on_timeout)
+    signal.alarm(10)
+    try:
+        changed_content, tracker_details = remove_trackers(
+            content, "spammer@email.com", "1682472064"
+        )
+    finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, previous)
+
+    assert changed_content == content
+    assert tracker_details["tracker_removed"] == 0
 
 
 def test_encode_dict_gza85() -> None:
