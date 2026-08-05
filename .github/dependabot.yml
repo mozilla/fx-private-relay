@@ -85,6 +85,10 @@ updates:
       interval: "weekly"
     cooldown:
       default-days: 8
+    groups:
+      codeql:
+        patterns:
+          - "github/codeql-action/*"
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
