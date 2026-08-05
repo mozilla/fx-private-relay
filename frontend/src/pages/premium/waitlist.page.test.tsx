@@ -8,15 +8,16 @@ jest.mock("../../../src/components/waitlist/WaitlistPage", () => ({
   WaitlistPage: jest.fn(() => <div data-testid="mock-waitlist-page" />),
 }));
 
-import { byMsgId } from "../../../__mocks__/hooks/l10n";
+import { byMsgId, buildMockL10n } from "../../../__mocks__/hooks/l10n";
 
 describe("PremiumWaitlist page", () => {
   const mockGetString = jest.fn();
 
   beforeEach(() => {
-    global.useL10nImpl = () => ({
-      getString: mockGetString,
-    });
+    global.useL10nImpl = () =>
+      buildMockL10n({
+        getString: mockGetString,
+      });
 
     mockGetString.mockImplementation((id: string) => {
       const strings: Record<string, string> = {

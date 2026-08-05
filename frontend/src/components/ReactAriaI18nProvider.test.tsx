@@ -2,6 +2,7 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import { ReactAriaI18nProvider } from "./ReactAriaI18nProvider";
 import * as l10nHook from "../hooks/l10n";
+import { buildMockL10n } from "../../__mocks__/hooks/l10n";
 
 const mockI18nProvider = jest.fn();
 
@@ -11,9 +12,9 @@ jest.mock("react-aria", () => ({
 }));
 
 describe("ReactAriaI18nProvider", () => {
-  const mockL10n = {
+  const mockL10n = buildMockL10n({
     bundles: [{ locales: ["en-GB"] }],
-  };
+  });
 
   beforeEach(() => {
     jest.clearAllMocks();

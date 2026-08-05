@@ -2,6 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EmailForwardingModal, Props } from "./EmailForwardingModal";
 import { aliasEmailTest } from "../../hooks/api/aliases";
+import { buildMockL10n } from "../../../__mocks__/hooks/l10n";
 
 jest.mock("../../hooks/api/aliases", () => ({
   aliasEmailTest: jest.fn(),
@@ -20,7 +21,7 @@ const defaultProps: Props = {
 
 describe("EmailForwardingModal", () => {
   beforeEach(() => {
-    global.useL10nImpl = () => ({ getString: mockGetString });
+    global.useL10nImpl = () => buildMockL10n({ getString: mockGetString });
     global.gaEventMock = mockGaEvent;
     jest.clearAllMocks();
   });

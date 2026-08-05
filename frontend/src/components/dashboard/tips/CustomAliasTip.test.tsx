@@ -3,6 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { CustomAliasTip } from "./CustomAliasTip";
 import { getRuntimeConfig } from "../../../config";
 import { getLocale } from "../../../functions/getLocale";
+import { buildMockL10n } from "../../../../__mocks__/hooks/l10n";
 
 jest.mock("./CustomAliasTip.module.scss", () => ({}), { virtual: true });
 
@@ -18,9 +19,10 @@ describe("CustomAliasTip", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    global.useL10nImpl = () => ({
-      getString: mockGetString,
-    });
+    global.useL10nImpl = () =>
+      buildMockL10n({
+        getString: mockGetString,
+      });
 
     (getRuntimeConfig as jest.Mock).mockReturnValue({
       mozmailDomain: "mozmail.com",

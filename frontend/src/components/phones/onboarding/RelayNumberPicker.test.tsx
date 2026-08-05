@@ -4,6 +4,7 @@ import { RelayNumberPicker } from "../onboarding/RelayNumberPicker";
 import * as relayNumberHooks from "../../../hooks/api/relayNumber";
 import { formatPhone } from "../../../functions/formatPhone";
 import { renderWithProviders } from "frontend/__mocks__/modules/renderWithProviders";
+import { buildMockL10n } from "frontend/__mocks__/hooks/l10n";
 
 jest.mock("../../../hooks/api/relayNumber", () => ({
   useRelayNumber: jest.fn(),
@@ -18,9 +19,10 @@ describe("RelayNumberPicker", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    global.useL10nImpl = () => ({
-      getString: (key: string) => `translated(${key})`,
-    });
+    global.useL10nImpl = () =>
+      buildMockL10n({
+        getString: (key: string) => `translated(${key})`,
+      });
 
     (relayNumberHooks.useRelayNumber as jest.Mock).mockReturnValue({
       data: null,

@@ -39,7 +39,10 @@ const mockRuntimeData: RuntimeDataWithBundleAvailable = {
   MEGABUNDLE_PRODUCT_ID: "prod_123456789",
   BASKET_ORIGIN: "https://basket.mozilla.test",
   WAFFLE_FLAGS: [],
+  WAFFLE_SWITCHES: [],
+  WAFFLE_SAMPLES: [],
   MAX_MINUTES_TO_VERIFY_REAL_PHONE: 10,
+  MAX_NUM_FREE_ALIASES: 5,
   PERIODICAL_PREMIUM_PLANS: {
     country_code: "US",
     countries: ["US"],

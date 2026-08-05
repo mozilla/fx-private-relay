@@ -1,8 +1,5 @@
-import {
-  ProductData,
-  RuntimeData,
-  useRuntimeData,
-} from "../../../src/hooks/api/runtimeData";
+import { ProductData, RuntimeData } from "../../../src/hooks/api/types";
+import { useRuntimeData } from "../../../src/hooks/api/runtimeData";
 
 jest.mock("../../../src/hooks/api/runtimeData");
 
@@ -59,6 +56,9 @@ export function getMockRuntimeDataWithBundle(): RuntimeData {
     MEGABUNDLE_PLANS: getAvailableProductData(),
     BASKET_ORIGIN: "https://basket-mock.com",
     WAFFLE_FLAGS: [],
+    WAFFLE_SWITCHES: [],
+    WAFFLE_SAMPLES: [],
+    MAX_NUM_FREE_ALIASES: 5,
     MAX_MINUTES_TO_VERIFY_REAL_PHONE: 5,
   };
 }
@@ -78,6 +78,9 @@ export function getMockRuntimeDataWithMegabundle(): RuntimeData {
     MEGABUNDLE_PLANS: getAvailableProductData(),
     BASKET_ORIGIN: "https://basket-mock.com",
     WAFFLE_FLAGS: [],
+    WAFFLE_SWITCHES: [],
+    WAFFLE_SAMPLES: [],
+    MAX_NUM_FREE_ALIASES: 5,
     MAX_MINUTES_TO_VERIFY_REAL_PHONE: 5,
   };
 }
@@ -97,6 +100,9 @@ export function getMockRuntimeDataWithPhones(): RuntimeData {
     MEGABUNDLE_PLANS: getAvailableProductData(),
     BASKET_ORIGIN: "https://basket-mock.com",
     WAFFLE_FLAGS: [],
+    WAFFLE_SWITCHES: [],
+    WAFFLE_SAMPLES: [],
+    MAX_NUM_FREE_ALIASES: 5,
     MAX_MINUTES_TO_VERIFY_REAL_PHONE: 5,
   };
 }
@@ -115,6 +121,9 @@ export function getMockRuntimeDataWithPeriodicalPremium(): RuntimeData {
     MEGABUNDLE_PLANS: getAvailableProductData(),
     BASKET_ORIGIN: "https://basket-mock.com",
     WAFFLE_FLAGS: [],
+    WAFFLE_SWITCHES: [],
+    WAFFLE_SAMPLES: [],
+    MAX_NUM_FREE_ALIASES: 5,
     MAX_MINUTES_TO_VERIFY_REAL_PHONE: 5,
   };
 }
@@ -133,6 +142,9 @@ export function getMockRuntimeDataWithoutPremium(): RuntimeData {
     MEGABUNDLE_PLANS: getAvailableProductData(),
     BASKET_ORIGIN: "https://basket-mock.com",
     WAFFLE_FLAGS: [],
+    WAFFLE_SWITCHES: [],
+    WAFFLE_SAMPLES: [],
+    MAX_NUM_FREE_ALIASES: 5,
     MAX_MINUTES_TO_VERIFY_REAL_PHONE: 5,
   };
 }

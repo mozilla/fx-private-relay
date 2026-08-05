@@ -82,7 +82,12 @@ setMockAddonData();
 function setupTestEnvironmentForUpsellBanner() {
   setMockAliasesDataOnce({ random: [{ enabled: true, id: 42 }], custom: [] });
   setMockProfileDataOnce({ has_premium: false });
-  setMockRuntimeDataOnce(getMockRuntimeDataWithPeriodicalPremium());
+  // The mask limit has to be set on the runtime data too: the dashboard reads
+  // `MAX_NUM_FREE_ALIASES` first and only falls back to the runtime config.
+  setMockRuntimeDataOnce({
+    ...getMockRuntimeDataWithPeriodicalPremium(),
+    MAX_NUM_FREE_ALIASES: 1,
+  });
   const mockedConfig = mockConfigModule.getRuntimeConfig();
   // getRuntimeConfig() is called frequently, so mock its return value,
   // then restore the original mock at the end of this test:
@@ -483,7 +488,10 @@ describe("The dashboard", () => {
   it("shows correct upsell banner for phone countries", () => {
     setMockAliasesDataOnce({ random: [{ enabled: true, id: 42 }], custom: [] });
     setMockProfileDataOnce({ has_premium: false });
-    setMockRuntimeDataOnce(getMockRuntimeDataWithPhones());
+    setMockRuntimeDataOnce({
+      ...getMockRuntimeDataWithPhones(),
+      MAX_NUM_FREE_ALIASES: 1,
+    });
     const mockedConfig = mockConfigModule.getRuntimeConfig();
     // getRuntimeConfig() is called frequently, so mock its return value,
     // then restore the original mock at the end of this test:
@@ -838,7 +846,10 @@ describe("The dashboard", () => {
   it("shows a disabled Generate Alias button if the user is at the max number of aliases, and Premium is not available to them", () => {
     setMockAliasesDataOnce({ random: [{ enabled: true, id: 42 }], custom: [] });
     setMockProfileDataOnce({ has_premium: false });
-    setMockRuntimeData(getMockRuntimeDataWithoutPremium());
+    setMockRuntimeData({
+      ...getMockRuntimeDataWithoutPremium(),
+      MAX_NUM_FREE_ALIASES: 1,
+    });
     const mockedConfig = mockConfigModule.getRuntimeConfig();
     // getRuntimeConfig() is called frequently, so mock its return value,
     // then restore the original mock at the end of this test:
@@ -860,7 +871,10 @@ describe("The dashboard", () => {
   it("shows the upgrade button if the user is at the max number of aliases, and Premium is available to them", () => {
     setMockAliasesDataOnce({ random: [{ enabled: true, id: 42 }], custom: [] });
     setMockProfileDataOnce({ has_premium: false });
-    setMockRuntimeData(getMockRuntimeDataWithPeriodicalPremium());
+    setMockRuntimeData({
+      ...getMockRuntimeDataWithPeriodicalPremium(),
+      MAX_NUM_FREE_ALIASES: 1,
+    });
     const mockedConfig = mockConfigModule.getRuntimeConfig();
     // getRuntimeConfig() is called frequently, so mock its return value,
     // then restore the original mock at the end of this test:

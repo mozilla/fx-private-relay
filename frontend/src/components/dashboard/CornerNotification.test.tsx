@@ -8,6 +8,7 @@ import {
   mockedRelayaddresses,
 } from "frontend/__mocks__/api/mockData";
 import { useLocalDismissal } from "frontend/src/hooks/localDismissal";
+import { buildMockL10n } from "frontend/__mocks__/hooks/l10n";
 
 jest.mock("frontend/src/functions/waffle", () => {
   const { mockIsFlagActive } = jest.requireActual(
@@ -29,6 +30,7 @@ beforeAll(() => {
   class MockIntersectionObserver implements IntersectionObserver {
     readonly root: Element | null = null;
     readonly rootMargin: string = "";
+    readonly scrollMargin: string = "";
     readonly thresholds: ReadonlyArray<number> = [];
     observe(): void {}
     unobserve(): void {}
@@ -66,7 +68,7 @@ describe("CornerNotification", () => {
     mockIsFlagActive.mockReset();
     mockIsFlagActive.mockImplementation(() => true);
 
-    global.useL10nImpl = () => mockL10n;
+    global.useL10nImpl = () => buildMockL10n(mockL10n);
     (useLocalDismissal as jest.Mock).mockReturnValue({
       isDismissed: false,
       dismiss: mockDismiss,

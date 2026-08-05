@@ -138,6 +138,12 @@ describe("GoogleAnalyticsWorkaround", () => {
   });
 });
 
+// @types/node declares NODE_ENV readonly, but it is writable at runtime and
+// these tests need to exercise both the development and production paths.
+const setNodeEnv = (value: string | undefined) => {
+  (process.env as Record<string, string | undefined>).NODE_ENV = value;
+};
+
 describe("sendGAEvent", () => {
   let consoleWarnSpy: jest.SpyInstance;
   let originalEnv: string | undefined;
@@ -149,15 +155,15 @@ describe("sendGAEvent", () => {
 
   afterEach(() => {
     consoleWarnSpy.mockRestore();
-    process.env.NODE_ENV = originalEnv;
+    setNodeEnv(originalEnv);
   });
 
   it("handles different environments and dataLayer states", () => {
-    process.env.NODE_ENV = "test";
+    setNodeEnv("test");
     sendGAEvent("event", "test_event", { test: "data" });
     expect(consoleWarnSpy).not.toHaveBeenCalled();
 
-    process.env.NODE_ENV = "production";
+    setNodeEnv("production");
     delete (window as unknown as Record<string, unknown>).dataLayer;
     sendGAEvent("event", "click_event", { button: "submit" });
     expect(consoleWarnSpy).toHaveBeenCalledWith(

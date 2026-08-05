@@ -21,12 +21,16 @@ const mockHolidayDate = () => {
   const realDate = Date;
   const mockDate = new realDate("2023-12-15");
   global.Date = class extends realDate {
-    constructor(...args: ConstructorParameters<typeof Date>) {
+    // Typed as unknown[] rather than ConstructorParameters<typeof Date>, which
+    // resolves to a single-argument tuple and makes the zero-arg check dead.
+    constructor(...args: unknown[]) {
       super();
       if (args.length === 0) {
         return mockDate as unknown as Date;
       }
-      return new realDate(...args) as unknown as Date;
+      return new realDate(
+        ...(args as ConstructorParameters<typeof Date>),
+      ) as unknown as Date;
     }
     static now() {
       return mockDate.getTime();

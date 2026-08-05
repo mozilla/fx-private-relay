@@ -1,6 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import { GenericTip, GenericTipProps } from "./GenericTip";
 import { getLocale } from "../../../functions/getLocale";
+import { buildMockL10n } from "../../../../__mocks__/hooks/l10n";
 import React from "react";
 
 jest.mock("./GenericTip.module.scss", () => ({
@@ -29,7 +30,7 @@ jest.mock("../../../functions/getLocale", () => ({
 }));
 
 describe("GenericTip", () => {
-  const mockL10n = {};
+  const mockL10n = buildMockL10n();
   const baseProps: GenericTipProps = {
     title: "Test Tip Title",
     content: <p>Some test tip content</p>,
