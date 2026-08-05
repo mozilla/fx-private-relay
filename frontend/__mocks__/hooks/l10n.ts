@@ -16,6 +16,20 @@ export const mockUseL10nModule = {
   },
 };
 
+export type MockL10n = ReturnType<typeof mockUseL10nModule.useL10n>;
+
+/**
+ * Fills in the parts of `useL10n` a test does not care about.
+ *
+ * `global.useL10nImpl` must return the complete hook shape. Assigning a bare
+ * `{ getString }` type-checks against nothing at runtime but fails the
+ * whole-project check that `next build` runs.
+ */
+export const buildMockL10n = (overrides: Partial<MockL10n> = {}): MockL10n => ({
+  ...mockUseL10nModule.useL10n(),
+  ...overrides,
+});
+
 export const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 /**

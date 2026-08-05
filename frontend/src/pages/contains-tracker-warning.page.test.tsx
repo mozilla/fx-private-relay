@@ -10,7 +10,11 @@ import { useMetrics } from "../hooks/metrics";
 jest.mock("../hooks/metrics");
 jest.mock("react-ga", () => ({
   __esModule: true,
-  OutboundLink: ({ children, to, ...props }: React.ComponentProps<"a">) => (
+  OutboundLink: ({
+    children,
+    to,
+    ...props
+  }: React.ComponentProps<"a"> & { to: string }) => (
     <a href={to} {...props}>
       {children}
     </a>

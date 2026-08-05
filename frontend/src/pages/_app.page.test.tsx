@@ -37,6 +37,8 @@ import {
 } from "../hooks/googleAnalytics";
 import { useAddonElementWatcher } from "../hooks/addon";
 import { getL10n } from "../functions/getL10n";
+import type { ReactLocalization } from "@fluent/react";
+import type { LocalLabel } from "../hooks/localLabels";
 
 const mockedUseIsLoggedIn = useIsLoggedIn as jest.MockedFunction<
   typeof useIsLoggedIn
@@ -110,7 +112,7 @@ const defaultAppProps: AppProps = {
     isFallback: false,
     isReady: true,
     isPreview: false,
-  },
+  } as unknown as AppProps["router"],
 };
 
 const waitForNextTick = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -208,9 +210,12 @@ describe("MyApp component", () => {
   });
 
   it("provides addon data context and sets element attributes based on login state", () => {
+    const mockLocalLabels: LocalLabel[] = [
+      { id: 1, mask_type: "random", description: "test" },
+    ];
     const mockAddonData = {
       present: true,
-      localLabels: [{ id: 1, label: "test" }],
+      localLabels: mockLocalLabels,
       sendEvent: jest.fn(),
     };
     mockedUseAddonElementWatcher.mockReturnValue(mockAddonData);
@@ -224,7 +229,7 @@ describe("MyApp component", () => {
     expect(addonElement).toHaveAttribute("data-addon-installed");
     expect(addonElement).toHaveAttribute(
       "data-local-labels",
-      JSON.stringify([{ id: 1, label: "test" }]),
+      JSON.stringify(mockLocalLabels),
     );
 
     cleanup();

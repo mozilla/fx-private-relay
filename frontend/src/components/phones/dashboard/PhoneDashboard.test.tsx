@@ -14,6 +14,7 @@ import { VerifiedPhone } from "frontend/src/hooks/api/realPhone";
 import { formatPhone } from "frontend/src/functions/formatPhone";
 import { useRelayNumber } from "frontend/src/hooks/api/relayNumber";
 import { useInboundContact } from "frontend/src/hooks/api/inboundContact";
+import { buildMockL10n } from "frontend/__mocks__/hooks/l10n";
 import type {
   ClipboardShim,
   NavigatorClipboard,
@@ -24,6 +25,7 @@ beforeAll(() => {
   class MockIntersectionObserver implements IntersectionObserver {
     readonly root: Element | null = null;
     readonly rootMargin: string = "";
+    readonly scrollMargin: string = "";
     readonly thresholds: ReadonlyArray<number> = [];
     constructor() {}
     observe(): void {}
@@ -60,10 +62,11 @@ describe("PhoneDashboard", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    global.useL10nImpl = () => ({
-      getString: (key: string) => key,
-      bundles: [{ locales: ["en-US"] }],
-    });
+    global.useL10nImpl = () =>
+      buildMockL10n({
+        getString: (key: string) => key,
+        bundles: [{ locales: ["en-US"] }],
+      });
 
     (useRelayNumber as jest.Mock).mockReturnValue({
       data: [mockRelayNumber],

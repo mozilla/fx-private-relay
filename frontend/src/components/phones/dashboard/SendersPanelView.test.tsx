@@ -3,8 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { SendersPanelView } from "./SendersPanelView";
 import * as metricsModule from "frontend/src/hooks/metrics";
 import * as inboundContactModule from "frontend/src/hooks/api/inboundContact";
-import { FluentBundle } from "@fluent/bundle";
-import { ReactLocalization } from "@fluent/react";
+import { buildMockL10n } from "frontend/__mocks__/hooks/l10n";
 
 jest.mock("frontend/src/hooks/metrics", () => ({
   useMetrics: jest.fn(),
@@ -16,18 +15,14 @@ jest.mock("frontend/src/hooks/api/inboundContact", () => ({
 
 const mockBack = jest.fn();
 
-function mockL10n(): ReactLocalization {
-  const bundle = new FluentBundle("en-US");
-  return new ReactLocalization([bundle]);
-}
-
 beforeEach(() => {
   jest.clearAllMocks();
 
-  global.useL10nImpl = () => ({
-    getString: (key: string) => key,
-    bundles: mockL10n().bundles,
-  });
+  global.useL10nImpl = () =>
+    buildMockL10n({
+      getString: (key: string) => key,
+      bundles: [{ locales: ["en-US"] }],
+    });
 
   (inboundContactModule.useInboundContact as jest.Mock).mockReturnValue({
     data: [],

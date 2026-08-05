@@ -21,8 +21,13 @@ jest.mock("./api", () => {
   };
 });
 
-const createMockAlias = (type: "random" | "custom", id: number): AliasData =>
-  ({
+// Overloaded so callers get the narrowed variant: passing the literal "random"
+// or "custom" returns RandomAliasData or CustomAliasData rather than the union.
+function createMockAlias(type: "random", id: number): RandomAliasData;
+function createMockAlias(type: "custom", id: number): CustomAliasData;
+function createMockAlias(type: "random" | "custom", id: number): AliasData;
+function createMockAlias(type: "random" | "custom", id: number): AliasData {
+  return {
     mask_type: type,
     id,
     address: `test${id}`,
@@ -42,7 +47,8 @@ const createMockAlias = (type: "random" | "custom", id: number): AliasData =>
     num_level_one_trackers_blocked: 0,
     used_on: "",
     ...(type === "random" ? { generated_for: "" } : {}),
-  }) as AliasData;
+  } as AliasData;
+}
 
 describe("useAliases", () => {
   const mockRandomMutate = jest.fn();

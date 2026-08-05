@@ -45,7 +45,6 @@ describe("Image", () => {
         alt="Test"
         width={100}
         height={100}
-        // @ts-expect-error - mockStyle is for testing
         mockStyle={{ color: "transparent" }}
       />,
     );
@@ -62,9 +61,7 @@ describe("Image", () => {
         alt="Test"
         width={100}
         height={100}
-        // @ts-expect-error - mockClassName is for testing
         mockClassName="existing-class"
-        // @ts-expect-error - mockStyle is for testing
         mockStyle={{ color: "transparent" }}
       />,
     );
@@ -82,7 +79,6 @@ describe("Image", () => {
         alt="Test"
         width={100}
         height={100}
-        // @ts-expect-error - mockStyle is for testing
         mockStyle={{ color: "transparent" }}
       />,
     );
@@ -99,9 +95,7 @@ describe("Image", () => {
         alt="Test"
         width={100}
         height={100}
-        // @ts-expect-error - mockStyle is for testing
         mockStyle={{}}
-        // @ts-expect-error - mockClassName is for testing
         mockClassName=""
       />,
     );

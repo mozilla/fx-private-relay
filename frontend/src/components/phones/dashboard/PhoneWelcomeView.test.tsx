@@ -5,6 +5,7 @@ import { PhoneWelcomeView } from "./PhoneWelcomeView";
 import { mockedProfiles } from "frontend/__mocks__/api/mockData";
 import { toast } from "react-toastify";
 import { renderWithProviders } from "frontend/__mocks__/modules/renderWithProviders";
+import { buildMockL10n } from "frontend/__mocks__/hooks/l10n";
 
 jest.mock("react-toastify", () => ({
   toast: jest.fn(),
@@ -25,10 +26,11 @@ describe("PhoneWelcomeView", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    global.useL10nImpl = () => ({
-      getString: (key: string) => key,
-      bundles: [{ locales: ["en-US"] }],
-    });
+    global.useL10nImpl = () =>
+      buildMockL10n({
+        getString: (key: string) => key,
+        bundles: [{ locales: ["en-US"] }],
+      });
   });
 
   const renderView = (

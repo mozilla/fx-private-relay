@@ -5,6 +5,7 @@ import { FreeOnboarding, Props } from "./FreeOnboarding";
 import { RandomAliasData, AliasData } from "../../hooks/api/aliases";
 import { ProfileData } from "../../hooks/api/profile";
 import { UserData } from "../../hooks/api/user";
+import { buildMockL10n } from "../../../__mocks__/hooks/l10n";
 
 jest.mock("../../config", () => ({
   getRuntimeConfig: () => ({
@@ -64,10 +65,11 @@ const baseProps: Props = {
 describe("FreeOnboarding", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    global.useL10nImpl = () => ({
-      getString: mockL10nGetString,
-      bundles: [{ locales: ["en"] }],
-    });
+    global.useL10nImpl = () =>
+      buildMockL10n({
+        getString: mockL10nGetString,
+        bundles: [{ locales: ["en"] }],
+      });
   });
 
   it("renders Step 1 and handles mask creation", async () => {

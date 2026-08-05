@@ -2,6 +2,7 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { PremiumOnboarding } from "./PremiumOnboarding";
 import { mockedProfiles } from "../../../__mocks__/api/mockData";
+import { buildMockL10n } from "../../../__mocks__/hooks/l10n";
 import { supportsFirefoxExtension } from "../../functions/userAgent";
 import { useMinViewportWidth } from "../../hooks/mediaQuery";
 import { renderWithProviders } from "frontend/__mocks__/modules/renderWithProviders";
@@ -14,9 +15,10 @@ describe("PremiumOnboarding", () => {
   const mockL10nGetString = jest.fn((id: string) => id);
 
   beforeEach(() => {
-    global.useL10nImpl = () => ({
-      getString: mockL10nGetString,
-    });
+    global.useL10nImpl = () =>
+      buildMockL10n({
+        getString: mockL10nGetString,
+      });
 
     (supportsFirefoxExtension as jest.Mock).mockReturnValue(true);
     (useMinViewportWidth as jest.Mock).mockReturnValue(true);

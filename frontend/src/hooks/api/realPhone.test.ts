@@ -18,8 +18,13 @@ jest.mock("./api", () => {
   };
 });
 
-const createMockPhone = (verified: boolean): RealPhone =>
-  ({
+// Overloaded so callers get the narrowed variant: passing a literal `true` or
+// `false` returns VerifiedPhone or UnverifiedPhone rather than the union.
+function createMockPhone(verified: true): VerifiedPhone;
+function createMockPhone(verified: false): UnverifiedPhone;
+function createMockPhone(verified: boolean): RealPhone;
+function createMockPhone(verified: boolean): RealPhone {
+  return {
     id: 1,
     number: "+15555551234",
     verification_code: "123456",
@@ -27,7 +32,8 @@ const createMockPhone = (verified: boolean): RealPhone =>
     verified,
     verified_date: verified ? "2025-01-01T00:05:00Z" : null,
     country_code: "US",
-  }) as RealPhone;
+  } as RealPhone;
+}
 
 describe("useRealPhonesData", () => {
   const mockMutate = jest.fn();
