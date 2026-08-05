@@ -442,7 +442,8 @@ def set_user_group(user):
 
 
 def convert_domains_to_regex_patterns(domain_pattern):
-    return r"""(["'])(\S*://(\S*\.)*""" + re.escape(domain_pattern) + r"\S*)\1"
+    # A subdomain label must not contain a dot, or this backtracks. See MPP-4739.
+    return r"""(["'])(\S*://([^\s"'.]*\.)*""" + re.escape(domain_pattern) + r"\S*)\1"
 
 
 def count_tracker(html_content, trackers):
