@@ -26,10 +26,10 @@
     "chokidar-cli": "^3.0.0",
     "cldr-localenames-modern": "^45.0.0",
     "msw": "^2.15.0",
-    "react": "19.2.7",
+    "react": "^19.2.8",
     "react-aria": "^3.50.0",
     "react-confetti": "^6.4.0",
-    "react-dom": "19.2.7",
+    "react-dom": "^19.2.8",
     "react-ga": "^3.3.1",
     "react-intersection-observer": "^10.1.0",
     "react-singleton-hook": "^4.0.1",
@@ -38,6 +38,8 @@
     "swr": "^2.4.2"
   },
   "devDependencies": {
+    "@eslint/compat": "^2.1.0",
+    "@eslint/js": "^10.0.0",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^7.0.0",
     "@testing-library/react": "^16.3.2",
@@ -46,14 +48,11 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.4",
     "babel-jest": "^30.4.1",
-    "@eslint/compat": "^2.1.0",
-    "@eslint/js": "^10.0.0",
     "eslint": "^10.8.0",
     "eslint-plugin-jest-dom": "^5.5.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-testing-library": "^7.16.2",
-    "typescript-eslint": "^8.65.0",
     "husky": "^9.1.7",
     "jest": "^30.4.2",
     "jest-axe": "^11.0.0",
@@ -68,7 +67,8 @@
     "stylelint": "^17.14.1",
     "stylelint-config-recommended-scss": "^17.0.1",
     "stylelint-scss": "^7.2.0",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.65.0"
   },
   "volta": {
     "node": "22.15.0",
