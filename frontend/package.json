@@ -49,7 +49,7 @@
     "@eslint/compat": "^2.1.0",
     "@eslint/js": "^10.0.0",
     "eslint": "^10.8.0",
-    "eslint-plugin-jest-dom": "^5.5.0",
+    "eslint-plugin-jest-dom": "^5.10.1",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-testing-library": "^7.16.2",
