@@ -374,6 +374,7 @@ class Command(CommandFromDjangoSettings):
         Return is a dict suitable for logging context, with these keys:
         * success: True if message was processed successfully
         * error: The processing error, omitted on success
+        * status_code: The HTTP status from the email code, omitted if it raised
         * message_body_quoted: Set if the message was non-JSON, omitted for valid JSON
         * pause_count: Set to 1 if paused due to temporary error, or omitted
           with no error
@@ -409,9 +410,18 @@ class Command(CommandFromDjangoSettings):
             return results
 
         def success_callback(result: HttpResponse) -> None:
-            """Handle return from successful call to _sns_inbound_logic"""
-            # TODO: extract data from _sns_inbound_logic return
-            pass
+            """Handle return from a call to _sns_inbound_logic that did not raise.
+
+            The email code signals a retryable failure by returning 5xx rather than
+            raising, so a 5xx is not a success. Counting it as one deletes the message
+            from the queue and loses the email.
+            """
+            status_code = result.status_code
+            results["status_code"] = status_code
+            if status_code >= 500:
+                incr_if_enabled("message_from_sqs_retryable_error")
+                results["success"] = False
+                results["error"] = f"_sns_inbound_logic returned {status_code}"
 
         def error_callback(exc_info: BaseException) -> None:
             """Handle exception raised by _sns_inbound_logic"""

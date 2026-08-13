@@ -76,6 +76,7 @@ from .utils import (
     get_reply_to_address,
     histogram_if_enabled,
     incr_if_enabled,
+    is_permanent_ses_error,
     parse_email_header,
     remove_message_from_s3,
     remove_trackers,
@@ -842,7 +843,14 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             destination_address=destination_address,
             message=forwarded_email,
         )
-    except ClientError:
+    except ClientError as e:
+        if is_permanent_ses_error(e):
+            # A retry would be rejected the same way, so do not ask for one. Count the
+            # rejection instead, so the volume is visible and alertable.
+            incr_if_enabled("ses_permanent_rejection", 1)
+            logger.error("ses_permanent_rejection", extra=e.response["Error"])
+            log_email_dropped(reason="error_sending", mask=address, can_retry=False)
+            return HttpResponse("SES permanently rejected the email", status=400)
         # 503 service unavailable response to SNS so it can retry
         log_email_dropped(reason="error_sending", mask=address, can_retry=True)
         return HttpResponse("SES client error on Raw Email", status=503)
@@ -1170,19 +1178,46 @@ def _replace_headers(
                 }
             )
 
-    # Collect headers that will not be forwarded
+    # Collect headers that will not be forwarded, and the kept headers that appear
+    # more than once. SES rejects the whole message when a header it parses, such as
+    # MIME-Version or Content-Type, is duplicated, so only the first copy is kept.
+    first_kept: dict[str, str] = {}
+    duplicate_counts: dict[str, int] = {}
     for header in email.keys():
         header_lower = header.lower()
-        if (
-            header_lower not in replacements
-            and header_lower != "mime-version"
-            and not header_lower.startswith("content-")
-        ):
+        if header_lower in replacements:
+            # The replacement loop below deletes every copy and writes one new value
+            continue
+        if header_lower != "mime-version" and not header_lower.startswith("content-"):
             to_drop.append(header)
+        elif header_lower in first_kept:
+            duplicate_counts[header_lower] = duplicate_counts.get(header_lower, 0) + 1
+        else:
+            first_kept[header_lower] = header
 
     # Drop headers that should be dropped
     for header in to_drop:
         del email[header]
+
+    # Collapse each duplicated header to its first value
+    for header_lower, count in duplicate_counts.items():
+        header = first_kept[header_lower]
+        try:
+            value = email[header]
+        except Exception as e:
+            # The value cannot be read, so leave every copy in place
+            issues.append(
+                {"header": header, "direction": "in", "exception_on_read": repr(e)}
+            )
+        else:
+            del email[header]
+            # Assigning the parsed header object back keeps the original value.
+            # Assigning the raw string would fail on a folded header, because a folded
+            # value contains newlines.
+            email[header] = value
+            issues.append(
+                {"header": header, "direction": "in", "duplicates_dropped": count}
+            )
 
     # Replace the requested headers
     for header, value in headers.items():

@@ -42,6 +42,8 @@ incoming email. Their names all end in `_email_sns_body.json`.
 These fixtures were created outside of an SNS notification, such as exporting from a
 mail client. They are stored in the [Internet Message Format][] (IMF).
 
+- `duplicate_mime_version_incoming.email` - Has two `MIME-Version` headers. SES rejects
+  a forwarded copy that keeps both.
 - `inline_image_incoming.email` - Contains an inline image, referenced in the HTML by
   content ID
 - `plain_text_incoming.email` - A simple email with only plain text content
