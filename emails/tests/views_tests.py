@@ -135,6 +135,18 @@ SEND_RAW_EMAIL_FAILED = ClientError(
     error_response={"Error": {"Code": "the code", "Message": "the message"}},
 )
 
+# Set mocked ses_client.send_raw_email.side_effect = SEND_RAW_EMAIL_REJECTED to
+# simulate a rejection that a retry cannot fix
+SEND_RAW_EMAIL_REJECTED = ClientError(
+    operation_name="SES.send_raw_email",
+    error_response={
+        "Error": {
+            "Code": "InvalidParameterValue",
+            "Message": "Duplicate header 'MIME-Version'.",
+        }
+    },
+)
+
 
 def create_email_from_notification(
     notification: AWS_SNSMessageJSON, text: str, html: str | None = None
@@ -2425,6 +2437,25 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         assert response.status_code == 503
         assert response.content == b"SES client error on Raw Email"
         self.assert_log_incoming_email_dropped(caplog, "error_sending", can_retry=True)
+
+    @override_settings(STATSD_ENABLED=True)
+    @patch("emails.apps.EmailsConfig.ses_client", spec_set=["send_raw_email"])
+    @patch("emails.views.get_message_content_from_s3")
+    def test_permanent_ses_rejection_is_counted_not_retried(
+        self, mocked_get_content: Mock, mocked_ses_client: Mock
+    ) -> None:
+        """A rejection that a retry cannot fix is counted instead of redriven."""
+        mocked_get_content.return_value = create_email_from_notification(
+            EMAIL_SNS_BODIES["s3_stored"], text="text_content"
+        )
+        mocked_ses_client.send_raw_email.side_effect = SEND_RAW_EMAIL_REJECTED
+
+        with self.assertLogs(INFO_LOG) as caplog, MetricsMock() as mm:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
+        assert response.status_code == 400
+        assert response.content == b"SES permanently rejected the email"
+        self.assert_log_incoming_email_dropped(caplog, "error_sending", can_retry=False)
+        mm.assert_incr_once("ses_permanent_rejection")
 
     @patch("emails.apps.EmailsConfig.ses_client", spec_set=["send_raw_email"])
     @patch("emails.views.get_message_content_from_s3")

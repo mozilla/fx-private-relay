@@ -248,6 +248,17 @@ def ses_send_raw_email(
         raise
 
 
+# SES error codes that will fail the same way on every retry. The list is deliberately
+# short: an unrecognized code is treated as transient, so the message is retried and
+# ends up in the dead-letter queue instead of being discarded.
+PERMANENT_SES_ERROR_CODES = frozenset({"InvalidParameterValue"})
+
+
+def is_permanent_ses_error(error: ClientError) -> bool:
+    """Return True if SES will reject this message identically on every retry."""
+    return error.response.get("Error", {}).get("Code") in PERMANENT_SES_ERROR_CODES
+
+
 def urlize_and_linebreaks(text, autoescape=True):
     return linebreaksbr(urlize(text, autoescape=autoescape), autoescape=autoescape)
 

@@ -76,6 +76,7 @@ from .utils import (
     get_reply_to_address,
     histogram_if_enabled,
     incr_if_enabled,
+    is_permanent_ses_error,
     parse_email_header,
     remove_message_from_s3,
     remove_trackers,
@@ -842,7 +843,14 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             destination_address=destination_address,
             message=forwarded_email,
         )
-    except ClientError:
+    except ClientError as e:
+        if is_permanent_ses_error(e):
+            # A retry would be rejected the same way, so do not ask for one. Count the
+            # rejection instead, so the volume is visible and alertable.
+            incr_if_enabled("ses_permanent_rejection", 1)
+            logger.error("ses_permanent_rejection", extra=e.response["Error"])
+            log_email_dropped(reason="error_sending", mask=address, can_retry=False)
+            return HttpResponse("SES permanently rejected the email", status=400)
         # 503 service unavailable response to SNS so it can retry
         log_email_dropped(reason="error_sending", mask=address, can_retry=True)
         return HttpResponse("SES client error on Raw Email", status=503)

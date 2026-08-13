@@ -94,8 +94,9 @@ def mock_django_db_connection() -> Iterator[Mock]:
 
 @pytest.fixture(autouse=True)
 def mock_sns_inbound_logic() -> Iterator[Mock]:
-    """Mock _sns_inbound_logic(topic_arn, message_type, json_body) to do nothing"""
+    """Mock _sns_inbound_logic(topic_arn, message_type, json_body) to return 200"""
     with patch(f"{MOCK_BASE}._sns_inbound_logic") as mock_sns_inbound_logic:
+        mock_sns_inbound_logic.return_value = HttpResponse(status=200)
         yield mock_sns_inbound_logic
 
 
@@ -320,6 +321,7 @@ def test_one_message(
     assert set(msg_extra.keys()) == {
         "message_process_time_s",
         "sqs_message_id",
+        "status_code",
         "success",
         "subprocess_setup_time_s",
     }
@@ -414,6 +416,22 @@ def test_ses_generic_failure(
     assert summary["total_messages"] == 1
     assert summary["failed_messages"] == 1
     msg.delete.assert_not_called()
+
+
+def test_retryable_5xx_is_not_deleted(
+    mock_sns_inbound_logic: Mock, mock_sqs_client: Mock, caplog: LogCaptureFixture
+) -> None:
+    """A 5xx from the email code is a failure, so the message stays on the queue."""
+    mock_sns_inbound_logic.return_value = HttpResponse(status=503)
+    msg = fake_sqs_message(json.dumps(TEST_SNS_MESSAGE))
+    mock_sqs_client.return_value = fake_queue([msg], [])
+    call_command(COMMAND_NAME)
+
+    assert summary_from_exit_log(caplog)["failed_messages"] == 1
+    msg.delete.assert_not_called()
+    msg_extra = log_extra(omit_markus_logs(caplog)[1])
+    assert msg_extra["success"] is False
+    assert msg_extra["error"] == "_sns_inbound_logic returned 503"
 
 
 def test_ses_python_error(
