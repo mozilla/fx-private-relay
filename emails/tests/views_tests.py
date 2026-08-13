@@ -3394,6 +3394,32 @@ def test_replace_headers_read_error_is_handled() -> None:
         assert email[name] == value
 
 
+def test_replace_headers_drops_duplicate_mime_version() -> None:
+    """
+    Only the first copy of a duplicated header is forwarded.
+
+    SES rejects the whole message when MIME-Version appears twice. See MPP-4746.
+    """
+    email = message_from_string(
+        EMAIL_INCOMING["duplicate_mime_version"], policy=relay_policy
+    )
+    assert isinstance(email, EmailMessage)
+    assert email.get_all("MIME-Version") == ["1.0", "1.0"]
+
+    new_headers: OutgoingHeaders = {
+        "Subject": "Duplicate Header Test",
+        "From": "from@example.com",
+        "To": "to@example.com",
+    }
+    issues = _replace_headers(email, new_headers)
+
+    assert email.get_all("MIME-Version") == ["1.0"]
+    assert email.get_all("Content-Type") == ['text/plain; charset="utf-8"']
+    assert issues == [
+        {"header": "MIME-Version", "direction": "in", "duplicates_dropped": 1}
+    ]
+
+
 @pytest.mark.django_db
 def test_opt_out_user_has_minimal_email_dropped_log(caplog):
     user = baker.make(User, email="opt-out@example.com")

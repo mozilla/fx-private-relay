@@ -43,10 +43,17 @@ class EmailHeaderDefectIssue(TypedDict):
     raw_value: str
 
 
+class EmailHeaderDuplicateIssue(TypedDict):
+    header: str
+    direction: Literal["in"]
+    duplicates_dropped: int
+
+
 EmailHeaderIssue = (
     EmailHeaderExceptionOnReadIssue
     | EmailHeaderExceptionOnWriteIssue
     | EmailHeaderDefectIssue
+    | EmailHeaderDuplicateIssue
 )
 
 EmailHeaderIssues = list[EmailHeaderIssue]
