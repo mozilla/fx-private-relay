@@ -10,7 +10,7 @@ RUN npm ci --workspace frontend
 RUN npm run build --workspace frontend
 
 
-FROM python:3.11.8 AS app
+FROM python:3.12.14 AS app
 
 RUN pip install --no-cache --upgrade pip
 

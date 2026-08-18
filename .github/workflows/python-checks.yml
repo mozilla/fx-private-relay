@@ -30,32 +30,32 @@ jobs:
           # Code quality checks
           - name: Black formatting
             command: black
-            python_version: '3.11.8'
+            python_version: '3.12.14'
             allow_failure: false
             test_results_filename: black.xml
 
           - name: Ruff linting
             command: ruff
-            python_version: '3.11.8'
+            python_version: '3.12.14'
             allow_failure: false
             test_results_filename: ruff.xml
 
           - name: Mypy type check
             command: mypy
-            python_version: '3.11.8'
+            python_version: '3.12.14'
             allow_failure: false
             test_results_filename: mypy.xml
 
           - name: Mypy strict type check
             command: mypy
-            python_version: '3.11.8'
+            python_version: '3.12.14'
             allow_failure: true
             mypy_strict: true
             test_results_filename: mypy-strict.xml
 
           - name: Glean parser check
             command: check_glean
-            python_version: '3.11.8'
+            python_version: '3.12.14'
             allow_failure: false
             test_results_filename: check_glean.xml
 
@@ -63,7 +63,7 @@ jobs:
           - name: Phones disabled
             command: pytest
             test_results_filename: pytest-phones-disabled.xml
-            python_version: '3.11.8'
+            python_version: '3.12.14'
             postgres_version: null
             phones_enabled: '0'
             allow_failure: false
@@ -72,7 +72,7 @@ jobs:
           - name: SQLite migrations
             command: pytest
             test_results_filename: sqlite3-migrations.xml
-            python_version: '3.11.8'
+            python_version: '3.12.14'
             postgres_version: null
             phones_enabled: '1'
             allow_failure: false
@@ -82,7 +82,7 @@ jobs:
           - name: PostgreSQL migrations
             command: pytest
             test_results_filename: postgres-migrations.xml
-            python_version: '3.11.8'
+            python_version: '3.12.14'
             postgres_version: '17.7'
             phones_enabled: '1'
             allow_failure: false
