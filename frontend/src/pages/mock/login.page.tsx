@@ -138,7 +138,7 @@ const MockLogin: NextPage = () => {
 // Wrapped in a function so eslint-plugin-react-hooks doesn't flag it
 // as an impure call during render (it specifically tracks Date.now).
 function getTimestamp(): number {
-  return getTimestamp();
+  return Date.now();
 }
 
 function byUseDate(a: UsedToken, b: UsedToken) {

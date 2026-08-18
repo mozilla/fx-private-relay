@@ -1,6 +1,8 @@
 import React from "react";
 // eslint-disable-next-line testing-library/no-manual-cleanup
 import { act, render, screen, cleanup } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
+import { hydrateRoot } from "react-dom/client";
 import { axe } from "jest-axe";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
@@ -37,6 +39,10 @@ import {
 } from "../hooks/googleAnalytics";
 import { useAddonElementWatcher } from "../hooks/addon";
 import { getL10n } from "../functions/getL10n";
+// The `useL10n` hook is mocked project-wide in jest.setup.ts, so it can't tell
+// us which bundle the provider actually holds. Hence the raw hook here:
+// eslint-disable-next-line no-restricted-imports
+import { useLocalization } from "@fluent/react";
 import type { ReactLocalization } from "@fluent/react";
 import type { LocalLabel } from "../hooks/localLabels";
 
@@ -60,6 +66,9 @@ setMockRuntimeData();
 
 const mockL10n = {
   bundles: [{ locales: ["en"] }],
+} as unknown as ReactLocalization;
+const mockNegotiatedL10n = {
+  bundles: [{ locales: ["nl"] }],
 } as unknown as ReactLocalization;
 
 const MockComponent = () => <div>Test Component</div>;
@@ -146,8 +155,9 @@ describe("MyApp component", () => {
 
   it("initializes l10n, renders providers, and handles component rendering", async () => {
     const { container } = render(<MyApp {...defaultAppProps} />);
-    // In a browser environment (jsdom), l10n is initialized with
-    // non-deterministic locales via the useState lazy initializer.
+    // Both bundles are built: the deterministic one for the render that has to
+    // match the pre-rendered HTML, and the negotiated one for after that.
+    expect(mockedGetL10n).toHaveBeenCalledWith({ deterministicLocales: true });
     expect(mockedGetL10n).toHaveBeenCalledWith({ deterministicLocales: false });
 
     expect(screen.getByText("Test Component")).toBeInTheDocument();
@@ -155,6 +165,35 @@ describe("MyApp component", () => {
     const overlayProvider = container.querySelector("#overlayProvider");
     expect(overlayProvider).toBeInTheDocument();
     expect(overlayProvider).toHaveAttribute("id", "overlayProvider");
+  });
+
+  it("keeps the hydration render on the deterministic `en` bundle", async () => {
+    mockedGetL10n.mockImplementation(({ deterministicLocales }) =>
+      deterministicLocales ? mockL10n : mockNegotiatedL10n,
+    );
+    const renderedLocales: string[] = [];
+    const LocaleSpy = () => {
+      const [bundle] = [...useLocalization().l10n.bundles];
+      renderedLocales.push(bundle.locales[0]);
+      return <div>Locale spy</div>;
+    };
+    const appProps = { ...defaultAppProps, Component: LocaleSpy };
+
+    const mountPoint = document.createElement("div");
+    mountPoint.innerHTML = renderToString(<MyApp {...appProps} />);
+    document.body.appendChild(mountPoint);
+    renderedLocales.length = 0;
+
+    const root = await act(async () =>
+      hydrateRoot(mountPoint, <MyApp {...appProps} />),
+    );
+
+    // Anything but `en` first would mismatch the pre-rendered HTML.
+    expect(renderedLocales[0]).toBe("en");
+    expect(renderedLocales[renderedLocales.length - 1]).toBe("nl");
+
+    await act(async () => root.unmount());
+    mountPoint.remove();
   });
 
   it("handles Google Analytics initialization and pageview tracking", async () => {
