@@ -614,7 +614,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
 
     _record_receipt_verdicts(receipt, "all")
     to_address = _get_relay_recipient_from_message_json(message_json)
-    if to_address is None:
+    if not to_address:
         incr_if_enabled("no_relay_domain_in_recipient_fields", 1)
         return HttpResponse("Address does not exist", status=404)
 
@@ -1695,6 +1695,8 @@ def _handle_bounce(message_json: AWS_SNSMessageJSON) -> HttpResponse:
             continue
 
         recipient_address = parseaddr(recipient_address)[1]
+        if not recipient_address:
+            continue
         recipient_domain = recipient_address.split("@")[1]
         data["domain"] = recipient_domain
 
