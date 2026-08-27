@@ -1,4 +1,4 @@
 repo_name: "Firefox Relay"
 node_version: "22"
-python_version: "3.11"
+python_version: "3.12"
 install_command: "pip install -r requirements.txt && cd frontend && npm ci"

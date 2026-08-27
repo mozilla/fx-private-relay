@@ -1,7 +1,7 @@
 """API views for emails"""
 
 from logging import getLogger
-from typing import Any, Generic, TypeVar
+from typing import Any
 
 from django.apps import apps
 from django.conf import settings
@@ -74,11 +74,10 @@ class RelayAddressFilter(filters.FilterSet):
         ]
 
 
-_Address = TypeVar("_Address", RelayAddress, DomainAddress)
-
-
-class AddressViewSet(Generic[_Address], SaveToRequestUser, ModelViewSet):
-    def perform_create(self, serializer: BaseSerializer[_Address]) -> None:
+class AddressViewSet[Address: (RelayAddress, DomainAddress)](
+    SaveToRequestUser, ModelViewSet
+):
+    def perform_create(self, serializer: BaseSerializer[Address]) -> None:
         super().perform_create(serializer)
         if not serializer.instance:
             raise ValueError("serializer.instance must be truthy value.")
@@ -88,7 +87,7 @@ class AddressViewSet(Generic[_Address], SaveToRequestUser, ModelViewSet):
             created_by_api=True,
         )
 
-    def perform_update(self, serializer: BaseSerializer[_Address]) -> None:
+    def perform_update(self, serializer: BaseSerializer[Address]) -> None:
         if not serializer.instance:
             raise ValueError("serializer.instance must be truthy value.")
         old_instance = serializer.instance
@@ -109,7 +108,7 @@ class AddressViewSet(Generic[_Address], SaveToRequestUser, ModelViewSet):
                 request=self.request, mask=serializer.instance
             )
 
-    def perform_destroy(self, instance: _Address) -> None:
+    def perform_destroy(self, instance: Address) -> None:
         user = instance.user
         is_random_mask = isinstance(instance, RelayAddress)
         super().perform_destroy(instance)

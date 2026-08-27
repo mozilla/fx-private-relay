@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import string
 from abc import ABCMeta, abstractmethod
-from typing import Any, Generic, Literal, TypeVar, get_args
+from typing import Any, Literal, get_args
 
 from django.db.models import Model, Q
 from django.db.models.query import QuerySet
@@ -12,7 +12,6 @@ from django.db.models.query import QuerySet
 Counts = dict[str, dict[str, int]]
 CleanupData = dict[str, Any]
 
-M = TypeVar("M", bound=Model)
 CLEAN_GROUP_T = Literal["ok", "needs_cleaning"]
 
 # Define allowed characters for item keys
@@ -28,7 +27,7 @@ _ITEM_KEY_CHAR_SET = set(
 _CLEANED_METRIC_NAME = "cleaned"
 
 
-def _metric_name_for_model(model: type[M]) -> str:
+def _metric_name_for_model[M: Model](model: type[M]) -> str:
     """The model's metric key, used in metrics and as a dictionary key."""
     return str(model._meta.verbose_name_plural).replace(" ", "_")
 
@@ -103,7 +102,7 @@ class CleanedItem(ReportItem):
         return self._count
 
 
-class BaseDataItem(ReportItem, Generic[M]):
+class BaseDataItem[M: Model](ReportItem):
     """An entry in a data task report backed by a database query."""
 
     def __init__(
@@ -158,7 +157,7 @@ class BaseDataItem(ReportItem, Generic[M]):
         return self.get_queryset().count()
 
 
-class DataModelItem(BaseDataItem[M]):
+class DataModelItem[M: Model](BaseDataItem[M]):
     """A BaseDataItem representing the top-level Model"""
 
     _model_or_parent: type[M]
@@ -178,7 +177,7 @@ class DataModelItem(BaseDataItem[M]):
         return f"{type(self).__name__}({self._model_or_parent.__name__})"
 
 
-class DataItem(BaseDataItem[M]):
+class DataItem[M: Model](BaseDataItem[M]):
     """
     A DataItem is a subquery of a DataModelItem or DataItem.
 
@@ -250,7 +249,7 @@ class DataItem(BaseDataItem[M]):
         return f'{type(self).__name__}({", ".join(args)})'
 
 
-class DataModelSpec(Generic[M]):
+class DataModelSpec[M: Model]:
     """
     Define queries on a Model that can identify issues.
 
@@ -492,7 +491,7 @@ class DataBisectSpec:
             neg_key = f"{_NEGATE_PREFIX}{part_name}"
         return [self.key, neg_key]
 
-    def to_data_items(
+    def to_data_items[M: Model](
         self, model_spec: DataModelSpec[M], existing_items: dict[str, BaseDataItem[M]]
     ) -> dict[str, DataItem[M]]:
         """Return two data items bisecting the parent data."""
@@ -511,7 +510,7 @@ class DataBisectSpec:
             ),
         }
 
-    def _to_bisected_data_item(
+    def _to_bisected_data_item[M: Model](
         self,
         key: str,
         model_spec: DataModelSpec[M],
@@ -594,7 +593,7 @@ class DataIssueTask:
             data_items.update(self._get_data_items_for_model_spec(model_spec))
         return data_items
 
-    def _get_data_items_for_model_spec(
+    def _get_data_items_for_model_spec[M: Model](
         self, model_spec: DataModelSpec[M]
     ) -> dict[str, BaseDataItem[M]]:
         data_items: dict[str, BaseDataItem[M]] = {}

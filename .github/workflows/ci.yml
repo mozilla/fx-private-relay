@@ -266,7 +266,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v7
         with:
-          python-version: '3.11.8'
+          python-version: '3.12.14'
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1.321.0
