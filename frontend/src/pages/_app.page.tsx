@@ -1,19 +1,14 @@
 import "../styles/globals.scss";
-import {
-  createElement,
-  useEffect,
-  useRef,
-  useState,
-  useSyncExternalStore,
-} from "react";
+import { createElement, useEffect, useRef, useState } from "react";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
-import { LocalizationProvider, ReactLocalization } from "@fluent/react";
+import { LocalizationProvider } from "@fluent/react";
 import { OverlayProvider } from "react-aria";
 import ReactGa from "react-ga";
 import { getL10n } from "../functions/getL10n";
 import { AddonDataContext, useAddonElementWatcher } from "../hooks/addon";
 import { ReactAriaI18nProvider } from "../components/ReactAriaI18nProvider";
+import { useHasRenderedClientSide } from "../hooks/hasRenderedClientSide";
 import { useIsLoggedIn } from "../hooks/session";
 import { useMetrics } from "../hooks/metrics";
 import {
@@ -22,18 +17,12 @@ import {
 } from "../hooks/googleAnalytics";
 import "@stripe/stripe-js";
 
-// The l10n bundles never change, so there is nothing to subscribe to. We only
-// use useSyncExternalStore because it is the one hook that can return a
-// different value while React is still matching the DOM against the
-// pre-rendered HTML than it returns afterwards. The `useL10n` hook uses the
-// same trick.
-const subscribeToNothing = () => () => {};
-const useIsHydrating = () =>
-  useSyncExternalStore(
-    subscribeToNothing,
-    () => false,
-    () => true,
-  );
+// The `en` bundle serves the pre-render and the hydration render; the user's
+// preferred locales take over after that. See the `useL10n` hook.
+// @fluent/react can't load locales asynchronously on the client yet, see
+// https://github.com/projectfluent/fluent.js/wiki/ReactLocalization/43a959b35fbf9eea694367f948cfb1387914657c#flexibility
+const deterministicL10n = getL10n({ deterministicLocales: true });
+const negotiatedL10n = getL10n({ deterministicLocales: false });
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
@@ -43,21 +32,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   const addonDataElementRef = useRef<HTMLElement>(null);
 
   const addonData = useAddonElementWatcher(addonDataElementRef);
-  // When pre-rendering and during hydration, we deterministically load the `en`
-  // bundle. React compares the pre-rendered HTML against the first client-side
-  // render, and at build time we don't know the user's locale, so that first
-  // render has to stay English. Only after hydration do we load the bundles for
-  // the user's preferred locales. (See the `useL10n` hook for more detail.)
-  // Unfortunately we can't load additional needed locales asynchronously
-  // on the client-side yet using @fluent/react, see
-  // https://github.com/projectfluent/fluent.js/wiki/ReactLocalization/43a959b35fbf9eea694367f948cfb1387914657c#flexibility
-  const [deterministicL10n] = useState<ReactLocalization>(() =>
-    getL10n({ deterministicLocales: true }),
-  );
-  const [negotiatedL10n] = useState<ReactLocalization>(() =>
-    getL10n({ deterministicLocales: false }),
-  );
-  const l10n = useIsHydrating() ? deterministicL10n : negotiatedL10n;
+  const l10n = useHasRenderedClientSide() ? negotiatedL10n : deterministicL10n;
 
   useEffect(() => {
     if (metricsEnabled === "enabled" && !googleAnalytics) {

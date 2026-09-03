@@ -15,7 +15,14 @@ jest.mock("../hooks/session");
 jest.mock("../hooks/metrics");
 jest.mock("../hooks/googleAnalytics");
 jest.mock("../hooks/addon");
-jest.mock("../functions/getL10n");
+// `_app.page.tsx` builds both bundles at import time, before any test body runs.
+jest.mock("../functions/getL10n", () => ({
+  getL10n: jest.fn(
+    ({ deterministicLocales }: { deterministicLocales: boolean }) => ({
+      bundles: [{ locales: [deterministicLocales ? "en" : "nl"] }],
+    }),
+  ),
+}));
 jest.mock("react-ga", () => ({
   __esModule: true,
   default: {
@@ -43,7 +50,6 @@ import { getL10n } from "../functions/getL10n";
 // us which bundle the provider actually holds. Hence the raw hook here:
 // eslint-disable-next-line no-restricted-imports
 import { useLocalization } from "@fluent/react";
-import type { ReactLocalization } from "@fluent/react";
 import type { LocalLabel } from "../hooks/localLabels";
 
 const mockedUseIsLoggedIn = useIsLoggedIn as jest.MockedFunction<
@@ -61,15 +67,13 @@ const mockedUseAddonElementWatcher =
 const mockedGetL10n = getL10n as jest.MockedFunction<typeof getL10n>;
 const mockedUseRouter = useRouter as jest.MockedFunction<typeof useRouter>;
 
+// `clearMocks` wipes these before the first test runs, so record them here.
+const l10nOptionsAtImport = mockedGetL10n.mock.calls.map(
+  ([options]) => options,
+);
+
 setMockProfileData();
 setMockRuntimeData();
-
-const mockL10n = {
-  bundles: [{ locales: ["en"] }],
-} as unknown as ReactLocalization;
-const mockNegotiatedL10n = {
-  bundles: [{ locales: ["nl"] }],
-} as unknown as ReactLocalization;
 
 const MockComponent = () => <div>Test Component</div>;
 
@@ -139,7 +143,6 @@ describe("MyApp component", () => {
       localLabels: [],
       sendEvent: jest.fn(),
     });
-    mockedGetL10n.mockReturnValue(mockL10n);
     mockedUseRouter.mockReturnValue(createMockRouter());
   });
 
@@ -153,13 +156,15 @@ describe("MyApp component", () => {
     expect(results).toHaveNoViolations();
   }, 10000);
 
-  it("initializes l10n, renders providers, and handles component rendering", async () => {
-    const { container } = render(<MyApp {...defaultAppProps} />);
-    // Both bundles are built: the deterministic one for the render that has to
-    // match the pre-rendered HTML, and the negotiated one for after that.
-    expect(mockedGetL10n).toHaveBeenCalledWith({ deterministicLocales: true });
-    expect(mockedGetL10n).toHaveBeenCalledWith({ deterministicLocales: false });
+  it("builds both l10n bundles", () => {
+    expect(l10nOptionsAtImport).toStrictEqual([
+      { deterministicLocales: true },
+      { deterministicLocales: false },
+    ]);
+  });
 
+  it("renders providers and handles component rendering", async () => {
+    const { container } = render(<MyApp {...defaultAppProps} />);
     expect(screen.getByText("Test Component")).toBeInTheDocument();
     // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
     const overlayProvider = container.querySelector("#overlayProvider");
@@ -168,9 +173,6 @@ describe("MyApp component", () => {
   });
 
   it("keeps the hydration render on the deterministic `en` bundle", async () => {
-    mockedGetL10n.mockImplementation(({ deterministicLocales }) =>
-      deterministicLocales ? mockL10n : mockNegotiatedL10n,
-    );
     const renderedLocales: string[] = [];
     const LocaleSpy = () => {
       const [bundle] = [...useLocalization().l10n.bundles];
