@@ -1,6 +1,8 @@
 import React from "react";
 // eslint-disable-next-line testing-library/no-manual-cleanup
 import { act, render, screen, cleanup } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
+import { hydrateRoot } from "react-dom/client";
 import { axe } from "jest-axe";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
@@ -13,7 +15,14 @@ jest.mock("../hooks/session");
 jest.mock("../hooks/metrics");
 jest.mock("../hooks/googleAnalytics");
 jest.mock("../hooks/addon");
-jest.mock("../functions/getL10n");
+// `_app.page.tsx` builds both bundles at import time, before any test body runs.
+jest.mock("../functions/getL10n", () => ({
+  getL10n: jest.fn(
+    ({ deterministicLocales }: { deterministicLocales: boolean }) => ({
+      bundles: [{ locales: [deterministicLocales ? "en" : "nl"] }],
+    }),
+  ),
+}));
 jest.mock("react-ga", () => ({
   __esModule: true,
   default: {
@@ -37,7 +46,10 @@ import {
 } from "../hooks/googleAnalytics";
 import { useAddonElementWatcher } from "../hooks/addon";
 import { getL10n } from "../functions/getL10n";
-import type { ReactLocalization } from "@fluent/react";
+// The `useL10n` hook is mocked project-wide in jest.setup.ts, so it can't tell
+// us which bundle the provider actually holds. Hence the raw hook here:
+// eslint-disable-next-line no-restricted-imports
+import { useLocalization } from "@fluent/react";
 import type { LocalLabel } from "../hooks/localLabels";
 
 const mockedUseIsLoggedIn = useIsLoggedIn as jest.MockedFunction<
@@ -55,12 +67,13 @@ const mockedUseAddonElementWatcher =
 const mockedGetL10n = getL10n as jest.MockedFunction<typeof getL10n>;
 const mockedUseRouter = useRouter as jest.MockedFunction<typeof useRouter>;
 
+// `clearMocks` wipes these before the first test runs, so record them here.
+const l10nOptionsAtImport = mockedGetL10n.mock.calls.map(
+  ([options]) => options,
+);
+
 setMockProfileData();
 setMockRuntimeData();
-
-const mockL10n = {
-  bundles: [{ locales: ["en"] }],
-} as unknown as ReactLocalization;
 
 const MockComponent = () => <div>Test Component</div>;
 
@@ -130,7 +143,6 @@ describe("MyApp component", () => {
       localLabels: [],
       sendEvent: jest.fn(),
     });
-    mockedGetL10n.mockReturnValue(mockL10n);
     mockedUseRouter.mockReturnValue(createMockRouter());
   });
 
@@ -144,17 +156,46 @@ describe("MyApp component", () => {
     expect(results).toHaveNoViolations();
   }, 10000);
 
-  it("initializes l10n, renders providers, and handles component rendering", async () => {
-    const { container } = render(<MyApp {...defaultAppProps} />);
-    // In a browser environment (jsdom), l10n is initialized with
-    // non-deterministic locales via the useState lazy initializer.
-    expect(mockedGetL10n).toHaveBeenCalledWith({ deterministicLocales: false });
+  it("builds both l10n bundles", () => {
+    expect(l10nOptionsAtImport).toStrictEqual([
+      { deterministicLocales: true },
+      { deterministicLocales: false },
+    ]);
+  });
 
+  it("renders providers and handles component rendering", async () => {
+    const { container } = render(<MyApp {...defaultAppProps} />);
     expect(screen.getByText("Test Component")).toBeInTheDocument();
     // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
     const overlayProvider = container.querySelector("#overlayProvider");
     expect(overlayProvider).toBeInTheDocument();
     expect(overlayProvider).toHaveAttribute("id", "overlayProvider");
+  });
+
+  it("keeps the hydration render on the deterministic `en` bundle", async () => {
+    const renderedLocales: string[] = [];
+    const LocaleSpy = () => {
+      const [bundle] = [...useLocalization().l10n.bundles];
+      renderedLocales.push(bundle.locales[0]);
+      return <div>Locale spy</div>;
+    };
+    const appProps = { ...defaultAppProps, Component: LocaleSpy };
+
+    const mountPoint = document.createElement("div");
+    mountPoint.innerHTML = renderToString(<MyApp {...appProps} />);
+    document.body.appendChild(mountPoint);
+    renderedLocales.length = 0;
+
+    const root = await act(async () =>
+      hydrateRoot(mountPoint, <MyApp {...appProps} />),
+    );
+
+    // Anything but `en` first would mismatch the pre-rendered HTML.
+    expect(renderedLocales[0]).toBe("en");
+    expect(renderedLocales[renderedLocales.length - 1]).toBe("nl");
+
+    await act(async () => root.unmount());
+    mountPoint.remove();
   });
 
   it("handles Google Analytics initialization and pageview tracking", async () => {

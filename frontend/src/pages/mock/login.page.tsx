@@ -39,7 +39,9 @@ const MockLogin: NextPage = () => {
   const onLogin: FormEventHandler = (event) => {
     event.preventDefault();
 
-    login(token, getTimestamp());
+    // Safe here: event handler, not render. In render it would break hydration.
+    // eslint-disable-next-line react-hooks/purity
+    login(token, Date.now());
   };
 
   const login = async (token: string, timestamp: number) => {
@@ -67,7 +69,8 @@ const MockLogin: NextPage = () => {
 
   const chooseToken = (token: string) => {
     setToken(token);
-    login(token, getTimestamp());
+    // eslint-disable-next-line react-hooks/purity
+    login(token, Date.now());
   };
 
   const existingTokenElements = usedTokens
@@ -134,12 +137,6 @@ const MockLogin: NextPage = () => {
     </div>
   );
 };
-
-// Wrapped in a function so eslint-plugin-react-hooks doesn't flag it
-// as an impure call during render (it specifically tracks Date.now).
-function getTimestamp(): number {
-  return getTimestamp();
-}
 
 function byUseDate(a: UsedToken, b: UsedToken) {
   return b.lastUsed - a.lastUsed;
