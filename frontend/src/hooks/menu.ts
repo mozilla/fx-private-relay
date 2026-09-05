@@ -1,8 +1,7 @@
 import { AriaOverlayProps, useMenu as useAriaMenu } from "react-aria";
 import type { AriaMenuItemProps, AriaMenuOptions, MenuAria } from "react-aria";
 import { MenuTriggerState, TreeProps, TreeState } from "react-stately";
-import { RefObject } from "@react-types/shared";
-import { HTMLAttributes } from "react";
+import { HTMLAttributes, RefObject } from "react";
 
 // MenuTriggerState focusStrategy from react-stately 3.34.0 is typed as
 // FocusStrategy | null
