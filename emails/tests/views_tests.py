@@ -2901,7 +2901,7 @@ class SnsInboundViewSimpleTests(SimpleTestCase):
             self.url,
             data=invalid_message,
             content_type="application/json",
-            headers={"x-amz-sns-topic-arn": None},
+            headers={"x-amz-sns-topic-arn": ""},
         )
         assert ret.status_code == 400
         assert ret.content == b"Received SNS request without Topic ARN."
@@ -2925,7 +2925,7 @@ class SnsInboundViewSimpleTests(SimpleTestCase):
             self.url,
             data=invalid_message,
             content_type="application/json",
-            headers={"x-amz-sns-message-type": None},
+            headers={"x-amz-sns-message-type": ""},
         )
         assert ret.status_code == 400
         assert ret.content == b"Received SNS request without Message Type."
