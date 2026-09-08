@@ -4,11 +4,11 @@ from django.test import Client
 
 import pytest
 from markus.testing import MetricsMock
-from pytest_django.fixtures import SettingsWrapper
+from pytest_django.fixtures import Settings
 
 
 @pytest.fixture
-def response_metrics_settings(settings: SettingsWrapper) -> SettingsWrapper:
+def response_metrics_settings(settings: Settings) -> Settings:
     """Setup settings for ResponseMetrics tests."""
     # Use some middleware in the declared order
     use_middleware = {
@@ -22,7 +22,7 @@ def response_metrics_settings(settings: SettingsWrapper) -> SettingsWrapper:
 
 
 def test_response_metrics_django_view(
-    client: Client, response_metrics_settings: SettingsWrapper
+    client: Client, response_metrics_settings: Settings
 ) -> None:
     """Django views emit the expected metric."""
     with MetricsMock() as mm:
@@ -36,7 +36,7 @@ def test_response_metrics_django_view(
 
 @pytest.mark.django_db
 def test_response_metrics_dockerflow_heartbeat(
-    client: Client, response_metrics_settings: SettingsWrapper
+    client: Client, response_metrics_settings: Settings
 ) -> None:
     """The Dockerflow __heartbeat__ endpoint emits the expected metric."""
     with MetricsMock() as mm:
@@ -57,7 +57,7 @@ def test_response_metrics_dockerflow_heartbeat(
 
 @pytest.mark.parametrize("viewname", ["version", "lbheartbeat"])
 def test_response_metrics_other_dockerflow_view(
-    client: Client, response_metrics_settings: SettingsWrapper, viewname: str
+    client: Client, response_metrics_settings: Settings, viewname: str
 ) -> None:
     """The other Dockerflow views emit the expected metrics."""
     with MetricsMock() as mm:
@@ -75,7 +75,7 @@ def test_response_metrics_other_dockerflow_view(
 
 @pytest.mark.django_db
 def test_response_metrics_api_viewset(
-    client: Client, response_metrics_settings: SettingsWrapper
+    client: Client, response_metrics_settings: Settings
 ) -> None:
     """API viewsets emit the expected metrics."""
     with MetricsMock() as mm:
@@ -89,7 +89,7 @@ def test_response_metrics_api_viewset(
 
 @pytest.mark.django_db
 def test_response_metrics_api_view(
-    client: Client, response_metrics_settings: SettingsWrapper
+    client: Client, response_metrics_settings: Settings
 ) -> None:
     """API functions wrapped in @api_view emit the expected metrics."""
     with MetricsMock() as mm:
@@ -102,7 +102,7 @@ def test_response_metrics_api_view(
 
 
 def test_response_metrics_frontend_path(
-    client: Client, response_metrics_settings: SettingsWrapper
+    client: Client, response_metrics_settings: Settings
 ) -> None:
     """Frontend views emit the expected metrics."""
     with MetricsMock() as mm:
@@ -120,7 +120,7 @@ def test_response_metrics_frontend_path(
 
 @pytest.mark.django_db
 def test_response_metrics_frontend_file(
-    client: Client, response_metrics_settings: SettingsWrapper
+    client: Client, response_metrics_settings: Settings
 ) -> None:
     """Frontend files emit the expected metrics."""
     with MetricsMock() as mm:
@@ -137,7 +137,7 @@ def test_response_metrics_frontend_file(
 
 
 def test_response_metrics_disabled(
-    client: Client, response_metrics_settings: SettingsWrapper
+    client: Client, response_metrics_settings: Settings
 ) -> None:
     """ResponseMetrics does not emit metrics when metrics are disabled."""
     response_metrics_settings.STATSD_ENABLED = False

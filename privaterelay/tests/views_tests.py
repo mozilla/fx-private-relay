@@ -27,7 +27,7 @@ from cryptography.hazmat.primitives.asymmetric.rsa import (
 from markus.testing import MetricsMock
 from model_bakery import baker
 from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error
-from pytest_django.fixtures import SettingsWrapper
+from pytest_django.fixtures import Settings
 from requests import PreparedRequest
 
 from emails.models import (
@@ -259,7 +259,7 @@ class FxaRpEventsSetupData:
 
 @pytest.fixture
 def setup_fxa_rp_events(
-    db: None, settings: SettingsWrapper, mock_fxa_signing_key: Mock
+    db: None, settings: Settings, mock_fxa_signing_key: Mock
 ) -> Iterator[FxaRpEventsSetupData]:
     """Setup data for testing /fxa_rp_events."""
 

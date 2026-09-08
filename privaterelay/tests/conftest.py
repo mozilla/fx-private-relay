@@ -5,13 +5,13 @@ from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
-from pytest_django.fixtures import SettingsWrapper
+from pytest_django.fixtures import Settings
 
 from privaterelay.utils import get_version_info
 
 
 @pytest.fixture
-def version_json_path(tmp_path: Path, settings: SettingsWrapper) -> Iterator[Path]:
+def version_json_path(tmp_path: Path, settings: Settings) -> Iterator[Path]:
     """Create testing version.json file, cleanup after test."""
     get_version_info.cache_clear()
     settings.BASE_DIR = tmp_path

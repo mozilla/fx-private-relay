@@ -11,7 +11,7 @@ from django.test import RequestFactory
 import pytest
 from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
-from pytest_django.fixtures import SettingsWrapper
+from pytest_django.fixtures import Settings
 
 from api.serializers.emails import RelayAddressSerializer
 from emails.models import RelayAddress
@@ -295,7 +295,7 @@ def extract_parts_from_payload(payload: dict[str, Any]) -> PayloadVariedParts:
 def test_log_email_mask_created(
     glean_logger: RelayGleanLogger,
     caplog: pytest.LogCaptureFixture,
-    settings: SettingsWrapper,
+    settings: Settings,
 ) -> None:
     """Check that log_email_mask_created results in a Glean server-side log."""
     user = make_free_test_user()
@@ -342,7 +342,7 @@ def test_log_email_mask_created_with_opt_out(
 def test_log_email_mask_label_updated(
     glean_logger: RelayGleanLogger,
     caplog: pytest.LogCaptureFixture,
-    settings: SettingsWrapper,
+    settings: Settings,
     rf: RequestFactory,
 ) -> None:
     """Check that log_email_mask_label_updated results in a Glean server-side log."""
@@ -407,7 +407,7 @@ def test_log_email_mask_label_updated_with_opt_out(
 def test_log_email_mask_deleted(
     glean_logger: RelayGleanLogger,
     caplog: pytest.LogCaptureFixture,
-    settings: SettingsWrapper,
+    settings: Settings,
     rf: RequestFactory,
 ) -> None:
     """Check that log_email_mask_deleted results in a Glean server-side log."""
@@ -461,7 +461,7 @@ def test_log_email_mask_deleted_with_opt_out(
 def test_log_email_forwarded(
     glean_logger: RelayGleanLogger,
     caplog: pytest.LogCaptureFixture,
-    settings: SettingsWrapper,
+    settings: Settings,
     is_reply: bool,
 ) -> None:
     """Check that log_email_forwarded results in a Glean server-side log."""
@@ -510,7 +510,7 @@ def test_log_email_forwarded_with_opt_out(
 def test_log_email_blocked(
     glean_logger: RelayGleanLogger,
     caplog: pytest.LogCaptureFixture,
-    settings: SettingsWrapper,
+    settings: Settings,
     is_reply: bool,
     reason: EmailBlockedReason,
 ) -> None:
@@ -548,7 +548,7 @@ def test_log_email_blocked(
 def test_log_email_blocked_with_opt_out(
     glean_logger: RelayGleanLogger,
     caplog: pytest.LogCaptureFixture,
-    settings: SettingsWrapper,
+    settings: Settings,
     optout_user: User,
 ) -> None:
     """A log is not emitted for a blocked email when the user has opted-out"""
