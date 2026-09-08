@@ -14,7 +14,7 @@ import pytest
 from botocore.exceptions import ClientError
 from markus.testing import MetricsMock
 from pytest import LogCaptureFixture
-from pytest_django.fixtures import SettingsWrapper
+from pytest_django.fixtures import Settings
 
 from emails.sns import VerificationFailed
 from emails.tests.views_tests import EMAIL_SNS_BODIES
@@ -100,7 +100,7 @@ def mock_sns_inbound_logic() -> Iterator[Mock]:
 
 
 @pytest.fixture(autouse=True)
-def test_settings(settings: SettingsWrapper, tmp_path: Path) -> SettingsWrapper:
+def test_settings(settings: Settings, tmp_path: Path) -> Settings:
     """Override settings for tests."""
     settings.AWS_SNS_TOPIC = {TEST_SNS_MESSAGE["TopicArn"]}
     settings.AWS_REGION = "us-east-1"
@@ -247,7 +247,7 @@ def summary_from_exit_log(caplog_fixture: LogCaptureFixture) -> dict[str, Any]:
     return log_extra(last_log)
 
 
-def test_no_messages(caplog: LogCaptureFixture, test_settings: SettingsWrapper) -> None:
+def test_no_messages(caplog: LogCaptureFixture, test_settings: Settings) -> None:
     """The command can exit after the max time and processing no messages."""
     call_command(COMMAND_NAME)
 
@@ -290,7 +290,7 @@ def test_no_messages(caplog: LogCaptureFixture, test_settings: SettingsWrapper) 
     }
 
 
-def test_metrics(test_settings: SettingsWrapper, caplog: LogCaptureFixture) -> None:
+def test_metrics(test_settings: Settings, caplog: LogCaptureFixture) -> None:
     """The command emits metrics on the SQS queue backlog."""
     test_settings.STATSD_ENABLED = True
     test_settings.PROCESS_EMAIL_MAX_SECONDS = 2
@@ -339,7 +339,7 @@ def test_one_message(
 
 
 def test_keyboard_interrupt(
-    mock_sqs_client: Mock, caplog: LogCaptureFixture, test_settings: SettingsWrapper
+    mock_sqs_client: Mock, caplog: LogCaptureFixture, test_settings: Settings
 ) -> None:
     """The command halts on Ctrl-C."""
     test_settings.PROCESS_EMAIL_MAX_SECONDS = None
@@ -362,7 +362,7 @@ def test_no_body(mock_sqs_client: Mock, caplog: LogCaptureFixture) -> None:
 
 
 def test_no_body_deleted(
-    mock_sqs_client: Mock, caplog: LogCaptureFixture, test_settings: SettingsWrapper
+    mock_sqs_client: Mock, caplog: LogCaptureFixture, test_settings: Settings
 ) -> None:
     """The command deletes a message without a JSON body."""
     test_settings.PROCESS_EMAIL_DELETE_FAILED_MESSAGES = True
@@ -376,7 +376,7 @@ def test_no_body_deleted(
 
 
 def test_ses_temp_failure(
-    test_settings: SettingsWrapper,
+    test_settings: Settings,
     mock_sns_inbound_logic: Mock,
     mock_sqs_client: Mock,
     caplog: LogCaptureFixture,
@@ -419,7 +419,7 @@ def test_ses_generic_failure(
 def test_ses_python_error(
     mock_sns_inbound_logic: Mock,
     mock_sqs_client: Mock,
-    test_settings: SettingsWrapper,
+    test_settings: Settings,
     caplog: LogCaptureFixture,
 ) -> None:
     """The command catches processing failures."""
@@ -444,7 +444,7 @@ def test_ses_slow(
     mock_sns_inbound_logic: Mock,
     mock_sqs_client: Mock,
     mock_process_pool_future: Mock,
-    test_settings: SettingsWrapper,
+    test_settings: Settings,
     caplog: LogCaptureFixture,
 ) -> None:
     test_settings.PROCESS_EMAIL_MAX_SECONDS_PER_MESSAGE = 120
@@ -469,7 +469,7 @@ def test_ses_timeout(
     mock_sns_inbound_logic: Mock,
     mock_sqs_client: Mock,
     mock_process_pool_future: Mock,
-    test_settings: SettingsWrapper,
+    test_settings: Settings,
     caplog: LogCaptureFixture,
 ) -> None:
     test_settings.PROCESS_EMAIL_MAX_SECONDS_PER_MESSAGE = 120
@@ -538,7 +538,7 @@ def test_verify_from_sns_raises_keyerror(
 
 
 def test_verify_sns_header_fails(
-    test_settings: SettingsWrapper, mock_sqs_client: Mock, caplog: LogCaptureFixture
+    test_settings: Settings, mock_sqs_client: Mock, caplog: LogCaptureFixture
 ) -> None:
     """Invalid SNS headers fail."""
     test_settings.AWS_SNS_TOPIC = {"arn:aws:sns:us-east-1:111122223333:not-relay"}
@@ -550,7 +550,7 @@ def test_verify_sns_header_fails(
     assert summary["failed_messages"] == 1
 
 
-def test_writes_healthcheck_file(test_settings: SettingsWrapper) -> None:
+def test_writes_healthcheck_file(test_settings: Settings) -> None:
     """Running the command writes to the healthcheck file."""
     call_command("process_emails_from_sqs")
     healthcheck_path = test_settings.PROCESS_EMAIL_HEALTHCHECK_PATH
@@ -590,7 +590,7 @@ def test_connection_closed_after_message_processed(
 
 
 def test_command_sqs_client_error(
-    mock_sqs_client: Mock, test_settings: SettingsWrapper
+    mock_sqs_client: Mock, test_settings: Settings
 ) -> None:
     """The command fails early on a client error."""
     mock_sqs_client.side_effect = make_client_error(code="InternalError")

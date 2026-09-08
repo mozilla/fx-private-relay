@@ -11,7 +11,7 @@ from django.test import RequestFactory
 import pytest
 from _pytest.fixtures import SubRequest
 from _pytest.logging import LogCaptureFixture
-from pytest_django.fixtures import SettingsWrapper
+from pytest_django.fixtures import Settings
 from waffle.models import AbstractUserFlag, Flag
 from waffle.testutils import override_flag
 from waffle.utils import get_cache as get_waffle_cache
@@ -430,7 +430,7 @@ def waffle_cache() -> Iterator[BaseCache]:
 
 
 @pytest.fixture
-def waffle_settings(settings: SettingsWrapper) -> SettingsWrapper:
+def waffle_settings(settings: Settings) -> Settings:
     """Initialize waffle-related settings to default values."""
     settings.WAFFLE_FLAG_MODEL = "waffle.Flag"
     settings.WAFFLE_CREATE_MISSING_FLAGS = False
@@ -444,7 +444,7 @@ def flag_user(
     request: SubRequest,
     django_user_model: type[AbstractBaseUser],
     waffle_cache: BaseCache,
-    waffle_settings: SettingsWrapper,
+    waffle_settings: Settings,
 ) -> User | None:
     """Return a Django user, and load fixtures for waffle tests."""
     if request.param == "with_user":
@@ -464,7 +464,7 @@ def test_flag_is_active_for_task_missing_flag(
 
 
 def test_flag_is_active_for_task_missing_flag_logged(
-    flag_user: User | None, waffle_settings: SettingsWrapper, caplog: LogCaptureFixture
+    flag_user: User | None, waffle_settings: Settings, caplog: LogCaptureFixture
 ) -> None:
     waffle_settings.WAFFLE_LOG_MISSING_FLAGS = logging.WARNING
     assert not flag_is_active_in_task(TEST_FLAG_NAME, flag_user)
@@ -476,7 +476,7 @@ def test_flag_is_active_for_task_missing_flag_logged(
 
 def test_flag_is_active_for_task_missing_flag_created(
     flag_user: User | None,
-    waffle_settings: SettingsWrapper,
+    waffle_settings: Settings,
     waffle_cache: BaseCache,
     caplog: LogCaptureFixture,
 ) -> None:
@@ -489,7 +489,7 @@ def test_flag_is_active_for_task_missing_flag_created(
 
 def test_flag_is_active_for_task_missing_flag_created_with_default_true(
     flag_user: User | None,
-    waffle_settings: SettingsWrapper,
+    waffle_settings: Settings,
     waffle_cache: BaseCache,
     caplog: LogCaptureFixture,
 ) -> None:
@@ -502,7 +502,7 @@ def test_flag_is_active_for_task_missing_flag_created_with_default_true(
 
 
 def test_flag_is_active_for_task_missing_flag_with_default_true(
-    flag_user: User | None, waffle_settings: SettingsWrapper, caplog: LogCaptureFixture
+    flag_user: User | None, waffle_settings: Settings, caplog: LogCaptureFixture
 ) -> None:
     waffle_settings.WAFFLE_FLAG_DEFAULT = True
     assert flag_is_active_in_task(TEST_FLAG_NAME, flag_user)

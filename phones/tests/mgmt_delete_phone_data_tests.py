@@ -8,7 +8,7 @@ from django.core.management import CommandError, call_command
 
 import pytest
 from model_bakery import baker
-from pytest_django.fixtures import SettingsWrapper
+from pytest_django.fixtures import Settings
 
 if settings.PHONES_ENABLED:
     from ..models import InboundContact, RealPhone, RelayNumber
@@ -21,14 +21,14 @@ THE_COMMAND = "delete_phone_data"
 
 
 @pytest.fixture(autouse=True)
-def test_settings(settings: SettingsWrapper) -> SettingsWrapper:
+def test_settings(settings: Settings) -> Settings:
     """Override settings for tests"""
     settings.PHONES_NO_CLIENT_CALLS_IN_TEST = True
     return settings
 
 
 @pytest.fixture
-def phone_user(db: None, test_settings: SettingsWrapper) -> User:
+def phone_user(db: None, test_settings: Settings) -> User:
     """Return a Relay user with phone setup and phone usage."""
     # Create the user
     now = datetime.now(tz=UTC)

@@ -10,7 +10,7 @@ from django.utils import timezone
 
 import pytest
 from model_bakery import baker
-from pytest_django.fixtures import DjangoAssertNumQueries, SettingsWrapper
+from pytest_django.fixtures import DjangoAssertNumQueries, Settings
 from rest_framework.exceptions import MethodNotAllowed, NotAuthenticated
 from rest_framework.test import APIClient
 from waffle.testutils import override_flag
@@ -24,7 +24,7 @@ from privaterelay.tests.utils import (
 
 
 @pytest.fixture
-def settings_without_sqlcommenter(settings: SettingsWrapper) -> SettingsWrapper:
+def settings_without_sqlcommenter(settings: Settings) -> Settings:
     """
     Remove the sqlcommenter from the middleware.
 
@@ -427,7 +427,7 @@ def test_get_domainaddress(
     prem_api_client: APIClient,
     premium_user: User,
     django_assert_num_queries: DjangoAssertNumQueries,
-    settings_without_sqlcommenter: SettingsWrapper,
+    settings_without_sqlcommenter: Settings,
     address_count: int,
 ) -> None:
     """
@@ -530,7 +530,7 @@ def test_post_relayaddress_with_generated_for_success(
 
 
 def test_post_relayaddress_free_mask_email_limit_error(
-    settings: SettingsWrapper,
+    settings: Settings,
     free_user: User,
     free_api_client: APIClient,
     caplog: pytest.LogCaptureFixture,
@@ -841,7 +841,7 @@ def test_get_relayaddress(
     free_api_client: APIClient,
     free_user: User,
     django_assert_num_queries: DjangoAssertNumQueries,
-    settings_without_sqlcommenter: SettingsWrapper,
+    settings_without_sqlcommenter: Settings,
     address_count: int,
 ) -> None:
     """A GET request should make 1 query, no matter the address count."""
@@ -937,7 +937,7 @@ def test_first_forwarded_email_unknown_mask(free_api_client: APIClient) -> None:
 def test_first_forwarded_email_success(
     free_api_client: APIClient,
     free_user: User,
-    settings: SettingsWrapper,
+    settings: Settings,
 ) -> None:
     settings.RELAY_FROM_ADDRESS = "reply@relay.example.com"
     address = free_user.relayaddress_set.create()

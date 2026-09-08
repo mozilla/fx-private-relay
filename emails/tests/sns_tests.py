@@ -14,7 +14,7 @@ from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from cryptography.x509.oid import NameOID
-from pytest_django.fixtures import SettingsWrapper
+from pytest_django.fixtures import Settings
 
 from ..sns import (
     NOTIFICATION_HASH_FORMAT,
@@ -27,7 +27,7 @@ from ..sns import (
 
 
 @pytest.fixture(autouse=True)
-def key_cache(settings: SettingsWrapper) -> Iterator[BaseCache]:
+def key_cache(settings: Settings) -> Iterator[BaseCache]:
     """
     Return the cache used for signing certificates.
 
@@ -79,7 +79,7 @@ def _public_pem(cert_or_private_key: rsa.RSAPrivateKey | x509.Certificate) -> by
 def signing_cert_url_and_private_key(
     key_and_cert: tuple[rsa.RSAPrivateKey, x509.Certificate],
     key_cache: BaseCache,
-    settings: SettingsWrapper,
+    settings: Settings,
 ) -> tuple[str, rsa.RSAPrivateKey]:
     """Return the URL and private key for a cached signing certificate."""
     cert_url = f"https://sns.{settings.AWS_REGION}.amazonaws.com/cert.pem"
@@ -105,7 +105,7 @@ def test_get_signing_public_key_downloads_valid_certificate(
     mock_urlopen: Mock,
     key_and_cert: tuple[rsa.RSAPrivateKey, x509.Certificate],
     key_cache: BaseCache,
-    settings: SettingsWrapper,
+    settings: Settings,
 ) -> None:
     cert_url = f"https://sns.{settings.AWS_REGION}.amazonaws.com/cert.pem"
     _, cert = key_and_cert
@@ -121,7 +121,7 @@ def test_get_signing_public_key_reads_from_cache(
     mock_urlopen: Mock,
     key_and_cert: tuple[rsa.RSAPrivateKey, x509.Certificate],
     key_cache: BaseCache,
-    settings: SettingsWrapper,
+    settings: Settings,
 ) -> None:
     cert_url = f"https://sns.{settings.AWS_REGION}.amazonaws.com/cert.pem"
     _, cert = key_and_cert
@@ -135,7 +135,7 @@ def test_get_signing_public_key_cert_chain_fails(
     mock_urlopen: Mock,
     key_and_cert: tuple[rsa.RSAPrivateKey, x509.Certificate],
     key_cache: BaseCache,
-    settings: SettingsWrapper,
+    settings: Settings,
 ) -> None:
     cert_url = f"https://sns.{settings.AWS_REGION}.amazonaws.com/cert.pem"
     key, cert = key_and_cert
