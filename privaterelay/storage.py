@@ -42,7 +42,11 @@ class RelayStaticFilesStorage(CompressedManifestStaticFilesStorage):
             return new_name
 
     def url_converter(
-        self, name: str, hashed_files: dict[str, str], template: str | None = None
+        self,
+        name: str,
+        hashed_files: dict[str, str],
+        template: str | None = None,
+        ignored_blocks: list[tuple[int, int]] | None = None,
     ) -> Any:
         """
         Convert Next.js source map URL to absolute URL.
@@ -57,4 +61,4 @@ class RelayStaticFilesStorage(CompressedManifestStaticFilesStorage):
         ):
             path = name.rsplit("/", 1)[0]
             template = f"/*# sourceMappingURL={self.base_url}{path}/%(url)s */"
-        return super().url_converter(name, hashed_files, template)
+        return super().url_converter(name, hashed_files, template, ignored_blocks)
