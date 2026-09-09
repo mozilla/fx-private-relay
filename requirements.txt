@@ -24,7 +24,7 @@ gunicorn==26.2.0
 jwcrypto==1.5.8
 kinto-http==11.11.0
 markus[datadog]==5.2.0
-psycopg[c]==3.3.4
+psycopg[c]==3.3.5
 PyJWT==2.13.0
 python-decouple==3.8
 requests==2.34.2
