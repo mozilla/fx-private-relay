@@ -21,7 +21,7 @@ glean_parser==21.0.1
 drf-spectacular-sidecar==2026.8.1
 google-cloud-profiler==4.1.0; python_version < '3.13'
 gunicorn==26.2.0
-jwcrypto==1.5.8
+jwcrypto==1.5.9
 kinto-http==11.11.0
 markus[datadog]==5.2.0
 psycopg[c]==3.3.5
