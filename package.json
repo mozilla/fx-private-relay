@@ -49,10 +49,6 @@
   },
   "homepage": "https://github.com/mozilla/fx-private-relay#readme",
   "dependencies": {
-    "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.5",
-    "immutable": "^5.1.9",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "immutable": "^5.1.9"
   }
 }
