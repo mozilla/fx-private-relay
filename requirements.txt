@@ -25,7 +25,7 @@ jwcrypto==1.6.0
 kinto-http==11.11.0
 markus[datadog]==5.2.0
 psycopg[c]==3.3.5
-PyJWT==2.13.0
+PyJWT==2.14.0
 python-decouple==3.8
 requests==2.34.2
 requests-oauthlib==2.0.0
