@@ -15,8 +15,10 @@ import pytest
 
 from emails.utils import (
     InvalidFromHeader,
+    canonicalize_url_hosts,
     decode_dict_gza85,
     encode_dict_gza85,
+    find_tracker_domain,
     generate_from_header,
     get_domains_from_settings,
     get_email_domain_from_settings,
@@ -394,6 +396,92 @@ class RemoveTrackers(TestCase):
         assert general_removed == 0
         assert general_count == 0
 
+    def test_tracker_host_is_matched_after_canonicalization(self):
+        """
+        A tracker host the recipient's client would reach must be caught however the
+        sender spelled it. The client decodes HTML entities, the URL host parser
+        percent-decodes the authority and applies UTS46, and DNS ignores case and the
+        root dot, so none of these change where the pixel actually connects.
+        See MPP-4770.
+        """
+        variants = {
+            "decimal entity dot": "https://open.tracker&#46;com/bar.jpg",
+            "hex entity dot": "https://open.tracker&#x2e;com/bar.jpg",
+            "entity without semicolon": "https://open.tracker&#46com/bar.jpg",
+            "named entity dot": "https://open.tracker&period;com/bar.jpg",
+            "entity in a subdomain": "https://foo&#46;open.tracker.com/bar.jpg",
+            "percent-encoded dot": "https://open.tracker%2Ecom/bar.jpg",
+            "lowercase percent-encoded dot": "https://open.tracker%2ecom/bar.jpg",
+            "percent-encoded dot in a subdomain": (
+                "https://foo%2Eopen.tracker.com/bar.jpg"
+            ),
+            # UTS46 maps each of these to "." and splits labels on the result.
+            "fullwidth stop": "https://open.tracker．com/bar.jpg",
+            "ideographic stop": "https://open.tracker。com/bar.jpg",
+            "halfwidth ideographic stop": "https://open.tracker｡com/bar.jpg",
+            "percent-encoded fullwidth stop": (
+                "https://open.tracker%EF%BC%8Ecom/bar.jpg"
+            ),
+            "entity-encoded fullwidth stop": (
+                "https://open.tracker&#xFF0E;com/bar.jpg"
+            ),
+            "uppercase": "https://OPEN.TRACKER.COM/bar.jpg",
+            "mixed case": "https://Open.Tracker.Com/bar.jpg",
+            "uppercase host with entity": "https://OPEN.TRACKER&#46;COM/bar.jpg",
+            "trailing root dot": "https://open.tracker.com./bar.jpg",
+            "explicit port": "https://open.tracker.com:443/bar.jpg",
+        }
+        for label, link in variants.items():
+            with self.subTest(label):
+                content = f'<img src="{link}">'
+                changed_content, tracker_details = remove_trackers(
+                    content, self.from_address, self.datetime_now
+                )
+
+                assert tracker_details["tracker_removed"] == 1
+                assert tracker_details["level_one"]["count"] == 1
+                assert tracker_details["level_one"]["trackers"] == {
+                    "open.tracker.com": 1
+                }
+                # The warning page shows the link as the sender wrote it, entities
+                # and all, not Relay's canonicalized form.
+                assert changed_content == (
+                    f'<img src="{self.url}{self.url_trackerwarning_data(link)}">'
+                )
+
+    def test_tracker_name_outside_the_host_is_not_a_tracker(self):
+        """
+        Only the host the client connects to counts. A tracker domain that lands in
+        the userinfo or in a longer parent domain points somewhere else entirely, so
+        flagging it would warn about the wrong site.
+        """
+        decoys = {
+            "tracker as a parent-domain prefix": (
+                "https://open.tracker.com.evil.example/bar.jpg"
+            ),
+            "tracker as userinfo": "https://open.tracker.com@evil.example/bar.jpg",
+            "tracker in the path": "https://evil.example/open.tracker.com/bar.jpg",
+            "tracker as a label suffix": "https://fooopen.tracker.com/bar.jpg",
+            # The client requests evil.example and only its server can redirect on,
+            # so percent-decoding stops at the authority and never reads this host.
+            "tracker in a percent-encoded query parameter": (
+                "https://evil.example/r?u=https%3A%2F%2Fopen.tracker.com%2Fbar.jpg"
+            ),
+            "tracker in a percent-encoded path": (
+                "https://evil.example/%2Fopen.tracker.com/bar.jpg"
+            ),
+        }
+        for label, link in decoys.items():
+            with self.subTest(label):
+                content = f'<img src="{link}">'
+                changed_content, tracker_details = remove_trackers(
+                    content, self.from_address, self.datetime_now
+                )
+
+                assert changed_content == content
+                assert tracker_details["tracker_removed"] == 0
+                assert tracker_details["level_one"]["count"] == 0
+
 
 @override_settings(SITE_ORIGIN="https://test.com")
 def test_remove_trackers_does_not_backtrack_on_dotted_url() -> None:
@@ -423,6 +511,89 @@ def test_remove_trackers_does_not_backtrack_on_dotted_url() -> None:
 
     assert changed_content == content
     assert tracker_details["tracker_removed"] == 0
+
+
+CANONICALIZE_URL_HOSTS_CASES = {
+    "plain host": ("https://open.tracker.com/bar.jpg", ["open.tracker.com"]),
+    "uppercase host": ("https://OPEN.TRACKER.COM/bar.jpg", ["open.tracker.com"]),
+    "entity-encoded dot": ("https://open.tracker&#46;com/x", ["open.tracker.com"]),
+    "percent-encoded dot": ("https://open.tracker%2Ecom/x", ["open.tracker.com"]),
+    "lowercase percent-encoded dot": (
+        "https://open.tracker%2ecom/x",
+        ["open.tracker.com"],
+    ),
+    "fullwidth stop": ("https://open.tracker．com/x", ["open.tracker.com"]),
+    "percent-encoded fullwidth stop": (
+        "https://open.tracker%EF%BC%8Ecom/x",
+        ["open.tracker.com"],
+    ),
+    "entity-encoded fullwidth stop": (
+        "https://open.tracker&#xFF0E;com/x",
+        ["open.tracker.com"],
+    ),
+    "ideographic stop": ("https://open.tracker。com/x", ["open.tracker.com"]),
+    "halfwidth ideographic stop": (
+        "https://open.tracker｡com/x",
+        ["open.tracker.com"],
+    ),
+    "percent-encoded path is left alone": (
+        "https://safe.example/%2Fopen.tracker.com/x",
+        ["safe.example"],
+    ),
+    "percent-encoded nested URL is not a second authority": (
+        "https://safe.example/r?u=https%3A%2F%2Fopen.tracker.com%2Fx",
+        ["safe.example"],
+    ),
+    "root dot": ("https://open.tracker.com./x", ["open.tracker.com"]),
+    "port": ("https://open.tracker.com:8080/x", ["open.tracker.com"]),
+    "userinfo": ("https://user:pw@open.tracker.com/x", ["open.tracker.com"]),
+    "css url() wrapper": (
+        "background:url(https://open.tracker.com/x)",
+        ["open.tracker.com"],
+    ),
+    "nested redirect URL": (
+        "https://safe.example/r?u=https://open.tracker.com/x",
+        ["safe.example", "open.tracker.com"],
+    ),
+    "same host twice": (
+        "https://safe.example/r?u=https://safe.example/x",
+        ["safe.example"],
+    ),
+    "host ends at the path": ("https://open.tracker.com/a.b.c", ["open.tracker.com"]),
+    "host ends at the query": ("https://open.tracker.com?a=b.c", ["open.tracker.com"]),
+    "host ends at the fragment": ("https://open.tracker.com#a.b", ["open.tracker.com"]),
+    "no scheme": ("/relative/path.jpg", []),
+    "empty authority": ("https:///bar.jpg", []),
+}
+
+
+@pytest.mark.parametrize(
+    "url_value, expected",
+    CANONICALIZE_URL_HOSTS_CASES.values(),
+    ids=CANONICALIZE_URL_HOSTS_CASES.keys(),
+)
+def test_canonicalize_url_hosts(url_value: str, expected: list[str]) -> None:
+    assert canonicalize_url_hosts(url_value) == expected
+
+
+def test_find_tracker_domain_returns_the_listed_parent_domain() -> None:
+    """The reported domain is the listed one, not the host that was seen."""
+    trackers = {"tracker.com"}
+    assert find_tracker_domain("https://foo.bar.tracker.com/x", trackers) == (
+        "tracker.com"
+    )
+    assert find_tracker_domain("https://nottracker.com/x", trackers) is None
+
+
+def test_find_tracker_domain_prefers_the_most_specific_listed_domain() -> None:
+    """
+    Both the host and a parent are listed. Report the host's own entry so the
+    tracker report names the domain that was actually contacted.
+    """
+    trackers = {"tracker.com", "open.tracker.com"}
+    assert find_tracker_domain("https://open.tracker.com/x", trackers) == (
+        "open.tracker.com"
+    )
 
 
 def test_encode_dict_gza85() -> None:
