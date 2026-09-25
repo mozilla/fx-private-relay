@@ -462,11 +462,9 @@ class RemoveTrackers(TestCase):
             "tracker as userinfo": "https://open.tracker.com@evil.example/bar.jpg",
             "tracker in the path": "https://evil.example/open.tracker.com/bar.jpg",
             "tracker as a label suffix": "https://fooopen.tracker.com/bar.jpg",
-            # The client requests evil.example and only its server can redirect on,
-            # so percent-decoding stops at the authority and never reads this host.
-            "tracker in a percent-encoded query parameter": (
-                "https://evil.example/r?u=https%3A%2F%2Fopen.tracker.com%2Fbar.jpg"
-            ),
+            # "%2F" decodes to "/", never to "://", so this stays a path segment and
+            # no request is made for it. Contrast a redirect parameter, which decodes
+            # to a scheme and does count. See CANONICALIZE_URL_HOSTS_CASES.
             "tracker in a percent-encoded path": (
                 "https://evil.example/%2Fopen.tracker.com/bar.jpg"
             ),
@@ -540,9 +538,13 @@ CANONICALIZE_URL_HOSTS_CASES = {
         "https://safe.example/%2Fopen.tracker.com/x",
         ["safe.example"],
     ),
-    "percent-encoded nested URL is not a second authority": (
+    "percent-encoded nested URL": (
         "https://safe.example/r?u=https%3A%2F%2Fopen.tracker.com%2Fx",
-        ["safe.example"],
+        ["safe.example", "open.tracker.com"],
+    ),
+    "percent-encoded nested URL with an encoded dot": (
+        "https://safe.example/r?u=https%3A%2F%2Fopen.tracker%2Ecom%2Fx",
+        ["safe.example", "open.tracker.com"],
     ),
     "root dot": ("https://open.tracker.com./x", ["open.tracker.com"]),
     "port": ("https://open.tracker.com:8080/x", ["open.tracker.com"]),
@@ -583,6 +585,13 @@ def test_find_tracker_domain_returns_the_listed_parent_domain() -> None:
         "tracker.com"
     )
     assert find_tracker_domain("https://nottracker.com/x", trackers) is None
+
+
+def test_find_tracker_domain_looks_past_the_first_host() -> None:
+    """A wrapper whose redirect target is the tracker still reports the tracker."""
+    trackers = {"tracker.com"}
+    wrapped = "https://safe.example/r?u=https%3A%2F%2Ftracker.com%2Fpx"
+    assert find_tracker_domain(wrapped, trackers) == "tracker.com"
 
 
 def test_find_tracker_domain_prefers_the_most_specific_listed_domain() -> None:

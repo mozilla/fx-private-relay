@@ -460,7 +460,7 @@ _HOST_LABEL_SEPARATORS = str.maketrans({"．": ".", "。": ".", "｡": "."})
 
 def canonicalize_url_hosts(url_value: str) -> list[str]:
     """
-    Return the hostnames a mail client would connect to for one quoted URL value.
+    Return the hostnames one quoted URL value can lead the recipient's client to.
 
     The recipient's HTML parser decodes entities before requesting the URL, and the
     URL host parser then percent-decodes the authority and applies UTS46 before
@@ -469,20 +469,16 @@ def canonicalize_url_hosts(url_value: str) -> list[str]:
     "google-analytics%2Ecom" and "GOOGLE-ANALYTICS.COM" reach the tracker untouched
     while Relay reports the mail as clean. See MPP-4770.
 
-    Percent-decoding is scoped to the authority on purpose. Decoding the whole value
-    would turn a "?url=https%3A%2F%2F..." parameter into a second authority, and the
-    client never connects to that host, so Relay would report trackers that the mail
-    cannot reach.
+    Decoding covers the whole value, not just the authority, so a URL nested in a
+    redirect parameter counts however the sender spelled it.
 
-    Decoding is for matching only. The forwarded HTML keeps its original bytes, so
-    this cannot change how the client renders anything Relay leaves in place.
+    Decoding is for matching only.
     """
+    # One decode pass, not a loop to a fixed point. A second pass reads hosts back out
+    # of text the first pass produced, which no client would resolve.
+    decoded = unquote(html.unescape(url_value)).translate(_HOST_LABEL_SEPARATORS)
     hosts = []
-    for raw_authority in _URL_AUTHORITY_PATTERN.findall(html.unescape(url_value)):
-        # Decode before splitting, so an encoded delimiter cannot hide userinfo or a
-        # port from the steps below. A host holding a decoded "@" or ":" fails the
-        # client's own parse, so over-matching one costs nothing.
-        authority = unquote(raw_authority).translate(_HOST_LABEL_SEPARATORS)
+    for authority in _URL_AUTHORITY_PATTERN.findall(decoded):
         # Drop userinfo ("user:pass@"), then the port, then the root label's dot.
         host = authority.rpartition("@")[2].partition(":")[0].strip(".").lower()
         if host and host not in hosts:
@@ -544,6 +540,7 @@ def remove_trackers(html_content, from_address, datetime_now, level="general"):
         nonlocal tracker_removed
         quote, original_link = matchobj[1], matchobj[2]
         if find_tracker_domain(original_link, tracker_domains) is None:
+            # Don't change anything
             return matchobj[0]
         tracker_removed += 1
         tracker_link_details = {
