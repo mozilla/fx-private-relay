@@ -8,13 +8,13 @@ import logging
 import pathlib
 import re
 import zlib
-from collections.abc import Callable, Container, Iterable
+from collections.abc import Callable, Iterable
 from email.errors import HeaderParseError, InvalidHeaderDefect
 from email.headerregistry import Address, AddressHeader
 from email.message import EmailMessage
 from email.utils import formataddr, parseaddr
 from functools import cache
-from typing import Any, Literal, TypeVar, cast
+from typing import Any, Literal, NamedTuple, TypeVar, cast
 from urllib.parse import quote_plus, unquote, urlparse
 
 from django.conf import settings
@@ -461,50 +461,51 @@ _HOST_LABEL_SEPARATORS = str.maketrans({"．": ".", "。": ".", "｡": "."})
 def canonicalize_url_hosts(url_value: str) -> list[str]:
     """
     Return the hostnames one quoted URL value can lead the recipient's client to.
-
-    The recipient's HTML parser decodes entities before requesting the URL, and the
-    URL host parser then percent-decodes the authority and applies UTS46 before
-    resolving it. DNS itself ignores case and the root label's trailing dot. Matching
-    has to happen on that canonical form or "google-analytics&#46;com",
-    "google-analytics%2Ecom" and "GOOGLE-ANALYTICS.COM" reach the tracker untouched
-    while Relay reports the mail as clean. See MPP-4770.
-
-    Decoding covers the whole value, not just the authority, so a URL nested in a
-    redirect parameter counts however the sender spelled it.
-
-    Decoding is for matching only.
     """
     # One decode pass, not a loop to a fixed point. A second pass reads hosts back out
     # of text the first pass produced, which no client would resolve.
     decoded = unquote(html.unescape(url_value)).translate(_HOST_LABEL_SEPARATORS)
-    hosts = []
+    # A dict, not a list, for the deduplication. The sender picks how many hosts one
+    # value holds, and "host not in hosts" over a list makes that count quadratic.
+    hosts: dict[str, None] = {}
     for authority in _URL_AUTHORITY_PATTERN.findall(decoded):
         # Drop userinfo ("user:pass@"), then the port, then the root label's dot.
         host = authority.rpartition("@")[2].partition(":")[0].strip(".").lower()
-        if host and host not in hosts:
-            hosts.append(host)
-    return hosts
+        if host:
+            # None value is filler, think of this as adding the key
+            hosts[host] = None
+    return list(hosts)
 
 
-def find_tracker_domain(url_value: str, trackers: Container[str]) -> str | None:
+class TrackerDomains(NamedTuple):
+    """The listed tracker domains, and the most labels any one of them has."""
+
+    domains: frozenset[str]
+    max_labels: int
+
+
+def find_tracker_domain(url_value: str, trackers: TrackerDomains) -> str | None:
     """
     Return the listed tracker domain a quoted URL value points at, if any.
-
-    A listed domain matches that host and any subdomain of it, so
-    "foo.open.tracker.com" matches the listed "open.tracker.com" while
-    "fooopen.tracker.com" and "open.tracker.com.evil.example" do not.
     """
     for host in canonicalize_url_hosts(url_value):
         labels = host.split(".")
-        for first_label in range(len(labels)):
+        # Only the shortest suffixes can match, because a suffix with more labels
+        # than the longest listed domain is not on the list.
+        # Testing every suffix would stall the worker. See MPP-4739.
+        shortest_suffix = max(0, len(labels) - trackers.max_labels)
+        for first_label in range(shortest_suffix, len(labels)):
             domain = ".".join(labels[first_label:])
-            if domain in trackers:
+            if domain in trackers.domains:
                 return domain
     return None
 
 
-def _tracker_domain_set(trackers: Iterable[str]) -> set[str]:
-    return {tracker.lower().strip(".") for tracker in trackers}
+def _tracker_domain_set(trackers: Iterable[str]) -> TrackerDomains:
+    domains = frozenset(tracker.lower().strip(".") for tracker in trackers)
+    return TrackerDomains(
+        domains, max((domain.count(".") + 1 for domain in domains), default=0)
+    )
 
 
 def count_tracker(html_content, trackers):

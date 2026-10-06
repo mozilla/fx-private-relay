@@ -4,6 +4,8 @@ import random
 import signal
 import zlib
 from base64 import b64encode
+from collections.abc import Iterator
+from contextlib import contextmanager
 from types import FrameType
 from typing import Literal, TypedDict
 from unittest.mock import patch
@@ -15,6 +17,7 @@ import pytest
 
 from emails.utils import (
     InvalidFromHeader,
+    _tracker_domain_set,
     canonicalize_url_hosts,
     decode_dict_gza85,
     encode_dict_gza85,
@@ -481,6 +484,26 @@ class RemoveTrackers(TestCase):
                 assert tracker_details["level_one"]["count"] == 0
 
 
+@contextmanager
+def fail_after(seconds: int, message: str) -> Iterator[None]:
+    """Fail the test if the block has not finished in seconds.
+
+    The regressions these tests guard do not fail, they run for hours, which is
+    useless in a test suite. The bound turns that into a fast failure.
+    """
+
+    def on_timeout(signum: int, frame: FrameType | None) -> None:
+        raise AssertionError(message)
+
+    previous = signal.signal(signal.SIGALRM, on_timeout)
+    signal.alarm(seconds)
+    try:
+        yield
+    finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, previous)
+
+
 @override_settings(SITE_ORIGIN="https://test.com")
 def test_remove_trackers_does_not_backtrack_on_dotted_url() -> None:
     """A non-matching dotted URL must not blow up the tracker regex.
@@ -492,20 +515,49 @@ def test_remove_trackers_does_not_backtrack_on_dotted_url() -> None:
     url = "https://click.mailer.example/r?u=" + "seg." * 20 + "end&id=9"
     content = f'<a href="{url}">click</a>'
 
-    def on_timeout(signum: int, frame: FrameType | None) -> None:
-        raise AssertionError("remove_trackers did not finish in 10s; regex backtracked")
-
-    # Fail fast on a regression. Without a bound, the old pattern runs for hours
-    # on 20 dots instead of failing, which is useless in a test suite.
-    previous = signal.signal(signal.SIGALRM, on_timeout)
-    signal.alarm(10)
-    try:
+    with fail_after(10, "remove_trackers did not finish in 10s; regex backtracked"):
         changed_content, tracker_details = remove_trackers(
             content, "spammer@email.com", "1682472064"
         )
-    finally:
-        signal.alarm(0)
-        signal.signal(signal.SIGALRM, previous)
+
+    assert changed_content == content
+    assert tracker_details["tracker_removed"] == 0
+
+
+@override_settings(SITE_ORIGIN="https://test.com")
+def test_remove_trackers_handles_a_host_with_many_labels() -> None:
+    """One host with 50,000 labels is a 200KB email a sender can just send.
+
+    Matching every suffix of the host is quadratic in the label count, so this
+    input took minutes before the match was bounded by the longest listed domain.
+    """
+    url = "https://" + "a." * 50_000 + "com/x"
+    content = f'<img src="{url}">'
+
+    with fail_after(10, "remove_trackers did not finish in 10s on a 50k-label host"):
+        changed_content, tracker_details = remove_trackers(
+            content, "spammer@email.com", "1682472064"
+        )
+
+    assert changed_content == content
+    assert tracker_details["tracker_removed"] == 0
+
+
+@override_settings(SITE_ORIGIN="https://test.com")
+def test_remove_trackers_handles_a_value_with_many_hosts() -> None:
+    """A sender picks how many "://" hosts one quoted value holds.
+
+    Deduplicating them against a list is quadratic in that count.
+    """
+    url = "https://safe.example/r?u=" + "".join(
+        f"https://h{index}.example/" for index in range(50_000)
+    )
+    content = f'<img src="{url}">'
+
+    with fail_after(10, "remove_trackers did not finish in 10s on 50k hosts"):
+        changed_content, tracker_details = remove_trackers(
+            content, "spammer@email.com", "1682472064"
+        )
 
     assert changed_content == content
     assert tracker_details["tracker_removed"] == 0
@@ -580,7 +632,7 @@ def test_canonicalize_url_hosts(url_value: str, expected: list[str]) -> None:
 
 def test_find_tracker_domain_returns_the_listed_parent_domain() -> None:
     """The reported domain is the listed one, not the host that was seen."""
-    trackers = {"tracker.com"}
+    trackers = _tracker_domain_set({"tracker.com"})
     assert find_tracker_domain("https://foo.bar.tracker.com/x", trackers) == (
         "tracker.com"
     )
@@ -589,7 +641,7 @@ def test_find_tracker_domain_returns_the_listed_parent_domain() -> None:
 
 def test_find_tracker_domain_looks_past_the_first_host() -> None:
     """A wrapper whose redirect target is the tracker still reports the tracker."""
-    trackers = {"tracker.com"}
+    trackers = _tracker_domain_set({"tracker.com"})
     wrapped = "https://safe.example/r?u=https%3A%2F%2Ftracker.com%2Fpx"
     assert find_tracker_domain(wrapped, trackers) == "tracker.com"
 
@@ -599,9 +651,17 @@ def test_find_tracker_domain_prefers_the_most_specific_listed_domain() -> None:
     Both the host and a parent are listed. Report the host's own entry so the
     tracker report names the domain that was actually contacted.
     """
-    trackers = {"tracker.com", "open.tracker.com"}
+    trackers = _tracker_domain_set({"tracker.com", "open.tracker.com"})
     assert find_tracker_domain("https://open.tracker.com/x", trackers) == (
         "open.tracker.com"
+    )
+
+
+def test_find_tracker_domain_matches_a_listed_domain_with_many_labels() -> None:
+    """The suffix bound comes from the list, so a long entry added later matches."""
+    trackers = _tracker_domain_set({"px.open.mail.tracker.com"})
+    assert find_tracker_domain("https://a.px.open.mail.tracker.com/x", trackers) == (
+        "px.open.mail.tracker.com"
     )
 
 
