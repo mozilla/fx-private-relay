@@ -490,12 +490,12 @@ def find_tracker_domain(url_value: str, trackers: TrackerDomains) -> str | None:
     """
     for host in canonicalize_url_hosts(url_value):
         labels = host.split(".")
-        # Only the shortest suffixes can match, because a suffix with more labels
-        # than the longest listed domain is not on the list.
-        # Testing every suffix would stall the worker. See MPP-4739.
-        shortest_suffix = max(0, len(labels) - trackers.max_labels)
-        for first_label in range(shortest_suffix, len(labels)):
-            domain = ".".join(labels[first_label:])
+        # Only a host with fewer labels than the longest tracker domain
+        # can match, so only test that many hosts.
+        # Testing every suffix could stall the worker. See MPP-4739.
+        first_label_index_to_check = max(0, len(labels) - trackers.max_labels)
+        for label_to_check_index in range(first_label_index_to_check, len(labels)):
+            domain = ".".join(labels[label_to_check_index:])
             if domain in trackers.domains:
                 return domain
     return None
