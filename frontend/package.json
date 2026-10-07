@@ -64,7 +64,7 @@
     "next": "^16.3.6",
     "prettier": "3.9.8",
     "raw-loader": "^4.0.2",
-    "sass": "^1.104.1",
+    "sass": "^1.105.0",
     "stylelint": "^17.15.0",
     "stylelint-config-recommended-scss": "^17.0.1",
     "stylelint-scss": "^7.3.0",
