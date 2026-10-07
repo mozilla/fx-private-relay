@@ -4,6 +4,8 @@ import random
 import signal
 import zlib
 from base64 import b64encode
+from collections.abc import Iterator
+from contextlib import contextmanager
 from types import FrameType
 from typing import Literal, TypedDict
 from unittest.mock import patch
@@ -15,8 +17,11 @@ import pytest
 
 from emails.utils import (
     InvalidFromHeader,
+    _tracker_domain_set,
+    canonicalize_url_hosts,
     decode_dict_gza85,
     encode_dict_gza85,
+    find_tracker_domain,
     generate_from_header,
     get_domains_from_settings,
     get_email_domain_from_settings,
@@ -394,6 +399,110 @@ class RemoveTrackers(TestCase):
         assert general_removed == 0
         assert general_count == 0
 
+    def test_tracker_host_is_matched_after_canonicalization(self):
+        """
+        A tracker host the recipient's client would reach must be caught however the
+        sender spelled it. The client decodes HTML entities, the URL host parser
+        percent-decodes the authority and applies UTS46, and DNS ignores case and the
+        root dot, so none of these change where the pixel actually connects.
+        See MPP-4770.
+        """
+        variants = {
+            "decimal entity dot": "https://open.tracker&#46;com/bar.jpg",
+            "hex entity dot": "https://open.tracker&#x2e;com/bar.jpg",
+            "entity without semicolon": "https://open.tracker&#46com/bar.jpg",
+            "named entity dot": "https://open.tracker&period;com/bar.jpg",
+            "entity in a subdomain": "https://foo&#46;open.tracker.com/bar.jpg",
+            "percent-encoded dot": "https://open.tracker%2Ecom/bar.jpg",
+            "lowercase percent-encoded dot": "https://open.tracker%2ecom/bar.jpg",
+            "percent-encoded dot in a subdomain": (
+                "https://foo%2Eopen.tracker.com/bar.jpg"
+            ),
+            # UTS46 maps each of these to "." and splits labels on the result.
+            "fullwidth stop": "https://open.tracker．com/bar.jpg",
+            "ideographic stop": "https://open.tracker。com/bar.jpg",
+            "halfwidth ideographic stop": "https://open.tracker｡com/bar.jpg",
+            "percent-encoded fullwidth stop": (
+                "https://open.tracker%EF%BC%8Ecom/bar.jpg"
+            ),
+            "entity-encoded fullwidth stop": (
+                "https://open.tracker&#xFF0E;com/bar.jpg"
+            ),
+            "uppercase": "https://OPEN.TRACKER.COM/bar.jpg",
+            "mixed case": "https://Open.Tracker.Com/bar.jpg",
+            "uppercase host with entity": "https://OPEN.TRACKER&#46;COM/bar.jpg",
+            "trailing root dot": "https://open.tracker.com./bar.jpg",
+            "explicit port": "https://open.tracker.com:443/bar.jpg",
+        }
+        for label, link in variants.items():
+            with self.subTest(label):
+                content = f'<img src="{link}">'
+                changed_content, tracker_details = remove_trackers(
+                    content, self.from_address, self.datetime_now
+                )
+
+                assert tracker_details["tracker_removed"] == 1
+                assert tracker_details["level_one"]["count"] == 1
+                assert tracker_details["level_one"]["trackers"] == {
+                    "open.tracker.com": 1
+                }
+                # The warning page shows the link as the sender wrote it, entities
+                # and all, not Relay's canonicalized form.
+                assert changed_content == (
+                    f'<img src="{self.url}{self.url_trackerwarning_data(link)}">'
+                )
+
+    def test_tracker_name_outside_the_host_is_not_a_tracker(self):
+        """
+        Only the host the client connects to counts. A tracker domain that lands in
+        the userinfo or in a longer parent domain points somewhere else entirely, so
+        flagging it would warn about the wrong site.
+        """
+        decoys = {
+            "tracker as a parent-domain prefix": (
+                "https://open.tracker.com.evil.example/bar.jpg"
+            ),
+            "tracker as userinfo": "https://open.tracker.com@evil.example/bar.jpg",
+            "tracker in the path": "https://evil.example/open.tracker.com/bar.jpg",
+            "tracker as a label suffix": "https://fooopen.tracker.com/bar.jpg",
+            # "%2F" decodes to "/", never to "://", so this stays a path segment and
+            # no request is made for it. Contrast a redirect parameter, which decodes
+            # to a scheme and does count. See CANONICALIZE_URL_HOSTS_CASES.
+            "tracker in a percent-encoded path": (
+                "https://evil.example/%2Fopen.tracker.com/bar.jpg"
+            ),
+        }
+        for label, link in decoys.items():
+            with self.subTest(label):
+                content = f'<img src="{link}">'
+                changed_content, tracker_details = remove_trackers(
+                    content, self.from_address, self.datetime_now
+                )
+
+                assert changed_content == content
+                assert tracker_details["tracker_removed"] == 0
+                assert tracker_details["level_one"]["count"] == 0
+
+
+@contextmanager
+def fail_after(seconds: int, message: str) -> Iterator[None]:
+    """Fail the test if the block has not finished in seconds.
+
+    The regressions these tests guard do not fail, they run for hours, which is
+    useless in a test suite. The bound turns that into a fast failure.
+    """
+
+    def on_timeout(signum: int, frame: FrameType | None) -> None:
+        raise AssertionError(message)
+
+    previous = signal.signal(signal.SIGALRM, on_timeout)
+    signal.alarm(seconds)
+    try:
+        yield
+    finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, previous)
+
 
 @override_settings(SITE_ORIGIN="https://test.com")
 def test_remove_trackers_does_not_backtrack_on_dotted_url() -> None:
@@ -406,23 +515,154 @@ def test_remove_trackers_does_not_backtrack_on_dotted_url() -> None:
     url = "https://click.mailer.example/r?u=" + "seg." * 20 + "end&id=9"
     content = f'<a href="{url}">click</a>'
 
-    def on_timeout(signum: int, frame: FrameType | None) -> None:
-        raise AssertionError("remove_trackers did not finish in 10s; regex backtracked")
-
-    # Fail fast on a regression. Without a bound, the old pattern runs for hours
-    # on 20 dots instead of failing, which is useless in a test suite.
-    previous = signal.signal(signal.SIGALRM, on_timeout)
-    signal.alarm(10)
-    try:
+    with fail_after(10, "remove_trackers did not finish in 10s; regex backtracked"):
         changed_content, tracker_details = remove_trackers(
             content, "spammer@email.com", "1682472064"
         )
-    finally:
-        signal.alarm(0)
-        signal.signal(signal.SIGALRM, previous)
 
     assert changed_content == content
     assert tracker_details["tracker_removed"] == 0
+
+
+@override_settings(SITE_ORIGIN="https://test.com")
+def test_remove_trackers_handles_a_host_with_many_labels() -> None:
+    """One host with 50,000 labels is a 200KB email a sender can just send.
+
+    Matching every suffix of the host is quadratic in the label count, so this
+    input took minutes before the match was bounded by the longest listed domain.
+    """
+    url = "https://" + "a." * 50_000 + "com/x"
+    content = f'<img src="{url}">'
+
+    with fail_after(10, "remove_trackers did not finish in 10s on a 50k-label host"):
+        changed_content, tracker_details = remove_trackers(
+            content, "spammer@email.com", "1682472064"
+        )
+
+    assert changed_content == content
+    assert tracker_details["tracker_removed"] == 0
+
+
+@override_settings(SITE_ORIGIN="https://test.com")
+def test_remove_trackers_handles_a_value_with_many_hosts() -> None:
+    """A sender picks how many "://" hosts one quoted value holds.
+
+    Deduplicating them against a list is quadratic in that count.
+    """
+    url = "https://safe.example/r?u=" + "".join(
+        f"https://h{index}.example/" for index in range(50_000)
+    )
+    content = f'<img src="{url}">'
+
+    with fail_after(10, "remove_trackers did not finish in 10s on 50k hosts"):
+        changed_content, tracker_details = remove_trackers(
+            content, "spammer@email.com", "1682472064"
+        )
+
+    assert changed_content == content
+    assert tracker_details["tracker_removed"] == 0
+
+
+CANONICALIZE_URL_HOSTS_CASES = {
+    "plain host": ("https://open.tracker.com/bar.jpg", ["open.tracker.com"]),
+    "uppercase host": ("https://OPEN.TRACKER.COM/bar.jpg", ["open.tracker.com"]),
+    "entity-encoded dot": ("https://open.tracker&#46;com/x", ["open.tracker.com"]),
+    "percent-encoded dot": ("https://open.tracker%2Ecom/x", ["open.tracker.com"]),
+    "lowercase percent-encoded dot": (
+        "https://open.tracker%2ecom/x",
+        ["open.tracker.com"],
+    ),
+    "fullwidth stop": ("https://open.tracker．com/x", ["open.tracker.com"]),
+    "percent-encoded fullwidth stop": (
+        "https://open.tracker%EF%BC%8Ecom/x",
+        ["open.tracker.com"],
+    ),
+    "entity-encoded fullwidth stop": (
+        "https://open.tracker&#xFF0E;com/x",
+        ["open.tracker.com"],
+    ),
+    "ideographic stop": ("https://open.tracker。com/x", ["open.tracker.com"]),
+    "halfwidth ideographic stop": (
+        "https://open.tracker｡com/x",
+        ["open.tracker.com"],
+    ),
+    "percent-encoded path is left alone": (
+        "https://safe.example/%2Fopen.tracker.com/x",
+        ["safe.example"],
+    ),
+    "percent-encoded nested URL": (
+        "https://safe.example/r?u=https%3A%2F%2Fopen.tracker.com%2Fx",
+        ["safe.example", "open.tracker.com"],
+    ),
+    "percent-encoded nested URL with an encoded dot": (
+        "https://safe.example/r?u=https%3A%2F%2Fopen.tracker%2Ecom%2Fx",
+        ["safe.example", "open.tracker.com"],
+    ),
+    "root dot": ("https://open.tracker.com./x", ["open.tracker.com"]),
+    "port": ("https://open.tracker.com:8080/x", ["open.tracker.com"]),
+    "userinfo": ("https://user:pw@open.tracker.com/x", ["open.tracker.com"]),
+    "css url() wrapper": (
+        "background:url(https://open.tracker.com/x)",
+        ["open.tracker.com"],
+    ),
+    "nested redirect URL": (
+        "https://safe.example/r?u=https://open.tracker.com/x",
+        ["safe.example", "open.tracker.com"],
+    ),
+    "same host twice": (
+        "https://safe.example/r?u=https://safe.example/x",
+        ["safe.example"],
+    ),
+    "host ends at the path": ("https://open.tracker.com/a.b.c", ["open.tracker.com"]),
+    "host ends at the query": ("https://open.tracker.com?a=b.c", ["open.tracker.com"]),
+    "host ends at the fragment": ("https://open.tracker.com#a.b", ["open.tracker.com"]),
+    "no scheme": ("/relative/path.jpg", []),
+    "empty authority": ("https:///bar.jpg", []),
+}
+
+
+@pytest.mark.parametrize(
+    "url_value, expected",
+    CANONICALIZE_URL_HOSTS_CASES.values(),
+    ids=CANONICALIZE_URL_HOSTS_CASES.keys(),
+)
+def test_canonicalize_url_hosts(url_value: str, expected: list[str]) -> None:
+    assert canonicalize_url_hosts(url_value) == expected
+
+
+def test_find_tracker_domain_returns_the_listed_parent_domain() -> None:
+    """The reported domain is the listed one, not the host that was seen."""
+    trackers = _tracker_domain_set({"tracker.com"})
+    assert find_tracker_domain("https://foo.bar.tracker.com/x", trackers) == (
+        "tracker.com"
+    )
+    assert find_tracker_domain("https://nottracker.com/x", trackers) is None
+
+
+def test_find_tracker_domain_looks_past_the_first_host() -> None:
+    """A wrapper whose redirect target is the tracker still reports the tracker."""
+    trackers = _tracker_domain_set({"tracker.com"})
+    wrapped = "https://safe.example/r?u=https%3A%2F%2Ftracker.com%2Fpx"
+    assert find_tracker_domain(wrapped, trackers) == "tracker.com"
+
+
+def test_find_tracker_domain_prefers_the_most_specific_listed_domain() -> None:
+    """
+    Both the host and a parent are listed. Report the host's own entry so the
+    tracker report names the domain that was actually contacted.
+    """
+    trackers = _tracker_domain_set({"tracker.com", "open.tracker.com"})
+    assert find_tracker_domain("https://open.tracker.com/x", trackers) == (
+        "open.tracker.com"
+    )
+
+
+def test_find_tracker_domain_matches_a_listed_domain_with_many_labels() -> None:
+    """The suffix bound comes from the list, so a long entry added later matches."""
+    trackers = _tracker_domain_set({"px.open.mail.tracker.com"})
+    assert find_tracker_domain("https://a.px.open.mail.tracker.com/x", trackers) == (
+        "px.open.mail.tracker.com"
+    )
 
 
 def test_encode_dict_gza85() -> None:

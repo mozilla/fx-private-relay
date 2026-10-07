@@ -2,19 +2,20 @@ from __future__ import annotations
 
 import base64
 import contextlib
+import html
 import json
 import logging
 import pathlib
 import re
 import zlib
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from email.errors import HeaderParseError, InvalidHeaderDefect
 from email.headerregistry import Address, AddressHeader
 from email.message import EmailMessage
 from email.utils import formataddr, parseaddr
 from functools import cache
-from typing import Any, Literal, TypeVar, cast
-from urllib.parse import quote_plus, urlparse
+from typing import Any, Literal, NamedTuple, TypeVar, cast
+from urllib.parse import quote_plus, unquote, urlparse
 
 from django.conf import settings
 from django.contrib.auth.models import Group, User
@@ -441,21 +442,81 @@ def set_user_group(user):
     internal_group.user_set.add(user)
 
 
-def convert_domains_to_regex_patterns(domain_pattern):
-    # A subdomain label must not contain a dot, or this backtracks. See MPP-4739.
-    return r"""(["'])(\S*://([^\s"'.]*\.)*""" + re.escape(domain_pattern) + r"\S*)\1"
+# A quoted value holding a URL. Group 2 is the whole value, which is what the
+# tracker-warning link replaces. The lookaheads end the scheme at the first "://"
+# and the value at its own closing quote, so the scan stays linear however many
+# dots the URL has. See MPP-4739 for the backtracking that shape avoids.
+QUOTED_URL_PATTERN = re.compile(r"""(["'])((?:(?!://)(?!\1)\S)*://(?:(?!\1)\S)*)\1""")
+
+# The authority (userinfo, host, port) following a URL scheme. A mail client ends
+# the host at one of these delimiters, so the matcher has to as well.
+_URL_AUTHORITY_PATTERN = re.compile(r"://([^\s/?#\\]*)")
+
+# UTS46 maps these to "." and then treats them as label separators, so a client
+# resolves "tracker．com" as "tracker.com". Canonicalizing them keeps a fullwidth
+# or ideographic stop from hiding a listed domain inside one unmatched label.
+_HOST_LABEL_SEPARATORS = str.maketrans({"．": ".", "。": ".", "｡": "."})
+
+
+def canonicalize_url_hosts(url_value: str) -> list[str]:
+    """
+    Return the hostnames one quoted URL value can lead the recipient's client to.
+    """
+    # One decode pass, not a loop to a fixed point. A second pass reads hosts back out
+    # of text the first pass produced, which no client would resolve.
+    decoded = unquote(html.unescape(url_value)).translate(_HOST_LABEL_SEPARATORS)
+    # A dict, not a list, for the deduplication. The sender picks how many hosts one
+    # value holds, and "host not in hosts" over a list makes that count quadratic.
+    hosts: dict[str, None] = {}
+    for authority in _URL_AUTHORITY_PATTERN.findall(decoded):
+        # Drop userinfo ("user:pass@"), then the port, then the root label's dot.
+        host = authority.rpartition("@")[2].partition(":")[0].strip(".").lower()
+        if host:
+            # None value is filler, think of this as adding the key
+            hosts[host] = None
+    return list(hosts)
+
+
+class TrackerDomains(NamedTuple):
+    """The listed tracker domains, and the most labels any one of them has."""
+
+    domains: frozenset[str]
+    max_labels: int
+
+
+def find_tracker_domain(url_value: str, trackers: TrackerDomains) -> str | None:
+    """
+    Return the listed tracker domain a quoted URL value points at, if any.
+    """
+    for host in canonicalize_url_hosts(url_value):
+        labels = host.split(".")
+        # Only a host with fewer labels than the longest tracker domain
+        # can match, so only test that many hosts.
+        # Testing every suffix could stall the worker. See MPP-4739.
+        first_label_index_to_check = max(0, len(labels) - trackers.max_labels)
+        for label_to_check_index in range(first_label_index_to_check, len(labels)):
+            domain = ".".join(labels[label_to_check_index:])
+            if domain in trackers.domains:
+                return domain
+    return None
+
+
+def _tracker_domain_set(trackers: Iterable[str]) -> TrackerDomains:
+    domains = frozenset(tracker.lower().strip(".") for tracker in trackers)
+    return TrackerDomains(
+        domains, max((domain.count(".") + 1 for domain in domains), default=0)
+    )
 
 
 def count_tracker(html_content, trackers):
+    tracker_domains = _tracker_domain_set(trackers)
     tracker_total = 0
-    details = {}
-    # html_content needs to be str for count()
-    for tracker in trackers:
-        pattern = convert_domains_to_regex_patterns(tracker)
-        html_content, count = re.subn(pattern, "", html_content)
-        if count:
-            tracker_total += count
-            details[tracker] = count
+    details: dict[str, int] = {}
+    for match in QUOTED_URL_PATTERN.finditer(html_content):
+        domain = find_tracker_domain(match[2], tracker_domains)
+        if domain:
+            tracker_total += 1
+            details[domain] = details.get(domain, 0) + 1
     return {"count": tracker_total, "trackers": details}
 
 
@@ -473,27 +534,30 @@ def count_all_trackers(html_content):
 
 def remove_trackers(html_content, from_address, datetime_now, level="general"):
     trackers = general_trackers() if level == "general" else strict_trackers()
+    tracker_domains = _tracker_domain_set(trackers)
     tracker_removed = 0
-    changed_content = html_content
 
-    for tracker in trackers:
-        pattern = convert_domains_to_regex_patterns(tracker)
+    def convert_to_tracker_warning_link(matchobj):
+        nonlocal tracker_removed
+        quote, original_link = matchobj[1], matchobj[2]
+        if find_tracker_domain(original_link, tracker_domains) is None:
+            # Don't change anything
+            return matchobj[0]
+        tracker_removed += 1
+        tracker_link_details = {
+            "sender": from_address,
+            "received_at": datetime_now,
+            # The link as the sender wrote it, entities and all, so the warning
+            # page shows what was really in the mail.
+            "original_link": original_link,
+        }
+        anchor = quote_plus(json.dumps(tracker_link_details, separators=(",", ":")))
+        url = f"{settings.SITE_ORIGIN}/contains-tracker-warning/#{anchor}"
+        return f"{quote}{url}{quote}"
 
-        def convert_to_tracker_warning_link(matchobj):
-            quote, original_link, _ = matchobj.groups()
-            tracker_link_details = {
-                "sender": from_address,
-                "received_at": datetime_now,
-                "original_link": original_link,
-            }
-            anchor = quote_plus(json.dumps(tracker_link_details, separators=(",", ":")))
-            url = f"{settings.SITE_ORIGIN}/contains-tracker-warning/#{anchor}"
-            return f"{quote}{url}{quote}"
-
-        changed_content, matched = re.subn(
-            pattern, convert_to_tracker_warning_link, changed_content
-        )
-        tracker_removed += matched
+    changed_content = QUOTED_URL_PATTERN.sub(
+        convert_to_tracker_warning_link, html_content
+    )
 
     level_one_detail = count_tracker(html_content, general_trackers())
     level_two_detail = count_tracker(html_content, strict_trackers())
