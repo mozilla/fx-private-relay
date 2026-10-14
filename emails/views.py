@@ -56,7 +56,9 @@ from .types import (
     AWS_MailJSON,
     AWS_SNSMessageJSON,
     EmailForwardingIssues,
+    EmailHeaderExceptionOnReadIssue,
     EmailHeaderIssues,
+    EmailHeaderLineBreakIssue,
     OutgoingHeaders,
 )
 from .utils import (
@@ -85,6 +87,13 @@ from .utils import (
 
 logger = logging.getLogger("events")
 info_logger = logging.getLogger("eventsinfo")
+
+# Characters that str.splitlines() treats as a line break.
+# Before Python 3.12 could allow header injection
+HEADER_LINE_BREAK_CHARS = frozenset("\r\n\x0b\x0c\x1c\x1d\x1e\x85") | {
+    chr(0x2028),  # LINE SEPARATOR
+    chr(0x2029),  # PARAGRAPH SEPARATOR
+}
 
 
 class ReplyHeadersNotFound(Exception):
@@ -1136,7 +1145,7 @@ def _replace_headers(
     memory-related crashes.
     """
     # Look for headers to drop
-    to_drop: list[str] = []
+    to_drop: set[str] = set()
     replacements: set[str] = {_k.lower() for _k in headers.keys()}
     issues: EmailHeaderIssues = []
 
@@ -1180,14 +1189,25 @@ def _replace_headers(
         if header_lower in replacements:
             # The replacement loop below deletes every copy and writes one new value
             continue
-        if header_lower != "mime-version" and not header_lower.startswith("content-"):
-            to_drop.append(header)
+        if header_lower in to_drop or (
+            header_lower != "mime-version" and not header_lower.startswith("content-")
+        ):
+            # A header already in to_drop was dropped for its line breaks, so this
+            # copy goes as well, even if this copy is safe on its own
+            to_drop.add(header_lower)
         elif header_lower in first_kept:
             duplicate_counts[header_lower] = duplicate_counts.get(header_lower, 0) + 1
         else:
-            first_kept[header_lower] = header
+            line_break_issue = _header_line_break_issue(email, header)
+            if line_break_issue is None:
+                # For duplicates without dangerous values, only keep the first copy
+                first_kept[header_lower] = header
+            else:
+                issues.append(line_break_issue)
+                to_drop.add(header_lower)
 
     # Drop headers that should be dropped
+    # Note that del applies to any casing in EmailMessage implementation
     for header in to_drop:
         del email[header]
 
@@ -1250,6 +1270,43 @@ def _replace_headers(
             )
 
     return issues
+
+
+def _header_line_break_issue(
+    email: EmailMessage, header: str
+) -> EmailHeaderLineBreakIssue | EmailHeaderExceptionOnReadIssue | None:
+    """
+    Check every copy of a forwarded header for embedded line breaks.
+
+    Return an issue when a copy can't be read, or holds a character that the
+    generator would turn into a header separator, and None when the header is safe
+    to forward unchanged.
+
+    Legitimate folding whitespace of a header is not a problem:
+    email.get_all(header) removes actual CR and LF when it parses the stored value
+    """
+    try:
+        values = email.get_all(header, [])
+    except Exception as e:
+        # The value can't be checked, so treat the header as unsafe to forward
+        return {"header": header, "direction": "in", "exception_on_read": repr(e)}
+
+    found: set[str] = set()
+    for value in values:
+        found |= HEADER_LINE_BREAK_CHARS.intersection(str(value))
+        raw_value = getattr(value, "as_raw", None)
+        if raw_value is not None:
+            found |= HEADER_LINE_BREAK_CHARS.intersection(str(raw_value))
+    if not found:
+        return None
+    return {
+        "header": header,
+        "direction": "in",
+        # Escaped, so that the log line can't be split by the characters it reports
+        "dropped_line_break_chars": "".join(
+            sorted(char.encode("unicode_escape").decode("ascii") for char in found)
+        ),
+    }
 
 
 def _replace_reply_email_in_body(

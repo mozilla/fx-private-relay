@@ -49,11 +49,18 @@ class EmailHeaderDuplicateIssue(TypedDict):
     duplicates_dropped: int
 
 
+class EmailHeaderLineBreakIssue(TypedDict):
+    header: str
+    direction: Literal["in"]
+    dropped_line_break_chars: str
+
+
 EmailHeaderIssue = (
     EmailHeaderExceptionOnReadIssue
     | EmailHeaderExceptionOnWriteIssue
     | EmailHeaderDefectIssue
     | EmailHeaderDuplicateIssue
+    | EmailHeaderLineBreakIssue
 )
 
 EmailHeaderIssues = list[EmailHeaderIssue]
