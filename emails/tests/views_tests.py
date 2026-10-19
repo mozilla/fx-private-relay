@@ -46,6 +46,7 @@ from emails.utils import (
     get_message_id_bytes,
 )
 from emails.views import (
+    HEADER_LINE_BREAK_CHARS,
     EmailDroppedReason,
     RawComplaintData,
     ReplyHeadersNotFound,
@@ -3418,6 +3419,298 @@ def test_replace_headers_drops_duplicate_mime_version() -> None:
     assert issues == [
         {"header": "MIME-Version", "direction": "in", "duplicates_dropped": 1}
     ]
+
+
+def _multipart_email(extra_headers: str) -> EmailMessage:
+    """Parse a multipart email with the given extra headers in the header block."""
+    email_text = (
+        "Subject: Original Subject\r\n"
+        "From: A sender <sender@example.com>\r\n"
+        "To: ebsbdsan7@test.com\r\n"
+        "Date: Wed, 27 Sep 2023 16:33:12 +0000\r\n"
+        "MIME-Version: 1.0\r\n"
+        f"{extra_headers}"
+        'Content-Type: multipart/alternative; boundary="YB"\r\n'
+        "\r\n"
+        "--YB\r\n"
+        "Content-Type: text/plain; charset=utf-8\r\n"
+        "\r\n"
+        "plain part\r\n"
+        "--YB\r\n"
+        "Content-Type: text/html; charset=utf-8\r\n"
+        "\r\n"
+        "<p>html part</p>\r\n"
+        "--YB--\r\n"
+    )
+    email = message_from_string(email_text, policy=relay_policy)
+    assert isinstance(email, EmailMessage)
+    return email
+
+
+def test_replace_headers_drops_content_header_with_line_break_char() -> None:
+    """
+    A forwarded header whose value contains a line-break character is dropped.
+
+    The generator folds with str.splitlines(), which treats characters such as VT
+    (0x0b) and FS (0x1c) as line breaks, so keeping the value would let the sender
+    add headers.
+    """
+    email = _multipart_email(
+        "Content-Description: a description\r\n"
+        "Content-Description: x\x0bX-Injected: yes"
+        "\x1cReply-To: attacker@example.com\r\n"
+    )
+    new_headers: OutgoingHeaders = {
+        "Subject": "Line Break Test",
+        "From": "from@example.com",
+        "To": "to@example.com",
+    }
+
+    issues = _replace_headers(email, new_headers)
+
+    # Both copies are dropped, including the one that is safe on its own
+    assert email.get_all("Content-Description") is None
+    assert email["Content-Type"].content_type == "multipart/alternative"
+    assert issues == [
+        {
+            "header": "Content-Description",
+            "direction": "in",
+            # Every line-break character found, escaped and sorted
+            "dropped_line_break_chars": "\\x0b\\x1c",
+        }
+    ]
+    generated = email.as_string()
+    assert "X-Injected" not in generated
+    assert "attacker@example.com" not in generated
+
+
+def test_replace_headers_drops_sole_content_header_with_line_break_char() -> None:
+    """
+    An unsafe header is dropped when it is the only copy of that header.
+
+    The other line-break tests send a safe copy first, which takes a different path
+    through the duplicate bookkeeping than a lone unsafe copy like the reported one.
+    """
+    email = _multipart_email("Content-Description: x\x0bX-Injected: yes\r\n")
+    assert len(email.get_all("Content-Description", [])) == 1
+    new_headers: OutgoingHeaders = {
+        "Subject": "Sole Unsafe Header Test",
+        "From": "from@example.com",
+        "To": "to@example.com",
+    }
+
+    issues = _replace_headers(email, new_headers)
+
+    assert email.get_all("Content-Description") is None
+    assert email["Content-Type"].content_type == "multipart/alternative"
+    # The defect scan reads the first copy of a given header, so it also reports
+    # In tests with a safe first copy, only line-break check sees the unsafe copy.
+    assert issues == [
+        {
+            "header": "Content-Description",
+            "direction": "in",
+            "defect_count": 1,
+            "parsed_value": "x\x0bX-Injected: yes",
+            "raw_value": "x\x0bX-Injected: yes",
+        },
+        {
+            "header": "Content-Description",
+            "direction": "in",
+            "dropped_line_break_chars": "\\x0b",
+        },
+    ]
+    assert "X-Injected" not in email.as_string()
+
+
+def test_replace_headers_drops_copies_of_unsafe_header_in_any_case() -> None:
+    """
+    A copy of an unsafe header is dropped whatever case the sender spells it in.
+
+    Dropped headers are tracked by lowercased name, because deleting a header deletes
+    every copy of it regardless of case.
+    """
+    email = _multipart_email(
+        "Content-Disposition: inline\r\nCONTENT-DISPOSITION: x\x0cX-Injected: yes\r\n"
+    )
+    assert email.keys() == [
+        "Subject",
+        "From",
+        "To",
+        "Date",
+        "MIME-Version",
+        "Content-Disposition",
+        "CONTENT-DISPOSITION",
+        "Content-Type",
+    ]
+    new_headers: OutgoingHeaders = {
+        "Subject": "Mixed Case Test",
+        "From": "from@example.com",
+        "To": "to@example.com",
+    }
+
+    issues = _replace_headers(email, new_headers)
+
+    # The unsafe copy is found and dropped by the name of the first copy
+    assert email.get_all("Content-Disposition") is None
+    assert "CONTENT-DISPOSITION" not in email.keys()
+    assert issues == [
+        {
+            "header": "Content-Disposition",
+            "direction": "in",
+            "dropped_line_break_chars": "\\x0c",
+        }
+    ]
+    assert "X-Injected" not in email.as_string()
+
+
+def test_replace_headers_keeps_content_header_without_line_breaks() -> None:
+    """
+    A Content-* header is still forwarded when its value is safe.
+
+    The line-break check is what keeps a sender from writing extra headers, and it
+    does not depend on the header's name.
+    """
+    email = _multipart_email(
+        "Content-Language: en-US\r\nContent-Description: a description\r\n"
+    )
+    new_headers: OutgoingHeaders = {
+        "Subject": "Safe Content Header Test",
+        "From": "from@example.com",
+        "To": "to@example.com",
+    }
+
+    issues = _replace_headers(email, new_headers)
+
+    assert email["Content-Language"] == "en-US"
+    assert email["Content-Description"] == "a description"
+    assert email["Content-Type"].content_type == "multipart/alternative"
+    assert issues == []
+
+
+def test_replace_headers_keeps_folded_content_type() -> None:
+    """A header folded over several lines is forwarded unchanged."""
+    email = _multipart_email("Content-Disposition: inline;\r\n filename=report.txt\r\n")
+    new_headers: OutgoingHeaders = {
+        "Subject": "Folded Header Test",
+        "From": "from@example.com",
+        "To": "to@example.com",
+    }
+
+    issues = _replace_headers(email, new_headers)
+
+    assert email["Content-Disposition"].params == {"filename": "report.txt"}
+    assert issues == []
+
+
+def test_replace_headers_drops_mime_version_with_line_break_char() -> None:
+    """
+    An unsafe copy of MIME-Version drops every copy of MIME-Version.
+
+    The check runs on the first copy but reads every copy, so a safe first copy does
+    not hide an unsafe second one.
+    """
+    email = _multipart_email("MIME-Version: 1.0\x1eX-Injected: yes\r\n")
+    assert len(email.get_all("MIME-Version", [])) == 2
+    new_headers: OutgoingHeaders = {
+        "Subject": "MIME-Version Line Break Test",
+        "From": "from@example.com",
+        "To": "to@example.com",
+    }
+
+    issues = _replace_headers(email, new_headers)
+
+    assert email.get_all("MIME-Version") is None
+    assert {
+        "header": "MIME-Version",
+        "direction": "in",
+        "dropped_line_break_chars": "\\x1e",
+    } in issues
+    # The header is dropped rather than collapsed to its first value
+    assert not any("duplicates_dropped" in issue for issue in issues)
+    assert "X-Injected" not in email.as_string()
+
+
+def test_replace_headers_drops_content_header_with_encoded_line_break_char() -> None:
+    """
+    A line-break character is found in the decoded value, not just the raw value.
+
+    The generator would re-encode this non-ASCII value as an encoded word, so dropping
+    it is conservative rather than required.
+    """
+    # =?utf-8?b?4oCo?= decodes to U+2028 LINE SEPARATOR
+    email = _multipart_email("Content-Description: =?utf-8?b?4oCo?=\r\n")
+    assert email["Content-Description"] == " "
+    assert email["Content-Description"].as_raw == "=?utf-8?b?4oCo?="
+    new_headers: OutgoingHeaders = {
+        "Subject": "Encoded Line Break Test",
+        "From": "from@example.com",
+        "To": "to@example.com",
+    }
+
+    issues = _replace_headers(email, new_headers)
+
+    assert email.get_all("Content-Description") is None
+    assert issues == [
+        {
+            "header": "Content-Description",
+            "direction": "in",
+            "dropped_line_break_chars": "\\u2028",
+        }
+    ]
+
+
+def test_replace_headers_line_break_read_error_is_handled() -> None:
+    """
+    A forwarded header that raises when read is dropped instead of forwarded.
+
+    _header_line_break_issue cannot check a value it cannot read, so it reports the
+    exception and treats the header as unsafe.
+    """
+    email = _multipart_email("Content-Description: a description\r\n")
+    new_headers: OutgoingHeaders = {
+        "Subject": "Line Break Read Error Test",
+        "From": "from@example.com",
+        "To": "to@example.com",
+    }
+    unmocked_get_all = EmailMessage.get_all
+
+    def get_all_raise_on_content_description(self, name, failobj=None):
+        if name == "Content-Description":
+            raise RuntimeError("I failed.")
+        return unmocked_get_all(self, name, failobj)
+
+    with patch.object(EmailMessage, "get_all", get_all_raise_on_content_description):
+        issues = _replace_headers(email, new_headers)
+
+    assert "Content-Description" not in email.keys()
+    assert email["Content-Type"].content_type == "multipart/alternative"
+    assert issues == [
+        {
+            "header": "Content-Description",
+            "direction": "in",
+            "exception_on_read": "RuntimeError('I failed.')",
+        }
+    ]
+
+
+@pytest.mark.parametrize("char", sorted(HEADER_LINE_BREAK_CHARS - set("\r\n")))
+def test_line_break_char_in_header_does_not_inject_header_on_this_python(
+    char: str,
+) -> None:
+    """
+    Pin what the installed email library does with each line-break character.
+
+    Python 3.12.5 changed EmailPolicy._fold to split on a CR/LF regex instead of
+    str.splitlines() (CVE-2024-6923), so none of these characters split a header here
+    and dropping them is precautionary. CR and LF are excluded because the parser only
+    joins a continuation line that starts with folding whitespace.
+    """
+    email = _multipart_email(f"Content-Description: x{char}X-Injected: yes\r\n")
+    assert email.get_all("X-Injected") is None
+
+    regenerated = message_from_string(email.as_string(), policy=relay_policy)
+
+    assert regenerated.get_all("X-Injected") is None
 
 
 @pytest.mark.django_db
