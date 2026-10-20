@@ -54,6 +54,7 @@ from .policy import relay_policy
 from .sns import SUPPORTED_SNS_TYPES, verify_from_sns
 from .types import (
     AWS_MailJSON,
+    AWS_ReceiptJSON,
     AWS_SNSMessageJSON,
     EmailForwardingIssues,
     EmailHeaderIssues,
@@ -544,6 +545,7 @@ EmailDroppedReason = Literal[
     "abuse_flag",  # The user exceeded an abuse limit, like mails forwarded
     "user_deactivated",  # The user account is deactivated
     "reply_requires_premium",  # The email is a reply from a free user
+    "reply_not_authenticated",  # The reply's sender failed email authentication
     "content_missing",  # Could not load the email from storage
     "error_from_header",  # Error generating the From: header, retryable
     "error_storage",  # Error fetching the email contents from storage (S3), retryable
@@ -591,6 +593,7 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
     * 400 if commonHeaders entry is missing, the Relay recipient address is malformed,
       the email failed DMARC with reject policy, or the email is a reply chain to a
       non-premium user.
+    * 403 if the sender was not authenticated, or the Relay user is not allowed to reply
     * 404 if an S3-stored email was not found, no Relay address was found in the "To",
       "CC", or "BCC" fields, or the Relay address is not in the database.
     * 503 if the "From" address is malformed, the S3 client returned an error different
@@ -702,6 +705,10 @@ def _handle_received(message_json: AWS_SNSMessageJSON) -> HttpResponse:
         user_address = address
         address = reply_record.address
         message_id = _get_message_id_from_headers(mail["headers"])
+        # make sure the From: header is not a spoof of the mask owner
+        if _drop_unauthenticated_reply(from_address, reply_record, receipt):
+            log_email_dropped(reason="reply_not_authenticated", mask=user_address)
+            return HttpResponse("Reply sender is not authenticated", status=403)
         # make sure the relay user is premium
         if not _reply_allowed(from_address, to_address, reply_record, message_id):
             log_email_dropped(reason="reply_requires_premium", mask=user_address)
@@ -881,6 +888,31 @@ class DeveloperModeAction(NamedTuple):
 
 def _get_verdict(receipt, verdict_type):
     return receipt[f"{verdict_type}Verdict"]["status"]
+
+
+def _get_verdict_or_missing(receipt: AWS_ReceiptJSON, verdict_type: str) -> str:
+    """Like _get_verdict, but reports "MISSING" instead of raising KeyError."""
+    verdict = receipt.get(f"{verdict_type}Verdict") or {}
+    return str(verdict.get("status", "MISSING"))
+
+
+def _sender_is_authenticated(receipt: AWS_ReceiptJSON) -> bool:
+    """
+    Check DMARC and DKIM verdicts
+
+    Verdict docs:
+    https://docs.aws.amazon.com/ses/latest/dg/receiving-email-notifications-contents.html
+    """
+    dmarc_verdict = _get_verdict_or_missing(receipt, "dmarc")
+    if dmarc_verdict == "PASS":
+        # SPF or DKIM check passed and was aligned with the From:, not forged
+        return True
+    return (
+        # DMARC "GRAY" means the domain publishes no DMARC policy
+        # Check DKIM passes which at least shows alignment
+        dmarc_verdict == "GRAY"
+        and _get_verdict_or_missing(receipt, "dkim") == "PASS"
+    )
 
 
 def _check_email_from_list(headers):
@@ -1400,15 +1432,49 @@ def _send_reply_requires_premium_email(
     incr_if_enabled("free_user_reply_attempt", 1)
 
 
+def _from_claims_mask_owner(from_address: str, reply_record: Reply) -> bool:
+    """Does the From: header claim to be the mask owner's registered address?"""
+    stripped_from_address: str = _strip_localpart_tag(from_address).lower()
+    reply_record_email: str = reply_record.address.user.email.lower()
+    stripped_reply_record_address: str = _strip_localpart_tag(reply_record_email)
+    return (from_address.lower() == reply_record_email) or (
+        stripped_from_address == stripped_reply_record_address
+    )
+
+
+def _drop_unauthenticated_reply(
+    from_address: str, reply_record: Reply, receipt: AWS_ReceiptJSON
+) -> bool:
+    """Log and potentially drop replies that can't be authenticated"""
+    if not _from_claims_mask_owner(from_address, reply_record):
+        # Reply from someone else is ordinary inbound mail
+        return False
+    if _sender_is_authenticated(receipt):
+        return False
+
+    enforced = flag_is_active_in_task(
+        "reject_unauthenticated_replies", reply_record.address.user
+    )
+    info_logger.info(
+        "reply_sender_not_authenticated",
+        extra={
+            "enforced": enforced,
+            "dmarc_verdict": _get_verdict_or_missing(receipt, "dmarc"),
+            "dkim_verdict": _get_verdict_or_missing(receipt, "dkim"),
+            "spf_verdict": _get_verdict_or_missing(receipt, "spf"),
+            "dmarc_policy": receipt.get("dmarcPolicy", "none"),
+        },
+    )
+    incr_if_enabled(
+        "reply_sender_not_authenticated", 1, tags=[f"enforced:{str(enforced).lower()}"]
+    )
+    return enforced
+
+
 def _reply_allowed(
     from_address, to_address, reply_record, message_id=None, decrypted_metadata=None
 ):
-    stripped_from_address = _strip_localpart_tag(from_address).lower()
-    reply_record_email = reply_record.address.user.email.lower()
-    stripped_reply_record_address = _strip_localpart_tag(reply_record_email)
-    if (from_address.lower() == reply_record_email) or (
-        stripped_from_address == stripped_reply_record_address
-    ):
+    if _from_claims_mask_owner(from_address, reply_record):
         # This is a Relay user replying to an external sender;
 
         if not reply_record.profile.user.is_active:
@@ -1450,7 +1516,7 @@ def _handle_reply(
     * 200 if the reply was sent
     * 400 if the In-Reply-To and References headers are missing, none of the References
       headers are a reply record, or the SES client raises an error
-    * 403 if the Relay user is not allowed to reply
+    * 403 if the sender was not authenticated, or the Relay user is not allowed to reply
     * 404 if the S3-stored email is not found, or there is no matching Reply record in
       the database
     * 503 if the S3 client returns an error (other than not found), or the SES client
@@ -1477,6 +1543,9 @@ def _handle_reply(
     decrypted_metadata = json.loads(
         decrypt_reply_metadata(encryption_key, reply_record.encrypted_metadata)
     )
+    if _drop_unauthenticated_reply(from_address, reply_record, message_json["receipt"]):
+        log_email_dropped(reason="reply_not_authenticated", mask=address, is_reply=True)
+        return HttpResponse("Reply sender is not authenticated", status=403)
     if not _reply_allowed(
         from_address, to_address, reply_record, message_id, decrypted_metadata
     ):
@@ -2135,6 +2204,11 @@ def init_waffle_flags() -> None:
         (
             "developer_mode",
             "MPP-3932: Enable logging and overrides for Relay developers.",
+        ),
+        (
+            "reject_unauthenticated_replies",
+            "MPP-4775: Drop replies whose From: header claims to be the mask owner"
+            " but was not authenticated by SES. When off, these are only logged.",
         ),
     ]
     waffle_flag_table = get_waffle_flag_model().objects

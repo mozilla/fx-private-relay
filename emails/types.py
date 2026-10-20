@@ -21,6 +21,11 @@ AWS_SNSMessageJSON = dict[str, Any]
 # See https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html
 AWS_MailJSON = dict[str, Any]
 
+# AWS "receipt" element in Received notification, holding the spam, virus, and
+# email authentication verdicts.
+# See https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html
+AWS_ReceiptJSON = dict[str, Any]
+
 
 class EmailHeaderExceptionOnReadIssue(TypedDict):
     header: str
