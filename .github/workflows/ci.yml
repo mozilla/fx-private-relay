@@ -321,3 +321,73 @@ jobs:
           else
             echo "No backend coverage found"
           fi
+
+  diff-coverage:
+    name: Coverage on Changed Lines
+    needs: [frontend, backend]
+    # skip non-pr events like push and merge_group because they don't
+    # change lines of code coverage
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7.0.1
+        with:
+          # by default actions/checkout only fetches 1 commit "deep", but
+          # diff-cover needs the full commit history to find the merge base
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12.14'
+
+      - name: Download frontend coverage
+        uses: actions/download-artifact@v8
+        with:
+          name: frontend-coverage
+          path: frontend-coverage
+
+      - name: Download backend coverage
+        uses: actions/download-artifact@v8
+        with:
+          name: backend-coverage
+          path: backend-coverage
+
+      - name: Install diff-cover
+        run: pip install diff-cover==10.6.0
+
+      # diff-cover cannot mix Cobertura XML and LCOV in one run, so backend
+      # and frontend are checked separately.
+      - name: Check backend coverage on changed lines
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          diff-cover backend-coverage/coverage.xml \
+            --compare-branch="origin/${BASE_REF}" \
+            --fail-under=80 \
+            --show-uncovered \
+            --format markdown:backend-diff-coverage.md
+
+      - name: Check frontend coverage on changed lines
+        if: always()
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          diff-cover frontend-coverage/lcov-prefixed.info \
+            --compare-branch="origin/${BASE_REF}" \
+            --fail-under=80 \
+            --show-uncovered \
+            --format markdown:frontend-diff-coverage.md
+
+      - name: Add coverage reports to job summary
+        if: always()
+        run: |
+          for report in backend-diff-coverage.md frontend-diff-coverage.md; do
+            if [ -f "$report" ]; then
+              cat "$report" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done
