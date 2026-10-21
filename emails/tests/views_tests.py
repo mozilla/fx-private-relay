@@ -53,6 +53,7 @@ from emails.views import (
     _build_disabled_mask_for_spam_email,
     _build_reply_requires_premium_email,
     _check_email_from_list,
+    _drop_unauthenticated_reply,
     _gather_complainers,
     _get_address,
     _get_address_if_exists,
@@ -61,6 +62,7 @@ from emails.views import (
     _get_mask_by_metrics_id,
     _record_receipt_verdicts,
     _replace_headers,
+    _sender_is_authenticated,
     _set_forwarded_first_reply,
     _sns_message,
     _sns_notification,
@@ -135,6 +137,17 @@ SEND_RAW_EMAIL_FAILED = ClientError(
     operation_name="SES.send_raw_email",
     error_response={"Error": {"Code": "the code", "Message": "the message"}},
 )
+
+# Receipt verdicts for a message whose From: header is spoofed (MPP-4775).
+# SPF passes because the attacker's own envelope domain is legitimate, DKIM is
+# GRAY because nothing is signed for the spoofed From: domain, and the spoofed
+# domain's policy is short of "reject".
+SPOOFED_SENDER_RECEIPT: dict[str, Any] = {
+    "spfVerdict": {"status": "PASS"},
+    "dkimVerdict": {"status": "GRAY"},
+    "dmarcVerdict": {"status": "FAIL"},
+    "dmarcPolicy": "quarantine",
+}
 
 
 def create_email_from_notification(
@@ -356,6 +369,25 @@ def assert_log_email_dropped(
     if expected_extra["fxa_id"] == "":
         del expected_extra["fxa_id"]
     assert log_extra(drop_log) == expected_extra
+
+
+def assert_log_sender_not_authenticated(
+    caplog: _LoggingWatcher, enforced: bool, dmarc_policy: str = "quarantine"
+) -> None:
+    """Assert the unauthenticated sender was logged, with the SPOOFED_SENDER_RECEIPT."""
+    auth_logs = [
+        record
+        for record in caplog.records
+        if record.msg == "reply_sender_not_authenticated"
+    ]
+    assert len(auth_logs) == 1
+    assert log_extra(auth_logs[0]) == {
+        "enforced": enforced,
+        "dmarc_verdict": "FAIL",
+        "dkim_verdict": "GRAY",
+        "spf_verdict": "PASS",
+        "dmarc_policy": dmarc_policy,
+    }
 
 
 @override_settings(RELAY_FROM_ADDRESS="reply@relay.example.com")
@@ -703,8 +735,7 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
                     " Emperor of the United States <norton@sf.us.example.com>"
                 ),
                 "raw_value": (
-                    "Norton I.,"
-                    " Emperor of the United States <norton@sf.us.example.com>"
+                    "Norton I., Emperor of the United States <norton@sf.us.example.com>"
                 ),
             }
         ]
@@ -879,6 +910,59 @@ class SNSNotificationIncomingTest(SNSNotificationTestBase):
             "_handle_received: developer_mode", extra=ANY
         )
 
+    def spoofed_reply_to_mask(self) -> AWS_SNSMessageJSON:
+        """
+        Return a notification to the mask that claims to be from the mask owner.
+
+        The From: header is the owner's real address and the In-Reply-To header
+        matches a Reply record for their mask, so _handle_received treats it as a
+        reply, but SES could not authenticate the sender.
+        """
+        in_reply_to = "<a-reply-to-the-mask@mail.example.com>"
+        lookup_key, _ = derive_reply_keys(get_message_id_bytes(in_reply_to))
+        baker.make(Reply, relay_address=self.ra, lookup=b64_lookup_key(lookup_key))
+
+        body = deepcopy(EMAIL_SNS_BODIES["single_recipient"])
+        message = json.loads(body["Message"])
+        message["receipt"] |= SPOOFED_SENDER_RECEIPT
+        message["mail"]["commonHeaders"]["from"] = [self.ra.user.email]
+        message["mail"]["headers"].append({"name": "In-Reply-To", "value": in_reply_to})
+        body["Message"] = json.dumps(message)
+        return body
+
+    @override_settings(STATSD_ENABLED=True)
+    @override_flag("reject_unauthenticated_replies", active=True)
+    def test_spoofed_reply_to_mask_rejected_when_enforced(self) -> None:
+        """An incoming email spoofing the mask owner is dropped, not forwarded."""
+        with self.assertLogs(INFO_LOG) as caplog, MetricsMock() as mm:
+            response = _sns_notification(self.spoofed_reply_to_mask())
+
+        assert response.status_code == 403
+        assert response.content == b"Reply sender is not authenticated"
+        self.mock_send_raw_email.assert_not_called()
+        assert_log_email_dropped(caplog, "reply_not_authenticated", self.ra)
+        assert_log_sender_not_authenticated(caplog, enforced=True)
+        mm.assert_incr_once("reply_sender_not_authenticated", tags=["enforced:true"])
+        self.ra.refresh_from_db()
+        assert self.ra.num_forwarded == 0
+
+    @override_settings(STATSD_ENABLED=True)
+    def test_spoofed_reply_to_mask_only_logged_when_not_enforced(self) -> None:
+        """Without the flag, the spoofed email is logged but still forwarded."""
+        # _reply_allowed requires premium for a reply from the mask owner
+        self.ra.user = self.premium_user
+        self.ra.save()
+
+        with self.assertLogs(INFO_LOG) as caplog, MetricsMock() as mm:
+            response = _sns_notification(self.spoofed_reply_to_mask())
+
+        assert response.status_code == 200
+        self.mock_send_raw_email.assert_called_once()
+        assert_log_sender_not_authenticated(caplog, enforced=False)
+        mm.assert_incr_once("reply_sender_not_authenticated", tags=["enforced:false"])
+        self.ra.refresh_from_db()
+        assert self.ra.num_forwarded == 1
+
 
 class SNSNotificationRepliesTest(SNSNotificationTestBase):
     """Tests for _sns_notification for replies from Relay users"""
@@ -1008,6 +1092,73 @@ class SNSNotificationRepliesTest(SNSNotificationTestBase):
         raw_message = self.mock_send_raw_email.call_args[1]["RawMessage"]["Data"]
         assert "source@sender.com" not in raw_message.lower()
         assert "a1b2c3d4@test.com" in raw_message
+
+    def reply_body_with_receipt(
+        self, receipt_overrides: dict[str, Any]
+    ) -> AWS_SNSMessageJSON:
+        """Return the reply notification with some receipt verdicts replaced."""
+        body = deepcopy(EMAIL_SNS_BODIES["s3_stored_replies"])
+        message = json.loads(body["Message"])
+        message["receipt"] |= receipt_overrides
+        body["Message"] = json.dumps(message)
+        return body
+
+    @override_settings(STATSD_ENABLED=True)
+    @override_flag("reject_unauthenticated_replies", active=True)
+    def test_spoofed_reply_rejected_when_enforced(self) -> None:
+        """A reply whose From: is a spoof of the mask owner is not sent"""
+        self.mock_get_content.side_effect = FAIL_TEST_IF_CALLED
+
+        with self.assertLogs(INFO_LOG) as caplog, MetricsMock() as mm:
+            response = _sns_notification(
+                self.reply_body_with_receipt(SPOOFED_SENDER_RECEIPT)
+            )
+
+        assert response.status_code == 403
+        assert response.content == b"Reply sender is not authenticated"
+        self.mock_send_raw_email.assert_not_called()
+        self.assert_log_reply_email_dropped(caplog, "reply_not_authenticated")
+        assert_log_sender_not_authenticated(caplog, enforced=True)
+        mm.assert_incr_once("reply_sender_not_authenticated", tags=["enforced:true"])
+
+    @override_settings(STATSD_ENABLED=True)
+    def test_spoofed_reply_only_logged_when_not_enforced(self) -> None:
+        """Without the flag, an unauthenticated reply is logged but still sent."""
+        self.mock_get_content.return_value = create_email_from_notification(
+            EMAIL_SNS_BODIES["s3_stored_replies"], text="this is a text reply"
+        )
+
+        with self.assertLogs(INFO_LOG) as caplog, MetricsMock() as mm:
+            response = _sns_notification(
+                self.reply_body_with_receipt(SPOOFED_SENDER_RECEIPT)
+            )
+
+        assert response.status_code == 200
+        self.mock_send_raw_email.assert_called_once()
+        assert_log_sender_not_authenticated(caplog, enforced=False)
+        mm.assert_incr_once("reply_sender_not_authenticated", tags=["enforced:false"])
+
+    @override_settings(STATSD_ENABLED=True)
+    @override_flag("reject_unauthenticated_replies", active=True)
+    def test_reply_authenticated_by_aligned_dkim_is_sent(self) -> None:
+        """A sender whose domain has no DMARC policy may still reply."""
+        self.mock_get_content.return_value = create_email_from_notification(
+            EMAIL_SNS_BODIES["s3_stored_replies"], text="this is a text reply"
+        )
+
+        with MetricsMock() as mm:
+            response = _sns_notification(
+                self.reply_body_with_receipt(
+                    {
+                        "dmarcVerdict": {"status": "GRAY"},
+                        "dkimVerdict": {"status": "PASS"},
+                    }
+                )
+            )
+
+        assert response.status_code == 200
+        self.mock_send_raw_email.assert_called_once()
+        mm.assert_not_incr("reply_sender_not_authenticated")
 
     @patch("emails.views._reply_allowed")
     def test_reply_not_allowed(self, mocked_reply_allowed: Mock) -> None:
@@ -1485,8 +1636,7 @@ class GetComplaintDataTest(TestCase):
             "mail": {
                 "commonHeaders": {
                     "from": [
-                        '"hello@ac.spam.example.com [via Relay]" '
-                        "<relay-mask@test.com>"
+                        '"hello@ac.spam.example.com [via Relay]" <relay-mask@test.com>'
                     ],
                     "subject": "A spam message",
                     "to": ["complainer@example.com"],
@@ -1496,8 +1646,7 @@ class GetComplaintDataTest(TestCase):
                     {"name": "MIME-Version", "value": "1.0"},
                     {
                         "name": "Content-Type",
-                        "value": "multipart/mixed; "
-                        'boundary="MXFqWmhZLWxxWm5TTC1OaQ=="',
+                        "value": 'multipart/mixed; boundary="MXFqWmhZLWxxWm5TTC1OaQ=="',
                     },
                     {"name": "Subject", "value": "A spam message"},
                     {
@@ -3280,6 +3429,50 @@ def test_build_reply_requires_premium_email_after_forward():
 )
 def test_check_email_from_list(headers, expected):
     assert _check_email_from_list(headers) is expected
+
+
+@pytest.mark.parametrize(
+    ("dmarc_status", "dkim_status", "expected"),
+    [
+        # DMARC passed, so SPF or DKIM passed and was aligned with From:
+        ("PASS", "PASS", True),
+        ("PASS", "GRAY", True),
+        # No DMARC policy, but the DKIM signature is aligned with From:
+        ("GRAY", "PASS", True),
+        # No DMARC policy, and nothing is signed for the From: domain
+        ("GRAY", "GRAY", False),
+        # DMARC failed, whatever the sending domain's policy asks for
+        ("FAIL", "PASS", False),
+        ("FAIL", "GRAY", False),
+        ("PROCESSING_FAILED", "PASS", False),
+    ],
+)
+def test_sender_is_authenticated(dmarc_status, dkim_status, expected):
+    receipt = {
+        "dmarcVerdict": {"status": dmarc_status},
+        "dkimVerdict": {"status": dkim_status},
+    }
+    assert _sender_is_authenticated(receipt) is expected
+
+
+def test_sender_is_authenticated_without_verdicts():
+    """A receipt with no verdicts does not authenticate the sender."""
+    assert _sender_is_authenticated({}) is False
+
+
+@pytest.mark.django_db
+def test_drop_unauthenticated_reply_ignores_external_sender():
+    """Unauthenticated email passes if it's an external sender"""
+    user = make_premium_test_user()
+    mask = baker.make(RelayAddress, user=user)
+    reply_record = baker.make(Reply, relay_address=mask)
+
+    assert (
+        _drop_unauthenticated_reply(
+            "stranger@external.example.com", reply_record, SPOOFED_SENDER_RECEIPT
+        )
+        is False
+    )
 
 
 def test_get_keys_from_headers_no_reply_headers(settings):
