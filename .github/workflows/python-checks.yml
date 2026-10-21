@@ -248,3 +248,18 @@ jobs:
       - name: Mark as allowed failure
         if: matrix.test.allow_failure && steps.run_check.outcome == 'failure'
         run: echo "Test failed but failure is allowed"
+
+  # Single stable check name we can reference in branch protection rules
+  python-checks-passed:
+    name: Python Checks Passed
+    needs: python-checks
+    if: always()
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Fail if any required Python check failed
+        env:
+          RESULT: ${{ needs.python-checks.result }}
+        run: |
+          echo "python-checks result: $RESULT"
+          test "$RESULT" = "success"
