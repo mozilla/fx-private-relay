@@ -394,6 +394,51 @@ def test_get_countries_info_cdn_and_accept_language_uses_cdn(
     assert getattr(record, "region") == "CA"
 
 
+def test_get_countries_info_empty_cdn_header_uses_accept_lang(
+    rf: RequestFactory, caplog: LogCaptureFixture
+) -> None:
+    """An empty X-Client-Region header is not a region and must not win."""
+    request = rf.get(
+        "/api/v1/runtime_data",
+        HTTP_X_CLIENT_REGION="",
+        HTTP_ACCEPT_LANGUAGE="en-US, en",
+    )
+    mapping = get_sp3_country_language_mapping("premium")
+    result = get_countries_info_from_request_and_mapping(request, mapping)
+    assert result == {
+        "country_code": "US",
+        "countries": sorted(mapping.keys()),
+        "available_in_country": True,
+        "plan_country_lang_mapping": mapping,
+    }
+    assert len(caplog.records) == 1
+    record = caplog.records[0]
+    assert getattr(record, "region_method") == "accept_lang"
+    assert not hasattr(record, "cdn_region")
+    assert getattr(record, "region") == "US"
+
+
+def test_get_countries_info_empty_cdn_and_accept_lang_falls_back_to_us(
+    rf: RequestFactory, caplog: LogCaptureFixture
+) -> None:
+    """With only an empty X-Client-Region header, the US fallback still applies."""
+    request = rf.get("/api/v1/runtime_data", HTTP_X_CLIENT_REGION="")
+    mapping = get_sp3_country_language_mapping("premium")
+    result = get_countries_info_from_request_and_mapping(request, mapping)
+    assert result == {
+        "country_code": "US",
+        "countries": sorted(mapping.keys()),
+        "available_in_country": True,
+        "plan_country_lang_mapping": mapping,
+    }
+    assert len(caplog.records) == 1
+    record = caplog.records[0]
+    assert getattr(record, "region_method") == "fallback"
+    assert not hasattr(record, "cdn_region")
+    assert not hasattr(record, "accept_lang")
+    assert getattr(record, "region") == "US"
+
+
 def test_get_countries_info_no_language(
     rf: RequestFactory, caplog: LogCaptureFixture
 ) -> None:

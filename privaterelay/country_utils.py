@@ -245,7 +245,9 @@ def _get_cc_from_request(request: HttpRequest) -> str:
     log_data: dict[str, str] = {}
     cdn_region = None
     region = None
-    if "X-Client-Region" in request.headers:
+    # A CDN that has no GeoIP match sends the header with an empty value,
+    # which is not a region and must not outrank the fallbacks below.
+    if request.headers.get("X-Client-Region"):
         cdn_region = region = request.headers["X-Client-Region"].upper()
         log_data["cdn_region"] = cdn_region
         log_data["region_method"] = "cdn"
