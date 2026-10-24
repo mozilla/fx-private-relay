@@ -203,6 +203,23 @@ def test_mark_realphone_verified_sets_verified_and_date(phone_user):
     assert real_phone.verified_date
 
 
+def test_mark_realphone_verified_after_expiration_keeps_the_record(phone_user):
+    """Verifying with an expired code must not delete the record being verified."""
+    real_phone = RealPhone.objects.create(
+        user=phone_user,
+        number="+12223334444",
+        verified=False,
+        verification_sent_date=datetime.now(UTC)
+        - timedelta(0, 60 * settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE + 1),
+    )
+
+    real_phone.mark_verified()
+
+    real_phone.refresh_from_db()
+    assert real_phone.verified
+    assert real_phone.verified_date
+
+
 def test_create_relaynumber_without_realphone_raises_error(
     phone_user, mock_twilio_client
 ):

@@ -112,8 +112,18 @@ class ExpiredRealPhoneManager(models.Manager["RealPhone"]):
             )
         )
 
-    def delete_for_number(self, number: str) -> tuple[int, dict[str, int]]:
-        return self.filter(number=number).delete()
+    def delete_for_number(
+        self, number: str, except_pk: int | None = None
+    ) -> tuple[int, dict[str, int]]:
+        """Delete expired unverified records for this number.
+
+        `except_pk` keeps the record that is being saved: `mark_verified()` only
+        sets `verified` in memory, so that record still looks expired here.
+        """
+        queryset = self.filter(number=number)
+        if except_pk is not None:
+            queryset = queryset.exclude(pk=except_pk)
+        return queryset.delete()
 
 
 class RecentRealPhoneManager(models.Manager["RealPhone"]):
@@ -186,7 +196,7 @@ class RealPhone(models.Model):
         # note: it doesn't matter which user is trying to create a new
         # RealPhone record - any expired unverified record for the number
         # should be deleted
-        RealPhone.expired_objects.delete_for_number(self.number)
+        RealPhone.expired_objects.delete_for_number(self.number, except_pk=self.pk)
 
         # We are not ready to support multiple real phone numbers per user,
         # so raise an exception if this save() would create a second
