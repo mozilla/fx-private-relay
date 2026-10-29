@@ -95,3 +95,11 @@ updates:
       interval: "weekly"
     cooldown:
       default-days: 8
+    ignore:
+      - dependency-name: "node"
+        versions:
+          # Odd-numbered Node releases never become LTS. The node image only
+          # builds the frontend, so we only take LTS lines.
+          - "25.x"
+          - "27.x"
+          - "29.x"
