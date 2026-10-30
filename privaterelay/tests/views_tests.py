@@ -567,14 +567,14 @@ def test_fxa_rp_events_delete_user(
     setup_fxa_rp_events: FxaRpEventsSetupData,
     caplog: pytest.LogCaptureFixture,
 ) -> None:
-    """A delete-user event deletes the user."""
+    """A delete-user event deletes the user and logs the deletion reason."""
     setup_fxa_rp_events.mock_responses.reset()  # No profile fetch for delete-user
     event_jwt = get_fxa_event_jwt(
         "delete-user",
         fxa_id=setup_fxa_rp_events.fxa_acct.uid,
         client_id=setup_fxa_rp_events.app.client_id,
         signing_key=setup_fxa_rp_events.key,
-        event_data={},
+        event_data={"reason": "inactivity"},
     )
     auth_header = f"Bearer {event_jwt}"
 
@@ -600,6 +600,7 @@ def test_fxa_rp_events_delete_user(
         ("eventsinfo", logging.INFO, "fxa_rp_event"),
         ("request.summary", logging.INFO, ""),
     ]
+    assert getattr(caplog.records[0], "reason") == "inactivity"
     assert response.status_code == 200
     assert not User.objects.filter(id=setup_fxa_rp_events.user.id).exists()
     assert not RelayAddress.objects.filter(id=ra.id).exists()
