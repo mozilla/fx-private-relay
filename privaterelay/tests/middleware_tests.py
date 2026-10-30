@@ -1,10 +1,19 @@
 """Tests for Relay middlewares used in API and other server requests."""
 
-from django.test import Client
+import os
+from pathlib import Path
+
+from django.http import HttpResponse
+from django.test import Client, RequestFactory
 
 import pytest
 from markus.testing import MetricsMock
 from pytest_django.fixtures import Settings
+
+from privaterelay.middleware import (
+    EagerNonceCSPMiddleware,
+    _inline_script_hashes_for_file,
+)
 
 
 @pytest.fixture
@@ -176,3 +185,88 @@ def test_platform_middleware_integration(
     event = get_glean_event(caplog, category="api", name="accessed")
     if event:
         assert event["extra"]["platform"] == expected_platform
+
+
+TURBOPACK_BOOTSTRAP = '(globalThis["TURBOPACK"] || []).push({});'
+TURBOPACK_BOOTSTRAP_HASH = "'sha256-1fuLOzhmHsqr5BeSiKAiTnC/SnQH0R4IceGfVDD1eZc='"
+
+
+@pytest.fixture
+def frontend_root(settings: Settings, tmp_path: Path) -> Path:
+    """Serve exported frontend HTML from a temporary STATIC_ROOT."""
+    settings.DEBUG = False
+    settings.STATIC_ROOT = str(tmp_path)
+    return tmp_path
+
+
+def _write_page(root: Path, request_path: str, html: str) -> Path:
+    page = root / request_path.strip("/") / "index.html"
+    page.parent.mkdir(parents=True, exist_ok=True)
+    page.write_text(html, encoding="utf-8")
+    return page
+
+
+def _script_src(rf: RequestFactory, request_path: str) -> str:
+    middleware = EagerNonceCSPMiddleware(lambda request: HttpResponse())
+    response = middleware(rf.get(request_path))
+    assert isinstance(response, HttpResponse)
+    for directive in response["Content-Security-Policy"].split(";"):
+        if directive.strip().startswith("script-src"):
+            return directive.strip()
+    raise AssertionError("No script-src in CSP header")
+
+
+def test_eager_nonce_csp_adds_turbopack_bootstrap_hash(
+    frontend_root: Path, rf: RequestFactory
+) -> None:
+    """Only the Turbopack bootstrap is allowed by hash, alongside the nonce."""
+    _write_page(
+        frontend_root,
+        "/faq/",
+        f"<html><script>{TURBOPACK_BOOTSTRAP}</script>"
+        "<script>malicious()</script>"
+        '<script src="/_next/static/chunks/a.js"></script>'
+        '<script id="__NEXT_DATA__" type="application/json">{}</script></html>',
+    )
+
+    script_src = _script_src(rf, "/faq/")
+
+    assert TURBOPACK_BOOTSTRAP_HASH in script_src
+    assert script_src.count("'sha256-") == 1
+    assert "'nonce-" in script_src
+
+
+def test_eager_nonce_csp_skips_paths_not_in_list(
+    frontend_root: Path, rf: RequestFactory
+) -> None:
+    _write_page(
+        frontend_root, "/not-a-page/", f"<script>{TURBOPACK_BOOTSTRAP}</script>"
+    )
+
+    script_src = _script_src(rf, "/not-a-page/")
+    assert "'sha256-" not in script_src
+
+
+def test_eager_nonce_csp_caches_hashes_until_page_changes(
+    frontend_root: Path, rf: RequestFactory
+) -> None:
+    _inline_script_hashes_for_file.cache_clear()
+    page = _write_page(
+        frontend_root, "/faq/", f"<script>{TURBOPACK_BOOTSTRAP}</script>"
+    )
+
+    _script_src(rf, "/faq/")
+    _script_src(rf, "/faq/")
+    cache_info = _inline_script_hashes_for_file.cache_info()
+    assert (cache_info.hits, cache_info.misses) == (1, 1)
+
+    # Overwrites the same file with a a slightly different script.
+    # Setting the mtime explicitly so the rebuild is detected.
+    _write_page(frontend_root, "/faq/", '<script>(globalThis["TURBOPACK"]=1)</script>')
+    mtime_ns = page.stat().st_mtime_ns + 1_000_000_000
+    os.utime(page, ns=(mtime_ns, mtime_ns))
+
+    script_src = _script_src(rf, "/faq/")
+    assert _inline_script_hashes_for_file.cache_info().misses == 2
+    assert TURBOPACK_BOOTSTRAP_HASH not in script_src
+    assert script_src.count("'sha256-") == 1
