@@ -1,9 +1,13 @@
+import base64
 import binascii
 import os
 import re
 import time
 from collections.abc import Callable
 from datetime import UTC, datetime
+from functools import lru_cache
+from hashlib import sha256
+from pathlib import Path
 from urllib.parse import urlencode, urlsplit, urlunsplit
 
 from django.conf import settings
@@ -40,6 +44,41 @@ CSP_NONCE_COOKIE_PATHS = [
 ]
 
 
+def _frontend_html_path(request_path: str) -> Path:
+    # Locally, `npm run watch` writes straight to frontend/out; elsewhere,
+    # collectstatic copies the build to STATIC_ROOT.
+    if settings.DEBUG:
+        root = Path(settings.BASE_DIR) / "frontend" / "out"
+    else:
+        root = Path(settings.STATIC_ROOT)
+    return root / request_path.strip("/") / "index.html"
+
+
+_TURBOPACK_BOOTSTRAP_RE = re.compile(
+    r'<script[^>]*>(?P<body>\(globalThis\["TURBOPACK"\].*?)</script>', re.S
+)
+
+
+# Cached so each HTML page is read and hashed once, not on every request.
+@lru_cache(maxsize=64)
+def _inline_script_hashes_for_file(path: Path, mtime_ns: int) -> tuple[str, ...]:
+    html = path.read_text(encoding="utf-8")
+    hashes = []
+    for match in _TURBOPACK_BOOTSTRAP_RE.finditer(html):
+        digest = sha256(match["body"].encode("utf-8")).digest()
+        hashes.append(f"'sha256-{base64.b64encode(digest).decode('ascii')}'")
+    return tuple(hashes)
+
+
+def _inline_script_hashes(request_path: str) -> list[str]:
+    path = _frontend_html_path(request_path)
+    try:
+        mtime_ns = path.stat().st_mtime_ns
+    except FileNotFoundError:
+        return []
+    return list(_inline_script_hashes_for_file(path, mtime_ns))
+
+
 class EagerNonceCSPMiddleware(CSPMiddleware):
     # We need a nonce to use Google Tag Manager with a safe CSP:
     # https://developers.google.com/tag-platform/security/guides/csp
@@ -53,12 +92,21 @@ class EagerNonceCSPMiddleware(CSPMiddleware):
     # response, we override the default CSPMiddleware with this middleware. If the
     # request is for one of the HTML urls, this middleware sets the request.csp_nonce
     # attribute and adds a cookie for the React app to get the nonce value for scripts.
+    # It also adds the hash of the page's inline Turbopack bootstrap script (MPP-4803),
+    # which is already put into the static HTML at build time and so it can't carry the
+    # nonce.
     def process_request(self, request):
         if request.path in CSP_NONCE_COOKIE_PATHS:
             request_nonce = binascii.hexlify(os.urandom(16)).decode("ascii")
             request._csp_nonce = request_nonce
 
     def process_response(self, request, response):
+        # Only fixed paths are looked up, so the request can't choose which file
+        # on disk is read and hashed.
+        if request.path in CSP_NONCE_COOKIE_PATHS:
+            script_hashes = _inline_script_hashes(request.path)
+            if script_hashes:
+                response._csp_update = {"script-src": script_hashes}
         response = super().process_response(request, response)
         if request.path in CSP_NONCE_COOKIE_PATHS:
             response.set_cookie(
