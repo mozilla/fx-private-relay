@@ -22,5 +22,6 @@ gcp_key.json
 version.json
 docs/api_schema.yaml
 docs/api_docs.html
+frontend/next-env.d.ts
 
 .claude/settings.local.json
