@@ -37,7 +37,7 @@ jobs:
       contents: read
       id-token: write
     # version 6.2.3
-    uses: mozilla/deploy-actions/.github/workflows/build-and-push.yml@ef0f037316873ff408a598f1cd98876dd7851e53
+    uses: mozilla/deploy-actions/.github/workflows/build-and-push.yml@d8b3b34029e5952a43b3ad6cd6b2036cb30fa003
     with:
       image_name: fx-private-relay
       gar_name: ${{ vars.GCP_MOZCLOUD_GAR_NAME_PROD }}
