@@ -1,0 +1,2 @@
+# An eval case's ticket text is the agent's prompt: keep it exactly as written.
+.agents/evals/*/instruction.md

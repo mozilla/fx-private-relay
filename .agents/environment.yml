@@ -1,0 +1,8 @@
+version: 1
+requires:
+  tools: [git, uv]
+providers:
+  - commands:
+      build: scripts/test-env.sh --setup
+ready: scripts/test-env.sh --check
+test: scripts/test-env.sh
