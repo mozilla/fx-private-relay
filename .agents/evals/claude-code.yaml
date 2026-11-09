@@ -1,0 +1,28 @@
+# Run Claude Code on every case in .agents/evals. From the repo root:
+#   export CLAUDE_CODE_OAUTH_TOKEN=...   (from `claude setup-token`)
+#   harbor run --config .agents/evals/claude-code.yaml
+jobs_dir: /tmp/relay-eval-jobs
+n_attempts: 1
+orchestrator:
+  type: local
+  n_concurrent_trials: 1
+  quiet: false
+environment:
+  type: docker
+  force_build: false
+  delete: true
+agents:
+  - name: claude-code
+    model_name: anthropic/claude-opus-5-5
+    env:
+      CLAUDE_CODE_OAUTH_TOKEN: ${CLAUDE_CODE_OAUTH_TOKEN}
+    kwargs:
+      # The container is the boundary. Relay's .claude/settings.json turns on Claude Code's
+      # sandbox with failIfUnavailable, and it cannot start in an unprivileged container.
+      config:
+        sandbox:
+          enabled: false
+      disallowed_tools: "Bash(git push:*),Bash(gh:*),Bash(curl:*),Bash(wget:*)"
+      disable_web_search: true
+datasets:
+  - path: .agents/evals

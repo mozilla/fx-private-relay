@@ -1,0 +1,68 @@
+schema_version = "1.4"
+artifacts = []
+
+[metadata]
+instance_id = "mozilla__fx-private-relay-6905"
+ticket = "https://mozilla-hub.atlassian.net/browse/MPP-4770"
+pr = "https://github.com/mozilla/fx-private-relay/pull/6905"
+base_commit = "d67a0419cbbc823128ad4a4a8d704ce9008c64e0"
+fix_commit = "4d24fdcb8a3ae30980a492d582318fb50297c531"
+
+repo = "mozilla/fx-private-relay"
+fix_paths = ["emails/utils.py", "emails/tests/utils_tests.py"]
+# For the judge (fxa-sandbox-ctl eval.sh). Harbor does not put task.toml in the agent's container.
+
+[[metadata.rubric]]
+id = "found"
+max = 2
+text = "2: tracker matching runs on the raw HTML text, so a host the client decodes (HTML entities, percent-encoding, case) never matches the listed domain; the shared cause is no canonicalization before the match. 1: it names some bypasses but not the shared cause. 0: wrong cause."
+
+[[metadata.rubric]]
+id = "fixed"
+max = 4
+text = "One point each: HTML entities in the host (decimal, hex, named, with or without the semicolon) are decoded before the match; the host match ignores case; percent-encoded host characters are decoded; count_tracker uses the same matching as remove_trackers, so the trackers-removed count agrees with what was removed."
+
+[[metadata.rubric]]
+id = "precise"
+max = 2
+text = "One point each: a tracker name outside the host is not flagged (in the path or query, in userinfo before an @, or as part of a longer domain such as nottracker.com); the match stays linear on long dotted hosts and on values with many hosts, with no regex backtracking (see MPP-4739, the comment at the base)."
+
+[[metadata.rubric]]
+id = "ticket_extras"
+max = 2
+text = "One point each: unquoted attribute values (B1) and protocol-relative URLs (B2) are caught. The reference fix handles neither, so do not use the reference to judge these two; check the agent's code and tests."
+
+[[metadata.rubric]]
+id = "verified"
+max = 2
+text = "One point each: tests cover the bypasses it fixed; it ran the emails tests and they pass (or it says plainly why it could not)."
+
+[[metadata.rubric]]
+id = "scope"
+max = 1
+text = "1: no change unrelated to this ticket. Tests for it are in scope; unrelated edits or a broad rewrite of emails/utils.py beyond tracker matching are not."
+
+[verifier]
+timeout_sec = 1200.0
+environment_mode = "shared"
+
+[verifier.env]
+
+[agent]
+timeout_sec = 2700.0
+
+[environment]
+network_mode = "public"
+build_timeout_sec = 1800.0
+os = "linux"
+cpus = 2
+memory_mb = 4096
+workdir = "/app"
+mcp_servers = []
+
+[environment.healthcheck]
+command = "bash /opt/eval/ready.sh"
+
+[environment.env]
+
+[solution.env]
