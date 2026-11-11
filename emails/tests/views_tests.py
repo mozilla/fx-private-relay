@@ -1545,17 +1545,28 @@ class ComplaintHandlingTest(TestCase):
         assert self.user.profile.auto_block_spam is True
         self.mock_ses_client.send_raw_email.assert_not_called()
 
-        rec1, rec2 = logs.records
-        assert rec1.msg == "_handle_complaint: developer_mode"
-        assert getattr(rec1, "mask_id") == self.ra.metrics_id
-        assert getattr(rec1, "dev_action") == "log"
-        assert getattr(rec1, "parts") == 1
-        assert getattr(rec1, "part") == 0
-        notification_gza85 = getattr(rec1, "notification_gza85")
+        dev_records = logs.records[:-1]
+        complaint_record = logs.records[-1]
+        assert all(
+            record.msg == "_handle_complaint: developer_mode" for record in dev_records
+        )
+        assert all(
+            getattr(record, "mask_id") == self.ra.metrics_id for record in dev_records
+        )
+        assert all(getattr(record, "dev_action") == "log" for record in dev_records)
+        assert [getattr(record, "part") for record in dev_records] == list(
+            range(len(dev_records))
+        )
+        assert all(
+            getattr(record, "parts") == len(dev_records) for record in dev_records
+        )
+        notification_gza85 = "".join(
+            getattr(record, "notification_gza85") for record in dev_records
+        )
         log_complaint = decode_dict_gza85(notification_gza85)
         assert log_complaint == simulator_complaint_message
 
-        assert rec2.msg == "complaint_notification"
+        assert complaint_record.msg == "complaint_notification"
 
     def test_complaint_from_stranger_is_404(self):
         """If no Relay users match, log the complaint."""
