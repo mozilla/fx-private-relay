@@ -3588,12 +3588,11 @@ def test_replace_headers_read_error_is_handled() -> None:
         assert email[name] == value
 
 
-def test_replace_headers_preserves_safe_original_headers() -> None:
+def test_replace_headers_preserves_received_headers() -> None:
     email = EmailMessage(policy=relay_policy)
     email["From"] = "original@example.com"
     email["To"] = "mask@relay.example"
     email["Subject"] = "Original subject"
-    email["X-Original-Trace"] = "trace-id-123"
     email["Received"] = (
         "from mx1.example by mx2.example; Tue, 01 Jan 2025 00:00:00 +0000"
     )
@@ -3614,7 +3613,6 @@ def test_replace_headers_preserves_safe_original_headers() -> None:
     issues = _replace_headers(email, outgoing_headers)
 
     assert issues == []
-    assert email["X-Original-Trace"] == "trace-id-123"
     assert email.get_all("Received") == [
         "from mx1.example by mx2.example; Tue, 01 Jan 2025 00:00:00 +0000",
         "from mx0.example by mx1.example; Tue, 01 Jan 2025 00:00:00 +0000",

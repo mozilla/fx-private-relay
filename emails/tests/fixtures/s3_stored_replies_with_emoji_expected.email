@@ -1,3 +1,9 @@
+Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com
+ [209.85.128.45]) by inbound-smtp.us-east-1.amazonaws.com with SMTP id
+ objectkey123 for replies@test.com; Mon, 27 Sep 2021 20:16:39 +0000 (UTC)
+Received: by mail-wm1-f45.google.com with SMTP id
+ r11-20020a1c440b000000b0030cf0f01fbaso644365wma.1 for <replies@test.com>;
+ Mon, 27 Sep 2021 13:16:39 -0700 (PDT)
 MIME-Version: 1.0
 Content-Type: multipart/alternative; boundary="0000000000003d386c05ccffc614"
 Subject: Re: Test Mozilla User New Domain Address

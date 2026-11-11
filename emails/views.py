@@ -1214,7 +1214,7 @@ def _replace_headers(
     # Collect headers that will not be forwarded, and the kept headers that appear
     # more than once. SES rejects the whole message when a header it parses, such as
     # MIME-Version or Content-Type, is duplicated, so only the first copy is kept.
-    # Other duplicates are dropped, except for Received headers, which form a chain.
+    # Received headers are retained because they form the message's routing history.
     first_kept: dict[str, str] = {}
     duplicate_counts: dict[str, int] = {}
     for header in email.keys():
@@ -1222,9 +1222,19 @@ def _replace_headers(
         if header_lower in replacements:
             # The replacement loop below deletes every copy and writes one new value
             continue
-        if header_lower in to_drop:
+        if header_lower == "received":
+            line_break_issue = _header_line_break_issue(email, header)
+            if line_break_issue is None:
+                first_kept[header_lower] = header
+            else:
+                issues.append(line_break_issue)
+                to_drop.add(header_lower)
             continue
-        if header_lower == "bcc":
+        if header_lower in to_drop or (
+            header_lower != "mime-version" and not header_lower.startswith("content-")
+        ):
+            # A header already in to_drop was dropped for its line breaks, so this
+            # copy goes as well, even if this copy is safe on its own
             to_drop.add(header_lower)
             continue
 

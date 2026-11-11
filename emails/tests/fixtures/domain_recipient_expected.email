@@ -1,3 +1,7 @@
+Received: from mail-4324.protonmail.ch (mail-4324.protonmail.ch
+ [185.70.43.24]) by inbound-smtp.us-east-1.amazonaws.com with SMTP id
+ s08vnjngg8o82cpus2084722eiate3c6ig885f01 for wildcard@subdomain.test.com;
+ Thu, 13 Jan 2022 21:02:45 +0000 (UTC)
 MIME-Version: 1.0
 Content-Type: multipart/alternative;
  boundary="b1_1tMoOzirX5rNUK0QIqMdSQB8hwcBeFGHtIfEtmvEG0k"
