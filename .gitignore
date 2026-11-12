@@ -25,3 +25,4 @@ docs/api_docs.html
 frontend/next-env.d.ts
 
 .claude/settings.local.json
+.venv-test/
