@@ -13,6 +13,22 @@ The [remote-settings-fxrelay-allowlist-updater][updater] script syncs those file
 
 ---
 
+## Generate the list QA tests
+
+Before QA can test, Relay ENG gives them a ranked list of the top websites
+Relay masks are made for. The ranking comes from `generated_for` on random
+masks. The add-on and Firefox set that field when they create a mask.
+
+Follow the [`relay-top-sites` skill](../.agents/skills/relay-top-sites/SKILL.md).
+An agent can run it, or you can follow it by hand. It runs one command in a
+prod pod:
+
+```bash
+python manage.py aggregate_generated_for --from-db --days 90 --limit 500
+```
+
+---
+
 ## Sources of truth
 
 - The [Relay Mask Acceptance][spreadsheet] spreadsheet

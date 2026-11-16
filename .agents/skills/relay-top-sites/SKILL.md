@@ -86,6 +86,9 @@ Each run gets its own tab, named for the month, like "Nov 2026".
    tab, and give the date range and site count. Show the draft to the user and
    post it only after they approve.
 
+After QA finishes, the results go into the Firefox allow and deny lists. See
+[docs/update-remote-settings-lists.md](../../../docs/update-remote-settings-lists.md).
+
 ## Known limits
 
 - The command does not strip `www`. A site can show up twice, like
