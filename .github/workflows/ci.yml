@@ -271,7 +271,7 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1.335.0
         with:
-          ruby-version: '3.2.3'
+          ruby-version: '3.2.11'
 
       - name: Download frontend coverage
         uses: actions/download-artifact@v8
