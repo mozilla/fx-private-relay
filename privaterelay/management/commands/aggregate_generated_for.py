@@ -39,7 +39,9 @@ FIELD_NAMES = [
 # formulas like =IMPORTXML(...), prompt text, and labels like
 # "account registration" or "localhost" that QA cannot test. No port, because
 # Firefox matches the Relay allow and deny lists against hosts without ports.
-HOSTNAME_RE = re.compile(r"[a-z0-9-]+(\.[a-z0-9-]+)+", re.IGNORECASE)
+# Labels follow RFC 1123: no hyphen at either end, and at most 63 characters.
+HOSTNAME_LABEL = r"[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?"
+HOSTNAME_RE = re.compile(rf"{HOSTNAME_LABEL}(\.{HOSTNAME_LABEL})+", re.IGNORECASE)
 
 
 def normalize(url: str) -> str:

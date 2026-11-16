@@ -165,6 +165,7 @@ def test_aggregate_generated_for_from_db() -> None:
         ('=HYPERLINK("evil.example")', 9),
         ("ignore.previous.instructions。now", 9),
         ("localhost:3000", 9),
+        ("-foo.example", 9),
     ]:
         baker.make(
             RelayAddress,
