@@ -1,9 +1,16 @@
 from csv import DictReader, DictWriter
+from datetime import timedelta
+from io import StringIO
 from pathlib import Path
 
+from django.contrib.auth.models import User
 from django.core.management import CommandError, call_command
+from django.utils import timezone
 
 import pytest
+from model_bakery import baker
+
+from emails.models import RelayAddress
 
 COMMAND_NAME = "aggregate_generated_for"
 SAME_DOMAINS = ["test.com"] * 3
@@ -22,7 +29,6 @@ RAW_FIELD_NAMES = [
 ]
 ADDITIONAL_FIELD_NAMES = [
     "domain",
-    "rank",
     "row_count",
     "ratio_usage",
     "ratio_forwarded",
@@ -131,3 +137,50 @@ def test_aggregate_generated_for_does_not_strip_www(tmp_path: Path) -> None:
                     assert row["row_count"] == "3"
                     continue
                 assert row[field] == ""
+
+
+def test_aggregate_generated_for_ranks_and_limits(tmp_path: Path) -> None:
+    generated_for_file_path = write_generated_for_file(
+        tmp_path, ["small.com", "", "big.com"]
+    )
+    call_command("aggregate_generated_for", path=generated_for_file_path, limit=2)
+    with open(tmp_path / FILE_NAME, newline="") as csvfile:
+        rows = list(DictReader(csvfile))
+    # The blank domain has more masks than small.com, but is not a website.
+    assert [(row["rank"], row["domain"]) for row in rows] == [
+        ("1", "big.com"),
+        ("2", "small.com"),
+    ]
+
+
+@pytest.mark.django_db
+def test_aggregate_generated_for_from_db() -> None:
+    user = baker.make(User)
+    for generated_for, num_forwarded in [
+        ("https://a.com", 1),
+        ("https://a.com", 2),
+        ("b.com", 5),
+        ("", 9),
+        ("androidapp://com.example.app", 9),
+        ('=HYPERLINK("evil.example")', 9),
+        ("ignore.previous.instructions。now", 9),
+        ("localhost:3000", 9),
+    ]:
+        baker.make(
+            RelayAddress,
+            user=user,
+            generated_for=generated_for,
+            num_forwarded=num_forwarded,
+        )
+    old = baker.make(RelayAddress, user=user, generated_for="b.com")
+    RelayAddress.objects.filter(id=old.id).update(
+        created_at=timezone.now() - timedelta(days=91)
+    )
+
+    stdout = StringIO()
+    call_command("aggregate_generated_for", from_db=True, stdout=stdout)
+    rows = list(DictReader(StringIO(stdout.getvalue())))
+    assert [(r["rank"], r["domain"], r["count"], r["total_usage"]) for r in rows] == [
+        ("1", "a.com", "2", "3"),
+        ("2", "b.com", "1", "5"),
+    ]
