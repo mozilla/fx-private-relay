@@ -11,7 +11,7 @@ on:
 jobs:
   determine-metadata:
     name: Determine git metadata
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     outputs:
       git_branch: ${{ steps.git_env_vars.outputs.GIT_BRANCH }}
       git_tag: ${{ steps.git_env_vars.outputs.GIT_TAG }}
