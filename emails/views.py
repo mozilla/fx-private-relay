@@ -1239,8 +1239,6 @@ def _replace_headers(
             continue
 
         if header_lower in first_kept:
-            if header_lower == "received":
-                continue
             if header_lower == "mime-version" or header_lower.startswith("content-"):
                 duplicate_counts[header_lower] = (
                     duplicate_counts.get(header_lower, 0) + 1
