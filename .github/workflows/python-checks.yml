@@ -23,7 +23,7 @@ concurrency:
 jobs:
   python-checks:
     name: ${{ matrix.test.name }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     strategy:
       fail-fast: false
       matrix:
@@ -255,7 +255,7 @@ jobs:
     name: Python Checks Passed
     needs: python-checks
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions: {}
     steps:
       - name: Fail if any required Python check failed
