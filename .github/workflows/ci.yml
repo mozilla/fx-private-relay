@@ -15,7 +15,7 @@ concurrency:
 jobs:
   build-docker:
     name: Build Docker Images
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v7.0.1
@@ -65,7 +65,7 @@ jobs:
   frontend:
     name: Frontend Tests
     needs: build-docker
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: Download Docker images
         uses: actions/download-artifact@v8
@@ -155,7 +155,7 @@ jobs:
   backend:
     name: Backend Tests
     needs: build-docker
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     services:
       postgres:
         image: postgres:17.7
@@ -257,7 +257,7 @@ jobs:
   upload-coverage:
     name: Upload Coverage to Coveralls
     needs: [frontend, backend]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     if: always()
     steps:
       - name: Checkout code
@@ -269,9 +269,9 @@ jobs:
           python-version: '3.12.14'
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@v1.335.0
+        uses: ruby/setup-ruby@v1.338.0
         with:
-          ruby-version: '3.2.3'
+          ruby-version: '3.2.11'
 
       - name: Download frontend coverage
         uses: actions/download-artifact@v8
@@ -328,7 +328,7 @@ jobs:
     # skip non-pr events like push and merge_group because they don't
     # change lines of code coverage
     if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
     steps:

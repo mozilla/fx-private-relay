@@ -1,9 +1,9 @@
-boto3==1.43.119
+boto3==1.43.123
 codetiming==1.4.0
 cryptography==50.0.2
 Django==6.1.2
 dj-database-url==3.1.2
-django-allauth[socialaccount]==65.21.0
+django-allauth[socialaccount]==65.21.1
 django-cors-headers==4.9.0
 django-csp==4.0
 django-debug-toolbar==8.0.0
@@ -33,7 +33,7 @@ sentry-sdk==2.73.0
 whitenoise==6.12.0
 
 # phones app
-phonenumbers==9.0.41
+phonenumbers==9.0.42
 twilio==9.12.0
 vobject==0.9.9
 
@@ -49,13 +49,13 @@ black==26.10.1
 ruff==0.17.3
 
 # type hinting
-boto3-stubs==1.43.119
-botocore-stubs==1.43.119
+boto3-stubs==1.43.123
+botocore-stubs==1.43.123
 mypy-boto3-s3==1.43.106
 django-stubs==6.1.2
 djangorestframework-stubs==3.18.1
 mypy-boto3-ses==1.43.0
 mypy-boto3-sns==1.43.97
 mypy-boto3-sqs==1.43.0
-mypy==2.4.0
+mypy==2.4.1
 types-requests==2.33.0.20261006
