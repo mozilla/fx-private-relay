@@ -387,6 +387,8 @@ def _update_all_data(
 def _handle_fxa_delete(
     authentic_jwt: FxAEvent, social_account: SocialAccount, event_key: str
 ) -> None:
+    reason: str = authentic_jwt["events"][event_key].get("reason", "unknown")
+
     # Using for loops here because QuerySet.delete() does a bulk delete which does
     # not call the model delete() methods that create DeletedAddress records
     for relay_address in RelayAddress.objects.filter(user=social_account.user):
@@ -400,5 +402,8 @@ def _handle_fxa_delete(
         extra={
             "fxa_uid": authentic_jwt["sub"],
             "event_key": event_key,
+            # One of "user", "admin", "inactivity", "unverified"
+            # or "unknown" for older FxA deployments that omit the reason
+            "reason": reason,
         },
     )
