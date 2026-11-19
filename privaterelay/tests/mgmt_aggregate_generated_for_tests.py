@@ -155,7 +155,7 @@ def test_aggregate_generated_for_ranks_and_limits(tmp_path: Path) -> None:
 
 @pytest.mark.django_db
 def test_aggregate_generated_for_from_db() -> None:
-    user = baker.make(User)
+    # One user per mask, like real data, and to stay under the free mask limit.
     for generated_for, num_forwarded in [
         ("https://a.com", 1),
         ("https://a.com", 2),
@@ -169,11 +169,11 @@ def test_aggregate_generated_for_from_db() -> None:
     ]:
         baker.make(
             RelayAddress,
-            user=user,
+            user=baker.make(User),
             generated_for=generated_for,
             num_forwarded=num_forwarded,
         )
-    old = baker.make(RelayAddress, user=user, generated_for="b.com")
+    old = baker.make(RelayAddress, user=baker.make(User), generated_for="b.com")
     RelayAddress.objects.filter(id=old.id).update(
         created_at=timezone.now() - timedelta(days=91)
     )
