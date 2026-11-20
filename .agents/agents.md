@@ -15,6 +15,7 @@ Working on different parts of the codebase? Start here:
 - **Backend (Django/Python/API)** → See [agents.backend.md](agents.backend.md)
 - **Frontend (Next.js/React/TypeScript)** → See [agents.frontend.md](agents.frontend.md)
 - **Testing & QA** → See [agents.testing.md](agents.testing.md)
+- **Task skills** → See [skills/](skills/) (symlinked into `.claude/skills/`)
 
 ## Quick Commands
 

@@ -51,7 +51,7 @@ System-wide utilities in `privaterelay/management/commands/`:
   - Server storage problems
   - Missing profiles
   - Orphaned records
-- `aggregate_generated_for.py` - Aggregates mask usage statistics
+- `export_top_sites.py` - Exports the ranked top sites list for mask acceptance QA
 
 ### Phone Subscription Management
 
