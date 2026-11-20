@@ -227,9 +227,7 @@ class Command(BaseCommand):
 
         file_path: str = options.get("path") or ""
         if file_path == "":
-            raise CommandError(
-                "Aggregate generated_for failed: File path must be entered"
-            )
+            raise CommandError("Export top sites failed: File path must be entered")
 
         with open(file_path, newline="") as csvfile:
             datareader = DictReader(csvfile, delimiter=",", quotechar="|")

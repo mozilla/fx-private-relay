@@ -43,7 +43,7 @@ Check that the deployed code has the `--from-db` option:
 
 ```bash
 kubectl --context=relay-prod -n relay-prod exec deploy/relay-app -c relay-app -- \
-  python manage.py aggregate_generated_for --help 2>/dev/null | grep -- --from-db
+  python manage.py export_top_sites --help 2>/dev/null | grep -- --from-db
 ```
 
 If there is no match, the change has not reached production. Stop and tell the
@@ -57,7 +57,7 @@ from the CSV header on.
 
 ```bash
 kubectl --context=relay-prod -n relay-prod exec deploy/relay-app -c relay-app -- \
-  python manage.py aggregate_generated_for --from-db --days 90 --limit 500 \
+  python manage.py export_top_sites --from-db --days 90 --limit 500 \
   2>/dev/null | sed -n '/^domain,rank,/,$p' > top-500-websites-YYYY-MM.csv
 ```
 
