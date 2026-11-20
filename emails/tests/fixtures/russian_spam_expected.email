@@ -1,3 +1,14 @@
+Received: by 2002:a05:7412:a929:b0:e7:a5e5:903c with SMTP id b41csp989344rdf;
+        Thu, 21 Sep 2023 23:31:45 -0700 (PDT)
+Received: from smtp592.emlone.com (smtp592.emlone.com. [203.0.113.171])
+        by mx.google.com with ESMTPS id
+ f26-20020a19ae1a000000b004fcd57334fcsi1013143lfc.88.2023.09.21.23.31.44
+        for <ebsbdsan7@test.com>        (version=TLS1_2
+ cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);        Thu, 21 Sep 2023
+ 23:31:44 -0700 (PDT)
+Received: by stmp.spamgateway.example.com id abc123 for <ebsbdsan7@test.com>;
+ Fri, 22 Sep 2023 06:33:12 +0000 (envelope-from
+ <spammer@spamdomain.example.com>)
 MIME-Version: 1.0
 Content-Type: multipart/mixed; boundary="MXFqWmhZLWxxWm5TTC1OaQ=="
 Subject: =?utf-8?b?0J/RgNC40LPQu9Cw0YjQtdC90LjQtSAgfCDQl9Cw0YfQtdC8INC4INC6?=
