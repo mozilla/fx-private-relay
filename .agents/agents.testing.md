@@ -12,6 +12,8 @@ See [agents.md](agents.md) for project overview and global principles.
 
 ## Quick Reference
 
+Run tests with `scripts/test-env.sh`. It sets up Python, the environment and the locales, then runs pytest with your arguments.
+
 Run tests in order (fast → slow):
 
 ```bash
